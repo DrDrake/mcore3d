@@ -1,0 +1,127 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<CodeBlocks_project_file>
+	<FileVersion major="1" minor="6" />
+	<Project>
+		<Option title="Core" />
+		<Option pch_mode="2" />
+		<Option compiler="cygwin" />
+		<Build>
+			<Target title="Debug (Linux)">
+				<Option output="..\..\Bin\Cored" prefix_auto="1" extension_auto="1" />
+				<Option working_dir="..\..\Bin" />
+				<Option object_output="Debug\Gcc_Linux\Obj\" />
+				<Option type="3" />
+				<Option compiler="gcc" />
+				<Option createDefFile="1" />
+				<Compiler>
+					<Add option="-g" />
+				</Compiler>
+			</Target>
+			<Target title="Release (Linux)">
+				<Option output="..\..\Bin\Core" prefix_auto="1" extension_auto="1" />
+				<Option working_dir="..\..\Bin" />
+				<Option object_output="Release\Gcc_Linux\Obj\" />
+				<Option type="3" />
+				<Option compiler="gcc" />
+				<Option createDefFile="1" />
+				<Compiler>
+					<Add option="-fexpensive-optimizations" />
+					<Add option="-O3" />
+				</Compiler>
+			</Target>
+			<Target title="Debug (Cygwin)">
+				<Option output="..\..\Bin\libCored" prefix_auto="1" extension_auto="1" />
+				<Option object_output="Debug\Gcc_Cygwin\Obj" />
+				<Option type="3" />
+				<Option compiler="cygwin" />
+				<Option createDefFile="1" />
+				<Option createStaticLib="1" />
+				<Compiler>
+					<Add option="-g" />
+				</Compiler>
+				<Linker>
+					<Add library="opengl32" />
+				</Linker>
+			</Target>
+			<Target title="Release (Cygwin)">
+				<Option output="..\..\Bin\libCore" prefix_auto="1" extension_auto="1" />
+				<Option object_output="Release\Gcc_Cygwin\Obj" />
+				<Option type="3" />
+				<Option compiler="cygwin" />
+				<Option createDefFile="1" />
+				<Option createStaticLib="1" />
+				<Compiler>
+					<Add option="-fexpensive-optimizations" />
+					<Add option="-O3" />
+				</Compiler>
+				<Linker>
+					<Add library="opengl32" />
+				</Linker>
+			</Target>
+		</Build>
+		<Compiler>
+			<Add option="-DSGE_Core_EXPORTS" />
+			<Add directory="\usr\X11R6\include" />
+		</Compiler>
+		<Linker>
+			<Add library="GL" />
+			<Add library="GLU" />
+			<Add library="X11" />
+			<Add library="Xext" />
+			<Add directory="\usr\X11R6\lib" />
+		</Linker>
+		<Unit filename="Math\Magnitude.h" />
+		<Unit filename="System\Array.h" />
+		<Unit filename="System\Atomic.h" />
+		<Unit filename="System\CondVar.cpp" />
+		<Unit filename="System\CondVar.h" />
+		<Unit filename="System\ErrorCode.cpp" />
+		<Unit filename="System\ErrorCode.h" />
+		<Unit filename="System\Exception.cpp" />
+		<Unit filename="System\Exception.h" />
+		<Unit filename="System\FileSystem.h" />
+		<Unit filename="System\IntrusivePtr.h" />
+		<Unit filename="System\LinkList.cpp" />
+		<Unit filename="System\LinkList.h" />
+		<Unit filename="System\Macros.h" />
+		<Unit filename="System\Map.cpp" />
+		<Unit filename="System\Map.h" />
+		<Unit filename="System\Mutex.cpp" />
+		<Unit filename="System\Mutex.h" />
+		<Unit filename="System\NonCopyable.h" />
+		<Unit filename="System\Path.cpp" />
+		<Unit filename="System\Path.h" />
+		<Unit filename="System\Platform.h" />
+		<Unit filename="System\PlatformInclude.h" />
+		<Unit filename="System\PlatformIncludeFwd.h" />
+		<Unit filename="System\RawFileSystem.cpp" />
+		<Unit filename="System\RawFileSystem.h" />
+		<Unit filename="System\Resource.cpp" />
+		<Unit filename="System\Resource.h" />
+		<Unit filename="System\ResourceLoader.h" />
+		<Unit filename="System\ResourceManager.cpp" />
+		<Unit filename="System\ResourceManager.h" />
+		<Unit filename="System\StaticAssert.h" />
+		<Unit filename="System\StrUtility.cpp" />
+		<Unit filename="System\StrUtility.h" />
+		<Unit filename="System\TaskPool.cpp" />
+		<Unit filename="System\TaskPool.h" />
+		<Unit filename="System\Thread.cpp" />
+		<Unit filename="System\Thread.h" />
+		<Unit filename="System\ThreadPool.cpp" />
+		<Unit filename="System\ThreadPool.h" />
+		<Unit filename="System\Timer.cpp" />
+		<Unit filename="System\Timer.h" />
+		<Unit filename="System\TypeTrait.h" />
+		<Unit filename="System\Utility.cpp" />
+		<Unit filename="System\Utility.h" />
+		<Unit filename="System\Window.X11.inc" />
+		<Unit filename="System\Window.cpp" />
+		<Unit filename="System\Window.h" />
+		<Unit filename="System\WindowEvent.h" />
+		<Extensions>
+			<code_completion />
+			<debugger />
+		</Extensions>
+	</Project>
+</CodeBlocks_project_file>
