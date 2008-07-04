@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="big5"?>
+<VisualStudioPropertySheet
+	ProjectType="Visual C++"
+	Version="8.00"
+	Name="General"
+	>
+	<Tool
+		Name="VCCLCompilerTool"
+		PreprocessorDefinitions="WIN32;_WINDOWS;"
+		UsePrecompiledHeader="2"
+		PrecompiledHeaderThrough="Pch.h"
+		ProgramDataBaseFileName="$(OutDir)/$(TargetName).pdb"
+		WarningLevel="4"
+		WarnAsError="true"
+		DebugInformationFormat="3"
+		DisableSpecificWarnings="4251;4996"
+		EnablePREfast="false"
+	/>
+	<Tool
+		Name="VCLinkerTool"
+		AdditionalLibraryDirectories="../../Lib"
+		GenerateDebugInformation="true"
+		FixedBaseAddress="1"
+	/>
+</VisualStudioPropertySheet>
