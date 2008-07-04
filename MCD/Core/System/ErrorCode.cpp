@@ -4,11 +4,11 @@
 #include <errno.h>
 #include <string>
 
-namespace SGE {
+namespace MCD {
 
 int getLastError()
 {
-#ifdef SGE_VC
+#ifdef MCD_VC
 	return ::GetLastError();
 #else
 	return errno;
@@ -17,7 +17,7 @@ int getLastError()
 
 void setLastError(int errorCode)
 {
-#ifdef SGE_VC
+#ifdef MCD_VC
 	::SetLastError(errorCode);
 #else
 	errno = errorCode;
@@ -28,7 +28,7 @@ std::string getErrorMessage(sal_in_z_opt const char* prefix, int errorCode)
 {
 	std::string str(prefix == nullptr ? "" : prefix);
 
-#ifdef SGE_VC
+#ifdef MCD_VC
 	LPVOID lpMsgBuf = nullptr;
 	::FormatMessageA(
 		FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS,
@@ -53,4 +53,4 @@ std::string getErrorMessage(sal_in_z_opt const char* prefix, int errorCode)
 	return str;
 }
 
-}	// namespace SGE
+}	// namespace MCD

@@ -1,12 +1,12 @@
-#ifndef __SGE_CORE_SYSTEM_FILESYSTEM__
-#define __SGE_CORE_SYSTEM_FILESYSTEM__
+#ifndef __MCD_CORE_SYSTEM_FILESYSTEM__
+#define __MCD_CORE_SYSTEM_FILESYSTEM__
 
 #include "Path.h"
 #include <memory>	// For std::auto_ptr
 #include <ctime>	// For std::time_t
 #include <iosfwd>	// For declaration of istream and ostream
 
-namespace SGE {
+namespace MCD {
 
 /*!	An abstract file system.
 	This class is supposed to be override to make useful file system such as
@@ -22,7 +22,7 @@ namespace SGE {
 	Since a stream is not copyable, an auto pointer is returned from OpenRead and
 	OpenWrite. The callee of OpenRead/OpenWrite is then the owner of the stream.
  */
-class SGE_NOVTABLE IFileSystem
+class MCD_NOVTABLE IFileSystem
 {
 public:
 	virtual ~IFileSystem() {}
@@ -50,6 +50,6 @@ public:
 	virtual std::auto_ptr<std::ostream> openWrite(const Path& path) const = 0;
 };	// IFileSystem
 
-}	// namespace SGE
+}	// namespace MCD
 
-#endif	// __SGE_CORE_SYSTEM_FILESYSTEM__
+#endif	// __MCD_CORE_SYSTEM_FILESYSTEM__

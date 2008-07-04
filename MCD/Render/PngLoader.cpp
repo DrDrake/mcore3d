@@ -7,10 +7,10 @@
 #include "../../3Party/glew/glew.h"
 #include <stdexcept>
 
-#ifdef SGE_VC
+#ifdef MCD_VC
 #	pragma comment(lib, "png")
 #	pragma comment(lib, "zlib")
-#endif	// SGE_VC
+#endif	// MCD_VC
 
 // Reading of png files using the libpng
 // The code is base on the example provided in libpng
@@ -18,7 +18,7 @@
 // http://www.libpng.org/
 // http://www.libpng.org/pub/png/libpng-1.2.5-manual.html
 
-namespace SGE {
+namespace MCD {
 
 class PngLoader::LoaderImpl : public TextureLoaderBase::LoaderBaseImpl
 {
@@ -94,7 +94,7 @@ public:
 	static void info_callback(png_structp png_ptr, png_infop)
 	{
 		LoaderImpl* impl = reinterpret_cast<LoaderImpl*>(png_get_progressive_ptr(png_ptr));
-		SGE_ASSUME(impl != nullptr);
+		MCD_ASSUME(impl != nullptr);
 		impl->onPngInfoReady();
 	}
 
@@ -104,8 +104,8 @@ public:
 	static void row_callback(png_structp png_ptr, png_bytep new_row, png_uint_32 row_num, int pass)
 	{
 		LoaderImpl* impl = reinterpret_cast<LoaderImpl*>(png_get_progressive_ptr(png_ptr));
-		SGE_ASSUME(impl != nullptr);
-		SGE_ASSUME(impl->mImageData != nullptr);
+		MCD_ASSUME(impl != nullptr);
+		MCD_ASSUME(impl->mImageData != nullptr);
 
 		// Have libpng either combine the new row data with the existing row data
 		// from previous passes (if interlaced) or else just copy the new row
@@ -122,7 +122,7 @@ public:
 	static void end_callback(png_structp png_ptr, png_infop)
 	{
 		LoaderImpl* impl = reinterpret_cast<LoaderImpl*>(png_get_progressive_ptr(png_ptr));
-		SGE_ASSUME(impl != nullptr);
+		MCD_ASSUME(impl != nullptr);
 
 		PrivateAccessor::loadingState(impl->mLoader) = Loaded;
 	}
@@ -143,7 +143,7 @@ PngLoader::PngLoader()
 
 IResourceLoader::LoadingState PngLoader::load(std::istream* is)
 {
-	SGE_ASSUME(mImpl != nullptr);
+	MCD_ASSUME(mImpl != nullptr);
 
 	Mutex& mutex = mImpl->mMutex;
 	ScopeLock lock(mutex);
@@ -151,14 +151,14 @@ IResourceLoader::LoadingState PngLoader::load(std::istream* is)
 	if(mLoadingState & Stopped || !is)
 		return mLoadingState;
 
-#ifdef SGE_VC
+#ifdef MCD_VC
 #	pragma warning(push)
 #	pragma warning(disable: 4611)
 #endif
 	LoaderImpl* impl = static_cast<LoaderImpl*>(mImpl);
 	// Jump to here if any error occur in png_process_data
 	if(impl->mHasError || setjmp(png_jmpbuf(impl->png_ptr)))
-#ifdef SGE_VC
+#ifdef MCD_VC
 #	pragma warning(pop)
 #endif
 	{
@@ -182,7 +182,7 @@ IResourceLoader::LoadingState PngLoader::load(std::istream* is)
 
 void PngLoader::uploadData()
 {
-	SGE_ASSUME(mImpl != nullptr);
+	MCD_ASSUME(mImpl != nullptr);
 	LoaderImpl* impl = static_cast<LoaderImpl*>(mImpl);
 
 	if(mImpl->mImageData)
@@ -190,4 +190,4 @@ void PngLoader::uploadData()
 		0, impl->mFormat, GL_UNSIGNED_BYTE, impl->mImageData);
 }
 
-}	// namespace SGE
+}	// namespace MCD

@@ -4,7 +4,7 @@
 #include "ThreadPool.h"
 #include <memory>	// for std::auto_ptr
 
-namespace SGE {
+namespace MCD {
 
 class TaskPool::TaskQueue : public Map<TaskPool::Task>
 {
@@ -123,7 +123,7 @@ void TaskPool::enqueue(Task& task)
 
 void TaskPool::setThreadCount(size_t targetCount, bool wait)
 {
-	SGE_ASSUME(mThreadPool != nullptr);
+	MCD_ASSUME(mThreadPool != nullptr);
 
 	// This is a common patten to inform the thread to quit, do a 
 	// condtion variable broadcast and then wait for the threads to quit.
@@ -136,8 +136,8 @@ void TaskPool::setThreadCount(size_t targetCount, bool wait)
 
 size_t TaskPool::getThreadCount() const
 {
-	SGE_ASSUME(mThreadPool != nullptr);
+	MCD_ASSUME(mThreadPool != nullptr);
 	return mThreadPool->getThreadCount();
 }
 
-}	// namespace SGE
+}	// namespace MCD

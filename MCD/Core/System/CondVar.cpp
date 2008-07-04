@@ -4,9 +4,9 @@
 #include "Timer.h"
 #include "Utility.h"
 
-namespace SGE {
+namespace MCD {
 
-#ifdef SGE_WIN32
+#ifdef MCD_WIN32
 
 CondVar::CondVar()
 	: Mutex(), mWaitCount(0), mBroadcastCount(0)
@@ -23,20 +23,20 @@ CondVar::CondVar()
 
 CondVar::~CondVar()
 {
-	if(h[0]) { SGE_VERIFY(::CloseHandle(h[0]) != 0); h[0] = nullptr; }
-	if(h[1]) { SGE_VERIFY(::CloseHandle(h[1]) != 0); h[1] = nullptr; }
+	if(h[0]) { MCD_VERIFY(::CloseHandle(h[0]) != 0); h[0] = nullptr; }
+	if(h[1]) { MCD_VERIFY(::CloseHandle(h[1]) != 0); h[1] = nullptr; }
 }
 
 void CondVar::signalNoLock()
 {
-	SGE_ASSERT(_locked);
+	MCD_ASSERT(_locked);
 	if(::SetEvent(h[0]) == 0)
 		throwSystemErrorMessage("CondVar failed to signal.");
 }
 
 void CondVar::broadcastNoLock()
 {
-	SGE_ASSERT(_locked);
+	MCD_ASSERT(_locked);
 	if(::SetEvent(h[1]) == 0)
 		throwSystemErrorMessage("CondVar failed to broadcast.");
 	mBroadcastCount = mWaitCount;
@@ -56,7 +56,7 @@ bool CondVar::waitNoLock(const TimeInterval& timeOut)
 #pragma warning(disable: 4702)
 bool CondVar::_waitNoLock(uint32_t milliseconds)
 {
-	SGE_ASSERT(_locked);
+	MCD_ASSERT(_locked);
 	++mWaitCount;
 
 wait:
@@ -82,7 +82,7 @@ wait:
 		throwSystemErrorMessage("CondVar abandon wait.");
 		return false;
 	default:
-		SGE_ASSUME(false);
+		MCD_ASSUME(false);
 		return false;
 	}
 }
@@ -98,13 +98,13 @@ CondVar::CondVar() : Mutex()
 
 CondVar::~CondVar()
 {
-	SGE_VERIFY(::pthread_cond_destroy(&c) == 0);
+	MCD_VERIFY(::pthread_cond_destroy(&c) == 0);
 }
 
 void CondVar::signalNoLock()
 {
 #ifndef NDEBUG
-	SGE_ASSERT(_locked);
+	MCD_ASSERT(_locked);
 #endif
 	::pthread_cond_signal(&c);
 }
@@ -112,7 +112,7 @@ void CondVar::signalNoLock()
 void CondVar::broadcastNoLock()
 {
 #ifndef NDEBUG
-	SGE_ASSERT(_locked);
+	MCD_ASSERT(_locked);
 #endif
 	::pthread_cond_broadcast(&c);
 }
@@ -120,12 +120,12 @@ void CondVar::broadcastNoLock()
 void CondVar::waitNoLock()
 {
 #ifndef NDEBUG
-	SGE_ASSERT(_locked);
+	MCD_ASSERT(_locked);
 	_locked = false;
 #endif
 	::pthread_cond_wait(&c, &mMutex);
 #ifndef NDEBUG
-	SGE_ASSERT(!_locked);
+	MCD_ASSERT(!_locked);
 	_locked = true;
 #endif
 }
@@ -138,7 +138,7 @@ bool CondVar::waitNoLock(const TimeInterval& timeOut)
 bool CondVar::_waitNoLock(useconds_t microseconds)
 {
 #ifndef NDEBUG
-	SGE_ASSERT(_locked);
+	MCD_ASSERT(_locked);
 	_locked = false;
 #endif
 	int ret;
@@ -151,7 +151,7 @@ bool CondVar::_waitNoLock(useconds_t microseconds)
 	ret = ::pthread_cond_timedwait(&c, &mMutex, &t);
 #ifndef NDEBUG
 	// TODO: Consider error handling on ret != 0
-	SGE_ASSERT(!_locked);
+	MCD_ASSERT(!_locked);
 	_locked = true;
 #endif
 	switch(ret) {
@@ -161,11 +161,11 @@ bool CondVar::_waitNoLock(useconds_t microseconds)
 		throw std::invalid_argument("Invalid param given to ::pthread_cond_timedwait");
 		return false;
 	default:
-		SGE_ASSUME(false);
+		MCD_ASSUME(false);
 		return false;
 	}
 }
 
-#endif	// SGE_WIN32
+#endif	// MCD_WIN32
 
-}	// namespace SGE
+}	// namespace MCD

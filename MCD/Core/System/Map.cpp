@@ -2,7 +2,7 @@
 #include "Map.h"
 #include <memory>	// For std::swap (VC only needs <utilty> but gcc need <memory>)
 
-namespace SGE {
+namespace MCD {
 
 namespace Impl {
 
@@ -39,7 +39,7 @@ bool AvlTree::Node::isBallanceOk() const
 
 AvlTree::Node::Direction AvlTree::Node::parentIdx() const
 {
-	SGE_ASSERT((this == mParent->mChildren[Left]) || (this == mParent->mChildren[Right]));
+	MCD_ASSERT((this == mParent->mChildren[Left]) || (this == mParent->mChildren[Right]));
 	return this == mParent->mChildren[Left] ? Left : Right;
 }
 
@@ -50,16 +50,16 @@ void AvlTree::Node::setChildSafe(Direction dir, Node* child)
 }
 
 #ifndef NDEBUG
-SGE_INLINE2 size_t max(size_t lhs, size_t rhs)
+MCD_INLINE2 size_t max(size_t lhs, size_t rhs)
 {
 	return lhs > rhs ? lhs : rhs;
 }
 
 size_t AvlTree::Node::assertValid(size_t& total, const Node* parent, size_t nL, size_t nR) const
 {
-	SGE_ASSERT(mParent == parent);
-	SGE_ASSERT(isBallanceOk());
-	SGE_ASSERT(nL + mBallance == nR);
+	MCD_ASSERT(mParent == parent);
+	MCD_ASSERT(isBallanceOk());
+	MCD_ASSERT(nL + mBallance == nR);
 
 	++total;
 	return max(nL, nR) + 1;
@@ -79,7 +79,7 @@ AvlTree::~AvlTree() throw()
 
 bool AvlTree::isEmpty() const
 {
-	SGE_ASSERT(!mRoot == (mCount == 0));
+	MCD_ASSERT(!mRoot == (mCount == 0));
 	return !mRoot;
 }
 
@@ -92,13 +92,13 @@ void AvlTree::insert(Node& node, Node* parent, int nIdx)
 	node.mBallance = 0;
 
 	if(parent) {
-		SGE_ASSERT(!parent->mChildren[nIdx]);
+		MCD_ASSERT(!parent->mChildren[nIdx]);
 		parent->mChildren[nIdx] = &node;
 
 		adjustBallance(*parent, nIdx ? 1 : -1, false);
 
 	} else {
-		SGE_ASSERT(!mRoot);
+		MCD_ASSERT(!mRoot);
 		mRoot = &node;
 	}
 
@@ -107,7 +107,7 @@ void AvlTree::insert(Node& node, Node* parent, int nIdx)
 
 void AvlTree::remove(Node& node, Node* onlyChild)
 {
-	SGE_ASSERT(!node.mChildren[Left] || !node.mChildren[Right]);
+	MCD_ASSERT(!node.mChildren[Left] || !node.mChildren[Right]);
 
 	if(onlyChild)
 		onlyChild->mParent = node.mParent;
@@ -163,28 +163,28 @@ void AvlTree::replaceFixTop(Node& node, Node& next)
 	if((next.mParent = node.mParent) != nullptr)
 		node.mParent->mChildren[node.parentIdx()] = &next;
 	else {
-		SGE_ASSERT(&node == mRoot);
+		MCD_ASSERT(&node == mRoot);
 		mRoot = &next;
 	}
 }
 
 bool AvlTree::rotate(Node& node, int dir)
 {
-	SGE_ASSERT((-1 == dir) || (1 == dir));
+	MCD_ASSERT((-1 == dir) || (1 == dir));
 	int nIdx = (Right == dir);
 
-	SGE_ASSERT(node.mBallance);
-	SGE_ASSERT(node.mBallance * dir < 0);
+	MCD_ASSERT(node.mBallance);
+	MCD_ASSERT(node.mBallance * dir < 0);
 
 	Node* pNext = node.mChildren[!nIdx];
-	SGE_ASSUME(pNext != nullptr);
-	SGE_ASSERT(pNext->isBallanceOk());
+	MCD_ASSUME(pNext != nullptr);
+	MCD_ASSERT(pNext->isBallanceOk());
 
 	if(dir == pNext->mBallance) {
-		SGE_VERIFY(!rotate(*pNext, -dir));
+		MCD_VERIFY(!rotate(*pNext, -dir));
 		pNext = pNext = node.mChildren[!nIdx];
-		SGE_ASSERT(pNext && pNext->isBallanceOk());
-		SGE_ASSERT(dir != pNext->mBallance);
+		MCD_ASSERT(pNext && pNext->isBallanceOk());
+		MCD_ASSERT(dir != pNext->mBallance);
 	}
 
 	bool bDepthDecrease = pNext->mBallance && !node.isBallanceOk();
@@ -210,11 +210,11 @@ bool AvlTree::rotate(Node& node, int dir)
 
 void AvlTree::adjustBallance(Node& node_, int dir, bool removed)
 {
-	SGE_ASSUME((1 == dir) || (-1 == dir));
+	MCD_ASSUME((1 == dir) || (-1 == dir));
 	Node* node = &node_;
 
 	while(true) {
-		SGE_ASSERT(node->isBallanceOk());
+		MCD_ASSERT(node->isBallanceOk());
 
 		Node* parent = node->mParent;
 		node->mBallance += dir;
@@ -239,7 +239,7 @@ void AvlTree::adjustBallance(Node& node_, int dir, bool removed)
 			match = rotate(*node, -1);
 			break;
 		default:
-			SGE_ASSERT(false);
+			MCD_ASSERT(false);
 			NoReturn();
 		}
 
@@ -307,4 +307,4 @@ AvlTree::Node* AvlTree::getExtreme(Node& pos_)
 
 }	// namespace Impl
 
-}	// namespace SGE
+}	// namespace MCD

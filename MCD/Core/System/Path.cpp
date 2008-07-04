@@ -5,7 +5,7 @@
 #include "StrUtility.h"
 #include <stdexcept>
 
-namespace SGE {
+namespace MCD {
 
 namespace {
 
@@ -157,7 +157,7 @@ Path& Path::operator/=(const Path& rhs)
 
 Path Path::getCurrentPath()
 {
-#ifdef SGE_VC
+#ifdef MCD_VC
 	// We use GetCurrentDirectoryW since it directly support unicode
 
 	DWORD sz;
@@ -167,12 +167,12 @@ Path Path::getCurrentPath()
 	if((sz = ::GetCurrentDirectoryW(0, dummy)) == 0)
 		return Path();
 
-	char_type* buf = (char_type*)SGE_STACKALLOCA(sz * sizeof(char_type));
+	char_type* buf = (char_type*)MCD_STACKALLOCA(sz * sizeof(char_type));
 	if(::GetCurrentDirectoryW(sz, buf) == 0)
 		return Path();
 
 	Path tmp(buf);
-	SGE_STACKFREE(buf);
+	MCD_STACKFREE(buf);
 	return tmp.normalize();
 #else
 	// For other system we assume it have a UTF-8 locale so WStr2Str will work as expected
@@ -192,19 +192,19 @@ Path Path::getCurrentPath()
 
 void Path::setCurrentPath(const Path& path)
 {
-#ifdef SGE_VC
+#ifdef MCD_VC
 	if(::SetCurrentDirectoryW(path.getString().c_str()) == false) {
 		std::string narrowStr;
-		SGE_VERIFY(wStr2Str(path.getString().c_str(), narrowStr));
+		MCD_VERIFY(wStr2Str(path.getString().c_str(), narrowStr));
 #else
 	std::string narrowStr;
-	SGE_VERIFY(wStr2Str(path.getString().c_str(), narrowStr));
+	MCD_VERIFY(wStr2Str(path.getString().c_str(), narrowStr));
 	if(chdir(narrowStr.c_str()) != 0) {
 #endif
 		throw std::runtime_error(
-			SGE::getErrorMessage(("Unable to set current path to '" + narrowStr + "': ").c_str(), SGE::getLastError())
+			MCD::getErrorMessage(("Unable to set current path to '" + narrowStr + "': ").c_str(), MCD::getLastError())
 		);
 	}
 }
 
-}	// namespace SGE
+}	// namespace MCD

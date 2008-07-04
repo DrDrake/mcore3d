@@ -1,9 +1,9 @@
 #include "Pch.h"
-#include "../../../SGE/Core/System/Resource.h"
-#include "../../../SGE/Core/System/ResourceLoader.h"
+#include "../../../MCD/Core/System/Resource.h"
+#include "../../../MCD/Core/System/ResourceLoader.h"
 #include <vector>
 
-using namespace SGE;
+using namespace MCD;
 
 namespace {
 
@@ -60,8 +60,8 @@ TEST(Basic_ResourceLoaderTest)
 	CHECK_EQUAL(1u, resource.data.size());
 }
 
-#include "../../../SGE/Core/System/Thread.h"
-#include "../../../SGE/Core/System/CondVar.h"
+#include "../../../MCD/Core/System/Thread.h"
+#include "../../../MCD/Core/System/CondVar.h"
 
 namespace {
 

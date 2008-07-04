@@ -1,11 +1,11 @@
 #include "Pch.h"
-#include "../../../SGE/Core/System/Thread.h"
+#include "../../../MCD/Core/System/Thread.h"
 
-using namespace SGE;
+using namespace MCD;
 
 namespace {
 
-class MyRunnable : public SGE::Thread::IRunnable
+class MyRunnable : public MCD::Thread::IRunnable
 {
 public:
 	MyRunnable() : valid(false) {}
@@ -21,7 +21,7 @@ public:
 };	// MyRunnable
 
 //! Keep active until the thread inform it to quit
-class LoopRunnable : public SGE::Thread::IRunnable
+class LoopRunnable : public MCD::Thread::IRunnable
 {
 public:
 	LoopRunnable() : LoopCount(0) {}
@@ -110,7 +110,7 @@ TEST(Basic_ThreadTest)
 
 	// Get/Set priority only work correctly on win32
 	// Totally not working for CYGWIN, only works for super user on Linux
-#ifdef SGE_WIN32
+#ifdef MCD_WIN32
 	{	// Test for get/set priority
 		LoopRunnable runnable;
 		Thread thread(runnable, false);
@@ -126,15 +126,15 @@ TEST(Basic_ThreadTest)
 		thread.setPriority(Thread::NormalPriority);
 		CHECK_EQUAL(Thread::NormalPriority, thread.getPriority());
 	}
-#endif	// SGE_WIN32
+#endif	// MCD_WIN32
 }
 
-#include "../../../SGE/Core/System/CondVar.h"
+#include "../../../MCD/Core/System/CondVar.h"
 
 namespace {
 
 // The thread function will try to destroy the thread itself
-class DeleteThreadRunnable : public SGE::Thread::IRunnable
+class DeleteThreadRunnable : public MCD::Thread::IRunnable
 {
 public:
 	DeleteThreadRunnable() : mFinished(false) {}
@@ -173,7 +173,7 @@ TEST(DeleteThread_ThreadTest)
 namespace {
 
 // Wait for the thread function itself inside the thread function
-class WaitFailRunnable : public SGE::Thread::IRunnable
+class WaitFailRunnable : public MCD::Thread::IRunnable
 {
 public:
 	WaitFailRunnable() : mIsValid(false) {}
@@ -235,7 +235,7 @@ TEST(Negative_ThreadTest)
 TEST(TryLock_ThreadTest)
 {
 	// On windows, Mutex is recursive
-#ifndef SGE_VC
+#ifndef MCD_VC
 	{	Mutex mutex;
 		ScopeLock lock(mutex);
 		CHECK(!mutex.tryLock());

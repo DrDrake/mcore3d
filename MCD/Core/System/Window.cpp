@@ -4,18 +4,18 @@
 #include "StrUtility.h"
 #include "WindowEvent.h"
 
-#ifdef SGE_VC
+#ifdef MCD_VC
 #	pragma warning(push)
 #	pragma warning(disable: 6011)
 #endif
 #include <map>		// For name/value pair map
 #include <queue>	// For event queue
 #include <set>		// For storing unique IWindowListener
-#ifdef SGE_VC
+#ifdef MCD_VC
 #	pragma warning(pop)
 #endif
 
-namespace SGE {
+namespace MCD {
 
 static int toInt(const wchar_t* value, int defaultVal)
 {
@@ -98,15 +98,15 @@ public:
 	std::queue<Event> mEventQueue;
 };	// ImplBase
 
-}	// namespace SGE
+}	// namespace MCD
 
-#if defined(SGE_VC)
+#if defined(MCD_VC)
 #	include "Window.Win.inc"
 #else
 #	include "Window.X11.inc"
 #endif
 
-namespace SGE {
+namespace MCD {
 
 Window::Window()
 {
@@ -121,13 +121,13 @@ Window::~Window()
 
 Window::Handle Window::handle()
 {
-	SGE_ASSUME(mImpl != nullptr);
+	MCD_ASSUME(mImpl != nullptr);
 	return mImpl->mWnd;
 }
 
 void Window::create(const wchar_t* options) throw(std::runtime_error)
 {
-	SGE_ASSUME(mImpl != nullptr);
+	MCD_ASSUME(mImpl != nullptr);
 	if(options)
 		mImpl->setOptions(options, true);
 	mImpl->createNewWindow();
@@ -135,32 +135,32 @@ void Window::create(const wchar_t* options) throw(std::runtime_error)
 
 void Window::setOptions(const wchar_t* options)
 {
-	SGE_ASSUME(mImpl != nullptr);
+	MCD_ASSUME(mImpl != nullptr);
 	mImpl->setOptions(options, false);
 }
 
 void Window::destroy()
 {
-	SGE_ASSUME(mImpl != nullptr);
+	MCD_ASSUME(mImpl != nullptr);
 	mImpl->destroy();
 }
 
 void Window::processEvent(bool blocking)
 {
-	SGE_ASSUME(mImpl != nullptr);
+	MCD_ASSUME(mImpl != nullptr);
 	mImpl->processEvent(blocking);
 }
 
 bool Window::getEvent(Event& event, bool blocking)
 {
-	SGE_ASSUME(mImpl != nullptr);
+	MCD_ASSUME(mImpl != nullptr);
 	return mImpl->getEvent(event, blocking);
 }
 
 void Window::onEvent(const Event& eventReceived)
 {
-	SGE_ASSUME(mImpl != nullptr);
+	MCD_ASSUME(mImpl != nullptr);
 	mImpl->onEvent(eventReceived);
 }
 
-}	// namespace SGE
+}	// namespace MCD

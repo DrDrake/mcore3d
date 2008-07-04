@@ -1,9 +1,9 @@
-#ifndef __SGE_CORE_SYSTEM_TYPETRAIT__
-#define __SGE_CORE_SYSTEM_TYPETRAIT__
+#ifndef __MCD_CORE_SYSTEM_TYPETRAIT__
+#define __MCD_CORE_SYSTEM_TYPETRAIT__
 
 #include "Platform.h"
 
-namespace SGE {
+namespace MCD {
 
 template<typename T> struct ParamType {
 	typedef T& RET;
@@ -45,6 +45,6 @@ template<> struct ParamType<const double> {
 	typedef const double RET;
 };
 
-}	// namespace SGE
+}	// namespace MCD
 
-#endif	// __SGE_CORE_SYSTEM_TYPETRAIT__
+#endif	// __MCD_CORE_SYSTEM_TYPETRAIT__

@@ -1,8 +1,8 @@
 #include "Pch.h"
-#include "../../../SGE/Core/System/RawFileSystem.h"
+#include "../../../MCD/Core/System/RawFileSystem.h"
 #include <stdexcept>
 
-using namespace SGE;
+using namespace MCD;
 
 TEST(RawFileSystemTest)
 {

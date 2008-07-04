@@ -1,9 +1,9 @@
-#ifndef __SGE_CORE_SYSTEM_THREADPOOL__
-#define __SGE_CORE_SYSTEM_THREADPOOL__
+#ifndef __MCD_CORE_SYSTEM_THREADPOOL__
+#define __MCD_CORE_SYSTEM_THREADPOOL__
 
 #include "Thread.h"
 
-namespace SGE {
+namespace MCD {
 
 /*!	A collection of threads that work for the same instance of Thread::IRunnable.
 	\code
@@ -25,7 +25,7 @@ namespace SGE {
 	// ThreadPool will wait until all thread finished before it's destruction
 	\endcode
  */
-class SGE_CORE_API ThreadPool : Noncopyable
+class MCD_CORE_API ThreadPool : Noncopyable
 {
 public:
 	/*!	The IRunnable interface.
@@ -62,6 +62,6 @@ protected:
 	bool mDeleteRunnableOnDestroy;
 };	// ThreadPool
 
-}	// namespace SGE
+}	// namespace MCD
 
-#endif	// __SGE_CORE_SYSTEM_THREADPOOL__
+#endif	// __MCD_CORE_SYSTEM_THREADPOOL__

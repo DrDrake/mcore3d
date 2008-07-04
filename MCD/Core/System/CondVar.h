@@ -1,9 +1,9 @@
-#ifndef __SGE_CORE_SYSTEM_CONDVAR__
-#define __SGE_CORE_SYSTEM_CONDVAR__
+#ifndef __MCD_CORE_SYSTEM_CONDVAR__
+#define __MCD_CORE_SYSTEM_CONDVAR__
 
 #include "Mutex.h"
 
-namespace SGE {
+namespace MCD {
 
 class TimeInterval;
 
@@ -19,7 +19,7 @@ class TimeInterval;
 
 	A CondVar instance is intrinsically bound to a Mutex.
  */
-class SGE_CORE_API CondVar : public Mutex
+class MCD_CORE_API CondVar : public Mutex
 {
 public:
 	CondVar();
@@ -72,7 +72,7 @@ public:
 	void broadcastNoLock();
 
 private:
-#ifdef SGE_WIN32
+#ifdef MCD_WIN32
 	bool _waitNoLock(uint32_t milliseconds);
 	void* h[2];	// h[0]:signal, h[1]:broadcast
 	int mWaitCount;
@@ -83,6 +83,6 @@ private:
 #endif
 };	// CondVar
 
-}	// namespace SGE
+}	// namespace MCD
 
-#endif	// __SGE_CORE_SYSTEM_CONDVAR__
+#endif	// __MCD_CORE_SYSTEM_CONDVAR__

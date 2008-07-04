@@ -1,9 +1,9 @@
 #include "Pch.h"
-#include "../../../SGE/Core/System/CondVar.h"
-#include "../../../SGE/Core/System/Thread.h"
-#include "../../../SGE/Core/System/Timer.h"
+#include "../../../MCD/Core/System/CondVar.h"
+#include "../../../MCD/Core/System/Thread.h"
+#include "../../../MCD/Core/System/Timer.h"
 
-using namespace SGE;
+using namespace MCD;
 
 TEST(Basic_CondVarTest)
 {
@@ -111,7 +111,7 @@ public:
 				gTestMutex.lock();
 			}
 
-			SGE_ASSERT(!gTestQueue.empty());
+			MCD_ASSERT(!gTestQueue.empty());
 			gTestQueue.pop_front();
 			++mCount;
 

@@ -1,9 +1,9 @@
-#ifndef __SGE_CORE_SYSTEM_WINDOWEVENT__
-#define __SGE_CORE_SYSTEM_WINDOWEVENT__
+#ifndef __MCD_CORE_SYSTEM_WINDOWEVENT__
+#define __MCD_CORE_SYSTEM_WINDOWEVENT__
 
 #include "../ShareLib.h"
 
-namespace SGE {
+namespace MCD {
 
 struct Key
 {
@@ -194,6 +194,6 @@ public:
 	};
 };	// Event
 
-}	// namespace SGE
+}	// namespace MCD
 
-#endif // __SGE_CORE_SYSTEM_WINDOWEVENT__
+#endif // __MCD_CORE_SYSTEM_WINDOWEVENT__

@@ -9,7 +9,7 @@
 
 // http://www.mindcontrol.org/~hplus/graphics/dds-info/
 
-namespace SGE {
+namespace MCD {
 
 // Little-endian, of course
 #define DDS_MAGIC 0x20534444
@@ -220,8 +220,8 @@ public:
 		mHeight = hdr.dwHeight;
 
 		// Assert that the size is power of 2
-		SGE_ASSUME(!(mWidth & (mWidth - 1)));
-		SGE_ASSUME(!(mHeight & (mHeight - 1)));
+		MCD_ASSUME(!(mWidth & (mWidth - 1)));
+		MCD_ASSUME(!(mHeight & (mHeight - 1)));
 
 		mMipMapCount = (hdr.dwFlags & DDSD_MIPMAPCOUNT) ? hdr.dwMipMapCount : 1;
 
@@ -265,7 +265,7 @@ public:
 			if(size_t(is.gcount()) != size)
 				return -1;
 		} else
-			SGE_ASSERT(false && "Not implemented");
+			MCD_ASSERT(false && "Not implemented");
 
 		return 0;
 	}
@@ -273,7 +273,7 @@ public:
 	void upload()
 	{
 		DdsLoader& loader = static_cast<DdsLoader&>(mLoader);
-		SGE_ASSERT(loader.mLoadingState == Loaded);
+		MCD_ASSERT(loader.mLoadingState == Loaded);
 		(void)loader;
 
 		glewInit();
@@ -299,7 +299,7 @@ public:
 				y = (y + 1) >> 1;
 			}
 		} else
-			SGE_ASSERT(false && "Not implemented");
+			MCD_ASSERT(false && "Not implemented");
 	}
 
 	size_t mMipMapCount;
@@ -314,7 +314,7 @@ DdsLoader::DdsLoader()
 
 IResourceLoader::LoadingState DdsLoader::load(std::istream* is)
 {
-	SGE_ASSUME(mImpl != nullptr);
+	MCD_ASSUME(mImpl != nullptr);
 
 	if(mLoadingState & Stopped || !is)
 		return mLoadingState;
@@ -334,9 +334,9 @@ IResourceLoader::LoadingState DdsLoader::load(std::istream* is)
 
 void DdsLoader::uploadData()
 {
-	SGE_ASSUME(mImpl != nullptr);
+	MCD_ASSUME(mImpl != nullptr);
 	LoaderImpl* impl = static_cast<LoaderImpl*>(mImpl);
 	impl->upload();
 }
 
-}	// namespace SGE
+}	// namespace MCD

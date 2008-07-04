@@ -1,5 +1,5 @@
-#ifndef __SGE_CORE_SYSTEM_INCLUDEALL__
-#define __SGE_CORE_SYSTEM_INCLUDEALL__
+#ifndef __MCD_CORE_SYSTEM_INCLUDEALL__
+#define __MCD_CORE_SYSTEM_INCLUDEALL__
 
 #include "AppWindow.h"
 #include "Array.h"
@@ -23,4 +23,4 @@
 #include "Utility.h"
 #include "WeakPtr.h"
 
-#endif	//__SGE_CORE_SYSTEM_INCLUDEALL__
+#endif	//__MCD_CORE_SYSTEM_INCLUDEALL__

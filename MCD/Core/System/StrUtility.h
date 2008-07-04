@@ -1,33 +1,33 @@
-#ifndef __SGE_CORE_SYSTEM_WSTR2STR__
-#define __SGE_CORE_SYSTEM_WSTR2STR__
+#ifndef __MCD_CORE_SYSTEM_WSTR2STR__
+#define __MCD_CORE_SYSTEM_WSTR2STR__
 
 #include "../ShareLib.h"
 #include "NonCopyable.h"
 #include <string>
 
-namespace SGE {
+namespace MCD {
 
 //! Convert narrow string into wide string using the current locale, return true on success.
-SGE_CORE_API sal_checkreturn bool str2WStr(sal_in_z sal_notnull const char* narrowStr, std::wstring& wideStr);
+MCD_CORE_API sal_checkreturn bool str2WStr(sal_in_z sal_notnull const char* narrowStr, std::wstring& wideStr);
 
 //! Convert wide string into narrow string using the current locale, return true on success.
-SGE_CORE_API sal_checkreturn bool wStr2Str(sal_in_z sal_notnull const wchar_t* wideStr, std::string& narrowStr);
+MCD_CORE_API sal_checkreturn bool wStr2Str(sal_in_z sal_notnull const wchar_t* wideStr, std::string& narrowStr);
 
-SGE_CORE_API std::wstring str2WStr(const std::string& narrowStr);
+MCD_CORE_API std::wstring str2WStr(const std::string& narrowStr);
 
-SGE_CORE_API std::string wStr2Str(const std::wstring& wideStr);
+MCD_CORE_API std::string wStr2Str(const std::wstring& wideStr);
 
 //! Integer number to narrow string
-SGE_CORE_API std::string int2Str(int number);
+MCD_CORE_API std::string int2Str(int number);
 
 //! Integer number to wide string
-SGE_CORE_API std::wstring int2WStr(int number);
+MCD_CORE_API std::wstring int2WStr(int number);
 
 //! Wide string to integer
-SGE_CORE_API sal_checkreturn bool wStr2Int(sal_in_z sal_notnull const wchar_t* wideStr, int& number);
+MCD_CORE_API sal_checkreturn bool wStr2Int(sal_in_z sal_notnull const wchar_t* wideStr, int& number);
 
 //! Wide string to double
-SGE_CORE_API sal_checkreturn bool wStr2Double(sal_in_z sal_notnull const wchar_t* wideStr, double& number);
+MCD_CORE_API sal_checkreturn bool wStr2Double(sal_in_z sal_notnull const wchar_t* wideStr, double& number);
 
 /*!	A simple name value pair parser.
 	User supply a string that contains the name value pairs where name and value is
@@ -45,7 +45,7 @@ SGE_CORE_API sal_checkreturn bool wStr2Double(sal_in_z sal_notnull const wchar_t
 	parser.next(name, value);	// return false
 	\endcode
  */
-class SGE_CORE_API NvpParser : Noncopyable
+class MCD_CORE_API NvpParser : Noncopyable
 {
 public:
 	NvpParser(sal_in_z sal_maybenull const wchar_t* str = nullptr);
@@ -66,14 +66,14 @@ protected:
 	wchar_t* mPos;
 };	// NvpParser
 
-}	// namespace SGE
+}	// namespace MCD
 
 // Some wchar_t version of string functions are missing in cygwin
-#ifdef SGE_CYGWIN
+#ifdef MCD_CYGWIN
 
-SGE_CORE_API wchar_t* wcsdup(const wchar_t* str);
-SGE_CORE_API int wcscmp(const wchar_t* src, const wchar_t* dst);
+MCD_CORE_API wchar_t* wcsdup(const wchar_t* str);
+MCD_CORE_API int wcscmp(const wchar_t* src, const wchar_t* dst);
 
 #endif
 
-#endif	// __SGE_CORE_SYSTEM_WSTR2STR__
+#endif	// __MCD_CORE_SYSTEM_WSTR2STR__

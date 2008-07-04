@@ -6,16 +6,16 @@
 #include "../../3Party/glew/glew.h"
 #include "../../3Party/SmallJpeg/jpegdecoder.h"
 
-#ifdef SGE_VC
+#ifdef MCD_VC
 #	pragma comment(lib, "SmallJpeg")
-#endif	// SGE_VC
+#endif	// MCD_VC
 
 // Reading of jpeg files using the small jpeg decoder.
 // It's able to load jpeg in progressive format, but not able
 // to display it progressively.
 // http://www.users.voicenet.com/~richgel/
 
-namespace SGE {
+namespace MCD {
 
 class Stream : public jpeg_decoder_stream
 {
@@ -119,7 +119,7 @@ JpegLoader::JpegLoader()
 
 IResourceLoader::LoadingState JpegLoader::load(std::istream* is)
 {
-	SGE_ASSUME(mImpl != nullptr);
+	MCD_ASSUME(mImpl != nullptr);
 
 	Mutex& mutex = mImpl->mMutex;
 	ScopeLock lock(mutex);
@@ -150,7 +150,7 @@ IResourceLoader::LoadingState JpegLoader::load(std::istream* is)
 
 void JpegLoader::uploadData()
 {
-	SGE_ASSUME(mImpl != nullptr);
+	MCD_ASSUME(mImpl != nullptr);
 	LoaderImpl* impl = static_cast<LoaderImpl*>(mImpl);
 
 	if(mImpl->mImageData)
@@ -158,4 +158,4 @@ void JpegLoader::uploadData()
 		0, impl->mExternalFormat, GL_UNSIGNED_BYTE, impl->mImageData);
 }
 
-}	// namespace SGE
+}	// namespace MCD

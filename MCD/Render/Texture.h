@@ -1,12 +1,12 @@
-#ifndef __SGE_RENDER_TEXTURE__
-#define __SGE_RENDER_TEXTURE__
+#ifndef __MCD_RENDER_TEXTURE__
+#define __MCD_RENDER_TEXTURE__
 
 #include "ShareLib.h"
 #include "../Core/System/Resource.h"
 
-namespace SGE {
+namespace MCD {
 
-class SGE_RENDER_API Texture : public Resource
+class MCD_RENDER_API Texture : public Resource
 {
 public:
 	explicit Texture(const Path& fileId);
@@ -52,6 +52,6 @@ protected:
 	int mFormat;
 };	// Texture
 
-}	// namespace SGE
+}	// namespace MCD
 
-#endif	// __SGE_RENDER_TEXTURE__
+#endif	// __MCD_RENDER_TEXTURE__

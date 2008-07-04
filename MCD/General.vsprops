@@ -6,7 +6,7 @@
 	>
 	<Tool
 		Name="VCCLCompilerTool"
-		PreprocessorDefinitions="WIN32;_WINDOWS;SGE_$(ProjectName)_EXPORTS;"
+		PreprocessorDefinitions="WIN32;_WINDOWS;MCD_$(ProjectName)_EXPORTS;"
 		UsePrecompiledHeader="2"
 		PrecompiledHeaderThrough="Pch.h"
 		ProgramDataBaseFileName="$(OutDir)/$(TargetName).pdb"

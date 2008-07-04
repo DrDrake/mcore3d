@@ -1,9 +1,9 @@
 #include "Pch.h"
-#include "../../SGE/Core/System/Platform.h"
+#include "../../MCD/Core/System/Platform.h"
 
 int main(int, char const*[])
 {
-#ifdef SGE_VC
+#ifdef MCD_VC
 	// Tell the c-run time to do memory check at program shut down
 	_CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
 #endif

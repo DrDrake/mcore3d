@@ -1,10 +1,10 @@
-#ifndef __SGE_CORE_SYSTEM_LINKLIST__
-#define __SGE_CORE_SYSTEM_LINKLIST__
+#ifndef __MCD_CORE_SYSTEM_LINKLIST__
+#define __MCD_CORE_SYSTEM_LINKLIST__
 
 #include "../ShareLib.h"
 #include "NonCopyable.h"
 
-namespace SGE {
+namespace MCD {
 
 /*!	The base class for an intrusive double linked list.
 	To use the link list, user have to extend the node first:
@@ -36,14 +36,14 @@ namespace SGE {
 	\code
 	struct ClientInfo {
 		struct Client : public LinkListBase::NodeBase {
-			SGE_DECLAR_GET_OUTER_OBJ(ClientInfo, mClient);
+			MCD_DECLAR_GET_OUTER_OBJ(ClientInfo, mClient);
 			void destroyThis() throw() {
 				delete getOuterSafe();
 			}
 		} mClient;
 
 		struct Server : public LinkListBase::NodeBase {
-			SGE_DECLAR_GET_OUTER_OBJ(ClientInfo, mServer);
+			MCD_DECLAR_GET_OUTER_OBJ(ClientInfo, mServer);
 			void destroyThis() throw() {
 				delete getOuterSafe();
 			}
@@ -75,13 +75,13 @@ namespace SGE {
 		the prev/next pointer of a node with a null value. Therefore we have to
 		compare with \em End and \em REnd when iterating the list.
  */
-class SGE_CORE_API LinkListBase : private Noncopyable
+class MCD_CORE_API LinkListBase : private Noncopyable
 {
 public:
 	/*!	A double link list node.
 		\note Each node consume 3 * sizeof(void*) that means 12 bytes on 32-bit machine.
 	 */
-	class SGE_CORE_API NodeBase
+	class MCD_CORE_API NodeBase
 	{
 		friend class LinkListBase;
 
@@ -168,21 +168,21 @@ public:
 
 	//! Get the first node, assertion if the list is empty.
 	NodeBase& front() {
-		SGE_ASSERT(!isEmpty());
+		MCD_ASSERT(!isEmpty());
 		return *mHead->mNext;
 	}
 	const NodeBase& front() const {
-		SGE_ASSERT(!isEmpty());
+		MCD_ASSERT(!isEmpty());
 		return *mHead->mNext;
 	}
 
 	//! Get the last node, assertion if the list is empty.
 	NodeBase& back() {
-		SGE_ASSERT(!isEmpty());
+		MCD_ASSERT(!isEmpty());
 		return *mTail->mPrev;
 	}
 	const NodeBase& back() const {
-		SGE_ASSERT(!isEmpty());
+		MCD_ASSERT(!isEmpty());
 		return *mTail->mPrev;
 	}
 
@@ -286,6 +286,6 @@ public:
 	}
 };	// LinkList
 
-}	// namespace SGE
+}	// namespace MCD
 
-#endif	// __SGE_CORE_SYSTEM_LINKLIST__
+#endif	// __MCD_CORE_SYSTEM_LINKLIST__

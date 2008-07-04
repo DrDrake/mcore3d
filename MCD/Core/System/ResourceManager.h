@@ -1,11 +1,11 @@
-#ifndef __SGE_CORE_SYSTEM_RESOURCEMANAGER__
-#define __SGE_CORE_SYSTEM_RESOURCEMANAGER__
+#ifndef __MCD_CORE_SYSTEM_RESOURCEMANAGER__
+#define __MCD_CORE_SYSTEM_RESOURCEMANAGER__
 
 #include "../ShareLib.h"
 #include "IntrusivePtr.h"
 #include "NonCopyable.h"
 
-namespace SGE {
+namespace MCD {
 
 class IFileSystem;
 class IResourceLoader;
@@ -15,7 +15,7 @@ typedef IntrusivePtr<Resource> ResourcePtr;
 
 /*!	Resource manager
  */
-class SGE_NOVTABLE IResourceManager
+class MCD_NOVTABLE IResourceManager
 {
 protected:
 	virtual ~IResourceManager() {}
@@ -49,7 +49,7 @@ class TaskPool;
 	// ...
 
 	// Create a resource manager using the current directory
-	ResourceManager manager(new SGE::RawFileSystem(L"./"));
+	ResourceManager manager(new MCD::RawFileSystem(L"./"));
 
 	// Associate common texture format with TextureFactory 
 	manager.associateFactory(L"png", new TextureFactory);
@@ -86,11 +86,11 @@ class TaskPool;
 	\note Since it use TaskPool to do the loading, all resource loader should
 		be thread safe.
  */
-class SGE_CORE_API ResourceManager : public IResourceManager, Noncopyable
+class MCD_CORE_API ResourceManager : public IResourceManager, Noncopyable
 {
 public:
 	//!	Extends this class to give ResourceManager knowledge about a particular type of resource.
-	class SGE_NOVTABLE IFactory
+	class MCD_NOVTABLE IFactory
 	{
 	public:
 		virtual ResourcePtr createResource(const Path& path) = 0;
@@ -138,6 +138,6 @@ protected:
 	Impl* mImpl;
 };	// ResourceManager
 
-}	// namespace SGE
+}	// namespace MCD
 
-#endif	// __SGE_CORE_SYSTEM_RESOURCEMANAGER__
+#endif	// __MCD_CORE_SYSTEM_RESOURCEMANAGER__

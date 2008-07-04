@@ -3,14 +3,14 @@
 #include "PlatformInclude.h"
 #include "StaticAssert.h"
 
-namespace SGE {
+namespace MCD {
 
-#ifdef SGE_WIN32
+#ifdef MCD_WIN32
 
 Mutex::Mutex()
 {
 	// If you see this static assert, please check the size of the CRITICAL_SECTION
-	SGE_STATIC_ASSERT(sizeof(mMutex) == sizeof(CRITICAL_SECTION));
+	MCD_STATIC_ASSERT(sizeof(mMutex) == sizeof(CRITICAL_SECTION));
 #ifndef NDEBUG
 	_locked = false;
 #endif
@@ -20,7 +20,7 @@ Mutex::Mutex()
 Mutex::~Mutex()
 {
 #ifndef NDEBUG
-	SGE_ASSUME(!_locked && "Delete before unlock");
+	MCD_ASSUME(!_locked && "Delete before unlock");
 #endif
 	::DeleteCriticalSection((LPCRITICAL_SECTION)&mMutex);
 }
@@ -29,7 +29,7 @@ void Mutex::lock()
 {
 	::EnterCriticalSection((LPCRITICAL_SECTION)&mMutex);
 #ifndef NDEBUG
-	SGE_ASSUME(!_locked && "Double lock");
+	MCD_ASSUME(!_locked && "Double lock");
 	_locked = true;
 #endif
 }
@@ -37,7 +37,7 @@ void Mutex::lock()
 void Mutex::unlock()
 {
 #ifndef NDEBUG
-	SGE_ASSUME(_locked && "Unlock when not locked");
+	MCD_ASSUME(_locked && "Unlock when not locked");
 	_locked = false;
 #endif
 	::LeaveCriticalSection((LPCRITICAL_SECTION)&mMutex);
@@ -48,7 +48,7 @@ bool Mutex::tryLock()
 {
 	if(::TryEnterCriticalSection((LPCRITICAL_SECTION)&mMutex) > 0) {
 #ifndef NDEBUG
-		SGE_ASSUME(!_locked && "Double lock");
+		MCD_ASSUME(!_locked && "Double lock");
 		_locked = true;
 #endif
 		return true;
@@ -94,16 +94,16 @@ Mutex::Mutex()
 Mutex::~Mutex()
 {
 #ifndef NDEBUG
-	SGE_ASSUME(!_locked);	// Delete before unlock
+	MCD_ASSUME(!_locked);	// Delete before unlock
 #endif
 	::pthread_mutex_destroy(&mMutex);
 }
 
 void Mutex::lock()
 {
-	SGE_VERIFY(::pthread_mutex_lock(&mMutex) == 0);
+	MCD_VERIFY(::pthread_mutex_lock(&mMutex) == 0);
 #ifndef NDEBUG
-	SGE_ASSERT(!_locked);	// Double lock
+	MCD_ASSERT(!_locked);	// Double lock
 	_locked = true;
 #endif
 }
@@ -111,17 +111,17 @@ void Mutex::lock()
 void Mutex::unlock()
 {
 #ifndef NDEBUG
-	SGE_ASSUME(_locked);	// Unlock when not locked
+	MCD_ASSUME(_locked);	// Unlock when not locked
 	_locked = false;
 #endif
-	SGE_VERIFY(::pthread_mutex_unlock(&mMutex) == 0);
+	MCD_VERIFY(::pthread_mutex_unlock(&mMutex) == 0);
 }
 
 bool Mutex::tryLock()
 {
 	if(!::pthread_mutex_trylock(&mMutex)) {
 #ifndef NDEBUG
-		SGE_ASSUME(!_locked); //double lock
+		MCD_ASSUME(!_locked); //double lock
 		_locked = true;
 #endif
 		return true;
@@ -133,15 +133,15 @@ bool Mutex::tryLock()
 RecursiveMutex::RecursiveMutex()
 {
 	pthread_mutexattr_t attr;
-	SGE_VERIFY(::pthread_mutexattr_init(&attr) == 0);
-	SGE_VERIFY(::pthread_mutexattr_settype(&attr, PTHREAD_MUTEX_RECURSIVE) == 0);
-	SGE_VERIFY(::pthread_mutex_init(&mMutex, &attr) == 0);
-	SGE_VERIFY(::pthread_mutexattr_destroy(&attr) == 0);
+	MCD_VERIFY(::pthread_mutexattr_init(&attr) == 0);
+	MCD_VERIFY(::pthread_mutexattr_settype(&attr, PTHREAD_MUTEX_RECURSIVE) == 0);
+	MCD_VERIFY(::pthread_mutex_init(&mMutex, &attr) == 0);
+	MCD_VERIFY(::pthread_mutexattr_destroy(&attr) == 0);
 }
 
 RecursiveMutex::~RecursiveMutex()
 {
-	SGE_VERIFY(::pthread_mutex_destroy(&mMutex) == 0);
+	MCD_VERIFY(::pthread_mutex_destroy(&mMutex) == 0);
 }
 
 void RecursiveMutex::lock()
@@ -151,7 +151,7 @@ void RecursiveMutex::lock()
 
 void RecursiveMutex::unlock()
 {
-	SGE_VERIFY(::pthread_mutex_unlock(&mMutex) == 0);
+	MCD_VERIFY(::pthread_mutex_unlock(&mMutex) == 0);
 }
 
 bool RecursiveMutex::tryLock()
@@ -159,6 +159,6 @@ bool RecursiveMutex::tryLock()
 	return !::pthread_mutex_trylock(&mMutex);
 }
 
-#endif	// SGE_WIN32
+#endif	// MCD_WIN32
 
-}	// namespace SGE
+}	// namespace MCD

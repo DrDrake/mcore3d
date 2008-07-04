@@ -1,7 +1,7 @@
 #include "Pch.h"
-#include "../../../SGE/Core/System/StrUtility.h"
+#include "../../../MCD/Core/System/StrUtility.h"
 
-using namespace SGE;
+using namespace MCD;
 
 TEST(WStr2StrTest)
 {
@@ -12,7 +12,7 @@ TEST(WStr2StrTest)
 
 	const S data[] = {
 		{"",			L""},
-#ifdef SGE_VC
+#ifdef MCD_VC
 		{"一二三 abc",	L"一二三 abc"},
 		{"ABC",			L"ABC"},
 		{"龍文達",		L"龍文達"},

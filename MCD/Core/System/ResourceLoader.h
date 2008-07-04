@@ -1,16 +1,16 @@
-#ifndef __SGE_CORE_SYSTEM_RESOURCELOADER__
-#define __SGE_CORE_SYSTEM_RESOURCELOADER__
+#ifndef __MCD_CORE_SYSTEM_RESOURCELOADER__
+#define __MCD_CORE_SYSTEM_RESOURCELOADER__
 
 #include "Platform.h"
 #include <iosfwd>
 
-namespace SGE {
+namespace MCD {
 
 class Resource;
 
 /*!	Resource loader.
  */
-class SGE_NOVTABLE IResourceLoader
+class MCD_NOVTABLE IResourceLoader
 {
 public:
 	enum LoadingState
@@ -55,6 +55,6 @@ public:
 	virtual LoadingState getLoadingState() const = 0;
 };	// IResourceLoader
 
-}	// namespace SGE
+}	// namespace MCD
 
-#endif	// __SGE_CORE_SYSTEM_RESOURCELOADER__
+#endif	// __MCD_CORE_SYSTEM_RESOURCELOADER__

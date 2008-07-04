@@ -1,6 +1,6 @@
 #include "Pch.h"
 
-#ifdef SGE_VC
+#ifdef MCD_VC
 #	pragma comment(lib, "glew")
 #	pragma comment(lib, "GLU32")
 #	pragma comment(lib, "GlAux")

@@ -2,7 +2,7 @@
 <VisualStudioPropertySheet
 	ProjectType="Visual C++"
 	Version="8.00"
-	Name="SGERelease"
+	Name="MCDRelease"
 	>
 	<Tool
 		Name="VCCLCompilerTool"
@@ -19,10 +19,10 @@
 	/>
 	<Tool
 		Name="VCLinkerTool"
-		OutputFile="$(OutDir)\SGE$(ProjectName).dll"
+		OutputFile="$(OutDir)\MCD$(ProjectName).dll"
 		SubSystem="1"
 		OptimizeReferences="2"
 		EnableCOMDATFolding="2"
-		ImportLibrary="../../Lib/SGE$(ProjectName).lib"
+		ImportLibrary="../../Lib/MCD$(ProjectName).lib"
 	/>
 </VisualStudioPropertySheet>

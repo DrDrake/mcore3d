@@ -1,7 +1,7 @@
 #include "Pch.h"
-#include "../../../SGE/Core/System/WeakPtr.h"
+#include "../../../MCD/Core/System/WeakPtr.h"
 
-using namespace SGE;
+using namespace MCD;
 
 class Base : public WeakPtrTarget {};
 

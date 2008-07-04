@@ -1,11 +1,11 @@
-#ifndef __SGE_RENDER_TEXTURELOADERBASE__
-#define __SGE_RENDER_TEXTURELOADERBASE__
+#ifndef __MCD_RENDER_TEXTURELOADERBASE__
+#define __MCD_RENDER_TEXTURELOADERBASE__
 
 #include "ShareLib.h"
 #include "../Core/System/NonCopyable.h"
 #include "../Core/System/ResourceLoader.h"
 
-namespace SGE {
+namespace MCD {
 
 /*!	Common base class for texture loaders.
 	What this base class provided are:
@@ -14,7 +14,7 @@ namespace SGE {
 		3. Proper lock/unlocking of mutex inside commit() and getLoadingState().
 	See JpegLoader.cpp for a typical usage of TextureLoaderBase.
  */
-class SGE_RENDER_API SGE_NOVTABLE TextureLoaderBase : public IResourceLoader, private Noncopyable
+class MCD_RENDER_API MCD_NOVTABLE TextureLoaderBase : public IResourceLoader, private Noncopyable
 {
 protected:
 	class LoaderBaseImpl;
@@ -42,6 +42,6 @@ protected:
 	volatile LoadingState mLoadingState;
 };	// TextureLoaderBase
 
-}	// namespace SGE
+}	// namespace MCD
 
-#endif	// __SGE_RENDER_TEXTURELOADERBASE__
+#endif	// __MCD_RENDER_TEXTURELOADERBASE__

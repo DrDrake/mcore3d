@@ -1,7 +1,7 @@
 #include "Pch.h"
-#include "../../../SGE/Core/System/Timer.h"
+#include "../../../MCD/Core/System/Timer.h"
 
-using namespace SGE;
+using namespace MCD;
 
 TEST(TimeIntervalTest)
 {

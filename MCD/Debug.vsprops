@@ -2,7 +2,7 @@
 <VisualStudioPropertySheet
 	ProjectType="Visual C++"
 	Version="8.00"
-	Name="SGEDebug"
+	Name="MCDDebug"
 	>
 	<Tool
 		Name="VCCLCompilerTool"
@@ -15,8 +15,8 @@
 	/>
 	<Tool
 		Name="VCLinkerTool"
-		OutputFile="$(OutDir)/SGE$(ProjectName)d.dll"
+		OutputFile="$(OutDir)/MCD$(ProjectName)d.dll"
 		SubSystem="1"
-		ImportLibrary="../../Lib/SGE$(ProjectName)d.lib"
+		ImportLibrary="../../Lib/MCD$(ProjectName)d.lib"
 	/>
 </VisualStudioPropertySheet>

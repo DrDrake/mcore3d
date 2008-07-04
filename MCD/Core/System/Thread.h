@@ -1,10 +1,10 @@
-#ifndef __SGE_CORE_SYSTEM_THREAD__
-#define __SGE_CORE_SYSTEM_THREAD__
+#ifndef __MCD_CORE_SYSTEM_THREAD__
+#define __MCD_CORE_SYSTEM_THREAD__
 
 #include "Atomic.h"
 #include <stdexcept>
 
-namespace SGE {
+namespace MCD {
 
 /*!	A thread of execution in a program.
 	User need to submit an object of Thread::IRunnable in order for Thread to execute.
@@ -14,7 +14,7 @@ namespace SGE {
 		stops if you invoke Suspend in another thread.
 
 	\code
-	class MyRunnable : public SGE::Thread::IRunnable {
+	class MyRunnable : public MCD::Thread::IRunnable {
 	public:
 		MyRunnable() : LoopCount(0) {}
 		// Keep printing hello world until the thread wants to stop
@@ -28,15 +28,15 @@ namespace SGE {
 
 	MyRunnable runnable;
 	Thread thread(runnable, false);	// Tells thread not to delete runnable, since it's on the stack
-	SGE::mSleep(1000);	// Sleep for 1 seconds
+	MCD::mSleep(1000);	// Sleep for 1 seconds
 	thread.wait();	// Tells the thread we are going to stop and then wait until MyRunnable::run() returns
 	\endcode
  */
-class SGE_CORE_API Thread : Noncopyable
+class MCD_CORE_API Thread : Noncopyable
 {
 public:
 	//! Sub-classing IRunnable to do the real work for Thread.
-	class SGE_NOVTABLE IRunnable
+	class MCD_NOVTABLE IRunnable
 	{
 	public:
 		virtual ~IRunnable() {}
@@ -122,7 +122,7 @@ protected:
 
 protected:
 	IRunnable* mRunnable;
-#ifdef SGE_WIN32
+#ifdef MCD_WIN32
 	intptr_t mHandle;
 	int mId;
 #else
@@ -134,14 +134,14 @@ protected:
 	mutable RecursiveMutex mMutex;	//! To protect member like mHandle and mId against race-conditions.
 };	// Thread
 
-SGE_CORE_API int getCurrentThreadId();
+MCD_CORE_API int getCurrentThreadId();
 
 //! Mill-second sleep.
-SGE_CORE_API void mSleep(size_t millseconds);
+MCD_CORE_API void mSleep(size_t millseconds);
 
 //! Portable Unix usleep.
-SGE_CORE_API void uSleep(useconds_t microseconds);
+MCD_CORE_API void uSleep(useconds_t microseconds);
 
-}	// namespace SGE
+}	// namespace MCD
 
-#endif	// __SGE_CORE_SYSTEM_THREAD__
+#endif	// __MCD_CORE_SYSTEM_THREAD__

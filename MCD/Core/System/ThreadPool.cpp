@@ -4,7 +4,7 @@
 #include "LinkList.h"
 #include <memory>
 
-namespace SGE {
+namespace MCD {
 
 class ThreadPool::ThreadList : public LinkList<RunnableThread>
 {
@@ -25,11 +25,11 @@ public:
 
 	sal_override void run(Thread& thread) throw()
 	{
-		SGE_ASSERT(&thread == this);
+		MCD_ASSERT(&thread == this);
 		mThreadPool.mRunnable.run(thread);
 
 		// The job is finished, destroy this thread
-		{	SGE_ASSUME(mThreadPool.mThreadList != nullptr);
+		{	MCD_ASSUME(mThreadPool.mThreadList != nullptr);
 
 			CondVar& condVar = mThreadPool.mThreadList->mCondVar;
 			ScopeLock lock(condVar);
@@ -64,7 +64,7 @@ ThreadPool::~ThreadPool()
 
 void ThreadPool::setThreadCount(size_t targetCount, bool wait)
 {
-	SGE_ASSUME(mThreadList != nullptr);
+	MCD_ASSUME(mThreadList != nullptr);
 
 	for(;;) {
 		CondVar& condVar = mThreadList->mCondVar;
@@ -84,7 +84,7 @@ void ThreadPool::setThreadCount(size_t targetCount, bool wait)
 				// Just simply call "delta" amount of threads to quit but no wait
 				RunnableThread* t = &mThreadList->front();
 				do {
-					SGE_ASSUME(t != nullptr);
+					MCD_ASSUME(t != nullptr);
 					t->postQuit();
 					t = static_cast<RunnableThread*>(t->next());
 				} while(++delta < 0);
@@ -98,9 +98,9 @@ void ThreadPool::setThreadCount(size_t targetCount, bool wait)
 
 size_t ThreadPool::getThreadCount() const
 {
-	SGE_ASSUME(mThreadList != nullptr);
+	MCD_ASSUME(mThreadList != nullptr);
 	ScopeLock lock(mThreadList->mCondVar);
 	return mThreadList->elementCount();
 }
 
-}	// namespace SGE
+}	// namespace MCD

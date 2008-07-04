@@ -1,5 +1,5 @@
-#ifndef __SGE_CORE_SYSTEM_MAP__
-#define __SGE_CORE_SYSTEM_MAP__
+#ifndef __MCD_CORE_SYSTEM_MAP__
+#define __MCD_CORE_SYSTEM_MAP__
 
 #include "../ShareLib.h"
 #include "NonCopyable.h"
@@ -9,7 +9,7 @@
 #	include <string>
 #endif
 
-namespace SGE {
+namespace MCD {
 
 /*!	\class MapBase
 	The base class for an intrusive associative map container.
@@ -59,7 +59,7 @@ namespace SGE {
 
 		struct Integer : public MapBase<int>::NodeBase {
 			explicit Integer(int key) : NodeBase(key) {}
-			SGE_DECLAR_GET_OUTER_OBJ(BiDirMapNode, mId);
+			MCD_DECLAR_GET_OUTER_OBJ(BiDirMapNode, mId);
 			sal_override void destroyThis() throw() {
 				delete getOuterSafe();
 			}
@@ -67,7 +67,7 @@ namespace SGE {
 
 		struct String : public MapBase<std::string>::NodeBase {
 			explicit String(const std::string& key) : NodeBase(key) {}
-			SGE_DECLAR_GET_OUTER_OBJ(BiDirMapNode, mStr);
+			MCD_DECLAR_GET_OUTER_OBJ(BiDirMapNode, mStr);
 			sal_override void destroyThis() throw() {
 				delete getOuterSafe();
 			}
@@ -85,7 +85,7 @@ namespace SGE {
 
 	BiDirMapNode* p1 = idToStr.find(123).getOuterSafe();
 	BiDirMapNode* p2 = strToId.find("123").getOuterSafe();
-	SGE_ASSERT(p1 == p2);
+	MCD_ASSERT(p1 == p2);
 	\endcode
  */
 
@@ -95,7 +95,7 @@ namespace Impl {
 	It is a non template class thus save code size for the Map class.
 	\sa http://www.codeproject.com/KB/tips/Containers.aspx
  */
-class SGE_CORE_API AvlTree : Noncopyable
+class MCD_CORE_API AvlTree : Noncopyable
 {
 protected:
 	class Node
@@ -105,14 +105,14 @@ protected:
 	protected:
 		enum Direction { Left = 0, Right = 1 };
 
-		SGE_CORE_API Node();
+		MCD_CORE_API Node();
 
-		SGE_CORE_API virtual ~Node();
+		MCD_CORE_API virtual ~Node();
 
 	public:
-		SGE_CORE_API virtual void destroyThis() throw();
+		MCD_CORE_API virtual void destroyThis() throw();
 
-		SGE_CORE_API void removeThis() throw();
+		MCD_CORE_API void removeThis() throw();
 
 	protected:
 		bool isInMap() const {
@@ -144,7 +144,7 @@ protected:
 		void setChildSafe(Direction dir, sal_maybenull Node* child);
 
 #ifndef NDEBUG
-		SGE_CORE_API size_t assertValid(size_t& total, sal_maybenull const Node* parent, size_t nL, size_t nR) const;
+		MCD_CORE_API size_t assertValid(size_t& total, sal_maybenull const Node* parent, size_t nL, size_t nR) const;
 #endif	// NDEBUG
 
 		Node* mChildren[2];	// Left/Right children
@@ -213,12 +213,12 @@ protected:
 
 }	// namespace Impl
 
-/*!	The basic comparator used in SGE::Map.
+/*!	The basic comparator used in MCD::Map.
 	Requires \em TKeyArg to have the < and == operators defined.
 	User can make explicit template specialization on different types of \em TKeyArg,
 	see MapCharStrComparator for a specialization for string as key type.
 
-	\sa SGE::Map
+	\sa MCD::Map
  */
 template<typename TKeyArg>
 struct MapComparator {
@@ -259,7 +259,7 @@ struct MapCharStrComparator
 	int compare(sal_in_z sal_notnull const CharType* rhs) throw()
 	{
 		struct Dummy {
-			static SGE_INLINE2 size_t min(size_t lhs_, size_t rhs_) {
+			static MCD_INLINE2 size_t min(size_t lhs_, size_t rhs_) {
 				return lhs_ < rhs_ ? lhs_ : rhs_;
 			}
 		};	// Dummy
@@ -400,7 +400,7 @@ public:
 			if(parent) {
 				Comparator hint(parent->mKey);
 				int cmp = hint.compare(mKey);
-				SGE_ASSERT(!cmp || (cmp == dir));
+				MCD_ASSERT(!cmp || (cmp == dir));
 			}
 
 			size_t nL = static_cast<NodeBase*>(mChildren[Left])->assertValid(total, this, -1);
@@ -524,7 +524,7 @@ public:
 #ifndef NDEBUG
 		size_t nTotal = 0;
 		static_cast<NodeBase*>(mRoot)->assertValid(nTotal, nullptr, 0);
-		SGE_ASSERT(nTotal == elementCount());
+		MCD_ASSERT(nTotal == elementCount());
 #endif	// NDEBUG
 	}
 
@@ -619,6 +619,6 @@ public:
 	}
 };	// Map
 
-}	// namespace SGE
+}	// namespace MCD
 
-#endif	// __SGE_CORE_SYSTEM_MAP__
+#endif	// __MCD_CORE_SYSTEM_MAP__

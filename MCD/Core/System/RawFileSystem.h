@@ -1,15 +1,15 @@
-#ifndef __SGE_CORE_SYSTEM_RAWFILESYSTEM__
-#define __SGE_CORE_SYSTEM_RAWFILESYSTEM__
+#ifndef __MCD_CORE_SYSTEM_RAWFILESYSTEM__
+#define __MCD_CORE_SYSTEM_RAWFILESYSTEM__
 
 #include "FileSystem.h"
 
-namespace SGE {
+namespace MCD {
 
 /*!	A raw file system that open files from OS supported drive.
 	Operations are suppose to work with relative path but it's alright
 	to use absolute path also.
  */
-class SGE_CORE_API RawFileSystem : public IFileSystem
+class MCD_CORE_API RawFileSystem : public IFileSystem
 {
 public:
 	/*!	Construct the raw file system with the supplied rootPath
@@ -48,6 +48,6 @@ private:
 	Path mRootPath;
 };	// RawFileSystem
 
-}	// namespace SGE
+}	// namespace MCD
 
-#endif	// __SGE_CORE_SYSTEM_RAWFILESYSTEM__
+#endif	// __MCD_CORE_SYSTEM_RAWFILESYSTEM__
