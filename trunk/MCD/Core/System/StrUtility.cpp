@@ -6,17 +6,17 @@
 #include <stdlib.h>
 #include <stdexcept>
 
-#ifdef SGE_CYGWIN
+#ifdef MCD_CYGWIN
 #	include "PlatformInclude.h"
 #endif
 
-namespace SGE {
+namespace MCD {
 
 static const size_t cError = size_t(-1);
 
 bool str2WStr(sal_in_z sal_notnull const char* narrowStr, std::wstring& wideStr)
 {
-#ifdef SGE_CYGWIN
+#ifdef MCD_CYGWIN
 	// Count also '\0'
 	size_t count = ::MultiByteToWideChar(CP_ACP, 0, narrowStr, -1, nullptr, 0);
 	if(count <= 1)
@@ -26,16 +26,16 @@ bool str2WStr(sal_in_z sal_notnull const char* narrowStr, std::wstring& wideStr)
 		size_t converted = ::MultiByteToWideChar(CP_ACP, 0, narrowStr, -1, (LPWSTR)&wideStr[0], count);
 		if(converted == 0)
 			return false;
-		SGE_ASSERT(converted == count);
+		MCD_ASSERT(converted == count);
 	}
 #else
-#ifdef SGE_VC
+#ifdef MCD_VC
 #	pragma warning(push)
 #	pragma warning (disable : 6309 6387)
 #endif
 	// Get the required character count of the destination string (\0 not included)
 	size_t count = ::mbstowcs(nullptr, narrowStr, INT_MAX);
-#ifdef SGE_VC
+#ifdef MCD_VC
 #	pragma warning(pop)
 #endif
 
@@ -50,7 +50,7 @@ bool str2WStr(sal_in_z sal_notnull const char* narrowStr, std::wstring& wideStr)
 		size_t converted = ::mbstowcs(&(wideStr.at(0)), narrowStr, count+1);
 		if(converted == 0 || converted == cError)
 			return false;
-		SGE_ASSERT(converted == count);
+		MCD_ASSERT(converted == count);
 	}
 #endif
 	return true;
@@ -58,13 +58,13 @@ bool str2WStr(sal_in_z sal_notnull const char* narrowStr, std::wstring& wideStr)
 
 bool wStr2Str(sal_in_z sal_notnull const wchar_t* wideStr, std::string& narrowStr)
 {
-#ifdef SGE_VC
+#ifdef MCD_VC
 #	pragma warning(push)
 #	pragma warning (disable : 6309 6387)
 #endif
 	// Get the required character count of the destination string (\0 not included)
 	size_t count = ::wcstombs(nullptr, wideStr, INT_MAX);
-#ifdef SGE_VC
+#ifdef MCD_VC
 #	pragma warning(pop)
 #endif
 
@@ -79,7 +79,7 @@ bool wStr2Str(sal_in_z sal_notnull const wchar_t* wideStr, std::string& narrowSt
 		size_t converted = ::wcstombs(&(narrowStr.at(0)), wideStr, count+1);
 		if(converted == cError)
 			return false;
-		SGE_ASSERT(converted == count);
+		MCD_ASSERT(converted == count);
 	}
 
 	return true;
@@ -91,7 +91,7 @@ std::wstring str2WStr(const std::string& narrowStr)
 	bool ok = str2WStr(narrowStr.c_str(), wideStr);
 	if(!ok)
 		throw std::runtime_error(
-			SGE::getErrorMessage("Fail to convert narrow string to wide string: ", SGE::getLastError())
+			MCD::getErrorMessage("Fail to convert narrow string to wide string: ", MCD::getLastError())
 		);
 	return wideStr;
 }
@@ -102,7 +102,7 @@ std::string wStr2Str(const std::wstring& wideStr)
 	bool ok = wStr2Str(wideStr.c_str(), narrowStr);
 	if(!ok)
 		throw std::runtime_error(
-			SGE::getErrorMessage("Fail to convert wide string to narrow string: ", SGE::getLastError())
+			MCD::getErrorMessage("Fail to convert wide string to narrow string: ", MCD::getLastError())
 		);
 	return narrowStr;
 }
@@ -116,7 +116,7 @@ std::string int2Str(int number)
 
 std::wstring int2WStr(int number)
 {
-#ifdef SGE_CYGWIN
+#ifdef MCD_CYGWIN
 	std::stringstream ss;
 	ss << number;
 	return str2WStr(ss.str());
@@ -131,7 +131,7 @@ bool wStr2Int(const wchar_t* wideStr, int& number)
 {
 	// User sscanf or atoi didn't handle error very well
 	// TODO: Use locale facet instead of stringstream
-#ifdef SGE_CYGWIN
+#ifdef MCD_CYGWIN
 	std::stringstream ss(wStr2Str(wideStr));
 #else
 	std::wstringstream ss(wideStr);
@@ -231,9 +231,9 @@ bool NvpParser::next(const wchar_t*& name, const wchar_t*& value)
 	return true;
 }
 
-}	// namespace SGE
+}	// namespace MCD
 
-#ifdef SGE_CYGWIN
+#ifdef MCD_CYGWIN
 
 wchar_t* wcsdup(const wchar_t* str)
 {
@@ -261,4 +261,4 @@ int wcscmp(const wchar_t* src, const wchar_t* dst)
 	return ret;
 }
 
-#endif	// #ifdef SGE_CYGWIN
+#endif	// #ifdef MCD_CYGWIN

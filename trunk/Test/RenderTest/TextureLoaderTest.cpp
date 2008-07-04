@@ -1,13 +1,13 @@
 #include "Pch.h"
-#include "../../SGE/Render/Texture.h"
-#include "../../SGE/Render/PngLoader.h"
-#include "../../SGE/Render/JpegLoader.h"
+#include "../../MCD/Render/Texture.h"
+#include "../../MCD/Render/PngLoader.h"
+#include "../../MCD/Render/JpegLoader.h"
 
-#include "../../SGE/Core/System/CondVar.h"
-#include "../../SGE/Core/System/RawFileSystem.h"
-#include "../../SGE/Core/System/Thread.h"
+#include "../../MCD/Core/System/CondVar.h"
+#include "../../MCD/Core/System/RawFileSystem.h"
+#include "../../MCD/Core/System/Thread.h"
 
-using namespace SGE;
+using namespace MCD;
 
 //! Create the corresponding texture loader from the file extension
 static std::auto_ptr<IResourceLoader> createLoader(const wchar_t* file)
@@ -46,7 +46,7 @@ TEST(SynPng_TextureLoaderTest)
 {
 	for(size_t i=0; i<sizeof(gTestStruct)/sizeof(TestStruct); ++i)
 	{
-		SGE::ResourcePtr resource = new Texture(gTestStruct[i].path);
+		MCD::ResourcePtr resource = new Texture(gTestStruct[i].path);
 		Texture& texture = static_cast<Texture&>(*resource);
 		std::auto_ptr<IResourceLoader> loader = createLoader(gTestStruct[i].path);
 
@@ -117,7 +117,7 @@ TEST(AsynPng_TextureLoaderTest)
 
 	for(size_t i=0; i<sizeof(gTestStruct)/sizeof(TestStruct); ++i)
 	{
-		SGE::ResourcePtr resource = new Texture(gTestStruct[i].path);
+		MCD::ResourcePtr resource = new Texture(gTestStruct[i].path);
 		Texture& texture = static_cast<Texture&>(*resource);
 		std::auto_ptr<IResourceLoader> loader = createLoader(gTestStruct[i].path);
 
@@ -154,7 +154,7 @@ TEST(AsynPng_TextureLoaderTest)
 
 TEST(Error_TextureLoaderTest)
 {
-	SGE::ResourcePtr resource = new Texture(L"error.png");
+	MCD::ResourcePtr resource = new Texture(L"error.png");
 	Texture& texture = static_cast<Texture&>(*resource);
 	PngLoader loader;
 
@@ -182,13 +182,13 @@ TEST(Error_TextureLoaderTest)
 
 
 
-#include "../../SGE/Core/System/Window.h"
-#include "../../SGE/Core/System/WindowEvent.h"
-#include "../../SGE/Core/System/Timer.h"
-#include "../../SGE/Render/OglContext.h"
+#include "../../MCD/Core/System/Window.h"
+#include "../../MCD/Core/System/WindowEvent.h"
+#include "../../MCD/Core/System/Timer.h"
+#include "../../MCD/Render/OglContext.h"
 #include "../../3Party/glew/glew.h"
 
-#if defined(SGE_VC)
+#if defined(MCD_VC)
 #	pragma comment(lib, "OpenGL32")
 #	pragma comment(lib, "GLU32")
 #	pragma comment(lib, "GlAux")
@@ -282,7 +282,7 @@ public:
 		glBegin(GL_QUADS);
 		for(size_t face=0; face<6; ++face) {
 			const float* c = colors[face];
-			SGE_ASSUME(c != nullptr);
+			MCD_ASSUME(c != nullptr);
 			glColor3fv(c);
 			for(size_t vertex=0; vertex<4; ++vertex) {
 				const float* v = vertice[face][vertex];
@@ -348,7 +348,7 @@ public:
 private:
 	bool mIsClosing;
 	float mAngle;
-	SGE::DeltaTimer timer;
+	MCD::DeltaTimer timer;
 	PngLoader mLoader;
 	std::auto_ptr<std::istream> mIStream;
 	ResourcePtr mTexture;

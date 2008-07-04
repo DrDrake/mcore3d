@@ -1,21 +1,21 @@
-#ifndef __SGE_CORE_SYSTEM_ERRORCODE__
-#define __SGE_CORE_SYSTEM_ERRORCODE__
+#ifndef __MCD_CORE_SYSTEM_ERRORCODE__
+#define __MCD_CORE_SYSTEM_ERRORCODE__
 
 #include "../ShareLib.h"
 #include "Platform.h"
 #include <string>
 
-namespace SGE {
+namespace MCD {
 
 //! Get last error code
-extern SGE_CORE_API int getLastError();
+extern MCD_CORE_API int getLastError();
 
 //! Set last error
-extern SGE_CORE_API void setLastError(int errorCode);
+extern MCD_CORE_API void setLastError(int errorCode);
 
 //! Convert system error code into a meaningful message
-extern SGE_CORE_API std::string getErrorMessage(sal_in_z_opt const char* prefix, int errorCode);
+extern MCD_CORE_API std::string getErrorMessage(sal_in_z_opt const char* prefix, int errorCode);
 
-}	// namespace SGE
+}	// namespace MCD
 
-#endif	// __SGE_CORE_SYSTEM_ERRORCODE__
+#endif	// __MCD_CORE_SYSTEM_ERRORCODE__

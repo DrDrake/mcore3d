@@ -1,8 +1,8 @@
 // To be included by Window.cpp only
 
-namespace SGE {
+namespace MCD {
 
-static const wchar_t* cWindowClass = L"SGE_Window";
+static const wchar_t* cWindowClass = L"MCD_Window";
 static size_t gWindowCount = 0;
 
 //! Check the state of the shift keys on a key event, and return the corresponding key code
@@ -175,7 +175,7 @@ public:
 		{	// Create window
 			if(mWnd) {
 				// TODO: Log error message
-				SGE_ASSERT(false && "A window is already created, call destroy() first");
+				MCD_ASSERT(false && "A window is already created, call destroy() first");
 			}
 
 			mWnd = ::CreateWindow(
@@ -501,4 +501,4 @@ public:
 	Window& mWindow;
 };	// Impl
 
-}	// namespace SGE
+}	// namespace MCD

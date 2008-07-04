@@ -1,21 +1,21 @@
-#ifndef __SGE_CORE_SYSTEM_EXCEPTION__
-#define __SGE_CORE_SYSTEM_EXCEPTION__
+#ifndef __MCD_CORE_SYSTEM_EXCEPTION__
+#define __MCD_CORE_SYSTEM_EXCEPTION__
 
 #include "Platform.h"
 #include "../ShareLib.h"
 #include <stdexcept>
 
-namespace SGE {
+namespace MCD {
 
 //! An interface that will provide a wide char version of error message.
-class SGE_NOVTABLE IException
+class MCD_NOVTABLE IException
 {
 public:
 	virtual const wchar_t* wwhat() const throw() = 0;
 };	// IException
 
 //! Extening the std::runtime_error with wchar_t support.
-class SGE_CORE_API RuntimeError : public std::runtime_error, public IException
+class MCD_CORE_API RuntimeError : public std::runtime_error, public IException
 {
 public:
 	explicit RuntimeError(sal_in_z sal_notnull const char* msg) : std::runtime_error(msg) {}
@@ -36,6 +36,6 @@ protected:
 	std::wstring mMessage;
 };	// RuntimeError
 
-}	// namespace SGE
+}	// namespace MCD
 
-#endif	// __SGE_CORE_SYSTEM_EXCEPTION__
+#endif	// __MCD_CORE_SYSTEM_EXCEPTION__

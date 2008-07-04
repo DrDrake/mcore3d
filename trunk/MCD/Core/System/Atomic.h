@@ -1,11 +1,11 @@
-#ifndef __SGE_CORE_SYSTEM_ATOMIC__
-#define __SGE_CORE_SYSTEM_ATOMIC__
+#ifndef __MCD_CORE_SYSTEM_ATOMIC__
+#define __MCD_CORE_SYSTEM_ATOMIC__
 
 #include "Mutex.h"
 #include "PlatformIncludeFwd.h"
 #include "TypeTrait.h"
 
-namespace SGE {
+namespace MCD {
 
 /*!	A thread safe variable of any type. Protects assignments with a mutex.
  */
@@ -58,7 +58,7 @@ protected:
 	mutable Mutex mMutex;
 };	// AtomicValue
 
-#ifdef SGE_GCC
+#ifdef MCD_GCC
 
 inline long interlockedExchangeAdd(long volatile* addEnd, long value)
 {
@@ -103,7 +103,7 @@ private:
 	volatile int value;
 };	// AtomicInteger
 
-#if defined(SGE_VC)
+#if defined(MCD_VC)
 
 int AtomicInteger::operator++() {
 	return _InterlockedIncrement((LONG*)&value);
@@ -113,7 +113,7 @@ int AtomicInteger::operator--() {
 	return _InterlockedDecrement((LONG*)&value);
 }
 
-#elif defined(SGE_GCC)
+#elif defined(MCD_GCC)
 
 int AtomicInteger::operator++() {
 	return interlockedExchangeAdd((long*)&value, 1);
@@ -125,6 +125,6 @@ int AtomicInteger::operator--() {
 
 #endif
 
-}	// namespace SGE
+}	// namespace MCD
 
-#endif	// __SGE_CORE_SYSTEM_ATOMIC__
+#endif	// __MCD_CORE_SYSTEM_ATOMIC__

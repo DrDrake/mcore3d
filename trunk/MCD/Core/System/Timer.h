@@ -1,15 +1,15 @@
-#ifndef __SGE_CORE_SYSTEM_TIMER__
-#define __SGE_CORE_SYSTEM_TIMER__
+#ifndef __MCD_CORE_SYSTEM_TIMER__
+#define __MCD_CORE_SYSTEM_TIMER__
 
 #include "../ShareLib.h"
 #include "Platform.h"
 
-namespace SGE {
+namespace MCD {
 
 /*!	Class for storing a time interval value.
 	The TimeInterval stores number of CPU clock ticks using 64 bits integer as the time interval
  */
-class SGE_CORE_API TimeInterval
+class MCD_CORE_API TimeInterval
 {
 public:
 	TimeInterval() : mTicks(0)	{}
@@ -18,7 +18,7 @@ public:
 		set(ticks);
 	}
 
-	SGE_IMPLICIT TimeInterval(double second) {
+	MCD_IMPLICIT TimeInterval(double second) {
 		set(second);
 	}
 
@@ -86,7 +86,7 @@ private:
 };	// TimeInterval
 
 //! A timer to measure time interval.
-class SGE_CORE_API Timer
+class MCD_CORE_API Timer
 {
 public:
 	Timer();
@@ -103,7 +103,7 @@ protected:
 };	// Timer
 
 //! A timer to measure delta time between each call.
-class SGE_CORE_API DeltaTimer
+class MCD_CORE_API DeltaTimer
 {
 public:
 	DeltaTimer();
@@ -121,6 +121,6 @@ protected:
 	mutable TimeInterval mLastTime;
 };	// DeltaTimer
 
-}	// namespace SGE
+}	// namespace MCD
 
-#endif	// __SGE_CORE_SYSTEM_TIMER__
+#endif	// __MCD_CORE_SYSTEM_TIMER__

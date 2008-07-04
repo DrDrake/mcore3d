@@ -1,10 +1,10 @@
-#ifndef __SGE_CORE_MATH_VEC3__
-#define __SGE_CORE_MATH_VEC3__
+#ifndef __MCD_CORE_MATH_VEC3__
+#define __MCD_CORE_MATH_VEC3__
 
 #include "Tuple.h"
 #include "Magnitude.h"
 
-namespace SGE {
+namespace MCD {
 
 template<typename T>
 struct Vec3TupleUnion {
@@ -114,6 +114,6 @@ template<typename T> const Vec3<T> Vec3<T>::c001 = Vec3(0, 0, 1);
 
 typedef Vec3<float> Vec3f;
 
-}	// namespace SGE
+}	// namespace MCD
 
-#endif	// __SGE_CORE_MATH_VEC3__
+#endif	// __MCD_CORE_MATH_VEC3__

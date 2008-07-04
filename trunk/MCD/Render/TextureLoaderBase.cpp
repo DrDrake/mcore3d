@@ -4,7 +4,7 @@
 #include "TextureLoaderBaseImpl.inc"
 #include "../../3Party/glew/glew.h"
 
-namespace SGE {
+namespace MCD {
 
 TextureLoaderBase::LoaderBaseImpl::LoaderBaseImpl(TextureLoaderBase& loader)
 	:
@@ -30,7 +30,7 @@ TextureLoaderBase::~TextureLoaderBase()
 
 void TextureLoaderBase::setImpl(LoaderBaseImpl* impl)
 {
-	SGE_ASSERT(mImpl == nullptr);
+	MCD_ASSERT(mImpl == nullptr);
 	mImpl = impl;
 }
 
@@ -98,4 +98,4 @@ IResourceLoader::LoadingState TextureLoaderBase::getLoadingState() const
 	return mLoadingState;
 }
 
-}	// namespace SGE
+}	// namespace MCD

@@ -1,15 +1,15 @@
-#ifndef __SGE_RENDER_PNGLOADER__
-#define __SGE_RENDER_PNGLOADER__
+#ifndef __MCD_RENDER_PNGLOADER__
+#define __MCD_RENDER_PNGLOADER__
 
 #include "TextureLoaderBase.h"
 
-namespace SGE {
+namespace MCD {
 
 /*!	Load png file.
 	Progressive png is supported.
 	\note Png that use color palette is not supported.
  */
-class SGE_RENDER_API PngLoader : public TextureLoaderBase
+class MCD_RENDER_API PngLoader : public TextureLoaderBase
 {
 	class LoaderImpl;
 
@@ -26,6 +26,6 @@ protected:
 	sal_override void uploadData();
 };	// PngLoader
 
-}	// namespace SGE
+}	// namespace MCD
 
-#endif	// __SGE_RENDER_PNGLOADER__
+#endif	// __MCD_RENDER_PNGLOADER__

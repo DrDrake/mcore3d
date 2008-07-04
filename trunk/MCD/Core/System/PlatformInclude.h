@@ -1,9 +1,9 @@
-#ifndef __SGE_CORE_SYSTEM_PLATFORMINCLUDE__
-#define __SGE_CORE_SYSTEM_PLATFORMINCLUDE__
+#ifndef __MCD_CORE_SYSTEM_PLATFORMINCLUDE__
+#define __MCD_CORE_SYSTEM_PLATFORMINCLUDE__
 
 #include "PlatformIncludeFwd.h"
 
-#if defined(SGE_VC) || defined(SGE_CYGWIN)
+#if defined(MCD_VC) || defined(MCD_CYGWIN)
 
 #ifndef VC_EXTRALEAN
 #	define VC_EXTRALEAN			// Exclude rarely-used stuff from Windows headers
@@ -22,7 +22,7 @@
 #define _UNICODE
 #include <windows.h>
 
-#if defined(SGE_VC)
+#if defined(MCD_VC)
 #	include <tchar.h>
 #endif
 
@@ -30,13 +30,13 @@
 
 #include <sys/utime.h>
 
-#endif	// SGE_VC
+#endif	// MCD_VC
 
-#ifdef SGE_GCC
+#ifdef MCD_GCC
 
 #include <sys/time.h>
 #include <errno.h>
 
-#endif	// SGE_GCC
+#endif	// MCD_GCC
 
-#endif	//__SGE_CORE_SYSTEM_PLATFORMINCLUDE__
+#endif	//__MCD_CORE_SYSTEM_PLATFORMINCLUDE__

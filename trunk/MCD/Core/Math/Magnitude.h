@@ -1,9 +1,9 @@
-#ifndef __SGE_CORE_MATH_MAGNITUDE__
-#define __SGE_CORE_MATH_MAGNITUDE__
+#ifndef __MCD_CORE_MATH_MAGNITUDE__
+#define __MCD_CORE_MATH_MAGNITUDE__
 
 #include "../System/Platform.h"
 
-namespace SGE {
+namespace MCD {
 
 /*!	Stores a squared value of a magnitude.
 	Usefull when a function returns a magnitude like Vec3::length()
@@ -75,6 +75,6 @@ protected:
 	T mSquaredMagnitude;
 };	// Magnitude
 
-}	// namespace SGE
+}	// namespace MCD
 
-#endif	// __SGE_CORE_MATH_MAGNITUDE__
+#endif	// __MCD_CORE_MATH_MAGNITUDE__

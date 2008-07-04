@@ -1,10 +1,10 @@
-#ifndef __SGE_CORE_MATH_TUPLE__
-#define __SGE_CORE_MATH_TUPLE__
+#ifndef __MCD_CORE_MATH_TUPLE__
+#define __MCD_CORE_MATH_TUPLE__
 
 #include "../System/TypeTrait.h"
 #include <math.h>
 
-namespace SGE {
+namespace MCD {
 
 template<typename T, size_t N>
 struct DefaultTupleUnion {
@@ -53,7 +53,7 @@ public:
 	enum { N = N_ };
 
 	//! Parameter type for fast function passing
-	typedef typename SGE::ParamType<T>::RET param_type;
+	typedef typename MCD::ParamType<T>::RET param_type;
 
 	MathTuple() {}
 
@@ -67,13 +67,13 @@ public:
 
 	param_type operator[](const size_t i) const
 	{
-		SGE_ASSUME(i < N);
+		MCD_ASSUME(i < N);
 		return Data[i];
 	}
 
 	T& operator[](const size_t i)
 	{
-		SGE_ASSUME(i < N);
+		MCD_ASSUME(i < N);
 		return Data[i];
 	}
 
@@ -212,6 +212,6 @@ public:
 	}
 };	// MathTuple
 
-}	// namespace SGE
+}	// namespace MCD
 
-#endif	// __SGE_CORE_MATH_TUPLE__
+#endif	// __MCD_CORE_MATH_TUPLE__

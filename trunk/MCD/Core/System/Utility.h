@@ -1,5 +1,5 @@
-#ifndef __SGE_CORE_SYSTEM_UTILITY__
-#define __SGE_CORE_SYSTEM_UTILITY__
+#ifndef __MCD_CORE_SYSTEM_UTILITY__
+#define __MCD_CORE_SYSTEM_UTILITY__
 
 #include "../ShareLib.h"
 #include "Platform.h"
@@ -9,10 +9,10 @@
 	Contains some small but useful utilities.
  */
 
-namespace SGE {
+namespace MCD {
 
 //! Throw an std::runtime_error if the input parameter is null.
-SGE_CORE_API void throwIfNull(
+MCD_CORE_API void throwIfNull(
 	sal_maybenull const void* pointerToCheck,
 	sal_in_z sal_notnull const char* message = "Null pointer"
 	) throw(std::runtime_error);
@@ -21,12 +21,12 @@ SGE_CORE_API void throwIfNull(
 	The format of the message is as follow:
 	\em prefixMessage Reason:"system error message"
  */
-#ifdef SGE_VC
+#ifdef MCD_VC
 __declspec(noreturn)
 #endif
-SGE_CORE_API void throwSystemErrorMessage(
+MCD_CORE_API void throwSystemErrorMessage(
 	sal_in_z sal_notnull const char* prefixMessage
 	) throw(std::runtime_error);
-}	// namespace SGE
+}	// namespace MCD
 
-#endif	// __SGE_CORE_SYSTEM_WSTR2STR__
+#endif	// __MCD_CORE_SYSTEM_WSTR2STR__

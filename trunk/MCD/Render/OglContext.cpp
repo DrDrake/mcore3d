@@ -6,7 +6,7 @@
 
 #include "../../3Party/glew/glew.h"
 
-#if defined(SGE_VC)
+#if defined(MCD_VC)
 #	include "../../3Party/glew/wglew.h"
 #	pragma comment(lib, "OpenGL32")
 #	pragma comment(lib, "GLU32")
@@ -19,7 +19,7 @@
 
 #undef GLEW_STATIC
 
-namespace SGE {
+namespace MCD {
 
 class OglContext::Impl
 {
@@ -104,14 +104,14 @@ OglContext::~OglContext()
 
 bool OglContext::makeActive()
 {
-	SGE_ASSUME(mImpl != nullptr);
+	MCD_ASSUME(mImpl != nullptr);
 	return mImpl->makeActive();
 }
 
 bool OglContext::swapBuffers()
 {
-	SGE_ASSUME(mImpl != nullptr);
+	MCD_ASSUME(mImpl != nullptr);
 	return mImpl->swapBuffers();
 }
 
-}	// namespace SGE
+}	// namespace MCD

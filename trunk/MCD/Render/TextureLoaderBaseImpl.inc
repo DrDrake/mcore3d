@@ -4,9 +4,9 @@
 #include "TextureLoaderBase.h"
 #include "../Core/System/Mutex.h"
 
-namespace SGE {
+namespace MCD {
 
-class SGE_RENDER_API TextureLoaderBase::LoaderBaseImpl
+class MCD_RENDER_API TextureLoaderBase::LoaderBaseImpl
 {
 public:
 	LoaderBaseImpl(TextureLoaderBase& loader);
@@ -31,4 +31,4 @@ public:
 	}
 };	// PrivateAccessor
 
-}	// namespace SGE
+}	// namespace MCD

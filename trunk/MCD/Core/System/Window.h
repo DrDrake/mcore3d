@@ -1,18 +1,18 @@
-#ifndef __SGE_CORE_SYSTEM_WINDOW__
-#define __SGE_CORE_SYSTEM_WINDOW__
+#ifndef __MCD_CORE_SYSTEM_WINDOW__
+#define __MCD_CORE_SYSTEM_WINDOW__
 
 #include "NonCopyable.h"
 #include "../ShareLib.h"
 #include <stdexcept>
 
-namespace SGE {
+namespace MCD {
 
 class Event;
 
 /*!	Base class for classes that want to receive events.
 	For internal use only.
  */
-class SGE_NOVTABLE IWindowListener
+class MCD_NOVTABLE IWindowListener
 {
 public:
 	virtual ~IWindowListener() {}
@@ -21,7 +21,7 @@ public:
 	virtual void onEvent(const Event& eventReceived) = 0;
 };	// IWindowListener
 
-class SGE_CORE_API Window : protected IWindowListener, Noncopyable
+class MCD_CORE_API Window : protected IWindowListener, Noncopyable
 {
 public:
 	Window();
@@ -64,6 +64,6 @@ protected:
 	Impl* mImpl;
 };	// Window
 
-}	// namespace SGE
+}	// namespace MCD
 
-#endif	// __SGE_CORE_SYSTEM_WINDOW__
+#endif	// __MCD_CORE_SYSTEM_WINDOW__

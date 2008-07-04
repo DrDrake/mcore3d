@@ -1,13 +1,13 @@
 #include "Pch.h"
-#include "../../../SGE/Core/System/LinkList.h"
-#include "../../../SGE/Core/System/Map.h"
-#include "../../../SGE/Core/System/Macros.h"
-#include "../../../SGE/Core/System/StrUtility.h"
-#include "../../../SGE/Core/System/Utility.h"
+#include "../../../MCD/Core/System/LinkList.h"
+#include "../../../MCD/Core/System/Map.h"
+#include "../../../MCD/Core/System/Macros.h"
+#include "../../../MCD/Core/System/StrUtility.h"
+#include "../../../MCD/Core/System/Utility.h"
 #include <stdexcept>
 #include <vector>
 
-using namespace SGE;
+using namespace MCD;
 
 namespace {
 
@@ -211,7 +211,7 @@ struct BiDirMapNode
 
 	struct Integer : public MapBase<int>::NodeBase {
 		explicit Integer(int key) : NodeBase(key) {}
-		SGE_DECLAR_GET_OUTER_OBJ(BiDirMapNode, mId);
+		MCD_DECLAR_GET_OUTER_OBJ(BiDirMapNode, mId);
 		sal_override void destroyThis() throw() {
 			delete getOuterSafe();
 		}
@@ -219,7 +219,7 @@ struct BiDirMapNode
 
 	struct String : public MapBase<std::string>::NodeBase {
 		explicit String(const std::string& key) : NodeBase(key) {}
-		SGE_DECLAR_GET_OUTER_OBJ(BiDirMapNode, mStr);
+		MCD_DECLAR_GET_OUTER_OBJ(BiDirMapNode, mStr);
 		sal_override void destroyThis() throw() {
 			delete getOuterSafe();
 		}
@@ -270,7 +270,7 @@ struct UnOrderedMapNode
 	// The map part which provide key mapping
 	struct Map : public MapBase<int>::NodeBase {
 		explicit Map(int key) : NodeBase(key) {}
-		SGE_DECLAR_GET_OUTER_OBJ(UnOrderedMapNode, mMap);
+		MCD_DECLAR_GET_OUTER_OBJ(UnOrderedMapNode, mMap);
 		sal_override void destroyThis() throw() {
 			delete getOuterSafe();
 		}
@@ -278,7 +278,7 @@ struct UnOrderedMapNode
 
 	// The list part which remember the insertion order
 	struct List : public LinkListBase::Node<List> {
-		SGE_DECLAR_GET_OUTER_OBJ(UnOrderedMapNode, mList);
+		MCD_DECLAR_GET_OUTER_OBJ(UnOrderedMapNode, mList);
 		sal_override void destroyThis() throw() {
 			delete getOuterSafe();
 		}

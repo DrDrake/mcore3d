@@ -1,10 +1,10 @@
 #include "Pch.h"
-#include "../../../SGE/Core/System/RawFileSystem.h"
-#include "../../../SGE/Core/System/Resource.h"
-#include "../../../SGE/Core/System/ResourceLoader.h"
-#include "../../../SGE/Core/System/ResourceManager.h"
+#include "../../../MCD/Core/System/RawFileSystem.h"
+#include "../../../MCD/Core/System/Resource.h"
+#include "../../../MCD/Core/System/ResourceLoader.h"
+#include "../../../MCD/Core/System/ResourceManager.h"
 
-using namespace SGE;
+using namespace MCD;
 
 namespace {
 

@@ -1,17 +1,17 @@
-#ifndef __SGE_CORE_SYSTEM_MUTEX__
-#define __SGE_CORE_SYSTEM_MUTEX__
+#ifndef __MCD_CORE_SYSTEM_MUTEX__
+#define __MCD_CORE_SYSTEM_MUTEX__
 
 #include "../ShareLib.h"
 #include "NonCopyable.h"
 
-#if !defined(SGE_WIN32)
+#if !defined(MCD_WIN32)
 #	include <pthread.h>
 #endif
 
-namespace SGE {
+namespace MCD {
 
 //! Mutex.
-class SGE_CORE_API Mutex : Noncopyable
+class MCD_CORE_API Mutex : Noncopyable
 {
 public:
 	Mutex();
@@ -26,7 +26,7 @@ public:
 	bool isLocked() { return _locked; }
 #endif
 
-#ifdef SGE_WIN32
+#ifdef MCD_WIN32
 	/*!	A char buffer that pretended to be a CRITICAL_SECTION.
 		Using such an approach, we need not to include Windows.h
 		The sizeof(CRITICAL_SECTION) is 24 on win32
@@ -44,7 +44,7 @@ protected:
 };	// Mutex
 
 //! RecursiveMutex
-class SGE_CORE_API RecursiveMutex : private Noncopyable
+class MCD_CORE_API RecursiveMutex : private Noncopyable
 {
 public:
 	RecursiveMutex();
@@ -54,7 +54,7 @@ public:
 	void unlock();
 	bool tryLock();
 
-#ifdef SGE_WIN32
+#ifdef MCD_WIN32
 	char mMutex[24];
 #else
 	pthread_mutex_t mMutex;
@@ -130,6 +130,6 @@ public:
 	RecursiveMutex& m;
 };	// ScopeRecursiveUnlockOnly
 
-}	// namespace SGE
+}	// namespace MCD
 
-#endif	// __SGE_CORE_SYSTEM_MUTEX__
+#endif	// __MCD_CORE_SYSTEM_MUTEX__

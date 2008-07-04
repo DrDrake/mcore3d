@@ -1,7 +1,7 @@
 #include "Pch.h"
-#include "../../../SGE/Core/System/IntrusivePtr.h"
+#include "../../../MCD/Core/System/IntrusivePtr.h"
 
-using namespace SGE;
+using namespace MCD;
 
 namespace {
 

@@ -1,9 +1,9 @@
-#ifndef __SGE_CORE_SYSTEM_INTRUSIVEPTR__
-#define __SGE_CORE_SYSTEM_INTRUSIVEPTR__
+#ifndef __MCD_CORE_SYSTEM_INTRUSIVEPTR__
+#define __MCD_CORE_SYSTEM_INTRUSIVEPTR__
 
 #include "Platform.h"
 
-namespace SGE {
+namespace MCD {
 
 /*!	A smart pointer that uses intrusive reference counting.
 	Relies on unqualified calls to
@@ -25,7 +25,7 @@ class IntrusivePtr
 public:
 	IntrusivePtr() : mPtr(nullptr)	{}
 
-	SGE_IMPLICIT IntrusivePtr(sal_in_opt T* p, bool addRef=true)
+	MCD_IMPLICIT IntrusivePtr(sal_in_opt T* p, bool addRef=true)
 		: mPtr(p)
 	{
 		if(mPtr != nullptr && addRef)
@@ -156,6 +156,6 @@ IntrusivePtr<T> dynamic_pointer_cast(const IntrusivePtr<U>& p) {
 	return dynamic_cast<T*>(p.get());
 }
 
-}	// namespace SGE
+}	// namespace MCD
 
-#endif	// __SGE_CORE_SYSTEM_INTRUSIVEPTR__
+#endif	// __MCD_CORE_SYSTEM_INTRUSIVEPTR__

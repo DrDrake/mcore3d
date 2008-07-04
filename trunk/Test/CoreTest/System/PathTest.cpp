@@ -1,8 +1,8 @@
 #include "Pch.h"
-#include "../../../SGE/Core/System/Path.h"
+#include "../../../MCD/Core/System/Path.h"
 #include <stdexcept>
 
-using namespace SGE;
+using namespace MCD;
 
 TEST(Basic_PathTest)
 {

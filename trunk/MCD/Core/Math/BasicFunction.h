@@ -1,10 +1,10 @@
-#ifndef __SGE_CORE_MATH_BASICFUNCTION__
-#define __SGE_CORE_MATH_BASICFUNCTION__
+#ifndef __MCD_CORE_MATH_BASICFUNCTION__
+#define __MCD_CORE_MATH_BASICFUNCTION__
 
 #include "../System/Platform.h"
 #include <math.h>
 
-namespace SGE {
+namespace MCD {
 
 template<class Real>
 class Math
@@ -50,6 +50,6 @@ public:
 	static Real cOverSqrt2() { return static_cast<Real>(0.707106781186547524401); }
 };	// Math
 
-}	// namespace SGE
+}	// namespace MCD
 
-#endif	// __SGE_CORE_MATH_BASICFUNCTION__
+#endif	// __MCD_CORE_MATH_BASICFUNCTION__

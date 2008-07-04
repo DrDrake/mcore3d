@@ -1,9 +1,9 @@
 #include "Pch.h"
-#include "../../../SGE/Core/System/Thread.h"
-#include "../../../SGE/Core/System/Window.h"
-#include "../../../SGE/Core/System/WindowEvent.h"
+#include "../../../MCD/Core/System/Thread.h"
+#include "../../../MCD/Core/System/Window.h"
+#include "../../../MCD/Core/System/WindowEvent.h"
 
-using namespace SGE;
+using namespace MCD;
 
 TEST(Create_WindowTest)
 {

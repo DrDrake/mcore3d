@@ -1,14 +1,14 @@
-#ifndef __SGE_CORE_SYSTEM_PATH__
-#define __SGE_CORE_SYSTEM_PATH__
+#ifndef __MCD_CORE_SYSTEM_PATH__
+#define __MCD_CORE_SYSTEM_PATH__
 
 #include "../ShareLib.h"
 #include "Platform.h"
 #include <string>
 
-namespace SGE {
+namespace MCD {
 
 //! A path class that is similar the one provided in boost.
-class SGE_CORE_API Path
+class MCD_CORE_API Path
 {
 public:
 	typedef wchar_t char_type;
@@ -16,9 +16,9 @@ public:
 
 	Path() {}
 
-	SGE_IMPLICIT Path(sal_in_z sal_notnull const char_type* path) : mStr(path) {}
+	MCD_IMPLICIT Path(sal_in_z sal_notnull const char_type* path) : mStr(path) {}
 
-	SGE_IMPLICIT Path(const string_type& path) : mStr(path) {}
+	MCD_IMPLICIT Path(const string_type& path) : mStr(path) {}
 
 	//! Get the internal string representation of the path.
 	const string_type& getString() const {
@@ -105,6 +105,6 @@ private:
 	string_type mStr;
 };	// Path
 
-}	// namespace SGE
+}	// namespace MCD
 
-#endif	// __SGE_CORE_SYSTEM_PATH__
+#endif	// __MCD_CORE_SYSTEM_PATH__

@@ -2,7 +2,7 @@
 #include "Exception.h"
 #include "StrUtility.h"
 
-namespace SGE {
+namespace MCD {
 
 RuntimeError::RuntimeError(const wchar_t* msg)
 	:
@@ -39,4 +39,4 @@ const wchar_t* RuntimeError::wwhat() const throw()
 	return L"";
 }
 
-}	// namespace SGE
+}	// namespace MCD

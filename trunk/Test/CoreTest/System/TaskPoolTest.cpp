@@ -1,16 +1,16 @@
 #include "Pch.h"
-#include "../../../SGE/Core/System/TaskPool.h"
+#include "../../../MCD/Core/System/TaskPool.h"
 
-using namespace SGE;
+using namespace MCD;
 
 TEST(Basic_TaskPoolTest)
 {
-	class Task : public SGE::TaskPool::Task
+	class Task : public MCD::TaskPool::Task
 	{
 	public:
 		Task(size_t loopCount=100, uint priority=0)
 			:
-			SGE::TaskPool::Task(priority),
+			MCD::TaskPool::Task(priority),
 			mLoopCount(loopCount),
 			mSeed(0)
 		{
@@ -54,10 +54,10 @@ TEST(Basic_TaskPoolTest)
 
 TEST(DeleteTask_TaskPoolTest)
 {
-	class Task : public SGE::TaskPool::Task
+	class Task : public MCD::TaskPool::Task
 	{
 	public:
-		Task() : SGE::TaskPool::Task(0) {}
+		Task() : MCD::TaskPool::Task(0) {}
 
 		sal_override void run(Thread&) throw() {
 			delete this;

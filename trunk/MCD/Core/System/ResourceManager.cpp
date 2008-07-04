@@ -7,16 +7,16 @@
 #include "TaskPool.h"
 #include <map>
 
-#ifdef SGE_VC
+#ifdef MCD_VC
 #	pragma warning(push)
 #	pragma warning(disable: 6011)
 #endif
 #include <deque>
-#ifdef SGE_VC
+#ifdef MCD_VC
 #	pragma warning(pop)
 #endif
 
-namespace SGE {
+namespace MCD {
 
 struct MapNode
 {
@@ -25,7 +25,7 @@ struct MapNode
 	{
 		typedef MapBase<const Path&, const Path&>::Node<PathKey> Super;
 		explicit PathKey(const Path& path) : Super(path) {}
-		SGE_DECLAR_GET_OUTER_OBJ(MapNode, mPathKey);
+		MCD_DECLAR_GET_OUTER_OBJ(MapNode, mPathKey);
 		sal_override void destroyThis() throw() {
 			delete getOuterSafe();
 		}
@@ -61,7 +61,7 @@ class ResourceManager::Impl
 		// This function is called inside the worker thread, and the mutex should already be locked
 		void pushBack(const Event& event)
 		{
-			SGE_ASSERT(mMutex.isLocked());
+			MCD_ASSERT(mMutex.isLocked());
 			mQueue.push_back(event);
 		}
 
@@ -82,12 +82,12 @@ class ResourceManager::Impl
 		Mutex mMutex;
 	};	// EventQueue
 
-	class Task : public SGE::TaskPool::Task
+	class Task : public MCD::TaskPool::Task
 	{
 	public:
 		Task(const ResourcePtr& resource, IResourceLoader& loader, EventQueue& eventQueue, std::istream* is, uint priority)
 			:
-			SGE::TaskPool::Task(priority),
+			MCD::TaskPool::Task(priority),
 			mResource(resource),
 			mLoader(loader),
 			mEventQueue(eventQueue),
@@ -216,7 +216,7 @@ ResourceManager::~ResourceManager()
 
 ResourcePtr ResourceManager::load(const Path& fileId, bool block, uint priority)
 {
-	SGE_ASSUME(mImpl != nullptr);
+	MCD_ASSUME(mImpl != nullptr);
 
 	{	// Find for existing resource
 		MapNode* node = mImpl->mResourceMap.find(fileId)->getOuterSafe();
@@ -249,7 +249,7 @@ ResourcePtr ResourceManager::load(const Path& fileId, bool block, uint priority)
 		return nullptr;
 
 	MapNode* node = new MapNode(*resource, *loader);
-	SGE_VERIFY(mImpl->mResourceMap.insertUnique(node->mPathKey));
+	MCD_VERIFY(mImpl->mResourceMap.insertUnique(node->mPathKey));
 
 	// Now we can begin the load operation
 	if(block)
@@ -262,20 +262,20 @@ ResourcePtr ResourceManager::load(const Path& fileId, bool block, uint priority)
 
 ResourceManager::Event ResourceManager::popEvent()
 {
-	SGE_ASSUME(mImpl != nullptr);
+	MCD_ASSUME(mImpl != nullptr);
 	return mImpl->mEventQueue.popFront();
 }
 
 void ResourceManager::associateFactory(const wchar_t* extension, IFactory* factory)
 {
-	SGE_ASSUME(mImpl != nullptr);
+	MCD_ASSUME(mImpl != nullptr);
 	mImpl->associateFactory(extension, factory);
 }
 
 TaskPool& ResourceManager::taskPool()
 {
-	SGE_ASSUME(mImpl != nullptr);
+	MCD_ASSUME(mImpl != nullptr);
 	return mImpl->mTaskPool;
 }
 
-}	// namespace SGE
+}	// namespace MCD

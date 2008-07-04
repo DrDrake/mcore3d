@@ -1,10 +1,10 @@
-#ifndef __SGE_CORE_SYSTEM_WEAKPTR__
-#define __SGE_CORE_SYSTEM_WEAKPTR__
+#ifndef __MCD_CORE_SYSTEM_WEAKPTR__
+#define __MCD_CORE_SYSTEM_WEAKPTR__
 
 #include "IntrusivePtr.h"
 #include <utility>
 
-namespace SGE {
+namespace MCD {
 
 //!	\sa WeakPtr
 class WeakPtrFlag
@@ -158,7 +158,7 @@ class WeakPtr
 {
 public:
 	//! Raw pointer constructor (handles null pointer).
-	SGE_IMPLICIT WeakPtr(sal_in_opt T* ptr = nullptr) :
+	MCD_IMPLICIT WeakPtr(sal_in_opt T* ptr = nullptr) :
 		mPtr(ptr),
 		mValidityFlag(ptr == nullptr ? new WeakPtrFlag(false) : ptr->GetValidityFlag())
 	{
@@ -215,6 +215,6 @@ void swap(WeakPtr<T>& lhs, WeakPtr<T>& rhs) {
 	lhs.swap(rhs);
 }
 
-}	// namespace SGE
+}	// namespace MCD
 
-#endif	// __SGE_CORE_SYSTEM_WEAKPTR__
+#endif	// __MCD_CORE_SYSTEM_WEAKPTR__

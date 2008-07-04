@@ -2,7 +2,7 @@
 #include "Utility.h"
 #include "ErrorCode.h"
 
-namespace SGE {
+namespace MCD {
 
 void throwIfNull(
 	sal_maybenull const void* pointerToCheck,
@@ -19,14 +19,14 @@ void throwSystemErrorMessage(
 {
 	std::string msg(prefixMessage);
 	msg += " Reason :\"";
-	int errCode = SGE::getLastError();
+	int errCode = MCD::getLastError();
 	if(errCode == 0)
 		msg += "S_OK";
 	else
-		msg +=SGE::getErrorMessage(nullptr, errCode);
+		msg +=MCD::getErrorMessage(nullptr, errCode);
 
 	msg += "\"";
 	throw std::runtime_error(msg);
 }
 
-}	// namespace SGE
+}	// namespace MCD

@@ -1,15 +1,15 @@
-#ifndef __SGE_CORE_SYSTEM_RESOURCE__
-#define __SGE_CORE_SYSTEM_RESOURCE__
+#ifndef __MCD_CORE_SYSTEM_RESOURCE__
+#define __MCD_CORE_SYSTEM_RESOURCE__
 
 #include "Path.h"
 #include "IntrusivePtr.h"
 #include "WeakPtr.h"
 
-namespace SGE {
+namespace MCD {
 
 /*!	Resource
  */
-class SGE_CORE_API Resource : public WeakPtrTarget
+class MCD_CORE_API Resource : public WeakPtrTarget
 {
 public:
 	explicit Resource(const Path& fileId);
@@ -41,6 +41,6 @@ protected:
 
 typedef IntrusivePtr<Resource> ResourcePtr;
 
-}	// namespace SGE
+}	// namespace MCD
 
-#endif	// __SGE_CORE_SYSTEM_RESOURCE__
+#endif	// __MCD_CORE_SYSTEM_RESOURCE__

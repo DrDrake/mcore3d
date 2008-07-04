@@ -1,7 +1,7 @@
 #include "Pch.h"
-#include "../../../SGE/Core/Math/Tuple.h"
+#include "../../../MCD/Core/Math/Tuple.h"
 
-using namespace SGE;
+using namespace MCD;
 
 struct Tuple3f : public MathTuple<float, 3, Tuple3f> {
 	typedef MathTuple<float, 3, Tuple3f> super_type;

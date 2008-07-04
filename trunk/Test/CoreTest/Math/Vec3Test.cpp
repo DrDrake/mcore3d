@@ -1,7 +1,7 @@
 #include "Pch.h"
-#include "../../../SGE/Core/Math/Vec3.h"
+#include "../../../MCD/Core/Math/Vec3.h"
 
-using namespace SGE;
+using namespace MCD;
 
 namespace {
 	const Vec3f v100(1, 0, 0);

@@ -1,9 +1,9 @@
-#ifndef __SGE_CORE_SYSTEM_PLATFORMINCLUDEFWD__
-#define __SGE_CORE_SYSTEM_PLATFORMINCLUDEFWD__
+#ifndef __MCD_CORE_SYSTEM_PLATFORMINCLUDEFWD__
+#define __MCD_CORE_SYSTEM_PLATFORMINCLUDEFWD__
 
 #include "Platform.h"
 
-#if defined(SGE_VC)
+#if defined(MCD_VC)
 
 #include <basetsd.h>	// Type definitions for the basic sized types
 typedef int BOOL;
@@ -46,4 +46,4 @@ extern "C" {
 
 #endif
 
-#endif	// __SGE_CORE_SYSTEM_PLATFORMINCLUDEFWD__
+#endif	// __MCD_CORE_SYSTEM_PLATFORMINCLUDEFWD__

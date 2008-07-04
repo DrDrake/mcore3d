@@ -3,16 +3,16 @@
 #include "PlatformInclude.h"
 #include "Utility.h"
 
-namespace SGE {
+namespace MCD {
 
-#ifdef SGE_WIN32
+#ifdef MCD_WIN32
 DWORD WINAPI _Run(sal_notnull LPVOID p) {
 #else
 void* _Run(sal_notnull void* p) {
 #endif
 	Thread* t = reinterpret_cast<Thread*>(p);
 	Thread::IRunnable* runnable = t->runnable();
-	SGE_ASSUME(runnable != nullptr);
+	MCD_ASSUME(runnable != nullptr);
 	runnable->run(*t);
 	return 0;
 }
@@ -31,7 +31,7 @@ Thread::Thread(IRunnable& runnable, bool autoDeleteRunnable)
 void Thread::init()
 {
 	mRunnable = nullptr;
-#ifdef SGE_WIN32
+#ifdef MCD_WIN32
 	mHandle = nullptr;
 	mId = 0;
 #else
@@ -70,8 +70,8 @@ void Thread::start(IRunnable& runnable, bool autoDeleteRunnable)
 	mRunnable = &runnable;
 	mKeepRun = true;
 
-#ifdef SGE_WIN32
-	SGE_ASSERT(mId == 0);
+#ifdef MCD_WIN32
+	MCD_ASSERT(mId == 0);
 	mHandle = reinterpret_cast<intptr_t>(::CreateThread(nullptr, 0, &_Run, this, 0, (LPDWORD)&mId));
 	if(!mHandle)
 #else
@@ -95,7 +95,7 @@ bool Thread::keepRun() const
 bool Thread::isWaitable() const
 {
 	ScopeRecursiveLock lock(mMutex);
-	return mHandle && SGE::getCurrentThreadId() != id();
+	return mHandle && MCD::getCurrentThreadId() != id();
 }
 
 void Thread::throwIfWaited() const throw(std::logic_error)
@@ -112,14 +112,14 @@ void Thread::cleanup()
 	if(!mHandle)
 		return;
 
-#ifdef SGE_WIN32
-	SGE_VERIFY(::CloseHandle(reinterpret_cast<HANDLE>(mHandle)));
+#ifdef MCD_WIN32
+	MCD_VERIFY(::CloseHandle(reinterpret_cast<HANDLE>(mHandle)));
 	mHandle = nullptr;
 
-	SGE_ASSERT(mId != 0);
+	MCD_ASSERT(mId != 0);
 	mId = 0;
 #else
-	SGE_ASSERT(mHandle);
+	MCD_ASSERT(mHandle);
 	::pthread_detach(mHandle);
 	mHandle = pthread_t(nullptr);
 #endif
@@ -131,9 +131,9 @@ Thread::Priority Thread::getPriority() const
 
 	throwIfWaited();
 
-#ifdef SGE_CYGWIN
+#ifdef MCD_CYGWIN
 	throw std::logic_error("Not implemented.");
-#elif defined(SGE_WIN32)
+#elif defined(MCD_WIN32)
 	int ret = ::GetThreadPriority(reinterpret_cast<HANDLE>(mHandle));
 	if(ret == THREAD_PRIORITY_ERROR_RETURN)
 		throwSystemErrorMessage("Error getting thread priority.");
@@ -147,7 +147,7 @@ Thread::Priority Thread::getPriority() const
 #else
 	sched_param param;
 	int policy;
-	SGE_VERIFY(::pthread_getschedparam(mHandle, &policy, &param) == 0);
+	MCD_VERIFY(::pthread_getschedparam(mHandle, &policy, &param) == 0);
 
 	if(policy == SCHED_RR)
 		return NormalPriority;
@@ -164,10 +164,10 @@ void Thread::setPriority(Priority priority)
 
 	throwIfWaited();
 
-#ifdef SGE_CYGWIN
+#ifdef MCD_CYGWIN
 	(void)priority;
 	throw std::logic_error("Not implemented.");
-#elif defined(SGE_WIN32)
+#elif defined(MCD_WIN32)
 	if(::SetThreadPriority(reinterpret_cast<HANDLE>(mHandle), int(priority)) == 0)
 		throwSystemErrorMessage("Error setting thread priority.");
 #else
@@ -185,7 +185,7 @@ void Thread::setPriority(Priority priority)
 	else if(priority == HighPriority)
 		param.sched_priority = 70;
 	else
-		SGE_ASSUME(false);
+		MCD_ASSUME(false);
 	if(::pthread_setschedparam(mHandle, policy, &param) != 0)
 		throwSystemErrorMessage("Error setting thread priority.");
 #endif
@@ -200,13 +200,13 @@ void Thread::wait()
 
 	postQuit();
 
-	SGE_ASSERT(mHandle);
+	MCD_ASSERT(mHandle);
 
-#ifdef SGE_WIN32
+#ifdef MCD_WIN32
 	HANDLE handleBackup = reinterpret_cast<HANDLE>(mHandle);
 	mHandle = nullptr;
 
-	SGE_ASSERT(mId != 0);
+	MCD_ASSERT(mId != 0);
 	mId = 0;
 
 	// Unlock the mutex before the actual wait operation
@@ -216,9 +216,9 @@ void Thread::wait()
 
 	if(res == WAIT_FAILED)
 		throwSystemErrorMessage("Error waiting thread.");
-	SGE_ASSERT(res == WAIT_OBJECT_0);
+	MCD_ASSERT(res == WAIT_OBJECT_0);
 
-	SGE_VERIFY(::CloseHandle(handleBackup));
+	MCD_VERIFY(::CloseHandle(handleBackup));
 #else
 	pthread_t handleBackup = mHandle;
 	mHandle = pthread_t(nullptr);
@@ -226,7 +226,7 @@ void Thread::wait()
 	lock.m.unlock();
 	lock.cancel();
 
-	SGE_VERIFY(::pthread_join(handleBackup, nullptr) == 0);
+	MCD_VERIFY(::pthread_join(handleBackup, nullptr) == 0);
 #endif
 }
 
@@ -234,7 +234,7 @@ int Thread::id() const
 {
 	ScopeRecursiveLock lock(mMutex);
 
-#ifdef SGE_WIN32
+#ifdef MCD_WIN32
 	return mId;
 #else
 	return int(mHandle);
@@ -243,7 +243,7 @@ int Thread::id() const
 
 int getCurrentThreadId()
 {
-#ifdef SGE_WIN32
+#ifdef MCD_WIN32
 	return ::GetCurrentThreadId();
 #else
 	return int(::pthread_self());
@@ -252,7 +252,7 @@ int getCurrentThreadId()
 
 void mSleep(size_t millseconds)
 {
-#ifdef SGE_WIN32
+#ifdef MCD_WIN32
 	::Sleep(DWORD(millseconds));
 #else
 	::usleep(useconds_t(millseconds * 1000));
@@ -261,11 +261,11 @@ void mSleep(size_t millseconds)
 
 void uSleep(useconds_t microseconds)
 {
-#ifdef SGE_WIN32
+#ifdef MCD_WIN32
 	::Sleep(microseconds / 1000);
 #else
 	::usleep(microseconds);
 #endif
 }
 
-}	// namespace SGE
+}	// namespace MCD

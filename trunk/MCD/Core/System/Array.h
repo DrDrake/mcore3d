@@ -1,9 +1,9 @@
-#ifndef __SGE_CORE_SYSTEM_ARRAY__
-#define __SGE_CORE_SYSTEM_ARRAY__
+#ifndef __MCD_CORE_SYSTEM_ARRAY__
+#define __MCD_CORE_SYSTEM_ARRAY__
 
 #include "Platform.h"
 
-namespace SGE {
+namespace MCD {
 
 /*! Array class with checked limits.
 	A replacement for plan old array, adapted from boost's array.hpp
@@ -18,7 +18,7 @@ public:
 
 	T& operator[](size_t i)
 	{
-		SGE_ASSUME(i < N);
+		MCD_ASSUME(i < N);
 #ifdef NDEBUG
 		rangeCheck(i);
 #endif
@@ -27,7 +27,7 @@ public:
 
 	const T& operator[](size_t i) const
 	{
-		SGE_ASSUME(i < N);
+		MCD_ASSUME(i < N);
 #ifdef NDEBUG
 		rangeCheck(i);
 #endif
@@ -36,12 +36,12 @@ public:
 
 	//! Element access without range check, faster but use with care.
 	T& unsafeGetAt(size_t i) {
-		SGE_ASSUME(i < N);
+		MCD_ASSUME(i < N);
 		return elems[i];
 	}
 
 	const T& unsafeGetAt(size_t i) const {
-		SGE_ASSUME(i < N);
+		MCD_ASSUME(i < N);
 		return elems[i];
 	}
 
@@ -89,6 +89,6 @@ private:
 	}
 };	// Array
 
-}	// namespace SGE
+}	// namespace MCD
 
-#endif	// __SGE_CORE_SYSTEM_ARRAY__
+#endif	// __MCD_CORE_SYSTEM_ARRAY__

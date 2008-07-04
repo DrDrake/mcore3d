@@ -1,10 +1,10 @@
-#ifndef __SGE_CORE_SYSTEM_TASKPOOL__
-#define __SGE_CORE_SYSTEM_TASKPOOL__
+#ifndef __MCD_CORE_SYSTEM_TASKPOOL__
+#define __MCD_CORE_SYSTEM_TASKPOOL__
 
 #include "Thread.h"
 #include "Map.h"
 
-namespace SGE {
+namespace MCD {
 
 class ThreadPool;
 
@@ -12,9 +12,9 @@ class ThreadPool;
 
 	Example:
 	\code
-	class Task : public SGE::TaskPool::Task {
+	class Task : public MCD::TaskPool::Task {
 	public:
-		Task(int priority=0) : SGE::TaskPool::Task(priority) {}
+		Task(int priority=0) : MCD::TaskPool::Task(priority) {}
 
 		sal_override void run(Thread& thread) throw() {
 			// Do something usefull
@@ -39,14 +39,14 @@ class ThreadPool;
 	// when TaskPool is being deleted
 	\endcode
  */
-class SGE_CORE_API TaskPool : Noncopyable
+class MCD_CORE_API TaskPool : Noncopyable
 {
 public:
 	/*!	A unit of task to put into the job pool.
 		The task must handle their life time, and make sure it's destruction
 		will not happen during the execution of run().
 	 */
-	class SGE_CORE_API SGE_NOVTABLE Task : public Thread::IRunnable, public MapBase<int>::Node<Task>
+	class MCD_CORE_API MCD_NOVTABLE Task : public Thread::IRunnable, public MapBase<int>::Node<Task>
 	{
 	protected:
 		Task(int priority);
@@ -85,6 +85,6 @@ protected:
 	ThreadPool* mThreadPool;
 };	// TaskPool
 
-}	// namespace SGE
+}	// namespace MCD
 
-#endif	// __SGE_CORE_SYSTEM_TASKPOOL__
+#endif	// __MCD_CORE_SYSTEM_TASKPOOL__

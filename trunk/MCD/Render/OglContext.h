@@ -1,15 +1,15 @@
-#ifndef __SGE_RENDER_OGLCONTEXT__
-#define __SGE_RENDER_OGLCONTEXT__
+#ifndef __MCD_RENDER_OGLCONTEXT__
+#define __MCD_RENDER_OGLCONTEXT__
 
 #include "ShareLib.h"
 #include "../Core/System/NonCopyable.h"
 #include <stdexcept>
 
-namespace SGE {
+namespace MCD {
 
 /*!	Opengl context.
  */
-class SGE_RENDER_API OglContext : Noncopyable
+class MCD_RENDER_API OglContext : Noncopyable
 {
 public:
 #ifdef _WINDOWS
@@ -40,6 +40,6 @@ protected:
 	Impl* mImpl;
 };	// OglContext
 
-}	// namespace SGE
+}	// namespace MCD
 
-#endif	// __SGE_RENDER_OGLCONTEXT__
+#endif	// __MCD_RENDER_OGLCONTEXT__

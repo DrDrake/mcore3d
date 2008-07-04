@@ -2,7 +2,7 @@
 #include "Texture.h"
 #include "../../3Party/glew/glew.h"
 
-namespace SGE {
+namespace MCD {
 
 Texture::Texture(const Path& fileId)
 	:
@@ -37,4 +37,4 @@ bool Texture::hasAlpha(int format)
 		format == GL_COMPRESSED_RGBA_S3TC_DXT5_EXT);
 }
 
-}	// namespace SGE
+}	// namespace MCD

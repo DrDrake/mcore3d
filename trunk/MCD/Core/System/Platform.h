@@ -1,20 +1,20 @@
-#ifndef __SGE_CORE_SYSTEM_PLATFORM__
-#define __SGE_CORE_SYSTEM_PLATFORM__
+#ifndef __MCD_CORE_SYSTEM_PLATFORM__
+#define __MCD_CORE_SYSTEM_PLATFORM__
 
 #ifdef _MSC_VER
-#	define SGE_VC
+#	define MCD_VC
 #endif
 
 #ifdef __GNUC__
-#	define SGE_GCC
+#	define MCD_GCC
 #endif
 
 #ifdef _WIN32
-#	define SGE_WIN32
+#	define MCD_WIN32
 #endif
 
 #ifdef __CYGWIN__
-#	define SGE_CYGWIN
+#	define MCD_CYGWIN
 #endif
 
 #ifndef UNICODE
@@ -28,7 +28,7 @@
 //////////////////////////////////////////////////////////////////////////
 // For Visual Studio
 
-#if defined(SGE_VC)
+#if defined(MCD_VC)
 
 #ifndef _DEBUG
 #	ifndef NDEBUG
@@ -53,19 +53,19 @@
 	Using this macro remove both code size and run-time overhead of unnecessary vtable setting
 	\sa http://msdn.microsoft.com/msdnmag/issues/0300/c/
  */
-#define SGE_NOVTABLE __declspec(novtable)
+#define MCD_NOVTABLE __declspec(novtable)
 
 //! Declaring aligned variable
-#define SGE_VARALIGN(declaration, num) __declspec(align(num)) declaration;
+#define MCD_VARALIGN(declaration, num) __declspec(align(num)) declaration;
 
 //! Different level of inline attribute
-#define SGE_NOINLINE  __declspec(noinline)
-#define SGE_INLINE0
-#define SGE_INLINE1 inline
-#define SGE_INLINE2 __forceinline
+#define MCD_NOINLINE  __declspec(noinline)
+#define MCD_INLINE0
+#define MCD_INLINE1 inline
+#define MCD_INLINE2 __forceinline
 
 //! Annotation
-#define SGE_IMPLICIT
+#define MCD_IMPLICIT
 
 // Sized types
 typedef __int8	int8_t;
@@ -109,13 +109,13 @@ typedef unsigned int useconds_t;
 #include <assert.h>
 
 #ifdef  NDEBUG
-#	define SGE_ASSERT(Expression) ((void)0)
-#	define SGE_VERIFY(Expression) ((void)(Expression))
-#	define SGE_ASSUME(Expression) __assume(Expression)
+#	define MCD_ASSERT(Expression) ((void)0)
+#	define MCD_VERIFY(Expression) ((void)(Expression))
+#	define MCD_ASSUME(Expression) __assume(Expression)
 #else
-#	define SGE_ASSERT(Expression) assert(Expression)
-#	define SGE_VERIFY(Expression) assert(Expression)
-#	define SGE_ASSUME(Expression) { __assume(Expression); SGE_ASSERT(Expression); }
+#	define MCD_ASSERT(Expression) assert(Expression)
+#	define MCD_VERIFY(Expression) assert(Expression)
+#	define MCD_ASSUME(Expression) { __assume(Expression); MCD_ASSERT(Expression); }
 #endif
 
 /*! Use this function to tell the compiler that this function will never return.
@@ -149,31 +149,31 @@ using namespace vc_attributes;
 #define sal_checkreturn __checkReturn		// (caller must check the return value)
 
 // alloca
-#define SGE_STACKALLOCA(size) _malloca(size)
-#define SGE_STACKFREE(p) _freea(p)
+#define MCD_STACKALLOCA(size) _malloca(size)
+#define MCD_STACKFREE(p) _freea(p)
 
 //////////////////////////////////////////////////////////////////////////
 // For GCC
 
-#elif defined(SGE_GCC)
+#elif defined(MCD_GCC)
 
-#define SGE_NOVTABLE
+#define MCD_NOVTABLE
 
 //! Declaring aligned variable
-#define SGE_CC_VAR_ALIGN(declaration, num) declaration __attribute__((aligned(num)));
+#define MCD_CC_VAR_ALIGN(declaration, num) declaration __attribute__((aligned(num)));
 
 //! Different level of inline attribute
-#define SGE_NOINLINE __attribute__ ((noinline))
-#define SGE_INLINE0
-#define SGE_INLINE1 inline
+#define MCD_NOINLINE __attribute__ ((noinline))
+#define MCD_INLINE0
+#define MCD_INLINE1 inline
 #if !defined(__NO_INLINE__)
-#	define SGE_INLINE2 __inline__ __attribute__((always_inline))
+#	define MCD_INLINE2 __inline__ __attribute__((always_inline))
 #else
-#	define SGE_INLINE2 inline
+#	define MCD_INLINE2 inline
 #endif
 
 //! Annotation
-#define SGE_IMPLICIT
+#define MCD_IMPLICIT
 
 // Sized types
 #include <inttypes.h>
@@ -187,13 +187,13 @@ typedef unsigned char byte_t;
 #include <assert.h>
 
 #ifdef  NDEBUG
-#	define SGE_ASSERT(Expression) ((void)0)
-#	define SGE_VERIFY(Expression) ((void)(Expression))
-#	define SGE_ASSUME(Expression) ((void)0)
+#	define MCD_ASSERT(Expression) ((void)0)
+#	define MCD_VERIFY(Expression) ((void)(Expression))
+#	define MCD_ASSUME(Expression) ((void)0)
 #else
-#	define SGE_ASSERT(Expression) assert(Expression)
-#	define SGE_VERIFY(Expression) assert(Expression)
-#	define SGE_ASSUME(Expression) assert(Expression)
+#	define MCD_ASSERT(Expression) assert(Expression)
+#	define MCD_VERIFY(Expression) assert(Expression)
+#	define MCD_ASSUME(Expression) assert(Expression)
 #endif
 
 inline void NoReturn() __attribute__((noreturn));
@@ -212,10 +212,10 @@ void NoReturn() { throw "NoReturn should not be invoked"; }
 #define sal_checkreturn
 
 // alloca
-#define SGE_STACKALLOCA(size) alloca(size)
-#define SGE_STACKFREE(p)
+#define MCD_STACKALLOCA(size) alloca(size)
+#define MCD_STACKFREE(p)
 
-#ifdef SGE_GCC
+#ifdef MCD_GCC
 #include <bits/stringfwd.h>
 #include <sstream>
 namespace std {
@@ -227,4 +227,4 @@ namespace std {
 
 #endif
 
-#endif	// __SGE_CORE_SYSTEM_PLATFORM__
+#endif	// __MCD_CORE_SYSTEM_PLATFORM__

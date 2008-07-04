@@ -2,7 +2,7 @@
 <VisualStudioPropertySheet
 	ProjectType="Visual C++"
 	Version="8.00"
-	Name="SGEAnalysis"
+	Name="MCDAnalysis"
 	>
 	<Tool
 		Name="VCCLCompilerTool"
@@ -13,8 +13,8 @@
 	/>
 	<Tool
 		Name="VCLinkerTool"
-		OutputFile="$(OutDir)/SGE$(ProjectName).dll"
+		OutputFile="$(OutDir)/MCD$(ProjectName).dll"
 		SubSystem="1"
-		ImportLibrary="../../Lib/SGE$(ProjectName).lib"
+		ImportLibrary="../../Lib/MCD$(ProjectName).lib"
 	/>
 </VisualStudioPropertySheet>

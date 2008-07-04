@@ -5,7 +5,7 @@
 #include <limits.h>	// For ULLONG_MAX
 #include <math.h>	// For floof
 
-namespace SGE {
+namespace MCD {
 
 uint64_t getTimeSinceMachineStartup()
 {
@@ -29,8 +29,8 @@ uint64_t GetQueryPerformanceFrequency()
 	LARGE_INTEGER ret;
 	BOOL ok = ::QueryPerformanceFrequency(&ret);
 	(void)ok;
-	SGE_ASSERT(ok && "QueryPerformanceFrequency failed");
-	SGE_STATIC_ASSERT(sizeof(uint64_t) == sizeof(ret.QuadPart));
+	MCD_ASSERT(ok && "QueryPerformanceFrequency failed");
+	MCD_STATIC_ASSERT(sizeof(uint64_t) == sizeof(ret.QuadPart));
 	return uint64_t(ret.QuadPart);
 }
 
@@ -97,4 +97,4 @@ TimeInterval DeltaTimer::getDelta() const
 	return TimeInterval(dt);
 }
 
-}	// namespace SGE
+}	// namespace MCD

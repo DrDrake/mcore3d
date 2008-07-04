@@ -1,9 +1,9 @@
-#ifndef __SGE_CORE_SYSTEM_NONCOPYABLE__
-#define __SGE_CORE_SYSTEM_NONCOPYABLE__
+#ifndef __MCD_CORE_SYSTEM_NONCOPYABLE__
+#define __MCD_CORE_SYSTEM_NONCOPYABLE__
 
 #include "Platform.h"
 
-namespace SGE {
+namespace MCD {
 
 namespace Impl  // Protection from unintended ADL
 {
@@ -25,6 +25,6 @@ namespace Impl  // Protection from unintended ADL
  */
 typedef Impl::Noncopyable Noncopyable;
 
-}	// namespace SGE
+}	// namespace MCD
 
-#endif	// __SGE_CORE_SYSTEM_NONCOPYABLE__
+#endif	// __MCD_CORE_SYSTEM_NONCOPYABLE__

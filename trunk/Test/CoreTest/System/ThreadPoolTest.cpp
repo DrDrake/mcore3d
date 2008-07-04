@@ -1,12 +1,12 @@
 #include "Pch.h"
-#include "../../../SGE/Core/System/ThreadPool.h"
+#include "../../../MCD/Core/System/ThreadPool.h"
 
-using namespace SGE;
+using namespace MCD;
 
 namespace {
 
 //! Keep active until the thread inform it to quit
-class Runnable : public SGE::Thread::IRunnable
+class Runnable : public MCD::Thread::IRunnable
 {
 public:
 	sal_override void run(Thread& thread) throw()

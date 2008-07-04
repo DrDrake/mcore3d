@@ -1,7 +1,7 @@
 #include "Pch.h"
 #include "LinkList.h"
 
-namespace SGE {
+namespace MCD {
 
 LinkListBase::NodeBase::NodeBase()
 	: mList(nullptr), mPrev(nullptr), mNext(nullptr)
@@ -48,8 +48,8 @@ LinkListBase::~LinkListBase()
 
 void LinkListBase::insertBefore(NodeBase& newNode, const NodeBase& beforeThis)
 {
-	SGE_ASSERT(!newNode.isInList());
-	SGE_ASSERT("Parameter 'beforeThis' should be in this list" &&
+	MCD_ASSERT(!newNode.isInList());
+	MCD_ASSERT("Parameter 'beforeThis' should be in this list" &&
 		beforeThis.mNext == nullptr || beforeThis.getList() == this
 	);
 
@@ -96,4 +96,4 @@ void LinkListBase::destroyAll()
 	}
 }
 
-}	// namespace SGE
+}	// namespace MCD

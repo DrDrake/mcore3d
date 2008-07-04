@@ -1,14 +1,14 @@
-#ifndef __SGE_RENDER_DDSLOADER__
-#define __SGE_RENDER_DDSLOADER__
+#ifndef __MCD_RENDER_DDSLOADER__
+#define __MCD_RENDER_DDSLOADER__
 
 #include "TextureLoaderBase.h"
 
-namespace SGE {
+namespace MCD {
 
 /*!	Load dds file.
 	This loader support background loading but not progressive loading.
  */
-class SGE_RENDER_API DdsLoader : public TextureLoaderBase
+class MCD_RENDER_API DdsLoader : public TextureLoaderBase
 {
 	class LoaderImpl;
 
@@ -24,6 +24,6 @@ protected:
 	sal_override void uploadData();
 };	// DdsLoader
 
-}	// namespace SGE
+}	// namespace MCD
 
-#endif	// __SGE_RENDER_DDSLOADER__
+#endif	// __MCD_RENDER_DDSLOADER__

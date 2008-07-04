@@ -1,7 +1,7 @@
-#ifndef __SGE_CORE_CORE__
-#define __SGE_CORE_CORE__
+#ifndef __MCD_CORE_CORE__
+#define __MCD_CORE_CORE__
 
 #include "Math/IncludeAll.h"
 #include "System/IncludeAll.h"
 
-#endif	//__SGE_CORE_CORE__
+#endif	//__MCD_CORE_CORE__

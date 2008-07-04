@@ -6,7 +6,7 @@
 #include <X11/XKBlib.h>	// XkbSetDetectableAutoRepeat
 #include <X11/extensions/Xrandr.h>
 
-namespace SGE {
+namespace MCD {
 
 static Display* gDisplay = nullptr;
 static int gDisplayCount = 0;
@@ -19,7 +19,7 @@ static void openDisplay()
 {
 	// If no display has been opened yet, open it
 	if(gDisplayCount == 0) {
-		SGE_ASSERT(gDisplay == nullptr);
+		MCD_ASSERT(gDisplay == nullptr);
 
 		gDisplay = ::XOpenDisplay("localhost:0");
 
@@ -245,8 +245,8 @@ public:
 				XNClientWindow,	mWnd,
 				XNFocusWindow,	mWnd,
 				XNInputStyle,	XIMPreeditNothing | XIMStatusNothing,
-				//XNResourceName,  "SGE",
-				//XNResourceClass, "SGE",
+				//XNResourceName,  "MCD",
+				//XNResourceClass, "MCD",
 				nullptr
 			);
 
@@ -524,4 +524,4 @@ public:
 	XIC mInputContext;		//!< Input context used to get unicode input in our window
 };	// Impl
 
-}	// namespace SGE
+}	// namespace MCD

@@ -1,14 +1,14 @@
-#ifndef __SGE_RENDER_JPEGLOADER__
-#define __SGE_RENDER_JPEGLOADER__
+#ifndef __MCD_RENDER_JPEGLOADER__
+#define __MCD_RENDER_JPEGLOADER__
 
 #include "TextureLoaderBase.h"
 
-namespace SGE {
+namespace MCD {
 
 /*!	Load jpeg file, read line by line.
 	\note Progressive jpeg file can be loaded but cannot be displayed progressively.
  */
-class SGE_RENDER_API JpegLoader : public TextureLoaderBase
+class MCD_RENDER_API JpegLoader : public TextureLoaderBase
 {
 	class LoaderImpl;
 
@@ -25,6 +25,6 @@ protected:
 	sal_override void uploadData();
 };	// JpegLoader
 
-}	// namespace SGE
+}	// namespace MCD
 
-#endif	// __SGE_RENDER_JPEGLOADER__
+#endif	// __MCD_RENDER_JPEGLOADER__

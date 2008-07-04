@@ -1,12 +1,12 @@
 #include "Pch.h"
-#include "../../../SGE/Core/System/LinkList.h"
-#include "../../../SGE/Core/System/Macros.h"
+#include "../../../MCD/Core/System/LinkList.h"
+#include "../../../MCD/Core/System/Macros.h"
 #include <vector>
 #include <stdexcept>
 
-using namespace SGE;
+using namespace MCD;
 
-#ifdef SGE_VC
+#ifdef MCD_VC
 #	pragma warning(disable : 6211)
 #endif
 
@@ -100,14 +100,14 @@ namespace {
 struct ClientInfo
 {
 	struct Client : public LinkListBase::NodeBase {
-		SGE_DECLAR_GET_OUTER_OBJ(ClientInfo, mClient);
+		MCD_DECLAR_GET_OUTER_OBJ(ClientInfo, mClient);
 		sal_override void destroyThis() throw() {
 			delete getOuterSafe();
 		}
 	} mClient;
 
 	struct Server : public LinkListBase::NodeBase {
-		SGE_DECLAR_GET_OUTER_OBJ(ClientInfo, mServer);
+		MCD_DECLAR_GET_OUTER_OBJ(ClientInfo, mServer);
 		sal_override void destroyThis() throw() {
 			delete getOuterSafe();
 		}

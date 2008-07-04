@@ -6,7 +6,7 @@
 #include <fstream>
 #include <stdexcept>
 
-#ifdef SGE_VC
+#ifdef MCD_VC
 #	include <ShellAPI.h>	// SHFileOperation
 #	include <shlobj.h>		// SHCreateDirectoryEx
 #else
@@ -15,14 +15,14 @@
 
 #include <sys/stat.h>		// stat
 
-namespace SGE {
+namespace MCD {
 
 static std::string getSysErrorMsg(const std::string& prefix)
 {
-	int errCode = SGE::getLastError();
+	int errCode = MCD::getLastError();
 	if(errCode == 0)
 		return "";
-	return SGE::getErrorMessage(prefix.c_str(), errCode);
+	return MCD::getErrorMessage(prefix.c_str(), errCode);
 }
 
 void throwError(const std::string& prefix, const std::wstring& pathStr)
@@ -42,7 +42,7 @@ void throwError(const std::string& prefix, const std::wstring& pathStr, const st
 // Convert the generic path into platform specific format
 void toNativePath(Path& path)
 {
-#ifdef SGE_VC
+#ifdef MCD_VC
 	Path::string_type& str = const_cast<Path::string_type&>(path.getString());
 	for(size_t i=0; i< str.size(); ++i)
 		if(str[i] == L'/')
@@ -52,8 +52,8 @@ void toNativePath(Path& path)
 
 bool isExistsImpl(sal_in_z sal_notnull const wchar_t* path)
 {
-#ifdef SGE_VC
-	SGE_ASSERT(::wcslen(path) < MAX_PATH);
+#ifdef MCD_VC
+	MCD_ASSERT(::wcslen(path) < MAX_PATH);
 	if(::GetFileAttributesW(path) == INVALID_FILE_ATTRIBUTES) {
 		// GetFileAttributes failed because the path does not exist
 		// for any other error we assume the file does exist and fall through,
@@ -73,7 +73,7 @@ bool isExistsImpl(sal_in_z sal_notnull const wchar_t* path)
 #else
 	struct stat pathStat;
 	std::string narrowStr;
-	SGE_VERIFY(wStr2Str(path, narrowStr));
+	MCD_VERIFY(wStr2Str(path, narrowStr));
 	if(::stat(narrowStr.c_str(), &pathStat) != 0) {
 		// stat failed because the path does not exist
 		// for any other error we assume the file does exist and fall through,
@@ -88,7 +88,7 @@ bool isExistsImpl(sal_in_z sal_notnull const wchar_t* path)
 
 bool isDirectoryImpl(sal_in_z sal_notnull const wchar_t* path)
 {
-#ifdef SGE_VC
+#ifdef MCD_VC
 	DWORD attributes = ::GetFileAttributesW(path);
 	if(attributes == 0xFFFFFFFF)
 		throwError("Error getting directory for ", path);
@@ -96,7 +96,7 @@ bool isDirectoryImpl(sal_in_z sal_notnull const wchar_t* path)
 #else
 	struct stat pathStat;
 	std::string narrowStr;
-	SGE_VERIFY(wStr2Str(path, narrowStr));
+	MCD_VERIFY(wStr2Str(path, narrowStr));
 	if(::stat(narrowStr.c_str(), &pathStat) != 0)
 		throwError("Error getting directory for ", path);
 	return S_ISDIR(pathStat.st_mode);
@@ -151,7 +151,7 @@ bool RawFileSystem::isDirectory(const Path& path) const
 uint64_t RawFileSystem::getSize(const Path& path) const
 {
 	Path::string_type absolutePath = toAbsolutePath(path).getString();
-#ifdef SGE_VC
+#ifdef MCD_VC
 	WIN32_FILE_ATTRIBUTE_DATA fad;
 	if(!::GetFileAttributesExW(absolutePath.c_str(), ::GetFileExInfoStandard, &fad))
 		throwError("Error getting file size for ", absolutePath);
@@ -163,7 +163,7 @@ uint64_t RawFileSystem::getSize(const Path& path) const
 #else
 	struct stat pathStat;
 	std::string narrowStr;
-	SGE_VERIFY(wStr2Str(absolutePath.c_str(), narrowStr));
+	MCD_VERIFY(wStr2Str(absolutePath.c_str(), narrowStr));
 	if(::stat(narrowStr.c_str(), &pathStat) != 0)
 		throwError("Error getting file size for ", absolutePath);
 	if(S_ISDIR(pathStat.st_mode))
@@ -177,7 +177,7 @@ std::time_t RawFileSystem::getLastWriteTime(const Path& path) const
 	struct stat pathStat;
 	Path::string_type absolutePath = toAbsolutePath(path).getString();
 	std::string narrowStr;
-	SGE_VERIFY(wStr2Str(absolutePath.c_str(), narrowStr));
+	MCD_VERIFY(wStr2Str(absolutePath.c_str(), narrowStr));
 	if(::stat(narrowStr.c_str(), &pathStat) != 0)
 		throwError("Error getting last write time ", absolutePath);
 	return pathStat.st_mtime;
@@ -185,7 +185,7 @@ std::time_t RawFileSystem::getLastWriteTime(const Path& path) const
 
 void RawFileSystem::makeDir(const Path& path) const
 {
-#ifdef SGE_VC
+#ifdef MCD_VC
 	Path absolutePath = toAbsolutePath(path);
 	toNativePath(absolutePath);
 	if(::SHCreateDirectoryEx(nullptr, absolutePath.getString().c_str(), nullptr) != 0)
@@ -196,13 +196,13 @@ void RawFileSystem::makeDir(const Path& path) const
 
 void RawFileSystem::remove(const Path& path) const
 {
-#ifdef SGE_VC
+#ifdef MCD_VC
 	Path absolutePath = toAbsolutePath(path);
 	toNativePath(absolutePath);
 	size_t len = absolutePath.getString().size();
 
 	SHFILEOPSTRUCT fileOp;
-	Path::char_type* buf = (Path::char_type*)SGE_STACKALLOCA(sizeof(Path::char_type) * (absolutePath.getString().size() + 2));
+	Path::char_type* buf = (Path::char_type*)MCD_STACKALLOCA(sizeof(Path::char_type) * (absolutePath.getString().size() + 2));
 	::memcpy(buf, absolutePath.getString().c_str(), len * sizeof(Path::char_type));
 	buf[len] = buf[len+1] = L'\0';	// Double null terminated
 	::ZeroMemory(&fileOp, sizeof(fileOp));
@@ -211,7 +211,7 @@ void RawFileSystem::remove(const Path& path) const
 	fileOp.fFlags = FOF_SILENT | FOF_ALLOWUNDO | FOF_NOCONFIRMATION;
 
 	int ret = ::SHFileOperationW(&fileOp);
-	SGE_STACKFREE(buf);
+	MCD_STACKFREE(buf);
 	if(ret != 0)
 		throwError("Error removing ", absolutePath.getString(), "");
 #else
@@ -223,11 +223,11 @@ std::auto_ptr<std::istream> RawFileSystem::openRead(const Path& path) const
 	using namespace std;
 	Path::string_type absolutePath = toAbsolutePath(path).getString();
 
-#ifdef SGE_VC
+#ifdef MCD_VC
 	auto_ptr<istream> is(new ifstream(absolutePath.c_str(), ios::in | ios::binary));
 #else
 	string aStr;
-	SGE_VERIFY(wStr2Str(absolutePath.c_str(), aStr));
+	MCD_VERIFY(wStr2Str(absolutePath.c_str(), aStr));
 	auto_ptr<istream> is(new ifstream(aStr.c_str(), ios::in | ios::binary));
 #endif
 
@@ -242,11 +242,11 @@ std::auto_ptr<std::ostream> RawFileSystem::openWrite(const Path& path) const
 	using namespace std;
 	Path::string_type absolutePath = toAbsolutePath(path).getString();
 
-#ifdef SGE_VC
+#ifdef MCD_VC
 	auto_ptr<ostream> os(new ofstream(absolutePath.c_str(), ios::out | ios::binary));
 #else
 	string aStr;
-	SGE_VERIFY(wStr2Str(absolutePath.c_str(), aStr));
+	MCD_VERIFY(wStr2Str(absolutePath.c_str(), aStr));
 	auto_ptr<ostream> os(new ofstream(aStr.c_str(), ios::out | ios::binary));
 #endif
 
@@ -256,4 +256,4 @@ std::auto_ptr<std::ostream> RawFileSystem::openWrite(const Path& path) const
 	return os;
 }
 
-}	// namespace SGE
+}	// namespace MCD

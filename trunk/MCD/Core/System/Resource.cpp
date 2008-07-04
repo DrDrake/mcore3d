@@ -1,7 +1,7 @@
 #include "Pch.h"
 #include "Resource.h"
 
-namespace SGE {
+namespace MCD {
 
 Resource::Resource(const Path& fileId)
 	:
@@ -10,4 +10,4 @@ Resource::Resource(const Path& fileId)
 {
 }
 
-}	// namespace SGE
+}	// namespace MCD
