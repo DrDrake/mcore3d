@@ -38,7 +38,6 @@ public:
 
 protected:
 	class Impl;
-	Impl* mImpl;
 };	// GlWindow
 
 }	// namespace MCD

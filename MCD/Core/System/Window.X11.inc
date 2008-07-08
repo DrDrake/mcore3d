@@ -361,7 +361,7 @@ void Window::Impl::processEvent(bool blocking)
 	{	// Process any event in the queue matching our window
 		XEvent event;
 
-//		MCD_ASSERT(mWnd);
+		MCD_ASSERT(mWnd);
 		if(blocking) {
 			::XIfEvent(gDisplay, &event, &Dummy::checkEvent, reinterpret_cast<XPointer>(mWnd));
 			processEvent(event);
@@ -376,14 +376,14 @@ void Window::Impl::processEvent(bool blocking)
 void Window::Impl::processEvent(XEvent xEvent)
 {
 	Event ev;
-//		ZeroMemory(&ev, sizeof(ev));
+//	ZeroMemory(&ev, sizeof(ev));
 
 	switch(xEvent.type)
 	{
     case DestroyNotify:
     {
         // The window is about to be destroyed : we must cleanup resources
-//			cleanUp();
+		onDestroy();
         break;
     }
 
