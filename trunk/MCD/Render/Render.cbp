@@ -94,6 +94,9 @@
 		</Linker>
 		<Unit filename="DdsLoader.cpp" />
 		<Unit filename="DdsLoader.h" />
+		<Unit filename="GlWindow.X11.inc" />
+		<Unit filename="GlWindow.cpp" />
+		<Unit filename="GlWindow.h" />
 		<Unit filename="JpegLoader.cpp" />
 		<Unit filename="JpegLoader.h" />
 		<Unit filename="PngLoader.cpp" />

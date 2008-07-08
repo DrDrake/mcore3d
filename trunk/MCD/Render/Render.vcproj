@@ -216,11 +216,11 @@
 				>
 			</File>
 			<File
-				RelativePath=".\JpegLoader.h"
+				RelativePath=".\GlWindow.h"
 				>
 			</File>
 			<File
-				RelativePath=".\OglContext.h"
+				RelativePath=".\JpegLoader.h"
 				>
 			</File>
 			<File
@@ -249,11 +249,15 @@
 				>
 			</File>
 			<File
-				RelativePath=".\JpegLoader.cpp"
+				RelativePath=".\GlWindow.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".\OglContext.cpp"
+				RelativePath=".\GlWindow.Win.inc"
+				>
+			</File>
+			<File
+				RelativePath=".\JpegLoader.cpp"
 				>
 			</File>
 			<File

@@ -182,10 +182,9 @@ TEST(Error_TextureLoaderTest)
 
 
 
-#include "../../MCD/Core/System/Window.h"
-#include "../../MCD/Core/System/WindowEvent.h"
 #include "../../MCD/Core/System/Timer.h"
-#include "../../MCD/Render/OglContext.h"
+#include "../../MCD/Core/System/WindowEvent.h"
+#include "../../MCD/Render/GlWindow.h"
 #include "../../3Party/glew/glew.h"
 
 #if defined(MCD_VC)
@@ -219,13 +218,12 @@ protected:
 	std::istream& mIStream;
 };	// Runnable
 
-class TWindow : public Window
+class TWindow : public GlWindow
 {
 public:
 	TWindow() : mIsClosing(false), mFullLoaded(false)
 	{
-		create(L"title=RotatingBox_TextureTest");
-		mOglContext.reset(new OglContext(handle()));
+		create(L"title=RotatingBox_TextureTest;width=400;height=400");
 
 		mTexture = new Texture(L"Media/InterlacedTrans256x256.png");
 		Texture& texture = static_cast<Texture&>(*mTexture);
@@ -252,7 +250,8 @@ public:
 	{
 		while(true) {
 			Event e;
-			getEvent(e, false);
+			popEvent(e, false);
+
 			if(e.Type == Event::Closed)
 				break;
 
@@ -338,7 +337,7 @@ public:
 		if(++iteration % 1000  == 0)
 			printf("FPS: %f\n", 1.0 / deltaTime);
 
-		mOglContext->swapBuffers();
+		swapBuffers();
 	}
 
 	sal_override void onClose() {
@@ -354,8 +353,6 @@ private:
 	ResourcePtr mTexture;
 	Thread mThread;
 	bool mFullLoaded;
-
-	std::auto_ptr<OglContext> mOglContext;
 };
 
 }	// namespace RotatingBox

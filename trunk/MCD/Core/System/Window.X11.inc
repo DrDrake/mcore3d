@@ -1,21 +1,19 @@
-// To be included by Window.cpp only
+// This inc file is to be included by Window.cpp only
 
-#include <GL/glx.h>		// glXQueryVersion
-#include <X11/Xlib.h>	// XOpenDisplay
-#include <X11/keysym.h>
-#include <X11/XKBlib.h>	// XkbSetDetectableAutoRepeat
-#include <X11/extensions/Xrandr.h>
+#include "Window.X11.inl"
+#include <GL/glx.h>
+//#include <X11/extensions/Xrandr.h>
 
 namespace MCD {
 
-static Display* gDisplay = nullptr;
-static int gDisplayCount = 0;
-static int gScreen = 0;
-static XIM gInputMethod = nullptr;
-static Cursor gHiddenCursor;	//!< As X11 doesn't provide cursor hidding, we must create a transparent one
+Display* gDisplay = nullptr;
+int gDisplayCount = 0;
+int gScreen = 0;
+XIM gInputMethod = nullptr;
+Cursor gHiddenCursor;	//!< As X11 doesn't provide cursor hidding, we must create a transparent one
 
 //! Open the display (if not already done)
-static void openDisplay()
+void openDisplay()
 {
 	// If no display has been opened yet, open it
 	if(gDisplayCount == 0) {
@@ -41,7 +39,7 @@ static void openDisplay()
 }
 
 //! Close the display, in pair with openDisplay()
-static void closeDisplay()
+void closeDisplay()
 {
 	// If all windows have been destroyed, then we can close the display
 	if(gDisplay != nullptr && --gDisplayCount == 0) {
@@ -179,349 +177,343 @@ Key::Code ConvertKeyCode(KeySym sym)
 	return Key::Code(0);
 }
 
-class Window::Impl : public ImplBase
+Window::Impl::Impl(Window& w)
+	:
+	mWindow(w),
+	mWnd(0),
+	mAtomClose(0),
+	mInputContext(nullptr)
 {
-public:
-	Impl(Window& w)
-		:
-		mWindow(w),
-		mWnd(0),
-		mAtomClose(0),
-		mInputContext(nullptr)
-	{
-		mListeners.insert(&w);
-	}
+	mListeners.insert(&w);
+}
 
-	void createNewWindow()
-	{
-	    // Open the display at first call
-		openDisplay();
+void Window::Impl::createNewWindow()
+{
+	MCD_ASSERT(!mWnd && "A window is already created, call destroy() first");
 
-		static int attributes[] = {
-			GLX_RGBA,
-			GLX_DOUBLEBUFFER,
-			GLX_DEPTH_SIZE, 16,
-			GLX_RED_SIZE, 8,
-			GLX_BLUE_SIZE, 8,
-			GLX_GREEN_SIZE, 8,
-			0
-		};
+	// Open the display at first call
+	openDisplay();
 
-		XVisualInfo* visualInfo = ::glXChooseVisual(gDisplay, DefaultScreen(gDisplay), attributes);
+	static int attributes[] = {
+		GLX_RGBA,
+		GLX_DOUBLEBUFFER,
+		GLX_DEPTH_SIZE, 16,
+		GLX_RED_SIZE, 8,
+		GLX_BLUE_SIZE, 8,
+		GLX_GREEN_SIZE, 8,
+		0
+	};
 
-		XSetWindowAttributes winAttribs;
-		winAttribs.event_mask =
-			ExposureMask | VisibilityChangeMask |
-			KeyPressMask | PointerMotionMask |
-			StructureNotifyMask ;
+	XVisualInfo* visualInfo = ::glXChooseVisual(gDisplay, DefaultScreen(gDisplay), attributes);
 
-		winAttribs.border_pixel = 0;
-		winAttribs.bit_gravity = StaticGravity;
-		winAttribs.colormap = ::XCreateColormap(gDisplay, RootWindow(gDisplay, visualInfo->screen), visualInfo->visual, AllocNone);
-		unsigned long winmask = CWBorderPixel | CWBitGravity | CWEventMask| CWColormap;
+	XSetWindowAttributes winAttribs;
+	winAttribs.event_mask =
+		ExposureMask | VisibilityChangeMask |
+		KeyPressMask | PointerMotionMask |
+		StructureNotifyMask ;
 
-		mWnd = ::XCreateWindow(
-			gDisplay, DefaultRootWindow(gDisplay), 20, 20,
-			mWidth, mHeight, 0,
-			visualInfo->depth, InputOutput,
-			visualInfo->visual, winmask, &winAttribs
+	winAttribs.border_pixel = 0;
+	winAttribs.bit_gravity = StaticGravity;
+	winAttribs.colormap = ::XCreateColormap(gDisplay, RootWindow(gDisplay, visualInfo->screen), visualInfo->visual, AllocNone);
+	unsigned long winmask = CWBorderPixel | CWBitGravity | CWEventMask| CWColormap;
+
+	mWnd = ::XCreateWindow(
+		gDisplay, DefaultRootWindow(gDisplay), 20, 20,
+		mWidth, mHeight, 0,
+		visualInfo->depth, InputOutput,
+		visualInfo->visual, winmask, &winAttribs
+	);
+
+	if(!mWnd)
+		throw std::runtime_error("X11 API call 'XCreateWindow' failed");
+
+	// Set the window title
+	::XStoreName(gDisplay, mWnd, wStr2Str(mTitle).c_str());
+
+	::XMapWindow(gDisplay, mWnd);
+
+	// Get the atom defining the close event
+	mAtomClose = ::XInternAtom(gDisplay, "WM_DELETE_WINDOW", false);
+	::XSetWMProtocols(gDisplay, mWnd, &mAtomClose, 1);
+
+	// Create the input context
+	if(gInputMethod) {
+		mInputContext = ::XCreateIC(gInputMethod,
+			XNClientWindow,	mWnd,
+			XNFocusWindow,	mWnd,
+			XNInputStyle,	XIMPreeditNothing | XIMStatusNothing,
+			//XNResourceName,  "MCD",
+			//XNResourceClass, "MCD",
+			nullptr
 		);
 
-		// Set the window title
-		::XStoreName(gDisplay, mWnd, wStr2Str(mTitle).c_str());
+		if(!mInputContext) {
+			// TODO: Log error message
+			//std::cerr << "Failed to create input context for window -- TextEntered event won't be able to return unicode" << std::endl;
+		}
+	}
 
+	// Create the hiden cursor
+	createHiddenCursor();
+}
+
+void Window::Impl::destroy()
+{
+	// Destroy the input context
+	if(mInputContext) {
+		::XDestroyIC(mInputContext);
+		mInputContext = nullptr;
+	}
+
+	// Destroy the window
+	if(mWnd/* && !myIsExternal*/) {
+		::XDestroyWindow(gDisplay, mWnd);
+		::XFlush(gDisplay);
+		mWnd = 0;
+	}
+
+	closeDisplay();
+}
+
+//////////////////////////////////////////////////////////////////////////
+// Begin of setting options
+
+// "curosrPosition = 'x=123; y=456'"
+void Window::Impl::setCursorPosition(const wchar_t* value)
+{
+	int x, y;
+	parseXy(value, x, y);
+	::XWarpPointer(gDisplay, None, mWnd, 0, 0, 0, 0, x, y);
+	::XFlush(gDisplay);
+}
+
+// "height = 600"
+void Window::Impl::setHeight(const wchar_t* value)
+{
+	mHeight = toInt(value, 600);
+}
+
+// "mode = 'fullscreen=0|1; width=800; height=600;'
+void Window::Impl::setWindowMode(const wchar_t*)
+{
+}
+
+// "show = 0|1"
+void Window::Impl::setShowWindow(const wchar_t* value)
+{
+	if(toInt(value, 1) == 1)
 		::XMapWindow(gDisplay, mWnd);
+	else
+		::XUnmapWindow(gDisplay, mWnd);
 
-		GLXContext context = ::glXCreateContext(gDisplay, visualInfo, 0, True);
-		::glXMakeCurrent(gDisplay, mWnd, context);
+	::XFlush(gDisplay);
+}
 
-		// Get the atom defining the close event
-		mAtomClose = ::XInternAtom(gDisplay, "WM_DELETE_WINDOW", false);
-		::XSetWMProtocols(gDisplay, mWnd, &mAtomClose, 1);
+// "showCursor = 0|1"
+void Window::Impl::setShowCursor(const wchar_t* value)
+{
+	::XDefineCursor(gDisplay, mWnd, toInt(value, 1) == 1 ? None : gHiddenCursor);
+	::XFlush(gDisplay);
+}
 
-		// Create the input context
-		if(gInputMethod) {
-			mInputContext = ::XCreateIC(gInputMethod,
-				XNClientWindow,	mWnd,
-				XNFocusWindow,	mWnd,
-				XNInputStyle,	XIMPreeditNothing | XIMStatusNothing,
-				//XNResourceName,  "MCD",
-				//XNResourceClass, "MCD",
-				nullptr
-			);
+// "title = 'Simple game engine'"
+void Window::Impl::setTitle(const wchar_t* value)
+{
+	mTitle = value;
+}
 
-			if(!mInputContext) {
-				// TODO: Log error message
-				//std::cerr << "Failed to create input context for window -- TextEntered event won't be able to return unicode" << std::endl;
-			}
-		}
+// "width = 800"
+void Window::Impl::setWidth(const wchar_t* value)
+{
+	mWidth = toInt(value, 800);
+}
 
-		// Create the hiden cursor
-		createHiddenCursor();
-	}
+sal_override void Window::Impl::setOption(const wchar_t* name, const wchar_t* value)
+{
+	struct S {	const wchar_t* name; void (Impl::*fun)(const wchar_t*); };
+	static const S table[] = {
+		{ L"curosrPosition",	&Impl::setCursorPosition },
+		{ L"height",			&Impl::setHeight },
+		{ L"mode",				&Impl::setWindowMode },
+		{ L"show",				&Impl::setShowWindow },
+		{ L"showCursor",		&Impl::setShowCursor },
+		{ L"title",				&Impl::setTitle },
+		{ L"width",				&Impl::setWidth },
+	};
 
-	void destroy()
-	{
-		// Destroy the input context
-		if(mInputContext) {
-			::XDestroyIC(mInputContext);
-			mInputContext = nullptr;
-		}
-
-		// Destroy the window
-		if(mWnd/* && !myIsExternal*/) {
-			::XDestroyWindow(gDisplay, mWnd);
-			::XFlush(gDisplay);
-			mWnd = 0;
-		}
-
-		closeDisplay();
-	}
-
-	//////////////////////////////////////////////////////////////////////////
-	// Begin of setting options
-
-	// "curosrPosition = 'x=123; y=456'"
-	void setCursorPosition(const wchar_t* value)
-	{
-		int x, y;
-		parseXy(value, x, y);
-		::XWarpPointer(gDisplay, None, mWnd, 0, 0, 0, 0, x, y);
-		::XFlush(gDisplay);
-	}
-
-	// "height = 600"
-	void setHeight(const wchar_t* value)
-	{
-		mHeight = toInt(value, 600);
-	}
-
-	// "mode = 'fullscreen=0|1; width=800; height=600;'
-	void setWindowMode(const wchar_t*)
-	{
-	}
-
-	// "show = 0|1"
-	void setShowWindow(const wchar_t* value)
-	{
-		if(toInt(value, 1) == 1)
-			::XMapWindow(gDisplay, mWnd);
-		else
-			::XUnmapWindow(gDisplay, mWnd);
-
-		::XFlush(gDisplay);
-	}
-
-	// "showCursor = 0|1"
-	void setShowCursor(const wchar_t* value)
-	{
-		::XDefineCursor(gDisplay, mWnd, toInt(value, 1) == 1 ? None : gHiddenCursor);
-		::XFlush(gDisplay);
-	}
-
-	// "title = 'Simple game engine'"
-	void setTitle(const wchar_t* value)
-	{
-		mTitle = value;
-	}
-
-	// "width = 800"
-	void setWidth(const wchar_t* value)
-	{
-		mWidth = toInt(value, 800);
-	}
-
-	sal_override void setOption(const wchar_t* name, const wchar_t* value)
-	{
-		struct S {	const wchar_t* name; void (Impl::*fun)(const wchar_t*); };
-		static const S table[] = {
-			{ L"curosrPosition",	&Impl::setCursorPosition },
-			{ L"height",			&Impl::setHeight },
-			{ L"mode",				&Impl::setWindowMode },
-			{ L"show",				&Impl::setShowWindow },
-			{ L"showCursor",		&Impl::setShowCursor },
-			{ L"title",				&Impl::setTitle },
-			{ L"width",				&Impl::setWidth },
-		};
-
-		for(size_t i=0; i<sizeof(table)/sizeof(S); ++i) {
-			if(::wcscmp(name, table[i].name) == 0) {
-				(this->*(table[i].fun))(value);
-				return;
-			}
+	for(size_t i=0; i<sizeof(table)/sizeof(S); ++i) {
+		if(::wcscmp(name, table[i].name) == 0) {
+			(this->*(table[i].fun))(value);
+			return;
 		}
 	}
+}
 
-	void processEvent(bool blocking)
-	{
-		// Filter the received events (only allow those matching a specific window)
-		struct Dummy {
-			static Bool checkEvent(::Display*, XEvent* event, XPointer userData) {
-				return event->xany.window == reinterpret_cast< ::Window>(userData);
-			}
-		};	// Dummy
+void Window::Impl::processEvent(bool blocking)
+{
+	// Filter the received events (only allow those matching a specific window)
+	struct Dummy {
+		static Bool checkEvent(::Display*, XEvent* event, XPointer userData) {
+			return event->xany.window == reinterpret_cast< ::Window>(userData);
+		}
+	};	// Dummy
 
-		{	// Process any event in the queue matching our window
-			XEvent event;
+	{	// Process any event in the queue matching our window
+		XEvent event;
 
-			if(blocking) {
-				::XIfEvent(gDisplay, &event, &Dummy::checkEvent, reinterpret_cast<XPointer>(mWnd));
+//		MCD_ASSERT(mWnd);
+		if(blocking) {
+			::XIfEvent(gDisplay, &event, &Dummy::checkEvent, reinterpret_cast<XPointer>(mWnd));
+			processEvent(event);
+		}
+		else {
+			while(::XCheckIfEvent(gDisplay, &event, &Dummy::checkEvent, reinterpret_cast<XPointer>(mWnd)))
 				processEvent(event);
-			}
-			else {
-				while(::XCheckIfEvent(gDisplay, &event, &Dummy::checkEvent, reinterpret_cast<XPointer>(mWnd)))
-					processEvent(event);
-			}
 		}
 	}
+}
 
-	void processEvent(XEvent xEvent)
-	{
-		Event ev;
+void Window::Impl::processEvent(XEvent xEvent)
+{
+	Event ev;
 //		ZeroMemory(&ev, sizeof(ev));
 
-		switch(xEvent.type)
-		{
-        case DestroyNotify:
-        {
-            // The window is about to be destroyed : we must cleanup resources
-//			cleanUp();
-            break;
-        }
-
-		case FocusIn:
-		{
-			// Update the input context
-			if(mInputContext)
-				::XSetICFocus(mInputContext);
-
-			ev.Type = Event::GainedFocus;
-			SendEvent(ev);
-			break;
-		}
-
-		case FocusOut:
-		{
-			// Update the input context
-			if(mInputContext)
-				::XUnsetICFocus(mInputContext);
-
-			ev.Type = Event::LostFocus;
-			SendEvent(ev);
-			break;
-		}
-
-		case ConfigureNotify:
-		{
-			if((xEvent.xconfigure.width != static_cast<int>(mWidth)) || (xEvent.xconfigure.height != static_cast<int>(mHeight)))
-			{
-				mWidth = xEvent.xconfigure.width;
-				mHeight = xEvent.xconfigure.height;
-
-				ev.Type = Event::Resized;
-				ev.Size.Width = mWidth;
-				ev.Size.Height = mHeight;
-				SendEvent(ev);
-			}
-			break;
-		}
-
-		case ClientMessage:
-		{
-			if((xEvent.xclient.format == 32) && (xEvent.xclient.data.l[0]) == static_cast<long>(mAtomClose))
-			{
-				ev.Type = Event::Closed;
-				SendEvent(ev);
-			}
-			break;
-		}
-
-		case ButtonPress:
-		{
-			uint Button = xEvent.xbutton.button;
-			if((Button == Button1) || (Button == Button2) || (Button == Button3) || (Button == 8) || (Button == 9))
-			{
-				ev.Type = Event::MouseButtonPressed;
-				switch(Button)
-				{
-					case Button1 :	ev.MouseButton.Button = Mouse::Left;		break;
-					case Button2 :	ev.MouseButton.Button = Mouse::Middle;		break;
-					case Button3 :	ev.MouseButton.Button = Mouse::Right;		break;
-					case 8 :		ev.MouseButton.Button = Mouse::XButton1;	break;
-					case 9 :		ev.MouseButton.Button = Mouse::XButton2;	break;
-				}
-				SendEvent(ev);
-			}
-			break;
-		}
-
-		case ButtonRelease:
-		{
-			uint Button = xEvent.xbutton.button;
-			if((Button == Button1) || (Button == Button2) || (Button == Button3) || (Button == 8) || (Button == 9))
-			{
-				Event ev;
-				ev.Type = Event::MouseButtonReleased;
-				switch(Button)
-				{
-					case Button1 :	ev.MouseButton.Button = Mouse::Left;		break;
-					case Button2 :	ev.MouseButton.Button = Mouse::Middle;		break;
-					case Button3 :	ev.MouseButton.Button = Mouse::Right;		break;
-					case 8 :		ev.MouseButton.Button = Mouse::XButton1;	break;
-					case 9 :		ev.MouseButton.Button = Mouse::XButton2;	break;
-				}
-				SendEvent(ev);
-			}
-			else if((Button == Button4) || (Button == Button5))
-			{
-				ev.Type = Event::MouseWheelMoved;
-				ev.MouseWheel.Delta = xEvent.xbutton.button == Button4 ? 1 : -1;
-				SendEvent(ev);
-			}
-			break;
-		}
-
-		case MotionNotify:
-		{
-			ev.Type = Event::MouseMoved;
-			ev.MouseMove.X = xEvent.xmotion.x;
-			ev.MouseMove.Y = xEvent.xmotion.y;
-			SendEvent(ev);
-			break;
-		}
-
-		default:
-			// TODO: Something missed.
-			break;
-		}
-	}
-
-	//! Create a transparent mouse cursor (tricks to hide the cursor)
-	void createHiddenCursor()
+	switch(xEvent.type)
 	{
-		if(gHiddenCursor)
-			return;
+    case DestroyNotify:
+    {
+        // The window is about to be destroyed : we must cleanup resources
+//			cleanUp();
+        break;
+    }
 
-		// Create the cursor's pixmap (1x1 pixels)
-		Pixmap cursorPixmap = ::XCreatePixmap(gDisplay, mWnd, 1, 1, 1);
-		GC graphicsContext = ::XCreateGC(gDisplay, cursorPixmap, 0, NULL);
-		::XDrawPoint(gDisplay, cursorPixmap, graphicsContext, 0, 0);
-		::XFreeGC(gDisplay, graphicsContext);
+	case FocusIn:
+	{
+		// Update the input context
+		if(mInputContext)
+			::XSetICFocus(mInputContext);
 
-		// Create the cursor, using the pixmap as both the shape and the mask of the cursor
-		XColor color;
-		color.flags = DoRed | DoGreen | DoBlue;
-		color.red = color.blue = color.green = 0;
-		gHiddenCursor = ::XCreatePixmapCursor(gDisplay, cursorPixmap, cursorPixmap, &color, &color, 0, 0);
-
-		// We don't need the pixmap any longer, free it
-		::XFreePixmap(gDisplay, cursorPixmap);
+		ev.Type = Event::GainedFocus;
+		SendEvent(ev);
+		break;
 	}
 
-	Window& mWindow;
-	::Window mWnd;
-	Atom mAtomClose;		//!< Atom used to identify the close event
-	XIC mInputContext;		//!< Input context used to get unicode input in our window
-};	// Impl
+	case FocusOut:
+	{
+		// Update the input context
+		if(mInputContext)
+			::XUnsetICFocus(mInputContext);
+
+		ev.Type = Event::LostFocus;
+		SendEvent(ev);
+		break;
+	}
+
+	case ConfigureNotify:
+	{
+		if((xEvent.xconfigure.width != static_cast<int>(mWidth)) || (xEvent.xconfigure.height != static_cast<int>(mHeight)))
+		{
+			mWidth = xEvent.xconfigure.width;
+			mHeight = xEvent.xconfigure.height;
+
+			ev.Type = Event::Resized;
+			ev.Size.Width = mWidth;
+			ev.Size.Height = mHeight;
+			SendEvent(ev);
+		}
+		break;
+	}
+
+	case ClientMessage:
+	{
+		if((xEvent.xclient.format == 32) && (xEvent.xclient.data.l[0]) == static_cast<long>(mAtomClose))
+		{
+			ev.Type = Event::Closed;
+			SendEvent(ev);
+		}
+		break;
+	}
+
+	case ButtonPress:
+	{
+		uint Button = xEvent.xbutton.button;
+		if((Button == Button1) || (Button == Button2) || (Button == Button3) || (Button == 8) || (Button == 9))
+		{
+			ev.Type = Event::MouseButtonPressed;
+			switch(Button)
+			{
+				case Button1 :	ev.MouseButton.Button = Mouse::Left;		break;
+				case Button2 :	ev.MouseButton.Button = Mouse::Middle;		break;
+				case Button3 :	ev.MouseButton.Button = Mouse::Right;		break;
+				case 8 :		ev.MouseButton.Button = Mouse::XButton1;	break;
+				case 9 :		ev.MouseButton.Button = Mouse::XButton2;	break;
+			}
+			SendEvent(ev);
+		}
+		break;
+	}
+
+	case ButtonRelease:
+	{
+		uint Button = xEvent.xbutton.button;
+		if((Button == Button1) || (Button == Button2) || (Button == Button3) || (Button == 8) || (Button == 9))
+		{
+			Event ev;
+			ev.Type = Event::MouseButtonReleased;
+			switch(Button)
+			{
+				case Button1 :	ev.MouseButton.Button = Mouse::Left;		break;
+				case Button2 :	ev.MouseButton.Button = Mouse::Middle;		break;
+				case Button3 :	ev.MouseButton.Button = Mouse::Right;		break;
+				case 8 :		ev.MouseButton.Button = Mouse::XButton1;	break;
+				case 9 :		ev.MouseButton.Button = Mouse::XButton2;	break;
+			}
+			SendEvent(ev);
+		}
+		else if((Button == Button4) || (Button == Button5))
+		{
+			ev.Type = Event::MouseWheelMoved;
+			ev.MouseWheel.Delta = xEvent.xbutton.button == Button4 ? 1 : -1;
+			SendEvent(ev);
+		}
+		break;
+	}
+
+	case MotionNotify:
+	{
+		ev.Type = Event::MouseMoved;
+		ev.MouseMove.X = xEvent.xmotion.x;
+		ev.MouseMove.Y = xEvent.xmotion.y;
+		SendEvent(ev);
+		break;
+	}
+
+	default:
+		// TODO: Something missed.
+		break;
+	}
+}
+
+//! Create a transparent mouse cursor (tricks to hide the cursor)
+void Window::Impl::createHiddenCursor()
+{
+	if(gHiddenCursor)
+		return;
+
+	// Create the cursor's pixmap (1x1 pixels)
+	Pixmap cursorPixmap = ::XCreatePixmap(gDisplay, mWnd, 1, 1, 1);
+	GC graphicsContext = ::XCreateGC(gDisplay, cursorPixmap, 0, NULL);
+	::XDrawPoint(gDisplay, cursorPixmap, graphicsContext, 0, 0);
+	::XFreeGC(gDisplay, graphicsContext);
+
+	// Create the cursor, using the pixmap as both the shape and the mask of the cursor
+	XColor color;
+	color.flags = DoRed | DoGreen | DoBlue;
+	color.red = color.blue = color.green = 0;
+	gHiddenCursor = ::XCreatePixmapCursor(gDisplay, cursorPixmap, cursorPixmap, &color, &color, 0, 0);
+
+	// We don't need the pixmap any longer, free it
+	::XFreePixmap(gDisplay, cursorPixmap);
+}
 
 }	// namespace MCD

@@ -1,9 +1,10 @@
-// To be included by Window.cpp only
+// This inc file is to be included by Window.cpp only
+
+#include "Window.Win.inl"
 
 namespace MCD {
 
-static const wchar_t* cWindowClass = L"MCD_Window";
-static size_t gWindowCount = 0;
+size_t gWindowCount = 0;
 
 //! Check the state of the shift keys on a key event, and return the corresponding key code
 Key::Code GetShiftState(bool keyDown)
@@ -140,365 +141,355 @@ Key::Code ConvertKeyCode(WPARAM virtualKey, LPARAM flags)
 	return Key::Code(0);
 }
 
-class Window::Impl : public ImplBase
+Window::Impl::Impl(Window& w)
+	: mWnd(nullptr), mWindow(w)
 {
-public:
-	Impl(Window& w)
-		: mWnd(nullptr), mWindow(w)
+	mListeners.insert(&w);
+	mWidth = mHeight = uint(CW_USEDEFAULT);
+}
+
+void Window::Impl::createNewWindow()
+{
+	HMODULE hModule = ::GetModuleHandle(nullptr);
+
+	if(gWindowCount == 0)
 	{
-		mListeners.insert(&w);
-		mWidth = mHeight = uint(CW_USEDEFAULT);
+		// Register window class
+		WNDCLASS wc;
+		::ZeroMemory(&wc, sizeof(wc));
+		// CS_OWNDC is an optimization, see page 659 of OpenGL SuperBible 4th edition
+		wc.style = CS_HREDRAW | CS_VREDRAW | CS_OWNDC;
+		wc.hInstance = hModule;
+		wc.lpfnWndProc = &wndProc;
+		wc.lpszClassName = cWindowClass;
+		wc.hCursor = ::LoadCursor(nullptr, IDC_ARROW);
+		wc.hbrBackground = nullptr;	// (HBRUSH)(COLOR_WINDOW);
+
+		if(::RegisterClass(&wc) == 0)
+			throw std::runtime_error("Win32 API call 'RegisterClass' failed");
+		++gWindowCount;
 	}
 
-	void createNewWindow()
-	{
-		HMODULE hModule = ::GetModuleHandle(nullptr);
+	{	// Create window
+		MCD_ASSERT(!mWnd && "A window is already created, call destroy() first");
 
-		if(gWindowCount == 0)
-		{
-			// Register window class
-			WNDCLASS wc;
-			::ZeroMemory(&wc, sizeof(wc));
-			// CS_OWNDC is an optimization, see page 659 of OpenGL SuperBible 4th edition
-			wc.style = CS_HREDRAW | CS_VREDRAW | CS_OWNDC;
-			wc.hInstance = hModule;
-			wc.lpfnWndProc = &wndProc;
-			wc.lpszClassName = cWindowClass;
-			wc.hCursor = ::LoadCursor(nullptr, IDC_ARROW);
-			wc.hbrBackground = nullptr;	// (HBRUSH)(COLOR_WINDOW);
+		mWnd = ::CreateWindow(
+			cWindowClass, mTitle.c_str(),
+			// OpenGL requires WS_CLIPCHILDREN and WS_CLIPSIBLINGS, see page 657 of OpenGL SuperBible 4th edition
+			WS_OVERLAPPEDWINDOW | WS_CLIPCHILDREN | WS_CLIPSIBLINGS,
+			CW_USEDEFAULT, CW_USEDEFAULT,
+			mWidth, mHeight,
+			nullptr, nullptr,
+			hModule,
+			nullptr
+		);
 
-			if(::RegisterClass(&wc) == 0)
-				throw std::runtime_error("Win32 API call 'RegisterClass' failed");
-			++gWindowCount;
+		if(!mWnd)
+			throw std::runtime_error("Win32 API call 'CreateWindow' failed");
+
+		// Get window size
+		RECT rect;
+		::GetWindowRect(mWnd, &rect);
+		mWidth = rect.right - rect.left;
+		mHeight = rect.bottom - rect.top;
+	}
+
+	// Associate the this pointer as the user-data of the window handle
+	::SetWindowLongPtr(mWnd, GWL_USERDATA, reinterpret_cast<LONG>(this));
+
+	::ShowWindow(mWnd, SW_SHOW);
+}
+
+void Window::Impl::destroy()
+{
+	if(mWnd) {
+		::DestroyWindow(mWnd);
+
+		--gWindowCount;
+		if(gWindowCount == 0) {
+			HMODULE hModule = ::GetModuleHandle(nullptr);
+			if(hModule)
+				::UnregisterClassW(cWindowClass, hModule);
 		}
 
-		{	// Create window
-			if(mWnd) {
-				// TODO: Log error message
-				MCD_ASSERT(false && "A window is already created, call destroy() first");
-			}
-
-			mWnd = ::CreateWindow(
-				cWindowClass, mTitle.c_str(),
-				// OpenGL requires WS_CLIPCHILDREN and WS_CLIPSIBLINGS, see page 657 of OpenGL SuperBible 4th edition
-				WS_OVERLAPPEDWINDOW | WS_CLIPCHILDREN | WS_CLIPSIBLINGS,
-				CW_USEDEFAULT, CW_USEDEFAULT,
-				mWidth, mHeight,
-				nullptr, nullptr,
-				hModule,
-				nullptr
-			);
-
-			if(!mWnd)
-				throw std::runtime_error("Win32 API call 'CreateWindow' failed");
-
-			// Get window size
-			RECT rect;
-			::GetWindowRect(mWnd, &rect);
-			mWidth = rect.right - rect.left;
-			mHeight = rect.bottom - rect.top;
-		}
-
-		// Associate the this pointer as the user-data of the window handle
-		::SetWindowLongPtr(mWnd, GWL_USERDATA, reinterpret_cast<LONG>(this));
-
-		::ShowWindow(mWnd, SW_SHOW);
+		mWnd = nullptr;
 	}
+}
 
-	void destroy()
-	{
-		if(mWnd) {
-			::DestroyWindow(mWnd);
+//////////////////////////////////////////////////////////////////////////
+// Begin of setting options
 
-			--gWindowCount;
-			if(gWindowCount == 0) {
-				HMODULE hModule = ::GetModuleHandle(nullptr);
-				if(hModule)
-					::UnregisterClassW(cWindowClass, hModule);
-			}
+// "curosrPosition = 'x=123; y=456'"
+void Window::Impl::setCursorPosition(const wchar_t* value)
+{
+	int x, y;
+	parseXy(value, x, y);
+	POINT p = {x, y};
+	::ClientToScreen(mWnd, &p);
+	::SetCursorPos(p.x, p.y);
+}
 
-			mWnd = nullptr;
-		}
-	}
+// "height = 600"
+void Window::Impl::setHeight(const wchar_t* value)
+{
+	mHeight = toInt(value, 600);
+}
 
-	//////////////////////////////////////////////////////////////////////////
-	// Begin of setting options
+// "mode = 'fullscreen=0|1; width=800; height=600;'
+void Window::Impl::setWindowMode(const wchar_t*)
+{
+}
 
-	// "curosrPosition = 'x=123; y=456'"
-	void setCursorPosition(const wchar_t* value)
-	{
-		int x, y;
-		parseXy(value, x, y);
-		POINT p = {x, y};
-		::ClientToScreen(mWnd, &p);
-		::SetCursorPos(p.x, p.y);
-	}
+// "show = 0|1"
+void Window::Impl::setShowWindow(const wchar_t* value)
+{
+	::ShowWindow(mWnd, toInt(value, 1) == 1 ? SW_SHOW : SW_HIDE);
+}
 
-	// "height = 600"
-	void setHeight(const wchar_t* value)
-	{
-		mHeight = toInt(value, 600);
-	}
+// "showCursor = 0|1"
+void Window::Impl::setShowCursor(const wchar_t* value)
+{
+	::ShowCursor(toInt(value, 1) == 1);
+}
 
-	// "mode = 'fullscreen=0|1; width=800; height=600;'
-	void setWindowMode(const wchar_t*)
-	{
-	}
+// "title = 'Simple game engine'"
+void Window::Impl::setTitle(const wchar_t* value)
+{
+	mTitle = value;
+}
 
-	// "show = 0|1"
-	void setShowWindow(const wchar_t* value)
-	{
-		::ShowWindow(mWnd, toInt(value, 1) == 1 ? SW_SHOW : SW_HIDE);
-	}
+// "width = 800"
+void Window::Impl::setWidth(const wchar_t* value)
+{
+	mWidth = toInt(value, 800);
+}
 
-	// "showCursor = 0|1"
-	void setShowCursor(const wchar_t* value)
-	{
-		::ShowCursor(toInt(value, 1) == 1);
-	}
+sal_override void Window::Impl::setOption(const wchar_t* name, const wchar_t* value)
+{
+	struct S {	const wchar_t* name; void (Impl::*fun)(const wchar_t*); };
+	static const S table[] = {
+		{ L"curosrPosition",	&Impl::setCursorPosition },
+		{ L"height",			&Impl::setHeight },
+		{ L"mode",				&Impl::setWindowMode },
+		{ L"show",				&Impl::setShowWindow },
+		{ L"showCursor",		&Impl::setShowCursor },
+		{ L"title",				&Impl::setTitle },
+		{ L"width",				&Impl::setWidth },
+	};
 
-	// "title = 'Simple game engine'"
-	void setTitle(const wchar_t* value)
-	{
-		mTitle = value;
-	}
-
-	// "width = 800"
-	void setWidth(const wchar_t* value)
-	{
-		mWidth = toInt(value, 800);
-	}
-
-	sal_override void setOption(const wchar_t* name, const wchar_t* value)
-	{
-		struct S {	const wchar_t* name; void (Impl::*fun)(const wchar_t*); };
-		static const S table[] = {
-			{ L"curosrPosition",	&Impl::setCursorPosition },
-			{ L"height",			&Impl::setHeight },
-			{ L"mode",				&Impl::setWindowMode },
-			{ L"show",				&Impl::setShowWindow },
-			{ L"showCursor",		&Impl::setShowCursor },
-			{ L"title",				&Impl::setTitle },
-			{ L"width",				&Impl::setWidth },
-		};
-
-		for(size_t i=0; i<sizeof(table)/sizeof(S); ++i) {
-			if(::wcscmp(name, table[i].name) == 0) {
-				(this->*(table[i].fun))(value);
-				return;
-			}
+	for(size_t i=0; i<sizeof(table)/sizeof(S); ++i) {
+		if(::wcscmp(name, table[i].name) == 0) {
+			(this->*(table[i].fun))(value);
+			return;
 		}
 	}
+}
 
-	// End of setting options
-	//////////////////////////////////////////////////////////////////////////
+// End of setting options
+//////////////////////////////////////////////////////////////////////////
 
-	sal_override void processEvent(bool blocking)
-	{
-        MSG message;
+sal_override void Window::Impl::processEvent(bool blocking)
+{
+    MSG message;
 
-		if(blocking) {
-			if(::GetMessage(&message, mWnd, 0, 0) >= 0) {
-				TranslateMessage(&message);
-				DispatchMessage(&message);
-			} else {
-				// TODO: Error handling/logging
-			}
-		}
-		else while(::PeekMessage(&message, mWnd, 0, 0, PM_REMOVE)) {
-		    TranslateMessage(&message);
-		    DispatchMessage(&message);
+	if(blocking) {
+		if(::GetMessage(&message, mWnd, 0, 0) >= 0) {
+			TranslateMessage(&message);
+			DispatchMessage(&message);
+		} else {
+			// TODO: Error handling/logging
 		}
 	}
-
-	static LRESULT CALLBACK wndProc(sal_in HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
-	{
-		Impl* impl = reinterpret_cast<Impl*>(::GetWindowLongPtr(hWnd, GWL_USERDATA));
-		if(impl)
-			return impl->Proc(uMsg, wParam, lParam);
-		else
-			return ::DefWindowProc(hWnd, uMsg, wParam, lParam);
+	else while(::PeekMessage(&message, mWnd, 0, 0, PM_REMOVE)) {
+	    TranslateMessage(&message);
+	    DispatchMessage(&message);
 	}
+}
 
-	LRESULT Proc(UINT uMsg, WPARAM wParam, LPARAM lParam)
+LRESULT CALLBACK Window::Impl::wndProc(sal_in HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
+{
+	Impl* impl = reinterpret_cast<Impl*>(::GetWindowLongPtr(hWnd, GWL_USERDATA));
+	if(impl)
+		return impl->Proc(uMsg, wParam, lParam);
+	else
+		return ::DefWindowProc(hWnd, uMsg, wParam, lParam);
+}
+
+LRESULT Window::Impl::Proc(UINT uMsg, WPARAM wParam, LPARAM lParam)
+{
+	Event ev;
+	ZeroMemory(&ev, sizeof(ev));
+
+	switch(uMsg)
 	{
-		Event ev;
-		ZeroMemory(&ev, sizeof(ev));
+	case WM_PAINT:
+		::ValidateRect(mWnd, nullptr);
+		break;
 
-		switch(uMsg)
-		{
-		case WM_PAINT:
-			::ValidateRect(mWnd, nullptr);
-			break;
-
-		case WM_DESTROY:
-			// Here we must cleanup resources!
+	case WM_DESTROY:
+		// Here we must cleanup resources!
 //			Cleanup();
-			break;
+		break;
 
-		case WM_CLOSE:
+	case WM_CLOSE:
+	{
+		ev.Type = Event::Closed;
+		SendEvent(ev);
+		break;
+	}
+
+	case WM_SIZE:
+	{
+		// The width and height are client area size
+		int width = LOWORD(lParam);
+		int height = HIWORD(lParam);
+		setOptions((std::wstring(L"width=") + int2WStr(width) + L";").c_str());
+		setOptions((std::wstring(L"height=") + int2WStr(height) + L";").c_str());
+
+		ev.Type = Event::Resized;
+		ev.Size.Width = width;
+		ev.Size.Height = height;
+		SendEvent(ev);
+		break;
+	}
+
+	case WM_SETFOCUS:
+	{
+		ev.Type = Event::GainedFocus;
+		SendEvent(ev);
+		break;
+	}
+
+	case WM_KILLFOCUS:
+	{
+		ev.Type = Event::LostFocus;
+		SendEvent(ev);
+		break;
+	}
+
+	case WM_CHAR :
+	{
+		ev.Type = Event::TextEntered;
+		ev.Text.Unicode = static_cast<uint16_t>(wParam);
+		SendEvent(ev);
+		break;
+	}
+
+	case WM_KEYDOWN:
+	case WM_SYSKEYDOWN:
+	{
+		if(/*myKeyRepeatEnabled || */((lParam & (1 << 30)) == 0))
 		{
-			ev.Type = Event::Closed;
-			SendEvent(ev);
-			break;
-		}
-
-		case WM_SIZE:
-		{
-			// The width and height are client area size
-			int width = LOWORD(lParam);
-			int height = HIWORD(lParam);
-			setOptions((std::wstring(L"width=") + int2WStr(width) + L";").c_str());
-			setOptions((std::wstring(L"height=") + int2WStr(height) + L";").c_str());
-
-			ev.Type = Event::Resized;
-			ev.Size.Width = width;
-			ev.Size.Height = height;
-			SendEvent(ev);
-			break;
-		}
-
-		case WM_SETFOCUS:
-		{
-			ev.Type = Event::GainedFocus;
-			SendEvent(ev);
-			break;
-		}
-
-		case WM_KILLFOCUS:
-		{
-			ev.Type = Event::LostFocus;
-			SendEvent(ev);
-			break;
-		}
-
-		case WM_CHAR :
-		{
-			ev.Type = Event::TextEntered;
-			ev.Text.Unicode = static_cast<uint16_t>(wParam);
-			SendEvent(ev);
-			break;
-		}
-
-		case WM_KEYDOWN:
-		case WM_SYSKEYDOWN:
-		{
-			if(/*myKeyRepeatEnabled || */((lParam & (1 << 30)) == 0))
-			{
-				ev.Type = Event::KeyPressed;
-				ev.Key.Code = (wParam == VK_SHIFT) ? GetShiftState(true) : ConvertKeyCode(wParam, lParam);
-				ev.Key.Alt = HIWORD(::GetAsyncKeyState(VK_MENU)) != 0;
-				ev.Key.Control = HIWORD(::GetAsyncKeyState(VK_CONTROL)) != 0;
-				ev.Key.Shift = HIWORD(::GetAsyncKeyState(VK_SHIFT)) != 0;
-				SendEvent(ev);
-			}
-
-			// Use DefWindowProc so that Alt+F4 will handled automatically
-			return ::DefWindowProc(mWnd, uMsg, wParam, lParam);
-		}
-
-		case WM_KEYUP:
-		case WM_SYSKEYUP:
-		{
-			ev.Type = Event::KeyReleased;
-			ev.Key.Code = (wParam == VK_SHIFT) ? GetShiftState(false) : ConvertKeyCode(wParam, lParam);
+			ev.Type = Event::KeyPressed;
+			ev.Key.Code = (wParam == VK_SHIFT) ? GetShiftState(true) : ConvertKeyCode(wParam, lParam);
 			ev.Key.Alt = HIWORD(::GetAsyncKeyState(VK_MENU)) != 0;
 			ev.Key.Control = HIWORD(::GetAsyncKeyState(VK_CONTROL)) != 0;
 			ev.Key.Shift = HIWORD(::GetAsyncKeyState(VK_SHIFT)) != 0;
 			SendEvent(ev);
-			break;
 		}
 
-		case WM_MOUSEWHEEL :
-		{
-			ev.Type = Event::MouseWheelMoved;
-			ev.MouseWheel.Delta = static_cast<int16_t>(HIWORD(wParam)) / 120;
-			SendEvent(ev);
-			break;
-		}
-
-		case WM_LBUTTONDOWN:
-		{
-			ev.Type = Event::MouseButtonPressed;
-			ev.MouseButton.Button = Mouse::Left;
-			SendEvent(ev);
-			break;
-		}
-
-		case WM_LBUTTONUP:
-		{
-			ev.Type = Event::MouseButtonReleased;
-			ev.MouseButton.Button = Mouse::Left;
-			SendEvent(ev);
-			break;
-		}
-
-		case WM_RBUTTONDOWN:
-		{
-			ev.Type = Event::MouseButtonPressed;
-			ev.MouseButton.Button = Mouse::Right;
-			SendEvent(ev);
-			break;
-		}
-
-		case WM_RBUTTONUP:
-		{
-			ev.Type = Event::MouseButtonReleased;
-			ev.MouseButton.Button = Mouse::Right;
-			SendEvent(ev);
-			break;
-		}
-
-		case WM_MBUTTONDOWN:
-		{
-			ev.Type = Event::MouseButtonPressed;
-			ev.MouseButton.Button = Mouse::Middle;
-			SendEvent(ev);
-			break;
-		}
-
-		case WM_MBUTTONUP:
-		{
-			ev.Type = Event::MouseButtonReleased;
-			ev.MouseButton.Button = Mouse::Middle;
-			SendEvent(ev);
-			break;
-		}
-
-		case WM_XBUTTONDOWN:
-		{
-			ev.Type = Event::MouseButtonPressed;
-			ev.MouseButton.Button = HIWORD(wParam) == XBUTTON1 ? Mouse::XButton1 : Mouse::XButton2;
-			SendEvent(ev);
-			break;
-		}
-
-		case WM_XBUTTONUP:
-		{
-			ev.Type = Event::MouseButtonReleased;
-			ev.MouseButton.Button = HIWORD(wParam) == XBUTTON1 ? Mouse::XButton1 : Mouse::XButton2;
-			SendEvent(ev);
-			break;
-		}
-
-		case WM_MOUSEMOVE:
-		{
-			ev.Type = Event::MouseMoved;
-			ev.MouseMove.X = LOWORD(lParam);
-			ev.MouseMove.Y = HIWORD(lParam);
-			SendEvent(ev);
-			break;
-		}
-
-		default:
-			return ::DefWindowProc(mWnd, uMsg, wParam, lParam);
-		}
-
-		return 0;
+		// Use DefWindowProc so that Alt+F4 will handled automatically
+		return ::DefWindowProc(mWnd, uMsg, wParam, lParam);
 	}
 
-	HWND mWnd;
-	Window& mWindow;
-};	// Impl
+	case WM_KEYUP:
+	case WM_SYSKEYUP:
+	{
+		ev.Type = Event::KeyReleased;
+		ev.Key.Code = (wParam == VK_SHIFT) ? GetShiftState(false) : ConvertKeyCode(wParam, lParam);
+		ev.Key.Alt = HIWORD(::GetAsyncKeyState(VK_MENU)) != 0;
+		ev.Key.Control = HIWORD(::GetAsyncKeyState(VK_CONTROL)) != 0;
+		ev.Key.Shift = HIWORD(::GetAsyncKeyState(VK_SHIFT)) != 0;
+		SendEvent(ev);
+		break;
+	}
+
+	case WM_MOUSEWHEEL :
+	{
+		ev.Type = Event::MouseWheelMoved;
+		ev.MouseWheel.Delta = static_cast<int16_t>(HIWORD(wParam)) / 120;
+		SendEvent(ev);
+		break;
+	}
+
+	case WM_LBUTTONDOWN:
+	{
+		ev.Type = Event::MouseButtonPressed;
+		ev.MouseButton.Button = Mouse::Left;
+		SendEvent(ev);
+		break;
+	}
+
+	case WM_LBUTTONUP:
+	{
+		ev.Type = Event::MouseButtonReleased;
+		ev.MouseButton.Button = Mouse::Left;
+		SendEvent(ev);
+		break;
+	}
+
+	case WM_RBUTTONDOWN:
+	{
+		ev.Type = Event::MouseButtonPressed;
+		ev.MouseButton.Button = Mouse::Right;
+		SendEvent(ev);
+		break;
+	}
+
+	case WM_RBUTTONUP:
+	{
+		ev.Type = Event::MouseButtonReleased;
+		ev.MouseButton.Button = Mouse::Right;
+		SendEvent(ev);
+		break;
+	}
+
+	case WM_MBUTTONDOWN:
+	{
+		ev.Type = Event::MouseButtonPressed;
+		ev.MouseButton.Button = Mouse::Middle;
+		SendEvent(ev);
+		break;
+	}
+
+	case WM_MBUTTONUP:
+	{
+		ev.Type = Event::MouseButtonReleased;
+		ev.MouseButton.Button = Mouse::Middle;
+		SendEvent(ev);
+		break;
+	}
+
+	case WM_XBUTTONDOWN:
+	{
+		ev.Type = Event::MouseButtonPressed;
+		ev.MouseButton.Button = HIWORD(wParam) == XBUTTON1 ? Mouse::XButton1 : Mouse::XButton2;
+		SendEvent(ev);
+		break;
+	}
+
+	case WM_XBUTTONUP:
+	{
+		ev.Type = Event::MouseButtonReleased;
+		ev.MouseButton.Button = HIWORD(wParam) == XBUTTON1 ? Mouse::XButton1 : Mouse::XButton2;
+		SendEvent(ev);
+		break;
+	}
+
+	case WM_MOUSEMOVE:
+	{
+		ev.Type = Event::MouseMoved;
+		ev.MouseMove.X = LOWORD(lParam);
+		ev.MouseMove.Y = HIWORD(lParam);
+		SendEvent(ev);
+		break;
+	}
+
+	default:
+		return ::DefWindowProc(mWnd, uMsg, wParam, lParam);
+	}
+
+	return 0;
+}
 
 }	// namespace MCD
