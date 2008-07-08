@@ -11,7 +11,7 @@ std::string ToNarrowString(const wchar_t* wstr)
 
 	// Check for error
 	if(count == unsigned(-1))
-		return false;
+		return "";
 	if(count != 0)
 	{
 		ret.resize(count);
