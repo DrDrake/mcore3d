@@ -116,8 +116,10 @@
 		<Unit filename="System\Utility.cpp" />
 		<Unit filename="System\Utility.h" />
 		<Unit filename="System\Window.X11.inc" />
+		<Unit filename="System\Window.X11.inl" />
 		<Unit filename="System\Window.cpp" />
 		<Unit filename="System\Window.h" />
+		<Unit filename="System\Window.inl" />
 		<Unit filename="System\WindowEvent.h" />
 		<Extensions>
 			<code_completion />

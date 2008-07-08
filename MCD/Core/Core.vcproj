@@ -331,6 +331,14 @@
 					>
 				</File>
 				<File
+					RelativePath=".\System\Window.inl"
+					>
+				</File>
+				<File
+					RelativePath=".\System\Window.Win.inl"
+					>
+				</File>
+				<File
 					RelativePath=".\System\WindowEvent.h"
 					>
 				</File>

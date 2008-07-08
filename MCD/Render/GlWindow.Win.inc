@@ -1,32 +1,34 @@
-#include "Pch.h"
-#include "OglContext.h"
-#include "../Core/System/PlatformInclude.h"
+// This inc file is to be included by GlWindow.cpp only
 
-#define GLEW_STATIC
+#include "../Core/System/Window.Win.inl"
+#include "../../3Party/glew/wglew.h"
 
-#include "../../3Party/glew/glew.h"
-
-#if defined(MCD_VC)
-#	include "../../3Party/glew/wglew.h"
-#	pragma comment(lib, "OpenGL32")
-#	pragma comment(lib, "GLU32")
-#	pragma comment(lib, "GlAux")
-#	pragma comment(lib, "glew")
-#else
-#	include <X11/Xlib.h>	// XOpenDisplay
-#	include <GL/glx.h>		// glXQueryVersion
-#endif
-
-#undef GLEW_STATIC
+#pragma comment(lib, "OpenGL32")
+#pragma comment(lib, "GLU32")
+#pragma comment(lib, "GlAux")
+#pragma comment(lib, "glew")
 
 namespace MCD {
 
-class OglContext::Impl
+class GlWindow::Impl : public Window::Impl
 {
 public:
-	Impl(OglContext::Handle windowHandle)
-		: mWnd(windowHandle)
+	typedef Window::Impl Super;
+
+	Impl(Window& w)
+		: Super(w)
 	{
+	}
+
+	~Impl()
+	{
+		destroy();
+	}
+
+	sal_override void createNewWindow()
+	{
+		Super::createNewWindow();
+
 		// Get the device context
 		mDc = ::GetDC(HWND(mWnd));
 		if(mDc == nullptr)
@@ -54,27 +56,17 @@ public:
 		mRc = ::wglCreateContext(mDc);
 		if(!mRc)
 			throw std::runtime_error("Win32 API call 'wglCreateContext' failed");
-
-		makeActive();
-
-		{	// Initialize glew
-			GLenum err = glewInit();
-			if(err != GLEW_OK)
-				throw std::runtime_error((const char*)glewGetErrorString(err));
-		}
-
-		// Disable v-sync
-		if(glewIsSupported("WGLEW_swap_control"))
-			wglSwapIntervalEXT(0);
 	}
 
-	~Impl()
+	sal_override void destroy()
 	{
 		// De-select the current rendering context and delete it
 		::wglMakeCurrent(mDc, nullptr);
 		::wglDeleteContext(mRc);
 
 		::ReleaseDC(HWND(mWnd), mDc);
+
+		Super::destroy();
 	}
 
 	bool makeActive()
@@ -87,31 +79,17 @@ public:
 		return (::SwapBuffers(mDc) == TRUE);
 	}
 
-	OglContext::Handle mWnd;
+	bool setVerticalSync(bool flag)
+	{
+		if(glewIsSupported("WGLEW_swap_control")) {
+			wglSwapIntervalEXT(flag ? 1 : 0);
+			return true;
+		}
+		return false;
+	}
+
 	HDC mDc;
 	HGLRC mRc;
 };	// Impl
-
-OglContext::OglContext(Handle windowHandle) throw(std::runtime_error)
-{
-	mImpl = new Impl(windowHandle);
-}
-
-OglContext::~OglContext()
-{
-	delete mImpl;
-}
-
-bool OglContext::makeActive()
-{
-	MCD_ASSUME(mImpl != nullptr);
-	return mImpl->makeActive();
-}
-
-bool OglContext::swapBuffers()
-{
-	MCD_ASSUME(mImpl != nullptr);
-	return mImpl->swapBuffers();
-}
 
 }	// namespace MCD

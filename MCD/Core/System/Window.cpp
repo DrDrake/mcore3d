@@ -2,18 +2,8 @@
 #include "Window.h"
 #include "PlatformInclude.h"
 #include "StrUtility.h"
+#include "Window.inl"
 #include "WindowEvent.h"
-
-#ifdef MCD_VC
-#	pragma warning(push)
-#	pragma warning(disable: 6011)
-#endif
-#include <map>		// For name/value pair map
-#include <queue>	// For event queue
-#include <set>		// For storing unique IWindowListener
-#ifdef MCD_VC
-#	pragma warning(pop)
-#endif
 
 namespace MCD {
 
@@ -39,64 +29,49 @@ static void parseXy(const wchar_t* option, int& x, int& y)
 	}
 }
 
-//! Common base class for Impl of different platforms
-class ImplBase
+ImplBase::ImplBase()
 {
-public:
-	ImplBase()
-	{
-		// Give a small value
-		mWidth = mHeight = 1;
-		mTitle = L"Simple game engine";
+	// Give a small value
+	mWidth = mHeight = 1;
+	mTitle = L"Simple game engine";
+}
+
+void ImplBase::setOptions(const wchar_t* option, bool updateMemberOnly)
+{
+	const wchar_t* name = nullptr, *value = nullptr;
+	NvpParser parser(option);
+	while(parser.next(name, value)) {
+		setOption(name, value);
 	}
+}
 
-	virtual ~ImplBase() {}
+//! Send event to all window listeners
+void ImplBase::SendEvent(const Event& eventToSend)
+{
+	for(std::set<IWindowListener*>::iterator i = mListeners.begin(); i != mListeners.end(); ++i)
+		(*i)->onEvent(eventToSend);
+}
 
-	virtual void setOption(const wchar_t* name, const wchar_t* value) = 0;
+void ImplBase::onEvent(const Event& eventReceived)
+{
+	mEventQueue.push(eventReceived);
+}
 
-	void setOptions(const wchar_t* option, bool updateMemberOnly=true)
-	{
-		const wchar_t* name = nullptr, *value = nullptr;
-		NvpParser parser(option);
-		while(parser.next(name, value)) {
-			setOption(name, value);
-		}
-	}
+bool ImplBase::popEvent(Event& event, bool blocking)
+{
+	if(mEventQueue.empty())
+		processEvent(blocking);
 
-	//! Send event to all window listeners
-	void SendEvent(const Event& eventToSend)
-	{
-		for(std::set<IWindowListener*>::iterator i = mListeners.begin(); i != mListeners.end(); ++i)
-			(*i)->onEvent(eventToSend);
-	}
+	// After event may push into the queue after calling processEvent()
+	// therefore we need to check for empty() again
+	if(mEventQueue.empty())
+		return false;
 
-	void onEvent(const Event& eventReceived)
-	{
-		mEventQueue.push(eventReceived);
-	}
+	event = mEventQueue.front();
+	mEventQueue.pop();
 
-	virtual void processEvent(bool blocking) = 0;
-
-	bool getEvent(Event& event, bool blocking)
-	{
-		if(mEventQueue.empty())
-			processEvent(blocking);
-
-		if(mEventQueue.empty())
-			return false;
-
-		event = mEventQueue.front();
-		mEventQueue.pop();
-
-		return true;
-	}
-
-	uint mWidth, mHeight;
-	std::wstring mTitle;
-
-	std::set<IWindowListener*> mListeners;
-	std::queue<Event> mEventQueue;
-};	// ImplBase
+	return true;
+}
 
 }	// namespace MCD
 
@@ -125,7 +100,7 @@ Window::Handle Window::handle()
 	return mImpl->mWnd;
 }
 
-void Window::create(const wchar_t* options) throw(std::runtime_error)
+void Window::create(const wchar_t* options) throw(std::exception)
 {
 	MCD_ASSUME(mImpl != nullptr);
 	if(options)
@@ -151,10 +126,10 @@ void Window::processEvent(bool blocking)
 	mImpl->processEvent(blocking);
 }
 
-bool Window::getEvent(Event& event, bool blocking)
+bool Window::popEvent(Event& event, bool blocking)
 {
 	MCD_ASSUME(mImpl != nullptr);
-	return mImpl->getEvent(event, blocking);
+	return mImpl->popEvent(event, blocking);
 }
 
 void Window::onEvent(const Event& eventReceived)

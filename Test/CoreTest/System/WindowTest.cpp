@@ -13,7 +13,7 @@ TEST(Create_WindowTest)
 
 	while(true) {
 		Event e;
-		if(!window.getEvent(e, true)) {
+		if(!window.popEvent(e, true)) {
 			mSleep(10);
 			continue;
 		}
@@ -23,6 +23,8 @@ TEST(Create_WindowTest)
 			break;
 		}
 	}
+
+	CHECK(true);
 }
 
 TEST(Multiple_WindowTest)
@@ -40,7 +42,7 @@ TEST(Multiple_WindowTest)
 		bool hasEvent = false;
 
 		if(w1Active) {
-			hasEvent |= window1.getEvent(e1, false);
+			hasEvent |= window1.popEvent(e1, false);
 
 			if(e1.Type == Event::Closed) {
 				window1.destroy();
@@ -49,7 +51,7 @@ TEST(Multiple_WindowTest)
 		}
 
 		if(w2Active) {
-			hasEvent |= window2.getEvent(e2, false);
+			hasEvent |= window2.popEvent(e2, false);
 
 			if(e2.Type == Event::Closed) {
 				window2.destroy();
@@ -66,4 +68,6 @@ TEST(Multiple_WindowTest)
 			break;
 
 	}
+
+	CHECK(true);
 }

@@ -8,7 +8,6 @@
 namespace MCD {
 
 class Event;
-
 /*!	Base class for classes that want to receive events.
 	For internal use only.
  */
@@ -35,16 +34,16 @@ public:
     typedef unsigned long Handle;
 #endif
 
-	//! Get the handle
+	//! Get the platform dependent handle to this window
 	Handle handle();
 
 	/*!	Create a new window
 	 */
-	void create(sal_in_z_opt const wchar_t* options=nullptr) throw(std::runtime_error);
+	void create(sal_in_z_opt const wchar_t* options=nullptr) throw(std::exception);
 
 	/*!	Create a window from an existing control
 	 */
-	void create(Handle existingControl, sal_in_z_opt const wchar_t* options=nullptr) throw(std::runtime_error);
+	void create(Handle existingControl, sal_in_z_opt const wchar_t* options=nullptr) throw(std::exception);
 
 	void setOptions(sal_in_z sal_notnull const wchar_t* options);
 
@@ -54,7 +53,7 @@ public:
 
 	void processEvent(bool blocking);
 
-	bool getEvent(Event& event, bool blocking);
+	bool popEvent(Event& event, bool blocking);
 
 protected:
 	sal_override void onEvent(const Event& eventReceived);
