@@ -17,24 +17,28 @@ namespace MCD {
 
 GlWindow::GlWindow()
 {
-	mImpl = new Impl(*this);
 }
 
 GlWindow::~GlWindow()
 {
 	destroy();
-	delete mImpl;
 }
 
 void GlWindow::create(const wchar_t* options) throw(std::exception)
 {
-	MCD_ASSUME(mImpl != nullptr);
+	if(!mImpl)
+		mImpl = new Impl(*this);
+
+	// Not that we should operate on the local Impl class but not Window::Impl class.
+	Impl* impl = static_cast<Impl*>(mImpl);
+	MCD_ASSUME(impl != nullptr);
+
 	if(options)
-		mImpl->setOptions(options, true);
-	mImpl->createNewWindow();
+		impl->setOptions(options, true);
+	impl->createNewWindow();
 
 	// Make it active
-	mImpl->makeActive();
+	impl->makeActive();
 
 	{	// Initialize glew
 		GLenum err = glewInit();
@@ -43,31 +47,31 @@ void GlWindow::create(const wchar_t* options) throw(std::exception)
 	}
 
 	// Disable v-sync (by default)
-	mImpl->setVerticalSync(false);
+	impl->setVerticalSync(false);
 }
 
 void GlWindow::destroy()
 {
 	MCD_ASSUME(mImpl != nullptr);
-	mImpl->destroy();
+	static_cast<Impl*>(mImpl)->destroy();
 }
 
 bool GlWindow::makeActive()
 {
 	MCD_ASSUME(mImpl != nullptr);
-	return mImpl->makeActive();
+	return static_cast<Impl*>(mImpl)->makeActive();
 }
 
 bool GlWindow::swapBuffers()
 {
 	MCD_ASSUME(mImpl != nullptr);
-	return mImpl->swapBuffers();
+	return static_cast<Impl*>(mImpl)->swapBuffers();
 }
 
 bool GlWindow::setVerticalSync(bool flag)
 {
 	MCD_ASSUME(mImpl != nullptr);
-	return mImpl->setVerticalSync(flag);
+	return static_cast<Impl*>(mImpl)->setVerticalSync(flag);
 }
 
 }	// namespace MCD

@@ -14,7 +14,7 @@
 
 namespace MCD {
 
-//! Common base class for Impl of different platforms
+//!	Common base class for Impl on different platforms.
 class MCD_NOVTABLE ImplBase
 {
 public:
@@ -35,6 +35,7 @@ public:
 
 	bool popEvent(Event& event, bool blocking);
 
+	//! Width and height of the window (not client area)
 	uint mWidth, mHeight;
 	std::wstring mTitle;
 

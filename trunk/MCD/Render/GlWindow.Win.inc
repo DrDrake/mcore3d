@@ -20,7 +20,7 @@ public:
 	{
 	}
 
-	~Impl()
+	sal_override ~Impl()
 	{
 		destroy();
 	}

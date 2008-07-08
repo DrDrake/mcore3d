@@ -33,6 +33,11 @@ public:
 
 	void destroy();
 
+	/*! Invoked for X11 "DestroyNotify" event, which may need to do some cleanup.
+		Deried class can overrided this function to perform specific cleanup.
+	 */
+	virtual void onDestroy() {}
+
 	//////////////////////////////////////////////////////////////////////////
 	// Begin of setting options
 

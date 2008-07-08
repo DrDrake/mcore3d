@@ -2,7 +2,6 @@
 
 #include "../Core/System/StrUtility.h"
 #include "../Core/System/Window.X11.inl"
-#include "../../3Party/glew/wglew.h"
 #include <GL/glx.h>
 
 namespace MCD {
@@ -17,15 +16,13 @@ public:
 	{
 	}
 
-	~Impl()
+	sal_override ~Impl()
 	{
 		destroy();
 	}
 
 	sal_override void createNewWindow()
 	{
-		MCD_ASSERT(!mWnd && "A window is already created, call destroy() first");
-
 		// Open the display at first call
 		openDisplay();
 
@@ -95,13 +92,11 @@ public:
 		mGlxContext = ::glXCreateContext(gDisplay, visualInfo, 0, True);
 	}
 
-	sal_override void destroy()
+	sal_override void onDestroy()
 	{
-		// Destroy the OpenGL context
+		// Destroy the OpenGL context, must do it during the X11 "DestroyNotify" event
 		if(mGlxContext)
 			::glXDestroyContext(gDisplay, mGlxContext);
-
-		Super::destroy();
 	}
 
 	bool makeActive()

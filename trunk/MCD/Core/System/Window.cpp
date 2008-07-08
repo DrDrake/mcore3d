@@ -4,7 +4,7 @@
 #include "StrUtility.h"
 #include "Window.inl"
 #include "WindowEvent.h"
-
+#include <iostream>
 namespace MCD {
 
 static int toInt(const wchar_t* value, int defaultVal)
@@ -84,8 +84,8 @@ bool ImplBase::popEvent(Event& event, bool blocking)
 namespace MCD {
 
 Window::Window()
+	: mImpl(nullptr)
 {
-	mImpl = new Impl(*this);
 }
 
 Window::~Window()
@@ -102,6 +102,9 @@ Window::Handle Window::handle()
 
 void Window::create(const wchar_t* options) throw(std::exception)
 {
+	if(!mImpl)
+		mImpl = new Impl(*this);
+
 	MCD_ASSUME(mImpl != nullptr);
 	if(options)
 		mImpl->setOptions(options, true);
