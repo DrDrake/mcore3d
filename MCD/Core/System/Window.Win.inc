@@ -328,7 +328,7 @@ LRESULT Window::Impl::Proc(UINT uMsg, WPARAM wParam, LPARAM lParam)
 
 	case WM_DESTROY:
 		// Here we must cleanup resources!
-//			Cleanup();
+//		cleanup();
 		break;
 
 	case WM_CLOSE:
@@ -340,15 +340,19 @@ LRESULT Window::Impl::Proc(UINT uMsg, WPARAM wParam, LPARAM lParam)
 
 	case WM_SIZE:
 	{
-		// The width and height are client area size
-		int width = LOWORD(lParam);
-		int height = HIWORD(lParam);
-		setOptions((std::wstring(L"width=") + int2WStr(width) + L";").c_str());
-		setOptions((std::wstring(L"height=") + int2WStr(height) + L";").c_str());
+		// The lParam stores client area size, not window size
+//		int width = LOWORD(lParam);
+//		int height = HIWORD(lParam);
+
+		{	RECT rect;
+			::GetWindowRect(mWnd, &rect);
+			mWidth = rect.right - rect.left;
+			mHeight = rect.bottom - rect.top;
+		}
 
 		ev.Type = Event::Resized;
-		ev.Size.Width = width;
-		ev.Size.Height = height;
+		ev.Size.Width = mWidth;
+		ev.Size.Height = mHeight;
 		SendEvent(ev);
 		break;
 	}
