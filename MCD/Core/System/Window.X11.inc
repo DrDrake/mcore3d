@@ -293,11 +293,6 @@ void Window::Impl::setHeight(const wchar_t* value)
 	mHeight = toInt(value, 600);
 }
 
-// "mode = 'fullscreen=0|1; width=800; height=600;'
-void Window::Impl::setWindowMode(const wchar_t*)
-{
-}
-
 // "show = 0|1"
 void Window::Impl::setShowWindow(const wchar_t* value)
 {
@@ -334,7 +329,6 @@ sal_override void Window::Impl::setOption(const wchar_t* name, const wchar_t* va
 	static const S table[] = {
 		{ L"curosrPosition",	&Impl::setCursorPosition },
 		{ L"height",			&Impl::setHeight },
-		{ L"mode",				&Impl::setWindowMode },
 		{ L"show",				&Impl::setShowWindow },
 		{ L"showCursor",		&Impl::setShowCursor },
 		{ L"title",				&Impl::setTitle },
