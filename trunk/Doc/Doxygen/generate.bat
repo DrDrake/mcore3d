@@ -1,1 +1,1 @@
-doxygen SGE
+doxygen MCD

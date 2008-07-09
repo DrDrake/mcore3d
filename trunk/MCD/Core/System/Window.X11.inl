@@ -47,9 +47,6 @@ public:
 	// "height = 600"
 	void setHeight(const wchar_t* value);
 
-	// "mode = 'fullscreen=0|1; width=800; height=600;'
-	void setWindowMode(const wchar_t*);
-
 	// "show = 0|1"
 	void setShowWindow(const wchar_t* value);
 

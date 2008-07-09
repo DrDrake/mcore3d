@@ -56,6 +56,21 @@ public:
 	Handle handle();
 
 	/*!	Create a new window.
+		\param options A name/value pair string that describle the properties of the window
+		\sa NvpParser
+
+		Supported options on all platforms:
+
+		curosrPosition = 'x=positive number; y=positive number' \n
+		height = positive number \n
+		show = 0|1 \n
+		showCursor = 0|1 \n
+		title = 'Your window title' \n
+		width = positive number \n
+
+		Supported options on Microsoft Windows:
+		colorBits = 4|8|16|32 \n
+		fullscreen = 0|1 \n
 	 */
 	void create(sal_in_z_opt const wchar_t* options=nullptr) throw(std::exception);
 
@@ -63,6 +78,16 @@ public:
 	 */
 	void create(Handle existingControl, sal_in_z_opt const wchar_t* options=nullptr) throw(std::exception);
 
+	/*!	Change some of the properties of the window.
+		\note Not all options that can be set in create() can be applied here,
+			for instance we cannot change the fullscreen mode once the window is created.
+
+		Supported options on all platforms:
+
+		curosrPosition = 'x=positive number; y=positive number' \n
+		show = 0|1 \n
+		showCursor = 0|1 \n
+	 */
 	void setOptions(sal_in_z sal_notnull const wchar_t* options);
 
 	/*!	Destroy the window and perform necessary cleanup.
@@ -78,7 +103,8 @@ public:
 
 	/*!	Pop an event out of the event queue.
 		Implicitly call processEvent() if the event queue is empty.
-		\param blocing If it's true, the function will block until an event happen.
+		\param event Output parameter to get the event.
+		\param blocking If it's true, the function will block until an event happen.
 		\return false if the event queue is empty, meaningfull for non-blocking mode only.
 	 */
 	bool popEvent(Event& event, bool blocking);
