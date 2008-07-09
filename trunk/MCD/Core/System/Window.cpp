@@ -4,7 +4,7 @@
 #include "StrUtility.h"
 #include "Window.inl"
 #include "WindowEvent.h"
-#include <iostream>
+
 namespace MCD {
 
 static int toInt(const wchar_t* value, int defaultVal)
@@ -139,6 +139,18 @@ void Window::onEvent(const Event& eventReceived)
 {
 	MCD_ASSUME(mImpl != nullptr);
 	mImpl->onEvent(eventReceived);
+}
+
+uint Window::width() const
+{
+	MCD_ASSUME(mImpl != nullptr);
+	return mImpl->mWidth;
+}
+
+uint Window::height() const
+{
+	MCD_ASSUME(mImpl != nullptr);
+	return mImpl->mHeight;
 }
 
 }	// namespace MCD

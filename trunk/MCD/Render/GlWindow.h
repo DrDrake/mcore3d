@@ -6,6 +6,33 @@
 
 namespace MCD {
 
+/*!	An application window with OpenGl.
+	Example:
+	\code
+	GlWindow window;
+	window.create(L"title='Hello world!';width=400;height=300");
+	window.setOptions(L"showCursor=0");
+	window.makeActive();
+
+	while(true) {
+		Event e;
+		// We keep render even without any window event, therefore we
+		// use non-blocking mode
+		bool hasEvent = window.popEvent(e, false);
+
+		if(hasEvent && e.Type == Event::Closed) {
+			window.destroy();
+			break;
+		}
+
+		// Do you drawing here
+		// ...
+
+		// Call swapBuffers() to present your drawing to the front buffer
+		swapBuffers();
+	}
+	\endcode
+ */
 class MCD_RENDER_API GlWindow : public Window
 {
 public:

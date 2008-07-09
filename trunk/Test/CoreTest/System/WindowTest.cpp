@@ -8,8 +8,11 @@ using namespace MCD;
 TEST(Create_WindowTest)
 {
 	Window window;
-	window.create(L"title='Hello world!';width=400;height=400");
+	window.create(L"title='Hello world!';width=400;height=300");
 	window.setOptions(L"showCursor=0");
+
+	CHECK_EQUAL(400u, window.width());
+	CHECK_EQUAL(300u, window.height());
 
 	while(true) {
 		Event e;
@@ -23,8 +26,6 @@ TEST(Create_WindowTest)
 			break;
 		}
 	}
-
-	CHECK(true);
 }
 
 TEST(Multiple_WindowTest)
