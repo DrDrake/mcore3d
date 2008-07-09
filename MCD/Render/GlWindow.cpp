@@ -34,7 +34,7 @@ void GlWindow::create(const wchar_t* options) throw(std::exception)
 	MCD_ASSUME(impl != nullptr);
 
 	if(options)
-		impl->setOptions(options, true);
+		impl->setOptions(options);
 	impl->createNewWindow();
 
 	// Make it active

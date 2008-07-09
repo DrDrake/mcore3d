@@ -83,10 +83,10 @@ public:
 	 */
 	bool popEvent(Event& event, bool blocking);
 
-	//! Width of the window in pixel.
+	//! Width of the window client area in pixel.
 	uint width() const;
 
-	//! Height of the window in pixel.
+	//! Height of the window client area in pixel.
 	uint height() const;
 
 protected:

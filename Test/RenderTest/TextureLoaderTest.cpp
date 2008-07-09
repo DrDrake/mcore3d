@@ -223,7 +223,7 @@ class TWindow : public GlWindow
 public:
 	TWindow() : mIsClosing(false), mFullLoaded(false)
 	{
-		create(L"title=RotatingBox_TextureTest;width=400;height=400");
+		create(L"title=RotatingBox_TextureTest;width=640;height=480;fullscreen=0");
 
 		mTexture = new Texture(L"Media/InterlacedTrans256x256.png");
 		Texture& texture = static_cast<Texture&>(*mTexture);

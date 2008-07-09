@@ -36,7 +36,7 @@ ImplBase::ImplBase()
 	mTitle = L"Simple game engine";
 }
 
-void ImplBase::setOptions(const wchar_t* option, bool updateMemberOnly)
+void ImplBase::setOptions(const wchar_t* option)
 {
 	const wchar_t* name = nullptr, *value = nullptr;
 	NvpParser parser(option);
@@ -107,14 +107,14 @@ void Window::create(const wchar_t* options) throw(std::exception)
 
 	MCD_ASSUME(mImpl != nullptr);
 	if(options)
-		mImpl->setOptions(options, true);
+		mImpl->setOptions(options);
 	mImpl->createNewWindow();
 }
 
 void Window::setOptions(const wchar_t* options)
 {
 	MCD_ASSUME(mImpl != nullptr);
-	mImpl->setOptions(options, false);
+	mImpl->setOptions(options);
 }
 
 void Window::destroy()
