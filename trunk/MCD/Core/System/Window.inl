@@ -24,7 +24,7 @@ public:
 
 	virtual void setOption(const wchar_t* name, const wchar_t* value) = 0;
 
-	MCD_CORE_API void setOptions(const wchar_t* option, bool updateMemberOnly=true);
+	MCD_CORE_API virtual void setOptions(const wchar_t* option);
 
 	//! Send event to all window listeners
 	void SendEvent(const Event& eventToSend);

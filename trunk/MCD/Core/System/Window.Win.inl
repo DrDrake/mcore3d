@@ -23,17 +23,26 @@ public:
 
 	void destroy();
 
+	/*! Invoked for Win32 "WM_DESTROY" event, which may need to do some cleanup.
+		Derived class can overrided this function to perform specific cleanup.
+	 */
+	virtual void onDestroy();
+
 	//////////////////////////////////////////////////////////////////////////
 	// Begin of setting options
+
+	// "colorBits = 32"
+	void setColorBits(const wchar_t* value);
 
 	// "curosrPosition = 'x=123; y=456'"
 	void setCursorPosition(const wchar_t* value);
 
+	// "fullscreen = 0|1"
+	void setFullscreen(const wchar_t* value);
+	void setFullscreen(bool flag);
+
 	// "height = 600"
 	void setHeight(const wchar_t* value);
-
-	// "mode = 'fullscreen=0|1; width=800; height=600;'
-	void setWindowMode(const wchar_t*);
 
 	// "show = 0|1"
 	void setShowWindow(const wchar_t* value);
@@ -60,6 +69,9 @@ public:
 
 	HWND mWnd;
 	Window& mWindow;
+	DEVMODE mDisplaySettingBackup;	//! Backup of the currect display setting before we go into fullscreen mode
+	uint8_t mColorBits;		//! Number of bits per pixel
+	bool mFullScreen;
 };	// Impl
 
 }	// namespace MCD

@@ -112,10 +112,13 @@ public:
 
 	bool setVerticalSync(bool flag)
 	{
-		if(glewIsSupported("WGLEW_swap_control")) {
-//			wglSwapIntervalEXT(flag ? 1 : 0);
+		const GLubyte* procAddress = reinterpret_cast<const GLubyte*>("glXSwapIntervalSGI");
+		PFNGLXSWAPINTERVALSGIPROC glXSwapIntervalSGI = reinterpret_cast<PFNGLXSWAPINTERVALSGIPROC>(glXGetProcAddress(procAddress));
+		if(glXSwapIntervalSGI) {
+			glXSwapIntervalSGI(flag ? 1 : 0);
 			return true;
 		}
+
 		return false;
 	}
 

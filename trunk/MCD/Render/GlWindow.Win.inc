@@ -41,7 +41,7 @@ public:
 		pfd.nSize = sizeof(pfd);
 		pfd.dwFlags = PFD_DRAW_TO_WINDOW | PFD_SUPPORT_OPENGL | PFD_DOUBLEBUFFER;
 		pfd.iPixelType = PFD_TYPE_RGBA;
-		pfd.cColorBits = 32;
+		pfd.cColorBits = mColorBits;
 		pfd.cDepthBits = 16;
 		pfd.cStencilBits = 8;
 		pfd.iLayerType = PFD_MAIN_PLANE;

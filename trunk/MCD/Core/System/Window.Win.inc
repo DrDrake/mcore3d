@@ -142,7 +142,10 @@ Key::Code ConvertKeyCode(WPARAM virtualKey, LPARAM flags)
 }
 
 Window::Impl::Impl(Window& w)
-	: mWnd(nullptr), mWindow(w)
+	:
+	mWnd(nullptr), mWindow(w),
+	mColorBits(32),
+	mFullScreen(false)
 {
 	mListeners.insert(&w);
 	mWidth = mHeight = uint(CW_USEDEFAULT);
@@ -173,12 +176,23 @@ void Window::Impl::createNewWindow()
 	{	// Create window
 		MCD_ASSERT(!mWnd && "A window is already created, call destroy() first");
 
+		// OpenGL requires WS_CLIPCHILDREN and WS_CLIPSIBLINGS, see page 657 of OpenGL SuperBible 4th edition
+		DWORD style = WS_OVERLAPPEDWINDOW | WS_CLIPCHILDREN | WS_CLIPSIBLINGS;
+
+		// In windowed mode, adjust width and height so that window will have the requested client area
+		int windowWidth = mWidth, windowHeight = mHeight;
+		if(!mFullScreen) {
+			RECT rect = { 0, 0, mWidth, mHeight };
+			::AdjustWindowRect(&rect, style, /*hasMenu*/false);
+			windowWidth = (mWidth == CW_USEDEFAULT ? mWidth : rect.right - rect.left);
+			windowHeight = (mHeight == CW_USEDEFAULT ? mHeight :  rect.bottom - rect.top);
+		}
+
 		mWnd = ::CreateWindow(
 			cWindowClass, mTitle.c_str(),
-			// OpenGL requires WS_CLIPCHILDREN and WS_CLIPSIBLINGS, see page 657 of OpenGL SuperBible 4th edition
-			WS_OVERLAPPEDWINDOW | WS_CLIPCHILDREN | WS_CLIPSIBLINGS,
+			style,
 			CW_USEDEFAULT, CW_USEDEFAULT,
-			mWidth, mHeight,
+			windowWidth, windowHeight,
 			nullptr, nullptr,
 			hModule,
 			nullptr
@@ -187,11 +201,16 @@ void Window::Impl::createNewWindow()
 		if(!mWnd)
 			throw std::runtime_error("Win32 API call 'CreateWindow' failed");
 
-		// Get window size
-		RECT rect;
-		::GetWindowRect(mWnd, &rect);
-		mWidth = rect.right - rect.left;
-		mHeight = rect.bottom - rect.top;
+		// Get the client area size from Win32 if user didn't supply one
+		if(mWidth == CW_USEDEFAULT || mHeight == CW_USEDEFAULT) {
+			RECT rect;
+			::GetClientRect(mWnd, &rect);
+			mWidth = rect.right - rect.left;
+			mHeight = rect.bottom - rect.top;
+		}
+
+		if(mFullScreen)
+			setFullscreen(true);
 	}
 
 	// Associate the this pointer as the user-data of the window handle
@@ -216,8 +235,27 @@ void Window::Impl::destroy()
 	}
 }
 
+void Window::Impl::onDestroy()
+{
+	// Back to windowed mode once we receive the WM_DESTROY message
+	setFullscreen(false);
+}
+
 //////////////////////////////////////////////////////////////////////////
 // Begin of setting options
+
+void Window::Impl::setColorBits(const wchar_t* value)
+{
+	// Cannot change the color bits once the window is created
+	if(mWnd)
+		return;
+
+	uint colorBits = toInt(value, 32);
+	if(colorBits != 4 && colorBits != 8 && colorBits != 16 && colorBits != 32)
+		return;
+
+	mColorBits = uint8_t(colorBits);
+}
 
 // "curosrPosition = 'x=123; y=456'"
 void Window::Impl::setCursorPosition(const wchar_t* value)
@@ -229,15 +267,62 @@ void Window::Impl::setCursorPosition(const wchar_t* value)
 	::SetCursorPos(p.x, p.y);
 }
 
+// "fullscreen = 0|1"
+void Window::Impl::setFullscreen(const wchar_t* value)
+{
+	// Cannot change the fullscreen mode once the window is created
+	if(mWnd)
+		return;
+	mFullScreen = (toInt(value, false) == 1);
+}
+
+void Window::Impl::setFullscreen(bool flag)
+{
+	if(flag) {
+		// Backup the non-fullscreen settings
+		::EnumDisplaySettings(nullptr, ENUM_CURRENT_SETTINGS, &mDisplaySettingBackup);
+
+		DEVMODE devMode;
+		ZeroMemory(&devMode, sizeof(devMode));
+		devMode.dmSize = sizeof(devMode);
+		devMode.dmPelsWidth = mWidth;
+		devMode.dmPelsHeight = mHeight;
+		devMode.dmBitsPerPel = mColorBits;
+		devMode.dmFields = DM_PELSWIDTH | DM_PELSHEIGHT | DM_BITSPERPEL;
+
+		// Apply fullscreen mode
+		if(::ChangeDisplaySettings(&devMode, CDS_FULLSCREEN) != DISP_CHANGE_SUCCESSFUL) {
+			// TODO: Log error
+			return;
+		}
+
+		// Change window style (no border, no titlebar, ...)
+		::SetWindowLong(mWnd, GWL_STYLE, WS_POPUP);
+		::SetWindowLong(mWnd, GWL_EXSTYLE, WS_EX_APPWINDOW);
+
+		// And resize it so that it fits the entire screen
+		::SetWindowPos(mWnd, HWND_TOP, 0, 0, mWidth, mHeight, SWP_FRAMECHANGED);
+		::ShowWindow(mWnd, SW_SHOW);
+
+		// SetPixelFormat can fail if window style doesn't contain these flags
+		long Style = ::GetWindowLong(mWnd, GWL_STYLE);
+		::SetWindowLong(mWnd, GWL_STYLE, Style | WS_CLIPCHILDREN | WS_CLIPSIBLINGS);
+	}
+	else {
+		// Restore the backup settings
+		if(::ChangeDisplaySettings(&mDisplaySettingBackup, CDS_RESET) != DISP_CHANGE_SUCCESSFUL) {
+			// TODO: Log error
+		}
+
+		::SetWindowLong(mWnd, GWL_STYLE, WS_OVERLAPPEDWINDOW);
+		::SetWindowLong(mWnd, GWL_EXSTYLE, WS_EX_APPWINDOW | WS_EX_WINDOWEDGE);
+	}
+}
+
 // "height = 600"
 void Window::Impl::setHeight(const wchar_t* value)
 {
 	mHeight = toInt(value, 600);
-}
-
-// "mode = 'fullscreen=0|1; width=800; height=600;'
-void Window::Impl::setWindowMode(const wchar_t*)
-{
 }
 
 // "show = 0|1"
@@ -268,9 +353,10 @@ sal_override void Window::Impl::setOption(const wchar_t* name, const wchar_t* va
 {
 	struct S {	const wchar_t* name; void (Impl::*fun)(const wchar_t*); };
 	static const S table[] = {
+		{ L"colorBits",			&Impl::setColorBits },
 		{ L"curosrPosition",	&Impl::setCursorPosition },
+		{ L"fullscreen",		&Impl::setFullscreen },
 		{ L"height",			&Impl::setHeight },
-		{ L"mode",				&Impl::setWindowMode },
 		{ L"show",				&Impl::setShowWindow },
 		{ L"showCursor",		&Impl::setShowCursor },
 		{ L"title",				&Impl::setTitle },
@@ -328,7 +414,7 @@ LRESULT Window::Impl::Proc(UINT uMsg, WPARAM wParam, LPARAM lParam)
 
 	case WM_DESTROY:
 		// Here we must cleanup resources!
-//		cleanup();
+		onDestroy();
 		break;
 
 	case WM_CLOSE:
@@ -341,14 +427,8 @@ LRESULT Window::Impl::Proc(UINT uMsg, WPARAM wParam, LPARAM lParam)
 	case WM_SIZE:
 	{
 		// The lParam stores client area size, not window size
-//		int width = LOWORD(lParam);
-//		int height = HIWORD(lParam);
-
-		{	RECT rect;
-			::GetWindowRect(mWnd, &rect);
-			mWidth = rect.right - rect.left;
-			mHeight = rect.bottom - rect.top;
-		}
+		mWidth = LOWORD(lParam);
+		mHeight = HIWORD(lParam);
 
 		ev.Type = Event::Resized;
 		ev.Size.Width = mWidth;
