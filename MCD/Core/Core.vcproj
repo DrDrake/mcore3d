@@ -247,6 +247,10 @@
 					>
 				</File>
 				<File
+					RelativePath=".\System\Log.h"
+					>
+				</File>
+				<File
 					RelativePath=".\System\Macros.h"
 					>
 				</File>
@@ -276,6 +280,10 @@
 				</File>
 				<File
 					RelativePath=".\System\PlatformIncludeFwd.h"
+					>
+				</File>
+				<File
+					RelativePath=".\System\RawFileSystem.h"
 					>
 				</File>
 				<File
@@ -364,6 +372,10 @@
 					>
 				</File>
 				<File
+					RelativePath=".\System\Log.cpp"
+					>
+				</File>
+				<File
 					RelativePath=".\System\Map.cpp"
 					>
 				</File>
@@ -377,10 +389,6 @@
 				</File>
 				<File
 					RelativePath=".\System\RawFileSystem.cpp"
-					>
-				</File>
-				<File
-					RelativePath=".\System\RawFileSystem.h"
 					>
 				</File>
 				<File

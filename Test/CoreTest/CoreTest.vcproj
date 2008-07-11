@@ -221,6 +221,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\System\LogTest.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\System\MapTest.cpp"
 				>
 			</File>

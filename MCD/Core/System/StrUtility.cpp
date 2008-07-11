@@ -261,4 +261,11 @@ int wcscmp(const wchar_t* src, const wchar_t* dst)
 	return ret;
 }
 
+// TODO: Implementation
+int vsnwprintf(wchar_t* dest, size_t count, const wchar_t* format, va_list argptr)
+{
+	memset(dest, 0, count * sizeof(wchar_t));
+	return 0;
+}
+
 #endif	// #ifdef MCD_CYGWIN
