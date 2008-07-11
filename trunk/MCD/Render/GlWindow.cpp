@@ -74,4 +74,19 @@ bool GlWindow::setVerticalSync(bool flag)
 	return static_cast<Impl*>(mImpl)->setVerticalSync(flag);
 }
 
+void GlWindow::onEvent(const Event& eventReceived)
+{
+	MCD_ASSUME(mImpl != nullptr);
+
+	if(eventReceived.Type == Event::Resized) {
+		uint w = mImpl->mWidth;
+		uint h = mImpl->mHeight;
+		glViewport(0, 0, w, h);
+		glScissor(0, 0, w, h);
+	}
+
+	// Let Window (the super class of GlWindow) to do the remaining job
+	Window::onEvent(eventReceived);
+}
+
 }	// namespace MCD

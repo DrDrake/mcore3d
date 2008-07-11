@@ -64,6 +64,8 @@ public:
 	bool setVerticalSync(bool flag);
 
 protected:
+	sal_override void onEvent(const Event& eventReceived);
+
 	class Impl;
 };	// GlWindow
 

@@ -221,6 +221,7 @@ void NoReturn() { throw "NoReturn should not be invoked"; }
 namespace std {
 	// Cygwin missing the typedef for std::wstring
 	typedef basic_string<wchar_t> wstring;
+	typedef basic_ostream<wchar_t> wostream;
 	typedef basic_stringstream<wchar_t> wstringstream;
 }
 #endif

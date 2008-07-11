@@ -83,6 +83,8 @@
 		<Unit filename="System\IntrusivePtr.h" />
 		<Unit filename="System\LinkList.cpp" />
 		<Unit filename="System\LinkList.h" />
+		<Unit filename="System\Log.cpp" />
+		<Unit filename="System\Log.h" />
 		<Unit filename="System\Macros.h" />
 		<Unit filename="System\Map.cpp" />
 		<Unit filename="System\Map.h" />

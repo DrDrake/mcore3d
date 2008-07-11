@@ -74,6 +74,9 @@ protected:
 MCD_CORE_API wchar_t* wcsdup(const wchar_t* str);
 MCD_CORE_API int wcscmp(const wchar_t* src, const wchar_t* dst);
 
+#include <stdarg.h>
+MCD_CORE_API int vsnwprintf(wchar_t* dest, size_t count, const wchar_t* format, va_list argptr);
+
 #endif
 
 #endif	// __MCD_CORE_SYSTEM_WSTR2STR__
