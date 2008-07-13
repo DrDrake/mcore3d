@@ -1,5 +1,7 @@
 #include "Pch.h"
 #include "Window.h"
+#include "ErrorCode.h"
+#include "Log.h"
 #include "PlatformInclude.h"
 #include "StrUtility.h"
 #include "Window.inl"

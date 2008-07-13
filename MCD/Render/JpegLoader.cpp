@@ -2,6 +2,7 @@
 #include "JpegLoader.h"
 #include "Texture.h"
 #include "TextureLoaderBaseImpl.inc"
+#include "../Core/System/Log.h"
 
 #include "../../3Party/glew/glew.h"
 #include "../../3Party/SmallJpeg/jpegdecoder.h"
@@ -75,7 +76,7 @@ public:
 				mExternalFormat = GL_RGBA;
 			}
 			else {
-				// TODO: Log error message
+				Log::format(Log::Error, L"JpegLoader: image with number of color componet equals to %i is not supported, operation aborted", c);
 				return JPGD_FAILED;
 			}
 

@@ -2,6 +2,7 @@
 #include "PngLoader.h"
 #include "Texture.h"
 #include "TextureLoaderBaseImpl.inc"
+#include "../Core/System/Log.h"
 
 #include "../../3Party/png/png.h"
 #include "../../3Party/glew/glew.h"
@@ -74,7 +75,7 @@ public:
 			mFormat = GL_LUMINANCE_ALPHA;
 			break;
 		case PNG_COLOR_TYPE_PALETTE:	// Color palette is not supported
-			// TODO: Log error message
+			Log::write(Log::Error, L"PngLoader: image using color palette is not supported, operation aborted");
 		default:
 			mHasError = true;
 			break;

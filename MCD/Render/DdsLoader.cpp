@@ -2,6 +2,7 @@
 #include "DdsLoader.h"
 #include "Texture.h"
 #include "TextureLoaderBaseImpl.inc"
+#include "../Core/System/Log.h"
 
 #define GLEW_STATIC
 #include "../../3Party/glew/glew.h"
@@ -278,7 +279,7 @@ public:
 
 		glewInit();
 		if(!glCompressedTexImage2D) {
-			// TODO: Log message
+			Log::write(Log::Error, L"DdsLoader: glCompressedTexImage2D is not supported, operation aborted");
 			return;
 		}
 

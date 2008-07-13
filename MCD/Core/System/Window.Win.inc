@@ -292,7 +292,7 @@ void Window::Impl::setFullscreen(bool flag)
 
 		// Apply fullscreen mode
 		if(::ChangeDisplaySettings(&devMode, CDS_FULLSCREEN) != DISP_CHANGE_SUCCESSFUL) {
-			// TODO: Log error
+			Log::write(Log::Error, L"Fail to enter full screen mode");
 			return;
 		}
 
@@ -311,7 +311,7 @@ void Window::Impl::setFullscreen(bool flag)
 	else {
 		// Restore the backup settings
 		if(::ChangeDisplaySettings(&mDisplaySettingBackup, CDS_RESET) != DISP_CHANGE_SUCCESSFUL) {
-			// TODO: Log error
+			Log::write(Log::Error, L"Fail to restore orginal screen setting from full screen mode");
 		}
 
 		::SetWindowLong(mWnd, GWL_STYLE, WS_OVERLAPPEDWINDOW);
@@ -383,7 +383,7 @@ sal_override void Window::Impl::processEvent(bool blocking)
 			TranslateMessage(&message);
 			DispatchMessage(&message);
 		} else {
-			// TODO: Error handling/logging
+			Log::format(Log::Error, L"Win32 API GetMessage failed with message:\"%s\"", getErrorMessage(nullptr));
 		}
 	}
 	else while(::PeekMessage(&message, mWnd, 0, 0, PM_REMOVE)) {
