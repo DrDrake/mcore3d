@@ -14,7 +14,7 @@ extern MCD_CORE_API int getLastError();
 extern MCD_CORE_API void setLastError(int errorCode);
 
 //! Convert system error code into a meaningful message
-extern MCD_CORE_API std::string getErrorMessage(sal_in_z_opt const char* prefix, int errorCode);
+extern MCD_CORE_API std::string getErrorMessage(sal_in_z_opt const char* prefix, int errorCode = getLastError());
 
 }	// namespace MCD
 

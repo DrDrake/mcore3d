@@ -10,6 +10,16 @@
 namespace MCD {
 
 static std::wostream* gOutStream = nullptr;
+static Log::Level gLogLevel = Log::Level(Log::Error | Log::Warn | Log::Info);
+
+static const wchar_t* cPrefixTable[5] = 
+{
+	L"",
+	L"Error: ",
+	L"Warn:  ",
+	L"",
+	L"Info:  ",
+};
 
 void Log::start(std::wostream* os)
 {
@@ -18,25 +28,31 @@ void Log::start(std::wostream* os)
 	gOutStream = os;
 }
 
-void Log::write(const wchar_t* msg)
+void Log::setLevel(Level level)
 {
-	if(!gOutStream)
+	gLogLevel = level;
+}
+
+void Log::write(Level level, const wchar_t* msg)
+{
+	if(!gOutStream || !(gLogLevel & level))
 		return;
-	(*gOutStream) << msg;
+	MCD_ASSUME(level < sizeof(cPrefixTable) / sizeof(wchar_t*));
+	(*gOutStream) << cPrefixTable[level] << msg << std::endl;
 }
 
 // _ALLOCA_S_THRESHOLD is a macro that already defined in Visual Studio <malloc.h>
 #ifndef MCD_VC
 #	define _ALLOCA_S_THRESHOLD 1024*2
-#	define _vsnwprintf vsnwprintf
 #endif
 
-void Log::format(const wchar_t* fmt, ...)
+void Log::format(Level level, const wchar_t* fmt, ...)
 {
 	MCD_ASSUME(fmt != nullptr);
-	if(!gOutStream)
+	if(!gOutStream || !(gLogLevel & level))
 		return;
 
+	MCD_ASSUME(level < sizeof(cPrefixTable) / sizeof(wchar_t*));
 	va_list argList;
 	va_start(argList, fmt);
 
@@ -52,15 +68,22 @@ void Log::format(const wchar_t* fmt, ...)
 		buf = (wchar_t*)MCD_STACKALLOCA(sizeof(wchar_t) * bufCount);
 		if(!buf)	// Not enough memory! It seems that we cannot do anything further
 			return;
-		int result = _vsnwprintf(buf, bufCount, fmt, argList);
+		int result = vswprintf(buf, bufCount, fmt, argList);
 		if(result >= 0) {
+			(*gOutStream) << cPrefixTable[level];
 			gOutStream->write(buf, result);
+			(*gOutStream) << std::endl;
 			MCD_STACKFREE(buf);
 			return;
 		}
 		MCD_STACKFREE(buf);
 		bufCount *= 2;
 	}
+}
+
+void Log::release()
+{
+	gOutStream = nullptr;
 }
 
 void Log::stop()
