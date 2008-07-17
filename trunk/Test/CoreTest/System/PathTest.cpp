@@ -19,6 +19,7 @@ TEST(Basic_PathTest)
 
 		CHECK(path == Path(L"./"));
 		CHECK(!(path != Path(L"./")));
+		CHECK(Path(L"") < path);
 	}
 }
 

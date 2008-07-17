@@ -11,6 +11,7 @@ TEST(Create_WindowTest)
 	window.create(L"title='Hello world!';width=400;height=300");
 	window.setOptions(L"showCursor=0");
 
+	CHECK(window.handle() != 0);
 	CHECK_EQUAL(400u, window.width());
 	CHECK_EQUAL(300u, window.height());
 

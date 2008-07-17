@@ -23,9 +23,11 @@ TEST(Basic_ThreadPoolTest)
 {
 	Runnable runnable;
 	ThreadPool threadPool(runnable, false);
+	CHECK_EQUAL(&runnable, &threadPool.runnable());
 	threadPool.setThreadCount(1);
 	mSleep(1);
 	threadPool.setThreadCount(3);
+	CHECK_EQUAL(3u, threadPool.getThreadCount());
 	mSleep(1);
 	threadPool.setThreadCount(2);
 	mSleep(1);

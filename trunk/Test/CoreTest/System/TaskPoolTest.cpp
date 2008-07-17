@@ -42,14 +42,15 @@ TEST(Basic_TaskPoolTest)
 		Task task[10];
 		TaskPool taskPool;
 		taskPool.setThreadCount(2);
+		CHECK_EQUAL(2u, taskPool.getThreadCount());
 
-		for(size_t i=0; i<10; ++i)
+		for(size_t i=0; i<10; ++i) {
+			CHECK_EQUAL(0, task[0].priority());
 			taskPool.enqueue(task[i]);
+		}
 
 		mSleep(1);
 	}
-
-	CHECK(true);
 }
 
 TEST(DeleteTask_TaskPoolTest)

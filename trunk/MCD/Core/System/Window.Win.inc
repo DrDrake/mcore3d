@@ -278,6 +278,9 @@ void Window::Impl::setFullscreen(const wchar_t* value)
 
 void Window::Impl::setFullscreen(bool flag)
 {
+	if(!mFullScreen)
+		return;
+
 	if(flag) {
 		// Backup the non-fullscreen settings
 		::EnumDisplaySettings(nullptr, ENUM_CURRENT_SETTINGS, &mDisplaySettingBackup);
@@ -292,6 +295,7 @@ void Window::Impl::setFullscreen(bool flag)
 
 		// Apply fullscreen mode
 		if(::ChangeDisplaySettings(&devMode, CDS_FULLSCREEN) != DISP_CHANGE_SUCCESSFUL) {
+			mFullScreen = false;
 			Log::write(Log::Error, L"Fail to enter full screen mode");
 			return;
 		}
@@ -316,6 +320,7 @@ void Window::Impl::setFullscreen(bool flag)
 
 		::SetWindowLong(mWnd, GWL_STYLE, WS_OVERLAPPEDWINDOW);
 		::SetWindowLong(mWnd, GWL_EXSTYLE, WS_EX_APPWINDOW | WS_EX_WINDOWEDGE);
+		mFullScreen = false;
 	}
 }
 

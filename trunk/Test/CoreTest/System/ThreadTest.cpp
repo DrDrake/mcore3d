@@ -246,6 +246,11 @@ TEST(TryLock_ThreadTest)
 		ScopeUnlockOnly unlock(mutex);
 		CHECK(mutex.tryLock());
 	}
+
+	{	RecursiveMutex mutex;
+		ScopeRecursiveUnlockOnly unlock(mutex);
+		CHECK(mutex.tryLock());
+	}
 }
 
 #include <deque>

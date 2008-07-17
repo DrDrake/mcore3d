@@ -194,17 +194,9 @@ void Window::Impl::createNewWindow()
 	// Open the display at first call
 	openDisplay();
 
-	static int attributes[] = {
-		GLX_RGBA,
-		GLX_DOUBLEBUFFER,
-		GLX_DEPTH_SIZE, 16,
-		GLX_RED_SIZE, 8,
-		GLX_BLUE_SIZE, 8,
-		GLX_GREEN_SIZE, 8,
-		0
-	};
-
-	XVisualInfo* visualInfo = ::glXChooseVisual(gDisplay, DefaultScreen(gDisplay), attributes);
+	int screen = DefaultScreen(gDisplay);
+	Visual* visual = DefaultVisual(gDisplay, screen);
+	int depth = DefaultDepth(gDisplay, screen);
 
 	XSetWindowAttributes winAttribs;
 	winAttribs.event_mask =
@@ -214,14 +206,14 @@ void Window::Impl::createNewWindow()
 
 	winAttribs.border_pixel = 0;
 	winAttribs.bit_gravity = StaticGravity;
-	winAttribs.colormap = ::XCreateColormap(gDisplay, RootWindow(gDisplay, visualInfo->screen), visualInfo->visual, AllocNone);
+	winAttribs.colormap = ::XCreateColormap(gDisplay, RootWindow(gDisplay, screen), visual, AllocNone);
 	unsigned long winmask = CWBorderPixel | CWBitGravity | CWEventMask| CWColormap;
 
 	mWnd = ::XCreateWindow(
 		gDisplay, DefaultRootWindow(gDisplay), 20, 20,
 		mWidth, mHeight, 0,
-		visualInfo->depth, InputOutput,
-		visualInfo->visual, winmask, &winAttribs
+		depth, InputOutput,
+		visual, winmask, &winAttribs
 	);
 
 	if(!mWnd)
