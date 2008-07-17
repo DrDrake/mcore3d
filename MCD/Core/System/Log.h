@@ -49,11 +49,8 @@ public:
 #endif
 	;
 
-	//! Stop the log without deleting the stream.
-	static void release();
-
-	//! De-initialize the log
-	static void stop();
+	//! De-initialize the log, with the option to delete the stream or not.
+	static void stop(bool destroyStream=true);
 };	// Log
 
 }	// namespace MCD

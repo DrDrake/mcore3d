@@ -17,8 +17,9 @@
 	<Configurations>
 		<Configuration
 			Name="Debug|Win32"
+			OutputDirectory="../../Bin"
 			IntermediateDirectory="$(ConfigurationName)"
-			ConfigurationType="4"
+			ConfigurationType="2"
 			InheritedPropertySheets="..\General.vsprops;..\Debug.vsprops"
 			CharacterSet="2"
 			>
@@ -39,7 +40,7 @@
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
-				PreprocessorDefinitions="GLEW_STATIC"
+				PreprocessorDefinitions="GLEW_BUILD"
 				RuntimeTypeInfo="false"
 				DisableSpecificWarnings="4244"
 			/>
@@ -53,10 +54,15 @@
 				Name="VCPreLinkEventTool"
 			/>
 			<Tool
-				Name="VCLibrarianTool"
+				Name="VCLinkerTool"
+				AdditionalDependencies="OpenGL32.lib"
+				ImportLibrary="../../Lib/$(TargetName).lib"
 			/>
 			<Tool
 				Name="VCALinkTool"
+			/>
+			<Tool
+				Name="VCManifestTool"
 			/>
 			<Tool
 				Name="VCXDCMakeTool"
@@ -68,13 +74,17 @@
 				Name="VCFxCopTool"
 			/>
 			<Tool
+				Name="VCAppVerifierTool"
+			/>
+			<Tool
 				Name="VCPostBuildEventTool"
 			/>
 		</Configuration>
 		<Configuration
 			Name="Release|Win32"
+			OutputDirectory="../../Bin"
 			IntermediateDirectory="$(ConfigurationName)"
-			ConfigurationType="4"
+			ConfigurationType="2"
 			InheritedPropertySheets="..\General.vsprops;..\Release.vsprops"
 			CharacterSet="2"
 			>
@@ -95,7 +105,7 @@
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
-				PreprocessorDefinitions="GLEW_STATIC"
+				PreprocessorDefinitions="GLEW_BUILD"
 				RuntimeTypeInfo="false"
 				DisableSpecificWarnings="4244"
 			/>
@@ -109,10 +119,15 @@
 				Name="VCPreLinkEventTool"
 			/>
 			<Tool
-				Name="VCLibrarianTool"
+				Name="VCLinkerTool"
+				AdditionalDependencies="OpenGL32.lib"
+				ImportLibrary="../../Lib/$(TargetName).lib"
 			/>
 			<Tool
 				Name="VCALinkTool"
+			/>
+			<Tool
+				Name="VCManifestTool"
 			/>
 			<Tool
 				Name="VCXDCMakeTool"
@@ -122,6 +137,9 @@
 			/>
 			<Tool
 				Name="VCFxCopTool"
+			/>
+			<Tool
+				Name="VCAppVerifierTool"
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"

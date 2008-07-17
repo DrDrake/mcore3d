@@ -54,8 +54,8 @@
 				</Compiler>
 				<Linker>
 					<Add library="..\..\Bin\libCored.a" />
+					<Add library="..\..\Bin\libglewd.a" />
 					<Add library="..\..\Lib\libSmallJpegd.a" />
-					<Add library="..\..\Lib\libglewd.a" />
 					<Add library="opengl32" />
 				</Linker>
 			</Target>
@@ -73,8 +73,8 @@
 				</Compiler>
 				<Linker>
 					<Add library="..\..\Bin\libCore.a" />
+					<Add library="..\..\Bin\libglew.a" />
 					<Add library="..\..\Lib\libSmallJpeg.a" />
-					<Add library="..\..\Lib\libglew.a" />
 					<Add library="opengl32" />
 				</Linker>
 			</Target>

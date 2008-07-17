@@ -12,7 +12,7 @@ namespace MCD {
 static std::wostream* gOutStream = nullptr;
 static Log::Level gLogLevel = Log::Level(Log::Error | Log::Warn | Log::Info);
 
-static const wchar_t* cPrefixTable[5] = 
+static const wchar_t* cPrefixTable[5] =
 {
 	L"",
 	L"Error: ",
@@ -37,7 +37,7 @@ void Log::write(Level level, const wchar_t* msg)
 {
 	if(!gOutStream || !(gLogLevel & level))
 		return;
-	MCD_ASSUME(level < sizeof(cPrefixTable) / sizeof(wchar_t*));
+	MCD_ASSUME(uint(level) < sizeof(cPrefixTable) / sizeof(wchar_t*));
 	(*gOutStream) << cPrefixTable[level] << msg << std::endl;
 }
 
@@ -52,7 +52,7 @@ void Log::format(Level level, const wchar_t* fmt, ...)
 	if(!gOutStream || !(gLogLevel & level))
 		return;
 
-	MCD_ASSUME(level < sizeof(cPrefixTable) / sizeof(wchar_t*));
+	MCD_ASSUME(uint(level) < sizeof(cPrefixTable) / sizeof(wchar_t*));
 	va_list argList;
 	va_start(argList, fmt);
 
@@ -81,14 +81,10 @@ void Log::format(Level level, const wchar_t* fmt, ...)
 	}
 }
 
-void Log::release()
+void Log::stop(bool destroyStream)
 {
-	gOutStream = nullptr;
-}
-
-void Log::stop()
-{
-	delete gOutStream;
+	if(destroyStream)
+		delete gOutStream;
 	gOutStream = nullptr;
 }
 

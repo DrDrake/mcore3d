@@ -46,9 +46,11 @@ protected:
 
 TEST(Basic_ResourceLoaderTest)
 {
-	FakeResource resource(L"./myResource.bin");
-	FakeResourceLoader loader;
+	static const wchar_t fileName[] = L"./myResource.bin";
+	FakeResource resource(fileName);
+	CHECK_EQUAL(fileName, resource.fileId().getString());
 
+	FakeResourceLoader loader;
 	CHECK_EQUAL(IResourceLoader::NotLoaded, loader.getLoadingState());
 
 	CHECK_EQUAL(IResourceLoader::Loaded, loader.load(nullptr));

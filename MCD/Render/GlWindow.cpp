@@ -1,8 +1,6 @@
 #include "Pch.h"
 #include "GlWindow.h"
 #include "../Core/System/Window.inl"
-
-#define GLEW_STATIC
 #include "../../3Party/glew/glew.h"
 
 #if defined(MCD_VC)
@@ -10,8 +8,6 @@
 #else
 #	include "GlWindow.X11.inc"
 #endif
-
-#undef GLEW_STATIC
 
 namespace MCD {
 

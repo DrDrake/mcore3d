@@ -3,10 +3,7 @@
 #include "Texture.h"
 #include "TextureLoaderBaseImpl.inc"
 #include "../Core/System/Log.h"
-
-#define GLEW_STATIC
 #include "../../3Party/glew/glew.h"
-#undef GLEW_STATIC
 
 // http://www.mindcontrol.org/~hplus/graphics/dds-info/
 

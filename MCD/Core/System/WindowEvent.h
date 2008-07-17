@@ -2,6 +2,7 @@
 #define __MCD_CORE_SYSTEM_WINDOWEVENT__
 
 #include "../ShareLib.h"
+#include "Platform.h"
 
 namespace MCD {
 
