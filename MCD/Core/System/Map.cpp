@@ -240,7 +240,7 @@ void AvlTree::adjustBallance(Node& node_, int dir, bool removed)
 			break;
 		default:
 			MCD_ASSERT(false);
-			NoReturn();
+			noReturn();
 		}
 
 		if(!parent || (match ^ removed))

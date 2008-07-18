@@ -2,11 +2,12 @@
 #define __MCD_RENDER_TEXTURE__
 
 #include "ShareLib.h"
+#include "../Core/System/NonCopyable.h"
 #include "../Core/System/Resource.h"
 
 namespace MCD {
 
-class MCD_RENDER_API Texture : public Resource
+class MCD_RENDER_API Texture : public Resource, Noncopyable
 {
 public:
 	explicit Texture(const Path& fileId);
