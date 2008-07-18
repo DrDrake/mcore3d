@@ -61,7 +61,7 @@ public:
 		return elems[N-1];
 	}
 
-	static size_t size() {
+	size_t size() const {
 		return N;
 	}
 
@@ -84,8 +84,8 @@ public:
 private:
 	static void rangeCheck(size_t i)
 	{
-		if(i >= Array::size())
-			throw std::out_of_range();
+		if(i >= N)
+			throw std::out_of_range("MCD::Array out of range");
 	}
 };	// Array
 

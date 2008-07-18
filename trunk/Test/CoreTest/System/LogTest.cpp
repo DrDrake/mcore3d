@@ -31,7 +31,15 @@ TEST(LogTest)
 		Log::start(s.get());
 
 		const wchar_t expected[] = L"Info:  Formatting 123, 456.789!!!\n";
+		// Note that the format specification for "%s" and %S" are different
+		// between unix and windows:
+		// Linux: http://www.opengroup.org/onlinepubs/7990989799/xsh/fwprintf.html
+		// Windows: http://msdn.microsoft.com/en-us/library/hf4y5e3w(VS.80).aspx
+#ifdef MCD_WIN32
 		Log::format(Log::Info, L"Formatting %i, %3.3f%s", 123, 456.789, L"!!!");
+#else
+		Log::format(Log::Info, L"Formatting %i, %3.3f%S", 123, 456.789, L"!!!");
+#endif
 		CHECK_EQUAL(expected, s->str());
 
 		Log::stop();

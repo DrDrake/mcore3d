@@ -125,11 +125,11 @@ typedef unsigned int useconds_t;
 	switch(a) {
 		case 1: b = 2; break;
 		case 2: b = 5; break;
-		default: NoReturn();	// Remove the warning about the variable b not initialized
+		default: noReturn();	// Remove the warning about the variable b not initialized
 	}
 	\endcode
  */
-__declspec(noreturn) inline void NoReturn() {}
+__declspec(noreturn) inline void noReturn() { assert(false); }
 
 // SAL macros
 #include <codeanalysis\sourceannotations.h>
