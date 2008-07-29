@@ -6,11 +6,24 @@ using namespace MCD;
 namespace {
 	const Vec3f v100(1, 0, 0);
 	const Vec3f v010(0, 1, 0);
+	const Vec3f v001(0, 0, 1);
 	const Vec3f v110(1, 1, 0);
 	const Vec3f v123(1, 2, 3);
 }
 
-TEST(Addition_TVec3Test) {
+TEST(Basic_Vec3Test)
+{
+	CHECK_EQUAL(1, v123.x);
+	CHECK_EQUAL(2, v123.y);
+	CHECK_EQUAL(3, v123.z);
+
+	CHECK(v100 == v100);
+	CHECK(v001 == Vec3f::c001);
+	CHECK(v100 != v010);
+}
+
+TEST(Addition_Vec3Test)
+{
 	CHECK(v100 + v010 == v110);
 	CHECK(v010 + v100 == v110);
 	CHECK(v100 + v010 + v110 + v123 == Vec3f(3, 4, 3));
@@ -27,7 +40,8 @@ TEST(Addition_TVec3Test) {
 	}
 }
 
-TEST(Subtract_TVec3Test) {
+TEST(Subtract_Vec3Test)
+{
 	CHECK(v110 - v010 == v100);
 	CHECK(v010 - v110 == -v100);
 	{	Vec3f a(v110);
@@ -43,7 +57,8 @@ TEST(Subtract_TVec3Test) {
 	}
 }
 
-TEST(Multiply_TVec3Test) {
+TEST(Multiply_Vec3Test)
+{
 	CHECK(v110 * 2 == Vec3f(2, 2, 0));
 	CHECK(2 * v110 == Vec3f(2, 2, 0));
 	{	Vec3f a(v123);
@@ -52,7 +67,8 @@ TEST(Multiply_TVec3Test) {
 	}
 }
 
-TEST(Division_TVec3Test) {
+TEST(Division_Vec3Test)
+{
 	Vec3f r(0.5, 1, 1.5);
 
 	CHECK(v123 / 2 == r);
@@ -63,21 +79,44 @@ TEST(Division_TVec3Test) {
 	CHECK(a == r);
 }
 
-TEST(Dot_TVec3Test) {
+TEST(Dot_Vec3Test)
+{
 	CHECK(v123 % v010 == 2);
 	CHECK(v010 % v123 == 2);
 	CHECK(v123 % v123 == 14);
 	CHECK((v010 + v010) % v123 == 4);
+
+	CHECK_CLOSE(0, v010 % v100, 1e-6);
+
+	CHECK_CLOSE(v123 % v123, v123.norm(), 1e-6);
 }
 
-TEST(Cross_TVec3Test) {
+TEST(Cross_Vec3Test)
+{
 	CHECK((v100 ^ v010) == Vec3f::c001);
 	CHECK((v010 ^ v100) == -Vec3f::c001);
 }
 
-TEST(Length_TVec3Test) {
+TEST(Distance_Vec3Test)
+{
+	CHECK_CLOSE(v100.distance(v010), v010.distance(v001), 1e-6);
+	CHECK_CLOSE(v110.distance(v100), v110.distance(v010), 1e-6);
+}
+
+TEST(Normalize_Vec3Test)
+{
+	{	Vec3f v = v123;
+		CHECK_CLOSE(v123.length(), v.normalize(), 1e-6);	// normalize() will return the old length
+		CHECK_CLOSE(1.0f, v.length(), 1e-6);
+	}
+
+	CHECK_CLOSE(1.0f, v123.normalizedCopy().length(), 1e-6);
+}
+
+TEST(Length_Vec3Test)
+{
 	CHECK(v100.length() == 1);
-//	CHECK(IsNearEqual(TReal(v123.length()), Sqrt(14)));
+	CHECK(Mathf::isNearEqual(v123.length(), sqrt(14.0f)));
 
 	CHECK(v100.squaredLength() == 1);
 	CHECK(v123.squaredLength() == 14);

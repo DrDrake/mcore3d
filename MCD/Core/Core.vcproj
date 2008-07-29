@@ -452,11 +452,27 @@
 					>
 				</File>
 				<File
+					RelativePath=".\Math\Mat33.h"
+					>
+				</File>
+				<File
+					RelativePath=".\Math\Mat33.inl"
+					>
+				</File>
+				<File
 					RelativePath=".\Math\Tuple.h"
 					>
 				</File>
 				<File
 					RelativePath=".\Math\Vec3.h"
+					>
+				</File>
+				<File
+					RelativePath=".\Math\Vec3.inl"
+					>
+				</File>
+				<File
+					RelativePath=".\Math\Vec4.h"
 					>
 				</File>
 			</Filter>

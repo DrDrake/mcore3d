@@ -48,7 +48,24 @@ public:
 
 	//! 1 / Sqrt(2)
 	static Real cOverSqrt2() { return static_cast<Real>(0.707106781186547524401); }
+
+	//! Computes sin and cos together.
+	static void sinCos(Real theta, Real& sinResult, Real& cosResult) {
+		sinResult = sin(theta);	cosResult = cos(theta);
+	}
+
+	//! Returns whether a floating point value is consider as zero within a tolerance.
+	static bool isNearZero(Real val, Real tolerance = 1e-6) {
+		return fabs(val) <= tolerance;
+	}
+
+	//! Returns whether two floating point values are equal within a tolerance.
+	static bool isNearEqual(Real lhs, Real rhs, Real tolerance = 1e-6) {
+		return isNearZero(lhs - rhs, tolerance);
+	}
 };	// Math
+
+typedef Math<float> Mathf;
 
 }	// namespace MCD
 

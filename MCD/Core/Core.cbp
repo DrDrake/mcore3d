@@ -63,6 +63,12 @@
 			<Add directory="\usr\X11R6\lib" />
 		</Linker>
 		<Unit filename="Math\Magnitude.h" />
+		<Unit filename="Math\Mat33.h" />
+		<Unit filename="Math\Mat33.inl" />
+		<Unit filename="Math\Tuple.h" />
+		<Unit filename="Math\Vec3.h" />
+		<Unit filename="Math\Vec3.inl" />
+		<Unit filename="Math\Vec4.h" />
 		<Unit filename="System\Array.h" />
 		<Unit filename="System\Atomic.h" />
 		<Unit filename="System\CondVar.cpp" />

@@ -46,9 +46,9 @@ struct DefaultTupleUnion {
 template<typename T, size_t N_, class R, class UNION=DefaultTupleUnion<T,N_> >
 class MathTuple : public UNION
 {
+public:
     using UNION::Data;
 
-public:
 	//! Compile-time meta program may need this enum
 	enum { N = N_ };
 
@@ -92,7 +92,7 @@ public:
 	{
 		for(size_t i=0; i<N; ++i)
 			Data[i] = val;
-		return reinterpret_cast<R&>(*this);
+		return static_cast<R&>(*this);
 	}
 
 	bool operator==(const MathTuple& rhs) const
@@ -109,7 +109,7 @@ public:
 
 	//! Positive operator (do nothing)
 	const R& operator+() const {
-		return reinterpret_cast<R&>(*this);
+		return static_cast<const R&>(*this);
 	}
 
 	//! Negate operator
@@ -142,25 +142,33 @@ public:
 	{
 		for(size_t i=0; i<N; ++i)
 			Data[i] += rhs.Data[i];
-		return reinterpret_cast<R&>(*this);
+		return static_cast<R&>(*this);
 	}
 
 	R& operator-=(const MathTuple& rhs)
 	{
 		for(size_t i=0; i<N; ++i)
 			Data[i] -= rhs.Data[i];
-		return reinterpret_cast<R&>(*this);
+		return static_cast<R&>(*this);
 	}
 
 	R& operator*=(const param_type rhs)
 	{
 		for(size_t i=0; i<N; ++i)
 			Data[i] *= rhs;
-		return reinterpret_cast<R&>(*this);
+		return static_cast<R&>(*this);
 	}
 
 	R& operator/=(const param_type rhs) {
 		return (*this) *= (T(1.0) / rhs);
+	}
+
+	friend bool operator==(const param_type lhs, const MathTuple& rhs) {
+		return rhs == lhs;
+	}
+
+	friend bool operator!=(const param_type lhs, const MathTuple& rhs) {
+		return rhs != lhs;
 	}
 
 	friend R operator+(const MathTuple& lhs, const param_type rhs)

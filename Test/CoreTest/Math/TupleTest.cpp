@@ -3,7 +3,8 @@
 
 using namespace MCD;
 
-struct Tuple3f : public MathTuple<float, 3, Tuple3f> {
+struct Tuple3f : public MathTuple<float, 3, Tuple3f>
+{
 	typedef MathTuple<float, 3, Tuple3f> super_type;
 	Tuple3f() {}
 	Tuple3f(param_type val) : super_type(val) {}
