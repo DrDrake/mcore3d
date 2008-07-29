@@ -21,16 +21,16 @@ template<typename T>
 class Vec3 : public MathTuple<T, 3, Vec3<T>, Vec3TupleUnion<T> >
 {
     typedef MathTuple<T, 3, Vec3<T>, Vec3TupleUnion<T> > super_type;
+
+public:
+    typedef typename super_type::param_type param_type;
     using super_type::x;
     using super_type::y;
     using super_type::z;
 
-public:
-    typedef typename super_type::param_type param_type;
-
 	inline Vec3() {}
 
-	Vec3(const param_type val)
+	explicit Vec3(const param_type val)
 		: super_type(val)
 	{}
 
@@ -38,32 +38,34 @@ public:
 		x = x_; y = y_; z = z_;
 	}
 
-	friend param_type dot(const Vec3& v1, const Vec3& v2) {
-		return v1.x * v2.x + v1.y * v2.y + v1.z * v2.z;
-	}
+	/*!	Calculates the dot (scalar) product of this vector with another.
+		The dot product can be used to calculate the angle between 2
+		vectors. If both are unit vectors, the dot product is the
+		cosine of the angle; otherwise the dot product must be
+		divided by the product of the lengths of both vectors to get
+		the cosine of the angle.
+	 */
+	T dot(const Vec3& rhs) const;
 
 	//! Dot product operator
-	param_type operator%(const Vec3& rhs) const {
-		return dot(*this, rhs);
-	}
+	T operator%(const Vec3& rhs) const;
 
-	friend param_type norm(const Vec3& v) {
-		return dot(v, v);
-	}
+	//! Dot product of itself.
+	T norm() const;
 
-	friend Vec3 cross(const Vec3& v1, const Vec3& v2)
-	{
-		return Vec3(
-			v1.y * v2.z - v1.z * v2.y,
-			v1.z * v2.x - v1.x * v2.z,
-			v1.x * v2.y - v1.y * v2.x
-		);
-	}
+	/*! Calculates the cross-product of 2 vectors, i.e. the vector that
+		lies perpendicular to them both.
+		\note The resulting vector will <b>NOT</b> be normalised, to maximise efficiency.
+		\note
+			A right handed coordinate system is used therefore
+			Unit Y cross unit Z = unit X, whilst unit Z cross unit Y = - unit X.
+	 */
+	void cross(const Vec3& rhs, Vec3& result) const;
 
-	//! Cross product operator
-	Vec3 operator^(const Vec3& rhs) const {
-		return cross(*this, rhs);
-	}
+	Vec3 cross(const Vec3& rhs) const;
+
+	//! Cross product operator.
+	Vec3 operator^(const Vec3& rhs) const;
 
 	/*!	Returns the length (magnitude) of the vector.
 		\warning
@@ -72,16 +74,12 @@ public:
 			length (e.g. for just comparing lengths) use squaredLength()
 			instead.
 	 */
-	Magnitude<param_type> length() const {
-		return Magnitude<param_type>(squaredLength());
-	}
+	Magnitude<T> length() const;
 
 	/*!	Returns the square of the length(magnitude) of the vector.
 		\sa Length
 	 */
-	param_type squaredLength() const {
-		return dot(*this, *this);
-	}
+	T squaredLength() const;
 
 	/*!	Returns the distance to another vector.
 		\warning
@@ -90,30 +88,45 @@ public:
 			distance (e.g. for just comparing distances) use squaredDistance()
 			instead.
 	 */
-	param_type distance(const Vec3& rhs) const {
-		return (*this - rhs).length();
-	}
+	T distance(const Vec3& rhs) const;
 
 	/*!	Returns the square of the distance to another vector.
 		\sa Distance
 	 */
-	param_type squaredDistance(const Vec3& rhs) const {
-		return (*this - rhs).squaredLength();
-	}
+	T squaredDistance(const Vec3& rhs) const;
 
-static const Vec3 cZero;
+    /*!	Normalises the vector.
+		This method normalises the vector such that it's length / magnitude is 1.
+		The result is called a unit vector.
+		\return The previous length of the vector.
+        \note This function will crash for zero-sized vectors.
+     */
+	T normalize();
+
+    /*!	As normalise(), except that this function will not crash for zero-sized vectors,
+		but there will be no changes made to their components.
+	 */
+	T normalizeSafe();
+
+	/*!	As normalise(), except that this vector is unaffected and the
+		normalised vector is returned as a copy.
+        \note This function will crash for zero-sized vectors.
+	 */
+	Vec3 normalizedCopy() const;
+
+	//!	Returns whether this vector is within a positional tolerance of another vector.
+	bool isNearEqual(const Vec3& rhs, T tolerance = 1e-06) const;
+
+	static const Vec3 cZero;
 	static const Vec3 c100;
 	static const Vec3 c010;
 	static const Vec3 c001;
 };	// Vec3
 
-template<typename T> const Vec3<T> Vec3<T>::cZero = 0;
-template<typename T> const Vec3<T> Vec3<T>::c100 = Vec3(1, 0, 0);
-template<typename T> const Vec3<T> Vec3<T>::c010 = Vec3(0, 1, 0);
-template<typename T> const Vec3<T> Vec3<T>::c001 = Vec3(0, 0, 1);
-
 typedef Vec3<float> Vec3f;
 
 }	// namespace MCD
+
+#include "Vec3.inl"
 
 #endif	// __MCD_CORE_MATH_VEC3__

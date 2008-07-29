@@ -363,4 +363,6 @@ TEST(RotatingBox_TextureTest) {
 	TWindow window;
 
 	window.mainLoop();
+
+	CHECK(true);
 }

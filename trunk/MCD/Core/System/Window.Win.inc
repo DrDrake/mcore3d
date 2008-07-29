@@ -388,7 +388,7 @@ sal_override void Window::Impl::processEvent(bool blocking)
 			TranslateMessage(&message);
 			DispatchMessage(&message);
 		} else {
-			Log::format(Log::Error, L"Win32 API GetMessage failed with message:\"%s\"", getErrorMessage(nullptr));
+			Log::format(Log::Error, L"Win32 API GetMessage failed with message:\"%s\"", str2WStr(getErrorMessage(nullptr)).c_str());
 		}
 	}
 	else while(::PeekMessage(&message, mWnd, 0, 0, PM_REMOVE)) {

@@ -196,8 +196,8 @@ typedef unsigned char byte_t;
 #	define MCD_ASSUME(Expression) assert(Expression)
 #endif
 
-inline void NoReturn() __attribute__((noreturn));
-void NoReturn() { throw "NoReturn should not be invoked"; }
+inline void noReturn() __attribute__((noreturn));
+void noReturn() { throw "NoReturn should not be invoked"; }
 
 // SAL macros
 #define SAL(...)

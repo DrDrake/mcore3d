@@ -277,6 +277,10 @@
 			Name="Math"
 			>
 			<File
+				RelativePath=".\Math\Mat33Test.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\Math\TupleTest.cpp"
 				>
 			</File>
