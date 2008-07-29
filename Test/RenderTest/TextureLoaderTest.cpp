@@ -180,18 +180,7 @@ TEST(Error_TextureLoaderTest)
 	CHECK_EQUAL(0u, texture.height());
 }
 
-
-
-#include "../../MCD/Core/System/Timer.h"
-#include "../../MCD/Core/System/WindowEvent.h"
-#include "../../MCD/Render/GlWindow.h"
-#include "../../3Party/glew/glew.h"
-
-#if defined(MCD_VC)
-#	pragma comment(lib, "OpenGL32")
-#	pragma comment(lib, "GLU32")
-#	pragma comment(lib, "GlAux")
-#endif
+#include "BasicGlWindow.h"
 
 namespace RotatingBox {
 
@@ -218,13 +207,15 @@ protected:
 	std::istream& mIStream;
 };	// Runnable
 
-class TWindow : public GlWindow
+class TestWindow : public BasicGlWindow
 {
 public:
-	TWindow() : mIsClosing(false), mFullLoaded(false)
+	TestWindow()
+		:
+		BasicGlWindow(L"title=RotatingBox_TextureTest;width=640;height=480;fullscreen=0"),
+		mAngle(0),
+		mFullLoaded(false)
 	{
-		create(L"title=RotatingBox_TextureTest;width=640;height=480;fullscreen=0");
-
 		mTexture = new Texture(L"Media/InterlacedTrans256x256.png");
 		Texture& texture = static_cast<Texture&>(*mTexture);
 
@@ -235,28 +226,7 @@ public:
 		if(!mIStream.get())
 			return;
 
-		glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
-		glEnable(GL_TEXTURE_2D);
-
-		glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
-//		glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
-
 		mThread.start(*(new Runnable(mLoader, *mIStream)), true);
-
-		mAngle = 0;
-	}
-
-	void mainLoop()
-	{
-		while(true) {
-			Event e;
-			popEvent(e, false);
-
-			if(e.Type == Event::Closed)
-				break;
-
-			update();
-		}
 	}
 
 	void drawUnitCube()
@@ -293,16 +263,8 @@ public:
 		glPopMatrix();
 	}
 
-	void update() {
-		glClear(GL_COLOR_BUFFER_BIT);
-
-		// Clear matrix stack
-		glMatrixMode(GL_PROJECTION);
-		glLoadIdentity();
-
-		glMatrixMode(GL_MODELVIEW);
-		glLoadIdentity();
-
+	sal_override void update(float deltaTime)
+	{
 		Texture& texture = static_cast<Texture&>(*mTexture);
 
 		if(!mFullLoaded && !mIsClosing && mLoader.getLoadingState() & IResourceLoader::CanCommit) {
@@ -317,7 +279,6 @@ public:
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 		glBindTexture(GL_TEXTURE_2D, texture.handle());
 
-		float deltaTime = float(timer.getDelta().asSecond());
 		mAngle += deltaTime;
 		glRotatef(mAngle, 1, 0, 0);
 		glRotatef(mAngle, 0, 1, 0);
@@ -331,23 +292,10 @@ public:
 			glEnable(GL_CULL_FACE);
 
 		drawUnitCube();
-
-		static size_t iteration = 0;
-
-		if(++iteration % 1000  == 0)
-			printf("FPS: %f\n", 1.0 / deltaTime);
-
-		swapBuffers();
-	}
-
-	sal_override void onClose() {
-		mIsClosing = true;
 	}
 
 private:
-	bool mIsClosing;
 	float mAngle;
-	MCD::DeltaTimer timer;
 	PngLoader mLoader;
 	std::auto_ptr<std::istream> mIStream;
 	ResourcePtr mTexture;
@@ -357,10 +305,11 @@ private:
 
 }	// namespace RotatingBox
 
-TEST(RotatingBox_TextureTest) {
+TEST(RotatingBox_TextureTest)
+{
 	using namespace RotatingBox;
 
-	TWindow window;
+	TestWindow window;
 
 	window.mainLoop();
 
