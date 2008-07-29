@@ -64,6 +64,7 @@ void TextureLoaderBase::commit(Resource& resource)
 	if(!(mLoadingState & CanCommit))
 		return;
 
+	// Will throw exception if the resource is not of the type Texture
 	Texture& texture = dynamic_cast<Texture&>(resource);
 
 	Accessor::width(texture) = mImpl->mWidth;

@@ -224,6 +224,14 @@
 				>
 			</File>
 			<File
+				RelativePath=".\Mesh.h"
+				>
+			</File>
+			<File
+				RelativePath=".\MeshBuilder.h"
+				>
+			</File>
+			<File
 				RelativePath=".\PngLoader.h"
 				>
 			</File>
@@ -258,6 +266,14 @@
 			</File>
 			<File
 				RelativePath=".\JpegLoader.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\Mesh.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\MeshBuilder.cpp"
 				>
 			</File>
 			<File
