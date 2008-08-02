@@ -112,6 +112,20 @@ public:
 	 */
 	void commit(Mesh& mesh, StorageHint storageHint);
 
+	/*!	Acquire the data pointer from the internal buffer.
+		\param count Returns the number of elements.
+		\note
+			Once you acquired the pointer, you need to release it using
+			releaseBufferPointer() before adding another vertex or triangle.
+		\sa releaseBufferPointer
+	 */
+	sal_checkreturn void* acquireBufferPointer(Mesh::DataType dataType, size_t* sal_out_opt count=nullptr);
+
+	/*!	Release the pointer acquired by acquireBufferPointer().
+		\sa acquireBufferPointer
+	 */
+	void releaseBufferPointer(void* ptr);
+
 protected:
 	uint mFormat;		//!< The same meaning as Mesh::mFormat
 	BufferImpl& mBuffer;

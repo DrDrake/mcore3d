@@ -142,6 +142,7 @@ using namespace vc_attributes;
 #define sal_in_opt __in_opt					// (input, read only) (may be null)
 #define sal_in_z __in_z __notnull			// (input, read only) (null terminated) (cannot be null)
 #define sal_in_z_opt __in_z_opt				// (input, read only) (null terminated) (may be null)
+#define sal_out_opt __out_opt				// (output, write) (may be null)
 #define sal_inout __inout __notnull			// (input/output, read/write) (cannot be null)
 #define sal_notnull __notnull				// (cannot be null)
 #define sal_maybenull __maybenull			// (may be null)

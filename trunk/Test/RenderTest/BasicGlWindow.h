@@ -17,7 +17,12 @@ public:
 		create(options);
 
 		// A lot of opengl options to be enabled by default
-		glFrontFace(GL_CW);
+		glShadeModel(GL_SMOOTH);
+		glFrontFace(GL_CCW);
+		glEnable(GL_CULL_FACE);
+		glEnable(GL_DEPTH_TEST);
+		glPolygonMode(GL_FRONT, GL_FILL);
+		glPolygonMode(GL_BACK, GL_FILL);
 		glEnable(GL_TEXTURE_2D);
 		glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
 	}
@@ -30,6 +35,27 @@ public:
 
 			if(e.Type == Event::Closed)
 				break;
+			if(e.Type == Event::Resized) {
+				uint w = e.Size.Width;
+				uint h = e.Size.Height;
+				mW = w;
+				mH = h;
+
+				// Prevents division by zero
+				h = (h == 0) ? 1 : h;
+				glViewport(0, 0, w, h);
+
+				// Reset coordinate system
+				glMatrixMode(GL_PROJECTION);
+				glLoadIdentity();
+				// Define the "viewing volume"
+
+				// Produce the perspective projection
+				gluPerspective(60.0f, (GLfloat)w/(GLfloat)h, 1.0f, 1000.0f);
+
+				glMatrixMode(GL_MODELVIEW);
+				glLoadIdentity();
+			}
 
 			preUpdate();
 
@@ -42,16 +68,8 @@ public:
 		}
 	}
 
-	void preUpdate()
-	{
-		glClear(GL_COLOR_BUFFER_BIT);
-
-		// Clear matrix stack
-		glMatrixMode(GL_PROJECTION);
-		glLoadIdentity();
-
-		glMatrixMode(GL_MODELVIEW);
-		glLoadIdentity();
+	void preUpdate() {
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	}
 
 	virtual void update(float deltaTime) {
@@ -62,11 +80,14 @@ public:
 		mIsClosing = true;
 	}
 
-	void postUpdate() {
+	void postUpdate()
+	{
+		glFlush();
 		swapBuffers();
 	}
 
 protected:
+	uint mW, mH;
 	bool mIsClosing;
 	size_t mIteration;
 	MCD::DeltaTimer mTimer;

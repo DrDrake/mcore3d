@@ -4,6 +4,7 @@
 #include "../Core/System/Log.h"
 #include "../../3Party/glew/glew.h"
 #include <limits>
+#include <stack>
 
 namespace MCD {
 
@@ -17,7 +18,54 @@ public:
 	std::vector<Vec3f> mNormals;
 	std::vector<uint16_t> mIndexes;
 
+	BufferImpl()
+	{
+		mIsBetweenBeginEnd = false;
+	}
+
+	void* acquireBufferPointer(Mesh::DataType dataType, size_t* count)
+	{
+		switch(dataType) {
+		case Mesh::Position:
+			if(mPositions.empty())
+				return nullptr;
+			if(count)
+				*count = mPositions.size();
+			mAcquiredPointers.push(&mPositions[0]);
+			break;
+		case Mesh::Normal:
+			if(mNormals.empty())
+				return nullptr;
+			if(count)
+				*count = mNormals.size();
+			mAcquiredPointers.push(&mNormals[0]);
+			break;
+		case Mesh::Index:
+			if(mIndexes.empty())
+				return nullptr;
+			if(count)
+				*count = mIndexes.size();
+			mAcquiredPointers.push(&mIndexes[0]);
+			break;
+		default:
+			MCD_ASSUME(false);
+			return nullptr;
+		}
+		return mAcquiredPointers.top();
+	}
+
+	void releaseBufferPointer(void* ptr)
+	{
+		MCD_ASSERT(ptr == mAcquiredPointers.top());
+		mAcquiredPointers.pop();
+	}
+
+	bool noPointerAcquired() const {
+		return mAcquiredPointers.empty();
+	}
+
 	bool mIsBetweenBeginEnd;
+	std::stack<void*> mAcquiredPointers;
 };	// BufferImpl
 
 template<>
@@ -46,7 +94,6 @@ MeshBuilder::MeshBuilder()
 	mFormat(0),
 	mBuffer(*(new BufferImpl))
 {
-	mBuffer.mIsBetweenBeginEnd = false;
 }
 
 MeshBuilder::~MeshBuilder()
@@ -114,6 +161,7 @@ void MeshBuilder::textureCoord(Mesh::DataType textureUnit, const Vec3f& coord)
 uint16_t MeshBuilder::addVertex()
 {
 	MCD_ASSERT(mBuffer.mIsBetweenBeginEnd);
+	MCD_ASSERT(mBuffer.noPointerAcquired());
 	MCD_ASSERT(mFormat & Mesh::Position);
 
 	// Check that we wont add vertex more than that we can index
@@ -133,6 +181,7 @@ uint16_t MeshBuilder::addVertex()
 bool MeshBuilder::addTriangle(uint16_t idx1, uint16_t idx2, uint16_t idx3)
 {
 	MCD_ASSERT(mBuffer.mIsBetweenBeginEnd);
+	MCD_ASSERT(mBuffer.noPointerAcquired());
 	MCD_ASSERT(mFormat & Mesh::Index);
 
 	uint16_t max = uint16_t(mBuffer.mPositions.size());
@@ -194,10 +243,20 @@ void MeshBuilder::commit(Mesh& mesh, StorageHint storageHint)
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, *handle);
 		glBufferData(
 			GL_ELEMENT_ARRAY_BUFFER,
-			indexCount * sizeof(GL_UNSIGNED_SHORT),
+			indexCount * sizeof(uint16_t),
 			&mBuffer.mIndexes[0], storageHint);
 		Accessor::indexCount(mesh) = indexCount;
 	}
+}
+
+void* MeshBuilder::acquireBufferPointer(Mesh::DataType dataType, size_t* count)
+{
+	return mBuffer.acquireBufferPointer(dataType, count);
+}
+
+void MeshBuilder::releaseBufferPointer(void* ptr)
+{
+	mBuffer.releaseBufferPointer(ptr);
 }
 
 }	// namespace MCD
