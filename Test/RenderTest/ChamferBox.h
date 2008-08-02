@@ -31,7 +31,7 @@ public:
 		const Vec3f extend(1.0f);
 
 		reserveVertex(vertexCount * cubeFaceCount);
-		reserveTriangle(indexCount * cubeFaceCount);
+		reserveTriangle(indexCount * cubeFaceCount / 3);
 
 		const Array<Mat33f, cubeFaceCount> transforms = {
 			Mat33f::cIdentity,
