@@ -14,7 +14,7 @@ struct Vec4TupleUnion {
 };	// Vec4TupleUnion
 
 /*!	Vector with 4 elements
-	\sa TTuple
+	\sa MathTuple
  */
 template<typename T>
 class Vec4 : public MathTuple<T, 3, Vec4<T>, Vec4TupleUnion<T> >
@@ -48,10 +48,6 @@ public:
 	//! Dot product operator
 	param_type operator%(const Vec4& rhs) const {
 		return dot(*this, rhs);
-	}
-
-	friend param_type norm(const Vec4& v) {
-		return dot(v, v);
 	}
 
 	/*!	Returns the length (magnitude) of the vector.
