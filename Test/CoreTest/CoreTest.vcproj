@@ -265,6 +265,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\System\UtilityTest.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\System\WeakPtrTest.cpp"
 				>
 			</File>
@@ -282,6 +286,10 @@
 			</File>
 			<File
 				RelativePath=".\Math\TupleTest.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\Math\Vec2Test.cpp"
 				>
 			</File>
 			<File

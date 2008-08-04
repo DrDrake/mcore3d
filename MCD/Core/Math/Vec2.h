@@ -1,5 +1,5 @@
-#ifndef __MCD_CORE_MATH_VEC3__
-#define __MCD_CORE_MATH_VEC3__
+#ifndef __MCD_CORE_MATH_VEC2__
+#define __MCD_CORE_MATH_VEC2__
 
 #include "Tuple.h"
 #include "Magnitude.h"
@@ -7,35 +7,34 @@
 namespace MCD {
 
 template<typename T>
-struct Vec3TupleUnion {
+struct Vec2TupleUnion {
 	union {
-		struct { T x, y, z; };
-		T Data[3];
+		struct { T x, y; };
+		T Data[2];
 	};
-};	// Vec3TupleUnion
+};	// Vec2TupleUnion
 
-/*!	Vector with 3 elements
-	\sa MathTuple
+/*!	Vector with 2 elements
+	\sa MathTuple	
  */
 template<typename T>
-class Vec3 : public MathTuple<T, 3, Vec3<T>, Vec3TupleUnion<T> >
+class Vec2 : public MathTuple<T, 2, Vec2<T>, Vec2TupleUnion<T> >
 {
-    typedef MathTuple<T, 3, Vec3<T>, Vec3TupleUnion<T> > super_type;
+    typedef MathTuple<T, 2, Vec2<T>, Vec2TupleUnion<T> > super_type;
 
 public:
     typedef typename super_type::param_type param_type;
     using super_type::x;
     using super_type::y;
-    using super_type::z;
 
-	inline Vec3() {}
+	inline Vec2() {}
 
-	explicit Vec3(const param_type val)
+	explicit Vec2(const param_type val)
 		: super_type(val)
 	{}
 
-	Vec3(const param_type x_, const param_type y_, const param_type z_) {
-		x = x_; y = y_; z = z_;
+	Vec2(const param_type x_, const param_type y_) {
+		x = x_; y = y_;
 	}
 
 	/*!	Calculates the dot (scalar) product of this vector with another.
@@ -45,27 +44,13 @@ public:
 		divided by the product of the lengths of both vectors to get
 		the cosine of the angle.
 	 */
-	T dot(const Vec3& rhs) const;
+	T dot(const Vec2& rhs) const;
 
 	//! Dot product operator
-	T operator%(const Vec3& rhs) const;
+	T operator%(const Vec2& rhs) const;
 
 	//! Dot product of itself.
 	T norm() const;
-
-	/*! Calculates the cross-product of 2 vectors, i.e. the vector that
-		lies perpendicular to them both.
-		\note The resulting vector will <b>NOT</b> be normalised, to maximise efficiency.
-		\note
-			A right handed coordinate system is used therefore
-			Unit Y cross unit Z = unit X, whilst unit Z cross unit Y = - unit X.
-	 */
-	void cross(const Vec3& rhs, Vec3& result) const;
-
-	Vec3 cross(const Vec3& rhs) const;
-
-	//! Cross product operator.
-	Vec3 operator^(const Vec3& rhs) const;
 
 	/*!	Returns the length (magnitude) of the vector.
 		\warning
@@ -88,12 +73,12 @@ public:
 			distance (e.g. for just comparing distances) use squaredDistance()
 			instead.
 	 */
-	T distance(const Vec3& rhs) const;
+	T distance(const Vec2& rhs) const;
 
 	/*!	Returns the square of the distance to another vector.
 		\sa Distance
 	 */
-	T squaredDistance(const Vec3& rhs) const;
+	T squaredDistance(const Vec2& rhs) const;
 
     /*!	Normalises the vector.
 		This method normalises the vector such that it's length / magnitude is 1.
@@ -112,21 +97,20 @@ public:
 		normalised vector is returned as a copy.
         \note This function will crash for zero-sized vectors.
 	 */
-	Vec3 normalizedCopy() const;
+	Vec2 normalizedCopy() const;
 
 	//!	Returns whether this vector is within a positional tolerance of another vector.
-	bool isNearEqual(const Vec3& rhs, T tolerance = 1e-06) const;
+	bool isNearEqual(const Vec2& rhs, T tolerance = 1e-06) const;
 
-	static const Vec3 cZero;
-	static const Vec3 c100;
-	static const Vec3 c010;
-	static const Vec3 c001;
-};	// Vec3
+	static const Vec2 cZero;
+	static const Vec2 c10;
+	static const Vec2 c01;
+};	// Vec2
 
-typedef Vec3<float> Vec3f;
+typedef Vec2<float> Vec2f;
 
 }	// namespace MCD
 
-#include "Vec3.inl"
+#include "Vec2.inl"
 
-#endif	// __MCD_CORE_MATH_VEC3__
+#endif	// __MCD_CORE_MATH_VEC2__

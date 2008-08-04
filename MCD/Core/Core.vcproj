@@ -464,6 +464,14 @@
 					>
 				</File>
 				<File
+					RelativePath=".\Math\Vec2.h"
+					>
+				</File>
+				<File
+					RelativePath=".\Math\Vec2.inl"
+					>
+				</File>
+				<File
 					RelativePath=".\Math\Vec3.h"
 					>
 				</File>

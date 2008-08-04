@@ -18,7 +18,7 @@ TEST(Basic_Vec3Test)
 	CHECK_EQUAL(3, v123.z);
 
 	CHECK(v100 == v100);
-	CHECK(v001 == Vec3f::c001);
+	CHECK(v100 == Vec3f::c100);
 	CHECK(v100 != v010);
 }
 
@@ -81,14 +81,12 @@ TEST(Division_Vec3Test)
 
 TEST(Dot_Vec3Test)
 {
-	CHECK(v123 % v010 == 2);
-	CHECK(v010 % v123 == 2);
-	CHECK(v123 % v123 == 14);
-	CHECK((v010 + v010) % v123 == 4);
+	CHECK_EQUAL(2, v123 % v010);
+	CHECK_EQUAL(2, v010 % v123);
+	CHECK_EQUAL(14, v123 % v123);
+	CHECK_EQUAL(4, (v010 + v010) % v123);
 
 	CHECK_CLOSE(0, v010 % v100, 1e-6);
-
-	CHECK_CLOSE(v123 % v123, v123.norm(), 1e-6);
 }
 
 TEST(Cross_Vec3Test)
@@ -110,14 +108,18 @@ TEST(Normalize_Vec3Test)
 		CHECK_CLOSE(1.0f, v.length(), 1e-6);
 	}
 
-	CHECK_CLOSE(1.0f, v123.normalizedCopy().length(), 1e-6);
+	{	Vec3f v123Backup = v123;
+		CHECK_CLOSE(1.0f, v123.normalizedCopy().length(), 1e-6);
+		// The value of v123 should kept constant
+		CHECK(v123 == v123Backup);
+	}
 }
 
 TEST(Length_Vec3Test)
 {
-	CHECK(v100.length() == 1);
+	CHECK_EQUAL(1, v100.length());
 	CHECK(Mathf::isNearEqual(v123.length(), sqrt(14.0f)));
 
-	CHECK(v100.squaredLength() == 1);
-	CHECK(v123.squaredLength() == 14);
+	CHECK_EQUAL(1, v100.squaredLength());
+	CHECK_EQUAL(14, v123.squaredLength());
 }

@@ -13,11 +13,6 @@ T Vec3<T>::operator%(const Vec3& rhs) const {
 }
 
 template<typename T>
-T Vec3<T>::norm() const {
-	return dot(*this);
-}
-
-template<typename T>
 void Vec3<T>::cross(const Vec3& rhs, Vec3& result) const
 {
 	result.x = y * rhs.z - z * rhs.y;

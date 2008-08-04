@@ -74,6 +74,7 @@
 		<Unit filename="Main.cpp" />
 		<Unit filename="Math\Mat33Test.cpp" />
 		<Unit filename="Math\TupleTest.cpp" />
+		<Unit filename="Math\Vec2Test.cpp" />
 		<Unit filename="Math\Vec3Test.cpp" />
 		<Unit filename="System\CondVarTest.cpp" />
 		<Unit filename="System\IntrusivePtrTest.cpp" />
@@ -88,6 +89,7 @@
 		<Unit filename="System\ThreadPoolTest.cpp" />
 		<Unit filename="System\ThreadTest.cpp" />
 		<Unit filename="System\TimerTest.cpp" />
+		<Unit filename="System\UtilityTest.cpp" />
 		<Unit filename="System\WeakPtrTest.cpp" />
 		<Unit filename="System\WindowTest.cpp" />
 		<Extensions>
