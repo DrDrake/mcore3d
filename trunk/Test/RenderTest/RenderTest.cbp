@@ -73,7 +73,7 @@
 		</Compiler>
 		<Linker>
 			<Add library="GL" />
-			<Add library="GLu" />
+			<Add library="GLU" />
 			<Add directory="\usr\X11R6\lib" />
 		</Linker>
 		<Unit filename="Main.cpp" />

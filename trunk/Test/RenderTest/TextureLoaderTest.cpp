@@ -227,20 +227,23 @@ public:
 			return;
 
 		mThread.start(*(new Runnable(mLoader, *mIStream)), true);
+
+		// We disable the depth test to show our transparent cube
+		glDisable(GL_DEPTH_TEST);
 	}
 
 	void drawUnitCube()
 	{
 		glPushMatrix();
 		static const float colors[6][3] = { {1, 0, 0}, {0, 1, 0}, {0, 0, 1}, {1, 1, 0}, {1, 0, 1},  {0, 1, 1} };
-		// Face vertice are specified in clock-wise direction
+		// Face vertice are specified in counterclockwise direction
 		static const float vertice[6][4][3] = {
-			{ {-1, 1, 1}, { 1, 1, 1}, { 1,-1, 1}, {-1,-1, 1} },	// Front face
-			{ { 1, 1,-1}, {-1, 1,-1}, {-1,-1,-1}, { 1,-1,-1} },	// Back face
-			{ { 1, 1, 1}, { 1, 1,-1}, { 1,-1,-1}, { 1,-1, 1} },	// Right face
-			{ {-1, 1,-1}, {-1, 1, 1}, {-1,-1, 1}, {-1,-1,-1} },	// Left face
-			{ {-1, 1,-1}, { 1, 1,-1}, { 1, 1, 1}, {-1, 1, 1} },	// Top face
-			{ { 1,-1, 1}, { 1,-1,-1}, {-1,-1,-1}, {-1,-1, 1} },	// Bottom face
+			{ {-1, 1, 1}, {-1,-1, 1}, { 1,-1, 1}, { 1, 1, 1} },	// Front face	(fix z at 1)
+			{ { 1, 1,-1}, { 1,-1,-1}, {-1,-1,-1}, {-1, 1,-1} },	// Back face	(fix z at -1)
+			{ { 1, 1, 1}, { 1,-1, 1}, { 1,-1,-1}, { 1, 1,-1} },	// Right face	(fix x at 1)
+			{ {-1, 1,-1}, {-1,-1,-1}, {-1,-1, 1}, {-1, 1, 1} },	// Left face	(fix x at -1)
+			{ {-1, 1,-1}, {-1, 1, 1}, { 1, 1, 1}, { 1, 1,-1} },	// Top face		(fix y at 1)
+			{ { 1,-1, 1}, {-1,-1, 1}, {-1,-1,-1}, { 1,-1,-1} },	// Bottom face	(fix y at -1)
 		};
 
 		static const float tex[4][2] = {
@@ -277,7 +280,9 @@ public:
 
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-		glBindTexture(GL_TEXTURE_2D, texture.handle());
+		texture.bind();
+
+		glTranslatef(0, 0, -2);
 
 		mAngle += deltaTime;
 		glRotatef(mAngle, 1, 0, 0);
