@@ -18,10 +18,12 @@ public:
 
 		// A lot of opengl options to be enabled by default
 		glShadeModel(GL_SMOOTH);
-		glFrontFace(GL_CCW);		// OpenGl use counterclockwise as the default winding
+		glFrontFace(GL_CCW);			// OpenGl use counterclockwise as the default winding
 		glEnable(GL_CULL_FACE);
 		glEnable(GL_DEPTH_TEST);
-		glEnable(GL_NORMALIZE);		// Automatic normalization (usefull when we have scaled the model)
+		// Automatic normalization (usefull when we have uniform scaled the model)
+		// Reference: http://www.opengl.org/resources/features/KilgardTechniques/oglpitfall/
+		glEnable(GL_RESCALE_NORMAL);
 		glEnable(GL_TEXTURE_2D);
 		glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
 	}
