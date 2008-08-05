@@ -35,6 +35,18 @@ protected:
 	 */
 	virtual void uploadData() = 0;
 
+	/*! Get invoked just before uploadData().
+		It will setup texture filtering options and mipmap generation by default.
+		\note mImpl->mMutex is locked before the invocation of this function.
+	 */
+	virtual void preUploadData();
+
+	/*! Get invoked just after uploadData().
+		Do nothing by default.
+		\note mImpl->mMutex is locked before the invocation of this function.
+	 */
+	virtual void postUploadData();
+
 protected:
 	template<class T> class PrivateAccessor;
 

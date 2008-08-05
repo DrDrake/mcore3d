@@ -77,7 +77,9 @@ void TextureLoaderBase::commit(Resource& resource)
 		glGenTextures(1, handle);
 	glBindTexture(GL_TEXTURE_2D, *handle);
 
+	preUploadData();
 	uploadData();
+	postUploadData();
 
 	if(mLoadingState == Loaded) {
 		// The loader finish it's job, lets free up the resources
@@ -97,6 +99,35 @@ IResourceLoader::LoadingState TextureLoaderBase::getLoadingState() const
 		return mLoadingState;
 	}
 	return mLoadingState;
+}
+
+void TextureLoaderBase::preUploadData()
+{
+	// TODO: Should set the filtering via option strings
+	const bool generateMipMap = true;
+
+	if(generateMipMap) {
+		// Reference on comparision between gluBuild2DMipmaps / GL_GENERATE_MIPMAP and glGenerateMipmapEXT
+		// http://www.gamedev.net/community/forums/topic.asp?topic_id=452780
+		// http://www.opengl.org/discussion_boards/ubbthreads.php?ubb=showflat&Number=233955
+		glHint(GL_GENERATE_MIPMAP_HINT, GL_NICEST);
+		glTexParameteri(GL_TEXTURE_2D, GL_GENERATE_MIPMAP, GL_TRUE);
+		glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+	}
+	else {
+		glTexParameteri(GL_TEXTURE_2D, GL_GENERATE_MIPMAP, GL_FALSE);
+		glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	}
+}
+
+void TextureLoaderBase::postUploadData()
+{
+	// Seems that glGenerateMipmapEXT didn't work for normal texture rather than FBO
+	// Reference: http://www.gamedev.net/community/forums/topic.asp?topic_id=495747
+//	if(glGenerateMipmapEXT)
+//		glGenerateMipmapEXT(GL_TEXTURE_2D);
 }
 
 }	// namespace MCD
