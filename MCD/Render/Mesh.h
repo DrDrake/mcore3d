@@ -53,7 +53,9 @@ public:
 		return mIndexCount;
 	}
 
-	//! Get the buffer object handle for the corresponding data type.
+	/*!	Get the buffer object handle for the corresponding data type.
+		Returns 0 if the data type is not found in this mesh.
+	 */
 	uint handle(DataType dataType) const;
 
 	//! Get the component count for the corresponding data type.
@@ -73,6 +75,18 @@ public:
 
 protected:
 	sal_override ~Mesh();
+
+	/*!	Get a pointer to the handle with the supplied data type.
+		Use this function to modify the handles.
+		Returns null if the data type is not found in this mesh.
+	 */
+	uint* getHandlePtr(DataType dataType);
+
+	/*!	Get a pointer to the component with the supplied data type.
+		Use this function to modify the component count for the various texture coordinates.
+		Returns null if the data type is not found in this mesh or it's not related to texture coordinate.
+	 */
+	uint8_t* getComponentCountPtr(DataType dataType);
 
 protected:
 	/*!	Handles to opengl buffer objects.
@@ -94,6 +108,8 @@ protected:
 
 	size_t mIndexCount;
 };	// Mesh
+
+typedef IntrusivePtr<Mesh> MeshPtr;
 
 }	// namespace MCD
 
