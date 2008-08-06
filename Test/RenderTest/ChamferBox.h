@@ -1,3 +1,6 @@
+#ifndef __MCD_RENDERTEST_CHAMFERBOX__
+#define __MCD_RENDERTEST_CHAMFERBOX__
+
 #include "../../MCD/Render/GlWindow.h"
 #include "../../MCD/Core/Math/Mat33.h"
 #include "../../MCD/Core/Math/BasicFunction.h"
@@ -17,7 +20,7 @@ public:
 
 	ChamferBoxBuilder(float filletRadius, size_t filletSegmentCount)
 	{
-		begin(Mesh::Position | Mesh::Normal | Mesh::Index);
+		enable(Mesh::Position | Mesh::Normal | Mesh::Index);
 
 		const size_t cubeFaceCount = 6;
 		const size_t rowCount = (filletSegmentCount + 1) * 2;	// Number of vertex along y direction
@@ -124,8 +127,6 @@ public:
 				}
 			}
 		}
-
-		end();
 	}
 
 	void commit(Mesh& mesh, StorageHint storageHint)
@@ -133,3 +134,5 @@ public:
 		MeshBuilder::commit(mesh, storageHint);
 	}
 };	// ChamferBoxBuilder
+
+#endif	// __MCD_RENDERTEST_CHAMFERBOX__

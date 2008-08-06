@@ -45,17 +45,21 @@ public:
 		return mFormat;
 	}
 
-	//!	Resurve vertex buffer space for faster vertex insertion
+	/*!	Resurve vertex buffer space for faster vertex insertion.
+		\note
+			Setting up the format and texture coordinate size before this function
+			for maximum performace.
+	 */
 	void reserveVertex(size_t count);
 
-	//!	Resurve index buffer space for faster triangle insertion
+	//!	Resurve index buffer space for faster triangle insertion.
 	void reserveTriangle(size_t count);
 
 	//!
 	void position(const Vec3f& vertex);
 
-//	void vertexColor3(const Color3& color);
-//	void vertexColor4(const Color4& color);
+//	void color(const Color3& color);
+//	void color(const Color4& color);
 
 	//!
 	void normal(const Vec3f& normal);
@@ -130,7 +134,7 @@ public:
 			releaseBufferPointer() before adding another vertex or triangle.
 		\sa releaseBufferPointer
 	 */
-	sal_checkreturn void* acquireBufferPointer(Mesh::DataType dataType, size_t* sal_out_opt count=nullptr);
+	sal_checkreturn void* acquireBufferPointer(Mesh::DataType dataType, sal_out_opt size_t* count=nullptr);
 
 	/*!	Release the pointer acquired by acquireBufferPointer().
 		\sa acquireBufferPointer

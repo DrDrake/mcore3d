@@ -26,7 +26,6 @@ public:
 		TextureCoord3	= 4,
 		TextureCoord4	= 5,
 		TextureCoord5	= 6,
-		TextureCoord6	= 7,
 		Position		= 1 << 3,		//!< Vertex position	(3 floats)
 		Index			= 1 << 4,		//!< Index				(1 uint16_t)
 		Color			= 1 << 5,		//!< Color				(3 or 4 uint8_t)
@@ -36,7 +35,7 @@ public:
 	};
 
 	//! Maximum number of texture coordinate per vertex.
-	static const size_t cMaxTextureCoordCount = 7;
+	static const size_t cMaxTextureCoordCount = 6;
 
 	explicit Mesh(const Path& fileId);
 
@@ -94,12 +93,12 @@ protected:
 		[1] for index
 		[2] for color
 		[3] for normal
-		[4] for texture coordinate[0-7] (We pack all texture coordinates into a single buffer
+		[4-10] for texture coordinate[0-7]
 	 */
-	Array<uint,5> mHandle;
+	Array<uint,4 + cMaxTextureCoordCount> mHandles;
 
 	//!	Specifies the number of component for a particular DataType
-	Array<uint8_t,11> mComponentCount;
+	Array<uint8_t,4 + cMaxTextureCoordCount> mComponentCount;
 
 	//! Union (using logical &) of different DataType
 	uint mFormat;

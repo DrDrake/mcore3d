@@ -291,6 +291,10 @@
 					>
 				</File>
 				<File
+					RelativePath=".\System\ResourceGroup.h"
+					>
+				</File>
+				<File
 					RelativePath=".\System\ResourceLoader.h"
 					>
 				</File>

@@ -145,7 +145,8 @@ Window::Impl::Impl(Window& w)
 	:
 	mWnd(nullptr), mWindow(w),
 	mColorBits(32),
-	mFullScreen(false)
+	mFullScreen(false),
+	mShowWindow(SW_SHOW)
 {
 	mListeners.insert(&w);
 	mWidth = mHeight = uint(CW_USEDEFAULT);
@@ -216,7 +217,7 @@ void Window::Impl::createNewWindow()
 	// Associate the this pointer as the user-data of the window handle
 	::SetWindowLongPtr(mWnd, GWL_USERDATA, reinterpret_cast<LONG>(this));
 
-	::ShowWindow(mWnd, SW_SHOW);
+	::ShowWindow(mWnd, mShowWindow);
 }
 
 void Window::Impl::destroy()
@@ -333,7 +334,8 @@ void Window::Impl::setHeight(const wchar_t* value)
 // "show = 0|1"
 void Window::Impl::setShowWindow(const wchar_t* value)
 {
-	::ShowWindow(mWnd, toInt(value, 1) == 1 ? SW_SHOW : SW_HIDE);
+	mShowWindow = toInt(value, 1) == 1 ? SW_SHOW : SW_HIDE;
+	::ShowWindow(mWnd, mShowWindow);
 }
 
 // "showCursor = 0|1"
