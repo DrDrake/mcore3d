@@ -1,3 +1,6 @@
+#ifndef __MCD_RENDERTEST_BASICGLWINDOW__
+#define __MCD_RENDERTEST_BASICGLWINDOW__
+
 #include "../../MCD/Render/GlWindow.h"
 #include "../../MCD/Core/System/Timer.h"
 #include "../../MCD/Core/System/WindowEvent.h"
@@ -30,6 +33,8 @@ public:
 
 	void mainLoop()
 	{
+		using namespace MCD;
+
 		while(true) {
 			Event e;
 			popEvent(e, false);
@@ -96,3 +101,5 @@ protected:
 	size_t mIteration;
 	MCD::DeltaTimer mTimer;
 };	// BasicGlWindow
+
+#endif	// __MCD_RENDERTEST_BASICGLWINDOW__

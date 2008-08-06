@@ -5,7 +5,14 @@
 #include "../Core/System/Log.h"
 #include "../../3Party/glew/glew.h"
 #include <limits>
+#ifdef MCD_VC
+#	pragma warning(push)
+#	pragma warning(disable: 6011)
+#endif
 #include <stack>
+#ifdef MCD_VC
+#	pragma warning(pop)
+#endif
 
 namespace MCD {
 
@@ -19,15 +26,14 @@ public:
 	Mesh::DataType mTextureUnit;
 	//! Array storing the component size fot it's corresponding texture unit. Index 0 is reserved, not used.
 	Array<size_t, Mesh::cMaxTextureCoordCount + 1> mTextureCoordSize;
-
 	// The current texture coordinates, the content may interpret as Vec2f or Vec3f. Index 0 is reserved, not used.
 	Array<Array<float,3>, Mesh::cMaxTextureCoordCount + 1> mTextureCoord;
 
 	std::vector<Vec3f> mPositions;
 	std::vector<Vec3f> mNormals;
+	std::vector<uint16_t> mIndexes;
 	// Index 0 is reserved, not used.
 	Array<std::vector<float>, Mesh::cMaxTextureCoordCount + 1> mTextureCoords;
-	std::vector<uint16_t> mIndexes;
 
 	BufferImpl()
 	{
@@ -40,11 +46,10 @@ public:
 
 		mPositions.clear();
 		mNormals.clear();
+		mIndexes.clear();
 
 		for(size_t i=0; i<mTextureCoords.size(); ++i)
 			mTextureCoords[i].clear();
-
-		mIndexes.clear();
 	}
 
 	void textureUnit(Mesh::DataType textureUnit)
@@ -57,6 +62,11 @@ public:
 		MCD_ASSERT("Call clear() first before calling textureCoordSize() again" && mTextureCoordSize[mTextureUnit] == 0);
 		mTextureCoordSize[mTextureUnit] = size;
 		mTextureCoords[mTextureUnit].resize(mPositions.size() * size, 0.0f);
+	}
+
+	void assertTextureCoordSize(size_t textureUnit)
+	{
+		MCD_ASSERT(mTextureCoordSize[textureUnit] == 2 || mTextureCoordSize[textureUnit] == 3);
 	}
 
 	void textureCoord(const Vec2f& coord)
@@ -92,19 +102,6 @@ public:
 				*count = mNormals.size();
 			mAcquiredPointers.push(&mNormals[0]);
 			break;
-		case Mesh::TextureCoord0:
-		case Mesh::TextureCoord1:
-		case Mesh::TextureCoord2:
-		case Mesh::TextureCoord3:
-		case Mesh::TextureCoord4:
-		case Mesh::TextureCoord5:
-		case Mesh::TextureCoord6:
-			if(mTextureCoords[dataType].empty())
-				return nullptr;
-			if(count)
-				*count = mTextureCoords[dataType].size() / mTextureCoordSize[dataType];
-			mAcquiredPointers.push(&mTextureCoords[dataType][0]);
-			break;
 		case Mesh::Index:
 			if(mIndexes.empty())
 				return nullptr;
@@ -112,8 +109,21 @@ public:
 				*count = mIndexes.size();
 			mAcquiredPointers.push(&mIndexes[0]);
 			break;
+		case Mesh::TextureCoord0:
+		case Mesh::TextureCoord1:
+		case Mesh::TextureCoord2:
+		case Mesh::TextureCoord3:
+		case Mesh::TextureCoord4:
+		case Mesh::TextureCoord5:
+			assertTextureCoordSize(dataType);
+			if(mTextureCoords[dataType].empty())
+				return nullptr;
+			if(count)
+				*count = mTextureCoords[dataType].size() / mTextureCoordSize[dataType];
+			mAcquiredPointers.push(&mTextureCoords[dataType][0]);
+			break;
 		default:
-			MCD_ASSUME(false);
+			MCD_ASSERT(false);
 			return nullptr;
 		}
 		return mAcquiredPointers.top();
@@ -176,12 +186,11 @@ MeshBuilder::~MeshBuilder()
 
 void MeshBuilder::enable(uint format)
 {
+	MCD_ASSERT(format > 0);
+	MCD_ASSERT((format & Mesh::TextureCoord) != Mesh::TextureCoord);
+
 	if(format & Mesh::Position) {
 		mFormat |= Mesh::Position;
-	}
-
-	if(format & Mesh::Index) {
-		mFormat |= Mesh::Index;
 	}
 
 	if((format & Mesh::Normal) && !(mFormat & Mesh::Normal)) {
@@ -189,11 +198,18 @@ void MeshBuilder::enable(uint format)
 		mBuffer.mNormals.resize(mBuffer.mPositions.size(), Vec3f::c001);
 	}
 
+	if(format & Mesh::Index) {
+		mFormat |= Mesh::Index;
+	}
+
 	// Loop for all possible texture units
 	for(size_t f=Mesh::TextureCoord0; f <= Mesh::cMaxTextureCoordCount; ++f) {
 		if((format & f) && !(mFormat & f)) {
-			mFormat |= f;
-			// Invocation of textureCoordSize() afterward will resize mBuffer.mTextureCoords,
+			const size_t oldCount = mFormat & Mesh::TextureCoord;
+			const size_t newCount = format & Mesh::TextureCoord;
+			if(newCount > oldCount)
+				mFormat = (mFormat & ~Mesh::TextureCoord) | newCount;
+			// Invocation of textureCoordSize() later will resize mBuffer.mTextureCoords,
 			// therefore no more thing to do here
 		}
 	}
@@ -279,6 +295,7 @@ uint16_t MeshBuilder::addVertex()
 
 	// Loop for all enabled texture unit
 	for(size_t f=Mesh::TextureCoord0; f <= (mFormat & Mesh::TextureCoord); ++f) {
+		mBuffer.assertTextureCoordSize(f);
 		std::vector<float>& vector = mBuffer.mTextureCoords[f];
 		float* begin = mBuffer.mTextureCoord[f].data();
 		float* end = begin + mBuffer.mTextureCoordSize[f];
@@ -351,22 +368,6 @@ void MeshBuilder::commit(Mesh& mesh, StorageHint storageHint)
 			&mBuffer.mNormals[0], storageHint);
 	}
 
-	// Loop for all enabled texture unit
-	for(size_t f=Mesh::TextureCoord0; f <= (mFormat & Mesh::TextureCoord); ++f) {
-		size_t floatCount = mBuffer.mTextureCoords[f].size();
-		uint* handle = &Accessor::handle(mesh, Mesh::DataType(f));
-		// Set the component count of the corresponding texture unit
-		uint8_t componentCount = uint8_t(mBuffer.mTextureCoordSize[f]);
-		Accessor::componentCount(mesh, Mesh::DataType(f)) = componentCount;
-		if(!*handle)
-			glGenBuffers(1, handle);
-		glBindBuffer(GL_ARRAY_BUFFER, *handle);
-		glBufferData(
-			GL_ARRAY_BUFFER,
-			floatCount * sizeof(float),
-			&(mBuffer.mTextureCoords[f][0]), storageHint);
-	}
-
 	if(mFormat & Mesh::Index) {
 		size_t count = mBuffer.mIndexes.size();
 		uint* handle = &Accessor::handle(mesh, Mesh::Index);
@@ -378,6 +379,23 @@ void MeshBuilder::commit(Mesh& mesh, StorageHint storageHint)
 			count * sizeof(uint16_t),
 			&mBuffer.mIndexes[0], storageHint);
 		Accessor::indexCount(mesh) = count;
+	}
+
+	// Loop for all enabled texture unit
+	for(size_t f=Mesh::TextureCoord0; f <= (mFormat & Mesh::TextureCoord); ++f) {
+		size_t floatCount = mBuffer.mTextureCoords[f].size();
+		uint* handle = &Accessor::handle(mesh, Mesh::DataType(f));
+		// Set the component count of the corresponding texture unit
+		mBuffer.assertTextureCoordSize(f);
+		uint8_t componentCount = uint8_t(mBuffer.mTextureCoordSize[f]);
+		Accessor::componentCount(mesh, Mesh::DataType(f)) = componentCount;
+		if(!*handle)
+			glGenBuffers(1, handle);
+		glBindBuffer(GL_ARRAY_BUFFER, *handle);
+		glBufferData(
+			GL_ARRAY_BUFFER,
+			floatCount * sizeof(float),
+			&(mBuffer.mTextureCoords[f][0]), storageHint);
 	}
 }
 
