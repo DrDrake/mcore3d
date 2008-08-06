@@ -5,10 +5,19 @@
 
 namespace MCD {
 
+template<typename T> class Vec2;
+typedef Vec2<float> Vec2f;
+
 template<typename T> class Vec3;
 typedef Vec3<float> Vec3f;
 
-/*!	To fill data to Mesh class.
+/*!	Fill data to Mesh class.
+	The mesh builder have a similar concept with Opengl display list, where user supply
+	the vertex position, normal, texture coordinate etc as the current state of the builder.
+	Once the state is setup correctly, vertices and index data can be added and they are
+	stored inside an internal buffer. With the vertex and index data buffer, you can commit
+	those data to the mesh you want.
+
 	\sa http://miloyip.seezone.net/?p=34#extended
 
 	\code
@@ -25,62 +34,64 @@ public:
 	MeshBuilder();
 	sal_override ~MeshBuilder();
 
-	//! 
-	void begin(uint format);
+	//!	Enable specific format(s) to be build.
+	void enable(uint format);
 
-	void end();
-
-	/*!
-		\note Should \em NOT executed in between begin() and end().
-	 */
+	//!	Clear the mesh builder to it's emtpy state.
 	void clear();
 
-	//!
+	//! Get the format(s) that are currently enabled.
 	uint format() const {
 		return mFormat;
 	}
 
-	/*!	Resurve vertex buffer space for faster vertex insertion
-		\note Should only executed in between begin() and end().
-	 */
+	//!	Resurve vertex buffer space for faster vertex insertion
 	void reserveVertex(size_t count);
 
-	/*!	Resurve index buffer space for faster triangle insertion
-		\note Should only executed in between begin() and end().
-	 */
+	//!	Resurve index buffer space for faster triangle insertion
 	void reserveTriangle(size_t count);
 
-	/*!
-		\note Should only executed in between begin() and end().
-	 */
+	//!
 	void position(const Vec3f& vertex);
 
 //	void vertexColor3(const Color3& color);
 //	void vertexColor4(const Color4& color);
 
-	/*!
-		\note Should only executed in between begin() and end().
-	 */
+	//!
 	void normal(const Vec3f& normal);
 
-//	void textureCoord(Mesh::DataType textureUnit, const Vec2f& coord);
+	//! Set the current texture unit.
+	void textureUnit(Mesh::DataType textureUnit);
 
-	/*!
-		\note Should only executed in between begin() and end().
+	/*!	Set the number of components for the current texture unit.
+		\param size Number of components (can be 2 or 3) for the speific texture unit.
+		\note
+			Assertion failure for re-setting the size with the same textureUnit.
+			You should call clear() before attempt to change the size.
 	 */
-	void textureCoord(Mesh::DataType textureUnit, const Vec3f& coord);
+	void textureCoordSize(size_t size);
 
-//	void textureCoord(Mesh::DataType textureUnit, const Vec4f& coord);
+	//!
+	void textureCoord(const Vec2f& coord);
 
-	/*!	Add a vertex using previous position, normal etc...
+	//!
+	void textureCoord(const Vec3f& coord);
+
+	/*!	Adds a new vertex using current vertex attributes (position, normal etc...).
 		\return The vertex index.
 	 */
 	uint16_t addVertex();
 
-	/*!
+	/*!	Adds a new triangle using the supplied indexes.
 		\return False if any of the index is out of range.
 	 */
 	bool addTriangle(uint16_t idx1, uint16_t idx2, uint16_t idx3);
+
+	/*!	Adds a new quad using the supplied indexes.
+		\note Two triangles are generated internally.
+		\return False if any of the index is out of range.
+	 */
+	bool addQuad(uint16_t idx1, uint16_t idx2, uint16_t idx3, uint16_t idx4);
 
 	enum StorageHint
 	{

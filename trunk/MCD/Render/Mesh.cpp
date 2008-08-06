@@ -43,7 +43,8 @@ void Mesh::bind(DataType dataType)
 {
 	switch(uint(dataType)) {
 	case 1:	case 2:	case 3:	case 4:	case 5:	case 6:	case 7:
-		glClientActiveTexture(GL_TEXTURE0_ARB + GLenum (dataType) - 1);
+		glClientActiveTexture(GL_TEXTURE0 + GLenum (dataType) - 1);
+		glEnableClientState(GL_TEXTURE_COORD_ARRAY);
 		break;
 
 	case Position:
@@ -80,13 +81,15 @@ void Mesh::bind(DataType dataType)
 	case 1:	case 2:	case 3:	case 4:	case 5:	case 6:	case 7:
 		{
 			uint stride = 0;
-			for(size_t i = cMaxTextureCoordCount; i--;) {
+			size_t count = mFormat & Mesh::TextureCoord;
+			for(size_t i = count; i--;) {
 				stride += mComponentCount[cDataType2ComponentCountIndex[dataType]];
 			}
 			stride *= sizeof(float);
 
 			glBindBuffer(GL_ARRAY_BUFFER, handle(dataType));
-			glTexCoordPointer(componentCount(dataType), GL_FLOAT, stride, nullptr);
+			glTexCoordPointer(2, GL_FLOAT, 0, nullptr);
+//			glTexCoordPointer(componentCount(dataType), GL_FLOAT, stride, nullptr);
 		}
 		break;
 
@@ -115,6 +118,16 @@ void Mesh::draw()
 		bind(Mesh::Normal);
 	}
 
+	if(mFormat & Mesh::TextureCoord) {
+		glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+
+		// Bind all available texture coordinates
+		const size_t count = mFormat & Mesh::TextureCoord;
+
+		for(size_t i=1; i<=count; ++i)
+			bind(Mesh::DataType(i));
+	}
+
 	bind(Mesh::Index);
 
 	glDrawElements(GL_TRIANGLES, mIndexCount, GL_UNSIGNED_SHORT, 0);
@@ -135,10 +148,17 @@ static const int cDataType2Index[cMapArraySize] = {
 
 uint Mesh::handle(DataType dataType) const
 {
-	if(dataType >= cMapArraySize || cDataType2Index[dataType] == -1)
-		return 0;
+	const uint* handle = const_cast<Mesh*>(this)->getHandlePtr(dataType);
 
-	return mHandle[cDataType2Index[dataType]];
+	return handle ? *handle : 0;
+}
+
+uint* Mesh::getHandlePtr(DataType dataType)
+{
+	if(dataType >= cMapArraySize || cDataType2Index[dataType] == -1)
+		return nullptr;
+
+	return &mHandle[cDataType2Index[dataType]];
 }
 
 uint8_t Mesh::componentCount(DataType dataType) const
@@ -146,6 +166,13 @@ uint8_t Mesh::componentCount(DataType dataType) const
 	if(dataType >= cMapArraySize || cDataType2ComponentCountIndex[dataType] == -1)
 		return 0;
 	return mComponentCount[cDataType2ComponentCountIndex[dataType]];
+}
+
+uint8_t* Mesh::getComponentCountPtr(DataType dataType)
+{
+	if(dataType >= Mesh::TextureCoord || cDataType2ComponentCountIndex[dataType] == -1)
+		return nullptr;
+	return &mComponentCount[cDataType2ComponentCountIndex[dataType]];
 }
 
 }	// namespace MCD

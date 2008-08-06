@@ -1,5 +1,6 @@
 #include "Pch.h"
 #include "MeshBuilder.h"
+#include "../Core/Math/Vec2.h"
 #include "../Core/Math/Vec3.h"
 #include "../Core/System/Log.h"
 #include "../../3Party/glew/glew.h"
@@ -14,13 +15,64 @@ public:
 	Vec3f mPosition;
 	Vec3f mNormal;
 
+	//! The current active texture unit
+	Mesh::DataType mTextureUnit;
+	//! Array storing the component size fot it's corresponding texture unit. Index 0 is reserved, not used.
+	Array<size_t, Mesh::cMaxTextureCoordCount + 1> mTextureCoordSize;
+
+	// The current texture coordinates, the content may interpret as Vec2f or Vec3f. Index 0 is reserved, not used.
+	Array<Array<float,3>, Mesh::cMaxTextureCoordCount + 1> mTextureCoord;
+
 	std::vector<Vec3f> mPositions;
 	std::vector<Vec3f> mNormals;
+	// Index 0 is reserved, not used.
+	Array<std::vector<float>, Mesh::cMaxTextureCoordCount + 1> mTextureCoords;
 	std::vector<uint16_t> mIndexes;
 
 	BufferImpl()
 	{
-		mIsBetweenBeginEnd = false;
+	}
+
+	void clear()
+	{
+		mTextureUnit = Mesh::TextureCoord0;
+		mTextureCoordSize.assign(0);
+
+		mPositions.clear();
+		mNormals.clear();
+
+		for(size_t i=0; i<mTextureCoords.size(); ++i)
+			mTextureCoords[i].clear();
+
+		mIndexes.clear();
+	}
+
+	void textureUnit(Mesh::DataType textureUnit)
+	{
+		mTextureUnit = textureUnit;
+	}
+
+	void textureCoordSize(size_t size)
+	{
+		MCD_ASSERT("Call clear() first before calling textureCoordSize() again" && mTextureCoordSize[mTextureUnit] == 0);
+		mTextureCoordSize[mTextureUnit] = size;
+		mTextureCoords[mTextureUnit].resize(mPositions.size() * size, 0.0f);
+	}
+
+	void textureCoord(const Vec2f& coord)
+	{
+		MCD_ASSERT("Invalid texture unit" && mTextureUnit < Mesh::cMaxTextureCoordCount);
+		MCD_ASSERT(mTextureCoordSize[mTextureUnit] == 2);
+
+		reinterpret_cast<Vec2f&>(mTextureCoord[mTextureUnit]) = coord;
+	}
+
+	void textureCoord(const Vec3f& coord)
+	{
+		MCD_ASSERT("Invalid texture unit" && mTextureUnit < Mesh::cMaxTextureCoordCount);
+		MCD_ASSERT(mTextureCoordSize[mTextureUnit] == 3);
+
+		reinterpret_cast<Vec3f&>(mTextureCoord[mTextureUnit]) = coord;
 	}
 
 	void* acquireBufferPointer(Mesh::DataType dataType, size_t* count)
@@ -39,6 +91,19 @@ public:
 			if(count)
 				*count = mNormals.size();
 			mAcquiredPointers.push(&mNormals[0]);
+			break;
+		case Mesh::TextureCoord0:
+		case Mesh::TextureCoord1:
+		case Mesh::TextureCoord2:
+		case Mesh::TextureCoord3:
+		case Mesh::TextureCoord4:
+		case Mesh::TextureCoord5:
+		case Mesh::TextureCoord6:
+			if(mTextureCoords[dataType].empty())
+				return nullptr;
+			if(count)
+				*count = mTextureCoords[dataType].size() / mTextureCoordSize[dataType];
+			mAcquiredPointers.push(&mTextureCoords[dataType][0]);
 			break;
 		case Mesh::Index:
 			if(mIndexes.empty())
@@ -64,7 +129,6 @@ public:
 		return mAcquiredPointers.empty();
 	}
 
-	bool mIsBetweenBeginEnd;
 	std::stack<void*> mAcquiredPointers;
 };	// BufferImpl
 
@@ -72,8 +136,16 @@ template<>
 class Mesh::PrivateAccessor<MeshBuilder>
 {
 public:
-	static Array<uint,5>& handle(Mesh& mesh) {
-		return mesh.mHandle;
+	static uint& handle(Mesh& mesh, Mesh::DataType dataType) {
+		uint* p = mesh.getHandlePtr(dataType);
+		MCD_ASSUME(p != nullptr);
+		return *p;
+	}
+
+	static uint8_t& componentCount(Mesh& mesh, Mesh::DataType dataType) {
+		uint8_t* p = mesh.getComponentCountPtr(dataType);
+		MCD_ASSUME(p != nullptr);
+		return *p;
 	}
 
 	static uint& format(Mesh& mesh) {
@@ -94,6 +166,7 @@ MeshBuilder::MeshBuilder()
 	mFormat(0),
 	mBuffer(*(new BufferImpl))
 {
+	clear();
 }
 
 MeshBuilder::~MeshBuilder()
@@ -101,66 +174,95 @@ MeshBuilder::~MeshBuilder()
 	delete &mBuffer;
 }
 
-void MeshBuilder::begin(uint format)
+void MeshBuilder::enable(uint format)
 {
-	MCD_ASSERT(format < Mesh::MaxTypeEntry);
-	mBuffer.mIsBetweenBeginEnd = true;
-	mFormat = format;
-}
+	if(format & Mesh::Position) {
+		mFormat |= Mesh::Position;
+	}
 
-void MeshBuilder::end()
-{
-	mBuffer.mIsBetweenBeginEnd = false;
+	if(format & Mesh::Index) {
+		mFormat |= Mesh::Index;
+	}
+
+	if((format & Mesh::Normal) && !(mFormat & Mesh::Normal)) {
+		mFormat |= Mesh::Normal;
+		mBuffer.mNormals.resize(mBuffer.mPositions.size(), Vec3f::c001);
+	}
+
+	// Loop for all possible texture units
+	for(size_t f=Mesh::TextureCoord0; f <= Mesh::cMaxTextureCoordCount; ++f) {
+		if((format & f) && !(mFormat & f)) {
+			mFormat |= f;
+			// Invocation of textureCoordSize() afterward will resize mBuffer.mTextureCoords,
+			// therefore no more thing to do here
+		}
+	}
 }
 
 void MeshBuilder::clear()
 {
-	MCD_ASSERT(mBuffer.mIsBetweenBeginEnd);
 	mFormat = 0;
-	mBuffer.mPositions.clear();
-	mBuffer.mNormals.clear();
-	mBuffer.mIndexes.clear();
+	mBuffer.clear();
 }
 
 void MeshBuilder::reserveVertex(size_t count)
 {
-	MCD_ASSERT(mBuffer.mIsBetweenBeginEnd);
 	MCD_ASSERT(mFormat & Mesh::Position);
 	mBuffer.mPositions.reserve(count);
 
 	if(mFormat & Mesh::Normal)
 		mBuffer.mNormals.reserve(count);
+
+	// Loop for all possible texture units
+	for(size_t f=Mesh::TextureCoord0; f <= Mesh::cMaxTextureCoordCount; ++f) {
+		if(mFormat & f) {
+			mBuffer.mTextureCoords[f].reserve(count * mBuffer.mTextureCoordSize[f]);
+		}
+	}
 }
 
 void MeshBuilder::reserveTriangle(size_t count)
 {
-	MCD_ASSERT(mBuffer.mIsBetweenBeginEnd);
 	MCD_ASSERT(mFormat & Mesh::Index);
 	mBuffer.mIndexes.reserve(count * 3);
 }
 
 void MeshBuilder::position(const Vec3f& position)
 {
-	MCD_ASSERT(mBuffer.mIsBetweenBeginEnd);
 	MCD_ASSERT(mFormat & Mesh::Position);
 	mBuffer.mPosition = position;
 }
 
 void MeshBuilder::normal(const Vec3f& normal)
 {
-	MCD_ASSERT(mBuffer.mIsBetweenBeginEnd);
 	MCD_ASSERT(mFormat & Mesh::Normal);
 	mBuffer.mNormal = normal;
 }
 
-void MeshBuilder::textureCoord(Mesh::DataType textureUnit, const Vec3f& coord)
+void MeshBuilder::textureUnit(Mesh::DataType textureUnit)
 {
-	MCD_ASSERT(mBuffer.mIsBetweenBeginEnd);
+	mBuffer.textureUnit(textureUnit);
+}
+
+void MeshBuilder::textureCoordSize(size_t size)
+{
+	mBuffer.textureCoordSize(size);
+}
+
+void MeshBuilder::textureCoord(const Vec2f& coord)
+{
+	MCD_ASSERT(mFormat & Mesh::TextureCoord);
+	mBuffer.textureCoord(coord);
+}
+
+void MeshBuilder::textureCoord(const Vec3f& coord)
+{
+	MCD_ASSERT(mFormat & Mesh::TextureCoord);
+	mBuffer.textureCoord(coord);
 }
 
 uint16_t MeshBuilder::addVertex()
 {
-	MCD_ASSERT(mBuffer.mIsBetweenBeginEnd);
 	MCD_ASSERT(mBuffer.noPointerAcquired());
 	MCD_ASSERT(mFormat & Mesh::Position);
 
@@ -175,12 +277,19 @@ uint16_t MeshBuilder::addVertex()
 	if(mFormat & Mesh::Normal)
 		mBuffer.mNormals.push_back(mBuffer.mNormal);
 
+	// Loop for all enabled texture unit
+	for(size_t f=Mesh::TextureCoord0; f <= (mFormat & Mesh::TextureCoord); ++f) {
+		std::vector<float>& vector = mBuffer.mTextureCoords[f];
+		float* begin = mBuffer.mTextureCoord[f].data();
+		float* end = begin + mBuffer.mTextureCoordSize[f];
+		vector.insert(vector.end(), begin, end);
+	}
+
 	return uint16_t(mBuffer.mPositions.size() - 1);
 }
 
 bool MeshBuilder::addTriangle(uint16_t idx1, uint16_t idx2, uint16_t idx3)
 {
-	MCD_ASSERT(mBuffer.mIsBetweenBeginEnd);
 	MCD_ASSERT(mBuffer.noPointerAcquired());
 	MCD_ASSERT(mFormat & Mesh::Index);
 
@@ -194,10 +303,17 @@ bool MeshBuilder::addTriangle(uint16_t idx1, uint16_t idx2, uint16_t idx3)
 	return true;
 }
 
+bool MeshBuilder::addQuad(uint16_t idx1, uint16_t idx2, uint16_t idx3, uint16_t idx4)
+{
+	if(!addTriangle(idx1, idx2, idx3))
+		return false;
+	if(!addTriangle(idx3, idx4, idx1))
+		return false;
+	return true;
+}
+
 void MeshBuilder::commit(Mesh& mesh, StorageHint storageHint)
 {
-	MCD_ASSERT(!mBuffer.mIsBetweenBeginEnd);
-
 	MCD_ASSERT(	storageHint == GL_STATIC_DRAW ||
 				storageHint == GL_DYNAMIC_DRAW ||
 				storageHint == GL_STREAM_DRAW);
@@ -211,41 +327,57 @@ void MeshBuilder::commit(Mesh& mesh, StorageHint storageHint)
 
 	MCD_ASSUME(mFormat & Mesh::Position);
 	if(mFormat & Mesh::Position) {
-		size_t vertexCount = mBuffer.mPositions.size();
-		uint* handle = &Accessor::handle(mesh)[0];
+		size_t count = mBuffer.mPositions.size();
+		uint* handle = &Accessor::handle(mesh, Mesh::Position);
 		if(!*handle)
 			glGenBuffers(1, handle);
 		glBindBuffer(GL_ARRAY_BUFFER, *handle);
 		glBufferData(
 			GL_ARRAY_BUFFER,
-			vertexCount * sizeof(GLfloat) * 3,
+			count * sizeof(Vec3f),
 			&mBuffer.mPositions[0], storageHint);
-		Accessor::vertexCount(mesh) = vertexCount;
+		Accessor::vertexCount(mesh) = count;
 	}
 
 	if(mFormat & Mesh::Normal) {
-		size_t normalCount = mBuffer.mNormals.size();
-		uint* handle = &Accessor::handle(mesh)[3];
+		size_t count = mBuffer.mNormals.size();
+		uint* handle = &Accessor::handle(mesh, Mesh::Normal);
 		if(!*handle)
 			glGenBuffers(1, handle);
 		glBindBuffer(GL_ARRAY_BUFFER, *handle);
 		glBufferData(
 			GL_ARRAY_BUFFER,
-			normalCount * sizeof(GLfloat) * 3,
+			count * sizeof(Vec3f),
 			&mBuffer.mNormals[0], storageHint);
 	}
 
+	// Loop for all enabled texture unit
+	for(size_t f=Mesh::TextureCoord0; f <= (mFormat & Mesh::TextureCoord); ++f) {
+		size_t floatCount = mBuffer.mTextureCoords[f].size();
+		uint* handle = &Accessor::handle(mesh, Mesh::DataType(f));
+		// Set the component count of the corresponding texture unit
+		uint8_t componentCount = uint8_t(mBuffer.mTextureCoordSize[f]);
+		Accessor::componentCount(mesh, Mesh::DataType(f)) = componentCount;
+		if(!*handle)
+			glGenBuffers(1, handle);
+		glBindBuffer(GL_ARRAY_BUFFER, *handle);
+		glBufferData(
+			GL_ARRAY_BUFFER,
+			floatCount * sizeof(float),
+			&(mBuffer.mTextureCoords[f][0]), storageHint);
+	}
+
 	if(mFormat & Mesh::Index) {
-		size_t indexCount = mBuffer.mIndexes.size();
-		uint* handle = &Accessor::handle(mesh)[1];
+		size_t count = mBuffer.mIndexes.size();
+		uint* handle = &Accessor::handle(mesh, Mesh::Index);
 		if(!*handle)
 			glGenBuffers(1, handle);
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, *handle);
 		glBufferData(
 			GL_ELEMENT_ARRAY_BUFFER,
-			indexCount * sizeof(uint16_t),
+			count * sizeof(uint16_t),
 			&mBuffer.mIndexes[0], storageHint);
-		Accessor::indexCount(mesh) = indexCount;
+		Accessor::indexCount(mesh) = count;
 	}
 }
 
