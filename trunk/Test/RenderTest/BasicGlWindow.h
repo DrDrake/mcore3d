@@ -15,7 +15,11 @@
 class BasicGlWindow : public MCD::GlWindow
 {
 public:
-	BasicGlWindow(const wchar_t* options) : mIsClosing(false), mIteration(0)
+	BasicGlWindow(const wchar_t* options)
+		:
+		mIsClosing(false),
+		mFieldOfView(60.0f),
+		mIteration(0)
 	{
 		create(options);
 
@@ -37,40 +41,36 @@ public:
 
 		while(true) {
 			Event e;
-			popEvent(e, false);
 
-			if(e.Type == Event::Closed)
-				break;
-			if(e.Type == Event::Resized) {
-				uint w = e.Size.Width;
-				uint h = e.Size.Height;
-				mW = w;
-				mH = h;
+			if(popEvent(e, false))
+			{
+				if(e.Type == Event::Closed)
+					break;
 
-				// Prevents division by zero
-				h = (h == 0) ? 1 : h;
-				glViewport(0, 0, w, h);
+				switch(e.Type)
+				{
+				case Event::MouseWheelMoved:
+					mFieldOfView -= float(e.MouseWheel.Delta);
+					setFieldOfView(mFieldOfView);
+					break;
 
-				// Reset coordinate system
-				glMatrixMode(GL_PROJECTION);
-				glLoadIdentity();
-				// Define the "viewing volume"
+				case Event::Resized:
+					mWidth = e.Size.Width;
+					mHeight = e.Size.Height;
 
-				// Produce the perspective projection
-				gluPerspective(60.0f, (GLfloat)w/(GLfloat)h, 1.0f, 1000.0f);
+					// Prevents division by zero
+					mHeight = (mHeight == 0) ? 1 : mHeight;
+					glViewport(0, 0, mWidth, mHeight);
+					setFieldOfView(mFieldOfView);
+					break;
 
-				glMatrixMode(GL_MODELVIEW);
-				glLoadIdentity();
+				default:
+					// Just ignore the remaining events
+					break;
+				}
 			}
 
-			preUpdate();
-
-			float deltaTime = float(mTimer.getDelta().asSecond());
-			if(++mIteration % 1000  == 0)
-				printf("FPS: %f\n", 1.0 / deltaTime);
-
-			update(deltaTime);
-			postUpdate();
+			update();
 		}
 	}
 
@@ -81,6 +81,7 @@ public:
 		glLoadIdentity();
 	}
 
+	//! To be overriden by derived class to do the actual update
 	virtual void update(float deltaTime) {
 		(void)deltaTime;
 	}
@@ -96,7 +97,38 @@ public:
 	}
 
 protected:
-	uint mW, mH;
+	void setFieldOfView(float angle)
+	{
+		mFieldOfView = angle;
+
+		// Reset coordinate system
+		glMatrixMode(GL_PROJECTION);
+		glLoadIdentity();
+
+		// Define the "viewing volume"
+		// Produce the perspective projection
+		gluPerspective(mFieldOfView, (GLfloat)mWidth/(GLfloat)mHeight, 1.0f, 1000.0f);
+
+		// Restore back to the model view matrix
+		glMatrixMode(GL_MODELVIEW);
+		glLoadIdentity();
+	}
+
+	void update()
+	{
+		preUpdate();
+
+		float deltaTime = float(mTimer.getDelta().asSecond());
+		if(++mIteration % 1000  == 0)
+			printf("FPS: %f\n", 1.0 / deltaTime);
+
+		update(deltaTime);
+		postUpdate();
+	}
+
+protected:
+	uint mWidth, mHeight;
+	float mFieldOfView;
 	bool mIsClosing;
 	size_t mIteration;
 	MCD::DeltaTimer mTimer;
