@@ -149,7 +149,10 @@ IResourceLoader::LoadingState PngLoader::load(std::istream* is)
 	Mutex& mutex = mImpl->mMutex;
 	ScopeLock lock(mutex);
 
-	if(mLoadingState & Stopped || !is)
+	if(!is)
+		mLoadingState = Aborted;
+
+	if(mLoadingState & Stopped)
 		return mLoadingState;
 
 #ifdef MCD_VC

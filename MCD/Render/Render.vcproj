@@ -224,6 +224,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\Max3dsLoader.h"
+				>
+			</File>
+			<File
 				RelativePath=".\Mesh.h"
 				>
 			</File>
@@ -266,6 +270,10 @@
 			</File>
 			<File
 				RelativePath=".\JpegLoader.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\Max3dsLoader.cpp"
 				>
 			</File>
 			<File
