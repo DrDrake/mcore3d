@@ -252,8 +252,10 @@ ResourcePtr ResourceManager::load(const Path& fileId, bool block, uint priority)
 	MCD_VERIFY(mImpl->mResourceMap.insertUnique(node->mPathKey));
 
 	// Now we can begin the load operation
-	if(block)
+	if(block) {
+		ScopeLock lock(mImpl->mEventQueue.mMutex);
 		mImpl->blockingLoad(fileId, *node);
+	}
 	else
 		mImpl->backgroundLoad(fileId, *node, priority);
 

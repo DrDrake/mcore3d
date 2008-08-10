@@ -314,7 +314,10 @@ IResourceLoader::LoadingState DdsLoader::load(std::istream* is)
 {
 	MCD_ASSUME(mImpl != nullptr);
 
-	if(mLoadingState & Stopped || !is)
+	if(!is)
+		mLoadingState = Aborted;
+
+	if(mLoadingState & Stopped)
 		return mLoadingState;
 
 	int result = static_cast<LoaderImpl*>(mImpl)->load(*is);
