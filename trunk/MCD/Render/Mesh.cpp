@@ -140,7 +140,7 @@ uint Mesh::handle(DataType dataType) const
 
 uint* Mesh::getHandlePtr(DataType dataType)
 {
-	if(dataType >= cMapArraySize || cDataType2Index[dataType] == -1)
+	if(size_t(dataType) >= cMapArraySize || cDataType2Index[dataType] == -1)
 		return nullptr;
 
 	return &mHandles[cDataType2Index[dataType]];
@@ -148,7 +148,7 @@ uint* Mesh::getHandlePtr(DataType dataType)
 
 uint8_t Mesh::componentCount(DataType dataType) const
 {
-	if(dataType >= cMapArraySize || cDataType2Index[dataType] == -1)
+	if(size_t(dataType) >= cMapArraySize || cDataType2Index[dataType] == -1)
 		return 0;
 	return mComponentCount[cDataType2Index[dataType]];
 }

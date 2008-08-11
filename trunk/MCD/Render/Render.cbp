@@ -99,6 +99,12 @@
 		<Unit filename="GlWindow.h" />
 		<Unit filename="JpegLoader.cpp" />
 		<Unit filename="JpegLoader.h" />
+		<Unit filename="Max3dsLoader.cpp" />
+		<Unit filename="Max3dsLoader.h" />
+		<Unit filename="Mesh.cpp" />
+		<Unit filename="Mesh.h" />
+		<Unit filename="MeshBuilder.cpp" />
+		<Unit filename="MeshBuilder.h" />
 		<Unit filename="PngLoader.cpp" />
 		<Unit filename="PngLoader.h" />
 		<Unit filename="Render.h" />

@@ -20,6 +20,8 @@ struct MCD_RENDER_API Color
 class MCD_RENDER_API Material
 {
 public:
+	Material();
+
 	void bind() const;
 
 	Color mAmbient;

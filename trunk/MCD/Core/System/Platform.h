@@ -206,6 +206,7 @@ void noReturn() { throw "NoReturn should not be invoked"; }
 #define sal_in_opt
 #define sal_in_z
 #define sal_in_z_opt
+#define sal_out_opt
 #define sal_inout
 #define sal_notnull
 #define sal_maybenull
