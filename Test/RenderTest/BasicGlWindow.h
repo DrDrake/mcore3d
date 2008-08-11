@@ -127,9 +127,9 @@ protected:
 	}
 
 protected:
+	bool mIsClosing;
 	uint mWidth, mHeight;
 	float mFieldOfView;
-	bool mIsClosing;
 	size_t mIteration;
 	MCD::DeltaTimer mTimer;
 };	// BasicGlWindow

@@ -62,6 +62,14 @@ class ResourceManager::Impl
 		void pushBack(const Event& event)
 		{
 			MCD_ASSERT(mMutex.isLocked());
+
+			// Each instance of resource should appear in the event queue once.
+			// Note: Linear search is enough since the event queue should keep consumed every frame
+			for(std::deque<Event>::iterator i=mQueue.begin(); i != mQueue.end(); ++i) {
+				if(i->resource == event.resource)
+					return;
+			}
+
 			mQueue.push_back(event);
 		}
 

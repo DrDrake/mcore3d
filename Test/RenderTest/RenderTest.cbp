@@ -7,7 +7,7 @@
 		<Option compiler="cygwin" />
 		<Build>
 			<Target title="Debug (Linux)">
-				<Option output="Debug\Gcc_Linux\CoreTest" prefix_auto="1" extension_auto="1" />
+				<Option output="Debug\Gcc_Linux\RenderTest" prefix_auto="1" extension_auto="1" />
 				<Option object_output="Debug\Gcc_Linux\Obj\" />
 				<Option type="1" />
 				<Option compiler="gcc" />
@@ -21,7 +21,7 @@
 				</Linker>
 			</Target>
 			<Target title="Release (Linux)">
-				<Option output="Release\Gcc_Linux\CoreTest" prefix_auto="1" extension_auto="1" />
+				<Option output="Release\Gcc_Linux\RenderTest" prefix_auto="1" extension_auto="1" />
 				<Option object_output="Release\Gcc_Linux\Obj\" />
 				<Option type="1" />
 				<Option compiler="gcc" />
@@ -36,7 +36,7 @@
 				</Linker>
 			</Target>
 			<Target title="Debug (Cygwin)">
-				<Option output="Debug\Gcc_Cygwin\CoreTest" prefix_auto="1" extension_auto="1" />
+				<Option output="Debug\Gcc_Cygwin\RenderTest" prefix_auto="1" extension_auto="1" />
 				<Option object_output="Debug\Gcc_Cygwin\Obj" />
 				<Option type="1" />
 				<Option compiler="cygwin" />
@@ -51,7 +51,7 @@
 				</Linker>
 			</Target>
 			<Target title="Release (Cygwin)">
-				<Option output="Release\Gcc_Cygwin\CoreTest" prefix_auto="1" extension_auto="1" />
+				<Option output="Release\Gcc_Cygwin\RenderTest" prefix_auto="1" extension_auto="1" />
 				<Option object_output="Release\Gcc_Cygwin\Obj" />
 				<Option type="1" />
 				<Option compiler="cygwin" />
@@ -77,6 +77,7 @@
 			<Add directory="\usr\X11R6\lib" />
 		</Linker>
 		<Unit filename="Main.cpp" />
+		<Unit filename="MeshTest.cpp" />
 		<Unit filename="TextureLoaderTest.cpp" />
 		<Extensions>
 			<code_completion />

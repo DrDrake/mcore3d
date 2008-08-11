@@ -41,9 +41,9 @@ template<class T> struct ForeachTraits<const T> {
 };
 
 #	define MCD_FOREACH(Var, Container) \
-	for(MCD::ForeachTraits<__typeof__(Container)>::iterator _It_ = (Container).begin(), _ItEnd_= (Container).end(); _It_ != _ItEnd_; ++_It_) \
-		for(bool _foreach_continue = true; _foreach_continue; ) \
-		for(Var = *_It_; _foreach_continue; _foreach_continue = false)
+	if(bool _breaked_ = false) {} else \
+	for(MCD::ForeachTraits<__typeof__(Container)>::iterator _It_ = (Container).begin(), _ItEnd_= (Container).end(); _It_ != _ItEnd_ && (_breaked_ = !_breaked_); ++_It_) \
+	for(Var = *_It_; _breaked_; _breaked_ = false)
 #endif
 
 }	// namespace MCD

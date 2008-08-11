@@ -71,7 +71,7 @@ public:
 
 	void textureCoord(const Vec2f& coord)
 	{
-		MCD_ASSERT("Invalid texture unit" && mTextureUnit < Mesh::cMaxTextureCoordCount);
+		MCD_ASSERT("Invalid texture unit" && size_t(mTextureUnit) < Mesh::cMaxTextureCoordCount);
 		MCD_ASSERT(mTextureCoordSize[mTextureUnit] == 2);
 
 		reinterpret_cast<Vec2f&>(mTextureCoord[mTextureUnit]) = coord;
@@ -79,7 +79,7 @@ public:
 
 	void textureCoord(const Vec3f& coord)
 	{
-		MCD_ASSERT("Invalid texture unit" && mTextureUnit < Mesh::cMaxTextureCoordCount);
+		MCD_ASSERT("Invalid texture unit" && size_t(mTextureUnit) < Mesh::cMaxTextureCoordCount);
 		MCD_ASSERT(mTextureCoordSize[mTextureUnit] == 3);
 
 		reinterpret_cast<Vec3f&>(mTextureCoord[mTextureUnit]) = coord;

@@ -10,6 +10,11 @@
 
 namespace MCD {
 
+Material::Material()
+	: mShininess(0)
+{
+}
+
 void Material::bind() const
 {
 	{	GLfloat ambient[] = { mAmbient.r, mAmbient.g, mAmbient.b, 1.0f };
@@ -209,7 +214,7 @@ Max3dsLoader::Max3dsLoader(std::istream& is_, ResourceManager* resourceManager)
 			// Description: Object block, info for each object
 			// Chunk Lenght: len(object name) + sub chunks
 			//-------------------------------------------
-			case OBJECT: 
+			case OBJECT:
 			{	// Currently the object name has no use.
 				std::wstring objectName;
 				readString(objectName);
@@ -238,6 +243,7 @@ Max3dsLoader::Max3dsLoader(std::istream& is_, ResourceManager* resourceManager)
 				is.read(l_qty);
 				MCD_ASSERT(!mMeshBuilders.empty());
 				MCD_ASSERT(currentMeshBuilder == mMeshBuilders.back().meshBuilder);
+				MCD_ASSUME(currentMeshBuilder);
 				currentMeshBuilder->reserveVertex(l_qty);
 
 				for(i=0; i<l_qty; ++i) {
@@ -269,6 +275,7 @@ Max3dsLoader::Max3dsLoader(std::istream& is_, ResourceManager* resourceManager)
 				is.read(l_qty);
 				MCD_ASSERT(!mMeshBuilders.empty());
 				MCD_ASSERT(currentMeshBuilder == mMeshBuilders.back().meshBuilder);
+				MCD_ASSUME(currentMeshBuilder);
 				currentMeshBuilder->enable(Mesh::Index);
 				currentMeshBuilder->reserveTriangle(l_qty);
 
@@ -377,6 +384,9 @@ Max3dsLoader::Max3dsLoader(std::istream& is_, ResourceManager* resourceManager)
 
 			case SHINY_PERC:	// Material - Shininess
 				currentMaterial->mShininess = uint8_t(readPercInt());
+				// Clamp the maximum to 128 as it's the maximum accepted value for glMateriali with GL_SHININESS
+				if(currentMaterial->mShininess > 128)
+					currentMaterial->mShininess = 128;
 				break;
 
 			case SHINY_STR_PERC:	// Material - Shine Strength
