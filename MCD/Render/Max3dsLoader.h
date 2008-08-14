@@ -14,6 +14,12 @@ class ResourceManager;
 
 struct MCD_RENDER_API Color
 {
+	Color() {}
+	Color(float c) : r(c), g(c), b(c) {}
+	Color& operator*=(float scale) {
+		r *= scale; g *= scale; b *= scale;
+		return *this;
+	}
 	float r, g, b;
 };
 
@@ -50,11 +56,6 @@ public:
 	MeshList mMeshes;
 };	// Model
 
-// Compute vertex normals
-// Reference: http://www.gamedev.net/community/forums/topic.asp?topic_id=313015
-// Reference: http://www.devmaster.net/forums/showthread.php?t=414
-void computeNormal(Vec3f* vertex, Vec3f* normal, uint16_t* index, size_t vertexCount, size_t indexCount);
-
 /*!
 	\sa http://www.flipcode.com/archives/Another_3DS_LoaderViewer_Class.shtml
 	\sa http://www.gamedev.net/community/forums/topic.asp?topic_id=382606
@@ -72,7 +73,7 @@ protected:
 	void readColor(Color& color);
 
 	//! Read a 16 bit integer (why is call perc?).
-	uint16_t readPercInt();
+	int16_t readPercentageAsInt();
 
 	size_t readString(std::wstring& str);
 
@@ -83,12 +84,14 @@ private:
 protected:
 	ResourceManager* mResourceManager;
 
-	struct MeshBuilderAndMaterial {
+	struct ModelInfo {
 		MeshBuilder* meshBuilder;
 		Material* material;
+		uint16_t faceCount;
+		std::vector<uint32_t> smoothingGroup;
 	};
 
-	std::list<MeshBuilderAndMaterial> mMeshBuilders;
+	std::list<ModelInfo> mModelInfo;
 	MeshBuilder mMeshBuilder;
 
 	class NamedMaterial;

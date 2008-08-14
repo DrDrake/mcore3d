@@ -2,6 +2,7 @@
 #include "TextureLoaderBase.h"
 #include "Texture.h"
 #include "TextureLoaderBaseImpl.inc"
+#include "../Core/System/Log.h"
 #include "../../3Party/glew/glew.h"
 
 namespace MCD {
@@ -52,6 +53,22 @@ public:
 	}
 };	// PrivateAccessor
 
+/*! Determine if an integer is power of 2.
+	isPowerOf2(0) == false
+	isPowerOf2(1) == false
+	isPowerOf2(2) == true
+	isPowerOf2(4) == true
+	isPowerOf2(8) == true
+
+	isPowerOf2(3) == false
+	isPowerOf2(5) == false
+
+	\sa http://graphics.stanford.edu/~seander/bithacks.html#DetermineIfPowerOf2
+ */
+static inline bool isPowerOf2(int v) {
+	return !(v & (v - 1)) && v;
+}
+
 void TextureLoaderBase::commit(Resource& resource)
 {
 	typedef Texture::PrivateAccessor<TextureLoaderBase> Accessor;
@@ -70,6 +87,10 @@ void TextureLoaderBase::commit(Resource& resource)
 	Accessor::width(texture) = mImpl->mWidth;
 	Accessor::height(texture) = mImpl->mHeight;
 	Accessor::format(texture) = mImpl->mFormat;
+
+	if(!isPowerOf2(mImpl->mWidth) || !isPowerOf2(mImpl->mHeight))
+		Log::format(Log::Warn, L"Texture:'%s' has non-power of 2 size, which may hurt performance",
+			resource.fileId().getString().c_str());
 
 	GLuint* handle = reinterpret_cast<GLuint*>(&Accessor::handle(texture));
 
@@ -104,7 +125,7 @@ IResourceLoader::LoadingState TextureLoaderBase::getLoadingState() const
 void TextureLoaderBase::preUploadData()
 {
 	// TODO: Should set the filtering via option strings
-	const bool generateMipMap = true;
+	const bool generateMipMap = false;
 
 	if(generateMipMap) {
 		// Reference on comparision between gluBuild2DMipmaps / GL_GENERATE_MIPMAP and glGenerateMipmapEXT
