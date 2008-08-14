@@ -63,6 +63,13 @@ public:
 	static bool isNearEqual(Real lhs, Real rhs, Real tolerance = 1e-6) {
 		return isNearZero(lhs - rhs, tolerance);
 	}
+
+	static Real clamp(Real value, Real min, Real max)
+	{
+		value = value < min ? min : value;
+		value = value > max ? max : value;
+		return value;
+	}
 };	// Math
 
 typedef Math<float> Mathf;

@@ -137,6 +137,7 @@ public:
 	sal_checkreturn void* acquireBufferPointer(Mesh::DataType dataType, sal_out_opt size_t* count=nullptr);
 
 	/*!	Release the pointer acquired by acquireBufferPointer().
+		\noet Do nothing if no corresponding pointer is acquired.
 		\sa acquireBufferPointer
 	 */
 	void releaseBufferPointer(void* ptr);

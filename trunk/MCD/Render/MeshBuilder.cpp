@@ -37,6 +37,7 @@ public:
 
 	BufferImpl()
 	{
+		MCD_ASSERT("There are acquired pointer not released when MeshBuilder is being destroy" && mAcquiredPointers.empty());
 	}
 
 	void clear()
@@ -131,7 +132,10 @@ public:
 
 	void releaseBufferPointer(void* ptr)
 	{
-		MCD_ASSERT(ptr == mAcquiredPointers.top());
+		if(mAcquiredPointers.empty())
+			return;
+		if(ptr != mAcquiredPointers.top())
+			return;
 		mAcquiredPointers.pop();
 	}
 

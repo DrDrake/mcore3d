@@ -163,9 +163,12 @@ TEST(Cube_MeshBuilderTest)
 
 	TestWindow window;
 	window.mainLoop();
+
+	CHECK(true);
 }
 
 #include "../../MCD/Render/Max3dsLoader.h"
+#include "../../MCD/Render/DdsLoader.h"
 #include "../../MCD/Render/JpegLoader.h"
 #include "../../MCD/Render/PngLoader.h"
 #include "../../MCD/Render/Texture.h"
@@ -187,6 +190,30 @@ TEST(Sphere_MeshBuilderTest)
 		}
 	};	// JpegFactory
 
+	class PngFactory : public ResourceManager::IFactory
+	{
+	public:
+		sal_override ResourcePtr createResource(const Path& path) {
+			return new Texture(path);
+		}
+
+		sal_override IResourceLoader* createLoader() {
+			return new PngLoader;
+		}
+	};	// JpegFactory
+
+	class DdsFactory : public ResourceManager::IFactory
+	{
+	public:
+		sal_override ResourcePtr createResource(const Path& path) {
+			return new Texture(path);
+		}
+
+		sal_override IResourceLoader* createLoader() {
+			return new DdsLoader;
+		}
+	};	// DdsFactory
+
 	class TestWindow : public BasicGlWindow
 	{
 	public:
@@ -194,10 +221,13 @@ TEST(Sphere_MeshBuilderTest)
 			:
 			BasicGlWindow(L""), mAngle(0)
 		{
-			std::auto_ptr<IFileSystem> fs(new RawFileSystem(L"./"));
+			std::auto_ptr<IFileSystem> fs(new RawFileSystem(L"./FockeWulf 189A"));
 			mResourceManager.reset(new ResourceManager(*fs));
 			fs.release();
+			mResourceManager->associateFactory(L"dds", new DdsFactory);
+			mResourceManager->associateFactory(L"jpg", new JpegFactory);	
 			mResourceManager->associateFactory(L"JPG", new JpegFactory);
+			mResourceManager->associateFactory(L"png", new PngFactory);
 		}
 
 		bool load3ds(const char* fileName)
@@ -251,10 +281,10 @@ TEST(Sphere_MeshBuilderTest)
 	{
 		TestWindow window;
 
-		window.load3ds("titanic.3DS");
+//		window.load3ds("titanic.3DS");
 //		window.load3ds("titanic2.3DS");
 //		window.load3ds("spaceship.3DS");
-//		window.load3ds("N.3ds");
+		window.load3ds("box.3DS");
 //		window.load3ds("ship^kiy.3ds");
 //		window.load3ds("Alfa Romeo.3ds");
 //		window.load3ds("Nissan350Z.3ds");
@@ -263,6 +293,8 @@ TEST(Sphere_MeshBuilderTest)
 //		window.load3ds("Leon N300708.3DS");
 //		window.load3ds("Ford N120208.3ds");
 //		window.load3ds("musai.3DS");
+//		window.load3ds("Media/House/house.3ds");
+		window.load3ds("FockeWulf 189A/fw189.3ds");
 
 		// Set up and enable light 0
 		glEnable(GL_LIGHTING);
@@ -280,4 +312,6 @@ TEST(Sphere_MeshBuilderTest)
 
 		window.mainLoop();
 	}
+
+	CHECK(true);
 }

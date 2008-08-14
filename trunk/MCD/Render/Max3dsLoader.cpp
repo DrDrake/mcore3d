@@ -11,7 +11,7 @@
 namespace MCD {
 
 Material::Material()
-	: mShininess(0)
+	: mAmbient(0.5), mDiffuse(1), mSpecular(0), mShininess(0)
 {
 }
 
@@ -35,6 +35,8 @@ void Material::bind() const
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 		mTexture->bind();
 	}
+	else
+		glBindTexture(GL_TEXTURE_2D, 0);
 }
 
 void Model::draw()
@@ -76,8 +78,8 @@ enum ChunkId
 					VERT_LIST		= 0x4110,
 					FACE_DESC		= 0x4120,
 						FACE_MAT	= 0x4130,
-					TEX_VERTS		= 0x4140,
 						SMOOTH_GROUP= 0x4150,
+					TEX_VERTS		= 0x4140,
 					LOCAL_COORDS	= 0x4160,
 			ONE_UNIT				= 0x0100,
 		KEYF3DS						= 0xB000,
@@ -123,11 +125,10 @@ public:
 		mIs.read((char*)&t, sizeof(t));
 	}
 
-	template<typename T>
-	void read(T& t, size_t size)
+	void read(void* p, size_t size)
 	{
 		MCD_ASSERT(!eof());
-		mIs.read((char*)&t, size);
+		mIs.read((char*)p, size);
 	}
 
 	void read(ChunkHeader& header)
@@ -147,7 +148,10 @@ public:
 	std::istream& mIs;
 };	// Stream
 
-void computeNormal(Vec3f* vertex, Vec3f* normal, uint16_t* index, size_t vertexCount, size_t indexCount)
+// Compute vertex normals
+// Reference: http://www.gamedev.net/community/forums/topic.asp?topic_id=313015
+// Reference: http://www.devmaster.net/forums/showthread.php?t=414
+static void computeNormal(const Vec3f* vertex, Vec3f* normal, const uint16_t* index, size_t vertexCount, size_t indexCount)
 {
 	// Calculate the face normal for each face
 	for(size_t i=0; i<indexCount; i+=3) {
@@ -157,6 +161,9 @@ void computeNormal(Vec3f* vertex, Vec3f* normal, uint16_t* index, size_t vertexC
 		Vec3f v1 = vertex[i0];
 		Vec3f v2 = vertex[i1];
 		Vec3f v3 = vertex[i2];
+
+		// We need not to normalize this faceNormal, since a vertex's normal
+		// shoule be influenced by a larger polygon.
 		Vec3f faceNormal = (v3 - v2) ^ (v1 - v2);
 
 		// Add the face normal to the corresponding vertices
@@ -169,6 +176,58 @@ void computeNormal(Vec3f* vertex, Vec3f* normal, uint16_t* index, size_t vertexC
 	for(size_t i=0; i<vertexCount; ++i) {
 		normal[i].normalize();
 	}
+}
+
+static void computeNormal(const Vec3f* vertex, Vec3f* normal, const uint16_t* index, const uint32_t* smoothingGroup, size_t vertexCount, size_t indexCount)
+{
+	const size_t triangleCount = indexCount / 3;
+	std::vector<Vec3f> faceNormal;
+	faceNormal.reserve(triangleCount);
+
+	// Calculate the face normal for each triangle
+	for(uint16_t f = 0; f<indexCount; f+=3) {
+		uint16_t i0 = index[f+0];
+		uint16_t i1 = index[f+1];
+		uint16_t i2 = index[f+2];
+		const Vec3f& v1 = vertex[i0];
+		const Vec3f& v2 = vertex[i1];
+		const Vec3f& v3 = vertex[i2];
+		faceNormal.push_back((v3 - v2) ^ (v1 - v2));
+	}
+
+	//! Store info on which index is associated with a vertex (a single vertex can associate with a numbers of index)
+	typedef std::vector<uint16_t> Indexes;
+	typedef std::vector<Indexes> Vertex2TriangleIndexMapping;
+	Vertex2TriangleIndexMapping mapping;
+	mapping.resize(vertexCount);
+
+	// Loop for every triangle f
+	for(uint16_t f=0; f<indexCount; f+=3) {
+		// Loop for every vertex of f, namely v
+		for(uint16_t v=f; v<f+3u; ++v) {
+			uint16_t indexOfV = index[v];
+			mapping[indexOfV].push_back(v);
+		}
+	}
+
+	// Loop for every triangle f
+	for(uint16_t f=0; f<indexCount; f+=3) {
+		// Loop for every vertex of f, namely v
+		for(uint16_t v=f; v<f+3u; ++v) {
+			// Loop for every triangle f2 in mapping[index of v]
+			uint16_t indexOfV = index[v];
+			const Indexes& indexes = mapping[indexOfV];
+			MCD_FOREACH(uint16_t f2, indexes) {
+				// If f2 and f share smoothing groups
+				if(smoothingGroup[f/3] | smoothingGroup[f2/3])
+					normal[indexOfV] += faceNormal[f2 / 3];
+			}
+		}
+	}
+
+	// Normalize for each vertex normal
+	for(uint16_t v=0; v<vertexCount; ++v)
+		normal[v].normalize();
 }
 
 Max3dsLoader::Max3dsLoader(std::istream& is_, ResourceManager* resourceManager)
@@ -220,8 +279,8 @@ Max3dsLoader::Max3dsLoader(std::istream& is_, ResourceManager* resourceManager)
 				readString(objectName);
 
 				currentMeshBuilder = new MeshBuilder;
-				MeshBuilderAndMaterial builderAndMaterial = { currentMeshBuilder, nullptr };
-				mMeshBuilders.push_back(builderAndMaterial);
+				ModelInfo modelInfo = { currentMeshBuilder, nullptr, 0 };
+				mModelInfo.push_back(modelInfo);
 				currentMeshBuilder->enable(Mesh::Position | Mesh::Normal);
 			}
 				break;
@@ -241,8 +300,8 @@ Max3dsLoader::Max3dsLoader(std::istream& is_, ResourceManager* resourceManager)
 			//-------------------------------------------
 			case VERT_LIST:
 				is.read(l_qty);
-				MCD_ASSERT(!mMeshBuilders.empty());
-				MCD_ASSERT(currentMeshBuilder == mMeshBuilders.back().meshBuilder);
+				MCD_ASSERT(!mModelInfo.empty());
+				MCD_ASSERT(currentMeshBuilder == mModelInfo.back().meshBuilder);
 				MCD_ASSUME(currentMeshBuilder);
 				currentMeshBuilder->reserveVertex(l_qty);
 
@@ -273,11 +332,12 @@ Max3dsLoader::Max3dsLoader(std::istream& is_, ResourceManager* resourceManager)
 			case FACE_DESC:
 			{
 				is.read(l_qty);
-				MCD_ASSERT(!mMeshBuilders.empty());
-				MCD_ASSERT(currentMeshBuilder == mMeshBuilders.back().meshBuilder);
+				MCD_ASSERT(!mModelInfo.empty());
+				MCD_ASSERT(currentMeshBuilder == mModelInfo.back().meshBuilder);
 				MCD_ASSUME(currentMeshBuilder);
 				currentMeshBuilder->enable(Mesh::Index);
 				currentMeshBuilder->reserveTriangle(l_qty);
+				mModelInfo.back().faceCount = l_qty;
 
 				for(i=0; i<l_qty; ++i) {
 					uint16_t i1, i2, i3;
@@ -288,17 +348,6 @@ Max3dsLoader::Max3dsLoader(std::istream& is_, ResourceManager* resourceManager)
 					is.read(faceFlags);
 					currentMeshBuilder->addTriangle(i1, i2, i3);
 				}
-
-				size_t vertexCount, indexCount;
-				Vec3f* vertex = reinterpret_cast<Vec3f*>(currentMeshBuilder->acquireBufferPointer(Mesh::Position, &vertexCount));
-				Vec3f* normal = reinterpret_cast<Vec3f*>(currentMeshBuilder->acquireBufferPointer(Mesh::Normal));
-				uint16_t* index = reinterpret_cast<uint16_t*>(currentMeshBuilder->acquireBufferPointer(Mesh::Index, &indexCount));
-
-				computeNormal(vertex, normal, index, vertexCount, indexCount);
-
-				currentMeshBuilder->releaseBufferPointer(index);
-				currentMeshBuilder->releaseBufferPointer(normal);
-				currentMeshBuilder->releaseBufferPointer(vertex);
 			}
 				break;
 
@@ -307,8 +356,8 @@ Max3dsLoader::Max3dsLoader(std::istream& is_, ResourceManager* resourceManager)
 			//-------------------------------------------
 			case FACE_MAT:
 			{
-				MCD_ASSERT(!mMeshBuilders.empty());
-				MCD_ASSERT(currentMeshBuilder == mMeshBuilders.back().meshBuilder);
+				MCD_ASSERT(!mModelInfo.empty());
+				MCD_ASSERT(currentMeshBuilder == mModelInfo.back().meshBuilder);
 
 				std::wstring materialName;
 				size_t readCount = readString(materialName);
@@ -317,13 +366,24 @@ Max3dsLoader::Max3dsLoader(std::istream& is_, ResourceManager* resourceManager)
 				MCD_FOREACH(NamedMaterial* material, mMaterials) {
 					if(material->mName != materialName)
 						continue;
-					mMeshBuilders.back().material = material;
+					mModelInfo.back().material = material;
 					break;
 				}
 
 				// Read past the rest of the chunk since we don't care about shared vertices
 				// You will notice we subtract the bytes already read in this chunk from the total length.
 				is.skip(header.length - 6 - readCount);
+			}
+				break;
+
+			case SMOOTH_GROUP:
+			{
+				MCD_ASSERT(!mModelInfo.empty());
+				MCD_ASSERT(currentMeshBuilder == mModelInfo.back().meshBuilder);
+				std::vector<uint32_t>& smoothingGroup = mModelInfo.back().smoothingGroup;
+				smoothingGroup.resize(mModelInfo.back().faceCount);
+
+				is.read(&smoothingGroup[0], smoothingGroup.size() * sizeof(uint32_t));
 			}
 				break;
 
@@ -336,8 +396,8 @@ Max3dsLoader::Max3dsLoader(std::istream& is_, ResourceManager* resourceManager)
 			case TEX_VERTS:
 			{
 				is.read(l_qty);
-				MCD_ASSERT(!mMeshBuilders.empty());
-				MCD_ASSERT(currentMeshBuilder == mMeshBuilders.back().meshBuilder);
+				MCD_ASSERT(!mModelInfo.empty());
+				MCD_ASSERT(currentMeshBuilder == mModelInfo.back().meshBuilder);
 
 				currentMeshBuilder->enable(Mesh::TextureCoord0);
 				currentMeshBuilder->textureUnit(Mesh::TextureCoord0);
@@ -382,19 +442,22 @@ Max3dsLoader::Max3dsLoader(std::istream& is_, ResourceManager* resourceManager)
 				readColor(currentMaterial->mSpecular);
 				break;
 
-			case SHINY_PERC:	// Material - Shininess
-				currentMaterial->mShininess = uint8_t(readPercInt());
-				// Clamp the maximum to 128 as it's the maximum accepted value for glMateriali with GL_SHININESS
-				if(currentMaterial->mShininess > 128)
-					currentMaterial->mShininess = 128;
+			case SHINY_PERC:	// Material - Shininess (Glossiness)
+			{	uint16_t shininess = Math<int16_t>::clamp(readPercentageAsInt(), 0, 100);
+				// Rescle from 0-100 to 0-128 since the maximum accepted value for
+				// glMateriali with GL_SHININESS is 128
+				currentMaterial->mShininess = uint8_t(shininess * 128.f / 100);
+			}
 				break;
 
 			case SHINY_STR_PERC:	// Material - Shine Strength
-				readPercInt();
+			{	uint16_t strength = readPercentageAsInt();
+				currentMaterial->mSpecular *= float(strength) / 100;
+			}
 				break;
 
 			case TRANS_PERC:	// Material - Transparency
-				readPercInt();
+				readPercentageAsInt();
 				break;
 
 			case MAT_TEXMAP:	// Material - Start of Texture Info
@@ -420,12 +483,34 @@ Max3dsLoader::Max3dsLoader(std::istream& is_, ResourceManager* resourceManager)
 		if(is.eof())
 			break;
 	}
+
+	// Calculate vertex normal for each mesh
+	MCD_FOREACH(const ModelInfo& model, mModelInfo) {
+		MeshBuilder* meshBuilder = model.meshBuilder;
+		size_t vertexCount, indexCount;
+		Vec3f* vertex = reinterpret_cast<Vec3f*>(meshBuilder->acquireBufferPointer(Mesh::Position, &vertexCount));
+		Vec3f* normal = reinterpret_cast<Vec3f*>(meshBuilder->acquireBufferPointer(Mesh::Normal));
+		uint16_t* index = reinterpret_cast<uint16_t*>(meshBuilder->acquireBufferPointer(Mesh::Index, &indexCount));
+
+		if(vertex && normal && index) {
+			// We have 2 different routines for calculating normals, one with the 
+			// smoothing group information and one does not.
+			if(model.smoothingGroup.empty())
+				computeNormal(vertex, normal, index, vertexCount, indexCount);
+			else
+				computeNormal(vertex, normal, index, &(model.smoothingGroup[0]), vertexCount, indexCount);
+		}
+
+		meshBuilder->releaseBufferPointer(index);
+		meshBuilder->releaseBufferPointer(normal);
+		meshBuilder->releaseBufferPointer(vertex);
+	}
 }
 
 Max3dsLoader::~Max3dsLoader()
 {
-	MCD_FOREACH(const MeshBuilderAndMaterial& builder, mMeshBuilders)
-		delete builder.meshBuilder;
+	MCD_FOREACH(const ModelInfo& model, mModelInfo)
+		delete model.meshBuilder;
 	MCD_FOREACH(NamedMaterial* material, mMaterials)
 		delete material;
 	delete mStream;
@@ -447,17 +532,17 @@ void Max3dsLoader::readColor(Color& color)
 	color.b = float(uintColor[2]) / 256;
 }
 
-uint16_t Max3dsLoader::readPercInt()
+int16_t Max3dsLoader::readPercentageAsInt()
 {
 	ChunkHeader header;
 	mStream->read(header);
 
 	MCD_ASSERT(header.id == PERC_INT);
 
-	uint16_t a;
-	mStream->read(a);
+	int16_t percentage;
+	mStream->read(percentage);
 
-	return a;
+	return Math<int16_t>::clamp(percentage, -100, 100);
 }
 
 size_t Max3dsLoader::readString(std::wstring& str)
@@ -481,7 +566,7 @@ size_t Max3dsLoader::readString(std::wstring& str)
 void Max3dsLoader::commit(Model& model, MeshBuilder::StorageHint storageHint)
 {
 	model.mMeshes.clear();
-	MCD_FOREACH(const MeshBuilderAndMaterial& i, mMeshBuilders) {
+	MCD_FOREACH(const ModelInfo& i, mModelInfo) {
 		MeshBuilder* builder = i.meshBuilder;
 		MeshPtr mesh = new Mesh(L"");
 		Model::MeshAndMaterial meshMat;
