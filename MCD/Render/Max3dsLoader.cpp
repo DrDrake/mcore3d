@@ -151,7 +151,7 @@ public:
 // Compute vertex normals
 // Reference: http://www.gamedev.net/community/forums/topic.asp?topic_id=313015
 // Reference: http://www.devmaster.net/forums/showthread.php?t=414
-static void computeNormal(const Vec3f* vertex, Vec3f* normal, const uint16_t* index, size_t vertexCount, size_t indexCount)
+static void computeNormal(const Vec3f* vertex, Vec3f* normal, const uint16_t* index, uint16_t vertexCount, size_t indexCount)
 {
 	// Calculate the face normal for each face
 	for(size_t i=0; i<indexCount; i+=3) {
@@ -178,14 +178,14 @@ static void computeNormal(const Vec3f* vertex, Vec3f* normal, const uint16_t* in
 	}
 }
 
-static void computeNormal(const Vec3f* vertex, Vec3f* normal, const uint16_t* index, const uint32_t* smoothingGroup, size_t vertexCount, size_t indexCount)
+static void computeNormal(const Vec3f* vertex, Vec3f* normal, const uint16_t* index, const uint32_t* smoothingGroup, uint16_t vertexCount, size_t indexCount)
 {
 	const size_t triangleCount = indexCount / 3;
 	std::vector<Vec3f> faceNormal;
 	faceNormal.reserve(triangleCount);
 
 	// Calculate the face normal for each triangle
-	for(uint16_t f = 0; f<indexCount; f+=3) {
+	for(size_t f = 0; f<indexCount; f+=3) {
 		uint16_t i0 = index[f+0];
 		uint16_t i1 = index[f+1];
 		uint16_t i2 = index[f+2];
@@ -196,31 +196,31 @@ static void computeNormal(const Vec3f* vertex, Vec3f* normal, const uint16_t* in
 	}
 
 	//! Store info on which index is associated with a vertex (a single vertex can associate with a numbers of index)
-	typedef std::vector<uint16_t> Indexes;
+	typedef std::vector<size_t> Indexes;
 	typedef std::vector<Indexes> Vertex2TriangleIndexMapping;
 	Vertex2TriangleIndexMapping mapping;
 	mapping.resize(vertexCount);
 
 	// Loop for every triangle f
-	for(uint16_t f=0; f<indexCount; f+=3) {
+	for(size_t f=0; f<indexCount; f+=3) {
 		// Loop for every vertex of f, namely v
-		for(uint16_t v=f; v<f+3u; ++v) {
+		for(size_t v=f; v<f+3u; ++v) {
 			uint16_t indexOfV = index[v];
-			mapping[indexOfV].push_back(v);
+			mapping[indexOfV].push_back(v/3);	// Divided by 3 to make it triangle index
 		}
 	}
 
 	// Loop for every triangle f
-	for(uint16_t f=0; f<indexCount; f+=3) {
+	for(size_t f=0; f<indexCount; f+=3) {
 		// Loop for every vertex of f, namely v
-		for(uint16_t v=f; v<f+3u; ++v) {
+		for(size_t v=f; v<f+3u; ++v) {
 			// Loop for every triangle f2 in mapping[index of v]
 			uint16_t indexOfV = index[v];
 			const Indexes& indexes = mapping[indexOfV];
 			MCD_FOREACH(uint16_t f2, indexes) {
 				// If f2 and f share smoothing groups
-				if(smoothingGroup[f/3] | smoothingGroup[f2/3])
-					normal[indexOfV] += faceNormal[f2 / 3];
+				if(smoothingGroup[f/3] | smoothingGroup[f2])
+					normal[indexOfV] += faceNormal[f2];
 			}
 		}
 	}
@@ -496,9 +496,9 @@ Max3dsLoader::Max3dsLoader(std::istream& is_, ResourceManager* resourceManager)
 			// We have 2 different routines for calculating normals, one with the 
 			// smoothing group information and one does not.
 			if(model.smoothingGroup.empty())
-				computeNormal(vertex, normal, index, vertexCount, indexCount);
+				computeNormal(vertex, normal, index, uint16_t(vertexCount), indexCount);
 			else
-				computeNormal(vertex, normal, index, &(model.smoothingGroup[0]), vertexCount, indexCount);
+				computeNormal(vertex, normal, index, &(model.smoothingGroup[0]), uint16_t(vertexCount), indexCount);
 		}
 
 		meshBuilder->releaseBufferPointer(index);
