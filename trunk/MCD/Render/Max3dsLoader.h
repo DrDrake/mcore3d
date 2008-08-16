@@ -1,6 +1,7 @@
 #ifndef __MCD_RENDER_MAX3DSLOADERLOADER__
 #define __MCD_RENDER_MAX3DSLOADERLOADER__
 
+#include "Color.h"
 #include "MeshBuilder.h"
 #include "../Core/System/IntrusivePtr.h"
 #include <list>
@@ -12,17 +13,6 @@ typedef IntrusivePtr<Texture> TexturePtr;
 
 class ResourceManager;
 
-struct MCD_RENDER_API Color
-{
-	Color() {}
-	Color(float c) : r(c), g(c), b(c) {}
-	Color& operator*=(float scale) {
-		r *= scale; g *= scale; b *= scale;
-		return *this;
-	}
-	float r, g, b;
-};
-
 class MCD_RENDER_API Material
 {
 public:
@@ -30,9 +20,7 @@ public:
 
 	void bind() const;
 
-	Color mAmbient;
-	Color mDiffuse;
-	Color mSpecular;
+	ColorRGBf mAmbient, mDiffuse, mSpecular;
 	uint8_t mShininess;
 	TexturePtr mTexture;
 };	// Material
@@ -70,7 +58,7 @@ public:
 	void commit(Model& model, MeshBuilder::StorageHint storageHint);
 
 protected:
-	void readColor(Color& color);
+	void readColor(ColorRGBf& color);
 
 	//! Read a 16 bit integer (why is call perc?).
 	int16_t readPercentageAsInt();

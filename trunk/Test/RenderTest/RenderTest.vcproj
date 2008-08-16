@@ -222,6 +222,10 @@
 			>
 		</File>
 		<File
+			RelativePath=".\Max3dsLoaderTest.cpp"
+			>
+		</File>
+		<File
 			RelativePath=".\MeshTest.cpp"
 			>
 		</File>

@@ -125,8 +125,7 @@ IResourceLoader::LoadingState JpegLoader::load(std::istream* is)
 	Mutex& mutex = mImpl->mMutex;
 	ScopeLock lock(mutex);
 
-	if(!is)
-		mLoadingState = Aborted;
+	mLoadingState = is ? NotLoaded : Aborted;
 
 	if(mLoadingState & Stopped)
 		return mLoadingState;

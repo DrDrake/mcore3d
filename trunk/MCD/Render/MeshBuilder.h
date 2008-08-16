@@ -5,6 +5,8 @@
 
 namespace MCD {
 
+class ColorRGB8;
+
 template<typename T> class Vec2;
 typedef Vec2<float> Vec2f;
 
@@ -13,17 +15,51 @@ typedef Vec3<float> Vec3f;
 
 /*!	Fill data to Mesh class.
 	The mesh builder have a similar concept with Opengl display list, where user supply
-	the vertex position, normal, texture coordinate etc as the current state of the builder.
+	the vertex position, color, normal, texture coordinate etc as the current state of the builder.
 	Once the state is setup correctly, vertices and index data can be added and they are
 	stored inside an internal buffer. With the vertex and index data buffer, you can commit
-	those data to the mesh you want.
+	those data as many meshes as you want.
 
 	\sa http://miloyip.seezone.net/?p=34#extended
 
+	Example that demonstrate how to construct a single triangle with color, vertex normal
+	and 2D texture coordinate information.
 	\code
 	MeshBuilder builder;
-	builder.begin();
-	builder.end();
+	builder.enable(Mesh::Position | Mesh::Color | Mesh::Normal | Mesh::TextureCoord0 | Mesh::Index);
+	builder.textureUnit(Mesh::TextureCoord0);	// Enable texture unit 0
+	builder.textureCoordSize(2);	// We use 2D texture
+
+	// A demonstration on how to reserve vertex and polygon for better performance
+	builder.reserveVertex(3);
+	builder.reserveTriangle(1);
+
+	// All 3 vertice have the same normal [0,0,1]
+	builder.normal(Vec3f(0, 0, 1));
+
+	// First vertex
+	builder.position(Vec3f(-1, 1, 1));
+	builder.color(ColorRGB8::red);
+	builder.textureCoord(Vec2f(0, 1));
+	uint16_t idx1 = builder.addVertex();
+
+	// Second vertex
+	builder.position(Vec3f(-1, -1, 1));
+	builder.color(ColorRGB8::green);
+	builder.textureCoord(Vec2f(0, 0));
+	uint16_t idx2 = builder.addVertex();
+
+	// Third vertex
+	builder.position(Vec3f(1, -1, 1));
+	builder.color(ColorRGB8::blue);
+	builder.textureCoord(Vec2f(1, 0));
+	uint16_t idx3 = builder.addVertex();
+
+	// Create a triangle using the 3 vertice
+	builder.addTriangle(idx1, idx2, idx3);
+
+	// Commit the data to a mesh
+	builder.commit(mesh, MeshBuilder::Static);
 	\endcode
  */
 class MCD_RENDER_API MeshBuilder :  Noncopyable
@@ -55,13 +91,15 @@ public:
 	//!	Resurve index buffer space for faster triangle insertion.
 	void reserveTriangle(size_t count);
 
-	//!
+	//!	Set the current position state.
 	void position(const Vec3f& vertex);
 
-//	void color(const Color3& color);
-//	void color(const Color4& color);
+	/*!	Set the current color state.
+		\note For vertex color, a 24 bit color should be sufficient.
+	 */
+	void color(const ColorRGB8& color);
 
-	//!
+	//!	Set the current normal state.
 	void normal(const Vec3f& normal);
 
 	//! Set the current texture unit.
@@ -69,16 +107,23 @@ public:
 
 	/*!	Set the number of components for the current texture unit.
 		\param size Number of components (can be 2 or 3) for the speific texture unit.
+		\sa textureCoord()
 		\note
 			Assertion failure for re-setting the size with the same textureUnit.
 			You should call clear() before attempt to change the size.
 	 */
 	void textureCoordSize(size_t size);
 
-	//!
+	/*!	Set the current texture coordinate state of the current texture unit.
+		\note Must have textureCoordSize(2) invoked prior to this function call.
+		\sa textureCoordSize(), textureUnit()
+	 */
 	void textureCoord(const Vec2f& coord);
 
-	//!
+	/*!	Set the current texture coordinate state of the current texture unit.
+		\note Must have textureCoordSize(3) invoked prior to this function call.
+		\sa textureCoordSize(), textureUnit()
+	 */
 	void textureCoord(const Vec3f& coord);
 
 	/*!	Adds a new vertex using current vertex attributes (position, normal etc...).
@@ -122,8 +167,7 @@ public:
 		Stream	= 0x88E0,
 	};
 
-	/*!
-		\note Should \em NOT executed in between begin() and end().
+	/*!	Commit the stored buffer in the builder into a mesh.
 	 */
 	void commit(Mesh& mesh, StorageHint storageHint);
 

@@ -28,7 +28,7 @@ public:
 		TextureCoord5	= 6,
 		Position		= 1 << 3,		//!< Vertex position	(3 floats)
 		Index			= 1 << 4,		//!< Index				(1 uint16_t)
-		Color			= 1 << 5,		//!< Color				(3 or 4 uint8_t)
+		Color			= 1 << 5,		//!< Color				(3 uint8_t)
 		Normal			= 1 << 6,		//!< Normal				(3 floats)
 
 		MaxTypeEntry	= Normal << 1	//!< For debugging assertion check only

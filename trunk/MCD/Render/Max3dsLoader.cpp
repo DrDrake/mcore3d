@@ -51,6 +51,7 @@ namespace {
 
 // Named enums for the chunk id
 // Reference: http://www.flipcode.com/archives/Another_3DS_LoaderViewer_Class.shtml
+// Official 3Ds file SDK: http://usa.autodesk.com/adsk/servlet/item?siteID=123112&id=7481394
 enum ChunkId
 {
 	MAIN3DS							= 0x4D4D,
@@ -516,7 +517,7 @@ Max3dsLoader::~Max3dsLoader()
 	delete mStream;
 }
 
-void Max3dsLoader::readColor(Color& color)
+void Max3dsLoader::readColor(ColorRGBf& color)
 {
 	ChunkHeader header;
 

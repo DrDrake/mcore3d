@@ -1,5 +1,6 @@
 #include "Pch.h"
 #include "MeshBuilder.h"
+#include "Color.h"
 #include "../Core/Math/Vec2.h"
 #include "../Core/Math/Vec3.h"
 #include "../Core/System/Log.h"
@@ -20,6 +21,7 @@ class MeshBuilder::BufferImpl
 {
 public:
 	Vec3f mPosition;
+	ColorRGB8 mColor;
 	Vec3f mNormal;
 
 	//! The current active texture unit
@@ -30,6 +32,7 @@ public:
 	Array<Array<float,3>, Mesh::cMaxTextureCoordCount + 1> mTextureCoord;
 
 	std::vector<Vec3f> mPositions;
+	std::vector<ColorRGB8> mColors;
 	std::vector<Vec3f> mNormals;
 	std::vector<uint16_t> mIndexes;
 	// Index 0 is reserved, not used.
@@ -46,6 +49,7 @@ public:
 		mTextureCoordSize.assign(0);
 
 		mPositions.clear();
+		mColors.clear();
 		mNormals.clear();
 		mIndexes.clear();
 
@@ -95,6 +99,13 @@ public:
 			if(count)
 				*count = mPositions.size();
 			mAcquiredPointers.push(&mPositions[0]);
+			break;
+		case Mesh::Color:
+			if(mColors.empty())
+				return nullptr;
+			if(count)
+				*count = mColors.size();
+			mAcquiredPointers.push(&mColors[0]);
 			break;
 		case Mesh::Normal:
 			if(mNormals.empty())
@@ -197,6 +208,12 @@ void MeshBuilder::enable(uint format)
 		mFormat |= Mesh::Position;
 	}
 
+	if(format & Mesh::Color) {
+		mFormat |= Mesh::Color;
+		ColorRGB8 defualtColor = {255, 255, 255};
+		mBuffer.mColors.resize(mBuffer.mPositions.size(), defualtColor);
+	}
+
 	if((format & Mesh::Normal) && !(mFormat & Mesh::Normal)) {
 		mFormat |= Mesh::Normal;
 		mBuffer.mNormals.resize(mBuffer.mPositions.size(), Vec3f::c001);
@@ -230,6 +247,9 @@ void MeshBuilder::reserveVertex(size_t count)
 	MCD_ASSERT(mFormat & Mesh::Position);
 	mBuffer.mPositions.reserve(count);
 
+	if(mFormat & Mesh::Color)
+		mBuffer.mColors.reserve(count);
+
 	if(mFormat & Mesh::Normal)
 		mBuffer.mNormals.reserve(count);
 
@@ -251,6 +271,12 @@ void MeshBuilder::position(const Vec3f& position)
 {
 	MCD_ASSERT(mFormat & Mesh::Position);
 	mBuffer.mPosition = position;
+}
+
+void MeshBuilder::color(const ColorRGB8& color)
+{
+	MCD_ASSERT(mFormat & Mesh::Color);
+	mBuffer.mColor = color;
 }
 
 void MeshBuilder::normal(const Vec3f& normal)
@@ -293,6 +319,9 @@ uint16_t MeshBuilder::addVertex()
 	}
 
 	mBuffer.mPositions.push_back(mBuffer.mPosition);
+
+	if(mFormat & Mesh::Color)
+		mBuffer.mColors.push_back(mBuffer.mColor);
 
 	if(mFormat & Mesh::Normal)
 		mBuffer.mNormals.push_back(mBuffer.mNormal);
@@ -346,7 +375,8 @@ void MeshBuilder::commit(Mesh& mesh, StorageHint storageHint)
 
 	Accessor::format(mesh) = mFormat;
 
-	MCD_ASSUME(mFormat & Mesh::Position);
+	MCD_ASSUME("Must have Position as the format" && mFormat & Mesh::Position);
+
 	if(mFormat & Mesh::Position) {
 		size_t count = mBuffer.mPositions.size();
 		uint* handle = &Accessor::handle(mesh, Mesh::Position);
@@ -358,6 +388,18 @@ void MeshBuilder::commit(Mesh& mesh, StorageHint storageHint)
 			count * sizeof(Vec3f),
 			&mBuffer.mPositions[0], storageHint);
 		Accessor::vertexCount(mesh) = count;
+	}
+
+	if(mFormat & Mesh::Color) {
+		size_t count = mBuffer.mColors.size();
+		uint* handle = &Accessor::handle(mesh, Mesh::Color);
+		if(!*handle)
+			glGenBuffers(1, handle);
+		glBindBuffer(GL_ARRAY_BUFFER, *handle);
+		glBufferData(
+			GL_ARRAY_BUFFER,
+			count * sizeof(uint8_t) * 3,	// sizeof(ColorRGB8 may > sizeof(uint8_t) * 3
+			&mBuffer.mColors[0], storageHint);
 	}
 
 	if(mFormat & Mesh::Normal) {

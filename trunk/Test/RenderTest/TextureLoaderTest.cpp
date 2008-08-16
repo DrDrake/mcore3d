@@ -70,7 +70,7 @@ TEST(SynPng_TextureLoaderTest)
 		loader->commit(texture);
 
 		// Calling load with a null stream will do nothing
-		CHECK_EQUAL(IResourceLoader::NotLoaded, loader->load(nullptr));
+		CHECK_EQUAL(IResourceLoader::Aborted, loader->load(nullptr));
 
 		while(!(loader->load(is.get()) & IResourceLoader::Stopped));
 
@@ -198,7 +198,8 @@ protected:
 		while(thread.keepRun()) {
 			if(mLoader.load(&mIStream) & IResourceLoader::Stopped)
 				return;
-//			mSleep(100);
+			// Making some delay
+			mSleep(100);
 		}
 	}
 
@@ -278,8 +279,6 @@ public:
 			std::cout << "Commited\n";
 		}
 
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 		texture.bind();
 
 		glTranslatef(0, 0, -2);
