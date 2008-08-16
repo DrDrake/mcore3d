@@ -15,7 +15,7 @@
 class BasicGlWindow : public MCD::GlWindow
 {
 public:
-	BasicGlWindow(const wchar_t* options)
+	BasicGlWindow(const wchar_t* options = L"width=640;height=480")
 		:
 		mIsClosing(false),
 		mFieldOfView(60.0f),
@@ -33,6 +33,24 @@ public:
 		glEnable(GL_RESCALE_NORMAL);
 		glEnable(GL_TEXTURE_2D);
 		glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
+
+		// Enable color material
+		glColorMaterial(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE);	
+		glEnable(GL_COLOR_MATERIAL);
+
+		// Set up and enable light 0
+		glEnable(GL_LIGHTING);
+		glEnable(GL_LIGHT0);
+		GLfloat ambientLight[] = { 0.3f, 0.3f, 0.3f, 1.0f };
+		GLfloat diffuseLight[] = { 0.7f, 0.7f, 0.7f, 1.0f };
+		GLfloat specular[] = { 1.0f, 1.0f, 1.0f, 1.0f };
+
+		glLightfv(GL_LIGHT0, GL_AMBIENT, ambientLight);
+		glLightfv(GL_LIGHT0, GL_DIFFUSE, diffuseLight);
+		glLightfv(GL_LIGHT0, GL_SPECULAR, specular);
+
+		GLfloat lightPos[] = { -50.f, 0.0f, 40.0f, 1.0f };
+		glLightfv(GL_LIGHT0, GL_POSITION, lightPos);
 	}
 
 	void mainLoop()

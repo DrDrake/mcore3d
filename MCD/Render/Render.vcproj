@@ -212,6 +212,10 @@
 			Filter="h"
 			>
 			<File
+				RelativePath=".\Color.h"
+				>
+			</File>
+			<File
 				RelativePath=".\DdsLoader.h"
 				>
 			</File>
@@ -256,6 +260,10 @@
 			Name="Source Files"
 			Filter="cpp;"
 			>
+			<File
+				RelativePath=".\Color.cpp"
+				>
+			</File>
 			<File
 				RelativePath=".\DdsLoader.cpp"
 				>

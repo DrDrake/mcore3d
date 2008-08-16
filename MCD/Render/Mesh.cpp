@@ -28,6 +28,7 @@ Mesh::Mesh(const Path& fileId)
 	mHandles.assign(0);
 	mComponentCount.assign(0);
 	mComponentCount[cDataType2Index[Position]] = 3;
+	mComponentCount[cDataType2Index[Color]] = 3;
 	mComponentCount[cDataType2Index[Index]] = 1;
 	mComponentCount[cDataType2Index[Normal]] = 3;
 	mFormat = Position;	// Every mesh at least have the position data
@@ -73,6 +74,7 @@ void Mesh::bind(DataType dataType)
 		break;
 
 	case Color:
+		// For vertex color, we only support unsiged byte
 		glColorPointer(componentCount(dataType), GL_UNSIGNED_BYTE, 0, nullptr);
 		break;
 
@@ -81,7 +83,7 @@ void Mesh::bind(DataType dataType)
 		break;
 
 	case Index:
-//		glDrawElements(GL_TRIANGLES, nNumIndexes, GL_UNSIGNED_SHORT, 0);
+		// Do nothing here, we will call glDrawElements in Mesh::draw()
 		break;
 
 	case Mesh::TextureCoord:
@@ -116,6 +118,11 @@ void Mesh::draw()
 	glEnableClientState(GL_VERTEX_ARRAY);
 	bind(Mesh::Position);
 
+	if(mFormat & Mesh::Color) {
+		glEnableClientState(GL_COLOR_ARRAY);
+		bind(Mesh::Color);
+	}
+
 	if(mFormat & Mesh::Normal) {
 		glEnableClientState(GL_NORMAL_ARRAY);
 		bind(Mesh::Normal);
@@ -123,7 +130,7 @@ void Mesh::draw()
 
 	if(mFormat & Mesh::TextureCoord) {
 		glEnableClientState(GL_TEXTURE_COORD_ARRAY);
-		bind(TextureCoord);
+		bind(Mesh::TextureCoord);
 	}
 
 	bind(Mesh::Index);
