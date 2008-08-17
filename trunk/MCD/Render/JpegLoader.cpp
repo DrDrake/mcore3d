@@ -62,11 +62,15 @@ public:
 			ScopeLock lock(mMutex);
 			mDecoder = new jpeg_decoder(mStream = new Stream(is), true);
 
-			if(mDecoder->get_error_code() != JPGD_OKAY)
+			if(mDecoder->get_error_code() != JPGD_OKAY) {
+				Log::format(Log::Error, L"JpegLoader: load error, operation aborted");
 				return Aborted;
+			}
 
-			if(mDecoder->begin() != JPGD_OKAY)
+			if(mDecoder->begin() != JPGD_OKAY) {
+				Log::format(Log::Error, L"JpegLoader: load error, operation aborted");
 				return Aborted;
+			}
 
 			int c = mDecoder->get_num_components();
 			if(c == 1)

@@ -217,9 +217,11 @@ public:
 		mWidth = hdr.dwWidth;
 		mHeight = hdr.dwHeight;
 
-		// Assert that the size is power of 2
-		MCD_ASSUME(!(mWidth & (mWidth - 1)));
-		MCD_ASSUME(!(mHeight & (mHeight - 1)));
+		// The size of a dds image must be power of 2
+		if(mWidth & (mWidth - 1))
+			return -1;
+		if(mHeight & (mHeight - 1))
+			return -1;
 
 		mMipMapCount = (hdr.dwFlags & DDSD_MIPMAPCOUNT) ? hdr.dwMipMapCount : 1;
 

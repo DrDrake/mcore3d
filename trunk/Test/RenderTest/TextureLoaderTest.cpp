@@ -1,7 +1,8 @@
 #include "Pch.h"
 #include "../../MCD/Render/Texture.h"
-#include "../../MCD/Render/PngLoader.h"
+#include "../../MCD/Render/BitmapLoader.h"
 #include "../../MCD/Render/JpegLoader.h"
+#include "../../MCD/Render/PngLoader.h"
 
 #include "../../MCD/Core/System/CondVar.h"
 #include "../../MCD/Core/System/RawFileSystem.h"
@@ -15,7 +16,9 @@ static std::auto_ptr<IResourceLoader> createLoader(const wchar_t* file)
 	Path path(file);
 	Path::string_type ext = path.getExtension();
 
-	if(ext == L"png")
+	if(ext == L"bmp")
+		return std::auto_ptr<IResourceLoader>(new BitmapLoader);
+	else if(ext == L"png")
 		return std::auto_ptr<IResourceLoader>(new PngLoader);
 	else if(ext == L"jpg")
 		return std::auto_ptr<IResourceLoader>(new JpegLoader);
@@ -31,6 +34,7 @@ struct TestStruct
 };
 
 TestStruct gTestStruct[] = {
+	{ L"4x4.bmp",					4,   4   },
 	{ L"4x4.png",					4,   4   },
 	{ L"4x4.jpg",					4,   4   },
 	{ L"Gray512x512.jpg",			512, 512 },

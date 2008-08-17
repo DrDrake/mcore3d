@@ -13,8 +13,8 @@
 	/>
 	<Tool
 		Name="VCLinkerTool"
-		OutputFile="$(OutDir)/MCD$(ProjectName).dll"
+		OutputFile="$(OutDir)/MCD$(ProjectName)a.dll"
 		SubSystem="1"
-		ImportLibrary="../../Lib/MCD$(ProjectName).lib"
+		ImportLibrary="../../Lib/MCD$(ProjectName)a.lib"
 	/>
 </VisualStudioPropertySheet>
