@@ -212,6 +212,10 @@
 			Filter="h"
 			>
 			<File
+				RelativePath=".\BitmapLoader.h"
+				>
+			</File>
+			<File
 				RelativePath=".\Color.h"
 				>
 			</File>
@@ -260,6 +264,10 @@
 			Name="Source Files"
 			Filter="cpp;"
 			>
+			<File
+				RelativePath=".\BitmapLoader.cpp"
+				>
+			</File>
 			<File
 				RelativePath=".\Color.cpp"
 				>
