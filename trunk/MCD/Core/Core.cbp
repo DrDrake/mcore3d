@@ -62,6 +62,7 @@
 			<Add library="Xext" />
 			<Add directory="\usr\X11R6\lib" />
 		</Linker>
+		<Unit filename="Math\BasicFunction.h" />
 		<Unit filename="Math\Magnitude.h" />
 		<Unit filename="Math\Mat33.h" />
 		<Unit filename="Math\Mat33.inl" />
@@ -103,6 +104,7 @@
 		<Unit filename="System\ResourceLoader.h" />
 		<Unit filename="System\ResourceManager.cpp" />
 		<Unit filename="System\ResourceManager.h" />
+		<Unit filename="System\SharedPtr.h" />
 		<Unit filename="System\StaticAssert.h" />
 		<Unit filename="System\StrUtility.cpp" />
 		<Unit filename="System\StrUtility.h" />

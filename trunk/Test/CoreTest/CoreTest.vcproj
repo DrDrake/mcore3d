@@ -245,6 +245,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\System\SharedPtrTest.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\System\StrUtilityTest.cpp"
 				>
 			</File>

@@ -17,7 +17,7 @@ class BitmapLoader::LoaderImpl : public TextureLoaderBase::LoaderBaseImpl
 	// File information header, can be found in Windows.h, but defining inplace
 	// can help us to get away from header junk.
 	#pragma pack(push, 2)
-	typedef struct tagBITMAPFILEHEADER { 
+	typedef struct tagBITMAPFILEHEADER {
 		uint16_t bfType;
 		uint32_t bfSize;
 		uint16_t bfReserved1;
@@ -58,15 +58,15 @@ public:
 	int load(std::istream& is)
 	{
 		// Windows.h gives us these types to work with the Bitmap files
-		BITMAPFILEHEADER fileHeader; 
+		BITMAPFILEHEADER fileHeader;
 		BITMAPINFOHEADER infoHeader;
 
 		// Read the file header
 		is.read((char*)&fileHeader, sizeof(fileHeader));
 
-		// Check against the magic 2 bytes (assuming little endian).
-		// The value of 'MB' in integer is 19778
-		if(fileHeader.bfType !='MB') {
+		// Check against the magic 2 bytes.
+		// The value of 'BM' in integer is 19778 (assuming little endian)
+		if(fileHeader.bfType != 19778u) {
 			Log::format(Log::Error, L"BitmapLoader: Invalid bitmap header, operation aborted");
 			return -1;
 		}

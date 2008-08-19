@@ -80,12 +80,13 @@ TEST(Sphere_MeshBuilderTest)
 
 		void processResourceLoadingEvents()
 		{
-			while(true) {ResourceManager::Event e = mResourceManager->popEvent();
-			if(e.loader) {
-				// Allow one resource to commit for each frame
-				e.loader->commit(*e.resource);
-			} else
-				break;
+			while(true) {
+				ResourceManager::Event e = mResourceManager->popEvent();
+				if(e.loader) {
+					// Allow one resource to commit for each frame
+					e.loader->commit(*e.resource);
+				} else
+					break;
 			}
 		}
 

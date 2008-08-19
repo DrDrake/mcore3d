@@ -135,6 +135,8 @@ TEST(ChamferBox_MeshBuilderTest)
 
 	TestWindow window;
 	window.mainLoop();
+
+	CHECK(true);
 }
 
 TEST(Quad_MeshBuilderTest)
