@@ -67,7 +67,7 @@ protected:
 	}
 
 private:
-	const IntrusivePtr<WeakPtrFlag>& GetValidityFlag() const {
+	const IntrusivePtr<WeakPtrFlag>& validityFlag() const {
 		return mValidityFlag;
 	}
 
@@ -120,7 +120,7 @@ private:
 
 	Usage:
 	In order for a class to be eligible as a weak pointer target, it must provide access to
-	an object validity flag via the	GetValidityFlag method returning IntrusivePtr<WeakPtrFlag>.
+	an object validity flag via the	validityFlag method returning IntrusivePtr<WeakPtrFlag>.
 	This flag must be initialized true and remain true until the object is destroyed, at which
 	point it must be set to false. It is also very important that every object have its own flag,
 	distinct from every other object's, including copies made via a copy constructor or
@@ -129,7 +129,7 @@ private:
 	To make adding this support as easy as possible, the WeakPtrTarget is provided that client
 	classes can use by public inheritance. Note that this is just one possible implementation of the
 	requirements, provided for convenience. The WeakPtr template does not require that the target
-	class derive from WeakPtrTarget, only that it has a compatible method called GetValidityFlag.
+	class derive from WeakPtrTarget, only that it has a compatible method called validityFlag.
 
 	Thread safety:
 	The constructors and assignment operators have to initialize 2 variables (the pointer and the flag),
@@ -160,14 +160,14 @@ public:
 	//! Raw pointer constructor (handles null pointer).
 	MCD_IMPLICIT WeakPtr(sal_in_opt T* ptr = nullptr) :
 		mPtr(ptr),
-		mValidityFlag(ptr == nullptr ? new WeakPtrFlag(false) : ptr->GetValidityFlag())
+		mValidityFlag(ptr == nullptr ? new WeakPtrFlag(false) : ptr->validityFlag())
 	{
 	}
 
 	//! Object reference constructor (guaranteed non-null, faster).
 	explicit WeakPtr(T& obj) :
 		mPtr(&obj),
-		mValidityFlag(obj.GetValidityFlag())
+		mValidityFlag(obj.validityFlag())
 	{
 	}
 

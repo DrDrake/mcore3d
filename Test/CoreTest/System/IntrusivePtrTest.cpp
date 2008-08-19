@@ -107,7 +107,7 @@ typedef IntrusivePtr<Derived> DerivedPtr;
 
 }	// namespace
 
-TEST(Create_IntrusivePtrTest)
+TEST(Basic_IntrusivePtrTest)
 {
 	CHECK_EQUAL(0u, Object::getObjectCount());
 	{
@@ -121,6 +121,36 @@ TEST(Create_IntrusivePtrTest)
 	}
 
 	CHECK_EQUAL(0u, Object::getObjectCount());
+
+	{	// Test for equality
+		ObjectPtr a(new Object);
+		CHECK(a);
+		CHECK(!a == false);
+
+		ObjectPtr b(a);
+		CHECK(a == b);
+		CHECK(a != b == false);
+
+		ObjectPtr c(new Object);
+		CHECK(a != c);
+		CHECK(a == c == false);
+
+		a = nullptr;
+		CHECK(!a);
+		CHECK(a == false);
+	}
+
+	{	// Swap
+		ObjectPtr a(new Object);
+		ObjectPtr b(new Object);
+
+		Object* rawa = a.get();
+		Object* rawb = b.get();
+
+		swap(a, b);
+		CHECK_EQUAL(rawb, a.get());
+		CHECK_EQUAL(rawa, b.get());
+	}
 }
 
 TEST(UpDownCast_IntrusivePtrTest)

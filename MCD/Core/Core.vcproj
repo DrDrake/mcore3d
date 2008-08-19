@@ -303,6 +303,10 @@
 					>
 				</File>
 				<File
+					RelativePath=".\System\SharedPtr.h"
+					>
+				</File>
+				<File
 					RelativePath=".\System\StaticAssert.h"
 					>
 				</File>

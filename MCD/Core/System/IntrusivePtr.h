@@ -96,7 +96,8 @@ public:
 		return mPtr == nullptr;
 	}
 
-	void swap(IntrusivePtr& rhs) {
+	void swap(IntrusivePtr& rhs)
+	{
 		T* tmp = mPtr;
 		mPtr = rhs.mPtr;
 		rhs.mPtr = tmp;

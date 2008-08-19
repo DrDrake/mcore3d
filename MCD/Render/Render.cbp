@@ -92,6 +92,10 @@
 			<Add library="png" />
 			<Add directory="\usr\X11R6\lib" />
 		</Linker>
+		<Unit filename="BitmapLoader.cpp" />
+		<Unit filename="BitmapLoader.h" />
+		<Unit filename="Color.cpp" />
+		<Unit filename="Color.h" />
 		<Unit filename="DdsLoader.cpp" />
 		<Unit filename="DdsLoader.h" />
 		<Unit filename="GlWindow.X11.inc" />

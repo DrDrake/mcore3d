@@ -28,7 +28,7 @@ Mesh::Mesh(const Path& fileId)
 	mHandles.assign(0);
 	mComponentCount.assign(0);
 	mComponentCount[cDataType2Index[Position]] = 3;
-	mComponentCount[cDataType2Index[Color]] = 3;
+	mComponentCount[cDataType2Index[Color]] = 3;	
 	mComponentCount[cDataType2Index[Index]] = 1;
 	mComponentCount[cDataType2Index[Normal]] = 3;
 	mFormat = Position;	// Every mesh at least have the position data
