@@ -131,31 +131,27 @@ TEST(Basic_ThreadTest)
 
 #include "../../../MCD/Core/System/CondVar.h"
 
-namespace {
-
-// The thread function will try to destroy the thread itself
-class DeleteThreadRunnable : public MCD::Thread::IRunnable
-{
-public:
-	DeleteThreadRunnable() : mFinished(false) {}
-
-protected:
-	sal_override void run(Thread& thread) throw()
-	{
-		delete &thread;
-		mFinished = true;
-		mCondVar.signal();
-	}
-
-public:
-	AtomicValue<bool> mFinished;
-	CondVar mCondVar;
-};	// DeleteThreadRunnable
-
-}	// namespace
-
 TEST(DeleteThread_ThreadTest)
 {
+	// The thread function will try to destroy the thread itself
+	class DeleteThreadRunnable : public MCD::Thread::IRunnable
+	{
+	public:
+		DeleteThreadRunnable() : mFinished(false) {}
+
+	protected:
+		sal_override void run(Thread& thread) throw()
+		{
+			delete &thread;
+			mFinished = true;
+			mCondVar.signal();
+		}
+
+	public:
+		AtomicValue<bool> mFinished;
+		CondVar mCondVar;
+	};	// DeleteThreadRunnable
+
 	DeleteThreadRunnable runnable;
 
 	// Never try to reference the thread anymore since it may be deleted at any time
@@ -170,38 +166,34 @@ TEST(DeleteThread_ThreadTest)
 	CHECK(true);
 }
 
-namespace {
-
-// Wait for the thread function itself inside the thread function
-class WaitFailRunnable : public MCD::Thread::IRunnable
-{
-public:
-	WaitFailRunnable() : mIsValid(false) {}
-
-protected:
-	sal_override void run(Thread& thread) throw()
-	{
-		if(thread.isWaitable()) {
-			mIsValid = false;
-			return;
-		}
-
-		try {
-			thread.wait();
-			mIsValid = false;
-		} catch(...) {
-			mIsValid = true;
-		}
-	}
-
-public:
-	bool mIsValid;
-};	// WaitFailRunnable
-
-}	// namespace
-
 TEST(Negative_ThreadTest)
 {
+	// Wait for the thread function itself inside the thread function
+	class WaitFailRunnable : public MCD::Thread::IRunnable
+	{
+	public:
+		WaitFailRunnable() : mIsValid(false) {}
+
+	protected:
+		sal_override void run(Thread& thread) throw()
+		{
+			if(thread.isWaitable()) {
+				mIsValid = false;
+				return;
+			}
+
+			try {
+				thread.wait();
+				mIsValid = false;
+			} catch(...) {
+				mIsValid = true;
+			}
+		}
+
+	public:
+		bool mIsValid;
+	};	// WaitFailRunnable
+
 	{	// Without start
 		Thread thread;
 		CHECK_THROW(thread.wait(), std::logic_error);
@@ -234,13 +226,30 @@ TEST(Negative_ThreadTest)
 
 TEST(TryLock_ThreadTest)
 {
-	// On windows, Mutex is recursive
-#ifndef MCD_VC
+	class LockMutexRunnable : public MCD::Thread::IRunnable
+	{
+	public:
+		LockMutexRunnable(Mutex& mutexToLock)
+			: mMutexToLock(mutexToLock) {}
+
+	protected:
+		sal_override void run(Thread& thread) throw() {
+			ScopeLock lock(mMutexToLock);
+			while(thread.keepRun()) {}
+		}
+
+	public:
+		Mutex& mMutexToLock;
+	};	// MyRunnable
+
 	{	Mutex mutex;
-		ScopeLock lock(mutex);
-		CHECK(!mutex.tryLock());
+		LockMutexRunnable runnable(mutex);
+		Thread thread(runnable, false);
+		// Loop until tryLock fail
+		while(mutex.tryLock())
+			mutex.unlock();
+		CHECK(true);
 	}
-#endif
 
 	{	Mutex mutex;
 		ScopeUnlockOnly unlock(mutex);
