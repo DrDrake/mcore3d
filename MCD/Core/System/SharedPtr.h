@@ -77,10 +77,10 @@ public:
 	{
 	}
 
-	MCD_IMPLICIT SharedPtr(sal_in Proxy* proxy, bool addRef=true)
+/*	MCD_IMPLICIT SharedPtr(sal_in Proxy* proxy, bool addRef=true)
 		: Super(proxy, addRef), mPtr(proxy->mPtr)
 	{
-	}
+	}*/
 
 	template<typename U>
 	SharedPtr(const SharedPtr<U>& rhs)

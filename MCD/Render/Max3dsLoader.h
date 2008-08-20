@@ -72,10 +72,16 @@ private:
 protected:
 	ResourceManager* mResourceManager;
 
-	struct ModelInfo {
-		MeshBuilder* meshBuilder;
+	//! Represent which face the material is assigned to.
+	struct MultiSubObject {
 		Material* material;
-		uint16_t faceCount;
+		std::vector<uint16_t> mFaceIndex;	//! Index to the index buffer
+	};
+
+	struct ModelInfo {
+		MeshBuilder* meshBuilder;	//! Contains vertex buffer only
+		std::vector<uint16_t> index;//! The triangel index
+		std::list<MultiSubObject> multiSubObject;
 		std::vector<uint32_t> smoothingGroup;
 	};
 

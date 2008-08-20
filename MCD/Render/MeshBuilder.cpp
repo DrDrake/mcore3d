@@ -162,13 +162,16 @@ class Mesh::PrivateAccessor<MeshBuilder>
 {
 public:
 	static uint& handle(Mesh& mesh, Mesh::DataType dataType) {
-		uint* p = mesh.getHandlePtr(dataType);
-		MCD_ASSUME(p != nullptr);
-		return *p;
+		Mesh::HandlePtr ptr = mesh.handlePtr(dataType);
+		MCD_ASSERT(ptr != nullptr);
+		// We should not modify the value of the handle if it's already shared.
+		// Note that the variable 'ptr' itself already consume 1 reference count
+		MCD_ASSERT(ptr.referenceCount() == 2);
+		return *ptr;
 	}
 
 	static uint8_t& componentCount(Mesh& mesh, Mesh::DataType dataType) {
-		uint8_t* p = mesh.getComponentCountPtr(dataType);
+		uint8_t* p = mesh.componentCountPtr(dataType);
 		MCD_ASSUME(p != nullptr);
 		return *p;
 	}
@@ -343,9 +346,14 @@ bool MeshBuilder::addTriangle(uint16_t idx1, uint16_t idx2, uint16_t idx3)
 	MCD_ASSERT(mBuffer.noPointerAcquired());
 	MCD_ASSERT(mFormat & Mesh::Index);
 
-	uint16_t max = uint16_t(mBuffer.mPositions.size());
-	if(idx1 >= max || idx2 >= max || idx3 >= max)
-		return false;
+	// Check if the 3 indexes are within bound of vertex buffer
+	// Only do this checking if the builder is represonsible for the vertex buffer,
+	// since the MeshBuilder may only use to build index buffer only.
+	if(mFormat & Mesh::Position) {
+		uint16_t max = uint16_t(mBuffer.mPositions.size());
+		if(idx1 >= max || idx2 >= max || idx3 >= max)
+			return false;
+	}
 
 	mBuffer.mIndexes.push_back(idx1);
 	mBuffer.mIndexes.push_back(idx2);
@@ -364,20 +372,28 @@ bool MeshBuilder::addQuad(uint16_t idx1, uint16_t idx2, uint16_t idx3, uint16_t 
 
 void MeshBuilder::commit(Mesh& mesh, StorageHint storageHint)
 {
+	commit(mesh, mFormat, storageHint);
+}
+
+size_t min(size_t v1, size_t v2)
+{
+	return v1 > v2 ? v2 : v1;
+}
+
+void MeshBuilder::commit(Mesh& mesh, uint format, StorageHint storageHint)
+{
 	MCD_ASSERT(	storageHint == GL_STATIC_DRAW ||
 				storageHint == GL_DYNAMIC_DRAW ||
 				storageHint == GL_STREAM_DRAW);
 
-	if(!glBufferData || mBuffer.mPositions.size() == 0)
+	if(!glBufferData)
 		return;
 
 	typedef Mesh::PrivateAccessor<MeshBuilder> Accessor;
 
-	Accessor::format(mesh) = mFormat;
+	Accessor::format(mesh) |= format;
 
-	MCD_ASSUME("Must have Position as the format" && mFormat & Mesh::Position);
-
-	if(mFormat & Mesh::Position) {
+	if(format & mFormat & Mesh::Position && !mBuffer.mPositions.empty()) {
 		size_t count = mBuffer.mPositions.size();
 		uint* handle = &Accessor::handle(mesh, Mesh::Position);
 		if(!*handle)
@@ -390,7 +406,7 @@ void MeshBuilder::commit(Mesh& mesh, StorageHint storageHint)
 		Accessor::vertexCount(mesh) = count;
 	}
 
-	if(mFormat & Mesh::Color) {
+	if(format & mFormat & Mesh::Color && !mBuffer.mColors.empty()) {
 		size_t count = mBuffer.mColors.size();
 		uint* handle = &Accessor::handle(mesh, Mesh::Color);
 		if(!*handle)
@@ -402,7 +418,7 @@ void MeshBuilder::commit(Mesh& mesh, StorageHint storageHint)
 			&mBuffer.mColors[0], storageHint);
 	}
 
-	if(mFormat & Mesh::Normal) {
+	if(format & mFormat & Mesh::Normal && !mBuffer.mNormals.empty()) {
 		size_t count = mBuffer.mNormals.size();
 		uint* handle = &Accessor::handle(mesh, Mesh::Normal);
 		if(!*handle)
@@ -414,7 +430,7 @@ void MeshBuilder::commit(Mesh& mesh, StorageHint storageHint)
 			&mBuffer.mNormals[0], storageHint);
 	}
 
-	if(mFormat & Mesh::Index) {
+	if(format & mFormat & Mesh::Index && !mBuffer.mIndexes.empty()) {
 		size_t count = mBuffer.mIndexes.size();
 		uint* handle = &Accessor::handle(mesh, Mesh::Index);
 		if(!*handle)
@@ -428,7 +444,8 @@ void MeshBuilder::commit(Mesh& mesh, StorageHint storageHint)
 	}
 
 	// Loop for all enabled texture unit
-	for(size_t f=Mesh::TextureCoord0; f <= (mFormat & Mesh::TextureCoord); ++f) {
+	size_t textureCount = min(format & Mesh::TextureCoord, mBuffer.mTextureCoords.size());
+	for(size_t f=Mesh::TextureCoord0; f <= textureCount; ++f) {
 		size_t floatCount = mBuffer.mTextureCoords[f].size();
 		uint* handle = &Accessor::handle(mesh, Mesh::DataType(f));
 		// Set the component count of the corresponding texture unit

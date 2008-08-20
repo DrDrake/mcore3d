@@ -34,10 +34,6 @@ public:
 		glEnable(GL_TEXTURE_2D);
 		glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
 
-		// Enable color material
-		glColorMaterial(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE);	
-		glEnable(GL_COLOR_MATERIAL);
-
 		// Set up and enable light 0
 		glEnable(GL_LIGHTING);
 		glEnable(GL_LIGHT0);
