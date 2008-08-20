@@ -167,9 +167,11 @@ public:
 		Stream	= 0x88E0,
 	};
 
-	/*!	Commit the stored buffer in the builder into a mesh.
-	 */
+	//!	Commit the stored buffer in the builder into a mesh.
 	void commit(Mesh& mesh, StorageHint storageHint);
+
+	//!	Commit only specific type(s) of buffer to the mesh.
+	void commit(Mesh& mesh, uint format, StorageHint storageHint);
 
 	/*!	Acquire the data pointer from the internal buffer.
 		\param count Returns the number of elements.

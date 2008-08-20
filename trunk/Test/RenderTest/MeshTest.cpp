@@ -199,7 +199,49 @@ TEST(Quad_MeshBuilderTest)
 	};
 
 	TestWindow window;
+
+	// Enable color material
+	glColorMaterial(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE);	
+	glEnable(GL_COLOR_MATERIAL);
+
 	window.mainLoop();
 
+	glDisable(GL_COLOR_MATERIAL);
+
 	CHECK(true);
+}
+
+// Multiple mesh object are sharing the same vertex buffer
+TEST(SharedVertex_MeshBuilderTest)
+{
+	BasicGlWindow window(L"show=0, width=1, height=1");
+	MeshPtr mesh1 = new Mesh(L"");
+	MeshPtr mesh2 = new Mesh(L"");
+	MeshBuilder vertexBuilder, indexBuilder;
+
+	// Build the vertex
+	vertexBuilder.enable(Mesh::Position);
+	vertexBuilder.position(Vec3f(-1, 1, 1));
+	vertexBuilder.addVertex();
+	vertexBuilder.position(Vec3f(-1, -1, 1));
+	vertexBuilder.addVertex();
+	vertexBuilder.position(Vec3f(1, -1, 1));
+	vertexBuilder.addVertex();
+	vertexBuilder.position(Vec3f(1, 1, 1));
+	vertexBuilder.addVertex();
+	vertexBuilder.commit(*mesh1, MeshBuilder::Static);
+
+	// Set mesh2 to share the same vertex buffer as mesh1
+	mesh2->setHandlePtr(Mesh::Position, mesh1->handlePtr(Mesh::Position));
+
+	// Index for mesh1
+	indexBuilder.enable(Mesh::Index);
+	indexBuilder.addTriangle(0, 1, 2);
+	indexBuilder.commit(*mesh1, Mesh::Index, MeshBuilder::Static);
+
+	// Index for mesh2
+	indexBuilder.clear();
+	indexBuilder.enable(Mesh::Index);
+	indexBuilder.addTriangle(2, 3, 0);
+	indexBuilder.commit(*mesh2, Mesh::Index, MeshBuilder::Static);
 }

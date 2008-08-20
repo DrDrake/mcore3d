@@ -5,6 +5,7 @@
 #include "../Core/System/Array.h"
 #include "../Core/System/NonCopyable.h"
 #include "../Core/System/Resource.h"
+#include "../Core/System/SharedPtr.h"
 #include <vector>
 
 namespace MCD {
@@ -39,6 +40,9 @@ public:
 
 	explicit Mesh(const Path& fileId);
 
+	//! Construct that take another mesh's buffers to share with.
+	Mesh(const Path& fileId, const Mesh& shareBuffer);
+
 	//! Test against the DataType enum using logical &
 	uint format() const {
 		return mFormat;
@@ -52,10 +56,26 @@ public:
 		return mIndexCount;
 	}
 
+	typedef SharedPtr<uint> HandlePtr;
+
 	/*!	Get the buffer object handle for the corresponding data type.
 		Returns 0 if the data type is not found in this mesh.
 	 */
 	uint handle(DataType dataType) const;
+
+	/*!	Get a shared pointer to the handle with the supplied data type.
+		Use this function to modify the handles.
+		Returns null if the data type is not found in this mesh.
+	 */
+	HandlePtr handlePtr(DataType dataType);
+
+	/*!	Set the handle pointer for the corresponding data type.
+		Most likely you will share the vertex buffer by various meshes, for example:
+		\code
+		mesh1->setHandlePtr(Mesh::Position, mesh2->handlePtr(Mesh::Position));
+		\endcode
+	 */
+	void setHandlePtr(DataType dataType, const HandlePtr& handlePtr);
 
 	//! Get the component count for the corresponding data type.
 	uint8_t componentCount(DataType dataType) const;
@@ -75,17 +95,11 @@ public:
 protected:
 	sal_override ~Mesh();
 
-	/*!	Get a pointer to the handle with the supplied data type.
-		Use this function to modify the handles.
-		Returns null if the data type is not found in this mesh.
-	 */
-	uint* getHandlePtr(DataType dataType);
-
 	/*!	Get a pointer to the component with the supplied data type.
 		Use this function to modify the component count for the various texture coordinates.
 		Returns null if the data type is not found in this mesh or it's not related to texture coordinate.
 	 */
-	uint8_t* getComponentCountPtr(DataType dataType);
+	uint8_t* componentCountPtr(DataType dataType);
 
 protected:
 	/*!	Handles to opengl buffer objects.
@@ -94,11 +108,15 @@ protected:
 		[2] for color
 		[3] for normal
 		[4-10] for texture coordinate[0-7]
+
+		\note
+			The array element should never be null, while it's pointee value
+			may have a zero value to indicate empty handle.
 	 */
-	Array<uint,4 + cMaxTextureCoordCount> mHandles;
+	Array<HandlePtr, 4 + cMaxTextureCoordCount> mHandles;
 
 	//!	Specifies the number of component for a particular DataType
-	Array<uint8_t,4 + cMaxTextureCoordCount> mComponentCount;
+	Array<uint8_t, 4 + cMaxTextureCoordCount> mComponentCount;
 
 	//! Union (using logical &) of different DataType
 	uint mFormat;

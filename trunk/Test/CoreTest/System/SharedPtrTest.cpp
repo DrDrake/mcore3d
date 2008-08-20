@@ -7,6 +7,13 @@ TEST(Basic_SharedPtrTest)
 {
 	typedef SharedPtr<int> Ptr;
 
+	{	Ptr a;
+		Ptr b(nullptr);
+
+		CHECK(a == nullptr);
+		CHECK(b == nullptr);
+	}
+
 	{	Ptr a(new int(123));
 		CHECK_EQUAL(1u, a.referenceCount());
 

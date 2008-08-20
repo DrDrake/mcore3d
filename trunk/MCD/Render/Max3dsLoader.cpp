@@ -280,7 +280,7 @@ Max3dsLoader::Max3dsLoader(std::istream& is_, ResourceManager* resourceManager)
 				readString(objectName);
 
 				currentMeshBuilder = new MeshBuilder;
-				ModelInfo modelInfo = { currentMeshBuilder, nullptr, 0 };
+				ModelInfo modelInfo = { currentMeshBuilder };
 				mModelInfo.push_back(modelInfo);
 				currentMeshBuilder->enable(Mesh::Position | Mesh::Normal);
 			}
@@ -332,28 +332,24 @@ Max3dsLoader::Max3dsLoader(std::istream& is_, ResourceManager* resourceManager)
 			//-------------------------------------------
 			case FACE_DESC:
 			{
-				is.read(l_qty);
+				uint16_t faceCount;
+				is.read(faceCount);
 				MCD_ASSERT(!mModelInfo.empty());
-				MCD_ASSERT(currentMeshBuilder == mModelInfo.back().meshBuilder);
-				MCD_ASSUME(currentMeshBuilder);
-				currentMeshBuilder->enable(Mesh::Index);
-				currentMeshBuilder->reserveTriangle(l_qty);
-				mModelInfo.back().faceCount = l_qty;
 
-				for(i=0; i<l_qty; ++i) {
-					uint16_t i1, i2, i3;
-					is.read(i1);
-					is.read(i2);
-					is.read(i3);
+				std::vector<uint16_t>& idx = mModelInfo.back().index;
+				idx.resize(faceCount * 3);	// Each triangle has 3 vertex
+
+				for(i=0; i<faceCount; ++i) {
+					// Read 3 indexes at once
+					is.read(&idx[i * 3], 3 * sizeof(uint16_t));
 					uint16_t faceFlags;	// Flag that stores some face information (currently not used)
 					is.read(faceFlags);
-					currentMeshBuilder->addTriangle(i1, i2, i3);
 				}
 			}
 				break;
 
 			//---------------- FACE_MAT -----------------
-			// Description: Which material the mesh belongs to
+			// Description: Which material the face belongs to
 			//-------------------------------------------
 			case FACE_MAT:
 			{
@@ -361,19 +357,34 @@ Max3dsLoader::Max3dsLoader(std::istream& is_, ResourceManager* resourceManager)
 				MCD_ASSERT(currentMeshBuilder == mModelInfo.back().meshBuilder);
 
 				std::wstring materialName;
-				size_t readCount = readString(materialName);
+				readString(materialName);
+
+				// Get the number of faces of the object concerned by this material
+				uint16_t faceCount;
+				is.read(faceCount);
+
+				if(faceCount == 0)
+					break;
+
+				{	// Insert a new MultiSubObject into the current mesh
+					MultiSubObject object = { nullptr };
+					mModelInfo.back().multiSubObject.push_back(object);
+				}
+
+				// Read the array which describle which faces in the mesh use this material
+				MultiSubObject& object = mModelInfo.back().multiSubObject.back();
+				object.mFaceIndex.resize(faceCount);
+				is.read(&object.mFaceIndex[0], faceCount * sizeof(uint16_t));
 
 				// Loop for all materials to find the one with the same material name
 				MCD_FOREACH(NamedMaterial* material, mMaterials) {
 					if(material->mName != materialName)
 						continue;
-					mModelInfo.back().material = material;
+					object.material = material;
 					break;
 				}
 
-				// Read past the rest of the chunk since we don't care about shared vertices
-				// You will notice we subtract the bytes already read in this chunk from the total length.
-				is.skip(header.length - 6 - readCount);
+				MCD_ASSERT(object.material != nullptr);
 			}
 				break;
 
@@ -382,7 +393,7 @@ Max3dsLoader::Max3dsLoader(std::istream& is_, ResourceManager* resourceManager)
 				MCD_ASSERT(!mModelInfo.empty());
 				MCD_ASSERT(currentMeshBuilder == mModelInfo.back().meshBuilder);
 				std::vector<uint32_t>& smoothingGroup = mModelInfo.back().smoothingGroup;
-				smoothingGroup.resize(mModelInfo.back().faceCount);
+				smoothingGroup.resize(mModelInfo.back().index.size() / 3);	// Count of index / 3 = numbers of face
 
 				is.read(&smoothingGroup[0], smoothingGroup.size() * sizeof(uint32_t));
 			}
@@ -488,12 +499,16 @@ Max3dsLoader::Max3dsLoader(std::istream& is_, ResourceManager* resourceManager)
 	// Calculate vertex normal for each mesh
 	MCD_FOREACH(const ModelInfo& model, mModelInfo) {
 		MeshBuilder* meshBuilder = model.meshBuilder;
-		size_t vertexCount, indexCount;
+		size_t vertexCount, indexCount = model.index.size();
+
+		if(indexCount == 0)
+			continue;
+
 		Vec3f* vertex = reinterpret_cast<Vec3f*>(meshBuilder->acquireBufferPointer(Mesh::Position, &vertexCount));
 		Vec3f* normal = reinterpret_cast<Vec3f*>(meshBuilder->acquireBufferPointer(Mesh::Normal));
-		uint16_t* index = reinterpret_cast<uint16_t*>(meshBuilder->acquireBufferPointer(Mesh::Index, &indexCount));
+		const uint16_t* index = &model.index[0];
 
-		if(vertex && normal && index) {
+		if(vertex && normal && indexCount > 0) {
 			// We have 2 different routines for calculating normals, one with the 
 			// smoothing group information and one does not.
 			if(model.smoothingGroup.empty())
@@ -502,7 +517,6 @@ Max3dsLoader::Max3dsLoader(std::istream& is_, ResourceManager* resourceManager)
 				computeNormal(vertex, normal, index, &(model.smoothingGroup[0]), uint16_t(vertexCount), indexCount);
 		}
 
-		meshBuilder->releaseBufferPointer(index);
 		meshBuilder->releaseBufferPointer(normal);
 		meshBuilder->releaseBufferPointer(vertex);
 	}
@@ -567,15 +581,41 @@ size_t Max3dsLoader::readString(std::wstring& str)
 void Max3dsLoader::commit(Model& model, MeshBuilder::StorageHint storageHint)
 {
 	model.mMeshes.clear();
-	MCD_FOREACH(const ModelInfo& i, mModelInfo) {
-		MeshBuilder* builder = i.meshBuilder;
-		MeshPtr mesh = new Mesh(L"");
-		Model::MeshAndMaterial meshMat;
-		meshMat.mesh = mesh;
-		if(i.material)
-			meshMat.material = *(i.material);
-		model.mMeshes.push_back(meshMat);
-		builder->commit(*mesh, storageHint);
+	MCD_FOREACH(const ModelInfo& modelInfo, mModelInfo) {
+		MeshBuilder* builder = modelInfo.meshBuilder;
+
+		// Commit the mesh with the vertex buffer first
+		MeshPtr meshWithoutIndex = new Mesh(L"tmp");
+		builder->commit(*meshWithoutIndex, storageHint);
+
+		MCD_FOREACH(const MultiSubObject& subObject, modelInfo.multiSubObject) {
+			// Share all the buffers in meshWithoutIndex into this mesh
+			// TODO: Add name to the mesh
+			MeshPtr mesh = new Mesh(L"", *meshWithoutIndex);
+
+			// Let mesh have it's own index buffer
+			mesh->setHandlePtr(Mesh::Index, Mesh::HandlePtr(new uint(0)));
+
+			// Setup the index buffer
+			MeshBuilder indexBuilder;
+			indexBuilder.enable(Mesh::Index);
+			size_t faceCount = subObject.mFaceIndex.size();
+			for(size_t i=0; i<faceCount; ++i) {
+				const size_t vertexIdx = subObject.mFaceIndex[i] * 3;	// From face index to vertex index
+				const uint16_t i1 = modelInfo.index[vertexIdx + 0];
+				const uint16_t i2 = modelInfo.index[vertexIdx + 1];
+				const uint16_t i3 = modelInfo.index[vertexIdx + 2];
+				indexBuilder.addTriangle(i1, i2, i3);
+			}
+			indexBuilder.commit(*mesh, Mesh::Index, storageHint);
+
+			// Assign material
+			Model::MeshAndMaterial meshMat;
+			meshMat.material = *subObject.material;
+
+			meshMat.mesh = mesh;
+			model.mMeshes.push_back(meshMat);
+		}
 	}
 }
 

@@ -25,7 +25,10 @@ Mesh::Mesh(const Path& fileId)
 	Resource(fileId),
 	mVertexCount(0), mIndexCount(0)
 {
-	mHandles.assign(0);
+	// Initialize the handle array with uint(0)
+	for(size_t i=0; i<mHandles.size(); ++i)
+		mHandles[i] = new uint(0);
+
 	mComponentCount.assign(0);
 	mComponentCount[cDataType2Index[Position]] = 3;
 	mComponentCount[cDataType2Index[Color]] = 3;	
@@ -34,11 +37,26 @@ Mesh::Mesh(const Path& fileId)
 	mFormat = Position;	// Every mesh at least have the position data
 }
 
+Mesh::Mesh(const Path& fileId, const Mesh& shareBuffer)
+	:
+	Resource(fileId)
+{
+	mHandles = shareBuffer.mHandles;
+	mComponentCount = shareBuffer.mComponentCount;
+	mFormat = shareBuffer.mFormat;
+	mVertexCount = shareBuffer.mVertexCount;
+	mIndexCount = shareBuffer.mIndexCount;
+}
+
 Mesh::~Mesh()
 {
 	// Invocation of glDeleteBuffers will simple ignore non-valid buffer handles
-	if(glDeleteBuffers)
-		glDeleteBuffers(mHandles.size(), mHandles.data());
+	if(glDeleteBuffers) {
+		// Delete the buffer that is no longer shared.
+		for(size_t i=0; i<mHandles.size(); ++i)
+			if(mHandles[i].referenceCount() == 1)
+				glDeleteBuffers(1, mHandles[i].get());
+	}
 }
 
 static void bindTextureCoord(Mesh::DataType textureUnit, int handle, size_t componentCount)
@@ -140,17 +158,25 @@ void Mesh::draw()
 
 uint Mesh::handle(DataType dataType) const
 {
-	const uint* handle = const_cast<Mesh*>(this)->getHandlePtr(dataType);
-
+	const HandlePtr& handlePtr = const_cast<Mesh*>(this)->handlePtr(dataType);
+	const uint* handle = handlePtr.get();
+	MCD_ASSUME(handle != nullptr);
 	return handle ? *handle : 0;
 }
 
-uint* Mesh::getHandlePtr(DataType dataType)
+Mesh::HandlePtr Mesh::handlePtr(DataType dataType)
 {
 	if(size_t(dataType) >= cMapArraySize || cDataType2Index[dataType] == -1)
 		return nullptr;
 
-	return &mHandles[cDataType2Index[dataType]];
+	return mHandles[cDataType2Index[dataType]];
+}
+
+void Mesh::setHandlePtr(DataType dataType, const HandlePtr& handlePtr)
+{
+	if(size_t(dataType) >= cMapArraySize || cDataType2Index[dataType] == -1)
+		return;
+	mHandles[cDataType2Index[dataType]] = handlePtr;
 }
 
 uint8_t Mesh::componentCount(DataType dataType) const
@@ -160,7 +186,7 @@ uint8_t Mesh::componentCount(DataType dataType) const
 	return mComponentCount[cDataType2Index[dataType]];
 }
 
-uint8_t* Mesh::getComponentCountPtr(DataType dataType)
+uint8_t* Mesh::componentCountPtr(DataType dataType)
 {
 	if(dataType >= Mesh::TextureCoord || cDataType2Index[dataType] == -1)
 		return nullptr;
