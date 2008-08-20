@@ -22,7 +22,7 @@ struct FooNode : public MapBase<int>::Node<FooNode>
 
 }	// namespace
 
-TEST(BasicMapTest)
+TEST(Basic_MapTest)
 {
 	static const size_t cTestCount = 100;
 	Map<FooNode> map;
@@ -142,7 +142,7 @@ TEST(BasicMapTest)
 	}
 }
 
-TEST(RemoveAllMapTest)
+TEST(RemoveAll_MapTest)
 {
 	static const size_t cCount = 10;
 	Map<FooNode> map;
@@ -177,7 +177,7 @@ struct StringKeyNode : public MapBase<std::string>::Node<StringKeyNode>
 }	// namespace
 
 // Test for a more complex key type
-TEST(StringKeyMapTest)
+TEST(StringKey_MapTest)
 {
 	static const size_t cTestCount = 100;
 	Map<StringKeyNode> map;
@@ -228,7 +228,7 @@ struct BiDirMapNode
 
 }	// namespace
 
-TEST(BiDirectionalMapTest)
+TEST(BiDirectional_MapTest)
 {
 	static const size_t cTestCount = 100;
 	Map<BiDirMapNode::Integer> idToStr;
@@ -287,7 +287,7 @@ struct UnOrderedMapNode
 
 }	// namespace
 
-TEST(UnOrderedMapTest)
+TEST(UnOrdered_MapTest)
 {
 	static const size_t cTestCount = 100;
 	Map<UnOrderedMapNode::Map> map;

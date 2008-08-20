@@ -282,7 +282,7 @@ public:
 	}
 
 	void insertAfter(Node& newNode, const Node& afterThis) {
-		LinkListBase::insertBefore(newNode, afterThis);
+		LinkListBase::insertAfter(newNode, afterThis);
 	}
 };	// LinkList
 

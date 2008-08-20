@@ -19,7 +19,7 @@ struct FooNode : public LinkListBase::Node<FooNode> {
 
 }	// namespace
 
-TEST(BasicLinkListTest)
+TEST(Basic_LinkListTest)
 {
 	{	// Operations for the node itself
 		std::auto_ptr<FooNode> n(new FooNode(123));
@@ -75,7 +75,27 @@ TEST(BasicLinkListTest)
 	}
 }
 
-TEST(RemoveAllLinkListTest)
+TEST(Insert_LinkListTest)
+{
+	LinkList<FooNode> list;
+
+	FooNode* f1 = new FooNode(1);
+	FooNode* f2 = new FooNode(2);
+	FooNode* f3 = new FooNode(3);
+
+	list.pushBack(*f3);
+	list.insertBefore(*f1, *f3);
+//	list.insertBefore(*f2, *f3);
+	list.insertAfter(*f2, *f1);
+
+	size_t i = 1;
+	for(FooNode* n = &list.front(); n != list.end(); n = n->next()) {
+		CHECK_EQUAL(int(i), n->mId);
+		++i;
+	}
+}
+
+TEST(RemoveAll_LinkListTest)
 {
 	LinkList<FooNode> list;
 	std::vector<FooNode*> vec;
@@ -93,6 +113,23 @@ TEST(RemoveAllLinkListTest)
 	for(size_t i=0; i<cCount; ++i) {
 		delete vec[i];
 	}
+}
+
+TEST(DestroyAll_LinkListTest)
+{
+	LinkList<FooNode> list;
+	list.destroyAll();
+
+	static const size_t cCount = 10;
+	for(size_t i=0; i<cCount; ++i) {
+		std::auto_ptr<FooNode> ptr(new FooNode(i));
+		list.pushBack(*ptr);
+		ptr.release();
+	}
+
+	CHECK_EQUAL(cCount, list.elementCount());
+	list.destroyAll();
+	CHECK(list.isEmpty());
 }
 
 namespace {
@@ -118,7 +155,7 @@ struct ClientInfo
 
 }	// namespace
 
-TEST(MultipleLinkListTest)
+TEST(Multiple_LinkListTest)
 {
 	LinkList<ClientInfo::Client> clientList;
 	LinkList<ClientInfo::Server> serverList;
