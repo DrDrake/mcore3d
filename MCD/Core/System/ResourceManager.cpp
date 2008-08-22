@@ -5,7 +5,8 @@
 #include "Resource.h"
 #include "ResourceLoader.h"
 #include "TaskPool.h"
-#include <map>
+#include "Utility.h"
+#include <set>
 
 #ifdef MCD_VC
 #	pragma warning(push)
@@ -65,8 +66,8 @@ class ResourceManager::Impl
 
 			// Each instance of resource should appear in the event queue once.
 			// Note: Linear search is enough since the event queue should keep consumed every frame
-			for(std::deque<Event>::iterator i=mQueue.begin(); i != mQueue.end(); ++i) {
-				if(i->resource == event.resource)
+			MCD_FOREACH(const Event& e, mQueue) {
+				if(e.resource == event.resource)
 					return;
 			}
 
@@ -144,10 +145,7 @@ public:
 		mTaskPool.setThreadCount(0, true);
 
 		delete &mFileSystem;
-
-		// Delete all factories
-		for(ExtensionMap::iterator i=mExtensionMap.begin(); i!=mExtensionMap.end(); ++i)
-			delete i->second;
+		removeAllFactory();
 	}
 
 	void blockingLoad(const Path& fileId, MapNode& node)
@@ -174,28 +172,31 @@ public:
 		mTaskPool.enqueue(*task);
 	}
 
-	void associateFactory(const wchar_t* extension, IFactory* factory)
+	void addFactory(IFactory* factory)
 	{
-		ExtensionMap::iterator i = mExtensionMap.find(extension);
-
-		if(i != mExtensionMap.end()) {
-			delete i->second;	// delete any old entry first
-			if(factory)
-				i->second = factory;
-			else
-				mExtensionMap.erase(i);
-		}
-		else {
-			if(factory)
-				mExtensionMap.insert(ExtensionMap::value_type(extension, factory));
-		}
+		mFactories.insert(factory);
 	}
 
-	IFactory* findFactory(const wchar_t* extension)
+	void removeAllFactory()
 	{
-		ExtensionMap::iterator i = mExtensionMap.find(extension);
-		if(i != mExtensionMap.end())
-			return i->second;
+		// Delete all factories
+		MCD_FOREACH(IFactory* factory, mFactories)
+			delete factory;
+		mFactories.clear();
+	}
+
+	ResourcePtr createResource(const Path& fileId, IResourceLoader*& loader)
+	{
+		ResourcePtr ret;
+		// Loop for all factories to see which one will respondse to the fileId
+		MCD_FOREACH(IFactory* factory, mFactories) {
+			ret = factory->createResource(fileId);
+			if(ret != nullptr) {
+				loader = factory->createLoader();
+				return ret;
+			}
+		}
+
 		return nullptr;
 	}
 
@@ -204,8 +205,8 @@ public:
 
 	Map<MapNode::PathKey> mResourceMap;
 
-	typedef std::map<std::wstring, IFactory*> ExtensionMap;
-	ExtensionMap mExtensionMap;
+	typedef std::set<IFactory*> Factories;
+	Factories mFactories;
 
 	EventQueue mEventQueue;
 
@@ -241,20 +242,12 @@ ResourcePtr ResourceManager::load(const Path& fileId, bool block, uint priority)
 		}
 	}
 
-	// Create the resource and it's corresponding loader
-	Path::string_type extension = fileId.getExtension();
-	IFactory* factory = mImpl->findFactory(extension.c_str());
-
-	if(!factory)
-		return nullptr;
-
-	ResourcePtr resource = factory->createResource(fileId);
+	IResourceLoader* loader = nullptr;
+	ResourcePtr resource = mImpl->createResource(fileId, loader);
 	if(!resource)
 		return nullptr;
 
-	IResourceLoader* loader = factory->createLoader();
-	if(!loader)
-		return nullptr;
+	MCD_ASSUME(loader);
 
 	MapNode* node = new MapNode(*resource, *loader);
 	MCD_VERIFY(mImpl->mResourceMap.insertUnique(node->mPathKey));
@@ -276,10 +269,16 @@ ResourceManager::Event ResourceManager::popEvent()
 	return mImpl->mEventQueue.popFront();
 }
 
-void ResourceManager::associateFactory(const wchar_t* extension, IFactory* factory)
+void ResourceManager::addFactory(IFactory* factory)
 {
 	MCD_ASSUME(mImpl != nullptr);
-	mImpl->associateFactory(extension, factory);
+	mImpl->addFactory(factory);
+}
+
+void ResourceManager::removeAllFactory()
+{
+	MCD_ASSUME(mImpl != nullptr);
+	mImpl->removeAllFactory();
 }
 
 TaskPool& ResourceManager::taskPool()

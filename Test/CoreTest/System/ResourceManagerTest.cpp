@@ -34,13 +34,19 @@ protected:
 class FakeFactory : public ResourceManager::IFactory
 {
 public:
-	sal_override ResourcePtr createResource(const Path& path) {
-		return new Resource(path);
+	FakeFactory(const wchar_t* extension) : mExtension(extension) {}
+
+	sal_override ResourcePtr createResource(const Path& fileId) {
+		if(fileId.getExtension() == mExtension)
+			return new Resource(fileId);
+		return nullptr;
 	}
 
 	sal_override IResourceLoader* createLoader() {
 		return new FakeLoader;
 	}
+
+	const wchar_t* mExtension;
 };	// FakeFactory
 
 }	// namespace
@@ -58,10 +64,7 @@ TEST(Basic_ResourceManagerTest)
 	fs.release();
 
 	// Register factory
-	manager.associateFactory(L"dummy", new FakeFactory);	// Register
-	manager.associateFactory(L"dummy", new FakeFactory);	// Assign an other instance of factory to the same extension
-	manager.associateFactory(L"dummy", nullptr);			// Use null to remove the mapping
-	manager.associateFactory(L"cpp", new FakeFactory);
+	manager.addFactory(new FakeFactory(L"cpp"));
 
 	ResourcePtr resource = manager.load(L"Main.cpp");
 	CHECK(resource != nullptr);
@@ -88,6 +91,34 @@ TEST(Basic_ResourceManagerTest)
 		CHECK(!manager.popEvent().resource);
 		CHECK(!manager.popEvent().loader);
 	}
+
+	{	// Try to load another resource
+		ResourcePtr resource2 = manager.load(L"ResourceManadgerTest.cpp", true);
+		CHECK(resource != resource2);
+		ResourceManager::Event event = manager.popEvent();
+		CHECK(event.loader != nullptr);
+	}
+
+	{	// After trying to load another resource, a garbage collection take place
+		// nothing can be verify in this test, but it will trigger some code to run
+		// so that we will have a higher code coverage
+		manager.load(L"Main.cpp");
+	}
+
+	{	// Removal of all loader factories
+		manager.removeAllFactory();
+
+		{	// The cached resource are still there
+			ResourcePtr resource2 = manager.load(L"Main.cpp");
+			CHECK(resource2 != nullptr);
+		}
+
+		// But fail to load anything without the loader factories
+		{	// The cached resource are still there
+			ResourcePtr resource2 = manager.load(L"__fileNotFound__.cpp");
+			CHECK(resource2 == nullptr);
+		}
+	}
 }
 
 TEST(Negative_ResourceManagerTest)
@@ -96,15 +127,16 @@ TEST(Negative_ResourceManagerTest)
 		std::auto_ptr<IFileSystem> fs(new RawFileSystem(L"./"));
 		ResourceManager manager(*fs);
 		fs.release();
-		manager.associateFactory(L"txt", new FakeFactory);
+		manager.addFactory(new FakeFactory(L"txt"));	// FakeFactory will not response to *.cpp
 		ResourcePtr resource = manager.load(L"Main.cpp", false, 0);
+		CHECK(!resource);
 	}
 
 	{	// File not found (resulting "Abort" message)
 		std::auto_ptr<IFileSystem> fs(new RawFileSystem(L"./"));
 		ResourceManager manager(*fs);
 		fs.release();
-		manager.associateFactory(L"cpp", new FakeFactory);
+		manager.addFactory(new FakeFactory(L"cpp"));
 		ResourcePtr resource = manager.load(L"__fileNotFound__.cpp", false, 0);
 
 		while(true) {	// Poll for event

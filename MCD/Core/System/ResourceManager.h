@@ -93,7 +93,22 @@ public:
 	class MCD_NOVTABLE IFactory
 	{
 	public:
-		virtual ResourcePtr createResource(const Path& path) = 0;
+		/*!	The overrides of this function should check the path to decide the filename/extension
+			is of their intrest or not. It should return a newly created resource if the file name
+			match it's interest, return null otherwise.
+
+			Example implementation for loading a jpg file:
+			\code
+			sal_override ResourcePtr createResource(const Path& file) {
+				if(path.getExtension() == std::wstring(L"jpg"))
+					return new Texture(file);
+				return nullptr;
+			}
+			\endcode
+		 */
+		virtual ResourcePtr createResource(const Path& fileId) = 0;
+
+		//! Overrided function should create and return a concret resource loader.
 		virtual IResourceLoader* createLoader() = 0;
 	};	// IFactory
 
@@ -109,7 +124,7 @@ public:
 	/*!
 		\note Blocking load will also generate events.
 	 */
-	sal_override ResourcePtr load(const Path& path, bool block=false, uint priority=0);
+	sal_override ResourcePtr load(const Path& fileId, bool block=false, uint priority=0);
 
 	/*! Event for notifying the loading status of a resource.
 		\note The member \em resource and \em loader may be null to
@@ -123,12 +138,16 @@ public:
 
 	Event popEvent();
 
-	/*!	Associate resource factory with file extension.
-		For example, "png" should be associated with a png texture factory.
+	/*!	Adds a resource factory to the manager.
 		\param factory Put null to remove association.
 			The lifetime of the factory will be controlled by ResourceManager.
 	 */
-	void associateFactory(sal_in_z const wchar_t* extension, sal_in_opt IFactory* factory);
+	void addFactory(sal_in IFactory* factory);
+
+	/*!	Remove all the factories associated.
+		Will destroy them as well.
+	 */
+	void removeAllFactory();
 
 	//! Get the underlaying TaskPool used by the ResourceManager.
 	TaskPool& taskPool();

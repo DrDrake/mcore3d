@@ -231,6 +231,15 @@ bool NvpParser::next(const wchar_t*& name, const wchar_t*& value)
 	return true;
 }
 
+int wstrCaseCmp(const wchar_t* string1, const wchar_t* string2)
+{
+#ifdef MCD_VC
+	return ::_wcsicmp(string1, string2);
+#else
+	return ::wcscasecmp(string1, string2);
+#endif
+}
+
 }	// namespace MCD
 
 #ifdef MCD_CYGWIN

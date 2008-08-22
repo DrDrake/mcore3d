@@ -8,10 +8,10 @@
 namespace MCD {
 
 //! Convert narrow string into wide string using the current locale, return true on success.
-MCD_CORE_API sal_checkreturn bool str2WStr(sal_in_z sal_notnull const char* narrowStr, std::wstring& wideStr);
+MCD_CORE_API sal_checkreturn bool str2WStr(sal_in_z const char* narrowStr, std::wstring& wideStr);
 
 //! Convert wide string into narrow string using the current locale, return true on success.
-MCD_CORE_API sal_checkreturn bool wStr2Str(sal_in_z sal_notnull const wchar_t* wideStr, std::string& narrowStr);
+MCD_CORE_API sal_checkreturn bool wStr2Str(sal_in_z const wchar_t* wideStr, std::string& narrowStr);
 
 MCD_CORE_API std::wstring str2WStr(const std::string& narrowStr);
 
@@ -24,10 +24,10 @@ MCD_CORE_API std::string int2Str(int number);
 MCD_CORE_API std::wstring int2WStr(int number);
 
 //! Wide string to integer
-MCD_CORE_API sal_checkreturn bool wStr2Int(sal_in_z sal_notnull const wchar_t* wideStr, int& number);
+MCD_CORE_API sal_checkreturn bool wStr2Int(sal_in_z const wchar_t* wideStr, int& number);
 
 //! Wide string to double
-MCD_CORE_API sal_checkreturn bool wStr2Double(sal_in_z sal_notnull const wchar_t* wideStr, double& number);
+MCD_CORE_API sal_checkreturn bool wStr2Double(sal_in_z const wchar_t* wideStr, double& number);
 
 /*!	A simple name value pair parser.
 	User supply a string that contains the name value pairs where name and value is
@@ -48,11 +48,11 @@ MCD_CORE_API sal_checkreturn bool wStr2Double(sal_in_z sal_notnull const wchar_t
 class MCD_CORE_API NvpParser : Noncopyable
 {
 public:
-	NvpParser(sal_in_z sal_maybenull const wchar_t* str = nullptr);
+	NvpParser(sal_in_z_opt const wchar_t* str = nullptr);
 
 	~NvpParser();
 
-	void init(sal_in_z sal_notnull const wchar_t* str);
+	void init(sal_in_z const wchar_t* str);
 
 	/*!	Get the next name/value pair.
 		\param name Output parameter to get the name
@@ -65,6 +65,9 @@ protected:
 	wchar_t* mStr;
 	wchar_t* mPos;
 };	// NvpParser
+
+//! Compare two wide-character strings, ignoring case.
+MCD_CORE_API sal_checkreturn int wstrCaseCmp(sal_in_z const wchar_t* string1, sal_in_z const wchar_t* string2);
 
 }	// namespace MCD
 

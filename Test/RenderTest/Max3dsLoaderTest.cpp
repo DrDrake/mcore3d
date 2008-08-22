@@ -3,53 +3,15 @@
 
 using namespace MCD;
 
+#include "../../MCD/Render/TextureLoaderFactory.h"
 #include "../../MCD/Render/Max3dsLoader.h"
-#include "../../MCD/Render/DdsLoader.h"
-#include "../../MCD/Render/JpegLoader.h"
-#include "../../MCD/Render/PngLoader.h"
 #include "../../MCD/Render/Texture.h"
+#include "../../MCD/Core/System/ResourceLoader.h"
 #include "../../MCD/Core/System/RawFileSystem.h"
-#include "../../MCD/Core/System/ResourceManager.h"
 #include <fstream>
 
 TEST(Sphere_MeshBuilderTest)
 {
-	class JpegFactory : public ResourceManager::IFactory
-	{
-	public:
-		sal_override ResourcePtr createResource(const Path& path) {
-			return new Texture(path);
-		}
-
-		sal_override IResourceLoader* createLoader() {
-			return new JpegLoader;
-		}
-	};	// JpegFactory
-
-	class PngFactory : public ResourceManager::IFactory
-	{
-	public:
-		sal_override ResourcePtr createResource(const Path& path) {
-			return new Texture(path);
-		}
-
-		sal_override IResourceLoader* createLoader() {
-			return new PngLoader;
-		}
-	};	// JpegFactory
-
-	class DdsFactory : public ResourceManager::IFactory
-	{
-	public:
-		sal_override ResourcePtr createResource(const Path& path) {
-			return new Texture(path);
-		}
-
-		sal_override IResourceLoader* createLoader() {
-			return new DdsLoader;
-		}
-	};	// DdsFactory
-
 	class TestWindow : public BasicGlWindow
 	{
 	public:
@@ -57,13 +19,13 @@ TEST(Sphere_MeshBuilderTest)
 			:
 			BasicGlWindow(L""), mAngle(0)
 		{
-			std::auto_ptr<IFileSystem> fs(new RawFileSystem(L"./"));
+			std::auto_ptr<IFileSystem> fs(new RawFileSystem(L"./Media/fw189"));
 			mResourceManager.reset(new ResourceManager(*fs));
 			fs.release();
-			mResourceManager->associateFactory(L"dds", new DdsFactory);
-			mResourceManager->associateFactory(L"jpg", new JpegFactory);	
-			mResourceManager->associateFactory(L"JPG", new JpegFactory);
-			mResourceManager->associateFactory(L"png", new PngFactory);
+			mResourceManager->addFactory(new BitmapLoaderFactory);
+			mResourceManager->addFactory(new DdsLoaderFactory);
+			mResourceManager->addFactory(new JpegLoaderFactory);
+			mResourceManager->addFactory(new PngLoaderFactory);
 		}
 
 		bool load3ds(const char* fileName)
@@ -83,6 +45,8 @@ TEST(Sphere_MeshBuilderTest)
 			while(true) {
 				ResourceManager::Event e = mResourceManager->popEvent();
 				if(e.loader) {
+					if(e.loader->getLoadingState() == IResourceLoader::Aborted)
+						std::wcout << L"Resource:" << e.resource->fileId().getString() << L" failed to load" << std::endl;
 					// Allow one resource to commit for each frame
 					e.loader->commit(*e.resource);
 				} else
@@ -100,7 +64,7 @@ TEST(Sphere_MeshBuilderTest)
 			glRotatef(mAngle, 0, 1, 0);
 			glRotatef(mAngle, 0, 0, 1);
 
-			const float scale = 0.3f;
+			const float scale = 0.005f;
 			glScalef(scale, scale, scale);
 
 			mModel.draw();
@@ -119,7 +83,7 @@ TEST(Sphere_MeshBuilderTest)
 //		window.load3ds("titanic2.3DS");
 //		window.load3ds("spaceship.3DS");
 //		window.load3ds("box.3DS");
-		window.load3ds("ship^kiy.3ds");
+//		window.load3ds("ship^kiy.3ds");
 //		window.load3ds("Alfa Romeo.3ds");
 //		window.load3ds("Nissan350Z.3ds");
 //		window.load3ds("Nathalie aguilera Boing 747.3DS");
@@ -128,7 +92,7 @@ TEST(Sphere_MeshBuilderTest)
 //		window.load3ds("Ford N120208.3ds");
 //		window.load3ds("musai.3DS");
 //		window.load3ds("Media/House/house.3ds");
-//		window.load3ds("FockeWulf 189A/fw189.3ds");
+		window.load3ds("Media/fw189/fw189.3ds");
 
 		// Set up and enable light 0
 		glEnable(GL_LIGHTING);
