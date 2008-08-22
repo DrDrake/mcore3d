@@ -259,6 +259,10 @@
 				RelativePath=".\TextureLoaderBaseImpl.inc"
 				>
 			</File>
+			<File
+				RelativePath=".\TextureLoaderFactory.h"
+				>
+			</File>
 		</Filter>
 		<Filter
 			Name="Source Files"
@@ -310,6 +314,10 @@
 			</File>
 			<File
 				RelativePath=".\TextureLoaderBase.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\TextureLoaderFactory.cpp"
 				>
 			</File>
 		</Filter>
