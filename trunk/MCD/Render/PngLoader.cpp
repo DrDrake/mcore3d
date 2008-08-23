@@ -107,6 +107,7 @@ public:
 		LoaderImpl* impl = reinterpret_cast<LoaderImpl*>(png_get_progressive_ptr(png_ptr));
 		MCD_ASSUME(impl != nullptr);
 		MCD_ASSUME(impl->mImageData != nullptr);
+		MCD_ASSERT(impl->mMutex.isLocked());
 
 		// Have libpng either combine the new row data with the existing row data
 		// from previous passes (if interlaced) or else just copy the new row
@@ -187,6 +188,7 @@ void PngLoader::uploadData()
 {
 	MCD_ASSUME(mImpl != nullptr);
 	LoaderImpl* impl = static_cast<LoaderImpl*>(mImpl);
+	MCD_ASSERT(mImpl->mMutex.isLocked());
 
 	if(mImpl->mImageData)
 		glTexImage2D(GL_TEXTURE_2D, 0, impl->mFormat, impl->mWidth, impl->mHeight,

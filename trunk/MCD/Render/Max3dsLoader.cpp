@@ -79,39 +79,59 @@ public:
 	std::wstring mName;
 };
 
+/*!	This stream class provides some add on functionarity over the std::istream,
+	and provide more error checking.
+ */
 class Max3dsLoader::Stream
 {
 public:
-	Stream(std::istream& is) : mIs(is) {}
+	Stream(std::istream& is, volatile IResourceLoader::LoadingState& loadingState)
+		: mIs(is), mLoadingState(loadingState)
+	{}
 
 	template<typename T>
 	void read(T& t)
 	{
-		MCD_ASSERT(!eof());
 		mIs.read((char*)&t, sizeof(t));
+		if(mIs.gcount() != sizeof(t))
+			mLoadingState = IResourceLoader::Aborted;
 	}
 
 	void read(void* p, size_t size)
 	{
-		MCD_ASSERT(!eof());
 		mIs.read((char*)p, size);
+		if(mIs.gcount() != std::streamsize(size))
+			mLoadingState = IResourceLoader::Aborted;
 	}
 
-	void read(ChunkHeader& header)
+	bool read(ChunkHeader& header)
 	{
-		read(header.id);
-		if(!eof())
-			read(header.length);
+		header.id = 0;
+		header.length = 0;
+
+		// We use the raw std::istream to get ride the IResourceLoader::Aborted
+		mIs.read((char*)&header.id, sizeof(header.id));
+		mIs.read((char*)&header.length, sizeof(header.length));
+
+		if(header.id == 0 || header.length == 0) {
+			if(header.id != 0 || header.length != 0)
+				mLoadingState = IResourceLoader::Aborted;
+			return false;
+		}
+
+		return true;
 	}
 
 	void skip(size_t count) {
 		mIs.seekg(count, std::ios_base::cur);
 	}
+
 	bool eof() const {
 		return mIs.eof();
 	}
 
 	std::istream& mIs;
+	volatile IResourceLoader::LoadingState& mLoadingState;
 };	// Stream
 
 // Compute vertex normals
@@ -224,21 +244,15 @@ IResourceLoader::LoadingState Max3dsLoader::load(std::istream* is)
 		return mLoadingState;
 
 	if(!mStream)
-		mStream = new Stream(*is);
+		mStream = new Stream(*is, mLoadingState);
 
 	ChunkHeader header;
 
 	MeshBuilder* currentMeshBuilder = nullptr;
 	NamedMaterial* currentMaterial = nullptr;
 
-	while(true)
+	while(mStream->read(header) && mLoadingState != Aborted)
 	{
-		mStream->read(header);
-		if(mStream->eof())
-			break;
-
-		std::wstring str;
-
 		switch(header.id)
 		{
 			//----------------- MAIN3DS -----------------
@@ -265,11 +279,13 @@ IResourceLoader::LoadingState Max3dsLoader::load(std::istream* is)
 				readString(objectName);
 
 				currentMeshBuilder = new MeshBuilder;
+				if(!currentMeshBuilder)
+					ABORTLOADING();
+
 				ModelInfo modelInfo = { currentMeshBuilder };
 				mModelInfo.push_back(modelInfo);
 				currentMeshBuilder->enable(Mesh::Position | Mesh::Normal);
-			}
-				break;
+			}	break;
 
 			//--------------- TRIG_MESH ---------------
 			// Description: Triangular mesh, contains chunks for 3d mesh info
@@ -288,9 +304,10 @@ IResourceLoader::LoadingState Max3dsLoader::load(std::istream* is)
 			{
 				uint16_t vertexCount = 0;
 				mStream->read(vertexCount);
-				MCD_ASSERT(!mModelInfo.empty());
-				MCD_ASSERT(currentMeshBuilder == mModelInfo.back().meshBuilder);
-				MCD_ASSUME(currentMeshBuilder);
+
+				if(mModelInfo.empty() || currentMeshBuilder != mModelInfo.back().meshBuilder)
+					ABORTLOADING();
+
 				currentMeshBuilder->reserveVertex(vertexCount);
 
 				for(size_t i=0; i<vertexCount; ++i) {
@@ -309,8 +326,7 @@ IResourceLoader::LoadingState Max3dsLoader::load(std::istream* is)
 					currentMeshBuilder->normal(Vec3f::cZero);	// We calculate the normal after all faces are known
 					currentMeshBuilder->addVertex();
 				}
-			}
-				break;
+			}	break;
 
 			//--------------- FACE_DESC ----------------
 			// Description: Polygons (faces) list
@@ -320,9 +336,11 @@ IResourceLoader::LoadingState Max3dsLoader::load(std::istream* is)
 			//-------------------------------------------
 			case FACE_DESC:
 			{
-				uint16_t faceCount;
+				uint16_t faceCount = 0;
 				mStream->read(faceCount);
-				MCD_ASSERT(!mModelInfo.empty());
+
+				if(mModelInfo.empty())
+					ABORTLOADING();
 
 				std::vector<uint16_t>& idx = mModelInfo.back().index;
 				idx.resize(faceCount * 3);	// Each triangle has 3 vertex
@@ -333,22 +351,21 @@ IResourceLoader::LoadingState Max3dsLoader::load(std::istream* is)
 					uint16_t faceFlags;	// Flag that stores some face information (currently not used)
 					mStream->read(faceFlags);
 				}
-			}
-				break;
+			}	break;
 
 			//---------------- FACE_MAT -----------------
 			// Description: Which material the face belongs to
 			//-------------------------------------------
 			case FACE_MAT:
 			{
-				MCD_ASSERT(!mModelInfo.empty());
-				MCD_ASSERT(currentMeshBuilder == mModelInfo.back().meshBuilder);
+				if(mModelInfo.empty())
+					ABORTLOADING();
 
 				std::wstring materialName;
 				readString(materialName);
 
 				// Get the number of faces of the object concerned by this material
-				uint16_t faceCount;
+				uint16_t faceCount = 0;
 				mStream->read(faceCount);
 
 				if(faceCount == 0)
@@ -372,20 +389,21 @@ IResourceLoader::LoadingState Max3dsLoader::load(std::istream* is)
 					break;
 				}
 
-				MCD_ASSERT(object.material != nullptr);
-			}
-				break;
+				// We should be able to find a material in mMaterials, otherwise the file should be corruped.
+				if(object.material == nullptr)
+					ABORTLOADING();
+			}	break;
 
 			case SMOOTH_GROUP:
 			{
-				MCD_ASSERT(!mModelInfo.empty());
-				MCD_ASSERT(currentMeshBuilder == mModelInfo.back().meshBuilder);
+				if(mModelInfo.empty())
+					ABORTLOADING();
+
 				std::vector<uint32_t>& smoothingGroup = mModelInfo.back().smoothingGroup;
 				smoothingGroup.resize(mModelInfo.back().index.size() / 3);	// Count of index / 3 = numbers of face
 
 				mStream->read(&smoothingGroup[0], smoothingGroup.size() * sizeof(uint32_t));
-			}
-				break;
+			}	break;
 
 			//------------- TRI_MAPPINGCOORS ------------
 			// Description: Vertices list
@@ -395,21 +413,22 @@ IResourceLoader::LoadingState Max3dsLoader::load(std::istream* is)
 			//-------------------------------------------
 			case TEX_VERTS:
 			{
-				uint16_t count;
+				uint16_t count = 0;
 				mStream->read(count);
-				MCD_ASSERT(!mModelInfo.empty());
-				MCD_ASSERT(currentMeshBuilder == mModelInfo.back().meshBuilder);
+
+				if(mModelInfo.empty() || currentMeshBuilder != mModelInfo.back().meshBuilder)
+					ABORTLOADING();
 
 				currentMeshBuilder->enable(Mesh::TextureCoord0);
 				currentMeshBuilder->textureUnit(Mesh::TextureCoord0);
 				currentMeshBuilder->textureCoordSize(2);
-				size_t coordCount;
+				size_t coordCount = 0;
 				Vec2f* coord = reinterpret_cast<Vec2f*>(currentMeshBuilder->acquireBufferPointer(Mesh::TextureCoord0, &coordCount));
 
 				if(count != coordCount)
 					ABORTLOADING();
 
-				for(size_t i=0; i<count; i++) {
+				for(size_t i=0; i<count; ++i) {
 					mStream->read(coord[i]);
 					// Open gl flipped the texture vertically
 					// Reference: http://www.devolution.com/pipermail/sdl/2002-September/049064.html
@@ -417,8 +436,7 @@ IResourceLoader::LoadingState Max3dsLoader::load(std::istream* is)
 				}
 
 				currentMeshBuilder->releaseBufferPointer(coord);
-			}
-				break;
+			}	break;
 
 			case MATERIAL:	// Material Start
 				currentMaterial = new NamedMaterial;
@@ -426,38 +444,40 @@ IResourceLoader::LoadingState Max3dsLoader::load(std::istream* is)
 				break;
 
 			case MAT_NAME:	// Material Name
-				MCD_ASSUME(currentMaterial);
+				if(!currentMaterial) ABORTLOADING();
 				readString(currentMaterial->mName);
 				break;
 
 			case MAT_AMBIENT:	// Material - Ambient Color
-				MCD_ASSUME(currentMaterial);
+				if(!currentMaterial) ABORTLOADING();
 				readColor(currentMaterial->mAmbient);
 				break;
 
 			case MAT_DIFFUSE:	// Material - Diffuse Color
-				MCD_ASSUME(currentMaterial);
+				if(!currentMaterial) ABORTLOADING();
 				readColor(currentMaterial->mDiffuse);
 				break;
 
 			case MAT_SPECULAR:	// Material - Spec Color
-				MCD_ASSUME(currentMaterial);
+				if(!currentMaterial) ABORTLOADING();
 				readColor(currentMaterial->mSpecular);
 				break;
 
 			case SHINY_PERC:	// Material - Shininess (Glossiness)
-			{	uint16_t shininess = Math<int16_t>::clamp(readPercentageAsInt(), 0, 100);
+			{
+				if(!currentMaterial) ABORTLOADING();
+				uint16_t shininess = Math<int16_t>::clamp(readPercentageAsInt(), 0, 100);
 				// Rescle from 0-100 to 0-128 since the maximum accepted value for
 				// glMateriali with GL_SHININESS is 128
 				currentMaterial->mShininess = uint8_t(shininess * 128.f / 100);
-			}
-				break;
+			}	break;
 
 			case SHINY_STR_PERC:	// Material - Shine Strength
-			{	uint16_t strength = readPercentageAsInt();
+			{
+				if(!currentMaterial) ABORTLOADING();
+				uint16_t strength = readPercentageAsInt();
 				currentMaterial->mSpecular *= float(strength) / 100;
-			}
-				break;
+			}	break;
 
 			case TRANS_PERC:	// Material - Transparency
 				readPercentageAsInt();
@@ -467,27 +487,22 @@ IResourceLoader::LoadingState Max3dsLoader::load(std::istream* is)
 				break;
 
 			case MAT_MAPNAME:	// Material - Texture Name
-				readString(str);
+			{
+				if(!currentMaterial) ABORTLOADING();
+				std::wstring textureFileName;
+				readString(textureFileName);
 				if(mResourceManager)
-					currentMaterial->mTexture = dynamic_cast<Texture*>(mResourceManager->load(str, false).get());
+					currentMaterial->mTexture = dynamic_cast<Texture*>(mResourceManager->load(textureFileName, false).get());
 				else
-					currentMaterial->mTexture = new Texture(str);
-				break;
+					currentMaterial->mTexture = new Texture(textureFileName);
+			}	break;
 
-			//----------- Skip unknow chunks ------------
-			// We need to skip all the chunks that currently we don't use
-			// We use the chunk lenght information to set the file pointer
-			// to the same level next chunk
-			//-------------------------------------------
+			// Skip unknow chunks.
+			// We need to skip all the chunks that currently we don't use.
+			// We use the chunk lenght information to set the file pointer to the same level next chunk.
 			default:
 				mStream->skip(header.length - 6);
 		}
-
-		if(mLoadingState == Aborted)
-			break;
-
-		if(mStream->eof() || mLoadingState == Aborted)
-			break;
 	}
 
 	if(mLoadingState == Aborted)
@@ -531,7 +546,8 @@ void Max3dsLoader::readColor(ColorRGBf& color)
 
 	mStream->read(header);
 
-	MCD_ASSERT(header.id == COLOR_TRU);
+	if(header.id != COLOR_TRU)
+		mLoadingState = Aborted;
 
 	mStream->read(uintColor, 3);
 	color.r = float(uintColor[0]) / 256;
@@ -544,7 +560,8 @@ int16_t Max3dsLoader::readPercentageAsInt()
 	ChunkHeader header;
 	mStream->read(header);
 
-	MCD_ASSERT(header.id == PERC_INT);
+	if(header.id != PERC_INT)
+		mLoadingState = Aborted;
 
 	int16_t percentage;
 	mStream->read(percentage);
@@ -557,7 +574,7 @@ size_t Max3dsLoader::readString(std::wstring& str)
 	size_t i = 0;
 	std::string objectName;
 	const size_t maxLength = 128;	// Max length to prevent infinite loop
-	char c;
+	char c = '\0';
 	do {
 		mStream->read(c);
 		objectName += c;

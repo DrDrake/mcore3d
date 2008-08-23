@@ -163,6 +163,7 @@ void JpegLoader::uploadData()
 {
 	MCD_ASSUME(mImpl != nullptr);
 	LoaderImpl* impl = static_cast<LoaderImpl*>(mImpl);
+	MCD_ASSERT(mImpl->mMutex.isLocked());
 
 	// NOTE: To compress texture on the fly, just pass GL_COMPRESSED_XXX_ARB as the internal format
 	// Reference: www.oldunreal.com/editing/s3tc/ARB_texture_compression.pdf
