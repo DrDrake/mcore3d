@@ -25,7 +25,11 @@ protected:
 	void setImpl(LoaderBaseImpl* impl);
 
 public:
+	/*!	Commit the data form it's internal buffer to the resource.
+		The resource must be of type Texture.
+	 */
 	sal_override void commit(Resource& resource);
+
 	sal_override LoadingState getLoadingState() const;
 
 protected:

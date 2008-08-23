@@ -2,6 +2,7 @@
 #define __MCD_RENDER_MODEL__
 
 #include "Material.h"
+#include "Mesh.h"
 #include "../Core/System/IntrusivePtr.h"
 #include "../Core/System/NonCopyable.h"
 #include "../Core/System/Resource.h"
