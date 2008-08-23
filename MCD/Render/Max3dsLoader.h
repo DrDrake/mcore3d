@@ -4,58 +4,32 @@
 #include "Color.h"
 #include "MeshBuilder.h"
 #include "../Core/System/IntrusivePtr.h"
+#include "../Core/System/Mutex.h"
+#include "../Core/System/ResourceLoader.h"
 #include <list>
 
 namespace MCD {
 
-class Texture;
-typedef IntrusivePtr<Texture> TexturePtr;
+class Material;
 
 class ResourceManager;
-
-class MCD_RENDER_API Material
-{
-public:
-	Material();
-
-	void bind() const;
-
-	ColorRGBf mAmbient, mDiffuse, mSpecular;
-	uint8_t mShininess;
-	TexturePtr mTexture;
-};	// Material
-
-class MCD_RENDER_API Model : Noncopyable
-{
-public:
-	Model()
-	{
-	}
-
-	void draw();
-
-public:
-	struct MeshAndMaterial {
-		MeshPtr mesh;
-		Material material;
-	};
-
-	typedef std::list<MeshAndMaterial> MeshList;
-	MeshList mMeshes;
-};	// Model
 
 /*!
 	\sa http://www.flipcode.com/archives/Another_3DS_LoaderViewer_Class.shtml
 	\sa http://www.gamedev.net/community/forums/topic.asp?topic_id=382606
  */
-class MCD_RENDER_API Max3dsLoader
+class MCD_RENDER_API Max3dsLoader : public IResourceLoader, private Noncopyable
 {
 public:
-	Max3dsLoader(std::istream& is_, sal_maybenull ResourceManager* resourceManager);
+	Max3dsLoader(sal_maybenull ResourceManager* resourceManager);
 
-	~Max3dsLoader();
+	sal_override ~Max3dsLoader();
 
-	void commit(Model& model, MeshBuilder::StorageHint storageHint);
+	sal_override LoadingState load(sal_maybenull std::istream* is);
+
+	sal_override void commit(Resource& resource);
+
+	sal_override LoadingState getLoadingState() const;
 
 protected:
 	void readColor(ColorRGBf& color);
@@ -91,6 +65,9 @@ protected:
 	class NamedMaterial;
 	typedef std::list<NamedMaterial*> MaterialList;
 	MaterialList mMaterials;
+
+	volatile IResourceLoader::LoadingState mLoadingState;
+	mutable Mutex mMutex;
 };	// Max3dsLoader
 
 }	// namespace MCD

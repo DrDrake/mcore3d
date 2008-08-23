@@ -235,6 +235,7 @@ ResourcePtr ResourceManager::load(const Path& fileId, bool block, uint priority)
 			// It is preformed right here because a resource is shared,
 			// and we have no idea when the resource will be destroyed other
 			// than poll for it's weak pointer periodically
+			// To some extend, this is a garbage collector!
 			MapNode* nextNode = node->mPathKey.next()->getOuterSafe();
 			if(nextNode && !nextNode->mResource.get())
 				delete nextNode;

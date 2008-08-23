@@ -52,7 +52,7 @@ public:
 
 	~NvpParser();
 
-	void init(sal_in_z const wchar_t* str);
+	void init(sal_in_z_opt const wchar_t* str = nullptr);
 
 	/*!	Get the next name/value pair.
 		\param name Output parameter to get the name

@@ -232,6 +232,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\Material.h"
+				>
+			</File>
+			<File
 				RelativePath=".\Max3dsLoader.h"
 				>
 			</File>
@@ -241,6 +245,10 @@
 			</File>
 			<File
 				RelativePath=".\MeshBuilder.h"
+				>
+			</File>
+			<File
+				RelativePath=".\Model.h"
 				>
 			</File>
 			<File
@@ -293,6 +301,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\Material.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\Max3dsLoader.cpp"
 				>
 			</File>
@@ -302,6 +314,10 @@
 			</File>
 			<File
 				RelativePath=".\MeshBuilder.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\Model.cpp"
 				>
 			</File>
 			<File

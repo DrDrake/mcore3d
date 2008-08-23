@@ -1,14 +1,38 @@
 #include "Pch.h"
-#include "../../MCD/Render/MeshBuilder.h"
-
-using namespace MCD;
-
 #include "../../MCD/Render/TextureLoaderFactory.h"
 #include "../../MCD/Render/Max3dsLoader.h"
+#include "../../MCD/Render/Model.h"
 #include "../../MCD/Render/Texture.h"
 #include "../../MCD/Core/System/ResourceLoader.h"
 #include "../../MCD/Core/System/RawFileSystem.h"
+#include "../../MCD/Core/System/StrUtility.h"
 #include <fstream>
+
+using namespace MCD;
+
+class Max3dsLoaderFactory : public ResourceManager::IFactory
+{
+public:
+	Max3dsLoaderFactory(ResourceManager& resourceManager)
+		: mResourceManager(resourceManager)
+	{
+	}
+
+	sal_override ResourcePtr createResource(const Path& fileId)
+	{
+		if(wstrCaseCmp(fileId.getExtension().c_str(), L"3ds") == 0)
+			return new Model(fileId);
+		return nullptr;
+	}
+
+	sal_override IResourceLoader* createLoader()
+	{
+		return new Max3dsLoader(&mResourceManager);
+	}
+
+private:
+	ResourceManager& mResourceManager;
+};	// Max3dsLoaderFactory
 
 TEST(Sphere_MeshBuilderTest)
 {
@@ -17,27 +41,21 @@ TEST(Sphere_MeshBuilderTest)
 	public:
 		TestWindow()
 			:
-			BasicGlWindow(L""), mAngle(0)
+			BasicGlWindow(), mAngle(0)
 		{
-			std::auto_ptr<IFileSystem> fs(new RawFileSystem(L"./Media/fw189"));
+			std::auto_ptr<IFileSystem> fs(new RawFileSystem(L"./Media/"));
 			mResourceManager.reset(new ResourceManager(*fs));
 			fs.release();
+			mResourceManager->addFactory(new Max3dsLoaderFactory(*mResourceManager));
 			mResourceManager->addFactory(new BitmapLoaderFactory);
 			mResourceManager->addFactory(new DdsLoaderFactory);
 			mResourceManager->addFactory(new JpegLoaderFactory);
 			mResourceManager->addFactory(new PngLoaderFactory);
 		}
 
-		bool load3ds(const char* fileName)
+		void load3ds(const wchar_t* fileId)
 		{
-			std::ifstream is(fileName, std::ios_base::binary);
-			if(!is.is_open())
-				return false;
-
-			Max3dsLoader loader(is, mResourceManager.get());
-			loader.commit(mModel, MeshBuilder::Static);
-
-			return true;
+			mModel = dynamic_cast<Model*>(mResourceManager->load(fileId).get());
 		}
 
 		void processResourceLoadingEvents()
@@ -64,13 +82,13 @@ TEST(Sphere_MeshBuilderTest)
 			glRotatef(mAngle, 0, 1, 0);
 			glRotatef(mAngle, 0, 0, 1);
 
-			const float scale = 0.005f;
+			const float scale = 1.0f;
 			glScalef(scale, scale, scale);
 
-			mModel.draw();
+			mModel->draw();
 		}
 
-		Model mModel;
+		ModelPtr mModel;
 		float mAngle;
 
 		std::auto_ptr<ResourceManager> mResourceManager;
@@ -79,34 +97,20 @@ TEST(Sphere_MeshBuilderTest)
 	{
 		TestWindow window;
 
-//		window.load3ds("titanic.3DS");
-//		window.load3ds("titanic2.3DS");
-//		window.load3ds("spaceship.3DS");
-//		window.load3ds("box.3DS");
-//		window.load3ds("ship^kiy.3ds");
-//		window.load3ds("Alfa Romeo.3ds");
-//		window.load3ds("Nissan350Z.3ds");
-//		window.load3ds("Nathalie aguilera Boing 747.3DS");
-//		window.load3ds("Dog 1 N280708.3ds");
-//		window.load3ds("Leon N300708.3DS");
-//		window.load3ds("Ford N120208.3ds");
-//		window.load3ds("musai.3DS");
-//		window.load3ds("Media/House/house.3ds");
-		window.load3ds("Media/fw189/fw189.3ds");
-
-		// Set up and enable light 0
-		glEnable(GL_LIGHTING);
-		glEnable(GL_LIGHT0);
-		GLfloat ambientLight[] = { 0.3f, 0.3f, 0.3f, 1.0f };
-		GLfloat diffuseLight[] = { 0.7f, 0.7f, 0.7f, 1.0f };
-		GLfloat specular[] = { 1.0f, 1.0f, 1.0f, 1.0f };
-
-		glLightfv(GL_LIGHT0, GL_AMBIENT, ambientLight);
-		glLightfv(GL_LIGHT0, GL_DIFFUSE, diffuseLight);
-		glLightfv(GL_LIGHT0, GL_SPECULAR, specular);
-
-		GLfloat lightPos[] = { -50.f, 0.0f, 40.0f, 1.0f };
-		glLightfv(GL_LIGHT0, GL_POSITION, lightPos);
+//		window.load3ds(L"titanic.3DS");
+//		window.load3ds(L"titanic2.3DS");
+//		window.load3ds(L"spaceship.3DS");
+//		window.load3ds(L"box.3DS");
+//		window.load3ds(L"ship^kiy.3ds");
+//		window.load3ds(L"Alfa Romeo.3ds");
+//		window.load3ds(L"Nissan350Z.3ds");
+//		window.load3ds(L"Nathalie aguilera Boing 747.3DS");
+//		window.load3ds(L"Dog 1 N280708.3ds");
+//		window.load3ds(L"Leon N300708.3DS");
+//		window.load3ds(L"Ford N120208.3ds");
+		window.load3ds(L"musai.3DS");
+//		window.load3ds(L"Media/House/house.3ds");
+//		window.load3ds(L"Media/fw189/fw189.3ds");
 
 		window.mainLoop();
 	}
