@@ -1,22 +1,26 @@
 #include "Pch.h"
 #include "Max3dsLoader.h"
 #include "Material.h"
+#include "MeshBuilder.h"
 #include "Model.h"
 #include "Texture.h"
 #include "../Core/Math/Vec2.h"
 #include "../Core/Math/Vec3.h"
+#include "../Core/System/Mutex.h"
 #include "../Core/System/ResourceManager.h"
 #include "../Core/System/StrUtility.h"
 #include "../Core/System/Utility.h"
-#include "../../3Party/glew/glew.h"
+#include <list>
 
 namespace MCD {
 
 namespace {
 
-// Named enums for the chunk id
-// Reference: http://www.flipcode.com/archives/Another_3DS_LoaderViewer_Class.shtml
-// Official 3Ds file SDK: http://usa.autodesk.com/adsk/servlet/item?siteID=123112&id=7481394
+/*!	Named enums for the chunk id.
+	The indentation shows the parent/child relationship between the chunks.
+	Reference: http://www.flipcode.com/archives/Another_3DS_LoaderViewer_Class.shtml
+	Official 3Ds file SDK: http://usa.autodesk.com/adsk/servlet/item?siteID=123112&id=7481394
+ */
 enum ChunkId
 {
 	MAIN3DS							= 0x4D4D,
@@ -69,20 +73,20 @@ struct ChunkHeader
 {
 	uint16_t id;
 	uint32_t length;
-};
+};	// ChunkHeader
 
-}	// namespace
-
-class Max3dsLoader::NamedMaterial : public Material
+class NamedMaterial : public Material
 {
 public:
 	std::wstring mName;
-};
+};	// NamedMaterial
+
+}	// namespace
 
 /*!	This stream class provides some add on functionarity over the std::istream,
 	and provide more error checking.
  */
-class Max3dsLoader::Stream
+class Stream
 {
 public:
 	Stream(std::istream& is, volatile IResourceLoader::LoadingState& loadingState)
@@ -216,12 +220,60 @@ static void computeNormal(const Vec3f* vertex, Vec3f* normal, const uint16_t* in
 		normal[v].normalize();
 }
 
-Max3dsLoader::Max3dsLoader(ResourceManager* resourceManager)
+class Max3dsLoader::Impl
+{
+public:
+	Impl(ResourceManager* resourceManager);
+
+	~Impl();
+
+	IResourceLoader::LoadingState load(std::istream* is);
+
+	void commit(Resource& resource);
+
+	IResourceLoader::LoadingState getLoadingState() const;
+
+	void readColor(ColorRGBf& color);
+
+	int16_t readPercentageAsInt();
+
+	size_t readString(std::wstring& str);
+
+private:
+	Stream* mStream;
+	ResourceManager* mResourceManager;
+
+	//! Represent which face the material is assigned to.
+	struct MultiSubObject
+	{
+		Material* material;
+		std::vector<uint16_t> mFaceIndex;	//! Index to the index buffer
+	};	// MultiSubObject
+
+	struct ModelInfo
+	{
+		MeshBuilder* meshBuilder;	//! Contains vertex buffer only
+		std::vector<uint16_t> index;//! The triangel index
+		std::list<MultiSubObject> multiSubObject;
+		std::vector<uint32_t> smoothingGroup;
+	};	// ModelInfo
+
+	std::list<ModelInfo> mModelInfo;
+	MeshBuilder mMeshBuilder;
+
+	typedef std::list<NamedMaterial*> MaterialList;
+	MaterialList mMaterials;
+
+	volatile IResourceLoader::LoadingState mLoadingState;
+	mutable Mutex mMutex;
+};	// Impl
+
+Max3dsLoader::Impl::Impl(ResourceManager* resourceManager)
 	: mStream(nullptr), mResourceManager(resourceManager), mLoadingState(NotLoaded)
 {
 }
 
-Max3dsLoader::~Max3dsLoader()
+Max3dsLoader::Impl::~Impl()
 {
 	MCD_FOREACH(const ModelInfo& model, mModelInfo)
 		delete model.meshBuilder;
@@ -232,7 +284,7 @@ Max3dsLoader::~Max3dsLoader()
 
 #define ABORTLOADING() { mLoadingState = Aborted; break; }
 
-IResourceLoader::LoadingState Max3dsLoader::load(std::istream* is)
+IResourceLoader::LoadingState Max3dsLoader::Impl::load(std::istream* is)
 {
 	using namespace std;
 
@@ -538,7 +590,7 @@ IResourceLoader::LoadingState Max3dsLoader::load(std::istream* is)
 	return mLoadingState;
 }
 
-void Max3dsLoader::readColor(ColorRGBf& color)
+void Max3dsLoader::Impl::readColor(ColorRGBf& color)
 {
 	ChunkHeader header;
 
@@ -555,7 +607,7 @@ void Max3dsLoader::readColor(ColorRGBf& color)
 	color.b = float(uintColor[2]) / 256;
 }
 
-int16_t Max3dsLoader::readPercentageAsInt()
+int16_t Max3dsLoader::Impl::readPercentageAsInt()
 {
 	ChunkHeader header;
 	mStream->read(header);
@@ -569,7 +621,7 @@ int16_t Max3dsLoader::readPercentageAsInt()
 	return Math<int16_t>::clamp(percentage, -100, 100);
 }
 
-size_t Max3dsLoader::readString(std::wstring& str)
+size_t Max3dsLoader::Impl::readString(std::wstring& str)
 {
 	size_t i = 0;
 	std::string objectName;
@@ -587,7 +639,7 @@ size_t Max3dsLoader::readString(std::wstring& str)
 	return i;
 }
 
-void Max3dsLoader::commit(Resource& resource)
+void Max3dsLoader::Impl::commit(Resource& resource)
 {
 	Model& model = dynamic_cast<Model&>(resource);
 
@@ -632,10 +684,40 @@ void Max3dsLoader::commit(Resource& resource)
 	}
 }
 
-IResourceLoader::LoadingState Max3dsLoader::getLoadingState() const
+IResourceLoader::LoadingState Max3dsLoader::Impl::getLoadingState() const
 {
 	ScopeLock lock(mMutex);
 	return mLoadingState;
+}
+
+Max3dsLoader::Max3dsLoader(ResourceManager* resourceManager)
+{
+	mImpl = new Impl(resourceManager);
+}
+
+Max3dsLoader::~Max3dsLoader()
+{
+	delete mImpl;
+}
+
+IResourceLoader::LoadingState Max3dsLoader::load(sal_maybenull std::istream* is)
+{
+	MCD_ASSUME(mImpl != nullptr);
+	return mImpl->load(is);
+//	LoaderImpl* impl = static_cast<LoaderImpl*>(mImpl);
+//	MCD_ASSERT(mImpl->mMutex.isLocked());
+}
+
+void Max3dsLoader::commit(Resource& resource)
+{
+	MCD_ASSUME(mImpl != nullptr);
+	mImpl->commit(resource);
+}
+
+IResourceLoader::LoadingState Max3dsLoader::getLoadingState() const
+{
+	MCD_ASSUME(mImpl != nullptr);
+	return mImpl->getLoadingState();
 }
 
 }	// namespace MCD
