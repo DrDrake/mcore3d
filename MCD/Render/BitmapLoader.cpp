@@ -42,16 +42,10 @@ class BitmapLoader::LoaderImpl : public TextureLoaderBase::LoaderBaseImpl
 public:
 	LoaderImpl(BitmapLoader& loader)
 		:
-		LoaderBaseImpl(loader),
-		mBuffer(nullptr)
+		LoaderBaseImpl(loader)
 	{
 		MCD_STATIC_ASSERT(sizeof(BITMAPFILEHEADER) == 14);
 		MCD_STATIC_ASSERT(sizeof(BITMAPINFOHEADER) == 40);
-	}
-
-	~LoaderImpl()
-	{
-		free(mBuffer);
 	}
 
 	int load(std::istream& is)
@@ -77,9 +71,9 @@ public:
 		// Memory usage for one row of image
 		const size_t rowByte = mWidth * (sizeof(char) * 3);
 
-		mBuffer = (char*)malloc(rowByte * mHeight);
+		mImageData = new byte_t[rowByte * mHeight];
 
-		if(!mBuffer) {
+		if(!mImageData) {
 			Log::format(Log::Error, L"BitmapLoader: Corruption of file or not enough memory, operation aborted");
 			return -1;
 		}
@@ -90,13 +84,11 @@ public:
 			// the vertical scan line order is inverted.
 			const size_t invertedH = mHeight - 1 - h;
 
-			for(size_t w = 0; w<mWidth; ++w) {
-				char* p = &mBuffer[invertedH * rowByte + w * 3];
-				is.read(p, 3);
-				if(is.gcount() != 3) {
-					Log::format(Log::Error, L"BitmapLoader: End of file, operation aborted");
-					return -1;
-				}
+			byte_t* p = &mImageData[invertedH * rowByte];
+			is.read((char*)p, mWidth * 3);
+			if(is.gcount() != std::streamsize(mWidth * 3)) {
+				Log::format(Log::Error, L"BitmapLoader: End of file, operation aborted");
+				return -1;
 			}
 		}
 
@@ -106,10 +98,8 @@ public:
 	void upload()
 	{
 		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, mWidth, mHeight,
-			0, GL_RGB, GL_UNSIGNED_BYTE, &mBuffer[0]);
+			0, GL_RGB, GL_UNSIGNED_BYTE, &mImageData[0]);
 	}
-
-	char* mBuffer;
 };	// LoaderImpl
 
 BitmapLoader::BitmapLoader()
@@ -127,10 +117,11 @@ IResourceLoader::LoadingState BitmapLoader::load(std::istream* is)
 	if(mLoadingState & Stopped)
 		return mLoadingState;
 
+	// There is no need to do a mutex lock during loading, since
+	// no body can access the mImageData if the loading isn't finished.
 	int result = static_cast<LoaderImpl*>(mImpl)->load(*is);
 
-	Mutex& mutex = mImpl->mMutex;
-	ScopeLock lock(mutex);
+	ScopeLock lock(mImpl->mMutex);
 
 	if(result != 0)
 		mLoadingState = Aborted;

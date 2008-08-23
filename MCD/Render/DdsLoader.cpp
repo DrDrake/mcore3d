@@ -321,6 +321,8 @@ IResourceLoader::LoadingState DdsLoader::load(std::istream* is)
 	if(mLoadingState & Stopped)
 		return mLoadingState;
 
+	// There is no need to do a mutex lock during loading, since
+	// no body can access the mImageData if the loading isn't finished.
 	int result = static_cast<LoaderImpl*>(mImpl)->load(*is);
 
 	Mutex& mutex = mImpl->mMutex;
