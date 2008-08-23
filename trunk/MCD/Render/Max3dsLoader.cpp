@@ -1,5 +1,7 @@
 #include "Pch.h"
 #include "Max3dsLoader.h"
+#include "Material.h"
+#include "Model.h"
 #include "Texture.h"
 #include "../Core/Math/Vec2.h"
 #include "../Core/Math/Vec3.h"
@@ -9,43 +11,6 @@
 #include "../../3Party/glew/glew.h"
 
 namespace MCD {
-
-Material::Material()
-	: mAmbient(0.5), mDiffuse(1), mSpecular(0), mShininess(0)
-{
-}
-
-void Material::bind() const
-{
-	{	GLfloat ambient[] = { mAmbient.r, mAmbient.g, mAmbient.b, 1.0f };
-		glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT, ambient);
-	}
-
-	{	GLfloat diffuse[] = { mDiffuse.r, mDiffuse.g, mDiffuse.b, 1.0f };
-		glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, diffuse);
-	}
-
-	{	GLfloat specular[] = { mSpecular.r, mSpecular.g, mSpecular.b, 1.0f };
-		glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR, specular);
-		glMateriali(GL_FRONT_AND_BACK, GL_SHININESS, mShininess);
-	}
-
-	if(mTexture) {
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-		mTexture->bind();
-	}
-	else
-		glBindTexture(GL_TEXTURE_2D, 0);
-}
-
-void Model::draw()
-{
-	MCD_FOREACH(const MeshAndMaterial& mesh, mMeshes) {
-		mesh.material.bind();
-		mesh.mesh->draw();
-	}
-}
 
 namespace {
 
@@ -231,26 +196,46 @@ static void computeNormal(const Vec3f* vertex, Vec3f* normal, const uint16_t* in
 		normal[v].normalize();
 }
 
-Max3dsLoader::Max3dsLoader(std::istream& is_, ResourceManager* resourceManager)
-	: mStream(new Stream(is_)), mResourceManager(resourceManager)
+Max3dsLoader::Max3dsLoader(ResourceManager* resourceManager)
+	: mStream(nullptr), mResourceManager(resourceManager), mLoadingState(NotLoaded)
+{
+}
+
+Max3dsLoader::~Max3dsLoader()
+{
+	MCD_FOREACH(const ModelInfo& model, mModelInfo)
+		delete model.meshBuilder;
+	MCD_FOREACH(NamedMaterial* material, mMaterials)
+		delete material;
+	delete mStream;
+}
+
+#define ABORTLOADING() { mLoadingState = Aborted; break; }
+
+IResourceLoader::LoadingState Max3dsLoader::load(std::istream* is)
 {
 	using namespace std;
 
-	Stream is(is_);
+	ScopeLock lock(mMutex);
 
-	size_t i;	// Index variable
+	mLoadingState = is ? NotLoaded : Aborted;
+
+	if(mLoadingState & Stopped)
+		return mLoadingState;
+
+	if(!mStream)
+		mStream = new Stream(*is);
 
 	ChunkHeader header;
 
 	MeshBuilder* currentMeshBuilder = nullptr;
 	NamedMaterial* currentMaterial = nullptr;
 
-	uint16_t l_qty;	//Number of elements in each chunk
-
 	while(true)
 	{
-		is.read(header);
-		if(is.eof()) break;
+		mStream->read(header);
+		if(mStream->eof())
+			break;
 
 		std::wstring str;
 
@@ -270,7 +255,7 @@ Max3dsLoader::Max3dsLoader(std::istream& is_, ResourceManager* resourceManager)
 			case EDIT3DS:
 			break;
 			
-			//--------------- EDIT_OBJECT ---------------
+			//--------------- OBJECT ---------------
 			// Description: Object block, info for each object
 			// Chunk Lenght: len(object name) + sub chunks
 			//-------------------------------------------
@@ -286,30 +271,32 @@ Max3dsLoader::Max3dsLoader(std::istream& is_, ResourceManager* resourceManager)
 			}
 				break;
 
-			//--------------- OBJ_TRIMESH ---------------
+			//--------------- TRIG_MESH ---------------
 			// Description: Triangular mesh, contains chunks for 3d mesh info
 			// Chunk Lenght: 0 + sub chunks
 			//-------------------------------------------
 			case TRIG_MESH:
 				break;
 
-			//--------------- TRI_VERTEXL ---------------
+			//--------------- VERT_LIST ---------------
 			// Description: Vertices list
 			// Chunk Lenght: 1 x uint16_t (number of vertices) 
 			//             + 3 x float (vertex coordinates) x (number of vertices)
 			//             + sub chunks
 			//-------------------------------------------
 			case VERT_LIST:
-				is.read(l_qty);
+			{
+				uint16_t vertexCount = 0;
+				mStream->read(vertexCount);
 				MCD_ASSERT(!mModelInfo.empty());
 				MCD_ASSERT(currentMeshBuilder == mModelInfo.back().meshBuilder);
 				MCD_ASSUME(currentMeshBuilder);
-				currentMeshBuilder->reserveVertex(l_qty);
+				currentMeshBuilder->reserveVertex(vertexCount);
 
-				for(i=0; i<l_qty; ++i) {
+				for(size_t i=0; i<vertexCount; ++i) {
 					Vec3f v;
 					MCD_ASSERT(sizeof(v) == 3 * sizeof(float));
-					is.read(v);
+					mStream->read(v);
 
 					// Now we should have all of the vertices read in. Because 3D Studio Max Models with the Z-Axis
 					// pointing up (strange and ugly I know!), we need to flip the y values with the z values in our
@@ -322,9 +309,10 @@ Max3dsLoader::Max3dsLoader(std::istream& is_, ResourceManager* resourceManager)
 					currentMeshBuilder->normal(Vec3f::cZero);	// We calculate the normal after all faces are known
 					currentMeshBuilder->addVertex();
 				}
+			}
 				break;
 
-			//--------------- TRI_FACEL1 ----------------
+			//--------------- FACE_DESC ----------------
 			// Description: Polygons (faces) list
 			// Chunk Lenght: 1 x uint16_t (number of polygons) 
 			//             + 3 x uint16_t (polygon points) x (number of polygons)
@@ -333,17 +321,17 @@ Max3dsLoader::Max3dsLoader(std::istream& is_, ResourceManager* resourceManager)
 			case FACE_DESC:
 			{
 				uint16_t faceCount;
-				is.read(faceCount);
+				mStream->read(faceCount);
 				MCD_ASSERT(!mModelInfo.empty());
 
 				std::vector<uint16_t>& idx = mModelInfo.back().index;
 				idx.resize(faceCount * 3);	// Each triangle has 3 vertex
 
-				for(i=0; i<faceCount; ++i) {
+				for(size_t i=0; i<faceCount; ++i) {
 					// Read 3 indexes at once
-					is.read(&idx[i * 3], 3 * sizeof(uint16_t));
+					mStream->read(&idx[i * 3], 3 * sizeof(uint16_t));
 					uint16_t faceFlags;	// Flag that stores some face information (currently not used)
-					is.read(faceFlags);
+					mStream->read(faceFlags);
 				}
 			}
 				break;
@@ -361,7 +349,7 @@ Max3dsLoader::Max3dsLoader(std::istream& is_, ResourceManager* resourceManager)
 
 				// Get the number of faces of the object concerned by this material
 				uint16_t faceCount;
-				is.read(faceCount);
+				mStream->read(faceCount);
 
 				if(faceCount == 0)
 					break;
@@ -374,7 +362,7 @@ Max3dsLoader::Max3dsLoader(std::istream& is_, ResourceManager* resourceManager)
 				// Read the array which describle which faces in the mesh use this material
 				MultiSubObject& object = mModelInfo.back().multiSubObject.back();
 				object.mFaceIndex.resize(faceCount);
-				is.read(&object.mFaceIndex[0], faceCount * sizeof(uint16_t));
+				mStream->read(&object.mFaceIndex[0], faceCount * sizeof(uint16_t));
 
 				// Loop for all materials to find the one with the same material name
 				MCD_FOREACH(NamedMaterial* material, mMaterials) {
@@ -395,7 +383,7 @@ Max3dsLoader::Max3dsLoader(std::istream& is_, ResourceManager* resourceManager)
 				std::vector<uint32_t>& smoothingGroup = mModelInfo.back().smoothingGroup;
 				smoothingGroup.resize(mModelInfo.back().index.size() / 3);	// Count of index / 3 = numbers of face
 
-				is.read(&smoothingGroup[0], smoothingGroup.size() * sizeof(uint32_t));
+				mStream->read(&smoothingGroup[0], smoothingGroup.size() * sizeof(uint32_t));
 			}
 				break;
 
@@ -407,7 +395,8 @@ Max3dsLoader::Max3dsLoader(std::istream& is_, ResourceManager* resourceManager)
 			//-------------------------------------------
 			case TEX_VERTS:
 			{
-				is.read(l_qty);
+				uint16_t count;
+				mStream->read(count);
 				MCD_ASSERT(!mModelInfo.empty());
 				MCD_ASSERT(currentMeshBuilder == mModelInfo.back().meshBuilder);
 
@@ -417,9 +406,11 @@ Max3dsLoader::Max3dsLoader(std::istream& is_, ResourceManager* resourceManager)
 				size_t coordCount;
 				Vec2f* coord = reinterpret_cast<Vec2f*>(currentMeshBuilder->acquireBufferPointer(Mesh::TextureCoord0, &coordCount));
 
-				MCD_ASSERT(l_qty == coordCount);
-				for(i=0; i<l_qty; i++) {
-					is.read(coord[i]);
+				if(count != coordCount)
+					ABORTLOADING();
+
+				for(size_t i=0; i<count; i++) {
+					mStream->read(coord[i]);
 					// Open gl flipped the texture vertically
 					// Reference: http://www.devolution.com/pipermail/sdl/2002-September/049064.html
 					coord[i].y = 1 - coord[i].y;
@@ -489,12 +480,18 @@ Max3dsLoader::Max3dsLoader(std::istream& is_, ResourceManager* resourceManager)
 			// to the same level next chunk
 			//-------------------------------------------
 			default:
-				is.skip(header.length - 6);
+				mStream->skip(header.length - 6);
 		}
 
-		if(is.eof())
+		if(mLoadingState == Aborted)
+			break;
+
+		if(mStream->eof() || mLoadingState == Aborted)
 			break;
 	}
+
+	if(mLoadingState == Aborted)
+		return mLoadingState;
 
 	// Calculate vertex normal for each mesh
 	MCD_FOREACH(const ModelInfo& model, mModelInfo) {
@@ -520,15 +517,10 @@ Max3dsLoader::Max3dsLoader(std::istream& is_, ResourceManager* resourceManager)
 		meshBuilder->releaseBufferPointer(normal);
 		meshBuilder->releaseBufferPointer(vertex);
 	}
-}
 
-Max3dsLoader::~Max3dsLoader()
-{
-	MCD_FOREACH(const ModelInfo& model, mModelInfo)
-		delete model.meshBuilder;
-	MCD_FOREACH(NamedMaterial* material, mMaterials)
-		delete material;
-	delete mStream;
+	mLoadingState = Loaded;
+
+	return mLoadingState;
 }
 
 void Max3dsLoader::readColor(ColorRGBf& color)
@@ -578,9 +570,13 @@ size_t Max3dsLoader::readString(std::wstring& str)
 	return i;
 }
 
-void Max3dsLoader::commit(Model& model, MeshBuilder::StorageHint storageHint)
+void Max3dsLoader::commit(Resource& resource)
 {
-	model.mMeshes.clear();
+	Model& model = dynamic_cast<Model&>(resource);
+
+	// TODO: Design a way to set this variable from outside
+	MeshBuilder::StorageHint storageHint = MeshBuilder::Static;
+
 	MCD_FOREACH(const ModelInfo& modelInfo, mModelInfo) {
 		MeshBuilder* builder = modelInfo.meshBuilder;
 
@@ -617,6 +613,12 @@ void Max3dsLoader::commit(Model& model, MeshBuilder::StorageHint storageHint)
 			model.mMeshes.push_back(meshMat);
 		}
 	}
+}
+
+IResourceLoader::LoadingState Max3dsLoader::getLoadingState() const
+{
+	ScopeLock lock(mMutex);
+	return mLoadingState;
 }
 
 }	// namespace MCD

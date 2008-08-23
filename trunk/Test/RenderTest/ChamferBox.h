@@ -1,16 +1,9 @@
 #ifndef __MCD_RENDERTEST_CHAMFERBOX__
 #define __MCD_RENDERTEST_CHAMFERBOX__
 
-#include "../../MCD/Render/GlWindow.h"
 #include "../../MCD/Core/Math/Mat33.h"
 #include "../../MCD/Core/Math/BasicFunction.h"
 #include "../../3Party/glew/glew.h"
-
-#if defined(MCD_VC)
-#	pragma comment(lib, "OpenGL32")
-#	pragma comment(lib, "GLU32")
-#	pragma comment(lib, "GlAux")
-#endif
 
 //! Create a chamfer box with length = 2
 class ChamferBoxBuilder : protected MeshBuilder

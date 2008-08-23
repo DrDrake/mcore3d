@@ -35,31 +35,32 @@ class TaskPool;
 	Typical usage of ResourceManager:
 
 	\code
-	//! Factory for loading texture
-	class TextureFactory : public ResourceManager::IFactory {
+	//! Factory for loading jpg texture
+	class JpgLoaderFactory : public ResourceManager::IFactory {
 	public:
 		sal_override ResourcePtr createResource(const Path& fileId) {
-			return new Texture(fileId);
+			if(wstrCaseCmp(fileId.getExtension().c_str(), L"jpg") == 0)
+				return new Texture(fileId);
+			return nullptr;
 		}
 		sal_override IResourceLoader* createLoader() {
-			return new TextureLoader;
+			return new JpgLoader;
 		}
-	};	// TextureFactory
+	};	// JpgLoaderFactory
 
 	// ...
 
 	// Create a resource manager using the current directory
 	ResourceManager manager(new MCD::RawFileSystem(L"./"));
 
-	// Associate common texture format with TextureFactory 
-	manager.associateFactory(L"png", new TextureFactory);
-	manager.associateFactory(L"jpg", new TextureFactory);
+	// Associate a jpg loader to the manager 
+	manager.addFactory(new JpgLoaderFactory);
 
 	// ...
 
 	// Some where in time you want to load a texture
 	ResourcePtr resource = manager.load(
-		L"logo.png",	// Path to the resource in the file system
+		L"logo.jpg",	// Path to the resource in the file system
 		false,			// True for blocking load; false for background load
 		0				// The load priority (for background load)
 	);

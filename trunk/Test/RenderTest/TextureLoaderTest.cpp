@@ -18,10 +18,10 @@ static std::auto_ptr<IResourceLoader> createLoader(const wchar_t* file)
 
 	if(ext == L"bmp")
 		return std::auto_ptr<IResourceLoader>(new BitmapLoader);
-	else if(ext == L"png")
-		return std::auto_ptr<IResourceLoader>(new PngLoader);
 	else if(ext == L"jpg")
 		return std::auto_ptr<IResourceLoader>(new JpegLoader);
+	else if(ext == L"png")
+		return std::auto_ptr<IResourceLoader>(new PngLoader);
 	else
 		return std::auto_ptr<IResourceLoader>(nullptr);
 }
@@ -35,8 +35,8 @@ struct TestStruct
 
 TestStruct gTestStruct[] = {
 	{ L"4x4.bmp",					4,   4   },
-	{ L"4x4.png",					4,   4   },
 	{ L"4x4.jpg",					4,   4   },
+	{ L"4x4.png",					4,   4   },
 	{ L"Gray512x512.jpg",			512, 512 },
 	{ L"Normal512x512.jpg",			512, 512 },
 	{ L"Progressive512x512.jpg",	512, 512 },
