@@ -64,6 +64,10 @@ public:
 	/*!	The destructor will wait for all those tasks to finish.
 		It make sure all tasks will execute it's Task::run() function, so that
 		user have a chance to do cleanup before exiting run().
+		\note
+			For some cases you may need to call stop() explicitly before ~TaskPool();
+			For example, the taskes may reference some object that should be destroyed
+			before the task pool.
 	 */
 	~TaskPool();
 
@@ -72,10 +76,19 @@ public:
 
 	/*! Set the number of thread.
 		\param wait Weather the function should block until the desired number of thread is achieved.
+		\note
+			Calling setThreadCount(0, true) didn't means all the task are visited,
+			use stop() for that purpose.
 	 */
 	void setThreadCount(size_t targetCount, bool wait=false);
 
 	size_t getThreadCount() const;
+
+	/*!	Stop the task pool.
+		It will setThreadCount(0, true) and then call Task::run() of each task to give them a chance
+		to do any necessary cleanup.
+	 */
+	void stop();
 
 protected:
 	class TaskQueue;	//! Stores the task sorted by priority

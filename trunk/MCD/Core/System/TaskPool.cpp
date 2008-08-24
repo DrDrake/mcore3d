@@ -101,15 +101,7 @@ TaskPool::TaskPool()
 
 TaskPool::~TaskPool()
 {
-	// Turn off all the threads first.
-	TaskPool::setThreadCount(0, true);
-
-	// Then run though all the task, so that there is a chance for those tasks
-	// to clean up themself (eg. call "delete this;" in the run() function)
-	Thread dummyThread;
-	Task* task;
-	while((task = mTaskQueue->pop(dummyThread)) != nullptr)
-		task->run(dummyThread);
+	stop();
 
 	// Must delete mThreadPool before mTaskQueue
 	delete mThreadPool;
@@ -138,6 +130,19 @@ size_t TaskPool::getThreadCount() const
 {
 	MCD_ASSUME(mThreadPool != nullptr);
 	return mThreadPool->getThreadCount();
+}
+
+void TaskPool::stop()
+{
+	// Turn off all the threads first.
+	TaskPool::setThreadCount(0, true);
+
+	// Then run though all the task, so that there is a chance for those tasks
+	// to clean up themself (eg. call "delete this;" in the run() function)
+	Thread dummyThread;
+	Task* task;
+	while((task = mTaskQueue->pop(dummyThread)) != nullptr)
+		task->run(dummyThread);
 }
 
 }	// namespace MCD

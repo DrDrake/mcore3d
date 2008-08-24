@@ -19,6 +19,7 @@ class ResourceManager;
 
 	\sa http://www.flipcode.com/archives/Another_3DS_LoaderViewer_Class.shtml
 	\sa http://www.gamedev.net/community/forums/topic.asp?topic_id=382606
+	\sa http://gpwiki.org/index.php/C:Load3DS
  */
 class MCD_RENDER_API Max3dsLoader : public IResourceLoader, private Noncopyable
 {

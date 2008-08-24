@@ -19,6 +19,7 @@ namespace {
 /*!	Named enums for the chunk id.
 	The indentation shows the parent/child relationship between the chunks.
 	Reference: http://www.flipcode.com/archives/Another_3DS_LoaderViewer_Class.shtml
+	http://gpwiki.org/index.php/C:Load3DS
 	Official 3Ds file SDK: http://usa.autodesk.com/adsk/servlet/item?siteID=123112&id=7481394
  */
 enum ChunkId
@@ -480,12 +481,12 @@ IResourceLoader::LoadingState Max3dsLoader::Impl::load(std::istream* is)
 				if(count != coordCount)
 					ABORTLOADING();
 
-				for(size_t i=0; i<count; ++i) {
-					mStream->read(coord[i]);
-					// Open gl flipped the texture vertically
-					// Reference: http://www.devolution.com/pipermail/sdl/2002-September/049064.html
+				mStream->read(coord, sizeof(Vec2f) * count);
+
+				// Open gl flipped the texture vertically
+				// Reference: http://www.devolution.com/pipermail/sdl/2002-September/049064.html
+				for(size_t i=0; i<count; ++i)
 					coord[i].y = 1 - coord[i].y;
-				}
 
 				currentMeshBuilder->releaseBufferPointer(coord);
 			}	break;
@@ -704,8 +705,6 @@ IResourceLoader::LoadingState Max3dsLoader::load(sal_maybenull std::istream* is)
 {
 	MCD_ASSUME(mImpl != nullptr);
 	return mImpl->load(is);
-//	LoaderImpl* impl = static_cast<LoaderImpl*>(mImpl);
-//	MCD_ASSERT(mImpl->mMutex.isLocked());
 }
 
 void Max3dsLoader::commit(Resource& resource)
