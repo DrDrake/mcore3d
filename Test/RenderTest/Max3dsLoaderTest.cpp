@@ -34,7 +34,7 @@ private:
 	ResourceManager& mResourceManager;
 };	// Max3dsLoaderFactory
 
-TEST(Sphere_MeshBuilderTest)
+TEST(Max3dsLoaderTest)
 {
 	class TestWindow : public BasicGlWindow
 	{
@@ -97,8 +97,8 @@ TEST(Sphere_MeshBuilderTest)
 	{
 		TestWindow window;
 
-//		window.load3ds(L"titanic.3DS");
-//		window.load3ds(L"titanic2.3DS");
+		window.load3ds(L"titanic.3DS");
+		window.load3ds(L"titanic2.3DS");
 //		window.load3ds(L"spaceship.3DS");
 //		window.load3ds(L"box.3DS");
 //		window.load3ds(L"ship^kiy.3ds");
@@ -110,7 +110,7 @@ TEST(Sphere_MeshBuilderTest)
 //		window.load3ds(L"Ford N120208.3ds");
 		window.load3ds(L"musai.3DS");
 //		window.load3ds(L"Media/House/house.3ds");
-//		window.load3ds(L"Media/fw189/fw189.3ds");
+//		window.load3ds(L"fw189.3ds");
 
 		window.mainLoop();
 	}

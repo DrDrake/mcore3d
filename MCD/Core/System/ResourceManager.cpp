@@ -21,16 +21,17 @@ namespace MCD {
 
 struct MapNode
 {
-	// Use Path as the key
-	struct PathKey : public MapBase<const Path&, const Path&>::Node<PathKey>
+	// Use Path as the key, note that we should store a copy of the Path in PathKey rather than a reference,
+	// because the resource can be destroyed at any time but the PathKey is destroyed at a later time.
+	struct PathKey : public MapBase<Path, const Path&>::Node<PathKey>
 	{
-		typedef MapBase<const Path&, const Path&>::Node<PathKey> Super;
+		typedef MapBase<Path, const Path&>::Node<PathKey> Super;
 		explicit PathKey(const Path& path) : Super(path) {}
 		MCD_DECLAR_GET_OUTER_OBJ(MapNode, mPathKey);
 		sal_override void destroyThis() throw() {
 			delete getOuterSafe();
 		}
-	};
+	};	// PathKey
 
 	MapNode(Resource& resource, IResourceLoader& loader)
 		:
@@ -142,7 +143,7 @@ public:
 	~Impl()
 	{
 		// Stop the task pool first
-		mTaskPool.setThreadCount(0, true);
+		mTaskPool.stop();
 
 		delete &mFileSystem;
 		removeAllFactory();
