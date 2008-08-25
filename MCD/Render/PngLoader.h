@@ -20,7 +20,8 @@ public:
 		Returns when a single row of data is read (for interlaced png).
 		Change state to PartialLoaded when a pass is loaded.
 	 */
-	sal_override LoadingState load(sal_maybenull std::istream* is);
+	sal_override LoadingState load(
+		sal_maybenull std::istream* is, sal_maybenull const Path* fileId=nullptr);
 
 protected:
 	sal_override void uploadData();

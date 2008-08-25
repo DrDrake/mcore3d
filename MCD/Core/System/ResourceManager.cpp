@@ -113,7 +113,7 @@ class ResourceManager::Impl
 			while(thread.keepRun()) {
 				IResourceLoader::LoadingState state;
 				{	ScopeUnlock unlock(mutex);
-					state = mLoader.load(mIStream.get());
+					state = mLoader.load(mIStream.get(), mResource ? &mResource->fileId() : nullptr);
 				}
 
 				Event event = { mResource, &mLoader };
@@ -159,7 +159,7 @@ public:
 
 		do {
 			ScopeUnlock unlock(mEventQueue.mMutex);
-			if(node.mLoader.load(is.get()) & IResourceLoader::Stopped)
+			if(node.mLoader.load(is.get(), &fileId) & IResourceLoader::Stopped)
 				break;
 		} while(true);
 

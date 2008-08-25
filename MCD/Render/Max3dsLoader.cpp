@@ -228,7 +228,7 @@ public:
 
 	~Impl();
 
-	IResourceLoader::LoadingState load(std::istream* is);
+	IResourceLoader::LoadingState load(std::istream* is, const Path* fileId);
 
 	void commit(Resource& resource);
 
@@ -285,7 +285,7 @@ Max3dsLoader::Impl::~Impl()
 
 #define ABORTLOADING() { mLoadingState = Aborted; break; }
 
-IResourceLoader::LoadingState Max3dsLoader::Impl::load(std::istream* is)
+IResourceLoader::LoadingState Max3dsLoader::Impl::load(std::istream* is, const Path* fileId)
 {
 	using namespace std;
 
@@ -702,10 +702,10 @@ Max3dsLoader::~Max3dsLoader()
 	delete mImpl;
 }
 
-IResourceLoader::LoadingState Max3dsLoader::load(sal_maybenull std::istream* is)
+IResourceLoader::LoadingState Max3dsLoader::load(std::istream* is, const Path* fileId)
 {
 	MCD_ASSUME(mImpl != nullptr);
-	return mImpl->load(is);
+	return mImpl->load(is, fileId);
 }
 
 void Max3dsLoader::commit(Resource& resource)
