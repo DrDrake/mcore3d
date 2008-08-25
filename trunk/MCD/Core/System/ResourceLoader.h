@@ -7,6 +7,7 @@
 namespace MCD {
 
 class Resource;
+class Path;
 
 /*!	Resource loader.
  */
@@ -47,7 +48,8 @@ public:
 		}
 		\endcode
 	 */
-	virtual sal_checkreturn LoadingState load(sal_maybenull std::istream* is) = 0;
+	virtual sal_checkreturn LoadingState load(
+		sal_maybenull std::istream* is, sal_maybenull const Path* fileId=nullptr) = 0;
 
 	//! Commit the data buffer in the loader to the resource.
 	virtual void commit(Resource& resource) = 0;

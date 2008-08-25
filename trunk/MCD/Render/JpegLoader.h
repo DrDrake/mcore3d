@@ -19,7 +19,8 @@ public:
 		Returns when a single row of data (scan line) is read.
 		Change state to PartialLoaded when every 1/4 of the total scan lines are loaded.
 	 */
-	sal_override LoadingState load(sal_maybenull std::istream* is);
+	sal_override LoadingState load(
+		sal_maybenull std::istream* is, sal_maybenull const Path* fileId=nullptr);
 
 protected:
 	sal_override void uploadData();

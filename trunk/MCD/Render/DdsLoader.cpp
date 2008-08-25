@@ -312,7 +312,7 @@ DdsLoader::DdsLoader()
 	setImpl(new LoaderImpl(*this));
 }
 
-IResourceLoader::LoadingState DdsLoader::load(std::istream* is)
+IResourceLoader::LoadingState DdsLoader::load(std::istream* is, const Path* fileId)
 {
 	MCD_ASSUME(mImpl != nullptr);
 

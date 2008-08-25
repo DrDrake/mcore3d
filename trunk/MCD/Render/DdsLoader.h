@@ -18,7 +18,8 @@ public:
 	/*!	Load data from stream.
 		Block until all the data is read into it's internal buffer.
 	 */
-	sal_override LoadingState load(sal_maybenull std::istream* is);
+	sal_override LoadingState load(
+		sal_maybenull std::istream* is, sal_maybenull const Path* fileId=nullptr);
 
 protected:
 	sal_override void uploadData();
