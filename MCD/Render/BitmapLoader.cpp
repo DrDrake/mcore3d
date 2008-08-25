@@ -66,7 +66,26 @@ public:
 
 		is.read((char*)&infoHeader, sizeof(infoHeader));
 		mWidth = infoHeader.biWidth;
-		mHeight = infoHeader.biHeight;
+
+		if(infoHeader.biBitCount != 24) {
+			Log::format(Log::Error, L"BitmapLoader: Only 24-bit color is supported, operation aborted");
+			return -1;
+		}
+
+		if(infoHeader.biCompression != 0) {
+			Log::format(Log::Error, L"BitmapLoader: Compressed bmp is not supported, operation aborted");
+			return -1;
+		}
+
+		bool flipVertical;
+		if(infoHeader.biHeight > 0) {
+			mHeight = infoHeader.biHeight;
+			flipVertical = true;
+		}
+		else {
+			mHeight = -infoHeader.biHeight;
+			flipVertical = false;
+		}
 
 		// Memory usage for one row of image
 		const size_t rowByte = mWidth * (sizeof(char) * 3);
@@ -82,7 +101,7 @@ public:
 		for(size_t h = 0; h<mHeight; ++h) {
 			// Bitmap file is differ from other image format like jpg and png that
 			// the vertical scan line order is inverted.
-			const size_t invertedH = mHeight - 1 - h;
+			const size_t invertedH = flipVertical ? mHeight - 1 - h : h;
 
 			byte_t* p = &mImageData[invertedH * rowByte];
 			is.read((char*)p, mWidth * 3);
@@ -98,7 +117,7 @@ public:
 	void upload()
 	{
 		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, mWidth, mHeight,
-			0, GL_RGB, GL_UNSIGNED_BYTE, &mImageData[0]);
+			0, GL_BGR, GL_UNSIGNED_BYTE, &mImageData[0]);	// Note that the external format is GL_BGR but not GL_RGB
 	}
 };	// LoaderImpl
 

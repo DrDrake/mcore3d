@@ -647,6 +647,7 @@ void Max3dsLoader::Impl::commit(Resource& resource)
 	// TODO: Design a way to set this variable from outside
 	MeshBuilder::StorageHint storageHint = MeshBuilder::Static;
 
+	ScopeLock lock(mMutex);
 	MCD_FOREACH(const ModelInfo& modelInfo, mModelInfo) {
 		MeshBuilder* builder = modelInfo.meshBuilder;
 

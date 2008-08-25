@@ -77,7 +77,7 @@ class ResourceManager::Impl
 
 		Event popFront()
 		{
-			ScopeLock lock(mMutex);
+			MCD_ASSERT(mMutex.isLocked());
 			Event ret = { nullptr, nullptr };
 
 			if(!mQueue.empty()) {
@@ -142,18 +142,23 @@ public:
 
 	~Impl()
 	{
-		// Stop the task pool first
-		mTaskPool.stop();
+		{	ScopeLock lock(mEventQueue.mMutex);
 
-		delete &mFileSystem;
-		removeAllFactory();
+			// Stop the task pool first
+			mTaskPool.stop();
+
+			delete &mFileSystem;
+			removeAllFactory();
+		}
 	}
 
 	void blockingLoad(const Path& fileId, MapNode& node)
 	{
+		MCD_ASSERT(mEventQueue.mMutex.isLocked());
 		std::auto_ptr<std::istream> is(mFileSystem.openRead(fileId));
 
 		do {
+			ScopeUnlock unlock(mEventQueue.mMutex);
 			if(node.mLoader.load(is.get()) & IResourceLoader::Stopped)
 				break;
 		} while(true);
@@ -164,6 +169,7 @@ public:
 
 	void backgroundLoad(const Path& fileId, MapNode& node, uint priority)
 	{
+		MCD_ASSERT(mEventQueue.mMutex.isLocked());
 		std::auto_ptr<std::istream> is(mFileSystem.openRead(fileId));
 
 		// Create the task to submit to the task pool
@@ -175,11 +181,13 @@ public:
 
 	void addFactory(IFactory* factory)
 	{
+		MCD_ASSERT(mEventQueue.mMutex.isLocked());
 		mFactories.insert(factory);
 	}
 
 	void removeAllFactory()
 	{
+		MCD_ASSERT(mEventQueue.mMutex.isLocked());
 		// Delete all factories
 		MCD_FOREACH(IFactory* factory, mFactories)
 			delete factory;
@@ -188,6 +196,7 @@ public:
 
 	ResourcePtr createResource(const Path& fileId, IResourceLoader*& loader)
 	{
+		MCD_ASSERT(mEventQueue.mMutex.isLocked());
 		ResourcePtr ret;
 		// Loop for all factories to see which one will respondse to the fileId
 		MCD_FOREACH(IFactory* factory, mFactories) {
@@ -227,6 +236,7 @@ ResourceManager::~ResourceManager()
 ResourcePtr ResourceManager::load(const Path& fileId, bool block, uint priority)
 {
 	MCD_ASSUME(mImpl != nullptr);
+	ScopeLock lock(mImpl->mEventQueue.mMutex);
 
 	{	// Find for existing resource
 		MapNode* node = mImpl->mResourceMap.find(fileId)->getOuterSafe();
@@ -255,10 +265,8 @@ ResourcePtr ResourceManager::load(const Path& fileId, bool block, uint priority)
 	MCD_VERIFY(mImpl->mResourceMap.insertUnique(node->mPathKey));
 
 	// Now we can begin the load operation
-	if(block) {
-		ScopeLock lock(mImpl->mEventQueue.mMutex);
+	if(block)
 		mImpl->blockingLoad(fileId, *node);
-	}
 	else
 		mImpl->backgroundLoad(fileId, *node, priority);
 
@@ -268,18 +276,21 @@ ResourcePtr ResourceManager::load(const Path& fileId, bool block, uint priority)
 ResourceManager::Event ResourceManager::popEvent()
 {
 	MCD_ASSUME(mImpl != nullptr);
+	ScopeLock lock(mImpl->mEventQueue.mMutex);
 	return mImpl->mEventQueue.popFront();
 }
 
 void ResourceManager::addFactory(IFactory* factory)
 {
 	MCD_ASSUME(mImpl != nullptr);
+	ScopeLock lock(mImpl->mEventQueue.mMutex);
 	mImpl->addFactory(factory);
 }
 
 void ResourceManager::removeAllFactory()
 {
 	MCD_ASSUME(mImpl != nullptr);
+	ScopeLock lock(mImpl->mEventQueue.mMutex);
 	mImpl->removeAllFactory();
 }
 

@@ -12,7 +12,9 @@ int main(int, char const*[])
 	CppTestHarness::TestRunner runner;
 	runner.ShowTestName(false);
 
-	ret = runner.RunAllTests();
+//	ret = runner.RunTest("ShaderTest");
+//	ret = runner.RunAllTests();
+	ret = runner.RunTest("Max3dsLoaderTest");
 
 	return int(ret);
 }
