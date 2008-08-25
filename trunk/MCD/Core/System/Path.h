@@ -51,6 +51,12 @@ public:
 		return !getRootDirectory().empty();
 	}
 
+	/*!	Get the leaf path.
+	 */
+	string_type getLeaf() const;
+
+	Path getBranchPath() const;
+
 	/*!	Get the file extension.
 		""				-> ""		\n
 		"a.txt"			-> "txt"	\n

@@ -60,6 +60,46 @@ Path::string_type Path::getRootDirectory() const
 	return (mStr[0] == L('/') || !getRootName().empty()) ?	L("/") : L("");
 }
 
+static const wchar_t cSlash = L('/');
+
+// POSIX & Windows cases:	"", "/", "/foo", "foo", "foo/bar"
+// Windows only cases:		"c:", "c:/", "c:foo", "c:/foo",
+//							"prn:", "//share", "//share/", "//share/foo"
+static size_t leafPos(const Path::string_type& str, size_t endPos) // endPos is past-the-end position
+{
+	// return 0 if str itself is leaf (or empty)
+	if(endPos && str[endPos - 1] == cSlash)
+		return endPos - 1;
+
+	size_t pos(str.find_last_of(cSlash, endPos - 1));
+#ifdef _WIN32
+	if(pos == Path::string_type::npos)
+		pos = str.find_last_of(':', endPos - 2);
+#endif	// _WIN32
+
+	return (pos == Path::string_type::npos	// path itself must be a leaf (or empty)
+#if _WIN32
+		|| (pos == 1 && str[0] == cSlash)	// or share
+#endif	// _WIN32
+		) ? 0							// so leaf is entire string
+		: pos + 1;						// or starts after delimiter
+}
+
+Path::string_type Path::getLeaf() const
+{
+	return mStr.substr(leafPos(mStr, mStr.size()));
+}
+
+Path Path::getBranchPath() const
+{
+	size_t endPos(leafPos(mStr, mStr.size()));
+
+	// Skip a '/' unless it is a root directory
+	if(endPos && mStr[endPos - 1] == cSlash /*&& !is_absolute_root(mStr, endPos)*/)
+		--endPos;
+	return Path(mStr.substr(0, endPos));
+}
+
 Path::string_type Path::getExtension() const
 {
 	// Scan from the end for the "." character
