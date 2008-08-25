@@ -104,8 +104,8 @@ public:
 			const size_t invertedH = flipVertical ? mHeight - 1 - h : h;
 
 			byte_t* p = &mImageData[invertedH * rowByte];
-			is.read((char*)p, mWidth * 3);
-			if(is.gcount() != std::streamsize(mWidth * 3)) {
+			is.read((char*)p, rowByte);
+			if(is.gcount() != std::streamsize(rowByte)) {
 				Log::format(Log::Error, L"BitmapLoader: End of file, operation aborted");
 				return -1;
 			}

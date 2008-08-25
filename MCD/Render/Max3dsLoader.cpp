@@ -544,10 +544,13 @@ IResourceLoader::LoadingState Max3dsLoader::Impl::load(std::istream* is, const P
 				if(!currentMaterial) ABORTLOADING();
 				std::wstring textureFileName;
 				readString(textureFileName);
+
+				// Find out the 
+				Path adjustedPath = fileId ? fileId->getBranchPath()/textureFileName : textureFileName;
 				if(mResourceManager)
-					currentMaterial->mTexture = dynamic_cast<Texture*>(mResourceManager->load(textureFileName, false).get());
+					currentMaterial->mTexture = dynamic_cast<Texture*>(mResourceManager->load(adjustedPath, false).get());
 				else
-					currentMaterial->mTexture = new Texture(textureFileName);
+					currentMaterial->mTexture = new Texture(adjustedPath);
 			}	break;
 
 			// Skip unknow chunks.
