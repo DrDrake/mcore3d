@@ -76,11 +76,16 @@ TEST(StrtoNumberTest)
 	};
 
 	for(size_t i=0; i<sizeof(data)/sizeof(S); ++i) {
+		// Without default value
 		int a;
 		bool ok = wStr2Int(data[i].wideStr, a);
 		CHECK(ok == data[i].success);
 		if(ok)
 			CHECK_EQUAL(data[i].number, a);
+
+		// With default value
+		a = wStr2IntWithDefault(data[i].wideStr, -123);
+		CHECK_EQUAL(data[i].success ? data[i].number : -123, a);
 	}
 }
 

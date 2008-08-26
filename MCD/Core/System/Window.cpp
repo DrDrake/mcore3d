@@ -9,15 +9,6 @@
 
 namespace MCD {
 
-static int toInt(const wchar_t* value, int defaultVal)
-{
-	if(!value) return defaultVal;
-	int ret;
-	if(wStr2Int(value, ret))
-		return ret;
-	return defaultVal;
-}
-
 //! Parse a string with the format "x=123;y=456;"
 static void parseXy(const wchar_t* option, int& x, int& y)
 {
@@ -25,9 +16,9 @@ static void parseXy(const wchar_t* option, int& x, int& y)
 	NvpParser parser(option);
 	while(parser.next(name, value)) {
 		if(*name == L'x')
-			x = toInt(value, 0);
+			x = wStr2IntWithDefault(value, 0);
 		else if(*name == L'y')
-			y = toInt(value, 0);
+			y = wStr2IntWithDefault(value, 0);
 	}
 }
 

@@ -33,15 +33,6 @@ void GlWindow::create(const wchar_t* options) throw(std::exception)
 		impl->setOptions(options);
 	impl->createNewWindow();
 
-	// Make it active
-	impl->makeActive();
-
-	{	// Initialize glew
-		GLenum err = glewInit();
-		if(err != GLEW_OK)
-			throw std::runtime_error((const char*)glewGetErrorString(err));
-	}
-
 	// Disable v-sync (by default)
 	impl->setVerticalSync(false);
 }
