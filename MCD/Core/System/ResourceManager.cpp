@@ -142,11 +142,13 @@ public:
 
 	~Impl()
 	{
+		// Stop the task pool first
+		// Tasks may be invoked in this thread context and so they
+		// may try to acquire mEventQueue.mMutex. Acquring the mutex
+		// before calling task pool stop will result a dead lock.
+		mTaskPool.stop();
+
 		{	ScopeLock lock(mEventQueue.mMutex);
-
-			// Stop the task pool first
-			mTaskPool.stop();
-
 			delete &mFileSystem;
 			removeAllFactory();
 		}
