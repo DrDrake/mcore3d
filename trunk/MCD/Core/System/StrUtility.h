@@ -26,6 +26,9 @@ MCD_CORE_API std::wstring int2WStr(int number);
 //! Wide string to integer
 MCD_CORE_API sal_checkreturn bool wStr2Int(sal_in_z const wchar_t* wideStr, int& number);
 
+//! Wide string to integer with a supplied default value in case the parse failed.
+MCD_CORE_API int wStr2IntWithDefault(sal_in_z const wchar_t* wideStr, int defaultVal);
+
 //! Wide string to double
 MCD_CORE_API sal_checkreturn bool wStr2Double(sal_in_z const wchar_t* wideStr, double& number);
 

@@ -140,6 +140,15 @@ bool wStr2Int(const wchar_t* wideStr, int& number)
 	return !ss.fail();
 }
 
+int wStr2IntWithDefault(sal_in_z const wchar_t* wideStr, int defaultVal)
+{
+	if(!wideStr) return defaultVal;
+	int ret;
+	if(wStr2Int(wideStr, ret))
+		return ret;
+	return defaultVal;
+}
+
 NvpParser::NvpParser(const wchar_t* str)
 	: mStr(nullptr), mPos(nullptr)
 {

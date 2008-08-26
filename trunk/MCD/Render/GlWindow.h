@@ -39,11 +39,14 @@ public:
 	GlWindow();
 	sal_override ~GlWindow();
 
-	/*!	Create a new window
+	/*!	Create a new window.
+		Additional supported options:
+
+		FSAA = '0|2|4|16' // Full-screen anti-aliasing\n
 	 */
 	sal_override void create(sal_in_z_opt const wchar_t* options=nullptr) throw(std::exception);
 
-	/*!	Create a window from an existing control
+	/*!	Create a window from an existing control.
 	 */
 	sal_override void create(Handle existingControl, sal_in_z_opt const wchar_t* options=nullptr) throw(std::exception);
 

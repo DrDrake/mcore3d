@@ -251,7 +251,7 @@ void Window::Impl::setColorBits(const wchar_t* value)
 	if(mWnd)
 		return;
 
-	uint colorBits = toInt(value, 32);
+	uint colorBits = wStr2IntWithDefault(value, 32);
 	if(colorBits != 4 && colorBits != 8 && colorBits != 16 && colorBits != 32)
 		return;
 
@@ -274,7 +274,7 @@ void Window::Impl::setFullscreen(const wchar_t* value)
 	// Cannot change the fullscreen mode once the window is created
 	if(mWnd)
 		return;
-	mFullScreen = (toInt(value, false) == 1);
+	mFullScreen = (wStr2IntWithDefault(value, false) == 1);
 }
 
 void Window::Impl::setFullscreen(bool flag)
@@ -328,20 +328,20 @@ void Window::Impl::setFullscreen(bool flag)
 // "height = 600"
 void Window::Impl::setHeight(const wchar_t* value)
 {
-	mHeight = toInt(value, 600);
+	mHeight = wStr2IntWithDefault(value, 600);
 }
 
 // "show = 0|1"
 void Window::Impl::setShowWindow(const wchar_t* value)
 {
-	mShowWindow = toInt(value, 1) == 1 ? SW_SHOW : SW_HIDE;
+	mShowWindow = wStr2IntWithDefault(value, 1) == 1 ? SW_SHOW : SW_HIDE;
 	::ShowWindow(mWnd, mShowWindow);
 }
 
 // "showCursor = 0|1"
 void Window::Impl::setShowCursor(const wchar_t* value)
 {
-	::ShowCursor(toInt(value, 1) == 1);
+	::ShowCursor(wStr2IntWithDefault(value, 1) == 1);
 }
 
 // "title = 'Simple game engine'"
@@ -353,7 +353,7 @@ void Window::Impl::setTitle(const wchar_t* value)
 // "width = 800"
 void Window::Impl::setWidth(const wchar_t* value)
 {
-	mWidth = toInt(value, 800);
+	mWidth = wStr2IntWithDefault(value, 800);
 }
 
 sal_override void Window::Impl::setOption(const wchar_t* name, const wchar_t* value)
