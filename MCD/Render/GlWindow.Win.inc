@@ -17,7 +17,9 @@ public:
 	typedef Window::Impl Super;
 
 	Impl(Window& w)
-		: Super(w), mMultiSampleLevel(0)
+		: Super(w),
+		mDefaultPixelFormat(0), mMultiSamplePixelFormat(0),
+		mMultiSampleLevel(0)
 	{
 	}
 
@@ -28,51 +30,36 @@ public:
 
 	sal_override void createNewWindow()
 	{
-		{	// Create a dummy window just for quering of multi-sample's pixel format
-			BOOL showWindowBackup = mShowWindow;
-			mShowWindow = false;
-			Super::createNewWindow();
-			mShowWindow = showWindowBackup;
-		}
+		Super::createNewWindow();
 
 		// Get the device context
 		mDc = ::GetDC(HWND(mWnd));
 		if(mDc == nullptr)
 			throw std::runtime_error("Win32 API call 'GetDC' failed");
 
-		// Initialize WGL
-		PIXELFORMATDESCRIPTOR pfd;
-		::ZeroMemory(&pfd, sizeof(pfd));
-		pfd.nVersion = 1;
-		pfd.nSize = sizeof(pfd);
-		pfd.dwFlags = PFD_DRAW_TO_WINDOW | PFD_SUPPORT_OPENGL | PFD_DOUBLEBUFFER;
-		pfd.iPixelType = PFD_TYPE_RGBA;
-		pfd.cColorBits = mColorBits;
-		pfd.cDepthBits = 16;
-		pfd.cStencilBits = 8;
-		pfd.iLayerType = PFD_MAIN_PLANE;
+		if(!mDefaultPixelFormat) {
+			// Initialize WGL
+			::ZeroMemory(&mDefaultPixelFormat, sizeof(mPfd));
+			mPfd.nVersion = 1;
+			mPfd.nSize = sizeof(mPfd);
+			mPfd.dwFlags = PFD_DRAW_TO_WINDOW | PFD_SUPPORT_OPENGL | PFD_DOUBLEBUFFER;
+			mPfd.iPixelType = PFD_TYPE_RGBA;
+			mPfd.cColorBits = mColorBits;
+			mPfd.cDepthBits = 16;
+			mPfd.cStencilBits = 8;
+			mPfd.iLayerType = PFD_MAIN_PLANE;
 
-		int pixelFormat = ::ChoosePixelFormat(mDc, &pfd);
-
-		if(!createContext(pixelFormat, pfd))
-			throw std::runtime_error("Fail to create render context");
-
-		if(mMultiSampleLevel == 0) {
-			setShowWindow(mShowWindow ? L"1" : L"0");
-			return;
+			mDefaultPixelFormat = ::ChoosePixelFormat(mDc, &mPfd);
 		}
 
-		pixelFormat = getMultiSamplePixelFormat(pfd, mMultiSampleLevel);
-		if(pixelFormat > 0) {
-			destroy();
-			Super::createNewWindow();
-			mDc = ::GetDC(HWND(mWnd));
-		}
+		if(mMultiSamplePixelFormat)
+			mDefaultPixelFormat = mMultiSamplePixelFormat;
 
-		if(!createContext(pixelFormat, pfd))
+		if(!createContext())
 			throw std::runtime_error("Fail to create render context");
 
-		glEnable(GL_MULTISAMPLE);
+		if(mMultiSamplePixelFormat)
+			glEnable(GL_MULTISAMPLE);
 	}
 
 	sal_override void destroy()
@@ -113,10 +100,48 @@ public:
 			Super::setOption(name, value);
 	}
 
-private:
-	bool createContext(int pixelFormat, const PIXELFORMATDESCRIPTOR& pfd)
+	/*!	Get a pixel format that support the requested level of multi-sampling.
+		Example from Nehe: http://nehe.gamedev.net/data/lessons/lesson.asp?lesson=46
+		\return false if failed
+	 */
+	bool detectMultiSamplePixelFormat()
 	{
-		if(pixelFormat == 0 || !::SetPixelFormat(mDc, pixelFormat, &pfd))
+		// If the user didn't ask for FSAA, just use the default pixel format
+		if(mMultiSampleLevel == 0) {
+			mMultiSamplePixelFormat = mDefaultPixelFormat;
+			return true;
+		}
+
+		float fAttributes[] = { 0, 0 };
+
+		int iAttributes[] =
+		{
+			WGL_DRAW_TO_WINDOW_ARB, GL_TRUE,
+			WGL_SUPPORT_OPENGL_ARB, GL_TRUE,
+			WGL_ACCELERATION_ARB, WGL_FULL_ACCELERATION_ARB,
+			WGL_COLOR_BITS_ARB, 24,
+			WGL_ALPHA_BITS_ARB, 8,
+			WGL_DEPTH_BITS_ARB, mPfd.cDepthBits,
+			WGL_STENCIL_BITS_ARB, mPfd.cStencilBits,
+			WGL_DOUBLE_BUFFER_ARB, GL_TRUE,
+			WGL_SAMPLE_BUFFERS_ARB, GL_TRUE,
+			WGL_SAMPLES_ARB, mMultiSampleLevel,
+			0, 0
+		};
+
+		if(!wglChoosePixelFormatARB)
+			return false;
+
+		uint numFormats;
+		BOOL valid = wglChoosePixelFormatARB(mDc, iAttributes, fAttributes, 1, &mMultiSamplePixelFormat, &numFormats);
+
+		return (valid && numFormats >= 1);
+	}
+
+private:
+	bool createContext()
+	{
+		if(mDefaultPixelFormat == 0 || !::SetPixelFormat(mDc, mDefaultPixelFormat, &mPfd))
 			return false;
 
 		mRc = ::wglCreateContext(mDc);
@@ -132,48 +157,12 @@ private:
 		return true;
 	}
 
-	/*!	Get a pixel format that support the requested level of multi-sampling.
-		Example from Nehe: http://nehe.gamedev.net/data/lessons/lesson.asp?lesson=46
-		See http://www.gamedev.net/community/forums/topic.asp?topic_id=423903 about a discussion
-		on using a dummy window.
-		\return 0 if failed
-	 */
-	int getMultiSamplePixelFormat(const PIXELFORMATDESCRIPTOR& pfd, uint multiSampleLevel)
-	{
-		float fAttributes[] = { 0, 0 };
-
-		int iAttributes[] =
-		{
-			WGL_DRAW_TO_WINDOW_ARB, GL_TRUE,
-			WGL_SUPPORT_OPENGL_ARB, GL_TRUE,
-			WGL_ACCELERATION_ARB, WGL_FULL_ACCELERATION_ARB,
-			WGL_COLOR_BITS_ARB, 24,
-			WGL_ALPHA_BITS_ARB, 8,
-			WGL_DEPTH_BITS_ARB, pfd.cDepthBits,
-			WGL_STENCIL_BITS_ARB, pfd.cStencilBits,
-			WGL_DOUBLE_BUFFER_ARB, GL_TRUE,
-			WGL_SAMPLE_BUFFERS_ARB, GL_TRUE,
-			WGL_SAMPLES_ARB, multiSampleLevel,
-			0, 0
-		};
-
-		if(!wglChoosePixelFormatARB)
-			return 0;
-
-		int pixelFormat = 0;
-		uint numFormats;
-		// First We Check To See If We Can Get A Pixel Format For 4 Samples
-		BOOL valid = wglChoosePixelFormatARB(mDc, iAttributes, fAttributes, 1, &pixelFormat, &numFormats);
-
-		if(!valid || numFormats < 1)
-			return 0;
-
-		return pixelFormat;
-	}
-
 	HDC mDc;
 	HGLRC mRc;
+	int mDefaultPixelFormat;
+	int mMultiSamplePixelFormat;
 	uint mMultiSampleLevel;
+	PIXELFORMATDESCRIPTOR mPfd;
 };	// Impl
 
 }	// namespace MCD
