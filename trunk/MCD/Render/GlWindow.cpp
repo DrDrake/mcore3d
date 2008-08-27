@@ -1,5 +1,6 @@
 #include "Pch.h"
 #include "GlWindow.h"
+#include "../Core/System/Log.h"
 #include "../Core/System/Window.inl"
 #include "../../3Party/glew/glew.h"
 
@@ -28,6 +29,20 @@ void GlWindow::create(const wchar_t* options) throw(std::exception)
 	// Not that we should operate on the local Impl class but not Window::Impl class.
 	Impl* impl = static_cast<Impl*>(mImpl);
 	MCD_ASSUME(impl != nullptr);
+
+	{	// Create a dummy window first
+		// See http://www.gamedev.net/community/forums/topic.asp?topic_id=423903 about a discussion
+		// on using a dummy window.
+		int showBackup = impl->mShowWindow;
+		impl->mShowWindow = false;
+		impl->createNewWindow();
+		if(options)
+			impl->setOptions(options);
+		if(!impl->detectMultiSamplePixelFormat())
+			Log::format(Log::Warn, L"The requested level of full-screen anti-aliasing is not supported.");
+		impl->destroy();
+		impl->mShowWindow = showBackup;
+	}
 
 	if(options)
 		impl->setOptions(options);
