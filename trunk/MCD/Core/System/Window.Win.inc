@@ -210,8 +210,14 @@ void Window::Impl::createNewWindow()
 			mHeight = rect.bottom - rect.top;
 		}
 
-		if(mFullScreen)
+		if(mFullScreen) {
 			setFullscreen(true);
+
+			// Generate a resize event explicitly, since the win32 system didn't
+			// generate one for full-screen mode
+			WPARAM lParam = MAKELONG(mWidth, mHeight);
+			::PostMessage(mWnd, WM_SIZE, SIZE_MAXIMIZED, lParam);
+		}
 	}
 
 	// Associate the this pointer as the user-data of the window handle
