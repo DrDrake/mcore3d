@@ -68,7 +68,9 @@ void BasicGlWindow::mainLoop()
 			switch(e.Type)
 			{
 			case Event::MouseWheelMoved:
-				mFieldOfView -= float(e.MouseWheel.Delta);
+				mFieldOfView *= pow(0.9f, e.MouseWheel.Delta);
+				if(mFieldOfView > 160)
+					mFieldOfView = 160;
 				setFieldOfView(mFieldOfView);
 				break;
 
