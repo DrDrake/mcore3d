@@ -118,7 +118,7 @@ void TaskPool::setThreadCount(size_t targetCount, bool wait)
 	MCD_ASSUME(mThreadPool != nullptr);
 
 	// This is a common patten to inform the thread to quit, do a 
-	// condtion variable broadcast and then wait for the threads to quit.
+	// condition variable broadcast and then wait for the threads to quit.
 	if(wait) {
 		mThreadPool->setThreadCount(targetCount, false);
 		mTaskQueue->mCondVar.broadcast();

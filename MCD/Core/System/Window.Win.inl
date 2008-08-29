@@ -69,7 +69,7 @@ public:
 
 	HWND mWnd;
 	Window& mWindow;
-	DEVMODE mDisplaySettingBackup;	//! Backup of the currect display setting before we go into fullscreen mode
+	DEVMODE mDisplaySettingBackup;	//! Backup of the current display setting before we go into fullscreen mode
 	uint8_t mColorBits;		//! Number of bits per pixel
 	bool mFullScreen;
 	int mShowWindow;

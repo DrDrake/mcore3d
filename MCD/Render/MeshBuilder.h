@@ -34,7 +34,7 @@ typedef Vec3<float> Vec3f;
 	builder.reserveVertex(3);
 	builder.reserveTriangle(1);
 
-	// All 3 vertice have the same normal [0,0,1]
+	// All 3 vertices have the same normal [0,0,1]
 	builder.normal(Vec3f(0, 0, 1));
 
 	// First vertex
@@ -55,7 +55,7 @@ typedef Vec3<float> Vec3f;
 	builder.textureCoord(Vec2f(1, 0));
 	uint16_t idx3 = builder.addVertex();
 
-	// Create a triangle using the 3 vertice
+	// Create a triangle using the 3 vertices
 	builder.addTriangle(idx1, idx2, idx3);
 
 	// Commit the data to a mesh
@@ -73,7 +73,7 @@ public:
 	//!	Enable specific format(s) to be build.
 	void enable(uint format);
 
-	//!	Clear the mesh builder to it's emtpy state.
+	//!	Clear the mesh builder to it's empty state.
 	void clear();
 
 	//! Get the format(s) that are currently enabled.
@@ -81,14 +81,14 @@ public:
 		return mFormat;
 	}
 
-	/*!	Resurve vertex buffer space for faster vertex insertion.
+	/*!	Reserve vertex buffer space for faster vertex insertion.
 		\note
 			Setting up the format and texture coordinate size before this function
-			for maximum performace.
+			for maximum performance.
 	 */
 	void reserveVertex(size_t count);
 
-	//!	Resurve index buffer space for faster triangle insertion.
+	//!	Reserve index buffer space for faster triangle insertion.
 	void reserveTriangle(size_t count);
 
 	//!	Set the current position state.
@@ -106,7 +106,7 @@ public:
 	void textureUnit(Mesh::DataType textureUnit);
 
 	/*!	Set the number of components for the current texture unit.
-		\param size Number of components (can be 2 or 3) for the speific texture unit.
+		\param size Number of components (can be 2 or 3) for the specific texture unit.
 		\sa textureCoord()
 		\note
 			Assertion failure for re-setting the size with the same textureUnit.
@@ -160,8 +160,8 @@ public:
 
 		/*! The data store in the buffer object is likely to change frequently and will be
 			used only once (or at least very few times) in between changes. This hint tells
-			the implementation that you have time-sensitive data such as animated geom-
-			etry that will be used once and then replaced. It is crucial that the data be
+			the implementation that you have time-sensitive data such as animated geometry
+			that will be used once and then replaced. It is crucial that the data be
 			placed somewhere quick to update, even at the expense of faster rendering.
 		 */
 		Stream	= 0x88E0,
@@ -183,7 +183,7 @@ public:
 	sal_checkreturn void* acquireBufferPointer(Mesh::DataType dataType, sal_out_opt size_t* count=nullptr);
 
 	/*!	Release the pointer acquired by acquireBufferPointer().
-		\noet Do nothing if no corresponding pointer is acquired.
+		\note Do nothing if no corresponding pointer is acquired.
 		\sa acquireBufferPointer
 	 */
 	void releaseBufferPointer(void* ptr);

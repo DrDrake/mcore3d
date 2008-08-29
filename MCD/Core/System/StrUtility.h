@@ -35,7 +35,7 @@ MCD_CORE_API sal_checkreturn bool wStr2Double(sal_in_z const wchar_t* wideStr, d
 /*!	A simple name value pair parser.
 	User supply a string that contains the name value pairs where name and value is
 	linked up by the '=' character and each pair is separated by the ';' character.
-	White space are skipped by the parser so user have to put quots (''' or '"') around
+	White space are skipped by the parser so user have to put quotes (''' or '"') around
 	the name or the value, if they are going to have white spaces inside.
 
 	Example:

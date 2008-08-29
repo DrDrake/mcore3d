@@ -17,7 +17,7 @@ class ThreadPool;
 		Task(int priority=0) : MCD::TaskPool::Task(priority) {}
 
 		sal_override void run(Thread& thread) throw() {
-			// Do something usefull
+			// Do something useful
 			// You may poll thread.keepRun() to decide weather you should abort your task or not
 			// ...
 
@@ -35,7 +35,7 @@ class ThreadPool;
 
 	// The tasks are now running in parallel with the current thread
 
-	// All taskes submitted will have a chance to execute the run() function
+	// All tasks submitted will have a chance to execute the run() function
 	// when TaskPool is being deleted
 	\endcode
  */
@@ -66,7 +66,7 @@ public:
 		user have a chance to do cleanup before exiting run().
 		\note
 			For some cases you may need to call stop() explicitly before ~TaskPool();
-			For example, the taskes may reference some object that should be destroyed
+			For example, the tasks may reference some object that should be destroyed
 			before the task pool.
 	 */
 	~TaskPool();

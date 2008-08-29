@@ -26,7 +26,7 @@ public:
 
 	//! The current active texture unit
 	Mesh::DataType mTextureUnit;
-	//! Array storing the component size fot it's corresponding texture unit. Index 0 is reserved, not used.
+	//! Array storing the component size for it's corresponding texture unit. Index 0 is reserved, not used.
 	Array<size_t, Mesh::cMaxTextureCoordCount + 1> mTextureCoordSize;
 	// The current texture coordinates, the content may interpret as Vec2f or Vec3f. Index 0 is reserved, not used.
 	Array<Array<float,3>, Mesh::cMaxTextureCoordCount + 1> mTextureCoord;
@@ -347,7 +347,7 @@ bool MeshBuilder::addTriangle(uint16_t idx1, uint16_t idx2, uint16_t idx3)
 	MCD_ASSERT(mFormat & Mesh::Index);
 
 	// Check if the 3 indexes are within bound of vertex buffer
-	// Only do this checking if the builder is represonsible for the vertex buffer,
+	// Only do this checking if the builder is responsible for the vertex buffer,
 	// since the MeshBuilder may only use to build index buffer only.
 	if(mFormat & Mesh::Position) {
 		uint16_t max = uint16_t(mBuffer.mPositions.size());

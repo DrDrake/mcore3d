@@ -92,7 +92,7 @@ void Mesh::bind(DataType dataType)
 		break;
 
 	case Color:
-		// For vertex color, we only support unsiged byte
+		// For vertex color, we only support unsigned byte
 		glColorPointer(componentCount(dataType), GL_UNSIGNED_BYTE, 0, nullptr);
 		break;
 

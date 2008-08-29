@@ -14,7 +14,7 @@ public:
 	virtual const wchar_t* wwhat() const throw() = 0;
 };	// IException
 
-//! Extening the std::runtime_error with wchar_t support.
+//! Extending the std::runtime_error with wchar_t support.
 class MCD_CORE_API RuntimeError : public std::runtime_error, public IException
 {
 public:
@@ -24,7 +24,7 @@ public:
 	sal_override ~RuntimeError() throw() {}
 
 	/*!	Override function of std::exception.
-		Orginal error message may not shown correctly if
+		Original error message may not shown correctly if
 		it cannot be displayed in the current code page.
 	 */
     sal_override const char* what() const throw();

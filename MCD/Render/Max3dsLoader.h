@@ -11,9 +11,9 @@ class ResourceManager;
 
 /*!	Loader for the Autodesk 3D studio's 3ds file format.
 	The loader will load vertex attributes including position and 1 texture coordinate,
-	vertex normal is generated afterwards according the index infromation plus any smoothing
+	vertex normal is generated afterwards according the index information plus any smoothing
 	group data presented in the 3ds. Material attributes including ambient, diffuse, specular
-	and texture map are supported. Multi sub-object is also suppported so that a single
+	and texture map are supported. Multi sub-object is also supported so that a single
 	vertex buffer may be shared by multiple index buffers, where the index buffers are split-up
 	according to the different materials presented in the same vertex buffer.
 

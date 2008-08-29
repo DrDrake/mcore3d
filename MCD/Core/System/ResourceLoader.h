@@ -18,9 +18,9 @@ public:
 	{
 		NotLoaded = 0 << 0,			//! The resource is not loaded yet.
 		Loading = 1 << 0,			//! Loading operation is in progress.
-		PartialLoaded = 1 << 1,		//!	Some data is loaded and can be display immediatly (progressive loading).
+		PartialLoaded = 1 << 1,		//!	Some data is loaded and can be display immediately (progressive loading).
 		Loaded = 1 << 2,			//! The resource is fully loaded.
-		Aborted = 1 << 3,			//! The loading operation is aborted (eg error occured)
+		Aborted = 1 << 3,			//! The loading operation is aborted (eg error occurred)
 		Stopped = Loaded + Aborted,	//! For user to test against stopped ((state & Stopped) == true)
 		CanCommit = PartialLoaded + Loaded	//! For user to test against when data is available to commit ((state & CanCommit) == true)
 	};	// LoadingState
@@ -32,7 +32,7 @@ public:
 		while(true) {
 			if(loader.load(is) == IResourceLoader::PartialLoaded) {
 				loader.commit(resource);
-				// Do something usefull on the partial loaded data
+				// Do something useful on the partial loaded data
 				// ...
 			} else
 			if(loader.load(is) == IResourceLoader::Loaded) {
@@ -41,7 +41,7 @@ public:
 			}
 			else
 			if(loader.load(is) == IResourceLoader::Aborted) {
-				// Eror handling code here
+				// Error handling code here
 				// ...
 				breadk;
 			}

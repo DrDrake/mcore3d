@@ -55,7 +55,7 @@ public:
 
 	/*! Calculates the cross-product of 2 vectors, i.e. the vector that
 		lies perpendicular to them both.
-		\note The resulting vector will <b>NOT</b> be normalised, to maximise efficiency.
+		\note The resulting vector will <b>NOT</b> be normalized, to maximize efficiency.
 		\note
 			A right handed coordinate system is used therefore
 			Unit Y cross unit Z = unit X, whilst unit Z cross unit Y = - unit X.
@@ -95,21 +95,21 @@ public:
 	 */
 	T squaredDistance(const Vec3& rhs) const;
 
-    /*!	Normalises the vector.
-		This method normalises the vector such that it's length / magnitude is 1.
+    /*!	Normalizes the vector.
+		This method normalizes the vector such that it's length / magnitude is 1.
 		The result is called a unit vector.
 		\return The previous length of the vector.
         \note This function will crash for zero-sized vectors.
      */
 	T normalize();
 
-    /*!	As normalise(), except that this function will not crash for zero-sized vectors,
+    /*!	As normalize(), except that this function will not crash for zero-sized vectors,
 		but there will be no changes made to their components.
 	 */
 	T normalizeSafe();
 
-	/*!	As normalise(), except that this vector is unaffected and the
-		normalised vector is returned as a copy.
+	/*!	As normalize(), except that this vector is unaffected and the
+		normalized vector is returned as a copy.
         \note This function will crash for zero-sized vectors.
 	 */
 	Vec3 normalizedCopy() const;

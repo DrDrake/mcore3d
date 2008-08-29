@@ -6,7 +6,7 @@
 namespace MCD {
 
 /*!	Stores a squared value of a magnitude.
-	Usefull when a function returns a magnitude like Vec3::length()
+	Useful when a function returns a magnitude like Vec3::length()
 	so that comparing the result to a floating point value is optimal.
 	For example:
 	\code
@@ -16,7 +16,7 @@ namespace MCD {
 	}
 	\endcode
 
-	is equalvance to:
+	is equivalence to:
 	\code
 	Vec3f v(49);
 	if(v.squaredLength() < 8*8) {

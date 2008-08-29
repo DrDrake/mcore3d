@@ -12,7 +12,7 @@ namespace MCD {
 
 /*!
 	\note Since we use uint16_t to store index data, therefore a single Mesh instance cannot
-		stores more than 65536 vertice.
+		stores more than 65536 vertices.
  */
 class MCD_RENDER_API Mesh : public Resource, Noncopyable
 {
@@ -20,7 +20,7 @@ public:
 	//!	Enum values to describe what the mesh content represent.
 	enum DataType
 	{
-		TextureCoord	= (1 << 3) - 1,	//!< Texture corrdinate
+		TextureCoord	= (1 << 3) - 1,	//!< Texture coordinate
 		TextureCoord0	= 1,
 		TextureCoord1	= 2,
 		TextureCoord2	= 3,

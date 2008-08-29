@@ -80,7 +80,7 @@ public:
 				mExternalFormat = GL_RGBA;
 			}
 			else {
-				Log::format(Log::Error, L"JpegLoader: image with number of color componet equals to %i is not supported, operation aborted", c);
+				Log::format(Log::Error, L"JpegLoader: image with number of color component equals to %i is not supported, operation aborted", c);
 				return JPGD_FAILED;
 			}
 
