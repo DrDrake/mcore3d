@@ -34,7 +34,7 @@ public:
 			CondVar& condVar = mThreadPool.mThreadList->mCondVar;
 			ScopeLock lock(condVar);
 			this->destroyThis();	// Will trigger the removal from the thread list and destruction of this runnable
-			// This MyRunnable will also be destoryed after myThread is destroyed
+			// This MyRunnable will also be destroyed after myThread is destroyed
 			// Don't access 'this' pointer any more
 
 			condVar.signalNoLock();

@@ -144,7 +144,7 @@ public:
 	{
 		// Stop the task pool first
 		// Tasks may be invoked in this thread context and so they
-		// may try to acquire mEventQueue.mMutex. Acquring the mutex
+		// may try to acquire mEventQueue.mMutex. Acquiring the mutex
 		// before calling task pool stop will result a dead lock.
 		mTaskPool.stop();
 
@@ -200,7 +200,7 @@ public:
 	{
 		MCD_ASSERT(mEventQueue.mMutex.isLocked());
 		ResourcePtr ret;
-		// Loop for all factories to see which one will respondse to the fileId
+		// Loop for all factories to see which one will response to the fileId
 		MCD_FOREACH(IFactory* factory, mFactories) {
 			ret = factory->createResource(fileId);
 			if(ret != nullptr) {

@@ -1,6 +1,7 @@
 #ifndef __MCD_CORE_SYSTEM_RESOURCE__
 #define __MCD_CORE_SYSTEM_RESOURCE__
 
+#include "Atomic.h"
 #include "Path.h"
 #include "IntrusivePtr.h"
 #include "WeakPtr.h"
@@ -29,13 +30,13 @@ public:
 	}
 
 protected:
-	/*!	Virtual function to make Resource a polymorhpic type so
-		that we can apply dynamic_cast on concret resource type.
+	/*!	Virtual function to make Resource a polymorphic type so
+		that we can apply dynamic_cast on concrete resource type.
 	 */
 	virtual ~Resource() {}
 
 protected:
-	size_t mRefCount;
+	AtomicInteger mRefCount;
 	Path mFileId;
 };	// Resource
 

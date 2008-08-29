@@ -15,7 +15,7 @@ namespace MCD {
 
 	\note The object is responsible for destroying itself (eg. inside the intrusivePtrRelease() function).
 	\note IntrusivePtr is thread safe if operation in intrusivePtrAddRef() and intrusivePtrRelease()
-		  are thread safe (eg. use atomic interger for the reference counter)
+		  are thread safe (eg. use atomic integer for the reference counter)
  */
 template<class T>
 class IntrusivePtr

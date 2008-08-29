@@ -95,7 +95,7 @@ public:
 	{
 	public:
 		/*!	The overrides of this function should check the path to decide the filename/extension
-			is of their intrest or not. It should return a newly created resource if the file name
+			is of their interest or not. It should return a newly created resource if the file name
 			match it's interest, return null otherwise.
 
 			Example implementation for loading a jpg file:
@@ -109,7 +109,7 @@ public:
 		 */
 		virtual ResourcePtr createResource(const Path& fileId) = 0;
 
-		//! Overrided function should create and return a concret resource loader.
+		//! Overrided function should create and return a concrete resource loader.
 		virtual IResourceLoader* createLoader() = 0;
 	};	// IFactory
 

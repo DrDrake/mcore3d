@@ -56,7 +56,7 @@ public:
 	Handle handle();
 
 	/*!	Create a new window.
-		\param options A name/value pair string that describle the properties of the window
+		\param options A name/value pair string that describe the properties of the window
 		\sa NvpParser
 
 		Supported options on all platforms:
@@ -105,7 +105,7 @@ public:
 		Implicitly call processEvent() if the event queue is empty.
 		\param event Output parameter to get the event.
 		\param blocking If it's true, the function will block until an event happen.
-		\return false if the event queue is empty, meaningfull for non-blocking mode only.
+		\return false if the event queue is empty, meaningful for non-blocking mode only.
 	 */
 	bool popEvent(Event& event, bool blocking);
 

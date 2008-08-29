@@ -49,7 +49,7 @@ namespace MCD {
 		std::cout << "Key not found!" << std::endl;
 	\endcode
 
-	To add an element into multiple map (or simular intrusive container such as LinkList):
+	To add an element into multiple map (or similar intrusive container such as LinkList):
 	\code
 	// Node for a bi-directional map
 	struct BiDirMapNode {

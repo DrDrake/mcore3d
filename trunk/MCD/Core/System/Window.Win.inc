@@ -322,7 +322,7 @@ void Window::Impl::setFullscreen(bool flag)
 	else {
 		// Restore the backup settings
 		if(::ChangeDisplaySettings(&mDisplaySettingBackup, CDS_RESET) != DISP_CHANGE_SUCCESSFUL) {
-			Log::write(Log::Error, L"Fail to restore orginal screen setting from full screen mode");
+			Log::write(Log::Error, L"Fail to restore original screen setting from full screen mode");
 		}
 
 		::SetWindowLong(mWnd, GWL_STYLE, WS_OVERLAPPEDWINDOW);

@@ -40,7 +40,7 @@ public:
 	The implementation of SharedPtr use IntrusivePtr to hold a reference to a proxy object, where
 	this proxy object provides the reference counter for the actual object that we want to point to.
 
-	In order to have more control on the type of reference counter used (ie. thread safty) or how
+	In order to have more control on the type of reference counter used (ie. thread safety) or how
 	the pointee object is destroyed, you can make your own proxy class instead of using the default
 	SharedPtrProxyObject class.
 
@@ -61,7 +61,7 @@ public:
 
 	\note
 		Casting among the inheritance tree is not supported. Reworking is need if we want to support
-		such feature, currently you are recommonded to use IntrusivePtr instead.
+		such feature, currently you are recommended to use IntrusivePtr instead.
  */
 template<typename T, class Proxy = SharedPtrProxyObject<T> >
 class SharedPtr : protected IntrusivePtr<Proxy>
@@ -153,7 +153,7 @@ public:
 	}
 
 private:
-	/*!	This is a cached copy of the pointer embeded in the proxy object for fast access.
+	/*!	This is a cached copy of the pointer embedded in the proxy object for fast access.
 		If this variable is removed due to memory constrain, one more indirection will
 		introduced in the accessing functions.
 	 */

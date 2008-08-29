@@ -85,7 +85,7 @@ public:
 			}
 		}
 
-		// Create the hiden cursor
+		// Create the hidden cursor
 		createHiddenCursor();
 
 		// Create the OpenGl context

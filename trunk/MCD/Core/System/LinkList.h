@@ -32,7 +32,7 @@ namespace MCD {
 	for(Node* n = &list.back(); n != list.rend(); n = n->prev()) {}
 	\endcode
 
-	To add an element into multiple list (or simular intrusive container such as Map):
+	To add an element into multiple list (or similar intrusive container such as Map):
 	\code
 	struct ClientInfo {
 		struct Client : public LinkListBase::NodeBase {

@@ -84,7 +84,7 @@ public:
 
 }	// namespace
 
-/*!	This stream class provides some add on functionarity over the std::istream,
+/*!	This stream class provides some add on functionality over the std::istream,
 	and provide more error checking.
  */
 class Stream
@@ -154,7 +154,7 @@ static void computeNormal(const Vec3f* vertex, Vec3f* normal, const uint16_t* in
 		Vec3f v3 = vertex[i2];
 
 		// We need not to normalize this faceNormal, since a vertex's normal
-		// shoule be influenced by a larger polygon.
+		// should be influenced by a larger polygon.
 		Vec3f faceNormal = (v3 - v2) ^ (v1 - v2);
 
 		// Add the face normal to the corresponding vertices
@@ -254,7 +254,7 @@ private:
 	struct ModelInfo
 	{
 		MeshBuilder* meshBuilder;	//! Contains vertex buffer only
-		std::vector<uint16_t> index;//! The triangel index
+		std::vector<uint16_t> index;//! The triangle index
 		std::list<MultiSubObject> multiSubObject;
 		std::vector<uint32_t> smoothingGroup;
 	};	// ModelInfo
@@ -310,21 +310,21 @@ IResourceLoader::LoadingState Max3dsLoader::Impl::load(std::istream* is, const P
 		{
 			//----------------- MAIN3DS -----------------
 			// Description: Main chunk, contains all the other chunks
-			// Chunk Lenght: 0 + sub chunks
+			// Chunk Length: 0 + sub chunks
 			//-------------------------------------------
 			case MAIN3DS: 
 			break;
 
 			//----------------- EDIT3DS -----------------
 			// Description: 3D Editor chunk, objects layout info 
-			// Chunk Lenght: 0 + sub chunks
+			// Chunk Length: 0 + sub chunks
 			//-------------------------------------------
 			case EDIT3DS:
 			break;
 			
 			//--------------- OBJECT ---------------
 			// Description: Object block, info for each object
-			// Chunk Lenght: len(object name) + sub chunks
+			// Chunk Length: len(object name) + sub chunks
 			//-------------------------------------------
 			case OBJECT:
 			{	// Currently the object name has no use.
@@ -342,14 +342,14 @@ IResourceLoader::LoadingState Max3dsLoader::Impl::load(std::istream* is, const P
 
 			//--------------- TRIG_MESH ---------------
 			// Description: Triangular mesh, contains chunks for 3d mesh info
-			// Chunk Lenght: 0 + sub chunks
+			// Chunk Length: 0 + sub chunks
 			//-------------------------------------------
 			case TRIG_MESH:
 				break;
 
 			//--------------- VERT_LIST ---------------
 			// Description: Vertices list
-			// Chunk Lenght: 1 x uint16_t (number of vertices) 
+			// Chunk Length: 1 x uint16_t (number of vertices) 
 			//             + 3 x float (vertex coordinates) x (number of vertices)
 			//             + sub chunks
 			//-------------------------------------------
@@ -383,7 +383,7 @@ IResourceLoader::LoadingState Max3dsLoader::Impl::load(std::istream* is, const P
 
 			//--------------- FACE_DESC ----------------
 			// Description: Polygons (faces) list
-			// Chunk Lenght: 1 x uint16_t (number of polygons) 
+			// Chunk Length: 1 x uint16_t (number of polygons) 
 			//             + 3 x uint16_t (polygon points) x (number of polygons)
 			//             + sub chunks
 			//-------------------------------------------
@@ -429,7 +429,7 @@ IResourceLoader::LoadingState Max3dsLoader::Impl::load(std::istream* is, const P
 					mModelInfo.back().multiSubObject.push_back(object);
 				}
 
-				// Read the array which describle which faces in the mesh use this material
+				// Read the array which describe which faces in the mesh use this material
 				MultiSubObject& object = mModelInfo.back().multiSubObject.back();
 				object.mFaceIndex.resize(faceCount);
 				mStream->read(&object.mFaceIndex[0], faceCount * sizeof(uint16_t));
@@ -442,7 +442,7 @@ IResourceLoader::LoadingState Max3dsLoader::Impl::load(std::istream* is, const P
 					break;
 				}
 
-				// We should be able to find a material in mMaterials, otherwise the file should be corruped.
+				// We should be able to find a material in mMaterials, otherwise the file should be corrupted.
 				if(object.material == nullptr)
 					ABORTLOADING();
 			}	break;
@@ -460,7 +460,7 @@ IResourceLoader::LoadingState Max3dsLoader::Impl::load(std::istream* is, const P
 
 			//------------- TRI_MAPPINGCOORS ------------
 			// Description: Vertices list
-			// Chunk Lenght: 1 x unsigned short (number of mapping points) 
+			// Chunk Length: 1 x unsigned short (number of mapping points) 
 			//             + 2 x float (mapping coordinates) x (number of mapping points)
 			//             + sub chunks
 			//-------------------------------------------
@@ -520,7 +520,7 @@ IResourceLoader::LoadingState Max3dsLoader::Impl::load(std::istream* is, const P
 			{
 				if(!currentMaterial) ABORTLOADING();
 				uint16_t shininess = Math<int16_t>::clamp(readPercentageAsInt(), 0, 100);
-				// Rescle from 0-100 to 0-128 since the maximum accepted value for
+				// Rescale from 0-100 to 0-128 since the maximum accepted value for
 				// glMateriali with GL_SHININESS is 128
 				currentMaterial->mShininess = uint8_t(shininess * 128.f / 100);
 			}	break;
@@ -553,9 +553,9 @@ IResourceLoader::LoadingState Max3dsLoader::Impl::load(std::istream* is, const P
 					currentMaterial->mTexture = new Texture(adjustedPath);
 			}	break;
 
-			// Skip unknow chunks.
+			// Skip unknown chunks.
 			// We need to skip all the chunks that currently we don't use.
-			// We use the chunk lenght information to set the file pointer to the same level next chunk.
+			// We use the chunk length information to set the file pointer to the same level next chunk.
 			default:
 				mStream->skip(header.length - 6);
 		}

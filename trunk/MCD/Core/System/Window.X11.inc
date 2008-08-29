@@ -245,7 +245,7 @@ void Window::Impl::createNewWindow()
 		}
 	}
 
-	// Create the hiden cursor
+	// Create the hidden cursor
 	createHiddenCursor();
 }
 

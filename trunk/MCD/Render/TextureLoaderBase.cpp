@@ -128,7 +128,7 @@ void TextureLoaderBase::preUploadData()
 	const bool generateMipMap = false;
 
 	if(generateMipMap) {
-		// Reference on comparision between gluBuild2DMipmaps / GL_GENERATE_MIPMAP and glGenerateMipmapEXT
+		// Reference on comparison between gluBuild2DMipmaps / GL_GENERATE_MIPMAP and glGenerateMipmapEXT
 		// http://www.gamedev.net/community/forums/topic.asp?topic_id=452780
 		// http://www.opengl.org/discussion_boards/ubbthreads.php?ubb=showflat&Number=233955
 		glHint(GL_GENERATE_MIPMAP_HINT, GL_NICEST);
