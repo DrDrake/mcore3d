@@ -216,6 +216,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\Camera.h"
+				>
+			</File>
+			<File
 				RelativePath=".\Color.h"
 				>
 			</File>
@@ -278,6 +282,10 @@
 			>
 			<File
 				RelativePath=".\BitmapLoader.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\Camera.cpp"
 				>
 			</File>
 			<File

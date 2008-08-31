@@ -13,11 +13,61 @@
 
 using namespace MCD;
 
+MovingCamera::MovingCamera(const Vec3f& pos, const Vec3f look, const Vec3f& up)
+	: Camera(pos, look, up), mVelocity(0), mLastMousePos(-1)
+{
+	MCD_ASSERT(look.length() > 0);
+	MCD_ASSERT(up.length() > 0);
+}
+
+void MovingCamera::setForwardVelocity(float speed)
+{
+	mVelocity.x = speed;
+}
+
+void MovingCamera::setRightVelocity(float speed)
+{
+	mVelocity.y = speed;
+}
+
+void MovingCamera::setUpVelocity(float speed)
+{
+	mVelocity.z = speed;
+}
+
+void MovingCamera::setMousePosition(uint x, uint y)
+{
+	Vec2<int> pos = Vec2<int>(x, y);
+
+	// 1 degree per mouse pixel movement
+	static const float sensitivity = 0.5f * Mathf::cPi()/180;
+
+	// We won't have the delta value for the first invocation of setMousePosition()
+	if(mLastMousePos.x >= 0 && pos != mLastMousePos) {
+		Vec2f delta(float(pos.x - mLastMousePos.x), float(pos.y - mLastMousePos.y));
+		delta *= sensitivity;
+		rotate(Vec3f(0, 1, 0), -delta.x);
+		rotate(rightVector(), -delta.y);
+	}
+
+	mLastMousePos = Vec2<int>(x, y);
+}
+
+void MovingCamera::update(float deltaTime)
+{
+	if(mVelocity.length() > 0) {
+		moveForward(mVelocity.x * deltaTime);
+		moveRight(mVelocity.y * deltaTime);
+		moveUp(mVelocity.z  * deltaTime);
+	}
+}
+
 BasicGlWindow::BasicGlWindow(const wchar_t* options)
 	:
 	mIsClosing(false),
 	mFieldOfView(60.0f),
-	mIteration(0)
+	mIteration(0),
+	mCamera(Vec3f(0, 0, 50.0f), Vec3f(0, 0, -1), Vec3f(0, 1, 0))
 {
 	Log::start(&std::wcout);
 	Log::setLevel(Log::Level(Log::Error | Log::Warn | Log::Info));
@@ -55,6 +105,8 @@ BasicGlWindow::~BasicGlWindow()
 	Log::stop(false);
 }
 
+const float cameraVelocity = 10.f;
+
 void BasicGlWindow::mainLoop()
 {
 	while(true) {
@@ -67,6 +119,57 @@ void BasicGlWindow::mainLoop()
 
 			switch(e.Type)
 			{
+			case Event::KeyPressed:
+				switch(e.Key.Code)
+				{
+				case Key::Up:
+				case Key::W:
+					mCamera.setForwardVelocity(cameraVelocity);
+					break;
+				case Key::Down:
+				case Key::S:
+					mCamera.setForwardVelocity(-cameraVelocity);
+					break;
+				case Key::Right:
+				case Key::D:
+					mCamera.setRightVelocity(cameraVelocity);
+					break;
+				case Key::Left:
+				case Key::A:
+					mCamera.setRightVelocity(-cameraVelocity);
+					break;
+				case Key::PageUp:
+					mCamera.setUpVelocity(cameraVelocity);
+					break;
+				case Key::PageDown:
+					mCamera.setUpVelocity(-cameraVelocity);
+					break;
+				}
+				break;
+			case Event::KeyReleased:
+				switch(e.Key.Code)
+				{
+				case Key::Up:
+				case Key::W:
+				case Key::Down:
+				case Key::S:
+					mCamera.setForwardVelocity(0);
+					break;
+				case Key::Right:
+				case Key::D:
+				case Key::Left:
+				case Key::A:
+					mCamera.setRightVelocity(0);
+					break;
+				case Key::PageUp:
+				case Key::PageDown:
+					mCamera.setUpVelocity(0);
+					break;
+				}
+				break;
+			case Event::MouseMoved:
+				mCamera.setMousePosition(e.MouseMove.X, e.MouseMove.Y);
+				break;
 			case Event::MouseWheelMoved:
 				mFieldOfView *= pow(0.9f, e.MouseWheel.Delta);
 				if(mFieldOfView > 160)
@@ -128,7 +231,7 @@ void BasicGlWindow::setFieldOfView(float angle)
 
 	// Define the "viewing volume"
 	// Produce the perspective projection
-	gluPerspective(mFieldOfView, (GLfloat)mWidth/(GLfloat)mHeight, 1.0f, 1000.0f);
+	gluPerspective(mFieldOfView, (GLfloat)mWidth/(GLfloat)mHeight, 0.1f, 1000.0f);
 
 	// Restore back to the model view matrix
 	glMatrixMode(GL_MODELVIEW);
@@ -143,6 +246,8 @@ void BasicGlWindow::update()
 	if(++mIteration % 1000  == 0)
 		printf("FPS: %f\n", 1.0 / deltaTime);
 
+	mCamera.update(deltaTime);
+	mCamera.applyTransform();
 	update(deltaTime);
 	postUpdate();
 }
