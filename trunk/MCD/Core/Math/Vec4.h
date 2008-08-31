@@ -17,9 +17,9 @@ struct Vec4TupleUnion {
 	\sa MathTuple
  */
 template<typename T>
-class Vec4 : public MathTuple<T, 3, Vec4<T>, Vec4TupleUnion<T> >
+class Vec4 : public MathTuple<T, 4, Vec4<T>, Vec4TupleUnion<T> >
 {
-    typedef MathTuple<T, 3, Vec4<T>, Vec4TupleUnion<T> > super_type;
+    typedef MathTuple<T, 4, Vec4<T>, Vec4TupleUnion<T> > super_type;
 
 public:
     typedef typename super_type::param_type param_type;
