@@ -266,6 +266,10 @@
 			>
 		</File>
 		<File
+			RelativePath=".\ShaderTest.cpp"
+			>
+		</File>
+		<File
 			RelativePath=".\TextureLoaderTest.cpp"
 			>
 		</File>

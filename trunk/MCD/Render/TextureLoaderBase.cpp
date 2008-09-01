@@ -2,6 +2,7 @@
 #include "TextureLoaderBase.h"
 #include "Texture.h"
 #include "TextureLoaderBaseImpl.inc"
+#include "../Core/Math/BasicFunction.h"
 #include "../Core/System/Log.h"
 #include "../../3Party/glew/glew.h"
 
@@ -16,7 +17,9 @@ TextureLoaderBase::LoaderBaseImpl::LoaderBaseImpl(TextureLoaderBase& loader)
 
 TextureLoaderBase::LoaderBaseImpl::~LoaderBaseImpl()
 {
+	MCD_ASSERT(mMutex.isLocked());
 	delete[] mImageData;
+	mMutex.unlock();
 }
 
 TextureLoaderBase::TextureLoaderBase()
@@ -26,6 +29,8 @@ TextureLoaderBase::TextureLoaderBase()
 
 TextureLoaderBase::~TextureLoaderBase()
 {
+	if(mImpl)
+		mImpl->mMutex.lock();
 	delete mImpl;
 }
 
@@ -52,22 +57,6 @@ public:
 		return texture.mHeight;
 	}
 };	// PrivateAccessor
-
-/*! Determine if an integer is power of 2.
-	isPowerOf2(0) == false
-	isPowerOf2(1) == false
-	isPowerOf2(2) == true
-	isPowerOf2(4) == true
-	isPowerOf2(8) == true
-
-	isPowerOf2(3) == false
-	isPowerOf2(5) == false
-
-	\sa http://graphics.stanford.edu/~seander/bithacks.html#DetermineIfPowerOf2
- */
-static inline bool isPowerOf2(int v) {
-	return !(v & (v - 1)) && v;
-}
 
 void TextureLoaderBase::commit(Resource& resource)
 {
@@ -104,10 +93,15 @@ void TextureLoaderBase::commit(Resource& resource)
 
 	if(mLoadingState == Loaded) {
 		// The loader finish it's job, lets free up the resources
-		lock.cancel();
-		mImpl->mMutex.unlock();
 		delete mImpl;
 		mImpl = nullptr;
+
+		// The destruction of mImpl will release the mutex
+		lock.cancel();
+
+		// We are no-longer protected by the mutex, make a return statment
+		// to foolproof any attempt to do anything.
+		return;
 	} else {
 		mLoadingState = Loading;
 	}
@@ -115,10 +109,7 @@ void TextureLoaderBase::commit(Resource& resource)
 
 IResourceLoader::LoadingState TextureLoaderBase::getLoadingState() const
 {
-	if(mImpl) {
-		ScopeLock lock(mImpl->mMutex);
-		return mLoadingState;
-	}
+	// We don't have arithmetics on mLoadingState, so we don't need to lock on it
 	return mLoadingState;
 }
 
