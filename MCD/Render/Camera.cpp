@@ -42,12 +42,11 @@ void Camera::rotate(const Vec3f& axis, float angle)
 	rotation.fromAxisAngle(axis, angle);
 
 	// We are rotating lookAt - position
-	Quaternionf view(lookAtDir(), 1);
-	Quaternionf newView(rotation * view * rotation.conjugate());
-	lookAt = position + newView.getVec3();
+	Vec3f view = lookAtDir();
+	rotation.transform(view);
+	lookAt = position + view;
 
-	// Reference: http://www.gamedev.net/reference/articles/article1824.asp
-	upVector = (rotation * Quaternionf(upVector, 1) * rotation.conjugate()).getVec3();
+	rotation.transform(upVector);
 }
 
 void Camera::applyTransform()

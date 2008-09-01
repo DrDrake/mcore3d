@@ -54,6 +54,13 @@ public:
 		sinResult = sin(theta);	cosResult = cos(theta);
 	}
 
+	/*!	Arc-cosine function.
+		Clamp the input to [-1, 1]
+	 */
+	static Real aCosClamp(Real x) {
+		return ::acos(clamp(x, -1, 1));
+	}
+
 	//! Returns whether a floating point value is consider as zero within a tolerance.
 	static bool isNearZero(Real val, Real tolerance = 1e-6) {
 		return fabs(val) <= tolerance;
@@ -73,6 +80,22 @@ public:
 };	// Math
 
 typedef Math<float> Mathf;
+
+/*! Determine if an integer is power of 2.
+	isPowerOf2(0) == false
+	isPowerOf2(1) == false
+	isPowerOf2(2) == true
+	isPowerOf2(4) == true
+	isPowerOf2(8) == true
+
+	isPowerOf2(3) == false
+	isPowerOf2(5) == false
+
+	\sa http://graphics.stanford.edu/~seander/bithacks.html#DetermineIfPowerOf2
+ */
+static inline bool isPowerOf2(int v) {
+	return !(v & (v - 1)) && v;
+}
 
 }	// namespace MCD
 

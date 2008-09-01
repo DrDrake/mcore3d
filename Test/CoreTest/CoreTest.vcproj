@@ -289,6 +289,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\Math\QuaternionTest.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\Math\TupleTest.cpp"
 				>
 			</File>
