@@ -55,7 +55,8 @@ void Quaternion<T>::fromAxisAngle(const Vec3<T>& axis, T angle)
 
 	T axisLen2 = axis.squaredLength();
 	MCD_ASSUME(axisLen2 > 0);
-	Vec3<T> u(axis * (sin / sqrt(axisLen2)));
+	T scaleDown = axisLen2 > 0 ? sqrt(axisLen2) : 1;
+	Vec3<T> u(axis * (sin / scaleDown));
 	setVec3(u);
 	w = cos;
 }

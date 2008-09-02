@@ -52,9 +52,19 @@ public:
 	}
 
 	/*!	Get the leaf path.
+		""				-> ""		\n
+		"/"				-> "/"		\n
+		"a.txt"			-> "a.txt"	\n
+		"/home/a.b.txt"	-> "a.b.txt"\n
 	 */
 	string_type getLeaf() const;
 
+	/*!	Get the branch path.
+		""				-> ""		\n
+		"/"				-> ""		\n
+		"a.txt"			-> ""		\n
+		"/home/a.b.txt"	-> "/home"	\n
+	 */
 	Path getBranchPath() const;
 
 	/*!	Get the file extension.

@@ -1,4 +1,6 @@
 #include "Pch.h"
+#include "../../../MCD/Core/System/ErrorCode.h"
+#include "../../../MCD/Core/System/Exception.h"
 #include "../../../MCD/Core/System/Utility.h"
 
 using namespace MCD;
@@ -51,5 +53,24 @@ TEST(Foreach_UtilityTest)
 				return;
 			}
 		}
+	}
+}
+
+TEST(ErrorCodeTest)
+{
+	int lastError = getLastError();
+	setLastError(lastError);
+}
+
+TEST(RuntimeErrorTest)
+{
+	{	RuntimeError error("Hello!");
+		CHECK_EQUAL(std::string("Hello!"), std::string(error.what()));
+		CHECK_EQUAL(std::wstring(L"Hello!"), std::wstring(error.wwhat()));
+	}
+
+	{	RuntimeError error(L"Hello!");
+		CHECK_EQUAL(std::string("Hello!"), std::string(error.what()));
+		CHECK_EQUAL(std::wstring(L"Hello!"), std::wstring(error.wwhat()));
 	}
 }
