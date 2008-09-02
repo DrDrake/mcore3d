@@ -30,6 +30,7 @@ void GlWindow::create(const wchar_t* options) throw(std::exception)
 	Impl* impl = static_cast<Impl*>(mImpl);
 	MCD_ASSUME(impl != nullptr);
 
+#ifdef MCD_VC
 	{	// Create a dummy window first
 		// See http://www.gamedev.net/community/forums/topic.asp?topic_id=423903 about a discussion
 		// on using a dummy window.
@@ -43,6 +44,7 @@ void GlWindow::create(const wchar_t* options) throw(std::exception)
 		impl->destroy();
 		impl->mShowWindow = showBackup;
 	}
+#endif
 
 	if(options)
 		impl->setOptions(options);

@@ -89,6 +89,11 @@ TEST(StrtoNumberTest)
 	}
 }
 
+TEST(WStrCaseCmpTest)
+{
+	CHECK_EQUAL(0, wstrCaseCmp(L"abc", L"AbC"));
+}
+
 TEST(NvpParserTest)
 {
 	const wchar_t* str =

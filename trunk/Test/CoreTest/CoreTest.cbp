@@ -73,6 +73,7 @@
 		</Linker>
 		<Unit filename="Main.cpp" />
 		<Unit filename="Math\Mat33Test.cpp" />
+		<Unit filename="Math\QuaternionTest.cpp" />
 		<Unit filename="Math\TupleTest.cpp" />
 		<Unit filename="Math\Vec2Test.cpp" />
 		<Unit filename="Math\Vec3Test.cpp" />

@@ -69,8 +69,10 @@ BasicGlWindow::BasicGlWindow(const wchar_t* options)
 	mIteration(0),
 	mCamera(Vec3f(0, 0, 50.0f), Vec3f(0, 0, -1), Vec3f(0, 1, 0))
 {
+#ifndef MCD_CYGWIN
 	Log::start(&std::wcout);
 	Log::setLevel(Log::Level(Log::Error | Log::Warn | Log::Info));
+#endif
 
 	create(options);
 
@@ -144,6 +146,8 @@ void BasicGlWindow::mainLoop()
 				case Key::PageDown:
 					mCamera.setUpVelocity(-cameraVelocity);
 					break;
+				default:
+					break;
 				}
 				break;
 			case Event::KeyReleased:
@@ -164,6 +168,8 @@ void BasicGlWindow::mainLoop()
 				case Key::PageUp:
 				case Key::PageDown:
 					mCamera.setUpVelocity(0);
+					break;
+				default:
 					break;
 				}
 				break;

@@ -143,7 +143,7 @@ PngLoader::PngLoader()
 	setImpl(new LoaderImpl(*this));
 }
 
-IResourceLoader::LoadingState PngLoader::load(std::istream* is, const Path* fileId)
+IResourceLoader::LoadingState PngLoader::load(std::istream* is, const Path*)
 {
 	MCD_ASSUME(mImpl != nullptr);
 

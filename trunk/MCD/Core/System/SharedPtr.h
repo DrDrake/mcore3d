@@ -21,20 +21,22 @@ public:
 		delete mPtr;
 	}
 
-	friend void intrusivePtrAddRef(sal_notnull SharedPtrProxyObject* p) {
-		++(p->mRefCount);
-	}
-
-	friend void intrusivePtrRelease(sal_notnull SharedPtrProxyObject* p) {
-		if(--(p->mRefCount) == 0)
-			delete p;
-	}
-
 	T* mPtr;
 
 	//! The reference counter. You may change it to atomic integer for thread-safty
 	size_t mRefCount;
 };	// SharedPtrProxyObject
+
+template<typename T>
+void intrusivePtrAddRef(sal_notnull SharedPtrProxyObject<T>* p) {
+	++(p->mRefCount);
+}
+
+template<typename T>
+void intrusivePtrRelease(sal_notnull SharedPtrProxyObject<T>* p) {
+	if(--(p->mRefCount) == 0)
+		delete p;
+}
 
 /*!	A simple reference counted smart pointer (non-intrusive).
 	The implementation of SharedPtr use IntrusivePtr to hold a reference to a proxy object, where

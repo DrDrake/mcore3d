@@ -22,6 +22,7 @@ public:
 	sal_override LoadingState load(
 		sal_maybenull std::istream*, sal_maybenull const Path* fileId=nullptr)
 	{
+		(void)fileId;
 		mBuffer.push_back(1);
 		return (mLoadingState = Loaded);
 	}
@@ -80,6 +81,7 @@ public:
 	sal_override LoadingState load(
 		sal_maybenull std::istream*, sal_maybenull const Path* fileId=nullptr)
 	{
+		(void)fileId;
 		ScopeLock lock(mMutex);
 		if(++mIteration > cIterationCount)
 			return (mLoadingState = Loaded);
