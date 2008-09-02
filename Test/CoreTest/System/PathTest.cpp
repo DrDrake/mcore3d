@@ -67,6 +67,52 @@ TEST(RootDirectory_PathTest)
 		CHECK_EQUAL(data[i][0], Path(data[i][1]).getRootDirectory());
 }
 
+TEST(Leaf_PathTest)
+{
+	const wchar_t* data[][2] = {
+		{L"",		L""},
+		{L"/",		L"./"},
+		{L"/",		L"../"},
+		{L"c",		L"a/b/c"},
+		{L"C:",		L"C:"},
+		{L"/",		L"C:/"},
+		{L"\\",		L"C:\\"},
+		{L"\\B",	L"C:\\B"},
+		{L"/",		L"game:/"},
+		{L"\\",		L"game:\\"},
+		{L"/",		L"http://"},
+		{L"/",		L"/"},
+		{L"home",	L"/home"},
+		{L"a.txt",	L"a.txt"},
+	};
+
+	for(size_t i=0; i<sizeof(data)/sizeof(const wchar_t*)/2; ++i)
+		CHECK_EQUAL(data[i][0], Path(data[i][1]).getLeaf());
+}
+
+TEST(Branch_PathTest)
+{
+	const wchar_t* data[][2] = {
+		{L"",		L""},
+		{L".",		L"./"},
+		{L"..",		L"../"},
+		{L"a/b",	L"a/b/c"},
+		{L"",		L"C:"},
+		{L"C:",		L"C:/"},
+		{L"C:",		L"C:\\"},
+		{L"C:",		L"C:\\B"},
+		{L"game:",	L"game:/"},
+		{L"game:",	L"game:\\"},
+		{L"http:",	L"http://"},
+		{L"",		L"/"},
+		{L"",		L"/home"},
+		{L"",		L"a.txt"},
+	};
+
+	for(size_t i=0; i<sizeof(data)/sizeof(const wchar_t*)/2; ++i)
+		CHECK_EQUAL(data[i][0], Path(data[i][1]).getBranchPath().getString());
+}
+
 TEST(Extension_PathTest)
 {
 	const wchar_t* data[][2] = {

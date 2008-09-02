@@ -44,6 +44,11 @@ TEST(Basic_QuaternionTest)
 		q /= q.length();
 		CHECK(q.isNearEqual(q.inverseUnit().inverseUnit()));
 	}
+
+	{	// Inverse with zero length
+		Quaternionf q(0, 0, 0, 0);
+		CHECK(q.isNearEqual(q.inverse().inverse()));
+	}
 }
 
 TEST(AxisAngle_QuaternionTest)

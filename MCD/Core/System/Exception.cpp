@@ -4,22 +4,27 @@
 
 namespace MCD {
 
+RuntimeError::RuntimeError(const char* msg)
+	:
+	std::runtime_error(""),
+	mAMessage(msg)
+{
+}
+
 RuntimeError::RuntimeError(const wchar_t* msg)
 	:
 	std::runtime_error(""),
-	mMessage(msg)
+	mWMessage(msg)
 {
 }
 
 const char* RuntimeError::what() const throw()
 {
-	if(mMessage.empty())
-		return std::runtime_error::what();
+	if(!mAMessage.empty())
+		return mAMessage.c_str();
 
-	std::string narrowStr;
-
-	if(wStr2Str(mMessage.c_str(), narrowStr))
-		return narrowStr.c_str();
+	if(wStr2Str(mWMessage.c_str(), mAMessage))
+		return mAMessage.c_str();
 
 	// Error message cannot be displayed
 	return "";
@@ -27,13 +32,11 @@ const char* RuntimeError::what() const throw()
 
 const wchar_t* RuntimeError::wwhat() const throw()
 {
-	if(!mMessage.empty())
-		return mMessage.c_str();
+	if(!mWMessage.empty())
+		return mWMessage.c_str();
 
-	std::wstring wideStr;
-
-	if(str2WStr(std::runtime_error::what(), wideStr))
-		return wideStr.c_str();
+	if(str2WStr(mAMessage.c_str(), mWMessage))
+		return mWMessage.c_str();
 
 	// Error message cannot be displayed
 	return L"";

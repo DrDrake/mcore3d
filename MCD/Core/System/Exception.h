@@ -18,7 +18,7 @@ public:
 class MCD_CORE_API RuntimeError : public std::runtime_error, public IException
 {
 public:
-	explicit RuntimeError(sal_in_z sal_notnull const char* msg) : std::runtime_error(msg) {}
+	explicit RuntimeError(sal_in_z sal_notnull const char* msg);
 	explicit RuntimeError(sal_in_z sal_notnull const wchar_t* msg);
 
 	sal_override ~RuntimeError() throw() {}
@@ -33,7 +33,8 @@ public:
 	sal_override const wchar_t* wwhat() const throw();
 
 protected:
-	std::wstring mMessage;
+	mutable std::string mAMessage;	//! Storage for ansi string
+	mutable std::wstring mWMessage;	//! Storage for wide string
 };	// RuntimeError
 
 }	// namespace MCD
