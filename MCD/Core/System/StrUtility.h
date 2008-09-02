@@ -32,6 +32,9 @@ MCD_CORE_API int wStr2IntWithDefault(sal_in_z const wchar_t* wideStr, int defaul
 //! Wide string to double
 MCD_CORE_API sal_checkreturn bool wStr2Double(sal_in_z const wchar_t* wideStr, double& number);
 
+//! Compare two wide-character strings, ignoring case.
+MCD_CORE_API sal_checkreturn int wstrCaseCmp(sal_in_z const wchar_t* string1, sal_in_z const wchar_t* string2);
+
 /*!	A simple name value pair parser.
 	User supply a string that contains the name value pairs where name and value is
 	linked up by the '=' character and each pair is separated by the ';' character.
@@ -68,9 +71,6 @@ protected:
 	wchar_t* mStr;
 	wchar_t* mPos;
 };	// NvpParser
-
-//! Compare two wide-character strings, ignoring case.
-MCD_CORE_API sal_checkreturn int wstrCaseCmp(sal_in_z const wchar_t* string1, sal_in_z const wchar_t* string2);
 
 }	// namespace MCD
 

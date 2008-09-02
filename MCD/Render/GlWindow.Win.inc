@@ -39,7 +39,7 @@ public:
 
 		if(!mDefaultPixelFormat) {
 			// Initialize WGL
-			::ZeroMemory(&mDefaultPixelFormat, sizeof(mPfd));
+			::ZeroMemory(&mPfd, sizeof(mPfd));
 			mPfd.nVersion = 1;
 			mPfd.nSize = sizeof(mPfd);
 			mPfd.dwFlags = PFD_DRAW_TO_WINDOW | PFD_SUPPORT_OPENGL | PFD_DOUBLEBUFFER;

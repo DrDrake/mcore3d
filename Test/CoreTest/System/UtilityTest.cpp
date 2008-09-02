@@ -60,6 +60,7 @@ TEST(ErrorCodeTest)
 {
 	int lastError = getLastError();
 	setLastError(lastError);
+	CHECK(true);
 }
 
 TEST(RuntimeErrorTest)

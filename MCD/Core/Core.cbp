@@ -66,6 +66,8 @@
 		<Unit filename="Math\Magnitude.h" />
 		<Unit filename="Math\Mat33.h" />
 		<Unit filename="Math\Mat33.inl" />
+		<Unit filename="Math\Quaternion.h" />
+		<Unit filename="Math\Quaternion.inl" />
 		<Unit filename="Math\Tuple.h" />
 		<Unit filename="Math\Vec2.h" />
 		<Unit filename="Math\Vec2.inl" />

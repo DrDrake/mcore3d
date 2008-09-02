@@ -201,7 +201,7 @@ TEST(Quad_MeshBuilderTest)
 	TestWindow window;
 
 	// Enable color material
-	glColorMaterial(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE);	
+	glColorMaterial(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE);
 	glEnable(GL_COLOR_MATERIAL);
 
 	window.mainLoop();
@@ -244,4 +244,6 @@ TEST(SharedVertex_MeshBuilderTest)
 	indexBuilder.enable(Mesh::Index);
 	indexBuilder.addTriangle(2, 3, 0);
 	indexBuilder.commit(*mesh2, Mesh::Index, MeshBuilder::Static);
+
+	CHECK(true);
 }

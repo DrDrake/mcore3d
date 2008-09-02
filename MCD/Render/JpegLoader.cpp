@@ -122,7 +122,7 @@ JpegLoader::JpegLoader()
 	setImpl(new LoaderImpl(*this));
 }
 
-IResourceLoader::LoadingState JpegLoader::load(std::istream* is, const Path* fileId)
+IResourceLoader::LoadingState JpegLoader::load(std::istream* is, const Path*)
 {
 	MCD_ASSUME(mImpl != nullptr);
 

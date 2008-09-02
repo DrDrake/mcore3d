@@ -282,13 +282,13 @@ void Window::Impl::setCursorPosition(const wchar_t* value)
 // "height = 600"
 void Window::Impl::setHeight(const wchar_t* value)
 {
-	mHeight = toInt(value, 600);
+	mHeight = wStr2IntWithDefault(value, 600);
 }
 
 // "show = 0|1"
 void Window::Impl::setShowWindow(const wchar_t* value)
 {
-	if(toInt(value, 1) == 1)
+	if(wStr2IntWithDefault(value, 1) == 1)
 		::XMapWindow(gDisplay, mWnd);
 	else
 		::XUnmapWindow(gDisplay, mWnd);
@@ -299,7 +299,7 @@ void Window::Impl::setShowWindow(const wchar_t* value)
 // "showCursor = 0|1"
 void Window::Impl::setShowCursor(const wchar_t* value)
 {
-	::XDefineCursor(gDisplay, mWnd, toInt(value, 1) == 1 ? None : gHiddenCursor);
+	::XDefineCursor(gDisplay, mWnd, wStr2IntWithDefault(value, 1) == 1 ? None : gHiddenCursor);
 	::XFlush(gDisplay);
 }
 
@@ -312,7 +312,7 @@ void Window::Impl::setTitle(const wchar_t* value)
 // "width = 800"
 void Window::Impl::setWidth(const wchar_t* value)
 {
-	mWidth = toInt(value, 800);
+	mWidth = wStr2IntWithDefault(value, 800);
 }
 
 sal_override void Window::Impl::setOption(const wchar_t* name, const wchar_t* value)

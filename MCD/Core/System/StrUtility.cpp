@@ -149,6 +149,24 @@ int wStr2IntWithDefault(sal_in_z const wchar_t* wideStr, int defaultVal)
 	return defaultVal;
 }
 
+int wstrCaseCmp(const wchar_t* string1, const wchar_t* string2)
+{
+#ifdef MCD_VC
+	return ::_wcsicmp(string1, string2);
+#elif defined(MCD_CYGWIN)
+	wchar_t f, l;
+	do {
+		f = towlower(*string1);
+		l = towlower(*string2);
+		++string1;
+		++string2;
+	} while(f && (f == l));
+	return (int)(f - l);
+#else
+	return ::wcscasecmp(string1, string2);
+#endif
+}
+
 NvpParser::NvpParser(const wchar_t* str)
 	: mStr(nullptr), mPos(nullptr)
 {
@@ -238,15 +256,6 @@ bool NvpParser::next(const wchar_t*& name, const wchar_t*& value)
 
 	name = name_;
 	return true;
-}
-
-int wstrCaseCmp(const wchar_t* string1, const wchar_t* string2)
-{
-#ifdef MCD_VC
-	return ::_wcsicmp(string1, string2);
-#else
-	return ::wcscasecmp(string1, string2);
-#endif
 }
 
 }	// namespace MCD

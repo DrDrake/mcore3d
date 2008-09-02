@@ -10,8 +10,8 @@ TEST(Basic_SharedPtrTest)
 	{	Ptr a;
 		Ptr b(nullptr);
 
-		CHECK(a == nullptr);
-		CHECK(b == nullptr);
+		CHECK(!a);
+		CHECK(!b);
 	}
 
 	{	Ptr a(new int(123));

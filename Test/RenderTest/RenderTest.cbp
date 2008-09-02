@@ -76,6 +76,10 @@
 			<Add library="GLU" />
 			<Add directory="\usr\X11R6\lib" />
 		</Linker>
+		<Unit filename="BasicGlWindow.cpp" />
+		<Unit filename="BasicGlWindow.h" />
+		<Unit filename="ChamferBox.cpp" />
+		<Unit filename="ChamferBox.h" />
 		<Unit filename="Main.cpp" />
 		<Unit filename="MeshTest.cpp" />
 		<Unit filename="TextureLoaderTest.cpp" />

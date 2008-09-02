@@ -218,6 +218,10 @@
 			>
 		</File>
 		<File
+			RelativePath=".\ChamferBox.cpp"
+			>
+		</File>
+		<File
 			RelativePath=".\ChamferBox.h"
 			>
 		</File>

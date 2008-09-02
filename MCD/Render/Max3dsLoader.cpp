@@ -312,16 +312,16 @@ IResourceLoader::LoadingState Max3dsLoader::Impl::load(std::istream* is, const P
 			// Description: Main chunk, contains all the other chunks
 			// Chunk Length: 0 + sub chunks
 			//-------------------------------------------
-			case MAIN3DS: 
+			case MAIN3DS:
 			break;
 
 			//----------------- EDIT3DS -----------------
-			// Description: 3D Editor chunk, objects layout info 
+			// Description: 3D Editor chunk, objects layout info
 			// Chunk Length: 0 + sub chunks
 			//-------------------------------------------
 			case EDIT3DS:
 			break;
-			
+
 			//--------------- OBJECT ---------------
 			// Description: Object block, info for each object
 			// Chunk Length: len(object name) + sub chunks
@@ -335,7 +335,8 @@ IResourceLoader::LoadingState Max3dsLoader::Impl::load(std::istream* is, const P
 				if(!currentMeshBuilder)
 					ABORTLOADING();
 
-				ModelInfo modelInfo = { currentMeshBuilder };
+				ModelInfo modelInfo;
+				modelInfo.meshBuilder = currentMeshBuilder;
 				mModelInfo.push_back(modelInfo);
 				currentMeshBuilder->enable(Mesh::Position | Mesh::Normal);
 			}	break;
@@ -349,7 +350,7 @@ IResourceLoader::LoadingState Max3dsLoader::Impl::load(std::istream* is, const P
 
 			//--------------- VERT_LIST ---------------
 			// Description: Vertices list
-			// Chunk Length: 1 x uint16_t (number of vertices) 
+			// Chunk Length: 1 x uint16_t (number of vertices)
 			//             + 3 x float (vertex coordinates) x (number of vertices)
 			//             + sub chunks
 			//-------------------------------------------
@@ -383,7 +384,7 @@ IResourceLoader::LoadingState Max3dsLoader::Impl::load(std::istream* is, const P
 
 			//--------------- FACE_DESC ----------------
 			// Description: Polygons (faces) list
-			// Chunk Length: 1 x uint16_t (number of polygons) 
+			// Chunk Length: 1 x uint16_t (number of polygons)
 			//             + 3 x uint16_t (polygon points) x (number of polygons)
 			//             + sub chunks
 			//-------------------------------------------
@@ -425,7 +426,8 @@ IResourceLoader::LoadingState Max3dsLoader::Impl::load(std::istream* is, const P
 					break;
 
 				{	// Insert a new MultiSubObject into the current mesh
-					MultiSubObject object = { nullptr };
+					MultiSubObject object;
+					object.material = nullptr;
 					mModelInfo.back().multiSubObject.push_back(object);
 				}
 
@@ -460,7 +462,7 @@ IResourceLoader::LoadingState Max3dsLoader::Impl::load(std::istream* is, const P
 
 			//------------- TRI_MAPPINGCOORS ------------
 			// Description: Vertices list
-			// Chunk Length: 1 x unsigned short (number of mapping points) 
+			// Chunk Length: 1 x unsigned short (number of mapping points)
 			//             + 2 x float (mapping coordinates) x (number of mapping points)
 			//             + sub chunks
 			//-------------------------------------------
@@ -545,7 +547,7 @@ IResourceLoader::LoadingState Max3dsLoader::Impl::load(std::istream* is, const P
 				std::wstring textureFileName;
 				readString(textureFileName);
 
-				// Find out the 
+				// Find out the
 				Path adjustedPath = fileId ? fileId->getBranchPath()/textureFileName : textureFileName;
 				if(mResourceManager)
 					currentMaterial->mTexture = dynamic_cast<Texture*>(mResourceManager->load(adjustedPath, false).get());
@@ -577,7 +579,7 @@ IResourceLoader::LoadingState Max3dsLoader::Impl::load(std::istream* is, const P
 		const uint16_t* index = &model.index[0];
 
 		if(vertex && normal && indexCount > 0) {
-			// We have 2 different routines for calculating normals, one with the 
+			// We have 2 different routines for calculating normals, one with the
 			// smoothing group information and one does not.
 			if(model.smoothingGroup.empty())
 				computeNormal(vertex, normal, index, uint16_t(vertexCount), indexCount);

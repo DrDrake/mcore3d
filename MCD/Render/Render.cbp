@@ -94,6 +94,8 @@
 		</Linker>
 		<Unit filename="BitmapLoader.cpp" />
 		<Unit filename="BitmapLoader.h" />
+		<Unit filename="Camera.cpp" />
+		<Unit filename="Camera.h" />
 		<Unit filename="Color.cpp" />
 		<Unit filename="Color.h" />
 		<Unit filename="DdsLoader.cpp" />
@@ -103,12 +105,16 @@
 		<Unit filename="GlWindow.h" />
 		<Unit filename="JpegLoader.cpp" />
 		<Unit filename="JpegLoader.h" />
+		<Unit filename="Material.cpp" />
+		<Unit filename="Material.h" />
 		<Unit filename="Max3dsLoader.cpp" />
 		<Unit filename="Max3dsLoader.h" />
 		<Unit filename="Mesh.cpp" />
 		<Unit filename="Mesh.h" />
 		<Unit filename="MeshBuilder.cpp" />
 		<Unit filename="MeshBuilder.h" />
+		<Unit filename="Model.cpp" />
+		<Unit filename="Model.h" />
 		<Unit filename="PngLoader.cpp" />
 		<Unit filename="PngLoader.h" />
 		<Unit filename="Render.h" />

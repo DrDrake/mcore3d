@@ -127,7 +127,7 @@ BitmapLoader::BitmapLoader()
 	setImpl(new LoaderImpl(*this));
 }
 
-IResourceLoader::LoadingState BitmapLoader::load(std::istream* is, const Path* fileId)
+IResourceLoader::LoadingState BitmapLoader::load(std::istream* is, const Path*)
 {
 	MCD_ASSUME(mImpl != nullptr);
 

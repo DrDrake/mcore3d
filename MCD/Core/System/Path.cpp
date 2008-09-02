@@ -78,7 +78,7 @@ static size_t leafPos(const Path::string_type& str, size_t endPos) // endPos is 
 #endif	// _WIN32
 
 	return (pos == Path::string_type::npos	// path itself must be a leaf (or empty)
-#if _WIN32
+#ifdef _WIN32
 		|| (pos == 1 && str[0] == cSlash)	// or share
 #endif	// _WIN32
 		) ? 0							// so leaf is entire string

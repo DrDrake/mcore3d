@@ -163,7 +163,7 @@ class Mesh::PrivateAccessor<MeshBuilder>
 public:
 	static uint& handle(Mesh& mesh, Mesh::DataType dataType) {
 		Mesh::HandlePtr ptr = mesh.handlePtr(dataType);
-		MCD_ASSERT(ptr != nullptr);
+		MCD_ASSERT(ptr);
 		// We should not modify the value of the handle if it's already shared.
 		// Note that the variable 'ptr' itself already consume 1 reference count
 		MCD_ASSERT(ptr.referenceCount() == 2);

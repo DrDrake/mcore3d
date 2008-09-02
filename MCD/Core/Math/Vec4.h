@@ -26,6 +26,7 @@ public:
     using super_type::x;
     using super_type::y;
     using super_type::z;
+    using super_type::w;
 
 	inline Vec4() {}
 
