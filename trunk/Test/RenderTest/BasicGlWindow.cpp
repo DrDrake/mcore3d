@@ -14,7 +14,7 @@
 using namespace MCD;
 
 MovingCamera::MovingCamera(const Vec3f& pos, const Vec3f look, const Vec3f& up)
-	: Camera(pos, look, up), mVelocity(0), mLastMousePos(-1)
+	: Camera(pos, look, up), mVelocity(0), mLastMousePos(-1), mIsMouseDown(false)
 {
 	MCD_ASSERT(look.length() > 0);
 	MCD_ASSERT(up.length() > 0);
@@ -43,7 +43,7 @@ void MovingCamera::setMousePosition(uint x, uint y)
 	static const float sensitivity = 0.5f * Mathf::cPi()/180;
 
 	// We won't have the delta value for the first invocation of setMousePosition()
-	if(mLastMousePos.x >= 0 && pos != mLastMousePos) {
+	if(mIsMouseDown && mLastMousePos.x >= 0 && pos != mLastMousePos) {
 		Vec2f delta(float(pos.x - mLastMousePos.x), float(pos.y - mLastMousePos.y));
 		delta *= sensitivity;
 		rotate(Vec3f(0, 1, 0), -delta.x);
@@ -51,6 +51,11 @@ void MovingCamera::setMousePosition(uint x, uint y)
 	}
 
 	mLastMousePos = Vec2<int>(x, y);
+}
+
+void MovingCamera::setMouseDown(bool isDown)
+{
+	mIsMouseDown = isDown;
 }
 
 void MovingCamera::update(float deltaTime)
@@ -172,6 +177,14 @@ void BasicGlWindow::mainLoop()
 				default:
 					break;
 				}
+				break;
+			case Event::MouseButtonPressed:
+				//setOptions(L"showCursor=0");
+				mCamera.setMouseDown(true);
+				break;
+			case Event::MouseButtonReleased:
+				//setOptions(L"showCursor=1");
+				mCamera.setMouseDown(false);
 				break;
 			case Event::MouseMoved:
 				mCamera.setMousePosition(e.MouseMove.X, e.MouseMove.Y);

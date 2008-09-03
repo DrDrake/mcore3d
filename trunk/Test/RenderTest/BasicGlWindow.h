@@ -21,11 +21,14 @@ public:
 
 	void setMousePosition(uint x, uint y);
 
+	void setMouseDown(bool isDown);
+
 	void update(float deltaTime);
 
 protected:
 	MCD::Vec3f mVelocity;	//!< Represent forward, right and up velocity
 	MCD::Vec2<int> mLastMousePos;
+	bool mIsMouseDown;
 };	// MovingCamera
 
 class BasicGlWindow : public MCD::GlWindow
