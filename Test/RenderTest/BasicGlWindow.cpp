@@ -72,7 +72,7 @@ BasicGlWindow::BasicGlWindow(const wchar_t* options)
 	mIsClosing(false),
 	mFieldOfView(60.0f),
 	mIteration(0),
-	mCamera(Vec3f(0, 0, 50.0f), Vec3f(0, 0, -1), Vec3f(0, 1, 0))
+	mCamera(Vec3f(0, 0, 1.0f), Vec3f(0, 0, -1), Vec3f(0, 1, 0))
 {
 #ifndef MCD_CYGWIN
 	Log::start(&std::wcout);

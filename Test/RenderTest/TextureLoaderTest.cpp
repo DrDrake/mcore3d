@@ -217,7 +217,7 @@ class TestWindow : public BasicGlWindow
 public:
 	TestWindow()
 		:
-		BasicGlWindow(L"title=RotatingBox_TextureTest;width=640;height=480;fullscreen=0"),
+		BasicGlWindow(L"title=RotatingBox_TextureTest;width=800;height=600;fullscreen=0"),
 		mAngle(0),
 		mFullLoaded(false)
 	{
