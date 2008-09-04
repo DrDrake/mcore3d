@@ -212,6 +212,10 @@
 			Filter="h"
 			>
 			<File
+				RelativePath=".\BackRenderBuffer.h"
+				>
+			</File>
+			<File
 				RelativePath=".\BitmapLoader.h"
 				>
 			</File>
@@ -260,6 +264,14 @@
 				>
 			</File>
 			<File
+				RelativePath=".\RenderBuffer.h"
+				>
+			</File>
+			<File
+				RelativePath=".\RenderTarget.h"
+				>
+			</File>
+			<File
 				RelativePath=".\Texture.h"
 				>
 			</File>
@@ -275,11 +287,19 @@
 				RelativePath=".\TextureLoaderFactory.h"
 				>
 			</File>
+			<File
+				RelativePath=".\TextureRenderBuffer.h"
+				>
+			</File>
 		</Filter>
 		<Filter
 			Name="Source Files"
 			Filter="cpp;"
 			>
+			<File
+				RelativePath=".\BackRenderBuffer.cpp"
+				>
+			</File>
 			<File
 				RelativePath=".\BitmapLoader.cpp"
 				>
@@ -333,6 +353,14 @@
 				>
 			</File>
 			<File
+				RelativePath=".\RenderBuffer.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\RenderTarget.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\Texture.cpp"
 				>
 			</File>
@@ -342,6 +370,10 @@
 			</File>
 			<File
 				RelativePath=".\TextureLoaderFactory.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\TextureRenderBuffer.cpp"
 				>
 			</File>
 		</Filter>

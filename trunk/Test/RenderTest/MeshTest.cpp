@@ -111,7 +111,7 @@ TEST(ChamferBox_MeshBuilderTest)
 	public:
 		TestWindow()
 			:
-			BasicGlWindow(), mAngle(0)
+			BasicGlWindow(L"title=ChamferBox_MeshBuilderTest;width=800;height=600"), mAngle(0)
 		{
 			mMesh = new Mesh(L"");
 			ChamferBoxBuilder chamferBoxBuilder(0.4f, 10);
@@ -146,7 +146,7 @@ TEST(Quad_MeshBuilderTest)
 	public:
 		TestWindow()
 			:
-			BasicGlWindow(), mAngle(0)
+			BasicGlWindow(L"title=Quad_MeshBuilderTest;width=800;height=600"), mAngle(0)
 		{
 			mMesh = new Mesh(L"");
 			MeshBuilder builder;

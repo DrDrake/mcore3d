@@ -270,7 +270,7 @@
 			>
 		</File>
 		<File
-			RelativePath=".\ShaderTest.cpp"
+			RelativePath=".\RenderTargetTest.cpp"
 			>
 		</File>
 		<File
