@@ -16,6 +16,27 @@ TextureRenderBuffer::TextureRenderBuffer(const TexturePtr& tex)
 {
 }
 
+bool TextureRenderBuffer::linkTo(RenderTarget& renderTarget)
+{
+	// Create an empty texture if we didn't have one already.
+	// We use GL_TEXTURE_RECTANGLE_ARB as the default rather than GL_TEXTURE because
+	// some display card didn't support non-power of 2 texture.
+	if(!texture && !createTexture(renderTarget.width(), renderTarget.height(), GL_TEXTURE_RECTANGLE_ARB, GL_RGB))
+		return false;
+
+	if(texture->width() != renderTarget.width() || texture->height() != renderTarget.height())
+		return false;
+
+	renderTarget.bind();
+	glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT,
+		GL_COLOR_ATTACHMENT0_EXT, texture->type(), texture->handle(), 0/*mipmap level*/);
+	renderTarget.unbind();
+
+	addOwnerShipTo(renderTarget);
+
+	return true;
+}
+
 template<>
 class Texture::PrivateAccessor<TextureRenderBuffer>
 {
@@ -26,6 +47,9 @@ public:
 	static int& format(Texture& texture) {
 		return texture.mFormat;
 	}
+	static int& type(Texture& texture) {
+		return texture.mType;
+	}
 	static size_t& width(Texture& texture) {
 		return texture.mWidth;
 	}
@@ -34,42 +58,36 @@ public:
 	}
 };	// PrivateAccessor
 
-bool TextureRenderBuffer::bind(RenderTarget& renderTarget)
+bool TextureRenderBuffer::createTexture(size_t width, size_t height, int type, int format)
 {
-	// Create an empty texture if we didn't have one already.
-	if(!texture) {
-		if((texture = new Texture(L"TextureRenderBuffer:")) == nullptr)
-			return false;
+	if((texture = new Texture(L"TextureRenderBuffer:")) == nullptr)
+		return false;
 
-		typedef Texture::PrivateAccessor<TextureRenderBuffer> Accessor;
-		size_t width = renderTarget.width();
-		size_t height = renderTarget.height();
-		GLuint* handle = reinterpret_cast<GLuint*>(&Accessor::handle(*texture));
-		MCD_ASSUME(handle);
+	if(type != GL_TEXTURE_2D && type != GL_TEXTURE_RECTANGLE_ARB)
+		return false;
 
-		Accessor::width(*texture) = width;
-		Accessor::height(*texture) = height;
-		Accessor::format(*texture) = GL_RGBA;
+	typedef Texture::PrivateAccessor<TextureRenderBuffer> Accessor;
+	GLuint* handle = reinterpret_cast<GLuint*>(&Accessor::handle(*texture));
+	MCD_ASSUME(handle);
 
-//		glEnable(GL_TEXTURE_RECTANGLE_ARB);
+	Accessor::width(*texture) = width;
+	Accessor::height(*texture) = height;
+	Accessor::format(*texture) = GL_RGBA;
+	Accessor::type(*texture) = type;
 
-		glGenTextures(1, handle);
-		glBindTexture(GL_TEXTURE_2D, *handle);
-		glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-		glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height,
-			0, GL_RGBA, GL_INT, nullptr);
-	}
+	glEnable(type);
+	glGenTextures(1, handle);
+	texture->bind();
 
-	renderTarget.bind();
-	glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT,
-		GL_COLOR_ATTACHMENT0_EXT, GL_TEXTURE_2D, texture->handle(), 0/*mipmap level*/);
+	glTexParameterf(type, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameterf(type, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+	glTexImage2D(texture->type(), 0, format, width, height,
+		0, format, GL_UNSIGNED_BYTE, nullptr);
 
 	// Assure the texture that is binded to the render target is not
 	// to be read as texture during rendering.
-	glBindTexture(GL_TEXTURE_2D, 0);
-
-	addOwnerShipTo(renderTarget);
+	glBindTexture(type, 0);
 
 	return true;
 }

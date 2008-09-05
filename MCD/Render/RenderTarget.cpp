@@ -18,16 +18,27 @@ RenderTarget::~RenderTarget()
 
 void RenderTarget::bind()
 {
-	// Assure the texture that is binded to the render target is not
-	// to be read as texture during rendering.
-	glBindTexture(GL_TEXTURE_2D, 0);
-
 	glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, mHandle);
 }
 
 void RenderTarget::unbind()
 {
 	glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0);
+}
+
+uint RenderTarget::handle() const
+{
+	return mHandle;
+}
+
+size_t RenderTarget::width() const
+{
+	return mWidth;
+}
+
+size_t RenderTarget::height() const
+{
+	return mHeight;
 }
 
 }	// namespace MCD

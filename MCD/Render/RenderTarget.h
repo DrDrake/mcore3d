@@ -11,6 +11,30 @@ namespace MCD {
 class RenderBuffer;
 typedef IntrusivePtr<RenderBuffer> RenderBufferPtr;
 
+/*!	Represent a configuration of buffers that current render context will render to.
+	Render target, also know as Framebuffer object (FBO) in opengl, allow you to divert
+	your rendering away from your window's framebuffer to one or more offscreen framebuffers
+	that you create.
+
+	To use RenderTarget, you have to create some render buffers first. Those buffer
+	By design, the binding code is 
+
+	\code
+	// Setup the RenderTarget
+	RenderTarget renderTarget(width, height);
+	RenderBufferPtr textureBuffer = new TextureRenderBuffer();
+	textureBuffer->linkTo(renderTarget);
+	mRenderTexture = static_cast<TextureRenderBuffer&>(*textureBuffer).texture;
+
+	RenderBufferPtr backBuffer = new BackRenderBuffer();
+	backBuffer->bind(*mRenderTarget);
+	}
+	\endcode
+
+	\sa IRenderBuffer
+	\sa http://www.gamedev.net/reference/articles/article2333.asp
+	\sa http://www.flashbang.se/postbreak.php?id=18
+ */
 class MCD_RENDER_API RenderTarget : private Noncopyable
 {
 public:
@@ -18,17 +42,21 @@ public:
 
 	~RenderTarget();
 
+	/*!	Use this render target.
+		Subsequence renderings will go to the binded buffers.
+	 */
 	void bind();
 
+	/*!	Un-use this render target.
+		Subsequence renderings result will go to the normal front buffer.
+	 */
 	void unbind();
 
-	size_t width() const {
-		return mWidth;
-	}
+	uint handle() const;
 
-	size_t height() const {
-		return mHeight;
-	}
+	size_t width() const;
+
+	size_t height() const;
 
 protected:
 	uint mHandle;

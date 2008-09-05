@@ -1,10 +1,9 @@
 #include "Pch.h"
-#include "../../MCD/Core/System/StrUtility.h"
+#include "ChamferBox.h"
 #include "../../MCD/Render/BackRenderBuffer.h"
 #include "../../MCD/Render/RenderTarget.h"
 #include "../../MCD/Render/Texture.h"
 #include "../../MCD/Render/TextureRenderBuffer.h"
-#include "ChamferBox.h"
 
 using namespace MCD;
 
@@ -15,31 +14,41 @@ TEST(RenderTargetTest)
 	public:
 		TestWindow()
 			:
-			BasicGlWindow(L"title=RenderTargetTest;width=512;height=512;"), mAngle(0)
+			BasicGlWindow(L"title=RenderTargetTest;width=800;height=600;"),
+			mAngle(0), mLargerSide(0)
 		{
-			{	// Setup the render target
-				mRenderTarget.reset(new RenderTarget(width(), height()));
-				RenderBufferPtr textureBuffer = new TextureRenderBuffer();
-				textureBuffer->bind(*mRenderTarget);
-				mRenderTexture = static_cast<TextureRenderBuffer&>(*textureBuffer).texture;
+			// Setup the chamfer box mesh
+			mMesh = new Mesh(L"");
+			ChamferBoxBuilder chamferBoxBuilder(0.4f, 10);
+			chamferBoxBuilder.commit(*mMesh, MeshBuilder::Static);
+		}
 
-				RenderBufferPtr backBuffer = new BackRenderBuffer();
-				backBuffer->bind(*mRenderTarget);
-			}
+		// We have to re-create all those off-screen buffers every time
+		// the windows is resized.
+		sal_override void onResize(size_t width, size_t height)
+		{
+			// Setup the render target, with a squared size
+			mLargerSide = width > height ? width : height;
+			mRenderTarget.reset(new RenderTarget(mLargerSide, mLargerSide));
+			RenderBufferPtr textureBuffer = new TextureRenderBuffer();
+			textureBuffer->linkTo(*mRenderTarget);
+			mRenderTexture = static_cast<TextureRenderBuffer&>(*textureBuffer).texture;
 
-			{	// Setup the chamfer box mesh
-				mMesh = new Mesh(L"");
-				ChamferBoxBuilder chamferBoxBuilder(0.4f, 10);
-				chamferBoxBuilder.commit(*mMesh, MeshBuilder::Static);
-			}
+			RenderBufferPtr backBuffer = new BackRenderBuffer();
+			backBuffer->linkTo(*mRenderTarget);
+
+			BasicGlWindow::onResize(width, height);
 		}
 
 		void drawToTexture()
 		{
 			mRenderTarget->bind();
 
+			glEnable(GL_TEXTURE_2D);
+			glDisable(GL_TEXTURE_RECTANGLE_ARB);
+
 			// Set the current Viewport to the FBO size
-			glViewport(0, 0, width(), height());
+			glViewport(0, 0, mRenderTarget->width(), mRenderTarget->height());
 
 			glClearColor(0.1f, 0.1f, 0.1f, 1);
 			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -48,7 +57,7 @@ TEST(RenderTargetTest)
 
 			glMatrixMode(GL_PROJECTION);
 			glLoadIdentity();
-			gluPerspective(mFieldOfView, (GLfloat)width()/(GLfloat)height(), 0.1f, 1000.0f);
+			gluPerspective(mFieldOfView, (GLfloat)mRenderTarget->width()/mRenderTarget->height(), 0.1f, 1000.0f);
 			glMatrixMode(GL_MODELVIEW);
 			glLoadIdentity();
 
@@ -74,8 +83,13 @@ TEST(RenderTargetTest)
 				{ { 1,-1, 1}, {-1,-1, 1}, {-1,-1,-1}, { 1,-1,-1} },	// Bottom face	(fix y at -1)
 			};
 
-			static const float tex[4][2] = {
-				{0, 1}, {0, 0}, {1, 0}, {1, 1}
+			// Setting up the texture coordinate
+			// Since we are using GL_TEXTURE_RECTANGLE_ARB (the default of TextureRenderBuffer,
+			// we must use the pixel as the texture coordinate
+			const float w = float(mRenderTarget->width());
+			const float h = float(mRenderTarget->height());
+			const float tex[4][2] = {
+				{0, h}, {0, 0}, {w, 0}, {w, h}
 			};
 
 			glColor3f(1, 1, 1);
@@ -93,11 +107,14 @@ TEST(RenderTargetTest)
 		{
 			mRenderTarget->unbind();
 
-			glViewport(0, 0, (GLsizei)mWidth, (GLsizei)mHeight);
+			glEnable(GL_TEXTURE_RECTANGLE_ARB);
+			glDisable(GL_TEXTURE_2D);
+
+			glViewport(0, 0, width(), height());
 
 			glMatrixMode(GL_PROJECTION);
 			glLoadIdentity();
-			gluPerspective(45, (GLfloat)mWidth/(GLfloat)mHeight, 0.1f, 1000.0f);
+			gluPerspective(45, (GLfloat)width()/height(), 0.1f, 1000.0f);
 			glMatrixMode(GL_MODELVIEW);
 			glLoadIdentity();
 
@@ -117,12 +134,18 @@ TEST(RenderTargetTest)
 
 		sal_override void update(float deltaTime)
 		{
+			// Some how update() is invoked before the fist onResize() which
+			// create the render target, so we make a safety check here
+			if(!mRenderTarget.get())
+				return;
+
 			drawToTexture();
 			drawTextureToScene();
 			mAngle += deltaTime * 10;
 		}
 
 		float mAngle;
+		size_t mLargerSide;	//! The larger side of the window's width or height.
 		MCD::MeshPtr mMesh;
 		TexturePtr mRenderTexture;
 		std::auto_ptr<RenderTarget> mRenderTarget;

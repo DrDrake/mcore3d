@@ -197,13 +197,7 @@ void BasicGlWindow::mainLoop()
 				break;
 
 			case Event::Resized:
-				mWidth = e.Size.Width;
-				mHeight = e.Size.Height;
-
-				// Prevents division by zero
-				mHeight = (mHeight == 0) ? 1 : mHeight;
-				glViewport(0, 0, mWidth, mHeight);
-				setFieldOfView(mFieldOfView);
+				onResize(e.Size.Width, e.Size.Height);
 				break;
 
 			default:
@@ -229,6 +223,14 @@ void BasicGlWindow::update(float deltaTime)
 	(void)deltaTime;
 }
 
+void BasicGlWindow::onResize(size_t width, size_t height)
+{
+	// Prevents division by zero
+	height = (height == 0) ? 1 : height;
+	glViewport(0, 0, width, height);
+	setFieldOfView(mFieldOfView);
+}
+
 void BasicGlWindow::onClose()
 {
 	mIsClosing = true;
@@ -250,7 +252,11 @@ void BasicGlWindow::setFieldOfView(float angle)
 
 	// Define the "viewing volume"
 	// Produce the perspective projection
-	gluPerspective(mFieldOfView, (GLfloat)mWidth/(GLfloat)mHeight, 0.1f, 1000.0f);
+	gluPerspective(
+		mFieldOfView,				// The camera angle ... field of view in y direction
+		(GLfloat)width()/height(),	// The width-to-height ratio
+		0.1f,						// The near z clipping coordinate
+		1000.0f);					// The far z clipping coordinate
 
 	// Restore back to the model view matrix
 	glMatrixMode(GL_MODELVIEW);
