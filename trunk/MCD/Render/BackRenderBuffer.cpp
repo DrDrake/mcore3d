@@ -23,7 +23,7 @@ BackRenderBuffer::~BackRenderBuffer()
 	glDeleteRenderbuffersEXT(1, &mHandle);
 }
 
-bool BackRenderBuffer::bind(RenderTarget& renderTarget)
+bool BackRenderBuffer::linkTo(RenderTarget& renderTarget)
 {
 	if(!mHandle) {
 		mWidth = renderTarget.width();
@@ -37,6 +37,7 @@ bool BackRenderBuffer::bind(RenderTarget& renderTarget)
 	renderTarget.bind();
 	glFramebufferRenderbufferEXT(GL_FRAMEBUFFER_EXT,
 		mUsage, GL_RENDERBUFFER_EXT, mHandle);
+	renderTarget.unbind();
 
 	addOwnerShipTo(renderTarget);
 

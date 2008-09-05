@@ -42,8 +42,11 @@ public:
 
 	void preUpdate();
 
-	//! To be overriden by derived class to do the actual update
+	//! To be overriden by derived class to do the actual update.
 	virtual void update(float deltaTime);
+
+	//! To be overriden by derived class to capture the resize event.
+	virtual void onResize(size_t width, size_t height);
 
 	sal_override void onClose();
 
@@ -56,7 +59,6 @@ protected:
 
 protected:
 	bool mIsClosing;
-	uint mWidth, mHeight;
 	float mFieldOfView;
 	size_t mIteration;
 	MovingCamera mCamera;

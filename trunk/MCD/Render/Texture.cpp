@@ -9,7 +9,8 @@ Texture::Texture(const Path& fileId)
 	Resource(fileId),
 	mHandle(0),
 	mWidth(0), mHeight(0),
-	mFormat(-1)
+	mType(GL_INVALID_ENUM),
+	mFormat(GL_INVALID_ENUM)
 {
 }
 
@@ -21,7 +22,8 @@ Texture::~Texture()
 
 void Texture::bind()
 {
-	glBindTexture(GL_TEXTURE_2D, mHandle);
+	if(mHandle)
+		glBindTexture(mType, mHandle);
 }
 
 bool Texture::hasAlpha(int format)

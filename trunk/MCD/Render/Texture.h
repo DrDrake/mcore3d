@@ -27,6 +27,13 @@ public:
 	//! Bind this texture to the current rendering system.
 	void bind();
 
+	/*!	Type of the texture.
+		Can be GL_TEXTURE_2D, GL_TEXTURE_RECTANGLE_ARB
+	 */
+	int type() const {
+		return mType;
+	}
+
 	/*!	Format of the texture.
 		Use those appeared in OpenGl.
 		Can be GL_ALPHA, GL_RGB, GL_RGBA, GL_LUMINANCE and GL_LUMINANCE_ALPHA
@@ -50,6 +57,7 @@ protected:
 	uint mHandle;
 	size_t mWidth;
 	size_t mHeight;
+	int mType;
 	int mFormat;
 };	// Texture
 

@@ -50,6 +50,9 @@ public:
 	static int& format(Texture& texture) {
 		return texture.mFormat;
 	}
+	static int& type(Texture& texture) {
+		return texture.mType;
+	}
 	static size_t& width(Texture& texture) {
 		return texture.mWidth;
 	}
@@ -76,6 +79,7 @@ void TextureLoaderBase::commit(Resource& resource)
 	Accessor::width(texture) = mImpl->mWidth;
 	Accessor::height(texture) = mImpl->mHeight;
 	Accessor::format(texture) = mImpl->mFormat;
+	Accessor::type(texture) = GL_TEXTURE_2D;	// Currently only support the loading of 2D texture
 
 	if(!isPowerOf2(mImpl->mWidth) || !isPowerOf2(mImpl->mHeight))
 		Log::format(Log::Warn, L"Texture:'%s' has non-power of 2 size, which may hurt performance",
@@ -85,7 +89,7 @@ void TextureLoaderBase::commit(Resource& resource)
 
 	if(*handle == 0)
 		glGenTextures(1, handle);
-	glBindTexture(GL_TEXTURE_2D, *handle);
+	glBindTexture(texture.type(), *handle);
 
 	preUploadData();
 	uploadData();

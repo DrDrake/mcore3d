@@ -16,7 +16,7 @@ protected:
 	sal_override ~BackRenderBuffer();
 
 public:
-	sal_override bool bind(RenderTarget& renderTarget);
+	sal_override sal_checkreturn bool linkTo(RenderTarget& renderTarget);
 
 	sal_override size_t width() const;
 
