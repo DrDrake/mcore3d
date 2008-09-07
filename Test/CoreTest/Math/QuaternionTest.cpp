@@ -72,11 +72,11 @@ TEST(AxisAngle_QuaternionTest)
 	}
 
 	{	// Test for zero angle
-		Quaternionf q;
-		q.fromAxisAngle(Vec3f::c010, 0);
+		Quaternionf q2;
+		q2.fromAxisAngle(Vec3f::c010, 0);
 		Vec3f v;
 		float angle;
-		q.toAxisAngle(v, angle);
+		q2.toAxisAngle(v, angle);
 
 		// Now v can be any unit vector
 		CHECK_CLOSE(1, v.length(), 1e-6);

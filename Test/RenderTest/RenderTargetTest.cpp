@@ -31,11 +31,13 @@ TEST(RenderTargetTest)
 			mLargerSide = width > height ? width : height;
 			mRenderTarget.reset(new RenderTarget(mLargerSide, mLargerSide));
 			RenderBufferPtr textureBuffer = new TextureRenderBuffer();
-			textureBuffer->linkTo(*mRenderTarget);
+			if(!textureBuffer->linkTo(*mRenderTarget))
+				throw std::runtime_error("");
 			mRenderTexture = static_cast<TextureRenderBuffer&>(*textureBuffer).texture;
 
 			RenderBufferPtr backBuffer = new BackRenderBuffer();
-			backBuffer->linkTo(*mRenderTarget);
+			if(!backBuffer->linkTo(*mRenderTarget))
+				throw std::runtime_error("");
 
 			BasicGlWindow::onResize(width, height);
 		}

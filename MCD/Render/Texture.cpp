@@ -22,8 +22,10 @@ Texture::~Texture()
 
 void Texture::bind()
 {
-	if(mHandle)
+	if(mType != GL_INVALID_ENUM)
 		glBindTexture(mType, mHandle);
+	else
+		glBindTexture(GL_TEXTURE_2D, mHandle);
 }
 
 bool Texture::hasAlpha(int format)
