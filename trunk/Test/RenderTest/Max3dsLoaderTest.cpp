@@ -41,7 +41,8 @@ TEST(Max3dsLoaderTest)
 	public:
 		TestWindow()
 			:
-			BasicGlWindow(), mAngle(0)
+			BasicGlWindow(L"title=Max3dsLoaderTest;width=800;height=600;fullscreen=0;FSAA=4"),
+			mAngle(0)
 		{
 			std::auto_ptr<IFileSystem> fs(new RawFileSystem(L"./Media/"));
 			mResourceManager.reset(new ResourceManager(*fs));
@@ -76,13 +77,12 @@ TEST(Max3dsLoaderTest)
 		{
 			processResourceLoadingEvents();
 
-			glTranslatef(0.0f, 0.0f, -50.0f);
-			mAngle += deltaTime * 10;
+//			mAngle += deltaTime * 10;
 			glRotatef(mAngle, 1, 0, 0);
 			glRotatef(mAngle, 0, 1, 0);
 			glRotatef(mAngle, 0, 0, 1);
 
-			const float scale = 1.0f;
+			const float scale = 0.2f;
 			glScalef(scale, scale, scale);
 
 			mModel->draw();
@@ -97,8 +97,8 @@ TEST(Max3dsLoaderTest)
 	{
 		TestWindow window;
 
-		window.load3ds(L"titanic.3DS");
-		window.load3ds(L"titanic2.3DS");
+//		window.load3ds(L"titanic.3DS");
+//		window.load3ds(L"titanic2.3DS");
 //		window.load3ds(L"spaceship.3DS");
 //		window.load3ds(L"box.3DS");
 //		window.load3ds(L"ship^kiy.3ds");
@@ -108,9 +108,11 @@ TEST(Max3dsLoaderTest)
 //		window.load3ds(L"Dog 1 N280708.3ds");
 //		window.load3ds(L"Leon N300708.3DS");
 //		window.load3ds(L"Ford N120208.3ds");
-		window.load3ds(L"musai.3DS");
+//		window.load3ds(L"tiger.3ds");
 //		window.load3ds(L"Media/House/house.3ds");
-//		window.load3ds(L"fw189.3ds");
+		window.load3ds(L"3M00696/buelllightning.3DS");
+//		window.load3ds(L"city/city.3ds");
+//		window.load3ds(L"f5e/f5e_05.3ds");
 
 		window.mainLoop();
 	}

@@ -34,6 +34,7 @@ typedef IntrusivePtr<RenderBuffer> RenderBufferPtr;
 	\sa IRenderBuffer
 	\sa http://www.gamedev.net/reference/articles/article2333.asp
 	\sa http://www.flashbang.se/postbreak.php?id=18
+	\sa http://www.songho.ca/opengl/gl_fbo.html
  */
 class MCD_RENDER_API RenderTarget : private Noncopyable
 {
