@@ -6,14 +6,18 @@
 
 namespace MCD {
 
-TextureRenderBuffer::TextureRenderBuffer()
-	: texture(nullptr)
+TextureRenderBuffer::TextureRenderBuffer(int type)
+	: texture(nullptr), mAttachmentType(type)
 {
 }
 
 TextureRenderBuffer::TextureRenderBuffer(const TexturePtr& tex)
 	: texture(tex)
 {
+	// TODO: Get the type from tex
+	mAttachmentType = GL_DEPTH_ATTACHMENT_EXT;
+	// GL_RGB,				GL_COLOR_ATTACHMENT0_EXT
+	// GL_DEPTH_COMPONENT,	GL_DEPTH_ATTACHMENT_EXT
 }
 
 bool TextureRenderBuffer::linkTo(RenderTarget& renderTarget)
@@ -21,7 +25,12 @@ bool TextureRenderBuffer::linkTo(RenderTarget& renderTarget)
 	// Create an empty texture if we didn't have one already.
 	// We use GL_TEXTURE_RECTANGLE_ARB as the default rather than GL_TEXTURE because
 	// some display card didn't support non-power of 2 texture.
-	if(!texture && !createTexture(renderTarget.width(), renderTarget.height(), GL_TEXTURE_RECTANGLE_ARB, GL_RGB))
+	if(!texture &&
+		!createTexture(
+			renderTarget.width(), renderTarget.height(),
+			GL_TEXTURE_2D, mAttachmentType == GL_DEPTH_ATTACHMENT_EXT ? GL_DEPTH_COMPONENT : GL_RGB
+		)
+	)
 		return false;
 
 	if(texture->width() != renderTarget.width() || texture->height() != renderTarget.height())
@@ -29,7 +38,7 @@ bool TextureRenderBuffer::linkTo(RenderTarget& renderTarget)
 
 	renderTarget.bind();
 	glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT,
-		GL_COLOR_ATTACHMENT0_EXT, texture->type(), texture->handle(), 0/*mipmap level*/);
+		mAttachmentType, texture->type(), texture->handle(), 0/*mipmap level*/);
 	renderTarget.unbind();
 
 	addOwnerShipTo(renderTarget);
@@ -72,7 +81,7 @@ bool TextureRenderBuffer::createTexture(size_t width, size_t height, int type, i
 
 	Accessor::width(*texture) = width;
 	Accessor::height(*texture) = height;
-	Accessor::format(*texture) = GL_RGBA;
+	Accessor::format(*texture) = format;
 	Accessor::type(*texture) = type;
 
 	glEnable(type);
@@ -81,9 +90,11 @@ bool TextureRenderBuffer::createTexture(size_t width, size_t height, int type, i
 
 	glTexParameterf(type, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 	glTexParameterf(type, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+//	glTexParameterf(type, GL_DEPTH_TEXTURE_MODE, GL_INTENSITY);
+//	glTexParameterf(type, GL_TEXTURE_COMPARE_MODE, GL_NONE);
 
 	glTexImage2D(texture->type(), 0, format, width, height,
-		0, format, GL_UNSIGNED_BYTE, nullptr);
+		0, format, GL_UNSIGNED_INT, nullptr);
 
 	// Assure the texture that is binded to the render target is not
 	// to be read as texture during rendering.

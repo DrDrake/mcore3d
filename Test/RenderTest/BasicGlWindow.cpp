@@ -9,6 +9,7 @@
 #	pragma comment(lib, "OpenGL32")
 #	pragma comment(lib, "GLU32")
 #	pragma comment(lib, "GlAux")
+#	pragma comment(lib, "glew")
 #endif
 
 using namespace MCD;
@@ -69,7 +70,7 @@ void MovingCamera::update(float deltaTime)
 
 BasicGlWindow::BasicGlWindow(const wchar_t* options)
 	:
-	mIsClosing(false),
+	mKeepRun(true),
 	mFieldOfView(60.0f),
 	mIteration(0),
 	mCamera(Vec3f(0, 0, 1.0f), Vec3f(0, 0, -1), Vec3f(0, 1, 0))
@@ -116,95 +117,10 @@ const float cameraVelocity = 10.f;
 
 void BasicGlWindow::mainLoop()
 {
-	while(true) {
+	while(mKeepRun) {
+		// Cleanup the event queue
 		Event e;
-
-		if(popEvent(e, false))
-		{
-			if(e.Type == Event::Closed)
-				break;
-
-			switch(e.Type)
-			{
-			case Event::KeyPressed:
-				switch(e.Key.Code)
-				{
-				case Key::Up:
-				case Key::W:
-					mCamera.setForwardVelocity(cameraVelocity);
-					break;
-				case Key::Down:
-				case Key::S:
-					mCamera.setForwardVelocity(-cameraVelocity);
-					break;
-				case Key::Right:
-				case Key::D:
-					mCamera.setRightVelocity(cameraVelocity);
-					break;
-				case Key::Left:
-				case Key::A:
-					mCamera.setRightVelocity(-cameraVelocity);
-					break;
-				case Key::PageUp:
-					mCamera.setUpVelocity(cameraVelocity);
-					break;
-				case Key::PageDown:
-					mCamera.setUpVelocity(-cameraVelocity);
-					break;
-				default:
-					break;
-				}
-				break;
-			case Event::KeyReleased:
-				switch(e.Key.Code)
-				{
-				case Key::Up:
-				case Key::W:
-				case Key::Down:
-				case Key::S:
-					mCamera.setForwardVelocity(0);
-					break;
-				case Key::Right:
-				case Key::D:
-				case Key::Left:
-				case Key::A:
-					mCamera.setRightVelocity(0);
-					break;
-				case Key::PageUp:
-				case Key::PageDown:
-					mCamera.setUpVelocity(0);
-					break;
-				default:
-					break;
-				}
-				break;
-			case Event::MouseButtonPressed:
-				//setOptions(L"showCursor=0");
-				mCamera.setMouseDown(true);
-				break;
-			case Event::MouseButtonReleased:
-				//setOptions(L"showCursor=1");
-				mCamera.setMouseDown(false);
-				break;
-			case Event::MouseMoved:
-				mCamera.setMousePosition(e.MouseMove.X, e.MouseMove.Y);
-				break;
-			case Event::MouseWheelMoved:
-				mFieldOfView *= pow(0.9f, e.MouseWheel.Delta);
-				if(mFieldOfView > 160)
-					mFieldOfView = 160;
-				setFieldOfView(mFieldOfView);
-				break;
-
-			case Event::Resized:
-				onResize(e.Size.Width, e.Size.Height);
-				break;
-
-			default:
-				// Just ignore the remaining events
-				break;
-			}
-		}
+		popEvent(e, false);
 
 		update();
 	}
@@ -223,17 +139,107 @@ void BasicGlWindow::update(float deltaTime)
 	(void)deltaTime;
 }
 
+void BasicGlWindow::onEvent(const Event& e)
+{
+	switch(e.Type)
+	{
+	case Event::Closed:
+		mKeepRun = false;
+		break;
+
+	case Event::KeyPressed:
+		switch(e.Key.Code)
+		{
+		case Key::Up:
+		case Key::W:
+			mCamera.setForwardVelocity(cameraVelocity);
+			break;
+		case Key::Down:
+		case Key::S:
+			mCamera.setForwardVelocity(-cameraVelocity);
+			break;
+		case Key::Right:
+		case Key::D:
+			mCamera.setRightVelocity(cameraVelocity);
+			break;
+		case Key::Left:
+		case Key::A:
+			mCamera.setRightVelocity(-cameraVelocity);
+			break;
+		case Key::PageUp:
+			mCamera.setUpVelocity(cameraVelocity);
+			break;
+		case Key::PageDown:
+			mCamera.setUpVelocity(-cameraVelocity);
+			break;
+		default:
+			break;
+		}
+		break;
+
+	case Event::KeyReleased:
+		switch(e.Key.Code)
+		{
+		case Key::Up:
+		case Key::W:
+		case Key::Down:
+		case Key::S:
+			mCamera.setForwardVelocity(0);
+			break;
+		case Key::Right:
+		case Key::D:
+		case Key::Left:
+		case Key::A:
+			mCamera.setRightVelocity(0);
+			break;
+		case Key::PageUp:
+		case Key::PageDown:
+			mCamera.setUpVelocity(0);
+			break;
+		default:
+			break;
+		}
+		break;
+
+	case Event::MouseButtonPressed:
+		//setOptions(L"showCursor=0");
+		mCamera.setMouseDown(true);
+		break;
+
+	case Event::MouseButtonReleased:
+		//setOptions(L"showCursor=1");
+		mCamera.setMouseDown(false);
+		break;
+
+	case Event::MouseMoved:
+		mCamera.setMousePosition(e.MouseMove.X, e.MouseMove.Y);
+		break;
+
+	case Event::MouseWheelMoved:
+		mFieldOfView *= pow(0.9f, e.MouseWheel.Delta);
+		if(mFieldOfView > 160)
+			mFieldOfView = 160;
+		setFieldOfView(mFieldOfView);
+		break;
+
+	case Event::Resized:
+		onResize(e.Size.Width, e.Size.Height);
+		break;
+
+	default:
+		// Just ignore the remaining events
+		break;
+	}
+
+	GlWindow::onEvent(e);
+}
+
 void BasicGlWindow::onResize(size_t width, size_t height)
 {
 	// Prevents division by zero
 	height = (height == 0) ? 1 : height;
 	glViewport(0, 0, width, height);
 	setFieldOfView(mFieldOfView);
-}
-
-void BasicGlWindow::onClose()
-{
-	mIsClosing = true;
 }
 
 void BasicGlWindow::postUpdate()

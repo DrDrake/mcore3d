@@ -275,7 +275,7 @@ public:
 	{
 		Texture& texture = static_cast<Texture&>(*mTexture);
 
-		if(!mFullLoaded && !mIsClosing && mLoader.getLoadingState() & IResourceLoader::CanCommit) {
+		if(!mFullLoaded && keepRun() && mLoader.getLoadingState() & IResourceLoader::CanCommit) {
 			if(mLoader.getLoadingState() == IResourceLoader::Loaded)
 				mFullLoaded = true;
 
