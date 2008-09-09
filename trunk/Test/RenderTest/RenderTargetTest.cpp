@@ -30,7 +30,7 @@ TEST(RenderTargetTest)
 			// Setup the render target, with a squared size
 			mLargerSide = width > height ? width : height;
 			mRenderTarget.reset(new RenderTarget(mLargerSide, mLargerSide));
-			RenderBufferPtr textureBuffer = new TextureRenderBuffer();
+			RenderBufferPtr textureBuffer = new TextureRenderBuffer(GL_COLOR_ATTACHMENT0_EXT);
 			if(!textureBuffer->linkTo(*mRenderTarget))
 				throw std::runtime_error("");
 			mRenderTexture = static_cast<TextureRenderBuffer&>(*textureBuffer).texture;

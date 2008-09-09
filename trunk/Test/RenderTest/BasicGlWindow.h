@@ -48,17 +48,22 @@ public:
 	//! To be overriden by derived class to capture the resize event.
 	virtual void onResize(size_t width, size_t height);
 
-	sal_override void onClose();
-
 	void postUpdate();
 
+	bool keepRun() const {
+		return mKeepRun;
+	}
+
 protected:
+	//! To be overriden by derived class to capture window event.
+	sal_override void onEvent(const MCD::Event& e);
+
 	void setFieldOfView(float angle);
 
 	void update();
 
 protected:
-	bool mIsClosing;
+	bool mKeepRun;
 	float mFieldOfView;
 	size_t mIteration;
 	MovingCamera mCamera;

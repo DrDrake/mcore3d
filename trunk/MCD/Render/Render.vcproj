@@ -272,6 +272,14 @@
 				>
 			</File>
 			<File
+				RelativePath=".\Shader.h"
+				>
+			</File>
+			<File
+				RelativePath=".\ShaderProgram.h"
+				>
+			</File>
+			<File
 				RelativePath=".\Texture.h"
 				>
 			</File>
@@ -358,6 +366,14 @@
 			</File>
 			<File
 				RelativePath=".\RenderTarget.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\Shader.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\ShaderProgram.cpp"
 				>
 			</File>
 			<File

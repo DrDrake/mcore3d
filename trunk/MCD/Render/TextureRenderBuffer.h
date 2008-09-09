@@ -16,7 +16,7 @@ typedef IntrusivePtr<Texture> TexturePtr;
 class MCD_RENDER_API TextureRenderBuffer : public RenderBuffer
 {
 public:
-	TextureRenderBuffer();
+	TextureRenderBuffer(int type);
 	TextureRenderBuffer(const TexturePtr& tex);
 
 protected:
@@ -45,6 +45,9 @@ public:
 	sal_checkreturn bool createTexture(size_t width, size_t height, int type, int format);
 
 	TexturePtr texture;
+
+protected:
+	int mAttachmentType;	//!< Type of the texture render buffer, can be depth or color.
 };	// TextureRenderBuffer
 
 }	// namespace MCD
