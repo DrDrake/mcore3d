@@ -2,9 +2,14 @@
 #define __MCD_RENDER_SHADERPROGRAM__
 
 #include "ShareLib.h"
+#include "../Core/System/IntrusivePtr.h"
 #include "../Core/System/NonCopyable.h"
+#include <vector>
 
 namespace MCD {
+
+class Shader;
+typedef IntrusivePtr<Shader> ShaderPtr;
 
 class MCD_RENDER_API ShaderProgram : Noncopyable
 {
@@ -20,9 +25,9 @@ public:
 		Multiple shader can be attached to the program and once all shaders are
 		attached, you can call link().
 	 */
-	void attach(uint shaderHandle);
+	void attach(Shader& shader);
 
-	void detach(uint shaderHandle);
+	void detach(Shader& shader);
 
 	void detachAll();
 
@@ -41,6 +46,8 @@ public:
 
 protected:
 	uint mHandle;
+	typedef std::vector<ShaderPtr> Shaders;
+	Shaders mShaders;
 };	// ShaderProgram
 
 }	// namespace MCD

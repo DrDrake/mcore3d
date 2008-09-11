@@ -1,7 +1,7 @@
 #include "Pch.h"
-#include "../../MCD/Render/TextureLoaderFactory.h"
 #include "../../MCD/Render/Max3dsLoader.h"
 #include "../../MCD/Render/Model.h"
+#include "../../MCD/Render/ResourceLoaderFactory.h"
 #include "../../MCD/Render/Texture.h"
 #include "../../MCD/Core/System/ResourceLoader.h"
 #include "../../MCD/Core/System/RawFileSystem.h"
@@ -9,30 +9,6 @@
 #include <fstream>
 
 using namespace MCD;
-
-class Max3dsLoaderFactory : public ResourceManager::IFactory
-{
-public:
-	Max3dsLoaderFactory(ResourceManager& resourceManager)
-		: mResourceManager(resourceManager)
-	{
-	}
-
-	sal_override ResourcePtr createResource(const Path& fileId)
-	{
-		if(wstrCaseCmp(fileId.getExtension().c_str(), L"3ds") == 0)
-			return new Model(fileId);
-		return nullptr;
-	}
-
-	sal_override IResourceLoader* createLoader()
-	{
-		return new Max3dsLoader(&mResourceManager);
-	}
-
-private:
-	ResourceManager& mResourceManager;
-};	// Max3dsLoaderFactory
 
 TEST(Max3dsLoaderTest)
 {

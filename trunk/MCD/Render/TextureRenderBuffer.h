@@ -24,8 +24,7 @@ protected:
 
 public:
 	/*!	Bind this buffer to the render target.
-		If it doesn't have a texture created yet, it will
-		invoke createTexture(GL_TEXTURE_RECTANGLE_ARB);
+		Must have the texture created before linking.
 	 */
 	sal_override sal_checkreturn bool linkTo(RenderTarget& renderTarget);
 
@@ -35,10 +34,10 @@ public:
 
 	/*!	Helper function to create a texture for use as render buffer.
 		Although you can supply your own pre-defined texture by simply assigning
-		to the \em texture member variable. But this function is handly enough
+		to the \em texture member variable. But this function is handy enough
 		for most tasks, for example creating a color/depth texture.
 
-		\note The ownership of the origanal texture (if any) will be removed.
+		\note The ownership of the original texture (if any) will be removed.
 		\param type Can be GL_TEXTURE_2D or GL_TEXTURE_RECTANGLE_ARB.
 		\param usage Can be GL_COLOR_ATTACHMENTn_EXT or GL_DEPTH_ATTACHMENT_EXT
 	 */
@@ -49,6 +48,8 @@ public:
 protected:
 	int mAttachmentType;	//!< Type of the texture render buffer, can be depth or color.
 };	// TextureRenderBuffer
+
+typedef IntrusivePtr<TextureRenderBuffer> TextureRenderBufferPtr;
 
 }	// namespace MCD
 

@@ -61,6 +61,8 @@ protected:
 	int mFormat;
 };	// Texture
 
+typedef IntrusivePtr<Texture> TexturePtr;
+
 }	// namespace MCD
 
 #endif	// __MCD_RENDER_TEXTURE__

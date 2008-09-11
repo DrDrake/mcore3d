@@ -80,8 +80,13 @@
 		<Unit filename="BasicGlWindow.h" />
 		<Unit filename="ChamferBox.cpp" />
 		<Unit filename="ChamferBox.h" />
+		<Unit filename="Common.cpp" />
+		<Unit filename="Common.h" />
+		<Unit filename="DefaultResourceManager.cpp" />
+		<Unit filename="DefaultResourceManager.h" />
 		<Unit filename="Main.cpp" />
 		<Unit filename="MeshTest.cpp" />
+		<Unit filename="SSAOTest.cpp" />
 		<Unit filename="TextureLoaderTest.cpp" />
 		<Extensions>
 			<code_completion />

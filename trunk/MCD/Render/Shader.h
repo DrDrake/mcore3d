@@ -3,14 +3,14 @@
 
 #include "ShareLib.h"
 #include "../Core/System/NonCopyable.h"
+#include "../Core/System/Resource.h"
 
 namespace MCD {
 
-class MCD_RENDER_API Shader : Noncopyable
+class MCD_RENDER_API Shader : public Resource, Noncopyable
 {
 public:
-	Shader();
-	~Shader();
+	explicit Shader(const Path& fileId);
 
 	/*!	Create the shader.
 		\param shaderType Type of the shader, can be GL_VERTEX_SHADER or GL_FRAGMENT_SHADER
@@ -30,7 +30,7 @@ public:
 	 */
 	void getSource(std::string& source);
 
-	// Get the information about the shader (including any compilation errors).
+	//! Get the information about the shader (including any compilation errors).
 	void getLog(std::string& log);
 
 	uint handle() const {
@@ -42,9 +42,14 @@ public:
 	}
 
 protected:
+	sal_override ~Shader();
+
+protected:
 	uint mHandle;
 	uint mType;
 };	// Shader
+
+typedef IntrusivePtr<Shader> ShaderPtr;
 
 }	// namespace MCD
 

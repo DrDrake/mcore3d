@@ -30,12 +30,17 @@ TEST(RenderTargetTest)
 			// Setup the render target, with a squared size
 			mLargerSide = width > height ? width : height;
 			mRenderTarget.reset(new RenderTarget(mLargerSide, mLargerSide));
-			RenderBufferPtr textureBuffer = new TextureRenderBuffer(GL_COLOR_ATTACHMENT0_EXT);
+
+			// Setup for the color buffer
+			TextureRenderBufferPtr textureBuffer = new TextureRenderBuffer(GL_COLOR_ATTACHMENT0_EXT);
+			textureBuffer->createTexture(mLargerSide, mLargerSide, GL_TEXTURE_RECTANGLE_ARB, GL_RGB);
 			if(!textureBuffer->linkTo(*mRenderTarget))
 				throw std::runtime_error("");
 			mRenderTexture = static_cast<TextureRenderBuffer&>(*textureBuffer).texture;
 
-			RenderBufferPtr backBuffer = new BackRenderBuffer();
+			// Setup for the depth buffer
+			BackRenderBufferPtr backBuffer = new BackRenderBuffer();
+			backBuffer->create(mLargerSide, mLargerSide, GL_DEPTH_COMPONENT24, GL_DEPTH_ATTACHMENT_EXT);
 			if(!backBuffer->linkTo(*mRenderTarget))
 				throw std::runtime_error("");
 
@@ -59,7 +64,7 @@ TEST(RenderTargetTest)
 
 			glMatrixMode(GL_PROJECTION);
 			glLoadIdentity();
-			gluPerspective(mFieldOfView, (GLfloat)mRenderTarget->width()/mRenderTarget->height(), 0.1f, 1000.0f);
+			gluPerspective(mFieldOfView, (GLfloat)mRenderTarget->width()/mRenderTarget->height(), 0.5f, 500.0f);
 			glMatrixMode(GL_MODELVIEW);
 			glLoadIdentity();
 
@@ -71,44 +76,11 @@ TEST(RenderTargetTest)
 			glRotatef(mAngle, 0, 0, 1);
 
 			mMesh->draw();
-		}
-
-		void drawUnitCube()
-		{
-			// Face vertice are specified in counterclockwise direction
-			static const float vertice[6][4][3] = {
-				{ {-1, 1, 1}, {-1,-1, 1}, { 1,-1, 1}, { 1, 1, 1} },	// Front face	(fix z at 1)
-				{ { 1, 1,-1}, { 1,-1,-1}, {-1,-1,-1}, {-1, 1,-1} },	// Back face	(fix z at -1)
-				{ { 1, 1, 1}, { 1,-1, 1}, { 1,-1,-1}, { 1, 1,-1} },	// Right face	(fix x at 1)
-				{ {-1, 1,-1}, {-1,-1,-1}, {-1,-1, 1}, {-1, 1, 1} },	// Left face	(fix x at -1)
-				{ {-1, 1,-1}, {-1, 1, 1}, { 1, 1, 1}, { 1, 1,-1} },	// Top face		(fix y at 1)
-				{ { 1,-1, 1}, {-1,-1, 1}, {-1,-1,-1}, { 1,-1,-1} },	// Bottom face	(fix y at -1)
-			};
-
-			// Setting up the texture coordinate
-			// Since we are using GL_TEXTURE_RECTANGLE_ARB (the default of TextureRenderBuffer,
-			// we must use the pixel as the texture coordinate
-			const float w = float(mRenderTarget->width());
-			const float h = float(mRenderTarget->height());
-			const float tex[4][2] = {
-				{0, h}, {0, 0}, {w, 0}, {w, h}
-			};
-
-			glColor3f(1, 1, 1);
-			glBegin(GL_QUADS);
-			for(size_t face=0; face<6; ++face) {
-				for(size_t vertex=0; vertex<4; ++vertex) {
-					glTexCoord2fv(tex[vertex]);
-					glVertex3fv(vertice[face][vertex]);
-				}
-			}
-			glEnd();
-		}
-
-		void drawTextureToScene()
-		{
 			mRenderTarget->unbind();
+		}
 
+		void drawTextureToCube()
+		{
 			glEnable(GL_TEXTURE_RECTANGLE_ARB);
 			glDisable(GL_TEXTURE_2D);
 
@@ -131,7 +103,11 @@ TEST(RenderTargetTest)
 			glRotatef(mAngle, 0, 0, 1);
 
 			mRenderTexture->bind();
-			drawUnitCube();
+
+			glColor3f(1, 1, 1);
+			// Since we are using GL_TEXTURE_RECTANGLE_ARB (the default of TextureRenderBuffer,
+			// we must use the pixel as the texture coordinate
+			drawUnitCube(float(mRenderTarget->width()), float(mRenderTarget->height()));
 		}
 
 		sal_override void update(float deltaTime)
@@ -142,7 +118,7 @@ TEST(RenderTargetTest)
 				return;
 
 			drawToTexture();
-			drawTextureToScene();
+			drawTextureToCube();
 			mAngle += deltaTime * 10;
 		}
 

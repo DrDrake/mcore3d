@@ -10,29 +10,34 @@ class MCD_RENDER_API BackRenderBuffer : public RenderBuffer
 public:
 	BackRenderBuffer();
 
-	BackRenderBuffer(size_t width, size_t height);
-
-protected:
-	sal_override ~BackRenderBuffer();
-
-public:
 	sal_override sal_checkreturn bool linkTo(RenderTarget& renderTarget);
 
 	sal_override size_t width() const;
 
 	sal_override size_t height() const;
 
+	/*!	Create the render buffer with the given parameters.
+		\param format
+			The format argument for glRenderbufferStorageEXT();
+			Accepted values are the same as those accepted by glTexImage*,
+			with the addition of GL_STENCIL_INDEX{1|4|8|16}_EXT formats.
+
+		\param usage GL_COLOR_ATTACHMENT{0,1...n}_EXT, GL_DEPTH_ATTACHMENT_EXT or GL_STENCIL_ATTACHMENT_EXT
+	 */
+	void create(size_t width, size_t height, int format, int usage);
+
 	uint handle() const;
 
 protected:
-	void initParam();
+	sal_override ~BackRenderBuffer();
 
-	void create();
-
+protected:
 	uint mHandle;
 	size_t mWidth, mHeight;
 	int mFormat, mUsage;
 };	// BackRenderBuffer
+
+typedef IntrusivePtr<BackRenderBuffer> BackRenderBufferPtr;
 
 }	// namespace MCD
 

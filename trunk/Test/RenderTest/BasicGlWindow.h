@@ -42,20 +42,21 @@ public:
 
 	void preUpdate();
 
-	//! To be overriden by derived class to do the actual update.
+	//! To be overridden by derived class to do the actual update.
 	virtual void update(float deltaTime);
 
-	//! To be overriden by derived class to capture the resize event.
+	//! To be overridden by derived class to capture the resize event.
 	virtual void onResize(size_t width, size_t height);
 
 	void postUpdate();
 
-	bool keepRun() const {
+	//! To be overridden by derived class to alter the close button behavior.
+	virtual bool keepRun() const {
 		return mKeepRun;
 	}
 
 protected:
-	//! To be overriden by derived class to capture window event.
+	//! To be overridden by derived class to capture window event.
 	sal_override void onEvent(const MCD::Event& e);
 
 	void setFieldOfView(float angle);

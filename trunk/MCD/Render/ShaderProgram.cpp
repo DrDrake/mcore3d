@@ -1,7 +1,8 @@
 #include "Pch.h"
 #include "ShaderProgram.h"
+#include "Shader.h"
 #include "../../3Party/glew/glew.h"
-#include <vector>
+#include <algorithm>
 
 namespace MCD {
 
@@ -25,46 +26,42 @@ void ShaderProgram::destroy()
 	if(!mHandle)
 		return;
 
+	detachAll();
+
 	glDeleteProgram(mHandle);
 	mHandle = 0;
 }
 
-void ShaderProgram::attach(uint shaderHandle)
+void ShaderProgram::attach(Shader& shader)
 {
-	glAttachShader(mHandle, shaderHandle);
+	glAttachShader(mHandle, shader.handle());
 }
 
-void ShaderProgram::detach(uint shaderHandle)
+void ShaderProgram::detach(Shader& shader)
 {
-	glDetachShader(mHandle, shaderHandle);
+	Shaders::const_iterator i = std::find(mShaders.begin(), mShaders.end(), &shader);
+	if(i != mShaders.end())
+		glDetachShader(mHandle, shader.handle());
 }
 
 void ShaderProgram::detachAll()
 {
-	// Get the number of attached shaders
-	GLint num = 0;
-	glGetProgramiv(mHandle, GL_ATTACHED_SHADERS, &num);
+	for(Shaders::const_iterator i=mShaders.begin(); i!=mShaders.end(); ++i)
+		glDetachShader(mHandle, (*i)->handle());
 
-	if(num <= 0)
-		return;
-
-	std::vector<GLuint> shaders(num);
-	GLsizei count = 0;
-	glGetAttachedShaders(mHandle, num, &count, &shaders[0]);
-	for(GLsizei i = 0; i < count; ++i)
-		detach(shaders[i]);
+	mShaders.clear();
 }
 
 bool ShaderProgram::link()
 {
 	glLinkProgram(mHandle);
 
-	GLint error = 0;
-	glGetProgramiv(mHandle, GL_LINK_STATUS, &error);
+	GLint result = 0;
+	glGetProgramiv(mHandle, GL_LINK_STATUS, &result);
 //	createUniformMap();
 //	createAttributeMap();
 
-	return error == GL_TRUE;
+	return (result == GL_TRUE);
 }
 
 void ShaderProgram::bind()

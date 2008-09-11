@@ -20,12 +20,20 @@ class MCD_NOVTABLE IRenderBuffer
 {
 public:
 	virtual ~IRenderBuffer() {}
+
+	/*!	Link this render buffer to the render target.
+		In order to link correctly, the render buffer itself should be
+		initialized properly and having the same dimension as the render
+		target.
+	 */
 	virtual sal_checkreturn bool linkTo(RenderTarget& renderTarget) = 0;
+
 	virtual size_t width() const = 0;
 	virtual size_t height() const = 0;
 };	// IRenderBuffer
 
-/*!	Adds the shared smentics over the IRenderBuffer
+/*!	Adds the shared semantics over the IRenderBuffer.
+	The RenderBuffer may shared by among different RenderTarget.
  */
 class MCD_NOVTABLE RenderBuffer : public IRenderBuffer, private Noncopyable
 {

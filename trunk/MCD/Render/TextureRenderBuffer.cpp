@@ -22,18 +22,7 @@ TextureRenderBuffer::TextureRenderBuffer(const TexturePtr& tex)
 
 bool TextureRenderBuffer::linkTo(RenderTarget& renderTarget)
 {
-	// Create an empty texture if we didn't have one already.
-	// We use GL_TEXTURE_RECTANGLE_ARB as the default rather than GL_TEXTURE because
-	// some display card didn't support non-power of 2 texture.
-	if(!texture &&
-		!createTexture(
-			renderTarget.width(), renderTarget.height(),
-			GL_TEXTURE_2D, mAttachmentType == GL_DEPTH_ATTACHMENT_EXT ? GL_DEPTH_COMPONENT : GL_RGB
-		)
-	)
-		return false;
-
-	if(texture->width() != renderTarget.width() || texture->height() != renderTarget.height())
+	if(!texture || texture->width() != renderTarget.width() || texture->height() != renderTarget.height())
 		return false;
 
 	renderTarget.bind();

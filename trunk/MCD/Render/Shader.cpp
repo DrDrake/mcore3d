@@ -4,11 +4,12 @@
 
 namespace MCD {
 
-Shader::Shader()
-	: mHandle(0), mType(0)
+Shader::Shader(const Path& fileId)
+	: Resource(fileId), mHandle(0), mType(0)
 {}
 
-Shader::~Shader() {
+Shader::~Shader()
+{
 	destroy();
 }
 
@@ -28,7 +29,7 @@ void Shader::destroy()
 	mType = 0;
 }
 
-bool Shader::compile(sal_in_z const char* source)
+bool Shader::compile(const char* source)
 {
 	const char* strList[1];
 	strList[0] = source;
@@ -42,7 +43,7 @@ bool Shader::compile(const char** sourceList, size_t count)
 		return false;
 
 	// We use null terminated strings, therefore the fourth parameter is null
-	glShaderSource(mHandle, 1, sourceList, nullptr);
+	glShaderSource(mHandle, count, sourceList, nullptr);
 
 	GLint ok;
 	glCompileShader(mHandle);

@@ -87,7 +87,7 @@ BasicGlWindow::BasicGlWindow(const wchar_t* options)
 	glFrontFace(GL_CCW);			// OpenGl use counterclockwise as the default winding
 	glEnable(GL_CULL_FACE);
 	glEnable(GL_DEPTH_TEST);
-	// Automatic normalization (usefull when we have uniform scaled the model)
+	// Automatic normalization (useful when we have uniform scaled the model)
 	// Reference: http://www.opengl.org/resources/features/KilgardTechniques/oglpitfall/
 	glEnable(GL_RESCALE_NORMAL);
 	glEnable(GL_TEXTURE_2D);
@@ -117,7 +117,7 @@ const float cameraVelocity = 10.f;
 
 void BasicGlWindow::mainLoop()
 {
-	while(mKeepRun) {
+	while(keepRun()) {
 		// Cleanup the event queue
 		Event e;
 		popEvent(e, false);
@@ -261,8 +261,8 @@ void BasicGlWindow::setFieldOfView(float angle)
 	gluPerspective(
 		mFieldOfView,				// The camera angle ... field of view in y direction
 		(GLfloat)width()/height(),	// The width-to-height ratio
-		0.1f,						// The near z clipping coordinate
-		1000.0f);					// The far z clipping coordinate
+		1.0f,						// The near z clipping coordinate
+		500.0f);					// The far z clipping coordinate
 
 	// Restore back to the model view matrix
 	glMatrixMode(GL_MODELVIEW);

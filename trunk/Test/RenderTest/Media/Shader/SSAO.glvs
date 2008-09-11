@@ -1,0 +1,15 @@
+// Screen space ambient occlusion
+// Reference:
+// http://www.opengl.org/discussion_boards/ubbthreads.php?ubb=showflat&Number=236698&fpart=2
+// http://www.4gamer.net/games/047/G004713/20080223007/screenshot.html?num=002
+// http://rgba.scenesp.org/iq/computer/articles/ssao/ssao.htm
+// http://meshula.net/wordpress/?p=145
+
+varying vec2 texCoord;
+
+void main(void)
+{
+	gl_Position = ftransform();
+	texCoord = gl_MultiTexCoord0.xy;
+	gl_FrontColor = gl_Color;
+}

@@ -280,7 +280,7 @@ public:
 				mFullLoaded = true;
 
 			mLoader.commit(texture);
-			std::cout << "Commited\n";
+			std::cout << "Committed\n";
 		}
 
 		texture.bind();

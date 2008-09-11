@@ -272,7 +272,15 @@
 				>
 			</File>
 			<File
+				RelativePath=".\ResourceLoaderFactory.h"
+				>
+			</File>
+			<File
 				RelativePath=".\Shader.h"
+				>
+			</File>
+			<File
+				RelativePath=".\ShaderLoader.h"
 				>
 			</File>
 			<File
@@ -289,10 +297,6 @@
 			</File>
 			<File
 				RelativePath=".\TextureLoaderBaseImpl.inc"
-				>
-			</File>
-			<File
-				RelativePath=".\TextureLoaderFactory.h"
 				>
 			</File>
 			<File
@@ -369,7 +373,15 @@
 				>
 			</File>
 			<File
+				RelativePath=".\ResourceLoaderFactory.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\Shader.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\ShaderLoader.cpp"
 				>
 			</File>
 			<File
@@ -382,10 +394,6 @@
 			</File>
 			<File
 				RelativePath=".\TextureLoaderBase.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\TextureLoaderFactory.cpp"
 				>
 			</File>
 			<File

@@ -45,7 +45,7 @@ public:
 			mPfd.dwFlags = PFD_DRAW_TO_WINDOW | PFD_SUPPORT_OPENGL | PFD_DOUBLEBUFFER;
 			mPfd.iPixelType = PFD_TYPE_RGBA;
 			mPfd.cColorBits = mColorBits;
-			mPfd.cDepthBits = 16;
+			mPfd.cDepthBits = 24;
 			mPfd.cStencilBits = 8;
 			mPfd.iLayerType = PFD_MAIN_PLANE;
 
