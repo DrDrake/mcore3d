@@ -1,9 +1,13 @@
 #include "Pch.h"
-#include "TextureLoaderFactory.h"
+#include "ResourceLoaderFactory.h"
 #include "BitmapLoader.h"
 #include "DdsLoader.h"
 #include "JpegLoader.h"
+#include "Max3dsLoader.h"
+#include "Model.h"
 #include "PngLoader.h"
+#include "Shader.h"
+#include "ShaderLoader.h"
 #include "Texture.h"
 #include "../Core/System/Path.h"
 #include "../Core/System/StrUtility.h"
@@ -58,6 +62,53 @@ ResourcePtr PngLoaderFactory::createResource(const Path& fileId)
 IResourceLoader* PngLoaderFactory::createLoader()
 {
 	return new PngLoader;
+}
+
+ResourcePtr VertexShaderLoaderFactory::createResource(const Path& fileId)
+{
+	ShaderPtr shader;
+	if(wstrCaseCmp(fileId.getExtension().c_str(), L"glvs") == 0) {
+		shader = new Shader(fileId);
+		shader->create(GL_VERTEX_SHADER);
+	}
+	return shader;
+}
+
+IResourceLoader* VertexShaderLoaderFactory::createLoader()
+{
+	return new ShaderLoader;
+}
+
+ResourcePtr PixelShaderLoaderFactory::createResource(const Path& fileId)
+{
+	ShaderPtr shader;
+	if(wstrCaseCmp(fileId.getExtension().c_str(), L"glps") == 0) {
+		shader = new Shader(fileId);
+		shader->create(GL_FRAGMENT_SHADER);
+	}
+	return shader;
+}
+
+IResourceLoader* PixelShaderLoaderFactory::createLoader()
+{
+	return new ShaderLoader;
+}
+
+Max3dsLoaderFactory::Max3dsLoaderFactory(ResourceManager& resourceManager)
+	: mResourceManager(resourceManager)
+{
+}
+
+ResourcePtr Max3dsLoaderFactory::createResource(const Path& fileId)
+{
+	if(wstrCaseCmp(fileId.getExtension().c_str(), L"3ds") == 0)
+		return new Model(fileId);
+	return nullptr;
+}
+
+IResourceLoader* Max3dsLoaderFactory::createLoader()
+{
+	return new Max3dsLoader(&mResourceManager);
 }
 
 }	// namespace MCD

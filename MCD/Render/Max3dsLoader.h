@@ -1,5 +1,5 @@
-#ifndef __MCD_RENDER_MAX3DSLOADERLOADER__
-#define __MCD_RENDER_MAX3DSLOADERLOADER__
+#ifndef __MCD_RENDER_MAX3DSLOADER__
+#define __MCD_RENDER_MAX3DSLOADER__
 
 #include "ShareLib.h"
 #include "../Core/System/Noncopyable.h"
@@ -53,4 +53,4 @@ protected:
 
 }	// namespace MCD
 
-#endif	// __MCD_RENDER_MAX3DSLOADERLOADER__
+#endif	// __MCD_RENDER_MAX3DSLOADER__

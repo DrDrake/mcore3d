@@ -92,6 +92,7 @@
 			<Add library="png" />
 			<Add directory="\usr\X11R6\lib" />
 		</Linker>
+		<Unit filename="BackRenderBuffer.h" />
 		<Unit filename="BitmapLoader.cpp" />
 		<Unit filename="BitmapLoader.h" />
 		<Unit filename="Camera.cpp" />
@@ -118,11 +119,24 @@
 		<Unit filename="PngLoader.cpp" />
 		<Unit filename="PngLoader.h" />
 		<Unit filename="Render.h" />
+		<Unit filename="RenderBuffer.cpp" />
+		<Unit filename="RenderBuffer.h" />
+		<Unit filename="RenderTarget.cpp" />
+		<Unit filename="RenderTarget.h" />
+		<Unit filename="ResourceLoaderFactory.cpp" />
+		<Unit filename="ResourceLoaderFactory.h" />
+		<Unit filename="Shader.cpp" />
+		<Unit filename="Shader.h" />
+		<Unit filename="ShaderLoader.cpp" />
+		<Unit filename="ShaderLoader.h" />
+		<Unit filename="ShaderProgram.cpp" />
+		<Unit filename="ShaderProgram.h" />
 		<Unit filename="Texture.cpp" />
 		<Unit filename="Texture.h" />
 		<Unit filename="TextureLoaderBase.cpp" />
 		<Unit filename="TextureLoaderBase.h" />
 		<Unit filename="TextureLoaderBaseImpl.inc" />
+		<Unit filename="TextureRenderBuffer.cpp" />
 		<Extensions>
 			<code_completion />
 			<debugger />

@@ -1,5 +1,5 @@
-#ifndef __MCD_RENDER_TEXTURELOADERFACTORY__
-#define __MCD_RENDER_TEXTURELOADERFACTORY__
+#ifndef __MCD_RENDER_RESOURCELOADERFACTORY__
+#define __MCD_RENDER_RESOURCELOADERFACTORY__
 
 #include "ShareLib.h"
 #include "../Core/System/ResourceManager.h"
@@ -34,6 +34,31 @@ public:
 	sal_override IResourceLoader* createLoader();
 };	// PngLoaderFactory
 
+class MCD_RENDER_API VertexShaderLoaderFactory : public ResourceManager::IFactory
+{
+public:
+	sal_override ResourcePtr createResource(const Path& fileId);
+	sal_override IResourceLoader* createLoader();
+};	// VertexShaderLoaderFactory
+
+class MCD_RENDER_API PixelShaderLoaderFactory : public ResourceManager::IFactory
+{
+public:
+	sal_override ResourcePtr createResource(const Path& fileId);
+	sal_override IResourceLoader* createLoader();
+};	// PixelShaderLoaderFactory
+
+class MCD_RENDER_API Max3dsLoaderFactory : public ResourceManager::IFactory
+{
+public:
+	Max3dsLoaderFactory(ResourceManager& resourceManager);
+	sal_override ResourcePtr createResource(const Path& fileId);
+	sal_override IResourceLoader* createLoader();
+
+private:
+	ResourceManager& mResourceManager;
+};	// Max3dsLoaderFactory
+
 }	// namespace MCD
 
-#endif	// __MCD_RENDER_TEXTURELOADERFACTORY__
+#endif	// __MCD_RENDER_RESOURCELOADERFACTORY__

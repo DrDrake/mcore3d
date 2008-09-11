@@ -6,16 +6,8 @@
 namespace MCD {
 
 BackRenderBuffer::BackRenderBuffer()
-	: mHandle(0), mWidth(0), mHeight(0)
+	: mHandle(0), mWidth(0), mHeight(0), mFormat(-1), mUsage(-1)
 {
-	initParam();
-}
-
-BackRenderBuffer::BackRenderBuffer(size_t width, size_t height)
-	: mWidth(width), mHeight(height)
-{
-	initParam();
-	create();
 }
 
 BackRenderBuffer::~BackRenderBuffer()
@@ -25,14 +17,10 @@ BackRenderBuffer::~BackRenderBuffer()
 
 bool BackRenderBuffer::linkTo(RenderTarget& renderTarget)
 {
-	if(!mHandle) {
-		mWidth = renderTarget.width();
-		mHeight = renderTarget.height();
-		create();
-	} else {
-		if(mWidth != renderTarget.width() || mHeight != renderTarget.height())
-			return false;
-	}
+	if(!mHandle)
+		return false;
+	else if(mWidth != renderTarget.width() || mHeight != renderTarget.height())
+		return false;
 
 	renderTarget.bind();
 	glFramebufferRenderbufferEXT(GL_FRAMEBUFFER_EXT,
@@ -59,21 +47,13 @@ uint BackRenderBuffer::handle() const
 	return mHandle;
 }
 
-void BackRenderBuffer::initParam()
+void BackRenderBuffer::create(size_t width, size_t height, int format, int usage)
 {
-	// TODO: Some way to set the param rather than hardcode
+	mWidth = width;
+	mHeight = height;
+	mFormat = format;
+	mUsage = usage;
 
-	// Accepted formats are the same as those accepted by glTexImage*,
-	// with the addition of GL_STENCIL_INDEX{1|4|8|16}_EXT formats.
-	mFormat = GL_DEPTH_COMPONENT24;
-
-	// Usage can be:
-	// GL_DEPTH_ATTACHMENT_EXT, GL_STENCIL_ATTACHMENT_EXT, or GL_COLOR_ATTACHMENTn_EXT
-	mUsage = GL_DEPTH_ATTACHMENT_EXT;
-}
-
-void BackRenderBuffer::create()
-{
 	int maxRenderbufferWidth;
 	glGetIntegerv(GL_MAX_RENDERBUFFER_SIZE_EXT, &maxRenderbufferWidth);
 
