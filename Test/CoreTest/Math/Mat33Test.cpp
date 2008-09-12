@@ -14,7 +14,7 @@ namespace
 TEST(Basic_Mat33Test)
 {
 	CHECK_EQUAL(ma.m01, ma[0][1]);
-	CHECK_EQUAL(ma.Data[1], ma[0][1]);
+	CHECK_EQUAL(ma.data[1], ma[0][1]);
 
 	CHECK_EQUAL(3u, ma.rows());
 	CHECK_EQUAL(3u, ma.columns());
@@ -75,11 +75,13 @@ TEST(Addition_Mat33Test)
 		CHECK(t == mc);
 	}
 
-	CHECK(ma + 1 == Mat33f(1, 2, 3, 4, 5, 6, 7, 8, 9));
-	CHECK(1 + ma == Mat33f(1, 2, 3, 4, 5, 6, 7, 8, 9));
+	const Mat33f plus1(1, 2, 3, 4, 5, 6, 7, 8, 9);
+
+	CHECK(ma + 1 == plus1);
+	CHECK(1 + ma == plus1);
 	{	Mat33f t = ma;
 		t += 1;
-		CHECK(t == Mat33f(1, 2, 3, 4, 5, 6, 7, 8, 9));
+		CHECK(t == plus1);
 	}
 }
 
@@ -92,11 +94,13 @@ TEST(Subtract_Mat33Test)
 		CHECK(t == mb);
 	}
 
-	CHECK(mb - 1 == Mat33f(7, 6, 5, 4, 3, 2, 1, 0, -1));
+	const Mat33f minus1(7, 6, 5, 4, 3, 2, 1, 0, -1);
+
+	CHECK(mb - 1 == minus1);
 	CHECK(1 - ma == Mat33f(1, 0, -1, -2, -3, -4, -5, -6, -7));
 	{	Mat33f t = mb;
 		t -= 1;
-		CHECK(t == Mat33f(7, 6, 5, 4, 3, 2, 1, 0, -1));
+		CHECK(t == minus1);
 	}
 
 	CHECK(ma + ma - 2 * ma == 0);
@@ -107,11 +111,13 @@ TEST(Multiply_Mat33Test)
 	CHECK(ma * 2 == md);
 	CHECK(2 * ma == md);
 
-	CHECK(ma * mb == Mat33f(
+	const Mat33f result(
 		 9,  6,  3,
 		54, 42, 30,
-		99, 78, 57)
+		99, 78, 57
 	);
+
+	CHECK(ma * mb == result);
 
 	Mat33f t = ma;
 	t *= 2;
@@ -119,14 +125,10 @@ TEST(Multiply_Mat33Test)
 
 	t = ma;
 	t *= mb;
-	CHECK(t == Mat33f(
-		 9,  6,  3,
-		54, 42, 30,
-		99, 78, 57)
-	);
+	CHECK(t == result);
 }
 
-TEST(MulVector_Matrix33Test)
+TEST(MulVector_Mat33Test)
 {
 	Vec3f u, v(1, 2, 3);
 	u = ma * v;
@@ -134,7 +136,7 @@ TEST(MulVector_Matrix33Test)
 	CHECK(u == Vec3f(8, 26, 44));
 }
 
-TEST(Division_Matrix33Test)
+TEST(Division_Mat33Test)
 {
 	CHECK(md / 2 == ma);
 
@@ -143,7 +145,7 @@ TEST(Division_Matrix33Test)
 	CHECK(t == ma);
 }
 
-TEST(Rotate_Matrix33Test)
+TEST(Rotate_Mat33Test)
 {
 	Mat33f m = Mat33f::rotate(Math<float>::cPiOver2(), 0, 0);
 	Vec3f v = m * Vec3f::c001;

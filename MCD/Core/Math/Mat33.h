@@ -18,8 +18,10 @@ struct Mat33TupleUnion {
 		struct { T
 			r0[3], r1[3], r2[3];
 		};
+		// As a 1 dimension array
+		T data[3*3];
 		// As a 2 dimension array
-		T Data[3*3];
+		T data2D[3][3];
 	};
 };	// Mat33TupleUnion
 

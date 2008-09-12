@@ -10,7 +10,7 @@ template<typename T>
 struct Vec2TupleUnion {
 	union {
 		struct { T x, y; };
-		T Data[2];
+		T data[2];
 	};
 };	// Vec2TupleUnion
 

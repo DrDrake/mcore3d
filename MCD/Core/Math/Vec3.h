@@ -10,7 +10,7 @@ template<typename T>
 struct Vec3TupleUnion {
 	union {
 		struct { T x, y, z; };
-		T Data[3];
+		T data[3];
 	};
 };	// Vec3TupleUnion
 
@@ -113,9 +113,6 @@ public:
         \note This function will crash for zero-sized vectors.
 	 */
 	Vec3 normalizedCopy() const;
-
-	//!	Returns whether this vector is within a positional tolerance of another vector.
-	bool isNearEqual(const Vec3& rhs, T tolerance = 1e-06) const;
 
 	static const Vec3 cZero;
 	static const Vec3 c100;
