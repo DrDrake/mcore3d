@@ -6,6 +6,7 @@
 #include "Texture.h"
 #include "../Core/Math/Vec2.h"
 #include "../Core/Math/Vec3.h"
+#include "../Core/Math/Mat44.h"
 #include "../Core/System/Mutex.h"
 #include "../Core/System/ResourceManager.h"
 #include "../Core/System/StrUtility.h"
@@ -47,11 +48,11 @@ enum ChunkId
 			OBJECT					= 0x4000,
 				TRIG_MESH			= 0x4100,
 					VERT_LIST		= 0x4110,
+					TEX_VERTS		= 0x4140,
+					LOCAL_COORDS	= 0x4160,
 					FACE_DESC		= 0x4120,
 						FACE_MAT	= 0x4130,
 						SMOOTH_GROUP= 0x4150,
-					TEX_VERTS		= 0x4140,
-					LOCAL_COORDS	= 0x4160,
 			ONE_UNIT				= 0x0100,
 		KEYF3DS						= 0xB000,
 			FRAMES					= 0xB008,
@@ -303,6 +304,8 @@ IResourceLoader::LoadingState Max3dsLoader::Impl::load(std::istream* is, const P
 
 	MeshBuilder* currentMeshBuilder = nullptr;
 	NamedMaterial* currentMaterial = nullptr;
+	// When mirror is used in the 3DS, the triangle winding order need to be inverted.
+	bool invertWinding = false;
 
 	while(mStream->read(header) && mLoadingState != Aborted)
 	{
@@ -382,6 +385,38 @@ IResourceLoader::LoadingState Max3dsLoader::Impl::load(std::istream* is, const P
 				}
 			}	break;
 
+			case LOCAL_COORDS:
+			{
+				Mat44f matrix = Mat44f::cIdentity;
+				for(size_t i=0; i<4; ++i)
+					mStream->read(matrix.data2D[i], sizeof(float) * 3);
+
+				if((invertWinding = (matrix.determinant() < 0)) == true) {
+					Mat44f inv = matrix.inverse();
+
+					matrix.m00 = -matrix.m00;
+					matrix.m01 = -matrix.m01;
+					matrix.m02 = -matrix.m02;
+					matrix.m03 = -matrix.m03;
+
+					matrix = (inv * matrix);
+					matrix.transpose(matrix);
+
+					size_t vertexCount = 0;
+					Vec3f* vertex = reinterpret_cast<Vec3f*>(currentMeshBuilder->acquireBufferPointer(Mesh::Position, &vertexCount));
+
+					for(size_t i=0; i<vertexCount; ++i) {
+						Vec4f tmp(vertex[i].x, -vertex[i].z, vertex[i].y, 0);
+						Vec4f tmp2 = tmp;
+						// TODO: Use matrix.transform once the function is available
+						tmp = (matrix * tmp) + matrix[3];
+						vertex[i] = Vec3f(tmp.x, tmp.z, -tmp.y);
+					}
+
+					currentMeshBuilder->releaseBufferPointer(vertex);
+				}
+			}	break;
+
 			//--------------- FACE_DESC ----------------
 			// Description: Polygons (faces) list
 			// Chunk Length: 1 x uint16_t (number of polygons)
@@ -404,6 +439,11 @@ IResourceLoader::LoadingState Max3dsLoader::Impl::load(std::istream* is, const P
 					mStream->read(&idx[i * 3], 3 * sizeof(uint16_t));
 					uint16_t faceFlags;	// Flag that stores some face information (currently not used)
 					mStream->read(faceFlags);
+				}
+
+				if(invertWinding) {
+					for(size_t i=0; i<idx.size(); i+=3)
+						std::swap(idx[i], idx[i+2]);
 				}
 			}	break;
 
@@ -547,7 +587,7 @@ IResourceLoader::LoadingState Max3dsLoader::Impl::load(std::istream* is, const P
 				std::wstring textureFileName;
 				readString(textureFileName);
 
-				// Find out the
+				// We assume the texture is at the same path as the 3ds file itself.
 				Path adjustedPath = fileId ? fileId->getBranchPath()/textureFileName : textureFileName;
 				if(mResourceManager)
 					currentMaterial->mTexture = dynamic_cast<Texture*>(mResourceManager->load(adjustedPath, false).get());
