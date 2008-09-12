@@ -468,6 +468,14 @@
 					>
 				</File>
 				<File
+					RelativePath=".\Math\Mat44.h"
+					>
+				</File>
+				<File
+					RelativePath=".\Math\Mat44.inl"
+					>
+				</File>
+				<File
 					RelativePath=".\Math\Quaternion.h"
 					>
 				</File>

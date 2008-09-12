@@ -75,15 +75,6 @@ Vec3<T> Vec3<T>::normalizedCopy() const {
 	return (*this) * (T(1)/length());
 }
 
-template<typename T>
-bool Vec3<T>::isNearEqual(const Vec3& rhs, T tolerance) const
-{
-	return
-		Math<T>::isNearEqual(x, rhs.x, tolerance) &&
-		Math<T>::isNearEqual(y, rhs.y, tolerance) &&
-		Math<T>::isNearEqual(z, rhs.z, tolerance);
-}
-
 template<typename T> const Vec3<T> Vec3<T>::cZero = Vec3(0);
 template<typename T> const Vec3<T> Vec3<T>::c100 = Vec3(1, 0, 0);
 template<typename T> const Vec3<T> Vec3<T>::c010 = Vec3(0, 1, 0);

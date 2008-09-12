@@ -8,7 +8,7 @@ namespace MCD {
 
 template<typename T, size_t N>
 struct DefaultTupleUnion {
-	T Data[N];
+	T data[N];
 };	// DefaultTupleUnion
 
 /*!	Tuple structure with common arithmetic operations.
@@ -17,7 +17,7 @@ struct DefaultTupleUnion {
 	like +, -, * and /
 
 	This class must be derived in order to use
-	User can pass their own UNION structure (must have a Data[N] array as the member variable).
+	User can pass their own UNION structure (must have a data[N] array as the member variable).
 
 	\note
 		Although loop is used in those arithmetic operations, but the compiler should
@@ -28,7 +28,7 @@ struct DefaultTupleUnion {
 	struct TVec3fTupleUnion {
 		union {
 			struct { float x, y, z; };
-			float Data[3];
+			float data[3];
 		};
 	};
 	struct Vec3f : public MathTuple<float, 3, Vec3f, TVec3fTupleUnion>
@@ -47,7 +47,7 @@ template<typename T, size_t N_, class R, class UNION=DefaultTupleUnion<T,N_> >
 class MathTuple : public UNION
 {
 public:
-    using UNION::Data;
+    using UNION::data;
 
 	//! Compile-time meta program may need this enum
 	enum { N = N_ };
@@ -68,37 +68,37 @@ public:
 	param_type operator[](const size_t i) const
 	{
 		MCD_ASSUME(i < N);
-		return Data[i];
+		return data[i];
 	}
 
 	T& operator[](const size_t i)
 	{
 		MCD_ASSUME(i < N);
-		return Data[i];
+		return data[i];
 	}
 
 	//! Pointer access for direct copying
 	T* getPtr() {
-		return Data;
+		return data;
 	}
 
 	//! Pointer access for direct copying
 	const T* getPtr() const {
-		return Data;
+		return data;
 	}
 
 	//! Assign a value to all of the elements
 	R& operator=(const param_type val)
 	{
 		for(size_t i=0; i<N; ++i)
-			Data[i] = val;
+			data[i] = val;
 		return static_cast<R&>(*this);
 	}
 
 	bool operator==(const MathTuple& rhs) const
 	{
 		for(size_t i=0; i<N; ++i)
-			if(Data[i] != rhs.Data[i])
+			if(data[i] != rhs.data[i])
 				return false;
 		return true;
 	}
@@ -117,7 +117,7 @@ public:
 	{
 		R tmp;
 		for(size_t i=0; i<N; ++i)
-			tmp.Data[i] = -Data[i];
+			tmp.data[i] = -data[i];
 		return tmp;
 	}
 
@@ -126,7 +126,7 @@ public:
 	{
 		R tmp;
 		for(size_t i=0; i<N; ++i)
-			tmp.Data[i] = Data[i] + rhs.Data[i];
+			tmp.data[i] = data[i] + rhs.data[i];
 		return tmp;
 	}
 
@@ -134,28 +134,28 @@ public:
 	{
 		R tmp;
 		for(size_t i=0; i<N; ++i)
-			tmp.Data[i] = Data[i] - rhs.Data[i];
+			tmp.data[i] = data[i] - rhs.data[i];
 		return tmp;
 	}
 
 	R& operator+=(const MathTuple& rhs)
 	{
 		for(size_t i=0; i<N; ++i)
-			Data[i] += rhs.Data[i];
+			data[i] += rhs.data[i];
 		return static_cast<R&>(*this);
 	}
 
 	R& operator-=(const MathTuple& rhs)
 	{
 		for(size_t i=0; i<N; ++i)
-			Data[i] -= rhs.Data[i];
+			data[i] -= rhs.data[i];
 		return static_cast<R&>(*this);
 	}
 
 	R& operator*=(const param_type rhs)
 	{
 		for(size_t i=0; i<N; ++i)
-			Data[i] *= rhs;
+			data[i] *= rhs;
 		return static_cast<R&>(*this);
 	}
 
@@ -164,18 +164,27 @@ public:
 	}
 
 	friend bool operator==(const param_type lhs, const MathTuple& rhs) {
-		return rhs == lhs;
+		return MathTuple(lhs) == rhs;
 	}
 
 	friend bool operator!=(const param_type lhs, const MathTuple& rhs) {
-		return rhs != lhs;
+		return !(lhs == rhs);
+	}
+
+	bool isNearEqual(const MathTuple& rhs, T tolerance = 1e-06) const
+	{
+		for(size_t i=0; i<N; ++i) {
+			if(!Math<T>::isNearEqual(data[i], rhs[i], tolerance))
+				return false;
+		}
+		return true;
 	}
 
 	friend R operator+(const MathTuple& lhs, const param_type rhs)
 	{
 		R tmp;
 		for(size_t i=0; i<N; ++i)
-			tmp.Data[i] = lhs.Data[i] + rhs;
+			tmp.data[i] = lhs.data[i] + rhs;
 		return tmp;
 	}
 
@@ -191,7 +200,7 @@ public:
 	{
 		R tmp;
 		for(size_t i=0; i<N; ++i)
-			tmp.Data[i] = lhs - rhs.Data[i];
+			tmp.data[i] = lhs - rhs.data[i];
 		return tmp;
 	}
 
@@ -199,7 +208,7 @@ public:
 	{
 		R tmp;
 		for(size_t i=0; i<N; ++i)
-			tmp.Data[i] = lhs.Data[i] * rhs;
+			tmp.data[i] = lhs.data[i] * rhs;
 		return tmp;
 	}
 
@@ -215,7 +224,7 @@ public:
 	{
 		R tmp;
 		for(size_t i=0; i<N; ++i)
-			tmp.Data[i] = lhs / rhs.Data[i];
+			tmp.data[i] = lhs / rhs.data[i];
 		return tmp;
 	}
 };	// MathTuple

@@ -9,7 +9,7 @@ template<typename T>
 struct QuaternionTupleUnion {
 	union {
 		struct { T x, y, z, w; };
-		T Data[4];
+		T data[4];
 	};
 };	// QuaternionTupleUnion
 

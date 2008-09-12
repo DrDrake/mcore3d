@@ -9,7 +9,7 @@ template<typename T>
 struct Vec4TupleUnion {
 	union {
 		struct { T x, y, z, w; };
-		T Data[4];
+		T data[4];
 	};
 };	// Vec4TupleUnion
 
