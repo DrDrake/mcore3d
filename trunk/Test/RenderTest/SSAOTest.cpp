@@ -73,13 +73,18 @@ TEST(SSAOTest)
 			mRenderTarget.reset(new RenderTarget(width, height));
 			TextureRenderBufferPtr textureBuffer = new TextureRenderBuffer(GL_COLOR_ATTACHMENT0_EXT);
 			textureBuffer->createTexture(width, height, useRectangleTexture ? GL_TEXTURE_RECTANGLE_ARB : GL_TEXTURE_2D, GL_RGB);
-			textureBuffer->linkTo(*mRenderTarget);
+			if(!textureBuffer->linkTo(*mRenderTarget))
+				throw std::runtime_error("");
 			mColorRenderTexture = static_cast<TextureRenderBuffer&>(*textureBuffer).texture;
 
 			textureBuffer = new TextureRenderBuffer(GL_DEPTH_ATTACHMENT_EXT);
 			textureBuffer->createTexture(width, height, GL_TEXTURE_2D, GL_DEPTH_COMPONENT);
-			textureBuffer->linkTo(*mRenderTarget);
+			if(!textureBuffer->linkTo(*mRenderTarget))
+				throw std::runtime_error("");
 			mDepthRenderTexture = static_cast<TextureRenderBuffer&>(*textureBuffer).texture;
+
+			if(!mRenderTarget->checkCompleteness())
+				throw std::runtime_error("");
 
 			BasicGlWindow::onResize(width, height);
 		}

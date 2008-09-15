@@ -46,12 +46,15 @@ public:
 	/*!	Use this render target.
 		Subsequence renderings will go to the binded buffers.
 	 */
-	void bind();
+	void bind() const;
 
 	/*!	Un-use this render target.
 		Subsequence renderings result will go to the normal front buffer.
 	 */
-	void unbind();
+	void unbind() const;
+
+	//! Check the render target configuration is correct or not.
+	bool checkCompleteness(sal_out_opt int* errorCode=nullptr) const;
 
 	uint handle() const;
 
