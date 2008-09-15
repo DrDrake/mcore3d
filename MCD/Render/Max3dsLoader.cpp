@@ -304,7 +304,11 @@ IResourceLoader::LoadingState Max3dsLoader::Impl::load(std::istream* is, const P
 
 	MeshBuilder* currentMeshBuilder = nullptr;
 	NamedMaterial* currentMaterial = nullptr;
+
 	// When mirror is used in the 3DS, the triangle winding order need to be inverted.
+	// Trunk LOCAL_COORDS comes before FACE_DESC, during the loading of LOCAL_COORDS we got
+	// the information to change the clockwise/anti-clockwise triangle winding or not
+	// and apply this information during the loading of FACE_DESC
 	bool invertWinding = false;
 
 	while(mStream->read(header) && mLoadingState != Aborted)
@@ -407,7 +411,6 @@ IResourceLoader::LoadingState Max3dsLoader::Impl::load(std::istream* is, const P
 
 					for(size_t i=0; i<vertexCount; ++i) {
 						Vec4f tmp(vertex[i].x, -vertex[i].z, vertex[i].y, 0);
-						Vec4f tmp2 = tmp;
 						// TODO: Use matrix.transform once the function is available
 						tmp = (matrix * tmp) + matrix[3];
 						vertex[i] = Vec3f(tmp.x, tmp.z, -tmp.y);

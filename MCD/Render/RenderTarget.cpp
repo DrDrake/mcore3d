@@ -16,14 +16,32 @@ RenderTarget::~RenderTarget()
 	glDeleteFramebuffersEXT(1, &mHandle);
 }
 
-void RenderTarget::bind()
+void RenderTarget::bind() const
 {
 	glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, mHandle);
 }
 
-void RenderTarget::unbind()
+void RenderTarget::unbind() const
 {
 	glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0);
+}
+
+bool RenderTarget::checkCompleteness(int* errorCode) const
+{
+	bind();
+
+	GLenum status = glCheckFramebufferStatusEXT(GL_FRAMEBUFFER_EXT);
+	if(errorCode)
+		*errorCode = status;
+
+	switch (status) {
+	case GL_FRAMEBUFFER_COMPLETE_EXT:
+		return true;
+	default:
+		break;
+	}
+
+	return false;
 }
 
 uint RenderTarget::handle() const

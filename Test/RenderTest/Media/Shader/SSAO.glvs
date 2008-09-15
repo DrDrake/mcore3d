@@ -1,6 +1,6 @@
 // Screen space ambient occlusion
 // Reference:
-// http://www.opengl.org/discussion_boards/ubbthreads.php?ubb=showflat&Number=236698&fpart=2
+// http://www.opengl.org/discussion_boards/ubbthreads.php?ubb=showflat&Number=236698&fpart=1
 // http://www.4gamer.net/games/047/G004713/20080223007/screenshot.html?num=002
 // http://rgba.scenesp.org/iq/computer/articles/ssao/ssao.htm
 // http://meshula.net/wordpress/?p=145

@@ -44,6 +44,9 @@ TEST(RenderTargetTest)
 			if(!backBuffer->linkTo(*mRenderTarget))
 				throw std::runtime_error("");
 
+			if(!mRenderTarget->checkCompleteness())
+				throw std::runtime_error("");
+
 			BasicGlWindow::onResize(width, height);
 		}
 
