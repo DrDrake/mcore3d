@@ -1,0 +1,22 @@
+varying vec3 normal, worldNormal, lightDir, halfVector;
+varying vec2 texCoord;
+
+void main(void)
+{
+	gl_Position = ftransform();
+
+	worldNormal = gl_Normal;
+
+	// Transform the normal into eye space and  normalize the result.
+	normal = normalize(gl_NormalMatrix * gl_Normal);
+
+	// Now normalize the light's direction. Note that according to the OpenGL specification,
+	// the light is stored in eye space. Also since we're talking about a directional light,
+	// the position field is actually direction.
+	lightDir = normalize(gl_LightSource[0].position.xyz);
+
+	// Normalize the halfVector to pass it to the fragment shader.
+	halfVector = normalize(gl_LightSource[0].halfVector.xyz);
+
+	texCoord = gl_MultiTexCoord0.xy;
+}

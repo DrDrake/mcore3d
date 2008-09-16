@@ -267,6 +267,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\MultipleRenderTargetTest.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\Pch.cpp"
 				>
 				<FileConfiguration
@@ -323,6 +327,26 @@
 				RelativePath=".\Media\Shader\SSAOv2.glps"
 				>
 			</File>
+			<Filter
+				Name="MRT"
+				>
+				<File
+					RelativePath=".\Media\Shader\MRT\Quad.glps"
+					>
+				</File>
+				<File
+					RelativePath=".\Media\Shader\MRT\Quad.glvs"
+					>
+				</File>
+				<File
+					RelativePath=".\Media\Shader\MRT\Scene.glps"
+					>
+				</File>
+				<File
+					RelativePath=".\Media\Shader\MRT\Scene.glvs"
+					>
+				</File>
+			</Filter>
 		</Filter>
 	</Files>
 	<Globals>
