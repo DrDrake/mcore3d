@@ -1,15 +1,18 @@
-uniform sampler2D texColor;	// Color texture
-uniform sampler2D texDepth;	// Depth texture
+uniform sampler2DRect texColor;	// Color texture
+uniform sampler2DRect texDepth;	// Depth texture
 
+// We cannot use gl_DepthRange since we are currently rendering the fullscreen quad not the scene
 uniform vec2 camerarange = vec2(1.0, 500);
-uniform vec2 screensize;
 
 varying vec2 texCoord;
 
 float readDepth(in vec2 coord)
 {
-	return (2.0 * camerarange.x) /
-		(camerarange.y + camerarange.x - texture2D(texDepth, coord).x * (camerarange.y - camerarange.x));	
+	float nearZ = camerarange.x;
+	float farZ = camerarange.y;
+	float posZ = texture2DRect(texDepth, coord).x;
+
+	return (2.0 * nearZ) / (nearZ + farZ - posZ * (farZ - nearZ));
 }
 
 float compareDepths(in float depth1, in float depth2)
@@ -28,8 +31,8 @@ void main(void)
 	float depth = readDepth(texCoord);
 	float d;
 
-	float pw = 1.0 / screensize.x;
-	float ph = 1.0 / screensize.y;
+	float pw = 1.0;	// Use (1.0 / screensize.x) for GL_texture2DRect
+	float ph = 1.0;
 
 	float aoCap = 1.0;
 	float ao = 0.0;
@@ -59,8 +62,5 @@ void main(void)
 
 	ao /= 16.0;
 
-	gl_FragColor = vec4(1.0 - ao) * texture2D(texColor, texCoord);
-//	gl_FragColor = texture2D(texColor, texCoord);
-//	float tmp = readDepth(texCoord);
-//	gl_FragColor = vec4(tmp, tmp, tmp, 1);
+	gl_FragColor = vec4(1.0 - ao) * texture2DRect(texColor, texCoord);
 }

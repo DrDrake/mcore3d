@@ -123,11 +123,14 @@ TEST(MultipleRenderTargetTest)
 
 			size_t w = width() / 2;
 			size_t h = height() / 2;
+
 			mColorRenderTexture->bind();
 			drawViewportQuad(0, h, w, h, mColorRenderTexture->type());
 
+			mDepthPass.bind();
 			mDepthRenderTexture->bind();
 			drawViewportQuad(w, h, w, h, mDepthRenderTexture->type());
+			mDepthPass.unbind();
 
 			mNormalRenderTexture->bind();
 			drawViewportQuad(w, 0, w, h, mNormalRenderTexture->type());
@@ -152,7 +155,7 @@ TEST(MultipleRenderTargetTest)
 		}
 
 		ModelPtr mModel;
-		ShaderProgram mScenePass, mQuadPass;
+		ShaderProgram mScenePass, mDepthPass;
 
 		DefaultResourceManager mResourceManager;
 
@@ -164,7 +167,7 @@ TEST(MultipleRenderTargetTest)
 		TestWindow window;
 
 		if(!window.initShaderProgram(L"Shader/MRT/Scene.glvs", L"Shader/MRT/Scene.glps", window.mScenePass) ||
-		   !window.initShaderProgram(L"Shader/MRT/Quad.glvs", L"Shader/MRT/Quad.glps", window.mQuadPass))
+		   !window.initShaderProgram(L"Shader/MRT/Depth.glvs", L"Shader/MRT/Depth.glps", window.mDepthPass))
 		{
 			CHECK(false);
 			return;
