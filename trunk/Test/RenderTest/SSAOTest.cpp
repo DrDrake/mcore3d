@@ -1,6 +1,5 @@
 #include "Pch.h"
 #include "DefaultResourceManager.h"
-#include "../../MCD/Render/BackRenderBuffer.h"
 #include "../../MCD/Render/Model.h"
 #include "../../MCD/Render/RenderTarget.h"
 #include "../../MCD/Render/Shader.h"
@@ -11,9 +10,6 @@
 
 using namespace MCD;
 
-// Still doing experiment with rectangle texture
-static const bool useRectangleTexture = false;
-
 TEST(SSAOTest)
 {
 	class TestWindow : public BasicGlWindow
@@ -21,7 +17,7 @@ TEST(SSAOTest)
 	public:
 		TestWindow()
 			:
-			BasicGlWindow(L"title=SSAOTest;width=512;height=512;fullscreen=0;FSAA=4"),
+			BasicGlWindow(L"title=SSAOTest;width=800;height=600;fullscreen=0;FSAA=4"),
 			mUseSSAO(true), mAngle(0), mResourceManager(L"./Media/")
 		{
 		}
@@ -29,8 +25,8 @@ TEST(SSAOTest)
 		bool init()
 		{
 			// Load the shaders synchronously
-			ShaderPtr vs = dynamic_cast<Shader*>(mResourceManager.load(L"Shader/SSAO.glvs", true).get());
-			ShaderPtr ps = dynamic_cast<Shader*>(mResourceManager.load(L"Shader/SSAOv1.glps", true).get());
+			ShaderPtr vs = dynamic_cast<Shader*>(mResourceManager.load(L"Shader/SSAO/SSAO.glvs", true).get());
+			ShaderPtr ps = dynamic_cast<Shader*>(mResourceManager.load(L"Shader/SSAO/SSAOv1.glps", true).get());
 
 			while(true) {
 				int result = mResourceManager.processLoadingEvents();
@@ -59,10 +55,6 @@ TEST(SSAOTest)
 		{
 			if(e.Type == Event::KeyReleased && e.Key.Code == Key::F1)
 				mUseSSAO = !mUseSSAO;
-			if(e.Type == Event::KeyReleased && e.Key.Code == Key::F2) {
-				mUseRectangleTexture = !mUseRectangleTexture;
-				onResize(width(), height());
-			}
 
 			BasicGlWindow::onEvent(e);
 		}
@@ -72,13 +64,13 @@ TEST(SSAOTest)
 			// Setup the render target
 			mRenderTarget.reset(new RenderTarget(width, height));
 			TextureRenderBufferPtr textureBuffer = new TextureRenderBuffer(GL_COLOR_ATTACHMENT0_EXT);
-			textureBuffer->createTexture(width, height, useRectangleTexture ? GL_TEXTURE_RECTANGLE_ARB : GL_TEXTURE_2D, GL_RGB);
+			textureBuffer->createTexture(width, height, GL_TEXTURE_RECTANGLE_ARB, GL_RGB);
 			if(!textureBuffer->linkTo(*mRenderTarget))
 				throw std::runtime_error("");
 			mColorRenderTexture = static_cast<TextureRenderBuffer&>(*textureBuffer).texture;
 
 			textureBuffer = new TextureRenderBuffer(GL_DEPTH_ATTACHMENT_EXT);
-			textureBuffer->createTexture(width, height, GL_TEXTURE_2D, GL_DEPTH_COMPONENT);
+			textureBuffer->createTexture(width, height, GL_TEXTURE_RECTANGLE_ARB, GL_DEPTH_COMPONENT);
 			if(!textureBuffer->linkTo(*mRenderTarget))
 				throw std::runtime_error("");
 			mDepthRenderTexture = static_cast<TextureRenderBuffer&>(*textureBuffer).texture;
@@ -91,19 +83,11 @@ TEST(SSAOTest)
 
 		void drawScene()
 		{
-			glActiveTexture(GL_TEXTURE1);
-			glDisable(GL_TEXTURE_2D);
-			glDisable(GL_TEXTURE_RECTANGLE_ARB);
-
-			glActiveTexture(GL_TEXTURE0);
-			glEnable(GL_TEXTURE_2D);
-			glDisable(GL_TEXTURE_RECTANGLE_ARB);
-
 			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 			glTranslatef(0.0f, 0.0f, -50.0f);
 
-			const float scale = 1.0f;
+			const float scale = 0.5f;
 			glScalef(scale, scale, scale);
 
 			mModel->draw();
@@ -116,21 +100,10 @@ TEST(SSAOTest)
 
 			mRenderTarget->unbind();
 
-			glDisable(GL_TEXTURE_RECTANGLE_ARB);
-			glEnable(GL_TEXTURE_2D);
-
 			glActiveTexture(GL_TEXTURE0);
-			if(useRectangleTexture) {
-				glEnable(GL_TEXTURE_RECTANGLE_ARB);
-				glDisable(GL_TEXTURE_2D);
-			}
 			mColorRenderTexture->bind();
 
 			glActiveTexture(GL_TEXTURE1);
-			if(useRectangleTexture) {
-				glEnable(GL_TEXTURE_RECTANGLE_ARB);
-				glDisable(GL_TEXTURE_2D);
-			}
 			mDepthRenderTexture->bind();
 
 			if(mUseSSAO) {
@@ -143,14 +116,14 @@ TEST(SSAOTest)
 
 					int texDepth = glGetUniformLocation(mShaderProgram.handle(), "texDepth");
 					glUniform1i(texDepth, 1);
-
-					int screensize = glGetUniformLocation(mShaderProgram.handle(), "screensize");
-					glUniform2f(screensize, (float)width(), (float)height());
 				}
 			}
 
 			drawViewportQuad(0, 0, width(), height(), mColorRenderTexture->type());
 			mShaderProgram.unbind();
+
+			glActiveTexture(GL_TEXTURE0);
+			glDisable(GL_TEXTURE_RECTANGLE_ARB);
 		}
 
 		void load3ds(const wchar_t* fileId)
@@ -173,7 +146,6 @@ TEST(SSAOTest)
 		}
 
 		bool mUseSSAO;
-		bool mUseRectangleTexture;
 		float mAngle;
 
 		ModelPtr mModel;
@@ -207,7 +179,7 @@ TEST(SSAOTest)
 //		window.load3ds(L"Wolf359a/Star wars/awing/awing.3DS");
 //		window.load3ds(L"F40/F40_L.3DS");
 //		window.load3ds(L"F5E/f5e_05.3ds");
-		window.load3ds(L"city/city.3ds");
+//		window.load3ds(L"city/city.3ds");
 //		glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
 //		window.load3ds(L"House/house.3ds");
 //		window.load3ds(L"FockeWulf 189A/fw189.3ds");

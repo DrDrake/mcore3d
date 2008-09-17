@@ -315,27 +315,15 @@
 			Name="Shader Files"
 			Filter="glvs;glps"
 			>
-			<File
-				RelativePath=".\Media\Shader\SSAO.glvs"
-				>
-			</File>
-			<File
-				RelativePath=".\Media\Shader\SSAOv1.glps"
-				>
-			</File>
-			<File
-				RelativePath=".\Media\Shader\SSAOv2.glps"
-				>
-			</File>
 			<Filter
 				Name="MRT"
 				>
 				<File
-					RelativePath=".\Media\Shader\MRT\Quad.glps"
+					RelativePath=".\Media\Shader\MRT\Depth.glps"
 					>
 				</File>
 				<File
-					RelativePath=".\Media\Shader\MRT\Quad.glvs"
+					RelativePath=".\Media\Shader\MRT\Depth.glvs"
 					>
 				</File>
 				<File
@@ -344,6 +332,22 @@
 				</File>
 				<File
 					RelativePath=".\Media\Shader\MRT\Scene.glvs"
+					>
+				</File>
+			</Filter>
+			<Filter
+				Name="SSAO"
+				>
+				<File
+					RelativePath=".\Media\Shader\SSAO\SSAO.glvs"
+					>
+				</File>
+				<File
+					RelativePath=".\Media\Shader\SSAO\SSAOv1.glps"
+					>
+				</File>
+				<File
+					RelativePath=".\Media\Shader\SSAO\SSAOv2.glps"
 					>
 				</File>
 			</Filter>
