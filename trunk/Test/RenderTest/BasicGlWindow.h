@@ -69,6 +69,8 @@ protected:
 	size_t mIteration;
 	MovingCamera mCamera;
 	MCD::DeltaTimer mTimer;
+	size_t mFrameCounter;	//! For calculating fps, reset every one second.
+	float mOneSecondCountDown;
 };	// BasicGlWindow
 
 #endif	// __MCD_RENDERTEST_BASICGLWINDOW__

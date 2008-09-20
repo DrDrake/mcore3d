@@ -83,7 +83,7 @@ bool TextureRenderBuffer::createTexture(size_t width, size_t height, int type, i
 //	glTexParameterf(type, GL_TEXTURE_COMPARE_MODE, GL_NONE);
 
 	glTexImage2D(texture->type(), 0, format, width, height,
-		0, format, GL_UNSIGNED_INT, nullptr);
+		0, format, GL_INT, nullptr);
 
 	// Assure the texture that is binded to the render target is not
 	// to be read as texture during rendering.

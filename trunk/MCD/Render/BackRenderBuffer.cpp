@@ -1,6 +1,7 @@
 #include "Pch.h"
 #include "BackRenderBuffer.h"
 #include "RenderTarget.h"
+#include "../Core/System/Log.h"
 #include "../../3Party/glew/glew.h"
 
 namespace MCD {
@@ -57,10 +58,10 @@ void BackRenderBuffer::create(size_t width, size_t height, int format, int usage
 	int maxRenderbufferWidth;
 	glGetIntegerv(GL_MAX_RENDERBUFFER_SIZE_EXT, &maxRenderbufferWidth);
 
-//		int maxWidthHeight = mWidth > mHeight ? mWidth : mHeight;
-//		if(maxWidthHeight > maxRenderbufferWidth)
-//			Log::write(Log::Error, L"Reaching the size limit of render buffer: expecting %i, but only %i is supported",
-//				maxWidthHeight, maxRenderbufferWidth);
+	int maxWidthHeight = mWidth > mHeight ? mWidth : mHeight;
+	if(maxWidthHeight > maxRenderbufferWidth)
+		Log::format(Log::Error, L"Reaching the size limit of render buffer: expecting %i, but only %i is supported",
+			maxWidthHeight, maxRenderbufferWidth);
 
 	glGenRenderbuffersEXT(1, &mHandle);
 	glBindRenderbufferEXT(GL_RENDERBUFFER_EXT, mHandle);
