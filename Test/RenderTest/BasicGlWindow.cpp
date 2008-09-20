@@ -73,7 +73,8 @@ BasicGlWindow::BasicGlWindow(const wchar_t* options)
 	mKeepRun(true),
 	mFieldOfView(60.0f),
 	mIteration(0),
-	mCamera(Vec3f(0, 0, 1.0f), Vec3f(0, 0, -1), Vec3f(0, 1, 0))
+	mCamera(Vec3f(0, 0, 1.0f), Vec3f(0, 0, -1), Vec3f(0, 1, 0)),
+	mFrameCounter(0), mOneSecondCountDown(1.0f)
 {
 #ifndef MCD_CYGWIN
 	Log::start(&std::wcout);
@@ -271,12 +272,17 @@ void BasicGlWindow::setFieldOfView(float angle)
 
 void BasicGlWindow::update()
 {
-	preUpdate();
-
 	float deltaTime = float(mTimer.getDelta().asSecond());
-	if(++mIteration % 1000  == 0)
-		printf("FPS: %f\n", 1.0 / deltaTime);
+	mOneSecondCountDown -= deltaTime;
+	++mFrameCounter;
 
+	if(mOneSecondCountDown < 0) {
+		printf("FPS: %f\n", float(mFrameCounter) / (1-mOneSecondCountDown));
+		mOneSecondCountDown = 1 + mOneSecondCountDown;
+		mFrameCounter = 0;
+	}
+
+	preUpdate();
 	mCamera.update(deltaTime);
 	mCamera.applyTransform();
 	update(deltaTime);
