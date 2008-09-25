@@ -22,11 +22,11 @@ TEST(SSAOTest)
 		{
 		}
 
-		bool init()
+		bool initShaderProgram(const wchar_t* vsSource, const wchar_t* psSource, ShaderProgram& shaderProgram)
 		{
 			// Load the shaders synchronously
-			ShaderPtr vs = dynamic_cast<Shader*>(mResourceManager.load(L"Shader/SSAO/SSAO.glvs", true).get());
-			ShaderPtr ps = dynamic_cast<Shader*>(mResourceManager.load(L"Shader/SSAO/SSAOv1.glps", true).get());
+			ShaderPtr vs = dynamic_cast<Shader*>(mResourceManager.load(vsSource, true).get());
+			ShaderPtr ps = dynamic_cast<Shader*>(mResourceManager.load(psSource, true).get());
 
 			while(true) {
 				int result = mResourceManager.processLoadingEvents();
@@ -39,12 +39,12 @@ TEST(SSAOTest)
 			if(!vs || !ps)
 				return false;
 
-			mShaderProgram.create();
-			mShaderProgram.attach(*vs);
-			mShaderProgram.attach(*ps);
-			if(!mShaderProgram.link()) {
+			shaderProgram.create();
+			shaderProgram.attach(*vs);
+			shaderProgram.attach(*ps);
+			if(!shaderProgram.link()) {
 				std::string log;
-				mShaderProgram.getLog(log);
+				shaderProgram.getLog(log);
 				std::cout << log << std::endl;
 			}
 
@@ -69,11 +69,21 @@ TEST(SSAOTest)
 				throw std::runtime_error("");
 			mColorRenderTexture = static_cast<TextureRenderBuffer&>(*textureBuffer).texture;
 
+			textureBuffer = new TextureRenderBuffer(GL_COLOR_ATTACHMENT1_EXT);
+			textureBuffer->createTexture(width, height, GL_TEXTURE_RECTANGLE_ARB, GL_RGB);
+			if(!textureBuffer->linkTo(*mRenderTarget))
+				throw std::runtime_error("");
+			mNormalRenderTexture = static_cast<TextureRenderBuffer&>(*textureBuffer).texture;
+
 			textureBuffer = new TextureRenderBuffer(GL_DEPTH_ATTACHMENT_EXT);
 			textureBuffer->createTexture(width, height, GL_TEXTURE_RECTANGLE_ARB, GL_DEPTH_COMPONENT);
 			if(!textureBuffer->linkTo(*mRenderTarget))
 				throw std::runtime_error("");
 			mDepthRenderTexture = static_cast<TextureRenderBuffer&>(*textureBuffer).texture;
+
+			mRenderTarget->bind();
+			GLenum buffers[] = { GL_COLOR_ATTACHMENT0_EXT, GL_COLOR_ATTACHMENT1_EXT };
+			glDrawBuffers(2, buffers);
 
 			if(!mRenderTarget->checkCompleteness())
 				throw std::runtime_error("");
@@ -90,7 +100,9 @@ TEST(SSAOTest)
 			const float scale = 0.5f;
 			glScalef(scale, scale, scale);
 
+			mScenePass.bind();
 			mModel->draw();
+			mScenePass.unbind();
 		}
 
 		void postProcessing()
@@ -106,21 +118,25 @@ TEST(SSAOTest)
 			glActiveTexture(GL_TEXTURE1);
 			mDepthRenderTexture->bind();
 
-			if(mUseSSAO) {
-				mShaderProgram.bind();
+			glActiveTexture(GL_TEXTURE2);
+			mNormalRenderTexture->bind();
 
-				// Setup the uniform variables
-				// Reference: http://www.lighthouse3d.com/opengl/glsl/index.php?ogluniform
-				{	int texColor = glGetUniformLocation(mShaderProgram.handle(), "texColor");
-					glUniform1i(texColor, 0);
+			mSSAOPass.bind();
 
-					int texDepth = glGetUniformLocation(mShaderProgram.handle(), "texDepth");
-					glUniform1i(texDepth, 1);
-				}
+			// Setup the uniform variables
+			// Reference: http://www.lighthouse3d.com/opengl/glsl/index.php?ogluniform
+			{	int texColor = glGetUniformLocation(mSSAOPass.handle(), "texColor");
+				glUniform1i(texColor, 0);
+
+				int texDepth = glGetUniformLocation(mSSAOPass.handle(), "texDepth");
+				glUniform1i(texDepth, 1);
+
+				int texNormal = glGetUniformLocation(mSSAOPass.handle(), "texNormal");
+				glUniform1i(texNormal, 2);
 			}
 
 			drawViewportQuad(0, 0, width(), height(), mColorRenderTexture->type());
-			mShaderProgram.unbind();
+			mSSAOPass.unbind();
 
 			glActiveTexture(GL_TEXTURE0);
 			glDisable(GL_TEXTURE_RECTANGLE_ARB);
@@ -149,18 +165,20 @@ TEST(SSAOTest)
 		float mAngle;
 
 		ModelPtr mModel;
-		ShaderProgram mShaderProgram;
+		ShaderProgram mScenePass, mSSAOPass;
 
 		DefaultResourceManager mResourceManager;
 
-		TexturePtr mColorRenderTexture, mDepthRenderTexture;
+		TexturePtr mColorRenderTexture, mNormalRenderTexture, mDepthRenderTexture;
 		std::auto_ptr<RenderTarget> mRenderTarget;
 	};	// TestWindow
 
 	{
 		TestWindow window;
 
-		if(!window.init()) {
+		if(!window.initShaderProgram(L"Shader/SSAO/Scene.glvs", L"Shader/SSAO/Scene.glps", window.mScenePass) ||
+		   !window.initShaderProgram(L"Shader/SSAO/SSAO.glvs", L"Shader/SSAO/SSAO.glps", window.mSSAOPass))
+		{
 			CHECK(false);
 			return;
 		}
