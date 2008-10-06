@@ -28,6 +28,9 @@ TEST(SSAOTest)
 			ShaderPtr vs = dynamic_cast<Shader*>(mResourceManager.load(vsSource, true).get());
 			ShaderPtr ps = dynamic_cast<Shader*>(mResourceManager.load(psSource, true).get());
 
+			// Load the random normal map synchronously
+			mDitherTexture = dynamic_cast<Texture*>(mResourceManager.load(L"RandomNormals128x128.png", true).get());
+
 			while(true) {
 				int result = mResourceManager.processLoadingEvents();
 				if(result < 0)
@@ -46,9 +49,24 @@ TEST(SSAOTest)
 				std::string log;
 				shaderProgram.getLog(log);
 				std::cout << log << std::endl;
+				return false;
 			}
 
 			return true;
+		}
+
+		// Update the view frustrum related uniform variables.
+		void updateViewFrustum()
+		{
+			float projectionMatrix[4*4];
+
+			glGetFloatv(GL_PROJECTION_MATRIX, projectionMatrix);
+
+			mSSAOPass.bind();
+
+			glUniform1f(glGetUniformLocation(mSSAOPass.handle(), "fov"), fieldOfView() * Mathf::cPi() / 180);
+
+			glUniformMatrix4fvARB(glGetUniformLocation(mSSAOPass.handle(), "projection"), 1, false, projectionMatrix);
 		}
 
 		sal_override void onEvent(const Event& e)
@@ -57,6 +75,9 @@ TEST(SSAOTest)
 				mUseSSAO = !mUseSSAO;
 
 			BasicGlWindow::onEvent(e);
+
+			if(e.Type == Event::MouseWheelMoved)
+				updateViewFrustum();
 		}
 
 		sal_override void onResize(size_t width, size_t height)
@@ -88,11 +109,80 @@ TEST(SSAOTest)
 			if(!mRenderTarget->checkCompleteness())
 				throw std::runtime_error("");
 
+			mSSAOPass.bind();
+
+			// Setup the uniform variables
+			// Reference: http://www.lighthouse3d.com/opengl/glsl/index.php?ogluniform
+			// TODO: Setup the camera near and far plane.
+			{	int texColor = glGetUniformLocation(mSSAOPass.handle(), "texColor");
+				glUniform1i(texColor, 0);
+
+				int texDepth = glGetUniformLocation(mSSAOPass.handle(), "texDepth");
+				glUniform1i(texDepth, 1);
+
+				int texNormal = glGetUniformLocation(mSSAOPass.handle(), "texNormal");
+				glUniform1i(texNormal, 2);
+
+				int texDither = glGetUniformLocation(mSSAOPass.handle(), "texDither");
+				glUniform1i(texDither, 3);
+
+				int screenWidth = glGetUniformLocation(mSSAOPass.handle(), "screenWidth");
+				glUniform1i(screenWidth, width);
+
+				int screenHeight = glGetUniformLocation(mSSAOPass.handle(), "screenHeight");
+				glUniform1i(screenHeight, height);
+
+				// Random points INSIDE an unit sphere.
+				const float randSphere[] = {
+					 0.000005f,  0.078660f,  0.451855f,
+					 0.175578f, -0.358549f,  0.114750f,
+					-0.058036f,  0.000666f,  0.033155f,
+					-0.110033f, -0.019899f,  0.308601f,
+					 0.680572f,  0.103066f, -0.013045f,
+					 0.141117f, -0.225826f, -0.396631f,
+					-0.078870f,  0.039488f, -0.021275f,
+					-0.382385f, -0.614163f, -0.430833f,
+
+					 0.625820f,  0.257202f,  0.055261f,
+					 0.124728f, -0.108621f,  0.066673f,
+					-0.389841f,  0.641297f,  0.549976f,
+					-0.165321f, -0.197665f,  0.258978f,
+					 0.484174f,  0.351062f, -0.410552f,
+					 0.077469f, -0.089567f, -0.117051f,
+					-0.338855f,  0.026368f, -0.179018f,
+					-0.027324f, -0.036386f, -0.122232f,
+
+					 0.289819f,  0.398782f,  0.163619f,
+					 0.005096f, -0.018950f,  0.026599f,
+					-0.552742f,  0.344206f,  0.060074f,
+					-0.149550f, -0.594806f,  0.437477f,
+					 0.225526f,  0.200505f, -0.052620f,
+					 0.021552f, -0.039765f, -0.040277f,
+					-0.117847f,  0.388661f, -0.225310f,
+					-0.130309f, -0.393243f, -0.004296f,
+
+					 0.528152f,  0.021974f,  0.033980f,
+					 0.332483f, -0.310106f,  0.594333f,
+					-0.259461f,  0.437335f,  0.567771f,
+					-0.633172f, -0.070639f,  0.613848f,
+					 0.346119f,  0.506114f, -0.582868f,
+					 0.249371f, -0.139074f, -0.142318f,
+					-0.598198f,  0.031839f, -0.484108f,
+					-0.005480f, -0.144742f, -0.191251f,
+				};
+				int ranSphere = glGetUniformLocation(mSSAOPass.handle(), "ranSphere");
+				glUniform3fv(ranSphere, 32, (float*)randSphere);
+			}
+
+			mSSAOPass.unbind();
+
 			BasicGlWindow::onResize(width, height);
 		}
 
 		void drawScene()
 		{
+			updateViewFrustum();
+
 			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 			glTranslatef(0.0f, 0.0f, -50.0f);
@@ -121,20 +211,10 @@ TEST(SSAOTest)
 			glActiveTexture(GL_TEXTURE2);
 			mNormalRenderTexture->bind();
 
+			glActiveTexture(GL_TEXTURE3);
+			mDitherTexture->bind();
+
 			mSSAOPass.bind();
-
-			// Setup the uniform variables
-			// Reference: http://www.lighthouse3d.com/opengl/glsl/index.php?ogluniform
-			{	int texColor = glGetUniformLocation(mSSAOPass.handle(), "texColor");
-				glUniform1i(texColor, 0);
-
-				int texDepth = glGetUniformLocation(mSSAOPass.handle(), "texDepth");
-				glUniform1i(texDepth, 1);
-
-				int texNormal = glGetUniformLocation(mSSAOPass.handle(), "texNormal");
-				glUniform1i(texNormal, 2);
-			}
-
 			drawViewportQuad(0, 0, width(), height(), mColorRenderTexture->type());
 			mSSAOPass.unbind();
 
@@ -169,7 +249,7 @@ TEST(SSAOTest)
 
 		DefaultResourceManager mResourceManager;
 
-		TexturePtr mColorRenderTexture, mNormalRenderTexture, mDepthRenderTexture;
+		TexturePtr mColorRenderTexture, mNormalRenderTexture, mDepthRenderTexture, mDitherTexture;
 		std::auto_ptr<RenderTarget> mRenderTarget;
 	};	// TestWindow
 
@@ -204,6 +284,7 @@ TEST(SSAOTest)
 //		window.load3ds(L"MclarenF1/MclarenF1.3ds");
 //		window.load3ds(L"benetton/Benetton 2001.3ds");
 		window.load3ds(L"3M00696/buelllightning.3DS");
+//		window.load3ds(L"Lamborghini Gallardo Polizia/Lamborghini Gallardo Polizia.3DS");
 
 		window.mainLoop();
 	}

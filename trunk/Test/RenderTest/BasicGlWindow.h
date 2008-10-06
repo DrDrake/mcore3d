@@ -55,6 +55,10 @@ public:
 		return mKeepRun;
 	}
 
+	float fieldOfView() const {
+		return mFieldOfView;
+	}
+
 protected:
 	//! To be overridden by derived class to capture window event.
 	sal_override void onEvent(const MCD::Event& e);

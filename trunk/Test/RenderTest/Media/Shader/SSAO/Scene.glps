@@ -1,4 +1,4 @@
-varying vec3 normal, worldNormal, lightDir, halfVector;
+varying vec3 normal, lightDir, halfVector;
 varying vec2 texCoord;
 uniform sampler2D tex;
 
@@ -32,5 +32,5 @@ void main(void)
 	}
 
 	gl_FragData[0] = color;// * texture2D(tex, texCoord);
-	gl_FragData[1] = vec4(normalize(worldNormal / 2 + 1), 1);
+	gl_FragData[1] = vec4(n * 0.5 + 0.5, 1);
 }

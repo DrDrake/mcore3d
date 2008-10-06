@@ -13,6 +13,11 @@ T Vec2<T>::operator%(const Vec2& rhs) const {
 }
 
 template<typename T>
+T Vec2<T>::norm() const {
+	return dot(*this);
+}
+
+template<typename T>
 Magnitude<T> Vec2<T>::length() const {
 	return Magnitude<param_type>(squaredLength());
 }
