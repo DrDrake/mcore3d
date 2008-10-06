@@ -2,14 +2,30 @@
 // Reference:
 // http://www.opengl.org/discussion_boards/ubbthreads.php?ubb=showflat&Number=236698&fpart=1
 // http://www.4gamer.net/games/047/G004713/20080223007/screenshot.html?num=002
+// http://www.idevgames.com/forum/showthread.php?t=15149&page=4
 // http://rgba.scenesp.org/iq/computer/articles/ssao/ssao.htm
 // http://meshula.net/wordpress/?p=145
 
+// Reconstructing position from depth data:
+// http://www.gamedev.net/community/forums/topic.asp?topic_id=506573
+
 varying vec2 texCoord;
+varying vec2 viewVector;	// The z component is always equal to 1
+uniform float fov;
+uniform int screenWidth;
+uniform int screenHeight;
 
 void main(void)
 {
 	gl_Position = ftransform();
 	texCoord = gl_MultiTexCoord0.xy;
 	gl_FrontColor = gl_Color;
+
+	float a = tan(fov / 2);
+	viewVector.x = a * screenWidth / screenHeight;
+	viewVector.y = a;
+
+	// gl_Vertex is the squared quard each component having -1 or 1
+	viewVector.x *= gl_Vertex.x;
+	viewVector.y *= gl_Vertex.y;
 }
