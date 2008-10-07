@@ -21,8 +21,8 @@ void main(void)
 	texCoord = gl_MultiTexCoord0.xy;
 	gl_FrontColor = gl_Color;
 
-	float a = tan(fov / 2);
-	viewVector.x = a * screenWidth / screenHeight;
+	float a = tan(fov / 2.0);
+	viewVector.x = a * float(screenWidth) / float(screenHeight);
 	viewVector.y = a;
 
 	// gl_Vertex is the squared quard each component having -1 or 1

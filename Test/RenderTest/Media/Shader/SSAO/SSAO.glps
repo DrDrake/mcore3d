@@ -1,4 +1,4 @@
-#define QUALITY	0	// Set to 0 for performance, 1 for quality
+#define QUALITY	1	// Set to 0 for performance, 1 for quality
 #define DITHER	1	// Set to 1 to use a dither pattern
 
 uniform sampler2DRect texColor;	// Color texture
@@ -12,7 +12,7 @@ uniform sampler2D texDither;	// Random normal texture to create a dither pattern
 uniform vec3 ranSphere[32];		// Random points inside an unit sphere
 
 // We cannot use gl_DepthRange since we are currently rendering the fullscreen quad not the scene
-uniform vec2 camerarange = vec2(1.0, 500);
+const vec2 camerarange = vec2(1.0, 500.0);
 uniform mat4 projection;
 
 varying vec2 texCoord;
@@ -21,7 +21,7 @@ varying vec2 viewVector;
 uniform int screenWidth;
 uniform int screenHeight;
 const int sample = 32;
-const float radius = 0.02f;
+const float radius = 0.02;
 const float oneOverRadius2 = 1.0 / (radius * radius);
 
 float convertDepth(in float d)
@@ -29,7 +29,6 @@ float convertDepth(in float d)
 	float nearZ = camerarange.x;
 	float farZ = camerarange.y;
 
-//	return d;
 	return (2.0 * nearZ) / (nearZ + farZ - d * (farZ - nearZ));
 }
 
@@ -48,7 +47,7 @@ vec3 clipToView(in vec2 viewVector, in float planDepth)
 	// float viewVectorLength = planDepth / -view.z;
 	// return view * viewVectorLength;
 
-	return planDepth * vec3(viewVector, 1);
+	return planDepth * vec3(viewVector, 1.0);
 }
 
 // Get the clip-space poisition by the given view-space position
@@ -85,7 +84,7 @@ float calAO(in vec3 origin, in vec3 samplePoint, in float sampleDepth)
 	distance2 *= distance2;
 #endif
 
-	return 1 - min(distance2 * oneOverRadius2, 1);
+	return 1 - min(distance2 * oneOverRadius2, 1.0);
 }
 
 void main(void)
@@ -100,7 +99,7 @@ void main(void)
 	float depth = readDepth(texCoord);
 
 	vec3 ep = clipToView(viewVector, depth);
-	vec3 n = texture2DRect(texNormal, texCoord).xyz * 2 - 1;
+	vec3 n = texture2DRect(texNormal, texCoord).xyz * 2.0 - 1.0;
 	n.z = -n.z;
 
 	float ao = 0.0;
@@ -110,7 +109,7 @@ void main(void)
 		vec3 ranSample = ranSphere[i];
 
 #if DITHER
-		ranSample = reflect(ranSample, texture2D(texDither, texCoord / 128).xyz);
+		ranSample = reflect(ranSample, texture2D(texDither, texCoord / 128.0).xyz);
 #endif
 
 		vec3 orientedranSphere = dot(ranSample, n) >= 0.0 ? ranSample : -ranSample;
@@ -127,7 +126,7 @@ void main(void)
 		ao += calAO(ep, ep2, sp2.z);
 	}
 
-	ao /= N;
+	ao /= float(N);
 
 	gl_FragColor = vec4(1.0 - ao);// * texture2DRect(texColor, texCoord);
 //	gl_FragColor = texture2DRect(texNormal, texCoord);
