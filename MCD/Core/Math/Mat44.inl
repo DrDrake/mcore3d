@@ -3,6 +3,16 @@
 namespace MCD {
 
 template<typename T>
+void Mat44<T>::copyFrom(const T* dataPtr) {
+	::memcpy(getPtr(), dataPtr, sizeof(T) * N);
+}
+
+template<typename T>
+void Mat44<T>::copyTo(T* dataPtr) const {
+	::memcpy(dataPtr, getPtr(), sizeof(T) * N);
+}
+
+template<typename T>
 const Vec4<T>& Mat44<T>::operator[](const size_t i) const
 {
 	MCD_ASSUME(i < rows());

@@ -63,6 +63,10 @@ public:
 		m30 = m30_; m31 = m31_; m32 = m32_; m33 = m33_;
 	}
 
+	void copyFrom(sal_in_ecount(16) const T* dataPtr);
+
+	void copyTo(sal_out_ecount(16) T* dataPtr) const;
+
 	//! Returns the number of rows
 	size_t rows() const {
 		return 4u;

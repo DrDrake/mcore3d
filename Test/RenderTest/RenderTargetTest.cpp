@@ -33,7 +33,8 @@ TEST(RenderTargetTest)
 
 			// Setup for the color buffer
 			TextureRenderBufferPtr textureBuffer = new TextureRenderBuffer(GL_COLOR_ATTACHMENT0_EXT);
-			textureBuffer->createTexture(mLargerSide, mLargerSide, GL_TEXTURE_RECTANGLE_ARB, GL_RGB);
+			if(!textureBuffer->createTexture(mLargerSide, mLargerSide, GL_TEXTURE_RECTANGLE_ARB, GL_RGB))
+				throw std::runtime_error("");
 			if(!textureBuffer->linkTo(*mRenderTarget))
 				throw std::runtime_error("");
 			mRenderTexture = static_cast<TextureRenderBuffer&>(*textureBuffer).texture;

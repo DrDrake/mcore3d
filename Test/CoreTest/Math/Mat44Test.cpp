@@ -21,6 +21,13 @@ TEST(Basic_Mat44Test)
 
 	CHECK(ma == ma);
 	CHECK(ma != mb);
+
+	{	float buffer[4][4];
+		ma.copyTo((float*)buffer);
+		Mat44f m;
+		m.copyFrom((float*)buffer);
+		CHECK(m == ma);
+	}
 }
 
 TEST(Copy_Mat44Test)
