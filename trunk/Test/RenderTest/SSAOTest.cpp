@@ -85,19 +85,22 @@ TEST(SSAOTest)
 			// Setup the render target
 			mRenderTarget.reset(new RenderTarget(width, height));
 			TextureRenderBufferPtr textureBuffer = new TextureRenderBuffer(GL_COLOR_ATTACHMENT0_EXT);
-			textureBuffer->createTexture(width, height, GL_TEXTURE_RECTANGLE_ARB, GL_RGB);
+			if(!textureBuffer->createTexture(width, height, GL_TEXTURE_RECTANGLE_ARB, GL_RGB))
+				throw std::runtime_error("");
 			if(!textureBuffer->linkTo(*mRenderTarget))
 				throw std::runtime_error("");
 			mColorRenderTexture = static_cast<TextureRenderBuffer&>(*textureBuffer).texture;
 
 			textureBuffer = new TextureRenderBuffer(GL_COLOR_ATTACHMENT1_EXT);
-			textureBuffer->createTexture(width, height, GL_TEXTURE_RECTANGLE_ARB, GL_RGB);
+			if(!textureBuffer->createTexture(width, height, GL_TEXTURE_RECTANGLE_ARB, GL_RGB))
+				throw std::runtime_error("");
 			if(!textureBuffer->linkTo(*mRenderTarget))
 				throw std::runtime_error("");
 			mNormalRenderTexture = static_cast<TextureRenderBuffer&>(*textureBuffer).texture;
 
 			textureBuffer = new TextureRenderBuffer(GL_DEPTH_ATTACHMENT_EXT);
-			textureBuffer->createTexture(width, height, GL_TEXTURE_RECTANGLE_ARB, GL_DEPTH_COMPONENT);
+			if(!textureBuffer->createTexture(width, height, GL_TEXTURE_RECTANGLE_ARB, GL_DEPTH_COMPONENT))
+				throw std::runtime_error("");
 			if(!textureBuffer->linkTo(*mRenderTarget))
 				throw std::runtime_error("");
 			mDepthRenderTexture = static_cast<TextureRenderBuffer&>(*textureBuffer).texture;

@@ -232,6 +232,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\Frustum.h"
+				>
+			</File>
+			<File
 				RelativePath=".\GlWindow.h"
 				>
 			</File>
@@ -326,6 +330,10 @@
 			</File>
 			<File
 				RelativePath=".\DdsLoader.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\Frustum.cpp"
 				>
 			</File>
 			<File

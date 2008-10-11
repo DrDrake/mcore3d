@@ -299,6 +299,10 @@
 				</FileConfiguration>
 			</File>
 			<File
+				RelativePath=".\ProjectiveTextureTest.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\RenderTargetTest.cpp"
 				>
 			</File>
@@ -338,6 +342,18 @@
 			<Filter
 				Name="SSAO"
 				>
+				<File
+					RelativePath=".\Media\Shader\SSAO\Scene.glps"
+					>
+				</File>
+				<File
+					RelativePath=".\Media\Shader\SSAO\Scene.glvs"
+					>
+				</File>
+				<File
+					RelativePath=".\Media\Shader\SSAO\SSAO.glps"
+					>
+				</File>
 				<File
 					RelativePath=".\Media\Shader\SSAO\SSAO.glvs"
 					>
