@@ -1,6 +1,7 @@
 #ifndef __MCD_CORE_MATH_MAT44__
 #define __MCD_CORE_MATH_MAT44__
 
+#include "Vec3.h"
 #include "Vec4.h"
 
 namespace MCD {
@@ -97,11 +98,24 @@ public:
 //	}
 
 	void transpose(Mat44& result) const;
+	Mat44 transpose() const;
 
 	T determinant() const;
 
 	sal_checkreturn bool inverse(Mat44& result) const;
 	Mat44 inverse() const;
+
+	//!	Get the translation transformation part of the matrix.
+	Vec3<T> translation() const;
+
+	//!	Sets the translation transformation part of the matrix.
+	void setTranslation(const Vec3<T>& translation);
+
+	//!	Get the scale part of the matrix.
+	Vec3<T> scale() const;
+
+	//!	Sets the scale part of the matrix.
+	void setScale(const Vec3<T>& scale);
 
 	/*!	Creates a rotation matrix.
 		\param thetaX Rotation of angle in radius, counter clockwise from the x-axis.
@@ -111,6 +125,11 @@ public:
 	static void rotate(const param_type thetaX, const param_type thetaY, const param_type thetaZ, Mat44& result);
 
 	static Mat44 rotate(const param_type thetaX, const param_type thetaY, const param_type thetaZ);
+
+	//!	Extracts the rotation / scaling part of the matrix as a 3x3 matrix.
+//	void extractMat33(Mat33<T>& mat33) const;
+
+	void transformPoint(Vec3<T>& point) const;
 
 	static const Mat44 cIdentity;
 };	// Mat44

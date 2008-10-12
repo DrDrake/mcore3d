@@ -5,6 +5,9 @@
 
 namespace MCD {
 
+template<typename T> class Vec3;
+typedef Vec3<float> Vec3f;
+
 /*!	Defines a view frustum.
 	The view frustum can be defined by six plane which where:
 	left, right, bottom, top, near and far. You can interpret those
@@ -19,7 +22,7 @@ public:
 
 	/*!	Define the frustum matrix from parameters: field of view, aspect ratio
 		and the near/far clip plane.
-		\param fovy Field of view in y-direction (radian).
+		\param fovy Field of view in y-direction (in degree).
 		\param aspect Aspect ratio (width over height).
 		\param near The near clip plane.
 		\param near The far clip plane.
@@ -46,7 +49,14 @@ public:
 	 */
 	void computeOrtho(sal_out_ecount(16) float* matrix) const;
 
-	//! The field of view in radian.
+	/*!	Comopute the 8 vertex of the frustum.
+		The order of the vertex are:
+		Near left-bottom, right-bottom, right-top, left-top;
+		Far left-bottom, right-bottom, right-top, left-top;
+	 */
+	void computeVertex(sal_out_ecount(8) Vec3f* vertex) const;
+
+	//! The field of view in degree.
 	float fov() const;
 
 	//! Aspect ratio (width / height).

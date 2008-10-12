@@ -1,17 +1,16 @@
 #include "Pch.h"
 #include "Frustum.h"
 #include "../Core/Math/BasicFunction.h"
+#include "../Core/Math/Vec3.h"
 
 namespace MCD {
 
 void Frustum::create(float fovy, float aspect, float n, float f)
 {
-	float halfHeight = n * tanf(fovy * Mathf::cPi() / 360);
+	float halfHeight = n * tanf(fovy * (Mathf::cPi() / 360));
 	float halfWidth = halfHeight * aspect;
 
 	create(-halfWidth, halfWidth, -halfHeight, halfHeight, n, f);
-
-	assertValid();
 }
 
 void Frustum::create(float l, float r, float b, float t, float n, float f)
@@ -45,17 +44,36 @@ void Frustum::computeOrtho(float* matrix) const
 	memset(matrix, 0, sizeof(float) * 16);
 
 	matrix[0] = 2.0f / (right - left);
-	matrix[3] = (right + left) / (right - left);
+	matrix[3] = -(right + left) / (right - left);
 	matrix[5] = 2.0f / (top - bottom);
-	matrix[7] = (top + bottom) / (top - bottom);
-	matrix[10] = -2.0f / (far - near);
-	matrix[11] = (far + near) / (far - near);
+	matrix[7] = -(top + bottom) / (top - bottom);
+	matrix[10] = 2.0f / (far - near);
+	matrix[11] = -(far + near) / (far - near);
 	matrix[15] = -1;
+}
+
+void Frustum::computeVertex(Vec3f* vertex) const
+{
+	float halfHeight = near * tanf(fov() * (Mathf::cPi() / 360));
+	float halfWidth = halfHeight * aspectRatio();
+
+	vertex[0] = Vec3f(-halfWidth, -halfHeight, -near);	// Near left-bottom
+	vertex[1] = Vec3f( halfWidth, -halfHeight, -near);	// Near right-bottom
+	vertex[2] = Vec3f( halfWidth,  halfHeight, -near);	// Near right-top
+	vertex[3] = Vec3f(-halfWidth,  halfHeight, -near);	// Near left-top
+
+	halfHeight *= far / near;
+	halfWidth *= far / near;
+
+	vertex[4] = Vec3f(-halfWidth, -halfHeight, -far);	// Far left-bottom
+	vertex[5] = Vec3f( halfWidth, -halfHeight, -far);	// Far right-bottom
+	vertex[6] = Vec3f( halfWidth,  halfHeight, -far);	// Far right-top
+	vertex[7] = Vec3f(-halfWidth,  halfHeight, -far);	// Far left-top
 }
 
 float Frustum::fov() const
 {
-	return 2 * atanf((top - bottom) / 2);
+	return atanf((top - bottom) / 2 / near) * (360.0f / Mathf::cPi());
 }
 
 float Frustum::aspectRatio() const

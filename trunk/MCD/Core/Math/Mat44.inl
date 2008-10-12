@@ -130,10 +130,20 @@ Vec4<T> Mat44<T>::operator*(const Vec4<T>& rhs) const
 template<typename T>
 void Mat44<T>::transpose(Mat44& ret) const
 {
+	MCD_ASSERT(&ret != this);
+
 	ret.m00 = m00; ret.m01 = m10; ret.m02 = m20; ret.m03 = m30;
 	ret.m10 = m01; ret.m11 = m11; ret.m12 = m21; ret.m13 = m31;
 	ret.m20 = m02; ret.m21 = m12; ret.m22 = m22; ret.m23 = m32;
 	ret.m30 = m03; ret.m31 = m13; ret.m32 = m23; ret.m33 = m33;
+}
+
+template<typename T>
+Mat44<T> Mat44<T>::transpose() const
+{
+	Mat44<T> result;
+	transpose(result);
+	return result;
 }
 
 template<typename T>
@@ -227,6 +237,34 @@ Mat44<T> Mat44<T>::inverse() const
 }
 
 template<typename T>
+Vec3<T> Mat44<T>::translation() const
+{
+	return Vec3<T>(m03, m13, m23);
+}
+
+template<typename T>
+void Mat44<T>::setTranslation(const Vec3<T>& translation)
+{
+	m03 = translation.x;
+	m13 = translation.y;
+	m23 = translation.z;
+}
+
+template<typename T>
+Vec3<T> Mat44<T>::scale() const
+{
+	return Vec3<T>(m00, m11, m22);
+}
+
+template<typename T>
+void Mat44<T>::setScale(const Vec3<T>& scale)
+{
+	m00 = scale.x;
+	m11 = scale.y;
+	m22 = scale.z;
+}
+
+template<typename T>
 void Mat44<T>::rotate(const param_type thetaX, const param_type thetaY, const param_type thetaZ, Mat44& result)
 {
 	T sinX, cosX;
@@ -263,6 +301,15 @@ Mat44<T> Mat44<T>::rotate(const param_type thetaX, const param_type thetaY, cons
 	Mat44 result;
 	rotate(thetaX, thetaY, thetaZ, result);
 	return result;
+}
+
+template<typename T>
+void Mat44<T>::transformPoint(Vec3<T>& point) const
+{
+	Vec3<T> tmp = point;
+	point.x = m00 * tmp.x + m01 * tmp.y + m02 * tmp.z + m03;
+	point.y = m10 * tmp.x + m11 * tmp.y + m12 * tmp.z + m13;
+	point.z = m20 * tmp.x + m21 * tmp.y + m22 * tmp.z + m23;
 }
 
 template<typename T> const Mat44<T> Mat44<T>::cIdentity = Mat44<T>(
