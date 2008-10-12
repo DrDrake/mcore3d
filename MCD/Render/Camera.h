@@ -26,6 +26,8 @@ public:
 
 	void rotate(const Vec3f& axis, float angle);
 
+	void computeTransform(sal_out_ecount(16) float* matrix) const;
+
 	void applyTransform();
 
 	//! Unit direction vector which the camera is directing.

@@ -1,5 +1,6 @@
 #include "Pch.h"
 #include "Camera.h"
+#include "../Core/Math/Mat44.h"
 #include "../Core/Math/Quaternion.h"
 #include "../../3Party/glew/glew.h"
 
@@ -49,11 +50,40 @@ void Camera::rotate(const Vec3f& axis, float angle)
 	rotation.transform(upVector);
 }
 
+void Camera::computeTransform(float* matrix) const
+{
+	// Reference: http://www.gamedev.net/community/forums/topic.asp?topic_id=479402
+	Vec3f f = lookAtDir();
+	Vec3f s = f.cross(upVector.normalizedCopy());
+	Vec3f u = s.cross(f);
+
+	matrix[0] = s.x;	matrix[1] = s.y;	matrix[2] = s.z;	matrix[3] = 0;
+	matrix[4] = u.x;	matrix[5] = u.y;	matrix[6] = u.z;	matrix[7] = 0;
+	matrix[8] = -f.x;	matrix[9] = -f.y;	matrix[10] = -f.z;	matrix[11] = 0;
+	matrix[12] = 0;		matrix[13] = 0;		matrix[14] = 0;		matrix[15] = 1.0f;
+
+	Mat44f tmp;
+	tmp.copyFrom(matrix);
+
+	Mat44f translate = Mat44f::cIdentity;
+	translate.setTranslation(-position);
+
+	// Translate then rotate
+	(tmp * translate).copyTo(matrix);
+}
+
 void Camera::applyTransform()
 {
-	gluLookAt(position.x, position.y, position.z,
-		lookAt.x, lookAt.y, lookAt.z,
-		upVector.x, upVector.y, upVector.z);
+	// The same can be acheived using gluLookAt()
+//	gluLookAt(
+//		position.x, position.y, position.z,
+//		lookAt.x, lookAt.y, lookAt.z,
+//		upVector.x, upVector.y, upVector.z);
+
+	Mat44f mat;
+	computeTransform(mat.getPtr());
+	mat = mat.transpose();
+	glLoadMatrixf(mat.getPtr());
 }
 
 Vec3f Camera::lookAtDir() const
