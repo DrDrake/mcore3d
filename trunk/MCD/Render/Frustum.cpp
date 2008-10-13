@@ -54,8 +54,8 @@ void Frustum::computeOrtho(float* matrix) const
 
 void Frustum::computeVertex(Vec3f* vertex) const
 {
-	float halfHeight = near * tanf(fov() * (Mathf::cPi() / 360));
-	float halfWidth = halfHeight * aspectRatio();
+	float halfHeight = (top - bottom) / 2;
+	float halfWidth = (right - left) / 2;
 
 	vertex[0] = Vec3f(-halfWidth, -halfHeight, -near);	// Near left-bottom
 	vertex[1] = Vec3f( halfWidth, -halfHeight, -near);	// Near right-bottom
