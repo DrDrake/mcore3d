@@ -73,33 +73,34 @@ TEST(ProjectiveTextureTest)
 
 			Mat44f tmp = Mat44f::cIdentity;
 
-			Mat44f translation = Mat44f::cIdentity;
-			translation.setTranslation(Vec3f(0.5f, 0.5f, 0));
+			// Scale and translate by one-half to bring the coordinates from [-1, 1]
+			// to the texture coordinate [0, 1]
+			tmp.setTranslation(Vec3f(0.5f, 0.5f, 0));
+			tmp.setScale(Vec3f(0.5f, 0.5f, 1));
 
-			Mat44f scaleMat = Mat44f::cIdentity;
-			scaleMat.setScale(Vec3f(0.5f, 0.5f, 1));
+			Mat44f projection;
+			mLightFrustum.computePerspective(projection.getPtr());
 
-			Mat44f lightProjection;
-			mLightFrustum.computePerspective(lightProjection.getPtr());
-
-			Mat44f lightModelView;
-			mLightCamera.computeTransform(lightModelView.getPtr());
-			tmp = translation * scaleMat * lightProjection * lightModelView;
+			Mat44f modelView;
+			mLightCamera.computeTransform(modelView.getPtr());
+			tmp = tmp * projection * modelView;
 
 			// Use another texture unit to avoid conflit with the diffuse texture of the model
 			glActiveTexture(GL_TEXTURE1);
 			glEnable(GL_TEXTURE_2D);
 			glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_ADD);
 
-			glTexGenfv(GL_S, GL_EYE_PLANE, &tmp[0][0]);
-			glTexGenfv(GL_T, GL_EYE_PLANE, &tmp[1][0]);
-			glTexGenfv(GL_R, GL_EYE_PLANE, &tmp[2][0]);
-			glTexGenfv(GL_Q, GL_EYE_PLANE, &tmp[3][0]);
-
 			glEnable(GL_TEXTURE_GEN_S);
 			glEnable(GL_TEXTURE_GEN_T);
 			glEnable(GL_TEXTURE_GEN_R);
 			glEnable(GL_TEXTURE_GEN_Q);
+
+			// A post-multiply by the inverse of the current modelview matrix is
+			// applied automatically to the eye plane equations we provided.
+			glTexGenfv(GL_S, GL_EYE_PLANE, &tmp[0][0]);
+			glTexGenfv(GL_T, GL_EYE_PLANE, &tmp[1][0]);
+			glTexGenfv(GL_R, GL_EYE_PLANE, &tmp[2][0]);
+			glTexGenfv(GL_Q, GL_EYE_PLANE, &tmp[3][0]);
 
 			glTexGenf(GL_S, GL_TEXTURE_GEN_MODE, GL_EYE_LINEAR);
 			glTexGenf(GL_T, GL_TEXTURE_GEN_MODE, GL_EYE_LINEAR);

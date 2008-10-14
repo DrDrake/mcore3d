@@ -3,6 +3,7 @@
 #include "../../MCD/Render/BitmapLoader.h"
 #include "../../MCD/Render/JpegLoader.h"
 #include "../../MCD/Render/PngLoader.h"
+#include "../../MCD/Render/TgaLoader.h"
 
 #include "../../MCD/Core/System/CondVar.h"
 #include "../../MCD/Core/System/RawFileSystem.h"
@@ -22,6 +23,8 @@ static std::auto_ptr<IResourceLoader> createLoader(const wchar_t* file)
 		return std::auto_ptr<IResourceLoader>(new JpegLoader);
 	else if(ext == L"png")
 		return std::auto_ptr<IResourceLoader>(new PngLoader);
+	else if(ext == L"tga")
+		return std::auto_ptr<IResourceLoader>(new TgaLoader);
 	else
 		return std::auto_ptr<IResourceLoader>(nullptr);
 }
@@ -44,9 +47,13 @@ TestStruct gTestStruct[] = {
 	{ L"InterlacedGray256x256.png",	256, 256 },
 	{ L"InterlacedTrans256x256.png",256, 256 },
 	{ L"normal128x128.png",			128, 128 },
+	{ L"Compressed256x256.tga",		256, 256 },
+	{ L"CompressedTrans256x256.tga",256, 256 },
+	{ L"Normal128x128.tga",			128, 128 },
+	{ L"NormalTrans128x128.tga",	128, 128 },
 };
 
-TEST(SynPng_TextureLoaderTest)
+TEST(Syn_TextureLoaderTest)
 {
 	for(size_t i=0; i<sizeof(gTestStruct)/sizeof(TestStruct); ++i)
 	{
@@ -86,7 +93,7 @@ TEST(SynPng_TextureLoaderTest)
 	}
 }
 
-TEST(AsynPng_TextureLoaderTest)
+TEST(Asyn_TextureLoaderTest)
 {
 	class Runnable : public Thread::IRunnable
 	{

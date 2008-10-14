@@ -9,6 +9,7 @@
 #include "Shader.h"
 #include "ShaderLoader.h"
 #include "Texture.h"
+#include "TgaLoader.h"
 #include "../Core/System/Path.h"
 #include "../Core/System/StrUtility.h"
 
@@ -62,6 +63,18 @@ ResourcePtr PngLoaderFactory::createResource(const Path& fileId)
 IResourceLoader* PngLoaderFactory::createLoader()
 {
 	return new PngLoader;
+}
+
+ResourcePtr TgaLoaderFactory::createResource(const Path& fileId)
+{
+	if(wstrCaseCmp(fileId.getExtension().c_str(), L"tga") == 0)
+		return new Texture(fileId);
+	return nullptr;
+}
+
+IResourceLoader* TgaLoaderFactory::createLoader()
+{
+	return new TgaLoader;
 }
 
 ResourcePtr VertexShaderLoaderFactory::createResource(const Path& fileId)

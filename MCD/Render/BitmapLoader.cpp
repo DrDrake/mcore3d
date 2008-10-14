@@ -53,6 +53,7 @@ public:
 		// Windows.h gives us these types to work with the Bitmap files
 		BITMAPFILEHEADER fileHeader;
 		BITMAPINFOHEADER infoHeader;
+		memset(&fileHeader, 0, sizeof(fileHeader));
 
 		// Read the file header
 		is.read((char*)&fileHeader, sizeof(fileHeader));
@@ -66,6 +67,9 @@ public:
 
 		is.read((char*)&infoHeader, sizeof(infoHeader));
 		mWidth = infoHeader.biWidth;
+
+		// Only RGB is supported
+		mFormat = GL_RGB;
 
 		if(infoHeader.biBitCount != 24) {
 			Log::format(Log::Error, L"BitmapLoader: Only 24-bit color is supported, operation aborted");
@@ -106,8 +110,8 @@ public:
 			byte_t* p = &mImageData[invertedH * rowByte];
 			is.read((char*)p, rowByte);
 			if(is.gcount() != std::streamsize(rowByte)) {
-				Log::format(Log::Error, L"BitmapLoader: End of file, operation aborted");
-				return -1;
+				Log::format(Log::Warn, L"BitmapLoader: End of file, bitmap data incomplete");
+				return 0;
 			}
 		}
 
@@ -116,7 +120,7 @@ public:
 
 	void upload()
 	{
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, mWidth, mHeight,
+		glTexImage2D(GL_TEXTURE_2D, 0, mFormat, mWidth, mHeight,
 			0, GL_BGR, GL_UNSIGNED_BYTE, &mImageData[0]);	// Note that the external format is GL_BGR but not GL_RGB
 	}
 };	// LoaderImpl

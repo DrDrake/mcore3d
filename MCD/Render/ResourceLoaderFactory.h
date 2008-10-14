@@ -34,6 +34,13 @@ public:
 	sal_override IResourceLoader* createLoader();
 };	// PngLoaderFactory
 
+class MCD_RENDER_API TgaLoaderFactory : public ResourceManager::IFactory
+{
+public:
+	sal_override ResourcePtr createResource(const Path& fileId);
+	sal_override IResourceLoader* createLoader();
+};	// TgaLoaderFactory
+
 class MCD_RENDER_API VertexShaderLoaderFactory : public ResourceManager::IFactory
 {
 public:
