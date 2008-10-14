@@ -17,6 +17,7 @@ DefaultResourceManager::DefaultResourceManager(const Path& rootPath)
 	addFactory(new Max3dsLoaderFactory(*this));
 	addFactory(new PixelShaderLoaderFactory);
 	addFactory(new PngLoaderFactory);
+	addFactory(new TgaLoaderFactory);
 	addFactory(new VertexShaderLoaderFactory);
 }
 

@@ -307,6 +307,10 @@
 				RelativePath=".\TextureRenderBuffer.h"
 				>
 			</File>
+			<File
+				RelativePath=".\TgaLoader.h"
+				>
+			</File>
 		</Filter>
 		<Filter
 			Name="Source Files"
@@ -406,6 +410,10 @@
 			</File>
 			<File
 				RelativePath=".\TextureRenderBuffer.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\TgaLoader.cpp"
 				>
 			</File>
 		</Filter>
