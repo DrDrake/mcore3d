@@ -8,6 +8,8 @@ namespace MCD {
 RenderTarget::RenderTarget(size_t width, size_t height)
 	: mWidth(width), mHeight(height)
 {
+	MCD_ASSERT(width > 0);
+	MCD_ASSERT(height > 0);
 	glGenFramebuffersEXT(1, &mHandle);
 }
 

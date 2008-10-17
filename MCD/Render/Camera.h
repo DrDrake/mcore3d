@@ -28,6 +28,9 @@ public:
 
 	void computeTransform(sal_out_ecount(16) float* matrix) const;
 
+	/*!	Apply the view transform.
+		\note Make sure the current matrix mode is GL_MODELVIEW.
+	 */
 	void applyTransform();
 
 	//! Unit direction vector which the camera is directing.

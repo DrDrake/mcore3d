@@ -18,7 +18,16 @@ typedef Vec3<float> Vec3f;
 class MCD_RENDER_API Frustum
 {
 public:
-	Frustum() {}
+	enum ProjectionType
+	{
+		Perspective,
+		Ortho
+	};
+
+	//! By default the projection type is perspective.
+	Frustum() {
+		projectionType = Perspective;
+	}
 
 	/*!	Define the frustum matrix from parameters: field of view, aspect ratio
 		and the near/far clip plane.
@@ -34,6 +43,19 @@ public:
 		\note The same as the glFrustum() function.
 	 */
 	void create(float left, float right, float bottom, float top, float near, float far);
+
+	/*!	Compute the projection matrix.
+		The matrix may be perspective or ortho, depending on the member variable \em projectionType.
+		The matrix format should be the same as in opengl.
+		\sa computePerspective
+		\sa computeOrtho
+	 */
+	void computeProjection(sal_out_ecount(16) float* matrix) const;
+
+	/*!	Apply the projection transform.
+		\note Make sure the current matrix mode is GL_PROJECTION.
+	 */
+	void applyProjection() const;
 
 	/*!	Compute the perspective projection matrix.
 		The matrix format should be the same as in opengl.
@@ -62,6 +84,7 @@ public:
 	//! Aspect ratio (width / height).
 	float aspectRatio() const;
 
+	ProjectionType projectionType;
 	float left, right, bottom, top, near, far;
 
 protected:

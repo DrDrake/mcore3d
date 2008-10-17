@@ -27,6 +27,10 @@ TEST(RenderTargetTest)
 		// the windows is resized.
 		sal_override void onResize(size_t width, size_t height)
 		{
+			// If the window is minized
+			if(width == 0 || height == 0)
+				return;
+
 			// Setup the render target, with a squared size
 			mLargerSide = width > height ? width : height;
 			mRenderTarget.reset(new RenderTarget(mLargerSide, mLargerSide));
