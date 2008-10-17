@@ -1,7 +1,9 @@
 #include "Pch.h"
 #include "Frustum.h"
 #include "../Core/Math/BasicFunction.h"
+#include "../Core/Math/Mat44.h"
 #include "../Core/Math/Vec3.h"
+#include "../../3Party/glew/glew.h"
 
 namespace MCD {
 
@@ -20,6 +22,26 @@ void Frustum::create(float l, float r, float b, float t, float n, float f)
 	near = n;	far = f;
 
 	assertValid();
+}
+
+void Frustum::computeProjection(float* matrix) const
+{
+	if(projectionType == Perspective)
+		computePerspective(matrix);
+	else if(projectionType == Ortho)
+		computeOrtho(matrix);
+	else {
+		MCD_ASSERT(false);
+	}
+}
+
+void Frustum::applyProjection() const
+{
+	Mat44f mat;
+	computeProjection(mat.getPtr());
+	mat = mat.transpose();	// Opengl use column major memory layout
+
+	glLoadMatrixf(mat.getPtr());
 }
 
 void Frustum::computePerspective(float* matrix) const

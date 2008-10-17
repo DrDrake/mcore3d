@@ -24,8 +24,11 @@ public:
 		return mHandle;
 	}
 
-	//! Bind this texture to the current rendering system.
-	void bind();
+	//! Bind this texture to the current texture unit.
+	void bind() const;
+
+	//! Unbind ANY texture of the current texture unit.
+	void unbind() const;
 
 	/*!	Type of the texture.
 		Can be GL_TEXTURE_2D, GL_TEXTURE_RECTANGLE_ARB
@@ -33,6 +36,9 @@ public:
 	int type() const {
 		return mType;
 	}
+
+	//! The texture is invalid before the async resource is loaded.
+	bool isValid() const;
 
 	/*!	Format of the texture.
 		Use those appeared in OpenGl.

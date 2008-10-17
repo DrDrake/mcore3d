@@ -20,12 +20,25 @@ Texture::~Texture()
 	glDeleteTextures(1, &mHandle);
 }
 
-void Texture::bind()
+void Texture::bind() const
 {
-	if(mType != GL_INVALID_ENUM)
+	if(isValid())
 		glBindTexture(mType, mHandle);
 	else
 		glBindTexture(GL_TEXTURE_2D, mHandle);
+}
+
+void Texture::unbind() const
+{
+	if(isValid())
+		glBindTexture(mType, 0);
+	else
+		glBindTexture(GL_TEXTURE_2D, 0);
+}
+
+bool Texture::isValid() const
+{
+	return (mType != GL_INVALID_ENUM);
 }
 
 bool Texture::hasAlpha(int format)
