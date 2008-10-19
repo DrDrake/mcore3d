@@ -1,6 +1,9 @@
 #include "Pch.h"
 #include "Common.h"
+#include "../../MCD/Render/Frustum.h"
 #include "../../3Party/glew/glew.h"
+
+namespace MCD {
 
 void drawViewportQuad(size_t x, size_t y, size_t width, size_t height, int textureType)
 {
@@ -68,3 +71,30 @@ void drawUnitCube(float textureCoord1, float textureCoord2)
 	glEnd();
 }
 
+void drawFrustum(const Frustum& frustum)
+{
+	// Calculate the vertex of the frustum.
+	Vec3f vertex[8];
+	frustum.computeVertex(vertex);
+
+	glBegin(GL_LINE_LOOP);
+		glVertex3fv(vertex[0 + 0].getPtr());
+		glVertex3fv(vertex[1 + 0].getPtr());
+		glVertex3fv(vertex[2 + 0].getPtr());
+		glVertex3fv(vertex[3 + 0].getPtr());
+		glVertex3fv(vertex[3 + 4].getPtr());
+		glVertex3fv(vertex[2 + 4].getPtr());
+		glVertex3fv(vertex[1 + 4].getPtr());
+		glVertex3fv(vertex[0 + 4].getPtr());
+		glVertex3fv(vertex[0 + 0].getPtr());
+		glVertex3fv(vertex[1 + 0].getPtr());
+		glVertex3fv(vertex[1 + 4].getPtr());
+		glVertex3fv(vertex[0 + 4].getPtr());
+		glVertex3fv(vertex[3 + 4].getPtr());
+		glVertex3fv(vertex[2 + 4].getPtr());
+		glVertex3fv(vertex[2 + 0].getPtr());
+		glVertex3fv(vertex[3 + 0].getPtr());
+	glEnd();
+}
+
+}	// namespace MCD

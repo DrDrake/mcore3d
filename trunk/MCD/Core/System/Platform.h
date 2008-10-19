@@ -138,18 +138,20 @@ using namespace vc_attributes;
 	\sa http://msdn.microsoft.com/en-us/library/ms182033.aspx
  */
 #define SAL(...) [__VA_ARGS__]
-#define sal_in __in __notnull						// (input, read only) (cannot be null)
-#define sal_in_opt __in_opt __maybenull				// (input, read only) (may be null)
-#define sal_in_z __in_z __notnull					// (input, read only) (null terminated) (cannot be null)
-#define sal_in_z_opt __in_z_opt __maybenull			// (input, read only) (null terminated) (may be null)
-#define sal_out_opt __out_opt __maybenull			// (output, write) (may be null)
-#define sal_inout __inout __notnull					// (input/output, read/write) (cannot be null)
-#define sal_notnull __notnull						// (cannot be null)
-#define sal_maybenull __maybenull					// (may be null)
-#define sal_override __override						// (function is overrided from the base one)
-#define sal_checkreturn __checkReturn				// (caller must check the return value)
-#define sal_in_ecount(count) __in_ecount(count)		// (input, not null, with count as the element count)
-#define sal_out_ecount(count) __out_ecount(count)	// (output, not null, with count as the element count)
+#define sal_in __in __notnull								// (input, read only) (cannot be null)
+#define sal_in_opt __in_opt __maybenull						// (input, read only) (may be null)
+#define sal_in_z __in_z __notnull							// (input, read only) (null terminated) (cannot be null)
+#define sal_in_z_opt __in_z_opt __maybenull					// (input, read only) (null terminated) (may be null)
+#define sal_out_opt __out_opt __maybenull					// (output, write) (may be null)
+#define sal_inout __inout __notnull							// (input/output, read/write) (cannot be null)
+#define sal_notnull __notnull								// (cannot be null)
+#define sal_maybenull __maybenull							// (may be null)
+#define sal_override __override								// (function is overrided from the base one)
+#define sal_checkreturn __checkReturn						// (caller must check the return value)
+#define sal_in_ecount(count) __in_ecount(count)				// (input, not null, with count as the element count)
+#define sal_in_ecount_opt(count) __in_ecount_opt(count)		// (input, not null, with count as the element count) (may be null)
+#define sal_out_ecount(count) __out_ecount(count)			// (output, not null, with count as the element count)
+#define sal_out_ecount_opt(count) __out_ecount_opt(count)	// (output, not null, with count as the element count) (may be null)
 
 // alloca
 #define MCD_STACKALLOCA(size) _malloca(size)

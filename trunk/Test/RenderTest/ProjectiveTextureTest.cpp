@@ -1,4 +1,5 @@
 #include "Pch.h"
+#include "Common.h"	// For drawFrustum()
 #include "DefaultResourceManager.h"
 #include "../../MCD/Render/Frustum.h"
 #include "../../MCD/Render/Model.h"
@@ -33,37 +34,17 @@ TEST(ProjectiveTextureTest)
 
 		void drawFrustum()
 		{
-			// Calculate the vertex of the frustum.
-			Vec3f vertex[8];
-			mLightFrustum.computeVertex(vertex);
-
 			Mat44f transform;
 			mLightCamera.computeTransform(transform.getPtr());
-			transform = transform.inverse();
-	
-			for(size_t i=0; i<sizeof(vertex)/sizeof(Vec3f); ++i)
-				transform.transformPoint(vertex[i]);
+			transform = transform.inverse().transpose();
 
 			// TODO: There is no effect on calling glColor3f()
 			glColor3f(1, 1, 0);
-			glBegin(GL_LINE_LOOP);
-				glVertex3fv(vertex[0 + 0].getPtr());
-				glVertex3fv(vertex[1 + 0].getPtr());
-				glVertex3fv(vertex[2 + 0].getPtr());
-				glVertex3fv(vertex[3 + 0].getPtr());
-				glVertex3fv(vertex[3 + 4].getPtr());
-				glVertex3fv(vertex[2 + 4].getPtr());
-				glVertex3fv(vertex[1 + 4].getPtr());
-				glVertex3fv(vertex[0 + 4].getPtr());
-				glVertex3fv(vertex[0 + 0].getPtr());
-				glVertex3fv(vertex[1 + 0].getPtr());
-				glVertex3fv(vertex[1 + 4].getPtr());
-				glVertex3fv(vertex[0 + 4].getPtr());
-				glVertex3fv(vertex[3 + 4].getPtr());
-				glVertex3fv(vertex[2 + 4].getPtr());
-				glVertex3fv(vertex[2 + 0].getPtr());
-				glVertex3fv(vertex[3 + 0].getPtr());
-			glEnd();
+			glPushMatrix();
+			glMultMatrixf(transform.getPtr());
+			MCD::drawFrustum(mLightFrustum);
+			glPopMatrix();
+			glColor3f(1, 1, 1);
 		}
 
 		void projectTexture()
