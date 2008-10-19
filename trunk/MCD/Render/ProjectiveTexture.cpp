@@ -18,8 +18,9 @@ void ProjectiveTexture::bind(int textureUnit) const
 
 	// Scale and translate by one-half to bring the coordinates from [-1, 1]
 	// to the texture coordinate [0, 1]
-	tmp.setTranslation(Vec3f(0.5f, 0.5f, 0));
-	tmp.setScale(Vec3f(0.5f, 0.5f, 1));
+	// Note that z component also need to be 0.5, otherwise shadow map will not work correctly
+	tmp.setTranslation(Vec3f(0.5f, 0.5f, 0.5f));
+	tmp.setScale(Vec3f(0.5f, 0.5f, 0.5f));
 
 	Mat44f projection;
 	frustum.computeProjection(projection.getPtr());
@@ -44,17 +45,12 @@ void ProjectiveTexture::bind(int textureUnit) const
 	glTexGenfv(GL_R, GL_EYE_PLANE, &tmp[2][0]);
 	glTexGenfv(GL_Q, GL_EYE_PLANE, &tmp[3][0]);
 
-	glTexGenf(GL_S, GL_TEXTURE_GEN_MODE, GL_EYE_LINEAR);
-	glTexGenf(GL_T, GL_TEXTURE_GEN_MODE, GL_EYE_LINEAR);
-	glTexGenf(GL_R, GL_TEXTURE_GEN_MODE, GL_EYE_LINEAR);
-	glTexGenf(GL_Q, GL_TEXTURE_GEN_MODE, GL_EYE_LINEAR);
+	glTexGeni(GL_S, GL_TEXTURE_GEN_MODE, GL_EYE_LINEAR);
+	glTexGeni(GL_T, GL_TEXTURE_GEN_MODE, GL_EYE_LINEAR);
+	glTexGeni(GL_R, GL_TEXTURE_GEN_MODE, GL_EYE_LINEAR);
+	glTexGeni(GL_Q, GL_TEXTURE_GEN_MODE, GL_EYE_LINEAR);
 
 	texture->bind();
-
-	// Most likely we don't want the texture to be wrapped.
-	glTexParameteri(texture->type(), GL_TEXTURE_WRAP_S, GL_CLAMP);
-	glTexParameteri(texture->type(), GL_TEXTURE_WRAP_T, GL_CLAMP);
-	glTexParameteri(texture->type(), GL_TEXTURE_WRAP_R, GL_CLAMP);
 }
 
 void ProjectiveTexture::unbind() const

@@ -75,8 +75,8 @@ TEST(ProjectiveTextureTest)
 
 			// Scale and translate by one-half to bring the coordinates from [-1, 1]
 			// to the texture coordinate [0, 1]
-			tmp.setTranslation(Vec3f(0.5f, 0.5f, 0));
-			tmp.setScale(Vec3f(0.5f, 0.5f, 1));
+			tmp.setTranslation(Vec3f(0.5f, 0.5f, 0.5f));
+			tmp.setScale(Vec3f(0.5f, 0.5f, 0.5f));
 
 			Mat44f projection;
 			mLightFrustum.computePerspective(projection.getPtr());

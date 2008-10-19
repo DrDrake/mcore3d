@@ -15,6 +15,7 @@ class MCD_RENDER_API ProjectiveTexture
 public:
 	/*!
 		\param textureUnit GL_TEXTURE0 - GL_TEXTUREn
+		\note NO wrapping parameter GL_TEXTURE_WRAP_S/T/R will be applied.
 	 */
 	void bind(int textureUnit) const;
 	void unbind() const;
