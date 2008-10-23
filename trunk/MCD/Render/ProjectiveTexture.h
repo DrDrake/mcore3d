@@ -15,9 +15,10 @@ class MCD_RENDER_API ProjectiveTexture
 public:
 	/*!
 		\param textureUnit GL_TEXTURE0 - GL_TEXTUREn
+		\param textureMatrix Get the texture matrix computed (in row major).
 		\note NO wrapping parameter GL_TEXTURE_WRAP_S/T/R will be applied.
 	 */
-	void bind(int textureUnit) const;
+	void bind(int textureUnit, sal_out_ecount_opt(16) float* textureMatrix = nullptr) const;
 	void unbind() const;
 
 	TexturePtr texture;

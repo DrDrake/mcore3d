@@ -3,7 +3,7 @@
 #include "../../MCD/Render/Frustum.h"
 #include "../../3Party/glew/glew.h"
 
-namespace MCD {
+using namespace MCD;
 
 void drawViewportQuad(size_t x, size_t y, size_t width, size_t height, int textureType)
 {
@@ -97,4 +97,41 @@ void drawFrustum(const Frustum& frustum)
 	glEnd();
 }
 
-}	// namespace MCD
+#include "DefaultResourceManager.h"
+#include "../../MCD/Core/System/Path.h"
+#include "../../MCD/Core/System/ResourceManager.h"
+#include "../../MCD/Render/Shader.h"
+#include "../../MCD/Render/ShaderProgram.h"
+
+bool loadShaderProgram(
+	const wchar_t* vsSource, const wchar_t* psSource,
+	ShaderProgram& shaderProgram,
+	DefaultResourceManager& resourceManager)
+{
+	// Load the shaders synchronously
+	ShaderPtr vs = dynamic_cast<Shader*>(resourceManager.load(vsSource, true).get());
+	ShaderPtr ps = dynamic_cast<Shader*>(resourceManager.load(psSource, true).get());
+
+	while(true) {
+		int result = resourceManager.processLoadingEvents();
+		if(result < 0)
+			return false;
+		else if(result == 0)
+			break;
+	}
+
+	if(!vs || !ps)
+		return false;
+
+	shaderProgram.create();
+	shaderProgram.attach(*vs);
+	shaderProgram.attach(*ps);
+	if(!shaderProgram.link()) {
+		std::string log;
+		shaderProgram.getLog(log);
+		std::cout << log << std::endl;
+		return false;
+	}
+
+	return true;
+}
