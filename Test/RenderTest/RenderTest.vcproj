@@ -371,6 +371,18 @@
 					>
 				</File>
 			</Filter>
+			<Filter
+				Name="ShadowMap"
+				>
+				<File
+					RelativePath=".\Media\Shader\ShadowMap\Scene.glps"
+					>
+				</File>
+				<File
+					RelativePath=".\Media\Shader\ShadowMap\Scene.glvs"
+					>
+				</File>
+			</Filter>
 		</Filter>
 	</Files>
 	<Globals>

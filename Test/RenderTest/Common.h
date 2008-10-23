@@ -1,7 +1,13 @@
 #ifndef __MCD_RENDERTEST_COMMON__
 #define __MCD_RENDERTEST_COMMON__
 
+// Forward declarations of some class in MCD
 namespace MCD {
+
+class Frustum;
+class ShaderProgram;
+
+}	// namespace MCD
 
 /*!	Draw a screen aligned quad.
 	\param textureType Type of the texture, can be GL_TEXTURE_2D, GL_TEXTURE_RECTANGLE_ARB etc
@@ -12,11 +18,15 @@ void drawViewportQuad(size_t x, size_t y, size_t width, size_t height, int textu
  */
 void drawUnitCube(float textureCoord1, float textureCoord2);
 
-class Frustum;
-
 //!	Debug draw of the frustum.
-void drawFrustum(const Frustum& frustum);
+void drawFrustum(const MCD::Frustum& frustum);
 
-}	// namespace MCD
+class DefaultResourceManager;
+
+//! Load the shaders synchronously
+bool loadShaderProgram(
+	const wchar_t* vsSource, const wchar_t* psSource,
+	MCD::ShaderProgram& shaderProgram,
+	DefaultResourceManager& resourceManager);
 
 #endif	// __MCD_RENDERTEST_COMMON__

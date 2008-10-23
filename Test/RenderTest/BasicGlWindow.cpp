@@ -97,8 +97,8 @@ BasicGlWindow::BasicGlWindow(const wchar_t* options)
 	// Set up and enable light 0
 	glEnable(GL_LIGHTING);
 	glEnable(GL_LIGHT0);
-	GLfloat ambientLight[] = { 0.3f, 0.3f, 0.3f, 1.0f };
-	GLfloat diffuseLight[] = { 0.7f, 0.7f, 0.7f, 1.0f };
+	GLfloat ambientLight[] = { 0.5f, 0.5f, 0.5f, 1.0f };
+	GLfloat diffuseLight[] = { 1.0f, 1.0f, 1.0f, 1.0f };
 	GLfloat specular[] = { 1.0f, 1.0f, 1.0f, 1.0f };
 
 	glLightfv(GL_LIGHT0, GL_AMBIENT, ambientLight);

@@ -82,8 +82,7 @@ void Camera::applyTransform()
 
 	Mat44f mat;
 	computeTransform(mat.getPtr());
-	mat = mat.transpose();
-	glLoadMatrixf(mat.getPtr());
+	glLoadTransposeMatrixf(mat.getPtr());
 }
 
 Vec3f Camera::lookAtDir() const
