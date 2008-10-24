@@ -117,6 +117,15 @@ public:
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_R, GL_CLAMP);
 	}
 
+	void drawScene()
+	{
+		const float scale = 0.1f;
+		glScalef(scale, scale, scale);
+
+		glActiveTexture(GL_TEXTURE0);
+		mModel->draw();
+	}
+
 	sal_override void update(float deltaTime)
 	{
 		mTime += deltaTime;
@@ -127,12 +136,7 @@ public:
 
 		projectTexture(false);
 
-		const float scale = 0.1f;
-		glScalef(scale, scale, scale);
-
-		glActiveTexture(GL_TEXTURE0);
-		glEnable(GL_TEXTURE_2D);
-		mModel->draw();
+		drawScene();
 	}
 
 	ModelPtr mModel;
@@ -154,7 +158,6 @@ TEST(ProjectiveTextureTest)
 
 	window.load3ds(L"city/city.3ds");
 	window.loadTexture(L"Progressive512x512.jpg");
-
 	window.mainLoop();
 
 	CHECK(true);
@@ -198,13 +201,8 @@ public:
 
 		projectTexture(true);
 
-		const float scale = 0.1f;
-		glScalef(scale, scale, scale);
-
-		glActiveTexture(GL_TEXTURE0);
-
 		mProjectiveTextureShader.bind();
-		mModel->draw();
+		drawScene();
 		mProjectiveTextureShader.unbind();
 	}
 
@@ -219,7 +217,6 @@ TEST(ProjectiveTextureShaderTest)
 
 	window.load3ds(L"city/city.3ds");
 	window.loadTexture(L"Progressive512x512.jpg");
-
 	window.mainLoop();
 
 	CHECK(true);

@@ -13,12 +13,29 @@ typedef IntrusivePtr<Texture> TexturePtr;
 class MCD_RENDER_API ProjectiveTexture
 {
 public:
-	/*!
+	/*!	Generate texture matrix for the given texture unit.
 		\param textureUnit GL_TEXTURE0 - GL_TEXTUREn
+
+		\param postMultipleMatrix
+			Post multiple the texture matirx with this one (in row major), usefull in
+			conjunction with glsl; where in the vertex shader you generate the coordinate
+			using "coord = gl_TextureMatrix[textureUnit] * gl_ModelViewMatrix * gl_Vertex;".
+			To cancel out gl_ModelViewMatrix into the model matrix only, you would set
+			postMultipleMatrix as the inverse of the camera view matrix.
+
 		\param textureMatrix Get the texture matrix computed (in row major).
-		\note NO wrapping parameter GL_TEXTURE_WRAP_S/T/R will be applied.
+
+		\sa http://www.nvidia.com/object/Projective_Texture_Mapping.html
+		\sa http://dalab.se.sjtu.edu.cn/~jietan/shadowMappingTutorial.html
+
+		\note
+			NO wrapping parameter GL_TEXTURE_WRAP_S/T/R will be applied. The wrapping
+			parameter is better to set once for the texture rather than every bind().
 	 */
-	void bind(int textureUnit, sal_out_ecount_opt(16) float* textureMatrix = nullptr) const;
+	void bind(int textureUnit,
+		sal_in_ecount_opt(16) const float* postMultipleMatrix = nullptr,
+		sal_out_ecount_opt(16) float* textureMatrix = nullptr) const;
+
 	void unbind() const;
 
 	TexturePtr texture;
