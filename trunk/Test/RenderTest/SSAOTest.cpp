@@ -20,39 +20,14 @@ TEST(SSAOTest)
 			BasicGlWindow(L"title=SSAOTest;width=800;height=600;fullscreen=0;FSAA=4"),
 			mUseSSAO(true), mAngle(0), mResourceManager(L"./Media/")
 		{
-		}
+			if( !loadShaderProgram(L"Shader/SSAO/Scene.glvs", L"Shader/SSAO/Scene.glps", mScenePass, mResourceManager) ||
+				!loadShaderProgram(L"Shader/SSAO/SSAO.glvs", L"Shader/SSAO/SSAO.glps", mSSAOPass, mResourceManager))
+			{
+				throw std::runtime_error("Fail to load shader");
+			}
 
-		bool initShaderProgram(const wchar_t* vsSource, const wchar_t* psSource, ShaderProgram& shaderProgram)
-		{
-			// Load the shaders synchronously
-			ShaderPtr vs = dynamic_cast<Shader*>(mResourceManager.load(vsSource, true).get());
-			ShaderPtr ps = dynamic_cast<Shader*>(mResourceManager.load(psSource, true).get());
-
-			// Load the random normal map synchronously
+			// Load the random normal map
 			mDitherTexture = dynamic_cast<Texture*>(mResourceManager.load(L"RandomNormals128x128.png", true).get());
-
-			while(true) {
-				int result = mResourceManager.processLoadingEvents();
-				if(result < 0)
-					return false;
-				else if(result == 0)
-					break;
-			}
-
-			if(!vs || !ps)
-				return false;
-
-			shaderProgram.create();
-			shaderProgram.attach(*vs);
-			shaderProgram.attach(*ps);
-			if(!shaderProgram.link()) {
-				std::string log;
-				shaderProgram.getLog(log);
-				std::cout << log << std::endl;
-				return false;
-			}
-
-			return true;
 		}
 
 		// Update the view frustrum related uniform variables.
@@ -82,6 +57,10 @@ TEST(SSAOTest)
 
 		sal_override void onResize(size_t width, size_t height)
 		{
+			// If the window is minized
+			if(width == 0 || height == 0)
+				return;
+
 			// Setup the render target
 			mRenderTarget.reset(new RenderTarget(width, height));
 			TextureRenderBufferPtr textureBuffer = new TextureRenderBuffer(GL_COLOR_ATTACHMENT0_EXT);
@@ -258,13 +237,6 @@ TEST(SSAOTest)
 
 	{
 		TestWindow window;
-
-		if(!window.initShaderProgram(L"Shader/SSAO/Scene.glvs", L"Shader/SSAO/Scene.glps", window.mScenePass) ||
-		   !window.initShaderProgram(L"Shader/SSAO/SSAO.glvs", L"Shader/SSAO/SSAO.glps", window.mSSAOPass))
-		{
-			CHECK(false);
-			return;
-		}
 
 //		window.load3ds(L"titanic.3DS");
 //		window.load3ds(L"titanic2.3DS");

@@ -6,15 +6,12 @@
 
 namespace MCD {
 
-// Reference: http://dalab.se.sjtu.edu.cn/~jietan/shadowMappingTutorial.html
-// Reference: http://www.nvidia.com/object/Projective_Texture_Mapping.html
-
-void ProjectiveTexture::bind(int textureUnit, float* outTextureMatrix) const
+void ProjectiveTexture::bind(int textureUnit, const float* postMultipleMatrix, float* outTextureMatrix) const
 {
-	if(!texture)// || !texture->isValid())
+	if(!texture)
 		return;
 
-	glPushAttrib(GL_ALL_ATTRIB_BITS | GL_ENABLE_BIT | GL_TEXTURE_BIT);
+	glPushAttrib(GL_ENABLE_BIT | GL_TEXTURE_BIT);
 
 	// Scale and translate by one-half to bring the coordinates from [-1, 1]
 	// to the texture coordinate [0, 1]
@@ -31,7 +28,12 @@ void ProjectiveTexture::bind(int textureUnit, float* outTextureMatrix) const
 
 	Mat44f textureMatrix = bias * projection * modelView;
 
-	// Use another texture unit to avoid conflit with the diffuse texture of the model
+	if(postMultipleMatrix) {
+		Mat44f tmp;
+		tmp.copyFrom(postMultipleMatrix);
+		textureMatrix *= tmp;
+	}
+
 	glActiveTexture(textureUnit);
 
 	// The following code block is only relavent for fixed pipeline
@@ -71,7 +73,7 @@ void ProjectiveTexture::bind(int textureUnit, float* outTextureMatrix) const
 
 void ProjectiveTexture::unbind() const
 {
-	if(!texture)// || !texture->isValid())
+	if(!texture)
 		return;
 
 	texture->unbind();

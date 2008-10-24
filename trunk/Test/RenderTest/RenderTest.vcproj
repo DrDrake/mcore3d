@@ -383,6 +383,18 @@
 					>
 				</File>
 			</Filter>
+			<Filter
+				Name="ProjectiveTexture"
+				>
+				<File
+					RelativePath=".\Media\Shader\ProjectiveTexture\Scene.glps"
+					>
+				</File>
+				<File
+					RelativePath=".\Media\Shader\ProjectiveTexture\Scene.glvs"
+					>
+				</File>
+			</Filter>
 		</Filter>
 	</Files>
 	<Globals>
