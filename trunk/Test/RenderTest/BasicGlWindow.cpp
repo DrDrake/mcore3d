@@ -105,7 +105,7 @@ BasicGlWindow::BasicGlWindow(const wchar_t* options)
 	glLightfv(GL_LIGHT0, GL_DIFFUSE, diffuseLight);
 	glLightfv(GL_LIGHT0, GL_SPECULAR, specular);
 
-	GLfloat lightPos[] = { -50.f, 0.0f, 40.0f, 1.0f };
+	GLfloat lightPos[] = { 200, 200, 200, 1.0f };
 	glLightfv(GL_LIGHT0, GL_POSITION, lightPos);
 }
 

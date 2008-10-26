@@ -22,7 +22,7 @@ public:
 	{
 		mShadowMapProjection.frustum.projectionType = Frustum::Ortho;
 		mShadowMapProjection.frustum.create(-100, 100, -100, 100, -100, 600);
-		mShadowMapProjection.camera = Camera(Vec3f(200, 200, 100), Vec3f(2, 0, 0), Vec3f::c010);
+		mShadowMapProjection.camera = Camera(Vec3f(200, 200, 200), Vec3f(2, 0, 0), Vec3f::c010);
 
 		mShadowMapSize = 2048;
 
