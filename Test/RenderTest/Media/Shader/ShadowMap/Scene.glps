@@ -28,7 +28,10 @@ void main(void)
 	float NdotHV = max(dot(n, halfV), 0.0);
 	specular *= pow(NdotHV, gl_FrontMaterial.shininess);
 
-	float shadowFactor = min(1.0, shadowIntensity + shadow2DProj(shadowTex, shadowCoord).r);
+	float shadowValue = shadow2DProj(shadowTex, shadowCoord).r;
+	float shadowSpecularFactor = shadowValue == 0 ? 0 : 1;
+	float shadowAmbientDiffuseFactor = min(1.0, shadowIntensity + shadowValue);
 
-	gl_FragData[0] = specular + shadowFactor * (ambient + diffuse) * vec4(texture2D(colorTex, colorCoord).xyz, 1);
+	gl_FragData[0] = shadowSpecularFactor * specular +
+		shadowAmbientDiffuseFactor * (ambient + diffuse) * vec4(texture2D(colorTex, colorCoord).xyz, 1); 
 }
