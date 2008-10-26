@@ -208,4 +208,3 @@ TEST(Inverse_Mat44Test)
 	CHECK(a * ai == Mat44f::cIdentity);
 	CHECK(ai * a == Mat44f::cIdentity);
 }
-

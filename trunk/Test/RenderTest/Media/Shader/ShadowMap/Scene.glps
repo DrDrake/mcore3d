@@ -4,6 +4,9 @@ varying vec4 shadowCoord;
 uniform sampler2D colorTex;
 uniform sampler2DShadow shadowTex;
 
+// Light intensity inside shadow
+const float shadowIntensity = 0.5;
+
 void main(void)
 {
 	// Compute the diffuse, specular, ambient and globalAmbient terms.
@@ -25,8 +28,7 @@ void main(void)
 	float NdotHV = max(dot(n, halfV), 0.0);
 	specular *= pow(NdotHV, gl_FrontMaterial.shininess);
 
-	float shadowFactor = shadow2DProj(shadowTex, shadowCoord).r != 1.0 ? 0.5 : 1.0;
+	float shadowFactor = min(1.0, shadowIntensity + shadow2DProj(shadowTex, shadowCoord).r);
 
-	gl_FragData[0] = specular + (ambient + diffuse) * vec4(texture2D(colorTex, colorCoord).xyz, 1);
-	gl_FragData[0] *= shadowFactor;
+	gl_FragData[0] = specular + shadowFactor * (ambient + diffuse) * vec4(texture2D(colorTex, colorCoord).xyz, 1);
 }

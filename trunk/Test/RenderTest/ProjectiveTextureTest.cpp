@@ -14,9 +14,9 @@ namespace {
 class TestWindow : public BasicGlWindow
 {
 public:
-	TestWindow()
+	TestWindow(const wchar_t* options)
 		:
-		BasicGlWindow(L"title=ProjectiveTextureTest;width=800;height=600;fullscreen=0;FSAA=4"),
+		BasicGlWindow(options),
 		mAngle(0), mTime(0), mResourceManager(L"./Media/")
 	{
 		mLightFrustum.create(40, 1, 1, 20);
@@ -60,7 +60,7 @@ public:
 		bias.setScale(Vec3f(0.5f, 0.5f, 0.5f));
 
 		Mat44f projection;
-		mLightFrustum.computePerspective(projection.getPtr());
+		mLightFrustum.computeProjection(projection.getPtr());
 
 		Mat44f projectionView;
 		mLightCamera.computeTransform(projectionView.getPtr());
@@ -154,7 +154,7 @@ public:
 
 TEST(ProjectiveTextureTest)
 {
-	TestWindow window;
+	TestWindow window(L"title=ProjectiveTextureTest;width=800;height=600;fullscreen=0;FSAA=4");
 
 	window.load3ds(L"city/city.3ds");
 	window.loadTexture(L"Progressive512x512.jpg");
@@ -173,7 +173,7 @@ namespace {
 class ShaderTestWindow : public TestWindow
 {
 public:
-	ShaderTestWindow() : TestWindow()
+	ShaderTestWindow(const wchar_t* options) : TestWindow(options)
 	{
 		if(!loadShaderProgram(
 			L"Shader/ProjectiveTexture/Scene.glvs", L"Shader/ProjectiveTexture/Scene.glps",
@@ -213,7 +213,7 @@ public:
 
 TEST(ProjectiveTextureShaderTest)
 {
-	ShaderTestWindow window;
+	ShaderTestWindow window(L"title=ProjectiveTextureShaderTest;width=800;height=600;fullscreen=0;FSAA=4");
 
 	window.load3ds(L"city/city.3ds");
 	window.loadTexture(L"Progressive512x512.jpg");

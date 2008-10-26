@@ -15,15 +15,16 @@ namespace {
 class TestWindow : public BasicGlWindow
 {
 public:
-	TestWindow()
+	TestWindow(const wchar_t* options)
 		:
-		BasicGlWindow(L"title=ShadowMapTest;width=800;height=600;fullscreen=0;FSAA=4"),
+		BasicGlWindow(options),
 		mResourceManager(L"./Media/")
 	{
-		mShadowMapProjection.frustum.create(80, 1, 1, 50);
-		mShadowMapProjection.camera = Camera(Vec3f(20, 20, 10), Vec3f(2, 0, 0), Vec3f::c010);
+		mShadowMapProjection.frustum.projectionType = Frustum::Ortho;
+		mShadowMapProjection.frustum.create(-100, 100, -100, 100, -100, 600);
+		mShadowMapProjection.camera = Camera(Vec3f(200, 200, 100), Vec3f(2, 0, 0), Vec3f::c010);
 
-		mShadowMapSize = 1024;
+		mShadowMapSize = 2048;
 
 		mShadowMapRendered = 0;
 
@@ -127,10 +128,23 @@ public:
 
 	void drawScene()
 	{
-		const float scale = 0.1f;
+		const float scale = 0.5f;
 		glScalef(scale, scale, scale);
 
 		mModel->draw();
+	}
+
+	void debugShadowMap()
+	{
+		size_t w = width()/4;
+		size_t h = height()/4;
+		glViewport(0, 0, w, h);
+		mShadowMapProjection.texture->bind();
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_COMPARE_MODE, GL_NONE);
+		drawViewportQuad(0, 0, w, h, GL_TEXTURE_2D);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_COMPARE_MODE, GL_COMPARE_R_TO_TEXTURE);
+		mShadowMapProjection.texture->unbind();
+		glViewport(0, 0, width(), height());
 	}
 
 	void drawFrustum()
@@ -162,6 +176,8 @@ public:
 		glActiveTexture(GL_TEXTURE0);
 		drawScene();
 		mShadowMapProjection.unbind();
+
+		debugShadowMap();
 	}
 
 	ModelPtr mModel;
@@ -177,7 +193,7 @@ public:
 
 TEST(ShadowMapTest)
 {
-	TestWindow window;
+	TestWindow window(L"title=ShadowMapTest;width=800;height=600;fullscreen=0;FSAA=4");
 	window.load3ds(L"city/city.3ds");
 	window.mainLoop();
 	CHECK(true);
@@ -193,7 +209,7 @@ namespace {
 class ShaderTestWindow : public TestWindow
 {
 public:
-	ShaderTestWindow() : TestWindow()
+	ShaderTestWindow(const wchar_t* options) : TestWindow(options)
 	{
 		if(!loadShaderProgram(
 			L"Shader/ShadowMap/Scene.glvs", L"Shader/ShadowMap/Scene.glps",
@@ -231,6 +247,8 @@ public:
 		mShadowMapShader.unbind();
 
 		mShadowMapProjection.unbind();
+
+		debugShadowMap();
 	}
 
 	ShaderProgram mShadowMapShader;
@@ -240,7 +258,7 @@ public:
 
 TEST(ShadowMapShaderTest)
 {
-	ShaderTestWindow window;
+	ShaderTestWindow window(L"title=ShadowMapShaderTest;width=800;height=600;fullscreen=0;FSAA=4");
 	window.load3ds(L"city/city.3ds");
 	window.mainLoop();
 	CHECK(true);
