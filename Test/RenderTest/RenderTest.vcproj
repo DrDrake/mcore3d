@@ -255,6 +255,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\FrustumTest.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\Main.cpp"
 				>
 			</File>

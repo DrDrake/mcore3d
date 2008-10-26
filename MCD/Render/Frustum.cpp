@@ -1,7 +1,6 @@
 #include "Pch.h"
 #include "Frustum.h"
 #include "../Core/Math/BasicFunction.h"
-#include "../Core/Math/Mat44.h"
 #include "../Core/Math/Vec3.h"
 #include "../../3Party/glew/glew.h"
 
@@ -37,11 +36,10 @@ void Frustum::computeProjection(float* matrix) const
 
 void Frustum::applyProjection() const
 {
-	Mat44f mat;
-	computeProjection(mat.getPtr());
-	mat = mat.transpose();	// Opengl use column major memory layout
+	float mat[16];
+	computeProjection(mat);
 
-	glLoadMatrixf(mat.getPtr());
+	glLoadTransposeMatrixf(mat);
 }
 
 void Frustum::computePerspective(float* matrix) const
@@ -69,9 +67,9 @@ void Frustum::computeOrtho(float* matrix) const
 	matrix[3] = -(right + left) / (right - left);
 	matrix[5] = 2.0f / (top - bottom);
 	matrix[7] = -(top + bottom) / (top - bottom);
-	matrix[10] = 2.0f / (far - near);
+	matrix[10] = -2.0f / (far - near);
 	matrix[11] = -(far + near) / (far - near);
-	matrix[15] = -1;
+	matrix[15] = 1;
 }
 
 void Frustum::computeVertex(Vec3f* vertex) const
@@ -84,8 +82,10 @@ void Frustum::computeVertex(Vec3f* vertex) const
 	vertex[2] = Vec3f( halfWidth,  halfHeight, -near);	// Near right-top
 	vertex[3] = Vec3f(-halfWidth,  halfHeight, -near);	// Near left-top
 
-	halfHeight *= far / near;
-	halfWidth *= far / near;
+	if(projectionType == Perspective) {
+		halfHeight *= far / near;
+		halfWidth *= far / near;
+	}
 
 	vertex[4] = Vec3f(-halfWidth, -halfHeight, -far);	// Far left-bottom
 	vertex[5] = Vec3f( halfWidth, -halfHeight, -far);	// Far right-bottom
@@ -105,7 +105,9 @@ float Frustum::aspectRatio() const
 
 void Frustum::assertValid() const
 {
-	MCD_ASSERT(near > 0);
+	if(projectionType == Perspective)
+		MCD_ASSERT(near > 0);
+
 	MCD_ASSERT(far > near);
 	MCD_ASSERT(right > left);
 	MCD_ASSERT(top > bottom);
