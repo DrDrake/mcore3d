@@ -13,6 +13,7 @@ class MCD_RENDER_API Material
 {
 public:
 	Material();
+	~Material();
 
 	void bind() const;
 
