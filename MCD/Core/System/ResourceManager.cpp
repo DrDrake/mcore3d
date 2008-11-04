@@ -243,7 +243,13 @@ ResourcePtr ResourceManager::load(const Path& fileId, bool block, uint priority)
 	{	// Find for existing resource
 		MapNode* node = mImpl->mResourceMap.find(fileId)->getOuterSafe();
 
-		if(node) {	// Cache hit!
+		while(node) {	// Cache hit!
+			// But unfortunately, the resource is already deleted
+			if(!node->mResource.get()) {
+				delete node;
+				break;
+			}
+
 			// Do clean up for dead resource node
 			// It is preformed right here because a resource is shared,
 			// and we have no idea when the resource will be destroyed other

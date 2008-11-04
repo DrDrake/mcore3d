@@ -34,7 +34,9 @@ void ShaderProgram::destroy()
 
 void ShaderProgram::attach(Shader& shader)
 {
+	detach(shader);
 	glAttachShader(mHandle, shader.handle());
+	mShaders.push_back(&shader);
 }
 
 void ShaderProgram::detach(Shader& shader)
