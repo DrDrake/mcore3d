@@ -100,6 +100,12 @@ TEST(Basic_ResourceManagerTest)
 		CHECK(event.loader != nullptr);
 	}
 
+	{	// Load it twice, to trigger the code that handle garbage collection
+		CHECK(manager.load(L"ResourceManadgerTest.cpp", true));
+		manager.popEvent();
+		CHECK(manager.load(L"ResourceManadgerTest.cpp", true));
+	}
+
 	{	// After trying to load another resource, a garbage collection take place
 		// nothing can be verify in this test, but it will trigger some code to run
 		// so that we will have a higher code coverage
