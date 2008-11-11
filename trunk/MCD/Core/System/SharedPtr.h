@@ -2,6 +2,7 @@
 #define __MCD_CORE_SYSTEM_SHAREDPTR__
 
 #include "IntrusivePtr.h"
+#include "Atomic.h"
 
 namespace MCD {
 
@@ -23,8 +24,8 @@ public:
 
 	T* mPtr;
 
-	//! The reference counter. You may change it to atomic integer for thread-safty
-	size_t mRefCount;
+	//! The reference counter. Use atomic integer for thread-safty
+	AtomicInteger mRefCount;
 };	// SharedPtrProxyObject
 
 template<typename T>

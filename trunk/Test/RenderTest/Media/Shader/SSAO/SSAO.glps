@@ -83,7 +83,7 @@ float calAO(in vec3 origin, in vec3 samplePoint, in float sampleDepth)
 	distance2 *= distance2;
 #endif
 
-	return 1 - min(distance2 * oneOverRadius2, 1.0);
+	return 1.0 - min(distance2 * oneOverRadius2, 1.0);
 }
 
 void main(void)
