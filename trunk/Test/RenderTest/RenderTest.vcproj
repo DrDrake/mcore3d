@@ -351,6 +351,22 @@
 				Name="SSAO"
 				>
 				<File
+					RelativePath=".\Media\Shader\SSAO\Blur.glps"
+					>
+				</File>
+				<File
+					RelativePath=".\Media\Shader\SSAO\Blur.glvs"
+					>
+				</File>
+				<File
+					RelativePath=".\Media\Shader\SSAO\Combine.glps"
+					>
+				</File>
+				<File
+					RelativePath=".\Media\Shader\SSAO\Combine.glvs"
+					>
+				</File>
+				<File
 					RelativePath=".\Media\Shader\SSAO\Scene.glps"
 					>
 				</File>

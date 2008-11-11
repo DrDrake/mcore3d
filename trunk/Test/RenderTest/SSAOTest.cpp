@@ -18,10 +18,13 @@ TEST(SSAOTest)
 		TestWindow()
 			:
 			BasicGlWindow(L"title=SSAOTest;width=800;height=600;fullscreen=0;FSAA=4"),
-			mUseSSAO(true), mAngle(0), mResourceManager(L"./Media/")
+			mUseSSAO(true), mBlurSSAO(true), mShowTexture(false),
+			mSSAORescale(0.5f), mSSAORadius(0.05f), mResourceManager(L"./Media/")
 		{
 			if( !loadShaderProgram(L"Shader/SSAO/Scene.glvs", L"Shader/SSAO/Scene.glps", mScenePass, mResourceManager) ||
-				!loadShaderProgram(L"Shader/SSAO/SSAO.glvs", L"Shader/SSAO/SSAO.glps", mSSAOPass, mResourceManager))
+				!loadShaderProgram(L"Shader/SSAO/SSAO.glvs", L"Shader/SSAO/SSAO.glps", mSSAOPass, mResourceManager) ||
+				!loadShaderProgram(L"Shader/SSAO/Blur.glvs", L"Shader/SSAO/Blur.glps", mBlurPass, mResourceManager) ||
+				!loadShaderProgram(L"Shader/SSAO/Combine.glvs", L"Shader/SSAO/Combine.glps", mCombinePass, mResourceManager))
 			{
 				throw std::runtime_error("Fail to load shader");
 			}
@@ -46,8 +49,38 @@ TEST(SSAOTest)
 
 		sal_override void onEvent(const Event& e)
 		{
+			// Toggle SSAO
 			if(e.Type == Event::KeyReleased && e.Key.Code == Key::F1)
 				mUseSSAO = !mUseSSAO;
+
+			// Toggle half-size SSAO rendering
+			if(e.Type == Event::KeyReleased && e.Key.Code == Key::F2) {
+				mSSAORescale = mSSAORescale == 0.5f ? 1.0f : 0.5f;
+				onResize(width(), height());
+			}
+
+			// Toggle SSAO blur
+			if(e.Type == Event::KeyReleased && e.Key.Code == Key::F3)
+				mBlurSSAO = !mBlurSSAO;
+
+			// Toggle texturing
+			if(e.Type == Event::KeyReleased && e.Key.Code == Key::F4) {
+				mShowTexture = !mShowTexture;
+				mScenePass.bind();
+				glUniform1i(glGetUniformLocation(mScenePass.handle(), "showTexture"), mShowTexture);
+				mScenePass.unbind();
+			}
+
+			// Adjust SSAO radius
+			if(e.Type == Event::KeyReleased && e.Key.Code == Key::F5) {
+				if(e.Key.Shift)
+					mSSAORadius *= 1.05;
+				else
+					mSSAORadius /= 1.05;
+				mSSAOPass.bind();
+				glUniform1f(glGetUniformLocation(mSSAOPass.handle(), "radius"), mSSAORadius);
+				mSSAOPass.unbind();
+			}
 
 			BasicGlWindow::onEvent(e);
 
@@ -57,62 +90,76 @@ TEST(SSAOTest)
 
 		sal_override void onResize(size_t width, size_t height)
 		{
-			// If the window is minized
+			// If the window is minmized
 			if(width == 0 || height == 0)
 				return;
 
-			// Setup the render target
-			mRenderTarget.reset(new RenderTarget(width, height));
+			// Setup scene's render target, where the scene will output the color, depth and normal
+			mSceneRenderTarget.reset(new RenderTarget(width, height));
 			TextureRenderBufferPtr textureBuffer = new TextureRenderBuffer(GL_COLOR_ATTACHMENT0_EXT);
 			if(!textureBuffer->createTexture(width, height, GL_TEXTURE_RECTANGLE_ARB, GL_RGB))
 				throw std::runtime_error("");
-			if(!textureBuffer->linkTo(*mRenderTarget))
+			if(!textureBuffer->linkTo(*mSceneRenderTarget))
 				throw std::runtime_error("");
 			mColorRenderTexture = static_cast<TextureRenderBuffer&>(*textureBuffer).texture;
 
 			textureBuffer = new TextureRenderBuffer(GL_COLOR_ATTACHMENT1_EXT);
 			if(!textureBuffer->createTexture(width, height, GL_TEXTURE_RECTANGLE_ARB, GL_RGB))
 				throw std::runtime_error("");
-			if(!textureBuffer->linkTo(*mRenderTarget))
+			if(!textureBuffer->linkTo(*mSceneRenderTarget))
 				throw std::runtime_error("");
 			mNormalRenderTexture = static_cast<TextureRenderBuffer&>(*textureBuffer).texture;
 
 			textureBuffer = new TextureRenderBuffer(GL_DEPTH_ATTACHMENT_EXT);
 			if(!textureBuffer->createTexture(width, height, GL_TEXTURE_RECTANGLE_ARB, GL_DEPTH_COMPONENT))
 				throw std::runtime_error("");
-			if(!textureBuffer->linkTo(*mRenderTarget))
+			if(!textureBuffer->linkTo(*mSceneRenderTarget))
 				throw std::runtime_error("");
 			mDepthRenderTexture = static_cast<TextureRenderBuffer&>(*textureBuffer).texture;
 
-			mRenderTarget->bind();
+			mSceneRenderTarget->bind();
 			GLenum buffers[] = { GL_COLOR_ATTACHMENT0_EXT, GL_COLOR_ATTACHMENT1_EXT };
 			glDrawBuffers(2, buffers);
+			mSceneRenderTarget->unbind();
 
-			if(!mRenderTarget->checkCompleteness())
+			if(!mSceneRenderTarget->checkCompleteness())
 				throw std::runtime_error("");
 
-			mSSAOPass.bind();
+			// Setup SSAO's render target, outputing dithered SSAO result
+			mSSAORenderTarget.reset(new RenderTarget(size_t(width * mSSAORescale), size_t(height * mSSAORescale)));
+			textureBuffer = new TextureRenderBuffer(GL_COLOR_ATTACHMENT0_EXT);
+			if(!textureBuffer->createTexture(mSSAORenderTarget->width(), mSSAORenderTarget->height(), GL_TEXTURE_RECTANGLE_ARB, GL_LUMINANCE))
+				throw std::runtime_error("");
+			if(!textureBuffer->linkTo(*mSSAORenderTarget))
+				throw std::runtime_error("");
+			mSSAORenderTexture = static_cast<TextureRenderBuffer&>(*textureBuffer).texture;
+
+			textureBuffer = new TextureRenderBuffer(GL_COLOR_ATTACHMENT1_EXT);
+			if(!textureBuffer->createTexture(mSSAORenderTarget->width(), mSSAORenderTarget->height(), GL_TEXTURE_RECTANGLE_ARB, GL_LUMINANCE))
+				throw std::runtime_error("");
+			if(!textureBuffer->linkTo(*mSSAORenderTarget))
+				throw std::runtime_error("");
+			mSSAORenderTexture2 = static_cast<TextureRenderBuffer&>(*textureBuffer).texture;
+
+			mSSAORenderTarget->bind();
+			glDrawBuffers(1, buffers);
+			mSSAORenderTarget->unbind();
+
+			if(!mSSAORenderTarget->checkCompleteness())
+				throw std::runtime_error("");
 
 			// Setup the uniform variables
 			// Reference: http://www.lighthouse3d.com/opengl/glsl/index.php?ogluniform
 			// TODO: Setup the camera near and far plane.
-			{	int texColor = glGetUniformLocation(mSSAOPass.handle(), "texColor");
-				glUniform1i(texColor, 0);
+			{	mSSAOPass.bind();
 
-				int texDepth = glGetUniformLocation(mSSAOPass.handle(), "texDepth");
-				glUniform1i(texDepth, 1);
-
-				int texNormal = glGetUniformLocation(mSSAOPass.handle(), "texNormal");
-				glUniform1i(texNormal, 2);
-
-				int texDither = glGetUniformLocation(mSSAOPass.handle(), "texDither");
-				glUniform1i(texDither, 3);
-
-				int screenWidth = glGetUniformLocation(mSSAOPass.handle(), "screenWidth");
-				glUniform1i(screenWidth, width);
-
-				int screenHeight = glGetUniformLocation(mSSAOPass.handle(), "screenHeight");
-				glUniform1i(screenHeight, height);
+				glUniform1i(glGetUniformLocation(mSSAOPass.handle(), "texDepth"), 0);
+				glUniform1i(glGetUniformLocation(mSSAOPass.handle(), "texNormal"), 1);
+				glUniform1i(glGetUniformLocation(mSSAOPass.handle(), "texDither"), 2);
+				glUniform1i(glGetUniformLocation(mSSAOPass.handle(), "screenWidth"), width);
+				glUniform1i(glGetUniformLocation(mSSAOPass.handle(), "screenHeight"), height);
+				glUniform1f(glGetUniformLocation(mSSAOPass.handle(), "radius"), mSSAORadius);
+				glUniform1f(glGetUniformLocation(mSSAOPass.handle(), "ssaoRescale"), mSSAORescale);
 
 				// Random points INSIDE an unit sphere.
 				const float randSphere[] = {
@@ -152,17 +199,35 @@ TEST(SSAOTest)
 					-0.598198f,  0.031839f, -0.484108f,
 					-0.005480f, -0.144742f, -0.191251f,
 				};
-				int ranSphere = glGetUniformLocation(mSSAOPass.handle(), "ranSphere");
-				glUniform3fv(ranSphere, 32, (float*)randSphere);
-			}
+				glUniform3fv(glGetUniformLocation(mSSAOPass.handle(), "ranSphere"), 32, (float*)randSphere);
 
-			mSSAOPass.unbind();
+				mSSAOPass.unbind();
+
+				mBlurPass.bind();
+				glUniform1i(glGetUniformLocation(mBlurPass.handle(), "texSSAO"), 0);
+				glUniform1i(glGetUniformLocation(mBlurPass.handle(), "texNormal"), 1);
+				glUniform1f(glGetUniformLocation(mBlurPass.handle(), "ssaoRescale"), mSSAORescale);
+				mBlurPass.unbind();
+
+				mCombinePass.bind();
+
+				glUniform1i(glGetUniformLocation(mCombinePass.handle(), "texColor"), 0);
+				glUniform1i(glGetUniformLocation(mCombinePass.handle(), "texSSAO"), 1);
+				glUniform1i(glGetUniformLocation(mCombinePass.handle(), "texDepth"), 2);
+				glUniform1f(glGetUniformLocation(mCombinePass.handle(), "ssaoRescale"), mSSAORescale);
+
+				mCombinePass.unbind();
+			}
 
 			BasicGlWindow::onResize(width, height);
 		}
 
 		void drawScene()
 		{
+			MCD_ASSERT(mSceneRenderTarget.get());
+			if(mUseSSAO)
+				mSceneRenderTarget->bind();
+
 			updateViewFrustum();
 
 			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -173,35 +238,76 @@ TEST(SSAOTest)
 			glScalef(scale, scale, scale);
 
 			mScenePass.bind();
+			glActiveTexture(GL_TEXTURE0);
+			glDisable(GL_TEXTURE_RECTANGLE_ARB);
 			mModel->draw();
 			mScenePass.unbind();
+
+			if(mUseSSAO)
+				mSceneRenderTarget->unbind();
 		}
 
 		void postProcessing()
 		{
-			if(!mRenderTarget.get())
+			if(!mUseSSAO)
 				return;
 
-			mRenderTarget->unbind();
+			// Render the SSAO
+			MCD_ASSERT(mSSAORenderTarget.get());
+			mSSAORenderTarget->bind();
+			GLenum buffers[] = { GL_COLOR_ATTACHMENT0_EXT, GL_COLOR_ATTACHMENT1_EXT };
+			glDrawBuffers(1, buffers + 0);	// Effectively output to mSSAORenderTexture
 
+			glActiveTexture(GL_TEXTURE0);
+			mDepthRenderTexture->bind();
+
+			glActiveTexture(GL_TEXTURE1);
+			mNormalRenderTexture->bind();
+
+			glActiveTexture(GL_TEXTURE2);
+			mDitherTexture->bind();
+
+			mSSAOPass.bind();
+			drawViewportQuad(0, 0, mSSAORenderTexture->width(), mSSAORenderTexture->height(), mSSAORenderTexture->type());
+			mSSAOPass.unbind();
+
+			// Blurr the SSAO
+			if(mBlurSSAO)
+			{
+				mBlurPass.bind();
+
+				glDrawBuffers(1, buffers + 1);	// Effectively output to mSSAORenderTexture2
+				glActiveTexture(GL_TEXTURE0);
+				mSSAORenderTexture->bind();
+				glActiveTexture(GL_TEXTURE1);
+				mNormalRenderTexture->bind();
+				glUniform2f(glGetUniformLocation(mBlurPass.handle(), "blurDirection"), 1, 0);
+				drawViewportQuad(0, 0, mSSAORenderTexture->width(), mSSAORenderTexture->height(), mSSAORenderTexture->type());
+
+				glDrawBuffers(1, buffers + 0);	// Effectively output to mSSAORenderTexture
+				glActiveTexture(GL_TEXTURE0);
+				mSSAORenderTexture2->bind();
+				glUniform2f(glGetUniformLocation(mBlurPass.handle(), "blurDirection"), 0, 1);
+				drawViewportQuad(0, 0, mSSAORenderTexture->width(), mSSAORenderTexture->height(), mSSAORenderTexture->type());
+
+				mBlurPass.unbind();
+			}
+
+			mSSAORenderTarget->unbind();
+
+			// Final pass that combine the color and the SSAO
 			glActiveTexture(GL_TEXTURE0);
 			mColorRenderTexture->bind();
 
 			glActiveTexture(GL_TEXTURE1);
-			mDepthRenderTexture->bind();
+			mSSAORenderTexture->bind();
 
 			glActiveTexture(GL_TEXTURE2);
-			mNormalRenderTexture->bind();
+			mDepthRenderTexture->bind();
 
-			glActiveTexture(GL_TEXTURE3);
-			mDitherTexture->bind();
-
-			mSSAOPass.bind();
-			drawViewportQuad(0, 0, width(), height(), mColorRenderTexture->type());
-			mSSAOPass.unbind();
-
-			glActiveTexture(GL_TEXTURE0);
-			glDisable(GL_TEXTURE_RECTANGLE_ARB);
+			mCombinePass.bind();
+			drawViewportQuad(0, 0, width(), height(), mSSAORenderTexture->type());
+			mCombinePass.unbind();
 		}
 
 		void load3ds(const wchar_t* fileId)
@@ -214,51 +320,37 @@ TEST(SSAOTest)
 			(void)deltaTime;
 			mResourceManager.processLoadingEvents();
 
-			if(mUseSSAO && mRenderTarget.get())
-				mRenderTarget->bind();
+			if(!mSceneRenderTarget.get() || !mSSAORenderTarget.get())
+				return;
 
 			drawScene();
 
-			if(mUseSSAO)
-				postProcessing();
+			postProcessing();
 		}
 
 		bool mUseSSAO;
-		float mAngle;
+		bool mBlurSSAO;
+		bool mShowTexture;
+		float mSSAORescale;
+		float mSSAORadius;
 
 		ModelPtr mModel;
-		ShaderProgram mScenePass, mSSAOPass;
+		ShaderProgram mScenePass, mSSAOPass, mBlurPass, mCombinePass;
 
 		DefaultResourceManager mResourceManager;
 
-		TexturePtr mColorRenderTexture, mNormalRenderTexture, mDepthRenderTexture, mDitherTexture;
-		std::auto_ptr<RenderTarget> mRenderTarget;
+		TexturePtr mColorRenderTexture, mNormalRenderTexture, mDepthRenderTexture, mDitherTexture, mSSAORenderTexture, mSSAORenderTexture2;
+		std::auto_ptr<RenderTarget> mSceneRenderTarget, mSSAORenderTarget;
 	};	// TestWindow
 
 	{
 		TestWindow window;
 
-//		window.load3ds(L"titanic.3DS");
-//		window.load3ds(L"titanic2.3DS");
-//		window.load3ds(L"spaceship.3DS");
-		window.load3ds(L"TextureBoxSphere.3ds");
-//		window.load3ds(L"ship^kiy.3ds");
-//		window.load3ds(L"Alfa Romeo.3ds");
-//		window.load3ds(L"Nissan350Z.3ds");
-//		window.load3ds(L"Nathalie aguilera Boing 747.3DS");
-//		window.load3ds(L"Dog 1 N280708.3ds");
-//		window.load3ds(L"Leon N300708.3DS");
-//		window.load3ds(L"Ford N120208.3ds");
-//		window.load3ds(L"Wolf359a/Star wars/awing/awing.3DS");
-//		window.load3ds(L"F40/F40_L.3DS");
-//		window.load3ds(L"F5E/f5e_05.3ds");
-//		window.load3ds(L"city/city.3ds");
-//		glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
+//		window.load3ds(L"ANDOX.3DS");
+//		window.load3ds(L"TextureBoxSphere.3ds");
 //		window.load3ds(L"House/house.3ds");
-//		window.load3ds(L"FockeWulf 189A/fw189.3ds");
-//		window.load3ds(L"MclarenF1/MclarenF1.3ds");
-//		window.load3ds(L"benetton/Benetton 2001.3ds");
-		window.load3ds(L"3M00696/buelllightning.3DS");
+		window.load3ds(L"city/city.3ds");
+//		window.load3ds(L"3M00696/buelllightning.3DS");
 //		window.load3ds(L"Lamborghini Gallardo Polizia/Lamborghini Gallardo Polizia.3DS");
 
 		window.mainLoop();

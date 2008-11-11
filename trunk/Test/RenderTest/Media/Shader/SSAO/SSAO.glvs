@@ -14,11 +14,12 @@ varying vec2 viewVector;	// The z component is always equal to 1
 uniform float fov;
 uniform int screenWidth;
 uniform int screenHeight;
+uniform float ssaoRescale;
 
 void main(void)
 {
 	gl_Position = ftransform();
-	texCoord = gl_MultiTexCoord0.xy;
+	texCoord = gl_MultiTexCoord0.xy / ssaoRescale;
 	gl_FrontColor = gl_Color;
 
 	float a = tan(fov / 2.0);
