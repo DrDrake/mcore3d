@@ -4,6 +4,7 @@
 #include "../ShareLib.h"
 #include "IntrusivePtr.h"
 #include "NonCopyable.h"
+#include "SharedPtr.h"
 
 namespace MCD {
 
@@ -134,7 +135,7 @@ public:
 	struct Event
 	{
 		ResourcePtr resource;
-		IResourceLoader* loader;
+		SharedPtr<IResourceLoader> loader;
 	};	// Event
 
 	Event popEvent();

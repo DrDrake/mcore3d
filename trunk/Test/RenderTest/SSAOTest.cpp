@@ -74,9 +74,9 @@ TEST(SSAOTest)
 			// Adjust SSAO radius
 			if(e.Type == Event::KeyReleased && e.Key.Code == Key::F5) {
 				if(e.Key.Shift)
-					mSSAORadius *= 1.05;
+					mSSAORadius *= 1.05f;
 				else
-					mSSAORadius /= 1.05;
+					mSSAORadius /= 1.05f;
 				mSSAOPass.bind();
 				glUniform1f(glGetUniformLocation(mSSAOPass.handle(), "radius"), mSSAORadius);
 				mSSAOPass.unbind();
