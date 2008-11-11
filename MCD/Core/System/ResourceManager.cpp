@@ -36,20 +36,13 @@ struct MapNode
 	MapNode(Resource& resource, IResourceLoader& loader)
 		:
 		mPathKey(resource.fileId()),
-		mResource(&resource),
-		mLoader(loader)
+		mResource(&resource)
 	{
-	}
-
-	~MapNode()
-	{
-		delete &mLoader;
 	}
 
 	PathKey mPathKey;
 	typedef WeakPtr<Resource> WeakResPtr;
 	WeakResPtr mResource;
-	IResourceLoader& mLoader;	// Keep a reference to the associated loader
 };	// MapNode
 
 class ResourceManager::Impl
@@ -99,7 +92,7 @@ class ResourceManager::Impl
 			:
 			MCD::TaskPool::Task(priority),
 			mResource(resource),
-			mLoader(loader),
+			mLoader(&loader),
 			mEventQueue(eventQueue),
 			mIStream(is)
 		{
@@ -113,10 +106,10 @@ class ResourceManager::Impl
 			while(thread.keepRun()) {
 				IResourceLoader::LoadingState state;
 				{	ScopeUnlock unlock(mutex);
-					state = mLoader.load(mIStream.get(), mResource ? &mResource->fileId() : nullptr);
+					state = mLoader->load(mIStream.get(), mResource ? &mResource->fileId() : nullptr);
 				}
 
-				Event event = { mResource, &mLoader };
+				Event event = { mResource, mLoader };
 				mEventQueue.pushBack(event);
 
 				if(state & IResourceLoader::Stopped) {
@@ -129,7 +122,7 @@ class ResourceManager::Impl
 		}
 
 		ResourcePtr mResource;
-		IResourceLoader& mLoader;
+		SharedPtr<IResourceLoader> mLoader;	// Hold the life of the IResourceLoader
 		EventQueue& mEventQueue;
 		std::auto_ptr<std::istream> mIStream;	// Keep the life of the stream align with the Task
 	};	// Task
@@ -154,28 +147,28 @@ public:
 		}
 	}
 
-	void blockingLoad(const Path& fileId, MapNode& node)
+	void blockingLoad(const Path& fileId, MapNode& node, IResourceLoader& loader)
 	{
 		MCD_ASSERT(mEventQueue.mMutex.isLocked());
 		std::auto_ptr<std::istream> is(mFileSystem.openRead(fileId));
 
 		do {
 			ScopeUnlock unlock(mEventQueue.mMutex);
-			if(node.mLoader.load(is.get(), &fileId) & IResourceLoader::Stopped)
+			if(loader.load(is.get(), &fileId) & IResourceLoader::Stopped)
 				break;
 		} while(true);
 
-		Event event = { node.mResource.get(), &(node.mLoader) };
+		Event event = { node.mResource.get(), &loader };
 		mEventQueue.pushBack(event);
 	}
 
-	void backgroundLoad(const Path& fileId, MapNode& node, uint priority)
+	void backgroundLoad(const Path& fileId, MapNode& node, IResourceLoader& loader, uint priority)
 	{
 		MCD_ASSERT(mEventQueue.mMutex.isLocked());
 		std::auto_ptr<std::istream> is(mFileSystem.openRead(fileId));
 
 		// Create the task to submit to the task pool
-		Task* task = new Task(node.mResource.get(), node.mLoader, mEventQueue, is.get(), priority);
+		Task* task = new Task(node.mResource.get(), loader, mEventQueue, is.get(), priority);
 		is.release();	// We have transfered the ownership of istream to Task
 
 		mTaskPool.enqueue(*task);
@@ -274,9 +267,9 @@ ResourcePtr ResourceManager::load(const Path& fileId, bool block, uint priority)
 
 	// Now we can begin the load operation
 	if(block)
-		mImpl->blockingLoad(fileId, *node);
+		mImpl->blockingLoad(fileId, *node, *loader);
 	else
-		mImpl->backgroundLoad(fileId, *node, priority);
+		mImpl->backgroundLoad(fileId, *node, *loader, priority);
 
 	return resource;
 }
