@@ -1,0 +1,9 @@
+varying vec2 texCoord;
+varying vec2 texCoord2;
+uniform sampler2DRect texColor;	// Color texture
+uniform sampler2DRect texSSAO;	// SSAO result texture
+
+void main(void)
+{
+	gl_FragColor = texture2DRect(texColor, texCoord) * texture2DRect(texSSAO, texCoord2);
+}
