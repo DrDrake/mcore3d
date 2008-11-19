@@ -311,6 +311,10 @@
 					>
 				</File>
 				<File
+					RelativePath=".\System\Stream.h"
+					>
+				</File>
+				<File
 					RelativePath=".\System\StrUtility.h"
 					>
 				</File>
@@ -405,6 +409,10 @@
 				</File>
 				<File
 					RelativePath=".\System\ResourceManager.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\System\Stream.cpp"
 					>
 				</File>
 				<File

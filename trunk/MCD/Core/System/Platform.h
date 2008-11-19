@@ -55,6 +55,8 @@
  */
 #define MCD_NOVTABLE __declspec(novtable)
 
+#define MCD_ABSTRACT_CLASS MCD_NOVTABLE
+
 //! Declaring aligned variable
 #define MCD_VARALIGN(declaration, num) __declspec(align(num)) declaration;
 
@@ -163,6 +165,8 @@ using namespace vc_attributes;
 #elif defined(MCD_GCC)
 
 #define MCD_NOVTABLE
+
+#define MCD_ABSTRACT_CLASS MCD_NOVTABLE
 
 //! Declaring aligned variable
 #define MCD_CC_VAR_ALIGN(declaration, num) declaration __attribute__((aligned(num)));

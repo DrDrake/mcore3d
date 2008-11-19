@@ -110,6 +110,8 @@
 		<Unit filename="System\StaticAssert.h" />
 		<Unit filename="System\StrUtility.cpp" />
 		<Unit filename="System\StrUtility.h" />
+		<Unit filename="System\Stream.cpp" />
+		<Unit filename="System\Stream.h" />
 		<Unit filename="System\TaskPool.cpp" />
 		<Unit filename="System\TaskPool.h" />
 		<Unit filename="System\Thread.cpp" />

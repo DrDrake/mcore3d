@@ -33,7 +33,7 @@ struct MapNode
 		}
 	};	// PathKey
 
-	MapNode(Resource& resource, IResourceLoader& loader)
+	MapNode(Resource& resource)
 		:
 		mPathKey(resource.fileId()),
 		mResource(&resource)
@@ -262,7 +262,7 @@ ResourcePtr ResourceManager::load(const Path& fileId, bool block, uint priority)
 
 	MCD_ASSUME(loader);
 
-	MapNode* node = new MapNode(*resource, *loader);
+	MapNode* node = new MapNode(*resource);
 	MCD_VERIFY(mImpl->mResourceMap.insertUnique(node->mPathKey));
 
 	// Now we can begin the load operation
