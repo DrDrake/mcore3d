@@ -249,6 +249,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\System\StreamTest.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\System\StrUtilityTest.cpp"
 				>
 			</File>

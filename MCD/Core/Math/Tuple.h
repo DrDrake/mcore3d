@@ -1,6 +1,7 @@
 #ifndef __MCD_CORE_MATH_TUPLE__
 #define __MCD_CORE_MATH_TUPLE__
 
+#include "BasicFunction.h"
 #include "../System/TypeTrait.h"
 #include <math.h>
 

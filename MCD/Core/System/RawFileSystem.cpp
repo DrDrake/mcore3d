@@ -25,14 +25,14 @@ static std::string getSysErrorMsg(const std::string& prefix)
 	return MCD::getErrorMessage(prefix.c_str(), errCode);
 }
 
-void throwError(const std::string& prefix, const std::wstring& pathStr)
+static void throwError(const std::string& prefix, const std::wstring& pathStr)
 {
 	throw std::runtime_error(getSysErrorMsg(
 		prefix + "\"" + wStr2Str(pathStr) + "\": "
 	));
 }
 
-void throwError(const std::string& prefix, const std::wstring& pathStr, const std::string& sufix)
+static void throwError(const std::string& prefix, const std::wstring& pathStr, const std::string& sufix)
 {
 	throw std::runtime_error(
 		prefix + "\"" + wStr2Str(pathStr) + "\"" + sufix

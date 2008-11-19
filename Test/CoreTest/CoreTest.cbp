@@ -87,6 +87,7 @@
 		<Unit filename="System\ResourceLoaderTest.cpp" />
 		<Unit filename="System\SharedPtrTest.cpp" />
 		<Unit filename="System\StrUtilityTest.cpp" />
+		<Unit filename="System\StreamTest.cpp" />
 		<Unit filename="System\TaskPoolTest.cpp" />
 		<Unit filename="System\ThreadPoolTest.cpp" />
 		<Unit filename="System\ThreadTest.cpp" />
