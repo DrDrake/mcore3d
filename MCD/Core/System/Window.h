@@ -11,7 +11,7 @@ class Event;
 /*!	Base class for classes that want to receive events.
 	For internal use only.
  */
-class MCD_NOVTABLE IWindowListener
+class MCD_ABSTRACT_CLASS IWindowListener
 {
 public:
 	virtual ~IWindowListener() {}

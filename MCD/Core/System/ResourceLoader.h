@@ -11,7 +11,7 @@ class Path;
 
 /*!	Resource loader.
  */
-class MCD_NOVTABLE IResourceLoader
+class MCD_ABSTRACT_CLASS IResourceLoader
 {
 public:
 	enum LoadingState

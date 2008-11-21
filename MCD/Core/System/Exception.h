@@ -8,7 +8,7 @@
 namespace MCD {
 
 //! An interface that will provide a wide char version of error message.
-class MCD_NOVTABLE IException
+class MCD_ABSTRACT_CLASS IException
 {
 public:
 	virtual const wchar_t* wwhat() const throw() = 0;

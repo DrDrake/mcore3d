@@ -244,7 +244,7 @@ ResourcePtr ResourceManager::load(const Path& fileId, bool block, uint priority)
 			}
 
 			// Do clean up for dead resource node
-			// It is preformed right here because a resource is shared,
+			// It is performed right here because a resource is shared,
 			// and we have no idea when the resource will be destroyed other
 			// than poll for it's weak pointer periodically
 			// To some extend, this is a garbage collector!

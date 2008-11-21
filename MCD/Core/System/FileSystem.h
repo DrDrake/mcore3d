@@ -22,11 +22,12 @@ namespace MCD {
 	Since a stream is not copyable, an auto pointer is returned from OpenRead and
 	OpenWrite. The callee of OpenRead/OpenWrite is then the owner of the stream.
  */
-class MCD_NOVTABLE IFileSystem
+class MCD_ABSTRACT_CLASS IFileSystem
 {
 public:
 	virtual ~IFileSystem() {}
 
+	//! Returns the absolute root path of this file system.
 	virtual Path getRoot() const = 0;
 
 	virtual bool setRoot(const Path& rootPath) = 0;
@@ -45,8 +46,10 @@ public:
 	//! Remove a single file or a directory recursively.
 	virtual void remove(const Path& path) const = 0;
 
+	//!	Returns a std::istream for reading, null if fail.
 	virtual std::auto_ptr<std::istream> openRead(const Path& path) const = 0;
 
+	//!	Returns a std::ostream for writing, null if fail.
 	virtual std::auto_ptr<std::ostream> openWrite(const Path& path) const = 0;
 };	// IFileSystem
 

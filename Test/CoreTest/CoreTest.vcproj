@@ -213,6 +213,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\System\FileSystemTest.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\System\IntrusivePtrTest.cpp"
 				>
 			</File>
@@ -230,10 +234,6 @@
 			</File>
 			<File
 				RelativePath=".\System\PathTest.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\System\RawFileSystemTest.cpp"
 				>
 			</File>
 			<File

@@ -15,7 +15,7 @@
 namespace MCD {
 
 //!	Common base class for Impl on different platforms.
-class MCD_NOVTABLE ImplBase
+class MCD_ABSTRACT_CLASS ImplBase
 {
 public:
 	ImplBase();

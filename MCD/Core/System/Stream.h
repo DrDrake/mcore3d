@@ -17,7 +17,6 @@ protected:
 	virtual ~IStreamProxy() {}
 
 	/*!	Setup the internal raw buffer for the proxy.
-		
 	 */
 	virtual bool setbuf(char* buffer, size_t size, size_t initDataSize=0, StreamBuf* streamBuf=nullptr) = 0;
 
@@ -41,15 +40,16 @@ protected:
 
 	/*!	
 	 */
-	virtual bool seek(size_t offset, int origin) = 0;
-
-	virtual long tellp() = 0;
+	virtual long seek(size_t offset, int origin, std::ios_base::openmode which) = 0;
 
 	//! Get the internal raw buffer pointer.
 	virtual char* rawBufPtr() = 0;
 
 	//! Get the internal raw buffer size.
 	virtual size_t rawBufSize() const = 0;
+
+	//! Get the initial readable buffer size.
+	virtual size_t initBufSize() const = 0;
 };	// IStreamProxy
 
 class MCD_CORE_API MCD_ABSTRACT_CLASS StreamProxy : public IStreamProxy
@@ -69,17 +69,18 @@ protected:
 
 	sal_override bool flush();
 
-	sal_override bool seek(size_t offset, int origin);
-
-	sal_override long tellp();
+	sal_override long seek(size_t offset, std::ios_base::seekdir origin, std::ios_base::openmode which);
 
 	sal_override char* rawBufPtr();
 
 	sal_override size_t rawBufSize() const;
 
+	sal_override size_t initBufSize() const;
+
 	StreamBuf* mStreamBuf;
 	char* mRawBufPtr;
 	size_t mRawBufSize;
+	size_t mInitBufSize;
 };	// StreamProxy
 
 class MCD_CORE_API StreamBuf : public std::basic_streambuf<char>
@@ -112,7 +113,10 @@ protected:
 	sal_override int_type pbackfail(int_type c = traits_type::eof());
 
 	sal_override pos_type seekoff(off_type offset,
-		std::ios_base::seekdir way,
+		std::ios_base::seekdir origin,
+		std::ios_base::openmode which = std::ios_base::in | std::ios_base::out);
+
+	sal_override pos_type seekpos(pos_type position,
 		std::ios_base::openmode which = std::ios_base::in | std::ios_base::out);
 
 	sal_override int sync();

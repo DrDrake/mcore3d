@@ -46,7 +46,7 @@ public:
 		The task must handle their life time, and make sure it's destruction
 		will not happen during the execution of run().
 	 */
-	class MCD_CORE_API MCD_NOVTABLE Task : public Thread::IRunnable, public MapBase<int>::Node<Task>
+	class MCD_CORE_API MCD_ABSTRACT_CLASS Task : public Thread::IRunnable, public MapBase<int>::Node<Task>
 	{
 	protected:
 		Task(int priority);
