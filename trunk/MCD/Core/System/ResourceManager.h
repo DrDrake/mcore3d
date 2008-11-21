@@ -16,7 +16,7 @@ typedef IntrusivePtr<Resource> ResourcePtr;
 
 /*!	Resource manager
  */
-class MCD_NOVTABLE IResourceManager
+class MCD_ABSTRACT_CLASS IResourceManager
 {
 protected:
 	virtual ~IResourceManager() {}
@@ -92,7 +92,7 @@ class MCD_CORE_API ResourceManager : public IResourceManager, Noncopyable
 {
 public:
 	//!	Extends this class to give ResourceManager knowledge about a particular type of resource.
-	class MCD_NOVTABLE IFactory
+	class MCD_ABSTRACT_CLASS IFactory
 	{
 	public:
 		/*!	The overrides of this function should check the path to decide the filename/extension

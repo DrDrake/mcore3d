@@ -14,7 +14,7 @@ namespace MCD {
 		3. Proper lock/unlocking of mutex inside commit() and getLoadingState().
 	See JpegLoader.cpp for a typical usage of TextureLoaderBase.
  */
-class MCD_RENDER_API MCD_NOVTABLE TextureLoaderBase : public IResourceLoader, private Noncopyable
+class MCD_RENDER_API MCD_ABSTRACT_CLASS TextureLoaderBase : public IResourceLoader, private Noncopyable
 {
 protected:
 	class LoaderBaseImpl;

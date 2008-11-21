@@ -16,7 +16,7 @@ class RenderTarget;
 	Therefore user have to create and bind the render buffer/target from scratch
 	whenever a different configuration is needed.
  */
-class MCD_NOVTABLE IRenderBuffer
+class MCD_ABSTRACT_CLASS IRenderBuffer
 {
 public:
 	virtual ~IRenderBuffer() {}
@@ -35,7 +35,7 @@ public:
 /*!	Adds the shared semantics over the IRenderBuffer.
 	The RenderBuffer may shared by among different RenderTarget.
  */
-class MCD_NOVTABLE RenderBuffer : public IRenderBuffer, private Noncopyable
+class MCD_ABSTRACT_CLASS RenderBuffer : public IRenderBuffer, private Noncopyable
 {
 protected:
 	RenderBuffer() : mRefCount(0) {}

@@ -10,6 +10,7 @@ StreamProxy::StreamProxy()
 	mStreamBuf = nullptr;
 	mRawBufPtr = nullptr;
 	mRawBufSize = 0;
+	mInitBufSize = 0;
 }
 
 bool StreamProxy::setbuf(char* buffer, size_t size, size_t initDataSize, StreamBuf* streamBuf)
@@ -21,10 +22,11 @@ bool StreamProxy::setbuf(char* buffer, size_t size, size_t initDataSize, StreamB
 	mRawBufPtr = buffer;
 	mRawBufSize = size;
 	mStreamBuf = streamBuf;
+	mInitBufSize = initDataSize;
 
 	if(streamBuf) {
 		streamBuf->pubsetbuf(buffer, size);
-		streamBuf->pbump(int(streamBuf->pbase() - streamBuf->pptr() + initDataSize));
+		streamBuf->setg(streamBuf->eback(), streamBuf->gptr(), streamBuf->eback() + initDataSize);
 	}
 
 	return true;
@@ -46,11 +48,7 @@ bool StreamProxy::flush() {
 	return true;
 }
 
-bool StreamProxy::seek(size_t, int) {
-	return false;
-}
-
-long StreamProxy::tellp() {
+long StreamProxy::seek(size_t, std::ios_base::seekdir, std::ios_base::openmode) {
 	return -1;
 }
 
@@ -62,10 +60,14 @@ size_t StreamProxy::rawBufSize() const {
 	return mRawBufSize;
 }
 
+size_t StreamProxy::initBufSize() const {
+	return mInitBufSize;
+}
+
 StreamBuf::StreamBuf(IStreamProxy& proxy)
 	: mProxy(&proxy)
 {
-	proxy.setbuf(proxy.rawBufPtr(), proxy.rawBufSize(), 0, this);
+	proxy.setbuf(proxy.rawBufPtr(), proxy.rawBufSize(), proxy.initBufSize(), this);
 }
 
 StreamBuf::~StreamBuf() {
@@ -172,7 +174,7 @@ StreamBuf::int_type StreamBuf::pbackfail(StreamBuf::int_type meta)
 
 StreamBuf::pos_type StreamBuf::seekoff(
 	StreamBuf::off_type offset,
-	ios_base::seekdir way,
+	ios_base::seekdir origin,
 	ios_base::openmode which)
 {
 	using namespace std;
@@ -184,11 +186,11 @@ StreamBuf::pos_type StreamBuf::seekoff(
 	if(which & ios_base::in)
 	{
 		{	// Transform offset base on ios_base::beg
-			if(way == ios_base::cur && !(which & ios_base::out))
+			if(origin == ios_base::cur && !(which & ios_base::out))
 				offset += off_type(gptr() - eback());
-			else if(way == ios_base::end)
+			else if(origin == ios_base::end)
 				offset += off_type(egptr() - eback());
-			else if(way != ios_base::beg)
+			else if(origin != ios_base::beg)
 				offset = badOff;
 		}
 
@@ -200,17 +202,17 @@ StreamBuf::pos_type StreamBuf::seekoff(
 				pbump(gptr() - eback());
 			}
 		} else
-			goto FSEEK;
+			return mProxy->seek(offset, origin, which);
 	}
 	else if(which & ios_base::out)
 	{
 		// NOTE: We use egptr() as the high water mark of the put area
 		{	// Transform offset base on ios_base::beg
-			if(way == ios_base::cur)
+			if(origin == ios_base::cur)
 				offset += off_type(pptr() - pbase());
-			else if(way == ios_base::end)
+			else if(origin == ios_base::end)
 				offset += off_type(egptr() - eback());
-			else if(way != ios_base::beg)
+			else if(origin != ios_base::beg)
 				offset = badOff;
 		}
 
@@ -219,25 +221,20 @@ StreamBuf::pos_type StreamBuf::seekoff(
 
 			MCD_ASSERT(!(which & ios_base::in));
 		} else
-			goto FSEEK;
+			return mProxy->seek(offset, origin, which);
 	}
 	else
-		goto FSEEK;
-
-	return offset;
-
-FSEEK:
-	int way_ = way;
-	switch(way) {
-		case ios_base::cur: way_ = SEEK_CUR; break;
-		case ios_base::beg: way_ = SEEK_SET; break;
-		case ios_base::end: way_ = SEEK_END; break;
-		default: break;
+	{
+		MCD_ASSERT(false && "incorrect parameter 'which'");
+		return badOff;
 	}
 
-	bool success = mProxy->seek(offset, way_);
-	long pos = mProxy->tellp();
-	return pos == -1 || !success ? badOff : pos;
+	return offset;
+}
+
+StreamBuf::pos_type StreamBuf::seekpos(pos_type position, ios_base::openmode which)
+{
+	return seekoff(position, ios_base::cur, which);
 }
 
 int StreamBuf::sync()

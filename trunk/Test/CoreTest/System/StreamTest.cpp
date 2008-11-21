@@ -3,10 +3,10 @@
 #include <fstream>
 #include <sstream>
 #include <iterator>
-//#include <stdlib.h>
 
 using namespace MCD;
 
+//! A class for applying varous operation randomly on 2 streams for comparison.
 class StreamTester
 {
 public:
@@ -25,7 +25,9 @@ public:
 		mTestStream(testStream)
 	{}
 
-	// Return code: 0 - ok, 1 - stream mis-match, 2 both streams terminated
+	/*!	Return code: 0 - ok, 1 - both streams fail, negative number for the
+		corresponding test performed which the 2 streams give different results.
+	 */
 	int singleTest()
 	{
 		static const size_t maxTestCase = 7;
@@ -103,7 +105,7 @@ public:
 			break;
 		}
 
-		bool refFail = mOStream ? mOStream->fail() : mIStream->fail();
+		bool refFail = mOStream ? mOStream->fail() : (mIStream ? mIStream->fail() : true);
 		bool testFail = mTestStream.fail();
 
 		// Clear all fail bits
@@ -165,6 +167,10 @@ protected:
 		return false;
 	}
 
+	size_t initBufSize() const {
+		return 0;
+	}
+
 public:
 	FileStreamProxy(const char* fileName, const char* openMode="w+") {
 		mFile = fopen(fileName, openMode);
@@ -187,13 +193,18 @@ public:
 		return ::fflush(mFile) != EOF;
 	}
 
-	sal_override bool seek(size_t offset, int origin) {
-		// Reference: http://www.cplusplus.com/reference/clibrary/cstdio/fseek.html
-		return ::fseek(mFile, offset, origin) == 0;
-	}
+	sal_override long seek(size_t offset, std::ios_base::seekdir origin, std::ios_base::openmode) {
+		int ori = origin;
+		switch(origin) {
+			case std::ios_base::cur: ori = SEEK_CUR; break;
+			case std::ios_base::beg: ori = SEEK_SET; break;
+			case std::ios_base::end: ori = SEEK_END; break;
+			default: break;
+		}
 
-	sal_override long tellp() {
-		return ::ftell(mFile);
+		// Reference: http://www.cplusplus.com/reference/clibrary/cstdio/fseek.html
+		bool ok = ::fseek(mFile, offset, ori) == 0;
+		return ok ? ::ftell(mFile) : -1;
 	}
 
 	sal_override char* rawBufPtr() {
@@ -319,6 +330,8 @@ public:
 		memcpy(newBuf + oldSize, data, size);
 
 		setbuf(newBuf, newSize, oldSize + size, mStreamBuf);
+		mStreamBuf->pubseekoff(size, std::ios_base::cur, std::ios_base::out);
+
 		return size;
 	}
 

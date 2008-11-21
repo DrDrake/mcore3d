@@ -36,7 +36,7 @@ class MCD_CORE_API Thread : Noncopyable
 {
 public:
 	//! Sub-classing IRunnable to do the real work for Thread.
-	class MCD_NOVTABLE IRunnable
+	class MCD_ABSTRACT_CLASS IRunnable
 	{
 	public:
 		virtual ~IRunnable() {}

@@ -6,7 +6,9 @@
 class DefaultResourceManager : public MCD::ResourceManager
 {
 public:
-	DefaultResourceManager(const MCD::Path& rootPath);
+	explicit DefaultResourceManager(const MCD::Path& rootPath);
+
+	explicit DefaultResourceManager(MCD::IFileSystem& fileSystem);
 
 	/*!	
 		\return
@@ -15,6 +17,9 @@ public:
 			<0 - The resource failed to load.
 	 */
 	virtual int processLoadingEvents();
+
+protected:
+	void setupFactories();
 };	// DefaultResourceManager
 
 #endif	// __MCD_RENDERTEST_DEFAULTRESOURCEMANAGER__

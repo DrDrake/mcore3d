@@ -11,14 +11,13 @@ using namespace MCD;
 DefaultResourceManager::DefaultResourceManager(const Path& rootPath)
 	: ResourceManager(*(new RawFileSystem(rootPath)))
 {
-	addFactory(new BitmapLoaderFactory);
-	addFactory(new DdsLoaderFactory);
-	addFactory(new JpegLoaderFactory);
-	addFactory(new Max3dsLoaderFactory(*this));
-	addFactory(new PixelShaderLoaderFactory);
-	addFactory(new PngLoaderFactory);
-	addFactory(new TgaLoaderFactory);
-	addFactory(new VertexShaderLoaderFactory);
+	setupFactories();
+}
+
+DefaultResourceManager::DefaultResourceManager(IFileSystem& fileSystem)
+	: ResourceManager(fileSystem)
+{
+	setupFactories();
 }
 
 int DefaultResourceManager::processLoadingEvents()
@@ -37,4 +36,16 @@ int DefaultResourceManager::processLoadingEvents()
 	}
 
 	return 0;
+}
+
+void DefaultResourceManager::setupFactories()
+{
+	addFactory(new BitmapLoaderFactory);
+	addFactory(new DdsLoaderFactory);
+	addFactory(new JpegLoaderFactory);
+	addFactory(new Max3dsLoaderFactory(*this));
+	addFactory(new PixelShaderLoaderFactory);
+	addFactory(new PngLoaderFactory);
+	addFactory(new TgaLoaderFactory);
+	addFactory(new VertexShaderLoaderFactory);
 }
