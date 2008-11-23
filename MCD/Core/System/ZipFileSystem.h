@@ -9,6 +9,11 @@ namespace MCD {
 /*!	A zip file system.
 	It only support reading but not writing.
 
+	\note Since we use an incremental approach to unzip the data, user will not
+		able to perform seek operation on the stream. If such feature is
+		required, we can add an option such that the whole data are
+		unzipped to a single memory buffer.
+
 	\note Internal data structure is shared among opened streams, so feel free
 		to destroy the ZipFileSystem or invoke setRoot() while you are still
 		using the opened streams.
@@ -48,8 +53,8 @@ public:
 	sal_override void remove(const Path& path) const;
 
 	/*!	Returns a std::istream for reading, null if fail.
-		The stream will perform a full unzip operation on the first read/seek request,
-		no this openRead() funciton is non-blocking.
+		The stream will perform a full unzip operation on demand,
+		so this openRead() function is non-blocking.
 	 */
 	sal_override std::auto_ptr<std::istream> openRead(const Path& path) const;
 

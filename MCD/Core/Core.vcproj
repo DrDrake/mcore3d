@@ -243,6 +243,10 @@
 					>
 				</File>
 				<File
+					RelativePath=".\System\IOStream.h"
+					>
+				</File>
+				<File
 					RelativePath=".\System\LinkList.h"
 					>
 				</File>
@@ -384,6 +388,10 @@
 					>
 				</File>
 				<File
+					RelativePath=".\System\IOStream.cpp"
+					>
+				</File>
+				<File
 					RelativePath=".\System\LinkList.cpp"
 					>
 				</File>
@@ -453,6 +461,10 @@
 				</File>
 				<File
 					RelativePath=".\System\ZipFileSystem.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\System\ZipFileSystem.inc"
 					>
 				</File>
 			</Filter>

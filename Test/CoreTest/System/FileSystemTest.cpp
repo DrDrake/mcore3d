@@ -1,6 +1,5 @@
 #include "Pch.h"
 #include "../../../MCD/Core/System/RawFileSystem.h"
-#include "../../../MCD/Core/System/SevenZipFileSystem.h"
 #include "../../../MCD/Core/System/ZipFileSystem.h"
 #include <stdexcept>
 
