@@ -32,8 +32,7 @@ static void throwError(const std::string& prefix, const std::wstring& pathStr, c
 class ZipFileSystem::Impl
 {
 	/*!	This stream proxy will perform a lazy unzip, that means the actual unzip
-		operation is done on the first call of read() or seek(). Once unzipped,
-		the WHOLE unzipped file is right inside the memory buffer.
+		operation is done during call of read().
 	 */
 	class ZipStreamProxy : public StreamProxy
 	{
@@ -41,7 +40,7 @@ class ZipFileSystem::Impl
 
 	public:
 		ZipStreamProxy(const ZIPENTRY& file, const SharedPtr<ZipFileSystem::Impl>& impl)
-			: mFile(file), mImpl(impl)
+			: mFile(file), mUnzippedBytes(0), mImpl(impl)
 		{
 		}
 
@@ -51,37 +50,39 @@ class ZipFileSystem::Impl
 			::free(rawBufPtr());
 		}
 
-		size_t doUnzipIfNeeded()
+		size_t doUnzip()
 		{
-			// Make sure we only unzip once
-			if(rawBufPtr())
-				return 0;
-
-			// Get the uncompressed file size
-			long fileSize = mFile.unc_size;
-			if(fileSize <= 0)
-				return 0;
-
-			char* buffer = (char*)::malloc(fileSize);
-			if(!buffer)
-				return 0;
+			static const size_t cBufSize = 512;
+			if(!rawBufPtr()) {
+				char* buffer = (char*)::malloc(cBufSize);
+				if(!buffer)
+					return 0;
+				setbuf(buffer, cBufSize, cBufSize, mStreamBuf);
+			}
 
 			MCD_ASSERT(mImpl->mZipHandle);
-			if(UnzipItem(mImpl->mZipHandle, mFile.index, buffer, fileSize) != ZR_OK)
-				return 0;
+			ZRESULT ret = UnzipItem(mImpl->mZipHandle, mFile.index, rawBufPtr(), cBufSize);
 
-			setbuf(buffer, fileSize, fileSize, mStreamBuf);
-			return fileSize;
+			size_t actualRead;
+
+			if(ret == ZR_MORE)
+				actualRead = cBufSize;
+			else if(ret == ZR_OK) {
+				actualRead = mFile.unc_size - mUnzippedBytes;
+				setbuf(rawBufPtr(), cBufSize, actualRead, mStreamBuf);
+			}
+			else
+				actualRead = 0;
+
+			mUnzippedBytes += actualRead;
+			mStreamBuf->pubseekoff(0, std::ios_base::beg, std::ios_base::in);
+
+			return actualRead;
 		}
 
-		/*	This function should only be invoked in 2 cases:
-			1) The unzip operation is not carried out yet, so the buffer is empty and
-				under flow occur.
-			2) End of stream is reached
-		 */
 		sal_override size_t read(char* data, size_t size)
 		{
-			size_t unzipedSize = doUnzipIfNeeded();
+			size_t unzipedSize = doUnzip();
 			if(size > unzipedSize)
 				size = unzipedSize;
 
@@ -94,6 +95,7 @@ class ZipFileSystem::Impl
 		}
 
 		const ZIPENTRY& mFile;
+		size_t mUnzippedBytes;	//! How much we have actually unzipped
 		// Hold a reference to ZipFileSystem::Impl so that it won't destroyed too soon
 		const SharedPtr<ZipFileSystem::Impl> mImpl;
 	};	// ZipStreamProxy
