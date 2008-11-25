@@ -25,7 +25,8 @@ TEST(WStr2StrTest)
 	{	// Narrow string to wide string
 		std::wstring result;
 		for(size_t i=0; i<sizeof(data)/sizeof(S); ++i) {
-			CHECK(str2WStr(data[i].narrowStr, result));
+			size_t len = strlen(data[i].narrowStr);
+			CHECK(str2WStr(data[i].narrowStr, len, result));
 			CHECK_EQUAL(data[i].wideStr, result);
 			result = str2WStr(std::string(data[i].narrowStr));
 			CHECK_EQUAL(data[i].wideStr, result);
@@ -41,6 +42,31 @@ TEST(WStr2StrTest)
 			CHECK_EQUAL(data[i].narrowStr, result);
 		}
 	}
+}
+
+TEST(Utf8Test)
+{
+	// My name Lung Man Tat in Chinese Traditional
+	const byte_t cMyNameUtf8[] = { 0xE9, 0xBE, 0x8D, 0xE6, 0x96, 0x87, 0xE9, 0x81, 0x94, 0 };
+
+	// TODO: Take care of endian issue
+	const byte_t cMyNameUtf16[] = { 0x8D, 0x9F, 0x87, 0x65, 0x54, 0x90, 0, 0 };
+
+	std::string aExpected((const char*)cMyNameUtf8);
+	std::wstring wExpected((const wchar_t*)cMyNameUtf16);
+
+	std::string as;
+	std::wstring ws;
+
+	CHECK(utf82WStr(aExpected, ws));
+	CHECK_EQUAL(wExpected, ws);
+
+	CHECK(wStr2Utf8(wExpected, as));
+	CHECK_EQUAL(aExpected, as);
+
+	// Converting empty string
+	CHECK(utf82WStr(std::string(), ws));
+	CHECK(wStr2Utf8(std::wstring(), as));
 }
 
 TEST(NumberToStrTest)

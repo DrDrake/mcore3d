@@ -1,5 +1,6 @@
 #include "Pch.h"
 #include "ZipFileSystem.h"
+#include "Log.h"
 #include "Stream.h"
 #include "StrUtility.h"
 #include <fstream>
@@ -126,8 +127,12 @@ public:
 				continue;
 
 			std::wstring filePath;
-			if(!str2WStr(ze.name, filePath) || filePath.empty())
+
+			// We assume the file name stored in the zip file use utf-8 encoding
+			if(!utf82WStr(ze.name, MAX_PATH, filePath) || filePath.empty()) {
+				Log::format(Log::Warn, L"The zip file: \"%s\" contains a file path that is not encoded in UTF-8", mZipFilePath.getString().c_str());
 				continue;
+			}
 
 			// Remove trailling '/' if any
 			if(filePath[filePath.size() - 1] == L'/')
@@ -180,6 +185,7 @@ public:
 	HZIP mZipHandle;
 	typedef std::map<std::wstring, ZIPENTRY> FileMap;
 	FileMap mFileMap;
+	Path mZipFilePath;
 };	// Impl
 
 ZipFileSystem::ZipFileSystem(const Path& zipFilePath)
@@ -207,7 +213,7 @@ bool ZipFileSystem::setRoot(const Path& zipFilePath)
 		mImpl = new Impl;
 		bool ok = mImpl->init(wStr2Str(zipFilePath.getString()).c_str());
 		if(ok)
-			mZipFilePath = absolutePath;
+			mImpl->mZipFilePath = mZipFilePath = absolutePath;
 		return ok;
 	}
 
