@@ -243,10 +243,6 @@
 					>
 				</File>
 				<File
-					RelativePath=".\System\IOStream.h"
-					>
-				</File>
-				<File
 					RelativePath=".\System\LinkList.h"
 					>
 				</File>
@@ -385,10 +381,6 @@
 				</File>
 				<File
 					RelativePath=".\System\Exception.cpp"
-					>
-				</File>
-				<File
-					RelativePath=".\System\IOStream.cpp"
 					>
 				</File>
 				<File

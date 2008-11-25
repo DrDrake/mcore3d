@@ -14,30 +14,25 @@ namespace MCD {
 
 static const size_t cError = size_t(-1);
 
-bool str2WStr(sal_in_z sal_notnull const char* narrowStr, std::wstring& wideStr)
+bool str2WStr(sal_in_z sal_notnull const char* narrowStr, size_t maxCount, std::wstring& wideStr)
 {
 #ifdef MCD_CYGWIN
 	// Count also '\0'
-	size_t count = ::MultiByteToWideChar(CP_ACP, 0, narrowStr, -1, nullptr, 0);
+	size_t count = ::MultiByteToWideChar(CP_ACP, 0, narrowStr, maxCount, nullptr, 0);
 	if(count <= 1)
 		wideStr.clear();
 	else {
 		wideStr.resize(count-1);
-		size_t converted = ::MultiByteToWideChar(CP_ACP, 0, narrowStr, -1, (LPWSTR)&wideStr[0], count);
+		if(wideStr.size() != count-1)
+			return false;
+		size_t converted = ::MultiByteToWideChar(CP_ACP, 0, narrowStr, maxCount, (LPWSTR)&wideStr[0], count);
 		if(converted == 0)
 			return false;
 		MCD_ASSERT(converted == count);
 	}
 #else
-#ifdef MCD_VC
-#	pragma warning(push)
-#	pragma warning (disable : 6309 6387)
-#endif
 	// Get the required character count of the destination string (\0 not included)
-	size_t count = ::mbstowcs(nullptr, narrowStr, INT_MAX);
-#ifdef MCD_VC
-#	pragma warning(pop)
-#endif
+	size_t count = ::mbstowcs(nullptr, narrowStr, maxCount);
 
 	// Check for error
 	if(count == cError)
@@ -46,7 +41,9 @@ bool str2WStr(sal_in_z sal_notnull const char* narrowStr, std::wstring& wideStr)
 		wideStr.clear();
 	else {
 		wideStr.resize(count);
-		// Warning: The underlying pointer of wideStr is being used
+		if(wideStr.size() != count)
+			return false;
+
 		size_t converted = ::mbstowcs(&(wideStr.at(0)), narrowStr, count+1);
 		if(converted == 0 || converted == cError)
 			return false;
@@ -56,17 +53,15 @@ bool str2WStr(sal_in_z sal_notnull const char* narrowStr, std::wstring& wideStr)
 	return true;
 }
 
-bool wStr2Str(sal_in_z sal_notnull const wchar_t* wideStr, std::string& narrowStr)
+bool str2WStr(const std::string& narrowStr, std::wstring& wideStr)
 {
-#ifdef MCD_VC
-#	pragma warning(push)
-#	pragma warning (disable : 6309 6387)
-#endif
+	return str2WStr(narrowStr.c_str(), narrowStr.size(), wideStr);
+}
+
+bool wStr2Str(sal_in_z sal_notnull const wchar_t* wideStr, size_t maxCount, std::string& narrowStr)
+{
 	// Get the required character count of the destination string (\0 not included)
-	size_t count = ::wcstombs(nullptr, wideStr, INT_MAX);
-#ifdef MCD_VC
-#	pragma warning(pop)
-#endif
+	size_t count = ::wcstombs(nullptr, wideStr, maxCount);
 
 	// Check for error
 	if(count == cError)
@@ -85,10 +80,15 @@ bool wStr2Str(sal_in_z sal_notnull const wchar_t* wideStr, std::string& narrowSt
 	return true;
 }
 
+bool wStr2Str(const std::wstring& wideStr, std::string& narrowStr)
+{
+	return wStr2Str(wideStr.c_str(), wideStr.size(), narrowStr);
+}
+
 std::wstring str2WStr(const std::string& narrowStr)
 {
 	std::wstring wideStr;
-	bool ok = str2WStr(narrowStr.c_str(), wideStr);
+	bool ok = str2WStr(narrowStr, wideStr);
 	if(!ok)
 		throw std::runtime_error(
 			MCD::getErrorMessage("Fail to convert narrow string to wide string: ", MCD::getLastError())
@@ -99,12 +99,176 @@ std::wstring str2WStr(const std::string& narrowStr)
 std::string wStr2Str(const std::wstring& wideStr)
 {
 	std::string narrowStr;
-	bool ok = wStr2Str(wideStr.c_str(), narrowStr);
+	bool ok = wStr2Str(wideStr, narrowStr);
 	if(!ok)
 		throw std::runtime_error(
 			MCD::getErrorMessage("Fail to convert wide string to narrow string: ", MCD::getLastError())
 		);
 	return narrowStr;
+}
+
+// Reference: http://en.wikipedia.org/wiki/Utf8
+static const byte_t cUtf8Limits[] = {
+	0xC0,	// Start of a 2-byte sequence
+	0xE0,	// Start of a 3-byte sequence
+	0xF0,	// Start of a 4-byte sequence
+	0xF8,	// Start of a 5-byte sequence
+	0xFC,	// Start of a 6-byte sequence
+	0xFE	// Invalid: not defined by original UTF-8 specification
+};
+
+// Reference: from 7zip LZMA sdk
+static bool utf8ToUtf16(wchar_t* dest, size_t& destLen, const char* src, size_t srcLen)
+{
+	size_t destPos = 0, srcPos = 0;
+
+	while(true)
+	{
+		byte_t c;	// Note that byte_t should be unsigned
+		size_t numAdds;
+
+		if(srcPos == srcLen || src[srcPos] == '\0') {
+			destLen = destPos;
+			return true;
+		}
+		c = src[srcPos++];
+
+		if(c < 0x80) {	// 0-127, US-ASCII (single byte)
+			if(dest)
+				dest[destPos] = (wchar_t)c;
+			++destPos;
+			continue;
+		}
+
+		if(c < 0xC0)	// The first octet should be 0-191
+			break;
+
+		for(numAdds = 1; numAdds < 5; ++numAdds)
+			if(c < cUtf8Limits[numAdds])
+				break;
+		uint32_t value = c - cUtf8Limits[numAdds - 1];
+
+		do {
+			byte_t c2;
+			if (srcPos == srcLen)
+				break;
+			c2 = src[srcPos++];
+			if(c2 < 0x80 || c2 >= 0xC0)
+				break;
+			value <<= 6;
+			value |= (c2 - 0x80);
+		} while(--numAdds != 0);
+
+		if(value < 0x10000) {
+			if(dest)
+				dest[destPos] = (wchar_t)value;
+			++destPos;
+		}
+		else {
+			value -= 0x10000;
+			if(value >= 0x100000)
+				break;
+			if(dest) {
+				dest[destPos + 0] = (wchar_t)(0xD800 + (value >> 10));
+				dest[destPos + 1] = (wchar_t)(0xDC00 + (value & 0x3FF));
+			}
+			destPos += 2;
+		}
+	}
+
+	destLen = destPos;
+	return false;
+}
+
+bool utf82WStr(const char* utf8Str, size_t maxCount, std::wstring& wideStr)
+{
+	size_t destLen = 0;
+
+	// Get the length of the wide string
+	if(!utf8ToUtf16(nullptr, destLen, utf8Str, maxCount))
+		return false;
+
+	wideStr.resize(destLen);
+	if(wideStr.size() != destLen)
+		return false;
+
+	return utf8ToUtf16(const_cast<wchar_t*>(wideStr.c_str()), destLen, utf8Str, maxCount);
+}
+
+bool utf82WStr(const std::string& utf8Str, std::wstring& wideStr)
+{
+	return utf82WStr(utf8Str.c_str(), utf8Str.size(), wideStr);
+}
+
+static bool utf16ToUtf8(char* dest, size_t& destLen, const wchar_t* src, size_t srcLen)
+{
+	size_t destPos = 0, srcPos = 0;
+
+	while(true)
+	{
+		uint32_t value;
+		size_t numAdds;
+
+		if(srcPos == srcLen || src[srcPos] == L'\0') {
+			destLen = destPos;
+			return true;
+		}
+		value = src[srcPos++];
+
+		if(value < 0x80) {	// 0-127, US-ASCII (single byte)
+			if(dest)
+				dest[destPos] = char(value);
+			++destPos;
+			continue;
+		}
+
+		if(value >= 0xD800 && value < 0xE000) {
+			if(value >= 0xDC00 || srcPos == srcLen)
+				break;
+			uint32_t c2 = src[srcPos++];
+			if(c2 < 0xDC00 || c2 >= 0xE000)
+				break;
+			value = ((value - 0xD800) << 10) | (c2 - 0xDC00);
+		}
+
+		for(numAdds = 1; numAdds < 5; ++numAdds)
+			if(value < (uint32_t(1) << (numAdds * 5 + 6)))
+				break;
+
+		if(dest)
+			dest[destPos] = char(cUtf8Limits[numAdds - 1] + (value >> (6 * numAdds)));
+		++destPos;
+
+		do {
+			--numAdds;
+			if(dest)
+				dest[destPos] = char(0x80 + ((value >> (6 * numAdds)) & 0x3F));
+			++destPos;
+		} while(numAdds != 0);
+	}
+
+	destLen = destPos;
+	return false;
+}
+
+bool wStr2Utf8(const wchar_t* wideStr, size_t maxCount, std::string& utf8Str)
+{
+	size_t destLen = 0;
+
+	// Get the length of the utf-8 string
+	if(!utf16ToUtf8(nullptr, destLen, wideStr, maxCount))
+		return false;
+
+	utf8Str.resize(destLen);
+	if(utf8Str.size() != destLen)
+		return false;
+
+	return utf16ToUtf8(const_cast<char*>(utf8Str.c_str()), destLen, wideStr, maxCount);
+}
+
+bool wStr2Utf8(const std::wstring& wideStr, std::string& utf8Str)
+{
+	return wStr2Utf8(wideStr.c_str(), wideStr.size(), utf8Str);
 }
 
 std::string int2Str(int number)

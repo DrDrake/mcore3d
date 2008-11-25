@@ -62,7 +62,7 @@ TEST(ZipFileSystemTest)
 	CHECK(fs.isDirectory(L"./welcome"));
 	CHECK_THROW(fs.isDirectory(L"./__not_exist__"), std::runtime_error);
 
-	CHECK_EQUAL(5462u, fs.getSize(L"7zip_pad.xml"));
+	CHECK_EQUAL(112, fs.getSize(L"Pch.h"));
 
 	// Open file
 	{	std::auto_ptr<std::istream> is = fs.openRead(L"welcome/hello.txt");
@@ -77,7 +77,7 @@ TEST(ZipFileSystemTest)
 	}
 
 	// Check the last write time
-	CHECK(fs.getLastWriteTime(L"7zip_pad.xml") > 0);
+	CHECK(fs.getLastWriteTime(L"Pch.h") > 0);
 
 	// Set a new root which not exist
 	CHECK(!fs.setRoot(L"__not_exist__"));

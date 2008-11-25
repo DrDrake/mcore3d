@@ -1009,6 +1009,7 @@ unzFile unzOpenInternal(LUFILE *fin)
   fin->initial_offset = 0; // since the zipfile itself is expected to handle this
 
   unz_s *s = (unz_s*)zmalloc(sizeof(unz_s));
+  if(!s) return NULL;
   *s=us;
   unzGoToFirstFile((unzFile)s);
   return (unzFile)s;
@@ -1549,8 +1550,8 @@ int unzReadCurrentFile  (unzFile file, voidp buf, unsigned len, bool *reached_eo
       pfile_in_zip_read_info->stream.avail_in = (uInt)uReadThis;
       //
       if (pfile_in_zip_read_info->encrypted)
-      { char *buf = (char*)pfile_in_zip_read_info->stream.next_in;
-        for (unsigned int i=0; i<uReadThis; i++) buf[i]=zdecode(pfile_in_zip_read_info->keys,buf[i]);
+      { char *buf2 = (char*)pfile_in_zip_read_info->stream.next_in;
+        for (unsigned int i=0; i<uReadThis; i++) buf2[i]=zdecode(pfile_in_zip_read_info->keys,buf2[i]);
       }
     }
 
@@ -1792,7 +1793,7 @@ ZRESULT TUnzip::Open(void *z,unsigned int len,DWORD flags)
 { if (uf!=0 || currentfile!=-1) return ZR_NOTINITED;
   //
 #ifdef ZIP_STD
-  getcwd(rootdir,MAX_PATH-1);
+  if(!getcwd(rootdir,MAX_PATH-1)) return ZR_NOFILE;
 #else
 #ifdef GetCurrentDirectory
   GetCurrentDirectory(MAX_PATH-1,rootdir);

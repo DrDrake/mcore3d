@@ -158,6 +158,8 @@ bool compareStream(std::istream& s1, std::istream& s2)
 // Similar to stdiobuf: http://www.digitalmars.com/rtl/iostream.html#stdiobuf
 class FileStreamProxy : public IStreamProxy
 {
+	friend class std::auto_ptr<FileStreamProxy>;
+
 protected:
 	sal_override ~FileStreamProxy() {
 		::fclose(mFile);
@@ -224,7 +226,9 @@ TEST(File_StreamTest)
 	static const char testFile[] = "test.txt";
 
 	{	// Perform write
-		Stream os(*(new FileStreamProxy(testFile, "w")));
+		std::auto_ptr<FileStreamProxy> p(new FileStreamProxy(testFile, "w"));
+		Stream os(*p);
+		p.release();
 		std::ofstream ofs(referenceFile);
 
 		StreamTester tester(ofs, os);
@@ -236,7 +240,9 @@ TEST(File_StreamTest)
 
 	{	// Perform read
 		// NOTE: Gcc cygwin have problems in putback and seek
-		Stream is(*(new FileStreamProxy(testFile, "r")));
+		std::auto_ptr<FileStreamProxy> p(new FileStreamProxy(testFile, "r"));
+		Stream is(*p);
+		p.release();
 		std::ifstream ifs(referenceFile);
 
 		StreamTester tester(ifs, is);
@@ -276,10 +282,11 @@ public:
 
 TEST(FixBuffer_StreamTest)
 {
-	char buffer[65535];
+	std::string buf;
+	buf.resize(65536);
 
 	for(size_t i=0; i<100; ++i) {
-		Stream s(*(new FixBufferStreamProxy(buffer, sizeof(buffer))));
+		Stream s(*(new FixBufferStreamProxy(const_cast<char*>(buf.c_str()), buf.size())));
 		std::stringstream s2;
 
 		s2 << "g";
