@@ -23,7 +23,7 @@ const char* RuntimeError::what() const throw()
 	if(!mAMessage.empty())
 		return mAMessage.c_str();
 
-	if(wStr2Str(mWMessage.c_str(), mAMessage))
+	if(wStrToStr(mWMessage.c_str(), mAMessage))
 		return mAMessage.c_str();
 
 	// Error message cannot be displayed
@@ -35,7 +35,7 @@ const wchar_t* RuntimeError::wwhat() const throw()
 	if(!mWMessage.empty())
 		return mWMessage.c_str();
 
-	if(str2WStr(mAMessage, mWMessage))
+	if(strToWStr(mAMessage, mWMessage))
 		return mWMessage.c_str();
 
 	// Error message cannot be displayed

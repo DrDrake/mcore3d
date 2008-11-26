@@ -215,7 +215,7 @@ Path Path::getCurrentPath()
 	MCD_STACKFREE(buf);
 	return tmp.normalize();
 #else
-	// For other system we assume it have a UTF-8 locale so WStr2Str will work as expected
+	// For other system we assume it have a UTF-8 locale so wStrToStr will work as expected
 
 	char* buffer = getcwd( nullptr, 0);
 
@@ -223,7 +223,7 @@ Path Path::getCurrentPath()
 		return Path();
 
 	Path ret;
-	if(str2WStr(buffer, ret.mStr))
+	if(strToWStr(buffer, ret.mStr))
 		return ret.normalize();
 	else
 		return Path();
@@ -235,10 +235,10 @@ void Path::setCurrentPath(const Path& path)
 #ifdef MCD_VC
 	if(::SetCurrentDirectoryW(path.getString().c_str()) == false) {
 		std::string narrowStr;
-		MCD_VERIFY(wStr2Str(path.getString().c_str(), narrowStr));
+		MCD_VERIFY(wStrToStr(path.getString().c_str(), narrowStr));
 #else
 	std::string narrowStr;
-	MCD_VERIFY(wStr2Str(path.getString().c_str(), narrowStr));
+	MCD_VERIFY(wStrToStr(path.getString().c_str(), narrowStr));
 	if(chdir(narrowStr.c_str()) != 0) {
 #endif
 		throw std::runtime_error(

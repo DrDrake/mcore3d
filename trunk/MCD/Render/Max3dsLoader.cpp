@@ -404,7 +404,6 @@ IResourceLoader::LoadingState Max3dsLoader::Impl::load(std::istream* is, const P
 					matrix.m03 = -matrix.m03;
 
 					matrix = (inv * matrix);
-					matrix.transpose(matrix);
 
 					size_t vertexCount = 0;
 					Vec3f* vertex = reinterpret_cast<Vec3f*>(currentMeshBuilder->acquireBufferPointer(Mesh::Position, &vertexCount));
@@ -682,7 +681,7 @@ size_t Max3dsLoader::Impl::readString(std::wstring& str)
 		++i;
 	} while(c != '\0' && i < maxLength);
 
-	str = str2WStr(objectName);
+	str = strToWStr(objectName);
 
 	// Returns how much is read from the stream
 	return i;

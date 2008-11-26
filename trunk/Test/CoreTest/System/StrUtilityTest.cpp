@@ -3,7 +3,7 @@
 
 using namespace MCD;
 
-TEST(WStr2StrTest)
+TEST(wStrToStrTest)
 {
 	struct S {
 		const char* narrowStr;
@@ -26,9 +26,9 @@ TEST(WStr2StrTest)
 		std::wstring result;
 		for(size_t i=0; i<sizeof(data)/sizeof(S); ++i) {
 			size_t len = strlen(data[i].narrowStr);
-			CHECK(str2WStr(data[i].narrowStr, len, result));
+			CHECK(strToWStr(data[i].narrowStr, len, result));
 			CHECK_EQUAL(data[i].wideStr, result);
-			result = str2WStr(std::string(data[i].narrowStr));
+			result = strToWStr(std::string(data[i].narrowStr));
 			CHECK_EQUAL(data[i].wideStr, result);
 		}
 	}
@@ -36,9 +36,9 @@ TEST(WStr2StrTest)
 	{	// Wide string to narrow string
 		std::string result;
 		for(size_t i=0; i<sizeof(data)/sizeof(S); ++i) {
-			CHECK(wStr2Str(data[i].wideStr, result));
+			CHECK(wStrToStr(data[i].wideStr, result));
 			CHECK_EQUAL(data[i].narrowStr, result);
-			result = wStr2Str(std::wstring(data[i].wideStr));
+			result = wStrToStr(std::wstring(data[i].wideStr));
 			CHECK_EQUAL(data[i].narrowStr, result);
 		}
 	}
@@ -58,15 +58,15 @@ TEST(Utf8Test)
 	std::string as;
 	std::wstring ws;
 
-	CHECK(utf82WStr(aExpected, ws));
+	CHECK(utf8ToWStr(aExpected, ws));
 	CHECK_EQUAL(wExpected, ws);
 
-	CHECK(wStr2Utf8(wExpected, as));
+	CHECK(wStrToUtf8(wExpected, as));
 	CHECK_EQUAL(aExpected, as);
 
 	// Converting empty string
-	CHECK(utf82WStr(std::string(), ws));
-	CHECK(wStr2Utf8(std::wstring(), as));
+	CHECK(utf8ToWStr(std::string(), ws));
+	CHECK(wStrToUtf8(std::wstring(), as));
 }
 
 TEST(NumberToStrTest)

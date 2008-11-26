@@ -28,14 +28,14 @@ static std::string getSysErrorMsg(const std::string& prefix)
 static void throwError(const std::string& prefix, const std::wstring& pathStr)
 {
 	throw std::runtime_error(getSysErrorMsg(
-		prefix + "\"" + wStr2Str(pathStr) + "\": "
+		prefix + "\"" + wStrToStr(pathStr) + "\": "
 	));
 }
 
 static void throwError(const std::string& prefix, const std::wstring& pathStr, const std::string& sufix)
 {
 	throw std::runtime_error(
-		prefix + "\"" + wStr2Str(pathStr) + "\"" + sufix
+		prefix + "\"" + wStrToStr(pathStr) + "\"" + sufix
 	);
 }
 
@@ -73,7 +73,7 @@ bool isExistsImpl(sal_in_z sal_notnull const wchar_t* path)
 #else
 	struct stat pathStat;
 	std::string narrowStr;
-	MCD_VERIFY(wStr2Str(path, narrowStr));
+	MCD_VERIFY(wStrToStr(path, narrowStr));
 	if(::stat(narrowStr.c_str(), &pathStat) != 0) {
 		// stat failed because the path does not exist
 		// for any other error we assume the file does exist and fall through,
@@ -96,7 +96,7 @@ bool isDirectoryImpl(sal_in_z sal_notnull const wchar_t* path)
 #else
 	struct stat pathStat;
 	std::string narrowStr;
-	MCD_VERIFY(wStr2Str(path, narrowStr));
+	MCD_VERIFY(wStrToStr(path, narrowStr));
 	if(::stat(narrowStr.c_str(), &pathStat) != 0)
 		throwError("Error getting directory for ", path);
 	return S_ISDIR(pathStat.st_mode);
@@ -163,7 +163,7 @@ uint64_t RawFileSystem::getSize(const Path& path) const
 #else
 	struct stat pathStat;
 	std::string narrowStr;
-	MCD_VERIFY(wStr2Str(absolutePath.c_str(), narrowStr));
+	MCD_VERIFY(wStrToStr(absolutePath.c_str(), narrowStr));
 	if(::stat(narrowStr.c_str(), &pathStat) != 0)
 		throwError("Error getting file size for ", absolutePath);
 	if(S_ISDIR(pathStat.st_mode))
@@ -177,7 +177,7 @@ std::time_t RawFileSystem::getLastWriteTime(const Path& path) const
 	struct stat pathStat;
 	Path::string_type absolutePath = toAbsolutePath(path).getString();
 	std::string narrowStr;
-	MCD_VERIFY(wStr2Str(absolutePath.c_str(), narrowStr));
+	MCD_VERIFY(wStrToStr(absolutePath.c_str(), narrowStr));
 	if(::stat(narrowStr.c_str(), &pathStat) != 0)
 		throwError("Error getting last write time ", absolutePath);
 	return pathStat.st_mtime;
@@ -227,7 +227,7 @@ std::auto_ptr<std::istream> RawFileSystem::openRead(const Path& path) const
 	auto_ptr<istream> is(new ifstream(absolutePath.c_str(), ios::in | ios::binary));
 #else
 	string aStr;
-	MCD_VERIFY(wStr2Str(absolutePath.c_str(), aStr));
+	MCD_VERIFY(wStrToStr(absolutePath.c_str(), aStr));
 	auto_ptr<istream> is(new ifstream(aStr.c_str(), ios::in | ios::binary));
 #endif
 
@@ -246,7 +246,7 @@ std::auto_ptr<std::ostream> RawFileSystem::openWrite(const Path& path) const
 	auto_ptr<ostream> os(new ofstream(absolutePath.c_str(), ios::out | ios::binary));
 #else
 	string aStr;
-	MCD_VERIFY(wStr2Str(absolutePath.c_str(), aStr));
+	MCD_VERIFY(wStrToStr(absolutePath.c_str(), aStr));
 	auto_ptr<ostream> os(new ofstream(aStr.c_str(), ios::out | ios::binary));
 #endif
 
