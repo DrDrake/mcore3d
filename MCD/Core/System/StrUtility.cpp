@@ -14,7 +14,7 @@ namespace MCD {
 
 static const size_t cError = size_t(-1);
 
-bool str2WStr(sal_in_z sal_notnull const char* narrowStr, size_t maxCount, std::wstring& wideStr)
+bool strToWStr(sal_in_z sal_notnull const char* narrowStr, size_t maxCount, std::wstring& wideStr)
 {
 #ifdef MCD_CYGWIN
 	// Count also '\0'
@@ -53,12 +53,12 @@ bool str2WStr(sal_in_z sal_notnull const char* narrowStr, size_t maxCount, std::
 	return true;
 }
 
-bool str2WStr(const std::string& narrowStr, std::wstring& wideStr)
+bool strToWStr(const std::string& narrowStr, std::wstring& wideStr)
 {
-	return str2WStr(narrowStr.c_str(), narrowStr.size(), wideStr);
+	return strToWStr(narrowStr.c_str(), narrowStr.size(), wideStr);
 }
 
-bool wStr2Str(sal_in_z sal_notnull const wchar_t* wideStr, size_t maxCount, std::string& narrowStr)
+bool wStrToStr(sal_in_z sal_notnull const wchar_t* wideStr, size_t maxCount, std::string& narrowStr)
 {
 	// Get the required character count of the destination string (\0 not included)
 	size_t count = ::wcstombs(nullptr, wideStr, maxCount);
@@ -80,15 +80,15 @@ bool wStr2Str(sal_in_z sal_notnull const wchar_t* wideStr, size_t maxCount, std:
 	return true;
 }
 
-bool wStr2Str(const std::wstring& wideStr, std::string& narrowStr)
+bool wStrToStr(const std::wstring& wideStr, std::string& narrowStr)
 {
-	return wStr2Str(wideStr.c_str(), wideStr.size(), narrowStr);
+	return wStrToStr(wideStr.c_str(), wideStr.size(), narrowStr);
 }
 
-std::wstring str2WStr(const std::string& narrowStr)
+std::wstring strToWStr(const std::string& narrowStr)
 {
 	std::wstring wideStr;
-	bool ok = str2WStr(narrowStr, wideStr);
+	bool ok = strToWStr(narrowStr, wideStr);
 	if(!ok)
 		throw std::runtime_error(
 			MCD::getErrorMessage("Fail to convert narrow string to wide string: ", MCD::getLastError())
@@ -96,10 +96,10 @@ std::wstring str2WStr(const std::string& narrowStr)
 	return wideStr;
 }
 
-std::string wStr2Str(const std::wstring& wideStr)
+std::string wStrToStr(const std::wstring& wideStr)
 {
 	std::string narrowStr;
-	bool ok = wStr2Str(wideStr, narrowStr);
+	bool ok = wStrToStr(wideStr, narrowStr);
 	if(!ok)
 		throw std::runtime_error(
 			MCD::getErrorMessage("Fail to convert wide string to narrow string: ", MCD::getLastError())
@@ -117,8 +117,15 @@ static const byte_t cUtf8Limits[] = {
 	0xFE	// Invalid: not defined by original UTF-8 specification
 };
 
-// Reference: from 7zip LZMA sdk
-static bool utf8ToUtf16(wchar_t* dest, size_t& destLen, const char* src, size_t srcLen)
+/*!	Usually it is a 2 steps process to convert the string, invoke utf8ToUtf16() with
+	dest equals to null so that it gives you destLen (not including null terminator),
+	then allocate the destination with that amount of memory and call utf8ToUtf16() once
+	again to perform the actual conversion. You can skip the first call if you sure
+	the destination buffer is large enough to store the data.
+
+	\ref Modify from 7zip LZMA sdk
+ */
+static bool utf8ToUtf16(wchar_t* dest, size_t& destLen, const char* src, size_t maxSrcLen)
 {
 	size_t destPos = 0, srcPos = 0;
 
@@ -127,10 +134,16 @@ static bool utf8ToUtf16(wchar_t* dest, size_t& destLen, const char* src, size_t 
 		byte_t c;	// Note that byte_t should be unsigned
 		size_t numAdds;
 
-		if(srcPos == srcLen || src[srcPos] == '\0') {
+		if(srcPos == maxSrcLen || src[srcPos] == '\0') {
+			if(dest && destLen != destPos) {
+				MCD_ASSERT(false && "The provided destLen should equals to what we calculated here");
+				return false;
+			}
+
 			destLen = destPos;
 			return true;
 		}
+
 		c = src[srcPos++];
 
 		if(c < 0x80) {	// 0-127, US-ASCII (single byte)
@@ -140,7 +153,7 @@ static bool utf8ToUtf16(wchar_t* dest, size_t& destLen, const char* src, size_t 
 			continue;
 		}
 
-		if(c < 0xC0)	// The first octet should be 0-191
+		if(c < 0xC0)	// The first octet for each code point should within 0-191
 			break;
 
 		for(numAdds = 1; numAdds < 5; ++numAdds)
@@ -150,7 +163,7 @@ static bool utf8ToUtf16(wchar_t* dest, size_t& destLen, const char* src, size_t 
 
 		do {
 			byte_t c2;
-			if (srcPos == srcLen)
+			if(srcPos == maxSrcLen || src[srcPos] == '\0')
 				break;
 			c2 = src[srcPos++];
 			if(c2 < 0x80 || c2 >= 0xC0)
@@ -180,7 +193,7 @@ static bool utf8ToUtf16(wchar_t* dest, size_t& destLen, const char* src, size_t 
 	return false;
 }
 
-bool utf82WStr(const char* utf8Str, size_t maxCount, std::wstring& wideStr)
+bool utf8ToWStr(const char* utf8Str, size_t maxCount, std::wstring& wideStr)
 {
 	size_t destLen = 0;
 
@@ -195,12 +208,13 @@ bool utf82WStr(const char* utf8Str, size_t maxCount, std::wstring& wideStr)
 	return utf8ToUtf16(const_cast<wchar_t*>(wideStr.c_str()), destLen, utf8Str, maxCount);
 }
 
-bool utf82WStr(const std::string& utf8Str, std::wstring& wideStr)
+bool utf8ToWStr(const std::string& utf8Str, std::wstring& wideStr)
 {
-	return utf82WStr(utf8Str.c_str(), utf8Str.size(), wideStr);
+	return utf8ToWStr(utf8Str.c_str(), utf8Str.size(), wideStr);
 }
 
-static bool utf16ToUtf8(char* dest, size_t& destLen, const wchar_t* src, size_t srcLen)
+//! See the documentation for utf8ToUtf16()
+static bool utf16ToUtf8(char* dest, size_t& destLen, const wchar_t* src, size_t maxSrcLen)
 {
 	size_t destPos = 0, srcPos = 0;
 
@@ -209,10 +223,15 @@ static bool utf16ToUtf8(char* dest, size_t& destLen, const wchar_t* src, size_t 
 		uint32_t value;
 		size_t numAdds;
 
-		if(srcPos == srcLen || src[srcPos] == L'\0') {
+		if(srcPos == maxSrcLen || src[srcPos] == L'\0') {
+			if(dest && destLen != destPos) {
+				MCD_ASSERT(false && "The provided destLen should equals to what we calculated here");
+				return false;
+			}
 			destLen = destPos;
 			return true;
 		}
+
 		value = src[srcPos++];
 
 		if(value < 0x80) {	// 0-127, US-ASCII (single byte)
@@ -223,7 +242,7 @@ static bool utf16ToUtf8(char* dest, size_t& destLen, const wchar_t* src, size_t 
 		}
 
 		if(value >= 0xD800 && value < 0xE000) {
-			if(value >= 0xDC00 || srcPos == srcLen)
+			if(value >= 0xDC00 || srcPos == maxSrcLen)
 				break;
 			uint32_t c2 = src[srcPos++];
 			if(c2 < 0xDC00 || c2 >= 0xE000)
@@ -251,7 +270,7 @@ static bool utf16ToUtf8(char* dest, size_t& destLen, const wchar_t* src, size_t 
 	return false;
 }
 
-bool wStr2Utf8(const wchar_t* wideStr, size_t maxCount, std::string& utf8Str)
+bool wStrToUtf8(const wchar_t* wideStr, size_t maxCount, std::string& utf8Str)
 {
 	size_t destLen = 0;
 
@@ -266,9 +285,9 @@ bool wStr2Utf8(const wchar_t* wideStr, size_t maxCount, std::string& utf8Str)
 	return utf16ToUtf8(const_cast<char*>(utf8Str.c_str()), destLen, wideStr, maxCount);
 }
 
-bool wStr2Utf8(const std::wstring& wideStr, std::string& utf8Str)
+bool wStrToUtf8(const std::wstring& wideStr, std::string& utf8Str)
 {
-	return wStr2Utf8(wideStr.c_str(), wideStr.size(), utf8Str);
+	return wStrToUtf8(wideStr.c_str(), wideStr.size(), utf8Str);
 }
 
 std::string int2Str(int number)
@@ -283,7 +302,7 @@ std::wstring int2WStr(int number)
 #ifdef MCD_CYGWIN
 	std::stringstream ss;
 	ss << number;
-	return str2WStr(ss.str());
+	return strToWStr(ss.str());
 #else
 	std::wstringstream ss;
 	ss << number;
@@ -296,7 +315,7 @@ bool wStr2Int(const wchar_t* wideStr, int& number)
 	// User sscanf or atoi didn't handle error very well
 	// TODO: Use locale facet instead of stringstream
 #ifdef MCD_CYGWIN
-	std::stringstream ss(wStr2Str(wideStr));
+	std::stringstream ss(wStrToStr(wideStr));
 #else
 	std::wstringstream ss(wideStr);
 #endif
