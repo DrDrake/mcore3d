@@ -60,6 +60,7 @@
 		<Linker>
 			<Add library="X11" />
 			<Add library="Xext" />
+			<Add library="z" />
 			<Add directory="\usr\X11R6\lib" />
 		</Linker>
 		<Unit filename="Math\BasicFunction.h" />
@@ -129,6 +130,9 @@
 		<Unit filename="System\Window.h" />
 		<Unit filename="System\Window.inl" />
 		<Unit filename="System\WindowEvent.h" />
+		<Unit filename="System\ZipFileSystem.cpp" />
+		<Unit filename="System\ZipFileSystem.h" />
+		<Unit filename="System\ZipFileSystem.inc" />
 		<Extensions>
 			<code_completion />
 			<debugger />

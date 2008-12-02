@@ -40,7 +40,7 @@ protected:
 
 	/*!	
 	 */
-	virtual long seek(size_t offset, int origin, std::ios_base::openmode which) = 0;
+	virtual long seek(size_t offset, std::ios_base::seekdir origin, std::ios_base::openmode which) = 0;
 
 	//! Get the internal raw buffer pointer.
 	virtual char* rawBufPtr() = 0;
