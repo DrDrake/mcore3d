@@ -19,7 +19,7 @@ void openDisplay()
 	if(gDisplayCount == 0) {
 		MCD_ASSERT(gDisplay == nullptr);
 
-		gDisplay = ::XOpenDisplay("localhost:0");
+		gDisplay = ::XOpenDisplay(nullptr);
 
 		if(!gDisplay)
 			throw std::runtime_error(std::string("Fail to open a connection with the X server"));

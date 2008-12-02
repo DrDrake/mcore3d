@@ -42,6 +42,8 @@ public:
     using super_type::m20;	using super_type::m21;	using super_type::m22;	using super_type::m23;
 	using super_type::m30;	using super_type::m31;	using super_type::m32;	using super_type::m33;
 
+	enum { N = super_type::N };
+
 	inline Mat44() {}
 
 	explicit Mat44(const param_type val)

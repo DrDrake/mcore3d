@@ -7,9 +7,9 @@
 		<Option compiler="cygwin" />
 		<Build>
 			<Target title="Debug (Linux)">
-				<Option output="..\..\Bin\Renderd" prefix_auto="1" extension_auto="1" />
-				<Option working_dir="..\..\Bin" />
-				<Option object_output="Debug\Gcc_Linux\Obj\" />
+				<Option output="../../Bin/Renderd" prefix_auto="1" extension_auto="1" />
+				<Option working_dir="../../Bin" />
+				<Option object_output="Debug/Gcc_Linux/Obj/" />
 				<Option type="3" />
 				<Option compiler="gcc" />
 				<Option createDefFile="1" />
@@ -18,15 +18,15 @@
 					<Add option="-g" />
 				</Compiler>
 				<Linker>
-					<Add library="..\..\Bin\Cored.so" />
-					<Add library="..\..\Lib\libSmallJpegd.a" />
-					<Add library="..\..\Lib\libglewd.a" />
+					<Add library="../../Bin/Cored.so" />
+					<Add library="../../Lib/libSmallJpegd.a" />
+					<Add library="../../Lib/libglewd.a" />
 				</Linker>
 			</Target>
 			<Target title="Release (Linux)">
-				<Option output="..\..\Bin\Render" prefix_auto="1" extension_auto="1" />
-				<Option working_dir="..\..\Bin" />
-				<Option object_output="Release\Gcc_Linux\Obj\" />
+				<Option output="../../Bin/Render" prefix_auto="1" extension_auto="1" />
+				<Option working_dir="../../Bin" />
+				<Option object_output="Release/Gcc_Linux/Obj/" />
 				<Option type="3" />
 				<Option compiler="gcc" />
 				<Option createDefFile="1" />
@@ -36,14 +36,14 @@
 					<Add option="-O3" />
 				</Compiler>
 				<Linker>
-					<Add library="..\..\Bin\Core.so" />
-					<Add library="..\..\Lib\libSmallJpeg.a" />
-					<Add library="..\..\Lib\libglew.a" />
+					<Add library="../../Bin/Core.so" />
+					<Add library="../../Lib/libSmallJpeg.a" />
+					<Add library="../../Lib/libglew.a" />
 				</Linker>
 			</Target>
 			<Target title="Debug (Cygwin)">
-				<Option output="..\..\Bin\libRenderd" prefix_auto="1" extension_auto="1" />
-				<Option object_output="Debug\Gcc_Cygwin\Obj" />
+				<Option output="../../Bin/libRenderd" prefix_auto="1" extension_auto="1" />
+				<Option object_output="Debug/Gcc_Cygwin/Obj" />
 				<Option type="3" />
 				<Option compiler="cygwin" />
 				<Option createDefFile="1" />
@@ -53,15 +53,15 @@
 					<Add option="-g" />
 				</Compiler>
 				<Linker>
-					<Add library="..\..\Bin\libCored.a" />
-					<Add library="..\..\Bin\libglewd.a" />
-					<Add library="..\..\Lib\libSmallJpegd.a" />
+					<Add library="../../Bin/libCored.a" />
+					<Add library="../../Bin/libglewd.a" />
+					<Add library="../../Lib/libSmallJpegd.a" />
 					<Add library="opengl32" />
 				</Linker>
 			</Target>
 			<Target title="Release (Cygwin)">
-				<Option output="..\..\Bin\libRender" prefix_auto="1" extension_auto="1" />
-				<Option object_output="Release\Gcc_Cygwin\Obj" />
+				<Option output="../../Bin/libRender" prefix_auto="1" extension_auto="1" />
+				<Option object_output="Release/Gcc_Cygwin/Obj" />
 				<Option type="3" />
 				<Option compiler="cygwin" />
 				<Option createDefFile="1" />
@@ -72,16 +72,16 @@
 					<Add option="-O3" />
 				</Compiler>
 				<Linker>
-					<Add library="..\..\Bin\libCore.a" />
-					<Add library="..\..\Bin\libglew.a" />
-					<Add library="..\..\Lib\libSmallJpeg.a" />
+					<Add library="../../Bin/libCore.a" />
+					<Add library="../../Bin/libglew.a" />
+					<Add library="../../Lib/libSmallJpeg.a" />
 					<Add library="opengl32" />
 				</Linker>
 			</Target>
 		</Build>
 		<Compiler>
 			<Add option="-DSGE_Render_EXPORTS" />
-			<Add directory="\usr\X11R6\include" />
+			<Add directory="/usr/X11R6/include" />
 		</Compiler>
 		<Linker>
 			<Add library="GL" />
@@ -90,7 +90,7 @@
 			<Add library="Xext" />
 			<Add library="z" />
 			<Add library="png" />
-			<Add directory="\usr\X11R6\lib" />
+			<Add directory="/usr/X11R6/lib" />
 		</Linker>
 		<Unit filename="BackRenderBuffer.h" />
 		<Unit filename="BitmapLoader.cpp" />
@@ -101,6 +101,8 @@
 		<Unit filename="Color.h" />
 		<Unit filename="DdsLoader.cpp" />
 		<Unit filename="DdsLoader.h" />
+		<Unit filename="Frustum.cpp" />
+		<Unit filename="Frustum.h" />
 		<Unit filename="GlWindow.X11.inc" />
 		<Unit filename="GlWindow.cpp" />
 		<Unit filename="GlWindow.h" />
@@ -137,6 +139,8 @@
 		<Unit filename="TextureLoaderBase.h" />
 		<Unit filename="TextureLoaderBaseImpl.inc" />
 		<Unit filename="TextureRenderBuffer.cpp" />
+		<Unit filename="TgaLoader.cpp" />
+		<Unit filename="TgaLoader.h" />
 		<Extensions>
 			<code_completion />
 			<debugger />
