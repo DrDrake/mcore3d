@@ -78,12 +78,12 @@
 		<Unit filename="Math\Vec2Test.cpp" />
 		<Unit filename="Math\Vec3Test.cpp" />
 		<Unit filename="System\CondVarTest.cpp" />
+		<Unit filename="System\FileSystemTest.cpp" />
 		<Unit filename="System\IntrusivePtrTest.cpp" />
 		<Unit filename="System\LinkListTest.cpp" />
 		<Unit filename="System\LogTest.cpp" />
 		<Unit filename="System\MapTest.cpp" />
 		<Unit filename="System\PathTest.cpp" />
-		<Unit filename="System\RawFileSystemTest.cpp" />
 		<Unit filename="System\ResourceLoaderTest.cpp" />
 		<Unit filename="System\SharedPtrTest.cpp" />
 		<Unit filename="System\StrUtilityTest.cpp" />

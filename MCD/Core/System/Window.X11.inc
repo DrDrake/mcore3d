@@ -220,7 +220,7 @@ void Window::Impl::createNewWindow()
 		throw std::runtime_error("X11 API call 'XCreateWindow' failed");
 
 	// Set the window title
-	::XStoreName(gDisplay, mWnd, wStr2Str(mTitle).c_str());
+	::XStoreName(gDisplay, mWnd, wStrToStr(mTitle).c_str());
 
 	::XMapWindow(gDisplay, mWnd);
 

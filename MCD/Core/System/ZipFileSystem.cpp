@@ -5,6 +5,7 @@
 #include "StrUtility.h"
 #include <fstream>
 #include <map>
+#include <stdexcept>
 
 #define ZIP_STD
 #undef UNICODE
@@ -26,7 +27,7 @@ static void throwError(const std::string& prefix, const std::wstring& pathStr, c
 }
 
 /*!	The private implementation of ZipFileSystem stores the handle to the zip file.
-	It need to be shared among opened iostreams so that the opened iostream can 
+	It need to be shared among opened iostreams so that the opened iostream can
 	keep working while the ZipFileSystem itself is already destroyed or it's zip
 	file path is changed.
  */
@@ -262,7 +263,7 @@ std::auto_ptr<std::istream> ZipFileSystem::openRead(const Path& path) const
 	return mImpl->openRead(Path(path).normalize(), mImpl);
 }
 
-std::auto_ptr<std::ostream> ZipFileSystem::openWrite(const Path& path) const 
+std::auto_ptr<std::ostream> ZipFileSystem::openWrite(const Path& path) const
 {
 	MCD_ASSERT(false && "Not supported");
 	return auto_ptr<ostream>(nullptr);
