@@ -1,4 +1,4 @@
-#include "../../../3Party/Zlib/zlib.h"
+#include "../../../3Party/zlib/zlib.h"
 
 // A very easy to use zip file library from:
 // The CodeProject: http://www.codeproject.com/KB/files/zip_utils.aspx

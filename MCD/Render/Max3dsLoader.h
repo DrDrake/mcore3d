@@ -2,7 +2,7 @@
 #define __MCD_RENDER_MAX3DSLOADER__
 
 #include "ShareLib.h"
-#include "../Core/System/Noncopyable.h"
+#include "../Core/System/NonCopyable.h"
 #include "../Core/System/ResourceLoader.h"
 
 namespace MCD {

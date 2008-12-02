@@ -1,15 +1,17 @@
-#include <xmmintrin.h>
+#if !defined(MCD_GCC) || defined(__SSE__)
+#   include <xmmintrin.h>
+#endif
 
 namespace MCD {
 
 template<typename T>
 void Mat44<T>::copyFrom(const T* dataPtr) {
-	::memcpy(getPtr(), dataPtr, sizeof(T) * N);
+	::memcpy(this->getPtr(), dataPtr, sizeof(T) * N);
 }
 
 template<typename T>
 void Mat44<T>::copyTo(T* dataPtr) const {
-	::memcpy(dataPtr, getPtr(), sizeof(T) * N);
+	::memcpy(dataPtr, this->getPtr(), sizeof(T) * N);
 }
 
 template<typename T>
@@ -32,7 +34,7 @@ void Mat44<T>::mul(const Mat44& rhs, Mat44& ret) const
 	MCD_ASSUME(&rhs != &ret);
 	MCD_ASSUME(this != &ret);
 
-#if 1
+#if !defined(MCD_GCC) || defined(__SSE__)
 	__m128 x4 = _mm_loadu_ps(rhs.r0);
 	__m128 x5 = _mm_loadu_ps(rhs.r1);
 	__m128 x6 = _mm_loadu_ps(rhs.r2);
@@ -67,12 +69,12 @@ void Mat44<T>::mul(const Mat44& rhs, Mat44& ret) const
 	ret.m01 = m00 * rhs.m01 + m01 * rhs.m11 + m02 * rhs.m21 + m03 * rhs.m31;
 	ret.m02 = m00 * rhs.m02 + m01 * rhs.m12 + m02 * rhs.m22 + m03 * rhs.m32;
 	ret.m03 = m00 * rhs.m03 + m01 * rhs.m13 + m02 * rhs.m23 + m03 * rhs.m33;
-															  
+
 	ret.m10 = m10 * rhs.m00 + m11 * rhs.m10 + m12 * rhs.m20 + m13 * rhs.m30;
 	ret.m11 = m10 * rhs.m01 + m11 * rhs.m11 + m12 * rhs.m21 + m13 * rhs.m31;
 	ret.m12 = m10 * rhs.m02 + m11 * rhs.m12 + m12 * rhs.m22 + m13 * rhs.m32;
 	ret.m13 = m10 * rhs.m03 + m11 * rhs.m13 + m12 * rhs.m23 + m13 * rhs.m33;
-															  
+
 	ret.m20 = m20 * rhs.m00 + m21 * rhs.m10 + m22 * rhs.m20 + m23 * rhs.m30;
 	ret.m21 = m20 * rhs.m01 + m21 * rhs.m11 + m22 * rhs.m21 + m23 * rhs.m31;
 	ret.m22 = m20 * rhs.m02 + m21 * rhs.m12 + m22 * rhs.m22 + m23 * rhs.m32;

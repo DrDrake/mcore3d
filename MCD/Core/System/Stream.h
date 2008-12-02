@@ -38,7 +38,7 @@ protected:
 	//! Flush data to external data sink.
 	virtual bool flush() = 0;
 
-	/*!	
+	/*!
 	 */
 	virtual long seek(size_t offset, std::ios_base::seekdir origin, std::ios_base::openmode which) = 0;
 
@@ -86,11 +86,10 @@ protected:
 class MCD_CORE_API StreamBuf : public std::basic_streambuf<char>
 {
 	friend class StreamProxy;
-	typedef StreamBuf::traits_type traits_type;
 	typedef std::basic_streambuf<char> Super;
 
 public:
-	typedef traits_type traits_type;
+	typedef StreamBuf::traits_type traits_type;
 
 	// Will take over the ownership of proxy
 	StreamBuf(IStreamProxy& proxy);
@@ -98,7 +97,7 @@ public:
 	sal_override ~StreamBuf();
 
 protected:
-	sal_override StreamBuf* StreamBuf::setbuf(char* buffer, std::streamsize size);
+	sal_override StreamBuf* setbuf(char* buffer, std::streamsize size);
 
 	sal_override std::streamsize xsputn(const char* data, std::streamsize size);
 
