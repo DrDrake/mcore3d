@@ -18,7 +18,7 @@ public:
 	TestWindow(const wchar_t* options)
 		:
 		BasicGlWindow(options),
-		mResourceManager(L"./Media/")
+		mResourceManager(*createDefaultFileSystem())
 	{
 		mShadowMapProjection.frustum.projectionType = Frustum::Ortho;
 		mShadowMapProjection.frustum.create(-100, 100, -100, 100, -100, 600);

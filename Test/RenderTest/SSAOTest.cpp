@@ -7,6 +7,7 @@
 #include "../../MCD/Render/Texture.h"
 #include "../../MCD/Render/TextureRenderBuffer.h"
 #include "../../MCD/Core/System/WindowEvent.h"
+#include "../../MCD/Core/System/ZipFileSystem.h"
 
 using namespace MCD;
 
@@ -19,7 +20,7 @@ TEST(SSAOTest)
 			:
 			BasicGlWindow(L"title=SSAOTest;width=800;height=600;fullscreen=0;FSAA=4"),
 			mUseSSAO(true), mBlurSSAO(true), mShowTexture(false),
-			mSSAORescale(0.5f), mSSAORadius(0.05f), mResourceManager(L"./Media/")
+			mSSAORescale(0.5f), mSSAORadius(0.05f), mResourceManager(*createDefaultFileSystem())
 		{
 			if( !loadShaderProgram(L"Shader/SSAO/Scene.glvs", L"Shader/SSAO/Scene.glps", mScenePass, mResourceManager) ||
 				!loadShaderProgram(L"Shader/SSAO/SSAO.glvs", L"Shader/SSAO/SSAO.glps", mSSAOPass, mResourceManager) ||
@@ -349,7 +350,7 @@ TEST(SSAOTest)
 //		window.load3ds(L"ANDOX.3DS");
 //		window.load3ds(L"TextureBoxSphere.3ds");
 //		window.load3ds(L"House/house.3ds");
-		window.load3ds(L"city/city.3ds");
+		window.load3ds(L"City/city.3ds");
 //		window.load3ds(L"3M00696/buelllightning.3DS");
 //		window.load3ds(L"Lamborghini Gallardo Polizia/Lamborghini Gallardo Polizia.3DS");
 

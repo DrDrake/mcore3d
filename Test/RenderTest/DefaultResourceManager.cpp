@@ -1,17 +1,30 @@
 #include "Pch.h"
 #include "DefaultResourceManager.h"
 #include "../../MCD/Render/ResourceLoaderFactory.h"
+#include "../../MCD/Core/System/FileSystemCollection.h"
 #include "../../MCD/Core/System/Log.h"
 #include "../../MCD/Core/System/RawFileSystem.h"
 #include "../../MCD/Core/System/Resource.h"
 #include "../../MCD/Core/System/ResourceLoader.h"
+#include "../../MCD/Core/System/ZipFileSystem.h"
 
 using namespace MCD;
 
-DefaultResourceManager::DefaultResourceManager(const Path& rootPath)
-	: ResourceManager(*(new RawFileSystem(rootPath)))
+IFileSystem* createDefaultFileSystem()
 {
-	setupFactories();
+	std::auto_ptr<FileSystemCollection> fileSystem(new FileSystemCollection);
+
+	try {
+		std::auto_ptr<IFileSystem> rawFs(new RawFileSystem(L"Media"));
+		fileSystem->addFileSystem(*rawFs.release());
+	} catch(...) {}
+
+	try {
+		std::auto_ptr<IFileSystem> zipFs(new ZipFileSystem(L"Media.zip"));
+		fileSystem->addFileSystem(*zipFs.release());
+	} catch(...) {}
+
+	return fileSystem.release();
 }
 
 DefaultResourceManager::DefaultResourceManager(IFileSystem& fileSystem)

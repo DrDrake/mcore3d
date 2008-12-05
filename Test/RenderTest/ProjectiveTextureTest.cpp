@@ -17,7 +17,7 @@ public:
 	TestWindow(const wchar_t* options)
 		:
 		BasicGlWindow(options),
-		mAngle(0), mTime(0), mResourceManager(L"./Media/")
+		mAngle(0), mTime(0), mResourceManager(*createDefaultFileSystem())
 	{
 		mLightFrustum.create(40, 1, 1, 20);
 		mLightCamera = Camera(Vec3f(10, 20, 0), Vec3f(2, 0, 0), Vec3f::c001);

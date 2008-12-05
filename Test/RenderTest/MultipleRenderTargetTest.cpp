@@ -17,7 +17,7 @@ TEST(MultipleRenderTargetTest)
 		TestWindow()
 			:
 			BasicGlWindow(L"title=MultipleRenderTargetTest;width=800;height=600;fullscreen=0;FSAA=4"),
-			mResourceManager(L"./Media/")
+			mResourceManager(*createDefaultFileSystem())
 		{
 		}
 
