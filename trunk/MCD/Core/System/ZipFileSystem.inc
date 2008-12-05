@@ -1815,7 +1815,9 @@ ZRESULT TUnzip::Get(int index,ZIPENTRY *ze)
 }
 
 ZRESULT TUnzip::Find(const TCHAR *tname,bool ic,int *index,ZIPENTRY *ze)
-{ char name[MAX_PATH];
+{
+  if(!tname) return ZR_ARGS;
+  char name[MAX_PATH];
 #ifdef UNICODE
   WideCharToMultiByte(CP_UTF8,0,tname,-1,name,MAX_PATH,0,0);
 #else
@@ -1910,11 +1912,12 @@ typedef struct
 } TUnzipHandleData;
 
 HZIP OpenZipInternal(void *z,unsigned int len,DWORD flags, const char *password)
-{ TUnzip *unz = new TUnzip(password);
-  lasterrorU = unz->Open(z,len,flags);
-  if (lasterrorU!=ZR_OK) {delete unz; return 0;}
-  TUnzipHandleData *han = new TUnzipHandleData;
-  han->flag=1; han->unz=unz; return (HZIP)han;
+{
+	std::auto_ptr<TUnzip> unz(new TUnzip(password));
+	lasterrorU = unz->Open(z,len,flags);
+	if (lasterrorU!=ZR_OK) { return 0;}
+	TUnzipHandleData *han = new TUnzipHandleData;
+	han->flag=1; han->unz=unz.release(); return (HZIP)han;
 }
 HZIP OpenZipHandle(HANDLE h, const char *password) {return OpenZipInternal((void*)h,0,ZIP_HANDLE,password);}
 HZIP OpenZip(const TCHAR *fn, const char *password) {return OpenZipInternal((void*)fn,0,ZIP_FILENAME,password);}

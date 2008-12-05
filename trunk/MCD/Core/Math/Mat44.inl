@@ -43,7 +43,7 @@ void Mat44<T>::mul(const Mat44& rhs, Mat44& ret) const
 	__m128 x0, x1, x2, x3;
 
 	for(size_t i=0; i<4; ++i) {
-		x1 = x2 = x3 = x0 = _mm_loadu_ps(data2D[i]);
+		x1 = x2 = x3 = x0 = _mm_loadu_ps(this->data2D[i]);
 		x0 = _mm_shuffle_ps(x0, x0, _MM_SHUFFLE(0,0,0,0));
 		x1 = _mm_shuffle_ps(x1, x1, _MM_SHUFFLE(1,1,1,1));
 		x2 = _mm_shuffle_ps(x2, x2, _MM_SHUFFLE(2,2,2,2));

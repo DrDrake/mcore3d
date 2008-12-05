@@ -3,11 +3,12 @@
 
 #include "../../MCD/Core/System/ResourceManager.h"
 
+//! Create a FileSystemCollection that contains RawFileSystem(L"Media") and ZipFileSystem(L"Media.zip")
+extern MCD::IFileSystem* createDefaultFileSystem();
+
 class DefaultResourceManager : public MCD::ResourceManager
 {
 public:
-	explicit DefaultResourceManager(const MCD::Path& rootPath);
-
 	explicit DefaultResourceManager(MCD::IFileSystem& fileSystem);
 
 	/*!	
