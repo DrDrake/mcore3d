@@ -15,11 +15,13 @@ public:
 	Material();
 	~Material();
 
+// Operations
 	void bind() const;
 
-	ColorRGBf mAmbient, mDiffuse, mSpecular;
-	uint8_t mShininess;
-	TexturePtr mTexture;
+// Attributes
+	ColorRGBf ambient, diffuse, specular;
+	uint8_t shininess;
+	TexturePtr texture;
 };	// Material
 
 }	// namespace MCD

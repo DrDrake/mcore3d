@@ -12,6 +12,7 @@ class MCD_RENDER_API Shader : public Resource, Noncopyable
 public:
 	explicit Shader(const Path& fileId);
 
+// Operations
 	/*!	Create the shader.
 		\param shaderType Type of the shader, can be GL_VERTEX_SHADER or GL_FRAGMENT_SHADER
 		\note Previous created shader (if any) will be destroyed first.
@@ -26,6 +27,7 @@ public:
 	//! Compile from a list of source code.
 	sal_checkreturn bool compile(const char** sourceList, size_t count);
 
+// Attributes
 	/*! Get the source code of this shader.
 	 */
 	void getSource(std::string& source);

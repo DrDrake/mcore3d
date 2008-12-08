@@ -269,7 +269,7 @@ TEST(SSAOTest)
 			mDitherTexture->bind();
 
 			mSSAOPass.bind();
-			drawViewportQuad(0, 0, mSSAORenderTexture->width(), mSSAORenderTexture->height(), mSSAORenderTexture->type());
+			drawViewportQuad(0, 0, mSSAORenderTexture->width, mSSAORenderTexture->height, mSSAORenderTexture->type);
 			mSSAOPass.unbind();
 
 			// Blurr the SSAO
@@ -283,13 +283,13 @@ TEST(SSAOTest)
 				glActiveTexture(GL_TEXTURE1);
 				mNormalRenderTexture->bind();
 				glUniform2f(glGetUniformLocation(mBlurPass.handle(), "blurDirection"), 1, 0);
-				drawViewportQuad(0, 0, mSSAORenderTexture->width(), mSSAORenderTexture->height(), mSSAORenderTexture->type());
+				drawViewportQuad(0, 0, mSSAORenderTexture->width, mSSAORenderTexture->height, mSSAORenderTexture->type);
 
 				glDrawBuffers(1, buffers + 0);	// Effectively output to mSSAORenderTexture
 				glActiveTexture(GL_TEXTURE0);
 				mSSAORenderTexture2->bind();
 				glUniform2f(glGetUniformLocation(mBlurPass.handle(), "blurDirection"), 0, 1);
-				drawViewportQuad(0, 0, mSSAORenderTexture->width(), mSSAORenderTexture->height(), mSSAORenderTexture->type());
+				drawViewportQuad(0, 0, mSSAORenderTexture->width, mSSAORenderTexture->height, mSSAORenderTexture->type);
 
 				mBlurPass.unbind();
 			}
@@ -307,7 +307,7 @@ TEST(SSAOTest)
 			mDepthRenderTexture->bind();
 
 			mCombinePass.bind();
-			drawViewportQuad(0, 0, width(), height(), mSSAORenderTexture->type());
+			drawViewportQuad(0, 0, width(), height(), mSSAORenderTexture->type);
 			mCombinePass.unbind();
 		}
 

@@ -129,10 +129,10 @@ IResourceLoader::LoadingState JpegLoader::load(std::istream* is, const Path*)
 	Mutex& mutex = mImpl->mMutex;
 	ScopeLock lock(mutex);
 
-	mLoadingState = is ? NotLoaded : Aborted;
+	loadingState = is ? NotLoaded : Aborted;
 
-	if(mLoadingState & Stopped)
-		return mLoadingState;
+	if(loadingState & Stopped)
+		return loadingState;
 
 	LoaderImpl* impl = static_cast<LoaderImpl*>(mImpl);
 
@@ -143,20 +143,20 @@ IResourceLoader::LoadingState JpegLoader::load(std::istream* is, const Path*)
 
 	switch(result) {
 	case JPGD_DONE:
-		mLoadingState = Loaded;
+		loadingState = Loaded;
 		break;
 	case JPGD_OKAY:
 		++(impl->mProcessedLines);
 		// Only report partial load every 1/4 of the scan lines are loaded
 		if(impl->mProcessedLines % (impl->mHeight / 4) == 0)
-			mLoadingState = PartialLoaded;
+			loadingState = PartialLoaded;
 		break;
 	case JPGD_FAILED:
 	default:
-		mLoadingState = Aborted;
+		loadingState = Aborted;
 	}
 
-	return mLoadingState;
+	return loadingState;
 }
 
 void JpegLoader::uploadData()

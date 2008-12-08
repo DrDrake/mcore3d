@@ -17,6 +17,7 @@ public:
 	ShaderProgram();
 	~ShaderProgram();
 
+// Operations
 	void create();
 
 	void destroy();
@@ -37,6 +38,7 @@ public:
 
 	void unbind();
 
+// Attributes
 	// Get the information about the program (including any linking errors).
 	void getLog(std::string& log);
 

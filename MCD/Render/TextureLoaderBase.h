@@ -25,12 +25,16 @@ protected:
 	void setImpl(LoaderBaseImpl* impl);
 
 public:
+// Operations
 	/*!	Commit the data form it's internal buffer to the resource.
 		The resource must be of type Texture.
 	 */
 	sal_override void commit(Resource& resource);
 
 	sal_override LoadingState getLoadingState() const;
+
+// Attrubutes
+	volatile LoadingState loadingState;
 
 protected:
 	/*!	Derived class should implements this function to upload the
@@ -52,10 +56,7 @@ protected:
 	virtual void postUploadData();
 
 protected:
-	template<class T> class PrivateAccessor;
-
 	LoaderBaseImpl* mImpl;
-	volatile LoadingState mLoadingState;
 };	// TextureLoaderBase
 
 }	// namespace MCD

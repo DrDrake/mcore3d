@@ -7,38 +7,38 @@ namespace MCD {
 Texture::Texture(const Path& fileId)
 	:
 	Resource(fileId),
-	mHandle(0),
-	mWidth(0), mHeight(0),
-	mType(GL_INVALID_ENUM),
-	mFormat(GL_INVALID_ENUM)
+	handle(0),
+	width(0), height(0),
+	type(GL_INVALID_ENUM),
+	format(GL_INVALID_ENUM)
 {
 }
 
 Texture::~Texture()
 {
 	// glDeleteTextures will simple ignore non-valid texture handles
-	glDeleteTextures(1, &mHandle);
+	glDeleteTextures(1, &handle);
 }
 
 void Texture::bind() const
 {
 	if(isValid())
-		glBindTexture(mType, mHandle);
+		glBindTexture(type, handle);
 	else
-		glBindTexture(GL_TEXTURE_2D, mHandle);
+		glBindTexture(GL_TEXTURE_2D, handle);
 }
 
 void Texture::unbind() const
 {
 	if(isValid())
-		glBindTexture(mType, 0);
+		glBindTexture(type, 0);
 	else
 		glBindTexture(GL_TEXTURE_2D, 0);
 }
 
 bool Texture::isValid() const
 {
-	return (mType != GL_INVALID_ENUM);
+	return (type != GL_INVALID_ENUM);
 }
 
 bool Texture::hasAlpha(int format)

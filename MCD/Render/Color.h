@@ -26,6 +26,7 @@ public:
 
 	ColorRGBf(float uniform) : r(uniform), g(uniform), b(uniform) {}
 
+// Operations
 	/*!	Multiple the color with a scaler.
 		\note
 			May get out of range after the multiplication, use clamp()
@@ -40,6 +41,7 @@ public:
 	//! Clamp the color components back into it's range [0, 1]
 	void clamp();
 
+// Attributes
 	float r, g, b;
 };	// ColorRGBf
 

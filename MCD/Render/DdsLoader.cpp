@@ -273,7 +273,7 @@ public:
 	void upload()
 	{
 		DdsLoader& loader = static_cast<DdsLoader&>(mLoader);
-		MCD_ASSERT(loader.mLoadingState == Loaded);
+		MCD_ASSERT(loader.loadingState == Loaded);
 		(void)loader;
 
 		glewInit();
@@ -316,10 +316,10 @@ IResourceLoader::LoadingState DdsLoader::load(std::istream* is, const Path*)
 {
 	MCD_ASSUME(mImpl != nullptr);
 
-	mLoadingState = is ? NotLoaded : Aborted;
+	loadingState = is ? NotLoaded : Aborted;
 
-	if(mLoadingState & Stopped)
-		return mLoadingState;
+	if(loadingState & Stopped)
+		return loadingState;
 
 	// There is no need to do a mutex lock during loading, since
 	// no body can access the mImageData if the loading isn't finished.
@@ -329,11 +329,11 @@ IResourceLoader::LoadingState DdsLoader::load(std::istream* is, const Path*)
 	ScopeLock lock(mutex);
 
 	if(result != 0)
-		mLoadingState = Aborted;
+		loadingState = Aborted;
 	else
-		mLoadingState = Loaded;
+		loadingState = Loaded;
 
-	return mLoadingState;
+	return loadingState;
 }
 
 void DdsLoader::uploadData()

@@ -135,10 +135,10 @@ IResourceLoader::LoadingState BitmapLoader::load(std::istream* is, const Path*)
 {
 	MCD_ASSUME(mImpl != nullptr);
 
-	mLoadingState = is ? NotLoaded : Aborted;
+	loadingState = is ? NotLoaded : Aborted;
 
-	if(mLoadingState & Stopped)
-		return mLoadingState;
+	if(loadingState & Stopped)
+		return loadingState;
 
 	// There is no need to do a mutex lock during loading, since
 	// no body can access the mImageData if the loading isn't finished.
@@ -147,11 +147,11 @@ IResourceLoader::LoadingState BitmapLoader::load(std::istream* is, const Path*)
 	ScopeLock lock(mImpl->mMutex);
 
 	if(result != 0)
-		mLoadingState = Aborted;
+		loadingState = Aborted;
 	else
-		mLoadingState = Loaded;
+		loadingState = Loaded;
 
-	return mLoadingState;
+	return loadingState;
 }
 
 void BitmapLoader::uploadData()
