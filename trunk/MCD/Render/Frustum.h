@@ -29,6 +29,7 @@ public:
 		projectionType = Perspective;
 	}
 
+// Operations
 	/*!	Define the frustum matrix from parameters: field of view, aspect ratio
 		and the near/far clip plane.
 		\param fovy Field of view in y-direction (in degree).
@@ -78,6 +79,7 @@ public:
 	 */
 	void computeVertex(sal_out_ecount(8) Vec3f* vertex) const;
 
+// Attributes
 	//! The field of view in degree.
 	float fov() const;
 

@@ -128,15 +128,15 @@ TEST(MultipleRenderTargetTest)
 			size_t h = height() / 2;
 
 			mColorRenderTexture->bind();
-			drawViewportQuad(0, h, w, h, mColorRenderTexture->type());
+			drawViewportQuad(0, h, w, h, mColorRenderTexture->type);
 
 			mDepthPass.bind();
 			mDepthRenderTexture->bind();
-			drawViewportQuad(w, h, w, h, mDepthRenderTexture->type());
+			drawViewportQuad(w, h, w, h, mDepthRenderTexture->type);
 			mDepthPass.unbind();
 
 			mNormalRenderTexture->bind();
-			drawViewportQuad(w, 0, w, h, mNormalRenderTexture->type());
+			drawViewportQuad(w, 0, w, h, mNormalRenderTexture->type);
 		}
 
 		void load3ds(const wchar_t* fileId)

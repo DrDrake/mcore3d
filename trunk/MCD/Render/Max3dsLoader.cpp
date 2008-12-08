@@ -547,17 +547,17 @@ IResourceLoader::LoadingState Max3dsLoader::Impl::load(std::istream* is, const P
 
 			case MAT_AMBIENT:	// Material - Ambient Color
 				if(!currentMaterial) ABORTLOADING();
-				readColor(currentMaterial->mAmbient);
+				readColor(currentMaterial->ambient);
 				break;
 
 			case MAT_DIFFUSE:	// Material - Diffuse Color
 				if(!currentMaterial) ABORTLOADING();
-				readColor(currentMaterial->mDiffuse);
+				readColor(currentMaterial->diffuse);
 				break;
 
 			case MAT_SPECULAR:	// Material - Spec Color
 				if(!currentMaterial) ABORTLOADING();
-				readColor(currentMaterial->mSpecular);
+				readColor(currentMaterial->specular);
 				break;
 
 			case SHINY_PERC:	// Material - Shininess (Glossiness)
@@ -566,14 +566,14 @@ IResourceLoader::LoadingState Max3dsLoader::Impl::load(std::istream* is, const P
 				uint16_t shininess = Math<int16_t>::clamp(readPercentageAsInt(), 0, 100);
 				// Rescale from 0-100 to 0-128 since the maximum accepted value for
 				// glMateriali with GL_SHININESS is 128
-				currentMaterial->mShininess = uint8_t(shininess * 128.f / 100);
+				currentMaterial->shininess = uint8_t(shininess * 128.f / 100);
 			}	break;
 
 			case SHINY_STR_PERC:	// Material - Shine Strength
 			{
 				if(!currentMaterial) ABORTLOADING();
 				uint16_t strength = readPercentageAsInt();
-				currentMaterial->mSpecular *= float(strength) / 100;
+				currentMaterial->specular *= float(strength) / 100;
 			}	break;
 
 			case TRANS_PERC:	// Material - Transparency
@@ -592,9 +592,9 @@ IResourceLoader::LoadingState Max3dsLoader::Impl::load(std::istream* is, const P
 				// We assume the texture is at the same path as the 3ds file itself.
 				Path adjustedPath = fileId ? fileId->getBranchPath()/textureFileName : textureFileName;
 				if(mResourceManager)
-					currentMaterial->mTexture = dynamic_cast<Texture*>(mResourceManager->load(adjustedPath, false).get());
+					currentMaterial->texture = dynamic_cast<Texture*>(mResourceManager->load(adjustedPath, false).get());
 				else
-					currentMaterial->mTexture = new Texture(adjustedPath);
+					currentMaterial->texture = new Texture(adjustedPath);
 			}	break;
 
 			// Skip unknown chunks.

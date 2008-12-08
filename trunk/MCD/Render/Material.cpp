@@ -6,7 +6,7 @@
 namespace MCD {
 
 Material::Material()
-	: mAmbient(0.5), mDiffuse(1), mSpecular(0), mShininess(0)
+	: ambient(0.5), diffuse(1), specular(0), shininess(0)
 {
 }
 
@@ -18,23 +18,23 @@ Material::~Material()
 
 void Material::bind() const
 {
-	{	GLfloat ambient[] = { mAmbient.r, mAmbient.g, mAmbient.b, 1.0f };
-		glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT, ambient);
+	{	GLfloat a[] = { ambient.r, ambient.g, ambient.b, 1.0f };
+		glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT, a);
 	}
 
-	{	GLfloat diffuse[] = { mDiffuse.r, mDiffuse.g, mDiffuse.b, 1.0f };
-		glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, diffuse);
+	{	GLfloat d[] = { diffuse.r, diffuse.g, diffuse.b, 1.0f };
+		glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, d);
 	}
 
-	{	GLfloat specular[] = { mSpecular.r, mSpecular.g, mSpecular.b, 1.0f };
-		glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR, specular);
-		glMateriali(GL_FRONT_AND_BACK, GL_SHININESS, mShininess);
+	{	GLfloat s[] = { specular.r, specular.g, specular.b, 1.0f };
+		glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR, s);
+		glMateriali(GL_FRONT_AND_BACK, GL_SHININESS, shininess);
 	}
 
-	if(mTexture) {
+	if(texture) {
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-		mTexture->bind();
+		texture->bind();
 	}
 	else
 		glBindTexture(GL_TEXTURE_2D, 0);

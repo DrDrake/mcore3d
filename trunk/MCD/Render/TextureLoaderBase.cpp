@@ -23,7 +23,7 @@ TextureLoaderBase::LoaderBaseImpl::~LoaderBaseImpl()
 }
 
 TextureLoaderBase::TextureLoaderBase()
-	: mImpl(nullptr), mLoadingState(NotLoaded)
+	: mImpl(nullptr), loadingState(NotLoaded)
 {
 }
 
@@ -40,62 +40,39 @@ void TextureLoaderBase::setImpl(LoaderBaseImpl* impl)
 	mImpl = impl;
 }
 
-template<>
-class Texture::PrivateAccessor<TextureLoaderBase>
-{
-public:
-	static uint& handle(Texture& texture) {
-		return texture.mHandle;
-	}
-	static int& format(Texture& texture) {
-		return texture.mFormat;
-	}
-	static int& type(Texture& texture) {
-		return texture.mType;
-	}
-	static size_t& width(Texture& texture) {
-		return texture.mWidth;
-	}
-	static size_t& height(Texture& texture) {
-		return texture.mHeight;
-	}
-};	// PrivateAccessor
-
 void TextureLoaderBase::commit(Resource& resource)
 {
-	typedef Texture::PrivateAccessor<TextureLoaderBase> Accessor;
-
 	if(!mImpl)
 		return;
 
 	ScopeLock lock(mImpl->mMutex);
 
-	if(!(mLoadingState & CanCommit))
+	if(!(loadingState & CanCommit))
 		return;
 
 	// Will throw exception if the resource is not of the type Texture
 	Texture& texture = dynamic_cast<Texture&>(resource);
 
-	Accessor::width(texture) = mImpl->mWidth;
-	Accessor::height(texture) = mImpl->mHeight;
-	Accessor::format(texture) = mImpl->mFormat;
-	Accessor::type(texture) = GL_TEXTURE_2D;	// Currently only support the loading of 2D texture
+	texture.width = mImpl->mWidth;
+	texture.height = mImpl->mHeight;
+	texture.format = mImpl->mFormat;
+	texture.type = GL_TEXTURE_2D;	// Currently only support the loading of 2D texture
 
 	if(!isPowerOf2(mImpl->mWidth) || !isPowerOf2(mImpl->mHeight))
 		Log::format(Log::Warn, L"Texture:'%s' has non-power of 2 size, which may hurt performance",
 			resource.fileId().getString().c_str());
 
-	GLuint* handle = reinterpret_cast<GLuint*>(&Accessor::handle(texture));
+	GLuint* handle = reinterpret_cast<GLuint*>(&texture.handle);
 
 	if(*handle == 0)
 		glGenTextures(1, handle);
-	glBindTexture(texture.type(), *handle);
+	glBindTexture(texture.type, *handle);
 
 	preUploadData();
 	uploadData();
 	postUploadData();
 
-	if(mLoadingState == Loaded) {
+	if(loadingState == Loaded) {
 		// The loader finish it's job, lets free up the resources
 		delete mImpl;
 		mImpl = nullptr;
@@ -107,14 +84,14 @@ void TextureLoaderBase::commit(Resource& resource)
 		// to foolproof any attempt to do anything.
 		return;
 	} else {
-		mLoadingState = Loading;
+		loadingState = Loading;
 	}
 }
 
 IResourceLoader::LoadingState TextureLoaderBase::getLoadingState() const
 {
-	// We don't have arithmetics on mLoadingState, so we don't need to lock on it
-	return mLoadingState;
+	// We don't have arithmetics on loadingState, so we don't need to lock on it
+	return loadingState;
 }
 
 void TextureLoaderBase::preUploadData()

@@ -23,14 +23,11 @@ protected:
 	sal_override ~TextureRenderBuffer() {}
 
 public:
+// Operations
 	/*!	Bind this buffer to the render target.
 		Must have the texture created before linking.
 	 */
 	sal_override sal_checkreturn bool linkTo(RenderTarget& renderTarget);
-
-	sal_override size_t width() const;
-
-	sal_override size_t height() const;
 
 	/*!	Helper function to create a texture for use as render buffer.
 		Although you can supply your own pre-defined texture by simply assigning
@@ -42,6 +39,11 @@ public:
 		\param usage Can be GL_COLOR_ATTACHMENTn_EXT or GL_DEPTH_ATTACHMENT_EXT
 	 */
 	sal_checkreturn bool createTexture(size_t width, size_t height, int type, int format);
+
+// Attributes
+	sal_override size_t width() const;
+
+	sal_override size_t height() const;
 
 	TexturePtr texture;
 

@@ -22,39 +22,18 @@ TextureRenderBuffer::TextureRenderBuffer(const TexturePtr& tex)
 
 bool TextureRenderBuffer::linkTo(RenderTarget& renderTarget)
 {
-	if(!texture || texture->width() != renderTarget.width() || texture->height() != renderTarget.height())
+	if(!texture || texture->width != renderTarget.width() || texture->height != renderTarget.height())
 		return false;
 
 	renderTarget.bind();
 	glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT,
-		mAttachmentType, texture->type(), texture->handle(), 0/*mipmap level*/);
+		mAttachmentType, texture->type, texture->handle, 0/*mipmap level*/);
 	renderTarget.unbind();
 
 	addOwnerShipTo(renderTarget);
 
 	return true;
 }
-
-template<>
-class Texture::PrivateAccessor<TextureRenderBuffer>
-{
-public:
-	static uint& handle(Texture& texture) {
-		return texture.mHandle;
-	}
-	static int& format(Texture& texture) {
-		return texture.mFormat;
-	}
-	static int& type(Texture& texture) {
-		return texture.mType;
-	}
-	static size_t& width(Texture& texture) {
-		return texture.mWidth;
-	}
-	static size_t& height(Texture& texture) {
-		return texture.mHeight;
-	}
-};	// PrivateAccessor
 
 bool TextureRenderBuffer::createTexture(size_t width, size_t height, int type, int format)
 {
@@ -64,17 +43,13 @@ bool TextureRenderBuffer::createTexture(size_t width, size_t height, int type, i
 	if(type != GL_TEXTURE_2D && type != GL_TEXTURE_RECTANGLE_ARB)
 		return false;
 
-	typedef Texture::PrivateAccessor<TextureRenderBuffer> Accessor;
-	GLuint* handle = reinterpret_cast<GLuint*>(&Accessor::handle(*texture));
-	MCD_ASSUME(handle);
-
-	Accessor::width(*texture) = width;
-	Accessor::height(*texture) = height;
-	Accessor::format(*texture) = format;
-	Accessor::type(*texture) = type;
+	texture->width = width;
+	texture->height = height;
+	texture->format = format;
+	texture->type = type;
 
 	glEnable(type);
-	glGenTextures(1, handle);
+	glGenTextures(1, &texture->handle);
 	texture->bind();
 
 	glTexParameterf(type, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
@@ -82,7 +57,7 @@ bool TextureRenderBuffer::createTexture(size_t width, size_t height, int type, i
 //	glTexParameterf(type, GL_DEPTH_TEXTURE_MODE, GL_INTENSITY);
 //	glTexParameterf(type, GL_TEXTURE_COMPARE_MODE, GL_NONE);
 
-	glTexImage2D(texture->type(), 0, format, width, height,
+	glTexImage2D(texture->type, 0, format, width, height,
 		0, format, GL_INT, nullptr);
 
 	// Assure the texture that is binded to the render target is not
@@ -94,12 +69,12 @@ bool TextureRenderBuffer::createTexture(size_t width, size_t height, int type, i
 
 size_t TextureRenderBuffer::width() const
 {
-	return texture ? texture->width() : 0;
+	return texture ? texture->width : 0;
 }
 
 size_t TextureRenderBuffer::height() const
 {
-	return texture ? texture->height() : 0;
+	return texture ? texture->height : 0;
 }
 
 }	// namespace MCD

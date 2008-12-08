@@ -22,13 +22,4 @@ public:
 	Mutex mMutex;
 };	// LoaderBaseImpl
 
-template<>
-class TextureLoaderBase::PrivateAccessor<TextureLoaderBase::LoaderBaseImpl>
-{
-public:
-	static volatile IResourceLoader::LoadingState& loadingState(TextureLoaderBase& loaderBase) {
-		return loaderBase.mLoadingState;
-	}
-};	// PrivateAccessor
-
 }	// namespace MCD

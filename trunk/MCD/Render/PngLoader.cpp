@@ -99,8 +99,6 @@ public:
 		impl->onPngInfoReady();
 	}
 
-	typedef TextureLoaderBase::PrivateAccessor<LoaderBaseImpl> PrivateAccessor;
-
 	// This function is called for every pass when each row of image data is complete.
 	static void row_callback(png_structp png_ptr, png_bytep new_row, png_uint_32 row_num, int pass)
 	{
@@ -117,7 +115,7 @@ public:
 		// Only change the loading state after a pass is finished
 		if(pass > impl->mCurrentPass) {
 			impl->mCurrentPass = pass;
-			PrivateAccessor::loadingState(impl->mLoader) = PartialLoaded;
+			impl->mLoader.loadingState = PartialLoaded;
 		}
 	}
 
@@ -126,7 +124,7 @@ public:
 		LoaderImpl* impl = reinterpret_cast<LoaderImpl*>(png_get_progressive_ptr(png_ptr));
 		MCD_ASSUME(impl != nullptr);
 
-		PrivateAccessor::loadingState(impl->mLoader) = Loaded;
+		impl->mLoader.loadingState = Loaded;
 	}
 
 	png_structp png_ptr;
@@ -150,10 +148,10 @@ IResourceLoader::LoadingState PngLoader::load(std::istream* is, const Path*)
 	Mutex& mutex = mImpl->mMutex;
 	ScopeLock lock(mutex);
 
-	mLoadingState = is ? NotLoaded : Aborted;
+	loadingState = is ? NotLoaded : Aborted;
 
-	if(mLoadingState & Stopped)
-		return mLoadingState;
+	if(loadingState & Stopped)
+		return loadingState;
 
 #ifdef MCD_VC
 #	pragma warning(push)
@@ -166,7 +164,7 @@ IResourceLoader::LoadingState PngLoader::load(std::istream* is, const Path*)
 #	pragma warning(pop)
 #endif
 	{
-		return (mLoadingState = Aborted);
+		return (loadingState = Aborted);
 	}
 
 	// Process the data (used for progressive loading).
@@ -179,9 +177,9 @@ IResourceLoader::LoadingState PngLoader::load(std::istream* is, const Path*)
 	png_process_data(impl->png_ptr, impl->info_ptr, (png_bytep)buff, readCount);
 
 	if(readCount == 0)
-		mLoadingState = Aborted;
+		loadingState = Aborted;
 
-	return mLoadingState;
+	return loadingState;
 }
 
 void PngLoader::uploadData()

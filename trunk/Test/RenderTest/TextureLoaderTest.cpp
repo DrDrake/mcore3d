@@ -88,8 +88,8 @@ TEST(Syn_TextureLoaderTest)
 		loader->commit(texture);
 
 		CHECK_EQUAL(IResourceLoader::Loaded, loader->getLoadingState());
-		CHECK_EQUAL(gTestStruct[i].expectingWidth, texture.width());
-		CHECK_EQUAL(gTestStruct[i].expectingHeight, texture.height());
+		CHECK_EQUAL(gTestStruct[i].expectingWidth, texture.width);
+		CHECK_EQUAL(gTestStruct[i].expectingHeight, texture.height);
 	}
 }
 
@@ -158,8 +158,8 @@ TEST(Asyn_TextureLoaderTest)
 		loader->commit(texture);
 
 		CHECK_EQUAL(IResourceLoader::Loaded, loader->getLoadingState());
-		CHECK_EQUAL(gTestStruct[i].expectingWidth, texture.width());
-		CHECK_EQUAL(gTestStruct[i].expectingHeight, texture.height());
+		CHECK_EQUAL(gTestStruct[i].expectingWidth, texture.width);
+		CHECK_EQUAL(gTestStruct[i].expectingHeight, texture.height);
 	}
 }
 
@@ -187,8 +187,8 @@ TEST(Error_TextureLoaderTest)
 
 	// Any error will result in an aborted state
 	CHECK_EQUAL(IResourceLoader::Aborted, loader.getLoadingState());
-	CHECK_EQUAL(0u, texture.width());
-	CHECK_EQUAL(0u, texture.height());
+	CHECK_EQUAL(0u, texture.width);
+	CHECK_EQUAL(0u, texture.height);
 }
 
 #include "BasicGlWindow.h"
@@ -299,7 +299,7 @@ public:
 		glRotatef(mAngle, 0, 1, 0);
 		glRotatef(mAngle, 0, 0, 1);
 
-		if(Texture::hasAlpha(texture.format())) {
+		if(Texture::hasAlpha(texture.format)) {
 			glEnable(GL_BLEND);
 			glBlendFunc(GL_SRC_ALPHA,GL_ONE);
 			glDisable(GL_CULL_FACE);
