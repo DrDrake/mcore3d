@@ -23,7 +23,7 @@ TextureLoaderBase::LoaderBaseImpl::~LoaderBaseImpl()
 }
 
 TextureLoaderBase::TextureLoaderBase()
-	: mImpl(nullptr), loadingState(NotLoaded)
+	: loadingState(NotLoaded), mImpl(nullptr)
 {
 }
 
