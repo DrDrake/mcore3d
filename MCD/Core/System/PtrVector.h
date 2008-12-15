@@ -30,6 +30,42 @@ class ptr_vector : protected std::vector<T*, A>
 {
 	typedef std::vector<T*, A> super_type;
 
+	template<typename T_, class I>
+	class iterator_template : public std::iterator<std::random_access_iterator_tag, T_>
+	{
+		friend class ptr_vector;
+		typedef typename std::iterator<std::random_access_iterator_tag, T_> super_;
+
+	public:
+		typedef typename super_::pointer pointer;
+		typedef typename super_::reference reference;
+		typedef typename super_::value_type value_type;
+		typedef typename super_::difference_type difference_type;
+		typedef typename super_::iterator_category iterator_category;
+
+		iterator_template(const I& i) : it(i) {}
+		reference operator*() const { return **it; }
+		pointer operator->() const { return *it; }
+		iterator_template& operator++() { ++it; return *this; }
+		iterator_template& operator++(int) { it++; return *this; }
+		iterator_template& operator--() { --it; return *this; }
+		iterator_template& operator--(int) { it++; return *this; }
+		iterator_template& operator+=(difference_type offset) { it += offset; return *this; }
+		iterator_template& operator-=(difference_type offset) { it -= offset; return *this; }
+		iterator_template operator+(difference_type offset) const { return it + offset; }
+		iterator_template operator-(difference_type offset) const { return it - offset; }
+		difference_type operator-(const iterator_template& rhs) const { return it - rhs.it; }
+		bool operator==(const iterator_template& rhs) const { return it == rhs.it; }
+		bool operator!=(const iterator_template& rhs) const { return it != rhs.it; }
+		bool operator< (const iterator_template& rhs) const { return it <  rhs.it; }
+		bool operator> (const iterator_template& rhs) const { return it >  rhs.it; }
+		bool operator<=(const iterator_template& rhs) const { return it <= rhs.it; }
+		bool operator>=(const iterator_template& rhs) const { return it >= rhs.it; }
+
+	protected:
+		I it;	//!< The actual iterator
+	};	// iterator_template
+
 public:
 	// Adjust the types from pointer to value
 	typedef T value_type;
@@ -43,37 +79,14 @@ public:
 	typedef typename super_type::allocator_type allocator_type;
 	typedef typename super_type::difference_type difference_type;
 
-	class iterator : public super_type::iterator
-	{
-		typedef typename super_type::iterator super_;
-
-	public:
-		typedef T value_type;
-		typedef value_type* pointer;
-		typedef value_type& reference;
-
-		iterator(const super_& s) : super_(s) {}
-		reference operator*() const { return *super_::operator*(); }
-		pointer operator->() const { return (&**this); }
-	};	// iterator
-
-	class const_iterator : public super_type::const_iterator
-	{
-		typedef typename super_type::const_iterator super_;
-
-	public:
-		typedef T value_type;
-		typedef value_type* pointer;
-		typedef value_type& reference;
-
-		const_iterator(const super_& s) : super_(s) {}
-		reference operator*() const { return *super_::operator*(); }
-		pointer operator->() const { return (&**this); }
-	};	// const_iterator
+	typedef iterator_template<T, typename super_type::iterator> iterator;
+	typedef iterator_template<const T, typename super_type::const_iterator> const_iterator;
+	typedef iterator_template<T, typename super_type::reverse_iterator> reverse_iterator;
+	typedef iterator_template<const T, typename super_type::const_reverse_iterator> const_reverse_iterator;
 
 	~ptr_vector()
 	{
-		if(DeleteObject) for(typename super_type::iterator i=this->begin(); i!=this->end(); ++i)
+		if(DeleteObject) for(typename super_type::iterator i=super_type::begin(); i!=super_type::end(); ++i)
 			delete (*i);
 	}
 
@@ -83,6 +96,12 @@ public:
 
 	iterator end() { return super_type::end(); }
 	const_iterator end() const { return super_type::end(); }
+
+	reverse_iterator rbegin() { return super_type::rbegin(); }
+	const_reverse_iterator rbegin() const { return super_type::rbegin(); }
+
+	reverse_iterator rend() { return super_type::rend(); }
+	const_reverse_iterator rend() const { return super_type::rend(); }
 
 	reference at(size_type pos) { return *super_type::at(pos); }
 	const_reference at(size_type pos) const { return *super_type::at(pos); }
@@ -108,14 +127,14 @@ public:
 	iterator insert(iterator where, pointer ptr)
 	{
 		assertUnique(ptr);
-		return super_type::insert(where, ptr);
+		return super_type::insert(where.it, ptr);
 	}
 
 	iterator erase(iterator where)
 	{
 		if(DeleteObject)
 			delete &(*where);
-		return super_type::erase(where);
+		return super_type::erase(where.it);
 	}
 
 	//! Make sure ptr is not already in the vector.
@@ -129,7 +148,7 @@ public:
 	void re_push_back(pointer ptr)
 	{
 		typename super_type::iterator i;
-		for(i=this->begin(); i!=this->end(); ++i)
+		for(i=super_type::begin(); i!=super_type::end(); ++i)
 			if(*i == ptr) break;
 		if(i != super_type::end())
 			super_type::erase(i);
@@ -152,7 +171,7 @@ private:
 
 	void assertUnique(pointer ptr)
 	{
-		if(DeleteObject) for(typename super_type::iterator i=this->begin(); i!=this->end(); ++i)
+		if(DeleteObject) for(typename super_type::iterator i=super_type::begin(); i!=super_type::end(); ++i)
 			assert(*i != ptr);
 	}
 };	// ptr_vector
