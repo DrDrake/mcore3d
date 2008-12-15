@@ -84,6 +84,7 @@
 		<Unit filename="System\LogTest.cpp" />
 		<Unit filename="System\MapTest.cpp" />
 		<Unit filename="System\PathTest.cpp" />
+		<Unit filename="System\PtrVectorTest.cpp" />
 		<Unit filename="System\ResourceLoaderTest.cpp" />
 		<Unit filename="System\SharedPtrTest.cpp" />
 		<Unit filename="System\StrUtilityTest.cpp" />

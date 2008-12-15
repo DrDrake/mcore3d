@@ -102,6 +102,7 @@
 		<Unit filename="System/Platform.h" />
 		<Unit filename="System/PlatformInclude.h" />
 		<Unit filename="System/PlatformIncludeFwd.h" />
+		<Unit filename="System/PtrVector.h" />
 		<Unit filename="System/RawFileSystem.cpp" />
 		<Unit filename="System/RawFileSystem.h" />
 		<Unit filename="System/Resource.cpp" />
