@@ -288,6 +288,10 @@
 				RelativePath=".\System\WindowTest.cpp"
 				>
 			</File>
+			<File
+				RelativePath=".\System\XmlParserTest.cpp"
+				>
+			</File>
 		</Filter>
 		<Filter
 			Name="Math"

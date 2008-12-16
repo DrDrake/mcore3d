@@ -332,6 +332,19 @@ int wStr2IntWithDefault(sal_in_z const wchar_t* wideStr, int defaultVal)
 	return defaultVal;
 }
 
+bool wStr2Double(const wchar_t* wideStr, double& number)
+{
+	// User sscanf or atoi didn't handle error very well
+	// TODO: Use locale facet instead of stringstream
+#ifdef MCD_CYGWIN
+	std::stringstream ss(wStrToStr(wideStr));
+#else
+	std::wstringstream ss(wideStr);
+#endif
+	ss >> number;
+	return !ss.fail();
+}
+
 int wstrCaseCmp(const wchar_t* string1, const wchar_t* string2)
 {
 #ifdef MCD_VC

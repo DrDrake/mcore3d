@@ -371,6 +371,10 @@
 					>
 				</File>
 				<File
+					RelativePath=".\System\XmlParser.h"
+					>
+				</File>
+				<File
 					RelativePath=".\System\ZipFileSystem.h"
 					>
 				</File>
@@ -461,6 +465,10 @@
 				</File>
 				<File
 					RelativePath=".\System\Window.Win.inc"
+					>
+				</File>
+				<File
+					RelativePath=".\System\XmlParser.cpp"
 					>
 				</File>
 				<File
