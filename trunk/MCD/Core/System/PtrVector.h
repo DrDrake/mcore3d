@@ -171,8 +171,10 @@ private:
 
 	void assertUnique(pointer ptr)
 	{
+#ifndef NDEBUG
 		if(DeleteObject) for(typename super_type::iterator i=super_type::begin(); i!=super_type::end(); ++i)
 			assert(*i != ptr);
+#endif
 	}
 };	// ptr_vector
 
