@@ -96,6 +96,7 @@
 		<Unit filename="System\UtilityTest.cpp" />
 		<Unit filename="System\WeakPtrTest.cpp" />
 		<Unit filename="System\WindowTest.cpp" />
+		<Unit filename="System\XmlParserTest.cpp" />
 		<Extensions>
 			<code_completion />
 			<debugger />

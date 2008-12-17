@@ -98,22 +98,53 @@ public:
 
 	~XmlParser();
 
+	/*!	Supply the xml document string to the parser.
+		The parser will use and modify this string (by placing '\0' at appropriate position),
+		all the element name, attribute name/value etc are returned as a pointer within this
+		supplied string.
+
+		The parser will not destroy the string, so you can use the pointer returned by elementName(), 
+		texData(), attributeName(), attributeValue() etc... until you destroy the string buffer.
+	 */
 	void parse(sal_in_z wchar_t* source);
 
+	/*!	Parse the next xml node and return the type of this node.
+		The xml document is presented as a series of \em Event, keep calling this function
+		until \em EndDocument or \em Error event is encountered to parse the whole document.
+	 */
 	Event::Enum nextEvent();
 
+	/*!	Get the name of the element.
+		Valid when the current event is BeginElement or EndElement.
+		\return "" if there is error.
+	 */
 	const wchar_t* elementName() const;
 
+	//! Returns if an element is an empty element, like <foo />
 	bool isEmptyElement() const;
 
+	/*!	Get the text of a Text, Comment, CData or Unknown node.
+		\return "" if there is error.
+	 */
 	const wchar_t* textData() const;
 
+	//! Get the number of attrubute for the current element.
 	size_t attributeCount() const;
 
+	/*!	Get the name of the n-th attrubute for the current element.
+		\return "" if there is error.
+	 */
 	const wchar_t* attributeName(size_t idx) const;
 
+	//@{
+	/*!	Get the value of the n-th attrubute for the current element.
+		\return "" if there is error.
+	 */
 	const wchar_t* attributeValue(size_t idx) const;
 
+	/*!	Get the value of attrubute with \em name for the current element.
+		\return "" if there is error.
+	 */
 	const wchar_t* attributeValue(sal_in_z const wchar_t* name) const;
 
 	const wchar_t* attributeValueIgnoreCase(sal_in_z const wchar_t* name) const;
@@ -123,7 +154,11 @@ public:
 	float attributeValueAsFloat(sal_in_z const wchar_t* name, float defaultValue = 0.0f) const;
 
 	float attributeValueAsFloatIgnoreCase(sal_in_z const wchar_t* name, float defaultValue = 0.0f) const;
+	//@}
 
+	/*!	A helper function to convert a string into float number.
+		In case of any erro, the function will return the supplied defaultValue.
+	 */
 	static float stringToFloat(sal_in_z const wchar_t* str, float defaultValue = 0.0f);
 
 protected:
