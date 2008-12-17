@@ -7,9 +7,9 @@
 		<Option compiler="cygwin" />
 		<Build>
 			<Target title="Debug (Linux)">
-				<Option output="../../Bin/Cored" prefix_auto="1" extension_auto="1" />
-				<Option working_dir="../../Bin" />
-				<Option object_output="Debug/Gcc_Linux/Obj/" />
+				<Option output="..\..\Bin\Cored" prefix_auto="1" extension_auto="1" />
+				<Option working_dir="..\..\Bin" />
+				<Option object_output="Debug\Gcc_Linux\Obj\" />
 				<Option type="3" />
 				<Option compiler="gcc" />
 				<Option createDefFile="1" />
@@ -18,9 +18,9 @@
 				</Compiler>
 			</Target>
 			<Target title="Release (Linux)">
-				<Option output="../../Bin/Core" prefix_auto="1" extension_auto="1" />
-				<Option working_dir="../../Bin" />
-				<Option object_output="Release/Gcc_Linux/Obj/" />
+				<Option output="..\..\Bin\Core" prefix_auto="1" extension_auto="1" />
+				<Option working_dir="..\..\Bin" />
+				<Option object_output="Release\Gcc_Linux\Obj\" />
 				<Option type="3" />
 				<Option compiler="gcc" />
 				<Option createDefFile="1" />
@@ -30,8 +30,8 @@
 				</Compiler>
 			</Target>
 			<Target title="Debug (Cygwin)">
-				<Option output="../../Bin/libCored" prefix_auto="1" extension_auto="1" />
-				<Option object_output="Debug/Gcc_Cygwin/Obj" />
+				<Option output="..\..\Bin\libCored" prefix_auto="1" extension_auto="1" />
+				<Option object_output="Debug\Gcc_Cygwin\Obj" />
 				<Option type="3" />
 				<Option compiler="cygwin" />
 				<Option createDefFile="1" />
@@ -41,8 +41,8 @@
 				</Compiler>
 			</Target>
 			<Target title="Release (Cygwin)">
-				<Option output="../../Bin/libCore" prefix_auto="1" extension_auto="1" />
-				<Option object_output="Release/Gcc_Cygwin/Obj" />
+				<Option output="..\..\Bin\libCore" prefix_auto="1" extension_auto="1" />
+				<Option object_output="Release\Gcc_Cygwin\Obj" />
 				<Option type="3" />
 				<Option compiler="cygwin" />
 				<Option createDefFile="1" />
@@ -55,87 +55,89 @@
 		</Build>
 		<Compiler>
 			<Add option="-DSGE_Core_EXPORTS" />
-			<Add directory="/usr/X11R6/include" />
+			<Add directory="\usr\X11R6\include" />
 		</Compiler>
 		<Linker>
 			<Add library="X11" />
 			<Add library="Xext" />
 			<Add library="z" />
-			<Add directory="/usr/X11R6/lib" />
+			<Add directory="\usr\X11R6\lib" />
 		</Linker>
-		<Unit filename="Math/BasicFunction.h" />
-		<Unit filename="Math/Magnitude.h" />
-		<Unit filename="Math/Mat33.h" />
-		<Unit filename="Math/Mat33.inl" />
-		<Unit filename="Math/Mat44.h" />
-		<Unit filename="Math/Mat44.inl" />
-		<Unit filename="Math/Quaternion.h" />
-		<Unit filename="Math/Quaternion.inl" />
-		<Unit filename="Math/Tuple.h" />
-		<Unit filename="Math/Vec2.h" />
-		<Unit filename="Math/Vec2.inl" />
-		<Unit filename="Math/Vec3.h" />
-		<Unit filename="Math/Vec3.inl" />
-		<Unit filename="Math/Vec4.h" />
-		<Unit filename="System/Array.h" />
-		<Unit filename="System/Atomic.h" />
-		<Unit filename="System/CondVar.cpp" />
-		<Unit filename="System/CondVar.h" />
-		<Unit filename="System/ErrorCode.cpp" />
-		<Unit filename="System/ErrorCode.h" />
-		<Unit filename="System/Exception.cpp" />
-		<Unit filename="System/Exception.h" />
-		<Unit filename="System/FileSystem.h" />
-		<Unit filename="System/IntrusivePtr.h" />
-		<Unit filename="System/LinkList.cpp" />
-		<Unit filename="System/LinkList.h" />
-		<Unit filename="System/Log.cpp" />
-		<Unit filename="System/Log.h" />
-		<Unit filename="System/Macros.h" />
-		<Unit filename="System/Map.cpp" />
-		<Unit filename="System/Map.h" />
-		<Unit filename="System/Mutex.cpp" />
-		<Unit filename="System/Mutex.h" />
-		<Unit filename="System/NonCopyable.h" />
-		<Unit filename="System/Path.cpp" />
-		<Unit filename="System/Path.h" />
-		<Unit filename="System/Platform.h" />
-		<Unit filename="System/PlatformInclude.h" />
-		<Unit filename="System/PlatformIncludeFwd.h" />
-		<Unit filename="System/PtrVector.h" />
-		<Unit filename="System/RawFileSystem.cpp" />
-		<Unit filename="System/RawFileSystem.h" />
-		<Unit filename="System/Resource.cpp" />
-		<Unit filename="System/Resource.h" />
-		<Unit filename="System/ResourceLoader.h" />
-		<Unit filename="System/ResourceManager.cpp" />
-		<Unit filename="System/ResourceManager.h" />
-		<Unit filename="System/SharedPtr.h" />
-		<Unit filename="System/StaticAssert.h" />
-		<Unit filename="System/StrUtility.cpp" />
-		<Unit filename="System/StrUtility.h" />
-		<Unit filename="System/Stream.cpp" />
-		<Unit filename="System/Stream.h" />
-		<Unit filename="System/TaskPool.cpp" />
-		<Unit filename="System/TaskPool.h" />
-		<Unit filename="System/Thread.cpp" />
-		<Unit filename="System/Thread.h" />
-		<Unit filename="System/ThreadPool.cpp" />
-		<Unit filename="System/ThreadPool.h" />
-		<Unit filename="System/Timer.cpp" />
-		<Unit filename="System/Timer.h" />
-		<Unit filename="System/TypeTrait.h" />
-		<Unit filename="System/Utility.cpp" />
-		<Unit filename="System/Utility.h" />
-		<Unit filename="System/Window.X11.inc" />
-		<Unit filename="System/Window.X11.inl" />
-		<Unit filename="System/Window.cpp" />
-		<Unit filename="System/Window.h" />
-		<Unit filename="System/Window.inl" />
-		<Unit filename="System/WindowEvent.h" />
-		<Unit filename="System/ZipFileSystem.cpp" />
-		<Unit filename="System/ZipFileSystem.h" />
-		<Unit filename="System/ZipFileSystem.inc" />
+		<Unit filename="Math\BasicFunction.h" />
+		<Unit filename="Math\Magnitude.h" />
+		<Unit filename="Math\Mat33.h" />
+		<Unit filename="Math\Mat33.inl" />
+		<Unit filename="Math\Mat44.h" />
+		<Unit filename="Math\Mat44.inl" />
+		<Unit filename="Math\Quaternion.h" />
+		<Unit filename="Math\Quaternion.inl" />
+		<Unit filename="Math\Tuple.h" />
+		<Unit filename="Math\Vec2.h" />
+		<Unit filename="Math\Vec2.inl" />
+		<Unit filename="Math\Vec3.h" />
+		<Unit filename="Math\Vec3.inl" />
+		<Unit filename="Math\Vec4.h" />
+		<Unit filename="System\Array.h" />
+		<Unit filename="System\Atomic.h" />
+		<Unit filename="System\CondVar.cpp" />
+		<Unit filename="System\CondVar.h" />
+		<Unit filename="System\ErrorCode.cpp" />
+		<Unit filename="System\ErrorCode.h" />
+		<Unit filename="System\Exception.cpp" />
+		<Unit filename="System\Exception.h" />
+		<Unit filename="System\FileSystem.h" />
+		<Unit filename="System\IntrusivePtr.h" />
+		<Unit filename="System\LinkList.cpp" />
+		<Unit filename="System\LinkList.h" />
+		<Unit filename="System\Log.cpp" />
+		<Unit filename="System\Log.h" />
+		<Unit filename="System\Macros.h" />
+		<Unit filename="System\Map.cpp" />
+		<Unit filename="System\Map.h" />
+		<Unit filename="System\Mutex.cpp" />
+		<Unit filename="System\Mutex.h" />
+		<Unit filename="System\NonCopyable.h" />
+		<Unit filename="System\Path.cpp" />
+		<Unit filename="System\Path.h" />
+		<Unit filename="System\Platform.h" />
+		<Unit filename="System\PlatformInclude.h" />
+		<Unit filename="System\PlatformIncludeFwd.h" />
+		<Unit filename="System\PtrVector.h" />
+		<Unit filename="System\RawFileSystem.cpp" />
+		<Unit filename="System\RawFileSystem.h" />
+		<Unit filename="System\Resource.cpp" />
+		<Unit filename="System\Resource.h" />
+		<Unit filename="System\ResourceLoader.h" />
+		<Unit filename="System\ResourceManager.cpp" />
+		<Unit filename="System\ResourceManager.h" />
+		<Unit filename="System\SharedPtr.h" />
+		<Unit filename="System\StaticAssert.h" />
+		<Unit filename="System\StrUtility.cpp" />
+		<Unit filename="System\StrUtility.h" />
+		<Unit filename="System\Stream.cpp" />
+		<Unit filename="System\Stream.h" />
+		<Unit filename="System\TaskPool.cpp" />
+		<Unit filename="System\TaskPool.h" />
+		<Unit filename="System\Thread.cpp" />
+		<Unit filename="System\Thread.h" />
+		<Unit filename="System\ThreadPool.cpp" />
+		<Unit filename="System\ThreadPool.h" />
+		<Unit filename="System\Timer.cpp" />
+		<Unit filename="System\Timer.h" />
+		<Unit filename="System\TypeTrait.h" />
+		<Unit filename="System\Utility.cpp" />
+		<Unit filename="System\Utility.h" />
+		<Unit filename="System\Window.X11.inc" />
+		<Unit filename="System\Window.X11.inl" />
+		<Unit filename="System\Window.cpp" />
+		<Unit filename="System\Window.h" />
+		<Unit filename="System\Window.inl" />
+		<Unit filename="System\WindowEvent.h" />
+		<Unit filename="System\XmlParser.cpp" />
+		<Unit filename="System\XmlParser.h" />
+		<Unit filename="System\ZipFileSystem.cpp" />
+		<Unit filename="System\ZipFileSystem.h" />
+		<Unit filename="System\ZipFileSystem.inc" />
 		<Extensions>
 			<code_completion />
 			<debugger />

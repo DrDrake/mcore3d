@@ -58,7 +58,7 @@ TEST(XmlParserTest)
 
 		switch(e)
 		{
-		case XmlParser::Event::BeginElement:
+		case Event::BeginElement:
 			if(wcscmp(parser.elementName(), L"config") == 0) {
 				CHECK_EQUAL(0u, parser.attributeCount());
 				CHECK(!parser.isEmptyElement());
@@ -80,20 +80,20 @@ TEST(XmlParserTest)
 			}
 			break;
 
-		case XmlParser::Event::Comment:
+		case Event::Comment:
 			CHECK_EQUAL(std::wstring(L" This is a comment "), parser.textData());
 			break;
 
-		case XmlParser::Event::Text:
+		case Event::Text:
 			CHECK_EQUAL(std::wstring(L"\t\t\tWelcome to \"MCore 3D Engine\".\t\t"), parser.textData());
 			break;
 
-		case XmlParser::Event::CData:
+		case Event::CData:
 			CHECK_EQUAL(std::wstring(L"\t\t\tmain() {}\t\t"), parser.textData());
 			break;
 
-		case XmlParser::Event::Error:
-		case XmlParser::Event::EndDocument:
+		case Event::Error:
+		case Event::EndDocument:
 			ended = true;
 			break;
 
@@ -105,4 +105,7 @@ TEST(XmlParserTest)
 
 		++eventCount;
 	}
+
+	// After the parsing is finished, further call to nextEvent() should return EndDocument
+	CHECK_EQUAL(Event::EndDocument, parser.nextEvent());
 }
