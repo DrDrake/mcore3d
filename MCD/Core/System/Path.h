@@ -75,6 +75,11 @@ public:
 	 */
 	string_type getExtension() const;
 
+	/*!	Remove the file extension in the path.
+		"/home/a.b.txt" -> "/home/a.b"
+	 */
+	void removeExtension();
+
 	/*!	Normalize the path to a standard form.
 		"./././"		-> ""		\n
 		"C:\"			-> "C:/"	\n
