@@ -113,7 +113,7 @@ TEST(Branch_PathTest)
 		CHECK_EQUAL(data[i][0], Path(data[i][1]).getBranchPath().getString());
 }
 
-TEST(Extension_PathTest)
+TEST(GetExtension_PathTest)
 {
 	const wchar_t* data[][2] = {
 		{L"",		L""},
@@ -124,6 +124,22 @@ TEST(Extension_PathTest)
 
 	for(size_t i=0; i<sizeof(data)/sizeof(const wchar_t*)/2; ++i)
 		CHECK_EQUAL(data[i][0], Path(data[i][1]).getExtension());
+}
+
+TEST(RemoveExtension_PathTest)
+{
+	const wchar_t* data[][2] = {
+		{L"",		L""},
+		{L"a",		L"a.txt"},
+		{L"a.txt/",	L"a.txt/"},
+		{L"a.b",	L"a.b.txt"},
+	};
+
+	for(size_t i=0; i<sizeof(data)/sizeof(const wchar_t*)/2; ++i) {
+		Path p(data[i][1]);
+		p.removeExtension();
+		CHECK_EQUAL(data[i][0], p.getString());
+	}
 }
 
 TEST(Normalize_PathTest)

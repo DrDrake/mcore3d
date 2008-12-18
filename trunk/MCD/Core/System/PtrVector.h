@@ -84,11 +84,7 @@ public:
 	typedef iterator_template<T, typename super_type::reverse_iterator> reverse_iterator;
 	typedef iterator_template<const T, typename super_type::const_reverse_iterator> const_reverse_iterator;
 
-	~ptr_vector()
-	{
-		if(DeleteObject) for(typename super_type::iterator i=super_type::begin(); i!=super_type::end(); ++i)
-			delete (*i);
-	}
+	~ptr_vector() { clear(); }
 
 // Accessors
 	iterator begin() { return super_type::begin(); }
@@ -163,6 +159,13 @@ public:
 			delete super_type::back();
 		super_type::pop_back();
 		return DeleteObject ? NULL : p;
+	}
+
+	void clear()
+	{
+		if(DeleteObject) for(typename super_type::iterator i=super_type::begin(); i!=super_type::end(); ++i)
+			delete (*i);
+		super_type::clear();
 	}
 
 private:

@@ -119,6 +119,23 @@ Path::string_type Path::getExtension() const
 	return L"";
 }
 
+void Path::removeExtension()
+{
+	// Scan from the end for the "." character
+	// Return if '\' or '/' encountered
+	size_type i = mStr.size();
+
+	while(i--) {
+		const char_type c = mStr[i];
+		if(c == L'.') {
+			mStr.resize(i);
+			return;
+		}
+		else if(c == L'\\' || c == L'/')
+			break;
+	}
+}
+
 Path& Path::normalize()
 {
 	if(mStr.empty())
