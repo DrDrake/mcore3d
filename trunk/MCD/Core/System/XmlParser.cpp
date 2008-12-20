@@ -462,12 +462,39 @@ float XmlParser::attributeValueAsFloatIgnoreCase(sal_in_z const wchar_t* name, f
 	return stringToFloat(attributeValueIgnoreCase(name), defaultValue);
 }
 
+bool XmlParser::attributeValueAsBool(size_t idx, bool defaultValue) const
+{
+	return stringToBool(attributeValue(idx), defaultValue);
+}
+
+bool XmlParser::attributeValueAsBool(sal_in_z const wchar_t* name, bool defaultValue) const
+{
+	return stringToBool(attributeValue(name), defaultValue);
+}
+
+bool XmlParser::attributeValueAsBoolIgnoreCase(sal_in_z const wchar_t* name, bool defaultValue) const
+{
+	return stringToBool(attributeValueIgnoreCase(name), defaultValue);
+}
+
 float XmlParser::stringToFloat(const wchar_t* str, float defaultValue)
 {
 	double value = defaultValue;
 	if(!str || !wStr2Double(str, value))
 		return defaultValue;
 	return float(value);
+}
+
+bool XmlParser::stringToBool(const wchar_t* str, bool defaultValue)
+{
+	double number = 0.0;
+	if(!str)
+		return defaultValue;
+	else if(wStr2Double(str, number) && number > 0)
+		return true;
+	else if(wstrCaseCmp(str, L"true") == 0)
+		return true;
+	return defaultValue;
 }
 
 }	// namespace MCD

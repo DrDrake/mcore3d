@@ -154,12 +154,20 @@ public:
 	float attributeValueAsFloat(sal_in_z const wchar_t* name, float defaultValue = 0.0f) const;
 
 	float attributeValueAsFloatIgnoreCase(sal_in_z const wchar_t* name, float defaultValue = 0.0f) const;
+
+	bool attributeValueAsBool(size_t idx, bool defaultValue = false) const;
+
+	bool attributeValueAsBool(sal_in_z const wchar_t* name, bool defaultValue = false) const;
+
+	bool attributeValueAsBoolIgnoreCase(sal_in_z const wchar_t* name, bool defaultValue = false) const;
 	//@}
 
 	/*!	A helper function to convert a string into float number.
 		In case of any erro, the function will return the supplied defaultValue.
 	 */
 	static float stringToFloat(sal_in_z const wchar_t* str, float defaultValue = 0.0f);
+
+	static bool stringToBool(sal_in_z const wchar_t* str, bool defaultValue = false);
 
 protected:
 	class Impl;
