@@ -16,4 +16,10 @@ void ColorRGBf::clamp()
 	b = Mathf::clamp(b, 0, 1);
 }
 
+void ColorRGBAf::clamp()
+{
+	ColorRGBf::clamp();
+	a = Mathf::clamp(a, 0, 1);
+}
+
 }	// namespace MCD

@@ -2,6 +2,10 @@
 #include "Material.h"
 #include "Texture.h"
 #include "../../3Party/glew/glew.h"
+#include <algorithm>
+#include <functional>
+
+using namespace std;
 
 namespace MCD {
 
@@ -38,6 +42,68 @@ void Material::bind() const
 	}
 	else
 		glBindTexture(GL_TEXTURE_2D, 0);
+}
+
+Material2::Pass::~Pass()
+{
+}
+
+void Material2::Pass::addProperty(IMaterialProperty* property)
+{
+	mProperty.push_back(property);
+}
+
+void Material2::Pass::preRender() const
+{
+	for_each(mProperty.begin(), mProperty.end(), mem_fun_ref(&IMaterialProperty::begin));
+}
+
+void Material2::Pass::postRender() const
+{
+	for_each(mProperty.begin(), mProperty.end(), mem_fun_ref(&IMaterialProperty::end));
+}
+
+Material2::~Material2()
+{
+}
+
+IMaterial* Material2::clone() const
+{
+	std::auto_ptr<Material2> newMaterial(new Material2);
+
+	// Clone all material properties in all pass to the new material
+	for(size_t i=0; i<mRenderPasses.size(); ++i) {
+		for(Pass::PropertyList::const_iterator j=mRenderPasses[i].mProperty.begin(); j!=mRenderPasses[i].mProperty.end(); ++j)
+			newMaterial->addProperty(j->clone(), i);
+	}
+
+	return newMaterial.release();
+}
+
+void Material2::preRender(size_t pass)
+{
+	MCD_ASSERT(pass < mRenderPasses.size());
+	mRenderPasses[pass].preRender();
+}
+
+void Material2::postRender(size_t pass)
+{
+	MCD_ASSERT(pass < mRenderPasses.size());
+	mRenderPasses[pass].postRender();
+}
+
+size_t Material2::getPassCount() const
+{
+	return mRenderPasses.size();
+}
+
+void Material2::addProperty(IMaterialProperty* property, size_t pass)
+{
+	// Create the necessery pass first
+	while(pass >= mRenderPasses.size())
+		mRenderPasses.push_back(new Pass);
+
+	static_cast<Pass&>(mRenderPasses[pass]).addProperty(property);
 }
 
 }	// namespace MCD

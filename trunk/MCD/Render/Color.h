@@ -24,7 +24,7 @@ class MCD_RENDER_API ColorRGBf
 public:
 	ColorRGBf() {}
 
-	ColorRGBf(float uniform) : r(uniform), g(uniform), b(uniform) {}
+	explicit ColorRGBf(float uniform) : r(uniform), g(uniform), b(uniform) {}
 
 // Operations
 	/*!	Multiple the color with a scaler.
@@ -42,8 +42,33 @@ public:
 	void clamp();
 
 // Attributes
+	float* rawPointer() {
+		return reinterpret_cast<float*>(this);
+	}
+
 	float r, g, b;
 };	// ColorRGBf
+
+class MCD_RENDER_API ColorRGBAf : public ColorRGBf
+{
+public:
+	ColorRGBAf() {}
+
+	ColorRGBAf(float uniform, float alpha) : ColorRGBf(uniform), a(alpha) {}
+
+	ColorRGBAf(const ColorRGBf& rgb, float alpha) : ColorRGBf(rgb), a(alpha) {}
+
+// Operations
+	//! Clamp the color components back into it's range [0, 1]
+	void clamp();
+
+// Attributes
+	float* rawPointer() {
+		return reinterpret_cast<float*>(this);
+	}
+
+	float a;
+};	// ColorRGBAf
 
 }	// namespace MCD
 
