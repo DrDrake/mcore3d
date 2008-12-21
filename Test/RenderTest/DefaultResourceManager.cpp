@@ -55,6 +55,7 @@ void DefaultResourceManager::setupFactories()
 {
 	addFactory(new BitmapLoaderFactory);
 	addFactory(new DdsLoaderFactory);
+	addFactory(new EffectLoaderFactory(*this));
 	addFactory(new JpegLoaderFactory);
 	addFactory(new Max3dsLoaderFactory(*this));
 	addFactory(new PixelShaderLoaderFactory);

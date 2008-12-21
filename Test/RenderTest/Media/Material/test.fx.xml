@@ -1,0 +1,50 @@
+<?xml version="1.0"?>
+<!-- A sample effect definiation xml -->
+
+<root>
+
+<merge mode="blend" />
+
+<pass>
+	<standard
+		ambient="0.2, 0.2, 0.2, 1.0"
+		diffuse="0.8, 0.6, 0.5, 1.0"
+		specular="0.5, 0.5, 0.5, 1.0"
+		shininess="30.0"
+	/>
+
+	<!-- The first occuring texture will use texture unit 0 -->
+	<texture
+		file="../normal128x128.png"
+		shaderName="diffuseMap"
+	/>
+
+	<shader>
+		<!-- Define the vertex shader just inside the xml -->
+		<vertex><![CDATA[
+			varying vec3 vertex;
+			varying vec3 vNormal;
+			void main(in vec4 pos, in vec3 nor) {
+				vertex = vec3(gl_ModelViewMatrix * pos);
+				vNormal = normalize(gl_NormalMatrix * nor);
+				gl_TexCoord[0] = gl_MultiTexCoord0;
+			}
+		]]></vertex>
+
+		<!-- Reference external file as fragment shader -->
+		<fragment file="Shader/Fragment.glps" />
+	</shader>
+</pass>
+
+<pass enable="true">
+  <standard
+		ambient="1.0, 1.0, 1.0, 1.0"
+		diffuse="0.0, 0.0, 0.0, 1.0"
+		specular="0.0, 0.0, 0.0, 1.0"
+	/>
+  <mode
+    drawLine="true"
+  />
+</pass>
+
+</root>

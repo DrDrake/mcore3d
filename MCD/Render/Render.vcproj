@@ -232,6 +232,14 @@
 				>
 			</File>
 			<File
+				RelativePath=".\Effect.h"
+				>
+			</File>
+			<File
+				RelativePath=".\EffectLoader.h"
+				>
+			</File>
+			<File
 				RelativePath=".\Frustum.h"
 				>
 			</File>
@@ -245,6 +253,10 @@
 			</File>
 			<File
 				RelativePath=".\Material.h"
+				>
+			</File>
+			<File
+				RelativePath=".\MaterialProperty.h"
 				>
 			</File>
 			<File
@@ -341,6 +353,14 @@
 				>
 			</File>
 			<File
+				RelativePath=".\Effect.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\EffectLoader.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\Frustum.cpp"
 				>
 			</File>
@@ -358,6 +378,10 @@
 			</File>
 			<File
 				RelativePath=".\Material.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\MaterialProperty.cpp"
 				>
 			</File>
 			<File

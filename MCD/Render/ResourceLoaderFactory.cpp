@@ -2,6 +2,8 @@
 #include "ResourceLoaderFactory.h"
 #include "BitmapLoader.h"
 #include "DdsLoader.h"
+#include "Effect.h"
+#include "EffectLoader.h"
 #include "JpegLoader.h"
 #include "Max3dsLoader.h"
 #include "Model.h"
@@ -122,6 +124,30 @@ ResourcePtr Max3dsLoaderFactory::createResource(const Path& fileId)
 IResourceLoader* Max3dsLoaderFactory::createLoader()
 {
 	return new Max3dsLoader(&mResourceManager);
+}
+
+EffectLoaderFactory::EffectLoaderFactory(ResourceManager& resourceManager)
+	: mResourceManager(resourceManager)
+{
+}
+
+ResourcePtr EffectLoaderFactory::createResource(const Path& fileId)
+{
+	// We try to detect the fileId haveing a ".fx.xml" or not.
+	if(wstrCaseCmp(fileId.getExtension().c_str(), L"xml") != 0)
+		return nullptr;
+
+	Path p = fileId;
+	p.removeExtension();
+	if(wstrCaseCmp(p.getExtension().c_str(), L"fx") != 0)
+		return nullptr;
+
+	return new Effect(fileId);
+}
+
+IResourceLoader* EffectLoaderFactory::createLoader()
+{
+	return new EffectLoader(mResourceManager);
 }
 
 }	// namespace MCD

@@ -133,9 +133,6 @@ void Mesh::unbind()
 
 void Mesh::draw()
 {
-	glEnableClientState(GL_VERTEX_ARRAY);
-	bind(Mesh::Position);
-
 	if(mFormat & Mesh::Color) {
 		glEnableClientState(GL_COLOR_ARRAY);
 		bind(Mesh::Color);
@@ -152,6 +149,11 @@ void Mesh::draw()
 	}
 
 	bind(Mesh::Index);
+
+	// Calling glVertexPointer() as late as possible will have a big performance difference!
+	// Reference: http://developer.nvidia.com/object/using_VBOs.html
+	glEnableClientState(GL_VERTEX_ARRAY);
+	bind(Mesh::Position);
 
 	glDrawElements(GL_TRIANGLES, mIndexCount, GL_UNSIGNED_SHORT, 0);
 }

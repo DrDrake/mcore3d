@@ -9,7 +9,10 @@ using namespace MCD;
 
 ChamferBoxBuilder::ChamferBoxBuilder(float filletRadius, size_t filletSegmentCount)
 {
-	enable(Mesh::Position | Mesh::Normal | Mesh::Index);
+	enable(Mesh::Position | Mesh::Normal | Mesh::Index | Mesh::TextureCoord0);
+
+	textureUnit(Mesh::TextureCoord0);
+	textureCoordSize(2);
 
 	const size_t cubeFaceCount = 6;
 	const size_t rowCount = (filletSegmentCount + 1) * 2;	// Number of vertex along y direction
@@ -20,7 +23,7 @@ ChamferBoxBuilder::ChamferBoxBuilder(float filletRadius, size_t filletSegmentCou
 	const float segmentWidth = (filletSegmentCount == 0) ? 0 : filletRadius / filletSegmentCount;
 
 	const Vec3f center(0, 0, 0);
-	const Vec3f extend(1.0f);
+	const Vec3f extent(1.0f);
 
 	reserveVertex(vertexCount * cubeFaceCount);
 	reserveTriangle(indexCount * cubeFaceCount / 3);
@@ -37,28 +40,28 @@ ChamferBoxBuilder::ChamferBoxBuilder(float filletRadius, size_t filletSegmentCou
 	// Loop for the 6 faces of the unit cube
 	for(size_t cubeFace = 0; cubeFace < cubeFaceCount; ++cubeFace)
 	{
-		Vec3f position(0, 0, extend.z);
-		Vec3f corner(0, 0, extend.z - filletRadius);
+		Vec3f position(0, 0, extent.z);
+		Vec3f corner(0, 0, extent.z - filletRadius);
 
 		for(size_t x = 0; x < columnCount; ++x)
 		{
 			if(x <= filletSegmentCount) {
-				corner.x = center.x - extend.x + filletRadius;
+				corner.x = center.x - extent.x + filletRadius;
 				position.x = corner.x - filletRadius + x * segmentWidth;
 			}
 			else {
-				corner.x = center.x + extend.x - filletRadius;
+				corner.x = center.x + extent.x - filletRadius;
 				position.x = corner.x + (x - filletSegmentCount - 1) * segmentWidth;
 			}
 
 			for(size_t y = 0; y < rowCount; ++y)
 			{
 				if(y <= filletSegmentCount) {
-					corner.y = center.y - extend.y + filletRadius;
+					corner.y = center.y - extent.y + filletRadius;
 					position.y = corner.y - filletRadius + y * segmentWidth;
 				}
 				else {
-					corner.y = center.y + (extend.y - filletRadius);
+					corner.y = center.y + (extent.y - filletRadius);
 					position.y = corner.y + (y - filletSegmentCount - 1) * segmentWidth;
 				}
 
@@ -74,8 +77,11 @@ ChamferBoxBuilder::ChamferBoxBuilder(float filletRadius, size_t filletSegmentCou
 				p = transforms[cubeFace] * p;
 				n = transforms[cubeFace] * n;
 
+				Vec2f uv(position.x / extent.x, position.y / extent.y);
+
 				MeshBuilder::position(p);
 				MeshBuilder::normal(n);
+				MeshBuilder::textureCoord(uv);
 				MeshBuilder::addVertex();
 			}
 		}

@@ -490,10 +490,12 @@ bool XmlParser::stringToBool(const wchar_t* str, bool defaultValue)
 	double number = 0.0;
 	if(!str)
 		return defaultValue;
-	else if(wStr2Double(str, number) && number > 0)
-		return true;
+	else if(wStr2Double(str, number))
+		return number > 0;
 	else if(wstrCaseCmp(str, L"true") == 0)
 		return true;
+	else if(wstrCaseCmp(str, L"false") == 0)
+		return false;
 	return defaultValue;
 }
 
