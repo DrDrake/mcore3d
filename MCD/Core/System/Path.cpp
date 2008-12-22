@@ -152,8 +152,10 @@ Path& Path::normalize()
 		end = beg + 3;
 		if( (beg == 1 && mStr[0] == L('.'))
 			|| (beg == 2 && mStr[0] == L('.') && mStr[1] == L('.'))
-			|| (beg > 2 && mStr[beg-3] == L('/')
-			&& mStr[beg-2] == L('.') && mStr[beg-1] == L('.')) )
+			// NOTE: The following 2 lines of code cause problem in Rational Purify,
+			// and the purpose of it is not totally understand yet.
+/*			|| (beg > 2 && mStr[beg-3] == L('/')
+			&& mStr[beg-2] == L('.') && mStr[beg-1] == L('.'))*/ )
 		{
 			beg = end;
 			continue;

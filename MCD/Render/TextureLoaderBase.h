@@ -33,7 +33,7 @@ public:
 
 	sal_override LoadingState getLoadingState() const;
 
-// Attrubutes
+// Attributes
 	volatile LoadingState loadingState;
 
 protected:

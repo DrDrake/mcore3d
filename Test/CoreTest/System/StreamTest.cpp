@@ -129,7 +129,7 @@ public:
 		size_t len = rand() % maxLength;
 		str.resize(len);
 		for(;len--;)
-			str[len] = rand() % (127 - ' ') + ' ';
+			str[len] = char(rand() % (127 - ' ') + ' ');
 	}
 
 	std::ios_base::seekdir genRandomSeekDir()

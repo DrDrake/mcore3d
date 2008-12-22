@@ -18,7 +18,7 @@ static bool parseColor4f(const wchar_t* str, ColorRGBAf& color)
 	if(!str)
 		return true;
 
-	// %*s means ingnoring any non-numeric characters
+	// %*s means ignoring any non-numeric characters
 	return swscanf(str, L"%f%*s%f%*s%f%*s%f", &color.r, &color.g, &color.b, &color.a) == 4;
 }
 
@@ -40,7 +40,7 @@ public:
 
 		float shininess = parser.attributeValueAsFloatIgnoreCase(L"shininess", 0.0f);
 
-		// TODO: Remove the hardcoded ColorOperation
+		// TODO: Remove the hard coded ColorOperation
 		material.addProperty(
 			new StandardProperty(
 				ambient, diffuse, specular, ColorProperty::ColorOperation::Replace, shininess
@@ -67,7 +67,7 @@ public:
 			return false;
 
 		Path path(file);
-		path = path.hasRootDirectory() ? path : context.basePath / Path(file);
+		path = path.hasRootDirectory() ? path : context.basePath / path;
 		TexturePtr texture = dynamic_cast<Texture*>(context.resourceManager.load(path, false).get());
 
 		std::auto_ptr<TextureProperty> textureProperty(new TextureProperty(texture.get(), mTextureUnit));
@@ -109,7 +109,7 @@ class EffectLoader::Impl
 {
 public:
 	Impl(ResourceManager& resourceManager)
-		: mResourceManager(resourceManager)
+		: mIsCurrentPassEnabled(true), mResourceManager(resourceManager)
 	{
 		mLoaders.push_back(new StandardLoader);
 		mLoaders.push_back(new TextureLoader);
