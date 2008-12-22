@@ -17,7 +17,7 @@ public:
 		\param textureUnit GL_TEXTURE0 - GL_TEXTUREn
 
 		\param postMultipleMatrix
-			Post multiple the texture matirx with this one (in row major), usefull in
+			Post multiple the texture matrix with this one (in row major), useful in
 			conjunction with glsl; where in the vertex shader you generate the coordinate
 			using "coord = gl_TextureMatrix[textureUnit] * gl_ModelViewMatrix * gl_Vertex;".
 			To cancel out gl_ModelViewMatrix into the model matrix only, you would set

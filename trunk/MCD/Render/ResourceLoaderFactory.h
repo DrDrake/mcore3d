@@ -64,7 +64,7 @@ public:
 
 private:
 	/*!	This loader factory is going to be owned by the mResourceManager, so we can
-		use mResourceManager freely during the life-time of thie laoder factory.
+		use mResourceManager freely during the life-time of the loader factory.
 	 */
 	ResourceManager& mResourceManager;
 };	// Max3dsLoaderFactory

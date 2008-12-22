@@ -12,7 +12,7 @@ typedef Vec3<float> Vec3f;
 	The view frustum can be defined by six plane which where:
 	left, right, bottom, top, near and far. You can interpret those
 	six plans as perspective / orthogonal projection at the point
-	you want to calculte the projection matrix using computePerspective()
+	you want to calculate the projection matrix using computePerspective()
 	or computeOrtho() function.
  */
 class MCD_RENDER_API Frustum
@@ -72,7 +72,7 @@ public:
 	 */
 	void computeOrtho(sal_out_ecount(16) float* matrix) const;
 
-	/*!	Comopute the 8 vertex of the frustum.
+	/*!	Compute the 8 vertex of the frustum.
 		The order of the vertex are:
 		Near left-bottom, right-bottom, right-top, left-top;
 		Far left-bottom, right-bottom, right-top, left-top;
