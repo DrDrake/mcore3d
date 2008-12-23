@@ -1,5 +1,6 @@
 #include "Pch.h"
 #include "../../../MCD/Core/System/RawFileSystem.h"
+#include "../../../MCD/Core/System/RawFileSystemMonitor.h"
 #include "../../../MCD/Core/System/ZipFileSystem.h"
 #include <stdexcept>
 
@@ -49,6 +50,29 @@ TEST(RawFileSystemTest)
 	// Set a new root which not exist
 	CHECK(!fs.setRoot(L"__not_exist__"));
 }
+
+#ifdef MCD_VC
+
+TEST(RawFileSystemMonitorTest)
+{
+	RawFileSystemMonitor watcher(L"./", true);
+
+	RawFileSystem fs(L"./");
+
+	{	std::auto_ptr<std::ostream> os = fs.openWrite(L"1.txt");
+		*os << "abcd";
+	}
+	{	std::auto_ptr<std::ostream> os = fs.openWrite(L"2.txt");
+		*os << "abcd";
+	}
+
+	CHECK_EQUAL(L"1.txt", watcher.getChangedFile());
+	CHECK_EQUAL(L"2.txt", watcher.getChangedFile());
+	fs.remove(L"1.txt");
+	fs.remove(L"2.txt");
+}
+
+#endif	// MCD_VC
 
 TEST(ZipFileSystemTest)
 {

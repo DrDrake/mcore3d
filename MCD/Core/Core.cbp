@@ -105,6 +105,8 @@
 		<Unit filename="System\PtrVector.h" />
 		<Unit filename="System\RawFileSystem.cpp" />
 		<Unit filename="System\RawFileSystem.h" />
+		<Unit filename="System\RawFileSystemMonitor.cpp" />
+		<Unit filename="System\RawFileSystemMonitor.h" />
 		<Unit filename="System\Resource.cpp" />
 		<Unit filename="System\Resource.h" />
 		<Unit filename="System\ResourceLoader.h" />
