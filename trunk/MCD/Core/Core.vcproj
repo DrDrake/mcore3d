@@ -295,6 +295,10 @@
 					>
 				</File>
 				<File
+					RelativePath=".\System\RawFileSystemMonitor.h"
+					>
+				</File>
+				<File
 					RelativePath=".\System\Resource.h"
 					>
 				</File>
@@ -421,6 +425,10 @@
 				</File>
 				<File
 					RelativePath=".\System\RawFileSystem.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\System\RawFileSystemMonitor.cpp"
 					>
 				</File>
 				<File
