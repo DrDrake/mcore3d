@@ -11,6 +11,8 @@ class DefaultResourceManager : public MCD::ResourceManager
 public:
 	explicit DefaultResourceManager(MCD::IFileSystem& fileSystem);
 
+	~DefaultResourceManager();
+
 	/*!	
 		\return
 			>0 - A resource is sucessfully loaded (partial or full).
@@ -21,6 +23,9 @@ public:
 
 protected:
 	void setupFactories();
+
+	class Impl;
+	Impl* mImpl;
 };	// DefaultResourceManager
 
 #endif	// __MCD_RENDERTEST_DEFAULTRESOURCEMANAGER__

@@ -123,10 +123,25 @@ public:
 
 	sal_override ~ResourceManager();
 
-	/*!
+	/*!	Load a resource, see more on IResourceManager::load().
+		If the requesting resource is already loaded by the manager before, the
+		cached instance will be returned and no event generated.
 		\note Blocking load will also generate events.
 	 */
 	sal_override ResourcePtr load(const Path& fileId, bool block=false, uint priority=0);
+
+	/*!	By pass the cache and doing an explicity reload.
+		Return the original resource if reload is preformed, otherwise a new resource is
+		returned just like calling load().
+		\note This function is not part of the IResourceManager interface.
+	 */
+	ResourcePtr reload(const Path& fileId, bool block=false, uint priority=0);
+
+	/*!	Give up the control (uncache it) over the resource with that fileId.
+		Do nothing if that fileId is not already in the manager.
+		Usefull to reload a resource as a new instance.
+	 */
+	void forget(const Path& fileId);
 
 	/*! Event for notifying the loading status of a resource.
 		\note The member \em resource and \em loader may be null to

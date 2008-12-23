@@ -147,6 +147,11 @@ public:
 		}
 	}
 
+	MapNode* findMapNode(const Path& fileId)
+	{
+		return mResourceMap.find(fileId)->getOuterSafe();
+	}
+
 	void blockingLoad(const Path& fileId, MapNode& node, IResourceLoader& loader)
 	{
 		MCD_ASSERT(mEventQueue.mMutex.isLocked());
@@ -231,7 +236,7 @@ ResourcePtr ResourceManager::load(const Path& fileId, bool block, uint priority)
 	ScopeLock lock(mImpl->mEventQueue.mMutex);
 
 	{	// Find for existing resource
-		MapNode* node = mImpl->mResourceMap.find(fileId)->getOuterSafe();
+		MapNode* node = mImpl->findMapNode(fileId);
 
 		while(node) {	// Cache hit!
 			// But unfortunately, the resource is already deleted
@@ -254,10 +259,10 @@ ResourcePtr ResourceManager::load(const Path& fileId, bool block, uint priority)
 
 	IResourceLoader* loader = nullptr;
 	ResourcePtr resource = mImpl->createResource(fileId, loader);
-	if(!resource)
+	if(!resource || !loader) {
+		delete loader;
 		return nullptr;
-
-	MCD_ASSUME(loader);
+	}
 
 	MapNode* node = new MapNode(*resource);
 	MCD_VERIFY(mImpl->mResourceMap.insertUnique(node->mPathKey));
@@ -269,6 +274,46 @@ ResourcePtr ResourceManager::load(const Path& fileId, bool block, uint priority)
 		mImpl->backgroundLoad(fileId, *node, *loader, priority);
 
 	return resource;
+}
+
+ResourcePtr ResourceManager::reload(const Path& fileId, bool block, uint priority)
+{
+	MCD_ASSUME(mImpl != nullptr);
+	ScopeLock lock(mImpl->mEventQueue.mMutex);
+
+	// Find for existing resource
+	MapNode* node = mImpl->findMapNode(fileId);
+
+	// The resource is not found
+	if(!node || !node->mResource.get()) {
+		mImpl->mEventQueue.mMutex.unlock();
+		lock.cancel();
+		return load(fileId, block, priority);
+	}
+
+	// We are only interested in the loader, the returned resource pointer is simple ignored.
+	IResourceLoader* loader = nullptr;
+	if(!mImpl->createResource(fileId, loader) || !loader) {
+		delete loader;
+		return nullptr;
+	}
+
+	// Now we can begin the load operation
+	if(block)
+		mImpl->blockingLoad(fileId, *node, *loader);
+	else
+		mImpl->backgroundLoad(fileId, *node, *loader, priority);
+
+	return node->mResource.get();
+}
+
+void ResourceManager::forget(const Path& fileId)
+{
+	MCD_ASSUME(mImpl != nullptr);
+	ScopeLock lock(mImpl->mEventQueue.mMutex);
+
+	// Find and remove the existing resource from the manager
+	delete mImpl->findMapNode(fileId);
 }
 
 ResourceManager::Event ResourceManager::popEvent()
