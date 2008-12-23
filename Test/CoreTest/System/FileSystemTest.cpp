@@ -55,7 +55,7 @@ TEST(RawFileSystemTest)
 
 TEST(RawFileSystemMonitorTest)
 {
-	RawFileSystemMonitor watcher(L"./", true);
+	RawFileSystemMonitor monitor(L"./", true);
 
 	RawFileSystem fs(L"./");
 
@@ -66,8 +66,8 @@ TEST(RawFileSystemMonitorTest)
 		*os << "abcd";
 	}
 
-	CHECK_EQUAL(L"1.txt", watcher.getChangedFile());
-	CHECK_EQUAL(L"2.txt", watcher.getChangedFile());
+	CHECK_EQUAL(L"1.txt", monitor.getChangedFile());
+	CHECK_EQUAL(L"2.txt", monitor.getChangedFile());
 	fs.remove(L"1.txt");
 	fs.remove(L"2.txt");
 }

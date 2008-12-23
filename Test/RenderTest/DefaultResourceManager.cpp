@@ -4,6 +4,7 @@
 #include "../../MCD/Core/System/FileSystemCollection.h"
 #include "../../MCD/Core/System/Log.h"
 #include "../../MCD/Core/System/RawFileSystem.h"
+#include "../../MCD/Core/System/RawFileSystemMonitor.h"
 #include "../../MCD/Core/System/Resource.h"
 #include "../../MCD/Core/System/ResourceLoader.h"
 #include "../../MCD/Core/System/ZipFileSystem.h"
@@ -27,14 +28,41 @@ IFileSystem* createDefaultFileSystem()
 	return fileSystem.release();
 }
 
+class DefaultResourceManager::Impl
+{
+public:
+	Impl(const wchar_t* monitorDirectory)
+		: mMonitor(monitorDirectory, true)
+	{
+	}
+
+	MCD::RawFileSystemMonitor mMonitor;
+};	// Impl
+
 DefaultResourceManager::DefaultResourceManager(IFileSystem& fileSystem)
 	: ResourceManager(fileSystem)
 {
+	mImpl = new Impl(L"Media");
 	setupFactories();
+}
+
+DefaultResourceManager::~DefaultResourceManager()
+{
+	delete mImpl;
 }
 
 int DefaultResourceManager::processLoadingEvents()
 {
+	MCD_ASSUME(mImpl);
+
+	{	// Reload any changed files in the RawFileSystem
+		std::wstring path = mImpl->mMonitor.getChangedFile();
+		while(!path.empty()) {
+			reload(Path(path).normalize(), false);
+			path = mImpl->mMonitor.getChangedFile();
+		}
+	}
+
 	ResourceManager::Event e = popEvent();
 	if(e.loader) {
 		if(e.loader->getLoadingState() == IResourceLoader::Aborted) {

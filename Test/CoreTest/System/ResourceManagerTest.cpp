@@ -112,6 +112,28 @@ TEST(Basic_ResourceManagerTest)
 		manager.load(L"Main.cpp");
 	}
 
+	{	// Main.cpp should be cached, loading it again should not generate events
+		while(manager.popEvent().loader) {}
+		manager.load(L"Main.cpp", true);
+		CHECK(manager.popEvent().loader == nullptr);
+
+		// But if we forget it, then a new resource will be loaded
+		manager.forget(L"Main.cpp");
+		ResourcePtr resource2 = manager.load(L"Main.cpp", true);
+		CHECK(manager.popEvent().loader != nullptr);
+		CHECK(resource != resource2);
+		resource = resource2;	// Keep the resource for further testing
+	}
+
+	{	// Relaoding
+		while(manager.popEvent().loader) {}
+		CHECK_EQUAL(resource, manager.reload(L"Main.cpp", true));
+		CHECK(manager.popEvent().loader != nullptr);
+
+		manager.forget(L"ResourceManadgerTest.cpp");
+		CHECK(manager.reload(L"ResourceManadgerTest.cpp") != nullptr);
+	}
+
 	{	// Removal of all loader factories
 		manager.removeAllFactory();
 
