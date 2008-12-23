@@ -2,11 +2,11 @@
 #include "ResourceManager.h"
 #include "FileSystem.h"
 #include "Macros.h"
+#include "PtrVector.h"
 #include "Resource.h"
 #include "ResourceLoader.h"
 #include "TaskPool.h"
 #include "Utility.h"
-#include <set>
 
 #ifdef MCD_VC
 #	pragma warning(push)
@@ -177,15 +177,12 @@ public:
 	void addFactory(IFactory* factory)
 	{
 		MCD_ASSERT(mEventQueue.mMutex.isLocked());
-		mFactories.insert(factory);
+		mFactories.push_back(factory);
 	}
 
 	void removeAllFactory()
 	{
 		MCD_ASSERT(mEventQueue.mMutex.isLocked());
-		// Delete all factories
-		MCD_FOREACH(IFactory* factory, mFactories)
-			delete factory;
 		mFactories.clear();
 	}
 
@@ -194,10 +191,10 @@ public:
 		MCD_ASSERT(mEventQueue.mMutex.isLocked());
 		ResourcePtr ret;
 		// Loop for all factories to see which one will respondse to the fileId
-		MCD_FOREACH(IFactory* factory, mFactories) {
-			ret = factory->createResource(fileId);
+		for(Factories::iterator i=mFactories.begin(); i!=mFactories.end(); ++i) {
+			ret = i->createResource(fileId);
 			if(ret != nullptr) {
-				loader = factory->createLoader();
+				loader = i->createLoader();
 				return ret;
 			}
 		}
@@ -210,7 +207,7 @@ public:
 
 	Map<MapNode::PathKey> mResourceMap;
 
-	typedef std::set<IFactory*> Factories;
+	typedef ptr_vector<IFactory> Factories;
 	Factories mFactories;
 
 	EventQueue mEventQueue;

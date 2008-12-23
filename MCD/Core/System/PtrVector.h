@@ -44,6 +44,8 @@ class ptr_vector : protected std::vector<T*, A>
 		typedef typename super_::iterator_category iterator_category;
 
 		iterator_template(const I& i) : it(i) {}
+		template<typename T2, class I2>	// Template constructor allowing conversion from iterator to const_iterator
+		iterator_template(const iterator_template<T2, I2>& i) : it(i.it) {}
 		reference operator*() const { return **it; }
 		pointer operator->() const { return *it; }
 		iterator_template& operator++() { ++it; return *this; }
