@@ -132,18 +132,18 @@ public:
 	size_t attributeCount() const;
 
 	/*!	Get the name of the n-th attrubute for the current element.
-		\return "" if there is error.
+		\return null if there is error.
 	 */
 	const wchar_t* attributeName(size_t idx) const;
 
 	//@{
 	/*!	Get the value of the n-th attrubute for the current element.
-		\return "" if there is error.
+		\return null if there is error.
 	 */
 	const wchar_t* attributeValue(size_t idx) const;
 
 	/*!	Get the value of attrubute with \em name for the current element.
-		\return "" if there is error.
+		\return null if there is error.
 	 */
 	const wchar_t* attributeValue(sal_in_z const wchar_t* name) const;
 

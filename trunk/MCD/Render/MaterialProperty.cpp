@@ -119,6 +119,48 @@ void TextureProperty::end() const
 	glActiveTextureARB(GL_TEXTURE0_ARB);
 }
 
+// Font culling
+void FrontCullingProperty::begin() const
+{
+	glCullFace(GL_FRONT);
+}
+
+void FrontCullingProperty::end() const
+{
+	glCullFace(GL_BACK);
+}
+
+// Enable state
+EnableStateProperty::EnableStateProperty(int s)
+	: state(s)
+{}
+
+void EnableStateProperty::begin() const
+{
+	glEnable(state);
+}
+
+void EnableStateProperty::end() const
+{
+	glDisable(state);
+}
+
+// Disable state
+DisableStateProperty::DisableStateProperty(int s)
+	: state(s)
+{}
+
+void DisableStateProperty::begin() const
+{
+	glDisable(state);
+}
+
+void DisableStateProperty::end() const
+{
+	glEnable(state);
+}
+
+// Line drawing
 void LineDrawingProperty::begin() const
 {
 	glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
@@ -127,6 +169,20 @@ void LineDrawingProperty::begin() const
 void LineDrawingProperty::end() const
 {
 	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+}
+
+LineWidthProperty::LineWidthProperty(float w)
+	: width(w)
+{}
+
+void LineWidthProperty::begin() const
+{
+	glLineWidth(width);
+}
+
+void LineWidthProperty::end() const
+{
+	glLineWidth(1.0f);
 }
 
 }	// namespace MCD

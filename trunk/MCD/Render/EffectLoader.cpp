@@ -29,7 +29,7 @@ public:
 		return L"standard";
 	}
 
-	sal_override bool load(XmlParser& parser, IMaterial& material, const Context& context)
+	sal_override bool load(XmlParser& parser, IMaterial& material, Context& context)
 	{
 		ColorRGBAf ambient(0, 0);
 		if(!parseColor4f(parser.attributeValueIgnoreCase(L"ambient"), ambient)) return false;
@@ -60,7 +60,7 @@ public:
 		return L"texture";
 	}
 
-	sal_override bool load(XmlParser& parser, IMaterial& material, const Context& context)
+	sal_override bool load(XmlParser& parser, IMaterial& material, Context& context)
 	{
 		const wchar_t* file = parser.attributeValueIgnoreCase(L"file");
 		if(!file || file[0] == L'\0')
@@ -87,21 +87,97 @@ public:
 	size_t mTextureUnit;	//! This variable will keep increasing every time a load operation is performed
 };	// TextureLoader
 
-class ModeLoader : public EffectLoader::ILoader
+class PassLoader : public EffectLoader::ILoader
 {
 public:
-	sal_override const wchar_t* name() const {
-		return L"mode";
+	PassLoader()
+	{
+		mLoaders.push_back(new StandardLoader);
+		mLoaders.push_back(new TextureLoader);
 	}
 
-	sal_override bool load(XmlParser& parser, IMaterial& material, const Context& context)
+	sal_override const wchar_t* name() const {
+		return L"pass";
+	}
+
+	sal_override bool load(XmlParser& parser, IMaterial& material, Context& context)
 	{
+		typedef XmlParser::Event Event;
+
+		// If the pass is disabled, skip the whole element.
+		if(!parser.attributeValueAsBoolIgnoreCase(L"enable", true/*By default a pass is enabled*/))
+		{
+			if(parser.isEmptyElement())
+				return true;
+			while(true) switch(parser.nextEvent()) {
+			case Event::EndElement:
+				if(wstrCaseCmp(parser.elementName(), L"pass") == 0)
+					return true;
+				break;
+
+			case Event::Error:
+			case Event::EndDocument:
+				return false;
+
+			default:
+				break;
+			}
+		}
+
+		const wchar_t* attributeValue = nullptr;
+		// Parse the attributes of "pass"
 		if(parser.attributeValueAsBoolIgnoreCase(L"drawLine", false))
 			material.addProperty(new LineDrawingProperty, context.pass);
 
+		if(parser.attributeValueIgnoreCase(L"lineWidth"))
+			material.addProperty(new LineWidthProperty(parser.attributeValueAsFloatIgnoreCase(L"lineWidth", 1.0f)), context.pass);
+
+		if((attributeValue = parser.attributeValueIgnoreCase(L"cullMode")) != nullptr) {
+			if(wstrCaseCmp(attributeValue, L"none") == 0)
+				material.addProperty(new DisableStateProperty(GL_CULL_FACE), context.pass);
+			else if(wstrCaseCmp(attributeValue, L"front") == 0)
+				material.addProperty(new FrontCullingProperty, context.pass);
+		}
+
+		if(parser.isEmptyElement()) {
+			++context.pass;
+			return true;
+		}
+
+		while(true) switch(parser.nextEvent())
+		{
+		case Event::BeginElement:
+			// Search for a loader that will response with this xml element
+			for(Loaders::iterator i=mLoaders.begin(); i!=mLoaders.end(); ++i) {
+				if(wstrCaseCmp(parser.elementName(), i->name()) != 0)
+					continue;
+				if(!i->load(parser, material, context))
+					return false;
+				break;
+			}
+			break;
+
+		case Event::EndElement:
+			if(wstrCaseCmp(parser.elementName(), L"pass") == 0) {
+				++context.pass;
+				return true;
+			}
+			break;
+
+		case Event::Error:
+		case Event::EndDocument:
+			return false;
+
+		default:
+			break;
+		}
+
 		return true;
 	}
-};	// ModeLoader
+
+	typedef ptr_vector<ILoader> Loaders;
+	Loaders mLoaders;
+};	// PassLoader
 
 }	// namespace
 
@@ -109,11 +185,9 @@ class EffectLoader::Impl
 {
 public:
 	Impl(ResourceManager& resourceManager)
-		: mIsCurrentPassEnabled(true), mResourceManager(resourceManager)
+		: mResourceManager(resourceManager)
 	{
-		mLoaders.push_back(new StandardLoader);
-		mLoaders.push_back(new TextureLoader);
-		mLoaders.push_back(new ModeLoader);
+		mLoaders.push_back(new PassLoader);
 	}
 
 	IResourceLoader::LoadingState load(std::istream* is, const Path* fileId)
@@ -142,53 +216,30 @@ public:
 
 		// Parse the xml
 		typedef XmlParser::Event Event;
-		bool ended = false;
 		XmlParser parser;
 		parser.parse(const_cast<wchar_t*>(xmlString.c_str()));
-
-		while(!ended)
-		{
-			Event::Enum e = parser.nextEvent();
-
-			switch(e)
-			{
-			case Event::BeginElement:
-				if(!mIsCurrentPassEnabled)
-					break;
-
-				if(wstrCaseCmp(parser.elementName(), L"pass") == 0)
-					mIsCurrentPassEnabled = parser.attributeValueAsBoolIgnoreCase(L"enable", true);
-
-				// Search for a loader that will response with this xml element
-				for(ptr_vector<ILoader>::iterator i=mLoaders.begin(); i!=mLoaders.end(); ++i) {
-					if(wstrCaseCmp(parser.elementName(), i->name()) != 0)
-						continue;
-					if(!i->load(parser, mMaterial, context)) {
-						mLoadingState = Aborted;
-						ended = true;
-					}
-					break;
-				}
-				break;
-
-			case Event::EndElement:
-				if(wstrCaseCmp(parser.elementName(), L"pass") == 0) {
-					mIsCurrentPassEnabled = true;
-					++context.pass;
-				}
-				break;
-
-			case Event::Error:
-			case Event::EndDocument:
-				ended = true;
-				break;
-
-			default:
-				break;
-			}
-		}
-
 		mLoadingState = Loaded;
+
+		while(true) switch(parser.nextEvent())
+		{
+		case Event::BeginElement:
+			// Search for a loader that will response with this xml element
+			for(Loaders::iterator i=mLoaders.begin(); i!=mLoaders.end(); ++i) {
+				if(wstrCaseCmp(parser.elementName(), i->name()) != 0)
+					continue;
+				if(!i->load(parser, mMaterial, context))
+					return mLoadingState = Aborted;
+			}
+			break;
+
+		case Event::Error:
+			mLoadingState = Aborted;
+		case Event::EndDocument:
+			return mLoadingState;
+
+		default:
+			break;
+		}
 
 		return mLoadingState;
 	}
@@ -201,10 +252,10 @@ public:
 
 	IResourceLoader::LoadingState mLoadingState;
 
-	ptr_vector<ILoader> mLoaders;
-	Material2 mMaterial;
+	typedef ptr_vector<ILoader> Loaders;
+	Loaders mLoaders;
 
-	bool mIsCurrentPassEnabled;
+	Material2 mMaterial;
 
 	ResourceManager& mResourceManager;
 };	// Impl

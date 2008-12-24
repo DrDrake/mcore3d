@@ -37,7 +37,7 @@ public:
 		virtual ~ILoader() {}
 		//! Returns the xml element name that this loader response to.
 		virtual const wchar_t* name() const = 0;
-		virtual bool load(XmlParser& parser, IMaterial& material, const Context& context) = 0;
+		virtual bool load(XmlParser& parser, IMaterial& material, Context& context) = 0;
 	};	// ILoader
 
 	EffectLoader(ResourceManager& resourceManager);
