@@ -60,6 +60,7 @@ private:
 	static ColorRGBAf mCurrent;
 };	// AmbientProperty
 
+// DiffuseProperty
 class MCD_RENDER_API DiffuseProperty : public ColorProperty
 {
 public:
@@ -77,6 +78,7 @@ private:
 	static ColorRGBAf mCurrent;
 };	// DiffuseProperty
 
+// SpecularProperty
 class MCD_RENDER_API SpecularProperty : public ColorProperty
 {
 public:
@@ -94,6 +96,7 @@ private:
 	static ColorRGBAf mCurrent;
 };	// SpecularProperty
 
+// ShininessProperty
 class MCD_RENDER_API ShininessProperty : public IMaterialProperty
 {
 public:
@@ -109,6 +112,7 @@ private:
 	float mValue;
 };	// ShininessProperty
 
+// StandardProperty
 class MCD_RENDER_API StandardProperty : public IMaterialProperty
 {
 public:
@@ -136,6 +140,7 @@ private:
 class Texture;
 typedef IntrusivePtr<Texture> TexturePtr;
 
+// TextureProperty
 class MCD_RENDER_API TextureProperty : public IMaterialProperty
 {
 public:
@@ -154,10 +159,54 @@ public:
 	std::string shaderName;	//!< The name of the texture that appear in the shader.
 };	// TextureProperty
 
+// FrontCullingProperty
+class MCD_RENDER_API FrontCullingProperty : public IMaterialProperty
+{
+public:
+	sal_override IMaterialProperty* clone() const {
+		return new FrontCullingProperty(*this);
+	}
+
+	sal_override void begin() const;
+	sal_override void end() const;
+};	// FrontCullingProperty
+
+// EnableStateProperty
+class MCD_RENDER_API EnableStateProperty : public IMaterialProperty
+{
+public:
+	EnableStateProperty(int state);
+
+	sal_override IMaterialProperty* clone() const {
+		return new EnableStateProperty(*this);
+	}
+
+	sal_override void begin() const;
+	sal_override void end() const;
+
+	int state;
+};	// EnableStateProperty
+
+// DisableStateProperty
+class MCD_RENDER_API DisableStateProperty : public IMaterialProperty
+{
+public:
+	DisableStateProperty(int state);
+
+	sal_override IMaterialProperty* clone() const {
+		return new DisableStateProperty(*this);
+	}
+
+	sal_override void begin() const;
+	sal_override void end() const;
+
+	int state;
+};	// DisableStateProperty
+
 // LineDrawingProperty
 class MCD_RENDER_API LineDrawingProperty : public IMaterialProperty
 {
-public :
+public:
 	sal_override IMaterialProperty* clone() const {
 		return new LineDrawingProperty(*this);
 	}
@@ -165,6 +214,22 @@ public :
 	sal_override void begin() const;
 	sal_override void end() const;
 };	// LineDrawingProperty
+
+// LineWidthProperty
+class MCD_RENDER_API LineWidthProperty : public IMaterialProperty
+{
+public:
+	LineWidthProperty(float width);
+
+	sal_override IMaterialProperty* clone() const {
+		return new LineWidthProperty(*this);
+	}
+
+	sal_override void begin() const;
+	sal_override void end() const;
+
+	float width;
+};	// LineWidthProperty
 
 }	// namespace MCD
 

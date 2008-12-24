@@ -5,7 +5,12 @@
 
 <merge mode="blend" />
 
-<pass>
+<pass enable="false" />
+
+<pass
+	enable="true"
+	drawLine="false"
+>
 	<standard
 		ambient="0.2, 0.2, 0.2, 1.0"
 		diffuse="0.8, 0.6, 0.5, 1.0"
@@ -36,15 +41,17 @@
 	</shader>
 </pass>
 
-<pass enable="true">
+<pass
+	enable="true"
+	drawLine="true"
+	lineWidth="1"
+	cullMode="front"
+>
   <standard
 		ambient="1.0, 1.0, 1.0, 1.0"
 		diffuse="0.0, 0.0, 0.0, 1.0"
 		specular="0.0, 0.0, 0.0, 1.0"
 	/>
-  <mode
-    drawLine="true"
-  />
 </pass>
 
 </root>
