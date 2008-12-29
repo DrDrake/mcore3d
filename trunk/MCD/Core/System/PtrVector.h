@@ -128,9 +128,9 @@ public:
 		return super_type::insert(where.it, ptr);
 	}
 
-	iterator erase(iterator where)
+	iterator erase(iterator where, bool deleteObject=true)
 	{
-		if(DeleteObject)
+		if(DeleteObject && deleteObject)
 			delete &(*where);
 		return super_type::erase(where.it);
 	}
@@ -163,10 +163,11 @@ public:
 		return DeleteObject ? NULL : p;
 	}
 
-	void clear()
+	void clear(bool deleteObject=true)
 	{
-		if(DeleteObject) for(typename super_type::iterator i=super_type::begin(); i!=super_type::end(); ++i)
-			delete (*i);
+		if(DeleteObject && deleteObject)
+			for(typename super_type::iterator i=super_type::begin(); i!=super_type::end(); ++i)
+				delete (*i);
 		super_type::clear();
 	}
 

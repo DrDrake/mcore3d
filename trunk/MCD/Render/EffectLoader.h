@@ -9,7 +9,7 @@
 namespace MCD {
 
 class IMaterial;
-class ResourceManager;
+class IResourceManager;
 class XmlParser;
 
 class MCD_RENDER_API EffectLoader : public IResourceLoader, private Noncopyable
@@ -31,7 +31,7 @@ public:
 			Path basePath;
 
 			void* userData;
-			ResourceManager& resourceManager;
+			IResourceManager& resourceManager;
 		};	// Context
 
 		virtual ~ILoader() {}
@@ -40,7 +40,7 @@ public:
 		virtual bool load(XmlParser& parser, IMaterial& material, Context& context) = 0;
 	};	// ILoader
 
-	EffectLoader(ResourceManager& resourceManager);
+	explicit EffectLoader(IResourceManager& resourceManager);
 
 	sal_override ~EffectLoader();
 

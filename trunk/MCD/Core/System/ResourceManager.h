@@ -4,7 +4,9 @@
 #include "../ShareLib.h"
 #include "IntrusivePtr.h"
 #include "NonCopyable.h"
+#include "Path.h"
 #include "SharedPtr.h"
+#include <list>
 
 namespace MCD {
 
@@ -14,7 +16,27 @@ class Path;
 class Resource;
 typedef IntrusivePtr<Resource> ResourcePtr;
 
-/*!	Resource manager
+/*!	A class that represent a callback for the IResourceManager.
+	As part of the loading process, we want some callback after certain resource(s)
+	finished loading. What make this callback interesting is that you can register
+	some dependency to it, so that the callback is only invoked after the dependencies
+	are resolved.
+ */
+class MCD_ABSTRACT_CLASS IResourceManagerCallback
+{
+public:
+	virtual ~IResourceManagerCallback() {}
+
+	/*!	Path is used as dependency instead of Reosource to reduce ownership hell.
+	 */
+	virtual void addDependency(const Path& fileId) = 0;
+};	// IResourceManagerCallback
+
+/*!	A manager that handle the LOADING and CACHING of resources.
+	\note
+		This class only have a very few interface, because only those functions will be
+		accessed by many different classes. Other functions that only accessed in a few
+		places (mostly in the main loop) will left for the deveried class to expose.
  */
 class MCD_ABSTRACT_CLASS IResourceManager
 {
@@ -23,14 +45,22 @@ protected:
 
 public:
 	/*!	Load a resource.
+		The interface itself doesn't define how a resource is cached, what this function
+		will be returned is totally up to the implementation.
 		\param fileId Unique identifier for the resource to load.
 		\param block Weather the function should block until the load process finish.
 		\param priority The loading priority for background/progressive loading.
 	 */
 	virtual ResourcePtr load(const Path& fileId, bool block=false, uint priority=0) = 0;
+
+	/*!	As part of the loading process, we want some callback after certain
+		resource finished loading.
+	 */
+	virtual void addCallback(sal_in IResourceManagerCallback* callback) = 0;
 };	// IResourceManager
 
 class TaskPool;
+class ResourceManagerCallback;
 
 /*!	A default implementation of IResourceManager.
 	Typical usage of ResourceManager:
@@ -153,7 +183,21 @@ public:
 		SharedPtr<IResourceLoader> loader;
 	};	// Event
 
+	/*!	Get any loading event from the event queue.
+		If there is no event in the queue, a event with it's resource and loader
+		equals to null will be returned.
+		\note Any callback will also invoke inside this function.
+	 */
 	Event popEvent();
+
+	/*!	Register a callback to be invoke later.
+		\param callback it's ownership will be taken by ResourceManager, therefore it
+			must be created from heap. Do nothing if it is null.
+		\note
+			Do not invoke addDependency() after the callback is added to the manager,
+			because the callback may be modified by the worker thread as well.
+	 */
+	sal_override void addCallback(sal_in IResourceManagerCallback* callback);
 
 	/*!	Adds a resource factory to the manager.
 		\param factory Put null to remove association.
@@ -173,6 +217,25 @@ protected:
 	class Impl;
 	Impl* mImpl;
 };	// ResourceManager
+
+//! Callback for ResourceManager.
+class MCD_CORE_API ResourceManagerCallback : public IResourceManagerCallback
+{
+	friend class ResourceManager;
+
+public:
+	virtual void doCallback(ResourceManager::Event& event) = 0;
+
+	//! Do not invoke it concurrently.
+	sal_override void addDependency(const Path& fileId);
+
+protected:
+	//!	Return true if the last dependency is removed.
+	bool removeDependency(const Path& fileId);
+
+	typedef std::list<Path> Paths;
+	Paths mDependency;
+};	// ResourceManagerCallback
 
 }	// namespace MCD
 

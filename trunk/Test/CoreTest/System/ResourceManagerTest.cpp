@@ -150,6 +150,55 @@ TEST(Basic_ResourceManagerTest)
 	}
 }
 
+namespace {
+
+class FakeCallback : public ResourceManagerCallback
+{
+public:
+	sal_override void doCallback(ResourceManager::Event& e)
+	{
+		++count;
+	}
+
+	static size_t count;
+};	// FakeCallback
+
+size_t FakeCallback::count = 0;
+
+}	// namespace
+
+TEST(Callback_ResourceManagerTest)
+{
+	std::auto_ptr<IFileSystem> fs(new RawFileSystem(L"./"));
+	ResourceManager manager(*fs);
+	fs.release();
+
+	// Register factory
+	manager.addFactory(new FakeFactory(L"cpp"));
+
+	// Create and register callback
+	FakeCallback* callback = new FakeCallback();
+	callback->addDependency(L"Main.cpp");
+	callback->addDependency(L"ResourceManadgerTest.cpp");
+	manager.addCallback(callback);
+
+	callback = new FakeCallback();
+	callback->addDependency(L"Main.cpp");
+	manager.addCallback(callback);
+
+	// Will not trigger any callback
+	FakeCallback::count = 0;
+	manager.load(L"ResourceManadgerTest.cpp", true);
+	while(manager.popEvent().loader) {}
+	CHECK_EQUAL(0u, FakeCallback::count);
+
+	// Will trigger the two callbacks
+	FakeCallback::count = 0;
+	manager.load(L"Main.cpp", true);
+	while(manager.popEvent().loader) {}
+	CHECK_EQUAL(2u, FakeCallback::count);
+}
+
 TEST(Negative_ResourceManagerTest)
 {
 	{	// File type not found (resulting null resource)

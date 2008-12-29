@@ -87,6 +87,60 @@ public:
 	size_t mTextureUnit;	//! This variable will keep increasing every time a load operation is performed
 };	// TextureLoader
 
+class ShaderLoader : public EffectLoader::ILoader
+{
+public:
+	sal_override const wchar_t* name() const {
+		return L"shader";
+	}
+
+	sal_override bool load(XmlParser& parser, IMaterial& material, Context& context)
+	{
+		if(parser.isEmptyElement())
+			return true;
+
+		typedef XmlParser::Event Event;
+		char vertexOrFragment = 0;	// To indicate the current parsing shader type, can be (v)ertex or (f)ragment
+		const wchar_t* shaderFile = nullptr;
+
+		while(true) switch(parser.nextEvent())
+		{
+		case Event::BeginElement:
+			if(wstrCaseCmp(parser.elementName(), L"vertex") == 0) {
+				shaderFile = parser.attributeValueIgnoreCase(L"file");
+				vertexOrFragment = 'v';
+			}
+			else if(wstrCaseCmp(parser.elementName(), L"fragment") == 0) {
+				shaderFile = parser.attributeValueIgnoreCase(L"file");
+				vertexOrFragment = 'f';
+			}
+			else
+				return false;
+
+			if(shaderFile) {
+			}
+			break;
+
+		case Event::CData:
+			break;
+
+		case Event::EndElement:
+			if(wstrCaseCmp(parser.elementName(), L"shader") == 0)
+				return true;
+			break;
+
+		case Event::Error:
+		case Event::EndDocument:
+			return false;
+
+		default:
+			break;
+		}
+
+		return true;
+	}
+};	// ShaderLoader
+
 class PassLoader : public EffectLoader::ILoader
 {
 public:
@@ -184,7 +238,7 @@ public:
 class EffectLoader::Impl
 {
 public:
-	Impl(ResourceManager& resourceManager)
+	Impl(IResourceManager& resourceManager)
 		: mResourceManager(resourceManager)
 	{
 		mLoaders.push_back(new PassLoader);
@@ -257,10 +311,10 @@ public:
 
 	Material2 mMaterial;
 
-	ResourceManager& mResourceManager;
+	IResourceManager& mResourceManager;
 };	// Impl
 
-EffectLoader::EffectLoader(ResourceManager& resourceManager)
+EffectLoader::EffectLoader(IResourceManager& resourceManager)
 {
 	mImpl = new Impl(resourceManager);
 }

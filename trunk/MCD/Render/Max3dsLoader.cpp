@@ -225,7 +225,7 @@ static void computeNormal(const Vec3f* vertex, Vec3f* normal, const uint16_t* in
 class Max3dsLoader::Impl
 {
 public:
-	Impl(ResourceManager* resourceManager);
+	Impl(IResourceManager* resourceManager);
 
 	~Impl();
 
@@ -243,7 +243,7 @@ public:
 
 private:
 	Stream* mStream;
-	ResourceManager* mResourceManager;
+	IResourceManager* mResourceManager;
 
 	//! Represent which face the material is assigned to.
 	struct MultiSubObject
@@ -270,7 +270,7 @@ private:
 	mutable Mutex mMutex;
 };	// Impl
 
-Max3dsLoader::Impl::Impl(ResourceManager* resourceManager)
+Max3dsLoader::Impl::Impl(IResourceManager* resourceManager)
 	: mStream(nullptr), mResourceManager(resourceManager), mLoadingState(NotLoaded)
 {
 }
@@ -499,7 +499,8 @@ IResourceLoader::LoadingState Max3dsLoader::Impl::load(std::istream* is, const P
 				std::vector<uint32_t>& smoothingGroup = mModelInfo.back().smoothingGroup;
 				smoothingGroup.resize(mModelInfo.back().index.size() / 3);	// Count of index / 3 = numbers of face
 
-				mStream->read(&smoothingGroup[0], smoothingGroup.size() * sizeof(uint32_t));
+				if(!smoothingGroup.empty())
+					mStream->read(&smoothingGroup[0], smoothingGroup.size() * sizeof(uint32_t));
 			}	break;
 
 			//------------- TRI_MAPPINGCOORS ------------
@@ -739,7 +740,7 @@ IResourceLoader::LoadingState Max3dsLoader::Impl::getLoadingState() const
 	return mLoadingState;
 }
 
-Max3dsLoader::Max3dsLoader(ResourceManager* resourceManager)
+Max3dsLoader::Max3dsLoader(IResourceManager* resourceManager)
 {
 	mImpl = new Impl(resourceManager);
 }
