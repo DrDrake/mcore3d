@@ -7,6 +7,7 @@
 #include "ResourceLoader.h"
 #include "TaskPool.h"
 #include "Utility.h"
+#include <algorithm>	// for std::find
 
 #ifdef MCD_VC
 #	pragma warning(push)
@@ -207,6 +208,20 @@ public:
 		return nullptr;
 	}
 
+	void updateDependency(Event& e)
+	{
+		MCD_ASSERT(e.resource);
+
+		for(Callbacks::iterator i=mCallbacks.begin(); i!=mCallbacks.end();) {
+			// Invoke the callback if all dependencies are resolved.
+			if(i->removeDependency(e.resource->fileId())) {
+				i->doCallback(e);
+				i = mCallbacks.erase(i);
+			} else
+				++i;
+		}
+	}
+
 public:
 	TaskPool mTaskPool;
 
@@ -218,6 +233,9 @@ public:
 	EventQueue mEventQueue;
 
 	IFileSystem& mFileSystem;
+
+	typedef ptr_vector<ResourceManagerCallback> Callbacks;
+	Callbacks mCallbacks;
 };	// Impl
 
 ResourceManager::ResourceManager(IFileSystem& fileSystem)
@@ -319,8 +337,24 @@ void ResourceManager::forget(const Path& fileId)
 ResourceManager::Event ResourceManager::popEvent()
 {
 	MCD_ASSUME(mImpl != nullptr);
+
 	ScopeLock lock(mImpl->mEventQueue.mMutex);
-	return mImpl->mEventQueue.popFront();
+	Event ret = mImpl->mEventQueue.popFront();
+
+	if(ret.resource)
+		mImpl->updateDependency(ret);	// Mutex against addCallback()
+
+	return ret;
+}
+
+void ResourceManager::addCallback(IResourceManagerCallback* callback)
+{
+	MCD_ASSUME(mImpl != nullptr);
+	if(!callback)
+		return;
+
+	ScopeLock lock(mImpl->mEventQueue.mMutex);	// Mutex against popEvent()
+	mImpl->mCallbacks.push_back(dynamic_cast<ResourceManagerCallback*>(callback));
 }
 
 void ResourceManager::addFactory(IFactory* factory)
@@ -341,6 +375,20 @@ TaskPool& ResourceManager::taskPool()
 {
 	MCD_ASSUME(mImpl != nullptr);
 	return mImpl->mTaskPool;
+}
+
+void ResourceManagerCallback::addDependency(const Path& fileId)
+{
+	mDependency.push_back(fileId);
+}
+
+bool ResourceManagerCallback::removeDependency(const Path& fileId)
+{
+	Paths::iterator i=std::find(mDependency.begin(), mDependency.end(), fileId);
+	if(i == mDependency.end())
+		return false;
+	mDependency.erase(i);
+	return mDependency.empty();
 }
 
 }	// namespace MCD

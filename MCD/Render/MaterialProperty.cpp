@@ -1,5 +1,6 @@
 #include "Pch.h"
 #include "MaterialProperty.h"
+#include "Shader.h"
 #include "Texture.h"
 #include "../../3Party/glew/glew.h"
 
@@ -79,8 +80,20 @@ void StandardProperty::begin() const
 
 // Texture
 TextureProperty::TextureProperty(Texture* texture_, int unit_)
-	: texture(texture_), unit(unit_)
+	: unit(unit_), texture(texture_)
 {
+}
+
+TextureProperty::TextureProperty(const TextureProperty& rhs)
+	: texture(rhs.texture), unit(rhs.unit)
+{}
+
+TextureProperty& TextureProperty::operator=(const TextureProperty& rhs)
+{
+	unit = rhs.unit;
+	texture = rhs.texture;
+	shaderName = rhs.shaderName;
+	return *this;
 }
 
 TextureProperty::~TextureProperty()
@@ -117,6 +130,40 @@ void TextureProperty::end() const
 	glActiveTextureARB(GL_TEXTURE0_ARB + unit);
 	glDisable(texture->type);
 	glActiveTextureARB(GL_TEXTURE0_ARB);
+}
+
+// Shader
+ShaderProperty::ShaderProperty(Shader* shader_)
+	: shader(shader_)
+{
+}
+
+ShaderProperty::ShaderProperty(const ShaderProperty& rhs)
+	: shader(rhs.shader)
+{}
+
+ShaderProperty& ShaderProperty::operator=(const ShaderProperty& rhs)
+{
+	shader = rhs.shader;
+	return *this;
+}
+
+ShaderProperty::~ShaderProperty()
+{}
+
+IMaterialProperty* ShaderProperty::clone() const
+{
+	return new ShaderProperty(*this);
+}
+
+void ShaderProperty::begin() const
+{
+	if(!shader)
+		return;
+}
+
+void ShaderProperty::end() const
+{
 }
 
 // Font culling

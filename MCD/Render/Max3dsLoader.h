@@ -7,7 +7,7 @@
 
 namespace MCD {
 
-class ResourceManager;
+class IResourceManager;
 
 /*!	Loader for the Autodesk 3D studio's 3ds file format.
 	The loader will load vertex attributes including position and 1 texture coordinate,
@@ -29,7 +29,7 @@ public:
 		a resource manager in order to load the textures. If null pointer is supplied
 		as the manager,
 	 */
-	explicit Max3dsLoader(sal_maybenull ResourceManager* resourceManager = nullptr);
+	explicit Max3dsLoader(sal_maybenull IResourceManager* resourceManager = nullptr);
 
 	sal_override ~Max3dsLoader();
 

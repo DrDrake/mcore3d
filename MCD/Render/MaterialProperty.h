@@ -145,6 +145,8 @@ class MCD_RENDER_API TextureProperty : public IMaterialProperty
 {
 public:
 	TextureProperty(Texture* texture, int unit);
+	TextureProperty(const TextureProperty& rhs);			// Prevent compiler generated copy constructor
+	TextureProperty& operator=(const TextureProperty& rhs);	// and assignment operation
 
 	sal_override ~TextureProperty();
 
@@ -158,6 +160,28 @@ public:
 	TexturePtr texture;
 	std::string shaderName;	//!< The name of the texture that appear in the shader.
 };	// TextureProperty
+
+class Shader;
+typedef IntrusivePtr<Shader> ShaderPtr;
+
+// ShaderProperty
+class MCD_RENDER_API ShaderProperty : public IMaterialProperty
+{
+public:
+	explicit ShaderProperty(Shader* shader);
+	ShaderProperty(const ShaderProperty& rhs);
+	ShaderProperty& operator=(const ShaderProperty& rhs);
+
+	sal_override ~ShaderProperty();
+
+	sal_override IMaterialProperty* clone() const;
+
+	sal_override void begin() const;
+	sal_override void end() const;
+
+// Attributes
+	ShaderPtr shader;
+};	// ShaderProperty
 
 // FrontCullingProperty
 class MCD_RENDER_API FrontCullingProperty : public IMaterialProperty
