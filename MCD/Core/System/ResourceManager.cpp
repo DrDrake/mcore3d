@@ -213,11 +213,13 @@ public:
 		MCD_ASSERT(e.resource);
 
 		for(Callbacks::iterator i=mCallbacks.begin(); i!=mCallbacks.end();) {
-			// Invoke the callback if all dependencies are resolved.
-			if(i->removeDependency(e.resource->fileId())) {
-				i->doCallback(e);
-				i = mCallbacks.erase(i);
-			} else
+			int numDependencyLeft = i->removeDependency(e.resource->fileId());
+			if(numDependencyLeft >= 0)
+				i->doCallback(e, size_t(numDependencyLeft));
+
+			if(numDependencyLeft == 0)
+				i = mCallbacks.erase(i, true);
+			else
 				++i;
 		}
 	}
@@ -382,13 +384,13 @@ void ResourceManagerCallback::addDependency(const Path& fileId)
 	mDependency.push_back(fileId);
 }
 
-bool ResourceManagerCallback::removeDependency(const Path& fileId)
+int ResourceManagerCallback::removeDependency(const Path& fileId)
 {
 	Paths::iterator i=std::find(mDependency.begin(), mDependency.end(), fileId);
 	if(i == mDependency.end())
-		return false;
+		return -1;
 	mDependency.erase(i);
-	return mDependency.empty();
+	return mDependency.size();
 }
 
 }	// namespace MCD

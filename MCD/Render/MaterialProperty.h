@@ -3,6 +3,7 @@
 
 #include "ShareLib.h"
 #include "../Core/System/IntrusivePtr.h"
+#include "../Core/System/SharedPtr.h"
 
 namespace MCD {
 
@@ -161,14 +162,14 @@ public:
 	std::string shaderName;	//!< The name of the texture that appear in the shader.
 };	// TextureProperty
 
-class Shader;
-typedef IntrusivePtr<Shader> ShaderPtr;
+class ShaderProgram;
 
 // ShaderProperty
 class MCD_RENDER_API ShaderProperty : public IMaterialProperty
 {
 public:
-	explicit ShaderProperty(Shader* shader);
+	explicit ShaderProperty(ShaderProgram* shaderProgram);
+	explicit ShaderProperty(const SharedPtr<ShaderProgram>& shaderProgram);
 	ShaderProperty(const ShaderProperty& rhs);
 	ShaderProperty& operator=(const ShaderProperty& rhs);
 
@@ -180,7 +181,7 @@ public:
 	sal_override void end() const;
 
 // Attributes
-	ShaderPtr shader;
+	SharedPtr<ShaderProgram> shaderProgram;
 };	// ShaderProperty
 
 // FrontCullingProperty

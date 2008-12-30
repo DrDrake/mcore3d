@@ -1,6 +1,6 @@
 #include "Pch.h"
 #include "MaterialProperty.h"
-#include "Shader.h"
+#include "ShaderProgram.h"
 #include "Texture.h"
 #include "../../3Party/glew/glew.h"
 
@@ -133,18 +133,23 @@ void TextureProperty::end() const
 }
 
 // Shader
-ShaderProperty::ShaderProperty(Shader* shader_)
-	: shader(shader_)
+ShaderProperty::ShaderProperty(ShaderProgram* shaderProgram_)
+	: shaderProgram(shaderProgram_)
+{
+}
+
+ShaderProperty::ShaderProperty(const SharedPtr<ShaderProgram>& shaderProgram_)
+	: shaderProgram(shaderProgram_)
 {
 }
 
 ShaderProperty::ShaderProperty(const ShaderProperty& rhs)
-	: shader(rhs.shader)
+	: shaderProgram(rhs.shaderProgram)
 {}
 
 ShaderProperty& ShaderProperty::operator=(const ShaderProperty& rhs)
 {
-	shader = rhs.shader;
+	shaderProgram = rhs.shaderProgram;
 	return *this;
 }
 
@@ -158,12 +163,14 @@ IMaterialProperty* ShaderProperty::clone() const
 
 void ShaderProperty::begin() const
 {
-	if(!shader)
-		return;
+	if(shaderProgram)
+		shaderProgram->bind();
 }
 
 void ShaderProperty::end() const
 {
+	if(shaderProgram)
+		shaderProgram->unbind();
 }
 
 // Font culling

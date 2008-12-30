@@ -224,14 +224,18 @@ class MCD_CORE_API ResourceManagerCallback : public IResourceManagerCallback
 	friend class ResourceManager;
 
 public:
-	virtual void doCallback(ResourceManager::Event& event) = 0;
+	virtual void doCallback(ResourceManager::Event& event, size_t numDependencyLeft) = 0;
 
 	//! Do not invoke it concurrently.
 	sal_override void addDependency(const Path& fileId);
 
 protected:
-	//!	Return true if the last dependency is removed.
-	bool removeDependency(const Path& fileId);
+	/*!	Return:
+		<0	no dependency removed
+		0	all dependency removed
+		>0	number of dependency remains
+	 */
+	int removeDependency(const Path& fileId);
 
 	typedef std::list<Path> Paths;
 	Paths mDependency;
