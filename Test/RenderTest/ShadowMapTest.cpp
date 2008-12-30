@@ -219,10 +219,10 @@ public:
 		}
 
 		mShadowMapShader.bind();
-		int colorTex = glGetUniformLocation(mShadowMapShader.handle(), "colorTex");
+		int colorTex = glGetUniformLocation(mShadowMapShader.handle, "colorTex");
 		glUniform1i(colorTex, 0);
 
-		int shadowTex = glGetUniformLocation(mShadowMapShader.handle(), "shadowTex");
+		int shadowTex = glGetUniformLocation(mShadowMapShader.handle, "shadowTex");
 		glUniform1i(shadowTex, 1);
 		mShadowMapShader.unbind();
 	}

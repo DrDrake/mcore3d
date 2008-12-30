@@ -186,7 +186,6 @@ public:
 	/*!	Get any loading event from the event queue.
 		If there is no event in the queue, a event with it's resource and loader
 		equals to null will be returned.
-		\note Any callback will also invoke inside this function.
 	 */
 	Event popEvent();
 
@@ -198,6 +197,11 @@ public:
 			because the callback may be modified by the worker thread as well.
 	 */
 	sal_override void addCallback(sal_in IResourceManagerCallback* callback);
+
+	/*!	Resolve dependency and invoke the associated callback when apprioate.
+		\param event Supply with the event returned by popEvent()
+	 */
+	void doCallbacks(const Event& event);
 
 	/*!	Adds a resource factory to the manager.
 		\param factory Put null to remove association.
@@ -224,7 +228,10 @@ class MCD_CORE_API ResourceManagerCallback : public IResourceManagerCallback
 	friend class ResourceManager;
 
 public:
-	virtual void doCallback(ResourceManager::Event& event, size_t numDependencyLeft) = 0;
+	/*!	Invoked every time the depending resource had FINISHED loaded (ie. loaded successfully
+		or had error during loading but not partially loaded)
+	 */
+	virtual void doCallback(const ResourceManager::Event& event, size_t numDependencyLeft) = 0;
 
 	//! Do not invoke it concurrently.
 	sal_override void addDependency(const Path& fileId);

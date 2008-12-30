@@ -6,6 +6,11 @@
 
 namespace MCD {
 
+ShaderLoader::ShaderLoader(int shaderType)
+	: mShaderType(shaderType)
+{
+}
+
 IResourceLoader::LoadingState ShaderLoader::load(std::istream* is, const Path*)
 {
 	mLoadingState = is ? NotLoaded : Aborted;
@@ -29,6 +34,8 @@ void ShaderLoader::commit(Resource& resource)
 {
 	// Will throw exception if the resource is not of the type Shader
 	Shader& shader = dynamic_cast<Shader&>(resource);
+
+	shader.create(mShaderType);
 
 	if(!shader.compile(mSourceCode.c_str())) {
 		std::string log;

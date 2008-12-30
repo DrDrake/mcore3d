@@ -65,15 +65,17 @@ int DefaultResourceManager::processLoadingEvents()
 
 	ResourceManager::Event e = popEvent();
 	if(e.loader) {
-		if(e.loader->getLoadingState() == IResourceLoader::Aborted) {
+		bool hasError = e.loader->getLoadingState() == IResourceLoader::Aborted;
+
+		if(hasError)
 			Log::format(Log::Warn, L"Resource: %s %s", e.resource->fileId().getString().c_str(), L"failed to load");
-			return -1;
-		}
+		else	// Allow at most one resource to commit at each time
+			e.loader->commit(*e.resource);
 
-		// Allow at most one resource to commit at each time
-		e.loader->commit(*e.resource);
+		// Note that commit() is invoked before doCallbacks()
+		doCallbacks(e);
 
-		return 1;
+		return hasError ? -1 : 1;
 	}
 
 	return 0;

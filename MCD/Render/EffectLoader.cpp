@@ -95,13 +95,16 @@ class ShaderLoader : public EffectLoader::ILoader
 	class Callback : public ResourceManagerCallback
 	{
 	public:
-		sal_override void doCallback(ResourceManager::Event& event, size_t numDependencyLeft)
+		sal_override void doCallback(const ResourceManager::Event& event, size_t numDependencyLeft)
 		{
-			if(numDependencyLeft > 0) {
-				Shader* shader = dynamic_cast<Shader*>(event.resource.get());
-				if(shader)
-					program->attach(*shader);
-			} else
+			if(!program->handle)
+				program->create();
+
+			Shader* shader = dynamic_cast<Shader*>(event.resource.get());
+			if(shader)
+				program->attach(*shader);
+
+			if(numDependencyLeft == 0)
 				program->link();
 		}
 
@@ -119,37 +122,29 @@ public:
 			return true;
 
 		typedef XmlParser::Event Event;
-		char vertexOrFragment = 0;	// To indicate the current parsing shader type, can be (v)ertex or (f)ragment
 		const wchar_t* shaderFile = nullptr;
 
 		std::auto_ptr<ShaderProperty> shaderProperty(new ShaderProperty(new ShaderProgram));
-		ShaderPtr vertexShader, fragmentShader;
-		Callback* callback = new Callback;
+		std::auto_ptr<Callback> callback(new Callback);
 		callback->program = shaderProperty->shaderProgram;
+		std::vector<Path> shaderFiles;
 
-		while(true) switch(parser.nextEvent())
+		bool done = false;
+		while(!done) switch(parser.nextEvent())
 		{
 		case Event::BeginElement:
-			if(wstrCaseCmp(parser.elementName(), L"vertex") == 0) {
-				shaderFile = parser.attributeValueIgnoreCase(L"file");
-				vertexOrFragment = 'v';
-			}
-			else if(wstrCaseCmp(parser.elementName(), L"fragment") == 0) {
-				shaderFile = parser.attributeValueIgnoreCase(L"file");
-				vertexOrFragment = 'f';
-			}
-			else
+			// Only "vertex" and "fragment" is allowed
+			if(!wstrCaseCmp(parser.elementName(), L"vertex") == 0 &&
+			   !wstrCaseCmp(parser.elementName(), L"fragment") == 0)
+			{
 				return false;
+			}
 
-			if(shaderFile) {
+			if((shaderFile = parser.attributeValueIgnoreCase(L"file")) != nullptr) {
 				Path path(shaderFile);
 				path = path.hasRootDirectory() ? path : context.basePath / path;
-				ShaderPtr shader = dynamic_cast<Shader*>(context.resourceManager.load(path, false).get());
-				callback->program->attach(*shader);
-				if(vertexOrFragment == 'v')
-					vertexShader = shader;
-				else if(vertexOrFragment == 'f')
-					fragmentShader = shader;
+				shaderFiles.push_back(path);
+				callback->addDependency(path);
 			}
 			break;
 
@@ -158,7 +153,7 @@ public:
 
 		case Event::EndElement:
 			if(wstrCaseCmp(parser.elementName(), L"shader") == 0)
-				return true;
+				done = true;
 			break;
 
 		case Event::Error:
@@ -168,6 +163,19 @@ public:
 		default:
 			break;
 		}
+
+		// Callback must be added before we try to load it's dependency
+		context.resourceManager.addCallback(callback.get());
+		callback.release();
+
+		MCD_FOREACH(const Path path, shaderFiles) {
+			// The ownership of the shader will temporary owned by ResourceManager,
+			// once the callback is invoked the ownership will transfer to ShaderProgram
+			context.resourceManager.load(path);
+		}
+
+		material.addProperty(shaderProperty.get(), context.pass);
+		shaderProperty.release();
 
 		return true;
 	}
