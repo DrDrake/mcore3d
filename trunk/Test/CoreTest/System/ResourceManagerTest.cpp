@@ -155,7 +155,7 @@ namespace {
 class FakeCallback : public ResourceManagerCallback
 {
 public:
-	sal_override void doCallback(ResourceManager::Event& e)
+	sal_override void doCallback(ResourceManager::Event& e, size_t numDependencyLeft)
 	{
 		++count;
 	}
@@ -186,11 +186,11 @@ TEST(Callback_ResourceManagerTest)
 	callback->addDependency(L"Main.cpp");
 	manager.addCallback(callback);
 
-	// Will not trigger any callback
+	// Only trigger one callback
 	FakeCallback::count = 0;
 	manager.load(L"ResourceManadgerTest.cpp", true);
 	while(manager.popEvent().loader) {}
-	CHECK_EQUAL(0u, FakeCallback::count);
+	CHECK_EQUAL(1u, FakeCallback::count);
 
 	// Will trigger the two callbacks
 	FakeCallback::count = 0;

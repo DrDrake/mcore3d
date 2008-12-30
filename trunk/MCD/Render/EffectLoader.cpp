@@ -2,11 +2,14 @@
 #include "EffectLoader.h"
 #include "Effect.h"
 #include "Material.h"
+#include "Shader.h"
+#include "ShaderProgram.h"
 #include "Texture.h"
 #include "../Core/System/PtrVector.h"
 #include "../Core/System/ResourceManager.h"
 #include "../Core/System/StrUtility.h"
 #include "../Core/System/XmlParser.h"
+#include "../Core/System/Utility.h"
 #include <sstream>
 
 namespace MCD {
@@ -89,6 +92,22 @@ public:
 
 class ShaderLoader : public EffectLoader::ILoader
 {
+	class Callback : public ResourceManagerCallback
+	{
+	public:
+		sal_override void doCallback(ResourceManager::Event& event, size_t numDependencyLeft)
+		{
+			if(numDependencyLeft > 0) {
+				Shader* shader = dynamic_cast<Shader*>(event.resource.get());
+				if(shader)
+					program->attach(*shader);
+			} else
+				program->link();
+		}
+
+		SharedPtr<ShaderProgram> program;
+	};	// Callback
+
 public:
 	sal_override const wchar_t* name() const {
 		return L"shader";
@@ -102,6 +121,11 @@ public:
 		typedef XmlParser::Event Event;
 		char vertexOrFragment = 0;	// To indicate the current parsing shader type, can be (v)ertex or (f)ragment
 		const wchar_t* shaderFile = nullptr;
+
+		std::auto_ptr<ShaderProperty> shaderProperty(new ShaderProperty(new ShaderProgram));
+		ShaderPtr vertexShader, fragmentShader;
+		Callback* callback = new Callback;
+		callback->program = shaderProperty->shaderProgram;
 
 		while(true) switch(parser.nextEvent())
 		{
@@ -118,6 +142,14 @@ public:
 				return false;
 
 			if(shaderFile) {
+				Path path(shaderFile);
+				path = path.hasRootDirectory() ? path : context.basePath / path;
+				ShaderPtr shader = dynamic_cast<Shader*>(context.resourceManager.load(path, false).get());
+				callback->program->attach(*shader);
+				if(vertexOrFragment == 'v')
+					vertexShader = shader;
+				else if(vertexOrFragment == 'f')
+					fragmentShader = shader;
 			}
 			break;
 
@@ -148,6 +180,7 @@ public:
 	{
 		mLoaders.push_back(new StandardLoader);
 		mLoaders.push_back(new TextureLoader);
+		mLoaders.push_back(new ShaderLoader);
 	}
 
 	sal_override const wchar_t* name() const {
