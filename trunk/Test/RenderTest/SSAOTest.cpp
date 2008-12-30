@@ -43,9 +43,9 @@ TEST(SSAOTest)
 
 			mSSAOPass.bind();
 
-			glUniform1f(glGetUniformLocation(mSSAOPass.handle(), "fov"), fieldOfView() * Mathf::cPi() / 180);
+			glUniform1f(glGetUniformLocation(mSSAOPass.handle, "fov"), fieldOfView() * Mathf::cPi() / 180);
 
-			glUniformMatrix4fvARB(glGetUniformLocation(mSSAOPass.handle(), "projection"), 1, false, projectionMatrix);
+			glUniformMatrix4fvARB(glGetUniformLocation(mSSAOPass.handle, "projection"), 1, false, projectionMatrix);
 		}
 
 		sal_override void onEvent(const Event& e)
@@ -68,7 +68,7 @@ TEST(SSAOTest)
 			if(e.Type == Event::KeyReleased && e.Key.Code == Key::F4) {
 				mShowTexture = !mShowTexture;
 				mScenePass.bind();
-				glUniform1i(glGetUniformLocation(mScenePass.handle(), "showTexture"), mShowTexture);
+				glUniform1i(glGetUniformLocation(mScenePass.handle, "showTexture"), mShowTexture);
 				mScenePass.unbind();
 			}
 
@@ -79,7 +79,7 @@ TEST(SSAOTest)
 				else
 					mSSAORadius /= 1.05f;
 				mSSAOPass.bind();
-				glUniform1f(glGetUniformLocation(mSSAOPass.handle(), "radius"), mSSAORadius);
+				glUniform1f(glGetUniformLocation(mSSAOPass.handle, "radius"), mSSAORadius);
 				mSSAOPass.unbind();
 			}
 
@@ -154,13 +154,13 @@ TEST(SSAOTest)
 			// TODO: Setup the camera near and far plane.
 			{	mSSAOPass.bind();
 
-				glUniform1i(glGetUniformLocation(mSSAOPass.handle(), "texDepth"), 0);
-				glUniform1i(glGetUniformLocation(mSSAOPass.handle(), "texNormal"), 1);
-				glUniform1i(glGetUniformLocation(mSSAOPass.handle(), "texDither"), 2);
-				glUniform1i(glGetUniformLocation(mSSAOPass.handle(), "screenWidth"), width);
-				glUniform1i(glGetUniformLocation(mSSAOPass.handle(), "screenHeight"), height);
-				glUniform1f(glGetUniformLocation(mSSAOPass.handle(), "radius"), mSSAORadius);
-				glUniform1f(glGetUniformLocation(mSSAOPass.handle(), "ssaoRescale"), mSSAORescale);
+				glUniform1i(glGetUniformLocation(mSSAOPass.handle, "texDepth"), 0);
+				glUniform1i(glGetUniformLocation(mSSAOPass.handle, "texNormal"), 1);
+				glUniform1i(glGetUniformLocation(mSSAOPass.handle, "texDither"), 2);
+				glUniform1i(glGetUniformLocation(mSSAOPass.handle, "screenWidth"), width);
+				glUniform1i(glGetUniformLocation(mSSAOPass.handle, "screenHeight"), height);
+				glUniform1f(glGetUniformLocation(mSSAOPass.handle, "radius"), mSSAORadius);
+				glUniform1f(glGetUniformLocation(mSSAOPass.handle, "ssaoRescale"), mSSAORescale);
 
 				// Random points INSIDE an unit sphere.
 				const float randSphere[] = {
@@ -200,22 +200,22 @@ TEST(SSAOTest)
 					-0.598198f,  0.031839f, -0.484108f,
 					-0.005480f, -0.144742f, -0.191251f,
 				};
-				glUniform3fv(glGetUniformLocation(mSSAOPass.handle(), "ranSphere"), 32, (float*)randSphere);
+				glUniform3fv(glGetUniformLocation(mSSAOPass.handle, "ranSphere"), 32, (float*)randSphere);
 
 				mSSAOPass.unbind();
 
 				mBlurPass.bind();
-				glUniform1i(glGetUniformLocation(mBlurPass.handle(), "texSSAO"), 0);
-				glUniform1i(glGetUniformLocation(mBlurPass.handle(), "texNormal"), 1);
-				glUniform1f(glGetUniformLocation(mBlurPass.handle(), "ssaoRescale"), mSSAORescale);
+				glUniform1i(glGetUniformLocation(mBlurPass.handle, "texSSAO"), 0);
+				glUniform1i(glGetUniformLocation(mBlurPass.handle, "texNormal"), 1);
+				glUniform1f(glGetUniformLocation(mBlurPass.handle, "ssaoRescale"), mSSAORescale);
 				mBlurPass.unbind();
 
 				mCombinePass.bind();
 
-				glUniform1i(glGetUniformLocation(mCombinePass.handle(), "texColor"), 0);
-				glUniform1i(glGetUniformLocation(mCombinePass.handle(), "texSSAO"), 1);
-				glUniform1i(glGetUniformLocation(mCombinePass.handle(), "texDepth"), 2);
-				glUniform1f(glGetUniformLocation(mCombinePass.handle(), "ssaoRescale"), mSSAORescale);
+				glUniform1i(glGetUniformLocation(mCombinePass.handle, "texColor"), 0);
+				glUniform1i(glGetUniformLocation(mCombinePass.handle, "texSSAO"), 1);
+				glUniform1i(glGetUniformLocation(mCombinePass.handle, "texDepth"), 2);
+				glUniform1f(glGetUniformLocation(mCombinePass.handle, "ssaoRescale"), mSSAORescale);
 
 				mCombinePass.unbind();
 			}
@@ -235,7 +235,7 @@ TEST(SSAOTest)
 
 			glTranslatef(0.0f, 0.0f, -50.0f);
 
-			const float scale = 0.5f;
+			const float scale = 2.0f;
 			glScalef(scale, scale, scale);
 
 			mScenePass.bind();
@@ -282,13 +282,13 @@ TEST(SSAOTest)
 				mSSAORenderTexture->bind();
 				glActiveTexture(GL_TEXTURE1);
 				mNormalRenderTexture->bind();
-				glUniform2f(glGetUniformLocation(mBlurPass.handle(), "blurDirection"), 1, 0);
+				glUniform2f(glGetUniformLocation(mBlurPass.handle, "blurDirection"), 1, 0);
 				drawViewportQuad(0, 0, mSSAORenderTexture->width, mSSAORenderTexture->height, mSSAORenderTexture->type);
 
 				glDrawBuffers(1, buffers + 0);	// Effectively output to mSSAORenderTexture
 				glActiveTexture(GL_TEXTURE0);
 				mSSAORenderTexture2->bind();
-				glUniform2f(glGetUniformLocation(mBlurPass.handle(), "blurDirection"), 0, 1);
+				glUniform2f(glGetUniformLocation(mBlurPass.handle, "blurDirection"), 0, 1);
 				drawViewportQuad(0, 0, mSSAORenderTexture->width, mSSAORenderTexture->height, mSSAORenderTexture->type);
 
 				mBlurPass.unbind();
@@ -351,6 +351,7 @@ TEST(SSAOTest)
 //		window.load3ds(L"TextureBoxSphere.3ds");
 //		window.load3ds(L"House/house.3ds");
 		window.load3ds(L"City/city.3ds");
+//		window.load3ds(L"Church/sponza/sponza.3ds");
 //		window.load3ds(L"3M00696/buelllightning.3DS");
 //		window.load3ds(L"Lamborghini Gallardo Polizia/Lamborghini Gallardo Polizia.3DS");
 

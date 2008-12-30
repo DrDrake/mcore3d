@@ -7,7 +7,7 @@
 namespace MCD {
 
 ShaderProgram::ShaderProgram()
-	: mHandle(0)
+	: handle(0)
 {}
 
 ShaderProgram::~ShaderProgram()
@@ -18,24 +18,24 @@ ShaderProgram::~ShaderProgram()
 void ShaderProgram::create()
 {
 	destroy();
-	mHandle = glCreateProgram();
+	handle = glCreateProgram();
 }
 
 void ShaderProgram::destroy()
 {
-	if(!mHandle)
+	if(!handle)
 		return;
 
 	detachAll();
 
-	glDeleteProgram(mHandle);
-	mHandle = 0;
+	glDeleteProgram(handle);
+	handle = 0;
 }
 
 void ShaderProgram::attach(Shader& shader)
 {
 	detach(shader);
-	glAttachShader(mHandle, shader.handle());
+	glAttachShader(handle, shader.handle());
 	mShaders.push_back(&shader);
 }
 
@@ -43,23 +43,23 @@ void ShaderProgram::detach(Shader& shader)
 {
 	Shaders::const_iterator i = std::find(mShaders.begin(), mShaders.end(), &shader);
 	if(i != mShaders.end())
-		glDetachShader(mHandle, shader.handle());
+		glDetachShader(handle, shader.handle());
 }
 
 void ShaderProgram::detachAll()
 {
 	for(Shaders::const_iterator i=mShaders.begin(); i!=mShaders.end(); ++i)
-		glDetachShader(mHandle, (*i)->handle());
+		glDetachShader(handle, (*i)->handle());
 
 	mShaders.clear();
 }
 
 bool ShaderProgram::link()
 {
-	glLinkProgram(mHandle);
+	glLinkProgram(handle);
 
 	GLint result = 0;
-	glGetProgramiv(mHandle, GL_LINK_STATUS, &result);
+	glGetProgramiv(handle, GL_LINK_STATUS, &result);
 //	createUniformMap();
 //	createAttributeMap();
 
@@ -68,7 +68,7 @@ bool ShaderProgram::link()
 
 void ShaderProgram::bind()
 {
-	glUseProgram(mHandle);
+	glUseProgram(handle);
 }
 
 void ShaderProgram::unbind()
@@ -79,11 +79,11 @@ void ShaderProgram::unbind()
 void ShaderProgram::getLog(std::string& log)
 {
 	GLint len;
-	glGetProgramiv(mHandle, GL_INFO_LOG_LENGTH, &len);
+	glGetProgramiv(handle, GL_INFO_LOG_LENGTH, &len);
 	if(len <= 0)
 		return;
 	log.resize(len);
-	glGetProgramInfoLog(mHandle, len, nullptr, &log[0]);
+	glGetProgramInfoLog(handle, len, nullptr, &log[0]);
 }
 
 }	// namespace MCD

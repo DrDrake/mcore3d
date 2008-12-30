@@ -42,12 +42,9 @@ public:
 	// Get the information about the program (including any linking errors).
 	void getLog(std::string& log);
 
-	uint handle() const {
-		return mHandle;
-	}
+	uint handle;
 
 protected:
-	uint mHandle;
 	typedef std::vector<ShaderPtr> Shaders;
 	Shaders mShaders;
 };	// ShaderProgram

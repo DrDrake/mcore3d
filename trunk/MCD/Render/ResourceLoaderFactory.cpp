@@ -82,31 +82,27 @@ IResourceLoader* TgaLoaderFactory::createLoader()
 ResourcePtr VertexShaderLoaderFactory::createResource(const Path& fileId)
 {
 	ShaderPtr shader;
-	if(wstrCaseCmp(fileId.getExtension().c_str(), L"glvs") == 0) {
+	if(wstrCaseCmp(fileId.getExtension().c_str(), L"glvs") == 0)
 		shader = new Shader(fileId);
-		shader->create(GL_VERTEX_SHADER);
-	}
 	return shader;
 }
 
 IResourceLoader* VertexShaderLoaderFactory::createLoader()
 {
-	return new ShaderLoader;
+	return new ShaderLoader(GL_VERTEX_SHADER);
 }
 
 ResourcePtr PixelShaderLoaderFactory::createResource(const Path& fileId)
 {
 	ShaderPtr shader;
-	if(wstrCaseCmp(fileId.getExtension().c_str(), L"glps") == 0) {
+	if(wstrCaseCmp(fileId.getExtension().c_str(), L"glps") == 0)
 		shader = new Shader(fileId);
-		shader->create(GL_FRAGMENT_SHADER);
-	}
 	return shader;
 }
 
 IResourceLoader* PixelShaderLoaderFactory::createLoader()
 {
-	return new ShaderLoader;
+	return new ShaderLoader(GL_FRAGMENT_SHADER);
 }
 
 Max3dsLoaderFactory::Max3dsLoaderFactory(ResourceManager& resourceManager)

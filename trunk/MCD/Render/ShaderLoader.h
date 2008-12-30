@@ -12,6 +12,8 @@ namespace MCD {
 class MCD_RENDER_API ShaderLoader : public IResourceLoader, private Noncopyable
 {
 public:
+	explicit ShaderLoader(int shaderType);
+
 	/*!	Load data from stream.
 		Block until the whole shader source file is loaded.
 	 */
@@ -26,6 +28,7 @@ public:
 	sal_override LoadingState getLoadingState() const;
 
 protected:
+	int mShaderType;	//!< Can be GL_VERTEX_SHADER or GL_FRAGMENT_SHADER
 	std::string mSourceCode;
 	LoadingState mLoadingState;
 };	// ShaderLoader

@@ -208,9 +208,13 @@ public:
 		return nullptr;
 	}
 
-	void updateDependency(Event& e)
+	void updateDependency(const Event& e)
 	{
 		MCD_ASSERT(e.resource);
+
+		// We ignore partial loading event
+		if(!(e.loader->getLoadingState() & IResourceLoader::Stopped))
+			return;
 
 		for(Callbacks::iterator i=mCallbacks.begin(); i!=mCallbacks.end();) {
 			int numDependencyLeft = i->removeDependency(e.resource->fileId());
@@ -339,14 +343,8 @@ void ResourceManager::forget(const Path& fileId)
 ResourceManager::Event ResourceManager::popEvent()
 {
 	MCD_ASSUME(mImpl != nullptr);
-
 	ScopeLock lock(mImpl->mEventQueue.mMutex);
-	Event ret = mImpl->mEventQueue.popFront();
-
-	if(ret.resource)
-		mImpl->updateDependency(ret);	// Mutex against addCallback()
-
-	return ret;
+	return mImpl->mEventQueue.popFront();
 }
 
 void ResourceManager::addCallback(IResourceManagerCallback* callback)
@@ -355,8 +353,18 @@ void ResourceManager::addCallback(IResourceManagerCallback* callback)
 	if(!callback)
 		return;
 
-	ScopeLock lock(mImpl->mEventQueue.mMutex);	// Mutex against popEvent()
+	ScopeLock lock(mImpl->mEventQueue.mMutex);	// Mutex against doCallbacks()
 	mImpl->mCallbacks.push_back(dynamic_cast<ResourceManagerCallback*>(callback));
+}
+
+void ResourceManager::doCallbacks(const Event& event)
+{
+	MCD_ASSUME(mImpl != nullptr);
+	if(!event.resource)
+		return;
+
+	ScopeLock lock(mImpl->mEventQueue.mMutex);	// Mutex against addCallback()
+	mImpl->updateDependency(event);
 }
 
 void ResourceManager::addFactory(IFactory* factory)

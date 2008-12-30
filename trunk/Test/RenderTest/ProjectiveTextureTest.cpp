@@ -183,10 +183,10 @@ public:
 		}
 
 		mProjectiveTextureShader.bind();
-		int colorTex = glGetUniformLocation(mProjectiveTextureShader.handle(), "colorTex");
+		int colorTex = glGetUniformLocation(mProjectiveTextureShader.handle, "colorTex");
 		glUniform1i(colorTex, 0);
 
-		int projectiveTex = glGetUniformLocation(mProjectiveTextureShader.handle(), "projectiveTex");
+		int projectiveTex = glGetUniformLocation(mProjectiveTextureShader.handle, "projectiveTex");
 		glUniform1i(projectiveTex, 1);
 		mProjectiveTextureShader.unbind();
 	}
