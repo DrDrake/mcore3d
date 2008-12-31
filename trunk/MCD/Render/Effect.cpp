@@ -11,7 +11,6 @@ Effect::Effect(const Path& fileId)
 
 Effect::~Effect()
 {
-	delete material;
 }
 
 }	// namespace MCD

@@ -96,6 +96,24 @@ class ShaderLoader : public EffectLoader::ILoader
 	class Callback : public ResourceManagerCallback
 	{
 	public:
+		//! Create shader from the shader code right inside the effect xml
+		bool createInlineShader(const wchar_t* sourceCode, uint shaderType)
+		{
+			if(!sourceCode)
+				return false;
+
+			InlineSource source;
+			if(wStrToStr(sourceCode, source.code)) {
+				source.type = shaderType;
+				inlineSources.push_back(source);
+				return true;
+			}
+			else {
+				Log::write(Log::Error, L"Fail to convert inline shader source");
+				return false;
+			}
+		}
+
 		sal_override void doCallback()
 		{
 			if(!program->handle)
@@ -103,6 +121,21 @@ class ShaderLoader : public EffectLoader::ILoader
 
 			program->detachAll();
 
+			// Compile and attach all inline shaders
+			MCD_FOREACH(const InlineSource& source, inlineSources) {
+				ShaderPtr shader = new Shader(L"");	// This resource is not going to put in the manager, no name is needed
+				shader->create(source.type);
+				if(shader->compile(source.code.c_str()))
+					program->attach(*shader);
+				else {
+					std::string log;
+					shader->getLog(log);
+					// TODO: Not using %S for every platform
+					Log::format(Log::Error, L"%S", log.c_str());
+				}
+			}
+
+			// Attach all external shaders
 			MCD_FOREACH(const ShaderPtr& shader, shaders) {
 				if(shader)
 					program->attach(*shader);
@@ -111,12 +144,17 @@ class ShaderLoader : public EffectLoader::ILoader
 			if(!program->link()) {
 				std::string log;
 				program->getLog(log);
-				Log::write(Log::Warn, strToWStr(log).c_str());
+				Log::write(Log::Error, strToWStr(log).c_str());
 			}
 		}
 
 		SharedPtr<ShaderProgram> program;
-		std::vector<ShaderPtr> shaders;		//!< The shaders that the ShaderProgram depends
+		//! The shaders that the ShaderProgram depends, excluding inlineShaders
+		std::vector<ShaderPtr> shaders;
+
+		//! Source code for the inline shaders
+		struct InlineSource { std::string code; uint type; };
+		std::vector<InlineSource> inlineSources;
 	};	// Callback
 
 public:
@@ -136,16 +174,20 @@ public:
 		std::auto_ptr<Callback> callback(new Callback);
 		callback->program = shaderProperty->shaderProgram;
 
+		// Indicate the currect shader type
+		uint shaderType = 0;
+
 		bool done = false;
 		while(!done) switch(parser.nextEvent())
 		{
 		case Event::BeginElement:
-			// Only "vertex" and "fragment" is allowed
-			if(!wstrCaseCmp(parser.elementName(), L"vertex") == 0 &&
-			   !wstrCaseCmp(parser.elementName(), L"fragment") == 0)
-			{
+			if(wstrCaseCmp(parser.elementName(), L"vertex") == 0)
+				shaderType = GL_VERTEX_SHADER;
+			else if(wstrCaseCmp(parser.elementName(), L"fragment") == 0)
+				shaderType = GL_FRAGMENT_SHADER;
+
+			if(shaderType == 0)
 				return false;
-			}
 
 			if((shaderFile = parser.attributeValueIgnoreCase(L"file")) != nullptr) {
 				Path path(shaderFile);
@@ -158,6 +200,8 @@ public:
 			break;
 
 		case Event::CData:
+			if(!callback->createInlineShader(parser.textData(), shaderType))
+				return false;
 			break;
 
 		case Event::EndElement:
@@ -344,7 +388,7 @@ public:
 	void commit(Resource& resource)
 	{
 		Effect& effect = dynamic_cast<Effect&>(resource);
-		effect.material = static_cast<Material2*>(mMaterial.clone());
+		effect.material.reset(static_cast<Material2*>(mMaterial.clone()));
 	}
 
 	IResourceLoader::LoadingState mLoadingState;
