@@ -37,11 +37,13 @@ struct MapNode
 	MapNode(Resource& resource)
 		:
 		mPathKey(resource.fileId()),
+		mLoadingState(IResourceLoader::NotLoaded),
 		mResource(&resource)
 	{
 	}
 
 	PathKey mPathKey;
+	IResourceLoader::LoadingState mLoadingState;	//!< As an information for resolving dependency
 	typedef WeakPtr<Resource> WeakResPtr;
 	WeakResPtr mResource;
 };	// MapNode
@@ -89,10 +91,11 @@ class ResourceManager::Impl
 	class Task : public MCD::TaskPool::Task
 	{
 	public:
-		Task(const ResourcePtr& resource, IResourceLoader& loader, EventQueue& eventQueue, std::istream* is, uint priority)
+		Task(MapNode& mapNode, IResourceLoader& loader, EventQueue& eventQueue, std::istream* is, uint priority)
 			:
 			MCD::TaskPool::Task(priority),
-			mResource(resource),
+			mMapNode(mapNode),
+			mResource(mapNode.mResource.get()),
 			mLoader(&loader),
 			mEventQueue(eventQueue),
 			mIStream(is)
@@ -110,6 +113,7 @@ class ResourceManager::Impl
 					state = mLoader->load(mIStream.get(), mResource ? &mResource->fileId() : nullptr);
 				}
 
+				mMapNode.mLoadingState = state;
 				Event event = { mResource, mLoader };
 				mEventQueue.pushBack(event);
 
@@ -122,7 +126,8 @@ class ResourceManager::Impl
 			delete this;
 		}
 
-		ResourcePtr mResource;
+		MapNode& mMapNode;
+		ResourcePtr mResource;				// Hold the life of the resource
 		SharedPtr<IResourceLoader> mLoader;	// Hold the life of the IResourceLoader
 		EventQueue& mEventQueue;
 		std::auto_ptr<std::istream> mIStream;	// Keep the life of the stream align with the Task
@@ -138,7 +143,7 @@ public:
 	{
 		// Stop the task pool first
 		// Tasks may be invoked in this thread context and so they
-		// may try to acquire mEventQueue.mMutex. Acquring the mutex
+		// may try to acquire mEventQueue.mMutex. Acquiring the mutex
 		// before calling task pool stop will result a dead lock.
 		mTaskPool.stop();
 
@@ -164,6 +169,7 @@ public:
 				break;
 		} while(true);
 
+		node.mLoadingState = loader.getLoadingState();
 		Event event = { node.mResource.get(), &loader };
 		mEventQueue.pushBack(event);
 	}
@@ -174,7 +180,7 @@ public:
 		std::auto_ptr<std::istream> is(mFileSystem.openRead(fileId));
 
 		// Create the task to submit to the task pool
-		Task* task = new Task(node.mResource.get(), loader, mEventQueue, is.get(), priority);
+		Task* task = new Task(node, loader, mEventQueue, is.get(), priority);
 		is.release();	// We have transfered the ownership of istream to Task
 
 		mTaskPool.enqueue(*task);
@@ -196,7 +202,7 @@ public:
 	{
 		MCD_ASSERT(mEventQueue.mMutex.isLocked());
 		ResourcePtr ret;
-		// Loop for all factories to see which one will respondse to the fileId
+		// Loop for all factories to see which one will response to the fileId
 		for(Factories::iterator i=mFactories.begin(); i!=mFactories.end(); ++i) {
 			ret = i->createResource(fileId);
 			if(ret != nullptr) {
@@ -208,23 +214,32 @@ public:
 		return nullptr;
 	}
 
-	void updateDependency(const Event& e)
+	void doCallbacks(const Event& e)
 	{
-		MCD_ASSERT(e.resource);
+		if(e.resource)
+		{
+			// We ignore partial loading event
+			if(!(e.loader->getLoadingState() & IResourceLoader::Stopped))
+				return;
 
-		// We ignore partial loading event
-		if(!(e.loader->getLoadingState() & IResourceLoader::Stopped))
-			return;
-
-		for(Callbacks::iterator i=mCallbacks.begin(); i!=mCallbacks.end();) {
-			int numDependencyLeft = i->removeDependency(e.resource->fileId());
-			if(numDependencyLeft >= 0)
-				i->doCallback(e, size_t(numDependencyLeft));
-
-			if(numDependencyLeft == 0)
-				i = mCallbacks.erase(i, true);
-			else
-				++i;
+			for(Callbacks::iterator i=mCallbacks.begin(); i!=mCallbacks.end();) {
+				if(i->removeDependency(e.resource->fileId()) == 0) {
+					i->doCallback();
+					i = mCallbacks.erase(i, true);	// Be careful of erasing element during iteration
+				}
+				else
+					++i;
+			}
+		} else
+		{
+			for(Callbacks::iterator i=mCallbacks.begin(); i!=mCallbacks.end();) {
+				if(i->mDependency.empty()) {
+					i->doCallback();
+					i = mCallbacks.erase(i, true);	// Be careful of erasing element during iteration
+				}
+				else
+					++i;
+			}
 		}
 	}
 
@@ -349,22 +364,34 @@ ResourceManager::Event ResourceManager::popEvent()
 
 void ResourceManager::addCallback(IResourceManagerCallback* callback)
 {
-	MCD_ASSUME(mImpl != nullptr);
-	if(!callback)
+	ResourceManagerCallback* cb = dynamic_cast<ResourceManagerCallback*>(callback);
+	if(!cb)
 		return;
 
+	MCD_ASSUME(mImpl != nullptr);
 	ScopeLock lock(mImpl->mEventQueue.mMutex);	// Mutex against doCallbacks()
-	mImpl->mCallbacks.push_back(dynamic_cast<ResourceManagerCallback*>(callback));
+
+	// Resolve those already loaded dependency
+	for(std::list<Path>::iterator i=cb->mDependency.begin(); i!=cb->mDependency.end();)
+	{
+		MapNode* node = nullptr;
+		if((node = mImpl->findMapNode(*i)) != nullptr &&	// Conditions for already loaded resource
+			node->mLoadingState & IResourceLoader::Stopped)
+		{
+			i = cb->mDependency.erase(i);
+		}
+		else
+			++i;
+	}
+
+	mImpl->mCallbacks.push_back(cb);
 }
 
 void ResourceManager::doCallbacks(const Event& event)
 {
 	MCD_ASSUME(mImpl != nullptr);
-	if(!event.resource)
-		return;
-
 	ScopeLock lock(mImpl->mEventQueue.mMutex);	// Mutex against addCallback()
-	mImpl->updateDependency(event);
+	mImpl->doCallbacks(event);
 }
 
 void ResourceManager::addFactory(IFactory* factory)
@@ -394,6 +421,9 @@ void ResourceManagerCallback::addDependency(const Path& fileId)
 
 int ResourceManagerCallback::removeDependency(const Path& fileId)
 {
+	if(mDependency.empty())
+		return 0;
+
 	Paths::iterator i=std::find(mDependency.begin(), mDependency.end(), fileId);
 	if(i == mDependency.end())
 		return -1;
