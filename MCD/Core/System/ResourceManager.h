@@ -19,7 +19,7 @@ typedef IntrusivePtr<Resource> ResourcePtr;
 /*!	A class that represent a callback for the IResourceManager.
 	As part of the loading process, we want some callback after certain resource(s)
 	finished loading. What make this callback interesting is that you can register
-	some dependency to it, so that the callback is only invoked after the dependencies
+	some dependency to it, so that the callback is only invoked after it's dependencies
 	are resolved.
  */
 class MCD_ABSTRACT_CLASS IResourceManagerCallback
@@ -27,7 +27,7 @@ class MCD_ABSTRACT_CLASS IResourceManagerCallback
 public:
 	virtual ~IResourceManagerCallback() {}
 
-	/*!	Path is used as dependency instead of Reosource to reduce ownership hell.
+	/*!	Path is used as dependency instead of Resource to reduce ownership hell.
 	 */
 	virtual void addDependency(const Path& fileId) = 0;
 };	// IResourceManagerCallback
@@ -36,7 +36,7 @@ public:
 	\note
 		This class only have a very few interface, because only those functions will be
 		accessed by many different classes. Other functions that only accessed in a few
-		places (mostly in the main loop) will left for the deveried class to expose.
+		places (mostly in the main loop) will left for the derive class to expose.
  */
 class MCD_ABSTRACT_CLASS IResourceManager
 {
@@ -160,16 +160,16 @@ public:
 	 */
 	sal_override ResourcePtr load(const Path& fileId, bool block=false, uint priority=0);
 
-	/*!	By pass the cache and doing an explicity reload.
+	/*!	By pass the cache and doing an explicitly reload.
 		Return the original resource if reload is preformed, otherwise a new resource is
 		returned just like calling load().
 		\note This function is not part of the IResourceManager interface.
 	 */
 	ResourcePtr reload(const Path& fileId, bool block=false, uint priority=0);
 
-	/*!	Give up the control (uncache it) over the resource with that fileId.
+	/*!	Give up the control (un-cache it) over the resource with that fileId.
 		Do nothing if that fileId is not already in the manager.
-		Usefull to reload a resource as a new instance.
+		Useful to reload a resource as a new instance.
 	 */
 	void forget(const Path& fileId);
 
@@ -190,7 +190,7 @@ public:
 	Event popEvent();
 
 	/*!	Register a callback to be invoke later.
-		\param callback it's ownership will be taken by ResourceManager, therefore it
+		\param callback It's ownership will be taken by ResourceManager, therefore it
 			must be created from heap. Do nothing if it is null.
 		\note
 			Do not invoke addDependency() after the callback is added to the manager,
@@ -198,7 +198,7 @@ public:
 	 */
 	sal_override void addCallback(sal_in IResourceManagerCallback* callback);
 
-	/*!	Resolve dependency and invoke the associated callback when apprioate.
+	/*!	Resolve dependency and invoke the appropriate callback.
 		\param event Supply with the event returned by popEvent()
 	 */
 	void doCallbacks(const Event& event);
@@ -222,7 +222,42 @@ protected:
 	Impl* mImpl;
 };	// ResourceManager
 
-//! Callback for ResourceManager.
+/*!	Callback for ResourceManager.
+	Example of how to load a mesh before it's depending textures are loaded:
+	\code
+	// Extend your own callback class from ResourceManagerCallback
+	class MyCallback : public ResourceManagerCallback {
+	public:
+		// Invoked after all depending resources are loaded.
+		sal_override void doCallback() {
+			*externalReference = manager->load(L"MyMesh.3ds");
+		}
+
+		ResourcePtr* externalReference;
+		ResourceManager* manager;
+	};	// MyCallback
+
+	// ...
+
+	ResouceManager manager;
+	ResourcePtr mesh;
+
+	// ...
+
+	// Setting up the callback and add it to the resource manager
+	MyCallback* callback = new MyCallback;
+	callback->externalReference = &mesh;
+	callback->manager = &manager;
+	callback->addDependency(L"texture1.jpg");
+	callback->addDependency(L"texture2.png");
+	manager.addCallback(callback);
+
+	// ...
+
+	// Invoke doCallbacks()
+	manager.doCallbacks(manager.popEvent());
+	\endcode
+ */
 class MCD_CORE_API ResourceManagerCallback : public IResourceManagerCallback
 {
 	friend class ResourceManager;
@@ -231,16 +266,15 @@ public:
 	/*!	Invoked every time the depending resource had FINISHED loaded (ie. loaded successfully
 		or had error during loading but not partially loaded)
 	 */
-	virtual void doCallback(const ResourceManager::Event& event, size_t numDependencyLeft) = 0;
+	virtual void doCallback() = 0;
 
 	//! Do not invoke it concurrently.
 	sal_override void addDependency(const Path& fileId);
 
 protected:
 	/*!	Return:
-		<0	no dependency removed
-		0	all dependency removed
-		>0	number of dependency remains
+		<0		no dependency removed
+		else	number of dependency remains
 	 */
 	int removeDependency(const Path& fileId);
 

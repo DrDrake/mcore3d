@@ -5,11 +5,12 @@
 #include "Shader.h"
 #include "ShaderProgram.h"
 #include "Texture.h"
+#include "../Core/System/Log.h"
 #include "../Core/System/PtrVector.h"
 #include "../Core/System/ResourceManager.h"
 #include "../Core/System/StrUtility.h"
+#include "../Core/System/Utility.h"	// for MCD_FOREACH
 #include "../Core/System/XmlParser.h"
-#include "../Core/System/Utility.h"
 #include <sstream>
 
 namespace MCD {
@@ -95,20 +96,27 @@ class ShaderLoader : public EffectLoader::ILoader
 	class Callback : public ResourceManagerCallback
 	{
 	public:
-		sal_override void doCallback(const ResourceManager::Event& event, size_t numDependencyLeft)
+		sal_override void doCallback()
 		{
 			if(!program->handle)
 				program->create();
 
-			Shader* shader = dynamic_cast<Shader*>(event.resource.get());
-			if(shader)
-				program->attach(*shader);
+			program->detachAll();
 
-			if(numDependencyLeft == 0)
-				program->link();
+			MCD_FOREACH(const ShaderPtr& shader, shaders) {
+				if(shader)
+					program->attach(*shader);
+			}
+
+			if(!program->link()) {
+				std::string log;
+				program->getLog(log);
+				Log::write(Log::Warn, strToWStr(log).c_str());
+			}
 		}
 
 		SharedPtr<ShaderProgram> program;
+		std::vector<ShaderPtr> shaders;		//!< The shaders that the ShaderProgram depends
 	};	// Callback
 
 public:
@@ -127,7 +135,6 @@ public:
 		std::auto_ptr<ShaderProperty> shaderProperty(new ShaderProperty(new ShaderProgram));
 		std::auto_ptr<Callback> callback(new Callback);
 		callback->program = shaderProperty->shaderProgram;
-		std::vector<Path> shaderFiles;
 
 		bool done = false;
 		while(!done) switch(parser.nextEvent())
@@ -143,8 +150,10 @@ public:
 			if((shaderFile = parser.attributeValueIgnoreCase(L"file")) != nullptr) {
 				Path path(shaderFile);
 				path = path.hasRootDirectory() ? path : context.basePath / path;
-				shaderFiles.push_back(path);
+
+				ShaderPtr shader = dynamic_cast<Shader*>(context.resourceManager.load(path).get());
 				callback->addDependency(path);
+				callback->shaders.push_back(shader);
 			}
 			break;
 
@@ -164,15 +173,8 @@ public:
 			break;
 		}
 
-		// Callback must be added before we try to load it's dependency
 		context.resourceManager.addCallback(callback.get());
 		callback.release();
-
-		MCD_FOREACH(const Path path, shaderFiles) {
-			// The ownership of the shader will temporary owned by ResourceManager,
-			// once the callback is invoked the ownership will transfer to ShaderProgram
-			context.resourceManager.load(path);
-		}
 
 		material.addProperty(shaderProperty.get(), context.pass);
 		shaderProperty.release();

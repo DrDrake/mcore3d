@@ -155,7 +155,7 @@ namespace {
 class FakeCallback : public ResourceManagerCallback
 {
 public:
-	sal_override void doCallback(const ResourceManager::Event& e, size_t numDependencyLeft)
+	sal_override void doCallback()
 	{
 		++count;
 	}
@@ -177,26 +177,34 @@ TEST(Callback_ResourceManagerTest)
 	manager.addFactory(new FakeFactory(L"cpp"));
 
 	// Create and register callback
-	FakeCallback* callback = new FakeCallback();
+	FakeCallback* callback = new FakeCallback;
 	callback->addDependency(L"Main.cpp");
 	callback->addDependency(L"ResourceManadgerTest.cpp");
 	manager.addCallback(callback);
 
-	callback = new FakeCallback();
+	callback = new FakeCallback;
 	callback->addDependency(L"Main.cpp");
 	manager.addCallback(callback);
 
-	// Only trigger one callback
+	// Will not trigger any callback
 	FakeCallback::count = 0;
 	manager.load(L"ResourceManadgerTest.cpp", true);
 	manager.doCallbacks(manager.popEvent());
-	CHECK_EQUAL(1u, FakeCallback::count);
+	CHECK_EQUAL(0u, FakeCallback::count);
 
 	// Will trigger the two callbacks
 	FakeCallback::count = 0;
-	manager.load(L"Main.cpp", true);
+	ResourcePtr resource = manager.load(L"Main.cpp", true);
 	manager.doCallbacks(manager.popEvent());
 	CHECK_EQUAL(2u, FakeCallback::count);
+
+	// Adding a new callback where all dependency is already loaded should also work correctly
+	FakeCallback::count = 0;
+	callback = new FakeCallback;
+	callback->addDependency(L"Main.cpp");
+	manager.addCallback(callback);
+	manager.doCallbacks(manager.popEvent());
+	CHECK_EQUAL(1u, FakeCallback::count);
 }
 
 TEST(Negative_ResourceManagerTest)
