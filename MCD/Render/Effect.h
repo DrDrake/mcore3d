@@ -2,6 +2,7 @@
 #define __MCD_RENDER_EFFECT__
 
 #include "../Core/System/Resource.h"
+#include <memory>
 
 namespace MCD {
 
@@ -14,7 +15,7 @@ public:
 
 	sal_override ~Effect();
 
-	Material2* material;
+	std::auto_ptr<Material2> material;
 };	// Effect
 
 typedef IntrusivePtr<Effect> EffectPtr;

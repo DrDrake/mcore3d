@@ -325,7 +325,7 @@ ResourcePtr ResourceManager::reload(const Path& fileId, bool block, uint priorit
 
 	// The resource is not found
 	if(!node || !node->mResource.get()) {
-		mImpl->mEventQueue.mMutex.unlock();
+		lock.m.unlock();
 		lock.cancel();
 		return load(fileId, block, priority);
 	}

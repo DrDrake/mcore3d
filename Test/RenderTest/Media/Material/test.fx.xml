@@ -25,30 +25,40 @@
 	/>
 
 	<shader>
-		<!-- Define the vertex shader just inside the xml -->
-		<vertex><![CDATA[
-			varying vec3 vertex;
-			varying vec3 vNormal;
-			void main(in vec4 pos, in vec3 nor) {
-				vertex = vec3(gl_ModelViewMatrix * pos);
-				vNormal = normalize(gl_NormalMatrix * nor);
-				gl_TexCoord[0] = gl_MultiTexCoord0;
-			}
-		]]></vertex>
+		<!-- Reference external file as vertex shader -->
+		<vertex file="./perPixel.glvs" />
 
-		<!-- Reference external file as fragment shader -->
-		<fragment file="Shader/Fragment.glps" />
+		<!-- Define the fragment shader just inside the xml -->
+		<fragment><![CDATA[
+		varying vec3 vertex, normal, lightDir;
+		uniform sampler2D diffuseMap;
+
+		void main()
+		{
+			vec4 ambient = gl_FrontLightProduct[0].ambient;
+			vec4 diffuse = gl_FrontLightProduct[0].diffuse;
+			vec4 specular = gl_FrontLightProduct[0].specular;
+			vec3 n = normalize(normal);
+
+			diffuse *= max(dot(n, lightDir), 0.0);
+			vec3 refl = -reflect(lightDir, normal);
+			specular *= pow(max(dot(refl, normalize(-vertex)), 0.0), gl_FrontMaterial.shininess);
+
+			gl_FragColor = specular + (ambient + diffuse) * texture2D(diffuseMap, gl_TexCoord[0].xy);
+			gl_FragColor.a = clamp(gl_FragColor.a, 0, 1);
+		}
+		]]></fragment>
 	</shader>
 </pass>
 
 <pass
 	enable="true"
 	drawLine="true"
-	lineWidth="1"
+	lineWidth="5"
 	cullMode="front"
 >
   <standard
-		ambient="1.0, 1.0, 1.0, 1.0"
+		ambient="1.0, 0.0, 0.0, 1.0"
 		diffuse="0.0, 0.0, 0.0, 1.0"
 		specular="0.0, 0.0, 0.0, 1.0"
 	/>

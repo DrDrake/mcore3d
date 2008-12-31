@@ -1,0 +1,10 @@
+varying vec3 vertex, normal, lightDir;
+
+void main()
+{
+	vertex = (gl_Position = ftransform()).xyz;
+	// No need to do normalize since we do it on fragment shader anyway
+	normal = gl_NormalMatrix * gl_Normal;
+	lightDir = normalize(gl_LightSource[0].position.xyz);
+	gl_TexCoord[0] = gl_MultiTexCoord0;
+}
