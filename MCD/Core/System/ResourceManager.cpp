@@ -214,35 +214,6 @@ public:
 		return nullptr;
 	}
 
-	void doCallbacks(const Event& e)
-	{
-		if(e.resource)
-		{
-			// We ignore partial loading event
-			if(!(e.loader->getLoadingState() & IResourceLoader::Stopped))
-				return;
-
-			for(Callbacks::iterator i=mCallbacks.begin(); i!=mCallbacks.end();) {
-				if(i->removeDependency(e.resource->fileId()) == 0) {
-					i->doCallback();
-					i = mCallbacks.erase(i, true);	// Be careful of erasing element during iteration
-				}
-				else
-					++i;
-			}
-		} else
-		{
-			for(Callbacks::iterator i=mCallbacks.begin(); i!=mCallbacks.end();) {
-				if(i->mDependency.empty()) {
-					i->doCallback();
-					i = mCallbacks.erase(i, true);	// Be careful of erasing element during iteration
-				}
-				else
-					++i;
-			}
-		}
-	}
-
 public:
 	TaskPool mTaskPool;
 
@@ -391,7 +362,33 @@ void ResourceManager::doCallbacks(const Event& event)
 {
 	MCD_ASSUME(mImpl != nullptr);
 	ScopeLock lock(mImpl->mEventQueue.mMutex);	// Mutex against addCallback()
-	mImpl->doCallbacks(event);
+
+	Impl::Callbacks& callbacks = mImpl->mCallbacks;
+	if(event.resource)
+	{
+		// We ignore partial loading event
+		if(!(event.loader->getLoadingState() & IResourceLoader::Stopped))
+			return;
+
+		for(Impl::Callbacks::iterator i=callbacks.begin(); i!=callbacks.end();) {
+			if(i->removeDependency(event.resource->fileId()) == 0) {
+				i->doCallback();
+				i = callbacks.erase(i, true);	// Be careful of erasing element during iteration
+			}
+			else
+				++i;
+		}
+	} else
+	{
+		for(Impl::Callbacks::iterator i=callbacks.begin(); i!=callbacks.end();) {
+			if(i->mDependency.empty()) {
+				i->doCallback();
+				i = callbacks.erase(i, true);	// Be careful of erasing element during iteration
+			}
+			else
+				++i;
+		}
+	}
 }
 
 void ResourceManager::addFactory(IFactory* factory)
