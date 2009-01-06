@@ -5,7 +5,7 @@
 
 namespace MCD {
 
-class ColorRGB8;
+struct ColorRGB8;
 
 template<typename T> class Vec2;
 typedef Vec2<float> Vec2f;

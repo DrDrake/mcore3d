@@ -3,6 +3,7 @@
 
 #include "Material.h"
 #include "Mesh.h"
+#include "Renderable.h"
 #include "../Core/System/IntrusivePtr.h"
 #include "../Core/System/NonCopyable.h"
 #include "../Core/System/Resource.h"
@@ -14,12 +15,12 @@ class Mesh;
 typedef IntrusivePtr<Mesh> MeshPtr;
 class Texture;
 
-class MCD_RENDER_API Model : public Resource, private Noncopyable
+class MCD_RENDER_API Model : public Resource, public IRenderable, private Noncopyable
 {
 public:
 	explicit Model(const Path& fileId) : Resource(fileId) {}
 
-	void draw();
+	sal_override void draw();
 
 public:
 	struct MeshAndMaterial

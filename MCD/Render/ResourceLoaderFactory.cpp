@@ -7,6 +7,7 @@
 #include "JpegLoader.h"
 #include "Max3dsLoader.h"
 #include "Model.h"
+#include "ModelPod.h"
 #include "PngLoader.h"
 #include "Shader.h"
 #include "ShaderLoader.h"
@@ -120,6 +121,23 @@ ResourcePtr Max3dsLoaderFactory::createResource(const Path& fileId)
 IResourceLoader* Max3dsLoaderFactory::createLoader()
 {
 	return new Max3dsLoader(&mResourceManager);
+}
+
+PodLoaderFactory::PodLoaderFactory(ResourceManager& resourceManager)
+	: mResourceManager(resourceManager)
+{
+}
+
+ResourcePtr PodLoaderFactory::createResource(const Path& fileId)
+{
+	if(wstrCaseCmp(fileId.getExtension().c_str(), L"pod") == 0)
+		return new ModelPod(fileId);
+	return nullptr;
+}
+
+IResourceLoader* PodLoaderFactory::createLoader()
+{
+	return new PodLoader(&mResourceManager);
 }
 
 EffectLoaderFactory::EffectLoaderFactory(ResourceManager& resourceManager)

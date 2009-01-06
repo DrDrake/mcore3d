@@ -68,7 +68,7 @@ private:
 	 */
 	ResourceManager& mResourceManager;
 };	// Max3dsLoaderFactory
-/*
+
 class MCD_RENDER_API PodLoaderFactory : public ResourceManager::IFactory
 {
 public:
@@ -78,7 +78,7 @@ public:
 
 private:
 	ResourceManager& mResourceManager;
-};	// PodLoaderFactory*/
+};	// PodLoaderFactory
 
 class MCD_RENDER_API EffectLoaderFactory : public ResourceManager::IFactory
 {
