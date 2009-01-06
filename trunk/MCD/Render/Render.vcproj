@@ -276,11 +276,19 @@
 				>
 			</File>
 			<File
+				RelativePath=".\ModelPod.h"
+				>
+			</File>
+			<File
 				RelativePath=".\PngLoader.h"
 				>
 			</File>
 			<File
 				RelativePath=".\ProjectiveTexture.h"
+				>
+			</File>
+			<File
+				RelativePath=".\Renderable.h"
 				>
 			</File>
 			<File
@@ -398,6 +406,10 @@
 			</File>
 			<File
 				RelativePath=".\Model.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\ModelPod.cpp"
 				>
 			</File>
 			<File

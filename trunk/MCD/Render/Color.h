@@ -8,9 +8,8 @@ namespace MCD {
 /*!	A structure that represent a color with red, green and blue component.
 	\note Each color component use 8 bit to represent, total 24-bits
  */
-class MCD_RENDER_API ColorRGB8
+struct MCD_RENDER_API ColorRGB8
 {
-public:
 	static const ColorRGB8 red;
 	static const ColorRGB8 green;
 	static const ColorRGB8 blue;
@@ -18,6 +17,11 @@ public:
 
 	uint8_t r, g, b;
 };	// ColorRGB8
+
+struct MCD_RENDER_API ColorRGBA8
+{
+	uint8_t r, g, b, a;
+};	// ColorRGBA8
 
 class MCD_RENDER_API ColorRGBf
 {

@@ -1,15 +1,86 @@
 #include "Pch.h"
 #include "DefaultResourceManager.h"
-#include "../../MCD/Render/Model.h"
+#include "../../MCD/Render/Color.h"
+#include "../../MCD/Render/Renderable.h"
 #include "../../MCD/Render/RenderTarget.h"
 #include "../../MCD/Render/Shader.h"
 #include "../../MCD/Render/ShaderProgram.h"
 #include "../../MCD/Render/Texture.h"
 #include "../../MCD/Render/TextureRenderBuffer.h"
 #include "../../MCD/Core/System/WindowEvent.h"
-#include "../../MCD/Core/System/ZipFileSystem.h"
 
 using namespace MCD;
+
+void minizeEnergy(float* data, size_t sampleCount, size_t stride=sizeof(float)*3)
+{
+	stride /= sizeof(float);
+	int iter = 100;
+	while(iter--)
+	{
+		for(size_t i=0; i<sampleCount; ++i)
+		{
+			Vec3f force;
+			Vec3f res(0.0f);
+			Vec3f vec;
+			float fac;
+
+			Vec3f& sampleI = reinterpret_cast<Vec3f&>(data[i*stride]);
+			sampleI.normalize();
+			vec = sampleI;
+			// Minimize with other samples
+			for(size_t j=0; j<sampleCount; ++j)
+			{
+				Vec3f& sampleJ = reinterpret_cast<Vec3f&>(data[j*stride]);
+				force = vec - sampleJ;
+				if((fac = force.norm())!= 0.0f )
+					res += force / fac;
+			}
+
+			sampleI += res * 0.5f;
+			sampleI.normalize();
+		}
+	}
+
+	for(size_t i=0; i<sampleCount; ++i)
+	{
+		Vec3f& sample = reinterpret_cast<Vec3f&>(data[i*stride]);
+		sample *= float(rand()) / RAND_MAX;
+	}
+}
+
+static TexturePtr generateRandomTexture(uint textureSize)
+{
+	TexturePtr texture = new Texture(L"");
+	texture->width = textureSize;
+	texture->height = textureSize;
+	texture->type = GL_TEXTURE_2D;
+	texture->format = GL_RGBA;
+	glGenTextures(1, &texture->handle);
+
+
+	ColorRGBA8* buffer = new ColorRGBA8[textureSize * textureSize];
+
+	for(size_t i=0; i<textureSize * textureSize; ++i) {
+		buffer[i].r = rand() % 256;
+		buffer[i].g = rand() % 256;
+		buffer[i].b = rand() % 256;
+		buffer[i].a = rand() % 256;
+	}
+
+	texture->bind();
+	glTexParameteri(GL_TEXTURE_2D, GL_GENERATE_MIPMAP, GL_FALSE);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_R, GL_REPEAT);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+	glTexImage2D(GL_TEXTURE_2D, 0, texture->format, textureSize, textureSize,
+		0, GL_RGBA, GL_UNSIGNED_BYTE, buffer);
+
+	delete[] buffer;
+
+	return texture;
+}
 
 TEST(SSAOTest)
 {
@@ -20,7 +91,8 @@ TEST(SSAOTest)
 			:
 			BasicGlWindow(L"title=SSAOTest;width=800;height=600;fullscreen=0;FSAA=4"),
 			mUseSSAO(true), mBlurSSAO(true), mShowTexture(false),
-			mSSAORescale(0.5f), mSSAORadius(0.05f), mResourceManager(*createDefaultFileSystem())
+			mSSAORescale(0.5f), mSSAORadius(0.05f),
+			mRenderable(nullptr), mResourceManager(*createDefaultFileSystem())
 		{
 			if( !loadShaderProgram(L"Shader/SSAO/Scene.glvs", L"Shader/SSAO/Scene.glps", mScenePass, mResourceManager) ||
 				!loadShaderProgram(L"Shader/SSAO/SSAO.glvs", L"Shader/SSAO/SSAO.glps", mSSAOPass, mResourceManager) ||
@@ -32,6 +104,7 @@ TEST(SSAOTest)
 
 			// Load the random normal map
 			mDitherTexture = dynamic_cast<Texture*>(mResourceManager.load(L"RandomNormals128x128.png", true).get());
+			mDitherTexture = generateRandomTexture(32);
 		}
 
 		// Update the view frustrum related uniform variables.
@@ -129,14 +202,14 @@ TEST(SSAOTest)
 			// Setup SSAO's render target, outputing dithered SSAO result
 			mSSAORenderTarget.reset(new RenderTarget(size_t(width * mSSAORescale), size_t(height * mSSAORescale)));
 			textureBuffer = new TextureRenderBuffer(GL_COLOR_ATTACHMENT0_EXT);
-			if(!textureBuffer->createTexture(mSSAORenderTarget->width(), mSSAORenderTarget->height(), GL_TEXTURE_RECTANGLE_ARB, GL_LUMINANCE))
+			if(!textureBuffer->createTexture(mSSAORenderTarget->width(), mSSAORenderTarget->height(), GL_TEXTURE_RECTANGLE_ARB, GL_RGBA))
 				throw std::runtime_error("");
 			if(!textureBuffer->linkTo(*mSSAORenderTarget))
 				throw std::runtime_error("");
 			mSSAORenderTexture = static_cast<TextureRenderBuffer&>(*textureBuffer).texture;
 
 			textureBuffer = new TextureRenderBuffer(GL_COLOR_ATTACHMENT1_EXT);
-			if(!textureBuffer->createTexture(mSSAORenderTarget->width(), mSSAORenderTarget->height(), GL_TEXTURE_RECTANGLE_ARB, GL_LUMINANCE))
+			if(!textureBuffer->createTexture(mSSAORenderTarget->width(), mSSAORenderTarget->height(), GL_TEXTURE_RECTANGLE_ARB, GL_RGBA))
 				throw std::runtime_error("");
 			if(!textureBuffer->linkTo(*mSSAORenderTarget))
 				throw std::runtime_error("");
@@ -200,14 +273,13 @@ TEST(SSAOTest)
 					-0.598198f,  0.031839f, -0.484108f,
 					-0.005480f, -0.144742f, -0.191251f,
 				};
+				minizeEnergy((float*)randSphere, sizeof(randSphere) / (3 * sizeof(float)));
 				glUniform3fv(glGetUniformLocation(mSSAOPass.handle, "ranSphere"), 32, (float*)randSphere);
 
 				mSSAOPass.unbind();
 
 				mBlurPass.bind();
 				glUniform1i(glGetUniformLocation(mBlurPass.handle, "texSSAO"), 0);
-				glUniform1i(glGetUniformLocation(mBlurPass.handle, "texNormal"), 1);
-				glUniform1f(glGetUniformLocation(mBlurPass.handle, "ssaoRescale"), mSSAORescale);
 				mBlurPass.unbind();
 
 				mCombinePass.bind();
@@ -235,13 +307,13 @@ TEST(SSAOTest)
 
 			glTranslatef(0.0f, 0.0f, -50.0f);
 
-			const float scale = 2.0f;
+			const float scale = 1.2f;
 			glScalef(scale, scale, scale);
 
 			mScenePass.bind();
 			glActiveTexture(GL_TEXTURE0);
 			glDisable(GL_TEXTURE_RECTANGLE_ARB);
-			mModel->draw();
+			mRenderable->draw();
 			mScenePass.unbind();
 
 			if(mUseSSAO)
@@ -277,19 +349,21 @@ TEST(SSAOTest)
 			{
 				mBlurPass.bind();
 
-				glDrawBuffers(1, buffers + 1);	// Effectively output to mSSAORenderTexture2
-				glActiveTexture(GL_TEXTURE0);
-				mSSAORenderTexture->bind();
-				glActiveTexture(GL_TEXTURE1);
-				mNormalRenderTexture->bind();
-				glUniform2f(glGetUniformLocation(mBlurPass.handle, "blurDirection"), 1, 0);
-				drawViewportQuad(0, 0, mSSAORenderTexture->width, mSSAORenderTexture->height, mSSAORenderTexture->type);
+				const size_t cBlurPassCount = 2;
+				for(size_t i=0; i<cBlurPassCount; ++i)
+				{
+					glDrawBuffers(1, buffers + 1);	// Effectively output to mSSAORenderTexture2
+					glActiveTexture(GL_TEXTURE0);
+					mSSAORenderTexture->bind();
+					glUniform2f(glGetUniformLocation(mBlurPass.handle, "blurDirection"), 1, 0);
+					drawViewportQuad(0, 0, mSSAORenderTexture->width, mSSAORenderTexture->height, mSSAORenderTexture->type);
 
-				glDrawBuffers(1, buffers + 0);	// Effectively output to mSSAORenderTexture
-				glActiveTexture(GL_TEXTURE0);
-				mSSAORenderTexture2->bind();
-				glUniform2f(glGetUniformLocation(mBlurPass.handle, "blurDirection"), 0, 1);
-				drawViewportQuad(0, 0, mSSAORenderTexture->width, mSSAORenderTexture->height, mSSAORenderTexture->type);
+					glDrawBuffers(1, buffers + 0);	// Effectively output to mSSAORenderTexture
+					glActiveTexture(GL_TEXTURE0);
+					mSSAORenderTexture2->bind();
+					glUniform2f(glGetUniformLocation(mBlurPass.handle, "blurDirection"), 0, 1);
+					drawViewportQuad(0, 0, mSSAORenderTexture->width, mSSAORenderTexture->height, mSSAORenderTexture->type);
+				}
 
 				mBlurPass.unbind();
 			}
@@ -311,9 +385,10 @@ TEST(SSAOTest)
 			mCombinePass.unbind();
 		}
 
-		void load3ds(const wchar_t* fileId)
+		void loadModel(const wchar_t* fileId)
 		{
-			mModel = dynamic_cast<Model*>(mResourceManager.load(fileId).get());
+			mModel = mResourceManager.load(fileId).get();
+			mRenderable = dynamic_cast<IRenderable*>(mModel.get());
 		}
 
 		sal_override void update(float deltaTime)
@@ -335,7 +410,8 @@ TEST(SSAOTest)
 		float mSSAORescale;
 		float mSSAORadius;
 
-		ModelPtr mModel;
+		ResourcePtr mModel;
+		IRenderable* mRenderable;
 		ShaderProgram mScenePass, mSSAOPass, mBlurPass, mCombinePass;
 
 		DefaultResourceManager mResourceManager;
@@ -347,13 +423,15 @@ TEST(SSAOTest)
 	{
 		TestWindow window;
 
-//		window.load3ds(L"ANDOX.3DS");
-//		window.load3ds(L"TextureBoxSphere.3ds");
-//		window.load3ds(L"House/house.3ds");
-		window.load3ds(L"City/city.3ds");
-//		window.load3ds(L"Church/sponza/sponza.3ds");
-//		window.load3ds(L"3M00696/buelllightning.3DS");
-//		window.load3ds(L"Lamborghini Gallardo Polizia/Lamborghini Gallardo Polizia.3DS");
+		window.loadModel(L"ANDOX.3DS");
+//		window.loadModel(L"TextureBoxSphere.3ds");
+//		window.loadModel(L"House/house.3ds");
+//		window.loadModel(L"City/city.3ds");
+//		window.loadModel(L"Scene/01/scene.3ds");
+//		window.loadModel(L"Scene/01/scene.pod");
+//		window.loadModel(L"Church/sponza/sponza.3ds");
+//		window.loadModel(L"3M00696/buelllightning.3DS");
+//		window.loadModel(L"Lamborghini Gallardo Polizia/Lamborghini Gallardo Polizia.3DS");
 
 		window.mainLoop();
 	}

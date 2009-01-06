@@ -5,5 +5,9 @@ uniform sampler2DRect texSSAO;	// SSAO result texture
 
 void main(void)
 {
-	gl_FragColor = texture2DRect(texColor, texCoord) * texture2DRect(texSSAO, texCoord2);
+	// SSAO only
+//	gl_FragColor = vec4(texture2DRect(texSSAO, texCoord2).r);
+
+	// Modulate the luminance using the SSAO
+	gl_FragColor = texture2DRect(texColor, texCoord) * texture2DRect(texSSAO, texCoord2).r;
 }
