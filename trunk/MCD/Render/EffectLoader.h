@@ -23,6 +23,9 @@ public:
 			//! The current parsing render pass
 			size_t pass;
 
+			//! File path for the effect file itself.
+			Path effectPath;
+
 			/*!	The directory where the effect file is stored.
 				For example, a texture path as seen in the effect file will
 				combine with this basePath and then use the resulting path

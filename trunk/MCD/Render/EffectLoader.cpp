@@ -17,6 +17,46 @@ namespace MCD {
 
 namespace {
 
+class PassLoader : public EffectLoader::ILoader
+{
+	/*!	Callback that bind attributes to ShaderProgram
+		The dependence system can make sure all ShaderProgram is linked before invoking this callback
+	 */
+	class Callback : public ResourceManagerCallback
+	{
+	public:
+		// Bind texture to the shader's uniform
+		sal_override void doCallback()
+		{
+			MCD_ASSERT(shaderProgram);
+			MCD_FOREACH(const TextureProperty& texture, textures) {
+				GLint location = glGetUniformLocation(shaderProgram->handle, texture.shaderName.c_str());
+				if(location >= 0)
+					glUniform1i(location, texture.unit);
+				else
+					Log::format(Log::Error, L"Fail to bind texture uniform '%s'", strToWStr(texture.shaderName).c_str());
+			}
+		}
+
+		ptr_vector<TextureProperty> textures;
+		SharedPtr<ShaderProgram> shaderProgram;
+	};	// Callback
+
+public:
+	PassLoader();
+
+	sal_override const wchar_t* name() const {
+		return L"pass";
+	}
+
+	sal_override bool load(XmlParser& parser, IMaterial& material, Context& context);
+
+	typedef ptr_vector<ILoader> Loaders;
+	Loaders mLoaders;
+
+	std::auto_ptr<Callback> mBindTextureUniformCallback;
+};	// PassLoader
+
 static bool parseColor4f(const wchar_t* str, ColorRGBAf& color)
 {
 	if(!str)
@@ -58,7 +98,7 @@ public:
 class TextureLoader : public EffectLoader::ILoader
 {
 public:
-	TextureLoader() : mTextureUnit(0) {}
+	TextureLoader(PassLoader& passLoader) : mPassLoader(passLoader), mTextureUnit(0) {}
 
 	sal_override const wchar_t* name() const {
 		return L"texture";
@@ -77,11 +117,13 @@ public:
 		std::auto_ptr<TextureProperty> textureProperty(new TextureProperty(texture.get(), mTextureUnit));
 
 		const wchar_t* shaderName = parser.attributeValueIgnoreCase(L"shaderName");
-		if(shaderName)
+		if(shaderName) {
 			if(!wStrToStr(shaderName, textureProperty->shaderName))
 				textureProperty->shaderName.clear();
+		}
 
 		material.addProperty(textureProperty.get(), context.pass);
+		mPassLoader.mBindTextureUniformCallback->textures.push_back(dynamic_cast<TextureProperty*>(textureProperty->clone()));
 		textureProperty.release();
 		++mTextureUnit;
 
@@ -89,10 +131,12 @@ public:
 	}
 
 	size_t mTextureUnit;	//! This variable will keep increasing every time a load operation is performed
+	PassLoader& mPassLoader;
 };	// TextureLoader
 
 class ShaderLoader : public EffectLoader::ILoader
 {
+	//! Callback that attach shader to shader program and linking them together
 	class Callback : public ResourceManagerCallback
 	{
 	public:
@@ -158,6 +202,8 @@ class ShaderLoader : public EffectLoader::ILoader
 	};	// Callback
 
 public:
+	ShaderLoader(PassLoader& passLoader) : mPassLoader(passLoader) {}
+
 	sal_override const wchar_t* name() const {
 		return L"shader";
 	}
@@ -172,7 +218,7 @@ public:
 
 		std::auto_ptr<ShaderProperty> shaderProperty(new ShaderProperty(new ShaderProgram));
 		std::auto_ptr<Callback> callback(new Callback);
-		callback->program = shaderProperty->shaderProgram;
+		mPassLoader.mBindTextureUniformCallback->shaderProgram = callback->program = shaderProperty->shaderProgram;
 
 		// Indicate the currect shader type
 		uint shaderType = 0;
@@ -196,6 +242,9 @@ public:
 				ShaderPtr shader = dynamic_cast<Shader*>(context.resourceManager.load(path).get());
 				callback->addDependency(path);
 				callback->shaders.push_back(shader);
+
+				// Make sure the uniform binding is done after the shader program is commited
+				mPassLoader.mBindTextureUniformCallback->addDependency(path);
 			}
 			break;
 
@@ -225,84 +274,32 @@ public:
 
 		return true;
 	}
+
+	PassLoader& mPassLoader;
 };	// ShaderLoader
 
-class PassLoader : public EffectLoader::ILoader
+PassLoader::PassLoader()
 {
-public:
-	PassLoader()
+	mLoaders.push_back(new StandardLoader);
+	mLoaders.push_back(new TextureLoader(*this));
+	mLoaders.push_back(new ShaderLoader(*this));
+}
+
+bool PassLoader::load(XmlParser& parser, IMaterial& material, Context& context)
+{
+	typedef XmlParser::Event Event;
+
+	mBindTextureUniformCallback.reset(new Callback);
+
+	// If the pass is disabled, skip the whole element.
+	if(!parser.attributeValueAsBoolIgnoreCase(L"enable", true/*By default a pass is enabled*/))
 	{
-		mLoaders.push_back(new StandardLoader);
-		mLoaders.push_back(new TextureLoader);
-		mLoaders.push_back(new ShaderLoader);
-	}
-
-	sal_override const wchar_t* name() const {
-		return L"pass";
-	}
-
-	sal_override bool load(XmlParser& parser, IMaterial& material, Context& context)
-	{
-		typedef XmlParser::Event Event;
-
-		// If the pass is disabled, skip the whole element.
-		if(!parser.attributeValueAsBoolIgnoreCase(L"enable", true/*By default a pass is enabled*/))
-		{
-			if(parser.isEmptyElement())
-				return true;
-			while(true) switch(parser.nextEvent()) {
-			case Event::EndElement:
-				if(wstrCaseCmp(parser.elementName(), L"pass") == 0)
-					return true;
-				break;
-
-			case Event::Error:
-			case Event::EndDocument:
-				return false;
-
-			default:
-				break;
-			}
-		}
-
-		const wchar_t* attributeValue = nullptr;
-		// Parse the attributes of "pass"
-		if(parser.attributeValueAsBoolIgnoreCase(L"drawLine", false))
-			material.addProperty(new LineDrawingProperty, context.pass);
-
-		if(parser.attributeValueIgnoreCase(L"lineWidth"))
-			material.addProperty(new LineWidthProperty(parser.attributeValueAsFloatIgnoreCase(L"lineWidth", 1.0f)), context.pass);
-
-		if((attributeValue = parser.attributeValueIgnoreCase(L"cullMode")) != nullptr) {
-			if(wstrCaseCmp(attributeValue, L"none") == 0)
-				material.addProperty(new DisableStateProperty(GL_CULL_FACE), context.pass);
-			else if(wstrCaseCmp(attributeValue, L"front") == 0)
-				material.addProperty(new FrontCullingProperty, context.pass);
-		}
-
-		if(parser.isEmptyElement()) {
-			++context.pass;
+		if(parser.isEmptyElement())
 			return true;
-		}
-
-		while(true) switch(parser.nextEvent())
-		{
-		case Event::BeginElement:
-			// Search for a loader that will response with this xml element
-			for(Loaders::iterator i=mLoaders.begin(); i!=mLoaders.end(); ++i) {
-				if(wstrCaseCmp(parser.elementName(), i->name()) != 0)
-					continue;
-				if(!i->load(parser, material, context))
-					return false;
-				break;
-			}
-			break;
-
+		while(true) switch(parser.nextEvent()) {
 		case Event::EndElement:
-			if(wstrCaseCmp(parser.elementName(), L"pass") == 0) {
-				++context.pass;
+			if(wstrCaseCmp(parser.elementName(), L"pass") == 0)
 				return true;
-			}
 			break;
 
 		case Event::Error:
@@ -312,13 +309,66 @@ public:
 		default:
 			break;
 		}
+	}
 
+	const wchar_t* attributeValue = nullptr;
+	// Parse the attributes of "pass"
+	if(parser.attributeValueAsBoolIgnoreCase(L"drawLine", false))
+		material.addProperty(new LineDrawingProperty, context.pass);
+
+	if(parser.attributeValueIgnoreCase(L"lineWidth"))
+		material.addProperty(new LineWidthProperty(parser.attributeValueAsFloatIgnoreCase(L"lineWidth", 1.0f)), context.pass);
+
+	if((attributeValue = parser.attributeValueIgnoreCase(L"cullMode")) != nullptr) {
+		if(wstrCaseCmp(attributeValue, L"none") == 0)
+			material.addProperty(new DisableStateProperty(GL_CULL_FACE), context.pass);
+		else if(wstrCaseCmp(attributeValue, L"front") == 0)
+			material.addProperty(new FrontCullingProperty, context.pass);
+	}
+
+	if(parser.isEmptyElement()) {
+		++context.pass;
 		return true;
 	}
 
-	typedef ptr_vector<ILoader> Loaders;
-	Loaders mLoaders;
-};	// PassLoader
+	bool done = false;
+	while(!done) switch(parser.nextEvent())
+	{
+	case Event::BeginElement:
+		// Search for a loader that will response with this xml element
+		for(Loaders::iterator i=mLoaders.begin(); i!=mLoaders.end(); ++i) {
+			if(wstrCaseCmp(parser.elementName(), i->name()) != 0)
+				continue;
+			if(!i->load(parser, material, context))
+				return false;
+			break;
+		}
+		break;
+
+	case Event::EndElement:
+		if(wstrCaseCmp(parser.elementName(), L"pass") == 0) {
+			++context.pass;
+			done = true;
+		}
+		break;
+
+	case Event::Error:
+	case Event::EndDocument:
+		return false;
+
+	default:
+		break;
+	}
+
+	// Add callback to bind texture to shader, if needed
+	if(mBindTextureUniformCallback->shaderProgram && !mBindTextureUniformCallback->textures.empty()) {
+		mBindTextureUniformCallback->addDependency(context.effectPath);
+		context.resourceManager.addCallback(mBindTextureUniformCallback.get());
+		mBindTextureUniformCallback.release();
+	}
+
+	return true;
+}
 
 }	// namespace
 
@@ -333,6 +383,7 @@ public:
 
 	IResourceLoader::LoadingState load(std::istream* is, const Path* fileId)
 	{
+		// FileId must not be null, otherwise abort
 		mLoadingState = is && fileId ? NotLoaded : Aborted;
 
 		if(mLoadingState & Stopped)
@@ -353,7 +404,7 @@ public:
 		if(mLoadingState & Stopped)
 			return mLoadingState;
 
-		ILoader::Context context = { 0, fileId->getBranchPath(), nullptr, mResourceManager };
+		ILoader::Context context = { 0, *fileId, fileId->getBranchPath(), nullptr, mResourceManager };
 
 		// Parse the xml
 		typedef XmlParser::Event Event;
