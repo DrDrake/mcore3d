@@ -85,8 +85,9 @@ TextureProperty::TextureProperty(Texture* texture_, int unit_)
 }
 
 TextureProperty::TextureProperty(const TextureProperty& rhs)
-	: texture(rhs.texture), unit(rhs.unit)
-{}
+	: texture(rhs.texture), unit(rhs.unit), shaderName(rhs.shaderName)
+{
+}
 
 TextureProperty& TextureProperty::operator=(const TextureProperty& rhs)
 {

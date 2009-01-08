@@ -127,7 +127,7 @@ void ModelPod::Impl::draw()
 //		if(node->nIdxMaterial < 0)
 //			continue;
 
-		if(node->nIdxMaterial >= 0)
+		if(mPod.pMaterial && node->nIdxMaterial >= 0)
 		{
 			SPODMaterial* material = mPod.pMaterial + node->nIdxMaterial;
 			MCD_ASSUME(material);
