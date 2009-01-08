@@ -29,13 +29,20 @@ class PassLoader : public EffectLoader::ILoader
 		sal_override void doCallback()
 		{
 			MCD_ASSERT(shaderProgram);
+
+			shaderProgram->bind();
+
 			MCD_FOREACH(const TextureProperty& texture, textures) {
+				if(texture.shaderName.empty())
+					continue;
 				GLint location = glGetUniformLocation(shaderProgram->handle, texture.shaderName.c_str());
 				if(location >= 0)
 					glUniform1i(location, texture.unit);
 				else
 					Log::format(Log::Error, L"Fail to bind texture uniform '%s'", strToWStr(texture.shaderName).c_str());
 			}
+
+			shaderProgram->unbind();
 		}
 
 		ptr_vector<TextureProperty> textures;
