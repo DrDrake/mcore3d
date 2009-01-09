@@ -27,20 +27,28 @@ MCD_CORE_API sal_checkreturn bool utf8ToWStr(const std::string& utf8Str, std::ws
 MCD_CORE_API sal_checkreturn bool wStrToUtf8(sal_in_z sal_in_ecount(maxCount) const wchar_t* wideStr, size_t maxCount, std::string& utf8Str);
 MCD_CORE_API sal_checkreturn bool wStrToUtf8(const std::wstring& wideStr, std::string& utf8Str);
 
-//! Integer number to narrow string
+//! Integer number to narrow string.
 MCD_CORE_API std::string int2Str(int number);
 
-//! Integer number to wide string
+//! Integer number to wide string.
 MCD_CORE_API std::wstring int2WStr(int number);
 
-//! Wide string to integer
+//! Wide string to integer.
 MCD_CORE_API sal_checkreturn bool wStr2Int(sal_in_z const wchar_t* wideStr, int& number);
 
 //! Wide string to integer with a supplied default value in case the parse failed.
 MCD_CORE_API int wStr2IntWithDefault(sal_in_z const wchar_t* wideStr, int defaultVal);
 
-//! Wide string to double
+//! Wide string to double.
 MCD_CORE_API sal_checkreturn bool wStr2Double(sal_in_z const wchar_t* wideStr, double& number);
+
+/*!	Wide string to array of float.
+	\return Return null if parse failed. Using delete[] to cleanup the memory.
+	\param size
+		As input, it indicate the maximum number to parse, use 0 to indicate don't care;
+		as an output it tells you the actual number of element parsed.
+ */
+MCD_CORE_API float* wStr2Float(sal_in_z const wchar_t* wideStr, sal_inout size_t& size);
 
 //! Compare two wide-character strings, ignoring case.
 MCD_CORE_API sal_checkreturn int wstrCaseCmp(sal_in_z const wchar_t* string1, sal_in_z const wchar_t* string2);

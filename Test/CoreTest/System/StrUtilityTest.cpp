@@ -115,6 +115,51 @@ TEST(StrtoNumberTest)
 	}
 }
 
+TEST(StrtoFloatArrayTest)
+{
+	struct S {
+		const wchar_t* wideStr;
+		const float* values;
+		size_t expectCount;
+		size_t maxCount;
+		bool success;
+	};
+
+	const float v1[] = {0};
+	const float v2[] = {1, 2};
+	const float v3[] = {1, 2, 3};
+
+	const S data[] = {
+		{L"",			nullptr,	0u,	 0u, false},	// Exact count
+		{L"0",			v1,			1u,	 1u, true},		//
+		{L"1 2",		v2,			2u,	 2u, true},		//
+		{L"1 2 3",		v3,			3u,	 3u, true},		//
+		{L"",			nullptr,	0u,	10u, false},	// Bigger count
+		{L"0",			v1,			1u,	10u, true},		//
+		{L"1 2",		v2,			2u,	20u, true},		//
+		{L"",			nullptr,	0u,	 0u, false},	// Smaller count
+		{L"1 2",		v2,			1u,	 1u, true},		//
+		{L"1 2 3",		v3,			2u,	 2u, true},		//
+		{L"",			nullptr,	0u,	 0u, false},	// Don't care count
+		{L"abc",		nullptr,	0u,	 0u, false},	//
+		{L"0",			v1,			1u,	 0u, true},		//
+		{L"1 2",		v2,			2u,	 0u, true},		//
+		{L"1 2 3 a",	v3,			3u,	 0u, true},		//
+	};
+
+	for(size_t i=0; i<sizeof(data)/sizeof(S); ++i) {
+		size_t size = data[i].maxCount;
+		float* ret = wStr2Float(data[i].wideStr, size);
+		CHECK_EQUAL(data[i].success, ret != nullptr);
+		CHECK_EQUAL(data[i].expectCount, size);
+
+		for(size_t j=0; j<data[i].expectCount; ++j)
+			CHECK_EQUAL(data[i].values[j], ret[j]);
+
+		delete[] ret;
+	}
+}
+
 TEST(WStrCaseCmpTest)
 {
 	CHECK_EQUAL(0, wstrCaseCmp(L"abc", L"AbC"));
