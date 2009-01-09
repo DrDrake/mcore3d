@@ -143,6 +143,32 @@ public:
 
 class ShaderLoader : public EffectLoader::ILoader
 {
+	class MCD_ABSTRACT_CLASS Param
+	{
+	public:
+		virtual ~Param() { delete[] mValues; }
+		virtual void bind(uint shaderProgramHandle) const = 0;
+
+		void init(const char* name, const wchar_t* value) {
+			mName = name;
+			mValues = wStr2Float(value, mCount);
+		}
+
+	protected:
+		Param() : mValues(nullptr), mCount(0) {}
+
+		int getUniformLocation(uint shaderProgramHandle) const {
+			int location = glGetUniformLocation(shaderProgramHandle, mName.c_str());
+			if(location < 0)
+				Log::format(Log::Error, L"Fail to bind uniform '%s'", strToWStr(mName).c_str());
+			return location;
+		}
+
+		std::string mName;
+		float* mValues;
+		size_t mCount;	//!< Number of float
+	};	// Param
+
 	//! Callback that attach shader to shader program and linking them together
 	class Callback : public ResourceManagerCallback
 	{
@@ -196,7 +222,15 @@ class ShaderLoader : public EffectLoader::ILoader
 				std::string log;
 				program->getLog(log);
 				Log::write(Log::Error, strToWStr(log).c_str());
+				return;
 			}
+
+			// Bind shader parameters
+			program->bind();
+			MCD_FOREACH(const Param& param, shaderParams) {
+				param.bind(program->handle);
+			}
+			program->unbind();
 		}
 
 		SharedPtr<ShaderProgram> program;
@@ -206,7 +240,98 @@ class ShaderLoader : public EffectLoader::ILoader
 		//! Source code for the inline shaders
 		struct InlineSource { std::string code; uint type; };
 		std::vector<InlineSource> inlineSources;
+
+		//! Shader parameters
+		ptr_vector<Param> shaderParams;
 	};	// Callback
+
+	class FloatParam : public Param
+	{
+	public:
+		sal_override void bind(uint shaderProgramHandle) const {
+			int location = getUniformLocation(shaderProgramHandle);
+			if(location >= 0 && mCount > 0)
+				glUniform1fv(location, mCount, mValues);
+		}
+
+		static Param* create(const char* name, const wchar_t* value) {
+			std::auto_ptr<Param> param(new FloatParam);
+			param->init(name, value);
+			return param.release();
+		}
+	};	// FloatParam
+
+	class Vec2Param : public Param
+	{
+	public:
+		sal_override void bind(uint shaderProgramHandle) const {
+			int location = getUniformLocation(shaderProgramHandle);
+			if(mCount % 2 != 0)
+				Log::format(Log::Warn, L"Number of float in shader parameter '%S' do not match the type vec2", mName.c_str());
+			if(location >= 0 && mCount > 0)
+				glUniform2fv(location, mCount/2, mValues);
+		}
+
+		static Param* create(const char* name, const wchar_t* value) {
+			std::auto_ptr<Param> param(new Vec2Param);
+			param->init(name, value);
+			return param.release();
+		}
+	};	// Vec2Param
+
+	class Vec3Param : public Param
+	{
+	public:
+		sal_override void bind(uint shaderProgramHandle) const {
+			int location = getUniformLocation(shaderProgramHandle);
+			if(mCount % 3 != 0)
+				Log::format(Log::Warn, L"Number of float in shader parameter '%S' do not match the type vec3", mName.c_str());
+			if(location >= 0 && mCount > 0)
+				glUniform3fv(location, mCount/3, mValues);
+		}
+
+		static Param* create(const char* name, const wchar_t* value) {
+			std::auto_ptr<Param> param(new Vec3Param);
+			param->init(name, value);
+			return param.release();
+		}
+	};	// Vec3Param
+
+	class Vec4Param : public Param
+	{
+	public:
+		sal_override void bind(uint shaderProgramHandle) const {
+			int location = getUniformLocation(shaderProgramHandle);
+			if(mCount % 4 != 0)
+				Log::format(Log::Warn, L"Number of float in shader parameter '%S' do not match the type vec4", mName.c_str());
+			if(location >= 0 && mCount > 0)
+				glUniform4fv(location, mCount/4, mValues);
+		}
+
+		static Param* create(const char* name, const wchar_t* value) {
+			std::auto_ptr<Param> param(new Vec4Param);
+			param->init(name, value);
+			return param.release();
+		}
+	};	// Vec4Param
+
+	// Creates different kinds of shader param according to it's type
+	void createParam(const wchar_t* name_, const wchar_t* type, const wchar_t* value, Callback& callback)
+	{
+		if(!name_ || !type || !value || value[0] == L'\0')
+			return;
+
+		std::string name;
+		if(!wStrToStr(name_, name))
+			return;
+
+		if(wstrCaseCmp(type, L"float") == 0)
+			return callback.shaderParams.push_back(FloatParam::create(name.c_str(), value));
+		else if(wstrCaseCmp(type, L"vec2") == 0)
+			return callback.shaderParams.push_back(Vec2Param::create(name.c_str(), value));
+		else if(wstrCaseCmp(type, L"vec3") == 0)
+			return callback.shaderParams.push_back(Vec3Param::create(name.c_str(), value));
+	}
 
 public:
 	ShaderLoader(PassLoader& passLoader) : mPassLoader(passLoader) {}
@@ -253,6 +378,17 @@ public:
 				// Make sure the uniform binding is done after the shader program is commited
 				mPassLoader.mBindTextureUniformCallback->addDependency(path);
 			}
+			break;
+
+		case Event::Text:
+			// Parse the value of a shader parameter
+			if(wstrCaseCmp(parser.elementName(), L"parameter") == 0)
+				createParam(
+					parser.attributeValueIgnoreCase(L"name"),
+					parser.attributeValueIgnoreCase(L"type"),
+					parser.textData(),
+					*callback
+				);
 			break;
 
 		case Event::CData:
