@@ -165,6 +165,8 @@ public:
 class ShaderProgram;
 
 // ShaderProperty
+// TODO: Introduce ShaderPrarmeterProperty to reduce excessing shader change,
+// currently different parameter need to create a different ShaderProgram.
 class MCD_RENDER_API ShaderProperty : public IMaterialProperty
 {
 public:

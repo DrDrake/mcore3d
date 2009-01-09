@@ -5,6 +5,7 @@
 #include <sstream>
 #include <stdlib.h>
 #include <stdexcept>
+#include <vector>
 
 #ifdef MCD_CYGWIN
 #	include "PlatformInclude.h"
@@ -343,6 +344,33 @@ bool wStr2Double(const wchar_t* wideStr, double& number)
 #endif
 	ss >> number;
 	return !ss.fail();
+}
+
+float* wStr2Float(const wchar_t* wideStr, size_t& size)
+{
+	const size_t maxSize = size;
+	size = 0;
+	float* ret = nullptr;
+	std::vector<float> buffer;
+
+	std::wstringstream ss(wideStr);
+
+	for(size=0; maxSize == 0 || size < maxSize; ++size) {
+		float number;
+		ss >> number;
+		if(ss.fail())
+			break;
+		buffer.push_back(number);
+	}
+
+	MCD_ASSERT(size == buffer.size());
+
+	if(buffer.empty())
+		return ret;
+
+	ret = new float[buffer.size()];
+	memcpy(ret, &buffer[0], sizeof(float) * buffer.size());
+	return ret;
 }
 
 int wstrCaseCmp(const wchar_t* string1, const wchar_t* string2)
