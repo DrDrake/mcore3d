@@ -317,7 +317,36 @@ ResourcePtr ResourceManager::reload(const Path& fileId, bool block, uint priorit
 	return node->mResource.get();
 }
 
-void ResourceManager::forget(const Path& fileId)
+ResourcePtr ResourceManager::cache(const ResourcePtr& resource)
+{
+	if(!resource)
+		return resource;
+
+	MCD_ASSUME(mImpl != nullptr);
+	ScopeLock lock(mImpl->mEventQueue.mMutex);
+
+	ResourcePtr ret;
+	MapNode* node;
+
+	// Find for existing resource
+	if((node = mImpl->findMapNode(resource->fileId())) != nullptr) {
+		ret = node->mResource.get();
+		delete node;
+		node = nullptr;
+	}
+
+	node = new MapNode(*resource);
+	node->mLoadingState = IResourceLoader::Loaded;	// We assume the suppling resource is already loaded
+	MCD_VERIFY(mImpl->mResourceMap.insertUnique(node->mPathKey));
+
+	// Generate a finished loading event
+	Event event = { resource.get(), nullptr };
+	mImpl->mEventQueue.pushBack(event);
+
+	return ret;
+}
+
+void ResourceManager::uncache(const Path& fileId)
 {
 	MCD_ASSUME(mImpl != nullptr);
 	ScopeLock lock(mImpl->mEventQueue.mMutex);
@@ -367,7 +396,7 @@ void ResourceManager::doCallbacks(const Event& event)
 	if(event.resource)
 	{
 		// We ignore partial loading event
-		if(!(event.loader->getLoadingState() & IResourceLoader::Stopped))
+		if(event.loader && !(event.loader->getLoadingState() & IResourceLoader::Stopped))
 			return;
 
 		for(Impl::Callbacks::iterator i=callbacks.begin(); i!=callbacks.end();) {

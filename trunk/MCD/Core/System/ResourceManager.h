@@ -167,11 +167,19 @@ public:
 	 */
 	ResourcePtr reload(const Path& fileId, bool block=false, uint priority=0);
 
+	/*!	Cache the given resource.
+		The given resource is assumed to be fully loaded, no loading will be preformed
+		on it, but a loading event (without a loader )will still get generated in order
+		to make the dependency system work correctly.
+		\return The previous cached resoure of the same fileId, if any.
+	 */
+	ResourcePtr cache(const ResourcePtr& resource);
+
 	/*!	Give up the control (un-cache it) over the resource with that fileId.
 		Do nothing if that fileId is not already in the manager.
 		Useful to reload a resource as a new instance.
 	 */
-	void forget(const Path& fileId);
+	void uncache(const Path& fileId);
 
 	/*! Event for notifying the loading status of a resource.
 		\note The member \em resource and \em loader may be null to
@@ -179,8 +187,8 @@ public:
 	 */
 	struct Event
 	{
-		ResourcePtr resource;
-		SharedPtr<IResourceLoader> loader;
+		ResourcePtr resource;				//!< May be null
+		SharedPtr<IResourceLoader> loader;	//!< May be null
 	};	// Event
 
 	/*!	Get any loading event from the event queue.
