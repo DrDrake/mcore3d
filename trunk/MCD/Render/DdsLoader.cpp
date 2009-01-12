@@ -180,9 +180,13 @@ uint max(uint a, uint b)
 	return a > b ? a : b;
 }
 
-size_t getCompressedSize(uint x, uint y, DdsLoadInfo* li)
+//! Get the memory size of the given dds info and the image dimension
+size_t getSize(uint w, uint h, DdsLoadInfo* li)
 {
-	return max(li->divSize, x) / li->divSize * max(li->divSize, y) / li->divSize * li->blockBytes;
+	if(li->compressed)
+		return max(li->divSize, w) / li->divSize * max(li->divSize, h) / li->divSize * li->blockBytes;
+	else
+		return w * h * li->blockBytes;
 }
 
 class DdsLoader::LoaderImpl : public TextureLoaderBase::LoaderBaseImpl
@@ -241,31 +245,30 @@ public:
 			li = &loadInfoBGR5A1;
 		else if(PF_IS_BGR565(hdr.sPixelFormat))
 			li = &loadInfoBGR565;
-		else if(PF_IS_INDEX8(hdr.sPixelFormat))
+		else if(PF_IS_INDEX8(hdr.sPixelFormat)) {
 			li = &loadInfoIndex8;
+			MCD_ASSERT(false && "Not implemented");
+		}
 		else
 			return -1;
 
 		mLoadInfo = li;
 		mFormat = li->internalFormat;
 
-		if(mLoadInfo->compressed) {
-			size_t size = 0;
-			uint x = hdr.dwWidth;
-			uint y = hdr.dwHeight;
+		size_t size = 0;
+		uint x = hdr.dwWidth;
+		uint y = hdr.dwHeight;
 
-			for(size_t i = 0; i < mMipMapCount; ++i) {
-				size += getCompressedSize(x, y, li);
-				x = (x + 1) >> 1;
-				y = (y + 1) >> 1;
-			}
+		for(size_t i = 0; i < mMipMapCount; ++i) {
+			size += getSize(x, y, li);
+			x = (x + 1) >> 1;
+			y = (y + 1) >> 1;
+		}
 
-			mImageData = new byte_t[size];
-			is.read((char*)mImageData, size);
-			if(size_t(is.gcount()) != size)
-				return -1;
-		} else
-			MCD_ASSERT(false && "Not implemented");
+		mImageData = new byte_t[size];
+		is.read((char*)mImageData, size);
+		if(size_t(is.gcount()) != size)
+			return -1;
 
 		return 0;
 	}
@@ -282,24 +285,31 @@ public:
 			return;
 		}
 
-		glTexParameteri(GL_TEXTURE_2D, GL_GENERATE_MIPMAP, GL_FALSE);
+		// Missing mipmaps won't be a problem anymore
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAX_LEVEL, mMipMapCount - 1);
 
-		if(mLoadInfo->compressed) {
-			DdsLoadInfo* li = mLoadInfo;
-			byte_t* p = mImageData;
-			uint x = mWidth;
-			uint y = mHeight;
+		DdsLoadInfo* li = mLoadInfo;
+		byte_t* p = mImageData;
+		uint x = mWidth;
+		uint y = mHeight;
 
-			for(size_t i = 0; i < mMipMapCount; ++i) {
-				size_t size = getCompressedSize(x, y, li);
-				// TODO: Check opengl error
+		for(size_t i = 0; i < mMipMapCount; ++i) {
+			size_t size = getSize(x, y, li);
+
+			// TODO: Check opengl error
+			if(li->compressed)
 				glCompressedTexImage2D(GL_TEXTURE_2D, i, li->internalFormat, x, y, 0, size, p);
-				p += size;
-				x = (x + 1) >> 1;
-				y = (y + 1) >> 1;
-			}
-		} else
-			MCD_ASSERT(false && "Not implemented");
+			else
+				glTexImage2D(GL_TEXTURE_2D, i, li->internalFormat, x, y, 0, li->externalFormat, li->type, p);
+
+			p += size;
+			x = (x + 1) >> 1;
+			y = (y + 1) >> 1;
+		}
+
+		// Restore to default
+		// Reference: http://developer.apple.com/documentation/Darwin/Reference/ManPages/man3/glTexParameter.3.html
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAX_LEVEL, 1000);
 	}
 
 	size_t mMipMapCount;
