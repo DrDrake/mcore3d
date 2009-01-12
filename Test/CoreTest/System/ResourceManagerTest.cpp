@@ -110,6 +110,26 @@ TEST(Basic_ResourceManagerTest)
 		// nothing can be verify in this test, but it will trigger some code to run
 		// so that we will have a higher code coverage
 		manager.load(L"Main.cpp");
+		while(manager.popEvent().loader) {}
+	}
+
+	{	// Manually cache a resource
+		manager.cache(nullptr);	// Do nothing
+
+		{	// Without fileId collision
+			ResourcePtr res = new Resource(L"abc");
+			manager.cache(res);
+			ResourceManager::Event e = manager.popEvent();
+			CHECK_EQUAL(res.get(), e.resource.get());
+			CHECK(!e.loader);
+		}
+
+		{	// With fileId collision, returning the old resource
+			ResourcePtr res = new Resource(L"Main.cpp");
+			ResourcePtr old = manager.cache(res);
+			CHECK_EQUAL(resource, old);
+			resource = res;
+		}
 	}
 
 	{	// Main.cpp should be cached, loading it again should not generate events
@@ -117,8 +137,8 @@ TEST(Basic_ResourceManagerTest)
 		manager.load(L"Main.cpp", true);
 		CHECK(manager.popEvent().loader == nullptr);
 
-		// But if we forget it, then a new resource will be loaded
-		manager.forget(L"Main.cpp");
+		// But if we uncache it, then a new resource will be loaded
+		manager.uncache(L"Main.cpp");
 		ResourcePtr resource2 = manager.load(L"Main.cpp", true);
 		CHECK(manager.popEvent().loader != nullptr);
 		CHECK(resource != resource2);
@@ -130,7 +150,7 @@ TEST(Basic_ResourceManagerTest)
 		CHECK_EQUAL(resource, manager.reload(L"Main.cpp", true));
 		CHECK(manager.popEvent().loader != nullptr);
 
-		manager.forget(L"ResourceManadgerTest.cpp");
+		manager.uncache(L"ResourceManadgerTest.cpp");
 		CHECK(manager.reload(L"ResourceManadgerTest.cpp") != nullptr);
 	}
 
