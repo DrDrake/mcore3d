@@ -90,8 +90,8 @@ TEST(SSAOTest)
 		TestWindow()
 			:
 			BasicGlWindow(L"title=SSAOTest;width=800;height=600;fullscreen=0;FSAA=4"),
-			mUseSSAO(true), mBlurSSAO(true), mShowTexture(false),
-			mSSAORescale(0.5f), mSSAORadius(0.05f),
+			mUseSSAO(true), mShowTexture(false),
+			mSSAORescale(0.5f), mSSAORadius(0.05f), mBlurPassCount(2),
 			mRenderable(nullptr), mResourceManager(*createDefaultFileSystem())
 		{
 			if( !loadShaderProgram(L"Shader/SSAO/Scene.glvs", L"Shader/SSAO/Scene.glps", mScenePass, mResourceManager) ||
@@ -133,9 +133,14 @@ TEST(SSAOTest)
 				onResize(width(), height());
 			}
 
-			// Toggle SSAO blur
-			if(e.Type == Event::KeyReleased && e.Key.Code == Key::F3)
-				mBlurSSAO = !mBlurSSAO;
+			// Adjust SSAO blur
+			if(e.Type == Event::KeyReleased && e.Key.Code == Key::F3) {
+				if(e.Key.Shift) {
+					if(mBlurPassCount > 0)
+						--mBlurPassCount;
+				} else
+					++mBlurPassCount;
+			}
 
 			// Toggle texturing
 			if(e.Type == Event::KeyReleased && e.Key.Code == Key::F4) {
@@ -273,6 +278,7 @@ TEST(SSAOTest)
 					-0.598198f,  0.031839f, -0.484108f,
 					-0.005480f, -0.144742f, -0.191251f,
 				};
+
 				minizeEnergy((float*)randSphere, sizeof(randSphere) / (3 * sizeof(float)));
 				glUniform3fv(glGetUniformLocation(mSSAOPass.handle, "ranSphere"), 32, (float*)randSphere);
 
@@ -345,12 +351,11 @@ TEST(SSAOTest)
 			mSSAOPass.unbind();
 
 			// Blurr the SSAO
-			if(mBlurSSAO)
+			if(mBlurPassCount > 0)
 			{
 				mBlurPass.bind();
 
-				const size_t cBlurPassCount = 2;
-				for(size_t i=0; i<cBlurPassCount; ++i)
+				for(size_t i=0; i<mBlurPassCount; ++i)
 				{
 					glDrawBuffers(1, buffers + 1);	// Effectively output to mSSAORenderTexture2
 					glActiveTexture(GL_TEXTURE0);
@@ -405,10 +410,10 @@ TEST(SSAOTest)
 		}
 
 		bool mUseSSAO;
-		bool mBlurSSAO;
 		bool mShowTexture;
 		float mSSAORescale;
 		float mSSAORadius;
+		size_t mBlurPassCount;
 
 		ResourcePtr mModel;
 		IRenderable* mRenderable;
