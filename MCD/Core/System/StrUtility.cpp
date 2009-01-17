@@ -346,7 +346,34 @@ bool wStr2Double(const wchar_t* wideStr, double& number)
 	return !ss.fail();
 }
 
-float* wStr2Float(const wchar_t* wideStr, size_t& size)
+int* wStrToIntArray(const wchar_t* wideStr, size_t& size)
+{
+	const size_t maxSize = size;
+	size = 0;
+	int* ret = nullptr;
+	std::vector<int> buffer;
+
+	std::wstringstream ss(wideStr);
+
+	for(size=0; maxSize == 0 || size < maxSize; ++size) {
+		int number;
+		ss >> number;
+		if(ss.fail())
+			break;
+		buffer.push_back(number);
+	}
+
+	MCD_ASSERT(size == buffer.size());
+
+	if(buffer.empty())
+		return ret;
+
+	ret = new int[buffer.size()];
+	memcpy(ret, &buffer[0], sizeof(int) * buffer.size());
+	return ret;
+}
+
+float* wStrToFloatArray(const wchar_t* wideStr, size_t& size)
 {
 	const size_t maxSize = size;
 	size = 0;

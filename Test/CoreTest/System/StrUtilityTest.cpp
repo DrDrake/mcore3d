@@ -149,7 +149,7 @@ TEST(StrtoFloatArrayTest)
 
 	for(size_t i=0; i<sizeof(data)/sizeof(S); ++i) {
 		size_t size = data[i].maxCount;
-		float* ret = wStr2Float(data[i].wideStr, size);
+		float* ret = wStrToFloatArray(data[i].wideStr, size);
 		CHECK_EQUAL(data[i].success, ret != nullptr);
 		CHECK_EQUAL(data[i].expectCount, size);
 
