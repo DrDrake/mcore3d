@@ -14,7 +14,10 @@
 
 namespace MCD {
 
-//!	Common base class for Impl on different platforms.
+/*!	Common base class for Impl on different platforms.
+	Opps! After I read the bridge pattern http://en.wikipedia.org/wiki/Bridge_pattern
+	I realized that I am alredy using it even I didn't have that in mind.
+ */
 class MCD_ABSTRACT_CLASS ImplBase
 {
 public:

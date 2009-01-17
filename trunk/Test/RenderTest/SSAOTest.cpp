@@ -103,7 +103,6 @@ TEST(SSAOTest)
 			}
 
 			// Load the random normal map
-			mDitherTexture = dynamic_cast<Texture*>(mResourceManager.load(L"RandomNormals128x128.png", true).get());
 			mDitherTexture = generateRandomTexture(32);
 		}
 
@@ -195,6 +194,14 @@ TEST(SSAOTest)
 			if(!textureBuffer->linkTo(*mSceneRenderTarget))
 				throw std::runtime_error("");
 			mDepthRenderTexture = static_cast<TextureRenderBuffer&>(*textureBuffer).texture;
+
+			{	// Adjust the clamp mode of the depth texture to be clamp to border
+				mDepthRenderTexture->bind();
+				float b[] = { 1, 1, 1 };	// Everything outside the border is defined as far away
+				glTexParameterfv(GL_TEXTURE_RECTANGLE_ARB, GL_TEXTURE_BORDER_COLOR, b);
+				glTexParameterf(GL_TEXTURE_RECTANGLE_ARB, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
+				glTexParameterf(GL_TEXTURE_RECTANGLE_ARB, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
+			}
 
 			mSceneRenderTarget->bind();
 			GLenum buffers[] = { GL_COLOR_ATTACHMENT0_EXT, GL_COLOR_ATTACHMENT1_EXT };
