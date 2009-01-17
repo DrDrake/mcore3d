@@ -35,9 +35,9 @@ bool TextureRenderBuffer::linkTo(RenderTarget& renderTarget)
 	return true;
 }
 
-bool TextureRenderBuffer::createTexture(size_t width, size_t height, int type, int format)
+bool TextureRenderBuffer::createTexture(size_t width, size_t height, int type, int format, const wchar_t* name)
 {
-	if((texture = new Texture(L"TextureRenderBuffer:")) == nullptr)
+	if((texture = new Texture(name ? name : L"TextureRenderBuffer:")) == nullptr)
 		return false;
 
 	if(type != GL_TEXTURE_2D && type != GL_TEXTURE_RECTANGLE_ARB)

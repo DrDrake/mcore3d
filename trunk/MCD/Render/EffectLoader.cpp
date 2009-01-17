@@ -146,16 +146,27 @@ class ShaderLoader : public EffectLoader::ILoader
 	class MCD_ABSTRACT_CLASS Param
 	{
 	public:
-		virtual ~Param() { delete[] mValues; }
+		virtual ~Param() {
+			delete[] mIntValues;
+			delete[] mFloatValues;
+		}
+
 		virtual void bind(uint shaderProgramHandle) const = 0;
 
-		void init(const char* name, const wchar_t* value) {
+		void initAsInt(const char* name, const wchar_t* value) {
 			mName = name;
-			mValues = wStr2Float(value, mCount);
+			mFloatValues = nullptr;
+			mIntValues = wStrToIntArray(value, mCount);
+		}
+
+		void initAsFloat(const char* name, const wchar_t* value) {
+			mName = name;
+			mIntValues = nullptr;
+			mFloatValues = wStrToFloatArray(value, mCount);
 		}
 
 	protected:
-		Param() : mValues(nullptr), mCount(0) {}
+		Param() : mIntValues(nullptr), mFloatValues(nullptr), mCount(0) {}
 
 		int getUniformLocation(uint shaderProgramHandle) const {
 			int location = glGetUniformLocation(shaderProgramHandle, mName.c_str());
@@ -165,7 +176,8 @@ class ShaderLoader : public EffectLoader::ILoader
 		}
 
 		std::string mName;
-		float* mValues;
+		int* mIntValues;
+		float* mFloatValues;
 		size_t mCount;	//!< Number of float
 	};	// Param
 
@@ -245,18 +257,34 @@ class ShaderLoader : public EffectLoader::ILoader
 		ptr_vector<Param> shaderParams;
 	};	// Callback
 
+	class IntParam : public Param
+	{
+	public:
+		sal_override void bind(uint shaderProgramHandle) const {
+			int location = getUniformLocation(shaderProgramHandle);
+			if(location >= 0 && mCount > 0)
+				glUniform1iv(location, mCount, mIntValues);
+		}
+
+		static Param* create(const char* name, const wchar_t* value) {
+			std::auto_ptr<Param> param(new IntParam);
+			param->initAsInt(name, value);
+			return param.release();
+		}
+	};	// IntParam
+
 	class FloatParam : public Param
 	{
 	public:
 		sal_override void bind(uint shaderProgramHandle) const {
 			int location = getUniformLocation(shaderProgramHandle);
 			if(location >= 0 && mCount > 0)
-				glUniform1fv(location, mCount, mValues);
+				glUniform1fv(location, mCount, mFloatValues);
 		}
 
 		static Param* create(const char* name, const wchar_t* value) {
 			std::auto_ptr<Param> param(new FloatParam);
-			param->init(name, value);
+			param->initAsFloat(name, value);
 			return param.release();
 		}
 	};	// FloatParam
@@ -269,12 +297,12 @@ class ShaderLoader : public EffectLoader::ILoader
 			if(mCount % 2 != 0)
 				Log::format(Log::Warn, L"Number of float in shader parameter '%S' do not match the type vec2", mName.c_str());
 			if(location >= 0 && mCount > 0)
-				glUniform2fv(location, mCount/2, mValues);
+				glUniform2fv(location, mCount/2, mFloatValues);
 		}
 
 		static Param* create(const char* name, const wchar_t* value) {
 			std::auto_ptr<Param> param(new Vec2Param);
-			param->init(name, value);
+			param->initAsFloat(name, value);
 			return param.release();
 		}
 	};	// Vec2Param
@@ -287,12 +315,12 @@ class ShaderLoader : public EffectLoader::ILoader
 			if(mCount % 3 != 0)
 				Log::format(Log::Warn, L"Number of float in shader parameter '%S' do not match the type vec3", mName.c_str());
 			if(location >= 0 && mCount > 0)
-				glUniform3fv(location, mCount/3, mValues);
+				glUniform3fv(location, mCount/3, mFloatValues);
 		}
 
 		static Param* create(const char* name, const wchar_t* value) {
 			std::auto_ptr<Param> param(new Vec3Param);
-			param->init(name, value);
+			param->initAsFloat(name, value);
 			return param.release();
 		}
 	};	// Vec3Param
@@ -305,12 +333,12 @@ class ShaderLoader : public EffectLoader::ILoader
 			if(mCount % 4 != 0)
 				Log::format(Log::Warn, L"Number of float in shader parameter '%S' do not match the type vec4", mName.c_str());
 			if(location >= 0 && mCount > 0)
-				glUniform4fv(location, mCount/4, mValues);
+				glUniform4fv(location, mCount/4, mFloatValues);
 		}
 
 		static Param* create(const char* name, const wchar_t* value) {
 			std::auto_ptr<Param> param(new Vec4Param);
-			param->init(name, value);
+			param->initAsFloat(name, value);
 			return param.release();
 		}
 	};	// Vec4Param
@@ -325,7 +353,9 @@ class ShaderLoader : public EffectLoader::ILoader
 		if(!wStrToStr(name_, name))
 			return;
 
-		if(wstrCaseCmp(type, L"float") == 0)
+		if(wstrCaseCmp(type, L"int") == 0)
+			return callback.shaderParams.push_back(IntParam::create(name.c_str(), value));
+		else if(wstrCaseCmp(type, L"float") == 0)
 			return callback.shaderParams.push_back(FloatParam::create(name.c_str(), value));
 		else if(wstrCaseCmp(type, L"vec2") == 0)
 			return callback.shaderParams.push_back(Vec2Param::create(name.c_str(), value));
