@@ -31,7 +31,7 @@ public:
 		if(!mDirectory || !readChange()) {
 			::CloseHandle(mDirectory);
 			mDirectory = nullptr;
-			throw std::runtime_error(std::string("Fail to watch directory: ") + wStrToStr(path));
+			Log::format(Log::Warn, L"Fail to watch directory: %s", path ? path : L"");
 		}
 	}
 
@@ -63,6 +63,7 @@ public:
 		for(size_t i=2; i--;)
 		{
 			DWORD bytesRetured = 0;
+			// Note that if mDirectory = null, GetOverlappedResult() will return 0
 			if(0 == ::GetOverlappedResult(mDirectory, &mOverlapped, &bytesRetured, false))
 				goto CACHED;	// The use of goto here makes the code clean.
 

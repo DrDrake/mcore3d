@@ -49,7 +49,7 @@
 
 				gl_FragColor = specular + (ambient + diffuse) * texture2D(diffuseMap, gl_TexCoord[0].xy);
 				gl_FragColor.rgb *= exposure;
-				gl_FragColor.a = clamp(gl_FragColor.a, 0, 1);
+				gl_FragColor.a = clamp(gl_FragColor.a, 0.0, 1.0);
 			}
 			]]>
 		</fragment>
