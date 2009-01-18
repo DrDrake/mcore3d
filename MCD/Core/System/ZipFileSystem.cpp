@@ -54,7 +54,12 @@ class ZipFileSystem::Impl
 
 		size_t doUnzip()
 		{
-			static const size_t cBufSize = 512;
+			// TODO: The UnzipItem() function didn't work correctly if an (~6M) unzipped
+			// file is unzipped by spliting it up to several chunk. So currectly a large
+			// enough buffer is allocated at once, not good for a memory limited system.
+//			static const size_t cBufSize = 512;
+			const size_t cBufSize = mFile.unc_size;
+
 			if(!rawBufPtr()) {
 				char* buffer = (char*)::malloc(cBufSize);
 				if(!buffer)
