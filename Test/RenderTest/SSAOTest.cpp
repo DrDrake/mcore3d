@@ -11,7 +11,7 @@
 
 using namespace MCD;
 
-void minizeEnergy(float* data, size_t sampleCount, size_t stride=sizeof(float)*3)
+static void minizeEnergy(float* data, size_t sampleCount, size_t stride=sizeof(float)*3)
 {
 	stride /= sizeof(float);
 	int iter = 100;
@@ -91,7 +91,7 @@ TEST(SSAOTest)
 			:
 			BasicGlWindow(L"title=SSAOTest;width=800;height=600;fullscreen=0;FSAA=4"),
 			mUseSSAO(true), mShowTexture(false),
-			mSSAORescale(0.5f), mSSAORadius(0.05f), mBlurPassCount(2),
+			mSSAORescale(0.5f), mSSAORadius(0.5f), mBlurPassCount(2),
 			mRenderable(nullptr), mResourceManager(*createDefaultFileSystem())
 		{
 			if( !loadShaderProgram(L"Shader/SSAO/Scene.glvs", L"Shader/SSAO/Scene.glps", mScenePass, mResourceManager) ||
