@@ -15,7 +15,7 @@ float unpackFloatFromVec3i(const vec3 value)
 
 float GetFactor(const float depth, const float depth2)
 {
-    const float focusRange = 0.005;
+    const float focusRange = 1.0;
     return min(abs((depth - depth2) / focusRange), 1.0);
 }
 

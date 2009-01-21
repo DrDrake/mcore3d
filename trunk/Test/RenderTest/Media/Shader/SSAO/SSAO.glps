@@ -34,7 +34,11 @@ float convertDepth(in float d)
 	float nearZ = camerarange.x;
 	float farZ = camerarange.y;
 
-	return (2.0 * nearZ) / (nearZ + farZ - d * (farZ - nearZ));
+//	return (2.0 * nearZ) / (nearZ + farZ - d * (farZ - nearZ));
+//	return (2.0 * d) - (nearZ + farZ) / (farZ - nearZ);
+
+	// Reference: http://blog.nextrevision.com/?p=76#comments
+	return (nearZ * farZ / (farZ - d * (farZ - nearZ)) - nearZ);
 }
 
 float readDepth(in vec2 coord)
