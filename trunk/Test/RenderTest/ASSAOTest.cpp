@@ -1,21 +1,22 @@
 #include "Pch.h"
 #include "DefaultResourceManager.h"
+#include "../../MCD/Core/System/WindowEvent.h"
+#include "../../MCD/Core/Math/Mat44.h"
 #include "../../MCD/Render/Color.h"
+#include "../../MCD/Render/Effect.h"
+#include "../../MCD/Render/Material.h"
 #include "../../MCD/Render/Renderable.h"
 #include "../../MCD/Render/RenderTarget.h"
 #include "../../MCD/Render/Shader.h"
 #include "../../MCD/Render/ShaderProgram.h"
 #include "../../MCD/Render/Texture.h"
 #include "../../MCD/Render/TextureRenderBuffer.h"
-#include "../../MCD/Core/System/WindowEvent.h"
-
-#include "../../MCD/Core/Math/Mat44.h"
 
 using namespace MCD;
 
 static TexturePtr generateRandomTexture(uint textureSize)
 {
-	TexturePtr texture = new Texture(L"");
+	TexturePtr texture = new Texture(L"texture:dither");
 	texture->width = textureSize;
 	texture->height = textureSize;
 	texture->type = GL_TEXTURE_2D;
@@ -29,6 +30,9 @@ static TexturePtr generateRandomTexture(uint textureSize)
 		buffer[i].r = rand() % 256;
 		buffer[i].g = rand() % 256;
 		buffer[i].b = rand() % 256;
+
+		const uint8_t contrast = 10;	// The minimum value is 2
+		buffer[i].a = (rand() % uint8_t(256*(contrast-1)/contrast)) + (256/contrast);
 		buffer[i].a = rand() % 256;
 	}
 
@@ -47,27 +51,7 @@ static TexturePtr generateRandomTexture(uint textureSize)
 	return texture;
 }
 
-class DefaultShaderParameters
-{
-public:
-	//! We just simply ignore any error.
-	void apply(uint shaderProgramHandle)
-	{
-		glUniform1i(glGetUniformLocation(shaderProgramHandle, "mcd_ScreenWidth"), screenWidth);
-		glUniform1i(glGetUniformLocation(shaderProgramHandle, "mcd_ScreenHeight"), screenHeight);
-		glUniform1f(glGetUniformLocation(shaderProgramHandle, "mcd_PixelWidth"), 1.0f/screenWidth);
-		glUniform1f(glGetUniformLocation(shaderProgramHandle, "mcd_PixelHeight"), 1.0f/screenHeight);
-		glUniform1f(glGetUniformLocation(shaderProgramHandle, "mcd_Fovy"), fovy);
-		glUniformMatrix4fvARB(glGetUniformLocation(shaderProgramHandle, "mcd_ProjectionMatrix"), 1, false, reinterpret_cast<float*>(&projectionMatrix));
-	}
-
-	size_t screenWidth;
-	size_t screenHeight;
-	float fovy;
-	MCD::Mat44f projectionMatrix;	// gl_ProjectionMatrix only accessable in vertex shader
-};	// DefaultShaderParameters
-
-TEST(SSAOTest)
+TEST(ASSAOTest)
 {
 	class TestWindow : public BasicGlWindow
 	{
@@ -75,17 +59,19 @@ TEST(SSAOTest)
 		TestWindow()
 			:
 			BasicGlWindow(L"title=SSAOTest;width=800;height=600;fullscreen=0;FSAA=4"),
-			mUseSSAO(true), mShowTexture(false),
-			mSSAORescale(0.5f), mSSAORadius(0.5f), mBlurPassCount(2),
+			mUseSSAO(true), mBlurSSAO(true), mShowTexture(false),
+			mSSAORescale(0.5f), mSSAORadius(0.5f), mBlurPassCount(0),
 			mRenderable(nullptr), mResourceManager(*createDefaultFileSystem())
 		{
-			if( !loadShaderProgram(L"Shader/SSAO/Scene.glvs", L"Shader/SSAO/Scene.glps", mScenePass, mResourceManager) ||
-				!loadShaderProgram(L"Shader/SSAO/SSAO.glvs", L"Shader/SSAO/SSAO.glps", mSSAOPass, mResourceManager) ||
-				!loadShaderProgram(L"Shader/SSAO/Blur.glvs", L"Shader/SSAO/Blur.glps", mBlurPass, mResourceManager) ||
-				!loadShaderProgram(L"Shader/SSAO/Combine.glvs", L"Shader/SSAO/Combine.glps", mCombinePass, mResourceManager))
+			if( !loadShaderProgram(L"Shader/ASSAO/SSAO.glvs", L"Shader/ASSAO/SSAO.glps", mSSAOPass, mResourceManager) ||
+				!loadShaderProgram(L"Shader/ASSAO/Blur.glvs", L"Shader/ASSAO/Blur.glps", mBlurPass, mResourceManager) ||
+				!loadShaderProgram(L"Shader/ASSAO/Combine.glvs", L"Shader/ASSAO/Combine.glps", mCombinePass, mResourceManager))
 			{
 				throw std::runtime_error("Fail to load shader");
 			}
+
+			mSceneEffect = static_cast<Effect*>(mResourceManager.load(L"Material/ShowOffTest/ScenePass.fx.xml").get());
+//			mSSAOEffect = static_cast<Effect*>(mResourceManager.load(L"Material/ShowOffTest/SSAOPass.fx.xml").get());
 
 			// Load the random normal map
 			mDitherTexture = generateRandomTexture(32);
@@ -101,7 +87,6 @@ TEST(SSAOTest)
 			mSSAOPass.bind();
 
 			glUniform1f(glGetUniformLocation(mSSAOPass.handle, "fov"), fieldOfView() * Mathf::cPi() / 180);
-
 			glUniformMatrix4fvARB(glGetUniformLocation(mSSAOPass.handle, "projection"), 1, false, projectionMatrix);
 		}
 
@@ -127,12 +112,12 @@ TEST(SSAOTest)
 			}
 
 			// Toggle texturing
-			if(e.Type == Event::KeyReleased && e.Key.Code == Key::F4) {
+/*			if(e.Type == Event::KeyReleased && e.Key.Code == Key::F4) {
 				mShowTexture = !mShowTexture;
 				mScenePass.bind();
 				glUniform1i(glGetUniformLocation(mScenePass.handle, "showTexture"), mShowTexture);
 				mScenePass.unbind();
-			}
+			}*/
 
 			// Adjust SSAO radius
 			if(e.Type == Event::KeyReleased && e.Key.Code == Key::F5) {
@@ -151,6 +136,32 @@ TEST(SSAOTest)
 				updateViewFrustum();
 		}
 
+		TexturePtr createRenderTexture(
+			RenderTarget& renderTarget, int attachmentType, int textureType,
+			size_t width, size_t height, const wchar_t* resourceName
+			)
+		{
+			TextureRenderBufferPtr textureBuffer = new TextureRenderBuffer(attachmentType);
+			if(!textureBuffer->createTexture(width, height, GL_TEXTURE_RECTANGLE_ARB, textureType, resourceName))
+				return nullptr;
+			if(!textureBuffer->linkTo(renderTarget))
+				return nullptr;
+			TexturePtr ret = static_cast<TextureRenderBuffer&>(*textureBuffer).texture;
+			mResourceManager.cache(ret);
+
+			return ret;
+		}
+
+		// Set the texture as clamp to border
+		void clampBorder(Texture& texture)
+		{
+			texture.bind();
+			float b[] = { 1, 1, 1, 1 };
+			glTexParameterfv(texture.type, GL_TEXTURE_BORDER_COLOR, b);
+			glTexParameterf(texture.type, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
+			glTexParameterf(texture.type, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
+		}
+
 		sal_override void onResize(size_t width, size_t height)
 		{
 			// If the window is minmized
@@ -159,34 +170,10 @@ TEST(SSAOTest)
 
 			// Setup scene's render target, where the scene will output the color, depth and normal
 			mSceneRenderTarget.reset(new RenderTarget(width, height));
-			TextureRenderBufferPtr textureBuffer = new TextureRenderBuffer(GL_COLOR_ATTACHMENT0_EXT);
-			if(!textureBuffer->createTexture(width, height, GL_TEXTURE_RECTANGLE_ARB, GL_RGB))
-				throw std::runtime_error("");
-			if(!textureBuffer->linkTo(*mSceneRenderTarget))
-				throw std::runtime_error("");
-			mColorRenderTexture = static_cast<TextureRenderBuffer&>(*textureBuffer).texture;
 
-			textureBuffer = new TextureRenderBuffer(GL_COLOR_ATTACHMENT1_EXT);
-			if(!textureBuffer->createTexture(width, height, GL_TEXTURE_RECTANGLE_ARB, GL_RGB))
-				throw std::runtime_error("");
-			if(!textureBuffer->linkTo(*mSceneRenderTarget))
-				throw std::runtime_error("");
-			mNormalRenderTexture = static_cast<TextureRenderBuffer&>(*textureBuffer).texture;
-
-			textureBuffer = new TextureRenderBuffer(GL_DEPTH_ATTACHMENT_EXT);
-			if(!textureBuffer->createTexture(width, height, GL_TEXTURE_RECTANGLE_ARB, GL_DEPTH_COMPONENT))
-				throw std::runtime_error("");
-			if(!textureBuffer->linkTo(*mSceneRenderTarget))
-				throw std::runtime_error("");
-			mDepthRenderTexture = static_cast<TextureRenderBuffer&>(*textureBuffer).texture;
-
-			{	// Adjust the clamp mode of the depth texture to be clamp to border
-				mDepthRenderTexture->bind();
-				float b[] = { 1, 1, 1 };	// Everything outside the border is defined as far away
-				glTexParameterfv(GL_TEXTURE_RECTANGLE_ARB, GL_TEXTURE_BORDER_COLOR, b);
-				glTexParameterf(GL_TEXTURE_RECTANGLE_ARB, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
-				glTexParameterf(GL_TEXTURE_RECTANGLE_ARB, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
-			}
+			mColorRenderTexture = createRenderTexture(*mSceneRenderTarget, GL_COLOR_ATTACHMENT0_EXT, GL_RGB, width, height, L"renderBuffer:color");
+			mNormalRenderTexture = createRenderTexture(*mSceneRenderTarget, GL_COLOR_ATTACHMENT1_EXT, GL_RGB, width, height, L"renderBuffer:normal");
+			mDepthRenderTexture = createRenderTexture(*mSceneRenderTarget, GL_DEPTH_ATTACHMENT_EXT, GL_DEPTH_COMPONENT, width, height, L"renderBuffer:depth");
 
 			mSceneRenderTarget->bind();
 			GLenum buffers[] = { GL_COLOR_ATTACHMENT0_EXT, GL_COLOR_ATTACHMENT1_EXT };
@@ -194,30 +181,23 @@ TEST(SSAOTest)
 			mSceneRenderTarget->unbind();
 
 			if(!mSceneRenderTarget->checkCompleteness())
-				throw std::runtime_error("");
+				throw std::runtime_error("Fail to create mSceneRenderTarget");
 
 			// Setup SSAO's render target, outputing dithered SSAO result
-			mSSAORenderTarget.reset(new RenderTarget(size_t(width * mSSAORescale), size_t(height * mSSAORescale)));
-			textureBuffer = new TextureRenderBuffer(GL_COLOR_ATTACHMENT0_EXT);
-			if(!textureBuffer->createTexture(mSSAORenderTarget->width(), mSSAORenderTarget->height(), GL_TEXTURE_RECTANGLE_ARB, GL_RGBA))
-				throw std::runtime_error("");
-			if(!textureBuffer->linkTo(*mSSAORenderTarget))
-				throw std::runtime_error("");
-			mSSAORenderTexture = static_cast<TextureRenderBuffer&>(*textureBuffer).texture;
+			size_t width2 = size_t(width * mSSAORescale);
+			size_t height2 = size_t(height * mSSAORescale);
+			mSSAORenderTarget.reset(new RenderTarget(width2, height2));
 
-			textureBuffer = new TextureRenderBuffer(GL_COLOR_ATTACHMENT1_EXT);
-			if(!textureBuffer->createTexture(mSSAORenderTarget->width(), mSSAORenderTarget->height(), GL_TEXTURE_RECTANGLE_ARB, GL_RGBA))
-				throw std::runtime_error("");
-			if(!textureBuffer->linkTo(*mSSAORenderTarget))
-				throw std::runtime_error("");
-			mSSAORenderTexture2 = static_cast<TextureRenderBuffer&>(*textureBuffer).texture;
-
-			mSSAORenderTarget->bind();
-			glDrawBuffers(1, buffers);
-			mSSAORenderTarget->unbind();
+			mAccum1 = createRenderTexture(*mSSAORenderTarget, GL_COLOR_ATTACHMENT0_EXT, GL_RGBA, width2, height2, L"renderBuffer:Accum1");
+			mAccum2 = createRenderTexture(*mSSAORenderTarget, GL_COLOR_ATTACHMENT1_EXT, GL_RGBA, width2, height2, L"renderBuffer:Accum2");
 
 			if(!mSSAORenderTarget->checkCompleteness())
-				throw std::runtime_error("");
+				throw std::runtime_error("Fail to create mSSAORenderTarget");
+
+			// Setup the clamp mode
+			clampBorder(*mDepthRenderTexture);
+			clampBorder(*mAccum1);
+			clampBorder(*mAccum2);
 
 			// Setup the uniform variables
 			// Reference: http://www.lighthouse3d.com/opengl/glsl/index.php?ogluniform
@@ -227,13 +207,19 @@ TEST(SSAOTest)
 				glUniform1i(glGetUniformLocation(mSSAOPass.handle, "texDepth"), 0);
 				glUniform1i(glGetUniformLocation(mSSAOPass.handle, "texNormal"), 1);
 				glUniform1i(glGetUniformLocation(mSSAOPass.handle, "texDither"), 2);
+				glUniform1i(glGetUniformLocation(mSSAOPass.handle, "texAccum"), 3);
+				glUniform1f(glGetUniformLocation(mSSAOPass.handle, "radius"), mSSAORadius);
 				glUniform1i(glGetUniformLocation(mSSAOPass.handle, "screenWidth"), width);
 				glUniform1i(glGetUniformLocation(mSSAOPass.handle, "screenHeight"), height);
-				glUniform1f(glGetUniformLocation(mSSAOPass.handle, "radius"), mSSAORadius);
+				// We need some carefull adjustment in order to get the rescaled screen sampling correct
+				glUniform1f(glGetUniformLocation(mSSAOPass.handle, "screenWidth2"),
+					(width % 2 == 0 || mSSAORescale == 1.0f ? width : width-1) * mSSAORescale);
+				glUniform1f(glGetUniformLocation(mSSAOPass.handle, "screenHeight2"),
+					(height % 2 == 0 || mSSAORescale == 1.0f ? height : height-1) * mSSAORescale);
 				glUniform1f(glGetUniformLocation(mSSAOPass.handle, "ssaoRescale"), mSSAORescale);
 
 				// Random points INSIDE an unit sphere.
-				const float randSphere[] = {
+				float randSphere[] = {
 					 0.000005f,  0.078660f,  0.451855f,
 					 0.175578f, -0.358549f,  0.114750f,
 					-0.058036f,  0.000666f,  0.033155f,
@@ -271,19 +257,23 @@ TEST(SSAOTest)
 					-0.005480f, -0.144742f, -0.191251f,
 				};
 
+				for(size_t i=0; i<sizeof(randSphere)/sizeof(float)/3; ++i)
+					reinterpret_cast<Vec3f*>(randSphere+i)->normalize();
+
 				glUniform3fv(glGetUniformLocation(mSSAOPass.handle, "ranSphere"), 32, (float*)randSphere);
 
 				mSSAOPass.unbind();
 
 				mBlurPass.bind();
 				glUniform1i(glGetUniformLocation(mBlurPass.handle, "texSSAO"), 0);
+				glUniform1i(glGetUniformLocation(mBlurPass.handle, "texNormal"), 1);
+				glUniform1f(glGetUniformLocation(mBlurPass.handle, "ssaoRescale"), mSSAORescale);
 				mBlurPass.unbind();
 
 				mCombinePass.bind();
 
 				glUniform1i(glGetUniformLocation(mCombinePass.handle, "texColor"), 0);
 				glUniform1i(glGetUniformLocation(mCombinePass.handle, "texSSAO"), 1);
-				glUniform1i(glGetUniformLocation(mCombinePass.handle, "texDepth"), 2);
 				glUniform1f(glGetUniformLocation(mCombinePass.handle, "ssaoRescale"), mSSAORescale);
 
 				mCombinePass.unbind();
@@ -302,19 +292,34 @@ TEST(SSAOTest)
 
 			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-			glTranslatef(0.0f, 0.0f, 50.0f);
+			glTranslatef(0.0f, -50.0f, 100.0f);
 
-			const float scale = 1.5f;
+			const float scale = 2.5f;
 			glScalef(scale, scale, scale);
 
-			mScenePass.bind();
-			glActiveTexture(GL_TEXTURE0);
-			glDisable(GL_TEXTURE_RECTANGLE_ARB);
-			mRenderable->draw();
-			mScenePass.unbind();
+			Material2* material = nullptr;
+			if(mSceneEffect && (material = mSceneEffect->material.get()) != nullptr) {
+				material->preRender(0);
+				glActiveTexture(GL_TEXTURE0);
+				mRenderable->draw();
+				material->postRender(0);
+			}
 
 			if(mUseSSAO)
 				mSceneRenderTarget->unbind();
+
+			// Compute the delta matrix
+			// Read more about "The Real-Time Reprojection Cache
+			// http://www.cs.umbc.edu/~olano/s2006c03/ch06.pdf
+			Mat44f bias = Mat44f::cIdentity;
+			bias.setTranslation(Vec3f(0.5f, 0.5f, 0.5f));
+			bias.setScale(Vec3f(0.5f, 0.5f, 0.5f));
+			Mat44f currentView;
+			mCamera.computeTransform(currentView.data);
+			mDeltaMatrix = bias * mLastProjectionMatrix * mLastViewMatrix * currentView.inverse();
+			mLastViewMatrix = currentView;
+			glGetFloatv(GL_PROJECTION_MATRIX, mLastProjectionMatrix.data);
+			mLastProjectionMatrix = mLastProjectionMatrix.transpose();
 		}
 
 		void postProcessing()
@@ -322,11 +327,12 @@ TEST(SSAOTest)
 			if(!mUseSSAO)
 				return;
 
+			// Generate new random dithering every frame
+			mDitherTexture = generateRandomTexture(32);
+
 			// Render the SSAO
 			MCD_ASSERT(mSSAORenderTarget.get());
 			mSSAORenderTarget->bind();
-			GLenum buffers[] = { GL_COLOR_ATTACHMENT0_EXT, GL_COLOR_ATTACHMENT1_EXT };
-			glDrawBuffers(1, buffers + 0);	// Effectively output to mSSAORenderTexture
 
 			glActiveTexture(GL_TEXTURE0);
 			mDepthRenderTexture->bind();
@@ -337,28 +343,53 @@ TEST(SSAOTest)
 			glActiveTexture(GL_TEXTURE2);
 			mDitherTexture->bind();
 
+			static bool flip = false;
+			GLenum buffers[] = { GL_COLOR_ATTACHMENT0_EXT, GL_COLOR_ATTACHMENT1_EXT };
+			TexturePtr current, previous;
+			size_t currentIdx, previousIdx;
+			if(flip) {
+				// accum1 = ssao / 100 + accum2 * 99 / 100;
+				current = mAccum1;
+				previous = mAccum2;
+				currentIdx = 0;
+				previousIdx = 1;
+			} else {
+				// accum2 = ssao / 100 + accum1 * 99 / 100;
+				current = mAccum2;
+				previous = mAccum1;
+				currentIdx = 1;
+				previousIdx = 0;
+			}
+			glDrawBuffers(1, buffers + currentIdx);	// Effectively output to current
+			glActiveTexture(GL_TEXTURE3);
+			previous->bind();
+			flip = !flip;
+
 			mSSAOPass.bind();
-			drawViewportQuad(0, 0, mSSAORenderTexture->width, mSSAORenderTexture->height, mSSAORenderTexture->type);
+			glUniformMatrix4fvARB(glGetUniformLocation(mSSAOPass.handle, "deltaMatrix"), 1, true, mDeltaMatrix.data);
+			drawViewportQuad(0, 0, mAccum1->width, mAccum1->height, mAccum1->type);
 			mSSAOPass.unbind();
 
 			// Blurr the SSAO
 			if(mBlurPassCount > 0)
 			{
 				mBlurPass.bind();
+				glActiveTexture(GL_TEXTURE1);
+				mNormalRenderTexture->bind();
 
 				for(size_t i=0; i<mBlurPassCount; ++i)
 				{
-					glDrawBuffers(1, buffers + 1);	// Effectively output to mSSAORenderTexture2
+					glDrawBuffers(1, buffers + previousIdx);	// Effectively output to previous
 					glActiveTexture(GL_TEXTURE0);
-					mSSAORenderTexture->bind();
+					current->bind();
 					glUniform2f(glGetUniformLocation(mBlurPass.handle, "blurDirection"), 1, 0);
-					drawViewportQuad(0, 0, mSSAORenderTexture->width, mSSAORenderTexture->height, mSSAORenderTexture->type);
+					drawViewportQuad(0, 0, previous->width, previous->height, previous->type);
 
-					glDrawBuffers(1, buffers + 0);	// Effectively output to mSSAORenderTexture
+					glDrawBuffers(1, buffers + currentIdx);	// Effectively output to current
 					glActiveTexture(GL_TEXTURE0);
-					mSSAORenderTexture2->bind();
+					previous->bind();
 					glUniform2f(glGetUniformLocation(mBlurPass.handle, "blurDirection"), 0, 1);
-					drawViewportQuad(0, 0, mSSAORenderTexture->width, mSSAORenderTexture->height, mSSAORenderTexture->type);
+					drawViewportQuad(0, 0, current->width, current->height, current->type);
 				}
 
 				mBlurPass.unbind();
@@ -371,13 +402,10 @@ TEST(SSAOTest)
 			mColorRenderTexture->bind();
 
 			glActiveTexture(GL_TEXTURE1);
-			mSSAORenderTexture->bind();
-
-			glActiveTexture(GL_TEXTURE2);
-			mDepthRenderTexture->bind();
+			current->bind();
 
 			mCombinePass.bind();
-			drawViewportQuad(0, 0, width(), height(), mSSAORenderTexture->type);
+			drawViewportQuad(0, 0, width(), height(), mAccum1->type);
 			mCombinePass.unbind();
 		}
 
@@ -401,6 +429,7 @@ TEST(SSAOTest)
 		}
 
 		bool mUseSSAO;
+		bool mBlurSSAO;
 		bool mShowTexture;
 		float mSSAORescale;
 		float mSSAORadius;
@@ -408,23 +437,30 @@ TEST(SSAOTest)
 
 		ResourcePtr mModel;
 		IRenderable* mRenderable;
-		ShaderProgram mScenePass, mSSAOPass, mBlurPass, mCombinePass;
+		ShaderProgram mSSAOPass, mBlurPass, mCombinePass;
 
 		DefaultResourceManager mResourceManager;
 
-		TexturePtr mColorRenderTexture, mNormalRenderTexture, mDepthRenderTexture, mDitherTexture, mSSAORenderTexture, mSSAORenderTexture2;
+		EffectPtr mSceneEffect, mSSAOEffect;
+		TexturePtr mColorRenderTexture, mNormalRenderTexture, mDepthRenderTexture, mDitherTexture;
+		TexturePtr mAccum1, mAccum2;
 		std::auto_ptr<RenderTarget> mSceneRenderTarget, mSSAORenderTarget;
+
+		Mat44f mLastViewMatrix;
+		Mat44f mLastProjectionMatrix;
+		Mat44f mDeltaMatrix;
 	};	// TestWindow
 
 	{
 		TestWindow window;
 
-//		window.loadModel(L"ANDOX.3DS");
+//		window.loadModel(L"Stanford/dragon.3DS");
 //		window.loadModel(L"TextureBoxSphere.3ds");
-//		window.loadModel(L"House/house.3ds");
-//		window.loadModel(L"City/city.3ds");
-//		window.loadModel(L"Scene/01/scene.3ds");
+//		window.loadModel(L"Scene/House/scene.3ds");
+//		window.loadModel(L"Scene/City/scene.3ds");
 		window.loadModel(L"Scene/03/scene.3ds");
+//		window.loadModel(L"Ship/01/scene.3ds");
+//		window.loadModel(L"Scene/National Stadium/scene.pod");
 //		window.loadModel(L"Church/sponza/sponza.3ds");
 //		window.loadModel(L"3M00696/buelllightning.3DS");
 //		window.loadModel(L"Lamborghini Gallardo Polizia/Lamborghini Gallardo Polizia.3DS");

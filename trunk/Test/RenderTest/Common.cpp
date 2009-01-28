@@ -97,6 +97,43 @@ void drawFrustum(const Frustum& frustum)
 	glEnd();
 }
 
+void minizeEnergy(float* data, size_t sampleCount, size_t stride)
+{
+	stride /= sizeof(float);
+	int iter = 100;
+	while(iter--)
+	{
+		for(size_t i=0; i<sampleCount; ++i)
+		{
+			Vec3f force;
+			Vec3f res(0.0f);
+			Vec3f vec;
+			float fac;
+
+			Vec3f& sampleI = reinterpret_cast<Vec3f&>(data[i*stride]);
+			sampleI.normalize();
+			vec = sampleI;
+			// Minimize with other samples
+			for(size_t j=0; j<sampleCount; ++j)
+			{
+				Vec3f& sampleJ = reinterpret_cast<Vec3f&>(data[j*stride]);
+				force = vec - sampleJ;
+				if((fac = force.norm())!= 0.0f )
+					res += force / fac;
+			}
+
+			sampleI += res * 0.5f;
+			sampleI.normalize();
+		}
+	}
+
+	for(size_t i=0; i<sampleCount; ++i)
+	{
+		Vec3f& sample = reinterpret_cast<Vec3f&>(data[i*stride]);
+		sample *= float(rand()) / RAND_MAX;
+	}
+}
+
 #include "DefaultResourceManager.h"
 #include "../../MCD/Core/System/Path.h"
 #include "../../MCD/Core/System/ResourceManager.h"

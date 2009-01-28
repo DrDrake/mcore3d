@@ -239,6 +239,10 @@
 			Filter="cpp;"
 			>
 			<File
+				RelativePath=".\ASSAOTest.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\BasicGlWindow.cpp"
 				>
 			</File>
