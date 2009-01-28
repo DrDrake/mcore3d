@@ -21,6 +21,12 @@ void drawUnitCube(float textureCoord1, float textureCoord2);
 //!	Debug draw of the frustum.
 void drawFrustum(const MCD::Frustum& frustum);
 
+/*!	Make the random unit sphere random vector more uniform by minimize the energy between 
+	those vectors.
+	\ref http://www.malmer.nu/index.php/tag/ssao/
+ */
+void minizeEnergy(float* data, size_t sampleCount, size_t stride=sizeof(float)*3);
+
 class DefaultResourceManager;
 
 //! Load the shaders synchronously
