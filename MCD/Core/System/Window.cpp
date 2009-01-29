@@ -95,13 +95,18 @@ Window::Handle Window::handle()
 
 void Window::create(const wchar_t* options) throw(std::exception)
 {
+	create(0, options);
+}
+
+void Window::create(Handle existingControl, const wchar_t* options) throw(std::exception)
+{
 	if(!mImpl)
 		mImpl = new Impl(*this);
 
 	MCD_ASSUME(mImpl != nullptr);
 	if(options)
 		mImpl->setOptions(options);
-	mImpl->createNewWindow();
+	mImpl->createWindow(existingControl);
 }
 
 void Window::setOptions(const wchar_t* options)

@@ -23,6 +23,11 @@ GlWindow::~GlWindow()
 
 void GlWindow::create(const wchar_t* options) throw(std::exception)
 {
+	create(0, options);
+}
+
+void GlWindow::create(Handle existingControl, const wchar_t* options) throw(std::exception)
+{
 	if(!mImpl)
 		mImpl = new Impl(*this);
 
@@ -36,7 +41,7 @@ void GlWindow::create(const wchar_t* options) throw(std::exception)
 		// on using a dummy window.
 		int showBackup = impl->mShowWindow;
 		impl->mShowWindow = false;
-		impl->createNewWindow();
+		impl->createWindow();
 		if(options)
 			impl->setOptions(options);
 		if(!impl->detectMultiSamplePixelFormat())
@@ -48,7 +53,8 @@ void GlWindow::create(const wchar_t* options) throw(std::exception)
 
 	if(options)
 		impl->setOptions(options);
-	impl->createNewWindow();
+
+	impl->createWindow(existingControl);
 
 	// Disable v-sync (by default)
 	impl->setVerticalSync(false);
