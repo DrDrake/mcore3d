@@ -423,6 +423,10 @@ TEST(ASSAOTest)
 			if(!mSceneRenderTarget.get() || !mSSAORenderTarget.get())
 				return;
 
+			// NOTE: Don't konw why the light position have to set every frame
+			GLfloat lightPos[] = { 200, 200, 200, 1.0f };
+			glLightfv(GL_LIGHT0, GL_POSITION, lightPos);
+
 			drawScene();
 
 			postProcessing();
