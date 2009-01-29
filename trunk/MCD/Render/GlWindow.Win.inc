@@ -28,9 +28,9 @@ public:
 		destroy();
 	}
 
-	sal_override void createNewWindow()
+	sal_override void createWindow(Window::Handle existingWindowHandle=0)
 	{
-		Super::createNewWindow();
+		Super::createWindow(existingWindowHandle);
 
 		// Get the device context
 		mDc = ::GetDC(HWND(mWnd));

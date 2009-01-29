@@ -152,7 +152,7 @@ Window::Impl::Impl(Window& w)
 	mWidth = mHeight = uint(CW_USEDEFAULT);
 }
 
-void Window::Impl::createNewWindow()
+void Window::Impl::createWindow(Window::Handle existingWindowHandle)
 {
 	HMODULE hModule = ::GetModuleHandle(nullptr);
 
@@ -174,6 +174,7 @@ void Window::Impl::createNewWindow()
 		++gWindowCount;
 	}
 
+	if(existingWindowHandle == 0)
 	{	// Create window
 		MCD_ASSERT(!mWnd && "A window is already created, call destroy() first");
 
@@ -198,11 +199,16 @@ void Window::Impl::createNewWindow()
 			hModule,
 			nullptr
 		);
+	}
+	else
+	{
+		mWnd = HWND(existingWindowHandle);
+	}
 
-		if(!mWnd)
-			throw std::runtime_error("Win32 API call 'CreateWindow' failed");
+	if(!mWnd)
+		throw std::runtime_error("Win32 API call 'CreateWindow' failed");
 
-		// Get the client area size from Win32 if user didn't supply one
+	{	// Get the client area size from Win32 if user didn't supply one
 		if(mWidth == CW_USEDEFAULT || mHeight == CW_USEDEFAULT) {
 			RECT rect;
 			::GetClientRect(mWnd, &rect);
@@ -228,6 +234,7 @@ void Window::Impl::createNewWindow()
 void Window::Impl::destroy()
 {
 	if(mWnd) {
+		// TODO: Do not destroy external window handle
 		::DestroyWindow(mWnd);
 
 		--gWindowCount;
