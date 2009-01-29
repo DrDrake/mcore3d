@@ -36,8 +36,7 @@ protected:
 	// ref: http://www.geocities.com/Jeff_Louie/deterministic_destructors.htm
 	!RenderPanelControl();	// Finalize
 
-private:
-	RenderPanelControlImpl* mImpl;
+private: RenderPanelControlImpl* mImpl;
 private: System::Windows::Forms::Timer^  timer1;
 
 private: System::ComponentModel::IContainer^  components;
@@ -75,6 +74,7 @@ private:
 
 	}
 #pragma endregion
+
 private: System::Void RenderPanelControl_Load(System::Object^ sender, System::EventArgs^ e);
 private: System::Void RenderPanelControl_Resize(System::Object^ sender, System::EventArgs^ e);
 private: System::Void timer1_Tick(System::Object^ sender, System::EventArgs^ e);

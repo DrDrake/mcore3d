@@ -29,8 +29,7 @@ RenderPanelControl::~RenderPanelControl()
 		delete components;
 	}
 
-	delete mImpl;
-	mImpl = nullptr;	// Finializer may call more than once
+	this->!RenderPanelControl();
 }
 
 RenderPanelControl::!RenderPanelControl()
