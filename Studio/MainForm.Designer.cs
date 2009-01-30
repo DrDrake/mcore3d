@@ -28,25 +28,25 @@
 		/// </summary>
 		private void InitializeComponent()
 		{
-			this.menuStrip1 = new System.Windows.Forms.MenuStrip();
+			this.mainMenu = new System.Windows.Forms.MenuStrip();
 			this.fileToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-			this.renderPanelControl1 = new RenderPanel.RenderPanelControl();
 			this.newToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.openToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.helpToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-			this.menuStrip1.SuspendLayout();
+			this.dockPanel = new WeifenLuo.WinFormsUI.Docking.DockPanel();
+			this.mainMenu.SuspendLayout();
 			this.SuspendLayout();
 			// 
-			// menuStrip1
+			// mainMenu
 			// 
-			this.menuStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+			this.mainMenu.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.fileToolStripMenuItem,
             this.helpToolStripMenuItem});
-			this.menuStrip1.Location = new System.Drawing.Point(0, 0);
-			this.menuStrip1.Name = "menuStrip1";
-			this.menuStrip1.Size = new System.Drawing.Size(556, 24);
-			this.menuStrip1.TabIndex = 1;
-			this.menuStrip1.Text = "menuStrip1";
+			this.mainMenu.Location = new System.Drawing.Point(0, 0);
+			this.mainMenu.Name = "mainMenu";
+			this.mainMenu.Size = new System.Drawing.Size(556, 24);
+			this.mainMenu.TabIndex = 1;
+			this.mainMenu.Text = "menuStrip1";
 			// 
 			// fileToolStripMenuItem
 			// 
@@ -57,23 +57,16 @@
 			this.fileToolStripMenuItem.Size = new System.Drawing.Size(35, 20);
 			this.fileToolStripMenuItem.Text = "&File";
 			// 
-			// renderPanelControl1
-			// 
-			this.renderPanelControl1.Location = new System.Drawing.Point(0, 24);
-			this.renderPanelControl1.Name = "renderPanelControl1";
-			this.renderPanelControl1.Size = new System.Drawing.Size(556, 385);
-			this.renderPanelControl1.TabIndex = 0;
-			// 
 			// newToolStripMenuItem
 			// 
 			this.newToolStripMenuItem.Name = "newToolStripMenuItem";
-			this.newToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+			this.newToolStripMenuItem.Size = new System.Drawing.Size(100, 22);
 			this.newToolStripMenuItem.Text = "New";
 			// 
 			// openToolStripMenuItem
 			// 
 			this.openToolStripMenuItem.Name = "openToolStripMenuItem";
-			this.openToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+			this.openToolStripMenuItem.Size = new System.Drawing.Size(100, 22);
 			this.openToolStripMenuItem.Text = "Open";
 			// 
 			// helpToolStripMenuItem
@@ -82,18 +75,29 @@
 			this.helpToolStripMenuItem.Size = new System.Drawing.Size(40, 20);
 			this.helpToolStripMenuItem.Text = "Help";
 			// 
+			// dockPanel
+			// 
+			this.dockPanel.ActiveAutoHideContent = null;
+			this.dockPanel.Dock = System.Windows.Forms.DockStyle.Fill;
+			this.dockPanel.Location = new System.Drawing.Point(0, 24);
+			this.dockPanel.Name = "dockPanel";
+			this.dockPanel.Size = new System.Drawing.Size(556, 386);
+			this.dockPanel.TabIndex = 2;
+			// 
 			// MainForm
 			// 
 			this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
 			this.ClientSize = new System.Drawing.Size(556, 410);
-			this.Controls.Add(this.renderPanelControl1);
-			this.Controls.Add(this.menuStrip1);
-			this.MainMenuStrip = this.menuStrip1;
+			this.Controls.Add(this.dockPanel);
+			this.Controls.Add(this.mainMenu);
+			this.IsMdiContainer = true;
+			this.MainMenuStrip = this.mainMenu;
 			this.Name = "MainForm";
-			this.Text = "Form1";
-			this.menuStrip1.ResumeLayout(false);
-			this.menuStrip1.PerformLayout();
+			this.Text = "MCore3d Studio";
+			this.Load += new System.EventHandler(this.MainForm_Load);
+			this.mainMenu.ResumeLayout(false);
+			this.mainMenu.PerformLayout();
 			this.ResumeLayout(false);
 			this.PerformLayout();
 
@@ -101,11 +105,11 @@
 
 		#endregion
 
-		private RenderPanel.RenderPanelControl renderPanelControl1;
-		private System.Windows.Forms.MenuStrip menuStrip1;
+		private System.Windows.Forms.MenuStrip mainMenu;
 		private System.Windows.Forms.ToolStripMenuItem fileToolStripMenuItem;
 		private System.Windows.Forms.ToolStripMenuItem newToolStripMenuItem;
 		private System.Windows.Forms.ToolStripMenuItem openToolStripMenuItem;
 		private System.Windows.Forms.ToolStripMenuItem helpToolStripMenuItem;
+		private WeifenLuo.WinFormsUI.Docking.DockPanel dockPanel;
 	}
 }
