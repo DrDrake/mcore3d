@@ -35,6 +35,7 @@ class Mat44 : public MathTuple<T, 4*4, Mat44<T>, Mat44TupleUnion<T> >
     typedef MathTuple<T, 4*4, Mat44<T>, Mat44TupleUnion<T> > super_type;
 
 public:
+	// NOTE: I want to get rid of these noisy type forwarding, but GCC keeps complain without it.
     typedef typename super_type::param_type param_type;
     using super_type::r0;	using super_type::r1;	using super_type::r2;	using super_type::r3;
     using super_type::m00;	using super_type::m01;	using super_type::m02;	using super_type::m03;

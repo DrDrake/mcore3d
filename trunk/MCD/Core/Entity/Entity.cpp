@@ -1,5 +1,6 @@
 #include "Pch.h"
 #include "Entity.h"
+#include "Component.h"
 #include "../System/Utility.h"
 
 namespace MCD {
@@ -64,29 +65,31 @@ void Entity::unlink()
 	// mFirstChild = mFirstChild;
 }
 
-IComponent* Entity::findComponent(const std::type_info& type)
+Component* Entity::findComponent(const std::type_info& type)
 {
-	MCD_FOREACH(const IComponent& c, mComponents) {
+	MCD_FOREACH(const Component& c, mComponents) {
 		if(typeid(c) == type)
-			return const_cast<IComponent*>(&c);
+			return const_cast<Component*>(&c);
 	}
 
 	return nullptr;
 }
 
-void Entity::addComponent(IComponent* component)
+void Entity::addComponent(Component* component)
 {
 	if(!component)
 		return;
 
 	removeComponent(typeid(*component));
 	mComponents.push_back(component);
+	component->mEntity = this;
 }
 
 void Entity::removeComponent(const std::type_info& type)
 {
 	for(Components::iterator i=mComponents.begin(); i!=mComponents.end(); ++i) {
 		if(typeid(*i) == type) {
+			i->mEntity = nullptr;
 			mComponents.erase(i);
 			return;
 		}

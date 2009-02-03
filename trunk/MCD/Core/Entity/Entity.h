@@ -4,20 +4,13 @@
 #include "../ShareLib.h"
 #include "../Math/Mat44.h"
 #include "../System/PtrVector.h"
-#include "../System/WeakPtr.h"
 #include <typeinfo>
 
 namespace MCD {
 
-class MCD_ABSTRACT_CLASS IComponent : public WeakPtrTarget
-{
-public:
-	virtual ~IComponent() {}
-};	// IComponent
+class Component;
 
-typedef WeakPtr<IComponent> IComponentPtr;
-
-/*!	Entity is the basic unit of a game object, act as a container of IComponent.
+/*!	Entity is the basic unit of a game object, act as a container of Component.
  */
 class MCD_CORE_API Entity
 {
@@ -38,18 +31,18 @@ public:
 	 */
 	void unlink();
 
-	sal_maybenull IComponent* findComponent(const std::type_info& type);
+	sal_maybenull Component* findComponent(const std::type_info& type);
 
 	/*!	Add a new component into the Entity.
-		Only a single instance is allowed for each type of IComponent,
+		Only a single instance is allowed for each type of Component,
 		so the old one (if any) will be deleted before the new one is added.
 	 */
-	void addComponent(sal_in IComponent* component);
+	void addComponent(sal_in Component* component);
 
 	/*!	Remove the component from this Entity.
 		The component will be also deleted, so it is wise to use the
-		IComponentPtr (which is a weak pointer) as a reference to any
-		IComponent.
+		ComponentPtr (which is a weak pointer) as a reference to any
+		Component.
 	 */
 	void removeComponent(const std::type_info& type);
 
@@ -70,7 +63,7 @@ protected:
 	//! Pointer to make the entity hierarchy
 	Entity* mParent, *mFirstChild, *mNextSlibing;
 
-	typedef ptr_vector<IComponent> Components;
+	typedef ptr_vector<Component> Components;
 	Components mComponents;
 };	// Entity
 
