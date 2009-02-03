@@ -23,12 +23,16 @@ namespace Studio
 
 			DockContent content = new DockContent();
 			content.Show(dockPanel, DockState.Document);
-			content.Controls.Add(new RenderPanel.RenderPanelControl());
+			RenderPanel.RenderPanelControl renderPanel1 = new RenderPanel.RenderPanelControl();
+			renderPanel1.Dock = DockStyle.Fill;
+			content.Controls.Add(renderPanel1);
 			content.TabText = "Scene 1";
 
 			content = new DockContent();
 			content.Show(dockPanel, DockState.Document);
-			content.Controls.Add(new RenderPanel.RenderPanelControl());
+			RenderPanel.RenderPanelControl renderPanel2 = new RenderPanel.RenderPanelControl();
+			renderPanel2.Dock = DockStyle.Fill;
+			content.Controls.Add(renderPanel2);
 			content.TabText = "Scene 2";
 
 			PropertyWindow propertyWindow = new PropertyWindow();
