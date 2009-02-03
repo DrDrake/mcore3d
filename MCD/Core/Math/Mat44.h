@@ -120,9 +120,9 @@ public:
 	void setScale(const Vec3<T>& scale);
 
 	/*!	Creates a rotation matrix.
-		\param thetaX Rotation of angle in radius, counter clockwise from the x-axis.
-		\param thetaY Rotation of angle in radius, counter clockwise from the y-axis.
-		\param thetaZ Rotation of angle in radius, counter clockwise from the z-axis.
+		\param thetaX Rotation of angle in radian, counter clockwise from the x-axis.
+		\param thetaY Rotation of angle in radian, counter clockwise from the y-axis.
+		\param thetaZ Rotation of angle in radian, counter clockwise from the z-axis.
 	 */
 	static void rotate(const param_type thetaX, const param_type thetaY, const param_type thetaZ, Mat44& result);
 
