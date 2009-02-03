@@ -321,6 +321,18 @@
 				>
 			</File>
 		</Filter>
+		<Filter
+			Name="Entity"
+			>
+			<File
+				RelativePath=".\Entity\ComponentTest.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\Entity\EntityTest.cpp"
+				>
+			</File>
+		</Filter>
 		<File
 			RelativePath=".\Main.cpp"
 			>

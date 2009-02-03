@@ -561,6 +561,28 @@
 				>
 			</Filter>
 		</Filter>
+		<Filter
+			Name="Entity"
+			>
+			<Filter
+				Name="Header Files"
+				Filter="h"
+				>
+				<File
+					RelativePath=".\Entity\Entity.h"
+					>
+				</File>
+			</Filter>
+			<Filter
+				Name="Source Files"
+				Filter="cpp;"
+				>
+				<File
+					RelativePath=".\Entity\Entity.cpp"
+					>
+				</File>
+			</Filter>
+		</Filter>
 		<File
 			RelativePath=".\Core.h"
 			>
