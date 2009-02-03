@@ -569,6 +569,10 @@
 				Filter="h"
 				>
 				<File
+					RelativePath=".\Entity\Component.h"
+					>
+				</File>
+				<File
 					RelativePath=".\Entity\Entity.h"
 					>
 				</File>
@@ -577,6 +581,10 @@
 				Name="Source Files"
 				Filter="cpp;"
 				>
+				<File
+					RelativePath=".\Entity\Component.cpp"
+					>
+				</File>
 				<File
 					RelativePath=".\Entity\Entity.cpp"
 					>
