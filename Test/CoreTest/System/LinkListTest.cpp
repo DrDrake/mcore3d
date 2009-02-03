@@ -34,6 +34,13 @@ TEST(Basic_LinkListTest)
 	{	LinkList<FooNode> list;
 		CHECK(list.isEmpty());
 
+		// Iterate though empty list
+		size_t i = 0;
+		for(FooNode* n = list.begin(); n != list.end(); n = n->next()) {
+			++i;
+		}
+		CHECK_EQUAL(0u, i);
+
 		static const size_t cCount = 10;
 		for(size_t id=0; id<cCount; ++id) {
 			list.pushFront(*(new FooNode(cCount-1-id)));
@@ -44,14 +51,14 @@ TEST(Basic_LinkListTest)
 		CHECK(!list.isEmpty());
 
 		// Iterate though the list
-		size_t i = 0;
-		for(FooNode* n = &list.front(); n != list.end(); n = n->next()) {
+		i = 0;
+		for(FooNode* n = list.begin(); n != list.end(); n = n->next()) {
 			CHECK_EQUAL(int(i), n->mId);
 			++i;
 		}
 
 		// Reverse iteration
-		for(FooNode* n = &list.back(); n != list.rend(); n = n->prev()) {
+		for(FooNode* n = list.rbegin(); n != list.rend(); n = n->prev()) {
 			--i;
 			CHECK_EQUAL(int(i), n->mId);
 		}

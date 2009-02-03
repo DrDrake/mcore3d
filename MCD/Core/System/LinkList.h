@@ -22,14 +22,14 @@ namespace MCD {
 
 	The syntax for iterating the list is similar to STL:
 	\code
-	for(Node* n = &list.front(); n != list.end(); n = n->next()) {}
+	for(Node* n = list.begin(); n != list.end(); n = n->next()) {}
 	\endcode
 	Note that \em next will not return null for the tail, you must use \em End
 	to check for end of list.
 
 	You can reverse iterate the list by:
 	\code
-	for(Node* n = &list.back(); n != list.rend(); n = n->prev()) {}
+	for(Node* n = list.rbegin(); n != list.rend(); n = n->prev()) {}
 	\endcode
 
 	To add an element into multiple list (or similar intrusive container such as Map):
@@ -186,6 +186,28 @@ public:
 		return *mTail->mPrev;
 	}
 
+	/*!	Get the first node, for use when forward iterating the list.
+		This function differs from front() where it will not raise an assertion
+		when the list is empty.
+	 */
+	sal_notnull NodeBase* begin() {
+		return mHead->mNext;
+	}
+	sal_notnull const NodeBase* begin() const {
+		return mHead->mNext;
+	}
+
+	/*!	Get the node before the last node, for use when reverse iterating the list.
+		This function differs from back() where it will not raise an assertion
+		when the list is empty.
+	 */
+	sal_notnull NodeBase* rbegin() {
+		return mTail->mPrev;
+	}
+	sal_notnull const NodeBase* rbegin() const {
+		return mTail->mPrev;
+	}
+
 	//! Get the node beyond the last node, for use when forward iterating the list.
 	sal_notnull NodeBase* end() {
 		return mTail;
@@ -194,7 +216,7 @@ public:
 		return mTail;
 	}
 
-	//! Get the node before the first node, for use when reverse iterating the list.
+	//! Get the node before the last node, for use when reverse iterating the list.
 	sal_notnull NodeBase* rend() {
 		return mHead;
 	}
@@ -267,6 +289,20 @@ public:
 	}
 	const Node& back() const {
 		return static_cast<const Node&>(LinkListBase::back());
+	}
+
+	sal_notnull Node* begin() {
+		return static_cast<Node*>(LinkListBase::begin());
+	}
+	sal_notnull const Node* begin() const {
+		return static_cast<const Node*>(LinkListBase::begin());
+	}
+
+	sal_notnull Node* rbegin() {
+		return static_cast<Node*>(LinkListBase::rbegin());
+	}
+	sal_notnull const Node* rbegin() const {
+		return static_cast<const Node*>(LinkListBase::rbegin());
 	}
 
 	void pushFront(Node& newNode) {
