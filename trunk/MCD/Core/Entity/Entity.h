@@ -31,10 +31,13 @@ public:
 	 */
 	void unlink();
 
-	sal_maybenull Component* findComponent(const std::type_info& type);
+	/*!	Find a component in the Entity with the supplied familyType.
+		Returns null if non is found.
+	 */
+	sal_maybenull Component* findComponent(const std::type_info& familyType);
 
 	/*!	Add a new component into the Entity.
-		Only a single instance is allowed for each type of Component,
+		Only a single instance is allowed for each family type of Component,
 		so the old one (if any) will be deleted before the new one is added.
 	 */
 	void addComponent(sal_in Component* component);
@@ -44,7 +47,7 @@ public:
 		ComponentPtr (which is a weak pointer) as a reference to any
 		Component.
 	 */
-	void removeComponent(const std::type_info& type);
+	void removeComponent(const std::type_info& familyType);
 
 	Mat44f worldTransform() const;
 
@@ -66,6 +69,39 @@ protected:
 	typedef ptr_vector<Component> Components;
 	Components mComponents;
 };	// Entity
+
+/*!	An iterator that preforms a pre-order traversal on the Entity tree.
+	You can specify
+	Example:
+	\code
+	Entity root;
+	for(EntityPreorderIterator itr(&root); !itr.ended(); itr.next()) {
+		// Do something ...
+	}
+	\endcode
+ */
+class MCD_CORE_API EntityPreorderIterator
+{
+public:
+	explicit EntityPreorderIterator(sal_maybenull Entity* start);
+
+	sal_maybenull Entity* operator->() {
+		return mCurrent;
+	}
+
+	//! Returns true if there are NO more items in the collection.
+	bool ended() const {
+		return mCurrent == nullptr;
+	}
+
+	//! Returns the next element in the collection, and advances to the next.
+	sal_maybenull Entity* next();
+
+protected:
+	Entity* mCurrent;
+	//! The position where this iterator is constructed, so it knows where to stop.
+	const Entity* mStart;
+};	// EntityPreorderIterator
 
 class MCD_CORE_API EntityContainer
 {

@@ -146,3 +146,41 @@ TEST(WorldTransform_EntityTest)
 	
 	CHECK(v.isNearEqual(Vec3f(2, 4, 0)));
 }
+
+TEST(PreorderIterator_EntityTest)
+{
+	// Traversing with nothing
+	for(EntityPreorderIterator itr(nullptr); !itr.ended(); itr.next()) {
+		CHECK(false);
+	}
+
+	Entity root;
+
+	{	// Traversing only one node
+		size_t i = 0;
+		for(EntityPreorderIterator itr(&root); !itr.ended(); itr.next(), ++i) {}
+		CHECK_EQUAL(1u, i);
+	}
+
+	createTree(root);
+
+	{	// Traversing a more complicated tree
+		size_t i = 0;
+		Entity* expected[] = { &root, e3, e2, e21, e1, e13, e12, e11 };
+
+		for(EntityPreorderIterator itr(&root); !itr.ended(); itr.next(), ++i) {
+			CHECK_EQUAL(expected[i], itr.operator->());
+		}
+		CHECK_EQUAL(sizeof(expected)/sizeof(Entity*), i);
+	}
+
+	{	// Traversing a sub-tree only
+		size_t i = 0;
+		Entity* expected[] = { e1, e13, e12, e11 };
+
+		for(EntityPreorderIterator itr(e1); !itr.ended(); itr.next(), ++i) {
+			CHECK_EQUAL(expected[i], itr.operator->());
+		}
+		CHECK_EQUAL(sizeof(expected)/sizeof(Entity*), i);
+	}
+}

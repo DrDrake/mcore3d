@@ -65,10 +65,11 @@ void Entity::unlink()
 	// mFirstChild = mFirstChild;
 }
 
-Component* Entity::findComponent(const std::type_info& type)
+Component* Entity::findComponent(const std::type_info& familyType)
 {
+	// NOTE: For simplicity, only linear search is used right now.
 	MCD_FOREACH(const Component& c, mComponents) {
-		if(typeid(c) == type)
+		if(c.familyType() == familyType)
 			return const_cast<Component*>(&c);
 	}
 
@@ -85,10 +86,10 @@ void Entity::addComponent(Component* component)
 	component->mEntity = this;
 }
 
-void Entity::removeComponent(const std::type_info& type)
+void Entity::removeComponent(const std::type_info& familyType)
 {
 	for(Components::iterator i=mComponents.begin(); i!=mComponents.end(); ++i) {
-		if(typeid(*i) == type) {
+		if(i->familyType() == familyType) {
 			i->mEntity = nullptr;
 			mComponents.erase(i);
 			return;
@@ -119,6 +120,39 @@ Entity* Entity::firstChild() {
 
 Entity* Entity::nextSlibing() {
 	return mNextSlibing;
+}
+
+
+EntityPreorderIterator::EntityPreorderIterator(Entity* start)
+	: mCurrent(start), mStart(start)
+{}
+
+Entity* EntityPreorderIterator::next()
+{
+	// After an upward movement is preformed, we will not visit the child again
+	bool noChildMove = false;
+
+	while(mCurrent)
+	{
+		if(mCurrent->firstChild() && !noChildMove)
+		{
+			return mCurrent = mCurrent->firstChild();
+		}
+		else if(mCurrent->nextSlibing())
+		{
+			return mCurrent = mCurrent->nextSlibing();
+		}
+		else
+		{
+			mCurrent = mCurrent->parent();
+			noChildMove = true;
+
+			if(mCurrent == mStart)
+				mCurrent = nullptr;
+		}
+	}
+
+	return mCurrent;
 }
 
 }	// namespace MCD
