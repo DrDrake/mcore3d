@@ -46,6 +46,22 @@ template<class T> struct ForeachTraits<const T> {
 	for(Var = *_It_; _breaked_; _breaked_ = false)
 #endif
 
+/*!	Assert checked polymorphic downcast.
+	Use this when your runtime logic is mean to give convertable types, but
+	you want to detect any logical error in debug mode.
+ */
+template<class Target, class Source>
+MCD_INLINE2 Target polymorphic_downcast(Source* x) {
+	MCD_ASSERT( dynamic_cast<Target>(x) == x );
+	return static_cast<Target>(x);
+}
+template<class Target, class Source>
+MCD_INLINE2 Target polymorphic_downcast(Source& x) {
+	MCD_ASSERT( &(dynamic_cast<Target>(x)) == &x );
+	return static_cast<Target>(x);
+}
+
+
 }	// namespace MCD
 
 #endif	// __MCD_CORE_SYSTEM_UTILITY__
