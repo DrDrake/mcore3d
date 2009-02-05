@@ -11,6 +11,15 @@ namespace MCD {
 class Component;
 
 /*!	Entity is the basic unit of a game object, act as a container of Component.
+
+	Entity can link together to form a tree structure using the "parent", "firstChild"
+	and "nextSlibing" attributes as follows:
+
+	root
+	|
+	n1---n2---n3
+	     |    |
+	     n21  n31--n32--n33
  */
 class MCD_CORE_API Entity
 {

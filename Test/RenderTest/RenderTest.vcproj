@@ -275,6 +275,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\MeshComponentTest.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\MeshTest.cpp"
 				>
 			</File>
