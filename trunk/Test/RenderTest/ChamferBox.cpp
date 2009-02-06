@@ -1,5 +1,6 @@
 #include "Pch.h"
 #include "ChamferBox.h"
+#include "../../MCD/Core/Math/Vec2.h"
 #include "../../MCD/Core/Math/Mat33.h"
 #include "../../MCD/Core/Math/BasicFunction.h"
 #include "../../MCD/Render/MeshBuilder.h"

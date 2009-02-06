@@ -19,7 +19,7 @@ TEST(MeshComponentTest)
 			mResourceManager(*createDefaultFileSystem())
 		{
 			{	// Setup entity 1
-				Entity* e = new Entity;
+				std::auto_ptr<Entity> e(new Entity);
 				e->name = L"ChamferBox 1";
 				e->link(&mRootNode);
 				e->localTransform = Mat44f::rotate(0, Mathf::cPiOver4(), 0);
@@ -34,10 +34,12 @@ TEST(MeshComponentTest)
 				c->mesh = mesh;
 				c->effect = static_cast<Effect*>(mResourceManager.load(L"Material/test.fx.xml").get());
 				e->addComponent(c);
+
+				e.release();
 			}
 
 			{	// Setup entity 2
-				Entity* e = new Entity;
+				std::auto_ptr<Entity> e(new Entity);
 				e->name = L"Sphere 1";
 				e->link(&mRootNode);
 				e->localTransform.setTranslation(Vec3f(1, 0, 0));
@@ -52,6 +54,8 @@ TEST(MeshComponentTest)
 				c->mesh = mesh;
 				c->effect = static_cast<Effect*>(mResourceManager.load(L"Material/test.fx.xml").get());
 				e->addComponent(c);
+
+				e.release();
 			}
 		}
 

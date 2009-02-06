@@ -153,7 +153,7 @@ TEST(StrtoFloatArrayTest)
 		CHECK_EQUAL(data[i].success, ret != nullptr);
 		CHECK_EQUAL(data[i].expectCount, size);
 
-		for(size_t j=0; j<data[i].expectCount; ++j)
+		if(ret) for(size_t j=0; j<data[i].expectCount; ++j)
 			CHECK_EQUAL(data[i].values[j], ret[j]);
 
 		delete[] ret;

@@ -48,7 +48,7 @@ MCD_CORE_API sal_checkreturn bool wStr2Double(sal_in_z const wchar_t* wideStr, d
 		As input, it indicate the maximum number to parse, use 0 to indicate don't care;
 		as an output it tells you the actual number of element parsed.
  */
-MCD_CORE_API int* wStrToIntArray(sal_in_z const wchar_t* wideStr, sal_inout size_t& size);
+MCD_CORE_API sal_maybenull int* wStrToIntArray(sal_in_z const wchar_t* wideStr, sal_inout size_t& size);
 
 /*!	Wide string to array of float.
 	\return Return null if parse failed. Using delete[] to cleanup the memory.
@@ -56,7 +56,7 @@ MCD_CORE_API int* wStrToIntArray(sal_in_z const wchar_t* wideStr, sal_inout size
 		As input, it indicate the maximum number to parse, use 0 to indicate don't care;
 		as an output it tells you the actual number of element parsed.
  */
-MCD_CORE_API float* wStrToFloatArray(sal_in_z const wchar_t* wideStr, sal_inout size_t& size);
+MCD_CORE_API sal_maybenull float* wStrToFloatArray(sal_in_z const wchar_t* wideStr, sal_inout size_t& size);
 
 //! Compare two wide-character strings, ignoring case.
 MCD_CORE_API sal_checkreturn int wstrCaseCmp(sal_in_z const wchar_t* string1, sal_in_z const wchar_t* string2);

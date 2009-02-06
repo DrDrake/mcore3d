@@ -67,9 +67,13 @@ private:
 		// 
 		this->AutoScaleDimensions = System::Drawing::SizeF(6, 13);
 		this->AutoScaleMode = System::Windows::Forms::AutoScaleMode::Font;
+		this->BackColor = System::Drawing::Color::Gray;
 		this->Name = L"RenderPanelControl";
 		this->Load += gcnew System::EventHandler(this, &RenderPanelControl::RenderPanelControl_Load);
+		this->Leave += gcnew System::EventHandler(this, &RenderPanelControl::RenderPanelControl_Leave);
 		this->Resize += gcnew System::EventHandler(this, &RenderPanelControl::RenderPanelControl_Resize);
+		this->Enter += gcnew System::EventHandler(this, &RenderPanelControl::RenderPanelControl_Enter);
+		this->SizeChanged += gcnew System::EventHandler(this, &RenderPanelControl::RenderPanelControl_SizeChanged);
 		this->ResumeLayout(false);
 
 	}
@@ -78,6 +82,9 @@ private:
 private: System::Void RenderPanelControl_Load(System::Object^ sender, System::EventArgs^ e);
 private: System::Void RenderPanelControl_Resize(System::Object^ sender, System::EventArgs^ e);
 private: System::Void timer1_Tick(System::Object^ sender, System::EventArgs^ e);
+private: System::Void RenderPanelControl_Enter(System::Object^ sender, System::EventArgs^ e);
+private: System::Void RenderPanelControl_Leave(System::Object^ sender, System::EventArgs^ e);
+private: System::Void RenderPanelControl_SizeChanged(System::Object^ sender, System::EventArgs^ e);
 };
 
 }	// namespace RenderPanel
