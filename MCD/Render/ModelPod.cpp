@@ -136,16 +136,16 @@ void ModelPod::Impl::draw()
 				float color[4];
 				color[3] = 1.0f;
 
-				for(size_t i=3; i--;)
-					color[i] = material->pfMatAmbient[i];
+				for(size_t j=3; j--;)
+					color[j] = material->pfMatAmbient[j];
 				glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT, color);
 
-				for(size_t i=3; i--;)
-					color[i] = material->pfMatDiffuse[i];
+				for(size_t j=3; j--;)
+					color[j] = material->pfMatDiffuse[j];
 				glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, color);
 
-				for(size_t i=3; i--;)
-					color[i] = material->pfMatSpecular[i];
+				for(size_t j=3; j--;)
+					color[j] = material->pfMatSpecular[j];
 				glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR, color);
 				glMaterialf(GL_FRONT_AND_BACK, GL_SHININESS, material->fMatShininess);
 			}
