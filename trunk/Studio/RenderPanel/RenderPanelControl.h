@@ -61,6 +61,7 @@ private:
 		// timer1
 		// 
 		this->timer1->Enabled = true;
+		this->timer1->Interval = 10;
 		this->timer1->Tick += gcnew System::EventHandler(this, &RenderPanelControl::timer1_Tick);
 		// 
 		// RenderPanelControl
