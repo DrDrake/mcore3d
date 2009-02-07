@@ -27,9 +27,14 @@ class RenderPanelControlImpl : public GlWindow
 {
 public:
 	RenderPanelControlImpl()
-		: mFieldOfView(60.0f), mResourceManager(*createDefaultFileSystem())
+		:
+		mFieldOfView(60.0f), mCamera(Vec3f(0, 0, 1.0f), Vec3f(0, 0, -1), Vec3f(0, 1, 0)),
+		mResourceManager(*createDefaultFileSystem())
 	{
+	}
 
+	void createScene()
+	{
 		{	// Setup entity 1
 			std::auto_ptr<Entity> e(new Entity);
 			e->name = L"ChamferBox 1";
@@ -62,7 +67,7 @@ public:
 
 		mCamera.applyTransform();
 
-		glTranslatef(0.0f, 0.0f, -10.0f);
+		glTranslatef(0.0f, 0.0f, -5.0f);
 		RenderableComponent::traverseEntities(&mRootNode);
 
 		glFlush();
@@ -157,10 +162,13 @@ System::Void RenderPanelControl::RenderPanelControl_Load(System::Object^ sender,
 	mImpl = new RenderPanelControlImpl;
 	mImpl->create(Handle.ToPointer(), nullptr);
 	mImpl->makeActive();
+	mImpl->createScene();
 }
 
 System::Void RenderPanelControl::RenderPanelControl_Resize(System::Object^ sender, System::EventArgs^ e)
 {
+	if(!mImpl)
+		return;
 }
 
 System::Void RenderPanelControl::timer1_Tick(System::Object^ sender, System::EventArgs^ e)
@@ -174,8 +182,9 @@ System::Void RenderPanelControl::timer1_Tick(System::Object^ sender, System::Eve
 
 System::Void RenderPanelControl::RenderPanelControl_Enter(System::Object^ sender, System::EventArgs^ e)
 {
-	timer1->Start();
 	mImpl->makeActive();
+	mImpl->resize(this->Width, this->Height);
+	timer1->Start();
 }
 
 System::Void RenderPanelControl::RenderPanelControl_Leave(System::Object^ sender, System::EventArgs^ e)
