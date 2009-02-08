@@ -98,12 +98,10 @@ public:
 
 		glMatrixMode(GL_PROJECTION);
 		glPushMatrix();
-		mShadowMapProjection.camera.frustum.applyProjection();
-
 		glMatrixMode(GL_MODELVIEW);
 		glPushMatrix();
-		mShadowMapProjection.camera.applyViewTransform();
 
+		mShadowMapProjection.camera.applyTransform();
 		drawScene();
 
 		glPopMatrix();
