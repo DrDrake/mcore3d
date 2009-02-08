@@ -3,6 +3,7 @@
 
 #include "RenderableComponent.h"
 #include "../Camera.h"
+#include "../Color.h"
 #include "../../Core/System/Timer.h"
 
 namespace MCD {
@@ -20,6 +21,7 @@ public:
 // Attrubutes
 	Camera camera;
 	Vec3f velocity;
+	ColorRGBf clearColor;
 
 private:
 	// TODO: Remove the use of timer once the component system has a global timer.

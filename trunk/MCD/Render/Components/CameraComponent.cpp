@@ -6,7 +6,7 @@
 namespace MCD {
 
 CameraComponent::CameraComponent()
-	: velocity(0)
+	: velocity(0), clearColor(0)
 {
 }
 
@@ -22,6 +22,8 @@ void CameraComponent::render()
 
 	camera.applyTransform();
 	glMultTransposeMatrixf(entity()->worldTransform().inverse().getPtr());
+
+	glClearColor(clearColor.r, clearColor.g, clearColor.b, 1);
 }
 
 }	// namespace MCD
