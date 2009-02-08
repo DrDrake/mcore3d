@@ -62,6 +62,7 @@ public:
 			mCamera->camera.position = Vec3f(0, 0, 0);
 			mCamera->camera.lookAt = Vec3f(0, 0, -1);
 			mCamera->camera.upVector = Vec3f(0, 1, 0);
+			mCamera->clearColor = ColorRGBf(0.5f);	// Set the background color as 50% gray
 			e->addComponent(mCamera.get());
 
 			e.release();
@@ -113,7 +114,6 @@ public:
 		makeActive();
 		mResourceManager.processLoadingEvents();
 
-		glClearColor(0.5f, 0.5f, 0.5f, 1);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 		RenderableComponent::traverseEntities(&mRootNode);
@@ -124,6 +124,10 @@ public:
 
 	void resize(size_t width, size_t height)
 	{
+		// Prevents problem when the application is minmized
+		if(width == 0 || height == 0)
+			return;
+
 		makeActive();
 
 		// A lot of opengl options to be enabled by default
@@ -162,6 +166,11 @@ public:
 
 	void onKeyDown(System::Object^ sender, System::Windows::Forms::KeyEventArgs^ e)
 	{
+		switch(e->KeyCode) {
+		case System::Windows::Forms::Keys::W:
+			mCamera->camera.moveForward(0.5f);
+			break;
+		}
 	}
 
 	void onKeyUp(System::Object^ sender, System::Windows::Forms::KeyEventArgs^ e)
