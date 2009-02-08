@@ -11,6 +11,7 @@
 #include "../../MCD/Render/Effect.h"
 #include "../../MCD/Render/GlWindow.h"
 #include "../../MCD/Render/Mesh.h"
+#include "../../MCD/Render/Components/CameraComponent.h"
 #include "../../MCD/Render/Components/MeshComponent.h"
 #include "../../3Party/glew/glew.h"
 
@@ -28,17 +29,48 @@ class RenderPanelControlImpl : public GlWindow
 public:
 	RenderPanelControlImpl()
 		:
-		mFieldOfView(60.0f), mCamera(Vec3f(0, 0, 1.0f), Vec3f(0, 0, -1), Vec3f(0, 1, 0)),
+		mFieldOfView(60.0f), mPredefinedSubTree(nullptr), mUserSubTree(nullptr),
 		mResourceManager(*createDefaultFileSystem())
 	{
 	}
 
 	void createScene()
 	{
+		{	// Setup user defined sub-tree
+			std::auto_ptr<Entity> e(new Entity);
+			e->name = L"Studio user defined sub-tree";
+			e->link(&mRootNode);
+			mPredefinedSubTree = e.release();
+		}
+
+		{	// Setup pre-defined sub-tree
+			std::auto_ptr<Entity> e(new Entity);
+			e->name = L"Studio pre-defined sub-tree";
+			e->link(&mRootNode);
+			mUserSubTree = e.release();
+		}
+
+		{	// Add a default camera
+			std::auto_ptr<Entity> e(new Entity);
+			e->name = L"Default camera";
+			e->link(mPredefinedSubTree);
+			e->localTransform.setTranslation(Vec3f(0, 0, 5));
+
+			// Add component
+			mCamera = new CameraComponent;
+			// We relay on Entity's transform rather than the position of MCD::Camera
+			mCamera->camera.position = Vec3f(0, 0, 0);
+			mCamera->camera.lookAt = Vec3f(0, 0, -1);
+			mCamera->camera.upVector = Vec3f(0, 1, 0);
+			e->addComponent(mCamera.get());
+
+			e.release();
+		}
+
 		{	// Setup entity 1
 			std::auto_ptr<Entity> e(new Entity);
 			e->name = L"ChamferBox 1";
-			e->link(&mRootNode);
+			e->link(mUserSubTree);
 			e->localTransform = Mat44f::rotate(0, Mathf::cPiOver4(), 0);
 
 			// Setup the chamfer box mesh
@@ -54,49 +86,46 @@ public:
 
 			e.release();
 		}
+
+		{	// Setup entity 2
+			std::auto_ptr<Entity> e(new Entity);
+			e->name = L"Sphere 1";
+			e->link(mUserSubTree);
+			e->localTransform.setTranslation(Vec3f(1, 0, 0));
+
+			// Setup the chamfer box mesh
+			MeshPtr mesh = new Mesh(L"");
+			ChamferBoxBuilder chamferBoxBuilder(1.0f, 10);
+			chamferBoxBuilder.commit(*mesh, MeshBuilder::Static);
+
+			// Add component
+			MeshComponent* c = new MeshComponent;
+			c->mesh = mesh;
+			c->effect = static_cast<Effect*>(mResourceManager.load(L"Material/test.fx.xml").get());
+			e->addComponent(c);
+
+			e.release();
+		}
 	}
 
 	void update()
 	{
+		makeActive();
 		mResourceManager.processLoadingEvents();
 
 		glClearColor(0.5f, 0.5f, 0.5f, 1);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-		glMatrixMode(GL_MODELVIEW);
-		glLoadIdentity();
 
-		mCamera.applyTransform();
-
-		glTranslatef(0.0f, 0.0f, -5.0f);
 		RenderableComponent::traverseEntities(&mRootNode);
 
 		glFlush();
 		swapBuffers();
 	}
 
-	void setFieldOfView(float angle, size_t width, size_t height)
-	{
-		mFieldOfView = angle;
-
-		// Reset coordinate system
-		glMatrixMode(GL_PROJECTION);
-		glLoadIdentity();
-
-		// Define the "viewing volume"
-		// Produce the perspective projection
-		gluPerspective(
-			mFieldOfView,			// The camera angle ... field of view in y direction
-			(GLfloat)width/height,	// The width-to-height ratio
-			1.0f,					// The near z clipping coordinate
-			500.0f);				// The far z clipping coordinate
-
-		// Restore back to the model view matrix
-		glMatrixMode(GL_MODELVIEW);
-		glLoadIdentity();
-	}
-
 	void resize(size_t width, size_t height)
 	{
+		makeActive();
+
 		// A lot of opengl options to be enabled by default
 		glShadeModel(GL_SMOOTH);
 		glFrontFace(GL_CCW);			// OpenGl use counterclockwise as the default winding
@@ -125,12 +154,24 @@ public:
 		// Prevents division by zero
 		height = (height == 0) ? 1 : height;
 		glViewport(0, 0, width, height);
-		setFieldOfView(mFieldOfView, width, height);
+		if(mCamera.get())
+			mCamera->camera.frustum.setAcpectRatio(float(width)/height);
+
+		update();
 	}
 
+	void onKeyDown(System::Object^ sender, System::Windows::Forms::KeyEventArgs^ e)
+	{
+	}
+
+	void onKeyUp(System::Object^ sender, System::Windows::Forms::KeyEventArgs^ e)
+	{
+	}
+
+private:
 	float mFieldOfView;
-	Entity mRootNode;
-	Camera mCamera;
+	Entity mRootNode, *mPredefinedSubTree, *mUserSubTree;
+	WeakPtr<CameraComponent> mCamera;
 	DefaultResourceManager mResourceManager;
 };	// RenderPanelControlImpl
 
@@ -165,24 +206,22 @@ System::Void RenderPanelControl::RenderPanelControl_Load(System::Object^ sender,
 	mImpl->createScene();
 }
 
-System::Void RenderPanelControl::RenderPanelControl_Resize(System::Object^ sender, System::EventArgs^ e)
-{
-	if(!mImpl)
-		return;
-}
-
 System::Void RenderPanelControl::timer1_Tick(System::Object^ sender, System::EventArgs^ e)
 {
 	if(!mImpl)
 		return;
+	mImpl->update();
+}
 
-	String^ s = this->Name;
+System::Void RenderPanelControl::RenderPanelControl_Paint(System::Object^ sender, System::Windows::Forms::PaintEventArgs^ e)
+{
+	if(!mImpl)
+		return;
 	mImpl->update();
 }
 
 System::Void RenderPanelControl::RenderPanelControl_Enter(System::Object^ sender, System::EventArgs^ e)
 {
-	mImpl->makeActive();
 	mImpl->resize(this->Width, this->Height);
 	timer1->Start();
 }
@@ -195,6 +234,16 @@ System::Void RenderPanelControl::RenderPanelControl_Leave(System::Object^ sender
 System::Void RenderPanelControl::RenderPanelControl_SizeChanged(System::Object^ sender, System::EventArgs^ e)
 {
 	mImpl->resize(this->Width, this->Height);
+}
+
+System::Void RenderPanelControl::RenderPanelControl_KeyDown(System::Object^ sender, System::Windows::Forms::KeyEventArgs^ e)
+{
+	mImpl->onKeyDown(sender, e);
+}
+
+System::Void RenderPanelControl::RenderPanelControl_KeyUp(System::Object^ sender, System::Windows::Forms::KeyEventArgs^ e)
+{
+	mImpl->onKeyUp(sender, e);
 }
 
 }

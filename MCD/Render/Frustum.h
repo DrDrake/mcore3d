@@ -2,6 +2,7 @@
 #define __MCD_RENDER_FRUSTUM__
 
 #include "ShareLib.h"
+#include "../Core/System/Platform.h"
 
 namespace MCD {
 
@@ -24,10 +25,14 @@ public:
 		Ortho
 	};
 
-	//! By default the projection type is perspective.
-	Frustum() {
-		projectionType = Perspective;
-	}
+	/*!	By default the projection type is perspective.
+		With parameters:
+			fovy = 60
+			aspect = 4/3
+			near = 1
+			far = 500
+	 */
+	Frustum();
 
 // Operations
 	/*!	Define the frustum matrix from parameters: field of view, aspect ratio
@@ -83,8 +88,12 @@ public:
 	//! The field of view in degree.
 	float fov() const;
 
+	void setFov(float degree);
+
 	//! Aspect ratio (width / height).
 	float aspectRatio() const;
+
+	void setAcpectRatio(float ratio);
 
 	ProjectionType projectionType;
 	float left, right, bottom, top, near, far;

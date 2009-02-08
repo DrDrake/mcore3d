@@ -71,7 +71,6 @@ void MovingCamera::update(float deltaTime)
 BasicGlWindow::BasicGlWindow(const wchar_t* options)
 	:
 	mKeepRun(true),
-	mFieldOfView(60.0f),
 	mIteration(0),
 	mCamera(Vec3f(0, 0, 1.0f), Vec3f(0, 0, -1), Vec3f(0, 1, 0)),
 	mFrameCounter(0), mOneSecondCountDown(1.0f)
@@ -217,11 +216,12 @@ void BasicGlWindow::onEvent(const Event& e)
 		break;
 
 	case Event::MouseWheelMoved:
-		mFieldOfView *= pow(0.9f, e.MouseWheel.Delta);
-		if(mFieldOfView > 160)
-			mFieldOfView = 160;
-		setFieldOfView(mFieldOfView);
-		break;
+	{	float fov = mCamera.frustum.fov();
+		fov *= pow(0.9f, e.MouseWheel.Delta);
+		if(fov > 160)
+			fov = 160;
+		mCamera.frustum.setFov(fov);
+	}	break;
 
 	case Event::Resized:
 		onResize(e.Size.Width, e.Size.Height);
@@ -240,34 +240,13 @@ void BasicGlWindow::onResize(size_t width, size_t height)
 	// Prevents division by zero
 	height = (height == 0) ? 1 : height;
 	glViewport(0, 0, width, height);
-	setFieldOfView(mFieldOfView);
+	mCamera.frustum.setAcpectRatio(float(width) / height);
 }
 
 void BasicGlWindow::postUpdate()
 {
 	glFlush();
 	swapBuffers();
-}
-
-void BasicGlWindow::setFieldOfView(float angle)
-{
-	mFieldOfView = angle;
-
-	// Reset coordinate system
-	glMatrixMode(GL_PROJECTION);
-	glLoadIdentity();
-
-	// Define the "viewing volume"
-	// Produce the perspective projection
-	gluPerspective(
-		mFieldOfView,				// The camera angle ... field of view in y direction
-		(GLfloat)width()/height(),	// The width-to-height ratio
-		1.0f,						// The near z clipping coordinate
-		500.0f);					// The far z clipping coordinate
-
-	// Restore back to the model view matrix
-	glMatrixMode(GL_MODELVIEW);
-	glLoadIdentity();
 }
 
 void BasicGlWindow::update()

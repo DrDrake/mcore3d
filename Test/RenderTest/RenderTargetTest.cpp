@@ -70,12 +70,6 @@ TEST(RenderTargetTest)
 
 			glEnable(GL_LIGHTING);
 
-			glMatrixMode(GL_PROJECTION);
-			glLoadIdentity();
-			gluPerspective(mFieldOfView, (GLfloat)mRenderTarget->width()/mRenderTarget->height(), 0.5f, 500.0f);
-			glMatrixMode(GL_MODELVIEW);
-			glLoadIdentity();
-
 			mCamera.applyTransform();
 
 			glTranslatef(0.0f, 0.0f, -2.0f);

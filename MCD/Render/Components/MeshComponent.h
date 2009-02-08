@@ -20,7 +20,6 @@ public:
 	sal_override ~MeshComponent();
 
 // Operations
-	//! The derived components should override this function for rendering.
 	sal_override void render();
 
 // Attrubutes

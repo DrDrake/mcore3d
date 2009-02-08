@@ -36,7 +36,7 @@ public:
 	void drawFrustum()
 	{
 		Mat44f transform;
-		mLightCamera.computeTransform(transform.getPtr());
+		mLightCamera.computeView(transform.getPtr());
 		transform = transform.inverse();
 
 		// TODO: There is no effect on calling glColor3f()
@@ -63,14 +63,14 @@ public:
 		mLightFrustum.computeProjection(projection.getPtr());
 
 		Mat44f projectionView;
-		mLightCamera.computeTransform(projectionView.getPtr());
+		mLightCamera.computeView(projectionView.getPtr());
 
 		Mat44f cameraViewInverse = Mat44f::cIdentity;
 
 		// We use cameraViewInverse to cancel out the gl_ModelViewMatrix
 		// in order to get the model matrix ONLY in glsl
 		if(useShader) {
-			mCamera.computeTransform(cameraViewInverse.getPtr());
+			mCamera.computeView(cameraViewInverse.getPtr());
 			cameraViewInverse = cameraViewInverse.inverse();
 		}
 
@@ -156,7 +156,7 @@ TEST(ProjectiveTextureTest)
 {
 	TestWindow window(L"title=ProjectiveTextureTest;width=800;height=600;fullscreen=0;FSAA=4");
 
-	window.load3ds(L"city/city.3ds");
+	window.load3ds(L"Scene/City/scene.3ds");
 	window.loadTexture(L"Progressive512x512.jpg");
 	window.mainLoop();
 
@@ -215,7 +215,7 @@ TEST(ProjectiveTextureShaderTest)
 {
 	ShaderTestWindow window(L"title=ProjectiveTextureShaderTest;width=800;height=600;fullscreen=0;FSAA=4");
 
-	window.load3ds(L"city/city.3ds");
+	window.load3ds(L"Scene/City/scene.3ds");
 	window.loadTexture(L"Progressive512x512.jpg");
 	window.mainLoop();
 
