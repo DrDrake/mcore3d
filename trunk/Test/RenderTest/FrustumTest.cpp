@@ -23,6 +23,16 @@ TEST(FrustumTest)
 		glGetFloatv(GL_PROJECTION_MATRIX, m2.getPtr());
 
 		CHECK(m1.isNearEqual(m2));
+
+		// Change fov independently
+		f.setFov(10);
+		CHECK_CLOSE(10.0f, f.fov(), 1e-6);
+		CHECK_CLOSE(4.0f/3, f.aspectRatio(), 1e-6);
+
+		// Change aspect ratio independently
+		f.setAcpectRatio(16.0f/9);
+		CHECK_CLOSE(10.0f, f.fov(), 1e-6);
+		CHECK_CLOSE(16.0f/9, f.aspectRatio(), 1e-6);
 	}
 
 	{	// Orthogonal transform
