@@ -100,7 +100,7 @@ TEST(SSAOTest)
 
 			mSSAOPass.bind();
 
-			glUniform1f(glGetUniformLocation(mSSAOPass.handle, "fov"), fieldOfView() * Mathf::cPi() / 180);
+			glUniform1f(glGetUniformLocation(mSSAOPass.handle, "fov"), mCamera.frustum.fov() * Mathf::cPi() / 180);
 
 			glUniformMatrix4fvARB(glGetUniformLocation(mSSAOPass.handle, "projection"), 1, false, projectionMatrix);
 		}

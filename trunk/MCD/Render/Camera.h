@@ -1,7 +1,7 @@
 #ifndef __MCD_RENDER_CAMERA__
 #define __MCD_RENDER_CAMERA__
 
-#include "ShareLib.h"
+#include "Frustum.h"
 #include "../Core/Math/Vec3.h"
 
 namespace MCD {
@@ -12,10 +12,17 @@ namespace MCD {
 class MCD_RENDER_API Camera
 {
 public:
-	Camera() {}
+	/*!	Default constructor
+		With default parameters:
+			position = {0, 0, 0}
+			lookAt = {0, 0, -1}
+			upVector = {0, 1, 0}
+	 */
+	Camera();
 
 	Camera(const Vec3f& position, const Vec3f lookAt, const Vec3f& upVector);
 
+// Operations
 	void move(const Vec3f& direction, float amount);
 
 	void moveForward(float amount);
@@ -26,22 +33,27 @@ public:
 
 	void rotate(const Vec3f& axis, float angle);
 
-	void computeTransform(sal_out_ecount(16) float* matrix) const;
+	//!	Compute the view transform.
+	void computeView(sal_out_ecount(16) float* matrix) const;
 
-	/*!	Apply the view transform.
-		\note Make sure the current matrix mode is GL_MODELVIEW.
-	 */
+	//!	Apply the view transform.
+	void applyViewTransform();
+
+	//!	Apply both view and projection (frustum) transform.
 	void applyTransform();
 
+// Attributes
 	//! Unit direction vector which the camera is directing.
 	Vec3f lookAtDir() const;
 
 	//! The direction vector pointing to the right of the camera.
 	Vec3f rightVector() const;
 
-	Vec3f position;	//!< Position of the camera.
-	Vec3f lookAt;	//!< The direction which the camera is look at.
-	Vec3f upVector;	//!< Upward direction of the camera.
+	Vec3f position;		//!< Position of the camera.
+	Vec3f lookAt;		//!< The direction which the camera is look at.
+	Vec3f upVector;		//!< Upward direction of the camera.
+
+	Frustum frustum;	//!< The view frustum.
 };	// Camera
 
 }	// namespace MCD

@@ -29,6 +29,7 @@ public:
 
 // Operations
 	//! Make this entity a child of \em parent.
+	// NOTE: Is it better to change the name to asChildOf
 	void link(sal_in Entity* parent);
 
 	/*!	Unlink this entity from it's parent (if any).

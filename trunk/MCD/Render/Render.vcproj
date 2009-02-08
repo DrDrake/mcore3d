@@ -469,6 +469,10 @@
 				Filter="h"
 				>
 				<File
+					RelativePath=".\Components\CameraComponent.h"
+					>
+				</File>
+				<File
 					RelativePath=".\Components\MeshComponent.h"
 					>
 				</File>
@@ -481,6 +485,10 @@
 				Name="Source Files"
 				Filter="cpp;"
 				>
+				<File
+					RelativePath=".\Components\CameraComponent.cpp"
+					>
+				</File>
 				<File
 					RelativePath=".\Components\MeshComponent.cpp"
 					>

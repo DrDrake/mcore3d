@@ -2,7 +2,6 @@
 #define __MCD_RENDER_PROJECTIVETEXTURE__
 
 #include "Camera.h"
-#include "Frustum.h"
 #include "../Core/System/IntrusivePtr.h"
 
 namespace MCD {
@@ -39,7 +38,6 @@ public:
 	void unbind() const;
 
 	TexturePtr texture;
-	Frustum frustum;
 	Camera camera;
 };	// ProjetiveTexture
 

@@ -86,7 +86,7 @@ TEST(ASSAOTest)
 
 			mSSAOPass.bind();
 
-			glUniform1f(glGetUniformLocation(mSSAOPass.handle, "fov"), fieldOfView() * Mathf::cPi() / 180);
+			glUniform1f(glGetUniformLocation(mSSAOPass.handle, "fov"), mCamera.frustum.fov() * Mathf::cPi() / 180);
 			glUniformMatrix4fvARB(glGetUniformLocation(mSSAOPass.handle, "projection"), 1, false, projectionMatrix);
 		}
 
@@ -315,7 +315,7 @@ TEST(ASSAOTest)
 			bias.setTranslation(Vec3f(0.5f, 0.5f, 0.5f));
 			bias.setScale(Vec3f(0.5f, 0.5f, 0.5f));
 			Mat44f currentView;
-			mCamera.computeTransform(currentView.data);
+			mCamera.computeView(currentView.data);
 			mDeltaMatrix = bias * mLastProjectionMatrix * mLastViewMatrix * currentView.inverse();
 			mLastViewMatrix = currentView;
 			glGetFloatv(GL_PROJECTION_MATRIX, mLastProjectionMatrix.data);

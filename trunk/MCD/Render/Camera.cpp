@@ -6,6 +6,11 @@
 
 namespace MCD {
 
+Camera::Camera()
+	: position(0), lookAt(0, 0, -1), upVector(0, 1, 0)
+{
+}
+
 Camera::Camera(const Vec3f& pos, const Vec3f look, const Vec3f& up)
 	: position(pos), lookAt(look), upVector(up)
 {
@@ -50,7 +55,7 @@ void Camera::rotate(const Vec3f& axis, float angle)
 	rotation.transform(upVector);
 }
 
-void Camera::computeTransform(float* matrix) const
+void Camera::computeView(float* matrix) const
 {
 	// Reference: http://www.gamedev.net/community/forums/topic.asp?topic_id=479402
 	Vec3f f = lookAtDir();
@@ -72,8 +77,10 @@ void Camera::computeTransform(float* matrix) const
 	(tmp * translate).copyTo(matrix);
 }
 
-void Camera::applyTransform()
+void Camera::applyViewTransform()
 {
+	glMatrixMode(GL_MODELVIEW);
+
 	// The same can be acheived using gluLookAt()
 //	gluLookAt(
 //		position.x, position.y, position.z,
@@ -81,8 +88,14 @@ void Camera::applyTransform()
 //		upVector.x, upVector.y, upVector.z);
 
 	Mat44f mat;
-	computeTransform(mat.getPtr());
+	computeView(mat.getPtr());
 	glLoadTransposeMatrixf(mat.getPtr());
+}
+
+void Camera::applyTransform()
+{
+	frustum.applyProjection();
+	applyViewTransform();
 }
 
 Vec3f Camera::lookAtDir() const

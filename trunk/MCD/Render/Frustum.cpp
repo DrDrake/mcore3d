@@ -6,6 +6,12 @@
 
 namespace MCD {
 
+Frustum::Frustum()
+{
+	projectionType = Perspective;
+	create(60, 4.0f/3, 1, 500);
+}
+
 void Frustum::create(float fovy, float aspect, float n, float f)
 {
 	float halfHeight = n * tanf(fovy * (Mathf::cPi() / 360));
@@ -39,7 +45,12 @@ void Frustum::applyProjection() const
 	float mat[16];
 	computeProjection(mat);
 
+	// The same can be acheived using gluPerspective()
+//	gluPerspective(fov(), aspectRatio(), near, far);
+
+	glMatrixMode(GL_PROJECTION);
 	glLoadTransposeMatrixf(mat);
+	glMatrixMode(GL_MODELVIEW);
 }
 
 void Frustum::computePerspective(float* matrix) const
@@ -98,9 +109,19 @@ float Frustum::fov() const
 	return atanf((top - bottom) / 2 / near) * (360.0f / Mathf::cPi());
 }
 
+void Frustum::setFov(float degree)
+{
+	create(degree, aspectRatio(), near, far);
+}
+
 float Frustum::aspectRatio() const
 {
 	return (right - left) / (top - bottom);
+}
+
+void Frustum::setAcpectRatio(float ratio)
+{
+	create(fov(), ratio, near, far);
 }
 
 void Frustum::assertValid() const

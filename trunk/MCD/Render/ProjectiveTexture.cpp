@@ -21,10 +21,10 @@ void ProjectiveTexture::bind(int textureUnit, const float* postMultipleMatrix, f
 	bias.setScale(Vec3f(0.5f, 0.5f, 0.5f));
 
 	Mat44f projection;
-	frustum.computeProjection(projection.getPtr());
+	camera.frustum.computeProjection(projection.getPtr());
 
 	Mat44f modelView;
-	camera.computeTransform(modelView.getPtr());
+	camera.computeView(modelView.getPtr());
 
 	Mat44f textureMatrix = bias * projection * modelView;
 

@@ -178,7 +178,7 @@ TEST(MultipleRenderTargetTest)
 
 		window.load3ds(L"TextureBoxSphere.3DS");
 		window.load3ds(L"3M00696/buelllightning.3DS");
-//		window.load3ds(L"city/city.3ds");
+//		window.load3ds(L"Scene/City/scene.3ds");
 
 		window.mainLoop();
 	}

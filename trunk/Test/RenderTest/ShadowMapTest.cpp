@@ -20,8 +20,8 @@ public:
 		BasicGlWindow(options),
 		mResourceManager(*createDefaultFileSystem())
 	{
-		mShadowMapProjection.frustum.projectionType = Frustum::Ortho;
-		mShadowMapProjection.frustum.create(-100, 100, -100, 100, -100, 600);
+		mShadowMapProjection.camera.frustum.projectionType = Frustum::Ortho;
+		mShadowMapProjection.camera.frustum.create(-100, 100, -100, 100, -100, 600);
 		mShadowMapProjection.camera = Camera(Vec3f(200, 200, 200), Vec3f(2, 0, 0), Vec3f::c010);
 
 		mShadowMapSize = 2048;
@@ -98,11 +98,11 @@ public:
 
 		glMatrixMode(GL_PROJECTION);
 		glPushMatrix();
-		mShadowMapProjection.frustum.applyProjection();
+		mShadowMapProjection.camera.frustum.applyProjection();
 
 		glMatrixMode(GL_MODELVIEW);
 		glPushMatrix();
-		mShadowMapProjection.camera.applyTransform();
+		mShadowMapProjection.camera.applyViewTransform();
 
 		drawScene();
 
@@ -150,14 +150,14 @@ public:
 	void drawFrustum()
 	{
 		Mat44f transform;
-		mShadowMapProjection.camera.computeTransform(transform.getPtr());
+		mShadowMapProjection.camera.computeView(transform.getPtr());
 		transform = transform.inverse();
 
 		// TODO: There is no effect on calling glColor3f()
 		glColor3f(1, 1, 0);
 		glPushMatrix();
 		glMultTransposeMatrixf(transform.getPtr());
-		::drawFrustum(mShadowMapProjection.frustum);
+		::drawFrustum(mShadowMapProjection.camera.frustum);
 		glPopMatrix();
 		glColor3f(1, 1, 1);
 	}
@@ -194,7 +194,7 @@ public:
 TEST(ShadowMapTest)
 {
 	TestWindow window(L"title=ShadowMapTest;width=800;height=600;fullscreen=0;FSAA=4");
-	window.load3ds(L"city/city.3ds");
+	window.load3ds(L"Scene/City/scene.3ds");
 	window.mainLoop();
 	CHECK(true);
 }
@@ -236,7 +236,7 @@ public:
 		drawFrustum();
 
 		Mat44f cameraViewInverse;
-		mCamera.computeTransform(cameraViewInverse.getPtr());
+		mCamera.computeView(cameraViewInverse.getPtr());
 		cameraViewInverse = cameraViewInverse.inverse();
 		mShadowMapProjection.bind(GL_TEXTURE1, cameraViewInverse.getPtr());
 
@@ -259,7 +259,7 @@ public:
 TEST(ShadowMapShaderTest)
 {
 	ShaderTestWindow window(L"title=ShadowMapShaderTest;width=800;height=600;fullscreen=0;FSAA=4");
-	window.load3ds(L"city/city.3ds");
+	window.load3ds(L"Scene/City/scene.3ds");
 	window.mainLoop();
 	CHECK(true);
 }
