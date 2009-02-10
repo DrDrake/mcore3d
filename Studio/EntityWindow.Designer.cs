@@ -52,9 +52,9 @@
 						| WeifenLuo.WinFormsUI.Docking.DockAreas.Document)));
 			this.Name = "EntityWindow";
 			this.ShowHint = WeifenLuo.WinFormsUI.Docking.DockState.DockLeft;
-			this.TabText = "EntityWindow";
-			this.Tag = treeView;
-			this.Text = "EntityWindow";
+			this.TabText = "Entity Explorer";
+			this.Tag = this.treeView;
+			this.Text = "Entity Explorer";
 			this.ResumeLayout(false);
 
 		}

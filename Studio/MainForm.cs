@@ -21,6 +21,12 @@ namespace Studio
 		{
 			dockPanel.SuspendLayout(true);
 
+			PropertyWindow propertyWindow = new PropertyWindow();
+			propertyWindow.Show(dockPanel);
+
+			EntityWindow entityWindow = new EntityWindow();
+			entityWindow.Show(dockPanel);
+
 			DockContent content = new DockContent();
 			content.Show(dockPanel, DockState.Document);
 			RenderPanel.RenderPanelControl renderPanel1 = new RenderPanel.RenderPanelControl();
@@ -35,18 +41,7 @@ namespace Studio
 			content.Controls.Add(renderPanel2);
 			content.TabText = "Scene 2";
 
-			PropertyWindow propertyWindow = new PropertyWindow();
-			propertyWindow.Show(dockPanel);
-
-			EntityWindow entityWindow = new EntityWindow();
-			entityWindow.Show(dockPanel);
-
-			TreeView treeView = (TreeView)entityWindow.Tag;
-			TreeNode node;
-			node = treeView.Nodes.Add("Fruits");
-			node.Nodes.Add("Apple");
-			node.Nodes.Add("Peach");
-
+			entityWindow.selectEntityRoot(renderPanel1.rootEntity);
 			dockPanel.ResumeLayout(true, true);
 		}
 
