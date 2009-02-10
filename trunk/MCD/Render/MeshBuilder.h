@@ -62,7 +62,7 @@ typedef Vec3<float> Vec3f;
 	builder.commit(mesh, MeshBuilder::Static);
 	\endcode
  */
-class MCD_RENDER_API MeshBuilder :  Noncopyable
+class MCD_RENDER_API MeshBuilder : Noncopyable
 {
 	class BufferImpl;
 

@@ -38,7 +38,21 @@ namespace Studio
 			PropertyWindow propertyWindow = new PropertyWindow();
 			propertyWindow.Show(dockPanel);
 
+			EntityWindow entityWindow = new EntityWindow();
+			entityWindow.Show(dockPanel);
+
+			TreeView treeView = (TreeView)entityWindow.Tag;
+			TreeNode node;
+			node = treeView.Nodes.Add("Fruits");
+			node.Nodes.Add("Apple");
+			node.Nodes.Add("Peach");
+
 			dockPanel.ResumeLayout(true, true);
+		}
+
+		private void exitToolStripMenuItem_Click(object sender, EventArgs e)
+		{
+			Close();
 		}
 	}
 }
