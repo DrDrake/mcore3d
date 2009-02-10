@@ -177,7 +177,6 @@ public:
 	{
 	}
 
-private:
 	float mFieldOfView;
 	Entity mRootNode, *mPredefinedSubTree, *mUserSubTree;
 	WeakPtr<CameraComponent> mCamera;
@@ -204,6 +203,11 @@ RenderPanelControl::!RenderPanelControl()
 {
 	delete mImpl;
 	mImpl = nullptr;	// Finializer may call more than once
+}
+
+::Binding::Entity^ RenderPanelControl::rootEntity::get()
+{
+	return gcnew ::Binding::Entity(IntPtr(&(mImpl->mRootNode)));
 }
 
 System::Void RenderPanelControl::RenderPanelControl_Load(System::Object^ sender, System::EventArgs^ e)

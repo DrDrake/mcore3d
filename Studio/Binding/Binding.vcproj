@@ -2,9 +2,9 @@
 <VisualStudioProject
 	ProjectType="Visual C++"
 	Version="9.00"
-	Name="RenderPanel"
-	ProjectGUID="{D40B44C3-96C8-4648-9FC7-F2F084204EAB}"
-	RootNamespace="RenderPanel"
+	Name="Binding"
+	ProjectGUID="{32D8BE99-8D55-4AB8-96BE-7DD82F507F62}"
+	RootNamespace="Binding"
 	Keyword="ManagedCProj"
 	TargetFrameworkVersion="196613"
 	>
@@ -172,35 +172,13 @@
 			MinFrameworkVersion="131072"
 		/>
 		<AssemblyReference
-			RelativePath="System.Drawing.dll"
-			AssemblyName="System.Drawing, Version=2.0.0.0, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL"
-			MinFrameworkVersion="131072"
-		/>
-		<AssemblyReference
-			RelativePath="System.Windows.Forms.dll"
-			AssemblyName="System.Windows.Forms, Version=2.0.0.0, PublicKeyToken=b77a5c561934e089, processorArchitecture=MSIL"
-			MinFrameworkVersion="131072"
-		/>
-		<AssemblyReference
 			RelativePath="System.XML.dll"
 			AssemblyName="System.Xml, Version=2.0.0.0, PublicKeyToken=b77a5c561934e089, processorArchitecture=MSIL"
 			MinFrameworkVersion="131072"
 		/>
 		<ProjectReference
-			ReferencedProjectIdentifier="{500413B2-5AE6-41CE-BCFF-D90DB2755869}"
-			RelativePathToProject="..\MCD\Render\Render.vcproj"
-		/>
-		<ProjectReference
 			ReferencedProjectIdentifier="{8B671592-CBBD-4F9E-BACA-1E4AC1575AC2}"
 			RelativePathToProject="..\MCD\Core\Core.vcproj"
-		/>
-		<ProjectReference
-			ReferencedProjectIdentifier="{79734A3A-9F12-49ED-8E06-40AFBBD4F260}"
-			RelativePathToProject=".\Common\Common.vcproj"
-		/>
-		<ProjectReference
-			ReferencedProjectIdentifier="{32D8BE99-8D55-4AB8-96BE-7DD82F507F62}"
-			RelativePathToProject=".\Binding\Binding.vcproj"
 		/>
 	</References>
 	<Files>
@@ -214,11 +192,11 @@
 				>
 			</File>
 			<File
-				RelativePath=".\RenderPanelControl.cpp"
+				RelativePath=".\Entity.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".\stdafx.cpp"
+				RelativePath=".\Stdafx.cpp"
 				>
 				<FileConfiguration
 					Name="Debug|Win32"
@@ -237,6 +215,10 @@
 					/>
 				</FileConfiguration>
 			</File>
+			<File
+				RelativePath=".\Utility.cpp"
+				>
+			</File>
 		</Filter>
 		<Filter
 			Name="Header Files"
@@ -244,34 +226,15 @@
 			UniqueIdentifier="{93995380-89BD-4b04-88EB-625FBE52EBFB}"
 			>
 			<File
-				RelativePath=".\RenderPanelControl.h"
-				FileType="4"
-				>
-				<File
-					RelativePath=".\RenderPanelControl.resX"
-					>
-				</File>
-			</File>
-			<File
-				RelativePath=".\resource.h"
+				RelativePath=".\Entity.h"
 				>
 			</File>
 			<File
-				RelativePath=".\stdafx.h"
-				>
-			</File>
-		</Filter>
-		<Filter
-			Name="Resource Files"
-			Filter="rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav"
-			UniqueIdentifier="{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}"
-			>
-			<File
-				RelativePath=".\app.ico"
+				RelativePath=".\Stdafx.h"
 				>
 			</File>
 			<File
-				RelativePath=".\app.rc"
+				RelativePath=".\Utility.h"
 				>
 			</File>
 		</Filter>

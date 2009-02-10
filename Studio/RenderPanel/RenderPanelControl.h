@@ -36,6 +36,10 @@ protected:
 	// ref: http://www.geocities.com/Jeff_Louie/deterministic_destructors.htm
 	!RenderPanelControl();	// Finalize
 
+	property ::Binding::Entity^ rootEntity {
+		::Binding::Entity^ get();
+	}
+
 private: RenderPanelControlImpl* mImpl;
 private: System::Windows::Forms::Timer^  timer1;
 
