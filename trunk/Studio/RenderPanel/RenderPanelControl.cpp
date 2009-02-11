@@ -14,6 +14,7 @@
 #include "../../MCD/Render/Components/CameraComponent.h"
 #include "../../MCD/Render/Components/MeshComponent.h"
 #include "../../3Party/glew/glew.h"
+#undef nullptr
 
 #pragma comment(lib, "OpenGL32")
 #pragma comment(lib, "GLU32")
@@ -40,14 +41,14 @@ public:
 			std::auto_ptr<Entity> e(new Entity);
 			e->name = L"Studio user defined sub-tree";
 			e->link(&mRootNode);
-			mPredefinedSubTree = e.release();
+			mUserSubTree = e.release();
 		}
 
 		{	// Setup pre-defined sub-tree
 			std::auto_ptr<Entity> e(new Entity);
 			e->name = L"Studio pre-defined sub-tree";
 			e->link(&mRootNode);
-			mUserSubTree = e.release();
+			mPredefinedSubTree = e.release();
 		}
 
 		{	// Add a default camera
@@ -207,7 +208,9 @@ RenderPanelControl::!RenderPanelControl()
 
 ::Binding::Entity^ RenderPanelControl::rootEntity::get()
 {
-	return gcnew ::Binding::Entity(IntPtr(&(mImpl->mRootNode)));
+	if(mRootEntity == nullptr)
+		mRootEntity = gcnew ::Binding::Entity(IntPtr(&(mImpl->mRootNode)));
+	return mRootEntity;
 }
 
 System::Void RenderPanelControl::RenderPanelControl_Load(System::Object^ sender, System::EventArgs^ e)

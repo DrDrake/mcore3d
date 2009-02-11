@@ -18,6 +18,7 @@ namespace Studio
 			InitializeComponent();
 		}
 
+	// Operations
 		/// <summary>
 		/// Select the Entity tree to be displayed
 		/// </summary>
@@ -27,48 +28,18 @@ namespace Studio
 			entityRoot = entity;
 
 			// Fill up the tree view
-			TreeNodeCollection currentNode = treeView.Nodes;
-			Entity currentEntity = entity;
+			treeView.Nodes.Add(entity.treeViewNode.Nodes[0]);
+			treeView.Nodes.Add(entity.treeViewNode.Nodes[1]);
 
-			do
-			{
-				bool noChildMove = false;
-				System.Console.WriteLine(currentEntity.name);
-				treeView.Nodes.Add(currentEntity.name);
-				// NOTE: This while loop is copied from MCD::EntityPreorderIterator
-				while (currentEntity != null)
-				{
-					if (currentEntity.firstChild != null && !noChildMove)
-					{
-						currentEntity = currentEntity.firstChild;
-//						if (currentEntity != null)
-//							currentNode.Add(currentEntity.name);
-						break;
-					}
-					else if (currentEntity.nextSlibing != null)
-					{
-						currentEntity = currentEntity.nextSlibing;
-//						if(currentEntity != null)
-//							currentNode[0].Parent.Nodes.Add(currentEntity.name);
-						break;
-					}
-					else
-					{
-						currentEntity = currentEntity.parent;
-						noChildMove = true;
-
-						if (currentEntity == entity)
-							currentEntity = null;
-					}
-				}
-			} while (currentEntity != null);
-
-/*			TreeNode node;
-			node = treeView.Nodes.Add("Fruits");
-			node.Nodes.Add("Apple");
-			node.Nodes.Add("Peach");*/
+			entity.treeViewNode.Nodes[1].Expand();
 		}
 
+	// Attributes
+		/// <summary>
+		/// The Entity system that this EntityWindow associated with.
+		/// </summary>
 		Entity entityRoot;
+
+		PropertyWindow propertyWindow;
 	}
 }

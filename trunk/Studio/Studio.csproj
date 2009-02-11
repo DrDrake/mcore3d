@@ -125,6 +125,10 @@
       <Project>{C75532C4-765B-418E-B09B-46D36B2ABDB1}</Project>
       <Name>WinFormsUI</Name>
     </ProjectReference>
+    <ProjectReference Include="Binding\Binding.vcproj">
+      <Project>{32D8BE99-8D55-4AB8-96BE-7DD82F507F62}</Project>
+      <Name>Binding</Name>
+    </ProjectReference>
     <ProjectReference Include="RenderPanel\RenderPanel.vcproj">
       <Project>{D40B44C3-96C8-4648-9FC7-F2F084204EAB}</Project>
       <Name>RenderPanel</Name>
