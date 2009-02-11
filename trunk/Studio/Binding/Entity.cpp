@@ -11,7 +11,7 @@ Entity::Entity(MCD::Entity* entity)
 {
 	mImpl = entity;
 	treeViewNode = gcnew TreeNode(this->name);
-//	treeViewNode->Tag = this;
+	treeViewNode->Tag = this;
 }
 
 Entity::Entity(IntPtr entity)
