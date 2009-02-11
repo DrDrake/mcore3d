@@ -40,7 +40,10 @@ protected:
 	// ref: http://www.geocities.com/Jeff_Louie/deterministic_destructors.htm
 	!RenderPanelControl();	// Finalize
 
-private: RenderPanelControlImpl* mImpl;
+private:
+	RenderPanelControlImpl* mImpl;
+	::Binding::Entity^ mRootEntity;
+
 private: System::Windows::Forms::Timer^  timer1;
 
 private: System::ComponentModel::IContainer^  components;

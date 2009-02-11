@@ -100,6 +100,11 @@ public:
 		return mCurrent;
 	}
 
+	//! Return the current element.
+	sal_notnull Entity* current() {
+		return mCurrent;
+	}
+
 	//! Returns true if there are NO more items in the collection.
 	bool ended() const {
 		return mCurrent == nullptr;
