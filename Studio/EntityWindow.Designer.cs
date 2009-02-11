@@ -28,7 +28,7 @@
 		/// </summary>
 		private void InitializeComponent()
 		{
-			this.treeView = new System.Windows.Forms.TreeView();
+			this.treeView = new CodersLab.Windows.Controls.TreeView();
 			this.SuspendLayout();
 			// 
 			// treeView
@@ -36,6 +36,8 @@
 			this.treeView.Dock = System.Windows.Forms.DockStyle.Fill;
 			this.treeView.Location = new System.Drawing.Point(0, 0);
 			this.treeView.Name = "treeView";
+			this.treeView.SelectionBackColor = System.Drawing.SystemColors.Highlight;
+			this.treeView.SelectionMode = CodersLab.Windows.Controls.TreeViewSelectionMode.MultiSelect;
 			this.treeView.Size = new System.Drawing.Size(292, 271);
 			this.treeView.TabIndex = 0;
 			// 
@@ -61,6 +63,6 @@
 
 		#endregion
 
-		private System.Windows.Forms.TreeView treeView;
+		private CodersLab.Windows.Controls.TreeView treeView;
 	}
 }
