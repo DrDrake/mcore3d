@@ -64,16 +64,21 @@ namespace Studio
 		/// <param name="e"></param>
 		private void renderControlActivated(object sender, EventArgs e)
 		{
+			RenderPanelControl backup = currentRenderControl;
 			// Disable all but only the selected control will continue auto updating.
 			foreach (RenderPanelControl r in renderControls)
 				r.enableAutoUpdate(false);
 			currentRenderControl = (RenderPanelControl)sender;
 			currentRenderControl.enableAutoUpdate(true);
 
-			// Refresh the Entity explorer and the property window as well
-			entityWindow.selectEntityRoot(currentRenderControl.rootEntity);
-			entityWindow.treeView.Select();
-			propertyWindow.propertyGrid1.SelectedObject = entityWindow.selectedEntity;
+			// Refresh the Entity explorer and the property window as well,
+			// if the current render panel is switched to another
+			if (currentRenderControl != backup)
+			{
+				entityWindow.selectEntityRoot(currentRenderControl.rootEntity);
+				entityWindow.treeView.SelectedNodes.Clear();
+				propertyWindow.propertyGrid1.SelectedObject = entityWindow.selectedEntity;
+			}
 		}
 
 		private void exitToolStripMenuItem_Click(object sender, EventArgs e)
