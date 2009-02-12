@@ -1,16 +1,15 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Windows.Forms;
-using WeifenLuo.WinFormsUI.Docking;
 using global::Binding;
 
 namespace Studio
 {
+	/// <summary>
+	/// Showing the Entity tree with a multi-selectable tree-view control
+	/// Download URL of the multi-selectable tree-view:
+	/// http://sourceforge.net/projects/mstreeview/
+	/// Some reference on using tree-view:
+	/// http://www.java2s.com/Code/CSharp/GUI-Windows-Form/TreeViewExample.htm
+	/// </summary>
 	public partial class EntityWindow : DockContent
 	{
 		public EntityWindow()
@@ -27,6 +26,7 @@ namespace Studio
 		{
 			entityRoot = entity;
 
+			treeView.Nodes.Clear();
 			// Fill up the tree view
 			treeView.Nodes.Add(entity.treeViewNode.Nodes[0]);
 			treeView.Nodes.Add(entity.treeViewNode.Nodes[1]);
@@ -40,6 +40,22 @@ namespace Studio
 		/// </summary>
 		Entity entityRoot;
 
-		PropertyWindow propertyWindow;
+		public PropertyWindow propertyWindow;
+
+		public Entity selectedEntity
+		{
+			get
+			{
+				if (treeView.SelectedNodes.Count == 0)
+					return null;
+				return (Entity)treeView.SelectedNodes[0].Tag;
+			}
+		}
+
+	// Events
+		private void treeView_SelectionsChanged(object sender, EventArgs e)
+		{
+			propertyWindow.propertyGrid1.SelectedObject = selectedEntity;
+		}
 	}
 }

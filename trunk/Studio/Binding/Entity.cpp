@@ -72,7 +72,7 @@ String^ Entity::name::get()
 void Entity::name::set(String^ value)
 {
 	mImpl->name = Utility::toWString(value);
-	treeViewNode->Name = value;
+	treeViewNode->Text = value;
 }
 
 Entity^ Entity::parent::get()
@@ -130,6 +130,24 @@ Entity^ Entity::nextSlibing::get()
 		mNextSlibing = nullptr;
 
 	return mNextSlibing;
+}
+
+array<float>^ Entity::translation::get()
+{
+	array<float>^ a = gcnew array<float>(3);
+	MCD::Vec3f trans = mImpl->localTransform.translation();
+
+	a[0] = trans[0];
+	a[1] = trans[1];
+	a[2] = trans[2];
+
+	return a;
+}
+
+void Entity::translation::set(array<float>^ value)
+{
+	MCD::Vec3f trans(value[0], value[1], value[2]);
+	mImpl->localTransform.setTranslation(trans);
 }
 
 }
