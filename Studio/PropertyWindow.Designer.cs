@@ -51,7 +51,7 @@
 						| WeifenLuo.WinFormsUI.Docking.DockAreas.DockBottom)
 						| WeifenLuo.WinFormsUI.Docking.DockAreas.Document)));
 			this.Name = "PropertyWindow";
-			this.ShowHint = WeifenLuo.WinFormsUI.Docking.DockState.DockRightAutoHide;
+			this.ShowHint = WeifenLuo.WinFormsUI.Docking.DockState.DockRight;
 			this.TabText = "Properties";
 			this.Text = "Properties";
 			this.ResumeLayout(false);
@@ -60,6 +60,7 @@
 
 		#endregion
 
-		private System.Windows.Forms.PropertyGrid propertyGrid1;
+		public System.Windows.Forms.PropertyGrid propertyGrid1;
+
 	}
 }

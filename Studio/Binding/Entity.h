@@ -3,6 +3,8 @@
 #include "../../MCD/Core/Entity/Entity.h"
 
 using namespace System;
+using namespace System::ComponentModel;
+
 #using <System.Windows.Forms.dll>
 
 namespace Binding {
@@ -22,22 +24,32 @@ public:
 
 	void unlink();
 
+	[CategoryAttribute("Entity"), DescriptionAttribute("Name of the Entity")]
 	property String^ name {
-      String^ get();
-      void set(String^ value);
-   }
+		String^ get();
+		void set(String^ value);
+	}
 
+	[BrowsableAttribute(false)]
 	property Entity^ parent {
-      Entity^ get();
-   }
+		Entity^ get();
+	}
 
+	[BrowsableAttribute(false)]
 	property Entity^ firstChild {
-      Entity^ get();
-   }
+		Entity^ get();
+	}
 
+	[BrowsableAttribute(false)]
 	property Entity^ nextSlibing {
-      Entity^ get();
-   }
+		Entity^ get();
+	}
+
+	[CategoryAttribute("Transform"), DescriptionAttribute("Local position")]
+	property array<float>^ translation {
+		array<float>^ get();
+		void set(array<float>^ value);
+	}
 
 	System::Windows::Forms::TreeNode^ treeViewNode;
 

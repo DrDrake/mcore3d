@@ -213,6 +213,19 @@ RenderPanelControl::!RenderPanelControl()
 	return mRootEntity;
 }
 
+void RenderPanelControl::update()
+{
+	mImpl->update();
+}
+
+void RenderPanelControl::enableAutoUpdate(bool flag)
+{
+	if(flag)
+		timer->Start();
+	else
+		timer->Stop();
+}
+
 System::Void RenderPanelControl::RenderPanelControl_Load(System::Object^ sender, System::EventArgs^ e)
 {
 	MCD_ASSERT(mImpl == nullptr);
@@ -222,7 +235,7 @@ System::Void RenderPanelControl::RenderPanelControl_Load(System::Object^ sender,
 	mImpl->createScene();
 }
 
-System::Void RenderPanelControl::timer1_Tick(System::Object^ sender, System::EventArgs^ e)
+System::Void RenderPanelControl::timer_Tick(System::Object^ sender, System::EventArgs^ e)
 {
 	if(!mImpl)
 		return;
@@ -239,12 +252,12 @@ System::Void RenderPanelControl::RenderPanelControl_Paint(System::Object^ sender
 System::Void RenderPanelControl::RenderPanelControl_Enter(System::Object^ sender, System::EventArgs^ e)
 {
 	mImpl->resize(this->Width, this->Height);
-	timer1->Start();
+	timer->Start();
 }
 
 System::Void RenderPanelControl::RenderPanelControl_Leave(System::Object^ sender, System::EventArgs^ e)
 {
-	timer1->Stop();
+//	timer->Stop();
 }
 
 System::Void RenderPanelControl::RenderPanelControl_SizeChanged(System::Object^ sender, System::EventArgs^ e)

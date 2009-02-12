@@ -40,6 +40,7 @@
 			this.treeView.SelectionMode = CodersLab.Windows.Controls.TreeViewSelectionMode.MultiSelect;
 			this.treeView.Size = new System.Drawing.Size(292, 271);
 			this.treeView.TabIndex = 0;
+			this.treeView.SelectionsChanged += new System.EventHandler(this.treeView_SelectionsChanged);
 			// 
 			// EntityWindow
 			// 
@@ -63,6 +64,7 @@
 
 		#endregion
 
-		private CodersLab.Windows.Controls.TreeView treeView;
+		public CodersLab.Windows.Controls.TreeView treeView;
+
 	}
 }

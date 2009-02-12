@@ -30,6 +30,12 @@ public:
 		::Binding::Entity^ get();
 	}
 
+	/// Update the rendering.
+	void update();
+
+	/// Enable the internal timer for automatic rendering update.
+	void enableAutoUpdate(bool flag);
+
 protected:
 	/// <summary>
 	/// Clean up any resources being used.
@@ -44,7 +50,7 @@ private:
 	RenderPanelControlImpl* mImpl;
 	::Binding::Entity^ mRootEntity;
 
-private: System::Windows::Forms::Timer^  timer1;
+private: System::Windows::Forms::Timer^  timer;
 
 private: System::ComponentModel::IContainer^  components;
 
@@ -62,14 +68,14 @@ private:
 	void InitializeComponent(void)
 	{
 		this->components = (gcnew System::ComponentModel::Container());
-		this->timer1 = (gcnew System::Windows::Forms::Timer(this->components));
+		this->timer = (gcnew System::Windows::Forms::Timer(this->components));
 		this->SuspendLayout();
 		// 
-		// timer1
+		// timer
 		// 
-		this->timer1->Enabled = true;
-		this->timer1->Interval = 10;
-		this->timer1->Tick += gcnew System::EventHandler(this, &RenderPanelControl::timer1_Tick);
+		this->timer->Enabled = true;
+		this->timer->Interval = 10;
+		this->timer->Tick += gcnew System::EventHandler(this, &RenderPanelControl::timer_Tick);
 		// 
 		// RenderPanelControl
 		// 
@@ -90,7 +96,7 @@ private:
 #pragma endregion
 
 private: System::Void RenderPanelControl_Load(System::Object^ sender, System::EventArgs^ e);
-private: System::Void timer1_Tick(System::Object^ sender, System::EventArgs^ e);
+private: System::Void timer_Tick(System::Object^ sender, System::EventArgs^ e);
 private: System::Void RenderPanelControl_Paint(System::Object^ sender, System::Windows::Forms::PaintEventArgs^ e);
 private: System::Void RenderPanelControl_Enter(System::Object^ sender, System::EventArgs^ e);
 private: System::Void RenderPanelControl_Leave(System::Object^ sender, System::EventArgs^ e);
