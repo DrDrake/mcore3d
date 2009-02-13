@@ -84,6 +84,22 @@ TEST(AxisAngle_QuaternionTest)
 	}
 }
 
+TEST(Matrix_QuaternionTest)
+{
+	Quaternionf q;
+	Mat33f m1;
+	// Rotate around y-axis 45 degree anti-clockwise
+	q.fromAxisAngle(Vec3f::c010, Mathf::cPiOver2());
+	q.toMatrix(m1);
+
+	Quaternionf q2;
+	q2.fromMatrix(m1);
+	CHECK(q.isNearEqual(q2));
+
+	Mat33f m2 = Mat33f::rotateXYZ(0, Mathf::cPiOver2(), 0);
+	CHECK(m1.isNearEqual(m2));
+}
+
 TEST(Transform_QuaternionTest)
 {
 	const Vec3f v(10, 5, 1);

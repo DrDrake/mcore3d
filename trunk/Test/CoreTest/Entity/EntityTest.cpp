@@ -138,7 +138,7 @@ TEST(WorldTransform_EntityTest)
 	createTree(root);
 
 	root.localTransform.setTranslation(Vec3f(1, 2, 3));
-	e1->localTransform = Mat44f::rotate(0, Mathf::cPiOver2(), 0);
+	e1->localTransform = Mat44f(Mat33f::rotateXYZ(0, Mathf::cPiOver2(), 0));
 	e13->localTransform.setTranslation(Vec3f(3, 2, 1));
 
 	Vec3f v(0.0f);

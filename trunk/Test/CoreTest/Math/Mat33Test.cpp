@@ -145,10 +145,37 @@ TEST(Division_Mat33Test)
 	CHECK(t == ma);
 }
 
-TEST(Rotate_Mat33Test)
+TEST(RotateXYZ_Mat33Test)
 {
-	Mat33f m = Mat33f::rotate(Math<float>::cPiOver2(), 0, 0);
+	// Setting with Euler angles
+	Mat33f m = Mat33f::rotateXYZ(Math<float>::cPiOver2(), 0, 0);
 	Vec3f v = m * Vec3f::c001;
-
 	CHECK(v.isNearEqual(-Vec3f::c010));
+
+	// Getting back the Euler angles
+	Vec3f angles;
+	Vec3f expected(Math<float>::cPiOver2(), 0, 0);
+	m.getRotationXYZ(angles.x, angles.y, angles.z);
+	CHECK(expected.isNearEqual(angles));
+
+	expected = Vec3f(0.123f, 1.23f, 0.321f);
+	m = Mat33f::rotateXYZ(expected.x, expected.y, expected.z);
+	m.getRotationXYZ(angles.x, angles.y, angles.z);
+	CHECK(expected.isNearEqual(angles));
+}
+
+TEST(RotateAxisAngle_Mat33Test)
+{
+	// Test the rotation matrix against the one using Euler angles
+	Mat33f m1 = Mat33f::rotate(Vec3f(1, 0, 0), Math<float>::cPiOver4());
+	Mat33f m2 = Mat33f::rotateXYZ(Math<float>::cPiOver4(), 0, 0);
+	CHECK(m1.isNearEqual(m2));
+
+	Mat33f m3 = Mat33f::rotate(Vec3f(1, 0, 0), -Math<float>::cPiOver4());
+	Mat33f m4 = Mat33f::rotate(Vec3f(-1, 0, 0), Math<float>::cPiOver4());
+	Mat33f m5 = Mat33f::rotateXYZ(-Math<float>::cPiOver4(), 0, 0);
+	CHECK(m3.isNearEqual(m4));
+	CHECK(m3.isNearEqual(m5));
+
+	CHECK(!m3.isNearEqual(m1));
 }

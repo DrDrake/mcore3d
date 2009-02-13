@@ -3,6 +3,7 @@
 
 #include "Vec3.h"
 #include "Vec4.h"
+#include "Mat33.h"
 
 namespace MCD {
 
@@ -67,6 +68,9 @@ public:
 		m30 = m30_; m31 = m31_; m32 = m32_; m33 = m33_;
 	}
 
+	//!	Creates a standard 4x4 transformation matrix with a zero translation part from a rotation / scaling 3x3 matrix.
+	explicit Mat44(const Mat33<T>& mat33);
+
 	void copyFrom(sal_in_ecount(16) const T* dataPtr);
 
 	void copyTo(sal_out_ecount(16) T* dataPtr) const;
@@ -120,17 +124,12 @@ public:
 	//!	Sets the scale part of the matrix.
 	void setScale(const Vec3<T>& scale);
 
-	/*!	Creates a rotation matrix.
-		\param thetaX Rotation of angle in radian, counter clockwise from the x-axis.
-		\param thetaY Rotation of angle in radian, counter clockwise from the y-axis.
-		\param thetaZ Rotation of angle in radian, counter clockwise from the z-axis.
-	 */
-	static void rotate(const param_type thetaX, const param_type thetaY, const param_type thetaZ, Mat44& result);
-
-	static Mat44 rotate(const param_type thetaX, const param_type thetaY, const param_type thetaZ);
-
 	//!	Extracts the rotation / scaling part of the matrix as a 3x3 matrix.
-//	void extractMat33(Mat33<T>& mat33) const;
+	void mat33(Mat33<T>& matrix33) const;
+	Mat33<T> mat33() const;
+
+	//!	Set the rotation / scaling part of the matrix.
+	void setMat33(const Mat33<T>& matrix33);
 
 	void transformPoint(Vec3<T>& point) const;
 

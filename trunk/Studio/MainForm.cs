@@ -33,22 +33,23 @@ namespace Studio
 			entityWindow.Show(dockPanel);
 			entityWindow.propertyWindow = propertyWindow;
 
-			for (int i = 0; i < 5; ++i)
-			{
-				DockContent content = new DockContent();
-				content.Show(dockPanel, DockState.Document);
-				RenderPanelControl renderPanel = new RenderPanelControl();
-				content.Tag = renderPanel;
-				renderControls.Add(renderPanel);
-				renderPanel.Enter += new EventHandler(sceneActivated);
-				content.FormClosing += new FormClosingEventHandler(sceneClosing);
-				renderPanel.Dock = DockStyle.Fill;
-				content.Controls.Add(renderPanel);
-				content.TabText = "Scene " + i;
-			}
-
-			sceneActivated(renderControls[0], new EventArgs());
 			dockPanel.ResumeLayout(true, true);
+		}
+
+		private void newToolStripMenuItem_Click(object sender, EventArgs e)
+		{
+			DockContent content = new DockContent();
+			content.Show(dockPanel, DockState.Document);
+			RenderPanelControl renderPanel = new RenderPanelControl();
+			content.Tag = renderPanel;
+			renderControls.Add(renderPanel);
+			renderPanel.Enter += new EventHandler(sceneActivated);
+			content.FormClosing += new FormClosingEventHandler(sceneClosing);
+			renderPanel.Dock = DockStyle.Fill;
+			content.Controls.Add(renderPanel);
+			content.TabText = "Scene " + renderControls.Count;
+
+			sceneActivated(renderPanel, new EventArgs());
 		}
 
 		/// <summary>

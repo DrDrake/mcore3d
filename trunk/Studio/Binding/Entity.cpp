@@ -150,4 +150,26 @@ void Entity::translation::set(array<float>^ value)
 	mImpl->localTransform.setTranslation(trans);
 }
 
+array<float>^ Entity::rotation::get()
+{
+	array<float>^ a = gcnew array<float>(3);
+	MCD::Vec3f angles;
+	mImpl->localTransform.mat33().getRotationXYZ(angles.x, angles.y, angles.z);
+
+	a[0] = MCD::Mathf::toDegree(angles[0]);
+	a[1] = MCD::Mathf::toDegree(angles[1]);
+	a[2] = MCD::Mathf::toDegree(angles[2]);
+
+	return a;
+}
+
+void Entity::rotation::set(array<float>^ value)
+{
+	mImpl->localTransform.setMat33(MCD::Mat33f::rotateXYZ(
+		MCD::Mathf::toRadian(value[0]),
+		MCD::Mathf::toRadian(value[1]),
+		MCD::Mathf::toRadian(value[2]))
+	);
+}
+
 }
