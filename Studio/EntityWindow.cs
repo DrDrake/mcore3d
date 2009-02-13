@@ -27,11 +27,15 @@ namespace Studio
 			entityRoot = entity;
 
 			treeView.Nodes.Clear();
-			// Fill up the tree view
-			treeView.Nodes.Add(entity.treeViewNode.Nodes[0]);
-			treeView.Nodes.Add(entity.treeViewNode.Nodes[1]);
 
-			entity.treeViewNode.Nodes[1].Expand();
+			if (entity != null)
+			{
+				// Fill up the tree view
+				treeView.Nodes.Add(entity.treeViewNode.Nodes[0]);
+				treeView.Nodes.Add(entity.treeViewNode.Nodes[1]);
+
+				entity.treeViewNode.Nodes[1].Expand();
+			}
 		}
 
 	// Attributes

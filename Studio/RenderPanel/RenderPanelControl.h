@@ -26,15 +26,18 @@ public ref class RenderPanelControl : public System::Windows::Forms::UserControl
 public:
 	RenderPanelControl(void);
 
-	property ::Binding::Entity^ rootEntity {
-		::Binding::Entity^ get();
-	}
+	/// Destroy the rendering context
+	void destroy();
 
 	/// Update the rendering.
 	void update();
 
 	/// Enable the internal timer for automatic rendering update.
 	void enableAutoUpdate(bool flag);
+
+	property ::Binding::Entity^ rootEntity {
+		::Binding::Entity^ get();
+	}
 
 protected:
 	/// <summary>

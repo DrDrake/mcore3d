@@ -33,27 +33,21 @@ namespace Studio
 			entityWindow.Show(dockPanel);
 			entityWindow.propertyWindow = propertyWindow;
 
-			DockContent content = new DockContent();
-			content.Show(dockPanel, DockState.Document);
-			RenderPanelControl renderPanel1 = new RenderPanelControl();
-			renderControls.Add(renderPanel1);
-			renderPanel1.Enter += new EventHandler(renderControlActivated);
-			renderPanel1.Dock = DockStyle.Fill;
-			content.Controls.Add(renderPanel1);
-			content.TabText = "Scene 1";
+			for (int i = 0; i < 5; ++i)
+			{
+				DockContent content = new DockContent();
+				content.Show(dockPanel, DockState.Document);
+				RenderPanelControl renderPanel = new RenderPanelControl();
+				content.Tag = renderPanel;
+				renderControls.Add(renderPanel);
+				renderPanel.Enter += new EventHandler(sceneActivated);
+				content.FormClosing += new FormClosingEventHandler(sceneClosing);
+				renderPanel.Dock = DockStyle.Fill;
+				content.Controls.Add(renderPanel);
+				content.TabText = "Scene " + i;
+			}
 
-			content = new DockContent();
-			content.Show(dockPanel, DockState.Document);
-			RenderPanelControl renderPanel2 = new RenderPanelControl();
-			renderControls.Add(renderPanel2);
-			renderPanel2.Enter += new EventHandler(renderControlActivated);
-			renderPanel2.Dock = DockStyle.Fill;
-			content.Controls.Add(renderPanel2);
-			content.TabText = "Scene 2";
-
-			propertyWindow.propertyGrid1.SelectedObject = renderPanel1.rootEntity;
-
-			entityWindow.selectEntityRoot(renderPanel1.rootEntity);
+			sceneActivated(renderControls[0], new EventArgs());
 			dockPanel.ResumeLayout(true, true);
 		}
 
@@ -62,13 +56,15 @@ namespace Studio
 		/// </summary>
 		/// <param name="sender"></param>
 		/// <param name="e"></param>
-		private void renderControlActivated(object sender, EventArgs e)
+		private void sceneActivated(object sender, EventArgs e)
 		{
 			RenderPanelControl backup = currentRenderControl;
+			currentRenderControl = (RenderPanelControl)sender;
+
 			// Disable all but only the selected control will continue auto updating.
+			// This way, we are REALLY sure that only one scene is keep rendering.
 			foreach (RenderPanelControl r in renderControls)
 				r.enableAutoUpdate(false);
-			currentRenderControl = (RenderPanelControl)sender;
 			currentRenderControl.enableAutoUpdate(true);
 
 			// Refresh the Entity explorer and the property window as well,
@@ -77,7 +73,24 @@ namespace Studio
 			{
 				entityWindow.selectEntityRoot(currentRenderControl.rootEntity);
 				entityWindow.treeView.SelectedNodes.Clear();
-				propertyWindow.propertyGrid1.SelectedObject = entityWindow.selectedEntity;
+			}
+		}
+
+		void sceneClosing(object sender, FormClosingEventArgs e)
+		{
+/*			if (DialogResult.Yes != MessageBox.Show("Recent changes have not been saved. Close the scene anyway?",
+				"Close scene?", MessageBoxButtons.YesNo, MessageBoxIcon.Question, MessageBoxDefaultButton.Button2))
+			{
+				e.Cancel = true;
+			}
+			else*/
+			{
+				DockContent d = (DockContent)sender;
+				RenderPanelControl c = (RenderPanelControl)d.Tag;
+				c.destroy();
+				currentRenderControl = null;
+				renderControls.Remove(c);
+				entityWindow.selectEntityRoot(null);
 			}
 		}
 
