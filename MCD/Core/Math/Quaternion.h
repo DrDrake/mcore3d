@@ -2,6 +2,7 @@
 #define __MCD_CORE_MATH_QUATERNION__
 
 #include "Vec4.h"
+#include "Mat33.h"
 
 namespace MCD {
 
@@ -128,13 +129,20 @@ public:
 		\param[in] axis The rotation axis, need NOT to be normalized.
 		\param[in] angle The angle of rotation in radian.
 	 */
-	void fromAxisAngle(const Vec3<T>& axis, T angle);
+	void fromAxisAngle(const Vec3<T>& axis, param_type angle);
 
 	/*!	Convert the quaternion to a rotation axis and the angle.
 		\param[out] axis The rotation axis, need NOT to be normalized.
 		\param[out] angle The angle of rotation in radian.
 	 */
 	void toAxisAngle(Vec3<T>& axis, T& angle) const;
+
+	//!	Creat the quaternion from a matrix.
+	void fromMatrix(const Mat33<T>& matrix);
+
+	//!	Convert the quaternion to a matrix.
+	void toMatrix(Mat33<T>& matrix) const;
+	Mat33<T> toMatrix() const;
 
 	/*!	Apply the quaternion rotation transform to the 3D vector.
 		v = q * Quaternion(v,1) * q.conjugate()

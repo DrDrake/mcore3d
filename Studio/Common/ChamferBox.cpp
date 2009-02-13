@@ -31,11 +31,11 @@ ChamferBoxBuilder::ChamferBoxBuilder(float filletRadius, size_t filletSegmentCou
 
 	const Array<Mat33f, cubeFaceCount> transforms = {
 		Mat33f::cIdentity,
-		Mat33f::rotate(0, Math<float>::cPiOver2() * 1, 0),
-		Mat33f::rotate(0, Math<float>::cPiOver2() * 2, 0),
-		Mat33f::rotate(0, Math<float>::cPiOver2() * 3, 0),
-		Mat33f::rotate(Math<float>::cPiOver2() * 1, 0, 0),
-		Mat33f::rotate(Math<float>::cPiOver2() * 3, 0, 0),
+		Mat33f::rotateXYZ(0, Math<float>::cPiOver2() * 1, 0),
+		Mat33f::rotateXYZ(0, Math<float>::cPiOver2() * 2, 0),
+		Mat33f::rotateXYZ(0, Math<float>::cPiOver2() * 3, 0),
+		Mat33f::rotateXYZ(Math<float>::cPiOver2() * 1, 0, 0),
+		Mat33f::rotateXYZ(Math<float>::cPiOver2() * 3, 0, 0),
 	};
 
 	// Loop for the 6 faces of the unit cube

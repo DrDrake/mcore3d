@@ -49,9 +49,27 @@ public:
 	//! 1 / Sqrt(2)
 	static Real cOverSqrt2() { return static_cast<Real>(0.707106781186547524401); }
 
+	//! Convert unit from degree to radian.
+	static Real toRadian(Real degree) {
+		return degree * (cPi() / 180);
+	}
+
+	//! Convert unit from radian to degree.
+	static Real toDegree(Real radian) {
+		return radian * (Real(180) * cOverPi());
+	}
+
 	//! Computes sin and cos together.
 	static void sinCos(Real theta, Real& sinResult, Real& cosResult) {
+		// TODO: Take advantage of custom assembly language
 		sinResult = sin(theta);	cosResult = cos(theta);
+	}
+
+	/*!	Arc-sine function.
+		Clamp the input to [-1, 1]
+	 */
+	static Real aSinClamp(Real x) {
+		return ::asin(clamp(x, -1, 1));
 	}
 
 	/*!	Arc-cosine function.
@@ -69,6 +87,10 @@ public:
 	//! Returns whether two floating point values are equal within a tolerance.
 	static bool isNearEqual(Real lhs, Real rhs, Real tolerance = 1e-6) {
 		return isNearZero(lhs - rhs, tolerance);
+	}
+
+	static Real max(Real v1, Real v2) {
+		return v1 > v2 ? v1 : v2;
 	}
 
 	static Real clamp(Real value, Real min, Real max)

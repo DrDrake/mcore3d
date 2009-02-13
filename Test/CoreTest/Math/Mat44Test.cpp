@@ -165,14 +165,6 @@ TEST(Division_Mat44Test)
 	CHECK(t == ma);
 }
 
-TEST(Rotate_Mat44Test)
-{
-	Mat44f m = Mat44f::rotate(Math<float>::cPiOver2(), 0, 0);
-	Vec4f v = m * Vec4f::c0010;
-
-	CHECK(v.isNearEqual(-Vec4f::c0100));
-}
-
 TEST(Determinant_Mat44Test)
 {
 	Mat44f a(
@@ -207,4 +199,16 @@ TEST(Inverse_Mat44Test)
 
 	CHECK(a * ai == Mat44f::cIdentity);
 	CHECK(ai * a == Mat44f::cIdentity);
+}
+
+TEST(Mat33_Mat44Test)
+{
+	Mat33f a(0, 1, 2, 3, 4, 5, 6, 7, 8);
+
+	Mat44f b(a);
+	CHECK(a == b.mat33());
+
+	b = Mat44f::cIdentity;
+	b.setMat33(a);
+	CHECK(a == b.mat33());
 }

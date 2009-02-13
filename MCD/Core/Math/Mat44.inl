@@ -5,6 +5,14 @@
 namespace MCD {
 
 template<typename T>
+Mat44<T>::Mat44(const Mat33<T>& matrix33)
+{
+	setMat33(matrix33);
+	m03 = m13 = m23 = m30 = m31 = m32 = 0;
+	m33 = 1;
+}
+
+template<typename T>
 void Mat44<T>::copyFrom(const T* dataPtr) {
 	::memcpy(this->getPtr(), dataPtr, sizeof(T) * N);
 }
@@ -267,42 +275,27 @@ void Mat44<T>::setScale(const Vec3<T>& scale)
 }
 
 template<typename T>
-void Mat44<T>::rotate(const param_type thetaX, const param_type thetaY, const param_type thetaZ, Mat44& result)
+void Mat44<T>::mat33(Mat33<T>& matrix33) const
 {
-	T sinX, cosX;
-	T sinY, cosY;
-	T sinZ, cosZ;
-	Math<T>::sinCos(thetaX, sinX, cosX);
-	Math<T>::sinCos(thetaY, sinY, cosY);
-	Math<T>::sinCos(thetaZ, sinZ, cosZ);
-
-	result.m00 = cosY * cosZ + sinX * sinY * sinZ;
-	result.m01 = cosZ * sinX * sinY - cosY * sinZ;
-	result.m02 = cosX * sinY;
-	result.m03 = 0;
-
-	result.m10 = cosX * sinZ;
-	result.m11 = cosX * cosZ;
-	result.m12 = -sinX;
-	result.m13 = 0;
-
-	result.m20 = sinX * cosY * sinZ - sinY * cosZ;
-	result.m21 = sinY * sinZ + sinX * cosY * cosZ;
-	result.m22 = cosX * cosY;
-	result.m23 = 0;
-
-	result.m30 = 0;
-	result.m31 = 0;
-	result.m32 = 0;
-	result.m33 = 1;
+	matrix33.m00 = m00;	matrix33.m01 = m01;	matrix33.m02 = m02;
+	matrix33.m10 = m10;	matrix33.m11 = m11;	matrix33.m12 = m12;
+	matrix33.m20 = m20;	matrix33.m21 = m21;	matrix33.m22 = m22;
 }
 
 template<typename T>
-Mat44<T> Mat44<T>::rotate(const param_type thetaX, const param_type thetaY, const param_type thetaZ)
+Mat33<T> Mat44<T>::mat33() const
 {
-	Mat44 result;
-	rotate(thetaX, thetaY, thetaZ, result);
+	Mat33<T> result;
+	mat33(result);
 	return result;
+}
+
+template<typename T>
+void Mat44<T>::setMat33(const Mat33<T>& matrix33)
+{
+	m00 = matrix33.m00;	m01 = matrix33.m01;	m02 = matrix33.m02;
+	m10 = matrix33.m10;	m11 = matrix33.m11;	m12 = matrix33.m12;
+	m20 = matrix33.m20;	m21 = matrix33.m21;	m22 = matrix33.m22;
 }
 
 template<typename T>

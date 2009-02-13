@@ -48,7 +48,7 @@ Quaternion<T>& Quaternion<T>::operator*=(const Quaternion& rhs)
 }
 
 template<typename T>
-void Quaternion<T>::fromAxisAngle(const Vec3<T>& axis, T angle)
+void Quaternion<T>::fromAxisAngle(const Vec3<T>& axis, param_type angle)
 {
 	T sin, cos;
 	Math<T>::sinCos(angle * T(0.5), sin, cos);
@@ -74,6 +74,57 @@ void Quaternion<T>::toAxisAngle(Vec3<T>& axis, T& angle) const
 		axis = Vec3<T>(0, 0, 1);
 		angle = 0;
 	}
+}
+
+template<typename T>
+void Quaternion<T>::fromMatrix(const Mat33<T>& matrix)
+{
+	// Reference: http://www.euclideanspace.com/maths/geometry/rotations/conversions/matrixToQuaternion/index.htm
+	// TODO: A very good fit for using SIMD :)
+	x = sqrt(Math<T>::max(0, 1 + matrix.m00 - matrix.m11 - matrix.m22)) * T(0.5);
+	y = sqrt(Math<T>::max(0, 1 - matrix.m00 + matrix.m11 - matrix.m22)) * T(0.5);
+	z = sqrt(Math<T>::max(0, 1 - matrix.m00 - matrix.m11 + matrix.m22)) * T(0.5);
+	w = sqrt(Math<T>::max(0, 1 + matrix.m00 + matrix.m11 + matrix.m22)) * T(0.5);
+
+	x = (T)_copysign(x, matrix.m21 - matrix.m12);
+	y = (T)_copysign(y, matrix.m02 - matrix.m20);
+	z = (T)_copysign(z, matrix.m10 - matrix.m01);
+}
+
+template<typename T>
+void Quaternion<T>::toMatrix(Mat33<T>& matrix) const
+{
+	// Reference: OgreQuaternion.cpp
+	T tx  = 2 * x;
+	T ty  = 2 * y;
+	T tz  = 2 * z;
+	T twx = tx * w;
+	T twy = ty * w;
+	T twz = tz * w;
+	T txx = tx * x;
+	T txy = ty * x;
+	T txz = tz * x;
+	T tyy = ty * y;
+	T tyz = tz * y;
+	T tzz = tz * z;
+
+	matrix[0][0] = 1 - (tyy + tzz);
+	matrix[0][1] = txy - twz;
+	matrix[0][2] = txz + twy;
+	matrix[1][0] = txy + twz;
+	matrix[1][1] = 1 - (txx + tzz);
+	matrix[1][2] = tyz - twx;
+	matrix[2][0] = txz - twy;
+	matrix[2][1] = tyz + twx;
+	matrix[2][2] = 1 - (txx + tyy);
+}
+
+template<typename T>
+Mat33<T> Quaternion<T>::toMatrix() const
+{
+	Mat33<T> result;
+	toMatrix(result);
+	return result;
 }
 
 template<typename T>

@@ -109,14 +109,30 @@ public:
 //	friend Mat33<T> operator/(const param_type lhs, const MathTuple& rhs) {
 //	}
 
-	/*!	Creates a rotation matrix.
+	/*!	Gets the Euler angles, as it's rotated in the order of X, Y then Z.
+		\param thetaX Rotation of angle in radius, counter clockwise from the x-axis.
+		\param thetaY Rotation of angle in radius, counter clockwise from the y-axis.
+		\param thetaZ Rotation of angle in radius, counter clockwise from the z-axis.
+		\return The convertion gives unique result or not.
+	 */
+	bool getRotationXYZ(T& thetaX, T& thetaY, T& thetaZ);
+
+	/*!	Creates a rotation matrix from Euler angles, in the order of rotation in X, Y then Z.
 		\param thetaX Rotation of angle in radius, counter clockwise from the x-axis.
 		\param thetaY Rotation of angle in radius, counter clockwise from the y-axis.
 		\param thetaZ Rotation of angle in radius, counter clockwise from the z-axis.
 	 */
-	static void rotate(const param_type thetaX, const param_type thetaY, const param_type thetaZ, Mat33& result);
+	static void rotateXYZ(const param_type thetaX, const param_type thetaY, const param_type thetaZ, Mat33& result);
 
-	static Mat33 rotate(const param_type thetaX, const param_type thetaY, const param_type thetaZ);
+	static Mat33 rotateXYZ(const param_type thetaX, const param_type thetaY, const param_type thetaZ);
+
+	/*!	Creates a rotation matrix.
+		\param axis The rotation axis.
+		\param angle Rotation of angle in radian.
+	 */
+	static void rotate(const Vec3<T>& axis, T angle, Mat33& result);
+
+	static Mat33 rotate(const Vec3<T>& axis, T angle);
 
 	static const Mat33 cIdentity;
 };	// Mat33

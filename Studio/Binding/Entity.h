@@ -51,6 +51,12 @@ public:
 		void set(array<float>^ value);
 	}
 
+	[CategoryAttribute("Transform"), DescriptionAttribute("Local rotation in unity of degree")]
+	property array<float>^ rotation {
+		array<float>^ get();
+		void set(array<float>^ value);
+	}
+
 	System::Windows::Forms::TreeNode^ treeViewNode;
 
 protected:
