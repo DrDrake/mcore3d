@@ -202,15 +202,14 @@ RenderPanelControl::~RenderPanelControl()
 
 RenderPanelControl::!RenderPanelControl()
 {
-	delete mImpl;
-	mImpl = nullptr;	// Finializer may call more than once
+	destroy();
 }
 
-::Binding::Entity^ RenderPanelControl::rootEntity::get()
+void RenderPanelControl::destroy()
 {
-	if(mRootEntity == nullptr)
-		mRootEntity = gcnew ::Binding::Entity(IntPtr(&(mImpl->mRootNode)));
-	return mRootEntity;
+	enableAutoUpdate(false);
+	delete mImpl;
+	mImpl = nullptr;
 }
 
 void RenderPanelControl::update()
@@ -224,6 +223,13 @@ void RenderPanelControl::enableAutoUpdate(bool flag)
 		timer->Start();
 	else
 		timer->Stop();
+}
+
+::Binding::Entity^ RenderPanelControl::rootEntity::get()
+{
+	if(mRootEntity == nullptr)
+		mRootEntity = gcnew ::Binding::Entity(IntPtr(&(mImpl->mRootNode)));
+	return mRootEntity;
 }
 
 System::Void RenderPanelControl::RenderPanelControl_Load(System::Object^ sender, System::EventArgs^ e)
@@ -252,7 +258,7 @@ System::Void RenderPanelControl::RenderPanelControl_Paint(System::Object^ sender
 System::Void RenderPanelControl::RenderPanelControl_Enter(System::Object^ sender, System::EventArgs^ e)
 {
 	mImpl->resize(this->Width, this->Height);
-	timer->Start();
+//	timer->Start();
 }
 
 System::Void RenderPanelControl::RenderPanelControl_Leave(System::Object^ sender, System::EventArgs^ e)
