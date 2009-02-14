@@ -162,6 +162,11 @@ TEST(RotateXYZ_Mat33Test)
 	m = Mat33f::rotateXYZ(expected.x, expected.y, expected.z);
 	m.getRotationXYZ(angles.x, angles.y, angles.z);
 	CHECK(expected.isNearEqual(angles));
+
+	expected = Vec3f(0, 0, 0);
+	m = Mat33f::rotateXYZ(expected.x, expected.y, expected.z);
+	m.getRotationXYZ(angles.x, angles.y, angles.z);
+	CHECK(expected.isNearEqual(angles));
 }
 
 TEST(RotateAxisAngle_Mat33Test)
