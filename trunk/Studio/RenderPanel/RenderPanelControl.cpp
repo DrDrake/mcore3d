@@ -30,7 +30,8 @@ class RenderPanelControlImpl : public GlWindow
 public:
 	RenderPanelControlImpl()
 		:
-		mFieldOfView(60.0f), mPredefinedSubTree(nullptr), mUserSubTree(nullptr),
+		mWidth(0), mHeight(0), mFieldOfView(60.0f),
+		mPredefinedSubTree(nullptr), mUserSubTree(nullptr),
 		mResourceManager(*createDefaultFileSystem())
 	{
 	}
@@ -129,6 +130,13 @@ public:
 		if(width == 0 || height == 0)
 			return;
 
+		// Make this resize function vert lazy
+		if(width == mWidth && height == mHeight)
+			return;
+
+		mWidth = width;
+		mHeight = height;
+
 		makeActive();
 
 		// A lot of opengl options to be enabled by default
@@ -178,6 +186,7 @@ public:
 	{
 	}
 
+	float mWidth, mHeight;
 	float mFieldOfView;
 	Entity mRootNode, *mPredefinedSubTree, *mUserSubTree;
 	WeakPtr<CameraComponent> mCamera;
@@ -214,6 +223,9 @@ void RenderPanelControl::destroy()
 
 void RenderPanelControl::update()
 {
+	if(!mImpl)
+		return;
+	mImpl->resize(this->Width, this->Height);
 	mImpl->update();
 }
 
@@ -232,6 +244,11 @@ void RenderPanelControl::enableAutoUpdate(bool flag)
 	return mRootEntity;
 }
 
+System::Void RenderPanelControl::timer_Tick(System::Object^ sender, System::EventArgs^ e)
+{
+	this->update();
+}
+
 System::Void RenderPanelControl::RenderPanelControl_Load(System::Object^ sender, System::EventArgs^ e)
 {
 	MCD_ASSERT(mImpl == nullptr);
@@ -241,34 +258,9 @@ System::Void RenderPanelControl::RenderPanelControl_Load(System::Object^ sender,
 	mImpl->createScene();
 }
 
-System::Void RenderPanelControl::timer_Tick(System::Object^ sender, System::EventArgs^ e)
-{
-	if(!mImpl)
-		return;
-	mImpl->update();
-}
-
 System::Void RenderPanelControl::RenderPanelControl_Paint(System::Object^ sender, System::Windows::Forms::PaintEventArgs^ e)
 {
-	if(!mImpl)
-		return;
-	mImpl->update();
-}
-
-System::Void RenderPanelControl::RenderPanelControl_Enter(System::Object^ sender, System::EventArgs^ e)
-{
-	mImpl->resize(this->Width, this->Height);
-//	timer->Start();
-}
-
-System::Void RenderPanelControl::RenderPanelControl_Leave(System::Object^ sender, System::EventArgs^ e)
-{
-//	timer->Stop();
-}
-
-System::Void RenderPanelControl::RenderPanelControl_SizeChanged(System::Object^ sender, System::EventArgs^ e)
-{
-	mImpl->resize(this->Width, this->Height);
+	this->update();
 }
 
 System::Void RenderPanelControl::RenderPanelControl_KeyDown(System::Object^ sender, System::Windows::Forms::KeyEventArgs^ e)

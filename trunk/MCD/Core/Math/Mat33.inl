@@ -91,7 +91,7 @@ bool Mat33<T>::getRotationXYZ(T& thetaX, T& thetaY, T& thetaZ)
 		else
 		{
 			// Not an unique solution.
-			T rmY = ::atan2(-m10, m11);
+			T rmY = ::atan2(m10, m11);
 			thetaZ = 0;	// Any angle works
 			thetaX = thetaZ - rmY;
 			return false;
@@ -100,7 +100,7 @@ bool Mat33<T>::getRotationXYZ(T& thetaX, T& thetaY, T& thetaZ)
 	else
 	{
 		// Not an unique solution.
-		T rpY = ::atan2(-m10, m11);
+		T rpY = ::atan2(m10, m11);
 		thetaZ = 0;	// Any angle works
 		thetaX = rpY - thetaZ;
 		return false;
@@ -110,25 +110,6 @@ bool Mat33<T>::getRotationXYZ(T& thetaX, T& thetaY, T& thetaZ)
 template<typename T>
 void Mat33<T>::rotateXYZ(const param_type thetaX, const param_type thetaY, const param_type thetaZ, Mat33& result)
 {
-/*	T sinX, cosX;
-	T sinY, cosY;
-	T sinZ, cosZ;
-	Math<T>::sinCos(thetaX, sinX, cosX);
-	Math<T>::sinCos(thetaY, sinY, cosY);
-	Math<T>::sinCos(thetaZ, sinZ, cosZ);
-
-	result.m00 = cosY * cosZ + sinX * sinY * sinZ;
-	result.m01 = cosZ * sinX * sinY - cosY * sinZ;
-	result.m02 = cosX * sinY;
-
-	result.m10 = cosX * sinZ;
-	result.m11 = cosX * cosZ;
-	result.m12 = -sinX;
-
-	result.m20 = sinX * cosY * sinZ - sinY * cosZ;
-	result.m21 = sinY * sinZ + sinX * cosY * cosZ;
-	result.m22 = cosX * cosY;*/
-
 	// Reference: OgreMatrix3.cpp
 	float cos, sin;
 

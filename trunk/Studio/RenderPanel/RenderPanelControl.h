@@ -88,22 +88,16 @@ private:
 		this->Name = L"RenderPanelControl";
 		this->Load += gcnew System::EventHandler(this, &RenderPanelControl::RenderPanelControl_Load);
 		this->Paint += gcnew System::Windows::Forms::PaintEventHandler(this, &RenderPanelControl::RenderPanelControl_Paint);
-		this->Leave += gcnew System::EventHandler(this, &RenderPanelControl::RenderPanelControl_Leave);
 		this->KeyUp += gcnew System::Windows::Forms::KeyEventHandler(this, &RenderPanelControl::RenderPanelControl_KeyUp);
-		this->Enter += gcnew System::EventHandler(this, &RenderPanelControl::RenderPanelControl_Enter);
-		this->SizeChanged += gcnew System::EventHandler(this, &RenderPanelControl::RenderPanelControl_SizeChanged);
 		this->KeyDown += gcnew System::Windows::Forms::KeyEventHandler(this, &RenderPanelControl::RenderPanelControl_KeyDown);
 		this->ResumeLayout(false);
 
 	}
 #pragma endregion
 
-private: System::Void RenderPanelControl_Load(System::Object^ sender, System::EventArgs^ e);
 private: System::Void timer_Tick(System::Object^ sender, System::EventArgs^ e);
+private: System::Void RenderPanelControl_Load(System::Object^ sender, System::EventArgs^ e);
 private: System::Void RenderPanelControl_Paint(System::Object^ sender, System::Windows::Forms::PaintEventArgs^ e);
-private: System::Void RenderPanelControl_Enter(System::Object^ sender, System::EventArgs^ e);
-private: System::Void RenderPanelControl_Leave(System::Object^ sender, System::EventArgs^ e);
-private: System::Void RenderPanelControl_SizeChanged(System::Object^ sender, System::EventArgs^ e);
 private: System::Void RenderPanelControl_KeyDown(System::Object^ sender, System::Windows::Forms::KeyEventArgs^ e);
 private: System::Void RenderPanelControl_KeyUp(System::Object^ sender, System::Windows::Forms::KeyEventArgs^ e);
 };
