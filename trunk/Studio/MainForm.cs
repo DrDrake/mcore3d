@@ -29,6 +29,10 @@ namespace Studio
 			propertyWindow = new PropertyWindow();
 			propertyWindow.Show(dockPanel);
 
+			assertWindow = new AssertWindow();
+			assertWindow.Show(dockPanel);
+			assertWindow.refresh("media");
+
 			entityWindow = new EntityWindow();
 			entityWindow.Show(dockPanel);
 			entityWindow.propertyWindow = propertyWindow;
@@ -113,5 +117,6 @@ namespace Studio
 
 		EntityWindow entityWindow;
 		PropertyWindow propertyWindow;
+		AssertWindow assertWindow;
 	}
 }
