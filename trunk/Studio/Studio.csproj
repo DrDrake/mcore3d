@@ -180,6 +180,14 @@
       <Install>true</Install>
     </BootstrapperPackage>
   </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Icons\FolderOpen.ico" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Icons\File.png" />
+    <Content Include="Icons\Folder-A3-1.ico" />
+    <EmbeddedResource Include="Icons\Folder.png" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
