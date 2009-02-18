@@ -18,12 +18,16 @@ IFileSystem* createDefaultFileSystem()
 	try {
 		std::auto_ptr<IFileSystem> rawFs(new RawFileSystem(L"Media"));
 		fileSystem->addFileSystem(*rawFs.release());
-	} catch(...) {}
+	} catch(...) {
+		Log::write(Log::Warn, L"Unable to find the Media directory");
+	}
 
 	try {
 		std::auto_ptr<IFileSystem> zipFs(new ZipFileSystem(L"Media.zip"));
 		fileSystem->addFileSystem(*zipFs.release());
-	} catch(...) {}
+	} catch(...) {
+		Log::write(Log::Warn, L"Unable to find the Media.zip");
+	}
 
 	return fileSystem.release();
 }
