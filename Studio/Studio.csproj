@@ -143,10 +143,6 @@
       <Project>{32D8BE99-8D55-4AB8-96BE-7DD82F507F62}</Project>
       <Name>Binding</Name>
     </ProjectReference>
-    <ProjectReference Include="RenderPanel\RenderPanel.vcproj">
-      <Project>{D40B44C3-96C8-4648-9FC7-F2F084204EAB}</Project>
-      <Name>RenderPanel</Name>
-    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <BootstrapperPackage Include="Microsoft.Net.Client.3.5">
@@ -181,11 +177,7 @@
     </BootstrapperPackage>
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="Icons\FolderOpen.ico" />
-  </ItemGroup>
-  <ItemGroup>
     <Content Include="Icons\File.png" />
-    <Content Include="Icons\Folder-A3-1.ico" />
     <EmbeddedResource Include="Icons\Folder.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
