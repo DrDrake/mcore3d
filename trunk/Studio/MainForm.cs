@@ -1,4 +1,4 @@
-﻿using RenderPanel;
+﻿using Binding;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -25,6 +25,12 @@ namespace Studio
 		private void MainForm_Load(object sender, EventArgs e)
 		{
 			dockPanel.SuspendLayout(true);
+
+			logWindow = new LogWindow();
+			logWindow.Show(dockPanel);
+
+			// The Global object can be accessed though Global::instance
+			new Global(logWindow.textBox);
 
 			propertyWindow = new PropertyWindow();
 			propertyWindow.Show(dockPanel);
@@ -118,5 +124,6 @@ namespace Studio
 		EntityWindow entityWindow;
 		PropertyWindow propertyWindow;
 		AssertWindow assertWindow;
+		LogWindow logWindow;
 	}
 }

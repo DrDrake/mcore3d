@@ -21,7 +21,7 @@
 #pragma comment(lib, "GlAux")
 //#pragma comment(lib, "glew")
 
-namespace RenderPanel {
+namespace Binding {
 
 using namespace MCD;
 
@@ -39,21 +39,21 @@ public:
 	void createScene()
 	{
 		{	// Setup user defined sub-tree
-			std::auto_ptr<Entity> e(new Entity);
+			std::auto_ptr<MCD::Entity> e(new MCD::Entity);
 			e->name = L"Studio user defined sub-tree";
 			e->link(&mRootNode);
 			mUserSubTree = e.release();
 		}
 
 		{	// Setup pre-defined sub-tree
-			std::auto_ptr<Entity> e(new Entity);
+			std::auto_ptr<MCD::Entity> e(new MCD::Entity);
 			e->name = L"Studio pre-defined sub-tree";
 			e->link(&mRootNode);
 			mPredefinedSubTree = e.release();
 		}
 
 		{	// Add a default camera
-			std::auto_ptr<Entity> e(new Entity);
+			std::auto_ptr<MCD::Entity> e(new MCD::Entity);
 			e->name = L"Default camera";
 			e->link(mPredefinedSubTree);
 			e->localTransform.setTranslation(Vec3f(0, 0, 5));
@@ -71,7 +71,7 @@ public:
 		}
 
 		{	// Setup entity 1
-			std::auto_ptr<Entity> e(new Entity);
+			std::auto_ptr<MCD::Entity> e(new MCD::Entity);
 			e->name = L"ChamferBox 1";
 			e->link(mUserSubTree);
 			e->localTransform = Mat44f(Mat33f::rotateXYZ(0, Mathf::cPiOver4(), 0));
@@ -91,7 +91,7 @@ public:
 		}
 
 		{	// Setup entity 2
-			std::auto_ptr<Entity> e(new Entity);
+			std::auto_ptr<MCD::Entity> e(new MCD::Entity);
 			e->name = L"Sphere 1";
 			e->link(mUserSubTree);
 			e->localTransform.setTranslation(Vec3f(1, 0, 0));
@@ -134,8 +134,8 @@ public:
 		if(width == mWidth && height == mHeight)
 			return;
 
-		mWidth = width;
-		mHeight = height;
+		mWidth = float(width);
+		mHeight = float(height);
 
 		makeActive();
 
@@ -188,7 +188,7 @@ public:
 
 	float mWidth, mHeight;
 	float mFieldOfView;
-	Entity mRootNode, *mPredefinedSubTree, *mUserSubTree;
+	MCD::Entity mRootNode, *mPredefinedSubTree, *mUserSubTree;
 	WeakPtr<CameraComponent> mCamera;
 	DefaultResourceManager mResourceManager;
 };	// RenderPanelControlImpl

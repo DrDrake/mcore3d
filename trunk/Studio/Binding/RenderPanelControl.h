@@ -10,7 +10,7 @@ using namespace System::Data;
 using namespace System::Drawing;
 
 
-namespace RenderPanel {
+namespace Binding {
 
 class RenderPanelControlImpl;
 
@@ -104,4 +104,4 @@ private: System::Void RenderPanelControl_KeyDown(System::Object^ sender, System:
 private: System::Void RenderPanelControl_KeyUp(System::Object^ sender, System::Windows::Forms::KeyEventArgs^ e);
 };
 
-}	// namespace RenderPanel
+}	// namespace Binding

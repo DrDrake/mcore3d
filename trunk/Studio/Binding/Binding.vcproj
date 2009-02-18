@@ -214,6 +214,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\Global.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\RenderPanelControl.cpp"
 				>
 			</File>
@@ -249,6 +253,10 @@
 			>
 			<File
 				RelativePath=".\Entity.h"
+				>
+			</File>
+			<File
+				RelativePath=".\Global.h"
 				>
 			</File>
 			<File
