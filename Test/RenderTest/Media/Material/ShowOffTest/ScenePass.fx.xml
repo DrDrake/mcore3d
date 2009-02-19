@@ -1,0 +1,69 @@
+<?xml version="1.0"?>
+<!-- The scene pass -->
+
+<root>
+
+<pass> <shader>
+<vertex>
+<![CDATA[
+varying vec3 normal, lightDir, halfVector;
+varying vec2 texCoord;
+
+void main(void)
+{
+	gl_Position = ftransform();
+
+	// Transform the normal into eye space.
+	normal = gl_NormalMatrix * gl_Normal;
+
+	// Now normalize the light's direction. Note that according to the OpenGL specification,
+	// the light is stored in eye space. Also since we're talking about a directional light,
+	// the position field is actually direction.
+	lightDir = normalize(gl_LightSource[0].position.xyz);
+
+	// Normalize the halfVector to pass it to the fragment shader.
+	halfVector = normalize(gl_LightSource[0].halfVector.xyz);
+
+	texCoord = gl_MultiTexCoord0.xy;
+}
+]]>
+</vertex>
+
+<fragment>
+<parameter name="showTexture" type="int">0</parameter>
+<![CDATA[
+varying vec3 normal, lightDir, halfVector;
+varying vec2 texCoord;
+uniform int showTexture;
+uniform sampler2D tex;
+
+void main(void)
+{
+	// Compute the diffuse, specular, ambient and globalAmbient terms.
+	vec4 diffuse = gl_FrontLightProduct[0].diffuse;
+	vec4 specular = gl_FrontLightProduct[0].specular;
+	vec4 ambient = gl_FrontLightProduct[0].ambient;
+//	ambient += gl_FrontLightModelProduct.sceneColor;
+
+	// A fragment shader can't write a varying variable, hence we need
+	// a new variable to store the normalized interpolated normal.
+	vec3 n = normalize(normal);
+
+	// Compute the dot product between normal and ldir.
+	// Since lightDir is a constant so there is no need to normalize it again
+	float NdotL = max(dot(n, lightDir), 0.0);
+
+	diffuse *= NdotL;
+	vec3 halfV = normalize(halfVector);
+	float NdotHV = max(dot(n, halfV), 0.0);
+	specular *= pow(NdotHV, gl_FrontMaterial.shininess);
+
+	gl_FragData[0] = specular + (ambient + diffuse) * 
+		(showTexture == 1 ? vec4(texture2D(tex, texCoord).xyz, 1) : vec4(1.0));
+	gl_FragData[1] = vec4(n * 0.5 + 0.5, 1);
+}
+]]>
+</fragment>
+</shader> </pass>
+
+</root>
