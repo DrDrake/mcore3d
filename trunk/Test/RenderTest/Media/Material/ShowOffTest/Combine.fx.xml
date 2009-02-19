@@ -1,0 +1,53 @@
+<?xml version="1.0"?>
+<!-- The combining pass -->
+
+<root>
+
+<pass>
+	<texture
+		file="renderBuffer:color"
+		shaderName="texColor"
+	/>
+
+	<texture
+		file="renderBuffer:color"
+		shaderName="texSSAO"
+	/>
+
+<shader>
+<vertex>
+<![CDATA[
+varying vec2 texCoord;
+varying vec2 texCoord2;
+uniform float ssaoRescale;
+
+void main(void)
+{
+	gl_Position = ftransform();
+	texCoord = gl_MultiTexCoord0.xy;
+	texCoord2 = gl_MultiTexCoord0.xy * ssaoRescale - vec2(0.5);
+}
+]]>
+</vertex>
+
+<fragment>
+<parameter name="showTexture" type="int">1</parameter>
+<![CDATA[
+varying vec2 texCoord;
+varying vec2 texCoord2;
+uniform sampler2DRect texColor;	// Color texture
+uniform sampler2DRect texSSAO;	// SSAO result texture
+
+void main(void)
+{
+	// SSAO only
+//	gl_FragColor = vec4(texture2DRect(texSSAO, texCoord2).r);
+
+	// Modulate the luminance using the SSAO
+	gl_FragColor = texture2DRect(texColor, texCoord) * texture2DRect(texSSAO, texCoord2).r;
+}
+]]>
+</fragment>
+</shader> </pass>
+
+</root>

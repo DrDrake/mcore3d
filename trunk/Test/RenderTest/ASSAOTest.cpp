@@ -58,7 +58,7 @@ TEST(ASSAOTest)
 	public:
 		TestWindow()
 			:
-			BasicGlWindow(L"title=SSAOTest;width=800;height=600;fullscreen=0;FSAA=4"),
+			BasicGlWindow(L"title=ASSAOTest;width=800;height=600;fullscreen=0;FSAA=4"),
 			mUseSSAO(true), mBlurSSAO(true), mShowTexture(false),
 			mSSAORescale(0.5f), mSSAORadius(0.5f), mBlurPassCount(0),
 			mRenderable(nullptr), mResourceManager(*createDefaultFileSystem())
