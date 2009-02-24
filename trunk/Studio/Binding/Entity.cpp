@@ -8,6 +8,8 @@ using namespace System::Windows::Forms;
 
 namespace Binding {
 
+// Reference: http://www.codeguru.com/columns/vb/article.php/c6529
+// Reference: http://msdn.microsoft.com/en-us/library/aa302326.aspx
 public ref class Vector3Converter : public TypeConverter
 {
 public:
@@ -42,7 +44,7 @@ public:
 	{
 		if(value->GetType() != String::typeid)
 			return TypeConverter::ConvertFrom(context, culture, value);
-		array<String^>^ ar = ((String^)value)->Split(gcnew array<wchar_t>{L','});
+		array<String^>^ ar = ((String^)value)->Split(L',');
 		return gcnew array<float>{ System::Single::Parse(ar[0]), System::Single::Parse(ar[1]), System::Single::Parse(ar[2]) };
 	}
 

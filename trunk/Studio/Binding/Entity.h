@@ -26,34 +26,34 @@ public:
 
 	void unlink();
 
-	[CategoryAttribute("Entity"), DescriptionAttribute("Name of the Entity")]
+	[Category("Entity"), Description("Name of the Entity")]
 	property String^ name {
 		String^ get();
 		void set(String^ value);
 	}
 
-	[BrowsableAttribute(false)]
+	[Browsable(false)]
 	property Entity^ parent {
 		Entity^ get();
 	}
 
-	[BrowsableAttribute(false)]
+	[Browsable(false)]
 	property Entity^ firstChild {
 		Entity^ get();
 	}
 
-	[BrowsableAttribute(false)]
+	[Browsable(false)]
 	property Entity^ nextSlibing {
 		Entity^ get();
 	}
 
-	[CategoryAttribute("Transform"), DescriptionAttribute("Local position"), TypeConverter(Vector3Converter::typeid)]
+	[Category("Transform"), Description("Local position"), TypeConverter(Vector3Converter::typeid)]
 	property array<float>^ translation {
 		array<float>^ get();
 		void set(array<float>^ value);
 	}
 
-	[CategoryAttribute("Transform"), DescriptionAttribute("Local rotation in unity of degree"), TypeConverter(Vector3Converter::typeid)]
+	[Category("Transform"), Description("Local rotation in unity of degree"), TypeConverter(Vector3Converter::typeid)]
 	property array<float>^ rotation {
 		array<float>^ get();
 		void set(array<float>^ value);
