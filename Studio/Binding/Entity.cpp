@@ -3,9 +3,59 @@
 #include "Utility.h"
 #undef nullptr
 
+using namespace System::Globalization;
 using namespace System::Windows::Forms;
 
 namespace Binding {
+
+public ref class Vector3Converter : public TypeConverter
+{
+public:
+	virtual bool CanConvertFrom(ITypeDescriptorContext^ context, Type^ sourceType) override
+	{
+		if(sourceType == String::typeid)
+			return true;
+		return TypeConverter::CanConvertFrom(context, sourceType);
+	}
+
+	virtual bool CanConvertTo(ITypeDescriptorContext^ context, Type^ destinationType) override
+	{
+		if(destinationType == String::typeid)
+			return true;
+		return TypeConverter::CanConvertTo(context, destinationType);
+	}
+
+	virtual Object^ ConvertTo(ITypeDescriptorContext^ context, CultureInfo^ culture, Object^ value, Type^ destinationType) override
+	{
+		if(destinationType != String::typeid)
+			return TypeConverter::ConvertFrom(context, culture, value);
+
+		array<float>^ vec = (array<float>^)(value);
+		String^ str = gcnew String("");
+		str += vec[0]; str += ", ";
+		str += vec[1]; str += ", ";
+		str += vec[2];
+		return str;
+	}
+
+	virtual Object^ ConvertFrom(ITypeDescriptorContext^ context, CultureInfo^ culture, Object^ value) override
+	{
+		if(value->GetType() != String::typeid)
+			return TypeConverter::ConvertFrom(context, culture, value);
+		array<String^>^ ar = ((String^)value)->Split(gcnew array<wchar_t>{L','});
+		return gcnew array<float>{ System::Single::Parse(ar[0]), System::Single::Parse(ar[1]), System::Single::Parse(ar[2]) };
+	}
+
+/*	virtual bool GetPropertiesSupported(ITypeDescriptorContext^ context) override
+	{
+		return true;
+	}
+
+	virtual PropertyDescriptorCollection^ GetProperties(ITypeDescriptorContext^ context, Object^ value, array<Attribute^>^ attributes) override
+	{
+		return TypeDescriptor::GetProperties(value);
+	}*/
+};
 
 Entity::Entity(MCD::Entity* entity)
 {

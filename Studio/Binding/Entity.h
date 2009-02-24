@@ -9,6 +9,8 @@ using namespace System::ComponentModel;
 
 namespace Binding {
 
+ref class Vector3Converter;
+
 /*!	Will not take any ownership of the entity object.
  */
 public ref class Entity
@@ -45,13 +47,13 @@ public:
 		Entity^ get();
 	}
 
-	[CategoryAttribute("Transform"), DescriptionAttribute("Local position")]
+	[CategoryAttribute("Transform"), DescriptionAttribute("Local position"), TypeConverter(Vector3Converter::typeid)]
 	property array<float>^ translation {
 		array<float>^ get();
 		void set(array<float>^ value);
 	}
 
-	[CategoryAttribute("Transform"), DescriptionAttribute("Local rotation in unity of degree")]
+	[CategoryAttribute("Transform"), DescriptionAttribute("Local rotation in unity of degree"), TypeConverter(Vector3Converter::typeid)]
 	property array<float>^ rotation {
 		array<float>^ get();
 		void set(array<float>^ value);
