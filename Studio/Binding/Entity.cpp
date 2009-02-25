@@ -34,9 +34,9 @@ public:
 
 		array<float>^ vec = (array<float>^)(value);
 		String^ str = gcnew String("");
-		str += vec[0]; str += ", ";
-		str += vec[1]; str += ", ";
-		str += vec[2];
+		str += Decimal::Round(Decimal(vec[0]), 4); str += ", ";
+		str += Decimal::Round(Decimal(vec[1]), 4); str += ", ";
+		str += Decimal::Round(Decimal(vec[2]), 4);
 		return str;
 	}
 
@@ -217,6 +217,30 @@ array<float>^ Entity::rotation::get()
 
 void Entity::rotation::set(array<float>^ value)
 {
+	mImpl->localTransform.setMat33(MCD::Mat33f::rotateXYZ(
+		MCD::Mathf::toRadian(value[0]),
+		MCD::Mathf::toRadian(value[1]),
+		MCD::Mathf::toRadian(value[2]))
+	);
+}
+
+// Get only the scaling part of the transformation matrix
+// Reference: http://www.gamedev.net/community/forums/topic.asp?topic_id=491578
+array<float>^ Entity::scale::get()
+{
+	array<float>^ a = gcnew array<float>(3);
+	const MCD::Mat44f& mat = mImpl->localTransform;
+
+	a[0] = MCD::Vec3f(mat.m00, mat.m10, mat.m20).length();
+	a[1] = MCD::Vec3f(mat.m01, mat.m11, mat.m21).length();
+	a[2] = MCD::Vec3f(mat.m02, mat.m12, mat.m22).length();
+
+	return a;
+}
+
+void Entity::scale::set(array<float>^ value)
+{
+	return;
 	mImpl->localTransform.setMat33(MCD::Mat33f::rotateXYZ(
 		MCD::Mathf::toRadian(value[0]),
 		MCD::Mathf::toRadian(value[1]),
