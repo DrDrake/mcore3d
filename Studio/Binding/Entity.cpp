@@ -34,9 +34,9 @@ public:
 
 		array<float>^ vec = (array<float>^)(value);
 		String^ str = gcnew String("");
-		str += Decimal::Round(Decimal(vec[0]), 4); str += ", ";
-		str += Decimal::Round(Decimal(vec[1]), 4); str += ", ";
-		str += Decimal::Round(Decimal(vec[2]), 4);
+		str += float(Decimal::Round(Decimal(vec[0]), 5)); str += ", ";
+		str += float(Decimal::Round(Decimal(vec[1]), 5)); str += ", ";
+		str += float(Decimal::Round(Decimal(vec[2]), 5));
 		return str;
 	}
 
@@ -204,9 +204,17 @@ void Entity::translation::set(array<float>^ value)
 
 array<float>^ Entity::rotation::get()
 {
+	// Get the scale first
+	array<float>^ currentScale = this->scale;
+
+	MCD::Mat33f mat = mImpl->localTransform.mat33();
+	// Undo the effect of scaling on the 3x3 matrix
+	for(size_t i=0; i<3; ++i) for(size_t j=0; j<3; ++j)
+		mat[i][j] /= currentScale[j];
+
 	array<float>^ a = gcnew array<float>(3);
 	MCD::Vec3f angles;
-	mImpl->localTransform.mat33().getRotationXYZ(angles.x, angles.y, angles.z);
+	mat.getRotationXYZ(angles.x, angles.y, angles.z);
 
 	a[0] = MCD::Mathf::toDegree(angles[0]);
 	a[1] = MCD::Mathf::toDegree(angles[1]);
@@ -217,11 +225,20 @@ array<float>^ Entity::rotation::get()
 
 void Entity::rotation::set(array<float>^ value)
 {
-	mImpl->localTransform.setMat33(MCD::Mat33f::rotateXYZ(
+	// Get the scale first
+	array<float>^ currentScale = this->scale;
+
+	MCD::Mat33f mat = MCD::Mat33f::rotateXYZ(
 		MCD::Mathf::toRadian(value[0]),
 		MCD::Mathf::toRadian(value[1]),
-		MCD::Mathf::toRadian(value[2]))
+		MCD::Mathf::toRadian(value[2])
 	);
+
+	// Apply the scaling back to the 3x3 matrix
+	for(size_t i=0; i<3; ++i) for(size_t j=0; j<3; ++j)
+		mat[i][j] *= currentScale[j];
+
+	mImpl->localTransform.setMat33(mat);
 }
 
 // Get only the scaling part of the transformation matrix
@@ -240,12 +257,17 @@ array<float>^ Entity::scale::get()
 
 void Entity::scale::set(array<float>^ value)
 {
-	return;
-	mImpl->localTransform.setMat33(MCD::Mat33f::rotateXYZ(
-		MCD::Mathf::toRadian(value[0]),
-		MCD::Mathf::toRadian(value[1]),
-		MCD::Mathf::toRadian(value[2]))
-	);
+	array<float>^ currentScale = this->scale;
+
+	if(value[0] * value[1] * value[2] == 0)
+		throw gcnew System::Exception("Cannot set scale to zero");
+
+	if(value[0] < 0 || value[1] < 0 || value[1] < 0)
+		throw gcnew System::Exception("Cannot use negative scale");
+
+	// Scale the x, y and z bias vectors of the 3x3 matrix
+	for(size_t i=0; i<3; ++i) for(size_t j=0; j<3; ++j)
+		mImpl->localTransform[i][j] *= value[j] / currentScale[j];
 }
 
 }
