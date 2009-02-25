@@ -148,6 +148,18 @@ void Mesh::draw()
 		bind(Mesh::TextureCoord);
 	}
 
+	drawFaceOnly();
+
+	if(mFormat & Mesh::Color)
+		glDisableClientState(GL_COLOR_ARRAY);
+	if(mFormat & Mesh::Normal)
+		glDisableClientState(GL_NORMAL_ARRAY);
+	if(mFormat & Mesh::TextureCoord)
+		glDisableClientState(GL_TEXTURE_COORD_ARRAY);
+}
+
+void Mesh::drawFaceOnly()
+{
 	bind(Mesh::Index);
 
 	// Calling glVertexPointer() as late as possible will have a big performance difference!
@@ -156,6 +168,8 @@ void Mesh::draw()
 	bind(Mesh::Position);
 
 	glDrawElements(GL_TRIANGLES, mIndexCount, GL_UNSIGNED_SHORT, 0);
+
+	glDisableClientState(GL_VERTEX_ARRAY);
 }
 
 uint Mesh::handle(DataType dataType) const

@@ -30,6 +30,8 @@ public:
 
 	explicit ColorRGBf(float uniform) : r(uniform), g(uniform), b(uniform) {}
 
+	ColorRGBf(float red, float green, float blue) : r(red), g(green), b(blue) {}
+
 // Operations
 	/*!	Multiple the color with a scaler.
 		\note
@@ -59,6 +61,8 @@ public:
 	ColorRGBAf() {}
 
 	ColorRGBAf(float uniform, float alpha) : ColorRGBf(uniform), a(alpha) {}
+
+	ColorRGBAf(float r, float g, float b, float alpha) : ColorRGBf(r, g, b), a(alpha) {}
 
 	ColorRGBAf(const ColorRGBf& rgb, float alpha) : ColorRGBf(rgb), a(alpha) {}
 

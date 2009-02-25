@@ -26,6 +26,8 @@ void MeshComponent::render()
 			material->postRender(i);
 		}
 	}
+	else
+		mesh->drawFaceOnly();
 
 	glPopMatrix();
 }

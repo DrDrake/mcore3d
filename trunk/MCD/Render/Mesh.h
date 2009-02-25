@@ -85,7 +85,14 @@ public:
 
 	void unbind();
 
+	//! Render the mesh with all associated color, normal, texture coordinate etc.
 	void draw();
+
+	/*!	Render the mesh without any material.
+		Only the vertex and index buffer is used, this function is usefull for example
+		depth pre-pass or render for picking.
+	 */
+	void drawFaceOnly();
 
 	/*!	User can define this class in their scope in order to modify the data member in Texture.
 		Various texture loaders use this technique to modify the texture.

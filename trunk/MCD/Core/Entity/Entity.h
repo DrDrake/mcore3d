@@ -4,6 +4,7 @@
 #include "../ShareLib.h"
 #include "../Math/Mat44.h"
 #include "../System/PtrVector.h"
+#include "../System/WeakPtr.h"
 #include <typeinfo>
 
 namespace MCD {
@@ -21,7 +22,7 @@ class Component;
 	     |    |
 	     n21  n31--n32--n33
  */
-class MCD_CORE_API Entity
+class MCD_CORE_API Entity : public WeakPtrTarget
 {
 public:
 	Entity();
@@ -79,6 +80,13 @@ protected:
 	typedef ptr_vector<Component> Components;
 	Components mComponents;
 };	// Entity
+
+/*!	We use weak pointer to reference an Entity.
+	The ownership of an Entity is determined by it's parent, it means
+	the root node of an Entity tree handle the lifetime of all it's children.
+	For external reference, we should use a weak reference.
+ */
+typedef WeakPtr<Entity> EntityPtr;
 
 /*!	An iterator that preforms a pre-order traversal on the Entity tree.
 	You can specify
