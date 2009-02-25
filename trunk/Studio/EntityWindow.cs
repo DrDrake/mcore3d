@@ -33,6 +33,7 @@ namespace Studio
 				// Fill up the tree view
 				treeView.Nodes.Add(entity.treeViewNode.Nodes[0]);
 				treeView.Nodes.Add(entity.treeViewNode.Nodes[1]);
+                treeView.Nodes.Add(entity.treeViewNode.Nodes[2]);
 
 				entity.treeViewNode.Nodes[1].Expand();
 			}

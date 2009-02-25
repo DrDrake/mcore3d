@@ -59,6 +59,12 @@ public:
 		void set(array<float>^ value);
 	}
 
+	[Category("Transform"), Description("Local scaling"), TypeConverter(Vector3Converter::typeid)]
+	property array<float>^ scale {
+		array<float>^ get();
+		void set(array<float>^ value);
+	}
+
 	System::Windows::Forms::TreeNode^ treeViewNode;
 
 protected:

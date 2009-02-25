@@ -2,6 +2,7 @@
 #include "RenderPanelControl.h"
 #include "../Common/ChamferBox.h"
 #include "../Common/DefaultResourceManager.h"
+#include "../Common/Gizmo.h"
 
 #define _WINDOWS
 #include "../../MCD/Core/Entity/Entity.h"
@@ -70,6 +71,14 @@ public:
 			e.release();
 		}
 
+		{	// Add a Gizmo
+			std::auto_ptr<Gizmo> e(new Gizmo(mResourceManager));
+			e->name = L"Gizmo";
+			e->link(&mRootNode);
+
+			mGizmo = e.release();
+		}
+
 		{	// Setup entity 1
 			std::auto_ptr<MCD::Entity> e(new MCD::Entity);
 			e->name = L"ChamferBox 1";
@@ -118,7 +127,17 @@ public:
 
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-		RenderableComponent::traverseEntities(&mRootNode);
+		glEnable(GL_LIGHTING);
+		glEnable(GL_DEPTH_TEST);
+		RenderableComponent::traverseEntities(mPredefinedSubTree);
+
+		RenderableComponent::traverseEntities(mUserSubTree);
+
+		// Draw the Gizmo
+		glDisable(GL_TEXTURE_2D);
+		glDisable(GL_LIGHTING);
+		glDisable(GL_DEPTH_TEST);
+		RenderableComponent::traverseEntities(mGizmo);
 
 		glFlush();
 		swapBuffers();
@@ -147,11 +166,11 @@ public:
 		// Automatic normalization (useful when we have uniform scaled the model)
 		// Reference: http://www.opengl.org/resources/features/KilgardTechniques/oglpitfall/
 		glEnable(GL_RESCALE_NORMAL);
-		glEnable(GL_TEXTURE_2D);
+//		glEnable(GL_TEXTURE_2D);
 		glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
 
 		// Set up and enable light 0
-		glEnable(GL_LIGHTING);
+		glDisable(GL_LIGHTING);
 		glEnable(GL_LIGHT0);
 		GLfloat ambientLight[] = { 0.5f, 0.5f, 0.5f, 1.0f };
 		GLfloat diffuseLight[] = { 1.0f, 1.0f, 1.0f, 1.0f };
@@ -189,6 +208,7 @@ public:
 	float mWidth, mHeight;
 	float mFieldOfView;
 	MCD::Entity mRootNode, *mPredefinedSubTree, *mUserSubTree;
+	Gizmo* mGizmo;
 	WeakPtr<CameraComponent> mCamera;
 	DefaultResourceManager mResourceManager;
 };	// RenderPanelControlImpl
