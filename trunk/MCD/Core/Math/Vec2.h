@@ -20,12 +20,12 @@ struct Vec2TupleUnion {
 template<typename T>
 class Vec2 : public MathTuple<T, 2, Vec2<T>, Vec2TupleUnion<T> >
 {
-    typedef MathTuple<T, 2, Vec2<T>, Vec2TupleUnion<T> > super_type;
+	typedef MathTuple<T, 2, Vec2<T>, Vec2TupleUnion<T> > super_type;
 
 public:
-    typedef typename super_type::param_type param_type;
-    using super_type::x;
-    using super_type::y;
+	typedef typename super_type::param_type param_type;
+	using super_type::x;
+	using super_type::y;
 
 	inline Vec2() {}
 
@@ -80,22 +80,22 @@ public:
 	 */
 	T squaredDistance(const Vec2& rhs) const;
 
-    /*!	Normalizes the vector.
+	/*!	Normalizes the vector.
 		This method normalizes the vector such that it's length / magnitude is 1.
 		The result is called a unit vector.
 		\return The previous length of the vector.
-        \note This function will crash for zero-sized vectors.
-     */
+		\note This function will crash for zero-sized vectors.
+	 */
 	T normalize();
 
-    /*!	As normalize(), except that this function will not crash for zero-sized vectors,
+	/*!	As normalize(), except that this function will not crash for zero-sized vectors,
 		but there will be no changes made to their components.
 	 */
 	T normalizeSafe();
 
 	/*!	As normalize(), except that this vector is unaffected and the
 		normalized vector is returned as a copy.
-        \note This function will crash for zero-sized vectors.
+		\note This function will crash for zero-sized vectors.
 	 */
 	Vec2 normalizedCopy() const;
 

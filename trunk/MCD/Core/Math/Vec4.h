@@ -19,14 +19,14 @@ struct Vec4TupleUnion {
 template<typename T>
 class Vec4 : public MathTuple<T, 4, Vec4<T>, Vec4TupleUnion<T> >
 {
-    typedef MathTuple<T, 4, Vec4<T>, Vec4TupleUnion<T> > super_type;
+	typedef MathTuple<T, 4, Vec4<T>, Vec4TupleUnion<T> > super_type;
 
-public:
-    typedef typename super_type::param_type param_type;
-    using super_type::x;
-    using super_type::y;
-    using super_type::z;
-    using super_type::w;
+	public:
+	typedef typename super_type::param_type param_type;
+	using super_type::x;
+	using super_type::y;
+	using super_type::z;
+	using super_type::w;
 
 	inline Vec4() {}
 

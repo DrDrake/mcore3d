@@ -12,7 +12,7 @@ namespace {
 typedef Path::string_type string_type;
 typedef Path::string_type::size_type size_type;
 
-#define L(x)      L ## x
+#define L(x)	L ## x
 
 static bool IsSlash(Path::char_type c) {
 	return c == L('/') || c == L('\\');

@@ -48,7 +48,7 @@ template<typename T, size_t N_, class R, class UNION=DefaultTupleUnion<T,N_> >
 class MathTuple : public UNION
 {
 public:
-    using UNION::data;
+	using UNION::data;
 
 	//! Compile-time meta program may need this enum
 	enum { N = N_ };

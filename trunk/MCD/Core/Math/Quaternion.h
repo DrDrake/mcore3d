@@ -50,14 +50,14 @@ struct QuaternionTupleUnion {
 template<typename T>
 class Quaternion : public MathTuple<T, 4, Quaternion<T>, QuaternionTupleUnion<T> >
 {
-    typedef MathTuple<T, 4, Quaternion<T>, QuaternionTupleUnion<T> > super_type;
+	typedef MathTuple<T, 4, Quaternion<T>, QuaternionTupleUnion<T> > super_type;
 
 public:
-    typedef typename super_type::param_type param_type;
-    using super_type::x;
-    using super_type::y;
-    using super_type::z;
-    using super_type::w;
+	typedef typename super_type::param_type param_type;
+	using super_type::x;
+	using super_type::y;
+	using super_type::z;
+	using super_type::w;
 
 	inline Quaternion() {}
 
