@@ -116,6 +116,11 @@ void Entity::unlink()
 		treeViewNode->Parent->Nodes->Remove(treeViewNode);
 }
 
+MCD::Entity* Entity::getRawEntityPtr()
+{
+	return mImpl;
+}
+
 bool Entity::enabled::get()
 {
 	return mImpl->enabled;

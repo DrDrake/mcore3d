@@ -36,7 +36,7 @@ namespace Studio
 
 			entityWindow = new EntityWindow();
 			entityWindow.Show(dockPanel);
-			entityWindow.propertyWindow = propertyWindow;
+			entityWindow.entitySelectionChanged += new EntitySelectionChangedHandler(onEntitySelectionChanged);
 
 			dockPanel.ResumeLayout(true, true);
 		}
@@ -46,6 +46,7 @@ namespace Studio
 			DockContent content = new DockContent();
 			content.Show(dockPanel, DockState.Document);
 			RenderPanelControl renderPanel = new RenderPanelControl();
+			renderPanel.entitySelectionChanged += new EntitySelectionChangedHandler(onEntitySelectionChanged);
 			content.Tag = renderPanel;
 			renderControls.Add(renderPanel);
 			renderPanel.Enter += new EventHandler(sceneActivated);
@@ -105,6 +106,19 @@ namespace Studio
 			Close();
 		}
 
+		private void onEntitySelectionChanged(object sender, Entity entity)
+		{
+			if (currentSelectedEntity == entity)
+				return;
+
+			currentSelectedEntity = entity;
+			propertyWindow.propertyGrid1.SelectedObject = entity;
+
+			// Broadcast the event to all windows
+			entityWindow.entitySelectionChanged(sender, entity);
+			currentRenderControl.entitySelectionChanged(sender, entity);
+		}
+
 	// Attrubutes
 		/// <summary>
 		/// The current selected rendering panel.
@@ -120,5 +134,7 @@ namespace Studio
 		PropertyWindow propertyWindow;
 		AssertWindow assertWindow;
 		LogWindow logWindow;
+
+		Entity currentSelectedEntity;
 	}
 }

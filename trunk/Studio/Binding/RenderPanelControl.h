@@ -14,6 +14,8 @@ namespace Binding {
 
 class RenderPanelControlImpl;
 
+public delegate void EntitySelectionChangedHandler(Object^ sender, Entity^ entity);
+
 /// <summary>
 /// Summary for RenderPanelControl
 /// </summary>
@@ -41,6 +43,9 @@ public:
 		::Binding::Entity^ get();
 	}
 
+	/// Occur when the selection (by picking) in the scene is changed.
+	EntitySelectionChangedHandler^ entitySelectionChanged;
+
 protected:
 	/// <summary>
 	/// Clean up any resources being used.
@@ -51,19 +56,18 @@ protected:
 	// ref: http://www.geocities.com/Jeff_Louie/deterministic_destructors.htm
 	!RenderPanelControl();	// Finalize
 
+	void onEntitySelectionChanged(Object^ sender, Entity^ entity);
+
 private:
 	RenderPanelControlImpl* mImpl;
 	::Binding::Entity^ mRootEntity;
-
-private: System::Windows::Forms::Timer^  timer;
-
-private: System::ComponentModel::IContainer^  components;
 
 private:
 	/// <summary>
 	/// Required designer variable.
 	/// </summary>
-
+	System::Windows::Forms::Timer^ timer;
+	System::ComponentModel::IContainer^ components;
 
 #pragma region Windows Form Designer generated code
 	/// <summary>

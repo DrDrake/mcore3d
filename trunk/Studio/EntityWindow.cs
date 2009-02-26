@@ -15,6 +15,15 @@ namespace Studio
 		public EntityWindow()
 		{
 			InitializeComponent();
+
+			// Instantiate delegate with anonymous method
+			entitySelectionChanged = delegate(object sender, Entity entity)
+			{
+				if (entity == selectedEntity || sender == this)
+					return;
+				treeView.SelectedNodes.Clear();
+				treeView.SelectedNodes.Add(entity.treeViewNode);
+			};
 		}
 
 	// Operations
@@ -35,7 +44,7 @@ namespace Studio
 				treeView.Nodes.Add(entity.treeViewNode.Nodes[1]);
                 treeView.Nodes.Add(entity.treeViewNode.Nodes[2]);
 
-				entity.treeViewNode.Nodes[1].Expand();
+				entity.treeViewNode.Nodes[2].Expand();
 			}
 		}
 
@@ -44,8 +53,6 @@ namespace Studio
 		/// The Entity system that this EntityWindow associated with.
 		/// </summary>
 		Entity entityRoot;
-
-		public PropertyWindow propertyWindow;
 
 		public Entity selectedEntity
 		{
@@ -57,10 +64,15 @@ namespace Studio
 			}
 		}
 
+		/// <summary>
+		/// Occur when the selection in the entity tree view is changed.
+		/// </summary>
+		public EntitySelectionChangedHandler entitySelectionChanged;
+
 	// Events
 		private void treeView_SelectionsChanged(object sender, EventArgs e)
 		{
-			propertyWindow.propertyGrid1.SelectedObject = selectedEntity;
+			entitySelectionChanged(this, selectedEntity);
 		}
 	}
 }

@@ -43,6 +43,8 @@ public:
 
 Gizmo::Gizmo(ResourceManager& resourceManager)
 {
+	enabled = false;
+
 	ModelPtr model = dynamic_cast<Model*>(resourceManager.load(L"Arrow.3ds", true).get());
 	dynamic_cast<DefaultResourceManager&>(resourceManager).processLoadingEvents();
 	MeshPtr mesh = model->mMeshes.front().mesh;
