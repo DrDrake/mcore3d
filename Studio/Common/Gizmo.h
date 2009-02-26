@@ -13,6 +13,7 @@ class Gizmo : public MCD::Entity
 public:
 	Gizmo(MCD::ResourceManager& resourceManager);
 
+	// TODO: Select multiple Entity
 	void setSelectedEntity(const MCD::EntityPtr& selectedEntity);
 
 	const MCD::EntityPtr& selectedEntity() const;

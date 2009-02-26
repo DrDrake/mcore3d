@@ -26,6 +26,8 @@ public:
 
 	void unlink();
 
+	MCD::Entity* getRawEntityPtr();
+
 	[Category("Entity"), Description("Enable / disable the Entity"), DefaultValue(true)]
 	property bool enabled {
 		bool get();

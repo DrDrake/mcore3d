@@ -85,7 +85,7 @@ public:
 			e->name = L"ChamferBox 1";
 			e->link(mUserSubTree);
 			e->localTransform = Mat44f(Mat33f::rotateXYZ(0, Mathf::cPiOver4(), 0));
-mGizmo->setSelectedEntity(e.get());
+
 			// Setup the chamfer box mesh
 			MeshPtr mesh = new Mesh(L"");
 			ChamferBoxBuilder chamferBoxBuilder(0.4f, 10);
@@ -134,10 +134,12 @@ mGizmo->setSelectedEntity(e.get());
 		RenderableComponent::traverseEntities(mUserSubTree);
 
 		// Draw the Gizmo
-		glDisable(GL_TEXTURE_2D);
-		glDisable(GL_LIGHTING);
-		glClear(GL_DEPTH_BUFFER_BIT);
-		RenderableComponent::traverseEntities(mGizmo);
+		if(mGizmo->enabled) {
+			glDisable(GL_TEXTURE_2D);
+			glDisable(GL_LIGHTING);
+			glClear(GL_DEPTH_BUFFER_BIT);
+			RenderableComponent::traverseEntities(mGizmo);
+		}
 
 		// Update behaviour components
 		BehaviourComponent::traverseEntities(&mRootNode);
@@ -219,6 +221,7 @@ mGizmo->setSelectedEntity(e.get());
 RenderPanelControl::RenderPanelControl()
 {
 	InitializeComponent();
+	entitySelectionChanged = gcnew EntitySelectionChangedHandler(this, &RenderPanelControl::onEntitySelectionChanged);
 	mImpl = nullptr;
 }
 
@@ -235,6 +238,20 @@ RenderPanelControl::~RenderPanelControl()
 RenderPanelControl::!RenderPanelControl()
 {
 	destroy();
+}
+
+void RenderPanelControl::onEntitySelectionChanged(Object^ sender, Entity^ entity)
+{
+	if(sender == this)
+		return;
+
+	MCD::Entity* e = nullptr;
+	mImpl->mGizmo->enabled = (entity != nullptr);
+
+	if(entity != nullptr)
+		e = entity->getRawEntityPtr();
+
+	mImpl->mGizmo->setSelectedEntity(e);
 }
 
 void RenderPanelControl::destroy()

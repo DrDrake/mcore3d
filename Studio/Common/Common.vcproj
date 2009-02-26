@@ -164,6 +164,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\Gizmo.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\stdafx.cpp"
 				>
 				<FileConfiguration
@@ -195,6 +199,10 @@
 			</File>
 			<File
 				RelativePath=".\DefaultResourceManager.h"
+				>
+			</File>
+			<File
+				RelativePath=".\Gizmo.h"
 				>
 			</File>
 			<File
