@@ -12,6 +12,10 @@ class Gizmo : public MCD::Entity
 {
 public:
 	Gizmo(MCD::ResourceManager& resourceManager);
+
+	void setSelectedEntity(const MCD::EntityPtr& selectedEntity);
+
+	const MCD::EntityPtr& selectedEntity() const;
 };	// Gizmo
 
 #endif	// __MCD_STUDIO_GIZMO__

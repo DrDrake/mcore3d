@@ -26,6 +26,12 @@ public:
 
 	void unlink();
 
+	[Category("Entity"), Description("Enable / disable the Entity"), DefaultValue(true)]
+	property bool enabled {
+		bool get();
+		void set(bool value);
+	}
+
 	[Category("Entity"), Description("Name of the Entity")]
 	property String^ name {
 		String^ get();

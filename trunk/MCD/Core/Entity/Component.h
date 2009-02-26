@@ -31,7 +31,9 @@ public:
 protected:
 	friend class Entity;
 
-	//! The Entity that this component belongs to.
+	/*!	The Entity that this component belongs to.
+		There is no need to use EntityPtr, since the Entity itself owns this component.
+	 */
 	Entity* mEntity;
 };	// Component
 

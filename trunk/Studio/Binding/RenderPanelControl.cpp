@@ -6,6 +6,7 @@
 
 #define _WINDOWS
 #include "../../MCD/Core/Entity/Entity.h"
+#include "../../MCD/Core/Entity/BehaviourComponent.h"
 #include "../../MCD/Core/System/FileSystem.h"
 #include "../../MCD/Core/System/WindowEvent.h"
 #include "../../MCD/Render/Camera.h"
@@ -84,7 +85,7 @@ public:
 			e->name = L"ChamferBox 1";
 			e->link(mUserSubTree);
 			e->localTransform = Mat44f(Mat33f::rotateXYZ(0, Mathf::cPiOver4(), 0));
-
+mGizmo->setSelectedEntity(e.get());
 			// Setup the chamfer box mesh
 			MeshPtr mesh = new Mesh(L"");
 			ChamferBoxBuilder chamferBoxBuilder(0.4f, 10);
@@ -128,7 +129,6 @@ public:
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 		glEnable(GL_LIGHTING);
-		glEnable(GL_DEPTH_TEST);
 		RenderableComponent::traverseEntities(mPredefinedSubTree);
 
 		RenderableComponent::traverseEntities(mUserSubTree);
@@ -136,8 +136,11 @@ public:
 		// Draw the Gizmo
 		glDisable(GL_TEXTURE_2D);
 		glDisable(GL_LIGHTING);
-		glDisable(GL_DEPTH_TEST);
+		glClear(GL_DEPTH_BUFFER_BIT);
 		RenderableComponent::traverseEntities(mGizmo);
+
+		// Update behaviour components
+		BehaviourComponent::traverseEntities(&mRootNode);
 
 		glFlush();
 		swapBuffers();
