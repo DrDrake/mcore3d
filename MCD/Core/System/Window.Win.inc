@@ -395,7 +395,7 @@ sal_override void Window::Impl::setOption(const wchar_t* name, const wchar_t* va
 
 sal_override void Window::Impl::processEvent(bool blocking)
 {
-    MSG message;
+	MSG message;
 
 	if(blocking) {
 		if(::GetMessage(&message, mWnd, 0, 0) >= 0) {
@@ -406,8 +406,8 @@ sal_override void Window::Impl::processEvent(bool blocking)
 		}
 	}
 	else while(::PeekMessage(&message, mWnd, 0, 0, PM_REMOVE)) {
-	    TranslateMessage(&message);
-	    DispatchMessage(&message);
+		TranslateMessage(&message);
+		DispatchMessage(&message);
 	}
 }
 

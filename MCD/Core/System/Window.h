@@ -48,8 +48,8 @@ public:
 	// Windows defines a void* handle (HWND)
 	typedef void* Handle;
 #else
-    // Unix - X11 defines an unsigned integer handle (Window)
-    typedef unsigned long Handle;
+	// Unix - X11 defines an unsigned integer handle (Window)
+	typedef unsigned long Handle;
 #endif
 
 	//! Get the platform dependent handle to this window

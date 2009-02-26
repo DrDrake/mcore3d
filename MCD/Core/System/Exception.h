@@ -27,7 +27,7 @@ public:
 		Original error message may not shown correctly if
 		it cannot be displayed in the current code page.
 	 */
-    sal_override const char* what() const throw();
+	sal_override const char* what() const throw();
 
 	//! Wide char version of what()
 	sal_override const wchar_t* wwhat() const throw();

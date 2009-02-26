@@ -51,14 +51,14 @@ struct Mat33TupleUnion {
 template<typename T>
 class Mat33 : public MathTuple<T, 3*3, Mat33<T>, Mat33TupleUnion<T> >
 {
-    typedef MathTuple<T, 3*3, Mat33<T>, Mat33TupleUnion<T> > super_type;
+	typedef MathTuple<T, 3*3, Mat33<T>, Mat33TupleUnion<T> > super_type;
 
 public:
-    typedef typename super_type::param_type param_type;
-    using super_type::r0;	using super_type::r1;	using super_type::r2;
-    using super_type::m00;	using super_type::m01;	using super_type::m02;
-    using super_type::m10;	using super_type::m11;	using super_type::m12;
-    using super_type::m20;	using super_type::m21;	using super_type::m22;
+	typedef typename super_type::param_type param_type;
+	using super_type::r0;	using super_type::r1;	using super_type::r2;
+	using super_type::m00;	using super_type::m01;	using super_type::m02;
+	using super_type::m10;	using super_type::m11;	using super_type::m12;
+	using super_type::m20;	using super_type::m21;	using super_type::m22;
 
 	inline Mat33() {}
 

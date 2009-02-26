@@ -17,8 +17,8 @@ namespace MCD {
 	-Forward-only, read-only.
 	-The input xml file is not validated and assumed to be correct.
 
-    The following code demonstrates the basic usage. A simple xml file like this is parsed:
-    \code
+	The following code demonstrates the basic usage. A simple xml file like this is parsed:
+	\code
 	<?xml version="1.0"?>
 	<config>
 		<!-- This is a comment -->

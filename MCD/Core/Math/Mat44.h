@@ -33,15 +33,15 @@ struct Mat44TupleUnion {
 template<typename T>
 class Mat44 : public MathTuple<T, 4*4, Mat44<T>, Mat44TupleUnion<T> >
 {
-    typedef MathTuple<T, 4*4, Mat44<T>, Mat44TupleUnion<T> > super_type;
+	typedef MathTuple<T, 4*4, Mat44<T>, Mat44TupleUnion<T> > super_type;
 
 public:
 	// NOTE: I want to get rid of these noisy type forwarding, but GCC keeps complain without it.
-    typedef typename super_type::param_type param_type;
-    using super_type::r0;	using super_type::r1;	using super_type::r2;	using super_type::r3;
-    using super_type::m00;	using super_type::m01;	using super_type::m02;	using super_type::m03;
-    using super_type::m10;	using super_type::m11;	using super_type::m12;	using super_type::m13;
-    using super_type::m20;	using super_type::m21;	using super_type::m22;	using super_type::m23;
+	typedef typename super_type::param_type param_type;
+	using super_type::r0;	using super_type::r1;	using super_type::r2;	using super_type::r3;
+	using super_type::m00;	using super_type::m01;	using super_type::m02;	using super_type::m03;
+	using super_type::m10;	using super_type::m11;	using super_type::m12;	using super_type::m13;
+	using super_type::m20;	using super_type::m21;	using super_type::m22;	using super_type::m23;
 	using super_type::m30;	using super_type::m31;	using super_type::m32;	using super_type::m33;
 
 	enum { N = super_type::N };
