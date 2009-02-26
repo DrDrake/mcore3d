@@ -6,7 +6,8 @@
 namespace MCD {
 
 Entity::Entity()
-	: mParent(nullptr), mFirstChild(nullptr), mNextSlibing(nullptr),
+	: enabled(true),
+	  mParent(nullptr), mFirstChild(nullptr), mNextSlibing(nullptr),
 	  localTransform(Mat44f::cIdentity)
 {
 }
@@ -65,7 +66,7 @@ void Entity::unlink()
 	// mFirstChild = mFirstChild;
 }
 
-Component* Entity::findComponent(const std::type_info& familyType)
+Component* Entity::findComponent(const std::type_info& familyType) const
 {
 	// NOTE: For simplicity, only linear search is used right now.
 	MCD_FOREACH(const Component& c, mComponents) {

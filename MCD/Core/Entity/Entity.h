@@ -26,7 +26,9 @@ class MCD_CORE_API Entity : public WeakPtrTarget
 {
 public:
 	Entity();
-	~Entity();
+
+	//! Virtual destructor to make this class polymorphic.
+	virtual ~Entity();
 
 // Operations
 	//! Make this entity a child of \em parent.
@@ -45,7 +47,7 @@ public:
 	/*!	Find a component in the Entity with the supplied familyType.
 		Returns null if non is found.
 	 */
-	sal_maybenull Component* findComponent(const std::type_info& familyType);
+	sal_maybenull Component* findComponent(const std::type_info& familyType) const;
 
 	/*!	Add a new component into the Entity.
 		Only a single instance is allowed for each family type of Component,
@@ -63,6 +65,8 @@ public:
 	Mat44f worldTransform() const;
 
 // Attributes
+	bool enabled;
+
 	std::wstring name;
 
 	sal_maybenull Entity* parent();

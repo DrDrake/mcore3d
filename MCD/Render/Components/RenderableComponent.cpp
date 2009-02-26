@@ -9,6 +9,9 @@ void RenderableComponent::traverseEntities(Entity* entityNode)
 {
 	for(EntityPreorderIterator itr(entityNode); !itr.ended(); itr.next())
 	{
+		if(!itr->enabled)
+			continue;
+
 		RenderableComponent* renderable = polymorphic_downcast<RenderableComponent*>(itr->findComponent(typeid(RenderableComponent)));
 		if(!renderable)
 			continue;

@@ -116,6 +116,16 @@ void Entity::unlink()
 		treeViewNode->Parent->Nodes->Remove(treeViewNode);
 }
 
+bool Entity::enabled::get()
+{
+	return mImpl->enabled;
+}
+
+void Entity::enabled::set(bool value)
+{
+	mImpl->enabled = value;
+}
+
 String^ Entity::name::get()
 {
    return gcnew String(mImpl->name.c_str());
@@ -259,11 +269,8 @@ void Entity::scale::set(array<float>^ value)
 {
 	array<float>^ currentScale = this->scale;
 
-	if(value[0] * value[1] * value[2] == 0)
-		throw gcnew System::Exception("Cannot set scale to zero");
-
-	if(value[0] < 0 || value[1] < 0 || value[1] < 0)
-		throw gcnew System::Exception("Cannot use negative scale");
+	if(value[0] <= 0 || value[1] <= 0 || value[2] <= 0)
+		throw gcnew System::Exception("Values should be greater than zero");
 
 	// Scale the x, y and z bias vectors of the 3x3 matrix
 	for(size_t i=0; i<3; ++i) for(size_t j=0; j<3; ++j)
