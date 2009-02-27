@@ -19,10 +19,13 @@ namespace Studio
 			// Instantiate delegate with anonymous method
 			entitySelectionChanged = delegate(object sender, Entity entity)
 			{
-				if (entity == selectedEntity || sender == this)
+				if (entity == selectedEntity)
 					return;
+
 				treeView.SelectedNodes.Clear();
-				treeView.SelectedNodes.Add(entity.treeViewNode);
+
+				if(entity != null)
+					treeView.SelectedNodes.Add(entity.treeViewNode);
 			};
 		}
 
