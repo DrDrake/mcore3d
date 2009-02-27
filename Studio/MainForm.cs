@@ -49,38 +49,46 @@ namespace Studio
 			renderPanel.entitySelectionChanged += new EntitySelectionChangedHandler(onEntitySelectionChanged);
 			content.Tag = renderPanel;
 			renderControls.Add(renderPanel);
-			renderPanel.Enter += new EventHandler(sceneActivated);
+			renderPanel.Enter += new EventHandler(sceneSelectionChanged);
 			content.FormClosing += new FormClosingEventHandler(sceneClosing);
 			renderPanel.Dock = DockStyle.Fill;
 			content.Controls.Add(renderPanel);
 			content.TabText = "Scene " + renderControls.Count;
 
-			sceneActivated(renderPanel, new EventArgs());
+			// Selected the newly created scene
+			sceneSelectionChanged(renderPanel, new EventArgs());
 		}
 
 		/// <summary>
-		/// Invoked when a particular rendering panel is selected
+		/// Invoked when a particular rendering panel is selected, but only do meaningfull
+		/// things if the scene selection is changed.
 		/// </summary>
 		/// <param name="sender"></param>
 		/// <param name="e"></param>
-		private void sceneActivated(object sender, EventArgs e)
+		private void sceneSelectionChanged(object sender, EventArgs e)
 		{
 			RenderPanelControl backup = currentRenderControl;
 			currentRenderControl = (RenderPanelControl)sender;
+
+			if (currentRenderControl == backup)
+				return;
 
 			// Disable all but only the selected control will continue auto updating.
 			// This way, we are REALLY sure that only one scene is keep rendering.
 			foreach (RenderPanelControl r in renderControls)
 				r.enableAutoUpdate(false);
-			currentRenderControl.enableAutoUpdate(true);
 
-			// Refresh the Entity explorer and the property window as well,
-			// if the current render panel is switched to another
-			if (currentRenderControl != backup)
+			onEntitySelectionChanged(this, null);
+
+			if(currentRenderControl != null)
 			{
+				currentRenderControl.enableAutoUpdate(true);
 				entityWindow.selectEntityRoot(currentRenderControl.rootEntity);
-				entityWindow.treeView.SelectedNodes.Clear();
 			}
+			else
+				entityWindow.selectEntityRoot(null);
+
+			entityWindow.treeView.SelectedNodes.Clear();
 		}
 
 		void sceneClosing(object sender, FormClosingEventArgs e)
@@ -92,12 +100,13 @@ namespace Studio
 			}
 			else*/
 			{
+				// Deselect the currently selected scene
+				sceneSelectionChanged(null, new EventArgs());
+
 				DockContent d = (DockContent)sender;
 				RenderPanelControl c = (RenderPanelControl)d.Tag;
 				c.destroy();
-				currentRenderControl = null;
 				renderControls.Remove(c);
-				entityWindow.selectEntityRoot(null);
 			}
 		}
 
@@ -108,15 +117,17 @@ namespace Studio
 
 		private void onEntitySelectionChanged(object sender, Entity entity)
 		{
-			if (currentSelectedEntity == entity)
+			// Use sender == null as an indicator to break the infinity recursion
+			if (sender == null)
 				return;
 
 			currentSelectedEntity = entity;
 			propertyWindow.propertyGrid1.SelectedObject = entity;
 
-			// Broadcast the event to all windows
-			entityWindow.entitySelectionChanged(sender, entity);
-			currentRenderControl.entitySelectionChanged(sender, entity);
+			// Broadcast the event to other windows
+			entityWindow.entitySelectionChanged(null, entity);
+			if(currentRenderControl != null)
+				currentRenderControl.entitySelectionChanged(null, entity);
 		}
 
 	// Attrubutes

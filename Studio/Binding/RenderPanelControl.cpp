@@ -242,12 +242,7 @@ RenderPanelControl::!RenderPanelControl()
 
 void RenderPanelControl::onEntitySelectionChanged(Object^ sender, Entity^ entity)
 {
-	if(sender == this)
-		return;
-
 	MCD::Entity* e = nullptr;
-	mImpl->mGizmo->enabled = (entity != nullptr);
-
 	if(entity != nullptr)
 		e = entity->getRawEntityPtr();
 

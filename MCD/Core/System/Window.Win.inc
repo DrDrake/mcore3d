@@ -156,7 +156,7 @@ void Window::Impl::createWindow(Window::Handle existingWindowHandle)
 {
 	HMODULE hModule = ::GetModuleHandle(nullptr);
 
-	if(gWindowCount == 0)
+	if(gWindowCount++ == 0)
 	{
 		// Register window class
 		WNDCLASS wc;
@@ -171,7 +171,6 @@ void Window::Impl::createWindow(Window::Handle existingWindowHandle)
 
 		if(::RegisterClass(&wc) == 0)
 			throw std::runtime_error("Win32 API call 'RegisterClass' failed");
-		++gWindowCount;
 	}
 
 	if(existingWindowHandle == 0)

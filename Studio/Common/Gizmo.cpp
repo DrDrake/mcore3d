@@ -86,6 +86,8 @@ Gizmo::Gizmo(ResourceManager& resourceManager)
 
 void Gizmo::setSelectedEntity(const EntityPtr& selectedEntity)
 {
+	enabled = (selectedEntity.get() != nullptr);
+
 	FollowTransformComponent* component = polymorphic_downcast<FollowTransformComponent*>(
 		this->findComponent(typeid(BehaviourComponent)));
 	component->selectedEntity = selectedEntity;
