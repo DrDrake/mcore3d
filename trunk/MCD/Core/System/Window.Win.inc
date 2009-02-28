@@ -518,6 +518,8 @@ LRESULT Window::Impl::Proc(UINT uMsg, WPARAM wParam, LPARAM lParam)
 	{
 		ev.Type = Event::MouseButtonPressed;
 		ev.MouseButton.Button = Mouse::Left;
+		ev.MouseButton.X = LOWORD(lParam);
+		ev.MouseButton.Y = HIWORD(lParam);
 		SendEvent(ev);
 		break;
 	}
@@ -526,6 +528,8 @@ LRESULT Window::Impl::Proc(UINT uMsg, WPARAM wParam, LPARAM lParam)
 	{
 		ev.Type = Event::MouseButtonReleased;
 		ev.MouseButton.Button = Mouse::Left;
+		ev.MouseButton.X = LOWORD(lParam);
+		ev.MouseButton.Y = HIWORD(lParam);
 		SendEvent(ev);
 		break;
 	}
@@ -534,6 +538,8 @@ LRESULT Window::Impl::Proc(UINT uMsg, WPARAM wParam, LPARAM lParam)
 	{
 		ev.Type = Event::MouseButtonPressed;
 		ev.MouseButton.Button = Mouse::Right;
+		ev.MouseButton.X = LOWORD(lParam);
+		ev.MouseButton.Y = HIWORD(lParam);
 		SendEvent(ev);
 		break;
 	}
@@ -542,6 +548,8 @@ LRESULT Window::Impl::Proc(UINT uMsg, WPARAM wParam, LPARAM lParam)
 	{
 		ev.Type = Event::MouseButtonReleased;
 		ev.MouseButton.Button = Mouse::Right;
+		ev.MouseButton.X = LOWORD(lParam);
+		ev.MouseButton.Y = HIWORD(lParam);
 		SendEvent(ev);
 		break;
 	}
@@ -550,6 +558,8 @@ LRESULT Window::Impl::Proc(UINT uMsg, WPARAM wParam, LPARAM lParam)
 	{
 		ev.Type = Event::MouseButtonPressed;
 		ev.MouseButton.Button = Mouse::Middle;
+		ev.MouseButton.X = LOWORD(lParam);
+		ev.MouseButton.Y = HIWORD(lParam);
 		SendEvent(ev);
 		break;
 	}
@@ -558,6 +568,8 @@ LRESULT Window::Impl::Proc(UINT uMsg, WPARAM wParam, LPARAM lParam)
 	{
 		ev.Type = Event::MouseButtonReleased;
 		ev.MouseButton.Button = Mouse::Middle;
+		ev.MouseButton.X = LOWORD(lParam);
+		ev.MouseButton.Y = HIWORD(lParam);
 		SendEvent(ev);
 		break;
 	}
@@ -566,6 +578,8 @@ LRESULT Window::Impl::Proc(UINT uMsg, WPARAM wParam, LPARAM lParam)
 	{
 		ev.Type = Event::MouseButtonPressed;
 		ev.MouseButton.Button = HIWORD(wParam) == XBUTTON1 ? Mouse::XButton1 : Mouse::XButton2;
+		ev.MouseButton.X = LOWORD(lParam);
+		ev.MouseButton.Y = HIWORD(lParam);
 		SendEvent(ev);
 		break;
 	}
@@ -574,6 +588,8 @@ LRESULT Window::Impl::Proc(UINT uMsg, WPARAM wParam, LPARAM lParam)
 	{
 		ev.Type = Event::MouseButtonReleased;
 		ev.MouseButton.Button = HIWORD(wParam) == XBUTTON1 ? Mouse::XButton1 : Mouse::XButton2;
+		ev.MouseButton.X = LOWORD(lParam);
+		ev.MouseButton.Y = HIWORD(lParam);
 		SendEvent(ev);
 		break;
 	}

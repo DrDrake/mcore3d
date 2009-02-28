@@ -477,6 +477,10 @@
 					>
 				</File>
 				<File
+					RelativePath=".\Components\PickComponent.h"
+					>
+				</File>
+				<File
 					RelativePath=".\Components\RenderableComponent.h"
 					>
 				</File>
@@ -491,6 +495,10 @@
 				</File>
 				<File
 					RelativePath=".\Components\MeshComponent.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\Components\PickComponent.cpp"
 					>
 				</File>
 				<File

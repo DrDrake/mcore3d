@@ -22,6 +22,8 @@ public:
 // Operations
 	sal_override void render();
 
+	sal_override void renderFaceOnly();
+
 // Attrubutes
 	MeshPtr mesh;
 	EffectPtr effect;

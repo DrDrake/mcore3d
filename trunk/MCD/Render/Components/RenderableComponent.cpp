@@ -12,7 +12,9 @@ void RenderableComponent::traverseEntities(Entity* entityNode)
 		if(!itr->enabled)
 			continue;
 
-		RenderableComponent* renderable = polymorphic_downcast<RenderableComponent*>(itr->findComponent(typeid(RenderableComponent)));
+		RenderableComponent* renderable = polymorphic_downcast<RenderableComponent*>(
+			itr->findComponent(typeid(RenderableComponent))
+		);
 		if(!renderable)
 			continue;
 
