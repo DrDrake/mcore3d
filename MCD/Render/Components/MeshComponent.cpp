@@ -15,6 +15,9 @@ MeshComponent::~MeshComponent()
 
 void MeshComponent::render()
 {
+	if(!mesh)
+		return;
+
 	glPushMatrix();
 	glMultTransposeMatrixf(entity()->worldTransform().getPtr());
 
@@ -28,6 +31,19 @@ void MeshComponent::render()
 	}
 	else
 		mesh->drawFaceOnly();
+
+	glPopMatrix();
+}
+
+void MeshComponent::renderFaceOnly()
+{
+	if(!mesh)
+		return;
+
+	glPushMatrix();
+	glMultTransposeMatrixf(entity()->worldTransform().getPtr());
+
+	mesh->drawFaceOnly();
 
 	glPopMatrix();
 }

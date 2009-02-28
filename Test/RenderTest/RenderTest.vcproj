@@ -315,6 +315,10 @@
 				</FileConfiguration>
 			</File>
 			<File
+				RelativePath=".\PickComponentTest.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\ProjectiveTextureTest.cpp"
 				>
 			</File>

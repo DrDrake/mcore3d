@@ -156,6 +156,8 @@ public:
 	struct MouseButtonEvent
 	{
 		Mouse::Button Button;
+		uint X;
+		uint Y;
 	};
 
 	struct MouseWheelEvent
