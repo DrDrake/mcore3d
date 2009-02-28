@@ -88,8 +88,6 @@ TEST(PickComponentTest)
 
 		sal_override void update(float deltaTime)
 		{
-			GLfloat lightPos[] = { 200, 200, 200, 1.0f };
-			glLightfv(GL_LIGHT0, GL_POSITION, lightPos);
 			mResourceManager.processLoadingEvents();
 
 			glTranslatef(0.0f, 0.0f, -5.0f);
