@@ -4,6 +4,7 @@
 #include "../../Core/Entity/Entity.h"
 #include "../../Core/System/Utility.h"
 #include "../../../3Party/glew/glew.h"
+#include <algorithm>
 
 namespace MCD {
 
@@ -17,8 +18,18 @@ public:
 	}
 
 	size_t x, y, width, height;
+
+	struct PickResult {
+		size_t minDepth, maxDepth;
+		EntityPtr entity;
+	};
+	struct PickResultSort {
+		bool operator()(const PickResult& lhs, const PickResult& rhs) const {
+			return lhs.minDepth > rhs.minDepth;
+		}
+	};
 	//! Stores weak pointers of entities which were picked.
-	std::vector<EntityPtr> pickedEntities;
+	std::vector<PickResult> pickedEntities;
 };	//Impl
 
 PickComponent::PickComponent()
@@ -39,7 +50,7 @@ void PickComponent::update()
 	MCD_ASSUME(mImpl);
 
 	// The pick buffer for the opengl to store picking results.
-	uint pickBuffer[256];
+	GLuint pickBuffer[256];
 	glSelectBuffer(sizeof(pickBuffer), pickBuffer);
 	glRenderMode(GL_SELECT);
 	glInitNames();
@@ -103,13 +114,19 @@ void PickComponent::update()
 		size_t nameCount = pickBuffer[index++];
 		size_t minDepth = pickBuffer[index++];
 		size_t maxDepth = pickBuffer[index++];
-		(void)minDepth;
-		(void)maxDepth;
-		for(size_t j=0; j<nameCount; ++j)
-			mImpl->pickedEntities.push_back(
+
+		for(size_t j=0; j<nameCount; ++j) {
+			Impl::PickResult result = {
+				minDepth, maxDepth,
 				EntityPtr(reinterpret_cast<Entity*>(pickBuffer[index++]))
-			);
+			};
+			mImpl->pickedEntities.push_back(result);
+		}
+		MCD_ASSERT(index <= sizeof(pickBuffer) / sizeof(GLuint));
 	}
+
+	// Sort the entities so that the one that closer to the camera will come first
+	std::make_heap(mImpl->pickedEntities.begin( ), mImpl->pickedEntities.end(), Impl::PickResultSort());
 }
 
 void PickComponent::setPickRegion(size_t x, size_t y, size_t width, size_t height)
@@ -130,7 +147,7 @@ EntityPtr PickComponent::hitAtIndex(size_t index)
 {
 	if(index >= hitCount())
 		return nullptr;
-	return mImpl->pickedEntities[index];
+	return mImpl->pickedEntities[index].entity;
 }
 
 void PickComponent::clearResult()
