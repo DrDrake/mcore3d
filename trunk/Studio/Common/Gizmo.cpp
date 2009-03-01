@@ -47,9 +47,13 @@ Gizmo::Gizmo(ResourceManager& resourceManager)
 
 	ModelPtr model = dynamic_cast<Model*>(resourceManager.load(L"Arrow.3ds", true).get());
 	dynamic_cast<DefaultResourceManager&>(resourceManager).processLoadingEvents();
-	MeshPtr mesh = model->mMeshes.front().mesh;
 
 	addComponent(new FollowTransformComponent);
+
+	if(model->mMeshes.empty())	// Fail to load the Gizmo model
+		return;
+
+	MeshPtr mesh = model->mMeshes.front().mesh;
 
 //	this->localTransform.setScale(Vec3f(0.02f, 0.02f, 0.02f));
 
@@ -61,7 +65,8 @@ Gizmo::Gizmo(ResourceManager& resourceManager)
 		c->color = ColorRGBAf(1, 0, 0, 1);
 		c->mesh = mesh;
 		e->addComponent(c);
-		e->localTransform = Mat44f(Mat33f::rotateXYZ(0, 0, -Mathf::cPiOver2()));
+		e->localTransform.setScale(MCD::Vec3f(1, 1.5f, 1));
+		e->localTransform = Mat44f(Mat33f::rotateXYZ(0, 0, -Mathf::cPiOver2())) * e->localTransform;
 	}
 
 	{	Entity* e = new Entity();
@@ -71,6 +76,7 @@ Gizmo::Gizmo(ResourceManager& resourceManager)
 		c->color = ColorRGBAf(0, 1, 0, 1);
 		c->mesh = mesh;
 		e->addComponent(c);
+		e->localTransform.setScale(MCD::Vec3f(1, 1.5f, 1));
 	}
 
 	{	Entity* e = new Entity();
@@ -80,7 +86,8 @@ Gizmo::Gizmo(ResourceManager& resourceManager)
 		c->color = ColorRGBAf(0, 0, 1, 1);
 		c->mesh = mesh;
 		e->addComponent(c);
-		e->localTransform = Mat44f(Mat33f::rotateXYZ(Mathf::cPiOver2(), 0, 0));
+		e->localTransform.setScale(MCD::Vec3f(1, 1.5f, 1));
+		e->localTransform = Mat44f(Mat33f::rotateXYZ(Mathf::cPiOver2(), 0, 0)) * e->localTransform;
 	}
 }
 
