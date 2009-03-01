@@ -33,6 +33,7 @@ public:
 	RenderPanelControlImpl()
 		:
 		mWidth(0), mHeight(0), mFieldOfView(60.0f),
+		mGizmo(nullptr),
 		mPredefinedSubTree(nullptr), mUserSubTree(nullptr),
 		mResourceManager(*createDefaultFileSystem())
 	{
@@ -128,21 +129,21 @@ public:
 
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
+		// Update behaviour components
+		BehaviourComponent::traverseEntities(&mRootNode);
+
 		glEnable(GL_LIGHTING);
 		RenderableComponent::traverseEntities(mPredefinedSubTree);
 
 		RenderableComponent::traverseEntities(mUserSubTree);
 
 		// Draw the Gizmo
-		if(mGizmo->enabled) {
+		if(mGizmo && mGizmo->enabled) {
 			glDisable(GL_TEXTURE_2D);
 			glDisable(GL_LIGHTING);
 			glClear(GL_DEPTH_BUFFER_BIT);
 			RenderableComponent::traverseEntities(mGizmo);
 		}
-
-		// Update behaviour components
-		BehaviourComponent::traverseEntities(&mRootNode);
 
 		glFlush();
 		swapBuffers();

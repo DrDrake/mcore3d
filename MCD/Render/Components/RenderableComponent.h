@@ -19,7 +19,7 @@ public:
 	virtual void render() = 0;
 
 	//! The derived components should override this function for rendering, withou any material.
-	virtual void renderFaceOnly() = 0;
+	virtual void renderFaceOnly() {}
 
 	//! Invoke the RenderableComponent::render() in every Entity under the entityNode sub-tree.
 	static void traverseEntities(sal_maybenull Entity* entityNode);
