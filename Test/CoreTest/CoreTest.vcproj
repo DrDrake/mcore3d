@@ -369,6 +369,10 @@
 			RelativePath=".\Pch.h"
 			>
 		</File>
+		<File
+			RelativePath=".\System\UserDataTest.cpp"
+			>
+		</File>
 	</Files>
 	<Globals>
 	</Globals>
