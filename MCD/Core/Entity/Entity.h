@@ -4,6 +4,7 @@
 #include "../ShareLib.h"
 #include "../Math/Mat44.h"
 #include "../System/PtrVector.h"
+#include "../System/UserData.h"
 #include "../System/WeakPtr.h"
 #include <typeinfo>
 
@@ -76,6 +77,8 @@ public:
 	sal_maybenull Entity* nextSlibing();
 
 	Mat44f localTransform;
+
+	UserData userData;
 
 protected:
 	//! Pointer to make the entity hierarchy

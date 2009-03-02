@@ -15,8 +15,10 @@
 #include "../../MCD/Render/Mesh.h"
 #include "../../MCD/Render/Components/CameraComponent.h"
 #include "../../MCD/Render/Components/MeshComponent.h"
+#include "../../MCD/Render/Components/PickComponent.h"
 #include "../../3Party/glew/glew.h"
 #undef nullptr
+#include <gcroot.h>
 
 #pragma comment(lib, "OpenGL32")
 #pragma comment(lib, "GLU32")
@@ -30,8 +32,9 @@ using namespace MCD;
 class RenderPanelControlImpl : public GlWindow
 {
 public:
-	RenderPanelControlImpl()
+	RenderPanelControlImpl(RenderPanelControl^ c)
 		:
+		mBackRef(c),
 		mWidth(0), mHeight(0), mFieldOfView(60.0f),
 		mGizmo(nullptr),
 		mPredefinedSubTree(nullptr), mUserSubTree(nullptr),
@@ -79,6 +82,17 @@ public:
 			e->link(&mRootNode);
 
 			mGizmo = e.release();
+		}
+
+		{	// Add picking detector
+			std::auto_ptr<MCD::Entity> e(new MCD::Entity);
+			e->name = L"Entity picker";
+			e->link(mPredefinedSubTree);
+			mEntityPicker = new PickComponent;
+			mEntityPicker->entityToPick = mUserSubTree;
+			e->addComponent(mEntityPicker);
+
+			e.release();
 		}
 
 		{	// Setup entity 1
@@ -144,6 +158,17 @@ public:
 			glClear(GL_DEPTH_BUFFER_BIT);
 			RenderableComponent::traverseEntities(mGizmo);
 		}
+
+		// Handle picking result
+		for(size_t i=0; i<mEntityPicker->hitCount(); ++i) {
+			EntityPtr e = mEntityPicker->hitAtIndex(i);
+			if(!e.get())
+				continue;
+			mBackRef->entitySelectionChanged(mBackRef, Entity::getEntityFromRawPtr(e.get()));
+			break;	// We only pick the Entity that nearest to the camera
+		}
+		mEntityPicker->clearResult();
+		mEntityPicker->entity()->enabled = false;
 
 		glFlush();
 		swapBuffers();
@@ -211,10 +236,18 @@ public:
 	{
 	}
 
+	void onMouseClick(System::Object^ sender, System::Windows::Forms::MouseEventArgs^ e)
+	{
+		mEntityPicker->entity()->enabled = true;
+		mEntityPicker->setPickRegion(e->X, e->Y);
+	}
+
+	gcroot<RenderPanelControl^> mBackRef;
 	float mWidth, mHeight;
 	float mFieldOfView;
 	MCD::Entity mRootNode, *mPredefinedSubTree, *mUserSubTree;
 	Gizmo* mGizmo;
+	MCD::PickComponent* mEntityPicker;
 	WeakPtr<CameraComponent> mCamera;
 	DefaultResourceManager mResourceManager;
 };	// RenderPanelControlImpl
@@ -288,7 +321,7 @@ System::Void RenderPanelControl::timer_Tick(System::Object^ sender, System::Even
 System::Void RenderPanelControl::RenderPanelControl_Load(System::Object^ sender, System::EventArgs^ e)
 {
 	MCD_ASSERT(mImpl == nullptr);
-	mImpl = new RenderPanelControlImpl;
+	mImpl = new RenderPanelControlImpl(this);
 	mImpl->create(Handle.ToPointer(), nullptr);
 	mImpl->makeActive();
 	mImpl->createScene();
@@ -307,6 +340,11 @@ System::Void RenderPanelControl::RenderPanelControl_KeyDown(System::Object^ send
 System::Void RenderPanelControl::RenderPanelControl_KeyUp(System::Object^ sender, System::Windows::Forms::KeyEventArgs^ e)
 {
 	mImpl->onKeyUp(sender, e);
+}
+
+System::Void RenderPanelControl::RenderPanelControl_MouseClick(System::Object^ sender, System::Windows::Forms::MouseEventArgs^ e)
+{
+	mImpl->onMouseClick(sender, e);
 }
 
 }
