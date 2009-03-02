@@ -46,6 +46,8 @@ public:
 	/// Occur when the selection (by picking) in the scene is changed.
 	EntitySelectionChangedHandler^ entitySelectionChanged;
 
+	void onEntitySelectionChanged(Object^ sender, Entity^ entity);
+
 protected:
 	/// <summary>
 	/// Clean up any resources being used.
@@ -55,8 +57,6 @@ protected:
 	// Overriding the Finalize()
 	// ref: http://www.geocities.com/Jeff_Louie/deterministic_destructors.htm
 	!RenderPanelControl();	// Finalize
-
-	void onEntitySelectionChanged(Object^ sender, Entity^ entity);
 
 private:
 	RenderPanelControlImpl* mImpl;
@@ -88,13 +88,15 @@ private:
 		// 
 		// RenderPanelControl
 		// 
-		this->AutoScaleDimensions = System::Drawing::SizeF(6, 13);
+		this->AutoScaleDimensions = System::Drawing::SizeF(6, 12);
 		this->AutoScaleMode = System::Windows::Forms::AutoScaleMode::Font;
 		this->BackColor = System::Drawing::Color::Gray;
 		this->Name = L"RenderPanelControl";
+		this->Size = System::Drawing::Size(150, 138);
 		this->Load += gcnew System::EventHandler(this, &RenderPanelControl::RenderPanelControl_Load);
 		this->Paint += gcnew System::Windows::Forms::PaintEventHandler(this, &RenderPanelControl::RenderPanelControl_Paint);
 		this->KeyUp += gcnew System::Windows::Forms::KeyEventHandler(this, &RenderPanelControl::RenderPanelControl_KeyUp);
+		this->MouseClick += gcnew System::Windows::Forms::MouseEventHandler(this, &RenderPanelControl::RenderPanelControl_MouseClick);
 		this->KeyDown += gcnew System::Windows::Forms::KeyEventHandler(this, &RenderPanelControl::RenderPanelControl_KeyDown);
 		this->ResumeLayout(false);
 
@@ -106,6 +108,7 @@ private: System::Void RenderPanelControl_Load(System::Object^ sender, System::Ev
 private: System::Void RenderPanelControl_Paint(System::Object^ sender, System::Windows::Forms::PaintEventArgs^ e);
 private: System::Void RenderPanelControl_KeyDown(System::Object^ sender, System::Windows::Forms::KeyEventArgs^ e);
 private: System::Void RenderPanelControl_KeyUp(System::Object^ sender, System::Windows::Forms::KeyEventArgs^ e);
+private: System::Void RenderPanelControl_MouseClick(System::Object^ sender, System::Windows::Forms::MouseEventArgs^ e);
 };
 
 }	// namespace Binding

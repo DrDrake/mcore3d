@@ -2,6 +2,7 @@
 #include "Entity.h"
 #include "Utility.h"
 #undef nullptr
+#include <gcroot.h>
 
 using namespace System::Globalization;
 using namespace System::Windows::Forms;
@@ -62,6 +63,7 @@ public:
 Entity::Entity(MCD::Entity* entity)
 {
 	mImpl = entity;
+	mImpl->userData.setPtr(new gcroot<Entity^>(this));	// MCD::Entity::userData will reference back the C# Entity
 	treeViewNode = gcnew TreeNode(this->name);
 	treeViewNode->Tag = this;
 }
@@ -69,6 +71,7 @@ Entity::Entity(MCD::Entity* entity)
 Entity::Entity(IntPtr entity)
 {
 	mImpl = reinterpret_cast<MCD::Entity*>(entity.ToPointer());
+	mImpl->userData.setPtr(new gcroot<Entity^>(this));	// MCD::Entity::userData will reference back the C# Entity
 	treeViewNode = gcnew TreeNode(this->name);
 
 	// Loop all the nodes once, and the tree view nodes will be constructed correctly
@@ -119,6 +122,16 @@ void Entity::unlink()
 MCD::Entity* Entity::getRawEntityPtr()
 {
 	return mImpl;
+}
+
+Entity^ Entity::getEntityFromRawPtr(MCD::Entity* entity)
+{
+	if(!entity) return nullptr;
+
+	gcroot<Entity^>* p = entity->userData.getPtr<gcroot<Entity^> >();
+	if(!p) return nullptr;
+
+	return p->operator->();
 }
 
 bool Entity::enabled::get()

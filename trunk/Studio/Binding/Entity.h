@@ -28,6 +28,9 @@ public:
 
 	MCD::Entity* getRawEntityPtr();
 
+	//! Transform an MCD::Entity pointer to CLR pointer.
+	static Entity^ getEntityFromRawPtr(MCD::Entity* entity);
+
 	[Category("Entity"), Description("Enable / disable the Entity"), DefaultValue(true)]
 	property bool enabled {
 		bool get();
