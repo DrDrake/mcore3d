@@ -96,8 +96,9 @@ private:
 		this->Load += gcnew System::EventHandler(this, &RenderPanelControl::RenderPanelControl_Load);
 		this->Paint += gcnew System::Windows::Forms::PaintEventHandler(this, &RenderPanelControl::RenderPanelControl_Paint);
 		this->KeyUp += gcnew System::Windows::Forms::KeyEventHandler(this, &RenderPanelControl::RenderPanelControl_KeyUp);
-		this->MouseClick += gcnew System::Windows::Forms::MouseEventHandler(this, &RenderPanelControl::RenderPanelControl_MouseClick);
 		this->KeyDown += gcnew System::Windows::Forms::KeyEventHandler(this, &RenderPanelControl::RenderPanelControl_KeyDown);
+		this->MouseDown += gcnew System::Windows::Forms::MouseEventHandler(this, &RenderPanelControl::RenderPanelControl_MouseDown);
+		this->MouseMove += gcnew System::Windows::Forms::MouseEventHandler(this, &RenderPanelControl::RenderPanelControl_MouseMove);
 		this->ResumeLayout(false);
 
 	}
@@ -108,7 +109,8 @@ private: System::Void RenderPanelControl_Load(System::Object^ sender, System::Ev
 private: System::Void RenderPanelControl_Paint(System::Object^ sender, System::Windows::Forms::PaintEventArgs^ e);
 private: System::Void RenderPanelControl_KeyDown(System::Object^ sender, System::Windows::Forms::KeyEventArgs^ e);
 private: System::Void RenderPanelControl_KeyUp(System::Object^ sender, System::Windows::Forms::KeyEventArgs^ e);
-private: System::Void RenderPanelControl_MouseClick(System::Object^ sender, System::Windows::Forms::MouseEventArgs^ e);
+private: System::Void RenderPanelControl_MouseDown(System::Object^ sender, System::Windows::Forms::MouseEventArgs^ e);
+private: System::Void RenderPanelControl_MouseMove(System::Object^ sender, System::Windows::Forms::MouseEventArgs^ e);
 };
 
 }	// namespace Binding

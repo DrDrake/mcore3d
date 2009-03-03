@@ -36,7 +36,7 @@ public:
 		:
 		mBackRef(c),
 		mWidth(0), mHeight(0), mFieldOfView(60.0f),
-		mGizmo(nullptr),
+		mGizmo(nullptr), mEntityPicker(nullptr),
 		mPredefinedSubTree(nullptr), mUserSubTree(nullptr),
 		mResourceManager(*createDefaultFileSystem())
 	{
@@ -236,10 +236,16 @@ public:
 	{
 	}
 
-	void onMouseClick(System::Object^ sender, System::Windows::Forms::MouseEventArgs^ e)
+	void onMouseDown(System::Object^ sender, System::Windows::Forms::MouseEventArgs^ e)
 	{
 		mEntityPicker->entity()->enabled = true;
 		mEntityPicker->setPickRegion(e->X, e->Y);
+		mGizmo->mouseDown(e->X, e->Y);
+	}
+
+	void onMouseMove(System::Object^ sender, System::Windows::Forms::MouseEventArgs^ e)
+	{
+		mGizmo->mouseMove(e->X, e->Y);
 	}
 
 	gcroot<RenderPanelControl^> mBackRef;
@@ -342,9 +348,14 @@ System::Void RenderPanelControl::RenderPanelControl_KeyUp(System::Object^ sender
 	mImpl->onKeyUp(sender, e);
 }
 
-System::Void RenderPanelControl::RenderPanelControl_MouseClick(System::Object^ sender, System::Windows::Forms::MouseEventArgs^ e)
+System::Void RenderPanelControl::RenderPanelControl_MouseDown(System::Object^ sender, System::Windows::Forms::MouseEventArgs^ e)
 {
-	mImpl->onMouseClick(sender, e);
+	mImpl->onMouseDown(sender, e);
+}
+
+System::Void RenderPanelControl::RenderPanelControl_MouseMove(System::Object^ sender, System::Windows::Forms::MouseEventArgs^ e)
+{
+	mImpl->onMouseMove(sender, e);
 }
 
 }
