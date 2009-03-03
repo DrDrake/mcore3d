@@ -61,6 +61,11 @@ public:
 	 */
 	sal_maybenull Component* findComponentInChildren(const std::type_info& familyType) const;
 
+	template<class T>
+	sal_maybenull T* findComponentInChildren(const std::type_info& familyType) const {
+		return dynamic_cast<T*>(findComponentInChildren(familyType));
+	}
+
 	/*!	Return the firstly found Entity undert the children, with the name supplied.
 		Returns null if none is found.
 		\note This entity will also be considered.
