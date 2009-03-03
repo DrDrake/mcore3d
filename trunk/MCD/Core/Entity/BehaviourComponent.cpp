@@ -12,7 +12,8 @@ void BehaviourComponent::traverseEntities(Entity* entityNode)
 		if(!itr->enabled)
 			continue;
 
-		BehaviourComponent* behaviour = polymorphic_downcast<BehaviourComponent*>(itr->findComponent(typeid(BehaviourComponent)));
+		BehaviourComponent* behaviour = polymorphic_downcast<BehaviourComponent*>(
+			itr->findComponent(typeid(BehaviourComponent)));
 		if(!behaviour)
 			continue;
 

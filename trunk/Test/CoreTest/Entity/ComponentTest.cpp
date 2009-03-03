@@ -22,6 +22,14 @@ public:
 	}
 };
 
+class DummyComponent3 : public Component
+{
+public:
+	sal_override const std::type_info& familyType() const {
+		return typeid(DummyComponent3);
+	}
+};
+
 }	// namespace
 
 TEST(Basic_ComponentTest)
@@ -55,4 +63,13 @@ TEST(Basic_ComponentTest)
 	// so the old component will be replaced by the new one.
 	root.addComponent(new DummyComponent2);
 	CHECK(!c2.get());
+
+	// Test findComponentInChildren
+	Entity* e = new Entity;
+	e->name = L"Component 3";
+	e->link(&root);
+	ComponentPtr c3 = new DummyComponent3;
+	e->addComponent(c3.get());
+
+	CHECK_EQUAL(c3.get(), root.findComponentInChildren(typeid(DummyComponent3)));
 }

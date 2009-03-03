@@ -46,9 +46,26 @@ public:
 	void unlink();
 
 	/*!	Find a component in the Entity with the supplied familyType.
-		Returns null if non is found.
+		Returns null if none is found.
 	 */
 	sal_maybenull Component* findComponent(const std::type_info& familyType) const;
+
+	template<class T>
+	sal_maybenull T* findComponent(const std::type_info& familyType) const {
+		return dynamic_cast<T*>(findComponent(familyType));
+	}
+
+	/*!	Returns the Component of type familyType in the Entity or any of its children.
+		Returns null if none is found.
+		\todo Decide which tree traversal is the best to use.
+	 */
+	sal_maybenull Component* findComponentInChildren(const std::type_info& familyType) const;
+
+	/*!	Return the firstly found Entity undert the children, with the name supplied.
+		Returns null if none is found.
+		\note This entity will also be considered.
+	 */
+	sal_maybenull Entity* findEntityInChildren(sal_in_z const wchar_t* name) const;
 
 	/*!	Add a new component into the Entity.
 		Only a single instance is allowed for each family type of Component,

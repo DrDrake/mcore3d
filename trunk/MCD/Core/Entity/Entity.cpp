@@ -77,6 +77,27 @@ Component* Entity::findComponent(const std::type_info& familyType) const
 	return nullptr;
 }
 
+Component* Entity::findComponentInChildren(const std::type_info& familyType) const
+{
+	for(EntityPreorderIterator itr(const_cast<Entity*>(this)); !itr.ended(); itr.next()) {
+		Component* ret = itr->findComponent(familyType);
+		if(ret)
+			return ret;
+	}
+
+	return nullptr;
+}
+
+Entity* Entity::findEntityInChildren(const wchar_t* name) const
+{
+	for(EntityPreorderIterator itr(const_cast<Entity*>(this)); !itr.ended(); itr.next()) {
+		if(itr->name == name)
+			return itr.current();
+	}
+
+	return nullptr;
+}
+
 void Entity::addComponent(Component* component)
 {
 	if(!component)
