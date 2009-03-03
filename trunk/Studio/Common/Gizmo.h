@@ -17,6 +17,10 @@ public:
 	void setSelectedEntity(const MCD::EntityPtr& selectedEntity);
 
 	const MCD::EntityPtr& selectedEntity() const;
+
+	void mouseDown(uint x, uint y);
+	void mouseMove(uint x, uint y);
+	void mouseUp(uint x, uint y);
 };	// Gizmo
 
 #endif	// __MCD_STUDIO_GIZMO__

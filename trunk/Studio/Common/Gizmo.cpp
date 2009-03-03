@@ -5,9 +5,11 @@
 #include "../../MCD/Render/Mesh.h"
 #include "../../MCD/Render/Model.h"
 #include "../../MCD/Render/Components/MeshComponent.h"
+#include "../../MCD/Render/Components/PickComponent.h"
 #include "../../MCD/Core/Entity/BehaviourComponent.h"
 #include "../../MCD/Core/System/Utility.h"
 #include "../../3Party/glew/glew.h"
+#include <iostream>
 
 using namespace MCD;
 
@@ -39,6 +41,26 @@ public:
 	EntityPtr selectedEntity;
 };
 
+class MyPickComponent : public PickComponent
+{
+public:
+	sal_override void update()
+	{
+//		entityToPick = entity()->parent()->parent()->firstChild()->nextSlibing()->nextSlibing();
+		PickComponent::update();
+
+		// Handle picking result
+		for(size_t i=0; i<hitCount(); ++i) {
+			EntityPtr e = hitAtIndex(i);
+			if(!e.get())
+				continue;
+			std::wcout << e->name << std::endl;
+			break;	// We only pick the Entity that nearest to the camera
+		}
+		clearResult();
+	}
+};
+
 }
 
 Gizmo::Gizmo(ResourceManager& resourceManager)
@@ -55,7 +77,15 @@ Gizmo::Gizmo(ResourceManager& resourceManager)
 
 	MeshPtr mesh = model->mMeshes.front().mesh;
 
-//	this->localTransform.setScale(Vec3f(0.02f, 0.02f, 0.02f));
+	{	// Add an entity for picking
+		Entity* e = new Entity();
+		e->name = L"Gizmo picker";
+		e->link(this);
+		MyPickComponent* c = new MyPickComponent;
+		c->entityToPick = this;
+		e->addComponent(c);
+		e->enabled = true;
+	}
 
 	// Add child entities
 	{	Entity* e = new Entity();
@@ -102,7 +132,22 @@ void Gizmo::setSelectedEntity(const EntityPtr& selectedEntity)
 
 const EntityPtr& Gizmo::selectedEntity() const
 {
-	FollowTransformComponent* component = polymorphic_downcast<FollowTransformComponent*>(
-		this->findComponent(typeid(BehaviourComponent)));
+	FollowTransformComponent* component = findComponent<FollowTransformComponent>(typeid(BehaviourComponent));
 	return component->selectedEntity;
+}
+
+void Gizmo::mouseDown(uint x, uint y)
+{
+}
+
+void Gizmo::mouseMove(uint x, uint y)
+{
+	Entity* e = this->findEntityInChildren(L"Gizmo picker");
+	if(!e)
+		return;
+	MyPickComponent* component = e->findComponent<MyPickComponent>(typeid(BehaviourComponent));
+}
+
+void Gizmo::mouseUp(uint x, uint y)
+{
 }
