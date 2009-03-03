@@ -20,12 +20,15 @@ class MyMeshComponent : public MeshComponent
 public:
 	sal_override void render()
 	{
-		glColor3fv(color.rawPointer());
+		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);	
+		glEnable(GL_BLEND);
+		glColor4fv(color.rawPointer());
 		MeshComponent::render();
+		glDisable(GL_BLEND);
 	}
 
 	ColorRGBAf color;
-};
+};	// MyMeshComponent
 
 class FollowTransformComponent : public BehaviourComponent
 {
@@ -39,14 +42,13 @@ public:
 	}
 
 	EntityPtr selectedEntity;
-};
+};	// FollowTransformComponent
 
 class MyPickComponent : public PickComponent
 {
 public:
 	sal_override void update()
 	{
-//		entityToPick = entity()->parent()->parent()->firstChild()->nextSlibing()->nextSlibing();
 		PickComponent::update();
 
 		// Handle picking result
@@ -54,12 +56,14 @@ public:
 			EntityPtr e = hitAtIndex(i);
 			if(!e.get())
 				continue;
+
+			// High light the arrow
 			std::wcout << e->name << std::endl;
 			break;	// We only pick the Entity that nearest to the camera
 		}
 		clearResult();
 	}
-};
+};	// MyPickComponent
 
 }
 
@@ -77,12 +81,16 @@ Gizmo::Gizmo(ResourceManager& resourceManager)
 
 	MeshPtr mesh = model->mMeshes.front().mesh;
 
+	Entity* translationEntity = new Entity();
+	translationEntity->name = L"Translation";
+	translationEntity->link(this);
+
 	{	// Add an entity for picking
 		Entity* e = new Entity();
 		e->name = L"Gizmo picker";
 		e->link(this);
 		MyPickComponent* c = new MyPickComponent;
-		c->entityToPick = this;
+		c->entityToPick = translationEntity;
 		e->addComponent(c);
 		e->enabled = true;
 	}
@@ -90,9 +98,9 @@ Gizmo::Gizmo(ResourceManager& resourceManager)
 	// Add child entities
 	{	Entity* e = new Entity();
 		e->name = L"X arrow";
-		e->link(this);
+		e->link(translationEntity);
 		MyMeshComponent* c = new MyMeshComponent;
-		c->color = ColorRGBAf(1, 0, 0, 1);
+		c->color = ColorRGBAf(1, 0, 0, 0.8f);
 		c->mesh = mesh;
 		e->addComponent(c);
 		e->localTransform.setScale(MCD::Vec3f(1, 1.5f, 1));
@@ -101,9 +109,9 @@ Gizmo::Gizmo(ResourceManager& resourceManager)
 
 	{	Entity* e = new Entity();
 		e->name = L"Y arrow";
-		e->link(this);
+		e->link(translationEntity);
 		MyMeshComponent* c = new MyMeshComponent;
-		c->color = ColorRGBAf(0, 1, 0, 1);
+		c->color = ColorRGBAf(0, 1, 0, 0.8f);
 		c->mesh = mesh;
 		e->addComponent(c);
 		e->localTransform.setScale(MCD::Vec3f(1, 1.5f, 1));
@@ -111,9 +119,9 @@ Gizmo::Gizmo(ResourceManager& resourceManager)
 
 	{	Entity* e = new Entity();
 		e->name = L"Z arrow";
-		e->link(this);
+		e->link(translationEntity);
 		MyMeshComponent* c = new MyMeshComponent;
-		c->color = ColorRGBAf(0, 0, 1, 1);
+		c->color = ColorRGBAf(0, 0, 1, 0.8f);
 		c->mesh = mesh;
 		e->addComponent(c);
 		e->localTransform.setScale(MCD::Vec3f(1, 1.5f, 1));
@@ -146,6 +154,7 @@ void Gizmo::mouseMove(uint x, uint y)
 	if(!e)
 		return;
 	MyPickComponent* component = e->findComponent<MyPickComponent>(typeid(BehaviourComponent));
+	component->setPickRegion(x, y);
 }
 
 void Gizmo::mouseUp(uint x, uint y)
