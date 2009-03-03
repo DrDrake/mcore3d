@@ -25,7 +25,7 @@ public:
 	};
 	struct PickResultSort {
 		bool operator()(const PickResult& lhs, const PickResult& rhs) const {
-			return lhs.minDepth > rhs.minDepth;
+			return lhs.minDepth < rhs.minDepth;
 		}
 	};
 	//! Stores weak pointers of entities which were picked.
@@ -82,7 +82,7 @@ void PickComponent::update()
 	for(EntityPreorderIterator itr(entityToPick.get()); !itr.ended(); itr.next())
 	{
 		if(!itr->enabled)
-			continue;
+			break;
 
 		RenderableComponent* renderable = polymorphic_downcast<RenderableComponent*>(
 			itr->findComponent(typeid(RenderableComponent))
@@ -126,7 +126,7 @@ void PickComponent::update()
 	}
 
 	// Sort the entities so that the one that closer to the camera will come first
-	std::make_heap(mImpl->pickedEntities.begin( ), mImpl->pickedEntities.end(), Impl::PickResultSort());
+	std::sort(mImpl->pickedEntities.begin( ), mImpl->pickedEntities.end(), Impl::PickResultSort());
 }
 
 void PickComponent::setPickRegion(size_t x, size_t y, size_t width, size_t height)

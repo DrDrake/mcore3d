@@ -184,3 +184,12 @@ TEST(PreorderIterator_EntityTest)
 		CHECK_EQUAL(sizeof(expected)/sizeof(Entity*), i);
 	}
 }
+
+TEST(Find_EntityTest)
+{
+	Entity root;
+	CHECK(!root.findEntityInChildren(L"e21"));
+
+	createTree(root);
+	CHECK_EQUAL(e21, root.findEntityInChildren(L"e21"));
+}
