@@ -18,6 +18,10 @@ namespace {
 class MyMeshComponent : public MeshComponent
 {
 public:
+	explicit MyMeshComponent(const ColorRGBAf& c)
+		: color(c), defaultColor(c)
+	{}
+
 	sal_override void render()
 	{
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);	
@@ -25,9 +29,12 @@ public:
 		glColor4fv(color.rawPointer());
 		MeshComponent::render();
 		glDisable(GL_BLEND);
+
+		color = defaultColor;
 	}
 
 	ColorRGBAf color;
+	const ColorRGBAf defaultColor;
 };	// MyMeshComponent
 
 class FollowTransformComponent : public BehaviourComponent
@@ -58,7 +65,9 @@ public:
 				continue;
 
 			// High light the arrow
-			std::wcout << e->name << std::endl;
+			MyMeshComponent* c = e->findComponent<MyMeshComponent>(typeid(RenderableComponent));
+			if(c)
+				c->color = ColorRGBAf(1, 1, 0, 1);
 			break;	// We only pick the Entity that nearest to the camera
 		}
 		clearResult();
@@ -99,8 +108,7 @@ Gizmo::Gizmo(ResourceManager& resourceManager)
 	{	Entity* e = new Entity();
 		e->name = L"X arrow";
 		e->link(translationEntity);
-		MyMeshComponent* c = new MyMeshComponent;
-		c->color = ColorRGBAf(1, 0, 0, 0.8f);
+		MyMeshComponent* c = new MyMeshComponent(ColorRGBAf(1, 0, 0, 0.8f));
 		c->mesh = mesh;
 		e->addComponent(c);
 		e->localTransform.setScale(MCD::Vec3f(1, 1.5f, 1));
@@ -110,8 +118,7 @@ Gizmo::Gizmo(ResourceManager& resourceManager)
 	{	Entity* e = new Entity();
 		e->name = L"Y arrow";
 		e->link(translationEntity);
-		MyMeshComponent* c = new MyMeshComponent;
-		c->color = ColorRGBAf(0, 1, 0, 0.8f);
+		MyMeshComponent* c = new MyMeshComponent(ColorRGBAf(0, 1, 0, 0.8f));
 		c->mesh = mesh;
 		e->addComponent(c);
 		e->localTransform.setScale(MCD::Vec3f(1, 1.5f, 1));
@@ -120,8 +127,7 @@ Gizmo::Gizmo(ResourceManager& resourceManager)
 	{	Entity* e = new Entity();
 		e->name = L"Z arrow";
 		e->link(translationEntity);
-		MyMeshComponent* c = new MyMeshComponent;
-		c->color = ColorRGBAf(0, 0, 1, 0.8f);
+		MyMeshComponent* c = new MyMeshComponent(ColorRGBAf(0, 0, 1, 0.8f));
 		c->mesh = mesh;
 		e->addComponent(c);
 		e->localTransform.setScale(MCD::Vec3f(1, 1.5f, 1));
