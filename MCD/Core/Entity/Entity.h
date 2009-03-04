@@ -4,6 +4,7 @@
 #include "Component.h"
 #include "../Math/Mat44.h"
 #include "../System/UserData.h"
+#include <string>
 
 namespace MCD {
 
