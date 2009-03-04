@@ -73,3 +73,48 @@ TEST(Basic_ComponentTest)
 
 	CHECK_EQUAL(c3.get(), root.findComponentInChildren(typeid(DummyComponent3)));
 }
+
+TEST(ComponentPreorderIterator_ComponentTest)
+{
+	// Traversing with nothing
+	for(ComponentPreorderIterator itr(nullptr); !itr.ended(); itr.next()) {
+		CHECK(false);
+	}
+
+	Entity root;
+	Component* c[3] = { new DummyComponent1, new DummyComponent2, new DummyComponent3 };
+
+	{	// Traversing only one Entity
+		root.addComponent(c[0]);
+		root.addComponent(c[1]);
+
+		size_t i = 0;
+		for(ComponentPreorderIterator itr(&root); !itr.ended(); itr.next(), ++i) {
+			CHECK_EQUAL(c[i], itr.current());
+		}
+		CHECK_EQUAL(2u, i);
+	}
+
+	{	// With an child Entity
+		Entity* e = new Entity;
+		e->link(&root);
+		e->addComponent(c[2]);
+
+		size_t i = 0;
+		for(ComponentPreorderIterator itr(&root); !itr.ended(); itr.next(), ++i) {
+			CHECK_EQUAL(c[i], itr.current());
+		}
+		CHECK_EQUAL(3u, i);
+	}
+
+	{	// With an empty Entity
+		Entity* e = new Entity;
+		e->link(&root);
+
+		size_t i = 0;
+		for(ComponentPreorderIterator itr(&root); !itr.ended(); itr.next(), ++i) {
+			CHECK_EQUAL(c[i], itr.current());
+		}
+		CHECK_EQUAL(3u, i);
+	}
+}

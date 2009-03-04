@@ -1,12 +1,9 @@
 #ifndef __MCD_CORE_ENTITY_ENTITY__
 #define __MCD_CORE_ENTITY_ENTITY__
 
-#include "../ShareLib.h"
+#include "Component.h"
 #include "../Math/Mat44.h"
-#include "../System/PtrVector.h"
 #include "../System/UserData.h"
-#include "../System/WeakPtr.h"
-#include <typeinfo>
 
 namespace MCD {
 
@@ -50,6 +47,7 @@ public:
 	 */
 	sal_maybenull Component* findComponent(const std::type_info& familyType) const;
 
+	//!	Wrap over findComponent() with dynamic_cast
 	template<class T>
 	sal_maybenull T* findComponent(const std::type_info& familyType) const {
 		return dynamic_cast<T*>(findComponent(familyType));
@@ -61,6 +59,7 @@ public:
 	 */
 	sal_maybenull Component* findComponentInChildren(const std::type_info& familyType) const;
 
+	//!	Wrap over findComponentInChildren() with dynamic_cast
 	template<class T>
 	sal_maybenull T* findComponentInChildren(const std::type_info& familyType) const {
 		return dynamic_cast<T*>(findComponentInChildren(familyType));
@@ -102,12 +101,12 @@ public:
 
 	UserData userData;
 
+	typedef LinkList<Component> Components;
+	Components components;
+
 protected:
 	//! Pointer to make the entity hierarchy
 	Entity* mParent, *mFirstChild, *mNextSlibing;
-
-	typedef ptr_vector<Component> Components;
-	Components mComponents;
 };	// Entity
 
 /*!	We use weak pointer to reference an Entity.
@@ -118,7 +117,6 @@ protected:
 typedef WeakPtr<Entity> EntityPtr;
 
 /*!	An iterator that preforms a pre-order traversal on the Entity tree.
-	You can specify
 	Example:
 	\code
 	Entity root;
@@ -155,11 +153,6 @@ protected:
 	//! The position where this iterator is constructed, so it knows where to stop.
 	const Entity* mStart;
 };	// EntityPreorderIterator
-
-class MCD_CORE_API EntityContainer
-{
-public:
-};	// EntityContainer
 
 }	// namespace MCD
 

@@ -69,9 +69,9 @@ void Entity::unlink()
 Component* Entity::findComponent(const std::type_info& familyType) const
 {
 	// NOTE: For simplicity, only linear search is used right now.
-	MCD_FOREACH(const Component& c, mComponents) {
-		if(c.familyType() == familyType)
-			return const_cast<Component*>(&c);
+	for(const Component* c = components.begin(); c != components.end(); c = c->next()) {
+		if(c->familyType() == familyType)
+			return const_cast<Component*>(c);
 	}
 
 	return nullptr;
@@ -104,16 +104,15 @@ void Entity::addComponent(Component* component)
 		return;
 
 	removeComponent(typeid(*component));
-	mComponents.push_back(component);
+	components.pushBack(*component);
 	component->mEntity = this;
 }
 
 void Entity::removeComponent(const std::type_info& familyType)
 {
-	for(Components::iterator i=mComponents.begin(); i!=mComponents.end(); ++i) {
-		if(i->familyType() == familyType) {
-			i->mEntity = nullptr;
-			mComponents.erase(i);
+	for(Component* c = components.begin(); c != components.end(); c = c->next()) {
+		if(c->familyType() == familyType) {
+			delete c;
 			return;
 		}
 	}
