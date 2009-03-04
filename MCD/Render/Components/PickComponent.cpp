@@ -5,6 +5,7 @@
 #include "../../Core/System/Utility.h"
 #include "../../../3Party/glew/glew.h"
 #include <algorithm>
+#include <vector>
 
 namespace MCD {
 

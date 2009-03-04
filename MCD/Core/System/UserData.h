@@ -2,6 +2,7 @@
 #define __MCD_CORE_SYSTEM_USERDATA__
 
 #include "Platform.h"
+#include <memory>	// For auto_ptr
 
 namespace MCD {
 

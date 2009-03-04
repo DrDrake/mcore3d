@@ -2,7 +2,9 @@
 #define __MCD_CORE_ENTITY_COMPONENT__
 
 #include "../ShareLib.h"
+#include "../System/LinkList.h"
 #include "../System/WeakPtr.h"
+//#include "Entity.h"
 #include <typeinfo>
 
 namespace MCD {
@@ -11,7 +13,8 @@ class Entity;
 
 /*!	Base class for everything attached to Entity.
  */
-class MCD_ABSTRACT_CLASS MCD_CORE_API Component : public WeakPtrTarget
+class MCD_ABSTRACT_CLASS MCD_CORE_API Component :
+	public WeakPtrTarget, public LinkListBase::Node<Component>
 {
 public:
 	Component();
@@ -41,6 +44,43 @@ protected:
 	It's too easy to make cyclic-reference hell if we use reference counted pointer.
  */
 typedef WeakPtr<Component> ComponentPtr;
+
+/*!	An iterator that traverse over all Component within a certain Entity tree.
+	Example:
+	\code
+	Entity root;
+	for(ComponentPreorderIterator itr(&root); !itr.ended(); itr.next()) {
+		// Do something ...
+	}
+	\endcode
+ */
+class MCD_CORE_API ComponentPreorderIterator
+{
+public:
+	explicit ComponentPreorderIterator(sal_maybenull Entity* start);
+
+	// NOTE: Assumming the iterator is valid and so the returned pointer will not be null.
+	sal_notnull Component* operator->() {
+		return mCurrent;
+	}
+
+	//! Return the current element.
+	sal_notnull Component* current() {
+		return mCurrent;
+	}
+
+	//! Returns true if there are NO more items in the collection.
+	bool ended() const {
+		return mStart == nullptr && mCurrent == nullptr;
+	}
+
+	//! Returns the next element in the collection, and advances to the next.
+	sal_maybenull Component* next();
+
+protected:
+	Component* mCurrent;
+	Entity* mStart;
+};	// ComponentPreorderIterator
 
 }	// namespace MCD
 
