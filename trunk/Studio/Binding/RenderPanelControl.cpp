@@ -58,25 +58,9 @@ public:
 			mPredefinedSubTree = e.release();
 		}
 
-		{	// Add a default camera
-			std::auto_ptr<MCD::Entity> e(new MCD::Entity);
-			e->name = L"Default camera";
-			e->link(mPredefinedSubTree);
-			e->localTransform.setTranslation(Vec3f(0, 0, 5));
-
-			// Add component
-			mCamera = new CameraComponent;
-			// We relay on Entity's transform rather than the position of MCD::Camera
-			mCamera->camera.position = Vec3f(0, 0, 0);
-			mCamera->camera.lookAt = Vec3f(0, 0, -1);
-			mCamera->camera.upVector = Vec3f(0, 1, 0);
-			mCamera->clearColor = ColorRGBf(0.5f);	// Set the background color as 50% gray
-			e->addComponent(mCamera.get());
-
-			e.release();
-		}
-
 		{	// Add a Gizmo
+			// TODO: Move the Gizmo entity to mPredefinedSubTree, make sure all
+			// related stuffs (eg axis picking) are working
 			std::auto_ptr<Gizmo> e(new Gizmo(mResourceManager));
 			e->name = L"Gizmo";
 			e->link(&mRootNode);
@@ -91,6 +75,24 @@ public:
 			mEntityPicker = new PickComponent;
 			mEntityPicker->entityToPick = mUserSubTree;
 			e->addComponent(mEntityPicker);
+
+			e.release();
+		}
+
+		{	// Add a default camera
+			std::auto_ptr<MCD::Entity> e(new MCD::Entity);
+			e->name = L"Default camera";
+			e->link(mPredefinedSubTree);
+			e->localTransform.setTranslation(Vec3f(0, 0, 5));
+
+			// Add component
+			mCamera = new CameraComponent;
+			// We relay on Entity's transform rather than the position of MCD::Camera
+			mCamera->camera.position = Vec3f(0, 0, 0);
+			mCamera->camera.lookAt = Vec3f(0, 0, -1);
+			mCamera->camera.upVector = Vec3f(0, 1, 0);
+			mCamera->clearColor = ColorRGBf(0.5f);	// Set the background color as 50% gray
+			e->addComponent(mCamera.get());
 
 			e.release();
 		}

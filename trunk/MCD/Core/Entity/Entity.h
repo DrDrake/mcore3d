@@ -53,6 +53,10 @@ public:
 	sal_maybenull T* findComponent(const std::type_info& familyType) const {
 		return dynamic_cast<T*>(findComponent(familyType));
 	}
+	template<class T>
+	sal_maybenull T* findComponent() const {
+		return findComponent<T>(typeid(T));
+	}
 
 	/*!	Returns the Component of type familyType in the Entity or any of its children.
 		Returns null if none is found.
@@ -64,6 +68,10 @@ public:
 	template<class T>
 	sal_maybenull T* findComponentInChildren(const std::type_info& familyType) const {
 		return dynamic_cast<T*>(findComponentInChildren(familyType));
+	}
+	template<class T>
+	sal_maybenull T* findComponentInChildren() const {
+		return findComponentInChildren<T>(typeid(T));
 	}
 
 	/*!	Return the firstly found Entity undert the children, with the name supplied.
@@ -148,6 +156,37 @@ public:
 
 	//! Returns the next element in the collection, and advances to the next.
 	sal_maybenull Entity* next();
+
+	/*!	Returns and advance to the next enabled Entity.
+		If an Entity is disabled, all it's children are also skipped.
+
+		\code
+		if(node && node->enabled) {	// Take care if the first node is disabled
+			for(EntityPreorderIterator itr(node); !itr.ended(); itr.nextEnabled()) {
+				// Do something with itr
+				// ...
+			}
+		}
+		\endcode
+	 */
+	sal_maybenull Entity* nextEnabled();
+
+	/*!	Returns and advances to the next element in the collection, without visiting current node's children.
+		Usefull when encountering disabled Entity, for example:
+
+		\code
+		for(EntityPreorderIterator itr(node); !itr.ended(); ) {
+			if(!itr->enabled) {
+				itr.skipChildren();
+				continue;
+			}
+			// Do something with itr
+			// ...
+			itr.next();
+		}
+		\endcode
+	 */
+	sal_maybenull Entity* skipChildren();
 
 protected:
 	Entity* mCurrent;

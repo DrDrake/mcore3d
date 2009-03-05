@@ -2,7 +2,6 @@
 #include "PickComponent.h"
 #include "RenderableComponent.h"
 #include "../../Core/Entity/Entity.h"
-#include "../../Core/System/Utility.h"
 #include "../../../3Party/glew/glew.h"
 #include <algorithm>
 #include <vector>
@@ -80,21 +79,23 @@ void PickComponent::update()
 		glMatrixMode(GL_MODELVIEW);
 	}
 
-	for(EntityPreorderIterator itr(entityToPick.get()); !itr.ended(); itr.next())
+	for(EntityPreorderIterator itr(entityToPick.get()); !itr.ended();)
 	{
-		if(!itr->enabled)
-			break;
-
-		RenderableComponent* renderable = polymorphic_downcast<RenderableComponent*>(
-			itr->findComponent(typeid(RenderableComponent))
-		);
-		if(!renderable)
+		if(!itr->enabled) {
+			itr.skipChildren();
 			continue;
+		}
 
-		// Use the entity's pointer as the gl name
-		// TODO: 64-bit platform problem
-		glLoadName(reinterpret_cast<GLuint>(itr.current()));
-		renderable->renderFaceOnly();
+		RenderableComponent* renderable = itr->findComponent<RenderableComponent>();
+
+		if(renderable) {
+			// Use the entity's pointer as the gl name
+			// TODO: 64-bit platform problem
+			glLoadName(reinterpret_cast<GLuint>(itr.current()));
+			renderable->renderFaceOnly();
+		}
+
+		itr.next();
 	}
 
 	{	glMatrixMode(GL_PROJECTION);
