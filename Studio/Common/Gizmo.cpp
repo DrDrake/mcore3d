@@ -139,8 +139,7 @@ void Gizmo::setSelectedEntity(const EntityPtr& selectedEntity)
 {
 	enabled = (selectedEntity.get() != nullptr);
 
-	FollowTransformComponent* component = polymorphic_downcast<FollowTransformComponent*>(
-		this->findComponent(typeid(BehaviourComponent)));
+	FollowTransformComponent* component = findComponent<FollowTransformComponent>(typeid(BehaviourComponent));
 	component->selectedEntity = selectedEntity;
 }
 
@@ -160,7 +159,7 @@ void Gizmo::mouseMove(uint x, uint y)
 	if(!e)
 		return;
 	MyPickComponent* component = e->findComponent<MyPickComponent>(typeid(BehaviourComponent));
-	component->setPickRegion(x, y);
+	component->setPickRegion(x, y, 5, 5);
 }
 
 void Gizmo::mouseUp(uint x, uint y)

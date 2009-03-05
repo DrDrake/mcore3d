@@ -1,24 +1,23 @@
 #include "Pch.h"
 #include "RenderableComponent.h"
 #include "../../Core/Entity/Entity.h"
-#include "../../Core/System/Utility.h"
 
 namespace MCD {
 
 void RenderableComponent::traverseEntities(Entity* entityNode)
 {
-	for(EntityPreorderIterator itr(entityNode); !itr.ended(); itr.next())
+	for(EntityPreorderIterator itr(entityNode); !itr.ended();)
 	{
-		if(!itr->enabled)
-			break;
-
-		RenderableComponent* renderable = polymorphic_downcast<RenderableComponent*>(
-			itr->findComponent(typeid(RenderableComponent))
-		);
-		if(!renderable)
+		if(!itr->enabled) {
+			itr.skipChildren();
 			continue;
+		}
 
-		renderable->render();
+		RenderableComponent* renderable = itr->findComponent<RenderableComponent>();
+		if(renderable)
+			renderable->render();
+
+		itr.next();
 	}
 }
 
