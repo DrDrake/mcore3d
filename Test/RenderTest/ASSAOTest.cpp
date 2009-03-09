@@ -1,7 +1,8 @@
 #include "Pch.h"
 #include "DefaultResourceManager.h"
-#include "../../MCD/Core/System/WindowEvent.h"
 #include "../../MCD/Core/Math/Mat44.h"
+#include "../../MCD/Core/System/WindowEvent.h"
+#include "../../MCD/Core/System/StrUtility.h"
 #include "../../MCD/Render/Color.h"
 #include "../../MCD/Render/Effect.h"
 #include "../../MCD/Render/Material.h"
@@ -122,9 +123,9 @@ TEST(ASSAOTest)
 			// Adjust SSAO radius
 			if(e.Type == Event::KeyReleased && e.Key.Code == Key::F5) {
 				if(e.Key.Shift)
-					mSSAORadius *= 1.05f;
-				else
 					mSSAORadius /= 1.05f;
+				else
+					mSSAORadius *= 1.05f;
 				mSSAOPass.bind();
 				glUniform1f(glGetUniformLocation(mSSAOPass.handle, "radius"), mSSAORadius);
 				mSSAOPass.unbind();
@@ -134,6 +135,13 @@ TEST(ASSAOTest)
 
 			if(e.Type == Event::MouseWheelMoved)
 				updateViewFrustum();
+
+			std::wstring title = L"title=\"ASSAO test ";
+			title += std::wstring(L"[Half resolution (F2):") + (mSSAORescale == 0.5f ? L"on" : L"off") + L"] ";
+			title += std::wstring(L"[Blur pass (F3/Shift+F3):") + int2WStr(mBlurPassCount) + L"] ";
+			title += std::wstring(L"[SSAO radius (F5/Shift+F5):") + double2WStr(mSSAORadius) + L"] ";
+			title += L"\"";
+			setOptions(title.c_str());
 		}
 
 		TexturePtr createRenderTexture(
@@ -294,7 +302,7 @@ TEST(ASSAOTest)
 
 			glTranslatef(0.0f, -50.0f, 100.0f);
 
-			const float scale = 2.5f;
+			const float scale = 0.5f;
 			glScalef(scale, scale, scale);
 
 			Material2* material = nullptr;
@@ -467,7 +475,7 @@ TEST(ASSAOTest)
 //		window.loadModel(L"Scene/National Stadium/scene.pod");
 //		window.loadModel(L"Church/sponza/sponza.3ds");
 //		window.loadModel(L"3M00696/buelllightning.3DS");
-//		window.loadModel(L"Lamborghini Gallardo Polizia/Lamborghini Gallardo Polizia.3DS");
+		window.loadModel(L"Lamborghini Gallardo Polizia/Lamborghini Gallardo Polizia.3DS");
 
 		window.mainLoop();
 	}

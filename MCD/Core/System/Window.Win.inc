@@ -359,6 +359,7 @@ void Window::Impl::setShowCursor(const wchar_t* value)
 void Window::Impl::setTitle(const wchar_t* value)
 {
 	mTitle = value;
+	::SetWindowTextW(mWnd, value);
 }
 
 // "width = 800"

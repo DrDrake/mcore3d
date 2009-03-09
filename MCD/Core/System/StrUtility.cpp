@@ -311,6 +311,19 @@ std::wstring int2WStr(int number)
 #endif
 }
 
+std::wstring double2WStr(double number)
+{
+#ifdef MCD_CYGWIN
+	std::stringstream ss;
+	ss << number;
+	return strToWStr(ss.str());
+#else
+	std::wstringstream ss;
+	ss << number;
+	return ss.str();
+#endif
+}
+
 bool wStr2Int(const wchar_t* wideStr, int& number)
 {
 	// User sscanf or atoi didn't handle error very well
