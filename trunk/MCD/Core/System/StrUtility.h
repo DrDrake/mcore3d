@@ -33,6 +33,9 @@ MCD_CORE_API std::string int2Str(int number);
 //! Integer number to wide string.
 MCD_CORE_API std::wstring int2WStr(int number);
 
+//! Real number to wide string.
+MCD_CORE_API std::wstring double2WStr(double number);
+
 //! Wide string to integer.
 MCD_CORE_API sal_checkreturn bool wStr2Int(sal_in_z const wchar_t* wideStr, int& number);
 
