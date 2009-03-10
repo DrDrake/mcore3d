@@ -1,4 +1,7 @@
-﻿using System;
+﻿using CodersLab.Windows.Controls;
+using System;
+using System.Drawing;
+using System.Windows.Forms;
 using global::Binding;
 
 namespace Studio
@@ -76,6 +79,63 @@ namespace Studio
 		private void treeView_SelectionsChanged(object sender, EventArgs e)
 		{
 			entitySelectionChanged(this, selectedEntity);
+
+			// Ensure the tree view node is visible
+			// TODO: Enable as an option
+			if(selectedEntity != null)
+				selectedEntity.treeViewNode.EnsureVisible();
+		}
+
+		/// Referende: http://www.c-sharpcorner.com/UploadFile/mgold/DoingDragandDropUsingCSharp11302005020610AM/DoingDragandDropUsingCSharp.aspx
+		#region Drag drop related
+		private TreeNode mSourceNode;
+		private void treeView_ItemDrag(object sender, System.Windows.Forms.ItemDragEventArgs e)
+		{
+			NodesCollection nodes = (NodesCollection)e.Item;
+			mSourceNode = nodes[0];
+			DoDragDrop(e.Item.ToString(), DragDropEffects.Move | DragDropEffects.Copy);
+		}
+
+		private void treeView_DragEnter(object sender, DragEventArgs e)
+		{
+			if (e.Data.GetDataPresent(DataFormats.Text))
+				e.Effect = DragDropEffects.Move;
+			else
+				e.Effect = DragDropEffects.None;
+		}
+
+		private TreeNode mDragOldNode;
+		private Color mDragOldColor;
+		private void treeView_DragOver(object sender, DragEventArgs e)
+		{
+			// Determine the node we are dragging over
+			Point p = treeView.PointToClient(new Point(e.X, e.Y));
+			TreeNode n = treeView.GetNodeAt(p);
+//			treeView.HotTracking = true;
+			if (n != null && n != mDragOldNode)
+			{
+				n.EnsureVisible();
+				if(mDragOldNode != null)
+					mDragOldNode.BackColor = mDragOldColor;
+				mDragOldNode = n;
+				mDragOldColor = n.BackColor;
+
+				if (!treeView.SelectedNodes.Contains(n))
+//					n.Checked = true;
+					n.BackColor = Color.Gray;
+
+//				e.Effect = DragDropEffects.Scroll;
+			}
+		}
+		#endregion
+
+		private void treeView_DragDrop(object sender, DragEventArgs e)
+		{
+			// Determine the node we are drop at
+			Point p = treeView.PointToClient(new Point(e.X, e.Y));
+			TreeNode n = treeView.GetNodeAt(p);
+			n.BackColor = mDragOldColor;
+			mDragOldNode = null;
 		}
 	}
 }

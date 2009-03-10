@@ -33,6 +33,7 @@
 			// 
 			// treeView
 			// 
+			this.treeView.AllowDrop = true;
 			this.treeView.Dock = System.Windows.Forms.DockStyle.Fill;
 			this.treeView.Location = new System.Drawing.Point(0, 0);
 			this.treeView.Name = "treeView";
@@ -40,6 +41,10 @@
 			this.treeView.SelectionMode = CodersLab.Windows.Controls.TreeViewSelectionMode.MultiSelect;
 			this.treeView.Size = new System.Drawing.Size(292, 271);
 			this.treeView.TabIndex = 0;
+			this.treeView.DragDrop += new System.Windows.Forms.DragEventHandler(this.treeView_DragDrop);
+			this.treeView.DragEnter += new System.Windows.Forms.DragEventHandler(this.treeView_DragEnter);
+			this.treeView.ItemDrag += new System.Windows.Forms.ItemDragEventHandler(this.treeView_ItemDrag);
+			this.treeView.DragOver += new System.Windows.Forms.DragEventHandler(this.treeView_DragOver);
 			this.treeView.SelectionsChanged += new System.EventHandler(this.treeView_SelectionsChanged);
 			// 
 			// EntityWindow
