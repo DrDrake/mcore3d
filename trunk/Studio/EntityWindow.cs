@@ -112,6 +112,12 @@ namespace Studio
 			Point p = treeView.PointToClient(new Point(e.X, e.Y));
 			TreeNode n = treeView.GetNodeAt(p);
 //			treeView.HotTracking = true;
+
+			Object o = e.Data.GetData("System.Windows.Forms.TreeNode");
+			if (o != null)
+				o = o;
+			TreeNode NodeMoving = (TreeNode)e.Data.GetData("System.Windows.Forms.TreeNode");
+
 			if (n != null && n != mDragOldNode)
 			{
 				n.EnsureVisible();
