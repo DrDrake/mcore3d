@@ -12,6 +12,7 @@ namespace Studio
 		{
 			InitializeComponent();
 			renderControls = new List<RenderPanelControl>();
+			mDeserializeDockContent = new DeserializeDockContent(getDockingFromPersistString);
 		}
 
 	// Operations
@@ -19,24 +20,30 @@ namespace Studio
 	// Events
 		private void MainForm_Load(object sender, EventArgs e)
 		{
-			dockPanel.SuspendLayout(true);
-
+			assertWindow = new AssertWindow();
+			entityWindow = new EntityWindow();
 			logWindow = new LogWindow();
-			logWindow.Show(dockPanel);
+			propertyWindow = new PropertyWindow();
 
 			// The Global object can be accessed though Global::instance
 			new Global(logWindow.textBox);
 
-			propertyWindow = new PropertyWindow();
-			propertyWindow.Show(dockPanel);
-
-			assertWindow = new AssertWindow();
-			assertWindow.Show(dockPanel);
 			assertWindow.refresh("media");
-
-			entityWindow = new EntityWindow();
-			entityWindow.Show(dockPanel);
 			entityWindow.entitySelectionChanged += new EntitySelectionChangedHandler(onEntitySelectionChanged);
+
+			// Restore the docking layout
+			dockPanel.SuspendLayout(true);
+			try
+			{
+				dockPanel.LoadFromXml("layout.xml", mDeserializeDockContent);
+			}
+			catch (Exception)
+			{	// Use a default docking if the xml failed to load
+				assertWindow.Show(dockPanel);
+				entityWindow.Show(dockPanel);
+				logWindow.Show(dockPanel);
+				propertyWindow.Show(dockPanel);
+			}
 
 			dockPanel.ResumeLayout(true, true);
 		}
@@ -130,6 +137,26 @@ namespace Studio
 				currentRenderControl.entitySelectionChanged(null, entity);
 		}
 
+		private void MainForm_FormClosed(object sender, FormClosedEventArgs e)
+		{
+			dockPanel.SaveAsXml("layout.xml");
+		}
+
+		private IDockContent getDockingFromPersistString(string persistString)
+		{
+			if (persistString == typeof(AssertWindow).ToString())
+				return assertWindow;
+			else if (persistString == typeof(EntityWindow).ToString())
+				return entityWindow;
+			else if (persistString == typeof(LogWindow).ToString())
+				return logWindow;
+			else if (persistString == typeof(PropertyWindow).ToString())
+				return propertyWindow;
+
+			// For example, the docking state of renderWindow will not be laoded
+			return null;
+		}
+
 	// Attrubutes
 		/// <summary>
 		/// The current selected rendering panel.
@@ -147,5 +174,7 @@ namespace Studio
 		LogWindow logWindow;
 
 		Entity currentSelectedEntity;
+
+		private DeserializeDockContent mDeserializeDockContent;
 	}
 }
