@@ -95,7 +95,7 @@ namespace Studio
 			else
 				entityWindow.selectEntityRoot(null);
 
-			entityWindow.treeView.SelectedNodes.Clear();
+			entityWindow.treeView.TreeView.SelectedNodes.Clear();
 		}
 
 		void sceneClosing(object sender, FormClosingEventArgs e)
