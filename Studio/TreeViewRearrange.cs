@@ -2,33 +2,26 @@ using System;
 using System.ComponentModel;
 using System.Drawing;
 using System.Windows.Forms;
-using System.Diagnostics;
 
 namespace Studio
 {
-	public partial class RearrangeableTreeView : UserControl
+	public class TreeViewRearrange<T> where T : TreeView
 	{
-		public RearrangeableTreeView()
-		{
-			InitializeComponent();
-			mBackupState = new BackupState();
-		}
-
 		/// <summary>
 		/// Defines the relative position to a node.
 		/// </summary>
 		public enum Position { Up, Middle, Down, NotSet };
 
-		#region Draggin event
+		#region Dragging event
 		/// <summary>
 		/// Indicate which node is being dragging, and over which node to drop to.
 		/// </summary>
-		public class DragginArgument : CancelEventArgs
+		public class DraggingArgument : CancelEventArgs
 		{
 			public TreeNode SourceNode, TargetNode;
 			public Position Position;
 
-			public DragginArgument()
+			public DraggingArgument()
 			{
 				Color = Color.Gray;
 			}
@@ -38,7 +31,7 @@ namespace Studio
 			/// </summary>
 			public Color Color;
 		}
-		public delegate void DraggingEventHandler(object sender, DragginArgument arg);
+		public delegate void DraggingEventHandler(object sender, DraggingArgument arg);
 		public event DraggingEventHandler Dragging;
 		#endregion
 
@@ -52,7 +45,40 @@ namespace Studio
 		public event DropEventHandler Drop;
 		#endregion
 
-		int ExpandNodeDelay
+		/// <summary>
+		/// The tree view that this class is managing.
+		/// </summary>
+		public T TreeView
+		{
+			get { return mTreeView; }
+			set
+			{
+				// Cleanp
+				mBackupState = new BackupState();
+				if (mTreeView != null)
+				{
+					mTreeView.DragLeave -= new System.EventHandler(this.treeView_DragLeave);
+					mTreeView.DragDrop -= new System.Windows.Forms.DragEventHandler(this.treeView1_DragDrop);
+					mTreeView.ItemDrag -= new System.Windows.Forms.ItemDragEventHandler(this.treeView1_ItemDrag);
+					mTreeView.DragOver -= new System.Windows.Forms.DragEventHandler(this.treeView1_DragOver);
+				}
+
+				// Assign new value
+				if ((mTreeView = value) != null)
+				{
+					mTreeView.DragLeave += new System.EventHandler(this.treeView_DragLeave);
+					mTreeView.DragDrop += new System.Windows.Forms.DragEventHandler(this.treeView1_DragDrop);
+					mTreeView.ItemDrag += new System.Windows.Forms.ItemDragEventHandler(this.treeView1_ItemDrag);
+					mTreeView.DragOver += new System.Windows.Forms.DragEventHandler(this.treeView1_DragOver);
+				}
+			}
+		}
+		private T mTreeView;
+
+		/// <summary>
+		/// The time delay of expanding a node during drag over.
+		/// </summary>
+		public int ExpandNodeDelay
 		{
 			get { return mBackupState.expandNodeDelay; }
 			set { mBackupState.expandNodeDelay = value; }
@@ -140,27 +166,27 @@ namespace Studio
 		private void treeView1_ItemDrag(object sender, ItemDragEventArgs e)
 		{
 			mBackupState.SourceNode = ((CodersLab.Windows.Controls.NodesCollection)e.Item)[0];
-			DoDragDrop(e.Item.ToString(), DragDropEffects.Move | DragDropEffects.Copy);
+			mTreeView.DoDragDrop(e.Item.ToString(), DragDropEffects.Move | DragDropEffects.Copy);
 		}
 
 		private void treeView1_DragOver(object sender, DragEventArgs e)
 		{
 			// Determine the node we are dragging over
-			Point p = TreeView.PointToClient(new Point(e.X, e.Y));
-			TreeNode n = TreeView.GetNodeAt(p);
+			Point p = mTreeView.PointToClient(new Point(e.X, e.Y));
+			TreeNode n = mTreeView.GetNodeAt(p);
 
 			if ((mBackupState.TargetNode = n) == null)
 				return;
 
 			{	// Handle auto scroll
 				// Reference: http://www.syncfusion.com/faq/windowsforms/faq_c91c.aspx
-				int delta = TreeView.Height - p.Y;
-				if ((delta < TreeView.Height / 2) && (delta > 0))
+				int delta = mTreeView.Height - p.Y;
+				if ((delta < mTreeView.Height / 2) && (delta > 0))
 				{
 					if (n.NextVisibleNode != null)
 						n.NextVisibleNode.EnsureVisible();
 				}
-				if ((delta > TreeView.Height / 2) && (delta < TreeView.Height))
+				if ((delta > mTreeView.Height / 2) && (delta < mTreeView.Height))
 				{
 					if (n.PrevVisibleNode != null)
 						n.PrevVisibleNode.EnsureVisible();
@@ -169,7 +195,7 @@ namespace Studio
 
 			// Invoke the callback to see the user allow dropping or not
 			e.Effect = DragDropEffects.Move;
-			DragginArgument arg = new DragginArgument();
+			DraggingArgument arg = new DraggingArgument();
 			if (Dragging != null && mBackupState.SourceNode != null)
 			{
 				arg.SourceNode = mBackupState.SourceNode;
@@ -185,7 +211,7 @@ namespace Studio
 			{
 				if (mBackupState.SetPositionIfNot(Position.Up))
 				{
-					TreeView.Refresh();
+					mTreeView.Refresh();
 					DrawLeafPlaceholders(n, n.Bounds.Top, arg.Color);
 				}
 			}
@@ -193,7 +219,7 @@ namespace Studio
 			{
 				if (mBackupState.SetPositionIfNot(Position.Down))
 				{
-					TreeView.Refresh();
+					mTreeView.Refresh();
 					DrawLeafPlaceholders(n, n.Bounds.Bottom, arg.Color);
 				}
 			}
@@ -213,25 +239,19 @@ namespace Studio
 			if(Drop != null)
 				Drop(this, arg);
 			mBackupState.SourceNode = null;
-			TreeView.Refresh();
-		}
-
-		private void treeView_MouseDown(object sender, MouseEventArgs e)
-		{
-			TreeView.SelectedNodes.Clear();
-			TreeView.SelectedNodes.Add(TreeView.GetNodeAt(e.X, e.Y));
+			mTreeView.Refresh();
 		}
 
 		private void treeView_DragLeave(object sender, EventArgs e)
 		{
 			mBackupState.TargetNode = null;
-			TreeView.Refresh();
+			mTreeView.Refresh();
 		}
 
 		private void DrawLeafPlaceholders(TreeNode NodeOver, int verticalPos, Color color)
 		{
 			// NOTE: The graphics should be created every time, cannot cache it
-			Graphics g = TreeView.CreateGraphics();
+			Graphics g = mTreeView.CreateGraphics();
 
 			int LeftPos = NodeOver.Bounds.Left - 10;
 			int RightPos = NodeOver.Bounds.Right + 10;
@@ -252,63 +272,5 @@ namespace Studio
 			g.FillPolygon(new SolidBrush(color), RightTriangle);
 			g.DrawLine(new Pen(color, 2), new Point(LeftPos, verticalPos), new Point(RightPos, verticalPos));
 		}
-
-		/// <summary> 
-		/// Required designer variable.
-		/// </summary>
-		private System.ComponentModel.IContainer components = null;
-
-		/// <summary> 
-		/// Clean up any resources being used.
-		/// </summary>
-		/// <param name="disposing">true if managed resources should be disposed; otherwise, false.</param>
-		protected override void Dispose(bool disposing)
-		{
-			if (disposing && (components != null))
-			{
-				components.Dispose();
-			}
-			base.Dispose(disposing);
-		}
-
-		#region Component Designer generated code
-
-		/// <summary> 
-		/// Required method for Designer support - do not modify 
-		/// the contents of this method with the code editor.
-		/// </summary>
-		private void InitializeComponent()
-		{
-			this.TreeView = new CodersLab.Windows.Controls.TreeView();
-			this.SuspendLayout();
-			// 
-			// TreeView
-			// 
-			this.TreeView.AllowDrop = true;
-			this.TreeView.Dock = System.Windows.Forms.DockStyle.Fill;
-			this.TreeView.Location = new System.Drawing.Point(0, 0);
-			this.TreeView.Name = "TreeView";
-			this.TreeView.ShowNodeToolTips = true;
-			this.TreeView.Size = new System.Drawing.Size(150, 150);
-			this.TreeView.TabIndex = 0;
-			this.TreeView.DragLeave += new System.EventHandler(this.treeView_DragLeave);
-			this.TreeView.DragDrop += new System.Windows.Forms.DragEventHandler(this.treeView1_DragDrop);
-			this.TreeView.MouseDown += new System.Windows.Forms.MouseEventHandler(this.treeView_MouseDown);
-			this.TreeView.ItemDrag += new System.Windows.Forms.ItemDragEventHandler(this.treeView1_ItemDrag);
-			this.TreeView.DragOver += new System.Windows.Forms.DragEventHandler(this.treeView1_DragOver);
-			// 
-			// MyTreeView
-			// 
-			this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
-			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-			this.Controls.Add(this.TreeView);
-			this.Name = "MyTreeView";
-			this.ResumeLayout(false);
-
-		}
-
-		#endregion
-
-		public CodersLab.Windows.Controls.TreeView TreeView;
 	}
 }

@@ -25,12 +25,17 @@ namespace Studio
 				if (entity == selectedEntity)
 					return;
 
-				treeView.TreeView.SelectedNodes.Clear();
+				treeView.SelectedNodes.Clear();
 
 				if(entity != null)
-					treeView.TreeView.SelectedNodes.Add(entity.treeViewNode);
+					treeView.SelectedNodes.Add(entity.treeViewNode);
 			};
+
+			mRearrange = new TreeViewRearrange<CodersLab.Windows.Controls.TreeView>();
+			mRearrange.TreeView = treeView;
 		}
+
+		TreeViewRearrange<CodersLab.Windows.Controls.TreeView> mRearrange;
 
 	// Operations
 		/// <summary>
@@ -41,14 +46,14 @@ namespace Studio
 		{
 			entityRoot = entity;
 
-			treeView.TreeView.Nodes.Clear();
+			treeView.Nodes.Clear();
 
 			if (entity != null)
 			{
 				// Fill up the tree view
-				treeView.TreeView.Nodes.Add(entity.treeViewNode.Nodes[0]);
-				treeView.TreeView.Nodes.Add(entity.treeViewNode.Nodes[1]);
-				treeView.TreeView.Nodes.Add(entity.treeViewNode.Nodes[2]);
+				treeView.Nodes.Add(entity.treeViewNode.Nodes[0]);
+				treeView.Nodes.Add(entity.treeViewNode.Nodes[1]);
+				treeView.Nodes.Add(entity.treeViewNode.Nodes[2]);
 
 				entity.treeViewNode.Nodes[2].Expand();
 			}
@@ -64,9 +69,9 @@ namespace Studio
 		{
 			get
 			{
-				if (treeView.TreeView.SelectedNodes.Count == 0)
+				if (treeView.SelectedNodes.Count == 0)
 					return null;
-				return (Entity)treeView.TreeView.SelectedNodes[0].Tag;
+				return (Entity)treeView.SelectedNodes[0].Tag;
 			}
 		}
 
