@@ -23,31 +23,31 @@ void createTree(Entity& root)
 
 	e1 = new Entity;
 	e1->name = L"e1";
-	e1->link(&root);
+	e1->asChildOf(&root);
 
 	e2 = new Entity;
 	e2->name = L"e2";
-	e2->link(&root);
+	e2->asChildOf(&root);
 
 	e3 = new Entity;
 	e3->name = L"e3";
-	e3->link(&root);
+	e3->asChildOf(&root);
 
 	e11 = new Entity;
 	e11->name = L"e11";
-	e11->link(e1);
+	e11->asChildOf(e1);
 
 	e12 = new Entity;
 	e12->name = L"e12";
-	e12->link(e1);
+	e12->asChildOf(e1);
 
 	e13 = new Entity;
 	e13->name = L"e13";
-	e13->link(e1);
+	e13->asChildOf(e1);
 
 	e21 = new Entity;
 	e21->name = L"e21";
-	e21->link(e2);
+	e21->asChildOf(e2);
 }
 
 }	// namespace
@@ -132,6 +132,37 @@ TEST(Unlink_EntityTest)
 	}
 }
 
+TEST(Insertion_EntityTest)
+{
+	{	// Insert before a first child
+		Entity root;
+		createTree(root);
+		e11->insertBefore(e3);
+		CHECK(!e11->firstChild());
+		CHECK_EQUAL(&root, e11->parent());
+		CHECK_EQUAL(e3, e11->nextSlibing());
+		CHECK_EQUAL(e11, root.firstChild());
+	}
+
+	{	// Insert before a non-first child
+		Entity root;
+		createTree(root);
+		e11->insertBefore(e2);
+		CHECK(!e11->firstChild());
+		CHECK_EQUAL(&root, e11->parent());
+		CHECK_EQUAL(e2, e11->nextSlibing());
+	}
+
+	{	// Insert after
+		Entity root;
+		createTree(root);
+		e11->insertAfter(e2);
+		CHECK(!e11->firstChild());
+		CHECK_EQUAL(&root, e11->parent());
+		CHECK_EQUAL(e1, e11->nextSlibing());
+	}
+}
+
 TEST(WorldTransform_EntityTest)
 {
 	Entity root;
@@ -182,6 +213,11 @@ TEST(PreorderIterator_EntityTest)
 			CHECK_EQUAL(expected[i], itr.operator->());
 		}
 		CHECK_EQUAL(sizeof(expected)/sizeof(Entity*), i);
+	}
+
+	{	// Test skipChildren()
+		EntityPreorderIterator itr(nullptr);
+		CHECK(!itr.skipChildren());
 	}
 }
 

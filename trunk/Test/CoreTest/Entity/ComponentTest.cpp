@@ -67,7 +67,7 @@ TEST(Basic_ComponentTest)
 	// Test findComponentInChildren
 	Entity* e = new Entity;
 	e->name = L"Component 3";
-	e->link(&root);
+	e->asChildOf(&root);
 	ComponentPtr c3 = new DummyComponent3;
 	e->addComponent(c3.get());
 
@@ -97,7 +97,7 @@ TEST(ComponentPreorderIterator_ComponentTest)
 
 	{	// With an child Entity
 		Entity* e = new Entity;
-		e->link(&root);
+		e->asChildOf(&root);
 		e->addComponent(c[2]);
 
 		size_t i = 0;
@@ -109,7 +109,7 @@ TEST(ComponentPreorderIterator_ComponentTest)
 
 	{	// With an empty Entity
 		Entity* e = new Entity;
-		e->link(&root);
+		e->asChildOf(&root);
 
 		size_t i = 0;
 		for(ComponentPreorderIterator itr(&root); !itr.ended(); itr.next(), ++i) {

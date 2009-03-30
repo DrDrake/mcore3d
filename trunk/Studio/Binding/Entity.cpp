@@ -104,12 +104,20 @@ Entity::Entity(IntPtr entity)
 	} while(current != nullptr);
 }
 
-void Entity::link(Entity^ parent)
+void Entity::asChildOf(Entity^ parent)
 {
 	if(parent) {
 		parent->treeViewNode->Nodes->Add(treeViewNode);
-		mImpl->link(parent->mImpl);
+		mImpl->asChildOf(parent->mImpl);
 	}
+}
+
+void Entity::insertBefore(Entity^ parent)
+{
+}
+
+void Entity::insertAfter(Entity^ parent)
+{
 }
 
 void Entity::unlink()

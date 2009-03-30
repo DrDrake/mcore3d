@@ -31,8 +31,12 @@ public:
 
 // Operations
 	//! Make this entity a child of \em parent.
-	// NOTE: Is it better to change the name to asChildOf
-	void link(sal_in Entity* parent);
+	void asChildOf(sal_in Entity* parent);
+
+	//! The input parameter should not be the root node.
+	void insertBefore(sal_in Entity* slibing);
+
+	void insertAfter(sal_in Entity* slibing);
 
 	/*!	Unlink this entity from it's parent (if any).
 		\note

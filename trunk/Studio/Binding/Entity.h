@@ -22,7 +22,11 @@ public:
 	//! Create the Entity, all the cache/internal/tree-view node pointers will be initialized as well.
 	Entity(IntPtr entity);
 
-	void link(Entity^ parent);
+	void asChildOf(Entity^ parent);
+
+	void insertBefore(Entity^ parent);
+
+	void insertAfter(Entity^ parent);
 
 	void unlink();
 
