@@ -92,12 +92,12 @@ Gizmo::Gizmo(ResourceManager& resourceManager)
 
 	Entity* translationEntity = new Entity();
 	translationEntity->name = L"Translation";
-	translationEntity->link(this);
+	translationEntity->asChildOf(this);
 
 	{	// Add an entity for picking
 		Entity* e = new Entity();
 		e->name = L"Gizmo picker";
-		e->link(this);
+		e->asChildOf(this);
 		MyPickComponent* c = new MyPickComponent;
 		c->entityToPick = translationEntity;
 		e->addComponent(c);
@@ -107,7 +107,7 @@ Gizmo::Gizmo(ResourceManager& resourceManager)
 	// Add child entities
 	{	Entity* e = new Entity();
 		e->name = L"X arrow";
-		e->link(translationEntity);
+		e->asChildOf(translationEntity);
 		MyMeshComponent* c = new MyMeshComponent(ColorRGBAf(1, 0, 0, 0.8f));
 		c->mesh = mesh;
 		e->addComponent(c);
@@ -117,7 +117,7 @@ Gizmo::Gizmo(ResourceManager& resourceManager)
 
 	{	Entity* e = new Entity();
 		e->name = L"Y arrow";
-		e->link(translationEntity);
+		e->asChildOf(translationEntity);
 		MyMeshComponent* c = new MyMeshComponent(ColorRGBAf(0, 1, 0, 0.8f));
 		c->mesh = mesh;
 		e->addComponent(c);
@@ -126,7 +126,7 @@ Gizmo::Gizmo(ResourceManager& resourceManager)
 
 	{	Entity* e = new Entity();
 		e->name = L"Z arrow";
-		e->link(translationEntity);
+		e->asChildOf(translationEntity);
 		MyMeshComponent* c = new MyMeshComponent(ColorRGBAf(0, 0, 1, 0.8f));
 		c->mesh = mesh;
 		e->addComponent(c);

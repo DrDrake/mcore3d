@@ -26,7 +26,7 @@ Entity::~Entity()
 	} while(children);
 }
 
-void Entity::link(Entity* parent)
+void Entity::asChildOf(Entity* parent)
 {
 	if(!parent)
 		return;
@@ -38,6 +38,51 @@ void Entity::link(Entity* parent)
 	mParent = parent;
 	mNextSlibing = oldFirstChild;
 	parent->mFirstChild = this;
+}
+
+void Entity::insertBefore(sal_in Entity* slibing)
+{
+	if(!slibing || !slibing->mParent)
+		return;
+
+	// Unlink this Entity first
+	unlink();
+
+	Entity* node = slibing->mParent->mFirstChild;
+	if(node == slibing) {
+		slibing->mParent->mFirstChild = this;
+		mParent = slibing->mParent;
+		mNextSlibing = slibing;
+		return;
+	}
+
+	// Find out which node to insert after,
+	// since we didn't store a previous slibing pointer
+	while(node) {
+		if(node->mNextSlibing == slibing)
+			break;
+		node = node->mNextSlibing;
+	}
+
+	// Should never be null since slibing should contained by slibing->mParent->mFirstChild
+	MCD_ASSERT(node != nullptr);
+
+	insertAfter(node);
+}
+
+void Entity::insertAfter(sal_in Entity* slibing)
+{
+	if(!slibing)
+		return;
+
+	// Unlink this Entity first
+	unlink();
+
+	mParent = slibing->mParent;
+
+	Entity* old = slibing->mNextSlibing;
+	slibing->mNextSlibing = this;
+	mNextSlibing = old;
 }
 
 void Entity::unlink()

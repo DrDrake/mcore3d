@@ -6,6 +6,8 @@ using global::Binding;
 
 namespace Studio
 {
+	class Rearrange : TreeViewRearrange<CodersLab.Windows.Controls.TreeView> {}
+
 	/// <summary>
 	/// Showing the Entity tree with a multi-selectable tree-view control
 	/// Download URL of the multi-selectable tree-view:
@@ -31,11 +33,13 @@ namespace Studio
 					treeView.SelectedNodes.Add(entity.treeViewNode);
 			};
 
-			mRearrange = new TreeViewRearrange<CodersLab.Windows.Controls.TreeView>();
+			mRearrange = new Rearrange();
 			mRearrange.TreeView = treeView;
+			mRearrange.Dragging += new Rearrange.DraggingEventHandler(this.treeView_Dragging);
+			mRearrange.Drop += new Rearrange.DropEventHandler(this.treeView_Drop);
 		}
 
-		TreeViewRearrange<CodersLab.Windows.Controls.TreeView> mRearrange;
+		Rearrange mRearrange;
 
 	// Operations
 		/// <summary>
@@ -89,6 +93,24 @@ namespace Studio
 			// TODO: Enable as an option
 			if(selectedEntity != null)
 				selectedEntity.treeViewNode.EnsureVisible();
+		}
+
+		private void treeView_Dragging(object sender, Rearrange.DraggingArgument arg)
+		{
+		}
+
+		private void treeView_Drop(object sender, Rearrange.DropArgument arg)
+		{
+			Entity source = (Entity)arg.SourceNode.Tag;
+			Entity target = (Entity)arg.TargetNode.Tag;
+			source.unlink();
+
+			if (arg.Position == Rearrange.Position.Middle)
+				source.asChildOf(target);
+			else if (arg.Position == Rearrange.Position.Up)
+				source.insertBefore(target);
+			else if (arg.Position == Rearrange.Position.Down)
+				source.insertAfter(target);
 		}
 	}
 }

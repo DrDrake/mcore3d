@@ -21,7 +21,7 @@ TEST(MeshComponentTest)
 			{	// Setup entity 1
 				std::auto_ptr<Entity> e(new Entity);
 				e->name = L"ChamferBox 1";
-				e->link(&mRootNode);
+				e->asChildOf(&mRootNode);
 				e->localTransform = Mat44f(Mat33f::rotateXYZ(0, Mathf::cPiOver4(), 0));
 
 				// Setup the chamfer box mesh
@@ -41,7 +41,7 @@ TEST(MeshComponentTest)
 			{	// Setup entity 2
 				std::auto_ptr<Entity> e(new Entity);
 				e->name = L"Sphere 1";
-				e->link(&mRootNode);
+				e->asChildOf(&mRootNode);
 				e->localTransform.setTranslation(Vec3f(1, 0, 0));
 
 				// Setup the chamfer box mesh

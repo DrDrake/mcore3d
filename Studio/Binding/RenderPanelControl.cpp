@@ -47,14 +47,14 @@ public:
 		{	// Setup user defined sub-tree
 			std::auto_ptr<MCD::Entity> e(new MCD::Entity);
 			e->name = L"Studio user defined sub-tree";
-			e->link(&mRootNode);
+			e->asChildOf(&mRootNode);
 			mUserSubTree = e.release();
 		}
 
 		{	// Setup pre-defined sub-tree
 			std::auto_ptr<MCD::Entity> e(new MCD::Entity);
 			e->name = L"Studio pre-defined sub-tree";
-			e->link(&mRootNode);
+			e->asChildOf(&mRootNode);
 			mPredefinedSubTree = e.release();
 		}
 
@@ -63,7 +63,7 @@ public:
 			// related stuffs (eg axis picking) are working
 			std::auto_ptr<Gizmo> e(new Gizmo(mResourceManager));
 			e->name = L"Gizmo";
-			e->link(&mRootNode);
+			e->asChildOf(&mRootNode);
 
 			mGizmo = e.release();
 		}
@@ -71,7 +71,7 @@ public:
 		{	// Add picking detector
 			std::auto_ptr<MCD::Entity> e(new MCD::Entity);
 			e->name = L"Entity picker";
-			e->link(mPredefinedSubTree);
+			e->asChildOf(mPredefinedSubTree);
 			mEntityPicker = new PickComponent;
 			mEntityPicker->entityToPick = mUserSubTree;
 			e->addComponent(mEntityPicker);
@@ -82,7 +82,7 @@ public:
 		{	// Add a default camera
 			std::auto_ptr<MCD::Entity> e(new MCD::Entity);
 			e->name = L"Default camera";
-			e->link(mPredefinedSubTree);
+			e->asChildOf(mPredefinedSubTree);
 			e->localTransform.setTranslation(Vec3f(0, 0, 5));
 
 			// Add component
@@ -97,11 +97,13 @@ public:
 			e.release();
 		}
 
+		for(int i=0; i< 40; ++i)
 		{	// Setup entity 1
 			std::auto_ptr<MCD::Entity> e(new MCD::Entity);
 			e->name = L"ChamferBox 1";
-			e->link(mUserSubTree);
+			e->asChildOf(mUserSubTree);
 			e->localTransform = Mat44f(Mat33f::rotateXYZ(0, Mathf::cPiOver4(), 0));
+			e->localTransform.setTranslation(Vec3f(i/10, i%10, 0));
 
 			// Setup the chamfer box mesh
 			MeshPtr mesh = new Mesh(L"");
@@ -120,7 +122,7 @@ public:
 		{	// Setup entity 2
 			std::auto_ptr<MCD::Entity> e(new MCD::Entity);
 			e->name = L"Sphere 1";
-			e->link(mUserSubTree);
+			e->asChildOf(mUserSubTree);
 			e->localTransform.setTranslation(Vec3f(1, 0, 0));
 
 			// Setup the chamfer box mesh
