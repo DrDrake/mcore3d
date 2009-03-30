@@ -107,24 +107,35 @@ Entity::Entity(IntPtr entity)
 void Entity::asChildOf(Entity^ parent)
 {
 	if(parent) {
+		unlink();
 		parent->treeViewNode->Nodes->Add(treeViewNode);
 		mImpl->asChildOf(parent->mImpl);
 	}
 }
 
-void Entity::insertBefore(Entity^ parent)
+void Entity::insertBefore(Entity^ slibing)
 {
+	unlink();
+	mImpl->insertBefore(slibing->mImpl);
+	TreeNodeCollection^ nodes = slibing->treeViewNode->Parent->Nodes;
+	nodes->Insert(nodes->IndexOf(slibing->treeViewNode), treeViewNode);
 }
 
-void Entity::insertAfter(Entity^ parent)
+void Entity::insertAfter(Entity^ slibing)
 {
+	unlink();
+	mImpl->insertAfter(slibing->mImpl);
+	TreeNodeCollection^ nodes = slibing->treeViewNode->Parent->Nodes;
+	nodes->Insert(nodes->IndexOf(slibing->treeViewNode)+1, treeViewNode);
 }
 
 void Entity::unlink()
 {
+	if(treeViewNode->Parent == nullptr)
+		throw gcnew NullReferenceException();
+
 	mImpl->unlink();
-	if(treeViewNode->Parent != nullptr)
-		treeViewNode->Parent->Nodes->Remove(treeViewNode);
+	treeViewNode->Parent->Nodes->Remove(treeViewNode);
 }
 
 MCD::Entity* Entity::getRawEntityPtr()

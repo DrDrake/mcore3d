@@ -97,13 +97,14 @@ namespace Studio
 
 		private void treeView_Dragging(object sender, Rearrange.DraggingArgument arg)
 		{
+			if (arg.SourceNode == arg.TargetNode)
+				arg.Cancel = true;
 		}
 
 		private void treeView_Drop(object sender, Rearrange.DropArgument arg)
 		{
 			Entity source = (Entity)arg.SourceNode.Tag;
 			Entity target = (Entity)arg.TargetNode.Tag;
-			source.unlink();
 
 			if (arg.Position == Rearrange.Position.Middle)
 				source.asChildOf(target);
