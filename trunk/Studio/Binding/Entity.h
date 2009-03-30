@@ -24,9 +24,9 @@ public:
 
 	void asChildOf(Entity^ parent);
 
-	void insertBefore(Entity^ parent);
+	void insertBefore(Entity^ slibing);
 
-	void insertAfter(Entity^ parent);
+	void insertAfter(Entity^ slibing);
 
 	void unlink();
 
