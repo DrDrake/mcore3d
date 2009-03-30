@@ -45,7 +45,7 @@ public:
 		Gizmo* gizmo = polymorphic_downcast<Gizmo*>(entity());
 		if(!gizmo || !selectedEntity.get())
 			return;
-		gizmo->localTransform = selectedEntity->localTransform;
+		gizmo->localTransform = selectedEntity->worldTransform();
 	}
 
 	EntityPtr selectedEntity;
