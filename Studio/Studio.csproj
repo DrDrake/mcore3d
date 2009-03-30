@@ -129,6 +129,7 @@
     <Compile Include="PropertyWindow.Designer.cs">
       <DependentUpon>PropertyWindow.cs</DependentUpon>
     </Compile>
+    <Compile Include="TreeViewRearrange.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\3Party\DockPanel\WinFormsUI.csproj">

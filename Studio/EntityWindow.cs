@@ -97,8 +97,13 @@ namespace Studio
 
 		private void treeView_Dragging(object sender, Rearrange.DraggingArgument arg)
 		{
-			if (arg.SourceNode == arg.TargetNode)
-				arg.Cancel = true;
+			// Prevent the source node dragging to itself or any of it's descent
+			TreeNode n = arg.TargetNode;
+			while (n != null) {
+				if (n == arg.SourceNode)
+					arg.Cancel = true;
+				n = n.Parent;
+			}
 		}
 
 		private void treeView_Drop(object sender, Rearrange.DropArgument arg)
