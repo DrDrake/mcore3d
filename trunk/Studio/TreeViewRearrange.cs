@@ -140,6 +140,11 @@ namespace Studio
 				get { return dropArgument.Position; }
 			}
 
+			/// <summary>
+			/// Set the internal position enum to an update value, lazyly.
+			/// </summary>
+			/// <param name="pos">The new position enum</param>
+			/// <returns>True if update is preformed</returns>
 			public bool SetPositionIfNot(Position pos)
 			{
 				if (dropArgument.Position != pos)
@@ -175,8 +180,11 @@ namespace Studio
 			Point p = mTreeView.PointToClient(new Point(e.X, e.Y));
 			TreeNode n = mTreeView.GetNodeAt(p);
 
-			if ((mBackupState.TargetNode = n) == null)
+			// TODO: Guest the node when the pointer is out of range
+			if (n == null)
 				return;
+
+			mBackupState.TargetNode = n;
 
 			{	// Handle auto scroll
 				// Reference: http://www.syncfusion.com/faq/windowsforms/faq_c91c.aspx

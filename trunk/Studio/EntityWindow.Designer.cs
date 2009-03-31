@@ -39,15 +39,16 @@
 			this.treeView.Name = "treeView";
 			this.treeView.SelectionBackColor = System.Drawing.SystemColors.Highlight;
 			this.treeView.SelectionMode = CodersLab.Windows.Controls.TreeViewSelectionMode.MultiSelect;
-			this.treeView.Size = new System.Drawing.Size(292, 271);
+			this.treeView.Size = new System.Drawing.Size(292, 250);
 			this.treeView.TabIndex = 0;
+			this.treeView.KeyUp += new System.Windows.Forms.KeyEventHandler(this.treeView_KeyUp);
 			this.treeView.SelectionsChanged += new System.EventHandler(this.treeView_SelectionsChanged);
 			// 
 			// EntityWindow
 			// 
-			this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
+			this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-			this.ClientSize = new System.Drawing.Size(292, 271);
+			this.ClientSize = new System.Drawing.Size(292, 250);
 			this.Controls.Add(this.treeView);
 			this.DockAreas = ((WeifenLuo.WinFormsUI.Docking.DockAreas)((((((WeifenLuo.WinFormsUI.Docking.DockAreas.Float | WeifenLuo.WinFormsUI.Docking.DockAreas.DockLeft)
 						| WeifenLuo.WinFormsUI.Docking.DockAreas.DockRight)

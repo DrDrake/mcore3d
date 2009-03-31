@@ -6,8 +6,6 @@ using global::Binding;
 
 namespace Studio
 {
-	class Rearrange : TreeViewRearrange<CodersLab.Windows.Controls.TreeView> {}
-
 	/// <summary>
 	/// Showing the Entity tree with a multi-selectable tree-view control
 	/// Download URL of the multi-selectable tree-view:
@@ -17,6 +15,8 @@ namespace Studio
 	/// </summary>
 	public partial class EntityWindow : DockContent
 	{
+		class Rearrange : TreeViewRearrange<CodersLab.Windows.Controls.TreeView> {}
+
 		public EntityWindow()
 		{
 			InitializeComponent();
@@ -117,6 +117,16 @@ namespace Studio
 				source.insertBefore(target);
 			else if (arg.Position == Rearrange.Position.Down)
 				source.insertAfter(target);
+		}
+
+		public void treeView_KeyUp(object sender, KeyEventArgs e)
+		{
+			// Press delete key will delete the selected node from the scene graph
+			if (e.KeyCode == Keys.Delete && selectedEntity != null)
+			{
+				selectedEntity.destroyThis();
+				entitySelectionChanged(this, null);
+			}
 		}
 	}
 }
