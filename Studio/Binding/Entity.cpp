@@ -138,6 +138,13 @@ void Entity::unlink()
 	treeViewNode->Parent->Nodes->Remove(treeViewNode);
 }
 
+void Entity::destroyThis()
+{
+	unlink();
+	delete mImpl;
+	mImpl = nullptr;
+}
+
 MCD::Entity* Entity::getRawEntityPtr()
 {
 	return mImpl;

@@ -30,6 +30,8 @@ public:
 
 	void unlink();
 
+	void destroyThis();
+
 	MCD::Entity* getRawEntityPtr();
 
 	//! Transform an MCD::Entity pointer to CLR pointer.

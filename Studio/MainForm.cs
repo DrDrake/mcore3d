@@ -62,6 +62,9 @@ namespace Studio
 			content.Controls.Add(renderPanel);
 			content.TabText = "Scene " + renderControls.Count;
 
+			// Broadcasting the key event from render panel to entity window
+			renderPanel.KeyUp += new KeyEventHandler(entityWindow.treeView_KeyUp);
+
 			// Selected the newly created scene
 			sceneSelectionChanged(renderPanel, new EventArgs());
 		}
