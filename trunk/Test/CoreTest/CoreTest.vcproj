@@ -297,6 +297,10 @@
 			Name="Math"
 			>
 			<File
+				RelativePath=".\Math\IntersectionTest.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\Math\Mat33Test.cpp"
 				>
 			</File>
