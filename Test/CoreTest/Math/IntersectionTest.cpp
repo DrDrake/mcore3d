@@ -9,7 +9,7 @@ using namespace MCD;
 TEST(RayPlane_IntersectionTest)
 {
 	{	Ray ray(Vec3f(0, 0, 0), Vec3f::c100);
-		Plane plane(Vec3f::c100, 1);
+		Plane plane(Vec3f::c100, -1);
 
 		float distanceAlongRay;
 		CHECK(Intersects(ray, plane, distanceAlongRay));
@@ -17,7 +17,7 @@ TEST(RayPlane_IntersectionTest)
 	}
 
 	{	Ray ray(Vec3f(0, 0, 0), -Vec3f::c100);
-		Plane plane(Vec3f::c100, 1);
+		Plane plane(Vec3f::c100, -1);
 
 		float distanceAlongRay;
 		CHECK(Intersects(ray, plane, distanceAlongRay));
@@ -25,7 +25,7 @@ TEST(RayPlane_IntersectionTest)
 	}
 
 	{	Ray ray(Vec3f(0, 0, 0), Vec3f(1, 1, 0).normalizedCopy());
-		Plane plane(Vec3f::c100, 1);
+		Plane plane(Vec3f::c100, -1);
 
 		float distanceAlongRay;
 		CHECK(Intersects(ray, plane, distanceAlongRay));
@@ -33,7 +33,7 @@ TEST(RayPlane_IntersectionTest)
 	}
 
 	{	Ray ray(Vec3f(0, 0, 0), Vec3f(1, 1, 0).normalizedCopy());
-		Plane plane(Vec3f::c100, -1);
+		Plane plane(Vec3f::c100, 1);
 
 		float distanceAlongRay;
 		CHECK(Intersects(ray, plane, distanceAlongRay));
@@ -42,7 +42,7 @@ TEST(RayPlane_IntersectionTest)
 
 	{	// Parallel, no intersection
 		Ray ray(Vec3f(0, 0, 0), Vec3f::c100);
-		Plane plane(Vec3f::c010, 1);
+		Plane plane(Vec3f::c010, -1);
 
 		float distanceAlongRay;
 		CHECK(!Intersects(ray, plane, distanceAlongRay));

@@ -508,6 +508,10 @@
 					>
 				</File>
 				<File
+					RelativePath=".\Math\Intersection.h"
+					>
+				</File>
+				<File
 					RelativePath=".\Math\Magnitude.h"
 					>
 				</File>
@@ -528,11 +532,19 @@
 					>
 				</File>
 				<File
+					RelativePath=".\Math\Plane.h"
+					>
+				</File>
+				<File
 					RelativePath=".\Math\Quaternion.h"
 					>
 				</File>
 				<File
 					RelativePath=".\Math\Quaternion.inl"
+					>
+				</File>
+				<File
+					RelativePath=".\Math\Ray.h"
 					>
 				</File>
 				<File
@@ -563,6 +575,10 @@
 			<Filter
 				Name="Source Files"
 				>
+				<File
+					RelativePath=".\Math\Intersection.cpp"
+					>
+				</File>
 			</Filter>
 		</Filter>
 		<Filter

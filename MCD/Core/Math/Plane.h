@@ -14,20 +14,34 @@ namespace MCD {
 class Plane
 {
 public:
+// Construction
 	Plane() {}
 
-	Plane(const Vec3f& _normal, float _constant)
-		: normal(_normal), constant(_constant)
+	Plane(const Vec3f& _normal, float _d)
+		: normal(_normal), d(_d)
 	{}
 
-	Plane(const Vec3f& point1, const Vec3f& point2, const Vec3f& point3)
+	Plane(float _a, float _b, float _c, float _d)
+		: normal(_a, _b, _c), d(_d)
+	{}
+
+	//! Define the plane using a point and a normal.
+	Plane(const Vec3f& _normal, const Vec3f& point)
+		: normal(_normal), d(-_normal.dot(point))
+	{}
+
+	/*! Define the plane using 3 points.
+		The winding order will defind the direction of the normal
+	 */
+	Plane(const Vec3f& p1, const Vec3f& p2, const Vec3f& p3)
 	{
-		MCD_ASSERT(false && "To be implement");
+		normal = (p1 - p2) ^ (p2 - p3);
+		d = -normal.dot(p1);
 	}
 
 // Attribute
 	Vec3f normal;
-	float constant;
+	float d;
 };	// Plane
 
 }	// namespace MCD
