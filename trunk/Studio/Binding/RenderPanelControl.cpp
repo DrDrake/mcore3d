@@ -97,7 +97,7 @@ public:
 			e.release();
 		}
 
-		for(int i=0; i< 40; ++i)
+		for(int i=0; i< 2; ++i)
 		{	// Setup entity 1
 			std::auto_ptr<MCD::Entity> e(new MCD::Entity);
 			e->name = L"ChamferBox 1";
@@ -247,6 +247,11 @@ public:
 		mGizmo->mouseDown(e->X, e->Y);
 	}
 
+	void onMouseUp(System::Object^ sender, System::Windows::Forms::MouseEventArgs^ e)
+	{
+		mGizmo->mouseUp(e->X, e->Y);
+	}
+
 	void onMouseMove(System::Object^ sender, System::Windows::Forms::MouseEventArgs^ e)
 	{
 		mGizmo->mouseMove(e->X, e->Y);
@@ -355,6 +360,11 @@ System::Void RenderPanelControl::RenderPanelControl_KeyUp(System::Object^ sender
 System::Void RenderPanelControl::RenderPanelControl_MouseDown(System::Object^ sender, System::Windows::Forms::MouseEventArgs^ e)
 {
 	mImpl->onMouseDown(sender, e);
+}
+
+System::Void RenderPanelControl::RenderPanelControl_MouseUp(System::Object^ sender, System::Windows::Forms::MouseEventArgs^ e)
+{
+	mImpl->onMouseUp(sender, e);
 }
 
 System::Void RenderPanelControl::RenderPanelControl_MouseMove(System::Object^ sender, System::Windows::Forms::MouseEventArgs^ e)

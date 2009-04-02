@@ -98,6 +98,7 @@ private:
 		this->KeyUp += gcnew System::Windows::Forms::KeyEventHandler(this, &RenderPanelControl::RenderPanelControl_KeyUp);
 		this->KeyDown += gcnew System::Windows::Forms::KeyEventHandler(this, &RenderPanelControl::RenderPanelControl_KeyDown);
 		this->MouseDown += gcnew System::Windows::Forms::MouseEventHandler(this, &RenderPanelControl::RenderPanelControl_MouseDown);
+		this->MouseUp += gcnew System::Windows::Forms::MouseEventHandler(this, &RenderPanelControl::RenderPanelControl_MouseUp);
 		this->MouseMove += gcnew System::Windows::Forms::MouseEventHandler(this, &RenderPanelControl::RenderPanelControl_MouseMove);
 		this->ResumeLayout(false);
 
@@ -110,6 +111,7 @@ private: System::Void RenderPanelControl_Paint(System::Object^ sender, System::W
 private: System::Void RenderPanelControl_KeyDown(System::Object^ sender, System::Windows::Forms::KeyEventArgs^ e);
 private: System::Void RenderPanelControl_KeyUp(System::Object^ sender, System::Windows::Forms::KeyEventArgs^ e);
 private: System::Void RenderPanelControl_MouseDown(System::Object^ sender, System::Windows::Forms::MouseEventArgs^ e);
+private: System::Void RenderPanelControl_MouseUp(System::Object^ sender, System::Windows::Forms::MouseEventArgs^ e);
 private: System::Void RenderPanelControl_MouseMove(System::Object^ sender, System::Windows::Forms::MouseEventArgs^ e);
 };
 

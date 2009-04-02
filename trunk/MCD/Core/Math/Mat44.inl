@@ -307,6 +307,15 @@ void Mat44<T>::transformPoint(Vec3<T>& point) const
 	point.z = m20 * tmp.x + m21 * tmp.y + m22 * tmp.z + m23;
 }
 
+template<typename T>
+void Mat44<T>::transformNormal(Vec3<T>& point) const
+{
+	Vec3<T> tmp = point;
+	point.x = m00 * tmp.x + m01 * tmp.y + m02 * tmp.z;
+	point.y = m10 * tmp.x + m11 * tmp.y + m12 * tmp.z;
+	point.z = m20 * tmp.x + m21 * tmp.y + m22 * tmp.z;
+}
+
 template<typename T> const Mat44<T> Mat44<T>::cIdentity = Mat44<T>(
 	1, 0, 0, 0,
 	0, 1, 0, 0,

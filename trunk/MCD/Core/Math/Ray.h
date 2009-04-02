@@ -17,6 +17,11 @@ public:
 		: origin(_origin), unitDirection(_unitDirection)
 	{}
 
+	//!	Gets the position of a point t units along the ray.
+	Vec3f getPoint(float t) const {
+		return origin + t * unitDirection;
+	}
+
 // Attribute
 	Vec3f origin;
 	Vec3f unitDirection;

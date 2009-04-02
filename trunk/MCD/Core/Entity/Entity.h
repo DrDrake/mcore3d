@@ -62,6 +62,7 @@ public:
 		return findComponent<T>(typeid(T));
 	}
 
+	// TODO: Replace findComponentInChildren with some filtering iterator.
 	/*!	Returns the Component of type familyType in the Entity or any of its children.
 		Returns null if none is found.
 		\todo Decide which tree traversal is the best to use.

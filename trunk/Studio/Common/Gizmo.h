@@ -18,9 +18,23 @@ public:
 
 	const MCD::EntityPtr& selectedEntity() const;
 
-	void mouseDown(uint x, uint y);
-	void mouseMove(uint x, uint y);
-	void mouseUp(uint x, uint y);
+	void mouseDown(int x, int y);
+	void mouseMove(int x, int y);
+	void mouseUp(int x, int y);
+
+	/*!	Which Gizmo entity is currently draggin.
+		May be the translation arrow, or a rotation axis.
+	 */
+	Entity* draggingEntity;
+
+protected:
+	int mLastMousePosition[2];
+
+	//! Intermediate varible to store draggingEntity's mesh component
+	MCD::ComponentPtr mDraggingMeshComponent;
+
+	//! A shortcut to the pick detection component.
+	MCD::ComponentPtr mPickComponent;
 };	// Gizmo
 
 #endif	// __MCD_STUDIO_GIZMO__
