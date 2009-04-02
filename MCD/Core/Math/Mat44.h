@@ -133,6 +133,8 @@ public:
 
 	void transformPoint(Vec3<T>& point) const;
 
+	void transformNormal(Vec3<T>& normal) const;
+
 	static const Mat44 cIdentity;
 };	// Mat44
 
