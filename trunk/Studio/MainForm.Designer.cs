@@ -106,6 +106,7 @@
 			// 
 			this.dockPanel.ActiveAutoHideContent = null;
 			this.dockPanel.Dock = System.Windows.Forms.DockStyle.Fill;
+			this.dockPanel.DocumentStyle = WeifenLuo.WinFormsUI.Docking.DocumentStyle.DockingWindow;
 			this.dockPanel.Location = new System.Drawing.Point(0, 24);
 			this.dockPanel.Name = "dockPanel";
 			this.dockPanel.Size = new System.Drawing.Size(792, 503);
@@ -118,7 +119,6 @@
 			this.ClientSize = new System.Drawing.Size(792, 527);
 			this.Controls.Add(this.dockPanel);
 			this.Controls.Add(this.mainMenu);
-			this.IsMdiContainer = true;
 			this.MainMenuStrip = this.mainMenu;
 			this.Name = "MainForm";
 			this.Text = "MCore3d Studio";
