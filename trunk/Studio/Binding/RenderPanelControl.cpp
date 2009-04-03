@@ -38,7 +38,8 @@ public:
 		mWidth(0), mHeight(0), mFieldOfView(60.0f),
 		mGizmo(nullptr), mEntityPicker(nullptr),
 		mPredefinedSubTree(nullptr), mUserSubTree(nullptr),
-		mResourceManager(*createDefaultFileSystem())
+		mResourceManager(*createDefaultFileSystem()),
+		mPropertyGridNeedRefresh(false)
 	{
 	}
 
@@ -242,9 +243,16 @@ public:
 
 	void onMouseDown(System::Object^ sender, System::Windows::Forms::MouseEventArgs^ e)
 	{
-		mEntityPicker->entity()->enabled = true;
-		mEntityPicker->setPickRegion(e->X, e->Y);
 		mGizmo->mouseDown(e->X, e->Y);
+
+		// Gizmo has a higher priority to do picking
+		if(!mGizmo->draggingEntity)
+		{
+			mEntityPicker->entity()->enabled = true;
+			mEntityPicker->setPickRegion(e->X, e->Y);
+		}
+
+		mLastMousePos = Point(e->X, e->Y);
 	}
 
 	void onMouseUp(System::Object^ sender, System::Windows::Forms::MouseEventArgs^ e)
@@ -255,6 +263,11 @@ public:
 	void onMouseMove(System::Object^ sender, System::Windows::Forms::MouseEventArgs^ e)
 	{
 		mGizmo->mouseMove(e->X, e->Y);
+
+		if(mGizmo->draggingEntity && mLastMousePos != Point(e->X, e->Y))
+			mPropertyGridNeedRefresh = true;
+
+		mLastMousePos = Point(e->X, e->Y);
 	}
 
 	gcroot<RenderPanelControl^> mBackRef;
@@ -265,6 +278,8 @@ public:
 	MCD::PickComponent* mEntityPicker;
 	WeakPtr<CameraComponent> mCamera;
 	DefaultResourceManager mResourceManager;
+	bool mPropertyGridNeedRefresh;
+	Point mLastMousePos;
 };	// RenderPanelControlImpl
 
 RenderPanelControl::RenderPanelControl()
@@ -311,6 +326,11 @@ void RenderPanelControl::update()
 		return;
 	mImpl->resize(this->Width, this->Height);
 	mImpl->update();
+
+	if(mImpl->mPropertyGridNeedRefresh) {
+		propertyGrid->Refresh();
+		mImpl->mPropertyGridNeedRefresh = false;
+	}
 }
 
 void RenderPanelControl::enableAutoUpdate(bool flag)

@@ -48,6 +48,10 @@ public:
 
 	void onEntitySelectionChanged(Object^ sender, Entity^ entity);
 
+	/// When en entity is updated, refresh it's corresponding property grid.
+	/// TODO: Revise and find a better solution that free the grid from RenderPanelControl.
+	PropertyGrid^ propertyGrid;
+
 protected:
 	/// <summary>
 	/// Clean up any resources being used.
