@@ -53,6 +53,7 @@ namespace Studio
 			DockContent content = new DockContent();
 			content.Show(dockPanel, DockState.Document);
 			RenderPanelControl renderPanel = new RenderPanelControl();
+			renderPanel.propertyGrid = propertyWindow.propertyGrid1;
 			renderPanel.entitySelectionChanged += new EntitySelectionChangedHandler(onEntitySelectionChanged);
 			content.Tag = renderPanel;
 			renderControls.Add(renderPanel);
