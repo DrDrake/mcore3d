@@ -29,7 +29,7 @@ public:
 
 // Attributes
 	//! The Entity that this component belongs to.
-	sal_maybenull Entity* entity();
+	sal_maybenull Entity* entity() const;
 
 protected:
 	friend class Entity;

@@ -16,10 +16,47 @@ using namespace MCD;
 
 namespace {
 
-class MyMeshComponent : public MeshComponent
+Vec3f unProject(const Vec3f& p)
+{
+	GLdouble model[16];
+	glGetDoublev(GL_MODELVIEW_MATRIX, model);
+	GLdouble projection[16];
+	glGetDoublev(GL_PROJECTION_MATRIX, projection);
+	GLint viewPort[4];
+	glGetIntegerv(GL_VIEWPORT, viewPort);
+
+	GLdouble v[3];
+	MCD_VERIFY(gluUnProject(p[0], p[1], p[2], model, projection, viewPort, &v[0], &v[1], &v[2]) == GL_TRUE);
+
+	return Vec3f(float(v[0]), float(v[1]), float(v[2]));
+}
+
+Vec3f projectToScreen(const Vec3f& p)
+{
+	GLdouble model[16];
+	glGetDoublev(GL_MODELVIEW_MATRIX, model);
+	GLdouble projection[16];
+	glGetDoublev(GL_PROJECTION_MATRIX, projection);
+	GLint viewPort[4];
+	glGetIntegerv(GL_VIEWPORT, viewPort);
+
+	GLdouble v[3];
+	MCD_VERIFY(gluProject(p[0], p[1], p[2], model, projection, viewPort, &v[0], &v[1], &v[2]) == GL_TRUE);
+
+	return Vec3f(float(v[0]), float(v[1]), float(v[2]));
+}
+
+class IMeshComponent : public MeshComponent
 {
 public:
-	explicit MyMeshComponent(const ColorRGBAf& c)
+	virtual Vec3f mouseMove(int x, int y) const = 0;
+};
+
+//! The translation arrow for dragging.
+class ArrowComponent : public IMeshComponent
+{
+public:
+	explicit ArrowComponent(const ColorRGBAf& c)
 		: color(c), defaultColor(c), backToDefaultColor(true)
 	{}
 
@@ -35,6 +72,32 @@ public:
 			color = defaultColor;
 	}
 
+	sal_override Vec3f mouseMove(int deltaX, int deltaY) const
+	{
+		// Preforming dragging
+		// Reference: "3D Transformation Manipulators (Translation/Rotation/Scale)"
+		// http://www.ziggyware.com/readarticle.php?article_id=189
+		Vec3f transformedDragDir = dragDirection;
+		entity()->parent()->worldTransform().transformNormal(transformedDragDir);
+
+		// Transform the axis direction on the screen space
+		Vec3f start = projectToScreen(entity()->worldTransform().translation());
+		Vec3f end = projectToScreen(entity()->worldTransform().translation() + transformedDragDir);
+		Vec3f screenDir = (end - start).normalizedCopy();
+
+		// Project the mouse dragging direciton to the screen space arrow direction
+		Vec3f mouseDir(float(deltaX), -float(deltaY), 0);
+		mouseDir = (screenDir % mouseDir) * screenDir;
+		end = start + mouseDir;
+
+		// Un-project the arrow aligned mouse drag direction back to 3D
+		start = unProject(start);
+		end = unProject(end);
+
+		// Return the delta value in 3D.
+		return end - start;
+	}
+
 	ColorRGBAf color;
 	const ColorRGBAf defaultColor;
 
@@ -42,7 +105,7 @@ public:
 	Vec3f dragDirection;
 
 	bool backToDefaultColor;
-};	// MyMeshComponent
+};	// ArrowComponent
 
 class FollowTransformComponent : public BehaviourComponent
 {
@@ -77,7 +140,7 @@ public:
 				continue;
 
 			// High light the arrow
-			MyMeshComponent* c = e->findComponent<MyMeshComponent>(typeid(RenderableComponent));
+			ArrowComponent* c = e->findComponent<ArrowComponent>(typeid(RenderableComponent));
 			if(c) {
 				c->color = cHighlightedColor;
 				selectedMesh = c;
@@ -87,7 +150,7 @@ public:
 		clearResult();
 	}
 
-	MyMeshComponent* selectedMesh;
+	ArrowComponent* selectedMesh;
 };	// MyPickComponent
 
 }	// namespace
@@ -95,7 +158,7 @@ public:
 Gizmo::Gizmo(ResourceManager& resourceManager)
 {
 	enabled = false;
-	draggingEntity = nullptr;
+	dragging = nullptr;
 
 	ModelPtr model = dynamic_cast<Model*>(resourceManager.load(L"Arrow.3ds", true).get());
 	dynamic_cast<DefaultResourceManager&>(resourceManager).processLoadingEvents();
@@ -126,7 +189,7 @@ Gizmo::Gizmo(ResourceManager& resourceManager)
 	{	Entity* e = new Entity();
 		e->name = L"X arrow";
 		e->asChildOf(translationEntity);
-		MyMeshComponent* c = new MyMeshComponent(ColorRGBAf(1, 0, 0, 0.8f));
+		ArrowComponent* c = new ArrowComponent(ColorRGBAf(1, 0, 0, 0.8f));
 		c->mesh = mesh;
 		c->dragDirection = Vec3f::c100;
 		e->addComponent(c);
@@ -137,7 +200,7 @@ Gizmo::Gizmo(ResourceManager& resourceManager)
 	{	Entity* e = new Entity();
 		e->name = L"Y arrow";
 		e->asChildOf(translationEntity);
-		MyMeshComponent* c = new MyMeshComponent(ColorRGBAf(0, 1, 0, 0.8f));
+		ArrowComponent* c = new ArrowComponent(ColorRGBAf(0, 1, 0, 0.8f));
 		c->mesh = mesh;
 		c->dragDirection = Vec3f::c010;
 		e->addComponent(c);
@@ -147,7 +210,7 @@ Gizmo::Gizmo(ResourceManager& resourceManager)
 	{	Entity* e = new Entity();
 		e->name = L"Z arrow";
 		e->asChildOf(translationEntity);
-		MyMeshComponent* c = new MyMeshComponent(ColorRGBAf(0, 0, 1, 0.8f));
+		ArrowComponent* c = new ArrowComponent(ColorRGBAf(0, 0, 1, 0.8f));
 		c->mesh = mesh;
 		c->dragDirection = Vec3f::c001;
 		e->addComponent(c);
@@ -197,51 +260,20 @@ static Ray createPickingRay(float x, float y)
 	);
 }
 
-static Vec3f unProject(const Vec3f& p)
-{
-	GLdouble model[16];
-	glGetDoublev(GL_MODELVIEW_MATRIX, model);
-	GLdouble projection[16];
-	glGetDoublev(GL_PROJECTION_MATRIX, projection);
-	GLint viewPort[4];
-	glGetIntegerv(GL_VIEWPORT, viewPort);
-
-	GLdouble v[3];
-	MCD_VERIFY(gluUnProject(p[0], p[1], p[2], model, projection, viewPort, &v[0], &v[1], &v[2]) == GL_TRUE);
-
-	return Vec3f(float(v[0]), float(v[1]), float(v[2]));
-}
-
-static Vec3f projectToScreen(const Vec3f& p)
-{
-	GLdouble model[16];
-	glGetDoublev(GL_MODELVIEW_MATRIX, model);
-	GLdouble projection[16];
-	glGetDoublev(GL_PROJECTION_MATRIX, projection);
-	GLint viewPort[4];
-	glGetIntegerv(GL_VIEWPORT, viewPort);
-
-	GLdouble v[3];
-	MCD_VERIFY(gluProject(p[0], p[1], p[2], model, projection, viewPort, &v[0], &v[1], &v[2]) == GL_TRUE);
-
-	return Vec3f(float(v[0]), float(v[1]), float(v[2]));
-}
-
 void Gizmo::mouseDown(int x, int y)
 {
 	MyPickComponent* picker = dynamic_cast<MyPickComponent*>(mPickComponent.get());
-	MyMeshComponent* mesh = picker->selectedMesh;
+	ArrowComponent* mesh = picker->selectedMesh;
 
 	mLastMousePosition[0] = x;
 	mLastMousePosition[1] = y;
 
 	// A control mesh is picked
 	if(mesh) {
-		mDraggingMeshComponent = mesh;
+		dragging = mesh;
 		picker->entity()->enabled = false;	// Temporary disable the pick detection until mouse up
 		mesh->color = cHighlightedColor;
 		mesh->backToDefaultColor = false;
-		draggingEntity = mesh->entity();
 	}
 }
 
@@ -254,28 +286,15 @@ void Gizmo::mouseMove(int x, int y)
 	// Reference: "3D Transformation Manipulators (Translation/Rotation/Scale)"
 	// http://www.ziggyware.com/readarticle.php?article_id=189
 	Ray ray;
-	if(draggingEntity)
+	if(dragging.get())
 	{
-		Vec3f transformedDragDir = picker->selectedMesh->dragDirection;
-		worldTransform().transformNormal(transformedDragDir);
-
-		// Transform the axis direction on the screen space
-		Vec3f start = projectToScreen(worldTransform().translation());
-		Vec3f end = projectToScreen(worldTransform().translation() + transformedDragDir);
-		Vec3f screenDir = (end - start).normalizedCopy();
-
-		// Project the mouse dragging direciton to the screen space arrow direction
-		Vec3f mouseDir(float(x - mLastMousePosition[0]), -float(y - mLastMousePosition[1]), 0);
-		mouseDir = (screenDir % mouseDir) * screenDir;
-		end = start + mouseDir;
-
-		// Un-project the arrow aligned mouse drag direction back to 3D
-		start = unProject(start);
-		end = unProject(end);
+		Vec3f delta = dynamic_cast<ArrowComponent*>(dragging.get())->mouseMove(
+			x - mLastMousePosition[0], y - mLastMousePosition[1]
+		);
 
 		// Apply the delta value.
 		selectedEntity()->localTransform.setTranslation(
-			selectedEntity()->localTransform.translation() + (end - start)
+			selectedEntity()->localTransform.translation() + delta
 		);
 
 		mLastMousePosition[0] = x;
@@ -288,9 +307,9 @@ void Gizmo::mouseUp(int x, int y)
 	MyPickComponent* picker = dynamic_cast<MyPickComponent*>(mPickComponent.get());
 	picker->entity()->enabled = true;
 
-	if(draggingEntity)
-		dynamic_cast<MyMeshComponent*>(mDraggingMeshComponent.get())->backToDefaultColor = true;
+	if(dragging.get())
+		dynamic_cast<ArrowComponent*>(dragging.get())->backToDefaultColor = true;
 
 	// Any dragging will cancel
-	draggingEntity = nullptr;
+	dragging = nullptr;
 }

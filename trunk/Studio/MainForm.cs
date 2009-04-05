@@ -180,5 +180,22 @@ namespace Studio
 		Entity currentSelectedEntity;
 
 		private DeserializeDockContent mDeserializeDockContent;
+
+		/// <summary>
+		/// Redirect Tool bar button click to the menu item.
+		/// Reference: http://www.java2s.com/Tutorial/CSharp/0460__GUI-Windows-Forms/ToolBarLinkedWithMenu.htm
+		/// </summary>
+		/// <param name="sender"></param>
+		/// <param name="e"></param>
+		private void toolStripMain_ItemClicked(object sender, ToolStripItemClickedEventArgs e)
+		{
+			ToolStripButton btn = (ToolStripButton)e.ClickedItem;
+
+			if (btn.Tag != null)
+			{
+				ToolStripDropDownItem item = (ToolStripDropDownItem)btn.Tag;
+				item.PerformClick();
+			}
+		}
 	}
 }
