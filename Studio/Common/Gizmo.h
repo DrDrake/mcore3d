@@ -22,16 +22,13 @@ public:
 	void mouseMove(int x, int y);
 	void mouseUp(int x, int y);
 
-	/*!	Which Gizmo entity is currently draggin.
-		May be the translation arrow, or a rotation axis.
+	/*!	Which Gizmo entity's component is currently dragging.
+		May be the translation arrow, or a translation plane.
 	 */
-	Entity* draggingEntity;
+	MCD::ComponentPtr dragging;
 
 protected:
 	int mLastMousePosition[2];
-
-	//! Intermediate varible to store draggingEntity's mesh component
-	MCD::ComponentPtr mDraggingMeshComponent;
 
 	//! A shortcut to the pick detection component.
 	MCD::ComponentPtr mPickComponent;

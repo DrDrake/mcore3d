@@ -12,7 +12,8 @@ int main(int, char const*[])
 	CppTestHarness::TestRunner runner;
 	runner.ShowTestName(false);
 
-	ret = runner.RunAllTests();
+//	ret = runner.RunAllTests();
+	ret = runner.RunTest("RayPlane_IntersectionTest");
 
 	return int(ret);
 }

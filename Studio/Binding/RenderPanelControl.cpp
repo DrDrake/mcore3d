@@ -246,7 +246,7 @@ public:
 		mGizmo->mouseDown(e->X, e->Y);
 
 		// Gizmo has a higher priority to do picking
-		if(!mGizmo->draggingEntity)
+		if(!mGizmo->dragging.get())
 		{
 			mEntityPicker->entity()->enabled = true;
 			mEntityPicker->setPickRegion(e->X, e->Y);
@@ -264,7 +264,7 @@ public:
 	{
 		mGizmo->mouseMove(e->X, e->Y);
 
-		if(mGizmo->draggingEntity && mLastMousePos != Point(e->X, e->Y))
+		if(mGizmo->dragging.get() && mLastMousePos != Point(e->X, e->Y))
 			mPropertyGridNeedRefresh = true;
 
 		mLastMousePos = Point(e->X, e->Y);

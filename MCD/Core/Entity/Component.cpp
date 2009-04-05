@@ -10,7 +10,7 @@ Component::Component()
 {
 }
 
-Entity* Component::entity() {
+Entity* Component::entity() const {
 	return mEntity;
 }
 
