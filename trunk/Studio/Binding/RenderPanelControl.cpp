@@ -23,7 +23,7 @@
 #pragma comment(lib, "OpenGL32")
 #pragma comment(lib, "GLU32")
 #pragma comment(lib, "GlAux")
-//#pragma comment(lib, "glew")
+#pragma comment(lib, "glew")
 
 namespace Binding {
 
@@ -167,7 +167,7 @@ public:
 		// Handle picking result
 		for(size_t i=0; i<mEntityPicker->hitCount(); ++i) {
 			EntityPtr e = mEntityPicker->hitAtIndex(i);
-			if(!e.get())
+			if(!e)
 				continue;
 			mBackRef->entitySelectionChanged(mBackRef, Entity::getEntityFromRawPtr(e.get()));
 			break;	// We only pick the Entity that nearest to the camera
@@ -222,7 +222,7 @@ public:
 		// Prevents division by zero
 		height = (height == 0) ? 1 : height;
 		glViewport(0, 0, width, height);
-		if(mCamera.get())
+		if(mCamera)
 			mCamera->camera.frustum.setAcpectRatio(float(width)/height);
 
 		update();
@@ -246,7 +246,7 @@ public:
 		mGizmo->mouseDown(e->X, e->Y);
 
 		// Gizmo has a higher priority to do picking
-		if(!mGizmo->dragging.get())
+		if(!mGizmo->dragging)
 		{
 			mEntityPicker->entity()->enabled = true;
 			mEntityPicker->setPickRegion(e->X, e->Y);
@@ -264,7 +264,7 @@ public:
 	{
 		mGizmo->mouseMove(e->X, e->Y);
 
-		if(mGizmo->dragging.get() && mLastMousePos != Point(e->X, e->Y))
+		if(mGizmo->dragging && mLastMousePos != Point(e->X, e->Y))
 			mPropertyGridNeedRefresh = true;
 
 		mLastMousePos = Point(e->X, e->Y);

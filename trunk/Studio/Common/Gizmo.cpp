@@ -13,7 +13,6 @@
 #include "../../MCD/Core/Math/Vec2.h"
 #include "../../MCD/Core/System/Utility.h"
 #include "../../3Party/glew/glew.h"
-#pragma comment(lib, "glew")
 
 using namespace MCD;
 
@@ -198,7 +197,7 @@ public:
 		return p2 - p1;
 	}
 
-	//! When normal of the dragging plane.
+	//! Normal of the dragging plane.
 	Vec3f planeNormal;
 };	// PlaneComponent
 
@@ -208,7 +207,7 @@ public:
 	sal_override void update()
 	{
 		Gizmo* gizmo = polymorphic_downcast<Gizmo*>(entity());
-		if(!gizmo || !selectedEntity.get())
+		if(!gizmo || !selectedEntity)
 			return;
 		gizmo->localTransform = selectedEntity->worldTransform();
 	}
@@ -231,7 +230,7 @@ public:
 		// Handle picking result
 		for(size_t i=0; i<hitCount(); ++i) {
 			EntityPtr e = hitAtIndex(i);
-			if(!e.get())
+			if(!e)
 				continue;
 
 			// High light the arrow
@@ -334,7 +333,7 @@ Gizmo::Gizmo(ResourceManager& resourceManager)
 
 void Gizmo::setSelectedEntity(const EntityPtr& selectedEntity)
 {
-	enabled = (selectedEntity.get() != nullptr);
+	enabled = (selectedEntity != nullptr);
 
 	FollowTransformComponent* component = findComponent<FollowTransformComponent>(typeid(BehaviourComponent));
 	component->selectedEntity = selectedEntity;
@@ -372,7 +371,7 @@ void Gizmo::mouseMove(int x, int y)
 	// Reference: "3D Transformation Manipulators (Translation/Rotation/Scale)"
 	// http://www.ziggyware.com/readarticle.php?article_id=189
 	Ray ray;
-	if(dragging.get())
+	if(dragging)
 	{
 		Vec3f delta = dynamic_cast<MyMeshComponent*>(dragging.get())->mouseMove(
 			MyMeshComponent::Vec2i(mLastMousePosition[0], mLastMousePosition[1]),
@@ -394,7 +393,7 @@ void Gizmo::mouseUp(int x, int y)
 	MyPickComponent* picker = dynamic_cast<MyPickComponent*>(mPickComponent.get());
 	picker->entity()->enabled = true;
 
-	if(dragging.get())
+	if(dragging)
 		dynamic_cast<MyMeshComponent*>(dragging.get())->backToDefaultColor = true;
 
 	// Any dragging will cancel

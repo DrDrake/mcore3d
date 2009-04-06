@@ -156,6 +156,8 @@ private:
 template<class T>
 class WeakPtr
 {
+	typedef WeakPtr<T> this_type;
+
 public:
 	//! Raw pointer constructor (handles null pointer).
 	MCD_IMPLICIT WeakPtr(sal_in_opt T* ptr = nullptr) :
@@ -194,6 +196,18 @@ public:
 
 	T* operator->() const {
 		return get();
+	}
+
+	typedef T* this_type::*unspecified_bool_type;
+
+	//!	Non-Null test for using "if (p) ..." to check whether p is nullptr.
+	operator unspecified_bool_type() const {
+		return get() == nullptr ? nullptr : &this_type::mPtr;
+	}
+
+	//!	Null test for using "if(!p) ..." to check whether p is nullptr.
+	bool operator!() const {
+		return get() == nullptr;
 	}
 
 	void swap(WeakPtr& rhs)

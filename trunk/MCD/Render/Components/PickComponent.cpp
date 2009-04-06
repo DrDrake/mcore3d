@@ -44,7 +44,7 @@ PickComponent::~PickComponent()
 
 void PickComponent::update()
 {
-	if(!entityToPick.get())
+	if(!entityToPick)
 		return;
 
 	MCD_ASSUME(mImpl);
