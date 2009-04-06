@@ -250,7 +250,7 @@ ResourcePtr ResourceManager::load(const Path& fileId, bool block, uint priority)
 
 		while(node) {	// Cache hit!
 			// But unfortunately, the resource is already deleted
-			if(!node->mResource.get()) {
+			if(!node->mResource) {
 				delete node;
 				break;
 			}
@@ -261,7 +261,7 @@ ResourcePtr ResourceManager::load(const Path& fileId, bool block, uint priority)
 			// than poll for it's weak pointer periodically
 			// To some extend, this is a garbage collector!
 			MapNode* nextNode = node->mPathKey.next()->getOuterSafe();
-			if(nextNode && !nextNode->mResource.get())
+			if(nextNode && !nextNode->mResource)
 				delete nextNode;
 			return node->mResource.get();
 		}
@@ -295,7 +295,7 @@ ResourcePtr ResourceManager::reload(const Path& fileId, bool block, uint priorit
 	MapNode* node = mImpl->findMapNode(fileId);
 
 	// The resource is not found
-	if(!node || !node->mResource.get()) {
+	if(!node || !node->mResource) {
 		lock.m.unlock();
 		lock.cancel();
 		return load(fileId, block, priority);

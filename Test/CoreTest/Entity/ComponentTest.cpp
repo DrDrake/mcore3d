@@ -57,12 +57,12 @@ TEST(Basic_ComponentTest)
 	CHECK(!root.findComponent(typeid(DummyComponent1)));
 
 	// The component c1 is already deleted, so the weak pointer c1 will be null
-	CHECK(!c1.get());
+	CHECK(!c1);
 
 	// An entity can only have one instance of a certain type of Component,
 	// so the old component will be replaced by the new one.
 	root.addComponent(new DummyComponent2);
-	CHECK(!c2.get());
+	CHECK(!c2);
 
 	// Test findComponentInChildren
 	Entity* e = new Entity;
