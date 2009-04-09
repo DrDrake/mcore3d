@@ -164,10 +164,6 @@
 				>
 			</File>
 			<File
-				RelativePath=".\Gizmo.cpp"
-				>
-			</File>
-			<File
 				RelativePath=".\stdafx.cpp"
 				>
 				<FileConfiguration
@@ -202,13 +198,61 @@
 				>
 			</File>
 			<File
-				RelativePath=".\Gizmo.h"
-				>
-			</File>
-			<File
 				RelativePath=".\stdafx.h"
 				>
 			</File>
+		</Filter>
+		<Filter
+			Name="Gizmo"
+			>
+			<Filter
+				Name="Header Files"
+				>
+				<File
+					RelativePath=".\Gizmo\Gizmo.h"
+					>
+				</File>
+				<File
+					RelativePath=".\Gizmo\GizmoBaseComponent.h"
+					>
+				</File>
+				<File
+					RelativePath=".\Gizmo\RotationGizmoComponent.h"
+					>
+				</File>
+				<File
+					RelativePath=".\Gizmo\ScaleGizmoComponent.h"
+					>
+				</File>
+				<File
+					RelativePath=".\Gizmo\TranslationGizmoComponent.h"
+					>
+				</File>
+			</Filter>
+			<Filter
+				Name="Source Files"
+				>
+				<File
+					RelativePath=".\Gizmo\Gizmo.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\Gizmo\GizmoBaseComponent.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\Gizmo\RotationGizmoComponent.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\Gizmo\ScaleGizmoComponent.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\Gizmo\TranslationGizmoComponent.cpp"
+					>
+				</File>
+			</Filter>
 		</Filter>
 	</Files>
 	<Globals>

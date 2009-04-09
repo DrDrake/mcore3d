@@ -43,14 +43,27 @@ public:
 		::Binding::Entity^ get();
 	}
 
+	property ::Binding::Entity^ selectedEntity {
+		::Binding::Entity^ get();
+		void set(::Binding::Entity^);
+	}
+
 	/// Occur when the selection (by picking) in the scene is changed.
 	EntitySelectionChangedHandler^ entitySelectionChanged;
-
-	void onEntitySelectionChanged(Object^ sender, Entity^ entity);
 
 	/// When en entity is updated, refresh it's corresponding property grid.
 	/// TODO: Revise and find a better solution that free the grid from RenderPanelControl.
 	PropertyGrid^ propertyGrid;
+
+	enum class GizmoMode
+	{
+		Translate, Rotate, Scale, None
+	};
+
+	property GizmoMode gizmoMode {
+		GizmoMode get();
+		void set(GizmoMode);
+	}
 
 protected:
 	/// <summary>

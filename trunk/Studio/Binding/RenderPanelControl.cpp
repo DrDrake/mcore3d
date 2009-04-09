@@ -2,7 +2,7 @@
 #include "RenderPanelControl.h"
 #include "../Common/ChamferBox.h"
 #include "../Common/DefaultResourceManager.h"
-#include "../Common/Gizmo.h"
+#include "../Common/Gizmo/Gizmo.h"
 
 #define _WINDOWS
 #include "../../MCD/Core/Entity/Entity.h"
@@ -65,6 +65,7 @@ public:
 			std::auto_ptr<Gizmo> e(new Gizmo(mResourceManager));
 			e->name = L"Gizmo";
 			e->asChildOf(&mRootNode);
+			e->setActiveGizmo(e->translationGizmo.get());
 
 			mGizmo = e.release();
 		}
@@ -104,7 +105,7 @@ public:
 			e->name = L"ChamferBox 1";
 			e->asChildOf(mUserSubTree);
 			e->localTransform = Mat44f(Mat33f::rotateXYZ(0, Mathf::cPiOver4(), 0));
-			e->localTransform.setTranslation(Vec3f(i/10, i%10, 0));
+			e->localTransform.setTranslation(Vec3f(float(i/10), float(i%10), 0));
 
 			// Setup the chamfer box mesh
 			MeshPtr mesh = new Mesh(L"");
@@ -230,11 +231,11 @@ public:
 
 	void onKeyDown(System::Object^ sender, System::Windows::Forms::KeyEventArgs^ e)
 	{
-		switch(e->KeyCode) {
+/*		switch(e->KeyCode) {
 		case System::Windows::Forms::Keys::W:
 			mCamera->camera.moveForward(0.5f);
 			break;
-		}
+		}*/
 	}
 
 	void onKeyUp(System::Object^ sender, System::Windows::Forms::KeyEventArgs^ e)
@@ -246,7 +247,7 @@ public:
 		mGizmo->mouseDown(e->X, e->Y);
 
 		// Gizmo has a higher priority to do picking
-		if(!mGizmo->dragging)
+		if(!mGizmo->isDragging())
 		{
 			mEntityPicker->entity()->enabled = true;
 			mEntityPicker->setPickRegion(e->X, e->Y);
@@ -264,7 +265,7 @@ public:
 	{
 		mGizmo->mouseMove(e->X, e->Y);
 
-		if(mGizmo->dragging && mLastMousePos != Point(e->X, e->Y))
+		if(mGizmo->isDragging() && mLastMousePos != Point(e->X, e->Y))
 			mPropertyGridNeedRefresh = true;
 
 		mLastMousePos = Point(e->X, e->Y);
@@ -285,7 +286,6 @@ public:
 RenderPanelControl::RenderPanelControl()
 {
 	InitializeComponent();
-	entitySelectionChanged = gcnew EntitySelectionChangedHandler(this, &RenderPanelControl::onEntitySelectionChanged);
 	mImpl = nullptr;
 }
 
@@ -302,15 +302,6 @@ RenderPanelControl::~RenderPanelControl()
 RenderPanelControl::!RenderPanelControl()
 {
 	destroy();
-}
-
-void RenderPanelControl::onEntitySelectionChanged(Object^ sender, Entity^ entity)
-{
-	MCD::Entity* e = nullptr;
-	if(entity != nullptr)
-		e = entity->getRawEntityPtr();
-
-	mImpl->mGizmo->setSelectedEntity(e);
 }
 
 void RenderPanelControl::destroy()
@@ -346,6 +337,57 @@ void RenderPanelControl::enableAutoUpdate(bool flag)
 	if(mRootEntity == nullptr)
 		mRootEntity = gcnew ::Binding::Entity(IntPtr(&(mImpl->mRootNode)));
 	return mRootEntity;
+}
+
+::Binding::Entity^ RenderPanelControl::selectedEntity::get()
+{
+	MCD::Entity* e = mImpl->mGizmo->selectedEntity();
+	return Entity::getEntityFromRawPtr(e);
+}
+
+void RenderPanelControl::selectedEntity::set(::Binding::Entity^ entity)
+{
+	MCD::Entity* e = nullptr;
+	if(entity != nullptr)
+		e = entity->getRawEntityPtr();
+
+	// Lazy update
+	if(e == mImpl->mGizmo->selectedEntity())
+		return;
+
+	mImpl->mGizmo->setSelectedEntity(e);
+	entitySelectionChanged(this, entity);
+}
+
+RenderPanelControl::GizmoMode RenderPanelControl::gizmoMode::get()
+{
+	Gizmo* g = mImpl->mGizmo;
+	if(g) {
+		if(g->activeGizmo() == g->translationGizmo)
+			return GizmoMode::Translate;
+		if(g->activeGizmo() == g->rotationGizmo)
+			return GizmoMode::Rotate;
+		if(g->activeGizmo() == g->scaleGizmo)
+			return GizmoMode::Scale;
+	}
+
+	return GizmoMode::None;
+}
+
+void RenderPanelControl::gizmoMode::set(GizmoMode mode)
+{
+	Gizmo* g = mImpl->mGizmo;
+	if(!g)
+		return;
+
+	if(mode == GizmoMode::Translate)
+		g->setActiveGizmo(g->translationGizmo);
+	else if(mode == GizmoMode::Rotate)
+		g->setActiveGizmo(g->rotationGizmo);
+	else if(mode == GizmoMode::Scale)
+		g->setActiveGizmo(g->scaleGizmo);
+	else
+		g->setActiveGizmo(NULL);
 }
 
 System::Void RenderPanelControl::timer_Tick(System::Object^ sender, System::EventArgs^ e)

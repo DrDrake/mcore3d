@@ -37,6 +37,7 @@
 			this.ClientSize = new System.Drawing.Size(292, 271);
 			this.DockAreas = WeifenLuo.WinFormsUI.Docking.DockAreas.Document;
 			this.Name = "DockContent";
+			this.Enter += new System.EventHandler(this.DockContent_Enter);
 			this.ResumeLayout(false);
 
 		}
