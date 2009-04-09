@@ -66,6 +66,10 @@ namespace Studio
 			// Broadcasting the key event from render panel to entity window
 			renderPanel.KeyUp += new KeyEventHandler(entityWindow.treeView_KeyUp);
 
+			// Forward the key event from render panel to main window
+			content.KeyPress += new KeyPressEventHandler(MainForm_KeyPress);
+			renderPanel.KeyPress += new KeyPressEventHandler(MainForm_KeyPress);
+
 			// Selected the newly created scene
 			sceneSelectionChanged(renderPanel, new EventArgs());
 		}
@@ -89,17 +93,17 @@ namespace Studio
 			foreach (RenderPanelControl r in renderControls)
 				r.enableAutoUpdate(false);
 
-			onEntitySelectionChanged(this, null);
-
 			if(currentRenderControl != null)
 			{
 				currentRenderControl.enableAutoUpdate(true);
 				entityWindow.selectEntityRoot(currentRenderControl.rootEntity);
+				onEntitySelectionChanged(this, currentRenderControl.selectedEntity);
 			}
 			else
 				entityWindow.selectEntityRoot(null);
 
-			entityWindow.treeView.SelectedNodes.Clear();
+			enableGizmoButtons(true);
+			updateGizmoButtonsState();
 		}
 
 		void sceneClosing(object sender, FormClosingEventArgs e)
@@ -119,6 +123,12 @@ namespace Studio
 				c.destroy();
 				renderControls.Remove(c);
 			}
+
+			if (renderControls.Count == 0)
+			{
+				clearGizmoButtonsState();
+				enableGizmoButtons(false);
+			}
 		}
 
 		private void exitToolStripMenuItem_Click(object sender, EventArgs e)
@@ -132,13 +142,11 @@ namespace Studio
 			if (sender == null)
 				return;
 
-			currentSelectedEntity = entity;
-			propertyWindow.propertyGrid1.SelectedObject = entity;
-
 			// Broadcast the event to other windows
 			entityWindow.entitySelectionChanged(null, entity);
-			if(currentRenderControl != null)
-				currentRenderControl.entitySelectionChanged(null, entity);
+			propertyWindow.propertyGrid1.SelectedObject = entity;
+			if (currentRenderControl != null)
+				currentRenderControl.selectedEntity = entity;
 		}
 
 		private void MainForm_FormClosed(object sender, FormClosedEventArgs e)
@@ -177,8 +185,6 @@ namespace Studio
 		AssertWindow assertWindow;
 		LogWindow logWindow;
 
-		Entity currentSelectedEntity;
-
 		private DeserializeDockContent mDeserializeDockContent;
 
 		/// <summary>
@@ -196,6 +202,71 @@ namespace Studio
 				ToolStripDropDownItem item = (ToolStripDropDownItem)btn.Tag;
 				item.PerformClick();
 			}
+		}
+
+		#region "Gizmo buttons"
+		private void enableGizmoButtons(bool flag)
+		{
+			toolStripButtonRotate.Enabled = flag;
+			toolStripButtonScale.Enabled = flag;
+			toolStripButtonTranslate.Enabled = flag;
+		}
+
+		private void clearGizmoButtonsState()
+		{
+			toolStripButtonRotate.Checked = false;
+			toolStripButtonScale.Checked = false;
+			toolStripButtonTranslate.Checked = false;
+		}
+
+		/// <summary>
+		/// Update the Gizmo buttons' state according to the active gizmo in the render panel
+		/// </summary>
+		private void updateGizmoButtonsState()
+		{
+			if (currentRenderControl == null)
+				return;
+			if(currentRenderControl.gizmoMode == RenderPanelControl.GizmoMode.Rotate)
+				toolStripButtonRotate.PerformClick();
+			if (currentRenderControl.gizmoMode == RenderPanelControl.GizmoMode.Scale)
+				toolStripButtonScale.PerformClick();
+			if (currentRenderControl.gizmoMode == RenderPanelControl.GizmoMode.Translate)
+				toolStripButtonTranslate.PerformClick();
+		}
+
+		private void toolStripButtonRotate_Click(object sender, EventArgs e)
+		{
+			clearGizmoButtonsState();
+			toolStripButtonRotate.Checked = true;
+			if (currentRenderControl != null)
+				currentRenderControl.gizmoMode = RenderPanelControl.GizmoMode.Rotate;
+		}
+
+		private void toolStripButtonScale_Click(object sender, EventArgs e)
+		{
+			clearGizmoButtonsState();
+			toolStripButtonScale.Checked = true;
+			if (currentRenderControl != null)
+				currentRenderControl.gizmoMode = RenderPanelControl.GizmoMode.Scale;
+		}
+
+		private void toolStripButtonTranslate_Click(object sender, EventArgs e)
+		{
+			clearGizmoButtonsState();
+			toolStripButtonTranslate.Checked = true;
+			if (currentRenderControl != null)
+				currentRenderControl.gizmoMode = RenderPanelControl.GizmoMode.Translate;
+		}
+		#endregion
+
+		private void MainForm_KeyPress(object sender, KeyPressEventArgs e)
+		{
+			if (e.KeyChar == 'q')
+				toolStripButtonTranslate.PerformClick();
+			if (e.KeyChar == 'w')
+				toolStripButtonRotate.PerformClick();
+			if (e.KeyChar == 'e')
+				toolStripButtonScale.PerformClick();
 		}
 	}
 }
