@@ -224,6 +224,36 @@ private:
 	IntrusivePtr<WeakPtrFlag> mValidityFlag;
 };	// WeakPtr
 
+template<class T, class U> inline
+bool operator==(const WeakPtr<T>& a, const WeakPtr<U>& b) {
+	return a.get() == b.get();
+}
+
+template<class T, class U> inline
+bool operator!=(const WeakPtr<T>& a, const WeakPtr<U>& b) {
+	return a.get() != b.get();
+}
+
+template<class T, class U> inline
+bool operator==(const WeakPtr<T>& a, sal_in_opt U* b) {
+	return a.get() == b;
+}
+
+template<class T, class U> inline
+bool operator!=(const WeakPtr<T>& a, sal_in_opt U* b) {
+	return a.get() != b;
+}
+
+template<class T, class U> inline
+bool operator==(sal_in_opt T* a, const WeakPtr<U>& b) {
+	return a == b.get();
+}
+
+template<class T, class U> inline
+bool operator!=(sal_in_opt T* a, const WeakPtr<U>& b) {
+	return a != b.get();
+}
+
 template<class T> inline
 void swap(WeakPtr<T>& lhs, WeakPtr<T>& rhs) {
 	lhs.swap(rhs);
