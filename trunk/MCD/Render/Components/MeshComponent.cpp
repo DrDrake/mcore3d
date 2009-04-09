@@ -9,9 +9,9 @@
 
 namespace MCD {
 
-MeshComponent::~MeshComponent()
-{
-}
+MeshComponent::MeshComponent() {}
+
+MeshComponent::~MeshComponent() {}
 
 void MeshComponent::render()
 {

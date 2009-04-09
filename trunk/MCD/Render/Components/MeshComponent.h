@@ -17,6 +17,8 @@ typedef IntrusivePtr<Effect> EffectPtr;
 class MCD_RENDER_API MeshComponent : public RenderableComponent
 {
 public:
+	MeshComponent();
+
 	sal_override ~MeshComponent();
 
 // Operations
