@@ -9,6 +9,7 @@ using namespace MCD;
 
 namespace {
 
+//! Make the entity containing this component follow the transform of a selected entity.
 class FollowTransformComponent : public BehaviourComponent
 {
 public:
@@ -24,15 +25,46 @@ public:
 	EntityPtr selectedEntity;
 };	// FollowTransformComponent
 
+//!	Adjust the scaling transform so that all child entities will have a constance size on screen.
+class FixedScreenSizeComponent : public BehaviourComponent
+{
+public:
+	sal_override void update()
+	{
+		Entity* e = entity();
+		MCD_ASSUME(e);
+
+		// Get the translation component
+		Vec3f trans = e->worldTransform().translation();
+
+		Vec3f p1(trans);
+		Vec3f p2(trans + Vec3f::c100);
+
+		// Test a unit lenght vector to see it's projected lenght on 2D screen.
+		p1 = projectToScreen(p1);
+		p2 = projectToScreen(p2);
+
+		float len = (p2 - p1).length();
+
+		const float cPixelSizeForUnitLength = 100.0f;
+		e->localTransform.setScale(Vec3f(cPixelSizeForUnitLength / len));
+	}
+};	// FixedScreenSizeComponent
+
 }	// namespace
 
 Gizmo::Gizmo(ResourceManager& resourceManager)
 {
 	addComponent(new FollowTransformComponent);
 
+	Entity* sizeFixer = new Entity();
+	sizeFixer->name = L"Size stabilizer";
+	sizeFixer->addComponent(new FixedScreenSizeComponent);
+	sizeFixer->asChildOf(this);
+
 	{	Entity* e = new Entity();
 		e->name = L"Translation Gizmo";
-		e->asChildOf(this);
+		e->asChildOf(sizeFixer);
 
 		translationGizmo = new TranslationGizmoComponent(resourceManager, e);
 		e->addComponent(translationGizmo.get());
@@ -40,7 +72,7 @@ Gizmo::Gizmo(ResourceManager& resourceManager)
 
 	{	Entity* e = new Entity();
 		e->name = L"Rotation Gizmo";
-		e->asChildOf(this);
+		e->asChildOf(sizeFixer);
 
 		rotationGizmo = new RotationGizmoComponent(resourceManager, e);
 		e->addComponent(rotationGizmo.get());
@@ -48,7 +80,7 @@ Gizmo::Gizmo(ResourceManager& resourceManager)
 
 	{	Entity* e = new Entity();
 		e->name = L"Scale Gizmo";
-		e->asChildOf(this);
+		e->asChildOf(sizeFixer);
 		scaleGizmo = new ScaleGizmoComponent(resourceManager, e);
 		e->addComponent(scaleGizmo.get());
 	}
