@@ -118,13 +118,14 @@ GizmoBaseComponent::GizmoBaseComponent(Entity* hostEntity)
 	e->addComponent(c);
 }
 
-void GizmoBaseComponent::mouseDown(int x, int y)
+void GizmoBaseComponent::mouseDown(int x, int y, Mat44f& transform)
 {
 	MyPickComponent* picker = dynamic_cast<MyPickComponent*>(mPickComponent.get());
 	MyMeshComponent* mesh = picker->selectedMesh;
 
-	mLastMousePosition[0] = x;
-	mLastMousePosition[1] = y;
+	mBackupMatrix = transform;
+	mOldMousePosition[0] = x;
+	mOldMousePosition[1] = y;
 
 	// A control mesh is picked
 	if(mesh) {
@@ -135,7 +136,7 @@ void GizmoBaseComponent::mouseDown(int x, int y)
 	}
 }
 
-void GizmoBaseComponent::mouseMove(int x, int y, MCD::Mat44f& transform)
+void GizmoBaseComponent::mouseMove(int x, int y, Mat44f& transform)
 {
 	MyPickComponent* picker = dynamic_cast<MyPickComponent*>(mPickComponent.get());
 	picker->setPickRegion(x, y, 1, 1);
@@ -143,13 +144,10 @@ void GizmoBaseComponent::mouseMove(int x, int y, MCD::Mat44f& transform)
 	if(dragging)
 	{
 		dynamic_cast<MyMeshComponent*>(dragging.get())->mouseMove(
-			MyMeshComponent::Vec2i(mLastMousePosition[0], mLastMousePosition[1]),
+			mOldMousePosition,
 			MyMeshComponent::Vec2i(x, y),
-			transform
+			mBackupMatrix, transform
 		);
-
-		mLastMousePosition[0] = x;
-		mLastMousePosition[1] = y;
 	}
 }
 

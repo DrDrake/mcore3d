@@ -22,13 +22,14 @@ public:
 			this->mesh = model->mMeshes.front().mesh;
 	}
 
-	sal_override void mouseMove(const Vec2i& oldPos, const Vec2i& newPos, MCD::Mat44f& transform) const
+	sal_override void mouseMove(Vec2i& oldPos, const Vec2i& newPos,
+		const MCD::Mat44f& oldTransform, Mat44f& transform) const
 	{
 		// Preforming dragging
 		// Reference: "3D Transformation Manipulators (Translation/Rotation/Scale)"
 		// http://www.ziggyware.com/readarticle.php?article_id=189
 		Vec3f transformedRotationAxis = rotationAxis;
-		entity()->parent()->worldTransform().transformNormal(transformedRotationAxis);
+		oldTransform.transformNormal(transformedRotationAxis);
 
 		// Rotate along the axis with an amount controled by the vertical displacement of the mouse.
 		Mat33f deltaRotation = Mat33f::rotate(
@@ -38,7 +39,7 @@ public:
 
 		// Append the delta value.
 		// TODO: Fix error accumulation problem.
-		transform.setMat33(deltaRotation * transform.mat33());
+		transform.setMat33(deltaRotation * oldTransform.mat33());
 	}
 
 	//! When dragging, which axis to rotate.
@@ -57,7 +58,7 @@ RotationGizmoComponent::RotationGizmoComponent(ResourceManager& resourceManager,
 		ArrowComponent* c = new ArrowComponent(resourceManager, ColorRGBAf(1, 0, 0, 0.8f));
 		c->rotationAxis = Vec3f::c100;
 		e->addComponent(c);
-		e->localTransform.setScale(MCD::Vec3f(1, 1.5f, 1));
+		e->localTransform.setScale(Vec3f(1, 1.5f, 1));
 		e->localTransform = Mat44f(Mat33f::rotateXYZ(0, 0, -Mathf::cPiOver2())) * e->localTransform;
 	}
 
@@ -67,7 +68,7 @@ RotationGizmoComponent::RotationGizmoComponent(ResourceManager& resourceManager,
 		ArrowComponent* c = new ArrowComponent(resourceManager, ColorRGBAf(0, 1, 0, 0.8f));
 		c->rotationAxis = Vec3f::c010;
 		e->addComponent(c);
-		e->localTransform.setScale(MCD::Vec3f(1, 1.5f, 1));
+		e->localTransform.setScale(Vec3f(1, 1.5f, 1));
 	}
 
 	{	Entity* e = new Entity();
@@ -76,7 +77,7 @@ RotationGizmoComponent::RotationGizmoComponent(ResourceManager& resourceManager,
 		ArrowComponent* c = new ArrowComponent(resourceManager, ColorRGBAf(0, 0, 1, 0.8f));
 		c->rotationAxis = Vec3f::c001;
 		e->addComponent(c);
-		e->localTransform.setScale(MCD::Vec3f(1, 1.5f, 1));
+		e->localTransform.setScale(Vec3f(1, 1.5f, 1));
 		e->localTransform = Mat44f(Mat33f::rotateXYZ(Mathf::cPiOver2(), 0, 0)) * e->localTransform;
 	}
 }

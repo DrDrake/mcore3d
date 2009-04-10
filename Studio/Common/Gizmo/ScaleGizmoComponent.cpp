@@ -22,17 +22,18 @@ public:
 			this->mesh = model->mMeshes.front().mesh;
 	}
 
-	sal_override void mouseMove(const Vec2i& oldPos, const Vec2i& newPos, MCD::Mat44f& transform) const
+	sal_override void mouseMove(Vec2i& oldPos, const Vec2i& newPos,
+		const MCD::Mat44f& oldTransform, MCD::Mat44f& transform) const
 	{
 		// Preforming dragging
 		// Reference: "3D Transformation Manipulators (Translation/Rotation/Scale)"
 		// http://www.ziggyware.com/readarticle.php?article_id=189
 		Vec3f transformedDragDir = dragDirection;
-		entity()->parent()->worldTransform().transformNormal(transformedDragDir);
+		oldTransform.transformNormal(transformedDragDir);
 
 		// Transform the axis direction on the screen space
-		Vec3f start = projectToScreen(entity()->worldTransform().translation());
-		Vec3f end = projectToScreen(entity()->worldTransform().translation() + transformedDragDir);
+		Vec3f start = projectToScreen(oldTransform.translation());
+		Vec3f end = projectToScreen(oldTransform.translation() + transformedDragDir);
 		Vec3f screenDir = (end - start).normalizedCopy();
 
 		// Project the mouse dragging direciton to the screen space arrow direction
@@ -45,8 +46,8 @@ public:
 		start = unProject(start);
 		end = unProject(end);
 
-		// Append the delta value.
-		transform.setTranslation(transform.translation() + end - start);
+		// Apply the delta value.
+		transform.setTranslation(oldTransform.translation() + end - start);
 	}
 
 	//! When dragging this mesh, which direction to move.

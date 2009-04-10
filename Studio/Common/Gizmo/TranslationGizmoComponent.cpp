@@ -24,17 +24,18 @@ public:
 			this->mesh = model->mMeshes.front().mesh;
 	}
 
-	sal_override void mouseMove(const Vec2i& oldPos, const Vec2i& newPos, MCD::Mat44f& transform) const
+	sal_override void mouseMove(Vec2i& oldPos, const Vec2i& newPos,
+		const MCD::Mat44f& oldTransform, MCD::Mat44f& transform) const
 	{
 		// Preforming dragging
 		// Reference: "3D Transformation Manipulators (Translation/Rotation/Scale)"
 		// http://www.ziggyware.com/readarticle.php?article_id=189
 		Vec3f transformedDragDir = dragDirection;
-		entity()->parent()->worldTransform().transformNormal(transformedDragDir);
+		oldTransform.transformNormal(transformedDragDir);
 
 		// Transform the axis direction on the screen space
-		Vec3f start = projectToScreen(entity()->worldTransform().translation());
-		Vec3f end = projectToScreen(entity()->worldTransform().translation() + transformedDragDir);
+		Vec3f start = projectToScreen(oldTransform.translation());
+		Vec3f end = projectToScreen(oldTransform.translation() + transformedDragDir);
 		Vec3f screenDir = (end - start).normalizedCopy();
 
 		// Project the mouse dragging direciton to the screen space arrow direction
@@ -47,8 +48,8 @@ public:
 		start = unProject(start);
 		end = unProject(end);
 
-		// Append the delta value.
-		transform.setTranslation(transform.translation() + end - start);
+		// Apply the delta value.
+		transform.setTranslation(oldTransform.translation() + end - start);
 	}
 
 	//! When dragging this mesh, which direction to move.
@@ -92,29 +93,30 @@ public:
 			color = defaultColor;
 	}
 
-	sal_override void mouseMove(const Vec2i& oldPos, const Vec2i& newPos, MCD::Mat44f& transform) const
+	sal_override void mouseMove(Vec2i& oldPos, const Vec2i& newPos,
+		const MCD::Mat44f& oldTransform, MCD::Mat44f& transform) const
 	{
 		// Preforming dragging
 		// Reference: "3D Transformation Manipulators (Translation/Rotation/Scale)"
 		// http://www.ziggyware.com/readarticle.php?article_id=189
 
 		Vec3f transformedPlaneNormal = planeNormal;
-		entity()->parent()->worldTransform().transformNormal(transformedPlaneNormal);
+		oldTransform.transformNormal(transformedPlaneNormal);
 
 		// Project the mouse position onto the plane
 		Ray ray1 = createPickingRay(oldPos.x, oldPos.y);
 		Ray ray2 = createPickingRay(newPos.x, newPos.y);
 
 		float distanceAlongRay;
-		Plane plane(transformedPlaneNormal, entity()->worldTransform().translation());
+		Plane plane(transformedPlaneNormal, oldTransform.translation());
 		Vec3f p1(0), p2(0);
 		if(Intersects(ray1, plane, distanceAlongRay))
 			p1 = ray1.getPoint(distanceAlongRay);
 		if(Intersects(ray2, plane, distanceAlongRay))
 			p2 = ray2.getPoint(distanceAlongRay);
 
-		// Append the delta value.
-		transform.setTranslation(transform.translation() + p2 - p1);
+		// Apply the delta value.
+		transform.setTranslation(oldTransform.translation() + p2 - p1);
 	}
 
 	//! Normal of the dragging plane.

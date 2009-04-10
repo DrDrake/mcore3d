@@ -67,7 +67,7 @@ void Gizmo::mouseDown(int x, int y)
 		GizmoBaseComponent* gizmo = dynamic_cast<GizmoBaseComponent*>(itr.current());
 		if(!gizmo)
 			continue;
-		gizmo->mouseDown(x, y);
+		gizmo->mouseDown(x, y, selectedEntity()->localTransform);
 	}
 }
 
@@ -106,6 +106,9 @@ void Gizmo::setActiveGizmo(const ComponentPtr& gizmo)
 	if(scaleGizmo) scaleGizmo->entity()->enabled = false;
 	if(gizmo) gizmo->entity()->enabled = true;
 	mActiveGizmo = gizmo;
+
+	// Force a mouse up when changing the active Gizmo
+	mouseUp(0, 0);
 }
 
 Component* Gizmo::activeGizmo() const
