@@ -99,7 +99,7 @@ public:
 			e.release();
 		}
 
-		for(int i=0; i< 2; ++i)
+		for(int i=0; i<2; ++i)
 		{	// Setup entity 1
 			std::auto_ptr<MCD::Entity> e(new MCD::Entity);
 			e->name = L"ChamferBox 1";
@@ -347,13 +347,12 @@ void RenderPanelControl::enableAutoUpdate(bool flag)
 
 void RenderPanelControl::selectedEntity::set(::Binding::Entity^ entity)
 {
+	if(selectedEntity == entity)
+		return;
+
 	MCD::Entity* e = nullptr;
 	if(entity != nullptr)
 		e = entity->getRawEntityPtr();
-
-	// Lazy update
-	if(e == mImpl->mGizmo->selectedEntity())
-		return;
 
 	mImpl->mGizmo->setSelectedEntity(e);
 	entitySelectionChanged(this, entity);

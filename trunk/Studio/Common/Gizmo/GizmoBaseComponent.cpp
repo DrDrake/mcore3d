@@ -121,6 +121,7 @@ GizmoBaseComponent::GizmoBaseComponent(Entity* hostEntity)
 void GizmoBaseComponent::mouseDown(int x, int y, Mat44f& transform)
 {
 	MyPickComponent* picker = dynamic_cast<MyPickComponent*>(mPickComponent.get());
+	MCD_ASSUME(picker);
 	MyMeshComponent* mesh = picker->selectedMesh;
 
 	mBackupMatrix = transform;
@@ -139,6 +140,7 @@ void GizmoBaseComponent::mouseDown(int x, int y, Mat44f& transform)
 void GizmoBaseComponent::mouseMove(int x, int y, Mat44f& transform)
 {
 	MyPickComponent* picker = dynamic_cast<MyPickComponent*>(mPickComponent.get());
+	MCD_ASSUME(picker);
 	picker->setPickRegion(x, y, 1, 1);
 
 	if(dragging)

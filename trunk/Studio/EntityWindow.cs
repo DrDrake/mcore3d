@@ -21,18 +21,6 @@ namespace Studio
 		{
 			InitializeComponent();
 
-			// Instantiate delegate with anonymous method
-			entitySelectionChanged = delegate(object sender, Entity entity)
-			{
-				if (entity == selectedEntity)
-					return;
-
-				treeView.SelectedNodes.Clear();
-
-				if(entity != null)
-					treeView.SelectedNodes.Add(entity.treeViewNode);
-			};
-
 			mRearrange = new Rearrange();
 			mRearrange.TreeView = treeView;
 			mRearrange.Dragging += new Rearrange.DraggingEventHandler(this.treeView_Dragging);
@@ -77,10 +65,20 @@ namespace Studio
 					return null;
 				return (Entity)treeView.SelectedNodes[0].Tag;
 			}
+			set
+			{
+				if (value == selectedEntity)
+					return;
+
+				treeView.SelectedNodes.Clear();
+
+				if (value != null)
+					treeView.SelectedNodes.Add(value.treeViewNode);
+			}
 		}
 
 		/// <summary>
-		/// Occur when the selection in the entity tree view is changed.
+		/// To notify external object that the entity selection is changed.
 		/// </summary>
 		public EntitySelectionChangedHandler entitySelectionChanged;
 
@@ -88,11 +86,6 @@ namespace Studio
 		private void treeView_SelectionsChanged(object sender, EventArgs e)
 		{
 			entitySelectionChanged(this, selectedEntity);
-
-			// Ensure the tree view node is visible
-			// TODO: Enable as an option
-			if(selectedEntity != null)
-				selectedEntity.treeViewNode.EnsureVisible();
 		}
 
 		private void treeView_Dragging(object sender, Rearrange.DraggingArgument arg)
@@ -124,8 +117,9 @@ namespace Studio
 			// Press delete key will delete the selected node from the scene graph
 			if (e.KeyCode == Keys.Delete && selectedEntity != null)
 			{
-				selectedEntity.destroyThis();
+				Entity entity = selectedEntity;
 				entitySelectionChanged(this, null);
+				entity.destroyThis();
 			}
 		}
 	}
