@@ -22,6 +22,10 @@ public:
 	}
 };
 
+class DummyComponent21 : public DummyComponent2
+{
+};
+
 class DummyComponent3 : public Component
 {
 public:
@@ -61,7 +65,7 @@ TEST(Basic_ComponentTest)
 
 	// An entity can only have one instance of a certain type of Component,
 	// so the old component will be replaced by the new one.
-	root.addComponent(new DummyComponent2);
+	root.addComponent(new DummyComponent21);
 	CHECK(!c2);
 
 	// Test findComponentInChildren

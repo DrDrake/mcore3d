@@ -148,7 +148,7 @@ void Entity::addComponent(Component* component)
 	if(!component)
 		return;
 
-	removeComponent(typeid(*component));
+	removeComponent(component->familyType());
 	components.pushBack(*component);
 	component->mEntity = this;
 }
