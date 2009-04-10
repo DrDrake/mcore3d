@@ -64,6 +64,7 @@ namespace Studio
 			content.TabText = "Scene " + renderControls.Count;
 
 			// Broadcasting the key event from render panel to entity window
+			content.KeyUp += new KeyEventHandler(entityWindow.treeView_KeyUp);
 			renderPanel.KeyUp += new KeyEventHandler(entityWindow.treeView_KeyUp);
 
 			// Forward the key event from render panel to main window
@@ -141,12 +142,8 @@ namespace Studio
 
 		private void onEntitySelectionChanged(object sender, Entity entity)
 		{
-			// Use sender == null as an indicator to break the infinity recursion
-			if (sender == null)
-				return;
-
-			// Broadcast the event to other windows
-			entityWindow.entitySelectionChanged(null, entity);
+			// Inform other window about the changed selecion
+			entityWindow.selectedEntity = entity;
 			propertyWindow.propertyGrid1.SelectedObject = entity;
 			if (currentRenderControl != null)
 				currentRenderControl.selectedEntity = entity;

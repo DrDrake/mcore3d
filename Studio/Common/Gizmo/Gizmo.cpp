@@ -59,6 +59,8 @@ Gizmo::Gizmo(ResourceManager& resourceManager)
 
 void Gizmo::mouseDown(int x, int y)
 {
+	if(!selectedEntity())
+		return;
 	for(ComponentPreorderIterator itr(this); !itr.ended(); itr.next()) {
 		Entity* e = itr->entity();
 		MCD_ASSUME(e);
@@ -67,12 +69,15 @@ void Gizmo::mouseDown(int x, int y)
 		GizmoBaseComponent* gizmo = dynamic_cast<GizmoBaseComponent*>(itr.current());
 		if(!gizmo)
 			continue;
+		MCD_ASSERT(selectedEntity());
 		gizmo->mouseDown(x, y, selectedEntity()->localTransform);
 	}
 }
 
 void Gizmo::mouseMove(int x, int y)
 {
+	if(!selectedEntity())
+		return;
 	for(ComponentPreorderIterator itr(this); !itr.ended(); itr.next()) {
 		Entity* e = itr->entity();
 		MCD_ASSUME(e);
@@ -87,6 +92,8 @@ void Gizmo::mouseMove(int x, int y)
 
 void Gizmo::mouseUp(int x, int y)
 {
+	if(!selectedEntity())
+		return;
 	for(ComponentPreorderIterator itr(this); !itr.ended(); itr.next()) {
 		Entity* e = itr->entity();
 		MCD_ASSUME(e);
@@ -101,14 +108,14 @@ void Gizmo::mouseUp(int x, int y)
 
 void Gizmo::setActiveGizmo(const ComponentPtr& gizmo)
 {
+	// Force a mouse up when changing the active Gizmo
+	mouseUp(0, 0);
+
 	if(translationGizmo) translationGizmo->entity()->enabled = false;
 	if(rotationGizmo) rotationGizmo->entity()->enabled = false;
 	if(scaleGizmo) scaleGizmo->entity()->enabled = false;
 	if(gizmo) gizmo->entity()->enabled = true;
 	mActiveGizmo = gizmo;
-
-	// Force a mouse up when changing the active Gizmo
-	mouseUp(0, 0);
 }
 
 Component* Gizmo::activeGizmo() const
@@ -118,6 +125,9 @@ Component* Gizmo::activeGizmo() const
 
 void Gizmo::setSelectedEntity(Entity* entity)
 {
+	// Force a mouse up when selected entity is changed
+	mouseUp(0, 0);
+
 	enabled = (entity != nullptr);
 
 	FollowTransformComponent* component = findComponent<FollowTransformComponent>(typeid(BehaviourComponent));
