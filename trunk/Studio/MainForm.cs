@@ -93,14 +93,17 @@ namespace Studio
 			foreach (RenderPanelControl r in renderControls)
 				r.enableAutoUpdate(false);
 
-			if(currentRenderControl != null)
+			if (currentRenderControl != null)
 			{
 				currentRenderControl.enableAutoUpdate(true);
 				entityWindow.selectEntityRoot(currentRenderControl.rootEntity);
 				onEntitySelectionChanged(this, currentRenderControl.selectedEntity);
 			}
 			else
+			{
 				entityWindow.selectEntityRoot(null);
+				onEntitySelectionChanged(this, null);
+			}
 
 			enableGizmoButtons(true);
 			updateGizmoButtonsState();

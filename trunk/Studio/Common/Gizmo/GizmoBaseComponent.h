@@ -27,7 +27,13 @@ public:
 
 	sal_override void render();
 
-	virtual void mouseMove(const Vec2i& oldPos, const Vec2i& newPos, MCD::Mat44f& transform) const = 0;
+	/*! 
+		\param oldPos By default, it will be the mouse position at the time of mouse down.
+			But overrided function can change this value so that it become the last mouse position.
+		\param newPos The lastest mouse position.
+	 */
+	virtual void mouseMove(Vec2i& oldPos, const Vec2i& newPos,
+		const MCD::Mat44f& oldTransform, MCD::Mat44f& transform) const = 0;
 
 	MCD::ColorRGBAf color;
 	const MCD::ColorRGBAf defaultColor;
@@ -44,7 +50,7 @@ public:
 		return typeid(GizmoBaseComponent);
 	}
 
-	virtual void mouseDown(int x, int y);
+	virtual void mouseDown(int x, int y, MCD::Mat44f& transform);
 
 	virtual void mouseMove(int x, int y, MCD::Mat44f& transform);
 
@@ -53,7 +59,9 @@ public:
 	MCD::ComponentPtr dragging;
 
 protected:
-	int mLastMousePosition[2];
+	MCD::Mat44f mBackupMatrix;
+
+	MyMeshComponent::Vec2i mOldMousePosition;
 
 	//! A shortcut to the pick detection component.
 	MCD::ComponentPtr mPickComponent;
