@@ -77,6 +77,33 @@ Vec3<T> Mat33<T>::operator*(const Vec3<T>& rhs) const
 }
 
 template<typename T>
+void Mat33<T>::transpose(Mat33& ret) const
+{
+	MCD_ASSERT(&ret != this);
+
+	ret.m00 = m00; ret.m01 = m10; ret.m02 = m20;
+	ret.m10 = m01; ret.m11 = m11; ret.m12 = m21;
+	ret.m20 = m02; ret.m21 = m12; ret.m22 = m22;
+}
+
+template<typename T>
+T Mat33<T>::determinant() const
+{
+	return
+		m00 * (m11 * m22 - m12 * m21) -
+		m01 * (m10 * m22 - m12 * m20) +
+		m02 * (m10 * m21 - m11 * m20);
+}
+
+template<typename T>
+Mat33<T> Mat33<T>::transpose() const
+{
+	Mat33<T> result;
+	transpose(result);
+	return result;
+}
+
+template<typename T>
 bool Mat33<T>::getRotationXYZ(T& thetaX, T& thetaY, T& thetaZ)
 {
 	thetaY = Math<T>::aSinClamp(m02);

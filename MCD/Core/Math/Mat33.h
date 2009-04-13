@@ -109,6 +109,11 @@ public:
 //	friend Mat33<T> operator/(const param_type lhs, const MathTuple& rhs) {
 //	}
 
+	void transpose(Mat33& result) const;
+	Mat33 transpose() const;
+
+	T determinant() const;
+
 	/*!	Gets the Euler angles, as it's rotated in the order of X, Y then Z.
 		\param thetaX Rotation of angle in radius, counter clockwise from the x-axis.
 		\param thetaY Rotation of angle in radius, counter clockwise from the y-axis.

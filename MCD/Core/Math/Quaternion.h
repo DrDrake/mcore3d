@@ -137,8 +137,12 @@ public:
 	 */
 	void toAxisAngle(Vec3<T>& axis, T& angle) const;
 
-	//!	Creat the quaternion from a matrix.
-	void fromMatrix(const Mat33<T>& matrix);
+	/*!	Creat the quaternion from a matrix.
+		The matrix should be orthoginal (det(matrix)=1) and
+		trace = m00 + m11 + m22 + 1 > 0 (the matrix is special orthogonal
+		which cannot represent a reflection component).
+	 */
+	void fromMatrix(const Mat33<T>& pureRotation);
 
 	//!	Convert the quaternion to a matrix.
 	void toMatrix(Mat33<T>& matrix) const;

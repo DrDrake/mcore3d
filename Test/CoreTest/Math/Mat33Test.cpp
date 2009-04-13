@@ -145,6 +145,17 @@ TEST(Division_Mat33Test)
 	CHECK(t == ma);
 }
 
+TEST(Determinant_Mat33Test)
+{
+	Mat33f a(
+		 2, -2, 0,
+		-1,  5, 1,
+		 3,  4, 5);
+
+	CHECK_EQUAL(26, a.determinant());
+	CHECK_EQUAL(26, (a + 0).determinant());
+}
+
 TEST(RotateXYZ_Mat33Test)
 {
 	// Setting with Euler angles
