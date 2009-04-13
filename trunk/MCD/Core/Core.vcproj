@@ -548,6 +548,10 @@
 					>
 				</File>
 				<File
+					RelativePath=".\Math\SrtTransform.h"
+					>
+				</File>
+				<File
 					RelativePath=".\Math\Tuple.h"
 					>
 				</File>
@@ -577,6 +581,10 @@
 				>
 				<File
 					RelativePath=".\Math\Intersection.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\Math\SrtTransform.cpp"
 					>
 				</File>
 			</Filter>

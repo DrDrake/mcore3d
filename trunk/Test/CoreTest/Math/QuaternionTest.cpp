@@ -88,7 +88,7 @@ TEST(Matrix_QuaternionTest)
 {
 	Quaternionf q;
 	Mat33f m1;
-	// Rotate around y-axis 45 degree anti-clockwise
+	// Rotate around y-axis 90 degree anti-clockwise
 	q.fromAxisAngle(Vec3f::c010, Mathf::cPiOver2());
 	q.toMatrix(m1);
 

@@ -79,7 +79,11 @@ void Quaternion<T>::toAxisAngle(Vec3<T>& axis, T& angle) const
 template<typename T>
 void Quaternion<T>::fromMatrix(const Mat33<T>& matrix)
 {
+	MCD_ASSERT(Mathf::isNearEqual(matrix.determinant(), 1));
+	MCD_ASSERT(matrix.m00 + matrix.m11 + matrix.m22 + 1 > 0);
+
 	// Reference: http://www.euclideanspace.com/maths/geometry/rotations/conversions/matrixToQuaternion/index.htm
+	// The max(0, ...) is just a safeguard against rounding error.
 	// TODO: A very good fit for using SIMD :)
 	x = sqrt(Math<T>::max(0, 1 + matrix.m00 - matrix.m11 - matrix.m22)) * T(0.5);
 	y = sqrt(Math<T>::max(0, 1 - matrix.m00 + matrix.m11 - matrix.m22)) * T(0.5);
