@@ -156,6 +156,42 @@ TEST(Determinant_Mat33Test)
 	CHECK_EQUAL(26, (a + 0).determinant());
 }
 
+TEST(Scale_Mat33Test)
+{
+	{	// Pure scaling
+		Mat33f m = Mat33f::cIdentity;
+
+		const Vec3f scale(1, 2, 3);
+		m.setScale(scale);
+
+		CHECK(scale.isNearEqual(m.scale()));
+	}
+
+	{	// Alter the scaling part of a rotation matrix
+		float piOver4 = Math<float>::cPiOver4();
+		Mat33f m = Mat33f::rotateXYZ(piOver4, piOver4, piOver4);
+
+		const Vec3f rotatedZ = m * Vec3f::c001;
+
+		const Vec3f scale(1, 2, 3);
+		m.setScale(scale);
+
+		CHECK(scale.isNearEqual(m.scale()));
+
+		// Check that the length of an unit vector changed after the transform
+		Vec3f unitX = m * Vec3f::c100;
+		CHECK_CLOSE(scale.x, unitX.length(), 1e-6);
+		Vec3f unitY = m * Vec3f::c010;
+		CHECK_CLOSE(scale.y, unitY.length(), 1e-6);
+		Vec3f unitZ = m * Vec3f::c001;
+		CHECK_CLOSE(scale.z, unitZ.length(), 1e-6);
+
+		// Check that the rotation part didn't changed
+		Vec3f transformedZ = m * Vec3f::c001;
+		CHECK(rotatedZ.isNearEqual(transformedZ / scale.z));
+	}
+}
+
 TEST(RotateXYZ_Mat33Test)
 {
 	// Setting with Euler angles

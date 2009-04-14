@@ -37,9 +37,14 @@ public:
 			Mathf::toRadian(float(newPos.y - oldPos.y))
 		);
 
-		// Append the delta value.
-		// TODO: Fix error accumulation problem.
-		transform.setMat33(deltaRotation * oldTransform.mat33());
+		// Ensure we are modifing the pure rotation only
+		Vec3f scale = oldTransform.scale();
+		Mat33f pureRotaton = oldTransform.mat33();
+		pureRotaton.setScale(Vec3f(1));
+
+		Mat33f final = deltaRotation * pureRotaton;
+		final.setScale(scale);
+		transform.setMat33(final);
 	}
 
 	//! When dragging, which axis to rotate.
