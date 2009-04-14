@@ -98,7 +98,7 @@ TEST(PickComponentTest)
 			// Show the picking result
 			for(size_t i=0; i<mPicker->hitCount(); ++i) {
 				EntityPtr e = mPicker->hitAtIndex(i);
-				if(!e.get())
+				if(!e)
 					continue;
 				std::wcout << e->name << std::endl;
 			}

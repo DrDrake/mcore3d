@@ -118,10 +118,14 @@ public:
 	//!	Sets the translation transformation part of the matrix.
 	void setTranslation(const Vec3<T>& translation);
 
-	//!	Get the scale part of the matrix.
+	/*!	Decompose the scale part from the matrix.
+		Assuming the matrix is composed as (S * R * T).
+	 */
 	Vec3<T> scale() const;
 
-	//!	Sets the scale part of the matrix.
+	/*!	Sets the scale part of the matrix.
+		Assuming the matrix is composed as (S * R * T).
+	 */
 	void setScale(const Vec3<T>& scale);
 
 	//!	Extracts the rotation / scaling part of the matrix as a 3x3 matrix.

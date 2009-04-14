@@ -20,6 +20,9 @@ public:
 		if(!selectedEntity)
 			return;
 		e->localTransform = selectedEntity->worldTransform();
+
+		// Undo any scaling
+		e->localTransform.setScale(Vec3f(1));
 	}
 
 	EntityPtr selectedEntity;

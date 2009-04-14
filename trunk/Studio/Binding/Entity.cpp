@@ -300,25 +300,21 @@ void Entity::rotation::set(array<float>^ value)
 array<float>^ Entity::scale::get()
 {
 	array<float>^ a = gcnew array<float>(3);
-	const MCD::Mat44f& mat = mImpl->localTransform;
+	const MCD::Vec3f s = mImpl->localTransform.scale();
 
-	a[0] = MCD::Vec3f(mat.m00, mat.m10, mat.m20).length();
-	a[1] = MCD::Vec3f(mat.m01, mat.m11, mat.m21).length();
-	a[2] = MCD::Vec3f(mat.m02, mat.m12, mat.m22).length();
+	a[0] = s.x;
+	a[1] = s.y;
+	a[2] = s.z;
 
 	return a;
 }
 
 void Entity::scale::set(array<float>^ value)
 {
-	array<float>^ currentScale = this->scale;
-
 	if(value[0] <= 0 || value[1] <= 0 || value[2] <= 0)
 		throw gcnew System::Exception("Values should be greater than zero");
 
-	// Scale the x, y and z bias vectors of the 3x3 matrix
-	for(size_t i=0; i<3; ++i) for(size_t j=0; j<3; ++j)
-		mImpl->localTransform[i][j] *= value[j] / currentScale[j];
+	mImpl->localTransform.setScale(MCD::Vec3f(value[0], value[1], value[2]));
 }
 
 }

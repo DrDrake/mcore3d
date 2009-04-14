@@ -114,6 +114,17 @@ public:
 
 	T determinant() const;
 
+	/*!	Decompose the scale part from the matrix.
+		Assuming the matrix is composed as (S * R).
+	 */
+	Vec3<T> scale() const;
+
+	/*!	Sets the scale part of the matrix.
+		Assuming the matrix is composed as (S * R).
+		You can get a pure rotation matrix by setting it's scale to one.
+	 */
+	void setScale(const Vec3<T>& scale);
+
 	/*!	Gets the Euler angles, as it's rotated in the order of X, Y then Z.
 		\param thetaX Rotation of angle in radius, counter clockwise from the x-axis.
 		\param thetaY Rotation of angle in radius, counter clockwise from the y-axis.

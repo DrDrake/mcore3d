@@ -79,8 +79,8 @@ void Quaternion<T>::toAxisAngle(Vec3<T>& axis, T& angle) const
 template<typename T>
 void Quaternion<T>::fromMatrix(const Mat33<T>& matrix)
 {
-	MCD_ASSERT(Mathf::isNearEqual(matrix.determinant(), 1));
-	MCD_ASSERT(matrix.m00 + matrix.m11 + matrix.m22 + 1 > 0);
+	MCD_ASSERT(Mathf::isNearEqual(matrix.determinant(), 1) && "The matrix should be orthoginal");
+	MCD_ASSERT(matrix.m00 + matrix.m11 + matrix.m22 + 1 > 0 && "The matrix should be special orthoginal");
 
 	// Reference: http://www.euclideanspace.com/maths/geometry/rotations/conversions/matrixToQuaternion/index.htm
 	// The max(0, ...) is just a safeguard against rounding error.

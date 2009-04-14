@@ -263,15 +263,27 @@ void Mat44<T>::setTranslation(const Vec3<T>& translation)
 template<typename T>
 Vec3<T> Mat44<T>::scale() const
 {
-	return Vec3<T>(m00, m11, m22);
+	// Reference: http://www.gamedev.net/community/forums/topic.asp?topic_id=491578
+	return Vec3<T>(
+		Vec3<T>(m00, m10, m20).length(),
+		Vec3<T>(m01, m11, m21).length(),
+		Vec3<T>(m02, m12, m22).length()
+	);
 }
 
 template<typename T>
 void Mat44<T>::setScale(const Vec3<T>& scale)
 {
-	m00 = scale.x;
-	m11 = scale.y;
-	m22 = scale.z;
+	Vec3<T> currentScale = this->scale();
+
+	MCD_ASSERT(scale[0] > 0 && scale[1] > 0 && scale[2] > 0);
+
+	// Scale the x, y and z bias vectors of the 3x3 matrix
+	for(size_t i=0; i<3; ++i) {
+		T s = scale[i] / currentScale[i];
+		for(size_t j=0; j<3; ++j)
+			data2D[j][i] *= s;
+	}
 }
 
 template<typename T>

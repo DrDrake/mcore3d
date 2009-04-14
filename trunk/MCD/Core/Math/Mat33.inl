@@ -87,6 +87,14 @@ void Mat33<T>::transpose(Mat33& ret) const
 }
 
 template<typename T>
+Mat33<T> Mat33<T>::transpose() const
+{
+	Mat33<T> result;
+	transpose(result);
+	return result;
+}
+
+template<typename T>
 T Mat33<T>::determinant() const
 {
 	return
@@ -96,11 +104,29 @@ T Mat33<T>::determinant() const
 }
 
 template<typename T>
-Mat33<T> Mat33<T>::transpose() const
+Vec3<T> Mat33<T>::scale() const
 {
-	Mat33<T> result;
-	transpose(result);
-	return result;
+	// Reference: http://www.gamedev.net/community/forums/topic.asp?topic_id=491578
+	return Vec3<T>(
+		Vec3<T>(m00, m10, m20).length(),
+		Vec3<T>(m01, m11, m21).length(),
+		Vec3<T>(m02, m12, m22).length()
+	);
+}
+
+template<typename T>
+void Mat33<T>::setScale(const Vec3<T>& scale)
+{
+	Vec3<T> currentScale = this->scale();
+
+	MCD_ASSERT(scale[0] > 0 && scale[1] > 0 && scale[2] > 0);
+
+	// Scale the x, y and z bias vectors of the 3x3 matrix
+	for(size_t i=0; i<3; ++i) {
+		T s = scale[i] / currentScale[i];
+		for(size_t j=0; j<3; ++j)
+			data2D[j][i] *= s;
+	}
 }
 
 template<typename T>
