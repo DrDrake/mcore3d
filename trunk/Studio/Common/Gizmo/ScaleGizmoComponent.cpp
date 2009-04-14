@@ -25,33 +25,18 @@ public:
 	sal_override void mouseMove(Vec2i& oldPos, const Vec2i& newPos,
 		const MCD::Mat44f& oldTransform, MCD::Mat44f& transform) const
 	{
-		// Preforming dragging
-		// Reference: "3D Transformation Manipulators (Translation/Rotation/Scale)"
-		// http://www.ziggyware.com/readarticle.php?article_id=189
-		Vec3f transformedDragDir = dragDirection;
-		oldTransform.transformNormal(transformedDragDir);
+		Vec3f oldScale = oldTransform.scale();
+		oldScale[scalingAxis] -= (float(newPos.y - oldPos.y)) / 200;
 
-		// Transform the axis direction on the screen space
-		Vec3f start = projectToScreen(oldTransform.translation());
-		Vec3f end = projectToScreen(oldTransform.translation() + transformedDragDir);
-		Vec3f screenDir = (end - start).normalizedCopy();
-
-		// Project the mouse dragging direciton to the screen space arrow direction
-		Vec2i delta = newPos - oldPos;
-		Vec3f mouseDir(float(delta.x), -float(delta.y), 0);
-		mouseDir = (screenDir % mouseDir) * screenDir;
-		end = start + mouseDir;
-
-		// Un-project the arrow aligned mouse drag direction back to 3D
-		start = unProject(start);
-		end = unProject(end);
+		// Prevent scale <= 0
+		oldScale[scalingAxis] = oldScale[scalingAxis] < 1.0f/200 ? 1.0f/200 : oldScale[scalingAxis];
 
 		// Apply the delta value.
-		transform.setTranslation(oldTransform.translation() + end - start);
+		transform.setScale(oldScale);
 	}
 
-	//! When dragging this mesh, which direction to move.
-	Vec3f dragDirection;
+	//! When dragging this mesh, which axis [0, 1, 2] to scale.
+	size_t scalingAxis;
 };	// ArrowComponent
 
 }	// namespace
@@ -64,7 +49,7 @@ ScaleGizmoComponent::ScaleGizmoComponent(ResourceManager& resourceManager, Entit
 		e->name = L"X arrow";
 		e->asChildOf(hostEntity);
 		ArrowComponent* c = new ArrowComponent(resourceManager, ColorRGBAf(1, 0, 0, 0.8f));
-		c->dragDirection = Vec3f::c100;
+		c->scalingAxis = 0;
 		e->addComponent(c);
 		e->localTransform.setScale(MCD::Vec3f(1, 1.5f, 1));
 		e->localTransform = Mat44f(Mat33f::rotateXYZ(0, 0, -Mathf::cPiOver2())) * e->localTransform;
@@ -74,7 +59,7 @@ ScaleGizmoComponent::ScaleGizmoComponent(ResourceManager& resourceManager, Entit
 		e->name = L"Y arrow";
 		e->asChildOf(hostEntity);
 		ArrowComponent* c = new ArrowComponent(resourceManager, ColorRGBAf(0, 1, 0, 0.8f));
-		c->dragDirection = Vec3f::c010;
+		c->scalingAxis = 1;
 		e->addComponent(c);
 		e->localTransform.setScale(MCD::Vec3f(1, 1.5f, 1));
 	}
@@ -83,7 +68,7 @@ ScaleGizmoComponent::ScaleGizmoComponent(ResourceManager& resourceManager, Entit
 		e->name = L"Z arrow";
 		e->asChildOf(hostEntity);
 		ArrowComponent* c = new ArrowComponent(resourceManager, ColorRGBAf(0, 0, 1, 0.8f));
-		c->dragDirection = Vec3f::c001;
+		c->scalingAxis = 2;
 		e->addComponent(c);
 		e->localTransform.setScale(MCD::Vec3f(1, 1.5f, 1));
 		e->localTransform = Mat44f(Mat33f::rotateXYZ(Mathf::cPiOver2(), 0, 0)) * e->localTransform;
