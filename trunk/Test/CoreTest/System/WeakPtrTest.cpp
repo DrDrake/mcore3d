@@ -3,11 +3,15 @@
 
 using namespace MCD;
 
+namespace {
+
 class Base : public WeakPtrTarget {};
 
 class Derived : public Base {};
 
 typedef WeakPtr<Base> BasePointer;
+
+}	// namespace
 
 TEST(WeakPtrTest)
 {

@@ -29,7 +29,8 @@ public:
 		oldScale[scalingAxis] -= (float(newPos.y - oldPos.y)) / 200;
 
 		// Prevent scale <= 0
-		oldScale[scalingAxis] = oldScale[scalingAxis] < 1.0f/200 ? 1.0f/200 : oldScale[scalingAxis];
+		const float cMinScale = 1.0f / 200;
+		oldScale[scalingAxis] = oldScale[scalingAxis] < cMinScale ? cMinScale : oldScale[scalingAxis];
 
 		// Apply the delta value.
 		transform.setScale(oldScale);
