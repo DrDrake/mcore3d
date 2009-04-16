@@ -3,6 +3,7 @@
 #include "../Common/ChamferBox.h"
 #include "../Common/DefaultResourceManager.h"
 #include "../Common/Gizmo/Gizmo.h"
+#include "../Common/GroundPlaneComponent.h"
 
 #define _WINDOWS
 #include "../../MCD/Core/Entity/Entity.h"
@@ -68,6 +69,18 @@ public:
 			e->setActiveGizmo(e->translationGizmo.get());
 
 			mGizmo = e.release();
+		}
+
+		{	// Add the ground plane
+			std::auto_ptr<MCD::Entity> e(new MCD::Entity);
+			e->name = L"Ground plane";
+			e->asChildOf(mPredefinedSubTree);
+
+			// Add component
+			GroundPlaneComponent* c = new GroundPlaneComponent;
+			e->addComponent(c);
+
+			e.release();
 		}
 
 		{	// Add picking detector
