@@ -65,6 +65,6 @@ protected:
 
 	//! A shortcut to the pick detection component.
 	MCD::ComponentPtr mPickComponent;
-};	// RotationGizmoComponent
+};	// GizmoBaseComponent
 
 #endif	// __MCD_STUDIO_GIZMOBASECOMPONENT__

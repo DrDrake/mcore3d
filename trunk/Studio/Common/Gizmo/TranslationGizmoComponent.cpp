@@ -6,6 +6,7 @@
 #include "../../../MCD/Core/Entity/Entity.h"
 #include "../../../MCD/Core/Math/Intersection.h"
 #include "../../../MCD/Core/Math/Plane.h"
+#include "../../../3Party/glew/glew.h"
 
 using namespace MCD;
 
