@@ -47,6 +47,8 @@ void AvlTree::Node::setChildSafe(Direction dir, Node* child)
 {
 	if((mChildren[dir] = child) != nullptr)
 		child->mParent = this;
+
+	synLeftRight();
 }
 
 #ifndef NDEBUG
@@ -63,6 +65,17 @@ size_t AvlTree::Node::assertValid(size_t& total, const Node* parent, size_t nL, 
 
 	++total;
 	return max(nL, nR) + 1;
+}
+
+void AvlTree::Node::synLeftRight()
+{
+	mRight = mChildren[Right];
+}
+
+#else
+
+MCD_INLINE2 void AvlTree::Node::synLeftRight()
+{
 }
 
 #endif	// NDEBUG
@@ -87,6 +100,8 @@ void AvlTree::insert(Node& node, Node* parent, int nIdx)
 {
 	node.mChildren[Left] = nullptr;
 	node.mChildren[Right] = nullptr;
+	node.synLeftRight();
+
 	node.mParent = parent;
 	node.mAvlTree = this;
 	node.mBallance = 0;
@@ -94,6 +109,7 @@ void AvlTree::insert(Node& node, Node* parent, int nIdx)
 	if(parent) {
 		MCD_ASSERT(!parent->mChildren[nIdx]);
 		parent->mChildren[nIdx] = &node;
+		parent->synLeftRight();
 
 		adjustBallance(*parent, nIdx ? 1 : -1, false);
 
@@ -116,6 +132,7 @@ void AvlTree::remove(Node& node, Node* onlyChild)
 	if(parent) {
 		Node::Direction idx = node.parentIdx();
 		parent->mChildren[idx] = onlyChild;
+		parent->synLeftRight();
 
 		adjustBallance(*parent, idx ? -1 : 1, true);
 
@@ -160,8 +177,10 @@ void AvlTree::destroyAll() throw()
 
 void AvlTree::replaceFixTop(Node& node, Node& next)
 {
-	if((next.mParent = node.mParent) != nullptr)
+	if((next.mParent = node.mParent) != nullptr) {
 		node.mParent->mChildren[node.parentIdx()] = &next;
+		node.mParent->synLeftRight();
+	}
 	else {
 		MCD_ASSERT(&node == mRoot);
 		mRoot = &next;
@@ -200,6 +219,7 @@ bool AvlTree::rotate(Node& node, int dir)
 	node.setChildSafe(Node::Direction(!nIdx), pNext->mChildren[nIdx]);
 
 	pNext->mChildren[nIdx] = &node;
+	pNext->synLeftRight();
 
 	replaceFixTop(node, *pNext);
 
