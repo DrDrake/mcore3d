@@ -1,0 +1,167 @@
+;	Append the following text to C:\Program Files\Microsoft Visual Studio 8\Common7\Packages\Debugger\autoexp.dat
+;	Reference: http://www.virtualdub.org/blog/pivot/entry.php?id=120
+
+;------------------------------------------------------------------------------
+;  MCD::Vec 2-4
+;------------------------------------------------------------------------------
+MCD::Vec2<*> {
+	preview (
+		#(
+			"x=", $c.x, ", y=", $c.y
+		)
+	)
+}
+
+MCD::Vec3<*> {
+	preview (
+		#(
+			"x=", $c.x, ", y=", $c.y, ", z=", $c.z
+		)
+	)
+}
+
+MCD::Vec4<*> {
+	preview (
+		#(
+			"x=", $c.x, ", y=", $c.y, ", z=", $c.z, ", w=", $c.w
+		)
+	)
+}
+
+MCD::Quaternion<*> {
+	preview (
+		#(
+			"x=", $c.x, ", y=", $c.y, ", z=", $c.z, ", w=", $c.w
+		)
+	)
+}
+
+
+;------------------------------------------------------------------------------
+;  MCD::Mat33 - Mat44
+;------------------------------------------------------------------------------
+MCD::Mat33<*> {
+	stringview (
+		#(
+			$c.m00, ", ", $c.m01, ", ", $c.m02, "<br>",
+			$c.m10, ", ", $c.m11, ", ", $c.m12, "<br>",
+			$c.m20, ", ", $c.m21, ", ", $c.m22
+		)
+	)
+}
+
+MCD::Mat44<*> {
+	stringview (
+		#(
+			$c.m00, ", ", $c.m01, ", ", $c.m02, ", ", $c.m03, "<br>",
+			$c.m10, ", ", $c.m11, ", ", $c.m12, ", ", $c.m13, "<br>",
+			$c.m20, ", ", $c.m21, ", ", $c.m22, ", ", $c.m23, "<br>",
+			$c.m30, ", ", $c.m31, ", ", $c.m32, ", ", $c.m33
+		)
+	)
+}
+
+
+;------------------------------------------------------------------------------
+;  MCD::LinkList<*>
+;------------------------------------------------------------------------------
+MCD::LinkList<*> {
+	preview
+	(
+		#(
+			"[",
+				$c.mCount,
+			"](",
+
+			#list
+			(
+				head : $c.mHead->mNext,
+				size : $c.mCount,
+				next : mNext
+			) : ($T1*)(&$e),
+
+			")"
+		)
+	)
+
+	children
+	(
+		#list
+		(
+			head : $c.mHead->mNext,
+			size : $c.mCount,
+			next : mNext
+		) : ($T1*)(&$e)
+	)
+}
+
+
+;------------------------------------------------------------------------------
+;  MCD::Map<*>
+;------------------------------------------------------------------------------
+MCD::Map<*> {
+	children
+	(
+		#tree
+		(
+			head : $c.mRoot,
+			size : $c.mCount,
+			left : mChildren,
+			right : mRight
+		) : &$e
+	)
+}
+
+MCD::MapBase<*>::Node<*> {
+	preview
+	(
+		#(
+			"Key=", $c.mKey
+		)
+	)
+}
+
+
+;------------------------------------------------------------------------------
+;  MCD::IntrusivePtr<*>
+;------------------------------------------------------------------------------
+MCD::IntrudsivePtr<*> {
+	preview (
+		#(
+			"Addr=", (void*)($c.mPtr),
+			"] ", (*(($T1 *)$c.mPtr))
+		)
+	)
+	children (
+		#( 
+			Pointee: (*(($T1 *)$c.mPtr))
+		)
+	)
+}
+
+MCD::WeakPtr<*> {
+	preview (
+		#if($c.mValidityFlag.mPtr->mIsValid == 1)
+		(#(
+			"[Addr=", (void*)($c.mPtr),
+			"] ", (*(($T1 *)$c.mPtr))
+		))
+		#else
+		(#(
+			"[Addr=", (void*)(0),
+			"] ", (*(($T1 *)$c.mPtr))
+		))
+	)
+	children (
+		#if($c.mValidityFlag.mPtr->mIsValid == 1)
+		(#(
+			Pointee: *(($T1 *)$c.mPtr)
+		))
+		#else
+		(#(
+			Null: 0
+		))
+	)
+}
+
+

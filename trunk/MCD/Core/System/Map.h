@@ -145,7 +145,10 @@ protected:
 
 #ifndef NDEBUG
 		MCD_CORE_API size_t assertValid(size_t& total, sal_maybenull const Node* parent, size_t nL, size_t nR) const;
+		Node* mRight;	//! For visual studio debug visualization
 #endif	// NDEBUG
+
+		void synLeftRight();	//! For visual studio debug visualization
 
 		Node* mChildren[2];	// Left/Right children
 		Node* mParent;
