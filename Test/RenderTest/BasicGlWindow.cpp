@@ -8,7 +8,7 @@
 #if defined(MCD_VC)
 #	pragma comment(lib, "OpenGL32")
 #	pragma comment(lib, "GLU32")
-#	pragma comment(lib, "GlAux")
+//#	pragma comment(lib, "GlAux")
 #	pragma comment(lib, "glew")
 #endif
 
