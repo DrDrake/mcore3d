@@ -93,12 +93,6 @@ SQINLINE bool	Match(TypeWrapper<SQOtherChar *>,HSQUIRRELVM v,int idx)       { re
 SQINLINE SQOthCharBuf Get(TypeWrapper<const SQOtherChar *>,HSQUIRRELVM v,int idx)  { const SQChar * s;  SQPLUS_CHECK_GET(sq_getstring(v,idx,&s));  return SQOthCharBuf(s); }
 #endif // SQPLUS_AUTOCONVERT_OTHER_CHAR
 
-#if defined(SQPLUS_SUPPORT_STD_STRING) && !defined(SQUNICODE)
-SQINLINE void Push(HSQUIRRELVM v,const std::string& value) { sq_pushstring(v,value.c_str(),-1); }
-SQINLINE bool Match(TypeWrapper<const std::string&>, HSQUIRRELVM v, int idx) { return sq_gettype(v,idx) == OT_STRING; }
-SQINLINE std::string Get(TypeWrapper<const std::string&>,HSQUIRRELVM v,int idx) { const SQChar * s; SQPLUS_CHECK_GET(sq_getstring(v,idx,&s)); return std::string(s); } 
-#endif // defined(SQPLUS_SUPPORT_STD_STRING) && !defined(SQUNICODE)
-
 // Added jflanglois suggestion, 8/20/06. jcs
 #ifdef SQPLUS_SUPPORT_SQ_STD_STRING
 typedef std::basic_string<SQChar> sq_std_string;

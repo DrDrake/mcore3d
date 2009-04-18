@@ -155,9 +155,9 @@ static int setVar(StackHandler & sa,VarRef * vr,void * data) {
     } // if
     break;
   } // case
-#if defined(SQPLUS_SUPPORT_STD_STRING) && !defined(SQUNICODE)
-  case TypeInfo<std::string>::TypeID: {
-    std::string *val = (std::string*)data; // Address
+#if defined(SQPLUS_SUPPORT_SQ_STD_STRING)
+  case TypeInfo<sq_std_string>::TypeID: {
+    sq_std_string *val = (sq_std_string*)data; // Address
     if (val) {
       const SQChar *strVal = sa.GetString(3);
       if (strVal) {
@@ -261,15 +261,15 @@ static int getVar(StackHandler & sa,VarRef * vr,void * data) {
     }
     break;
   } // case
-#ifdef SQPLUS_SUPPORT_STD_STRING
-  case TypeInfo<std::string>::TypeID: {
+#ifdef SQPLUS_SUPPORT_SQ_STD_STRING
+  case TypeInfo<sq_std_string>::TypeID: {
     if (!(vr->m_access & VAR_ACCESS_CONSTANT)) {
-      std::string *val = (std::string *)data; // Address
+      sq_std_string *val = (sq_std_string *)data; // Address
       if (val) {
         return sa.Return(val->c_str());
       }
     } else {
-      throw SquirrelError(_SC("getVar(): Invalid type+access: 'std::string' with VAR_ACCESS_CONSTANT (use VAR_ACCESS_READ_ONLY instead)"));
+      throw SquirrelError(_SC("getVar(): Invalid type+access: 'sq_std_string' with VAR_ACCESS_CONSTANT (use VAR_ACCESS_READ_ONLY instead)"));
     }
     break;
   } // case

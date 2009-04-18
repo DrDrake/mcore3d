@@ -49,10 +49,6 @@
 // === Function overloading support ===
 #define SQPLUS_OVERLOAD_OPT
 
-// === Uncomment to support std::string ===
-// Requires that Squirrel is compiled with SQChar == char
-//#define SQPLUS_SUPPORT_STD_STRING
-
 // === Uncomment to support typedef std::basic_string<SQChar> sq_std_string ===
 #define SQPLUS_SUPPORT_SQ_STD_STRING
 
@@ -71,7 +67,7 @@
 
 // === Uncomment to generate a typeof function for each class  ===
 // This is mostly for displaying function help from inside a Squirrel prompt
-//#define SQPLUS_ENABLE_TYPEOF
+#define SQPLUS_ENABLE_TYPEOF
 
 // === Uncomment to skip sq_argassert() ===
 //#define SQ_SKIP_ARG_ASSERT
@@ -108,7 +104,7 @@
 //#define SQPLUS_USE_SANDBOX_VM
 
 
-#if defined(SQPLUS_SUPPORT_STD_STRING) || defined(SQPLUS_SUPPORT_SQ_STD_STRING)
+#if defined(SQPLUS_SUPPORT_SQ_STD_STRING)
 # include <string>
 #endif
 

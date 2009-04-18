@@ -108,14 +108,9 @@
 #include "SqPlusOCharBuf.h" 
 #endif 
  
-#if defined(SQPLUS_SUPPORT_STD_STRING) && defined(SQUNICODE)
-  #ifdef _MSC_VER
-    #pragma message("std::string and SQChar as wchar_t is not compatible!")
-  #else
-    #warning std::string and SQChar as wchar_t is not compatible!
-  #endif
+#ifdef SQPLUS_SUPPORT_SQ_STD_STRING
+typedef std::basic_string<SQChar> sq_std_string;
 #endif
-
 
 namespace SqPlus {
 
@@ -207,7 +202,7 @@ typedef ScriptStringVar<16>  ScriptStringVar16;
 typedef ScriptStringVar<32>  ScriptStringVar32;
 typedef ScriptStringVar<64>  ScriptStringVar64;
 typedef ScriptStringVar<128> ScriptStringVar128;
-typedef ScriptStringVar<256> ScriptStringVar256;
+typedef ScriptStringVar<255> ScriptStringVar256;
 
 // === Script Variable Types ===
 
@@ -221,8 +216,8 @@ enum ScriptVarType {
     VAR_TYPE_STRING,
     VAR_TYPE_USER_POINTER,
     VAR_TYPE_INSTANCE,
-#ifdef SQPLUS_SUPPORT_STD_STRING
-    VAR_TYPE_STD_STRING,
+#ifdef SQPLUS_SUPPORT_SQ_STD_STRING
+    VAR_TYPE_SQ_STD_STRING,
 #endif
 };
 
@@ -352,12 +347,12 @@ struct TypeInfo<T*> : public TypeInfoPtrBase<T,TypeInfo<T>::IsInstance> { };
 template<class T>
 struct TypeInfo<T&> : public TypeInfoPtrBase<T,TypeInfo<T>::IsInstance> { };
 
-#ifdef SQPLUS_SUPPORT_STD_STRING
+#ifdef SQPLUS_SUPPORT_SQ_STD_STRING
 template<>
-struct TypeInfo<std::string> {
+struct TypeInfo<sq_std_string> {
     const SQChar *typeName;
-    TypeInfo() : typeName(_SC("std::string")) {}
-    enum {TypeID=SqPlus::VAR_TYPE_STD_STRING,Size=sizeof(std::string),TypeMask='s'};
+    TypeInfo() : typeName(_SC("sq_std_string")) {}
+    enum {TypeID=SqPlus::VAR_TYPE_SQ_STD_STRING,Size=sizeof(sq_std_string),TypeMask='s'};
     operator ScriptVarType() {return ScriptVarType(TypeID);}
 };
 #endif 
@@ -432,6 +427,7 @@ struct IsCopyable { enum { value=true }; };
 // c++ copy expresssion: *(T*)pt1 = *(T*)pt2; 
 #define DECLARE_NONCOPY_TYPE(TYPE) namespace SqPlus { \
   template<> struct IsCopyable<TYPE> { enum { value=false }; }; \
+  BOOL CreateCopyInstance(HSQUIRRELVM v, const SQChar* className, const TYPE&) { return FALSE; } \
 }
   
 // Base class to do copying in ordinary C++ way
@@ -854,15 +850,8 @@ SquirrelObject Get(TypeWrapper<SquirrelObject>, HSQUIRRELVM v, int idx);
   SQOthCharBuf Get(TypeWrapper<const SQOtherChar *>, HSQUIRRELVM v, int idx);
 #endif // SQPLUS_AUTOCONVERT_OTHER_CHAR
 
-#ifdef SQPLUS_SUPPORT_STD_STRING
-void Push(HSQUIRRELVM v, const std::string& value);
-bool Match(TypeWrapper<const std::string&>, HSQUIRRELVM v, int idx);
-std::string Get(TypeWrapper<const std::string&>, HSQUIRRELVM v, int idx); 
-#endif
-
 // Added jflanglois suggestion, 8/20/06. jcs
 #ifdef SQPLUS_SUPPORT_SQ_STD_STRING
-typedef std::basic_string<SQChar> sq_std_string;
 void Push(HSQUIRRELVM v,const sq_std_string & value);
 bool Match(TypeWrapper<const sq_std_string &>, HSQUIRRELVM v, int idx);
 sq_std_string Get(TypeWrapper<const sq_std_string &>, HSQUIRRELVM v, int idx); 
@@ -1001,20 +990,20 @@ namespace SqPlus { \
 
 // Versions of above for types that aren't copy constructable
 #define DECLARE_INSTANCE_TYPEINFO_NOCOPY(TYPE) \
-  DECLARE_INSTANCE_TYPEINFO(TYPE) \
-  DECLARE_NONCOPY_TYPE(TYPE)
+  DECLARE_NONCOPY_TYPE(TYPE) \
+  DECLARE_INSTANCE_TYPEINFO(TYPE)
 
-#define DECLARE_INSTANCE_TYPEINFO_NOCOPY_NAME(TYPE,NAME) namespace SqPlus { \
-  DECLARE_INSTANCE_TYPEINFO_(TYPE,NAME) \
-  DECLARE_NONCOPY_TYPE(TYPE)
+#define DECLARE_INSTANCE_TYPEINFO_NOCOPY_NAME(TYPE,NAME) \
+  DECLARE_NONCOPY_TYPE(TYPE) \
+  DECLARE_INSTANCE_TYPEINFO_(TYPE,NAME)
 
 #define DECLARE_INSTANCE_TYPE_NOCOPY(TYPE) \
-  DECLARE_INSTANCE_TYPE(TYPE) \
-  DECLARE_NONCOPY_TYPE(TYPE)
+  DECLARE_NONCOPY_TYPE(TYPE) \
+  DECLARE_INSTANCE_TYPE(TYPE)
 
-#define DECLARE_INSTANCE_TYPE_NOCOPY_NAME(TYPE,NAME) namespace SqPlus { \
-  DECLARE_INSTANCE_TYPEINFO_(TYPE,NAME) \
-  DECLARE_NONCOPY_TYPE(TYPE)
+#define DECLARE_INSTANCE_TYPE_NOCOPY_NAME(TYPE,NAME) \
+  DECLARE_NONCOPY_TYPE(TYPE) \
+  DECLARE_INSTANCE_TYPE_NAME(TYPE,NAME)
 
 
 //////////////////////////////////////////////////////////////////////////
