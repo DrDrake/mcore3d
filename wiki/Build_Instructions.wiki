@@ -17,4 +17,5 @@ Currently mcore3d supports the following platforms:
 
 == Building Steps ==
  # Append the mcore3d's 'Bin' directory to the system's 'PATH' environment variable
+ # Open '3Party/3Party.sln' to build all the necessary third party libraries.
  # Open 'Test/Test.sln' and simply build and run the test projects.
