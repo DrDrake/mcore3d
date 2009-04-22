@@ -19,4 +19,4 @@ Currently mcore3d supports the following platforms:
  # Append the mcore3d's 'Bin' directory to the system's 'PATH' environment variable
  # Open '3Party/3Party.sln' to build all the necessary third party libraries.
  # Open 'Test/Test.sln' and simply build and run the test projects.
- # In order to run all the rendering tests, you need to download extra content from the 'Downloads' tab and unzip the content to 'Test/RenderTest/Media'
+ # In order to run all the rendering tests, you need to download extra content 'Scene.7z' from the 'Downloads' tab and unzip the content to 'Test/RenderTest/Media'
