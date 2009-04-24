@@ -2,10 +2,32 @@
 
 = Introduction =
 
-This describes the mcord3d's material file format. Materials in mcore3d are written in xml format. The following is an example of mcord3d material.
+This page describes the mcord3d's material file format. Materials in mcore3d are written in xml format and starts with the `<root />` xml-element.
+The `<root />` element is then compose of the following children:
+ * `<merge />`
+ * `<pass />`
 
+Each `<merge />` element describes how the current material is combined with other materials.
+Each `<pass />` element corresponds to a rendering pass.
 
-= Example =
+= The `<merge />` element =
+todo: add info here
+
+= The `<pass />` element =
+A pass contains the following xml-attributes:
+
+||Attribute||Values||Descriptions||
+<wiki:comment>enable</wiki:comment>
+|| enable || "true" / "false" || Enabling option. A pass can be enable/disable in run time and this attribute sets the default behavior. ||
+<wiki:comment>drawLine </wiki:comment>
+|| drawLine || "true" / "false" || If true, the renderer will draw lines instead of triangles ||
+
+In addition, a pass has the following children:
+ * `<standard />` Fixed pipeline parameters
+ * `<texture />` Texture references
+ * `<shader />` Shader references
+
+= A example material file =
 
 {{{
 <?xml version="1.0"?>
@@ -16,15 +38,10 @@ This describes the mcord3d's material file format. Materials in mcore3d are writ
 <!-- Material merging mode -->
 <merge mode="blend" />
 
-<!-- 
-  An example pass
-  Notice that a pass can be set as disabled vai the 
--->
+<!-- An example pass which is disabled by default -->
 <pass enable="false" />
 
-<!-- 
-  Another pass which use shaders
--->
+<!-- Another pass which uses shaders -->
 <pass
   enable="true"
   drawLine="false"
@@ -58,14 +75,10 @@ void main()
 {
   vec4 ambient = gl_FrontLightProduct[0].ambient;
   vec4 diffuse = gl_FrontLightProduct[0].diffuse;
-  vec4 specular = gl_FrontLightProduct[0].specular;
   vec3 n = normalize(normal);
 
   diffuse *= max(dot(n, lightDir), 0.0);
-  vec3 refl = -reflect(lightDir, normal);
-  specular *= pow(max(dot(refl, normalize(-vertex)), 0.0), gl_FrontMaterial.shininess);
-
-  gl_FragColor = specular + (ambient + diffuse) * texture2D(diffuseMap, gl_TexCoord[0].xy);
+  gl_FragColor = (ambient + diffuse) * texture2D(diffuseMap, gl_TexCoord[0].xy);
   gl_FragColor.rgb *= exposure;
   gl_FragColor.a = clamp(gl_FragColor.a, 0.0, 1.0);
 }
@@ -74,9 +87,7 @@ void main()
   </shader>
 </pass>
 
-<!-- 
-  Yet another pass which use fixed pipeline which use a line.
--->
+<!-- Yet another pass which uses fixed-pipeline to lines. -->
 <pass
   enable="true"
   drawLine="true"
