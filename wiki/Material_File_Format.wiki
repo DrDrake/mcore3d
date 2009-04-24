@@ -16,11 +16,15 @@ todo: add info here
 = The `<pass />` element =
 A pass contains the following xml-attributes:
 
-||Attribute||Values||Descriptions||
+|| *Attribute* || *Values* || *Descriptions* ||
 <wiki:comment>enable</wiki:comment>
 || enable || "true" / "false" || Enabling option. A pass can be enable/disable in run time and this attribute sets the default behavior. ||
-<wiki:comment>drawLine </wiki:comment>
+<wiki:comment>drawLine</wiki:comment>
 || drawLine || "true" / "false" || If true, the renderer will draw lines instead of triangles ||
+<wiki:comment>lineWidth</wiki:comment>
+|| lineWidth || a number || Width in pixels of the lines to be drawn. This attribute is valid only if drawLine = "true" ||
+<wiki:comment>cullMode</wiki:comment>
+|| cullMode || "none" / "front" || Set the face to be culled ||
 
 In addition, a pass has the following children:
  * `<standard />` Fixed pipeline parameters
