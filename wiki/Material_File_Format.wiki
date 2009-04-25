@@ -17,14 +17,25 @@ todo: add info here
 A pass contains the following xml-attributes:
 
 || *Attribute* || *Values* || *Descriptions* ||
-<wiki:comment>enable</wiki:comment>
 || enable || "true" / "false" || Enabling option. A pass can be enable/disable in run time and this attribute sets the default behavior. ||
-<wiki:comment>drawLine</wiki:comment>
 || drawLine || "true" / "false" || If true, the renderer will draw lines instead of triangles ||
-<wiki:comment>lineWidth</wiki:comment>
-|| lineWidth || a number || Width in pixels of the lines to be drawn. This attribute is valid only if drawLine = "true" ||
-<wiki:comment>cullMode</wiki:comment>
+|| lineWidth || a floating point number || Width in pixels of the lines to be drawn. This attribute is valid only if drawLine = "true" ||
 || cullMode || "none" / "front" || Set the face to be culled ||
+|| alphaBlend(in progress) || "true" / "false" || Enable / disable alpha blending ||
+|| srcBlend(in progress) || todo: alpha blend factors|| Source-blend factor in alpha blending ||
+|| dstBlend(in progress) || todo: alpha blend factors|| Destination-blend factor in alpha blending ||
+|| alphaBlendSep(in progress) || "true" / "false" || Enable / disable separate alpha blending ||
+|| srcBlendAlpha(in progress) || todo: alpha blend factors|| Source-blend factor in alpha blending ||
+|| dstBlendAlpha(in progress) || todo: alpha blend factors|| Destination-blend factor in alpha blending ||
+|| depthTest(in progress) || "true" / "false" || Enable / disable depth testing ||
+|| depthWrite(in progress) || "true" / "false" || Enable / disable depth buffer writing ||
+|| depthFunc(in progress) || todo: depth function || Depth value comparison function in depth testing ||
+|| stencilTest(in progress) || "true" / "false" || Enable / disable stencil testing ||
+|| stencilMask(in progress) || an integer number || Assign stencil masking value ||
+|| stencilFunc(in progress) || todo: stencil function || Stencil value comparison function in stencil testing ||
+|| stencilPassOp(in progress) || todo: stencil operation || Operation to the stencil buffer when the stencil test is passed ||
+|| stencilFailOp(in progress) || todo: stencil operation || Operation to the stencil buffer when the stencil test is failed ||
+|| stencilDepthFailOp(in progress) || todo: stencil operation || Operation to the stencil buffer when the depth test is failed ||
 
 In addition, a pass has the following children:
  * `<standard />` Fixed pipeline parameters
