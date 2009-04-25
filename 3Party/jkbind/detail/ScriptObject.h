@@ -1,8 +1,9 @@
 #ifndef ___SCRIPT_SCRIPTOBJECT___
 #define ___SCRIPT_SCRIPTOBJECT___
 
-#include "Language.h"
 #include "Checking.h"
+#include "Language.h"
+#include "../Types.h"
 
 namespace script {
 namespace detail {

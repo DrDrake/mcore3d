@@ -46,6 +46,7 @@
 #define jkSCRIPT_API_ASSERTION( condidion )		\
 	{											\
 		const char reason[] = { #condidion };	\
+		(void)reason;							\
 		if((condidion) != true)					\
 			__debugbreak();						\
 	}

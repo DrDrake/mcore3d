@@ -161,6 +161,7 @@ private:
 // default return policy
 //
 template<typename T> struct DefaultReturnPolicy			{ typedef objOwn policy; };
+template<typename T> struct DefaultReturnPolicy<const T>{ typedef typename DefaultReturnPolicy<T>::policy policy; };
 template<> struct DefaultReturnPolicy<bool>				{ typedef plain policy; };
 template<> struct DefaultReturnPolicy<char>				{ typedef plain policy; };
 template<> struct DefaultReturnPolicy<unsigned char>	{ typedef plain policy; };
