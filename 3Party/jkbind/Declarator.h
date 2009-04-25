@@ -200,13 +200,18 @@ public:
 		return *this;
 	}
 
+	// For a getter, we assume the return policy is either plain or objNoCare
+	// If a custom return policy is really needed, wrappedMethod can be used instead.
 	template<typename Field>
 	ClassDeclarator& getter(const xchar* name, Field field)
 	{
 		sq_pushobject(_vm, _hostObject.getObjectHandle());
 		sq_pushstring(_vm, name, -1);
 		pushFieldPointer(_vm, field);
-		sq_newclosure(_vm, script::detail::fieldGetterFunction<Class, Field, plain>, 1);
+		typedef typename DetectFieldType<Field>::type fieldType;
+		typedef typename DefaultReturnPolicy<fieldType>::policy returnPolicy;
+		typedef typename GetterReturnPolicy<returnPolicy>::policy getterReturnPolicy;
+		sq_newclosure(_vm, script::detail::fieldGetterFunction<Class, Field, getterReturnPolicy>, 1);
 
 		jkSCRIPT_API_VERIFY(sq_newslot(_vm, -3, true));
 		sq_pop(_vm, 1); //popping class
@@ -214,16 +219,15 @@ public:
 		return *this;
 	}
 
-	template<typename ReturnPolicy, typename Field>
-	ClassDeclarator& getter(const xchar* name, Field field)
+	template<typename Field>
+	ClassDeclarator& getset(const xchar* name, Field field)
 	{
-		sq_pushobject(_vm, _hostObject.getObjectHandle());
-		sq_pushstring(_vm, name, -1);
-		pushFieldPointer(_vm, func);
-		sq_newclosure(_vm, script::detail::fieldGetterFunction<Class, Field, ReturnPolicy>, 1);
-
-		jkSCRIPT_API_VERIFY(sq_newslot(_vm, -3, true));
-		sq_pop(_vm, 1); //popping class
+		xchar getBuffer[64] = xSTRING("_get");
+		xchar setBuffer[64] = xSTRING("_set");
+		::wcscat(getBuffer, name);
+		::wcscat(setBuffer, name);
+		getter(getBuffer, field);
+		setter(setBuffer, field);
 
 		return *this;
 	}
@@ -293,7 +297,7 @@ public:
 		sq_pushobject(_vm, _hostObject.getObjectHandle());
 		sq_pushstring(_vm, name, -1);
 		pushStaticFunctionPointer(_vm, func);
-		sq_newclosure(_vm,script::detail::DirectCallFunction<ResultPolicy, Func>::Dispatch,1);
+		sq_newclosure(_vm,script::detail::DirectCallFunction<Func, ResultPolicy>::Dispatch,1);
 		jkSCRIPT_API_VERIFY(sq_createslot(_vm, -3));
 		sq_pop(_vm, 1); //popping host object
 

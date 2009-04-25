@@ -6,6 +6,15 @@
 namespace script {
 namespace types {
 
+inline bool match(TypeSelect<std::wstring>, HSQUIRRELVM v, int idx) {
+	return sq_gettype(v,idx) == OT_STRING;
+}
+inline std::wstring get(TypeSelect<std::wstring>, HSQUIRRELVM v, int idx) {
+	const SQChar* s;
+	jkSCRIPT_API_VERIFY(sq_getstring(v, idx, &s));
+	return s;
+}
+
 inline void push(HSQUIRRELVM v, const std::wstring& value) {
 	sq_pushstring(v, value.c_str(), SQInteger(value.length()));
 }
