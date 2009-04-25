@@ -43,7 +43,7 @@ using base::uint;
 
     typedef wchar_t wchar;
 
-#if(jkUNICODE) || defined(UNICODE)
+#if(jkUNICODE) || defined(UNICODE) || defined(_UNICODE)
     typedef wchar xchar;
 #   define xSTRING(text) L##text
 
