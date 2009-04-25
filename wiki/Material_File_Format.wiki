@@ -16,104 +16,102 @@ todo: add info here
 = The `<pass />` element =
 A pass contains the following xml-attributes:
 
-<table border='1' cellspacing='0' cellpadding='5'>
-  <tr>
-    <td>*Attribute*</td>
-    <td>*Values*</td>
-    <td>*Default*</td>
-    <td>*Descriptions*</td>
-  </tr>
-  <tr>
-    <td>enable</td>
-    <td>"true" / "false"</td>
-    <td>"true"</td>
-    <td>Enabling option. A pass can be enable/disable in run time
-    and this attribute sets the default behavior.</td>
-  </tr>
-  <tr>
-    <td>drawLine</td>
-    <td>"true" / "false"</td>
-    <td>"false"</td>
-    <td>If true, the renderer will draw lines instead of
-    triangles</td>
-  </tr>
-  <tr>
-    <td>lineWidth</td>
-    <td>a floating point number</td>
-    <td>1</td>
-    <td>Width in pixels of the lines to be drawn. This attribute is
-    valid only if drawLine = "true"</td>
-  </tr>
-  <tr>
-    <td>cullMode</td>
-    <td>"none" / "front"</td>
-    <td>"back" if cullMode not present</td>
-    <td>Set the face to be culled</td>
-  </tr>
+ * enable
+  * Enabling option. A pass can be enable/disable in run time
+    and this attribute sets the default behavior.
+  * Syntax: {{{<pass enable = "true" />}}}
+  * Values: "true" or "false"
+
+ * drawLine
+  * If true, the renderer will draw lines instead of triangles.
+  * Syntax: {{{<pass drawLine="true"/>}}}
+  * Values: "true" or "false"
+
+ * lineWidth
+  * Set the line width in # of pixels. This attribute is valid only if drawLine = "true".
+  * Syntax: {{{<pass lineWidth="1.0"/>}}}
+  * Values: "true" or "false"
+
+ * cullMode
+  * Set the triangle-facing to be culled
+  * Syntax: {{{<pass cullMode="none"/>}}}
+  * Values: "none", "front"
+
+ * depthTest (in progress)
+  * Enable / disable the depth testing
+  * Syntax: {{{<pass depthTest="true"/>}}}
+  * Values: "true" or "false"
+
+ * depthWrite (in progress)
+  * Enable / disable the depth buffer writing
+  * Syntax: {{{<pass depthWrite="false"/>}}}
+  * Values: "true" or "false"
+
+ * depthFunc (in progress)
+  * Set the depth value comparison function
+  * Syntax: {{{<pass depthFunc="lessEqual"/>}}} 
+  * Values: "less", "lessEqual", "greater", "greaterEqual", "always", "never"
+
+<wiki-comment>
+<table border='1'>
   <tr>
     <td>blending(in progress)</td>
-    <td>{enable}{srcRGB}{dstRGB}{srcA}{dstA}</td>
-    <td>?</td>
+    <td>bool</td>
+	<td>true</td>
     <td>Enable / disable alpha blending</td>
+	<td>{{{<pass blending="true"/>}}}</td>
   </tr>
   <tr>
-    <td>depthTest(in progress)</td>
-    <td>"true" / "false"</td>
-    <td>?</td>
-    <td>Enable / disable depth testing</td>
-  </tr>
-  <tr>
-    <td>depthWrite(in progress)</td>
-    <td>"true" / "false"</td>
-    <td>?</td>
-    <td>Enable / disable depth buffer writing</td>
-  </tr>
-  <tr>
-    <td>depthFunc(in progress)</td>
-    <td>todo: depth function</td>
-    <td>?</td>
-    <td>Depth value comparison function in depth testing</td>
+    <td>blendFactors(in progress)</td>
+    <td>blendFactor(srcFactorRGB) blendFactor(dstFactorRGB) blendFactor(srcFactorA) blendFactor(dstFactorA)<br/>
+	such that blendFactor = { one, zero, srcAlpha, invSrcAlpha, dstAlpha, invDstAlpha }
+	</td>
+	<td>one one one one</td>
+    <td>Factor being using the blending equation such that:
+		Result = srcColor x srcFactorRGB + dstColor x dstFactorRGB
+		If the last two parameter is specified,
+		separated blending for the alpha channel will be performed.
+		Please notice that now all platform / hardware support separated blending for alpha channel.
+	</td>
+	<td>
+{{{
+<pass blendFactors="srcAlpha invSrcAlpha"/>
+<pass blendFactors="one one srcAlpha invSrcAlpha"/>	
+}}}
+</td>
   </tr>
   <tr>
     <td>stencilTest(in progress)</td>
     <td>"true" / "false"</td>
-    <td>?</td>
+	<td>true</td>
     <td>Enable / disable stencil testing</td>
+	<td>{{{<pass />}}}</td>
   </tr>
   <tr>
     <td>stencilMask(in progress)</td>
     <td>an integer number</td>
-    <td>?</td>
+	<td>true</td>
     <td>Assign stencil masking value</td>
+	<td>{{{<pass />}}}</td>
   </tr>
   <tr>
     <td>stencilFunc(in progress)</td>
     <td>todo: stencil function</td>
-    <td>?</td>
+	<td>true</td>
     <td>Stencil value comparison function in stencil testing</td>
+	<td>{{{<pass />}}}</td>
   </tr>
   <tr>
-    <td>stencilPassOp(in progress)</td>
+    <td>stencilOps(in progress)</td>
     <td>todo: stencil operation</td>
-    <td>?</td>
+	<td>true</td>
     <td>Operation to the stencil buffer when the stencil test is
     passed</td>
-  </tr>
-  <tr>
-    <td>stencilFailOp(in progress)</td>
-    <td>todo: stencil operation</td>
-    <td>?</td>
-    <td>Operation to the stencil buffer when the stencil test is
-    failed</td>
-  </tr>
-  <tr>
-    <td>stencilDepthFailOp(in progress)</td>
-    <td>todo: stencil operation</td>
-    <td>?</td>
-    <td>Operation to the stencil buffer when the depth test is
-    failed</td>
+	<td>{{{<pass />}}}</td>
   </tr>
 </table>
+</wiki-comment>
+
 
 In addition, a pass has the following children:
  * `<standard />` Fixed pipeline parameters
