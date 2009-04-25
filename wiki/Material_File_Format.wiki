@@ -16,26 +16,89 @@ todo: add info here
 = The `<pass />` element =
 A pass contains the following xml-attributes:
 
-|| *Attribute* || *Values* || *Descriptions* ||
-|| enable || "true" / "false" || Enabling option. A pass can be enable/disable in run time and this attribute sets the default behavior. ||
-|| drawLine || "true" / "false" || If true, the renderer will draw lines instead of triangles ||
-|| lineWidth || a floating point number || Width in pixels of the lines to be drawn. This attribute is valid only if drawLine = "true" ||
-|| cullMode || "none" / "front" || Set the face to be culled ||
-|| alphaBlend(in progress) || "true" / "false" || Enable / disable alpha blending ||
-|| srcBlend(in progress) || todo: alpha blend factors|| Source-blend factor in alpha blending ||
-|| dstBlend(in progress) || todo: alpha blend factors|| Destination-blend factor in alpha blending ||
-|| alphaBlendSep(in progress) || "true" / "false" || Enable / disable separate alpha blending ||
-|| srcBlendAlpha(in progress) || todo: alpha blend factors|| Source-blend factor in alpha blending ||
-|| dstBlendAlpha(in progress) || todo: alpha blend factors|| Destination-blend factor in alpha blending ||
-|| depthTest(in progress) || "true" / "false" || Enable / disable depth testing ||
-|| depthWrite(in progress) || "true" / "false" || Enable / disable depth buffer writing ||
-|| depthFunc(in progress) || todo: depth function || Depth value comparison function in depth testing ||
-|| stencilTest(in progress) || "true" / "false" || Enable / disable stencil testing ||
-|| stencilMask(in progress) || an integer number || Assign stencil masking value ||
-|| stencilFunc(in progress) || todo: stencil function || Stencil value comparison function in stencil testing ||
-|| stencilPassOp(in progress) || todo: stencil operation || Operation to the stencil buffer when the stencil test is passed ||
-|| stencilFailOp(in progress) || todo: stencil operation || Operation to the stencil buffer when the stencil test is failed ||
-|| stencilDepthFailOp(in progress) || todo: stencil operation || Operation to the stencil buffer when the depth test is failed ||
+<table border='1' cellspacing='0' cellpadding='5'>
+  <tr>
+    <td>*Attribute*</td>
+    <td>*Values*</td>
+    <td>*Descriptions*</td>
+  </tr>
+  <tr>
+    <td>enable</td>
+    <td>"true" / "false"</td>
+    <td>Enabling option. A pass can be enable/disable in run time
+    and this attribute sets the default behavior.</td>
+  </tr>
+  <tr>
+    <td>drawLine</td>
+    <td>"true" / "false"</td>
+    <td>If true, the renderer will draw lines instead of
+    triangles</td>
+  </tr>
+  <tr>
+    <td>lineWidth</td>
+    <td>a floating point number</td>
+    <td>Width in pixels of the lines to be drawn. This attribute is
+    valid only if drawLine = "true"</td>
+  </tr>
+  <tr>
+    <td>cullMode</td>
+    <td>"none" / "front"</td>
+    <td>Set the face to be culled</td>
+  </tr>
+  <tr>
+    <td>blending(in progress)</td>
+    <td>{enable}{srcRGB}{dstRGB}{srcA}{dstA}</td>
+    <td>Enable / disable alpha blending</td>
+  </tr>
+  <tr>
+    <td>depthTest(in progress)</td>
+    <td>"true" / "false"</td>
+    <td>Enable / disable depth testing</td>
+  </tr>
+  <tr>
+    <td>depthWrite(in progress)</td>
+    <td>"true" / "false"</td>
+    <td>Enable / disable depth buffer writing</td>
+  </tr>
+  <tr>
+    <td>depthFunc(in progress)</td>
+    <td>todo: depth function</td>
+    <td>Depth value comparison function in depth testing</td>
+  </tr>
+  <tr>
+    <td>stencilTest(in progress)</td>
+    <td>"true" / "false"</td>
+    <td>Enable / disable stencil testing</td>
+  </tr>
+  <tr>
+    <td>stencilMask(in progress)</td>
+    <td>an integer number</td>
+    <td>Assign stencil masking value</td>
+  </tr>
+  <tr>
+    <td>stencilFunc(in progress)</td>
+    <td>todo: stencil function</td>
+    <td>Stencil value comparison function in stencil testing</td>
+  </tr>
+  <tr>
+    <td>stencilPassOp(in progress)</td>
+    <td>todo: stencil operation</td>
+    <td>Operation to the stencil buffer when the stencil test is
+    passed</td>
+  </tr>
+  <tr>
+    <td>stencilFailOp(in progress)</td>
+    <td>todo: stencil operation</td>
+    <td>Operation to the stencil buffer when the stencil test is
+    failed</td>
+  </tr>
+  <tr>
+    <td>stencilDepthFailOp(in progress)</td>
+    <td>todo: stencil operation</td>
+    <td>Operation to the stencil buffer when the depth test is
+    failed</td>
+  </tr>
+</table>
 
 In addition, a pass has the following children:
  * `<standard />` Fixed pipeline parameters
