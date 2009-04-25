@@ -37,22 +37,8 @@ A pass contains the following xml-attributes:
   * Syntax: {{{<pass cullMode="none"/>}}}
   * Values: "none", "front"
 
- * depthTest (in progress)
-  * Enable / disable the depth testing
-  * Syntax: {{{<pass depthTest="true"/>}}}
-  * Values: "true" or "false"
-
- * depthWrite (in progress)
-  * Enable / disable the depth buffer writing
-  * Syntax: {{{<pass depthWrite="false"/>}}}
-  * Values: "true" or "false"
-
- * depthFunc (in progress)
-  * Set the depth value comparison function
-  * Syntax: {{{<pass depthFunc="lessEqual"/>}}} 
-  * Values: "less", "lessEqual", "greater", "greaterEqual", "always", "never"
-
 <wiki-comment>
+
 <table border='1'>
   <tr>
     <td>blending(in progress)</td>
@@ -117,6 +103,67 @@ In addition, a pass has the following children:
  * `<standard />` Fixed pipeline parameters
  * `<texture />` Texture references
  * `<shader />` Shader references
+ * `<blending />` Blending state (in-progress)
+ * `<depthStencil />` Depth & stencil testing parameters (in-progress)
+
+== `<standard />` ==
+
+The standard element defines the parameters being used in the fixed pipeline.
+
+ * ambient
+  * The material's ambient color
+  * Syntax: {{{<standard ambient="0 0 0 0"/>}}}
+  * Values: "[0-1] [0-1] [0-1] [0-1]"
+
+ * diffuse
+  * The material's diffuse color
+  * Syntax: {{{<standard diffuse="1 1 1 1"/>}}}
+  * Values: "[0-1] [0-1] [0-1] [0-1]"
+
+ * specular
+  * The material's specular color
+  * Syntax: {{{<standard specular="1 1 1 1"/>}}}
+  * Values: "[0-1] [0-1] [0-1] [0-1]"
+
+== `<texture />` ==
+
+The texture element defines the reference to a texture.
+
+ * file
+  * file name of the texture
+  * Syntax: {{{<texture file="../../wood.jpg"/>}}}
+  * Values: "a file name"
+
+ * shaderName
+  * The name of the texure if it is being referenced in a shader.
+  * Syntax: {{{<texture shaderName="diffuseMap"/>}}}
+  * Values: "a string"
+
+== `<shader />` ==
+Placeholder
+
+== `<blending />` ==
+Placeholder
+
+== `<depthStencil />` ==
+
+The depthStencil element defines the parameters being used in the depth & stencil testing.
+
+ * depthTest (in progress)
+  * Enable / disable the depth testing
+  * Syntax: {{{<pass depthTest="true"/>}}}
+  * Values: "true" or "false"
+
+ * depthWrite (in progress)
+  * Enable / disable the depth buffer writing
+  * Syntax: {{{<pass depthWrite="false"/>}}}
+  * Values: "true" or "false"
+
+ * depthFunc (in progress)
+  * Set the depth value comparison function
+  * Syntax: {{{<pass depthFunc="lessEqual"/>}}} 
+  * Values: "less", "lessEqual", "greater", "greaterEqual", "always", "never"
+
 
 = A example material file =
 
