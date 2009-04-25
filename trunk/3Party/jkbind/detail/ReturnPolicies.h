@@ -177,6 +177,22 @@ template<> struct DefaultReturnPolicy<const SQChar*>	{ typedef plain policy; };
 
 template<> struct DefaultReturnPolicy<std::wstring>		{ typedef plain policy; };
 
+// Detect the type of a class member variable
+template<typename T>
+struct DetectFieldType {};
+
+template<class Callee, typename T>
+struct DetectFieldType<T (Callee::*)> {
+	typedef T type;
+};
+
+//
+// for a getter function, all polic other than plain should become objNoCare,
+// since the object is already own by the C++ object.
+//
+template<typename T> struct GetterReturnPolicy { typedef objNoCare policy; };
+template<> struct GetterReturnPolicy<plain> { typedef plain policy; };
+
 }	//namespace script
 
 #endif//___SCRIPT_DETAIL_RETURN_POLICIES___

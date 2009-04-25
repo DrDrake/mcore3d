@@ -36,8 +36,8 @@ inline bool	match(TypeSelect<int>, HSQUIRRELVM v,int idx)				{ return sq_gettype
 inline bool	match(TypeSelect<unsigned int>, HSQUIRRELVM v,int idx)		{ return sq_gettype(v,idx) == OT_INTEGER; }
 inline bool	match(TypeSelect<long>, HSQUIRRELVM v,int idx)				{ return sq_gettype(v,idx) == OT_INTEGER; }
 inline bool	match(TypeSelect<unsigned long>, HSQUIRRELVM v,int idx)		{ return sq_gettype(v,idx) == OT_INTEGER; }
-inline bool	match(TypeSelect<float>, HSQUIRRELVM v,int idx)				{ int type = sq_gettype(v,idx); return type == OT_FLOAT; }
-inline bool	match(TypeSelect<double>, HSQUIRRELVM v,int idx)			{ int type = sq_gettype(v,idx); return type == OT_FLOAT; }
+inline bool	match(TypeSelect<float>, HSQUIRRELVM v,int idx)				{ return sq_gettype(v,idx) == OT_FLOAT; }
+inline bool	match(TypeSelect<double>, HSQUIRRELVM v,int idx)			{ return sq_gettype(v,idx) == OT_FLOAT; }
 inline bool	match(TypeSelect<const SQChar*>, HSQUIRRELVM v,int idx)		{ return sq_gettype(v,idx) == OT_STRING; }
 
 template<typename T>
