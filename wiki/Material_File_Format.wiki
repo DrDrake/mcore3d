@@ -1,4 +1,5 @@
 #summary Material File Format
+#labels Featured
 #sidebar TOC_Global
 
 Material files in mcore3d are written in xml format and starts with the `<root />` xml-element.<br/>
