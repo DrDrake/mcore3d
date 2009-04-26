@@ -1,5 +1,5 @@
 #summary The merge element
-#sidebar merge element
+#sidebar TOC_Global
 
 = The merge element =
 todo: add info here
