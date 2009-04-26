@@ -1,5 +1,6 @@
-#summary The merge element
+#summary <merge />
 #sidebar TOC_Global
 
-= The merge element =
-todo: add info here
+The `<merge />` element describes how the current material is being combined with other materials.
+
+todo: More descriptions.
