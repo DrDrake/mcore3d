@@ -1,16 +1,16 @@
 #summary mcord3d Global Table of contents
 
 Getting Started
- * [Build_Instructions Build Instructions ]
+  * [Build_Instructions Build Instructions ]
 
 References
- * [Material_File_Format Material File Format ]
-  * [Material_File_Format_Merge The <merge /> element ]
-  * [Material_File_Format_Pass The <pass /> element ]
-   * [Material_File_Format_Pass_Attribute <pass /> attributes ]
-   * [Material_File_Format_Pass_Standard The <standard /> element ]
-   * [Material_File_Format_Pass_Texture The <texture /> element ]
-   * [Material_File_Format_Pass_Shader The <shader /> element ]
-   * [Material_File_Format_Pass_Texture The <texture /> element ]
-   * [Material_File_Format_Pass_Blending The <blending /> element ]
-   * [Material_File_Format_Pass_DepthStencil The <depthStencil /> element ]
+  * [Material_File_Format Material File Format ]
+    * [Material_File_Format_Merge The <merge /> element ]
+    * [Material_File_Format_Pass The <pass /> element ]
+      * [Material_File_Format_Pass_Attribute <pass /> attributes ]
+      * [Material_File_Format_Pass_Standard The <standard /> element ]
+      * [Material_File_Format_Pass_Texture The <texture /> element ]
+      * [Material_File_Format_Pass_Shader The <shader /> element ]
+      * [Material_File_Format_Pass_Texture The <texture /> element ]
+      * [Material_File_Format_Pass_Blending The <blending /> element ]
+      * [Material_File_Format_Pass_DepthStencil The <depthStencil /> element ]
