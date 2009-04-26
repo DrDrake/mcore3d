@@ -1,0 +1,66 @@
+#summary One-sentence summary of this page.
+#sidebar TOC_Global
+
+= The `<blending />` element =
+The blending element defines the parameters being used in the color / alpha blending process.
+
+The color blending equation is as follow:<br/>
+{{{
+Result = srcColor * srcFactor + dstColor * dstFactor
+}}}
+
+Optionally, so hardware supports the separated alpha channel blending such that:<br/>
+{{{
+Result.rgb = srcColor.rgb * srcFactor + dstColor.rgb * dstFactor
+Result.a = srcColor.a * srcFactorSep + dstColor.a * dstFactorSep
+}}}
+
+= Attributes =
+ * colorBlend (in progress)
+  * Enable / disable the color blending
+  * Syntax: {{{<blending colorBlend="true"/>}}}
+  * Values: "true" or "false"
+  * Default: "false"
+
+ * srcFactor (in progress)
+  * Source blend factor in the blending equation
+  * Syntax: {{{<blending srcFactor="one"/>}}}
+  * Values: "blendFactors" (see below)
+  * Default: "one"
+
+ * dstFactor (in progress)
+  * Destination blend factor in the blending equation
+  * Syntax: {{{<blending dstFactor="one"/>}}}
+  * Values: "blendFactors" (see below)
+  * Default: "one"
+
+ * colorBlendSep (in progress)
+  * Enable / disable the separated alpha channel blending
+  * Syntax: {{{<blending colorBlendSep="true"/>}}}
+  * Values: "true" or "false"
+  * Default: "false"
+
+ * srcFactorSep (in progress)
+  * Source blend factor in the separated alpha channel blending equation
+  * Syntax: {{{<blending srcFactorSep="one"/>}}}
+  * Values: "blendFactors" (see below)
+  * Default: "one"
+
+ * dstFactorSep (in progress)
+  * Destination blend factor in the separated alpha channel blending equation
+  * Syntax: {{{<blending dstFactorSep="one"/>}}}
+  * Values: "blendFactors" (see below)
+  * Default: "one"
+
+= blendFactors =
+The blendFactor has the following items:
+ * one
+ * zero
+ * srcColor
+ * invSrcColor
+ * dstColor
+ * invDstColor
+ * srcAlpha
+ * invSrcAlpha
+ * dstAlpha
+ * invDstAlpha
