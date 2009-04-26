@@ -1,3 +1,5 @@
+#summary mcord3d Wiki Main Page
+
 Welcome to the mcore3d's wiki, here you can find design & references about the mcore3d engine.
 
 = Getting Started =
