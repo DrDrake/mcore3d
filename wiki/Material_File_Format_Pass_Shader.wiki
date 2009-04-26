@@ -1,0 +1,11 @@
+#summary One-sentence summary of this page.
+#sidebar TOC_Global
+
+= The `<shader />` element =
+The shader element defines the reference to gpu shaders.
+
+= Attributes =
+placeholder
+
+= Elements =
+placeholder
