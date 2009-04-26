@@ -1,12 +1,12 @@
 #summary Building instructions
+#sidebar TOC_Global
 
 = Introduction =
 
 This page describes the building instructions of mcore3d on various platforms.
 
 Currently mcore3d supports the following platforms:
- # Win32
-
+ * Win32
 
 = Building on Win32 =
 
