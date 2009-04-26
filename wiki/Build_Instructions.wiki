@@ -1,4 +1,5 @@
 #summary Building instructions
+#labels Featured
 #sidebar TOC_Global
 
 = Introduction =
