@@ -1,0 +1,8 @@
+Welcome to the mcore3d's wiki, here you can find design & references about the mcore3d engine.
+
+= Getting Started =
+
+[Build_Instructions Build Instructions ]
+
+= References =
+[Material_File_Format Material File Format ]
