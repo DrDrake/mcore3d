@@ -56,7 +56,7 @@ void ClassTraits<Class>::bind(VMCore* vm) {		\
 #define SCRIPT_CLASS_REGISTER_NAME(Class, name)	\
 void ClassTraits<Class>::bind(VMCore* vm) {		\
 	RootDeclarator root(vm);					\
-	root.declareClass<Class>(xSTRING(#name))
+	root.declareClass<Class>(xSTRING(name))
 
 }   //namespace script
 

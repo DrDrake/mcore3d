@@ -12,6 +12,14 @@ namespace ptr {
 template<typename T>
 class pointer
 {
+public:
+	typedef T HostType;
+	/*!	Invoked when a function returns an object but not a pointer/reference,
+		and a new instance should be new on heap.
+	 */
+	static inline HostType* to(const T& src) {
+		return new T(src);
+	}
 };
 
 template<typename T>

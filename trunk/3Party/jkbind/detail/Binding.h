@@ -54,7 +54,9 @@ public:
 /// Wrapped Instance Function handler, a static function with the first parameter
 /// as the "this" pointer will be invoked
 ///
-template<typename Callee, typename Func, typename ResultPolicy=plain>
+template<typename Callee, typename Func, typename ResultPolicy=
+	DefaultReturnPolicy<ReturnTypeDetector<Func>::RET>::policy
+>
 class IndirectCallInstanceMemberFunction
 {
 public:
