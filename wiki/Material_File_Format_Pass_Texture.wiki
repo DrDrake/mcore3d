@@ -1,0 +1,39 @@
+#summary One-sentence summary of this page.
+#sidebar TOC_Global
+
+= The `<texture />` element =
+
+The texture element defines the reference to a texture.<br/>
+Please notice that the first `<texture />` element occurs in the pass will be bind to texture-unit 0 and so on.
+
+= Attributes =
+ * file
+  * file name of the texture
+  * Syntax: {{{<texture file="../../wood.jpg"/>}}}
+  * Values: texture file command (see below)
+
+ * shaderName
+  * The name of the texure if it is being referenced in a shader.
+  * Syntax: {{{<texture shaderName="diffuseMap"/>}}}
+  * Values: "a string"
+
+= Texture file command (in progress) =
+Filename(s) in the `<texture />` element is specified by a simple texture file command with the following syntax:<br/><br/>
+_{type}_ *:* _{filename1}_ *:* _{filename2}_ *:* _{filename3}_ ... 
+
+ * Loading a 2d texture
+  * file="_*2d:*_ ../../wood.jpg"
+   * The image "../../wood.jpg" will be loaded as a 2d texture
+
+ * Loading a cubemap texture
+  * file="_*cube:*_ skybox_px.jpg_*;*_ skybox_nx.jpg_*;*_ skybox_py.jpg_*;*_skybox_ny.jpg_*;*_ skybox_pz.jpg_*;*_ skybox_nz.jpg"
+   * The 6 images "skybox_px.jpg" ... "skybox_nz.jpg" will be loaded as a cubemap texture.
+   * Please notice that all 6 textures must be square textures (e.g. 256x256) and they must have the same power-of-2 dimensions.
+
+ * Loading a 3d texture
+  * file="_*3d:*_tex0.jpg_*;* _tex1.jpg_*;*_ tex2.jpg_*;*_ tex3.jpg_*;*_ tex4.jpg_*;*_ tex5.jpg_*;*_ tex6.jpg_*;*_ tex7.jpg"
+   * In the above example, 8 images, "tex0.jpg" ... "tex7.jpg" will be loaded as a 3d texture.
+   * If the 8 images have the dimensions of 64 x 64, then the result 3d texture will have a dimension of 64 x 64 x 8 (width x height x depth).
+   * Please notice that all images must have the same power-of-2 dimensions.
+
+* If the type is not specified in a texture file command, 2d texture will be assumed.*
