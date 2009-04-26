@@ -1,0 +1,193 @@
+#summary The Pass element
+#sidebar TOC_Global
+
+<wiki:toc max_depth="3" />
+
+= The pass element =
+A pass contains the following xml-attributes:
+
+== Pass attributes ==
+ * enable
+  * Enabling option. A pass can be enable/disable in run time
+    and this attribute sets the default behavior.
+  * Syntax: {{{<pass enable = "true" />}}}
+  * Values: "true" or "false"
+
+ * drawLine
+  * If true, the renderer will draw lines instead of triangles.
+  * Syntax: {{{<pass drawLine="true"/>}}}
+  * Values: "true" or "false"
+
+ * lineWidth
+  * Set the line width in # of pixels. This attribute is valid only if drawLine = "true".
+  * Syntax: {{{<pass lineWidth="1.0"/>}}}
+  * Values: "true" or "false"
+
+ * cullMode
+  * Set the triangle-facing to be culled
+  * Syntax: {{{<pass cullMode="none"/>}}}
+  * Values: "none", "front"
+
+== Pass elements ==
+
+In addition, a pass has the following children:
+ * `<standard />` Fixed pipeline parameters
+ * `<texture />` Texture references
+ * `<shader />` Shader references
+ * `<blending />` Blending state (in-progress)
+ * `<depthStencil />` Depth & stencil testing parameters (in-progress)
+
+=== The standard element ===
+
+The standard element defines the parameters being used in the fixed pipeline.
+
+ * ambient
+  * The material's ambient color
+  * Syntax: {{{<standard ambient="0 0 0 0"/>}}}
+  * Values: "`[0-1] [0-1] [0-1] [0-1]`"
+
+ * diffuse
+  * The material's diffuse color
+  * Syntax: {{{<standard diffuse="1 1 1 1"/>}}}
+  * Values: "`[0-1] [0-1] [0-1] [0-1]`"
+
+ * specular
+  * The material's specular color
+  * Syntax: {{{<standard specular="1 1 1 1"/>}}}
+  * Values: "`[0-1] [0-1] [0-1] [0-1]`"
+
+=== The texture element ===
+
+The texture element defines the reference to a texture.
+Please notice that the first `<texture />` element occurs in the pass will be bind to texture-unit 0 and so on.
+
+ * file
+  * file name of the texture
+  * Syntax: {{{<texture file="../../wood.jpg"/>}}}
+  * Values: texture file command (see below)
+
+ * shaderName
+  * The name of the texure if it is being referenced in a shader.
+  * Syntax: {{{<texture shaderName="diffuseMap"/>}}}
+  * Values: "a string"
+
+==== Texture file command (in progress) ====
+Filename(s) in the `<texture />` element is specified by a simple texture file command with the following syntax:<br/>
+_{type}_ *:* _{filename1}_ *:* _{filename2}_ *:* _{filename3}_ ... 
+
+ * Loading a 2d texture
+  * file="_*2d:*_ ../../wood.jpg"
+   * The image "../../wood.jpg" will be loaded as a 2d texture
+
+ * Loading a cubemap texture
+  * file="_*cube:*_ skybox_px.jpg_*;*_ skybox_nx.jpg_*;*_ skybox_py.jpg_*;*_skybox_ny.jpg_*;*_ skybox_pz.jpg_*;*_ skybox_nz.jpg"
+   * The 6 images "skybox_px.jpg" ... "skybox_nz.jpg" will be loaded as a cubemap texture.
+   * Please notice that all 6 textures must be square textures (e.g. 256x256) and they must have the same power-of-2 dimensions.
+
+ * Loading a 3d texture
+  * file="_*3d:*_tex0.jpg_*;* _tex1.jpg_*;*_ tex2.jpg_*;*_ tex3.jpg_*;*_ tex4.jpg_*;*_ tex5.jpg_*;*_ tex6.jpg_*;*_ tex7.jpg"
+   * In the above example, 8 images, "tex0.jpg" ... "tex7.jpg" will be loaded as a 3d texture.
+   * If the 8 images have the dimensions of 64 x 64, then the result 3d texture will have a dimension of 64 x 64 x 8 (width x height x depth).
+   * Please notice that all images must have the same power-of-2 dimensions.
+
+* If the type is not specified in a texture file command, 2d texture will be assumed.*
+
+=== The shader element ===
+Placeholder
+
+=== The blending element ===
+The blending element defines the parameters being used in the color / alpha blending process.
+
+The color blending equation is as follow:<br/>
+{{{
+Result = srcColor * srcFactor + dstColor * dstFactor
+}}}
+
+Optionally, so hardware supports the separated alpha channel blending such that:<br/>
+{{{
+Result.rgb = srcColor.rgb * srcFactor + dstColor.rgb * dstFactor
+Result.a = srcColor.a * srcFactorSep + dstColor.a * dstFactorSep
+}}}
+
+ * colorBlend (in progress)
+  * Enable / disable the color blending
+  * Syntax: {{{<blending colorBlend="true"/>}}}
+  * Values: "true" or "false"
+  * Default: "false"
+
+ * srcFactor (in progress)
+  * Source blend factor in the blending equation
+  * Syntax: {{{<blending srcFactor="one"/>}}}
+  * Values: "blendFactor" (see below)
+  * Default: "one"
+
+ * dstFactor (in progress)
+  * Destination blend factor in the blending equation
+  * Syntax: {{{<blending dstFactor="one"/>}}}
+  * Values: "blendFactor" (see below)
+  * Default: "one"
+
+ * colorBlendSep (in progress)
+  * Enable / disable the separated alpha channel blending
+  * Syntax: {{{<blending colorBlendSep="true"/>}}}
+  * Values: "true" or "false"
+  * Default: "false"
+
+ * srcFactorSep (in progress)
+  * Source blend factor in the separated alpha channel blending equation
+  * Syntax: {{{<blending srcFactorSep="one"/>}}}
+  * Values: "blendFactor" (see below)
+  * Default: "one"
+
+ * dstFactorSep (in progress)
+  * Destination blend factor in the separated alpha channel blending equation
+  * Syntax: {{{<blending dstFactorSep="one"/>}}}
+  * Values: "blendFactor" (see below)
+  * Default: "one"
+
+==== blendFactor ====
+The blendFactor has the following options:
+* one
+* zero
+* srcColor
+* invSrcColor
+* dstColor
+* invDstColor
+* srcAlpha
+* invSrcAlpha
+* dstAlpha
+* invDstAlpha
+
+=== The depthStencil element ===
+
+The depthStencil element defines the parameters being used in the depth & stencil testing.
+
+ * depthTest (in progress)
+  * Enable / disable the depth testing
+  * Syntax: {{{<depthStencil depthTest="true"/>}}}
+  * Values: "true" or "false"
+  * Default: "true"
+
+ * depthWrite (in progress)
+  * Enable / disable the depth buffer writing
+  * Syntax: {{{<depthStencil depthWrite="false"/>}}}
+  * Values: "true" or "false"
+  * Default: "true"
+
+ * depthFunc (in progress)
+  * Set the depth value comparison function
+  * Syntax: {{{<depthStencil depthFunc="lessEqual"/>}}} 
+  * Values: "less", "lessEqual", "greater", "greaterEqual", "notEqual", "always", "never"
+  * Default: "less"
+ 
+ * stencilTest (in progress)
+  * Enable / disable the stencil testing
+  * Syntax: {{{<depthStencil stencilTest="true"/>}}}
+  * Values: "true" or "false"
+  * Default: "false"
+
+ * stencilFunc (in progress)
+  * Set the stencil value comparison function
+  * Syntax: {{{<depthStencil stencilFunc="lessEqual"/>}}} 
+  * Values: "less", "lessEqual", "greater", "greaterEqual", "notEqual", "always", "never"
+  * Default: "less"
