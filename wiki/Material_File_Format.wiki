@@ -1,15 +1,9 @@
 #summary Material File Format
 #sidebar TOC_Global
 
-<wiki:toc max_depth="3" />
+Material files in mcore3d are written in xml format and starts with the `<root />` xml-element.<br/>
+Under The `<root />` are:
+ * [Material_File_Format_Merge <merge />]
+ * [Material_File_Format_Pass <pass />]
 
-= Introduction =
-
-This page describes the mcord3d's material file format. Materials in mcore3d are written in xml format and starts with the `<root />` xml-element.
-The `<root />` is composed of:
- * `<merge />`
- * `<pass />`
-
-The [Material_File_Format_Merge `<merge />`] element describes how the current material is combined with other materials.<br/>
-The [Material_File_Format_Pass `<pass />`] element corresponds to a rendering pass.<br/>
-And there are several [Material_File_Format_Examples example mcore3d material files].<br/>
+And there are several [Material_File_Format_Examples examples] on mcore3d's material file format.<br/>
