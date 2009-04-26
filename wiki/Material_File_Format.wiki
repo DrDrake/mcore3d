@@ -1,4 +1,5 @@
 #summary Material File Format
+#sidebar TOC_Global
 
 <wiki:toc max_depth="3" />
 
