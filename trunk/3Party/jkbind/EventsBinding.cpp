@@ -14,14 +14,15 @@ inline detail::ScriptObject get(TypeSelect<detail::ScriptObject>,HSQUIRRELVM v,i
 
 namespace script {
 
-SCRIPT_CLASS_REGISTER_BEGIN( script::detail::EventBase )
+SCRIPT_CLASS_DECLAR(script::detail::EventBase);
+SCRIPT_CLASS_REGISTER(script::detail::EventBase)
 	.declareNamespace(xSTRING("script"))
 		.declareClass<script::detail::EventBase>(xSTRING("Event"))
 			.method(xSTRING("isAssigned"),							&script::detail::EventBase::isAssigned)
 			.method< alreadyAsThis >(xSTRING("clear"),				&script::detail::EventBase::clear)
 			.method< alreadyAsThis >(xSTRING("setHandler"),			&script::detail::EventBase::setHandler)
 			.method< alreadyAsThis >(xSTRING("setHandlerObject"),	&script::detail::EventBase::setHandlerObject)
-SCRIPT_CLASS_REGISTER_END( script::detail::EventBase )
+;}
 
 void bindEventsToVMCore(VMCore* coreToBind)
 {

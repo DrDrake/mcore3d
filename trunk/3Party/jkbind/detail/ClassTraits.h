@@ -40,19 +40,23 @@ namespace detail
 }   //namespace detail
 
 
-#define SCRIPT_CLASS_REGISTER_BEGIN( className )	\
-template<>											\
-class ClassTraits< className >:						\
-	public script::detail::ClassTraits< className>	\
-{													\
-public:												\
-	static void bind(VMCore* vm) {					\
-		RootDeclarator root(vm);					\
-		root
-
-#define SCRIPT_CLASS_REGISTER_END( className )		\
-	;}												\
+#define SCRIPT_CLASS_DECLAR(Class)				\
+template<>										\
+class ClassTraits<Class> :						\
+	public script::detail::ClassTraits<Class> {	\
+public:											\
+	static void bind(VMCore* vm);				\
 };
+
+#define SCRIPT_CLASS_REGISTER(Class)			\
+void ClassTraits<Class>::bind(VMCore* vm) {		\
+	RootDeclarator root(vm);					\
+	root
+
+#define SCRIPT_CLASS_REGISTER_NAME(Class, name)	\
+void ClassTraits<Class>::bind(VMCore* vm) {		\
+	RootDeclarator root(vm);					\
+	root.declareClass<Class>(xSTRING(#name))
 
 }   //namespace script
 
