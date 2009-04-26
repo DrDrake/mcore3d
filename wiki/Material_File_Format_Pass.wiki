@@ -1,7 +1,7 @@
 #summary The Pass element
 #sidebar TOC_Global
 
-= Introduction =
+= The `<pass />` element =
 A pass element corresponds to a rendering pass.
 
 = Attributes =
