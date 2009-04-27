@@ -14,6 +14,7 @@ inline std::wstring get(TypeSelect<std::wstring>, HSQUIRRELVM v, int idx) {
 	jkSCRIPT_API_VERIFY(sq_getstring(v, idx, &s));
 	return s;
 }
+template<> struct GetterSetter<std::wstring> { typedef std::wstring type; };
 
 inline void push(HSQUIRRELVM v, const std::wstring& value) {
 	sq_pushstring(v, value.c_str(), SQInteger(value.length()));
@@ -26,6 +27,7 @@ inline std::wstring get(TypeSelect<const std::wstring&>, HSQUIRRELVM v, int idx)
 	jkSCRIPT_API_VERIFY(sq_getstring(v, idx, &s));
 	return s;
 }
+template<> struct GetterSetter<const std::wstring> { typedef const std::wstring type; };
 
 }	//namespace types
 }	//namespace script
