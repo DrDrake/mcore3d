@@ -81,6 +81,24 @@ inline const T*			get(TypeSelect<const T*>, HSQUIRRELVM v,int idx)		{ T* p; jkSC
 template<typename T>
 inline T*				get(TypeSelect<T*>, HSQUIRRELVM v,int idx)				{ T* p; jkSCRIPT_API_VERIFY(sq_getinstanceup(v, idx, (SQUserPointer*)&p, 0));  return p; }
 
+//
+// type transformation for using with getter/setter functions
+//
+
+template<typename T> struct GetterSetter		{ typedef T& type; };
+template<> struct GetterSetter<bool>			{ typedef bool type; };
+template<> struct GetterSetter<char>			{ typedef char type; };
+template<> struct GetterSetter<unsigned char>	{ typedef unsigned char type; };
+template<> struct GetterSetter<short>			{ typedef short type; };
+template<> struct GetterSetter<unsigned short>	{ typedef unsigned short type; };
+template<> struct GetterSetter<int>				{ typedef int type; };
+template<> struct GetterSetter<unsigned int>	{ typedef unsigned int type; };
+template<> struct GetterSetter<long>			{ typedef long type; };
+template<> struct GetterSetter<unsigned long>	{ typedef unsigned long type; };
+template<> struct GetterSetter<float>			{ typedef float type; };
+template<> struct GetterSetter<double>			{ typedef double type; };
+template<> struct GetterSetter<const SQChar*>	{ typedef const SQChar* type; };
+
 }	//namespace types
 }	//namespace script
 
