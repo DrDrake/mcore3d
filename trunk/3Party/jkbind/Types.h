@@ -2,28 +2,30 @@
 #define ___BASE_TYPES_H___
 
 namespace base {
-    //
-    // Platform-independed types
-    //
-    typedef signed char         sint8;
-    typedef unsigned char       uint8;
-    typedef signed short        sint16;
-    typedef unsigned short      uint16;
-    typedef signed long         sint32;
-    typedef unsigned long       uint32;
 
-    //
-    // Platfrom-independed, but not guaranteed
-    //
-    typedef signed __int64      sint64;
-    typedef unsigned __int64    uint64;
+//
+// Platform-independed types
+//
+typedef signed char		sint8;
+typedef unsigned char	uint8;
+typedef signed short	sint16;
+typedef unsigned short	uint16;
+typedef signed long		sint32;
+typedef unsigned long	uint32;
 
-    //
-    // Platform-optimized types
-    //
-    typedef signed int          sint;
-    typedef unsigned int        uint;
-}
+//
+// Platfrom-independed, but not guaranteed
+//
+typedef signed __int64		sint64;
+typedef unsigned __int64	uint64;
+
+//
+// Platform-optimized types
+//
+typedef signed int		sint;
+typedef unsigned int	uint;
+
+}	// namespace base
 
 using base::sint64;
 using base::uint64;
@@ -41,24 +43,24 @@ using base::uint;
 // The are 3 types of chars: char (single byte), wchar (unicode), xchar (char or wchar - switchable)
 //
 
-    typedef wchar_t wchar;
+typedef wchar_t wchar;
 
 #if(jkUNICODE) || defined(UNICODE) || defined(_UNICODE)
-    typedef wchar xchar;
-#   define xSTRING(text) L##text
+	typedef wchar xchar;
+#	define xSTRING(text) L##text
 
-#   define WIDEN2(x) L ## x
-#   define WIDEN(x) WIDEN2(x)
-#   define __STRINGFILE__       WIDEN(__FILE__)
-#   define __STRINGTIMESTAMP__  WIDEN(__TIMESTAMP__)
-#   define __STRINGFUNCSIG__    WIDEN(__FUNCSIG__)
+#	define WIDEN2(x) L ## x
+#	define WIDEN(x) WIDEN2(x)
+#	define __STRINGFILE__       WIDEN(__FILE__)
+#	define __STRINGTIMESTAMP__  WIDEN(__TIMESTAMP__)
+#	define __STRINGFUNCSIG__    WIDEN(__FUNCSIG__)
 #else
-    typedef char xchar;
-#   define xSTRING(text) text
+	typedef char xchar;
+#	define xSTRING(text) text
 
-#   define __STRINGFILE__       __FILE__
-#   define __STRINGTIMESTAMP__  __TIMESTAMP__
-#   define __STRINGFUNCSIG__    __FUNCSIG__
+#	define __STRINGFILE__       __FILE__
+#	define __STRINGTIMESTAMP__  __TIMESTAMP__
+#	define __STRINGFUNCSIG__    __FUNCSIG__
 #endif
 
 //

@@ -231,6 +231,30 @@ public:
 
 		return *this;
 	}
+
+	// Transform member variable XXX access into _getXXX() and _setXXX() function
+	// TODO: Remove the need to pass the class name
+	ClassDeclarator& enableGetset(const xchar* className)
+	{
+		const xchar* get = xSTRING("._get <- function(i){local g=this[\"_get\"+i.tostring()];return g==null?null:g()}");
+		const xchar* set = xSTRING("._set <- function(i,v){local s=this[\"_set\"+i.tostring()];return s==null?null:s(v)}");
+		xchar buffer[256];
+
+		::wcscpy(buffer, className);
+		::wcscat(buffer, get);
+		runScript(buffer);
+		::wcscpy(buffer, className);
+		::wcscat(buffer, set);
+		runScript(buffer);
+
+		return *this;
+	}
+
+	ClassDeclarator& runScript(const xchar* script)
+	{
+		jkSCRIPT_LOGIC_VERIFY(script::runScript(_vm, script));
+		return *this;
+	}
 };
 
 ///

@@ -3,34 +3,34 @@
 
 namespace base {
 
-    //
-    // Base definitions
-    //
+//
+// Base definitions
+//
 
-    template <typename T, T val>
-    class integral_constant
-    {
-    public:
-        typedef integral_constant<T, val>   type;
-        typedef T                           value_type;
+template <typename T, T val>
+class integral_constant
+{
+public:
+	typedef T value_type;
+	typedef integral_constant<T, val> type;
 
-        static const T  value = val;
+	static const T  value = val;
 
-        operator T() const { return static_cast<T>(this->value); }
-    };
+	operator T() const { return static_cast<T>(this->value); }
+};
 
-    typedef integral_constant<bool,true>    true_type;
-    typedef integral_constant<bool,false>   false_type;
+typedef integral_constant<bool,true> true_type;
+typedef integral_constant<bool,false> false_type;
 
-    //
-    // "is_void" family
-    //
+//
+// "is_void" family
+//
 
-    template<typename T>
-    class is_void: public false_type {};
+template<typename T>
+class is_void: public false_type {};
 
-    template<>
-    class is_void<void>: public true_type {};
+template<>
+class is_void<void>: public true_type {};
 
 }	//namespace base
 
