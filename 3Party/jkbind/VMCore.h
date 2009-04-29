@@ -43,6 +43,9 @@ private:
 	friend class detail::ClassesManager;
 };
 
+// A handy function to simply execute a script
+extern bool runScript(HSQUIRRELVM vm, const xchar* script);
+
 }	//namespace script
 
 #endif//__SCRIPT_VM_CORE___
