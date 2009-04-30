@@ -155,6 +155,12 @@ using namespace vc_attributes;
 #define sal_out_ecount(count) __out_ecount(count)			// (output, not null, with count as the element count)
 #define sal_out_ecount_opt(count) __out_ecount_opt(count)	// (output, not null, with count as the element count) (may be null)
 
+#if _MSC_VER >= 1500
+#   define sal_format_guard _In_z_ _Printf_format_string_
+#else
+#   define sal_format_guard
+#endif
+
 // alloca
 #define MCD_STACKALLOCA(size) _malloca(size)
 #define MCD_STACKFREE(p) _freea(p)
