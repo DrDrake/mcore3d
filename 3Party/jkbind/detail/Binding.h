@@ -70,6 +70,21 @@ public:
 };
 
 //
+// Class traits to determine which functino argument the user want to
+// give up the object ownership.
+//
+
+template<typename T>
+struct GiveUpSpecialization { static void giveUp(HSQUIRRELVM v, int idx) {} };
+
+template<typename T>
+struct GiveUpSpecialization<GiveUpOwnership<T> > {
+	static void giveUp(HSQUIRRELVM v, int idx) {
+		sq_setreleasehook(v, idx, NULL);
+	}
+};
+
+//
 // Standart function callers
 //
 
@@ -80,36 +95,64 @@ int Call(RT (*func)(),HSQUIRRELVM v,int index) {
 
 template<typename ResultPolicy, typename RT,typename P1>
 int Call(RT (*func)(P1),HSQUIRRELVM v,int index) {
+	GiveUpSpecialization<P1>::giveUp(v,index+0);
 	return ReturnSpecialization<RT, ResultPolicy>::Call(func,v,index);
 }
 
 template<typename ResultPolicy, typename RT,typename P1,typename P2>
 int Call(RT (*func)(P1,P2),HSQUIRRELVM v,int index) {
+	GiveUpSpecialization<P1>::giveUp(v,index+0);
+	GiveUpSpecialization<P2>::giveUp(v,index+1);
 	return ReturnSpecialization<RT, ResultPolicy>::Call(func,v,index);
 }
 
 template<typename ResultPolicy, typename RT,typename P1,typename P2,typename P3>
 int Call(RT (*func)(P1,P2,P3),HSQUIRRELVM v,int index) {
+	GiveUpSpecialization<P1>::giveUp(v,index+0);
+	GiveUpSpecialization<P2>::giveUp(v,index+1);
+	GiveUpSpecialization<P3>::giveUp(v,index+2);
 	return ReturnSpecialization<RT, ResultPolicy>::Call(func,v,index);
 }
 
 template<typename ResultPolicy, typename RT,typename P1,typename P2,typename P3,typename P4>
 int Call(RT (*func)(P1,P2,P3,P4),HSQUIRRELVM v,int index) {
+	GiveUpSpecialization<P1>::giveUp(v,index+0);
+	GiveUpSpecialization<P2>::giveUp(v,index+1);
+	GiveUpSpecialization<P3>::giveUp(v,index+2);
+	GiveUpSpecialization<P4>::giveUp(v,index+3);
 	return ReturnSpecialization<RT, ResultPolicy>::Call(func,v,index);
 }
 
 template<typename ResultPolicy, typename RT,typename P1,typename P2,typename P3,typename P4,typename P5>
 int Call(RT (*func)(P1,P2,P3,P4,P5),HSQUIRRELVM v,int index) {
+	GiveUpSpecialization<P1>::giveUp(v,index+0);
+	GiveUpSpecialization<P2>::giveUp(v,index+1);
+	GiveUpSpecialization<P3>::giveUp(v,index+2);
+	GiveUpSpecialization<P4>::giveUp(v,index+3);
+	GiveUpSpecialization<P5>::giveUp(v,index+4);
 	return ReturnSpecialization<RT, ResultPolicy>::Call(func,v,index);
 }
 
 template<typename ResultPolicy, typename RT,typename P1,typename P2,typename P3,typename P4,typename P5,typename P6>
 int Call(RT (*func)(P1,P2,P3,P4,P5,P6),HSQUIRRELVM v,int index) {
+	GiveUpSpecialization<P1>::giveUp(v,index+0);
+	GiveUpSpecialization<P2>::giveUp(v,index+1);
+	GiveUpSpecialization<P3>::giveUp(v,index+2);
+	GiveUpSpecialization<P4>::giveUp(v,index+3);
+	GiveUpSpecialization<P5>::giveUp(v,index+4);
+	GiveUpSpecialization<P6>::giveUp(v,index+5);
 	return ReturnSpecialization<RT, ResultPolicy>::Call(func,v,index);
 }
 
 template<typename ResultPolicy, typename RT,typename P1,typename P2,typename P3,typename P4,typename P5,typename P6,typename P7>
 int Call(RT (*func)(P1,P2,P3,P4,P5,P6,P7),HSQUIRRELVM v,int index) {
+	GiveUpSpecialization<P1>::giveUp(v,index+0);
+	GiveUpSpecialization<P2>::giveUp(v,index+1);
+	GiveUpSpecialization<P3>::giveUp(v,index+2);
+	GiveUpSpecialization<P4>::giveUp(v,index+3);
+	GiveUpSpecialization<P5>::giveUp(v,index+4);
+	GiveUpSpecialization<P6>::giveUp(v,index+5);
+	GiveUpSpecialization<P7>::giveUp(v,index+6);
 	return ReturnSpecialization<RT, ResultPolicy>::Call(func,v,index);
 }
 
@@ -124,36 +167,64 @@ int Call(Callee & callee, RT (Callee::*func)(),HSQUIRRELVM v,int index) {
 
 template<typename ResultPolicy, typename Callee,typename RT,typename P1>
 int Call(Callee & callee,RT (Callee::*func)(P1),HSQUIRRELVM v,int index) {
+	GiveUpSpecialization<P1>::giveUp(v,index+0);
 	return ReturnSpecialization<RT, ResultPolicy>::Call(callee,func,v,index);
 }
 
 template<typename ResultPolicy, typename Callee,typename RT,typename P1,typename P2>
 int Call(Callee & callee,RT (Callee::*func)(P1,P2),HSQUIRRELVM v,int index) {
+	GiveUpSpecialization<P1>::giveUp(v,index+0);
+	GiveUpSpecialization<P2>::giveUp(v,index+1);
 	return ReturnSpecialization<RT, ResultPolicy>::Call(callee,func,v,index);
 }
 
 template<typename ResultPolicy, typename Callee,typename RT,typename P1,typename P2,typename P3>
 int Call(Callee & callee,RT (Callee::*func)(P1,P2,P3),HSQUIRRELVM v,int index) {
+	GiveUpSpecialization<P1>::giveUp(v,index+0);
+	GiveUpSpecialization<P2>::giveUp(v,index+1);
+	GiveUpSpecialization<P3>::giveUp(v,index+2);
 	return ReturnSpecialization<RT, ResultPolicy>::Call(callee,func,v,index);
 }
 
 template<typename ResultPolicy, typename Callee,typename RT,typename P1,typename P2,typename P3,typename P4>
 int Call(Callee & callee,RT (Callee::*func)(P1,P2,P3,P4),HSQUIRRELVM v,int index) {
+	GiveUpSpecialization<P1>::giveUp(v,index+0);
+	GiveUpSpecialization<P2>::giveUp(v,index+1);
+	GiveUpSpecialization<P3>::giveUp(v,index+2);
+	GiveUpSpecialization<P4>::giveUp(v,index+3);
 	return ReturnSpecialization<RT, ResultPolicy>::Call(callee,func,v,index);
 }
 
 template<typename ResultPolicy, typename Callee,typename RT,typename P1,typename P2,typename P3,typename P4,typename P5>
 int Call(Callee & callee,RT (Callee::*func)(P1,P2,P3,P4,P5),HSQUIRRELVM v,int index) {
+	GiveUpSpecialization<P1>::giveUp(v,index+0);
+	GiveUpSpecialization<P2>::giveUp(v,index+1);
+	GiveUpSpecialization<P3>::giveUp(v,index+2);
+	GiveUpSpecialization<P4>::giveUp(v,index+3);
+	GiveUpSpecialization<P5>::giveUp(v,index+4);
 	return ReturnSpecialization<RT, ResultPolicy>::Call(callee,func,v,index);
 }
 
 template<typename ResultPolicy, typename Callee,typename RT,typename P1,typename P2,typename P3,typename P4,typename P5,typename P6>
 int Call(Callee & callee,RT (Callee::*func)(P1,P2,P3,P4,P5,P6),HSQUIRRELVM v,int index) {
+	GiveUpSpecialization<P1>::giveUp(v,index+0);
+	GiveUpSpecialization<P2>::giveUp(v,index+1);
+	GiveUpSpecialization<P3>::giveUp(v,index+2);
+	GiveUpSpecialization<P4>::giveUp(v,index+3);
+	GiveUpSpecialization<P5>::giveUp(v,index+4);
+	GiveUpSpecialization<P6>::giveUp(v,index+5);
 	return ReturnSpecialization<RT, ResultPolicy>::Call(callee,func,v,index);
 }
 
 template<typename ResultPolicy, typename Callee,typename RT,typename P1,typename P2,typename P3,typename P4,typename P5,typename P6,typename P7>
 int Call(Callee & callee,RT (Callee::*func)(P1,P2,P3,P4,P5,P6,P7),HSQUIRRELVM v,int index) {
+	GiveUpSpecialization<P1>::giveUp(v,index+0);
+	GiveUpSpecialization<P2>::giveUp(v,index+1);
+	GiveUpSpecialization<P3>::giveUp(v,index+2);
+	GiveUpSpecialization<P4>::giveUp(v,index+3);
+	GiveUpSpecialization<P5>::giveUp(v,index+4);
+	GiveUpSpecialization<P6>::giveUp(v,index+5);
+	GiveUpSpecialization<P7>::giveUp(v,index+6);
 	return ReturnSpecialization<RT, ResultPolicy>::Call(callee,func,v,index);
 }
 
@@ -168,36 +239,64 @@ int Call(Callee & callee, RT (Callee::*func)() const,HSQUIRRELVM v,int index) {
 
 template<typename ResultPolicy, typename Callee,typename RT,typename P1>
 int Call(Callee & callee,RT (Callee::*func)(P1) const,HSQUIRRELVM v,int index) {
+	GiveUpSpecialization<P1>::giveUp(v,index+0);
 	return ReturnSpecialization<RT, ResultPolicy>::Call(callee,func,v,index);
 }
 
 template<typename ResultPolicy, typename Callee,typename RT,typename P1,typename P2>
 int Call(Callee & callee,RT (Callee::*func)(P1,P2) const,HSQUIRRELVM v,int index) {
+	GiveUpSpecialization<P1>::giveUp(v,index+0);
+	GiveUpSpecialization<P2>::giveUp(v,index+1);
 	return ReturnSpecialization<RT, ResultPolicy>::Call(callee,func,v,index);
 }
 
 template<typename ResultPolicy, typename Callee,typename RT,typename P1,typename P2,typename P3>
 int Call(Callee & callee,RT (Callee::*func)(P1,P2,P3) const,HSQUIRRELVM v,int index) {
+	GiveUpSpecialization<P1>::giveUp(v,index+0);
+	GiveUpSpecialization<P2>::giveUp(v,index+1);
+	GiveUpSpecialization<P3>::giveUp(v,index+2);
 	return ReturnSpecialization<RT, ResultPolicy>::Call(callee,func,v,index);
 }
 
 template<typename ResultPolicy, typename Callee,typename RT,typename P1,typename P2,typename P3,typename P4>
 int Call(Callee & callee,RT (Callee::*func)(P1,P2,P3,P4) const,HSQUIRRELVM v,int index) {
+	GiveUpSpecialization<P1>::giveUp(v,index+0);
+	GiveUpSpecialization<P2>::giveUp(v,index+1);
+	GiveUpSpecialization<P3>::giveUp(v,index+2);
+	GiveUpSpecialization<P4>::giveUp(v,index+3);
 	return ReturnSpecialization<RT, ResultPolicy>::Call(callee,func,v,index);
 }
 
 template<typename ResultPolicy, typename Callee,typename RT,typename P1,typename P2,typename P3,typename P4,typename P5>
 int Call(Callee & callee,RT (Callee::*func)(P1,P2,P3,P4,P5) const,HSQUIRRELVM v,int index) {
+	GiveUpSpecialization<P1>::giveUp(v,index+0);
+	GiveUpSpecialization<P2>::giveUp(v,index+1);
+	GiveUpSpecialization<P3>::giveUp(v,index+2);
+	GiveUpSpecialization<P4>::giveUp(v,index+3);
+	GiveUpSpecialization<P5>::giveUp(v,index+4);
 	return ReturnSpecialization<RT, ResultPolicy>::Call(callee,func,v,index);
 }
 
 template<typename ResultPolicy, typename Callee,typename RT,typename P1,typename P2,typename P3,typename P4,typename P5,typename P6>
 int Call(Callee & callee,RT (Callee::*func)(P1,P2,P3,P4,P5,P6) const,HSQUIRRELVM v,int index) {
+	GiveUpSpecialization<P1>::giveUp(v,index+0);
+	GiveUpSpecialization<P2>::giveUp(v,index+1);
+	GiveUpSpecialization<P3>::giveUp(v,index+2);
+	GiveUpSpecialization<P4>::giveUp(v,index+3);
+	GiveUpSpecialization<P5>::giveUp(v,index+4);
+	GiveUpSpecialization<P6>::giveUp(v,index+5);
 	return ReturnSpecialization<RT, ResultPolicy>::Call(callee,func,v,index);
 }
 
 template<typename ResultPolicy, typename Callee,typename RT,typename P1,typename P2,typename P3,typename P4,typename P5,typename P6,typename P7>
 int Call(Callee & callee,RT (Callee::*func)(P1,P2,P3,P4,P5,P6,P7) const,HSQUIRRELVM v,int index) {
+	GiveUpSpecialization<P1>::giveUp(v,index+0);
+	GiveUpSpecialization<P2>::giveUp(v,index+1);
+	GiveUpSpecialization<P3>::giveUp(v,index+2);
+	GiveUpSpecialization<P4>::giveUp(v,index+3);
+	GiveUpSpecialization<P5>::giveUp(v,index+4);
+	GiveUpSpecialization<P6>::giveUp(v,index+5);
+	GiveUpSpecialization<P7>::giveUp(v,index+6);
 	return ReturnSpecialization<RT, ResultPolicy>::Call(callee,func,v,index);
 }
 
