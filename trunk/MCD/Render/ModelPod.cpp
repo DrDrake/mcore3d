@@ -97,7 +97,7 @@ void ModelPod::Impl::initBuffers()
 			glBufferData(GL_ARRAY_BUFFER, mesh->nNumVertex * 2 * sizeof(GLfloat),
 						 mesh->psUVW[0].pData, GL_STATIC_DRAW);
 		}
-		
+
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, mIndexBuffers[i]);
 		glBufferData(GL_ELEMENT_ARRAY_BUFFER, mesh->nNumFaces * 3 * sizeof(GLushort),
 					 mesh->sFaces.pData, GL_STATIC_DRAW);

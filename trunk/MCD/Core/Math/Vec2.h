@@ -15,7 +15,7 @@ struct Vec2TupleUnion {
 };	// Vec2TupleUnion
 
 /*!	Vector with 2 elements
-	\sa MathTuple	
+	\sa MathTuple
  */
 template<typename T>
 class Vec2 : public MathTuple<T, 2, Vec2<T>, Vec2TupleUnion<T> >

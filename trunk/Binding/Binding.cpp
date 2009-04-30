@@ -31,6 +31,7 @@ static void printfunc(HSQUIRRELVM v, const SQChar* s, ...)
 
 extern void registerEntityBinding(script::VMCore* v);
 extern void registerMathBinding(script::VMCore* v);
+extern void registerRenderBinding(script::VMCore* v);
 extern void registerSystemBinding(script::VMCore* v);
 
 class ScriptVM::Impl
@@ -50,6 +51,7 @@ public:
 		// Bind mcore3d
 		registerEntityBinding(&vm);
 		registerMathBinding(&vm);
+		registerRenderBinding(&vm);
 		registerSystemBinding(&vm);
 	}
 
@@ -61,9 +63,9 @@ public:
 	{
 		HSQUIRRELVM v = vm.getVM();
 		const wchar_t* scriptName = L"tmp";
-		sq_compilebuffer(v, script, SQInteger(::wcslen(script)), scriptName, false);
+		sq_compilebuffer(v, script, SQInteger(::wcslen(script)), scriptName, true);
 		sq_pushroottable(v);
-		
+
 		if(!SQ_SUCCEEDED(sq_call(v, 1, false, true)))
 		{
 			const SQChar* s;

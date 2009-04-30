@@ -83,9 +83,9 @@ public:
 					i += bytePerPixel * (rle + 1);
 				}
 
-				// If the rle header is equal or above 128 it means that we have a string of rle-127 pixels 
+				// If the rle header is equal or above 128 it means that we have a string of rle-127 pixels
 				// that use the folowing pixels color
-				else 
+				else
 				{
 					// Read what color we should use
 					char color[4];
@@ -94,7 +94,7 @@ public:
 					// Insert the color stored in tmp into the folowing rle-127 pixels
 					int j = 0;
 					while(j < rle - 127)
-					{						
+					{
 						mImageData[i] = color[0];
 						mImageData[i+1] = color[1];
 						mImageData[i+2] = color[2];

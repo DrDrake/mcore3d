@@ -10,6 +10,7 @@ static Mat44f addMat44(const Mat44f& lhs, const Mat44f& rhs) { return lhs + rhs;
 static Mat44f subMat44(const Mat44f& lhs, const Mat44f& rhs) { return lhs - rhs; }
 
 SCRIPT_CLASS_REGISTER_NAME(Mat44f, "Mat44")
+	.enableGetset(L"Mat44")
 	.constructor(L"create")
 	.method(L"_gettranspose", (Mat44f (Mat44f::*)()const)&Mat44f::transpose)
 	.method(L"_getdeterminant", &Mat44f::determinant)
@@ -29,14 +30,9 @@ static int cmpVec3(const Vec3f& lhs, const Vec3f& rhs) {
 	return 1;
 //	return lhs > rhs ? 1 : -1;
 }
-static void addEqual(Vec3f& lhs, const Vec3f& rhs) {
-	lhs += rhs;
-}
-static void mulEqual(Vec3f& lhs, float rhs) {
-	lhs *= rhs;
-}
 
 SCRIPT_CLASS_REGISTER_NAME(Vec3f, "Vec3")
+	.enableGetset(L"Vec3")
 	.constructor(L"create")
 	.method(L"dot", &Vec3f::dot)
 	.method(L"_modulo", &Vec3f::dot)
@@ -56,8 +52,7 @@ SCRIPT_CLASS_REGISTER_NAME(Vec3f, "Vec3")
 	.wrappedMethod(L"_unm", &unmVec3)
 	.wrappedMethod(L"isEqual", &isEqualVec3)
 	.wrappedMethod(L"_cmp", &cmpVec3)
-	.wrappedMethod(L"addEqual", &addEqual)
-	.wrappedMethod(L"mulEqual", &mulEqual)
+	.runScript(L"Vec3._tostring <- function(){return x+\", \"+y+\", \"+z;}")	// Vec3.tostring()
 ;}
 
 }	// namespace script

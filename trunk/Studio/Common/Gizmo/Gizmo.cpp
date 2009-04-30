@@ -43,9 +43,12 @@ public:
 		Vec3f p1(trans);
 		Vec3f p2(trans + Vec3f::c100);
 
-		// Test a unit lenght vector to see it's projected lenght on 2D screen.
+		// Test an unit lenght vector to see it's projected lenght on 2D screen.
 		p1 = projectToScreen(p1);
 		p2 = projectToScreen(p2);
+
+		if(p1 == p2)
+			return;
 
 		float len = (p2 - p1).length();
 
@@ -61,7 +64,7 @@ Gizmo::Gizmo(ResourceManager& resourceManager)
 	addComponent(new FollowTransformComponent);
 
 	Entity* sizeFixer = new Entity();
-	sizeFixer->name = L"Size stabilizer";
+	sizeFixer->name = L"Fixed screenSize";
 	sizeFixer->addComponent(new FixedScreenSizeComponent);
 	sizeFixer->asChildOf(this);
 

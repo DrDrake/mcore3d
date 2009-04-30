@@ -103,7 +103,7 @@ public:
 		all the element name, attribute name/value etc are returned as a pointer within this
 		supplied string.
 
-		The parser will not destroy the string, so you can use the pointer returned by elementName(), 
+		The parser will not destroy the string, so you can use the pointer returned by elementName(),
 		texData(), attributeName(), attributeValue() etc... until you destroy the string buffer.
 	 */
 	void parse(sal_in_z wchar_t* source);

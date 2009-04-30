@@ -17,7 +17,7 @@ typedef IntrusivePtr<RenderBuffer> RenderBufferPtr;
 	that you create.
 
 	To use RenderTarget, you have to create some render buffers first. Those buffer
-	By design, the binding code is 
+	By design, the binding code is
 
 	\code
 	// Setup the RenderTarget

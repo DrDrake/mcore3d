@@ -28,13 +28,13 @@ static TexturePtr generateRandomTexture(uint textureSize)
 	ColorRGBA8* buffer = new ColorRGBA8[textureSize * textureSize];
 
 	for(size_t i=0; i<textureSize * textureSize; ++i) {
-		buffer[i].r = rand() % 256;
-		buffer[i].g = rand() % 256;
-		buffer[i].b = rand() % 256;
+		buffer[i].r = uint8_t(rand() % 256);
+		buffer[i].g = uint8_t(rand() % 256);
+		buffer[i].b = uint8_t(rand() % 256);
 
 		const uint8_t contrast = 10;	// The minimum value is 2
-		buffer[i].a = (rand() % uint8_t(256*(contrast-1)/contrast)) + (256/contrast);
-		buffer[i].a = rand() % 256;
+		buffer[i].a = uint8_t((rand() % uint8_t(256*(contrast-1)/contrast)) + (256/contrast));
+		buffer[i].a = uint8_t(rand() % 256);
 	}
 
 	texture->bind();
@@ -302,7 +302,7 @@ TEST(ASSAOTest)
 
 			glTranslatef(0.0f, -50.0f, 100.0f);
 
-			const float scale = 0.5f;
+			const float scale = 2.5f;
 			glScalef(scale, scale, scale);
 
 			Material2* material = nullptr;
@@ -475,7 +475,7 @@ TEST(ASSAOTest)
 //		window.loadModel(L"Scene/National Stadium/scene.pod");
 //		window.loadModel(L"Church/sponza/sponza.3ds");
 //		window.loadModel(L"3M00696/buelllightning.3DS");
-		window.loadModel(L"Lamborghini Gallardo Polizia/Lamborghini Gallardo Polizia.3DS");
+//		window.loadModel(L"Lamborghini Gallardo Polizia/Lamborghini Gallardo Polizia.3DS");
 
 		window.mainLoop();
 	}

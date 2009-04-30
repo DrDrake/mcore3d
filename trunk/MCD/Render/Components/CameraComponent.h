@@ -8,7 +8,7 @@
 
 namespace MCD {
 
-/*!	
+/*!
  */
 class MCD_RENDER_API CameraComponent : public RenderableComponent
 {
@@ -27,6 +27,8 @@ private:
 	// TODO: Remove the use of timer once the component system has a global timer.
 	DeltaTimer mTimer;
 };	// CameraComponent
+
+typedef WeakPtr<CameraComponent> CameraComponentPtr;
 
 }	// namespace MCD
 

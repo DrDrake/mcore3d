@@ -174,7 +174,7 @@ TEST(WorldTransform_EntityTest)
 
 	Vec3f v(0.0f);
 	e13->worldTransform().transformPoint(v);
-	
+
 	CHECK(v.isNearEqual(Vec3f(2, 4, 0)));
 }
 

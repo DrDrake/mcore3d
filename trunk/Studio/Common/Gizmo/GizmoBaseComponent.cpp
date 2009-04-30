@@ -51,7 +51,7 @@ Vec3f unProject(const Vec3f& p)
 	GLint viewPort[4];
 	glGetIntegerv(GL_VIEWPORT, viewPort);
 
-	GLdouble v[3];
+	GLdouble v[3] = {0};
 	MCD_VERIFY(gluUnProject(p[0], p[1], p[2], model, projection, viewPort, &v[0], &v[1], &v[2]) == GL_TRUE);
 
 	return Vec3f(float(v[0]), float(v[1]), float(v[2]));
@@ -66,7 +66,7 @@ Vec3f projectToScreen(const Vec3f& p)
 	GLint viewPort[4];
 	glGetIntegerv(GL_VIEWPORT, viewPort);
 
-	GLdouble v[3];
+	GLdouble v[3] = {0};
 	MCD_VERIFY(gluProject(p[0], p[1], p[2], model, projection, viewPort, &v[0], &v[1], &v[2]) == GL_TRUE);
 
 	return Vec3f(float(v[0]), float(v[1]), float(v[2]));

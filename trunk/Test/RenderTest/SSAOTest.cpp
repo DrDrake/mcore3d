@@ -26,10 +26,10 @@ static TexturePtr generateRandomTexture(uint textureSize)
 	ColorRGBA8* buffer = new ColorRGBA8[textureSize * textureSize];
 
 	for(size_t i=0; i<textureSize * textureSize; ++i) {
-		buffer[i].r = rand() % 256;
-		buffer[i].g = rand() % 256;
-		buffer[i].b = rand() % 256;
-		buffer[i].a = rand() % 256;
+		buffer[i].r = uint8_t(rand() % 256);
+		buffer[i].g = uint8_t(rand() % 256);
+		buffer[i].b = uint8_t(rand() % 256);
+		buffer[i].a = uint8_t(rand() % 256);
 	}
 
 	texture->bind();
@@ -302,9 +302,9 @@ TEST(SSAOTest)
 
 			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-			glTranslatef(0.0f, 0.0f, 50.0f);
+			glTranslatef(0.0f, -50.0f, 100.0f);
 
-			const float scale = 1.5f;
+			const float scale = 2.5f;
 			glScalef(scale, scale, scale);
 
 			mScenePass.bind();
