@@ -205,7 +205,7 @@ TEST(NvpParserTest)
 			CHECK(false);
 			continue;
 		}
-		
+
 		CHECK_EQUAL(std::wstring(data[i].name), name);
 		CHECK_EQUAL(std::wstring(data[i].value), value);
 	}

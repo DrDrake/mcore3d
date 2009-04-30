@@ -13,7 +13,7 @@ public:
 
 	~DefaultResourceManager();
 
-	/*!	
+	/*!
 		\return
 			>0 - A resource is sucessfully loaded (partial or full).
 			=0 - There are no more event to process at this moment.

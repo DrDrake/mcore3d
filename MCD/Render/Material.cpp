@@ -14,7 +14,7 @@ Material::Material()
 {
 }
 
-// The destructor is implemented in cpp file so that Material.h need not to 
+// The destructor is implemented in cpp file so that Material.h need not to
 // include Texture.h because we have a TexturePtr as member variable
 Material::~Material()
 {

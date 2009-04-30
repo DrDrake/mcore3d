@@ -84,7 +84,7 @@ class ResourceManagerCallback;
 	// Create a resource manager using the current directory
 	ResourceManager manager(new MCD::RawFileSystem(L"./"));
 
-	// Associate a jpg loader to the manager 
+	// Associate a jpg loader to the manager
 	manager.addFactory(new JpgLoaderFactory);
 
 	// ...
@@ -198,7 +198,7 @@ public:
 	Event popEvent();
 
 	/*!	Register a callback to be invoke later.
-		Despite the invokcation order imposed by the dependency, the callback will be 
+		Despite the invokcation order imposed by the dependency, the callback will be
 		invoked as the order they were submitted to the ResourceManager.
 		\param callback It's ownership will be taken by ResourceManager, therefore it
 			must be created from heap. Do nothing if it is null.

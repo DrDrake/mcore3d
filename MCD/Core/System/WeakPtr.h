@@ -36,7 +36,7 @@ private:
 	bool mIsValid;		//!< Flag indicating the object is alive or not
 };	// WeakPtrFlag
 
-template<class T> class TWeakPt;
+template<class T> class WeakPtr;
 
 //!	\sa WeakPtr
 class WeakPtrTarget

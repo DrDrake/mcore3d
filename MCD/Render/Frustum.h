@@ -45,7 +45,7 @@ public:
 	 */
 	void create(float fovy, float aspect, float near, float far);
 
-	/*!	
+	/*!
 		\note The same as the glFrustum() function.
 	 */
 	void create(float left, float right, float bottom, float top, float near, float far);

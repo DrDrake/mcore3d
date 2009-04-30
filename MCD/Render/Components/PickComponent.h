@@ -9,7 +9,7 @@ namespace MCD {
 class Entity;
 typedef WeakPtr<Entity> EntityPtr;
 
-/*!	Detect which entity (with mesh component) is being packed 
+/*!	Detect which entity (with mesh component) is being packed
 	within certain screen rectangle area.
 
 	\note

@@ -112,7 +112,8 @@ public:
 			e.release();
 		}
 
-		for(int i=0; i<2; ++i)
+		ChamferBoxBuilder chamferBoxBuilder(0.4f, 2);
+		for(int i=0; i<200; ++i)
 		{	// Setup entity 1
 			std::auto_ptr<MCD::Entity> e(new MCD::Entity);
 			e->name = L"ChamferBox 1";
@@ -122,7 +123,6 @@ public:
 
 			// Setup the chamfer box mesh
 			MeshPtr mesh = new Mesh(L"");
-			ChamferBoxBuilder chamferBoxBuilder(0.4f, 10);
 			chamferBoxBuilder.commit(*mesh, MeshBuilder::Static);
 
 			// Add component

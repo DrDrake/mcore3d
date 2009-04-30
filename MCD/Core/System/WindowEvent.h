@@ -44,7 +44,7 @@ struct Key
 		Num6 = '6',
 		Num7 = '7',
 		Num8 = '8',
-		Num9 = '9', 
+		Num9 = '9',
 		Escape = 256,
 		LControl,
 		LShift,

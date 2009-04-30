@@ -121,14 +121,14 @@ public:
 		// Based on current token, parse and report next element
 		switch(*p) {
 		case L'/':
-			parseClosingXMLElement(); 
+			parseClosingXMLElement();
 			break;
 		case L'?':
-			ignoreDefinition();	
+			ignoreDefinition();
 			break;
 		case L'!':
 			if(!parseCDATA())
-				parseComment();	
+				parseComment();
 			break;
 		default:
 			parseOpeningXMLElement();
@@ -145,7 +145,7 @@ public:
 
 	bool setText(wchar_t* start, wchar_t* end)
 	{
-		// Check if text is more than 2 characters, and if not, check if there is 
+		// Check if text is more than 2 characters, and if not, check if there is
 		// only white space, so that this text won't be reported
 		if(end - start < 3) {
 			const wchar_t* q = start;
@@ -239,7 +239,7 @@ public:
 					++p;
 
 					// Read the attribute value, check for quotes and single quotes
-					while((*p != L'\"') && (*p != L'\'') && *p) 
+					while((*p != L'\"') && (*p != L'\'') && *p)
 						++p;
 
 					if(!*p) // Malformatted xml file
@@ -249,7 +249,7 @@ public:
 
 					++p;
 					wchar_t* attributeValueBegin = p;
-					
+
 					while(*p != attributeQuoteChar && *p)
 						++p;
 
