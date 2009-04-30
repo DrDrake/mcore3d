@@ -2,6 +2,17 @@
 #define ___SCRIPT_COMMON_TYPES___
 
 namespace script {
+
+// User may wrap around a parameter type to tell the 
+// script system to give up the object ownership
+template<typename T>
+struct GiveUpOwnership
+{
+	GiveUpOwnership(T v) : value(v) {}
+	operator T() { return value; }
+	T value;
+};
+
 namespace types {
 
 //
@@ -52,6 +63,9 @@ inline bool match(TypeSelect<const T&>, HSQUIRRELVM v,int idx)			{ return sq_get
 template<typename T>
 inline bool match(TypeSelect<T&>, HSQUIRRELVM v,int idx)				{ return sq_gettype(v,idx) == OT_INSTANCE; }
 
+template<typename T>
+inline bool match(TypeSelect<GiveUpOwnership<T> >,HSQUIRRELVM v,int idx){ return match(TypeSelect<T>(), v, idx); }
+
 //
 // get functions - to get values from the script
 //
@@ -80,6 +94,9 @@ inline const T*			get(TypeSelect<const T*>, HSQUIRRELVM v,int idx)		{ T* p; jkSC
 
 template<typename T>
 inline T*				get(TypeSelect<T*>, HSQUIRRELVM v,int idx)				{ T* p; jkSCRIPT_API_VERIFY(sq_getinstanceup(v, idx, (SQUserPointer*)&p, 0));  return p; }
+
+template<typename T>
+inline T				get(TypeSelect<GiveUpOwnership<T> >,HSQUIRRELVM v,int i){ return get(TypeSelect<T>(), v, i); }
 
 //
 // type transformation for using with getter/setter functions
