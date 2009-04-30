@@ -210,6 +210,14 @@
 	</References>
 	<Files>
 		<File
+			RelativePath=".\EntityTest.cpp"
+			>
+		</File>
+		<File
+			RelativePath=".\EntityTest.nut"
+			>
+		</File>
+		<File
 			RelativePath=".\Main.cpp"
 			>
 		</File>

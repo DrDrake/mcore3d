@@ -1,7 +1,7 @@
 ﻿<?xml version="1.0" encoding="UTF-8"?>
 <VisualStudioProject
 	ProjectType="Visual C++"
-	Version="8.00"
+	Version="9.00"
 	Name="jkbind"
 	ProjectGUID="{38D56DA0-6B9E-41CB-A313-CDC8808A9CC5}"
 	RootNamespace="jkbind"
