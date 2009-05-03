@@ -12,6 +12,10 @@ CameraComponent::CameraComponent()
 
 void CameraComponent::render()
 {
+	Entity* e = entity();
+	if(!e)
+		return;
+
 	float deltaTime = float(mTimer.getDelta().asSecond());
 
 	if(velocity.length() > 0) {
@@ -21,7 +25,7 @@ void CameraComponent::render()
 	}
 
 	camera.applyTransform();
-	glMultTransposeMatrixf(entity()->worldTransform().inverse().getPtr());
+	glMultTransposeMatrixf(e->worldTransform().inverse().getPtr());
 
 	glClearColor(clearColor.r, clearColor.g, clearColor.b, 1);
 }
