@@ -65,7 +65,7 @@ void Entity::insertBefore(sal_in Entity* slibing)
 	}
 
 	// Should never be null since slibing should contained by slibing->mParent->mFirstChild
-	MCD_ASSERT(node != nullptr);
+	MCD_ASSUME(node != nullptr);
 
 	insertAfter(node);
 }

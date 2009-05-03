@@ -15,11 +15,12 @@ MeshComponent::~MeshComponent() {}
 
 void MeshComponent::render()
 {
-	if(!mesh)
+	Entity* e = entity();
+	if(!mesh || !e)
 		return;
 
 	glPushMatrix();
-	glMultTransposeMatrixf(entity()->worldTransform().getPtr());
+	glMultTransposeMatrixf(e->worldTransform().getPtr());
 
 	Material2* material = nullptr;
 	if(effect && (material = effect->material.get()) != nullptr) {
@@ -37,11 +38,12 @@ void MeshComponent::render()
 
 void MeshComponent::renderFaceOnly()
 {
-	if(!mesh)
+	Entity* e = entity();
+	if(!mesh || !e)
 		return;
 
 	glPushMatrix();
-	glMultTransposeMatrixf(entity()->worldTransform().getPtr());
+	glMultTransposeMatrixf(e->worldTransform().getPtr());
 
 	mesh->drawFaceOnly();
 

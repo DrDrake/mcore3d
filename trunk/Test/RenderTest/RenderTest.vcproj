@@ -3,7 +3,7 @@
 	ProjectType="Visual C++"
 	Version="9.00"
 	Name="RenderTest"
-	ProjectGUID="{ABC7D2F8-7F30-4E09-A024-5A3E9543DE64}"
+	ProjectGUID="{4DA3080B-CD7B-454F-8D08-493605EE4980}"
 	RootNamespace="RenderTest"
 	Keyword="Win32Proj"
 	TargetFrameworkVersion="131072"

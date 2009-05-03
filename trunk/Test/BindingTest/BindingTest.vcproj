@@ -210,6 +210,22 @@
 	</References>
 	<Files>
 		<File
+			RelativePath=".\BasicTest.cpp"
+			>
+		</File>
+		<File
+			RelativePath=".\BasicTest.nut"
+			>
+		</File>
+		<File
+			RelativePath=".\Common.cpp"
+			>
+		</File>
+		<File
+			RelativePath=".\Common.h"
+			>
+		</File>
+		<File
 			RelativePath=".\EntityTest.cpp"
 			>
 		</File>
