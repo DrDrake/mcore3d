@@ -240,4 +240,41 @@ void LineWidthProperty::end() const
 	glLineWidth(1.0f);
 }
 
+// Blend Enable
+BlendingProperty::BlendingProperty()
+	: 
+	blendEnable(false), sfactor(GL_ONE), dfactor(GL_ONE), blendEquation(GL_FUNC_ADD),
+	blendEnableSep(false), sfactorSep(GL_ONE), dfactorSep(GL_ONE), blendEquationSep(GL_FUNC_ADD)
+{
+}
+
+void BlendingProperty::begin() const
+{
+	if(blendEnable)
+	{
+		glEnable(GL_BLEND);
+
+		if(blendEnableSep)
+		{
+			glBlendEquationSeparate(blendEquation, blendEquationSep);
+			glBlendFuncSeparate(sfactor, dfactor, sfactorSep, dfactorSep);
+		}
+		else
+		{
+			glBlendEquation(blendEquation);
+			glBlendFunc(sfactor, dfactor);
+		}
+	}
+	else
+	{
+		glDisable(GL_BLEND);
+	}
+
+}
+
+void BlendingProperty::end() const
+{
+	glDisable(GL_BLEND);
+}
+
 }	// namespace MCD
