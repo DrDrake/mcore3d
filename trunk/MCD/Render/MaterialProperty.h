@@ -258,6 +258,32 @@ public:
 	float width;
 };	// LineWidthProperty
 
+// BlendingProperty
+class MCD_RENDER_API BlendingProperty : public IMaterialProperty
+{
+public:
+	BlendingProperty();
+
+	sal_override IMaterialProperty* clone() const {
+		return new BlendingProperty(*this);
+	}
+
+	sal_override void begin() const;
+	sal_override void end() const;
+
+	bool blendEnable;
+	bool blendEnableSep;
+
+	int sfactor;
+	int dfactor;
+	int blendEquation;
+	
+	int sfactorSep;
+	int dfactorSep;
+	int blendEquationSep;
+
+};
+
 }	// namespace MCD
 
 #endif	// __MCD_RENDER_MATERIALPROPERTY__
