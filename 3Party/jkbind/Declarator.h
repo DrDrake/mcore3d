@@ -48,6 +48,20 @@ public:
 	{
 	}
 
+	// Allow the user to have total control.
+	// Func should have the signature as int(*)(HSQUIRRELVM)
+	template<typename Func>
+	ClassDeclarator& rawMethod(const xchar* name, Func func)
+	{
+		sq_pushobject(_vm, _hostObject.getObjectHandle());
+		sq_pushstring(_vm, name, -1);
+		sq_newclosure(_vm, func, 0);
+		jkSCRIPT_API_VERIFY(sq_newslot(_vm, -3, true));
+		sq_pop(_vm, 1); //popping host object
+
+		return *this;
+	}
+
 	//
 	// Constructors
 	//
