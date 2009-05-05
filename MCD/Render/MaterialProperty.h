@@ -284,6 +284,26 @@ public:
 
 };
 
+// DepthStencilProperty
+class MCD_RENDER_API DepthStencilProperty : public IMaterialProperty
+{
+public:
+	DepthStencilProperty();
+
+	sal_override IMaterialProperty* clone() const {
+		return new DepthStencilProperty(*this);
+	}
+
+	sal_override void begin() const;
+	sal_override void end() const;
+
+	bool depthTestEnable;
+	bool depthWriteEnable;
+	int depthFunc;
+	bool stencilTestEnable;
+
+};
+
 }	// namespace MCD
 
 #endif	// __MCD_RENDER_MATERIALPROPERTY__
