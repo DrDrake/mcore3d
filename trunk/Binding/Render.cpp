@@ -8,17 +8,24 @@ using namespace MCD;
 
 namespace script {
 
+static CameraComponentPtr* cameraCreate(Entity& entity) {
+	CameraComponentPtr* p = new CameraComponentPtr(new CameraComponent);
+	entity.addComponent(p->get());
+	return p;
+}
+static Vec3f* cameraGetVelocity(const CameraComponentPtr& c) {
+	if(!c) return nullptr;
+	return &c->velocity;
+}
+static void cameraSetVelocity(const CameraComponentPtr& c, const Vec3f& v) {
+	if(!c) return;
+	c->velocity = v;
+}
 SCRIPT_CLASS_REGISTER(CameraComponentPtr)
-	.declareClass<CameraComponentPtr, ComponentPtr>(L"CameraComponentPtr")
-	.constructor<CameraComponent*>(L"create")
-	.method<objNoCare>(L"getPointee", &CameraComponentPtr::get)
-;}
-
-SCRIPT_CLASS_REGISTER(CameraComponent)
-	.declareClass<CameraComponent, Component>(L"CameraComponent")
-	.enableGetset(L"CameraComponent")
-	.constructor(L"create")
-	.getset(L"velocity", &CameraComponent::velocity)
+	.declareClass<CameraComponentPtr, ComponentPtr>(L"CameraComponent")
+	.staticMethod(L"create", &cameraCreate)
+	.wrappedMethod<objNoCare>(L"_getvelocity", &cameraGetVelocity)
+	.wrappedMethod(L"_setvelocity", &cameraSetVelocity)
 ;}
 
 }	// namespace script
@@ -27,7 +34,6 @@ namespace MCD {
 
 void registerRenderBinding(script::VMCore* v)
 {
-	script::ClassTraits<CameraComponent>::bind(v);
 	script::ClassTraits<CameraComponentPtr>::bind(v);
 }
 
