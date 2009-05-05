@@ -4,6 +4,10 @@
 #include "Texture.h"
 #include "../../3Party/glew/glew.h"
 
+/*! opengl api reference:
+	http://pyopengl.sourceforge.net/documentation/manual-3.0/index.xhtml
+*/
+
 namespace MCD {
 
 ColorProperty::ColorProperty(const ColorRGBAf& color, ColorOperation::Enum operation)
@@ -240,11 +244,10 @@ void LineWidthProperty::end() const
 	glLineWidth(1.0f);
 }
 
-// Blend Enable
+// Blending
 BlendingProperty::BlendingProperty()
-	: 
-	blendEnable(false), sfactor(GL_ONE), dfactor(GL_ONE), blendEquation(GL_FUNC_ADD),
-	blendEnableSep(false), sfactorSep(GL_ONE), dfactorSep(GL_ONE), blendEquationSep(GL_FUNC_ADD)
+	: blendEnable(false), sfactor(GL_ONE), dfactor(GL_ONE), blendEquation(GL_FUNC_ADD)
+	, blendEnableSep(false), sfactorSep(GL_ONE), dfactorSep(GL_ONE), blendEquationSep(GL_FUNC_ADD)
 {
 }
 
@@ -275,6 +278,40 @@ void BlendingProperty::begin() const
 void BlendingProperty::end() const
 {
 	glDisable(GL_BLEND);
+}
+
+// DepthStencil
+DepthStencilProperty::DepthStencilProperty()
+	: depthTestEnable(true), depthWriteEnable(true), depthFunc(GL_LEQUAL)
+	, stencilTestEnable(false)
+{
+}
+
+void DepthStencilProperty::begin() const
+{
+	// depth
+	if(depthTestEnable)
+		glEnable(GL_DEPTH_TEST);
+	else
+		glDisable(GL_DEPTH_TEST);
+
+	glDepthMask(depthWriteEnable ? GL_TRUE : GL_FALSE);
+	glDepthFunc(depthFunc);
+
+	// stencil
+	if(stencilTestEnable)
+		glEnable(GL_STENCIL_TEST);
+	else
+		glDisable(GL_STENCIL_TEST);
+}
+
+void DepthStencilProperty::end() const
+{
+	glEnable(GL_DEPTH_TEST);
+	glDepthMask(GL_TRUE);
+	glDepthFunc(GL_LESS);
+
+	glDisable(GL_STENCIL_TEST);
 }
 
 }	// namespace MCD

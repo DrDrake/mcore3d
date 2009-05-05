@@ -451,6 +451,84 @@ public:
 	PassLoader& mPassLoader;
 };	// ShaderLoader
 
+class BlendingLoader : public EffectLoader::ILoader
+{
+public:
+	sal_override const wchar_t* name() const {
+		return L"blending";
+	}
+
+	static int parseBlendFactor(const wchar_t * factor)
+	{
+		if(wcscmp(factor, L"zero"))
+			return GL_ZERO;
+
+		if(wcscmp(factor, L"one"))
+			return GL_ONE;
+
+		if(wcscmp(factor, L"src_color"))
+			return GL_SRC_COLOR;
+
+		if(wcscmp(factor, L"one_minus_src_color"))
+			return GL_ONE_MINUS_SRC_COLOR;
+		
+		if(wcscmp(factor, L"dst_color"))
+			return GL_DST_COLOR;
+
+		if(wcscmp(factor, L"one_minus_dst_color"))
+			return GL_ONE_MINUS_DST_COLOR;
+
+		/*
+		,
+		GL_SRC_ALPHA
+		,
+		GL_ONE_MINUS_SRC_ALPHA
+		,
+		GL_DST_ALPHA
+		,
+		GL_ONE_MINUS_DST_ALPHA
+		,
+		GL_CONSTANT_COLOR
+		,
+		GL_ONE_MINUS_CONSTANT_COLOR
+		,
+		GL_CONSTANT_ALPHA
+		,
+		GL_ONE_MINUS_CONSTANT_ALPHA
+		, and
+		GL_SRC_ALPHA_SATURATE
+		.
+		*/
+
+		return 0;
+	}
+
+	sal_override bool load(XmlParser& parser, IMaterial& material, Context& context)
+	{
+		BlendingProperty* prop = new BlendingProperty();
+
+		const wchar_t* blendEnable = parser.attributeValue(L"colorBlend");
+		const wchar_t* sfactor = parser.attributeValue(L"srcFactor");
+		const wchar_t* dfactor = parser.attributeValue(L"dstFactor");
+
+		const wchar_t* blendEnableSep = parser.attributeValue(L"colorBlendSep");
+
+		if(NULL != blendEnable)
+			prop->blendEnable = wcscmp(blendEnable, L"true") == 0;
+
+		if(NULL != sfactor)
+			prop->sfactor = parseBlendFactor( sfactor );
+
+		if(NULL != dfactor)
+			prop->dfactor = parseBlendFactor( sfactor );
+
+		if(NULL != blendEnableSep)
+			prop->blendEnableSep = wcscmp(blendEnable, L"true") == 0;
+
+		return true;
+	}
+};	// BlendingLoader
+
 PassLoader::PassLoader()
 {
 	mLoaders.push_back(new StandardLoader);
