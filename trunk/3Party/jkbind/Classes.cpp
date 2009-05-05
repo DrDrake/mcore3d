@@ -23,6 +23,12 @@ ScriptObject ClassesManager::_findClass(HSQUIRRELVM v, ClassID classType)
 
 void ClassesManager::createObjectInstanceOnStackPure(HSQUIRRELVM v, ClassID classType, const void* c_this)
 {
+	// Simply push null if the object's pointer is null
+	if(c_this == NULL) {
+		sq_pushnull(v);
+		return;
+	}
+
 	int top = sq_gettop(v);
 	ScriptObject classObj = _findClass(v, classType);
 	sq_pushobject(v, classObj.handle());
@@ -45,20 +51,20 @@ ScriptObject ClassesManager::createClass(HSQUIRRELVM v, ScriptObject& root, Clas
 {
 	ScriptObject newClass(v);
 	int oldtop = sq_gettop(v);
-	sq_pushobject(v, root.getObjectHandle());   //root
-	sq_pushstring(v, name, -1);                 //root, classname
+	sq_pushobject(v, root.getObjectHandle());	//root
+	sq_pushstring(v, name, -1);					//root, classname
 
 	if(parentClass) {
 		ScriptObject parent = _findClass(v, parentClass);
-		sq_pushobject(v, parent.handle());      //root, classname, [parent]
+		sq_pushobject(v, parent.handle());		//root, classname, [parent]
 	}
 
-	jkSCRIPT_API_VERIFY(sq_newclass(v, parentClass ? 1 : 0));    //root, classname, class
+	jkSCRIPT_API_VERIFY(sq_newclass(v, parentClass ? 1 : 0));	//root, classname, class
 
 	newClass.attachToStackObject(-1);
-	sq_settypetag(v,-1, classType);
-	sq_newslot(v,-3, false);                    //root, classname, class
-	sq_pop(v,1);                                //root
+	sq_settypetag(v, -1, classType);
+	sq_newslot(v, -3, false);					//root, classname, class
+	sq_pop(v, 1);								//root
 
 	//
 	// adding type to types table

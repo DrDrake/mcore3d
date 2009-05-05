@@ -19,7 +19,7 @@ namespace detail
 	public:
 		typedef T Class;
 
-		static inline ClassID  classID()
+		static inline ClassID classID()
 		{
 			return &_dummyField;
 		}
