@@ -3,7 +3,6 @@
 
 namespace script {
 
-SCRIPT_CLASS_DECLAR(MCD::CameraComponent);
 SCRIPT_CLASS_DECLAR(MCD::CameraComponentPtr);
 
 }	// namespace script

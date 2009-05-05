@@ -19,6 +19,32 @@ SCRIPT_CLASS_REGISTER_NAME(Mat44f, "Mat44")
 	.wrappedMethod(L"_sub", &subMat44)
 ;}
 
+static int vec3Create(HSQUIRRELVM vm)
+{
+	script::detail::StackHandler sa(vm);
+	int nparams = sa.getParamCount();
+
+	Vec3f* v = nullptr;
+	switch(nparams) {
+	case 1:
+		v = new Vec3f(0.0f);	// Default construct
+		break;
+	case 2:
+		if(sa.getType(2) == OT_INSTANCE)	// Copy construct
+			v = new Vec3f(get(script::types::TypeSelect<Vec3f&>(), vm, 2));
+		else
+			v = new Vec3f(sa.getFloat(2));	// Scalar construct
+		break;
+	case 4:
+		v = new Vec3f(sa.getFloat(2), sa.getFloat(3), sa.getFloat(4));	// Element-wise construct
+		break;
+	default:
+		return sa.throwError(L"Vec3.create() wrong parameters");
+	}
+
+	objOwn::pushResult(vm, v);
+	return 1;
+}
 static float vec3Length(const Vec3f& v) { return v.length(); }
 static Vec3f* addVec3(const Vec3f& lhs, const Vec3f& rhs) { return new Vec3f(lhs + rhs); }
 static Vec3f subVec3(const Vec3f& lhs, const Vec3f& rhs) { return lhs - rhs; }
@@ -33,7 +59,7 @@ static int cmpVec3(const Vec3f& lhs, const Vec3f& rhs) {
 
 SCRIPT_CLASS_REGISTER_NAME(Vec3f, "Vec3")
 	.enableGetset(L"Vec3")
-	.constructor(L"create")
+	.rawMethod(L"create", vec3Create)
 	.method(L"dot", &Vec3f::dot)
 	.method(L"_modulo", &Vec3f::dot)
 	.method(L"_getnorm", &Vec3f::norm)

@@ -3,7 +3,6 @@
 
 namespace script {
 
-SCRIPT_CLASS_DECLAR(MCD::Component);
 SCRIPT_CLASS_DECLAR(MCD::ComponentPtr);
 SCRIPT_CLASS_DECLAR(MCD::Entity);
 

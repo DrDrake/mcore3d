@@ -24,6 +24,9 @@ function basicTest()
 	assert(v1.x == 1);
 	assert(v1.y == 2);
 	assert(v1.z == 3);
+
+	local v2 = Vec3.create(1, 2, 3);
+	assert(v1.isEqual(v2));
 }
 basicTest();
 
@@ -46,12 +49,8 @@ dotTest();
 
 function performanceTest()
 {
-	local p = Vec3.create();
-	p.x = 0.0; p.y = 0.0; p.z = 0.0;
-
-	local v = Vec3.create();
-	v.x = v.y = v.z = 10000.0;
-
+	local p = Vec3.create(1, 2, 3);
+	local v = Vec3.create(10000.0);
 	local friction = 0.9;
 
 	local iterationCount = 1000;//000;

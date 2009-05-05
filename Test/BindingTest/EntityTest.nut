@@ -4,6 +4,7 @@ function println(str) {
 }
 
 local root = Entity.create();
+assert(root.parentNode == null);
 root.enabled = true;
 root.name = "Root node";
 
@@ -14,8 +15,10 @@ n1.localTransform = Mat44.create();
 assert(root.name == "Root node");
 assert(root.firstChild.name == "Child node 1");
 
-local camera = n1.addComponent("CameraComponent");
+local camera = CameraComponent.create(n1);
+assert(n1.name == camera.entity.name);
 println(camera.velocity);
 assert(camera.isValid());
 n1.unlink();
 assert(!camera.isValid());
+assert(!camera.entity);
