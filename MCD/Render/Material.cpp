@@ -4,6 +4,7 @@
 #include "../../3Party/glew/glew.h"
 #include <algorithm>
 #include <functional>
+#include <memory>   // For auto_ptr
 
 using namespace std;
 

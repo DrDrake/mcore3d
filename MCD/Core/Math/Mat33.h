@@ -59,6 +59,8 @@ public:
 	using super_type::m00;	using super_type::m01;	using super_type::m02;
 	using super_type::m10;	using super_type::m11;	using super_type::m12;
 	using super_type::m20;	using super_type::m21;	using super_type::m22;
+	using super_type::data;
+	using super_type::data2D;
 
 	inline Mat33() {}
 

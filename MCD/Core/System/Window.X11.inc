@@ -187,7 +187,8 @@ Window::Impl::Impl(Window& w)
 	mListeners.insert(&w);
 }
 
-void Window::Impl::createNewWindow()
+// TODO: Using existingWindowHandle on X window is not tested
+void Window::Impl::createWindow(Window::Handle existingWindowHandle)
 {
 	MCD_ASSERT(!mWnd && "A window is already created, call destroy() first");
 
@@ -209,12 +210,15 @@ void Window::Impl::createNewWindow()
 	winAttribs.colormap = ::XCreateColormap(gDisplay, RootWindow(gDisplay, screen), visual, AllocNone);
 	unsigned long winmask = CWBorderPixel | CWBitGravity | CWEventMask| CWColormap;
 
-	mWnd = ::XCreateWindow(
-		gDisplay, DefaultRootWindow(gDisplay), 20, 20,
-		mWidth, mHeight, 0,
-		depth, InputOutput,
-		visual, winmask, &winAttribs
-	);
+    if(existingWindowHandle == 0) {
+        mWnd = ::XCreateWindow(
+            gDisplay, DefaultRootWindow(gDisplay), 20, 20,
+            mWidth, mHeight, 0,
+            depth, InputOutput,
+            visual, winmask, &winAttribs
+        );
+    } else
+        mWnd = existingWindowHandle;
 
 	if(!mWnd)
 		throw std::runtime_error("X11 API call 'XCreateWindow' failed");

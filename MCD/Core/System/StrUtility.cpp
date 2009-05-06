@@ -6,6 +6,7 @@
 #include <stdlib.h>
 #include <stdexcept>
 #include <vector>
+#include <memory.h> // For memcpy
 
 #ifdef MCD_CYGWIN
 #	include "PlatformInclude.h"

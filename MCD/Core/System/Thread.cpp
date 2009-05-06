@@ -2,6 +2,7 @@
 #include "Thread.h"
 #include "PlatformInclude.h"
 #include "Utility.h"
+#include <memory.h> // For memset
 
 namespace MCD {
 

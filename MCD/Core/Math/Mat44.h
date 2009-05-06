@@ -43,6 +43,8 @@ public:
 	using super_type::m10;	using super_type::m11;	using super_type::m12;	using super_type::m13;
 	using super_type::m20;	using super_type::m21;	using super_type::m22;	using super_type::m23;
 	using super_type::m30;	using super_type::m31;	using super_type::m32;	using super_type::m33;
+	using super_type::data;
+	using super_type::data2D;
 
 	enum { N = super_type::N };
 

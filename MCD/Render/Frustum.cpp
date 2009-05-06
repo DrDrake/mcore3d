@@ -3,6 +3,7 @@
 #include "../Core/Math/BasicFunction.h"
 #include "../Core/Math/Vec3.h"
 #include "../../3Party/glew/glew.h"
+#include <memory.h> // For memset
 
 namespace MCD {
 
