@@ -282,7 +282,7 @@ public:
 	int dfactorSep;
 	int blendEquationSep;
 
-};
+};	// BlendingProperty
 
 // DepthStencilProperty
 class MCD_RENDER_API DepthStencilProperty : public IMaterialProperty
@@ -302,7 +302,7 @@ public:
 	int depthFunc;
 	bool stencilTestEnable;
 
-};
+};	// DepthStencilProperty
 
 }	// namespace MCD
 
