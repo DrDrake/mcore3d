@@ -1,6 +1,7 @@
 #if !defined(MCD_GCC) || defined(__SSE__)
 #   include <xmmintrin.h>
 #endif
+#include <memory.h> // For memcpy
 
 namespace MCD {
 

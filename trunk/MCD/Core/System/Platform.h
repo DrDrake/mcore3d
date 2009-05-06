@@ -230,7 +230,7 @@ void noReturn() { throw "NoReturn should not be invoked"; }
 #define sal_out_ecount(count)
 
 // alloca
-#define MCD_STACKALLOCA(size) alloca(size)
+#define MCD_STACKALLOCA(size) __builtin_alloca(size)
 #define MCD_STACKFREE(p)
 
 #ifdef MCD_GCC

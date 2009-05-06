@@ -29,7 +29,7 @@ class Window::Impl : public ImplBase
 public:
 	Impl(Window& w);
 
-	void createNewWindow();
+	void createWindow(Window::Handle existingWindowHandle=0);
 
 	void destroy();
 

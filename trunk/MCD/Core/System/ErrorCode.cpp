@@ -2,7 +2,7 @@
 #include "ErrorCode.h"
 #include "PlatformInclude.h"
 #include <errno.h>
-#include <string>
+#include <string.h>
 
 namespace MCD {
 
@@ -47,7 +47,7 @@ std::string getErrorMessage(sal_in_z_opt const char* prefix, int errorCode)
 	}
 
 #else
-	str += std::strerror(errorCode);
+	str += strerror(errorCode);
 #endif
 
 	return str;
