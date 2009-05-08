@@ -460,22 +460,22 @@ public:
 
 	static int parseBlendFactor(const wchar_t * factor)
 	{
-		if(wcscmp(factor, L"zero"))
+		if(wstrCaseCmp(factor, L"zero"))
 			return GL_ZERO;
 
-		if(wcscmp(factor, L"one"))
+		if(wstrCaseCmp(factor, L"one"))
 			return GL_ONE;
 
-		if(wcscmp(factor, L"src_color"))
+		if(wstrCaseCmp(factor, L"src_color"))
 			return GL_SRC_COLOR;
 
-		if(wcscmp(factor, L"one_minus_src_color"))
+		if(wstrCaseCmp(factor, L"one_minus_src_color"))
 			return GL_ONE_MINUS_SRC_COLOR;
-		
-		if(wcscmp(factor, L"dst_color"))
+
+		if(wstrCaseCmp(factor, L"dst_color"))
 			return GL_DST_COLOR;
 
-		if(wcscmp(factor, L"one_minus_dst_color"))
+		if(wstrCaseCmp(factor, L"one_minus_dst_color"))
 			return GL_ONE_MINUS_DST_COLOR;
 
 		/*
@@ -514,7 +514,7 @@ public:
 		const wchar_t* blendEnableSep = parser.attributeValue(L"colorBlendSep");
 
 		if(NULL != blendEnable)
-			prop->blendEnable = wcscmp(blendEnable, L"true") == 0;
+			prop->blendEnable = wstrCaseCmp(blendEnable, L"true") == 0;
 
 		if(NULL != sfactor)
 			prop->sfactor = parseBlendFactor( sfactor );
@@ -523,7 +523,9 @@ public:
 			prop->dfactor = parseBlendFactor( sfactor );
 
 		if(NULL != blendEnableSep)
-			prop->blendEnableSep = wcscmp(blendEnable, L"true") == 0;
+			prop->blendEnableSep = wstrCaseCmp(blendEnable, L"true") == 0;
+
+		material.addProperty(prop, context.pass);
 
 		return true;
 	}
