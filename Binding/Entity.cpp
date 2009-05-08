@@ -31,7 +31,7 @@ static void entityInsertAfter(Entity& self, GiveUpOwnership<Entity*> e) {
 }
 SCRIPT_CLASS_REGISTER_NAME(Entity, "Entity")
 	.enableGetset(L"Entity")
-	.constructor(L"create")
+	.constructor()
 	.wrappedMethod(L"addChild", &entityAddChild)
 	.wrappedMethod(L"insertBefore", &entityInsertBefore)
 	.wrappedMethod(L"insertAfter", &entityInsertAfter)
