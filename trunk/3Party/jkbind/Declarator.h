@@ -66,28 +66,28 @@ public:
 	// Constructors
 	//
 
-	ClassDeclarator& constructor(const xchar* name) {
-		return staticMethod<DefaultReturnPolicy<T>::policy>(name, &constructionFunction<T>);
+	ClassDeclarator& constructor(const xchar* name = xSTRING("constructor")) {
+		return staticMethod<construct>(name, &constructionFunction<T>);
 	}
 
 	template<typename A1>
-	ClassDeclarator& constructor(const xchar* name) {
-		return staticMethod<DefaultReturnPolicy<T>::policy>(name, &constructionFunction<T, A1>);
+	ClassDeclarator& constructor(const xchar* name = xSTRING("constructor")) {
+		return staticMethod<construct>(name, &constructionFunction<T, A1>);
 	}
 
 	template<typename A1, typename A2>
-	ClassDeclarator& constructor(const xchar* name) {
-		return staticMethod<DefaultReturnPolicy<T>::policy>(name, &constructionFunction<T, A1, A2>);
+	ClassDeclarator& constructor(const xchar* name = xSTRING("constructor")) {
+		return staticMethod<construct>(name, &constructionFunction<T, A1, A2>);
 	}
 
 	template<typename A1, typename A2, typename A3>
-	ClassDeclarator& constructor(const xchar* name) {
-		return staticMethod<DefaultReturnPolicy<T>::policy>(name, &constructionFunction<T, A1, A2, A3>);
+	ClassDeclarator& constructor(const xchar* name = xSTRING("constructor")) {
+		return staticMethod<construct>(name, &constructionFunction<T, A1, A2, A3>);
 	}
 
 	template<typename A1, typename A2, typename A3, typename A4>
-	ClassDeclarator& constructor(const xchar* name) {
-		return staticMethod<DefaultReturnPolicy<T>::policy>(name, &constructionFunction<T, A1, A2, A3, A4>);
+	ClassDeclarator& constructor(const xchar* name = xSTRING("constructor")) {
+		return staticMethod<construct>(name, &constructionFunction<T, A1, A2, A3, A4>);
 	}
 
 	//

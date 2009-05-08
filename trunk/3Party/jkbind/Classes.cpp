@@ -8,7 +8,7 @@ ScriptObject ClassesManager::_findClass(HSQUIRRELVM v, ClassID classType)
 {
 	ScriptObject result(v);
 
-	VMCore* vm = (VMCore*)sq_getforeignptr(v);
+	VMCore* vm = reinterpret_cast<VMCore*>(sq_getforeignptr(v));
 	HSQOBJECT& types = vm->_classesTable;
 
 	sq_pushobject(v, types);

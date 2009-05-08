@@ -81,6 +81,29 @@ public:
 };
 
 ///
+/// construct new instance, and deletes host object on destruction
+///
+class construct
+{
+public:
+	template<typename RT>
+	static inline void pushResult(HSQUIRRELVM v, RT result)
+	{
+		sq_setinstanceup(v, 1, ptr::pointer<RT>::to(result));
+		sq_setreleasehook(v, 1, _memoryControllerHook<ptr::pointer<RT>::HostType>);
+	}
+
+private:
+	template<typename T>
+	static SQInteger _memoryControllerHook(SQUserPointer p,SQInteger size)
+	{
+		T* data = (T*)p;
+		jkSCRIPT_DELETE data;
+		return 1;
+	}
+};
+
+///
 /// creates new instance, which deletes host object on destruction
 ///
 class objOwn

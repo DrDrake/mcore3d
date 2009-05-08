@@ -11,7 +11,11 @@ static Mat44f subMat44(const Mat44f& lhs, const Mat44f& rhs) { return lhs - rhs;
 
 SCRIPT_CLASS_REGISTER_NAME(Mat44f, "Mat44")
 	.enableGetset(L"Mat44")
-	.constructor(L"create")
+	.constructor()
+	.getset(L"m00", &Mat44f::m00)	.getset(L"m01", &Mat44f::m01)	.getset(L"m02", &Mat44f::m02)	.getset(L"m03", &Mat44f::m03)
+	.getset(L"m10", &Mat44f::m10)	.getset(L"m11", &Mat44f::m11)	.getset(L"m12", &Mat44f::m12)	.getset(L"m13", &Mat44f::m13)
+	.getset(L"m20", &Mat44f::m20)	.getset(L"m21", &Mat44f::m21)	.getset(L"m22", &Mat44f::m22)	.getset(L"m23", &Mat44f::m23)
+	.getset(L"m30", &Mat44f::m30)	.getset(L"m31", &Mat44f::m31)	.getset(L"m32", &Mat44f::m32)	.getset(L"m33", &Mat44f::m33)
 	.method(L"_gettranspose", (Mat44f (Mat44f::*)()const)&Mat44f::transpose)
 	.method(L"_getdeterminant", &Mat44f::determinant)
 	.method(L"_getinverse", (Mat44f (Mat44f::*)()const)&Mat44f::inverse)
@@ -42,7 +46,7 @@ static int vec3Create(HSQUIRRELVM vm)
 		return sa.throwError(L"Vec3.create() wrong parameters");
 	}
 
-	objOwn::pushResult(vm, v);
+	construct::pushResult(vm, v);
 	return 1;
 }
 static float vec3Length(const Vec3f& v) { return v.length(); }
@@ -59,7 +63,7 @@ static int cmpVec3(const Vec3f& lhs, const Vec3f& rhs) {
 
 SCRIPT_CLASS_REGISTER_NAME(Vec3f, "Vec3")
 	.enableGetset(L"Vec3")
-	.rawMethod(L"create", vec3Create)
+	.rawMethod(L"constructor", vec3Create)
 	.method(L"dot", &Vec3f::dot)
 	.method(L"_modulo", &Vec3f::dot)
 	.method(L"_getnorm", &Vec3f::norm)

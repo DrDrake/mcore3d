@@ -23,7 +23,7 @@ static void cameraSetVelocity(const CameraComponentPtr& c, const Vec3f& v) {
 }
 SCRIPT_CLASS_REGISTER(CameraComponentPtr)
 	.declareClass<CameraComponentPtr, ComponentPtr>(L"CameraComponent")
-	.staticMethod(L"create", &cameraCreate)
+	.staticMethod<construct>(L"constructor", &cameraCreate)
 	.wrappedMethod<objNoCare>(L"_getvelocity", &cameraGetVelocity)
 	.wrappedMethod(L"_setvelocity", &cameraSetVelocity)
 ;}
