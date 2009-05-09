@@ -62,10 +62,20 @@
 	lineWidth="5"
 	cullMode="front"
 >
-  <standard
+	<standard
 		ambient="1.0, 0.0, 0.0, 1.0"
 		diffuse="0.0, 0.0, 0.0, 1.0"
 		specular="0.0, 0.0, 0.0, 1.0"
+	/>
+	<blending
+		colorBlend="true"
+		srcFactor="one"
+		dstFactor="one"
+	/>
+	<depthStencil
+		depthTest="false"
+		depthWrite="false"
+		depthFunc="less"
 	/>
 </pass>
 

@@ -17,6 +17,16 @@ namespace MCD {
 
 namespace {
 
+/*!Parse Color4f, returns true if succeed. */
+static bool parseColor4f(const wchar_t* str, ColorRGBAf& color)
+{
+	if(!str)
+		return true;
+
+	// %*s means ignoring any non-numeric characters
+	return swscanf(str, L"%f%*s%f%*s%f%*s%f", &color.r, &color.g, &color.b, &color.a) == 4;
+}
+
 class PassLoader : public EffectLoader::ILoader
 {
 	/*!	Callback that bind attributes to ShaderProgram
@@ -63,15 +73,6 @@ public:
 
 	std::auto_ptr<Callback> mBindTextureUniformCallback;
 };	// PassLoader
-
-static bool parseColor4f(const wchar_t* str, ColorRGBAf& color)
-{
-	if(!str)
-		return true;
-
-	// %*s means ignoring any non-numeric characters
-	return swscanf(str, L"%f%*s%f%*s%f%*s%f", &color.r, &color.g, &color.b, &color.a) == 4;
-}
 
 class StandardLoader : public EffectLoader::ILoader
 {
@@ -458,72 +459,72 @@ public:
 		return L"blending";
 	}
 
-	static int parseBlendFactor(const wchar_t * factor)
+	static void parseGLBlendFactor(const wchar_t* str, int defaultVal, int& result)
 	{
-		if(wstrCaseCmp(factor, L"zero"))
-			return GL_ZERO;
+		result = defaultVal;
 
-		if(wstrCaseCmp(factor, L"one"))
-			return GL_ONE;
+		if(NULL != str)
+		{
+			if(0 == wstrCaseCmp(str, L"zero"))
+				result = GL_ZERO;
 
-		if(wstrCaseCmp(factor, L"src_color"))
-			return GL_SRC_COLOR;
+			else if(0 == wstrCaseCmp(str, L"one"))
+				result = GL_ONE;
 
-		if(wstrCaseCmp(factor, L"one_minus_src_color"))
-			return GL_ONE_MINUS_SRC_COLOR;
+			else if(0 == wstrCaseCmp(str, L"src_color"))
+				result = GL_SRC_COLOR;
 
-		if(wstrCaseCmp(factor, L"dst_color"))
-			return GL_DST_COLOR;
+			else if(0 == wstrCaseCmp(str, L"one_minus_src_color"))
+				result = GL_ONE_MINUS_SRC_COLOR;
 
-		if(wstrCaseCmp(factor, L"one_minus_dst_color"))
-			return GL_ONE_MINUS_DST_COLOR;
+			else if(0 == wstrCaseCmp(str, L"dst_color"))
+				result = GL_DST_COLOR;
 
-		/*
-		,
-		GL_SRC_ALPHA
-		,
-		GL_ONE_MINUS_SRC_ALPHA
-		,
-		GL_DST_ALPHA
-		,
-		GL_ONE_MINUS_DST_ALPHA
-		,
-		GL_CONSTANT_COLOR
-		,
-		GL_ONE_MINUS_CONSTANT_COLOR
-		,
-		GL_CONSTANT_ALPHA
-		,
-		GL_ONE_MINUS_CONSTANT_ALPHA
-		, and
-		GL_SRC_ALPHA_SATURATE
-		.
-		*/
+			else if(0 == wstrCaseCmp(str, L"one_minus_dst_color"))
+				result = GL_ONE_MINUS_DST_COLOR;
 
-		return 0;
+			else if(0 == wstrCaseCmp(str, L"src_alpha"))
+				result = GL_SRC_ALPHA;
+
+			else if(0 == wstrCaseCmp(str, L"one_minus_src_alpha"))
+				result = GL_ONE_MINUS_SRC_ALPHA;
+
+			else if(0 == wstrCaseCmp(str, L"dst_alpha"))
+				result = GL_DST_ALPHA;
+
+			else if(0 == wstrCaseCmp(str, L"one_minus_dst_alpha"))
+				result = GL_ONE_MINUS_DST_ALPHA;
+
+			else if(0 == wstrCaseCmp(str, L"constant_color"))
+				result = GL_CONSTANT_COLOR;
+
+			else if(0 == wstrCaseCmp(str, L"one_minus_constant_color"))
+				result = GL_ONE_MINUS_CONSTANT_COLOR;
+
+			else if(0 == wstrCaseCmp(str, L"constant_alpha"))
+				result = GL_CONSTANT_ALPHA;
+
+			else if(0 == wstrCaseCmp(str, L"one_minus_constant_alpha"))
+				result = GL_ONE_MINUS_CONSTANT_ALPHA;
+		}
 	}
 
 	sal_override bool load(XmlParser& parser, IMaterial& material, Context& context)
 	{
 		BlendingProperty* prop = new BlendingProperty();
 
-		const wchar_t* blendEnable = parser.attributeValue(L"colorBlend");
-		const wchar_t* sfactor = parser.attributeValue(L"srcFactor");
-		const wchar_t* dfactor = parser.attributeValue(L"dstFactor");
+		// color blending
+		prop->blendEnable = parser.attributeValueAsBoolIgnoreCase(L"colorBlend", false);
+		parseGLBlendFactor(parser.attributeValueIgnoreCase(L"srcFactor"), GL_ONE, prop->sfactor);
+		parseGLBlendFactor(parser.attributeValueIgnoreCase(L"dstFactor"), GL_ZERO, prop->dfactor);
 
-		const wchar_t* blendEnableSep = parser.attributeValue(L"colorBlendSep");
+		// separate color blending
+		prop->blendEnableSep = parser.attributeValueAsBoolIgnoreCase(L"colorBlendSep", false);
+		parseGLBlendFactor(parser.attributeValueIgnoreCase(L"srcFactorSep"), GL_ONE, prop->sfactorSep);
+		parseGLBlendFactor(parser.attributeValueIgnoreCase(L"dstFactorSep"), GL_ZERO, prop->dfactorSep);
 
-		if(NULL != blendEnable)
-			prop->blendEnable = wstrCaseCmp(blendEnable, L"true") == 0;
-
-		if(NULL != sfactor)
-			prop->sfactor = parseBlendFactor( sfactor );
-
-		if(NULL != dfactor)
-			prop->dfactor = parseBlendFactor( sfactor );
-
-		if(NULL != blendEnableSep)
-			prop->blendEnableSep = wstrCaseCmp(blendEnable, L"true") == 0;
+		// blendcolor
+		parseColor4f(parser.attributeValueIgnoreCase(L"blendColor"), prop->blendColor);
 
 		material.addProperty(prop, context.pass);
 
@@ -531,11 +532,69 @@ public:
 	}
 };	// BlendingLoader
 
+class DepthStencilLoader : public EffectLoader::ILoader
+{
+public:
+	sal_override const wchar_t* name() const {
+		return L"depthStencil";
+	}
+
+	static void parseGLCmpFunc(const wchar_t* str, int defaultVal, int& result)
+	{
+		result = defaultVal;
+
+		if(NULL != str)
+		{
+			if(0 == wstrCaseCmp(str, L"never"))
+				result = GL_NEVER;
+
+			else if(0 == wstrCaseCmp(str, L"less"))
+				result = GL_LESS;
+
+			else if(0 == wstrCaseCmp(str, L"equal"))
+				result = GL_EQUAL;
+
+			else if(0 == wstrCaseCmp(str, L"less_equal"))
+				result = GL_LEQUAL;
+
+			else if(0 == wstrCaseCmp(str, L"greater"))
+				result = GL_GREATER;
+
+			else if(0 == wstrCaseCmp(str, L"not_equal"))
+				result = GL_NOTEQUAL;
+
+			else if(0 == wstrCaseCmp(str, L"greater_equal"))
+				result = GL_GEQUAL;
+
+			else if(0 == wstrCaseCmp(str, L"always"))
+				result = GL_ALWAYS;
+		}
+	}
+
+	sal_override bool load(XmlParser& parser, IMaterial& material, Context& context)
+	{
+		DepthStencilProperty* prop = new DepthStencilProperty();
+
+		// depth test
+		prop->depthTestEnable = parser.attributeValueAsBoolIgnoreCase(L"depthTest", true);
+		prop->depthWriteEnable = parser.attributeValueAsBoolIgnoreCase(L"depthWrite", true);
+		parseGLCmpFunc(parser.attributeValueIgnoreCase(L"depthFunc"), GL_LESS, prop->depthFunc);
+
+		// stencil test
+
+		material.addProperty(prop, context.pass);
+
+		return true;
+	}
+};	// DepthStencilLoader
+
 PassLoader::PassLoader()
 {
 	mLoaders.push_back(new StandardLoader);
 	mLoaders.push_back(new TextureLoader(*this));
 	mLoaders.push_back(new ShaderLoader(*this));
+	mLoaders.push_back(new BlendingLoader);
+	mLoaders.push_back(new DepthStencilLoader);
 }
 
 bool PassLoader::load(XmlParser& parser, IMaterial& material, Context& context)

@@ -282,6 +282,8 @@ public:
 	int dfactorSep;
 	int blendEquationSep;
 
+	ColorRGBAf blendColor;
+
 };	// BlendingProperty
 
 // DepthStencilProperty
