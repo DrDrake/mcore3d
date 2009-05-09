@@ -122,9 +122,40 @@ public:
 	//! Set the current path of the running process.
 	static void setCurrentPath(const Path& path);
 
-private:
+protected:
 	string_type mStr;
 };	// Path
+
+/*!	To iterator the Path.
+	Example:
+	\code
+	Path path(L"a/b/c");
+	PathIterator i(path);
+
+	while(true) {
+		std::wstring s = i.next();
+		cout << s << ", ";
+		if(s.empty())
+			break;
+	}
+	// Result:
+	// a, a/b, a/b/c
+	\endcode
+ */
+class MCD_CORE_API PathIterator
+{
+public:
+	explicit PathIterator(const Path& path);
+
+	Path getPath() const;
+
+	//! Advance the iterator, and return it's previous result.
+	Path::string_type next();
+
+protected:
+	Path::string_type mStr;
+	size_t currentIndex;
+};	// PathIterator
 
 }	// namespace MCD
 

@@ -266,4 +266,22 @@ void Path::setCurrentPath(const Path& path)
 	}
 }
 
+// We will first normalize the incomming path and then append an extra "/"
+// so that it work naturally with the next() function.
+PathIterator::PathIterator(const Path& path)
+	: mStr(Path(path).normalize().getString() + L"/"), currentIndex(0)
+{
+	// Handle the case when there is a root directory
+	if(mStr[0] == L'/')
+		++currentIndex;
+}
+
+Path::string_type PathIterator::next()
+{
+	currentIndex = mStr.find(L"/", currentIndex);
+	if(currentIndex == Path::string_type::npos)
+		return Path::string_type();
+	return mStr.substr(0, currentIndex++);
+}
+
 }	// namespace MCD

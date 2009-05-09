@@ -207,3 +207,28 @@ TEST(CurrentPath_PathTest)
 	// Try to set an non-existing path
 	CHECK_THROW(Path::setCurrentPath(L"./_not_existing"), std::runtime_error);
 }
+
+TEST(Iterator_PathIteratorTest)
+{
+	const wchar_t* data[][2] = {
+		{L"a/b/c",	L"a, a/b, a/b/c, "},	// Begin without slash
+		{L"/a/b/c",	L"/a, /a/b, /a/b/c, "},	// Begin with slash
+		{L"/a/b/c/",L"/a, /a/b, /a/b/c, "},	// End with slash
+	};
+
+	for(size_t i=0; i<sizeof(data)/sizeof(const wchar_t*)/2; ++i) {
+		Path path(data[i][0]);
+		PathIterator itr(path);
+
+		std::wstring result;
+		while(true) {
+			std::wstring s = itr.next();
+			if(s.empty())
+				break;
+			result += s;
+			result += L", ";
+		}
+
+		CHECK_EQUAL(data[i][1], result);
+	}
+}
