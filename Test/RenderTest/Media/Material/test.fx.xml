@@ -73,9 +73,9 @@
 		dstFactor="one"
 	/>
 	<depthStencil
-		depthTest="false"
+		depthTest="true"
 		depthWrite="false"
-		depthFunc="less"
+		depthFunc="lessEqual"
 	/>
 </pass>
 
