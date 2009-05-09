@@ -471,40 +471,40 @@ public:
 			else if(0 == wstrCaseCmp(str, L"one"))
 				result = GL_ONE;
 
-			else if(0 == wstrCaseCmp(str, L"src_color"))
+			else if(0 == wstrCaseCmp(str, L"srcColor"))
 				result = GL_SRC_COLOR;
 
-			else if(0 == wstrCaseCmp(str, L"one_minus_src_color"))
+			else if(0 == wstrCaseCmp(str, L"oneMinusSrcColor"))
 				result = GL_ONE_MINUS_SRC_COLOR;
 
-			else if(0 == wstrCaseCmp(str, L"dst_color"))
+			else if(0 == wstrCaseCmp(str, L"dstColor"))
 				result = GL_DST_COLOR;
 
-			else if(0 == wstrCaseCmp(str, L"one_minus_dst_color"))
+			else if(0 == wstrCaseCmp(str, L"oneMinusDstColor"))
 				result = GL_ONE_MINUS_DST_COLOR;
 
-			else if(0 == wstrCaseCmp(str, L"src_alpha"))
+			else if(0 == wstrCaseCmp(str, L"srcAlpha"))
 				result = GL_SRC_ALPHA;
 
-			else if(0 == wstrCaseCmp(str, L"one_minus_src_alpha"))
+			else if(0 == wstrCaseCmp(str, L"oneMinusSrcAlpha"))
 				result = GL_ONE_MINUS_SRC_ALPHA;
 
-			else if(0 == wstrCaseCmp(str, L"dst_alpha"))
+			else if(0 == wstrCaseCmp(str, L"dstAlpha"))
 				result = GL_DST_ALPHA;
 
-			else if(0 == wstrCaseCmp(str, L"one_minus_dst_alpha"))
+			else if(0 == wstrCaseCmp(str, L"oneMinusDstAlpha"))
 				result = GL_ONE_MINUS_DST_ALPHA;
 
-			else if(0 == wstrCaseCmp(str, L"constant_color"))
+			else if(0 == wstrCaseCmp(str, L"constantColor"))
 				result = GL_CONSTANT_COLOR;
 
-			else if(0 == wstrCaseCmp(str, L"one_minus_constant_color"))
+			else if(0 == wstrCaseCmp(str, L"oneMinusConstantColor"))
 				result = GL_ONE_MINUS_CONSTANT_COLOR;
 
-			else if(0 == wstrCaseCmp(str, L"constant_alpha"))
+			else if(0 == wstrCaseCmp(str, L"constantAlpha"))
 				result = GL_CONSTANT_ALPHA;
 
-			else if(0 == wstrCaseCmp(str, L"one_minus_constant_alpha"))
+			else if(0 == wstrCaseCmp(str, L"oneMinusConstantAlpha"))
 				result = GL_ONE_MINUS_CONSTANT_ALPHA;
 		}
 	}
@@ -524,7 +524,7 @@ public:
 		parseGLBlendFactor(parser.attributeValueIgnoreCase(L"dstFactorSep"), GL_ZERO, prop->dfactorSep);
 
 		// blendcolor
-		parseColor4f(parser.attributeValueIgnoreCase(L"blendColor"), prop->blendColor);
+		parseColor4f(parser.attributeValueIgnoreCase(L"blendConstant"), prop->blendColor);
 
 		material.addProperty(prop, context.pass);
 
@@ -554,16 +554,16 @@ public:
 			else if(0 == wstrCaseCmp(str, L"equal"))
 				result = GL_EQUAL;
 
-			else if(0 == wstrCaseCmp(str, L"less_equal"))
+			else if(0 == wstrCaseCmp(str, L"lessEqual"))
 				result = GL_LEQUAL;
 
 			else if(0 == wstrCaseCmp(str, L"greater"))
 				result = GL_GREATER;
 
-			else if(0 == wstrCaseCmp(str, L"not_equal"))
+			else if(0 == wstrCaseCmp(str, L"notEqual"))
 				result = GL_NOTEQUAL;
 
-			else if(0 == wstrCaseCmp(str, L"greater_equal"))
+			else if(0 == wstrCaseCmp(str, L"greaterEqual"))
 				result = GL_GEQUAL;
 
 			else if(0 == wstrCaseCmp(str, L"always"))
