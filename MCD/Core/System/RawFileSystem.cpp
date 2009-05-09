@@ -47,6 +47,8 @@ void toNativePath(Path& path)
 	for(size_t i=0; i< str.size(); ++i)
 		if(str[i] == L'/')
 			str[i] = L'\\';
+#else
+	// No need to do anything for Linux systems
 #endif
 }
 
@@ -183,18 +185,43 @@ std::time_t RawFileSystem::getLastWriteTime(const Path& path) const
 	return pathStat.st_mtime;
 }
 
-void RawFileSystem::makeDir(const Path& path) const
+bool RawFileSystem::makeDir(const Path& path) const
 {
 #ifdef MCD_VC
 	Path absolutePath = toAbsolutePath(path);
 	toNativePath(absolutePath);
-	if(::SHCreateDirectoryEx(nullptr, absolutePath.getString().c_str(), nullptr) != 0)
-		throwError("Error making directory ", absolutePath.getString());
+	return ::SHCreateDirectoryEx(nullptr, absolutePath.getString().c_str(), nullptr) == 0;
 #else
+	struct LocalClass {
+		static bool mkdir(const std::wstring& path) {
+			std::string narrowStr;
+			MCD_VERIFY(wStrToStr(path.c_str(), narrowStr));
+			// The mkdir mode is set the 777, see http://docs.sun.com/app/docs/doc/816-5167/chmod-2?a=view
+			return ::mkdir(narrowStr.c_str(), S_IRWXU | S_IRWXG | S_IRWXO) == 0;
+		}
+	};	// LocalClass
+
+	bool success = false;
+	PathIterator itr(path);
+	while(true) {
+		std::wstring s = itr.next();
+		if(s.empty())
+			break;
+		if(isExists(s)) {
+			if(isDirectory(s))	// Directory already exist
+				continue;
+			else
+				break;
+		}
+		if(!LocalClass::mkdir(s))
+			break;
+		success = true;
+	}
+	return success;
 #endif
 }
 
-void RawFileSystem::remove(const Path& path) const
+bool RawFileSystem::remove(const Path& path) const
 {
 #ifdef MCD_VC
 	Path absolutePath = toAbsolutePath(path);
@@ -212,9 +239,12 @@ void RawFileSystem::remove(const Path& path) const
 
 	int ret = ::SHFileOperationW(&fileOp);
 	MCD_STACKFREE(buf);
-	if(ret != 0)
-		throwError("Error removing ", absolutePath.getString(), "");
+	return ret == 0;
 #else
+	// TODO: Not finish yet
+	std::string narrowStr;
+	MCD_VERIFY(wStrToStr(path.getString().c_str(), narrowStr));
+	return ::rmdir(narrowStr.c_str()) == 0;
 #endif
 }
 

@@ -41,10 +41,10 @@ public:
 	virtual std::time_t getLastWriteTime(const Path& path) const = 0;
 
 	//! Intermediate directories will be created as well.
-	virtual void makeDir(const Path& path) const = 0;
+	virtual bool makeDir(const Path& path) const = 0;
 
 	//! Remove a single file or a directory recursively.
-	virtual void remove(const Path& path) const = 0;
+	virtual bool remove(const Path& path) const = 0;
 
 	//!	Returns a std::istream for reading, null if fail.
 	virtual std::auto_ptr<std::istream> openRead(const Path& path) const = 0;

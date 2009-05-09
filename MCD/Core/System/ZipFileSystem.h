@@ -47,10 +47,10 @@ public:
 	sal_override std::time_t getLastWriteTime(const Path& path) const;
 
 	//! Not supported.
-	sal_override void makeDir(const Path& path) const;
+	sal_override bool makeDir(const Path& path) const;
 
 	//! Not supported.
-	sal_override void remove(const Path& path) const;
+	sal_override bool remove(const Path& path) const;
 
 	/*!	Returns a std::istream for reading, null if fail.
 		The stream will perform a full unzip operation on demand,

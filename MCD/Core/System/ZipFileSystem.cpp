@@ -255,12 +255,12 @@ std::time_t ZipFileSystem::getLastWriteTime(const Path& path) const
 	return f ? f->mtime : 0;
 }
 
-void ZipFileSystem::makeDir(const Path& path) const {
-	MCD_ASSERT(false && "Not supported");
+bool ZipFileSystem::makeDir(const Path& path) const {
+	return false;
 }
 
-void ZipFileSystem::remove(const Path& path) const {
-	MCD_ASSERT(false && "Not supported");
+bool ZipFileSystem::remove(const Path& path) const {
+	return false;
 }
 
 std::auto_ptr<std::istream> ZipFileSystem::openRead(const Path& path) const

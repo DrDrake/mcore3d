@@ -43,10 +43,10 @@ public:
 
 	sal_override std::time_t getLastWriteTime(const Path& path) const;
 
-	sal_override void makeDir(const Path& path) const;
+	sal_override bool makeDir(const Path& path) const;
 
 	//! How should it behave? remove the first or all? For simplicity, I choose to just remove the first.
-	sal_override void remove(const Path& path) const;
+	sal_override bool remove(const Path& path) const;
 
 	sal_override std::auto_ptr<std::istream> openRead(const Path& path) const;
 

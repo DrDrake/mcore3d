@@ -108,20 +108,21 @@ std::time_t FileSystemCollection::getLastWriteTime(const Path& path) const
 	return fileSystem->getLastWriteTime(path);
 }
 
-void FileSystemCollection::makeDir(const Path& path) const
+bool FileSystemCollection::makeDir(const Path& path) const
 {
 	// TODO: Implement
-	MCD_ASSERT(false && "Not implement yet");
+	return false;
 }
 
-void FileSystemCollection::remove(const Path& path) const
+bool FileSystemCollection::remove(const Path& path) const
 {
 	MCD_ASSUME(mImpl);
 	IFileSystem* fileSystem = mImpl->findFileSystemForPath(path);
 	if(!fileSystem)
-		return;
+		return false;
 
-	fileSystem->remove(path);
+	// TODO: Search for more file system until one of the remove() return true
+	return fileSystem->remove(path);
 }
 
 std::auto_ptr<std::istream> FileSystemCollection::openRead(const Path& path) const
