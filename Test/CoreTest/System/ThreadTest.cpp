@@ -1,5 +1,6 @@
 #include "Pch.h"
 #include "../../../MCD/Core/System/Thread.h"
+#include <memory>	// For auto_ptr
 
 using namespace MCD;
 

@@ -4,6 +4,8 @@
 #include "../../../MCD/Core/System/Macros.h"
 #include "../../../MCD/Core/System/StrUtility.h"
 #include "../../../MCD/Core/System/Utility.h"
+#include <memory>	// For auto_ptr
+#include <stdlib.h>	// For rand
 #include <stdexcept>
 #include <vector>
 

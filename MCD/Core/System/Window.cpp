@@ -83,7 +83,8 @@ Window::Window()
 
 Window::~Window()
 {
-	destroy();
+	if(mImpl)	// mImpl may be null if create() is never called
+		destroy();
 	delete mImpl;
 }
 

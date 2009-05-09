@@ -126,6 +126,7 @@ static const byte_t cUtf8Limits[] = {
 	the destination buffer is large enough to store the data.
 
 	\ref Modify from 7zip LZMA sdk
+	\ref See http://www.docin.com/p-5500235.html for utf8 to UCS4
  */
 static bool utf8ToUtf16(wchar_t* dest, size_t& destLen, const char* src, size_t maxSrcLen)
 {

@@ -1,5 +1,6 @@
 #include "Pch.h"
 #include "../../../MCD/Core/System/StrUtility.h"
+#include <string.h>	// For strlen
 
 using namespace MCD;
 
@@ -12,11 +13,7 @@ TEST(wStrToStrTest)
 
 	const S data[] = {
 		{"",			L""},
-#ifdef MCD_VC
-		{"一二三 abc",	L"一二三 abc"},
 		{"ABC",			L"ABC"},
-		{"龍文達",		L"龍文達"},
-#endif
 	};
 
 	::setlocale(LC_ALL, "");
@@ -51,9 +48,11 @@ TEST(Utf8Test)
 
 	// TODO: Take care of endian issue
 	const byte_t cMyNameUtf16[] = { 0x8D, 0x9F, 0x87, 0x65, 0x54, 0x90, 0, 0 };
+	const int32_t cMyNameUcs4[] = { 40845, 25991, 36948, 0 };
 
+	const wchar_t* p = sizeof(wchar_t) == 2 ? (const wchar_t*)cMyNameUtf16 : (const wchar_t*)cMyNameUcs4;
 	std::string aExpected((const char*)cMyNameUtf8);
-	std::wstring wExpected((const wchar_t*)cMyNameUtf16);
+	std::wstring wExpected(p);
 
 	std::string as;
 	std::wstring ws;

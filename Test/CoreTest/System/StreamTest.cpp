@@ -1,8 +1,11 @@
 #include "Pch.h"
 #include "../../../MCD/Core/System/Stream.h"
 #include <fstream>
-#include <sstream>
 #include <iterator>
+#include <memory>	// For auto_ptr
+#include <memory.h>	// For memcpy
+#include <sstream>
+#include <stdlib.h>	// For rand
 
 using namespace MCD;
 
