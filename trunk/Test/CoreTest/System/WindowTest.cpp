@@ -68,7 +68,6 @@ TEST(Multiple_WindowTest)
 
 		if(!w1Active && !w2Active)
 			break;
-
 	}
 
 	CHECK(true);

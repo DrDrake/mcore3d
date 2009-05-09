@@ -2,6 +2,7 @@
 #include "Common.h"
 #include "../../MCD/Render/Frustum.h"
 #include "../../3Party/glew/glew.h"
+#include <stdlib.h> // For rand
 
 using namespace MCD;
 

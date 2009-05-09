@@ -1,4 +1,6 @@
 #include "Checks.h"
+#include <stdlib.h> // For wcstombs
+#include <limits.h> // For INT_MAX
 
 namespace CppTestHarness {
 

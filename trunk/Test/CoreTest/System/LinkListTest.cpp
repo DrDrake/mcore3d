@@ -1,8 +1,9 @@
 #include "Pch.h"
 #include "../../../MCD/Core/System/LinkList.h"
 #include "../../../MCD/Core/System/Macros.h"
-#include <vector>
+#include <memory>   // For auto_ptr
 #include <stdexcept>
+#include <vector>
 
 using namespace MCD;
 

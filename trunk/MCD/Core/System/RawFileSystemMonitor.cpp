@@ -5,9 +5,9 @@
 #include "StrUtility.h"
 #include <list>
 
-#ifdef MCD_VC	// Currently only support windows
-
 namespace MCD {
+
+#ifdef MCD_VC	// Currently only support windows
 
 class RawFileSystemMonitor::Impl
 {
@@ -130,6 +130,22 @@ std::wstring RawFileSystemMonitor::getChangedFile() const
 	return mImpl->getChangedFile();
 }
 
-}	// namespace MCD
+
+#else
+
+RawFileSystemMonitor::RawFileSystemMonitor(const wchar_t* path, bool recursive)
+{
+}
+
+RawFileSystemMonitor::~RawFileSystemMonitor()
+{
+}
+
+std::wstring RawFileSystemMonitor::getChangedFile() const
+{
+    return L"";
+}
 
 #endif	// MCD_VC
+
+}	// namespace MCD
