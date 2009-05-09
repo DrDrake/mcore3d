@@ -248,6 +248,7 @@ void LineWidthProperty::end() const
 BlendingProperty::BlendingProperty()
 	: blendEnable(false), sfactor(GL_ONE), dfactor(GL_ONE), blendEquation(GL_FUNC_ADD)
 	, blendEnableSep(false), sfactorSep(GL_ONE), dfactorSep(GL_ONE), blendEquationSep(GL_FUNC_ADD)
+	, blendColor(1.0f, 1.0f, 1.0f, 1.0f)
 {
 }
 
@@ -256,6 +257,8 @@ void BlendingProperty::begin() const
 	if(blendEnable)
 	{
 		glEnable(GL_BLEND);
+
+		glBlendColor(blendColor.r, blendColor.g, blendColor.b, blendColor.a);
 
 		if(blendEnableSep)
 		{
