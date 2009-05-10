@@ -35,6 +35,7 @@ public:
 
 	sal_override bool makeDir(const Path& path) const;
 
+	//! For POSIX system recursive remove is not implemented yet.
 	sal_override bool remove(const Path& path) const;
 
 	sal_override std::auto_ptr<std::istream> openRead(const Path& path) const;

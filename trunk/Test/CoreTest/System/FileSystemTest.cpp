@@ -19,12 +19,17 @@ TEST(RawFileSystemTest)
 	CHECK_THROW(fs.getSize(L"./"), std::runtime_error);
 
 	// Making directory
-	fs.makeDir(L"a/b/c");	// Intermediate directories will be created as well
-	CHECK_THROW(fs.makeDir(L"a"), std::runtime_error);
+	CHECK(fs.makeDir(L"a/b/c"));	// Intermediate directories will be created as well
+	CHECK(!fs.makeDir(L"a"));
 
 	// Remove directory
+#if !MCD_WIN32
+	// Recursive remove not implemented yet for POSIX system
+	fs.remove(L"a/b/c");
+	fs.remove(L"a/b");
+#endif
 	fs.remove(L"a");
-	CHECK_THROW(fs.remove(L"a"), std::runtime_error);
+	CHECK(!fs.remove(L"a"));
 
 	// Open file
 	{	std::auto_ptr<std::ostream> os = fs.openWrite(L"ha.txt");
@@ -86,7 +91,7 @@ TEST(ZipFileSystemTest)
 	CHECK(fs.isDirectory(L"./welcome"));
 	CHECK_THROW(fs.isDirectory(L"./__not_exist__"), std::runtime_error);
 
-	CHECK_EQUAL(112, fs.getSize(L"Pch.h"));
+	CHECK_EQUAL(112u, fs.getSize(L"Pch.h"));
 
 	// Open file
 	{	std::auto_ptr<std::istream> is = fs.openRead(L"welcome/hello.txt");

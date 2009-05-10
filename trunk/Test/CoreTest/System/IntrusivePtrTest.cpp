@@ -129,11 +129,11 @@ TEST(Basic_IntrusivePtrTest)
 
 		ObjectPtr b(a);
 		CHECK(a == b);
-		CHECK(a != b == false);
+		CHECK((a != b) == false);
 
 		ObjectPtr c(new Object);
 		CHECK(a != c);
-		CHECK(a == c == false);
+		CHECK((a == c) == false);
 
 		a = nullptr;
 		CHECK(!a);
