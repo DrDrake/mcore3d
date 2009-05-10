@@ -1,0 +1,372 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configurationDescriptor version="51">
+  <logicalFolder name="root" displayName="root" projectFiles="true">
+    <logicalFolder name="HeaderFiles"
+                   displayName="Header Files"
+                   projectFiles="true">
+      <logicalFolder name="CoreTest" displayName="CoreTest" projectFiles="true">
+        <logicalFolder name="Math" displayName="Math" projectFiles="true">
+          <itemPath>Math/Pch.h</itemPath>
+        </logicalFolder>
+        <logicalFolder name="System" displayName="System" projectFiles="true">
+          <itemPath>System/Pch.h</itemPath>
+        </logicalFolder>
+        <itemPath>Pch.h</itemPath>
+      </logicalFolder>
+    </logicalFolder>
+    <logicalFolder name="ResourceFiles"
+                   displayName="Resource Files"
+                   projectFiles="true">
+    </logicalFolder>
+    <logicalFolder name="SourceFiles"
+                   displayName="Source Files"
+                   projectFiles="true">
+      <logicalFolder name="CoreTest" displayName="CoreTest" projectFiles="true">
+        <logicalFolder name="Entity" displayName="Entity" projectFiles="true">
+          <itemPath>Entity/ComponentTest.cpp</itemPath>
+          <itemPath>Entity/EntityTest.cpp</itemPath>
+        </logicalFolder>
+        <logicalFolder name="Math" displayName="Math" projectFiles="true">
+          <itemPath>Math/IntersectionTest.cpp</itemPath>
+          <itemPath>Math/Mat33Test.cpp</itemPath>
+          <itemPath>Math/Mat44Test.cpp</itemPath>
+          <itemPath>Math/QuaternionTest.cpp</itemPath>
+          <itemPath>Math/TupleTest.cpp</itemPath>
+          <itemPath>Math/Vec2Test.cpp</itemPath>
+          <itemPath>Math/Vec3Test.cpp</itemPath>
+        </logicalFolder>
+        <logicalFolder name="System" displayName="System" projectFiles="true">
+          <itemPath>System/CondVarTest.cpp</itemPath>
+          <itemPath>System/FileSystemTest.cpp</itemPath>
+          <itemPath>System/IntrusivePtrTest.cpp</itemPath>
+          <itemPath>System/LinkListTest.cpp</itemPath>
+          <itemPath>System/LogTest.cpp</itemPath>
+          <itemPath>System/MapTest.cpp</itemPath>
+          <itemPath>System/PathTest.cpp</itemPath>
+          <itemPath>System/PtrVectorTest.cpp</itemPath>
+          <itemPath>System/ResourceLoaderTest.cpp</itemPath>
+          <itemPath>System/ResourceManagerTest.cpp</itemPath>
+          <itemPath>System/SharedPtrTest.cpp</itemPath>
+          <itemPath>System/StreamTest.cpp</itemPath>
+          <itemPath>System/StrUtilityTest.cpp</itemPath>
+          <itemPath>System/TaskPoolTest.cpp</itemPath>
+          <itemPath>System/ThreadPoolTest.cpp</itemPath>
+          <itemPath>System/ThreadTest.cpp</itemPath>
+          <itemPath>System/TimerTest.cpp</itemPath>
+          <itemPath>System/UserDataTest.cpp</itemPath>
+          <itemPath>System/UtilityTest.cpp</itemPath>
+          <itemPath>System/WeakPtrTest.cpp</itemPath>
+          <itemPath>System/WindowTest.cpp</itemPath>
+          <itemPath>System/XmlParserTest.cpp</itemPath>
+        </logicalFolder>
+        <itemPath>Main.cpp</itemPath>
+      </logicalFolder>
+    </logicalFolder>
+    <logicalFolder name="ExternalFiles"
+                   displayName="Important Files"
+                   projectFiles="false">
+      <itemPath>Makefile</itemPath>
+    </logicalFolder>
+  </logicalFolder>
+  <projectmakefile>Makefile</projectmakefile>
+  <confs>
+    <conf name="Debug" type="1">
+      <toolsSet>
+        <developmentServer>localhost</developmentServer>
+        <compilerSet>GNU|GNU</compilerSet>
+        <platform>2</platform>
+      </toolsSet>
+      <compileType>
+        <ccCompilerTool>
+          <warningLevel>2</warningLevel>
+        </ccCompilerTool>
+        <linkerTool>
+          <output>Debug/${PLATFORM}/coretest</output>
+          <linkerLibItems>
+            <linkerLibProjectItem>
+              <makeArtifact PL="../../3Party/CppTestHarness"
+                            CT="3"
+                            CN="Debug"
+                            AC="true"
+                            BL="true"
+                            WD="../../3Party/CppTestHarness"
+                            BC="${MAKE}  -f Makefile CONF=Debug"
+                            CC="${MAKE}  -f Makefile CONF=Debug clean"
+                            OP="../../Lib/libcpptestharnessd.a">
+              </makeArtifact>
+            </linkerLibProjectItem>
+            <linkerLibProjectItem>
+              <makeArtifact PL="../../MCD/Core"
+                            CT="2"
+                            CN="Debug"
+                            AC="true"
+                            BL="true"
+                            WD="../../MCD/Core"
+                            BC="${MAKE}  -f Makefile CONF=Debug"
+                            CC="${MAKE}  -f Makefile CONF=Debug clean"
+                            OP="Debug/GNU-Linux-x86/libCore.so">
+              </makeArtifact>
+            </linkerLibProjectItem>
+          </linkerLibItems>
+        </linkerTool>
+      </compileType>
+      <item path="Entity/ComponentTest.cpp">
+        <itemTool>1</itemTool>
+      </item>
+      <item path="Entity/EntityTest.cpp">
+        <itemTool>1</itemTool>
+      </item>
+      <item path="Main.cpp">
+        <itemTool>1</itemTool>
+      </item>
+      <item path="Math/IntersectionTest.cpp">
+        <itemTool>1</itemTool>
+      </item>
+      <item path="Math/Mat33Test.cpp">
+        <itemTool>1</itemTool>
+      </item>
+      <item path="Math/Mat44Test.cpp">
+        <itemTool>1</itemTool>
+      </item>
+      <item path="Math/Pch.h">
+        <itemTool>3</itemTool>
+      </item>
+      <item path="Math/QuaternionTest.cpp">
+        <itemTool>1</itemTool>
+      </item>
+      <item path="Math/TupleTest.cpp">
+        <itemTool>1</itemTool>
+      </item>
+      <item path="Math/Vec2Test.cpp">
+        <itemTool>1</itemTool>
+      </item>
+      <item path="Math/Vec3Test.cpp">
+        <itemTool>1</itemTool>
+      </item>
+      <item path="Pch.h">
+        <itemTool>3</itemTool>
+      </item>
+      <item path="System/CondVarTest.cpp">
+        <itemTool>1</itemTool>
+      </item>
+      <item path="System/FileSystemTest.cpp">
+        <itemTool>1</itemTool>
+      </item>
+      <item path="System/IntrusivePtrTest.cpp">
+        <itemTool>1</itemTool>
+      </item>
+      <item path="System/LinkListTest.cpp">
+        <itemTool>1</itemTool>
+      </item>
+      <item path="System/LogTest.cpp">
+        <itemTool>1</itemTool>
+      </item>
+      <item path="System/MapTest.cpp">
+        <itemTool>1</itemTool>
+      </item>
+      <item path="System/PathTest.cpp">
+        <itemTool>1</itemTool>
+      </item>
+      <item path="System/Pch.h">
+        <itemTool>3</itemTool>
+      </item>
+      <item path="System/PtrVectorTest.cpp">
+        <itemTool>1</itemTool>
+      </item>
+      <item path="System/ResourceLoaderTest.cpp">
+        <itemTool>1</itemTool>
+      </item>
+      <item path="System/ResourceManagerTest.cpp">
+        <itemTool>1</itemTool>
+      </item>
+      <item path="System/SharedPtrTest.cpp">
+        <itemTool>1</itemTool>
+      </item>
+      <item path="System/StrUtilityTest.cpp">
+        <itemTool>1</itemTool>
+      </item>
+      <item path="System/StreamTest.cpp">
+        <itemTool>1</itemTool>
+      </item>
+      <item path="System/TaskPoolTest.cpp">
+        <itemTool>1</itemTool>
+      </item>
+      <item path="System/ThreadPoolTest.cpp">
+        <itemTool>1</itemTool>
+      </item>
+      <item path="System/ThreadTest.cpp">
+        <itemTool>1</itemTool>
+      </item>
+      <item path="System/TimerTest.cpp">
+        <itemTool>1</itemTool>
+      </item>
+      <item path="System/UserDataTest.cpp">
+        <itemTool>1</itemTool>
+      </item>
+      <item path="System/UtilityTest.cpp">
+        <itemTool>1</itemTool>
+      </item>
+      <item path="System/WeakPtrTest.cpp">
+        <itemTool>1</itemTool>
+      </item>
+      <item path="System/WindowTest.cpp">
+        <itemTool>1</itemTool>
+      </item>
+      <item path="System/XmlParserTest.cpp">
+        <itemTool>1</itemTool>
+      </item>
+    </conf>
+    <conf name="Release" type="1">
+      <toolsSet>
+        <developmentServer>localhost</developmentServer>
+        <compilerSet>GNU|GNU</compilerSet>
+        <platform>2</platform>
+      </toolsSet>
+      <compileType>
+        <cCompilerTool>
+          <developmentMode>5</developmentMode>
+        </cCompilerTool>
+        <ccCompilerTool>
+          <developmentMode>5</developmentMode>
+        </ccCompilerTool>
+        <fortranCompilerTool>
+          <developmentMode>5</developmentMode>
+        </fortranCompilerTool>
+        <linkerTool>
+          <output>Release/${PLATFORM}/coretest</output>
+          <linkerLibItems>
+            <linkerLibProjectItem>
+              <makeArtifact PL="../../3Party/CppTestHarness"
+                            CT="2"
+                            CN="Release"
+                            AC="false"
+                            BL="true"
+                            WD="../../3Party/CppTestHarness"
+                            BC="${MAKE}  -f Makefile CONF=Release"
+                            CC="${MAKE}  -f Makefile CONF=Release clean"
+                            OP="Release/GNU-Linux-x86/libCppTestHarness.so">
+              </makeArtifact>
+            </linkerLibProjectItem>
+            <linkerLibProjectItem>
+              <makeArtifact PL="../../MCD/Core"
+                            CT="2"
+                            CN="Release"
+                            AC="false"
+                            BL="true"
+                            WD="../../MCD/Core"
+                            BC="${MAKE}  -f Makefile CONF=Release"
+                            CC="${MAKE}  -f Makefile CONF=Release clean"
+                            OP="Release/GNU-Linux-x86/libCore.so">
+              </makeArtifact>
+            </linkerLibProjectItem>
+          </linkerLibItems>
+        </linkerTool>
+      </compileType>
+      <item path="Entity/ComponentTest.cpp">
+        <itemTool>1</itemTool>
+      </item>
+      <item path="Entity/EntityTest.cpp">
+        <itemTool>1</itemTool>
+      </item>
+      <item path="Main.cpp">
+        <itemTool>1</itemTool>
+      </item>
+      <item path="Math/IntersectionTest.cpp">
+        <itemTool>1</itemTool>
+      </item>
+      <item path="Math/Mat33Test.cpp">
+        <itemTool>1</itemTool>
+      </item>
+      <item path="Math/Mat44Test.cpp">
+        <itemTool>1</itemTool>
+      </item>
+      <item path="Math/Pch.h">
+        <itemTool>3</itemTool>
+      </item>
+      <item path="Math/QuaternionTest.cpp">
+        <itemTool>1</itemTool>
+      </item>
+      <item path="Math/TupleTest.cpp">
+        <itemTool>1</itemTool>
+      </item>
+      <item path="Math/Vec2Test.cpp">
+        <itemTool>1</itemTool>
+      </item>
+      <item path="Math/Vec3Test.cpp">
+        <itemTool>1</itemTool>
+      </item>
+      <item path="Pch.h">
+        <itemTool>3</itemTool>
+      </item>
+      <item path="System/CondVarTest.cpp">
+        <itemTool>1</itemTool>
+      </item>
+      <item path="System/FileSystemTest.cpp">
+        <itemTool>1</itemTool>
+      </item>
+      <item path="System/IntrusivePtrTest.cpp">
+        <itemTool>1</itemTool>
+      </item>
+      <item path="System/LinkListTest.cpp">
+        <itemTool>1</itemTool>
+      </item>
+      <item path="System/LogTest.cpp">
+        <itemTool>1</itemTool>
+      </item>
+      <item path="System/MapTest.cpp">
+        <itemTool>1</itemTool>
+      </item>
+      <item path="System/PathTest.cpp">
+        <itemTool>1</itemTool>
+      </item>
+      <item path="System/Pch.h">
+        <itemTool>3</itemTool>
+      </item>
+      <item path="System/PtrVectorTest.cpp">
+        <itemTool>1</itemTool>
+      </item>
+      <item path="System/ResourceLoaderTest.cpp">
+        <itemTool>1</itemTool>
+      </item>
+      <item path="System/ResourceManagerTest.cpp">
+        <itemTool>1</itemTool>
+      </item>
+      <item path="System/SharedPtrTest.cpp">
+        <itemTool>1</itemTool>
+      </item>
+      <item path="System/StrUtilityTest.cpp">
+        <itemTool>1</itemTool>
+      </item>
+      <item path="System/StreamTest.cpp">
+        <itemTool>1</itemTool>
+      </item>
+      <item path="System/TaskPoolTest.cpp">
+        <itemTool>1</itemTool>
+      </item>
+      <item path="System/ThreadPoolTest.cpp">
+        <itemTool>1</itemTool>
+      </item>
+      <item path="System/ThreadTest.cpp">
+        <itemTool>1</itemTool>
+      </item>
+      <item path="System/TimerTest.cpp">
+        <itemTool>1</itemTool>
+      </item>
+      <item path="System/UserDataTest.cpp">
+        <itemTool>1</itemTool>
+      </item>
+      <item path="System/UtilityTest.cpp">
+        <itemTool>1</itemTool>
+      </item>
+      <item path="System/WeakPtrTest.cpp">
+        <itemTool>1</itemTool>
+      </item>
+      <item path="System/WindowTest.cpp">
+        <itemTool>1</itemTool>
+      </item>
+      <item path="System/XmlParserTest.cpp">
+        <itemTool>1</itemTool>
+      </item>
+    </conf>
+  </confs>
+</configurationDescriptor>
