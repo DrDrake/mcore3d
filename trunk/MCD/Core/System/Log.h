@@ -43,7 +43,7 @@ public:
 #ifdef MCD_VC
 	static void format(Level level, sal_format_guard const wchar_t* fmt, ...);
 #elif __GNUC__ >= 4
-	static void format(Level level, const wchar_t* fmt, ...) __attribute__((format(wprintf, 1, 2)));
+	static void format(Level level, const wchar_t* fmt, ...) /*__attribute__((format(wprintf, 1, 2)))*/;
 #else
 	static void format(Level level, const wchar_t* fmt, ...);
 #endif

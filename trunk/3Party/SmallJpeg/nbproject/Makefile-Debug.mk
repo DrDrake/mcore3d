@@ -27,17 +27,21 @@ include Makefile
 OBJECTDIR=build/Debug/${PLATFORM}
 
 # Object Files
-OBJECTFILES=
+OBJECTFILES= \
+	${OBJECTDIR}/jidctfst.o \
+	${OBJECTDIR}/jpegdecoder.o \
+	${OBJECTDIR}/idct.o \
+	${OBJECTDIR}/H2v2.o
 
 # C Compiler Flags
 CFLAGS=
 
 # CC Compiler Flags
-CCFLAGS=
-CXXFLAGS=
+CCFLAGS=-msse2
+CXXFLAGS=-msse2
 
 # Fortran Compiler Flags
-FFLAGS=
+FFLAGS=-msse2
 
 # Link Libraries and Options
 LDLIBSOPTIONS=
@@ -48,7 +52,27 @@ LDLIBSOPTIONS=
 
 Debug/${PLATFORM}/libSmallJpeg.so: ${OBJECTFILES}
 	${MKDIR} -p Debug/${PLATFORM}
-	${LINK.c} -shared -o Debug/${PLATFORM}/libSmallJpeg.so -fPIC ${OBJECTFILES} ${LDLIBSOPTIONS} 
+	${LINK.cc} -shared -o Debug/${PLATFORM}/libSmallJpeg.so -fPIC ${OBJECTFILES} ${LDLIBSOPTIONS} 
+
+${OBJECTDIR}/jidctfst.o: jidctfst.cpp 
+	${MKDIR} -p ${OBJECTDIR}
+	${RM} $@.d
+	$(COMPILE.cc) -g -fPIC  -MMD -MP -MF $@.d -o ${OBJECTDIR}/jidctfst.o jidctfst.cpp
+
+${OBJECTDIR}/jpegdecoder.o: jpegdecoder.cpp 
+	${MKDIR} -p ${OBJECTDIR}
+	${RM} $@.d
+	$(COMPILE.cc) -g -fPIC  -MMD -MP -MF $@.d -o ${OBJECTDIR}/jpegdecoder.o jpegdecoder.cpp
+
+${OBJECTDIR}/idct.o: idct.cpp 
+	${MKDIR} -p ${OBJECTDIR}
+	${RM} $@.d
+	$(COMPILE.cc) -g -fPIC  -MMD -MP -MF $@.d -o ${OBJECTDIR}/idct.o idct.cpp
+
+${OBJECTDIR}/H2v2.o: H2v2.cpp 
+	${MKDIR} -p ${OBJECTDIR}
+	${RM} $@.d
+	$(COMPILE.cc) -g -fPIC  -MMD -MP -MF $@.d -o ${OBJECTDIR}/H2v2.o H2v2.cpp
 
 # Subprojects
 .build-subprojects:

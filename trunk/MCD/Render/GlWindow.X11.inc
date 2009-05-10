@@ -21,7 +21,7 @@ public:
 		destroy();
 	}
 
-	sal_override void createNewWindow()
+	sal_override void createWindow(Window::Handle existingWindowHandle=0)
 	{
 		// Open the display at first call
 		openDisplay();
@@ -49,12 +49,15 @@ public:
 		winAttribs.colormap = ::XCreateColormap(gDisplay, RootWindow(gDisplay, visualInfo->screen), visualInfo->visual, AllocNone);
 		unsigned long winmask = CWBorderPixel | CWBitGravity | CWEventMask| CWColormap;
 
-		Super::mWnd = ::XCreateWindow(
-			gDisplay, DefaultRootWindow(gDisplay), 20, 20,
-			mWidth, mHeight, 0,
-			visualInfo->depth, InputOutput,
-			visualInfo->visual, winmask, &winAttribs
-		);
+		if(existingWindowHandle == 0) {
+			Super::mWnd = ::XCreateWindow(
+				gDisplay, DefaultRootWindow(gDisplay), 20, 20,
+				mWidth, mHeight, 0,
+				visualInfo->depth, InputOutput,
+				visualInfo->visual, winmask, &winAttribs
+			);
+		} else
+			Super::mWnd = existingWindowHandle;
 
 		if(!mWnd)
 			throw std::runtime_error("X11 API call 'XCreateWindow' failed");
@@ -90,6 +93,12 @@ public:
 
 		// Create the OpenGl context
 		mGlxContext = ::glXCreateContext(gDisplay, visualInfo, 0, True);
+
+		{	// Initialize glew
+			GLenum err = glewInit();
+			if(err != GLEW_OK)
+				return;	// TODO: Error handling
+		}
 	}
 
 	sal_override void onDestroy()

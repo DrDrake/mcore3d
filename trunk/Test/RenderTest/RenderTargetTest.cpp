@@ -4,6 +4,7 @@
 #include "../../MCD/Render/RenderTarget.h"
 #include "../../MCD/Render/Texture.h"
 #include "../../MCD/Render/TextureRenderBuffer.h"
+#include <memory>	// For auto_ptr
 
 using namespace MCD;
 
