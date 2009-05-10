@@ -1,0 +1,283 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configurationDescriptor version="51">
+  <logicalFolder name="root" displayName="root" projectFiles="true">
+    <logicalFolder name="HeaderFiles"
+                   displayName="Header Files"
+                   projectFiles="true">
+      <itemPath>BasicGlWindow.h</itemPath>
+      <itemPath>ChamferBox.h</itemPath>
+      <itemPath>Common.h</itemPath>
+      <itemPath>DefaultResourceManager.h</itemPath>
+      <itemPath>Pch.h</itemPath>
+    </logicalFolder>
+    <logicalFolder name="ResourceFiles"
+                   displayName="Resource Files"
+                   projectFiles="true">
+    </logicalFolder>
+    <logicalFolder name="SourceFiles"
+                   displayName="Source Files"
+                   projectFiles="true">
+      <itemPath>ASSAOTest.cpp</itemPath>
+      <itemPath>BasicGlWindow.cpp</itemPath>
+      <itemPath>ChamferBox.cpp</itemPath>
+      <itemPath>Common.cpp</itemPath>
+      <itemPath>DefaultResourceManager.cpp</itemPath>
+      <itemPath>FrustumTest.cpp</itemPath>
+      <itemPath>Main.cpp</itemPath>
+      <itemPath>MaterialTest.cpp</itemPath>
+      <itemPath>Max3dsLoaderTest.cpp</itemPath>
+      <itemPath>MeshComponentTest.cpp</itemPath>
+      <itemPath>MeshTest.cpp</itemPath>
+      <itemPath>MultipleRenderTargetTest.cpp</itemPath>
+      <itemPath>PickComponentTest.cpp</itemPath>
+      <itemPath>ProjectiveTextureTest.cpp</itemPath>
+      <itemPath>RenderTargetTest.cpp</itemPath>
+      <itemPath>ShadowMapTest.cpp</itemPath>
+      <itemPath>SSAOTest.cpp</itemPath>
+      <itemPath>TextureLoaderTest.cpp</itemPath>
+    </logicalFolder>
+    <logicalFolder name="ExternalFiles"
+                   displayName="Important Files"
+                   projectFiles="false">
+      <itemPath>Makefile</itemPath>
+    </logicalFolder>
+  </logicalFolder>
+  <projectmakefile>Makefile</projectmakefile>
+  <confs>
+    <conf name="Debug" type="1">
+      <toolsSet>
+        <developmentServer>localhost</developmentServer>
+        <compilerSet>GNU|GNU</compilerSet>
+        <platform>2</platform>
+      </toolsSet>
+      <compileType>
+        <linkerTool>
+          <output>Debug/${PLATFORM}/rendertest</output>
+          <linkerLibItems>
+            <linkerLibProjectItem>
+              <makeArtifact PL="../../MCD/Render"
+                            CT="2"
+                            CN="Debug"
+                            AC="true"
+                            BL="true"
+                            WD="../../MCD/Render"
+                            BC="${MAKE}  -f Makefile CONF=Debug"
+                            CC="${MAKE}  -f Makefile CONF=Debug clean"
+                            OP="Debug/GNU-Linux-x86/libRender.so">
+              </makeArtifact>
+            </linkerLibProjectItem>
+            <linkerLibProjectItem>
+              <makeArtifact PL="../../MCD/Core"
+                            CT="2"
+                            CN="Debug"
+                            AC="true"
+                            BL="true"
+                            WD="../../MCD/Core"
+                            BC="${MAKE}  -f Makefile CONF=Debug"
+                            CC="${MAKE}  -f Makefile CONF=Debug clean"
+                            OP="Debug/GNU-Linux-x86/libCore.so">
+              </makeArtifact>
+            </linkerLibProjectItem>
+            <linkerLibProjectItem>
+              <makeArtifact PL="../../3Party/CppTestHarness"
+                            CT="2"
+                            CN="Debug"
+                            AC="true"
+                            BL="true"
+                            WD="../../3Party/CppTestHarness"
+                            BC="${MAKE}  -f Makefile CONF=Debug"
+                            CC="${MAKE}  -f Makefile CONF=Debug clean"
+                            OP="Debug/GNU-Linux-x86/libCppTestHarness.so">
+              </makeArtifact>
+            </linkerLibProjectItem>
+          </linkerLibItems>
+        </linkerTool>
+      </compileType>
+      <item path="ASSAOTest.cpp">
+        <itemTool>1</itemTool>
+      </item>
+      <item path="BasicGlWindow.cpp">
+        <itemTool>1</itemTool>
+      </item>
+      <item path="BasicGlWindow.h">
+        <itemTool>3</itemTool>
+      </item>
+      <item path="ChamferBox.cpp">
+        <itemTool>1</itemTool>
+      </item>
+      <item path="ChamferBox.h">
+        <itemTool>3</itemTool>
+      </item>
+      <item path="Common.cpp">
+        <itemTool>1</itemTool>
+      </item>
+      <item path="Common.h">
+        <itemTool>3</itemTool>
+      </item>
+      <item path="DefaultResourceManager.cpp">
+        <itemTool>1</itemTool>
+      </item>
+      <item path="DefaultResourceManager.h">
+        <itemTool>3</itemTool>
+      </item>
+      <item path="FrustumTest.cpp">
+        <itemTool>1</itemTool>
+      </item>
+      <item path="Main.cpp">
+        <itemTool>1</itemTool>
+      </item>
+      <item path="MaterialTest.cpp">
+        <itemTool>1</itemTool>
+      </item>
+      <item path="Max3dsLoaderTest.cpp">
+        <itemTool>1</itemTool>
+      </item>
+      <item path="MeshComponentTest.cpp">
+        <itemTool>1</itemTool>
+      </item>
+      <item path="MeshTest.cpp">
+        <itemTool>1</itemTool>
+      </item>
+      <item path="MultipleRenderTargetTest.cpp">
+        <itemTool>1</itemTool>
+      </item>
+      <item path="Pch.h">
+        <itemTool>3</itemTool>
+      </item>
+      <item path="PickComponentTest.cpp">
+        <itemTool>1</itemTool>
+      </item>
+      <item path="ProjectiveTextureTest.cpp">
+        <itemTool>1</itemTool>
+      </item>
+      <item path="RenderTargetTest.cpp">
+        <itemTool>1</itemTool>
+      </item>
+      <item path="SSAOTest.cpp">
+        <itemTool>1</itemTool>
+      </item>
+      <item path="ShadowMapTest.cpp">
+        <itemTool>1</itemTool>
+      </item>
+      <item path="TextureLoaderTest.cpp">
+        <itemTool>1</itemTool>
+      </item>
+    </conf>
+    <conf name="Release" type="1">
+      <toolsSet>
+        <developmentServer>localhost</developmentServer>
+        <compilerSet>GNU|GNU</compilerSet>
+        <platform>2</platform>
+      </toolsSet>
+      <compileType>
+        <cCompilerTool>
+          <developmentMode>5</developmentMode>
+        </cCompilerTool>
+        <ccCompilerTool>
+          <developmentMode>5</developmentMode>
+        </ccCompilerTool>
+        <fortranCompilerTool>
+          <developmentMode>5</developmentMode>
+        </fortranCompilerTool>
+        <linkerTool>
+          <output>Release/${PLATFORM}/rendertest</output>
+          <linkerLibItems>
+            <linkerLibProjectItem>
+              <makeArtifact PL="../../MCD/Render"
+                            CT="2"
+                            CN="Release"
+                            AC="false"
+                            BL="true"
+                            WD="../../MCD/Render"
+                            BC="${MAKE}  -f Makefile CONF=Release"
+                            CC="${MAKE}  -f Makefile CONF=Release clean"
+                            OP="Release/GNU-Linux-x86/libRender.so">
+              </makeArtifact>
+            </linkerLibProjectItem>
+            <linkerLibProjectItem>
+              <makeArtifact PL="../../3Party/CppTestHarness"
+                            CT="2"
+                            CN="Release"
+                            AC="false"
+                            BL="true"
+                            WD="../../3Party/CppTestHarness"
+                            BC="${MAKE}  -f Makefile CONF=Release"
+                            CC="${MAKE}  -f Makefile CONF=Release clean"
+                            OP="Release/GNU-Linux-x86/libCppTestHarness.so">
+              </makeArtifact>
+            </linkerLibProjectItem>
+          </linkerLibItems>
+        </linkerTool>
+      </compileType>
+      <item path="ASSAOTest.cpp">
+        <itemTool>1</itemTool>
+      </item>
+      <item path="BasicGlWindow.cpp">
+        <itemTool>1</itemTool>
+      </item>
+      <item path="BasicGlWindow.h">
+        <itemTool>3</itemTool>
+      </item>
+      <item path="ChamferBox.cpp">
+        <itemTool>1</itemTool>
+      </item>
+      <item path="ChamferBox.h">
+        <itemTool>3</itemTool>
+      </item>
+      <item path="Common.cpp">
+        <itemTool>1</itemTool>
+      </item>
+      <item path="Common.h">
+        <itemTool>3</itemTool>
+      </item>
+      <item path="DefaultResourceManager.cpp">
+        <itemTool>1</itemTool>
+      </item>
+      <item path="DefaultResourceManager.h">
+        <itemTool>3</itemTool>
+      </item>
+      <item path="FrustumTest.cpp">
+        <itemTool>1</itemTool>
+      </item>
+      <item path="Main.cpp">
+        <itemTool>1</itemTool>
+      </item>
+      <item path="MaterialTest.cpp">
+        <itemTool>1</itemTool>
+      </item>
+      <item path="Max3dsLoaderTest.cpp">
+        <itemTool>1</itemTool>
+      </item>
+      <item path="MeshComponentTest.cpp">
+        <itemTool>1</itemTool>
+      </item>
+      <item path="MeshTest.cpp">
+        <itemTool>1</itemTool>
+      </item>
+      <item path="MultipleRenderTargetTest.cpp">
+        <itemTool>1</itemTool>
+      </item>
+      <item path="Pch.h">
+        <itemTool>3</itemTool>
+      </item>
+      <item path="PickComponentTest.cpp">
+        <itemTool>1</itemTool>
+      </item>
+      <item path="ProjectiveTextureTest.cpp">
+        <itemTool>1</itemTool>
+      </item>
+      <item path="RenderTargetTest.cpp">
+        <itemTool>1</itemTool>
+      </item>
+      <item path="SSAOTest.cpp">
+        <itemTool>1</itemTool>
+      </item>
+      <item path="ShadowMapTest.cpp">
+        <itemTool>1</itemTool>
+      </item>
+      <item path="TextureLoaderTest.cpp">
+        <itemTool>1</itemTool>
+      </item>
+    </conf>
+  </confs>
+</configurationDescriptor>
