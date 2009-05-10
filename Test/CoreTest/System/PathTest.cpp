@@ -74,7 +74,7 @@ TEST(Leaf_PathTest)
 		{L"/",		L"./"},
 		{L"/",		L"../"},
 		{L"c",		L"a/b/c"},
-#if MCD_WIN32
+#ifdef MCD_WIN32
 		{L"C:",		L"C:"},
 		{L"/",		L"C:/"},
 		{L"\\",		L"C:\\"},
@@ -99,7 +99,7 @@ TEST(Branch_PathTest)
 		{L".",		L"./"},
 		{L"..",		L"../"},
 		{L"a/b",	L"a/b/c"},
-#if MCD_WIN32
+#ifdef MCD_WIN32
 		{L"",		L"C:"},
 		{L"C:",		L"C:/"},
 		{L"C:",		L"C:\\"},

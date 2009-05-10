@@ -16,14 +16,19 @@
           <itemPath>Math/Intersection.h</itemPath>
           <itemPath>Math/Magnitude.h</itemPath>
           <itemPath>Math/Mat33.h</itemPath>
+          <itemPath>Math/Mat33.inl</itemPath>
           <itemPath>Math/Mat44.h</itemPath>
+          <itemPath>Math/Mat44.inl</itemPath>
           <itemPath>Math/Plane.h</itemPath>
           <itemPath>Math/Quaternion.h</itemPath>
+          <itemPath>Math/Quaternion.inl</itemPath>
           <itemPath>Math/Ray.h</itemPath>
           <itemPath>Math/SrtTransform.h</itemPath>
           <itemPath>Math/Tuple.h</itemPath>
           <itemPath>Math/Vec2.h</itemPath>
+          <itemPath>Math/Vec2.inl</itemPath>
           <itemPath>Math/Vec3.h</itemPath>
+          <itemPath>Math/Vec3.inl</itemPath>
           <itemPath>Math/Vec4.h</itemPath>
         </logicalFolder>
         <logicalFolder name="System" displayName="System" projectFiles="true">
@@ -178,13 +183,22 @@
       <item path="Math/Mat33.h">
         <itemTool>3</itemTool>
       </item>
+      <item path="Math/Mat33.inl">
+        <itemTool>3</itemTool>
+      </item>
       <item path="Math/Mat44.h">
+        <itemTool>3</itemTool>
+      </item>
+      <item path="Math/Mat44.inl">
         <itemTool>3</itemTool>
       </item>
       <item path="Math/Plane.h">
         <itemTool>3</itemTool>
       </item>
       <item path="Math/Quaternion.h">
+        <itemTool>3</itemTool>
+      </item>
+      <item path="Math/Quaternion.inl">
         <itemTool>3</itemTool>
       </item>
       <item path="Math/Ray.h">
@@ -202,7 +216,13 @@
       <item path="Math/Vec2.h">
         <itemTool>3</itemTool>
       </item>
+      <item path="Math/Vec2.inl">
+        <itemTool>3</itemTool>
+      </item>
       <item path="Math/Vec3.h">
+        <itemTool>3</itemTool>
+      </item>
+      <item path="Math/Vec3.inl">
         <itemTool>3</itemTool>
       </item>
       <item path="Math/Vec4.h">
@@ -474,13 +494,22 @@
       <item path="Math/Mat33.h">
         <itemTool>3</itemTool>
       </item>
+      <item path="Math/Mat33.inl">
+        <itemTool>3</itemTool>
+      </item>
       <item path="Math/Mat44.h">
+        <itemTool>3</itemTool>
+      </item>
+      <item path="Math/Mat44.inl">
         <itemTool>3</itemTool>
       </item>
       <item path="Math/Plane.h">
         <itemTool>3</itemTool>
       </item>
       <item path="Math/Quaternion.h">
+        <itemTool>3</itemTool>
+      </item>
+      <item path="Math/Quaternion.inl">
         <itemTool>3</itemTool>
       </item>
       <item path="Math/Ray.h">
@@ -498,7 +527,13 @@
       <item path="Math/Vec2.h">
         <itemTool>3</itemTool>
       </item>
+      <item path="Math/Vec2.inl">
+        <itemTool>3</itemTool>
+      </item>
       <item path="Math/Vec3.h">
+        <itemTool>3</itemTool>
+      </item>
+      <item path="Math/Vec3.inl">
         <itemTool>3</itemTool>
       </item>
       <item path="Math/Vec4.h">

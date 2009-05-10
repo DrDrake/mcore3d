@@ -90,9 +90,12 @@ void Quaternion<T>::fromMatrix(const Mat33<T>& matrix)
 	z = sqrt(Math<T>::max(0, 1 - matrix.m00 - matrix.m11 + matrix.m22)) * T(0.5);
 	w = sqrt(Math<T>::max(0, 1 + matrix.m00 + matrix.m11 + matrix.m22)) * T(0.5);
 
-	x = (T)_copysign(x, matrix.m21 - matrix.m12);
-	y = (T)_copysign(y, matrix.m02 - matrix.m20);
-	z = (T)_copysign(z, matrix.m10 - matrix.m01);
+#ifdef MCD_VC
+#	define copysign _copysign
+#endif
+	x = (T)copysign(x, matrix.m21 - matrix.m12);
+	y = (T)copysign(y, matrix.m02 - matrix.m20);
+	z = (T)copysign(z, matrix.m10 - matrix.m01);
 }
 
 template<typename T>

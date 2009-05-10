@@ -23,7 +23,7 @@ TEST(RawFileSystemTest)
 	CHECK(!fs.makeDir(L"a"));
 
 	// Remove directory
-#if !MCD_WIN32
+#if !defined(MCD_WIN32)
 	// Recursive remove not implemented yet for POSIX system
 	fs.remove(L"a/b/c");
 	fs.remove(L"a/b");
