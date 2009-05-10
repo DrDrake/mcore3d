@@ -74,12 +74,14 @@ TEST(Leaf_PathTest)
 		{L"/",		L"./"},
 		{L"/",		L"../"},
 		{L"c",		L"a/b/c"},
+#if MCD_WIN32
 		{L"C:",		L"C:"},
 		{L"/",		L"C:/"},
 		{L"\\",		L"C:\\"},
 		{L"\\B",	L"C:\\B"},
 		{L"/",		L"game:/"},
 		{L"\\",		L"game:\\"},
+#endif
 		{L"/",		L"http://"},
 		{L"/",		L"/"},
 		{L"home",	L"/home"},
@@ -97,12 +99,14 @@ TEST(Branch_PathTest)
 		{L".",		L"./"},
 		{L"..",		L"../"},
 		{L"a/b",	L"a/b/c"},
+#if MCD_WIN32
 		{L"",		L"C:"},
 		{L"C:",		L"C:/"},
 		{L"C:",		L"C:\\"},
 		{L"C:",		L"C:\\B"},
 		{L"game:",	L"game:/"},
 		{L"game:",	L"game:\\"},
+#endif
 		{L"http:",	L"http://"},
 		{L"",		L"/"},
 		{L"",		L"/home"},

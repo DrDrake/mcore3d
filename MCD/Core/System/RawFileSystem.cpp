@@ -241,7 +241,8 @@ bool RawFileSystem::remove(const Path& path) const
 	MCD_STACKFREE(buf);
 	return ret == 0;
 #else
-	// TODO: Not finish yet
+	// TODO: Not recursive remove is not implemented yet,
+	// unless directory listing is ready
 	std::string narrowStr;
 	MCD_VERIFY(wStrToStr(path.getString().c_str(), narrowStr));
 	return ::rmdir(narrowStr.c_str()) == 0;

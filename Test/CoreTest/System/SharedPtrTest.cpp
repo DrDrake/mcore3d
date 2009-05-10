@@ -28,11 +28,11 @@ TEST(Basic_SharedPtrTest)
 
 		Ptr b(a);
 		CHECK(a == b);
-		CHECK(a != b == false);
+		CHECK((a != b) == false);
 
 		Ptr c(new int(456));
 		CHECK(a != c);
-		CHECK(a == c == false);
+		CHECK((a == c) == false);
 
 		a = nullptr;
 		CHECK(!a);
