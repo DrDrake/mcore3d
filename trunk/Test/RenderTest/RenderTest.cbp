@@ -4,25 +4,25 @@
 	<Project>
 		<Option title="RenderTest" />
 		<Option pch_mode="2" />
-		<Option compiler="cygwin" />
+		<Option compiler="gcc" />
 		<Build>
 			<Target title="Debug (Linux)">
-				<Option output="Debug\Gcc_Linux\RenderTest" prefix_auto="1" extension_auto="1" />
-				<Option object_output="Debug\Gcc_Linux\Obj\" />
+				<Option output="Debug/Gcc_Linux/RenderTest" prefix_auto="1" extension_auto="1" />
+				<Option object_output="Debug/Gcc_Linux/Obj/" />
 				<Option type="1" />
 				<Option compiler="gcc" />
 				<Compiler>
 					<Add option="-g" />
 				</Compiler>
 				<Linker>
-					<Add library="..\..\Lib\libCppTestHarnessd.a" />
-					<Add library="..\..\Bin\Cored.so" />
-					<Add library="..\..\Bin\Renderd.so" />
+					<Add library="../../Lib/libCppTestHarnessd.a" />
+					<Add library="../../Bin/Cored.so" />
+					<Add library="../../Bin/Renderd.so" />
 				</Linker>
 			</Target>
 			<Target title="Release (Linux)">
-				<Option output="Release\Gcc_Linux\RenderTest" prefix_auto="1" extension_auto="1" />
-				<Option object_output="Release\Gcc_Linux\Obj\" />
+				<Option output="Release/Gcc_Linux/RenderTest" prefix_auto="1" extension_auto="1" />
+				<Option object_output="Release/Gcc_Linux/Obj/" />
 				<Option type="1" />
 				<Option compiler="gcc" />
 				<Compiler>
@@ -30,51 +30,51 @@
 					<Add option="-O3" />
 				</Compiler>
 				<Linker>
-					<Add library="..\..\Lib\libCppTestHarness.a" />
-					<Add library="..\..\Bin\Core.so" />
-					<Add library="..\..\Bin\Render.so" />
+					<Add library="../../Lib/libCppTestHarness.a" />
+					<Add library="../../Bin/Core.so" />
+					<Add library="../../Bin/Render.so" />
 				</Linker>
 			</Target>
 			<Target title="Debug (Cygwin)">
-				<Option output="Debug\Gcc_Cygwin\RenderTest" prefix_auto="1" extension_auto="1" />
-				<Option object_output="Debug\Gcc_Cygwin\Obj" />
+				<Option output="Debug/Gcc_Cygwin/RenderTest" prefix_auto="1" extension_auto="1" />
+				<Option object_output="Debug/Gcc_Cygwin/Obj" />
 				<Option type="1" />
-				<Option compiler="cygwin" />
+				<Option compiler="gcc" />
 				<Compiler>
 					<Add option="-g" />
 				</Compiler>
 				<Linker>
-					<Add library="..\..\Lib\libCppTestHarnessd.a" />
-					<Add library="..\..\Bin\libCored.a" />
-					<Add library="..\..\Bin\libRenderd.a" />
+					<Add library="../../Lib/libCppTestHarnessd.a" />
+					<Add library="../../Bin/libCored.a" />
+					<Add library="../../Bin/libRenderd.a" />
 					<Add library="opengl32" />
 				</Linker>
 			</Target>
 			<Target title="Release (Cygwin)">
-				<Option output="Release\Gcc_Cygwin\RenderTest" prefix_auto="1" extension_auto="1" />
-				<Option object_output="Release\Gcc_Cygwin\Obj" />
+				<Option output="Release/Gcc_Cygwin/RenderTest" prefix_auto="1" extension_auto="1" />
+				<Option object_output="Release/Gcc_Cygwin/Obj" />
 				<Option type="1" />
-				<Option compiler="cygwin" />
+				<Option compiler="gcc" />
 				<Compiler>
 					<Add option="-fexpensive-optimizations" />
 					<Add option="-O3" />
 				</Compiler>
 				<Linker>
-					<Add library="..\..\Lib\libCppTestHarness.a" />
-					<Add library="..\..\Bin\libCore.a" />
-					<Add library="..\..\Bin\libRender.a" />
+					<Add library="../../Lib/libCppTestHarness.a" />
+					<Add library="../../Bin/libCore.a" />
+					<Add library="../../Bin/libRender.a" />
 					<Add library="opengl32" />
 				</Linker>
 			</Target>
 		</Build>
 		<Compiler>
 			<Add option="-fexceptions" />
-			<Add directory="\usr\X11R6\include" />
+			<Add directory="/usr/X11R6/include" />
 		</Compiler>
 		<Linker>
 			<Add library="GL" />
 			<Add library="GLU" />
-			<Add directory="\usr\X11R6\lib" />
+			<Add directory="/usr/X11R6/lib" />
 		</Linker>
 		<Unit filename="BasicGlWindow.cpp" />
 		<Unit filename="BasicGlWindow.h" />
