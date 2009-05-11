@@ -4,12 +4,12 @@
 	<Project>
 		<Option title="SmallJpeg" />
 		<Option pch_mode="2" />
-		<Option compiler="cygwin" />
+		<Option compiler="gcc" />
 		<Build>
 			<Target title="Debug (Linux)">
-				<Option output="..\..\Lib\libSmallJpegd" prefix_auto="1" extension_auto="1" />
+				<Option output="../../Lib/libSmallJpegd" prefix_auto="1" extension_auto="1" />
 				<Option working_dir="" />
-				<Option object_output="Debug\Gcc_Linux\Obj\" />
+				<Option object_output="Debug/Gcc_Linux/Obj/" />
 				<Option type="2" />
 				<Option compiler="gcc" />
 				<Option createDefFile="1" />
@@ -18,9 +18,9 @@
 				</Compiler>
 			</Target>
 			<Target title="Release (Linux)">
-				<Option output="..\..\Lib\libSmallJpeg" prefix_auto="1" extension_auto="1" />
+				<Option output="../../Lib/libSmallJpeg" prefix_auto="1" extension_auto="1" />
 				<Option working_dir="" />
-				<Option object_output="Release\Gcc_Linux\Obj\" />
+				<Option object_output="Release/Gcc_Linux/Obj/" />
 				<Option type="2" />
 				<Option compiler="gcc" />
 				<Option createDefFile="1" />
@@ -30,22 +30,22 @@
 				</Compiler>
 			</Target>
 			<Target title="Debug (Cygwin)">
-				<Option output="..\..\Lib\libSmallJpegd" prefix_auto="1" extension_auto="1" />
+				<Option output="../../Lib/libSmallJpegd" prefix_auto="1" extension_auto="1" />
 				<Option working_dir="" />
-				<Option object_output="Debug\Gcc_Cygwin\Obj\" />
+				<Option object_output="Debug/Gcc_Cygwin/Obj/" />
 				<Option type="2" />
-				<Option compiler="cygwin" />
+				<Option compiler="gcc" />
 				<Option createDefFile="1" />
 				<Compiler>
 					<Add option="-g" />
 				</Compiler>
 			</Target>
 			<Target title="Release (Cygwin)">
-				<Option output="..\..\Lib\libSmallJpeg" prefix_auto="1" extension_auto="1" />
+				<Option output="../../Lib/libSmallJpeg" prefix_auto="1" extension_auto="1" />
 				<Option working_dir="" />
-				<Option object_output="Release\Gcc_Cygwin\Obj\" />
+				<Option object_output="Release/Gcc_Cygwin/Obj/" />
 				<Option type="2" />
-				<Option compiler="cygwin" />
+				<Option compiler="gcc" />
 				<Option createDefFile="1" />
 				<Compiler>
 					<Add option="-fexpensive-optimizations" />
