@@ -13,6 +13,7 @@ namespace {
 class FollowTransformComponent : public BehaviourComponent
 {
 public:
+	FollowTransformComponent() : ignoreRotation(false) {}
 	sal_override void update()
 	{
 		Entity* e = entity();
@@ -23,9 +24,13 @@ public:
 
 		// Undo any scaling
 		e->localTransform.setScale(Vec3f(1));
+
+		if(ignoreRotation)
+			e->localTransform.setMat33(Mat33f::cIdentity);
 	}
 
 	EntityPtr selectedEntity;
+	bool ignoreRotation;
 };	// FollowTransformComponent
 
 //!	Adjust the scaling transform so that all child entities will have a constance size on screen.
@@ -154,6 +159,10 @@ void Gizmo::setActiveGizmo(const ComponentPtr& gizmo)
 	if(scaleGizmo) scaleGizmo->entity()->enabled = false;
 	if(gizmo) gizmo->entity()->enabled = true;
 	mActiveGizmo = gizmo;
+
+	// Ignore the roation part of the selected entity, if the active gizmo is translation gizmo
+	FollowTransformComponent* component = findComponent<FollowTransformComponent>(typeid(BehaviourComponent));
+	component->ignoreRotation = (gizmo == translationGizmo);
 }
 
 Component* Gizmo::activeGizmo() const
