@@ -228,6 +228,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\CubemapLoader.h"
+				>
+			</File>
+			<File
 				RelativePath=".\DdsLoader.h"
 				>
 			</File>
@@ -354,6 +358,10 @@
 			</File>
 			<File
 				RelativePath=".\Color.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\CubemapLoader.cpp"
 				>
 			</File>
 			<File
