@@ -26,9 +26,9 @@ _{type}_ *:* _{filename1}_ *:* _{filename2}_ *:* _{filename3}_ ...
    * The image "../../wood.jpg" will be loaded as a 2d texture
 
  * Loading a cubemap texture
-  * file="_*cube:*_ skybox_px.jpg_*;*_ skybox_nx.jpg_*;*_ skybox_py.jpg_*;*_skybox_ny.jpg_*;*_ skybox_pz.jpg_*;*_ skybox_nz.jpg"
-   * The 6 images "skybox_px.jpg" ... "skybox_nz.jpg" will be loaded as a cubemap texture.
-   * Please notice that all 6 textures must be square textures (e.g. 256x256) and they must have the same power-of-2 dimensions.
+  * file="_*cubemap:*_ skybox.jpg"
+   * This assumes the image skybox.jpg containing the 6 faces of the cubemap (tiled horizontally: +x -z -x +z +y -y).
+   * Please notice the height of image define the cubemap size (must be power of 2) and the width of the image must be equal to 6 times of the height. For example, the image height is 256 pixels, then the image width should be 1536 pixels.
 
  * Loading a 3d texture
   * file="_*3d:*_tex0.jpg_*;* _tex1.jpg_*;*_ tex2.jpg_*;*_ tex3.jpg_*;*_ tex4.jpg_*;*_ tex5.jpg_*;*_ tex6.jpg_*;*_ tex7.jpg"
