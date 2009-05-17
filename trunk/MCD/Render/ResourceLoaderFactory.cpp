@@ -21,15 +21,7 @@ namespace MCD {
 
 ResourcePtr CubemapLoaderFactory::createResource(const Path& fileId)
 {
-    // todo: wstrNCmp & wstrCaseNCmp
-    //const wchar_t* cmd = CubemapLoader::texFileCmd();
-    //const wchar_t* cfileid = fileId.getString().c_str();
-
-    //if(wcsncmp(cfileid, cmd, wcslen(cmd)) == 0)
-    //{
-    //    return new Texture(Path(&cfileid[wcslen(cmd)]));
-    //}
-    Path p(fileId);
+	Path p(fileId);
     
     p.removeExtension();
     if(wstrCaseCmp(p.getExtension().c_str(), L"cubemap") == 0)

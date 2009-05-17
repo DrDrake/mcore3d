@@ -123,4 +123,39 @@ void TextureLoaderBase::postUploadData()
 //		glGenerateMipmapEXT(GL_TEXTURE_2D);
 }
 
+int TextureLoaderBase::bytePerPixel(int format)
+{
+	switch(format)
+	{
+	case GL_BGR:
+	case GL_RGB:
+		return 3;
+
+	case GL_RGBA:
+		return 4;
+
+	case GL_LUMINANCE:
+		return 1;
+
+	case GL_LUMINANCE_ALPHA:
+		return 2;
+
+	default:
+		return 0;
+	}
+}
+
+void TextureLoaderBase::retriveData( byte_t** imageData, size_t& width, size_t& height, int& format )
+{
+	if(!mImpl)
+		return;
+
+	width = mImpl->mWidth;
+	height = mImpl->mHeight;
+	format = mImpl->mFormat;
+
+	*imageData = new byte_t[width * height * bytePerPixel(format)];
+	memcpy(*imageData, mImpl->mImageData, width * height * bytePerPixel(format));
+}
+
 }	// namespace MCD

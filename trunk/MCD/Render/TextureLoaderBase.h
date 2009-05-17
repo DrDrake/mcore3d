@@ -36,6 +36,16 @@ public:
 // Attributes
 	volatile LoadingState loadingState;
 
+public:
+	/*! Data access interface for higher level texture loaders
+		(e.g cubemap, volume-texture, texture-array... etc). 
+	*/
+	virtual void retriveData(byte_t** imageData, size_t& width, size_t& height, int& format);
+
+	/*! A utility function which tells the byte-per-pixels of the input OpenGL format.
+	*/
+	static int bytePerPixel(int format);
+
 protected:
 	/*!	Derived class should implements this function to upload the
 		image data to the rendering system.
