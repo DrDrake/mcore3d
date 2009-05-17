@@ -51,7 +51,7 @@ public:
 
 	int load(std::istream& is)
 	{
-		// Windows.h gives us these types to work with the Bitmap files
+		// Windows.h gives us these types to work with the Cubemap files
 		BITMAPFILEHEADER fileHeader;
 		BITMAPINFOHEADER infoHeader;
 		memset(&fileHeader, 0, sizeof(fileHeader));
@@ -104,7 +104,7 @@ public:
 
 		// At this point we can read every pixel of the image
 		for(size_t h = 0; h<mHeight; ++h) {
-			// Bitmap file is differ from other image format like jpg and png that
+			// Cubemap file is differ from other image format like jpg and png that
 			// the vertical scan line order is inverted.
 			const size_t invertedH = flipVertical ? mHeight - 1 - h : h;
 

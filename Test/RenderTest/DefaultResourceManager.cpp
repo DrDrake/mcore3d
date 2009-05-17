@@ -83,6 +83,7 @@ int DefaultResourceManager::processLoadingEvents()
 
 void DefaultResourceManager::setupFactories()
 {
+    addFactory(new CubemapLoaderFactory);
 	addFactory(new BitmapLoaderFactory);
 	addFactory(new DdsLoaderFactory);
 	addFactory(new EffectLoaderFactory(*this));

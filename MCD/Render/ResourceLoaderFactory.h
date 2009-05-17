@@ -6,6 +6,13 @@
 
 namespace MCD {
 
+class MCD_RENDER_API CubemapLoaderFactory : public ResourceManager::IFactory
+{
+public:
+	sal_override ResourcePtr createResource(const Path& fileId);
+	sal_override IResourceLoader* createLoader();
+};	// CubemapLoaderFactory
+
 class MCD_RENDER_API BitmapLoaderFactory : public ResourceManager::IFactory
 {
 public:
