@@ -14,6 +14,10 @@ class MCD_RENDER_API CubemapLoader : public TextureLoaderBase
 public:
 	CubemapLoader();
 
+    /*! The texture file command
+    */
+    static wchar_t* texFileCmd() { return L"cubemap:"; }
+
 	/*!	Load data from stream.
 		Block until all the data is read into it's internal buffer.
 	 */
