@@ -13,8 +13,7 @@ int main(int, char const*[])
 	CppTestHarness::TestRunner runner;
 	runner.ShowTestName(false);
 
-	//ret = runner.RunAllTests();
-    ret = runner.RunTest("MaterialTest");
+	ret = runner.RunAllTests();
 
 	return int(ret);
 }
