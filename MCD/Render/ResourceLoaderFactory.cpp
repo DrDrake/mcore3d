@@ -1,7 +1,7 @@
 #include "Pch.h"
 #include "ResourceLoaderFactory.h"
-#include "CubemapLoader.h"
 #include "BitmapLoader.h"
+#include "CubemapLoader.h"
 #include "DdsLoader.h"
 #include "Effect.h"
 #include "EffectLoader.h"
@@ -19,6 +19,18 @@
 
 namespace MCD {
 
+ResourcePtr BitmapLoaderFactory::createResource(const Path& fileId)
+{
+	if(wstrCaseCmp(fileId.getExtension().c_str(), L"bmp") == 0)
+		return new Texture(fileId);
+	return nullptr;
+}
+
+IResourceLoader* BitmapLoaderFactory::createLoader()
+{
+	return new BitmapLoader;
+}
+
 ResourcePtr CubemapLoaderFactory::createResource(const Path& fileId)
 {
 	Path p(fileId);
@@ -33,18 +45,6 @@ ResourcePtr CubemapLoaderFactory::createResource(const Path& fileId)
 IResourceLoader* CubemapLoaderFactory::createLoader()
 {
 	return new CubemapLoader;
-}
-
-ResourcePtr BitmapLoaderFactory::createResource(const Path& fileId)
-{
-	if(wstrCaseCmp(fileId.getExtension().c_str(), L"bmp") == 0)
-		return new Texture(fileId);
-	return nullptr;
-}
-
-IResourceLoader* BitmapLoaderFactory::createLoader()
-{
-	return new BitmapLoader;
 }
 
 ResourcePtr DdsLoaderFactory::createResource(const Path& fileId)

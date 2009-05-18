@@ -145,6 +145,7 @@ using namespace vc_attributes;
 #define sal_in_z __in_z __notnull							// (input, read only) (null terminated) (cannot be null)
 #define sal_in_z_opt __in_z_opt __maybenull					// (input, read only) (null terminated) (may be null)
 #define sal_out_opt __out_opt __maybenull					// (output, write) (may be null)
+#define sal_out_z __out_z __notnull							// (output, write) (null terminated) (cannot be null)
 #define sal_inout __inout __notnull							// (input/output, read/write) (cannot be null)
 #define sal_notnull __notnull								// (cannot be null)
 #define sal_maybenull __maybenull							// (may be null)
@@ -221,6 +222,7 @@ void noReturn() { throw "NoReturn should not be invoked"; }
 #define sal_in_z
 #define sal_in_z_opt
 #define sal_out_opt
+#define sal_out_z
 #define sal_inout
 #define sal_notnull
 #define sal_maybenull

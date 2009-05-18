@@ -23,10 +23,6 @@ public:
 	{
 	}
 
-    ~LoaderImpl()
-    {
-    }
-
 	void upload()
 	{
 		//glTexImage2D(GL_TEXTURE_2D, 0, mFormat, mWidth, mHeight,
@@ -39,24 +35,19 @@ public:
         for( int i=0; i<6; ++i )
         {
             glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X+i, 0, mFormat, mWidth, mWidth,
-			0, GL_BGR, GL_UNSIGNED_BYTE, buf);
+				0, GL_BGR, GL_UNSIGNED_BYTE, buf);
 
             buf += imageSize;
         }
 	}
 
     std::auto_ptr<TextureLoaderBase> mLoaderDelegate;
-
 };	// LoaderImpl
 
 CubemapLoader::CubemapLoader()
 	: TextureLoaderBase()
 {
 	setImpl(new LoaderImpl(*this));
-}
-
-CubemapLoader::~CubemapLoader()
-{
 }
 
 IResourceLoader::LoadingState CubemapLoader::load(std::istream* is, const Path* fileId)
@@ -94,10 +85,6 @@ IResourceLoader::LoadingState CubemapLoader::load(std::istream* is, const Path* 
 		loader = new TgaLoader;
 	}
 
-	// There is no need to do a mutex lock during loading, since
-	// no body can access the mImageData if the loading isn't finished.
-	ScopeLock lock(mImpl->mMutex);
-
     if(nullptr != loader)
     {
         loadingState = loader->load(is, fileId);
@@ -107,6 +94,9 @@ IResourceLoader::LoadingState CubemapLoader::load(std::istream* is, const Path* 
             , mImpl->mHeight
             , mImpl->mFormat);
 
+		// mLoaderDelegate will be destroyed(accessed) in destructor,
+		// so we must also lock all operations that involve mLoaderDelegate
+		ScopeLock lock(mImpl->mMutex);
         static_cast<LoaderImpl*>(mImpl)->mLoaderDelegate.reset(loader);
 
         if(mImpl->mHeight != 6 * mImpl->mWidth)
@@ -116,6 +106,7 @@ IResourceLoader::LoadingState CubemapLoader::load(std::istream* is, const Path* 
     }
     else
     {
+		ScopeLock lock(mImpl->mMutex);
         loadingState = IResourceLoader::Aborted;
     }
 
