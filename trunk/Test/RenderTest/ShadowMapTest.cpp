@@ -7,6 +7,7 @@
 #include "../../MCD/Render/Texture.h"
 #include "../../MCD/Render/TextureRenderBuffer.h"
 #include "../../MCD/Core/Math/Mat44.h"
+#include <memory>	// For auto_ptr
 
 using namespace MCD;
 

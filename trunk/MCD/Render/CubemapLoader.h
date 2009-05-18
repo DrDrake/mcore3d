@@ -5,7 +5,9 @@
 
 namespace MCD {
 
-/*!	Load bitmap file.
+/*!	Load Loading a cubemap texture.
+	The 6 faces of the cubemap data is assumed arranged vertically
+	inside the incomming image data.
  */
 class MCD_RENDER_API CubemapLoader : public TextureLoaderBase
 {
@@ -13,12 +15,6 @@ class MCD_RENDER_API CubemapLoader : public TextureLoaderBase
 
 public:
 	CubemapLoader();
-
-    sal_override ~CubemapLoader();
-
-    /*! The texture file command
-    */
-    static wchar_t* texFileCmd() { return L"cubemap:"; }
 
 	/*!	Load data from stream.
 		Block until all the data is read into it's internal buffer.
@@ -31,7 +27,6 @@ protected:
     sal_override void uploadData();
     sal_override void postUploadData();
     sal_override int textureType() const;
-
 };	// CubemapLoader
 
 }	// namespace MCD

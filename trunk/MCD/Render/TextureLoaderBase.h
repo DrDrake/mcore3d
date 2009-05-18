@@ -21,7 +21,6 @@ protected:
 
 	TextureLoaderBase();
 
-
 	void setImpl(LoaderBaseImpl* impl);
 
 public:
