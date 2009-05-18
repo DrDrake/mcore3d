@@ -54,4 +54,26 @@ bool Texture::hasAlpha(int format)
 		format == GL_COMPRESSED_RGBA_S3TC_DXT5_EXT);
 }
 
+int Texture::bytePerPixel(int format)
+{
+	switch(format)
+	{
+	case GL_BGR:
+	case GL_RGB:
+		return 3;
+
+	case GL_RGBA:
+		return 4;
+
+	case GL_LUMINANCE:
+		return 1;
+
+	case GL_LUMINANCE_ALPHA:
+		return 2;
+
+	default:
+		return 0;
+	}
+}
+
 }	// namespace MCD

@@ -20,11 +20,13 @@ protected:
 	class LoaderBaseImpl;
 
 	TextureLoaderBase();
-	sal_override ~TextureLoaderBase();
+
 
 	void setImpl(LoaderBaseImpl* impl);
 
 public:
+    sal_override ~TextureLoaderBase();
+
 // Operations
 	/*!	Commit the data form it's internal buffer to the resource.
 		The resource must be of type Texture.
@@ -39,12 +41,9 @@ public:
 public:
 	/*! Data access interface for higher level texture loaders
 		(e.g cubemap, volume-texture, texture-array... etc). 
+        \note The returned imageData is valid until this loader is destroyed
 	*/
 	virtual void retriveData(byte_t** imageData, size_t& width, size_t& height, int& format);
-
-	/*! A utility function which tells the byte-per-pixels of the input OpenGL format.
-	*/
-	static int bytePerPixel(int format);
 
 protected:
 	/*!	Derived class should implements this function to upload the
@@ -64,6 +63,8 @@ protected:
 		\note mImpl->mMutex is locked before the invocation of this function.
 	 */
 	virtual void postUploadData();
+
+    virtual int textureType() const;
 
 protected:
 	LoaderBaseImpl* mImpl;

@@ -56,7 +56,7 @@ void TextureLoaderBase::commit(Resource& resource)
 	texture.width = mImpl->mWidth;
 	texture.height = mImpl->mHeight;
 	texture.format = mImpl->mFormat;
-	texture.type = GL_TEXTURE_2D;	// Currently only support the loading of 2D texture
+	texture.type = textureType();	// Currently only support the loading of 2D texture
 
 	if(!isPowerOf2(mImpl->mWidth) || !isPowerOf2(mImpl->mHeight))
 		Log::format(Log::Warn, L"Texture:'%s' has non-power of 2 size, which may hurt performance",
@@ -123,26 +123,9 @@ void TextureLoaderBase::postUploadData()
 //		glGenerateMipmapEXT(GL_TEXTURE_2D);
 }
 
-int TextureLoaderBase::bytePerPixel(int format)
+int TextureLoaderBase::textureType() const
 {
-	switch(format)
-	{
-	case GL_BGR:
-	case GL_RGB:
-		return 3;
-
-	case GL_RGBA:
-		return 4;
-
-	case GL_LUMINANCE:
-		return 1;
-
-	case GL_LUMINANCE_ALPHA:
-		return 2;
-
-	default:
-		return 0;
-	}
+    return GL_TEXTURE_2D;
 }
 
 void TextureLoaderBase::retriveData( byte_t** imageData, size_t& width, size_t& height, int& format )
@@ -154,8 +137,10 @@ void TextureLoaderBase::retriveData( byte_t** imageData, size_t& width, size_t& 
 	height = mImpl->mHeight;
 	format = mImpl->mFormat;
 
-	*imageData = new byte_t[width * height * bytePerPixel(format)];
-	memcpy(*imageData, mImpl->mImageData, width * height * bytePerPixel(format));
+    size_t allocSize = width * height * Texture::bytePerPixel(format);
+
+    *imageData = new byte_t[allocSize];
+	memcpy(*imageData, mImpl->mImageData, allocSize);
 }
 
 }	// namespace MCD

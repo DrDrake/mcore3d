@@ -82,7 +82,7 @@
 			<parameter name="exposure" type="float" label="Exposure level">4</parameter>
 			<![CDATA[
 			varying vec3 vertex, normal, lightDir;
-			uniform sampler2D diffuseMap;
+			uniform samplerCube diffuseMap;
 			uniform float exposure;
 
 			void main()
@@ -93,10 +93,10 @@
 				vec3 n = normalize(normal);
 
 				diffuse *= max(dot(n, lightDir), 0.0);
-				vec3 refl = -reflect(lightDir, normal);
+				vec3 refl = -reflect(lightDir, n);
 				specular *= pow(max(dot(refl, normalize(-vertex)), 0.0), gl_FrontMaterial.shininess);
 
-				gl_FragColor = specular + (ambient + diffuse) * texture2D(diffuseMap, gl_TexCoord[0].xy);
+				gl_FragColor = specular + (ambient + diffuse) * textureCube(diffuseMap, vertex);
 				gl_FragColor.rgb *= exposure;
 				gl_FragColor.a = clamp(gl_FragColor.a, 0.0, 1.0);
 			}
