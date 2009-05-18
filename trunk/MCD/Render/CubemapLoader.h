@@ -14,6 +14,8 @@ class MCD_RENDER_API CubemapLoader : public TextureLoaderBase
 public:
 	CubemapLoader();
 
+    sal_override ~CubemapLoader();
+
     /*! The texture file command
     */
     static wchar_t* texFileCmd() { return L"cubemap:"; }
@@ -25,7 +27,11 @@ public:
 		sal_maybenull std::istream* is, sal_maybenull const Path* fileId=nullptr);
 
 protected:
-	sal_override void uploadData();
+    sal_override void preUploadData();
+    sal_override void uploadData();
+    sal_override void postUploadData();
+    sal_override int textureType() const;
+
 };	// CubemapLoader
 
 }	// namespace MCD

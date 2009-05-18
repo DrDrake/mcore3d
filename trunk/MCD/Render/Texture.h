@@ -43,6 +43,10 @@ public:
 	//! Check whether the format has an alpha channel or not.
 	static bool hasAlpha(int format);
 
+	//! Tells the byte-per-pixels of the input OpenGL format.
+	static int bytePerPixel(int format);
+
+
 protected:
 	sal_override ~Texture();
 };	// Texture
