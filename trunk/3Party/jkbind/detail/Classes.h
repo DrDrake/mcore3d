@@ -16,7 +16,6 @@ public:
 	static void createObjectInstanceOnStackPure(HSQUIRRELVM v, ClassID classType, const void* c_this);
 
 	static void disableCloningForClass(HSQUIRRELVM v, ScriptObject& classObj);
-	static void disableCreatingFromScriptForClass(HSQUIRRELVM v, ScriptObject& classObj);
 	static void createMemoryControllerSlotForClass(HSQUIRRELVM v, ScriptObject& classObj);
 
 	static const int MEMORY_CONTROLLER_PARAM = 0x4567C0DE;
@@ -24,7 +23,6 @@ public:
 private:
 	static ScriptObject _findClass(HSQUIRRELVM v, ClassID classType);
 	static SQInteger _cloneDisabler(HSQUIRRELVM v);
-	static SQInteger _guardedConstructor(HSQUIRRELVM v);
 };
 
 ScriptObject createTable(HSQUIRRELVM v);

@@ -90,15 +90,6 @@ void ClassesManager::disableCloningForClass(HSQUIRRELVM v, ScriptObject& classOb
 	sq_pop(v, 1);
 }
 
-void ClassesManager::disableCreatingFromScriptForClass(HSQUIRRELVM v, ScriptObject& classObj)
-{
-	sq_pushobject(v, classObj.handle());            //class
-	sq_pushstring(v, xSTRING("constructor"), -1);   //class, name
-	sq_newclosure(v, &_guardedConstructor, 0);      //class, name, func
-	jkSCRIPT_API_VERIFY(sq_newslot(v, -3, true));        //class
-	sq_pop(v, 1);
-}
-
 void ClassesManager::createMemoryControllerSlotForClass(HSQUIRRELVM v, ScriptObject& classObj)
 {
 	sq_pushobject(v, classObj.handle());
@@ -116,11 +107,6 @@ SQInteger ClassesManager::_cloneDisabler(HSQUIRRELVM v)
 {
 	jkSCRIPT_ERROR_CLONE_DISABLED;
 	return sq_throwerror(v, xSTRING("Cloning for this class is disabled"));
-}
-
-SQInteger ClassesManager::_guardedConstructor(HSQUIRRELVM v)
-{
-	return sq_throwerror(v, xSTRING("Creating this class from script directly is prohibited"));
 }
 
 //
