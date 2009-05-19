@@ -103,6 +103,8 @@ IResourceLoader::LoadingState CubemapLoader::load(std::istream* is, const Path* 
         {
             loadingState = IResourceLoader::Aborted;
         }
+
+		mImpl->mHeight = mImpl->mWidth;
     }
     else
     {
