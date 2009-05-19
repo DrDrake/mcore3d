@@ -122,7 +122,7 @@ void Mesh::bind(DataType dataType)
 
 	int a = glGetError();
 	if(a != GL_NO_ERROR)
-		printf("OpenGl has error");
+		printf("OpenGl has error 0x%08x\n", a);
 }
 
 void Mesh::unbind()

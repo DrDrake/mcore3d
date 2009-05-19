@@ -73,7 +73,7 @@
 		shaderName="diffuseMap"
 	/>
 	<texture
-		file="../Langholmen.cubemap.bmp"
+		file="../Langholmen256x256.cubemap.bmp"
 		shaderName="envMap"
 	/>
 
@@ -118,7 +118,7 @@
                 
                 vec4 env = textureCube(envMap, osvertex);
                 
-				gl_FragColor.rgb = specular * exposure + env + texture2D(diffuseMap, gl_TexCoord[0].xy);
+				gl_FragColor = specular * exposure + env + texture2D(diffuseMap, gl_TexCoord[0].xy);
 				gl_FragColor.a = clamp(gl_FragColor.a, 0.0, 1.0);
 			}
 			]]>
