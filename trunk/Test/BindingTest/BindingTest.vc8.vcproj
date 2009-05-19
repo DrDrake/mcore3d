@@ -6,7 +6,6 @@
 	ProjectGUID="{917F03EB-E204-4D13-81A6-645A15D8B89C}"
 	RootNamespace="BindingTest"
 	Keyword="Win32Proj"
-	TargetFrameworkVersion="131072"
 	>
 	<Platforms>
 		<Platform
@@ -73,6 +72,9 @@
 				Name="VCAppVerifierTool"
 			/>
 			<Tool
+				Name="VCWebDeploymentTool"
+			/>
+			<Tool
 				Name="VCPostBuildEventTool"
 			/>
 		</Configuration>
@@ -132,6 +134,9 @@
 			/>
 			<Tool
 				Name="VCAppVerifierTool"
+			/>
+			<Tool
+				Name="VCWebDeploymentTool"
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
@@ -194,6 +199,9 @@
 				Name="VCAppVerifierTool"
 			/>
 			<Tool
+				Name="VCWebDeploymentTool"
+			/>
+			<Tool
 				Name="VCPostBuildEventTool"
 			/>
 		</Configuration>
@@ -201,22 +209,14 @@
 	<References>
 		<ProjectReference
 			ReferencedProjectIdentifier="{8B671592-CBBD-4F9E-BACA-1E4AC1575AC2}"
-			RelativePathToProject="..\MCD\Core\Core.vcproj"
+			RelativePathToProject="..\MCD\Core\Core.vc8.vcproj"
 		/>
 		<ProjectReference
 			ReferencedProjectIdentifier="{5813D158-EC1E-4305-8122-8573958150FE}"
-			RelativePathToProject="..\Binding\Binding.vcproj"
+			RelativePathToProject="..\Binding\Binding.vc8.vcproj"
 		/>
 	</References>
 	<Files>
-		<File
-			RelativePath=".\BasicTest.cpp"
-			>
-		</File>
-		<File
-			RelativePath=".\BasicTest.nut"
-			>
-		</File>
 		<File
 			RelativePath=".\Common.cpp"
 			>

@@ -35,7 +35,7 @@ public:
         for( int i=0; i<6; ++i )
         {
             glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X+i, 0, mFormat, mWidth, mWidth,
-				0, GL_BGR, GL_UNSIGNED_BYTE, buf);
+				0, mFormat, GL_UNSIGNED_BYTE, buf);
 
             buf += imageSize;
         }
@@ -87,7 +87,11 @@ IResourceLoader::LoadingState CubemapLoader::load(std::istream* is, const Path* 
 
     if(nullptr != loader)
     {
-        loadingState = loader->load(is, fileId);
+        while( !(loadingState & Stopped))
+        {
+            loadingState = loader->load(is, fileId);
+        }
+
         loader->retriveData
             ( &mImpl->mImageData
             , mImpl->mWidth
@@ -104,7 +108,7 @@ IResourceLoader::LoadingState CubemapLoader::load(std::istream* is, const Path* 
             loadingState = IResourceLoader::Aborted;
         }
 
-		mImpl->mHeight = mImpl->mWidth;
+		//mImpl->mHeight = mImpl->mWidth;
     }
     else
     {
@@ -134,38 +138,35 @@ void CubemapLoader::preUploadData()
 		glHint(GL_GENERATE_MIPMAP_HINT, GL_NICEST);
 		glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_GENERATE_MIPMAP, GL_TRUE);
 
-        glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_REPEAT);
-        glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_REPEAT);
-        glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_REPEAT);
+        glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP);
+        glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP);
+        glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP);
 
 		glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
 		glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR_MIPMAP_LINEAR);
 	}
 	else
     {
+        glEnable(GL_TEXTURE_CUBE_MAP);
 		glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_GENERATE_MIPMAP, GL_FALSE);
         
-        glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_REPEAT);
-        glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_REPEAT);
-        glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_REPEAT);
+        glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP);
+        glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP);
+        glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP);
 
 		glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 		glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 	}
 }
 
-void CubemapLoader::postUploadData()
-{
-	// Seems that glGenerateMipmapEXT didn't work for normal texture rather than FBO
-	// Reference: http://www.gamedev.net/community/forums/topic.asp?topic_id=495747
-//	if(glGenerateMipmapEXT)
-//		glGenerateMipmapEXT(GL_TEXTURE_2D);
-}
-
 void CubemapLoader::uploadData()
 {
 	MCD_ASSUME(mImpl != nullptr);
 	static_cast<LoaderImpl*>(mImpl)->upload();
+}
+
+void CubemapLoader::postUploadData()
+{
 }
 
 }	// namespace MCD
