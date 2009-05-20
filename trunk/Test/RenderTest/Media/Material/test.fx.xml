@@ -73,7 +73,7 @@
 		shaderName="diffuseMap"
 	/>
 	<texture
-		file="../Langholmen256x256.cubemap.bmp"
+		file="../Langholmen1024x1024.cubemap.jpg"
 		shaderName="envMap"
 	/>
 

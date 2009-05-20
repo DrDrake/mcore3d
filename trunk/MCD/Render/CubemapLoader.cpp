@@ -59,61 +59,50 @@ IResourceLoader::LoadingState CubemapLoader::load(std::istream* is, const Path* 
 	if(loadingState & Stopped)
 		return loadingState;
 
-	std::wstring ext = fileId->getExtension();
-
-	// initialize
-	mImpl->mImageData = nullptr;
-	mImpl->mWidth = mImpl->mHeight = mImpl->mFormat = 0;
-
-    TextureLoaderBase* loader = nullptr;
-
-	// dispatch to other image loaders
-	if(wstrCaseCmp(ext.c_str(), L"bmp")==0)
-	{
-        loader = new BitmapLoader;
-	}
-	else if(wstrCaseCmp(ext.c_str(), L"jpg")==0)
-	{
-		loader = new JpegLoader;
-	}
-	else if(wstrCaseCmp(ext.c_str(), L"png")==0)
-	{
-		loader = new PngLoader;
-	}
-	else if(wstrCaseCmp(ext.c_str(), L"tga")==0)
-	{
-		loader = new TgaLoader;
-	}
-
-    if(nullptr != loader)
+    LoaderImpl* impl = static_cast<LoaderImpl*>(mImpl);
+    
+    if(nullptr == impl->mLoaderDelegate.get())
     {
-        while( !(loadingState & Stopped))
-        {
-            loadingState = loader->load(is, fileId);
-        }
+        std::wstring ext = fileId->getExtension();
 
-        loader->retriveData
+        TextureLoaderBase* loader = nullptr;
+
+	    // dispatch to other image loaders
+	    if(wstrCaseCmp(ext.c_str(), L"bmp")==0)
+	    {
+            loader = new BitmapLoader;
+	    }
+	    else if(wstrCaseCmp(ext.c_str(), L"jpg")==0)
+	    {
+		    loader = new JpegLoader;
+	    }
+	    else if(wstrCaseCmp(ext.c_str(), L"png")==0)
+	    {
+		    loader = new PngLoader;
+	    }
+	    else if(wstrCaseCmp(ext.c_str(), L"tga")==0)
+	    {
+		    loader = new TgaLoader;
+	    }
+
+        ScopeLock lock(mImpl->mMutex);
+        impl->mLoaderDelegate.reset(loader);
+    }
+
+    loadingState = impl->mLoaderDelegate->load(is, fileId);
+
+    if(Loaded == loadingState)
+    {
+        ScopeLock lock(mImpl->mMutex);
+
+        impl->mLoaderDelegate->retriveData
             ( &mImpl->mImageData
             , mImpl->mWidth
             , mImpl->mHeight
             , mImpl->mFormat);
-
-		// mLoaderDelegate will be destroyed(accessed) in destructor,
-		// so we must also lock all operations that involve mLoaderDelegate
-		ScopeLock lock(mImpl->mMutex);
-        static_cast<LoaderImpl*>(mImpl)->mLoaderDelegate.reset(loader);
-
+        
         if(mImpl->mHeight != 6 * mImpl->mWidth)
-        {
             loadingState = IResourceLoader::Aborted;
-        }
-
-		//mImpl->mHeight = mImpl->mWidth;
-    }
-    else
-    {
-		ScopeLock lock(mImpl->mMutex);
-        loadingState = IResourceLoader::Aborted;
     }
 
 	return loadingState;
