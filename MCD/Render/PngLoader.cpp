@@ -63,16 +63,28 @@ public:
 
 		switch(color_type) {
 		case PNG_COLOR_TYPE_RGB:
-			mFormat = GL_RGB;
+			{
+				mFormat = GL_RGB;
+				mInternalFmt = GL_RGB;
+			}
 			break;
 		case PNG_COLOR_TYPE_RGB_ALPHA:
-			mFormat = GL_RGBA;
+			{
+				mFormat = GL_RGBA;
+				mInternalFmt = GL_RGBA;
+			}
 			break;
 		case PNG_COLOR_TYPE_GRAY:
-			mFormat = GL_LUMINANCE;
+			{
+				mFormat = GL_LUMINANCE;
+				mInternalFmt = GL_LUMINANCE;
+			}
 			break;
 		case PNG_COLOR_TYPE_GRAY_ALPHA:
-			mFormat = GL_LUMINANCE_ALPHA;
+			{
+				mFormat = GL_LUMINANCE_ALPHA;
+				mInternalFmt = GL_LUMINANCE_ALPHA;
+			}
 			break;
 		case PNG_COLOR_TYPE_PALETTE:	// Color palette is not supported
 			Log::write(Log::Error, L"PngLoader: image using color palette is not supported, operation aborted");
@@ -189,7 +201,7 @@ void PngLoader::uploadData()
 	MCD_ASSERT(mImpl->mMutex.isLocked());
 
 	if(mImpl->mImageData)
-		glTexImage2D(GL_TEXTURE_2D, 0, impl->mFormat, impl->mWidth, impl->mHeight,
+		glTexImage2D(GL_TEXTURE_2D, 0, impl->mInternalFmt, impl->mWidth, impl->mHeight,
 		0, impl->mFormat, GL_UNSIGNED_BYTE, impl->mImageData);
 }
 

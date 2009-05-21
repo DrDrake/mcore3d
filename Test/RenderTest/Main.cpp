@@ -14,7 +14,7 @@ int main(int, char const*[])
 	runner.ShowTestName(false);
 
 	//ret = runner.RunAllTests();
-    ret = runner.RunTest("MaterialTest");
+	ret = runner.RunTest("MeshComponentTest");
 
 	return int(ret);
 }

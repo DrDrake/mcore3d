@@ -70,7 +70,8 @@ public:
 		mWidth = infoHeader.biWidth;
 
 		// Only RGB is supported
-		mFormat = GL_RGB;
+		mFormat = GL_BGR;
+		mInternalFmt = GL_RGB;
 
 		if(infoHeader.biBitCount != 24) {
 			Log::format(Log::Error, L"BitmapLoader: Only 24-bit color is supported, operation aborted");
@@ -121,8 +122,8 @@ public:
 
 	void upload()
 	{
-		glTexImage2D(GL_TEXTURE_2D, 0, mFormat, mWidth, mHeight,
-			0, GL_BGR, GL_UNSIGNED_BYTE, &mImageData[0]);	// Note that the external format is GL_BGR but not GL_RGB
+		glTexImage2D(GL_TEXTURE_2D, 0, mInternalFmt, mWidth, mHeight,
+			0, mFormat, GL_UNSIGNED_BYTE, &mImageData[0]);	// Note that the external format is GL_BGR but not GL_RGB
 	}
 };	// LoaderImpl
 
