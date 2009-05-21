@@ -105,6 +105,8 @@ IResourceLoader::LoadingState CubemapLoader::load(std::istream* is, const Path* 
         
         if(mImpl->mHeight != 6 * mImpl->mWidth)
             loadingState = IResourceLoader::Aborted;
+		else
+			mImpl->mHeight = mImpl->mWidth;
     }
 
 	return loadingState;
