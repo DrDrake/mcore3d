@@ -45,7 +45,7 @@ public:
 		LoaderBaseImpl(loader),
 		mDecoder(nullptr), mStream(nullptr),
 		mRowBytes(0),
-		mInternalFormat(-1), mExternalFormat(-1),
+		//mInternalFormat(-1), mExternalFormat(-1),
 		mProcessedLines(0)
 	{
 	}
@@ -74,10 +74,10 @@ public:
 
 			int c = mDecoder->get_num_components();
 			if(c == 1)
-				mInternalFormat = mExternalFormat = GL_LUMINANCE;
+				mInternalFmt = mFormat = GL_LUMINANCE;
 			else if(c == 3) {
-				mInternalFormat = GL_RGB;
-				mExternalFormat = GL_RGBA;
+				mInternalFmt = GL_RGB;
+				mFormat = GL_RGBA;
 			}
 			else {
 				Log::format(Log::Error, L"JpegLoader: image with number of color component equals to %i is not supported, operation aborted", c);
@@ -86,7 +86,7 @@ public:
 
 			mWidth = mDecoder->get_width();
 			mHeight = mDecoder->get_height();
-			mFormat = mInternalFormat;
+			//mFormat = mInternalFormat;
 			mRowBytes = mDecoder->get_bytes_per_scan_line();
 
 			mImageData = new byte_t[mRowBytes * mHeight];
@@ -111,8 +111,8 @@ public:
 	Stream* mStream;
 
 	size_t mRowBytes;		// Number of byte per row of image data
-	int mInternalFormat;
-	int mExternalFormat;
+	//int mInternalFormat;
+	//int mExternalFormat;
 	size_t mProcessedLines;	// The current number of processed scan line
 };	// LoaderImpl
 
@@ -168,8 +168,8 @@ void JpegLoader::uploadData()
 	// NOTE: To compress texture on the fly, just pass GL_COMPRESSED_XXX_ARB as the internal format
 	// Reference: www.oldunreal.com/editing/s3tc/ARB_texture_compression.pdf
 	if(mImpl->mImageData)
-		glTexImage2D(GL_TEXTURE_2D, 0, impl->mInternalFormat, impl->mWidth, impl->mHeight,
-		0, impl->mExternalFormat, GL_UNSIGNED_BYTE, impl->mImageData);
+		glTexImage2D(GL_TEXTURE_2D, 0, impl->mInternalFmt, impl->mWidth, impl->mHeight,
+		0, impl->mFormat, GL_UNSIGNED_BYTE, impl->mImageData);
 }
 
 }	// namespace MCD

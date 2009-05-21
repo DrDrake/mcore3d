@@ -34,7 +34,7 @@ public:
 
         for( int i=0; i<6; ++i )
         {
-            glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X+i, 0, mFormat, mWidth, mWidth,
+            glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X+i, 0, mInternalFmt, mWidth, mWidth,
 				0, mFormat, GL_UNSIGNED_BYTE, buf);
 
             buf += imageSize;
@@ -99,7 +99,9 @@ IResourceLoader::LoadingState CubemapLoader::load(std::istream* is, const Path* 
             ( &mImpl->mImageData
             , mImpl->mWidth
             , mImpl->mHeight
-            , mImpl->mFormat);
+            , mImpl->mFormat
+			, mImpl->mInternalFmt
+			);
         
         if(mImpl->mHeight != 6 * mImpl->mWidth)
             loadingState = IResourceLoader::Aborted;
@@ -143,8 +145,8 @@ void CubemapLoader::preUploadData()
         glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP);
         glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP);
 
-		glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-		glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+		glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+		glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 	}
 }
 

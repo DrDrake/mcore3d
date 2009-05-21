@@ -128,7 +128,7 @@ int TextureLoaderBase::textureType() const
     return GL_TEXTURE_2D;
 }
 
-void TextureLoaderBase::retriveData( byte_t** imageData, size_t& width, size_t& height, int& format )
+void TextureLoaderBase::retriveData( byte_t** imageData, size_t& width, size_t& height, int& format, int& internalFmt )
 {
 	if(!mImpl)
 		return;
@@ -136,6 +136,7 @@ void TextureLoaderBase::retriveData( byte_t** imageData, size_t& width, size_t& 
 	width = mImpl->mWidth;
 	height = mImpl->mHeight;
 	format = mImpl->mFormat;
+	internalFmt = mImpl->mInternalFmt;
 
     size_t allocSize = width * height * Texture::bytePerPixel(format);
 

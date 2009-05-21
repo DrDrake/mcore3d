@@ -13,11 +13,12 @@ public:
 	virtual ~LoaderBaseImpl();
 
 	TextureLoaderBase& mLoader;
-	byte_t* mImageData;
+	byte_t* mImageData; /*!< byte array which holds the pixels */
 
-	size_t mWidth;
-	size_t mHeight;
-	int mFormat;
+	size_t mWidth;		/*!< width of the image */
+	size_t mHeight;		/*!< height of the image */
+	int mFormat;		/*!< describes which color-component exists in the mImageData */
+	int mInternalFmt;	/*!< describes how the color-components are layed out e.g. RGB vs BGR */
 
 	Mutex mMutex;
 };	// LoaderBaseImpl

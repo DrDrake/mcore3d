@@ -41,13 +41,18 @@ public:
 		const size_t bytePerPixel = header[16] / 8;
 
 		if(bytePerPixel == 3)
-			mFormat = GL_RGB;
+			mInternalFmt = GL_RGB;
 		else if(bytePerPixel == 4)
-			mFormat = GL_RGBA;
+			mInternalFmt = GL_RGBA;
 		else {
 			Log::format(Log::Error, L"TgaLoader: Invalid bit-per pixel, operation aborted");
 			return -1;
 		}
+
+		if(mInternalFmt == GL_RGB)
+			mFormat = GL_BGR;
+		if(mInternalFmt == GL_RGBA)
+			mFormat = GL_BGRA;
 
 		// Memory usage for one row of image
 		const size_t rowByte = mWidth * (sizeof(char) * bytePerPixel);
@@ -123,14 +128,8 @@ public:
 
 	void upload()
 	{
-		int externalFormat = 0;
-		if(mFormat == GL_RGB)
-			externalFormat = GL_BGR;
-		if(mFormat == GL_RGBA)
-			externalFormat = GL_BGRA;
-
-		glTexImage2D(GL_TEXTURE_2D, 0, mFormat, mWidth, mHeight,
-			0, externalFormat, GL_UNSIGNED_BYTE, &mImageData[0]);	// Note that the external format is GL_BGR but not GL_RGB
+		glTexImage2D(GL_TEXTURE_2D, 0, mInternalFmt, mWidth, mHeight,
+			0, mFormat, GL_UNSIGNED_BYTE, &mImageData[0]);	// Note that the external format is GL_BGR but not GL_RGB
 	}
 };	// LoaderImpl
 

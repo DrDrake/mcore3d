@@ -42,7 +42,7 @@ public:
 		(e.g cubemap, volume-texture, texture-array... etc). 
         \note The returned imageData is valid until this loader is destroyed
 	*/
-	virtual void retriveData(byte_t** imageData, size_t& width, size_t& height, int& format);
+	virtual void retriveData(byte_t** imageData, size_t& width, size_t& height, int& format, int& internalFmt );
 
 protected:
 	/*!	Derived class should implements this function to upload the
