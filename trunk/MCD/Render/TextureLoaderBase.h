@@ -24,7 +24,7 @@ protected:
 	void setImpl(LoaderBaseImpl* impl);
 
 public:
-    sal_override ~TextureLoaderBase();
+	sal_override ~TextureLoaderBase();
 
 // Operations
 	/*!	Commit the data form it's internal buffer to the resource.
@@ -40,7 +40,7 @@ public:
 public:
 	/*! Data access interface for higher level texture loaders
 		(e.g cubemap, volume-texture, texture-array... etc). 
-        \note The returned imageData is valid until this loader is destroyed
+		\note The returned imageData is valid until this loader is destroyed
 	*/
 	virtual void retriveData(byte_t** imageData, size_t& width, size_t& height, int& format, int& internalFmt );
 
@@ -63,7 +63,7 @@ protected:
 	 */
 	virtual void postUploadData();
 
-    virtual int textureType() const;
+	virtual int textureType() const;
 
 protected:
 	LoaderBaseImpl* mImpl;

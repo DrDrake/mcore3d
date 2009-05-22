@@ -86,7 +86,6 @@ public:
 
 			mWidth = mDecoder->get_width();
 			mHeight = mDecoder->get_height();
-			//mFormat = mInternalFormat;
 			mRowBytes = mDecoder->get_bytes_per_scan_line();
 
 			mImageData = new byte_t[mRowBytes * mHeight];
