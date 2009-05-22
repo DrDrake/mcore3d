@@ -110,8 +110,6 @@ public:
 	Stream* mStream;
 
 	size_t mRowBytes;		// Number of byte per row of image data
-	//int mInternalFormat;
-	//int mExternalFormat;
 	size_t mProcessedLines;	// The current number of processed scan line
 };	// LoaderImpl
 
@@ -128,7 +126,7 @@ IResourceLoader::LoadingState JpegLoader::load(std::istream* is, const Path*)
 	Mutex& mutex = mImpl->mMutex;
 	ScopeLock lock(mutex);
 
-	loadingState = is ? NotLoaded : Aborted;
+	loadingState = is ? loadingState : Aborted;
 
 	if(loadingState & Stopped)
 		return loadingState;

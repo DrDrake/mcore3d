@@ -54,8 +54,6 @@ IResourceLoader::LoadingState CubemapLoader::load(std::istream* is, const Path* 
 {
 	MCD_ASSUME(mImpl != nullptr);
 
-	loadingState = is ? NotLoaded : Aborted;
-
 	if(loadingState & Stopped)
 		return loadingState;
 
@@ -89,12 +87,12 @@ IResourceLoader::LoadingState CubemapLoader::load(std::istream* is, const Path* 
 		impl->mLoaderDelegate.reset(loader);
 	}
 
-	loadingState = impl->mLoaderDelegate->load(is, fileId);
+	volatile LoadingState tmpState = impl->mLoaderDelegate->load(is, fileId);
 
-	if(Loaded == loadingState)
+	ScopeLock lock(mImpl->mMutex);
+	loadingState = tmpState;
+	if((CanCommit & loadingState))
 	{
-		ScopeLock lock(mImpl->mMutex);
-
 		impl->mLoaderDelegate->retriveData
 			( &mImpl->mImageData
 			, mImpl->mWidth
@@ -160,6 +158,16 @@ void CubemapLoader::uploadData()
 
 void CubemapLoader::postUploadData()
 {
+	TextureLoaderBase::postUploadData();
+
+	// NOTE: mImpl may become null, after TextureLoaderBase::postUploadData() is called.
+	if(!mImpl)
+		return;
+
+	// Update the delegated loader's loading state as this one,
+	// after postUploadData() is invoked
+	LoaderImpl* impl = static_cast<LoaderImpl*>(mImpl);
+	impl->mLoaderDelegate->loadingState = loadingState;
 }
 
 }	// namespace MCD
