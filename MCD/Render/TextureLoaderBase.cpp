@@ -11,7 +11,7 @@ namespace MCD {
 TextureLoaderBase::LoaderBaseImpl::LoaderBaseImpl(TextureLoaderBase& loader)
 	:
 	mLoader(loader), mImageData(nullptr),
-	mWidth(0), mHeight(0), mFormat(-1)
+	mWidth(0), mHeight(0), mFormat(-1), mInternalFmt(-1)
 {
 }
 
@@ -55,7 +55,7 @@ void TextureLoaderBase::commit(Resource& resource)
 
 	texture.width = mImpl->mWidth;
 	texture.height = mImpl->mHeight;
-	texture.format = mImpl->mFormat;
+	texture.format = mImpl->mInternalFmt;
 	texture.type = textureType();	// Currently only support the loading of 2D texture
 
 	if(!isPowerOf2(mImpl->mWidth) || !isPowerOf2(mImpl->mHeight))
@@ -125,7 +125,7 @@ void TextureLoaderBase::postUploadData()
 
 int TextureLoaderBase::textureType() const
 {
-    return GL_TEXTURE_2D;
+	return GL_TEXTURE_2D;
 }
 
 void TextureLoaderBase::retriveData( byte_t** imageData, size_t& width, size_t& height, int& format, int& internalFmt )
@@ -138,9 +138,9 @@ void TextureLoaderBase::retriveData( byte_t** imageData, size_t& width, size_t& 
 	format = mImpl->mFormat;
 	internalFmt = mImpl->mInternalFmt;
 
-    size_t allocSize = width * height * Texture::bytePerPixel(format);
+	size_t allocSize = width * height * Texture::bytePerPixel(format);
 
-    *imageData = new byte_t[allocSize];
+	*imageData = new byte_t[allocSize];
 	memcpy(*imageData, mImpl->mImageData, allocSize);
 }
 

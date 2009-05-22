@@ -70,7 +70,7 @@ public:
 		mWidth = infoHeader.biWidth;
 
 		// Only RGB is supported
-		mFormat = GL_BGR;
+		mFormat = GL_BGR;	// Note that the format is GL_BGR but not GL_RGB
 		mInternalFmt = GL_RGB;
 
 		if(infoHeader.biBitCount != 24) {
@@ -123,7 +123,7 @@ public:
 	void upload()
 	{
 		glTexImage2D(GL_TEXTURE_2D, 0, mInternalFmt, mWidth, mHeight,
-			0, mFormat, GL_UNSIGNED_BYTE, &mImageData[0]);	// Note that the external format is GL_BGR but not GL_RGB
+			0, mFormat, GL_UNSIGNED_BYTE, &mImageData[0]);
 	}
 };	// LoaderImpl
 

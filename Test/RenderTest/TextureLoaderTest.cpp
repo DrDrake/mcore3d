@@ -34,23 +34,24 @@ struct TestStruct
 	const wchar_t* path;
 	size_t expectingWidth;
 	size_t expectingHeight;
+	int format;
 };
 
 TestStruct gTestStruct[] = {
-	{ L"4x4.bmp",					4,   4   },
-	{ L"4x4.jpg",					4,   4   },
-	{ L"4x4.png",					4,   4   },
-	{ L"Gray512x512.jpg",			512, 512 },
-	{ L"Normal512x512.jpg",			512, 512 },
-	{ L"Progressive512x512.jpg",	512, 512 },
-	{ L"Interlaced256x256.png",		256, 256 },
-	{ L"InterlacedGray256x256.png",	256, 256 },
-	{ L"InterlacedTrans256x256.png",256, 256 },
-	{ L"normal128x128.png",			128, 128 },
-	{ L"Compressed256x256.tga",		256, 256 },
-	{ L"CompressedTrans256x256.tga",256, 256 },
-	{ L"Normal128x128.tga",			128, 128 },
-	{ L"NormalTrans128x128.tga",	128, 128 },
+	{ L"4x4.bmp",					4,   4,   GL_RGB },
+	{ L"4x4.jpg",					4,   4,   GL_RGB },
+	{ L"4x4.png",					4,   4,   GL_RGB },
+	{ L"Gray512x512.jpg",			512, 512, GL_LUMINANCE },
+	{ L"Normal512x512.jpg",			512, 512, GL_RGB },
+	{ L"Progressive512x512.jpg",	512, 512, GL_RGB },
+	{ L"Interlaced256x256.png",		256, 256, GL_RGB },
+	{ L"InterlacedGray256x256.png",	256, 256, GL_LUMINANCE },
+	{ L"InterlacedTrans256x256.png",256, 256, GL_RGBA },
+	{ L"normal128x128.png",			128, 128, GL_RGB },
+	{ L"Compressed256x256.tga",		256, 256, GL_RGB },
+	{ L"CompressedTrans256x256.tga",256, 256, GL_RGBA },
+	{ L"Normal128x128.tga",			128, 128, GL_RGB },
+	{ L"NormalTrans128x128.tga",	128, 128, GL_RGBA },
 };
 
 TEST(Syn_TextureLoaderTest)
@@ -90,6 +91,7 @@ TEST(Syn_TextureLoaderTest)
 		CHECK_EQUAL(IResourceLoader::Loaded, loader->getLoadingState());
 		CHECK_EQUAL(gTestStruct[i].expectingWidth, texture.width);
 		CHECK_EQUAL(gTestStruct[i].expectingHeight, texture.height);
+		CHECK_EQUAL(gTestStruct[i].format, texture.format);
 	}
 }
 
