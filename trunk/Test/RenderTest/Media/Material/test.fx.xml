@@ -118,7 +118,8 @@
                 
                 vec4 env = textureCube(envMap, osvertex);
                 
-				gl_FragColor = specular * exposure + env + texture2D(diffuseMap, gl_TexCoord[0].xy);
+				//gl_FragColor = specular * exposure + env + texture2D(diffuseMap, gl_TexCoord[0].xy);
+				gl_FragColor = env;
 				gl_FragColor.a = clamp(gl_FragColor.a, 0.0, 1.0);
 			}
 			]]>
@@ -127,7 +128,7 @@
 </pass>
 
 <pass
-	enable="true"
+	enable="false"
 	drawLine="true"
 	lineWidth="5"
 	cullMode="front"
