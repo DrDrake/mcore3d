@@ -10,7 +10,7 @@ namespace MCD {
 Frustum::Frustum()
 {
 	projectionType = Perspective;
-	create(60, 4.0f/3, 1, 500);
+	create(45, 4.0f/3, 0.1f, 500);
 }
 
 void Frustum::create(float fovy, float aspect, float n, float f)
