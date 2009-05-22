@@ -72,19 +72,14 @@ void TextureLoaderBase::commit(Resource& resource)
 	uploadData();
 	postUploadData();
 
-	if(loadingState == Loaded) {
-		// The loader finish it's job, lets free up the resources
-		delete mImpl;
-		mImpl = nullptr;
-
+	// The invocation of postUploadData() may deleted mImpl
+	if(!mImpl) {
 		// The destruction of mImpl will release the mutex
 		lock.cancel();
 
 		// We are no-longer protected by the mutex, make a return statment
 		// to foolproof any attempt to do anything.
 		return;
-	} else {
-		loadingState = Loading;
 	}
 }
 
@@ -121,6 +116,22 @@ void TextureLoaderBase::postUploadData()
 	// Reference: http://www.gamedev.net/community/forums/topic.asp?topic_id=495747
 //	if(glGenerateMipmapEXT)
 //		glGenerateMipmapEXT(GL_TEXTURE_2D);
+
+	if(loadingState == Loaded) {
+		// The loader finish it's job, lets free up the resources
+		// NOTE: We must use set mImpl = null before deleting mImpl,
+		// otherwise the act of delete mImpl will unlock the mutex and
+		// so another thread may have daling mImpl pointer.
+		LoaderBaseImpl* tmp = mImpl;
+		mImpl = nullptr;
+		delete tmp;
+
+		// We are no-longer protected by the mutex, make a return statment
+		// to foolproof any attempt to do anything.
+		return;
+	} else {
+		loadingState = Loading;
+	}
 }
 
 int TextureLoaderBase::textureType() const
@@ -128,7 +139,8 @@ int TextureLoaderBase::textureType() const
 	return GL_TEXTURE_2D;
 }
 
-void TextureLoaderBase::retriveData( byte_t** imageData, size_t& width, size_t& height, int& format, int& internalFmt )
+// TODO: Can we remove this function? This function preform an expensive memory copy!
+void TextureLoaderBase::retriveData(byte_t** imageData, size_t& width, size_t& height, int& format, int& internalFmt)
 {
 	if(!mImpl)
 		return;
@@ -140,6 +152,9 @@ void TextureLoaderBase::retriveData( byte_t** imageData, size_t& width, size_t& 
 
 	size_t allocSize = width * height * Texture::bytePerPixel(format);
 
+	// Remember retriveData() may called multiple times, so do cleanup if *imageData != null
+	if(*imageData != nullptr)
+		delete[] *imageData;
 	*imageData = new byte_t[allocSize];
 	memcpy(*imageData, mImpl->mImageData, allocSize);
 }

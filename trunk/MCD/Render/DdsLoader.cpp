@@ -325,25 +325,20 @@ DdsLoader::DdsLoader()
 IResourceLoader::LoadingState DdsLoader::load(std::istream* is, const Path*)
 {
 	MCD_ASSUME(mImpl != nullptr);
+	ScopeLock lock(mImpl->mMutex);
 
-	loadingState = is ? NotLoaded : Aborted;
-
+	loadingState = is ? loadingState : Aborted;
 	if(loadingState & Stopped)
 		return loadingState;
 
-	// There is no need to do a mutex lock during loading, since
-	// no body can access the mImageData if the loading isn't finished.
-	int result = static_cast<LoaderImpl*>(mImpl)->load(*is);
+	int result;
+	{	// There is no need to do a mutex lock during loading, since
+		// no body can access the mImageData if the loading isn't finished.
+		ScopeUnlock unlock(mImpl->mMutex);
+		result = static_cast<LoaderImpl*>(mImpl)->load(*is);
+	}
 
-	Mutex& mutex = mImpl->mMutex;
-	ScopeLock lock(mutex);
-
-	if(result != 0)
-		loadingState = Aborted;
-	else
-		loadingState = Loaded;
-
-	return loadingState;
+	return (loadingState = (result == 0) ? Loaded : Aborted);
 }
 
 void DdsLoader::uploadData()
