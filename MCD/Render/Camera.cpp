@@ -11,7 +11,7 @@ Camera::Camera()
 {
 }
 
-Camera::Camera(const Vec3f& pos, const Vec3f look, const Vec3f& up)
+Camera::Camera(const Vec3f& pos, const Vec3f& look, const Vec3f& up)
 	: position(pos), lookAt(look), upVector(up)
 {
 }

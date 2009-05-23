@@ -104,6 +104,7 @@ IResourceLoader::LoadingState CubemapLoader::load(std::istream* is, const Path* 
 		if(mImpl->mHeight != 6 * mImpl->mWidth)
 			loadingState = IResourceLoader::Aborted;
 		else
+			// Shut up the warning of non-power of 2 texture in the delegate loader.
 			mImpl->mHeight = mImpl->mWidth;
 	}
 
@@ -141,6 +142,7 @@ void CubemapLoader::preUploadData()
 		glEnable(GL_TEXTURE_CUBE_MAP);
 		glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_GENERATE_MIPMAP, GL_FALSE);
 
+		// NOTE: Use GL_CLAMP_TO_EDGE, otherwise there will be seams when using GL_LINEAR
 		glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
 		glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 		glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);

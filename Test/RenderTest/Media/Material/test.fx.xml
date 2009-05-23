@@ -80,20 +80,20 @@
 	<shader>
 		<!-- Reference external file as vertex shader -->
 		<vertex>
-            <![CDATA[
-            varying vec3 vertex, normal, lightDir, osvertex;
-            
-            void main()
-            {
-                osvertex = gl_Vertex.xyz;
-                vertex = (gl_Position = ftransform()).xyz;
-                // No need to do normalize since we do it on fragment shader anyway
-                normal = gl_NormalMatrix * gl_Normal;
-                lightDir = normalize(gl_LightSource[0].position.xyz);
-                gl_TexCoord[0] = gl_MultiTexCoord0;
-            }
-            ]]>
-        <vertex/>
+		<![CDATA[
+		varying vec3 vertex, normal, lightDir, osvertex;
+
+		void main()
+		{
+			osvertex = gl_Vertex.xyz;
+			vertex = (gl_Position = ftransform()).xyz;
+			// No need to do normalize since we do it on fragment shader anyway
+			normal = gl_NormalMatrix * gl_Normal;
+			lightDir = normalize(gl_LightSource[0].position.xyz);
+			gl_TexCoord[0] = gl_MultiTexCoord0;
+		}
+		]]>
+		</vertex>
 
 		<!-- Define the fragment shader just inside the xml -->
 		<fragment>
@@ -101,9 +101,9 @@
 			<![CDATA[
 			varying vec3 vertex, normal, lightDir, osvertex;
 			uniform sampler2D diffuseMap;
-            uniform samplerCube envMap;
+			uniform samplerCube envMap;
 			uniform float exposure;
-            
+
 			void main()
 			{
 				vec4 ambient = gl_FrontLightProduct[0].ambient;
@@ -113,13 +113,13 @@
 
 				diffuse *= max(dot(n, lightDir), 0.0);
 				vec3 refl = -reflect(lightDir, n);
-                float frensel = pow(max(dot(refl, normalize(-vertex)), 0.0), gl_FrontMaterial.shininess);
+				float frensel = pow(max(dot(refl, normalize(-vertex)), 0.0), gl_FrontMaterial.shininess);
 				specular *= frensel;
-                
-                vec4 env = textureCube(envMap, osvertex);
-                
-				//gl_FragColor = specular * exposure + env + texture2D(diffuseMap, gl_TexCoord[0].xy);
-				gl_FragColor = env;
+
+				vec4 env = textureCube(envMap, osvertex);
+
+				gl_FragColor = specular * exposure + env + texture2D(diffuseMap, gl_TexCoord[0].xy);
+				//gl_FragColor = env;
 				gl_FragColor.a = clamp(gl_FragColor.a, 0.0, 1.0);
 			}
 			]]>
