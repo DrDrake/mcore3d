@@ -18,8 +18,9 @@
 	<Configurations>
 		<Configuration
 			Name="Debug|Win32"
+			OutputDirectory="../../Bin"
 			IntermediateDirectory="$(ConfigurationName)"
-			ConfigurationType="4"
+			ConfigurationType="2"
 			InheritedPropertySheets="..\General.vsprops;..\Debug.vsprops"
 			CharacterSet="1"
 			>
@@ -40,6 +41,7 @@
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
+				PreprocessorDefinitions="SQUIRREL_API=__declspec(dllexport)"
 				RuntimeTypeInfo="false"
 				DisableSpecificWarnings="4100; 4127; 4189; 4702"
 			/>
@@ -53,7 +55,9 @@
 				Name="VCPreLinkEventTool"
 			/>
 			<Tool
-				Name="VCLibrarianTool"
+				Name="VCLinkerTool"
+				OutputFile="$(OutDir)\$(ProjectName)d.dll"
+				ImportLibrary="../../Lib/$(TargetName).lib"
 			/>
 			<Tool
 				Name="VCALinkTool"
@@ -73,8 +77,9 @@
 		</Configuration>
 		<Configuration
 			Name="Release|Win32"
+			OutputDirectory="../../Bin"
 			IntermediateDirectory="$(ConfigurationName)"
-			ConfigurationType="4"
+			ConfigurationType="2"
 			InheritedPropertySheets="..\General.vsprops;..\Release.vsprops"
 			CharacterSet="1"
 			>
@@ -95,6 +100,7 @@
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
+				PreprocessorDefinitions="SQUIRREL_API=__declspec(dllexport)"
 				RuntimeTypeInfo="false"
 				DisableSpecificWarnings="4100; 4127; 4189; 4702"
 			/>
@@ -108,7 +114,8 @@
 				Name="VCPreLinkEventTool"
 			/>
 			<Tool
-				Name="VCLibrarianTool"
+				Name="VCLinkerTool"
+				ImportLibrary="../../Lib/$(TargetName).lib"
 			/>
 			<Tool
 				Name="VCALinkTool"
