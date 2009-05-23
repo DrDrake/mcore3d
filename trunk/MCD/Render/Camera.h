@@ -20,7 +20,7 @@ public:
 	 */
 	Camera();
 
-	Camera(const Vec3f& position, const Vec3f lookAt, const Vec3f& upVector);
+	Camera(const Vec3f& position, const Vec3f& lookAt, const Vec3f& upVector);
 
 // Operations
 	void move(const Vec3f& direction, float amount);
