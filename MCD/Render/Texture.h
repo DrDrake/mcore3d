@@ -48,6 +48,10 @@ public:
 	 */
 	static int bytePerPixel(int format);
 
+    /*! Returns whether the auto-generated mipmaps global option is enabled.
+    */
+    static bool autoGenMipmapEnabled();
+
 protected:
 	sal_override ~Texture();
 };	// Texture

@@ -92,7 +92,7 @@ IResourceLoader::LoadingState TextureLoaderBase::getLoadingState() const
 void TextureLoaderBase::preUploadData()
 {
 	// TODO: Should set the filtering via option strings
-	const bool generateMipMap = false;
+	const bool generateMipMap = Texture::autoGenMipmapEnabled();
 
 	if(generateMipMap) {
 		// Reference on comparison between gluBuild2DMipmaps / GL_GENERATE_MIPMAP and glGenerateMipmapEXT
