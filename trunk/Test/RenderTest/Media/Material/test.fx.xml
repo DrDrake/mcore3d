@@ -68,7 +68,7 @@
 	/>
 
 	<!-- The first occuring texture will use texture unit 0 -->
-    <texture
+		<texture
 		file="../normal128x128.png"
 		shaderName="diffuseMap"
 	/>

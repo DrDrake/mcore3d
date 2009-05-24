@@ -8,12 +8,25 @@
 
 using namespace MCD;
 
-ChamferBoxBuilder::ChamferBoxBuilder(float filletRadius, size_t filletSegmentCount)
+ChamferBoxBuilder::ChamferBoxBuilder(float filletRadius, size_t filletSegmentCount, bool includeTangents)
 {
-	enable(Mesh::Position | Mesh::Normal | Mesh::Index | Mesh::TextureCoord0);
+	uint meshFormat = Mesh::Position | Mesh::Normal | Mesh::Index;
+
+	if(includeTangents)
+		meshFormat |= Mesh::TextureCoord1;
+	else
+		meshFormat |= Mesh::TextureCoord0;
+	
+	enable(meshFormat);
 
 	textureUnit(Mesh::TextureCoord0);
 	textureCoordSize(2);
+
+	if(includeTangents)
+	{
+		textureUnit(Mesh::TextureCoord1);
+		textureCoordSize(3);
+	}
 
 	const size_t cubeFaceCount = 6;
 	const size_t rowCount = (filletSegmentCount + 1) * 2;	// Number of vertex along y direction
@@ -82,7 +95,20 @@ ChamferBoxBuilder::ChamferBoxBuilder(float filletRadius, size_t filletSegmentCou
 
 				MeshBuilder::position(p);
 				MeshBuilder::normal(n);
-				MeshBuilder::textureCoord(uv);
+
+				if(includeTangents)
+				{
+					textureUnit(Mesh::TextureCoord0);
+					MeshBuilder::textureCoord(uv);
+
+					textureUnit(Mesh::TextureCoord1);
+					MeshBuilder::textureCoord(Vec3f(0,0,0));
+				}
+				else
+				{
+					MeshBuilder::textureCoord(uv);
+				}
+
 				MeshBuilder::addVertex();
 			}
 		}
