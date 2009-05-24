@@ -76,7 +76,7 @@ public:
 	template<typename RT>
 	static inline void pushResult(HSQUIRRELVM v, RT result)
 	{
-		detail::ClassesManager::createObjectInstanceOnStackPure(v, ClassTraits< ptr::pointer<RT>::HostType >::classID(), ptr::pointer<RT>::to(result));
+		types::push(v, result);
 	}
 };
 
@@ -91,6 +91,7 @@ public:
 	{
 		sq_setinstanceup(v, 1, ptr::pointer<RT>::to(result));
 		sq_setreleasehook(v, 1, _memoryControllerHook<ptr::pointer<RT>::HostType>);
+		types::addHandleToObject(v, ptr::pointer<RT>::to(result), 1);
 	}
 
 private:
@@ -112,7 +113,7 @@ public:
 	template<typename RT>
 	static inline void pushResult(HSQUIRRELVM v, RT result)
 	{
-		detail::ClassesManager::createObjectInstanceOnStackPure(v, ClassTraits<ptr::pointer<RT>::HostType>::classID(), ptr::pointer<RT>::to(result));
+		types::push(v, result);
 		sq_setreleasehook(v, -1, _memoryControllerHook<ptr::pointer<RT>::HostType>);
 	}
 
@@ -166,7 +167,7 @@ public:
 		typedef typename ptr::pointer<RT>::HostType HostType;
 		HostType* obj = ptr::pointer<RT>::to(result);
 		RefPolicy::addRef(obj);
-		detail::ClassesManager::createObjectInstanceOnStackPure(v, ClassTraits<HostType>::classID(), obj);
+		types::push(v, result);
 		sq_setreleasehook(v, -1, _memoryControllerHook<HostType>);
 	}
 

@@ -18,7 +18,7 @@ TEST(MaterialTest)
 		{
 			// Setup the chamfer box mesh
 			mMesh = new Mesh(L"");
-			ChamferBoxBuilder chamferBoxBuilder(0.4f, 10);
+			ChamferBoxBuilder chamferBoxBuilder(0.4f, 3);
 			chamferBoxBuilder.commit(*mMesh, MeshBuilder::Static);
 
 			mEffect = static_cast<Effect*>(mResourceManager.load(L"Material/test.fx.xml").get());

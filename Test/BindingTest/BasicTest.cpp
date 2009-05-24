@@ -1,11 +1,9 @@
 #include "Pch.h"
 #include "Common.h"
 #include "../../MCD/Core/System/Platform.h"
+#include "../../MCD/Core/System/ScriptOwnershipHandle.h"
 #include "../../3Party/jkbind/Declarator.h"
 #include "../../Binding/Binding.h"
-#include "../../3Party/squirrel/squirrel.h"
-#include "../../3Party/squirrel/squirrel/sqclass.h"
-#include "../../3Party/squirrel/squirrel/sqclass.h"
 #include <iostream>
 
 using namespace MCD;
@@ -18,68 +16,12 @@ using namespace MCD;
 #	pragma comment(lib, "squirrel")
 #endif
 
-namespace script {
-
-class CppOwnershipHandle
-{
-public:
-	CppOwnershipHandle() : vm(nullptr) {}
-	~CppOwnershipHandle() { destroy(); }
-
-	void destroy()
-	{
-		if(!vm)
-			return;
-
-		// Get the SQObject of what the weak reference pointing to.
-		SQObject& o = weakRef._unVal.pWeakRef->_obj;
-
-		// The SQObject may be null, if there are no more reference to this object
-		// in the VM. That's also the reason why we need to store SQObject via weak
-		// reference but not the SQObject itself.
-		if(sq_isinstance(o)) {
-			// Destroy (in squirrel api it's call Finalize) the corresponding handle
-			// of this object.
-			o._unVal.pInstance->Finalize();
-		}
-
-		// Release the WEAK reference
-		sq_release(vm, &weakRef);
-
-		vm = nullptr;
-	}
-
-	/*!	Associate a weak pointer pointing to the object at index.
-		If the supplied HSQUIRRELVM is null, then any previous
-		associated handle will be removed.
-	 */
-	void setHandle(HSQUIRRELVM v, int index)
-	{
-		if(vm)	// Remove previous reference
-			sq_release(vm, &weakRef);
-		vm = v;
-
-		if(!v)
-			return;
-
-		sq_weakref(vm, index);	// Create a weak reference to the object at index
-		jkSCRIPT_API_VERIFY(sq_getstackobj(vm, index, &weakRef));
-		sq_addref(vm, &weakRef);
-		sq_pop(vm, 1);
-	}
-
-	HSQUIRRELVM vm;
-	HSQOBJECT weakRef;
-};	// CppOwnershipHandle
-
-}	// namespace script
-
-class Bar : public script::CppOwnershipHandle
+class Bar : public MCD::ScriptOwnershipHandle
 {
 public:
 	Bar() {}
 
-	MCD_NOINLINE ~Bar()
+	~Bar()
 	{
 		std::cout << "~Bar\n";
 	}
@@ -90,7 +32,7 @@ public:
 	}
 };	// Bar
 
-class Foo : public script::CppOwnershipHandle
+class Foo : public MCD::ScriptOwnershipHandle
 {
 public:
 	Bar* bar;
@@ -125,30 +67,40 @@ public:
 
 namespace script {
 
-void pushHandle(Bar* obj, HSQUIRRELVM v, HSQOBJECT handle)
+namespace types {
+
+void addHandleToObject(HSQUIRRELVM v, Foo* obj, int idx)
 {
-//	obj->vm = v;
-//	obj->object = handle;
+	obj->setHandle(v, idx);
 }
+
+bool pushHandleFromObject(HSQUIRRELVM v, Foo* obj)
+{
+	return obj->vm && obj->pushHandle(v);
+}
+
+void addHandleToObject(HSQUIRRELVM v, Bar* obj, int idx)
+{
+	obj->setHandle(v, idx);
+}
+
+bool pushHandleFromObject(HSQUIRRELVM v, Bar* obj)
+{
+	return obj->vm && obj->pushHandle(v);
+}
+
+}	// namespace types
+
 
 SCRIPT_CLASS_DECLAR(Foo);
 SCRIPT_CLASS_DECLAR(Bar);
-
-static int fooCreate(HSQUIRRELVM vm)
-{
-	script::detail::StackHandler sa(vm);
-	Foo* foo = new Foo;
-	construct::pushResult(vm, foo);
-	foo->setHandle(vm, -1);
-	return 1;
-}
 
 static void fooAddBar(Foo& self, GiveUpOwnership<Bar*> e) {
 	self.addBar(e);
 }
 
 SCRIPT_CLASS_REGISTER_NAME(Foo, "Foo")
-	.rawMethod(L"constructor", fooCreate)
+	.constructor()
 	.method(L"destroy", &Foo::destroy)
 	.method(L"printMe", &Foo::printMe)
 	.wrappedMethod(L"addBar", &fooAddBar)
@@ -156,17 +108,8 @@ SCRIPT_CLASS_REGISTER_NAME(Foo, "Foo")
 	.method(L"detachBar", &Foo::detachBar)
 ;}
 
-static int barCreate(HSQUIRRELVM vm)
-{
-	script::detail::StackHandler sa(vm);
-	Bar* bar = new Bar;
-	construct::pushResult(vm, bar);
-	bar->setHandle(vm, -1);
-	return 1;
-}
-
 SCRIPT_CLASS_REGISTER_NAME(Bar, "Bar")
-	.rawMethod(L"constructor", barCreate)
+	.constructor()
 	.method(L"printMe", &Bar::printMe)
 ;}
 

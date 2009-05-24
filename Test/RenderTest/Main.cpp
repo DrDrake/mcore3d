@@ -19,7 +19,7 @@ int main(int, char const*[])
 	// Just creates a text file named "RunTest.txt" in "{mcdRoot}\Test\RenderTest"
 	// ; and type in which test to run (only one test is supported)
 	std::ifstream infile;
-	
+
 	infile.open( L"RunTest.txt", std::ifstream::in );
 	if(infile.good())
 	{
@@ -35,7 +35,6 @@ int main(int, char const*[])
 		// "RunTest.txt" not found, just run all testes :-)
 		ret = runner.RunAllTests();
 	}
-	
-	
+
 	return int(ret);
 }

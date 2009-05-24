@@ -32,6 +32,43 @@ inline void push(HSQUIRRELVM v,float value)				{ sq_pushfloat(v,(SQFloat)value);
 inline void push(HSQUIRRELVM v,const SQChar* value)		{ sq_pushstring(v,value,-1); }
 inline void push(HSQUIRRELVM v,bool value)				{ sq_pushbool(v,value); }
 
+template<typename T>
+void addHandleToObject(HSQUIRRELVM v, T* obj, int idx)
+{
+	jkSCRIPT_LOGIC_ASSERTION(obj != NULL);
+}
+
+template<typename T>
+bool pushHandleFromObject(HSQUIRRELVM v, T* obj)
+{
+	jkSCRIPT_LOGIC_ASSERTION(obj != NULL);
+	return false;
+}
+
+template<typename T>
+void pushNewHandle(HSQUIRRELVM v, T* obj) {
+	detail::ClassesManager::createObjectInstanceOnStackPure(v, ClassTraits<T>::classID(), obj);
+	addHandleToObject(v, obj, -1);
+}
+
+template<typename T>
+void push(HSQUIRRELVM v, T obj)
+{
+	typename ptr::pointer<T>::HostType* p = ptr::pointer<T>::to(obj);
+
+	if(!p) {
+		sq_pushnull(v);
+		return;
+	}
+
+	// Try to use any stored handle in the cpp first
+	if(pushHandleFromObject(v, p))
+		return;
+
+	// If none has found, push a new one
+	pushNewHandle(v, p);
+}
+
 //
 // match functions - to check type of the argument from script
 //

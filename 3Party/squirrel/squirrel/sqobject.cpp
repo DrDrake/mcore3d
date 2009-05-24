@@ -542,6 +542,8 @@ void SQClass::Mark(SQCollectable **chain)
 
 void SQInstance::Mark(SQCollectable **chain)
 {
+	if(!_class)
+		return;
 	START_MARK()
 		_class->Mark(chain);
 		SQUnsignedInteger nvalues = _class->_defaultvalues.size();
