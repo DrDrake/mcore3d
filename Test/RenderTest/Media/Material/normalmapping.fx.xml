@@ -1,0 +1,106 @@
+<?xml version="1.0"?>
+<!-- A sample effect definiation xml -->
+
+<root>
+
+<merge mode="blend" />
+
+<pass
+	enable="true"
+	drawLine="false"
+>
+	<standard
+		ambient="0.2, 0.2, 0.2, 1.0"
+		diffuse="0.8, 0.6, 0.5, 1.0"
+		specular="0.5, 0.5, 0.5, 1.0"
+		shininess="30.0"
+	/>
+
+	<!-- The first occuring texture will use texture unit 0 -->
+		<texture
+		file="../Fieldstone.jpg"
+		shaderName="diffuseMap"
+	/>
+		<texture
+		file="../FieldstoneBumpDOT3.jpg"
+		shaderName="normalMap"
+	/>
+	<texture
+		file="../Langholmen1024x1024.cubemap.jpg"
+		shaderName="envMap"
+	/>
+
+	<shader>
+		<!-- Reference external file as vertex shader -->
+		<vertex>
+			<![CDATA[
+varying vec3 vertex, normal, tangent, lightDir, osvertex, osnormal;
+
+void main()
+{
+	gl_Position = ftransform();
+	osvertex = gl_Vertex.xyz;
+	osnormal = gl_Normal;
+	
+	vertex = gl_ModelViewMatrix * gl_Vertex;
+	
+	// No need to do normalize since we do it on fragment shader anyway
+	normal = gl_NormalMatrix * gl_Normal;
+	tangent = gl_NormalMatrix * gl_MultiTexCoord1.xyz;
+	
+	// viewspace lightDir
+	lightDir = gl_NormalMatrix * normalize(gl_LightSource[0].position.xyz - osvertex);
+	
+	// texture coordinate
+	gl_TexCoord[0] = gl_MultiTexCoord0;
+}
+			]]>
+		<vertex/>
+
+		<!-- Define the fragment shader just inside the xml -->
+		<fragment>
+			<parameter name="frensel" type="float" label="Frensel Term">0.75</parameter>
+			<![CDATA[
+#version 120 
+varying vec3 vertex, normal, tangent, lightDir, osvertex, osnormal;
+uniform sampler2D diffuseMap;
+uniform sampler2D normalMap;
+uniform samplerCube envMap;
+uniform float frensel;
+
+void main()
+{
+	vec4 ambient = gl_FrontLightProduct[0].ambient;
+	vec4 diffuse = gl_FrontLightProduct[0].diffuse;
+	vec4 specular = gl_FrontLightProduct[0].specular;
+
+	vec3 T = tangent;
+	vec3 B = cross(normal, T);
+	
+	vec3 bump = texture2D(normalMap, gl_TexCoord[0].xy).xyz;
+	bump = normalize(bump * 2.0 - 1.0);
+	
+	// view space normal
+	vec3 nrm = normalize
+		( normalize(T) * bump.x
+		+ normalize(B) * bump.y
+		+ normalize(normal) * bump.z
+		);
+	
+	vec3 refl = reflect( vertex, nrm );
+	vec4 env = textureCube( envMap, refl );
+	
+	float ndotl = max( 0, dot( nrm, normalize(lightDir) ) );
+	vec4 base = texture2D(diffuseMap, gl_TexCoord[0].xy);
+	
+	float ndotv = max( 0, dot( nrm, -normalize(vertex) ) );
+	
+	gl_FragColor = base * pow(ndotl, 2.0) + env * pow(1-ndotv, 16.0) * frensel;
+	//gl_FragColor = base * pow(ndotl,2.0);
+}
+			]]>
+		</fragment>
+	</shader>
+</pass>
+
+</root>
