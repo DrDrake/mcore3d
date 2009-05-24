@@ -315,6 +315,10 @@
 					>
 				</File>
 				<File
+					RelativePath=".\System\ScriptOwnershipHandle.h"
+					>
+				</File>
+				<File
 					RelativePath=".\System\SharedPtr.h"
 					>
 				</File>
@@ -441,6 +445,10 @@
 				</File>
 				<File
 					RelativePath=".\System\ResourceManager.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\System\ScriptOwnershipHandle.cpp"
 					>
 				</File>
 				<File

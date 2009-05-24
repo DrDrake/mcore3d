@@ -160,6 +160,8 @@ SQInstance::SQInstance(SQSharedState *ss, SQInstance *i, SQInteger memsize)
 
 void SQInstance::Finalize() 
 {
+	if(!_class)
+		return;
 	SQUnsignedInteger nvalues = _class->_defaultvalues.size();
 	__ObjRelease(_class);
 	for(SQUnsignedInteger i = 0; i < nvalues; i++) {

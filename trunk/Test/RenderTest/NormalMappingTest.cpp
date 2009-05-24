@@ -171,7 +171,7 @@ TEST(NormalMappingTest)
 
 				// Setup the chamfer box mesh
 				MeshPtr mesh = new Mesh(L"");
-				ChamferBoxBuilder chamferBoxBuilder(0.4f, 10);
+				ChamferBoxBuilder chamferBoxBuilder(0.4f, 3);
 				TangentSpaceBuilder().compute(chamferBoxBuilder, Mesh::TextureCoord0, Mesh::TextureCoord1);
 
 				chamferBoxBuilder.commit(*mesh, MeshBuilder::Static);
@@ -193,7 +193,7 @@ TEST(NormalMappingTest)
 
 				// Setup the chamfer box mesh
 				MeshPtr mesh = new Mesh(L"");
-				ChamferBoxBuilder chamferBoxBuilder(1.0f, 10);
+				ChamferBoxBuilder chamferBoxBuilder(1.0f, 5);
 				TangentSpaceBuilder().compute(chamferBoxBuilder, Mesh::TextureCoord0, Mesh::TextureCoord1);
 				chamferBoxBuilder.commit(*mesh, MeshBuilder::Static);
 

@@ -17,11 +17,11 @@
 	/>
 
 	<!-- The first occuring texture will use texture unit 0 -->
-		<texture
+	<texture
 		file="../Fieldstone.jpg"
 		shaderName="diffuseMap"
 	/>
-		<texture
+	<texture
 		file="../FieldstoneBumpDOT3.jpg"
 		shaderName="normalMap"
 	/>

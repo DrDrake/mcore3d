@@ -57,6 +57,7 @@
 			<Tool
 				Name="VCLinkerTool"
 				OutputFile="$(OutDir)\$(ProjectName)d.dll"
+				GenerateDebugInformation="true"
 				ImportLibrary="../../Lib/$(TargetName).lib"
 			/>
 			<Tool
@@ -115,6 +116,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
+				GenerateDebugInformation="true"
 				ImportLibrary="../../Lib/$(TargetName).lib"
 			/>
 			<Tool
