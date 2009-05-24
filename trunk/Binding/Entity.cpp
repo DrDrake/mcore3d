@@ -7,6 +7,18 @@ using namespace MCD;
 
 namespace script {
 
+namespace types {
+
+void addHandleToObject(HSQUIRRELVM v, Entity* obj, int idx) {
+	obj->scriptOwnershipHandle.setHandle(v, idx);
+}
+
+bool pushHandleFromObject(HSQUIRRELVM v, Entity* obj) {
+	return obj->scriptOwnershipHandle.vm && obj->scriptOwnershipHandle.pushHandle(v);
+}
+
+}	// namespace types
+
 static bool componentPtrIsValid(const ComponentPtr& c) { return c.get() != nullptr; }
 static Entity* componentGetEntity(const ComponentPtr& c) { return c ? c->entity() : nullptr; }
 SCRIPT_CLASS_REGISTER_NAME(ComponentPtr, "Component")

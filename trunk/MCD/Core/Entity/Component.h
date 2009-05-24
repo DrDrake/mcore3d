@@ -3,8 +3,8 @@
 
 #include "../ShareLib.h"
 #include "../System/LinkList.h"
+#include "../System/ScriptOwnershipHandle.h"
 #include "../System/WeakPtr.h"
-//#include "Entity.h"
 #include <typeinfo>
 
 namespace MCD {
@@ -30,6 +30,8 @@ public:
 // Attributes
 	//! The Entity that this component belongs to.
 	sal_maybenull Entity* entity() const;
+
+	ScriptOwnershipHandle scriptOwnershipHandle;
 
 protected:
 	friend class Entity;

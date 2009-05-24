@@ -5,14 +5,16 @@
 
 namespace MCD {
 
-/*	A kind of handle that 
-	\warn Be aware of threading problems.
+/*	A handle that bring strong linkage between a cpp and script object.
+	It work together with jkbind's addHandleToObject() and pushHandleFromObject().
+	\warn Be aware of threading problems, especially in the destructor
  */
 class MCD_CORE_API ScriptOwnershipHandle
 {
 public:
 	ScriptOwnershipHandle();
 
+	//! Destructor will invoke destroy.
 	~ScriptOwnershipHandle();
 
 	void destroy();
@@ -25,8 +27,14 @@ public:
 
 	bool pushHandle(void* vm);
 
-	void* vm;	// HSQUIRRELVM
-	char weakRef[sizeof(void*) * 2];	// HSQOBJECT
+	void* vm;	//!< The scripting virtual machine of the type HSQUIRRELVM
+
+	/*!	We use a char buffer to represent a HSQOBJECT object,
+		to erase the dependency of squirrel headers. Static
+		assert is performed on the cpp to assert the buffer
+		size is always valid.
+	 */
+	char weakRef[sizeof(void*) * 2];
 };	// ScriptOwnershipHandle
 
 }	// namespace MCD

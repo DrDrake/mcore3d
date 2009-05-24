@@ -3,6 +3,7 @@
 
 #include "Component.h"
 #include "../Math/Mat44.h"
+#include "../System/ScriptOwnershipHandle.h"
 #include "../System/UserData.h"
 #include <string>
 
@@ -114,6 +115,8 @@ public:
 	Mat44f localTransform;
 
 	UserData userData;
+
+	ScriptOwnershipHandle scriptOwnershipHandle;
 
 	typedef LinkList<Component> Components;
 	Components components;

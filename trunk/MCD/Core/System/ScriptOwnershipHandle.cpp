@@ -87,7 +87,4 @@ bool ScriptOwnershipHandle::pushHandle(void* v)
 	return true;
 }
 
-	HSQUIRRELVM vm;
-	HSQOBJECT weakRef;
-
 }	// namespace MCD

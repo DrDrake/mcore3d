@@ -32,29 +32,34 @@ inline void push(HSQUIRRELVM v,float value)				{ sq_pushfloat(v,(SQFloat)value);
 inline void push(HSQUIRRELVM v,const SQChar* value)		{ sq_pushstring(v,value,-1); }
 inline void push(HSQUIRRELVM v,bool value)				{ sq_pushbool(v,value); }
 
-template<typename T>
-void addHandleToObject(HSQUIRRELVM v, T* obj, int idx)
-{
-	jkSCRIPT_LOGIC_ASSERTION(obj != NULL);
-}
+/*!	The binding engine use this function to associate scripting handle
+	to the supplied cpp object, providing a strong linkage between a
+	cpp object and it's scripting counterpart.
 
-template<typename T>
-bool pushHandleFromObject(HSQUIRRELVM v, T* obj)
-{
-	jkSCRIPT_LOGIC_ASSERTION(obj != NULL);
-	return false;
-}
+	\note User may override this function to enable linkage with their own
+		cpp object.
+	\sa pushHandleFromObject
+ */
+template<typename T> inline
+void addHandleToObject(HSQUIRRELVM v, T* obj, int idx)	{ jkSCRIPT_LOGIC_ASSERTION(obj != NULL); }
 
-template<typename T>
-void pushNewHandle(HSQUIRRELVM v, T* obj) {
-	detail::ClassesManager::createObjectInstanceOnStackPure(v, ClassTraits<T>::classID(), obj);
-	addHandleToObject(v, obj, -1);
-}
+/*!	This function shoud work in pair with addHandleToObject(). While
+	addHandleToObject() put handle to the cpp object, this function
+	tries to get back that handle from a cpp object and push it onto
+	the stack.
+
+	\return True if a handle can be found from the given cpp object, otherwise false.
+	\note User may override this function.
+	\sa addHandleToObject
+ */
+template<typename T> inline
+bool pushHandleFromObject(HSQUIRRELVM v, T* obj)		{ jkSCRIPT_LOGIC_ASSERTION(obj != NULL); return false; }
 
 template<typename T>
 void push(HSQUIRRELVM v, T obj)
 {
-	typename ptr::pointer<T>::HostType* p = ptr::pointer<T>::to(obj);
+	typedef typename ptr::pointer<T>::HostType HostType;
+	HostType* p = ptr::pointer<T>::to(obj);
 
 	if(!p) {
 		sq_pushnull(v);
@@ -66,7 +71,8 @@ void push(HSQUIRRELVM v, T obj)
 		return;
 
 	// If none has found, push a new one
-	pushNewHandle(v, p);
+	detail::ClassesManager::createObjectInstanceOnStackPure(v, ClassTraits<HostType>::classID(), p);
+	addHandleToObject(v, p, -1);
 }
 
 //
