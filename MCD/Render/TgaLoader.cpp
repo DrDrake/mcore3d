@@ -144,7 +144,11 @@ IResourceLoader::LoadingState TgaLoader::load(std::istream* is, const Path*)
 	MCD_ASSUME(mImpl != nullptr);
 	ScopeLock lock(mImpl->mMutex);
 
-	loadingState = is ? loadingState : Aborted;
+	if(!is)
+		loadingState = Aborted;
+	else if(loadingState == Aborted)
+		loadingState = NotLoaded;
+
 	if(loadingState & Stopped)
 		return loadingState;
 
