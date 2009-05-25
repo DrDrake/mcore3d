@@ -1,28 +1,22 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <configurationDescriptor version="51">
   <logicalFolder name="root" displayName="root" projectFiles="true">
-    <logicalFolder name="HeaderFiles"
-                   displayName="Header Files"
-                   projectFiles="true">
+    <logicalFolder name="PowerVR" displayName="PowerVR" projectFiles="true">
       <itemPath>PVRTBoneBatch.h</itemPath>
+      <itemPath>PVRTError.cpp</itemPath>
       <itemPath>PVRTError.h</itemPath>
       <itemPath>PVRTFixedPoint.h</itemPath>
       <itemPath>PVRTGlobal.h</itemPath>
       <itemPath>PVRTMatrix.h</itemPath>
+      <itemPath>PVRTMatrixF.cpp</itemPath>
       <itemPath>PVRTMisc.h</itemPath>
+      <itemPath>PVRTModelPOD.cpp</itemPath>
       <itemPath>PVRTModelPOD.h</itemPath>
       <itemPath>PVRTQuaternion.h</itemPath>
-      <itemPath>PVRTVector.h</itemPath>
-      <itemPath>PVRTVertex.h</itemPath>
-    </logicalFolder>
-    <logicalFolder name="SourceFiles"
-                   displayName="Source Files"
-                   projectFiles="true">
-      <itemPath>PVRTError.cpp</itemPath>
-      <itemPath>PVRTMatrixF.cpp</itemPath>
-      <itemPath>PVRTModelPOD.cpp</itemPath>
       <itemPath>PVRTQuaternionF.cpp</itemPath>
+      <itemPath>PVRTVector.h</itemPath>
       <itemPath>PVRTVertex.cpp</itemPath>
+      <itemPath>PVRTVertex.h</itemPath>
     </logicalFolder>
     <logicalFolder name="ExternalFiles"
                    displayName="Important Files"

@@ -58,9 +58,9 @@ OBJECTFILES= \
 	${OBJECTDIR}/Effect.o \
 	${OBJECTDIR}/BitmapLoader.o \
 	${OBJECTDIR}/TextureRenderBuffer.o \
+	${OBJECTDIR}/CubemapLoader.o \
 	${OBJECTDIR}/Material.o \
 	${OBJECTDIR}/PngLoader.o \
-	${OBJECTDIR}/Pch.o \
 	${OBJECTDIR}/ShaderProgram.o
 
 # C Compiler Flags
@@ -240,6 +240,11 @@ ${OBJECTDIR}/TextureRenderBuffer.o: TextureRenderBuffer.cpp
 	${RM} $@.d
 	$(COMPILE.cc) -g -fPIC  -MMD -MP -MF $@.d -o ${OBJECTDIR}/TextureRenderBuffer.o TextureRenderBuffer.cpp
 
+${OBJECTDIR}/CubemapLoader.o: CubemapLoader.cpp 
+	${MKDIR} -p ${OBJECTDIR}
+	${RM} $@.d
+	$(COMPILE.cc) -g -fPIC  -MMD -MP -MF $@.d -o ${OBJECTDIR}/CubemapLoader.o CubemapLoader.cpp
+
 ${OBJECTDIR}/Material.o: Material.cpp 
 	${MKDIR} -p ${OBJECTDIR}
 	${RM} $@.d
@@ -249,11 +254,6 @@ ${OBJECTDIR}/PngLoader.o: PngLoader.cpp
 	${MKDIR} -p ${OBJECTDIR}
 	${RM} $@.d
 	$(COMPILE.cc) -g -fPIC  -MMD -MP -MF $@.d -o ${OBJECTDIR}/PngLoader.o PngLoader.cpp
-
-${OBJECTDIR}/Pch.o: Pch.cpp 
-	${MKDIR} -p ${OBJECTDIR}
-	${RM} $@.d
-	$(COMPILE.cc) -g -fPIC  -MMD -MP -MF $@.d -o ${OBJECTDIR}/Pch.o Pch.cpp
 
 ${OBJECTDIR}/ShaderProgram.o: ShaderProgram.cpp 
 	${MKDIR} -p ${OBJECTDIR}

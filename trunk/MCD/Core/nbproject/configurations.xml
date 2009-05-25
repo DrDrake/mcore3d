@@ -79,6 +79,15 @@
         <itemPath>Pch.h</itemPath>
         <itemPath>ShareLib.h</itemPath>
       </logicalFolder>
+      <logicalFolder name="System" displayName="System" projectFiles="true">
+        <itemPath>System/ScriptOwnershipHandle.h</itemPath>
+        <itemPath>System/Window.inl</itemPath>
+        <itemPath>System/Window.Win.inc</itemPath>
+        <itemPath>System/Window.Win.inl</itemPath>
+        <itemPath>System/Window.X11.inc</itemPath>
+        <itemPath>System/Window.X11.inl</itemPath>
+        <itemPath>System/ZipFileSystem.inc</itemPath>
+      </logicalFolder>
     </logicalFolder>
     <logicalFolder name="SourceFiles"
                    displayName="Source Files"
@@ -107,6 +116,7 @@
           <itemPath>System/RawFileSystemMonitor.cpp</itemPath>
           <itemPath>System/Resource.cpp</itemPath>
           <itemPath>System/ResourceManager.cpp</itemPath>
+          <itemPath>System/ScriptOwnershipHandle.cpp</itemPath>
           <itemPath>System/Stream.cpp</itemPath>
           <itemPath>System/StrUtility.cpp</itemPath>
           <itemPath>System/TaskPool.cpp</itemPath>
@@ -138,6 +148,18 @@
         <linkerTool>
           <output>Debug/${PLATFORM}/libCore.so</output>
           <linkerLibItems>
+            <linkerLibProjectItem>
+              <makeArtifact PL="../../3Party/squirrel"
+                            CT="2"
+                            CN="Debug"
+                            AC="true"
+                            BL="true"
+                            WD="../../3Party/squirrel"
+                            BC="${MAKE}  -f Makefile CONF=Debug"
+                            CC="${MAKE}  -f Makefile CONF=Debug clean"
+                            OP="dist/Debug/GNU-Linux-x86/libsquirrel.so">
+              </makeArtifact>
+            </linkerLibProjectItem>
             <linkerLibStdlibItem>PosixThreads</linkerLibStdlibItem>
             <linkerLibStdlibItem>DataCompression</linkerLibStdlibItem>
             <linkerOptionItem>-lX11</linkerOptionItem>
@@ -351,6 +373,12 @@
       <item path="System/ResourceManager.h">
         <itemTool>3</itemTool>
       </item>
+      <item path="System/ScriptOwnershipHandle.cpp">
+        <itemTool>1</itemTool>
+      </item>
+      <item path="System/ScriptOwnershipHandle.h">
+        <itemTool>3</itemTool>
+      </item>
       <item path="System/SharedPtr.h">
         <itemTool>3</itemTool>
       </item>
@@ -408,10 +436,25 @@
       <item path="System/WeakPtr.h">
         <itemTool>3</itemTool>
       </item>
+      <item path="System/Window.Win.inc">
+        <itemTool>3</itemTool>
+      </item>
+      <item path="System/Window.Win.inl">
+        <itemTool>3</itemTool>
+      </item>
+      <item path="System/Window.X11.inc">
+        <itemTool>3</itemTool>
+      </item>
+      <item path="System/Window.X11.inl">
+        <itemTool>3</itemTool>
+      </item>
       <item path="System/Window.cpp">
         <itemTool>1</itemTool>
       </item>
       <item path="System/Window.h">
+        <itemTool>3</itemTool>
+      </item>
+      <item path="System/Window.inl">
         <itemTool>3</itemTool>
       </item>
       <item path="System/WindowEvent.h">
@@ -427,6 +470,9 @@
         <itemTool>1</itemTool>
       </item>
       <item path="System/ZipFileSystem.h">
+        <itemTool>3</itemTool>
+      </item>
+      <item path="System/ZipFileSystem.inc">
         <itemTool>3</itemTool>
       </item>
     </conf>
@@ -449,6 +495,18 @@
         <linkerTool>
           <output>Release/${PLATFORM}/libCore.so</output>
           <linkerLibItems>
+            <linkerLibProjectItem>
+              <makeArtifact PL="../../3Party/squirrel"
+                            CT="2"
+                            CN="Release"
+                            AC="false"
+                            BL="true"
+                            WD="../../3Party/squirrel"
+                            BC="${MAKE}  -f Makefile CONF=Release"
+                            CC="${MAKE}  -f Makefile CONF=Release clean"
+                            OP="dist/Release/GNU-Linux-x86/libsquirrel.so">
+              </makeArtifact>
+            </linkerLibProjectItem>
             <linkerLibStdlibItem>PosixThreads</linkerLibStdlibItem>
             <linkerLibStdlibItem>DataCompression</linkerLibStdlibItem>
             <linkerOptionItem>-lX11</linkerOptionItem>
@@ -662,6 +720,12 @@
       <item path="System/ResourceManager.h">
         <itemTool>3</itemTool>
       </item>
+      <item path="System/ScriptOwnershipHandle.cpp">
+        <itemTool>1</itemTool>
+      </item>
+      <item path="System/ScriptOwnershipHandle.h">
+        <itemTool>3</itemTool>
+      </item>
       <item path="System/SharedPtr.h">
         <itemTool>3</itemTool>
       </item>
@@ -719,10 +783,25 @@
       <item path="System/WeakPtr.h">
         <itemTool>3</itemTool>
       </item>
+      <item path="System/Window.Win.inc">
+        <itemTool>3</itemTool>
+      </item>
+      <item path="System/Window.Win.inl">
+        <itemTool>3</itemTool>
+      </item>
+      <item path="System/Window.X11.inc">
+        <itemTool>3</itemTool>
+      </item>
+      <item path="System/Window.X11.inl">
+        <itemTool>3</itemTool>
+      </item>
       <item path="System/Window.cpp">
         <itemTool>1</itemTool>
       </item>
       <item path="System/Window.h">
+        <itemTool>3</itemTool>
+      </item>
+      <item path="System/Window.inl">
         <itemTool>3</itemTool>
       </item>
       <item path="System/WindowEvent.h">
@@ -738,6 +817,9 @@
         <itemTool>1</itemTool>
       </item>
       <item path="System/ZipFileSystem.h">
+        <itemTool>3</itemTool>
+      </item>
+      <item path="System/ZipFileSystem.inc">
         <itemTool>3</itemTool>
       </item>
     </conf>

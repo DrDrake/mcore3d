@@ -20,6 +20,7 @@
 				<Linker>
 					<Add library="../../Bin/Cored.so" />
 					<Add library="../../Lib/libSmallJpegd.a" />
+					<Add library="../../Lib/libPowerVRd.a" />
 				</Linker>
 			</Target>
 			<Target title="Release (Linux)">
@@ -37,6 +38,7 @@
 				<Linker>
 					<Add library="../../Bin/Core.so" />
 					<Add library="../../Lib/libSmallJpeg.a" />
+					<Add library="../../Lib/libPowerVR.a" />
 				</Linker>
 			</Target>
 			<Target title="Debug (Cygwin)">
@@ -123,6 +125,8 @@
 		<Unit filename="MeshBuilder.h" />
 		<Unit filename="Model.cpp" />
 		<Unit filename="Model.h" />
+		<Unit filename="ModelPod.cpp" />
+		<Unit filename="ModelPod.h" />
 		<Unit filename="PngLoader.cpp" />
 		<Unit filename="PngLoader.h" />
 		<Unit filename="Render.h" />

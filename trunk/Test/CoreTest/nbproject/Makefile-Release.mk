@@ -37,8 +37,8 @@ OBJECTFILES= \
 	${OBJECTDIR}/Math/Mat33Test.o \
 	${OBJECTDIR}/System/TimerTest.o \
 	${OBJECTDIR}/Math/IntersectionTest.o \
-	${OBJECTDIR}/Math/TupleTest.o \
 	${OBJECTDIR}/System/ResourceManagerTest.o \
+	${OBJECTDIR}/Math/TupleTest.o \
 	${OBJECTDIR}/System/XmlParserTest.o \
 	${OBJECTDIR}/System/WindowTest.o \
 	${OBJECTDIR}/System/StreamTest.o \
@@ -48,17 +48,17 @@ OBJECTFILES= \
 	${OBJECTDIR}/Math/Mat44Test.o \
 	${OBJECTDIR}/Entity/ComponentTest.o \
 	${OBJECTDIR}/System/UserDataTest.o \
-	${OBJECTDIR}/Math/QuaternionTest.o \
 	${OBJECTDIR}/System/LinkListTest.o \
+	${OBJECTDIR}/Math/QuaternionTest.o \
 	${OBJECTDIR}/System/CondVarTest.o \
 	${OBJECTDIR}/System/LogTest.o \
 	${OBJECTDIR}/System/ThreadPoolTest.o \
 	${OBJECTDIR}/System/PtrVectorTest.o \
 	${OBJECTDIR}/System/FileSystemTest.o \
 	${OBJECTDIR}/System/ThreadTest.o \
-	${OBJECTDIR}/Main.o \
-	${OBJECTDIR}/System/MapTest.o \
 	${OBJECTDIR}/System/PathTest.o \
+	${OBJECTDIR}/System/MapTest.o \
+	${OBJECTDIR}/Main.o \
 	${OBJECTDIR}/System/WeakPtrTest.o
 
 # C Compiler Flags
@@ -131,15 +131,15 @@ ${OBJECTDIR}/Math/IntersectionTest.o: Math/IntersectionTest.cpp
 	${RM} $@.d
 	$(COMPILE.cc) -O2 -MMD -MP -MF $@.d -o ${OBJECTDIR}/Math/IntersectionTest.o Math/IntersectionTest.cpp
 
-${OBJECTDIR}/Math/TupleTest.o: Math/TupleTest.cpp 
-	${MKDIR} -p ${OBJECTDIR}/Math
-	${RM} $@.d
-	$(COMPILE.cc) -O2 -MMD -MP -MF $@.d -o ${OBJECTDIR}/Math/TupleTest.o Math/TupleTest.cpp
-
 ${OBJECTDIR}/System/ResourceManagerTest.o: System/ResourceManagerTest.cpp 
 	${MKDIR} -p ${OBJECTDIR}/System
 	${RM} $@.d
 	$(COMPILE.cc) -O2 -MMD -MP -MF $@.d -o ${OBJECTDIR}/System/ResourceManagerTest.o System/ResourceManagerTest.cpp
+
+${OBJECTDIR}/Math/TupleTest.o: Math/TupleTest.cpp 
+	${MKDIR} -p ${OBJECTDIR}/Math
+	${RM} $@.d
+	$(COMPILE.cc) -O2 -MMD -MP -MF $@.d -o ${OBJECTDIR}/Math/TupleTest.o Math/TupleTest.cpp
 
 ${OBJECTDIR}/System/XmlParserTest.o: System/XmlParserTest.cpp 
 	${MKDIR} -p ${OBJECTDIR}/System
@@ -186,15 +186,15 @@ ${OBJECTDIR}/System/UserDataTest.o: System/UserDataTest.cpp
 	${RM} $@.d
 	$(COMPILE.cc) -O2 -MMD -MP -MF $@.d -o ${OBJECTDIR}/System/UserDataTest.o System/UserDataTest.cpp
 
-${OBJECTDIR}/Math/QuaternionTest.o: Math/QuaternionTest.cpp 
-	${MKDIR} -p ${OBJECTDIR}/Math
-	${RM} $@.d
-	$(COMPILE.cc) -O2 -MMD -MP -MF $@.d -o ${OBJECTDIR}/Math/QuaternionTest.o Math/QuaternionTest.cpp
-
 ${OBJECTDIR}/System/LinkListTest.o: System/LinkListTest.cpp 
 	${MKDIR} -p ${OBJECTDIR}/System
 	${RM} $@.d
 	$(COMPILE.cc) -O2 -MMD -MP -MF $@.d -o ${OBJECTDIR}/System/LinkListTest.o System/LinkListTest.cpp
+
+${OBJECTDIR}/Math/QuaternionTest.o: Math/QuaternionTest.cpp 
+	${MKDIR} -p ${OBJECTDIR}/Math
+	${RM} $@.d
+	$(COMPILE.cc) -O2 -MMD -MP -MF $@.d -o ${OBJECTDIR}/Math/QuaternionTest.o Math/QuaternionTest.cpp
 
 ${OBJECTDIR}/System/CondVarTest.o: System/CondVarTest.cpp 
 	${MKDIR} -p ${OBJECTDIR}/System
@@ -226,20 +226,20 @@ ${OBJECTDIR}/System/ThreadTest.o: System/ThreadTest.cpp
 	${RM} $@.d
 	$(COMPILE.cc) -O2 -MMD -MP -MF $@.d -o ${OBJECTDIR}/System/ThreadTest.o System/ThreadTest.cpp
 
-${OBJECTDIR}/Main.o: Main.cpp 
-	${MKDIR} -p ${OBJECTDIR}
+${OBJECTDIR}/System/PathTest.o: System/PathTest.cpp 
+	${MKDIR} -p ${OBJECTDIR}/System
 	${RM} $@.d
-	$(COMPILE.cc) -O2 -MMD -MP -MF $@.d -o ${OBJECTDIR}/Main.o Main.cpp
+	$(COMPILE.cc) -O2 -MMD -MP -MF $@.d -o ${OBJECTDIR}/System/PathTest.o System/PathTest.cpp
 
 ${OBJECTDIR}/System/MapTest.o: System/MapTest.cpp 
 	${MKDIR} -p ${OBJECTDIR}/System
 	${RM} $@.d
 	$(COMPILE.cc) -O2 -MMD -MP -MF $@.d -o ${OBJECTDIR}/System/MapTest.o System/MapTest.cpp
 
-${OBJECTDIR}/System/PathTest.o: System/PathTest.cpp 
-	${MKDIR} -p ${OBJECTDIR}/System
+${OBJECTDIR}/Main.o: Main.cpp 
+	${MKDIR} -p ${OBJECTDIR}
 	${RM} $@.d
-	$(COMPILE.cc) -O2 -MMD -MP -MF $@.d -o ${OBJECTDIR}/System/PathTest.o System/PathTest.cpp
+	$(COMPILE.cc) -O2 -MMD -MP -MF $@.d -o ${OBJECTDIR}/Main.o Main.cpp
 
 ${OBJECTDIR}/System/WeakPtrTest.o: System/WeakPtrTest.cpp 
 	${MKDIR} -p ${OBJECTDIR}/System

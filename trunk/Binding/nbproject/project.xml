@@ -3,15 +3,14 @@
     <type>org.netbeans.modules.cnd.makeproject</type>
     <configuration>
         <data xmlns="http://www.netbeans.org/ns/make-project/1">
-            <name>CoreTest</name>
+            <name>Binding</name>
             <make-project-type>0</make-project-type>
             <c-extensions/>
             <cpp-extensions>cpp</cpp-extensions>
             <header-extensions>h</header-extensions>
             <sourceEncoding>UTF-8</sourceEncoding>
             <make-dep-projects>
-                <make-dep-project>../../MCD/Core</make-dep-project>
-                <make-dep-project>../../3Party/CppTestHarness</make-dep-project>
+                <make-dep-project>../3Party/squirrel</make-dep-project>
             </make-dep-projects>
         </data>
     </configuration>
