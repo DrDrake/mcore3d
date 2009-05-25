@@ -21,11 +21,6 @@ class Bar : public MCD::ScriptOwnershipHandle
 public:
 	Bar() {}
 
-	~Bar()
-	{
-		std::cout << "~Bar\n";
-	}
-
 	void printMe()
 	{
 		std::cout << "I am bar\n";
@@ -39,9 +34,7 @@ public:
 
 	Foo() : bar(NULL) {}
 
-	~Foo()
-	{
-		std::cout << "~Foo\n";
+	~Foo() {
 		delete bar;
 	}
 
