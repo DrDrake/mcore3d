@@ -5,6 +5,7 @@
 #include "../Core/Math/BasicFunction.h"
 #include "../Core/System/Log.h"
 #include "../../3Party/glew/glew.h"
+#include <memory.h>	// For memcpy
 
 namespace MCD {
 

@@ -42,10 +42,11 @@ OBJECTFILES= \
 	${OBJECTDIR}/MeshTest.o \
 	${OBJECTDIR}/MeshComponentTest.o \
 	${OBJECTDIR}/DefaultResourceManager.o \
+	${OBJECTDIR}/NormalMappingTest.o \
 	${OBJECTDIR}/SSAOTest.o \
 	${OBJECTDIR}/ProjectiveTextureTest.o \
-	${OBJECTDIR}/RenderTargetTest.o \
-	${OBJECTDIR}/Main.o
+	${OBJECTDIR}/Main.o \
+	${OBJECTDIR}/RenderTargetTest.o
 
 # C Compiler Flags
 CFLAGS=
@@ -142,6 +143,11 @@ ${OBJECTDIR}/DefaultResourceManager.o: DefaultResourceManager.cpp
 	${RM} $@.d
 	$(COMPILE.cc) -O2 -MMD -MP -MF $@.d -o ${OBJECTDIR}/DefaultResourceManager.o DefaultResourceManager.cpp
 
+${OBJECTDIR}/NormalMappingTest.o: NormalMappingTest.cpp 
+	${MKDIR} -p ${OBJECTDIR}
+	${RM} $@.d
+	$(COMPILE.cc) -O2 -MMD -MP -MF $@.d -o ${OBJECTDIR}/NormalMappingTest.o NormalMappingTest.cpp
+
 ${OBJECTDIR}/SSAOTest.o: SSAOTest.cpp 
 	${MKDIR} -p ${OBJECTDIR}
 	${RM} $@.d
@@ -152,15 +158,15 @@ ${OBJECTDIR}/ProjectiveTextureTest.o: ProjectiveTextureTest.cpp
 	${RM} $@.d
 	$(COMPILE.cc) -O2 -MMD -MP -MF $@.d -o ${OBJECTDIR}/ProjectiveTextureTest.o ProjectiveTextureTest.cpp
 
-${OBJECTDIR}/RenderTargetTest.o: RenderTargetTest.cpp 
-	${MKDIR} -p ${OBJECTDIR}
-	${RM} $@.d
-	$(COMPILE.cc) -O2 -MMD -MP -MF $@.d -o ${OBJECTDIR}/RenderTargetTest.o RenderTargetTest.cpp
-
 ${OBJECTDIR}/Main.o: Main.cpp 
 	${MKDIR} -p ${OBJECTDIR}
 	${RM} $@.d
 	$(COMPILE.cc) -O2 -MMD -MP -MF $@.d -o ${OBJECTDIR}/Main.o Main.cpp
+
+${OBJECTDIR}/RenderTargetTest.o: RenderTargetTest.cpp 
+	${MKDIR} -p ${OBJECTDIR}
+	${RM} $@.d
+	$(COMPILE.cc) -O2 -MMD -MP -MF $@.d -o ${OBJECTDIR}/RenderTargetTest.o RenderTargetTest.cpp
 
 # Subprojects
 .build-subprojects:

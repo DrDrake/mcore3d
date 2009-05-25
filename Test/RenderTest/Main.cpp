@@ -20,7 +20,7 @@ int main(int, char const*[])
 	// ; and type in which test to run (only one test is supported)
 	std::ifstream infile;
 
-	infile.open( L"RunTest.txt", std::ifstream::in );
+	infile.open("RunTest.txt", std::ifstream::in);
 	if(infile.good())
 	{
 		// we found it, read the test2Run and close the file
