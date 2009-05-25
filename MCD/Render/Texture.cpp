@@ -78,7 +78,7 @@ int Texture::bytePerPixel(int format)
 
 bool Texture::autoGenMipmapEnabled()
 {
-    return false;
+    return true;
 }
 
 }	// namespace MCD

@@ -42,7 +42,7 @@ void main()
 	osvertex = gl_Vertex.xyz;
 	osnormal = gl_Normal;
 	
-	vertex = gl_ModelViewMatrix * gl_Vertex;
+	vertex = (gl_ModelViewMatrix * gl_Vertex).xyz;
 	
 	// No need to do normalize since we do it on fragment shader anyway
 	normal = gl_NormalMatrix * gl_Normal;

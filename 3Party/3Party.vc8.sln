@@ -15,8 +15,6 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "PowerVR", "PowerVR\PowerVR.
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "squirrel", "squirrel\squirrel.vc8.vcproj", "{42A38F10-7ED3-4EC9-8C9D-36F8FD92AF48}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "sqplus", "sqplus\sqplus.vc8.vcproj", "{CD2BED4E-551F-4B29-A8D8-2E52D5A0C18B}"
-EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "jkbind", "jkbind\jkbind.vc8.vcproj", "{38D56DA0-6B9E-41CB-A313-CDC8808A9CC5}"
 EndProject
 Global
@@ -53,10 +51,6 @@ Global
 		{42A38F10-7ED3-4EC9-8C9D-36F8FD92AF48}.Debug|Win32.Build.0 = Debug|Win32
 		{42A38F10-7ED3-4EC9-8C9D-36F8FD92AF48}.Release|Win32.ActiveCfg = Release|Win32
 		{42A38F10-7ED3-4EC9-8C9D-36F8FD92AF48}.Release|Win32.Build.0 = Release|Win32
-		{CD2BED4E-551F-4B29-A8D8-2E52D5A0C18B}.Debug|Win32.ActiveCfg = Debug|Win32
-		{CD2BED4E-551F-4B29-A8D8-2E52D5A0C18B}.Debug|Win32.Build.0 = Debug|Win32
-		{CD2BED4E-551F-4B29-A8D8-2E52D5A0C18B}.Release|Win32.ActiveCfg = Release|Win32
-		{CD2BED4E-551F-4B29-A8D8-2E52D5A0C18B}.Release|Win32.Build.0 = Release|Win32
 		{38D56DA0-6B9E-41CB-A313-CDC8808A9CC5}.Debug|Win32.ActiveCfg = Debug|Win32
 		{38D56DA0-6B9E-41CB-A313-CDC8808A9CC5}.Debug|Win32.Build.0 = Debug|Win32
 		{38D56DA0-6B9E-41CB-A313-CDC8808A9CC5}.Release|Win32.ActiveCfg = Release|Win32
