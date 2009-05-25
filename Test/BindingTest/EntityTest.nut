@@ -170,10 +170,12 @@ n1.localTransform = Mat44();
 assert(root.name == "Root node");
 assert(root.firstChild.name == "Child node 1");
 
-local camera = CameraComponent(n1);
+local camera = CameraComponent();
+n1.addComponent(camera);
 assert(n1.name == camera.entity.name);
 println(camera.velocity);
-assert(camera.isValid());
+assert(camera);
 n1.unlink();
-assert(!camera.isValid());
-assert(!camera.entity);
+assert(camera);
+n1 = null;
+assert(!camera);
