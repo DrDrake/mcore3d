@@ -17,23 +17,25 @@ Please notice that the first `<texture />` element occurs in the pass will be bi
   * Syntax: {{{<texture shaderName="diffuseMap"/>}}}
   * Values: "a string"
 
-= Texture file command (in progress) =
+ * autoGenMipmap (in-progress)
+  * enable auto mipmap generation for this texture.
+  * Syntax: {{{<texture autoGenMipmap ="true"/>}}}
+  * Values: bool
+
+= Texture file command =
 Filename(s) in the `<texture />` element is specified by a simple texture file command with the following syntax:<br/><br/>
-_{type}_ *:* _{filename1}_ *:* _{filename2}_ *:* _{filename3}_ ... 
+_{file_path_and_basename}_ *.* _{texture_type}_ *.* _{extension}_
 
  * Loading a 2d texture
-  * file="_*2d:*_ ../../wood.jpg"
+  * file="../../wood.jpg"
    * The image "../../wood.jpg" will be loaded as a 2d texture
 
  * Loading a cubemap texture
-  * file="_*cubemap:*_ skybox.jpg"
-   * This assumes the image skybox.jpg containing the 6 faces of the cubemap (tiled horizontally: +x -z -x +z +y -y).
-   * Please notice the height of image define the cubemap size (must be power of 2) and the width of the image must be equal to 6 times of the height. For example, the image height is 256 pixels, then the image width should be 1536 pixels.
+  * file="skybox._*cubemap*_.jpg"
+   * This assumes the image _skybox.cubemap.jpg_ containing the 6 faces of the cubemap (tiled vertically: +x -x +y -y +z -z).
+   * Please notice the width of image defines the cubemap size (must be power of 2) and the height of the image must be equals to 6 times of the width. For example, the image width is 256 pixels, then the height should be 1536 pixels.
 
- * Loading a 3d texture
-  * file="_*3d:*_tex0.jpg_*;* _tex1.jpg_*;*_ tex2.jpg_*;*_ tex3.jpg_*;*_ tex4.jpg_*;*_ tex5.jpg_*;*_ tex6.jpg_*;*_ tex7.jpg"
-   * In the above example, 8 images, "tex0.jpg" ... "tex7.jpg" will be loaded as a 3d texture.
-   * If the 8 images have the dimensions of 64 x 64, then the result 3d texture will have a dimension of 64 x 64 x 8 (width x height x depth).
-   * Please notice that all images must have the same power-of-2 dimensions.
-
-* If the type is not specified in a texture file command, 2d texture will be assumed.*
+ * Loading a volume(3d) texture (in-progress)
+  * file="noise._*volume*_.jpg"
+   * This assumes the image _noise.volume.jpg_ containing the a list of slices of a volume texture (tiled vertically).
+   * Please notice the width of image defines the size (i.e. width and height; must be power of 2) of each slice in volume texture and the height of the image must be multiple of the width. For example, the image width is 256 pixels and the height is 1024 pixels, then a volume texture with dimension 256 x 256 x 4 (w x h x d) will be created.
