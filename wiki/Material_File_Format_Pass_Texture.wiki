@@ -20,7 +20,8 @@ Please notice that the first `<texture />` element occurs in the pass will be bi
  * autoGenMipmap (in-progress)
   * enable auto mipmap generation for this texture.
   * Syntax: {{{<texture autoGenMipmap ="true"/>}}}
-  * Values: bool
+  * Values: "true" or "false"
+  * Default: "true" 
 
 = Texture file command =
 Filename(s) in the `<texture />` element is specified by a simple texture file command with the following syntax:<br/><br/>
