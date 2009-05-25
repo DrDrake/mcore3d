@@ -54,9 +54,6 @@ IResourceLoader::LoadingState CubemapLoader::load(std::istream* is, const Path* 
 {
 	MCD_ASSUME(mImpl != nullptr);
 
-	if(loadingState & Stopped)
-		return loadingState;
-
 	LoaderImpl* impl = static_cast<LoaderImpl*>(mImpl);
 
 	if(nullptr == impl->mLoaderDelegate.get())
