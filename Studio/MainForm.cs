@@ -67,10 +67,6 @@ namespace Studio
 			content.KeyUp += new KeyEventHandler(entityWindow.treeView_KeyUp);
 			renderPanel.KeyUp += new KeyEventHandler(entityWindow.treeView_KeyUp);
 
-			// Forward the key event from render panel to main window
-			content.KeyPress += new KeyPressEventHandler(MainForm_KeyPress);
-			renderPanel.KeyPress += new KeyPressEventHandler(MainForm_KeyPress);
-
 			// Selected the newly created scene
 			sceneSelectionChanged(renderPanel, new EventArgs());
 		}
@@ -259,14 +255,25 @@ namespace Studio
 		}
 		#endregion
 
-		private void MainForm_KeyPress(object sender, KeyPressEventArgs e)
+		/// Capture all key events (Capture child controls' key events also)
+		/// See: http://www.codeguru.com/columns/experts/article.php/c4639
+		protected override bool ProcessCmdKey(ref Message msg, Keys keyData)
 		{
-			if (e.KeyChar == 'q')
-				toolStripButtonTranslate.PerformClick();
-			if (e.KeyChar == 'w')
-				toolStripButtonRotate.PerformClick();
-			if (e.KeyChar == 'e')
-				toolStripButtonScale.PerformClick();
+			switch(keyData)
+			{
+				case Keys.W:
+					toolStripButtonTranslate.PerformClick();
+					break;
+				case Keys.E:
+					toolStripButtonRotate.PerformClick();
+					break;
+				case Keys.R:
+					toolStripButtonScale.PerformClick();
+					break;
+				default:
+					return false;
+			}
+			return true;
 		}
 	}
 }

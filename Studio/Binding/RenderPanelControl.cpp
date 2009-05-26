@@ -65,6 +65,7 @@ public:
 			// related stuffs (eg axis picking) are working
 			std::auto_ptr<Gizmo> e(new Gizmo(mResourceManager));
 			e->name = L"Gizmo";
+			e->enabled = false;	// The gizmo is initially disable, until an object is selected
 			e->asChildOf(&mRootNode);
 			e->setActiveGizmo(e->translationGizmo.get());
 
