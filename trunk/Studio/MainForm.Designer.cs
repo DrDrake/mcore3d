@@ -29,7 +29,6 @@
 		private void InitializeComponent()
 		{
 			System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(MainForm));
-			System.Windows.Forms.ToolStripButton toolStripButtonMove;
 			this.mainMenu = new System.Windows.Forms.MenuStrip();
 			this.fileToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.newToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -52,10 +51,10 @@
 			this.toolStripSeparator1 = new System.Windows.Forms.ToolStripSeparator();
 			this.helpToolStripButton = new System.Windows.Forms.ToolStripButton();
 			this.toolStripGizmo = new System.Windows.Forms.ToolStrip();
+			this.toolStripButtonMove = new System.Windows.Forms.ToolStripButton();
 			this.toolStripButtonTranslate = new System.Windows.Forms.ToolStripButton();
 			this.toolStripButtonRotate = new System.Windows.Forms.ToolStripButton();
 			this.toolStripButtonScale = new System.Windows.Forms.ToolStripButton();
-			toolStripButtonMove = new System.Windows.Forms.ToolStripButton();
 			this.mainMenu.SuspendLayout();
 			this.toolStripContainer1.ContentPanel.SuspendLayout();
 			this.toolStripContainer1.TopToolStripPanel.SuspendLayout();
@@ -262,13 +261,26 @@
 			// 
 			this.toolStripGizmo.Dock = System.Windows.Forms.DockStyle.Fill;
 			this.toolStripGizmo.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-			toolStripButtonMove,
+			this.toolStripButtonMove,
+			this.toolStripButtonTranslate,
 			this.toolStripButtonRotate,
 			this.toolStripButtonScale});
 			this.toolStripGizmo.Location = new System.Drawing.Point(211, 0);
 			this.toolStripGizmo.Name = "toolStripGizmo";
 			this.toolStripGizmo.Size = new System.Drawing.Size(112, 25);
 			this.toolStripGizmo.TabIndex = 1;
+			// 
+			// toolStripButtonMove
+			// 
+			this.toolStripButtonMove.CheckOnClick = true;
+			this.toolStripButtonMove.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
+			this.toolStripButtonMove.Enabled = false;
+			this.toolStripButtonMove.Image = ((System.Drawing.Image)(resources.GetObject("toolStripButtonMove.Image")));
+			this.toolStripButtonMove.ImageTransparentColor = System.Drawing.Color.Magenta;
+			this.toolStripButtonMove.Name = "toolStripButtonMove";
+			this.toolStripButtonMove.Size = new System.Drawing.Size(23, 22);
+			this.toolStripButtonMove.Text = "Move";
+			this.toolStripButtonMove.Click += new System.EventHandler(this.toolStripButtonMove_Click);
 			// 
 			// toolStripButtonTranslate
 			// 
@@ -304,16 +316,6 @@
 			this.toolStripButtonScale.Size = new System.Drawing.Size(23, 22);
 			this.toolStripButtonScale.Text = "Scale";
 			this.toolStripButtonScale.Click += new System.EventHandler(this.toolStripButtonScale_Click);
-			// 
-			// toolStripButtonMove
-			// 
-			toolStripButtonMove.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
-			toolStripButtonMove.Image = ((System.Drawing.Image)(resources.GetObject("toolStripButtonMove.Image")));
-			toolStripButtonMove.ImageTransparentColor = System.Drawing.Color.Magenta;
-			toolStripButtonMove.Name = "toolStripButtonMove";
-			toolStripButtonMove.Size = new System.Drawing.Size(23, 22);
-			toolStripButtonMove.Text = "Move";
-			toolStripButtonMove.ToolTipText = "Move";
 			// 
 			// MainForm
 			// 
@@ -367,6 +369,7 @@
 		private System.Windows.Forms.ToolStripSeparator toolStripSeparator1;
 		private System.Windows.Forms.ToolStripButton helpToolStripButton;
 		private System.Windows.Forms.ToolStrip toolStripGizmo;
+		private System.Windows.Forms.ToolStripButton toolStripButtonMove;
 		private System.Windows.Forms.ToolStripButton toolStripButtonTranslate;
 		private System.Windows.Forms.ToolStripButton toolStripButtonRotate;
 		private System.Windows.Forms.ToolStripButton toolStripButtonScale;

@@ -60,6 +60,11 @@ public:
 		Translate, Rotate, Scale, None
 	};
 
+	property bool gizmoEnabled {
+		bool get();
+		void set(bool);
+	}
+
 	property GizmoMode gizmoMode {
 		GizmoMode get();
 		void set(GizmoMode);
