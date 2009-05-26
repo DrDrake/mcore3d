@@ -31,12 +31,10 @@ public:
 		// Preforming dragging
 		// Reference: "3D Transformation Manipulators (Translation/Rotation/Scale)"
 		// http://www.ziggyware.com/readarticle.php?article_id=189
-		Vec3f transformedDragDir = dragDirection;
-		oldTransform.transformNormal(transformedDragDir);
 
 		// Transform the axis direction on the screen space
 		Vec3f start = projectToScreen(oldTransform.translation());
-		Vec3f end = projectToScreen(oldTransform.translation() + transformedDragDir);
+		Vec3f end = projectToScreen(oldTransform.translation() + dragDirection);
 		Vec3f screenDir = (end - start).normalizedCopy();
 
 		// Project the mouse dragging direciton to the screen space arrow direction
