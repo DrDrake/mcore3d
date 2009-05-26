@@ -15,6 +15,21 @@ namespace Studio
 			mDeserializeDockContent = new DeserializeDockContent(getDockingFromPersistString);
 		}
 
+	// Properties
+		public bool IsFpsCameraMode
+		{
+			get { return toolStripButtonMove.CheckState == CheckState.Checked; }
+			set
+			{
+				if(IsFpsCameraMode != value)
+					toolStripButtonMove.PerformClick();
+				toolStripButtonRotate.Enabled = !value;
+				toolStripButtonScale.Enabled = !value;
+				toolStripButtonTranslate.Enabled = !value;
+				currentRenderControl.gizmoEnabled = !value;
+			}
+		}
+
 	// Operations
 
 	// Events
@@ -67,6 +82,10 @@ namespace Studio
 			content.KeyUp += new KeyEventHandler(entityWindow.treeView_KeyUp);
 			renderPanel.KeyUp += new KeyEventHandler(entityWindow.treeView_KeyUp);
 
+			// Forward the key event from render panel to main window
+			content.KeyPress += new KeyPressEventHandler(MainForm_KeyPress);
+			renderPanel.KeyPress += new KeyPressEventHandler(MainForm_KeyPress);
+
 			// Selected the newly created scene
 			sceneSelectionChanged(renderPanel, new EventArgs());
 		}
@@ -102,7 +121,8 @@ namespace Studio
 				onEntitySelectionChanged(this, null);
 			}
 
-			enableGizmoButtons(true);
+			toolStripButtonMove.Enabled = true;
+			IsFpsCameraMode = true;
 			updateGizmoButtonsState();
 		}
 
@@ -127,7 +147,8 @@ namespace Studio
 			if (renderControls.Count == 0)
 			{
 				clearGizmoButtonsState();
-				enableGizmoButtons(false);
+				toolStripButtonMove.Enabled = false;
+				IsFpsCameraMode = true;
 			}
 		}
 
@@ -201,13 +222,6 @@ namespace Studio
 		}
 
 		#region "Gizmo buttons"
-		private void enableGizmoButtons(bool flag)
-		{
-			toolStripButtonRotate.Enabled = flag;
-			toolStripButtonScale.Enabled = flag;
-			toolStripButtonTranslate.Enabled = flag;
-		}
-
 		private void clearGizmoButtonsState()
 		{
 			toolStripButtonRotate.Checked = false;
@@ -255,25 +269,29 @@ namespace Studio
 		}
 		#endregion
 
-		/// Capture all key events (Capture child controls' key events also)
-		/// See: http://www.codeguru.com/columns/experts/article.php/c4639
-		protected override bool ProcessCmdKey(ref Message msg, Keys keyData)
+		private void MainForm_KeyPress(object sender, KeyPressEventArgs e)
 		{
-			switch(keyData)
+			switch (e.KeyChar)
 			{
-				case Keys.W:
+				case 'q':
+					toolStripButtonMove.PerformClick();
+					break;
+				case 'w':
 					toolStripButtonTranslate.PerformClick();
 					break;
-				case Keys.E:
+				case 'e':
 					toolStripButtonRotate.PerformClick();
 					break;
-				case Keys.R:
+				case 'r':
 					toolStripButtonScale.PerformClick();
 					break;
-				default:
-					return false;
 			}
-			return true;
+		}
+
+		private void toolStripButtonMove_Click(object sender, EventArgs e)
+		{
+			toolStripButtonTranslate.Enabled = !IsFpsCameraMode;
+			IsFpsCameraMode = IsFpsCameraMode;
 		}
 	}
 }

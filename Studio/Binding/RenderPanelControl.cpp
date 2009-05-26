@@ -37,7 +37,7 @@ public:
 		:
 		mBackRef(c),
 		mWidth(0), mHeight(0), mFieldOfView(60.0f),
-		mGizmo(nullptr), mEntityPicker(nullptr),
+		mGizmoEnabled(false), mGizmo(nullptr), mEntityPicker(nullptr),
 		mPredefinedSubTree(nullptr), mUserSubTree(nullptr),
 		mResourceManager(*createDefaultFileSystem()),
 		mPropertyGridNeedRefresh(false)
@@ -258,13 +258,16 @@ public:
 
 	void onMouseDown(System::Object^ sender, System::Windows::Forms::MouseEventArgs^ e)
 	{
-		mGizmo->mouseDown(e->X, e->Y);
-
-		// Gizmo has a higher priority to do picking
-		if(!mGizmo->isDragging())
+		if(mGizmoEnabled)
 		{
-			mEntityPicker->entity()->enabled = true;
-			mEntityPicker->setPickRegion(e->X, e->Y);
+			mGizmo->mouseDown(e->X, e->Y);
+
+			// Gizmo has a higher priority to do picking
+			if(!mGizmo->isDragging())
+			{
+				mEntityPicker->entity()->enabled = true;
+				mEntityPicker->setPickRegion(e->X, e->Y);
+			}
 		}
 
 		mLastMousePos = Point(e->X, e->Y);
@@ -289,6 +292,7 @@ public:
 	float mWidth, mHeight;
 	float mFieldOfView;
 	MCD::Entity mRootNode, *mPredefinedSubTree, *mUserSubTree;
+	bool mGizmoEnabled;
 	Gizmo* mGizmo;
 	MCD::PickComponent* mEntityPicker;
 	WeakPtr<CameraComponent> mCamera;
@@ -401,6 +405,18 @@ void RenderPanelControl::gizmoMode::set(GizmoMode mode)
 		g->setActiveGizmo(g->scaleGizmo);
 	else
 		g->setActiveGizmo(NULL);
+}
+
+bool RenderPanelControl::gizmoEnabled::get()
+{
+	return mImpl->mGizmoEnabled;
+}
+
+void RenderPanelControl::gizmoEnabled::set(bool value)
+{
+	mImpl->mGizmoEnabled = value;
+	mImpl->mGizmo->enabled = value;
+	mImpl->mEntityPicker->entity()->enabled = value;
 }
 
 System::Void RenderPanelControl::timer_Tick(System::Object^ sender, System::EventArgs^ e)
