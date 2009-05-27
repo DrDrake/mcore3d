@@ -245,15 +245,52 @@ public:
 
 	void onKeyDown(System::Object^ sender, System::Windows::Forms::KeyEventArgs^ e)
 	{
-/*		switch(e->KeyCode) {
+		if(mGizmoEnabled)
+			return;
+
+		static const float cCameraVelocity = 10.0f;
+		switch(e->KeyCode) {
 		case System::Windows::Forms::Keys::W:
-			mCamera->camera.moveForward(0.5f);
+			mCamera->velocity.z = cCameraVelocity;
 			break;
-		}*/
+		case System::Windows::Forms::Keys::S:
+			mCamera->velocity.z = -cCameraVelocity;
+			break;
+		case System::Windows::Forms::Keys::D:
+			mCamera->velocity.x = cCameraVelocity;
+			break;
+		case System::Windows::Forms::Keys::A:
+			mCamera->velocity.x = -cCameraVelocity;
+			break;
+		case System::Windows::Forms::Keys::PageUp:
+			mCamera->velocity.y = cCameraVelocity;
+			break;
+		case System::Windows::Forms::Keys::PageDown:
+			mCamera->velocity.y = -cCameraVelocity;
+			break;
+		default:
+			break;
+		}
 	}
 
 	void onKeyUp(System::Object^ sender, System::Windows::Forms::KeyEventArgs^ e)
 	{
+		switch(e->KeyCode) {
+		case System::Windows::Forms::Keys::W:
+		case System::Windows::Forms::Keys::S:
+			mCamera->velocity.z = 0;
+			break;
+		case System::Windows::Forms::Keys::D:
+		case System::Windows::Forms::Keys::A:
+			mCamera->velocity.x = 0;
+			break;
+		case System::Windows::Forms::Keys::PageUp:
+		case System::Windows::Forms::Keys::PageDown:
+			mCamera->velocity.y = 0;
+			break;
+		default:
+			break;
+		}
 	}
 
 	void onMouseDown(System::Object^ sender, System::Windows::Forms::MouseEventArgs^ e)
@@ -269,21 +306,33 @@ public:
 				mEntityPicker->setPickRegion(e->X, e->Y);
 			}
 		}
+		else
+			mCamera->isMouseDown = true;
 
 		mLastMousePos = Point(e->X, e->Y);
 	}
 
 	void onMouseUp(System::Object^ sender, System::Windows::Forms::MouseEventArgs^ e)
 	{
-		mGizmo->mouseUp(e->X, e->Y);
+		if(mGizmoEnabled)
+			mGizmo->mouseUp(e->X, e->Y);
+		else
+			mCamera->isMouseDown = false;
 	}
 
 	void onMouseMove(System::Object^ sender, System::Windows::Forms::MouseEventArgs^ e)
 	{
-		mGizmo->mouseMove(e->X, e->Y);
+		if(mGizmoEnabled)
+		{
+			mGizmo->mouseMove(e->X, e->Y);
 
-		if(mGizmo->isDragging() && mLastMousePos != Point(e->X, e->Y))
-			mPropertyGridNeedRefresh = true;
+			if(mGizmo->isDragging() && mLastMousePos != Point(e->X, e->Y))
+				mPropertyGridNeedRefresh = true;
+		}
+		else
+		{
+//			mCamera->setsetMousePosition(e->X, e->Y);
+		}
 
 		mLastMousePos = Point(e->X, e->Y);
 	}

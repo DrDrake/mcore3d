@@ -50,7 +50,7 @@ void PickComponent::update()
 	MCD_ASSUME(mImpl);
 
 	// The pick buffer for the opengl to store picking results.
-	GLuint pickBuffer[256];
+	GLuint pickBuffer[1024];
 	glSelectBuffer(sizeof(pickBuffer), pickBuffer);
 	glRenderMode(GL_SELECT);
 	glInitNames();
