@@ -285,15 +285,42 @@ namespace WeifenLuo.WinFormsUI.Docking
             }
         }
 
-        private Color TextColor
+		private static Color ActiveBackColorGradientBegin
+		{
+            get { return SystemColors.GradientActiveCaption; }
+        }
+
+        private static Color ActiveBackColorGradientEnd
         {
+            get { return SystemColors.ActiveCaption; }
+        }
+
+		private static Color InactiveBackColor
+		{
             get
             {
-                if (DockPane.IsActivated)
-                    return DockPane.DockPanel.Skin.DockPaneStripSkin.ToolWindowGradient.ActiveCaptionGradient.TextColor;
+                string colorScheme = VisualStyleInformation.ColorScheme;
+
+                if (colorScheme == "HomeStead" || colorScheme == "Metallic")
+                    return SystemColors.GradientInactiveCaption;
                 else
-                    return DockPane.DockPanel.Skin.DockPaneStripSkin.ToolWindowGradient.InactiveCaptionGradient.TextColor;
+                    return SystemColors.GrayText;
             }
+		}
+
+		private static Color ActiveTextColor
+		{
+			get	{	return SystemColors.ActiveCaptionText;	}
+		}
+
+		private static Color InactiveTextColor
+		{
+			get	{	return SystemColors.ControlText;	}
+		}
+
+        private Color TextColor
+        {
+            get { return DockPane.IsActivated ? ActiveTextColor : InactiveTextColor; }
         }
 
 		private static TextFormatFlags _textFormat =
@@ -334,10 +361,7 @@ namespace WeifenLuo.WinFormsUI.Docking
 
             if (DockPane.IsActivated)
             {
-                Color startColor = DockPane.DockPanel.Skin.DockPaneStripSkin.ToolWindowGradient.ActiveCaptionGradient.StartColor;
-                Color endColor = DockPane.DockPanel.Skin.DockPaneStripSkin.ToolWindowGradient.ActiveCaptionGradient.EndColor;
-                LinearGradientMode gradientMode = DockPane.DockPanel.Skin.DockPaneStripSkin.ToolWindowGradient.ActiveCaptionGradient.LinearGradientMode;
-                using (LinearGradientBrush brush = new LinearGradientBrush(ClientRectangle, startColor, endColor, gradientMode))
+                using (LinearGradientBrush brush = new LinearGradientBrush(ClientRectangle, ActiveBackColorGradientBegin, ActiveBackColorGradientEnd, LinearGradientMode.Vertical))
                 {
                     brush.Blend = ActiveBackColorGradientBlend;
                     g.FillRectangle(brush, ClientRectangle);
@@ -345,10 +369,7 @@ namespace WeifenLuo.WinFormsUI.Docking
             }
             else
             {
-                Color startColor = DockPane.DockPanel.Skin.DockPaneStripSkin.ToolWindowGradient.InactiveCaptionGradient.StartColor;
-                Color endColor = DockPane.DockPanel.Skin.DockPaneStripSkin.ToolWindowGradient.InactiveCaptionGradient.EndColor;
-                LinearGradientMode gradientMode = DockPane.DockPanel.Skin.DockPaneStripSkin.ToolWindowGradient.InactiveCaptionGradient.LinearGradientMode;
-                using (LinearGradientBrush brush = new LinearGradientBrush(ClientRectangle, startColor, endColor, gradientMode))
+                using (SolidBrush brush = new SolidBrush(InactiveBackColor))
                 {
                     g.FillRectangle(brush, ClientRectangle);
                 }
@@ -366,14 +387,7 @@ namespace WeifenLuo.WinFormsUI.Docking
                 rectCaptionText.Width -= ButtonOptions.Width + ButtonGapBetween;
 			rectCaptionText.Y += TextGapTop;
 			rectCaptionText.Height -= TextGapTop + TextGapBottom;
-
-            Color colorText;
-            if (DockPane.IsActivated)
-                colorText = DockPane.DockPanel.Skin.DockPaneStripSkin.ToolWindowGradient.ActiveCaptionGradient.TextColor;
-            else
-                colorText = DockPane.DockPanel.Skin.DockPaneStripSkin.ToolWindowGradient.InactiveCaptionGradient.TextColor;
-
-            TextRenderer.DrawText(g, DockPane.CaptionText, TextFont, DrawHelper.RtlTransform(this, rectCaptionText), colorText, TextFormat);
+            TextRenderer.DrawText(g, DockPane.CaptionText, TextFont, DrawHelper.RtlTransform(this, rectCaptionText), TextColor, TextFormat);
 		}
 
 		protected override void OnLayout(LayoutEventArgs levent)
@@ -393,14 +407,6 @@ namespace WeifenLuo.WinFormsUI.Docking
 			get	{	return (DockPane.ActiveContent != null)? DockPane.ActiveContent.DockHandler.CloseButton : false;	}
 		}
 
-        /// <summary>
-        /// Determines whether the close button is visible on the content
-        /// </summary>
-        private bool CloseButtonVisible
-        {
-            get { return (DockPane.ActiveContent != null) ? DockPane.ActiveContent.DockHandler.CloseButtonVisible : false; }
-        }
-
 		private bool ShouldShowAutoHideButton
 		{
 			get	{	return !DockPane.IsFloat;	}
@@ -409,7 +415,6 @@ namespace WeifenLuo.WinFormsUI.Docking
 		private void SetButtons()
 		{
 			ButtonClose.Enabled = CloseButtonEnabled;
-            ButtonClose.Visible = CloseButtonVisible;
 			ButtonAutoHide.Visible = ShouldShowAutoHideButton;
             ButtonOptions.Visible = HasTabPageContextMenu;
             ButtonClose.RefreshChanges();
@@ -436,12 +441,7 @@ namespace WeifenLuo.WinFormsUI.Docking
 			int y = rectCaption.Y + ButtonGapTop;
 			Point point = new Point(x, y);
             ButtonClose.Bounds = DrawHelper.RtlTransform(this, new Rectangle(point, buttonSize));
-
-            // If the close button is not visible draw the auto hide button overtop.
-            // Otherwise it is drawn to the left of the close button.
-            if (ButtonClose.Visible)
-			    point.Offset(-(buttonWidth + ButtonGapBetween), 0);
-            
+			point.Offset(-(buttonWidth + ButtonGapBetween), 0);
             ButtonAutoHide.Bounds = DrawHelper.RtlTransform(this, new Rectangle(point, buttonSize));
             if (ShouldShowAutoHideButton)
                 point.Offset(-(buttonWidth + ButtonGapBetween), 0);
@@ -456,9 +456,6 @@ namespace WeifenLuo.WinFormsUI.Docking
 		private void AutoHide_Click(object sender, EventArgs e)
 		{
 			DockPane.DockState = DockHelper.ToggleAutoHideState(DockPane.DockState);
-            if (DockHelper.IsDockStateAutoHide(DockPane.DockState))
-                DockPane.DockPanel.ActiveAutoHideContent = null;
-
 		}
 
         private void Options_Click(object sender, EventArgs e)

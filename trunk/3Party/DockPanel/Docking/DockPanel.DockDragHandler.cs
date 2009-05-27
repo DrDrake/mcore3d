@@ -723,9 +723,6 @@ namespace WeifenLuo.WinFormsUI.Docking
 
                 EndDrag(abort);
 
-                // Queue a request to layout all children controls
-                DockPanel.PerformMdiClientLayout();
-
                 DockPanel.ResumeLayout(true, true);
 
                 DragSource = null;
