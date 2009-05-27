@@ -22,6 +22,8 @@ public:
 	Camera camera;
 	Vec3f velocity;
 	ColorRGBf clearColor;
+	// TODO: Move it to something like mouse camera controler
+	bool isMouseDown;	//! To make associating the camera with mouse movement easily.
 
 private:
 	// TODO: Remove the use of timer once the component system has a global timer.

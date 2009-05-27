@@ -6,7 +6,7 @@
 namespace MCD {
 
 CameraComponent::CameraComponent()
-	: velocity(0), clearColor(0)
+	: velocity(0), clearColor(0), isMouseDown(false)
 {
 }
 
@@ -19,9 +19,9 @@ void CameraComponent::render()
 	float deltaTime = float(mTimer.getDelta().asSecond());
 
 	if(velocity.length() > 0) {
-		camera.moveForward(velocity.x * deltaTime);
-		camera.moveRight(velocity.y * deltaTime);
-		camera.moveUp(velocity.z  * deltaTime);
+		camera.moveForward(velocity.z * deltaTime);
+		camera.moveRight(velocity.x * deltaTime);
+		camera.moveUp(velocity.y * deltaTime);
 	}
 
 	camera.applyTransform();

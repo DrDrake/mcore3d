@@ -87,6 +87,9 @@ int DefaultResourceManager::processLoadingEvents()
 
 void DefaultResourceManager::setupFactories()
 {
+	// CubemapLoader must be added first
+	addFactory(new CubemapLoaderFactory);
+
 	addFactory(new BitmapLoaderFactory);
 	addFactory(new DdsLoaderFactory);
 	addFactory(new EffectLoaderFactory(*this));
