@@ -116,19 +116,6 @@ namespace WeifenLuo.WinFormsUI.Docking
 		{
 			DockPanel.FloatWindows.BringWindowToFront(this);
 			base.OnActivated (e);
-			// Propagate the Activated event to the visible panes content objects
-			foreach (DockPane pane in VisibleNestedPanes)
-				foreach (IDockContent content in pane.Contents)
-					content.OnActivated(e);
-		}
-
-		protected override void OnDeactivate(EventArgs e)
-		{
-			base.OnDeactivate(e);
-			// Propagate the Deactivate event to the visible panes content objects
-			foreach (DockPane pane in VisibleNestedPanes)
-				foreach (IDockContent content in pane.Contents)
-					content.OnDeactivate(e);
 		}
 
 		protected override void OnLayout(LayoutEventArgs levent)
@@ -286,17 +273,14 @@ namespace WeifenLuo.WinFormsUI.Docking
 					if (content.DockHandler.DockState != DockState.Float)
 						continue;
 
-					if (content.DockHandler.CloseButton && content.DockHandler.CloseButtonVisible)
+					if (content.DockHandler.CloseButton)
 					{
 						ControlBox = true;
 						return;
 					}
 				}
 			}
-			//Only if there is a ControlBox do we turn it off
-			//old code caused a flash of the window.
-            if (ControlBox)
-				ControlBox = false;
+			ControlBox = false;
 		}
 
 		public virtual Rectangle DisplayingRectangle
@@ -369,7 +353,6 @@ namespace WeifenLuo.WinFormsUI.Docking
                         c.DockHandler.Pane = pane;
                         if (contentIndex != -1)
                             pane.SetContentIndex(c, contentIndex);
-                        c.DockHandler.Activate();
                     }
                 }
             }
