@@ -9,6 +9,7 @@
 #include "sqfuncproto.h"
 #include "sqclosure.h"
 #include "sqclass.h"
+#include "../wcshelper.h"
 #include <stdlib.h>
 #include <stdarg.h>
 #include <ctype.h>

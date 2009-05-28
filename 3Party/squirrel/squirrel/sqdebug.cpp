@@ -7,6 +7,7 @@
 #include "sqfuncproto.h"
 #include "sqclosure.h"
 #include "sqstring.h"
+#include "../wcshelper.h"
 
 SQRESULT sq_stackinfos(HSQUIRRELVM v, SQInteger level, SQStackInfos *si)
 {

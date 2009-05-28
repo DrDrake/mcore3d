@@ -84,7 +84,7 @@ struct SQClass;
 struct SQInstance;
 struct SQDelegable;
 
-#ifdef _UNICODE
+#if defined(UNICODE) || defined(_UNICODE)
 #define SQUNICODE
 #endif
 

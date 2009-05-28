@@ -2,7 +2,7 @@
 #define ___BASE_BASE_H___
 
 #include "Types.h"
-#include <crtdbg.h>
+#include <assert.h>
 
 namespace base
 {
@@ -52,8 +52,8 @@ namespace detail //detail namespace - to avoid compiler bugs
 
 		~WeakPtrImpl()
 		{
-			_ASSERTE(_next == 0);
-			_ASSERTE(_prev == 0);
+			assert(_next == 0);
+			assert(_prev == 0);
 		}
 
 	protected:
@@ -63,11 +63,15 @@ namespace detail //detail namespace - to avoid compiler bugs
 		{
 			if (object) {
 				//target exists
-				_ASSERTE(_next);
-				_ASSERTE(_prev);
+				assert(_next);
+				assert(_prev);
+#ifdef _MSC_VER
+				__assume(_next);
+				__assume(_prev);
+#endif
 				if(_next == this) {
 					//we are the only weakref
-					_ASSERTE(_next == _prev);
+					assert(_next == _prev);
 					object->_weakPtr = 0;
 				} else {
 					//we are in the list - unlinking
@@ -80,8 +84,8 @@ namespace detail //detail namespace - to avoid compiler bugs
 				}
 			} else {
 				//no target - clearing self
-				_ASSERTE(_next == 0);
-				_ASSERTE(_prev == 0);
+				assert(_next == 0);
+				assert(_prev == 0);
 			}
 
 			_next = 0;
@@ -125,7 +129,7 @@ namespace detail //detail namespace - to avoid compiler bugs
 
 		static inline void decrementReferenceCount(Object* object)
 		{
-			_ASSERTE(object->_referenceCounter > 0);
+			assert(object->_referenceCounter > 0);
 			object->_referenceCounter--;
 			if (object->_referenceCounter == 0) delete object;
 		}
@@ -202,7 +206,7 @@ public:
 	{
 		if(_next) {
 			//linked - so object exists
-			_ASSERTE(_prev != 0);
+			assert(_prev != 0);
 			return _object;
 		}
 		return 0;

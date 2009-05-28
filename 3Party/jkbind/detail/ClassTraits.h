@@ -25,11 +25,11 @@ namespace detail
 		}
 
 	private:
-		static void _dummy()
+/*		static void _dummy()
 		{	//just dummy - to have unique class id
 			Class* ptr = 0;
-			xDELETE ptr;
-		}
+			delete ptr;
+		}*/
 
 		static unsigned long _dummyField;
 	};

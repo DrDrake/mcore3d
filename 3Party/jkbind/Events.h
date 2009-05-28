@@ -25,10 +25,10 @@ public:
 	EventBase&  setHandlerObject(ScriptObject callee, ScriptObject func);
 
 protected:
-	char            _callee[sizeof(ScriptObject)];
-	char            _func[sizeof(ScriptObject)];
+	char			_callee[sizeof(ScriptObject)];
+	char			_func[sizeof(ScriptObject)];
 	WeakPtr<VMCore> _vm;
-	bool            _assigned;
+	bool			_assigned;
 };
 
 void createEventInstance(HSQUIRRELVM v, const void* c_this);
@@ -57,45 +57,42 @@ SQInteger eventObjectGetter(HSQUIRRELVM v)
 
 namespace script {
 
-#define CHECK_TYPE_IS_VOID( ndx )                           \
+#define CHECK_TYPE_IS_VOID( ndx )							\
 xCOMPILE_CHECK(base::is_void< T##ndx >::value);
 
-#define PUSH_ARGUMENT( ndx )                                \
-{                                                           \
-	xCOMPILE_CHECK( !base::is_void< Type##ndx >::value );   \
-	PP##ndx::pushResult<Type##ndx>                          \
-			(vm,static_cast<Type##ndx>(a##ndx));            \
-	++argCount;                                             \
+#define PUSH_ARGUMENT( ndx )								\
+{															\
+	xCOMPILE_CHECK( !base::is_void< Type##ndx >::value );	\
+	PP##ndx::template pushResult< Type##ndx >				\
+			(vm,static_cast< Type##ndx >(a##ndx));			\
+	++argCount;												\
 }
 
-#define BEGIN_CALL                                          \
-HSQUIRRELVM vm = _vm->getVM();                              \
-int argCount = 0;                                           \
-sq_pushobject(vm,(*(detail::ScriptObject*)_func).getObjectHandle());    \
+#define BEGIN_CALL											\
+HSQUIRRELVM vm = _vm->getVM();								\
+int argCount = 0;											\
+sq_pushobject(vm,(*(detail::ScriptObject*)_func).getObjectHandle());	\
 sq_pushobject(vm,(*(detail::ScriptObject*)_callee).getObjectHandle());
 
 #if jkDEBUG_SCRIPT
 
-#define END_CALL                                            \
-jkSCRIPT_API_VERIFY(sq_call(vm, 1 + argCount, true, true)); \
-if (!types::match(                                          \
-		types::TypeSelect<RetType>(), vm,-1)                \
-	)                                                       \
-{                                                           \
-	xERROR("Invalid script function result in Event")       \
-}                                                           \
-RetType value =                                             \
-	types::get(types::TypeSelect<RetType>(), vm,-1);        \
-sq_pop(vm, 2);                                              \
+#define END_CALL											\
+jkSCRIPT_API_VERIFY(sq_call(vm, 1 + argCount, true, true));	\
+if (!types::match(types::TypeSelect<RetType>(), vm,-1)) {	\
+	assert("Invalid script function result in Event");		\
+}															\
+RetType value =												\
+	types::get(types::TypeSelect<RetType>(), vm,-1);		\
+sq_pop(vm, 2);												\
 return value;
 
 #else
 
-#define END_CALL                                            \
-jkSCRIPT_API_VERIFY(sq_call(vm, 1 + argCount, true, true)); \
-RetType value =                                             \
-	types::get(types::TypeSelect<RetType>(), vm,-1);        \
-sq_pop(vm, 2);                                              \
+#define END_CALL											\
+jkSCRIPT_API_VERIFY(sq_call(vm, 1 + argCount, true, true));	\
+RetType value =												\
+	types::get(types::TypeSelect<RetType>(), vm,-1);		\
+sq_pop(vm, 2);												\
 return value;
 
 #endif
@@ -124,8 +121,8 @@ public:
 		END_CALL
 	};
 
-	template<typename T1>
-	RetType call(T1 a1)
+	template<typename t1>
+	RetType call(t1 a1)
 	{
 		BEGIN_CALL
 		PUSH_ARGUMENT(1);
@@ -137,8 +134,8 @@ public:
 		END_CALL
 	}
 
-	template<typename T1, typename T2>
-	RetType call(T1 a1, T2 a2)
+	template<typename t1, typename t2>
+	RetType call(t1 a1, t2 a2)
 	{
 		BEGIN_CALL
 		PUSH_ARGUMENT(1);
@@ -150,8 +147,8 @@ public:
 		END_CALL
 	}
 
-	template<typename T1, typename T2, typename T3>
-	RetType call(T1 a1, T2 a2, T3 a3)
+	template<typename t1, typename t2, typename t3>
+	RetType call(t1 a1, t2 a2, t3 a3)
 	{
 		BEGIN_CALL
 		PUSH_ARGUMENT(1);
@@ -163,8 +160,8 @@ public:
 		END_CALL
 	}
 
-	template<typename T1, typename T2, typename T3, typename T4>
-	RetType call(T1 a1, T2 a2, T3 a3, T4 a4)
+	template<typename t1, typename t2, typename t3, typename t4>
+	RetType call(t1 a1, t2 a2, t3 a3, t4 a4)
 	{
 		BEGIN_CALL
 		PUSH_ARGUMENT(1);
@@ -176,8 +173,8 @@ public:
 		END_CALL
 	}
 
-	template<typename T1, typename T2, typename T3, typename T4, typename T5>
-	RetType call(T1 a1, T2 a2, T3 a3, T4 a4, T5 a5)
+	template<typename t1, typename t2, typename t3, typename t4, typename t5>
+	RetType call(t1 a1, t2 a2, t3 a3, t4 a4, t5 a5)
 	{
 		BEGIN_CALL
 		PUSH_ARGUMENT(1);
@@ -189,8 +186,8 @@ public:
 		END_CALL
 	}
 
-	template<typename T1, typename T2, typename T3, typename T4, typename T5, typename T6>
-	RetType call(T1 a1, T2 a2, T3 a3, T4 a4, T5 a5, T6 a6)
+	template<typename t1, typename t2, typename t3, typename t4, typename t5, typename t6>
+	RetType call(t1 a1, t2 a2, t3 a3, t4 a4, t5 a5, t6 a6)
 	{
 		BEGIN_CALL
 		PUSH_ARGUMENT(1);
@@ -205,8 +202,8 @@ public:
 
 #undef END_CALL
 
-#define END_CALL                                                \
-jkSCRIPT_API_VERIFY(sq_call(vm, 1 + argCount, false, true));    \
+#define END_CALL												\
+jkSCRIPT_API_VERIFY(sq_call(vm, 1 + argCount, false, true));	\
 sq_pop(vm, 1);
 
 #define RetType void
@@ -235,8 +232,8 @@ public:
 		END_CALL
 	};
 
-	template<typename T1>
-	RetType call(T1 a1)
+	template<typename t1>
+	RetType call(t1 a1)
 	{
 		BEGIN_CALL
 		PUSH_ARGUMENT(1);
@@ -248,8 +245,8 @@ public:
 		END_CALL
 	}
 
-	template<typename T1, typename T2>
-	RetType call(T1 a1, T2 a2)
+	template<typename t1, typename t2>
+	RetType call(t1 a1, t2 a2)
 	{
 		BEGIN_CALL
 		PUSH_ARGUMENT(1);
@@ -261,8 +258,8 @@ public:
 		END_CALL
 	}
 
-	template<typename T1, typename T2, typename T3>
-	RetType call(T1 a1, T2 a2, T3 a3)
+	template<typename t1, typename t2, typename t3>
+	RetType call(t1 a1, t2 a2, t3 a3)
 	{
 		BEGIN_CALL
 		PUSH_ARGUMENT(1);
@@ -274,8 +271,8 @@ public:
 		END_CALL
 	}
 
-	template<typename T1, typename T2, typename T3, typename T4>
-	RetType call(T1 a1, T2 a2, T3 a3, T4 a4)
+	template<typename t1, typename t2, typename t3, typename t4>
+	RetType call(t1 a1, t2 a2, t3 a3, t4 a4)
 	{
 		BEGIN_CALL
 		PUSH_ARGUMENT(1);
@@ -287,8 +284,8 @@ public:
 		END_CALL
 	}
 
-	template<typename T1, typename T2, typename T3, typename T4, typename T5>
-	RetType call(T1 a1, T2 a2, T3 a3, T4 a4, T5 a5)
+	template<typename t1, typename t2, typename t3, typename t4, typename t5>
+	RetType call(t1 a1, t2 a2, t3 a3, t4 a4, t5 a5)
 	{
 		BEGIN_CALL
 		PUSH_ARGUMENT(1);
@@ -300,8 +297,8 @@ public:
 		END_CALL
 	}
 
-	template<typename T1, typename T2, typename T3, typename T4, typename T5, typename T6>
-	RetType call(T1 a1, T2 a2, T3 a3, T4 a4, T5 a5, T6 a6)
+	template<typename t1, typename t2, typename t3, typename t4, typename t5, typename t6>
+	RetType call(t1 a1, t2 a2, t3 a3, t4 a4, t5 a5, t6 a6)
 	{
 		BEGIN_CALL
 		PUSH_ARGUMENT(1);

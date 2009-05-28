@@ -7,8 +7,8 @@ namespace detail {
 template<typename ResultPolicy, typename Callee, typename RawField>
 inline int PushField(Callee* callee, RawField (Callee::*fieldPtr), HSQUIRRELVM v)
 {
-	typedef typename types::GetterSetter<RawField>::type fieldType;
-	ResultPolicy::pushResult<fieldType>(v, (callee->*fieldPtr));
+	typedef types::GetterSetter<RawField> GetterSetter;
+	ResultPolicy::pushResult(v, GetterSetter::get(callee->*fieldPtr));
 	return 1;
 }
 
@@ -29,7 +29,7 @@ SQInteger fieldGetterFunction(HSQUIRRELVM v)
 template<typename Callee, typename RawField>
 inline int AssignField(Callee* callee, RawField (Callee::*fieldPtr), HSQUIRRELVM v, int index)
 {
-	typedef typename types::GetterSetter<RawField>::type fieldType;
+	typedef typename types::GetterSetter<RawField>::setterType fieldType;
 #if jkDEBUG_SCRIPT
 	if (!match(types::TypeSelect<fieldType>(), v,index))
 		return sq_throwerror(v, xSTRING("Incorrect field setter argument"));

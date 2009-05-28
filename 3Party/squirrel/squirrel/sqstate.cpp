@@ -11,6 +11,7 @@
 #include "sqarray.h"
 #include "squserdata.h"
 #include "sqclass.h"
+#include "../wcshelper.h"
 
 SQObjectPtr _null_;
 SQObjectPtr _true_(true);

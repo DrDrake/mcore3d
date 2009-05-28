@@ -58,27 +58,27 @@ dist/Debug/${PLATFORM}/libjkbind.so: ${OBJECTFILES}
 ${OBJECTDIR}/VMCore.o: VMCore.cpp 
 	${MKDIR} -p ${OBJECTDIR}
 	${RM} $@.d
-	$(COMPILE.cc) -g -fPIC  -MMD -MP -MF $@.d -o ${OBJECTDIR}/VMCore.o VMCore.cpp
+	$(COMPILE.cc) -g -DUNICODE -fPIC  -MMD -MP -MF $@.d -o ${OBJECTDIR}/VMCore.o VMCore.cpp
 
 ${OBJECTDIR}/Classes.o: Classes.cpp 
 	${MKDIR} -p ${OBJECTDIR}
 	${RM} $@.d
-	$(COMPILE.cc) -g -fPIC  -MMD -MP -MF $@.d -o ${OBJECTDIR}/Classes.o Classes.cpp
+	$(COMPILE.cc) -g -DUNICODE -fPIC  -MMD -MP -MF $@.d -o ${OBJECTDIR}/Classes.o Classes.cpp
 
 ${OBJECTDIR}/Base.o: Base.cpp 
 	${MKDIR} -p ${OBJECTDIR}
 	${RM} $@.d
-	$(COMPILE.cc) -g -fPIC  -MMD -MP -MF $@.d -o ${OBJECTDIR}/Base.o Base.cpp
+	$(COMPILE.cc) -g -DUNICODE -fPIC  -MMD -MP -MF $@.d -o ${OBJECTDIR}/Base.o Base.cpp
 
 ${OBJECTDIR}/Events.o: Events.cpp 
 	${MKDIR} -p ${OBJECTDIR}
 	${RM} $@.d
-	$(COMPILE.cc) -g -fPIC  -MMD -MP -MF $@.d -o ${OBJECTDIR}/Events.o Events.cpp
+	$(COMPILE.cc) -g -DUNICODE -fPIC  -MMD -MP -MF $@.d -o ${OBJECTDIR}/Events.o Events.cpp
 
 ${OBJECTDIR}/EventsBinding.o: EventsBinding.cpp 
 	${MKDIR} -p ${OBJECTDIR}
 	${RM} $@.d
-	$(COMPILE.cc) -g -fPIC  -MMD -MP -MF $@.d -o ${OBJECTDIR}/EventsBinding.o EventsBinding.cpp
+	$(COMPILE.cc) -g -DUNICODE -fPIC  -MMD -MP -MF $@.d -o ${OBJECTDIR}/EventsBinding.o EventsBinding.cpp
 
 # Subprojects
 .build-subprojects:
