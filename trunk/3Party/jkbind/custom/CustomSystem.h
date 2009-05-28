@@ -5,7 +5,10 @@
 /// This is main script binding engine configuration file.
 ///
 
-#include <crtdbg.h>
+#ifdef _MSC_VER
+#	include <crtdbg.h>	// For __debugbreak
+#endif
+#include <assert.h>
 #include <memory.h>
 
 /////////////////////////////////////////////////////////////////////////////
@@ -43,13 +46,22 @@
 /// and fails if condition is false. Can be defined to raise an exception.
 ///
 
-#define jkSCRIPT_API_ASSERTION( condidion )		\
+#ifdef _MSC_VER
+#	define jkSCRIPT_API_ASSERTION( condidion )	\
 	{											\
 		const char reason[] = { #condidion };	\
 		(void)reason;							\
 		if((condidion) != true)					\
 			__debugbreak();						\
 	}
+#else
+#	define jkSCRIPT_API_ASSERTION( condidion )	\
+	{											\
+		const char reason[] = { #condidion };	\
+		(void)reason;							\
+		assert(condidion);						\
+	}
+#endif
 
 
 ////////////////////////////////////////////////////////////////////////////

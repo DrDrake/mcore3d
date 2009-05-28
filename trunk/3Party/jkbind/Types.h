@@ -1,6 +1,8 @@
 #ifndef ___BASE_TYPES_H___
 #define ___BASE_TYPES_H___
 
+#ifdef _MSC_VER
+
 namespace base {
 
 //
@@ -38,6 +40,10 @@ using base::uint8;
 using base::sint;
 using base::uint;
 
+#else
+#	include <inttypes.h>
+typedef signed int sint;
+#endif
 
 //
 // The are 3 types of chars: char (single byte), wchar (unicode), xchar (char or wchar - switchable)

@@ -12,6 +12,7 @@
 #include "sqlexer.h"
 #include "sqvm.h"
 #include "sqtable.h"
+#include "../wcshelper.h"
 
 #define DEREF_NO_DEREF	-1
 #define DEREF_FIELD		-2
@@ -62,10 +63,11 @@ public:
 	}
 	void Error(const SQChar *s, ...)
 	{
-		static SQChar temp[256];
+		const int tempMessgeSize = 256;
+		static SQChar temp[tempMessgeSize];	// TODO: This is not thread safe
 		va_list vl;
 		va_start(vl, s);
-		scvsprintf(temp, s, vl);
+		scvsprintf(temp, tempMessgeSize, s, vl);
 		va_end(vl);
 		compilererror = temp;
 		longjmp(_errorjmp,1);

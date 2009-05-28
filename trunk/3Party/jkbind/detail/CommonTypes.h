@@ -1,6 +1,9 @@
 #ifndef ___SCRIPT_COMMON_TYPES___
 #define ___SCRIPT_COMMON_TYPES___
 
+#include "CommonPointers.h"
+#include "Classes.h"
+
 namespace script {
 
 // User may wrap around a parameter type to tell the 
@@ -145,19 +148,85 @@ inline T				get(TypeSelect<GiveUpOwnership<T> >,HSQUIRRELVM v,int i){ return get
 // type transformation for using with getter/setter functions
 //
 
-template<typename T> struct GetterSetter		{ typedef T& type; };
-template<> struct GetterSetter<bool>			{ typedef bool type; };
-template<> struct GetterSetter<char>			{ typedef char type; };
-template<> struct GetterSetter<unsigned char>	{ typedef unsigned char type; };
-template<> struct GetterSetter<short>			{ typedef short type; };
-template<> struct GetterSetter<unsigned short>	{ typedef unsigned short type; };
-template<> struct GetterSetter<int>				{ typedef int type; };
-template<> struct GetterSetter<unsigned int>	{ typedef unsigned int type; };
-template<> struct GetterSetter<long>			{ typedef long type; };
-template<> struct GetterSetter<unsigned long>	{ typedef unsigned long type; };
-template<> struct GetterSetter<float>			{ typedef float type; };
-template<> struct GetterSetter<double>			{ typedef double type; };
-template<> struct GetterSetter<const SQChar*>	{ typedef const SQChar* type; };
+//! For a generic object, the getter should return the object as a pointer.
+template<typename T> struct GetterSetter {
+	typedef T type;
+	typedef type* getterType;
+	typedef type& setterType;
+	static inline getterType get(type& val) { return &val; }
+};
+template<> struct GetterSetter<bool> {
+	typedef bool type;
+	typedef type getterType;
+	typedef type setterType;
+	static inline getterType get(type val) { return val; }
+};
+template<> struct GetterSetter<char> {
+	typedef char type;
+	typedef type getterType;
+	typedef type setterType;
+	static inline getterType get(type val) { return val; }
+};
+template<> struct GetterSetter<unsigned char> {
+	typedef unsigned char type;
+	typedef type getterType;
+	typedef type setterType;
+	static inline getterType get(type val) { return val; }
+};
+template<> struct GetterSetter<short> {
+	typedef short type;
+	typedef type getterType;
+	typedef type setterType;
+	static inline getterType get(type val) { return val; }
+};
+template<> struct GetterSetter<unsigned short> {
+	typedef unsigned short type;
+	typedef type getterType;
+	typedef type setterType;
+	static inline getterType get(type val) { return val; }
+};
+template<> struct GetterSetter<int> {
+	typedef int type;
+	typedef type getterType;
+	typedef type setterType;
+	static inline getterType get(type val) { return val; }
+};
+template<> struct GetterSetter<unsigned int> {
+	typedef unsigned int type;
+	typedef type getterType;
+	typedef type setterType;
+	static inline getterType get(type val) { return val; }
+};
+template<> struct GetterSetter<long> {
+	typedef long type;
+	typedef type getterType;
+	typedef type setterType;
+	static inline getterType get(type val) { return val; }
+};
+template<> struct GetterSetter<unsigned long> {
+	typedef unsigned long type;
+	typedef type getterType;
+	typedef type setterType;
+	static inline getterType get(type val) { return val; }
+};
+template<> struct GetterSetter<float> {
+	typedef float type;
+	typedef type getterType;
+	typedef type setterType;
+	static inline getterType get(type val) { return val; }
+};
+template<> struct GetterSetter<double> {
+	typedef double type;
+	typedef type getterType;
+	typedef type setterType;
+	static inline getterType get(type val) { return val; }
+};
+template<> struct GetterSetter<const SQChar*> {
+	typedef const SQChar* type;
+	typedef type getterType;
+	typedef type setterType;
+	static inline getterType get(type val) { return val; }
+};
 
 }	//namespace types
 }	//namespace script

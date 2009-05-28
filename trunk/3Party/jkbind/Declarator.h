@@ -1,14 +1,14 @@
 #ifndef ___SCRIPT_DECLARATOR___
 #define ___SCRIPT_DECLARATOR___
 
-#include "detail/ScriptObject.h"
+#include "Events.h"
 #include "detail/Binding.h"
+#include "detail/Classes.h"
 #include "detail/ClassTraits.h"
 #include "detail/Constructors.h"
-#include "detail/Classes.h"
 #include "detail/Fields.h"
-
 #include "detail/ReturnPolicies.h"
+#include "detail/ScriptObject.h"
 
 namespace script {
 namespace detail {
@@ -67,27 +67,32 @@ public:
 	//
 
 	ClassDeclarator& constructor(const xchar* name = xSTRING("constructor")) {
-		return staticMethod<construct>(name, &constructionFunction<T>);
+		T*(*fPtr)() = &constructionFunction<T>;
+		return staticMethod<construct>(name, fPtr);
 	}
 
 	template<typename A1>
 	ClassDeclarator& constructor(const xchar* name = xSTRING("constructor")) {
-		return staticMethod<construct>(name, &constructionFunction<T, A1>);
+		T*(*fPtr)(A1) = &constructionFunction<T, A1>;
+		return staticMethod<construct>(name, fPtr);
 	}
 
 	template<typename A1, typename A2>
 	ClassDeclarator& constructor(const xchar* name = xSTRING("constructor")) {
-		return staticMethod<construct>(name, &constructionFunction<T, A1, A2>);
+		T*(*fPtr)(A1, A2) = &constructionFunction<T, A1, A2>;
+		return staticMethod<construct>(name, fPtr);
 	}
 
 	template<typename A1, typename A2, typename A3>
 	ClassDeclarator& constructor(const xchar* name = xSTRING("constructor")) {
-		return staticMethod<construct>(name, &constructionFunction<T, A1, A2, A3>);
+		T*(*fPtr)(A1, A2, A3) = &constructionFunction<T, A1, A2, A3>;
+		return staticMethod<construct>(name, fPtr);
 	}
 
 	template<typename A1, typename A2, typename A3, typename A4>
 	ClassDeclarator& constructor(const xchar* name = xSTRING("constructor")) {
-		return staticMethod<construct>(name, &constructionFunction<T, A1, A2, A3, A4>);
+		T*(*fPtr)(A1, A2, A3, A4) = &constructionFunction<T, A1, A2, A3, A4>;
+		return staticMethod<construct>(name, fPtr);
 	}
 
 	//

@@ -20,6 +20,8 @@
 #define screname rename
 #endif
 
+// TODO: Implementation for Gcc!
+#ifdef _MSC_VER
 static SQInteger _system_getenv(HSQUIRRELVM v)
 {
 	const SQChar *s;
@@ -145,3 +147,4 @@ SQInteger sqstd_register_systemlib(HSQUIRRELVM v)
 	}
 	return 1;
 }
+#endif

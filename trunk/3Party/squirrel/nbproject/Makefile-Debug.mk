@@ -73,102 +73,102 @@ dist/Debug/${PLATFORM}/libsquirrel.so: ${OBJECTFILES}
 ${OBJECTDIR}/sqstdlib/sqstdblob.o: sqstdlib/sqstdblob.cpp 
 	${MKDIR} -p ${OBJECTDIR}/sqstdlib
 	${RM} $@.d
-	$(COMPILE.cc) -g -fPIC  -MMD -MP -MF $@.d -o ${OBJECTDIR}/sqstdlib/sqstdblob.o sqstdlib/sqstdblob.cpp
+	$(COMPILE.cc) -g -DUNICODE -fPIC  -MMD -MP -MF $@.d -o ${OBJECTDIR}/sqstdlib/sqstdblob.o sqstdlib/sqstdblob.cpp
 
 ${OBJECTDIR}/squirrel/sqcompiler.o: squirrel/sqcompiler.cpp 
 	${MKDIR} -p ${OBJECTDIR}/squirrel
 	${RM} $@.d
-	$(COMPILE.cc) -g -fPIC  -MMD -MP -MF $@.d -o ${OBJECTDIR}/squirrel/sqcompiler.o squirrel/sqcompiler.cpp
+	$(COMPILE.cc) -g -DUNICODE -fPIC  -MMD -MP -MF $@.d -o ${OBJECTDIR}/squirrel/sqcompiler.o squirrel/sqcompiler.cpp
 
 ${OBJECTDIR}/squirrel/sqbaselib.o: squirrel/sqbaselib.cpp 
 	${MKDIR} -p ${OBJECTDIR}/squirrel
 	${RM} $@.d
-	$(COMPILE.cc) -g -fPIC  -MMD -MP -MF $@.d -o ${OBJECTDIR}/squirrel/sqbaselib.o squirrel/sqbaselib.cpp
+	$(COMPILE.cc) -g -DUNICODE -fPIC  -MMD -MP -MF $@.d -o ${OBJECTDIR}/squirrel/sqbaselib.o squirrel/sqbaselib.cpp
 
 ${OBJECTDIR}/sqstdlib/sqstdrex.o: sqstdlib/sqstdrex.cpp 
 	${MKDIR} -p ${OBJECTDIR}/sqstdlib
 	${RM} $@.d
-	$(COMPILE.cc) -g -fPIC  -MMD -MP -MF $@.d -o ${OBJECTDIR}/sqstdlib/sqstdrex.o sqstdlib/sqstdrex.cpp
+	$(COMPILE.cc) -g -DUNICODE -fPIC  -MMD -MP -MF $@.d -o ${OBJECTDIR}/sqstdlib/sqstdrex.o sqstdlib/sqstdrex.cpp
 
 ${OBJECTDIR}/squirrel/sqlexer.o: squirrel/sqlexer.cpp 
 	${MKDIR} -p ${OBJECTDIR}/squirrel
 	${RM} $@.d
-	$(COMPILE.cc) -g -fPIC  -MMD -MP -MF $@.d -o ${OBJECTDIR}/squirrel/sqlexer.o squirrel/sqlexer.cpp
+	$(COMPILE.cc) -g -DUNICODE -fPIC  -MMD -MP -MF $@.d -o ${OBJECTDIR}/squirrel/sqlexer.o squirrel/sqlexer.cpp
 
 ${OBJECTDIR}/sqstdlib/sqstdio.o: sqstdlib/sqstdio.cpp 
 	${MKDIR} -p ${OBJECTDIR}/sqstdlib
 	${RM} $@.d
-	$(COMPILE.cc) -g -fPIC  -MMD -MP -MF $@.d -o ${OBJECTDIR}/sqstdlib/sqstdio.o sqstdlib/sqstdio.cpp
+	$(COMPILE.cc) -g -DUNICODE -fPIC  -MMD -MP -MF $@.d -o ${OBJECTDIR}/sqstdlib/sqstdio.o sqstdlib/sqstdio.cpp
 
 ${OBJECTDIR}/squirrel/sqclass.o: squirrel/sqclass.cpp 
 	${MKDIR} -p ${OBJECTDIR}/squirrel
 	${RM} $@.d
-	$(COMPILE.cc) -g -fPIC  -MMD -MP -MF $@.d -o ${OBJECTDIR}/squirrel/sqclass.o squirrel/sqclass.cpp
+	$(COMPILE.cc) -g -DUNICODE -fPIC  -MMD -MP -MF $@.d -o ${OBJECTDIR}/squirrel/sqclass.o squirrel/sqclass.cpp
 
 ${OBJECTDIR}/sqstdlib/sqstdmath.o: sqstdlib/sqstdmath.cpp 
 	${MKDIR} -p ${OBJECTDIR}/sqstdlib
 	${RM} $@.d
-	$(COMPILE.cc) -g -fPIC  -MMD -MP -MF $@.d -o ${OBJECTDIR}/sqstdlib/sqstdmath.o sqstdlib/sqstdmath.cpp
+	$(COMPILE.cc) -g -DUNICODE -fPIC  -MMD -MP -MF $@.d -o ${OBJECTDIR}/sqstdlib/sqstdmath.o sqstdlib/sqstdmath.cpp
 
 ${OBJECTDIR}/squirrel/sqtable.o: squirrel/sqtable.cpp 
 	${MKDIR} -p ${OBJECTDIR}/squirrel
 	${RM} $@.d
-	$(COMPILE.cc) -g -fPIC  -MMD -MP -MF $@.d -o ${OBJECTDIR}/squirrel/sqtable.o squirrel/sqtable.cpp
+	$(COMPILE.cc) -g -DUNICODE -fPIC  -MMD -MP -MF $@.d -o ${OBJECTDIR}/squirrel/sqtable.o squirrel/sqtable.cpp
 
 ${OBJECTDIR}/squirrel/sqdebug.o: squirrel/sqdebug.cpp 
 	${MKDIR} -p ${OBJECTDIR}/squirrel
 	${RM} $@.d
-	$(COMPILE.cc) -g -fPIC  -MMD -MP -MF $@.d -o ${OBJECTDIR}/squirrel/sqdebug.o squirrel/sqdebug.cpp
+	$(COMPILE.cc) -g -DUNICODE -fPIC  -MMD -MP -MF $@.d -o ${OBJECTDIR}/squirrel/sqdebug.o squirrel/sqdebug.cpp
 
 ${OBJECTDIR}/sqstdlib/sqstdaux.o: sqstdlib/sqstdaux.cpp 
 	${MKDIR} -p ${OBJECTDIR}/sqstdlib
 	${RM} $@.d
-	$(COMPILE.cc) -g -fPIC  -MMD -MP -MF $@.d -o ${OBJECTDIR}/sqstdlib/sqstdaux.o sqstdlib/sqstdaux.cpp
+	$(COMPILE.cc) -g -DUNICODE -fPIC  -MMD -MP -MF $@.d -o ${OBJECTDIR}/sqstdlib/sqstdaux.o sqstdlib/sqstdaux.cpp
 
 ${OBJECTDIR}/squirrel/sqfuncstate.o: squirrel/sqfuncstate.cpp 
 	${MKDIR} -p ${OBJECTDIR}/squirrel
 	${RM} $@.d
-	$(COMPILE.cc) -g -fPIC  -MMD -MP -MF $@.d -o ${OBJECTDIR}/squirrel/sqfuncstate.o squirrel/sqfuncstate.cpp
+	$(COMPILE.cc) -g -DUNICODE -fPIC  -MMD -MP -MF $@.d -o ${OBJECTDIR}/squirrel/sqfuncstate.o squirrel/sqfuncstate.cpp
 
 ${OBJECTDIR}/squirrel/sqobject.o: squirrel/sqobject.cpp 
 	${MKDIR} -p ${OBJECTDIR}/squirrel
 	${RM} $@.d
-	$(COMPILE.cc) -g -fPIC  -MMD -MP -MF $@.d -o ${OBJECTDIR}/squirrel/sqobject.o squirrel/sqobject.cpp
+	$(COMPILE.cc) -g -DUNICODE -fPIC  -MMD -MP -MF $@.d -o ${OBJECTDIR}/squirrel/sqobject.o squirrel/sqobject.cpp
 
 ${OBJECTDIR}/squirrel/sqvm.o: squirrel/sqvm.cpp 
 	${MKDIR} -p ${OBJECTDIR}/squirrel
 	${RM} $@.d
-	$(COMPILE.cc) -g -fPIC  -MMD -MP -MF $@.d -o ${OBJECTDIR}/squirrel/sqvm.o squirrel/sqvm.cpp
+	$(COMPILE.cc) -g -DUNICODE -fPIC  -MMD -MP -MF $@.d -o ${OBJECTDIR}/squirrel/sqvm.o squirrel/sqvm.cpp
 
 ${OBJECTDIR}/sqstdlib/sqstdstream.o: sqstdlib/sqstdstream.cpp 
 	${MKDIR} -p ${OBJECTDIR}/sqstdlib
 	${RM} $@.d
-	$(COMPILE.cc) -g -fPIC  -MMD -MP -MF $@.d -o ${OBJECTDIR}/sqstdlib/sqstdstream.o sqstdlib/sqstdstream.cpp
+	$(COMPILE.cc) -g -DUNICODE -fPIC  -MMD -MP -MF $@.d -o ${OBJECTDIR}/sqstdlib/sqstdstream.o sqstdlib/sqstdstream.cpp
 
 ${OBJECTDIR}/squirrel/sqapi.o: squirrel/sqapi.cpp 
 	${MKDIR} -p ${OBJECTDIR}/squirrel
 	${RM} $@.d
-	$(COMPILE.cc) -g -fPIC  -MMD -MP -MF $@.d -o ${OBJECTDIR}/squirrel/sqapi.o squirrel/sqapi.cpp
+	$(COMPILE.cc) -g -DUNICODE -fPIC  -MMD -MP -MF $@.d -o ${OBJECTDIR}/squirrel/sqapi.o squirrel/sqapi.cpp
 
 ${OBJECTDIR}/sqstdlib/sqstdstring.o: sqstdlib/sqstdstring.cpp 
 	${MKDIR} -p ${OBJECTDIR}/sqstdlib
 	${RM} $@.d
-	$(COMPILE.cc) -g -fPIC  -MMD -MP -MF $@.d -o ${OBJECTDIR}/sqstdlib/sqstdstring.o sqstdlib/sqstdstring.cpp
+	$(COMPILE.cc) -g -DUNICODE -fPIC  -MMD -MP -MF $@.d -o ${OBJECTDIR}/sqstdlib/sqstdstring.o sqstdlib/sqstdstring.cpp
 
 ${OBJECTDIR}/squirrel/sqstate.o: squirrel/sqstate.cpp 
 	${MKDIR} -p ${OBJECTDIR}/squirrel
 	${RM} $@.d
-	$(COMPILE.cc) -g -fPIC  -MMD -MP -MF $@.d -o ${OBJECTDIR}/squirrel/sqstate.o squirrel/sqstate.cpp
+	$(COMPILE.cc) -g -DUNICODE -fPIC  -MMD -MP -MF $@.d -o ${OBJECTDIR}/squirrel/sqstate.o squirrel/sqstate.cpp
 
 ${OBJECTDIR}/squirrel/sqmem.o: squirrel/sqmem.cpp 
 	${MKDIR} -p ${OBJECTDIR}/squirrel
 	${RM} $@.d
-	$(COMPILE.cc) -g -fPIC  -MMD -MP -MF $@.d -o ${OBJECTDIR}/squirrel/sqmem.o squirrel/sqmem.cpp
+	$(COMPILE.cc) -g -DUNICODE -fPIC  -MMD -MP -MF $@.d -o ${OBJECTDIR}/squirrel/sqmem.o squirrel/sqmem.cpp
 
 ${OBJECTDIR}/sqstdlib/sqstdsystem.o: sqstdlib/sqstdsystem.cpp 
 	${MKDIR} -p ${OBJECTDIR}/sqstdlib
 	${RM} $@.d
-	$(COMPILE.cc) -g -fPIC  -MMD -MP -MF $@.d -o ${OBJECTDIR}/sqstdlib/sqstdsystem.o sqstdlib/sqstdsystem.cpp
+	$(COMPILE.cc) -g -DUNICODE -fPIC  -MMD -MP -MF $@.d -o ${OBJECTDIR}/sqstdlib/sqstdsystem.o sqstdlib/sqstdsystem.cpp
 
 # Subprojects
 .build-subprojects:

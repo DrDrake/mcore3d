@@ -1,6 +1,7 @@
 /* see copyright notice in squirrel.h */
 #include "../squirrel.h"
 #include "../sqstdstring.h"
+#include "../wcshelper.h"
 #include <string.h>
 #include <stdlib.h>
 #include <stdio.h>
@@ -11,7 +12,11 @@
 #define scstrchr wcschr
 #define scsnprintf wsnprintf
 #define scatoi _wtoi
-#define scstrtok wcstok
+#ifdef _MSC_VER
+#	define scstrtok wcstok_s
+#else
+#	define scstrtok wcstok
+#endif
 #else
 #define scstrchr strchr
 #define scsnprintf snprintf
@@ -190,12 +195,13 @@ static SQInteger _string_split(HSQUIRRELVM v)
 	SQInteger memsize = (sq_getsize(v,2)+1)*sizeof(SQChar);
 	stemp = sq_getscratchpad(v,memsize);
 	memcpy(stemp,str,memsize);
-	tok = scstrtok(stemp,seps);
+	SQChar* context = NULL;
+	tok = scstrtok(stemp,seps,&context);
 	sq_newarray(v,0);
 	while( tok != NULL ) {
 		sq_pushstring(v,tok,-1);
 		sq_arrayappend(v,-2);
-		tok = scstrtok( NULL, seps );
+		tok = scstrtok( NULL, seps, &context );
 	}
 	return 1;
 }

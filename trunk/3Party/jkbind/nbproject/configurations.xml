@@ -50,6 +50,11 @@
         <platform>2</platform>
       </toolsSet>
       <compileType>
+        <ccCompilerTool>
+          <preprocessorList>
+            <Elem>UNICODE</Elem>
+          </preprocessorList>
+        </ccCompilerTool>
         <linkerTool>
           <linkerLibItems>
           </linkerLibItems>
@@ -152,6 +157,9 @@
         </cCompilerTool>
         <ccCompilerTool>
           <developmentMode>5</developmentMode>
+          <preprocessorList>
+            <Elem>UNICODE</Elem>
+          </preprocessorList>
         </ccCompilerTool>
         <fortranCompilerTool>
           <developmentMode>5</developmentMode>

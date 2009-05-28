@@ -12,6 +12,7 @@
 #include "sqcompiler.h"
 #include "sqfuncstate.h"
 #include "sqclass.h"
+#include "../wcshelper.h"
 
 bool sq_aux_gettypedarg(HSQUIRRELVM v,SQInteger idx,SQObjectType type,SQObjectPtr **o)
 {

@@ -43,7 +43,7 @@ class pointer<const T*>
 {
 public:
 	typedef T HostType;
-	static inline HostType* to(T& src) { return const_cast<T*>(src); }
+	static inline HostType* to(const T* src) { return const_cast<T*>(src); }
 };
 
 template<typename T>

@@ -2,8 +2,9 @@
 #define ___SCRIPT_CLASSES___
 
 #include "../VMCore.h"
-#include "ScriptObject.h"
 #include "ClassTraits.h"
+#include "ScriptObject.h"
+#include "StackHandler.h"
 #include <memory.h>
 
 namespace script {

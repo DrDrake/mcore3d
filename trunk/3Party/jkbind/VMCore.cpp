@@ -2,6 +2,7 @@
 #include "Types.h"
 #include "detail/Checking.h"
 #include <string.h>
+#include <wchar.h>	// For wcslen
 
 namespace script {
 

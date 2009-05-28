@@ -4,6 +4,11 @@
 
 #include "squtils.h"
 
+#ifdef _MSC_VER
+#	pragma warning (push)
+#	pragma warning (disable : 6011)		// Dereferencing NULL pointer
+#endif
+
 #define SQ_CLOSURESTREAM_HEAD (('S'<<24)|('Q'<<16)|('I'<<8)|('R'))
 #define SQ_CLOSURESTREAM_PART (('P'<<24)|('A'<<16)|('R'<<8)|('T'))
 #define SQ_CLOSURESTREAM_TAIL (('T'<<24)|('A'<<16)|('I'<<8)|('L'))
@@ -348,5 +353,8 @@ const SQChar *GetTypeName(const SQObjectPtr &obj1);
 const SQChar *IdType2Name(SQObjectType type);
 
 
+#ifdef _MSC_VER
+#	pragma warning (pop)
+#endif
 
 #endif //_SQOBJECT_H_

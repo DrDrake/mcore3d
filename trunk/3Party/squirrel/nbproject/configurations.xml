@@ -51,6 +51,7 @@
       <itemPath>sqstdstring.h</itemPath>
       <itemPath>sqstdsystem.h</itemPath>
       <itemPath>squirrel.h</itemPath>
+      <itemPath>wcshelper.h</itemPath>
     </logicalFolder>
     <logicalFolder name="ExternalFiles"
                    displayName="Important Files"
@@ -67,6 +68,11 @@
         <platform>2</platform>
       </toolsSet>
       <compileType>
+        <ccCompilerTool>
+          <preprocessorList>
+            <Elem>UNICODE</Elem>
+          </preprocessorList>
+        </ccCompilerTool>
         <linkerTool>
           <linkerLibItems>
           </linkerLibItems>
@@ -207,6 +213,9 @@
       <item path="squirrel/sqvm.h">
         <itemTool>3</itemTool>
       </item>
+      <item path="wcshelper.h">
+        <itemTool>3</itemTool>
+      </item>
     </conf>
     <conf name="Release" type="2">
       <toolsSet>
@@ -220,6 +229,9 @@
         </cCompilerTool>
         <ccCompilerTool>
           <developmentMode>5</developmentMode>
+          <preprocessorList>
+            <Elem>UNICODE</Elem>
+          </preprocessorList>
         </ccCompilerTool>
         <fortranCompilerTool>
           <developmentMode>5</developmentMode>
@@ -362,6 +374,9 @@
         <itemTool>1</itemTool>
       </item>
       <item path="squirrel/sqvm.h">
+        <itemTool>3</itemTool>
+      </item>
+      <item path="wcshelper.h">
         <itemTool>3</itemTool>
       </item>
     </conf>

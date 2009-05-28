@@ -90,7 +90,7 @@ public:
 	static inline void pushResult(HSQUIRRELVM v, RT result)
 	{
 		sq_setinstanceup(v, 1, ptr::pointer<RT>::to(result));
-		sq_setreleasehook(v, 1, _memoryControllerHook<ptr::pointer<RT>::HostType>);
+		sq_setreleasehook(v, 1, _memoryControllerHook<typename ptr::pointer<RT>::HostType>);
 		types::addHandleToObject(v, ptr::pointer<RT>::to(result), 1);
 	}
 
@@ -114,7 +114,7 @@ public:
 	static inline void pushResult(HSQUIRRELVM v, RT result)
 	{
 		types::push(v, result);
-		sq_setreleasehook(v, -1, _memoryControllerHook<ptr::pointer<RT>::HostType>);
+		sq_setreleasehook(v, -1, _memoryControllerHook<typename ptr::pointer<RT>::HostType>);
 	}
 
 private:
@@ -137,7 +137,9 @@ public:
 	template<typename RT>
 	static inline void pushResult(HSQUIRRELVM v, RT result)
 	{
-		detail::ClassesManager::createObjectInstanceOnStackPure(v, ClassTraits<ptr::pointer<RT>::HostType>::classID(), ptr::pointer<RT>::to(result));
+		typedef typename ptr::pointer<RT>::HostType HostType;
+		HostType* p = ptr::pointer<RT>::to(result);
+		detail::ClassesManager::createObjectInstanceOnStackPure(v, ClassTraits<HostType>::classID(), p);
 		sq_pushinteger(v, detail::ClassesManager::MEMORY_CONTROLLER_PARAM);
 		new(sq_newuserdata(v, sizeof(RT))) RT(result);
 		sq_setreleasehook(v, -1, _memoryControllerHook<RT>);

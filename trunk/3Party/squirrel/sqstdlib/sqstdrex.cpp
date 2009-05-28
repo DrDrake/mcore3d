@@ -5,7 +5,9 @@
 #include <setjmp.h>
 #include "../sqstdstring.h"
 
-#ifdef _UINCODE
+#ifdef SQUNICODE
+#include <wchar.h>
+#include <wctype.h>	// For iswprint
 #define scisprint iswprint
 #else
 #define scisprint isprint
