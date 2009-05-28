@@ -61,32 +61,32 @@ dist/Release/${PLATFORM}/libBinding.so: ${OBJECTFILES}
 ${OBJECTDIR}/System.o: System.cpp 
 	${MKDIR} -p ${OBJECTDIR}
 	${RM} $@.d
-	$(COMPILE.cc) -O2 -fPIC  -MMD -MP -MF $@.d -o ${OBJECTDIR}/System.o System.cpp
+	$(COMPILE.cc) -O2 -DUNICODE -fPIC  -MMD -MP -MF $@.d -o ${OBJECTDIR}/System.o System.cpp
 
 ${OBJECTDIR}/Binding.o: Binding.cpp 
 	${MKDIR} -p ${OBJECTDIR}
 	${RM} $@.d
-	$(COMPILE.cc) -O2 -fPIC  -MMD -MP -MF $@.d -o ${OBJECTDIR}/Binding.o Binding.cpp
+	$(COMPILE.cc) -O2 -DUNICODE -fPIC  -MMD -MP -MF $@.d -o ${OBJECTDIR}/Binding.o Binding.cpp
 
 ${OBJECTDIR}/Render.o: Render.cpp 
 	${MKDIR} -p ${OBJECTDIR}
 	${RM} $@.d
-	$(COMPILE.cc) -O2 -fPIC  -MMD -MP -MF $@.d -o ${OBJECTDIR}/Render.o Render.cpp
+	$(COMPILE.cc) -O2 -DUNICODE -fPIC  -MMD -MP -MF $@.d -o ${OBJECTDIR}/Render.o Render.cpp
 
 ${OBJECTDIR}/Math.o: Math.cpp 
 	${MKDIR} -p ${OBJECTDIR}
 	${RM} $@.d
-	$(COMPILE.cc) -O2 -fPIC  -MMD -MP -MF $@.d -o ${OBJECTDIR}/Math.o Math.cpp
+	$(COMPILE.cc) -O2 -DUNICODE -fPIC  -MMD -MP -MF $@.d -o ${OBJECTDIR}/Math.o Math.cpp
 
 ${OBJECTDIR}/Entity.o: Entity.cpp 
 	${MKDIR} -p ${OBJECTDIR}
 	${RM} $@.d
-	$(COMPILE.cc) -O2 -fPIC  -MMD -MP -MF $@.d -o ${OBJECTDIR}/Entity.o Entity.cpp
+	$(COMPILE.cc) -O2 -DUNICODE -fPIC  -MMD -MP -MF $@.d -o ${OBJECTDIR}/Entity.o Entity.cpp
 
 ${OBJECTDIR}/Pch.o: Pch.cpp 
 	${MKDIR} -p ${OBJECTDIR}
 	${RM} $@.d
-	$(COMPILE.cc) -O2 -fPIC  -MMD -MP -MF $@.d -o ${OBJECTDIR}/Pch.o Pch.cpp
+	$(COMPILE.cc) -O2 -DUNICODE -fPIC  -MMD -MP -MF $@.d -o ${OBJECTDIR}/Pch.o Pch.cpp
 
 # Subprojects
 .build-subprojects:

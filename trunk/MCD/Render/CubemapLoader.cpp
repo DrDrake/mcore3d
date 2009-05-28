@@ -54,40 +54,37 @@ IResourceLoader::LoadingState CubemapLoader::load(std::istream* is, const Path* 
 {
 	MCD_ASSUME(mImpl != nullptr);
 
+	ScopeLock lock(mImpl->mMutex);
 	LoaderImpl* impl = static_cast<LoaderImpl*>(mImpl);
 
 	if(nullptr == impl->mLoaderDelegate.get())
 	{
+		if(!fileId)
+			return (loadingState = IResourceLoader::Aborted);
+
 		std::wstring ext = fileId->getExtension();
 
 		TextureLoaderBase* loader = nullptr;
 
 		// dispatch to other image loaders
-		if(wstrCaseCmp(ext.c_str(), L"bmp")==0)
-		{
+		if(wstrCaseCmp(ext.c_str(), L"bmp") == 0)
 			loader = new BitmapLoader;
-		}
-		else if(wstrCaseCmp(ext.c_str(), L"jpg")==0)
-		{
+		else if(wstrCaseCmp(ext.c_str(), L"jpg") == 0)
 			loader = new JpegLoader;
-		}
-		else if(wstrCaseCmp(ext.c_str(), L"png")==0)
-		{
+		else if(wstrCaseCmp(ext.c_str(), L"png") == 0)
 			loader = new PngLoader;
-		}
-		else if(wstrCaseCmp(ext.c_str(), L"tga")==0)
-		{
+		else if(wstrCaseCmp(ext.c_str(), L"tga") == 0)
 			loader = new TgaLoader;
-		}
 
-		ScopeLock lock(mImpl->mMutex);
 		impl->mLoaderDelegate.reset(loader);
 	}
 
-	volatile LoadingState tmpState = impl->mLoaderDelegate->load(is, fileId);
-
-	ScopeLock lock(mImpl->mMutex);
+	volatile LoadingState tmpState;
+	{	ScopeUnlock unlock(mImpl->mMutex);
+		tmpState = impl->mLoaderDelegate->load(is, fileId);
+	}
 	loadingState = tmpState;
+
 	if((CanCommit & loadingState))
 	{
 		impl->mLoaderDelegate->retriveData

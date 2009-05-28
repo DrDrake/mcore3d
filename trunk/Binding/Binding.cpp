@@ -22,6 +22,8 @@ namespace MCD {
 // The default print function for the scripting VM
 static void printfunc(HSQUIRRELVM v, const SQChar* s, ...)
 {
+	if(!v || !s)
+		return;
 	MCD_ASSERT(s != nullptr);
 	va_list vl;
 	va_start(vl, s);
