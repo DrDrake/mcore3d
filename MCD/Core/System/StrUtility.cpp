@@ -3,7 +3,7 @@
 #include "ErrorCode.h"
 #include <map>
 #include <sstream>
-#include <stdlib.h>
+#include <stdlib.h>	// For mbstowcs
 #include <stdexcept>
 #include <vector>
 #include <memory.h> // For memcpy
