@@ -2,6 +2,7 @@
 #include "Binding.h"
 #include "../MCD/Core/System/Platform.h"
 #include "../3Party/jkbind/VMCore.h"
+#include "../3Party/squirrel/sqstdio.h"
 #include "../3Party/squirrel/sqstdmath.h"
 #include "../3Party/squirrel/sqstdstring.h"
 #include "../3Party/squirrel/sqstdsystem.h"
@@ -36,6 +37,11 @@ extern void registerMathBinding(script::VMCore* v);
 extern void registerRenderBinding(script::VMCore* v);
 extern void registerSystemBinding(script::VMCore* v);
 
+static void onCompileError(HSQUIRRELVM v,const SQChar* desc, const SQChar* source, SQInteger line, SQInteger column)
+{
+	wprintf(L"Compile error: \"%s\" at line %i, column %i\n", desc, line, column);
+}
+
 class ScriptVM::Impl
 {
 public:
@@ -46,6 +52,7 @@ public:
 
 		// Bind the squirrel's standard library
 		sq_pushroottable(v);
+		sqstd_register_iolib(v);
 		sqstd_register_systemlib(v);
 		sqstd_register_mathlib(v);
 		sqstd_register_stringlib(v);
@@ -65,6 +72,8 @@ public:
 	{
 		HSQUIRRELVM v = vm.getVM();
 		const wchar_t* scriptName = L"tmp";
+
+		sq_setcompilererrorhandler(v, &onCompileError);
 		sq_compilebuffer(v, script, SQInteger(::wcslen(script)), scriptName, true);
 		sq_pushroottable(v);
 
