@@ -320,6 +320,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\TangentSpaceBuilder.h"
+				>
+			</File>
+			<File
 				RelativePath=".\Texture.h"
 				>
 			</File>
@@ -450,6 +454,10 @@
 			</File>
 			<File
 				RelativePath=".\ShaderProgram.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\TangentSpaceBuilder.cpp"
 				>
 			</File>
 			<File

@@ -345,6 +345,10 @@
 			RelativePath=".\squirrel.h"
 			>
 		</File>
+		<File
+			RelativePath=".\wcshelper.h"
+			>
+		</File>
 	</Files>
 	<Globals>
 	</Globals>
