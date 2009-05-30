@@ -55,6 +55,8 @@ static Vec3f subVec3(const Vec3f& lhs, const Vec3f& rhs) { return lhs - rhs; }
 static Vec3f* mulVec3(const Vec3f& lhs, float rhs) { return new Vec3f(lhs * rhs); }
 static Vec3f unmVec3(const Vec3f& lhs) { return -lhs; }
 static bool isEqualVec3(const Vec3f& lhs, const Vec3f& rhs) { return lhs == rhs; }
+static void vec3AddEqual(Vec3f& lhs, const Vec3f& rhs) { lhs += rhs; }
+static void vec3MulEqual(Vec3f& lhs, float rhs) { lhs *= rhs; }
 static int cmpVec3(const Vec3f& lhs, const Vec3f& rhs) {
 	if(lhs == rhs) return 0;
 	return 1;
@@ -82,6 +84,8 @@ SCRIPT_CLASS_REGISTER_NAME(Vec3f, "Vec3")
 	.wrappedMethod(L"_unm", &unmVec3)
 	.wrappedMethod(L"isEqual", &isEqualVec3)
 	.wrappedMethod(L"_cmp", &cmpVec3)
+	.wrappedMethod(L"addEqual", &vec3AddEqual)
+	.wrappedMethod(L"mulEqual", &vec3MulEqual)
 	.runScript(L"Vec3._tostring <- function(){return x+\", \"+y+\", \"+z;}")	// Vec3.tostring()
 ;}
 
