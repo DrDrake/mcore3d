@@ -4,6 +4,7 @@
 #include "MeshBuilder.h"
 #include "Model.h"
 #include "Texture.h"
+#include "TangentSpaceBuilder.h"
 #include "../Core/Math/Vec2.h"
 #include "../Core/Math/Vec3.h"
 #include "../Core/Math/Mat44.h"
@@ -289,6 +290,9 @@ Max3dsLoader::Impl::~Impl()
 IResourceLoader::LoadingState Max3dsLoader::Impl::load(std::istream* is, const Path* fileId)
 {
 	using namespace std;
+
+	// todo: make includeTangents an option of Max3dsLoader
+	const bool includeTangents = true;
 
 	ScopeLock lock(mMutex);
 
@@ -610,6 +614,8 @@ IResourceLoader::LoadingState Max3dsLoader::Impl::load(std::istream* is, const P
 		return mLoadingState;
 
 	// Calculate vertex normal for each mesh
+	TangentSpaceBuilder tsBuilder;
+
 	MCD_FOREACH(const ModelInfo& model, mModelInfo) {
 		MeshBuilder* meshBuilder = model.meshBuilder;
 		size_t vertexCount, indexCount = model.index.size();
@@ -629,9 +635,25 @@ IResourceLoader::LoadingState Max3dsLoader::Impl::load(std::istream* is, const P
 			else
 				computeNormal(vertex, normal, index, &(model.smoothingGroup[0]), uint16_t(vertexCount), indexCount);
 		}
+		
+		if((meshBuilder->format() & Mesh::TextureCoord0) && includeTangents) {
+			meshBuilder->enable(Mesh::TextureCoord1);
+			meshBuilder->textureUnit(Mesh::TextureCoord1);
+			meshBuilder->textureCoordSize(3);
+
+			Vec2f* uv = reinterpret_cast<Vec2f*>(meshBuilder->acquireBufferPointer(Mesh::TextureCoord0));
+			Vec3f* tangent = reinterpret_cast<Vec3f*>(meshBuilder->acquireBufferPointer(Mesh::TextureCoord1));
+
+			tsBuilder.compute(indexCount / 3, vertexCount / 3, index, vertex, normal, uv, tangent);
+
+			meshBuilder->releaseBufferPointer(tangent);
+			meshBuilder->releaseBufferPointer(uv);
+
+		}
 
 		meshBuilder->releaseBufferPointer(normal);
 		meshBuilder->releaseBufferPointer(vertex);
+
 	}
 
 	mLoadingState = Loaded;
