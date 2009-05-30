@@ -87,18 +87,24 @@ void TangentSpaceBuilder::compute(MeshBuilder& builder, int uvDataType, int tang
 	const size_t cFaceCnt	= idxPtr.size() / 3;
 	const size_t cVertexCnt = xyzPtr.size() / 3;
 
-	uint16_t const* indexBuf	= idxPtr.as<uint16_t>();
-	Vec3f const* xyzBuf			= xyzPtr.as<Vec3f>();
-	Vec3f const* nrmBuf			= nrmPtr.as<Vec3f>();
-	Vec2f const* uvBuf			= uvPtr.as<Vec2f>();
-	Vec3f* tangBuf				= tangPtr.as<Vec3f>();
+	compute(
+		cFaceCnt, cVertexCnt, 
+		idxPtr.as<uint16_t>(), xyzPtr.as<Vec3f>(), nrmPtr.as<Vec3f>(), uvPtr.as<Vec2f>(),
+		tangPtr.as<Vec3f>() );
+}
 
+void TangentSpaceBuilder::compute(
+	const size_t faceCnt, const size_t vertexCnt,
+	const uint16_t* indexBuf, const Vec3f* posBuf, const Vec3f* nrmBuf, const Vec2f* uvBuf,
+	Vec3f* outTangBuf
+	)
+{
 	// initialize tangents to zero-length vectors
-	for(size_t ivert = 0; ivert < cVertexCnt; ++ivert)
-		tangBuf[ivert] = Vec3f::cZero;
+	for(size_t ivert = 0; ivert < vertexCnt; ++ivert)
+		outTangBuf[ivert] = Vec3f::cZero;
 
 	// compute tangent for each face and add to each corresponding vertex
-	for(size_t iface = 0; iface < cFaceCnt; ++iface)
+	for(size_t iface = 0; iface < faceCnt; ++iface)
 	{
 		const uint16_t v0 = indexBuf[iface*3+0];
 		const uint16_t v1 = indexBuf[iface*3+1];
@@ -111,7 +117,7 @@ void TangentSpaceBuilder::compute(MeshBuilder& builder, int uvDataType, int tang
 		Vec3f vT, vB;
 
 		computeTangentBasis
-			( xyzBuf[v0], xyzBuf[v1], xyzBuf[v2]
+			( posBuf[v0], posBuf[v1], posBuf[v2]
 			, uvBuf[v0], uvBuf[v1], uvBuf[v2]
 			, vT, vB );
 
@@ -128,14 +134,14 @@ void TangentSpaceBuilder::compute(MeshBuilder& builder, int uvDataType, int tang
 		//Vec3f vB2 = vT2.cross(vN2);
 		
 		// write smoothed tangents back
-		tangBuf[v0] += vT0;
-		tangBuf[v1] += vT1;
-		tangBuf[v2] += vT2;
+		outTangBuf[v0] += vT0;
+		outTangBuf[v1] += vT1;
+		outTangBuf[v2] += vT2;
 	}
 
 	// finally normalize the tangents
-	for(size_t ivert = 0; ivert < cVertexCnt; ++ivert)
-		tangBuf[ivert].normalize();
+	for(size_t ivert = 0; ivert < vertexCnt; ++ivert)
+		outTangBuf[ivert].normalize();
 }
 
 

@@ -17,6 +17,7 @@ TEST(NormalMappingTest)
 	{
 	private:
 		ModelPtr mModel;
+		EffectPtr mEffect;
 
 	public:
 		TestWindow()
@@ -25,6 +26,11 @@ TEST(NormalMappingTest)
 			mResourceManager(*createDefaultFileSystem())
 		{
 			{
+				// load normal mapping effect
+				mEffect = static_cast<Effect*>(mResourceManager.load(L"Material/normalmapping.fx.xml").get());
+			}
+			{
+				//mModel = dynamic_cast<Model*>(mResourceManager.load(L"3M00696/buelllightning.3DS", true).get());
 				mModel = dynamic_cast<Model*>(mResourceManager.load(L"Scene/City/scene.3ds", true).get());
 			}
 			{	// Setup entity 1
@@ -43,7 +49,7 @@ TEST(NormalMappingTest)
 				// Add component
 				MeshComponent* c = new MeshComponent;
 				c->mesh = mesh;
-				c->effect = static_cast<Effect*>(mResourceManager.load(L"Material/normalmapping.fx.xml").get());
+				c->effect = mEffect;
 				e->addComponent(c);
 
 				e.release();
@@ -64,7 +70,7 @@ TEST(NormalMappingTest)
 				// Add component
 				MeshComponent* c = new MeshComponent;
 				c->mesh = mesh;
-				c->effect = static_cast<Effect*>(mResourceManager.load(L"Material/normalmapping.fx.xml").get());
+				c->effect = mEffect;
 				e->addComponent(c);
 
 				e.release();
@@ -76,7 +82,21 @@ TEST(NormalMappingTest)
 			mResourceManager.processLoadingEvents();
 
 			if(mModel)
-				mModel->draw();
+			{
+				glPushMatrix();
+				glScalef(0.01f, 0.01f, 0.01f);
+
+				Material2* mat = mEffect->material.get();
+
+				for(size_t i=0; i<mat->getPassCount(); ++i)
+				{
+					mat->preRender(i);
+					mModel->draw();
+					mat->postRender(i);
+				}
+
+				glPopMatrix();
+			}
 
 			glTranslatef(0.0f, 0.0f, -5.0f);
 
