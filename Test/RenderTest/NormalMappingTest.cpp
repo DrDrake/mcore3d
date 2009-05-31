@@ -30,8 +30,8 @@ TEST(NormalMappingTest)
 				mEffect = static_cast<Effect*>(mResourceManager.load(L"Material/normalmapping.fx.xml").get());
 			}
 			{
-				//mModel = dynamic_cast<Model*>(mResourceManager.load(L"3M00696/buelllightning.3DS", true).get());
-				mModel = dynamic_cast<Model*>(mResourceManager.load(L"Scene/City/scene.3ds", true).get());
+				//mModel = dynamic_cast<Model*>(mResourceManager.load(L"3M00696/buelllightning.3DS").get());
+				mModel = dynamic_cast<Model*>(mResourceManager.load(L"Scene/City/scene.3ds").get());
 			}
 			{	// Setup entity 1
 				std::auto_ptr<Entity> e(new Entity);

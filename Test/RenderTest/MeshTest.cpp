@@ -88,7 +88,8 @@ TEST(Basic_MeshBuilderTest)
 		{	size_t count = 0;
 			uint16_t* index = reinterpret_cast<uint16_t*>(builder.acquireBufferPointer(Mesh::Index, &count));
 			CHECK_EQUAL(3u, count);
-			for(size_t i=0; i<3; ++i)
+			CHECK(index != nullptr);
+			if(index) for(size_t i=0; i<3; ++i)
 				CHECK_EQUAL(i, index[i]);
 			builder.releaseBufferPointer(index);
 		}
