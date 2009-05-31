@@ -291,7 +291,7 @@ IResourceLoader::LoadingState Max3dsLoader::Impl::load(std::istream* is, const P
 {
 	using namespace std;
 
-	// todo: make includeTangents an option of Max3dsLoader
+	// TODO: make includeTangents an option of Max3dsLoader
 	const bool includeTangents = true;
 
 	ScopeLock lock(mMutex);

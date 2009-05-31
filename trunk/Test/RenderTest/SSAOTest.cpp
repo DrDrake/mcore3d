@@ -157,68 +157,79 @@ TEST(SSAOTest)
 			// If the window is minmized
 			if(width == 0 || height == 0)
 				return;
+			
+			GLenum drawBuffers[] = { GL_COLOR_ATTACHMENT0_EXT, GL_COLOR_ATTACHMENT1_EXT };
+			TextureRenderBufferPtr textureBuffer;
 
-			// Setup scene's render target, where the scene will output the color, depth and normal
-			mSceneRenderTarget.reset(new RenderTarget(width, height));
-			TextureRenderBufferPtr textureBuffer = new TextureRenderBuffer(GL_COLOR_ATTACHMENT0_EXT);
-			if(!textureBuffer->createTexture(width, height, GL_TEXTURE_RECTANGLE_ARB, GL_RGB))
-				throw std::runtime_error("");
-			if(!textureBuffer->linkTo(*mSceneRenderTarget))
-				throw std::runtime_error("");
-			mColorRenderTexture = static_cast<TextureRenderBuffer&>(*textureBuffer).texture;
+			{	// Setup scene's render target, where the scene will output the color, depth and normal
+				mSceneRenderTarget.reset(new RenderTarget(width, height));
+				
+				// color target
+				textureBuffer = new TextureRenderBuffer(GL_COLOR_ATTACHMENT0_EXT);
+				if(!textureBuffer->createTexture(width, height, GL_TEXTURE_RECTANGLE_ARB, GL_RGB))
+					throw std::runtime_error("");
+				if(!textureBuffer->linkTo(*mSceneRenderTarget))
+					throw std::runtime_error("");
+				mColorRenderTexture = static_cast<TextureRenderBuffer&>(*textureBuffer).texture;
 
-			textureBuffer = new TextureRenderBuffer(GL_COLOR_ATTACHMENT1_EXT);
-			if(!textureBuffer->createTexture(width, height, GL_TEXTURE_RECTANGLE_ARB, GL_RGB))
-				throw std::runtime_error("");
-			if(!textureBuffer->linkTo(*mSceneRenderTarget))
-				throw std::runtime_error("");
-			mNormalRenderTexture = static_cast<TextureRenderBuffer&>(*textureBuffer).texture;
+				// normal target
+				textureBuffer = new TextureRenderBuffer(GL_COLOR_ATTACHMENT1_EXT);
+				if(!textureBuffer->createTexture(width, height, GL_TEXTURE_RECTANGLE_ARB, GL_RGB))
+					throw std::runtime_error("");
+				if(!textureBuffer->linkTo(*mSceneRenderTarget))
+					throw std::runtime_error("");
+				mNormalRenderTexture = static_cast<TextureRenderBuffer&>(*textureBuffer).texture;
 
-			textureBuffer = new TextureRenderBuffer(GL_DEPTH_ATTACHMENT_EXT);
-			if(!textureBuffer->createTexture(width, height, GL_TEXTURE_RECTANGLE_ARB, GL_DEPTH_COMPONENT))
-				throw std::runtime_error("");
-			if(!textureBuffer->linkTo(*mSceneRenderTarget))
-				throw std::runtime_error("");
-			mDepthRenderTexture = static_cast<TextureRenderBuffer&>(*textureBuffer).texture;
+				// depth target
+				textureBuffer = new TextureRenderBuffer(GL_DEPTH_ATTACHMENT_EXT);
+				if(!textureBuffer->createTexture(width, height, GL_TEXTURE_RECTANGLE_ARB, GL_DEPTH_COMPONENT))
+					throw std::runtime_error("");
+				if(!textureBuffer->linkTo(*mSceneRenderTarget))
+					throw std::runtime_error("");
+				mDepthRenderTexture = static_cast<TextureRenderBuffer&>(*textureBuffer).texture;
 
-			{	// Adjust the clamp mode of the depth texture to be clamp to border
-				mDepthRenderTexture->bind();
-				float b[] = { 1, 1, 1 };	// Everything outside the border is defined as far away
-				glTexParameterfv(GL_TEXTURE_RECTANGLE_ARB, GL_TEXTURE_BORDER_COLOR, b);
-				glTexParameterf(GL_TEXTURE_RECTANGLE_ARB, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
-				glTexParameterf(GL_TEXTURE_RECTANGLE_ARB, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
+				{	// Adjust the clamp mode of the depth texture to be clamp to border
+					mDepthRenderTexture->bind();
+					float b[] = { 1, 1, 1 };	// Everything outside the border is defined as far away
+					glTexParameterfv(GL_TEXTURE_RECTANGLE_ARB, GL_TEXTURE_BORDER_COLOR, b);
+					glTexParameterf(GL_TEXTURE_RECTANGLE_ARB, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
+					glTexParameterf(GL_TEXTURE_RECTANGLE_ARB, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
+				}
+
+				// tell mSceneRenderTarget that we are using 2 buffers
+				mSceneRenderTarget->bind();
+				glDrawBuffers(2, drawBuffers);
+				mSceneRenderTarget->unbind();
+
+				if(!mSceneRenderTarget->checkCompleteness())
+					throw std::runtime_error("");
 			}
 
-			mSceneRenderTarget->bind();
-			GLenum buffers[] = { GL_COLOR_ATTACHMENT0_EXT, GL_COLOR_ATTACHMENT1_EXT };
-			glDrawBuffers(2, buffers);
-			mSceneRenderTarget->unbind();
+			{	// Setup SSAO's render target, outputing dithered SSAO result
+				mSSAORenderTarget.reset(new RenderTarget(size_t(width * mSSAORescale), size_t(height * mSSAORescale)));
+				
+				textureBuffer = new TextureRenderBuffer(GL_COLOR_ATTACHMENT0_EXT);
+				if(!textureBuffer->createTexture(mSSAORenderTarget->width(), mSSAORenderTarget->height(), GL_TEXTURE_RECTANGLE_ARB, GL_RGBA))
+					throw std::runtime_error("");
+				if(!textureBuffer->linkTo(*mSSAORenderTarget))
+					throw std::runtime_error("");
+				mSSAORenderTexture = static_cast<TextureRenderBuffer&>(*textureBuffer).texture;
 
-			if(!mSceneRenderTarget->checkCompleteness())
-				throw std::runtime_error("");
+				textureBuffer = new TextureRenderBuffer(GL_COLOR_ATTACHMENT1_EXT);
+				if(!textureBuffer->createTexture(mSSAORenderTarget->width(), mSSAORenderTarget->height(), GL_TEXTURE_RECTANGLE_ARB, GL_RGBA))
+					throw std::runtime_error("");
+				if(!textureBuffer->linkTo(*mSSAORenderTarget))
+					throw std::runtime_error("");
+				mSSAORenderTexture2 = static_cast<TextureRenderBuffer&>(*textureBuffer).texture;
 
-			// Setup SSAO's render target, outputing dithered SSAO result
-			mSSAORenderTarget.reset(new RenderTarget(size_t(width * mSSAORescale), size_t(height * mSSAORescale)));
-			textureBuffer = new TextureRenderBuffer(GL_COLOR_ATTACHMENT0_EXT);
-			if(!textureBuffer->createTexture(mSSAORenderTarget->width(), mSSAORenderTarget->height(), GL_TEXTURE_RECTANGLE_ARB, GL_RGBA))
-				throw std::runtime_error("");
-			if(!textureBuffer->linkTo(*mSSAORenderTarget))
-				throw std::runtime_error("");
-			mSSAORenderTexture = static_cast<TextureRenderBuffer&>(*textureBuffer).texture;
+				// tell mSSAORenderTarget that we are using 1 buffer
+				mSSAORenderTarget->bind();
+				glDrawBuffers(1, drawBuffers);
+				mSSAORenderTarget->unbind();
 
-			textureBuffer = new TextureRenderBuffer(GL_COLOR_ATTACHMENT1_EXT);
-			if(!textureBuffer->createTexture(mSSAORenderTarget->width(), mSSAORenderTarget->height(), GL_TEXTURE_RECTANGLE_ARB, GL_RGBA))
-				throw std::runtime_error("");
-			if(!textureBuffer->linkTo(*mSSAORenderTarget))
-				throw std::runtime_error("");
-			mSSAORenderTexture2 = static_cast<TextureRenderBuffer&>(*textureBuffer).texture;
-
-			mSSAORenderTarget->bind();
-			glDrawBuffers(1, buffers);
-			mSSAORenderTarget->unbind();
-
-			if(!mSSAORenderTarget->checkCompleteness())
-				throw std::runtime_error("");
+				if(!mSSAORenderTarget->checkCompleteness())
+					throw std::runtime_error("");
+			}
 
 			// Setup the uniform variables
 			// Reference: http://www.lighthouse3d.com/opengl/glsl/index.php?ogluniform
