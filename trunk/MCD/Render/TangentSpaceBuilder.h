@@ -10,10 +10,10 @@ namespace MCD
 
 class MeshBuilder;
 
-/*! The compute tangent space for MeshBuilders.
+/*!	The compute tangent space for MeshBuilders.
 
 	Usage:
-
+	\code
 	TangentSpaceBuilder tsbuilder;
 
 	Mesh::DataType sourceUV = Mesh::TextureCoord0;
@@ -22,7 +22,8 @@ class MeshBuilder;
 	// please make sure meshBuilder have allocate the space for
 	// outputUV (as an array of Vec3)
 	tsbuilder.compute( meshBuilder, sourceUV, outputUV );
-*/
+	\endcode
+ */
 class MCD_RENDER_API TangentSpaceBuilder
 {
 public:
@@ -30,16 +31,19 @@ public:
 
 	void compute(
 		const size_t faceCnt, const size_t vertexCnt,
-		const uint16_t* indexBuf, const Vec3f* posBuf, const Vec3f* nrmBuf, const Vec2f* uvBuf,
-		Vec3f* outTangBuf
-		);
+		sal_in_ecount(faceCnt * 3) const uint16_t* indexBuf,
+		sal_in_ecount(vertexCnt) const Vec3f* posBuf,
+		sal_in_ecount(vertexCnt) const Vec3f* nrmBuf,
+		sal_in_ecount(vertexCnt) const Vec2f* uvBuf,
+		sal_out_ecount(vertexCnt) Vec3f* outTangBuf
+	);
 
 protected:
 	static void computeTangentBasis(
 		const Vec3f& P1, const Vec3f& P2, const Vec3f& P3, 
 		const Vec2f& UV1, const Vec2f& UV2, const Vec2f& UV3,
-		Vec3f &tangent, Vec3f &bitangent
-		);
+		Vec3f& tangent, Vec3f& bitangent
+	);
 };
 
 }	// namespace MCD

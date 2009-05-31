@@ -1,6 +1,6 @@
 /*!	squnit.nut
 	Description: A unit testing framework for the squirrel language
-	Homepage: http://phil.freehackers.org/luaunit/
+	Homepage: http://mtlung.blogspot.com/2009/05/squirrel.html
 	Author: Ricky Lung (http://mtlung.blogspot.com/)
 	Version: 1.0
 	The framework is base on luaunit v1.3 http://phil.freehackers.org/luaunit/
@@ -132,7 +132,7 @@ function assertEquals(actual, expected)
 }
 
 //! Assert that two values are close enough and calls error else.
-function assertClose(actual, expected, tolerance=0.000001)
+function assertClose(actual, expected, tolerance=1.e-6)
 {
 	local diff = actual.tofloat() - expected.tofloat();
 	local positiveTolerance = (tolerance >= 0) ? tolerance : -tolerance;
@@ -167,7 +167,7 @@ class UnitResult
 	currentTestName = "";
 	testHasFailure = false;
 	verbosity = 0;
-	
+
 	static function println(str)
 	{
 		print(str);

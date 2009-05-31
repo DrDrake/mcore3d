@@ -3,15 +3,14 @@
 #include "TangentSpaceBuilder.h"
 #include "MeshBuilder.h"
 
-namespace MCD
-{
+namespace MCD {
 
-namespace
-{
+namespace {
 
+// TDOO: May move this to MeshBuilder.h
 /*! A small utility which acquire the mesh buffer pointer in its constructor;
 	and release the pointer in its destructor.
-*/
+ */
 class MeshBufferPointer
 {
 public:
@@ -27,15 +26,18 @@ public:
 	}
 
 	template<typename T>
-	T* as() { return (T*)mDataPtr; }
+	T* as()
+	{	// TODO: Add memory size checking eg. sizeof(T) == getSize(meshDataType)
+		return (T*)mDataPtr;
+	}
 
 	size_t size() const { return mDataSize; }
 
 private:
 	MeshBuilder&	mBuilder;
 	void*			mDataPtr;
-	size_t			mDataSize;
-};
+	size_t			mDataSize;	//! The number of elements (not memory size!)
+};	// MeshBufferPointer
 
 }	// namespace
 
@@ -85,7 +87,7 @@ void TangentSpaceBuilder::compute(MeshBuilder& builder, int uvDataType, int tang
 
 	// we supports triangles only :-)
 	const size_t cFaceCnt	= idxPtr.size() / 3;
-	const size_t cVertexCnt = xyzPtr.size() / 3;
+	const size_t cVertexCnt = xyzPtr.size();
 
 	compute(
 		cFaceCnt, cVertexCnt, 
@@ -109,6 +111,10 @@ void TangentSpaceBuilder::compute(
 		const uint16_t v0 = indexBuf[iface*3+0];
 		const uint16_t v1 = indexBuf[iface*3+1];
 		const uint16_t v2 = indexBuf[iface*3+2];
+
+		MCD_ASSERT(v0 < vertexCnt);
+		MCD_ASSERT(v1 < vertexCnt);
+		MCD_ASSERT(v2 < vertexCnt);
 
 		const Vec3f& vN0 = nrmBuf[v0];
 		const Vec3f& vN1 = nrmBuf[v1];
@@ -144,5 +150,4 @@ void TangentSpaceBuilder::compute(
 		outTangBuf[ivert].normalize();
 }
 
-
-}
+}	// namespace MCD

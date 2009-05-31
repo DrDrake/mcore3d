@@ -180,13 +180,13 @@ public:
 			releaseBufferPointer() before adding another vertex or triangle.
 		\sa releaseBufferPointer
 	 */
-	sal_checkreturn void* acquireBufferPointer(Mesh::DataType dataType, sal_out_opt size_t* count=nullptr);
+	sal_maybenull void* acquireBufferPointer(Mesh::DataType dataType, sal_out_opt size_t* count=nullptr);
 
 	/*!	Release the pointer acquired by acquireBufferPointer().
 		\note Do nothing if no corresponding pointer is acquired.
 		\sa acquireBufferPointer
 	 */
-	void releaseBufferPointer(void* ptr);
+	void releaseBufferPointer(sal_maybenull void* ptr);
 
 protected:
 	uint mFormat;		//!< The same meaning as Mesh::mFormat
