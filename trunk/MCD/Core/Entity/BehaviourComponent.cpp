@@ -1,6 +1,6 @@
 #include "Pch.h"
 #include "BehaviourComponent.h"
-#include "../../Core/Entity/Entity.h"
+#include "../Entity/Entity.h"
 
 namespace MCD {
 
