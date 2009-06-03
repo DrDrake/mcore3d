@@ -18,6 +18,8 @@
 #	pragma warning(pop)
 #endif
 
+#define USE_MORE_PARALLEL_LOADING_SCHEDULE 1
+
 namespace MCD {
 
 struct MapNode
@@ -91,14 +93,16 @@ class ResourceManager::Impl
 	class Task : public MCD::TaskPool::Task
 	{
 	public:
-		Task(MapNode& mapNode, IResourceLoader& loader, EventQueue& eventQueue, std::istream* is, uint priority)
+		Task(MapNode& mapNode, const SharedPtr<IResourceLoader>& loader,
+			EventQueue& eventQueue, std::istream* is, uint priority, TaskPool& taskPool)
 			:
 			MCD::TaskPool::Task(priority),
 			mMapNode(mapNode),
 			mResource(mapNode.mResource.get()),
-			mLoader(&loader),
+			mLoader(loader),
 			mEventQueue(eventQueue),
-			mIStream(is)
+			mIStream(is),
+			mTaskPool(taskPool)
 		{
 		}
 
@@ -117,7 +121,16 @@ class ResourceManager::Impl
 				Event event = { mResource, mLoader };
 				mEventQueue.pushBack(event);
 
+//				mSleep(1);
+
 				if(state & IResourceLoader::Stopped) {
+					break;
+				}
+
+				if(USE_MORE_PARALLEL_LOADING_SCHEDULE) {
+					// Creat a new schedule that has a lower priority
+					Task* task = new Task(mMapNode, mLoader, mEventQueue, mIStream.release(), priority()+1, mTaskPool);
+					mTaskPool.enqueue(*task);
 					break;
 				}
 			}
@@ -131,6 +144,7 @@ class ResourceManager::Impl
 		SharedPtr<IResourceLoader> mLoader;	// Hold the life of the IResourceLoader
 		EventQueue& mEventQueue;
 		std::auto_ptr<std::istream> mIStream;	// Keep the life of the stream align with the Task
+		TaskPool& mTaskPool;
 	};	// Task
 
 public:
@@ -180,7 +194,7 @@ public:
 		std::auto_ptr<std::istream> is(mFileSystem.openRead(fileId));
 
 		// Create the task to submit to the task pool
-		Task* task = new Task(node, loader, mEventQueue, is.get(), priority);
+		Task* task = new Task(node, &loader, mEventQueue, is.get(), priority, mTaskPool);
 		is.release();	// We have transfered the ownership of istream to Task
 
 		mTaskPool.enqueue(*task);
