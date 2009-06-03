@@ -86,12 +86,14 @@ public:
 			glScalef(0.01f, 0.01f, 0.01f);
 
 			Material2* mat = mEffect->material.get();
-
-			for(size_t i=0; i<mat->getPassCount(); ++i)
+			if(mat)
 			{
-				mat->preRender(i);
-				mModel->draw();
-				mat->postRender(i);
+				for(size_t i=0; i<mat->getPassCount(); ++i)
+				{
+					mat->preRender(i);
+					mModel->draw();
+					mat->postRender(i);
+				}
 			}
 
 			glPopMatrix();
