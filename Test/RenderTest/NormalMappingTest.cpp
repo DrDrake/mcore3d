@@ -8,11 +8,10 @@
 #include "../../MCD/Render/Components/MeshComponent.h"
 #include "../../MCD/Render/TangentSpaceBuilder.h"
 
-
 using namespace MCD;
 
-namespace NormalMappingTest
-{
+namespace NormalMappingTest {
+
 class TestWindow : public BasicGlWindow
 {
 private:
@@ -85,16 +84,16 @@ public:
 			glPushMatrix();
 			glScalef(0.01f, 0.01f, 0.01f);
 
+			// NOTE: The material in mEffect may be null, if mEffect haven't commit yet.
 			Material2* mat = mEffect->material.get();
-			if(mat)
+			if(mat) for(size_t i=0; i<mat->getPassCount(); ++i)
 			{
-				for(size_t i=0; i<mat->getPassCount(); ++i)
-				{
-					mat->preRender(i);
-					mModel->draw();
-					mat->postRender(i);
-				}
+				mat->preRender(i);
+				mModel->draw();
+				mat->postRender(i);
 			}
+			else
+				mModel->draw();
 
 			glPopMatrix();
 		}
@@ -114,6 +113,5 @@ public:
 TEST(NormalMappingTest)
 {
 	NormalMappingTest::TestWindow window;
-	window.update(0.1f);
 	window.mainLoop();
 }
