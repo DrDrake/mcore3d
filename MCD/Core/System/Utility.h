@@ -5,6 +5,10 @@
 #include "Platform.h"
 #include <stdexcept>
 
+#ifdef MCD_VC
+#	include <stdlib.h>	// For _countof in MSVC
+#endif
+
 /*!	\file Utility.h
 	Contains some small but useful utilities.
  */
@@ -61,6 +65,18 @@ MCD_INLINE2 Target polymorphic_downcast(Source& x) {
 	return static_cast<Target>(x);
 }
 
+/*!	Macro to get the count of element of an array
+	For the Vsiaul Studio, in use the provided _countof macro defined in
+	stdlib.h, which can prevent many miss use of it.
+	\sa http://blogs.msdn.com/the1/archive/2004/05/07/128242.aspx
+ */
+#ifdef MCD_VC
+#	define MCD_COUNTOF(x) _countof(x)
+#else
+	template<class T> class CountofHelper {};
+	template<class T, size_t N> struct CountofHelper<T[N]> { static const size_t value = N; };
+#	define MCD_COUNTOF(x) (::MCD::CountofHelper<typeof(x)>::value)
+#endif
 
 }	// namespace MCD
 

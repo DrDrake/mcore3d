@@ -48,13 +48,13 @@ class TestEntity
 	function testHierarchy()
 	{
 		assert(!root.parentNode);
-		assert(!root.nextSlibing);
+		assert(!root.nextSibling);
 		assertEquals(e3, root.firstChild);
 
 		// The slibings are in reverse order
-		assertEquals(e2, e3.nextSlibing);
-		assertEquals(e1, e2.nextSlibing);
-		assert(!e1.nextSlibing);
+		assertEquals(e2, e3.nextSibling);
+		assertEquals(e1, e2.nextSibling);
+		assert(!e1.nextSibling);
 	}
 
 	function testMemoryReference()
@@ -80,11 +80,11 @@ class TestEntity
 
 		assert(!e21.parentNode);
 		assert(!e21.firstChild);
-		assert(!e21.nextSlibing);
+		assert(!e21.nextSibling);
 
 		assertEquals(root, e2.parentNode);
 		assert(!e2.firstChild);
-		assertEquals(e1, e2.nextSlibing);
+		assertEquals(e1, e2.nextSibling);
 	}
 
 	function testUnlinkLeaf()
@@ -93,11 +93,11 @@ class TestEntity
 
 		assert(!e21.parentNode);
 		assert(!e21.firstChild);
-		assert(!e21.nextSlibing);
+		assert(!e21.nextSibling);
 
 		assertEquals(root, e2.parentNode);
 		assert(!e2.firstChild);
-		assertEquals(e1, e2.nextSlibing);
+		assertEquals(e1, e2.nextSibling);
 	}
 
 	function testUnlinkFirstSlibing()
@@ -106,7 +106,7 @@ class TestEntity
 
 		assert(!e3.parentNode);
 		assert(!e3.firstChild);
-		assert(!e3.nextSlibing);
+		assert(!e3.nextSibling);
 
 		assertEquals(e2, root.firstChild);
 	}
@@ -117,9 +117,9 @@ class TestEntity
 
 		assert(!e2.parentNode);
 		assertEquals(e21, e2.firstChild);	// When e2 is destroy, e21 is also destroyed
-		assert(!e2.nextSlibing);
+		assert(!e2.nextSibling);
 
-		assertEquals(e1, e3.nextSlibing);
+		assertEquals(e1, e3.nextSibling);
 	}
 
 	function testUnlinkLastSlibing()
@@ -128,8 +128,8 @@ class TestEntity
 
 		assert(!e1.parentNode);
 		assertEquals(e13, e1.firstChild);
-		assert(!e1.nextSlibing);
-		assert(!e2.nextSlibing);
+		assert(!e1.nextSibling);
+		assert(!e2.nextSibling);
 	}
 
 	function testInsertionBefore()
@@ -137,7 +137,7 @@ class TestEntity
 		e11.insertBefore(e3);
 		assert(!e11.firstChild);
 		assertEquals(root, e11.parentNode);
-		assertEquals(e3, e11.nextSlibing);
+		assertEquals(e3, e11.nextSibling);
 		assertEquals(e11, root.firstChild);
 	}
 
@@ -146,7 +146,7 @@ class TestEntity
 		e11.insertBefore(e2);
 		assert(!e11.firstChild);
 		assertEquals(root, e11.parentNode);
-		assertEquals(e2, e11.nextSlibing);
+		assertEquals(e2, e11.nextSibling);
 	}
 
 	function testInsertionAfter()
@@ -154,7 +154,7 @@ class TestEntity
 		e11.insertAfter(e2);
 		assert(!e11.firstChild);
 		assertEquals(root, e11.parentNode);
-		assertEquals(e1, e11.nextSlibing);
+		assertEquals(e1, e11.nextSibling);
 	}
 
 	function testProperty()

@@ -14,7 +14,7 @@ class Component;
 /*!	Entity is the basic unit of a game object, act as a container of Component.
 
 	Entity can link together to form a tree structure using the "parent", "firstChild"
-	and "nextSlibing" attributes as follows:
+	and "nextSibling" attributes as follows:
 
 	root
 	|
@@ -110,7 +110,7 @@ public:
 
 	sal_maybenull Entity* firstChild();
 
-	sal_maybenull Entity* nextSlibing();
+	sal_maybenull Entity* nextSibling();
 
 	Mat44f localTransform;
 

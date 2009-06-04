@@ -1,6 +1,7 @@
 #include "Pch.h"
 #include "StrUtility.h"
 #include "ErrorCode.h"
+#include "Utility.h"
 #include <map>
 #include <sstream>
 #include <stdlib.h>	// For mbstowcs
@@ -462,7 +463,7 @@ bool advancePos(wchar_t*& pos)
 static void skipSeps(wchar_t*& pos)
 {
 	static const wchar_t cSeps[] = L"; \t\n\r";
-	static const size_t cCount = sizeof(cSeps)/sizeof(wchar_t) - 1;
+	static const size_t cCount = MCD_COUNTOF(cSeps) - 1;
 
 	for(size_t i=cCount; i--;) {
 		if(*pos != cSeps[i])
@@ -476,7 +477,7 @@ static void skipSeps(wchar_t*& pos)
 void skipNonSeps(wchar_t*& pos)
 {
 	static const wchar_t cSeps[] = L"=; \t\n\r";
-	static const size_t cCount = sizeof(cSeps)/sizeof(wchar_t) - 1;
+	static const size_t cCount = MCD_COUNTOF(cSeps) - 1;
 
 	do {
 		for(size_t i=cCount; i--;) {

@@ -1,5 +1,6 @@
 #include "Pch.h"
 #include "../../../MCD/Core/System/StrUtility.h"
+#include "../../../MCD/Core/System/Utility.h"
 #include <string.h>	// For strlen
 
 using namespace MCD;
@@ -21,7 +22,7 @@ TEST(wStrToStrTest)
 
 	{	// Narrow string to wide string
 		std::wstring result;
-		for(size_t i=0; i<sizeof(data)/sizeof(S); ++i) {
+		for(size_t i=0; i<MCD_COUNTOF(data); ++i) {
 			size_t len = strlen(data[i].narrowStr);
 			CHECK(strToWStr(data[i].narrowStr, len, result));
 			CHECK_EQUAL(data[i].wideStr, result);
@@ -32,7 +33,7 @@ TEST(wStrToStrTest)
 
 	{	// Wide string to narrow string
 		std::string result;
-		for(size_t i=0; i<sizeof(data)/sizeof(S); ++i) {
+		for(size_t i=0; i<MCD_COUNTOF(data); ++i) {
 			CHECK(wStrToStr(data[i].wideStr, result));
 			CHECK_EQUAL(data[i].narrowStr, result);
 			result = wStrToStr(std::wstring(data[i].wideStr));
@@ -100,7 +101,7 @@ TEST(StrtoNumberTest)
 		{L"99999999999",0,		false},	// Overflow
 	};
 
-	for(size_t i=0; i<sizeof(data)/sizeof(S); ++i) {
+	for(size_t i=0; i<MCD_COUNTOF(data); ++i) {
 		// Without default value
 		int a;
 		bool ok = wStr2Int(data[i].wideStr, a);
@@ -146,7 +147,7 @@ TEST(StrtoFloatArrayTest)
 		{L"1 2 3 a",	v3,			3u,	 0u, true},		//
 	};
 
-	for(size_t i=0; i<sizeof(data)/sizeof(S); ++i) {
+	for(size_t i=0; i<MCD_COUNTOF(data); ++i) {
 		size_t size = data[i].maxCount;
 		float* ret = wStrToFloatArray(data[i].wideStr, size);
 		CHECK_EQUAL(data[i].success, ret != nullptr);
@@ -196,7 +197,7 @@ TEST(NvpParserTest)
 
 	NvpParser parser(str);
 
-	for(size_t i=0; i<sizeof(data)/sizeof(S); ++i) {
+	for(size_t i=0; i<MCD_COUNTOF(data); ++i) {
 		const wchar_t* name = nullptr, *value = nullptr;
 		CHECK(parser.next(name, value));
 

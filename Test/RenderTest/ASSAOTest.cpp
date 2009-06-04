@@ -3,6 +3,7 @@
 #include "../../MCD/Core/Math/Mat44.h"
 #include "../../MCD/Core/System/WindowEvent.h"
 #include "../../MCD/Core/System/StrUtility.h"
+#include "../../MCD/Core/System/Utility.h"
 #include "../../MCD/Render/Color.h"
 #include "../../MCD/Render/Effect.h"
 #include "../../MCD/Render/Material.h"
@@ -12,6 +13,9 @@
 #include "../../MCD/Render/ShaderProgram.h"
 #include "../../MCD/Render/Texture.h"
 #include "../../MCD/Render/TextureRenderBuffer.h"
+#include "ChamferBox.h"
+#include "../../MCD/Render/Effect.h"
+#include "../../MCD/Render/Material.h"
 
 using namespace MCD;
 
@@ -130,6 +134,11 @@ TEST(ASSAOTest)
 				glUniform1f(glGetUniformLocation(mSSAOPass.handle, "radius"), mSSAORadius);
 				mSSAOPass.unbind();
 			}
+
+			if(e.Type == Event::KeyReleased && e.Key.Code == Key::R)
+				boxX = -2;
+			if(e.Type == Event::KeyReleased && e.Key.Code == Key::T)
+				boxX = 2;
 
 			BasicGlWindow::onEvent(e);
 
@@ -265,7 +274,7 @@ TEST(ASSAOTest)
 					-0.005480f, -0.144742f, -0.191251f,
 				};
 
-				for(size_t i=0; i<sizeof(randSphere)/sizeof(float)/3; ++i)
+				for(size_t i=0; i<MCD_COUNTOF(randSphere)/3; ++i)
 					reinterpret_cast<Vec3f*>(randSphere+i)->normalize();
 
 				glUniform3fv(glGetUniformLocation(mSSAOPass.handle, "ranSphere"), 32, (float*)randSphere);
@@ -290,6 +299,9 @@ TEST(ASSAOTest)
 			BasicGlWindow::onResize(width, height);
 		}
 
+		MCD::MeshPtr mBox;
+		float boxX;
+
 		void drawScene()
 		{
 			MCD_ASSERT(mSceneRenderTarget.get());
@@ -300,16 +312,26 @@ TEST(ASSAOTest)
 
 			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-			glTranslatef(0.0f, -50.0f, 100.0f);
+			glTranslatef(0.0f, -55.0f, 110.0f);
 
 			const float scale = 2.5f;
 			glScalef(scale, scale, scale);
+
+			if(mBox == nullptr) {
+				mBox = new Mesh(L"");
+				boxX = 1;
+				ChamferBoxBuilder chamferBoxBuilder(0.4f, 2);
+				chamferBoxBuilder.commit(*mBox, MeshBuilder::Static);
+			}
 
 			Material2* material = nullptr;
 			if(mSceneEffect && (material = mSceneEffect->material.get()) != nullptr) {
 				material->preRender(0);
 				glActiveTexture(GL_TEXTURE0);
 				mRenderable->draw();
+				glTranslatef(boxX, 18.0f, -55.0f);
+//				boxX -= 0.1;
+				mBox->draw();
 				material->postRender(0);
 			}
 
@@ -419,7 +441,7 @@ TEST(ASSAOTest)
 
 		void loadModel(const wchar_t* fileId)
 		{
-			mModel = mResourceManager.load(fileId).get();
+			mModel = mResourceManager.load(fileId, true).get();
 			mRenderable = dynamic_cast<IRenderable*>(mModel.get());
 		}
 
