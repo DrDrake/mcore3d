@@ -184,7 +184,7 @@ Entity* Entity::firstChild() {
 	return mFirstChild;
 }
 
-Entity* Entity::nextSlibing() {
+Entity* Entity::nextSibling() {
 	return mNextSlibing;
 }
 
@@ -202,8 +202,8 @@ Entity* EntityPreorderIterator::next()
 	{
 		if(mCurrent->firstChild() && !noChildMove)
 			return mCurrent = mCurrent->firstChild();
-		else if(mCurrent->nextSlibing())
-			return mCurrent = mCurrent->nextSlibing();
+		else if(mCurrent->nextSibling())
+			return mCurrent = mCurrent->nextSibling();
 		else
 		{
 			mCurrent = mCurrent->parent();
@@ -232,8 +232,8 @@ Entity* EntityPreorderIterator::skipChildren()
 	// The following borrows the code from next() function, where noChildMove is always true
 	while(mCurrent)
 	{
-		if(mCurrent->nextSlibing())
-			return mCurrent = mCurrent->nextSlibing();
+		if(mCurrent->nextSibling())
+			return mCurrent = mCurrent->nextSibling();
 
 		mCurrent = mCurrent->parent();
 		if(mCurrent == mStart)

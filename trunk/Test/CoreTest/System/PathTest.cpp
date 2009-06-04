@@ -1,5 +1,6 @@
 #include "Pch.h"
 #include "../../../MCD/Core/System/Path.h"
+#include "../../../MCD/Core/System/Utility.h"
 #include <stdexcept>
 
 using namespace MCD;
@@ -41,7 +42,7 @@ TEST(RootName_PathTest)
 		{L"",		L"/home"},
 	};
 
-	for(size_t i=0; i<sizeof(data)/sizeof(const wchar_t*)/2; ++i)
+	for(size_t i=0; i<MCD_COUNTOF(data); ++i)
 		CHECK_EQUAL(data[i][0], Path(data[i][1]).getRootName());
 }
 
@@ -63,7 +64,7 @@ TEST(RootDirectory_PathTest)
 		{L"/",	L"/home"},
 	};
 
-	for(size_t i=0; i<sizeof(data)/sizeof(const wchar_t*)/2; ++i)
+	for(size_t i=0; i<MCD_COUNTOF(data); ++i)
 		CHECK_EQUAL(data[i][0], Path(data[i][1]).getRootDirectory());
 }
 
@@ -88,7 +89,7 @@ TEST(Leaf_PathTest)
 		{L"a.txt",	L"a.txt"},
 	};
 
-	for(size_t i=0; i<sizeof(data)/sizeof(const wchar_t*)/2; ++i)
+	for(size_t i=0; i<MCD_COUNTOF(data); ++i)
 		CHECK_EQUAL(data[i][0], Path(data[i][1]).getLeaf());
 }
 
@@ -113,7 +114,7 @@ TEST(Branch_PathTest)
 		{L"",		L"a.txt"},
 	};
 
-	for(size_t i=0; i<sizeof(data)/sizeof(const wchar_t*)/2; ++i)
+	for(size_t i=0; i<MCD_COUNTOF(data); ++i)
 		CHECK_EQUAL(data[i][0], Path(data[i][1]).getBranchPath().getString());
 }
 
@@ -126,7 +127,7 @@ TEST(GetExtension_PathTest)
 		{L"txt",	L"a.b.txt"},
 	};
 
-	for(size_t i=0; i<sizeof(data)/sizeof(const wchar_t*)/2; ++i)
+	for(size_t i=0; i<MCD_COUNTOF(data); ++i)
 		CHECK_EQUAL(data[i][0], Path(data[i][1]).getExtension());
 }
 
@@ -139,7 +140,7 @@ TEST(RemoveExtension_PathTest)
 		{L"a.b",	L"a.b.txt"},
 	};
 
-	for(size_t i=0; i<sizeof(data)/sizeof(const wchar_t*)/2; ++i) {
+	for(size_t i=0; i<MCD_COUNTOF(data); ++i) {
 		Path p(data[i][1]);
 		p.removeExtension();
 		CHECK_EQUAL(data[i][0], p.getString());
@@ -176,7 +177,7 @@ TEST(Normalize_PathTest)
 		{L"../..",		L"../../"},
 	};
 
-	for(size_t i=0; i<sizeof(data)/sizeof(const wchar_t*)/2; ++i)
+	for(size_t i=0; i<MCD_COUNTOF(data); ++i)
 		CHECK_EQUAL(data[i][0], Path(data[i][1]).normalize().getString());
 }
 
@@ -191,7 +192,7 @@ TEST(Append_PathTest)
 		{L"",			L"a/b",	L"../../"},
 	};
 
-	for(size_t i=0; i<sizeof(data)/sizeof(const wchar_t*)/3; ++i)
+	for(size_t i=0; i<MCD_COUNTOF(data); ++i)
 		CHECK_EQUAL(data[i][0], (Path(data[i][1]) / data[i][2]).getString());
 
 	// Appending a path with root to a non-empty path should throw an error
@@ -220,7 +221,7 @@ TEST(Iterator_PathIteratorTest)
 		{L"/a/b/c/",L"/a, /a/b, /a/b/c, "},	// End with slash
 	};
 
-	for(size_t i=0; i<sizeof(data)/sizeof(const wchar_t*)/2; ++i) {
+	for(size_t i=0; i<MCD_COUNTOF(data); ++i) {
 		Path path(data[i][0]);
 		PathIterator itr(path);
 

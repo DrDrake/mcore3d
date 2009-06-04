@@ -8,6 +8,7 @@
 #include "../../MCD/Core/System/CondVar.h"
 #include "../../MCD/Core/System/RawFileSystem.h"
 #include "../../MCD/Core/System/Thread.h"
+#include "../../MCD/Core/System/Utility.h"
 
 using namespace MCD;
 
@@ -56,7 +57,7 @@ TestStruct gTestStruct[] = {
 
 TEST(Syn_TextureLoaderTest)
 {
-	for(size_t i=0; i<sizeof(gTestStruct)/sizeof(TestStruct); ++i)
+	for(size_t i=0; i<MCD_COUNTOF(gTestStruct); ++i)
 	{
 		MCD::ResourcePtr resource = new Texture(gTestStruct[i].path);
 		Texture& texture = static_cast<Texture&>(*resource);
@@ -128,7 +129,7 @@ TEST(Asyn_TextureLoaderTest)
 		CondVar mCondVar;
 	};	// Runnable
 
-	for(size_t i=0; i<sizeof(gTestStruct)/sizeof(TestStruct); ++i)
+	for(size_t i=0; i<MCD_COUNTOF(gTestStruct); ++i)
 	{
 		MCD::ResourcePtr resource = new Texture(gTestStruct[i].path);
 		Texture& texture = static_cast<Texture&>(*resource);

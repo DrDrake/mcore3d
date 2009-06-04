@@ -2,6 +2,7 @@
 #include "PickComponent.h"
 #include "RenderableComponent.h"
 #include "../../Core/Entity/Entity.h"
+#include "../../Core/System/Utility.h"
 #include "../../../3Party/glew/glew.h"
 #include <algorithm>
 #include <vector>
@@ -124,7 +125,7 @@ void PickComponent::update()
 			};
 			mImpl->pickedEntities.push_back(result);
 		}
-		MCD_ASSERT(index <= sizeof(pickBuffer) / sizeof(GLuint));
+		MCD_ASSERT(index <= MCD_COUNTOF(pickBuffer));
 	}
 
 	// Sort the entities so that the one that closer to the camera will come first

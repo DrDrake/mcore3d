@@ -1,5 +1,6 @@
 #include "Pch.h"
 #include "Log.h"
+#include "Utility.h"
 #include <iostream>
 #include <stdarg.h>
 
@@ -37,7 +38,7 @@ void Log::write(Level level, const wchar_t* msg)
 {
 	if(!gOutStream || !(gLogLevel & level))
 		return;
-	MCD_ASSUME(uint(level) < sizeof(cPrefixTable) / sizeof(wchar_t*));
+	MCD_ASSUME(uint(level) < MCD_COUNTOF(cPrefixTable));
 	(*gOutStream) << cPrefixTable[level] << msg << std::endl;
 }
 
@@ -52,7 +53,7 @@ void Log::format(Level level, const wchar_t* fmt, ...)
 	if(!gOutStream || !(gLogLevel & level))
 		return;
 
-	MCD_ASSUME(uint(level) < sizeof(cPrefixTable) / sizeof(wchar_t*));
+	MCD_ASSUME(uint(level) < MCD_COUNTOF(cPrefixTable));
 	va_list argList;
 	va_start(argList, fmt);
 

@@ -1,5 +1,6 @@
 #include "Pch.h"
 #include "../../../MCD/Core/Entity/Entity.h"
+#include "../../../MCD/Core/System/Utility.h"
 
 using namespace MCD;
 
@@ -58,7 +59,7 @@ TEST(Hierarchy_EntityTest)
 	createTree(root);
 
 	CHECK(!root.parent());
-	CHECK(!root.nextSlibing());
+	CHECK(!root.nextSibling());
 	CHECK_EQUAL(e3, root.firstChild());
 
 	CHECK_EQUAL(&root, e1->parent());
@@ -66,9 +67,9 @@ TEST(Hierarchy_EntityTest)
 	CHECK_EQUAL(&root, e3->parent());
 
 	// The slibings are in reverse order
-	CHECK_EQUAL(e2, e3->nextSlibing());
-	CHECK_EQUAL(e1, e2->nextSlibing());
-	CHECK(!e1->nextSlibing());
+	CHECK_EQUAL(e2, e3->nextSibling());
+	CHECK_EQUAL(e1, e2->nextSibling());
+	CHECK(!e1->nextSibling());
 }
 
 TEST(Unlink_EntityTest)
@@ -80,11 +81,11 @@ TEST(Unlink_EntityTest)
 
 		CHECK(!e21->parent());
 		CHECK(!e21->firstChild());
-		CHECK(!e21->nextSlibing());
+		CHECK(!e21->nextSibling());
 
 		CHECK_EQUAL(&root, e2->parent());
 		CHECK(!e2->firstChild());
-		CHECK_EQUAL(e1, e2->nextSlibing());
+		CHECK_EQUAL(e1, e2->nextSibling());
 
 		delete e21;
 	}
@@ -96,7 +97,7 @@ TEST(Unlink_EntityTest)
 
 		CHECK(!e3->parent());
 		CHECK(!e3->firstChild());
-		CHECK(!e3->nextSlibing());
+		CHECK(!e3->nextSibling());
 
 		CHECK_EQUAL(e2, root.firstChild());
 
@@ -110,9 +111,9 @@ TEST(Unlink_EntityTest)
 
 		CHECK(!e2->parent());
 		CHECK_EQUAL(e21, e2->firstChild());
-		CHECK(!e2->nextSlibing());
+		CHECK(!e2->nextSibling());
 
-		CHECK_EQUAL(e1, e3->nextSlibing());
+		CHECK_EQUAL(e1, e3->nextSibling());
 
 		delete e2;
 	}
@@ -124,9 +125,9 @@ TEST(Unlink_EntityTest)
 
 		CHECK(!e1->parent());
 		CHECK_EQUAL(e13, e1->firstChild());
-		CHECK(!e1->nextSlibing());
+		CHECK(!e1->nextSibling());
 
-		CHECK(!e2->nextSlibing());
+		CHECK(!e2->nextSibling());
 
 		delete e1;
 	}
@@ -140,7 +141,7 @@ TEST(Insertion_EntityTest)
 		e11->insertBefore(e3);
 		CHECK(!e11->firstChild());
 		CHECK_EQUAL(&root, e11->parent());
-		CHECK_EQUAL(e3, e11->nextSlibing());
+		CHECK_EQUAL(e3, e11->nextSibling());
 		CHECK_EQUAL(e11, root.firstChild());
 	}
 
@@ -150,7 +151,7 @@ TEST(Insertion_EntityTest)
 		e11->insertBefore(e2);
 		CHECK(!e11->firstChild());
 		CHECK_EQUAL(&root, e11->parent());
-		CHECK_EQUAL(e2, e11->nextSlibing());
+		CHECK_EQUAL(e2, e11->nextSibling());
 	}
 
 	{	// Insert after
@@ -159,7 +160,7 @@ TEST(Insertion_EntityTest)
 		e11->insertAfter(e2);
 		CHECK(!e11->firstChild());
 		CHECK_EQUAL(&root, e11->parent());
-		CHECK_EQUAL(e1, e11->nextSlibing());
+		CHECK_EQUAL(e1, e11->nextSibling());
 	}
 }
 
@@ -202,7 +203,7 @@ TEST(PreorderIterator_EntityTest)
 		for(EntityPreorderIterator itr(&root); !itr.ended(); itr.next(), ++i) {
 			CHECK_EQUAL(expected[i], itr.operator->());
 		}
-		CHECK_EQUAL(sizeof(expected)/sizeof(Entity*), i);
+		CHECK_EQUAL(MCD_COUNTOF(expected), i);
 	}
 
 	{	// Traversing a sub-tree only
@@ -212,7 +213,7 @@ TEST(PreorderIterator_EntityTest)
 		for(EntityPreorderIterator itr(e1); !itr.ended(); itr.next(), ++i) {
 			CHECK_EQUAL(expected[i], itr.operator->());
 		}
-		CHECK_EQUAL(sizeof(expected)/sizeof(Entity*), i);
+		CHECK_EQUAL(MCD_COUNTOF(expected), i);
 	}
 
 	{	// Test skipChildren()

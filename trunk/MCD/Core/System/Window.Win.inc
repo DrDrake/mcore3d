@@ -1,6 +1,7 @@
 // This inc file is to be included by Window.cpp only
 
 #include "Window.Win.inl"
+#include "Utility.h"
 
 namespace MCD {
 
@@ -382,7 +383,7 @@ sal_override void Window::Impl::setOption(const wchar_t* name, const wchar_t* va
 		{ L"width",				&Impl::setWidth },
 	};
 
-	for(size_t i=0; i<sizeof(table)/sizeof(S); ++i) {
+	for(size_t i=0; i<MCD_COUNTOF(table); ++i) {
 		if(::wcscmp(name, table[i].name) == 0) {
 			(this->*(table[i].fun))(value);
 			return;
