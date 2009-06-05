@@ -62,7 +62,7 @@ SCRIPT_CLASS_REGISTER_NAME(Entity, "Entity")
 	.getset(L"localTransform", &Entity::localTransform)
 	.method<objNoCare>(L"_getparentNode", &Entity::parent)		// The node's life time is controled by the
 	.method<objNoCare>(L"_getfirstChild", &Entity::firstChild)	// node tree's root node, therefore we use
-	.method<objNoCare>(L"_getnextSlibing", &Entity::nextSlibing)// objNoCare as the return policy.
+	.method<objNoCare>(L"_getnextSibling", &Entity::nextSibling)// objNoCare as the return policy.
 ;}
 
 }	// namespace script
