@@ -41,6 +41,8 @@
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
+				MinimalRebuild="true"
+				RuntimeLibrary="3"
 			/>
 			<Tool
 				Name="VCManagedResourceCompilerTool"
@@ -53,6 +55,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
+				IgnoreDefaultLibraryNames="libcmtd.lib"
 			/>
 			<Tool
 				Name="VCALinkTool"
@@ -244,6 +247,10 @@
 			</File>
 			<File
 				RelativePath=".\BasicGlWindow.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\BulletTest.cpp"
 				>
 			</File>
 			<File
