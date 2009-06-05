@@ -5,13 +5,40 @@
 #include <limits.h>	// For ULLONG_MAX
 #include <math.h>	// For floof
 
+#define USE_RDTSC 1
+
 namespace MCD {
+
+#if USE_RDTSC
+#	ifdef MCD_VC
+#		define rdtsc(low,high)	\
+		__asm rdtsc				\
+		__asm mov low, eax		\
+		__asm mov high, edx
+#	elif defined(MCD_GCC)
+#		define rdtsc(low,high)	\
+		__asm__ __volatile__("rdtsc" : "=a" (low), "=d" (high))
+#	else
+#	endif
+#endif
+
+union Counter64 {
+	uint32_t n32[2];
+	uint64_t n64;
+};
 
 uint64_t getTimeSinceMachineStartup()
 {
 	uint64_t ret;
 
-#ifdef _WIN32
+#if USE_RDTSC
+	uint32_t l, h;
+	Counter64 tmp;
+	rdtsc(l, h);
+	tmp.n32[0] = l;
+	tmp.n32[1] = h;
+	ret = tmp.n64;
+#elif defined(_WIN32)
 	::QueryPerformanceCounter((LARGE_INTEGER*)(&ret));
 #else
 	timeval tv;
@@ -24,18 +51,39 @@ uint64_t getTimeSinceMachineStartup()
 
 #ifdef _WIN32
 
-uint64_t GetQueryPerformanceFrequency()
+uint64_t getQueryPerformanceFrequency()
 {
 	LARGE_INTEGER ret;
 	BOOL ok = ::QueryPerformanceFrequency(&ret);
 	(void)ok;
 	MCD_ASSERT(ok && "QueryPerformanceFrequency failed");
 	MCD_STATIC_ASSERT(sizeof(uint64_t) == sizeof(ret.QuadPart));
+#if USE_RDTSC
+	// Try to get the ratio between QueryPerformanceCounter and rdtsc
+	// TODO: Rdtsc is still not consider as a very robust time measurement method,
+	// it will be better to define another class of timer that seperate the timer
+	// from general usage and performance profiling usage.
+	uint64_t ticks1;
+	{	::QueryPerformanceCounter((LARGE_INTEGER*)(&ticks1));
+	}
+	uint64_t ticks2;
+	{	uint32_t l, h;
+		Counter64 tmp;
+		rdtsc(l, h);
+		tmp.n32[0] = l;
+		tmp.n32[1] = h;
+		ticks2 = tmp.n64;
+	}
+
+	double ratio = double(ticks2) / ticks1;
+	return uint64_t(ret.QuadPart * ratio);
+#else
 	return uint64_t(ret.QuadPart);
+#endif
 }
 
-static uint64_t cTicksPerSecond = GetQueryPerformanceFrequency();
-static double cInvTicksPerSecond = 1.0 / GetQueryPerformanceFrequency();
+static uint64_t cTicksPerSecond = getQueryPerformanceFrequency();
+static double cInvTicksPerSecond = 1.0 / cTicksPerSecond;
 
 void TimeInterval::set(double sec) {
 	mTicks = uint64_t(sec * cTicksPerSecond);
