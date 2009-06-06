@@ -1,7 +1,6 @@
 #include "Pch.h"
 #include "DynamicsWorld.h"
 #include "RigidBodyComponent.h"
-#include "../Helper.h"
 
 using namespace MCD::BulletBinding;
 
@@ -37,12 +36,12 @@ DynamicsWorld::~DynamicsWorld(void)
 
 void DynamicsWorld::setGravity(MCD::Vec3f g)
 {
-	mDynamicsWorld->setGravity(Vec3fTobtVector3(g));
+	mDynamicsWorld->setGravity(MathConvertor::ToBullet(g));
 }
 
 MCD::Vec3f DynamicsWorld::getGravity() const
 {
-	return btVector3ToVec3f(mDynamicsWorld->getGravity());
+	return MathConvertor::ToMCD(mDynamicsWorld->getGravity());
 }
 
 void DynamicsWorld::addRigidBody(RigidBodyComponent* rbc)

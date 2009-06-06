@@ -49,6 +49,7 @@
 				PrecompiledHeaderThrough="Pch.h"
 				WarningLevel="3"
 				DebugInformationFormat="4"
+				DisableSpecificWarnings="4100; 4127; 4244; 4510; 4512; 4610"
 			/>
 			<Tool
 				Name="VCManagedResourceCompilerTool"
@@ -113,6 +114,7 @@
 				UsePrecompiledHeader="2"
 				WarningLevel="3"
 				DebugInformationFormat="3"
+				DisableSpecificWarnings="4100; 4127; 4244; 4510; 4512; 4610"
 			/>
 			<Tool
 				Name="VCManagedResourceCompilerTool"
@@ -195,7 +197,7 @@
 				>
 			</File>
 			<File
-				RelativePath=".\Helper.h"
+				RelativePath=".\MathConvertor.h"
 				>
 			</File>
 			<File

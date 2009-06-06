@@ -17,12 +17,15 @@ TEST(BulletTest)
 	class TestWindow : public BasicGlWindow
 	{
 		std::auto_ptr<DynamicsWorld> dynamicsWorld;
+		Entity* mPhyE;
+		float mAbsTime;
 	public:
 		TestWindow()
 			:
 			BasicGlWindow(L"title=BulletTest;width=800;height=600;fullscreen=0;FSAA=4"),
 			mResourceManager(*createDefaultFileSystem())
 		{
+			mAbsTime = 0;
 			{	// Setup entity 1
 				std::auto_ptr<Entity> e(new Entity);
 				e->name = L"ChamferBox 1";
@@ -50,7 +53,7 @@ TEST(BulletTest)
 				dynamicsWorld->setGravity(Vec3f(0, -1, 0));
 				dynamicsWorld->addRigidBody(cc);
 
-				e.release();
+				mPhyE = e.release();
 			}
 
 			{	// Setup entity 2
@@ -76,6 +79,8 @@ TEST(BulletTest)
 
 		sal_override void update(float deltaTime)
 		{
+			static int calledTime = 0;
+			mAbsTime += deltaTime;
 			mResourceManager.processLoadingEvents();
 
 			glTranslatef(0.0f, 0.0f, -5.0f);
@@ -83,7 +88,12 @@ TEST(BulletTest)
 			RenderableComponent::traverseEntities(&mRootNode);
 			BehaviourComponent::traverseEntities(&mRootNode);
 
-			dynamicsWorld->setGravity(-dynamicsWorld->getGravity());
+			dynamicsWorld->setGravity(Vec3f(0, 0, 0));
+
+			RigidBodyComponent* rbc = (RigidBodyComponent*)mPhyE->findComponent(typeid(BehaviourComponent));
+			float fSHM = -1 * (mPhyE->localTransform.translation().y - 1);
+			rbc->applyForce(Vec3f(0, fSHM, 0), Vec3f(0, 0, 0));
+			rbc->activate();
 
 			dynamicsWorld->stepSimulation(deltaTime,10);
 		}

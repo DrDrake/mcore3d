@@ -45,5 +45,14 @@ namespace BulletBinding
 		e->localTransform.setTranslation(Vec3f(v[0], v[1], v[2]));
 	}
 
+	void RigidBodyComponent::activate()
+	{
+		mRigidBody->activate();
+	}
+
+	void RigidBodyComponent::applyForce(const Vec3f& force, const Vec3f& rel_pos)
+	{
+		mRigidBody->applyForce(MathConvertor::ToBullet(force), MathConvertor::ToBullet(rel_pos));
+	}
 }
 }
