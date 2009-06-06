@@ -13,10 +13,123 @@
 // Credits: The Clock class was inspired by the Timer classes in 
 // Ogre (www.ogre3d.org).
 
-#include "LinearMath/btQuickprof.h"
+#include "btQuickprof.h"
+#include "btScalar.h"
+#include <windows.h>
 
 
 #ifdef USE_BT_CLOCK
+
+#if defined(WIN32) || defined(_WIN32)
+#define WIN32_LEAN_AND_MEAN 
+#define NOWINRES 
+#define NOMCX 
+#define NOIME 
+#ifdef _XBOX
+#include <Xtl.h>
+#else
+#include <windows.h>
+#endif
+#include <time.h>
+
+#else
+#include <sys/time.h>
+#endif
+
+
+#define mymin(a,b) (a > b ? a : b)
+
+btClock::btClock()
+{
+#ifdef USE_WINDOWS_TIMERS
+	QueryPerformanceFrequency((LARGE_INTEGER*)&mClockFrequency);
+#endif
+	reset();
+}
+
+void btClock::reset()
+{
+#ifdef USE_WINDOWS_TIMERS
+	QueryPerformanceCounter((LARGE_INTEGER*)&mStartTime);
+	mStartTick = GetTickCount();
+	mPrevElapsedTime = 0;
+#else
+#ifdef __CELLOS_LV2__
+
+	typedef uint64_t  ClockSize;
+	ClockSize newTime;
+	//__asm __volatile__( "mftb %0" : "=r" (newTime) : : "memory");
+	SYS_TIMEBASE_GET( newTime );
+	mStartTime = newTime;
+#else
+	gettimeofday(&mStartTime, 0);
+#endif
+
+#endif
+}
+
+unsigned long int btClock::getTimeMilliseconds()
+{
+	return getTimeMicroseconds() * 1000;
+}
+
+unsigned long int btClock::getTimeMicroseconds()
+{
+#ifdef USE_WINDOWS_TIMERS
+	LARGE_INTEGER& freq = reinterpret_cast<LARGE_INTEGER&>(mClockFrequency);
+	LARGE_INTEGER& startTime = reinterpret_cast<LARGE_INTEGER&>(mStartTime);
+	LARGE_INTEGER currentTime;
+	QueryPerformanceCounter(&currentTime);
+	LONGLONG elapsedTime = currentTime.QuadPart - 
+		startTime.QuadPart;
+
+	// Compute the number of millisecond ticks elapsed.
+	unsigned long msecTicks = (unsigned long)(1000 * elapsedTime / 
+		freq.QuadPart);
+
+	// Check for unexpected leaps in the Win32 performance counter.  
+	// (This is caused by unexpected data across the PCI to ISA 
+	// bridge, aka south bridge.  See Microsoft KB274323.)
+	unsigned long elapsedTicks = GetTickCount() - mStartTick;
+	signed long msecOff = (signed long)(msecTicks - elapsedTicks);
+	if (msecOff < -100 || msecOff > 100)
+	{
+		// Adjust the starting time forwards.
+		LONGLONG msecAdjustment = mymin(msecOff * 
+			freq.QuadPart / 1000, elapsedTime - 
+			mPrevElapsedTime);
+		startTime.QuadPart += msecAdjustment;
+		elapsedTime -= msecAdjustment;
+	}
+
+	// Store the current elapsed time for adjustments next time.
+	mPrevElapsedTime = elapsedTime;
+
+	// Convert to microseconds.
+	unsigned long usecTicks = (unsigned long)(1000000 * elapsedTime / 
+		freq.QuadPart);
+
+	return usecTicks;
+#else
+
+#ifdef __CELLOS_LV2__
+	uint64_t freq=sys_time_get_timebase_frequency();
+	double dFreq=((double) freq)/ 1000000.0;
+	typedef uint64_t  ClockSize;
+	ClockSize newTime;
+	//__asm __volatile__( "mftb %0" : "=r" (newTime) : : "memory");
+	SYS_TIMEBASE_GET( newTime );
+
+	return (unsigned long int)((double(newTime-mStartTime)) / dFreq);
+#else
+
+	struct timeval currentTime;
+	gettimeofday(&currentTime, 0);
+	return (currentTime.tv_sec - mStartTime.tv_sec) * 1000000 + 
+		(currentTime.tv_usec - mStartTime.tv_usec);
+#endif//__CELLOS_LV2__
+#endif 
+}
 
 static btClock gProfileClock;
 
