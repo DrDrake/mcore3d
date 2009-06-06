@@ -41,9 +41,11 @@ TEST(BulletTest)
 				//c->effect = static_cast<Effect*>(mResourceManager.load(L"Material/test.fx.xml").get());
 				e->addComponent(c);
 
+				// Create the phyiscs component
 				RigidBodyComponent* cc = new RigidBodyComponent(0.1f, new btSphereShape(1));
 				e->addComponent(cc);
 
+				// Add it to the physics world..
 				dynamicsWorld.reset(new DynamicsWorld);
 				dynamicsWorld->setGravity(Vec3f(0, -1, 0));
 				dynamicsWorld->addRigidBody(cc);
@@ -81,7 +83,9 @@ TEST(BulletTest)
 			RenderableComponent::traverseEntities(&mRootNode);
 			BehaviourComponent::traverseEntities(&mRootNode);
 
-			dynamicsWorld->stepSimulation(1/60.f,10);
+			dynamicsWorld->setGravity(-dynamicsWorld->getGravity());
+
+			dynamicsWorld->stepSimulation(deltaTime,10);
 		}
 
 		Entity mRootNode;

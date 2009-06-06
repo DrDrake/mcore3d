@@ -11,6 +11,7 @@ namespace BulletBinding
 
 		Entity* e = entity();
 
+		// The btRigidBody should not be created now.. It should be created when the component is attached to an entity
 		// The quaternion is hardcoded.. fix later
 		mMotionState.reset(new btDefaultMotionState(btTransform(btQuaternion(0,0,0,1), btVector3(-1, 0, 0))));
 
@@ -21,6 +22,7 @@ namespace BulletBinding
 
 	RigidBodyComponent::~RigidBodyComponent(void)
 	{
+		// Destructs the object in sequence...
 		mRigidBody.reset();
 		mMotionState.reset();
 		mShape.reset();
@@ -28,6 +30,7 @@ namespace BulletBinding
 
 	void RigidBodyComponent::update()
 	{
+		// Simple translation of btTransform to MCD Matrix
 		Entity* e = entity();
 
 		btTransform tx;

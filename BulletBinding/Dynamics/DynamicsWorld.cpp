@@ -12,6 +12,8 @@ DynamicsWorld::DynamicsWorld(void)
 
 	int maxProxies = 1024;
 
+	// Create the btDiscreteDynamicsWorld
+	// The world configuation is temporary hardcoded
 	mBroadphase.reset(new btAxisSweep3(worldAabbMin, worldAabbMax, (unsigned short)maxProxies));
 	mCollisionConfiguration.reset(new btDefaultCollisionConfiguration());
 	mDispatcher.reset(new btCollisionDispatcher(mCollisionConfiguration.get()));
@@ -25,6 +27,7 @@ DynamicsWorld::~DynamicsWorld(void)
 	for(int i = 0; i < mRigidBodies.size(); i++)
 		mDynamicsWorld->removeRigidBody(mRigidBodies[i]);
 
+	// Free the memory in order
 	mDynamicsWorld.reset();
 	mSolver.reset();
 	mDispatcher.reset();
@@ -35,6 +38,11 @@ DynamicsWorld::~DynamicsWorld(void)
 void DynamicsWorld::setGravity(MCD::Vec3f g)
 {
 	mDynamicsWorld->setGravity(Vec3fTobtVector3(g));
+}
+
+MCD::Vec3f DynamicsWorld::getGravity() const
+{
+	return btVector3ToVec3f(mDynamicsWorld->getGravity());
 }
 
 void DynamicsWorld::addRigidBody(RigidBodyComponent* rbc)
