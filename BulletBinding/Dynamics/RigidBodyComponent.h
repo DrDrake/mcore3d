@@ -1,4 +1,5 @@
-#pragma once
+#ifndef __MCD_BULLETBINDING_RIGIDBODYCOMPONENT__
+#define __MCD_BULLETBINDING_RIGIDBODYCOMPONENT__
 
 #include "../../MCD/Core/Entity/BehaviourComponent.h"
 #include "../../MCD/Core/Entity/Entity.h"
@@ -25,6 +26,11 @@ namespace BulletBinding
 		{
 			return mRigidBody.get();
 		}
+
+		void activate();
+		void applyForce(const Vec3f& force, const Vec3f& rel_pos);
 	};
 }
 }
+
+#endif

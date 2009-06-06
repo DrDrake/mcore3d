@@ -1,4 +1,5 @@
-#pragma once
+#ifndef __MCD_BULLETBINDING_DYNAMICSWORLD__
+#define __MCD_BULLETBINDING_DYNAMICSWORLD__
 
 #include <memory>
 #include <vector>
@@ -30,3 +31,5 @@ namespace BulletBinding
 	};
 }
 }
+
+#endif
