@@ -206,6 +206,8 @@ size_t MemoryProfilerNode::inclusiveBytes() const
 
 MemoryProfiler::MemoryProfiler()
 {
+	setRootNode(new MemoryProfilerNode("root"));
+
 	// Back up the original function and then do patching
 	orgMalloc		= (MyMalloc) functionPatcher.copyPrologue(&malloc);
 	orgMallocDbg	= (MyMallocDbg) functionPatcher.copyPrologue(&_malloc_dbg);
