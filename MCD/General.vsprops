@@ -13,7 +13,7 @@
 		WarningLevel="4"
 		WarnAsError="true"
 		DebugInformationFormat="3"
-		DisableSpecificWarnings="4251;4996"
+		DisableSpecificWarnings="4251;4996;4819"
 	/>
 	<Tool
 		Name="VCLinkerTool"
