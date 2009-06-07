@@ -2,6 +2,7 @@
 #include "BasicGlWindow.h"
 #include "../../MCD/Core/System/Log.h"
 #include "../../MCD/Core/System/WindowEvent.h"
+#include "../../MCD/Core/System/MemoryProfiler.h"
 #include "../../3Party/glew/glew.h"
 #include <iostream>
 
@@ -122,6 +123,7 @@ void BasicGlWindow::mainLoop()
 		popEvent(e, false);
 
 		update();
+		MemoryProfiler::singleton().nextFrame();
 	}
 }
 

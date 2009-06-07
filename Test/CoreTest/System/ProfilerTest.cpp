@@ -170,10 +170,6 @@ public:
 	~ScopeProfiler() {
 		MemoryProfiler::singleton().end();
 	}
-
-private:
-	ScopeProfiler(const ScopeProfiler& rhs);
-	ScopeProfiler& operator=(const ScopeProfiler& rhs);
 };	// ScopeProfiler
 
 void funA();
