@@ -1,0 +1,175 @@
+/*!	To reduce the code dependency, the use libdasm is removed.
+	Actually only x86_disasm() is used in the getPrologueSize(),
+	and seem getPrologueSize() is alwasy returning JMP_CODE_SIZE,
+	therefore if USE_LIBDIASM is disabled, the dummy x86_disasm()
+	will just return the hard code value 1.
+	If something get wrong in function patching, try enable USE_LIBDIASM
+	again.
+	\ref http://bastard.sourceforge.net/libdisasm.html
+ */
+#define USE_LIBDIASM 0
+
+#define VC_EXTRALEAN
+#define WIN32_LEAN_AND_MEAN
+#include <windows.h>
+#undef VC_EXTRALEAN
+#undef WIN32_LEAN_AND_MEAN
+
+#if USE_LIBDIASM
+#	include "libdis.h"
+#else
+typedef int x86_insn_t;
+// See the file header for documentation
+unsigned int x86_disasm(unsigned char*, unsigned int, uint32_t, unsigned int, x86_insn_t*) {
+	return 1;
+}
+void x86_oplist_free(void*) {}
+#endif
+
+/*
+	More information on the implementation of this function hooking:
+	http://read.pudn.com/downloads137/sourcecode/game/584894/HookClass.h__.htm
+	http://divine.fi.muni.cz/darcs/branch-2.0/hoard/winhoard.cpp
+ */
+class FunctionPatcher
+{
+public:
+	FunctionPatcher();
+
+	~FunctionPatcher();
+
+	void* copyPrologue(void* funcAddress);
+
+	void patch(void* originalFuncAddress, void* replacement);
+
+	void UnpatchAll();
+};	// FunctionPatcher
+
+#define MAX_PROLOGUE_CODE_SIZE 64
+
+struct PrologueInfo
+{
+	void* original;
+	unsigned char ByteCodes[MAX_PROLOGUE_CODE_SIZE];
+};
+
+#define IAX86_NEARJMP_OPCODE 0xe9
+#define JMP_CODE_SIZE 5
+#define MakeIAX86Offset(to,from) ((unsigned)((char*)(to)-(char*)(from)) - JMP_CODE_SIZE)
+
+struct ScopeChangeProtection
+{
+	ScopeChangeProtection(void* original)
+	{
+		// Change rights on orignal function memory to execute/read/write.
+		::VirtualQuery((void*)original, &mbi_thunk,
+			sizeof(MEMORY_BASIC_INFORMATION));
+		::VirtualProtect(mbi_thunk.BaseAddress, mbi_thunk.RegionSize,
+			PAGE_EXECUTE_READWRITE, &mbi_thunk.Protect);
+	}
+
+	~ScopeChangeProtection()
+	{
+		// Reset to original page protection.
+		::VirtualProtect(mbi_thunk.BaseAddress, mbi_thunk.RegionSize,
+			mbi_thunk.Protect, &mbi_thunk.Protect);
+	}
+
+	MEMORY_BASIC_INFORMATION mbi_thunk;
+};	// ScopeChangeProtection
+
+size_t getPrologueSize(void* original)
+{
+	int pos = 0;
+	x86_insn_t insn;	// representation of the code instruction
+
+	while(pos < JMP_CODE_SIZE) {
+		pos += x86_disasm((unsigned char*)original, MAX_PROLOGUE_CODE_SIZE, 0, pos, &insn);
+		x86_oplist_free(&insn);
+	}
+
+	return pos;
+}
+
+#define MAX_PROLOGUE_INFO 1024
+static PrologueInfo gPrologueInfos[MAX_PROLOGUE_INFO];
+static size_t PrologueFuncIdx = 0;
+
+FunctionPatcher::FunctionPatcher()
+{
+#if USE_LIBDIASM
+	x86_init(opt_none, NULL, NULL);
+#endif
+}
+
+FunctionPatcher::~FunctionPatcher()
+{
+#if USE_LIBDIASM
+	x86_cleanup();
+#endif
+}
+
+void* FunctionPatcher::copyPrologue(void* funcAddres)
+{
+	 void* result = NULL;
+
+	 if(void* original = funcAddres)
+	 {
+		 size_t prologueSize = getPrologueSize(original);
+
+		 PrologueInfo* prologueInfo = gPrologueInfos + PrologueFuncIdx++;
+		 prologueInfo->original = original;
+
+		 // Patch CRT library original routine:
+		 // save original prologue code bytes for exit restoration
+		 memcpy(prologueInfo->ByteCodes, original, prologueSize);
+
+		 unsigned char* unprologuedAddress = ((unsigned char*)original) + prologueSize;
+		 unsigned char* prologuedFromAddress = ((unsigned char*)prologueInfo->ByteCodes) + prologueSize;
+
+		 unsigned char* trampolineloc = prologueInfo->ByteCodes + prologueSize;
+		 *trampolineloc++ = IAX86_NEARJMP_OPCODE;
+		 *(unsigned*)trampolineloc = MakeIAX86Offset(unprologuedAddress, prologuedFromAddress);
+
+		 result = prologueInfo->ByteCodes;
+	 }
+
+	return result;
+}
+
+struct PatchInfo
+{
+	void* original;
+	unsigned char ByteCodes[MAX_PROLOGUE_CODE_SIZE];
+};
+
+#define MAX_PATCH_INFO 1024
+static PatchInfo PatchInfos[MAX_PATCH_INFO];
+static size_t PatchFuncIdx = 0;
+
+void FunctionPatcher::patch(void* originalFuncAddress, void* replacement)
+{
+	if(void* original = originalFuncAddress)
+	{
+		ScopeChangeProtection guard(original);
+
+		PatchInfo* patchInfo = PatchInfos + PatchFuncIdx++;
+		patchInfo->original = original;
+		memcpy(patchInfo->ByteCodes, original, JMP_CODE_SIZE);
+
+		// Patch CRT library original routine:
+		// save original prologue code bytes for exit restoration
+		unsigned char* patchloc = (unsigned char*)original;
+		*patchloc++ = IAX86_NEARJMP_OPCODE;
+		*(unsigned*)patchloc = MakeIAX86Offset(replacement, original);
+	}
+}
+
+void FunctionPatcher::UnpatchAll()
+{
+	for(size_t i = 0; i < PatchFuncIdx; ++i) {
+		PatchInfo* patchInfo = PatchInfos + i;
+		ScopeChangeProtection guard(patchInfo->original);
+		memcpy(patchInfo->original, patchInfo->ByteCodes, JMP_CODE_SIZE);
+	}
+}

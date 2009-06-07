@@ -237,6 +237,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\System\ProfilerTest.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\System\PtrVectorTest.cpp"
 				>
 			</File>
