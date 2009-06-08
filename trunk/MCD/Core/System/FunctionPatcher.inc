@@ -1,10 +1,8 @@
 /*!	To reduce the code dependency, the use libdasm is removed.
 	Actually only x86_disasm() is used in the getPrologueSize(),
-	and seem getPrologueSize() is alwasy returning JMP_CODE_SIZE,
-	therefore if USE_LIBDIASM is disabled, the dummy x86_disasm()
-	will just return the hard code value 1.
-	If something get wrong in function patching, try enable USE_LIBDIASM
-	again.
+	and since getPrologueSize() can be pre-obtained, therefore if USE_LIBDIASM
+	is disabled, user must supply the pre-obtained prologue size to copyPrologue().
+	If something wrong in function patching, try enable USE_LIBDIASM again.
 	\ref http://bastard.sourceforge.net/libdisasm.html
  */
 #define USE_LIBDIASM 0
@@ -16,7 +14,7 @@
 #undef WIN32_LEAN_AND_MEAN
 
 #if USE_LIBDIASM
-#	include "libdis.h"
+#	include "libdasm/libdis.h"
 #else
 typedef int x86_insn_t;
 // See the file header for documentation
@@ -38,7 +36,11 @@ public:
 
 	~FunctionPatcher();
 
-	void* copyPrologue(void* funcAddress);
+	/*!	Copy the function prologue of a function at funcAddress.
+		An optional givenPrologueSize can be used if you know the
+		prologue size in advance.
+	 */
+	void* copyPrologue(void* funcAddress, int givenPrologueSize=-1);
 
 	void patch(void* originalFuncAddress, void* replacement);
 
@@ -109,13 +111,13 @@ FunctionPatcher::~FunctionPatcher()
 #endif
 }
 
-void* FunctionPatcher::copyPrologue(void* funcAddres)
+void* FunctionPatcher::copyPrologue(void* funcAddres, int givenPrologueSize)
 {
 	 void* result = NULL;
 
 	 if(void* original = funcAddres)
 	 {
-		 size_t prologueSize = getPrologueSize(original);
+		 size_t prologueSize = givenPrologueSize == -1 ? getPrologueSize(original) : givenPrologueSize;
 
 		 PrologueInfo* prologueInfo = gPrologueInfos + PrologueFuncIdx++;
 		 prologueInfo->original = original;
