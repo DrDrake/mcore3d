@@ -208,12 +208,19 @@ MemoryProfiler::MemoryProfiler()
 {
 	setRootNode(new MemoryProfilerNode("root"));
 
+	// Pre-computed prologue size (for different version of Visual Studio) using libdasm
+#if _MSC_VER == 1400	// VC 2005
+	const int prologueSize[] = { 6, 7, 6, 5 ,5 };
+#else _MSC_VER > 1400	// VC 2008
+	const int prologueSize[] = { 5, 5, 5, 5 ,5 };
+#endif
+
 	// Back up the original function and then do patching
-	orgMalloc		= (MyMalloc) functionPatcher.copyPrologue(&malloc);
-	orgMallocDbg	= (MyMallocDbg) functionPatcher.copyPrologue(&_malloc_dbg);
-	orgCMallocDbg	= (MyCMallocDbg) functionPatcher.copyPrologue(&_calloc_dbg);
-	orgReallocDbg	= (MyReallocDbg) functionPatcher.copyPrologue(&_realloc_dbg);
-	orgFreeDbg		= (MyFreeDbg) functionPatcher.copyPrologue(&_free_dbg);
+	orgMalloc		= (MyMalloc) functionPatcher.copyPrologue(&malloc, prologueSize[0]);
+	orgMallocDbg	= (MyMallocDbg) functionPatcher.copyPrologue(&_malloc_dbg, prologueSize[1]);
+	orgCMallocDbg	= (MyCMallocDbg) functionPatcher.copyPrologue(&_calloc_dbg, prologueSize[2]);
+	orgReallocDbg	= (MyReallocDbg) functionPatcher.copyPrologue(&_realloc_dbg, prologueSize[3]);
+	orgFreeDbg		= (MyFreeDbg) functionPatcher.copyPrologue(&_free_dbg, prologueSize[4]);
 
 	functionPatcher.patch(&malloc, &myMalloc);
 	functionPatcher.patch(&_malloc_dbg, &myMallocDbg);
@@ -255,8 +262,8 @@ std::string MemoryProfiler::defaultReport(size_t nameLength) const
 	ostringstream ss;
 
 	ss.flags(ios_base::left);
-	ss << setw(30) << "Allocated count: " << setw(10) << gAlloc.count << ", bytes: " << gAlloc.bytes << endl;
-	ss << setw(30) << "Accumulated allocated count: " << setw(10) << gAccumAlloc.count << ", bytes: " << gAccumAlloc.bytes << endl;
+	ss << setw(30) << "Allocated count: " << setw(10) << gAlloc.count << ", kBytes: " << float(gAlloc.bytes) / 1024 << endl;
+	ss << setw(30) << "Accumulated allocated count: " << setw(10) << gAccumAlloc.count << ", kBytes: " << float(gAccumAlloc.bytes) / 1024 << endl;
 
 	const size_t countWidth = 9;
 	const size_t bytesWidth = 12;
@@ -266,21 +273,21 @@ std::string MemoryProfiler::defaultReport(size_t nameLength) const
 		<< setw(countWidth)		<< "SCount"
 		<< setw(bytesWidth)		<< "TBytes"
 		<< setw(bytesWidth)		<< "SBytes"
-		<< setw(countWidth)		<< "TCount/F"
+		<< setw(countWidth)		<< "SCount/F"
 		<< setw(countWidth)		<< "Call/F"
 		<< endl;
 
 	MemoryProfilerNode* n = static_cast<MemoryProfilerNode*>(mRootNode);
 
-	while((n = static_cast<MemoryProfilerNode*>(CallstackNode::traverse(n))) != nullptr)
+	do
 	{
 		// Skip node that have no allocation at all
 		if(n->exclusiveCount == 0 && n->countSinceLastReset == 0)
 			continue;
 
 		size_t callDepth = n->callDepth();
-		ss	<< setw(callDepth - 1) << ""
-			<< setw(nameLength - callDepth + 1) << n->name
+		ss	<< setw(callDepth) << ""
+			<< setw(nameLength - callDepth) << n->name
 			<< setprecision(3)
 			<< setw(countWidth)		<< (n->inclusiveCount())
 			<< setw(countWidth)		<< (n->exclusiveCount)
@@ -290,7 +297,7 @@ std::string MemoryProfiler::defaultReport(size_t nameLength) const
 			<< setprecision(2)
 			<< setw(countWidth-2)	<< (float(n->callCount) / 1)
 			<< endl;
-	}
+	} while((n = static_cast<MemoryProfilerNode*>(CallstackNode::traverse(n))) != nullptr);
 
 	return ss.str();
 }

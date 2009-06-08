@@ -11,33 +11,29 @@ namespace MCD {
 
 #if USE_RDTSC
 #	ifdef MCD_VC
-#		define rdtsc(low,high)	\
+#		define RDTSC(low, high)	\
 		__asm rdtsc				\
 		__asm mov low, eax		\
 		__asm mov high, edx
 #	elif defined(MCD_GCC)
-#		define rdtsc(low,high)	\
+#		define RDTSC(low, high)	\
 		__asm__ __volatile__("rdtsc" : "=a" (low), "=d" (high))
 #	else
 #	endif
 #endif
 
-union Counter64 {
-	uint32_t n32[2];
-	uint64_t n64;
-};
+inline uint64_t rdtsc() {
+	uint32_t l, h;
+	RDTSC(l, h);
+	return (uint64_t(h) << 32) + l;
+}
 
 uint64_t getTimeSinceMachineStartup()
 {
 	uint64_t ret;
 
 #if USE_RDTSC
-	uint32_t l, h;
-	Counter64 tmp;
-	rdtsc(l, h);
-	tmp.n32[0] = l;
-	tmp.n32[1] = h;
-	ret = tmp.n64;
+	ret = rdtsc();
 #elif defined(_WIN32)
 	::QueryPerformanceCounter((LARGE_INTEGER*)(&ret));
 #else
@@ -54,28 +50,37 @@ uint64_t getTimeSinceMachineStartup()
 uint64_t getQueryPerformanceFrequency()
 {
 	LARGE_INTEGER ret;
-	BOOL ok = ::QueryPerformanceFrequency(&ret);
-	(void)ok;
-	MCD_ASSERT(ok && "QueryPerformanceFrequency failed");
+	MCD_VERIFY(::QueryPerformanceFrequency(&ret));
 	MCD_STATIC_ASSERT(sizeof(uint64_t) == sizeof(ret.QuadPart));
+
 #if USE_RDTSC
 	// Try to get the ratio between QueryPerformanceCounter and rdtsc
-	// TODO: Rdtsc is still not consider as a very robust time measurement method,
-	// it will be better to define another class of timer that seperate the timer
-	// from general usage and performance profiling usage.
 	uint64_t ticks1;
-	{	::QueryPerformanceCounter((LARGE_INTEGER*)(&ticks1));
-	}
-	uint64_t ticks2;
-	{	uint32_t l, h;
-		Counter64 tmp;
-		rdtsc(l, h);
-		tmp.n32[0] = l;
-		tmp.n32[1] = h;
-		ticks2 = tmp.n64;
+	::QueryPerformanceCounter((LARGE_INTEGER*)(&ticks1));
+	uint64_t ticks2 = rdtsc();
+
+	// In most cases, the absolution values of QueryPerformanceCounter and rdtsc
+	// can be used to computer their clock frequency ratio. But in some cases, for
+	// example the machine is waken up from a sleeping state, the CPU clock is stoped
+	// while the mother board's clock is still running, making them out of sync after
+	// the machine wake up.
+	double ratio = double(ticks2) / ticks1;
+	if(true || ratio < 1) {	// Absolute value messed up, calcuate relative value.
+		double dummy = double(ret.LowPart);
+		for(int i=0; i<1000; ++i)
+			dummy = sin(dummy);
+		uint64_t ticks1b;
+		::QueryPerformanceCounter((LARGE_INTEGER*)(&ticks1b));
+		uint64_t ticks2b = rdtsc();
+		ticks1 = ticks1b - ticks1;
+		ticks2 = ticks2b - ticks2;
+		// NOTE: The action of adding "dummy" to the equation is to
+		// prevent the compiler optimize away the sin(dummy) operation.
+		// And since the value of sin() always smaller than 1, so the error
+		// introduced is minimum.
+		ratio = double(ticks2 + dummy) / (ticks1);
 	}
 
-	double ratio = double(ticks2) / ticks1;
 	return uint64_t(ret.QuadPart * ratio);
 #else
 	return uint64_t(ret.QuadPart);
