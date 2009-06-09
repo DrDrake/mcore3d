@@ -3,6 +3,7 @@
 #include "Texture.h"
 #include "TextureLoaderBaseImpl.inc"
 #include "../Core/System/Log.h"
+#include "../Core/System/MemoryProfiler.h"
 
 #include "../../3Party/png/png.h"
 #include "../../3Party/glew/glew.h"
@@ -155,6 +156,7 @@ PngLoader::PngLoader()
 
 IResourceLoader::LoadingState PngLoader::load(std::istream* is, const Path*)
 {
+	MemoryProfiler::Scope scope("PngLoader::load");
 	MCD_ASSUME(mImpl != nullptr);
 
 	Mutex& mutex = mImpl->mMutex;

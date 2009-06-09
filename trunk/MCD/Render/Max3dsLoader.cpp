@@ -8,6 +8,7 @@
 #include "../Core/Math/Vec2.h"
 #include "../Core/Math/Vec3.h"
 #include "../Core/Math/Mat44.h"
+#include "../Core/System/MemoryProfiler.h"
 #include "../Core/System/Mutex.h"
 #include "../Core/System/ResourceManager.h"
 #include "../Core/System/StrUtility.h"
@@ -782,12 +783,14 @@ Max3dsLoader::~Max3dsLoader()
 
 IResourceLoader::LoadingState Max3dsLoader::load(std::istream* is, const Path* fileId)
 {
+	MemoryProfiler::Scope scope("Max3dsLoader::load");
 	MCD_ASSUME(mImpl != nullptr);
 	return mImpl->load(is, fileId);
 }
 
 void Max3dsLoader::commit(Resource& resource)
 {
+	MemoryProfiler::Scope scope("Max3dsLoader::commit");
 	MCD_ASSUME(mImpl != nullptr);
 	mImpl->commit(resource);
 }
