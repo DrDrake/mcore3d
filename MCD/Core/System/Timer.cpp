@@ -22,11 +22,13 @@ namespace MCD {
 #	endif
 #endif
 
+#if USE_RDTSC
 inline uint64_t rdtsc() {
 	uint32_t l, h;
 	RDTSC(l, h);
 	return (uint64_t(h) << 32) + l;
 }
+#endif
 
 uint64_t getTimeSinceMachineStartup()
 {

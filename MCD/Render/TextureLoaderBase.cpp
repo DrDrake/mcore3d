@@ -4,6 +4,7 @@
 #include "TextureLoaderBaseImpl.inc"
 #include "../Core/Math/BasicFunction.h"
 #include "../Core/System/Log.h"
+#include "../Core/System/MemoryProfiler.h"
 #include "../../3Party/glew/glew.h"
 #include <memory.h>	// For memcpy
 
@@ -43,6 +44,8 @@ void TextureLoaderBase::setImpl(LoaderBaseImpl* impl)
 
 void TextureLoaderBase::commit(Resource& resource)
 {
+	MemoryProfiler::Scope scope("TextureLoaderBase::commit");
+
 	if(!mImpl)
 		return;
 

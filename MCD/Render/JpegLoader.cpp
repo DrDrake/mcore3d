@@ -3,6 +3,7 @@
 #include "Texture.h"
 #include "TextureLoaderBaseImpl.inc"
 #include "../Core/System/Log.h"
+#include "../Core/System/MemoryProfiler.h"
 
 #include "../../3Party/glew/glew.h"
 #include "../../3Party/SmallJpeg/jpegdecoder.h"
@@ -121,6 +122,7 @@ JpegLoader::JpegLoader()
 
 IResourceLoader::LoadingState JpegLoader::load(std::istream* is, const Path*)
 {
+	MemoryProfiler::Scope scope("JpegLoader::load");
 	MCD_ASSUME(mImpl != nullptr);
 
 	Mutex& mutex = mImpl->mMutex;
