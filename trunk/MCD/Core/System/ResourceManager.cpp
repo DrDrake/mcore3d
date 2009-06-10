@@ -2,6 +2,7 @@
 #include "ResourceManager.h"
 #include "FileSystem.h"
 #include "Macros.h"
+#include "MemoryProfiler.h"
 #include "PtrVector.h"
 #include "Resource.h"
 #include "ResourceLoader.h"
@@ -108,6 +109,8 @@ class ResourceManager::Impl
 
 		sal_override void run(Thread& thread) throw()
 		{
+			MemoryProfiler::Scope profiler("ResourceManager::Task::run");
+
 			Mutex& mutex = mEventQueue.mMutex;
 			ScopeLock lock(mutex);
 
