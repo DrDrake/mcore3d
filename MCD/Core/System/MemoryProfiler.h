@@ -2,6 +2,7 @@
 #define __MCD_CORE_SYSTEM_MEMORYPROFILER__
 
 #include "CallstackProfiler.h"
+#include "Mutex.h"
 
 namespace MCD {
 
@@ -14,10 +15,10 @@ class MCD_CORE_API MemoryProfilerNode : public CallstackNode
 public:
 	MemoryProfilerNode(sal_in_z const char name[], sal_maybenull CallstackNode* parent=nullptr);
 
+	sal_override ~MemoryProfilerNode();
+
 // Operations
 	sal_override void begin();
-
-	sal_override void end();
 
 	sal_override CallstackNode* createNode(sal_in_z const char name[], sal_maybenull CallstackNode* parent);
 
@@ -35,14 +36,26 @@ public:
 
 	size_t callCount;
 
-	size_t exclusiveCount;
-	size_t exclusiveBytes;
+	int exclusiveCount;
+	int exclusiveBytes;
 
 	/*!	Number of allocation made since last reset, of course
 		you want to minimize this figure to almost no allocation at
 		all in each frame.
 	 */
 	size_t countSinceLastReset;
+
+	/*!	The memory profiler will utilize TLS (thread local storage) as much as
+		possible, but in some cases (eg. MemoryProfiler::reset and MemoryProfiler::defaultReport)
+		locking is still needed.
+	 */
+	mutable RecursiveMutex mutex;
+
+	/*!	Since each thread should have it's own node's name as the thread's
+		root node, we use a boolean flag to indicate the \em name variable
+		is not a static const and so need to free.
+	 */
+	bool shouldFreeNodeName;
 };	// MemoryProfilerNode
 
 /*!	The memory profiler will hook the various memory routine in
@@ -73,6 +86,10 @@ public:
 
 // Operations
 	void setRootNode(sal_maybenull CallstackNode* root);
+
+	sal_override void begin(const char name[]);
+
+	sal_override void end();
 
 	/*!	Inform the profiler a new iteration begins.
 		This function is most likely to be called after each iteration of the main loop.

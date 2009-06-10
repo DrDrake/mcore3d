@@ -1,6 +1,7 @@
 #include "Pch.h"
 #include "BasicGlWindow.h"
 #include "../../MCD/Core/System/Log.h"
+#include "../../MCD/Core/System/CpuProfiler.h"
 #include "../../MCD/Core/System/WindowEvent.h"
 #include "../../MCD/Core/System/MemoryProfiler.h"
 #include "../../3Party/glew/glew.h"
@@ -123,7 +124,15 @@ void BasicGlWindow::mainLoop()
 		popEvent(e, false);
 
 		update();
+
+		if(CpuProfiler::singleton().timeSinceLastReset.asSecond() > 0.5) {
+			MemoryProfiler::singleton().reset();
+			CpuProfiler::singleton().reset();
+		}
+
+		// Call nextFrame() after reset() to prevent division by zero (printing report with zero framecount).
 		MemoryProfiler::singleton().nextFrame();
+		CpuProfiler::singleton().nextFrame();
 	}
 }
 

@@ -42,6 +42,8 @@ public:
 class MCD_CORE_API CpuProfiler : public CallstackProfiler
 {
 public:
+	CpuProfiler();
+
 	static CpuProfiler& singleton();
 
 // Operations

@@ -1,6 +1,7 @@
 // This inc file is to be included by GlWindow.cpp only
 
 #include "../Core/System/StrUtility.h"
+#include "../Core/System/MemoryProfiler.h"
 #include "../Core/System/Window.Win.inl"
 #include "../../3Party/glew/wglew.h"
 
@@ -29,6 +30,7 @@ public:
 
 	sal_override void createWindow(Window::Handle existingWindowHandle=0)
 	{
+		MemoryProfiler::Scope profiler("GlWindow::createWindow");
 		Super::createWindow(existingWindowHandle);
 
 		// Get the device context

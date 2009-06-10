@@ -205,6 +205,8 @@ void funA()
 	b = realloc(b, 2000);	// Most likely the memory pointer is altered
 	realloc(b, 0);
 
+	b = calloc(10, 4);
+	free(b);
 	std::string s("hello abcdefa asdfa sdfa sdfasgfadgadfg asdfgadfg afdsg!");
 //	printf("%i, %i, %s", 1, 2, s.c_str());
 	funB();
@@ -256,14 +258,69 @@ TEST(MemoryProfilerTest)
 {
 	using namespace MemoryProfilerTest;
 
-	MemoryProfiler::singleton().setRootNode(new MemoryProfilerNode("root"));
 	MemoryProfiler::singleton().enable = true;
-	MemoryProfiler::singleton().reset();
 
 	for(int i=0; i<10; ++i) {
 		funA();
 		MemoryProfiler::singleton().nextFrame();
 	}
+
+	std::string s = MemoryProfiler::singleton().defaultReport(20);
+	CHECK(!s.empty());
+	std::cout << s << std::endl;
+}
+
+#include "../../../MCD/Core/System/Thread.h"
+
+namespace {
+
+//! Keep active until the thread inform it to quit
+class LoopRunnable : public MCD::Thread::IRunnable
+{
+public:
+	LoopRunnable() : LoopCount(0) {}
+
+protected:
+	sal_override void run(Thread& thread) throw()
+	{
+		using namespace MemoryProfilerTest;
+		while(thread.keepRun()) {
+			ScopeProfiler profile("MyRunnable::run");
+			funA();
+			++LoopCount;
+		}
+	}
+
+private:
+	size_t LoopCount;
+};	// LoopRunnable
+
+}	// namespace
+
+TEST(MemoryProfilerWithThreadTest)
+{
+	using namespace MemoryProfilerTest;
+
+	MemoryProfiler::singleton().enable = true;
+
+	LoopRunnable runnable1, runnable2;
+
+	{	Thread dummy(runnable1, false);
+		dummy.wait();
+	}
+
+	Thread thread1(runnable1, false);
+	Thread thread2(runnable2, false);
+
+	for(int i=0; i<100; ++i) {
+		funA();
+		MemoryProfiler::singleton().nextFrame();
+		if(i % 5 == 0)
+			MemoryProfiler::singleton().reset();
+	}
+
+	thread1.wait();
+	thread2.wait();
 
 	std::string s = MemoryProfiler::singleton().defaultReport(20);
 	CHECK(!s.empty());

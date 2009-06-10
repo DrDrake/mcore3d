@@ -65,6 +65,11 @@ float CpuProfilerNode::selfTime() const
 	return float((inclusiveTime - sum).asSecond());
 }
 
+CpuProfiler::CpuProfiler()
+{
+	setRootNode(new CpuProfilerNode("main root"));
+}
+
 CpuProfiler& CpuProfiler::singleton()
 {
 	static CpuProfiler instance;
