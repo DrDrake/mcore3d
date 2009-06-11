@@ -1,0 +1,158 @@
+<?xml version="1.0"?>
+
+<root>
+
+<merge mode="blend" />
+
+<!-- scene pass -->
+<pass
+	enable="true"
+	drawLine="false"
+>
+	<standard
+		ambient="0.2, 0.2, 0.2, 1.0"
+		diffuse="1.0, 1.0, 1.0, 1.0"
+		specular="0.5, 0.5, 0.5, 1.0"
+		shininess="30.0"
+	/>
+
+	<!-- The first occuring texture will use texture unit 0 -->
+
+	<shader>
+		<vertex>
+<![CDATA[
+#version 120
+varying vec3 var_Vertex, var_Normal, var_LightDir;
+
+void main()
+{
+	gl_Position = ftransform();
+	
+	// viewspace position
+	var_Vertex = (gl_ModelViewMatrix * gl_Vertex).xyz;
+	
+	// viewspace normal, no need to do normalize since we do it on fragment shader anyway
+	var_Normal = gl_NormalMatrix * gl_Normal;
+	
+	// viewspace lightDir
+	var_LightDir = gl_NormalMatrix * normalize(gl_LightSource[0].position.xyz - gl_Vertex.xyz);
+	
+	// texture coordinate
+	gl_TexCoord[0] = gl_MultiTexCoord0;
+}
+]]>
+		<vertex/>
+		
+		<fragment>
+<![CDATA[
+#version 120 
+varying vec3 var_Vertex, var_Normal, var_LightDir;
+
+void main()
+{
+	vec4 ambient = gl_FrontLightProduct[0].ambient;
+	vec4 diffuse = gl_FrontLightProduct[0].diffuse;
+	vec4 specular = gl_FrontLightProduct[0].specular;
+	
+	float ndotl = dot( normalize(var_LightDir), normalize(var_Normal) );
+	ndotl = ndotl * 0.5 + 0.5;
+	
+	gl_FragColor.rgb = ndotl * diffuse.rgb;
+	gl_FragColor.a = diffuse.a;
+}
+]]>
+		</fragment>
+	</shader>
+</pass>
+
+<!-- blur pass -->
+<pass
+	enable="true"
+	drawLine="false"
+>
+	<!-- The first occuring texture will use texture unit 0 -->
+
+	<shader>
+		<vertex>
+<![CDATA[
+#version 120
+uniform vec2 g_blurOffset[9];
+uniform vec2 g_InvTexSize;
+
+void main()
+{
+	gl_Position = ftransform();
+	vec2 baseUV = gl_MultiTexCoord0.xy;
+	gl_TexCoord[0].xy = baseUV + g_blurOffset[0] * g_InvTexSize;
+	gl_TexCoord[0].zw = baseUV + g_blurOffset[1] * g_InvTexSize;
+	gl_TexCoord[1].xy = baseUV + g_blurOffset[2] * g_InvTexSize;
+	gl_TexCoord[1].zw = baseUV + g_blurOffset[3] * g_InvTexSize;
+	gl_TexCoord[2].xy = baseUV + g_blurOffset[4] * g_InvTexSize;
+	gl_TexCoord[2].zw = baseUV + g_blurOffset[5] * g_InvTexSize;
+	gl_TexCoord[3].xy = baseUV + g_blurOffset[6] * g_InvTexSize;
+	gl_TexCoord[3].zw = baseUV + g_blurOffset[7] * g_InvTexSize;
+	gl_TexCoord[4].xy = baseUV + g_blurOffset[8] * g_InvTexSize;
+}
+]]>
+		<vertex/>
+		
+		<fragment>
+<![CDATA[
+#version 120
+uniform sampler2D inputMap;
+uniform float g_blurKernel[9];
+
+void main()
+{
+	vec4 sum = vec4(0.0, 0.0, 0.0, 0.0);
+	sum += texture2D(inputMap, gl_TexCoord[0].xy) * g_blurKernel[0];
+	sum += texture2D(inputMap, gl_TexCoord[0].zw) * g_blurKernel[1];
+	sum += texture2D(inputMap, gl_TexCoord[1].xy) * g_blurKernel[2];
+	sum += texture2D(inputMap, gl_TexCoord[1].zw) * g_blurKernel[3];
+	sum += texture2D(inputMap, gl_TexCoord[2].xy) * g_blurKernel[4];
+	sum += texture2D(inputMap, gl_TexCoord[2].zw) * g_blurKernel[5];
+	sum += texture2D(inputMap, gl_TexCoord[3].xy) * g_blurKernel[6];
+	sum += texture2D(inputMap, gl_TexCoord[3].zw) * g_blurKernel[7];
+	sum += texture2D(inputMap, gl_TexCoord[4].xy) * g_blurKernel[8];
+	
+	gl_FragColor = sum;
+}
+]]>
+		</fragment>
+	</shader>
+</pass>
+
+<!-- copy pass -->
+<pass
+	enable="true"
+	drawLine="false"
+>
+	<!-- The first occuring texture will use texture unit 0 -->
+
+	<shader>
+		<vertex>
+<![CDATA[
+#version 120
+void main()
+{
+	gl_Position = ftransform();
+	gl_TexCoord[0] = gl_MultiTexCoord0;
+}
+]]>
+		<vertex/>
+		
+		<fragment>
+<![CDATA[
+#version 120
+uniform sampler2D inputMap;
+
+void main()
+{
+	gl_FragColor = texture2D(inputMap, gl_TexCoord[0].xy);
+}
+]]>
+		</fragment>
+	</shader>
+</pass>
+
+</root>
