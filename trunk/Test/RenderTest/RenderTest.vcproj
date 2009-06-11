@@ -327,6 +327,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\PostProcessingTest.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\ProjectiveTextureTest.cpp"
 				>
 			</File>
