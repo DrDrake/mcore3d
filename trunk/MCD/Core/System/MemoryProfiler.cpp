@@ -130,8 +130,9 @@ LPVOID WINAPI myHeapReAlloc(__in HANDLE hHeap, __in DWORD dwFlags, __deref LPVOI
 
 	size_t size = HeapSize(hHeap, dwFlags, lpMem);
 
+	// On VC 2005, orgHeapReAlloc() will not invoke HeapAlloc() and HeapFree(),
+	// but it does on VC 2008
 	tls->gRecurseCount++;
-	// Seems orgHeapReAlloc() will not invoke HeapAlloc() and HeapFree() internally
 	void* p = orgHeapReAlloc(hHeap, dwFlags, lpMem, dwBytes + sizeof(MyMemFooter));
 	tls->gRecurseCount--;
 
@@ -143,7 +144,9 @@ LPVOID WINAPI myHeapReAlloc(__in HANDLE hHeap, __in DWORD dwFlags, __deref LPVOI
 LPVOID WINAPI myHeapFree(__in HANDLE hHeap, __in DWORD dwFlags, __deref LPVOID lpMem)
 {
 	TlsStruct* tls = getTlsStruct();
-	if(lpMem && tls)
+	// NOTE: For VC 2008, myHeapFree may be invoked by HeapRealloc,
+	// therefore we need to check gRecurseCount
+	if(lpMem && tls && tls->gRecurseCount == 0)
 	{
 		size_t size = HeapSize(hHeap, dwFlags, lpMem) - sizeof(MyMemFooter);
 

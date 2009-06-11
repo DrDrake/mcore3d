@@ -312,7 +312,10 @@ TEST(MemoryProfilerWithThreadTest)
 	Thread thread1(runnable1, false);
 	Thread thread2(runnable2, false);
 
-	for(int i=0; i<100; ++i) {
+	// Give up the CPU time for the other 2 thread to run
+	mSleep(0);
+
+	for(int i=0; i<1000; ++i) {
 		funA();
 		MemoryProfiler::singleton().nextFrame();
 		if(i % 5 == 0)
