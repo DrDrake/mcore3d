@@ -17,6 +17,12 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "squirrel", "squirrel\squirr
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "jkbind", "jkbind\jkbind.vc8.vcproj", "{38D56DA0-6B9E-41CB-A313-CDC8808A9CC5}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "libbulletdynamics", "bullet\libbulletdynamics.vc8.vcproj", "{61BD1097-CF2E-B296-DAA9-73A6FE135319}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "libbulletcollision", "bullet\libbulletcollision.vc8.vcproj", "{6ADA430D-009C-2ED4-A787-2AC2D6FEB8CE}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "libbulletmath", "bullet\libbulletmath.vc8.vcproj", "{7D6E339F-9C2C-31DA-FDB0-5EE50973CF2A}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Win32 = Debug|Win32
@@ -55,6 +61,18 @@ Global
 		{38D56DA0-6B9E-41CB-A313-CDC8808A9CC5}.Debug|Win32.Build.0 = Debug|Win32
 		{38D56DA0-6B9E-41CB-A313-CDC8808A9CC5}.Release|Win32.ActiveCfg = Release|Win32
 		{38D56DA0-6B9E-41CB-A313-CDC8808A9CC5}.Release|Win32.Build.0 = Release|Win32
+		{61BD1097-CF2E-B296-DAA9-73A6FE135319}.Debug|Win32.ActiveCfg = Debug|Win32
+		{61BD1097-CF2E-B296-DAA9-73A6FE135319}.Debug|Win32.Build.0 = Debug|Win32
+		{61BD1097-CF2E-B296-DAA9-73A6FE135319}.Release|Win32.ActiveCfg = Release|Win32
+		{61BD1097-CF2E-B296-DAA9-73A6FE135319}.Release|Win32.Build.0 = Release|Win32
+		{6ADA430D-009C-2ED4-A787-2AC2D6FEB8CE}.Debug|Win32.ActiveCfg = Debug|Win32
+		{6ADA430D-009C-2ED4-A787-2AC2D6FEB8CE}.Debug|Win32.Build.0 = Debug|Win32
+		{6ADA430D-009C-2ED4-A787-2AC2D6FEB8CE}.Release|Win32.ActiveCfg = Release|Win32
+		{6ADA430D-009C-2ED4-A787-2AC2D6FEB8CE}.Release|Win32.Build.0 = Release|Win32
+		{7D6E339F-9C2C-31DA-FDB0-5EE50973CF2A}.Debug|Win32.ActiveCfg = Debug|Win32
+		{7D6E339F-9C2C-31DA-FDB0-5EE50973CF2A}.Debug|Win32.Build.0 = Debug|Win32
+		{7D6E339F-9C2C-31DA-FDB0-5EE50973CF2A}.Release|Win32.ActiveCfg = Release|Win32
+		{7D6E339F-9C2C-31DA-FDB0-5EE50973CF2A}.Release|Win32.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

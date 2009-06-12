@@ -1,6 +1,15 @@
 #ifndef __MCD_BULLETBINDING_DYNAMICSWORLD__
 #define __MCD_BULLETBINDING_DYNAMICSWORLD__
 
+#include "../ShareLib.h"
+#include "../../MCD/Core/Math/Vec3.h"
+
+#pragma warning( push )
+#pragma warning( disable : 4100 )
+#include "../../3Party/bullet/btBulletDynamicsCommon.h"
+#include "../../3Party/bullet/btBulletCollisionCommon.h"
+#pragma warning( pop )
+
 #include <memory>
 #include <vector>
 
@@ -9,7 +18,7 @@ namespace MCD
 namespace BulletBinding
 {
 	class RigidBodyComponent;
-	class DynamicsWorld
+	class MCD_BULLETBINDING_API DynamicsWorld
 	{
 	private:
 		std::auto_ptr<btAxisSweep3> mBroadphase;
