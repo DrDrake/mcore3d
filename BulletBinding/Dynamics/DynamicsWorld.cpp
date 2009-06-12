@@ -1,6 +1,9 @@
 #include "Pch.h"
+
 #include "DynamicsWorld.h"
 #include "RigidBodyComponent.h"
+
+#include "../MathConvertor.h"
 
 using namespace MCD::BulletBinding;
 
@@ -23,7 +26,7 @@ DynamicsWorld::DynamicsWorld(void)
 
 DynamicsWorld::~DynamicsWorld(void)
 {
-	for(int i = 0; i < mRigidBodies.size(); i++)
+	for(std::vector<btRigidBody*>::size_type i = 0; i < mRigidBodies.size(); i++)
 		mDynamicsWorld->removeRigidBody(mRigidBodies[i]);
 
 	// Free the memory in order

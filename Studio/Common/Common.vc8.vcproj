@@ -6,6 +6,7 @@
 	ProjectGUID="{79734A3A-9F12-49ED-8E06-40AFBBD4F260}"
 	RootNamespace="Common"
 	Keyword="ManagedCProj"
+	TargetFrameworkVersion="196613"
 	>
 	<Platforms>
 		<Platform
@@ -102,7 +103,6 @@
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
-				Optimization="0"
 				PreprocessorDefinitions="WIN32;NDEBUG"
 				RuntimeLibrary="2"
 				UsePrecompiledHeader="2"
@@ -142,11 +142,11 @@
 	<References>
 		<ProjectReference
 			ReferencedProjectIdentifier="{8B671592-CBBD-4F9E-BACA-1E4AC1575AC2}"
-			RelativePathToProject="..\MCD\Core\Core.vc8.vcproj"
+			RelativePathToProject="..\MCD\Core\Core.vcproj"
 		/>
 		<ProjectReference
 			ReferencedProjectIdentifier="{500413B2-5AE6-41CE-BCFF-D90DB2755869}"
-			RelativePathToProject="..\MCD\Render\Render.vc8.vcproj"
+			RelativePathToProject="..\MCD\Render\Render.vcproj"
 		/>
 	</References>
 	<Files>

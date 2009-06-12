@@ -1,6 +1,14 @@
 #ifndef __MCD_BULLETBINDING_RIGIDBODYCOMPONENT__
 #define __MCD_BULLETBINDING_RIGIDBODYCOMPONENT__
 
+#include "../ShareLib.h"
+
+#pragma warning( push )
+#pragma warning( disable : 4100 )
+#include "../../3Party/bullet/btBulletDynamicsCommon.h"
+#include "../../3Party/bullet/btBulletCollisionCommon.h"
+#pragma warning( pop )
+
 #include "../../MCD/Core/Entity/BehaviourComponent.h"
 #include "../../MCD/Core/Entity/Entity.h"
 #include <memory>
@@ -9,7 +17,7 @@ namespace MCD
 {
 namespace BulletBinding
 {
-	class RigidBodyComponent : public BehaviourComponent
+	class MCD_BULLETBINDING_API RigidBodyComponent : public BehaviourComponent
 	{
 	private:
 		std::auto_ptr<btRigidBody> mRigidBody;

@@ -1,4 +1,6 @@
 #include "Pch.h"
+
+#include "../MathConvertor.h"
 #include "RigidBodyComponent.h"
 
 namespace MCD
@@ -9,7 +11,7 @@ namespace BulletBinding
 	{
 		mShape.reset(shape);
 
-		Entity* e = entity();
+		//Entity* e = entity();
 
 		// The btRigidBody should not be created now.. It should be created when the component is attached to an entity
 		// The quaternion is hardcoded.. fix later
@@ -52,7 +54,8 @@ namespace BulletBinding
 
 	void RigidBodyComponent::applyForce(const Vec3f& force, const Vec3f& rel_pos)
 	{
-		mRigidBody->applyForce(MathConvertor::ToBullet(force), MathConvertor::ToBullet(rel_pos));
+		using namespace MathConvertor;
+		mRigidBody->applyForce(ToBullet(force), ToBullet(rel_pos));
 	}
 }
 }

@@ -1,12 +1,11 @@
 <?xml version="1.0" encoding="big5"?>
 <VisualStudioProject
 	ProjectType="Visual C++"
-	Version="9.00"
+	Version="8.00"
 	Name="BulletBinding"
 	ProjectGUID="{B6219744-C76A-4C74-A455-8AFA986C3B6A}"
 	RootNamespace="BulletBinding"
 	Keyword="Win32Proj"
-	TargetFrameworkVersion="196613"
 	>
 	<Platforms>
 		<Platform
@@ -74,6 +73,9 @@
 				Name="VCAppVerifierTool"
 			/>
 			<Tool
+				Name="VCWebDeploymentTool"
+			/>
+			<Tool
 				Name="VCPostBuildEventTool"
 			/>
 		</Configuration>
@@ -133,6 +135,9 @@
 			/>
 			<Tool
 				Name="VCAppVerifierTool"
+			/>
+			<Tool
+				Name="VCWebDeploymentTool"
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
@@ -196,6 +201,9 @@
 				Name="VCAppVerifierTool"
 			/>
 			<Tool
+				Name="VCWebDeploymentTool"
+			/>
+			<Tool
 				Name="VCPostBuildEventTool"
 			/>
 		</Configuration>
@@ -210,6 +218,10 @@
 			>
 			<File
 				RelativePath=".\Dynamics\DynamicsWorld.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\MathConvertor.cpp"
 				>
 			</File>
 			<File
@@ -261,6 +273,10 @@
 			</File>
 			<File
 				RelativePath=".\Dynamics\RigidBodyComponent.h"
+				>
+			</File>
+			<File
+				RelativePath=".\ShareLib.h"
 				>
 			</File>
 		</Filter>

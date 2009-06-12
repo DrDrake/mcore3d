@@ -219,7 +219,15 @@
 					>
 				</File>
 				<File
+					RelativePath=".\System\CallstackProfiler.h"
+					>
+				</File>
+				<File
 					RelativePath=".\System\CondVar.h"
+					>
+				</File>
+				<File
+					RelativePath=".\System\CpuProfiler.h"
 					>
 				</File>
 				<File
@@ -260,6 +268,10 @@
 				</File>
 				<File
 					RelativePath=".\System\Map.h"
+					>
+				</File>
+				<File
+					RelativePath=".\System\MemoryProfiler.h"
 					>
 				</File>
 				<File
@@ -396,7 +408,15 @@
 				Filter="cpp;"
 				>
 				<File
+					RelativePath=".\System\CallstackProfiler.cpp"
+					>
+				</File>
+				<File
 					RelativePath=".\System\CondVar.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\System\CpuProfiler.cpp"
 					>
 				</File>
 				<File
@@ -421,6 +441,10 @@
 				</File>
 				<File
 					RelativePath=".\System\Map.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\System\MemoryProfiler.cpp"
 					>
 				</File>
 				<File
