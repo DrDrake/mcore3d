@@ -50,8 +50,9 @@ TEST(BulletTest)
 
 				// Add it to the physics world..
 				dynamicsWorld.reset(new DynamicsWorld);
-				dynamicsWorld->setGravity(Vec3f(0, -1, 0));
+				dynamicsWorld->setGravity(Vec3f(0, -10, 0));
 				dynamicsWorld->addRigidBody(cc);
+				cc->setDamping(0, 0);
 
 				mPhyE = e.release();
 			}

@@ -213,6 +213,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\MathConvertor.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\Pch.cpp"
 				>
 				<FileConfiguration
@@ -261,6 +265,10 @@
 			</File>
 			<File
 				RelativePath=".\Dynamics\RigidBodyComponent.h"
+				>
+			</File>
+			<File
+				RelativePath=".\ShareLib.h"
 				>
 			</File>
 		</Filter>

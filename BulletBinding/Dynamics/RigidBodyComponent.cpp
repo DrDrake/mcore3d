@@ -57,5 +57,20 @@ namespace BulletBinding
 		using namespace MathConvertor;
 		mRigidBody->applyForce(ToBullet(force), ToBullet(rel_pos));
 	}
+
+	float RigidBodyComponent::getLinearDamping() const
+	{
+		return mRigidBody->getLinearDamping();
+	}
+
+	float RigidBodyComponent::getAngularDamping() const
+	{
+		return mRigidBody->getAngularDamping();
+	}
+
+	void RigidBodyComponent::setDamping(float lin_damping, float ang_damping)
+	{
+		mRigidBody->setDamping(lin_damping, ang_damping);
+	}
 }
 }
