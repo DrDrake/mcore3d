@@ -37,6 +37,11 @@ namespace BulletBinding
 
 		void activate();
 		void applyForce(const Vec3f& force, const Vec3f& rel_pos);
+
+		float getLinearDamping() const;
+		float getAngularDamping() const;
+
+		void setDamping(float lin_damping, float ang_damping);
 	};
 }
 }

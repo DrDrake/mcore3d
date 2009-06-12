@@ -217,7 +217,7 @@ Entity^ Entity::firstChild::get()
 
 Entity^ Entity::nextSlibing::get()
 {
-	MCD::Entity* n = mImpl->nextSlibing();
+	MCD::Entity* n = mImpl->nextSibling();
 
 	// Cache hit
 	if(mNextSlibing != nullptr && mNextSlibing->mImpl == n)
