@@ -67,7 +67,10 @@ public:
 	GLuint width() const {return mWidth;}
 	GLuint height() const {return mHeight;}
 
+	GLenum textureTarget() const {return mTexTarget;}
+
 	size_t bufferCnt() const {return mBufferInfos.size();}
+
 	const BufferInfo& bufferInfo(size_t i) const {return mBufferInfos[i];}
 
 	bool begin(size_t n, size_t* bufferIdxs);
@@ -416,6 +419,7 @@ public:
 	enum EffectPasses
 	{
 		SCENE_PASS,
+		SKYBOX_PASS,
 		BLUR_PASS,
 		COPY_PASS,
 	};
@@ -469,9 +473,15 @@ public:
 
 		printf( "onResize %03d x %03d\n", width, height );
 
-		mBuffers.reset( new FrameBuffers(width, height, FrameBuffers::DepthBuffer_Offscreen, false) );
-		mBuffers->textureBuffer( FrameBuffers::BufferFormat_U8_RGBA );
-		mBuffers->textureBuffer( FrameBuffers::BufferFormat_U8_RGBA );
+		mBuffersFull.reset( new FrameBuffers(width, height, FrameBuffers::DepthBuffer_Offscreen, false) );
+		mBuffersFull->textureBuffer( FrameBuffers::BufferFormat_U8_RGBA );
+		mBuffersFull->textureBuffer( FrameBuffers::BufferFormat_U8_RGBA );
+
+		GLuint halfWidth = std::max((GLuint)2, GLuint(width / 2));
+		GLuint halfHeight = std::max((GLuint)2, GLuint(height / 2));
+		mBuffersHalf.reset( new FrameBuffers(halfWidth, halfHeight, FrameBuffers::DepthBuffer_Offscreen, false) );
+		mBuffersHalf->textureBuffer( FrameBuffers::BufferFormat_U8_RGBA );
+		mBuffersHalf->textureBuffer( FrameBuffers::BufferFormat_U8_RGBA );
 	}
 
 	sal_override void update(float deltaTime)
@@ -481,29 +491,64 @@ public:
 		Material2* mat = mEffect->material.get();
 
 		if(!mat) return;
-		if(!mBuffers.get()) return;
+		if(!mBuffersFull.get()) return;
 		if(!mModel) return;
 
+		FrameBuffers& bufHalf = *mBuffersHalf;
+		//FrameBuffers& bufFull = *mBuffersFull;
+
 		{	// scene pass
+			ScopedFBBinding fbBinding(bufHalf, BUFFER0);
+			glViewport(0, 0, bufHalf.width(), bufHalf.height());
 
-			ScopedFBBinding fbBinding(*mBuffers, BUFFER0);
-			ScopePassBinding passBinding(*mat, SCENE_PASS);
+			{
+				ScopePassBinding passBinding(*mat, SCENE_PASS);
 
-			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+				glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-			glPushMatrix();
-			glScalef(0.01f, 0.01f, 0.01f);
+				glPushMatrix();
+				glScalef(0.05f, 0.05f, 0.05f);
 
-			mModel->draw();
+				mModel->draw();
 
-			glPopMatrix();
+				glPopMatrix();
+			}
+
+			{
+				ScopePassBinding passBinding(*mat, SKYBOX_PASS);
+
+				Vec3f frustVertex[8];
+				mCamera.frustum.computeVertex(frustVertex);
+				
+				Mat44f mat;
+				mCamera.computeView(mat.getPtr());
+				mat = mat.inverse();
+
+				Vec3f p[4];
+				for(size_t i = 0; i < 4; ++i)
+				{
+					p[i] = frustVertex[i] + (frustVertex[i+4] - frustVertex[i]) * 0.5f;
+					mat.transformPoint(p[i]);
+				}
+
+				glBegin(GL_TRIANGLES);
+
+				glVertex3fv(p[0].data);
+				glVertex3fv(p[1].data);
+				glVertex3fv(p[2].data);
+
+				glVertex3fv(p[0].data);
+				glVertex3fv(p[2].data);
+				glVertex3fv(p[3].data);
+
+				glEnd();
+			}
 		}
 			
 		{	// horizontal blur pass
-
-			ScopedFBBinding fbBinding(*mBuffers, BUFFER1);
+			ScopedFBBinding fbBinding(bufHalf, BUFFER1);
 			ScopePassBinding passBinding(*mat, BLUR_PASS);
-			ScopedTexBinding texBinding(GL_TEXTURE_2D, mBuffers->bufferInfo(BUFFER0).handle);
+			ScopedTexBinding texBinding(bufHalf.textureTarget(), bufHalf.bufferInfo(BUFFER0).handle);
 
 			// bind shader uniform
 			GLint program;
@@ -513,18 +558,17 @@ public:
 			{
 				glUniform2fv( glGetUniformLocation(program, "g_blurOffset"), BLUR_KERNEL_SIZE, m_hblurOffset.data() );
 				glUniform1fv( glGetUniformLocation(program, "g_blurKernel"), BLUR_KERNEL_SIZE, m_blurKernel.data() );
-				glUniform2f( glGetUniformLocation(program, "g_InvTexSize"), 1.0f / width(), 1.0f / height() );
+				glUniform2f( glGetUniformLocation(program, "g_InvTexSize"), 1.0f / bufHalf.width(), 1.0f / bufHalf.height() );
 			}
 
 			// draw quad
-			drawViewportQuad(0, 0, width(), height(), GL_TEXTURE_2D);
+			drawViewportQuad(0, 0, bufHalf.width(), bufHalf.height(), bufHalf.textureTarget());
 		}
 
 		{	// vertical blur pass
-			
-			ScopedFBBinding fbBinding(*mBuffers, BUFFER0);
+			ScopedFBBinding fbBinding(bufHalf, BUFFER0);
 			ScopePassBinding passBinding(*mat, BLUR_PASS);
-			ScopedTexBinding texBinding(GL_TEXTURE_2D, mBuffers->bufferInfo(BUFFER1).handle);
+			ScopedTexBinding texBinding(bufHalf.textureTarget(), bufHalf.bufferInfo(BUFFER1).handle);
 
 			// bind shader uniform
 			GLint program;
@@ -534,20 +578,19 @@ public:
 			{
 				glUniform2fv( glGetUniformLocation(program, "g_blurOffset"), BLUR_KERNEL_SIZE, m_vblurOffset.data() );
 				glUniform1fv( glGetUniformLocation(program, "g_blurKernel"), BLUR_KERNEL_SIZE, m_blurKernel.data() );
-				glUniform2f( glGetUniformLocation(program, "g_InvTexSize"), 1.0f / width(), 1.0f / height() );
+				glUniform2f( glGetUniformLocation(program, "g_InvTexSize"), 1.0f / bufHalf.width(), 1.0f / bufHalf.height() );
 			}
 
 			// draw quad
-			drawViewportQuad(0, 0, width(), height(), GL_TEXTURE_2D);
+			drawViewportQuad(0, 0, bufHalf.width(), bufHalf.height(), bufHalf.textureTarget());
 		}
 
 		{	// copy to screen
-
 			ScopePassBinding passBinding(*mat, COPY_PASS);
-			ScopedTexBinding texBinding(GL_TEXTURE_2D, mBuffers->bufferInfo(BUFFER0).handle);
+			ScopedTexBinding texBinding(bufHalf.textureTarget(), bufHalf.bufferInfo(BUFFER0).handle);
 
 			// draw quad
-			drawViewportQuad(0, 0, width(), height(), GL_TEXTURE_2D);
+			drawViewportQuad(0, 0, this->width(), this->height(), bufHalf.textureTarget());
 		}
 	}
 
@@ -559,7 +602,8 @@ public:
 	Array<float, BLUR_KERNEL_SIZE * 2> m_vblurOffset;
 	Array<float, BLUR_KERNEL_SIZE> m_blurKernel;
 
-	std::auto_ptr<FrameBuffers> mBuffers;
+	std::auto_ptr<FrameBuffers> mBuffersFull;
+	std::auto_ptr<FrameBuffers> mBuffersHalf;
 
 };	// TestWindow
 
