@@ -15,8 +15,6 @@ class MCD_CORE_API MemoryProfilerNode : public CallstackNode
 public:
 	MemoryProfilerNode(sal_in_z const char name[], sal_maybenull CallstackNode* parent=nullptr);
 
-	sal_override ~MemoryProfilerNode();
-
 // Operations
 	sal_override void begin();
 
@@ -50,12 +48,6 @@ public:
 		locking is still needed.
 	 */
 	mutable RecursiveMutex mutex;
-
-	/*!	Since each thread should have it's own node's name as the thread's
-		root node, we use a boolean flag to indicate the \em name variable
-		is not a static const and so need to free.
-	 */
-	bool shouldFreeNodeName;
 };	// MemoryProfilerNode
 
 /*!	The memory profiler will hook the various memory routine in
@@ -106,8 +98,15 @@ public:
 
 	std::string defaultReport(size_t nameLength=100) const;
 
+	//! Internal used function, invoked when there is a new thread.
+	void onThreadAttach(sal_in_z const char* threadName);
+
 // Attributes
 	size_t frameCount;	//! Number of frame elasped since last reset
+
+protected:
+	struct TlsList;
+	TlsList* mTlsList;
 };	// MemoryProfiler
 
 }	// namespace MCD
