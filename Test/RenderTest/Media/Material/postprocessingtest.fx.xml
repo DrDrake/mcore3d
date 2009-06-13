@@ -22,7 +22,9 @@
 		<vertex>
 <![CDATA[
 #version 120
-varying vec3 var_Vertex, var_Normal, var_LightDir;
+varying vec3 var_Vertex, var_Normal, var_LightPos;
+
+uniform vec3 g_sunPos;
 
 void main()
 {
@@ -35,7 +37,7 @@ void main()
 	var_Normal = gl_NormalMatrix * gl_Normal;
 	
 	// viewspace lightDir
-	var_LightDir = gl_NormalMatrix * normalize(gl_LightSource[0].position.xyz - gl_Vertex.xyz);
+	var_LightPos = (gl_ModelViewMatrix * vec4(g_sunPos, 1.0)).xyz;
 	
 	// texture coordinate
 	gl_TexCoord[0] = gl_MultiTexCoord0;
@@ -46,7 +48,7 @@ void main()
 		<fragment>
 <![CDATA[
 #version 120 
-varying vec3 var_Vertex, var_Normal, var_LightDir;
+varying vec3 var_Vertex, var_Normal, var_LightPos;
 
 void main()
 {
@@ -54,7 +56,7 @@ void main()
 	vec4 diffuse = gl_FrontLightProduct[0].diffuse;
 	vec4 specular = gl_FrontLightProduct[0].specular;
 	
-	float ndotl = dot( normalize(var_LightDir), normalize(var_Normal) );
+	float ndotl = dot( normalize(var_LightPos - var_Vertex), normalize(var_Normal) );
 	ndotl = ndotl * 0.5 + 0.5;
 	
 	gl_FragColor.rgb = ndotl * diffuse.rgb;
@@ -90,13 +92,13 @@ void main()
 <![CDATA[
 #version 120 
 varying vec3 var_Vertex;
+uniform vec3 g_sunPos;
 
 void main()
 {	
 	vec3 g_skyDir = vec3(0.0, 1.0, 0.0);
 	vec3 g_skyColorLow = vec3(0.75, 0.75, 1.0);
 	vec3 g_skyColorHi = vec3(0.25, 0.25, 1.0);
-	vec3 g_sunPos = gl_LightSource[0].position.xyz;
 	vec3 g_SunColor = vec3(1.0, 1.0, 1.0);
 	float g_SunPower = 64.0;
 	
@@ -171,22 +173,24 @@ void main()
 		<vertex>
 <![CDATA[
 #version 120
-uniform vec2 g_blurOffset[9];
+
+#define NSAMPLES_2	5
+#define NSAMPLES	(NSAMPLES_2 * 2)
+
+uniform vec2 g_blurOffset[NSAMPLES];
 uniform vec2 g_InvTexSize;
 
 void main()
 {
 	gl_Position = ftransform();
 	vec2 baseUV = gl_MultiTexCoord0.xy;
-	gl_TexCoord[0].xy = baseUV + g_blurOffset[0] * g_InvTexSize;
-	gl_TexCoord[0].zw = baseUV + g_blurOffset[1] * g_InvTexSize;
-	gl_TexCoord[1].xy = baseUV + g_blurOffset[2] * g_InvTexSize;
-	gl_TexCoord[1].zw = baseUV + g_blurOffset[3] * g_InvTexSize;
-	gl_TexCoord[2].xy = baseUV + g_blurOffset[4] * g_InvTexSize;
-	gl_TexCoord[2].zw = baseUV + g_blurOffset[5] * g_InvTexSize;
-	gl_TexCoord[3].xy = baseUV + g_blurOffset[6] * g_InvTexSize;
-	gl_TexCoord[3].zw = baseUV + g_blurOffset[7] * g_InvTexSize;
-	gl_TexCoord[4].xy = baseUV + g_blurOffset[8] * g_InvTexSize;
+	
+	int i = 0;
+	for(int tu = 0; tu < NSAMPLES_2; ++tu)
+	{
+		gl_TexCoord[tu].xy = baseUV + g_blurOffset[i] * g_InvTexSize; ++i;
+		gl_TexCoord[tu].zw = baseUV + g_blurOffset[i] * g_InvTexSize; ++i;
+	}
 }
 ]]>
 		<vertex/>
@@ -194,21 +198,23 @@ void main()
 		<fragment>
 <![CDATA[
 #version 120
+
+#define NSAMPLES_2	5
+#define NSAMPLES	(NSAMPLES_2 * 2)
+
 uniform sampler2D g_inputSam;
-uniform float g_blurKernel[9];
+uniform float g_blurKernel[NSAMPLES];
 
 void main()
 {
 	vec4 sum = vec4(0.0, 0.0, 0.0, 0.0);
-	sum += texture2D(g_inputSam, gl_TexCoord[0].xy) * g_blurKernel[0];
-	sum += texture2D(g_inputSam, gl_TexCoord[0].zw) * g_blurKernel[1];
-	sum += texture2D(g_inputSam, gl_TexCoord[1].xy) * g_blurKernel[2];
-	sum += texture2D(g_inputSam, gl_TexCoord[1].zw) * g_blurKernel[3];
-	sum += texture2D(g_inputSam, gl_TexCoord[2].xy) * g_blurKernel[4];
-	sum += texture2D(g_inputSam, gl_TexCoord[2].zw) * g_blurKernel[5];
-	sum += texture2D(g_inputSam, gl_TexCoord[3].xy) * g_blurKernel[6];
-	sum += texture2D(g_inputSam, gl_TexCoord[3].zw) * g_blurKernel[7];
-	sum += texture2D(g_inputSam, gl_TexCoord[4].xy) * g_blurKernel[8];
+	
+	int i = 0;
+	for(int tu = 0; tu < NSAMPLES_2; ++tu)
+	{
+		sum += texture2D(g_inputSam, gl_TexCoord[tu].xy) * g_blurKernel[i]; ++i;
+		sum += texture2D(g_inputSam, gl_TexCoord[tu].zw) * g_blurKernel[i]; ++i;
+	}
 	
 	gl_FragColor = sum;
 }
@@ -250,4 +256,113 @@ void main()
 	</shader>
 </pass>
 
+<!-- radial-mask pass -->
+<pass
+	enable="true"
+	drawLine="false"
+>
+	<!--blending colorBlend="true" srcFactor="one" dstFactor="one" /-->
+	<!-- The first occuring texture will use texture unit 0 -->
+	<texture
+		file="../White2x2.png"
+		shaderName="g_inputSam"
+	/>
+	<texture
+		file="../SunRadialGlow_Mask.dds"
+		shaderName="g_maskSam"
+	/>
+	
+	<shader>
+		<vertex>
+<![CDATA[
+#version 120
+
+uniform vec3 g_sunPos;
+
+void main()
+{
+	vec4 clipPos = vec4(gl_Vertex.xy, 0, 1);
+	vec2 uv = gl_Vertex.xy * 0.5 + 0.5;
+	
+	vec4 sunPosCs = gl_ModelViewProjectionMatrix * vec4(g_sunPos, 1);
+	vec2 ts = sunPosCs.xy / sunPosCs.ww;
+	ts = ts * 0.5 + 0.5;
+	
+	gl_Position = clipPos;
+	
+	gl_TexCoord[0].xy = uv;
+	gl_TexCoord[0].zw = (uv - ts.xy) * 0.5 + 0.5;
+}
+]]>
+		<vertex/>
+		
+		<fragment>
+<![CDATA[
+#version 120
+
+uniform sampler2D g_inputSam;
+uniform sampler2D g_maskSam;
+
+void main()
+{
+	vec4 glowClr = texture2D(g_inputSam, gl_TexCoord[0].xy);
+	
+	vec2 maskUV = gl_TexCoord[0].zw;
+	maskUV = clamp(maskUV, vec2(0,0), vec2(1,1));
+	
+	vec4 maskClr = texture2D(g_maskSam, maskUV);
+	
+	gl_FragColor = glowClr * maskClr;
+}
+]]>
+		</fragment>
+	</shader>
+</pass>
+
+<!-- radial-glow pass -->
+<pass
+	enable="true"
+	drawLine="false"
+>
+	<blending colorBlend="true" srcFactor="one" dstFactor="one" />
+	
+	<shader>
+		<vertex>
+<![CDATA[
+#version 120
+
+uniform vec3 g_sunPos;
+
+void main()
+{
+	vec4 clipPos = vec4(gl_Vertex.xy, 0, 1);
+	vec2 uv = gl_Vertex.xy * 0.5 + 0.5;
+	
+	vec4 sunPosCs = gl_ModelViewProjectionMatrix * vec4(g_sunPos, 1);
+	vec2 ts = sunPosCs.xy / sunPosCs.ww;
+	ts = ts * 0.5 + 0.5;
+	
+	gl_Position = clipPos;
+	
+	gl_TexCoord[0].xy = uv;
+	gl_TexCoord[0].zw = (uv - ts.xy) * 0.5 + 0.5;
+}
+]]>
+		<vertex/>
+		
+		<fragment>
+<![CDATA[
+#version 120
+
+uniform sampler2D g_inputSam;
+
+void main()
+{
+	vec4 glowClr = texture2D(g_inputSam, gl_TexCoord[0].xy);
+	gl_FragColor = glowClr;
+}
+]]>
+		</fragment>
+	</shader>
+</pass>
 </root>

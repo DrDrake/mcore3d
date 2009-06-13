@@ -47,10 +47,9 @@ public:
 
 	struct BufferInfo
 	{
-		GLuint handle;
-		BufferFormat format;
-		GLenum attachmentPoint;
-		bool isTexture;
+		GLuint			handle;
+		BufferFormat	format;
+		bool			isTexture;
 	};
 
 public:
@@ -145,7 +144,6 @@ FrameBuffers::FrameBuffers(GLuint width, GLuint height, DepthBufferType depthBuf
 
 	if(DepthBuffer_Offscreen == depthBufType)
 	{
-		mDepthBufferInfo.attachmentPoint = GL_DEPTH_ATTACHMENT_EXT;
 		mDepthBufferInfo.isTexture = false;
 
 		glGenRenderbuffersEXT(1, &mDepthBufferInfo.handle);
@@ -196,17 +194,12 @@ void FrameBuffers::textureBuffer(BufferFormat format)
 	glTexImage2D(mTexTarget, 0, internalFmt, mWidth, mHeight, 0, components, dataType, 0);
 	glBindTexture(mTexTarget, 0);
 
-	if(mBufferInfos.empty())
-		buf.attachmentPoint = GL_COLOR_ATTACHMENT0_EXT;
-	else
-		buf.attachmentPoint = mBufferInfos.back().attachmentPoint + 1;
-
 	// attach to frame buffer
 	glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, mFBOHandle);
 
 	glFramebufferTexture2DEXT
 		( GL_FRAMEBUFFER_EXT
-		, buf.attachmentPoint
+		, GLenum(GL_COLOR_ATTACHMENT0_EXT + mBufferInfos.size())
 		, mTexTarget
 		, buf.handle, 0			// attach mip-level 0 to it
 		);
@@ -270,9 +263,13 @@ bool FrameBuffers::begin(size_t n, size_t* bufferIdxs)
 		mDrawBuffers.resize(n);
 
 	for(size_t i = 0; i < n; ++i)
-		mDrawBuffers[i] = mBufferInfos[bufferIdxs[i]].attachmentPoint;
+	{
+		mDrawBuffers[i] = GLenum(GL_COLOR_ATTACHMENT0_EXT + bufferIdxs[i]);
+	}
 
 	glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, mFBOHandle);
+
+	glPushAttrib(GL_VIEWPORT_BIT | GL_COLOR_BUFFER_BIT);
 
 	glDrawBuffers(n, &mDrawBuffers[0]);
 
@@ -283,6 +280,7 @@ bool FrameBuffers::begin(size_t n, size_t* bufferIdxs)
 
 void FrameBuffers::end()
 {
+	glPopAttrib();
 	glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0);
 }
 
@@ -437,6 +435,8 @@ public:
 		DOWNSAMPLE_PASS,
 		BLUR_PASS,
 		COPY_PASS,
+		RADIAL_MASK_PASS,
+		RADIAL_GLOW_PASS,
 	};
 
 	enum BUFFERS
@@ -447,7 +447,7 @@ public:
 
 	enum
 	{
-		BLUR_KERNEL_SIZE = 9,
+		BLUR_KERNEL_SIZE = 10,
 	};
 
 	TestWindow()
@@ -461,11 +461,10 @@ public:
 		mModel = dynamic_cast<Model*>(mResourceManager.load(L"Scene/City/scene.3ds").get());
 
 		// sun
-		m_sunPos = Vec3f(500.0f, 500.0f, 500.0f);
-		glLightfv(GL_LIGHT0, GL_POSITION, m_sunPos.data);
+		m_sunPos = Vec3f(50.0f, 50.0f, 50.0f);
 
 		// blur kernel
-		float t = -BLUR_KERNEL_SIZE / 2.0f;
+		float t = -BLUR_KERNEL_SIZE / 2.0f - 1.0f;
 		float k = 0;
 		for(int i = 0; i < BLUR_KERNEL_SIZE; ++i)
 		{
@@ -496,11 +495,11 @@ public:
 		mBuffersFull->textureBuffer( FrameBuffers::BufferFormat_U8_RGBA );
 		mBuffersFull->textureBuffer( FrameBuffers::BufferFormat_U8_RGBA );
 
-		GLuint halfWidth = std::max((GLuint)2, GLuint(width / 2));
-		GLuint halfHeight = std::max((GLuint)2, GLuint(height / 2));
-		mBuffersHalf.reset( new FrameBuffers(halfWidth, halfHeight, FrameBuffers::DepthBuffer_Offscreen, false) );
-		mBuffersHalf->textureBuffer( FrameBuffers::BufferFormat_U8_RGBA );
-		mBuffersHalf->textureBuffer( FrameBuffers::BufferFormat_U8_RGBA );
+		GLuint halfWidth = std::max((GLuint)2, GLuint(width / 4));
+		GLuint halfHeight = std::max((GLuint)2, GLuint(height / 4));
+		mBuffersQuar.reset( new FrameBuffers(halfWidth, halfHeight, FrameBuffers::DepthBuffer_Offscreen, false) );
+		mBuffersQuar->textureBuffer( FrameBuffers::BufferFormat_U8_RGBA );
+		mBuffersQuar->textureBuffer( FrameBuffers::BufferFormat_U8_RGBA );
 	}
 
 	sal_override void update(float deltaTime)
@@ -513,107 +512,37 @@ public:
 		if(!mBuffersFull.get()) return;
 		if(!mModel) return;
 
-		FrameBuffers& bufHalf = *mBuffersHalf;
+		FrameBuffers& bufQuar = *mBuffersQuar;
 		FrameBuffers& bufFull = *mBuffersFull;
 
 		{	// scene pass
 			ScopedFBBinding fbBinding(bufFull, BUFFER0);
-			
-			{
-				ScopePassBinding passBinding(*mat, SCENE_PASS);
-
-				glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-				glPushMatrix();
-				glScalef(0.05f, 0.05f, 0.05f);
-
-				mModel->draw();
-
-				glPopMatrix();
-			}
-
-			{
-				ScopePassBinding passBinding(*mat, SKYBOX_PASS);
-
-				Vec3f frustVertex[8];
-				mCamera.frustum.computeVertex(frustVertex);
-				
-				Mat44f mat;
-				mCamera.computeView(mat.getPtr());
-				mat = mat.inverse();
-
-				Vec3f p[4];
-				for(size_t i = 0; i < 4; ++i)
-				{
-					p[i] = frustVertex[i] + (frustVertex[i+4] - frustVertex[i]) * 0.5f;
-					mat.transformPoint(p[i]);
-				}
-
-				glBegin(GL_TRIANGLES);
-
-				glVertex3fv(p[0].data);
-				glVertex3fv(p[1].data);
-				glVertex3fv(p[2].data);
-
-				glVertex3fv(p[0].data);
-				glVertex3fv(p[2].data);
-				glVertex3fv(p[3].data);
-
-				glEnd();
-			}
+			drawScene(mat);
 		}
 
 		{
-			ScopedFBBinding fbBinding(bufHalf, BUFFER0);
+			ScopedFBBinding fbBinding(bufQuar, BUFFER0);
 
+			const bool cDrawScene = true;
+
+			if(cDrawScene)
 			{
-				ScopePassBinding passBinding(*mat, SCENE_PASS);
-
-				glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-				glPushMatrix();
-				glScalef(0.05f, 0.05f, 0.05f);
-
-				mModel->draw();
-
-				glPopMatrix();
+				drawScene(mat);
 			}
-
+			else
 			{
-				ScopePassBinding passBinding(*mat, SKYBOX_PASS);
-
-				Vec3f frustVertex[8];
-				mCamera.frustum.computeVertex(frustVertex);
+				ScopePassBinding passBinding(*mat, COPY_PASS);
+				ScopedTexBinding texBinding(bufFull.target(), bufFull.bufferInfo(BUFFER0).handle);
 				
-				Mat44f mat;
-				mCamera.computeView(mat.getPtr());
-				mat = mat.inverse();
-
-				Vec3f p[4];
-				for(size_t i = 0; i < 4; ++i)
-				{
-					p[i] = frustVertex[i] + (frustVertex[i+4] - frustVertex[i]) * 0.5f;
-					mat.transformPoint(p[i]);
-				}
-
-				glBegin(GL_TRIANGLES);
-
-				glVertex3fv(p[0].data);
-				glVertex3fv(p[1].data);
-				glVertex3fv(p[2].data);
-
-				glVertex3fv(p[0].data);
-				glVertex3fv(p[2].data);
-				glVertex3fv(p[3].data);
-
-				glEnd();
+				// draw quad
+				drawViewportQuad(0, 0, bufQuar.width(), bufQuar.height(), bufQuar.target());
 			}
 		}
 
 		{	// horizontal blur pass
-			ScopedFBBinding fbBinding(bufHalf, BUFFER1);
+			ScopedFBBinding fbBinding(bufQuar, BUFFER1);
 			ScopePassBinding passBinding(*mat, BLUR_PASS);
-			ScopedTexBinding texBinding(bufHalf.target(), bufHalf.bufferInfo(BUFFER0).handle);
+			ScopedTexBinding texBinding(bufQuar.target(), bufQuar.bufferInfo(BUFFER0).handle);
 
 			// bind shader uniform
 			GLint program;
@@ -623,17 +552,17 @@ public:
 			{
 				glUniform2fv( glGetUniformLocation(program, "g_blurOffset"), BLUR_KERNEL_SIZE, m_hblurOffset.data() );
 				glUniform1fv( glGetUniformLocation(program, "g_blurKernel"), BLUR_KERNEL_SIZE, m_blurKernel.data() );
-				glUniform2f( glGetUniformLocation(program, "g_InvTexSize"), 1.0f / bufHalf.width(), 1.0f / bufHalf.height() );
+				glUniform2f( glGetUniformLocation(program, "g_InvTexSize"), 1.0f / bufQuar.width(), 1.0f / bufQuar.height() );
 			}
 
 			// draw quad
-			drawViewportQuad(0, 0, bufHalf.width(), bufHalf.height(), bufHalf.target());
+			drawViewportQuad(0, 0, bufQuar.width(), bufQuar.height(), bufQuar.target());
 		}
 
 		{	// vertical blur pass
-			ScopedFBBinding fbBinding(bufHalf, BUFFER0);
+			ScopedFBBinding fbBinding(bufQuar, BUFFER0);
 			ScopePassBinding passBinding(*mat, BLUR_PASS);
-			ScopedTexBinding texBinding(bufHalf.target(), bufHalf.bufferInfo(BUFFER1).handle);
+			ScopedTexBinding texBinding(bufQuar.target(), bufQuar.bufferInfo(BUFFER1).handle);
 
 			// bind shader uniform
 			GLint program;
@@ -643,11 +572,11 @@ public:
 			{
 				glUniform2fv( glGetUniformLocation(program, "g_blurOffset"), BLUR_KERNEL_SIZE, m_vblurOffset.data() );
 				glUniform1fv( glGetUniformLocation(program, "g_blurKernel"), BLUR_KERNEL_SIZE, m_blurKernel.data() );
-				glUniform2f( glGetUniformLocation(program, "g_InvTexSize"), 1.0f / bufHalf.width(), 1.0f / bufHalf.height() );
+				glUniform2f( glGetUniformLocation(program, "g_InvTexSize"), 1.0f / bufQuar.width(), 1.0f / bufQuar.height() );
 			}
 
 			// draw quad
-			drawViewportQuad(0, 0, bufHalf.width(), bufHalf.height(), bufHalf.target());
+			drawViewportQuad(0, 0, bufQuar.width(), bufQuar.height(), bufQuar.target());
 		}
 
 		{	// copy to screen
@@ -658,19 +587,131 @@ public:
 			drawViewportQuad(0, 0, this->width(), this->height(), bufFull.target());
 		}
 
-		{	// radial glow
-			ScopePassBinding passBinding(*mat, COPY_PASS);
-			ScopedTexBinding texBinding(bufHalf.target(), bufHalf.bufferInfo(BUFFER0).handle);
+		{	// radial mask
+			ScopedFBBinding fbBinding(bufQuar, BUFFER1);
+			ScopePassBinding passBinding(*mat, RADIAL_MASK_PASS);
+			ScopedTexBinding texBinding(bufQuar.target(), bufQuar.bufferInfo(BUFFER0).handle);
 
-			glEnable(GL_BLEND);
-			glBlendFunc(GL_ONE, GL_ONE);
+			// bind shader uniform
+			GLint program;
+			glGetIntegerv(GL_CURRENT_PROGRAM, &program);
+
+			if(0 != program)
+			{
+				glUniform3fv( glGetUniformLocation(program, "g_sunPos"), 1, m_sunPos.data );
+			}
 
 			// draw quad
-			drawViewportQuad(0, 0, this->width(), this->height(), bufHalf.target());
-
-			glDisable(GL_BLEND);
+			drawViewportQuad(0, 0, bufQuar.width(), bufQuar.height(), bufQuar.target(), true);
 		}
 
+		{	// radial glow
+			ScopePassBinding passBinding(*mat, RADIAL_GLOW_PASS);
+			ScopedTexBinding texBinding(bufQuar.target(), bufQuar.bufferInfo(BUFFER1).handle);
+
+			// bind shader uniform
+			GLint program;
+			glGetIntegerv(GL_CURRENT_PROGRAM, &program);
+
+			if(0 != program)
+			{
+				glUniform3fv( glGetUniformLocation(program, "g_sunPos"), 1, m_sunPos.data );
+			}
+
+			// draw quad
+			drawViewportQuad(0, 0, this->width(), this->height(), bufQuar.target(), true);
+		}
+
+		drawSunPos();
+
+	}
+
+	void drawSunPos()
+	{
+		glPushAttrib(GL_LIGHTING_BIT|GL_DEPTH_BUFFER_BIT);
+		glDisable(GL_DEPTH_TEST);
+		glDisable(GL_LIGHTING);
+
+		glBegin(GL_LINES);
+
+		glColor3f(0,1,0);
+		glVertex3fv((m_sunPos + Vec3f(-1, 0, 0)).data);
+		glVertex3fv((m_sunPos + Vec3f( 1, 0, 0)).data);
+		glVertex3fv((m_sunPos + Vec3f( 0,-1, 0)).data);
+		glVertex3fv((m_sunPos + Vec3f( 0, 1, 0)).data);
+		glVertex3fv((m_sunPos + Vec3f( 0, 0,-1)).data);
+		glVertex3fv((m_sunPos + Vec3f( 0, 0, 1)).data);
+
+		glVertex3fv(Vec3f::cZero.data);
+		glVertex3fv(m_sunPos.data);
+
+		glEnd();
+
+		glPopAttrib();
+	}
+
+	void drawScene(Material2* mat)
+	{
+		{
+			ScopePassBinding passBinding(*mat, SCENE_PASS);
+
+			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+			// bind shader uniform
+			GLint program;
+			glGetIntegerv(GL_CURRENT_PROGRAM, &program);
+
+			if(0 != program)
+			{
+				glUniform3fv( glGetUniformLocation(program, "g_sunPos"), 1, m_sunPos.data );
+			}
+
+			glPushMatrix();
+			glScalef(0.05f, 0.05f, 0.05f);
+
+			mModel->draw();
+
+			glPopMatrix();
+		}
+
+		{
+			ScopePassBinding passBinding(*mat, SKYBOX_PASS);
+
+			Vec3f frustVertex[8];
+			mCamera.frustum.computeVertex(frustVertex);
+			
+			Mat44f mat;
+			mCamera.computeView(mat.getPtr());
+			mat = mat.inverse();
+
+			Vec3f p[4];
+			for(size_t i = 0; i < 4; ++i)
+			{
+				p[i] = frustVertex[i] + (frustVertex[i+4] - frustVertex[i]) * 0.5f;
+				mat.transformPoint(p[i]);
+			}
+
+			// bind shader uniform
+			GLint program;
+			glGetIntegerv(GL_CURRENT_PROGRAM, &program);
+
+			if(0 != program)
+			{
+				glUniform3fv( glGetUniformLocation(program, "g_sunPos"), 1, m_sunPos.data );
+			}
+
+			glBegin(GL_TRIANGLES);
+
+			glVertex3fv(p[0].data);
+			glVertex3fv(p[1].data);
+			glVertex3fv(p[2].data);
+
+			glVertex3fv(p[0].data);
+			glVertex3fv(p[2].data);
+			glVertex3fv(p[3].data);
+
+			glEnd();
+		}
 	}
 
 	DefaultResourceManager mResourceManager;
@@ -684,7 +725,7 @@ public:
 	Array<float, BLUR_KERNEL_SIZE> m_blurKernel;
 
 	std::auto_ptr<FrameBuffers> mBuffersFull;
-	std::auto_ptr<FrameBuffers> mBuffersHalf;
+	std::auto_ptr<FrameBuffers> mBuffersQuar;
 
 };	// TestWindow
 
