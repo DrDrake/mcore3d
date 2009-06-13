@@ -54,6 +54,7 @@
 			<Tool
 				Name="VCLinkerTool"
 				IgnoreDefaultLibraryNames="MSVCRT"
+				ImportLibrary="..\Lib\$(TargetName)d.lib"
 			/>
 			<Tool
 				Name="VCALinkTool"
@@ -115,6 +116,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
+				ImportLibrary="..\Lib\$(TargetName).lib"
 			/>
 			<Tool
 				Name="VCALinkTool"
@@ -201,6 +203,10 @@
 		</Configuration>
 	</Configurations>
 	<References>
+		<ProjectReference
+			ReferencedProjectIdentifier="{8B671592-CBBD-4F9E-BACA-1E4AC1575AC2}"
+			RelativePathToProject="..\MCD\Core\Core.vcproj"
+		/>
 	</References>
 	<Files>
 		<Filter

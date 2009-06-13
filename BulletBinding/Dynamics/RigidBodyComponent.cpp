@@ -7,7 +7,7 @@ namespace MCD
 {
 namespace BulletBinding
 {
-	RigidBodyComponent::RigidBodyComponent(float mass, btCollisionShape* shape)
+	RigidBodyComponent::RigidBodyComponent(float mass, btCollisionShape* shape) : mMass(mass)
 	{
 		mShape.reset(shape);
 
@@ -15,11 +15,9 @@ namespace BulletBinding
 
 		// The btRigidBody should not be created now.. It should be created when the component is attached to an entity
 		// The quaternion is hardcoded.. fix later
-		mMotionState.reset(new btDefaultMotionState(btTransform(btQuaternion(0,0,0,1), btVector3(-1, 0, 0))));
+		// mMotionState.reset(new btDefaultMotionState(btTransform(btQuaternion(0,0,0,1), btVector3(0, 0, 0))));
 
-		btRigidBody::btRigidBodyConstructionInfo rbInfo((btScalar)mass, mMotionState.get(), shape);
-
-		mRigidBody.reset(new btRigidBody(rbInfo));
+		
 	}
 
 	RigidBodyComponent::~RigidBodyComponent(void)
@@ -28,6 +26,19 @@ namespace BulletBinding
 		mRigidBody.reset();
 		mMotionState.reset();
 		mShape.reset();
+	}
+
+	void RigidBodyComponent::onAttach()
+	{
+		Entity* e = entity();
+		
+		btTransform tx = btTransform(btQuaternion(0,0,0,1), MathConvertor::ToBullet(e->localTransform.translation()));
+
+		mMotionState.reset(new btDefaultMotionState(tx));
+
+		btRigidBody::btRigidBodyConstructionInfo rbInfo((btScalar)mMass, mMotionState.get(), mShape.get());
+
+		mRigidBody.reset(new btRigidBody(rbInfo));
 	}
 
 	void RigidBodyComponent::update()

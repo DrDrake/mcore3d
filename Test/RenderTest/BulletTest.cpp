@@ -1,11 +1,13 @@
 #include "Pch.h"
 #include "ChamferBox.h"
+#include "PlaneMeshBuilder.h"
 #include "DefaultResourceManager.h"
 #include "../../MCD/Render/Effect.h"
 #include "../../MCD/Render/Material.h"
 #include "../../MCD/Core/Entity/Entity.h"
 #include "../../MCD/Render/Components/MeshComponent.h"
 #include "../../BulletBinding/Dynamics.h"
+#include "../../BulletBinding/MathConvertor.h"
 
 using namespace MCD;
 using namespace BulletBinding;
@@ -17,7 +19,6 @@ TEST(BulletTest)
 	class TestWindow : public BasicGlWindow
 	{
 		std::auto_ptr<DynamicsWorld> dynamicsWorld;
-		Entity* mPhyE;
 		float mAbsTime;
 	public:
 		TestWindow()
@@ -26,12 +27,16 @@ TEST(BulletTest)
 			mResourceManager(*createDefaultFileSystem())
 		{
 			mAbsTime = 0;
+
+			dynamicsWorld.reset(new DynamicsWorld);
+			dynamicsWorld->setGravity(Vec3f(0, -1, 0));
+
 			{	// Setup entity 1
 				std::auto_ptr<Entity> e(new Entity);
 				e->name = L"ChamferBox 1";
 				e->asChildOf(&mRootNode);
 				e->localTransform = Mat44f(Mat33f::rotateXYZ(0, Mathf::cPiOver4(), 0));
-				e->localTransform.setTranslation(Vec3f(-1.5, 0, 0));
+				e->localTransform.setTranslation(Vec3f(-1.5f, 3, 0));
 
 				// Setup the chamfer box mesh
 				MeshPtr mesh = new Mesh(L"");
@@ -41,27 +46,25 @@ TEST(BulletTest)
 				// Add component
 				MeshComponent* c = new MeshComponent;
 				c->mesh = mesh;
-				//c->effect = static_cast<Effect*>(mResourceManager.load(L"Material/test.fx.xml").get());
+				c->effect = static_cast<Effect*>(mResourceManager.load(L"Material/test.fx.xml").get());
 				e->addComponent(c);
 
 				// Create the phyiscs component
 				RigidBodyComponent* cc = new RigidBodyComponent(0.1f, new btSphereShape(1));
 				e->addComponent(cc);
+				cc->onAttach();
 
 				// Add it to the physics world..
-				dynamicsWorld.reset(new DynamicsWorld);
-				dynamicsWorld->setGravity(Vec3f(0, -10, 0));
 				dynamicsWorld->addRigidBody(cc);
-				cc->setDamping(0, 0);
 
-				mPhyE = e.release();
+				e.release();
 			}
 
 			{	// Setup entity 2
 				std::auto_ptr<Entity> e(new Entity);
 				e->name = L"Sphere 1";
 				e->asChildOf(&mRootNode);
-				e->localTransform.setTranslation(Vec3f(1.5, 0, 0));
+				e->localTransform.setTranslation(Vec3f(1.5f, 0, 0));
 
 				// Setup the chamfer box mesh
 				MeshPtr mesh = new Mesh(L"");
@@ -71,8 +74,38 @@ TEST(BulletTest)
 				// Add component
 				MeshComponent* c = new MeshComponent;
 				c->mesh = mesh;
-				//c->effect = static_cast<Effect*>(mResourceManager.load(L"Material/test.fx.xml").get());
+				c->effect = static_cast<Effect*>(mResourceManager.load(L"Material/test.fx.xml").get());
 				e->addComponent(c);
+
+				e.release();
+			}
+
+			{	// Setup a plane
+				std::auto_ptr<Entity> e(new Entity);
+				e->name = L"Floor";
+				e->asChildOf(&mRootNode);
+				e->localTransform.setTranslation(Vec3f(0, -1.5f, 0));
+
+				// Setup the plane mesh
+				MeshPtr mesh = new Mesh(L"");
+				PlaneMeshBuilder planeBlder(10.0f, 10.0f, 1, 1);
+				planeBlder.commit(*mesh, MeshBuilder::Static);
+
+				// Add component
+				MeshComponent* c = new MeshComponent;
+				c->mesh = mesh;
+				c->effect = static_cast<Effect*>(mResourceManager.load(L"Material/test.fx.xml").get());
+				e->addComponent(c);
+
+				// Create the phyiscs component
+				RigidBodyComponent* cc = new RigidBodyComponent(
+					0,
+					new btStaticPlaneShape(MathConvertor::ToBullet(Vec3f(0, 1, 0)), 0));
+				e->addComponent(cc);
+				cc->onAttach();
+
+				// Add it to the physics world..
+				dynamicsWorld->addRigidBody(cc);
 
 				e.release();
 			}
@@ -89,14 +122,7 @@ TEST(BulletTest)
 			RenderableComponent::traverseEntities(&mRootNode);
 			BehaviourComponent::traverseEntities(&mRootNode);
 
-			dynamicsWorld->setGravity(Vec3f(0, 0, 0));
-
-			RigidBodyComponent* rbc = (RigidBodyComponent*)mPhyE->findComponent(typeid(BehaviourComponent));
-			float fSHM = -1 * (mPhyE->localTransform.translation().y - 1);
-			rbc->applyForce(Vec3f(0, fSHM, 0), Vec3f(0, 0, 0));
-			rbc->activate();
-
-			dynamicsWorld->stepSimulation(deltaTime,10);
+			dynamicsWorld->stepSimulation(deltaTime, 10);
 		}
 
 		Entity mRootNode;

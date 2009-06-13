@@ -8,5 +8,4 @@
 #pragma warning( pop ) 
 
 #include "../MCD/Core/Math/Vec3.h"
-#include "MathConvertor.h"
-#include "ShareLib.h"
+
