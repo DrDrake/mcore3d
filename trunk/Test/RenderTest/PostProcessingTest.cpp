@@ -1,15 +1,12 @@
 #include "Pch.h"
-#include "ChamferBox.h"
+//#include "ChamferBox.h"
 #include "DefaultResourceManager.h"
 #include "../../MCD/Render/Effect.h"
 #include "../../MCD/Render/Material.h"
 #include "../../MCD/Render/Model.h"
 #include "../../MCD/Core/Entity/Entity.h"
-#include "../../MCD/Render/Components/MeshComponent.h"
-#include "../../MCD/Render/TangentSpaceBuilder.h"
-#include "../../MCD/Render/RenderTarget.h"
+//#include "../../MCD/Render/Components/MeshComponent.h"
 #include "../../MCD/Render/Texture.h"
-#include "../../MCD/Render/TextureRenderBuffer.h"
 
 using namespace MCD;
 
@@ -58,35 +55,51 @@ public:
 
 public:
 	FrameBuffers(GLuint width, GLuint height, DepthBufferType depthBufType, bool useTexRect);
+
 	~FrameBuffers();
 
 	/*! Adds a new texture buffer */
 	void textureBuffer(BufferFormat format);
 
-	GLuint handle() const {return mFBOId;}
+	/*! Framebuffer object handle */
+	GLuint handle() const {return mFBOHandle;}
+	
+	/*! Framebuffer width */
 	GLuint width() const {return mWidth;}
+
+	/*! Framebuffer height */
 	GLuint height() const {return mHeight;}
 
-	GLenum textureTarget() const {return mTexTarget;}
+	/*! OpenGL texture target.
+		Used in glBindTexture(buf.target(), texHandle);
+	*/
+	GLenum target() const {return mTexTarget;}
 
+	/*! # of buffers. */
 	size_t bufferCnt() const {return mBufferInfos.size();}
 
+	/*! Info of each buffer. */
 	const BufferInfo& bufferInfo(size_t i) const {return mBufferInfos[i];}
 
+	/*! Begin to use this Framebuffer for rendering
+		The device current render target and viewport will be modified.
+	*/
 	bool begin(size_t n, size_t* bufferIdxs);
+
+	/*! End to use this Framebuffer for rendering */
 	void end();
 
+	/*! Checks this Framebuffer's status, returns true if everything is ok. */
 	bool checkFramebufferStatus();
 
 private:
 	std::vector<BufferInfo> mBufferInfos;
-	BufferInfo mDepthBufferInfo;
-	std::vector<GLenum> mDrawBuffers;
-	const GLenum mTexTarget;
-	GLuint mWidth;
-	GLuint mHeight;
-	GLuint mFBOId;
-
+	BufferInfo				mDepthBufferInfo;
+	std::vector<GLenum>		mDrawBuffers;
+	const GLenum			mTexTarget;
+	GLuint					mWidth;
+	GLuint					mHeight;
+	GLuint					mFBOHandle;
 };
 
 void FrameBuffers::getGLFiltering(Filtering f, GLenum& outMagFilter, GLenum& outMinFilter)
@@ -127,8 +140,8 @@ FrameBuffers::FrameBuffers(GLuint width, GLuint height, DepthBufferType depthBuf
 	: mWidth(width), mHeight(height)
 	, mTexTarget(useTexRect ? GL_TEXTURE_RECTANGLE_ARB : GL_TEXTURE_2D)
 {
-	glGenFramebuffersEXT(1, &mFBOId);
-	glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, mFBOId);
+	glGenFramebuffersEXT(1, &mFBOHandle);
+	glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, mFBOHandle);
 
 	if(DepthBuffer_Offscreen == depthBufType)
 	{
@@ -158,7 +171,7 @@ FrameBuffers::~FrameBuffers()
 		glDeleteTextures(1, &mBufferInfos[i].handle);
 	}
 
-	glDeleteFramebuffersEXT(1, &mFBOId);
+	glDeleteFramebuffersEXT(1, &mFBOHandle);
 }
 
 void FrameBuffers::textureBuffer(BufferFormat format)
@@ -189,7 +202,7 @@ void FrameBuffers::textureBuffer(BufferFormat format)
 		buf.attachmentPoint = mBufferInfos.back().attachmentPoint + 1;
 
 	// attach to frame buffer
-	glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, mFBOId);
+	glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, mFBOHandle);
 
 	glFramebufferTexture2DEXT
 		( GL_FRAMEBUFFER_EXT
@@ -259,11 +272,12 @@ bool FrameBuffers::begin(size_t n, size_t* bufferIdxs)
 	for(size_t i = 0; i < n; ++i)
 		mDrawBuffers[i] = mBufferInfos[bufferIdxs[i]].attachmentPoint;
 
-	glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, mFBOId);
+	glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, mFBOHandle);
 
 	glDrawBuffers(n, &mDrawBuffers[0]);
 
-	//return checkFramebufferStatus();
+	glViewport(0, 0, mWidth, mHeight);
+
 	return true;
 }
 
@@ -420,6 +434,7 @@ public:
 	{
 		SCENE_PASS,
 		SKYBOX_PASS,
+		DOWNSAMPLE_PASS,
 		BLUR_PASS,
 		COPY_PASS,
 	};
@@ -444,6 +459,10 @@ public:
 		mEffect = static_cast<Effect*>(mResourceManager.load(L"Material/postprocessingtest.fx.xml").get());
 
 		mModel = dynamic_cast<Model*>(mResourceManager.load(L"Scene/City/scene.3ds").get());
+
+		// sun
+		m_sunPos = Vec3f(500.0f, 500.0f, 500.0f);
+		glLightfv(GL_LIGHT0, GL_POSITION, m_sunPos.data);
 
 		// blur kernel
 		float t = -BLUR_KERNEL_SIZE / 2.0f;
@@ -495,11 +514,57 @@ public:
 		if(!mModel) return;
 
 		FrameBuffers& bufHalf = *mBuffersHalf;
-		//FrameBuffers& bufFull = *mBuffersFull;
+		FrameBuffers& bufFull = *mBuffersFull;
 
 		{	// scene pass
+			ScopedFBBinding fbBinding(bufFull, BUFFER0);
+			
+			{
+				ScopePassBinding passBinding(*mat, SCENE_PASS);
+
+				glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+				glPushMatrix();
+				glScalef(0.05f, 0.05f, 0.05f);
+
+				mModel->draw();
+
+				glPopMatrix();
+			}
+
+			{
+				ScopePassBinding passBinding(*mat, SKYBOX_PASS);
+
+				Vec3f frustVertex[8];
+				mCamera.frustum.computeVertex(frustVertex);
+				
+				Mat44f mat;
+				mCamera.computeView(mat.getPtr());
+				mat = mat.inverse();
+
+				Vec3f p[4];
+				for(size_t i = 0; i < 4; ++i)
+				{
+					p[i] = frustVertex[i] + (frustVertex[i+4] - frustVertex[i]) * 0.5f;
+					mat.transformPoint(p[i]);
+				}
+
+				glBegin(GL_TRIANGLES);
+
+				glVertex3fv(p[0].data);
+				glVertex3fv(p[1].data);
+				glVertex3fv(p[2].data);
+
+				glVertex3fv(p[0].data);
+				glVertex3fv(p[2].data);
+				glVertex3fv(p[3].data);
+
+				glEnd();
+			}
+		}
+
+		{
 			ScopedFBBinding fbBinding(bufHalf, BUFFER0);
-			glViewport(0, 0, bufHalf.width(), bufHalf.height());
 
 			{
 				ScopePassBinding passBinding(*mat, SCENE_PASS);
@@ -544,11 +609,11 @@ public:
 				glEnd();
 			}
 		}
-			
+
 		{	// horizontal blur pass
 			ScopedFBBinding fbBinding(bufHalf, BUFFER1);
 			ScopePassBinding passBinding(*mat, BLUR_PASS);
-			ScopedTexBinding texBinding(bufHalf.textureTarget(), bufHalf.bufferInfo(BUFFER0).handle);
+			ScopedTexBinding texBinding(bufHalf.target(), bufHalf.bufferInfo(BUFFER0).handle);
 
 			// bind shader uniform
 			GLint program;
@@ -562,13 +627,13 @@ public:
 			}
 
 			// draw quad
-			drawViewportQuad(0, 0, bufHalf.width(), bufHalf.height(), bufHalf.textureTarget());
+			drawViewportQuad(0, 0, bufHalf.width(), bufHalf.height(), bufHalf.target());
 		}
 
 		{	// vertical blur pass
 			ScopedFBBinding fbBinding(bufHalf, BUFFER0);
 			ScopePassBinding passBinding(*mat, BLUR_PASS);
-			ScopedTexBinding texBinding(bufHalf.textureTarget(), bufHalf.bufferInfo(BUFFER1).handle);
+			ScopedTexBinding texBinding(bufHalf.target(), bufHalf.bufferInfo(BUFFER1).handle);
 
 			// bind shader uniform
 			GLint program;
@@ -582,21 +647,37 @@ public:
 			}
 
 			// draw quad
-			drawViewportQuad(0, 0, bufHalf.width(), bufHalf.height(), bufHalf.textureTarget());
+			drawViewportQuad(0, 0, bufHalf.width(), bufHalf.height(), bufHalf.target());
 		}
 
 		{	// copy to screen
 			ScopePassBinding passBinding(*mat, COPY_PASS);
-			ScopedTexBinding texBinding(bufHalf.textureTarget(), bufHalf.bufferInfo(BUFFER0).handle);
+			ScopedTexBinding texBinding(bufFull.target(), bufFull.bufferInfo(BUFFER0).handle);
 
 			// draw quad
-			drawViewportQuad(0, 0, this->width(), this->height(), bufHalf.textureTarget());
+			drawViewportQuad(0, 0, this->width(), this->height(), bufFull.target());
 		}
+
+		{	// radial glow
+			ScopePassBinding passBinding(*mat, COPY_PASS);
+			ScopedTexBinding texBinding(bufHalf.target(), bufHalf.bufferInfo(BUFFER0).handle);
+
+			glEnable(GL_BLEND);
+			glBlendFunc(GL_ONE, GL_ONE);
+
+			// draw quad
+			drawViewportQuad(0, 0, this->width(), this->height(), bufHalf.target());
+
+			glDisable(GL_BLEND);
+		}
+
 	}
 
 	DefaultResourceManager mResourceManager;
 	ModelPtr mModel;
 	EffectPtr mEffect;
+
+	Vec3f m_sunPos;
 
 	Array<float, BLUR_KERNEL_SIZE * 2> m_hblurOffset;
 	Array<float, BLUR_KERNEL_SIZE * 2> m_vblurOffset;
