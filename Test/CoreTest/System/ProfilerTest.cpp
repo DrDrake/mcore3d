@@ -204,10 +204,18 @@ void funA()
 	free(b);
 	free(nullptr);
 
+#ifdef MCD_VC
+#	pragma warning (push)
+#	pragma warning (disable : 6308)
+#endif
 	b = realloc(nullptr, 10);
 	b = realloc(b, 20);		// Most likely the memory pointer does not altered
 	b = realloc(b, 2000);	// Most likely the memory pointer is altered
-	realloc(b, 0);
+	b = realloc(b, 0);
+	assert(b == nullptr);
+#ifdef MCD_VC
+#	pragma warning (pop)
+#endif
 
 	b = calloc(10, 4);
 	free(b);

@@ -4,6 +4,7 @@
 #if defined(_MSC_VER)
 
 #include "FunctionPatcher.inc"
+#include "PtrVector.h"
 #include <iomanip>
 #include <sstream>
 
@@ -22,19 +23,18 @@ struct AllocInfo
 struct TlsStruct
 {
 	TlsStruct(const char* name) :
-		gTempDisable(false), gRecurseCount(0),
-		gCurrentNode(nullptr), threadName(::strdup(name))
+		recurseCount(0),
+		currentNode(nullptr), threadName(::strdup(name))
 	{}
 
 	~TlsStruct() {
 		::free((void*)threadName);
 	}
 
-	AllocInfo gAlloc;
-	AllocInfo gAccumAlloc;
-	bool gTempDisable;
-	size_t gRecurseCount;
-	MemoryProfilerNode* gCurrentNode;
+	AllocInfo currentAlloc;
+	AllocInfo accumAlloc;
+	size_t recurseCount;
+	MemoryProfilerNode* currentNode;
 	const char* threadName;
 };	// TlsStruct
 
@@ -82,32 +82,30 @@ struct MyMemFooter
 void* commonAlloc(sal_in TlsStruct* tls, sal_in void* p, size_t nBytes, int deltaBytes)
 {
 	size_t bytes = deltaBytes != 0 ? deltaBytes : nBytes;
-
 	MCD_ASSUME(tls && p && "caller of commonAlloc should ensure tls and p is valid");
-	tls->gAlloc.count++;
-	tls->gAlloc.bytes += bytes;
-	tls->gAccumAlloc.count++;
-	tls->gAccumAlloc.bytes += bytes;
-
-	MemoryProfilerNode* node = tls->gCurrentNode;
+	MemoryProfilerNode* node = tls->currentNode;
 
 	// If node is null, means a new thread is started
 	if(!node) {
-		tls->gTempDisable = true;
-		tls->gCurrentNode = node = static_cast<MCD::MemoryProfilerNode*>(
-			MemoryProfiler::singleton().getRootNode()->getChildByName(tls->threadName)
+		CallstackNode* rootNode = MemoryProfiler::singleton().getRootNode();
+		MCD_ASSUME(rootNode);
+		tls->recurseCount++;
+		tls->currentNode = node = static_cast<MCD::MemoryProfilerNode*>(
+			rootNode->getChildByName(tls->threadName)
 		);
-		node->shouldFreeNodeName = true;	// Pass the ownership of tls->threadName to node->name
-		tls->threadName = nullptr;			//
-		tls->gTempDisable = false;
+		tls->recurseCount--;
 	}
 
 	// Race with MemoryProfiler::reset(), MemoryProfiler::defaultReport() and myHeapFree()
 	ScopeRecursiveLock lock(node->mutex);
 	if(deltaBytes == 0) {
+		tls->currentAlloc.count++;
+		tls->accumAlloc.count++;
 		node->exclusiveCount++;
 		node->countSinceLastReset++;
 	}
+	tls->currentAlloc.bytes += bytes;
+	tls->accumAlloc.bytes += bytes;
 	node->exclusiveBytes += bytes;
 
 	MyMemFooter* footer = reinterpret_cast<MyMemFooter*>(nBytes + (char*)p);
@@ -123,12 +121,12 @@ LPVOID WINAPI myHeapAlloc(__in HANDLE hHeap, __in DWORD dwFlags, __in SIZE_T dwB
 	TlsStruct* tls = getTlsStruct();
 
 	// HeapAlloc will invoke itself recursivly, so we need a recursion counter
-	if(!tls || tls->gRecurseCount > 0 || tls->gTempDisable)
+	if(!tls || tls->recurseCount > 0)
 		return orgHeapAlloc(hHeap, dwFlags, dwBytes);
 
-	tls->gRecurseCount++;
+	tls->recurseCount++;
 	void* p = orgHeapAlloc(hHeap, dwFlags, dwBytes + sizeof(MyMemFooter));
-	tls->gRecurseCount--;
+	tls->recurseCount--;
 
 	return commonAlloc(tls, p, dwBytes, 0);
 }
@@ -137,16 +135,16 @@ LPVOID WINAPI myHeapReAlloc(__in HANDLE hHeap, __in DWORD dwFlags, __deref LPVOI
 {
 	TlsStruct* tls = getTlsStruct();
 
-	if(!tls || tls->gRecurseCount > 0 || lpMem == nullptr || dwBytes == 0)
+	if(!tls || tls->recurseCount > 0 || lpMem == nullptr || dwBytes == 0)
 		return orgHeapReAlloc(hHeap, dwFlags, lpMem, dwBytes);
 
 	size_t size = HeapSize(hHeap, dwFlags, lpMem);
 
 	// On VC 2005, orgHeapReAlloc() will not invoke HeapAlloc() and HeapFree(),
 	// but it does on VC 2008
-	tls->gRecurseCount++;
+	tls->recurseCount++;
 	void* p = orgHeapReAlloc(hHeap, dwFlags, lpMem, dwBytes + sizeof(MyMemFooter));
-	tls->gRecurseCount--;
+	tls->recurseCount--;
 
 	int deltaSize = (dwBytes + sizeof(MyMemFooter)) - size;
 
@@ -156,9 +154,10 @@ LPVOID WINAPI myHeapReAlloc(__in HANDLE hHeap, __in DWORD dwFlags, __deref LPVOI
 LPVOID WINAPI myHeapFree(__in HANDLE hHeap, __in DWORD dwFlags, __deref LPVOID lpMem)
 {
 	TlsStruct* tls = getTlsStruct();
+
 	// NOTE: For VC 2008, myHeapFree may be invoked by HeapRealloc,
-	// therefore we need to check gRecurseCount
-	if(lpMem && tls && tls->gRecurseCount == 0)
+	// therefore we need to check recurseCount
+	if(lpMem && tls && tls->recurseCount == 0)
 	{
 		size_t size = HeapSize(hHeap, dwFlags, lpMem) - sizeof(MyMemFooter);
 
@@ -173,8 +172,8 @@ LPVOID WINAPI myHeapFree(__in HANDLE hHeap, __in DWORD dwFlags, __deref LPVOID l
 			ScopeRecursiveLock lock(node->mutex);
 			node->exclusiveCount--;
 			node->exclusiveBytes -= size;
-			tls->gAlloc.count--;
-			tls->gAlloc.bytes -= size;
+			tls->currentAlloc.count--;
+			tls->currentAlloc.bytes -= size;
 		}
 	}
 
@@ -185,18 +184,16 @@ LPVOID WINAPI myHeapFree(__in HANDLE hHeap, __in DWORD dwFlags, __deref LPVOID l
 
 namespace MCD {
 
+struct MemoryProfiler::TlsList : public ptr_vector<TlsStruct>
+{
+	Mutex mutex;
+};	// TlsList
+
 MemoryProfilerNode::MemoryProfilerNode(const char name[], CallstackNode* parent)
 	:
 	CallstackNode(name, parent), callCount(0),
-	exclusiveCount(0), exclusiveBytes(0), countSinceLastReset(0),
-	shouldFreeNodeName(false)
+	exclusiveCount(0), exclusiveBytes(0), countSinceLastReset(0)
 {
-}
-
-MemoryProfilerNode::~MemoryProfilerNode()
-{
-	if(shouldFreeNodeName)
-		::free((void*)name);
 }
 
 void MemoryProfilerNode::begin()
@@ -204,33 +201,19 @@ void MemoryProfilerNode::begin()
 	++callCount;
 }
 
-void resetHelper(CallstackNode* node)
-{
-	MemoryProfilerNode* n = static_cast<MemoryProfilerNode*>(node);
-	if(!n)
-		return;
-
-	// Free the node if there is no associated allocation
-//	if(n->exclusiveCount == 0) {
-//		delete node;
-//		node = nullptr;
-//	} else
-		n->reset();
-}
-
 void MemoryProfilerNode::reset()
 {
-	CallstackNode* n1, *n2;
+	MemoryProfilerNode* n1, *n2;
 	{	// Race with MemoryProfiler::begin(), MemoryProfiler::end(), commonAlloc() and myHeapFree()
 		ScopeRecursiveLock lock(mutex);
 		callCount = 0;
 		countSinceLastReset = 0;
-		n1 = firstChild;
-		n2 = sibling;
+		n1 = static_cast<MemoryProfilerNode*>(firstChild);
+		n2 = static_cast<MemoryProfilerNode*>(sibling);
 	}
 
-	resetHelper(n1);
-	resetHelper(n2);
+	if(n1) n1->reset();
+	if(n2) n2->reset();
 }
 
 size_t MemoryProfilerNode::inclusiveCount() const
@@ -265,10 +248,10 @@ size_t MemoryProfilerNode::inclusiveBytes() const
 
 MemoryProfiler::MemoryProfiler()
 {
+	mTlsList = new TlsList();
 	gTlsIndex = TlsAlloc();
-	TlsSetValue(gTlsIndex, new TlsStruct(nullptr));
 
-	setRootNode(new MemoryProfilerNode("main root"));
+	setRootNode(new MemoryProfilerNode("root"));
 
 	// Pre-computed prologue size (for different version of Visual Studio) using libdasm
 #if _MSC_VER == 1400	// VC 2005
@@ -294,19 +277,17 @@ MemoryProfiler::~MemoryProfiler()
 	// Delete all profiler node
 	CallstackProfiler::setRootNode(nullptr);
 
-	TlsStruct* tls = getTlsStruct();
 	MCD_ASSERT(gTlsIndex != 0);
 	TlsSetValue(gTlsIndex, nullptr);
-	delete tls;
 	TlsFree(gTlsIndex);
 	gTlsIndex = 0;
+
+	delete mTlsList;
 }
 
 void MemoryProfiler::setRootNode(CallstackNode* root)
 {
 	CallstackProfiler::setRootNode(root);
-	TlsStruct* tls = getTlsStruct();
-	tls->gCurrentNode = static_cast<MemoryProfilerNode*>(root);
 	reset();
 }
 
@@ -316,14 +297,14 @@ void MemoryProfiler::begin(const char name[])
 		return;
 
 	TlsStruct* tls = getTlsStruct();
-	MemoryProfilerNode* node = static_cast<MemoryProfilerNode*>(tls->gCurrentNode);
+	MemoryProfilerNode* node = static_cast<MemoryProfilerNode*>(tls->currentNode);
 	MCD_ASSUME(node);
 
 	// Race with MemoryProfiler::reset(), MemoryProfiler::defaultReport() and myHeapFree()
 	ScopeRecursiveLock lock(node->mutex);
 
 	if(name != node->name)
-		node = tls->gCurrentNode = static_cast<MemoryProfilerNode*>(node->getChildByName(name));
+		node = tls->currentNode = static_cast<MemoryProfilerNode*>(node->getChildByName(name));
 
 	node->begin();
 	node->recursionCount++;
@@ -335,7 +316,7 @@ void MemoryProfiler::end()
 		return;
 
 	TlsStruct* tls = getTlsStruct();
-	MemoryProfilerNode* node = static_cast<MemoryProfilerNode*>(tls->gCurrentNode);
+	MemoryProfilerNode* node = static_cast<MemoryProfilerNode*>(tls->currentNode);
 	MCD_ASSUME(node);
 
 	// Race with MemoryProfiler::reset(), MemoryProfiler::defaultReport() and myHeapFree()
@@ -346,12 +327,13 @@ void MemoryProfiler::end()
 
 	// Only back to the parent when the current node is not inside a recursive function
 	if(node->recursionCount == 0)
-		tls->gCurrentNode = static_cast<MemoryProfilerNode*>(node->parent);
+		tls->currentNode = static_cast<MemoryProfilerNode*>(node->parent);
 }
 
 void MemoryProfiler::nextFrame()
 {
-	MCD_ASSERT(getTlsStruct()->gCurrentNode == mRootNode && "Do not call nextFrame() inside a profiling code block");
+	MCD_ASSERT(getTlsStruct()->currentNode->parent == mRootNode
+		&& "Do not call nextFrame() inside a profiling code block");
 	++frameCount;
 }
 
@@ -360,7 +342,8 @@ void MemoryProfiler::reset()
 	if(!mRootNode)
 		return;
 
-	MCD_ASSERT(getTlsStruct()->gCurrentNode == mRootNode && "Do not call reset() inside a profiling code block");
+	MCD_ASSERT(!getTlsStruct() || getTlsStruct()->currentNode->parent == mRootNode
+		&& "Do not call reset() inside a profiling code block");
 	frameCount = 0;
 	static_cast<MemoryProfilerNode*>(mRootNode)->reset();
 }
@@ -369,10 +352,23 @@ std::string MemoryProfiler::defaultReport(size_t nameLength) const
 {
 	using namespace std;
 	ostringstream ss;
+	AllocInfo tmpAlloc, tmpAccumAlloc;
+
+	{	ScopeLock lock(mTlsList->mutex);
+		for(TlsList::iterator i=mTlsList->begin(); i!=mTlsList->end(); ++i)
+		{
+			tmpAlloc.count += i->currentAlloc.count;
+			tmpAlloc.bytes += i->currentAlloc.bytes;
+			tmpAccumAlloc.count += i->accumAlloc.count;
+			tmpAccumAlloc.bytes += i->accumAlloc.bytes;
+		}
+	}
 
 	ss.flags(ios_base::left);
-//	ss << setw(30) << "Allocated count: " << setw(10) << gAlloc.count << ", kBytes: " << float(gAlloc.bytes) / 1024 << endl;
-//	ss << setw(30) << "Accumulated allocated count: " << setw(10) << gAccumAlloc.count << ", kBytes: " << float(gAccumAlloc.bytes) / 1024 << endl;
+	ss	<< setw(30) << "Allocated count: " << setw(10) << tmpAlloc.count
+		<< ", kBytes: " << float(tmpAlloc.bytes) / 1024 << endl;
+	ss	<< setw(30) << "Accumulated allocated count: " << setw(10) << tmpAccumAlloc.count
+		<< ", kBytes: " << float(tmpAccumAlloc.bytes) / 1024 << endl;
 
 	const size_t countWidth = 9;
 	const size_t bytesWidth = 12;
@@ -397,7 +393,7 @@ std::string MemoryProfiler::defaultReport(size_t nameLength) const
 		ScopeRecursiveLock lock(n->mutex);
 
 		// Skip node that have no allocation at all
-		if(n->exclusiveCount != 0 || n->countSinceLastReset != 0)
+//		if(n->exclusiveCount != 0 || n->countSinceLastReset != 0)
 		{
 			size_t callDepth = n->callDepth();
 			ss.flags(ios_base::left);
@@ -420,28 +416,32 @@ std::string MemoryProfiler::defaultReport(size_t nameLength) const
 	return ss.str();
 }
 
+void MemoryProfiler::onThreadAttach(const char* threadName)
+{
+	// NOTE: Allocation of TlsStruct didn't trigger commonAlloc() since we
+	// haven't called TlsSetValue() yet and so myHeapAlloc will by pass it.
+	TlsStruct* tls = new TlsStruct(threadName);
+
+	{	// We haven't call TlsSetValue() yet so push_back will
+		// not trigger myHeapAlloc thus no dead lock.
+		ScopeLock lock(mTlsList->mutex);
+		mTlsList->push_back(tls);
+	}
+
+	TlsSetValue(gTlsIndex, tls);
+}
+
 }	// namespace MCD
 
 BOOL APIENTRY DllMain(HINSTANCE hModule, DWORD dwReason, PVOID lpReserved)
 {
-	TlsStruct* tls = nullptr;
-
 	switch(dwReason) {
 	case DLL_PROCESS_ATTACH:
-		MemoryProfiler::singleton();
-		break;
-	case DLL_PROCESS_DETACH:
+		// Force the profiler to instanciate
+		MemoryProfiler::singleton().onThreadAttach("main thread");
 		break;
 	case DLL_THREAD_ATTACH:
-		// NOTE: Allocation of TlsStruct didn't trigger commonAlloc() since we
-		// haven't called TlsSetValue() yet and so myHeapAlloc will by pass it.
-		TlsSetValue(gTlsIndex, new TlsStruct("worker thread"));
-		break;
-	// TODO: DLL_THREAD_DETACH is not exactly paried with DLL_THREAD_ATTACH, causing memory leak.
-	case DLL_THREAD_DETACH:
-		tls = getTlsStruct();
-		TlsSetValue(gTlsIndex, nullptr);
-		delete tls;
+		MemoryProfiler::singleton().onThreadAttach("worker thread");
 		break;
 	default:
 		break;
@@ -468,6 +468,10 @@ MemoryProfiler::~MemoryProfiler() {}
 void MemoryProfiler::setRootNode(CallstackNode* root) {
 	CallstackProfiler::setRootNode(root);
 }
+
+void MemoryProfiler::begin(const char name[]) {}
+
+void MemoryProfiler::end() {}
 
 void MemoryProfiler::nextFrame() {}
 
