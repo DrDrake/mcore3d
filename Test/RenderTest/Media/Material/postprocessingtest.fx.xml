@@ -115,6 +115,51 @@ void main()
 	</shader>
 </pass>
 
+<!-- down-sample pass -->
+<pass
+	enable="true"
+	drawLine="false"
+>
+	<!-- The first occuring texture will use texture unit 0 -->
+
+	<shader>
+		<vertex>
+<![CDATA[
+#version 120
+uniform vec2 g_InvTexSize;
+
+void main()
+{
+	gl_Position = ftransform();
+	vec2 baseUV = gl_MultiTexCoord0.xy;
+	gl_TexCoord[0].xy = baseUV + vec2(0, 0) * g_InvTexSize;
+	gl_TexCoord[0].zw = baseUV + vec2(0, 0) * g_InvTexSize;
+	gl_TexCoord[1].xy = baseUV + vec2(0, 0) * g_InvTexSize;
+	gl_TexCoord[1].zw = baseUV + vec2(0, 0) * g_InvTexSize;
+}
+]]>
+		<vertex/>
+		
+		<fragment>
+<![CDATA[
+#version 120
+uniform sampler2D g_inputSam;
+
+void main()
+{
+	vec4 sum = vec4(0.0, 0.0, 0.0, 0.0);
+	sum += texture2D(g_inputSam, gl_TexCoord[0].xy);
+	sum += texture2D(g_inputSam, gl_TexCoord[0].zw);
+	sum += texture2D(g_inputSam, gl_TexCoord[1].xy);
+	sum += texture2D(g_inputSam, gl_TexCoord[1].zw);
+	
+	gl_FragColor = sum * 0.25;
+}
+]]>
+		</fragment>
+	</shader>
+</pass>
+
 <!-- blur pass -->
 <pass
 	enable="true"
@@ -149,21 +194,21 @@ void main()
 		<fragment>
 <![CDATA[
 #version 120
-uniform sampler2D inputMap;
+uniform sampler2D g_inputSam;
 uniform float g_blurKernel[9];
 
 void main()
 {
 	vec4 sum = vec4(0.0, 0.0, 0.0, 0.0);
-	sum += texture2D(inputMap, gl_TexCoord[0].xy) * g_blurKernel[0];
-	sum += texture2D(inputMap, gl_TexCoord[0].zw) * g_blurKernel[1];
-	sum += texture2D(inputMap, gl_TexCoord[1].xy) * g_blurKernel[2];
-	sum += texture2D(inputMap, gl_TexCoord[1].zw) * g_blurKernel[3];
-	sum += texture2D(inputMap, gl_TexCoord[2].xy) * g_blurKernel[4];
-	sum += texture2D(inputMap, gl_TexCoord[2].zw) * g_blurKernel[5];
-	sum += texture2D(inputMap, gl_TexCoord[3].xy) * g_blurKernel[6];
-	sum += texture2D(inputMap, gl_TexCoord[3].zw) * g_blurKernel[7];
-	sum += texture2D(inputMap, gl_TexCoord[4].xy) * g_blurKernel[8];
+	sum += texture2D(g_inputSam, gl_TexCoord[0].xy) * g_blurKernel[0];
+	sum += texture2D(g_inputSam, gl_TexCoord[0].zw) * g_blurKernel[1];
+	sum += texture2D(g_inputSam, gl_TexCoord[1].xy) * g_blurKernel[2];
+	sum += texture2D(g_inputSam, gl_TexCoord[1].zw) * g_blurKernel[3];
+	sum += texture2D(g_inputSam, gl_TexCoord[2].xy) * g_blurKernel[4];
+	sum += texture2D(g_inputSam, gl_TexCoord[2].zw) * g_blurKernel[5];
+	sum += texture2D(g_inputSam, gl_TexCoord[3].xy) * g_blurKernel[6];
+	sum += texture2D(g_inputSam, gl_TexCoord[3].zw) * g_blurKernel[7];
+	sum += texture2D(g_inputSam, gl_TexCoord[4].xy) * g_blurKernel[8];
 	
 	gl_FragColor = sum;
 }
@@ -194,11 +239,11 @@ void main()
 		<fragment>
 <![CDATA[
 #version 120
-uniform sampler2D inputMap;
+uniform sampler2D g_inputSam;
 
 void main()
 {
-	gl_FragColor = texture2D(inputMap, gl_TexCoord[0].xy);
+	gl_FragColor = texture2D(g_inputSam, gl_TexCoord[0].xy);
 }
 ]]>
 		</fragment>
