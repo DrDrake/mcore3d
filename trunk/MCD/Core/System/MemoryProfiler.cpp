@@ -409,6 +409,7 @@ BOOL APIENTRY DllMain(HINSTANCE hModule, DWORD dwReason, PVOID lpReserved)
 		break;
 	case DLL_PROCESS_DETACH:
 		tls = getTlsStruct();
+		TlsSetValue(gTlsIndex, nullptr);
 		delete tls;
 		TlsFree(gTlsIndex);
 		break;
@@ -420,6 +421,7 @@ BOOL APIENTRY DllMain(HINSTANCE hModule, DWORD dwReason, PVOID lpReserved)
 	// TODO: DLL_THREAD_DETACH is not exactly paried with DLL_THREAD_ATTACH, causing memory leak.
 	case DLL_THREAD_DETACH:
 		tls = getTlsStruct();
+		TlsSetValue(gTlsIndex, nullptr);
 		delete tls;
 		break;
 	default:

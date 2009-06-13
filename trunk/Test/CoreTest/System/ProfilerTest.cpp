@@ -200,6 +200,10 @@ void funA()
 	void* b = malloc(10);
 	free(b);
 
+	b = malloc(0);
+	free(b);
+	free(nullptr);
+
 	b = realloc(nullptr, 10);
 	b = realloc(b, 20);		// Most likely the memory pointer does not altered
 	b = realloc(b, 2000);	// Most likely the memory pointer is altered
