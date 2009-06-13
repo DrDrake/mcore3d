@@ -30,6 +30,8 @@ namespace BulletBinding
 		// Override from BehaviourComponent
 		sal_override void update();
 
+		void onAttach();
+
 		inline btRigidBody* getRightBody() const
 		{
 			return mRigidBody.get();
@@ -42,6 +44,7 @@ namespace BulletBinding
 		float getAngularDamping() const;
 
 		void setDamping(float lin_damping, float ang_damping);
+		float mMass;
 	};
 }
 }

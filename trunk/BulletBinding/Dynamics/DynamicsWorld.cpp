@@ -9,8 +9,8 @@ using namespace MCD::BulletBinding;
 
 DynamicsWorld::DynamicsWorld(void)
 {
-	btVector3 worldAabbMin(-10000,-10000,-10000);
-	btVector3 worldAabbMax( 10000, 10000, 10000);
+	btVector3 worldAabbMin(-100,-100,-100);
+	btVector3 worldAabbMax( 100, 100, 100);
 
 	int maxProxies = 1024;
 
