@@ -6,7 +6,7 @@
 
 using namespace MCD;
 
-void drawViewportQuad(size_t x, size_t y, size_t width, size_t height, int textureType)
+void drawViewportQuad(size_t x, size_t y, size_t width, size_t height, int textureType, bool preserveTransform)
 {
 	// How to draw fullscreen quad:
 	// Reference: http://www.opengl.org/resources/faq/technical/transformations.htm
@@ -18,10 +18,13 @@ void drawViewportQuad(size_t x, size_t y, size_t width, size_t height, int textu
 	glDisable(GL_LIGHTING);
 	glDisable(GL_MULTISAMPLE);
 
-	glMatrixMode(GL_PROJECTION);
-	glPushMatrix();	glLoadIdentity();
-	glMatrixMode(GL_MODELVIEW);
-	glPushMatrix();	glLoadIdentity();
+	if(!preserveTransform)
+	{
+		glMatrixMode(GL_PROJECTION);
+		glPushMatrix();	glLoadIdentity();
+		glMatrixMode(GL_MODELVIEW);
+		glPushMatrix();	glLoadIdentity();
+	}
 
 	float w = textureType == GL_TEXTURE_2D ? 1 : float(width);
 	float h = textureType == GL_TEXTURE_2D ? 1 : float(height);
@@ -36,10 +39,13 @@ void drawViewportQuad(size_t x, size_t y, size_t width, size_t height, int textu
 		glTexCoord2fv(tex[3]);	glVertex3i(-1, 1, -1);
 	glEnd();
 
-	glMatrixMode(GL_PROJECTION);
-	glPopMatrix();
-	glMatrixMode(GL_MODELVIEW);
-	glPopMatrix();
+	if(!preserveTransform)
+	{
+		glMatrixMode(GL_PROJECTION);
+		glPopMatrix();
+		glMatrixMode(GL_MODELVIEW);
+		glPopMatrix();
+	}
 
 	glPopAttrib();
 }
