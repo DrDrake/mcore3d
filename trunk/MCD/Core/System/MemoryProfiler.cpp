@@ -54,15 +54,26 @@ MyHeapFree orgHeapFree;
 DWORD gTlsIndex = 0;
 
 TlsStruct* getTlsStruct() {
+	MCD_ASSUME(gTlsIndex != 0);
 	return reinterpret_cast<TlsStruct*>(TlsGetValue(gTlsIndex));
 }
 
 struct MyMemFooter
 {
+	/*! The node pointer is placed in-between the 2 fourcc values,
+		ensure maximum protected as possible.
+	 */
+	uint32_t fourCC1;
 	MCD::MemoryProfilerNode* node;
-	uint32_t fourCC;
-	//! A magic number for HeapFree verification
-	static const uint32_t cFourCC = 1234567890;
+	uint32_t fourCC2;
+
+	/*!	Magic number for HeapFree verification.
+		The node pointer is not used if any of the fourcc is invalid.
+		It's kind of dirty, but there is no other way to indicate a pointer
+		is allocated by original HeapAlloc or our patched version.
+	 */
+	static const uint32_t cFourCC1 = 123456789;
+	static const uint32_t cFourCC2 = 987654321;
 };	// MyMemFooter
 
 /*!	nBytes does not account for the extra footer size
@@ -101,7 +112,8 @@ void* commonAlloc(sal_in TlsStruct* tls, sal_in void* p, size_t nBytes, int delt
 
 	MyMemFooter* footer = reinterpret_cast<MyMemFooter*>(nBytes + (char*)p);
 	footer->node = node;
-	footer->fourCC = MyMemFooter::cFourCC;
+	footer->fourCC1 = MyMemFooter::cFourCC1;
+	footer->fourCC2 = MyMemFooter::cFourCC2;
 
 	return p;
 }
@@ -151,7 +163,7 @@ LPVOID WINAPI myHeapFree(__in HANDLE hHeap, __in DWORD dwFlags, __deref LPVOID l
 		size_t size = HeapSize(hHeap, dwFlags, lpMem) - sizeof(MyMemFooter);
 
 		MyMemFooter* footer = (MyMemFooter*)(((char*)lpMem) + size);
-		if(footer->fourCC == MyMemFooter::cFourCC)
+		if(footer->fourCC1 == MyMemFooter::cFourCC1 && footer->fourCC2 == MyMemFooter::cFourCC2)
 		{
 			MCD::MemoryProfilerNode* node = reinterpret_cast<MCD::MemoryProfilerNode*>(footer->node);
 			MCD_ASSUME(node);
@@ -253,6 +265,9 @@ size_t MemoryProfilerNode::inclusiveBytes() const
 
 MemoryProfiler::MemoryProfiler()
 {
+	gTlsIndex = TlsAlloc();
+	TlsSetValue(gTlsIndex, new TlsStruct(nullptr));
+
 	setRootNode(new MemoryProfilerNode("main root"));
 
 	// Pre-computed prologue size (for different version of Visual Studio) using libdasm
@@ -275,6 +290,16 @@ MemoryProfiler::MemoryProfiler()
 MemoryProfiler::~MemoryProfiler()
 {
 	functionPatcher.UnpatchAll();
+
+	// Delete all profiler node
+	CallstackProfiler::setRootNode(nullptr);
+
+	TlsStruct* tls = getTlsStruct();
+	MCD_ASSERT(gTlsIndex != 0);
+	TlsSetValue(gTlsIndex, nullptr);
+	delete tls;
+	TlsFree(gTlsIndex);
+	gTlsIndex = 0;
 }
 
 void MemoryProfiler::setRootNode(CallstackNode* root)
@@ -403,15 +428,9 @@ BOOL APIENTRY DllMain(HINSTANCE hModule, DWORD dwReason, PVOID lpReserved)
 
 	switch(dwReason) {
 	case DLL_PROCESS_ATTACH:
-		gTlsIndex = TlsAlloc();
-		TlsSetValue(gTlsIndex, new TlsStruct(nullptr));
 		MemoryProfiler::singleton();
 		break;
 	case DLL_PROCESS_DETACH:
-		tls = getTlsStruct();
-		TlsSetValue(gTlsIndex, nullptr);
-		delete tls;
-		TlsFree(gTlsIndex);
 		break;
 	case DLL_THREAD_ATTACH:
 		// NOTE: Allocation of TlsStruct didn't trigger commonAlloc() since we
