@@ -1,18 +1,26 @@
 #include "Pch.h"
 #include "ChamferBox.h"
-#include "PlaneMeshBuilder.h"
 #include "DefaultResourceManager.h"
+#include "PlaneMeshBuilder.h"
 #include "../../MCD/Render/Effect.h"
 #include "../../MCD/Render/Material.h"
-#include "../../MCD/Core/Entity/Entity.h"
 #include "../../MCD/Render/Components/MeshComponent.h"
+#include "../../MCD/Core/Entity/Entity.h"
 #include "../../BulletBinding/Dynamics.h"
 #include "../../BulletBinding/MathConvertor.h"
+
+#include "../../3Party/bullet/btBulletCollisionCommon.h"
 
 using namespace MCD;
 using namespace BulletBinding;
 
-#pragma comment(lib, "BulletBindingd")
+#ifdef NDEBUG
+#	pragma comment(lib, "libbulletcollision")
+#	pragma comment(lib, "libbulletmath")
+#else
+#	pragma comment(lib, "libbulletcollisiond")
+#	pragma comment(lib, "libbulletmathd")
+#endif
 
 TEST(BulletTest)
 {

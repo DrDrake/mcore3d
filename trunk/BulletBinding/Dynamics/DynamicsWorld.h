@@ -3,42 +3,46 @@
 
 #include "../ShareLib.h"
 #include "../../MCD/Core/Math/Vec3.h"
-
-#pragma warning( push )
-#pragma warning( disable : 4100 )
-#include "../../3Party/bullet/btBulletDynamicsCommon.h"
-#include "../../3Party/bullet/btBulletCollisionCommon.h"
-#pragma warning( pop )
-
 #include <memory>
 #include <vector>
 
-namespace MCD
+class btAxisSweep3;
+class btCollisionDispatcher;
+class btDefaultCollisionConfiguration;
+class btDynamicsWorld;
+class btRigidBody;
+class btSequentialImpulseConstraintSolver;
+
+namespace MCD {
+
+namespace BulletBinding {
+
+class RigidBodyComponent;
+
+class MCD_BULLETBINDING_API DynamicsWorld
 {
-namespace BulletBinding
-{
-	class RigidBodyComponent;
-	class MCD_BULLETBINDING_API DynamicsWorld
-	{
-	private:
-		std::auto_ptr<btAxisSweep3> mBroadphase;
-		std::auto_ptr<btDefaultCollisionConfiguration> mCollisionConfiguration;
-		std::auto_ptr<btCollisionDispatcher> mDispatcher;
-		std::auto_ptr<btSequentialImpulseConstraintSolver> mSolver;
-		std::auto_ptr<btDynamicsWorld> mDynamicsWorld;
+public:
+	DynamicsWorld(void);
+	virtual ~DynamicsWorld(void);
 
-		std::vector<btRigidBody*> mRigidBodies;
-	public:
-		DynamicsWorld(void);
-		virtual ~DynamicsWorld(void);
+	void setGravity(const Vec3f& g);
+	Vec3f getGravity() const;
 
-		void setGravity(Vec3f g);
-		Vec3f getGravity() const;
+	void addRigidBody(RigidBodyComponent* rbc);
+	void stepSimulation(float timeStep, int maxSubStep);
 
-		void addRigidBody(RigidBodyComponent* rbc);
-		void stepSimulation(float timeStep, int maxSubStep);
-	};
-}
-}
+private:
+	std::auto_ptr<btAxisSweep3> mBroadphase;
+	std::auto_ptr<btDefaultCollisionConfiguration> mCollisionConfiguration;
+	std::auto_ptr<btCollisionDispatcher> mDispatcher;
+	std::auto_ptr<btSequentialImpulseConstraintSolver> mSolver;
+	std::auto_ptr<btDynamicsWorld> mDynamicsWorld;
 
-#endif
+	std::vector<btRigidBody*> mRigidBodies;
+};	// DynamicsWorld
+
+}	// BulletBinding
+
+}	// MCD
+
+#endif	// __MCD_BULLETBINDING_DYNAMICSWORLD__

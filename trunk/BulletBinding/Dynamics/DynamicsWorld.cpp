@@ -1,10 +1,10 @@
 #include "Pch.h"
-
 #include "DynamicsWorld.h"
 #include "RigidBodyComponent.h"
-
 #include "../MathConvertor.h"
+#include "../../3Party/bullet/btBulletDynamicsCommon.h"
 
+using namespace MCD;
 using namespace MCD::BulletBinding;
 
 DynamicsWorld::DynamicsWorld(void)
@@ -12,11 +12,11 @@ DynamicsWorld::DynamicsWorld(void)
 	btVector3 worldAabbMin(-100,-100,-100);
 	btVector3 worldAabbMax( 100, 100, 100);
 
-	int maxProxies = 1024;
+	const unsigned short maxProxies = 1024;
 
 	// Create the btDiscreteDynamicsWorld
 	// The world configuation is temporary hardcoded
-	mBroadphase.reset(new btAxisSweep3(worldAabbMin, worldAabbMax, (unsigned short)maxProxies));
+	mBroadphase.reset(new btAxisSweep3(worldAabbMin, worldAabbMax, maxProxies));
 	mCollisionConfiguration.reset(new btDefaultCollisionConfiguration());
 	mDispatcher.reset(new btCollisionDispatcher(mCollisionConfiguration.get()));
 	mSolver.reset(new btSequentialImpulseConstraintSolver);
@@ -26,7 +26,7 @@ DynamicsWorld::DynamicsWorld(void)
 
 DynamicsWorld::~DynamicsWorld(void)
 {
-	for(std::vector<btRigidBody*>::size_type i = 0; i < mRigidBodies.size(); i++)
+	for(std::vector<btRigidBody*>::size_type i=0; i < mRigidBodies.size(); ++i)
 		mDynamicsWorld->removeRigidBody(mRigidBodies[i]);
 
 	// Free the memory in order
@@ -37,12 +37,12 @@ DynamicsWorld::~DynamicsWorld(void)
 	mBroadphase.reset();
 }
 
-void DynamicsWorld::setGravity(MCD::Vec3f g)
+void DynamicsWorld::setGravity(const Vec3f& g)
 {
 	mDynamicsWorld->setGravity(MathConvertor::ToBullet(g));
 }
 
-MCD::Vec3f DynamicsWorld::getGravity() const
+Vec3f DynamicsWorld::getGravity() const
 {
 	return MathConvertor::ToMCD(mDynamicsWorld->getGravity());
 }

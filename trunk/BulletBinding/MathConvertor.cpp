@@ -1,31 +1,32 @@
 #include "Pch.h"
-#include "ShareLib.h"
-
-#pragma warning( push )
-#pragma warning( disable : 4100 )
-#include "../3Party/bullet/btBulletDynamicsCommon.h"
-#include "../3Party/bullet/btBulletCollisionCommon.h"
-#pragma warning( pop ) 
-
 #include "MathConvertor.h"
 
-class btVector3;
+#include "../3Party/bullet/LinearMath/btVector3.h"
 
-namespace MCD
-{
-namespace BulletBinding
-{
-namespace MathConvertor
-{
-	MCD_BULLETBINDING_API btVector3 ToBullet(const MCD::Vec3f v)
-	{
-		return btVector3(v.x, v.y, v.z);
-	};
+#ifdef NDEBUG
+#	pragma comment(lib, "libbulletdynamics")
+#	pragma comment(lib, "libbulletcollision")
+#	pragma comment(lib, "libbulletmathd")
+#else
+#	pragma comment(lib, "libbulletdynamicsd")
+#	pragma comment(lib, "libbulletcollisiond")
+#	pragma comment(lib, "libbulletmathd")
+#endif
 
-	MCD_BULLETBINDING_API MCD::Vec3f ToMCD(const btVector3& v)
-	{
-		return MCD::Vec3f(v.x(), v.y(), v.z());
-	};
+namespace MCD {
+namespace BulletBinding {
+namespace MathConvertor {
+
+btVector3 ToBullet(const Vec3f& v)
+{
+	return btVector3(v.x, v.y, v.z);
 }
+
+Vec3f ToMCD(const btVector3& v)
+{
+	return MCD::Vec3f(v.x(), v.y(), v.z());
 }
-}
+
+}	// MathConvertor
+}	// BulletBinding
+}	// MCD
