@@ -24,18 +24,41 @@ struct TlsStruct
 {
 	TlsStruct(const char* name) :
 		recurseCount(0),
-		currentNode(nullptr), threadName(::strdup(name))
+		// We want every thread have it's own copy of thread name, therefore strdup() is used
+		mCurrentNode(nullptr), threadName(::strdup(name))
 	{}
 
 	~TlsStruct() {
 		::free((void*)threadName);
 	}
 
+	sal_notnull MemoryProfilerNode* currentNode()
+	{
+		// If node is null, means a new thread is started
+		if(!mCurrentNode) {
+			CallstackNode* rootNode = MemoryProfiler::singleton().getRootNode();
+			MCD_ASSUME(rootNode);
+			recurseCount++;
+			mCurrentNode = static_cast<MemoryProfilerNode*>(
+				rootNode->getChildByName(threadName)
+			);
+			recurseCount--;
+		}
+
+		return mCurrentNode;
+	}
+
+	MemoryProfilerNode* setCurrentNode(CallstackNode* node) {
+		return mCurrentNode = static_cast<MemoryProfilerNode*>(node);
+	}
+
 	AllocInfo currentAlloc;
 	AllocInfo accumAlloc;
 	size_t recurseCount;
-	MemoryProfilerNode* currentNode;
 	const char* threadName;
+
+protected:
+	MemoryProfilerNode* mCurrentNode;
 };	// TlsStruct
 
 typedef LPVOID (WINAPI *MyHeapAlloc)(HANDLE, DWORD, SIZE_T);
@@ -53,11 +76,15 @@ MyHeapFree orgHeapFree;
 
 DWORD gTlsIndex = 0;
 
-TlsStruct* getTlsStruct() {
+TlsStruct* getTlsStruct()
+{
 	MCD_ASSUME(gTlsIndex != 0);
 	return reinterpret_cast<TlsStruct*>(TlsGetValue(gTlsIndex));
 }
 
+/*!	A footer struct that insert to every patched memory allocation,
+	aim to indicate which call stack node this allocation belongs to.
+ */
 struct MyMemFooter
 {
 	/*! The node pointer is placed in-between the 2 fourcc values,
@@ -83,18 +110,8 @@ void* commonAlloc(sal_in TlsStruct* tls, sal_in void* p, size_t nBytes, int delt
 {
 	size_t bytes = deltaBytes != 0 ? deltaBytes : nBytes;
 	MCD_ASSUME(tls && p && "caller of commonAlloc should ensure tls and p is valid");
-	MemoryProfilerNode* node = tls->currentNode;
 
-	// If node is null, means a new thread is started
-	if(!node) {
-		CallstackNode* rootNode = MemoryProfiler::singleton().getRootNode();
-		MCD_ASSUME(rootNode);
-		tls->recurseCount++;
-		tls->currentNode = node = static_cast<MCD::MemoryProfilerNode*>(
-			rootNode->getChildByName(tls->threadName)
-		);
-		tls->recurseCount--;
-	}
+	MemoryProfilerNode* node = tls->currentNode();
 
 	// Race with MemoryProfiler::reset(), MemoryProfiler::defaultReport() and myHeapFree()
 	ScopeRecursiveLock lock(node->mutex);
@@ -283,14 +300,13 @@ void MemoryProfiler::begin(const char name[])
 		return;
 
 	TlsStruct* tls = getTlsStruct();
-	MemoryProfilerNode* node = static_cast<MemoryProfilerNode*>(tls->currentNode);
-	MCD_ASSUME(node);
+	MemoryProfilerNode* node = tls->currentNode();
 
 	// Race with MemoryProfiler::reset(), MemoryProfiler::defaultReport() and myHeapFree()
 	ScopeRecursiveLock lock(node->mutex);
 
 	if(name != node->name)
-		node = tls->currentNode = static_cast<MemoryProfilerNode*>(node->getChildByName(name));
+		node = tls->setCurrentNode(node->getChildByName(name));
 
 	node->begin();
 	node->recursionCount++;
@@ -302,8 +318,7 @@ void MemoryProfiler::end()
 		return;
 
 	TlsStruct* tls = getTlsStruct();
-	MemoryProfilerNode* node = static_cast<MemoryProfilerNode*>(tls->currentNode);
-	MCD_ASSUME(node);
+	MemoryProfilerNode* node = tls->currentNode();
 
 	// Race with MemoryProfiler::reset(), MemoryProfiler::defaultReport() and myHeapFree()
 	ScopeRecursiveLock lock(node->mutex);
@@ -313,7 +328,7 @@ void MemoryProfiler::end()
 
 	// Only back to the parent when the current node is not inside a recursive function
 	if(node->recursionCount == 0)
-		tls->currentNode = static_cast<MemoryProfilerNode*>(node->parent);
+		tls->setCurrentNode(node->parent);
 }
 
 void MemoryProfiler::nextFrame()
@@ -321,7 +336,7 @@ void MemoryProfiler::nextFrame()
 	if(!enable())
 		return;
 
-	MCD_ASSERT(getTlsStruct()->currentNode->parent == mRootNode
+	MCD_ASSERT(getTlsStruct()->currentNode()->parent == mRootNode
 		&& "Do not call nextFrame() inside a profiling code block");
 	++frameCount;
 }
@@ -331,7 +346,7 @@ void MemoryProfiler::reset()
 	if(!mRootNode || !enable())
 		return;
 
-	MCD_ASSERT(!getTlsStruct() || getTlsStruct()->currentNode->parent == mRootNode
+	MCD_ASSERT(!getTlsStruct() || getTlsStruct()->currentNode()->parent == mRootNode
 		&& "Do not call reset() inside a profiling code block");
 	frameCount = 0;
 	static_cast<MemoryProfilerNode*>(mRootNode)->reset();

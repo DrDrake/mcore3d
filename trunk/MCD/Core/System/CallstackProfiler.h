@@ -30,7 +30,7 @@ public:
 
 		\note The is the heart of the call stack construction process.
 	 */
-	CallstackNode* getChildByName(sal_in_z const char name[]);
+	sal_notnull CallstackNode* getChildByName(sal_in_z const char name[]);
 
 	/*!	Call this to indicate the starting of a function.
 		Derived class can overide this function to provide more action
