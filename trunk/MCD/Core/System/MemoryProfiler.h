@@ -102,6 +102,10 @@ public:
 	void onThreadAttach(sal_in_z const char* threadName);
 
 // Attributes
+	bool enable() const;
+
+	void setEnable(bool flag);
+
 	size_t frameCount;	//! Number of frame elasped since last reset
 
 protected:

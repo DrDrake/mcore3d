@@ -253,26 +253,12 @@ MemoryProfiler::MemoryProfiler()
 
 	setRootNode(new MemoryProfilerNode("root"));
 
-	// Pre-computed prologue size (for different version of Visual Studio) using libdasm
-#if _MSC_VER == 1400	// VC 2005
-	const int prologueSize[] = { 5, 5, 5 };
-#else _MSC_VER > 1400	// VC 2008
-	const int prologueSize[] = { 5, 5 ,5 };
-#endif
-
-	// Back up the original function and then do patching
-	orgHeapAlloc	= (MyHeapAlloc) functionPatcher.copyPrologue(&HeapAlloc, prologueSize[0]);
-	orgHeapReAlloc	= (MyHeapReAlloc) functionPatcher.copyPrologue(&HeapReAlloc, prologueSize[1]);
-	orgHeapFree		= (MyHeapFree) functionPatcher.copyPrologue(&HeapFree, prologueSize[2]);
-
-	functionPatcher.patch(&HeapAlloc, &myHeapAlloc);
-	functionPatcher.patch(&HeapReAlloc, &myHeapReAlloc);
-	functionPatcher.patch(&HeapFree, &myHeapFree);
+	setEnable(enable());
 }
 
 MemoryProfiler::~MemoryProfiler()
 {
-	functionPatcher.UnpatchAll();
+	setEnable(false);
 
 	// Delete all profiler node
 	CallstackProfiler::setRootNode(nullptr);
@@ -293,7 +279,7 @@ void MemoryProfiler::setRootNode(CallstackNode* root)
 
 void MemoryProfiler::begin(const char name[])
 {
-	if(!enable)
+	if(!enable())
 		return;
 
 	TlsStruct* tls = getTlsStruct();
@@ -312,7 +298,7 @@ void MemoryProfiler::begin(const char name[])
 
 void MemoryProfiler::end()
 {
-	if(!enable)
+	if(!enable())
 		return;
 
 	TlsStruct* tls = getTlsStruct();
@@ -332,6 +318,9 @@ void MemoryProfiler::end()
 
 void MemoryProfiler::nextFrame()
 {
+	if(!enable())
+		return;
+
 	MCD_ASSERT(getTlsStruct()->currentNode->parent == mRootNode
 		&& "Do not call nextFrame() inside a profiling code block");
 	++frameCount;
@@ -339,7 +328,7 @@ void MemoryProfiler::nextFrame()
 
 void MemoryProfiler::reset()
 {
-	if(!mRootNode)
+	if(!mRootNode || !enable())
 		return;
 
 	MCD_ASSERT(!getTlsStruct() || getTlsStruct()->currentNode->parent == mRootNode
@@ -429,6 +418,35 @@ void MemoryProfiler::onThreadAttach(const char* threadName)
 	}
 
 	TlsSetValue(gTlsIndex, tls);
+}
+
+bool MemoryProfiler::enable() const
+{
+	return CallstackProfiler::enable;
+}
+
+void MemoryProfiler::setEnable(bool flag)
+{
+	CallstackProfiler::enable = flag;
+	functionPatcher.UnpatchAll();
+
+	if(flag) {
+		// Pre-computed prologue size (for different version of Visual Studio) using libdasm
+#if _MSC_VER == 1400	// VC 2005
+		const int prologueSize[] = { 5, 5, 5 };
+#else _MSC_VER > 1400	// VC 2008
+		const int prologueSize[] = { 5, 5 ,5 };
+#endif
+
+		// Back up the original function and then do patching
+		orgHeapAlloc	= (MyHeapAlloc) functionPatcher.copyPrologue(&HeapAlloc, prologueSize[0]);
+		orgHeapReAlloc	= (MyHeapReAlloc) functionPatcher.copyPrologue(&HeapReAlloc, prologueSize[1]);
+		orgHeapFree		= (MyHeapFree) functionPatcher.copyPrologue(&HeapFree, prologueSize[2]);
+
+		functionPatcher.patch(&HeapAlloc, &myHeapAlloc);
+		functionPatcher.patch(&HeapReAlloc, &myHeapReAlloc);
+		functionPatcher.patch(&HeapFree, &myHeapFree);
+	}
 }
 
 }	// namespace MCD
