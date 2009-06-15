@@ -74,6 +74,7 @@ BasicGlWindow::BasicGlWindow(const wchar_t* options)
 	mKeepRun(true),
 	mIteration(0),
 	mCamera(Vec3f(0, 0, 1.0f), Vec3f(0, 0, -1), Vec3f(0, 1, 0)),
+	mCameraVelocity(10.f),
 	mFrameCounter(0), mOneSecondCountDown(1.0f)
 {
 #ifndef MCD_CYGWIN
@@ -113,8 +114,6 @@ BasicGlWindow::~BasicGlWindow()
 {
 	Log::stop(false);
 }
-
-const float cameraVelocity = 10.f;
 
 void BasicGlWindow::mainLoop()
 {
@@ -162,25 +161,25 @@ void BasicGlWindow::onEvent(const Event& e)
 		{
 		case Key::Up:
 		case Key::W:
-			mCamera.setForwardVelocity(cameraVelocity);
+			mCamera.setForwardVelocity(mCameraVelocity);
 			break;
 		case Key::Down:
 		case Key::S:
-			mCamera.setForwardVelocity(-cameraVelocity);
+			mCamera.setForwardVelocity(-mCameraVelocity);
 			break;
 		case Key::Right:
 		case Key::D:
-			mCamera.setRightVelocity(cameraVelocity);
+			mCamera.setRightVelocity(mCameraVelocity);
 			break;
 		case Key::Left:
 		case Key::A:
-			mCamera.setRightVelocity(-cameraVelocity);
+			mCamera.setRightVelocity(-mCameraVelocity);
 			break;
 		case Key::PageUp:
-			mCamera.setUpVelocity(cameraVelocity);
+			mCamera.setUpVelocity(mCameraVelocity);
 			break;
 		case Key::PageDown:
-			mCamera.setUpVelocity(-cameraVelocity);
+			mCamera.setUpVelocity(-mCameraVelocity);
 			break;
 		default:
 			break;

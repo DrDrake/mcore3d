@@ -432,7 +432,7 @@ public:
 	{
 		SCENE_PASS,
 		SKYBOX_PASS,
-		DOWNSAMPLE_PASS,
+		SUN_EXTRACT_PASS,
 		BLUR_PASS,
 		COPY_PASS,
 		RADIAL_MASK_PASS,
@@ -455,13 +455,16 @@ public:
 		BasicGlWindow(L"title=PostProcessingTest;width=800;height=600;fullscreen=0;FSAA=1"),
 		mResourceManager(*createDefaultFileSystem())
 	{
+		// move slower
+		mCameraVelocity = 5.0f;
+
 		// load normal mapping effect
 		mEffect = static_cast<Effect*>(mResourceManager.load(L"Material/postprocessingtest.fx.xml").get());
 
 		mModel = dynamic_cast<Model*>(mResourceManager.load(L"Scene/City/scene.3ds").get());
 
 		// sun
-		m_sunPos = Vec3f(50.0f, 50.0f, 50.0f);
+		m_sunPos = Vec3f(500.0f, 200.0f,-500.0f);
 
 		// blur kernel
 		float t = -BLUR_KERNEL_SIZE / 2.0f - 1.0f;
@@ -474,7 +477,7 @@ public:
 			m_vblurOffset[i*2+0] = 0;
 			m_vblurOffset[i*2+1] = t;
 
-			m_blurKernel[i] = GaussianZeroMean( t, BLUR_KERNEL_SIZE / 2.0f );
+			m_blurKernel[i] = GaussianZeroMean( t, BLUR_KERNEL_SIZE / 2.5f );
 			k += m_blurKernel[i];
 
 			t += 1.0f;
@@ -495,8 +498,8 @@ public:
 		mBuffersFull->textureBuffer( FrameBuffers::BufferFormat_U8_RGBA );
 		mBuffersFull->textureBuffer( FrameBuffers::BufferFormat_U8_RGBA );
 
-		GLuint halfWidth = std::max((GLuint)2, GLuint(width / 4));
-		GLuint halfHeight = std::max((GLuint)2, GLuint(height / 4));
+		GLuint halfWidth = std::max((GLuint)2, GLuint(width / 2));
+		GLuint halfHeight = std::max((GLuint)2, GLuint(height / 2));
 		mBuffersQuar.reset( new FrameBuffers(halfWidth, halfHeight, FrameBuffers::DepthBuffer_Offscreen, false) );
 		mBuffersQuar->textureBuffer( FrameBuffers::BufferFormat_U8_RGBA );
 		mBuffersQuar->textureBuffer( FrameBuffers::BufferFormat_U8_RGBA );
@@ -520,23 +523,31 @@ public:
 			drawScene(mat);
 		}
 
+		const bool cDrawScene = true;
+
+		if(cDrawScene)
 		{
-			ScopedFBBinding fbBinding(bufQuar, BUFFER0);
-
-			const bool cDrawScene = true;
-
-			if(cDrawScene)
 			{
+				ScopedFBBinding fbBinding(bufQuar, BUFFER1);
 				drawScene(mat);
 			}
-			else
 			{
-				ScopePassBinding passBinding(*mat, COPY_PASS);
-				ScopedTexBinding texBinding(bufFull.target(), bufFull.bufferInfo(BUFFER0).handle);
+				ScopedFBBinding fbBinding(bufQuar, BUFFER0);
+				ScopePassBinding passBinding(*mat, SUN_EXTRACT_PASS);
+				ScopedTexBinding texBinding(bufQuar.target(), bufQuar.bufferInfo(BUFFER1).handle);
 				
 				// draw quad
 				drawViewportQuad(0, 0, bufQuar.width(), bufQuar.height(), bufQuar.target());
 			}
+		}
+		else
+		{
+			ScopedFBBinding fbBinding(bufQuar, BUFFER0);
+			ScopePassBinding passBinding(*mat, SUN_EXTRACT_PASS);
+			ScopedTexBinding texBinding(bufFull.target(), bufFull.bufferInfo(BUFFER0).handle);
+			
+			// draw quad
+			drawViewportQuad(0, 0, bufQuar.width(), bufQuar.height(), bufQuar.target());
 		}
 
 		{	// horizontal blur pass
@@ -602,6 +613,7 @@ public:
 			}
 
 			// draw quad
+			// preserve transforms since we need gl_ModelViewProjectionMatrox
 			drawViewportQuad(0, 0, bufQuar.width(), bufQuar.height(), bufQuar.target(), true);
 		}
 
@@ -619,35 +631,11 @@ public:
 			}
 
 			// draw quad
+			// preserve transforms since we need gl_ModelViewProjectionMatrox
 			drawViewportQuad(0, 0, this->width(), this->height(), bufQuar.target(), true);
 		}
 
-		drawSunPos();
-
-	}
-
-	void drawSunPos()
-	{
-		glPushAttrib(GL_LIGHTING_BIT|GL_DEPTH_BUFFER_BIT);
-		glDisable(GL_DEPTH_TEST);
-		glDisable(GL_LIGHTING);
-
-		glBegin(GL_LINES);
-
-		glColor3f(0,1,0);
-		glVertex3fv((m_sunPos + Vec3f(-1, 0, 0)).data);
-		glVertex3fv((m_sunPos + Vec3f( 1, 0, 0)).data);
-		glVertex3fv((m_sunPos + Vec3f( 0,-1, 0)).data);
-		glVertex3fv((m_sunPos + Vec3f( 0, 1, 0)).data);
-		glVertex3fv((m_sunPos + Vec3f( 0, 0,-1)).data);
-		glVertex3fv((m_sunPos + Vec3f( 0, 0, 1)).data);
-
-		glVertex3fv(Vec3f::cZero.data);
-		glVertex3fv(m_sunPos.data);
-
-		glEnd();
-
-		glPopAttrib();
+		//drawSunPos();
 	}
 
 	void drawScene(Material2* mat)
@@ -712,6 +700,30 @@ public:
 
 			glEnd();
 		}
+	}
+	
+	void drawSunPos()
+	{
+		glPushAttrib(GL_LIGHTING_BIT|GL_DEPTH_BUFFER_BIT);
+		glDisable(GL_DEPTH_TEST);
+		glDisable(GL_LIGHTING);
+
+		glBegin(GL_LINES);
+
+		glColor3f(0,1,0);
+		glVertex3fv((m_sunPos + Vec3f(-1, 0, 0)).data);
+		glVertex3fv((m_sunPos + Vec3f( 1, 0, 0)).data);
+		glVertex3fv((m_sunPos + Vec3f( 0,-1, 0)).data);
+		glVertex3fv((m_sunPos + Vec3f( 0, 1, 0)).data);
+		glVertex3fv((m_sunPos + Vec3f( 0, 0,-1)).data);
+		glVertex3fv((m_sunPos + Vec3f( 0, 0, 1)).data);
+
+		glVertex3fv(Vec3f::cZero.data);
+		glVertex3fv(m_sunPos.data);
+
+		glEnd();
+
+		glPopAttrib();
 	}
 
 	DefaultResourceManager mResourceManager;
