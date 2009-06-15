@@ -270,7 +270,7 @@ TEST(MemoryProfilerTest)
 {
 	using namespace MemoryProfilerTest;
 
-	MemoryProfiler::singleton().enable = true;
+	MemoryProfiler::singleton().setEnable(true);
 
 	for(int i=0; i<10; ++i) {
 		funA();
@@ -313,7 +313,7 @@ TEST(MemoryProfilerWithThreadTest)
 {
 	using namespace MemoryProfilerTest;
 
-	MemoryProfiler::singleton().enable = true;
+	MemoryProfiler::singleton().setEnable(true);
 
 	LoopRunnable runnable1, runnable2;
 

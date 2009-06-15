@@ -71,7 +71,7 @@ public:
 
 protected:
 	bool mCanceled;
-};	// Cancelable
+};	// RecursiveMutex
 
 /*! Lock mutex in scope.
 	Example:
