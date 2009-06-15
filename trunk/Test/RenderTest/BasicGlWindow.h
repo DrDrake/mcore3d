@@ -65,6 +65,7 @@ protected:
 	bool mKeepRun;
 	size_t mIteration;
 	MovingCamera mCamera;
+	float mCameraVelocity;
 	MCD::DeltaTimer mTimer;
 	size_t mFrameCounter;	//! For calculating fps, reset every one second.
 	float mOneSecondCountDown;
