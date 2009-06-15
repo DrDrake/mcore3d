@@ -64,20 +64,20 @@ struct ScopeChangeProtection
 	ScopeChangeProtection(void* original)
 	{
 		// Change rights on orignal function memory to execute/read/write.
-		::VirtualQuery((void*)original, &mbi_thunk,
+		::VirtualQuery((void*)original, &mbi,
 			sizeof(MEMORY_BASIC_INFORMATION));
-		::VirtualProtect(mbi_thunk.BaseAddress, mbi_thunk.RegionSize,
-			PAGE_EXECUTE_READWRITE, &mbi_thunk.Protect);
+		::VirtualProtect(mbi.BaseAddress, mbi.RegionSize,
+			PAGE_EXECUTE_READWRITE, &mbi.Protect);
 	}
 
 	~ScopeChangeProtection()
 	{
 		// Reset to original page protection.
-		::VirtualProtect(mbi_thunk.BaseAddress, mbi_thunk.RegionSize,
-			mbi_thunk.Protect, &mbi_thunk.Protect);
+		::VirtualProtect(mbi.BaseAddress, mbi.RegionSize,
+			mbi.Protect, &mbi.Protect);
 	}
 
-	MEMORY_BASIC_INFORMATION mbi_thunk;
+	MEMORY_BASIC_INFORMATION mbi;
 };	// ScopeChangeProtection
 
 size_t getPrologueSize(void* original)
@@ -102,6 +102,15 @@ FunctionPatcher::FunctionPatcher()
 #if USE_LIBDIASM
 	x86_init(opt_none, NULL, NULL);
 #endif
+
+	// Change the page protection for the memory region occupied by gPrologueInfos
+	for(size_t i=0; i<MAX_PROLOGUE_INFO; i+=MAX_PROLOGUE_INFO-1)
+	{
+		MEMORY_BASIC_INFORMATION mbi;
+		::VirtualQuery(&gPrologueInfos[i], &mbi, sizeof(mbi));
+		::VirtualProtect(mbi.BaseAddress, mbi.RegionSize,
+			PAGE_EXECUTE_READWRITE, &mbi.Protect);
+	}
 }
 
 FunctionPatcher::~FunctionPatcher()
