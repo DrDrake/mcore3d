@@ -31,7 +31,7 @@ void RigidBodyComponent::onAttach()
 {
 	Entity* e = entity();
 	
-	btTransform tx = btTransform(btQuaternion(0,0,0,1), MathConvertor::ToBullet(e->localTransform.translation()));
+	btTransform tx(btQuaternion(0,0,0,1), MathConvertor::ToBullet(e->localTransform.translation()));
 
 	mMotionState.reset(new btDefaultMotionState(tx));
 
@@ -47,8 +47,8 @@ void RigidBodyComponent::update()
 
 	btTransform tx;
 	mMotionState->getWorldTransform(tx);
-	const btMatrix3x3 rot = tx.getBasis();
-	const btVector3 v = tx.getOrigin();
+	const btMatrix3x3 rot(tx.getBasis());
+	const btVector3 v(tx.getOrigin());
 
 	for(int x = 0; x < 3; ++x)
 		for(int y = 0; y < 3; ++y)

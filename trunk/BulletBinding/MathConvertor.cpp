@@ -6,7 +6,7 @@
 #ifdef NDEBUG
 #	pragma comment(lib, "libbulletdynamics")
 #	pragma comment(lib, "libbulletcollision")
-#	pragma comment(lib, "libbulletmathd")
+#	pragma comment(lib, "libbulletmath")
 #else
 #	pragma comment(lib, "libbulletdynamicsd")
 #	pragma comment(lib, "libbulletcollisiond")
