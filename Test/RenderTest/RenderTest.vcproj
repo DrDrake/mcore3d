@@ -456,6 +456,10 @@
 				</File>
 			</Filter>
 		</Filter>
+		<File
+			RelativePath=".\RunTest.txt"
+			>
+		</File>
 	</Files>
 	<Globals>
 	</Globals>

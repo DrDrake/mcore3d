@@ -105,10 +105,17 @@ void CallstackProfiler::begin(const char name[])
 		return;
 
 	MCD_ASSUME(mCurrentNode);
-	if(name != mCurrentNode->name)
-		mCurrentNode = mCurrentNode->getChildByName(name);
-	mCurrentNode->begin();
-	mCurrentNode->recursionCount++;
+
+	CallstackNode* node = mCurrentNode;
+	if(name != node->name) {
+		node = node->getChildByName(name);
+
+		// Only alter the current node, if the child node is not recursing
+		if(node->recursionCount == 0)
+			mCurrentNode = node;
+	}
+	node->begin();
+	node->recursionCount++;
 }
 
 void CallstackProfiler::end()
