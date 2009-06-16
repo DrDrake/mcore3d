@@ -260,6 +260,8 @@ void recurse2(int count) {
 	ScopeProfiler profile("recurse2");
 	if(count > 0)
 		recurse1(count - 1);
+	void* b = malloc(1);
+	free(b);
 }
 
 }	// namespace MemoryProfilerTest

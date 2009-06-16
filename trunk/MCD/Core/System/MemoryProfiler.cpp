@@ -305,8 +305,13 @@ void MemoryProfiler::begin(const char name[])
 	// Race with MemoryProfiler::reset(), MemoryProfiler::defaultReport() and myHeapFree()
 	ScopeRecursiveLock lock(node->mutex);
 
-	if(name != node->name)
-		node = tls->setCurrentNode(node->getChildByName(name));
+	if(name != node->name) {
+		node = static_cast<MemoryProfilerNode*>(node->getChildByName(name));
+
+		// Only alter the current node, if the child node is not recursing
+		if(node->recursionCount == 0)
+			tls->setCurrentNode(node);
+	}
 
 	node->begin();
 	node->recursionCount++;
