@@ -118,6 +118,11 @@ bool operator!=(const IntrusivePtr<T>& a, const IntrusivePtr<U>& b) {
 }
 
 template<class T, class U> inline
+bool operator<(const IntrusivePtr<T>& a, const IntrusivePtr<U>& b) {
+	return a.get() < b.get();
+}
+
+template<class T, class U> inline
 bool operator==(const IntrusivePtr<T>& a, sal_in_opt U* b) {
 	return a.get() == b;
 }

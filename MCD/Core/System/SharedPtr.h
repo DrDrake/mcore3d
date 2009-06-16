@@ -173,6 +173,11 @@ bool operator!=(const SharedPtr<T,P1>& a, const SharedPtr<U,P2>& b) {
 	return a.get() != b.get();
 }
 
+template<class T, class U, class P1, class P2> inline
+bool operator<(const SharedPtr<T,P1>& a, const SharedPtr<U,P2>& b) {
+	return a.get() < b.get();
+}
+
 template<class T, class U, class P> inline
 bool operator==(const SharedPtr<T,P>& a, sal_in_opt U* b) {
 	return a.get() == b;

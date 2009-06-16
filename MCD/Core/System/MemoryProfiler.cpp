@@ -397,7 +397,7 @@ std::string MemoryProfiler::defaultReport(size_t nameLength) const
 		ScopeRecursiveLock lock(n->mutex);
 
 		// Skip node that have no allocation at all
-//		if(n->exclusiveCount != 0 || n->countSinceLastReset != 0)
+		if(n->callDepth() == 0 || n->exclusiveCount != 0 || n->countSinceLastReset != 0)
 		{
 			size_t callDepth = n->callDepth();
 			ss.flags(ios_base::left);
