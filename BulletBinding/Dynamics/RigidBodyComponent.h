@@ -4,6 +4,7 @@
 #include "../ShareLib.h"
 #include "../../MCD/Core/Math/Vec3.h"
 #include "../../MCD/Core/Entity/BehaviourComponent.h"
+#include "../Collision/CollisionShape.h"
 #include <memory>
 
 class btCollisionShape;
@@ -17,7 +18,7 @@ namespace BulletBinding {
 class MCD_BULLETBINDING_API RigidBodyComponent : public BehaviourComponent
 {
 public:
-	RigidBodyComponent(float mass, btCollisionShape* shape);
+	RigidBodyComponent(float mass, CollisionShape* shape);
 	virtual ~RigidBodyComponent(void);
 
 	// Override from BehaviourComponent
@@ -41,7 +42,7 @@ public:
 private:
 	std::auto_ptr<btRigidBody> mRigidBody;
 	std::auto_ptr<btMotionState> mMotionState;
-	std::auto_ptr<btCollisionShape> mShape;
+	std::auto_ptr<CollisionShape> mShape;
 };	// RigidBodyComponent
 
 }	// BulletBinding

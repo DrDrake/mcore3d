@@ -8,7 +8,7 @@ namespace MCD {
 
 namespace BulletBinding {
 
-RigidBodyComponent::RigidBodyComponent(float mass, btCollisionShape* shape) : mMass(mass)
+RigidBodyComponent::RigidBodyComponent(float mass, CollisionShape* shape) : mMass(mass)
 {
 	mShape.reset(shape);
 
@@ -35,7 +35,7 @@ void RigidBodyComponent::onAttach()
 
 	mMotionState.reset(new btDefaultMotionState(tx));
 
-	btRigidBody::btRigidBodyConstructionInfo rbInfo((btScalar)mMass, mMotionState.get(), mShape.get());
+	btRigidBody::btRigidBodyConstructionInfo rbInfo((btScalar)mMass, mMotionState.get(), mShape->getCollisionShape());
 
 	mRigidBody.reset(new btRigidBody(rbInfo));
 }
