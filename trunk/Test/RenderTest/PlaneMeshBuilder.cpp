@@ -52,16 +52,16 @@ PlaneMeshBuilder::PlaneMeshBuilder(float width, float height, size_t widthSegmen
 	{
 		for(size_t y = 0; y < vyCount; y++)
 		{
-			MeshBuilder::position(vXY);
-			MeshBuilder::normal(Vec3f(0, 1, 0));
-			MeshBuilder::textureUnit(Mesh::TextureCoord0);
-			MeshBuilder::textureCoord(vUV);
+			position(vXY);
+			normal(Vec3f(0, 1, 0));
+			textureUnit(Mesh::TextureCoord0);
+			textureCoord(vUV);
 			if(includeTangents)
 			{
-				MeshBuilder::textureUnit(Mesh::TextureCoord1);
-				MeshBuilder::textureCoord(Vec3f(0, 0, 1));
+				textureUnit(Mesh::TextureCoord1);
+				textureCoord(Vec3f(0, 0, 1));
 			}
-			MeshBuilder::addVertex();
+			addVertex();
 			vXY += deltaX;
 			vUV += deltaU;
 		}
@@ -77,7 +77,7 @@ PlaneMeshBuilder::PlaneMeshBuilder(float width, float height, size_t widthSegmen
 		size_t indexedVertexCount = (y * vxCount);
 		for(size_t x = indexedVertexCount; x < indexedVertexCount + widthSegmentCount; x++)
 		{       
-			MeshBuilder::addQuad(
+			addQuad(
 				(uint16_t) x,
 				(uint16_t)(x + vxCount),
 				(uint16_t)(x + vxCount + 1),

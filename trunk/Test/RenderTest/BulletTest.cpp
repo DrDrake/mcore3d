@@ -10,6 +10,7 @@
 #include "../../BulletBinding/MathConvertor.h"
 
 #include "../../3Party/bullet/btBulletCollisionCommon.h"
+#include <ctime> 
 
 using namespace MCD;
 using namespace BulletBinding;
@@ -34,61 +35,57 @@ TEST(BulletTest)
 			BasicGlWindow(L"title=BulletTest;width=800;height=600;fullscreen=0;FSAA=4"),
 			mResourceManager(*createDefaultFileSystem())
 		{
+			// The maximum random displacement added to the balls
+			static float randomness = 0.02f;
+			srand((unsigned)time(0)); 
+
 			mAbsTime = 0;
 
 			dynamicsWorld.reset(new DynamicsWorld);
 			dynamicsWorld->setGravity(Vec3f(0, -1, 0));
 
-			{	// Setup entity 1
-				std::auto_ptr<Entity> e(new Entity);
-				e->name = L"ChamferBox 1";
-				e->asChildOf(&mRootNode);
-				e->localTransform = Mat44f(Mat33f::rotateXYZ(0, Mathf::cPiOver4(), 0));
-				e->localTransform.setTranslation(Vec3f(-1.5f, 3, 0));
+			Vec3f ballInitialPosition(-8, 2, 0), ballPosXDelta(2, 0, 0), ballPosYDelta(0, 4, 0);
 
-				// Setup the chamfer box mesh
-				MeshPtr mesh = new Mesh(L"");
-				ChamferBoxBuilder chamferBoxBuilder(0.4f, 10);
-				chamferBoxBuilder.commit(*mesh, MeshBuilder::Static);
+			//  Setup a stack of balls
+			for(int x = 0; x < 10; x++)
+			{
+				Vec3f ballPosition(ballInitialPosition + (float)x * ballPosXDelta);
+				for(int y = 0; y < 50; y++)
+				{	// Build entity
+					std::auto_ptr<Entity> e(new Entity);
+					e->name = L"ChamferBox 1";
+					e->asChildOf(&mRootNode);
+					e->localTransform = Mat44f(Mat33f::rotateXYZ(0, Mathf::cPiOver4(), 0));
+					// Add some randomness, hehehehe
+					
+					Vec3f randomOffset(Mathf::random(), Mathf::random(), 0);
+					e->localTransform.setTranslation(ballPosition + randomness * randomOffset);
+					ballPosition += ballPosYDelta;
 
-				// Add component
-				MeshComponent* c = new MeshComponent;
-				c->mesh = mesh;
-				c->effect = static_cast<Effect*>(mResourceManager.load(L"Material/test.fx.xml").get());
-				e->addComponent(c);
+					// Setup the chamfer box mesh
+					MeshPtr mesh = new Mesh(L"");
+					ChamferBoxBuilder chamferBoxBuilder(1.0f, 10);
+					chamferBoxBuilder.commit(*mesh, MeshBuilder::Static);
 
-				// Create the phyiscs component
-				RigidBodyComponent* cc = new RigidBodyComponent(0.1f, new btSphereShape(1));
-				e->addComponent(cc);
-				cc->onAttach();
+					// Add component
+					MeshComponent* c = new MeshComponent;
+					c->mesh = mesh;
+					c->effect = static_cast<Effect*>(mResourceManager.load(L"Material/test.fx.xml").get());
+					e->addComponent(c);
 
-				// Add it to the physics world..
-				dynamicsWorld->addRigidBody(cc);
+					// Create the phyiscs component
+					RigidBodyComponent* cc = new RigidBodyComponent(0.1f, new SphereShape(1));
+					e->addComponent(cc);
+					cc->onAttach();
 
-				e.release();
+					// Add it to the physics world..
+					dynamicsWorld->addRigidBody(cc);
+
+					e.release();
+				}
 			}
 
-			{	// Setup entity 2
-				std::auto_ptr<Entity> e(new Entity);
-				e->name = L"Sphere 1";
-				e->asChildOf(&mRootNode);
-				e->localTransform.setTranslation(Vec3f(1.5f, 0, 0));
-
-				// Setup the chamfer box mesh
-				MeshPtr mesh = new Mesh(L"");
-				ChamferBoxBuilder chamferBoxBuilder(1.0f, 10);
-				chamferBoxBuilder.commit(*mesh, MeshBuilder::Static);
-
-				// Add component
-				MeshComponent* c = new MeshComponent;
-				c->mesh = mesh;
-				c->effect = static_cast<Effect*>(mResourceManager.load(L"Material/test.fx.xml").get());
-				e->addComponent(c);
-
-				e.release();
-			}
-
-			{	// Setup a plane
+			{	// Setup the ground plane
 				std::auto_ptr<Entity> e(new Entity);
 				e->name = L"Floor";
 				e->asChildOf(&mRootNode);
@@ -96,7 +93,7 @@ TEST(BulletTest)
 
 				// Setup the plane mesh
 				MeshPtr mesh = new Mesh(L"");
-				PlaneMeshBuilder planeBlder(10.0f, 10.0f, 1, 1);
+				PlaneMeshBuilder planeBlder(100.0f, 100.0f, 2, 2);
 				planeBlder.commit(*mesh, MeshBuilder::Static);
 
 				// Add component
@@ -108,7 +105,7 @@ TEST(BulletTest)
 				// Create the phyiscs component
 				RigidBodyComponent* cc = new RigidBodyComponent(
 					0,
-					new btStaticPlaneShape(MathConvertor::ToBullet(Vec3f(0, 1, 0)), 0));
+					new StaticPlaneShape(Vec3f(0, 1, 0), 0));
 				e->addComponent(cc);
 				cc->onAttach();
 
@@ -117,6 +114,9 @@ TEST(BulletTest)
 
 				e.release();
 			}
+
+			// Override camera position to see the huge lattice of balls, hahahaha
+			mCamera.position = Vec3f(0, 0, -30);
 		}
 
 		sal_override void update(float deltaTime)

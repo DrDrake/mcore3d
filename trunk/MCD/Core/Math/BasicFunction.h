@@ -99,6 +99,14 @@ public:
 		value = value > max ? max : value;
 		return value;
 	}
+
+	/*! Generate a random number within the range (0..1)
+	 */
+	static Real random()
+	{
+		return (Real)rand() / (Real)RAND_MAX;
+	}
+
 };	// Math
 
 typedef Math<float> Mathf;
