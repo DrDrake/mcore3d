@@ -460,6 +460,10 @@
 			RelativePath=".\RunTest.txt"
 			>
 		</File>
+		<File
+			RelativePath=".\Scene.txt"
+			>
+		</File>
 	</Files>
 	<Globals>
 	</Globals>

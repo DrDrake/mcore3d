@@ -17,6 +17,8 @@
 #include "../../MCD/Render/Effect.h"
 #include "../../MCD/Render/Material.h"
 
+#include <fstream>
+
 using namespace MCD;
 
 static TexturePtr generateRandomTexture(uint textureSize)
@@ -488,11 +490,31 @@ TEST(ASSAOTest)
 	{
 		TestWindow window;
 
+		std::wstring sceneName(L"Scene/03/scene.3ds");
+
+		{	// try to read the sceneName from Scene.txt
+			std::ifstream infile;
+
+			infile.open("Scene.txt", std::ifstream::in);
+			if(infile.good())
+			{
+				// we found it, read the sceneName and close the file
+				std::string line;
+				infile >> line;
+				infile.close();
+
+				if(!line.empty())
+					MCD::strToWStr(line.c_str(), line.length(), sceneName);
+			}
+		}
+
+		window.loadModel(sceneName.c_str());
+
 //		window.loadModel(L"Stanford/dragon.3DS");
 //		window.loadModel(L"TextureBoxSphere.3ds");
 //		window.loadModel(L"Scene/House/scene.3ds");
 //		window.loadModel(L"Scene/City/scene.3ds");
-		window.loadModel(L"Scene/03/scene.3ds");
+//		window.loadModel(L"Scene/03/scene.3ds");
 //		window.loadModel(L"Ship/01/scene.3ds");
 //		window.loadModel(L"Scene/National Stadium/scene.pod");
 //		window.loadModel(L"Church/sponza/sponza.3ds");
