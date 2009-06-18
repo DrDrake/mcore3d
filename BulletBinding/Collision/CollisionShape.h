@@ -4,10 +4,13 @@
 #include "../ShareLib.h"
 #include "../../MCD/Core/Math/Vec3.h"
 #include <memory>
+#include "../../MCD/Core/System/SharedPtr.h"
 
 class btCollisionShape;
 
 namespace MCD {
+
+typedef IntrusivePtr<class Mesh> MeshPtr;
 
 namespace BulletBinding {
 
@@ -36,6 +39,13 @@ class MCD_BULLETBINDING_API StaticPlaneShape : public CollisionShape
 public:
 	StaticPlaneShape(const Vec3f& planeNormal, float planeConstant);
 	virtual ~StaticPlaneShape(void) {};
+};
+
+class MCD_BULLETBINDING_API TriMeshShape : public CollisionShape
+{
+public:
+	TriMeshShape(const MeshPtr& mesh);
+	virtual ~TriMeshShape(void) {};
 };
 
 }	// BulletBinding

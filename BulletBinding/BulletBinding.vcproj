@@ -53,6 +53,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
+				OutputFile="$(OutDir)\$(ProjectName)d.dll"
 				IgnoreDefaultLibraryNames="MSVCRT"
 				ImportLibrary="..\Lib\$(TargetName)d.lib"
 			/>

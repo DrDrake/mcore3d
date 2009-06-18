@@ -42,7 +42,7 @@ public:
 private:
 	std::auto_ptr<btRigidBody> mRigidBody;
 	std::auto_ptr<btMotionState> mMotionState;
-	std::auto_ptr<CollisionShape> mShape;
+	CollisionShape* mShape;
 };	// RigidBodyComponent
 
 }	// BulletBinding
