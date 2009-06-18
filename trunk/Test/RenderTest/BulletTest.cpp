@@ -46,6 +46,13 @@ TEST(BulletTest)
 
 			Vec3f ballInitialPosition(-8, 2, 0), ballPosXDelta(2, 0, 0), ballPosYDelta(0, 4, 0);
 
+			// Setup the chamfer box mesh
+			MeshPtr mesh = new Mesh(L"");
+			ChamferBoxBuilder chamferBoxBuilder(1.0f, 10);
+			chamferBoxBuilder.commit(*mesh, MeshBuilder::Static);
+
+			TriMeshShape* collisionMesh = new TriMeshShape(mesh);
+
 			//  Setup a stack of balls
 			for(int x = 0; x < 10; x++)
 			{
@@ -62,11 +69,6 @@ TEST(BulletTest)
 					e->localTransform.setTranslation(ballPosition + randomness * randomOffset);
 					ballPosition += ballPosYDelta;
 
-					// Setup the chamfer box mesh
-					MeshPtr mesh = new Mesh(L"");
-					ChamferBoxBuilder chamferBoxBuilder(1.0f, 10);
-					chamferBoxBuilder.commit(*mesh, MeshBuilder::Static);
-
 					// Add component
 					MeshComponent* c = new MeshComponent;
 					c->mesh = mesh;
@@ -74,7 +76,7 @@ TEST(BulletTest)
 					e->addComponent(c);
 
 					// Create the phyiscs component
-					RigidBodyComponent* cc = new RigidBodyComponent(0.1f, new SphereShape(1));
+					RigidBodyComponent* cc = new RigidBodyComponent(0.1f, collisionMesh);
 					e->addComponent(cc);
 					cc->onAttach();
 

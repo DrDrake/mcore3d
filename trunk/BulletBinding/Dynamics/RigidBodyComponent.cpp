@@ -10,7 +10,7 @@ namespace BulletBinding {
 
 RigidBodyComponent::RigidBodyComponent(float mass, CollisionShape* shape) : mMass(mass)
 {
-	mShape.reset(shape);
+	mShape = shape;
 
 	//Entity* e = entity();
 
@@ -24,7 +24,6 @@ RigidBodyComponent::~RigidBodyComponent(void)
 	// Destructs the object in sequence...
 	mRigidBody.reset();
 	mMotionState.reset();
-	mShape.reset();
 }
 
 void RigidBodyComponent::onAttach()
