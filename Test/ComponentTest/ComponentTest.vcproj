@@ -205,7 +205,7 @@
 		/>
 		<ProjectReference
 			ReferencedProjectIdentifier="{B6219744-C76A-4C74-A455-8AFA986C3B6A}"
-			RelativePathToProject="..\Component\Component.vcproj"
+			RelativePathToProject="..\MCD\Component\Component.vcproj"
 		/>
 		<ProjectReference
 			ReferencedProjectIdentifier="{500413B2-5AE6-41CE-BCFF-D90DB2755869}"
@@ -235,7 +235,15 @@
 				>
 			</File>
 			<File
+				RelativePath=".\MeshComponentTest.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\PhysicsTest.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\PickComponentTest.cpp"
 				>
 			</File>
 			<File

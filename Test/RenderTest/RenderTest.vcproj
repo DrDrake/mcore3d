@@ -209,7 +209,7 @@
 		/>
 		<ProjectReference
 			ReferencedProjectIdentifier="{B6219744-C76A-4C74-A455-8AFA986C3B6A}"
-			RelativePathToProject="..\Component\Component.vcproj"
+			RelativePathToProject="..\MCD\Component\Component.vcproj"
 		/>
 	</References>
 	<Files>
@@ -283,10 +283,6 @@
 				>
 			</File>
 			<File
-				RelativePath=".\MeshComponentTest.cpp"
-				>
-			</File>
-			<File
 				RelativePath=".\MeshTest.cpp"
 				>
 			</File>
@@ -325,10 +321,6 @@
 						UsePrecompiledHeader="1"
 					/>
 				</FileConfiguration>
-			</File>
-			<File
-				RelativePath=".\PickComponentTest.cpp"
-				>
 			</File>
 			<File
 				RelativePath=".\PlaneMeshBuilder.cpp"

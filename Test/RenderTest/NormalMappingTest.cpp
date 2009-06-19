@@ -21,7 +21,7 @@ private:
 public:
 	TestWindow()
 		:
-		BasicGlWindow(L"title=NormalMappingTest;width=800;height=600;fullscreen=1;FSAA=4"),
+		BasicGlWindow(L"title=NormalMappingTest;width=800;height=600;fullscreen=0;FSAA=4"),
 		mResourceManager(*createDefaultFileSystem())
 	{
 		// load normal mapping effect
