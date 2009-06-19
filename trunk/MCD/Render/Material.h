@@ -8,8 +8,7 @@
 
 namespace MCD {
 
-class Texture;
-typedef IntrusivePtr<Texture> TexturePtr;
+typedef IntrusivePtr<class Texture> TexturePtr;
 
 class MCD_RENDER_API Material
 {

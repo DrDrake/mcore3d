@@ -8,8 +8,7 @@
 
 namespace MCD {
 
-class Shader;
-typedef IntrusivePtr<Shader> ShaderPtr;
+typedef IntrusivePtr<class Shader> ShaderPtr;
 
 class MCD_RENDER_API ShaderProgram : Noncopyable
 {

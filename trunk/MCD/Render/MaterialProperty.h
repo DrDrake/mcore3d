@@ -138,8 +138,7 @@ private:
 	ShininessProperty mShininess;
 };	// StandardProperty
 
-class Texture;
-typedef IntrusivePtr<Texture> TexturePtr;
+typedef IntrusivePtr<class Texture> TexturePtr;
 
 // TextureProperty
 class MCD_RENDER_API TextureProperty : public IMaterialProperty

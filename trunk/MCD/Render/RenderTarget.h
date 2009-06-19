@@ -8,8 +8,7 @@
 
 namespace MCD {
 
-class RenderBuffer;
-typedef IntrusivePtr<RenderBuffer> RenderBufferPtr;
+typedef IntrusivePtr<class RenderBuffer> RenderBufferPtr;
 
 /*!	Represent a configuration of buffers that current render context will render to.
 	Render target, also know as Framebuffer object (FBO) in opengl, allow you to divert

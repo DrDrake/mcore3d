@@ -13,8 +13,7 @@ namespace MCD {
 class IFileSystem;
 class IResourceLoader;
 class Path;
-class Resource;
-typedef IntrusivePtr<Resource> ResourcePtr;
+typedef IntrusivePtr<class Resource> ResourcePtr;
 
 /*!	A class that represent a callback for the IResourceManager.
 	As part of the loading process, we want some callback after certain resource(s)

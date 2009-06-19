@@ -11,8 +11,7 @@
 
 namespace MCD {
 
-class Mesh;
-typedef IntrusivePtr<Mesh> MeshPtr;
+typedef IntrusivePtr<class Mesh> MeshPtr;
 class Texture;
 
 class MCD_RENDER_API Model : public Resource, public IRenderable, private Noncopyable

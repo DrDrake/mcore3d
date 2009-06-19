@@ -5,9 +5,7 @@ using namespace MCD;
 
 namespace {
 
-class Object;
-
-typedef IntrusivePtr<Object> ObjectPtr;
+typedef IntrusivePtr<class Object> ObjectPtr;
 
 class Foo
 {

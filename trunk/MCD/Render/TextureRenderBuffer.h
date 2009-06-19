@@ -5,8 +5,7 @@
 
 namespace MCD {
 
-class Texture;
-typedef IntrusivePtr<Texture> TexturePtr;
+typedef IntrusivePtr<class Texture> TexturePtr;
 
 /*!	Use a texture as the render target
 	\note
