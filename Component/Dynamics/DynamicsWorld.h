@@ -1,5 +1,5 @@
-#ifndef __MCD_BULLETBINDING_DYNAMICSWORLD__
-#define __MCD_BULLETBINDING_DYNAMICSWORLD__
+#ifndef __MCD_COMPONENT_DYNAMICSWORLD__
+#define __MCD_COMPONENT_DYNAMICSWORLD__
 
 #include "../ShareLib.h"
 #include "../../MCD/Core/System/NonCopyable.h"
@@ -38,4 +38,4 @@ private:
 
 }	// MCD
 
-#endif	// __MCD_BULLETBINDING_DYNAMICSWORLD__
+#endif	// __MCD_COMPONENT_DYNAMICSWORLD__

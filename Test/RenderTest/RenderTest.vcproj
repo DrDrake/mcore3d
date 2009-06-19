@@ -209,7 +209,7 @@
 		/>
 		<ProjectReference
 			ReferencedProjectIdentifier="{B6219744-C76A-4C74-A455-8AFA986C3B6A}"
-			RelativePathToProject="..\BulletBinding\BulletBinding.vcproj"
+			RelativePathToProject="..\Component\Component.vcproj"
 		/>
 	</References>
 	<Files>
@@ -252,10 +252,6 @@
 			</File>
 			<File
 				RelativePath=".\BasicGlWindow.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\BulletTest.cpp"
 				>
 			</File>
 			<File
