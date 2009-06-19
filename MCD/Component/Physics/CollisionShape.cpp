@@ -1,10 +1,10 @@
 #include "Pch.h"
 #include "CollisionShape.h"
 #include "MathConvertor.inl"
-#include "../../MCD/Render/Mesh.h"
+#include "../../Render/Mesh.h"
 
-#include "../../3Party/bullet/btBulletCollisionCommon.h"
-#include "../../3Party/glew/glew.h"
+#include "../../../3Party/bullet/btBulletCollisionCommon.h"
+#include "../../../3Party/glew/glew.h"
 
 #ifdef MCD_VC
 #	pragma comment(lib, "glew")

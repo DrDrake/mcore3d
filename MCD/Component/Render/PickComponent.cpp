@@ -1,9 +1,9 @@
 #include "Pch.h"
 #include "PickComponent.h"
 #include "RenderableComponent.h"
-#include "../../MCD/Core/Entity/Entity.h"
-#include "../../MCD/Core/System/Utility.h"
-#include "../../3Party/glew/glew.h"
+#include "../../Core/Entity/Entity.h"
+#include "../../Core/System/Utility.h"
+#include "../../../3Party/glew/glew.h"
 #include <algorithm>
 #include <vector>
 

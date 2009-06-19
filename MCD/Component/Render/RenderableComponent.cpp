@@ -1,6 +1,6 @@
 #include "Pch.h"
 #include "RenderableComponent.h"
-#include "../../MCD/Core/Entity/Entity.h"
+#include "../../Core/Entity/Entity.h"
 
 #ifdef MCD_VC
 #	pragma comment(lib, "OpenGL32")

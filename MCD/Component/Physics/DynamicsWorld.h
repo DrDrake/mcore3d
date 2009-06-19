@@ -2,7 +2,7 @@
 #define __MCD_COMPONENT_DYNAMICSWORLD__
 
 #include "../ShareLib.h"
-#include "../../MCD/Core/System/NonCopyable.h"
+#include "../../Core/System/NonCopyable.h"
 
 namespace MCD {
 

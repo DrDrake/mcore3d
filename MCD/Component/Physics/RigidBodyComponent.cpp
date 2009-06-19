@@ -3,8 +3,8 @@
 #include "RigidBodyComponent.inl"
 #include "CollisionShape.h"
 #include "MathConvertor.inl"
-#include "../../MCD/Core/Entity/Entity.h"
-#include "../../3Party/bullet/btBulletDynamicsCommon.h"
+#include "../../Core/Entity/Entity.h"
+#include "../../../3Party/bullet/btBulletDynamicsCommon.h"
 
 namespace MCD {
 

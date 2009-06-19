@@ -1,4 +1,4 @@
-#include "../../Component/Render/CameraComponent.h"
+#include "../Component/Render/CameraComponent.h"
 #include "../../3Party/jkbind/Declarator.h"
 
 namespace script {

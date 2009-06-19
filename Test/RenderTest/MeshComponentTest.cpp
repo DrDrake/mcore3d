@@ -1,10 +1,10 @@
 #include "Pch.h"
 #include "ChamferBox.h"
 #include "DefaultResourceManager.h"
-#include "../../Component/Render/MeshComponent.h"
+#include "../../MCD/Core/Entity/Entity.h"
 #include "../../MCD/Render/Effect.h"
 #include "../../MCD/Render/Material.h"
-#include "../../MCD/Core/Entity/Entity.h"
+#include "../../MCD/Component/Render/MeshComponent.h"
 
 using namespace MCD;
 
@@ -26,7 +26,7 @@ TEST(MeshComponentTest)
 
 				// Setup the chamfer box mesh
 				MeshPtr mesh = new Mesh(L"");
-				ChamferBoxBuilder chamferBoxBuilder(0.4f, 10);
+				ChamferBoxBuilder chamferBoxBuilder(0.4f, 3);
 				chamferBoxBuilder.commit(*mesh, MeshBuilder::Static);
 
 				// Add component
@@ -46,7 +46,7 @@ TEST(MeshComponentTest)
 
 				// Setup the chamfer box mesh
 				MeshPtr mesh = new Mesh(L"");
-				ChamferBoxBuilder chamferBoxBuilder(1.0f, 10);
+				ChamferBoxBuilder chamferBoxBuilder(1.0f, 5);
 				chamferBoxBuilder.commit(*mesh, MeshBuilder::Static);
 
 				// Add component
@@ -61,6 +61,8 @@ TEST(MeshComponentTest)
 
 		sal_override void update(float deltaTime)
 		{
+			GLfloat lightPos[] = { 200, 200, 200, 1.0f };
+			glLightfv(GL_LIGHT0, GL_POSITION, lightPos);
 			mResourceManager.processLoadingEvents();
 
 			glTranslatef(0.0f, 0.0f, -5.0f);
