@@ -26,8 +26,8 @@ class DynamicsWorld::Impl
 public:
 	Impl()
 	{
-		btVector3 worldAabbMin(-100,-100,-100);
-		btVector3 worldAabbMax( 100, 100, 100);
+		btVector3 worldAabbMin(-1000,-1000,-1000);
+		btVector3 worldAabbMax( 1000, 1000, 1000);
 
 		const unsigned short maxProxies = 1024;
 
