@@ -231,10 +231,6 @@
 				>
 			</File>
 			<File
-				RelativePath=".\Render\Pch.h"
-				>
-			</File>
-			<File
 				RelativePath=".\Render\PickComponent.cpp"
 				>
 			</File>

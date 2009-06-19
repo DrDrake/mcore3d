@@ -6,11 +6,8 @@
 
 namespace MCD {
 
-class Mesh;
-typedef IntrusivePtr<Mesh> MeshPtr;
-
-class Effect;
-typedef IntrusivePtr<Effect> EffectPtr;
+typedef IntrusivePtr<class Mesh> MeshPtr;
+typedef IntrusivePtr<class Effect> EffectPtr;
 
 /*!
  */
