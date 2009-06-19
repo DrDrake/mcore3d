@@ -1,12 +1,12 @@
 #include "Pch.h"
 #include "ChamferBox.h"
 #include "DefaultResourceManager.h"
+#include "../../Component/Render/MeshComponent.h"
+#include "../../Component/Render/PickComponent.h"
 #include "../../MCD/Render/Effect.h"
 #include "../../MCD/Render/Material.h"
 #include "../../MCD/Core/Entity/Entity.h"
 #include "../../MCD/Core/System/WindowEvent.h"
-#include "../../MCD/Render/Components/MeshComponent.h"
-#include "../../MCD/Render/Components/PickComponent.h"
 
 using namespace MCD;
 

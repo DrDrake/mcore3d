@@ -8,12 +8,14 @@
 
 using namespace MCD;
 
-#ifndef NDEBUG
-#	pragma comment(lib, "jkbindd")
-#	pragma comment(lib, "squirreld")
-#else
-#	pragma comment(lib, "jkbind")
-#	pragma comment(lib, "squirrel")
+#ifdef MCD_VC
+#	ifndef NDEBUG
+#		pragma comment(lib, "jkbindd")
+#		pragma comment(lib, "squirreld")
+#	else
+#		pragma comment(lib, "jkbind")
+#		pragma comment(lib, "squirrel")
+#	endif
 #endif
 
 class Bar : public MCD::ScriptOwnershipHandle

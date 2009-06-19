@@ -1,14 +1,14 @@
-#ifndef __MCD_RENDER_COMPONENTS_RENDERABLECOMPONENT__
-#define __MCD_RENDER_COMPONENTS_RENDERABLECOMPONENT__
+#ifndef __MCD_COMPONENT_RENDER_RENDERABLECOMPONENT__
+#define __MCD_COMPONENT_RENDER_RENDERABLECOMPONENT__
 
 #include "../ShareLib.h"
-#include "../../Core/Entity/Component.h"
+#include "../../MCD/Core/Entity/Component.h"
 
 namespace MCD {
 
 /*!	The component family which is something renderable.
  */
-class MCD_ABSTRACT_CLASS MCD_RENDER_API RenderableComponent : public Component
+class MCD_ABSTRACT_CLASS MCD_COMPONENT_API RenderableComponent : public Component
 {
 public:
 	sal_override const std::type_info& familyType() const {
@@ -27,4 +27,4 @@ public:
 
 }	// namespace MCD
 
-#endif	// __MCD_RENDER_COMPONENTS_RENDERABLECOMPONENT__
+#endif	// __MCD_COMPONENT_RENDER_RENDERABLECOMPONENT__

@@ -1,8 +1,8 @@
 #include "Pch.h"
 #include "RigidBodyComponent.h"
 #include "RigidBodyComponent.inl"
-#include "../Collision/CollisionShape.h"
-#include "../MathConvertor.inl"
+#include "CollisionShape.h"
+#include "MathConvertor.inl"
 #include "../../MCD/Core/Entity/Entity.h"
 #include "../../3Party/bullet/btBulletDynamicsCommon.h"
 
