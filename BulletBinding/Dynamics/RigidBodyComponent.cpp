@@ -1,6 +1,8 @@
 #include "Pch.h"
 #include "RigidBodyComponent.h"
-#include "../MathConvertor.h"
+#include "RigidBodyComponent.inl"
+#include "../Collision/CollisionShape.h"
+#include "../MathConvertor.inl"
 #include "../../MCD/Core/Entity/Entity.h"
 #include "../../3Party/bullet/btBulletDynamicsCommon.h"
 
@@ -8,8 +10,9 @@ namespace MCD {
 
 namespace BulletBinding {
 
-RigidBodyComponent::RigidBodyComponent(float mass, CollisionShape* shape) : mMass(mass)
+RigidBodyComponent::Impl::Impl(float mass, CollisionShape* shape)
 {
+	mMass = mass;
 	mShape = shape;
 
 	//Entity* e = entity();
@@ -19,31 +22,29 @@ RigidBodyComponent::RigidBodyComponent(float mass, CollisionShape* shape) : mMas
 	// mMotionState.reset(new btDefaultMotionState(btTransform(btQuaternion(0,0,0,1), btVector3(0, 0, 0))));
 }
 
-RigidBodyComponent::~RigidBodyComponent(void)
+RigidBodyComponent::Impl::~Impl()
 {
 	// Destructs the object in sequence...
-	mRigidBody.reset();
-	mMotionState.reset();
+	delete mRigidBody;
+	delete mMotionState;
 }
 
-void RigidBodyComponent::onAttach()
+void RigidBodyComponent::Impl::onAttach(Entity* e)
 {
-	Entity* e = entity();
-	
-	btTransform tx(btQuaternion(0,0,0,1), MathConvertor::ToBullet(e->localTransform.translation()));
+	btTransform tx(btQuaternion(0,0,0,1), toBullet(e->localTransform.translation()));
 
-	mMotionState.reset(new btDefaultMotionState(tx));
+	mMotionState = new btDefaultMotionState(tx);
 
-	btRigidBody::btRigidBodyConstructionInfo rbInfo((btScalar)mMass, mMotionState.get(), mShape->getCollisionShape());
+	btRigidBody::btRigidBodyConstructionInfo rbInfo(
+		(btScalar)mMass, mMotionState, reinterpret_cast<btCollisionShape*>(mShape->shapeImpl)
+	);
 
-	mRigidBody.reset(new btRigidBody(rbInfo));
+	mRigidBody = new btRigidBody(rbInfo);
 }
 
-void RigidBodyComponent::update()
+void RigidBodyComponent::Impl::update(Entity* e)
 {
 	// Simple translation of btTransform to MCD Matrix
-	Entity* e = entity();
-
 	btTransform tx;
 	mMotionState->getWorldTransform(tx);
 	const btMatrix3x3 rot(tx.getBasis());
@@ -56,32 +57,58 @@ void RigidBodyComponent::update()
 	e->localTransform.setTranslation(Vec3f(v[0], v[1], v[2]));
 }
 
+RigidBodyComponent::RigidBodyComponent(float mass, CollisionShape* shape)
+{
+	mImpl = new Impl(mass, shape);
+}
+
+RigidBodyComponent::~RigidBodyComponent(void)
+{
+	delete mImpl;
+}
+
+void RigidBodyComponent::onAttach()
+{
+	MCD_ASSUME(mImpl);
+	mImpl->onAttach(entity());
+}
+
+void RigidBodyComponent::update()
+{
+	MCD_ASSUME(mImpl);
+	mImpl->update(entity());
+}
+
 void RigidBodyComponent::activate()
 {
-	mRigidBody->activate();
+	MCD_ASSUME(mImpl);
+	mImpl->mRigidBody->activate();
 }
 
 void RigidBodyComponent::applyForce(const Vec3f& force, const Vec3f& rel_pos)
 {
-	using namespace MathConvertor;
-	mRigidBody->applyForce(ToBullet(force), ToBullet(rel_pos));
+	MCD_ASSUME(mImpl);
+	mImpl->mRigidBody->applyForce(toBullet(force), toBullet(rel_pos));
 }
 
 float RigidBodyComponent::getLinearDamping() const
 {
-	return mRigidBody->getLinearDamping();
+	MCD_ASSUME(mImpl);
+	return mImpl->mRigidBody->getLinearDamping();
 }
 
 float RigidBodyComponent::getAngularDamping() const
 {
-	return mRigidBody->getAngularDamping();
+	MCD_ASSUME(mImpl);
+	return mImpl->mRigidBody->getAngularDamping();
 }
 
 void RigidBodyComponent::setDamping(float lin_damping, float ang_damping)
 {
-	mRigidBody->setDamping(lin_damping, ang_damping);
+	MCD_ASSUME(mImpl);
+	mImpl->mRigidBody->setDamping(lin_damping, ang_damping);
 }
 
-}	// BulletBinding
+}	// namespace BulletBinding
 
-}	// MCD
+}	// namespace MCD

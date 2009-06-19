@@ -7,10 +7,8 @@
 #include "../../MCD/Render/Components/MeshComponent.h"
 #include "../../MCD/Core/Entity/Entity.h"
 #include "../../BulletBinding/Dynamics.h"
-#include "../../BulletBinding/MathConvertor.h"
+#include "../../BulletBinding/Collision/CollisionShape.h"
 
-#include "../../3Party/bullet/btBulletCollisionCommon.h"
-#include <ctime> 
 
 using namespace MCD;
 using namespace BulletBinding;
@@ -37,7 +35,6 @@ TEST(BulletTest)
 		{
 			// The maximum random displacement added to the balls
 			static float randomness = 0.02f;
-			srand((unsigned)time(0)); 
 
 			mAbsTime = 0;
 
@@ -54,10 +51,10 @@ TEST(BulletTest)
 			TriMeshShape* collisionMesh = new TriMeshShape(mesh);
 
 			//  Setup a stack of balls
-			for(int x = 0; x < 10; x++)
+			for(int x = 0; x < 10; ++x)
 			{
 				Vec3f ballPosition(ballInitialPosition + (float)x * ballPosXDelta);
-				for(int y = 0; y < 50; y++)
+				for(int y = 0; y < 50; ++y)
 				{	// Build entity
 					std::auto_ptr<Entity> e(new Entity);
 					e->name = L"ChamferBox 1";

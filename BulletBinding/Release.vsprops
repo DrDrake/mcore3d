@@ -19,7 +19,10 @@
 	/>
 	<Tool
 		Name="VCLinkerTool"
+		OutputFile="$(OutDir)\MCD$(ProjectName).dll"
+		SubSystem="1"
 		OptimizeReferences="2"
 		EnableCOMDATFolding="2"
+		ImportLibrary="../Lib/MCD$(ProjectName).lib"
 	/>
 </VisualStudioPropertySheet>

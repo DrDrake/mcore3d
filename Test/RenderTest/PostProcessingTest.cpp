@@ -581,7 +581,7 @@ void FrameBuffers::end()
 	glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0);
 }
 
-}
+}	// namespace v2
 
 typedef v2::FrameBuffers FrameBuffers;
 

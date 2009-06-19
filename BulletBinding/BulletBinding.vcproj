@@ -53,9 +53,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				OutputFile="$(OutDir)\$(ProjectName)d.dll"
 				IgnoreDefaultLibraryNames="MSVCRT"
-				ImportLibrary="..\Lib\$(TargetName)d.lib"
 			/>
 			<Tool
 				Name="VCALinkTool"
@@ -117,7 +115,6 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				ImportLibrary="..\Lib\$(TargetName).lib"
 			/>
 			<Tool
 				Name="VCALinkTool"
@@ -208,6 +205,10 @@
 			ReferencedProjectIdentifier="{8B671592-CBBD-4F9E-BACA-1E4AC1575AC2}"
 			RelativePathToProject="..\MCD\Core\Core.vcproj"
 		/>
+		<ProjectReference
+			ReferencedProjectIdentifier="{500413B2-5AE6-41CE-BCFF-D90DB2755869}"
+			RelativePathToProject="..\MCD\Render\Render.vcproj"
+		/>
 	</References>
 	<Files>
 		<Filter
@@ -221,10 +222,6 @@
 			</File>
 			<File
 				RelativePath=".\Dynamics\DynamicsWorld.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\MathConvertor.cpp"
 				>
 			</File>
 			<File
@@ -271,7 +268,7 @@
 				>
 			</File>
 			<File
-				RelativePath=".\MathConvertor.h"
+				RelativePath=".\MathConvertor.inl"
 				>
 			</File>
 			<File
@@ -283,15 +280,13 @@
 				>
 			</File>
 			<File
+				RelativePath=".\Dynamics\RigidBodyComponent.inl"
+				>
+			</File>
+			<File
 				RelativePath=".\ShareLib.h"
 				>
 			</File>
-		</Filter>
-		<Filter
-			Name="Resource Files"
-			Filter="rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav"
-			UniqueIdentifier="{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}"
-			>
 		</Filter>
 	</Files>
 	<Globals>
