@@ -287,6 +287,10 @@
 			RelativePath=".\Pch.h"
 			>
 		</File>
+		<File
+			RelativePath=".\RunTest.txt"
+			>
+		</File>
 	</Files>
 	<Globals>
 	</Globals>
