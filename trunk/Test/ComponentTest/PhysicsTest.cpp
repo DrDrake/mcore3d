@@ -1,27 +1,19 @@
 #include "Pch.h"
-#include "ChamferBox.h"
-#include "DefaultResourceManager.h"
-#include "PlaneMeshBuilder.h"
+#include "../RenderTest/ChamferBox.h"
+#include "../RenderTest/BasicGlWindow.h"
+#include "../RenderTest/DefaultResourceManager.h"
+#include "../RenderTest/PlaneMeshBuilder.h"
 #include "../../MCD/Render/Effect.h"
 #include "../../MCD/Render/Material.h"
 #include "../../MCD/Render/Components/MeshComponent.h"
 #include "../../MCD/Core/Entity/Entity.h"
-#include "../../BulletBinding/Dynamics.h"
-#include "../../BulletBinding/Collision/CollisionShape.h"
-
+#include "../../Component/Dynamics.h"
+#include "../../Component/Collision/CollisionShape.h"
 
 using namespace MCD;
-using namespace BulletBinding;
+using namespace PhysicsComponent;
 
-#ifdef NDEBUG
-#	pragma comment(lib, "libbulletcollision")
-#	pragma comment(lib, "libbulletmath")
-#else
-#	pragma comment(lib, "libbulletcollisiond")
-#	pragma comment(lib, "libbulletmathd")
-#endif
-
-TEST(BulletTest)
+TEST(PhysicsComponentTest)
 {
 	class TestWindow : public BasicGlWindow
 	{
@@ -30,7 +22,7 @@ TEST(BulletTest)
 	public:
 		TestWindow()
 			:
-			BasicGlWindow(L"title=BulletTest;width=800;height=600;fullscreen=0;FSAA=4"),
+			BasicGlWindow(L"title=PhysicsComponentTest;width=800;height=600;fullscreen=0;FSAA=4"),
 			mResourceManager(*createDefaultFileSystem())
 		{
 			// The maximum random displacement added to the balls

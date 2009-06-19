@@ -1,5 +1,5 @@
-#ifndef __MCD_BULLETBINDING_COLLISIONSHAPE__
-#define __MCD_BULLETBINDING_COLLISIONSHAPE__
+#ifndef __MCD_COMPONENT_COLLISIONSHAPE__
+#define __MCD_COMPONENT_COLLISIONSHAPE__
 
 #include "../ShareLib.h"
 #include "../../MCD/Core/System/NonCopyable.h"
@@ -54,4 +54,4 @@ public:
 
 }	// MCD
 
-#endif // __MCD_BULLETBINDING_COLLISIONSHAPE__
+#endif // __MCD_COMPONENT_COLLISIONSHAPE__

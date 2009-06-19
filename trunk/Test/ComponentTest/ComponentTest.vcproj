@@ -214,8 +214,34 @@
 	</References>
 	<Files>
 		<Filter
-			Name="Physics"
+			Name="Header Files"
+			Filter="h"
 			>
+		</Filter>
+		<Filter
+			Name="Source Files"
+			Filter="cpp;"
+			>
+			<File
+				RelativePath="..\RenderTest\BasicGlWindow.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\RenderTest\ChamferBox.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\RenderTest\DefaultResourceManager.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\PhysicsTest.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\RenderTest\PlaneMeshBuilder.cpp"
+				>
+			</File>
 		</Filter>
 		<File
 			RelativePath=".\Main.cpp"

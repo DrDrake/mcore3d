@@ -1,5 +1,5 @@
-#ifndef __MCD_BULLETBINDING_RIGIDBODYCOMPONENT__
-#define __MCD_BULLETBINDING_RIGIDBODYCOMPONENT__
+#ifndef __MCD_COMPONENT_RIGIDBODYCOMPONENT__
+#define __MCD_COMPONENT_RIGIDBODYCOMPONENT__
 
 #include "../ShareLib.h"
 #include "../../MCD/Core/Entity/BehaviourComponent.h"
@@ -45,4 +45,4 @@ private:
 
 }	// MCD
 
-#endif	// __MCD_BULLETBINDING_RIGIDBODYCOMPONENT__
+#endif	// __MCD_COMPONENT_RIGIDBODYCOMPONENT__
