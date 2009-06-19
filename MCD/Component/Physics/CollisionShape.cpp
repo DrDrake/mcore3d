@@ -33,47 +33,71 @@ StaticPlaneShape::StaticPlaneShape(const Vec3f& planeNormal, float planeConstant
 	: CollisionShape(new btStaticPlaneShape(toBullet(planeNormal), planeConstant))
 {}
 
-TriMeshShape::TriMeshShape(const MeshPtr& mesh)
+class StaticTriMeshShape::Impl
 {
-	// BULLET DESIGN IS VERY ON99
-	// THE FOLLOWING CODE MAY NOT WORK...
-	// USE btTriangleIndexVertexArray INSTEAD!!!!!!!!!!!!!!!!!!!!!!!!!!!
-	std::auto_ptr<btTriangleMesh> btMeshBlder(new btTriangleMesh(false, false));
-
-	btMeshBlder->preallocateVertices(mesh->vertexCount());
-	btMeshBlder->preallocateIndices(mesh->indexCount());
-
-	// Add vertices to the bullet triangle mesh
-	uint vertexHandle = mesh->handle(Mesh::Position);
-	glBindBuffer(GL_ARRAY_BUFFER, vertexHandle);
-	float* vertexBuffer = (float*)glMapBuffer(GL_ARRAY_BUFFER, GL_READ_ONLY);
-
-	for(size_t v=0; v < mesh->vertexCount(); ++v)
+	std::vector<float> mVertexBuffer;
+	std::vector<int> mIndexBuffer;
+	std::auto_ptr<btTriangleIndexVertexArray> mBulletVertexIdxArray;
+public:
+	Impl(const MeshPtr& mesh, void*& shapeImpl)
 	{
-		btVector3 vertex(*vertexBuffer++, *vertexBuffer++, *vertexBuffer++);
-		btMeshBlder->findOrAddVertex(vertex, false);
-		btMeshBlder->getIndexedMeshArray()[0].m_numVertices++;
+		// Firstly, copy the vertex buffer and index buffer from OpenGL buffer to system memory.
+		// Then, pass them into btTriangleIndexVertexArray
+		// The array of vertex and index data should be freed by StaticTriMeshShape
+		assert(mesh->indexCount() % 3 == 0);
+
+		mVertexBuffer.resize(mesh->vertexCount() * 3);
+		mIndexBuffer.resize(mesh->indexCount());
+
+		// Copy the vertex buffer
+		uint vertexHandle = mesh->handle(Mesh::Position);
+		glBindBuffer(GL_ARRAY_BUFFER, vertexHandle);
+		float* vertexBuffer = (float*)glMapBuffer(GL_ARRAY_BUFFER, GL_READ_ONLY);
+
+		memcpy(&mVertexBuffer[0], vertexBuffer, mVertexBuffer.size() * sizeof(float));
+
+		glUnmapBuffer(GL_ARRAY_BUFFER);
+		glBindBuffer(GL_ARRAY_BUFFER, 0);
+
+		// Copy the index buffer
+		uint indexHandle = mesh->handle(Mesh::Index);
+		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indexHandle);
+		uint16_t* indexBuffer = (uint16_t*)glMapBuffer(GL_ELEMENT_ARRAY_BUFFER, GL_READ_ONLY);
+
+		// The index buffer cannot be copied directly. 16 bit index is used in OpenGL, where 32 bit index is used in Bullet
+		for(size_t idx = 0; idx < mesh->indexCount(); idx++)
+			mIndexBuffer[idx] = indexBuffer[idx];
+
+		glUnmapBuffer(GL_ELEMENT_ARRAY_BUFFER);
+		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+
+		// Keep it alive until shutdown
+		mBulletVertexIdxArray.reset(new btTriangleIndexVertexArray);
+
+		btIndexedMesh bulletMesh;
+		bulletMesh.pad = sizeof(bulletMesh);
+		// vertex
+		bulletMesh.m_numVertices = mVertexBuffer.size();
+		bulletMesh.m_vertexBase = (unsigned char *)&mVertexBuffer[0];
+		bulletMesh.m_vertexStride = sizeof(float) * 3;
+		// index
+		bulletMesh.m_indexType = PHY_INTEGER;
+		bulletMesh.m_numTriangles = mIndexBuffer.size() / 3;
+		bulletMesh.m_triangleIndexBase = (unsigned char *)&mIndexBuffer[0];
+		bulletMesh.m_triangleIndexStride = sizeof(int) * 3;
+		
+		mBulletVertexIdxArray->addIndexedMesh(bulletMesh);
+
+		shapeImpl = new btBvhTriangleMeshShape(mBulletVertexIdxArray.get(), true);
 	}
+};
 
-	glUnmapBuffer(GL_ARRAY_BUFFER);
-	glBindBuffer(GL_ARRAY_BUFFER, 0);
+StaticTriMeshShape::StaticTriMeshShape(const MeshPtr& mesh)
+{
+	mImpl = new Impl(mesh, shapeImpl);
+}
 
-	// Add indices to the bullet triangle mesh
-	uint indexHandle = mesh->handle(Mesh::Index);
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indexHandle);
-	uint16_t* indexBuffer = (uint16_t*)glMapBuffer(GL_ELEMENT_ARRAY_BUFFER, GL_READ_ONLY);
-
-	for(size_t i =  0; i < mesh->indexCount(); ++i)
-	{
-		btMeshBlder->addIndex(*indexBuffer++);
-		if (i % 3 == 0)
-			btMeshBlder->getIndexedMeshArray()[0].m_numTriangles++;
-	}
-
-	btMeshBlder->getIndexedMeshArray()[0];
-
-	glUnmapBuffer(GL_ELEMENT_ARRAY_BUFFER);
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
-
-	shapeImpl = new btBvhTriangleMeshShape(btMeshBlder.get(), true);
+StaticTriMeshShape::~StaticTriMeshShape()
+{
+	delete mImpl;
 }

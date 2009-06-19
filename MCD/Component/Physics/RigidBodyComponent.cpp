@@ -39,6 +39,9 @@ void RigidBodyComponent::Impl::onAttach(Entity* e)
 		(btScalar)mMass, mMotionState, reinterpret_cast<btCollisionShape*>(mShape->shapeImpl)
 	);
 
+	// Assume sphere...
+	rbInfo.m_localInertia = btVector3(mMass, mMass, mMass);
+
 	mRigidBody = new btRigidBody(rbInfo);
 }
 
