@@ -1,7 +1,7 @@
 #include "stdafx.h"
 #include "GizmoBaseComponent.h"
 #include "../../../MCD/Core/Entity/Entity.h"
-#include "../../../MCD/Render/Components/PickComponent.h"
+#include "../../../MCD/Component/Render/PickComponent.h"
 #include "../../../3Party/glew/glew.h"
 
 using namespace MCD;
