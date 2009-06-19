@@ -1,38 +1,37 @@
 #include "Pch.h"
-
-#pragma comment(lib, "glew")
-#ifdef NDEBUG
-#	pragma comment(lib, "MCDRender")
-#else
-#	pragma comment(lib, "MCDRenderd")
-#endif
-
-
-#include "../../3Party/glew/glew.h"
-
-#include "../MathConvertor.h"
 #include "CollisionShape.h"
-
-#include "../../3Party/bullet/btBulletCollisionCommon.h"
+#include "../MathConvertor.inl"
 #include "../../MCD/Render/Mesh.h"
 
-using namespace MCD;
-using namespace MCD::BulletBinding;
+#include "../../3Party/bullet/btBulletCollisionCommon.h"
+#include "../../3Party/glew/glew.h"
 
-CollisionShape::CollisionShape(btCollisionShape* shape)
-{
-	mShape.reset(shape);
+#ifdef MCD_VC
+#	pragma comment(lib, "glew")
+#endif	// MCD_VC
+
+using namespace MCD;
+using namespace MCD::PhysicsComponent;
+
+CollisionShape::CollisionShape()
+	: shapeImpl(nullptr)
+{}
+
+CollisionShape::CollisionShape(void* shape)
+	: shapeImpl(shape)
+{}
+
+CollisionShape::~CollisionShape() {
+	delete reinterpret_cast<btCollisionShape*>(shapeImpl);
 }
 
 SphereShape::SphereShape(float radius)
-{
-	mShape.reset(new btSphereShape(radius));
-}
+	: CollisionShape(new btSphereShape(radius))
+{}
 
 StaticPlaneShape::StaticPlaneShape(const Vec3f& planeNormal, float planeConstant)
-{
-	mShape.reset(new btStaticPlaneShape(MathConvertor::ToBullet(planeNormal), planeConstant));
-}
+	: CollisionShape(new btStaticPlaneShape(toBullet(planeNormal), planeConstant))
+{}
 
 TriMeshShape::TriMeshShape(const MeshPtr& mesh)
 {
@@ -49,7 +48,7 @@ TriMeshShape::TriMeshShape(const MeshPtr& mesh)
 	glBindBuffer(GL_ARRAY_BUFFER, vertexHandle);
 	float* vertexBuffer = (float*)glMapBuffer(GL_ARRAY_BUFFER, GL_READ_ONLY);
 
-	for(size_t v =  0; v < mesh->vertexCount(); v++)
+	for(size_t v=0; v < mesh->vertexCount(); ++v)
 	{
 		btVector3 vertex(*vertexBuffer++, *vertexBuffer++, *vertexBuffer++);
 		btMeshBlder->findOrAddVertex(vertex, false);
@@ -64,17 +63,17 @@ TriMeshShape::TriMeshShape(const MeshPtr& mesh)
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indexHandle);
 	uint16_t* indexBuffer = (uint16_t*)glMapBuffer(GL_ELEMENT_ARRAY_BUFFER, GL_READ_ONLY);
 
-	for(size_t i =  0; i < mesh->indexCount(); i++)
+	for(size_t i =  0; i < mesh->indexCount(); ++i)
 	{
 		btMeshBlder->addIndex(*indexBuffer++);
 		if (i % 3 == 0)
 			btMeshBlder->getIndexedMeshArray()[0].m_numTriangles++;
 	}
 
-	 btMeshBlder->getIndexedMeshArray()[0]
+	btMeshBlder->getIndexedMeshArray()[0];
 
 	glUnmapBuffer(GL_ELEMENT_ARRAY_BUFFER);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 
-	mShape.reset(new btBvhTriangleMeshShape(btMeshBlder.get(), true));
+	shapeImpl = new btBvhTriangleMeshShape(btMeshBlder.get(), true);
 }

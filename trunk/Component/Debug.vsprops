@@ -2,7 +2,7 @@
 <VisualStudioPropertySheet
 	ProjectType="Visual C++"
 	Version="8.00"
-	Name="BulletBindingDebug"
+	Name="Debug"
 	>
 	<Tool
 		Name="VCCLCompilerTool"
@@ -12,5 +12,11 @@
 		BasicRuntimeChecks="3"
 		SmallerTypeCheck="true"
 		RuntimeLibrary="3"
+	/>
+	<Tool
+		Name="VCLinkerTool"
+		OutputFile="$(OutDir)/MCD$(ProjectName)d.dll"
+		SubSystem="1"
+		ImportLibrary="../Lib/MCD$(ProjectName)d.lib"
 	/>
 </VisualStudioPropertySheet>

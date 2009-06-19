@@ -2,53 +2,55 @@
 #define __MCD_BULLETBINDING_COLLISIONSHAPE__
 
 #include "../ShareLib.h"
-#include "../../MCD/Core/Math/Vec3.h"
-#include <memory>
+#include "../../MCD/Core/System/NonCopyable.h"
 #include "../../MCD/Core/System/SharedPtr.h"
-
-class btCollisionShape;
 
 namespace MCD {
 
+template<typename T> class Vec3;
+typedef Vec3<float> Vec3f;
+
 typedef IntrusivePtr<class Mesh> MeshPtr;
 
-namespace BulletBinding {
+namespace PhysicsComponent {
 
-class MCD_BULLETBINDING_API CollisionShape
+class MCD_ABSTRACT_CLASS MCD_COMPONENT_API CollisionShape : Noncopyable
 {
+	friend class RigidBodyComponent;
+
 protected:
-	std::auto_ptr<btCollisionShape> mShape;
-public:
-	CollisionShape(void) {};
-	CollisionShape(btCollisionShape* shape);
-	virtual ~CollisionShape(void) {};
-	btCollisionShape* getCollisionShape() const{
-		return mShape.get();
-	};
+	CollisionShape();
+
+	//! Please make sure the shape variable is kind of btCollisionShape
+	CollisionShape(void* shape);
+
+	~CollisionShape();
+
+	/*!	Pointer storing the implementation of the collision shape,
+		that is actually using the type btCollisionShape.
+	 */
+	void* shapeImpl;
 };  // CollisionShape
 
-class MCD_BULLETBINDING_API SphereShape : public CollisionShape
+class MCD_COMPONENT_API SphereShape : public CollisionShape
 {
 public:
 	SphereShape(float radius);
-	virtual ~SphereShape(void) {};
-};
+};	// SphereShape
 
-class MCD_BULLETBINDING_API StaticPlaneShape : public CollisionShape
+class MCD_COMPONENT_API StaticPlaneShape : public CollisionShape
 {
 public:
 	StaticPlaneShape(const Vec3f& planeNormal, float planeConstant);
-	virtual ~StaticPlaneShape(void) {};
-};
+};	// StaticPlaneShape
 
-class MCD_BULLETBINDING_API TriMeshShape : public CollisionShape
+class MCD_COMPONENT_API TriMeshShape : public CollisionShape
 {
 public:
 	TriMeshShape(const MeshPtr& mesh);
-	virtual ~TriMeshShape(void) {};
-};
+};	// TriMeshShape
 
-}	// BulletBinding
+}	// PhysicsComponent
 
 }	// MCD
 

@@ -2,7 +2,7 @@
 <VisualStudioPropertySheet
 	ProjectType="Visual C++"
 	Version="8.00"
-	Name="BulletBindingAnalysis"
+	Name="Analysis"
 	>
 	<Tool
 		Name="VCCLCompilerTool"
@@ -10,5 +10,11 @@
 		PreprocessorDefinitions="_DEBUG"
 		RuntimeLibrary="3"
 		EnablePREfast="true"
+	/>
+	<Tool
+		Name="VCLinkerTool"
+		OutputFile="$(OutDir)/MCD$(ProjectName)a.dll"
+		SubSystem="1"
+		ImportLibrary="../Lib/MCD$(ProjectName)a.lib"
 	/>
 </VisualStudioPropertySheet>

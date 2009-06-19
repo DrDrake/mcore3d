@@ -2,50 +2,46 @@
 #define __MCD_BULLETBINDING_RIGIDBODYCOMPONENT__
 
 #include "../ShareLib.h"
-#include "../../MCD/Core/Math/Vec3.h"
 #include "../../MCD/Core/Entity/BehaviourComponent.h"
-#include "../Collision/CollisionShape.h"
-#include <memory>
-
-class btCollisionShape;
-class btMotionState;
-class btRigidBody;
 
 namespace MCD {
 
-namespace BulletBinding {
+template<typename T> class Vec3;
+typedef Vec3<float> Vec3f;
 
-class MCD_BULLETBINDING_API RigidBodyComponent : public BehaviourComponent
+namespace PhysicsComponent {
+
+class CollisionShape;
+
+class MCD_COMPONENT_API RigidBodyComponent : public BehaviourComponent
 {
+	friend class DynamicsWorld;
+
 public:
 	RigidBodyComponent(float mass, CollisionShape* shape);
-	virtual ~RigidBodyComponent(void);
+
+	sal_override ~RigidBodyComponent(void);
 
 	// Override from BehaviourComponent
 	sal_override void update();
 
 	void onAttach();
 
-	btRigidBody* getRightBody() const {
-		return mRigidBody.get();
-	}
-
 	void activate();
+
 	void applyForce(const Vec3f& force, const Vec3f& rel_pos);
 
 	float getLinearDamping() const;
 	float getAngularDamping() const;
 
 	void setDamping(float lin_damping, float ang_damping);
-	float mMass;
 
 private:
-	std::auto_ptr<btRigidBody> mRigidBody;
-	std::auto_ptr<btMotionState> mMotionState;
-	CollisionShape* mShape;
+	class Impl;
+	Impl* mImpl;
 };	// RigidBodyComponent
 
-}	// BulletBinding
+}	// PhysicsComponent
 
 }	// MCD
 
