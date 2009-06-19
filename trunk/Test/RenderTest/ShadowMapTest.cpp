@@ -135,8 +135,8 @@ public:
 
 	void debugShadowMap()
 	{
-		size_t w = width()/4;
-		size_t h = height()/4;
+		size_t w = 512;//width()/4;
+		size_t h = 512;//height()/4;
 		glViewport(0, 0, w, h);
 		mShadowMapProjection.texture->bind();
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_COMPARE_MODE, GL_NONE);
@@ -217,6 +217,13 @@ public:
 			throw std::runtime_error("Fail to load shader");
 		}
 
+        if(!loadShaderProgram(
+			L"Shader/ShadowMap/DebugShadowMap.glvs", L"Shader/ShadowMap/DebugShadowMap.glps",
+			mDebugShadowMapShader, mResourceManager))
+		{
+			throw std::runtime_error("Fail to load shader");
+		}
+
 		mShadowMapShader.bind();
 		int colorTex = glGetUniformLocation(mShadowMapShader.handle, "colorTex");
 		glUniform1i(colorTex, 0);
@@ -224,6 +231,11 @@ public:
 		int shadowTex = glGetUniformLocation(mShadowMapShader.handle, "shadowTex");
 		glUniform1i(shadowTex, 1);
 		mShadowMapShader.unbind();
+
+        mDebugShadowMapShader.bind();
+        shadowTex = glGetUniformLocation(mDebugShadowMapShader.handle, "shadowTex");
+		glUniform1i(shadowTex, 0);
+		mDebugShadowMapShader.unbind();
 	}
 
 	sal_override void update(float deltaTime)
@@ -247,10 +259,13 @@ public:
 
 		mShadowMapProjection.unbind();
 
+        mDebugShadowMapShader.bind();
 		debugShadowMap();
+        mDebugShadowMapShader.unbind();
 	}
 
 	ShaderProgram mShadowMapShader;
+    ShaderProgram mDebugShadowMapShader;
 };	// ShaderTestWindow
 
 }	// namespace
