@@ -1,59 +1,105 @@
 #include "Pch.h"
 #include "DynamicsWorld.h"
 #include "RigidBodyComponent.h"
-#include "../MathConvertor.h"
+#include "RigidBodyComponent.inl"	// We need to access some implementation of RigidBodyComponent
+#include "../MathConvertor.inl"
+#include "../../MCD/Core/System/PtrVector.h"
 #include "../../3Party/bullet/btBulletDynamicsCommon.h"
 
 using namespace MCD;
 using namespace MCD::BulletBinding;
 
-DynamicsWorld::DynamicsWorld(void)
+#ifdef MCD_VC
+#	ifdef NDEBUG
+#		pragma comment(lib, "libbulletdynamics")
+#		pragma comment(lib, "libbulletcollision")
+#		pragma comment(lib, "libbulletmath")
+#	else
+#		pragma comment(lib, "libbulletdynamicsd")
+#		pragma comment(lib, "libbulletcollisiond")
+#		pragma comment(lib, "libbulletmathd")
+#	endif
+#endif
+
+class DynamicsWorld::Impl
 {
-	btVector3 worldAabbMin(-100,-100,-100);
-	btVector3 worldAabbMax( 100, 100, 100);
+public:
+	Impl()
+	{
+		btVector3 worldAabbMin(-100,-100,-100);
+		btVector3 worldAabbMax( 100, 100, 100);
 
-	const unsigned short maxProxies = 1024;
+		const unsigned short maxProxies = 1024;
 
-	// Create the btDiscreteDynamicsWorld
-	// The world configuation is temporary hardcoded
-	mBroadphase.reset(new btAxisSweep3(worldAabbMin, worldAabbMax, maxProxies));
-	mCollisionConfiguration.reset(new btDefaultCollisionConfiguration());
-	mDispatcher.reset(new btCollisionDispatcher(mCollisionConfiguration.get()));
-	mSolver.reset(new btSequentialImpulseConstraintSolver);
+		// Create the btDiscreteDynamicsWorld
+		// The world configuation is temporary hardcoded
+		mBroadphase = new btAxisSweep3(worldAabbMin, worldAabbMax, maxProxies);
+		mCollisionConfiguration = new btDefaultCollisionConfiguration();
+		mDispatcher = new btCollisionDispatcher(mCollisionConfiguration);
+		mSolver = new btSequentialImpulseConstraintSolver();
 
-	mDynamicsWorld.reset(new btDiscreteDynamicsWorld(mDispatcher.get(), mBroadphase.get(), mSolver.get(), mCollisionConfiguration.get()));
+		mDynamicsWorld = new btDiscreteDynamicsWorld(mDispatcher, mBroadphase, mSolver, mCollisionConfiguration);
+	}
+
+	~Impl()
+	{
+		// Remove the rigid bodies in the dynamics world, but don't delete them,
+		// since it's ownership is owned by RigidBodyComponent
+		for(RigidBodies::size_type i=0; i < mRigidBodies.size(); ++i)
+			mDynamicsWorld->removeRigidBody(mRigidBodies[i]);
+
+		// NOTE: Must delete the object in order
+		delete mDynamicsWorld;
+		delete mSolver;
+		delete mDispatcher;
+		delete mCollisionConfiguration;
+		delete mBroadphase;
+	}
+
+	btAxisSweep3* mBroadphase;
+	btDefaultCollisionConfiguration* mCollisionConfiguration;
+	btCollisionDispatcher* mDispatcher;
+	btSequentialImpulseConstraintSolver* mSolver;
+	btDynamicsWorld* mDynamicsWorld;
+
+	// Only weak reference, not owning them.
+	// TODO: Seems there is no need to store btRigidBody, remove it
+	typedef std::vector<btRigidBody*> RigidBodies;
+	RigidBodies mRigidBodies;
+};	// Impl
+
+DynamicsWorld::DynamicsWorld()
+{
+	mImpl = new Impl();
 }
 
-DynamicsWorld::~DynamicsWorld(void)
+DynamicsWorld::~DynamicsWorld()
 {
-	for(std::vector<btRigidBody*>::size_type i=0; i < mRigidBodies.size(); ++i)
-		mDynamicsWorld->removeRigidBody(mRigidBodies[i]);
-
-	// Free the memory in order
-	mDynamicsWorld.reset();
-	mSolver.reset();
-	mDispatcher.reset();
-	mCollisionConfiguration.reset();
-	mBroadphase.reset();
+	delete mImpl;
 }
 
 void DynamicsWorld::setGravity(const Vec3f& g)
 {
-	mDynamicsWorld->setGravity(MathConvertor::ToBullet(g));
+	MCD_ASSUME(mImpl->mDynamicsWorld);
+	mImpl->mDynamicsWorld->setGravity(toBullet(g));
 }
 
-Vec3f DynamicsWorld::getGravity() const
+Vec3f DynamicsWorld::gravity() const
 {
-	return MathConvertor::ToMCD(mDynamicsWorld->getGravity());
+	MCD_ASSUME(mImpl->mDynamicsWorld);
+	return toMCD(mImpl->mDynamicsWorld->getGravity());
 }
 
 void DynamicsWorld::addRigidBody(RigidBodyComponent* rbc)
 {
-	mRigidBodies.push_back(rbc->getRightBody());
-	mDynamicsWorld->addRigidBody(rbc->getRightBody());
+	MCD_ASSUME(mImpl);
+	MCD_ASSUME(mImpl->mDynamicsWorld);
+	mImpl->mRigidBodies.push_back(rbc->mImpl->mRigidBody);
+	mImpl->mDynamicsWorld->addRigidBody(rbc->mImpl->mRigidBody);
 }
 
 void DynamicsWorld::stepSimulation(float timeStep, int maxSubStep)
 {
-	mDynamicsWorld->stepSimulation(timeStep, maxSubStep);
+	MCD_ASSUME(mImpl->mDynamicsWorld);
+	mImpl->mDynamicsWorld->stepSimulation(timeStep, maxSubStep);
 }

@@ -2,43 +2,36 @@
 #define __MCD_BULLETBINDING_DYNAMICSWORLD__
 
 #include "../ShareLib.h"
-#include "../../MCD/Core/Math/Vec3.h"
-#include <memory>
-#include <vector>
-
-class btAxisSweep3;
-class btCollisionDispatcher;
-class btDefaultCollisionConfiguration;
-class btDynamicsWorld;
-class btRigidBody;
-class btSequentialImpulseConstraintSolver;
+#include "../../MCD/Core/System/NonCopyable.h"
 
 namespace MCD {
+
+template<typename T> class Vec3;
+typedef Vec3<float> Vec3f;
 
 namespace BulletBinding {
 
 class RigidBodyComponent;
 
-class MCD_BULLETBINDING_API DynamicsWorld
+class MCD_BULLETBINDING_API DynamicsWorld : Noncopyable
 {
 public:
-	DynamicsWorld(void);
-	virtual ~DynamicsWorld(void);
+	DynamicsWorld();
 
-	void setGravity(const Vec3f& g);
-	Vec3f getGravity() const;
+	~DynamicsWorld();
 
+// Operations
 	void addRigidBody(RigidBodyComponent* rbc);
+
 	void stepSimulation(float timeStep, int maxSubStep);
 
-private:
-	std::auto_ptr<btAxisSweep3> mBroadphase;
-	std::auto_ptr<btDefaultCollisionConfiguration> mCollisionConfiguration;
-	std::auto_ptr<btCollisionDispatcher> mDispatcher;
-	std::auto_ptr<btSequentialImpulseConstraintSolver> mSolver;
-	std::auto_ptr<btDynamicsWorld> mDynamicsWorld;
+// Attributes
+	void setGravity(const Vec3f& g);
+	Vec3f gravity() const;
 
-	std::vector<btRigidBody*> mRigidBodies;
+private:
+	class Impl;
+	Impl* mImpl;
 };	// DynamicsWorld
 
 }	// BulletBinding
