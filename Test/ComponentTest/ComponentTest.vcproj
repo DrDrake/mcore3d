@@ -1,10 +1,10 @@
-<?xml version="1.0" encoding="big5"?>
+﻿<?xml version="1.0" encoding="UTF-8"?>
 <VisualStudioProject
 	ProjectType="Visual C++"
 	Version="9.00"
-	Name="Component"
-	ProjectGUID="{B6219744-C76A-4C74-A455-8AFA986C3B6A}"
-	RootNamespace="Component"
+	Name="ComponentTest"
+	ProjectGUID="{67AADB73-C79B-4C06-B7E8-BCBD2A5458BF}"
+	RootNamespace="ComponentTest"
 	Keyword="Win32Proj"
 	TargetFrameworkVersion="131072"
 	>
@@ -18,10 +18,10 @@
 	<Configurations>
 		<Configuration
 			Name="Debug|Win32"
-			OutputDirectory="../Bin/"
+			OutputDirectory="$(ProjectDir)$(ConfigurationName)"
 			IntermediateDirectory="$(ConfigurationName)"
-			ConfigurationType="2"
-			InheritedPropertySheets=".\General.vsprops;.\Debug.vsprops"
+			ConfigurationType="1"
+			InheritedPropertySheets="..\General.vsprops;..\Debug.vsprops"
 			CharacterSet="2"
 			>
 			<Tool
@@ -53,7 +53,6 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				IgnoreDefaultLibraryNames="MSVCRT"
 			/>
 			<Tool
 				Name="VCALinkTool"
@@ -79,10 +78,10 @@
 		</Configuration>
 		<Configuration
 			Name="Release|Win32"
-			OutputDirectory="../Bin/"
+			OutputDirectory="$(ProjectDir)$(ConfigurationName)"
 			IntermediateDirectory="$(ConfigurationName)"
-			ConfigurationType="2"
-			InheritedPropertySheets=".\General.vsprops;.\Release.vsprops"
+			ConfigurationType="1"
+			InheritedPropertySheets="..\General.vsprops;..\Release.vsprops"
 			CharacterSet="2"
 			WholeProgramOptimization="0"
 			>
@@ -140,10 +139,10 @@
 		</Configuration>
 		<Configuration
 			Name="Analysis|Win32"
-			OutputDirectory="../Bin/"
+			OutputDirectory="$(ProjectDir)$(ConfigurationName)"
 			IntermediateDirectory="$(ConfigurationName)"
-			ConfigurationType="2"
-			InheritedPropertySheets=".\General.vsprops;.\Analysis.vsprops"
+			ConfigurationType="1"
+			InheritedPropertySheets="..\General.vsprops;..\Analysis.vsprops"
 			CharacterSet="2"
 			>
 			<Tool
@@ -175,7 +174,6 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				IgnoreDefaultLibraryNames="MSVCRT"
 			/>
 			<Tool
 				Name="VCALinkTool"
@@ -206,88 +204,55 @@
 			RelativePathToProject="..\MCD\Core\Core.vcproj"
 		/>
 		<ProjectReference
+			ReferencedProjectIdentifier="{B6219744-C76A-4C74-A455-8AFA986C3B6A}"
+			RelativePathToProject="..\Component\Component.vcproj"
+		/>
+		<ProjectReference
 			ReferencedProjectIdentifier="{500413B2-5AE6-41CE-BCFF-D90DB2755869}"
 			RelativePathToProject="..\MCD\Render\Render.vcproj"
 		/>
 	</References>
 	<Files>
 		<Filter
-			Name="Source Files"
-			Filter="cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx"
-			UniqueIdentifier="{4FC737F1-C7A5-4376-A066-2A32D752A2FF}"
+			Name="Physics"
 			>
-			<File
-				RelativePath=".\Collision\CollisionShape.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\Dynamics\DynamicsWorld.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\Pch.cpp"
-				>
-				<FileConfiguration
-					Name="Debug|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						UsePrecompiledHeader="1"
-						PrecompiledHeaderThrough="Pch.h"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						UsePrecompiledHeader="1"
-					/>
-				</FileConfiguration>
-			</File>
-			<File
-				RelativePath=".\Dynamics\RigidBodyComponent.cpp"
-				>
-			</File>
 		</Filter>
-		<Filter
-			Name="Header Files"
-			Filter="h;hpp;hxx;hm;inl;inc;xsd"
-			UniqueIdentifier="{93995380-89BD-4b04-88EB-625FBE52EBFB}"
+		<File
+			RelativePath=".\Main.cpp"
 			>
-			<File
-				RelativePath=".\Collision\CollisionShape.h"
+		</File>
+		<File
+			RelativePath=".\Pch.cpp"
+			>
+			<FileConfiguration
+				Name="Debug|Win32"
 				>
-			</File>
-			<File
-				RelativePath=".\Dynamics.h"
+				<Tool
+					Name="VCCLCompilerTool"
+					UsePrecompiledHeader="1"
+				/>
+			</FileConfiguration>
+			<FileConfiguration
+				Name="Release|Win32"
 				>
-			</File>
-			<File
-				RelativePath=".\Dynamics\DynamicsWorld.h"
+				<Tool
+					Name="VCCLCompilerTool"
+					UsePrecompiledHeader="1"
+				/>
+			</FileConfiguration>
+			<FileConfiguration
+				Name="Analysis|Win32"
 				>
-			</File>
-			<File
-				RelativePath=".\MathConvertor.inl"
-				>
-			</File>
-			<File
-				RelativePath=".\Pch.h"
-				>
-			</File>
-			<File
-				RelativePath=".\Dynamics\RigidBodyComponent.h"
-				>
-			</File>
-			<File
-				RelativePath=".\Dynamics\RigidBodyComponent.inl"
-				>
-			</File>
-			<File
-				RelativePath=".\ShareLib.h"
-				>
-			</File>
-		</Filter>
+				<Tool
+					Name="VCCLCompilerTool"
+					UsePrecompiledHeader="1"
+				/>
+			</FileConfiguration>
+		</File>
+		<File
+			RelativePath=".\Pch.h"
+			>
+		</File>
 	</Files>
 	<Globals>
 	</Globals>
