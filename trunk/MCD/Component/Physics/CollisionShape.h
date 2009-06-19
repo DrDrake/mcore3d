@@ -2,8 +2,8 @@
 #define __MCD_COMPONENT_COLLISIONSHAPE__
 
 #include "../ShareLib.h"
-#include "../../MCD/Core/System/NonCopyable.h"
-#include "../../MCD/Core/System/SharedPtr.h"
+#include "../../Core/System/NonCopyable.h"
+#include "../../Core/System/SharedPtr.h"
 
 namespace MCD {
 

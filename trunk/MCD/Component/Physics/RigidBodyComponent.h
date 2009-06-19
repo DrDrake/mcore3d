@@ -2,7 +2,7 @@
 #define __MCD_COMPONENT_RIGIDBODYCOMPONENT__
 
 #include "../ShareLib.h"
-#include "../../MCD/Core/Entity/BehaviourComponent.h"
+#include "../../Core/Entity/BehaviourComponent.h"
 
 namespace MCD {
 

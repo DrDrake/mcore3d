@@ -2,7 +2,7 @@
 #define __MCD_COMPONENT_RENDER_MESHCOMPONENT__
 
 #include "RenderableComponent.h"
-#include "../../MCD/Core/System/SharedPtr.h"
+#include "../../Core/System/SharedPtr.h"
 
 namespace MCD {
 

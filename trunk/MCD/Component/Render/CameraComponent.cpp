@@ -1,7 +1,7 @@
 #include "Pch.h"
 #include "CameraComponent.h"
-#include "../../MCD/Core/Entity/Entity.h"
-#include "../../3Party/glew/glew.h"
+#include "../../Core/Entity/Entity.h"
+#include "../../../3Party/glew/glew.h"
 
 namespace MCD {
 

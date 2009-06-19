@@ -2,7 +2,7 @@
 #define __MCD_COMPONENT_RENDER_RENDERABLECOMPONENT__
 
 #include "../ShareLib.h"
-#include "../../MCD/Core/Entity/Component.h"
+#include "../../Core/Entity/Component.h"
 
 namespace MCD {
 
