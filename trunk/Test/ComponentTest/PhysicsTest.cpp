@@ -19,6 +19,8 @@ TEST(PhysicsComponentTest)
 	class TestWindow : public BasicGlWindow
 	{
 		std::auto_ptr<DynamicsWorld> dynamicsWorld;
+		std::auto_ptr<TriMeshShape>  ballCollisionMesh;
+		std::auto_ptr<StaticPlaneShape>  groundCollisionMesh;
 		float mAbsTime;
 	public:
 		TestWindow()
@@ -41,7 +43,7 @@ TEST(PhysicsComponentTest)
 			ChamferBoxBuilder chamferBoxBuilder(1.0f, 10);
 			chamferBoxBuilder.commit(*mesh, MeshBuilder::Static);
 
-			TriMeshShape* collisionMesh = new TriMeshShape(mesh);
+			ballCollisionMesh.reset(new TriMeshShape(mesh));
 
 			//  Setup a stack of balls
 			for(int x = 0; x < 10; ++x)
@@ -66,7 +68,7 @@ TEST(PhysicsComponentTest)
 					e->addComponent(c);
 
 					// Create the phyiscs component
-					RigidBodyComponent* cc = new RigidBodyComponent(0.1f, collisionMesh);
+					RigidBodyComponent* cc = new RigidBodyComponent(0.1f, ballCollisionMesh.get());
 					e->addComponent(cc);
 					cc->onAttach();
 
@@ -95,9 +97,10 @@ TEST(PhysicsComponentTest)
 				e->addComponent(c);
 
 				// Create the phyiscs component
+				groundCollisionMesh.reset(new StaticPlaneShape(Vec3f(0, 1, 0), 0));
 				RigidBodyComponent* cc = new RigidBodyComponent(
 					0,
-					new StaticPlaneShape(Vec3f(0, 1, 0), 0));
+					groundCollisionMesh.get());
 				e->addComponent(cc);
 				cc->onAttach();
 
