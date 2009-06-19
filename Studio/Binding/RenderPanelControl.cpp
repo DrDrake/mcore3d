@@ -14,9 +14,9 @@
 #include "../../MCD/Render/Effect.h"
 #include "../../MCD/Render/GlWindow.h"
 #include "../../MCD/Render/Mesh.h"
-#include "../../MCD/Render/Components/CameraComponent.h"
-#include "../../MCD/Render/Components/MeshComponent.h"
-#include "../../MCD/Render/Components/PickComponent.h"
+#include "../../MCD/Component/Render/CameraComponent.h"
+#include "../../MCD/Component/Render/MeshComponent.h"
+#include "../../MCD/Component/Render/PickComponent.h"
 #include "../../3Party/glew/glew.h"
 #undef nullptr
 #include <gcroot.h>

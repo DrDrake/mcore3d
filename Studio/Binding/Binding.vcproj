@@ -200,6 +200,10 @@
 			ReferencedProjectIdentifier="{79734A3A-9F12-49ED-8E06-40AFBBD4F260}"
 			RelativePathToProject=".\Common\Common.vcproj"
 		/>
+		<ProjectReference
+			ReferencedProjectIdentifier="{B6219744-C76A-4C74-A455-8AFA986C3B6A}"
+			RelativePathToProject="..\MCD\Component\Component.vcproj"
+		/>
 	</References>
 	<Files>
 		<Filter

@@ -5,8 +5,8 @@
 #include "../../../MCD/Core/Math/Mat44.h"
 #include "../../../MCD/Core/Math/Ray.h"
 #include "../../../MCD/Core/Math/Vec2.h"
-#include "../../../MCD/Render/Components/MeshComponent.h"
 #include "../../../MCD/Render/Color.h"
+#include "../../../MCD/Component/Render/MeshComponent.h"
 
 namespace MCD {
 class ResourceManager;
