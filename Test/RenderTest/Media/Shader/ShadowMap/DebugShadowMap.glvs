@@ -1,0 +1,9 @@
+varying vec2 colorCoord;
+
+uniform mat4 texMatrix;
+
+void main(void)
+{
+	gl_Position = ftransform();
+	colorCoord = gl_MultiTexCoord0.xy;
+}

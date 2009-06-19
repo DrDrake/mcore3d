@@ -55,6 +55,14 @@ public:
 		RenderBufferPtr	bufferPtr;
 		bool			isTexture;
 		BufferFormat	format;
+
+        Texture* texture() const
+        {
+            if(isTexture)
+                return static_cast<TextureRenderBuffer&>(*bufferPtr).texture.get();
+            else
+                return nullptr;
+        }
 	};
 
 public:
@@ -169,13 +177,6 @@ FrameBuffers::FrameBuffers(GLuint width, GLuint height, DepthBufferType depthBuf
 
 FrameBuffers::~FrameBuffers()
 {
-	//const size_t cBufCnt = mBufferInfos.size();
-	//for(size_t i = 0; i < cBufCnt; ++i)
-	//{
-	//	glDeleteTextures(1, &mBufferInfos[i].handle);
-	//}
-
-	//glDeleteFramebuffersEXT(1, &mFBOHandle);
 }
 
 void FrameBuffers::textureBuffer(BufferFormat format)
@@ -188,6 +189,10 @@ void FrameBuffers::textureBuffer(BufferFormat format)
 	//todo: also specific dataType, components
 	bufferPtr->createTexture(mWidth, mHeight, mTexTarget, internalFmt);
 	bufferPtr->linkTo(mRenderTarget);
+
+    mRenderTarget.bind();
+    checkFramebufferStatus(true);
+    mRenderTarget.unbind();
 
 	BufferInfo buf;
 
@@ -583,7 +588,7 @@ void FrameBuffers::end()
 
 }	// namespace v2
 
-typedef v2::FrameBuffers FrameBuffers;
+typedef v1::FrameBuffers FrameBuffers;
 
 /*! An untility for frame buffer binding.
 */
@@ -695,6 +700,75 @@ public:
 
 	const GLenum mTexTarget;
 	const size_t mTexUnitCnt;
+};
+
+/*! An untility for texture binding.
+*/
+class ScopedTexBinding2
+{
+public:
+    enum {MAX_TEXTURE_UNIT = 4};
+    typedef Texture* TextureUnit;
+
+    TextureUnit mTexUnits[MAX_TEXTURE_UNIT];
+    size_t      mTexUnitCnt;
+
+	ScopedTexBinding2(TextureUnit tu0)
+		: mTexUnitCnt(1)
+	{
+        glActiveTexture(GL_TEXTURE0); tu0->bind();
+		mTexUnits[0] = tu0;
+	}
+
+	ScopedTexBinding2(TextureUnit tu0, TextureUnit tu1)
+		: mTexUnitCnt(2)
+	{
+		glActiveTexture(GL_TEXTURE0); tu0->bind();
+		mTexUnits[0] = tu0;
+
+        glActiveTexture(GL_TEXTURE1); tu1->bind();
+		mTexUnits[1] = tu1;
+	}
+
+	ScopedTexBinding2(TextureUnit tu0, TextureUnit tu1, TextureUnit tu2)
+		: mTexUnitCnt(3)
+	{
+		glActiveTexture(GL_TEXTURE0); tu0->bind();
+		mTexUnits[0] = tu0;
+
+        glActiveTexture(GL_TEXTURE1); tu1->bind();
+		mTexUnits[1] = tu1;
+
+        glActiveTexture(GL_TEXTURE2); tu2->bind();
+		mTexUnits[2] = tu2;
+	}
+
+	ScopedTexBinding2(TextureUnit tu0, TextureUnit tu1, TextureUnit tu2, TextureUnit tu3)
+		: mTexUnitCnt(4)
+	{
+		glActiveTexture(GL_TEXTURE0); tu0->bind();
+		mTexUnits[0] = tu0;
+
+        glActiveTexture(GL_TEXTURE1); tu1->bind();
+		mTexUnits[1] = tu1;
+
+        glActiveTexture(GL_TEXTURE2); tu2->bind();
+		mTexUnits[2] = tu2;
+
+        glActiveTexture(GL_TEXTURE3); tu3->bind();
+		mTexUnits[3] = tu3;
+	}
+
+	~ScopedTexBinding2()
+	{
+		for(size_t i = 0; i < mTexUnitCnt; ++i)
+        {
+            glActiveTexture(GL_TEXTURE0 + i);
+            mTexUnits[i]->unbind();
+        }
+
+        glActiveTexture(GL_TEXTURE0);
+	}
 };
 
 /*! An untility for pass binding inside a Material2 object.
@@ -835,8 +909,8 @@ public:
 			{
 				ScopedFBBinding fbBinding(bufQuar, BUFFER0);
 				ScopePassBinding passBinding(*mat, SUN_EXTRACT_PASS);
-				ScopedTexBinding texBinding(bufQuar.target(), bufQuar.bufferInfo(BUFFER1).handle);
-				
+				//ScopedTexBinding texBinding(bufQuar.target(), bufQuar.bufferInfo(BUFFER1).handle);
+				ScopedTexBinding2 texBinding(bufQuar.bufferInfo(BUFFER1).texture());
 				// bind shader uniform
 				GLint program;
 				glGetIntegerv(GL_CURRENT_PROGRAM, &program);
@@ -854,7 +928,8 @@ public:
 		{
 			ScopedFBBinding fbBinding(bufQuar, BUFFER0);
 			ScopePassBinding passBinding(*mat, SUN_EXTRACT_PASS);
-			ScopedTexBinding texBinding(bufFull.target(), bufFull.bufferInfo(BUFFER0).handle);
+			//ScopedTexBinding texBinding(bufFull.target(), bufFull.bufferInfo(BUFFER0).handle);
+            ScopedTexBinding2 texBinding(bufFull.bufferInfo(BUFFER0).texture());
 
 			// bind shader uniform
 			GLint program; glGetIntegerv(GL_CURRENT_PROGRAM, &program);
@@ -870,7 +945,8 @@ public:
 		{	// horizontal blur pass
 			ScopedFBBinding fbBinding(bufQuar, BUFFER1);
 			ScopePassBinding passBinding(*mat, BLUR_PASS);
-			ScopedTexBinding texBinding(bufQuar.target(), bufQuar.bufferInfo(BUFFER0).handle);
+			//ScopedTexBinding texBinding(bufQuar.target(), bufQuar.bufferInfo(BUFFER0).handle);
+            ScopedTexBinding2 texBinding(bufQuar.bufferInfo(BUFFER0).texture());
 
 			// bind shader uniform
 			GLint program; glGetIntegerv(GL_CURRENT_PROGRAM, &program);
@@ -889,7 +965,8 @@ public:
 		{	// vertical blur pass
 			ScopedFBBinding fbBinding(bufQuar, BUFFER0);
 			ScopePassBinding passBinding(*mat, BLUR_PASS);
-			ScopedTexBinding texBinding(bufQuar.target(), bufQuar.bufferInfo(BUFFER1).handle);
+			//ScopedTexBinding texBinding(bufQuar.target(), bufQuar.bufferInfo(BUFFER1).handle);
+            ScopedTexBinding2 texBinding(bufQuar.bufferInfo(BUFFER1).texture());
 
 			// bind shader uniform
 			GLint program; glGetIntegerv(GL_CURRENT_PROGRAM, &program);
@@ -907,7 +984,8 @@ public:
 
 		{	// copy to screen
 			ScopePassBinding passBinding(*mat, COPY_PASS);
-			ScopedTexBinding texBinding(bufFull.target(), bufFull.bufferInfo(BUFFER0).handle);
+			//ScopedTexBinding texBinding(bufFull.target(), bufFull.bufferInfo(BUFFER0).handle);
+            ScopedTexBinding2 texBinding(bufFull.bufferInfo(BUFFER0).texture());
 
 			GLint program; glGetIntegerv(GL_CURRENT_PROGRAM, &program);
 			if(0 != program)
@@ -922,7 +1000,8 @@ public:
 		{	// radial mask
 			ScopedFBBinding fbBinding(bufQuar, BUFFER1);
 			ScopePassBinding passBinding(*mat, RADIAL_MASK_PASS);
-			ScopedTexBinding texBinding(bufQuar.target(), bufQuar.bufferInfo(BUFFER0).handle);
+			//ScopedTexBinding texBinding(bufQuar.target(), bufQuar.bufferInfo(BUFFER0).handle);
+            ScopedTexBinding2 texBinding(bufQuar.bufferInfo(BUFFER0).texture());
 
 			// bind shader uniform
 			GLint program; glGetIntegerv(GL_CURRENT_PROGRAM, &program);
@@ -940,7 +1019,8 @@ public:
 
 		{	// radial glow
 			ScopePassBinding passBinding(*mat, RADIAL_GLOW_PASS);
-			ScopedTexBinding texBinding(bufQuar.target(), bufQuar.bufferInfo(BUFFER1).handle);
+			//ScopedTexBinding texBinding(bufQuar.target(), bufQuar.bufferInfo(BUFFER1).handle);
+            ScopedTexBinding2 texBinding(bufQuar.bufferInfo(BUFFER1).texture());
 
 			// bind shader uniform
 			GLint program; glGetIntegerv(GL_CURRENT_PROGRAM, &program);
