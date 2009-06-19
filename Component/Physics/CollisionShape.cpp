@@ -1,6 +1,6 @@
 #include "Pch.h"
 #include "CollisionShape.h"
-#include "../MathConvertor.inl"
+#include "MathConvertor.inl"
 #include "../../MCD/Render/Mesh.h"
 
 #include "../../3Party/bullet/btBulletCollisionCommon.h"

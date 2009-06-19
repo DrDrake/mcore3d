@@ -1,11 +1,11 @@
 #include "Pch.h"
 #include "MeshComponent.h"
-#include "../Effect.h"
-#include "../Material.h"
-#include "../Mesh.h"
-#include "../Texture.h"
-#include "../../Core/Entity/Entity.h"
-#include "../../../3Party/glew/glew.h"
+#include "../../MCD/Render/Effect.h"
+#include "../../MCD/Render/Material.h"
+#include "../../MCD/Render/Mesh.h"
+#include "../../MCD/Render/Texture.h"
+#include "../../MCD/Core/Entity/Entity.h"
+#include "../../3Party/glew/glew.h"
 
 namespace MCD {
 

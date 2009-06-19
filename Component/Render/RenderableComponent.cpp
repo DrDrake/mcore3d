@@ -1,6 +1,12 @@
 #include "Pch.h"
 #include "RenderableComponent.h"
-#include "../../Core/Entity/Entity.h"
+#include "../../MCD/Core/Entity/Entity.h"
+
+#ifdef MCD_VC
+#	pragma comment(lib, "OpenGL32")
+#	pragma comment(lib, "GLU32")
+#	pragma comment(lib, "glew")
+#endif
 
 namespace MCD {
 

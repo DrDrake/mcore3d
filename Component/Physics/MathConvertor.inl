@@ -3,8 +3,8 @@
 	bullet physics engine directly.
  */
 
-#include "../MCD/Core/Math/Vec3.h"
-#include "../3Party/bullet/LinearMath/btVector3.h"
+#include "../../MCD/Core/Math/Vec3.h"
+#include "../../3Party/bullet/LinearMath/btVector3.h"
 
 namespace MCD {
 

@@ -2,7 +2,7 @@
 #include "DynamicsWorld.h"
 #include "RigidBodyComponent.h"
 #include "RigidBodyComponent.inl"	// We need to access some implementation of RigidBodyComponent
-#include "../MathConvertor.inl"
+#include "MathConvertor.inl"
 #include "../../MCD/Core/System/PtrVector.h"
 #include "../../3Party/bullet/btBulletDynamicsCommon.h"
 

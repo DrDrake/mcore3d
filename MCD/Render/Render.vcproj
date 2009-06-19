@@ -477,52 +477,6 @@
 				>
 			</File>
 		</Filter>
-		<Filter
-			Name="Components"
-			>
-			<Filter
-				Name="Header Files"
-				Filter="h"
-				>
-				<File
-					RelativePath=".\Components\CameraComponent.h"
-					>
-				</File>
-				<File
-					RelativePath=".\Components\MeshComponent.h"
-					>
-				</File>
-				<File
-					RelativePath=".\Components\PickComponent.h"
-					>
-				</File>
-				<File
-					RelativePath=".\Components\RenderableComponent.h"
-					>
-				</File>
-			</Filter>
-			<Filter
-				Name="Source Files"
-				Filter="cpp;"
-				>
-				<File
-					RelativePath=".\Components\CameraComponent.cpp"
-					>
-				</File>
-				<File
-					RelativePath=".\Components\MeshComponent.cpp"
-					>
-				</File>
-				<File
-					RelativePath=".\Components\PickComponent.cpp"
-					>
-				</File>
-				<File
-					RelativePath=".\Components\RenderableComponent.cpp"
-					>
-				</File>
-			</Filter>
-		</Filter>
 		<File
 			RelativePath=".\Pch.cpp"
 			>

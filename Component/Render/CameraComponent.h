@@ -2,15 +2,15 @@
 #define __MCD_RENDER_COMPONENTS_CAMERACOMPONENT__
 
 #include "RenderableComponent.h"
-#include "../Camera.h"
-#include "../Color.h"
-#include "../../Core/System/Timer.h"
+#include "../../MCD/Render/Camera.h"
+#include "../../MCD/Render/Color.h"
+#include "../../MCD/Core/System/Timer.h"
 
 namespace MCD {
 
 /*!
  */
-class MCD_RENDER_API CameraComponent : public RenderableComponent
+class MCD_COMPONENT_API CameraComponent : public RenderableComponent
 {
 public:
 	CameraComponent();

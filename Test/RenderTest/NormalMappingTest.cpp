@@ -1,11 +1,11 @@
 #include "Pch.h"
 #include "ChamferBox.h"
 #include "DefaultResourceManager.h"
+#include "../../Component/Render/MeshComponent.h"
 #include "../../MCD/Render/Effect.h"
 #include "../../MCD/Render/Material.h"
 #include "../../MCD/Render/Model.h"
 #include "../../MCD/Core/Entity/Entity.h"
-#include "../../MCD/Render/Components/MeshComponent.h"
 #include "../../MCD/Render/TangentSpaceBuilder.h"
 
 using namespace MCD;
@@ -21,7 +21,7 @@ private:
 public:
 	TestWindow()
 		:
-		BasicGlWindow(L"title=NormalMappingTest;width=800;height=600;fullscreen=0;FSAA=4"),
+		BasicGlWindow(L"title=NormalMappingTest;width=800;height=600;fullscreen=1;FSAA=4"),
 		mResourceManager(*createDefaultFileSystem())
 	{
 		// load normal mapping effect
@@ -110,8 +110,19 @@ public:
 
 }	// namespace NormalMappingTest
 
+#include "../../MCD/Core/System/MemoryProfiler.h"
+
 TEST(NormalMappingTest)
 {
-	NormalMappingTest::TestWindow window;
-	window.mainLoop();
+	MemoryProfiler::singleton().setEnable(true);
+
+	{	NormalMappingTest::TestWindow window;
+		window.mainLoop();
+
+		std::string s = MemoryProfiler::singleton().defaultReport(30);
+		std::cout << s << std::endl;
+	}
+
+	std::string s = MemoryProfiler::singleton().defaultReport(30);
+	std::cout << s << std::endl;
 }

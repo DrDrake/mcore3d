@@ -2,14 +2,16 @@
 #include "ScriptOwnershipHandle.h"
 #include "Platform.h"
 #include "StaticAssert.h"
-#include <assert.h>
 #include "../../../3Party/squirrel/squirrel.h"
 #include "../../../3Party/squirrel/squirrel/sqclass.h"
+#include <assert.h>
 
-#ifndef NDEBUG
-#	pragma comment(lib, "squirreld")
-#else
-#	pragma comment(lib, "squirrel")
+#ifdef MCD_VC
+#	ifndef NDEBUG
+#		pragma comment(lib, "squirreld")
+#	else
+#		pragma comment(lib, "squirrel")
+#	endif
 #endif
 
 namespace MCD {

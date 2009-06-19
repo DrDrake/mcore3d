@@ -3,12 +3,13 @@
 #include "../RenderTest/BasicGlWindow.h"
 #include "../RenderTest/DefaultResourceManager.h"
 #include "../RenderTest/PlaneMeshBuilder.h"
+#include "../../Component/Render/MeshComponent.h"
+#include "../../Component/Physics/CollisionShape.h"
+#include "../../Component/Physics/DynamicsWorld.h"
+#include "../../Component/Physics/RigidBodyComponent.h"
+#include "../../MCD/Core/Entity/Entity.h"
 #include "../../MCD/Render/Effect.h"
 #include "../../MCD/Render/Material.h"
-#include "../../MCD/Render/Components/MeshComponent.h"
-#include "../../MCD/Core/Entity/Entity.h"
-#include "../../Component/Dynamics.h"
-#include "../../Component/Collision/CollisionShape.h"
 
 using namespace MCD;
 using namespace PhysicsComponent;

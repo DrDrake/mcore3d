@@ -1,8 +1,8 @@
-#ifndef __MCD_RENDER_COMPONENTS_PICKINGCOMPONENT__
-#define __MCD_RENDER_COMPONENTS_PICKINGCOMPONENT__
+#ifndef __MCD_COMPONENT_RENDER_PICKINGCOMPONENT__
+#define __MCD_COMPONENT_RENDER_PICKINGCOMPONENT__
 
 #include "../ShareLib.h"
-#include "../../Core/Entity/BehaviourComponent.h"
+#include "../../MCD/Core/Entity/BehaviourComponent.h"
 
 namespace MCD {
 
@@ -21,7 +21,7 @@ typedef WeakPtr<Entity> EntityPtr;
 
 	\ref: http://www.opengl.org/resources/faq/technical/selection.htm
  */
-class MCD_RENDER_API PickComponent : public BehaviourComponent
+class MCD_COMPONENT_API PickComponent : public BehaviourComponent
 {
 	class Impl;
 	Impl* mImpl;
@@ -60,4 +60,4 @@ public:
 
 }	// namespace MCD
 
-#endif	// __MCD_RENDER_COMPONENTS_PICKINGCOMPONENT__
+#endif	// __MCD_COMPONENT_RENDER_PICKINGCOMPONENT__

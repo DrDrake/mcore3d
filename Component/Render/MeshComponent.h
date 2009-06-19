@@ -1,8 +1,8 @@
-#ifndef __MCD_RENDER_COMPONENTS_MESHCOMPONENT__
-#define __MCD_RENDER_COMPONENTS_MESHCOMPONENT__
+#ifndef __MCD_COMPONENT_RENDER_MESHCOMPONENT__
+#define __MCD_COMPONENT_RENDER_MESHCOMPONENT__
 
 #include "RenderableComponent.h"
-#include "../../Core/System/SharedPtr.h"
+#include "../../MCD/Core/System/SharedPtr.h"
 
 namespace MCD {
 
@@ -14,7 +14,7 @@ typedef IntrusivePtr<Effect> EffectPtr;
 
 /*!
  */
-class MCD_RENDER_API MeshComponent : public RenderableComponent
+class MCD_COMPONENT_API MeshComponent : public RenderableComponent
 {
 public:
 	MeshComponent();
@@ -33,4 +33,4 @@ public:
 
 }	// namespace MCD
 
-#endif	// __MCD_RENDER_COMPONENTS_MESHCOMPONENT__
+#endif	// __MCD_COMPONENT_RENDER_MESHCOMPONENT__
