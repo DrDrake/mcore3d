@@ -51,10 +51,10 @@ public:
 
 	struct BufferInfo
 	{
-		GLuint			handle;
-		BufferFormat	format;
-		bool			isTexture;
+		//GLuint			handle;
 		RenderBufferPtr	bufferPtr;
+		bool			isTexture;
+		BufferFormat	format;
 	};
 
 public:
@@ -180,11 +180,6 @@ FrameBuffers::~FrameBuffers()
 
 void FrameBuffers::textureBuffer(BufferFormat format)
 {
-	BufferInfo buf;
-
-	buf.isTexture = true;
-	buf.format = format;
-
 	GLenum internalFmt, dataType, components;
 	getGLBufferFormat(format, internalFmt, dataType, components);
 
@@ -194,6 +189,10 @@ void FrameBuffers::textureBuffer(BufferFormat format)
 	bufferPtr->createTexture(mWidth, mHeight, mTexTarget, internalFmt);
 	bufferPtr->linkTo(mRenderTarget);
 
+	BufferInfo buf;
+
+	buf.isTexture = true;
+	buf.format = format;
 	buf.bufferPtr = bufferPtr;
 
 	/*
@@ -838,6 +837,15 @@ public:
 				ScopePassBinding passBinding(*mat, SUN_EXTRACT_PASS);
 				ScopedTexBinding texBinding(bufQuar.target(), bufQuar.bufferInfo(BUFFER1).handle);
 				
+				// bind shader uniform
+				GLint program;
+				glGetIntegerv(GL_CURRENT_PROGRAM, &program);
+
+				if(0 != program)
+				{
+					glUniform1i( glGetUniformLocation(program, "g_inputSam"), 0 );
+				}
+
 				// draw quad
 				drawViewportQuad(0, 0, bufQuar.width(), bufQuar.height(), bufQuar.target());
 			}
@@ -847,6 +855,13 @@ public:
 			ScopedFBBinding fbBinding(bufQuar, BUFFER0);
 			ScopePassBinding passBinding(*mat, SUN_EXTRACT_PASS);
 			ScopedTexBinding texBinding(bufFull.target(), bufFull.bufferInfo(BUFFER0).handle);
+
+			// bind shader uniform
+			GLint program; glGetIntegerv(GL_CURRENT_PROGRAM, &program);
+			if(0 != program)
+			{
+				glUniform1i( glGetUniformLocation(program, "g_inputSam"), 0 );
+			}
 			
 			// draw quad
 			drawViewportQuad(0, 0, bufQuar.width(), bufQuar.height(), bufQuar.target());
@@ -858,11 +873,10 @@ public:
 			ScopedTexBinding texBinding(bufQuar.target(), bufQuar.bufferInfo(BUFFER0).handle);
 
 			// bind shader uniform
-			GLint program;
-			glGetIntegerv(GL_CURRENT_PROGRAM, &program);
-
+			GLint program; glGetIntegerv(GL_CURRENT_PROGRAM, &program);
 			if(0 != program)
 			{
+				glUniform1i( glGetUniformLocation(program, "g_inputSam"), 0 );
 				glUniform2fv( glGetUniformLocation(program, "g_blurOffset"), BLUR_KERNEL_SIZE, m_hblurOffset.data() );
 				glUniform1fv( glGetUniformLocation(program, "g_blurKernel"), BLUR_KERNEL_SIZE, m_blurKernel.data() );
 				glUniform2f( glGetUniformLocation(program, "g_InvTexSize"), 1.0f / bufQuar.width(), 1.0f / bufQuar.height() );
@@ -878,11 +892,10 @@ public:
 			ScopedTexBinding texBinding(bufQuar.target(), bufQuar.bufferInfo(BUFFER1).handle);
 
 			// bind shader uniform
-			GLint program;
-			glGetIntegerv(GL_CURRENT_PROGRAM, &program);
-
+			GLint program; glGetIntegerv(GL_CURRENT_PROGRAM, &program);
 			if(0 != program)
 			{
+				glUniform1i( glGetUniformLocation(program, "g_inputSam"), 0 );
 				glUniform2fv( glGetUniformLocation(program, "g_blurOffset"), BLUR_KERNEL_SIZE, m_vblurOffset.data() );
 				glUniform1fv( glGetUniformLocation(program, "g_blurKernel"), BLUR_KERNEL_SIZE, m_blurKernel.data() );
 				glUniform2f( glGetUniformLocation(program, "g_InvTexSize"), 1.0f / bufQuar.width(), 1.0f / bufQuar.height() );
@@ -896,6 +909,12 @@ public:
 			ScopePassBinding passBinding(*mat, COPY_PASS);
 			ScopedTexBinding texBinding(bufFull.target(), bufFull.bufferInfo(BUFFER0).handle);
 
+			GLint program; glGetIntegerv(GL_CURRENT_PROGRAM, &program);
+			if(0 != program)
+			{
+				glUniform1i( glGetUniformLocation(program, "g_inputSam"), 0 );
+			}
+
 			// draw quad
 			drawViewportQuad(0, 0, this->width(), this->height(), bufFull.target());
 		}
@@ -906,11 +925,11 @@ public:
 			ScopedTexBinding texBinding(bufQuar.target(), bufQuar.bufferInfo(BUFFER0).handle);
 
 			// bind shader uniform
-			GLint program;
-			glGetIntegerv(GL_CURRENT_PROGRAM, &program);
-
+			GLint program; glGetIntegerv(GL_CURRENT_PROGRAM, &program);
 			if(0 != program)
 			{
+				glUniform1i( glGetUniformLocation(program, "g_inputSam"), 0 );
+				glUniform1i( glGetUniformLocation(program, "g_maskSam"), 1 );
 				glUniform3fv( glGetUniformLocation(program, "g_sunPos"), 1, m_sunPos.data );
 			}
 
@@ -924,11 +943,10 @@ public:
 			ScopedTexBinding texBinding(bufQuar.target(), bufQuar.bufferInfo(BUFFER1).handle);
 
 			// bind shader uniform
-			GLint program;
-			glGetIntegerv(GL_CURRENT_PROGRAM, &program);
-
+			GLint program; glGetIntegerv(GL_CURRENT_PROGRAM, &program);
 			if(0 != program)
 			{
+				glUniform1i( glGetUniformLocation(program, "g_inputSam"), 0 );
 				glUniform3fv( glGetUniformLocation(program, "g_sunPos"), 1, m_sunPos.data );
 			}
 
