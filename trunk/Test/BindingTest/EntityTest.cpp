@@ -1,6 +1,6 @@
 #include "Pch.h"
 #include "Common.h"
-#include "../../Binding/Binding.h"
+#include "../../MCD/Binding/Binding.h"
 
 using namespace MCD;
 

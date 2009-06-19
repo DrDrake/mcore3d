@@ -30,7 +30,7 @@ PlaneMeshBuilder::PlaneMeshBuilder(float width, float height, size_t widthSegmen
 
 	const size_t vxCount = widthSegmentCount + 1;	// Number of vertex along x direction
 	const size_t vyCount = heightSegmentCount + 1;	// Number of vertex along y direction
-	const size_t vertexCount = vxCount * vyCount;		// Number of vertex for single side (1 out of 6) of the cube
+	const size_t vertexCount = vxCount * vyCount;	// Number of vertex for the whole plane
 	const size_t triCount = 2 * widthSegmentCount * heightSegmentCount;
 	
 	reserveVertex(vertexCount);

@@ -16,7 +16,7 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "RenderTest", "RenderTest\Re
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Render", "..\MCD\Render\Render.vcproj", "{500413B2-5AE6-41CE-BCFF-D90DB2755869}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Binding", "..\Binding\Binding.vcproj", "{5813D158-EC1E-4305-8122-8573958150FE}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Binding", "..\MCD\Binding\Binding.vcproj", "{5813D158-EC1E-4305-8122-8573958150FE}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "BindingTest", "BindingTest\BindingTest.vcproj", "{917F03EB-E204-4D13-81A6-645A15D8B89C}"
 EndProject
