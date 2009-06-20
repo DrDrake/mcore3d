@@ -13,7 +13,7 @@
 #include "../../MCD/Render/ShaderProgram.h"
 #include "../../MCD/Render/Texture.h"
 #include "../../MCD/Render/TextureRenderBuffer.h"
-#include "ChamferBox.h"
+#include "../../MCD/Render/ChamferBox.h"
 #include "../../MCD/Render/Effect.h"
 #include "../../MCD/Render/Material.h"
 

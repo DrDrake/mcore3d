@@ -75,7 +75,6 @@ public:
 		mBulletVertexIdxArray.reset(new btTriangleIndexVertexArray);
 
 		btIndexedMesh bulletMesh;
-		bulletMesh.pad = sizeof(bulletMesh);
 		// vertex
 		bulletMesh.m_numVertices = mVertexBuffer.size();
 		bulletMesh.m_vertexBase = (unsigned char *)&mVertexBuffer[0];
