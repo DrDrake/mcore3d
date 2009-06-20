@@ -1,6 +1,5 @@
 #include "stdafx.h"
 #include "RenderPanelControl.h"
-#include "../Common/ChamferBox.h"
 #include "../Common/DefaultResourceManager.h"
 #include "../Common/Gizmo/Gizmo.h"
 #include "../Common/GroundPlaneComponent.h"
@@ -11,6 +10,7 @@
 #include "../../MCD/Core/System/FileSystem.h"
 #include "../../MCD/Core/System/WindowEvent.h"
 #include "../../MCD/Render/Camera.h"
+#include "../../MCD/Render/ChamferBox.h"
 #include "../../MCD/Render/Effect.h"
 #include "../../MCD/Render/GlWindow.h"
 #include "../../MCD/Render/Mesh.h"
@@ -112,7 +112,7 @@ public:
 			e.release();
 		}
 
-		ChamferBoxBuilder chamferBoxBuilder(0.4f, 2);
+		ChamferBoxBuilder chamferBoxBuilder(0.4f, 2, false);
 		for(int i=0; i<200; ++i)
 		{	// Setup entity 1
 			std::auto_ptr<MCD::Entity> e(new MCD::Entity);
@@ -142,7 +142,7 @@ public:
 
 			// Setup the chamfer box mesh
 			MeshPtr mesh = new Mesh(L"");
-			ChamferBoxBuilder chamferBoxBuilder(1.0f, 10);
+			ChamferBoxBuilder chamferBoxBuilder(1.0f, 10, false);
 			chamferBoxBuilder.commit(*mesh, MeshBuilder::Static);
 
 			// Add component

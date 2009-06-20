@@ -104,7 +104,7 @@ TEST(Basic_MeshBuilderTest)
 	}
 }
 
-#include "ChamferBox.h"
+#include "../../MCD/Render/ChamferBox.h"
 TEST(ChamferBox_MeshBuilderTest)
 {
 	class TestWindow : public BasicGlWindow
