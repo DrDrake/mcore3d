@@ -6,6 +6,7 @@
 #include "../../MCD/Render/Model.h"
 #include "../../MCD/Core/Entity/Entity.h"
 //#include "../../MCD/Render/Components/MeshComponent.h"
+#include "../../MCD/Core/System/Log.h"
 #include "../../MCD/Render/RenderTarget.h"
 #include "../../MCD/Render/Texture.h"
 #include "../../MCD/Render/TextureRenderBuffer.h"
@@ -30,7 +31,6 @@ public:
 
 	struct BufferInfo
 	{
-		//GLuint			handle;
 		RenderBufferPtr	bufferPtr;
 		bool			isTexture;
 		GLenum			format;
@@ -49,7 +49,8 @@ public:
 
 	~FrameBuffers();
 
-	/*! Adds a new texture buffer */
+	/*! Adds a new texture buffer
+	*/
 	bool textureBuffer(int format, const wchar_t* texname);
 
 	/*! Framebuffer width */
@@ -68,6 +69,9 @@ public:
 
 	/*! Info of each buffer. */
 	const BufferInfo& bufferInfo(size_t i) const {return mBufferInfos[i];}
+
+	/*! Info of depth buffer. */
+	const BufferInfo& depthBufferInfo() const {return mDepthBufferInfo;}
 
 	/*! Begin to use this Framebuffer for rendering
 		The device current render target and viewport will be modified.
@@ -128,7 +132,11 @@ FrameBuffers::FrameBuffers(
 		Texture::dataTypeAndComponents(format, dataType, components);
 		
 		TextureRenderBuffer* bufferPtr = new TextureRenderBuffer(GL_DEPTH_ATTACHMENT_EXT);
-		bufferPtr->create(width, height, mTexTarget, format, dataType, components);
+		// depth texture must use GL_TEXTURE_RECTANGLE_ARB
+		if(!bufferPtr->create(width, height, GL_TEXTURE_RECTANGLE_ARB, format, dataType, components))
+		{
+			Log::format(Log::Error, L"FrameBuffers: failed to create depth texture:%x", format);
+		}
 		bufferPtr->linkTo(mRenderTarget);
 
 		mDepthBufferInfo.format = format;
@@ -153,6 +161,7 @@ bool FrameBuffers::textureBuffer(int format, const wchar_t* texname)
 	//todo: also specific dataType, components
 	if(!bufferPtr->create(mRenderTarget.width(), mRenderTarget.height(), mTexTarget, format, dataType, components, texname))
 	{
+		Log::format(Log::Error, L"FrameBuffers: failed to create texture buffer:%s %x", texname, format);
 		return false;
 	}
 
@@ -185,39 +194,39 @@ bool FrameBuffers::checkFramebufferStatus(bool reportSuccess)
     {
     case GL_FRAMEBUFFER_COMPLETE_EXT:
 		if(reportSuccess)
-			std::cout << "Framebuffer complete." << std::endl;
+			Log::write(Log::Info, L"Framebuffer complete.");
         return true;
 
     case GL_FRAMEBUFFER_INCOMPLETE_ATTACHMENT_EXT:
-        std::cout << "[ERROR] Framebuffer incomplete: Attachment is NOT complete." << std::endl;
+		Log::write(Log::Error, L"[ERROR] Framebuffer incomplete: Attachment is NOT complete.");
         return false;
 
     case GL_FRAMEBUFFER_INCOMPLETE_MISSING_ATTACHMENT_EXT:
-        std::cout << "[ERROR] Framebuffer incomplete: No image is attached to FBO." << std::endl;
+        Log::write(Log::Error, L"[ERROR] Framebuffer incomplete: No image is attached to FBO.");
         return false;
 
     case GL_FRAMEBUFFER_INCOMPLETE_DIMENSIONS_EXT:
-        std::cout << "[ERROR] Framebuffer incomplete: Attached images have different dimensions." << std::endl;
+        Log::write(Log::Error, L"[ERROR] Framebuffer incomplete: Attached images have different dimensions.");
         return false;
 
     case GL_FRAMEBUFFER_INCOMPLETE_FORMATS_EXT:
-        std::cout << "[ERROR] Framebuffer incomplete: Color attached images have different internal formats." << std::endl;
+        Log::write(Log::Error, L"[ERROR] Framebuffer incomplete: Color attached images have different internal formats.");
         return false;
 
     case GL_FRAMEBUFFER_INCOMPLETE_DRAW_BUFFER_EXT:
-        std::cout << "[ERROR] Framebuffer incomplete: Draw buffer." << std::endl;
+        Log::write(Log::Error, L"[ERROR] Framebuffer incomplete: Draw buffer.");
         return false;
 
     case GL_FRAMEBUFFER_INCOMPLETE_READ_BUFFER_EXT:
-        std::cout << "[ERROR] Framebuffer incomplete: Read buffer." << std::endl;
+        Log::write(Log::Error, L"[ERROR] Framebuffer incomplete: Read buffer.");
         return false;
 
     case GL_FRAMEBUFFER_UNSUPPORTED_EXT:
-        std::cout << "[ERROR] Unsupported by FBO implementation." << std::endl;
+        Log::write(Log::Error, L"[ERROR] Unsupported by FBO implementation.");
         return false;
 
     default:
-        std::cout << "[ERROR] Unknow error." << std::endl;
+        Log::write(Log::Error, L"[ERROR] Unknow error.");
         return false;
     }
 }
@@ -402,6 +411,7 @@ public:
 		COPY_PASS,
 		RADIAL_MASK_PASS,
 		RADIAL_GLOW_PASS,
+		DEPTH_TEXTURE_PASS,
 	};
 
 	enum BUFFERS
@@ -423,13 +433,11 @@ public:
 		// move slower
 		mCameraVelocity = 5.0f;
 
-		// load normal mapping effect
-		mEffect = static_cast<Effect*>(mResourceManager.load(L"Material/postprocessingtest.fx.xml").get());
-
+		// load model
 		mModel = dynamic_cast<Model*>(mResourceManager.load(L"Scene/City/scene.3ds").get());
 
 		// sun
-		m_sunPos = Vec3f(500.0f, 200.0f,-500.0f);
+		m_sunPos = Vec3f(-500.0f, 200.0f, -500.0f);
 
 		// blur kernel
 		float t = -BLUR_KERNEL_SIZE / 2.0f - 1.0f;
@@ -457,31 +465,40 @@ public:
 		if(0 == width || 0 == height)
 			return;
 
-		printf( "onResize %03d x %03d\n", width, height );
+		Log::format(Log::Info, L"onResize %03d x %03d\n", width, height);
 
 		//int format = GL_RGBA8;
 		int format = GL_RGBA16F_ARB;
 
-		mBuffersFull.reset( new FrameBuffers(mResourceManager, width, height, FrameBuffers::DepthBuffer_Texture24, false) );
-		mBuffersFull->textureBuffer(format, L"full_buf_1");
-		mBuffersFull->textureBuffer(format, L"full_buf_2");
+		bool useTexRect = false;
+
+		mBuffersFull.reset( new FrameBuffers(mResourceManager, width, height, FrameBuffers::DepthBuffer_Texture24, useTexRect) );
+		mBuffersFull->textureBuffer(format, L"full.1.buf");
+		mBuffersFull->textureBuffer(format, L"full.2.buf");
 
 		GLuint halfWidth = std::max((GLuint)2, GLuint(width / 2));
 		GLuint halfHeight = std::max((GLuint)2, GLuint(height / 2));
-		mBuffersHalf.reset( new FrameBuffers(mResourceManager, halfWidth, halfHeight, FrameBuffers::DepthBuffer_Texture24, false) );
-		mBuffersHalf->textureBuffer(format, L"half_buf_1");
-		mBuffersHalf->textureBuffer(format, L"half_buf_2");
+		mBuffersHalf.reset( new FrameBuffers(mResourceManager, halfWidth, halfHeight, FrameBuffers::DepthBuffer_Texture24, useTexRect) );
+		mBuffersHalf->textureBuffer(format, L"half.1.buf");
+		mBuffersHalf->textureBuffer(format, L"half.2.buf");
+		
+		// load normal mapping effect
+		mEffect = static_cast<Effect*>(mResourceManager.load(L"Material/postprocessingtest.fx.xml").get());
+
+		Log::write(Log::Info, L"loading effect");
 	}
 
 	sal_override void update(float deltaTime)
 	{
 		mResourceManager.processLoadingEvents();
 
-		Material2* mat = mEffect->material.get();
-
-		if(!mat) return;
-		if(!mBuffersFull.get()) return;
+		if(!mEffect) return;
 		if(!mModel) return;
+		if(!mBuffersFull.get()) return;
+		if(!mBuffersHalf.get()) return;
+
+		Material2* mat = mEffect->material.get();
+		if(!mat) return;
 
 		FrameBuffers& bufHalf = *mBuffersHalf;
 		FrameBuffers& bufFull = *mBuffersFull;
@@ -585,28 +602,29 @@ public:
 			drawViewportQuad(0, 0, this->width(), this->height(), bufFull.target());
 		}
 
-		{	// radial mask
-			ScopedFBBinding fbBinding(bufHalf, BUFFER1);
-			ScopePassBinding passBinding(*mat, RADIAL_MASK_PASS);
-            ScopedTexBinding2 texBinding(bufHalf.bufferInfo(BUFFER0).texture());
+		//{	// radial mask
+		//	ScopedFBBinding fbBinding(bufHalf, BUFFER1);
+		//	ScopePassBinding passBinding(*mat, RADIAL_MASK_PASS);
+		//  ScopedTexBinding2 texBinding(bufHalf.bufferInfo(BUFFER0).texture());
 
-			// bind shader uniform
-			GLint program; glGetIntegerv(GL_CURRENT_PROGRAM, &program);
-			if(0 != program)
-			{
-				glUniform1i( glGetUniformLocation(program, "g_inputSam"), 0 );
-				glUniform1i( glGetUniformLocation(program, "g_maskSam"), 1 );
-				glUniform3fv( glGetUniformLocation(program, "g_sunPos"), 1, m_sunPos.data );
-			}
+		//	// bind shader uniform
+		//	GLint program; glGetIntegerv(GL_CURRENT_PROGRAM, &program);
+		//	if(0 != program)
+		//	{
+		//		glUniform1i( glGetUniformLocation(program, "g_inputSam"), 0 );
+		//		glUniform1i( glGetUniformLocation(program, "g_maskSam"), 1 );
+		//		glUniform3fv( glGetUniformLocation(program, "g_sunPos"), 1, m_sunPos.data );
+		//	}
 
-			// draw quad
-			// preserve transforms since we need gl_ModelViewProjectionMatrox
-			drawViewportQuad(0, 0, bufHalf.width(), bufHalf.height(), bufHalf.target(), true);
-		}
+		//	// draw quad
+		//	// preserve transforms since we need gl_ModelViewProjectionMatrox
+		//	drawViewportQuad(0, 0, bufHalf.width(), bufHalf.height(), bufHalf.target(), true);
+		//}
 
 		{	// radial glow
 			ScopePassBinding passBinding(*mat, RADIAL_GLOW_PASS);
-            ScopedTexBinding2 texBinding(bufHalf.bufferInfo(BUFFER1).texture());
+            //ScopedTexBinding2 texBinding(bufHalf.bufferInfo(BUFFER1).texture());
+			ScopedTexBinding2 texBinding(bufHalf.bufferInfo(BUFFER0).texture());
 
 			// bind shader uniform
 			GLint program; glGetIntegerv(GL_CURRENT_PROGRAM, &program);
@@ -619,6 +637,22 @@ public:
 			// draw quad
 			// preserve transforms since we need gl_ModelViewProjectionMatrox
 			drawViewportQuad(0, 0, this->width(), this->height(), bufHalf.target(), true);
+		}
+
+		if(0)
+		{	// show the depth buffer
+			ScopePassBinding passBinding(*mat, DEPTH_TEXTURE_PASS);
+			ScopedTexBinding2 texBinding(bufFull.depthBufferInfo().texture());
+
+			// bind shader uniform
+			GLint program; glGetIntegerv(GL_CURRENT_PROGRAM, &program);
+			if(0 != program)
+			{
+				glUniform1i( glGetUniformLocation(program, "g_inputSam"), 0 );
+			}
+
+			// draw quad
+			drawViewportQuad(0, 0, this->width(), this->height(), GL_TEXTURE_RECTANGLE_ARB);
 		}
 
 		//drawSunPos();
