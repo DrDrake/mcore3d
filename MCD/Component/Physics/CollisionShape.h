@@ -4,9 +4,6 @@
 #include "../ShareLib.h"
 #include "../../Core/System/NonCopyable.h"
 #include "../../Core/System/SharedPtr.h"
-#include <vector>
-
-class btTriangleIndexVertexArray;
 
 namespace MCD {
 
@@ -17,11 +14,14 @@ typedef IntrusivePtr<class Mesh> MeshPtr;
 
 namespace PhysicsComponent {
 
+// TODO: Who owns CollisionShape? RigidBodyComponent or shared ownership?
 class MCD_ABSTRACT_CLASS MCD_COMPONENT_API CollisionShape : Noncopyable
 {
 	friend class RigidBodyComponent;
+
 public:
 	virtual ~CollisionShape();
+
 protected:
 	CollisionShape();
 
@@ -38,21 +38,21 @@ class MCD_COMPONENT_API SphereShape : public CollisionShape
 {
 public:
 	SphereShape(float radius);
-	virtual ~SphereShape(){};
 };	// SphereShape
 
 class MCD_COMPONENT_API StaticPlaneShape : public CollisionShape
 {
 public:
 	StaticPlaneShape(const Vec3f& planeNormal, float planeConstant);
-	virtual ~StaticPlaneShape(){};
 };	// StaticPlaneShape
 
 class MCD_COMPONENT_API StaticTriMeshShape : public CollisionShape
 {
 public:
 	StaticTriMeshShape(const MeshPtr& mesh);
-	virtual ~StaticTriMeshShape();
+
+	sal_override ~StaticTriMeshShape();
+
 private:
 	class Impl;
 	Impl* mImpl;
