@@ -295,10 +295,6 @@
 				>
 			</File>
 			<File
-				RelativePath=".\Input\InputComponentTest.cpp"
-				>
-			</File>
-			<File
 				RelativePath=".\Input\WinMessageInputComponent.cpp"
 				>
 			</File>

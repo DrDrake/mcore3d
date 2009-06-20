@@ -231,6 +231,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\InputComponentTest.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\MeshComponentTest.cpp"
 				>
 			</File>
