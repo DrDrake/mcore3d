@@ -1,9 +1,9 @@
 #include "Pch.h"
 #include "ChamferBox.h"
-#include "../../MCD/Core/Math/Vec2.h"
-#include "../../MCD/Core/Math/Mat33.h"
-#include "../../MCD/Core/Math/BasicFunction.h"
-#include "../../MCD/Render/MeshBuilder.h"
+#include "MeshBuilder.h"
+#include "../Core/Math/Vec2.h"
+#include "../Core/Math/Mat33.h"
+#include "../Core/Math/BasicFunction.h"
 #include "../../3Party/glew/glew.h"
 
 using namespace MCD;

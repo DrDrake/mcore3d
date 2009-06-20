@@ -1,6 +1,6 @@
 #include "Pch.h"
-#include "ChamferBox.h"
 #include "DefaultResourceManager.h"
+#include "../../MCD/Render/ChamferBox.h"
 #include "../../MCD/Render/Effect.h"
 #include "../../MCD/Render/Material.h"
 

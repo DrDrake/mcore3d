@@ -1,10 +1,12 @@
-#ifndef __MCD_RENDERTEST_PLANEMESHBUILDER__
-#define __MCD_RENDERTEST_PLANEMESHBUILDER__
+#ifndef __MCD_RENDER_PLANEMESHBUILDER__
+#define __MCD_RENDER_PLANEMESHBUILDER__
 
-#include "../../MCD/Render/MeshBuilder.h"
+#include "MeshBuilder.h"
+
+namespace MCD {
 
 //! Create a plane mesh
-class PlaneMeshBuilder : public MCD::MeshBuilder
+class MCD_RENDER_API PlaneMeshBuilder : public MCD::MeshBuilder
 {
 public:
 	using MeshBuilder::StorageHint;
@@ -14,4 +16,6 @@ public:
 	void commit(MCD::Mesh& mesh, StorageHint storageHint);
 };	// PlaneMeshBuilder
 
-#endif	// __MCD_RENDERTEST_PLANEMESHBUILDER__
+}	// namespace MCD
+
+#endif	// __MCD_RENDER_PLANEMESHBUILDER__
