@@ -38,11 +38,14 @@ static const char* keyToString(MCD::Key::Code key)
 	else
 		k = k - MCD::Key::Escape + ('9' - '0' + 'z' - 'a');
 
-	MCD_ASSERT(k < MCD_COUNTOF(mapping));
-	return mapping[k];
+	if(k <MCD_COUNTOF(mapping))
+		return mapping[k];
+	else
+		return nullptr;
 }
 
 WinMessageInputComponent::WinMessageInputComponent()
+	: window(nullptr)
 {
 }
 
@@ -61,6 +64,7 @@ void WinMessageInputComponent::update()
 
 		switch(e.Type)
 		{
+		case Event::TextEntered:
 		case Event::KeyPressed:
 			mKeyList[keyName] = 1;
 			mKeyDownList[keyName] = 1;
