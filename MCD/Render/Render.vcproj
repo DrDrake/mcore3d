@@ -224,6 +224,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\ChamferBox.h"
+				>
+			</File>
+			<File
 				RelativePath=".\Color.h"
 				>
 			</File>
@@ -281,6 +285,10 @@
 			</File>
 			<File
 				RelativePath=".\ModelPod.h"
+				>
+			</File>
+			<File
+				RelativePath=".\PlaneMeshBuilder.h"
 				>
 			</File>
 			<File
@@ -361,6 +369,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\ChamferBox.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\Color.cpp"
 				>
 			</File>
@@ -422,6 +434,10 @@
 			</File>
 			<File
 				RelativePath=".\ModelPod.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\PlaneMeshBuilder.cpp"
 				>
 			</File>
 			<File

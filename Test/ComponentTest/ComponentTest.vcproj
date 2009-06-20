@@ -227,10 +227,6 @@
 				>
 			</File>
 			<File
-				RelativePath="..\RenderTest\ChamferBox.cpp"
-				>
-			</File>
-			<File
 				RelativePath="..\RenderTest\DefaultResourceManager.cpp"
 				>
 			</File>
@@ -244,10 +240,6 @@
 			</File>
 			<File
 				RelativePath=".\PickComponentTest.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\RenderTest\PlaneMeshBuilder.cpp"
 				>
 			</File>
 		</Filter>

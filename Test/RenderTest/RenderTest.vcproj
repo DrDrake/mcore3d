@@ -222,10 +222,6 @@
 				>
 			</File>
 			<File
-				RelativePath=".\ChamferBox.h"
-				>
-			</File>
-			<File
 				RelativePath=".\Common.h"
 				>
 			</File>
@@ -235,10 +231,6 @@
 			</File>
 			<File
 				RelativePath=".\Pch.h"
-				>
-			</File>
-			<File
-				RelativePath=".\PlaneMeshBuilder.h"
 				>
 			</File>
 		</Filter>
@@ -252,10 +244,6 @@
 			</File>
 			<File
 				RelativePath=".\BasicGlWindow.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\ChamferBox.cpp"
 				>
 			</File>
 			<File
@@ -321,10 +309,6 @@
 						UsePrecompiledHeader="1"
 					/>
 				</FileConfiguration>
-			</File>
-			<File
-				RelativePath=".\PlaneMeshBuilder.cpp"
-				>
 			</File>
 			<File
 				RelativePath=".\PostProcessingTest.cpp"
