@@ -67,6 +67,35 @@ bool TextureRenderBuffer::createTexture(size_t width, size_t height, int type, i
 	return true;
 }
 
+bool TextureRenderBuffer::create(size_t width, size_t height, int type, int format, int components, int dataType, const wchar_t* name)
+{
+	if((texture = new Texture(name ? name : L"TextureRenderBuffer:")) == nullptr)
+		return false;
+
+	if(type != GL_TEXTURE_2D && type != GL_TEXTURE_RECTANGLE_ARB)
+		return false;
+
+	texture->width = width;
+	texture->height = height;
+	texture->format = format;
+	texture->type = type;
+
+	glEnable(type);
+	glGenTextures(1, &texture->handle);
+	texture->bind();
+
+	glTexParameterf(type, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameterf(type, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+	glTexImage2D(texture->type, 0, format, width, height, 0, components, dataType, nullptr);
+
+	// Assure the texture that is binded to the render target is not
+	// to be read as texture during rendering.
+	glBindTexture(type, 0);
+
+	return true;
+}
+
 size_t TextureRenderBuffer::width() const
 {
 	return texture ? texture->width : 0;

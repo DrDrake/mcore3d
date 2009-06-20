@@ -187,7 +187,7 @@ void FrameBuffers::textureBuffer(BufferFormat format)
 	TextureRenderBuffer* bufferPtr = new TextureRenderBuffer(GLenum(GL_COLOR_ATTACHMENT0_EXT + mBufferInfos.size()));
 	
 	//todo: also specific dataType, components
-	bufferPtr->createTexture(mWidth, mHeight, mTexTarget, internalFmt);
+	bufferPtr->create(mWidth, mHeight, mTexTarget, internalFmt, components, dataType);
 	bufferPtr->linkTo(mRenderTarget);
 
     mRenderTarget.bind();
@@ -898,7 +898,7 @@ public:
 			drawScene(mat);
 		}
 
-		const bool cDrawScene = true;
+		const bool cDrawScene = false;
 
 		if(cDrawScene)
 		{
