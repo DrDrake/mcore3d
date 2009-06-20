@@ -11,7 +11,6 @@
 #endif	// MCD_VC
 
 using namespace MCD;
-using namespace MCD::PhysicsComponent;
 
 CollisionShape::CollisionShape()
 	: shapeImpl(nullptr)

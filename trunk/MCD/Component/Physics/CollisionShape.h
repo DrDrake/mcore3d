@@ -12,8 +12,6 @@ typedef Vec3<float> Vec3f;
 
 typedef IntrusivePtr<class Mesh> MeshPtr;
 
-namespace PhysicsComponent {
-
 // TODO: Who owns CollisionShape? RigidBodyComponent or shared ownership?
 class MCD_ABSTRACT_CLASS MCD_COMPONENT_API CollisionShape : Noncopyable
 {
@@ -57,8 +55,6 @@ private:
 	class Impl;
 	Impl* mImpl;
 };	// StaticTriMeshShape
-
-}	// PhysicsComponent
 
 }	// MCD
 

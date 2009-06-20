@@ -283,6 +283,30 @@
 				>
 			</File>
 		</Filter>
+		<Filter
+			Name="Input"
+			>
+			<File
+				RelativePath=".\Input\InputComponent.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\Input\InputComponent.h"
+				>
+			</File>
+			<File
+				RelativePath=".\Input\InputComponentTest.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\Input\WinMessageInputComponent.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\Input\WinMessageInputComponent.h"
+				>
+			</File>
+		</Filter>
 		<File
 			RelativePath=".\Pch.cpp"
 			>

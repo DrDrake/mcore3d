@@ -9,8 +9,6 @@ namespace MCD {
 template<typename T> class Vec3;
 typedef Vec3<float> Vec3f;
 
-namespace PhysicsComponent {
-
 class CollisionShape;
 
 /*!	Represent a rigid body, the most frequent component that you may need
@@ -46,8 +44,6 @@ private:
 	class Impl;
 	Impl* mImpl;
 };	// RigidBodyComponent
-
-}	// PhysicsComponent
 
 }	// MCD
 
