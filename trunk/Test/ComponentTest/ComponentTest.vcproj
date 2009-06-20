@@ -211,10 +211,6 @@
 			ReferencedProjectIdentifier="{500413B2-5AE6-41CE-BCFF-D90DB2755869}"
 			RelativePathToProject="..\MCD\Render\Render.vcproj"
 		/>
-		<ProjectReference
-			ReferencedProjectIdentifier="{5813D158-EC1E-4305-8122-8573958150FE}"
-			RelativePathToProject="..\MCD\Binding\Binding.vcproj"
-		/>
 	</References>
 	<Files>
 		<Filter

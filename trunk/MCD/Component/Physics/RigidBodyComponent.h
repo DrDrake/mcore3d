@@ -13,11 +13,17 @@ namespace PhysicsComponent {
 
 class CollisionShape;
 
+/*!	Represent a rigid body, the most frequent component that you may need
+	to work with when using physics components.
+
+	It
+ */
 class MCD_COMPONENT_API RigidBodyComponent : public BehaviourComponent
 {
 	friend class DynamicsWorld;
 
 public:
+	//! It will take ownership of shape.
 	RigidBodyComponent(float mass, CollisionShape* shape);
 
 	sal_override ~RigidBodyComponent(void);

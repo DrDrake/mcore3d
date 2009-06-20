@@ -38,6 +38,7 @@ class StaticTriMeshShape::Impl
 	std::vector<float> mVertexBuffer;
 	std::vector<int> mIndexBuffer;
 	std::auto_ptr<btTriangleIndexVertexArray> mBulletVertexIdxArray;
+
 public:
 	Impl(const MeshPtr& mesh, void*& shapeImpl)
 	{
