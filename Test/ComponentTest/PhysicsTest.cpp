@@ -16,7 +16,6 @@
 #include "../../MCD/Core/System/PtrVector.h"
 
 using namespace MCD;
-using namespace PhysicsComponent;
 
 TEST(PhysicsComponentTest)
 {

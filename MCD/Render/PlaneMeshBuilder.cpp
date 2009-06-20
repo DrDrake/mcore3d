@@ -1,6 +1,5 @@
 #include "Pch.h"
 #include "PlaneMeshBuilder.h"
-#include "MeshBuilder.h"
 #include "../Core/Math/Vec2.h"
 #include "../Core/Math/Mat33.h"
 #include "../Core/Math/BasicFunction.h"
@@ -48,9 +47,9 @@ PlaneMeshBuilder::PlaneMeshBuilder(float width, float height, size_t widthSegmen
 	Vec2f vUV = startingCornerUV;
 
 	// Create vertices
-	for(size_t x = 0; x < vxCount; x++)
+	for(size_t x = 0; x < vxCount; ++x)
 	{
-		for(size_t y = 0; y < vyCount; y++)
+		for(size_t y = 0; y < vyCount; ++y)
 		{
 			position(vXY);
 			normal(Vec3f(0, 1, 0));
@@ -72,10 +71,10 @@ PlaneMeshBuilder::PlaneMeshBuilder(float width, float height, size_t widthSegmen
 	}
 
 	// Create index
-	for(size_t y = 0; y < heightSegmentCount; y++)
+	for(size_t y = 0; y < heightSegmentCount; ++y)
 	{
 		size_t indexedVertexCount = (y * vxCount);
-		for(size_t x = indexedVertexCount; x < indexedVertexCount + widthSegmentCount; x++)
+		for(size_t x = indexedVertexCount; x < indexedVertexCount + widthSegmentCount; ++x)
 		{       
 			addQuad(
 				(uint16_t) x,
@@ -85,7 +84,6 @@ PlaneMeshBuilder::PlaneMeshBuilder(float width, float height, size_t widthSegmen
 				);
 		}
 	}
-
 }
 
 void PlaneMeshBuilder::commit(Mesh& mesh, StorageHint storageHint)

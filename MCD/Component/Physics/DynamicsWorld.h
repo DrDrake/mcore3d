@@ -9,8 +9,6 @@ namespace MCD {
 template<typename T> class Vec3;
 typedef Vec3<float> Vec3f;
 
-namespace PhysicsComponent {
-
 class RigidBodyComponent;
 
 class MCD_COMPONENT_API DynamicsWorld : Noncopyable
@@ -33,8 +31,6 @@ private:
 	class Impl;
 	Impl* mImpl;
 };	// DynamicsWorld
-
-}	// PhysicsComponent
 
 }	// MCD
 

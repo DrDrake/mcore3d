@@ -8,8 +8,6 @@
 
 namespace MCD {
 
-namespace PhysicsComponent {
-
 RigidBodyComponent::Impl::Impl(float mass, CollisionShape* shape)
 	: mRigidBody(nullptr), mMotionState(nullptr), mShape(shape), mMass(mass)
 {
@@ -108,7 +106,5 @@ void RigidBodyComponent::setDamping(float lin_damping, float ang_damping)
 	MCD_ASSUME(mImpl);
 	mImpl->mRigidBody->setDamping(lin_damping, ang_damping);
 }
-
-}	// namespace PhysicsComponent
 
 }	// namespace MCD

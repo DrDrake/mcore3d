@@ -8,8 +8,6 @@
 
 namespace MCD {
 
-namespace PhysicsComponent {
-
 /*!	We cannot use reinterpret_cast when converting from Vec3f to btVector3,
 	because of some potential memory size and allignment issues.
  */
@@ -20,7 +18,5 @@ inline btVector3 toBullet(const Vec3f& v) {
 inline const Vec3f& toMCD(const btVector3& v) {
 	return reinterpret_cast<const Vec3f&>(v);
 }
-
-}	// PhysicsComponent
 
 }	// MCD

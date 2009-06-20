@@ -2,8 +2,6 @@
 
 namespace MCD {
 
-namespace PhysicsComponent {
-
 class RigidBodyComponent::Impl
 {
 public:
@@ -20,7 +18,5 @@ public:
 	CollisionShape* mShape;
 	float mMass;
 };	// Impl
-
-}	// namespace PhysicsComponent
 
 }	// namespace MCD

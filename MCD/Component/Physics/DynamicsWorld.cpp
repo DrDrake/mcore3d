@@ -7,7 +7,6 @@
 #include "../../../3Party/bullet/btBulletDynamicsCommon.h"
 
 using namespace MCD;
-using namespace MCD::PhysicsComponent;
 
 #ifdef MCD_VC
 #	ifdef NDEBUG
