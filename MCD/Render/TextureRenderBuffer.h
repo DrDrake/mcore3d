@@ -39,6 +39,8 @@ public:
 	 */
 	sal_checkreturn bool createTexture(size_t width, size_t height, int type, int format, const wchar_t* name=nullptr);
 
+	sal_checkreturn bool create(size_t width, size_t height, int type, int format, int components, int dataType, const wchar_t* name=nullptr);
+
 // Attributes
 	sal_override size_t width() const;
 
