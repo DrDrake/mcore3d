@@ -21,7 +21,7 @@
 	<shader>
 		<vertex>
 <![CDATA[
-#version 120
+
 varying vec3 var_Vertex, var_Normal, var_LightPos;
 
 uniform vec3 g_sunPos;
@@ -47,7 +47,7 @@ void main()
 		
 		<fragment>
 <![CDATA[
-#version 120 
+ 
 varying vec3 var_Vertex, var_Normal, var_LightPos;
 
 void main()
@@ -76,7 +76,7 @@ void main()
 	<shader>
 		<vertex>
 <![CDATA[
-#version 120
+
 varying vec3 var_Vertex;
 
 void main()
@@ -91,7 +91,7 @@ void main()
 		
 		<fragment>
 <![CDATA[
-#version 120 
+ 
 varying vec3 var_Vertex;
 uniform vec3 g_sunPos;
 
@@ -109,7 +109,7 @@ void main()
 	vec3 skyColor = mix(g_skyColorLow, g_skyColorHi, dotSky * 0.5 + 0.5);
 	
 	float dotSun = dot(fragDir, normalize(g_sunPos));
-	dotSun = pow(max(0, dotSun), g_SunPower);
+	dotSun = pow(max(0.0, dotSun), g_SunPower);
 	vec3 sunColor = dotSun * g_SunColor;
 	
 	gl_FragColor = vec4(skyColor + sunColor, dotSun);
@@ -129,7 +129,7 @@ void main()
 	<shader>
 		<vertex>
 <![CDATA[
-#version 120
+
 uniform vec2 g_InvTexSize;
 
 void main()
@@ -143,7 +143,7 @@ void main()
 		
 		<fragment>
 <![CDATA[
-#version 120
+
 uniform sampler2D g_inputSam;
 
 void main()
@@ -167,7 +167,7 @@ void main()
 	<shader>
 		<vertex>
 <![CDATA[
-#version 120
+
 
 #define NSAMPLES_2	5
 #define NSAMPLES	(NSAMPLES_2 * 2)
@@ -192,7 +192,7 @@ void main()
 		
 		<fragment>
 <![CDATA[
-#version 120
+
 
 #define NSAMPLES_2	5
 #define NSAMPLES	(NSAMPLES_2 * 2)
@@ -228,7 +228,7 @@ void main()
 	<shader>
 		<vertex>
 <![CDATA[
-#version 120
+
 void main()
 {
 	gl_Position = ftransform();
@@ -239,7 +239,7 @@ void main()
 		
 		<fragment>
 <![CDATA[
-#version 120
+
 uniform sampler2D g_inputSam;
 
 void main()
@@ -269,7 +269,7 @@ void main()
 	<shader>
 		<vertex>
 <![CDATA[
-#version 120
+
 
 uniform vec3 g_sunPos;
 
@@ -292,7 +292,7 @@ void main()
 		
 		<fragment>
 <![CDATA[
-#version 120
+
 
 uniform sampler2D g_inputSam;
 uniform sampler2D g_maskSam;
@@ -319,11 +319,15 @@ void main()
 	drawLine="false"
 >
 	<blending colorBlend="true" srcFactor="one" dstFactor="one" />
+	<texture
+		file="half.1.buf"
+		shaderName="g_inputSam"
+	/>
 	
 	<shader>
 		<vertex>
 <![CDATA[
-#version 120
+
 
 #define NSAMPLES_2		8
 #define NSAMPLES		(NSAMPLES_2*2)
@@ -366,7 +370,7 @@ void main()
 		
 		<fragment>
 <![CDATA[
-#version 120
+
 
 #define NSAMPLES_2		8
 #define NSAMPLES		(NSAMPLES_2*2)
@@ -400,4 +404,42 @@ void main()
 		</fragment>
 	</shader>
 </pass>
+
+<!-- depth texture pass -->
+<pass
+	enable="true"
+	drawLine="false"
+>
+	<!-- The first occuring texture will use texture unit 0 -->
+
+	<shader>
+		<vertex>
+<![CDATA[
+
+uniform vec2 g_InvTexSize;
+
+void main()
+{
+	gl_Position = ftransform();
+	vec2 baseUV = gl_MultiTexCoord0.xy;
+	gl_TexCoord[0].xy = baseUV;
+}
+]]>
+		<vertex/>
+		
+		<fragment>
+<![CDATA[
+
+uniform sampler2DRect g_inputSam;
+
+void main()
+{
+	vec4 depthTex = texture2DRect(g_inputSam, gl_TexCoord[0].xy);
+	gl_FragColor = depthTex.rrrr * 1.0;
+}
+]]>
+		</fragment>
+	</shader>
+</pass>
+
 </root>
