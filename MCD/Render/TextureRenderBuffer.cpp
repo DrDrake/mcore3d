@@ -67,7 +67,7 @@ bool TextureRenderBuffer::createTexture(size_t width, size_t height, int type, i
 	return true;
 }
 
-bool TextureRenderBuffer::create(size_t width, size_t height, int type, int format, int components, int dataType, const wchar_t* name)
+bool TextureRenderBuffer::create(size_t width, size_t height, int type, int format, int dataType, int components, const wchar_t* name)
 {
 	if((texture = new Texture(name ? name : L"TextureRenderBuffer:")) == nullptr)
 		return false;
