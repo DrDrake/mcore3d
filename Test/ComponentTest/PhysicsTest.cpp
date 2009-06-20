@@ -49,7 +49,7 @@ TEST(PhysicsComponentTest)
 			mResourceManager.addFactory(new Max3dsLoaderFactory(mResourceManager));
 
 			// The maximum random displacement added to the balls
-			static float randomness = 4.0f;
+			static float randomness = 8.0f;
 
 			mAbsTime = 0;
 
@@ -79,7 +79,7 @@ TEST(PhysicsComponentTest)
 					e->localTransform = Mat44f(Mat33f::rotateXYZ(0, Mathf::cPiOver4(), 0));
 					// Add some randomness, hehehehe
 					
-					Vec3f randomOffset(Mathf::random(), Mathf::random(), 0);
+					Vec3f randomOffset((Mathf::random() - 0.5f) * 2, (Mathf::random() - 0.5f) * 2, (Mathf::random() - 0.5f) * 2);
 					e->localTransform.setTranslation(ballPosition + randomness * randomOffset);
 					ballPosition += ballPosYDelta;
 
@@ -90,12 +90,12 @@ TEST(PhysicsComponentTest)
 					e->addComponent(c);
 
 					// Create the phyiscs component
-					RigidBodyComponent* cc = new RigidBodyComponent(0.1f, mBallCollisionMesh.get());
-					e->addComponent(cc);
-					cc->onAttach();
+					RigidBodyComponent* rbc = new RigidBodyComponent(0.5f, mBallCollisionMesh.get());
+					e->addComponent(rbc);
+					rbc->onAttach();
 
 					// Add it to the physics world..
-					mDynamicsWorld->addRigidBody(cc);
+					mDynamicsWorld->addRigidBody(rbc);
 
 					e.release();
 				}
@@ -116,21 +116,14 @@ TEST(PhysicsComponentTest)
 					std::auto_ptr<Entity> e(new Entity);
 					e->name = L"Floor";
 					e->asChildOf(&mRootNode);
-					e->localTransform.setTranslation(Vec3f(0, -1.5f, 0));
-
-					// Add component
-					MeshComponent* c = new MeshComponent;
-					c->mesh = mesh;
-					c->effect = static_cast<Effect*>(mResourceManager.load(L"Material/normalmapping.fx.xml").get());
-					e->addComponent(c);
 
 					// Create the phyiscs component
-					RigidBodyComponent* cc = new RigidBodyComponent(0, collisionShape.get());
-					e->addComponent(cc);
-					cc->onAttach();
+					RigidBodyComponent* rbc = new RigidBodyComponent(0, collisionShape.get());
+					e->addComponent(rbc);
+					rbc->onAttach();
 
 					// Add it to the physics world..
-					mDynamicsWorld->addRigidBody(cc);
+					mDynamicsWorld->addRigidBody(rbc);
 
 					e.release();
 
@@ -151,6 +144,8 @@ TEST(PhysicsComponentTest)
 			mResourceManager.processLoadingEvents();
 
 			glTranslatef(0.0f, 0.0f, -5.0f);
+
+			mModel->draw();
 
 			RenderableComponent::traverseEntities(&mRootNode);
 			BehaviourComponent::traverseEntities(&mRootNode);
