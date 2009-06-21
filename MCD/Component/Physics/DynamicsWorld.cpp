@@ -28,7 +28,7 @@ public:
 		btVector3 worldAabbMin(-1000,-1000,-1000);
 		btVector3 worldAabbMax( 1000, 1000, 1000);
 
-		const unsigned short maxProxies = 1024;
+		const unsigned short maxProxies = 1500;
 
 		// Create the btDiscreteDynamicsWorld
 		// The world configuation is temporary hardcoded

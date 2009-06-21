@@ -1,0 +1,70 @@
+<?xml version="1.0"?>
+<!-- A sample effect definiation xml -->
+
+<root>
+
+<pass
+	enable="true"
+	drawLine="false"
+>
+	<standard
+		ambient="0.2, 0.2, 0.2, 1.0"
+		diffuse="0.8, 0.6, 0.5, 1.0"
+		specular="0.5, 0.5, 0.5, 1.0"
+		shininess="30.0"
+	/>
+
+	<!-- The first occuring texture will use texture unit 0 -->
+  <texture
+		file="../debug8x8.cubemap.png"
+		shaderName="diffuseMap"
+	/>
+
+	<shader>
+		<!-- Reference external file as vertex shader -->
+		<vertex>
+		<![CDATA[
+    #extension GL_EXT_bindable_uniform : enable
+    
+    struct ModelView
+    {
+        vec4 c[4];
+    };
+    struct TransformArray
+    {
+        ModelView mv[1024];
+    };
+    
+    varying vec3 osvertex;
+    bindable uniform TransformArray transformArray;
+    
+		void main()
+		{
+      osvertex = gl_Vertex.xyz;
+      mat4 modelViewMatrix = mat4(transformArray.mv[gl_InstanceID].c[0],
+                                  transformArray.mv[gl_InstanceID].c[1],
+                                  transformArray.mv[gl_InstanceID].c[2],
+                                  transformArray.mv[gl_InstanceID].c[3]);
+                                  
+			gl_Position = gl_ProjectionMatrix * modelViewMatrix * gl_Vertex;
+		}
+		]]>
+		</vertex>
+
+		<!-- Define the fragment shader just inside the xml -->
+		<fragment>
+			<![CDATA[
+      varying vec3 osvertex;
+			uniform samplerCube diffuseMap;
+
+			void main()
+			{
+				gl_FragColor.rgb = textureCube(diffuseMap, osvertex).rgb;
+				gl_FragColor.a = 1;
+			}
+			]]>
+		</fragment>
+	</shader>
+</pass>
+
+</root>
