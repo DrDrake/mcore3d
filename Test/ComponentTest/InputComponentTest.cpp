@@ -26,7 +26,7 @@ public:
 
 			WinMessageInputComponent* c = new WinMessageInputComponent();
 			c->window = this;
-//			c->entityToPick = &mRootNode;
+			addListener(*c);
 			e->addComponent(c);
 			mInputComponent = c;
 

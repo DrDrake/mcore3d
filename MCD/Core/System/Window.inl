@@ -38,6 +38,10 @@ public:
 
 	bool popEvent(Event& event, bool blocking);
 
+	void addListener(IWindowListener& listener);
+
+	void removeListener(IWindowListener& listener);
+
 	//! Width and height of the window (not client area)
 	uint mWidth, mHeight;
 	std::wstring mTitle;

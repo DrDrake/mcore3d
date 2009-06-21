@@ -109,6 +109,17 @@ public:
 	 */
 	bool popEvent(Event& event, bool blocking);
 
+	/*!	Adds a IWindowListener to the listener list.
+		\note Will not take ownership, user need to manage the life-time of
+			the listener and sure to call removeListener() before it is destroyed.
+	 */
+	void addListener(IWindowListener& listener);
+
+	/*!	Remove a IWindowListener from the listerner list.
+		Do nothing if listener cannot found in the list.
+	 */
+	void removeListener(IWindowListener& listener);
+
 	//! Width of the window client area in pixel.
 	uint width() const;
 
