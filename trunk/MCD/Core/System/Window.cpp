@@ -66,6 +66,16 @@ bool ImplBase::popEvent(Event& event, bool blocking)
 	return true;
 }
 
+void ImplBase::addListener(IWindowListener& listener)
+{
+	mListeners.insert(&listener);
+}
+
+void ImplBase::removeListener(IWindowListener& listener)
+{
+	mListeners.erase(&listener);
+}
+
 }	// namespace MCD
 
 #if defined(MCD_VC)
@@ -138,6 +148,18 @@ void Window::onEvent(const Event& eventReceived)
 {
 	MCD_ASSUME(mImpl != nullptr);
 	mImpl->onEvent(eventReceived);
+}
+
+void Window::addListener(IWindowListener& listener)
+{
+	MCD_ASSUME(mImpl != nullptr);
+	mImpl->addListener(listener);
+}
+
+void Window::removeListener(IWindowListener& listener)
+{
+	MCD_ASSUME(mImpl != nullptr);
+	mImpl->removeListener(listener);
 }
 
 uint Window::width() const

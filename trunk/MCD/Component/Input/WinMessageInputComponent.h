@@ -2,18 +2,21 @@
 #define __MCD_COMPONENT_INPUT_WINMESSAGEINPUTCOMPONENT__
 
 #include "InputComponent.h"
+#include "../../Core/System/Window.h"
 #include <map>
 
 namespace MCD {
 
 class Window;
 
-/*!	A base class for abstracting an input component.
+/*!	An input component that use MCD::Window as the message source.
  */
-class MCD_COMPONENT_API WinMessageInputComponent : public InputComponent
+class MCD_COMPONENT_API WinMessageInputComponent : public InputComponent, public IWindowListener
 {
 public:
 	WinMessageInputComponent();
+
+	sal_override ~WinMessageInputComponent();
 
 	sal_override void update();
 
@@ -29,10 +32,16 @@ public:
 
 	sal_override bool getButtonUp(sal_in_z const wchar_t* buttonName) const;
 
-	MCD::Window* window;
+	Window* window;
 
 protected:
-	typedef std::map<const char*, int> EventList;
+	sal_override void onEvent(const Event& eventReceived);
+
+	struct Compare {
+		bool operator()(sal_in_z const wchar_t* lhs, sal_in_z const wchar_t* rhs) const;
+	};	// Compare
+
+	typedef std::map<const wchar_t*, int, Compare> EventList;
 	EventList mAxisList;
 	EventList mKeyList;
 	EventList mKeyDownList;

@@ -149,7 +149,7 @@ Window::Impl::Impl(Window& w)
 	mFullScreen(false),
 	mShowWindow(SW_SHOW)
 {
-	mListeners.insert(&w);
+	addListener(w);
 	mWidth = mHeight = uint(CW_USEDEFAULT);
 }
 
