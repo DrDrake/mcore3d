@@ -10,12 +10,14 @@
 #include <stdio.h>	// For vwprintf
 #include <string.h>	// For wcslen
 
-#ifndef NDEBUG
-#	pragma comment(lib, "jkbindd")
-#	pragma comment(lib, "squirreld")
-#else
-#	pragma comment(lib, "jkbind")
-#	pragma comment(lib, "squirrel")
+#ifdef MCD_VC
+#	ifndef NDEBUG
+#		pragma comment(lib, "jkbindd")
+#		pragma comment(lib, "squirreld")
+#	else
+#		pragma comment(lib, "jkbind")
+#		pragma comment(lib, "squirrel")
+#	endif
 #endif
 
 namespace MCD {
@@ -33,6 +35,7 @@ static void printfunc(HSQUIRRELVM v, const SQChar* s, ...)
 }
 
 extern void registerEntityBinding(script::VMCore* v);
+extern void registerInputComponentBinding(script::VMCore* v);
 extern void registerMathBinding(script::VMCore* v);
 extern void registerRenderBinding(script::VMCore* v);
 extern void registerSystemBinding(script::VMCore* v);
@@ -59,6 +62,7 @@ public:
 
 		// Bind mcore3d
 		registerEntityBinding(&vm);
+		registerInputComponentBinding(&vm);
 		registerMathBinding(&vm);
 		registerRenderBinding(&vm);
 		registerSystemBinding(&vm);

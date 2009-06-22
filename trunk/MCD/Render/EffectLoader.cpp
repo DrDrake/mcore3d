@@ -118,6 +118,7 @@ public:
 		if(!file || file[0] == L'\0')
 			return false;
 
+		// Adjust the path to load the texture relative to the xml or relative to the root folder.
 		Path path(file);
 		path = path.hasRootDirectory() ? path : context.basePath / path;
 		TexturePtr texture = dynamic_cast<Texture*>(context.resourceManager.load(path, false).get());
@@ -399,6 +400,7 @@ public:
 				return false;
 
 			if((shaderFile = parser.attributeValueIgnoreCase(L"file")) != nullptr) {
+				// Adjust the path to load the shader relative to the xml or relative to the root folder.
 				Path path(shaderFile);
 				path = path.hasRootDirectory() ? path : context.basePath / path;
 

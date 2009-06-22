@@ -473,14 +473,14 @@ public:
 		bool useTexRect = false;
 
 		mBuffersFull.reset( new FrameBuffers(mResourceManager, width, height, FrameBuffers::DepthBuffer_Texture24, useTexRect) );
-		mBuffersFull->textureBuffer(format, L"full.1.buf");
-		mBuffersFull->textureBuffer(format, L"full.2.buf");
+		mBuffersFull->textureBuffer(format, L"rtt:/full.1.buf");
+		mBuffersFull->textureBuffer(format, L"rtt:/full.2.buf");
 
 		GLuint halfWidth = std::max((GLuint)2, GLuint(width / 2));
 		GLuint halfHeight = std::max((GLuint)2, GLuint(height / 2));
 		mBuffersHalf.reset( new FrameBuffers(mResourceManager, halfWidth, halfHeight, FrameBuffers::DepthBuffer_Texture24, useTexRect) );
-		mBuffersHalf->textureBuffer(format, L"half.1.buf");
-		mBuffersHalf->textureBuffer(format, L"half.2.buf");
+		mBuffersHalf->textureBuffer(format, L"rtt:/half.1.buf");
+		mBuffersHalf->textureBuffer(format, L"rtt:/half.2.buf");
 		
 		// load normal mapping effect
 		mEffect = static_cast<Effect*>(mResourceManager.load(L"Material/postprocessingtest.fx.xml").get());
