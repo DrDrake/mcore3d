@@ -48,6 +48,14 @@ public:											\
 	static void bind(VMCore* vm);				\
 };
 
+#define SCRIPT_CLASS_DECLAR_EXPORT(Class, API)	\
+template<>										\
+class API ClassTraits<Class> :					\
+	public script::detail::ClassTraits<Class> {	\
+public:											\
+	static void bind(VMCore* vm);				\
+};
+
 #define SCRIPT_CLASS_REGISTER(Class)			\
 void ClassTraits<Class>::bind(VMCore* vm) {		\
 	RootDeclarator root(vm);					\
