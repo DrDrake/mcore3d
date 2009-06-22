@@ -65,7 +65,11 @@ IFileSystem* FileSystemCollection::findFileSystemForPath(const Path& path) const
 }
 
 Path FileSystemCollection::getRoot() const {
-	return Path();
+	MCD_ASSUME(mImpl);
+	if(mImpl->mFileSystems.empty())
+		return Path();
+	else
+		return mImpl->mFileSystems.front()->getRoot();
 }
 
 bool FileSystemCollection::setRoot(const Path&) {

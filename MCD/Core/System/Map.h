@@ -560,7 +560,7 @@ class Map : public MapBase<typename TNode::Key, typename TNode::KeyArg, TCompara
 {
 public:
 	typedef TNode Node;
-	typedef MapBase<typename TNode::Key, typename TNode::KeyArg> Super;
+	typedef MapBase<typename TNode::Key, typename TNode::KeyArg, TComparator> Super;
 	typedef typename Super::KeyArg KeyArg;
 	typedef typename Super::Comparator Comparator;
 
