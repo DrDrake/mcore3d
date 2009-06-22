@@ -128,6 +128,22 @@ bool RawFileSystem::setRoot(const Path& rootPath)
 		mRootPath = absolutePath;
 		return true;
 	}
+	else {	// Search for existance of a "*.dir" file which act as a shortcut file
+		Path::string_type shortCut = rootPath.getString() + L".dir";
+		if(isExistsImpl(shortCut.c_str()) && !isDirectoryImpl(shortCut.c_str()))
+		{
+			std::auto_ptr<std::istream> is = openRead(shortCut);
+			if(is.get() && is->good())
+			{
+				// Read the directory that this shortcut points to
+				std::string dir;
+				(*is) >> dir;
+				mRootPath = strToWStr(dir);
+				return true;
+			}
+		}
+	}
+
 	return false;
 }
 

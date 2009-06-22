@@ -29,7 +29,7 @@ public:
 	//! Find the FIRST file system which contains the supplied path, returns null if not found.
 	IFileSystem* findFileSystemForPath(const Path& path) const;
 
-	//! Inapplicable, simple return empty path.
+	//! It only returns the first file system's root path.
 	sal_override Path getRoot() const;
 
 	//! Inapplicable, simple return false.

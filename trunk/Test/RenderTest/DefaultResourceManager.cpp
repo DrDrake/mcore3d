@@ -15,13 +15,16 @@ IFileSystem* createDefaultFileSystem()
 {
 	std::auto_ptr<FileSystemCollection> fileSystem(new FileSystemCollection);
 
+	Path actualRoot;
+
 	try {
 		std::auto_ptr<IFileSystem> rawFs(new RawFileSystem(L"Media"));
+		actualRoot = rawFs->getRoot();
 		fileSystem->addFileSystem(*rawFs.release());
 	} catch(...) {}
 
 	try {
-		std::auto_ptr<IFileSystem> zipFs(new ZipFileSystem(L"Media.zip"));
+		std::auto_ptr<IFileSystem> zipFs(new ZipFileSystem(actualRoot.getBranchPath() / L"Media.zip"));
 		fileSystem->addFileSystem(*zipFs.release());
 	} catch(...) {}
 
@@ -42,7 +45,8 @@ public:
 DefaultResourceManager::DefaultResourceManager(IFileSystem& fileSystem)
 	: ResourceManager(fileSystem)
 {
-	mImpl = new Impl(L"Media");
+	Path root = fileSystem.getRoot();
+	mImpl = new Impl(root.getString().c_str());
 	setupFactories();
 }
 
