@@ -1,14 +1,14 @@
 #include "Pch.h"
 #include "../MCD/Binding/Binding.h"
 #include "../MCD/Binding/Entity.h"
+#include "../MCD/Binding/InputComponent.h"
 #include "../MCD/Core/Entity/Entity.h"
-#include "../MCD/Core/Entity/BehaviourComponent.h"
 #include "../MCD/Render/ChamferBox.h"
 #include "../MCD/Render/Effect.h"
 #include "../MCD/Component/Render/MeshComponent.h"
+#include "../MCD/Component/Input/WinMessageInputComponent.h"
 #include "../Test/RenderTest/BasicGlWindow.h"
 #include "../Test/RenderTest/DefaultResourceManager.h"
-#include "../3Party/jkbind/Declarator.h"
 
 #ifdef MCD_VC
 #	ifndef NDEBUG
@@ -49,9 +49,22 @@ public:
 			chamferBoxBuilder.commit(*mesh, MeshBuilder::Static);
 
 			// Add component
-			MeshComponent* c = new MeshComponent;
+			MeshComponent* c = new MeshComponent();
 			c->mesh = mesh;
 			c->effect = static_cast<Effect*>(mResourceManager.load(L"Material/test.fx.xml").get());
+			e->addComponent(c);
+
+			e.release();
+		}
+
+		{	// Setup input component
+			std::auto_ptr<Entity> e(new Entity);
+			e->name = L"Input";
+			e->asChildOf(mRootNode);
+
+			WinMessageInputComponent* c = new WinMessageInputComponent();
+			mInputComponent = c;
+			c->attachTo(*this);
 			e->addComponent(c);
 
 			e.release();
@@ -79,6 +92,10 @@ public:
 		return mRootNode;
 	}
 
+	sal_notnull InputComponent* inputComponent() {
+		return mInputComponent;
+	}
+
 	static TestWindow* getSinleton() {
 		return TestWindow::singleton;
 	}
@@ -87,6 +104,8 @@ public:
 
 // Attributes:
 	Entity* mRootNode;
+	InputComponent* mInputComponent;
+
 	ScriptVM mScriptVM;
 	DefaultResourceManager mResourceManager;
 };	// TestWindow
@@ -99,6 +118,7 @@ SCRIPT_CLASS_DECLAR(TestWindow);
 SCRIPT_CLASS_REGISTER_NAME(TestWindow, "MainWindow")
 	.enableGetset(L"MainWindow")
 	.method<objNoCare>(L"_getrootEntity", &TestWindow::rootNode)
+	.method<objNoCare>(L"_getinputComponent", &TestWindow::inputComponent)
 ;}
 
 }	// namespace script
@@ -118,12 +138,7 @@ void TestWindow::scriptBindingSetup()
 	mScriptVM.runScript(
 		L"gMainWindow <- _getMainWindow();"
 		L"gRootEntity <- gMainWindow.rootEntity;"
-
-		L"{"
-		L"local e = Entity();"
-		L"e.name = \"Input\";"
-		L"gRootEntity.addChild(e);"
-		L"}"
+		L"gInput <- gMainWindow.inputComponent;"
 	);
 }
 

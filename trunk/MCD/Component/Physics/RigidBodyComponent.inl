@@ -5,7 +5,7 @@ namespace MCD {
 class RigidBodyComponent::Impl
 {
 public:
-	Impl(float mass, CollisionShape* shape);
+	Impl(float mass, const CollisionShapePtr& shape);
 
 	~Impl();
 
@@ -15,7 +15,7 @@ public:
 
 	btRigidBody* mRigidBody;
 	btMotionState* mMotionState;
-	CollisionShape* mShape;
+	CollisionShapePtr mShape;
 	float mMass;
 };	// Impl
 

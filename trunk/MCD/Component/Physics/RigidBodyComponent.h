@@ -9,7 +9,7 @@ namespace MCD {
 template<typename T> class Vec3;
 typedef Vec3<float> Vec3f;
 
-class CollisionShape;
+typedef IntrusivePtr<class CollisionShape> CollisionShapePtr;
 
 /*!	Represent a rigid body, the most frequent component that you may need
 	to work with when using physics components.
@@ -22,7 +22,7 @@ class MCD_COMPONENT_API RigidBodyComponent : public BehaviourComponent
 
 public:
 	//! It will take ownership of shape.
-	RigidBodyComponent(float mass, CollisionShape* shape);
+	RigidBodyComponent(float mass, const CollisionShapePtr& shape);
 
 	sal_override ~RigidBodyComponent(void);
 

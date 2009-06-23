@@ -166,9 +166,7 @@ TEST(PhysicsComponentTest)
 {
 	class TestWindow : public BasicGlWindow
 	{
-		std::auto_ptr<DynamicsWorld>   mDynamicsWorld;
-		std::auto_ptr<CollisionShape>  mBallCollisionMesh;
-		ptr_vector<CollisionShape>     mGroundCollisionMeshes;
+		std::auto_ptr<DynamicsWorld> mDynamicsWorld;
 
 		float mAbsTime;
 		ModelPtr mModel;
@@ -213,8 +211,6 @@ TEST(PhysicsComponentTest)
 
 			mBallInstMesh = new InstancedMesh(ballMesh, mResourceManager);
 
-			mBallCollisionMesh.reset(new SphereShape(1));
-
 			// Ball count
 			int xCount = 32, yCount = 32;
 
@@ -246,7 +242,7 @@ TEST(PhysicsComponentTest)
 #endif
 
 					// Create the phyiscs component
-					RigidBodyComponent* rbc = new RigidBodyComponent(0.5f, mBallCollisionMesh.get());
+					RigidBodyComponent* rbc = new RigidBodyComponent(0.5f, new SphereShape(1));
 					e->addComponent(rbc);
 					rbc->onAttach();
 
@@ -266,15 +262,13 @@ TEST(PhysicsComponentTest)
 				{
 					MeshPtr mesh = it->mesh;
 
-					std::auto_ptr<CollisionShape> collisionShape(new StaticTriMeshShape(mesh));
-
 					// Setup the ground plane
 					std::auto_ptr<Entity> e(new Entity);
 					e->name = L"";
 					e->asChildOf(&mRootNode);
 
 					// Create the phyiscs component
-					RigidBodyComponent* rbc = new RigidBodyComponent(0, collisionShape.get());
+					RigidBodyComponent* rbc = new RigidBodyComponent(0, new StaticTriMeshShape(mesh));
 					e->addComponent(rbc);
 					rbc->onAttach();
 
@@ -282,8 +276,6 @@ TEST(PhysicsComponentTest)
 					mDynamicsWorld->addRigidBody(rbc);
 
 					e.release();
-
-					mGroundCollisionMeshes.push_back(collisionShape.release());
 				}
 			}
 
