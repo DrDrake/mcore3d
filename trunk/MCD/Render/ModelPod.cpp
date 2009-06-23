@@ -153,8 +153,8 @@ void ModelPod::Impl::draw()
 			if(material->nIdxTexDiffuse >= 0 && material->nIdxTexDiffuse < int(mPod.nNumTexture)) {
 				Texture* texture = mTextures[material->nIdxTexDiffuse].get();
 				if(texture) {
-					glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-					glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+					//glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+					//glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
 					texture->bind();
 				}

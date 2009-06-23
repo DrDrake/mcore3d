@@ -144,7 +144,7 @@ typedef IntrusivePtr<class Texture> TexturePtr;
 class MCD_RENDER_API TextureProperty : public IMaterialProperty
 {
 public:
-	TextureProperty(Texture* texture, int unit);
+	TextureProperty(Texture* texture, int unit, int minFilter, int magFilter);
 	TextureProperty(const TextureProperty& rhs);			// Prevent compiler generated copy constructor
 	TextureProperty& operator=(const TextureProperty& rhs);	// and assignment operation
 
@@ -159,6 +159,8 @@ public:
 	int unit;
 	TexturePtr texture;
 	std::string shaderName;	//!< The name of the texture that appear in the shader.
+	int minFilter;
+	int magFilter;
 };	// TextureProperty
 
 class ShaderProgram;

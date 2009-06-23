@@ -83,8 +83,8 @@ void StandardProperty::begin() const
 }
 
 // Texture
-TextureProperty::TextureProperty(Texture* texture_, int unit_)
-	: unit(unit_), texture(texture_)
+TextureProperty::TextureProperty(Texture* texture_, int unit_, int minFilter_, int magFilter_)
+	: unit(unit_), texture(texture_), minFilter(minFilter_), magFilter(magFilter_)
 {
 }
 
@@ -122,6 +122,9 @@ void TextureProperty::begin() const
 		texture->bind();
 		glActiveTextureARB(GL_TEXTURE0_ARB);
 	}
+
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, minFilter);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, magFilter);
 }
 
 void TextureProperty::end() const
