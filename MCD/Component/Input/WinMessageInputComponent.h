@@ -32,7 +32,12 @@ public:
 
 	sal_override bool getButtonUp(sal_in_z const wchar_t* buttonName) const;
 
-	Window* window;
+	/*!	Attach the WinMessageInputComponent to an existing Window.
+		\note Make sure the window object keep alive during the life time of this.
+	 */
+	void attachTo(Window& window);
+
+	sal_maybenull Window* getWindow();
 
 protected:
 	sal_override void onEvent(const Event& eventReceived);
@@ -46,6 +51,7 @@ protected:
 	EventList mKeyList;
 	EventList mKeyDownList;
 	EventList mKeyUpList;
+	Window* mWindow;
 };	// WinMessageInputComponent
 
 }	// namespace MCD

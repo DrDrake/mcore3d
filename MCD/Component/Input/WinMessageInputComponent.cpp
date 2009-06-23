@@ -54,14 +54,14 @@ bool WinMessageInputComponent::Compare::operator()(const wchar_t* lhs, const wch
 }
 
 WinMessageInputComponent::WinMessageInputComponent()
-	: window(nullptr)
+	: mWindow(nullptr)
 {
 }
 
 WinMessageInputComponent::~WinMessageInputComponent()
 {
-	if(window)
-		window->removeListener(*this);
+	if(mWindow)
+		mWindow->removeListener(*this);
 }
 
 void WinMessageInputComponent::update()
@@ -102,6 +102,17 @@ bool WinMessageInputComponent::getButtonDown(const wchar_t* buttonName) const
 bool WinMessageInputComponent::getButtonUp(const wchar_t* buttonName) const
 {
 	return mKeyUpList.find(buttonName) != mKeyUpList.end();
+}
+
+void WinMessageInputComponent::attachTo(Window& window)
+{
+	window.addListener(*this);
+	mWindow = &window;
+}
+
+Window* WinMessageInputComponent::getWindow()
+{
+	return mWindow;
 }
 
 void WinMessageInputComponent::onEvent(const Event& e)

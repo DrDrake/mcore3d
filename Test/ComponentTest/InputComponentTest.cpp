@@ -25,8 +25,7 @@ public:
 			e->asChildOf(&mRootNode);
 
 			WinMessageInputComponent* c = new WinMessageInputComponent();
-			c->window = this;
-			addListener(*c);
+			c->attachTo(*this);
 			e->addComponent(c);
 			mInputComponent = c;
 

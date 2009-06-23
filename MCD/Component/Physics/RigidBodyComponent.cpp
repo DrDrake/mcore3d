@@ -8,7 +8,7 @@
 
 namespace MCD {
 
-RigidBodyComponent::Impl::Impl(float mass, CollisionShape* shape)
+RigidBodyComponent::Impl::Impl(float mass, const CollisionShapePtr& shape)
 	: mRigidBody(nullptr), mMotionState(nullptr), mShape(shape), mMass(mass)
 {
 	// NOTE: The btRigidBody should not be created now, it should be created when
@@ -53,7 +53,7 @@ void RigidBodyComponent::Impl::update(Entity* e)
 	e->localTransform.setTranslation(Vec3f(v[0], v[1], v[2]));
 }
 
-RigidBodyComponent::RigidBodyComponent(float mass, CollisionShape* shape)
+RigidBodyComponent::RigidBodyComponent(float mass, const CollisionShapePtr& shape)
 {
 	mImpl = new Impl(mass, shape);
 }

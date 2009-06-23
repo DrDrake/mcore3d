@@ -12,13 +12,12 @@ typedef Vec3<float> Vec3f;
 
 typedef IntrusivePtr<class Mesh> MeshPtr;
 
-// TODO: Who owns CollisionShape? RigidBodyComponent or shared ownership?
+/*!
+	The ownership of a CollisionShape is shared by multiple instance of RigidBodyComponent.
+ */
 class MCD_ABSTRACT_CLASS MCD_COMPONENT_API CollisionShape : Noncopyable
 {
 	friend class RigidBodyComponent;
-
-public:
-	virtual ~CollisionShape();
 
 protected:
 	CollisionShape();
@@ -26,11 +25,22 @@ protected:
 	//! Please make sure the shape variable is kind of btCollisionShape
 	CollisionShape(void* shape);
 
+	virtual ~CollisionShape();
+
 	/*!	Pointer storing the implementation of the collision shape,
 		that is actually using the type btCollisionShape.
 	 */
 	void* shapeImpl;
+
+	// Function required for intrusive pointer 
+	MCD_COMPONENT_API friend void intrusivePtrAddRef(CollisionShape* p);
+
+	MCD_COMPONENT_API friend void intrusivePtrRelease(CollisionShape* p);
+
+	AtomicInteger mRefCount;
 };  // CollisionShape
+
+typedef IntrusivePtr<CollisionShape> CollisionShapePtr;
 
 class MCD_COMPONENT_API SphereShape : public CollisionShape
 {
