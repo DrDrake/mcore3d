@@ -16,12 +16,13 @@ Please notice that the first `<texture />` element occurs in the pass will be bi
   * filter options of the texture (min_filter, mag_filter, mip_filter)
   * Syntax: {{{<texture filter="linear_linear_point"/>}}}
   * Values:
-   # point_point_none
-   # point_point_point
-   # point_point_linear
-   # linear_linear_none
-   # linear_linear_point
-   # linear_linear_linear
+   # "point_point_none"
+   # "point_point_point"
+   # "point_point_linear"
+   # "linear_linear_none"
+   # "linear_linear_point"
+   # "linear_linear_linear"
+  * Default: "linear_linear_none"
 
  * shaderName
   * The name of the texure if it is being referenced in a shader.
