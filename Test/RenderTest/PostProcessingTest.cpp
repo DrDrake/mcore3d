@@ -473,14 +473,14 @@ public:
 		bool useTexRect = false;
 
 		mBuffersFull.reset( new FrameBuffers(mResourceManager, width, height, FrameBuffers::DepthBuffer_Texture24, useTexRect) );
+		mBuffersFull->textureBuffer(format, L"rtt:/full.0.buf");
 		mBuffersFull->textureBuffer(format, L"rtt:/full.1.buf");
-		mBuffersFull->textureBuffer(format, L"rtt:/full.2.buf");
 
 		GLuint halfWidth = std::max((GLuint)2, GLuint(width / 2));
 		GLuint halfHeight = std::max((GLuint)2, GLuint(height / 2));
 		mBuffersHalf.reset( new FrameBuffers(mResourceManager, halfWidth, halfHeight, FrameBuffers::DepthBuffer_Texture24, useTexRect) );
+		mBuffersHalf->textureBuffer(format, L"rtt:/half.0.buf");
 		mBuffersHalf->textureBuffer(format, L"rtt:/half.1.buf");
-		mBuffersHalf->textureBuffer(format, L"rtt:/half.2.buf");
 		
 		// load normal mapping effect
 		mEffect = static_cast<Effect*>(mResourceManager.load(L"Material/postprocessingtest.fx.xml").get());
@@ -508,33 +508,7 @@ public:
 			drawScene(mat);
 		}
 
-		const bool cDrawScene = false;
-
-		if(cDrawScene)
-		{
-			{
-				ScopedFBBinding fbBinding(bufHalf, BUFFER1);
-				drawScene(mat);
-			}
-			{
-				ScopedFBBinding fbBinding(bufHalf, BUFFER0);
-				ScopePassBinding passBinding(*mat, SUN_EXTRACT_PASS);
-				ScopedTexBinding2 texBinding(bufHalf.bufferInfo(BUFFER1).texture());
-				// bind shader uniform
-				GLint program;
-				glGetIntegerv(GL_CURRENT_PROGRAM, &program);
-
-				if(0 != program)
-				{
-					glUniform1i( glGetUniformLocation(program, "g_inputSam"), 0 );
-				}
-
-				// draw quad
-				drawViewportQuad(0, 0, bufHalf.width(), bufHalf.height(), bufHalf.target());
-			}
-		}
-		else
-		{
+		{	// sun extract pass
 			ScopedFBBinding fbBinding(bufHalf, BUFFER0);
 			ScopePassBinding passBinding(*mat, SUN_EXTRACT_PASS);
             ScopedTexBinding2 texBinding(bufFull.bufferInfo(BUFFER0).texture());
@@ -624,7 +598,7 @@ public:
 		{	// radial glow
 			ScopePassBinding passBinding(*mat, RADIAL_GLOW_PASS);
             //ScopedTexBinding2 texBinding(bufHalf.bufferInfo(BUFFER1).texture());
-			//ScopedTexBinding2 texBinding(bufHalf.bufferInfo(BUFFER0).texture());
+			ScopedTexBinding2 texBinding(bufHalf.bufferInfo(BUFFER0).texture());
 
 			// bind shader uniform
 			GLint program; glGetIntegerv(GL_CURRENT_PROGRAM, &program);
