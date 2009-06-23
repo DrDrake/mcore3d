@@ -20,14 +20,17 @@
 	<texture
 		file="../Fieldstone.jpg"
 		shaderName="diffuseMap"
+		filter="point_point_none"
 	/>
 	<texture
 		file="../FieldstoneBumpDOT3.jpg"
 		shaderName="normalMap"
+		filter="point_point_none"
 	/>
 	<texture
 		file="../Langholmen1024x1024.cubemap.jpg"
 		shaderName="envMap"
+		filter="point_point_none"
 	/>
 
 	<shader>

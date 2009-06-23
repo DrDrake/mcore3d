@@ -120,8 +120,41 @@ public:
 		return L"texture";
 	}
 
+	static void parseFilterOptions(const wchar_t* options, int& minFilter, int& magFilter)
+	{
+		if(0 == wstrCaseCmp(options, L"point_point_none"))
+		{
+			minFilter = GL_NEAREST; magFilter = GL_NEAREST;
+		}
+		else if(0 == wstrCaseCmp(options, L"point_point_point"))
+		{
+			minFilter = GL_NEAREST_MIPMAP_NEAREST; magFilter = GL_NEAREST;
+		}
+		else if(0 == wstrCaseCmp(options, L"point_point_linear"))
+		{
+			minFilter = GL_NEAREST_MIPMAP_LINEAR; magFilter = GL_NEAREST;
+		}
+		else if(0 == wstrCaseCmp(options, L"linear_linear_none"))
+		{
+			minFilter = GL_LINEAR; magFilter = GL_LINEAR;
+		}
+		else if(0 == wstrCaseCmp(options, L"linear_linear_point"))
+		{
+			minFilter = GL_LINEAR_MIPMAP_NEAREST; magFilter = GL_LINEAR;
+		}
+		else if(0 == wstrCaseCmp(options, L"linear_linear_linear"))
+		{
+			minFilter = GL_LINEAR_MIPMAP_LINEAR; magFilter = GL_LINEAR;
+		}
+		else
+		{
+			Log::format(Log::Warn, L"EffectLoader: unknown filtering options %s.", options);
+		}
+	}
+
 	sal_override bool load(XmlParser& parser, IMaterial& material, Context& context)
 	{
+		// file attribute
 		const wchar_t* file = parser.attributeValueIgnoreCase(L"file");
 		if(!file || file[0] == L'\0')
 			return false;
@@ -131,8 +164,16 @@ public:
 		path = path.hasRootDirectory() ? path : context.basePath / path;
 		TexturePtr texture = dynamic_cast<Texture*>(context.resourceManager.load(path, false).get());
 
-		std::auto_ptr<TextureProperty> textureProperty(new TextureProperty(texture.get(), mTextureUnit));
+		// filter attribute
+		int minFilter = GL_LINEAR;
+		int magFilter = GL_LINEAR;
+		const wchar_t* filter = parser.attributeValueIgnoreCase(L"filter");
+		if(filter)
+			parseFilterOptions(filter, minFilter, magFilter);
 
+		std::auto_ptr<TextureProperty> textureProperty(new TextureProperty(texture.get(), mTextureUnit, minFilter, magFilter));
+
+		// shaderName attribute
 		const wchar_t* shaderName = parser.attributeValueIgnoreCase(L"shaderName");
 		if(shaderName) {
 			if(!wStrToStr(shaderName, textureProperty->shaderName))
