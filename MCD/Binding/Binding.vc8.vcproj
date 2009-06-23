@@ -18,10 +18,10 @@
 	<Configurations>
 		<Configuration
 			Name="Debug|Win32"
-			OutputDirectory="../Bin/"
+			OutputDirectory="../../Bin/"
 			IntermediateDirectory="$(ConfigurationName)"
 			ConfigurationType="2"
-			InheritedPropertySheets=".\General.vsprops;.\Debug.vsprops"
+			InheritedPropertySheets="..\General.vsprops;..\Debug.vsprops"
 			CharacterSet="1"
 			>
 			<Tool
@@ -82,10 +82,10 @@
 		</Configuration>
 		<Configuration
 			Name="Release|Win32"
-			OutputDirectory="../Bin/"
+			OutputDirectory="../../Bin/"
 			IntermediateDirectory="$(ConfigurationName)"
 			ConfigurationType="2"
-			InheritedPropertySheets=".\General.vsprops;.\Release.vsprops"
+			InheritedPropertySheets="..\General.vsprops;..\Release.vsprops"
 			CharacterSet="1"
 			WholeProgramOptimization="0"
 			>
@@ -146,10 +146,10 @@
 		</Configuration>
 		<Configuration
 			Name="Analysis|Win32"
-			OutputDirectory="../Bin/"
+			OutputDirectory="../../Bin/"
 			IntermediateDirectory="$(ConfigurationName)"
 			ConfigurationType="2"
-			InheritedPropertySheets=".\General.vsprops;.\Analysis.vsprops"
+			InheritedPropertySheets="..\General.vsprops;..\Analysis.vsprops"
 			CharacterSet="1"
 			>
 			<Tool
@@ -218,6 +218,10 @@
 			ReferencedProjectIdentifier="{500413B2-5AE6-41CE-BCFF-D90DB2755869}"
 			RelativePathToProject="..\MCD\Render\Render.vcproj"
 		/>
+		<ProjectReference
+			ReferencedProjectIdentifier="{B6219744-C76A-4C74-A455-8AFA986C3B6A}"
+			RelativePathToProject="..\MCD\Component\Component.vcproj"
+		/>
 	</References>
 	<Files>
 		<Filter
@@ -230,6 +234,10 @@
 			</File>
 			<File
 				RelativePath=".\Entity.h"
+				>
+			</File>
+			<File
+				RelativePath=".\InputComponent.h"
 				>
 			</File>
 			<File
@@ -259,6 +267,10 @@
 			</File>
 			<File
 				RelativePath=".\Entity.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\InputComponent.cpp"
 				>
 			</File>
 			<File

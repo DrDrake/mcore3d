@@ -467,8 +467,8 @@ public:
 
 		Log::format(Log::Info, L"onResize %03d x %03d\n", width, height);
 
-		//int format = GL_RGBA8;
-		int format = GL_RGBA16F_ARB;
+		int format = GL_RGBA8;
+		//int format = GL_RGBA16F_ARB;
 
 		bool useTexRect = false;
 
@@ -624,7 +624,7 @@ public:
 		{	// radial glow
 			ScopePassBinding passBinding(*mat, RADIAL_GLOW_PASS);
             //ScopedTexBinding2 texBinding(bufHalf.bufferInfo(BUFFER1).texture());
-			ScopedTexBinding2 texBinding(bufHalf.bufferInfo(BUFFER0).texture());
+			//ScopedTexBinding2 texBinding(bufHalf.bufferInfo(BUFFER0).texture());
 
 			// bind shader uniform
 			GLint program; glGetIntegerv(GL_CURRENT_PROGRAM, &program);

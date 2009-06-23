@@ -320,7 +320,7 @@ void main()
 >
 	<blending colorBlend="true" srcFactor="one" dstFactor="one" />
 	<texture
-		file="rtt:/half.1.buf"
+		file="rtt:/half.0.buf"
 		shaderName="g_inputSam"
 	/>
 	
