@@ -15,9 +15,7 @@
 		specular="0.5, 0.5, 0.5, 1.0"
 		shininess="30.0"
 	/>
-
-	<!-- The first occuring texture will use texture unit 0 -->
-
+	
 	<shader>
 		<vertex>
 <![CDATA[
@@ -124,8 +122,11 @@ void main()
 	enable="true"
 	drawLine="false"
 >
-	<!-- The first occuring texture will use texture unit 0 -->
-
+	<texture
+		file="../White2x2.png"
+		shaderName="g_inputSam"
+		filter="linear_linear_none"
+	/>
 	<shader>
 		<vertex>
 <![CDATA[
@@ -163,7 +164,11 @@ void main()
 	drawLine="false"
 >
 	<!-- The first occuring texture will use texture unit 0 -->
-
+	<texture
+		file="../White2x2.png"
+		shaderName="g_inputSam"
+		filter="linear_linear_none"
+	/>
 	<shader>
 		<vertex>
 <![CDATA[
@@ -223,8 +228,12 @@ void main()
 	enable="true"
 	drawLine="false"
 >
-	<!-- The first occuring texture will use texture unit 0 -->
-
+	<texture
+		file="../White2x2.png"
+		shaderName="g_inputSam"
+		filter="linear_linear_none"
+	/>
+	
 	<shader>
 		<vertex>
 <![CDATA[
@@ -260,10 +269,12 @@ void main()
 	<texture
 		file="../White2x2.png"
 		shaderName="g_inputSam"
+		filter="linear_linear_none"
 	/>
 	<texture
 		file="../SunRadialGlow_Mask.dds"
 		shaderName="g_maskSam"
+		filter="linear_linear_none"
 	/>
 	
 	<shader>
@@ -320,8 +331,9 @@ void main()
 >
 	<blending colorBlend="true" srcFactor="one" dstFactor="one" />
 	<texture
-		file="rtt:/half.0.buf"
+		file="../White2x2.png"
 		shaderName="g_inputSam"
+		filter="linear_linear_none"
 	/>
 	
 	<shader>

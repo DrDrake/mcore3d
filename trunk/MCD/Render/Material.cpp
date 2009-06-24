@@ -64,6 +64,38 @@ void Material2::Pass::postRender() const
 	for_each(mProperty.begin(), mProperty.end(), mem_fun_ref(&IMaterialProperty::end));
 }
 
+TextureProperty* Material2::Pass::textureProp(int unit)
+{
+	PropertyList::iterator iProp = mProperty.begin();
+	while(iProp != mProperty.end())
+	{
+		TextureProperty* texProp = dynamic_cast<TextureProperty*>(&(*iProp));
+
+		if(texProp && texProp->unit == unit)
+			return texProp;
+
+		++iProp;
+	}
+
+	return nullptr;
+}
+
+ShaderProperty* Material2::Pass::shaderProp()
+{
+	PropertyList::iterator iProp = mProperty.begin();
+	while(iProp != mProperty.end())
+	{
+		ShaderProperty* shdProp = dynamic_cast<ShaderProperty*>(&(*iProp));
+
+		if(shdProp)
+			return shdProp;
+
+		++iProp;
+	}
+
+	return nullptr;
+}
+
 Material2::~Material2()
 {
 }

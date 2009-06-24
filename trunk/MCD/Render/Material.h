@@ -49,7 +49,7 @@ class MCD_RENDER_API Material2 : public IMaterial
 public:
 	// TODO: We may separate mProperty into several list as an optimization
 	// to reduce virtual function call overheads.
-	class Pass : public IRenderPass
+	class MCD_RENDER_API Pass : public IRenderPass
 	{
 	public:
 		sal_override ~Pass();
@@ -61,6 +61,14 @@ public:
 
 		typedef ptr_vector<IMaterialProperty> PropertyList;
 		PropertyList mProperty;
+
+		/*! Returns the TextureProperty at a specific unit;
+			nullptr is return if no such unit.
+		*/
+		TextureProperty* textureProp(int unit);
+
+		/*! Returns the ShaderProperty; nullptr is return if no such property.*/
+		ShaderProperty* shaderProp();
 	};
 
 	Material2() {}
