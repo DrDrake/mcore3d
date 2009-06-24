@@ -8,18 +8,6 @@ using namespace MCD;
 
 namespace script {
 
-namespace types {
-
-void addHandleToObject(HSQUIRRELVM v, CameraComponent* obj, int idx) {
-	obj->scriptOwnershipHandle.setHandle(v, idx);
-}
-
-bool pushHandleFromObject(HSQUIRRELVM v, CameraComponent* obj) {
-	return obj->scriptOwnershipHandle.vm && obj->scriptOwnershipHandle.pushHandle(v);
-}
-
-}	// namespace types
-
 SCRIPT_CLASS_REGISTER(CameraComponent)
 	.declareClass<CameraComponent, Component>(L"CameraComponent")
 	.enableGetset(L"CameraComponent")

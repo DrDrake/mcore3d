@@ -6,18 +6,6 @@ using namespace MCD;
 
 namespace script {
 
-namespace types {
-
-void addHandleToObject(HSQUIRRELVM v, InputComponent* obj, int idx) {
-	obj->scriptOwnershipHandle.setHandle(v, idx);
-}
-
-bool pushHandleFromObject(HSQUIRRELVM v, InputComponent* obj) {
-	return obj->scriptOwnershipHandle.vm && obj->scriptOwnershipHandle.pushHandle(v);
-}
-
-}	// namespace types
-
 SCRIPT_CLASS_REGISTER(InputComponent)
 	.declareClass<InputComponent, Component>(L"InputComponent")
 	.enableGetset(L"InputComponent")
