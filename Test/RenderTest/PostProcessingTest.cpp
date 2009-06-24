@@ -488,6 +488,11 @@ public:
 		Log::write(Log::Info, L"loading effect");
 	}
 
+	Material2::Pass& pass(Material2* mat, int pass)
+	{
+		return mat->mRenderPasses[pass];
+	}
+
 	sal_override void update(float deltaTime)
 	{
 		mResourceManager.processLoadingEvents();
@@ -504,14 +509,15 @@ public:
 		FrameBuffers& bufFull = *mBuffersFull;
 
 		{	// scene pass
-			ScopedFBBinding fbBinding(bufFull, BUFFER0);
+			ScopedFBBinding bindFB(bufFull, BUFFER0);
+
 			drawScene(mat);
 		}
 
 		{	// sun extract pass
-			ScopedFBBinding fbBinding(bufHalf, BUFFER0);
-			ScopePassBinding passBinding(*mat, SUN_EXTRACT_PASS);
-            ScopedTexBinding2 texBinding(bufFull.bufferInfo(BUFFER0).texture());
+			ScopedFBBinding bindFB(bufHalf, BUFFER0);
+			pass(mat, SUN_EXTRACT_PASS).textureProp(0)->texture = bufFull.bufferInfo(BUFFER0).texture();
+			ScopePassBinding bindPass(*mat, SUN_EXTRACT_PASS);
 
 			// bind shader uniform
 			GLint program; glGetIntegerv(GL_CURRENT_PROGRAM, &program);
@@ -525,9 +531,9 @@ public:
 		}
 
 		{	// horizontal blur pass
-			ScopedFBBinding fbBinding(bufHalf, BUFFER1);
-			ScopePassBinding passBinding(*mat, BLUR_PASS);
-            ScopedTexBinding2 texBinding(bufHalf.bufferInfo(BUFFER0).texture());
+			ScopedFBBinding bindFB(bufHalf, BUFFER1);
+			pass(mat, BLUR_PASS).textureProp(0)->texture = bufHalf.bufferInfo(BUFFER0).texture();
+			ScopePassBinding bindPass(*mat, BLUR_PASS);
 
 			// bind shader uniform
 			GLint program; glGetIntegerv(GL_CURRENT_PROGRAM, &program);
@@ -544,9 +550,9 @@ public:
 		}
 
 		{	// vertical blur pass
-			ScopedFBBinding fbBinding(bufHalf, BUFFER0);
-			ScopePassBinding passBinding(*mat, BLUR_PASS);
-            ScopedTexBinding2 texBinding(bufHalf.bufferInfo(BUFFER1).texture());
+			ScopedFBBinding bindFB(bufHalf, BUFFER0);
+			pass(mat, BLUR_PASS).textureProp(0)->texture = bufHalf.bufferInfo(BUFFER1).texture();
+			ScopePassBinding bindPass(*mat, BLUR_PASS);
 
 			// bind shader uniform
 			GLint program; glGetIntegerv(GL_CURRENT_PROGRAM, &program);
@@ -563,8 +569,8 @@ public:
 		}
 
 		{	// copy to screen
-			ScopePassBinding passBinding(*mat, COPY_PASS);
-            ScopedTexBinding2 texBinding(bufFull.bufferInfo(BUFFER0).texture());
+			pass(mat, COPY_PASS).textureProp(0)->texture = bufFull.bufferInfo(BUFFER0).texture();
+			ScopePassBinding bindPass(*mat, COPY_PASS);
 
 			GLint program; glGetIntegerv(GL_CURRENT_PROGRAM, &program);
 			if(0 != program)
@@ -577,9 +583,9 @@ public:
 		}
 
 		//{	// radial mask
-		//	ScopedFBBinding fbBinding(bufHalf, BUFFER1);
-		//	ScopePassBinding passBinding(*mat, RADIAL_MASK_PASS);
-		//  ScopedTexBinding2 texBinding(bufHalf.bufferInfo(BUFFER0).texture());
+		//	ScopedFBBinding bindFB(bufHalf, BUFFER1);
+		//  pass(mat, RADIAL_MASK_PASS).textureProp(0)->texture = bufHalf.bufferInfo(BUFFER0).texture();
+		//	ScopePassBinding bindPass(*mat, RADIAL_MASK_PASS);
 
 		//	// bind shader uniform
 		//	GLint program; glGetIntegerv(GL_CURRENT_PROGRAM, &program);
@@ -596,9 +602,9 @@ public:
 		//}
 
 		{	// radial glow
-			ScopePassBinding passBinding(*mat, RADIAL_GLOW_PASS);
-            //ScopedTexBinding2 texBinding(bufHalf.bufferInfo(BUFFER1).texture());
-			ScopedTexBinding2 texBinding(bufHalf.bufferInfo(BUFFER0).texture());
+			//pass(mat, RADIAL_GLOW_PASS).textureProp(0)->texture = bufHalf.bufferInfo(BUFFER1).texture();
+			pass(mat, RADIAL_GLOW_PASS).textureProp(0)->texture = bufHalf.bufferInfo(BUFFER0).texture();
+            ScopePassBinding bindPass(*mat, RADIAL_GLOW_PASS);
 
 			// bind shader uniform
 			GLint program; glGetIntegerv(GL_CURRENT_PROGRAM, &program);
@@ -615,8 +621,8 @@ public:
 
 		if(0)
 		{	// show the depth buffer
-			ScopePassBinding passBinding(*mat, DEPTH_TEXTURE_PASS);
-			ScopedTexBinding2 texBinding(bufFull.depthBufferInfo().texture());
+			pass(mat, DEPTH_TEXTURE_PASS).textureProp(0)->texture = bufFull.depthBufferInfo().texture();
+			ScopePassBinding bindPass(*mat, DEPTH_TEXTURE_PASS);
 
 			// bind shader uniform
 			GLint program; glGetIntegerv(GL_CURRENT_PROGRAM, &program);
@@ -635,7 +641,7 @@ public:
 	void drawScene(Material2* mat)
 	{
 		{
-			ScopePassBinding passBinding(*mat, SCENE_PASS);
+			ScopePassBinding bindPass(*mat, SCENE_PASS);
 
 			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
@@ -657,7 +663,7 @@ public:
 		}
 
 		{
-			ScopePassBinding passBinding(*mat, SKYBOX_PASS);
+			ScopePassBinding bindPass(*mat, SKYBOX_PASS);
 
 			Vec3f frustVertex[8];
 			mCamera.frustum.computeVertex(frustVertex);
