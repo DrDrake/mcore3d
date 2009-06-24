@@ -83,13 +83,17 @@ void StandardProperty::begin() const
 }
 
 // Texture
-TextureProperty::TextureProperty(Texture* texture_, int unit_, int minFilter_, int magFilter_)
+TextureProperty::TextureProperty(
+	Texture* texture_, int unit_
+	, int minFilter_, int magFilter_
+	)
 	: unit(unit_), texture(texture_), minFilter(minFilter_), magFilter(magFilter_)
 {
 }
 
 TextureProperty::TextureProperty(const TextureProperty& rhs)
 	: texture(rhs.texture), unit(rhs.unit), shaderName(rhs.shaderName)
+	, minFilter(rhs.minFilter), magFilter(rhs.magFilter)
 {
 }
 
@@ -111,31 +115,27 @@ IMaterialProperty* TextureProperty::clone() const
 
 void TextureProperty::begin() const
 {
-	if(!texture)
+	if(!texture || !texture->isValid())
 		return;
+	
+	glActiveTextureARB(GL_TEXTURE0_ARB + unit);
 
-	if(unit == 0)
-		texture->bind();
-	else
-	{
-		glActiveTextureARB(GL_TEXTURE0_ARB + unit);
-		texture->bind();
-		glActiveTextureARB(GL_TEXTURE0_ARB);
-	}
-
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, minFilter);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, magFilter);
+	glEnable(texture->type);
+	texture->bind();
+	
+	glTexParameteri(texture->type, GL_TEXTURE_MIN_FILTER, minFilter);
+	glTexParameteri(texture->type, GL_TEXTURE_MAG_FILTER, magFilter);
+	
+	glActiveTextureARB(GL_TEXTURE0_ARB);
 }
 
 void TextureProperty::end() const
 {
-	if(texture)
-		texture->unbind();
-
-	if(!texture || unit <= 0)
+	if(!texture || !texture->isValid())
 		return;
 
 	glActiveTextureARB(GL_TEXTURE0_ARB + unit);
+	texture->unbind();
 	glDisable(texture->type);
 	glActiveTextureARB(GL_TEXTURE0_ARB);
 }

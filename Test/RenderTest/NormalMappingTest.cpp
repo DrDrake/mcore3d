@@ -24,6 +24,9 @@ public:
 		BasicGlWindow(L"title=NormalMappingTest;width=800;height=600;fullscreen=0;FSAA=4"),
 		mResourceManager(*createDefaultFileSystem())
 	{
+		this->mCameraVelocity = 0.5f;
+		this->mCamera.frustum.near = 0.01f;
+
 		// load normal mapping effect
 		mEffect = static_cast<Effect*>(mResourceManager.load(L"Material/normalmapping.fx.xml").get());
 
