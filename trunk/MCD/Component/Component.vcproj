@@ -303,6 +303,10 @@
 				>
 			</File>
 		</Filter>
+		<Filter
+			Name="Script"
+			>
+		</Filter>
 		<File
 			RelativePath=".\Pch.cpp"
 			>

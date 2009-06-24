@@ -4,8 +4,4 @@
 
 namespace MCD {
 
-void InputComponent::update()
-{
-}
-
 }	// namespace MCD

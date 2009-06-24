@@ -11,9 +11,6 @@ namespace MCD {
 class MCD_ABSTRACT_CLASS MCD_COMPONENT_API InputComponent : public BehaviourComponent
 {
 public:
-	//! The derived components should override this function for defining behaviour.
-	virtual void update() = 0;
-
 	/*!	Returns the value of the virtual axis identified by axisName.
 		The value will be in the range -1 to 1 for keyboard and joystick input.
 		If the axis is setup to be mouse movement, the value will be in pixel.

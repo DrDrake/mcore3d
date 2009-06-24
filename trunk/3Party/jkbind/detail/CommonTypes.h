@@ -43,8 +43,7 @@ inline void push(HSQUIRRELVM v,bool value)				{ sq_pushbool(v,value); }
 		cpp object.
 	\sa pushHandleFromObject
  */
-template<typename T> inline
-void addHandleToObject(HSQUIRRELVM v, T* obj, int idx)	{ jkSCRIPT_LOGIC_ASSERTION(obj != NULL); }
+inline void addHandleToObject(HSQUIRRELVM v, void* obj, int idx)	{ jkSCRIPT_LOGIC_ASSERTION(obj != NULL); }
 
 /*!	This function shoud work in pair with addHandleToObject(). While
 	addHandleToObject() put handle to the cpp object, this function
@@ -55,8 +54,7 @@ void addHandleToObject(HSQUIRRELVM v, T* obj, int idx)	{ jkSCRIPT_LOGIC_ASSERTIO
 	\note User may override this function.
 	\sa addHandleToObject
  */
-template<typename T> inline
-bool pushHandleFromObject(HSQUIRRELVM v, T* obj)		{ jkSCRIPT_LOGIC_ASSERTION(obj != NULL); return false; }
+inline bool pushHandleFromObject(HSQUIRRELVM v, void* obj)			{ jkSCRIPT_LOGIC_ASSERTION(obj != NULL); return false; }
 
 template<typename T>
 void push(HSQUIRRELVM v, T obj)
