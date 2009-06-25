@@ -37,6 +37,30 @@ public:
 
 	void unbind();
 
+    void uniform1f(const char* name, float v0);
+    void uniform2f(const char* name, float v0, float v1);
+    void uniform3f(const char* name, float v0, float v1, float v2);
+    void uniform4f(const char* name, float v0, float v1, float v2, float v3);
+
+    void uniform1fv(const char* name, size_t count, const float* value);
+    void uniform2fv(const char* name, size_t count, const float* value);
+    void uniform3fv(const char* name, size_t count, const float* value);
+    void uniform4fv(const char* name, size_t count, const float* value);
+    
+    void uniform1i(const char* name, int v0);
+    void uniform2i(const char* name, int v0, int v1);
+    void uniform3i(const char* name, int v0, int v1, int v2);
+    void uniform4i(const char* name, int v0, int v1, int v2, int v3);
+
+    void uniform1iv(const char* name, size_t count, const int* value);
+    void uniform2iv(const char* name, size_t count, const int* value);
+    void uniform3iv(const char* name, size_t count, const int* value);
+    void uniform4iv(const char* name, size_t count, const int* value);
+
+    void uniformMatrix2fv(const char* name, size_t count, const float* value);
+    void uniformMatrix3fv(const char* name, size_t count, const float* value);
+    void uniformMatrix4fv(const char* name, size_t count, const float* value);
+
 // Attributes
 	// Get the information about the program (including any linking errors).
 	void getLog(std::string& log);
