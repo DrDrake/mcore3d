@@ -68,9 +68,9 @@ public:
 
 	sal_override bool load(XmlParser& parser, IMaterial& material, Context& context);
 
-    sal_override void newPass()
-    {
-    }
+	sal_override void newPass()
+	{
+	}
 
 	typedef ptr_vector<ILoader> Loaders;
 	Loaders mLoaders;
@@ -106,9 +106,9 @@ public:
 		return true;
 	}
 
-    sal_override void newPass()
-    {
-    }
+	sal_override void newPass()
+	{
+	}
 };	// StandardLoader
 
 class TextureLoader : public EffectLoader::ILoader
@@ -188,10 +188,10 @@ public:
 		return true;
 	}
 
-    sal_override void newPass()
-    {
-        mTextureUnit = 0;
-    }
+	sal_override void newPass()
+	{
+		mTextureUnit = 0;
+	}
 
 	size_t mTextureUnit;	//! This variable will keep increasing every time a load operation is performed
 	PassLoader& mPassLoader;
@@ -505,9 +505,9 @@ public:
 		return true;
 	}
 
-    sal_override void newPass()
-    {
-    }
+	sal_override void newPass()
+	{
+	}
 
 	PassLoader& mPassLoader;
 };	// ShaderLoader
@@ -591,9 +591,9 @@ public:
 		return true;
 	}
 
-    sal_override void newPass()
-    {
-    }
+	sal_override void newPass()
+	{
+	}
 
 };	// BlendingLoader
 
@@ -652,9 +652,9 @@ public:
 		return true;
 	}
 
-    sal_override void newPass()
-    {
-    }
+	sal_override void newPass()
+	{
+	}
 
 };	// DepthStencilLoader
 
@@ -673,7 +673,7 @@ bool PassLoader::load(XmlParser& parser, IMaterial& material, Context& context)
 
 	mBindTextureUniformCallback.reset(new Callback);
 
-    for(Loaders::iterator i=mLoaders.begin(); i!=mLoaders.end(); ++i) {
+	for(Loaders::iterator i=mLoaders.begin(); i!=mLoaders.end(); ++i) {
 		i->newPass();
 	}
 

@@ -46,7 +46,7 @@ public:
 	};
 
 public:
-	FrameBuffers(ResourceManager& resMgr, GLuint width, GLuint height, DepthBufferType depthBufType, bool useTexRect);
+	FrameBuffers(IResourceManager& resMgr, GLuint width, GLuint height, DepthBufferType depthBufType, bool useTexRect);
 
 	~FrameBuffers();
 
@@ -86,7 +86,7 @@ public:
 	bool checkFramebufferStatus(bool reportSuccess);
 
 private:
-	ResourceManager&		mResMgr;
+	IResourceManager&		mResMgr;
 	std::vector<BufferInfo> mBufferInfos;
 	BufferInfo				mDepthBufferInfo;
 	std::vector<GLenum>		mDrawBuffers;
@@ -95,7 +95,7 @@ private:
 };
 
 FrameBuffers::FrameBuffers(
-	ResourceManager& resMgr
+	IResourceManager& resMgr
 	, GLuint width, GLuint height
 	, DepthBufferType depthBufType
 	, bool useTexRect

@@ -54,7 +54,7 @@ public:
 	public:
 		sal_override ~Pass();
 
-		void addProperty(IMaterialProperty* property);
+		void addProperty(sal_in IMaterialProperty* property);
 
 		sal_override void preRender() const;
 		sal_override void postRender() const;
@@ -62,13 +62,13 @@ public:
 		typedef ptr_vector<IMaterialProperty> PropertyList;
 		PropertyList mProperty;
 
-		/*! Returns the TextureProperty at a specific unit;
+		/*!	Returns the TextureProperty at a specific unit;
 			nullptr is return if no such unit.
-		*/
-		TextureProperty* textureProp(int unit);
+		 */
+		sal_maybenull TextureProperty* textureProp(int unit);
 
-		/*! Returns the ShaderProperty; nullptr is return if no such property.*/
-		ShaderProperty* shaderProp();
+		//!	Returns the ShaderProperty; nullptr is return if no such property.
+		sal_maybenull ShaderProperty* shaderProp();
 	};
 
 	Material2() {}
@@ -83,7 +83,7 @@ public:
 
 	sal_override size_t getPassCount() const;
 
-	sal_override void addProperty(IMaterialProperty* property, size_t pass);
+	sal_override void addProperty(sal_in IMaterialProperty* property, size_t pass);
 
 //protected:
 	typedef ptr_vector<Pass> RenderPasses;

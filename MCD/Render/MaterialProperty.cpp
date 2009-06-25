@@ -1,7 +1,5 @@
 #include "Pch.h"
 #include "MaterialProperty.h"
-#include "ShaderProgram.h"
-#include "Texture.h"
 #include "../../3Party/glew/glew.h"
 
 /*! opengl api reference:
@@ -83,30 +81,11 @@ void StandardProperty::begin() const
 }
 
 // Texture
-TextureProperty::TextureProperty(
-	Texture* texture_, int unit_
-	, int minFilter_, int magFilter_
-	)
+TextureProperty::TextureProperty(Texture* texture_, int unit_, int minFilter_, int magFilter_)
 	: unit(unit_), texture(texture_), minFilter(minFilter_), magFilter(magFilter_)
 {
 }
 
-TextureProperty::TextureProperty(const TextureProperty& rhs)
-	: texture(rhs.texture), unit(rhs.unit), shaderName(rhs.shaderName)
-	, minFilter(rhs.minFilter), magFilter(rhs.magFilter)
-{
-}
-
-TextureProperty& TextureProperty::operator=(const TextureProperty& rhs)
-{
-	unit = rhs.unit;
-	texture = rhs.texture;
-	shaderName = rhs.shaderName;
-	return *this;
-}
-
-TextureProperty::~TextureProperty()
-{}
 
 IMaterialProperty* TextureProperty::clone() const
 {
@@ -150,19 +129,6 @@ ShaderProperty::ShaderProperty(const SharedPtr<ShaderProgram>& shaderProgram_)
 	: shaderProgram(shaderProgram_)
 {
 }
-
-ShaderProperty::ShaderProperty(const ShaderProperty& rhs)
-	: shaderProgram(rhs.shaderProgram)
-{}
-
-ShaderProperty& ShaderProperty::operator=(const ShaderProperty& rhs)
-{
-	shaderProgram = rhs.shaderProgram;
-	return *this;
-}
-
-ShaderProperty::~ShaderProperty()
-{}
 
 IMaterialProperty* ShaderProperty::clone() const
 {
@@ -288,8 +254,8 @@ void BlendingProperty::end() const
 
 // DepthStencil
 DepthStencilProperty::DepthStencilProperty()
-	: depthTestEnable(true), depthWriteEnable(true), depthFunc(GL_LEQUAL)
-	, stencilTestEnable(false)
+	: depthTestEnable(true), depthWriteEnable(true)
+	, stencilTestEnable(false), depthFunc(GL_LEQUAL)
 {
 }
 

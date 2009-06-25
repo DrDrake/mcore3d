@@ -29,14 +29,14 @@ typedef IntrusivePtr<ModelPod> ModelPodPtr;
 
 namespace MCD {
 
-class ResourceManager;
+class IResourceManager;
 
 class MCD_RENDER_API PodLoader : public IResourceLoader, private Noncopyable
 {
 	class LoaderImpl;
 
 public:
-	explicit PodLoader(sal_maybenull ResourceManager* resourceManager = nullptr);
+	explicit PodLoader(sal_maybenull IResourceManager* resourceManager = nullptr);
 
 	sal_override ~PodLoader();
 

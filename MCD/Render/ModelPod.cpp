@@ -235,7 +235,7 @@ public:
 
 	CPVRTModelPOD mPod;
 	Path mPath;
-	ResourceManager* mResourceManager;
+	IResourceManager* mResourceManager;
 	volatile IResourceLoader::LoadingState mLoadingState;
 };
 
@@ -298,7 +298,7 @@ void PodLoader::Impl::commit(Resource& resource)
 	model.mImpl->initBuffers();
 }
 
-PodLoader::PodLoader(ResourceManager* resourceManager)
+PodLoader::PodLoader(IResourceManager* resourceManager)
 {
 	mImpl = new Impl;
 	mImpl->mResourceManager = resourceManager;
