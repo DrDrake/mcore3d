@@ -1,8 +1,8 @@
 #ifndef __MCD_RENDER_MATERIALPROPERTY__
 #define __MCD_RENDER_MATERIALPROPERTY__
 
-#include "ShareLib.h"
-#include "../Core/System/IntrusivePtr.h"
+#include "ShaderProgram.h"	// The destructor and copy constructor
+#include "Texture.h"		// needs the definition of these classes
 #include "../Core/System/SharedPtr.h"
 
 namespace MCD {
@@ -145,10 +145,6 @@ class MCD_RENDER_API TextureProperty : public IMaterialProperty
 {
 public:
 	TextureProperty(Texture* texture, int unit, int minFilter, int magFilter);
-	TextureProperty(const TextureProperty& rhs);			// Prevent compiler generated copy constructor
-	TextureProperty& operator=(const TextureProperty& rhs);	// and assignment operation
-
-	sal_override ~TextureProperty();
 
 	sal_override IMaterialProperty* clone() const;
 
@@ -173,10 +169,6 @@ class MCD_RENDER_API ShaderProperty : public IMaterialProperty
 public:
 	explicit ShaderProperty(ShaderProgram* shaderProgram);
 	explicit ShaderProperty(const SharedPtr<ShaderProgram>& shaderProgram);
-	ShaderProperty(const ShaderProperty& rhs);
-	ShaderProperty& operator=(const ShaderProperty& rhs);
-
-	sal_override ~ShaderProperty();
 
 	sal_override IMaterialProperty* clone() const;
 
@@ -302,9 +294,8 @@ public:
 
 	bool depthTestEnable;
 	bool depthWriteEnable;
-	int depthFunc;
 	bool stencilTestEnable;
-
+	int depthFunc;
 };	// DepthStencilProperty
 
 }	// namespace MCD
