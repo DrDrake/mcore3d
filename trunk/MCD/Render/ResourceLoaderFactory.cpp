@@ -123,7 +123,7 @@ IResourceLoader* PixelShaderLoaderFactory::createLoader()
 	return new ShaderLoader(GL_FRAGMENT_SHADER);
 }
 
-Max3dsLoaderFactory::Max3dsLoaderFactory(ResourceManager& resourceManager)
+Max3dsLoaderFactory::Max3dsLoaderFactory(IResourceManager& resourceManager)
 	: mResourceManager(resourceManager)
 {
 }
@@ -140,7 +140,7 @@ IResourceLoader* Max3dsLoaderFactory::createLoader()
 	return new Max3dsLoader(&mResourceManager);
 }
 
-PodLoaderFactory::PodLoaderFactory(ResourceManager& resourceManager)
+PodLoaderFactory::PodLoaderFactory(IResourceManager& resourceManager)
 	: mResourceManager(resourceManager)
 {
 }
@@ -157,7 +157,7 @@ IResourceLoader* PodLoaderFactory::createLoader()
 	return new PodLoader(&mResourceManager);
 }
 
-EffectLoaderFactory::EffectLoaderFactory(ResourceManager& resourceManager)
+EffectLoaderFactory::EffectLoaderFactory(IResourceManager& resourceManager)
 	: mResourceManager(resourceManager)
 {
 }

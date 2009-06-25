@@ -21,6 +21,7 @@ class ScriptLoader::Impl
 public:
 	LoadingState load(std::istream* is, const Path* fileId)
 	{
+		return NotLoaded;
 	}
 
 	LoadingState getLoadingState() const

@@ -51,6 +51,7 @@ Material2::Pass::~Pass()
 
 void Material2::Pass::addProperty(IMaterialProperty* property)
 {
+	MCD_ASSERT(property != nullptr);
 	mProperty.push_back(property);
 }
 

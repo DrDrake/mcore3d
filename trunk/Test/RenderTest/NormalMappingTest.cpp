@@ -26,6 +26,7 @@ public:
 	{
 		this->mCameraVelocity = 0.5f;
 		this->mCamera.frustum.near = 0.01f;
+		this->mCamera.frustum.setFov(60);
 
 		// load normal mapping effect
 		mEffect = static_cast<Effect*>(mResourceManager.load(L"Material/normalmapping.fx.xml").get());

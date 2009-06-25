@@ -65,7 +65,7 @@ public:
 class MCD_RENDER_API Max3dsLoaderFactory : public ResourceManager::IFactory
 {
 public:
-	Max3dsLoaderFactory(ResourceManager& resourceManager);
+	Max3dsLoaderFactory(IResourceManager& resourceManager);
 	sal_override ResourcePtr createResource(const Path& fileId);
 	sal_override IResourceLoader* createLoader();
 
@@ -73,29 +73,29 @@ private:
 	/*!	This loader factory is going to be owned by the mResourceManager, so we can
 		use mResourceManager freely during the life-time of the loader factory.
 	 */
-	ResourceManager& mResourceManager;
+	IResourceManager& mResourceManager;
 };	// Max3dsLoaderFactory
 
 class MCD_RENDER_API PodLoaderFactory : public ResourceManager::IFactory
 {
 public:
-	PodLoaderFactory(ResourceManager& resourceManager);
+	PodLoaderFactory(IResourceManager& resourceManager);
 	sal_override ResourcePtr createResource(const Path& fileId);
 	sal_override IResourceLoader* createLoader();
 
 private:
-	ResourceManager& mResourceManager;
+	IResourceManager& mResourceManager;
 };	// PodLoaderFactory
 
 class MCD_RENDER_API EffectLoaderFactory : public ResourceManager::IFactory
 {
 public:
-	EffectLoaderFactory(ResourceManager& resourceManager);
+	EffectLoaderFactory(IResourceManager& resourceManager);
 	sal_override ResourcePtr createResource(const Path& fileId);
 	sal_override IResourceLoader* createLoader();
 
 private:
-	ResourceManager& mResourceManager;
+	IResourceManager& mResourceManager;
 };	// EffectLoaderFactory
 
 }	// namespace MCD
