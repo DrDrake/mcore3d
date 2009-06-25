@@ -521,14 +521,15 @@ public:
 			ScopedFBBinding bindFB(bufHalf, BUFFER0);
 
 			pass(mat, cPassId).textureProp(0)->texture = bufFull.bufferInfo(BUFFER0).texture();
-			
-			ScopePassBinding bindPass(*mat, cPassId);
+			pass(mat, cPassId).preRender();
 
 			// bind shader uniform
-			//GLint program = pass(mat, cPassId).shaderProp()->shaderProgram->handle;
+			//ShaderProgram& program = *pass(mat, cPassId).shaderProp()->shaderProgram;
 			
 			// draw quad
 			drawViewportQuad(0, 0, bufHalf.width(), bufHalf.height(), bufHalf.target());
+
+			pass(mat, cPassId).postRender();
 		}
 
 		{	// horizontal blur pass
@@ -537,17 +538,18 @@ public:
 			ScopedFBBinding bindFB(bufHalf, BUFFER1);
 
 			pass(mat, cPassId).textureProp(0)->texture = bufHalf.bufferInfo(BUFFER0).texture();
-
-			ScopePassBinding bindPass(*mat, cPassId);
+			pass(mat, cPassId).preRender();
 
 			// bind shader uniform
-			GLint program = pass(mat, cPassId).shaderProp()->shaderProgram->handle;
-			glUniform2fv( glGetUniformLocation(program, "g_blurOffset"), BLUR_KERNEL_SIZE, m_hblurOffset.data() );
-			glUniform1fv( glGetUniformLocation(program, "g_blurKernel"), BLUR_KERNEL_SIZE, m_blurKernel.data() );
-			glUniform2f( glGetUniformLocation(program, "g_InvTexSize"), 1.0f / bufHalf.width(), 1.0f / bufHalf.height() );
+			ShaderProgram& program = *pass(mat, cPassId).shaderProp()->shaderProgram;
+			program.uniform2fv( "g_blurOffset", BLUR_KERNEL_SIZE, m_hblurOffset.data() );
+			program.uniform1fv( "g_blurKernel", BLUR_KERNEL_SIZE, m_blurKernel.data() );
+			program.uniform2f ( "g_InvTexSize", 1.0f / bufHalf.width(), 1.0f / bufHalf.height() );
 
 			// draw quad
 			drawViewportQuad(0, 0, bufHalf.width(), bufHalf.height(), bufHalf.target());
+
+			pass(mat, cPassId).postRender();
 		}
 
 		{	// vertical blur pass
@@ -556,77 +558,65 @@ public:
 			ScopedFBBinding bindFB(bufHalf, BUFFER0);
 
 			pass(mat, cPassId).textureProp(0)->texture = bufHalf.bufferInfo(BUFFER1).texture();
-
-			ScopePassBinding bindPass(*mat, cPassId);
+			pass(mat, cPassId).preRender();
 
 			// bind shader uniform
-			GLint program = pass(mat, cPassId).shaderProp()->shaderProgram->handle;
-			glUniform2fv( glGetUniformLocation(program, "g_blurOffset"), BLUR_KERNEL_SIZE, m_vblurOffset.data() );
-			glUniform1fv( glGetUniformLocation(program, "g_blurKernel"), BLUR_KERNEL_SIZE, m_blurKernel.data() );
-			glUniform2f( glGetUniformLocation(program, "g_InvTexSize"), 1.0f / bufHalf.width(), 1.0f / bufHalf.height() );
+			ShaderProgram& program = *pass(mat, cPassId).shaderProp()->shaderProgram;
+			program.uniform2fv( "g_blurOffset", BLUR_KERNEL_SIZE, m_vblurOffset.data() );
+			program.uniform1fv( "g_blurKernel", BLUR_KERNEL_SIZE, m_blurKernel.data() );
+			program.uniform2f ( "g_InvTexSize", 1.0f / bufHalf.width(), 1.0f / bufHalf.height() );
 
 			// draw quad
 			drawViewportQuad(0, 0, bufHalf.width(), bufHalf.height(), bufHalf.target());
+
+			pass(mat, cPassId).postRender();
 		}
 
 		{	// copy to screen
 			const int cPassId = COPY_PASS;
 
 			pass(mat, cPassId).textureProp(0)->texture = bufFull.bufferInfo(BUFFER0).texture();
-			
-			ScopePassBinding bindPass(*mat, cPassId);
+			pass(mat, cPassId).preRender();
 
-			//GLint program = pass(mat, cPassId).shaderProp()->shaderProgram->handle;
+			//ShaderProgram& program = *pass(mat, cPassId).shaderProp()->shaderProgram;
 
 			// draw quad
 			drawViewportQuad(0, 0, this->width(), this->height(), bufFull.target());
+
+			pass(mat, cPassId).postRender();
 		}
-
-		//{	// radial mask
-		//  const int cPassId = RADIAL_MASK_PASS;
-		//	ScopedFBBinding bindFB(bufHalf, BUFFER1);
-		//  pass(mat, cPassId).textureProp(0)->texture = bufHalf.bufferInfo(BUFFER0).texture();
-		//	ScopePassBinding bindPass(*mat, cPassId);
-
-		//	// bind shader uniform
-		//	GLint program = pass(mat, cPassId).shaderProp()->shaderProgram->handle;
-		//	glUniform3fv( glGetUniformLocation(program, "g_sunPos"), 1, m_sunPos.data );
-
-		//	// draw quad
-		//	// preserve transforms since we need gl_ModelViewProjectionMatrox
-		//	drawViewportQuad(0, 0, bufHalf.width(), bufHalf.height(), bufHalf.target(), true);
-		//}
 
 		{	// radial glow
 			const int cPassId = RADIAL_GLOW_PASS;
 
-			//pass(mat, cPassId).textureProp(0)->texture = bufHalf.bufferInfo(BUFFER1).texture();
 			pass(mat, cPassId).textureProp(0)->texture = bufHalf.bufferInfo(BUFFER0).texture();
-
-			ScopePassBinding bindPass(*mat, cPassId);
+			pass(mat, cPassId).preRender();
 			
 			// bind shader uniform
-			GLint program = pass(mat, cPassId).shaderProp()->shaderProgram->handle;
-			glUniform3fv( glGetUniformLocation(program, "g_sunPos"), 1, m_sunPos.data );
+			ShaderProgram& program = *pass(mat, cPassId).shaderProp()->shaderProgram;
+			program.uniform3fv("g_sunPos", 1, m_sunPos.data);
 
 			// draw quad
 			// preserve transforms since we need gl_ModelViewProjectionMatrox
 			drawViewportQuad(0, 0, this->width(), this->height(), bufHalf.target(), true);
+
+			pass(mat, cPassId).postRender();
 		}
 
 		if(0)
 		{	// show the depth buffer
 			const int cPassId = DEPTH_TEXTURE_PASS;
+
 			pass(mat, cPassId).textureProp(0)->texture = bufFull.depthBufferInfo().texture();
-			
-			ScopePassBinding bindPass(*mat, cPassId);
+			pass(mat, cPassId).preRender();
 			
 			// bind shader uniform
-			GLint program = pass(mat, cPassId).shaderProp()->shaderProgram->handle;
-			glUniform1i( glGetUniformLocation(program, "g_inputSam"), 0 );
-
+			// ShaderProgram& program = *pass(mat, cPassId).shaderProp()->shaderProgram;
+			
 			// draw quad
 			drawViewportQuad(0, 0, this->width(), this->height(), GL_TEXTURE_RECTANGLE_ARB);
+
+			pass(mat, cPassId).postRender();
 		}
 
 		//drawSunPos();

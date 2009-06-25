@@ -4,7 +4,6 @@
 #include "ShareLib.h"
 #include "../Core/System/IntrusivePtr.h"
 #include "../Core/System/NonCopyable.h"
-#include <vector>
 
 namespace MCD {
 
@@ -37,6 +36,7 @@ public:
 
 	void unbind();
 
+// Never use temporary c-string for the following methods!!
     void uniform1f(const char* name, float v0);
     void uniform2f(const char* name, float v0, float v1);
     void uniform3f(const char* name, float v0, float v1, float v2);
@@ -57,9 +57,9 @@ public:
     void uniform3iv(const char* name, size_t count, const int* value);
     void uniform4iv(const char* name, size_t count, const int* value);
 
-    void uniformMatrix2fv(const char* name, size_t count, const float* value);
-    void uniformMatrix3fv(const char* name, size_t count, const float* value);
-    void uniformMatrix4fv(const char* name, size_t count, const float* value);
+    void uniformMatrix2fv(const char* name, size_t count, bool transpose, const float* value);
+    void uniformMatrix3fv(const char* name, size_t count, bool transpose, const float* value);
+    void uniformMatrix4fv(const char* name, size_t count, bool transpose, const float* value);
 
 // Attributes
 	// Get the information about the program (including any linking errors).
@@ -68,8 +68,8 @@ public:
 	uint handle;
 
 protected:
-	typedef std::vector<ShaderPtr> Shaders;
-	Shaders mShaders;
+	class Impl;
+	Impl* mImpl;
 };	// ShaderProgram
 
 }	// namespace MCD
