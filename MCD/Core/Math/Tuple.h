@@ -79,12 +79,12 @@ public:
 	}
 
 	//! Pointer access for direct copying
-	T* getPtr() {
+	sal_out_ecount(N) T* getPtr() {
 		return data;
 	}
 
 	//! Pointer access for direct copying
-	const T* getPtr() const {
+	sal_out_ecount(N) const T* getPtr() const {
 		return data;
 	}
 

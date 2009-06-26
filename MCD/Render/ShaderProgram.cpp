@@ -1,6 +1,7 @@
 #include "Pch.h"
 #include "ShaderProgram.h"
 #include "Shader.h"
+#include "../Core/System/Log.h"
 #include "../../3Party/glew/glew.h"
 #include <map>
 #include <vector>
@@ -20,7 +21,7 @@ public:
 		bool operator == (const CStrKey& rhs) const { return strcmp(key, rhs.key) == 0; }
 	};
 
-	inline int getUniform(int program, const char* name)
+	int getUniform(int program, const char* name)
 	{
 		CStrKey key(name);
 		Uniforms::iterator i = mUniforms.find(key);
@@ -29,7 +30,14 @@ public:
 			return i->second;
 
 		int loc = glGetUniformLocation(program, name);
-		mUniforms.insert(std::make_pair(key, loc));
+
+		if(loc != -1)
+			mUniforms.insert(std::make_pair(key, loc));
+		else
+		{
+			// TODO: Log more information, becare of the char* wchar_t* issues
+			Log::format(Log::Error, L"Shader uniform not found");
+		}
 		
 		return loc;
 	}
@@ -39,8 +47,7 @@ public:
 
 	Uniforms mUniforms;
 	Shaders mShaders;
-};
-
+};	// Impl
 
 ShaderProgram::ShaderProgram()
 	: handle(0)
