@@ -158,7 +158,9 @@ public:
 
 	sal_override void renderFaceOnly()
 	{
-		mInstMesh->registerPerInstanceInfo(entity()->localTransform);
+		Entity* e = entity();
+		MCD_ASSUME(e);
+		mInstMesh->registerPerInstanceInfo(e->localTransform);
 	}
 };
 

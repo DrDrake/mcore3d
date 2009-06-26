@@ -67,11 +67,11 @@ public:
 	}
 
 	//! Direct access to data
-	T* data() {
+	sal_out_ecount(N) T* data() {
 		return elems;
 	}
 
-	const T* data() const {
+	sal_out_ecount(N) const T* data() const {
 		return elems;
 	}
 
