@@ -1,0 +1,123 @@
+<?xml version="1.0"?>
+<!-- A sample effect definiation xml -->
+
+<root>
+
+<pass
+	enable="true"
+	drawLine="false"
+>
+	<standard
+		ambient="0.2, 0.2, 0.2, 1.0"
+		diffuse="0.8, 0.6, 0.5, 1.0"
+		specular="0.5, 0.5, 0.5, 1.0"
+		shininess="30.0"
+	/>
+
+	<shader>
+		<!-- Reference external file as vertex shader -->
+		<vertex>
+			<![CDATA[
+			varying vec3 vertex, osVertex;
+	
+			void main()
+			{
+				osVertex = gl_Vertex.xyz;
+				vertex = (gl_Position = ftransform()).xyz;
+				
+				gl_TexCoord[0] = gl_MultiTexCoord0;
+			}
+			]]>
+		</vertex>
+
+		<!-- Define the fragment shader just inside the xml -->
+		<fragment>
+			<![CDATA[
+			varying vec3 vertex, osVertex;
+			uniform vec3 osCamPos;
+			
+			float LightIntensity(float height)
+			{
+				return 10 * exp(-(4 * height));
+			}
+			
+			float IntLightIntensity(float startH, float endH)
+			{
+				int count = 5;
+				float deltaH = (endH - startH) / count;
+				float lightInt = 0, h = startH;
+				
+				for(int i = 0; i < count; i++)
+				{
+					lightInt += LightIntensity(h);
+					h += deltaH;
+				}
+				return lightInt / count;
+			}
+
+			void main()
+			{
+				// The cone eqt. used below defines a double cone... so, clamp the cam direcion
+				if (osCamPos.z < 0)
+					osCamPos.z = 0;
+				// Construct the ray.
+				// Ray source = osCamPos, ray direction = normalize(osVertex - osCamPos).
+				float backfaceT = length(osVertex - osCamPos);
+				vec3 osRayDir = (osVertex - osCamPos) / backfaceT;
+								
+				// Perform ray-cone intersection test.
+				// Calculate the frontfaceT from backfaceT.
+				// a & c are coff. of the quadratic eqt.
+				float a = osRayDir.x * osRayDir.x + osRayDir.y * osRayDir.y - osRayDir.z * osRayDir.z;
+				float b = 2 * (osCamPos.x * osRayDir.x + osCamPos.y * osRayDir.y - osCamPos.z * osRayDir.z);
+				float c = osCamPos.x * osCamPos.x + osCamPos.y * osCamPos.y - osCamPos.z * osCamPos.z;
+				
+				// Normalize the quadratic eqt.
+				
+				float frontfaceT = 0;
+				
+				// Shit.. double cone problem...
+				if (c > 0) // If c > 0, the camera is outside the infinite cone
+				{
+					b /= a;
+					c /= a;
+					a = 1;
+					
+					float rootLarge = (-b + sqrt(b * b - 4 * c)) / 2;
+					float rootSmall = (-b - sqrt(b * b - 4 * c)) / 2 ;
+					frontfaceT = rootSmall;
+					
+					if (frontfaceT < 0)
+						frontfaceT = rootLarge;
+					
+					if ((osCamPos + frontfaceT * osRayDir).z < 0) // Move the intersection point on the end cap plane
+					{
+						frontfaceT = 0;
+					}
+					
+					if ((osCamPos + frontfaceT * osRayDir).z > 1) // Move the intersection point on the end cap plane
+					{
+						frontfaceT = (1 - osCamPos.z) / osRayDir.z;
+					}
+				}
+				else
+				{
+					if (osCamPos.z < 1) // If the camera is inside the finite cone
+						frontfaceT = 0;
+					else // Move the intersection point on the end cap plane
+						frontfaceT = (1 - osCamPos.z) / osRayDir.z;
+				}
+				
+				float frontZ = (osCamPos + frontfaceT * osRayDir).z;
+				float lightIntensity = IntLightIntensity(osVertex.z, frontZ);
+				
+				gl_FragColor.rgb = saturate(lightIntensity * (backfaceT - frontfaceT));
+
+				gl_FragColor.a = 1;
+			}
+			]]>
+		</fragment>
+	</shader>
+</pass>
+
+</root>
