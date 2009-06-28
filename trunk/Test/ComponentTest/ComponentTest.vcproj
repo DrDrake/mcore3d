@@ -246,6 +246,10 @@
 				RelativePath=".\PickComponentTest.cpp"
 				>
 			</File>
+			<File
+				RelativePath=".\VolSpotlight.cpp"
+				>
+			</File>
 		</Filter>
 		<File
 			RelativePath=".\Main.cpp"
@@ -281,10 +285,6 @@
 		</File>
 		<File
 			RelativePath=".\Pch.h"
-			>
-		</File>
-		<File
-			RelativePath=".\RunTest.txt"
 			>
 		</File>
 	</Files>
