@@ -18,7 +18,7 @@ using namespace MCD;
 namespace PostProcessingTest
 {
 
-class FrameBuffers : private Noncopyable
+class FrameBufferSet : private Noncopyable
 {
 public:
 	enum DepthBufferType
@@ -46,9 +46,9 @@ public:
 	};
 
 public:
-	FrameBuffers(IResourceManager& resMgr, GLuint width, GLuint height, DepthBufferType depthBufType, bool useTexRect);
+	FrameBufferSet(IResourceManager& resMgr, GLuint width, GLuint height, DepthBufferType depthBufType, bool useTexRect);
 
-	~FrameBuffers();
+	~FrameBufferSet();
 
 	/*! Adds a new texture buffer
 	*/
@@ -77,7 +77,31 @@ public:
 	/*! Begin to use this Framebuffer for rendering
 		The device current render target and viewport will be modified.
 	*/
-	bool begin(size_t n, size_t* bufferIdxs);
+	bool begin(size_t n, const size_t* bufferIdxs);
+
+	/*! Equals to:
+		size_t buffers[] = {bufid0};
+		begin(1, buffers);
+	*/
+	bool begin(size_t bufid0);
+
+	/*! Equals to:
+		size_t buffers[] = {bufid0, bufid1};
+		begin(2, buffers);
+	*/
+	bool begin(size_t bufid0, size_t bufid1);
+
+	/*! Equals to:
+		size_t buffers[] = {bufid0, bufid1, bufid2};
+		begin(3, buffers);
+	*/
+	bool begin(size_t bufid0, size_t bufid1, size_t bufid2);
+
+	/*! Equals to:
+		size_t buffers[] = {bufid0, bufid1, bufid2, bufid3};
+		begin(4, buffers);
+	*/
+	bool begin(size_t bufid0, size_t bufid1, size_t bufid2, size_t bufid3);
 
 	/*! End to use this Framebuffer for rendering */
 	void end();
@@ -94,7 +118,13 @@ private:
 	RenderTarget			mRenderTarget;
 };
 
-FrameBuffers::FrameBuffers(
+class ScreenQuad
+{
+public:
+	static void draw(int textureTarget, size_t x, size_t y, size_t width, size_t height, bool preserveTransform);
+};
+
+FrameBufferSet::FrameBufferSet(
 	IResourceManager& resMgr
 	, GLuint width, GLuint height
 	, DepthBufferType depthBufType
@@ -136,7 +166,7 @@ FrameBuffers::FrameBuffers(
 		// depth texture must use GL_TEXTURE_RECTANGLE_ARB
 		if(!bufferPtr->create(width, height, GL_TEXTURE_RECTANGLE_ARB, format, dataType, components))
 		{
-			Log::format(Log::Error, L"FrameBuffers: failed to create depth texture:%x", format);
+			Log::format(Log::Error, L"FrameBufferSet: failed to create depth texture:%x", format);
 		}
 		bufferPtr->linkTo(mRenderTarget);
 
@@ -146,11 +176,11 @@ FrameBuffers::FrameBuffers(
 	}
 }
 
-FrameBuffers::~FrameBuffers()
+FrameBufferSet::~FrameBufferSet()
 {
 }
 
-bool FrameBuffers::textureBuffer(int format, const wchar_t* texname)
+bool FrameBufferSet::textureBuffer(int format, const wchar_t* texname)
 {
 	int dataType, components;
 
@@ -162,7 +192,7 @@ bool FrameBuffers::textureBuffer(int format, const wchar_t* texname)
 	//todo: also specific dataType, components
 	if(!bufferPtr->create(mRenderTarget.width(), mRenderTarget.height(), mTexTarget, format, dataType, components, texname))
 	{
-		Log::format(Log::Error, L"FrameBuffers: failed to create texture buffer:%s %x", texname, format);
+		Log::format(Log::Error, L"FrameBufferSet: failed to create texture buffer:%s %x", texname, format);
 		return false;
 	}
 
@@ -185,7 +215,7 @@ bool FrameBuffers::textureBuffer(int format, const wchar_t* texname)
 	return true;
 }
 
-bool FrameBuffers::checkFramebufferStatus(bool reportSuccess)
+bool FrameBufferSet::checkFramebufferStatus(bool reportSuccess)
 {
 	using namespace std;
 
@@ -232,7 +262,7 @@ bool FrameBuffers::checkFramebufferStatus(bool reportSuccess)
     }
 }
 
-bool FrameBuffers::begin(size_t n, size_t* bufferIdxs)
+bool FrameBufferSet::begin(size_t n, const size_t* bufferIdxs)
 {
 	if(mDrawBuffers.size() < n)
 		mDrawBuffers.resize(n);
@@ -253,10 +283,78 @@ bool FrameBuffers::begin(size_t n, size_t* bufferIdxs)
 	return checkFramebufferStatus(false);
 }
 
-void FrameBuffers::end()
+bool FrameBufferSet::begin(size_t bufid0)
+{
+	size_t buffers[] = {bufid0};
+	return begin(1, buffers);
+}
+
+bool FrameBufferSet::begin(size_t bufid0, size_t bufid1)
+{
+	size_t buffers[] = {bufid0, bufid1};
+	return begin(2, buffers);
+}
+
+bool FrameBufferSet::begin(size_t bufid0, size_t bufid1, size_t bufid2)
+{
+	size_t buffers[] = {bufid0, bufid1, bufid2};
+	return begin(3, buffers);
+}
+
+bool FrameBufferSet::begin(size_t bufid0, size_t bufid1, size_t bufid2, size_t bufid3)
+{
+	size_t buffers[] = {bufid0, bufid1, bufid2, bufid3};
+	return begin(4, buffers);
+}
+
+void FrameBufferSet::end()
 {
 	glPopAttrib();
 	mRenderTarget.unbind();
+}
+
+void ScreenQuad::draw(int textureTarget, size_t x, size_t y, size_t width, size_t height, bool preserveTransform)
+{
+	// How to draw fullscreen quad:
+	// Reference: http://www.opengl.org/resources/faq/technical/transformations.htm
+
+	glPushAttrib(GL_ALL_ATTRIB_BITS);
+
+	glViewport(x, y, width, height);
+	glDisable(GL_DEPTH_TEST);
+	glDisable(GL_LIGHTING);
+	glDisable(GL_MULTISAMPLE);
+
+	if(!preserveTransform)
+	{
+		glMatrixMode(GL_PROJECTION);
+		glPushMatrix();	glLoadIdentity();
+		glMatrixMode(GL_MODELVIEW);
+		glPushMatrix();	glLoadIdentity();
+	}
+
+	float w = (textureTarget == GL_TEXTURE_2D) ? 1.0f : float(width);
+	float h = (textureTarget == GL_TEXTURE_2D) ? 1.0f : float(height);
+	const float texcoord[4][2] = {
+		{0, 0}, {w, 0}, {w, h}, {0, h}
+	};
+
+	glBegin(GL_QUADS);
+		glTexCoord2fv(texcoord[0]);	glVertex3i(-1, -1, -1);
+		glTexCoord2fv(texcoord[1]);	glVertex3i( 1, -1, -1);
+		glTexCoord2fv(texcoord[2]);	glVertex3i( 1,  1, -1);
+		glTexCoord2fv(texcoord[3]);	glVertex3i(-1,  1, -1);
+	glEnd();
+
+	if(!preserveTransform)
+	{
+		glMatrixMode(GL_PROJECTION);
+		glPopMatrix();
+		glMatrixMode(GL_MODELVIEW);
+		glPopMatrix();
+	}
+
+	glPopAttrib();
 }
 
 /*! An untility for frame buffer binding.
@@ -264,28 +362,28 @@ void FrameBuffers::end()
 class ScopedFBBinding
 {
 public:
-	ScopedFBBinding(FrameBuffers& fb, size_t bufId0)
+	ScopedFBBinding(FrameBufferSet& fb, size_t bufId0)
 		: mFB(fb)
 	{
 		size_t bufferIds[] = {bufId0};
 		mFB.begin(1, bufferIds);
 	}
 
-	ScopedFBBinding(FrameBuffers& fb, size_t bufId0, size_t bufId1)
+	ScopedFBBinding(FrameBufferSet& fb, size_t bufId0, size_t bufId1)
 		: mFB(fb)
 	{
 		size_t bufferIds[] = {bufId0, bufId1};
 		mFB.begin(2, bufferIds);
 	}
 
-	ScopedFBBinding(FrameBuffers& fb, size_t bufId0, size_t bufId1, size_t bufId2)
+	ScopedFBBinding(FrameBufferSet& fb, size_t bufId0, size_t bufId1, size_t bufId2)
 		: mFB(fb)
 	{
 		size_t bufferIds[] = {bufId0, bufId1, bufId2};
 		mFB.begin(3, bufferIds);
 	}
 
-	ScopedFBBinding(FrameBuffers& fb, size_t bufId0, size_t bufId1, size_t bufId2, size_t bufId3)
+	ScopedFBBinding(FrameBufferSet& fb, size_t bufId0, size_t bufId1, size_t bufId2, size_t bufId3)
 		: mFB(fb)
 	{
 		size_t bufferIds[] = {bufId0, bufId1, bufId2, bufId3};
@@ -297,7 +395,7 @@ public:
 		mFB.end();
 	}
 
-	FrameBuffers& mFB;
+	FrameBufferSet& mFB;
 
 };
 
@@ -473,13 +571,13 @@ public:
 
 		bool useTexRect = false;
 
-		mBuffersFull.reset( new FrameBuffers(mResourceManager, width, height, FrameBuffers::DepthBuffer_Texture24, useTexRect) );
+		mBuffersFull.reset( new FrameBufferSet(mResourceManager, width, height, FrameBufferSet::DepthBuffer_Texture24, useTexRect) );
 		mBuffersFull->textureBuffer(format, L"rtt:/full.0.buf");
 		mBuffersFull->textureBuffer(format, L"rtt:/full.1.buf");
 
 		GLuint halfWidth = std::max((GLuint)2, GLuint(width / 2));
 		GLuint halfHeight = std::max((GLuint)2, GLuint(height / 2));
-		mBuffersHalf.reset( new FrameBuffers(mResourceManager, halfWidth, halfHeight, FrameBuffers::DepthBuffer_Texture24, useTexRect) );
+		mBuffersHalf.reset( new FrameBufferSet(mResourceManager, halfWidth, halfHeight, FrameBufferSet::DepthBuffer_Texture24, useTexRect) );
 		mBuffersHalf->textureBuffer(format, L"rtt:/half.0.buf");
 		mBuffersHalf->textureBuffer(format, L"rtt:/half.1.buf");
 		
@@ -506,19 +604,24 @@ public:
 		Material2* mat = mEffect->material.get();
 		if(!mat) return;
 
-		FrameBuffers& bufHalf = *mBuffersHalf;
-		FrameBuffers& bufFull = *mBuffersFull;
+		FrameBufferSet& bufHalf = *mBuffersHalf;
+		FrameBufferSet& bufFull = *mBuffersFull;
 
 		{	// scene pass
-			ScopedFBBinding bindFB(bufFull, BUFFER0);
+			FrameBufferSet& frameBuf = bufFull;
+
+			frameBuf.begin(BUFFER0);
 
 			drawScene(mat);
+
+			frameBuf.end();
 		}
 
 		{	// sun extract pass
 			const int cPassId = SUN_EXTRACT_PASS;
 
-			ScopedFBBinding bindFB(bufHalf, BUFFER0);
+			FrameBufferSet& frameBuf = bufHalf;
+			frameBuf.begin(BUFFER0);
 
 			pass(mat, cPassId).textureProp(0)->texture = bufFull.bufferInfo(BUFFER0).texture();
 			pass(mat, cPassId).preRender();
@@ -527,15 +630,19 @@ public:
 			//ShaderProgram& program = *pass(mat, cPassId).shaderProp()->shaderProgram;
 			
 			// draw quad
-			drawViewportQuad(0, 0, bufHalf.width(), bufHalf.height(), bufHalf.target());
+			//drawViewportQuad(0, 0, bufHalf.width(), bufHalf.height(), bufHalf.target());
+			ScreenQuad::draw(bufHalf.target(), 0, 0, bufHalf.width(), bufHalf.height(), false);
 
 			pass(mat, cPassId).postRender();
+
+			frameBuf.end();
 		}
 
 		{	// horizontal blur pass
 			const int cPassId = BLUR_PASS;
 
-			ScopedFBBinding bindFB(bufHalf, BUFFER1);
+			FrameBufferSet& frameBuf = bufHalf;
+			frameBuf.begin(BUFFER1);
 
 			pass(mat, cPassId).textureProp(0)->texture = bufHalf.bufferInfo(BUFFER0).texture();
 			pass(mat, cPassId).preRender();
@@ -547,15 +654,19 @@ public:
 			program.uniform2f ( "g_InvTexSize", 1.0f / bufHalf.width(), 1.0f / bufHalf.height() );
 
 			// draw quad
-			drawViewportQuad(0, 0, bufHalf.width(), bufHalf.height(), bufHalf.target());
+			//drawViewportQuad(0, 0, bufHalf.width(), bufHalf.height(), bufHalf.target());
+			ScreenQuad::draw(bufHalf.target(), 0, 0, bufHalf.width(), bufHalf.height(), false);
 
 			pass(mat, cPassId).postRender();
+
+			frameBuf.end();
 		}
 
 		{	// vertical blur pass
 			const int cPassId = BLUR_PASS;
 			
-			ScopedFBBinding bindFB(bufHalf, BUFFER0);
+			FrameBufferSet& frameBuf = bufHalf;
+			frameBuf.begin(BUFFER0);
 
 			pass(mat, cPassId).textureProp(0)->texture = bufHalf.bufferInfo(BUFFER1).texture();
 			pass(mat, cPassId).preRender();
@@ -567,9 +678,12 @@ public:
 			program.uniform2f ( "g_InvTexSize", 1.0f / bufHalf.width(), 1.0f / bufHalf.height() );
 
 			// draw quad
-			drawViewportQuad(0, 0, bufHalf.width(), bufHalf.height(), bufHalf.target());
+			//drawViewportQuad(0, 0, bufHalf.width(), bufHalf.height(), bufHalf.target());
+			ScreenQuad::draw(bufHalf.target(), 0, 0, bufHalf.width(), bufHalf.height(), false);
 
 			pass(mat, cPassId).postRender();
+
+			frameBuf.end();
 		}
 
 		{	// copy to screen
@@ -581,7 +695,9 @@ public:
 			//ShaderProgram& program = *pass(mat, cPassId).shaderProp()->shaderProgram;
 
 			// draw quad
-			drawViewportQuad(0, 0, this->width(), this->height(), bufFull.target());
+			//drawViewportQuad(0, 0, this->width(), this->height(), bufFull.target());
+			//FrameBufferSet::drawScreenQuad(GL_TEXTURE_2D, 0, 0, width(), height(), false);
+			ScreenQuad::draw(bufFull.target(), 0, 0, width(), height(), false);
 
 			pass(mat, cPassId).postRender();
 		}
@@ -598,7 +714,8 @@ public:
 
 			// draw quad
 			// preserve transforms since we need gl_ModelViewProjectionMatrox
-			drawViewportQuad(0, 0, this->width(), this->height(), bufHalf.target(), true);
+			//drawViewportQuad(0, 0, this->width(), this->height(), bufHalf.target(), true);
+			ScreenQuad::draw(bufHalf.target(), 0, 0, width(), height(), true);
 
 			pass(mat, cPassId).postRender();
 		}
@@ -614,7 +731,8 @@ public:
 			// ShaderProgram& program = *pass(mat, cPassId).shaderProp()->shaderProgram;
 			
 			// draw quad
-			drawViewportQuad(0, 0, this->width(), this->height(), GL_TEXTURE_RECTANGLE_ARB);
+			//drawViewportQuad(0, 0, this->width(), this->height(), GL_TEXTURE_RECTANGLE_ARB);
+			ScreenQuad::draw(GL_TEXTURE_RECTANGLE_ARB, 0, 0, width(), height(), false);
 
 			pass(mat, cPassId).postRender();
 		}
@@ -720,8 +838,8 @@ public:
 	Array<float, BLUR_KERNEL_SIZE * 2> m_vblurOffset;
 	Array<float, BLUR_KERNEL_SIZE> m_blurKernel;
 
-	std::auto_ptr<FrameBuffers> mBuffersFull;
-	std::auto_ptr<FrameBuffers> mBuffersHalf;
+	std::auto_ptr<FrameBufferSet> mBuffersFull;
+	std::auto_ptr<FrameBufferSet> mBuffersHalf;
 
 };	// TestWindow
 
