@@ -12,17 +12,17 @@ namespace detail {
 class EventBase
 {
 public:
-	explicit EventBase();
-	virtual ~EventBase();
+	JKBIND_API EventBase();
+	JKBIND_API virtual ~EventBase();
 
 	inline bool isAssigned() const
 	{
 		return _assigned && (_vm.isNull() == false);
 	}
 
-	EventBase&  clear();
-	EventBase&  setHandler(ScriptObject func);
-	EventBase&  setHandlerObject(ScriptObject callee, ScriptObject func);
+	EventBase& clear();
+	EventBase& setHandler(ScriptObject func);
+	EventBase& setHandlerObject(ScriptObject callee, ScriptObject func);
 
 protected:
 	char			_callee[sizeof(ScriptObject)];
@@ -31,7 +31,7 @@ protected:
 	bool			_assigned;
 };
 
-void createEventInstance(HSQUIRRELVM v, const void* c_this);
+JKBIND_API void createEventInstance(HSQUIRRELVM v, const void* c_this);
 
 template<typename Callee, typename EventT>
 SQInteger eventObjectGetter(HSQUIRRELVM v)

@@ -503,8 +503,10 @@ TEST(ASSAOTest)
 				infile >> line;
 				infile.close();
 
-				if(!line.empty())
-					MCD::strToWStr(line.c_str(), line.length(), sceneName);
+				if(!line.empty()) {
+					if(!MCD::strToWStr(line.c_str(), line.length(), sceneName))
+						return;
+				}
 			}
 		}
 

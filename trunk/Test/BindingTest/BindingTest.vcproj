@@ -205,7 +205,7 @@
 		/>
 		<ProjectReference
 			ReferencedProjectIdentifier="{5813D158-EC1E-4305-8122-8573958150FE}"
-			RelativePathToProject="..\Binding\Binding.vcproj"
+			RelativePathToProject="..\MCD\Binding\Binding.vcproj"
 		/>
 	</References>
 	<Files>
@@ -231,6 +231,10 @@
 		</File>
 		<File
 			RelativePath=".\EntityTest.nut"
+			>
+		</File>
+		<File
+			RelativePath=".\EventTest.cpp"
 			>
 		</File>
 		<File
