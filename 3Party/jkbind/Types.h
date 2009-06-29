@@ -1,6 +1,10 @@
 #ifndef ___BASE_TYPES_H___
 #define ___BASE_TYPES_H___
 
+#ifndef JKBIND_API
+#	define JKBIND_API __declspec(dllimport)
+#endif
+
 #ifdef _MSC_VER
 
 namespace base {

@@ -13,13 +13,13 @@ namespace detail {
 class ClassesManager
 {
 public:
-	static ScriptObject createClass(HSQUIRRELVM v, ScriptObject& root, ClassID classType, const xchar* name, ClassID parentClass);
-	static void createObjectInstanceOnStackPure(HSQUIRRELVM v, ClassID classType, const void* c_this);
-
-	static void disableCloningForClass(HSQUIRRELVM v, ScriptObject& classObj);
-	static void createMemoryControllerSlotForClass(HSQUIRRELVM v, ScriptObject& classObj);
-
-	static const int MEMORY_CONTROLLER_PARAM = 0x4567C0DE;
+	JKBIND_API static ScriptObject createClass(HSQUIRRELVM v, ScriptObject& root, ClassID classType, const xchar* name, ClassID parentClass);
+	JKBIND_API static void createObjectInstanceOnStackPure(HSQUIRRELVM v, ClassID classType, const void* c_this);
+		   
+	JKBIND_API static void disableCloningForClass(HSQUIRRELVM v, ScriptObject& classObj);
+	JKBIND_API static void createMemoryControllerSlotForClass(HSQUIRRELVM v, ScriptObject& classObj);
+		   
+	JKBIND_API static const int MEMORY_CONTROLLER_PARAM = 0x4567C0DE;
 
 private:
 	static ScriptObject _findClass(HSQUIRRELVM v, ClassID classType);

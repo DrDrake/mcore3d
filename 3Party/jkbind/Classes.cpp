@@ -12,6 +12,10 @@ ScriptObject ClassesManager::_findClass(HSQUIRRELVM v, ClassID classType)
 	HSQOBJECT& types = vm->_classesTable;
 
 	sq_pushobject(v, types);
+
+	// NOTE: If there is memory violation near this line, most likely
+	// there are multiple instances of the class table in different dll module.
+	// So please make sure the binding classes are correctly dll exported.
 	sq_pushuserpointer(v, classType);
 	jkSCRIPT_API_VERIFY(sq_get(v, -2));
 

@@ -321,7 +321,6 @@ public:
 		ScriptObject newClass = ClassesManager::createClass(_vm, _hostObject, (SQUserPointer)ClassTraits<T>::classID(), scriptClassName, 0);
 
 		ClassesManager::disableCloningForClass(_vm, newClass);
-//		ClassesManager::disableCreatingFromScriptForClass(_vm, newClass);
 		ClassesManager::createMemoryControllerSlotForClass(_vm, newClass);
 
 		sq_settop(_vm,top);
@@ -336,7 +335,6 @@ public:
 		ScriptObject newClass = ClassesManager::createClass(_vm, _hostObject, ClassTraits<T>::classID(), scriptClassName, ClassTraits<PARENT>::classID());
 
 		ClassesManager::disableCloningForClass(_vm, newClass);
-//		ClassesManager::disableCreatingFromScriptForClass(_vm, newClass);
 		ClassesManager::createMemoryControllerSlotForClass(_vm, newClass);
 
 		sq_settop(_vm,top);

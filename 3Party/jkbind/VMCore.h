@@ -4,22 +4,17 @@
 #include "Base.h"
 #include "detail/Language.h"
 
-//
-// Forwards
-//
 namespace script {
+
 namespace detail {
 	class ClassesManager;
-}	//namspace detail
-}	//namespace script
-
-namespace script {
+}	// namspace detail
 
 class VMCore: public base::Object
 {
 public:
-	explicit VMCore(int initialStackSize);
-	virtual ~VMCore();
+	JKBIND_API VMCore(int initialStackSize);
+	JKBIND_API virtual ~VMCore();
 
 	enum State
 	{
@@ -28,11 +23,11 @@ public:
 		vmsCLOSING
 	};
 
-	inline State state() const { return _state; }
+	State state() const { return _state; }
 
-	HSQUIRRELVM getVM() const;
+	JKBIND_API HSQUIRRELVM getVM() const;
 
-	void collectGarbage();
+	JKBIND_API void collectGarbage();
 
 private:
 	State       _state;
@@ -41,10 +36,10 @@ private:
 
 //friends:
 	friend class detail::ClassesManager;
-};
+};	// VMCore
 
 // A handy function to simply execute a script
-extern bool runScript(HSQUIRRELVM vm, const xchar* script);
+JKBIND_API bool runScript(HSQUIRRELVM vm, const xchar* script);
 
 }	//namespace script
 
