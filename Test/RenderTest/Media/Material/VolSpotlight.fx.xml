@@ -14,6 +14,13 @@
 		shininess="30.0"
 	/>
 
+    <!-- The first occuring texture will use texture unit 0 -->
+	<texture
+		file="../spotlight.jpg"
+		shaderName="diffuseMap"
+		filter="linear_linear_linear"
+	/>
+    
 	<shader>
 		<!-- Reference external file as vertex shader -->
 		<vertex>
@@ -26,6 +33,9 @@
 				vertex = (gl_Position = ftransform()).xyz;
 				
 				gl_TexCoord[0] = gl_MultiTexCoord0;
+                
+                //vec3 vsNormal = gl_NormalMatrix * vec3(gl_Vertex.xy, 0);
+                //gl_TexCoord[1].xyz = vsNormal;
 			}
 			]]>
 		</vertex>
@@ -33,37 +43,44 @@
 		<!-- Define the fragment shader just inside the xml -->
 		<fragment>
 			<![CDATA[
+            uniform sampler2D diffuseMap;
 			varying vec3 vertex, osVertex;
 			uniform vec3 osCamPos;
 			
-			float LightIntensity(float height)
+			vec3 LightIntensity(vec3 pos)
 			{
-				return 10 * exp(-(4 * height));
+                float lightBoost = 1;//10 * exp(-(5 * pos.z));
+                return lightBoost * tex2D(diffuseMap, vec2(length(pos.xy), pos.z)).rgb;
 			}
 			
-			float IntLightIntensity(float startH, float endH)
+			vec3 IntLightIntensity(vec3 start, vec3 end)
 			{
-				int count = 5;
-				float deltaH = (endH - startH) / count;
-				float lightInt = 0, h = startH;
-				
+				int count = 10;
+				vec3 delta = (end - start) / count;
+                vec3 q = start;
+				vec3 lightInt = vec3(0, 0, 0);
+				              
 				for(int i = 0; i < count; i++)
 				{
-					lightInt += LightIntensity(h);
-					h += deltaH;
+					lightInt += LightIntensity(q);
+					q += delta;
 				}
 				return lightInt / count;
 			}
 
 			void main()
 			{
+                // Construct the ray.
+                vec3 osRayDir = normalize(osVertex - osCamPos);
 				// The cone eqt. used below defines a double cone... so, clamp the cam direcion
 				if (osCamPos.z < 0)
-					osCamPos.z = 0;
-				// Construct the ray.
-				// Ray source = osCamPos, ray direction = normalize(osVertex - osCamPos).
+                {
+					// osCamPos.z = 0;
+                    float offsetT = -osCamPos.z / osRayDir.z;
+                    osCamPos += offsetT * osRayDir;
+                }
+				
 				float backfaceT = length(osVertex - osCamPos);
-				vec3 osRayDir = (osVertex - osCamPos) / backfaceT;
 								
 				// Perform ray-cone intersection test.
 				// Calculate the frontfaceT from backfaceT.
@@ -72,13 +89,11 @@
 				float b = 2 * (osCamPos.x * osRayDir.x + osCamPos.y * osRayDir.y - osCamPos.z * osRayDir.z);
 				float c = osCamPos.x * osCamPos.x + osCamPos.y * osCamPos.y - osCamPos.z * osCamPos.z;
 				
-				// Normalize the quadratic eqt.
-				
 				float frontfaceT = 0;
 				
-				// Shit.. double cone problem...
 				if (c > 0) // If c > 0, the camera is outside the infinite cone
 				{
+                    // Normalize the quadratic eqt.
 					b /= a;
 					c /= a;
 					a = 1;
@@ -108,10 +123,14 @@
 						frontfaceT = (1 - osCamPos.z) / osRayDir.z;
 				}
 				
-				float frontZ = (osCamPos + frontfaceT * osRayDir).z;
-				float lightIntensity = IntLightIntensity(osVertex.z, frontZ);
+				vec3 front = (osCamPos + frontfaceT * osRayDir);
+                
+                vec3 rayStart = front;
+                vec3 rayEnd =   osVertex;
+				vec3 lightIntensity = IntLightIntensity(rayStart, rayEnd);
 				
 				gl_FragColor.rgb = saturate(lightIntensity * (backfaceT - frontfaceT));
+                //gl_FragColor.rgb = (lightIntensity);
 
 				gl_FragColor.a = 1;
 			}
