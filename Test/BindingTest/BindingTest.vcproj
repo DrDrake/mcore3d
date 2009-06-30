@@ -226,6 +226,14 @@
 			>
 		</File>
 		<File
+			RelativePath=".\CoroutineTest.cpp"
+			>
+		</File>
+		<File
+			RelativePath=".\CoroutineTest1.nut"
+			>
+		</File>
+		<File
 			RelativePath=".\EntityTest.cpp"
 			>
 		</File>

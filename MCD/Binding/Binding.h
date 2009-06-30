@@ -2,6 +2,7 @@
 #define __MCD_BINDING_BINDING__
 
 #include "ShareLib.h"
+#include "../Core/System/Platform.h"
 
 namespace MCD {
 
@@ -18,10 +19,10 @@ public:
 	~ScriptVM();
 
 	//
-	void runScript(const wchar_t* script);
+	void runScript(sal_in_z const wchar_t* script);
 
 	//! Get the underlaying scripting VM handle, that is HSQUIRRELVM
-	void* getImplementationHandle();
+	sal_notnull void* getImplementationHandle();
 
 private:
 	class Impl;
