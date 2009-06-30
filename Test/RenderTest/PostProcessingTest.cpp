@@ -121,7 +121,11 @@ private:
 class ScreenQuad
 {
 public:
-	static void draw(int textureTarget, size_t x, size_t y, size_t width, size_t height, bool preserveTransform);
+	/*!
+		Assume the modelview matrix and projection matrix is set.
+		Or vertex shader is being used to handle the transformation.
+	*/
+	static void draw(int textureTarget, size_t x, size_t y, size_t width, size_t height);
 };
 
 FrameBufferSet::FrameBufferSet(
@@ -313,7 +317,7 @@ void FrameBufferSet::end()
 	mRenderTarget.unbind();
 }
 
-void ScreenQuad::draw(int textureTarget, size_t x, size_t y, size_t width, size_t height, bool preserveTransform)
+void ScreenQuad::draw(int textureTarget, size_t x, size_t y, size_t width, size_t height)
 {
 	// How to draw fullscreen quad:
 	// Reference: http://www.opengl.org/resources/faq/technical/transformations.htm
@@ -324,14 +328,6 @@ void ScreenQuad::draw(int textureTarget, size_t x, size_t y, size_t width, size_
 	glDisable(GL_DEPTH_TEST);
 	glDisable(GL_LIGHTING);
 	glDisable(GL_MULTISAMPLE);
-
-	if(!preserveTransform)
-	{
-		glMatrixMode(GL_PROJECTION);
-		glPushMatrix();	glLoadIdentity();
-		glMatrixMode(GL_MODELVIEW);
-		glPushMatrix();	glLoadIdentity();
-	}
 
 	float w = (textureTarget == GL_TEXTURE_2D) ? 1.0f : float(width);
 	float h = (textureTarget == GL_TEXTURE_2D) ? 1.0f : float(height);
@@ -345,14 +341,6 @@ void ScreenQuad::draw(int textureTarget, size_t x, size_t y, size_t width, size_
 		glTexCoord2fv(texcoord[2]);	glVertex3i( 1,  1, -1);
 		glTexCoord2fv(texcoord[3]);	glVertex3i(-1,  1, -1);
 	glEnd();
-
-	if(!preserveTransform)
-	{
-		glMatrixMode(GL_PROJECTION);
-		glPopMatrix();
-		glMatrixMode(GL_MODELVIEW);
-		glPopMatrix();
-	}
 
 	glPopAttrib();
 }
@@ -631,7 +619,7 @@ public:
 			
 			// draw quad
 			//drawViewportQuad(0, 0, bufHalf.width(), bufHalf.height(), bufHalf.target());
-			ScreenQuad::draw(bufHalf.target(), 0, 0, bufHalf.width(), bufHalf.height(), false);
+			ScreenQuad::draw(bufHalf.target(), 0, 0, bufHalf.width(), bufHalf.height());
 
 			pass(mat, cPassId).postRender();
 
@@ -655,7 +643,7 @@ public:
 
 			// draw quad
 			//drawViewportQuad(0, 0, bufHalf.width(), bufHalf.height(), bufHalf.target());
-			ScreenQuad::draw(bufHalf.target(), 0, 0, bufHalf.width(), bufHalf.height(), false);
+			ScreenQuad::draw(bufHalf.target(), 0, 0, bufHalf.width(), bufHalf.height());
 
 			pass(mat, cPassId).postRender();
 
@@ -679,7 +667,7 @@ public:
 
 			// draw quad
 			//drawViewportQuad(0, 0, bufHalf.width(), bufHalf.height(), bufHalf.target());
-			ScreenQuad::draw(bufHalf.target(), 0, 0, bufHalf.width(), bufHalf.height(), false);
+			ScreenQuad::draw(bufHalf.target(), 0, 0, bufHalf.width(), bufHalf.height());
 
 			pass(mat, cPassId).postRender();
 
@@ -696,8 +684,7 @@ public:
 
 			// draw quad
 			//drawViewportQuad(0, 0, this->width(), this->height(), bufFull.target());
-			//FrameBufferSet::drawScreenQuad(GL_TEXTURE_2D, 0, 0, width(), height(), false);
-			ScreenQuad::draw(bufFull.target(), 0, 0, width(), height(), false);
+			ScreenQuad::draw(bufFull.target(), 0, 0, width(), height());
 
 			pass(mat, cPassId).postRender();
 		}
@@ -715,7 +702,7 @@ public:
 			// draw quad
 			// preserve transforms since we need gl_ModelViewProjectionMatrox
 			//drawViewportQuad(0, 0, this->width(), this->height(), bufHalf.target(), true);
-			ScreenQuad::draw(bufHalf.target(), 0, 0, width(), height(), true);
+			ScreenQuad::draw(bufHalf.target(), 0, 0, width(), height());
 
 			pass(mat, cPassId).postRender();
 		}
@@ -732,7 +719,7 @@ public:
 			
 			// draw quad
 			//drawViewportQuad(0, 0, this->width(), this->height(), GL_TEXTURE_RECTANGLE_ARB);
-			ScreenQuad::draw(GL_TEXTURE_RECTANGLE_ARB, 0, 0, width(), height(), false);
+			ScreenQuad::draw(GL_TEXTURE_RECTANGLE_ARB, 0, 0, width(), height());
 
 			pass(mat, cPassId).postRender();
 		}
