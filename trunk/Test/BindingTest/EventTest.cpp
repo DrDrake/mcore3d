@@ -1,10 +1,6 @@
 #include "Pch.h"
-#include "Common.h"
 #include "../../MCD/Binding/Binding.h"
-#include "../../MCD/Core/System/Platform.h"
-#include "../../MCD/Core/System/ScriptOwnershipHandle.h"
 #include "../../3Party/jkbind/Declarator.h"
-#include <iostream>
 
 using namespace MCD;
 
