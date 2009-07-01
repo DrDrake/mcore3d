@@ -38,6 +38,7 @@ extern void registerEntityBinding(script::VMCore* v);
 extern void registerInputComponentBinding(script::VMCore* v);
 extern void registerMathBinding(script::VMCore* v);
 extern void registerRenderBinding(script::VMCore* v);
+extern void registerScriptComponentBinding(script::VMCore* v);
 extern void registerSystemBinding(script::VMCore* v);
 
 static void onCompileError(HSQUIRRELVM v,const SQChar* desc, const SQChar* source, SQInteger line, SQInteger column)
@@ -65,6 +66,7 @@ public:
 		registerInputComponentBinding(&vm);
 		registerMathBinding(&vm);
 		registerRenderBinding(&vm);
+		registerScriptComponentBinding(&vm);
 		registerSystemBinding(&vm);
 	}
 

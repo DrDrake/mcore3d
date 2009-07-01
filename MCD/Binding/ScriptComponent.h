@@ -48,8 +48,16 @@ public:
 	//! The derived components should override this function for defining behaviour.
 	sal_override void update();
 
+	HSQOBJECT mSqObj;
 };	// ScriptComponent
 
 }	// namespace MCD
+
+namespace script {
+
+SCRIPT_CLASS_DECLAR_EXPORT(MCD::ScriptComponent, MCD_BINDING_API);
+
+}	// namespace script
+
 
 #endif	// __MCD_BINDING_SCRIPTCOMPONENT__

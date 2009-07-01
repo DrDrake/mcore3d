@@ -6,7 +6,6 @@
 void runScriptFile(MCD::ScriptVM& vm, const char* filePath)
 {
 	std::wifstream file(filePath);
-	std::wstring data;
 	if(file) {
 		std::wostringstream buffer;
 		buffer << file.rdbuf();

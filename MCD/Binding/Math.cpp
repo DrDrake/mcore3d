@@ -46,6 +46,8 @@ static int vec3Create(HSQUIRRELVM vm)
 		return sa.throwError(L"Vec3.create() wrong parameters");
 	}
 
+	// Pops the input params
+	sq_pop(vm, nparams - 1);
 	construct::pushResult(vm, v);
 	return 1;
 }

@@ -70,4 +70,17 @@ void ScriptComponent::update()
 {
 }
 
+void registerScriptComponentBinding(script::VMCore* v)
+{
+	script::ClassTraits<ScriptComponent>::bind(v);
+}
+
 }	// namespace MCD
+
+namespace script {
+
+SCRIPT_CLASS_REGISTER_NAME(ScriptComponent, "ScriptComponent")
+	.constructor()
+;}
+
+}	// namespace script
