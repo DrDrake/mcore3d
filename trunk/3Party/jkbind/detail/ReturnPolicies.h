@@ -89,9 +89,9 @@ public:
 	template<typename RT>
 	static inline void pushResult(HSQUIRRELVM v, RT result)
 	{
-		sq_setinstanceup(v, 1, ptr::pointer<RT>::to(result));
-		sq_setreleasehook(v, 1, _memoryControllerHook<typename ptr::pointer<RT>::HostType>);
-		types::addHandleToObject(v, ptr::pointer<RT>::to(result), 1);
+		sq_setinstanceup(v, -2, ptr::pointer<RT>::to(result));
+		sq_setreleasehook(v, -2, _memoryControllerHook<typename ptr::pointer<RT>::HostType>);
+		types::addHandleToObject(v, ptr::pointer<RT>::to(result), -2);
 	}
 
 private:

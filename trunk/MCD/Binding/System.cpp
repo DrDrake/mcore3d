@@ -1,7 +1,6 @@
 #include "Pch.h"
 #include "System.h"
 #include "Binding.h"
-#include "../Core/System/Timer.h"
 
 using namespace MCD;
 
@@ -25,7 +24,7 @@ SCRIPT_CLASS_REGISTER_NAME(Timer, "Timer")
 ;}
 
 SCRIPT_CLASS_REGISTER_NAME(RawFileSystem, "RawFileSystem")
-	.constructor<const Path&>(L"create")
+	.constructor<const Path&>()
 	.method(L"setRoot", &RawFileSystem::setRoot)
 ;}
 
