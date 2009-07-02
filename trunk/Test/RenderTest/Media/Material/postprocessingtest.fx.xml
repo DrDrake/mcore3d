@@ -23,6 +23,7 @@
 varying vec3 var_Vertex, var_Normal, var_LightPos;
 
 uniform vec3 g_sunPos;
+uniform vec4 g_camParams;
 
 void main()
 {
@@ -421,7 +422,11 @@ void main()
 	drawLine="false"
 >
 	<!-- The first occuring texture will use texture unit 0 -->
-
+	<texture
+		file="../White2x2.png"
+		shaderName="g_inputSam"
+		filter="linear_linear_none"
+	/>
 	<shader>
 		<vertex>
 <![CDATA[
