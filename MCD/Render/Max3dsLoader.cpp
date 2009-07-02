@@ -79,11 +79,42 @@ struct ChunkHeader
 	uint32_t length;
 };	// ChunkHeader
 
-class NamedMaterial : public Material
+class Max3dsMaterial : public Material2
 {
 public:
 	std::wstring mName;
-};	// NamedMaterial
+
+// Attributes
+	ColorRGBf ambient, diffuse, specular;
+	uint8_t shininess;
+	TexturePtr texture;
+	bool inited;
+
+	Max3dsMaterial() : inited(false) {}
+
+	void init() {
+
+		if(inited)
+			return;
+
+		this->mRenderPasses.push_back(new Pass);
+		addProperty(
+			new StandardProperty(
+				ColorRGBAf(ambient, 1.0f)
+				, ColorRGBAf(diffuse, 1.0f)
+				, ColorRGBAf(specular, 1.0f)
+				, ColorProperty::ColorOperation::Replace
+				, shininess)
+			, 0
+			);
+
+		if(texture) {
+			addProperty(new TextureProperty(texture.get(), 0, GL_LINEAR, GL_LINEAR), 0);
+		}
+
+		inited = true;
+	}
+};	// Max3dsMaterial
 
 }	// namespace
 
@@ -250,7 +281,8 @@ private:
 	//! Represent which face the material is assigned to.
 	struct MultiSubObject
 	{
-		Material* material;
+		//Material* material;
+		Max3dsMaterial* material;
 		std::vector<uint16_t> mFaceIndex;	//! Index to the index buffer
 	};	// MultiSubObject
 
@@ -265,7 +297,7 @@ private:
 	std::list<ModelInfo> mModelInfo;
 	MeshBuilder mMeshBuilder;
 
-	typedef std::list<NamedMaterial*> MaterialList;
+	typedef std::list<Max3dsMaterial*> MaterialList;
 	MaterialList mMaterials;
 
 	volatile IResourceLoader::LoadingState mLoadingState;
@@ -281,7 +313,7 @@ Max3dsLoader::Impl::~Impl()
 {
 	MCD_FOREACH(const ModelInfo& model, mModelInfo)
 		delete model.meshBuilder;
-	MCD_FOREACH(NamedMaterial* material, mMaterials)
+	MCD_FOREACH(Max3dsMaterial* material, mMaterials)
 		delete material;
 	delete mStream;
 }
@@ -308,7 +340,7 @@ IResourceLoader::LoadingState Max3dsLoader::Impl::load(std::istream* is, const P
 	ChunkHeader header;
 
 	MeshBuilder* currentMeshBuilder = nullptr;
-	NamedMaterial* currentMaterial = nullptr;
+	Max3dsMaterial* currentMaterial = nullptr;
 
 	// When mirror is used in the 3DS, the triangle winding order need to be inverted.
 	// Trunk LOCAL_COORDS comes before FACE_DESC, during the loading of LOCAL_COORDS we got
@@ -484,7 +516,7 @@ IResourceLoader::LoadingState Max3dsLoader::Impl::load(std::istream* is, const P
 				mStream->read(&object.mFaceIndex[0], faceCount * sizeof(uint16_t));
 
 				// Loop for all materials to find the one with the same material name
-				MCD_FOREACH(NamedMaterial* material, mMaterials) {
+				MCD_FOREACH(Max3dsMaterial* material, mMaterials) {
 					if(material->mName != materialName)
 						continue;
 					object.material = material;
@@ -542,7 +574,7 @@ IResourceLoader::LoadingState Max3dsLoader::Impl::load(std::istream* is, const P
 			}	break;
 
 			case MATERIAL:	// Material Start
-				currentMaterial = new NamedMaterial;
+				currentMaterial = new Max3dsMaterial;
 				mMaterials.push_back(currentMaterial);
 				break;
 
@@ -756,11 +788,13 @@ void Max3dsLoader::Impl::commit(Resource& resource)
 			indexBuilder.commit(*mesh, Mesh::Index, storageHint);
 
 			// Assign material
-			Model::MeshAndMaterial meshMat;
-			meshMat.material = *subObject.material;
+			subObject.material->init();
 
-			meshMat.mesh = mesh;
-			model.mMeshes.push_back(meshMat);
+			Model::MeshAndMaterial* meshMat = new Model::MeshAndMaterial;
+			meshMat->material = subObject.material->clone();
+			meshMat->mesh = mesh;
+
+			model.mMeshes.pushBack(*meshMat);
 		}
 	}
 }

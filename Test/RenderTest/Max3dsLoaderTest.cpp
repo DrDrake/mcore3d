@@ -86,8 +86,8 @@ TEST(Max3dsLoaderTest)
 //		window.load3ds(L"Ford N120208.3ds");
 //		window.load3ds(L"tiger.3ds");
 //		window.load3ds(L"Media/House/house.3ds");
-		window.load3ds(L"3M00696/buelllightning.3DS");
-//		window.load3ds(L"Scene/City/scene.3ds");
+//		window.load3ds(L"3M00696/buelllightning.3DS");
+		window.load3ds(L"Scene/City/scene.3ds");
 //		window.load3ds(L"f5e/f5e_05.3ds");
 
 		window.mainLoop();

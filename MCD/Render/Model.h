@@ -7,6 +7,7 @@
 #include "../Core/System/IntrusivePtr.h"
 #include "../Core/System/NonCopyable.h"
 #include "../Core/System/Resource.h"
+#include "../Core/System/LinkList.h"
 #include <list>
 
 namespace MCD {
@@ -22,13 +23,18 @@ public:
 	sal_override void draw();
 
 public:
-	struct MeshAndMaterial
+    struct MeshAndMaterial : public LinkListBase::Node<MeshAndMaterial>
 	{
 		MeshPtr mesh;
-		Material material;
+        IMaterial* material;
+
+		~MeshAndMaterial()
+		{
+			delete material;
+		}
 	};	// MeshAndMaterial
 
-	typedef std::list<MeshAndMaterial> MeshList;
+    typedef LinkList<MeshAndMaterial> MeshList;
 	MeshList mMeshes;
 };	// Model
 

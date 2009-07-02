@@ -459,24 +459,24 @@ public:
 
 /*! An untility for pass binding inside a Material2 object.
 */
-class ScopePassBinding
-{
-public:
-	ScopePassBinding(Material2& material, size_t pass)
-		: mMaterial(material)
-		, mPass(pass)
-	{
-		mMaterial.preRender(mPass);
-	}
-
-	~ScopePassBinding()
-	{
-		mMaterial.postRender(mPass);
-	}
-
-	Material2& mMaterial;
-	size_t mPass;
-};
+//class ScopePassBinding
+//{
+//public:
+//	ScopePassBinding(Material2& material, size_t pass)
+//		: mMaterial(material)
+//		, mPass(pass)
+//	{
+//		mMaterial.preRender(mPass);
+//	}
+//
+//	~ScopePassBinding()
+//	{
+//		mMaterial.postRender(mPass);
+//	}
+//
+//	Material2& mMaterial;
+//	size_t mPass;
+//};
 
 inline float GaussianZeroMean(float x, float sd)
 {
@@ -730,7 +730,9 @@ public:
 	void drawScene(Material2* mat)
 	{
 		{
-			ScopePassBinding bindPass(*mat, SCENE_PASS);
+			//ScopePassBinding bindPass(*mat, SCENE_PASS);
+			const int cPassId = SCENE_PASS;
+			pass(mat, cPassId).preRender();
 
 			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
@@ -749,23 +751,27 @@ public:
 			mModel->draw();
 
 			glPopMatrix();
+
+			pass(mat, cPassId).postRender();
 		}
 
 		{
-			ScopePassBinding bindPass(*mat, SKYBOX_PASS);
+			//ScopePassBinding bindPass(*mat, SKYBOX_PASS);
+			const int cPassId = SKYBOX_PASS;
+			pass(mat, cPassId).preRender();
 
 			Vec3f frustVertex[8];
 			mCamera.frustum.computeVertex(frustVertex);
 			
-			Mat44f mat;
-			mCamera.computeView(mat.getPtr());
-			mat = mat.inverse();
+			Mat44f mtx;
+			mCamera.computeView(mtx.getPtr());
+			mtx = mtx.inverse();
 
 			Vec3f p[4];
 			for(size_t i = 0; i < 4; ++i)
 			{
 				p[i] = frustVertex[i] + (frustVertex[i+4] - frustVertex[i]) * 0.5f;
-				mat.transformPoint(p[i]);
+				mtx.transformPoint(p[i]);
 			}
 
 			// bind shader uniform
@@ -788,6 +794,8 @@ public:
 			glVertex3fv(p[3].data);
 
 			glEnd();
+
+			pass(mat, cPassId).postRender();
 		}
 	}
 	
