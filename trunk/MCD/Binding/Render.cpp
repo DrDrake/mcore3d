@@ -1,7 +1,6 @@
 #include "Pch.h"
 #include "Render.h"
 #include "Binding.h"
-#include "Entity.h"
 #include "Math.h"
 
 using namespace MCD;
