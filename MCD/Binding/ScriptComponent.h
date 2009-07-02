@@ -47,8 +47,6 @@ class MCD_BINDING_API ScriptComponent : public BehaviourComponent
 public:
 	//! The derived components should override this function for defining behaviour.
 	sal_override void update();
-
-	HSQOBJECT mSqObj;
 };	// ScriptComponent
 
 }	// namespace MCD

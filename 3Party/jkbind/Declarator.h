@@ -260,19 +260,25 @@ public:
 	// TODO: Remove the need to pass the class name
 	ClassDeclarator& enableGetset(const xchar* className)
 	{
-		const xchar get[] = xSTRING("._get <- function(i){local g=this[\"_get\"+i.tostring()];return g==null?null:g()}");
-		const xchar set[] = xSTRING("._set <- function(i,v){local s=this[\"_set\"+i.tostring()];return s==null?null:s(v)}");
+		const xchar get1[] = xSTRING("._get<-function(i){local g=::");
+		const xchar set1[] = xSTRING("._set<-function(i,v){local s=::");
+		const xchar get2[] = xSTRING("[\"_get\"+i.tostring()];return g==null?null:g()}");
+		const xchar set2[] = xSTRING("[\"_set\"+i.tostring()];return s==null?null:s(v)}");
 		xchar buffer[256];
 
 		// Shut up MSVC code analysis warnings
-		if(::wcslen(className) + (sizeof(set)/sizeof(xchar)) > (sizeof buffer/sizeof(xchar)))
+		if(::wcslen(className) + ((sizeof(set1) + sizeof(set2))/sizeof(xchar)) > (sizeof buffer/sizeof(xchar)))
 			return *this;
 
 		::wcscpy(buffer, className);
-		::wcscat(buffer, get);
+		::wcscat(buffer, get1);
+		::wcscat(buffer, className);
+		::wcscat(buffer, get2);
 		runScript(buffer);
 		::wcscpy(buffer, className);
-		::wcscat(buffer, set);
+		::wcscat(buffer, set1);
+		::wcscat(buffer, className);
+		::wcscat(buffer, set2);
 		runScript(buffer);
 
 		return *this;
