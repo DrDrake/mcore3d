@@ -8,7 +8,6 @@
 #include "../Core/System/NonCopyable.h"
 #include "../Core/System/Resource.h"
 #include "../Core/System/LinkList.h"
-#include <list>
 
 namespace MCD {
 
