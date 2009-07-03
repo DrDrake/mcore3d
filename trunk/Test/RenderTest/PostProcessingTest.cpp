@@ -4,14 +4,15 @@
 #include "../../MCD/Render/Effect.h"
 #include "../../MCD/Render/Material.h"
 #include "../../MCD/Render/Model.h"
-#include "../../MCD/Core/Entity/Entity.h"
 //#include "../../MCD/Render/Components/MeshComponent.h"
-#include "../../MCD/Core/System/Log.h"
 #include "../../MCD/Render/RenderTarget.h"
 #include "../../MCD/Render/Texture.h"
 #include "../../MCD/Render/TextureRenderBuffer.h"
 #include "../../MCD/Render/BackRenderBuffer.h"
 #include "../../MCD/Render/ShaderProgram.h"
+#include "../../MCD/Core/Entity/Entity.h"
+#include "../../MCD/Core/System/Array.h"
+#include "../../MCD/Core/System/Log.h"
 
 using namespace MCD;
 

@@ -289,6 +289,10 @@
 			RelativePath=".\Pch.h"
 			>
 		</File>
+		<File
+			RelativePath=".\ScriptComponentTest.cpp"
+			>
+		</File>
 	</Files>
 	<Globals>
 	</Globals>
