@@ -6,6 +6,11 @@
 
 namespace MCD {
 
+Model::MeshAndMaterial::~MeshAndMaterial()
+{
+	delete material;
+}
+
 void Model::draw()
 {
     for(MeshAndMaterial* meshAndMat = mMeshes.begin(); meshAndMat != mMeshes.end(); meshAndMat = meshAndMat->next())

@@ -260,7 +260,7 @@ TEST(PhysicsComponentTest)
 				mModel = dynamic_cast<Model*>(mResourceManager.load(L"Scene/City/scene.3ds", true).get());
 				processResourceLoadingEvents();
 
-				for(Model::MeshList::iterator it = mModel->mMeshes.begin(); it != mModel->mMeshes.end(); it++)
+				for(Model::MeshAndMaterial* it = mModel->mMeshes.begin(); it != mModel->mMeshes.end(); it = it->next())
 				{
 					MeshPtr mesh = it->mesh;
 
