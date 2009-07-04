@@ -27,6 +27,15 @@ public:
 	 */
 	virtual const std::type_info& familyType() const = 0;
 
+	/*! Returns true if this Component is cloneable during Entity::clone().
+	*/
+	virtual bool cloneable() const = 0;
+
+	/*! Creates and returns a deep copy of this Component.
+		This method should returns nullptr if this Component is not cloneable.
+	*/
+	virtual Component* clone() const = 0;
+
 // Attributes
 	//! The Entity that this component belongs to.
 	sal_maybenull Entity* entity() const;

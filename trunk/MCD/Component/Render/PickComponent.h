@@ -31,6 +31,11 @@ public:
 
 	sal_override ~PickComponent();
 
+// Cloning
+	sal_override bool cloneable() const { return false; }
+
+	sal_override Component* clone() const { return nullptr; }
+
 // Operations
 	//! Preform the picking detection.
 	sal_override void update();

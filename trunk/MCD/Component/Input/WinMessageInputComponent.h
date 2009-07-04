@@ -18,6 +18,12 @@ public:
 
 	sal_override ~WinMessageInputComponent();
 
+// Cloning
+	sal_override bool cloneable() const { return false; }
+
+	sal_override Component* clone() const { return nullptr; }
+
+// Operations
 	sal_override void update();
 
 	sal_override int getAxis(sal_in_z const wchar_t* axisName) const;

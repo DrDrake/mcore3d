@@ -45,6 +45,12 @@ public:
 class MCD_BINDING_API ScriptComponent : public BehaviourComponent
 {
 public:
+
+// Cloning
+	sal_override bool cloneable() const { return false; }
+	sal_override Component* clone() const { return nullptr; }
+
+// Operations
 	//! The derived components should override this function for defining behaviour.
 	sal_override void update();
 };	// ScriptComponent
