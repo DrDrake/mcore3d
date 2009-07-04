@@ -16,7 +16,7 @@
 
     <!-- The first occuring texture will use texture unit 0 -->
 	<texture
-		file="../spotlight.jpg"
+		file="../SpotlightIntensity.jpg"
 		shaderName="diffuseMap"
 		filter="linear_linear_linear"
 	/>
@@ -43,21 +43,21 @@
 		<!-- Define the fragment shader just inside the xml -->
 		<fragment>
 			<![CDATA[
-            uniform sampler2D diffuseMap;
+      uniform sampler2D diffuseMap;
 			varying vec3 vertex, osVertex;
 			uniform vec3 osCamPos;
 			
 			vec3 LightIntensity(vec3 pos)
 			{
-                float lightBoost = 1;//10 * exp(-(5 * pos.z));
-                return lightBoost * tex2D(diffuseMap, vec2(length(pos.xy), pos.z)).rgb;
+        float lightBoost = 1;//10 * exp(-(5 * pos.z));
+        return lightBoost * tex2D(diffuseMap, vec2(length(pos.xy), pos.z)).rgb;
 			}
 			
 			vec3 IntLightIntensity(vec3 start, vec3 end)
 			{
-				int count = 10;
+				int count = 50;
 				vec3 delta = (end - start) / count;
-                vec3 q = start;
+        vec3 q = start;
 				vec3 lightInt = vec3(0, 0, 0);
 				              
 				for(int i = 0; i < count; i++)
@@ -70,15 +70,14 @@
 
 			void main()
 			{
-                // Construct the ray.
-                vec3 osRayDir = normalize(osVertex - osCamPos);
+        // Construct the ray.
+        vec3 osRayDir = normalize(osVertex - osCamPos);
 				// The cone eqt. used below defines a double cone... so, clamp the cam direcion
 				if (osCamPos.z < 0)
-                {
-					// osCamPos.z = 0;
-                    float offsetT = -osCamPos.z / osRayDir.z;
-                    osCamPos += offsetT * osRayDir;
-                }
+        { // osCamPos.z = 0;
+          float offsetT = -osCamPos.z / osRayDir.z;
+          osCamPos += offsetT * osRayDir;
+        }
 				
 				float backfaceT = length(osVertex - osCamPos);
 								
@@ -125,12 +124,12 @@
 				
 				vec3 front = (osCamPos + frontfaceT * osRayDir);
                 
-                vec3 rayStart = front;
-                vec3 rayEnd =   osVertex;
+        vec3 rayStart = front;
+        vec3 rayEnd =   osVertex;
 				vec3 lightIntensity = IntLightIntensity(rayStart, rayEnd);
 				
-				gl_FragColor.rgb = saturate(lightIntensity * (backfaceT - frontfaceT));
-                //gl_FragColor.rgb = (lightIntensity);
+				//gl_FragColor.rgb = saturate(lightIntensity * (backfaceT - frontfaceT));
+        gl_FragColor.rgb = saturate(lightIntensity);
 
 				gl_FragColor.a = 1;
 			}
