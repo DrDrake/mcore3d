@@ -34,7 +34,7 @@ public:
 	/*! Creates and returns a deep copy of this Component.
 		This method should returns nullptr if this Component is not cloneable.
 	*/
-	virtual Component* clone() const = 0;
+	virtual sal_maybenull Component* clone() const = 0;
 
 // Attributes
 	//! The Entity that this component belongs to.
