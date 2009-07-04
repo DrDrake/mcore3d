@@ -1,6 +1,7 @@
 #include "Pch.h"
 #include "Entity.h"
 #include "Component.h"
+#include "../System/Log.h"
 #include "../System/Utility.h"
 
 namespace MCD {
@@ -147,6 +148,11 @@ void Entity::addComponent(Component* component)
 {
 	if(!component)
 		return;
+
+	if(component->entity() != nullptr) {
+		Log::format(Log::Warn, L"The component is already added to an Entity");
+		return;
+	}
 
 	removeComponent(component->familyType());
 	components.pushBack(*component);

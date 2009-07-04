@@ -226,11 +226,7 @@
 			>
 		</File>
 		<File
-			RelativePath=".\CoroutineTest.cpp"
-			>
-		</File>
-		<File
-			RelativePath=".\CoroutineTest1.nut"
+			RelativePath=".\CoroutineTest.nut"
 			>
 		</File>
 		<File
@@ -290,7 +286,15 @@
 			>
 		</File>
 		<File
+			RelativePath=".\ScriptComponent.nut"
+			>
+		</File>
+		<File
 			RelativePath=".\ScriptComponentTest.cpp"
+			>
+		</File>
+		<File
+			RelativePath=".\ScriptComponentTestInit.nut"
 			>
 		</File>
 	</Files>

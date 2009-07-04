@@ -89,6 +89,8 @@ public:
 	/*!	Add a new component into the Entity.
 		Only a single instance is allowed for each family type of Component,
 		so the old one (if any) will be deleted before the new one is added.
+		If the supplied component is already added to some other Entity, the
+		add operation will be canceled.
 	 */
 	void addComponent(sal_in Component* component);
 

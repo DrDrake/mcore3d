@@ -89,7 +89,7 @@ public:
 			sq_getlasterror(v);
 			sq_getstring(v, -1, &s);
 			if(s)
-				printfunc(v, s);
+				sq_getprintfunc(v)(v, s);
 		}
 	}
 
