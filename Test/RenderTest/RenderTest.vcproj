@@ -334,6 +334,10 @@
 				RelativePath=".\TextureLoaderTest.cpp"
 				>
 			</File>
+			<File
+				RelativePath=".\VolSpotlightTest.cpp"
+				>
+			</File>
 		</Filter>
 		<Filter
 			Name="Shader Files"

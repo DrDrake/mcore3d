@@ -14,13 +14,12 @@
 #include "../../MCD/Render/Model.h"
 #include "../../MCD/Render/Max3dsLoader.h"
 #include "../../MCD/Render/ResourceLoaderFactory.h"
-#include "../../MCD/Core/System/PtrVector.h"
 
 #include "../../3Party/glew/glew.h"
 
 using namespace MCD;
 
-//#define USE_HARDWARE_INSTANCE
+#define USE_HARDWARE_INSTANCE
 
 // The Instanced Mesh composes of 2 classes:
 // InstancedMesh and InstancedMeshComponent
@@ -162,9 +161,22 @@ public:
 		MCD_ASSUME(e);
 		mInstMesh->registerPerInstanceInfo(e->localTransform);
 	}
+
+	virtual bool cloneable() const
+	{
+		return false;
+	}
+
+	/*! Creates and returns a deep copy of this Component.
+		This method should returns nullptr if this Component is not cloneable.
+	*/
+	virtual sal_maybenull Component* clone() const
+	{
+		return nullptr;
+	}
 };
 
-TEST(PhysicsComponentTest)
+TEST(TriMeshPhysicsComponentTest)
 {
 	class TestWindow : public BasicGlWindow
 	{
@@ -191,7 +203,7 @@ TEST(PhysicsComponentTest)
 
 		TestWindow()
 			:
-			BasicGlWindow(L"title=PhysicsComponentTest;width=800;height=600;fullscreen=0;FSAA=4"),
+			BasicGlWindow(L"title=TriMeshPhysicsComponentTest;width=800;height=600;fullscreen=0;FSAA=4"),
 			mResourceManager(*createDefaultFileSystem())
 		{
 			mResourceManager.addFactory(new Max3dsLoaderFactory(mResourceManager));

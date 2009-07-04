@@ -10,7 +10,7 @@
 #include "../../MCD/Core/Math/BasicFunction.h"
 using namespace MCD;
 
-TEST(VolSpotlight)
+TEST(VolSpotlightTest)
 {
 	class TestWindow : public BasicGlWindow
 	{
@@ -20,7 +20,7 @@ TEST(VolSpotlight)
 	public:
 		TestWindow()
 			:
-			BasicGlWindow(L"title=MeshComponentTest;width=800;height=600;fullscreen=0;FSAA=4"),
+			BasicGlWindow(L"title=VolSpotlightTest"),
 			mResourceManager(*createDefaultFileSystem())
 		{
 			{	// Build the light cone geometry, build a unit cone, and scale it

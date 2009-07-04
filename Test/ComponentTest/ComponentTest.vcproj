@@ -239,15 +239,15 @@
 				>
 			</File>
 			<File
-				RelativePath=".\PhysicsTest.cpp"
-				>
-			</File>
-			<File
 				RelativePath=".\PickComponentTest.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".\VolSpotlight.cpp"
+				RelativePath=".\SimplePhysicsComponentTest.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\TriMeshPhysicsComponentTest.cpp"
 				>
 			</File>
 		</Filter>
