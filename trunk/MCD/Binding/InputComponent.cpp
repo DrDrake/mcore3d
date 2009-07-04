@@ -8,7 +8,6 @@ namespace script {
 
 SCRIPT_CLASS_REGISTER(InputComponent)
 	.declareClass<InputComponent, Component>(L"InputComponent")
-	.enableGetset(L"InputComponent")
 	.method(L"anyKey", &InputComponent::anyKey)
 	.method(L"anyKeyDown", &InputComponent::anyKeyDown)
 	.method(L"getAxis", &InputComponent::getAxis)
