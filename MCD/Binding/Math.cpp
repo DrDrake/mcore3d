@@ -6,12 +6,46 @@ using namespace MCD;
 
 namespace script {
 
+static int mat44Create(HSQUIRRELVM vm)
+{
+	script::detail::StackHandler sa(vm);
+	int nparams = sa.getParamCount();
+
+	Mat44f* m = nullptr;
+	switch(nparams) {
+	case 1:
+		m = new Mat44f(0.0f);	// Default construct
+		break;
+	case 2:
+		if(sa.getType(2) == OT_INSTANCE)	// Copy construct
+			m = new Mat44f(get(types::TypeSelect<Mat44f&>(), vm, 2));
+		else
+			m = new Mat44f(sa.getFloat(2));	// Scalar construct
+		break;
+	case 17:
+			m = new Mat44f(
+				sa.getFloat( 2), sa.getFloat( 3), sa.getFloat( 4), sa.getFloat( 5),
+				sa.getFloat( 6), sa.getFloat( 7), sa.getFloat( 8), sa.getFloat( 9),
+				sa.getFloat(10), sa.getFloat(11), sa.getFloat(12), sa.getFloat(13),
+				sa.getFloat(14), sa.getFloat(15), sa.getFloat(16), sa.getFloat(17)
+			);
+		break;
+	default:
+		return sa.throwError(L"Mat44.constructor() wrong parameters");
+	}
+
+	// Pops the input params
+	sq_pop(vm, nparams - 1);
+	construct::pushResult(vm, m);
+	return 1;
+}
+
 static Mat44f addMat44(const Mat44f& lhs, const Mat44f& rhs) { return lhs + rhs; }
 static Mat44f subMat44(const Mat44f& lhs, const Mat44f& rhs) { return lhs - rhs; }
 
 SCRIPT_CLASS_REGISTER_NAME(Mat44f, "Mat44")
 	.enableGetset(L"Mat44")
-	.constructor()
+	.rawMethod(L"constructor", mat44Create)
 	.getset(L"m00", &Mat44f::m00)	.getset(L"m01", &Mat44f::m01)	.getset(L"m02", &Mat44f::m02)	.getset(L"m03", &Mat44f::m03)
 	.getset(L"m10", &Mat44f::m10)	.getset(L"m11", &Mat44f::m11)	.getset(L"m12", &Mat44f::m12)	.getset(L"m13", &Mat44f::m13)
 	.getset(L"m20", &Mat44f::m20)	.getset(L"m21", &Mat44f::m21)	.getset(L"m22", &Mat44f::m22)	.getset(L"m23", &Mat44f::m23)
@@ -35,7 +69,7 @@ static int vec3Create(HSQUIRRELVM vm)
 		break;
 	case 2:
 		if(sa.getType(2) == OT_INSTANCE)	// Copy construct
-			v = new Vec3f(get(script::types::TypeSelect<Vec3f&>(), vm, 2));
+			v = new Vec3f(get(types::TypeSelect<Vec3f&>(), vm, 2));
 		else
 			v = new Vec3f(sa.getFloat(2));	// Scalar construct
 		break;
@@ -43,7 +77,7 @@ static int vec3Create(HSQUIRRELVM vm)
 		v = new Vec3f(sa.getFloat(2), sa.getFloat(3), sa.getFloat(4));	// Element-wise construct
 		break;
 	default:
-		return sa.throwError(L"Vec3.create() wrong parameters");
+		return sa.throwError(L"Vec3.constructor() wrong parameters");
 	}
 
 	// Pops the input params

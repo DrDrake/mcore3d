@@ -119,3 +119,10 @@ TEST(Basic_BindingTest)
 	runScriptFile(vm, "BasicTest.nut");
 	CHECK(true);
 }
+
+TEST(Coroutine_BindingTest)
+{
+	ScriptVM vm;
+	runScriptFile(vm, "CoroutineTest.nut");
+	CHECK(true);
+}
