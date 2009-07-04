@@ -21,7 +21,7 @@ public:
 	struct MeshAndMaterial : public LinkListBase::Node<MeshAndMaterial>
 	{
 		MeshPtr mesh;
-		IMaterial* material;
+		Material2* material;
 
 		~MeshAndMaterial();
 	};	// MeshAndMaterial

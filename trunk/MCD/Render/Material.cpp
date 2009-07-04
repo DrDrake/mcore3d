@@ -101,7 +101,7 @@ Material2::~Material2()
 {
 }
 
-IMaterial* Material2::clone() const
+Material2* Material2::clone() const
 {
 	std::auto_ptr<Material2> newMaterial(new Material2);
 

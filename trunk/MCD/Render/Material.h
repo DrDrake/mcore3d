@@ -75,7 +75,7 @@ public:
 	sal_override ~Material2();
 
 // Operations
-	sal_override IMaterial* clone() const;
+	sal_override Material2* clone() const;
 
 	sal_override void preRender(size_t pass);
 
