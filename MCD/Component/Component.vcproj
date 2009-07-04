@@ -223,6 +223,14 @@
 				>
 			</File>
 			<File
+				RelativePath=".\Render\EntityPrototypeLoader.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\Render\EntityPrototypeLoader.h"
+				>
+			</File>
+			<File
 				RelativePath=".\Render\MeshComponent.cpp"
 				>
 			</File>

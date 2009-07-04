@@ -12,6 +12,10 @@ public:
 	sal_override const std::type_info& familyType() const {
 		return typeid(DummyComponent1);
 	}
+
+// Cloning
+	sal_override bool cloneable() const { return false; }
+	sal_override Component* clone() const { return nullptr; }
 };
 
 class DummyComponent2 : public Component
@@ -20,6 +24,10 @@ public:
 	sal_override const std::type_info& familyType() const {
 		return typeid(DummyComponent2);
 	}
+
+// Cloning
+	sal_override bool cloneable() const { return false; }
+	sal_override Component* clone() const { return nullptr; }
 };
 
 class DummyComponent21 : public DummyComponent2
@@ -32,6 +40,10 @@ public:
 	sal_override const std::type_info& familyType() const {
 		return typeid(DummyComponent3);
 	}
+
+// Cloning
+	sal_override bool cloneable() const { return false; }
+	sal_override Component* clone() const { return nullptr; }
 };
 
 }	// namespace

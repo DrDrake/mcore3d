@@ -26,7 +26,12 @@ public:
 
 	sal_override ~RigidBodyComponent(void);
 
-	// Override from BehaviourComponent
+// Cloning
+	sal_override bool cloneable() const { return false; }
+
+	sal_override Component* clone() const { return nullptr; }
+
+// Override from BehaviourComponent
 	sal_override void update();
 
 	void onAttach();
