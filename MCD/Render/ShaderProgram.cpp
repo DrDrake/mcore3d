@@ -3,9 +3,10 @@
 #include "Shader.h"
 #include "../Core/System/Log.h"
 #include "../../3Party/glew/glew.h"
-#include <map>
-#include <vector>
 #include <algorithm>
+#include <map>
+#include <string.h>	// For strcmp()
+#include <vector>
 
 namespace MCD {
 

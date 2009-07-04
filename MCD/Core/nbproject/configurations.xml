@@ -58,6 +58,7 @@
           <itemPath>System/Resource.h</itemPath>
           <itemPath>System/ResourceLoader.h</itemPath>
           <itemPath>System/ResourceManager.h</itemPath>
+          <itemPath>System/ScriptOwnershipHandle.h</itemPath>
           <itemPath>System/SharedPtr.h</itemPath>
           <itemPath>System/StaticAssert.h</itemPath>
           <itemPath>System/Stream.h</itemPath>
@@ -71,22 +72,19 @@
           <itemPath>System/Utility.h</itemPath>
           <itemPath>System/WeakPtr.h</itemPath>
           <itemPath>System/Window.h</itemPath>
+          <itemPath>System/Window.inl</itemPath>
+          <itemPath>System/Window.Win.inc</itemPath>
+          <itemPath>System/Window.Win.inl</itemPath>
+          <itemPath>System/Window.X11.inc</itemPath>
+          <itemPath>System/Window.X11.inl</itemPath>
           <itemPath>System/WindowEvent.h</itemPath>
           <itemPath>System/XmlParser.h</itemPath>
           <itemPath>System/ZipFileSystem.h</itemPath>
+          <itemPath>System/ZipFileSystem.inc</itemPath>
         </logicalFolder>
         <itemPath>Core.h</itemPath>
         <itemPath>Pch.h</itemPath>
         <itemPath>ShareLib.h</itemPath>
-      </logicalFolder>
-      <logicalFolder name="System" displayName="System" projectFiles="true">
-        <itemPath>System/ScriptOwnershipHandle.h</itemPath>
-        <itemPath>System/Window.inl</itemPath>
-        <itemPath>System/Window.Win.inc</itemPath>
-        <itemPath>System/Window.Win.inl</itemPath>
-        <itemPath>System/Window.X11.inc</itemPath>
-        <itemPath>System/Window.X11.inl</itemPath>
-        <itemPath>System/ZipFileSystem.inc</itemPath>
       </logicalFolder>
     </logicalFolder>
     <logicalFolder name="SourceFiles"
@@ -97,19 +95,29 @@
           <itemPath>Entity/BehaviourComponent.cpp</itemPath>
           <itemPath>Entity/Component.cpp</itemPath>
           <itemPath>Entity/Entity.cpp</itemPath>
+          <itemPath>Entity/Pch.h</itemPath>
         </logicalFolder>
         <logicalFolder name="Math" displayName="Math" projectFiles="true">
           <itemPath>Math/Intersection.cpp</itemPath>
+          <itemPath>Math/Pch.h</itemPath>
           <itemPath>Math/SrtTransform.cpp</itemPath>
         </logicalFolder>
         <logicalFolder name="System" displayName="System" projectFiles="true">
+          <itemPath>System/CallstackProfiler.cpp</itemPath>
+          <itemPath>System/CallstackProfiler.h</itemPath>
           <itemPath>System/CondVar.cpp</itemPath>
+          <itemPath>System/CpuProfiler.cpp</itemPath>
+          <itemPath>System/CpuProfiler.h</itemPath>
+          <itemPath>System/dbgint.h</itemPath>
           <itemPath>System/ErrorCode.cpp</itemPath>
           <itemPath>System/Exception.cpp</itemPath>
           <itemPath>System/FileSystemCollection.cpp</itemPath>
+          <itemPath>System/FunctionPatcher.inc</itemPath>
           <itemPath>System/LinkList.cpp</itemPath>
           <itemPath>System/Log.cpp</itemPath>
           <itemPath>System/Map.cpp</itemPath>
+          <itemPath>System/MemoryProfiler.cpp</itemPath>
+          <itemPath>System/MemoryProfiler.h</itemPath>
           <itemPath>System/Mutex.cpp</itemPath>
           <itemPath>System/Path.cpp</itemPath>
           <itemPath>System/RawFileSystem.cpp</itemPath>
@@ -128,6 +136,7 @@
           <itemPath>System/XmlParser.cpp</itemPath>
           <itemPath>System/ZipFileSystem.cpp</itemPath>
         </logicalFolder>
+        <itemPath>.dep.inc</itemPath>
       </logicalFolder>
     </logicalFolder>
     <logicalFolder name="ExternalFiles"
@@ -166,6 +175,9 @@
           </linkerLibItems>
         </linkerTool>
       </compileType>
+      <item path=".dep.inc">
+        <itemTool>3</itemTool>
+      </item>
       <item path="Core.h">
         <itemTool>3</itemTool>
       </item>
@@ -185,6 +197,9 @@
         <itemTool>1</itemTool>
       </item>
       <item path="Entity/Entity.h">
+        <itemTool>3</itemTool>
+      </item>
+      <item path="Entity/Pch.h">
         <itemTool>3</itemTool>
       </item>
       <item path="Math/BasicFunction.h">
@@ -212,6 +227,9 @@
         <itemTool>3</itemTool>
       </item>
       <item path="Math/Mat44.inl">
+        <itemTool>3</itemTool>
+      </item>
+      <item path="Math/Pch.h">
         <itemTool>3</itemTool>
       </item>
       <item path="Math/Plane.h">
@@ -262,10 +280,22 @@
       <item path="System/Atomic.h">
         <itemTool>3</itemTool>
       </item>
+      <item path="System/CallstackProfiler.cpp">
+        <itemTool>1</itemTool>
+      </item>
+      <item path="System/CallstackProfiler.h">
+        <itemTool>3</itemTool>
+      </item>
       <item path="System/CondVar.cpp">
         <itemTool>1</itemTool>
       </item>
       <item path="System/CondVar.h">
+        <itemTool>3</itemTool>
+      </item>
+      <item path="System/CpuProfiler.cpp">
+        <itemTool>1</itemTool>
+      </item>
+      <item path="System/CpuProfiler.h">
         <itemTool>3</itemTool>
       </item>
       <item path="System/ErrorCode.cpp">
@@ -287,6 +317,9 @@
         <itemTool>1</itemTool>
       </item>
       <item path="System/FileSystemCollection.h">
+        <itemTool>3</itemTool>
+      </item>
+      <item path="System/FunctionPatcher.inc">
         <itemTool>3</itemTool>
       </item>
       <item path="System/IncludeAll.h">
@@ -314,6 +347,12 @@
         <itemTool>1</itemTool>
       </item>
       <item path="System/Map.h">
+        <itemTool>3</itemTool>
+      </item>
+      <item path="System/MemoryProfiler.cpp">
+        <itemTool>1</itemTool>
+      </item>
+      <item path="System/MemoryProfiler.h">
         <itemTool>3</itemTool>
       </item>
       <item path="System/Mutex.cpp">
@@ -473,6 +512,9 @@
         <itemTool>3</itemTool>
       </item>
       <item path="System/ZipFileSystem.inc">
+        <itemTool>3</itemTool>
+      </item>
+      <item path="System/dbgint.h">
         <itemTool>3</itemTool>
       </item>
     </conf>
@@ -513,6 +555,9 @@
           </linkerLibItems>
         </linkerTool>
       </compileType>
+      <item path=".dep.inc">
+        <itemTool>3</itemTool>
+      </item>
       <item path="Core.h">
         <itemTool>3</itemTool>
       </item>
@@ -532,6 +577,9 @@
         <itemTool>1</itemTool>
       </item>
       <item path="Entity/Entity.h">
+        <itemTool>3</itemTool>
+      </item>
+      <item path="Entity/Pch.h">
         <itemTool>3</itemTool>
       </item>
       <item path="Math/BasicFunction.h">
@@ -559,6 +607,9 @@
         <itemTool>3</itemTool>
       </item>
       <item path="Math/Mat44.inl">
+        <itemTool>3</itemTool>
+      </item>
+      <item path="Math/Pch.h">
         <itemTool>3</itemTool>
       </item>
       <item path="Math/Plane.h">
@@ -609,10 +660,22 @@
       <item path="System/Atomic.h">
         <itemTool>3</itemTool>
       </item>
+      <item path="System/CallstackProfiler.cpp">
+        <itemTool>1</itemTool>
+      </item>
+      <item path="System/CallstackProfiler.h">
+        <itemTool>3</itemTool>
+      </item>
       <item path="System/CondVar.cpp">
         <itemTool>1</itemTool>
       </item>
       <item path="System/CondVar.h">
+        <itemTool>3</itemTool>
+      </item>
+      <item path="System/CpuProfiler.cpp">
+        <itemTool>1</itemTool>
+      </item>
+      <item path="System/CpuProfiler.h">
         <itemTool>3</itemTool>
       </item>
       <item path="System/ErrorCode.cpp">
@@ -634,6 +697,9 @@
         <itemTool>1</itemTool>
       </item>
       <item path="System/FileSystemCollection.h">
+        <itemTool>3</itemTool>
+      </item>
+      <item path="System/FunctionPatcher.inc">
         <itemTool>3</itemTool>
       </item>
       <item path="System/IncludeAll.h">
@@ -661,6 +727,12 @@
         <itemTool>1</itemTool>
       </item>
       <item path="System/Map.h">
+        <itemTool>3</itemTool>
+      </item>
+      <item path="System/MemoryProfiler.cpp">
+        <itemTool>1</itemTool>
+      </item>
+      <item path="System/MemoryProfiler.h">
         <itemTool>3</itemTool>
       </item>
       <item path="System/Mutex.cpp">
@@ -820,6 +892,9 @@
         <itemTool>3</itemTool>
       </item>
       <item path="System/ZipFileSystem.inc">
+        <itemTool>3</itemTool>
+      </item>
+      <item path="System/dbgint.h">
         <itemTool>3</itemTool>
       </item>
     </conf>

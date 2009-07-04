@@ -5,8 +5,6 @@
       <itemPath>ASSAOTest.cpp</itemPath>
       <itemPath>BasicGlWindow.cpp</itemPath>
       <itemPath>BasicGlWindow.h</itemPath>
-      <itemPath>ChamferBox.cpp</itemPath>
-      <itemPath>ChamferBox.h</itemPath>
       <itemPath>Common.cpp</itemPath>
       <itemPath>Common.h</itemPath>
       <itemPath>DefaultResourceManager.cpp</itemPath>
@@ -15,12 +13,10 @@
       <itemPath>Main.cpp</itemPath>
       <itemPath>MaterialTest.cpp</itemPath>
       <itemPath>Max3dsLoaderTest.cpp</itemPath>
-      <itemPath>MeshComponentTest.cpp</itemPath>
       <itemPath>MeshTest.cpp</itemPath>
       <itemPath>MultipleRenderTargetTest.cpp</itemPath>
       <itemPath>NormalMappingTest.cpp</itemPath>
       <itemPath>Pch.h</itemPath>
-      <itemPath>PickComponentTest.cpp</itemPath>
       <itemPath>ProjectiveTextureTest.cpp</itemPath>
       <itemPath>RenderTargetTest.cpp</itemPath>
       <itemPath>ShadowMapTest.cpp</itemPath>
@@ -93,12 +89,6 @@
       <item path="BasicGlWindow.h">
         <itemTool>3</itemTool>
       </item>
-      <item path="ChamferBox.cpp">
-        <itemTool>1</itemTool>
-      </item>
-      <item path="ChamferBox.h">
-        <itemTool>3</itemTool>
-      </item>
       <item path="Common.cpp">
         <itemTool>1</itemTool>
       </item>
@@ -123,9 +113,6 @@
       <item path="Max3dsLoaderTest.cpp">
         <itemTool>1</itemTool>
       </item>
-      <item path="MeshComponentTest.cpp">
-        <itemTool>1</itemTool>
-      </item>
       <item path="MeshTest.cpp">
         <itemTool>1</itemTool>
       </item>
@@ -137,9 +124,6 @@
       </item>
       <item path="Pch.h">
         <itemTool>3</itemTool>
-      </item>
-      <item path="PickComponentTest.cpp">
-        <itemTool>1</itemTool>
       </item>
       <item path="ProjectiveTextureTest.cpp">
         <itemTool>1</itemTool>
@@ -212,12 +196,6 @@
       <item path="BasicGlWindow.h">
         <itemTool>3</itemTool>
       </item>
-      <item path="ChamferBox.cpp">
-        <itemTool>1</itemTool>
-      </item>
-      <item path="ChamferBox.h">
-        <itemTool>3</itemTool>
-      </item>
       <item path="Common.cpp">
         <itemTool>1</itemTool>
       </item>
@@ -242,9 +220,6 @@
       <item path="Max3dsLoaderTest.cpp">
         <itemTool>1</itemTool>
       </item>
-      <item path="MeshComponentTest.cpp">
-        <itemTool>1</itemTool>
-      </item>
       <item path="MeshTest.cpp">
         <itemTool>1</itemTool>
       </item>
@@ -256,9 +231,6 @@
       </item>
       <item path="Pch.h">
         <itemTool>3</itemTool>
-      </item>
-      <item path="PickComponentTest.cpp">
-        <itemTool>1</itemTool>
       </item>
       <item path="ProjectiveTextureTest.cpp">
         <itemTool>1</itemTool>

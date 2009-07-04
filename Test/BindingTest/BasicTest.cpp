@@ -120,6 +120,16 @@ TEST(Basic_BindingTest)
 	CHECK(true);
 }
 
+TEST(ScriptInheritCppClass_BindingTest)
+{
+	ScriptVM vm;
+	script::VMCore* v = (script::VMCore*)sq_getforeignptr(HSQUIRRELVM(vm.getImplementationHandle()));
+	script::ClassTraits<Foo>::bind(v);
+	script::ClassTraits<Bar>::bind(v);
+	runScriptFile(vm, "ScriptInheritCppClassTest.nut");
+	CHECK(true);
+}
+
 TEST(Coroutine_BindingTest)
 {
 	ScriptVM vm;

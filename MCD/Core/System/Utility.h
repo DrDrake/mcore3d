@@ -75,7 +75,8 @@ MCD_INLINE2 Target polymorphic_downcast(Source& x) {
 #else
 	template<class T> class CountofHelper {};
 	template<class T, size_t N> struct CountofHelper<T[N]> { static const size_t value = N; };
-#	define MCD_COUNTOF(x) (::MCD::CountofHelper<typeof(x)>::value)
+//#	define MCD_COUNTOF(x) (::MCD::CountofHelper<typeof(x)>::value)
+#	define MCD_COUNTOF(x) (sizeof(x) / sizeof(typeof(x[0])))
 #endif
 
 }	// namespace MCD

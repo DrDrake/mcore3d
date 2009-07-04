@@ -2,23 +2,14 @@
 <configurationDescriptor version="51">
   <logicalFolder name="root" displayName="root" projectFiles="true">
     <logicalFolder name="Render" displayName="Render" projectFiles="true">
-      <logicalFolder name="Components" displayName="Components" projectFiles="true">
-        <itemPath>Components/CameraComponent.cpp</itemPath>
-        <itemPath>Components/CameraComponent.h</itemPath>
-        <itemPath>Components/MeshComponent.cpp</itemPath>
-        <itemPath>Components/MeshComponent.h</itemPath>
-        <itemPath>Components/Pch.h</itemPath>
-        <itemPath>Components/PickComponent.cpp</itemPath>
-        <itemPath>Components/PickComponent.h</itemPath>
-        <itemPath>Components/RenderableComponent.cpp</itemPath>
-        <itemPath>Components/RenderableComponent.h</itemPath>
-      </logicalFolder>
       <itemPath>BackRenderBuffer.cpp</itemPath>
       <itemPath>BackRenderBuffer.h</itemPath>
       <itemPath>BitmapLoader.cpp</itemPath>
       <itemPath>BitmapLoader.h</itemPath>
       <itemPath>Camera.cpp</itemPath>
       <itemPath>Camera.h</itemPath>
+      <itemPath>ChamferBox.cpp</itemPath>
+      <itemPath>ChamferBox.h</itemPath>
       <itemPath>Color.cpp</itemPath>
       <itemPath>Color.h</itemPath>
       <itemPath>CubemapLoader.cpp</itemPath>
@@ -71,6 +62,8 @@
       <itemPath>ShaderProgram.cpp</itemPath>
       <itemPath>ShaderProgram.h</itemPath>
       <itemPath>ShareLib.h</itemPath>
+      <itemPath>TangentSpaceBuilder.cpp</itemPath>
+      <itemPath>TangentSpaceBuilder.h</itemPath>
       <itemPath>Texture.cpp</itemPath>
       <itemPath>Texture.h</itemPath>
       <itemPath>TextureLoaderBase.cpp</itemPath>
@@ -160,37 +153,16 @@
       <item path="Camera.h">
         <itemTool>3</itemTool>
       </item>
+      <item path="ChamferBox.cpp">
+        <itemTool>1</itemTool>
+      </item>
+      <item path="ChamferBox.h">
+        <itemTool>3</itemTool>
+      </item>
       <item path="Color.cpp">
         <itemTool>1</itemTool>
       </item>
       <item path="Color.h">
-        <itemTool>3</itemTool>
-      </item>
-      <item path="Components/CameraComponent.cpp">
-        <itemTool>1</itemTool>
-      </item>
-      <item path="Components/CameraComponent.h">
-        <itemTool>3</itemTool>
-      </item>
-      <item path="Components/MeshComponent.cpp">
-        <itemTool>1</itemTool>
-      </item>
-      <item path="Components/MeshComponent.h">
-        <itemTool>3</itemTool>
-      </item>
-      <item path="Components/Pch.h">
-        <itemTool>3</itemTool>
-      </item>
-      <item path="Components/PickComponent.cpp">
-        <itemTool>1</itemTool>
-      </item>
-      <item path="Components/PickComponent.h">
-        <itemTool>3</itemTool>
-      </item>
-      <item path="Components/RenderableComponent.cpp">
-        <itemTool>1</itemTool>
-      </item>
-      <item path="Components/RenderableComponent.h">
         <itemTool>3</itemTool>
       </item>
       <item path="CubemapLoader.cpp">
@@ -341,6 +313,12 @@
         <itemTool>3</itemTool>
       </item>
       <item path="ShareLib.h">
+        <itemTool>3</itemTool>
+      </item>
+      <item path="TangentSpaceBuilder.cpp">
+        <itemTool>1</itemTool>
+      </item>
+      <item path="TangentSpaceBuilder.h">
         <itemTool>3</itemTool>
       </item>
       <item path="Texture.cpp">
@@ -423,37 +401,16 @@
       <item path="Camera.h">
         <itemTool>3</itemTool>
       </item>
+      <item path="ChamferBox.cpp">
+        <itemTool>1</itemTool>
+      </item>
+      <item path="ChamferBox.h">
+        <itemTool>3</itemTool>
+      </item>
       <item path="Color.cpp">
         <itemTool>1</itemTool>
       </item>
       <item path="Color.h">
-        <itemTool>3</itemTool>
-      </item>
-      <item path="Components/CameraComponent.cpp">
-        <itemTool>1</itemTool>
-      </item>
-      <item path="Components/CameraComponent.h">
-        <itemTool>3</itemTool>
-      </item>
-      <item path="Components/MeshComponent.cpp">
-        <itemTool>1</itemTool>
-      </item>
-      <item path="Components/MeshComponent.h">
-        <itemTool>3</itemTool>
-      </item>
-      <item path="Components/Pch.h">
-        <itemTool>3</itemTool>
-      </item>
-      <item path="Components/PickComponent.cpp">
-        <itemTool>1</itemTool>
-      </item>
-      <item path="Components/PickComponent.h">
-        <itemTool>3</itemTool>
-      </item>
-      <item path="Components/RenderableComponent.cpp">
-        <itemTool>1</itemTool>
-      </item>
-      <item path="Components/RenderableComponent.h">
         <itemTool>3</itemTool>
       </item>
       <item path="CubemapLoader.cpp">
@@ -604,6 +561,12 @@
         <itemTool>3</itemTool>
       </item>
       <item path="ShareLib.h">
+        <itemTool>3</itemTool>
+      </item>
+      <item path="TangentSpaceBuilder.cpp">
+        <itemTool>1</itemTool>
+      </item>
+      <item path="TangentSpaceBuilder.h">
         <itemTool>3</itemTool>
       </item>
       <item path="Texture.cpp">
