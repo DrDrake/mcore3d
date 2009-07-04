@@ -495,8 +495,6 @@ MemoryProfilerNode::MemoryProfilerNode(const char name[], CallstackNode* parent)
 	: CallstackNode(name, parent)
 {}
 
-MemoryProfilerNode::~MemoryProfilerNode() {}
-
 void MemoryProfilerNode::begin() {}
 
 MemoryProfiler::MemoryProfiler() {}
@@ -518,6 +516,12 @@ void MemoryProfiler::reset() {}
 std::string MemoryProfiler::defaultReport(size_t nameLength) const {
 	return std::string();
 }
+
+void MemoryProfiler::onThreadAttach(const char* threadName) {}
+
+bool MemoryProfiler::enable() const { return false; }
+
+void MemoryProfiler::setEnable(bool flag) { (void)flag; }
 
 }	// namespace MCD
 

@@ -29,24 +29,21 @@ OBJECTDIR=build/Release/${PLATFORM}
 # Object Files
 OBJECTFILES= \
 	${OBJECTDIR}/TextureLoaderTest.o \
-	${OBJECTDIR}/PickComponentTest.o \
+	${OBJECTDIR}/MaterialTest.o \
 	${OBJECTDIR}/Max3dsLoaderTest.o \
 	${OBJECTDIR}/ShadowMapTest.o \
+	${OBJECTDIR}/MeshTest.o \
 	${OBJECTDIR}/ASSAOTest.o \
 	${OBJECTDIR}/BasicGlWindow.o \
-	${OBJECTDIR}/FrustumTest.o \
-	${OBJECTDIR}/ChamferBox.o \
-	${OBJECTDIR}/Common.o \
-	${OBJECTDIR}/MultipleRenderTargetTest.o \
-	${OBJECTDIR}/MaterialTest.o \
-	${OBJECTDIR}/MeshTest.o \
-	${OBJECTDIR}/MeshComponentTest.o \
 	${OBJECTDIR}/DefaultResourceManager.o \
+	${OBJECTDIR}/FrustumTest.o \
 	${OBJECTDIR}/NormalMappingTest.o \
+	${OBJECTDIR}/Common.o \
 	${OBJECTDIR}/SSAOTest.o \
+	${OBJECTDIR}/MultipleRenderTargetTest.o \
 	${OBJECTDIR}/ProjectiveTextureTest.o \
-	${OBJECTDIR}/Main.o \
-	${OBJECTDIR}/RenderTargetTest.o
+	${OBJECTDIR}/RenderTargetTest.o \
+	${OBJECTDIR}/Main.o
 
 # C Compiler Flags
 CFLAGS=
@@ -78,10 +75,10 @@ ${OBJECTDIR}/TextureLoaderTest.o: TextureLoaderTest.cpp
 	${RM} $@.d
 	$(COMPILE.cc) -O2 -MMD -MP -MF $@.d -o ${OBJECTDIR}/TextureLoaderTest.o TextureLoaderTest.cpp
 
-${OBJECTDIR}/PickComponentTest.o: PickComponentTest.cpp 
+${OBJECTDIR}/MaterialTest.o: MaterialTest.cpp 
 	${MKDIR} -p ${OBJECTDIR}
 	${RM} $@.d
-	$(COMPILE.cc) -O2 -MMD -MP -MF $@.d -o ${OBJECTDIR}/PickComponentTest.o PickComponentTest.cpp
+	$(COMPILE.cc) -O2 -MMD -MP -MF $@.d -o ${OBJECTDIR}/MaterialTest.o MaterialTest.cpp
 
 ${OBJECTDIR}/Max3dsLoaderTest.o: Max3dsLoaderTest.cpp 
 	${MKDIR} -p ${OBJECTDIR}
@@ -93,6 +90,11 @@ ${OBJECTDIR}/ShadowMapTest.o: ShadowMapTest.cpp
 	${RM} $@.d
 	$(COMPILE.cc) -O2 -MMD -MP -MF $@.d -o ${OBJECTDIR}/ShadowMapTest.o ShadowMapTest.cpp
 
+${OBJECTDIR}/MeshTest.o: MeshTest.cpp 
+	${MKDIR} -p ${OBJECTDIR}
+	${RM} $@.d
+	$(COMPILE.cc) -O2 -MMD -MP -MF $@.d -o ${OBJECTDIR}/MeshTest.o MeshTest.cpp
+
 ${OBJECTDIR}/ASSAOTest.o: ASSAOTest.cpp 
 	${MKDIR} -p ${OBJECTDIR}
 	${RM} $@.d
@@ -103,70 +105,50 @@ ${OBJECTDIR}/BasicGlWindow.o: BasicGlWindow.cpp
 	${RM} $@.d
 	$(COMPILE.cc) -O2 -MMD -MP -MF $@.d -o ${OBJECTDIR}/BasicGlWindow.o BasicGlWindow.cpp
 
-${OBJECTDIR}/FrustumTest.o: FrustumTest.cpp 
-	${MKDIR} -p ${OBJECTDIR}
-	${RM} $@.d
-	$(COMPILE.cc) -O2 -MMD -MP -MF $@.d -o ${OBJECTDIR}/FrustumTest.o FrustumTest.cpp
-
-${OBJECTDIR}/ChamferBox.o: ChamferBox.cpp 
-	${MKDIR} -p ${OBJECTDIR}
-	${RM} $@.d
-	$(COMPILE.cc) -O2 -MMD -MP -MF $@.d -o ${OBJECTDIR}/ChamferBox.o ChamferBox.cpp
-
-${OBJECTDIR}/Common.o: Common.cpp 
-	${MKDIR} -p ${OBJECTDIR}
-	${RM} $@.d
-	$(COMPILE.cc) -O2 -MMD -MP -MF $@.d -o ${OBJECTDIR}/Common.o Common.cpp
-
-${OBJECTDIR}/MultipleRenderTargetTest.o: MultipleRenderTargetTest.cpp 
-	${MKDIR} -p ${OBJECTDIR}
-	${RM} $@.d
-	$(COMPILE.cc) -O2 -MMD -MP -MF $@.d -o ${OBJECTDIR}/MultipleRenderTargetTest.o MultipleRenderTargetTest.cpp
-
-${OBJECTDIR}/MaterialTest.o: MaterialTest.cpp 
-	${MKDIR} -p ${OBJECTDIR}
-	${RM} $@.d
-	$(COMPILE.cc) -O2 -MMD -MP -MF $@.d -o ${OBJECTDIR}/MaterialTest.o MaterialTest.cpp
-
-${OBJECTDIR}/MeshTest.o: MeshTest.cpp 
-	${MKDIR} -p ${OBJECTDIR}
-	${RM} $@.d
-	$(COMPILE.cc) -O2 -MMD -MP -MF $@.d -o ${OBJECTDIR}/MeshTest.o MeshTest.cpp
-
-${OBJECTDIR}/MeshComponentTest.o: MeshComponentTest.cpp 
-	${MKDIR} -p ${OBJECTDIR}
-	${RM} $@.d
-	$(COMPILE.cc) -O2 -MMD -MP -MF $@.d -o ${OBJECTDIR}/MeshComponentTest.o MeshComponentTest.cpp
-
 ${OBJECTDIR}/DefaultResourceManager.o: DefaultResourceManager.cpp 
 	${MKDIR} -p ${OBJECTDIR}
 	${RM} $@.d
 	$(COMPILE.cc) -O2 -MMD -MP -MF $@.d -o ${OBJECTDIR}/DefaultResourceManager.o DefaultResourceManager.cpp
+
+${OBJECTDIR}/FrustumTest.o: FrustumTest.cpp 
+	${MKDIR} -p ${OBJECTDIR}
+	${RM} $@.d
+	$(COMPILE.cc) -O2 -MMD -MP -MF $@.d -o ${OBJECTDIR}/FrustumTest.o FrustumTest.cpp
 
 ${OBJECTDIR}/NormalMappingTest.o: NormalMappingTest.cpp 
 	${MKDIR} -p ${OBJECTDIR}
 	${RM} $@.d
 	$(COMPILE.cc) -O2 -MMD -MP -MF $@.d -o ${OBJECTDIR}/NormalMappingTest.o NormalMappingTest.cpp
 
+${OBJECTDIR}/Common.o: Common.cpp 
+	${MKDIR} -p ${OBJECTDIR}
+	${RM} $@.d
+	$(COMPILE.cc) -O2 -MMD -MP -MF $@.d -o ${OBJECTDIR}/Common.o Common.cpp
+
 ${OBJECTDIR}/SSAOTest.o: SSAOTest.cpp 
 	${MKDIR} -p ${OBJECTDIR}
 	${RM} $@.d
 	$(COMPILE.cc) -O2 -MMD -MP -MF $@.d -o ${OBJECTDIR}/SSAOTest.o SSAOTest.cpp
+
+${OBJECTDIR}/MultipleRenderTargetTest.o: MultipleRenderTargetTest.cpp 
+	${MKDIR} -p ${OBJECTDIR}
+	${RM} $@.d
+	$(COMPILE.cc) -O2 -MMD -MP -MF $@.d -o ${OBJECTDIR}/MultipleRenderTargetTest.o MultipleRenderTargetTest.cpp
 
 ${OBJECTDIR}/ProjectiveTextureTest.o: ProjectiveTextureTest.cpp 
 	${MKDIR} -p ${OBJECTDIR}
 	${RM} $@.d
 	$(COMPILE.cc) -O2 -MMD -MP -MF $@.d -o ${OBJECTDIR}/ProjectiveTextureTest.o ProjectiveTextureTest.cpp
 
-${OBJECTDIR}/Main.o: Main.cpp 
-	${MKDIR} -p ${OBJECTDIR}
-	${RM} $@.d
-	$(COMPILE.cc) -O2 -MMD -MP -MF $@.d -o ${OBJECTDIR}/Main.o Main.cpp
-
 ${OBJECTDIR}/RenderTargetTest.o: RenderTargetTest.cpp 
 	${MKDIR} -p ${OBJECTDIR}
 	${RM} $@.d
 	$(COMPILE.cc) -O2 -MMD -MP -MF $@.d -o ${OBJECTDIR}/RenderTargetTest.o RenderTargetTest.cpp
+
+${OBJECTDIR}/Main.o: Main.cpp 
+	${MKDIR} -p ${OBJECTDIR}
+	${RM} $@.d
+	$(COMPILE.cc) -O2 -MMD -MP -MF $@.d -o ${OBJECTDIR}/Main.o Main.cpp
 
 # Subprojects
 .build-subprojects:

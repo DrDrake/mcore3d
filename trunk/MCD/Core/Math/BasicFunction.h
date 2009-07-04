@@ -3,6 +3,7 @@
 
 #include "../System/Platform.h"
 #include <math.h>
+#include <stdlib.h>	// For rand()
 
 namespace MCD {
 

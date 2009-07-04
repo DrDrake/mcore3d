@@ -30,6 +30,7 @@ OBJECTDIR=build/Release/${PLATFORM}
 OBJECTFILES= \
 	${OBJECTDIR}/System/CondVar.o \
 	${OBJECTDIR}/System/XmlParser.o \
+	${OBJECTDIR}/System/CallstackProfiler.o \
 	${OBJECTDIR}/Entity/Entity.o \
 	${OBJECTDIR}/System/Path.o \
 	${OBJECTDIR}/System/Timer.o \
@@ -53,9 +54,11 @@ OBJECTFILES= \
 	${OBJECTDIR}/System/Map.o \
 	${OBJECTDIR}/System/LinkList.o \
 	${OBJECTDIR}/Math/SrtTransform.o \
+	${OBJECTDIR}/System/MemoryProfiler.o \
 	${OBJECTDIR}/System/Utility.o \
 	${OBJECTDIR}/System/Mutex.o \
 	${OBJECTDIR}/Entity/Component.o \
+	${OBJECTDIR}/System/CpuProfiler.o \
 	${OBJECTDIR}/Math/Intersection.o
 
 # C Compiler Flags
@@ -90,6 +93,11 @@ ${OBJECTDIR}/System/XmlParser.o: System/XmlParser.cpp
 	${MKDIR} -p ${OBJECTDIR}/System
 	${RM} $@.d
 	$(COMPILE.cc) -O2 -fPIC  -MMD -MP -MF $@.d -o ${OBJECTDIR}/System/XmlParser.o System/XmlParser.cpp
+
+${OBJECTDIR}/System/CallstackProfiler.o: System/CallstackProfiler.cpp 
+	${MKDIR} -p ${OBJECTDIR}/System
+	${RM} $@.d
+	$(COMPILE.cc) -O2 -fPIC  -MMD -MP -MF $@.d -o ${OBJECTDIR}/System/CallstackProfiler.o System/CallstackProfiler.cpp
 
 ${OBJECTDIR}/Entity/Entity.o: Entity/Entity.cpp 
 	${MKDIR} -p ${OBJECTDIR}/Entity
@@ -206,6 +214,11 @@ ${OBJECTDIR}/Math/SrtTransform.o: Math/SrtTransform.cpp
 	${RM} $@.d
 	$(COMPILE.cc) -O2 -fPIC  -MMD -MP -MF $@.d -o ${OBJECTDIR}/Math/SrtTransform.o Math/SrtTransform.cpp
 
+${OBJECTDIR}/System/MemoryProfiler.o: System/MemoryProfiler.cpp 
+	${MKDIR} -p ${OBJECTDIR}/System
+	${RM} $@.d
+	$(COMPILE.cc) -O2 -fPIC  -MMD -MP -MF $@.d -o ${OBJECTDIR}/System/MemoryProfiler.o System/MemoryProfiler.cpp
+
 ${OBJECTDIR}/System/Utility.o: System/Utility.cpp 
 	${MKDIR} -p ${OBJECTDIR}/System
 	${RM} $@.d
@@ -220,6 +233,11 @@ ${OBJECTDIR}/Entity/Component.o: Entity/Component.cpp
 	${MKDIR} -p ${OBJECTDIR}/Entity
 	${RM} $@.d
 	$(COMPILE.cc) -O2 -fPIC  -MMD -MP -MF $@.d -o ${OBJECTDIR}/Entity/Component.o Entity/Component.cpp
+
+${OBJECTDIR}/System/CpuProfiler.o: System/CpuProfiler.cpp 
+	${MKDIR} -p ${OBJECTDIR}/System
+	${RM} $@.d
+	$(COMPILE.cc) -O2 -fPIC  -MMD -MP -MF $@.d -o ${OBJECTDIR}/System/CpuProfiler.o System/CpuProfiler.cpp
 
 ${OBJECTDIR}/Math/Intersection.o: Math/Intersection.cpp 
 	${MKDIR} -p ${OBJECTDIR}/Math

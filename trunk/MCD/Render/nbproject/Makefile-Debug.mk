@@ -28,22 +28,19 @@ OBJECTDIR=build/Debug/${PLATFORM}
 
 # Object Files
 OBJECTFILES= \
-	${OBJECTDIR}/Components/CameraComponent.o \
 	${OBJECTDIR}/TgaLoader.o \
 	${OBJECTDIR}/Color.o \
+	${OBJECTDIR}/ChamferBox.o \
 	${OBJECTDIR}/Shader.o \
-	${OBJECTDIR}/Components/PickComponent.o \
 	${OBJECTDIR}/BackRenderBuffer.o \
 	${OBJECTDIR}/MeshBuilder.o \
 	${OBJECTDIR}/ModelPod.o \
-	${OBJECTDIR}/Components/MeshComponent.o \
 	${OBJECTDIR}/ProjectiveTexture.o \
 	${OBJECTDIR}/RenderBuffer.o \
 	${OBJECTDIR}/Texture.o \
 	${OBJECTDIR}/ShaderLoader.o \
 	${OBJECTDIR}/RenderTarget.o \
 	${OBJECTDIR}/Max3dsLoader.o \
-	${OBJECTDIR}/Components/RenderableComponent.o \
 	${OBJECTDIR}/MaterialProperty.o \
 	${OBJECTDIR}/Camera.o \
 	${OBJECTDIR}/TextureLoaderBase.o \
@@ -59,6 +56,7 @@ OBJECTFILES= \
 	${OBJECTDIR}/BitmapLoader.o \
 	${OBJECTDIR}/TextureRenderBuffer.o \
 	${OBJECTDIR}/CubemapLoader.o \
+	${OBJECTDIR}/TangentSpaceBuilder.o \
 	${OBJECTDIR}/Material.o \
 	${OBJECTDIR}/PngLoader.o \
 	${OBJECTDIR}/ShaderProgram.o
@@ -90,11 +88,6 @@ Debug/${PLATFORM}/libRender.so: ${OBJECTFILES}
 	${MKDIR} -p Debug/${PLATFORM}
 	${LINK.cc} -shared -o Debug/${PLATFORM}/libRender.so -fPIC ${OBJECTFILES} ${LDLIBSOPTIONS} 
 
-${OBJECTDIR}/Components/CameraComponent.o: Components/CameraComponent.cpp 
-	${MKDIR} -p ${OBJECTDIR}/Components
-	${RM} $@.d
-	$(COMPILE.cc) -g -fPIC  -MMD -MP -MF $@.d -o ${OBJECTDIR}/Components/CameraComponent.o Components/CameraComponent.cpp
-
 ${OBJECTDIR}/TgaLoader.o: TgaLoader.cpp 
 	${MKDIR} -p ${OBJECTDIR}
 	${RM} $@.d
@@ -105,15 +98,15 @@ ${OBJECTDIR}/Color.o: Color.cpp
 	${RM} $@.d
 	$(COMPILE.cc) -g -fPIC  -MMD -MP -MF $@.d -o ${OBJECTDIR}/Color.o Color.cpp
 
+${OBJECTDIR}/ChamferBox.o: ChamferBox.cpp 
+	${MKDIR} -p ${OBJECTDIR}
+	${RM} $@.d
+	$(COMPILE.cc) -g -fPIC  -MMD -MP -MF $@.d -o ${OBJECTDIR}/ChamferBox.o ChamferBox.cpp
+
 ${OBJECTDIR}/Shader.o: Shader.cpp 
 	${MKDIR} -p ${OBJECTDIR}
 	${RM} $@.d
 	$(COMPILE.cc) -g -fPIC  -MMD -MP -MF $@.d -o ${OBJECTDIR}/Shader.o Shader.cpp
-
-${OBJECTDIR}/Components/PickComponent.o: Components/PickComponent.cpp 
-	${MKDIR} -p ${OBJECTDIR}/Components
-	${RM} $@.d
-	$(COMPILE.cc) -g -fPIC  -MMD -MP -MF $@.d -o ${OBJECTDIR}/Components/PickComponent.o Components/PickComponent.cpp
 
 ${OBJECTDIR}/BackRenderBuffer.o: BackRenderBuffer.cpp 
 	${MKDIR} -p ${OBJECTDIR}
@@ -129,11 +122,6 @@ ${OBJECTDIR}/ModelPod.o: ModelPod.cpp
 	${MKDIR} -p ${OBJECTDIR}
 	${RM} $@.d
 	$(COMPILE.cc) -g -fPIC  -MMD -MP -MF $@.d -o ${OBJECTDIR}/ModelPod.o ModelPod.cpp
-
-${OBJECTDIR}/Components/MeshComponent.o: Components/MeshComponent.cpp 
-	${MKDIR} -p ${OBJECTDIR}/Components
-	${RM} $@.d
-	$(COMPILE.cc) -g -fPIC  -MMD -MP -MF $@.d -o ${OBJECTDIR}/Components/MeshComponent.o Components/MeshComponent.cpp
 
 ${OBJECTDIR}/ProjectiveTexture.o: ProjectiveTexture.cpp 
 	${MKDIR} -p ${OBJECTDIR}
@@ -164,11 +152,6 @@ ${OBJECTDIR}/Max3dsLoader.o: Max3dsLoader.cpp
 	${MKDIR} -p ${OBJECTDIR}
 	${RM} $@.d
 	$(COMPILE.cc) -g -fPIC  -MMD -MP -MF $@.d -o ${OBJECTDIR}/Max3dsLoader.o Max3dsLoader.cpp
-
-${OBJECTDIR}/Components/RenderableComponent.o: Components/RenderableComponent.cpp 
-	${MKDIR} -p ${OBJECTDIR}/Components
-	${RM} $@.d
-	$(COMPILE.cc) -g -fPIC  -MMD -MP -MF $@.d -o ${OBJECTDIR}/Components/RenderableComponent.o Components/RenderableComponent.cpp
 
 ${OBJECTDIR}/MaterialProperty.o: MaterialProperty.cpp 
 	${MKDIR} -p ${OBJECTDIR}
@@ -244,6 +227,11 @@ ${OBJECTDIR}/CubemapLoader.o: CubemapLoader.cpp
 	${MKDIR} -p ${OBJECTDIR}
 	${RM} $@.d
 	$(COMPILE.cc) -g -fPIC  -MMD -MP -MF $@.d -o ${OBJECTDIR}/CubemapLoader.o CubemapLoader.cpp
+
+${OBJECTDIR}/TangentSpaceBuilder.o: TangentSpaceBuilder.cpp 
+	${MKDIR} -p ${OBJECTDIR}
+	${RM} $@.d
+	$(COMPILE.cc) -g -fPIC  -MMD -MP -MF $@.d -o ${OBJECTDIR}/TangentSpaceBuilder.o TangentSpaceBuilder.cpp
 
 ${OBJECTDIR}/Material.o: Material.cpp 
 	${MKDIR} -p ${OBJECTDIR}
