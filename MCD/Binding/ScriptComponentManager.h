@@ -33,6 +33,9 @@ public:
 	 */
 	sal_checkreturn bool doFile(const Path& filePath, bool pushRetVal);
 
+	//! Invoke all active script components' update() function.
+	void updateScriptComponents();
+
 	ScriptVM vm;
 	IFileSystem& fileSystem;
 //	ScriptOwnershipHandle scriptOwnershipHandle;

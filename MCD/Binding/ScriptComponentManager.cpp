@@ -157,6 +157,19 @@ bool ScriptComponentManager::doFile(const Path& filePath, bool retval)
 	return false;
 }
 
+void ScriptComponentManager::updateScriptComponents()
+{
+//	vm.runScript(L"updateAllScriptComponent();");
+	HSQUIRRELVM v = reinterpret_cast<HSQUIRRELVM>(vm.getImplementationHandle());
+
+	sq_pushroottable(v);
+	sq_pushstring(v, L"updateAllScriptComponent", -1);
+	sq_get(v, -2);			// Get the function from the root table
+	sq_pushroottable(v);	// 'this' (function environment object)
+	sq_call(v, 1, false, true);
+	sq_pop(v, 2);			// Pops the roottable and the function
+}
+
 void ScriptComponentManager::registerRootEntity(Entity& entity)
 {
 	HSQUIRRELVM v = reinterpret_cast<HSQUIRRELVM>(vm.getImplementationHandle());

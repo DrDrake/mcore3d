@@ -2,7 +2,10 @@
 #include "../MCD/Binding/Binding.h"
 #include "../MCD/Binding/Entity.h"
 #include "../MCD/Binding/InputComponent.h"
+#include "../MCD/Binding/ScriptComponentManager.h"
 #include "../MCD/Core/Entity/Entity.h"
+#include "../MCD/Core/System/FileSystemCollection.h"
+#include "../MCD/Core/System/RawFileSystem.h"
 #include "../MCD/Render/ChamferBox.h"
 #include "../MCD/Render/Effect.h"
 #include "../MCD/Component/Render/MeshComponent.h"
@@ -28,11 +31,15 @@ public:
 	TestWindow()
 		:
 		BasicGlWindow(L"title=MCD Launcher;width=800;height=600;fullscreen=0;FSAA=4"),
-		mResourceManager(*createDefaultFileSystem())
+		fileSystem(*createDefaultFileSystem()),
+		mResourceManager(fileSystem),
+		mScriptComponentManager(fileSystem)
 	{
 		MCD_ASSERT(TestWindow::singleton == nullptr);
-
 		TestWindow::singleton = this;
+
+		FileSystemCollection& fs = dynamic_cast<FileSystemCollection&>(fileSystem);
+		fs.addFileSystem(*(new RawFileSystem(L"")));
 
 		mRootNode = new Entity();
 		mRootNode->name = L"root";
@@ -81,6 +88,8 @@ public:
 	{
 		mResourceManager.processLoadingEvents();
 
+		mScriptComponentManager.updateScriptComponents();
+
 		BehaviourComponent::traverseEntities(mRootNode);
 		RenderableComponent::traverseEntities(mRootNode);
 	}
@@ -106,8 +115,9 @@ public:
 	Entity* mRootNode;
 	InputComponent* mInputComponent;
 
-	ScriptVM mScriptVM;
+	IFileSystem& fileSystem;
 	DefaultResourceManager mResourceManager;
+	ScriptComponentManager mScriptComponentManager;
 };	// TestWindow
 
 TestWindow* TestWindow::singleton = nullptr;
@@ -125,9 +135,11 @@ SCRIPT_CLASS_REGISTER_NAME(TestWindow, "MainWindow")
 
 void TestWindow::scriptBindingSetup()
 {
+	mScriptComponentManager.registerRootEntity(*mRootNode);
+
 	using namespace script;
 
-	VMCore* v = (VMCore*)sq_getforeignptr(HSQUIRRELVM(mScriptVM.getImplementationHandle()));
+	VMCore* v = (VMCore*)sq_getforeignptr(HSQUIRRELVM(mScriptComponentManager.vm.getImplementationHandle()));
 
 	script::RootDeclarator root(v);
 	root.declareFunction<objNoCare>(L"_getMainWindow", &TestWindow::getSinleton);
@@ -135,11 +147,13 @@ void TestWindow::scriptBindingSetup()
 	script::ClassTraits<TestWindow>::bind(v);
 
 	// Setup some global variable for easy access in script.
-	mScriptVM.runScript(
+	mScriptComponentManager.vm.runScript(
 		L"gMainWindow <- _getMainWindow();"
-		L"gRootEntity <- gMainWindow.rootEntity;"
 		L"gInput <- gMainWindow.inputComponent;"
 	);
+
+	// TODO: Let user supply a command line argument to choose the startup script
+	mScriptComponentManager.doFile(L"init.nut", true);
 }
 
 int main()

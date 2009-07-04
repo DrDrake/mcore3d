@@ -131,7 +131,7 @@ void WinMessageInputComponent::onEvent(const Event& e)
 		mKeyDownList[keyName] = 1;
 		break;
 	case Event::KeyReleased:
-		mKeyList[keyName] = 0;
+		mKeyList.erase(keyName);
 		mKeyUpList[keyName] = 1;
 		break;
 	default:
