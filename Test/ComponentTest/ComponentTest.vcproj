@@ -247,6 +247,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\ThreadedPhysicsComponentTest.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\TriMeshPhysicsComponentTest.cpp"
 				>
 			</File>

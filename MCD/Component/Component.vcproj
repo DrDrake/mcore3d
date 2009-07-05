@@ -290,6 +290,14 @@
 				RelativePath=".\Physics\RigidBodyComponent.inl"
 				>
 			</File>
+			<File
+				RelativePath=".\Physics\ThreadedDynamicWorld.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\Physics\ThreadedDynamicWorld.h"
+				>
+			</File>
 		</Filter>
 		<Filter
 			Name="Input"
