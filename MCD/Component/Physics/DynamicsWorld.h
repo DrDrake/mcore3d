@@ -19,7 +19,9 @@ public:
 	~DynamicsWorld();
 
 // Operations
-	void addRigidBody(RigidBodyComponent* rbc);
+	//! DynamicsWorld will not take over the ownership of RigidBodyComponent
+	// TODO: Add the corresponding remove function.
+	void addRigidBody(RigidBodyComponent& rbc);
 
 	void stepSimulation(float timeStep, int maxSubStep);
 

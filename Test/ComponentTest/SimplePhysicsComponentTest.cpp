@@ -60,7 +60,7 @@ TEST(SimplePhysicsComponentTest)
 				e->addComponent(rbc);
 				rbc->onAttach();
 				// Add it to the physics world..
-				mDynamicsWorld->addRigidBody(rbc);
+				mDynamicsWorld->addRigidBody(*rbc);
 
 				e.release();
 			}
@@ -87,7 +87,7 @@ TEST(SimplePhysicsComponentTest)
 				e->addComponent(rbc);
 				rbc->onAttach();
 				// Add it to the physics world..
-				mDynamicsWorld->addRigidBody(rbc);
+				mDynamicsWorld->addRigidBody(*rbc);
 
 				e.release();
 			}

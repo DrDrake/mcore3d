@@ -262,7 +262,7 @@ TEST(ThreadedPhysicsComponentTest)
 					rbc->onAttach();
 
 					// Add it to the physics world..
-					mDynamicsWorld->addRigidBody(rbc);
+					mDynamicsWorld->addRigidBody(*rbc);
 
 					e.release();
 				}
@@ -288,7 +288,7 @@ TEST(ThreadedPhysicsComponentTest)
 					rbc->onAttach();
 
 					// Add it to the physics world..
-					mDynamicsWorld->addRigidBody(rbc);
+					mDynamicsWorld->addRigidBody(*rbc);
 
 					e.release();
 				}
