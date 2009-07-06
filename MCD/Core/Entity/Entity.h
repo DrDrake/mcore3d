@@ -101,6 +101,14 @@ public:
 	 */
 	void removeComponent(const std::type_info& familyType);
 
+	/*! Create and return a deep copy of this Entity.
+		Please notice that the following will NOT be copied:
+		- userData
+		- scriptOwnershipHandle
+		- non-cloneable Components
+	*/
+	sal_notnull Entity* clone() const;
+
 	Mat44f worldTransform() const;
 
 // Attributes

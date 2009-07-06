@@ -3,6 +3,7 @@
 #include "Component.h"
 #include "../System/Log.h"
 #include "../System/Utility.h"
+#include "../System/LinkList.h"
 
 namespace MCD {
 
@@ -192,6 +193,44 @@ Entity* Entity::firstChild() {
 
 Entity* Entity::nextSibling() {
 	return mNextSlibing;
+}
+
+sal_notnull Entity* Entity::clone() const
+{
+	Entity* newEnt = new Entity();
+	
+	newEnt->enabled = enabled;
+	newEnt->name = name;
+	newEnt->localTransform = localTransform;
+
+	// copy all cloneable components
+	for(const Component* comp = components.begin(); comp != components.end(); comp = comp->next())
+	{
+		Component* newComp = comp->clone();
+
+		if(nullptr != newComp)
+			newEnt->addComponent(newComp);
+	}
+
+	// clone the children Entity
+	struct EntityHolder : public LinkListBase::Node<EntityHolder>
+	{
+		Entity* ent;
+		EntityHolder(Entity* _ent) : ent(_ent) {}
+	};
+
+	// since the childList is stored in a reverse order,
+	// we need to reverse it again before cloning
+	LinkList<EntityHolder> childList;
+
+	// we use pushFront :-)
+	for(Entity* child = mFirstChild; nullptr != child; child = child->nextSibling())
+		childList.pushFront(*(new EntityHolder(child)));
+	
+	for(EntityHolder* currChild = childList.begin(); currChild != childList.end(); currChild = currChild->next())
+		currChild->ent->clone()->asChildOf(newEnt);
+
+	return newEnt;
 }
 
 
