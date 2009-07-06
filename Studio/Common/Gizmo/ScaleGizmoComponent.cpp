@@ -18,7 +18,7 @@ public:
 	{
 		ModelPtr model = dynamic_cast<Model*>(resourceManager.load(L"Scale.3ds", true).get());
 		dynamic_cast<DefaultResourceManager&>(resourceManager).processLoadingEvents();
-		if(!model->mMeshes.empty())
+		if(!model->mMeshes.isEmpty())
 			this->mesh = model->mMeshes.front().mesh;
 	}
 

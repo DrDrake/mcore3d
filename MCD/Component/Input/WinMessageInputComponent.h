@@ -18,11 +18,6 @@ public:
 
 	sal_override ~WinMessageInputComponent();
 
-// Cloning
-	sal_override bool cloneable() const { return false; }
-
-	sal_override Component* clone() const { return nullptr; }
-
 // Operations
 	sal_override void update();
 
