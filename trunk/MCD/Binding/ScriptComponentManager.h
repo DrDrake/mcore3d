@@ -38,7 +38,6 @@ public:
 
 	ScriptVM vm;
 	IFileSystem& fileSystem;
-//	ScriptOwnershipHandle scriptOwnershipHandle;
 };	// ScriptComponentManager
 
 }	// namespace script
