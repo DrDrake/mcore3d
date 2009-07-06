@@ -233,17 +233,29 @@ TEST(Find_EntityTest)
 
 TEST(Clone_EntityTest)
 {
-	class TestComponent : public Component
+	class CloneableComponent : public Component
 	{
 	public:
 		std::string data;
 
-		TestComponent(const std::string& _data) : data(_data) {}
-		TestComponent(const TestComponent& c) : data(c.data) {}
+		CloneableComponent(const std::string& _data) : data(_data) {}
+		CloneableComponent(const CloneableComponent& c) : data(c.data) {}
 
-		sal_override const std::type_info& familyType() const {return typeid(TestComponent);}
+		sal_override const std::type_info& familyType() const {return typeid(CloneableComponent);}
 		sal_override bool cloneable() const { return true; }
-		sal_override Component* clone() const { return new TestComponent(*this); }
+		sal_override Component* clone() const { return new CloneableComponent(*this); }
+	};
+
+	class NonCloneableComponent : public Component
+	{
+	public:
+		std::string data;
+
+		NonCloneableComponent(const std::string& _data) : data(_data) {}
+
+		sal_override const std::type_info& familyType() const {return typeid(NonCloneableComponent);}
+		sal_override bool cloneable() const { return false; }
+		sal_override Component* clone() const { return nullptr; }
 	};
 
 	Entity root;
@@ -254,12 +266,13 @@ TEST(Clone_EntityTest)
 	e3->enabled = false;
 
 	// add some components
-	e1->addComponent(new TestComponent("c1"));
-	e2->addComponent(new TestComponent("c2"));
-	e3->addComponent(new TestComponent("c3"));
-	e11->addComponent(new TestComponent("c11"));
-	e12->addComponent(new TestComponent("c12"));
-	e13->addComponent(new TestComponent("c13"));
+	e1->addComponent(new CloneableComponent("c1"));
+	e1->addComponent(new NonCloneableComponent("nc1"));
+	e2->addComponent(new CloneableComponent("c2"));
+	e3->addComponent(new CloneableComponent("c3"));
+	e11->addComponent(new CloneableComponent("c11"));
+	e12->addComponent(new CloneableComponent("c12"));
+	e13->addComponent(new CloneableComponent("c13"));
 
 	// apply some transformations
 	root.localTransform.setTranslation(Vec3f(1, 2, 3));
@@ -308,10 +321,11 @@ TEST(Clone_EntityTest)
 	CHECK(v.isNearEqual(Vec3f(2, 4, 0)));
 
 	// Verify the cloned Components
-	CHECK_EQUAL(clone_e1->findComponent<TestComponent>()->data, "c1");
-	CHECK_EQUAL(clone_e2->findComponent<TestComponent>()->data, "c2");
-	CHECK_EQUAL(clone_e3->findComponent<TestComponent>()->data, "c3");
-	CHECK_EQUAL(clone_e11->findComponent<TestComponent>()->data, "c11");
-	CHECK_EQUAL(clone_e12->findComponent<TestComponent>()->data, "c12");
-	CHECK_EQUAL(clone_e13->findComponent<TestComponent>()->data, "c13");
+	CHECK(clone_e1->findComponent<NonCloneableComponent>() == nullptr);
+	CHECK_EQUAL(clone_e1->findComponent<CloneableComponent>()->data, "c1");
+	CHECK_EQUAL(clone_e2->findComponent<CloneableComponent>()->data, "c2");
+	CHECK_EQUAL(clone_e3->findComponent<CloneableComponent>()->data, "c3");
+	CHECK_EQUAL(clone_e11->findComponent<CloneableComponent>()->data, "c11");
+	CHECK_EQUAL(clone_e12->findComponent<CloneableComponent>()->data, "c12");
+	CHECK_EQUAL(clone_e13->findComponent<CloneableComponent>()->data, "c13");
 }
