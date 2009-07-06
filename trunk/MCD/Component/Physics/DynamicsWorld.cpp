@@ -89,12 +89,12 @@ Vec3f DynamicsWorld::gravity() const
 	return toMCD(mImpl->mDynamicsWorld->getGravity());
 }
 
-void DynamicsWorld::addRigidBody(RigidBodyComponent* rbc)
+void DynamicsWorld::addRigidBody(RigidBodyComponent& rbc)
 {
 	MCD_ASSUME(mImpl);
 	MCD_ASSUME(mImpl->mDynamicsWorld);
-	mImpl->mRigidBodies.push_back(rbc->mImpl->mRigidBody);
-	mImpl->mDynamicsWorld->addRigidBody(rbc->mImpl->mRigidBody);
+	mImpl->mRigidBodies.push_back(rbc.mImpl->mRigidBody);
+	mImpl->mDynamicsWorld->addRigidBody(rbc.mImpl->mRigidBody);
 }
 
 void DynamicsWorld::stepSimulation(float timeStep, int maxSubStep)

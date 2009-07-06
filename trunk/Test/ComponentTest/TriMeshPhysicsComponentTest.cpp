@@ -261,7 +261,7 @@ TEST(TriMeshPhysicsComponentTest)
 					rbc->onAttach();
 
 					// Add it to the physics world..
-					mDynamicsWorld->addRigidBody(rbc);
+					mDynamicsWorld->addRigidBody(*rbc);
 
 					e.release();
 				}
@@ -287,7 +287,7 @@ TEST(TriMeshPhysicsComponentTest)
 					rbc->onAttach();
 
 					// Add it to the physics world..
-					mDynamicsWorld->addRigidBody(rbc);
+					mDynamicsWorld->addRigidBody(*rbc);
 
 					e.release();
 				}
