@@ -230,3 +230,88 @@ TEST(Find_EntityTest)
 	createTree(root);
 	CHECK_EQUAL(e21, root.findEntityInChildren(L"e21"));
 }
+
+TEST(Clone_EntityTest)
+{
+	class TestComponent : public Component
+	{
+	public:
+		std::string data;
+
+		TestComponent(const std::string& _data) : data(_data) {}
+		TestComponent(const TestComponent& c) : data(c.data) {}
+
+		sal_override const std::type_info& familyType() const {return typeid(TestComponent);}
+		sal_override bool cloneable() const { return true; }
+		sal_override Component* clone() const { return new TestComponent(*this); }
+	};
+
+	Entity root;
+	createTree(root);
+
+	// change some attributes
+	e2->enabled = false;
+	e3->enabled = false;
+
+	// add some components
+	e1->addComponent(new TestComponent("c1"));
+	e2->addComponent(new TestComponent("c2"));
+	e3->addComponent(new TestComponent("c3"));
+	e11->addComponent(new TestComponent("c11"));
+	e12->addComponent(new TestComponent("c12"));
+	e13->addComponent(new TestComponent("c13"));
+
+	// apply some transformations
+	root.localTransform.setTranslation(Vec3f(1, 2, 3));
+	e1->localTransform = Mat44f(Mat33f::rotateXYZ(0, Mathf::cPiOver2(), 0));
+	e13->localTransform.setTranslation(Vec3f(3, 2, 1));
+
+	std::auto_ptr<Entity> clone_root(root.clone());
+	Entity* clone_e1 = clone_root->findEntityInChildren(L"e1");
+	Entity* clone_e2 = clone_root->findEntityInChildren(L"e2");
+	Entity* clone_e3 = clone_root->findEntityInChildren(L"e3");
+	Entity* clone_e11 = clone_root->findEntityInChildren(L"e11");
+	Entity* clone_e12 = clone_root->findEntityInChildren(L"e12");
+	Entity* clone_e13 = clone_root->findEntityInChildren(L"e13");
+
+	CHECK_EQUAL(clone_root->name, L"root");
+	CHECK_EQUAL(clone_e1->name, L"e1");
+	CHECK_EQUAL(clone_e2->name, L"e2");
+	CHECK_EQUAL(clone_e3->name, L"e3");
+	CHECK_EQUAL(clone_e11->name, L"e11");
+	CHECK_EQUAL(clone_e12->name, L"e12");
+	CHECK_EQUAL(clone_e13->name, L"e13");
+
+	// check the clone_root's structure
+	CHECK(!clone_root->parent());
+	CHECK(!clone_root->nextSibling());
+	CHECK_EQUAL(clone_e3, clone_root->firstChild());
+
+	CHECK_EQUAL(clone_root.get(), clone_e1->parent());
+	CHECK_EQUAL(clone_root.get(), clone_e2->parent());
+	CHECK_EQUAL(clone_root.get(), clone_e3->parent());
+
+	// The slibings are in reverse order
+	CHECK_EQUAL(clone_e2, clone_e3->nextSibling());
+	CHECK_EQUAL(clone_e1, clone_e2->nextSibling());
+	CHECK(!clone_e1->nextSibling());
+
+	// Verift the cloned attributes
+	CHECK_EQUAL(clone_e1->enabled, true);
+	CHECK_EQUAL(clone_e2->enabled, false);
+	CHECK_EQUAL(clone_e3->enabled, false);
+
+	// Verify the cloned transformations
+	Vec3f v(0.0f);
+	clone_e13->worldTransform().transformPoint(v);
+
+	CHECK(v.isNearEqual(Vec3f(2, 4, 0)));
+
+	// Verify the cloned Components
+	CHECK_EQUAL(clone_e1->findComponent<TestComponent>()->data, "c1");
+	CHECK_EQUAL(clone_e2->findComponent<TestComponent>()->data, "c2");
+	CHECK_EQUAL(clone_e3->findComponent<TestComponent>()->data, "c3");
+	CHECK_EQUAL(clone_e11->findComponent<TestComponent>()->data, "c11");
+	CHECK_EQUAL(clone_e12->findComponent<TestComponent>()->data, "c12");
+	CHECK_EQUAL(clone_e13->findComponent<TestComponent>()->data, "c13");
+}
