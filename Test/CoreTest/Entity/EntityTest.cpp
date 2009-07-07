@@ -241,10 +241,10 @@ TEST(Clone_EntityTest)
 		CloneableComponent(const std::string& _data) : data(_data) {}
 		CloneableComponent(const CloneableComponent& c) : data(c.data) {}
 
-		sal_override const std::type_info& familyType() const {return typeid(CloneableComponent);}
+		sal_override const std::type_info& familyType() const { return typeid(CloneableComponent); }
 		sal_override bool cloneable() const { return true; }
 		sal_override Component* clone() const { return new CloneableComponent(*this); }
-	};
+	};	// CloneableComponent
 
 	class NonCloneableComponent : public Component
 	{
@@ -253,19 +253,19 @@ TEST(Clone_EntityTest)
 
 		NonCloneableComponent(const std::string& _data) : data(_data) {}
 
-		sal_override const std::type_info& familyType() const {return typeid(NonCloneableComponent);}
+		sal_override const std::type_info& familyType() const { return typeid(NonCloneableComponent); }
 		sal_override bool cloneable() const { return false; }
 		sal_override Component* clone() const { return nullptr; }
-	};
+	};	// NonCloneableComponent
 
 	Entity root;
 	createTree(root);
 
-	// change some attributes
+	// Change some attributes
 	e2->enabled = false;
 	e3->enabled = false;
 
-	// add some components
+	// Add some components
 	e1->addComponent(new CloneableComponent("c1"));
 	e1->addComponent(new NonCloneableComponent("nc1"));
 	e2->addComponent(new CloneableComponent("c2"));
@@ -274,7 +274,7 @@ TEST(Clone_EntityTest)
 	e12->addComponent(new CloneableComponent("c12"));
 	e13->addComponent(new CloneableComponent("c13"));
 
-	// apply some transformations
+	// Apply some transformations
 	root.localTransform.setTranslation(Vec3f(1, 2, 3));
 	e1->localTransform = Mat44f(Mat33f::rotateXYZ(0, Mathf::cPiOver2(), 0));
 	e13->localTransform.setTranslation(Vec3f(3, 2, 1));
@@ -287,6 +287,13 @@ TEST(Clone_EntityTest)
 	Entity* clone_e12 = clone_root->findEntityInChildren(L"e12");
 	Entity* clone_e13 = clone_root->findEntityInChildren(L"e13");
 
+	{
+		bool allNotNull = clone_e1 && clone_e2 && clone_e3 && clone_e11 && clone_e12 && clone_e13;
+		CHECK(allNotNull);
+		if(!allNotNull)
+			return;
+	}
+
 	CHECK_EQUAL(clone_root->name, L"root");
 	CHECK_EQUAL(clone_e1->name, L"e1");
 	CHECK_EQUAL(clone_e2->name, L"e2");
@@ -295,7 +302,7 @@ TEST(Clone_EntityTest)
 	CHECK_EQUAL(clone_e12->name, L"e12");
 	CHECK_EQUAL(clone_e13->name, L"e13");
 
-	// check the clone_root's structure
+	// Check the clone_root's structure
 	CHECK(!clone_root->parent());
 	CHECK(!clone_root->nextSibling());
 	CHECK_EQUAL(clone_e3, clone_root->firstChild());
@@ -310,9 +317,9 @@ TEST(Clone_EntityTest)
 	CHECK(!clone_e1->nextSibling());
 
 	// Verift the cloned attributes
-	CHECK_EQUAL(clone_e1->enabled, true);
-	CHECK_EQUAL(clone_e2->enabled, false);
-	CHECK_EQUAL(clone_e3->enabled, false);
+	CHECK_EQUAL(true, clone_e1->enabled);
+	CHECK_EQUAL(false, clone_e2->enabled);
+	CHECK_EQUAL(false, clone_e3->enabled);
 
 	// Verify the cloned transformations
 	Vec3f v(0.0f);
@@ -322,10 +329,14 @@ TEST(Clone_EntityTest)
 
 	// Verify the cloned Components
 	CHECK(clone_e1->findComponent<NonCloneableComponent>() == nullptr);
-	CHECK_EQUAL(clone_e1->findComponent<CloneableComponent>()->data, "c1");
-	CHECK_EQUAL(clone_e2->findComponent<CloneableComponent>()->data, "c2");
-	CHECK_EQUAL(clone_e3->findComponent<CloneableComponent>()->data, "c3");
-	CHECK_EQUAL(clone_e11->findComponent<CloneableComponent>()->data, "c11");
-	CHECK_EQUAL(clone_e12->findComponent<CloneableComponent>()->data, "c12");
-	CHECK_EQUAL(clone_e13->findComponent<CloneableComponent>()->data, "c13");
+
+#pragma warning(push)
+#pragma warning(disable: 6011)
+	CHECK_EQUAL("c1", clone_e1->findComponent<CloneableComponent>()->data);
+	CHECK_EQUAL("c2", clone_e2->findComponent<CloneableComponent>()->data);
+	CHECK_EQUAL("c3", clone_e3->findComponent<CloneableComponent>()->data);
+	CHECK_EQUAL("c11", clone_e11->findComponent<CloneableComponent>()->data);
+	CHECK_EQUAL("c12", clone_e12->findComponent<CloneableComponent>()->data);
+	CHECK_EQUAL("c13", clone_e13->findComponent<CloneableComponent>()->data);
+#pragma warning(pop)
 }
