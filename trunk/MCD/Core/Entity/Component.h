@@ -27,7 +27,9 @@ public:
 	 */
 	virtual const std::type_info& familyType() const = 0;
 
-	//!	Returns true if this Component is cloneable during Entity::clone().
+	/*!	Returns true if this Component is cloneable.
+		Usefull for property query in editor.
+	 */
 	virtual sal_checkreturn bool cloneable() const { return false; }
 
 	/*!	Creates and returns a deep copy of this Component.

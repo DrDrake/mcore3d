@@ -3,7 +3,6 @@
 #include "Component.h"
 #include "../System/Log.h"
 #include "../System/Utility.h"
-#include "../System/LinkList.h"
 
 namespace MCD {
 
@@ -197,13 +196,13 @@ Entity* Entity::nextSibling() {
 
 sal_notnull Entity* Entity::clone() const
 {
-	Entity* newEnt = new Entity();
+	std::auto_ptr<Entity> newEnt(new Entity());
 	
 	newEnt->enabled = enabled;
 	newEnt->name = name;
 	newEnt->localTransform = localTransform;
 
-	// copy all cloneable components
+	// Copy all cloneable components
 	for(const Component* comp = components.begin(); comp != components.end(); comp = comp->next())
 	{
 		Component* newComp = comp->clone();
@@ -212,27 +211,22 @@ sal_notnull Entity* Entity::clone() const
 			newEnt->addComponent(newComp);
 	}
 
-	// clone the children Entity
-	struct EntityHolder : public LinkListBase::Node<EntityHolder>
-	{
-		Entity* ent;
-		EntityHolder(Entity* _ent) : ent(_ent) {}
-	};
-
-	// since the childList is stored in a reverse order,
-	// we need to reverse it again before cloning
-	LinkList<EntityHolder> childList;
-
-	// we use pushFront :-)
+	Entity* lastChild = nullptr;
+	// Clone the children Entity
 	for(Entity* child = mFirstChild; nullptr != child; child = child->nextSibling())
-		childList.pushFront(*(new EntityHolder(child)));
-	
-	for(EntityHolder* currChild = childList.begin(); currChild != childList.end(); currChild = currChild->next())
-		currChild->ent->clone()->asChildOf(newEnt);
+	{
+		Entity* newChild = child->clone();	// Note that we call clone() recursively
+		newChild->mParent = newEnt.get();
+		if(child == mFirstChild)
+			newEnt->mFirstChild = newChild;
+		else
+			lastChild->mNextSlibing = newChild;
 
-	return newEnt;
+		lastChild = newChild;
+	}
+
+	return newEnt.release();
 }
-
 
 EntityPreorderIterator::EntityPreorderIterator(Entity* start)
 	: mCurrent(start), mStart(start)
