@@ -18,6 +18,8 @@ return class extends ScriptComponent
 		local v = ::Vec3(0);
 //		if(::gInput.anyKey())
 //			println(position);
+		if(::gInput.getMouseButton(0))
+			println(gInput.mousePosition);
 		if(::gInput.getButtonDown("w"))
 			println("up");
 		if(::gInput.getButtonDown("a"))

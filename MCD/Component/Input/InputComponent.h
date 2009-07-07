@@ -3,10 +3,13 @@
 
 #include "../ShareLib.h"
 #include "../../Core/Entity/BehaviourComponent.h"
+#include "../../Core/Math/Vec2.h"
 
 namespace MCD {
 
 /*!	A base class for abstracting an input component.
+	Designed base on Unity 3D's input compoent, see
+	http://unity3d.com/support/documentation/ScriptReference/Input.html
  */
 class MCD_ABSTRACT_CLASS MCD_COMPONENT_API InputComponent : public BehaviourComponent
 {
@@ -33,6 +36,21 @@ public:
 
 	//!	Returns true the first frame the user releases the virtual button identified by buttonName.
 	virtual bool getButtonUp(sal_in_z const wchar_t* buttonName) const = 0;
+
+	//! The current mouse position in pixel coordinates.
+	virtual Vec2i getMousePosition() const = 0;
+
+	//! Returns whether the the given mouse button is held down.
+	virtual bool getMouseButton(int button) const = 0;
+
+	//! Returns true during the frame the user pressed the given mouse button.
+	virtual bool getMouseButtonDown(int button) const = 0;
+
+	//! Returns true during the frame the user releases the given mouse button.
+	virtual bool getMouseButtonUp(int button) const = 0;
+
+	//! Returns the keyboard input entered this frame.
+	virtual sal_out_z const wchar_t* inputString() const = 0;
 
 protected:
 	InputComponent() {}

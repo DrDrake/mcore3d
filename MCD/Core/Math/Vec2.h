@@ -107,6 +107,7 @@ public:
 	static const Vec2 c01;
 };	// Vec2
 
+typedef Vec2<int> Vec2i;
 typedef Vec2<float> Vec2f;
 
 }	// namespace MCD

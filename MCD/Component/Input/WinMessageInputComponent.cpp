@@ -54,7 +54,8 @@ bool WinMessageInputComponent::Compare::operator()(const wchar_t* lhs, const wch
 }
 
 WinMessageInputComponent::WinMessageInputComponent()
-	: mWindow(nullptr)
+	: mWindow(nullptr), mMousePosition(0),
+	  mMouseKeyBitArray(0), mMouseKeyDownBitArray(0), mMouseKeyUpBitArray(0)
 {
 }
 
@@ -68,6 +69,9 @@ void WinMessageInputComponent::update()
 {
 	mKeyDownList.clear();
 	mKeyUpList.clear();
+	mMouseKeyDownBitArray = 0;
+	mMouseKeyUpBitArray = 0;
+	mInputString.clear();
 }
 
 int WinMessageInputComponent::getAxis(sal_in_z const wchar_t* axisName) const
@@ -104,6 +108,37 @@ bool WinMessageInputComponent::getButtonUp(const wchar_t* buttonName) const
 	return mKeyUpList.find(buttonName) != mKeyUpList.end();
 }
 
+Vec2i WinMessageInputComponent::getMousePosition() const
+{
+	return mMousePosition;
+}
+
+bool WinMessageInputComponent::getMouseButton(int button) const
+{
+	if(button >= MCD::Mouse::Count)
+		return false;
+	return (mMouseKeyBitArray & (1 << button)) > 0;
+}
+
+bool WinMessageInputComponent::getMouseButtonDown(int button) const
+{
+	if(button >= MCD::Mouse::Count)
+		return false;
+	return (mMouseKeyDownBitArray & (1 << button)) > 0;
+}
+
+bool WinMessageInputComponent::getMouseButtonUp(int button) const
+{
+	if(button >= MCD::Mouse::Count)
+		return false;
+	return (mMouseKeyUpBitArray & (1 << button)) > 0;
+}
+
+const wchar_t* WinMessageInputComponent::inputString() const
+{
+	return mInputString.c_str();
+}
+
 void WinMessageInputComponent::attachTo(Window& window)
 {
 	window.addListener(*this);
@@ -133,6 +168,20 @@ void WinMessageInputComponent::onEvent(const Event& e)
 	case Event::KeyReleased:
 		mKeyList.erase(keyName);
 		mKeyUpList[keyName] = 1;
+		break;
+	case Event::MouseMoved:
+		mMousePosition = Vec2i(e.MouseMove.X, e.MouseMove.Y);
+		break;
+	case Event::MouseButtonPressed:
+		mMouseKeyBitArray |= (1 << int(e.MouseButton.Button));
+		mMouseKeyDownBitArray |= (1 << int(e.MouseButton.Button));
+		break;
+	case Event::MouseButtonReleased:
+		mMouseKeyBitArray &= ~(1 << int(e.MouseButton.Button));
+		mMouseKeyUpBitArray |= (1 << int(e.MouseButton.Button));
+		break;
+	case Event::TextEntered:
+		mInputString += e.Text.Unicode;
 		break;
 	default:
 		break;

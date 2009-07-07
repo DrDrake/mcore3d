@@ -57,6 +57,42 @@ SCRIPT_CLASS_REGISTER_NAME(Mat44f, "Mat44")
 	.wrappedMethod(L"_sub", &subMat44)
 ;}
 
+static int vec2Create(HSQUIRRELVM vm)
+{
+	script::detail::StackHandler sa(vm);
+	int nparams = sa.getParamCount();
+
+	Vec2f* v = nullptr;
+	switch(nparams) {
+	case 1:
+		v = new Vec2f(0.0f);	// Default construct
+		break;
+	case 2:
+		if(sa.getType(2) == OT_INSTANCE)	// Copy construct
+			v = new Vec2f(get(types::TypeSelect<Vec2f&>(), vm, 2));
+		else
+			v = new Vec2f(sa.getFloat(2));	// Scalar construct
+		break;
+	case 3:
+		v = new Vec2f(sa.getFloat(2), sa.getFloat(3));	// Element-wise construct
+		break;
+	default:
+		return sa.throwError(L"Vec2.constructor() wrong parameters");
+	}
+
+	// Pops the input params
+	sq_pop(vm, nparams - 1);
+	construct::pushResult(vm, v);
+	return 1;
+}
+SCRIPT_CLASS_REGISTER_NAME(Vec2f, "Vec2")
+	.enableGetset(L"Vec2")
+	.rawMethod(L"constructor", vec2Create)
+	.getset(L"x", &Vec2f::x)
+	.getset(L"y", &Vec2f::y)
+	.runScript(L"Vec2._tostring <- function(){return x+\", \"+y;}")	// Vec2.tostring()
+;}
+
 static int vec3Create(HSQUIRRELVM vm)
 {
 	script::detail::StackHandler sa(vm);
@@ -132,6 +168,7 @@ namespace MCD {
 void registerMathBinding(script::VMCore* v)
 {
 	script::ClassTraits<Mat44f>::bind(v);
+	script::ClassTraits<Vec2f>::bind(v);
 	script::ClassTraits<Vec3f>::bind(v);
 }
 
