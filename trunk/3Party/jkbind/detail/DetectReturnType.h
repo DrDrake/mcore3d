@@ -35,6 +35,11 @@ struct ReturnTypeDetector<RT (*)(P1,P2,P3)> {
 	typedef typename RmPtr<RT>::RET RET;
 };
 
+template<typename RT, typename P1,typename P2,typename P3,typename P4>
+struct ReturnTypeDetector<RT (*)(P1,P2,P3,P4)> {
+	typedef typename RmPtr<RT>::RET RET;
+};
+
 // Member function
 template<class Callee, typename RT>
 struct ReturnTypeDetector<RT (Callee::*)()> {
@@ -56,6 +61,11 @@ struct ReturnTypeDetector<RT (Callee::*)(P1,P2,P3)> {
 	typedef typename RmPtr<RT>::RET RET;
 };
 
+template<class Callee, typename RT, typename P1,typename P2,typename P3,typename P4>
+struct ReturnTypeDetector<RT (Callee::*)(P1,P2,P3,P4)> {
+	typedef typename RmPtr<RT>::RET RET;
+};
+
 // Const member function
 template<class Callee, typename RT>
 struct ReturnTypeDetector<RT (Callee::*)() const> {
@@ -74,6 +84,11 @@ struct ReturnTypeDetector<RT (Callee::*)(P1,P2) const> {
 
 template<class Callee, typename RT, typename P1,typename P2,typename P3>
 struct ReturnTypeDetector<RT (Callee::*)(P1,P2,P3) const> {
+	typedef typename RmPtr<RT>::RET RET;
+};
+
+template<class Callee, typename RT, typename P1,typename P2,typename P3,typename P4>
+struct ReturnTypeDetector<RT (Callee::*)(P1,P2,P3,P4) const> {
 	typedef typename RmPtr<RT>::RET RET;
 };
 

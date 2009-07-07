@@ -30,7 +30,7 @@ class TestWindow : public BasicGlWindow
 public:
 	TestWindow()
 		:
-		BasicGlWindow(L"title=MCD Launcher;width=800;height=600;fullscreen=0;FSAA=4"),
+		BasicGlWindow(L"title=Launcher;width=800;height=600;fullscreen=0;FSAA=4"),
 		fileSystem(*createDefaultFileSystem()),
 		mResourceManager(fileSystem),
 		mScriptComponentManager(fileSystem)

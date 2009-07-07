@@ -33,6 +33,16 @@ public:
 
 	sal_override bool getButtonUp(sal_in_z const wchar_t* buttonName) const;
 
+	sal_override Vec2i getMousePosition() const;
+
+	sal_override bool getMouseButton(int button) const;
+
+	sal_override bool getMouseButtonDown(int button) const;
+
+	sal_override bool getMouseButtonUp(int button) const;
+
+	sal_override sal_out_z const wchar_t* inputString() const;
+
 	/*!	Attach the WinMessageInputComponent to an existing Window.
 		\note Make sure the window object keep alive during the life time of this.
 	 */
@@ -52,6 +62,11 @@ protected:
 	EventList mKeyList;
 	EventList mKeyDownList;
 	EventList mKeyUpList;
+	Vec2i mMousePosition;
+	int8_t mMouseKeyBitArray;	//!< 8 bit can store 8 mouse key
+	int8_t mMouseKeyDownBitArray;
+	int8_t mMouseKeyUpBitArray;
+	std::wstring mInputString;
 	Window* mWindow;
 };	// WinMessageInputComponent
 

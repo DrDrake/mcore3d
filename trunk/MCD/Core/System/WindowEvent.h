@@ -119,7 +119,7 @@ struct Mouse
 {
 	enum Button
 	{
-		Left,
+		Left = 0,
 		Right,
 		Middle,
 		Button1,

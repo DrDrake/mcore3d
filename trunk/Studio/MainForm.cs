@@ -26,7 +26,8 @@ namespace Studio
 				toolStripButtonRotate.Enabled = !value;
 				toolStripButtonScale.Enabled = !value;
 				toolStripButtonTranslate.Enabled = !value;
-				currentRenderControl.gizmoEnabled = !value;
+				if(currentRenderControl != null)
+					currentRenderControl.gizmoEnabled = !value;
 			}
 		}
 

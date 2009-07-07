@@ -14,6 +14,8 @@
 #include "Path.h"
 #include "Platform.h"
 #include "RawFileSystem.h"
+#include "Resource.h"
+#include "ResourceManager.h"
 #include "StaticAssert.h"
 #include "StrUtility.h"
 #include "Thread.h"
