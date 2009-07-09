@@ -262,6 +262,14 @@ void Mat44<T>::setTranslation(const Vec3<T>& translation)
 }
 
 template<typename T>
+void Mat44<T>::translate(const Vec3<T>& deltaTranslation)
+{
+	m03 += deltaTranslation.x;
+	m13 += deltaTranslation.y;
+	m23 += deltaTranslation.z;
+}
+
+template<typename T>
 Vec3<T> Mat44<T>::scale() const
 {
 	// Reference: http://www.gamedev.net/community/forums/topic.asp?topic_id=491578

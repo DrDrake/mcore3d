@@ -297,6 +297,10 @@
 			RelativePath=".\ScriptComponentTestInit.nut"
 			>
 		</File>
+		<File
+			RelativePath=".\ScriptInheritCppClassTest.nut"
+			>
+		</File>
 	</Files>
 	<Globals>
 	</Globals>

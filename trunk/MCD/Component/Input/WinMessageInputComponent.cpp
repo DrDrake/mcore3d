@@ -1,9 +1,10 @@
 #include "Pch.h"
 #include "WinMessageInputComponent.h"
 #include "../../Core/Entity/Entity.h"
+#include "../../Core/System/StrUtility.h"
+#include "../../Core/System/Utility.h"
 #include "../../Core/System/Window.h"
 #include "../../Core/System/WindowEvent.h"
-#include "../../Core/System/Utility.h"
 
 namespace MCD {
 
@@ -55,7 +56,8 @@ bool WinMessageInputComponent::Compare::operator()(const wchar_t* lhs, const wch
 
 WinMessageInputComponent::WinMessageInputComponent()
 	: mWindow(nullptr), mMousePosition(0),
-	  mMouseKeyBitArray(0), mMouseKeyDownBitArray(0), mMouseKeyUpBitArray(0)
+	  mMouseKeyBitArray(0), mMouseKeyDownBitArray(0), mMouseKeyUpBitArray(0),
+	  mMouseAxis(0), mMouseAxisRaw(0)
 {
 }
 
@@ -72,10 +74,27 @@ void WinMessageInputComponent::update()
 	mMouseKeyDownBitArray = 0;
 	mMouseKeyUpBitArray = 0;
 	mInputString.clear();
+
+	// Perform axis smoothing
+	// TODO: Make the smoothing framerate independent
+	mMouseAxis = mMouseAxisRaw * 0.5f + mMouseAxis * 0.5f;
 }
 
-int WinMessageInputComponent::getAxis(sal_in_z const wchar_t* axisName) const
+float WinMessageInputComponent::getAxis(sal_in_z const wchar_t* axisName) const
 {
+	if(wstrCaseCmp(axisName, L"mouse x") == 0)
+		return mMouseAxis.x;
+	if(wstrCaseCmp(axisName, L"mouse y") == 0)
+		return mMouseAxis.y;
+	return 0;
+}
+
+float WinMessageInputComponent::getAxisRaw(sal_in_z const wchar_t* axisName) const
+{
+	if(wstrCaseCmp(axisName, L"mouse x") == 0)
+		return mMouseAxisRaw.x;
+	if(wstrCaseCmp(axisName, L"mouse y") == 0)
+		return mMouseAxisRaw.y;
 	return 0;
 }
 
@@ -170,8 +189,11 @@ void WinMessageInputComponent::onEvent(const Event& e)
 		mKeyUpList[keyName] = 1;
 		break;
 	case Event::MouseMoved:
-		mMousePosition = Vec2i(e.MouseMove.X, e.MouseMove.Y);
-		break;
+		{	Vec2i newPos(e.MouseMove.X, e.MouseMove.Y);
+			mMouseAxisRaw.x += (newPos.x - mMousePosition.x);
+			mMouseAxisRaw.y += (newPos.y - mMousePosition.y);
+			mMousePosition = newPos;
+		} break;
 	case Event::MouseButtonPressed:
 		mMouseKeyBitArray |= (1 << int(e.MouseButton.Button));
 		mMouseKeyDownBitArray |= (1 << int(e.MouseButton.Button));

@@ -20,7 +20,9 @@ public:
 
 		\note Always return 0 if the axisName is not found.
 	 */
-	virtual int getAxis(sal_in_z const wchar_t* axisName) const = 0;
+	virtual float getAxis(sal_in_z const wchar_t* axisName) const = 0;
+
+	virtual float getAxisRaw(sal_in_z const wchar_t* axisName) const = 0;
 
 	//! Is any key or mouse button currently held down?
 	virtual bool anyKey() const = 0;

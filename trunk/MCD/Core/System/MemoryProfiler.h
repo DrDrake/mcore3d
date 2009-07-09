@@ -58,7 +58,7 @@ class MCD_CORE_API MemoryProfiler : public CallstackProfiler
 {
 	MemoryProfiler();
 
-	~MemoryProfiler();
+	sal_override ~MemoryProfiler();
 
 public:
 	//! Handly class for scope profilinig

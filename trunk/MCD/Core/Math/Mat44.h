@@ -29,6 +29,8 @@ struct Mat44TupleUnion {
 };	// Mat44TupleUnion
 
 /*!	A 4 by 4 matrix.
+	If the matrix is used as a transformation matrix, it is assumed to be
+	a SRT transform, that is: Scaling, Rotation and Translation.
  */
 template<typename T>
 class Mat44 : public MathTuple<T, 4*4, Mat44<T>, Mat44TupleUnion<T> >
@@ -119,6 +121,9 @@ public:
 
 	//!	Sets the translation transformation part of the matrix.
 	void setTranslation(const Vec3<T>& translation);
+
+	//! Apply a delta translation to the current translation.
+	void translate(const Vec3<T>& deltaTranslation);
 
 	/*!	Decompose the scale part from the matrix.
 		Assuming the matrix is composed as (S * R * T).
