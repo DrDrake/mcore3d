@@ -6,6 +6,7 @@ function println(str) {
 function createDestroyTest()
 {
 	local foo = Foo();
+	assert(foo instanceof Foo);
 }
 
 function referenceTest()

@@ -2,6 +2,7 @@
 #define __MCD_CORE_SYSTEM_CPUPROFILER__
 
 #include "CallstackProfiler.h"
+#include "Mutex.h"
 #include "Timer.h"
 
 namespace MCD {
@@ -35,18 +36,26 @@ public:
 	TimeInterval inclusiveTime;
 
 	Timer timer;
+
+	mutable RecursiveMutex mutex;
 };	// CpuProfilerNode
 
 /*!	
  */
 class MCD_CORE_API CpuProfiler : public CallstackProfiler
 {
-public:
 	CpuProfiler();
 
+	sal_override ~CpuProfiler();
+
+public:
 	static CpuProfiler& singleton();
 
 // Operations
+	sal_override void begin(sal_in_z const char name[]);
+
+	sal_override void end();
+
 	void setRootNode(sal_maybenull CallstackNode* root);
 
 	/*!	Inform the profiler a new iteration begins.
@@ -64,6 +73,9 @@ public:
 
 	std::string defaultReport(size_t nameLength=100) const;
 
+	//! Internal used function, invoked when there is a new thread.
+	void* onThreadAttach(sal_in_z const char* threadName);
+
 // Attributes
 	//! Frame per second.
 	float fps() const;
@@ -71,6 +83,10 @@ public:
 	size_t frameCount;	//! Number of frame elasped since last reset
 	TimeInterval timeSinceLastReset;
 	Timer timer;
+
+protected:
+	struct TlsList;
+	TlsList* mTlsList;
 };	// CpuProfiler
 
 }	// namespace MCD

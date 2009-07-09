@@ -13,3 +13,6 @@ local b = Bar();
 
 f.addBar(b);
 assert(f.getBar() == b);
+
+assert(f instanceof Foo);
+assert(f instanceof DerivedFoo);

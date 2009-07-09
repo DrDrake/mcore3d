@@ -21,7 +21,9 @@ public:
 // Operations
 	sal_override void update();
 
-	sal_override int getAxis(sal_in_z const wchar_t* axisName) const;
+	sal_override float getAxis(sal_in_z const wchar_t* axisName) const;
+
+	sal_override float getAxisRaw(sal_in_z const wchar_t* axisName) const;
 
 	sal_override bool anyKey() const;
 
@@ -67,6 +69,7 @@ protected:
 	int8_t mMouseKeyDownBitArray;
 	int8_t mMouseKeyUpBitArray;
 	std::wstring mInputString;
+	Vec2f mMouseAxis, mMouseAxisRaw;
 	Window* mWindow;
 };	// WinMessageInputComponent
 
