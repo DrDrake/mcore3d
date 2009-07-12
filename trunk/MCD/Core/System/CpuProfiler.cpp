@@ -1,68 +1,9 @@
 #include "Pch.h"
 #include "CpuProfiler.h"
-#include "PlatformInclude.h"
-#include "PtrVector.h"
 #include <iomanip>
 #include <sstream>
 
 namespace MCD {
-
-namespace {
-
-//! A structure that group all global varaibles into a thread local storage.
-struct TlsStruct
-{
-	TlsStruct(const char* name) :
-		recurseCount(0),
-		// We want every thread have it's own copy of thread name, therefore strdup() is used
-		mCurrentNode(nullptr), threadName(::strdup(name))
-	{}
-
-	~TlsStruct() {
-		::free((void*)threadName);
-	}
-
-	sal_notnull CpuProfilerNode* currentNode()
-	{
-		// If node is null, means a new thread is started
-		if(!mCurrentNode) {
-			CallstackNode* rootNode = CpuProfiler::singleton().getRootNode();
-			MCD_ASSUME(rootNode);
-			recurseCount++;
-			mCurrentNode = static_cast<CpuProfilerNode*>(
-				rootNode->getChildByName(threadName)
-			);
-			recurseCount--;
-		}
-
-		return mCurrentNode;
-	}
-
-	CpuProfilerNode* setCurrentNode(CallstackNode* node) {
-		return mCurrentNode = static_cast<CpuProfilerNode*>(node);
-	}
-
-	size_t recurseCount;
-	const char* threadName;
-
-protected:
-	CpuProfilerNode* mCurrentNode;
-};	// TlsStruct
-
-DWORD gTlsIndex = 0;
-
-TlsStruct* getTlsStruct()
-{
-	MCD_ASSUME(gTlsIndex != 0);
-	return reinterpret_cast<TlsStruct*>(TlsGetValue(gTlsIndex));
-}
-
-}	// namespace
-
-struct CpuProfiler::TlsList : public ptr_vector<TlsStruct>
-{
-	Mutex mutex;
-};	// TlsList
 
 CpuProfilerNode::CpuProfilerNode(const char name[], CallstackNode* parent)
 	: CallstackNode(name, parent), callCount(0), inclusiveTime(uint64_t(0))
@@ -88,19 +29,27 @@ CallstackNode* CpuProfilerNode::createNode(const char name[], CallstackNode* par
 	return new CpuProfilerNode(name, parent);
 }
 
+// Note that it takes a reference of a pointer
+static void resetHelper(CallstackNode*& node)
+{
+	if(!node)
+		return;
+
+	// Free the node if it's not ever called during the last reset()
+	if(static_cast<CpuProfilerNode*>(node)->callCount == 0) {
+		delete node;
+		node = nullptr;
+	} else
+		static_cast<CpuProfilerNode*>(node)->reset();
+}
+
 void CpuProfilerNode::reset()
 {
-	CpuProfilerNode* n1, *n2;
-	{	// Race with CpuProfiler::begin(), CpuProfiler::end()
-		ScopeRecursiveLock lock(mutex);
-		callCount = 0;
-		inclusiveTime.set(uint64_t(0));
-		n1 = static_cast<CpuProfilerNode*>(firstChild);
-		n2 = static_cast<CpuProfilerNode*>(sibling);
-	}
+	callCount = 0;
+	inclusiveTime.set(uint64_t(0));
 
-	if(n1) n1->reset();
-	if(n2) n2->reset();
+	resetHelper(firstChild);
+	resetHelper(sibling);
 }
 
 float CpuProfilerNode::selfTime() const
@@ -118,72 +67,13 @@ float CpuProfilerNode::selfTime() const
 
 CpuProfiler::CpuProfiler()
 {
-	mTlsList = new TlsList();
-	gTlsIndex = TlsAlloc();
-	setRootNode(new CpuProfilerNode("root"));
-
-	onThreadAttach("main thread");
-}
-
-CpuProfiler::~CpuProfiler()
-{
-	MCD_ASSERT(gTlsIndex != 0);
-	TlsSetValue(gTlsIndex, nullptr);
-	TlsFree(gTlsIndex);
-	gTlsIndex = 0;
-
-	// We assume that all thread will be stopped before CpuProfiler is destroyed
-	delete mTlsList;
+	setRootNode(new CpuProfilerNode("main root"));
 }
 
 CpuProfiler& CpuProfiler::singleton()
 {
 	static CpuProfiler instance;
 	return instance;
-}
-
-void CpuProfiler::begin(const char name[])
-{
-	if(!enable)
-		return;
-
-	TlsStruct* tls = getTlsStruct();
-	if(!tls)
-		tls = reinterpret_cast<TlsStruct*>(onThreadAttach("worker thread"));
-	CpuProfilerNode* node = tls->currentNode();
-
-	// Race with CpuProfiler::reset(), CpuProfiler::defaultReport()
-	ScopeRecursiveLock lock(node->mutex);
-
-	if(name != node->name) {
-		node = static_cast<CpuProfilerNode*>(node->getChildByName(name));
-
-		// Only alter the current node, if the child node is not recursing
-		if(node->recursionCount == 0)
-			tls->setCurrentNode(node);
-	}
-
-	node->begin();
-	node->recursionCount++;
-}
-
-void CpuProfiler::end()
-{
-	if(!enable)
-		return;
-
-	TlsStruct* tls = getTlsStruct();
-	CpuProfilerNode* node = tls->currentNode();
-
-	// Race with CpuProfiler::reset(), CpuProfiler::defaultReport()
-	ScopeRecursiveLock lock(node->mutex);
-
-	node->recursionCount--;
-	node->end();
-
-	// Only back to the parent when the current node is not inside a recursive function
-	if(node->recursionCount == 0)
-		tls->setCurrentNode(node->parent);
 }
 
 void CpuProfiler::setRootNode(CallstackNode* root)
@@ -237,50 +127,31 @@ std::string CpuProfiler::defaultReport(size_t nameLength) const
 
 	CpuProfilerNode* n = static_cast<CpuProfilerNode*>(mRootNode);
 
-	do
+	while((n = static_cast<CpuProfilerNode*>(CallstackNode::traverse(n))) != nullptr)
 	{
-		// Race with CpuProfiler::begin() and CpuProfiler::end()
-		ScopeRecursiveLock lock(n->mutex);
-
 		float percent = 100 * fps();
 		float inclusiveTime = float(n->inclusiveTime.asSecond());
 
 		// Skip node that have total time less than 1%
-//		if(inclusiveTime / frameCount * percent < 1)
-//			continue;
+		if(inclusiveTime / frameCount * percent < 1)
+			continue;
 
 		float selfTime = n->selfTime();
 
 		size_t callDepth = n->callDepth();
-		ss	<< setw(callDepth) << ""
+		ss	<< setw(callDepth - 1) << ""
 			<< setw(nameLength - callDepth + 1) << n->name
 			<< setprecision(3)
 			<< setw(percentWidth)	<< (inclusiveTime / frameCount * percent)
 			<< setw(percentWidth)	<< (selfTime / frameCount * percent)
-			<< setw(floatWidth)		<< (n->callCount == 0 ? 0 : inclusiveTime / n->callCount)
-			<< setw(floatWidth)		<< (n->callCount == 0 ? 0 : selfTime / n->callCount)
+			<< setw(floatWidth)		<< (inclusiveTime / n->callCount)
+			<< setw(floatWidth)		<< (selfTime / n->callCount)
 			<< setprecision(2)
 			<< setw(floatWidth-2)	<< (float(n->callCount) / frameCount)
 			<< endl;
-
-		n = static_cast<CpuProfilerNode*>(CallstackNode::traverse(n));
-	} while(n != nullptr);
-
-	return ss.str();
-}
-
-void* CpuProfiler::onThreadAttach(const char* threadName)
-{
-	TlsStruct* tls = new TlsStruct(threadName);
-
-	{
-		ScopeLock lock(mTlsList->mutex);
-		mTlsList->push_back(tls);
 	}
 
-	TlsSetValue(gTlsIndex, tls);
-
-	return tls;
+	return ss.str();
 }
 
 }	// namespace MCD
