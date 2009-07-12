@@ -355,6 +355,10 @@
 					>
 				</File>
 				<File
+					RelativePath=".\System\ThreadedCpuProfiler.h"
+					>
+				</File>
+				<File
 					RelativePath=".\System\ThreadPool.h"
 					>
 				</File>
@@ -489,6 +493,10 @@
 				</File>
 				<File
 					RelativePath=".\System\Thread.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\System\ThreadedCpuProfiler.cpp"
 					>
 				</File>
 				<File

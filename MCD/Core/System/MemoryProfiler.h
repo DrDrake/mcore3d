@@ -6,9 +6,9 @@
 
 namespace MCD {
 
-/*!	
-	There is also a very good article about memory allocator, profiling etc
-	http://entland.homelinux.com/blog/2008/08/19/practical-efficient-memory-management/
+/*!	A call stack node that store memory usage information for individual function.
+	Used internally by MemoryProfiler, but user may find it usefull if they need
+	to generate customized report.
  */
 class MCD_CORE_API MemoryProfilerNode : public CallstackNode
 {
@@ -21,7 +21,7 @@ public:
 	sal_override CallstackNode* createNode(sal_in_z const char name[], sal_maybenull CallstackNode* parent);
 
 	/*!	Reset the collected statistic including all child nodes.
-		For saving memory, those call stack node with zero allocatino count will be deleted.
+		This function is usefull for a CPU profiler but not so meaningfull for a memory profiler.
 	 */
 	void reset();
 
@@ -50,9 +50,14 @@ public:
 	mutable RecursiveMutex mutex;
 };	// MemoryProfilerNode
 
-/*!	The memory profiler will hook the various memory routine in
+/*!	A memory profiler.
+
+	The memory profiler will hook the various memory routine in
 	the C runtime to do profiling, and so multiple instacne of it
 	is not allowed.
+
+	There is also a very good article about memory allocator, profiling etc
+	http://entland.homelinux.com/blog/2008/08/19/practical-efficient-memory-management/
  */
 class MCD_CORE_API MemoryProfiler : public CallstackProfiler
 {
@@ -98,8 +103,8 @@ public:
 
 	std::string defaultReport(size_t nameLength=100) const;
 
-	//! Internal used function, invoked when there is a new thread.
-	void onThreadAttach(sal_in_z const char* threadName);
+	//!	Call this if you want to give your thread a meaningful name.
+	void onThreadAttach(sal_in_z const char* threadName = "worker thread");
 
 // Attributes
 	bool enable() const;

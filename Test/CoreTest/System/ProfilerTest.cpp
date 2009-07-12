@@ -5,40 +5,6 @@ using namespace MCD;
 
 namespace {
 
-namespace CpuProfilerTest {
-
-CpuProfiler profiler;
-
-class ScopeProfiler : Noncopyable
-{
-public:
-	ScopeProfiler(const char name[]) {
-		profiler.begin(name);
-	}
-
-	~ScopeProfiler() {
-		profiler.end();
-	}
-
-private:
-	ScopeProfiler(const ScopeProfiler& rhs);
-	ScopeProfiler& operator=(const ScopeProfiler& rhs);
-};	// ScopeProfiler
-
-void funA();
-void funB();
-void funC();
-void funD();
-
-// Recurse itself
-void recurse(int count);
-
-/*!	Recurse between two functions:
-	recurse1 -> recurse2 -> recurse1 -> recurse2 ...
- */
-void recurse1(int count);
-void recurse2(int count);
-
 /*
 	A
 	|--B
@@ -50,67 +16,98 @@ void recurse2(int count);
 	|     |--recurse2(10)
 	|--D
  */
-void funA() {
-	ScopeProfiler profile("funA");
-	funB();
-	funD();
-}
+template<class S>
+class FunctionTester
+{
+public:
+	void funA() {
+		S profile("funA");
+		funB();
+		funD();
+	}
 
-void funB() {
-	ScopeProfiler profile("funB");
-	funC();
-	recurse1(10);
-}
+	void funB() {
+		S profile("funB");
+		funC();
+		recurse1(10);
+	}
 
-void funC() {
-	ScopeProfiler profile("funC");
-	recurse(10);
-	funD();
-}
+	void funC() {
+		S profile("funC");
+		recurse(10);
+		funD();
+	}
 
-void funD() {
-	ScopeProfiler profile("funD");
-}
+	void funD() {
+		S profile("funD");
+	}
 
-void recurse(int count) {
-	ScopeProfiler profile("recurse");
-	if(count > 0)
-		recurse(count - 1);
-}
+	// Recurse itself
+	void recurse(int count) {
+		S profile("recurse");
+		if(count > 0)
+			recurse(count - 1);
+	}
 
-void recurse1(int count) {
-	ScopeProfiler profile("recurse1");
-	recurse2(count);
-}
+	/*!	Recurse between two functions:
+		recurse1 -> recurse2 -> recurse1 -> recurse2 ...
+	 */
+	void recurse1(int count) {
+		S profile("recurse1");
+		recurse2(count);
+	}
 
-void recurse2(int count) {
-	ScopeProfiler profile("recurse2");
-	if(count > 0)
-		recurse1(count - 1);
-}
+	void recurse2(int count) {
+		S profile("recurse2");
+		if(count > 0)
+			recurse1(count - 1);
+	}
+};	// FunctionTester
+
+namespace CpuProfilerTest {
+
+//CpuProfiler profiler;
+
+class ScopeProfiler : Noncopyable
+{
+public:
+	ScopeProfiler(const char name[]) {
+		CpuProfiler::singleton().begin(name);
+	}
+
+	~ScopeProfiler() {
+		CpuProfiler::singleton().end();
+	}
+
+private:
+	ScopeProfiler(const ScopeProfiler& rhs);
+	ScopeProfiler& operator=(const ScopeProfiler& rhs);
+};	// ScopeProfiler
 
 }	// namespace CpuProfilerTest
 
 }	// namespace
 
-TEST(ProfilerTest)
+TEST(CpuProfilerTest)
 {
 	using namespace CpuProfilerTest;
 
-	profiler.setRootNode(new CpuProfilerNode("root"));
-	profiler.enable = true;
-	profiler.reset();
+//	profiler.setRootNode(new CpuProfilerNode("root"));
+	CpuProfiler::singleton().enable = true;
+	CpuProfiler::singleton().reset();
+
+	FunctionTester<ScopeProfiler> tester;
 
 	for(int i=0; i<10; ++i) {
-		funA();
-		profiler.nextFrame();
+		tester.funA();
+		CpuProfiler::singleton().nextFrame();
 	}
 
-	std::string s = profiler.defaultReport(20);
+	std::string s = CpuProfiler::singleton().defaultReport(20);
 	CHECK(!s.empty());
 	std::cout << s << std::endl;
 
-	CHECK(profiler.getRootNode()->firstChild);
+/*	CHECK(profiler.getRootNode()->firstChild);
 	CHECK(!profiler.getRootNode()->sibling);
 
 	CallstackNode* a = profiler.getRootNode()->firstChild;
@@ -151,7 +148,88 @@ TEST(ProfilerTest)
 	CallstackNode* r2 = r1->firstChild;
 	CHECK(!r2->firstChild);
 	CHECK(!r2->sibling);
-	CHECK_EQUAL(std::string("recurse2"), r2->name);
+	CHECK_EQUAL(std::string("recurse2"), r2->name);*/
+}
+
+#include "../../../MCD/Core/System/Thread.h"
+#include "../../../MCD/Core/System/ThreadedCpuProfiler.h"
+
+namespace {
+
+namespace ThreadedCpuProfilerTest {
+
+class ScopeProfiler : Noncopyable
+{
+public:
+	ScopeProfiler(const char name[]) {
+		ThreadedCpuProfiler::singleton().begin(name);
+	}
+
+	~ScopeProfiler() {
+		ThreadedCpuProfiler::singleton().end();
+	}
+
+private:
+	ScopeProfiler(const ScopeProfiler& rhs);
+	ScopeProfiler& operator=(const ScopeProfiler& rhs);
+};	// ScopeProfiler
+
+//! Keep active until the thread inform it to quit
+class LoopRunnable : public MCD::Thread::IRunnable
+{
+public:
+	typedef FunctionTester<ScopeProfiler> Tester;
+
+	LoopRunnable(Tester& tester) : mTester(tester), mLoopCount(0) {}
+
+protected:
+	sal_override void run(Thread& thread) throw()
+	{
+		ThreadedCpuProfiler::singleton().onThreadAttach("my worker thread");
+
+		while(thread.keepRun()) {
+			ScopeProfiler profile("MyRunnable::run");
+			mTester.funA();
+			++mLoopCount;
+		}
+	}
+
+private:
+	Tester& mTester;
+	size_t mLoopCount;
+};	// LoopRunnable
+
+}	// namespace ThreadedCpuProfilerTest
+
+}	// namespace
+
+TEST(ThreadedCpuProfilerTest)
+{
+	using namespace ThreadedCpuProfilerTest;
+
+	ThreadedCpuProfiler& profiler = ThreadedCpuProfiler::singleton();
+	profiler.enable = true;
+//	profiler.reset();
+	FunctionTester<ScopeProfiler> tester;
+
+	LoopRunnable runnable1(tester), runnable2(tester);
+	Thread thread1(runnable1, false);
+	Thread thread2(runnable2, false);
+
+	// Give up the CPU time for the other 2 thread to run
+	mSleep(0);
+
+	for(int i=0; i<1000; ++i) {
+		tester.funA();
+		profiler.nextFrame();
+	}
+
+	thread1.wait();
+	thread2.wait();
+
+	std::string s = profiler.defaultReport(20);
+	CHECK(!s.empty());
+	std::cout << s << std::endl;
 }
 
 #include "../../../MCD/Core/System/MemoryProfiler.h"
@@ -283,8 +361,6 @@ TEST(MemoryProfilerTest)
 	CHECK(!s.empty());
 	std::cout << s << std::endl;
 }
-
-#include "../../../MCD/Core/System/Thread.h"
 
 namespace {
 

@@ -479,7 +479,7 @@ BOOL APIENTRY DllMain(HINSTANCE hModule, DWORD dwReason, PVOID lpReserved)
 		MemoryProfiler::singleton().onThreadAttach("main thread");
 		break;
 	case DLL_THREAD_ATTACH:
-		MemoryProfiler::singleton().onThreadAttach("worker thread");
+		MemoryProfiler::singleton().onThreadAttach();
 		break;
 	default:
 		break;
