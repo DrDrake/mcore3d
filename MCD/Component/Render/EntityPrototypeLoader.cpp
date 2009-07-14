@@ -1,11 +1,17 @@
 #include "Pch.h"
 #include "EntityPrototypeLoader.h"
+#include "EntityPrototype.h"
+#include "MeshComponent.h"
 #include "../../Core/System/MemoryProfiler.h"
+#include "../../Core/System/StrUtility.h"
 #include "../../Render/Max3dsLoader.h"
 #include "../../Render/Model.h"
+#include "../../Render/Effect.h"
+#include "../../Render/Mesh.h"
 
 namespace MCD {
 
+/*! EntityPrototypeLoader */
 class EntityPrototypeLoader::Impl
 {
 public:
@@ -42,7 +48,33 @@ IResourceLoader::LoadingState EntityPrototypeLoader::Impl::load(std::istream* is
 
 void EntityPrototypeLoader::Impl::commit(Resource& resource)
 {
-	return m3dsLoader.commit(resource);
+	Model model(resource.fileId());
+	m3dsLoader.commit(model);
+
+	// convert Model to EntityPrototype
+	EntityPrototype& ep = dynamic_cast<EntityPrototype&>(resource);
+
+	Entity* entRoot = new Entity;
+
+	for(Model::MeshAndMaterial* meshAndMat = model.mMeshes.begin()
+		; meshAndMat != model.mMeshes.end()
+		; meshAndMat = meshAndMat->next()
+		)
+	{
+		std::auto_ptr<Entity> e(new Entity);
+		e->asChildOf(entRoot);
+		e->localTransform = Mat44f::cIdentity;
+
+		MeshComponent* c = new MeshComponent;
+		c->mesh = meshAndMat->mesh;
+		c->effect = new Effect(Path(L""));
+		c->effect->material.reset(meshAndMat->material->clone());
+		e->addComponent(c);
+
+		e.release();
+	}
+
+	ep.mEntity.reset(entRoot);
 }
 
 IResourceLoader::LoadingState EntityPrototypeLoader::Impl::getLoadingState() const
@@ -78,6 +110,19 @@ IResourceLoader::LoadingState EntityPrototypeLoader::getLoadingState() const
 {
 	MCD_ASSUME(mImpl != nullptr);
 	return mImpl->getLoadingState();
+}
+
+/*! EntityPrototypeLoaderFactory */
+ResourcePtr EntityPrototypeLoaderFactory::createResource(const Path& fileId)
+{
+	if(wstrCaseCmp(fileId.getExtension().c_str(), L"3ds") == 0)
+		return new EntityPrototype(fileId);
+	return nullptr;
+}
+
+IResourceLoader* EntityPrototypeLoaderFactory::createLoader()
+{
+	return new EntityPrototypeLoader;
 }
 
 }	// namespace MCD
