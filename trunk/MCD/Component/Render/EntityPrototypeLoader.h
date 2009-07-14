@@ -4,6 +4,7 @@
 #include "../ShareLib.h"
 #include "../../Core/System/NonCopyable.h"
 #include "../../Core/System/ResourceLoader.h"
+#include "../../Core/System/ResourceManager.h"
 
 namespace MCD {
 
@@ -39,6 +40,13 @@ private:
 	Impl* mImpl;
 
 };	// EntityPrototypeLoader
+
+class MCD_COMPONENT_API EntityPrototypeLoaderFactory : public ResourceManager::IFactory
+{
+public:
+	sal_override ResourcePtr createResource(const Path& fileId);
+	sal_override IResourceLoader* createLoader();
+};	// EntityPrototypeLoaderFactory
 
 }	// namespace MCD
 
