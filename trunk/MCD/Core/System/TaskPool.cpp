@@ -91,11 +91,9 @@ public:
 
 TaskPool::TaskPool()
 {
-	std::auto_ptr<TaskQueue> queue(new TaskQueue());
-	mTaskQueue = queue.get();
+	mTaskQueue = new TaskQueue();
 	std::auto_ptr<Runnable> runnable(new Runnable(*mTaskQueue));
 	mThreadPool = new ThreadPool(*runnable, true);
-	queue.release();
 	runnable.release();
 }
 

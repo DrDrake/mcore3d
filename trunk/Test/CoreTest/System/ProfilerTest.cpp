@@ -66,17 +66,17 @@ public:
 
 namespace CpuProfilerTest {
 
-//CpuProfiler profiler;
+CpuProfiler profiler;
 
 class ScopeProfiler : Noncopyable
 {
 public:
 	ScopeProfiler(const char name[]) {
-		CpuProfiler::singleton().begin(name);
+		profiler.begin(name);
 	}
 
 	~ScopeProfiler() {
-		CpuProfiler::singleton().end();
+		profiler.end();
 	}
 
 private:
@@ -92,22 +92,22 @@ TEST(CpuProfilerTest)
 {
 	using namespace CpuProfilerTest;
 
-//	profiler.setRootNode(new CpuProfilerNode("root"));
-	CpuProfiler::singleton().enable = true;
-	CpuProfiler::singleton().reset();
+	profiler.setRootNode(new CpuProfilerNode("root"));
+	profiler.enable = true;
+	profiler.reset();
 
 	FunctionTester<ScopeProfiler> tester;
 
 	for(int i=0; i<10; ++i) {
 		tester.funA();
-		CpuProfiler::singleton().nextFrame();
+		profiler.nextFrame();
 	}
 
-	std::string s = CpuProfiler::singleton().defaultReport(20);
+	std::string s = profiler.defaultReport(20);
 	CHECK(!s.empty());
 	std::cout << s << std::endl;
 
-/*	CHECK(profiler.getRootNode()->firstChild);
+	CHECK(profiler.getRootNode()->firstChild);
 	CHECK(!profiler.getRootNode()->sibling);
 
 	CallstackNode* a = profiler.getRootNode()->firstChild;
@@ -148,7 +148,7 @@ TEST(CpuProfilerTest)
 	CallstackNode* r2 = r1->firstChild;
 	CHECK(!r2->firstChild);
 	CHECK(!r2->sibling);
-	CHECK_EQUAL(std::string("recurse2"), r2->name);*/
+	CHECK_EQUAL(std::string("recurse2"), r2->name);
 }
 
 #include "../../../MCD/Core/System/Thread.h"

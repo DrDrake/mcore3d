@@ -112,7 +112,8 @@ TEST(RemoveAll_LinkListTest)
 		std::auto_ptr<FooNode> ptr(new FooNode(i));
 		list.pushBack(*ptr);
 		CHECK_EQUAL(&list, ptr->getList());
-		vec.push_back(ptr.release());
+		vec.push_back(ptr.get());
+		ptr.release();
 	}
 
 	list.removeAll();
