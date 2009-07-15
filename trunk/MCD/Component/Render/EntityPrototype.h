@@ -21,6 +21,8 @@ public:
 
 };	// EntityPrototype
 
+typedef IntrusivePtr<EntityPrototype> EntityPrototypePtr;
+
 }	// namespace MCD
 
 #endif	// __MCD_COMPONENT_RENDER_ENTITYPROTOTYPE__

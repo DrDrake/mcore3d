@@ -8,6 +8,7 @@
 #include "../../MCD/Core/System/Resource.h"
 #include "../../MCD/Core/System/ResourceLoader.h"
 #include "../../MCD/Core/System/ZipFileSystem.h"
+#include "../../MCD/Component/Render/EntityPrototypeLoader.h"
 
 using namespace MCD;
 
@@ -94,10 +95,11 @@ void DefaultResourceManager::setupFactories()
 	addFactory(new DdsLoaderFactory);
 	addFactory(new EffectLoaderFactory(*this));
 	addFactory(new JpegLoaderFactory);
-	addFactory(new Max3dsLoaderFactory(*this));
+	//addFactory(new Max3dsLoaderFactory(*this));
 	addFactory(new PodLoaderFactory(*this));
 	addFactory(new PixelShaderLoaderFactory);
 	addFactory(new PngLoaderFactory);
 	addFactory(new TgaLoaderFactory);
 	addFactory(new VertexShaderLoaderFactory);
+	addFactory(new EntityPrototypeLoaderFactory);
 }
