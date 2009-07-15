@@ -9,14 +9,15 @@ TEST(LogTest)
 	{	// Just simple start and stop
 		std::auto_ptr<std::wstringstream> s(new std::wstringstream);
 		Log::start(s.get());
+		s.release();
 		Log::setLevel(Log::Level(Log::Error | Log::Warn | Log::Info));
 		Log::stop();
-		s.release();
 	}
 
 	{	// Try to write a message
 		std::auto_ptr<std::wstringstream> s(new std::wstringstream);
 		Log::start(s.get());
+		s.release();
 
 		const wchar_t msg[] = L"Log testing";
 		const wchar_t expected[] = L"Info:  Log testing\n";
@@ -24,12 +25,12 @@ TEST(LogTest)
 		CHECK_EQUAL(expected, s->str());
 
 		Log::stop();
-		s.release();
 	}
 
 	{	// Try to write formatted message
 		std::auto_ptr<std::wstringstream> s(new std::wstringstream);
 		Log::start(s.get());
+		s.release();
 
 		const wchar_t expected[] = L"Info:  Formatting 123, 456.789!!!\n";
 		// Note that the format specification for "%s" and %S" are different
@@ -44,6 +45,5 @@ TEST(LogTest)
 		CHECK_EQUAL(expected, s->str());
 
 		Log::stop();
-		s.release();
 	}
 }

@@ -62,7 +62,6 @@ void EntityPrototypeLoader::Impl::commit(Resource& resource)
 		)
 	{
 		std::auto_ptr<Entity> e(new Entity);
-		e->asChildOf(entRoot);
 		e->localTransform = Mat44f::cIdentity;
 
 		MeshComponent* c = new MeshComponent;
@@ -71,6 +70,7 @@ void EntityPrototypeLoader::Impl::commit(Resource& resource)
 		c->effect->material.reset(meshAndMat->material->clone());
 		e->addComponent(c);
 
+		e->asChildOf(entRoot);
 		e.release();
 	}
 

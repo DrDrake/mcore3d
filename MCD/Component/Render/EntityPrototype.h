@@ -3,7 +3,6 @@
 
 #include "../ShareLib.h"
 #include "../../Core/System/Resource.h"
-#include "../../Core/System/Noncopyable.h"
 #include "../../Core/Entity/Entity.h"
 
 namespace MCD {
