@@ -79,6 +79,9 @@ MCD_INLINE2 Target polymorphic_downcast(Source& x) {
 #	define MCD_COUNTOF(x) (sizeof(x) / sizeof(typeof(x[0])))
 #endif
 
+//! Swap the memory content pointed by the 2 pointers.
+MCD_CORE_API void swapMemory(sal_inout_bcount(size) void* p1, sal_inout_bcount(size) void* p2, size_t size);
+
 }	// namespace MCD
 
 #endif	// __MCD_CORE_SYSTEM_UTILITY__

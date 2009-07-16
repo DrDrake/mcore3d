@@ -15,10 +15,10 @@ MeshComponent::~MeshComponent() {}
 
 Component* MeshComponent::clone() const
 {
-    MeshComponent* newComponent = new MeshComponent;
-    newComponent->mesh = mesh;
-    newComponent->effect = effect;
-	return newComponent;
+	MeshComponent* cloned = new MeshComponent;
+	cloned->mesh = this->mesh;
+	cloned->effect = this->effect;
+	return cloned;
 }
 
 void MeshComponent::render()

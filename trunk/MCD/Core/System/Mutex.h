@@ -14,7 +14,8 @@ namespace MCD {
 class MCD_CORE_API Mutex : Noncopyable
 {
 public:
-	Mutex();
+	//!	Construct a mutex with an optional spin count.
+	Mutex(int spinCount = -1);
 	~Mutex();
 
 	void lock();
@@ -23,7 +24,7 @@ public:
 
 #ifndef NDEBUG
 	//! For use in debug mode to assert that the mutex is locked.
-	bool isLocked() { return _locked; }
+	bool isLocked() const { return _locked; }
 #endif
 
 #ifdef MCD_WIN32
@@ -54,10 +55,21 @@ public:
 	void unlock();
 	bool tryLock();
 
+#ifndef NDEBUG
+	//! For use in debug mode to assert that the mutex is locked.
+	bool isLocked() const;
+	int lockCount() const;
+#endif
+
 #ifdef MCD_WIN32
 	char mMutex[24];
 #else
 	pthread_mutex_t mMutex;
+#endif
+
+#ifndef NDEBUG
+protected:
+	int _lockCount;
 #endif
 };	// RecursiveMutex
 

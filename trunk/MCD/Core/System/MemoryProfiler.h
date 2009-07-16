@@ -104,7 +104,7 @@ public:
 	std::string defaultReport(size_t nameLength=100) const;
 
 	//!	Call this if you want to give your thread a meaningful name.
-	void onThreadAttach(sal_in_z const char* threadName = "worker thread");
+	void* onThreadAttach(sal_in_z const char* threadName = "worker thread");
 
 // Attributes
 	bool enable() const;
