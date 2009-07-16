@@ -101,5 +101,5 @@ void DefaultResourceManager::setupFactories()
 	addFactory(new PngLoaderFactory);
 	addFactory(new TgaLoaderFactory);
 	addFactory(new VertexShaderLoaderFactory);
-	addFactory(new EntityPrototypeLoaderFactory);
+	addFactory(new EntityPrototypeLoaderFactory(*this));
 }

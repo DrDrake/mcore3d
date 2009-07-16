@@ -66,7 +66,7 @@ void EntityPrototypeLoader::Impl::commit(Resource& resource)
 
 		MeshComponent* c = new MeshComponent;
 		c->mesh = meshAndMat->mesh;
-		c->effect = new Effect(Path(L""));
+        c->effect = new Effect(Path(L""));
 		c->effect->material.reset(meshAndMat->material->clone());
 		e->addComponent(c);
 
@@ -113,6 +113,11 @@ IResourceLoader::LoadingState EntityPrototypeLoader::getLoadingState() const
 }
 
 /*! EntityPrototypeLoaderFactory */
+EntityPrototypeLoaderFactory::EntityPrototypeLoaderFactory(IResourceManager& resourceManager)
+    : mResourceManager(resourceManager)
+{
+}
+
 ResourcePtr EntityPrototypeLoaderFactory::createResource(const Path& fileId)
 {
 	if(wstrCaseCmp(fileId.getExtension().c_str(), L"3ds") == 0)
@@ -122,7 +127,7 @@ ResourcePtr EntityPrototypeLoaderFactory::createResource(const Path& fileId)
 
 IResourceLoader* EntityPrototypeLoaderFactory::createLoader()
 {
-	return new EntityPrototypeLoader;
+	return new EntityPrototypeLoader(&mResourceManager);
 }
 
 }	// namespace MCD
