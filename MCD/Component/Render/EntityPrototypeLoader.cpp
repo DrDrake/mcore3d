@@ -118,7 +118,7 @@ EntityPrototypeLoaderFactory::EntityPrototypeLoaderFactory(IResourceManager& res
 {
 }
 
-ResourcePtr EntityPrototypeLoaderFactory::createResource(const Path& fileId)
+ResourcePtr EntityPrototypeLoaderFactory::createResource(const Path& fileId, const wchar_t* args)
 {
 	if(wstrCaseCmp(fileId.getExtension().c_str(), L"3ds") == 0)
 		return new EntityPrototype(fileId);

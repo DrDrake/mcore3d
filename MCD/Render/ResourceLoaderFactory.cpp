@@ -19,7 +19,7 @@
 
 namespace MCD {
 
-ResourcePtr BitmapLoaderFactory::createResource(const Path& fileId)
+ResourcePtr BitmapLoaderFactory::createResource(const Path& fileId, const wchar_t* args)
 {
 	if(wstrCaseCmp(fileId.getExtension().c_str(), L"bmp") == 0)
 		return new Texture(fileId);
@@ -31,7 +31,7 @@ IResourceLoader* BitmapLoaderFactory::createLoader()
 	return new BitmapLoader;
 }
 
-ResourcePtr CubemapLoaderFactory::createResource(const Path& fileId)
+ResourcePtr CubemapLoaderFactory::createResource(const Path& fileId, const wchar_t* args)
 {
 	Path p(fileId);
     
@@ -47,7 +47,7 @@ IResourceLoader* CubemapLoaderFactory::createLoader()
 	return new CubemapLoader;
 }
 
-ResourcePtr DdsLoaderFactory::createResource(const Path& fileId)
+ResourcePtr DdsLoaderFactory::createResource(const Path& fileId, const wchar_t* args)
 {
 	if(wstrCaseCmp(fileId.getExtension().c_str(), L"dds") == 0)
 		return new Texture(fileId);
@@ -59,7 +59,7 @@ IResourceLoader* DdsLoaderFactory::createLoader()
 	return new DdsLoader;
 }
 
-ResourcePtr JpegLoaderFactory::createResource(const Path& fileId)
+ResourcePtr JpegLoaderFactory::createResource(const Path& fileId, const wchar_t* args)
 {
 	std::wstring extStr = fileId.getExtension();
 	const wchar_t* ext = extStr.c_str();
@@ -73,7 +73,7 @@ IResourceLoader* JpegLoaderFactory::createLoader()
 	return new JpegLoader;
 }
 
-ResourcePtr PngLoaderFactory::createResource(const Path& fileId)
+ResourcePtr PngLoaderFactory::createResource(const Path& fileId, const wchar_t* args)
 {
 	if(wstrCaseCmp(fileId.getExtension().c_str(), L"png") == 0)
 		return new Texture(fileId);
@@ -85,7 +85,7 @@ IResourceLoader* PngLoaderFactory::createLoader()
 	return new PngLoader;
 }
 
-ResourcePtr TgaLoaderFactory::createResource(const Path& fileId)
+ResourcePtr TgaLoaderFactory::createResource(const Path& fileId, const wchar_t* args)
 {
 	if(wstrCaseCmp(fileId.getExtension().c_str(), L"tga") == 0)
 		return new Texture(fileId);
@@ -97,7 +97,7 @@ IResourceLoader* TgaLoaderFactory::createLoader()
 	return new TgaLoader;
 }
 
-ResourcePtr VertexShaderLoaderFactory::createResource(const Path& fileId)
+ResourcePtr VertexShaderLoaderFactory::createResource(const Path& fileId, const wchar_t* args)
 {
 	ShaderPtr shader;
 	if(wstrCaseCmp(fileId.getExtension().c_str(), L"glvs") == 0)
@@ -110,7 +110,7 @@ IResourceLoader* VertexShaderLoaderFactory::createLoader()
 	return new ShaderLoader(GL_VERTEX_SHADER);
 }
 
-ResourcePtr PixelShaderLoaderFactory::createResource(const Path& fileId)
+ResourcePtr PixelShaderLoaderFactory::createResource(const Path& fileId, const wchar_t* args)
 {
 	ShaderPtr shader;
 	if(wstrCaseCmp(fileId.getExtension().c_str(), L"glps") == 0)
@@ -128,7 +128,7 @@ Max3dsLoaderFactory::Max3dsLoaderFactory(IResourceManager& resourceManager)
 {
 }
 
-ResourcePtr Max3dsLoaderFactory::createResource(const Path& fileId)
+ResourcePtr Max3dsLoaderFactory::createResource(const Path& fileId, const wchar_t* args)
 {
 	if(wstrCaseCmp(fileId.getExtension().c_str(), L"3ds") == 0)
 		return new Model(fileId);
@@ -145,7 +145,7 @@ PodLoaderFactory::PodLoaderFactory(IResourceManager& resourceManager)
 {
 }
 
-ResourcePtr PodLoaderFactory::createResource(const Path& fileId)
+ResourcePtr PodLoaderFactory::createResource(const Path& fileId, const wchar_t* args)
 {
 	if(wstrCaseCmp(fileId.getExtension().c_str(), L"pod") == 0)
 		return new ModelPod(fileId);
@@ -162,7 +162,7 @@ EffectLoaderFactory::EffectLoaderFactory(IResourceManager& resourceManager)
 {
 }
 
-ResourcePtr EffectLoaderFactory::createResource(const Path& fileId)
+ResourcePtr EffectLoaderFactory::createResource(const Path& fileId, const wchar_t* args)
 {
 	// We try to detect the fileId haveing a ".fx.xml" or not.
 	if(wstrCaseCmp(fileId.getExtension().c_str(), L"xml") != 0)
