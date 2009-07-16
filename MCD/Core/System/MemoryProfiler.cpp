@@ -8,6 +8,12 @@
 #include <iomanip>
 #include <sstream>
 
+/*!	When working with run-time analysis tools like Intel Parallel Studio, the use of dll main
+	make cause false positive, therefore we hace a macro to turn on and off the dll main.
+	Use dll main has the benift of capturing more memory allocation.
+ */
+#define USE_DLL_MAIN 1
+
 using namespace MCD;
 
 namespace {
@@ -76,6 +82,12 @@ MyHeapFree orgHeapFree;
 
 DWORD gTlsIndex = 0;
 
+/*!	A global mutex to protect the footer information of each allocation.
+	NOTE: Intel parallel studio not able to detect the creation of a static mutex,
+	therefore we need to delay it's construction until MemoryProfiler constructor.
+ */
+Mutex* gFooterMutex = nullptr;
+
 TlsStruct* getTlsStruct()
 {
 	MCD_ASSUME(gTlsIndex != 0);
@@ -113,22 +125,25 @@ void* commonAlloc(sal_in TlsStruct* tls, sal_in void* p, size_t nBytes, int delt
 
 	MemoryProfilerNode* node = tls->currentNode();
 
-	// Race with MemoryProfiler::reset(), MemoryProfiler::defaultReport() and myHeapFree()
-	ScopeRecursiveLock lock(node->mutex);
-	if(deltaBytes == 0) {
-		tls->currentAlloc.count++;
-		tls->accumAlloc.count++;
-		node->exclusiveCount++;
-		node->countSinceLastReset++;
+	{	// Race with MemoryProfiler::reset(), MemoryProfiler::defaultReport() and myHeapFree()
+		ScopeRecursiveLock lock(node->mutex);
+		if(deltaBytes == 0) {
+			tls->currentAlloc.count++;
+			tls->accumAlloc.count++;
+			node->exclusiveCount++;
+			node->countSinceLastReset++;
+		}
+		tls->currentAlloc.bytes += bytes;
+		tls->accumAlloc.bytes += bytes;
+		node->exclusiveBytes += bytes;
 	}
-	tls->currentAlloc.bytes += bytes;
-	tls->accumAlloc.bytes += bytes;
-	node->exclusiveBytes += bytes;
 
-	MyMemFooter* footer = reinterpret_cast<MyMemFooter*>(nBytes + (char*)p);
-	footer->node = node;
-	footer->fourCC1 = MyMemFooter::cFourCC1;
-	footer->fourCC2 = MyMemFooter::cFourCC2;
+	{	ScopeLock lock(*gFooterMutex);
+		MyMemFooter* footer = reinterpret_cast<MyMemFooter*>(nBytes + (char*)p);
+		footer->node = node;
+		footer->fourCC1 = MyMemFooter::cFourCC1;
+		footer->fourCC2 = MyMemFooter::cFourCC2;
+	}
 
 	return p;
 }
@@ -178,7 +193,9 @@ LPVOID WINAPI myHeapFree(__in HANDLE hHeap, __in DWORD dwFlags, __deref LPVOID l
 	{
 		size_t size = HeapSize(hHeap, dwFlags, lpMem) - sizeof(MyMemFooter);
 
+		ScopeLock lock1(*gFooterMutex);
 		MyMemFooter* footer = (MyMemFooter*)(((char*)lpMem) + size);
+
 		if(footer->fourCC1 == MyMemFooter::cFourCC1 && footer->fourCC2 == MyMemFooter::cFourCC2)
 		{
 			MCD::MemoryProfilerNode* node = reinterpret_cast<MCD::MemoryProfilerNode*>(footer->node);
@@ -186,11 +203,14 @@ LPVOID WINAPI myHeapFree(__in HANDLE hHeap, __in DWORD dwFlags, __deref LPVOID l
 
 			// Race with MemoryProfiler::reset(), MemoryProfiler::defaultReport() and all other
 			// operations if lpMem is allocated from thread A but now free in thread B (this thread)
-			ScopeRecursiveLock lock(node->mutex);
-			node->exclusiveCount--;
-			node->exclusiveBytes -= size;
-			tls->currentAlloc.count--;
-			tls->currentAlloc.bytes -= size;
+			{	ScopeUnlock unlock(*gFooterMutex);	// Prevent lock hierarchy.
+				ScopeRecursiveLock lock2(node->mutex);
+
+				node->exclusiveCount--;
+				node->exclusiveBytes -= size;
+				tls->currentAlloc.count--;
+				tls->currentAlloc.bytes -= size;
+			}
 		}
 	}
 
@@ -215,6 +235,7 @@ MemoryProfilerNode::MemoryProfilerNode(const char name[], CallstackNode* parent)
 
 void MemoryProfilerNode::begin()
 {
+	MCD_ASSERT(mutex.isLocked());
 	++callCount;
 }
 
@@ -271,6 +292,13 @@ MemoryProfiler::MemoryProfiler()
 	setRootNode(new MemoryProfilerNode("root"));
 
 	setEnable(enable());
+
+	// The locking of gFooterMutex should be a very short period, so use a spin lock.
+	gFooterMutex = new Mutex(200);
+
+#if !USE_DLL_MAIN
+	onThreadAttach("main thread");
+#endif	// !USE_DLL_MAIN
 }
 
 MemoryProfiler::~MemoryProfiler()
@@ -285,6 +313,7 @@ MemoryProfiler::~MemoryProfiler()
 	TlsFree(gTlsIndex);
 	gTlsIndex = 0;
 
+	delete gFooterMutex;
 	delete mTlsList;
 }
 
@@ -300,13 +329,17 @@ void MemoryProfiler::begin(const char name[])
 		return;
 
 	TlsStruct* tls = getTlsStruct();
+	if(!tls)
+		tls = reinterpret_cast<TlsStruct*>(onThreadAttach());
 	MemoryProfilerNode* node = tls->currentNode();
 
 	// Race with MemoryProfiler::reset(), MemoryProfiler::defaultReport() and myHeapFree()
-	ScopeRecursiveLock lock(node->mutex);
+	node->mutex.lock();
 
 	if(name != node->name) {
+		node->mutex.unlock();
 		node = static_cast<MemoryProfilerNode*>(node->getChildByName(name));
+		node->mutex.lock();
 
 		// Only alter the current node, if the child node is not recursing
 		if(node->recursionCount == 0)
@@ -315,6 +348,7 @@ void MemoryProfiler::begin(const char name[])
 
 	node->begin();
 	node->recursionCount++;
+	node->mutex.unlock();
 }
 
 void MemoryProfiler::end()
@@ -425,7 +459,7 @@ std::string MemoryProfiler::defaultReport(size_t nameLength) const
 	return ss.str();
 }
 
-void MemoryProfiler::onThreadAttach(const char* threadName)
+void* MemoryProfiler::onThreadAttach(const char* threadName)
 {
 	// NOTE: Allocation of TlsStruct didn't trigger commonAlloc() since we
 	// haven't called TlsSetValue() yet and so myHeapAlloc will by pass it.
@@ -438,6 +472,8 @@ void MemoryProfiler::onThreadAttach(const char* threadName)
 	}
 
 	TlsSetValue(gTlsIndex, tls);
+
+	return tls;
 }
 
 bool MemoryProfiler::enable() const
@@ -471,6 +507,7 @@ void MemoryProfiler::setEnable(bool flag)
 
 }	// namespace MCD
 
+#if USE_DLL_MAIN
 BOOL APIENTRY DllMain(HINSTANCE hModule, DWORD dwReason, PVOID lpReserved)
 {
 	switch(dwReason) {
@@ -486,6 +523,7 @@ BOOL APIENTRY DllMain(HINSTANCE hModule, DWORD dwReason, PVOID lpReserved)
 	}
 	return TRUE;
 }
+#endif	// USE_DLL_MAIN
 
 #else
 

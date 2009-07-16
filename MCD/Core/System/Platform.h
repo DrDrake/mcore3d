@@ -155,6 +155,7 @@ using namespace vc_attributes;
 #define sal_in_ecount_opt(count) __in_ecount_opt(count)		// (input, not null, with count as the element count) (may be null)
 #define sal_out_ecount(count) __out_ecount(count)			// (output, not null, with count as the element count)
 #define sal_out_ecount_opt(count) __out_ecount_opt(count)	// (output, not null, with count as the element count) (may be null)
+#define sal_inout_bcount(count) __inout_bcount(count)		// (input/output, not null, with count as the byte count)
 
 #if _MSC_VER >= 1500
 #   define sal_format_guard _In_z_ _Printf_format_string_

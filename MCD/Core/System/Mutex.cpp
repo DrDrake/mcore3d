@@ -7,14 +7,16 @@ namespace MCD {
 
 #ifdef MCD_WIN32
 
-Mutex::Mutex()
+Mutex::Mutex(int spinCount)
 {
 	// If you see this static assert, please check the size of the CRITICAL_SECTION
 	MCD_STATIC_ASSERT(sizeof(mMutex) == sizeof(CRITICAL_SECTION));
 #ifndef NDEBUG
 	_locked = false;
 #endif
-	::InitializeCriticalSection((LPCRITICAL_SECTION)&mMutex);
+	// Fallback to InitializeCriticalSection if InitializeCriticalSectionAndSpinCount didn't success
+	if(spinCount < 0 || !::InitializeCriticalSectionAndSpinCount((LPCRITICAL_SECTION)&mMutex, spinCount))
+		::InitializeCriticalSection((LPCRITICAL_SECTION)&mMutex);
 }
 
 Mutex::~Mutex()
@@ -59,35 +61,65 @@ bool Mutex::tryLock()
 RecursiveMutex::RecursiveMutex()
 {
 	::InitializeCriticalSection((LPCRITICAL_SECTION)&mMutex);
+#ifndef NDEBUG
+	_lockCount = 0;
+#endif
 }
 
 RecursiveMutex::~RecursiveMutex()
 {
+#ifndef NDEBUG
+	MCD_ASSERT(!isLocked() && "Delete before unlock");
+#endif
 	::DeleteCriticalSection((LPCRITICAL_SECTION)&mMutex);
 }
 
 void RecursiveMutex::lock()
 {
 	::EnterCriticalSection((LPCRITICAL_SECTION)&mMutex);
+#ifndef NDEBUG
+	++_lockCount;
+#endif
 }
 
 void RecursiveMutex::unlock()
 {
+#ifndef NDEBUG
+	--_lockCount;
+#endif
 	::LeaveCriticalSection((LPCRITICAL_SECTION)&mMutex);
 }
 
 bool RecursiveMutex::tryLock()
 {
+#ifndef NDEBUG
+	bool locked = ::TryEnterCriticalSection((LPCRITICAL_SECTION)&mMutex) > 0;
+	if(locked) ++_lockCount;
+	return locked;
+#else
 	return ::TryEnterCriticalSection((LPCRITICAL_SECTION)&mMutex) > 0;
+#endif
 }
+
+#ifndef NDEBUG
+bool RecursiveMutex::isLocked() const
+{
+	return _lockCount > 0;
+}
+int RecursiveMutex::lockCount() const
+{
+	return _lockCount;
+}
+#endif
 
 #else
 
-Mutex::Mutex()
+Mutex::Mutex(int spinCount)
 {
 #ifndef NDEBUG
 	_locked = false;
 #endif
+	// TODO: Spin count is not yet supported.
 	::pthread_mutex_init(&mMutex, nullptr);
 }
 

@@ -29,4 +29,15 @@ void throwSystemErrorMessage(
 	throw std::runtime_error(msg);
 }
 
+void swapMemory(void* p1, void* p2, size_t size)
+{
+	char* _p1 = (char*)p1;
+	char* _p2 = (char*)p2;
+	for(size_t i=0; i<size; ++i, ++_p1, ++_p2) {
+		char tmp = *_p1;
+		*_p1 = *_p2;
+		*_p2 = tmp;
+	}
+}
+
 }	// namespace MCD

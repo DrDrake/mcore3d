@@ -14,7 +14,7 @@ class Entity;
 /*!	Base class for everything attached to Entity.
  */
 class MCD_ABSTRACT_CLASS MCD_CORE_API Component :
-	public WeakPtrTarget, public LinkListBase::Node<Component>
+	public WeakPtrTarget, public LinkListBase::Node<Component>, Noncopyable
 {
 public:
 	Component();

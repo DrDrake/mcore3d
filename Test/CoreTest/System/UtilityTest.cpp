@@ -93,3 +93,16 @@ TEST(CountofTest)
 //		CHECK_EQUAL(123u, MCD_COUNTOF(a));
 	}
 }
+
+TEST(SwapMemoryTest)
+{
+	float data1[] = { 1.23f, 4.56f };
+	float data2[] = { 7.89f, 9.87f };
+
+	swapMemory(data1, data2, sizeof(data1));
+
+	CHECK_EQUAL(7.89f, data1[0]);
+	CHECK_EQUAL(9.87f, data1[1]);
+	CHECK_EQUAL(1.23f, data2[0]);
+	CHECK_EQUAL(4.56f, data2[1]);
+}
