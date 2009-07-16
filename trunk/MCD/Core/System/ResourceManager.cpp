@@ -215,13 +215,13 @@ public:
 		mFactories.clear();
 	}
 
-	ResourcePtr createResource(const Path& fileId, IResourceLoader*& loader)
+	ResourcePtr createResource(const Path& fileId, const wchar_t* args, IResourceLoader*& loader)
 	{
 		MCD_ASSERT(mEventQueue.mMutex.isLocked());
 		ResourcePtr ret;
 		// Loop for all factories to see which one will response to the fileId
 		for(Factories::iterator i=mFactories.begin(); i!=mFactories.end(); ++i) {
-			ret = i->createResource(fileId);
+			ret = i->createResource(fileId, args);
 			if(ret != nullptr) {
 				loader = i->createLoader();
 				return ret;
@@ -257,7 +257,7 @@ ResourceManager::~ResourceManager()
 	delete mImpl;
 }
 
-ResourcePtr ResourceManager::load(const Path& fileId, bool block, uint priority)
+ResourcePtr ResourceManager::load(const Path& fileId, bool block, uint priority, const wchar_t* args)
 {
 	MCD_ASSUME(mImpl != nullptr);
 	ScopeLock lock(mImpl->mEventQueue.mMutex);
@@ -285,7 +285,7 @@ ResourcePtr ResourceManager::load(const Path& fileId, bool block, uint priority)
 	}
 
 	IResourceLoader* loader = nullptr;
-	ResourcePtr resource = mImpl->createResource(fileId, loader);
+	ResourcePtr resource = mImpl->createResource(fileId, args, loader);
 	if(!resource || !loader) {
 		delete loader;
 		return nullptr;
@@ -303,7 +303,7 @@ ResourcePtr ResourceManager::load(const Path& fileId, bool block, uint priority)
 	return resource;
 }
 
-ResourcePtr ResourceManager::reload(const Path& fileId, bool block, uint priority)
+ResourcePtr ResourceManager::reload(const Path& fileId, bool block, uint priority, const wchar_t* args)
 {
 	MCD_ASSUME(mImpl != nullptr);
 	ScopeLock lock(mImpl->mEventQueue.mMutex);
@@ -320,7 +320,7 @@ ResourcePtr ResourceManager::reload(const Path& fileId, bool block, uint priorit
 
 	// We are only interested in the loader, the returned resource pointer is simple ignored.
 	IResourceLoader* loader = nullptr;
-	if(!mImpl->createResource(fileId, loader) || !loader) {
+	if(!mImpl->createResource(fileId, args, loader) || !loader) {
 		delete loader;
 		return nullptr;
 	}

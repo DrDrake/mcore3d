@@ -45,7 +45,7 @@ class MCD_COMPONENT_API EntityPrototypeLoaderFactory : public ResourceManager::I
 {
 public:
     EntityPrototypeLoaderFactory(IResourceManager& resourceManager);
-	sal_override ResourcePtr createResource(const Path& fileId);
+	sal_override ResourcePtr createResource(const Path& fileId, const wchar_t* args);
 	sal_override IResourceLoader* createLoader();
 
 private:
