@@ -22,7 +22,7 @@ TEST(MeshComponentTest)
 		{
 			mEntPtt = dynamic_cast<EntityPrototype*>(mResourceManager.load(L"Scene/City/scene.3ds").get());
 
-			std::auto_ptr<Entity> group1(new Entity);
+            std::auto_ptr<Entity> group1(new Entity);
 			{	// Setup entity 1
 				std::auto_ptr<Entity> e(new Entity);
 				e->name = L"ChamferBox 1";

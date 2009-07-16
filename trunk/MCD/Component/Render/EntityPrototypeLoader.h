@@ -44,8 +44,15 @@ private:
 class MCD_COMPONENT_API EntityPrototypeLoaderFactory : public ResourceManager::IFactory
 {
 public:
+    EntityPrototypeLoaderFactory(IResourceManager& resourceManager);
 	sal_override ResourcePtr createResource(const Path& fileId);
 	sal_override IResourceLoader* createLoader();
+
+private:
+	/*!	This loader factory is going to be owned by the mResourceManager, so we can
+		use mResourceManager freely during the life-time of the loader factory.
+	 */
+	IResourceManager& mResourceManager;
 };	// EntityPrototypeLoaderFactory
 
 }	// namespace MCD
