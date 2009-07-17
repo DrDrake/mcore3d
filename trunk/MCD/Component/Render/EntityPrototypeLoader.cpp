@@ -112,6 +112,42 @@ IResourceLoader::LoadingState EntityPrototypeLoader::getLoadingState() const
 	return mImpl->getLoadingState();
 }
 
+EntityPrototypePtr EntityPrototypeLoader::addEntityAfterLoad(
+	const EntityPtr& addToHere, IResourceManager& manager,
+	const wchar_t* filePath,
+	uint priority,
+	const wchar_t* args)
+{
+	class Callback : public ResourceManagerCallback
+	{
+	public:
+		sal_override void doCallback()
+		{
+			// The Entity that we want to insert at, may already destroyed.
+			if(!addToHere.get())
+				return;
+
+			Entity* e = entityPrototype->entity.get();
+			if(!e)	// Loading of the Entity failed
+				return;
+			e = e->clone();
+			MCD_ASSUME(e);
+
+			e->asChildOf(addToHere.get());
+		}
+
+		EntityPtr addToHere;
+		EntityPrototypePtr entityPrototype;
+	};	// Callback
+
+	Callback* callback = new Callback();
+	callback->addToHere = addToHere;
+	callback->entityPrototype = dynamic_cast<EntityPrototype*>(manager.load(filePath, false, priority, args).get());
+	callback->addDependency(filePath);
+	manager.addCallback(callback);
+	return callback->entityPrototype;
+}
+
 /*! EntityPrototypeLoaderFactory */
 EntityPrototypeLoaderFactory::EntityPrototypeLoaderFactory(IResourceManager& resourceManager)
     : mResourceManager(resourceManager)

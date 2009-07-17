@@ -155,7 +155,7 @@ public:
 		virtual ResourcePtr createResource(const Path& fileId, sal_in_z_opt const wchar_t* args) = 0;
 
 		//! Overrided function should create and return a concrete resource loader.
-		virtual IResourceLoader* createLoader() = 0;
+		sal_notnull virtual IResourceLoader* createLoader() = 0;
 	};	// IFactory
 
 	/*!	Construct ResourceManager and associate it with a file system.
