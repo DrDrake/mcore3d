@@ -74,7 +74,7 @@ void EntityPrototypeLoader::Impl::commit(Resource& resource)
 		e.release();
 	}
 
-	ep.mEntity.reset(entRoot);
+	ep.entity.reset(entRoot);
 }
 
 IResourceLoader::LoadingState EntityPrototypeLoader::Impl::getLoadingState() const

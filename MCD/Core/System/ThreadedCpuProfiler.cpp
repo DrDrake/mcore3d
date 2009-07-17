@@ -153,10 +153,12 @@ void ThreadedCpuProfiler::begin(const char name[])
 	ThreadedCpuProfilerNode* node = tls->currentNode();
 
 	// Race with ThreadedCpuProfiler::reset(), ThreadedCpuProfiler::defaultReport()
-	ScopeRecursiveLock lock(node->mutex);
+	node->mutex.unlock();
 
 	if(name != node->name) {
+		node->mutex.unlock();
 		node = static_cast<ThreadedCpuProfilerNode*>(node->getChildByName(name));
+		node->mutex.lock();
 
 		// Only alter the current node, if the child node is not recursing
 		if(node->recursionCount == 0)
@@ -165,6 +167,7 @@ void ThreadedCpuProfiler::begin(const char name[])
 
 	node->begin();
 	node->recursionCount++;
+	node->mutex.unlock();
 }
 
 void ThreadedCpuProfiler::end()

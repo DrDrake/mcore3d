@@ -11,12 +11,14 @@ Mutex::Mutex(int spinCount)
 {
 	// If you see this static assert, please check the size of the CRITICAL_SECTION
 	MCD_STATIC_ASSERT(sizeof(mMutex) == sizeof(CRITICAL_SECTION));
-#ifndef NDEBUG
-	_locked = false;
-#endif
+
 	// Fallback to InitializeCriticalSection if InitializeCriticalSectionAndSpinCount didn't success
 	if(spinCount < 0 || !::InitializeCriticalSectionAndSpinCount((LPCRITICAL_SECTION)&mMutex, spinCount))
 		::InitializeCriticalSection((LPCRITICAL_SECTION)&mMutex);
+
+#ifndef NDEBUG
+	_locked = false;
+#endif
 }
 
 Mutex::~Mutex()
@@ -58,9 +60,12 @@ bool Mutex::tryLock()
 		return false;
 }
 
-RecursiveMutex::RecursiveMutex()
+RecursiveMutex::RecursiveMutex(int spinCount)
 {
-	::InitializeCriticalSection((LPCRITICAL_SECTION)&mMutex);
+	// Fallback to InitializeCriticalSection if InitializeCriticalSectionAndSpinCount didn't success
+	if(spinCount < 0 || !::InitializeCriticalSectionAndSpinCount((LPCRITICAL_SECTION)&mMutex, spinCount))
+		::InitializeCriticalSection((LPCRITICAL_SECTION)&mMutex);
+
 #ifndef NDEBUG
 	_lockCount = 0;
 #endif

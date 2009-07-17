@@ -51,7 +51,7 @@ public:
 		\param priority The loading priority for background/progressive loading.
         \param extra arguments (encoded as a string) for loading the resource; similar to program arguments.
 	 */
-	virtual ResourcePtr load(const Path& fileId, bool block=false, uint priority=0, const wchar_t* args=nullptr) = 0;
+	virtual ResourcePtr load(const Path& fileId, bool block=false, uint priority=0, sal_in_z_opt const wchar_t* args=nullptr) = 0;
 
 	/*!	Cache the given resource.
 		The given resource is assumed to be fully loaded, no loading will be preformed
@@ -152,7 +152,7 @@ public:
 			}
 			\endcode
 		 */
-		virtual ResourcePtr createResource(const Path& fileId, const wchar_t* args) = 0;
+		virtual ResourcePtr createResource(const Path& fileId, sal_in_z_opt const wchar_t* args) = 0;
 
 		//! Overrided function should create and return a concrete resource loader.
 		virtual IResourceLoader* createLoader() = 0;
@@ -172,14 +172,14 @@ public:
 		cached instance will be returned and no event generated.
 		\note Blocking load will also generate events.
 	 */
-	sal_override ResourcePtr load(const Path& fileId, bool block=false, uint priority=0, const wchar_t* args=nullptr);
+	sal_override ResourcePtr load(const Path& fileId, bool block=false, uint priority=0, sal_in_z_opt const wchar_t* args=nullptr);
 
 	/*!	By pass the cache and doing an explicitly reload.
 		Return the original resource if reload is preformed, otherwise a new resource is
 		returned just like calling load().
 		\note This function is not part of the IResourceManager interface.
 	 */
-	ResourcePtr reload(const Path& fileId, bool block=false, uint priority=0, const wchar_t* args=nullptr);
+	ResourcePtr reload(const Path& fileId, bool block=false, uint priority=0, sal_in_z_opt const wchar_t* args=nullptr);
 
 	/*!	Cache the given resource.
 		The given resource is assumed to be fully loaded, no loading will be preformed

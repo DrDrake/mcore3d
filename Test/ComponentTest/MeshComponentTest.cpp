@@ -10,6 +10,37 @@
 
 using namespace MCD;
 
+// TODO: Move this function to the API
+void addEntityAfterLoad(IResourceManager& manager, const wchar_t* filePath, const EntityPtr& addToHere)
+{
+	class Callback : public ResourceManagerCallback
+	{
+	public:
+		sal_override void doCallback()
+		{
+			// The Entity that we want to insert at, may already destroyed.
+			if(!addToHere.get())
+				return;
+
+			Entity* e = entityPrototype->entity.get();
+			MCD_ASSUME(e);
+			e = e->clone();
+			MCD_ASSUME(e);
+
+			e->asChildOf(addToHere.get());
+		}
+
+		EntityPtr addToHere;
+		EntityPrototypePtr entityPrototype;
+	};	// Callback
+
+	Callback* callback = new Callback();
+	callback->addToHere = addToHere;
+	callback->entityPrototype = dynamic_cast<EntityPrototype*>(manager.load(filePath).get());
+	callback->addDependency(filePath);
+	manager.addCallback(callback);
+}
+
 TEST(MeshComponentTest)
 {
 	class TestWindow : public BasicGlWindow
@@ -20,9 +51,9 @@ TEST(MeshComponentTest)
 			BasicGlWindow(L"title=MeshComponentTest;width=800;height=600;fullscreen=0;FSAA=4"),
 			mResourceManager(*createDefaultFileSystem())
 		{
-			mEntPtt = dynamic_cast<EntityPrototype*>(mResourceManager.load(L"Scene/City/scene.3ds").get());
+			addEntityAfterLoad(mResourceManager, L"Scene/City/scene.3ds", &mRootNode);
 
-            std::auto_ptr<Entity> group1(new Entity);
+			std::auto_ptr<Entity> group1(new Entity);
 			{	// Setup entity 1
 				std::auto_ptr<Entity> e(new Entity);
 				e->name = L"ChamferBox 1";
@@ -66,13 +97,13 @@ TEST(MeshComponentTest)
 			group1->localTransform.setTranslation(Vec3f(0, 1, 0));
 			group1->asChildOf(&mRootNode);
 
-			// clone a copy of group1
+			// Clone a copy of group1
 			std::auto_ptr<Entity> group2(group1->clone());
 
 			group2->localTransform.setTranslation(Vec3f(0,-1, 0));
 			group2->asChildOf(&mRootNode);
 
-			// remember to release the auto_ptr :-)
+			// Remember to release the auto_ptr :-)
 			group1.release();
 			group2.release();
 		}
@@ -85,14 +116,9 @@ TEST(MeshComponentTest)
 
 			mRootNode.localTransform.setTranslation(Vec3f(0, 10, 0));
 			RenderableComponent::traverseEntities(&mRootNode);
-
-			if(nullptr != mEntPtt->mEntity.get())
-				RenderableComponent::traverseEntities(mEntPtt->mEntity.get());
 		}
 
 		Entity mRootNode;
-		EntityPrototypePtr mEntPtt;
-
 		DefaultResourceManager mResourceManager;
 	};	// TestWindow
 

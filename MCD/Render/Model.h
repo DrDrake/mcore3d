@@ -10,7 +10,7 @@ namespace MCD {
 
 typedef IntrusivePtr<class Mesh> MeshPtr;
 
-class MCD_RENDER_API Model : public Resource, public IRenderable, private Noncopyable
+class MCD_RENDER_API Model : public Resource, public IRenderable
 {
 public:
 	explicit Model(const Path& fileId) : Resource(fileId) {}
