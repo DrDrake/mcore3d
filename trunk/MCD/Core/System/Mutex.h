@@ -14,8 +14,10 @@ namespace MCD {
 class MCD_CORE_API Mutex : Noncopyable
 {
 public:
-	//!	Construct a mutex with an optional spin count.
-	Mutex(int spinCount = -1);
+	/*!	Construct a mutex with an optional spin count.
+		Use spinCount = -1 to disable spinning.
+	 */
+	Mutex(int spinCount = 200);
 	~Mutex();
 
 	void lock();
@@ -48,7 +50,10 @@ protected:
 class MCD_CORE_API RecursiveMutex : private Noncopyable
 {
 public:
-	RecursiveMutex();
+	/*!	Construct a recursive mutex with an optional spin count.
+		Use spinCount = -1 to disable spinning.
+	 */
+	RecursiveMutex(int spintCount = 200);
 	~RecursiveMutex();
 
 	void lock();

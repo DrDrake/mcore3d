@@ -9,7 +9,7 @@ namespace MCD {
 
 class Material2;
 
-class MCD_RENDER_API Effect : public Resource, Noncopyable
+class MCD_RENDER_API Effect : public Resource
 {
 public:
 	explicit Effect(const Path& fileId);

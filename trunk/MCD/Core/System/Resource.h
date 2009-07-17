@@ -10,7 +10,7 @@ namespace MCD {
 
 /*!	Resource
  */
-class MCD_CORE_API Resource : public WeakPtrTarget
+class MCD_CORE_API Resource : public WeakPtrTarget, Noncopyable
 {
 public:
 	explicit Resource(const Path& fileId);

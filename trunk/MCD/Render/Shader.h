@@ -7,7 +7,7 @@
 
 namespace MCD {
 
-class MCD_RENDER_API Shader : public Resource, Noncopyable
+class MCD_RENDER_API Shader : public Resource
 {
 public:
 	explicit Shader(const Path& fileId);

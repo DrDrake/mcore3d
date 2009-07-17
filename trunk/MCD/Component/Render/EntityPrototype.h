@@ -9,15 +9,15 @@ namespace MCD {
 
 class IResourceManager;
 
-class MCD_COMPONENT_API EntityPrototype : public Resource, Noncopyable
+class MCD_COMPONENT_API EntityPrototype : public Resource
 {
 public:
 	explicit EntityPrototype(const Path& fileId);
 
 	sal_override ~EntityPrototype();
 
-	/*! When an EntityPrototype is loaded, mEntity is not be NULL */
-	std::auto_ptr<Entity> mEntity;
+	//! When an EntityPrototype is loaded, mEntity is not be NULL
+	std::auto_ptr<Entity> entity;
 
 };	// EntityPrototype
 

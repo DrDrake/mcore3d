@@ -7,7 +7,7 @@
 
 namespace MCD {
 
-class MCD_RENDER_API Texture : public Resource, Noncopyable
+class MCD_RENDER_API Texture : public Resource
 {
 public:
 	explicit Texture(const Path& fileId);

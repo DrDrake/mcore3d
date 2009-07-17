@@ -7,7 +7,7 @@
 
 namespace MCD {
 
-class MCD_RENDER_API ModelPod : public Resource, public IRenderable, private Noncopyable
+class MCD_RENDER_API ModelPod : public Resource, public IRenderable
 {
 public:
 	explicit ModelPod(const Path& fileId);

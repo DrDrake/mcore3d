@@ -37,7 +37,7 @@ class FakeFactory : public ResourceManager::IFactory
 public:
 	FakeFactory(const wchar_t* extension) : mExtension(extension) {}
 
-	sal_override ResourcePtr createResource(const Path& fileId) {
+	sal_override ResourcePtr createResource(const Path& fileId, const wchar_t* args) {
 		if(fileId.getExtension() == mExtension)
 			return new Resource(fileId);
 		return nullptr;

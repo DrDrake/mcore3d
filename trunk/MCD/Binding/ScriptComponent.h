@@ -35,7 +35,7 @@ private:
 	Impl* mImpl;
 };	// ScriptLoader
 
-class MCD_BINDING_API Script : public Resource, Noncopyable
+class MCD_BINDING_API Script : public Resource
 {
 public:
 	explicit Script(const Path& fileId);
