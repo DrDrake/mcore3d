@@ -8,6 +8,7 @@
 #include "../MCD/Core/System/RawFileSystem.h"
 #include "../MCD/Render/ChamferBox.h"
 #include "../MCD/Render/Effect.h"
+#include "../MCD/Component/Render/EntityPrototypeLoader.h"
 #include "../MCD/Component/Render/MeshComponent.h"
 #include "../MCD/Component/Input/WinMessageInputComponent.h"
 #include "../Test/RenderTest/BasicGlWindow.h"
@@ -101,6 +102,12 @@ public:
 		return mRootNode;
 	}
 
+	sal_notnull Entity* loadEntity(const wchar_t* filePath) {
+		Entity* e = new Entity();
+		EntityPrototypeLoader::addEntityAfterLoad(e, mResourceManager, filePath);
+		return e;
+	}
+
 	sal_notnull InputComponent* inputComponent() {
 		return mInputComponent;
 	}
@@ -128,6 +135,7 @@ SCRIPT_CLASS_DECLAR(TestWindow);
 SCRIPT_CLASS_REGISTER_NAME(TestWindow, "MainWindow")
 	.enableGetset(L"MainWindow")
 	.method<objNoCare>(L"_getrootEntity", &TestWindow::rootNode)
+	.method(L"loadEntity", &TestWindow::loadEntity)
 	.method<objNoCare>(L"_getinputComponent", &TestWindow::inputComponent)
 ;}
 
@@ -148,8 +156,9 @@ void TestWindow::scriptBindingSetup()
 
 	// Setup some global variable for easy access in script.
 	mScriptComponentManager.vm.runScript(
-		L"gMainWindow <- _getMainWindow();"
-		L"gInput <- gMainWindow.inputComponent;"
+		L"gMainWindow <- _getMainWindow();\n"
+		L"function loadEntity(filePath) { return gMainWindow.loadEntity(filePath); }\n"
+		L"gInput <- gMainWindow.inputComponent;\n"
 	);
 
 	// TODO: Let user supply a command line argument to choose the startup script

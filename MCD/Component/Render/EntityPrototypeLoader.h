@@ -1,14 +1,14 @@
 #ifndef __MCD_COMPONENT_RENDER_ENTITYPROTOTYPELOADER__
 #define __MCD_COMPONENT_RENDER_ENTITYPROTOTYPELOADER__
 
-#include "../ShareLib.h"
-#include "../../Core/System/NonCopyable.h"
+#include "EntityPrototype.h"
 #include "../../Core/System/ResourceLoader.h"
 #include "../../Core/System/ResourceManager.h"
 
 namespace MCD {
 
 class IResourceManager;
+typedef WeakPtr<class Entity> EntityPtr;
 
 class MCD_COMPONENT_API EntityPrototypeLoader : public IResourceLoader, private Noncopyable
 {
@@ -35,10 +35,25 @@ public:
 
 	sal_override LoadingState getLoadingState() const;
 
+	/*!	Loads a model file (currently only support *.3ds), creates a tree of entities
+		and add them to a specific entity node after the load completes.
+
+		If you know that the resource will load multiple times, you need to keep
+		the returned EntityPrototypePtr. Otherwise the entity prototype will be
+		destroyed once the load is completed.
+
+		If the load operation failed, a EntityPrototype with it's \em entity equals to
+		null will be returned.
+	 */
+	static EntityPrototypePtr addEntityAfterLoad(
+		const EntityPtr& addToHere, IResourceManager& manager,
+		sal_in_z const wchar_t* filePath,
+		uint priority = 0,
+		sal_in_z const wchar_t* args = nullptr);
+
 private:
 	class Impl;
 	Impl* mImpl;
-
 };	// EntityPrototypeLoader
 
 class MCD_COMPONENT_API EntityPrototypeLoaderFactory : public ResourceManager::IFactory

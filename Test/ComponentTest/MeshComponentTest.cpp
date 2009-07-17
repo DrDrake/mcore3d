@@ -5,41 +5,10 @@
 #include "../../MCD/Render/ChamferBox.h"
 #include "../../MCD/Render/Effect.h"
 #include "../../MCD/Render/Material.h"
+#include "../../MCD/Component/Render/EntityPrototypeLoader.h"
 #include "../../MCD/Component/Render/MeshComponent.h"
-#include "../../MCD/Component/Render/EntityPrototype.h"
 
 using namespace MCD;
-
-// TODO: Move this function to the API
-void addEntityAfterLoad(IResourceManager& manager, const wchar_t* filePath, const EntityPtr& addToHere)
-{
-	class Callback : public ResourceManagerCallback
-	{
-	public:
-		sal_override void doCallback()
-		{
-			// The Entity that we want to insert at, may already destroyed.
-			if(!addToHere.get())
-				return;
-
-			Entity* e = entityPrototype->entity.get();
-			MCD_ASSUME(e);
-			e = e->clone();
-			MCD_ASSUME(e);
-
-			e->asChildOf(addToHere.get());
-		}
-
-		EntityPtr addToHere;
-		EntityPrototypePtr entityPrototype;
-	};	// Callback
-
-	Callback* callback = new Callback();
-	callback->addToHere = addToHere;
-	callback->entityPrototype = dynamic_cast<EntityPrototype*>(manager.load(filePath).get());
-	callback->addDependency(filePath);
-	manager.addCallback(callback);
-}
 
 TEST(MeshComponentTest)
 {
@@ -51,7 +20,7 @@ TEST(MeshComponentTest)
 			BasicGlWindow(L"title=MeshComponentTest;width=800;height=600;fullscreen=0;FSAA=4"),
 			mResourceManager(*createDefaultFileSystem())
 		{
-			addEntityAfterLoad(mResourceManager, L"Scene/City/scene.3ds", &mRootNode);
+			EntityPrototypeLoader::addEntityAfterLoad(&mRootNode, mResourceManager, L"Scene/City/scene.3ds");
 
 			std::auto_ptr<Entity> group1(new Entity);
 			{	// Setup entity 1
