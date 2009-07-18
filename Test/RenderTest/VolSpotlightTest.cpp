@@ -7,6 +7,7 @@
 #include "../../MCD/Render/Material.h"
 #include "../../MCD/Component/Render/MeshComponent.h"
 #include "../../MCD/Render/MeshBuilder.h"
+#include "../../MCD/Render/Mesh.h"
 #include "../../MCD/Core/Math/BasicFunction.h"
 using namespace MCD;
 

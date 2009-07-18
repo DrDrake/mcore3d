@@ -9,6 +9,7 @@
 #include "../../MCD/Component/Physics/CollisionShape.h"
 #include "../../MCD/Component/Physics/DynamicsWorld.h"
 #include "../../MCD/Component/Physics/RigidBodyComponent.h"
+#include "../../MCD/Render/Mesh.h"
 
 using namespace MCD;
 

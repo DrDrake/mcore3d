@@ -2,6 +2,7 @@
 #include "Max3dsLoader.h"
 #include "Material.h"
 #include "MeshBuilder.h"
+#include "Mesh.h"
 #include "Model.h"
 #include "Texture.h"
 #include "TangentSpaceBuilder.h"
@@ -288,14 +289,13 @@ private:
 
 	struct ModelInfo
 	{
-		MeshBuilder* meshBuilder;	//! Contains vertex buffer only
+		SharedPtr<MeshBuilder> meshBuilder;	//! Contains vertex buffer only
 		std::vector<uint16_t> index;//! The triangle index
 		std::list<MultiSubObject> multiSubObject;
 		std::vector<uint32_t> smoothingGroup;
 	};	// ModelInfo
 
 	std::list<ModelInfo> mModelInfo;
-	MeshBuilder mMeshBuilder;
 
 	typedef std::list<Max3dsMaterial*> MaterialList;
 	MaterialList mMaterials;
@@ -311,8 +311,10 @@ Max3dsLoader::Impl::Impl(IResourceManager* resourceManager)
 
 Max3dsLoader::Impl::~Impl()
 {
-	MCD_FOREACH(const ModelInfo& model, mModelInfo)
-		delete model.meshBuilder;
+	//todo remove the following 2 lines, since we are now using SharedPtr<MeshBuilder>
+	//MCD_FOREACH(const ModelInfo& model, mModelInfo)
+	//	delete model.meshBuilder;
+
 	MCD_FOREACH(Max3dsMaterial* material, mMaterials)
 		delete material;
 	delete mStream;
@@ -650,14 +652,14 @@ IResourceLoader::LoadingState Max3dsLoader::Impl::load(std::istream* is, const P
 	TangentSpaceBuilder tsBuilder;
 
 	MCD_FOREACH(const ModelInfo& model, mModelInfo) {
-		MeshBuilder* meshBuilder = model.meshBuilder;
+		MeshBuilder& meshBuilder = *model.meshBuilder;
 		size_t vertexCount, indexCount = model.index.size();
 
 		if(indexCount == 0)
 			continue;
 
-		Vec3f* vertex = reinterpret_cast<Vec3f*>(meshBuilder->acquireBufferPointer(Mesh::Position, &vertexCount));
-		Vec3f* normal = reinterpret_cast<Vec3f*>(meshBuilder->acquireBufferPointer(Mesh::Normal));
+		Vec3f* vertex = reinterpret_cast<Vec3f*>(meshBuilder.acquireBufferPointer(Mesh::Position, &vertexCount));
+		Vec3f* normal = reinterpret_cast<Vec3f*>(meshBuilder.acquireBufferPointer(Mesh::Normal));
 
 		if(!vertex || !normal)
 			continue;
@@ -675,25 +677,25 @@ IResourceLoader::LoadingState Max3dsLoader::Impl::load(std::istream* is, const P
 
 #pragma warning(push)
 #pragma warning (disable : 6240)
-		if((meshBuilder->format() & Mesh::TextureCoord0) && includeTangents) {
+		if((meshBuilder.format() & Mesh::TextureCoord0) && includeTangents) {
 #pragma warning(pop)
-			meshBuilder->enable(Mesh::TextureCoord1);
-			meshBuilder->textureUnit(Mesh::TextureCoord1);
-			meshBuilder->textureCoordSize(3);
+			meshBuilder.enable(Mesh::TextureCoord1);
+			meshBuilder.textureUnit(Mesh::TextureCoord1);
+			meshBuilder.textureCoordSize(3);
 
-			Vec2f* uv = reinterpret_cast<Vec2f*>(meshBuilder->acquireBufferPointer(Mesh::TextureCoord0));
-			Vec3f* tangent = reinterpret_cast<Vec3f*>(meshBuilder->acquireBufferPointer(Mesh::TextureCoord1));
+			Vec2f* uv = reinterpret_cast<Vec2f*>(meshBuilder.acquireBufferPointer(Mesh::TextureCoord0));
+			Vec3f* tangent = reinterpret_cast<Vec3f*>(meshBuilder.acquireBufferPointer(Mesh::TextureCoord1));
 
 			if(uv && tangent) {
 				tsBuilder.compute(indexCount / 3, vertexCount, index, vertex, normal, uv, tangent);
 
-				meshBuilder->releaseBufferPointer(tangent);
-				meshBuilder->releaseBufferPointer(uv);
+				meshBuilder.releaseBufferPointer(tangent);
+				meshBuilder.releaseBufferPointer(uv);
 			}
 		}
 
-		meshBuilder->releaseBufferPointer(normal);
-		meshBuilder->releaseBufferPointer(vertex);
+		meshBuilder.releaseBufferPointer(normal);
+		meshBuilder.releaseBufferPointer(vertex);
 
 	}
 
@@ -760,11 +762,13 @@ void Max3dsLoader::Impl::commit(Resource& resource)
 
 	ScopeLock lock(mMutex);
 	MCD_FOREACH(const ModelInfo& modelInfo, mModelInfo) {
-		MeshBuilder* builder = modelInfo.meshBuilder;
-
+		
 		// Commit the mesh with the vertex buffer first
 		MeshPtr meshWithoutIndex = new Mesh(L"tmp");
-		builder->commit(*meshWithoutIndex, storageHint);
+		modelInfo.meshBuilder->commit(*meshWithoutIndex, storageHint);
+
+		// todo: assign the builder to mesh according to the loading args
+		meshWithoutIndex->builder = modelInfo.meshBuilder;
 
 		MCD_FOREACH(const MultiSubObject& subObject, modelInfo.multiSubObject) {
 			// Share all the buffers in meshWithoutIndex into this mesh

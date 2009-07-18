@@ -8,6 +8,7 @@
 #include "../../MCD/Render/Material.h"
 #include "../../MCD/Component/Render/MeshComponent.h"
 #include "../../MCD/Component/Render/PickComponent.h"
+#include "../../MCD/Render/Mesh.h"
 
 using namespace MCD;
 

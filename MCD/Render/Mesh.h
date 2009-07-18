@@ -8,7 +8,12 @@
 #include "../Core/System/SharedPtr.h"
 #include <vector>
 
+#include "MeshBuilder.h"	//todo: make this fwd-decl only
+
 namespace MCD {
+
+//class MeshBuilder;
+typedef SharedPtr<MeshBuilder> MeshBuilderPtr;
 
 /*!
 	\note Since we use uint16_t to store index data, therefore a single Mesh instance cannot
@@ -55,6 +60,12 @@ public:
 	size_t indexCount() const {
 		return mIndexCount;
 	}
+
+	/*! Pointer to the MeshBuilder of this mesh, it is primaryly used for reading the mesh data
+		without downloading them from the GPU.
+		Please notice that this pointer may be nullptr.
+	*/
+	MeshBuilderPtr builder;
 
 	typedef SharedPtr<uint> HandlePtr;
 

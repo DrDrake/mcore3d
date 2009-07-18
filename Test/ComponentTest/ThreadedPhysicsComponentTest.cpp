@@ -14,6 +14,7 @@
 #include "../../MCD/Render/Model.h"
 #include "../../MCD/Render/Max3dsLoader.h"
 #include "../../MCD/Render/ResourceLoaderFactory.h"
+#include "../../MCD/Render/Mesh.h"
 
 #include "../../3Party/glew/glew.h"
 

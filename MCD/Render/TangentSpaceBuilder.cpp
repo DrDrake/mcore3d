@@ -2,6 +2,7 @@
 
 #include "TangentSpaceBuilder.h"
 #include "MeshBuilder.h"
+#include "Mesh.h"
 
 namespace MCD {
 
@@ -14,7 +15,7 @@ namespace {
 class MeshBufferPointer
 {
 public:
-	MeshBufferPointer(MeshBuilder& builder, Mesh::DataType dataType)
+	MeshBufferPointer(MeshBuilder& builder, int dataType)
 		: mBuilder(builder)
 	{
 		mDataPtr = builder.acquireBufferPointer(dataType, &mDataSize);

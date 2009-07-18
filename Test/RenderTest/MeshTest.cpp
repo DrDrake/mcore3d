@@ -1,6 +1,7 @@
 #include "Pch.h"
 #include "../../MCD/Render/Color.h"
 #include "../../MCD/Render/MeshBuilder.h"
+#include "../../MCD/Render/Mesh.h"
 
 using namespace MCD;
 
