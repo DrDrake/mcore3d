@@ -46,6 +46,7 @@ Mesh::Mesh(const Path& fileId, const Mesh& shareBuffer)
 	mFormat = shareBuffer.mFormat;
 	mVertexCount = shareBuffer.mVertexCount;
 	mIndexCount = shareBuffer.mIndexCount;
+	builder = shareBuffer.builder;
 }
 
 Mesh::~Mesh()

@@ -1,10 +1,13 @@
 #ifndef __MCD_RENDER_MESHBUILDER__
 #define __MCD_RENDER_MESHBUILDER__
 
-#include "Mesh.h"
+//#include "Mesh.h"
+#include "ShareLib.h"
+#include "../Core/System/NonCopyable.h"
 
 namespace MCD {
 
+class Mesh;
 struct ColorRGB8;
 
 template<typename T> class Vec2;
@@ -62,7 +65,7 @@ typedef Vec3<float> Vec3f;
 	builder.commit(mesh, MeshBuilder::Static);
 	\endcode
  */
-class MCD_RENDER_API MeshBuilder : Noncopyable
+class MCD_RENDER_API MeshBuilder : public Noncopyable
 {
 	class BufferImpl;
 
@@ -102,8 +105,8 @@ public:
 	//!	Set the current normal state.
 	void normal(const Vec3f& normal);
 
-	//! Set the current texture unit.
-	void textureUnit(Mesh::DataType textureUnit);
+	//! Set the current texture unit. The support data types are defined in Mesh::DataType.
+	void textureUnit(int textureUnit);
 
 	/*!	Set the number of components for the current texture unit.
 		\param size Number of components (can be 2 or 3) for the specific texture unit.
@@ -174,13 +177,14 @@ public:
 	void commit(Mesh& mesh, uint format, StorageHint storageHint);
 
 	/*!	Acquire the data pointer from the internal buffer.
+		\param dataType One of the data type which is defined in Mesh::DataType.
 		\param count Returns the number of elements.
 		\note
 			Once you acquired the pointer, you need to release it using
 			releaseBufferPointer() before adding another vertex or triangle.
 		\sa releaseBufferPointer
 	 */
-	sal_maybenull void* acquireBufferPointer(Mesh::DataType dataType, sal_out_opt size_t* count=nullptr);
+	sal_maybenull void* acquireBufferPointer(int dataType, sal_out_opt size_t* count=nullptr);
 
 	/*!	Release the pointer acquired by acquireBufferPointer().
 		\note Do nothing if no corresponding pointer is acquired.
@@ -191,7 +195,7 @@ public:
 protected:
 	uint mFormat;		//!< The same meaning as Mesh::mFormat
 	BufferImpl& mBuffer;
-};	// Mesh
+};	// MeshBuilder
 
 }	// namespace MCD
 

@@ -5,6 +5,7 @@
 #include "../../MCD/Render/ChamferBox.h"
 #include "../../MCD/Render/Effect.h"
 #include "../../MCD/Render/Material.h"
+#include "../../MCD/Render/Mesh.h"
 #include "../../MCD/Component/Render/EntityPrototypeLoader.h"
 #include "../../MCD/Component/Render/MeshComponent.h"
 
@@ -63,13 +64,13 @@ TEST(MeshComponentTest)
 				e.release();
 			}
 
-			group1->localTransform.setTranslation(Vec3f(0, 1, 0));
+			group1->localTransform.setTranslation(Vec3f(0, 11, 0));
 			group1->asChildOf(&mRootNode);
 
 			// Clone a copy of group1
 			std::auto_ptr<Entity> group2(group1->clone());
 
-			group2->localTransform.setTranslation(Vec3f(0,-1, 0));
+			group2->localTransform.setTranslation(Vec3f(0, 9, 0));
 			group2->asChildOf(&mRootNode);
 
 			// Remember to release the auto_ptr :-)

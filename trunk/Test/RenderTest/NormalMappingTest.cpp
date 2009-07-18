@@ -7,6 +7,7 @@
 #include "../../MCD/Render/Model.h"
 #include "../../MCD/Render/TangentSpaceBuilder.h"
 #include "../../MCD/Component/Render/MeshComponent.h"
+#include "../../MCD/Render/Mesh.h"
 
 using namespace MCD;
 

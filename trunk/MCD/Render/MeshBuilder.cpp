@@ -1,5 +1,6 @@
 #include "Pch.h"
 #include "MeshBuilder.h"
+#include "Mesh.h"
 #include "Color.h"
 #include "../Core/Math/Vec2.h"
 #include "../Core/Math/Vec3.h"
@@ -288,9 +289,9 @@ void MeshBuilder::normal(const Vec3f& normal)
 	mBuffer.mNormal = normal;
 }
 
-void MeshBuilder::textureUnit(Mesh::DataType textureUnit)
+void MeshBuilder::textureUnit(int textureUnit)
 {
-	mBuffer.textureUnit(textureUnit);
+	mBuffer.textureUnit((Mesh::DataType)textureUnit);
 }
 
 void MeshBuilder::textureCoordSize(size_t size)
@@ -463,9 +464,9 @@ void MeshBuilder::commit(Mesh& mesh, uint format, StorageHint storageHint)
 	}
 }
 
-void* MeshBuilder::acquireBufferPointer(Mesh::DataType dataType, size_t* count)
+void* MeshBuilder::acquireBufferPointer(int dataType, size_t* count)
 {
-	return mBuffer.acquireBufferPointer(dataType, count);
+	return mBuffer.acquireBufferPointer((Mesh::DataType)dataType, count);
 }
 
 void MeshBuilder::releaseBufferPointer(void* ptr)

@@ -3,6 +3,7 @@
 #include "../../MCD/Render/ChamferBox.h"
 #include "../../MCD/Render/Effect.h"
 #include "../../MCD/Render/Material.h"
+#include "../../MCD/Render/Mesh.h"
 
 using namespace MCD;
 
