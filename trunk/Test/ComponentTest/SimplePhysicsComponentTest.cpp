@@ -59,7 +59,6 @@ TEST(SimplePhysicsComponentTest)
 				// Create the phyiscs component
 				RigidBodyComponent* rbc = new RigidBodyComponent(0.5f, mSphereShape);
 				e->addComponent(rbc);
-				rbc->onAttach();
 				// Add it to the physics world..
 				mDynamicsWorld->addRigidBody(*rbc);
 
@@ -86,7 +85,6 @@ TEST(SimplePhysicsComponentTest)
 				// Create the phyiscs component
 				RigidBodyComponent* rbc = new RigidBodyComponent(0, new StaticPlaneShape(Vec3f::c010, 0));
 				e->addComponent(rbc);
-				rbc->onAttach();
 				// Add it to the physics world..
 				mDynamicsWorld->addRigidBody(*rbc);
 

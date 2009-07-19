@@ -1,6 +1,7 @@
 #include "Pch.h"
 #include "ResourceManager.h"
 #include "FileSystem.h"
+#include "Log.h"
 #include "Macros.h"
 #include "MemoryProfiler.h"
 #include "PtrVector.h"
@@ -289,6 +290,7 @@ ResourcePtr ResourceManager::load(const Path& fileId, bool block, uint priority,
 	IResourceLoader* loader = nullptr;
 	ResourcePtr resource = mImpl->createResource(fileId, args, loader);
 	if(!resource || !loader) {
+		Log::format(Log::Warn, L"No loader for \"%s\" can be found", fileId.getString().c_str());
 		delete loader;
 		return nullptr;
 	}

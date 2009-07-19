@@ -259,7 +259,6 @@ TEST(TriMeshPhysicsComponentTest)
 					// Create the phyiscs component
 					RigidBodyComponent* rbc = new RigidBodyComponent(0.5f, new SphereShape(1));
 					e->addComponent(rbc);
-					rbc->onAttach();
 
 					// Add it to the physics world..
 					mDynamicsWorld->addRigidBody(*rbc);
@@ -285,7 +284,6 @@ TEST(TriMeshPhysicsComponentTest)
 					// Create the phyiscs component
 					RigidBodyComponent* rbc = new RigidBodyComponent(0, new StaticTriMeshShape(mesh));
 					e->addComponent(rbc);
-					rbc->onAttach();
 
 					// Add it to the physics world..
 					mDynamicsWorld->addRigidBody(*rbc);

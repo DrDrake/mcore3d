@@ -157,12 +157,15 @@ void Entity::addComponent(Component* component)
 	removeComponent(component->familyType());
 	components.pushBack(*component);
 	component->mEntity = this;
+
+	component->onAdd();
 }
 
 void Entity::removeComponent(const std::type_info& familyType)
 {
 	for(Component* c = components.begin(); c != components.end(); c = c->next()) {
 		if(c->familyType() == familyType) {
+			c->onRemove();
 			delete c;
 			return;
 		}
