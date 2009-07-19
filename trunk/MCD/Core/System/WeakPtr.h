@@ -63,7 +63,7 @@ public:
 protected:
 	// Protected to prevent deletion via base class (non-virtual destructor)
 	~WeakPtrTarget () {
-		mValidityFlag->setValid(false);
+		mValidityFlag.getNotNull()->setValid(false);
 	}
 
 private:
@@ -186,14 +186,15 @@ public:
 	{
 	}
 
-	T* get() const {
-		return mValidityFlag->isValid() ? mPtr : nullptr;
+	sal_maybenull T* get() const {
+		return mValidityFlag.getNotNull()->isValid() ? mPtr : nullptr;
 	}
 
 	T& operator*() const {
 		return *get();
 	}
 
+	//sal_maybenull
 	T* operator->() const {
 		return get();
 	}

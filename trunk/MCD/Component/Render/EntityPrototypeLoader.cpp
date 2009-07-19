@@ -2,6 +2,7 @@
 #include "EntityPrototypeLoader.h"
 #include "EntityPrototype.h"
 #include "MeshComponent.h"
+#include "../../Core/System/Log.h"
 #include "../../Core/System/MemoryProfiler.h"
 #include "../../Core/System/StrUtility.h"
 #include "../../Render/Max3dsLoader.h"
@@ -123,8 +124,10 @@ EntityPrototypePtr EntityPrototypeLoader::addEntityAfterLoad(
 	public:
 		sal_override void doCallback()
 		{
+			Entity* addHere = addToHere.get();
+
 			// The Entity that we want to insert at, may already destroyed.
-			if(!addToHere.get())
+			if(!addHere || !entityPrototype)
 				return;
 
 			Entity* e = entityPrototype->entity.get();
@@ -133,7 +136,7 @@ EntityPrototypePtr EntityPrototypeLoader::addEntityAfterLoad(
 			e = e->clone();
 			MCD_ASSUME(e);
 
-			e->asChildOf(addToHere.get());
+			e->asChildOf(addHere);
 		}
 
 		EntityPtr addToHere;
@@ -143,6 +146,10 @@ EntityPrototypePtr EntityPrototypeLoader::addEntityAfterLoad(
 	Callback* callback = new Callback();
 	callback->addToHere = addToHere;
 	callback->entityPrototype = dynamic_cast<EntityPrototype*>(manager.load(filePath, false, priority, args).get());
+
+	if(!callback->entityPrototype)
+		Log::format(Log::Warn, L"Fail to load \"%s\" as an EntityPrototype", filePath);
+
 	callback->addDependency(filePath);
 	manager.addCallback(callback);
 	return callback->entityPrototype;
