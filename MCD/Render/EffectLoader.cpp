@@ -848,7 +848,7 @@ EffectLoader::~EffectLoader()
 	delete mImpl;
 }
 
-IResourceLoader::LoadingState EffectLoader::load(std::istream* is, const Path* fileId)
+IResourceLoader::LoadingState EffectLoader::load(std::istream* is, const Path* fileId, const wchar_t*)
 {
 	MCD_ASSUME(mImpl);
 	return mImpl->load(is, fileId);

@@ -322,7 +322,7 @@ DdsLoader::DdsLoader()
 	setImpl(new LoaderImpl(*this));
 }
 
-IResourceLoader::LoadingState DdsLoader::load(std::istream* is, const Path*)
+IResourceLoader::LoadingState DdsLoader::load(std::istream* is, const Path*, const wchar_t*)
 {
 	MCD_ASSUME(mImpl != nullptr);
 	ScopeLock lock(mImpl->mMutex);

@@ -50,7 +50,7 @@ CubemapLoader::CubemapLoader()
 	setImpl(new LoaderImpl(*this));
 }
 
-IResourceLoader::LoadingState CubemapLoader::load(std::istream* is, const Path* fileId)
+IResourceLoader::LoadingState CubemapLoader::load(std::istream* is, const Path* fileId, const wchar_t*)
 {
 	MCD_ASSUME(mImpl != nullptr);
 

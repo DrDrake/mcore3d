@@ -49,7 +49,7 @@ public:
 	sal_override ~EffectLoader();
 
 	sal_override LoadingState load(
-		sal_maybenull std::istream* is, sal_maybenull const Path* fileId=nullptr);
+		sal_maybenull std::istream* is, sal_maybenull const Path* fileId=nullptr, sal_maybenull const wchar_t* args=nullptr);
 
 	sal_override void commit(Resource& resource);
 

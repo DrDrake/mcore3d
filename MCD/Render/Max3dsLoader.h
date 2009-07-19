@@ -17,6 +17,17 @@ class IResourceManager;
 	vertex buffer may be shared by multiple index buffers, where the index buffers are split-up
 	according to the different materials presented in the same vertex buffer.
 
+	Loading args:
+	- Name: tangents
+		- Desc: Compute tangent space for loaded meshes.
+		- Value: true/false
+		- Default: false
+ 
+	- Name: meshBuilders
+		- Desc: Keep the MeshBuilders to loaded meshes's builder attribute.
+		- Value: true/false
+		- Default: false
+
 	\sa http://www.flipcode.com/archives/Another_3DS_LoaderViewer_Class.shtml
 	\sa http://www.gamedev.net/community/forums/topic.asp?topic_id=382606
 	\sa http://gpwiki.org/index.php/C:Load3DS
@@ -37,7 +48,7 @@ public:
 		Block until all the data is read into it's internal buffer.
 	 */
 	sal_override LoadingState load(
-		sal_maybenull std::istream* is, sal_maybenull const Path* fileId=nullptr);
+		sal_maybenull std::istream* is, sal_maybenull const Path* fileId=nullptr, sal_maybenull const wchar_t* args=nullptr);
 
 	/*!	Commit the data form it's internal buffer to the resource.
 		The resource must be of type Model.

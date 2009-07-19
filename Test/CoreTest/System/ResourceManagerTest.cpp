@@ -15,7 +15,7 @@ public:
 
 protected:
 	sal_override sal_checkreturn LoadingState load(
-		sal_maybenull std::istream* is, sal_maybenull const Path* fileId=nullptr)
+		sal_maybenull std::istream* is, sal_maybenull const Path* fileId=nullptr, sal_maybenull const wchar_t* args=nullptr)
 	{
 		if(!is)
 			return mState = Aborted;

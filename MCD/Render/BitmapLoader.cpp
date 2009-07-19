@@ -133,7 +133,7 @@ BitmapLoader::BitmapLoader()
 	setImpl(new LoaderImpl(*this));
 }
 
-IResourceLoader::LoadingState BitmapLoader::load(std::istream* is, const Path*)
+IResourceLoader::LoadingState BitmapLoader::load(std::istream* is, const Path*, const wchar_t*)
 {
 	MCD_ASSUME(mImpl != nullptr);
 	ScopeLock lock(mImpl->mMutex);

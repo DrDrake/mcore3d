@@ -263,7 +263,7 @@ public:
 
 	~Impl();
 
-	IResourceLoader::LoadingState load(std::istream* is, const Path* fileId);
+	IResourceLoader::LoadingState load(std::istream* is, const Path* fileId, const wchar_t* args);
 
 	void commit(Resource& resource);
 
@@ -278,6 +278,14 @@ public:
 private:
 	Stream* mStream;
 	IResourceManager* mResourceManager;
+
+	struct LoadOptions
+	{
+		bool includeTangents;
+		bool keepMeshBuilders;
+	};
+
+	std::auto_ptr<LoadOptions> mLoadOptions;
 
 	//! Represent which face the material is assigned to.
 	struct MultiSubObject
@@ -322,12 +330,31 @@ Max3dsLoader::Impl::~Impl()
 
 #define ABORTLOADING() { mLoadingState = Aborted; break; }
 
-IResourceLoader::LoadingState Max3dsLoader::Impl::load(std::istream* is, const Path* fileId)
+IResourceLoader::LoadingState Max3dsLoader::Impl::load(std::istream* is, const Path* fileId, const wchar_t* args)
 {
 	using namespace std;
 
-	// TODO: make includeTangents an option of Max3dsLoader
-	const bool includeTangents = true;
+	// parse the load options from args
+	if(mLoadOptions.get() == nullptr)
+	{
+		mLoadOptions.reset(new LoadOptions);
+		mLoadOptions->includeTangents = false;
+		mLoadOptions->keepMeshBuilders = false;
+
+		if(nullptr != args)
+		{
+			NvpParser parser(args);
+			const wchar_t* name, *value;
+			while(parser.next(name, value))
+			{
+				if(wstrCaseCmp(name, L"tangents") == 0 && wstrCaseCmp(value, L"true") == 0)
+					mLoadOptions->includeTangents = true;
+
+				if(wstrCaseCmp(name, L"meshBuilders") == 0 && wstrCaseCmp(value, L"true") == 0)
+					mLoadOptions->keepMeshBuilders = true;
+			}
+		}
+	}
 
 	ScopeLock lock(mMutex);
 
@@ -677,7 +704,7 @@ IResourceLoader::LoadingState Max3dsLoader::Impl::load(std::istream* is, const P
 
 #pragma warning(push)
 #pragma warning (disable : 6240)
-		if((meshBuilder.format() & Mesh::TextureCoord0) && includeTangents) {
+		if((meshBuilder.format() & Mesh::TextureCoord0) && mLoadOptions->includeTangents) {
 #pragma warning(pop)
 			meshBuilder.enable(Mesh::TextureCoord1);
 			meshBuilder.textureUnit(Mesh::TextureCoord1);
@@ -767,8 +794,9 @@ void Max3dsLoader::Impl::commit(Resource& resource)
 		MeshPtr meshWithoutIndex = new Mesh(L"tmp");
 		modelInfo.meshBuilder->commit(*meshWithoutIndex, storageHint);
 
-		// todo: assign the builder to mesh according to the loading args
-		meshWithoutIndex->builder = modelInfo.meshBuilder;
+		// assign meshBuilder if requested in args
+		if(mLoadOptions->keepMeshBuilders)
+			meshWithoutIndex->builder = modelInfo.meshBuilder;
 
 		MCD_FOREACH(const MultiSubObject& subObject, modelInfo.multiSubObject) {
 			// Share all the buffers in meshWithoutIndex into this mesh
@@ -801,6 +829,9 @@ void Max3dsLoader::Impl::commit(Resource& resource)
 			model.mMeshes.pushBack(*meshMat);
 		}
 	}
+
+	// remember to reset the LoadOptions
+	mLoadOptions.reset();
 }
 
 IResourceLoader::LoadingState Max3dsLoader::Impl::getLoadingState() const
@@ -819,11 +850,11 @@ Max3dsLoader::~Max3dsLoader()
 	delete mImpl;
 }
 
-IResourceLoader::LoadingState Max3dsLoader::load(std::istream* is, const Path* fileId)
+IResourceLoader::LoadingState Max3dsLoader::load(std::istream* is, const Path* fileId, const wchar_t* args)
 {
 	MemoryProfiler::Scope scope("Max3dsLoader::load");
 	MCD_ASSUME(mImpl != nullptr);
-	return mImpl->load(is, fileId);
+	return mImpl->load(is, fileId, args);
 }
 
 void Max3dsLoader::commit(Resource& resource)

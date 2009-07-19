@@ -19,7 +19,7 @@ public:
 
 	~Impl();
 
-	IResourceLoader::LoadingState load(std::istream* is, const Path* fileId);
+	IResourceLoader::LoadingState load(std::istream* is, const Path* fileId, const wchar_t* args);
 
 	void commit(Resource& resource);
 
@@ -41,9 +41,9 @@ EntityPrototypeLoader::Impl::~Impl()
 {
 }
 
-IResourceLoader::LoadingState EntityPrototypeLoader::Impl::load(std::istream* is, const Path* fileId)
+IResourceLoader::LoadingState EntityPrototypeLoader::Impl::load(std::istream* is, const Path* fileId, const wchar_t* args)
 {
-	return m3dsLoader.load(is, fileId);
+	return m3dsLoader.load(is, fileId, args);
 }
 
 void EntityPrototypeLoader::Impl::commit(Resource& resource)
@@ -92,11 +92,11 @@ EntityPrototypeLoader::~EntityPrototypeLoader()
 	delete mImpl;
 }
 
-IResourceLoader::LoadingState EntityPrototypeLoader::load(std::istream* is, const Path* fileId)
+IResourceLoader::LoadingState EntityPrototypeLoader::load(std::istream* is, const Path* fileId, const wchar_t* args)
 {
 	MemoryProfiler::Scope scope("EntityPrototypeLoader::load");
 	MCD_ASSUME(mImpl != nullptr);
-	return mImpl->load(is, fileId);
+	return mImpl->load(is, fileId, args);
 }
 
 void EntityPrototypeLoader::commit(Resource& resource)

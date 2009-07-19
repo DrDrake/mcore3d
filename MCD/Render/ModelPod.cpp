@@ -309,7 +309,7 @@ PodLoader::~PodLoader()
 	delete mImpl;
 }
 
-IResourceLoader::LoadingState PodLoader::load(std::istream* is, const Path* fileId)
+IResourceLoader::LoadingState PodLoader::load(std::istream* is, const Path* fileId, const wchar_t*)
 {
 	MCD_ASSUME(mImpl != nullptr);
 	return mImpl->load(is, fileId);
