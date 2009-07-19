@@ -72,7 +72,12 @@ public:
 		return *this;
 	}
 
-	T* get() const {
+	sal_maybenull T* get() const {
+		return mPtr;
+	}
+
+	//! Use this when you sure the IntrusivePtr is not null to suppress compiler warning
+	sal_notnull T* getNotNull() const {
 		return mPtr;
 	}
 
@@ -80,6 +85,7 @@ public:
 		return *mPtr;
 	}
 
+	//sal_maybenull
 	T* operator->() const {
 		return mPtr;
 	}

@@ -8,6 +8,7 @@
 #include "../MCD/Core/System/RawFileSystem.h"
 #include "../MCD/Render/ChamferBox.h"
 #include "../MCD/Render/Effect.h"
+#include "../MCD/Render/Mesh.h"
 #include "../MCD/Component/Render/EntityPrototypeLoader.h"
 #include "../MCD/Component/Render/MeshComponent.h"
 #include "../MCD/Component/Input/WinMessageInputComponent.h"

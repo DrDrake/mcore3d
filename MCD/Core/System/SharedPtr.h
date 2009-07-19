@@ -115,7 +115,12 @@ public:
 		return *this;
 	}
 
-	T* get() const {
+	sal_maybenull T* get() const {
+		return mPtr;
+	}
+
+	//! Use this when you sure the SharedPtr is not null to suppress compiler warning
+	sal_notnull T* getNotNull() const {
 		return mPtr;
 	}
 
@@ -123,6 +128,7 @@ public:
 		return *mPtr;
 	}
 
+	//sal_maybenull
 	T* operator->() const {
 		return mPtr;
 	}
@@ -152,7 +158,7 @@ public:
 	}
 
 	size_t referenceCount() const {
-		return Super::get()->mRefCount;
+		return Super::getNotNull()->mRefCount;
 	}
 
 private:

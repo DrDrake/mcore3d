@@ -68,7 +68,8 @@ RigidBodyComponent::~RigidBodyComponent(void)
 void RigidBodyComponent::update()
 {
 	MCD_ASSUME(mImpl);
-	mImpl->update(entity());
+	if(Entity* e = entity())
+		mImpl->update(e);
 }
 
 void RigidBodyComponent::activate()
@@ -106,7 +107,8 @@ void RigidBodyComponent::setDamping(float lin_damping, float ang_damping)
 void RigidBodyComponent::onAdd()
 {
 	MCD_ASSUME(mImpl);
-	mImpl->onAdd(entity());
+	if(Entity* e = entity())
+		mImpl->onAdd(e);
 }
 
 }	// namespace MCD
