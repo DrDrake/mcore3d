@@ -9,9 +9,9 @@ public:
 
 	~Impl();
 
-	void onAttach(Entity* e);
+	void onAdd(sal_in Entity* e);
 
-	void update(Entity* e);
+	void update(sal_in Entity* e);
 
 	btRigidBody* mRigidBody;
 	btMotionState* mMotionState;

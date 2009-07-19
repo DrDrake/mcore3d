@@ -29,8 +29,6 @@ public:
 // Override from BehaviourComponent
 	sal_override void update();
 
-	void onAttach();
-
 	void activate();
 
 	void applyForce(const Vec3f& force, const Vec3f& rel_pos);
@@ -39,6 +37,9 @@ public:
 	float getAngularDamping() const;
 
 	void setDamping(float lin_damping, float ang_damping);
+
+protected:
+	sal_override void onAdd();
 
 private:
 	class Impl;

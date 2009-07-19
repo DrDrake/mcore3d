@@ -12,10 +12,6 @@ public:
 	sal_override const std::type_info& familyType() const {
 		return typeid(DummyComponent1);
 	}
-
-// Cloning
-	sal_override bool cloneable() const { return false; }
-	sal_override Component* clone() const { return nullptr; }
 };
 
 class DummyComponent2 : public Component
@@ -24,10 +20,6 @@ public:
 	sal_override const std::type_info& familyType() const {
 		return typeid(DummyComponent2);
 	}
-
-// Cloning
-	sal_override bool cloneable() const { return false; }
-	sal_override Component* clone() const { return nullptr; }
 };
 
 class DummyComponent21 : public DummyComponent2
@@ -40,10 +32,6 @@ public:
 	sal_override const std::type_info& familyType() const {
 		return typeid(DummyComponent3);
 	}
-
-// Cloning
-	sal_override bool cloneable() const { return false; }
-	sal_override Component* clone() const { return nullptr; }
 };
 
 }	// namespace
@@ -89,6 +77,57 @@ TEST(Basic_ComponentTest)
 	e.release();
 
 	CHECK_EQUAL(c3.get(), root.findComponentInChildren(typeid(DummyComponent3)));
+}
+
+namespace {
+
+bool onAddCalled = false;
+bool onRemoveCalled = false;
+
+class TestCallbackComponent : public DummyComponent1
+{
+public:
+	TestCallbackComponent() {
+		onAddCalled = false;
+		onRemoveCalled = false;
+	}
+
+	sal_override ~TestCallbackComponent() {
+		if(entity())
+			onRemove();
+	}
+
+	sal_override void onAdd() {
+		onAddCalled = true;
+	}
+
+	sal_override void onRemove() {
+		onRemoveCalled = true;
+	}
+};
+
+}	// namespace
+
+TEST(Callback_ComponentTest)
+{
+	Entity root;
+
+	TestCallbackComponent* c = new TestCallbackComponent;
+
+	CHECK(!onAddCalled);
+	root.addComponent(c);
+	CHECK(onAddCalled);
+
+	CHECK(!onRemoveCalled);
+	root.removeComponent(typeid(DummyComponent1));
+	CHECK(onRemoveCalled);
+
+	c = new TestCallbackComponent;
+	root.addComponent(c);
+
+	CHECK(!onRemoveCalled);
+	delete c;
+	CHECK(onRemoveCalled);
 }
 
 TEST(ComponentPreorderIterator_ComponentTest)

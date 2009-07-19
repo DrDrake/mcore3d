@@ -1,7 +1,6 @@
 #ifndef __MCD_RENDER_MESHBUILDER__
 #define __MCD_RENDER_MESHBUILDER__
 
-//#include "Mesh.h"
 #include "ShareLib.h"
 #include "../Core/System/NonCopyable.h"
 
@@ -65,7 +64,7 @@ typedef Vec3<float> Vec3f;
 	builder.commit(mesh, MeshBuilder::Static);
 	\endcode
  */
-class MCD_RENDER_API MeshBuilder : public Noncopyable
+class MCD_RENDER_API MeshBuilder : private Noncopyable
 {
 	class BufferImpl;
 

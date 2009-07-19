@@ -8,12 +8,9 @@
 #include "../Core/System/SharedPtr.h"
 #include <vector>
 
-#include "MeshBuilder.h"	//todo: make this fwd-decl only
-
 namespace MCD {
 
-//class MeshBuilder;
-typedef SharedPtr<MeshBuilder> MeshBuilderPtr;
+typedef SharedPtr<class MeshBuilder> MeshBuilderPtr;
 
 /*!
 	\note Since we use uint16_t to store index data, therefore a single Mesh instance cannot

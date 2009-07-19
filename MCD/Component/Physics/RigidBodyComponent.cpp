@@ -22,8 +22,10 @@ RigidBodyComponent::Impl::~Impl()
 	delete mMotionState;
 }
 
-void RigidBodyComponent::Impl::onAttach(Entity* e)
+void RigidBodyComponent::Impl::onAdd(Entity* e)
 {
+	MCD_ASSUME(e);
+
 	btTransform tx(btQuaternion(0,0,0,1), toBullet(e->localTransform.translation()));
 
 	mMotionState = new btDefaultMotionState(tx);
@@ -63,12 +65,6 @@ RigidBodyComponent::~RigidBodyComponent(void)
 	delete mImpl;
 }
 
-void RigidBodyComponent::onAttach()
-{
-	MCD_ASSUME(mImpl);
-	mImpl->onAttach(entity());
-}
-
 void RigidBodyComponent::update()
 {
 	MCD_ASSUME(mImpl);
@@ -105,6 +101,12 @@ void RigidBodyComponent::setDamping(float lin_damping, float ang_damping)
 {
 	MCD_ASSUME(mImpl);
 	mImpl->mRigidBody->setDamping(lin_damping, ang_damping);
+}
+
+void RigidBodyComponent::onAdd()
+{
+	MCD_ASSUME(mImpl);
+	mImpl->onAdd(entity());
 }
 
 }	// namespace MCD
