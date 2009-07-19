@@ -49,7 +49,7 @@ public:
 		\endcode
 	 */
 	virtual sal_checkreturn LoadingState load(
-		sal_maybenull std::istream* is, sal_maybenull const Path* fileId=nullptr) = 0;
+		sal_maybenull std::istream* is, sal_maybenull const Path* fileId=nullptr, sal_maybenull const wchar_t* args=nullptr) = 0;
 
 	//! Commit the data buffer in the loader to the resource.
 	virtual void commit(Resource& resource) = 0;

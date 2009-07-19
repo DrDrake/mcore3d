@@ -139,7 +139,7 @@ TgaLoader::TgaLoader()
 	setImpl(new LoaderImpl(*this));
 }
 
-IResourceLoader::LoadingState TgaLoader::load(std::istream* is, const Path*)
+IResourceLoader::LoadingState TgaLoader::load(std::istream* is, const Path*, const wchar_t*)
 {
 	MCD_ASSUME(mImpl != nullptr);
 	ScopeLock lock(mImpl->mMutex);

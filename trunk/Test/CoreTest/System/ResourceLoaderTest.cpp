@@ -20,7 +20,7 @@ public:
 	FakeResourceLoader() : mLoadingState(NotLoaded), mCommited(false) {}
 
 	sal_override LoadingState load(
-		sal_maybenull std::istream*, sal_maybenull const Path* fileId=nullptr)
+		sal_maybenull std::istream*, sal_maybenull const Path* fileId=nullptr, sal_maybenull const wchar_t* args=nullptr)
 	{
 		(void)fileId;
 		mBuffer.push_back(1);
@@ -79,7 +79,7 @@ public:
 	{}
 
 	sal_override LoadingState load(
-		sal_maybenull std::istream*, sal_maybenull const Path* fileId=nullptr)
+		sal_maybenull std::istream*, sal_maybenull const Path* fileId=nullptr, sal_maybenull const wchar_t* args=nullptr)
 	{
 		(void)fileId;
 		ScopeLock lock(mMutex);

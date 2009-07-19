@@ -120,7 +120,7 @@ JpegLoader::JpegLoader()
 	setImpl(new LoaderImpl(*this));
 }
 
-IResourceLoader::LoadingState JpegLoader::load(std::istream* is, const Path*)
+IResourceLoader::LoadingState JpegLoader::load(std::istream* is, const Path*, const wchar_t*)
 {
 	MemoryProfiler::Scope scope("JpegLoader::load");
 	MCD_ASSUME(mImpl != nullptr);

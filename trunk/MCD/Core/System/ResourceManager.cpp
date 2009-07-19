@@ -95,7 +95,7 @@ class ResourceManager::Impl
 	{
 	public:
 		Task(MapNode& mapNode, const SharedPtr<IResourceLoader>& loader,
-			EventQueue& eventQueue, std::istream* is, uint priority, TaskPool& taskPool)
+			EventQueue& eventQueue, std::istream* is, uint priority, TaskPool& taskPool, const wchar_t* args)
 			:
 			MCD::TaskPool::Task(priority),
 			mMapNode(mapNode),
@@ -103,7 +103,8 @@ class ResourceManager::Impl
 			mLoader(loader),
 			mEventQueue(eventQueue),
 			mIStream(is),
-			mTaskPool(taskPool)
+			mTaskPool(taskPool),
+			mArgs(args == nullptr ? L"" : args)
 		{
 		}
 
@@ -117,7 +118,7 @@ class ResourceManager::Impl
 			while(thread.keepRun()) {
 				IResourceLoader::LoadingState state;
 				{	ScopeUnlock unlock(mutex);
-					state = mLoader->load(mIStream.get(), mResource ? &mResource->fileId() : nullptr);
+					state = mLoader->load(mIStream.get(), mResource ? &mResource->fileId() : nullptr, mArgs.c_str());
 				}
 
 				mMapNode.mLoadingState = state;
@@ -132,7 +133,7 @@ class ResourceManager::Impl
 
 				if(USE_MORE_PARALLEL_LOADING_SCHEDULE) {
 					// Creat a new schedule that has a lower priority
-					Task* task = new Task(mMapNode, mLoader, mEventQueue, mIStream.release(), priority()+1, mTaskPool);
+					Task* task = new Task(mMapNode, mLoader, mEventQueue, mIStream.release(), priority()+1, mTaskPool, mArgs.c_str());
 					mTaskPool.enqueue(*task);
 					break;
 				}
@@ -148,6 +149,7 @@ class ResourceManager::Impl
 		EventQueue& mEventQueue;
 		std::auto_ptr<std::istream> mIStream;	// Keep the life of the stream align with the Task
 		TaskPool& mTaskPool;
+		std::wstring mArgs;
 	};	// Task
 
 public:
@@ -175,14 +177,14 @@ public:
 		return mResourceMap.find(fileId)->getOuterSafe();
 	}
 
-	void blockingLoad(const Path& fileId, MapNode& node, IResourceLoader& loader)
+	void blockingLoad(const Path& fileId, const wchar_t* args, MapNode& node, IResourceLoader& loader)
 	{
 		MCD_ASSERT(mEventQueue.mMutex.isLocked());
 		std::auto_ptr<std::istream> is(mFileSystem.openRead(fileId));
 
 		do {
 			ScopeUnlock unlock(mEventQueue.mMutex);
-			if(loader.load(is.get(), &fileId) & IResourceLoader::Stopped)
+			if(loader.load(is.get(), &fileId, args) & IResourceLoader::Stopped)
 				break;
 		} while(true);
 
@@ -191,13 +193,13 @@ public:
 		mEventQueue.pushBack(event);
 	}
 
-	void backgroundLoad(const Path& fileId, MapNode& node, IResourceLoader& loader, uint priority)
+	void backgroundLoad(const Path& fileId, const wchar_t* args, MapNode& node, IResourceLoader& loader, uint priority)
 	{
 		MCD_ASSERT(mEventQueue.mMutex.isLocked());
 		std::auto_ptr<std::istream> is(mFileSystem.openRead(fileId));
 
 		// Create the task to submit to the task pool
-		Task* task = new Task(node, &loader, mEventQueue, is.get(), priority, mTaskPool);
+		Task* task = new Task(node, &loader, mEventQueue, is.get(), priority, mTaskPool, args);
 		is.release();	// We have transfered the ownership of istream to Task
 
 		mTaskPool.enqueue(*task);
@@ -296,9 +298,9 @@ ResourcePtr ResourceManager::load(const Path& fileId, bool block, uint priority,
 
 	// Now we can begin the load operation
 	if(block)
-		mImpl->blockingLoad(fileId, *node, *loader);
+		mImpl->blockingLoad(fileId, args, *node, *loader);
 	else
-		mImpl->backgroundLoad(fileId, *node, *loader, priority);
+		mImpl->backgroundLoad(fileId, args, *node, *loader, priority);
 
 	return resource;
 }
@@ -327,9 +329,9 @@ ResourcePtr ResourceManager::reload(const Path& fileId, bool block, uint priorit
 
 	// Now we can begin the load operation
 	if(block)
-		mImpl->blockingLoad(fileId, *node, *loader);
+		mImpl->blockingLoad(fileId, args, *node, *loader);
 	else
-		mImpl->backgroundLoad(fileId, *node, *loader, priority);
+		mImpl->backgroundLoad(fileId, args, *node, *loader, priority);
 
 	return node->mResource.get();
 }

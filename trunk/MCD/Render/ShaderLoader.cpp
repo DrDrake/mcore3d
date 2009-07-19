@@ -11,7 +11,7 @@ ShaderLoader::ShaderLoader(int shaderType)
 {
 }
 
-IResourceLoader::LoadingState ShaderLoader::load(std::istream* is, const Path*)
+IResourceLoader::LoadingState ShaderLoader::load(std::istream* is, const Path*, const wchar_t*)
 {
 	mLoadingState = is ? NotLoaded : Aborted;
 

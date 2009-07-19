@@ -1,12 +1,14 @@
 #include "Pch.h"
 #include "../../MCD/Render/Max3dsLoader.h"
 #include "../../MCD/Render/Model.h"
+#include "../../MCD/Render/Mesh.h"
 #include "../../MCD/Render/ResourceLoaderFactory.h"
 #include "../../MCD/Render/Texture.h"
 #include "../../MCD/Core/System/ResourceLoader.h"
 #include "../../MCD/Core/System/RawFileSystem.h"
 #include "../../MCD/Core/System/StrUtility.h"
 #include <fstream>
+#include <exception>
 
 using namespace MCD;
 
@@ -32,7 +34,8 @@ TEST(Max3dsLoaderTest)
 
 		void load3ds(const wchar_t* fileId)
 		{
-			mModel = dynamic_cast<Model*>(mResourceManager->load(fileId).get());
+			const wchar_t* args = L"meshBuilders=true";
+			mModel = dynamic_cast<Model*>(mResourceManager->load(fileId, false, 0, args).get());
 		}
 
 		void processResourceLoadingEvents()
@@ -62,6 +65,18 @@ TEST(Max3dsLoaderTest)
 			glScalef(scale, scale, scale);
 
 			mModel->draw();
+
+			// verify the effect of 'meshBuilder=true' arg
+			if(mModel)
+			{
+				for(Model::MeshAndMaterial* mnm = mModel->mMeshes.begin();
+					mnm != mModel->mMeshes.end(); 
+					mnm = mnm->next())
+				{
+					if(mnm->mesh->builder == nullptr)
+						throw std::bad_exception("Mesh::builder == nullptr!");
+				}
+			}
 		}
 
 		ModelPtr mModel;

@@ -7,6 +7,7 @@
 #include "../../MCD/Render/Model.h"
 #include "../../MCD/Render/TangentSpaceBuilder.h"
 #include "../../MCD/Component/Render/MeshComponent.h"
+#include "../../MCD/Component/Render/EntityPrototype.h"
 #include "../../MCD/Render/Mesh.h"
 
 using namespace MCD;
@@ -16,7 +17,7 @@ namespace NormalMappingTest {
 class TestWindow : public BasicGlWindow
 {
 private:
-	ModelPtr mModel;
+	EntityPrototypePtr mEntProto;
 	EffectPtr mEffect;
 
 public:
@@ -33,8 +34,8 @@ public:
 		mEffect = static_cast<Effect*>(mResourceManager.load(L"Material/normalmapping.fx.xml").get());
 
 		{
-			//mModel = dynamic_cast<Model*>(mResourceManager.load(L"3M00696/buelllightning.3DS").get());
-			mModel = dynamic_cast<Model*>(mResourceManager.load(L"Scene/City/scene.3ds").get());
+			//mEntProto = dynamic_cast<EntityPrototype*>(mResourceManager.load(L"3M00696/buelllightning.3DS").get());
+			mEntProto = dynamic_cast<EntityPrototype*>(mResourceManager.load(L"Scene/City/scene.3ds", false, 0, L"tangents=true").get());
 		}
 		{	// Setup entity 1
 			std::auto_ptr<Entity> e(new Entity);
@@ -84,7 +85,7 @@ public:
 	{
 		mResourceManager.processLoadingEvents();
 
-		if(mModel)
+		if(mEntProto)
 		{
 			glPushMatrix();
 			glScalef(0.01f, 0.01f, 0.01f);
@@ -94,16 +95,19 @@ public:
 			if(mat) for(size_t i=0; i<mat->getPassCount(); ++i)
 			{
 				mat->preRender(i);
-				mModel->draw();
+				//mEntProto->draw();
+				RenderableComponent::traverseEntities(mEntProto->entity.get());
 				mat->postRender(i);
 			}
 			else
-				mModel->draw();
+			{
+				RenderableComponent::traverseEntities(mEntProto->entity.get());
+			}
 
 			glPopMatrix();
 		}
 
-		glTranslatef(0.0f, 0.0f, -5.0f);
+		glTranslatef(0.0f, -10.0f, 0.0f);
 
 		RenderableComponent::traverseEntities(&mRootNode);
 	}
