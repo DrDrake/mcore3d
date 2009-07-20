@@ -90,3 +90,12 @@ void DynamicsWorld::removeRigidBody(RigidBodyComponent& rbc)
 	// make sure all RigidBodyComponent are destroyed before the DynamicsWorld destroy.
 	mImpl->mDynamicsWorld->removeRigidBody(rbc.mImpl->mRigidBody);
 }
+
+void DynamicsWorld::removeRigidBody(void* rbc)
+{
+	MCD_ASSUME(mImpl && mImpl->mDynamicsWorld);
+	btRigidBody* p = reinterpret_cast<btRigidBody*>(rbc);
+	// NOTE: If you saw memory error on the next line, most likely you haven't
+	// make sure all RigidBodyComponent are destroyed before the DynamicsWorld destroy.
+	mImpl->mDynamicsWorld->removeRigidBody(p);
+}

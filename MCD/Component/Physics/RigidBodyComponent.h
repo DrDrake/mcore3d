@@ -19,6 +19,7 @@ typedef IntrusivePtr<class CollisionShape> CollisionShapePtr;
 class MCD_COMPONENT_API RigidBodyComponent : public BehaviourComponent
 {
 	friend class DynamicsWorld;
+	friend class ThreadedDynamicsWorld;
 
 public:
 	//! It will take shared ownership of shape.
