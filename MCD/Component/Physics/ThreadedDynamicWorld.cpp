@@ -1,64 +1,78 @@
 #include "Pch.h"
 #include "ThreadedDynamicWorld.h"
 #include "RigidBodyComponent.h"
+#include "../../Core/Entity/Component.h"
 #include "../../Core/System/Mutex.h"
 #include "../../Core/System/Timer.h"
-#include "../../Core/Entity/Component.h"
-#include <functional>
+#include "../../Core/System/TypeTrait.h"
 #include <queue>
 
+//! A simply enough command class for use in physics component command queue.
+class MCD_ABSTRACT_CLASS ICommand {
+public:
+	virtual ~ICommand() {}
+	virtual void exec() = 0;
+};	// ICommand
+
+template<typename T1, typename T2, typename T1_=ParamType<T1>::RET, typename T2_=ParamType<T2>::RET>
+struct StaticCommand2 : public ICommand
+{
+	typedef void (*F)(T1_, T2_);
+	StaticCommand2(F f, T1_ t1, T2_ t2) : f(f), t1(t1), t2(t2) {}
+	sal_override void exec() { (*f)(t1, t2); }
+
+	F f;
+	T1 t1;	// The storage type can be differ from the argument type.
+	T2 t2;
+};	// StaticCommand2
+
+template<class C, typename T1, typename T1_=ParamType<T1>::RET>
+struct MemCommand1 : public ICommand
+{
+	typedef void (C::*F)(T1_);
+	MemCommand1(F f, C& c, T1_ t1) : f(f), c(c), t1(t1) {}
+	sal_override void exec() { (c.*f)(t1); }
+
+	F f;
+	C& c;
+	T1 t1;	// The storage type can be differ from the argument type.
+};	// MemCommand1
+
 using namespace MCD;
-using std::tr1::bind;
-using std::tr1::function;
 
-template<typename T>
-struct functor_ret_voidifer : public std::unary_function<T, void>
-{
-	functor_ret_voidifer(T op) : mOp(op) {}
-
-	void operator()() {
-		mOp();
-	}
-
-	T mOp;
-};	// functor_ret_voidifer
-
-template<typename T>
-function<void()> functor_ret_voidify(T op)
-{
-	return functor_ret_voidifer<T>(op);
-}
-
-// Note that we use ComponentPtr (a weak pointer) as parameter
-static void addRigidBody(DynamicsWorld* world, const ComponentPtr& rbc)
-{
-	MCD_ASSUME(world);
-	RigidBodyComponent* p = dynamic_cast<RigidBodyComponent*>(rbc.get());
-	if(p)
-		world->addRigidBody(*p);
-}
-
-class ThreadedDynamicWorld::Impl : public DynamicsWorld
+class ThreadedDynamicsWorld::Impl
 {
 public:
-	Impl() : mSmoothFps(0) {}
+	Impl(ThreadedDynamicsWorld& world) : mThreadedDynamicsWorld(world), mSmoothFps(0) {}
+
+	~Impl()
+	{
+		// Cleanup all pending job before closing, some job may be removing
+		// btRigidBody from btDynamicsWorld which is essential during shutdown.
+		doQueueJob();
+	}
+
+	void doQueueJob() 
+	{
+		ScopeLock lock(mCommandQueueLock);
+		while(!mCommandQueue.empty())
+		{
+			ICommand* c = mCommandQueue.front();
+			c->exec();
+			delete c;
+			mCommandQueue.pop();
+		}
+	}
 
 	void run(Thread& thread) throw()
 	{
 		DeltaTimer timer;
 		while(thread.keepRun())
 		{
-			{
-				ScopeLock lock(mCommandQueueLock);
-				while(!mCommandQueue.empty())
-				{
-					mCommandQueue.front()();
-					mCommandQueue.pop();
-				}
-			}
+			doQueueJob();
 
 			float dt = float(timer.getDelta().asSecond());
-			stepSimulation(dt, 10);
+			mThreadedDynamicsWorld.stepSimulation(dt, 10);
 
 			float instanceFps = 1.0f / dt;
 			mSmoothFps = instanceFps / 10 + mSmoothFps / 9;
@@ -69,50 +83,87 @@ public:
 		}
 	}
 
-	void addRigidBody(RigidBodyComponent& rbc)
-	{
-		ScopeLock lock(mCommandQueueLock);
-		mCommandQueue.push(functor_ret_voidify(bind(&::addRigidBody, this, ComponentPtr(&rbc))));
-	}
-
-	void setGravity(const Vec3f& g)
-	{
-		ScopeLock lock(mCommandQueueLock);
-		mCommandQueue.push(functor_ret_voidify(bind(&DynamicsWorld::setGravity, this, g)));
-	}
-
+	ThreadedDynamicsWorld& mThreadedDynamicsWorld;
 	Mutex mCommandQueueLock;
-	typedef std::queue<std::tr1::function<void()> > CommandQueue;
+	typedef std::queue<ICommand*> CommandQueue;
 	CommandQueue mCommandQueue;
 	float mSmoothFps;	// A smoothed frame per second
 
 	static const int cFpsLimit = 30;
 };	// Impl
 
-void ThreadedDynamicWorld::run(Thread& thread) throw()
+void ThreadedDynamicsWorld::run(Thread& thread) throw()
 {
 	MCD_ASSUME(mImpl);
 	mImpl->run(thread);
 }
 
-ThreadedDynamicWorld::ThreadedDynamicWorld()
+ThreadedDynamicsWorld::ThreadedDynamicsWorld()
 {
-	mImpl = new Impl();
+	mImpl = new Impl(*this);
 }
 
-ThreadedDynamicWorld::~ThreadedDynamicWorld()
+ThreadedDynamicsWorld::~ThreadedDynamicsWorld()
 {
 	delete mImpl;
 }
 
-void ThreadedDynamicWorld::addRigidBody(RigidBodyComponent& rbc)
+void ThreadedDynamicsWorld::addRigidBody(RigidBodyComponent& rbc)
 {
+	struct Dummy
+	{
+		// Note that we use ComponentPtr (a weak pointer) as parameter
+		static void addRigidBody(ThreadedDynamicsWorld& world, const ComponentPtr& rbc)
+		{
+			RigidBodyComponent* p = dynamic_cast<RigidBodyComponent*>(rbc.get());
+			if(p)
+				world.addRigidBodyNoQueue(*p);
+		}
+	};	// Dummy
+
 	MCD_ASSUME(mImpl);
-	mImpl->addRigidBody(rbc);
+	ScopeLock lock(mImpl->mCommandQueueLock);
+	mImpl->mCommandQueue.push(new StaticCommand2<ThreadedDynamicsWorld&, const ComponentPtr>(&Dummy::addRigidBody, *this, ComponentPtr(&rbc)));
 }
 
-void ThreadedDynamicWorld::setGravity(const Vec3f& g)
+void ThreadedDynamicsWorld::addRigidBodyNoQueue(RigidBodyComponent& rbc)
 {
 	MCD_ASSUME(mImpl);
-	mImpl->setGravity(g);
+	MCD_ASSERT(mImpl->mCommandQueueLock.isLocked());
+	DynamicsWorld::addRigidBody(rbc);
+}
+
+void ThreadedDynamicsWorld::setGravity(const Vec3f& g)
+{
+	MCD_ASSUME(mImpl);
+	ScopeLock lock(mImpl->mCommandQueueLock);
+	mImpl->mCommandQueue.push(new MemCommand1<DynamicsWorld, const Vec3f>(&DynamicsWorld::setGravity, *this, g));
+}
+
+void ThreadedDynamicsWorld::removeRigidBody(RigidBodyComponent& rbc)
+{
+	// TODO: Temporary
+	removeRigidBodyNoQueue(rbc);
+
+/*	struct Dummy
+	{
+		// Note that we use ComponentPtr (a weak pointer) as parameter
+		static void addRigidBody(ThreadedDynamicsWorld& world, const ComponentPtr& rbc)
+		{
+			RigidBodyComponent* p = dynamic_cast<RigidBodyComponent*>(rbc.get());
+			if(p)
+				world.addRigidBodyNoQueue(*p);
+		}
+	};	// Dummy
+
+	MCD_ASSUME(mImpl);
+	ScopeLock lock(mImpl->mCommandQueueLock);
+	mImpl->mCommandQueue.push(new StaticCommand2<ThreadedDynamicsWorld&, const ComponentPtr>(&Dummy::addRigidBody, *this, ComponentPtr(&rbc)));*/
+}
+
+void ThreadedDynamicsWorld::removeRigidBodyNoQueue(RigidBodyComponent& rbc)
+{
+	MCD_ASSUME(mImpl);
+//	MCD_ASSERT(mImpl->mCommandQueueLock.isLocked());
+	DynamicsWorld::removeRigidBody(rbc);
 }

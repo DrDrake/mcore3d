@@ -3,6 +3,7 @@
 #include "../MCD/Binding/Entity.h"
 #include "../MCD/Binding/InputComponent.h"
 #include "../MCD/Binding/ScriptComponentManager.h"
+#include "../MCD/Binding/System.h"
 #include "../MCD/Core/Entity/Entity.h"
 #include "../MCD/Core/System/FileSystemCollection.h"
 #include "../MCD/Core/System/RawFileSystem.h"
@@ -26,6 +27,19 @@
 #endif
 
 using namespace MCD;
+
+//! Call a script function when a list of resources were loaded.
+class ResourceLoadCallback : public ResourceManagerCallback
+{
+public:
+	sal_override void doCallback()
+	{
+		if(onLoaded.isAssigned())
+			onLoaded.call();
+	}
+
+	script::Event<void> onLoaded;
+};	// Callback
 
 class TestWindow : public BasicGlWindow
 {
@@ -113,11 +127,29 @@ public:
 		return mInputComponent;
 	}
 
+	sal_notnull IResourceManager* resourceManager() {
+		return &mResourceManager;
+	}
+
 	static TestWindow* getSinleton() {
 		return TestWindow::singleton;
 	}
 
 	static TestWindow* singleton;
+
+	//! Perform callback when the supplied list of resource get loaded
+	static int addCallback(HSQUIRRELVM vm)
+	{
+		script::detail::StackHandler sa(vm);
+		int nparams = sa.getParamCount();
+
+		static const wchar_t errorMsg[] = L"addCallback() expecting a string or an array of string as parameter";
+
+		if(nparams < 1)
+			return sa.throwError(errorMsg);
+
+		return 1;
+	}
 
 // Attributes:
 	Entity* mRootNode;
@@ -138,6 +170,15 @@ SCRIPT_CLASS_REGISTER_NAME(TestWindow, "MainWindow")
 	.method<objNoCare>(L"_getrootEntity", &TestWindow::rootNode)
 	.method(L"loadEntity", &TestWindow::loadEntity)
 	.method<objNoCare>(L"_getinputComponent", &TestWindow::inputComponent)
+	.method<objNoCare>(L"_getresourceManager", &TestWindow::resourceManager)
+	.rawMethod(L"addCallback", &TestWindow::addCallback)
+;}
+
+SCRIPT_CLASS_DECLAR(ResourceLoadCallback);
+SCRIPT_CLASS_REGISTER(ResourceLoadCallback)
+	.declareClass<ResourceLoadCallback, IResourceManagerCallback>(L"ResourceLoadCallback")
+	.constructor()
+	.scriptEvent(L"onLoaded", &ResourceLoadCallback::onLoaded)
 ;}
 
 }	// namespace script
@@ -154,12 +195,27 @@ void TestWindow::scriptBindingSetup()
 	root.declareFunction<objNoCare>(L"_getMainWindow", &TestWindow::getSinleton);
 
 	script::ClassTraits<TestWindow>::bind(v);
+	script::ClassTraits<ResourceLoadCallback>::bind(v);
 
 	// Setup some global variable for easy access in script.
 	mScriptComponentManager.vm.runScript(
 		L"gMainWindow <- _getMainWindow();\n"
+
 		L"function loadEntity(filePath) { return gMainWindow.loadEntity(filePath); }\n"
+
 		L"gInput <- gMainWindow.inputComponent;\n"
+
+		L"resourceManager <- gMainWindow.resourceManager;\n"
+
+		L"function addResourceCallback(filePaths, functor) {\n"
+		L"	local callback = ResourceLoadCallback();\n"
+		L"	if(typeof filePaths == \"string\")\n"
+		L"		callback.addDependency(filePaths);\n"
+		L"	else foreach(path in filePaths)\n"
+		L"		callback.addDependency(path);\n"
+		L"	callback.onLoaded().setHandler(functor);\n"
+		L"	resourceManager.addCallback(callback);\n"
+		L"}\n"
 	);
 
 	// TODO: Let user supply a command line argument to choose the startup script

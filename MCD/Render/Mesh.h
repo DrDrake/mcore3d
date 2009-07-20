@@ -40,7 +40,7 @@ public:
 	//! Maximum number of texture coordinate per vertex.
 	static const size_t cMaxTextureCoordCount = 6;
 
-	explicit Mesh(const Path& fileId);
+	explicit Mesh(const Path& fileId = L"");
 
 	//! Construct that take another mesh's buffers to share with.
 	Mesh(const Path& fileId, const Mesh& shareBuffer);

@@ -20,7 +20,7 @@
 
 using namespace MCD;
 
-#define USE_HARDWARE_INSTANCE
+//#define USE_HARDWARE_INSTANCE
 
 // The Instanced Mesh composes of 2 classes:
 // InstancedMesh and InstancedMeshComponent
@@ -162,32 +162,12 @@ public:
 		MCD_ASSUME(e);
 		mInstMesh->registerPerInstanceInfo(e->localTransform);
 	}
-
-	virtual bool cloneable() const
-	{
-		return false;
-	}
-
-	/*! Creates and returns a deep copy of this Component.
-		This method should returns nullptr if this Component is not cloneable.
-	*/
-	virtual sal_maybenull Component* clone() const
-	{
-		return nullptr;
-	}
-};
+};	// InstancedMeshComponent
 
 TEST(ThreadedPhysicsComponentTest)
 {
 	class TestWindow : public BasicGlWindow
 	{
-		float mAbsTime;
-		ModelPtr mModel;
-		InstancedMeshPtr mBallInstMesh;
-
-		std::auto_ptr<ThreadedDynamicWorld> mDynamicsWorld;
-		MCD::Thread mPhysicsThread;
-
 	public:
 		void processResourceLoadingEvents()
 		{
@@ -211,12 +191,9 @@ TEST(ThreadedPhysicsComponentTest)
 			mResourceManager.addFactory(new Max3dsLoaderFactory(mResourceManager));
 
 			// The maximum random displacement added to the balls
-			static float randomness = 0.0f;
+			static const float randomness = 0.0f;
 
-			mAbsTime = 0;
-
-			mDynamicsWorld.reset(new ThreadedDynamicWorld);
-			mDynamicsWorld->setGravity(Vec3f(0, -5, 0));
+			mDynamicsWorld.setGravity(Vec3f(0, -5, 0));
 
 			Vec3f ballInitialPosition(0, 290, 0), ballPosXDelta(10, 0, 0), ballPosYDelta(0, 0, 10);
 
@@ -238,7 +215,6 @@ TEST(ThreadedPhysicsComponentTest)
 				{	// Build entity
 					std::auto_ptr<Entity> e(new Entity);
 					e->name = L"ChamferBox 1";
-					e->asChildOf(&mRootNode);
 					e->localTransform = Mat44f(Mat33f::rotateXYZ(0, Mathf::cPiOver4(), 0));
 					// Add some randomness, hehehehe
 					
@@ -258,12 +234,10 @@ TEST(ThreadedPhysicsComponentTest)
 #endif
 
 					// Create the phyiscs component
-					RigidBodyComponent* rbc = new RigidBodyComponent(0.5f, new SphereShape(1));
+					RigidBodyComponent* rbc = new RigidBodyComponent(mDynamicsWorld, 0.5f, new SphereShape(1));
 					e->addComponent(rbc);
 
-					// Add it to the physics world..
-					mDynamicsWorld->addRigidBody(*rbc);
-
+					e->asChildOf(&mRootNode);
 					e.release();
 				}
 			}
@@ -279,16 +253,13 @@ TEST(ThreadedPhysicsComponentTest)
 
 					// Setup the ground plane
 					std::auto_ptr<Entity> e(new Entity);
-					e->name = L"";
-					e->asChildOf(&mRootNode);
+					e->name = L"Ground";
 
 					// Create the phyiscs component
-					RigidBodyComponent* rbc = new RigidBodyComponent(0, new StaticTriMeshShape(mesh));
+					RigidBodyComponent* rbc = new RigidBodyComponent(mDynamicsWorld, 0, new StaticTriMeshShape(mesh));
 					e->addComponent(rbc);
 
-					// Add it to the physics world..
-					mDynamicsWorld->addRigidBody(*rbc);
-
+					e->asChildOf(&mRootNode);
 					e.release();
 				}
 			}
@@ -299,13 +270,11 @@ TEST(ThreadedPhysicsComponentTest)
 			mCamera.upVector = Vec3f(0, 0, 1);
 
 			// Start the physics thread
-			mPhysicsThread.start(*mDynamicsWorld.get(), false);
+			mPhysicsThread.start(mDynamicsWorld, false);
 		}
 
 		sal_override void update(float deltaTime)
 		{
-			static int calledTime = 0;
-			mAbsTime += deltaTime;
 			mResourceManager.processLoadingEvents();
 
 			mModel->draw();
@@ -321,22 +290,26 @@ TEST(ThreadedPhysicsComponentTest)
 			BehaviourComponent::traverseEntities(&mRootNode);
 		}
 
-		Entity mRootNode;
-
-		DefaultResourceManager mResourceManager;
-
 		virtual ~TestWindow()
 		{
-			// Make sure the dynamics world is freed BEFORE the RigidBodyComponent...
 			mPhysicsThread.postQuit();
 			mPhysicsThread.wait();
-			mDynamicsWorld.reset();
+
+			// Make sure the RigidBodyComponent is freed BEFORE the dynamics world...
+			while(mRootNode.firstChild())
+				delete mRootNode.firstChild();
 		}
+
+		Entity mRootNode;
+		ModelPtr mModel;
+		InstancedMeshPtr mBallInstMesh;
+		ThreadedDynamicsWorld mDynamicsWorld;
+		DefaultResourceManager mResourceManager;
+		Thread mPhysicsThread;
 	};	// TestWindow
 
 	{
 		TestWindow window;
-		window.update(0.1f);
 		window.mainLoop();
 	}
 }

@@ -9,8 +9,20 @@ template<typename T> struct ParamType {
 	typedef T& RET;
 };
 
+template<typename T> struct ParamType<T&> {
+	typedef T& RET;
+};
+
+template<typename T> struct ParamType<const T&> {
+	typedef const T& RET;
+};
+
 template<typename T> struct ParamType<T*> {
 	typedef T* RET;
+};
+
+template<typename T> struct ParamType<const T*> {
+	typedef const T* RET;
 };
 
 template<> struct ParamType<int> {

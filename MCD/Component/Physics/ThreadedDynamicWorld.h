@@ -1,5 +1,5 @@
-#ifndef __MCD_COMPONENT_THREADEDDYNAMICWORLD__
-#define __MCD_COMPONENT_THREADEDDYNAMICWORLD__
+#ifndef __MCD_COMPONENT_ThreadedDynamicsWorld__
+#define __MCD_COMPONENT_ThreadedDynamicsWorld__
 
 #include "../ShareLib.h"
 #include "../../Core/System/Thread.h"
@@ -8,28 +8,33 @@
 
 namespace MCD {
 
-class MCD_COMPONENT_API ThreadedDynamicWorld : public Thread::IRunnable
+class MCD_COMPONENT_API ThreadedDynamicsWorld : public DynamicsWorld, public Thread::IRunnable
 {
 public:
-	ThreadedDynamicWorld(void);
+	ThreadedDynamicsWorld(void);
 
-	sal_override ~ThreadedDynamicWorld();
+	sal_override ~ThreadedDynamicsWorld();
 
 	sal_override void run(Thread& thread) throw();
 
 // Operations
-	//! ThreadedDynamicWorld will not take over the ownership of RigidBodyComponent
-	// TODO: Add the corresponding remove function.
-	void addRigidBody(RigidBodyComponent& rbc);
 
 // Attributes
 	void setGravity(const Vec3f& g);
 
+protected:
+	//! ThreadedDynamicsWorld will not take over the ownership of RigidBodyComponent
+	sal_override void addRigidBody(RigidBodyComponent& rbc);
+	void addRigidBodyNoQueue(RigidBodyComponent& rbc);
+
+	sal_override void removeRigidBody(RigidBodyComponent& rbc);
+	void removeRigidBodyNoQueue(RigidBodyComponent& rbc);
+
 private:
 	class Impl;
 	Impl* mImpl;
-};	// ThreadedDynamicWorld
+};	// ThreadedDynamicsWorld
 
 }  // namespace MCD
 
-#endif	// __MCD_COMPONENT_THREADEDDYNAMICWORLD__
+#endif	// __MCD_COMPONENT_ThreadedDynamicsWorld__
