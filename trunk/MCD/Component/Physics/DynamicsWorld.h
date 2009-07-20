@@ -31,6 +31,9 @@ protected:
 
 	virtual void removeRigidBody(RigidBodyComponent& rbc);
 
+	//! Expecting void* to be btRigidBody*
+	void removeRigidBody(sal_notnull void* rbc);
+
 private:
 	class Impl;
 	Impl* mImpl;

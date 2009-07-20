@@ -28,7 +28,9 @@ protected:
 	void addRigidBodyNoQueue(RigidBodyComponent& rbc);
 
 	sal_override void removeRigidBody(RigidBodyComponent& rbc);
-	void removeRigidBodyNoQueue(RigidBodyComponent& rbc);
+
+	//! Expecting void* to be btRigidBody*
+	void removeRigidBodyNoQueue(sal_notnull void* rbc);
 
 private:
 	class Impl;

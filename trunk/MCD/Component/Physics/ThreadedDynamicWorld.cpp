@@ -1,6 +1,8 @@
 #include "Pch.h"
 #include "ThreadedDynamicWorld.h"
+#include "DynamicsWorld.inl"
 #include "RigidBodyComponent.h"
+#include "RigidBodyComponent.inl"
 #include "../../Core/Entity/Component.h"
 #include "../../Core/System/Mutex.h"
 #include "../../Core/System/Timer.h"
@@ -142,28 +144,27 @@ void ThreadedDynamicsWorld::setGravity(const Vec3f& g)
 
 void ThreadedDynamicsWorld::removeRigidBody(RigidBodyComponent& rbc)
 {
-	// TODO: Temporary
-	removeRigidBodyNoQueue(rbc);
-
-/*	struct Dummy
+	struct Dummy
 	{
 		// Note that we use ComponentPtr (a weak pointer) as parameter
-		static void addRigidBody(ThreadedDynamicsWorld& world, const ComponentPtr& rbc)
+		static void removeRigidBody(ThreadedDynamicsWorld& world, btRigidBody* rbc)
 		{
-			RigidBodyComponent* p = dynamic_cast<RigidBodyComponent*>(rbc.get());
-			if(p)
-				world.addRigidBodyNoQueue(*p);
+			world.removeRigidBodyNoQueue(rbc);
+			delete rbc;
 		}
 	};	// Dummy
 
+	// Remove the ownership of btRigidBody from RigidBodyComponent to the command.
+	MCD_ASSUME(rbc.mImpl);
+	btRigidBody* p = rbc.mImpl->mRigidBody;
+	rbc.mImpl->mRigidBody = nullptr;
+
 	MCD_ASSUME(mImpl);
 	ScopeLock lock(mImpl->mCommandQueueLock);
-	mImpl->mCommandQueue.push(new StaticCommand2<ThreadedDynamicsWorld&, const ComponentPtr>(&Dummy::addRigidBody, *this, ComponentPtr(&rbc)));*/
+	mImpl->mCommandQueue.push(new StaticCommand2<ThreadedDynamicsWorld&, btRigidBody*>(&Dummy::removeRigidBody, *this, p));
 }
 
-void ThreadedDynamicsWorld::removeRigidBodyNoQueue(RigidBodyComponent& rbc)
+void ThreadedDynamicsWorld::removeRigidBodyNoQueue(void* rbc)
 {
-	MCD_ASSUME(mImpl);
-//	MCD_ASSERT(mImpl->mCommandQueueLock.isLocked());
 	DynamicsWorld::removeRigidBody(rbc);
 }
