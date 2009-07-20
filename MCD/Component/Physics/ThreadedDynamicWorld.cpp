@@ -147,21 +147,21 @@ void ThreadedDynamicsWorld::removeRigidBody(RigidBodyComponent& rbc)
 	struct Dummy
 	{
 		// Note that we use ComponentPtr (a weak pointer) as parameter
-		static void removeRigidBody(ThreadedDynamicsWorld& world, btRigidBody* rbc)
+		static void removeRigidBody(ThreadedDynamicsWorld& world, RigidBodyComponent::Impl* rbc)
 		{
-			world.removeRigidBodyNoQueue(rbc);
+			world.removeRigidBodyNoQueue(rbc->mRigidBody);
 			delete rbc;
 		}
 	};	// Dummy
 
 	// Remove the ownership of btRigidBody from RigidBodyComponent to the command.
 	MCD_ASSUME(rbc.mImpl);
-	btRigidBody* p = rbc.mImpl->mRigidBody;
-	rbc.mImpl->mRigidBody = nullptr;
+	RigidBodyComponent::Impl* p = rbc.mImpl;
+	rbc.mImpl = nullptr;
 
 	MCD_ASSUME(mImpl);
 	ScopeLock lock(mImpl->mCommandQueueLock);
-	mImpl->mCommandQueue.push(new StaticCommand2<ThreadedDynamicsWorld&, btRigidBody*>(&Dummy::removeRigidBody, *this, p));
+	mImpl->mCommandQueue.push(new StaticCommand2<ThreadedDynamicsWorld&, RigidBodyComponent::Impl*>(&Dummy::removeRigidBody, *this, p));
 }
 
 void ThreadedDynamicsWorld::removeRigidBodyNoQueue(void* rbc)

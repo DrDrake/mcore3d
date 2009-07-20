@@ -214,7 +214,7 @@ TEST(ThreadedPhysicsComponentTest)
 				for(int y = 0; y < yCount; ++y)
 				{	// Build entity
 					std::auto_ptr<Entity> e(new Entity);
-					e->name = L"ChamferBox 1";
+					e->name = L"Shpere";
 					e->localTransform = Mat44f(Mat33f::rotateXYZ(0, Mathf::cPiOver4(), 0));
 					// Add some randomness, hehehehe
 					
@@ -292,9 +292,6 @@ TEST(ThreadedPhysicsComponentTest)
 
 		virtual ~TestWindow()
 		{
-			mPhysicsThread.postQuit();
-			mPhysicsThread.wait();
-
 			// Make sure the RigidBodyComponent is freed BEFORE the dynamics world...
 			while(mRootNode.firstChild())
 				delete mRootNode.firstChild();
