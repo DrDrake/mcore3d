@@ -21,15 +21,13 @@ class MCD_COMPONENT_API RigidBodyComponent : public BehaviourComponent
 	friend class DynamicsWorld;
 
 public:
-	//! It will take ownership of shape.
-	RigidBodyComponent(float mass, const CollisionShapePtr& shape);
+	//! It will take shared ownership of shape.
+	RigidBodyComponent(DynamicsWorld& dynamicWorld, float mass, const CollisionShapePtr& shape);
 
 	sal_override ~RigidBodyComponent(void);
 
 // Override from BehaviourComponent
 	sal_override void update();
-
-	void activate();
 
 	void applyForce(const Vec3f& force, const Vec3f& rel_pos);
 
@@ -40,6 +38,7 @@ public:
 
 protected:
 	sal_override void onAdd();
+	sal_override void onRemove();
 
 private:
 	class Impl;

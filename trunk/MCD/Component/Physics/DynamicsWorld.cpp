@@ -1,9 +1,9 @@
 #include "Pch.h"
 #include "DynamicsWorld.h"
+#include "DynamicsWorld.inl"
 #include "RigidBodyComponent.h"
 #include "RigidBodyComponent.inl"	// We need to access some implementation of RigidBodyComponent
 #include "MathConvertor.inl"
-#include "../../Core/System/PtrVector.h"
 #include "../../../3Party/bullet/btBulletDynamicsCommon.h"
 
 using namespace MCD;
@@ -20,52 +20,32 @@ using namespace MCD;
 #	endif
 #endif
 
-class DynamicsWorld::Impl
+DynamicsWorld::Impl::Impl()
 {
-public:
-	Impl()
-	{
-		btVector3 worldAabbMin(-1000,-1000,-1000);
-		btVector3 worldAabbMax( 1000, 1000, 1000);
+	btVector3 worldAabbMin(-1000,-1000,-1000);
+	btVector3 worldAabbMax( 1000, 1000, 1000);
 
-		const unsigned short maxProxies = 1500;
+	const unsigned short maxProxies = 1500;
 
-		// Create the btDiscreteDynamicsWorld
-		// The world configuation is temporary hardcoded
-		mBroadphase = new btAxisSweep3(worldAabbMin, worldAabbMax, maxProxies);
-		mCollisionConfiguration = new btDefaultCollisionConfiguration();
-		mDispatcher = new btCollisionDispatcher(mCollisionConfiguration);
-		mSolver = new btSequentialImpulseConstraintSolver();
+	// Create the btDiscreteDynamicsWorld
+	// The world configuation is temporary hardcoded
+	mBroadphase = new btAxisSweep3(worldAabbMin, worldAabbMax, maxProxies);
+	mCollisionConfiguration = new btDefaultCollisionConfiguration();
+	mDispatcher = new btCollisionDispatcher(mCollisionConfiguration);
+	mSolver = new btSequentialImpulseConstraintSolver();
 
-		mDynamicsWorld = new btDiscreteDynamicsWorld(mDispatcher, mBroadphase, mSolver, mCollisionConfiguration);
-	}
+	mDynamicsWorld = new btDiscreteDynamicsWorld(mDispatcher, mBroadphase, mSolver, mCollisionConfiguration);
+}
 
-	~Impl()
-	{
-		// Remove the rigid bodies in the dynamics world, but don't delete them,
-		// since it's ownership is owned by RigidBodyComponent
-		for(RigidBodies::size_type i=0; i < mRigidBodies.size(); ++i)
-			mDynamicsWorld->removeRigidBody(mRigidBodies[i]);
-
-		// NOTE: Must delete the object in order
-		delete mDynamicsWorld;
-		delete mSolver;
-		delete mDispatcher;
-		delete mCollisionConfiguration;
-		delete mBroadphase;
-	}
-
-	btAxisSweep3* mBroadphase;
-	btDefaultCollisionConfiguration* mCollisionConfiguration;
-	btCollisionDispatcher* mDispatcher;
-	btSequentialImpulseConstraintSolver* mSolver;
-	btDynamicsWorld* mDynamicsWorld;
-
-	// Only weak reference, not owning them.
-	// TODO: Seems there is no need to store btRigidBody, remove it
-	typedef std::vector<btRigidBody*> RigidBodies;
-	RigidBodies mRigidBodies;
-};	// Impl
+DynamicsWorld::Impl::~Impl()
+{
+	// NOTE: Must delete the object in order
+	delete mDynamicsWorld;
+	delete mSolver;
+	delete mDispatcher;
+	delete mCollisionConfiguration;
+	delete mBroadphase;
+}
 
 DynamicsWorld::DynamicsWorld()
 {
@@ -79,26 +59,34 @@ DynamicsWorld::~DynamicsWorld()
 
 void DynamicsWorld::setGravity(const Vec3f& g)
 {
-	MCD_ASSUME(mImpl->mDynamicsWorld);
+	MCD_ASSUME(mImpl && mImpl->mDynamicsWorld);
 	mImpl->mDynamicsWorld->setGravity(toBullet(g));
 }
 
 Vec3f DynamicsWorld::gravity() const
 {
-	MCD_ASSUME(mImpl->mDynamicsWorld);
+	MCD_ASSUME(mImpl && mImpl->mDynamicsWorld);
 	return toMCD(mImpl->mDynamicsWorld->getGravity());
-}
-
-void DynamicsWorld::addRigidBody(RigidBodyComponent& rbc)
-{
-	MCD_ASSUME(mImpl);
-	MCD_ASSUME(mImpl->mDynamicsWorld);
-	mImpl->mRigidBodies.push_back(rbc.mImpl->mRigidBody);
-	mImpl->mDynamicsWorld->addRigidBody(rbc.mImpl->mRigidBody);
 }
 
 void DynamicsWorld::stepSimulation(float timeStep, int maxSubStep)
 {
-	MCD_ASSUME(mImpl->mDynamicsWorld);
+	MCD_ASSUME(mImpl && mImpl->mDynamicsWorld);
 	mImpl->mDynamicsWorld->stepSimulation(timeStep, maxSubStep);
+}
+
+void DynamicsWorld::addRigidBody(RigidBodyComponent& rbc)
+{
+	MCD_ASSUME(mImpl && mImpl->mDynamicsWorld);
+	MCD_ASSUME(rbc.mImpl);
+	mImpl->mDynamicsWorld->addRigidBody(rbc.mImpl->mRigidBody);
+}
+
+void DynamicsWorld::removeRigidBody(RigidBodyComponent& rbc)
+{
+	MCD_ASSUME(mImpl && mImpl->mDynamicsWorld);
+	MCD_ASSUME(rbc.mImpl);
+	// NOTE: If you saw memory error on the next line, most likely you haven't
+	// make sure all RigidBodyComponent are destroyed before the DynamicsWorld destroy.
+	mImpl->mDynamicsWorld->removeRigidBody(rbc.mImpl->mRigidBody);
 }

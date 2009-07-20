@@ -2,17 +2,17 @@
 #include "RigidBodyComponent.h"
 #include "RigidBodyComponent.inl"
 #include "CollisionShape.h"
+#include "DynamicsWorld.h"
+#include "DynamicsWorld.inl"
 #include "MathConvertor.inl"
 #include "../../Core/Entity/Entity.h"
 #include "../../../3Party/bullet/btBulletDynamicsCommon.h"
 
 namespace MCD {
 
-RigidBodyComponent::Impl::Impl(float mass, const CollisionShapePtr& shape)
-	: mRigidBody(nullptr), mMotionState(nullptr), mShape(shape), mMass(mass)
+RigidBodyComponent::Impl::Impl(DynamicsWorld& dynamicsWorld, float mass, const CollisionShapePtr& shape)
+	: mDynamicsWorld(&dynamicsWorld), mRigidBody(nullptr), mMotionState(nullptr), mShape(shape), mMass(mass)
 {
-	// NOTE: The btRigidBody should not be created now, it should be created when
-	// the component is attached to an entity so that we got the transformation.
 }
 
 RigidBodyComponent::Impl::~Impl()
@@ -24,6 +24,7 @@ RigidBodyComponent::Impl::~Impl()
 
 void RigidBodyComponent::Impl::onAdd(Entity* e)
 {
+	// TODO: Add some warning if the incomming Entity didn't have an identity wrold transform.
 	MCD_ASSUME(e);
 
 	btTransform tx(btQuaternion(0,0,0,1), toBullet(e->localTransform.translation()));
@@ -55,13 +56,14 @@ void RigidBodyComponent::Impl::update(Entity* e)
 	e->localTransform.setTranslation(Vec3f(v[0], v[1], v[2]));
 }
 
-RigidBodyComponent::RigidBodyComponent(float mass, const CollisionShapePtr& shape)
+RigidBodyComponent::RigidBodyComponent(DynamicsWorld& dynamicsWorld, float mass, const CollisionShapePtr& shape)
 {
-	mImpl = new Impl(mass, shape);
+	mImpl = new Impl(dynamicsWorld, mass, shape);
 }
 
 RigidBodyComponent::~RigidBodyComponent(void)
 {
+	onRemove();
 	delete mImpl;
 }
 
@@ -72,43 +74,45 @@ void RigidBodyComponent::update()
 		mImpl->update(e);
 }
 
-void RigidBodyComponent::activate()
-{
-	MCD_ASSUME(mImpl);
-	mImpl->mRigidBody->activate();
-}
-
 // TODO: If physics component is going to use multi-thread,
 // we should delay the following operations till update() to do.
 void RigidBodyComponent::applyForce(const Vec3f& force, const Vec3f& rel_pos)
 {
-	MCD_ASSUME(mImpl);
+	MCD_ASSUME(mImpl && mImpl->mRigidBody);
 	mImpl->mRigidBody->applyForce(toBullet(force), toBullet(rel_pos));
 }
 
 float RigidBodyComponent::getLinearDamping() const
 {
-	MCD_ASSUME(mImpl);
+	MCD_ASSUME(mImpl && mImpl->mRigidBody);
 	return mImpl->mRigidBody->getLinearDamping();
 }
 
 float RigidBodyComponent::getAngularDamping() const
 {
-	MCD_ASSUME(mImpl);
+	MCD_ASSUME(mImpl && mImpl->mRigidBody);
 	return mImpl->mRigidBody->getAngularDamping();
 }
 
 void RigidBodyComponent::setDamping(float lin_damping, float ang_damping)
 {
-	MCD_ASSUME(mImpl);
+	MCD_ASSUME(mImpl && mImpl->mRigidBody);
 	mImpl->mRigidBody->setDamping(lin_damping, ang_damping);
 }
 
 void RigidBodyComponent::onAdd()
 {
-	MCD_ASSUME(mImpl);
-	if(Entity* e = entity())
+	MCD_ASSUME(mImpl && mImpl->mDynamicsWorld);
+	if(Entity* e = entity()) {
 		mImpl->onAdd(e);
+		mImpl->mDynamicsWorld->addRigidBody(*this);
+	}
+}
+
+void RigidBodyComponent::onRemove()
+{
+	MCD_ASSUME(mImpl);
+	mImpl->mDynamicsWorld->removeRigidBody(*this);
 }
 
 }	// namespace MCD

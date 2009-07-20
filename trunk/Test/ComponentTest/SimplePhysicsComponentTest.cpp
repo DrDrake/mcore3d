@@ -4,12 +4,12 @@
 #include "../../MCD/Core/Entity/Entity.h"
 #include "../../MCD/Render/ChamferBox.h"
 #include "../../MCD/Render/Effect.h"
+#include "../../MCD/Render/Mesh.h"
 #include "../../MCD/Render/PlaneMeshBuilder.h"
 #include "../../MCD/Component/Render/MeshComponent.h"
 #include "../../MCD/Component/Physics/CollisionShape.h"
 #include "../../MCD/Component/Physics/DynamicsWorld.h"
 #include "../../MCD/Component/Physics/RigidBodyComponent.h"
-#include "../../MCD/Render/Mesh.h"
 
 using namespace MCD;
 
@@ -17,11 +17,6 @@ TEST(SimplePhysicsComponentTest)
 {
 	class TestWindow : public BasicGlWindow
 	{
-		std::auto_ptr<DynamicsWorld> mDynamicsWorld;
-		CollisionShapePtr			 mSphereShape;
-
-		float mAbsTime;
-
 	public:
 		TestWindow()
 			:
@@ -29,22 +24,20 @@ TEST(SimplePhysicsComponentTest)
 			mResourceManager(*createDefaultFileSystem())
 		{
 			// Setup the sphere mesh
-			MeshPtr mesh = new Mesh(L"");
+			MeshPtr mesh = new Mesh;
 			ChamferBoxBuilder chamferBoxBuilder(1.0f, 5);
 			chamferBoxBuilder.commit(*mesh, MeshBuilder::Static);
 
 			// Setup the collision mesh
-			mSphereShape = new SphereShape(1);
+			CollisionShapePtr sphereShape = new SphereShape(1);
 
 			// Create the physics world
-			mDynamicsWorld.reset(new DynamicsWorld);
-			mDynamicsWorld->setGravity(Vec3f(0, -5, 0));
+			mDynamicsWorld.setGravity(Vec3f(0, -5, 0));
 
 			for(int b = 0; b < 2; ++b)
 			{	// Setup balls
 				std::auto_ptr<Entity> e(new Entity);
 				e->name = L"ChamferBox 1";
-				e->asChildOf(&mRootNode);
 				if (b == 0)
 					e->localTransform.setTranslation(Vec3f(-1.5, 5, 0));
 				else
@@ -57,22 +50,20 @@ TEST(SimplePhysicsComponentTest)
 				e->addComponent(c);
 
 				// Create the phyiscs component
-				RigidBodyComponent* rbc = new RigidBodyComponent(0.5f, mSphereShape);
+				RigidBodyComponent* rbc = new RigidBodyComponent(mDynamicsWorld, 0.5f, sphereShape);
 				e->addComponent(rbc);
-				// Add it to the physics world..
-				mDynamicsWorld->addRigidBody(*rbc);
 
+				e->asChildOf(&mRootNode);
 				e.release();
 			}
 
 			{	// Setup the ground
 				std::auto_ptr<Entity> e(new Entity);
-				e->name = L"Sphere 1";
-				e->asChildOf(&mRootNode);
+				e->name = L"Ground";
 				e->localTransform.setTranslation(Vec3f(0, 0, 0));
 
-				// Setup the sphere mesh
-				MeshPtr meshGround = new Mesh(L"");
+				// Setup the ground mesh
+				MeshPtr meshGround = new Mesh;
 				PlaneMeshBuilder pBuilder(100, 100, 2, 2);
 				pBuilder.commit(*meshGround, MeshBuilder::Static);
 
@@ -83,15 +74,14 @@ TEST(SimplePhysicsComponentTest)
 				e->addComponent(c);
 
 				// Create the phyiscs component
-				RigidBodyComponent* rbc = new RigidBodyComponent(0, new StaticPlaneShape(Vec3f::c010, 0));
+				RigidBodyComponent* rbc = new RigidBodyComponent(mDynamicsWorld, 0, new StaticPlaneShape(Vec3f::c010, 0));
 				e->addComponent(rbc);
-				// Add it to the physics world..
-				mDynamicsWorld->addRigidBody(*rbc);
 
+				e->asChildOf(&mRootNode);
 				e.release();
 			}
 			
-			// Override camera position to see the huge lattice of balls, hahahaha
+			// Override camera position to see the huge lattice of balls
 			mCamera.position = Vec3f(0, 10, -3);
 			mCamera.lookAt = Vec3f(0, -1, 0);
 			mCamera.upVector = Vec3f(0, 0, 1);
@@ -101,29 +91,26 @@ TEST(SimplePhysicsComponentTest)
 		{
 			mResourceManager.processLoadingEvents();
 
-			static int calledTime = 0;
-			mAbsTime += deltaTime;
-
 			RenderableComponent::traverseEntities(&mRootNode);
 			BehaviourComponent::traverseEntities(&mRootNode);
 
-			mDynamicsWorld->stepSimulation(deltaTime, 10);
+			mDynamicsWorld.stepSimulation(deltaTime, 10);
 		}
-
-		Entity mRootNode;
 
 		virtual ~TestWindow()
 		{
-			// Make sure the dynamics world is freed BEFORE the RigidBodyComponent...
-			mDynamicsWorld.reset();
+			// Make sure the RigidBodyComponent is freed BEFORE the dynamics world...
+			while(mRootNode.firstChild())
+				delete mRootNode.firstChild();
 		}
 
+		Entity mRootNode;
+		DynamicsWorld mDynamicsWorld;
 		DefaultResourceManager mResourceManager;
 	};	// TestWindow
 
 	{
 		TestWindow window;
-		window.update(0.1f);
 		window.mainLoop();
 	}
 }

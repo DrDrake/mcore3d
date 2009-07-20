@@ -2,10 +2,12 @@
 
 namespace MCD {
 
+class DynamicsWorld;
+
 class RigidBodyComponent::Impl
 {
 public:
-	Impl(float mass, const CollisionShapePtr& shape);
+	Impl(DynamicsWorld& dynamicsWorld, float mass, const CollisionShapePtr& shape);
 
 	~Impl();
 
@@ -13,6 +15,7 @@ public:
 
 	void update(sal_in Entity* e);
 
+	DynamicsWorld* mDynamicsWorld;
 	btRigidBody* mRigidBody;
 	btMotionState* mMotionState;
 	CollisionShapePtr mShape;

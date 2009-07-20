@@ -283,6 +283,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\Physics\DynamicsWorld.inl"
+				>
+			</File>
+			<File
 				RelativePath=".\Physics\MathConvertor.inl"
 				>
 			</File>
