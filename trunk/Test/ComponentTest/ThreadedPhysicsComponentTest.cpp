@@ -20,7 +20,7 @@
 
 using namespace MCD;
 
-//#define USE_HARDWARE_INSTANCE
+#define USE_HARDWARE_INSTANCE
 
 // The Instanced Mesh composes of 2 classes:
 // InstancedMesh and InstancedMeshComponent
@@ -98,7 +98,7 @@ public:
 	// This function accept world transformation only, but this limitation is temporary..
 	// It will be extended to accept more infomation(e.g. hw skinning info)
 	// But before that, research on size of bindable uniforms and vertex texture should be done first
-	void registerPerInstanceInfo(Mat44f info)
+	void registerPerInstanceInfo(const Mat44f& info)
 	{
 		mPerInstanceInfo.push_back(info);
 	}
@@ -216,8 +216,8 @@ TEST(ThreadedPhysicsComponentTest)
 					std::auto_ptr<Entity> e(new Entity);
 					e->name = L"Shpere";
 					e->localTransform = Mat44f(Mat33f::rotateXYZ(0, Mathf::cPiOver4(), 0));
-					// Add some randomness, hehehehe
-					
+
+					// Add some randomness
 					Vec3f randomOffset((Mathf::random() - 0.5f) * 2, (Mathf::random() - 0.5f) * 2, (Mathf::random() - 0.5f) * 2);
 					e->localTransform.setTranslation(ballPosition + randomness * randomOffset);
 					ballPosition += ballPosYDelta;
@@ -264,10 +264,10 @@ TEST(ThreadedPhysicsComponentTest)
 				}
 			}
 
-			// Override camera position to see the huge lattice of balls, hahahaha
-			mCamera.position = Vec3f(0, 300, 0);
-			mCamera.lookAt = Vec3f(0, -1, 0);
-			mCamera.upVector = Vec3f(0, 0, 1);
+			// Override camera position to see the city from the top
+//			mCamera.position = Vec3f(0, 300, 0);
+//			mCamera.lookAt = Vec3f(0, -1, 0);
+//			mCamera.upVector = Vec3f(0, 0, 1);
 
 			// Start the physics thread
 			mPhysicsThread.start(mDynamicsWorld, false);

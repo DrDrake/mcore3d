@@ -98,7 +98,7 @@ public:
 	// This function accept world transformation only, but this limitation is temporary..
 	// It will be extended to accept more infomation(e.g. hw skinning info)
 	// But before that, research on size of bindable uniforms and vertex texture should be done first
-	void registerPerInstanceInfo(Mat44f info)
+	void registerPerInstanceInfo(const Mat44f& info)
 	{
 		mPerInstanceInfo.push_back(info);
 	}
@@ -162,31 +162,12 @@ public:
 		MCD_ASSUME(e);
 		mInstMesh->registerPerInstanceInfo(e->localTransform);
 	}
-
-	virtual bool cloneable() const
-	{
-		return false;
-	}
-
-	/*! Creates and returns a deep copy of this Component.
-		This method should returns nullptr if this Component is not cloneable.
-	*/
-	virtual sal_maybenull Component* clone() const
-	{
-		return nullptr;
-	}
-};
+};	// InstancedMeshComponent
 
 TEST(TriMeshPhysicsComponentTest)
 {
 	class TestWindow : public BasicGlWindow
 	{
-		std::auto_ptr<DynamicsWorld> mDynamicsWorld;
-
-		float mAbsTime;
-		ModelPtr mModel;
-		InstancedMeshPtr mBallInstMesh;
-
 	public:
 		void processResourceLoadingEvents()
 		{
@@ -210,12 +191,9 @@ TEST(TriMeshPhysicsComponentTest)
 			mResourceManager.addFactory(new Max3dsLoaderFactory(mResourceManager));
 
 			// The maximum random displacement added to the balls
-			static float randomness = 0.0f;
+			static const float randomness = 0.0f;
 
-			mAbsTime = 0;
-
-			mDynamicsWorld.reset(new DynamicsWorld);
-			mDynamicsWorld->setGravity(Vec3f(0, -5, 0));
+			mDynamicsWorld.setGravity(Vec3f(0, -5, 0));
 
 			Vec3f ballInitialPosition(0, 290, 0), ballPosXDelta(10, 0, 0), ballPosYDelta(0, 0, 10);
 
@@ -236,11 +214,10 @@ TEST(TriMeshPhysicsComponentTest)
 				for(int y = 0; y < yCount; ++y)
 				{	// Build entity
 					std::auto_ptr<Entity> e(new Entity);
-					e->name = L"ChamferBox 1";
-					e->asChildOf(&mRootNode);
+					e->name = L"Sphere";
 					e->localTransform = Mat44f(Mat33f::rotateXYZ(0, Mathf::cPiOver4(), 0));
-					// Add some randomness, hehehehe
-					
+
+					// Add some randomness
 					Vec3f randomOffset((Mathf::random() - 0.5f) * 2, (Mathf::random() - 0.5f) * 2, (Mathf::random() - 0.5f) * 2);
 					e->localTransform.setTranslation(ballPosition + randomness * randomOffset);
 					ballPosition += ballPosYDelta;
@@ -257,9 +234,10 @@ TEST(TriMeshPhysicsComponentTest)
 #endif
 
 					// Create the phyiscs component
-					RigidBodyComponent* rbc = new RigidBodyComponent(*mDynamicsWorld, 0.5f, new SphereShape(1));
+					RigidBodyComponent* rbc = new RigidBodyComponent(mDynamicsWorld, 0.5f, new SphereShape(1));
 					e->addComponent(rbc);
 
+					e->asChildOf(&mRootNode);
 					e.release();
 				}
 			}
@@ -276,26 +254,24 @@ TEST(TriMeshPhysicsComponentTest)
 					// Setup the ground plane
 					std::auto_ptr<Entity> e(new Entity);
 					e->name = L"";
-					e->asChildOf(&mRootNode);
 
 					// Create the phyiscs component
-					RigidBodyComponent* rbc = new RigidBodyComponent(*mDynamicsWorld, 0, new StaticTriMeshShape(mesh));
+					RigidBodyComponent* rbc = new RigidBodyComponent(mDynamicsWorld, 0, new StaticTriMeshShape(mesh));
 					e->addComponent(rbc);
 
+					e->asChildOf(&mRootNode);
 					e.release();
 				}
 			}
 
-			// Override camera position to see the huge lattice of balls, hahahaha
-			mCamera.position = Vec3f(0, 300, 0);
-			mCamera.lookAt = Vec3f(0, -1, 0);
-			mCamera.upVector = Vec3f(0, 0, 1);
+			// Override camera position to see the city from the top
+//			mCamera.position = Vec3f(0, 300, 0);
+//			mCamera.lookAt = Vec3f(0, -1, 0);
+//			mCamera.upVector = Vec3f(0, 0, 1);
 		}
 
 		sal_override void update(float deltaTime)
 		{
-			static int calledTime = 0;
-			mAbsTime += deltaTime;
 			mResourceManager.processLoadingEvents();
 
 			mModel->draw();
@@ -309,23 +285,25 @@ TEST(TriMeshPhysicsComponentTest)
 #endif
 
 			BehaviourComponent::traverseEntities(&mRootNode);
-			mDynamicsWorld->stepSimulation(deltaTime, 10);
+			mDynamicsWorld.stepSimulation(deltaTime, 10);
 		}
 
 		Entity mRootNode;
-
+		ModelPtr mModel;
+		InstancedMeshPtr mBallInstMesh;
+		DynamicsWorld mDynamicsWorld;
 		DefaultResourceManager mResourceManager;
 
 		virtual ~TestWindow()
 		{
-			// Make sure the dynamics world is freed BEFORE the RigidBodyComponent...
-			mDynamicsWorld.reset();
+			// Make sure the RigidBodyComponent is freed BEFORE the dynamics world...
+			while(mRootNode.firstChild())
+				delete mRootNode.firstChild();
 		}
 	};	// TestWindow
 
 	{
 		TestWindow window;
-		window.update(0.1f);
 		window.mainLoop();
 	}
 }

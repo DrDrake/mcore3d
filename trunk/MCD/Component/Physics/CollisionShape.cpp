@@ -45,62 +45,44 @@ StaticPlaneShape::StaticPlaneShape(const Vec3f& planeNormal, float planeConstant
 // TODO: Remove the dependency on opengl
 class StaticTriMeshShape::Impl
 {
-	std::vector<float> mVertexBuffer;
-	std::vector<int> mIndexBuffer;
-	std::auto_ptr<btTriangleIndexVertexArray> mBulletVertexIdxArray;
-
 public:
 	Impl(const MeshPtr& mesh, void*& shapeImpl)
 	{
-		// Firstly, copy the vertex buffer and index buffer from OpenGL buffer to system memory.
-		// Then, pass them into btTriangleIndexVertexArray
-		// The array of vertex and index data should be freed by StaticTriMeshShape
-		assert(mesh->indexCount() % 3 == 0);
+		MCD_ASSERT(mesh->indexCount() % 3 == 0);
 
-		mVertexBuffer.resize(mesh->vertexCount() * 3);
-		mIndexBuffer.resize(mesh->indexCount());
+		btIndexedMesh bulletMesh;
 
-		// Copy the vertex buffer
+		// Get the vertex buffer
 		uint vertexHandle = mesh->handle(Mesh::Position);
 		glBindBuffer(GL_ARRAY_BUFFER, vertexHandle);
 		float* vertexBuffer = (float*)glMapBuffer(GL_ARRAY_BUFFER, GL_READ_ONLY);
 
-		memcpy(&mVertexBuffer[0], vertexBuffer, mVertexBuffer.size() * sizeof(float));
+		bulletMesh.m_numVertices = mesh->vertexCount();
+		bulletMesh.m_vertexBase = (const unsigned char *)vertexBuffer;
+		bulletMesh.m_vertexStride = sizeof(float) * 3;
 
-		glUnmapBuffer(GL_ARRAY_BUFFER);
-		glBindBuffer(GL_ARRAY_BUFFER, 0);
-
-		// Copy the index buffer
+		// Get the index buffer
 		uint indexHandle = mesh->handle(Mesh::Index);
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indexHandle);
 		uint16_t* indexBuffer = (uint16_t*)glMapBuffer(GL_ELEMENT_ARRAY_BUFFER, GL_READ_ONLY);
 
-		// The index buffer cannot be copied directly. 16 bit index is used in OpenGL, where 32 bit index is used in Bullet
-		for(size_t idx = 0; idx < mesh->indexCount(); idx++)
-			mIndexBuffer[idx] = indexBuffer[idx];
+		bulletMesh.m_numTriangles = mesh->indexCount() / 3;
+		bulletMesh.m_triangleIndexBase = (const unsigned char *)indexBuffer;
+		bulletMesh.m_triangleIndexStride = sizeof(int16_t) * 3;
 
+		// Assign to bullet
+		mBulletVertexIdxArray.addIndexedMesh(bulletMesh, PHY_SHORT);
+		shapeImpl = new btBvhTriangleMeshShape(&mBulletVertexIdxArray, true);
+
+		// Unlock the buffers
+		glUnmapBuffer(GL_ARRAY_BUFFER);
+		glBindBuffer(GL_ARRAY_BUFFER, 0);
 		glUnmapBuffer(GL_ELEMENT_ARRAY_BUFFER);
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
-
-		// Keep it alive until shutdown
-		mBulletVertexIdxArray.reset(new btTriangleIndexVertexArray);
-
-		btIndexedMesh bulletMesh;
-		// vertex
-		bulletMesh.m_numVertices = mVertexBuffer.size();
-		bulletMesh.m_vertexBase = (unsigned char *)&mVertexBuffer[0];
-		bulletMesh.m_vertexStride = sizeof(float) * 3;
-		// index
-		bulletMesh.m_indexType = PHY_INTEGER;
-		bulletMesh.m_numTriangles = mIndexBuffer.size() / 3;
-		bulletMesh.m_triangleIndexBase = (unsigned char *)&mIndexBuffer[0];
-		bulletMesh.m_triangleIndexStride = sizeof(int) * 3;
-		
-		mBulletVertexIdxArray->addIndexedMesh(bulletMesh);
-
-		shapeImpl = new btBvhTriangleMeshShape(mBulletVertexIdxArray.get(), true);
 	}
-};
+
+	btTriangleIndexVertexArray mBulletVertexIdxArray;
+};	// Impl
 
 StaticTriMeshShape::StaticTriMeshShape(const MeshPtr& mesh)
 {
