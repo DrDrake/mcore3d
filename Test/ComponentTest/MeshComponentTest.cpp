@@ -21,6 +21,9 @@ TEST(MeshComponentTest)
 			BasicGlWindow(L"title=MeshComponentTest;width=800;height=600;fullscreen=0;FSAA=4"),
 			mResourceManager(*createDefaultFileSystem())
 		{
+			// Override the default loader of *.3ds file
+			mResourceManager.addFactory(new EntityPrototypeLoaderFactory(mResourceManager));
+
 			EntityPrototypeLoader::addEntityAfterLoad(&mRootNode, mResourceManager, L"Scene/City/scene.3ds");
 
 			std::auto_ptr<Entity> group1(new Entity);
