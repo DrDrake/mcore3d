@@ -143,7 +143,7 @@ RawFileSystemMonitor::~RawFileSystemMonitor()
 
 std::wstring RawFileSystemMonitor::getChangedFile() const
 {
-    return L"";
+	return L"";
 }
 
 #endif	// MCD_VC

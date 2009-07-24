@@ -223,7 +223,9 @@ public:
 		MCD_ASSERT(mEventQueue.mMutex.isLocked());
 		ResourcePtr ret;
 		// Loop for all factories to see which one will response to the fileId
-		for(Factories::iterator i=mFactories.begin(); i!=mFactories.end(); ++i) {
+		// NOTE: We loop the factories in reverse order, so that user can override a new type of 
+		// loader factory by inserting a new one.
+		for(Factories::reverse_iterator i=mFactories.rbegin(); i!=mFactories.rend(); ++i) {
 			ret = i->createResource(fileId, args);
 			if(ret != nullptr) {
 				loader = i->createLoader();

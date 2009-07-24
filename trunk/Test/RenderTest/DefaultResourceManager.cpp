@@ -88,18 +88,17 @@ int DefaultResourceManager::processLoadingEvents()
 
 void DefaultResourceManager::setupFactories()
 {
-    // CubemapLoader must be added first
-    addFactory(new CubemapLoaderFactory);
-
 	addFactory(new BitmapLoaderFactory);
 	addFactory(new DdsLoaderFactory);
 	addFactory(new EffectLoaderFactory(*this));
 	addFactory(new JpegLoaderFactory);
-	//addFactory(new Max3dsLoaderFactory(*this));
+	addFactory(new Max3dsLoaderFactory(*this));
 	addFactory(new PodLoaderFactory(*this));
 	addFactory(new PixelShaderLoaderFactory);
 	addFactory(new PngLoaderFactory);
 	addFactory(new TgaLoaderFactory);
 	addFactory(new VertexShaderLoaderFactory);
-	addFactory(new EntityPrototypeLoaderFactory(*this));
+
+	// CubemapLoader must be added last (have a higher priority than other image loader factory)
+	addFactory(new CubemapLoaderFactory);
 }

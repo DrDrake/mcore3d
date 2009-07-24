@@ -49,7 +49,7 @@ public:
 		\param fileId Unique identifier for the resource to load.
 		\param block Weather the function should block until the load process finish.
 		\param priority The loading priority for background/progressive loading.
-        \param extra arguments (encoded as a string) for loading the resource; similar to program arguments.
+		\param extra arguments (encoded as a string) for loading the resource; similar to program arguments.
 	 */
 	virtual ResourcePtr load(const Path& fileId, bool block=false, uint priority=0, sal_in_z_opt const wchar_t* args=nullptr) = 0;
 
@@ -230,6 +230,9 @@ public:
 	/*!	Adds a resource factory to the manager.
 		\param factory Put null to remove association.
 			The lifetime of the factory will be controlled by ResourceManager.
+		\note A late added factory have a higher priority than other factory having the
+			same file extension in the factory list. Therefore user can override any
+			loader factory at any time.
 	 */
 	void addFactory(sal_in IFactory* factory);
 
