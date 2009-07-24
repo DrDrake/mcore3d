@@ -74,7 +74,7 @@ inline long interlockedExchangeAdd(long volatile* addEnd, long value)
 
 #endif
 
-//!	AtomicInteger
+//!	An atomic integer class for performing increment and decrement operations.
 class AtomicInteger
 {
 public:

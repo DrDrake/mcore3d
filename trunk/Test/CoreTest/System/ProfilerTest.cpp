@@ -188,7 +188,7 @@ protected:
 		ThreadedCpuProfiler::singleton().onThreadAttach("my worker thread");
 
 		while(thread.keepRun()) {
-			ScopeProfiler profile("MyRunnable::run");
+			ScopeProfiler profile("LoopRunnable::run");
 			mTester.funA();
 			++mLoopCount;
 		}
@@ -375,7 +375,7 @@ protected:
 	{
 		using namespace MemoryProfilerTest;
 		while(thread.keepRun()) {
-			ScopeProfiler profile("MyRunnable::run");
+			ScopeProfiler profile("LoopRunnable::run");
 			funA();
 			++LoopCount;
 		}
