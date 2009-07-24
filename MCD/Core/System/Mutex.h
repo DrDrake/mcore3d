@@ -104,18 +104,25 @@ protected:
 class ScopeLock : public Cancelable, private Noncopyable
 {
 public:
-	explicit ScopeLock(Mutex& m) : Cancelable(), m(m) { m.lock(); }
-	~ScopeLock() { if(!isCanceled()) m.unlock(); }
-	Mutex& m;
+	explicit ScopeLock(Mutex& m) : Cancelable(), m(&m) { m.lock(); }
+	~ScopeLock() { if(!isCanceled()) m->unlock(); }
+	void swapMutex(Mutex& other) { m->unlock(); m = &other; m->lock(); }
+	Mutex& mutex() { MCD_ASSUME(m); return *m; }
+
+protected:
+	Mutex* m;
 };	// ScopeLock
 
-
+//! Unlocking mutex in scope.
 class ScopeUnlock : public Cancelable, private Noncopyable
 {
 public:
-	explicit ScopeUnlock(Mutex& m) : Cancelable(), m(m) { m.unlock(); }
-	~ScopeUnlock() { if(!isCanceled()) m.lock(); }
-	Mutex& m;
+	explicit ScopeUnlock(Mutex& m) : Cancelable(), m(&m) { m.unlock(); }
+	~ScopeUnlock() { if(!isCanceled()) m->lock(); }
+	Mutex& mutex() { MCD_ASSUME(m); return *m; }
+
+protected:
+	Mutex* m;
 };	// ScopeUnlock
 
 /*! Unlocking mutex in scope.
@@ -124,27 +131,49 @@ public:
 class ScopeUnlockOnly : public Cancelable, private Noncopyable
 {
 public:
-	explicit ScopeUnlockOnly(Mutex& m) : Cancelable(), m(m) { }
-	~ScopeUnlockOnly() { if(!isCanceled()) m.unlock(); }
-	Mutex& m;
+	explicit ScopeUnlockOnly(Mutex& m) : Cancelable(), m(&m) { }
+	~ScopeUnlockOnly() { if(!isCanceled()) m->unlock(); }
+	Mutex& mutex() { MCD_ASSUME(m); return *m; }
+
+protected:
+	Mutex* m;
 };	// ScopeUnlockOnly
 
 //! Lock recursive mutex in scope.
 class ScopeRecursiveLock : public Cancelable, private Noncopyable
 {
 public:
-	explicit ScopeRecursiveLock(RecursiveMutex& m) : Cancelable(), m(m) { m.lock(); }
-	~ScopeRecursiveLock() { if(!isCanceled()) m.unlock(); }
-	RecursiveMutex& m;
+	explicit ScopeRecursiveLock(RecursiveMutex& m) : Cancelable(), m(&m) { m.lock(); }
+	~ScopeRecursiveLock() { if(!isCanceled()) m->unlock(); }
+	void swapMutex(RecursiveMutex& other) { m->unlock(); m = &other; m->lock(); }
+	RecursiveMutex& mutex() { MCD_ASSUME(m); return *m; }
+
+protected:
+	RecursiveMutex* m;
 };	// ScopeRecursiveLock
+
+//! Unlocking recursive mutex in scope.
+class ScopeRecursiveUnlock : public Cancelable, private Noncopyable
+{
+public:
+	explicit ScopeRecursiveUnlock(RecursiveMutex& m) : Cancelable(), m(&m) { m.unlock(); }
+	~ScopeRecursiveUnlock() { if(!isCanceled()) m->lock(); }
+	RecursiveMutex& mutex() { MCD_ASSUME(m); return *m; }
+
+protected:
+	RecursiveMutex* m;
+};	// ScopeRecursiveUnlock
 
 //! Unlocking recursive mutex in scope.
 class ScopeRecursiveUnlockOnly : public Cancelable, private Noncopyable
 {
 public:
-	explicit ScopeRecursiveUnlockOnly(RecursiveMutex& m) : Cancelable(), m(m) { }
-	~ScopeRecursiveUnlockOnly() { if(!isCanceled()) m.unlock(); }
-	RecursiveMutex& m;
+	explicit ScopeRecursiveUnlockOnly(RecursiveMutex& m) : Cancelable(), m(&m) { }
+	~ScopeRecursiveUnlockOnly() { if(!isCanceled()) m->unlock(); }
+	RecursiveMutex& mutex() { MCD_ASSUME(m); return *m; }
+
+protected:
+	RecursiveMutex* m;
 };	// ScopeRecursiveUnlockOnly
 
 }	// namespace MCD

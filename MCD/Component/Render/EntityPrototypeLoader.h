@@ -49,7 +49,7 @@ public:
 		const EntityPtr& addToHere, IResourceManager& manager,
 		sal_in_z const wchar_t* filePath,
 		uint priority = 0,
-		sal_in_z const wchar_t* args = nullptr);
+		sal_in_z_opt const wchar_t* args = nullptr);
 
 private:
 	class Impl;

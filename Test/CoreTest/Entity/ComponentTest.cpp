@@ -44,8 +44,8 @@ TEST(Basic_ComponentTest)
 	ComponentPtr c1 = new DummyComponent1;
 	ComponentPtr c2 = new DummyComponent2;
 
-	root.addComponent(c1.get());
-	root.addComponent(c2.get());
+	root.addComponent(c1.getNotNull());
+	root.addComponent(c2.getNotNull());
 
 	CHECK_EQUAL(&root, c1->entity());
 	CHECK_EQUAL(&root, c2->entity());
@@ -72,7 +72,7 @@ TEST(Basic_ComponentTest)
 	std::auto_ptr<Entity> e(new Entity);
 	e->name = L"Component 3";
 	ComponentPtr c3 = new DummyComponent3;
-	e->addComponent(c3.get());
+	e->addComponent(c3.getNotNull());
 	e->asChildOf(&root);
 	e.release();
 

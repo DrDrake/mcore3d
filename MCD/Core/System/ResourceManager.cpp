@@ -317,7 +317,7 @@ ResourcePtr ResourceManager::reload(const Path& fileId, bool block, uint priorit
 
 	// The resource is not found
 	if(!node || !node->mResource) {
-		lock.m.unlock();
+		lock.mutex().unlock();
 		lock.cancel();
 		return load(fileId, block, priority);
 	}

@@ -211,9 +211,9 @@ void Thread::wait()
 	mId = 0;
 
 	// Unlock the mutex before the actual wait operation
-	lock.m.unlock();
+	lock.mutex().unlock();
 	DWORD res = ::WaitForSingleObject(handleBackup, INFINITE);
-	lock.m.lock();
+	lock.mutex().lock();
 
 	if(res == WAIT_FAILED)
 		throwSystemErrorMessage("Error waiting thread.");

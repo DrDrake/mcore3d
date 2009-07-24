@@ -90,6 +90,7 @@ void RecursiveMutex::lock()
 void RecursiveMutex::unlock()
 {
 #ifndef NDEBUG
+	MCD_ASSERT(_lockCount > 0);
 	--_lockCount;
 #endif
 	::LeaveCriticalSection((LPCRITICAL_SECTION)&mMutex);
@@ -106,17 +107,6 @@ bool RecursiveMutex::tryLock()
 #endif
 }
 
-#ifndef NDEBUG
-bool RecursiveMutex::isLocked() const
-{
-	return _lockCount > 0;
-}
-int RecursiveMutex::lockCount() const
-{
-	return _lockCount;
-}
-#endif
-
 #else
 
 Mutex::Mutex(int spinCount)
@@ -131,7 +121,7 @@ Mutex::Mutex(int spinCount)
 Mutex::~Mutex()
 {
 #ifndef NDEBUG
-	MCD_ASSUME(!_locked);	// Delete before unlock
+	MCD_ASSUME(!_locked && "Delete before unlock");
 #endif
 	::pthread_mutex_destroy(&mMutex);
 }
@@ -140,7 +130,7 @@ void Mutex::lock()
 {
 	MCD_VERIFY(::pthread_mutex_lock(&mMutex) == 0);
 #ifndef NDEBUG
-	MCD_ASSERT(!_locked);	// Double lock
+	MCD_ASSUME(!_locked && "Double lock");
 	_locked = true;
 #endif
 }
@@ -148,7 +138,7 @@ void Mutex::lock()
 void Mutex::unlock()
 {
 #ifndef NDEBUG
-	MCD_ASSUME(_locked);	// Unlock when not locked
+	MCD_ASSUME(_locked && "Unlock when not locked");
 	_locked = false;
 #endif
 	MCD_VERIFY(::pthread_mutex_unlock(&mMutex) == 0);
@@ -158,7 +148,7 @@ bool Mutex::tryLock()
 {
 	if(!::pthread_mutex_trylock(&mMutex)) {
 #ifndef NDEBUG
-		MCD_ASSUME(!_locked); //double lock
+		MCD_ASSUME(!_locked && "Double lock");
 		_locked = true;
 #endif
 		return true;
@@ -178,24 +168,49 @@ RecursiveMutex::RecursiveMutex()
 
 RecursiveMutex::~RecursiveMutex()
 {
+	MCD_ASSERT(!isLocked() && "Delete before unlock");
 	MCD_VERIFY(::pthread_mutex_destroy(&mMutex) == 0);
 }
 
 void RecursiveMutex::lock()
 {
 	::pthread_mutex_lock(&mMutex);
+#ifndef NDEBUG
+	++_lockCount;
+#endif
 }
 
 void RecursiveMutex::unlock()
 {
+#ifndef NDEBUG
+	MCD_ASSERT(_lockCount > 0);
+	--_lockCount;
+#endif
 	MCD_VERIFY(::pthread_mutex_unlock(&mMutex) == 0);
 }
 
 bool RecursiveMutex::tryLock()
 {
+#ifndef NDEBUG
+	bool locked = !::pthread_mutex_trylock(&mMutex);
+	if(locked) ++_lockCount;
+	return locked;
+#else
 	return !::pthread_mutex_trylock(&mMutex);
+#endif
 }
 
 #endif	// MCD_WIN32
+
+#ifndef NDEBUG
+bool RecursiveMutex::isLocked() const
+{
+	return _lockCount > 0;
+}
+int RecursiveMutex::lockCount() const
+{
+	return _lockCount;
+}
+#endif
 
 }	// namespace MCD

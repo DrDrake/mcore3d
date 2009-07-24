@@ -190,6 +190,13 @@ public:
 		return mValidityFlag.getNotNull()->isValid() ? mPtr : nullptr;
 	}
 
+	//! Use this when you sure the WeakPtr is not null to suppress compiler warning
+	sal_notnull T* getNotNull() const {
+		T* p = get();
+		MCD_ASSUME(p);
+		return p;
+	}
+
 	T& operator*() const {
 		return *get();
 	}
