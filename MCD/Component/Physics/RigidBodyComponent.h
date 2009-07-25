@@ -46,6 +46,11 @@ private:
 	Impl* mImpl;
 };	// RigidBodyComponent
 
+/*!	Given a tree of Entity, creates RigidBodyComponent with StaticTriMeshShape for
+	each MeshComponent found in the tree.
+ */
+MCD_COMPONENT_API void createStaticRigidBody(DynamicsWorld& dynamicsWorld, Entity& entityTree);
+
 }	// MCD
 
 #endif	// __MCD_COMPONENT_RIGIDBODYCOMPONENT__
