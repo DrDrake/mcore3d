@@ -20,6 +20,10 @@ ComponentPreorderIterator::ComponentPreorderIterator(Entity* start)
 	if(start) {
 		mStart = start;
 		mCurrent = start->components.begin();
+
+		// The supplied Entity may contains no Component
+		if(start->components.begin() == start->components.end())
+			next();
 	}
 }
 
@@ -28,10 +32,10 @@ Component* ComponentPreorderIterator::next()
 	if(!mCurrent)
 		return nullptr;
 
+	// NOTE: mCurrent->next() may be null if mCurrent does not contain any component
 	mCurrent = mCurrent->next();
-	// If the component is in a list, it's next is never null, since there should have a tail node.
-	MCD_ASSUME(mCurrent != nullptr);
-	if(!mCurrent->isInList())
+
+	if(mCurrent && !mCurrent->isInList())
 		mCurrent = nullptr;
 
 	// Move to next non-empty entity, if needed

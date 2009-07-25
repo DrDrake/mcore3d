@@ -138,6 +138,12 @@ TEST(ComponentPreorderIterator_ComponentTest)
 	}
 
 	Entity root;
+
+	{	// Start with an Entity of nothing
+		for(ComponentPreorderIterator itr(&root); !itr.ended(); itr.next())
+			CHECK(false);
+	}
+
 	Component* c[3] = { new DummyComponent1, new DummyComponent2, new DummyComponent3 };
 
 	{	// Traversing only one Entity
