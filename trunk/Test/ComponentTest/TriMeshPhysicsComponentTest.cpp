@@ -5,16 +5,13 @@
 #include "../../MCD/Render/ChamferBox.h"
 #include "../../MCD/Render/Effect.h"
 #include "../../MCD/Render/Material.h"
+#include "../../MCD/Render/Mesh.h"
 #include "../../MCD/Render/ShaderProgram.h"
-#include "../../MCD/Render/PlaneMeshBuilder.h"
+#include "../../MCD/Component/Render/EntityPrototypeLoader.h"
 #include "../../MCD/Component/Render/MeshComponent.h"
 #include "../../MCD/Component/Physics/CollisionShape.h"
 #include "../../MCD/Component/Physics/DynamicsWorld.h"
 #include "../../MCD/Component/Physics/RigidBodyComponent.h"
-#include "../../MCD/Render/Model.h"
-#include "../../MCD/Render/Max3dsLoader.h"
-#include "../../MCD/Render/ResourceLoaderFactory.h"
-#include "../../MCD/Render/Mesh.h"
 
 #include "../../3Party/glew/glew.h"
 
@@ -113,6 +110,7 @@ public:
 		if(--(instMesh->mRefCount) == 0)
 			delete instMesh;
 	}
+
 protected:
 	AtomicInteger	mRefCount;
 
@@ -122,6 +120,7 @@ protected:
 
 	typedef std::vector<Mat44f> PerInstanceInfo;
 	PerInstanceInfo mPerInstanceInfo;
+
 private:
 	void CreateBindableUniformBuffer()
 	{
@@ -169,26 +168,39 @@ TEST(TriMeshPhysicsComponentTest)
 	class TestWindow : public BasicGlWindow
 	{
 	public:
-		void processResourceLoadingEvents()
+		class MyLoadCallback : public EntityPrototypeLoader::LoadCallback
 		{
-			while(true) {
-				ResourceManager::Event e = mResourceManager.popEvent();
-				if(e.loader) {
-					if(e.loader->getLoadingState() == IResourceLoader::Aborted)
-						std::wcout << L"Resource:" << e.resource->fileId().getString() << L" failed to load" << std::endl;
-					// Allow one resource to commit for each frame
-					e.loader->commit(*e.resource);
-				} else
-					break;
+		public:
+			MyLoadCallback(DynamicsWorld& dynamicsWorld) : mDynamicsWorld(dynamicsWorld) {}
+
+			sal_override void doCallback()
+			{
+				// Call the parent's doCallback() first
+				LoadCallback::doCallback();
+
+				// Create physics
+				createStaticRigidBody(mDynamicsWorld, *entityAdded);
 			}
-		}
+
+		protected:
+			DynamicsWorld& mDynamicsWorld;
+		};	// MyLoadCallback
 
 		TestWindow()
 			:
 			BasicGlWindow(L"title=TriMeshPhysicsComponentTest;width=800;height=600;fullscreen=0;FSAA=4"),
 			mResourceManager(*createDefaultFileSystem())
 		{
-			mResourceManager.addFactory(new Max3dsLoaderFactory(mResourceManager));
+			// Override the default loader of *.3ds file
+			mResourceManager.addFactory(new EntityPrototypeLoaderFactory(mResourceManager));
+
+			// Use a 3ds mesh as the ground
+			EntityPrototypeLoader::addEntityAfterLoad(
+				&mRootNode,
+				mResourceManager,
+				L"Scene/City/scene.3ds",
+				new MyLoadCallback(mDynamicsWorld)
+			);
 
 			// The maximum random displacement added to the balls
 			static const float randomness = 0.0f;
@@ -242,28 +254,6 @@ TEST(TriMeshPhysicsComponentTest)
 				}
 			}
 
-			{
-				// Use a 3ds mesh as the ground
-				mModel = dynamic_cast<Model*>(mResourceManager.load(L"Scene/City/scene.3ds", true).get());
-				processResourceLoadingEvents();
-
-				for(Model::MeshAndMaterial* it = mModel->mMeshes.begin(); it != mModel->mMeshes.end(); it = it->next())
-				{
-					MeshPtr mesh = it->mesh;
-
-					// Setup the ground plane
-					std::auto_ptr<Entity> e(new Entity);
-					e->name = L"";
-
-					// Create the phyiscs component
-					RigidBodyComponent* rbc = new RigidBodyComponent(mDynamicsWorld, 0, new StaticTriMeshShape(mesh));
-					e->addComponent(rbc);
-
-					e->asChildOf(&mRootNode);
-					e.release();
-				}
-			}
-
 			// Override camera position to see the city from the top
 //			mCamera.position = Vec3f(0, 300, 0);
 //			mCamera.lookAt = Vec3f(0, -1, 0);
@@ -273,8 +263,6 @@ TEST(TriMeshPhysicsComponentTest)
 		sal_override void update(float deltaTime)
 		{
 			mResourceManager.processLoadingEvents();
-
-			mModel->draw();
 
 			RenderableComponent::traverseEntities(&mRootNode);
 
@@ -289,7 +277,6 @@ TEST(TriMeshPhysicsComponentTest)
 		}
 
 		Entity mRootNode;
-		ModelPtr mModel;
 		InstancedMeshPtr mBallInstMesh;
 		DynamicsWorld mDynamicsWorld;
 		DefaultResourceManager mResourceManager;

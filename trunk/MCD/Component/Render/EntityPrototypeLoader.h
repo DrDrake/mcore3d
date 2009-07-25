@@ -35,6 +35,8 @@ public:
 
 	sal_override LoadingState getLoadingState() const;
 
+	class LoadCallback;
+
 	/*!	Loads a model file (currently only support *.3ds), creates a tree of entities
 		and add them to a specific entity node after the load completes.
 
@@ -44,10 +46,13 @@ public:
 
 		If the load operation failed, a EntityPrototype with it's \em entity equals to
 		null will be returned.
+
+		\param loadCallback Optional parameter for the user to get notification when the loads complete.
 	 */
 	static EntityPrototypePtr addEntityAfterLoad(
 		const EntityPtr& addToHere, IResourceManager& manager,
 		sal_in_z const wchar_t* filePath,
+		sal_out_opt LoadCallback* loadCallback = nullptr,
 		uint priority = 0,
 		sal_in_z_opt const wchar_t* args = nullptr);
 
@@ -55,6 +60,22 @@ private:
 	class Impl;
 	Impl* mImpl;
 };	// EntityPrototypeLoader
+
+/*!	Kind of ResourceManagerCallback to use with EntityPrototypeLoader::addEntityAfterLoad()
+	User are suppose to override the doCallback() function to do their job when the load complete.
+ */
+class MCD_COMPONENT_API EntityPrototypeLoader::LoadCallback : public ResourceManagerCallback
+{
+public:
+	sal_override void doCallback();
+
+	//! Where the tree of loaded Entity will add to.
+	EntityPtr addToHere;
+	//! The tree of Entity that is added to \em addToHere.
+	EntityPtr entityAdded;
+	//! The entityPrototype that \em entityAdded clones from.
+	EntityPrototypePtr entityPrototype;
+};	// LoadCallback
 
 class MCD_COMPONENT_API EntityPrototypeLoaderFactory : public ResourceManager::IFactory
 {

@@ -113,37 +113,35 @@ IResourceLoader::LoadingState EntityPrototypeLoader::getLoadingState() const
 	return mImpl->getLoadingState();
 }
 
+void EntityPrototypeLoader::LoadCallback::doCallback()
+{
+	Entity* addHere = addToHere.get();
+
+	// The Entity that we want to insert at, may already destroyed.
+	if(!addHere || !entityPrototype)
+		return;
+
+	Entity* e = entityPrototype->entity.get();
+	if(!e)	// Loading of the Entity failed
+		return;
+	e = e->clone();
+	MCD_ASSUME(e);
+
+	e->asChildOf(addHere);
+	entityAdded = e;
+}
+
 EntityPrototypePtr EntityPrototypeLoader::addEntityAfterLoad(
 	const EntityPtr& addToHere, IResourceManager& manager,
 	const wchar_t* filePath,
+	LoadCallback* loadCallback,
 	uint priority,
 	const wchar_t* args)
 {
-	class Callback : public ResourceManagerCallback
-	{
-	public:
-		sal_override void doCallback()
-		{
-			Entity* addHere = addToHere.get();
+	LoadCallback* callback = loadCallback;
+	if(!callback)
+		callback = new LoadCallback();
 
-			// The Entity that we want to insert at, may already destroyed.
-			if(!addHere || !entityPrototype)
-				return;
-
-			Entity* e = entityPrototype->entity.get();
-			if(!e)	// Loading of the Entity failed
-				return;
-			e = e->clone();
-			MCD_ASSUME(e);
-
-			e->asChildOf(addHere);
-		}
-
-		EntityPtr addToHere;
-		EntityPrototypePtr entityPrototype;
-	};	// Callback
-
-	Callback* callback = new Callback();
 	callback->addToHere = addToHere;
 	callback->entityPrototype = dynamic_cast<EntityPrototype*>(manager.load(filePath, false, priority, args).get());
 

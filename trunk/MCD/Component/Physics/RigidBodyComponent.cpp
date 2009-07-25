@@ -5,6 +5,7 @@
 #include "DynamicsWorld.h"
 #include "DynamicsWorld.inl"
 #include "MathConvertor.inl"
+#include "../Render/MeshComponent.h"
 #include "../../Core/Entity/Entity.h"
 #include "../../../3Party/bullet/btBulletDynamicsCommon.h"
 
@@ -113,6 +114,22 @@ void RigidBodyComponent::onRemove()
 {
 	MCD_ASSUME(mImpl);
 	mImpl->mDynamicsWorld->removeRigidBody(*this);
+}
+
+void createStaticRigidBody(DynamicsWorld& dynamicsWorld, Entity& entityTree)
+{
+	for(ComponentPreorderIterator itr(&entityTree); !itr.ended(); itr.next()) {
+		MeshComponent* meshComponent = dynamic_cast<MeshComponent*>(itr.current());
+		if(!meshComponent || !meshComponent->mesh)
+			continue;
+
+		Entity* e = meshComponent->entity();
+		MCD_ASSUME(e);
+
+		// Create the phyiscs component
+		RigidBodyComponent* rbc = new RigidBodyComponent(dynamicsWorld, 0, new StaticTriMeshShape(meshComponent->mesh));
+		e->addComponent(rbc);
+	}
 }
 
 }	// namespace MCD

@@ -57,6 +57,9 @@ public:
 		FileSystemCollection& fs = dynamic_cast<FileSystemCollection&>(fileSystem);
 		fs.addFileSystem(*(new RawFileSystem(L"")));
 
+		// Override the default loader of *.3ds file
+		mResourceManager.addFactory(new EntityPrototypeLoaderFactory(mResourceManager));
+
 		mRootNode = new Entity();
 		mRootNode->name = L"root";
 

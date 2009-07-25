@@ -18,7 +18,6 @@ public:
 
 	//! When an EntityPrototype is loaded, mEntity is not be NULL
 	std::auto_ptr<Entity> entity;
-
 };	// EntityPrototype
 
 typedef IntrusivePtr<EntityPrototype> EntityPrototypePtr;
