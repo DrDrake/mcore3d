@@ -2,6 +2,7 @@
 #include "../MCD/Binding/Binding.h"
 #include "../MCD/Binding/Entity.h"
 #include "../MCD/Binding/InputComponent.h"
+#include "../MCD/Binding/PhysicsComponent.h"
 #include "../MCD/Binding/ScriptComponentManager.h"
 #include "../MCD/Binding/System.h"
 #include "../MCD/Core/Entity/Entity.h"
@@ -10,6 +11,8 @@
 #include "../MCD/Render/ChamferBox.h"
 #include "../MCD/Render/Effect.h"
 #include "../MCD/Render/Mesh.h"
+#include "../MCD/Component/Physics/RigidBodyComponent.h"
+#include "../MCD/Component/Physics/ThreadedDynamicWorld.h"
 #include "../MCD/Component/Render/EntityPrototypeLoader.h"
 #include "../MCD/Component/Render/MeshComponent.h"
 #include "../MCD/Component/Input/WinMessageInputComponent.h"
@@ -41,6 +44,26 @@ public:
 	script::Event<void> onLoaded;
 };	// Callback
 
+//! A callback that create static physics collision mesh upon loads complete.
+class EntityLoadCreatePhysicsCallback : public EntityPrototypeLoader::LoadCallback
+{
+public:
+	EntityLoadCreatePhysicsCallback(DynamicsWorld& dynamicsWorld) : mDynamicsWorld(dynamicsWorld) {}
+
+	sal_override void doCallback()
+	{
+		// Call the parent's doCallback() first
+		LoadCallback::doCallback();
+
+		// Create physics components
+		if(entityAdded)
+			createStaticRigidBody(mDynamicsWorld, *entityAdded);
+	}
+
+protected:
+	DynamicsWorld& mDynamicsWorld;
+};	// EntityLoadCreatePhysicsCallback
+
 class TestWindow : public BasicGlWindow
 {
 public:
@@ -60,28 +83,11 @@ public:
 		// Override the default loader of *.3ds file
 		mResourceManager.addFactory(new EntityPrototypeLoaderFactory(mResourceManager));
 
+		// Start the physics thread
+		mPhysicsThread.start(mDynamicsWorld, false);
+
 		mRootNode = new Entity();
 		mRootNode->name = L"root";
-
-		{	// Setup entity 1
-			std::auto_ptr<Entity> e(new Entity);
-			e->name = L"ChamferBox 1";
-			e->asChildOf(mRootNode);
-			e->localTransform = Mat44f(Mat33f::rotateXYZ(0, Mathf::cPiOver4(), 0));
-
-			// Setup the chamfer box mesh
-			MeshPtr mesh = new Mesh(L"");
-			ChamferBoxBuilder chamferBoxBuilder(0.4f, 10);
-			chamferBoxBuilder.commit(*mesh, MeshBuilder::Static);
-
-			// Add component
-			MeshComponent* c = new MeshComponent();
-			c->mesh = mesh;
-			c->effect = static_cast<Effect*>(mResourceManager.load(L"Material/test.fx.xml").get());
-			e->addComponent(c);
-
-			e.release();
-		}
 
 		{	// Setup input component
 			std::auto_ptr<Entity> e(new Entity);
@@ -99,6 +105,14 @@ public:
 
 	sal_override ~TestWindow()
 	{
+		// Make sure the RigidBodyComponent is freed BEFORE the dynamics world...
+		while(mRootNode->firstChild())
+			delete mRootNode->firstChild();
+
+		// Stop the physics thread
+		mPhysicsThread.postQuit();
+		mPhysicsThread.wait();
+
 		// The Entity tree must be destroyed before the script VM.
 		delete mRootNode;
 	}
@@ -120,9 +134,12 @@ public:
 		return mRootNode;
 	}
 
-	sal_notnull Entity* loadEntity(const wchar_t* filePath) {
+	sal_notnull Entity* loadEntity(const wchar_t* filePath, bool createCollisionMesh)
+	{
 		Entity* e = new Entity();
-		EntityPrototypeLoader::addEntityAfterLoad(e, mResourceManager, filePath);
+		EntityPrototypeLoader::addEntityAfterLoad(e, mResourceManager, filePath,
+			createCollisionMesh ? new EntityLoadCreatePhysicsCallback(mDynamicsWorld) : nullptr
+		);
 		return e;
 	}
 
@@ -132,6 +149,10 @@ public:
 
 	sal_notnull IResourceManager* resourceManager() {
 		return &mResourceManager;
+	}
+
+	sal_notnull ThreadedDynamicsWorld* dynamicsWorld() {
+		return &mDynamicsWorld;
 	}
 
 	static TestWindow* getSinleton() {
@@ -160,6 +181,8 @@ public:
 
 	IFileSystem& fileSystem;
 	DefaultResourceManager mResourceManager;
+	Thread mPhysicsThread;
+	ThreadedDynamicsWorld mDynamicsWorld;
 	ScriptComponentManager mScriptComponentManager;
 };	// TestWindow
 
@@ -174,6 +197,7 @@ SCRIPT_CLASS_REGISTER_NAME(TestWindow, "MainWindow")
 	.method(L"loadEntity", &TestWindow::loadEntity)
 	.method<objNoCare>(L"_getinputComponent", &TestWindow::inputComponent)
 	.method<objNoCare>(L"_getresourceManager", &TestWindow::resourceManager)
+	.method<objNoCare>(L"_getdynamicsWorld", &TestWindow::dynamicsWorld)
 	.rawMethod(L"addCallback", &TestWindow::addCallback)
 ;}
 
@@ -204,7 +228,11 @@ void TestWindow::scriptBindingSetup()
 	mScriptComponentManager.vm.runScript(
 		L"gMainWindow <- _getMainWindow();\n"
 
-		L"function loadEntity(filePath) { return gMainWindow.loadEntity(filePath); }\n"
+		L"function loadEntity(filePath, loadOptions={}) {\n"
+		L"	if(\"createStaticRigidBody\" in loadOptions && loadOptions[\"createStaticRigidBody\"])\n"
+		L"		return gMainWindow.loadEntity(filePath, true);\n"
+		L"	return gMainWindow.loadEntity(filePath, false);\n"
+		L"}\n"
 
 		L"gInput <- gMainWindow.inputComponent;\n"
 
@@ -227,6 +255,12 @@ void TestWindow::scriptBindingSetup()
 
 int main()
 {
+#ifdef MCD_VC
+	// Tell the c-run time to do memory check at program shut down
+	_CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
+	_CrtSetBreakAlloc(-1);
+#endif
+
 	TestWindow window;
 	window.scriptBindingSetup();
 	window.mainLoop();

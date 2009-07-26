@@ -37,7 +37,9 @@ static void printfunc(HSQUIRRELVM v, const SQChar* s, ...)
 extern void registerEntityBinding(script::VMCore* v);
 extern void registerInputComponentBinding(script::VMCore* v);
 extern void registerMathBinding(script::VMCore* v);
+extern void registerPhysicsComponentBinding(script::VMCore* v);
 extern void registerRenderBinding(script::VMCore* v);
+extern void registerRenderComponentBinding(script::VMCore* v);
 extern void registerScriptComponentBinding(script::VMCore* v);
 extern void registerSystemBinding(script::VMCore* v);
 
@@ -62,12 +64,15 @@ public:
 		sqstd_register_stringlib(v);
 
 		// Bind mcore3d
-		registerEntityBinding(&vm);
-		registerInputComponentBinding(&vm);
+		registerSystemBinding(&vm);
 		registerMathBinding(&vm);
 		registerRenderBinding(&vm);
+		registerEntityBinding(&vm);
+
+		registerInputComponentBinding(&vm);
+		registerPhysicsComponentBinding(&vm);
+		registerRenderComponentBinding(&vm);
 		registerScriptComponentBinding(&vm);
-		registerSystemBinding(&vm);
 	}
 
 	~Impl()

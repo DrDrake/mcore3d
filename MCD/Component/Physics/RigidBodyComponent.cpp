@@ -114,6 +114,7 @@ void RigidBodyComponent::onRemove()
 {
 	MCD_ASSUME(mImpl);
 	mImpl->mDynamicsWorld->removeRigidBody(*this);
+	// NOTE: mImpl may now become null, because of threaded dynamics world's removeRigidBody()
 }
 
 void createStaticRigidBody(DynamicsWorld& dynamicsWorld, Entity& entityTree)

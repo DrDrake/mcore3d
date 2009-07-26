@@ -1,38 +1,44 @@
 #include "Pch.h"
 #include "Render.h"
 #include "Binding.h"
-#include "Math.h"
+#include "../Render/ChamferBox.h"
 
 using namespace MCD;
 
 namespace script {
 
-SCRIPT_CLASS_REGISTER(CameraComponent)
-	.declareClass<CameraComponent, Component>(L"CameraComponent")
-	.enableGetset(L"CameraComponent")
-	.constructor()
-	.getset(L"velocity", &CameraComponent::velocity)
-;}
+struct resourceRefPolicy {
+	static void addRef(Resource* resource) {
+		intrusivePtrAddRef(resource);
+	}
+	static void releaseRef(Resource* resource) {
+		intrusivePtrRelease(resource);
+	}
+};	// resourceRefPolicy
 
-SCRIPT_CLASS_REGISTER(MeshComponent)
-	.declareClass<MeshComponent, Component>(L"MeshComponent")
-	.enableGetset(L"MeshComponent")
-;}
-
-SCRIPT_CLASS_REGISTER(RenderableComponent)
-	.declareClass<RenderableComponent, Component>(L"RenderableComponent")
-	.enableGetset(L"RenderableComponent")
+SCRIPT_CLASS_REGISTER(Mesh)
+	.declareClass<Mesh, Resource>(L"Mesh")
 ;}
 
 }	// namespace script
 
 namespace MCD {
 
+static Mesh* chamferBoxMeshCreate(float filletRadius, size_t filletSegmentCount)
+{
+	Mesh* mesh = new Mesh();
+	ChamferBoxBuilder builder(filletRadius, filletSegmentCount);
+	builder.commit(*mesh, MeshBuilder::Static);
+	return mesh;
+}
+
 void registerRenderBinding(script::VMCore* v)
 {
-	script::ClassTraits<CameraComponent>::bind(v);
-	script::ClassTraits<MeshComponent>::bind(v);
-	script::ClassTraits<RenderableComponent>::bind(v);
+	using namespace script;
+	script::ClassTraits<Mesh>::bind(v);
+
+	RootDeclarator root(v);
+	root.declareFunction<objRefCount<resourceRefPolicy> >(L"ChamferBoxMesh", &chamferBoxMeshCreate);
 }
 
 }	// namespace MCD

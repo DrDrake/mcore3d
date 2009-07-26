@@ -176,8 +176,9 @@ TEST(ThreadedPhysicsComponentTest)
 				// Call the parent's doCallback() first
 				LoadCallback::doCallback();
 
-				// Create physics
-				createStaticRigidBody(mDynamicsWorld, *entityAdded);
+				// Create physics components
+				if(entityAdded)
+					createStaticRigidBody(mDynamicsWorld, *entityAdded);
 			}
 
 		protected:
@@ -201,7 +202,7 @@ TEST(ThreadedPhysicsComponentTest)
 			);
 
 			// The maximum random displacement added to the balls
-			static const float randomness = 0.0f;
+			static const float randomness = 0.5f;
 
 			mDynamicsWorld.setGravity(Vec3f(0, -5, 0));
 
