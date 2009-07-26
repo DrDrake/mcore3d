@@ -25,18 +25,18 @@ e.addComponent(c2);
 }
 
 // Create some spheres
-for(local i=0; i<10; ++i) for(local j=0; j<10; ++j)
+for(local i=0; i<20; ++i) for(local j=0; j<20; ++j)
 {
 	local e = Entity();
-	e.localTransform.m03 = 5.0 * i;
-	e.localTransform.m13 = 100.0;
-	e.localTransform.m23 = 5.0 * j;
+	e.localTransform.m03 = 5 * i;
+	e.localTransform.m13 = 100;
+	e.localTransform.m23 = 5 * j;
 	rootEntity.addChild(e);
 
 	local c = MeshComponent();
-	c.mesh= ChamferBoxMesh(1.0, 5);
+	c.mesh= ChamferBoxMesh(1, 5);
 	e.addComponent(c);
 
-	c = RigidBodyComponent(gMainWindow.dynamicsWorld, 1.0, SphereShape(1.0));
+	c = RigidBodyComponent(gMainWindow.dynamicsWorld, 1, SphereShape(1));
 	e.addComponent(c);
 }
