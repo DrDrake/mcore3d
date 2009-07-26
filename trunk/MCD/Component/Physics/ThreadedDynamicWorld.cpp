@@ -82,6 +82,8 @@ public:
 			if(instanceFps > cFpsLimit)
 				mSleep(size_t(1000.0f / instanceFps));
 		}
+
+		doQueueJob();
 	}
 
 	ThreadedDynamicsWorld& mThreadedDynamicsWorld;

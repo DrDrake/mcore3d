@@ -93,6 +93,14 @@ class TestMat44
 
 	function testElement()
 	{
+		assertEquals(0, ma.m00);
+		assertEquals(1, ma.m01);
+		assertEquals(2, ma.m02);
+		assertEquals(3, ma.m03);
+		assertEquals(4, ma.m10);
+		
+		ma.m00 = -1.2;
+		assertEquals(-1.2, ma.m00);
 	}
 }	// TestMat44
 
