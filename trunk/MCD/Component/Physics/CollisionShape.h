@@ -3,6 +3,7 @@
 
 #include "../ShareLib.h"
 #include "../../Core/System/NonCopyable.h"
+#include "../../Core/System/ScriptOwnershipHandle.h"
 #include "../../Core/System/SharedPtr.h"
 
 namespace MCD {
@@ -18,6 +19,9 @@ typedef IntrusivePtr<class Mesh> MeshPtr;
 class MCD_ABSTRACT_CLASS MCD_COMPONENT_API CollisionShape : Noncopyable
 {
 	friend class RigidBodyComponent;
+
+public:
+	ScriptOwnershipHandle scriptOwnershipHandle;
 
 protected:
 	CollisionShape();
@@ -46,12 +50,18 @@ class MCD_COMPONENT_API SphereShape : public CollisionShape
 {
 public:
 	SphereShape(float radius);
+
+protected:
+	sal_override ~SphereShape() {}
 };	// SphereShape
 
 class MCD_COMPONENT_API StaticPlaneShape : public CollisionShape
 {
 public:
 	StaticPlaneShape(const Vec3f& planeNormal, float planeConstant);
+
+protected:
+	sal_override ~StaticPlaneShape() {}
 };	// StaticPlaneShape
 
 class MCD_COMPONENT_API StaticTriMeshShape : public CollisionShape
@@ -59,6 +69,7 @@ class MCD_COMPONENT_API StaticTriMeshShape : public CollisionShape
 public:
 	StaticTriMeshShape(const MeshPtr& mesh);
 
+protected:
 	sal_override ~StaticTriMeshShape();
 
 private:

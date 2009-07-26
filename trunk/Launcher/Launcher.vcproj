@@ -226,6 +226,10 @@
 			>
 		</File>
 		<File
+			RelativePath=".\init.nut"
+			>
+		</File>
+		<File
 			RelativePath=".\Main.cpp"
 			>
 		</File>
@@ -259,6 +263,10 @@
 		</File>
 		<File
 			RelativePath=".\Pch.h"
+			>
+		</File>
+		<File
+			RelativePath=".\ScriptComponent.nut"
 			>
 		</File>
 	</Files>

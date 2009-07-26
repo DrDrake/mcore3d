@@ -89,14 +89,17 @@ public:
 	template<typename RT>
 	static inline void pushResult(HSQUIRRELVM v, RT result)
 	{
-		sq_setinstanceup(v, -2, ptr::pointer<RT>::to(result));
-		sq_setreleasehook(v, -2, _memoryControllerHook<typename ptr::pointer<RT>::HostType>);
-		types::addHandleToObject(v, ptr::pointer<RT>::to(result), -2);
+		typedef typename ptr::pointer<RT>::HostType HostType;
+		HostType* obj = ptr::pointer<RT>::to(result);
+		// TODO: Support negative indexing
+		sq_setinstanceup(v, 1, obj);
+		sq_setreleasehook(v, 1, _memoryControllerHook<HostType>);
+		types::addHandleToObject(v, obj, 1);
 	}
 
 private:
 	template<typename T>
-	static SQInteger _memoryControllerHook(SQUserPointer p,SQInteger size)
+	static SQInteger _memoryControllerHook(SQUserPointer p, SQInteger size)
 	{
 		T* data = (T*)p;
 		jkSCRIPT_DELETE data;
@@ -171,6 +174,36 @@ public:
 		RefPolicy::addRef(obj);
 		types::push(v, result);
 		sq_setreleasehook(v, -1, _memoryControllerHook<HostType>);
+	}
+
+private:
+	template<typename T>
+	static SQInteger _memoryControllerHook(SQUserPointer p, SQInteger size)
+	{
+		T* data = (T*)p;
+		RefPolicy::releaseRef(data);
+		return 1;
+	}
+};
+
+///
+/// construct new instance, and returns using objRefCount policy
+///
+template<typename RefPolicy>
+class constructObjRefCount
+{
+public:
+	template<typename RT>
+	static inline void pushResult(HSQUIRRELVM v, RT result)
+	{
+		typedef typename ptr::pointer<RT>::HostType HostType;
+		HostType* obj = ptr::pointer<RT>::to(result);
+
+		RefPolicy::addRef(obj);
+		// TODO: Support negative indexing
+		sq_setinstanceup(v, 1, obj);
+		sq_setreleasehook(v, 1, _memoryControllerHook<HostType>);
+		types::addHandleToObject(v, obj, 1);
 	}
 
 private:

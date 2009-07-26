@@ -45,7 +45,7 @@ using namespace MCD;
 class ThreadedDynamicsWorld::Impl
 {
 public:
-	Impl(ThreadedDynamicsWorld& world) : mThreadedDynamicsWorld(world), mSmoothFps(0) {}
+	Impl(ThreadedDynamicsWorld& world) : mThreadedDynamicsWorld(world) {}
 
 	~Impl()
 	{
@@ -77,11 +77,10 @@ public:
 			mThreadedDynamicsWorld.stepSimulation(dt, 10);
 
 			float instanceFps = 1.0f / dt;
-			mSmoothFps = instanceFps / 10 + mSmoothFps / 9;
 
 			// Limit the framerate of the physics thread
-			if(mSmoothFps > cFpsLimit)
-				mSleep(size_t(1000.0f / mSmoothFps));
+			if(instanceFps > cFpsLimit)
+				mSleep(size_t(1000.0f / instanceFps));
 		}
 	}
 
@@ -89,7 +88,6 @@ public:
 	Mutex mCommandQueueLock;
 	typedef std::queue<ICommand*> CommandQueue;
 	CommandQueue mCommandQueue;
-	float mSmoothFps;	// A smoothed frame per second
 
 	static const int cFpsLimit = 30;
 };	// Impl
@@ -149,7 +147,8 @@ void ThreadedDynamicsWorld::removeRigidBody(RigidBodyComponent& rbc)
 		// Note that we use ComponentPtr (a weak pointer) as parameter
 		static void removeRigidBody(ThreadedDynamicsWorld& world, RigidBodyComponent::Impl* rbc)
 		{
-			world.removeRigidBodyNoQueue(rbc->mRigidBody);
+			if(rbc->mRigidBody)
+				world.removeRigidBodyNoQueue(rbc->mRigidBody);
 			delete rbc;
 		}
 	};	// Dummy

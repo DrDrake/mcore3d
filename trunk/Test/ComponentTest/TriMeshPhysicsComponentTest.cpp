@@ -179,7 +179,8 @@ TEST(TriMeshPhysicsComponentTest)
 				LoadCallback::doCallback();
 
 				// Create physics
-				createStaticRigidBody(mDynamicsWorld, *entityAdded);
+				if(entityAdded)
+					createStaticRigidBody(mDynamicsWorld, *entityAdded);
 			}
 
 		protected:

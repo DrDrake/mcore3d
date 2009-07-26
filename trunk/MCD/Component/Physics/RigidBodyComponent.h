@@ -25,7 +25,7 @@ public:
 	//! It will take shared ownership of shape.
 	RigidBodyComponent(DynamicsWorld& dynamicWorld, float mass, const CollisionShapePtr& shape);
 
-	sal_override ~RigidBodyComponent(void);
+	sal_override ~RigidBodyComponent();
 
 // Override from BehaviourComponent
 	sal_override void update();

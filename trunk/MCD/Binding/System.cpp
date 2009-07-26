@@ -11,7 +11,7 @@ struct resourceRefPolicy {
 		intrusivePtrAddRef(resource);
 	}
 	static void releaseRef(Resource* resource) {
-		intrusivePtrAddRef(resource);
+		intrusivePtrRelease(resource);
 	}
 };	// resourceRefPolicy
 

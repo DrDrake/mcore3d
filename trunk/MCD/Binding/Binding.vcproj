@@ -249,7 +249,15 @@
 				>
 			</File>
 			<File
+				RelativePath=".\PhysicsComponent.h"
+				>
+			</File>
+			<File
 				RelativePath=".\Render.h"
+				>
+			</File>
+			<File
+				RelativePath=".\RenderComponent.h"
 				>
 			</File>
 			<File
@@ -318,7 +326,15 @@
 				</FileConfiguration>
 			</File>
 			<File
+				RelativePath=".\PhysicsComponent.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\Render.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\RenderComponent.cpp"
 				>
 			</File>
 			<File
