@@ -24,14 +24,19 @@ e.addComponent(c2);
 	addResourceCallback([scene1,scene2], function() { println("all scene loaded"); });
 }
 
-{	// Create a sphere
+// Create some spheres
+for(local i=0; i<10; ++i) for(local j=0; j<10; ++j)
+{
 	local e = Entity();
+	e.localTransform.m03 = 5.0 * i;
+	e.localTransform.m13 = 100.0;
+	e.localTransform.m23 = 5.0 * j;
 	rootEntity.addChild(e);
-	
+
 	local c = MeshComponent();
-	c.mesh= ChamferBoxMesh(0.1, 5);
+	c.mesh= ChamferBoxMesh(1.0, 5);
 	e.addComponent(c);
-	
-	c = RigidBodyComponent(gMainWindow.dynamicsWorld, 1.2, SphereShape(1.2));
+
+	c = RigidBodyComponent(gMainWindow.dynamicsWorld, 1.0, SphereShape(1.0));
 	e.addComponent(c);
 }
