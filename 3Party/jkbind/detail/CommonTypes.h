@@ -82,17 +82,18 @@ void push(HSQUIRRELVM v, T obj)
 
 template<typename T> class TypeSelect {};
 
+// See http://squirrel-lang.org/forums/thread/2674.aspx on SQOBJECT_NUMERIC
 inline bool	match(TypeSelect<bool>, HSQUIRRELVM v,int idx)				{ return sq_gettype(v,idx) == OT_BOOL; }
 inline bool	match(TypeSelect<char>, HSQUIRRELVM v,int idx)				{ return sq_gettype(v,idx) == OT_INTEGER; }
 inline bool	match(TypeSelect<unsigned char>, HSQUIRRELVM v, int idx)	{ return sq_gettype(v,idx) == OT_INTEGER; }
-inline bool	match(TypeSelect<short>, HSQUIRRELVM v,int idx)				{ return sq_gettype(v,idx) == OT_INTEGER; }
-inline bool	match(TypeSelect<unsigned short>, HSQUIRRELVM v,int idx)	{ return sq_gettype(v,idx) == OT_INTEGER; }
-inline bool	match(TypeSelect<int>, HSQUIRRELVM v,int idx)				{ return sq_gettype(v,idx) == OT_INTEGER; }
-inline bool	match(TypeSelect<unsigned int>, HSQUIRRELVM v,int idx)		{ return sq_gettype(v,idx) == OT_INTEGER; }
-inline bool	match(TypeSelect<long>, HSQUIRRELVM v,int idx)				{ return sq_gettype(v,idx) == OT_INTEGER; }
-inline bool	match(TypeSelect<unsigned long>, HSQUIRRELVM v,int idx)		{ return sq_gettype(v,idx) == OT_INTEGER; }
-inline bool	match(TypeSelect<float>, HSQUIRRELVM v,int idx)				{ return sq_gettype(v,idx) == OT_FLOAT; }
-inline bool	match(TypeSelect<double>, HSQUIRRELVM v,int idx)			{ return sq_gettype(v,idx) == OT_FLOAT; }
+inline bool	match(TypeSelect<short>, HSQUIRRELVM v,int idx)				{ return (sq_gettype(v,idx) & SQOBJECT_NUMERIC) > 0; }
+inline bool	match(TypeSelect<unsigned short>, HSQUIRRELVM v,int idx)	{ return (sq_gettype(v,idx) & SQOBJECT_NUMERIC) > 0; }
+inline bool	match(TypeSelect<int>, HSQUIRRELVM v,int idx)				{ return (sq_gettype(v,idx) & SQOBJECT_NUMERIC) > 0; }
+inline bool	match(TypeSelect<unsigned int>, HSQUIRRELVM v,int idx)		{ return (sq_gettype(v,idx) & SQOBJECT_NUMERIC) > 0; }
+inline bool	match(TypeSelect<long>, HSQUIRRELVM v,int idx)				{ return (sq_gettype(v,idx) & SQOBJECT_NUMERIC) > 0; }
+inline bool	match(TypeSelect<unsigned long>, HSQUIRRELVM v,int idx)		{ return (sq_gettype(v,idx) & SQOBJECT_NUMERIC) > 0; }
+inline bool	match(TypeSelect<float>, HSQUIRRELVM v,int idx)				{ return (sq_gettype(v,idx) & SQOBJECT_NUMERIC) > 0; }
+inline bool	match(TypeSelect<double>, HSQUIRRELVM v,int idx)			{ return (sq_gettype(v,idx) & SQOBJECT_NUMERIC) > 0; }
 inline bool	match(TypeSelect<const SQChar*>, HSQUIRRELVM v,int idx)		{ return sq_gettype(v,idx) == OT_STRING; }
 
 template<typename T>
