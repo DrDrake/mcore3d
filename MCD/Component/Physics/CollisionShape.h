@@ -13,6 +13,8 @@ typedef Vec3<float> Vec3f;
 
 typedef IntrusivePtr<class Mesh> MeshPtr;
 
+class MeshBuilder;
+
 /*!
 	The ownership of a CollisionShape is shared by multiple instance of RigidBodyComponent.
  */
@@ -68,6 +70,12 @@ class MCD_COMPONENT_API StaticTriMeshShape : public CollisionShape
 {
 public:
 	StaticTriMeshShape(const MeshPtr& mesh);
+
+	/*!	Create StaticTriMeshShape from a MeshBuilder.
+		\note If you knows the mesh builder will not be destroyed before the StaticTriMeshShape,
+			you can pass keepOwnBuffer = false, use with care!
+	 */
+	StaticTriMeshShape(const MeshBuilder& meshBuilder, bool keepOwnBuffer=true);
 
 protected:
 	sal_override ~StaticTriMeshShape();

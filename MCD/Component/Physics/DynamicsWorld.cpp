@@ -78,17 +78,20 @@ void DynamicsWorld::stepSimulation(float timeStep, int maxSubStep)
 void DynamicsWorld::addRigidBody(RigidBodyComponent& rbc)
 {
 	MCD_ASSUME(mImpl && mImpl->mDynamicsWorld);
-	MCD_ASSUME(rbc.mImpl);
-	mImpl->mDynamicsWorld->addRigidBody(rbc.mImpl->mRigidBody);
+	// NOTE: rbc.mImpl may be null, when using with ThreadedDynamicsWorld
+	if(rbc.mImpl)
+		mImpl->mDynamicsWorld->addRigidBody(rbc.mImpl->mRigidBody);
 }
 
 void DynamicsWorld::removeRigidBody(RigidBodyComponent& rbc)
 {
 	MCD_ASSUME(mImpl && mImpl->mDynamicsWorld);
-	MCD_ASSUME(rbc.mImpl);
-	// NOTE: If you saw memory error on the next line, most likely you haven't
-	// make sure all RigidBodyComponent are destroyed before the DynamicsWorld destroy.
-	mImpl->mDynamicsWorld->removeRigidBody(rbc.mImpl->mRigidBody);
+	// NOTE: rbc.mImpl may be null, when using with ThreadedDynamicsWorld
+	if(rbc.mImpl) {
+		// NOTE: If you saw memory error on the next line, most likely you haven't
+		// make sure all RigidBodyComponent are destroyed before the DynamicsWorld destroy.
+		mImpl->mDynamicsWorld->removeRigidBody(rbc.mImpl->mRigidBody);
+	}
 }
 
 void DynamicsWorld::removeRigidBody(void* rbc)

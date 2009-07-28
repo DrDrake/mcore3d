@@ -142,7 +142,7 @@ public:
 		return mAcquiredPointers.top();
 	}
 
-	void releaseBufferPointer(void* ptr)
+	void releaseBufferPointer(const void* ptr)
 	{
 		if(mAcquiredPointers.empty())
 			return;
@@ -469,7 +469,7 @@ void* MeshBuilder::acquireBufferPointer(int dataType, size_t* count)
 	return mBuffer.acquireBufferPointer((Mesh::DataType)dataType, count);
 }
 
-void MeshBuilder::releaseBufferPointer(void* ptr)
+void MeshBuilder::releaseBufferPointer(const void* ptr)
 {
 	mBuffer.releaseBufferPointer(ptr);
 }

@@ -71,8 +71,6 @@ public:
 		DeltaTimer timer;
 		while(thread.keepRun())
 		{
-			doQueueJob();
-
 			float dt = float(timer.getDelta().asSecond());
 			mThreadedDynamicsWorld.stepSimulation(dt, 10);
 
@@ -81,6 +79,8 @@ public:
 			// Limit the framerate of the physics thread
 			if(instanceFps > cFpsLimit)
 				mSleep(size_t(1000.0f / instanceFps));
+
+			doQueueJob();
 		}
 
 		doQueueJob();

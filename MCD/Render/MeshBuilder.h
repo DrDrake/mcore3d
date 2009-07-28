@@ -70,7 +70,7 @@ class MCD_RENDER_API MeshBuilder : private Noncopyable
 
 public:
 	MeshBuilder();
-	sal_override ~MeshBuilder();
+	~MeshBuilder();
 
 	//!	Enable specific format(s) to be build.
 	void enable(uint format);
@@ -189,7 +189,7 @@ public:
 		\note Do nothing if no corresponding pointer is acquired.
 		\sa acquireBufferPointer
 	 */
-	void releaseBufferPointer(sal_maybenull void* ptr);
+	void releaseBufferPointer(sal_maybenull const void* ptr);
 
 protected:
 	uint mFormat;		//!< The same meaning as Mesh::mFormat
