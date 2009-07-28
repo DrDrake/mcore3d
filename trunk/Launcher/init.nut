@@ -24,19 +24,25 @@ e.addComponent(c2);
 	addResourceCallback([scene1,scene2], function() { println("all scene loaded"); });
 }
 
+// Multiple MeshComponent can share a single Mesh
+local chamferBoxMesh = ChamferBoxMesh(1, 2);
+
+// Multiple RigidBodyComponent can share a single shape
+local shpereShape = SphereShape(1);
+
 // Create some spheres
-for(local i=0; i<20; ++i) for(local j=0; j<20; ++j)
+for(local i=0; i<30; ++i) for(local j=0; j<30; ++j)
 {
 	local e = Entity();
-	e.localTransform.m03 = 5 * i;
+	e.localTransform.m03 = 1 * i;
 	e.localTransform.m13 = 100;
-	e.localTransform.m23 = 5 * j;
+	e.localTransform.m23 = 1 * j;
 	rootEntity.addChild(e);
 
 	local c = MeshComponent();
-	c.mesh= ChamferBoxMesh(1, 5);
+	c.mesh = chamferBoxMesh;
 	e.addComponent(c);
 
-	c = RigidBodyComponent(gMainWindow.dynamicsWorld, 1, SphereShape(1));
+	c = RigidBodyComponent(gMainWindow.dynamicsWorld, 1, shpereShape);
 	e.addComponent(c);
 }

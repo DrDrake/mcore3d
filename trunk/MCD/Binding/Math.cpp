@@ -42,6 +42,9 @@ static int mat44Create(HSQUIRRELVM vm)
 
 static Mat44f addMat44(const Mat44f& lhs, const Mat44f& rhs) { return lhs + rhs; }
 static Mat44f subMat44(const Mat44f& lhs, const Mat44f& rhs) { return lhs - rhs; }
+static Mat44f mulMat44(const Mat44f& lhs, const Mat44f& rhs) { return lhs * rhs; }
+static Mat44f scalarMulMat44(const Mat44f& lhs, float rhs) { return lhs * rhs; }
+static bool isEqualMat44(const Mat44f& lhs, const Mat44f& rhs) { return lhs == rhs; }
 
 SCRIPT_CLASS_REGISTER_NAME(Mat44f, "Mat44")
 	.enableGetset(L"Mat44")
@@ -55,6 +58,11 @@ SCRIPT_CLASS_REGISTER_NAME(Mat44f, "Mat44")
 	.method(L"_getinverse", (Mat44f (Mat44f::*)()const)&Mat44f::inverse)
 	.wrappedMethod(L"_add", &addMat44)
 	.wrappedMethod(L"_sub", &subMat44)
+	.wrappedMethod(L"_mul", &mulMat44)
+	.wrappedMethod(L"scalarMul", &scalarMulMat44)
+//	.wrappedMethod(L"scalarDiv", &scalarDivMat44)
+	.wrappedMethod(L"isEqual", &isEqualMat44)
+//	.runScript(L"Mat44.identity <- Mat44()")	// TODO: Add identity
 ;}
 
 static int vec2Create(HSQUIRRELVM vm)
@@ -85,11 +93,14 @@ static int vec2Create(HSQUIRRELVM vm)
 	construct::pushResult(vm, v);
 	return 1;
 }
+static bool isEqualVec2(const Vec2f& lhs, const Vec2f& rhs) { return lhs == rhs; }
+
 SCRIPT_CLASS_REGISTER_NAME(Vec2f, "Vec2")
 	.enableGetset(L"Vec2")
 	.rawMethod(L"constructor", vec2Create)
 	.getset(L"x", &Vec2f::x)
 	.getset(L"y", &Vec2f::y)
+	.wrappedMethod(L"isEqual", &isEqualVec2)
 	.runScript(L"Vec2._tostring <- function(){return x+\", \"+y;}")	// Vec2.tostring()
 ;}
 
@@ -122,9 +133,9 @@ static int vec3Create(HSQUIRRELVM vm)
 	return 1;
 }
 static float vec3Length(const Vec3f& v) { return v.length(); }
-static Vec3f* addVec3(const Vec3f& lhs, const Vec3f& rhs) { return new Vec3f(lhs + rhs); }
+static Vec3f addVec3(const Vec3f& lhs, const Vec3f& rhs) { return lhs + rhs; }
 static Vec3f subVec3(const Vec3f& lhs, const Vec3f& rhs) { return lhs - rhs; }
-static Vec3f* mulVec3(const Vec3f& lhs, float rhs) { return new Vec3f(lhs * rhs); }
+static Vec3f mulVec3(const Vec3f& lhs, float rhs) { return lhs * rhs; }
 static Vec3f unmVec3(const Vec3f& lhs) { return -lhs; }
 static bool isEqualVec3(const Vec3f& lhs, const Vec3f& rhs) { return lhs == rhs; }
 static void vec3AddEqual(Vec3f& lhs, const Vec3f& rhs) { lhs += rhs; }

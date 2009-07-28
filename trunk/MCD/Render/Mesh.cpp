@@ -182,10 +182,16 @@ uint Mesh::handle(DataType dataType) const
 	return handle ? *handle : 0;
 }
 
-Mesh::HandlePtr Mesh::handlePtr(DataType dataType)
+// NOTE: Creates a static object so that Mesh::handlePtr() can returns a reference instead of value
+static const Mesh::HandlePtr cNullPtr = nullptr;
+
+// NOTE: Profiling result shows that this function calls many time per frame,
+// and returning smart pointer object can take up ~3% of CPU time, while
+// changing it to return reference cost around 0.2% CPU time
+const Mesh::HandlePtr& Mesh::handlePtr(DataType dataType)
 {
 	if(size_t(dataType) >= cMapArraySize || cDataType2Index[dataType] == -1)
-		return nullptr;
+		return cNullPtr;
 
 	return mHandles[cDataType2Index[dataType]];
 }

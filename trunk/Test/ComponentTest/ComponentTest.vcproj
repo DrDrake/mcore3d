@@ -227,6 +227,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\BasicPhysicsComponentTest.cpp"
+				>
+			</File>
+			<File
 				RelativePath="..\RenderTest\DefaultResourceManager.cpp"
 				>
 			</File>

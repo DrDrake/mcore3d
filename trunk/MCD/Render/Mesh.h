@@ -75,7 +75,7 @@ public:
 		Use this function to modify the handles.
 		Returns null if the data type is not found in this mesh.
 	 */
-	HandlePtr handlePtr(DataType dataType);
+	const HandlePtr& handlePtr(DataType dataType);
 
 	/*!	Set the handle pointer for the corresponding data type.
 		Most likely you will share the vertex buffer by various meshes, for example:
