@@ -50,7 +50,7 @@ TEST(PickComponentTest)
 				// Add component
 				MeshComponent* c = new MeshComponent;
 				c->mesh = mesh;
-				c->effect = static_cast<Effect*>(mResourceManager.load(L"Material/test.fx.xml").get());
+				c->effect = dynamic_cast<Effect*>(mResourceManager.load(L"Material/test.fx.xml").get());
 				e->addComponent(c);
 
 				e.release();
@@ -70,7 +70,7 @@ TEST(PickComponentTest)
 				// Add component
 				MeshComponent* c = new MeshComponent;
 				c->mesh = mesh;
-				c->effect = static_cast<Effect*>(mResourceManager.load(L"Material/test.fx.xml").get());
+				c->effect = dynamic_cast<Effect*>(mResourceManager.load(L"Material/test.fx.xml").get());
 				e->addComponent(c);
 
 				e.release();

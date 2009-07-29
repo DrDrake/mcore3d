@@ -190,16 +190,20 @@ public:
 	}
 };	// PrivateAccessor
 
-MeshBuilder::MeshBuilder()
-	:
-	mFormat(0),
-	mBuffer(*(new BufferImpl))
+MeshBuilder::MeshBuilder(bool isCreatedOnStack)
+	: mFormat(0)
+	, mBuffer(*(new BufferImpl))
+#ifndef NDEBUG
+	, mIsCreatedOnStack(isCreatedOnStack)
+#endif
 {
+	(void)isCreatedOnStack;
 	clear();
 }
 
 MeshBuilder::~MeshBuilder()
 {
+	MCD_ASSERT(mIsCreatedOnStack && "If MeshBuilder is going to be shared, use MeshBuilderPtr");
 	delete &mBuffer;
 }
 
@@ -473,5 +477,19 @@ void MeshBuilder::releaseBufferPointer(const void* ptr)
 {
 	mBuffer.releaseBufferPointer(ptr);
 }
+
+#ifndef NDEBUG
+void intrusivePtrAddRef(MeshBuilder* p) {
+	++(p->mRefCount);
+}
+
+void intrusivePtrRelease(MeshBuilder* p) {
+	if(--(p->mRefCount) == 0) {
+		MCD_ASSERT(!p->mIsCreatedOnStack && "If you want to share MeshBuilder, please flag it as NOT isCreatedOnStack in the constructor");
+		p->mIsCreatedOnStack = true;
+		delete p;
+	}
+}
+#endif
 
 }	// namespace MCD

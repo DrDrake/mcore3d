@@ -10,7 +10,7 @@
 
 namespace MCD {
 
-typedef SharedPtr<class MeshBuilder> MeshBuilderPtr;
+typedef IntrusivePtr<class MeshBuilder> MeshBuilderPtr;
 
 /*!
 	\note Since we use uint16_t to store index data, therefore a single Mesh instance cannot

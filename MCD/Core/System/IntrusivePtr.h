@@ -168,6 +168,32 @@ IntrusivePtr<T> dynamic_pointer_cast(const IntrusivePtr<U>& p) {
 	return dynamic_cast<T*>(p.get());
 }
 
+/*!	A handly class for you to inherit from, in order to uss IntrusivePtr painlessly.
+	\note Inherit from this class will make your class polymorhpic, don't use this
+		class if you don't want to pay for this overhead.
+ */
+template<typename CounterType>
+class MCD_ABSTRACT_CLASS IntrusiveSharedObject
+{
+public:
+	IntrusiveSharedObject() : mRefCount(0) {}
+
+	virtual ~IntrusiveSharedObject() {}
+
+	friend void intrusivePtrAddRef(IntrusiveSharedObject* p) {
+		++(p->mRefCount);
+	}
+
+	friend void intrusivePtrRelease(IntrusiveSharedObject* p) {
+		if(--(p->mRefCount) == 0)
+			delete p;
+	}
+
+protected:
+	mutable CounterType mRefCount;
+};	// IntrusiveSharedObject
+
+
 }	// namespace MCD
 
 #endif	// __MCD_CORE_SYSTEM_INTRUSIVEPTR__
