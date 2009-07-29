@@ -242,7 +242,7 @@ TEST(TriMeshPhysicsComponentTest)
 #else
 					MeshComponent* c = new MeshComponent;
 					c->mesh = ballMesh;
-					c->effect = static_cast<Effect*>(mResourceManager.load(L"Material/simple.fx.xml").get());
+					c->effect = dynamic_cast<Effect*>(mResourceManager.load(L"Material/simple.fx.xml").get());
 					e->addComponent(c);
 #endif
 

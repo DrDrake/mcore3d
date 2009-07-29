@@ -46,7 +46,7 @@ TEST(SimplePhysicsComponentTest)
 				// Add component
 				MeshComponent* c = new MeshComponent;
 				c->mesh = mesh;
-				c->effect = static_cast<Effect*>(mResourceManager.load(L"Material/test.fx.xml").get());
+				c->effect = dynamic_cast<Effect*>(mResourceManager.load(L"Material/test.fx.xml").get());
 				e->addComponent(c);
 
 				// Create the phyiscs component
@@ -70,7 +70,7 @@ TEST(SimplePhysicsComponentTest)
 				// Add component
 				MeshComponent* c = new MeshComponent;
 				c->mesh = meshGround;
-				c->effect = static_cast<Effect*>(mResourceManager.load(L"Material/test.fx.xml").get());
+				c->effect = dynamic_cast<Effect*>(mResourceManager.load(L"Material/test.fx.xml").get());
 				e->addComponent(c);
 
 				// Create the phyiscs component

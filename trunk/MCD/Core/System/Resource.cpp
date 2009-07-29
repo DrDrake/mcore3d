@@ -5,7 +5,6 @@ namespace MCD {
 
 Resource::Resource(const Path& fileId)
 	:
-	mRefCount(0),
 	mFileId(fileId)
 {
 }

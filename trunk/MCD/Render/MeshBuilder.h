@@ -2,6 +2,8 @@
 #define __MCD_RENDER_MESHBUILDER__
 
 #include "ShareLib.h"
+#include "../Core/System/Atomic.h"
+#include "../Core/System/IntrusivePtr.h"
 #include "../Core/System/NonCopyable.h"
 
 namespace MCD {
@@ -64,12 +66,19 @@ typedef Vec3<float> Vec3f;
 	builder.commit(mesh, MeshBuilder::Static);
 	\endcode
  */
-class MCD_RENDER_API MeshBuilder : private Noncopyable
+class MCD_RENDER_API MeshBuilder : public IntrusiveSharedObject<AtomicInteger>, private Noncopyable
 {
 	class BufferImpl;
 
 public:
-	MeshBuilder();
+	/*!	Since MeshBuilder can be shared using IntrusivePtr, we should do some error
+		checking to see if the MeshBuilder is intesionally shared or not. So if you
+		assign a MeshBuilder created on stack to a MeshBuilderPtr, assertion will
+		occur. Vise versa, if MeshBuilder is not created on stack, it should be deteled
+		though MeshBuilderPtr.
+	 */
+	explicit MeshBuilder(bool isCreatedOnStack=true);
+
 	~MeshBuilder();
 
 	//!	Enable specific format(s) to be build.
@@ -194,7 +203,15 @@ public:
 protected:
 	uint mFormat;		//!< The same meaning as Mesh::mFormat
 	BufferImpl& mBuffer;
+
+#ifndef NDEBUG
+	mutable bool mIsCreatedOnStack;
+	MCD_RENDER_API friend void intrusivePtrAddRef(MeshBuilder* p);
+	MCD_RENDER_API friend void intrusivePtrRelease(MeshBuilder* p);
+#endif
 };	// MeshBuilder
+
+typedef IntrusivePtr<MeshBuilder> MeshBuilderPtr;
 
 }	// namespace MCD
 

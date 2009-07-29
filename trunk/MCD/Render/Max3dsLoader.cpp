@@ -297,7 +297,7 @@ private:
 
 	struct ModelInfo
 	{
-		SharedPtr<MeshBuilder> meshBuilder;	//! Contains vertex buffer only
+		MeshBuilderPtr meshBuilder;	//! Contains vertex buffer only
 		std::vector<uint16_t> index;//! The triangle index
 		std::list<MultiSubObject> multiSubObject;
 		std::vector<uint32_t> smoothingGroup;
@@ -319,10 +319,6 @@ Max3dsLoader::Impl::Impl(IResourceManager* resourceManager)
 
 Max3dsLoader::Impl::~Impl()
 {
-	//todo remove the following 2 lines, since we are now using SharedPtr<MeshBuilder>
-	//MCD_FOREACH(const ModelInfo& model, mModelInfo)
-	//	delete model.meshBuilder;
-
 	MCD_FOREACH(Max3dsMaterial* material, mMaterials)
 		delete material;
 	delete mStream;
@@ -368,7 +364,7 @@ IResourceLoader::LoadingState Max3dsLoader::Impl::load(std::istream* is, const P
 
 	ChunkHeader header;
 
-	MeshBuilder* currentMeshBuilder = nullptr;
+	MeshBuilderPtr currentMeshBuilder = nullptr;
 	Max3dsMaterial* currentMaterial = nullptr;
 
 	// When mirror is used in the 3DS, the triangle winding order need to be inverted.
@@ -404,7 +400,7 @@ IResourceLoader::LoadingState Max3dsLoader::Impl::load(std::istream* is, const P
 				std::wstring objectName;
 				readString(objectName);
 
-				currentMeshBuilder = new MeshBuilder;
+				currentMeshBuilder = new MeshBuilder(false);
 				if(!currentMeshBuilder)
 					ABORTLOADING();
 
@@ -723,7 +719,6 @@ IResourceLoader::LoadingState Max3dsLoader::Impl::load(std::istream* is, const P
 
 		meshBuilder.releaseBufferPointer(normal);
 		meshBuilder.releaseBufferPointer(vertex);
-
 	}
 
 	mLoadingState = Loaded;
@@ -797,6 +792,23 @@ void Max3dsLoader::Impl::commit(Resource& resource)
 		// assign meshBuilder if requested in args
 		if(mLoadOptions->keepMeshBuilders)
 			meshWithoutIndex->builder = modelInfo.meshBuilder;
+
+		if(modelInfo.multiSubObject.empty()) {
+			MeshPtr mesh = new Mesh(L"", *meshWithoutIndex);
+			mesh->setHandlePtr(Mesh::Index, Mesh::HandlePtr(new uint(0)));
+
+			MeshBuilderPtr indexBuilder = new MeshBuilder(false);
+			indexBuilder->enable(Mesh::Index);
+			size_t indexCount = modelInfo.index.size();
+			for(uint16_t i=0; i<indexCount; i+=3) {
+				indexBuilder->addTriangle(i+0, i+1, i+2);
+			}
+			indexBuilder->commit(*mesh, Mesh::Index, storageHint);
+
+			Model::MeshAndMaterial meshMat;
+			meshMat.mesh = mesh;
+			model.mMeshes.pushBack(meshMat);
+		}
 
 		MCD_FOREACH(const MultiSubObject& subObject, modelInfo.multiSubObject) {
 			// Share all the buffers in meshWithoutIndex into this mesh

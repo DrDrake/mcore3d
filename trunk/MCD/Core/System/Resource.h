@@ -10,23 +10,13 @@ namespace MCD {
 
 /*!	Resource
  */
-class MCD_CORE_API Resource : public WeakPtrTarget, Noncopyable
+class MCD_CORE_API Resource : public WeakPtrTarget, public IntrusiveSharedObject<AtomicInteger>, Noncopyable
 {
 public:
 	explicit Resource(const Path& fileId);
 
 	const Path& fileId() const {
 		return mFileId;
-	}
-
-	friend void intrusivePtrAddRef(Resource* resource) {
-		++(resource->mRefCount);
-	}
-
-	friend void intrusivePtrRelease(Resource* resource)
-	{
-		if(--(resource->mRefCount) == 0)
-			delete resource;
 	}
 
 protected:
@@ -36,7 +26,6 @@ protected:
 	virtual ~Resource() {}
 
 protected:
-	AtomicInteger mRefCount;
 	Path mFileId;
 };	// Resource
 
