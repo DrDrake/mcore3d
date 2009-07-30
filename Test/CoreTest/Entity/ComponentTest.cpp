@@ -180,4 +180,21 @@ TEST(ComponentPreorderIterator_ComponentTest)
 		}
 		CHECK_EQUAL(3u, i);
 	}
+
+	{	// Traverse only part of the tree
+		Entity* e = new Entity;
+		e->asChildOf(&root);
+
+		Entity* e2 = new Entity;
+		e2->asChildOf(e);
+
+		size_t i = 0;
+		for(ComponentPreorderIterator itr(e); !itr.ended(); itr.next(), ++i) {}
+		CHECK_EQUAL(0u, i);
+
+		e->addComponent(new DummyComponent1);
+		i = 0;
+		for(ComponentPreorderIterator itr(e); !itr.ended(); itr.next(), ++i) {}
+		CHECK_EQUAL(1u, i);
+	}
 }
