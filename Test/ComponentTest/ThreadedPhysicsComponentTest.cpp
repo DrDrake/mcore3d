@@ -42,15 +42,13 @@ public:
 		{	// Write the per-instance data into the uniform buffer
 			Mat44f worldMatBuf;
 
-			glBindBuffer(GL_UNIFORM_BUFFER_EXT, mUniformBufferHandle);
+			mTempBuffer.resize(mPerInstanceInfo.size());
 
 			for(size_t i = 0; i < mPerInstanceInfo.size(); ++i)
-			{
-				worldMatBuf = (viewMat * mPerInstanceInfo[i]).transpose();
+				mTempBuffer[i] = (viewMat * mPerInstanceInfo[i]).transpose();
 
-				glBufferSubData(GL_UNIFORM_BUFFER_EXT, i * sizeof(Mat44f), sizeof(Mat44f), worldMatBuf.getPtr());
-			}
-
+			glBindBuffer(GL_UNIFORM_BUFFER_EXT, mUniformBufferHandle);
+			glBufferSubData(GL_UNIFORM_BUFFER_EXT, 0, mTempBuffer.size() * sizeof(Mat44f), &mTempBuffer[0]);
 			glBindBuffer(GL_UNIFORM_BUFFER_EXT, 0);
 		}
 
@@ -110,6 +108,7 @@ public:
 		if(--(instMesh->mRefCount) == 0)
 			delete instMesh;
 	}
+
 protected:
 	AtomicInteger	mRefCount;
 
@@ -119,6 +118,8 @@ protected:
 
 	typedef std::vector<Mat44f> PerInstanceInfo;
 	PerInstanceInfo mPerInstanceInfo;
+	PerInstanceInfo mTempBuffer;
+
 private:
 	void CreateBindableUniformBuffer()
 	{
@@ -190,6 +191,8 @@ TEST(ThreadedPhysicsComponentTest)
 			BasicGlWindow(L"title=ThreadedPhysicsComponentTest;width=800;height=600;fullscreen=0;FSAA=4"),
 			mResourceManager(*createDefaultFileSystem())
 		{
+			mRootNode.name = L"root";
+
 			// Override the default loader of *.3ds file
 			mResourceManager.addFactory(new EntityPrototypeLoaderFactory(mResourceManager));
 
@@ -210,7 +213,7 @@ TEST(ThreadedPhysicsComponentTest)
 
 			// Setup the chamfer box mesh
 			MeshPtr ballMesh = new Mesh(L"");
-			ChamferBoxBuilder chamferBoxBuilder(1.0f, 5);
+			ChamferBoxBuilder chamferBoxBuilder(1.0f, 2);
 			chamferBoxBuilder.commit(*ballMesh, MeshBuilder::Static);
 
 			mBallInstMesh = new InstancedMesh(ballMesh, mResourceManager);
@@ -240,7 +243,7 @@ TEST(ThreadedPhysicsComponentTest)
 #else
 					MeshComponent* c = new MeshComponent;
 					c->mesh = ballMesh;
-					c->effect = static_cast<Effect*>(mResourceManager.load(L"Material/simple.fx.xml").get());
+					c->effect = dynamic_cast<Effect*>(mResourceManager.load(L"Material/simple.fx.xml").get());
 					e->addComponent(c);
 #endif
 
