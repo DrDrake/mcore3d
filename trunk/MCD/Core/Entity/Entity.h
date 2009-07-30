@@ -5,6 +5,7 @@
 #include "../Math/Mat44.h"
 #include "../System/ScriptOwnershipHandle.h"
 #include "../System/UserData.h"
+#include "../System/Utility.h"
 #include <string>
 
 namespace MCD {
@@ -53,10 +54,10 @@ public:
 	 */
 	sal_maybenull Component* findComponent(const std::type_info& familyType) const;
 
-	//!	Wrap over findComponent() with dynamic_cast
+	//!	Wrap over findComponent() with polymorphic_downcast
 	template<class T>
 	sal_maybenull T* findComponent(const std::type_info& familyType) const {
-		return dynamic_cast<T*>(findComponent(familyType));
+		return polymorphic_downcast<T*>(findComponent(familyType));
 	}
 	template<class T>
 	sal_maybenull T* findComponent() const {
@@ -70,10 +71,10 @@ public:
 	 */
 	sal_maybenull Component* findComponentInChildren(const std::type_info& familyType) const;
 
-	//!	Wrap over findComponentInChildren() with dynamic_cast
+	//!	Wrap over findComponentInChildren() with polymorphic_downcast
 	template<class T>
 	sal_maybenull T* findComponentInChildren(const std::type_info& familyType) const {
-		return dynamic_cast<T*>(findComponentInChildren(familyType));
+		return polymorphic_downcast<T*>(findComponentInChildren(familyType));
 	}
 	template<class T>
 	sal_maybenull T* findComponentInChildren() const {
