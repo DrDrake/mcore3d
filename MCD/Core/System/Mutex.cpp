@@ -157,8 +157,11 @@ bool Mutex::tryLock()
 	}
 }
 
-RecursiveMutex::RecursiveMutex()
+RecursiveMutex::RecursiveMutex(int spinCount)
 {
+	// TODO: Support spin lock on posix
+	(void)spinCount;
+
 	pthread_mutexattr_t attr;
 	MCD_VERIFY(::pthread_mutexattr_init(&attr) == 0);
 	MCD_VERIFY(::pthread_mutexattr_settype(&attr, PTHREAD_MUTEX_RECURSIVE) == 0);

@@ -224,7 +224,7 @@ void Thread::wait()
 	pthread_t handleBackup = mHandle;
 	mHandle = pthread_t(nullptr);
 
-	lock.m.unlock();
+	lock.mutex().unlock();
 	lock.cancel();
 
 	MCD_VERIFY(::pthread_join(handleBackup, nullptr) == 0);

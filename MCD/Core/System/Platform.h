@@ -233,6 +233,7 @@ void noReturn() { throw "NoReturn should not be invoked"; }
 #define sal_in_ecount_opt(count)
 #define sal_out_ecount(count)
 #define sal_out_ecount_opt(count)
+#define sal_inout_bcount(count)
 
 // alloca
 #define MCD_STACKALLOCA(size) __builtin_alloca(size)

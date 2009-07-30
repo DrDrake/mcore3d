@@ -330,13 +330,17 @@ TEST(Clone_EntityTest)
 	// Verify the cloned Components
 	CHECK(clone_e1->findComponent<NonCloneableComponent>() == nullptr);
 
-#pragma warning(push)
-#pragma warning(disable: 6011)
+#ifdef MCD_VC
+#	pragma warning(push)
+#	pragma warning(disable: 6011)
+#endif
 	CHECK_EQUAL("c1", clone_e1->findComponent<CloneableComponent>()->data);
 	CHECK_EQUAL("c2", clone_e2->findComponent<CloneableComponent>()->data);
 	CHECK_EQUAL("c3", clone_e3->findComponent<CloneableComponent>()->data);
 	CHECK_EQUAL("c11", clone_e11->findComponent<CloneableComponent>()->data);
 	CHECK_EQUAL("c12", clone_e12->findComponent<CloneableComponent>()->data);
 	CHECK_EQUAL("c13", clone_e13->findComponent<CloneableComponent>()->data);
-#pragma warning(pop)
+#ifdef MCD_VC
+#	pragma warning(pop)
+#endif
 }

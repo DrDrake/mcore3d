@@ -554,7 +554,7 @@ std::string MemoryProfiler::defaultReport(size_t nameLength) const {
 	return std::string();
 }
 
-void MemoryProfiler::onThreadAttach(const char* threadName) {}
+void* MemoryProfiler::onThreadAttach(const char* threadName) { return nullptr; }
 
 bool MemoryProfiler::enable() const { return false; }
 
