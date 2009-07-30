@@ -648,6 +648,10 @@
 					RelativePath=".\Entity\Entity.h"
 					>
 				</File>
+				<File
+					RelativePath=".\Entity\EntityIterator.h"
+					>
+				</File>
 			</Filter>
 			<Filter
 				Name="Source Files"

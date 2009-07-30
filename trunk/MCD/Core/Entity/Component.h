@@ -1,6 +1,7 @@
 #ifndef __MCD_CORE_ENTITY_COMPONENT__
 #define __MCD_CORE_ENTITY_COMPONENT__
 
+#include "EntityIterator.h"
 #include "../ShareLib.h"
 #include "../System/LinkList.h"
 #include "../System/ScriptOwnershipHandle.h"
@@ -93,7 +94,7 @@ public:
 
 	//! Returns true if there are NO more items in the collection.
 	bool ended() const {
-		return mStart == nullptr && mCurrent == nullptr;
+		return mCurrent == nullptr;
 	}
 
 	//! Returns the next element in the collection, and advances to the next.
@@ -101,7 +102,7 @@ public:
 
 protected:
 	Component* mCurrent;
-	Entity* mStart;
+	EntityPreorderIterator mCurrentEntity;
 };	// ComponentPreorderIterator
 
 }	// namespace MCD
