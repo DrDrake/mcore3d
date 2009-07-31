@@ -254,6 +254,10 @@ void BasicGlWindow::onResize(size_t width, size_t height)
 
 void BasicGlWindow::postUpdate()
 {
+	int a = glGetError();
+	if(a != GL_NO_ERROR)
+		printf("OpenGl has error 0x%08x\n", a);
+
 	glFlush();
 	swapBuffers();
 }
