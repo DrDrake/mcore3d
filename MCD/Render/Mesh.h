@@ -6,7 +6,6 @@
 #include "../Core/System/NonCopyable.h"
 #include "../Core/System/Resource.h"
 #include "../Core/System/SharedPtr.h"
-#include <vector>
 
 namespace MCD {
 

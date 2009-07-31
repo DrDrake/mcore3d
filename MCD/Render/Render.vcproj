@@ -256,6 +256,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\InstancedMesh.h"
+				>
+			</File>
+			<File
 				RelativePath=".\JpegLoader.h"
 				>
 			</File>
@@ -402,6 +406,10 @@
 			</File>
 			<File
 				RelativePath=".\GlWindow.Win.inc"
+				>
+			</File>
+			<File
+				RelativePath=".\InstancedMesh.cpp"
 				>
 			</File>
 			<File

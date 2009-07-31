@@ -4,140 +4,17 @@
 #include "../../MCD/Core/Entity/Entity.h"
 #include "../../MCD/Render/ChamferBox.h"
 #include "../../MCD/Render/Effect.h"
-#include "../../MCD/Render/Material.h"
+#include "../../MCD/Render/InstancedMesh.h"
 #include "../../MCD/Render/Mesh.h"
-#include "../../MCD/Render/ShaderProgram.h"
 #include "../../MCD/Component/Render/EntityPrototypeLoader.h"
 #include "../../MCD/Component/Render/MeshComponent.h"
 #include "../../MCD/Component/Physics/CollisionShape.h"
 #include "../../MCD/Component/Physics/DynamicsWorld.h"
 #include "../../MCD/Component/Physics/RigidBodyComponent.h"
 
-#include "../../3Party/glew/glew.h"
-
 using namespace MCD;
 
 #define USE_HARDWARE_INSTANCE
-
-// The Instanced Mesh composes of 2 classes:
-// InstancedMesh and InstancedMeshComponent
-// InstancedMeshComponent registers per-instance information to InstancedMesh
-// InstancedMesh is responsible for uploading per-instance information to GPU, and issue the draw call
-class InstancedMesh
-{
-public:
-	InstancedMesh(const MeshPtr& mesh, IResourceManager& resourceManager) : mMesh(mesh), mUniformBufferHandle(0), mHwInstEffect(0)
-	{
-		CreateBindableUniformBuffer();
-		mHwInstEffect = static_cast<Effect*>(resourceManager.load(L"Material/hwinst.fx.xml").get());
-	}
-
-	~InstancedMesh()
-	{
-		glDeleteBuffers(1, &mUniformBufferHandle);
-	}
-
-	void update(const Mat44f& viewMat)
-	{
-		{	// Write the per-instance data into the uniform buffer
-			Mat44f worldMatBuf;
-
-			glBindBuffer(GL_UNIFORM_BUFFER_EXT, mUniformBufferHandle);
-
-			for(size_t i = 0; i < mPerInstanceInfo.size(); ++i)
-			{
-				worldMatBuf = (viewMat * mPerInstanceInfo[i]).transpose();
-
-				glBufferSubData(GL_UNIFORM_BUFFER_EXT, i * sizeof(Mat44f), sizeof(Mat44f), worldMatBuf.getPtr());
-			}
-
-			glBindBuffer(GL_UNIFORM_BUFFER_EXT, 0);
-		}
-
-		{	// Bind the uniform buffer to shader, then draw the mesh
-			Material2* material = nullptr;
-			if (mHwInstEffect && (material = mHwInstEffect->material.get()) != nullptr) {
-				for(size_t i=0; i<material->getPassCount(); ++i) {
-					material->preRender(i);
-
-					{	// Bind the per-instance uniform buffer to the shader
-						Material2::Pass& pass = material->mRenderPasses[i];
-						for(size_t propIdx = 0; propIdx < pass.mProperty.size(); ++propIdx)
-						{
-							IMaterialProperty& prop = pass.mProperty[propIdx];
-
-							if (ShaderProperty* sp = dynamic_cast<ShaderProperty*>(&prop))
-							{
-								uint program = sp->shaderProgram->handle;
-								uint location = glGetUniformLocation(program, "transformArray");
-								glUniformBufferEXT(program, location, mUniformBufferHandle);
-							}
-						}
-					}
-
-					{	// Issue a single draw call to draw the balls
-						mMesh->bind(Mesh::Index);
-						glEnableClientState(GL_VERTEX_ARRAY);
-						mMesh->bind(Mesh::Position);
-
-						glDrawElementsInstancedEXT(GL_TRIANGLES, mMesh->indexCount(), GL_UNSIGNED_SHORT, 0, mPerInstanceInfo.size());
-
-						glDisableClientState(GL_VERTEX_ARRAY);
-					}
-
-					material->postRender(i);
-				}
-			}
-		}
-		mPerInstanceInfo.clear();
-	}
-
-	// This function accept world transformation only, but this limitation is temporary..
-	// It will be extended to accept more infomation(e.g. hw skinning info)
-	// But before that, research on size of bindable uniforms and vertex texture should be done first
-	void registerPerInstanceInfo(const Mat44f& info)
-	{
-		mPerInstanceInfo.push_back(info);
-	}
-
-	// Function required for intrusive pointer 
-	friend void intrusivePtrAddRef(InstancedMesh* instMesh) {
-		++(instMesh->mRefCount);
-	}
-
-	friend void intrusivePtrRelease(InstancedMesh* instMesh)
-	{
-		if(--(instMesh->mRefCount) == 0)
-			delete instMesh;
-	}
-
-protected:
-	AtomicInteger	mRefCount;
-
-	MeshPtr			mMesh;
-	GLuint			mUniformBufferHandle;
-	EffectPtr		mHwInstEffect;
-
-	typedef std::vector<Mat44f> PerInstanceInfo;
-	PerInstanceInfo mPerInstanceInfo;
-
-private:
-	void CreateBindableUniformBuffer()
-	{
-		// Generate and allocate the uniform buffer
-		const int MAX_BUFFER_SIZE = 65536; // It works on 8800GTS
-		mUniformBufferHandle = 0;
-
-		glGenBuffers(1, &mUniformBufferHandle);
-		glBindBuffer(GL_UNIFORM_BUFFER_EXT, mUniformBufferHandle);
-		// Allocate more than we need... Since the number of instances varies during runtime,
-		// and the cost of allocating a single bindable uniform is in fact constant
-		glBufferData(GL_UNIFORM_BUFFER_EXT, MAX_BUFFER_SIZE, 0, GL_DYNAMIC_DRAW);
-		glBindBuffer(GL_UNIFORM_BUFFER_EXT, 0);
-	}
-};
-
-typedef IntrusivePtr<InstancedMesh> InstancedMeshPtr;
 
 // InstancedMeshComponent is a renderable
 // When it is visited by Renderable Vistor, it does not render anything, but register the per-instance info to the InstancedMesh
@@ -215,7 +92,7 @@ TEST(TriMeshPhysicsComponentTest)
 			ChamferBoxBuilder chamferBoxBuilder(1.0f, 5);
 			chamferBoxBuilder.commit(*ballMesh, MeshBuilder::Static);
 
-			mBallInstMesh = new InstancedMesh(ballMesh, mResourceManager);
+			mBallInstMesh = new InstancedMesh(ballMesh, static_cast<Effect*>(mResourceManager.load(L"Material/hwinst.fx.xml").get()));
 
 			// Ball count
 			int xCount = 32, yCount = 32;
