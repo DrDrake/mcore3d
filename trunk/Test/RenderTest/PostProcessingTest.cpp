@@ -844,6 +844,5 @@ public:
 TEST(PostProcessingTest)
 {
 	PostProcessingTest::TestWindow window;
-	window.update(0.1f);
 	window.mainLoop();
 }

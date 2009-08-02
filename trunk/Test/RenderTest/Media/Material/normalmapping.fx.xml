@@ -58,7 +58,7 @@ void main()
 	gl_TexCoord[0] = gl_MultiTexCoord0;
 }
 			]]>
-		<vertex/>
+		</vertex>
 
 		<!-- Define the fragment shader just inside the xml -->
 		<fragment>
