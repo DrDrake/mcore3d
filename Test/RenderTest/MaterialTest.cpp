@@ -49,7 +49,6 @@ TEST(MaterialTest)
 
 	{
 		TestWindow window;
-		window.update(0.1f);
 		window.mainLoop();
 	}
 }

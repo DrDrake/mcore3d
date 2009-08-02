@@ -23,9 +23,12 @@ public:
 	/*!	Attach a shader to the program.
 		Multiple shader can be attached to the program and once all shaders are
 		attached, you can call link().
+
+		\note Take shared ownership of Shader
 	 */
 	void attach(Shader& shader);
 
+	//! Release shared ownership of Shader
 	void detach(Shader& shader);
 
 	void detachAll();
@@ -36,7 +39,7 @@ public:
 
 	void unbind();
 
-// Never use temporary c-string for the following methods!!
+	// NOTE: Never use temporary c-string for the following methods!!
 	/*!	Helper functions for binding shader uniforms.
 		The following functions must be called between bind() and unbind().
 		\sa http://www.opengl.org/sdk/docs/man/xhtml/glUniform.xml
@@ -71,19 +74,17 @@ public:
 
 	uint handle;
 
-protected:
-	static ShaderProgram* mCurrent;
-
-public:
-	/*! Retrieve the last binded ShaderProgram.
+	/*!	Retrieve the current binded ShaderProgram.
 		When the last ShaderProgram's bind() method is called, it will make that ShaderProgram as
 		current; and the current will be reset to nullptr if any ShaderProgram's unbind() method is called.
 
 		This method will return nullptr if no ShaderProgram is currently binded.
-	*/
-	static ShaderProgram* current();
+	 */
+	static sal_maybenull ShaderProgram* current();
 
 protected:
+	static ShaderProgram* mCurrent;
+
 	class Impl;
 	Impl* mImpl;
 };	// ShaderProgram
