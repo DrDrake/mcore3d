@@ -24,7 +24,10 @@ TEST(MeshComponentTest)
 			// Override the default loader of *.3ds file
 			mResourceManager.addFactory(new EntityPrototypeLoaderFactory(mResourceManager));
 
-			EntityPrototypeLoader::addEntityAfterLoad(&mRootNode, mResourceManager, L"Scene/City/scene.3ds");
+			//const wchar_t* filepath = L"Scene/City/scene.3ds";
+			const wchar_t* filepath = L"Scene/AmbientCubeScene/AmbientCubeScene.3DS";
+
+			EntityPrototypeLoader::addEntityAfterLoad(&mRootNode, mResourceManager, filepath);
 
 			std::auto_ptr<Entity> group1(new Entity);
 			{	// Setup entity 1

@@ -38,6 +38,7 @@ public:
 
 // Never use temporary c-string for the following methods!!
 	/*!	Helper functions for binding shader uniforms.
+		The following functions must be called between bind() and unbind().
 		\sa http://www.opengl.org/sdk/docs/man/xhtml/glUniform.xml
 	 */
 	void uniform1f(sal_in_z const char* name, float v0);
@@ -69,6 +70,18 @@ public:
 	void getLog(std::string& log);
 
 	uint handle;
+
+protected:
+	static ShaderProgram* mCurrent;
+
+public:
+	/*! Retrieve the last binded ShaderProgram.
+		When the last ShaderProgram's bind() method is called, it will make that ShaderProgram as
+		current; and the current will be reset to nullptr if any ShaderProgram's unbind() method is called.
+
+		This method will return nullptr if no ShaderProgram is currently binded.
+	*/
+	static ShaderProgram* current();
 
 protected:
 	class Impl;
