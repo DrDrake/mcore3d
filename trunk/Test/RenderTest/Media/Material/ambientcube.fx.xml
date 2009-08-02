@@ -32,6 +32,7 @@
 		<!-- Reference external file as vertex shader -->
 		<vertex>
 			<![CDATA[
+#version 120
 varying vec3 vertex, normal, tangent;
 uniform mat4 g_WorldMatrix;
 
@@ -44,7 +45,7 @@ void main()
 	// No need to do normalize since we do it on fragment shader anyway
 	normal = mat3(g_WorldMatrix) * gl_Normal;
 	tangent = mat3(g_WorldMatrix) * gl_MultiTexCoord1.xyz;
-	
+
 	// texture coordinate
 	gl_TexCoord[0] = gl_MultiTexCoord0 * 0.25;
 }
@@ -68,12 +69,12 @@ vec3 ambientLight( vec3 normal, vec3 ambientCube[6] )
 	*/
 	vec3 sqNormal = normal * normal;
 	vec3 isNegative = step(normal, vec3(0.0, 0.0, 0.0));
-	
+
 	vec3 linearColor
 		= sqNormal.x * ambientCube[int(isNegative.x)]
 		+ sqNormal.y * ambientCube[int(isNegative.y) + 2]
 		+ sqNormal.z * ambientCube[int(isNegative.z) + 4];
-		
+
 	return linearColor;
 }
 
@@ -91,10 +92,10 @@ void main()
 		+ normalize(B) * bump.y
 		+ normalize(normal) * bump.z
 		);
-	
+
 	vec4 base = texture2D(diffuseMap, gl_TexCoord[0].xy);
 	float ndotv = max( 0, dot(normal, vec3(0,0,1)) );
-	
+
 	//gl_FragColor = base * ndotv;
 	gl_FragColor = vec4( ambientLight( nrm, g_AmbientCube ), 1 );
 }
