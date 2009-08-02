@@ -18,6 +18,8 @@ public:
 // Operations
 	sal_override void render();
 
+	sal_override void render(Callback* callback);
+
 // Attrubutes
 	Camera camera;
 	Vec3f velocity;

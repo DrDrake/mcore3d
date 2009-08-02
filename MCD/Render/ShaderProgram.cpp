@@ -61,6 +61,13 @@ ShaderProgram::~ShaderProgram()
 	delete mImpl;
 }
 
+ShaderProgram* ShaderProgram::mCurrent = nullptr;
+
+ShaderProgram* ShaderProgram::current()
+{
+	return mCurrent;
+}
+
 void ShaderProgram::create()
 {
 	destroy();
@@ -115,11 +122,13 @@ bool ShaderProgram::link()
 void ShaderProgram::bind()
 {
 	glUseProgram(handle);
+	mCurrent = this;
 }
 
 void ShaderProgram::unbind()
 {
 	glUseProgram(0);
+	mCurrent = nullptr;
 }
 
 void ShaderProgram::getLog(std::string& log)

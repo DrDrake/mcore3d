@@ -32,6 +32,12 @@ public:
 		renderFaceOnly();
 	}
 
+	sal_override void render(Callback* callback)
+	{
+		// todo: callback support
+		render();
+	}
+
 	sal_override void renderFaceOnly()
 	{
 		Entity* e = entity();

@@ -44,6 +44,33 @@ void MeshComponent::render()
 	glPopMatrix();
 }
 
+void MeshComponent::render(Callback* callback)
+{
+	Entity* e = entity();
+	if(!mesh || !e)
+		return;
+
+	glPushMatrix();
+	glMultTransposeMatrixf(e->worldTransform().getPtr());
+
+	Material2* material = nullptr;
+	if(effect && (material = effect->material.get()) != nullptr) {
+		for(size_t i=0; i<material->getPassCount(); ++i) {
+			material->preRender(i);
+
+			if(callback) callback->preGeomRender(*this);
+			mesh->draw();
+			if(callback) callback->postGeomRender(*this);
+			
+			material->postRender(i);
+		}
+	}
+	else
+		mesh->drawFaceOnly();
+
+	glPopMatrix();
+}
+
 void MeshComponent::renderFaceOnly()
 {
 	Entity* e = entity();
