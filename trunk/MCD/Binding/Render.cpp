@@ -2,6 +2,7 @@
 #include "Render.h"
 #include "Binding.h"
 #include "../Render/ChamferBox.h"
+#include "../Render/Mesh.h"
 
 using namespace MCD;
 
@@ -15,6 +16,10 @@ struct resourceRefPolicy {
 		intrusivePtrRelease(resource);
 	}
 };	// resourceRefPolicy
+
+SCRIPT_CLASS_REGISTER(Effect)
+	.declareClass<Effect, Resource>(L"Effect")
+;}
 
 SCRIPT_CLASS_REGISTER(Mesh)
 	.declareClass<Mesh, Resource>(L"Mesh")
@@ -35,6 +40,7 @@ static Mesh* chamferBoxMeshCreate(float filletRadius, size_t filletSegmentCount)
 void registerRenderBinding(script::VMCore* v)
 {
 	using namespace script;
+	script::ClassTraits<Effect>::bind(v);
 	script::ClassTraits<Mesh>::bind(v);
 
 	RootDeclarator root(v);

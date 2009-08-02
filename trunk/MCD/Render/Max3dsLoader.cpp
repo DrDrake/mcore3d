@@ -15,6 +15,7 @@
 #include "../Core/System/StrUtility.h"
 #include "../Core/System/Utility.h"
 #include <list>
+#include <memory>	// For auto_ptr
 
 namespace MCD {
 

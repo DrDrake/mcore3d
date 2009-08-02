@@ -3,6 +3,9 @@
 #include "Binding.h"
 #include "Math.h"
 #include "Render.h"
+#include "../Render/Mesh.h"
+#include "../Component/Render/CameraComponent.h"
+#include "../Component/Render/MeshComponent.h"
 
 using namespace MCD;
 
