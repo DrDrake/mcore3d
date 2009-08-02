@@ -167,6 +167,11 @@ RecursiveMutex::RecursiveMutex(int spinCount)
 	MCD_VERIFY(::pthread_mutexattr_settype(&attr, PTHREAD_MUTEX_RECURSIVE) == 0);
 	MCD_VERIFY(::pthread_mutex_init(&mMutex, &attr) == 0);
 	MCD_VERIFY(::pthread_mutexattr_destroy(&attr) == 0);
+
+
+#ifndef NDEBUG
+	_lockCount = 0;
+#endif
 }
 
 RecursiveMutex::~RecursiveMutex()

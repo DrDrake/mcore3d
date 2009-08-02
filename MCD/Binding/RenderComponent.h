@@ -2,9 +2,15 @@
 #define __MCD_BINDING_RENDERCOMPONENT__
 
 #include "ShareLib.h"
-#include "../Component/Render/CameraComponent.h"
-#include "../Component/Render/MeshComponent.h"
 #include "../../3Party/jkbind/Declarator.h"
+
+namespace MCD {
+
+class CameraComponent;
+class MeshComponent;
+class RenderableComponent;
+
+}	// namespace MCD
 
 namespace script {
 
