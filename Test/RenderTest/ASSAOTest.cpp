@@ -327,7 +327,7 @@ TEST(ASSAOTest)
 				chamferBoxBuilder.commit(*mBox, MeshBuilder::Static);
 			}
 
-			Material2* material = nullptr;
+			Material* material = nullptr;
 			if(mSceneEffect && (material = mSceneEffect->material.get()) != nullptr) {
 				material->preRender(0);
 				glActiveTexture(GL_TEXTURE0);

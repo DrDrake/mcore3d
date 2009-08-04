@@ -10,21 +10,6 @@ namespace MCD {
 
 typedef IntrusivePtr<class Texture> TexturePtr;
 
-class MCD_RENDER_API Material
-{
-public:
-	Material();
-	~Material();
-
-// Operations
-	void bind() const;
-
-// Attributes
-	ColorRGBf ambient, diffuse, specular;
-	uint8_t shininess;
-	TexturePtr texture;
-};	// Material
-
 class MCD_ABSTRACT_CLASS IRenderPass
 {
 public :
@@ -44,7 +29,7 @@ public:
 	virtual void addProperty(IMaterialProperty* property, size_t pass) = 0;
 };
 
-class MCD_RENDER_API Material2 : public IMaterial
+class MCD_RENDER_API Material : public IMaterial
 {
 public:
 	// TODO: We may separate mProperty into several list as an optimization
@@ -71,11 +56,11 @@ public:
 		sal_maybenull ShaderProperty* shaderProp();
 	};
 
-	Material2() {}
-	sal_override ~Material2();
+	Material() {}
+	sal_override ~Material();
 
 // Operations
-	sal_override Material2* clone() const;
+	sal_override Material* clone() const;
 
 	sal_override void preRender(size_t pass);
 
@@ -88,7 +73,7 @@ public:
 //protected:
 	typedef ptr_vector<Pass> RenderPasses;
 	RenderPasses mRenderPasses;
-};	// Material2
+};	// Material
 
 }	// namespace MCD
 

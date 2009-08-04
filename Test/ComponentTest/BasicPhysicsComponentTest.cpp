@@ -15,7 +15,7 @@ TEST(Create_BaiscPhysicsComponentTest)
 	DynamicsWorld dynamicsWorld;
 
 	{	ChamferBoxBuilder chamferBoxBuilder(1.0f, 5);
-		StaticTriMeshShape* meshShape = new StaticTriMeshShape(chamferBoxBuilder);
+		StaticTriMeshShapePtr meshShape = new StaticTriMeshShape(chamferBoxBuilder);
 
 		std::auto_ptr<Entity> e(new Entity);
 		RigidBodyComponent* rbc = new RigidBodyComponent(dynamicsWorld, 0.5f, meshShape);
@@ -55,7 +55,7 @@ TEST(CreateThreaded_BaiscPhysicsComponentTest)
 	physicsThread.start(dynamicsWorld, false);
 
 	{	ChamferBoxBuilder chamferBoxBuilder(1.0f, 5);
-		StaticTriMeshShape* meshShape = new StaticTriMeshShape(chamferBoxBuilder);
+		StaticTriMeshShapePtr meshShape = new StaticTriMeshShape(chamferBoxBuilder);
 
 		std::auto_ptr<Entity> e(new Entity);
 		RigidBodyComponent* rbc = new RigidBodyComponent(dynamicsWorld, 0.5f, meshShape);

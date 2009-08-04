@@ -4,68 +4,33 @@
 #include "../../3Party/glew/glew.h"
 #include <algorithm>
 #include <functional>
-#include <memory>   // For auto_ptr
+#include <memory>	// For auto_ptr
 
 using namespace std;
 
 namespace MCD {
 
-Material::Material()
-	: ambient(0.5), diffuse(1), specular(0), shininess(0)
+Material::Pass::~Pass()
 {
 }
 
-// The destructor is implemented in cpp file so that Material.h need not to
-// include Texture.h because we have a TexturePtr as member variable
-Material::~Material()
-{
-}
-
-void Material::bind() const
-{
-	{	GLfloat a[] = { ambient.r, ambient.g, ambient.b, 1.0f };
-		glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT, a);
-	}
-
-	{	GLfloat d[] = { diffuse.r, diffuse.g, diffuse.b, 1.0f };
-		glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, d);
-	}
-
-	{	GLfloat s[] = { specular.r, specular.g, specular.b, 1.0f };
-		glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR, s);
-		glMateriali(GL_FRONT_AND_BACK, GL_SHININESS, shininess);
-	}
-
-	if(texture) {
-		//glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-		//glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-		texture->bind();
-	}
-	else
-		glBindTexture(GL_TEXTURE_2D, 0);
-}
-
-Material2::Pass::~Pass()
-{
-}
-
-void Material2::Pass::addProperty(IMaterialProperty* property)
+void Material::Pass::addProperty(IMaterialProperty* property)
 {
 	MCD_ASSERT(property != nullptr);
 	mProperty.push_back(property);
 }
 
-void Material2::Pass::preRender() const
+void Material::Pass::preRender() const
 {
 	for_each(mProperty.begin(), mProperty.end(), mem_fun_ref(&IMaterialProperty::begin));
 }
 
-void Material2::Pass::postRender() const
+void Material::Pass::postRender() const
 {
 	for_each(mProperty.begin(), mProperty.end(), mem_fun_ref(&IMaterialProperty::end));
 }
 
-TextureProperty* Material2::Pass::textureProp(int unit)
+TextureProperty* Material::Pass::textureProp(int unit)
 {
 	PropertyList::iterator iProp = mProperty.begin();
 	while(iProp != mProperty.end())
@@ -81,7 +46,7 @@ TextureProperty* Material2::Pass::textureProp(int unit)
 	return nullptr;
 }
 
-ShaderProperty* Material2::Pass::shaderProp()
+ShaderProperty* Material::Pass::shaderProp()
 {
 	PropertyList::iterator iProp = mProperty.begin();
 	while(iProp != mProperty.end())
@@ -97,13 +62,13 @@ ShaderProperty* Material2::Pass::shaderProp()
 	return nullptr;
 }
 
-Material2::~Material2()
+Material::~Material()
 {
 }
 
-Material2* Material2::clone() const
+Material* Material::clone() const
 {
-	std::auto_ptr<Material2> newMaterial(new Material2);
+	std::auto_ptr<Material> newMaterial(new Material);
 
 	// Clone all material properties in all pass to the new material
 	for(size_t i=0; i<mRenderPasses.size(); ++i) {
@@ -114,24 +79,24 @@ Material2* Material2::clone() const
 	return newMaterial.release();
 }
 
-void Material2::preRender(size_t pass)
+void Material::preRender(size_t pass)
 {
 	MCD_ASSERT(pass < mRenderPasses.size());
 	mRenderPasses[pass].preRender();
 }
 
-void Material2::postRender(size_t pass)
+void Material::postRender(size_t pass)
 {
 	MCD_ASSERT(pass < mRenderPasses.size());
 	mRenderPasses[pass].postRender();
 }
 
-size_t Material2::getPassCount() const
+size_t Material::getPassCount() const
 {
 	return mRenderPasses.size();
 }
 
-void Material2::addProperty(IMaterialProperty* property, size_t pass)
+void Material::addProperty(IMaterialProperty* property, size_t pass)
 {
 	// Create the necessery pass first
 	while(pass >= mRenderPasses.size())

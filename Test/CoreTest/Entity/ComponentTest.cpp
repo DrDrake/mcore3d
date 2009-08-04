@@ -171,8 +171,9 @@ TEST(ComponentPreorderIterator_ComponentTest)
 	}
 
 	{	// With an empty Entity
-		Entity* e = new Entity;
+		std::auto_ptr<Entity> e(new Entity);
 		e->asChildOf(&root);
+		e.release();
 
 		size_t i = 0;
 		for(ComponentPreorderIterator itr(&root); !itr.ended(); itr.next(), ++i) {
@@ -182,19 +183,19 @@ TEST(ComponentPreorderIterator_ComponentTest)
 	}
 
 	{	// Traverse only part of the tree
-		Entity* e = new Entity;
+		EntityPtr e = new Entity;
 		e->asChildOf(&root);
 
-		Entity* e2 = new Entity;
-		e2->asChildOf(e);
+		EntityPtr e2 = new Entity;
+		e2->asChildOf(e.getNotNull());
 
 		size_t i = 0;
-		for(ComponentPreorderIterator itr(e); !itr.ended(); itr.next(), ++i) {}
+		for(ComponentPreorderIterator itr(e.get()); !itr.ended(); itr.next(), ++i) {}
 		CHECK_EQUAL(0u, i);
 
 		e->addComponent(new DummyComponent1);
 		i = 0;
-		for(ComponentPreorderIterator itr(e); !itr.ended(); itr.next(), ++i) {}
+		for(ComponentPreorderIterator itr(e.get()); !itr.ended(); itr.next(), ++i) {}
 		CHECK_EQUAL(1u, i);
 	}
 }

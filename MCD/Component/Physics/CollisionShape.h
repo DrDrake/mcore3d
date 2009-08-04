@@ -18,7 +18,7 @@ class MeshBuilder;
 /*!
 	The ownership of a CollisionShape is shared by multiple instance of RigidBodyComponent.
  */
-class MCD_ABSTRACT_CLASS MCD_COMPONENT_API CollisionShape : Noncopyable
+class MCD_ABSTRACT_CLASS MCD_COMPONENT_API CollisionShape : public IntrusiveSharedObject<AtomicInteger>, Noncopyable
 {
 	friend class RigidBodyComponent;
 
@@ -37,13 +37,6 @@ protected:
 		that is actually using the type btCollisionShape.
 	 */
 	void* shapeImpl;
-
-	// Function required for intrusive pointer 
-	MCD_COMPONENT_API friend void intrusivePtrAddRef(CollisionShape* p);
-
-	MCD_COMPONENT_API friend void intrusivePtrRelease(CollisionShape* p);
-
-	AtomicInteger mRefCount;
 };  // CollisionShape
 
 typedef IntrusivePtr<CollisionShape> CollisionShapePtr;
@@ -57,6 +50,8 @@ protected:
 	sal_override ~SphereShape() {}
 };	// SphereShape
 
+typedef IntrusivePtr<SphereShape> SphereShapePtr;
+
 class MCD_COMPONENT_API StaticPlaneShape : public CollisionShape
 {
 public:
@@ -65,6 +60,8 @@ public:
 protected:
 	sal_override ~StaticPlaneShape() {}
 };	// StaticPlaneShape
+
+typedef IntrusivePtr<StaticPlaneShape> StaticPlaneShapePtr;
 
 class MCD_COMPONENT_API StaticTriMeshShape : public CollisionShape
 {
@@ -84,6 +81,8 @@ private:
 	class Impl;
 	Impl* mImpl;
 };	// StaticTriMeshShape
+
+typedef IntrusivePtr<StaticTriMeshShape> StaticTriMeshShapePtr;
 
 }	// MCD
 

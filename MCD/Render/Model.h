@@ -10,6 +10,9 @@ namespace MCD {
 
 typedef IntrusivePtr<class Mesh> MeshPtr;
 
+/*!	Basically it's a list of Mesh - Material pairs.
+	It make shared ownership on Mesh and exclusive ownership on Materail.
+ */
 class MCD_RENDER_API Model : public Resource, public IRenderable
 {
 public:
@@ -21,7 +24,7 @@ public:
 	struct MeshAndMaterial : public LinkListBase::Node<MeshAndMaterial>
 	{
 		MeshPtr mesh;
-		Material2* material;
+		Material* material;
 
 		~MeshAndMaterial();
 	};	// MeshAndMaterial

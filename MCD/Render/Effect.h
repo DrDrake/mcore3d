@@ -7,7 +7,7 @@
 
 namespace MCD {
 
-class Material2;
+class Material;
 
 class MCD_RENDER_API Effect : public Resource
 {
@@ -16,7 +16,7 @@ public:
 
 	sal_override ~Effect();
 
-	std::auto_ptr<Material2> material;
+	std::auto_ptr<Material> material;
 };	// Effect
 
 typedef IntrusivePtr<Effect> EffectPtr;
