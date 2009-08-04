@@ -15,10 +15,10 @@ public:
 		return typeid(RenderableComponent);
 	}
 
-	class MCD_ABSTRACT_CLASS Callback
+	class MCD_ABSTRACT_CLASS ICallback
 	{
 	public:
-		virtual ~Callback() {}
+		virtual ~ICallback() {}
 
 		//! Invoked just after the renderstates are perpared; and before the geometry is rendered.
 		virtual void preGeomRender(RenderableComponent& c) = 0;
@@ -30,10 +30,10 @@ public:
 	//! The derived components should override this function for rendering.
 	virtual void render() = 0;
 
-	//! The derived components should override this function for rendering will Callback support.
-	virtual void render(Callback* callback) = 0;
+	//! The derived components may override this function for rendering will Callback support.
+	virtual void render(ICallback& callback) {}
 
-	//! The derived components should override this function for rendering, withou any material.
+	//! The derived components may override this function for rendering, withou any material.
 	virtual void renderFaceOnly() {}
 
 	//! Invoke the RenderableComponent::render() in every Entity under the entityNode sub-tree.

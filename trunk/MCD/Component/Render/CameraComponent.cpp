@@ -30,10 +30,4 @@ void CameraComponent::render()
 	glClearColor(clearColor.r, clearColor.g, clearColor.b, 1);
 }
 
-void CameraComponent::render(Callback* callback)
-{
-	// todo: callback support
-	render();
-}
-
 }	// namespace MCD

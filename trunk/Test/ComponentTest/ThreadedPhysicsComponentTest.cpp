@@ -24,7 +24,7 @@ class InstancedMeshComponent : public RenderableComponent
 	InstancedMeshPtr mInstMesh;
 
 public:
-	InstancedMeshComponent(const InstancedMeshPtr& instMesh) : mInstMesh(instMesh)
+	InstancedMeshComponent(InstancedMesh& instMesh) : mInstMesh(&instMesh)
 	{
 	}
 
@@ -33,17 +33,10 @@ public:
 		renderFaceOnly();
 	}
 
-	sal_override void render(Callback* callback)
-	{
-		// todo: callback support
-		render();
-	}
-
 	sal_override void renderFaceOnly()
 	{
-		Entity* e = entity();
-		MCD_ASSUME(e);
-		mInstMesh->registerPerInstanceInfo(e->localTransform);
+		if(Entity* e = entity())
+			mInstMesh.getNotNull()->registerPerInstanceInfo(e->localTransform);
 	}
 };	// InstancedMeshComponent
 
@@ -123,7 +116,7 @@ TEST(ThreadedPhysicsComponentTest)
 
 					// Add component
 #ifdef USE_HARDWARE_INSTANCE
-					InstancedMeshComponent* c = new InstancedMeshComponent(mBallInstMesh);
+					InstancedMeshComponent* c = new InstancedMeshComponent(*mBallInstMesh);
 					e->addComponent(c);
 #else
 					MeshComponent* c = new MeshComponent;
