@@ -44,7 +44,7 @@ void MeshComponent::render()
 	glPopMatrix();
 }
 
-void MeshComponent::render(Callback* callback)
+void MeshComponent::render(ICallback& callback)
 {
 	Entity* e = entity();
 	if(!mesh || !e)
@@ -58,9 +58,9 @@ void MeshComponent::render(Callback* callback)
 		for(size_t i=0; i<material->getPassCount(); ++i) {
 			material->preRender(i);
 
-			if(callback) callback->preGeomRender(*this);
+			callback.preGeomRender(*this);
 			mesh->draw();
-			if(callback) callback->postGeomRender(*this);
+			callback.postGeomRender(*this);
 			
 			material->postRender(i);
 		}

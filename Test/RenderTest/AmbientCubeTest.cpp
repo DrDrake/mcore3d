@@ -230,7 +230,7 @@ namespace AmbientCubeTest
 			UserData(Object& _object) : object(_object) {}
 		};
 
-		class RenderCallback : public RenderableComponent::Callback
+		class RenderCallback : public RenderableComponent::ICallback
 		{
 		public:
 			sal_override void preGeomRender(RenderableComponent& c)
@@ -249,8 +249,8 @@ namespace AmbientCubeTest
 			sal_override void postGeomRender(RenderableComponent& c)
 			{
 			}
-		};
-	};
+		};	// ICallback
+	};	// Object
 
 	class TestWindow : public BasicGlWindow
 	{
@@ -324,7 +324,7 @@ namespace AmbientCubeTest
 
 				RenderableComponent* renderable = itr->findComponent<RenderableComponent>();
 				if(renderable)
-					renderable->render(&callback);
+					renderable->render(callback);
 
 				itr.next();
 			}

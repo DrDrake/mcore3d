@@ -86,6 +86,7 @@ public:
 	typedef iterator_template<T, typename super_type::reverse_iterator> reverse_iterator;
 	typedef iterator_template<const T, typename super_type::const_reverse_iterator> const_reverse_iterator;
 
+	ptr_vector() {}
 	~ptr_vector() { clear(); }
 
 // Accessors
@@ -172,6 +173,10 @@ public:
 	}
 
 private:
+	// Cannot be copyed.
+	ptr_vector(const ptr_vector& rhs);
+	ptr_vector& operator=(const ptr_vector& rhs);
+
 	//! Re-size is not supported
 	void resize(size_type newSize);
 

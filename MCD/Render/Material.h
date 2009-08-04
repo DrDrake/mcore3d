@@ -22,14 +22,14 @@ class MCD_ABSTRACT_CLASS IMaterial
 {
 public:
 	virtual ~IMaterial() {}
-	virtual IMaterial* clone() const = 0;
+	virtual sal_notnull IMaterial* clone() const = 0;
 	virtual void preRender(size_t pass) = 0;
 	virtual void postRender(size_t pass) = 0;
 	virtual size_t getPassCount() const = 0;
 	virtual void addProperty(IMaterialProperty* property, size_t pass) = 0;
-};
+};	// IMaterial
 
-class MCD_RENDER_API Material : public IMaterial
+class MCD_RENDER_API Material : public IMaterial, Noncopyable
 {
 public:
 	// TODO: We may separate mProperty into several list as an optimization
@@ -54,13 +54,13 @@ public:
 
 		//!	Returns the ShaderProperty; nullptr is return if no such property.
 		sal_maybenull ShaderProperty* shaderProp();
-	};
+	};	// Pass
 
 	Material() {}
 	sal_override ~Material();
 
 // Operations
-	sal_override Material* clone() const;
+	sal_override sal_notnull Material* clone() const;
 
 	sal_override void preRender(size_t pass);
 

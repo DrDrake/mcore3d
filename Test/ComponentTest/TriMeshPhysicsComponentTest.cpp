@@ -16,14 +16,12 @@ using namespace MCD;
 
 #define USE_HARDWARE_INSTANCE
 
-// InstancedMeshComponent is a renderable
-// When it is visited by Renderable Vistor, it does not render anything, but register the per-instance info to the InstancedMesh
-// The InstancedMesh then later render the geometry
 class InstancedMeshComponent : public RenderableComponent
 {
 	InstancedMeshPtr mInstMesh;
+
 public:
-	InstancedMeshComponent(InstancedMeshPtr instMesh) : mInstMesh(instMesh)
+	InstancedMeshComponent(InstancedMesh& instMesh) : mInstMesh(&instMesh)
 	{
 	}
 
@@ -32,17 +30,10 @@ public:
 		renderFaceOnly();
 	}
 
-	sal_override void render(Callback* callback)
-	{
-		// todo: callback support
-		render();
-	}
-
 	sal_override void renderFaceOnly()
 	{
-		Entity* e = entity();
-		MCD_ASSUME(e);
-		mInstMesh->registerPerInstanceInfo(e->localTransform);
+		if(Entity* e = entity())
+			mInstMesh.getNotNull()->registerPerInstanceInfo(e->localTransform);
 	}
 };	// InstancedMeshComponent
 
@@ -120,7 +111,7 @@ TEST(TriMeshPhysicsComponentTest)
 
 					// Add component
 #ifdef USE_HARDWARE_INSTANCE
-					InstancedMeshComponent* c = new InstancedMeshComponent(mBallInstMesh);
+					InstancedMeshComponent* c = new InstancedMeshComponent(*mBallInstMesh);
 					e->addComponent(c);
 #else
 					MeshComponent* c = new MeshComponent;

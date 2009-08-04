@@ -267,16 +267,15 @@ ResourcePtr ResourceManager::load(const Path& fileId, bool block, uint priority,
 	MCD_ASSUME(mImpl != nullptr);
 	ScopeLock lock(mImpl->mEventQueue.mMutex);
 
-	{	// Find for existing resource
-		MapNode* node = mImpl->findMapNode(fileId);
+	// Find for existing resource (Cache hit!)
+	if(MapNode* node = mImpl->findMapNode(fileId))
+	{
+		// NOTE: Use a local variable to hold the life-time of the cached resource,
+		// prevent it being deleted in another thread.
+		ResourcePtr p = node->mResource.get();
 
-		while(node) {	// Cache hit!
-			// But unfortunately, the resource is already deleted
-			if(!node->mResource) {
-				delete node;
-				break;
-			}
-
+		if(node->mResource)	// Weak pointer not null, the resource is still alive
+		{
 			// Do clean up for dead resource node
 			// It is performed right here because a resource is shared,
 			// and we have no idea when the resource will be destroyed other
@@ -285,8 +284,10 @@ ResourcePtr ResourceManager::load(const Path& fileId, bool block, uint priority,
 			MapNode* nextNode = node->mPathKey.next()->getOuterSafe();
 			if(nextNode && !nextNode->mResource)
 				delete nextNode;
-			return node->mResource.get();
+			return p;
 		}
+		else	// Unfortunately, the resource is already deleted
+			delete node;
 	}
 
 	IResourceLoader* loader = nullptr;
