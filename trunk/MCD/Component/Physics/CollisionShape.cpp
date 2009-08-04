@@ -25,16 +25,6 @@ CollisionShape::~CollisionShape() {
 	delete reinterpret_cast<btCollisionShape*>(shapeImpl);
 }
 
-void MCD::intrusivePtrAddRef(CollisionShape* p) {
-	++(p->mRefCount);
-}
-
-void MCD::intrusivePtrRelease(CollisionShape* p)
-{
-	if(--(p->mRefCount) == 0)
-		delete p;
-}
-
 SphereShape::SphereShape(float radius)
 	: CollisionShape(new btSphereShape(radius))
 {}

@@ -257,6 +257,12 @@ public:
 	}
 
 	// Transform member variable XXX access into _getXXX() and _setXXX() function
+	// Behind the scene a squirrel function is injected for the class which convert
+	// the filed name to a function name:
+	// className._get<-function(i) {
+	//   local g = ::className["_get"+i.tostring()];
+	//   return g == null ? null : g();
+	// }
 	// TODO: Remove the need to pass the class name
 	ClassDeclarator& enableGetset(const xchar* className)
 	{

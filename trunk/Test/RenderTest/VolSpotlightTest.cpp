@@ -126,14 +126,14 @@ TEST(VolSpotlightTest)
 			Vec4f camLocalPos = mCone->worldTransform().inverse() * Vec4f(mCamera.position, 1);
 
 			{	// Bind the camLocalPos to shader
-				Material2* material = nullptr;
+				Material* material = nullptr;
 				if (mRayTracer && (material = mRayTracer->material.get()) != nullptr)
 				{
 					for(size_t i = 0; i < material->getPassCount(); ++i)
 					{
 						// Bind the per-instance uniform buffer to the shader
 						material->preRender(i);
-						Material2::Pass& pass = material->mRenderPasses[i];
+						Material::Pass& pass = material->mRenderPasses[i];
 						for(size_t propIdx = 0; propIdx < pass.mProperty.size(); ++propIdx)
 						{
 							IMaterialProperty& prop = pass.mProperty[propIdx];

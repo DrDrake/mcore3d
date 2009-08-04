@@ -30,7 +30,7 @@ void MeshComponent::render()
 	glPushMatrix();
 	glMultTransposeMatrixf(e->worldTransform().getPtr());
 
-	Material2* material = nullptr;
+	Material* material = nullptr;
 	if(effect && (material = effect->material.get()) != nullptr) {
 		for(size_t i=0; i<material->getPassCount(); ++i) {
 			material->preRender(i);
@@ -53,7 +53,7 @@ void MeshComponent::render(Callback* callback)
 	glPushMatrix();
 	glMultTransposeMatrixf(e->worldTransform().getPtr());
 
-	Material2* material = nullptr;
+	Material* material = nullptr;
 	if(effect && (material = effect->material.get()) != nullptr) {
 		for(size_t i=0; i<material->getPassCount(); ++i) {
 			material->preRender(i);

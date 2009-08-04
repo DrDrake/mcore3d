@@ -91,7 +91,7 @@ public:
 			glScalef(0.01f, 0.01f, 0.01f);
 
 			// NOTE: The material in mEffect may be null, if mEffect haven't commit yet.
-			Material2* mat = mEffect->material.get();
+			Material* mat = mEffect->material.get();
 			if(mat) for(size_t i=0; i<mat->getPassCount(); ++i)
 			{
 				mat->preRender(i);

@@ -32,7 +32,7 @@ TEST(MaterialTest)
 
 			glTranslatef(0.0f, 0.0f, -5.0f);
 
-			Material2* material = nullptr;
+			Material* material = nullptr;
 			if(mEffect && (material = mEffect->material.get()) != nullptr) {
 				for(size_t i=0; i<material->getPassCount(); ++i) {
 					material->preRender(i);

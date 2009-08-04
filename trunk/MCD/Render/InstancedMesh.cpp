@@ -42,7 +42,7 @@ public:
 		}
 
 		{	// Bind the uniform buffer to shader, then draw the mesh
-			Material2* material = nullptr;
+			Material* material = nullptr;
 			if((material = effect.material.get()) != nullptr)
 			{
 				for(size_t i=0; i<material->getPassCount(); ++i)
@@ -50,7 +50,7 @@ public:
 					material->preRender(i);
 
 					{	// Bind the per-instance uniform buffer to the shader
-						Material2::Pass& pass = material->mRenderPasses[i];
+						Material::Pass& pass = material->mRenderPasses[i];
 						for(size_t propIdx = 0; propIdx < pass.mProperty.size(); ++propIdx)
 						{
 							IMaterialProperty& prop = pass.mProperty[propIdx];

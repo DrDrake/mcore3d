@@ -458,12 +458,12 @@ public:
 	}
 };
 
-/*! An untility for pass binding inside a Material2 object.
+/*! An untility for pass binding inside a Material object.
 */
 //class ScopePassBinding
 //{
 //public:
-//	ScopePassBinding(Material2& material, size_t pass)
+//	ScopePassBinding(Material& material, size_t pass)
 //		: mMaterial(material)
 //		, mPass(pass)
 //	{
@@ -475,7 +475,7 @@ public:
 //		mMaterial.postRender(mPass);
 //	}
 //
-//	Material2& mMaterial;
+//	Material& mMaterial;
 //	size_t mPass;
 //};
 
@@ -576,7 +576,7 @@ public:
 		Log::write(Log::Info, L"loading effect");
 	}
 
-	Material2::Pass& pass(Material2* mat, int pass)
+	Material::Pass& pass(Material* mat, int pass)
 	{
 		return mat->mRenderPasses[pass];
 	}
@@ -590,7 +590,7 @@ public:
 		if(!mBuffersFull.get()) return;
 		if(!mBuffersHalf.get()) return;
 
-		Material2* mat = mEffect->material.get();
+		Material* mat = mEffect->material.get();
 		if(!mat) return;
 
 		FrameBufferSet& bufHalf = *mBuffersHalf;
@@ -728,7 +728,7 @@ public:
 		//drawSunPos();
 	}
 
-	void drawScene(Material2* mat)
+	void drawScene(Material* mat)
 	{
 		{
 			//ScopePassBinding bindPass(*mat, SCENE_PASS);

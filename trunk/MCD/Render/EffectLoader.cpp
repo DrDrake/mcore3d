@@ -825,7 +825,7 @@ public:
 	void commit(Resource& resource)
 	{
 		Effect& effect = dynamic_cast<Effect&>(resource);
-		effect.material.reset(static_cast<Material2*>(mMaterial.clone()));
+		effect.material.reset(static_cast<Material*>(mMaterial.clone()));
 	}
 
 	IResourceLoader::LoadingState mLoadingState;
@@ -833,7 +833,7 @@ public:
 	typedef ptr_vector<ILoader> Loaders;
 	Loaders mLoaders;
 
-	Material2 mMaterial;
+	Material mMaterial;
 
 	IResourceManager& mResourceManager;
 };	// Impl

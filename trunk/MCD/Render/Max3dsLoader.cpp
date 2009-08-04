@@ -81,7 +81,7 @@ struct ChunkHeader
 	uint32_t length;
 };	// ChunkHeader
 
-class Max3dsMaterial : public Material2
+class Max3dsMaterial : public Material
 {
 public:
 	std::wstring mName;
