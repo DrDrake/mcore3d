@@ -41,7 +41,7 @@ public:
 			std::auto_ptr<Entity> e(new Entity);
 			e->name = L"ChamferBox 1";
 			e->asChildOf(&mRootNode);
-			e->localTransform = Mat44f(Mat33f::rotateXYZ(0, Mathf::cPiOver4(), 0));
+			e->localTransform = Mat44f(Mat33f::makeXYZRotation(0, Mathf::cPiOver4(), 0));
 
 			// Setup the chamfer box mesh
 			MeshPtr mesh = new Mesh(L"");

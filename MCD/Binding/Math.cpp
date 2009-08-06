@@ -14,7 +14,7 @@ static int mat44Create(HSQUIRRELVM vm)
 	Mat44f* m = nullptr;
 	switch(nparams) {
 	case 1:
-		m = new Mat44f(0.0f);	// Default construct
+		m = new Mat44f(Mat44f::cIdentity);	// Default construct
 		break;
 	case 2:
 		if(sa.getType(2) == OT_INSTANCE)	// Copy construct
@@ -56,6 +56,12 @@ SCRIPT_CLASS_REGISTER_NAME(Mat44f, "Mat44")
 	.method(L"_gettranspose", (Mat44f (Mat44f::*)()const)&Mat44f::transpose)
 	.method(L"_getdeterminant", &Mat44f::determinant)
 	.method(L"_getinverse", (Mat44f (Mat44f::*)()const)&Mat44f::inverse)
+	.method(L"_gettranslation", &Mat44f::translation)
+	.method(L"_settranslation", &Mat44f::setTranslation)
+	.method(L"translateBy", &Mat44f::translateBy)
+	.method(L"_getscale", &Mat44f::scale)
+	.method(L"_setscale", &Mat44f::setScale)
+	.method(L"scaleBy", &Mat44f::scaleBy)
 	.wrappedMethod(L"_add", &addMat44)
 	.wrappedMethod(L"_sub", &subMat44)
 	.wrappedMethod(L"_mul", &mulMat44)

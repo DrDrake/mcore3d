@@ -123,17 +123,21 @@ public:
 	void setTranslation(const Vec3<T>& translation);
 
 	//! Apply a delta translation to the current translation.
-	void translate(const Vec3<T>& deltaTranslation);
+	void translateBy(const Vec3<T>& deltaTranslation);
 
-	/*!	Decompose the scale part from the matrix.
+	/*!	Get only the scale part from the matri, without the influence of the rotation part.
 		Assuming the matrix is composed as (S * R * T).
 	 */
 	Vec3<T> scale() const;
 
-	/*!	Sets the scale part of the matrix.
+	/*!	Sets only the scale part of the matrix, without screwing up the rotation part.
 		Assuming the matrix is composed as (S * R * T).
+		\note Use scaleBy() instead of setScale() whenever possible, because it's more efficient.
 	 */
 	void setScale(const Vec3<T>& scale);
+
+	//! Apply a delta scale to the current scale, without affacting the rotation part.
+	void scaleBy(const Vec3<T>& deltaScale);
 
 	//!	Extracts the rotation / scaling part of the matrix as a 3x3 matrix.
 	void mat33(Mat33<T>& matrix33) const;

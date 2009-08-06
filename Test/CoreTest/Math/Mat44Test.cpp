@@ -219,7 +219,7 @@ TEST(Translation_Mat44Test)
 	Mat33f m3 = m.mat33();
 	CHECK(m.translation().isNearEqual(Vec3f(3, 7, 11)));
 
-	m.translate(Vec3f(3, 2, 1));
+	m.translateBy(Vec3f(3, 2, 1));
 	CHECK(m.translation().isNearEqual(Vec3f(6, 9, 12)));
 
 	m.setTranslation(Vec3f(-1, -2, -3));
@@ -227,4 +227,11 @@ TEST(Translation_Mat44Test)
 
 	// The other parts of the matrix should not change.
 	CHECK(m3.isNearEqual(m.mat33()));
+}
+
+TEST(Scale_Mat44Test)
+{
+	Mat44f m(Mat44f::cIdentity);
+
+	CHECK(m.scale().isNearEqual(Vec3f(1)));
 }

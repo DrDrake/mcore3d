@@ -93,6 +93,12 @@ class TestMat44
 		identity = Mat44(1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);
 	}
 
+	function testIdentity()
+	{
+		// Default constructor should creates identity
+		assert(Mat44().isEqual(identity));
+	}
+
 	function testElement()
 	{
 		assertEquals(0, ma.m00);
@@ -165,6 +171,35 @@ class TestMat44
 		assert(ai.isEqual(b));
 		assert(ai.inverse.isEqual(a));
 		assert((a * ai).isEqual(identity));
+	}
+
+	function testTranslation()
+	{
+		local m = Mat44(ma);
+		assert(m.translation.isEqual(Vec3(3, 7, 11)));
+
+		m.translateBy(Vec3(3, 2, 1));
+		assert(m.translation.isEqual(Vec3(6, 9, 12)));
+
+		m.translation = Vec3(-1, -2, -3);
+		assert(m.translation.isEqual(Vec3(-1, -2, -3)));
+	}
+
+	function testScale()
+	{
+		local m = Mat44();
+		assert(m.scale.isEqual(Vec3(1)));
+
+		m.scaleBy(Vec3(0.5, 2, 3));
+		assert(m.scale.isEqual(Vec3(0.5, 2, 3)));
+
+		// No effect on the translation and rotation part
+		assert(m.translation.isEqual(Vec3(0)));
+		// TODO: Test rotation invariance
+
+		// The scale should back to 1, 1, 1
+		m.scaleBy(Vec3(1/0.5, 1.0/2, 1.0/3));
+		assert(m.scale.isEqual(Vec3(1)));
 	}
 }	// TestMat44
 

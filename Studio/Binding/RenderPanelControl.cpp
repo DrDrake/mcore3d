@@ -118,7 +118,7 @@ public:
 			std::auto_ptr<MCD::Entity> e(new MCD::Entity);
 			e->name = L"ChamferBox 1";
 			e->asChildOf(mUserSubTree);
-			e->localTransform = Mat44f(Mat33f::rotateXYZ(0, Mathf::cPiOver4(), 0));
+			e->localTransform = Mat44f(Mat33f::makeXYZRotation(0, Mathf::cPiOver4(), 0));
 			e->localTransform.setTranslation(Vec3f(float(i/10), float(i%10), 0));
 
 			// Setup the chamfer box mesh

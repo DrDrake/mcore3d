@@ -57,15 +57,16 @@ Mat33<T>& Mat33<T>::operator*=(const param_type rhs) {
 }
 
 template<typename T>
-void Mat33<T>::mul(const Vec3<T>& rhs_, Vec3<T>& result) const
+void Mat33<T>::mul(const Vec3<T>& rhs, Vec3<T>& result) const
 {
-	Vec3<T>* __restrict ret = &result;
-	const Vec3<T>* __restrict rhs = &rhs_;
-	MCD_ASSUME(rhs != ret);
+	// Local variables to prevent parameter aliasing
+	const float x = rhs.x;
+	const float y = rhs.y;
+	const float z = rhs.z;
 
-	ret->x = m00 * rhs->x + m01 * rhs->y + m02 * rhs->z;
-	ret->y = m10 * rhs->x + m11 * rhs->y + m12 * rhs->z;
-	ret->z = m20 * rhs->x + m21 * rhs->y + m22 * rhs->z;
+	result.x = m00 * x + m01 * y + m02 * z;
+	result.y = m10 * x + m11 * y + m12 * z;
+	result.z = m20 * x + m21 * y + m22 * z;
 }
 
 template<typename T>
@@ -117,13 +118,14 @@ Vec3<T> Mat33<T>::scale() const
 template<typename T>
 void Mat33<T>::setScale(const Vec3<T>& scale)
 {
-	Vec3<T> currentScale = this->scale();
+	const Vec3<T> currentScale = this->scale();
 
-	MCD_ASSERT(scale[0] > 0 && scale[1] > 0 && scale[2] > 0);
+	MCD_ASSERT(scale[0] != 0 && scale[1] != 0 && scale[2] != 0);
+	MCD_ASSERT(currentScale[0] !=0 && currentScale[1] != 0 && currentScale[2] != 0);
 
 	// Scale the x, y and z bias vectors of the 3x3 matrix
 	for(size_t i=0; i<3; ++i) {
-		T s = scale[i] / currentScale[i];
+		const T s = scale[i] / currentScale[i];
 		for(size_t j=0; j<3; ++j)
 			data2D[j][i] *= s;
 	}
@@ -144,7 +146,7 @@ bool Mat33<T>::getRotationXYZ(T& thetaX, T& thetaY, T& thetaZ)
 		else
 		{
 			// Not an unique solution.
-			T rmY = ::atan2(m10, m11);
+			const T rmY = ::atan2(m10, m11);
 			thetaZ = 0;	// Any angle works
 			thetaX = thetaZ - rmY;
 			return false;
@@ -153,7 +155,7 @@ bool Mat33<T>::getRotationXYZ(T& thetaX, T& thetaY, T& thetaZ)
 	else
 	{
 		// Not an unique solution.
-		T rpY = ::atan2(m10, m11);
+		const T rpY = ::atan2(m10, m11);
 		thetaZ = 0;	// Any angle works
 		thetaX = rpY - thetaZ;
 		return false;
@@ -161,7 +163,7 @@ bool Mat33<T>::getRotationXYZ(T& thetaX, T& thetaY, T& thetaZ)
 }
 
 template<typename T>
-void Mat33<T>::rotateXYZ(const param_type thetaX, const param_type thetaY, const param_type thetaZ, Mat33& result)
+void Mat33<T>::makeXYZRotation(const param_type thetaX, const param_type thetaY, const param_type thetaZ, Mat33& result)
 {
 	// Reference: OgreMatrix3.cpp
 	float cos, sin;
@@ -179,30 +181,30 @@ void Mat33<T>::rotateXYZ(const param_type thetaX, const param_type thetaY, const
 }
 
 template<typename T>
-Mat33<T> Mat33<T>::rotateXYZ(const param_type thetaX, const param_type thetaY, const param_type thetaZ)
+Mat33<T> Mat33<T>::makeXYZRotation(const param_type thetaX, const param_type thetaY, const param_type thetaZ)
 {
 	Mat33 result;
-	rotateXYZ(thetaX, thetaY, thetaZ, result);
+	makeXYZRotation(thetaX, thetaY, thetaZ, result);
 	return result;
 }
 
 template<typename T>
-void Mat33<T>::rotate(const Vec3<T>& axis, T angle, Mat33& result)
+void Mat33<T>::makeAxisRotation(const Vec3<T>& axis, T angle, Mat33& result)
 {
 	// Reference: OgreMatrix3.cpp
 	T cos, sin;
 	Math<T>::sinCos(angle, sin, cos);
 
-	T oneMinusCos = 1 - cos;
-	T x2 = axis.x * axis.x;
-	T y2 = axis.y * axis.y;
-	T z2 = axis.z * axis.z;
-	T xym = axis.x * axis.y * oneMinusCos;
-	T xzm = axis.x * axis.z * oneMinusCos;
-	T yzm = axis.y * axis.z * oneMinusCos;
-	T xSin = axis.x * sin;
-	T ySin = axis.y * sin;
-	T zSin = axis.z * sin;
+	const T oneMinusCos = 1 - cos;
+	const T x2 = axis.x * axis.x;
+	const T y2 = axis.y * axis.y;
+	const T z2 = axis.z * axis.z;
+	const T xym = axis.x * axis.y * oneMinusCos;
+	const T xzm = axis.x * axis.z * oneMinusCos;
+	const T yzm = axis.y * axis.z * oneMinusCos;
+	const T xSin = axis.x * sin;
+	const T ySin = axis.y * sin;
+	const T zSin = axis.z * sin;
 
 	result.m00 = x2 * oneMinusCos + cos;
 	result.m01 = xym - zSin;
@@ -216,10 +218,10 @@ void Mat33<T>::rotate(const Vec3<T>& axis, T angle, Mat33& result)
 }
 
 template<typename T>
-Mat33<T> Mat33<T>::rotate(const Vec3<T>& axis, T angle)
+Mat33<T> Mat33<T>::makeAxisRotation(const Vec3<T>& axis, T angle)
 {
 	Mat33 result;
-	rotate(axis, angle, result);
+	makeAxisRotation(axis, angle, result);
 	return result;
 }
 
