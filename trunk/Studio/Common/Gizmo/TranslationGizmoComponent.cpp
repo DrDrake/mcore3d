@@ -135,7 +135,7 @@ TranslationGizmoComponent::TranslationGizmoComponent(ResourceManager& resourceMa
 		c->dragDirection = Vec3f::c100;
 		e->addComponent(c);
 		e->localTransform.setScale(MCD::Vec3f(1, 1.5f, 1));
-		e->localTransform = Mat44f(Mat33f::rotateXYZ(0, 0, -Mathf::cPiOver2())) * e->localTransform;
+		e->localTransform = Mat44f(Mat33f::makeXYZRotation(0, 0, -Mathf::cPiOver2())) * e->localTransform;
 	}
 
 	{	Entity* e = new Entity();
@@ -154,7 +154,7 @@ TranslationGizmoComponent::TranslationGizmoComponent(ResourceManager& resourceMa
 		c->dragDirection = Vec3f::c001;
 		e->addComponent(c);
 		e->localTransform.setScale(MCD::Vec3f(1, 1.5f, 1));
-		e->localTransform = Mat44f(Mat33f::rotateXYZ(Mathf::cPiOver2(), 0, 0)) * e->localTransform;
+		e->localTransform = Mat44f(Mat33f::makeXYZRotation(Mathf::cPiOver2(), 0, 0)) * e->localTransform;
 	}
 
 	{	Entity* e = new Entity();
@@ -164,7 +164,7 @@ TranslationGizmoComponent::TranslationGizmoComponent(ResourceManager& resourceMa
 		c->planeNormal = Vec3f::c100;
 		e->addComponent(c);
 		e->localTransform.setTranslation(MCD::Vec3f(0.1f, 0.1f, 0));
-		e->localTransform = Mat44f(Mat33f::rotateXYZ(0, -Mathf::cPiOver2(), 0)) * e->localTransform;
+		e->localTransform = Mat44f(Mat33f::makeXYZRotation(0, -Mathf::cPiOver2(), 0)) * e->localTransform;
 	}
 
 	{	Entity* e = new Entity();
@@ -183,6 +183,6 @@ TranslationGizmoComponent::TranslationGizmoComponent(ResourceManager& resourceMa
 		c->planeNormal = Vec3f::c010;
 		e->addComponent(c);
 		e->localTransform.setTranslation(MCD::Vec3f(0.1f, 0.1f, 0));
-		e->localTransform = Mat44f(Mat33f::rotateXYZ(Mathf::cPiOver2(), 0, 0)) * e->localTransform;
+		e->localTransform = Mat44f(Mat33f::makeXYZRotation(Mathf::cPiOver2(), 0, 0)) * e->localTransform;
 	}
 }

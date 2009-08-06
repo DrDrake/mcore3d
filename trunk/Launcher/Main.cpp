@@ -249,6 +249,14 @@ void TestWindow::scriptBindingSetup()
 		L"}\n"
 	);
 
+	// Patch the original RigidBodyComponent constructor to pass our dynamics world automatically
+	mScriptComponentManager.vm.runScript(L"\
+		local backup = RigidBodyComponent.constructor;\n\
+		RigidBodyComponent.constructor <- function(mass, collisionShape) : (backup) {\n\
+			backup.call(this, gMainWindow.dynamicsWorld, mass, collisionShape);	// Call the original constructor\n\
+		}\n"
+	);
+
 	// TODO: Let user supply a command line argument to choose the startup script
 	mScriptComponentManager.doFile(L"init.nut", true);
 }

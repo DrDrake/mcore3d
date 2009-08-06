@@ -282,7 +282,7 @@ void Entity::rotation::set(array<float>^ value)
 	// Get the scale first
 	array<float>^ currentScale = this->scale;
 
-	MCD::Mat33f mat = MCD::Mat33f::rotateXYZ(
+	MCD::Mat33f mat = MCD::Mat33f::makeXYZRotation(
 		MCD::Mathf::toRadian(value[0]),
 		MCD::Mathf::toRadian(value[1]),
 		MCD::Mathf::toRadian(value[2])

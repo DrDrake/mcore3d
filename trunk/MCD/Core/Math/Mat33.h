@@ -140,17 +140,17 @@ public:
 		\param thetaY Rotation of angle in radius, counter clockwise from the y-axis.
 		\param thetaZ Rotation of angle in radius, counter clockwise from the z-axis.
 	 */
-	static void rotateXYZ(const param_type thetaX, const param_type thetaY, const param_type thetaZ, Mat33& result);
+	static void makeXYZRotation(const param_type thetaX, const param_type thetaY, const param_type thetaZ, Mat33& result);
 
-	static Mat33 rotateXYZ(const param_type thetaX, const param_type thetaY, const param_type thetaZ);
+	static Mat33 makeXYZRotation(const param_type thetaX, const param_type thetaY, const param_type thetaZ);
 
 	/*!	Creates a rotation matrix.
 		\param axis The rotation axis.
 		\param angle Rotation of angle in radian.
 	 */
-	static void rotate(const Vec3<T>& axis, T angle, Mat33& result);
+	static void makeAxisRotation(const Vec3<T>& axis, T angle, Mat33& result);
 
-	static Mat33 rotate(const Vec3<T>& axis, T angle);
+	static Mat33 makeAxisRotation(const Vec3<T>& axis, T angle);
 
 	static const Mat33 cIdentity;
 };	// Mat33

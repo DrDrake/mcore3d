@@ -43,6 +43,6 @@ for(local i=0; i<30; ++i) for(local j=0; j<30; ++j)
 	c.mesh = chamferBoxMesh;
 	e.addComponent(c);
 
-	c = RigidBodyComponent(gMainWindow.dynamicsWorld, 1, shpereShape);
+	c = RigidBodyComponent(1, shpereShape);
 	e.addComponent(c);
 }

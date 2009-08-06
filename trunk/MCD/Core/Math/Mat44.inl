@@ -118,16 +118,18 @@ Mat44<T>& Mat44<T>::operator*=(const param_type rhs) {
 }
 
 template<typename T>
-void Mat44<T>::mul(const Vec4<T>& rhs_, Vec4<T>& result) const
+void Mat44<T>::mul(const Vec4<T>& rhs, Vec4<T>& result) const
 {
-	Vec4<T>* __restrict ret = &result;
-	const Vec4<T>* __restrict rhs = &rhs_;
-	MCD_ASSUME(rhs != ret);
+	// Local variables to prevent parameter aliasing
+	const float x = rhs.x;
+	const float y = rhs.y;
+	const float z = rhs.z;
+	const float w = rhs.w;
 
-	ret->x = m00 * rhs->x + m01 * rhs->y + m02 * rhs->z + m03 * rhs->w;
-	ret->y = m10 * rhs->x + m11 * rhs->y + m12 * rhs->z + m13 * rhs->w;
-	ret->z = m20 * rhs->x + m21 * rhs->y + m22 * rhs->z + m23 * rhs->w;
-	ret->w = m30 * rhs->x + m31 * rhs->y + m32 * rhs->z + m33 * rhs->w;
+	result.x = m00 * x + m01 * y + m02 * z + m03 * w;
+	result.y = m10 * x + m11 * y + m12 * z + m13 * w;
+	result.z = m20 * x + m21 * y + m22 * z + m23 * w;
+	result.w = m30 * x + m31 * y + m32 * z + m33 * w;
 }
 
 template<typename T>
@@ -262,7 +264,7 @@ void Mat44<T>::setTranslation(const Vec3<T>& translation)
 }
 
 template<typename T>
-void Mat44<T>::translate(const Vec3<T>& deltaTranslation)
+void Mat44<T>::translateBy(const Vec3<T>& deltaTranslation)
 {
 	m03 += deltaTranslation.x;
 	m13 += deltaTranslation.y;
@@ -283,13 +285,27 @@ Vec3<T> Mat44<T>::scale() const
 template<typename T>
 void Mat44<T>::setScale(const Vec3<T>& scale)
 {
-	Vec3<T> currentScale = this->scale();
+	const Vec3<T> currentScale = this->scale();
 
-	MCD_ASSERT(scale[0] > 0 && scale[1] > 0 && scale[2] > 0);
+	MCD_ASSERT(scale[0] !=0 && scale[1] != 0 && scale[2] != 0);
+	MCD_ASSERT(currentScale[0] !=0 && currentScale[1] != 0 && currentScale[2] != 0);
 
 	// Scale the x, y and z bias vectors of the 3x3 matrix
 	for(size_t i=0; i<3; ++i) {
-		T s = scale[i] / currentScale[i];
+		const T s = scale[i] / currentScale[i];
+		for(size_t j=0; j<3; ++j)
+			data2D[j][i] *= s;
+	}
+}
+
+template<typename T>
+void Mat44<T>::scaleBy(const Vec3<T>& deltaScale)
+{
+	MCD_ASSERT(deltaScale[0] != 0 && deltaScale[1] != 0 && deltaScale[2] != 0);
+
+	// Scale the x, y and z bias vectors of the 3x3 matrix
+	for(size_t i=0; i<3; ++i) {
+		const T s = deltaScale[i];
 		for(size_t j=0; j<3; ++j)
 			data2D[j][i] *= s;
 	}

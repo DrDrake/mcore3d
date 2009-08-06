@@ -169,7 +169,7 @@ TEST(Scale_Mat33Test)
 
 	{	// Alter the scaling part of a rotation matrix
 		float piOver4 = Math<float>::cPiOver4();
-		Mat33f m = Mat33f::rotateXYZ(piOver4, piOver4, piOver4);
+		Mat33f m = Mat33f::makeXYZRotation(piOver4, piOver4, piOver4);
 
 		const Vec3f rotatedZ = m * Vec3f::c001;
 
@@ -192,10 +192,10 @@ TEST(Scale_Mat33Test)
 	}
 }
 
-TEST(RotateXYZ_Mat33Test)
+TEST(makeXYZRotation_Mat33Test)
 {
 	// Setting with Euler angles
-	Mat33f m = Mat33f::rotateXYZ(Math<float>::cPiOver2(), 0, 0);
+	Mat33f m = Mat33f::makeXYZRotation(Math<float>::cPiOver2(), 0, 0);
 	Vec3f v = m * Vec3f::c001;
 	CHECK(v.isNearEqual(-Vec3f::c010));
 
@@ -206,12 +206,12 @@ TEST(RotateXYZ_Mat33Test)
 	CHECK(expected.isNearEqual(angles));
 
 	expected = Vec3f(0.123f, 1.23f, 0.321f);
-	m = Mat33f::rotateXYZ(expected.x, expected.y, expected.z);
+	m = Mat33f::makeXYZRotation(expected.x, expected.y, expected.z);
 	m.getRotationXYZ(angles.x, angles.y, angles.z);
 	CHECK(expected.isNearEqual(angles));
 
 	expected = Vec3f(0, 0, 0);
-	m = Mat33f::rotateXYZ(expected.x, expected.y, expected.z);
+	m = Mat33f::makeXYZRotation(expected.x, expected.y, expected.z);
 	m.getRotationXYZ(angles.x, angles.y, angles.z);
 	CHECK(expected.isNearEqual(angles));
 }
@@ -219,13 +219,13 @@ TEST(RotateXYZ_Mat33Test)
 TEST(RotateAxisAngle_Mat33Test)
 {
 	// Test the rotation matrix against the one using Euler angles
-	Mat33f m1 = Mat33f::rotate(Vec3f(1, 0, 0), Math<float>::cPiOver4());
-	Mat33f m2 = Mat33f::rotateXYZ(Math<float>::cPiOver4(), 0, 0);
+	Mat33f m1 = Mat33f::makeAxisRotation(Vec3f(1, 0, 0), Math<float>::cPiOver4());
+	Mat33f m2 = Mat33f::makeXYZRotation(Math<float>::cPiOver4(), 0, 0);
 	CHECK(m1.isNearEqual(m2));
 
-	Mat33f m3 = Mat33f::rotate(Vec3f(1, 0, 0), -Math<float>::cPiOver4());
-	Mat33f m4 = Mat33f::rotate(Vec3f(-1, 0, 0), Math<float>::cPiOver4());
-	Mat33f m5 = Mat33f::rotateXYZ(-Math<float>::cPiOver4(), 0, 0);
+	Mat33f m3 = Mat33f::makeAxisRotation(Vec3f(1, 0, 0), -Math<float>::cPiOver4());
+	Mat33f m4 = Mat33f::makeAxisRotation(Vec3f(-1, 0, 0), Math<float>::cPiOver4());
+	Mat33f m5 = Mat33f::makeXYZRotation(-Math<float>::cPiOver4(), 0, 0);
 	CHECK(m3.isNearEqual(m4));
 	CHECK(m3.isNearEqual(m5));
 

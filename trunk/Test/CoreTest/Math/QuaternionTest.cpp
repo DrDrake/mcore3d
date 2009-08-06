@@ -96,7 +96,7 @@ TEST(Matrix_QuaternionTest)
 	q2.fromMatrix(m1);
 	CHECK(q.isNearEqual(q2));
 
-	Mat33f m2 = Mat33f::rotateXYZ(0, Mathf::cPiOver2(), 0);
+	Mat33f m2 = Mat33f::makeXYZRotation(0, Mathf::cPiOver2(), 0);
 	CHECK(m1.isNearEqual(m2));
 }
 

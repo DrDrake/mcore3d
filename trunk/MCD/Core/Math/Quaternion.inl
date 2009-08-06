@@ -5,9 +5,9 @@ namespace MCD {
 template<typename T>
 Quaternion<T> Quaternion<T>::inverse() const
 {
-	T len2 = squaredLength();
+	const T len2 = squaredLength();
 	if(len2 > 0) {
-		T invLen2 = T(1) / len2;
+		const T invLen2 = T(1) / len2;
 		return conjugate() * invLen2;
 	} else {
 		// Return an invalid result to flag the error
@@ -53,10 +53,10 @@ void Quaternion<T>::fromAxisAngle(const Vec3<T>& axis, param_type angle)
 	T sin, cos;
 	Math<T>::sinCos(angle * T(0.5), sin, cos);
 
-	T axisLen2 = axis.squaredLength();
+	const T axisLen2 = axis.squaredLength();
 	MCD_ASSUME(axisLen2 > 0);
-	T scaleDown = axisLen2 > 0 ? sqrt(axisLen2) : 1;
-	Vec3<T> u(axis * (sin / scaleDown));
+	const T scaleDown = axisLen2 > 0 ? sqrt(axisLen2) : 1;
+	const Vec3<T> u(axis * (sin / scaleDown));
 	setVec3(u);
 	w = cos;
 }
@@ -64,7 +64,7 @@ void Quaternion<T>::fromAxisAngle(const Vec3<T>& axis, param_type angle)
 template<typename T>
 void Quaternion<T>::toAxisAngle(Vec3<T>& axis, T& angle) const
 {
-	T axisLen2 = getVec3().squaredLength();
+	const T axisLen2 = getVec3().squaredLength();
 
 	if(axisLen2 > 0) {
 		axis = getVec3() * (T(1) / sqrt(axisLen2));
@@ -102,18 +102,18 @@ template<typename T>
 void Quaternion<T>::toMatrix(Mat33<T>& matrix) const
 {
 	// Reference: OgreQuaternion.cpp
-	T tx  = 2 * x;
-	T ty  = 2 * y;
-	T tz  = 2 * z;
-	T twx = tx * w;
-	T twy = ty * w;
-	T twz = tz * w;
-	T txx = tx * x;
-	T txy = ty * x;
-	T txz = tz * x;
-	T tyy = ty * y;
-	T tyz = tz * y;
-	T tzz = tz * z;
+	const T tx  = 2 * x;
+	const T ty  = 2 * y;
+	const T tz  = 2 * z;
+	const T twx = tx * w;
+	const T twy = ty * w;
+	const T twz = tz * w;
+	const T txx = tx * x;
+	const T txy = ty * x;
+	const T txz = tz * x;
+	const T tyy = ty * y;
+	const T tyz = tz * y;
+	const T tzz = tz * z;
 
 	matrix[0][0] = 1 - (tyy + tzz);
 	matrix[0][1] = txy - twz;

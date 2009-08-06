@@ -102,7 +102,7 @@ TEST(TriMeshPhysicsComponentTest)
 				{	// Build entity
 					std::auto_ptr<Entity> e(new Entity);
 					e->name = L"Sphere";
-					e->localTransform = Mat44f(Mat33f::rotateXYZ(0, Mathf::cPiOver4(), 0));
+					e->localTransform = Mat44f(Mat33f::makeXYZRotation(0, Mathf::cPiOver4(), 0));
 
 					// Add some randomness
 					Vec3f randomOffset((Mathf::random() - 0.5f) * 2, (Mathf::random() - 0.5f) * 2, (Mathf::random() - 0.5f) * 2);
