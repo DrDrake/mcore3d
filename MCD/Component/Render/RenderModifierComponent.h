@@ -19,10 +19,10 @@ public:
 	}
 
 	//! Invoked just after the renderstates are perpared; and before the geometry is rendered.
-	virtual void preGeomRender(RenderModifierComponent& c) = 0;
+	virtual void preGeomRender() = 0;
 
 	//! Invoked just after the geometry is rendered; and before the renderstates are un-perpared.
-	virtual void postGeomRender(RenderModifierComponent& c) = 0;
+	virtual void postGeomRender() = 0;
 
 	//! Invoke the RenderModifierComponent::render() in every Entity under the entityNode sub-tree.
 	//static void traverseEntities(sal_maybenull Entity* entityNode);
