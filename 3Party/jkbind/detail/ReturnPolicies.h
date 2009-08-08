@@ -140,9 +140,11 @@ public:
 	template<typename RT>
 	static inline void pushResult(HSQUIRRELVM v, RT result)
 	{
-		typedef typename ptr::pointer<RT>::HostType HostType;
-		HostType* p = ptr::pointer<RT>::to(result);
-		detail::ClassesManager::createObjectInstanceOnStackPure(v, ClassTraits<HostType>::classID(), p);
+		types::push(v, result);
+//		typedef typename ptr::pointer<RT>::HostType HostType;
+//		HostType* p = ptr::pointer<RT>::to(result);
+//		detail::ClassesManager::createObjectInstanceOnStackPure(v, ClassTraits<HostType>::classID(), p);
+
 		sq_pushinteger(v, detail::ClassesManager::MEMORY_CONTROLLER_PARAM);
 		new(sq_newuserdata(v, sizeof(RT))) RT(result);
 		sq_setreleasehook(v, -1, _memoryControllerHook<RT>);

@@ -11,6 +11,7 @@
 #include "detail/ScriptObject.h"
 
 namespace script {
+
 namespace detail {
 
 ///
@@ -328,9 +329,14 @@ public:
 	template<typename T>
 	ClassDeclarator<T> declareClass(const xchar* scriptClassName)
 	{
+		ClassID classID = ClassTraits<T>::classID();
+
+		if(ClassesManager::associateClassID)
+			ClassesManager::associateClassID(typeid(T), classID);
+
 		int top = sq_gettop(_vm);
 
-		ScriptObject newClass = ClassesManager::createClass(_vm, _hostObject, (SQUserPointer)ClassTraits<T>::classID(), scriptClassName, 0);
+		ScriptObject newClass = ClassesManager::createClass(_vm, _hostObject, classID, scriptClassName, 0);
 
 		ClassesManager::disableCloningForClass(_vm, newClass);
 		ClassesManager::createMemoryControllerSlotForClass(_vm, newClass);
@@ -342,9 +348,14 @@ public:
 	template<typename T, typename PARENT>
 	ClassDeclarator<T> declareClass(const xchar* scriptClassName)
 	{
+		ClassID classID = ClassTraits<T>::classID();
+
+		if(ClassesManager::associateClassID)
+			ClassesManager::associateClassID(typeid(T), classID);
+
 		int top = sq_gettop(_vm);
 
-		ScriptObject newClass = ClassesManager::createClass(_vm, _hostObject, ClassTraits<T>::classID(), scriptClassName, ClassTraits<PARENT>::classID());
+		ScriptObject newClass = ClassesManager::createClass(_vm, _hostObject, classID, scriptClassName, ClassTraits<PARENT>::classID());
 
 		ClassesManager::disableCloningForClass(_vm, newClass);
 		ClassesManager::createMemoryControllerSlotForClass(_vm, newClass);

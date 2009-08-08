@@ -56,6 +56,37 @@ inline void addHandleToObject(HSQUIRRELVM v, void* obj, int idx)	{ (void)v; (voi
  */
 inline bool pushHandleFromObject(HSQUIRRELVM v, void* obj)			{ (void)v; (void)obj; jkSCRIPT_LOGIC_ASSERTION(obj != NULL); return false; }
 
+/*!	This function is invoked at the first time an object is being push into squirrel,
+	to tell squirrel what is the actual type of the object.
+	The default implementation is to simply return the parameter \em originalID,
+	but user can override this function to support their own polymorphic type.
+
+	\sa ClassesManager::associateClassID
+
+	Sample implementation using std map:
+	\code
+	struct TypeInfo {
+		const std::type_info& typeInfo;
+		TypeInfo(const std::type_info& t) : typeInfo(t) {}
+		bool operator<(const TypeInfo& rhs) const
+		{	return typeInfo.before(rhs.typeInfo) > 0;	}
+	};	// TypeInfo
+	typedef std::map<TypeInfo, ClassID> TypeMap;
+	static TypeMap typeMap;
+
+	void associateClassID(const std::type_info& typeInfo, script::ClassID classID)
+	{	typeMap[typeInfo] = classID;	}
+
+	ClassID getClassIDFromObject(const MyPolymorphicBaseClass* obj, ClassID original) {
+		TypeMap::const_iterator i = typeMap.find(typeid(*obj));
+		if(i != typeMap.end())
+			return i->second;
+		return original;
+	}
+	\endcode
+ */
+inline ClassID getClassIDFromObject(void* obj, ClassID originalID) { return originalID; }
+
 template<typename T>
 void push(HSQUIRRELVM v, T obj)
 {
@@ -72,7 +103,8 @@ void push(HSQUIRRELVM v, T obj)
 		return;
 
 	// If none has found, push a new one
-	detail::ClassesManager::createObjectInstanceOnStackPure(v, ClassTraits<HostType>::classID(), p);
+	ClassID classID = getClassIDFromObject(p, ClassTraits<HostType>::classID());
+	detail::ClassesManager::createObjectInstanceOnStackPure(v, classID, p);
 	addHandleToObject(v, p, -1);
 }
 

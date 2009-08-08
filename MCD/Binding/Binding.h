@@ -31,4 +31,16 @@ private:
 
 }	// namespace MCD
 
+namespace script {
+
+typedef void* ClassID;
+
+namespace types {
+
+extern ClassID getClassIDFromTypeInfo(const std::type_info& typeInfo, ClassID original);
+
+}	// namespace types
+
+}	// namespace script
+
 #endif	// __MCD_BINDING_BINDING__

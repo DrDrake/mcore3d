@@ -25,6 +25,10 @@ bool pushHandleFromObject(HSQUIRRELVM v, Component* obj) {
 	return obj->scriptOwnershipHandle.vm && obj->scriptOwnershipHandle.pushHandle(v);
 }
 
+ClassID getClassIDFromObject(const Component* obj, ClassID original) {
+	return getClassIDFromTypeInfo(typeid(*obj), original);
+}
+
 }	// namespace types
 
 SCRIPT_CLASS_REGISTER_NAME(Component, "Component")

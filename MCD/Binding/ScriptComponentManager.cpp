@@ -5,10 +5,6 @@
 
 namespace script {
 
-namespace type {
-
-}	// namespace type
-
 using namespace MCD;
 
 static int scriptComponentManagerDoFile(HSQUIRRELVM v)

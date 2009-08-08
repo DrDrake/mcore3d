@@ -3,6 +3,8 @@
 #include "Binding.h"
 #include "Math.h"
 #include "Render.h"
+#include "System.h"
+#include "../Render/Effect.h"
 #include "../Render/Mesh.h"
 #include "../Component/Render/CameraComponent.h"
 #include "../Component/Render/MeshComponent.h"
@@ -10,16 +12,6 @@
 using namespace MCD;
 
 namespace script {
-
-struct resourceRefPolicy {
-	static void addRef(Resource* resource) {
-		intrusivePtrAddRef(resource);
-	}
-	static void releaseRef(Resource* resource) {
-		intrusivePtrRelease(resource);
-	}
-};	// resourceRefPolicy
-
 
 SCRIPT_CLASS_REGISTER(CameraComponent)
 	.declareClass<CameraComponent, Component>(L"CameraComponent")
@@ -34,13 +26,21 @@ static Mesh* meshComponentGetMesh(MeshComponent& self) {
 static void meshComponentSetMesh(MeshComponent& self, Mesh* mesh) {
 	self.mesh = mesh;
 }
+static Effect* meshComponentGetEffect(MeshComponent& self) {
+	return self.effect.get();
+}
+static void meshComponentSetEffect(MeshComponent& self, Effect* effect) {
+	self.effect = effect;
+}
 
 SCRIPT_CLASS_REGISTER(MeshComponent)
 	.declareClass<MeshComponent, Component>(L"MeshComponent")
 	.enableGetset(L"MeshComponent")
 	.constructor()
-	.wrappedMethod<objRefCount<resourceRefPolicy> >(L"_getmesh", &meshComponentGetMesh)
+	.wrappedMethod<objRefCount<ResourceRefPolicy> >(L"_getmesh", &meshComponentGetMesh)
 	.wrappedMethod(L"_setmesh", &meshComponentSetMesh)
+	.wrappedMethod<objRefCount<ResourceRefPolicy> >(L"_geteffect", &meshComponentGetEffect)
+	.wrappedMethod(L"_seteffect", &meshComponentSetEffect)
 ;}
 
 SCRIPT_CLASS_REGISTER(RenderableComponent)
