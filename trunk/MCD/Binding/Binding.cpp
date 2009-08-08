@@ -2,10 +2,12 @@
 #include "Binding.h"
 #include "../Core/System/Platform.h"
 #include "../../3Party/jkbind/VMCore.h"
+#include "../../3Party/jkbind/detail/Classes.h"
 #include "../../3Party/squirrel/sqstdio.h"
 #include "../../3Party/squirrel/sqstdmath.h"
 #include "../../3Party/squirrel/sqstdstring.h"
 #include "../../3Party/squirrel/sqstdsystem.h"
+#include <map>
 #include <stdarg.h>	// For va_list
 #include <stdio.h>	// For vwprintf
 #include <string.h>	// For wcslen
@@ -48,11 +50,33 @@ static void onCompileError(HSQUIRRELVM v,const SQChar* desc, const SQChar* sourc
 	wprintf(L"Compile error: \"%s\" at line %i, column %i\n", desc, line, column);
 }
 
+struct TypeInfo
+{
+	const std::type_info& typeInfo;
+
+	MCD_IMPLICIT TypeInfo(const std::type_info& t) : typeInfo(t) {}
+
+	bool operator<(const TypeInfo& rhs) const {
+		return typeInfo.before(rhs.typeInfo) > 0;
+	}
+};	// TypeInfo
+
+typedef std::map<TypeInfo, void*> TypeMap;
+static TypeMap gTypeMap;
+
+void associateClassID(const std::type_info& typeInfo, script::ClassID classID)
+{
+	gTypeMap[typeInfo] = classID;
+}
+
 class ScriptVM::Impl
 {
 public:
 	Impl() : vm(cInitialStackSize)
 	{
+		// Set the binder's associateClassID() function
+		script::detail::ClassesManager::associateClassID = &MCD::associateClassID;
+
 		HSQUIRRELVM v = vm.getVM();
 		sq_setprintfunc(v, printfunc);
 
@@ -125,3 +149,17 @@ void* ScriptVM::getImplementationHandle()
 }
 
 }	// namespace MCD
+
+namespace script {
+namespace types {
+
+ClassID getClassIDFromTypeInfo(const std::type_info& typeInfo, ClassID original)
+{
+	MCD::TypeMap::const_iterator i = MCD::gTypeMap.find(typeInfo);
+	if(i != MCD::gTypeMap.end())
+		return i->second;
+	return original;
+}
+
+}	// namespace types
+}	// namespace script

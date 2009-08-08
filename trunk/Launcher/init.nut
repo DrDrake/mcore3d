@@ -27,6 +27,8 @@ e.addComponent(c2);
 // Multiple MeshComponent can share a single Mesh
 local chamferBoxMesh = ChamferBoxMesh(1, 2);
 
+local ballEffect = loadResource("Material/test.fx.xml");
+
 // Multiple RigidBodyComponent can share a single shape
 local shpereShape = SphereShape(1);
 
@@ -34,13 +36,12 @@ local shpereShape = SphereShape(1);
 for(local i=0; i<30; ++i) for(local j=0; j<30; ++j)
 {
 	local e = Entity();
-	e.localTransform.m03 = 1 * i;
-	e.localTransform.m13 = 100;
-	e.localTransform.m23 = 1 * j;
+	e.localTransform.translation = Vec3(i, 100, j);
 	rootEntity.addChild(e);
 
 	local c = MeshComponent();
 	c.mesh = chamferBoxMesh;
+	c.effect = ballEffect;
 	e.addComponent(c);
 
 	c = RigidBodyComponent(1, shpereShape);

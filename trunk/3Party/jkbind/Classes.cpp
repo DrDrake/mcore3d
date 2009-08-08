@@ -4,6 +4,8 @@
 namespace script {
 namespace detail {
 
+ClassesManager::AssociateClassID ClassesManager::associateClassID = NULL;
+
 ScriptObject ClassesManager::_findClass(HSQUIRRELVM v, ClassID classType)
 {
 	ScriptObject result(v);

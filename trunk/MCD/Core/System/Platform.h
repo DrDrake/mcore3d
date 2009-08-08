@@ -48,6 +48,11 @@
 #define _CRT_NONSTDC_NO_DEPRECATE
 #define _SCL_SECURE_NO_DEPRECATE
 
+// Disable secure stl on release build
+#if defined(NDEBUG)
+#	define _SECURE_SCL 0
+#endif
+
 /*!	An optimization on type that will never create an instance.
 	The compiler will event generate vtable for classes having pure virtual function (confirmed in VC8)
 	Using this macro remove both code size and run-time overhead of unnecessary vtable setting

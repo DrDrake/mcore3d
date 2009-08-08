@@ -6,14 +6,13 @@ using namespace MCD;
 
 namespace script {
 
-struct resourceRefPolicy {
-	static void addRef(Resource* resource) {
-		intrusivePtrAddRef(resource);
-	}
-	static void releaseRef(Resource* resource) {
-		intrusivePtrRelease(resource);
-	}
-};	// resourceRefPolicy
+namespace types {
+
+ClassID getClassIDFromObject(const Resource* obj, ClassID original) {
+	return getClassIDFromTypeInfo(typeid(*obj), original);
+}
+
+}	// namespace types
 
 static void resourceManagerCallbackAddDependency(IResourceManagerCallback& self, const wchar_t* fileId) {
 	self.addDependency(fileId);
@@ -29,7 +28,7 @@ static void resourceManagerAddCallback(IResourceManager& self, GiveUpOwnership<I
 	self.addCallback(callback);
 }
 SCRIPT_CLASS_REGISTER_NAME(IResourceManager, "ResuorceManager")
-	.wrappedMethod<objRefCount<resourceRefPolicy> >(L"load", &resourceManagerLoad)
+	.wrappedMethod<objRefCount<ResourceRefPolicy> >(L"load", &resourceManagerLoad)
 	.wrappedMethod(L"addCallback", &resourceManagerAddCallback)
 ;}
 

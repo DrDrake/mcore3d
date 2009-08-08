@@ -238,6 +238,11 @@ void TestWindow::scriptBindingSetup()
 
 		L"resourceManager <- gMainWindow.resourceManager;\n"
 
+		// TODO: Use named parameter to pass blocking and priority options
+		L"function loadResource(filePath) {\n"
+		L"	return resourceManager.load(filePath, false, 0);\n"
+		L"}\n"
+
 		L"function addResourceCallback(filePaths, functor) {\n"
 		L"	local callback = ResourceLoadCallback();\n"
 		L"	if(typeof filePaths == \"string\")\n"

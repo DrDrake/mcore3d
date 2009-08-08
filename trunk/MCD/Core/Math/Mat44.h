@@ -50,6 +50,9 @@ public:
 
 	enum { N = super_type::N };
 
+	/*!	For performance reasons, default consturctor will not do anything,
+		so user must aware of it and do proper initialization afterwards if needed.
+	 */
 	inline Mat44() {}
 
 	explicit Mat44(const param_type val)

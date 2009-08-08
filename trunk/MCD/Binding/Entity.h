@@ -20,6 +20,8 @@ MCD_BINDING_API void addHandleToObject(HSQUIRRELVM v, MCD::Entity* obj, int idx)
 
 MCD_BINDING_API bool pushHandleFromObject(HSQUIRRELVM v, MCD::Entity* obj);
 
+MCD_BINDING_API ClassID getClassIDFromObject(const MCD::Component* obj, ClassID dummy);
+
 }	// namespace types
 
 }	// namespace script
