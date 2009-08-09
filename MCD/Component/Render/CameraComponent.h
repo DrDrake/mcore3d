@@ -4,7 +4,6 @@
 #include "RenderableComponent.h"
 #include "../../Render/Camera.h"
 #include "../../Render/Color.h"
-#include "../../Core/System/Timer.h"
 
 namespace MCD {
 
@@ -20,14 +19,8 @@ public:
 
 // Attrubutes
 	Camera camera;
-	Vec3f velocity;
-	ColorRGBf clearColor;
-	// TODO: Move it to something like mouse camera controler
-	bool isMouseDown;	//! To make associating the camera with mouse movement easily.
 
-private:
-	// TODO: Remove the use of timer once the component system has a global timer.
-	DeltaTimer mTimer;
+	ColorRGBf clearColor;
 };	// CameraComponent
 
 typedef WeakPtr<CameraComponent> CameraComponentPtr;

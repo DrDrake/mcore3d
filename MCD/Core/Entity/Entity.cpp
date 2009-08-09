@@ -172,6 +172,18 @@ void Entity::removeComponent(const std::type_info& familyType)
 	}
 }
 
+Entity* Entity::parent() {
+	return mParent;
+}
+
+Entity* Entity::firstChild() {
+	return mFirstChild;
+}
+
+Entity* Entity::nextSibling() {
+	return mNextSlibing;
+}
+
 Mat44f Entity::worldTransform() const
 {
 	Mat44f ret(localTransform);
@@ -185,16 +197,12 @@ Mat44f Entity::worldTransform() const
 	return ret;
 }
 
-Entity* Entity::parent() {
-	return mParent;
-}
-
-Entity* Entity::firstChild() {
-	return mFirstChild;
-}
-
-Entity* Entity::nextSibling() {
-	return mNextSlibing;
+void Entity::setWorldTransform(const Mat44f& transform)
+{
+	if(mParent)
+		localTransform = transform * mParent->worldTransform().inverse();
+	else
+		localTransform = transform;
 }
 
 sal_notnull Entity* Entity::clone() const

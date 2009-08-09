@@ -250,6 +250,21 @@ Mat44<T> Mat44<T>::inverse() const
 }
 
 template<typename T>
+Vec3<T> Mat44<T>::xBiasVector() const {
+	return Vec3<T>(m00, m10, m20);
+}
+
+template<typename T>
+Vec3<T> Mat44<T>::yBiasVector() const {
+	return Vec3<T>(m01, m11, m21);
+}
+
+template<typename T>
+Vec3<T> Mat44<T>::zBiasVector() const {
+	return Vec3<T>(m02, m12, m22);
+}
+
+template<typename T>
 Vec3<T> Mat44<T>::translation() const
 {
 	return Vec3<T>(m03, m13, m23);
@@ -351,6 +366,11 @@ void Mat44<T>::transformNormal(Vec3<T>& point) const
 	point.x = m00 * tmp.x + m01 * tmp.y + m02 * tmp.z;
 	point.y = m10 * tmp.x + m11 * tmp.y + m12 * tmp.z;
 	point.z = m20 * tmp.x + m21 * tmp.y + m22 * tmp.z;
+}
+
+template<typename T>
+Mat44<T> Mat44<T>::makeAxisRotation(const Vec3<T>& axis, T angle) {
+	return Mat44f(Mat33f::makeAxisRotation(axis, angle));
 }
 
 template<typename T> const Mat44<T> Mat44<T>::cIdentity = Mat44<T>(

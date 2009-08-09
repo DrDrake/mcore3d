@@ -50,7 +50,7 @@ public:
 	Vec3f rightVector() const;
 
 	Vec3f position;		//!< Position of the camera.
-	Vec3f lookAt;		//!< The direction which the camera is look at.
+	Vec3f lookAt;		//!< The direction which the camera is looking at.
 	Vec3f upVector;		//!< Upward direction of the camera.
 
 	Frustum frustum;	//!< The view frustum.

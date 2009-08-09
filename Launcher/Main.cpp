@@ -14,6 +14,7 @@
 #include "../MCD/Component/Physics/RigidBodyComponent.h"
 #include "../MCD/Component/Physics/ThreadedDynamicWorld.h"
 #include "../MCD/Component/Render/EntityPrototypeLoader.h"
+#include "../MCD/Component/Render/CameraComponent.h"
 #include "../MCD/Component/Render/MeshComponent.h"
 #include "../MCD/Component/Input/WinMessageInputComponent.h"
 #include "../Test/RenderTest/BasicGlWindow.h"
@@ -63,6 +64,20 @@ public:
 protected:
 	DynamicsWorld& mDynamicsWorld;
 };	// EntityLoadCreatePhysicsCallback
+
+//! A timer to measure the fps
+class FrameTimer : protected DeltaTimer
+{
+public:
+	FrameTimer() : DeltaTimer(TimeInterval(1.0/60)) {}
+
+	float frameTime() const { return float(mFrameTime.asSecond()); }
+	float fps() const { return 1.0f / frameTime(); }
+	void nextFrame() { mFrameTime = getDelta(); }
+
+protected:
+	TimeInterval mFrameTime;
+};	// FrameTimer
 
 class TestWindow : public BasicGlWindow
 {
@@ -125,6 +140,8 @@ public:
 
 		BehaviourComponent::traverseEntities(mRootNode);
 		RenderableComponent::traverseEntities(mRootNode);
+
+		mFrameTimer.nextFrame();
 	}
 
 // Script usage:
@@ -155,6 +172,10 @@ public:
 		return &mDynamicsWorld;
 	}
 
+	sal_notnull FrameTimer* frameTimer() {
+		return &mFrameTimer;
+	}
+
 	static TestWindow* getSinleton() {
 		return TestWindow::singleton;
 	}
@@ -179,6 +200,7 @@ public:
 	Entity* mRootNode;
 	InputComponent* mInputComponent;
 
+	FrameTimer mFrameTimer;
 	IFileSystem& fileSystem;
 	DefaultResourceManager mResourceManager;
 	Thread mPhysicsThread;
@@ -190,7 +212,22 @@ TestWindow* TestWindow::singleton = nullptr;
 
 namespace script {
 
+SCRIPT_CLASS_DECLAR(FrameTimer);
+SCRIPT_CLASS_DECLAR(ResourceLoadCallback);
 SCRIPT_CLASS_DECLAR(TestWindow);
+
+SCRIPT_CLASS_REGISTER_NAME(FrameTimer, "FrameTimer")
+	.enableGetset(L"FrameTimer")
+	.method(L"_getframeTime", &FrameTimer::frameTime)
+	.method(L"_getfps", &FrameTimer::fps)
+;}
+
+SCRIPT_CLASS_REGISTER(ResourceLoadCallback)
+	.declareClass<ResourceLoadCallback, IResourceManagerCallback>(L"ResourceLoadCallback")
+	.constructor()
+	.scriptEvent(L"onLoaded", &ResourceLoadCallback::onLoaded)
+;}
+
 SCRIPT_CLASS_REGISTER_NAME(TestWindow, "MainWindow")
 	.enableGetset(L"MainWindow")
 	.method<objNoCare>(L"_getrootEntity", &TestWindow::rootNode)
@@ -198,14 +235,8 @@ SCRIPT_CLASS_REGISTER_NAME(TestWindow, "MainWindow")
 	.method<objNoCare>(L"_getinputComponent", &TestWindow::inputComponent)
 	.method<objNoCare>(L"_getresourceManager", &TestWindow::resourceManager)
 	.method<objNoCare>(L"_getdynamicsWorld", &TestWindow::dynamicsWorld)
+	.method<objNoCare>(L"_getframeTimer", &TestWindow::frameTimer)
 	.rawMethod(L"addCallback", &TestWindow::addCallback)
-;}
-
-SCRIPT_CLASS_DECLAR(ResourceLoadCallback);
-SCRIPT_CLASS_REGISTER(ResourceLoadCallback)
-	.declareClass<ResourceLoadCallback, IResourceManagerCallback>(L"ResourceLoadCallback")
-	.constructor()
-	.scriptEvent(L"onLoaded", &ResourceLoadCallback::onLoaded)
 ;}
 
 }	// namespace script
@@ -221,8 +252,9 @@ void TestWindow::scriptBindingSetup()
 	script::RootDeclarator root(v);
 	root.declareFunction<objNoCare>(L"_getMainWindow", &TestWindow::getSinleton);
 
-	script::ClassTraits<TestWindow>::bind(v);
+	script::ClassTraits<FrameTimer>::bind(v);
 	script::ClassTraits<ResourceLoadCallback>::bind(v);
+	script::ClassTraits<TestWindow>::bind(v);
 
 	// Setup some global variable for easy access in script.
 	mScriptComponentManager.vm.runScript(
@@ -235,8 +267,8 @@ void TestWindow::scriptBindingSetup()
 		L"}\n"
 
 		L"gInput <- gMainWindow.inputComponent;\n"
-
 		L"resourceManager <- gMainWindow.resourceManager;\n"
+		L"gFrameTimer <- gMainWindow.frameTimer;\n"
 
 		// TODO: Use named parameter to pass blocking and priority options
 		L"function loadResource(filePath) {\n"

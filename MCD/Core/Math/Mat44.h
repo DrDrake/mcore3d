@@ -119,6 +119,10 @@ public:
 	sal_checkreturn bool inverse(Mat44& result) const;
 	Mat44 inverse() const;
 
+	Vec3<T> xBiasVector() const;
+	Vec3<T> yBiasVector() const;
+	Vec3<T> zBiasVector() const;
+
 	//!	Get the translation transformation part of the matrix.
 	Vec3<T> translation() const;
 
@@ -152,6 +156,8 @@ public:
 	void transformPoint(Vec3<T>& point) const;
 
 	void transformNormal(Vec3<T>& normal) const;
+
+	static Mat44 makeAxisRotation(const Vec3<T>& axis, T angle);
 
 	static const Mat44 cIdentity;
 };	// Mat44

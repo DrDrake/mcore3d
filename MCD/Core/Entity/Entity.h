@@ -111,7 +111,6 @@ public:
 	 */
 	virtual sal_notnull Entity* clone() const;
 
-	Mat44f worldTransform() const;
 
 // Attributes
 	bool enabled;
@@ -125,6 +124,16 @@ public:
 	sal_maybenull Entity* nextSibling();
 
 	Mat44f localTransform;
+
+	/*!	The world transform is calculated by chaining up all parent's
+		localTransform and it's own.
+	 */
+	Mat44f worldTransform() const;
+
+	/*!	It will modify the localTransform such that the outcomming
+		worldTransform is what you want.
+	 */
+	void setWorldTransform(const Mat44f& transform);
 
 	UserData userData;
 
