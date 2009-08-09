@@ -17,7 +17,6 @@ SCRIPT_CLASS_REGISTER(CameraComponent)
 	.declareClass<CameraComponent, Component>(L"CameraComponent")
 	.enableGetset(L"CameraComponent")
 	.constructor()
-	.getset(L"velocity", &CameraComponent::velocity)
 ;}
 
 static Mesh* meshComponentGetMesh(MeshComponent& self) {

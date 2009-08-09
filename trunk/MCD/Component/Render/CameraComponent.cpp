@@ -6,7 +6,7 @@
 namespace MCD {
 
 CameraComponent::CameraComponent()
-	: velocity(0), clearColor(0), isMouseDown(false)
+	: clearColor(0)
 {
 }
 
@@ -15,14 +15,6 @@ void CameraComponent::render()
 	Entity* e = entity();
 	if(!e)
 		return;
-
-	float deltaTime = float(mTimer.getDelta().asSecond());
-
-	if(velocity.length() > 0) {
-		camera.moveForward(velocity.z * deltaTime);
-		camera.moveRight(velocity.x * deltaTime);
-		camera.moveUp(velocity.y * deltaTime);
-	}
 
 	camera.applyTransform();
 	glMultTransposeMatrixf(e->worldTransform().inverse().getPtr());

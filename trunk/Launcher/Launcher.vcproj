@@ -226,6 +226,10 @@
 			>
 		</File>
 		<File
+			RelativePath=".\FpsCamera.nut"
+			>
+		</File>
+		<File
 			RelativePath=".\init.nut"
 			>
 		</File>
@@ -263,10 +267,6 @@
 		</File>
 		<File
 			RelativePath=".\Pch.h"
-			>
-		</File>
-		<File
-			RelativePath=".\ScriptComponent.nut"
 			>
 		</File>
 	</Files>

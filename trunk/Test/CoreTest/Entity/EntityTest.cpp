@@ -177,6 +177,10 @@ TEST(WorldTransform_EntityTest)
 	e13->worldTransform().transformPoint(v);
 
 	CHECK(v.isNearEqual(Vec3f(2, 4, 0)));
+
+	// Test setWorldTransform
+	e13->setWorldTransform(Mat44f::cIdentity);
+	CHECK(e13->worldTransform().isNearEqual(Mat44f::cIdentity));
 }
 
 TEST(PreorderIterator_EntityTest)

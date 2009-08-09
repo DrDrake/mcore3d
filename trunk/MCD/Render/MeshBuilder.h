@@ -141,7 +141,7 @@ public:
 	void textureCoord(const Vec3f& coord);
 
 	/*!	Set the current texture coordinate state of the current texture unit.
-		\note Must have textureCoordSize(3) invoked prior to this function call.
+		\note Must have textureCoordSize(4) invoked prior to this function call.
 		\sa textureCoordSize(), textureUnit()
 	 */
 	void textureCoord(const Vec4f& coord);

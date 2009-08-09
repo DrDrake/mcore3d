@@ -64,6 +64,8 @@ SCRIPT_CLASS_REGISTER_NAME(Entity, "Entity")
 	.getset(L"enabled", &Entity::enabled)
 	.getset(L"name", &Entity::name)
 	.getset(L"localTransform", &Entity::localTransform)
+	.method(L"_getworldTransform", &Entity::worldTransform)
+	.method(L"_setworldTransform", &Entity::setWorldTransform)
 	.method<objNoCare>(L"_getparentNode", &Entity::parent)		// The node's life time is controled by the
 	.method<objNoCare>(L"_getfirstChild", &Entity::firstChild)	// node tree's root node, therefore we use
 	.method<objNoCare>(L"_getnextSibling", &Entity::nextSibling)// objNoCare as the return policy.

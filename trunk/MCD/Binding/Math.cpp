@@ -56,12 +56,16 @@ SCRIPT_CLASS_REGISTER_NAME(Mat44f, "Mat44")
 	.method(L"_gettranspose", (Mat44f (Mat44f::*)()const)&Mat44f::transpose)
 	.method(L"_getdeterminant", &Mat44f::determinant)
 	.method(L"_getinverse", (Mat44f (Mat44f::*)()const)&Mat44f::inverse)
+	.method(L"_getxBiasVector", &Mat44f::xBiasVector)
+	.method(L"_getyBiasVector", &Mat44f::yBiasVector)
+	.method(L"_getzBiasVector", &Mat44f::zBiasVector)
 	.method(L"_gettranslation", &Mat44f::translation)
 	.method(L"_settranslation", &Mat44f::setTranslation)
 	.method(L"translateBy", &Mat44f::translateBy)
 	.method(L"_getscale", &Mat44f::scale)
 	.method(L"_setscale", &Mat44f::setScale)
 	.method(L"scaleBy", &Mat44f::scaleBy)
+	.staticMethod(L"makeAxisRotation", &Mat44f::makeAxisRotation)
 	.wrappedMethod(L"_add", &addMat44)
 	.wrappedMethod(L"_sub", &subMat44)
 	.wrappedMethod(L"_mul", &mulMat44)
@@ -69,6 +73,7 @@ SCRIPT_CLASS_REGISTER_NAME(Mat44f, "Mat44")
 //	.wrappedMethod(L"scalarDiv", &scalarDivMat44)
 	.wrappedMethod(L"isEqual", &isEqualMat44)
 //	.runScript(L"Mat44.identity <- Mat44()")	// TODO: Add identity
+	.runScript(L"Mat44._tostring <- function(){return xBiasVector+\", \"+yBiasVector+\", \"+zBiasVector;}")	// Vec3.tostring()
 ;}
 
 static int vec2Create(HSQUIRRELVM vm)
@@ -99,14 +104,20 @@ static int vec2Create(HSQUIRRELVM vm)
 	construct::pushResult(vm, v);
 	return 1;
 }
+static Vec2f addVec2(const Vec2f& lhs, const Vec2f& rhs) { return lhs + rhs; }
+static Vec2f subVec2(const Vec2f& lhs, const Vec2f& rhs) { return lhs - rhs; }
 static bool isEqualVec2(const Vec2f& lhs, const Vec2f& rhs) { return lhs == rhs; }
+static void vec2MulEqual(Vec2f& lhs, float rhs) { lhs *= rhs; }
 
 SCRIPT_CLASS_REGISTER_NAME(Vec2f, "Vec2")
 	.enableGetset(L"Vec2")
 	.rawMethod(L"constructor", vec2Create)
 	.getset(L"x", &Vec2f::x)
 	.getset(L"y", &Vec2f::y)
+	.wrappedMethod(L"_add", &addVec2)
+	.wrappedMethod(L"_sub", &subVec2)
 	.wrappedMethod(L"isEqual", &isEqualVec2)
+	.wrappedMethod(L"mulEqual", &vec2MulEqual)
 	.runScript(L"Vec2._tostring <- function(){return x+\", \"+y;}")	// Vec2.tostring()
 ;}
 
