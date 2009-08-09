@@ -17,6 +17,9 @@ typedef Vec2<float> Vec2f;
 template<typename T> class Vec3;
 typedef Vec3<float> Vec3f;
 
+template<typename T> class Vec4;
+typedef Vec4<float> Vec4f;
+
 /*!	Fill data to Mesh class.
 	The mesh builder have a similar concept with Opengl display list, where user supply
 	the vertex position, color, normal, texture coordinate etc as the current state of the builder.
@@ -136,6 +139,12 @@ public:
 		\sa textureCoordSize(), textureUnit()
 	 */
 	void textureCoord(const Vec3f& coord);
+
+	/*!	Set the current texture coordinate state of the current texture unit.
+		\note Must have textureCoordSize(3) invoked prior to this function call.
+		\sa textureCoordSize(), textureUnit()
+	 */
+	void textureCoord(const Vec4f& coord);
 
 	/*!	Adds a new vertex using current vertex attributes (position, normal etc...).
 		\return The vertex index.
