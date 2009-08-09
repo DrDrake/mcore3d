@@ -4,6 +4,7 @@
 #include "Color.h"
 #include "../Core/Math/Vec2.h"
 #include "../Core/Math/Vec3.h"
+#include "../Core/Math/Vec4.h"
 #include "../Core/System/Log.h"
 #include "../../3Party/glew/glew.h"
 #include <limits>
@@ -29,8 +30,8 @@ public:
 	Mesh::DataType mTextureUnit;
 	//! Array storing the component size for it's corresponding texture unit. Index 0 is reserved, not used.
 	Array<size_t, Mesh::cMaxTextureCoordCount + 1> mTextureCoordSize;
-	// The current texture coordinates, the content may interpret as Vec2f or Vec3f. Index 0 is reserved, not used.
-	Array<Array<float,3>, Mesh::cMaxTextureCoordCount + 1> mTextureCoord;
+	// The current texture coordinates, the content may interpret as Vec2f, Vec3f, or Vec4f. Index 0 is reserved, not used.
+	Array<Array<float,4>, Mesh::cMaxTextureCoordCount + 1> mTextureCoord;
 
 	std::vector<Vec3f> mPositions;
 	std::vector<ColorRGB8> mColors;
@@ -72,7 +73,7 @@ public:
 
 	void assertTextureCoordSize(size_t textureUnit)
 	{
-		MCD_ASSERT(mTextureCoordSize[textureUnit] == 2 || mTextureCoordSize[textureUnit] == 3);
+		MCD_ASSERT(mTextureCoordSize[textureUnit] == 2 || mTextureCoordSize[textureUnit] == 3 || mTextureCoordSize[textureUnit] == 4);
 	}
 
 	void textureCoord(const Vec2f& coord)
@@ -89,6 +90,14 @@ public:
 		MCD_ASSERT(mTextureCoordSize[mTextureUnit] == 3);
 
 		reinterpret_cast<Vec3f&>(mTextureCoord[mTextureUnit]) = coord;
+	}
+
+	void textureCoord(const Vec4f& coord)
+	{
+		MCD_ASSERT("Invalid texture unit" && size_t(mTextureUnit) < Mesh::cMaxTextureCoordCount);
+		MCD_ASSERT(mTextureCoordSize[mTextureUnit] == 4);
+
+		reinterpret_cast<Vec4f&>(mTextureCoord[mTextureUnit]) = coord;
 	}
 
 	void* acquireBufferPointer(Mesh::DataType dataType, size_t* count)
@@ -310,6 +319,12 @@ void MeshBuilder::textureCoord(const Vec2f& coord)
 }
 
 void MeshBuilder::textureCoord(const Vec3f& coord)
+{
+	MCD_ASSERT(mFormat & Mesh::TextureCoord);
+	mBuffer.textureCoord(coord);
+}
+
+void MeshBuilder::textureCoord(const Vec4f& coord)
 {
 	MCD_ASSERT(mFormat & Mesh::TextureCoord);
 	mBuffer.textureCoord(coord);
