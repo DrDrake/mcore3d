@@ -8,7 +8,6 @@
 #include "sqstring.h"
 #include "sqcompiler.h"
 #include "sqlexer.h"
-#include "../wcshelper.h"
 
 #define CUR_CHAR (_currdata)
 #define RETURN_TOKEN(t) { _prevtoken = _curtoken; _curtoken = t; return t;}

@@ -8,7 +8,6 @@
 #include "sqtable.h"
 #include "sqopcodes.h"
 #include "sqfuncstate.h"
-#include "../wcshelper.h"
 
 #ifdef _DEBUG_DUMP
 SQInstructionDesc g_InstrDesc[]={
