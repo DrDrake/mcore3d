@@ -1,7 +1,6 @@
 /* see copyright notice in squirrel.h */
 #include "../squirrel.h"
 #include "../sqstdstring.h"
-#include "../wcshelper.h"
 #include <string.h>
 #include <stdlib.h>
 #include <stdio.h>
@@ -12,11 +11,7 @@
 #define scstrchr wcschr
 #define scsnprintf wsnprintf
 #define scatoi _wtoi
-#ifdef _MSC_VER
-#	define scstrtok wcstok_s
-#else
-#	define scstrtok wcstok
-#endif
+#define scstrtok wcstok
 #else
 #define scstrchr strchr
 #define scsnprintf snprintf
@@ -70,15 +65,16 @@ static SQInteger validate_format(HSQUIRRELVM v, SQChar *fmt, const SQChar *src, 
 	return n;
 }
 
-static SQInteger _string_format(HSQUIRRELVM v)
+
+SQRESULT sqstd_format(HSQUIRRELVM v,SQInteger nformatstringidx,SQInteger *outlen,SQChar **output)
 {
 	const SQChar *format;
 	SQChar *dest;
 	SQChar fmt[MAX_FORMAT_LEN];
-	sq_getstring(v,2,&format);
-	SQInteger allocated = (sq_getsize(v,2)+1)*sizeof(SQChar);
+	sq_getstring(v,nformatstringidx,&format);
+	SQInteger allocated = (sq_getsize(v,nformatstringidx)+2)*sizeof(SQChar);
 	dest = sq_getscratchpad(v,allocated);
-	SQInteger n = 0,i = 0, nparam = 3, w = 0;
+	SQInteger n = 0,i = 0, nparam = nformatstringidx+1, w = 0;
 	while(format[n] != '\0') {
 		if(format[n] != '%') {
 			assert(i < allocated);
@@ -123,7 +119,7 @@ static SQInteger _string_format(HSQUIRRELVM v)
 				return sq_throwerror(v,_SC("invalid format"));
 			}
 			n++;
-			allocated += addlen;
+			allocated += addlen + sizeof(SQChar);
 			dest = sq_getscratchpad(v,allocated);
 			switch(valtype) {
 			case 's': i += scsprintf(&dest[i],fmt,ts); break;
@@ -133,7 +129,19 @@ static SQInteger _string_format(HSQUIRRELVM v)
 			nparam ++;
 		}
 	}
-	sq_pushstring(v,dest,i);
+	*outlen = i;
+	dest[i] = '\0';
+	*output = dest;
+	return SQ_OK;
+}
+
+static SQInteger _string_format(HSQUIRRELVM v)
+{
+	SQChar *dest = NULL;
+	SQInteger length = 0;
+	if(SQ_FAILED(sqstd_format(v,2,&length,&dest)))
+		return -1;
+	sq_pushstring(v,dest,length);
 	return 1;
 }
 
@@ -195,13 +203,12 @@ static SQInteger _string_split(HSQUIRRELVM v)
 	SQInteger memsize = (sq_getsize(v,2)+1)*sizeof(SQChar);
 	stemp = sq_getscratchpad(v,memsize);
 	memcpy(stemp,str,memsize);
-	SQChar* context = NULL;
-	tok = scstrtok(stemp,seps,&context);
+	tok = scstrtok(stemp,seps);
 	sq_newarray(v,0);
 	while( tok != NULL ) {
 		sq_pushstring(v,tok,-1);
 		sq_arrayappend(v,-2);
-		tok = scstrtok( NULL, seps, &context );
+		tok = scstrtok( NULL, seps );
 	}
 	return 1;
 }

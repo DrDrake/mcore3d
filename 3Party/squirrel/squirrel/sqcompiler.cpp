@@ -12,7 +12,6 @@
 #include "sqlexer.h"
 #include "sqvm.h"
 #include "sqtable.h"
-#include "../wcshelper.h"
 
 #define DEREF_NO_DEREF	-1
 #define DEREF_FIELD		-2
@@ -63,11 +62,10 @@ public:
 	}
 	void Error(const SQChar *s, ...)
 	{
-		const int tempMessgeSize = 256;
-		static SQChar temp[tempMessgeSize];	// TODO: This is not thread safe
+		static SQChar temp[256];
 		va_list vl;
 		va_start(vl, s);
-		scvsprintf(temp, tempMessgeSize, s, vl);
+		scvsprintf(temp, s, vl);
 		va_end(vl);
 		compilererror = temp;
 		longjmp(_errorjmp,1);
@@ -1102,6 +1100,22 @@ public:
 				break;
 			case TK_STRING_LITERAL:
 				val = _fs->CreateString(_lex._svalue,_lex._longstr.size()-1);
+				break;
+			case '-':
+				Lex();
+				switch(_token)
+				{
+				case TK_INTEGER:
+					val._type = OT_INTEGER;
+					val._unVal.nInteger = -_lex._nvalue;
+				break;
+				case TK_FLOAT:
+					val._type = OT_FLOAT;
+					val._unVal.fFloat = -_lex._fvalue;
+				break;
+				default:
+					Error(_SC("scalar expected : integer,float"));
+				}
 				break;
 			default:
 			Error(_SC("scalar expected : integer,float or string"));
