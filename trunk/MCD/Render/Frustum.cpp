@@ -15,6 +15,9 @@ Frustum::Frustum()
 
 void Frustum::create(float fovy, float aspect, float n, float f)
 {
+	if(fovy <= 0 || aspect <= 0)
+		return;
+
 	float halfHeight = n * tanf(fovy * (Mathf::cPi() / 360));
 	float halfWidth = halfHeight * aspect;
 

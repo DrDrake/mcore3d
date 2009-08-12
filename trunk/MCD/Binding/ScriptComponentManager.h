@@ -36,6 +36,9 @@ public:
 	//! Invoke all active script components' update() function.
 	void updateScriptComponents();
 
+	//! Do cleanups
+	void shutdown();
+
 	ScriptVM vm;
 	IFileSystem& fileSystem;
 };	// ScriptComponentManager

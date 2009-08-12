@@ -181,12 +181,16 @@ void WinMessageInputComponent::onEvent(const Event& e)
 	switch(e.Type)
 	{
 	case Event::KeyPressed:
-		mKeyList[keyName] = 1;
-		mKeyDownList[keyName] = 1;
+		if(keyName) {
+			mKeyList[keyName] = 1;
+			mKeyDownList[keyName] = 1;
+		}
 		break;
 	case Event::KeyReleased:
-		mKeyList.erase(keyName);
-		mKeyUpList[keyName] = 1;
+		if(keyName) {
+			mKeyList.erase(keyName);
+			mKeyUpList[keyName] = 1;
+		}
 		break;
 	case Event::MouseMoved:
 		{	Vec2i newPos(e.MouseMove.X, e.MouseMove.Y);

@@ -35,7 +35,8 @@
 		c.effect = ballEffect;
 		e.addComponent(c);
 
-		c = RigidBodyComponent(1, shpereShape);
+		c = loadComponent("MyBall.nut", 1, shpereShape);
+//		c = RigidBodyComponent(1, shpereShape);
 		e.addComponent(c);
 	}
 }

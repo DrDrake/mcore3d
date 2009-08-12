@@ -238,6 +238,10 @@
 			>
 		</File>
 		<File
+			RelativePath=".\MyBall.nut"
+			>
+		</File>
+		<File
 			RelativePath=".\Pch.cpp"
 			>
 			<FileConfiguration
