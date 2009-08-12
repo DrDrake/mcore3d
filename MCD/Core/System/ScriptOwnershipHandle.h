@@ -5,6 +5,8 @@
 
 namespace MCD {
 
+// TODO: Handle multi-thread problem
+
 /*	A handle that bring strong linkage between a cpp and script object.
 	It work together with jkbind's addHandleToObject() and pushHandleFromObject().
 	\warn Be aware of threading problems, especially in the destructor

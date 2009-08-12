@@ -168,6 +168,9 @@ class TestEntity
 SqUnit().run();
 return;
 
+function println(s) {
+	print(s + "\n");
+}
 
 local root = Entity();
 assert(root.parentNode == null);

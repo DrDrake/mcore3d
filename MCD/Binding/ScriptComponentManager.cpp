@@ -28,6 +28,9 @@ namespace MCD {
 ScriptComponentManager::ScriptComponentManager(IFileSystem& fs)
 	: fileSystem(fs)
 {
+	// Install a println function
+	vm.runScript(L"function println(s) { print(s + \"\\n\"); }");
+
 	// Initialize the file name to class mapping, and the script component factory function
 	// TODO: Error handling, ensure the script file does return a class
 	vm.runScript(L"\
@@ -35,7 +38,17 @@ ScriptComponentManager::ScriptComponentManager(IFileSystem& fs)
 		// This table hold the ownership of all script component instance\n\
 		_scriptComponentInstanceSet <- {};\n\
 		\n\
-		loadComponent <- function(fileName) {\n\
+		function _scriptComponentThreadFunction(component) {\n\
+			while(true) {\n\
+				local e = component.entity;\n\
+				if(e != null && e.enabled)\n\
+					component.update();\n\
+				if(!::suspend(null))\n\
+					return;\n\
+			}\n\
+		}\n\
+		\n\
+		loadComponent <- function(fileName, ...) {\n\
 			local Class;\n\
 			if(fileName in _scriptComponentClassTable) {\n\
 				Class = _scriptComponentClassTable[fileName];\n\
@@ -43,22 +56,39 @@ ScriptComponentManager::ScriptComponentManager(IFileSystem& fs)
 				Class = scriptComponentManager.doFile(fileName);\n\
 				_scriptComponentClassTable[fileName] <- Class;\n\
 			}\n\
-			local obj = Class();\n\
-			_scriptComponentInstanceSet[obj] <- obj;\n\
+			local obj;\n\
+			if(vargc == 0) {\n\
+				obj = Class();\n\
+			}\n\
+			else {\n\
+				obj = Class.instance();\n\
+				local args = array(0);\n\
+				args.push(obj);\n\
+				for(local i=0; i<vargc; ++i)\n\
+					args.push(vargv[i]);\n\
+				Class.constructor.acall(args);\n\
+			}\n\
+			local thread = newthread(_scriptComponentThreadFunction);\n\
+			thread.call(obj);\n\
+			_scriptComponentInstanceSet[obj] <- thread;\n\
 			return obj;\n\
 		}\
 		\n\
 		function updateAllScriptComponent() {\n\
-			// TODO: Make this loop more efficient, eliminate the need to call C++ functions\n\
+			// TODO: Use a priority queue to choose the most optimal generator to resume\n\
 			foreach(key, value in _scriptComponentInstanceSet) {\n\
-				if(key.entity != null)\n\
-					key.update();\n\
+				value.wakeup(true);\n\
 			}\n\
 		}\n\
+		\n\
+		// Quit all the threads\n\
+		function shutdownAllScriptComponent() {\n\
+			foreach(key, value in _scriptComponentInstanceSet) {\n\
+				value.wakeup(false);\n\
+			}\n\
+//			_scriptComponentInstanceSet = null;\n\
+		}\n\
 	");
-
-	// Install a println function
-	vm.runScript(L"function println(s) { print(s + \"\\n\"); }");
 
 	HSQUIRRELVM v = reinterpret_cast<HSQUIRRELVM>(vm.getImplementationHandle());
 	script::VMCore* v_ = (script::VMCore*)sq_getforeignptr(v);
@@ -126,6 +156,18 @@ static bool loadFile(HSQUIRRELVM v, IFileSystem& fs, const Path& filePath)
 	return SQ_SUCCEEDED(sq_compile(v, sqReadUtf8, is.get(), filePath.getString().c_str(), true));
 }
 
+void ScriptComponentManager::registerRootEntity(Entity& entity)
+{
+	HSQUIRRELVM v = reinterpret_cast<HSQUIRRELVM>(vm.getImplementationHandle());
+
+	// Set a global variable to the root entity.
+	sq_pushroottable(v);
+	sq_pushstring(v, L"rootEntity", -1);
+	script::objNoCare::pushResult(v, &entity);
+	sq_rawset(v, -3);
+	sq_pop(v, 1);	// Pops the root table
+}
+
 // TODO: Support byte code loading
 bool ScriptComponentManager::doFile(const Path& filePath, bool retval)
 {
@@ -140,7 +182,7 @@ bool ScriptComponentManager::doFile(const Path& filePath, bool retval)
 			sq_remove(v, retval ? -2 : -1);	// Removes the closure
 			return true;
 		} else {
-			const SQChar* s;
+			const SQChar* s = nullptr;
 			sq_getlasterror(v);
 			sq_getstring(v, -1, &s);
 			if(s)
@@ -153,29 +195,12 @@ bool ScriptComponentManager::doFile(const Path& filePath, bool retval)
 	return false;
 }
 
-void ScriptComponentManager::updateScriptComponents()
-{
-//	vm.runScript(L"updateAllScriptComponent();");
-	HSQUIRRELVM v = reinterpret_cast<HSQUIRRELVM>(vm.getImplementationHandle());
-
-	sq_pushroottable(v);
-	sq_pushstring(v, L"updateAllScriptComponent", -1);
-	sq_get(v, -2);			// Get the function from the root table
-	sq_pushroottable(v);	// 'this' (function environment object)
-	sq_call(v, 1, false, true);
-	sq_pop(v, 2);			// Pops the roottable and the function
+void ScriptComponentManager::updateScriptComponents() {
+	vm.runScript(L"updateAllScriptComponent();");
 }
 
-void ScriptComponentManager::registerRootEntity(Entity& entity)
-{
-	HSQUIRRELVM v = reinterpret_cast<HSQUIRRELVM>(vm.getImplementationHandle());
-
-	// Set a global variable to the root entity.
-	sq_pushroottable(v);
-	sq_pushstring(v, L"rootEntity", -1);
-	script::objNoCare::pushResult(v, &entity);
-	sq_rawset(v, -3);
-	sq_pop(v, 1);	// Pops the root table
+void ScriptComponentManager::shutdown() {
+	vm.runScript(L"shutdownAllScriptComponent();");
 }
 
 }	// namespace MCD

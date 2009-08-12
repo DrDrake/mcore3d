@@ -72,11 +72,13 @@ public:
 	FrameTimer() : DeltaTimer(TimeInterval(1.0/60)) {}
 
 	float frameTime() const { return float(mFrameTime.asSecond()); }
+	float accumulateTime() const { return float(mAccumulateTime.asSecond()); }
 	float fps() const { return 1.0f / frameTime(); }
-	void nextFrame() { mFrameTime = getDelta(); }
+	void nextFrame() { mFrameTime = getDelta(); mAccumulateTime = mTimer.get(); }
 
 protected:
 	TimeInterval mFrameTime;
+	TimeInterval mAccumulateTime;
 };	// FrameTimer
 
 class TestWindow : public BasicGlWindow
@@ -120,6 +122,8 @@ public:
 
 	sal_override ~TestWindow()
 	{
+//		mScriptComponentManager.shutdown();
+
 		// Make sure the RigidBodyComponent is freed BEFORE the dynamics world...
 		while(mRootNode->firstChild())
 			delete mRootNode->firstChild();
@@ -127,6 +131,9 @@ public:
 		// Stop the physics thread
 		mPhysicsThread.postQuit();
 		mPhysicsThread.wait();
+
+		// Give the script engine a chance to do cleanups
+//		mScriptComponentManager.updateScriptComponents();
 
 		// The Entity tree must be destroyed before the script VM.
 		delete mRootNode;
@@ -219,6 +226,7 @@ SCRIPT_CLASS_DECLAR(TestWindow);
 SCRIPT_CLASS_REGISTER_NAME(FrameTimer, "FrameTimer")
 	.enableGetset(L"FrameTimer")
 	.method(L"_getframeTime", &FrameTimer::frameTime)
+	.method(L"_getaccumulateTime", &FrameTimer::accumulateTime)
 	.method(L"_getfps", &FrameTimer::fps)
 ;}
 

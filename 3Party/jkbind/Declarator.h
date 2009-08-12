@@ -370,7 +370,7 @@ public:
 		sq_pushobject(_vm, _hostObject.getObjectHandle());
 		sq_pushstring(_vm, name, -1);
 		pushStaticFunctionPointer(_vm, func);
-		sq_newclosure(_vm,script::detail::DirectCallFunction<Func, ResultPolicy>::Dispatch,1);
+		sq_newclosure(_vm, script::detail::DirectCallFunction<Func, ResultPolicy>::Dispatch, 1);
 		jkSCRIPT_API_VERIFY(sq_createslot(_vm, -3));
 		sq_pop(_vm, 1); //popping host object
 
@@ -383,7 +383,22 @@ public:
 		sq_pushobject(_vm, _hostObject.getObjectHandle());
 		sq_pushstring(_vm, name, -1);
 		pushStaticFunctionPointer(_vm, func);
-		sq_newclosure(_vm,script::detail::DirectCallFunction<Func>::Dispatch,1);
+		sq_newclosure(_vm, script::detail::DirectCallFunction<Func>::Dispatch, 1);
+		jkSCRIPT_API_VERIFY(sq_createslot(_vm, -3));
+		sq_pop(_vm, 1); //popping host object
+
+		return GlobalDeclarator(_hostObject, _vm);
+	}
+
+	// Allow the user to have total control.
+	// Func should have the signature as int(*)(HSQUIRRELVM)
+	template<typename Func>
+	GlobalDeclarator rawFunction(const xchar* name, Func func)
+	{
+		sq_pushobject(_vm, _hostObject.getObjectHandle());
+		sq_pushstring(_vm, name, -1);
+		pushStaticFunctionPointer(_vm, func);
+		sq_newclosure(_vm, func, 1);
 		jkSCRIPT_API_VERIFY(sq_createslot(_vm, -3));
 		sq_pop(_vm, 1); //popping host object
 

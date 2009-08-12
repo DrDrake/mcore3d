@@ -192,6 +192,10 @@ static SQInteger base_newthread(HSQUIRRELVM v)
 	SQInteger stksize = (_funcproto(_closure(func)->_function)->_stacksize << 1) +2;
 	HSQUIRRELVM newv = sq_newthread(v, (stksize < MIN_STACK_OVERHEAD + 2)? MIN_STACK_OVERHEAD + 2 : stksize);
 	sq_move(newv,v,-2);
+
+	// Added by Ricky Lung: Copy the old vm's foreign pointer to the new vm
+	sq_setforeignptr(newv, sq_getforeignptr(v));
+
 	return 1;
 }
 

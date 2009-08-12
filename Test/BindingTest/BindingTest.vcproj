@@ -301,6 +301,14 @@
 			RelativePath=".\ScriptInheritCppClassTest.nut"
 			>
 		</File>
+		<File
+			RelativePath=".\SystemTest.cpp"
+			>
+		</File>
+		<File
+			RelativePath=".\SystemTest.nut"
+			>
+		</File>
 	</Files>
 	<Globals>
 	</Globals>
