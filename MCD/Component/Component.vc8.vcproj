@@ -223,6 +223,22 @@
 				>
 			</File>
 			<File
+				RelativePath=".\Render\EntityPrototype.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\Render\EntityPrototype.h"
+				>
+			</File>
+			<File
+				RelativePath=".\Render\EntityPrototypeLoader.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\Render\EntityPrototypeLoader.h"
+				>
+			</File>
+			<File
 				RelativePath=".\Render\MeshComponent.cpp"
 				>
 			</File>
@@ -246,6 +262,14 @@
 				RelativePath=".\Render\RenderableComponent.h"
 				>
 			</File>
+			<File
+				RelativePath=".\Render\RenderModifierComponent.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\Render\RenderModifierComponent.h"
+				>
+			</File>
 		</Filter>
 		<Filter
 			Name="Physics"
@@ -267,6 +291,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\Physics\DynamicsWorld.inl"
+				>
+			</File>
+			<File
 				RelativePath=".\Physics\MathConvertor.inl"
 				>
 			</File>
@@ -280,6 +308,14 @@
 			</File>
 			<File
 				RelativePath=".\Physics\RigidBodyComponent.inl"
+				>
+			</File>
+			<File
+				RelativePath=".\Physics\ThreadedDynamicWorld.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\Physics\ThreadedDynamicWorld.h"
 				>
 			</File>
 		</Filter>
@@ -302,6 +338,10 @@
 				RelativePath=".\Input\WinMessageInputComponent.h"
 				>
 			</File>
+		</Filter>
+		<Filter
+			Name="Script"
+			>
 		</Filter>
 		<File
 			RelativePath=".\Pch.cpp"

@@ -239,6 +239,10 @@
 			Filter="cpp;"
 			>
 			<File
+				RelativePath=".\AmbientCubeTest.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\ASSAOTest.cpp"
 				>
 			</File>
@@ -332,6 +336,10 @@
 			</File>
 			<File
 				RelativePath=".\TextureLoaderTest.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\VolSpotlightTest.cpp"
 				>
 			</File>
 		</Filter>

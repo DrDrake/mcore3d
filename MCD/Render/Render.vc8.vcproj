@@ -248,11 +248,19 @@
 				>
 			</File>
 			<File
+				RelativePath=".\FramebufferSet.h"
+				>
+			</File>
+			<File
 				RelativePath=".\Frustum.h"
 				>
 			</File>
 			<File
 				RelativePath=".\GlWindow.h"
+				>
+			</File>
+			<File
+				RelativePath=".\InstancedMesh.h"
 				>
 			</File>
 			<File
@@ -393,6 +401,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\FramebufferSet.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\Frustum.cpp"
 				>
 			</File>
@@ -402,6 +414,10 @@
 			</File>
 			<File
 				RelativePath=".\GlWindow.Win.inc"
+				>
+			</File>
+			<File
+				RelativePath=".\InstancedMesh.cpp"
 				>
 			</File>
 			<File
