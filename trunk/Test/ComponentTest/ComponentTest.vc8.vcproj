@@ -227,6 +227,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\BasicPhysicsComponentTest.cpp"
+				>
+			</File>
+			<File
 				RelativePath="..\RenderTest\DefaultResourceManager.cpp"
 				>
 			</File>
@@ -239,11 +243,19 @@
 				>
 			</File>
 			<File
-				RelativePath=".\PhysicsTest.cpp"
+				RelativePath=".\PickComponentTest.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".\PickComponentTest.cpp"
+				RelativePath=".\SimplePhysicsComponentTest.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\ThreadedPhysicsComponentTest.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\TriMeshPhysicsComponentTest.cpp"
 				>
 			</File>
 		</Filter>

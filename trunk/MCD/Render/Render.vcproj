@@ -248,6 +248,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\FramebufferSet.h"
+				>
+			</File>
+			<File
 				RelativePath=".\Frustum.h"
 				>
 			</File>
@@ -394,6 +398,10 @@
 			</File>
 			<File
 				RelativePath=".\EffectLoader.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\FramebufferSet.cpp"
 				>
 			</File>
 			<File

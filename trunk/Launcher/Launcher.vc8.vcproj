@@ -2,9 +2,9 @@
 <VisualStudioProject
 	ProjectType="Visual C++"
 	Version="8.00"
-	Name="BindingTest"
-	ProjectGUID="{917F03EB-E204-4D13-81A6-645A15D8B89C}"
-	RootNamespace="BindingTest"
+	Name="Launcher"
+	ProjectGUID="{12789520-27D7-40C4-B80E-4CF565F8A75F}"
+	RootNamespace="CoreTest"
 	Keyword="Win32Proj"
 	TargetFrameworkVersion="131072"
 	>
@@ -21,8 +21,8 @@
 			OutputDirectory="$(ProjectDir)$(ConfigurationName)"
 			IntermediateDirectory="$(ConfigurationName)"
 			ConfigurationType="1"
-			InheritedPropertySheets="..\General.vsprops;..\Debug.vsprops"
-			CharacterSet="1"
+			InheritedPropertySheets=".\General.vsprops;.\Debug.vsprops"
+			CharacterSet="2"
 			>
 			<Tool
 				Name="VCPreBuildEventTool"
@@ -81,8 +81,8 @@
 			OutputDirectory="$(ProjectDir)$(ConfigurationName)"
 			IntermediateDirectory="$(ConfigurationName)"
 			ConfigurationType="1"
-			InheritedPropertySheets="..\General.vsprops;..\Release.vsprops"
-			CharacterSet="1"
+			InheritedPropertySheets=".\General.vsprops;.\Release.vsprops"
+			CharacterSet="2"
 			WholeProgramOptimization="0"
 			>
 			<Tool
@@ -142,8 +142,8 @@
 			OutputDirectory="$(ProjectDir)$(ConfigurationName)"
 			IntermediateDirectory="$(ConfigurationName)"
 			ConfigurationType="1"
-			InheritedPropertySheets="..\General.vsprops;..\Analysis.vsprops"
-			CharacterSet="1"
+			InheritedPropertySheets=".\General.vsprops;.\Analysis.vsprops"
+			CharacterSet="2"
 			>
 			<Tool
 				Name="VCPreBuildEventTool"
@@ -204,45 +204,33 @@
 			RelativePathToProject="..\MCD\Core\Core.vcproj"
 		/>
 		<ProjectReference
+			ReferencedProjectIdentifier="{500413B2-5AE6-41CE-BCFF-D90DB2755869}"
+			RelativePathToProject="..\MCD\Render\Render.vcproj"
+		/>
+		<ProjectReference
+			ReferencedProjectIdentifier="{B6219744-C76A-4C74-A455-8AFA986C3B6A}"
+			RelativePathToProject="..\MCD\Component\Component.vcproj"
+		/>
+		<ProjectReference
 			ReferencedProjectIdentifier="{5813D158-EC1E-4305-8122-8573958150FE}"
 			RelativePathToProject="..\MCD\Binding\Binding.vcproj"
 		/>
 	</References>
 	<Files>
 		<File
-			RelativePath=".\BasicTest.cpp"
+			RelativePath="..\Test\RenderTest\BasicGlWindow.cpp"
 			>
 		</File>
 		<File
-			RelativePath=".\BasicTest.nut"
+			RelativePath="..\Test\RenderTest\DefaultResourceManager.cpp"
 			>
 		</File>
 		<File
-			RelativePath=".\Common.cpp"
+			RelativePath=".\FpsCamera.nut"
 			>
 		</File>
 		<File
-			RelativePath=".\Common.h"
-			>
-		</File>
-		<File
-			RelativePath=".\ComponentQueueTest.cpp"
-			>
-		</File>
-		<File
-			RelativePath=".\CoroutineTest.nut"
-			>
-		</File>
-		<File
-			RelativePath=".\EntityTest.cpp"
-			>
-		</File>
-		<File
-			RelativePath=".\EntityTest.nut"
-			>
-		</File>
-		<File
-			RelativePath=".\EventTest.cpp"
+			RelativePath=".\init.nut"
 			>
 		</File>
 		<File
@@ -250,11 +238,7 @@
 			>
 		</File>
 		<File
-			RelativePath=".\MathTest.cpp"
-			>
-		</File>
-		<File
-			RelativePath=".\MathTest.nut"
+			RelativePath=".\MyBall.nut"
 			>
 		</File>
 		<File
@@ -287,30 +271,6 @@
 		</File>
 		<File
 			RelativePath=".\Pch.h"
-			>
-		</File>
-		<File
-			RelativePath=".\ScriptComponent.nut"
-			>
-		</File>
-		<File
-			RelativePath=".\ScriptComponentTest.cpp"
-			>
-		</File>
-		<File
-			RelativePath=".\ScriptComponentTestInit.nut"
-			>
-		</File>
-		<File
-			RelativePath=".\ScriptInheritCppClassTest.nut"
-			>
-		</File>
-		<File
-			RelativePath=".\SystemTest.cpp"
-			>
-		</File>
-		<File
-			RelativePath=".\SystemTest.nut"
 			>
 		</File>
 	</Files>

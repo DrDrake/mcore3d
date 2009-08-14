@@ -233,6 +233,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\ComponentQueue.h"
+				>
+			</File>
+			<File
 				RelativePath=".\Entity.h"
 				>
 			</File>
@@ -246,6 +250,26 @@
 			</File>
 			<File
 				RelativePath=".\Pch.h"
+				>
+			</File>
+			<File
+				RelativePath=".\PhysicsComponent.h"
+				>
+			</File>
+			<File
+				RelativePath=".\Render.h"
+				>
+			</File>
+			<File
+				RelativePath=".\RenderComponent.h"
+				>
+			</File>
+			<File
+				RelativePath=".\ScriptComponent.h"
+				>
+			</File>
+			<File
+				RelativePath=".\ScriptComponentManager.h"
 				>
 			</File>
 			<File
@@ -263,6 +287,10 @@
 			>
 			<File
 				RelativePath=".\Binding.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\ComponentQueue.cpp"
 				>
 			</File>
 			<File
@@ -306,7 +334,23 @@
 				</FileConfiguration>
 			</File>
 			<File
+				RelativePath=".\PhysicsComponent.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\Render.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\RenderComponent.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\ScriptComponent.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\ScriptComponentManager.cpp"
 				>
 			</File>
 			<File
