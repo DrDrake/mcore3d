@@ -1,6 +1,7 @@
 #include "Pch.h"
 #include "CollisionShape.h"
 #include "MathConvertor.inl"
+#include "../../Core/System/Log.h"
 #include "../../Render/Mesh.h"
 #include "../../Render/MeshBuilder.h"
 
@@ -69,7 +70,12 @@ public:
 		uint16_t* indexBuffer = reinterpret_cast<uint16_t*>(meshBuilder.acquireBufferPointer(Mesh::Index, &indexCount));
 		// TODO: if(indexCount == 0)
 
-		init(vertexBuffer, indexBuffer, vertexCount, indexCount, keepOwnBuffer, shapeImpl);
+		if(vertexCount > 0 && indexCount > 0 && vertexBuffer && indexBuffer)
+			init(vertexBuffer, indexBuffer, vertexCount, indexCount, keepOwnBuffer, shapeImpl);
+		else {
+			Log::write(Log::Error, L"An empty mesh is passed into StaticTriMeshShape constructor");
+			shapeImpl = nullptr;
+		}
 	}
 
 	void init(

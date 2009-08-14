@@ -31,9 +31,22 @@ ClassID getClassIDFromObject(const Component* obj, ClassID original) {
 
 }	// namespace types
 
+/*!	Associate a script object to the Component, such that when a C++ function
+	returns a most derived Component object (even the Component is sub-classed
+	in the scripting side) the actual script object is returned instead of
+	a plain Component object only.
+	Used in ScriptComponentManager when creating a scripted Component.
+ */
+static int componentSetScriptHandle(HSQUIRRELVM vm)
+{
+	Component* c = get(types::TypeSelect<Component*>(), vm, 1);
+	c->scriptOwnershipHandle.setHandle(vm, -1);
+	return 1;
+}
 SCRIPT_CLASS_REGISTER_NAME(Component, "Component")
 	.enableGetset(L"Component")
 	.method<objNoCare>(L"_getentity", &Component::entity)
+	.rawMethod(L"_setScriptHandle", &componentSetScriptHandle)
 ;}
 
 static void entityAddChild(Entity& self, GiveUpOwnership<Entity*> e) {

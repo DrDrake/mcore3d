@@ -35,6 +35,8 @@ ScriptComponentManager::ScriptComponentManager(IFileSystem& fs)
 	// TODO: Error handling, ensure the script file does return a class
 	vm.runScript(L"\
 		_scriptComponentClassTable <- {};\n\
+		gComponentQueue <- ComponentQueue();\n\
+		\n\
 		// This table hold the ownership of all script component instance\n\
 		_scriptComponentInstanceSet <- {};\n\
 		\n\
@@ -54,30 +56,43 @@ ScriptComponentManager::ScriptComponentManager(IFileSystem& fs)
 				Class = _scriptComponentClassTable[fileName];\n\
 			} else {\n\
 				Class = scriptComponentManager.doFile(fileName);\n\
+				Class.thread <- null;	// Adds the thread variable\n\
+				Class.sleep <- function(second) {\n\
+					local wakeUpTime = ::gFrameTimer.accumulateTime + second;\n\
+					gComponentQueue.setItem(wakeUpTime, this);\n\
+					::suspend(null);\n\
+				}\n\
 				_scriptComponentClassTable[fileName] <- Class;\n\
 			}\n\
-			local obj;\n\
+			local c;\n\
 			if(vargc == 0) {\n\
-				obj = Class();\n\
+				c = Class();\n\
 			}\n\
 			else {\n\
-				obj = Class.instance();\n\
+				c = Class.instance();\n\
 				local args = array(0);\n\
-				args.push(obj);\n\
+				args.push(c);\n\
 				for(local i=0; i<vargc; ++i)\n\
 					args.push(vargv[i]);\n\
 				Class.constructor.acall(args);\n\
 			}\n\
-			local thread = newthread(_scriptComponentThreadFunction);\n\
-			thread.call(obj);\n\
-			_scriptComponentInstanceSet[obj] <- thread;\n\
-			return obj;\n\
+			c._setScriptHandle();\n\
+			c.thread = newthread(_scriptComponentThreadFunction);\n\
+			c.thread.call(c);\n\
+			_scriptComponentInstanceSet[c] <- c.thread;\n\
+			gComponentQueue.setItem(0, c);\n\
+			return c;\n\
 		}\
 		\n\
 		function updateAllScriptComponent() {\n\
-			// TODO: Use a priority queue to choose the most optimal generator to resume\n\
-			foreach(key, value in _scriptComponentInstanceSet) {\n\
-				value.wakeup(true);\n\
+			local currentTime = ::gFrameTimer.accumulateTime;\n\
+			local queueResult = ComponentQueueResult();\n\
+			while(true) {\n\
+				queueResult = ::gComponentQueue.getItem(currentTime, queueResult.queueNode);\n\
+				local component = queueResult.component;\n\
+				if(!component)\n\
+					break;\n\
+				component.thread.wakeup(true);\n\
 			}\n\
 		}\n\
 		\n\

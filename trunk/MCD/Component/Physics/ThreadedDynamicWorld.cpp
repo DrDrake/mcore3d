@@ -7,7 +7,14 @@
 #include "../../Core/System/Mutex.h"
 #include "../../Core/System/Timer.h"
 #include "../../Core/System/TypeTrait.h"
+#ifdef MCD_VC
+#	pragma warning(push)
+#	pragma warning(disable: 6011)
+#endif
 #include <queue>
+#ifdef MCD_VC
+#	pragma warning(pop)
+#endif
 
 //! A simply enough command class for use in physics component command queue.
 class MCD_ABSTRACT_CLASS ICommand {
