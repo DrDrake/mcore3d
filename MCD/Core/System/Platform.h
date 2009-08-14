@@ -152,6 +152,7 @@ using namespace vc_attributes;
 #define sal_out_opt __out_opt __maybenull					// (output, write) (may be null)
 #define sal_out_z __out_z __notnull							// (output, write) (null terminated) (cannot be null)
 #define sal_inout __inout __notnull							// (input/output, read/write) (cannot be null)
+#define sal_inout_opt __inout __maybenull					// (input/output, read/write) (may be null)
 #define sal_notnull __notnull								// (cannot be null)
 #define sal_maybenull __maybenull							// (may be null)
 #define sal_override __override								// (function is overrided from the base one)

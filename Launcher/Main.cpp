@@ -66,6 +66,7 @@ protected:
 };	// EntityLoadCreatePhysicsCallback
 
 //! A timer to measure the fps
+// TODO: Move the FrameTimer to ScriptComponentManager
 class FrameTimer : protected DeltaTimer
 {
 public:

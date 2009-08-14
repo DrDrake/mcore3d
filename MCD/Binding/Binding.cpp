@@ -36,6 +36,7 @@ static void printfunc(HSQUIRRELVM v, const SQChar* s, ...)
 	va_end(vl);
 }
 
+extern void registerComponentQueueBinding(script::VMCore* v);
 extern void registerEntityBinding(script::VMCore* v);
 extern void registerInputComponentBinding(script::VMCore* v);
 extern void registerMathBinding(script::VMCore* v);
@@ -93,6 +94,7 @@ public:
 		registerRenderBinding(&vm);
 		registerEntityBinding(&vm);
 
+		registerComponentQueueBinding(&vm);
 		registerInputComponentBinding(&vm);
 		registerPhysicsComponentBinding(&vm);
 		registerRenderComponentBinding(&vm);

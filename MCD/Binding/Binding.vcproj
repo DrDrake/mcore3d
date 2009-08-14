@@ -233,6 +233,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\ComponentQueue.h"
+				>
+			</File>
+			<File
 				RelativePath=".\Entity.h"
 				>
 			</File>
@@ -283,6 +287,10 @@
 			>
 			<File
 				RelativePath=".\Binding.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\ComponentQueue.cpp"
 				>
 			</File>
 			<File

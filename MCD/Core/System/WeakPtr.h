@@ -243,6 +243,11 @@ bool operator!=(const WeakPtr<T>& a, const WeakPtr<U>& b) {
 }
 
 template<class T, class U> inline
+bool operator<(const WeakPtr<T>& a, const WeakPtr<U>& b) {
+	return a.get() < b.get();
+}
+
+template<class T, class U> inline
 bool operator==(const WeakPtr<T>& a, sal_in_opt U* b) {
 	return a.get() == b;
 }

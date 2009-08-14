@@ -226,6 +226,10 @@
 			>
 		</File>
 		<File
+			RelativePath=".\ComponentQueueTest.cpp"
+			>
+		</File>
+		<File
 			RelativePath=".\CoroutineTest.nut"
 			>
 		</File>
