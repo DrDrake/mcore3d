@@ -69,6 +69,10 @@ class TestBasicBinding
 		}
 
 		{	local foo = Foo();
+			foo.acceptNullBar(null);
+		}
+
+		{	local foo = Foo();
 			local bar = Bar();
 			foo.addBar(bar);
 			bar = null;	// Nothing in the script will have linkage with bar anymore

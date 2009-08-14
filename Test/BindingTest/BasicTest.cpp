@@ -54,6 +54,10 @@ public:
 		return ret;
 	}
 
+	void acceptNullBar(Bar* b) {
+		MCD_ASSERT(b == nullptr);
+	}
+
 	void printMe()
 	{
 		std::cout << "I am foo\n";
@@ -101,6 +105,7 @@ SCRIPT_CLASS_REGISTER_NAME(Foo, "Foo")
 	.wrappedMethod(L"addBar", &fooAddBar)
 	.method<objNoCare>(L"getBar", &Foo::getBar)
 	.method(L"detachBar", &Foo::detachBar)
+	.method(L"acceptNullBar", &Foo::acceptNullBar)
 ;}
 
 SCRIPT_CLASS_REGISTER_NAME(Bar, "Bar")

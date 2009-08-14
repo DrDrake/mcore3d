@@ -129,16 +129,16 @@ inline bool	match(TypeSelect<double>, HSQUIRRELVM v,int idx)			{ return (sq_gett
 inline bool	match(TypeSelect<const SQChar*>, HSQUIRRELVM v,int idx)		{ return sq_gettype(v,idx) == OT_STRING; }
 
 template<typename T>
-inline bool match(TypeSelect<const T*>, HSQUIRRELVM v,int idx)			{ return sq_gettype(v,idx) == OT_INSTANCE; }
+inline bool match(TypeSelect<const T*>, HSQUIRRELVM v,int idx)			{ SQObjectType t = sq_gettype(v,idx); return t == OT_INSTANCE || t == OT_NULL; }
 
 template<typename T>
-inline bool match(TypeSelect<T*>, HSQUIRRELVM v,int idx)				{ return sq_gettype(v,idx) == OT_INSTANCE; }
+inline bool match(TypeSelect<T*>, HSQUIRRELVM v,int idx)				{ SQObjectType t = sq_gettype(v,idx); return t == OT_INSTANCE || t == OT_NULL; }
 
 template<typename T>
-inline bool match(TypeSelect<const T&>, HSQUIRRELVM v,int idx)			{ return sq_gettype(v,idx) == OT_INSTANCE; }
+inline bool match(TypeSelect<const T&>, HSQUIRRELVM v,int idx)			{ SQObjectType t = sq_gettype(v,idx); return t == OT_INSTANCE || t == OT_NULL; }
 
 template<typename T>
-inline bool match(TypeSelect<T&>, HSQUIRRELVM v,int idx)				{ return sq_gettype(v,idx) == OT_INSTANCE; }
+inline bool match(TypeSelect<T&>, HSQUIRRELVM v,int idx)				{ SQObjectType t = sq_gettype(v,idx); return t == OT_INSTANCE || t == OT_NULL; }
 
 template<typename T>
 inline bool match(TypeSelect<GiveUpOwnership<T> >,HSQUIRRELVM v,int idx){ return match(TypeSelect<T>(), v, idx); }
@@ -167,10 +167,10 @@ template<typename T>
 inline T&				get(TypeSelect<T&>, HSQUIRRELVM v,int idx)				{ T* p; jkSCRIPT_API_VERIFY(sq_getinstanceup(v, idx, (SQUserPointer*)&p, ClassTraits<T>::classID())); return *p; }
 
 template<typename T>
-inline const T*			get(TypeSelect<const T*>, HSQUIRRELVM v,int idx)		{ T* p; jkSCRIPT_API_VERIFY(sq_getinstanceup(v, idx, (SQUserPointer*)&p, ClassTraits<T>::classID())); return p; }
+inline const T*			get(TypeSelect<const T*>, HSQUIRRELVM v,int idx)		{ if(sq_gettype(v,idx) == OT_NULL) return NULL; T* p; jkSCRIPT_API_VERIFY(sq_getinstanceup(v, idx, (SQUserPointer*)&p, ClassTraits<T>::classID())); return p; }
 
 template<typename T>
-inline T*				get(TypeSelect<T*>, HSQUIRRELVM v,int idx)				{ T* p; jkSCRIPT_API_VERIFY(sq_getinstanceup(v, idx, (SQUserPointer*)&p, ClassTraits<T>::classID())); return p; }
+inline T*				get(TypeSelect<T*>, HSQUIRRELVM v,int idx)				{ if(sq_gettype(v,idx) == OT_NULL) return NULL; T* p; jkSCRIPT_API_VERIFY(sq_getinstanceup(v, idx, (SQUserPointer*)&p, ClassTraits<T>::classID())); return p; }
 
 template<typename T>
 inline T				get(TypeSelect<GiveUpOwnership<T> >,HSQUIRRELVM v,int i){ return get(TypeSelect<T>(), v, i); }

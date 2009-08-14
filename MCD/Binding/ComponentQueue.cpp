@@ -118,10 +118,7 @@ struct ComponentQueueResult
 	typedef ComponentQueue::QueueNode QueueNode;
 	ComponentQueueResult() : component(nullptr), queueNode(nullptr) {}
 	const Component* getComponent() const { return component; }
-	const QueueNode* getQueueNode() const {
-		// TODO: Remove this hack
-		return queueNode ? queueNode : (QueueNode*)1;
-	}
+	const QueueNode* getQueueNode() const { return queueNode; }
 	const Component* component;
 	const QueueNode* queueNode;
 };	// ComponentQueueResult
@@ -132,9 +129,6 @@ SCRIPT_CLASS_DECLAR(ComponentQueue::QueueNode);
 static ComponentQueueResult* componentQueueGetItem(ComponentQueue& self, float currentTime, const ComponentQueue::QueueNode* begin)
 {
 	ComponentQueueResult result;
-	// TODO: Remove this hack
-	if(int(begin) == 1)
-		begin = nullptr;
 	result.queueNode = begin;
 	result.component = self.getItem(currentTime, result.queueNode);
 	return new ComponentQueueResult(result);
