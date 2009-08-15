@@ -49,16 +49,16 @@ IResourceLoader::LoadingState EntityPrototypeLoader::Impl::load(std::istream* is
 
 void EntityPrototypeLoader::Impl::commit(Resource& resource)
 {
-	Model model(resource.fileId());
-	m3dsLoader.commit(model);
+	ModelPtr model = new Model(resource.fileId());
+	m3dsLoader.commit(*model);
 
-	// convert Model to EntityPrototype
+	// Convert Model to EntityPrototype
 	EntityPrototype& ep = dynamic_cast<EntityPrototype&>(resource);
 
 	Entity* entRoot = new Entity;
 
-	for(Model::MeshAndMaterial* meshAndMat = model.mMeshes.begin()
-		; meshAndMat != model.mMeshes.end()
+	for(Model::MeshAndMaterial* meshAndMat = model->mMeshes.begin()
+		; meshAndMat != model->mMeshes.end()
 		; meshAndMat = meshAndMat->next()
 		)
 	{

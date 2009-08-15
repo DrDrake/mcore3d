@@ -21,7 +21,9 @@ FrameBufferSet::FrameBufferSet(
 	{		
 		BackRenderBuffer* bufferPtr = new BackRenderBuffer;
 		bufferPtr->create(width, height, GL_DEPTH_COMPONENT24, GL_DEPTH_ATTACHMENT_EXT);
-		bufferPtr->linkTo(mRenderTarget);
+
+		if(!bufferPtr->linkTo(mRenderTarget))
+			Log::format(Log::Error, L"FrameBufferSet::FrameBufferSet() failed to link render target");
 
 		mDepthBufferInfo.format = GL_DEPTH_COMPONENT24;
 		mDepthBufferInfo.isTexture = false;
@@ -46,12 +48,13 @@ FrameBufferSet::FrameBufferSet(
 		Texture::dataTypeAndComponents(format, dataType, components);
 		
 		TextureRenderBuffer* bufferPtr = new TextureRenderBuffer(GL_DEPTH_ATTACHMENT_EXT);
-		// depth texture must use GL_TEXTURE_RECTANGLE_ARB
+
+		// Depth texture must use GL_TEXTURE_RECTANGLE_ARB
 		if(!bufferPtr->create(width, height, GL_TEXTURE_RECTANGLE_ARB, format, dataType, components))
-		{
 			Log::format(Log::Error, L"FrameBufferSet: failed to create depth texture:%x", format);
-		}
-		bufferPtr->linkTo(mRenderTarget);
+
+		if(!bufferPtr->linkTo(mRenderTarget))
+			Log::format(Log::Error, L"FrameBufferSet::FrameBufferSet() failed to link render target");
 
 		mDepthBufferInfo.format = format;
 		mDepthBufferInfo.isTexture = true;
@@ -79,11 +82,15 @@ bool FrameBufferSet::textureBuffer(int format, const wchar_t* texname)
 		return false;
 	}
 
-	bufferPtr->linkTo(mRenderTarget);
+	if(!bufferPtr->linkTo(mRenderTarget))
+		return false;
 
-    mRenderTarget.bind();
-    checkFramebufferStatus(true);
-    mRenderTarget.unbind();
+	{	mRenderTarget.bind();
+		bool ok = checkFramebufferStatus(true);
+		mRenderTarget.unbind();
+		if(!ok)
+			return false;
+	}
 
 	BufferInfo buf;
 
@@ -102,47 +109,47 @@ bool FrameBufferSet::checkFramebufferStatus(bool reportSuccess)
 {
 	using namespace std;
 
-    // check FBO status
-    GLenum status = glCheckFramebufferStatusEXT(GL_FRAMEBUFFER_EXT);
-    switch(status)
-    {
-    case GL_FRAMEBUFFER_COMPLETE_EXT:
+	// check FBO status
+	GLenum status = glCheckFramebufferStatusEXT(GL_FRAMEBUFFER_EXT);
+	switch(status)
+	{
+	case GL_FRAMEBUFFER_COMPLETE_EXT:
 		if(reportSuccess)
 			Log::write(Log::Info, L"Framebuffer complete.");
-        return true;
+		return true;
 
-    case GL_FRAMEBUFFER_INCOMPLETE_ATTACHMENT_EXT:
+	case GL_FRAMEBUFFER_INCOMPLETE_ATTACHMENT_EXT:
 		Log::write(Log::Error, L"[ERROR] Framebuffer incomplete: Attachment is NOT complete.");
-        return false;
+		return false;
 
-    case GL_FRAMEBUFFER_INCOMPLETE_MISSING_ATTACHMENT_EXT:
-        Log::write(Log::Error, L"[ERROR] Framebuffer incomplete: No image is attached to FBO.");
-        return false;
+	case GL_FRAMEBUFFER_INCOMPLETE_MISSING_ATTACHMENT_EXT:
+		Log::write(Log::Error, L"[ERROR] Framebuffer incomplete: No image is attached to FBO.");
+		return false;
 
-    case GL_FRAMEBUFFER_INCOMPLETE_DIMENSIONS_EXT:
-        Log::write(Log::Error, L"[ERROR] Framebuffer incomplete: Attached images have different dimensions.");
-        return false;
+	case GL_FRAMEBUFFER_INCOMPLETE_DIMENSIONS_EXT:
+		Log::write(Log::Error, L"[ERROR] Framebuffer incomplete: Attached images have different dimensions.");
+		return false;
 
-    case GL_FRAMEBUFFER_INCOMPLETE_FORMATS_EXT:
-        Log::write(Log::Error, L"[ERROR] Framebuffer incomplete: Color attached images have different internal formats.");
-        return false;
+	case GL_FRAMEBUFFER_INCOMPLETE_FORMATS_EXT:
+		Log::write(Log::Error, L"[ERROR] Framebuffer incomplete: Color attached images have different internal formats.");
+		return false;
 
-    case GL_FRAMEBUFFER_INCOMPLETE_DRAW_BUFFER_EXT:
-        Log::write(Log::Error, L"[ERROR] Framebuffer incomplete: Draw buffer.");
-        return false;
+	case GL_FRAMEBUFFER_INCOMPLETE_DRAW_BUFFER_EXT:
+		Log::write(Log::Error, L"[ERROR] Framebuffer incomplete: Draw buffer.");
+		return false;
 
-    case GL_FRAMEBUFFER_INCOMPLETE_READ_BUFFER_EXT:
-        Log::write(Log::Error, L"[ERROR] Framebuffer incomplete: Read buffer.");
-        return false;
+	case GL_FRAMEBUFFER_INCOMPLETE_READ_BUFFER_EXT:
+		Log::write(Log::Error, L"[ERROR] Framebuffer incomplete: Read buffer.");
+		return false;
 
-    case GL_FRAMEBUFFER_UNSUPPORTED_EXT:
-        Log::write(Log::Error, L"[ERROR] Unsupported by FBO implementation.");
-        return false;
+	case GL_FRAMEBUFFER_UNSUPPORTED_EXT:
+		Log::write(Log::Error, L"[ERROR] Unsupported by FBO implementation.");
+		return false;
 
-    default:
-        Log::write(Log::Error, L"[ERROR] Unknow error.");
-        return false;
-    }
+	default:
+		Log::write(Log::Error, L"[ERROR] Unknow error.");
+		return false;
+	}
 }
 
 bool FrameBufferSet::begin(size_t n, const size_t* bufferIdxs)

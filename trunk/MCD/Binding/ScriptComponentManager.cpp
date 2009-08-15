@@ -58,9 +58,13 @@ ScriptComponentManager::ScriptComponentManager(IFileSystem& fs)
 				Class = scriptComponentManager.doFile(fileName);\n\
 				Class.thread <- null;	// Adds the thread variable\n\
 				Class.sleep <- function(second) {\n\
+					if(second < 0) second = 3.0e38;\n\
 					local wakeUpTime = ::gFrameTimer.accumulateTime + second;\n\
 					gComponentQueue.setItem(wakeUpTime, this);\n\
 					::suspend(null);\n\
+				}\n\
+				Class.wakeup <- function() {\n\
+					thread.wakeup(true);\n\
 				}\n\
 				_scriptComponentClassTable[fileName] <- Class;\n\
 			}\n\
@@ -92,7 +96,7 @@ ScriptComponentManager::ScriptComponentManager(IFileSystem& fs)
 				local component = queueResult.component;\n\
 				if(!component)\n\
 					break;\n\
-				component.thread.wakeup(true);\n\
+				component.wakeup();\n\
 			}\n\
 		}\n\
 		\n\

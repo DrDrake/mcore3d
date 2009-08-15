@@ -794,23 +794,7 @@ void Max3dsLoader::Impl::commit(Resource& resource)
 		if(mLoadOptions->keepMeshBuilders)
 			meshWithoutIndex->builder = modelInfo.meshBuilder;
 
-		if(modelInfo.multiSubObject.empty()) {
-			MeshPtr mesh = new Mesh(L"", *meshWithoutIndex);
-			mesh->setHandlePtr(Mesh::Index, Mesh::HandlePtr(new uint(0)));
-
-			MeshBuilderPtr indexBuilder = new MeshBuilder(false);
-			indexBuilder->enable(Mesh::Index);
-			size_t indexCount = modelInfo.index.size();
-			for(uint16_t i=0; i<indexCount; i+=3) {
-				indexBuilder->addTriangle(i+0, i+1, i+2);
-			}
-			indexBuilder->commit(*mesh, Mesh::Index, storageHint);
-
-			Model::MeshAndMaterial meshMat;
-			meshMat.mesh = mesh;
-			model.mMeshes.pushBack(meshMat);
-		}
-
+		// TODO: Handle empty multiSubObject. That is, those meshes without multi-subobject
 		MCD_FOREACH(const MultiSubObject& subObject, modelInfo.multiSubObject) {
 			// Share all the buffers in meshWithoutIndex into this mesh
 			// TODO: Add name to the mesh

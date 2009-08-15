@@ -74,13 +74,15 @@ TEST(ThreadedPhysicsComponentTest)
 			// Override the default loader of *.3ds file
 			mResourceManager.addFactory(new EntityPrototypeLoaderFactory(mResourceManager));
 
-			// Use a 3ds mesh as the ground
-			EntityPrototypeLoader::addEntityAfterLoad(
-				&mRootNode,
-				mResourceManager,
-				L"Scene/City/scene.3ds",
-				new MyLoadCallback(mDynamicsWorld)
-			);
+			{	// Use a 3ds mesh as the ground
+				std::auto_ptr<MyLoadCallback> callback(new MyLoadCallback(mDynamicsWorld));
+				EntityPrototypeLoader::addEntityAfterLoad(
+					&mRootNode,
+					mResourceManager,
+					L"Scene/City/scene.3ds",
+					callback.get()
+				);
+			}
 
 			// The maximum random displacement added to the balls
 			static const float randomness = 0.5f;

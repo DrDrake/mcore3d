@@ -20,13 +20,17 @@ public:
 
 	sal_override void draw();
 
+protected:
+	sal_override ~Model();
+
 public:
 	struct MeshAndMaterial : public LinkListBase::Node<MeshAndMaterial>
 	{
+		MeshAndMaterial();
+		~MeshAndMaterial();
+
 		MeshPtr mesh;
 		Material* material;
-
-		~MeshAndMaterial();
 	};	// MeshAndMaterial
 
 	typedef LinkList<MeshAndMaterial> MeshList;
