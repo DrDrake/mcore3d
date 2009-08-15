@@ -2,18 +2,16 @@
 #define __MCD_RENDER_FRAMEBUFFERSET__
 
 #include "ShareLib.h"
-#include "../Core/System/Noncopyable.h"
 #include "../Core/System/ResourceManager.h"
-
+#include "../../MCD/Render/BackRenderBuffer.h"
 #include "../../MCD/Render/RenderTarget.h"
 #include "../../MCD/Render/Texture.h"
 #include "../../MCD/Render/TextureRenderBuffer.h"
-#include "../../MCD/Render/BackRenderBuffer.h"
-
 
 namespace MCD
 {
 
+// TODO: Should this class have a name that is consit with class RenderBuffer?
 class MCD_RENDER_API FrameBufferSet : private Noncopyable
 {
 public:
@@ -32,48 +30,50 @@ public:
 		bool			isTexture;
 		GLenum			format;
 
-        Texture* texture() const
+        sal_maybenull Texture* texture() const
         {
             if(isTexture)
                 return static_cast<TextureRenderBuffer&>(*bufferPtr).texture.get();
             else
                 return nullptr;
         }
-	};
+	};	// BufferInfo
 
 public:
 	FrameBufferSet(IResourceManager& resMgr, GLuint width, GLuint height, DepthBufferType depthBufType, bool useTexRect);
 
 	~FrameBufferSet();
 
-	/*! Adds a new texture buffer
-	*/
-	bool textureBuffer(int format, const wchar_t* texname);
-
-	/*! Framebuffer width */
+// Attributes
+	//! Framebuffer width
 	size_t width() const {return mRenderTarget.width();}
 
-	/*! Framebuffer height */
+	//! Framebuffer height
 	size_t height() const {return mRenderTarget.height();}
 
 	/*! OpenGL texture target.
 		Used in glBindTexture(buf.target(), texHandle);
-	*/
+	 */
 	GLenum target() const {return mTexTarget;}
 
-	/*! # of buffers. */
-	size_t bufferCnt() const {return mBufferInfos.size();}
+	//! # of buffers.
+	size_t bufferCount() const {return mBufferInfos.size();}
 
-	/*! Info of each buffer. */
+	//!	Info of each buffer.
 	const BufferInfo& bufferInfo(size_t i) const {return mBufferInfos[i];}
 
-	/*! Info of depth buffer. */
+	//!	Info of depth buffer.
 	const BufferInfo& depthBufferInfo() const {return mDepthBufferInfo;}
+
+// Operations
+	/*! Adds a new texture buffer
+	*/
+	sal_checkreturn bool textureBuffer(int format, sal_in_z const wchar_t* texname);
 
 	/*! Begin to use this Framebuffer for rendering
 		The device current render target and viewport will be modified.
 	*/
-	bool begin(size_t n, const size_t* bufferIdxs);
+	bool begin(size_t n, sal_in_ecount(n) const size_t* bufferIdxs);
 
 	/*! Equals to:
 		size_t buffers[] = {bufid0};
@@ -99,11 +99,11 @@ public:
 	*/
 	bool begin(size_t bufid0, size_t bufid1, size_t bufid2, size_t bufid3);
 
-	/*! End to use this Framebuffer for rendering */
+	//! End to use this Framebuffer for rendering
 	void end();
 
-	/*! Checks this Framebuffer's status, returns true if everything is ok. */
-	bool checkFramebufferStatus(bool reportSuccess);
+	//! Checks this Framebuffer's status, returns true if everything is ok.
+	sal_checkreturn bool checkFramebufferStatus(bool reportSuccess);
 
 private:
 	IResourceManager&		mResMgr;
@@ -112,15 +112,15 @@ private:
 	std::vector<GLenum>		mDrawBuffers;
 	const GLenum			mTexTarget;
 	RenderTarget			mRenderTarget;
-};
+};	// FrameBufferSet
 
+// TODO: Should this class move to somewhere else?
 class MCD_RENDER_API ScreenQuad
 {
 public:
-	/*!
-		Assume the modelview matrix and projection matrix is set.
+	/*!	Assume the modelview matrix and projection matrix is set.
 		Or vertex shader is being used to handle the transformation.
-	*/
+	 */
 	static void draw(int textureTarget, size_t x, size_t y, size_t width, size_t height);
 };
 

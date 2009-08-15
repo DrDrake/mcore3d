@@ -6,8 +6,8 @@
 #include "../../MCD/Render/Material.h"
 #include "../../MCD/Render/Model.h"
 #include "../../MCD/Render/TangentSpaceBuilder.h"
+#include "../../MCD/Component/Render/EntityPrototypeLoader.h"
 #include "../../MCD/Component/Render/MeshComponent.h"
-#include "../../MCD/Component/Render/EntityPrototype.h"
 #include "../../MCD/Render/Mesh.h"
 
 using namespace MCD;
@@ -33,8 +33,10 @@ public:
 		// load normal mapping effect
 		mEffect = static_cast<Effect*>(mResourceManager.load(L"Material/normalmapping.fx.xml").get());
 
-		{
-			//mEntProto = dynamic_cast<EntityPrototype*>(mResourceManager.load(L"3M00696/buelllightning.3DS").get());
+		{	// TODO: Remove the use of Entity in render test
+			// Override the default loader of *.3ds file
+			mResourceManager.addFactory(new EntityPrototypeLoaderFactory(mResourceManager));
+
 			mEntProto = dynamic_cast<EntityPrototype*>(mResourceManager.load(L"Scene/City/scene.3ds", false, 0, L"tangents=true").get());
 		}
 		{	// Setup entity 1

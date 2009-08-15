@@ -15,8 +15,6 @@ using namespace MCD;
 namespace PostProcessingTest
 {
 
-/*! Test code
-*/
 class TestWindow : public BasicGlWindow
 {
 public:
@@ -97,14 +95,14 @@ public:
 		bool useTexRect = false;
 
 		mBuffersFull.reset( new FrameBufferSet(mResourceManager, width, height, FrameBufferSet::DepthBuffer_Texture24, useTexRect) );
-		mBuffersFull->textureBuffer(format, L"rtt:/full.0.buf");
-		mBuffersFull->textureBuffer(format, L"rtt:/full.1.buf");
+		MCD_VERIFY(mBuffersFull->textureBuffer(format, L"rtt:/full.0.buf"));
+		MCD_VERIFY(mBuffersFull->textureBuffer(format, L"rtt:/full.1.buf"));
 
 		GLuint halfWidth = std::max((GLuint)2, GLuint(width / 2));
 		GLuint halfHeight = std::max((GLuint)2, GLuint(height / 2));
 		mBuffersHalf.reset( new FrameBufferSet(mResourceManager, halfWidth, halfHeight, FrameBufferSet::DepthBuffer_Texture24, useTexRect) );
-		mBuffersHalf->textureBuffer(format, L"rtt:/half.0.buf");
-		mBuffersHalf->textureBuffer(format, L"rtt:/half.1.buf");
+		MCD_VERIFY(mBuffersHalf->textureBuffer(format, L"rtt:/half.0.buf"));
+		MCD_VERIFY(mBuffersHalf->textureBuffer(format, L"rtt:/half.1.buf"));
 		
 		// load normal mapping effect
 		mEffect = static_cast<Effect*>(mResourceManager.load(L"Material/postprocessingtest.fx.xml").get());
@@ -193,14 +191,17 @@ public:
 			FrameBufferSet& frameBuf = bufHalf;
 			frameBuf.begin(BUFFER0);
 
-			pass(mat, cPassId).textureProp(0)->texture = bufHalf.bufferInfo(BUFFER1).texture();
+			TextureProperty* texProp = pass(mat, cPassId).textureProp(0);
+			if(texProp)
+				texProp->texture = bufHalf.bufferInfo(BUFFER1).texture();
 			pass(mat, cPassId).preRender();
 
 			// bind shader uniform
-			ShaderProgram& program = *ShaderProgram::current();//*pass(mat, cPassId).shaderProp()->shaderProgram;
-			program.uniform2fv( "g_blurOffset", BLUR_KERNEL_SIZE, m_vblurOffset.data() );
-			program.uniform1fv( "g_blurKernel", BLUR_KERNEL_SIZE, m_blurKernel.data() );
-			program.uniform2f ( "g_InvTexSize", 1.0f / bufHalf.width(), 1.0f / bufHalf.height() );
+			if(ShaderProgram* program = ShaderProgram::current()) {
+				program->uniform2fv( "g_blurOffset", BLUR_KERNEL_SIZE, m_vblurOffset.data() );
+				program->uniform1fv( "g_blurKernel", BLUR_KERNEL_SIZE, m_blurKernel.data() );
+				program->uniform2f ( "g_InvTexSize", 1.0f / bufHalf.width(), 1.0f / bufHalf.height() );
+			}
 
 			// draw quad
 			//drawViewportQuad(0, 0, bufHalf.width(), bufHalf.height(), bufHalf.target());
@@ -214,10 +215,10 @@ public:
 		{	// copy to screen
 			const int cPassId = COPY_PASS;
 
-			pass(mat, cPassId).textureProp(0)->texture = bufFull.bufferInfo(BUFFER0).texture();
+			TextureProperty* texProp = pass(mat, cPassId).textureProp(0);
+			if(texProp)
+				texProp->texture = bufFull.bufferInfo(BUFFER0).texture();
 			pass(mat, cPassId).preRender();
-
-			//ShaderProgram& program = *ShaderProgram::current();//*pass(mat, cPassId).shaderProp()->shaderProgram;
 
 			// draw quad
 			//drawViewportQuad(0, 0, this->width(), this->height(), bufFull.target());
@@ -229,12 +230,14 @@ public:
 		{	// radial glow
 			const int cPassId = RADIAL_GLOW_PASS;
 
-			pass(mat, cPassId).textureProp(0)->texture = bufHalf.bufferInfo(BUFFER0).texture();
+			TextureProperty* texProp = pass(mat, cPassId).textureProp(0);
+			if(texProp)
+				texProp->texture = bufHalf.bufferInfo(BUFFER0).texture();
 			pass(mat, cPassId).preRender();
 			
 			// bind shader uniform
-			ShaderProgram& program = *ShaderProgram::current();//*pass(mat, cPassId).shaderProp()->shaderProgram;
-			program.uniform3fv("g_sunPos", 1, m_sunPos.data);
+			if(ShaderProgram* program = ShaderProgram::current())
+				program->uniform3fv("g_sunPos", 1, m_sunPos.data);
 
 			// draw quad
 			// preserve transforms since we need gl_ModelViewProjectionMatrox
@@ -250,9 +253,6 @@ public:
 
 			pass(mat, cPassId).textureProp(0)->texture = bufFull.depthBufferInfo().texture();
 			pass(mat, cPassId).preRender();
-			
-			// bind shader uniform
-			// ShaderProgram& program = *ShaderProgram::current();//*pass(mat, cPassId).shaderProp()->shaderProgram;
 			
 			// draw quad
 			//drawViewportQuad(0, 0, this->width(), this->height(), GL_TEXTURE_RECTANGLE_ARB);

@@ -6,15 +6,28 @@
 
 namespace MCD {
 
+Model::MeshAndMaterial::MeshAndMaterial()
+	: material(nullptr)
+{
+	delete material;
+}
+
 Model::MeshAndMaterial::~MeshAndMaterial()
 {
 	delete material;
+}
+
+Model::~Model()
+{
 }
 
 void Model::draw()
 {
 	for(MeshAndMaterial* meshAndMat = mMeshes.begin(); meshAndMat != mMeshes.end(); meshAndMat = meshAndMat->next())
 	{
+		if(!meshAndMat->mesh || !meshAndMat->material)
+			continue;
+
 		size_t passCount = meshAndMat->material->getPassCount();
 		for(size_t passId = 0; passId < passCount; ++passId)
 		{

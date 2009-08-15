@@ -36,34 +36,23 @@ struct AmbientCube
 		color[index*3+1] = _color.y;
 		color[index*3+2] = _color.z;
 	}
-};
+};	// AmbientCube
 
 class AmbientCubeSet
 {
 public:
-	AmbientCubeSet();
-	~AmbientCubeSet();
-
 	LinkList<AmbientCube> mMCubes;
 
 	bool isEmpty() const { return mMCubes.isEmpty(); }
 	sal_maybenull AmbientCube* findClosest(const Vec3f&);
-};
-
-AmbientCubeSet::AmbientCubeSet()
-{
-}
-
-AmbientCubeSet::~AmbientCubeSet()
-{
-}
+};	//AmbientCubeSet
 
 AmbientCube* AmbientCubeSet::findClosest(const Vec3f& targetPos)
 {
 	if(mMCubes.isEmpty())
 		return nullptr;
 
-	// currently just do a linear search, we will do a faster one later (if I have time :-P).
+	// Currently just do a linear search, we will do a faster one later (if I have time :-P).
 	AmbientCube* closestMCube = nullptr;
 	float closestDist = 0.0f;
 
@@ -111,8 +100,7 @@ public:
 			return nullptr;
 		}
 
-		std::auto_ptr<AmbientCubeSet> mcubes;
-		mcubes.reset( new AmbientCubeSet );
+		std::auto_ptr<AmbientCubeSet> mcubes(new AmbientCubeSet);
 
 		char line[256];
 		int lineNo = 1;
@@ -128,10 +116,9 @@ public:
 
 			if( ::strlen(line) > 0 )
 			{
-				std::auto_ptr<AmbientCube> mcube;
-				mcube.reset(new AmbientCube);
+				std::auto_ptr<AmbientCube> mcube(new AmbientCube);
 
-				int read = sscanf(line
+				int read = ::sscanf(line
 					, "%f,%f,%f;%f,%f,%f;%f,%f,%f;%f,%f,%f;%f,%f,%f;%f,%f,%f;%f,%f,%f;"
 					, &mcube->pos.x, &mcube->pos.y, &mcube->pos.z
 					, &mcube->color[ 0], &mcube->color[ 1], &mcube->color[ 2]
@@ -159,7 +146,7 @@ public:
 
 		return mcubes.release();
 	}
-};
+};	// AmbientCubeSetLoader
 
 //--------------------------------------------------------------------------
 namespace AmbientCubeTest
@@ -173,8 +160,8 @@ namespace AmbientCubeTest
 
 	public:
 		Object(const wchar_t* name, Entity* root
-			, const MeshPtr & mesh
-			, const EffectPtr & effect
+			, const MeshPtr& mesh
+			, const EffectPtr& effect
 			, AmbientCubeSet* mcubes)
 			: mMCubes(mcubes)
 		{
@@ -209,19 +196,25 @@ namespace AmbientCubeTest
 		{
 			if(nullptr != mMCubes && !mMCubes->isEmpty())
 			{
-				AmbientCube* mcube = mMCubes->findClosest(worldTransform().translation());
-				mAccmMCube.mix(*mcube, deltaTime * 2.0f);
+				if(AmbientCube* mcube = mMCubes->findClosest(worldTransform().translation()))
+					mAccmMCube.mix(*mcube, deltaTime * 2.0f);
 			}
 		}
 
 		Mat44f worldTransform() const
 		{
-			return mMeshComponent->entity()->worldTransform();
+			MCD_ASSUME(mMeshComponent);
+			Entity* e = mMeshComponent->entity();
+			MCD_ASSUME(e);
+			return e->worldTransform();
 		}
 
 		Mat44f& localTransform()
 		{
-			return mMeshComponent->entity()->localTransform;
+			MCD_ASSUME(mMeshComponent);
+			Entity* e = mMeshComponent->entity();
+			MCD_ASSUME(e);
+			return e->localTransform;
 		}
 
 		struct UserData
@@ -235,7 +228,10 @@ namespace AmbientCubeTest
 		public:
 			sal_override void preGeomRender(RenderableComponent& c)
 			{
-				UserData* userData = c.entity()->userData.getPtr<UserData>();
+				Entity* e = c.entity();
+				if(nullptr == e) return;
+
+				UserData* userData = e->userData.getPtr<UserData>();
 				if(nullptr == userData) return;
 
 				ShaderProgram* shd = ShaderProgram::current();

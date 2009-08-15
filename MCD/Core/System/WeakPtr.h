@@ -198,7 +198,7 @@ public:
 	}
 
 	T& operator*() const {
-		return *get();
+		return *getNotNull();
 	}
 
 	//sal_maybenull
