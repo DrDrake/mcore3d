@@ -225,7 +225,7 @@ SCRIPT_CLASS_DECLAR(ResourceLoadCallback);
 SCRIPT_CLASS_DECLAR(TestWindow);
 
 SCRIPT_CLASS_REGISTER_NAME(FrameTimer, "FrameTimer")
-	.enableGetset(L"FrameTimer")
+	.enableGetset()
 	.method(L"_getframeTime", &FrameTimer::frameTime)
 	.method(L"_getaccumulateTime", &FrameTimer::accumulateTime)
 	.method(L"_getfps", &FrameTimer::fps)
@@ -238,7 +238,7 @@ SCRIPT_CLASS_REGISTER(ResourceLoadCallback)
 ;}
 
 SCRIPT_CLASS_REGISTER_NAME(TestWindow, "MainWindow")
-	.enableGetset(L"MainWindow")
+	.enableGetset()
 	.method<objNoCare>(L"_getrootEntity", &TestWindow::rootNode)
 	.method(L"loadEntity", &TestWindow::loadEntity)
 	.method<objNoCare>(L"_getinputComponent", &TestWindow::inputComponent)

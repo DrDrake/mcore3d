@@ -13,29 +13,23 @@ class ClassTraits;
 
 namespace detail
 {
-	template<typename T>
-	class ClassTraits
-	{
-	public:
-		typedef T Class;
 
-		static inline ClassID classID()
-		{
-			return &_dummyField;
-		}
+template<typename T>
+class ClassTraits
+{
+public:
+	typedef T Class;
 
-	private:
-/*		static void _dummy()
-		{	//just dummy - to have unique class id
-			Class* ptr = 0;
-			delete ptr;
-		}*/
+	static inline ClassID classID() {
+		return &_dummyField;
+	}
 
-		static unsigned long _dummyField;
-	};
+private:
+	static unsigned long _dummyField;
+};	// ClassTraits
 
-	template<typename T>
-	unsigned long ClassTraits<T>::_dummyField = 0;
+template<typename T>
+unsigned long ClassTraits<T>::_dummyField = 0;
 
 }   //namespace detail
 

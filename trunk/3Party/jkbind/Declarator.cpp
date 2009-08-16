@@ -4,6 +4,11 @@ namespace script {
 
 namespace detail {
 
+Declarator::Declarator(const ScriptObject& hostObject, HSQUIRRELVM vm)
+	: _hostObject(hostObject), _vm(vm)
+{
+}
+
 void Declarator::pushFunction(const xchar* name, void* func, size_t sizeofFunc, SQFUNCTION dispatchFunc)
 {
 	sq_pushobject(_vm, _hostObject.getObjectHandle());
@@ -32,7 +37,12 @@ void Declarator::pushFunction(const xchar* name, void* func, size_t sizeofFunc, 
 	sq_pop(_vm, 1); // Popping class
 }
 
-void ClassDeclaratorBase::enableGetset(const xchar* className)
+ClassDeclaratorBase::ClassDeclaratorBase(const ScriptObject& hostObject, HSQUIRRELVM vm, const xchar* className)
+	: Declarator(hostObject, vm), mClassName(className)
+{
+}
+
+void ClassDeclaratorBase::enableGetset()
 {
 	const xchar get1[] = xSTRING("._get<-function(i){local g=::");
 	const xchar set1[] = xSTRING("._set<-function(i,v){local s=::");
@@ -41,17 +51,17 @@ void ClassDeclaratorBase::enableGetset(const xchar* className)
 	xchar buffer[256];
 
 	// Shut up MSVC code analysis warnings
-	if(::wcslen(className) + ((sizeof(set1) + sizeof(set2))/sizeof(xchar)) > (sizeof buffer/sizeof(xchar)))
+	if(::wcslen(mClassName) + ((sizeof(set1) + sizeof(set2))/sizeof(xchar)) > (sizeof buffer/sizeof(xchar)))
 		return;
 
-	::wcscpy(buffer, className);
+	::wcscpy(buffer, mClassName);
 	::wcscat(buffer, get1);
-	::wcscat(buffer, className);
+	::wcscat(buffer, mClassName);
 	::wcscat(buffer, get2);
 	runScript(buffer);
-	::wcscpy(buffer, className);
+	::wcscpy(buffer, mClassName);
 	::wcscat(buffer, set1);
-	::wcscat(buffer, className);
+	::wcscat(buffer, mClassName);
 	::wcscat(buffer, set2);
 	runScript(buffer);
 }
@@ -59,6 +69,11 @@ void ClassDeclaratorBase::enableGetset(const xchar* className)
 void ClassDeclaratorBase::runScript(const xchar* script)
 {
 	jkSCRIPT_LOGIC_VERIFY(script::runScript(_vm, script));
+}
+
+GlobalDeclarator::GlobalDeclarator(const ScriptObject& hostObject, HSQUIRRELVM vm)
+	: Declarator(hostObject, vm)
+{
 }
 
 GlobalDeclarator GlobalDeclarator::declareNamespace(const xchar* name)
@@ -78,7 +93,29 @@ GlobalDeclarator GlobalDeclarator::declareNamespace(const xchar* name)
 	return GlobalDeclarator(_hostObject.getValue(name), _vm);
 }
 
+ScriptObject GlobalDeclarator::pushClass(const xchar* className, ClassID classID, const std::type_info& typeID, ClassID parentClassID)
+{
+	if(ClassesManager::associateClassID)
+		ClassesManager::associateClassID(typeID, classID);
+
+	int top = sq_gettop(_vm);
+
+	ScriptObject newClass = ClassesManager::createClass(_vm, _hostObject, classID, className, parentClassID);
+
+	ClassesManager::disableCloningForClass(_vm, newClass);
+	ClassesManager::createMemoryControllerSlotForClass(_vm, newClass);
+
+	sq_settop(_vm,top);
+
+	return newClass;
+}
+
 }	// namespace detail
+
+RootDeclarator::RootDeclarator(script::VMCore* targetVM)
+	: GlobalDeclarator(_getRoot(targetVM->getVM()), targetVM->getVM())
+{
+}
 
 detail::ScriptObject RootDeclarator::_getRoot(HSQUIRRELVM vm)
 {

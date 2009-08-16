@@ -137,7 +137,7 @@ SCRIPT_CLASS_REGISTER_NAME(ComponentQueue::QueueNode, "__ComponentQueueNode__")
 ;}
 
 SCRIPT_CLASS_REGISTER_NAME(ComponentQueueResult, "ComponentQueueResult")
-	.enableGetset(L"ComponentQueueResult")
+	.enableGetset()
 	.constructor()
 	.method<objNoCare>(L"_getcomponent", &ComponentQueueResult::getComponent)
 	.method<objNoCare>(L"_getqueueNode", &ComponentQueueResult::getQueueNode)

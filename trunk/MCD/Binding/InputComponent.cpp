@@ -14,7 +14,7 @@ static Vec2f inputComponentGetMousePosition(InputComponent& self) {
 }
 SCRIPT_CLASS_REGISTER(InputComponent)
 	.declareClass<InputComponent, Component>(L"InputComponent")
-	.enableGetset(L"InputComponent")
+	.enableGetset()
 	.method(L"anyKey", &InputComponent::anyKey)
 	.method(L"anyKeyDown", &InputComponent::anyKeyDown)
 	.method(L"getAxis", &InputComponent::getAxis)
