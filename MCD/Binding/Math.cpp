@@ -47,7 +47,7 @@ static Mat44f scalarMulMat44(const Mat44f& lhs, float rhs) { return lhs * rhs; }
 static bool isEqualMat44(const Mat44f& lhs, const Mat44f& rhs) { return lhs == rhs; }
 
 SCRIPT_CLASS_REGISTER_NAME(Mat44f, "Mat44")
-	.enableGetset(L"Mat44")
+	.enableGetset()
 	.rawMethod(L"constructor", mat44Create)
 	.getset(L"m00", &Mat44f::m00)	.getset(L"m01", &Mat44f::m01)	.getset(L"m02", &Mat44f::m02)	.getset(L"m03", &Mat44f::m03)
 	.getset(L"m10", &Mat44f::m10)	.getset(L"m11", &Mat44f::m11)	.getset(L"m12", &Mat44f::m12)	.getset(L"m13", &Mat44f::m13)
@@ -110,7 +110,7 @@ static bool isEqualVec2(const Vec2f& lhs, const Vec2f& rhs) { return lhs == rhs;
 static void vec2MulEqual(Vec2f& lhs, float rhs) { lhs *= rhs; }
 
 SCRIPT_CLASS_REGISTER_NAME(Vec2f, "Vec2")
-	.enableGetset(L"Vec2")
+	.enableGetset()
 	.rawMethod(L"constructor", vec2Create)
 	.getset(L"x", &Vec2f::x)
 	.getset(L"y", &Vec2f::y)
@@ -164,7 +164,7 @@ static int cmpVec3(const Vec3f& lhs, const Vec3f& rhs) {
 }
 
 SCRIPT_CLASS_REGISTER_NAME(Vec3f, "Vec3")
-	.enableGetset(L"Vec3")
+	.enableGetset()
 	.rawMethod(L"constructor", vec3Create)
 	.method(L"dot", &Vec3f::dot)
 	.method(L"_modulo", &Vec3f::dot)

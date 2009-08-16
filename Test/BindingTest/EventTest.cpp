@@ -43,7 +43,7 @@ namespace script {
 SCRIPT_CLASS_DECLAR(Button);
 
 SCRIPT_CLASS_REGISTER_NAME(Button, "Button")
-	.enableGetset(L"Button")
+	.enableGetset()
 	.scriptEvent(L"onMousePressed", &Button::onMousePressed)
 	.staticMethod<objNoCare>(L"defaultButton", &Button::defaultButton)
 	.getset(L"x", &Button::posX)

@@ -15,7 +15,7 @@ namespace script {
 
 SCRIPT_CLASS_REGISTER(CameraComponent)
 	.declareClass<CameraComponent, Component>(L"CameraComponent")
-	.enableGetset(L"CameraComponent")
+	.enableGetset()
 	.constructor()
 ;}
 
@@ -34,7 +34,7 @@ static void meshComponentSetEffect(MeshComponent& self, Effect* effect) {
 
 SCRIPT_CLASS_REGISTER(MeshComponent)
 	.declareClass<MeshComponent, Component>(L"MeshComponent")
-	.enableGetset(L"MeshComponent")
+	.enableGetset()
 	.constructor()
 	.wrappedMethod<objRefCount<ResourceRefPolicy> >(L"_getmesh", &meshComponentGetMesh)
 	.wrappedMethod(L"_setmesh", &meshComponentSetMesh)
@@ -44,7 +44,7 @@ SCRIPT_CLASS_REGISTER(MeshComponent)
 
 SCRIPT_CLASS_REGISTER(RenderableComponent)
 	.declareClass<RenderableComponent, Component>(L"RenderableComponent")
-	.enableGetset(L"RenderableComponent")
+	.enableGetset()
 ;}
 
 }	// namespace script

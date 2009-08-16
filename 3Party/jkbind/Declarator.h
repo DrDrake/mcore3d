@@ -4,7 +4,6 @@
 #include "Events.h"
 #include "detail/Binding.h"
 #include "detail/Classes.h"
-#include "detail/ClassTraits.h"
 #include "detail/Constructors.h"
 #include "detail/Fields.h"
 #include "detail/ReturnPolicies.h"
@@ -20,13 +19,7 @@ namespace detail {
 class Declarator
 {
 public:
-	explicit Declarator(const ScriptObject& hostObject, HSQUIRRELVM vm)
-		: _hostObject(hostObject),
-		_vm(vm)
-	{
-	}
-
-	virtual ~Declarator() {}
+	JKBIND_API Declarator(const ScriptObject& hostObject, HSQUIRRELVM vm);
 
 protected:
 	/*!	Responsible for creating static and member function.
@@ -49,14 +42,13 @@ protected:
 class ClassDeclaratorBase : public Declarator
 {
 protected:
-	ClassDeclaratorBase(const ScriptObject& hostObject, HSQUIRRELVM vm)
-		:Declarator(hostObject, vm)
-	{
-	}
+	JKBIND_API ClassDeclaratorBase(const ScriptObject& hostObject, HSQUIRRELVM vm, const xchar* className);
 
-	JKBIND_API void enableGetset(const xchar* className);
+	JKBIND_API void enableGetset();
 
 	JKBIND_API void runScript(const xchar* script);
+
+	const xchar* mClassName;
 };	// ClassDeclaratorBase
 
 ///
@@ -68,8 +60,8 @@ class ClassDeclarator : public ClassDeclaratorBase
 public:
 	typedef T Class;
 
-	ClassDeclarator(const ScriptObject& hostObject, HSQUIRRELVM vm)
-		: ClassDeclaratorBase(hostObject, vm)
+	ClassDeclarator(const ScriptObject& hostObject, HSQUIRRELVM vm, const xchar* className)
+		: ClassDeclaratorBase(hostObject, vm, className)
 	{
 	}
 
@@ -86,31 +78,36 @@ public:
 	// Constructors
 	//
 
-	ClassDeclarator& constructor(const xchar* name = xSTRING("constructor")) {
+	ClassDeclarator& constructor(const xchar* name = xSTRING("constructor"))
+	{
 		T*(*fPtr)() = &constructionFunction<T>;
 		return staticMethod<construct>(name, fPtr);
 	}
 
 	template<typename A1>
-	ClassDeclarator& constructor(const xchar* name = xSTRING("constructor")) {
+	ClassDeclarator& constructor(const xchar* name = xSTRING("constructor"))
+	{
 		T*(*fPtr)(A1) = &constructionFunction<T, A1>;
 		return staticMethod<construct>(name, fPtr);
 	}
 
 	template<typename A1, typename A2>
-	ClassDeclarator& constructor(const xchar* name = xSTRING("constructor")) {
+	ClassDeclarator& constructor(const xchar* name = xSTRING("constructor"))
+	{
 		T*(*fPtr)(A1, A2) = &constructionFunction<T, A1, A2>;
 		return staticMethod<construct>(name, fPtr);
 	}
 
 	template<typename A1, typename A2, typename A3>
-	ClassDeclarator& constructor(const xchar* name = xSTRING("constructor")) {
+	ClassDeclarator& constructor(const xchar* name = xSTRING("constructor"))
+	{
 		T*(*fPtr)(A1, A2, A3) = &constructionFunction<T, A1, A2, A3>;
 		return staticMethod<construct>(name, fPtr);
 	}
 
 	template<typename A1, typename A2, typename A3, typename A4>
-	ClassDeclarator& constructor(const xchar* name = xSTRING("constructor")) {
+	ClassDeclarator& constructor(const xchar* name = xSTRING("constructor"))
+	{
 		T*(*fPtr)(A1, A2, A3, A4) = &constructionFunction<T, A1, A2, A3, A4>;
 		return staticMethod<construct>(name, fPtr);
 	}
@@ -231,13 +228,14 @@ public:
 	//   local g = ::className["_get"+i.tostring()];
 	//   return g == null ? null : g();
 	// }
-	// TODO: Remove the need to pass the class name
-	ClassDeclarator& enableGetset(const xchar* className) {
-		ClassDeclaratorBase::enableGetset(className);
+	ClassDeclarator& enableGetset()
+	{
+		ClassDeclaratorBase::enableGetset();
 		return *this;
 	}
 
-	ClassDeclarator& runScript(const xchar* script) {
+	ClassDeclarator& runScript(const xchar* script)
+	{
 		ClassDeclaratorBase::runScript(script);
 		return *this;
 	}
@@ -249,49 +247,26 @@ public:
 class GlobalDeclarator: public Declarator
 {
 public:
-	GlobalDeclarator(const ScriptObject& hostObject, HSQUIRRELVM vm)
-		: Declarator(hostObject, vm)
-	{
-	}
+	JKBIND_API GlobalDeclarator(const ScriptObject& hostObject, HSQUIRRELVM vm);
 
 	JKBIND_API GlobalDeclarator declareNamespace(const xchar* name);
 
 	template<typename T>
-	ClassDeclarator<T> declareClass(const xchar* scriptClassName)
+	ClassDeclarator<T> declareClass(const xchar* className)
 	{
-		ClassID classID = ClassTraits<T>::classID();
-
-		if(ClassesManager::associateClassID)
-			ClassesManager::associateClassID(typeid(T), classID);
-
-		int top = sq_gettop(_vm);
-
-		ScriptObject newClass = ClassesManager::createClass(_vm, _hostObject, classID, scriptClassName, 0);
-
-		ClassesManager::disableCloningForClass(_vm, newClass);
-		ClassesManager::createMemoryControllerSlotForClass(_vm, newClass);
-
-		sq_settop(_vm,top);
-		return ClassDeclarator<T>(newClass, _vm);
+		return ClassDeclarator<T>(
+			pushClass(className, ClassTraits<T>::classID(), typeid(T)),
+			_vm, className
+		);
 	}
 
 	template<typename T, typename PARENT>
-	ClassDeclarator<T> declareClass(const xchar* scriptClassName)
+	ClassDeclarator<T> declareClass(const xchar* className)
 	{
-		ClassID classID = ClassTraits<T>::classID();
-
-		if(ClassesManager::associateClassID)
-			ClassesManager::associateClassID(typeid(T), classID);
-
-		int top = sq_gettop(_vm);
-
-		ScriptObject newClass = ClassesManager::createClass(_vm, _hostObject, classID, scriptClassName, ClassTraits<PARENT>::classID());
-
-		ClassesManager::disableCloningForClass(_vm, newClass);
-		ClassesManager::createMemoryControllerSlotForClass(_vm, newClass);
-
-		sq_settop(_vm,top);
-		return ClassDeclarator<T>(newClass, _vm);
+		return ClassDeclarator<T>(
+			pushClass(className, ClassTraits<T>::classID(), typeid(T), ClassTraits<PARENT>::classID()),
+			_vm, className
+		);
 	}
 
 	template<typename ReturnPolicy, typename Func>
@@ -318,6 +293,9 @@ public:
 		pushFunction(name, NULL, 0, func);
 		return GlobalDeclarator(_hostObject, _vm);
 	}
+
+protected:
+	JKBIND_API ScriptObject pushClass(const xchar* className, ClassID classID, const std::type_info& typeID, ClassID parentClassID=0);
 };	// GlobalDeclarator
 
 }	//namespace detail
@@ -328,14 +306,11 @@ namespace script {
 class RootDeclarator: public detail::GlobalDeclarator
 {
 public:
-	RootDeclarator(script::VMCore* targetVM)
-		: GlobalDeclarator(_getRoot(targetVM->getVM()), targetVM->getVM())
-	{
-	}
+	JKBIND_API RootDeclarator(script::VMCore* targetVM);
 
 private:
 	JKBIND_API detail::ScriptObject _getRoot(HSQUIRRELVM vm);
-};
+};	// RootDeclarator
 
 }   //namespace script
 

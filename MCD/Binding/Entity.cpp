@@ -44,7 +44,7 @@ static int componentSetScriptHandle(HSQUIRRELVM vm)
 	return 1;
 }
 SCRIPT_CLASS_REGISTER_NAME(Component, "Component")
-	.enableGetset(L"Component")
+	.enableGetset()
 	.method<objNoCare>(L"_getentity", &Component::entity)
 	.rawMethod(L"_setScriptHandle", &componentSetScriptHandle)
 ;}
@@ -67,7 +67,7 @@ static void entityAddComponent(Entity& self, GiveUpOwnership<Component*> c) {
 	self.addComponent(c);
 }
 SCRIPT_CLASS_REGISTER_NAME(Entity, "Entity")
-	.enableGetset(L"Entity")
+	.enableGetset()
 	.constructor()
 	.wrappedMethod(L"addChild", &entityAddChild)
 	.wrappedMethod(L"insertBefore", &entityInsertBefore)
