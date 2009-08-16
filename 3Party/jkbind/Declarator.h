@@ -26,26 +26,50 @@ public:
 	{
 	}
 
-	virtual ~Declarator()
+	virtual ~Declarator() {}
+
+protected:
+	/*!	Responsible for creating static and member function.
+		\param func Address of the function, if the function is a member function use & operator before the function
+			if func == null it means creating a raw function
+		\param sizeofFunc Size of the function, pass 0 for static function
+
+		A table showing the combination of the parameters:
+		func    sizeofFunc    type of function
+		!null	> 0           member function
+		!null   == 0          static function
+		null    ignored       raw function
+	 */
+	JKBIND_API void pushFunction(const xchar* name, void* func, size_t sizeofFunc, SQFUNCTION dispatchFunc);
+
+	ScriptObject _hostObject;
+	HSQUIRRELVM _vm;
+};	// Declarator
+
+class ClassDeclaratorBase : public Declarator
+{
+protected:
+	ClassDeclaratorBase(const ScriptObject& hostObject, HSQUIRRELVM vm)
+		:Declarator(hostObject, vm)
 	{
 	}
 
-protected:
-	ScriptObject _hostObject;
-	HSQUIRRELVM _vm;
-};
+	JKBIND_API void enableGetset(const xchar* className);
+
+	JKBIND_API void runScript(const xchar* script);
+};	// ClassDeclaratorBase
 
 ///
 /// Declares new class members in script machine
 ///
 template<typename T>
-class ClassDeclarator: public Declarator
+class ClassDeclarator : public ClassDeclaratorBase
 {
 public:
 	typedef T Class;
 
 	ClassDeclarator(const ScriptObject& hostObject, HSQUIRRELVM vm)
-		:Declarator(hostObject, vm)
+		: ClassDeclaratorBase(hostObject, vm)
 	{
 	}
 
@@ -54,12 +78,7 @@ public:
 	template<typename Func>
 	ClassDeclarator& rawMethod(const xchar* name, Func func)
 	{
-		sq_pushobject(_vm, _hostObject.getObjectHandle());
-		sq_pushstring(_vm, name, -1);
-		sq_newclosure(_vm, func, 0);
-		jkSCRIPT_API_VERIFY(sq_newslot(_vm, -3, true));
-		sq_pop(_vm, 1); //popping host object
-
+		pushFunction(name, NULL, 0, func);
 		return *this;
 	}
 
@@ -103,56 +122,32 @@ public:
 	template<typename ReturnPolicy, typename Func>
 	ClassDeclarator& method(const xchar* name, Func func)
 	{
-		sq_pushobject(_vm, _hostObject.getObjectHandle());
-		sq_pushstring(_vm, name, -1);
-		pushFunctionPointer(_vm, func);
-		sq_newclosure(_vm, script::detail::DirectCallInstanceMemberFunction<Class, Func, ReturnPolicy>::Dispatch, 1);
-
-		jkSCRIPT_API_VERIFY(sq_newslot(_vm, -3, true));
-		sq_pop(_vm, 1); //popping class
-
+		pushFunction(name, &func, sizeof(func),
+			&DirectCallInstanceMemberFunction<Class, Func, ReturnPolicy>::Dispatch);
 		return *this;
 	}
 
 	template<typename Func>
 	ClassDeclarator& method(const xchar* name, Func func)
 	{
-		sq_pushobject(_vm, _hostObject.getObjectHandle());
-		sq_pushstring(_vm, name, -1);
-		pushFunctionPointer(_vm, func);
-		sq_newclosure(_vm, script::detail::DirectCallInstanceMemberFunction<Class, Func>::Dispatch, 1);
-
-		jkSCRIPT_API_VERIFY(sq_newslot(_vm, -3, true));
-		sq_pop(_vm, 1); //popping class
-
+		pushFunction(name, &func, sizeof(func),
+			&DirectCallInstanceMemberFunction<Class, Func>::Dispatch);
 		return *this;
 	}
 
 	template<typename ReturnPolicy, typename Func>
 	ClassDeclarator& wrappedMethod(const xchar* name, Func func)
 	{
-		sq_pushobject(_vm, _hostObject.getObjectHandle());
-		sq_pushstring(_vm, name, -1);
-		pushStaticFunctionPointer(_vm, func);
-		sq_newclosure(_vm, script::detail::IndirectCallInstanceMemberFunction<Class, Func, ReturnPolicy>::Dispatch, 1);
-
-		jkSCRIPT_API_VERIFY(sq_newslot(_vm, -3, true));
-		sq_pop(_vm, 1); //popping class
-
+		pushFunction(name, (void*)func, 0,
+			&IndirectCallInstanceMemberFunction<Class, Func, ReturnPolicy>::Dispatch);
 		return *this;
 	}
 
 	template<typename Func>
 	ClassDeclarator& wrappedMethod(const xchar* name, Func func)
 	{
-		sq_pushobject(_vm, _hostObject.getObjectHandle());
-		sq_pushstring(_vm, name, -1);
-		pushStaticFunctionPointer(_vm, func);
-		sq_newclosure(_vm, script::detail::IndirectCallInstanceMemberFunction<Class, Func>::Dispatch, 1);
-
-		jkSCRIPT_API_VERIFY(sq_newslot(_vm, -3, true));
-		sq_pop(_vm, 1); //popping class
-
+		pushFunction(name, (void*)func, 0,
+			&IndirectCallInstanceMemberFunction<Class, Func>::Dispatch);
 		return *this;
 	}
 
@@ -163,26 +158,16 @@ public:
 	template<typename ReturnPolicy, typename Func>
 	ClassDeclarator& staticMethod(const xchar* name, Func func)
 	{
-		sq_pushobject(_vm, _hostObject.getObjectHandle());
-		sq_pushstring(_vm, name, -1);
-		pushStaticFunctionPointer(_vm, func);
-		sq_newclosure(_vm, script::detail::DirectCallFunction<Func, ReturnPolicy>::Dispatch,1);
-		jkSCRIPT_API_VERIFY(sq_newslot(_vm, -3, true));
-		sq_pop(_vm, 1); //popping host object
-
+		pushFunction(name, (void*)func, 0,
+			&DirectCallFunction<Func, ReturnPolicy>::Dispatch);
 		return *this;
 	}
 
 	template<typename Func>
 	ClassDeclarator& staticMethod(const xchar* name, Func func)
 	{
-		sq_pushobject(_vm, _hostObject.getObjectHandle());
-		sq_pushstring(_vm, name, -1);
-		pushStaticFunctionPointer(_vm, func);
-		sq_newclosure(_vm, script::detail::DirectCallFunction<Func>::Dispatch,1);
-		jkSCRIPT_API_VERIFY(sq_newslot(_vm, -3, true));
-		sq_pop(_vm, 1); //popping host object
-
+		pushFunction(name, (void*)func, 0,
+			&DirectCallFunction<Func>::Dispatch);
 		return *this;
 	}
 
@@ -193,12 +178,7 @@ public:
 	template<typename Event>
 	ClassDeclarator& scriptEvent(const xchar* name, Event event)
 	{
-		sq_pushobject(_vm, _hostObject.getObjectHandle());
-		sq_pushstring(_vm, name, -1);
-		pushEventPointer(_vm, event);
-		sq_newclosure(_vm, &detail::eventObjectGetter<Class, Event>, 1);
-		jkSCRIPT_API_VERIFY(sq_createslot(_vm, -3));
-		sq_pop(_vm, 1); //popping host object
+		pushFunction(name, &event, sizeof(event), &eventObjectGetter<Class, Event>);
 		return *this;
 	}
 
@@ -209,14 +189,7 @@ public:
 	template<typename Field>
 	ClassDeclarator& setter(const xchar* name, Field field)
 	{
-		sq_pushobject(_vm, _hostObject.getObjectHandle());
-		sq_pushstring(_vm, name, -1);
-		pushFieldPointer(_vm, field);
-		sq_newclosure(_vm, script::detail::fieldSetterFunction<Class, Field>, 1);
-
-		jkSCRIPT_API_VERIFY(sq_newslot(_vm, -3, true));
-		sq_pop(_vm, 1); //popping class
-
+		pushFunction(name, &field, sizeof(field), &fieldSetterFunction<Class, Field>);
 		return *this;
 	}
 
@@ -225,17 +198,11 @@ public:
 	template<typename Field>
 	ClassDeclarator& getter(const xchar* name, Field field)
 	{
-		sq_pushobject(_vm, _hostObject.getObjectHandle());
-		sq_pushstring(_vm, name, -1);
-		pushFieldPointer(_vm, field);
 		typedef typename DetectFieldType<Field>::type fieldType;
 		typedef typename DefaultReturnPolicy<fieldType>::policy returnPolicy;
 		typedef typename GetterReturnPolicy<returnPolicy>::policy getterReturnPolicy;
-		sq_newclosure(_vm, script::detail::fieldGetterFunction<Class, Field, getterReturnPolicy>, 1);
-
-		jkSCRIPT_API_VERIFY(sq_newslot(_vm, -3, true));
-		sq_pop(_vm, 1); //popping class
-
+		pushFunction(name, &field, sizeof(field),
+			&fieldGetterFunction<Class, Field, getterReturnPolicy>);
 		return *this;
 	}
 
@@ -265,38 +232,16 @@ public:
 	//   return g == null ? null : g();
 	// }
 	// TODO: Remove the need to pass the class name
-	ClassDeclarator& enableGetset(const xchar* className)
-	{
-		const xchar get1[] = xSTRING("._get<-function(i){local g=::");
-		const xchar set1[] = xSTRING("._set<-function(i,v){local s=::");
-		const xchar get2[] = xSTRING("[\"_get\"+i.tostring()];return g==null?null:g()}");
-		const xchar set2[] = xSTRING("[\"_set\"+i.tostring()];return s==null?null:s(v)}");
-		xchar buffer[256];
-
-		// Shut up MSVC code analysis warnings
-		if(::wcslen(className) + ((sizeof(set1) + sizeof(set2))/sizeof(xchar)) > (sizeof buffer/sizeof(xchar)))
-			return *this;
-
-		::wcscpy(buffer, className);
-		::wcscat(buffer, get1);
-		::wcscat(buffer, className);
-		::wcscat(buffer, get2);
-		runScript(buffer);
-		::wcscpy(buffer, className);
-		::wcscat(buffer, set1);
-		::wcscat(buffer, className);
-		::wcscat(buffer, set2);
-		runScript(buffer);
-
+	ClassDeclarator& enableGetset(const xchar* className) {
+		ClassDeclaratorBase::enableGetset(className);
 		return *this;
 	}
 
-	ClassDeclarator& runScript(const xchar* script)
-	{
-		jkSCRIPT_LOGIC_VERIFY(script::runScript(_vm, script));
+	ClassDeclarator& runScript(const xchar* script) {
+		ClassDeclaratorBase::runScript(script);
 		return *this;
 	}
-};
+};	// ClassDeclarator
 
 ///
 /// Declares new classes, global functions etc in script machine
@@ -305,26 +250,11 @@ class GlobalDeclarator: public Declarator
 {
 public:
 	GlobalDeclarator(const ScriptObject& hostObject, HSQUIRRELVM vm)
-		:Declarator(hostObject, vm)
+		: Declarator(hostObject, vm)
 	{
 	}
 
-	GlobalDeclarator declareNamespace(const xchar* name)
-	{
-		if(!_hostObject.exists(name)) {
-			sq_pushobject(_vm, _hostObject.getObjectHandle());
-			sq_pushstring(_vm, name, -1);
-			sq_newtable(_vm);
-			StackHandler sh(_vm);
-			ScriptObject newHost(_vm, sh.getObjectHandle(-1));
-			jkSCRIPT_API_VERIFY(sq_createslot(_vm, -3));
-			sq_pop(_vm, 1);
-
-			return GlobalDeclarator(newHost, _vm);
-		}
-
-		return GlobalDeclarator(_hostObject.getValue(name), _vm);
-	}
+	JKBIND_API GlobalDeclarator declareNamespace(const xchar* name);
 
 	template<typename T>
 	ClassDeclarator<T> declareClass(const xchar* scriptClassName)
@@ -364,29 +294,19 @@ public:
 		return ClassDeclarator<T>(newClass, _vm);
 	}
 
-	template<typename ResultPolicy, typename Func>
+	template<typename ReturnPolicy, typename Func>
 	GlobalDeclarator declareFunction(const xchar* name, Func func)
 	{
-		sq_pushobject(_vm, _hostObject.getObjectHandle());
-		sq_pushstring(_vm, name, -1);
-		pushStaticFunctionPointer(_vm, func);
-		sq_newclosure(_vm, script::detail::DirectCallFunction<Func, ResultPolicy>::Dispatch, 1);
-		jkSCRIPT_API_VERIFY(sq_createslot(_vm, -3));
-		sq_pop(_vm, 1); //popping host object
-
+		pushFunction(name, (void*)func, 0,
+			&DirectCallFunction<Func, ReturnPolicy>::Dispatch);
 		return GlobalDeclarator(_hostObject, _vm);
 	}
 
 	template<typename Func>
 	GlobalDeclarator declareFunction(const xchar* name, Func func)
 	{
-		sq_pushobject(_vm, _hostObject.getObjectHandle());
-		sq_pushstring(_vm, name, -1);
-		pushStaticFunctionPointer(_vm, func);
-		sq_newclosure(_vm, script::detail::DirectCallFunction<Func>::Dispatch, 1);
-		jkSCRIPT_API_VERIFY(sq_createslot(_vm, -3));
-		sq_pop(_vm, 1); //popping host object
-
+		pushFunction(name, (void*)func, 0,
+			&DirectCallFunction<Func>::Dispatch);
 		return GlobalDeclarator(_hostObject, _vm);
 	}
 
@@ -395,16 +315,10 @@ public:
 	template<typename Func>
 	GlobalDeclarator rawFunction(const xchar* name, Func func)
 	{
-		sq_pushobject(_vm, _hostObject.getObjectHandle());
-		sq_pushstring(_vm, name, -1);
-		pushStaticFunctionPointer(_vm, func);
-		sq_newclosure(_vm, func, 1);
-		jkSCRIPT_API_VERIFY(sq_createslot(_vm, -3));
-		sq_pop(_vm, 1); //popping host object
-
+		pushFunction(name, NULL, 0, func);
 		return GlobalDeclarator(_hostObject, _vm);
 	}
-};
+};	// GlobalDeclarator
 
 }	//namespace detail
 }	//namespace script
@@ -420,14 +334,7 @@ public:
 	}
 
 private:
-	detail::ScriptObject _getRoot(HSQUIRRELVM vm)
-	{
-		sq_pushroottable(vm);
-		detail::StackHandler sh(vm);
-		detail::ScriptObject root(vm, sh.getObjectHandle(sh.getParamCount()));
-		sq_pop(vm, 1);
-		return root;
-	}
+	JKBIND_API detail::ScriptObject _getRoot(HSQUIRRELVM vm);
 };
 
 }   //namespace script
