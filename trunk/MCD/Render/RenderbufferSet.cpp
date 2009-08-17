@@ -1,13 +1,13 @@
 #include "Pch.h"
 
-#include "FramebufferSet.h"
+#include "RenderBufferSet.h"
 
 #include "../../MCD/Core/System/Log.h"
 
 namespace MCD
 {
 
-FrameBufferSet::FrameBufferSet(
+RenderBufferSet::RenderBufferSet(
 	IResourceManager& resMgr
 	, GLuint width, GLuint height
 	, DepthBufferType depthBufType
@@ -23,7 +23,7 @@ FrameBufferSet::FrameBufferSet(
 		bufferPtr->create(width, height, GL_DEPTH_COMPONENT24, GL_DEPTH_ATTACHMENT_EXT);
 
 		if(!bufferPtr->linkTo(mRenderTarget))
-			Log::format(Log::Error, L"FrameBufferSet::FrameBufferSet() failed to link render target");
+			Log::format(Log::Error, L"RenderBufferSet::RenderBufferSet() failed to link render target");
 
 		mDepthBufferInfo.format = GL_DEPTH_COMPONENT24;
 		mDepthBufferInfo.isTexture = false;
@@ -51,10 +51,10 @@ FrameBufferSet::FrameBufferSet(
 
 		// Depth texture must use GL_TEXTURE_RECTANGLE_ARB
 		if(!bufferPtr->create(width, height, GL_TEXTURE_RECTANGLE_ARB, format, dataType, components))
-			Log::format(Log::Error, L"FrameBufferSet: failed to create depth texture:%x", format);
+			Log::format(Log::Error, L"RenderBufferSet: failed to create depth texture:%x", format);
 
 		if(!bufferPtr->linkTo(mRenderTarget))
-			Log::format(Log::Error, L"FrameBufferSet::FrameBufferSet() failed to link render target");
+			Log::format(Log::Error, L"RenderBufferSet::RenderBufferSet() failed to link render target");
 
 		mDepthBufferInfo.format = format;
 		mDepthBufferInfo.isTexture = true;
@@ -62,23 +62,23 @@ FrameBufferSet::FrameBufferSet(
 	}
 }
 
-FrameBufferSet::~FrameBufferSet()
+RenderBufferSet::~RenderBufferSet()
 {
 }
 
-bool FrameBufferSet::textureBuffer(int format, const wchar_t* texname)
+bool RenderBufferSet::textureBuffer(int format, const wchar_t* texname)
 {
 	int dataType, components;
 
 	if (!Texture::dataTypeAndComponents(format, dataType, components))
 		return false;
 
-	TextureRenderBufferPtr bufferPtr = new TextureRenderBuffer(GLenum(GL_COLOR_ATTACHMENT0_EXT + mBufferInfos.size()));
+	TextureRenderBufferPtr bufferPtr = new TextureRenderBuffer(int(GL_COLOR_ATTACHMENT0_EXT + mBufferInfos.size()));
 
 	//todo: also specific dataType, components
 	if(!bufferPtr->create(mRenderTarget.width(), mRenderTarget.height(), mTexTarget, format, dataType, components, texname))
 	{
-		Log::format(Log::Error, L"FrameBufferSet: failed to create texture buffer:%s %x", texname, format);
+		Log::format(Log::Error, L"RenderBufferSet: failed to create texture buffer:%s %x", texname, format);
 		return false;
 	}
 
@@ -86,7 +86,7 @@ bool FrameBufferSet::textureBuffer(int format, const wchar_t* texname)
 		return false;
 
 	{	mRenderTarget.bind();
-		bool ok = checkFramebufferStatus(true);
+		bool ok = checkDeviceStatus(true);
 		mRenderTarget.unbind();
 		if(!ok)
 			return false;
@@ -105,12 +105,12 @@ bool FrameBufferSet::textureBuffer(int format, const wchar_t* texname)
 	return true;
 }
 
-bool FrameBufferSet::checkFramebufferStatus(bool reportSuccess)
+bool RenderBufferSet::checkDeviceStatus(bool reportSuccess)
 {
 	using namespace std;
 
 	// check FBO status
-	GLenum status = glCheckFramebufferStatusEXT(GL_FRAMEBUFFER_EXT);
+	int status = glCheckFramebufferStatusEXT(GL_FRAMEBUFFER_EXT);
 	switch(status)
 	{
 	case GL_FRAMEBUFFER_COMPLETE_EXT:
@@ -152,52 +152,50 @@ bool FrameBufferSet::checkFramebufferStatus(bool reportSuccess)
 	}
 }
 
-bool FrameBufferSet::begin(size_t n, const size_t* bufferIdxs)
+void RenderBufferSet::begin(size_t n, const size_t* bufferIdxs)
 {
 	if(mDrawBuffers.size() < n)
 		mDrawBuffers.resize(n);
 
 	for(size_t i = 0; i < n; ++i)
 	{
-		mDrawBuffers[i] = GLenum(GL_COLOR_ATTACHMENT0_EXT + bufferIdxs[i]);
+		mDrawBuffers[i] = int(GL_COLOR_ATTACHMENT0_EXT + bufferIdxs[i]);
 	}
 
 	mRenderTarget.bind();
 
 	glPushAttrib(GL_VIEWPORT_BIT | GL_COLOR_BUFFER_BIT);
 
-	glDrawBuffers(n, &mDrawBuffers[0]);
+	glDrawBuffers(n, (GLenum*)&mDrawBuffers[0]);
 
 	glViewport(0, 0, mRenderTarget.width(), mRenderTarget.height());
-
-	return checkFramebufferStatus(false);
 }
 
-bool FrameBufferSet::begin(size_t bufid0)
+void RenderBufferSet::begin(size_t bufid0)
 {
 	size_t buffers[] = {bufid0};
-	return begin(1, buffers);
+	begin(1, buffers);
 }
 
-bool FrameBufferSet::begin(size_t bufid0, size_t bufid1)
+void RenderBufferSet::begin(size_t bufid0, size_t bufid1)
 {
 	size_t buffers[] = {bufid0, bufid1};
-	return begin(2, buffers);
+	begin(2, buffers);
 }
 
-bool FrameBufferSet::begin(size_t bufid0, size_t bufid1, size_t bufid2)
+void RenderBufferSet::begin(size_t bufid0, size_t bufid1, size_t bufid2)
 {
 	size_t buffers[] = {bufid0, bufid1, bufid2};
-	return begin(3, buffers);
+	begin(3, buffers);
 }
 
-bool FrameBufferSet::begin(size_t bufid0, size_t bufid1, size_t bufid2, size_t bufid3)
+void RenderBufferSet::begin(size_t bufid0, size_t bufid1, size_t bufid2, size_t bufid3)
 {
 	size_t buffers[] = {bufid0, bufid1, bufid2, bufid3};
-	return begin(4, buffers);
+	begin(4, buffers);
 }
 
-void FrameBufferSet::end()
+void RenderBufferSet::end()
 {
 	glPopAttrib();
 	mRenderTarget.unbind();

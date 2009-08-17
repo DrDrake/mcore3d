@@ -1,7 +1,8 @@
-#ifndef __MCD_RENDER_FRAMEBUFFERSET__
-#define __MCD_RENDER_FRAMEBUFFERSET__
+#ifndef __MCD_RENDER_RENDERBUFFERSET__
+#define __MCD_RENDER_RENDERBUFFERSET__
 
 #include "ShareLib.h"
+#include "../Core/System/IntrusivePtr.h"
 #include "../Core/System/ResourceManager.h"
 #include "../../MCD/Render/BackRenderBuffer.h"
 #include "../../MCD/Render/RenderTarget.h"
@@ -12,7 +13,7 @@ namespace MCD
 {
 
 // TODO: Should this class have a name that is consit with class RenderBuffer?
-class MCD_RENDER_API FrameBufferSet : private Noncopyable
+class MCD_RENDER_API RenderBufferSet : private Noncopyable, public IntrusiveSharedObject<int>
 {
 public:
 	enum DepthBufferType
@@ -28,21 +29,21 @@ public:
 	{
 		RenderBufferPtr	bufferPtr;
 		bool			isTexture;
-		GLenum			format;
+		int			format;
 
-        sal_maybenull Texture* texture() const
-        {
-            if(isTexture)
-                return static_cast<TextureRenderBuffer&>(*bufferPtr).texture.get();
-            else
-                return nullptr;
-        }
+		sal_maybenull Texture* texture() const
+		{
+			if(isTexture)
+				return static_cast<TextureRenderBuffer&>(*bufferPtr).texture.get();
+			else
+				return nullptr;
+		}
 	};	// BufferInfo
 
 public:
-	FrameBufferSet(IResourceManager& resMgr, GLuint width, GLuint height, DepthBufferType depthBufType, bool useTexRect);
+	RenderBufferSet(IResourceManager& resMgr, GLuint width, GLuint height, DepthBufferType depthBufType, bool useTexRect);
 
-	~FrameBufferSet();
+	~RenderBufferSet();
 
 // Attributes
 	//! Framebuffer width
@@ -54,7 +55,7 @@ public:
 	/*! OpenGL texture target.
 		Used in glBindTexture(buf.target(), texHandle);
 	 */
-	GLenum target() const {return mTexTarget;}
+	int target() const {return mTexTarget;}
 
 	//! # of buffers.
 	size_t bufferCount() const {return mBufferInfos.size();}
@@ -67,52 +68,56 @@ public:
 
 // Operations
 	/*! Adds a new texture buffer
+		@param format A device specific texture format.
 	*/
 	sal_checkreturn bool textureBuffer(int format, sal_in_z const wchar_t* texname);
 
 	/*! Begin to use this Framebuffer for rendering
 		The device current render target and viewport will be modified.
+		Use checkDeviceStatus() to check the device status.
 	*/
-	bool begin(size_t n, sal_in_ecount(n) const size_t* bufferIdxs);
+	void begin(size_t n, sal_in_ecount(n) const size_t* bufferIdxs);
 
 	/*! Equals to:
 		size_t buffers[] = {bufid0};
 		begin(1, buffers);
 	*/
-	bool begin(size_t bufid0);
+	void begin(size_t bufid0);
 
 	/*! Equals to:
 		size_t buffers[] = {bufid0, bufid1};
 		begin(2, buffers);
 	*/
-	bool begin(size_t bufid0, size_t bufid1);
+	void begin(size_t bufid0, size_t bufid1);
 
 	/*! Equals to:
 		size_t buffers[] = {bufid0, bufid1, bufid2};
 		begin(3, buffers);
 	*/
-	bool begin(size_t bufid0, size_t bufid1, size_t bufid2);
+	void begin(size_t bufid0, size_t bufid1, size_t bufid2);
 
 	/*! Equals to:
 		size_t buffers[] = {bufid0, bufid1, bufid2, bufid3};
 		begin(4, buffers);
 	*/
-	bool begin(size_t bufid0, size_t bufid1, size_t bufid2, size_t bufid3);
+	void begin(size_t bufid0, size_t bufid1, size_t bufid2, size_t bufid3);
 
 	//! End to use this Framebuffer for rendering
 	void end();
 
-	//! Checks this Framebuffer's status, returns true if everything is ok.
-	sal_checkreturn bool checkFramebufferStatus(bool reportSuccess);
+	/*! Checks the device's status, returns true if everything is ok.
+		@param reportSuccess if true, a success message will be printed to Log().
+	*/
+	sal_checkreturn bool checkDeviceStatus(bool reportSuccess);
 
 private:
 	IResourceManager&		mResMgr;
 	std::vector<BufferInfo> mBufferInfos;
 	BufferInfo				mDepthBufferInfo;
-	std::vector<GLenum>		mDrawBuffers;
-	const GLenum			mTexTarget;
+	std::vector<int>		mDrawBuffers;
+	const int			mTexTarget;
 	RenderTarget			mRenderTarget;
-};	// FrameBufferSet
+};	// RenderBufferSet
 
 // TODO: Should this class move to somewhere else?
 class MCD_RENDER_API ScreenQuad
@@ -120,10 +125,10 @@ class MCD_RENDER_API ScreenQuad
 public:
 	/*!	Assume the modelview matrix and projection matrix is set.
 		Or vertex shader is being used to handle the transformation.
-	 */
+	*/
 	static void draw(int textureTarget, size_t x, size_t y, size_t width, size_t height);
 };
 
 }	// namespace MCD
 
-#endif	// __MCD_RENDER_FRAMEBUFFERSET__
+#endif	// __MCD_RENDER_RENDERBUFFERSET__

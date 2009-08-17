@@ -248,7 +248,7 @@
 				>
 			</File>
 			<File
-				RelativePath=".\FramebufferSet.h"
+				RelativePath=".\RenderBufferSet.h"
 				>
 			</File>
 			<File
@@ -401,7 +401,7 @@
 				>
 			</File>
 			<File
-				RelativePath=".\FramebufferSet.cpp"
+				RelativePath=".\RenderBufferSet.cpp"
 				>
 			</File>
 			<File
