@@ -4,7 +4,7 @@
 #include "../../MCD/Render/Effect.h"
 #include "../../MCD/Render/Material.h"
 #include "../../MCD/Render/Model.h"
-#include "../../MCD/Render/FramebufferSet.h"
+#include "../../MCD/Render/RenderBufferSet.h"
 #include "../../MCD/Render/ShaderProgram.h"
 #include "../../MCD/Core/Entity/Entity.h"
 #include "../../MCD/Core/System/Array.h"
@@ -94,13 +94,13 @@ public:
 
 		bool useTexRect = false;
 
-		mBuffersFull.reset( new FrameBufferSet(mResourceManager, width, height, FrameBufferSet::DepthBuffer_Texture24, useTexRect) );
+		mBuffersFull.reset( new RenderBufferSet(mResourceManager, width, height, RenderBufferSet::DepthBuffer_Texture24, useTexRect) );
 		MCD_VERIFY(mBuffersFull->textureBuffer(format, L"rtt:/full.0.buf"));
 		MCD_VERIFY(mBuffersFull->textureBuffer(format, L"rtt:/full.1.buf"));
 
 		GLuint halfWidth = std::max((GLuint)2, GLuint(width / 2));
 		GLuint halfHeight = std::max((GLuint)2, GLuint(height / 2));
-		mBuffersHalf.reset( new FrameBufferSet(mResourceManager, halfWidth, halfHeight, FrameBufferSet::DepthBuffer_Texture24, useTexRect) );
+		mBuffersHalf.reset( new RenderBufferSet(mResourceManager, halfWidth, halfHeight, RenderBufferSet::DepthBuffer_Texture24, useTexRect) );
 		MCD_VERIFY(mBuffersHalf->textureBuffer(format, L"rtt:/half.0.buf"));
 		MCD_VERIFY(mBuffersHalf->textureBuffer(format, L"rtt:/half.1.buf"));
 		
@@ -127,11 +127,11 @@ public:
 		Material* mat = mEffect->material.get();
 		if(!mat) return;
 
-		FrameBufferSet& bufHalf = *mBuffersHalf;
-		FrameBufferSet& bufFull = *mBuffersFull;
+		RenderBufferSet& bufHalf = *mBuffersHalf;
+		RenderBufferSet& bufFull = *mBuffersFull;
 
 		{	// scene pass
-			FrameBufferSet& frameBuf = bufFull;
+			RenderBufferSet& frameBuf = bufFull;
 
 			frameBuf.begin(BUFFER0);
 
@@ -143,7 +143,7 @@ public:
 		{	// sun extract pass
 			const int cPassId = SUN_EXTRACT_PASS;
 
-			FrameBufferSet& frameBuf = bufHalf;
+			RenderBufferSet& frameBuf = bufHalf;
 			frameBuf.begin(BUFFER0);
 
 			pass(mat, cPassId).textureProp(0)->texture = bufFull.bufferInfo(BUFFER0).texture();
@@ -164,7 +164,7 @@ public:
 		{	// horizontal blur pass
 			const int cPassId = BLUR_PASS;
 
-			FrameBufferSet& frameBuf = bufHalf;
+			RenderBufferSet& frameBuf = bufHalf;
 			frameBuf.begin(BUFFER1);
 
 			pass(mat, cPassId).textureProp(0)->texture = bufHalf.bufferInfo(BUFFER0).texture();
@@ -188,7 +188,7 @@ public:
 		{	// vertical blur pass
 			const int cPassId = BLUR_PASS;
 			
-			FrameBufferSet& frameBuf = bufHalf;
+			RenderBufferSet& frameBuf = bufHalf;
 			frameBuf.begin(BUFFER0);
 
 			TextureProperty* texProp = pass(mat, cPassId).textureProp(0);
@@ -370,8 +370,8 @@ public:
 	Array<float, BLUR_KERNEL_SIZE * 2> m_vblurOffset;
 	Array<float, BLUR_KERNEL_SIZE> m_blurKernel;
 
-	std::auto_ptr<FrameBufferSet> mBuffersFull;
-	std::auto_ptr<FrameBufferSet> mBuffersHalf;
+	std::auto_ptr<RenderBufferSet> mBuffersFull;
+	std::auto_ptr<RenderBufferSet> mBuffersHalf;
 
 };	// TestWindow
 

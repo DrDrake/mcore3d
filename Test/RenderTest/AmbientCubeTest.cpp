@@ -190,6 +190,9 @@ namespace AmbientCubeTest
 			mAccmMCube.setColor(3, Vec3f(0,0,0));
 			mAccmMCube.setColor(4, Vec3f(0,0,1));
 			mAccmMCube.setColor(5, Vec3f(0,0,0));
+
+            //mAccmMCube = (*mMCubes->findClosest(worldTransform().translation()));
+
 		}
 
 		void update(float deltaTime)
