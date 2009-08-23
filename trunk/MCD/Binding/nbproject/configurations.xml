@@ -4,14 +4,22 @@
     <logicalFolder name="Binding" displayName="Binding" projectFiles="true">
       <itemPath>Binding.cpp</itemPath>
       <itemPath>Binding.h</itemPath>
+      <itemPath>ComponentQueue.cpp</itemPath>
+      <itemPath>ComponentQueue.h</itemPath>
       <itemPath>Entity.cpp</itemPath>
       <itemPath>Entity.h</itemPath>
+      <itemPath>InputComponent.cpp</itemPath>
+      <itemPath>InputComponent.h</itemPath>
       <itemPath>Math.cpp</itemPath>
       <itemPath>Math.h</itemPath>
       <itemPath>Pch.cpp</itemPath>
       <itemPath>Pch.h</itemPath>
       <itemPath>Render.cpp</itemPath>
       <itemPath>Render.h</itemPath>
+      <itemPath>ScriptComponent.cpp</itemPath>
+      <itemPath>ScriptComponent.h</itemPath>
+      <itemPath>ScriptComponentManager.cpp</itemPath>
+      <itemPath>ScriptComponentManager.h</itemPath>
       <itemPath>ShareLib.h</itemPath>
       <itemPath>System.cpp</itemPath>
       <itemPath>System.h</itemPath>
@@ -31,20 +39,15 @@
         <platform>2</platform>
       </toolsSet>
       <compileType>
-        <ccCompilerTool>
-          <preprocessorList>
-            <Elem>UNICODE</Elem>
-          </preprocessorList>
-        </ccCompilerTool>
         <linkerTool>
           <linkerLibItems>
             <linkerLibProjectItem>
-              <makeArtifact PL="../3Party/squirrel"
+              <makeArtifact PL="../../3Party/squirrel"
                             CT="2"
                             CN="Debug"
                             AC="true"
                             BL="true"
-                            WD="../3Party/squirrel"
+                            WD="../../3Party/squirrel"
                             BC="${MAKE}  -f Makefile CONF=Debug"
                             CC="${MAKE}  -f Makefile CONF=Debug clean"
                             OP="dist/Debug/GNU-Linux-x86/libsquirrel.so">
@@ -59,10 +62,22 @@
       <item path="Binding.h">
         <itemTool>3</itemTool>
       </item>
+      <item path="ComponentQueue.cpp">
+        <itemTool>1</itemTool>
+      </item>
+      <item path="ComponentQueue.h">
+        <itemTool>3</itemTool>
+      </item>
       <item path="Entity.cpp">
         <itemTool>1</itemTool>
       </item>
       <item path="Entity.h">
+        <itemTool>3</itemTool>
+      </item>
+      <item path="InputComponent.cpp">
+        <itemTool>1</itemTool>
+      </item>
+      <item path="InputComponent.h">
         <itemTool>3</itemTool>
       </item>
       <item path="Math.cpp">
@@ -81,6 +96,18 @@
         <itemTool>1</itemTool>
       </item>
       <item path="Render.h">
+        <itemTool>3</itemTool>
+      </item>
+      <item path="ScriptComponent.cpp">
+        <itemTool>1</itemTool>
+      </item>
+      <item path="ScriptComponent.h">
+        <itemTool>3</itemTool>
+      </item>
+      <item path="ScriptComponentManager.cpp">
+        <itemTool>1</itemTool>
+      </item>
+      <item path="ScriptComponentManager.h">
         <itemTool>3</itemTool>
       </item>
       <item path="ShareLib.h">
@@ -105,9 +132,6 @@
         </cCompilerTool>
         <ccCompilerTool>
           <developmentMode>5</developmentMode>
-          <preprocessorList>
-            <Elem>UNICODE</Elem>
-          </preprocessorList>
         </ccCompilerTool>
         <fortranCompilerTool>
           <developmentMode>5</developmentMode>
@@ -115,12 +139,12 @@
         <linkerTool>
           <linkerLibItems>
             <linkerLibProjectItem>
-              <makeArtifact PL="../3Party/squirrel"
+              <makeArtifact PL="../../3Party/squirrel"
                             CT="2"
                             CN="Release"
                             AC="false"
                             BL="true"
-                            WD="../3Party/squirrel"
+                            WD="../../3Party/squirrel"
                             BC="${MAKE}  -f Makefile CONF=Release"
                             CC="${MAKE}  -f Makefile CONF=Release clean"
                             OP="dist/Release/GNU-Linux-x86/libsquirrel.so">
@@ -135,10 +159,22 @@
       <item path="Binding.h">
         <itemTool>3</itemTool>
       </item>
+      <item path="ComponentQueue.cpp">
+        <itemTool>1</itemTool>
+      </item>
+      <item path="ComponentQueue.h">
+        <itemTool>3</itemTool>
+      </item>
       <item path="Entity.cpp">
         <itemTool>1</itemTool>
       </item>
       <item path="Entity.h">
+        <itemTool>3</itemTool>
+      </item>
+      <item path="InputComponent.cpp">
+        <itemTool>1</itemTool>
+      </item>
+      <item path="InputComponent.h">
         <itemTool>3</itemTool>
       </item>
       <item path="Math.cpp">
@@ -157,6 +193,18 @@
         <itemTool>1</itemTool>
       </item>
       <item path="Render.h">
+        <itemTool>3</itemTool>
+      </item>
+      <item path="ScriptComponent.cpp">
+        <itemTool>1</itemTool>
+      </item>
+      <item path="ScriptComponent.h">
+        <itemTool>3</itemTool>
+      </item>
+      <item path="ScriptComponentManager.cpp">
+        <itemTool>1</itemTool>
+      </item>
+      <item path="ScriptComponentManager.h">
         <itemTool>3</itemTool>
       </item>
       <item path="ShareLib.h">

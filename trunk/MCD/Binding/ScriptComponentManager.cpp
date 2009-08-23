@@ -18,7 +18,7 @@ static int scriptComponentManagerDoFile(HSQUIRRELVM v)
 
 SCRIPT_CLASS_DECLAR(ScriptComponentManager);
 SCRIPT_CLASS_REGISTER_NAME(ScriptComponentManager, "ScriptComponentManager")
-	.rawMethod(L"doFile", &scriptComponentManagerDoFile)
+	.rawMethod(xSTRING("doFile"), &scriptComponentManagerDoFile)
 ;}
 
 }	// namespace script
@@ -29,11 +29,11 @@ ScriptComponentManager::ScriptComponentManager(IFileSystem& fs)
 	: fileSystem(fs)
 {
 	// Install a println function
-	vm.runScript(L"function println(s) { print(s + \"\\n\"); }");
+	vm.runScript(xSTRING("function println(s) { print(s + \"\\n\"); }"));
 
 	// Initialize the file name to class mapping, and the script component factory function
 	// TODO: Error handling, ensure the script file does return a class
-	vm.runScript(L"\
+	vm.runScript(xSTRING("\
 		_scriptComponentClassTable <- {};\n\
 		gComponentQueue <- ComponentQueue();\n\
 		\n\
@@ -107,7 +107,7 @@ ScriptComponentManager::ScriptComponentManager(IFileSystem& fs)
 			}\n\
 //			_scriptComponentInstanceSet = null;\n\
 		}\n\
-	");
+	"));
 
 	HSQUIRRELVM v = reinterpret_cast<HSQUIRRELVM>(vm.getImplementationHandle());
 	script::VMCore* v_ = (script::VMCore*)sq_getforeignptr(v);
@@ -115,7 +115,7 @@ ScriptComponentManager::ScriptComponentManager(IFileSystem& fs)
 
 	// Set a global variable to the script manager.
 	sq_pushroottable(v);
-	sq_pushstring(v, L"scriptComponentManager", -1);
+	sq_pushstring(v, xSTRING("scriptComponentManager"), -1);
 	script::objNoCare::pushResult(v, this);
 	sq_rawset(v, -3);
 	sq_pop(v, 1);	// Pops the root table
@@ -126,7 +126,7 @@ ScriptComponentManager::ScriptComponentManager(IFileSystem& fs)
  */
 static SQInteger sqReadUtf8(SQUserPointer file) throw()
 {
-#define READ() inchar = unsigned char(is->get()); if(is->gcount() != 1) { return 0; }
+#define READ() inchar = (unsigned char)(is->get()); if(is->gcount() != 1) { return 0; }
 
 	std::istream* is = reinterpret_cast<std::istream*>(file);
 
@@ -138,7 +138,7 @@ static SQInteger sqReadUtf8(SQUserPointer file) throw()
 		3,					// 1110 : 3 bytes
 		4					// 1111 :4 bytes
 	};
-	static unsigned char byte_masks[5] = { 0, 0, 0x1f, 0x0f, 0x07 };
+	static const unsigned char byte_masks[5] = { 0, 0, 0x1f, 0x0f, 0x07 };
 	unsigned char inchar;
 	SQInteger c = 0;
 	READ();
@@ -166,8 +166,8 @@ static bool loadFile(HSQUIRRELVM v, IFileSystem& fs, const Path& filePath)
 {
 	std::auto_ptr<std::istream> is(fs.openRead(filePath));
 	if(!is.get()) {
-		std::wstring s = L"Script file: \"";
-		s += filePath.getString() + L"\" not found";
+		stdSTRING s = xSTRING("Script file: \"");
+		s += filePath.getString() + xSTRING("\" not found");
 		sq_getprintfunc(v)(v, s.c_str());
 		return false;
 	}
@@ -181,7 +181,7 @@ void ScriptComponentManager::registerRootEntity(Entity& entity)
 
 	// Set a global variable to the root entity.
 	sq_pushroottable(v);
-	sq_pushstring(v, L"rootEntity", -1);
+	sq_pushstring(v, xSTRING("rootEntity"), -1);
 	script::objNoCare::pushResult(v, &entity);
 	sq_rawset(v, -3);
 	sq_pop(v, 1);	// Pops the root table
@@ -215,11 +215,11 @@ bool ScriptComponentManager::doFile(const Path& filePath, bool retval)
 }
 
 void ScriptComponentManager::updateScriptComponents() {
-	vm.runScript(L"updateAllScriptComponent();");
+	vm.runScript(xSTRING("updateAllScriptComponent();"));
 }
 
 void ScriptComponentManager::shutdown() {
-	vm.runScript(L"shutdownAllScriptComponent();");
+	vm.runScript(xSTRING("shutdownAllScriptComponent();"));
 }
 
 }	// namespace MCD

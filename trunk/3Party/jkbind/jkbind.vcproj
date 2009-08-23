@@ -282,17 +282,13 @@
 				>
 			</File>
 			<File
+				RelativePath=".\detail\ScriptObject.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\VMCore.cpp"
 				>
 			</File>
-			<Filter
-				Name="detail"
-				>
-				<File
-					RelativePath=".\detail\ScriptObject.cpp"
-					>
-				</File>
-			</Filter>
 		</Filter>
 	</Files>
 	<Globals>

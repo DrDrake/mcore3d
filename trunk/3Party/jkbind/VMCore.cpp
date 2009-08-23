@@ -56,8 +56,8 @@ void VMCore::collectGarbage()
 
 bool runScript(HSQUIRRELVM v, const xchar* script)
 {
-	const wchar_t* scriptName = L"tmp";
-	sq_compilebuffer(v, script, SQInteger(::wcslen(script)), scriptName, true);
+	const xchar* scriptName = xSTRING("tmp");
+	sq_compilebuffer(v, script, SQInteger(scstrlen(script)), scriptName, true);
 	sq_pushroottable(v);
 
 	return SQ_SUCCEEDED(sq_call(v, 1, false, true));

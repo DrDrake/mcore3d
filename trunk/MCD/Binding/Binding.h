@@ -4,6 +4,9 @@
 #include "ShareLib.h"
 #include "../Core/System/Platform.h"
 
+//struct SQVM;
+//typedef struct SQVM* HSQUIRRELVM;
+
 namespace MCD {
 
 /*!	Represent a scripting virtual machine.
@@ -38,6 +41,16 @@ typedef void* ClassID;
 namespace types {
 
 extern ClassID getClassIDFromTypeInfo(const std::type_info& typeInfo, ClassID original);
+/*
+template<typename T> class TypeSelect;
+
+#ifdef SQUNICODE
+extern void push(HSQUIRRELVM v, const char* value);
+extern const char* get(TypeSelect<const char*>, HSQUIRRELVM v, int idx);
+#else
+extern void push(HSQUIRRELVM v, const wchar_t* value);
+extern const wchar_t* get(TypeSelect<const wchar_t*>, HSQUIRRELVM v, int idx);
+#endif*/
 
 }	// namespace types
 

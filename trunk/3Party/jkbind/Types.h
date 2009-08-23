@@ -2,7 +2,11 @@
 #define ___BASE_TYPES_H___
 
 #ifndef JKBIND_API
+#ifdef _MSC_VER
 #	define JKBIND_API __declspec(dllimport)
+#else
+#	define JKBIND_API
+#endif
 #endif
 
 #ifdef _MSC_VER
@@ -57,16 +61,18 @@ typedef wchar_t wchar;
 
 #if(jkUNICODE) || defined(UNICODE) || defined(_UNICODE)
 	typedef wchar xchar;
-#	define xSTRING(text) L##text
+#	define xSTRING(text)		L##text
+#	define stdSTRING			::std::wstring
 
-#	define WIDEN2(x) L ## x
-#	define WIDEN(x) WIDEN2(x)
+#	define WIDEN2(x)			L ## x
+#	define WIDEN(x)				WIDEN2(x)
 #	define __STRINGFILE__       WIDEN(__FILE__)
 #	define __STRINGTIMESTAMP__  WIDEN(__TIMESTAMP__)
 #	define __STRINGFUNCSIG__    WIDEN(__FUNCSIG__)
 #else
 	typedef char xchar;
-#	define xSTRING(text) text
+#	define xSTRING(text)		text
+#	define stdSTRING ::std::	string
 
 #	define __STRINGFILE__       __FILE__
 #	define __STRINGTIMESTAMP__  __TIMESTAMP__

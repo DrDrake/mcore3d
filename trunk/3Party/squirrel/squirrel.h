@@ -118,6 +118,7 @@ struct SQDelegable;
 
 typedef wchar_t SQChar;
 #define _SC(a) L##a
+#define	scscat		wcscat
 #define	scstrcmp	wcscmp
 #define scsprintf	swprintf
 #define scstrlen	wcslen
@@ -138,6 +139,7 @@ typedef wchar_t SQChar;
 #else
 typedef char SQChar;
 #define _SC(a) a
+#define	scscat		strcat
 #define	scstrcmp	strcmp
 #define scsprintf	sprintf
 #define scstrlen	strlen

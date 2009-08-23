@@ -32,8 +32,14 @@ inline void push(HSQUIRRELVM v,long value)				{ sq_pushinteger(v,value); }
 inline void push(HSQUIRRELVM v,unsigned long value)		{ sq_pushinteger(v,value); }
 inline void push(HSQUIRRELVM v,double value)			{ sq_pushfloat(v,(SQFloat)value); }
 inline void push(HSQUIRRELVM v,float value)				{ sq_pushfloat(v,(SQFloat)value); }
-inline void push(HSQUIRRELVM v,const SQChar* value)		{ sq_pushstring(v,value,-1); }
 inline void push(HSQUIRRELVM v,bool value)				{ sq_pushbool(v,value); }
+#ifdef SQUNICODE
+extern void push(HSQUIRRELVM v,const char* value);		// User implement
+inline void push(HSQUIRRELVM v,const wchar_t* value)	{ sq_pushstring(v,value,-1); }
+#else
+inline void push(HSQUIRRELVM v,const char* value)		{ sq_pushstring(v,value,-1); }
+extern void push(HSQUIRRELVM v,const wchar_t* value);	// User implement
+#endif
 
 /*!	The binding engine use this function to associate scripting handle
 	to the supplied cpp object, providing a strong linkage between a
@@ -126,7 +132,8 @@ inline bool	match(TypeSelect<long>, HSQUIRRELVM v,int idx)				{ return (sq_getty
 inline bool	match(TypeSelect<unsigned long>, HSQUIRRELVM v,int idx)		{ return (sq_gettype(v,idx) & SQOBJECT_NUMERIC) > 0; }
 inline bool	match(TypeSelect<float>, HSQUIRRELVM v,int idx)				{ return (sq_gettype(v,idx) & SQOBJECT_NUMERIC) > 0; }
 inline bool	match(TypeSelect<double>, HSQUIRRELVM v,int idx)			{ return (sq_gettype(v,idx) & SQOBJECT_NUMERIC) > 0; }
-inline bool	match(TypeSelect<const SQChar*>, HSQUIRRELVM v,int idx)		{ return sq_gettype(v,idx) == OT_STRING; }
+inline bool	match(TypeSelect<const char*>, HSQUIRRELVM v,int idx)		{ return sq_gettype(v,idx) == OT_STRING; }
+inline bool	match(TypeSelect<const wchar_t*>, HSQUIRRELVM v,int idx)	{ return sq_gettype(v,idx) == OT_STRING; }
 
 template<typename T>
 inline bool match(TypeSelect<const T*>, HSQUIRRELVM v,int idx)			{ SQObjectType t = sq_gettype(v,idx); return t == OT_INSTANCE || t == OT_NULL; }
@@ -158,7 +165,13 @@ inline long				get(TypeSelect<long>,HSQUIRRELVM v,int idx)				{ SQInteger i; jkS
 inline unsigned long	get(TypeSelect<unsigned long>,HSQUIRRELVM v,int idx)	{ SQInteger i; jkSCRIPT_API_VERIFY(sq_getinteger(v,idx,&i)); return static_cast<unsigned long>(i); }
 inline float			get(TypeSelect<float>,HSQUIRRELVM v,int idx)			{ SQFloat f; jkSCRIPT_API_VERIFY(sq_getfloat(v,idx,&f)); return f; }
 inline double			get(TypeSelect<double>,HSQUIRRELVM v,int idx)			{ SQFloat f; jkSCRIPT_API_VERIFY(sq_getfloat(v,idx,&f)); return static_cast<double>(f); }
-inline const SQChar*	get(TypeSelect<const SQChar*>,HSQUIRRELVM v,int idx)	{ const SQChar* s; jkSCRIPT_API_VERIFY(sq_getstring(v,idx,&s)); return s; }
+#ifdef SQUNICODE
+extern const char*		get(TypeSelect<const char*>,HSQUIRRELVM v,int idx);		// User implement
+inline const wchar_t*	get(TypeSelect<const wchar_t*>,HSQUIRRELVM v,int idx)	{ const wchar_t* s; jkSCRIPT_API_VERIFY(sq_getstring(v,idx,&s)); return s; }
+#else
+inline const char*		get(TypeSelect<const char*>,HSQUIRRELVM v,int idx)		{ const char* s; jkSCRIPT_API_VERIFY(sq_getstring(v,idx,&s)); return s; }
+extern const wchar_t*	get(TypeSelect<const wchar_t*>,HSQUIRRELVM v,int idx);	// User implement
+#endif
 
 template<typename T>
 inline const T&			get(TypeSelect<const T&>, HSQUIRRELVM v,int idx)		{ T* p; jkSCRIPT_API_VERIFY(sq_getinstanceup(v, idx, (SQUserPointer*)&p, ClassTraits<T>::classID())); return *p; }
@@ -252,8 +265,14 @@ template<> struct GetterSetter<double> {
 	typedef type setterType;
 	static inline getterType get(type val) { return val; }
 };
-template<> struct GetterSetter<const SQChar*> {
-	typedef const SQChar* type;
+template<> struct GetterSetter<const char*> {
+	typedef const char* type;
+	typedef type getterType;
+	typedef type setterType;
+	static inline getterType get(type val) { return val; }
+};
+template<> struct GetterSetter<const wchar_t*> {
+	typedef const wchar_t* type;
 	typedef type getterType;
 	typedef type setterType;
 	static inline getterType get(type val) { return val; }

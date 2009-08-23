@@ -14,7 +14,7 @@ using namespace MCD;
 namespace script {
 
 SCRIPT_CLASS_REGISTER(CameraComponent)
-	.declareClass<CameraComponent, Component>(L"CameraComponent")
+	.declareClass<CameraComponent, Component>(xSTRING("CameraComponent"))
 	.enableGetset()
 	.constructor()
 ;}
@@ -33,17 +33,17 @@ static void meshComponentSetEffect(MeshComponent& self, Effect* effect) {
 }
 
 SCRIPT_CLASS_REGISTER(MeshComponent)
-	.declareClass<MeshComponent, Component>(L"MeshComponent")
+	.declareClass<MeshComponent, Component>(xSTRING("MeshComponent"))
 	.enableGetset()
 	.constructor()
-	.wrappedMethod<objRefCount<ResourceRefPolicy> >(L"_getmesh", &meshComponentGetMesh)
-	.wrappedMethod(L"_setmesh", &meshComponentSetMesh)
-	.wrappedMethod<objRefCount<ResourceRefPolicy> >(L"_geteffect", &meshComponentGetEffect)
-	.wrappedMethod(L"_seteffect", &meshComponentSetEffect)
+	.wrappedMethod<objRefCount<ResourceRefPolicy> >(xSTRING("_getmesh"), &meshComponentGetMesh)
+	.wrappedMethod(xSTRING("_setmesh"), &meshComponentSetMesh)
+	.wrappedMethod<objRefCount<ResourceRefPolicy> >(xSTRING("_geteffect"), &meshComponentGetEffect)
+	.wrappedMethod(xSTRING("_seteffect"), &meshComponentSetEffect)
 ;}
 
 SCRIPT_CLASS_REGISTER(RenderableComponent)
-	.declareClass<RenderableComponent, Component>(L"RenderableComponent")
+	.declareClass<RenderableComponent, Component>(xSTRING("RenderableComponent"))
 	.enableGetset()
 ;}
 

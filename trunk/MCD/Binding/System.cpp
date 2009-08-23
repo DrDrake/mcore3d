@@ -18,7 +18,7 @@ static void resourceManagerCallbackAddDependency(IResourceManagerCallback& self,
 	self.addDependency(fileId);
 }
 SCRIPT_CLASS_REGISTER_NAME(IResourceManagerCallback, "ResuorceManagerCallback")
-	.wrappedMethod(L"addDependency", &resourceManagerCallbackAddDependency)
+	.wrappedMethod(xSTRING("addDependency"), &resourceManagerCallbackAddDependency)
 ;}
 
 static Resource* resourceManagerLoad(IResourceManager& self, const wchar_t* fileId, bool block, uint priority) {
@@ -28,13 +28,13 @@ static void resourceManagerAddCallback(IResourceManager& self, GiveUpOwnership<I
 	self.addCallback(callback);
 }
 SCRIPT_CLASS_REGISTER_NAME(IResourceManager, "ResuorceManager")
-	.wrappedMethod<objRefCount<ResourceRefPolicy> >(L"load", &resourceManagerLoad)
-	.wrappedMethod(L"addCallback", &resourceManagerAddCallback)
+	.wrappedMethod<objRefCount<ResourceRefPolicy> >(xSTRING("load"), &resourceManagerLoad)
+	.wrappedMethod(xSTRING("addCallback"), &resourceManagerAddCallback)
 ;}
 
 SCRIPT_CLASS_REGISTER_NAME(Path, "Path")
 	.constructor()
-	.method(L"getString", &Path::getString)
+	.method(xSTRING("getString"), &Path::getString)
 ;}
 
 static float timerGet(Timer& timer) {
@@ -45,13 +45,13 @@ static float timerReset(Timer& timer) {
 }
 SCRIPT_CLASS_REGISTER_NAME(Timer, "Timer")
 	.constructor()
-	.wrappedMethod(L"get", &timerGet)
-	.wrappedMethod(L"reset", &timerReset)
+	.wrappedMethod(xSTRING("get"), &timerGet)
+	.wrappedMethod(xSTRING("reset"), &timerReset)
 ;}
 
 SCRIPT_CLASS_REGISTER_NAME(RawFileSystem, "RawFileSystem")
 	.constructor<const Path&>()
-	.method(L"setRoot", &RawFileSystem::setRoot)
+	.method(xSTRING("setRoot"), &RawFileSystem::setRoot)
 ;}
 
 SCRIPT_CLASS_REGISTER_NAME(Resource, "Resource")

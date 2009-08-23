@@ -235,7 +235,7 @@ TEST(Find_EntityTest)
 	CHECK_EQUAL(e21, root.findEntityInChildren(L"e21"));
 }
 
-TEST(Clone_EntityTest)
+namespace Clone_EntityTest
 {
 	class CloneableComponent : public Component
 	{
@@ -261,6 +261,11 @@ TEST(Clone_EntityTest)
 		sal_override bool cloneable() const { return false; }
 		sal_override Component* clone() const { return nullptr; }
 	};	// NonCloneableComponent
+}	// namespace Clone_EntityTest
+
+TEST(Clone_EntityTest)
+{
+	using namespace Clone_EntityTest;
 
 	Entity root;
 	createTree(root);

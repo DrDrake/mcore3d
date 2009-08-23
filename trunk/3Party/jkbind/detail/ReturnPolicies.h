@@ -236,7 +236,7 @@ template<> struct DefaultReturnPolicy<float>			{ typedef plain policy; };
 template<> struct DefaultReturnPolicy<double>			{ typedef plain policy; };
 template<> struct DefaultReturnPolicy<const SQChar*>	{ typedef plain policy; };
 
-template<> struct DefaultReturnPolicy<std::wstring>		{ typedef plain policy; };
+template<> struct DefaultReturnPolicy<stdSTRING>		{ typedef plain policy; };
 
 // Detect the type of a class member variable
 template<typename T>

@@ -30,6 +30,10 @@ OBJECTDIR=build/Debug/${PLATFORM}
 OBJECTFILES= \
 	${OBJECTDIR}/System.o \
 	${OBJECTDIR}/Binding.o \
+	${OBJECTDIR}/ScriptComponentManager.o \
+	${OBJECTDIR}/ScriptComponent.o \
+	${OBJECTDIR}/InputComponent.o \
+	${OBJECTDIR}/ComponentQueue.o \
 	${OBJECTDIR}/Render.o \
 	${OBJECTDIR}/Math.o \
 	${OBJECTDIR}/Entity.o \
@@ -46,13 +50,13 @@ CXXFLAGS=
 FFLAGS=
 
 # Link Libraries and Options
-LDLIBSOPTIONS=-Wl,-rpath ../3Party/squirrel/dist/Debug/GNU-Linux-x86 -L../3Party/squirrel/dist/Debug/GNU-Linux-x86 -lsquirrel
+LDLIBSOPTIONS=-Wl,-rpath ../../3Party/squirrel/dist/Debug/GNU-Linux-x86 -L../../3Party/squirrel/dist/Debug/GNU-Linux-x86 -lsquirrel
 
 # Build Targets
 .build-conf: ${BUILD_SUBPROJECTS}
 	${MAKE}  -f nbproject/Makefile-Debug.mk dist/Debug/${PLATFORM}/libBinding.so
 
-dist/Debug/${PLATFORM}/libBinding.so: ../3Party/squirrel/dist/Debug/GNU-Linux-x86/libsquirrel.so
+dist/Debug/${PLATFORM}/libBinding.so: ../../3Party/squirrel/dist/Debug/GNU-Linux-x86/libsquirrel.so
 
 dist/Debug/${PLATFORM}/libBinding.so: ${OBJECTFILES}
 	${MKDIR} -p dist/Debug/${PLATFORM}
@@ -61,36 +65,56 @@ dist/Debug/${PLATFORM}/libBinding.so: ${OBJECTFILES}
 ${OBJECTDIR}/System.o: System.cpp 
 	${MKDIR} -p ${OBJECTDIR}
 	${RM} $@.d
-	$(COMPILE.cc) -g -DUNICODE -fPIC  -MMD -MP -MF $@.d -o ${OBJECTDIR}/System.o System.cpp
+	$(COMPILE.cc) -g -fPIC  -MMD -MP -MF $@.d -o ${OBJECTDIR}/System.o System.cpp
 
 ${OBJECTDIR}/Binding.o: Binding.cpp 
 	${MKDIR} -p ${OBJECTDIR}
 	${RM} $@.d
-	$(COMPILE.cc) -g -DUNICODE -fPIC  -MMD -MP -MF $@.d -o ${OBJECTDIR}/Binding.o Binding.cpp
+	$(COMPILE.cc) -g -fPIC  -MMD -MP -MF $@.d -o ${OBJECTDIR}/Binding.o Binding.cpp
+
+${OBJECTDIR}/ScriptComponentManager.o: ScriptComponentManager.cpp 
+	${MKDIR} -p ${OBJECTDIR}
+	${RM} $@.d
+	$(COMPILE.cc) -g -fPIC  -MMD -MP -MF $@.d -o ${OBJECTDIR}/ScriptComponentManager.o ScriptComponentManager.cpp
+
+${OBJECTDIR}/ScriptComponent.o: ScriptComponent.cpp 
+	${MKDIR} -p ${OBJECTDIR}
+	${RM} $@.d
+	$(COMPILE.cc) -g -fPIC  -MMD -MP -MF $@.d -o ${OBJECTDIR}/ScriptComponent.o ScriptComponent.cpp
+
+${OBJECTDIR}/InputComponent.o: InputComponent.cpp 
+	${MKDIR} -p ${OBJECTDIR}
+	${RM} $@.d
+	$(COMPILE.cc) -g -fPIC  -MMD -MP -MF $@.d -o ${OBJECTDIR}/InputComponent.o InputComponent.cpp
+
+${OBJECTDIR}/ComponentQueue.o: ComponentQueue.cpp 
+	${MKDIR} -p ${OBJECTDIR}
+	${RM} $@.d
+	$(COMPILE.cc) -g -fPIC  -MMD -MP -MF $@.d -o ${OBJECTDIR}/ComponentQueue.o ComponentQueue.cpp
 
 ${OBJECTDIR}/Render.o: Render.cpp 
 	${MKDIR} -p ${OBJECTDIR}
 	${RM} $@.d
-	$(COMPILE.cc) -g -DUNICODE -fPIC  -MMD -MP -MF $@.d -o ${OBJECTDIR}/Render.o Render.cpp
+	$(COMPILE.cc) -g -fPIC  -MMD -MP -MF $@.d -o ${OBJECTDIR}/Render.o Render.cpp
 
 ${OBJECTDIR}/Math.o: Math.cpp 
 	${MKDIR} -p ${OBJECTDIR}
 	${RM} $@.d
-	$(COMPILE.cc) -g -DUNICODE -fPIC  -MMD -MP -MF $@.d -o ${OBJECTDIR}/Math.o Math.cpp
+	$(COMPILE.cc) -g -fPIC  -MMD -MP -MF $@.d -o ${OBJECTDIR}/Math.o Math.cpp
 
 ${OBJECTDIR}/Entity.o: Entity.cpp 
 	${MKDIR} -p ${OBJECTDIR}
 	${RM} $@.d
-	$(COMPILE.cc) -g -DUNICODE -fPIC  -MMD -MP -MF $@.d -o ${OBJECTDIR}/Entity.o Entity.cpp
+	$(COMPILE.cc) -g -fPIC  -MMD -MP -MF $@.d -o ${OBJECTDIR}/Entity.o Entity.cpp
 
 ${OBJECTDIR}/Pch.o: Pch.cpp 
 	${MKDIR} -p ${OBJECTDIR}
 	${RM} $@.d
-	$(COMPILE.cc) -g -DUNICODE -fPIC  -MMD -MP -MF $@.d -o ${OBJECTDIR}/Pch.o Pch.cpp
+	$(COMPILE.cc) -g -fPIC  -MMD -MP -MF $@.d -o ${OBJECTDIR}/Pch.o Pch.cpp
 
 # Subprojects
 .build-subprojects:
-	cd ../3Party/squirrel && ${MAKE}  -f Makefile CONF=Debug
+	cd ../../3Party/squirrel && ${MAKE}  -f Makefile CONF=Debug
 
 # Clean Targets
 .clean-conf: ${CLEAN_SUBPROJECTS}
@@ -99,7 +123,7 @@ ${OBJECTDIR}/Pch.o: Pch.cpp
 
 # Subprojects
 .clean-subprojects:
-	cd ../3Party/squirrel && ${MAKE}  -f Makefile CONF=Debug clean
+	cd ../../3Party/squirrel && ${MAKE}  -f Makefile CONF=Debug clean
 
 # Enable dependency checking
 .dep.inc: .depcheck-impl

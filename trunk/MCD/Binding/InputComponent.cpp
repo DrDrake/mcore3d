@@ -13,20 +13,20 @@ static Vec2f inputComponentGetMousePosition(InputComponent& self) {
 	return Vec2f(pos.x, pos.y);
 }
 SCRIPT_CLASS_REGISTER(InputComponent)
-	.declareClass<InputComponent, Component>(L"InputComponent")
+	.declareClass<InputComponent, Component>(xSTRING("InputComponent"))
 	.enableGetset()
-	.method(L"anyKey", &InputComponent::anyKey)
-	.method(L"anyKeyDown", &InputComponent::anyKeyDown)
-	.method(L"getAxis", &InputComponent::getAxis)
-	.method(L"getAxisRaw", &InputComponent::getAxisRaw)
-	.method(L"getButton", &InputComponent::getButton)
-	.method(L"getButtonDown", &InputComponent::getButtonDown)
-	.method(L"getButtonUp", &InputComponent::getButtonUp)
-	.wrappedMethod(L"_getmousePosition", &inputComponentGetMousePosition)
-	.method(L"getMouseButton", &InputComponent::getMouseButton)
-	.method(L"getMouseButtonDown", &InputComponent::getMouseButtonDown)
-	.method(L"getMouseButtonUp", &InputComponent::getMouseButtonUp)
-	.method(L"_getinputString", &InputComponent::inputString)
+	.method(xSTRING("anyKey"), &InputComponent::anyKey)
+	.method(xSTRING("anyKeyDown"), &InputComponent::anyKeyDown)
+	.method(xSTRING("getAxis"), &InputComponent::getAxis)
+	.method(xSTRING("getAxisRaw"), &InputComponent::getAxisRaw)
+	.method(xSTRING("getButton"), &InputComponent::getButton)
+	.method(xSTRING("getButtonDown"), &InputComponent::getButtonDown)
+	.method(xSTRING("getButtonUp"), &InputComponent::getButtonUp)
+	.wrappedMethod(xSTRING("_getmousePosition"), &inputComponentGetMousePosition)
+	.method(xSTRING("getMouseButton"), &InputComponent::getMouseButton)
+	.method(xSTRING("getMouseButtonDown"), &InputComponent::getMouseButtonDown)
+	.method(xSTRING("getMouseButtonUp"), &InputComponent::getMouseButtonUp)
+	.method(xSTRING("_getinputString"), &InputComponent::inputString)
 ;}
 
 }	// namespace script

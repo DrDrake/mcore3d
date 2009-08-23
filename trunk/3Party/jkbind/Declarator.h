@@ -3,7 +3,6 @@
 
 #include "Events.h"
 #include "detail/Binding.h"
-#include "detail/Classes.h"
 #include "detail/Constructors.h"
 #include "detail/Fields.h"
 #include "detail/ReturnPolicies.h"
@@ -210,11 +209,11 @@ public:
 		xchar setBuffer[64] = xSTRING("_set");
 
 		// Shut up MSVC code analysis warnings
-		if(::wcslen(name) + 5 > (sizeof getBuffer/sizeof(xchar)))
+		if(scstrlen(name) + 5 > (sizeof getBuffer/sizeof(xchar)))
 			return *this;
 
-		::wcscat(getBuffer, name);
-		::wcscat(setBuffer, name);
+		scscat(getBuffer, name);
+		scscat(setBuffer, name);
 		getter(getBuffer, field);
 		setter(setBuffer, field);
 
