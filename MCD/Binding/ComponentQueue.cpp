@@ -17,15 +17,15 @@ public:
 	}
 
 	struct Time : public MapBase<float>::Node<Time> {
-		explicit Time(float key) : Node<Time>(key) {}
+		explicit Time(float key) : MapBase<float>::Node<Time>(key) {}
 		MCD_DECLAR_GET_OUTER_OBJ(QueueNode, mTime);
 		sal_override void destroyThis() throw() {
 			delete getOuterSafe();
 		}
 	} mTime;
 
-	struct Component : public MapBase<ComponentPtr>::NodeBase {
-		explicit Component(const ComponentPtr& key) : NodeBase(key) {}
+	struct Component_ : public MapBase<ComponentPtr>::NodeBase {
+		explicit Component_(const ComponentPtr& key) : NodeBase(key) {}
 		MCD_DECLAR_GET_OUTER_OBJ(QueueNode, mComponent);
 		sal_override void destroyThis() throw() {
 			delete getOuterSafe();
@@ -77,7 +77,7 @@ public:
 	}
 
 	Map<QueueNode::Time> timeToComponent;
-	Map<QueueNode::Component> componentToTime;
+	Map<QueueNode::Component_> componentToTime;
 };	// Impl
 
 ComponentQueue::ComponentQueue()
@@ -139,14 +139,14 @@ SCRIPT_CLASS_REGISTER_NAME(ComponentQueue::QueueNode, "__ComponentQueueNode__")
 SCRIPT_CLASS_REGISTER_NAME(ComponentQueueResult, "ComponentQueueResult")
 	.enableGetset()
 	.constructor()
-	.method<objNoCare>(L"_getcomponent", &ComponentQueueResult::getComponent)
-	.method<objNoCare>(L"_getqueueNode", &ComponentQueueResult::getQueueNode)
+	.method<objNoCare>(xSTRING("_getcomponent"), &ComponentQueueResult::getComponent)
+	.method<objNoCare>(xSTRING("_getqueueNode"), &ComponentQueueResult::getQueueNode)
 ;}
 
 SCRIPT_CLASS_REGISTER_NAME(ComponentQueue, "ComponentQueue")
 	.constructor()
-	.method(L"setItem", &ComponentQueue::setItem)
-	.wrappedMethod(L"getItem", &componentQueueGetItem)
+	.method(xSTRING("setItem"), &ComponentQueue::setItem)
+	.wrappedMethod(xSTRING("getItem"), &componentQueueGetItem)
 ;}
 
 }	// namespace script

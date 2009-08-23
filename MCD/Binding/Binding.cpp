@@ -1,6 +1,7 @@
 #include "Pch.h"
 #include "Binding.h"
 #include "../Core/System/Platform.h"
+#include "../Core/System/StrUtility.h"
 #include "../../3Party/jkbind/VMCore.h"
 #include "../../3Party/jkbind/detail/Classes.h"
 #include "../../3Party/squirrel/sqstdio.h"
@@ -162,6 +163,45 @@ ClassID getClassIDFromTypeInfo(const std::type_info& typeInfo, ClassID original)
 		return i->second;
 	return original;
 }
+
+#ifdef SQUNICODE
+
+void push(HSQUIRRELVM v, const char* value)
+{
+	// TODO: Error handling
+	std::wstring s = MCD::strToWStr(value);
+	sq_pushstring(v, s.c_str(), -1);
+}
+
+// NOTE: This funciton use local variable to store the returning char*
+const char* get(TypeSelect<const char*>, HSQUIRRELVM v, int idx)
+{
+	const wchar_t* s;
+	jkSCRIPT_API_VERIFY(sq_getstring(v, idx, &s));
+	static std::string buf;
+	buf = MCD::wStrToStr(s);
+	return buf.c_str();
+}
+
+#else
+
+void push(HSQUIRRELVM v, const wchar_t* value)
+{
+	// TODO: Error handling
+	std::string s = MCD::wStrToStr(value);
+	sq_pushstring(v, s.c_str(), -1);
+}
+
+const wchar_t* get(TypeSelect<const wchar_t*>, HSQUIRRELVM v, int idx)
+{
+	const char_t* s;
+	jkSCRIPT_API_VERIFY(sq_getstring(v, idx, &s));
+	static std::wstring buf;
+	buf = MCD::strToWStr(s);
+	return buf.c_str();
+}
+
+#endif
 
 }	// namespace types
 }	// namespace script

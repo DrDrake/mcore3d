@@ -2,6 +2,7 @@
 #include "Render.h"
 #include "Binding.h"
 #include "../Render/ChamferBox.h"
+#include "../Render/Effect.h"
 #include "../Render/Mesh.h"
 
 using namespace MCD;
@@ -18,11 +19,11 @@ struct resourceRefPolicy {
 };	// resourceRefPolicy
 
 SCRIPT_CLASS_REGISTER(Effect)
-	.declareClass<Effect, Resource>(L"Effect")
+	.declareClass<Effect, Resource>(xSTRING("Effect"))
 ;}
 
 SCRIPT_CLASS_REGISTER(Mesh)
-	.declareClass<Mesh, Resource>(L"Mesh")
+	.declareClass<Mesh, Resource>(xSTRING("Mesh"))
 ;}
 
 }	// namespace script
@@ -44,7 +45,7 @@ void registerRenderBinding(script::VMCore* v)
 	script::ClassTraits<Mesh>::bind(v);
 
 	RootDeclarator root(v);
-	root.declareFunction<objRefCount<resourceRefPolicy> >(L"ChamferBoxMesh", &chamferBoxMeshCreate);
+	root.declareFunction<objRefCount<resourceRefPolicy> >(xSTRING("ChamferBoxMesh"), &chamferBoxMeshCreate);
 }
 
 }	// namespace MCD

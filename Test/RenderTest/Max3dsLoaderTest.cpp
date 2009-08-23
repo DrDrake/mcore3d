@@ -73,8 +73,7 @@ TEST(Max3dsLoaderTest)
 					mnm != mModel->mMeshes.end(); 
 					mnm = mnm->next())
 				{
-					if(mnm->mesh->builder == nullptr)
-						throw std::bad_exception("Mesh::builder == nullptr!");
+					MCD_ASSERT(mnm->mesh->builder != nullptr);
 				}
 			}
 		}

@@ -45,8 +45,8 @@ static int componentSetScriptHandle(HSQUIRRELVM vm)
 }
 SCRIPT_CLASS_REGISTER_NAME(Component, "Component")
 	.enableGetset()
-	.method<objNoCare>(L"_getentity", &Component::entity)
-	.rawMethod(L"_setScriptHandle", &componentSetScriptHandle)
+	.method<objNoCare>(xSTRING("_getentity"), &Component::entity)
+	.rawMethod(xSTRING("_setScriptHandle"), &componentSetScriptHandle)
 ;}
 
 static void entityAddChild(Entity& self, GiveUpOwnership<Entity*> e) {
@@ -69,19 +69,19 @@ static void entityAddComponent(Entity& self, GiveUpOwnership<Component*> c) {
 SCRIPT_CLASS_REGISTER_NAME(Entity, "Entity")
 	.enableGetset()
 	.constructor()
-	.wrappedMethod(L"addChild", &entityAddChild)
-	.wrappedMethod(L"insertBefore", &entityInsertBefore)
-	.wrappedMethod(L"insertAfter", &entityInsertAfter)
-	.wrappedMethod(L"unlink", &entityUnlink)					// If the node is unlinked, it's ownership will give to the script
-	.wrappedMethod(L"addComponent", &entityAddComponent)
-	.getset(L"enabled", &Entity::enabled)
-	.getset(L"name", &Entity::name)
-	.getset(L"localTransform", &Entity::localTransform)
-	.method(L"_getworldTransform", &Entity::worldTransform)
-	.method(L"_setworldTransform", &Entity::setWorldTransform)
-	.method<objNoCare>(L"_getparentNode", &Entity::parent)		// The node's life time is controled by the
-	.method<objNoCare>(L"_getfirstChild", &Entity::firstChild)	// node tree's root node, therefore we use
-	.method<objNoCare>(L"_getnextSibling", &Entity::nextSibling)// objNoCare as the return policy.
+	.wrappedMethod(xSTRING("addChild"), &entityAddChild)
+	.wrappedMethod(xSTRING("insertBefore"), &entityInsertBefore)
+	.wrappedMethod(xSTRING("insertAfter"), &entityInsertAfter)
+	.wrappedMethod(xSTRING("unlink"), &entityUnlink)					// If the node is unlinked, it's ownership will give to the script
+	.wrappedMethod(xSTRING("addComponent"), &entityAddComponent)
+	.getset(xSTRING("enabled"), &Entity::enabled)
+	.getset(xSTRING("name"), &Entity::name)
+	.getset(xSTRING("localTransform"), &Entity::localTransform)
+	.method(xSTRING("_getworldTransform"), &Entity::worldTransform)
+	.method(xSTRING("_setworldTransform"), &Entity::setWorldTransform)
+	.method<objNoCare>(xSTRING("_getparentNode"), &Entity::parent)		// The node's life time is controled by the
+	.method<objNoCare>(xSTRING("_getfirstChild"), &Entity::firstChild)	// node tree's root node, therefore we use
+	.method<objNoCare>(xSTRING("_getnextSibling"), &Entity::nextSibling)// objNoCare as the return policy.
 ;}
 
 }	// namespace script

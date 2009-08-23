@@ -80,7 +80,7 @@ void registerScriptComponentBinding(script::VMCore* v)
 namespace script {
 
 SCRIPT_CLASS_REGISTER(ScriptComponent)
-	.declareClass<ScriptComponent, Component>(L"ScriptComponent")
+	.declareClass<ScriptComponent, Component>(xSTRING("ScriptComponent"))
 	.constructor()
 ;}
 
