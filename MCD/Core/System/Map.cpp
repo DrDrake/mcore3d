@@ -112,7 +112,6 @@ void AvlTree::insert(Node& node, Node* parent, int nIdx)
 		parent->synLeftRight();
 
 		adjustBallance(*parent, nIdx ? 1 : -1, false);
-
 	} else {
 		MCD_ASSERT(!mRoot);
 		mRoot = &node;
@@ -135,7 +134,6 @@ void AvlTree::remove(Node& node, Node* onlyChild)
 		parent->synLeftRight();
 
 		adjustBallance(*parent, idx ? -1 : 1, true);
-
 	} else
 		mRoot = onlyChild;
 
@@ -156,7 +154,6 @@ void AvlTree::remove(Node& node)
 			replaceFixTop(node, *pSucc);
 
 			pSucc->mBallance = node.mBallance;
-
 		} else
 			remove(node, node.mChildren[Left]);
 	else

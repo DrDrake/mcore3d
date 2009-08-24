@@ -39,10 +39,9 @@ public:
  */
 class MCD_ABSTRACT_CLASS IResourceManager
 {
-protected:
+public:
 	virtual ~IResourceManager() {}
 
-public:
 	/*!	Load a resource.
 		The interface itself doesn't define how a resource is cached, what this function
 		will be returned is totally up to the implementation.
