@@ -1,22 +1,19 @@
 #include "stdafx.h"
 #include "RenderPanelControl.h"
-#include "../Common/DefaultResourceManager.h"
+#include "CsInputComponent.h"
 #include "../Common/Gizmo/Gizmo.h"
 #include "../Common/GroundPlaneComponent.h"
 
 #define _WINDOWS
+#include "../../MCD/Binding/Launcher.h"
+#include "../../MCD/Component/Render/CameraComponent.h"
+#include "../../MCD/Component/Render/PickComponent.h"
 #include "../../MCD/Core/Entity/Entity.h"
 #include "../../MCD/Core/Entity/BehaviourComponent.h"
-#include "../../MCD/Core/System/FileSystem.h"
+#include "../../MCD/Core/System/ResourceManager.h"
 #include "../../MCD/Core/System/WindowEvent.h"
 #include "../../MCD/Render/Camera.h"
-#include "../../MCD/Render/ChamferBox.h"
-#include "../../MCD/Render/Effect.h"
 #include "../../MCD/Render/GlWindow.h"
-#include "../../MCD/Render/Mesh.h"
-#include "../../MCD/Component/Render/CameraComponent.h"
-#include "../../MCD/Component/Render/MeshComponent.h"
-#include "../../MCD/Component/Render/PickComponent.h"
 #include "../../3Party/glew/glew.h"
 #undef nullptr
 #include <gcroot.h>
@@ -38,9 +35,10 @@ public:
 		mWidth(0), mHeight(0), mFieldOfView(60.0f),
 		mGizmoEnabled(false), mGizmo(nullptr), mEntityPicker(nullptr),
 		mPredefinedSubTree(nullptr), mUserSubTree(nullptr),
-		mResourceManager(*createDefaultFileSystem()),
+		mResourceManager(nullptr),
 		mPropertyGridNeedRefresh(false)
 	{
+		mResourceManager = mLauncher.resourceManager();
 	}
 
 	void createScene()
@@ -62,7 +60,7 @@ public:
 		{	// Add a Gizmo
 			// TODO: Move the Gizmo entity to mPredefinedSubTree, make sure all
 			// related stuffs (eg axis picking) are working
-			std::auto_ptr<Gizmo> e(new Gizmo(mResourceManager));
+			std::auto_ptr<Gizmo> e(new Gizmo(*mResourceManager));
 			e->name = L"Gizmo";
 			e->enabled = false;	// The gizmo is initially disable, until an object is selected
 			e->asChildOf(&mRootNode);
@@ -112,53 +110,17 @@ public:
 			e.release();
 		}
 
-		ChamferBoxBuilder chamferBoxBuilder(0.4f, 2, false);
-		for(int i=0; i<200; ++i)
-		{	// Setup entity 1
-			std::auto_ptr<MCD::Entity> e(new MCD::Entity);
-			e->name = L"ChamferBox 1";
-			e->asChildOf(mUserSubTree);
-			e->localTransform = Mat44f(Mat33f::makeXYZRotation(0, Mathf::cPiOver4(), 0));
-			e->localTransform.setTranslation(Vec3f(float(i/10), float(i%10), 0));
-
-			// Setup the chamfer box mesh
-			MeshPtr mesh = new Mesh(L"");
-			chamferBoxBuilder.commit(*mesh, MeshBuilder::Static);
-
-			// Add component
-			MeshComponent* c = new MeshComponent;
-			c->mesh = mesh;
-			c->effect = static_cast<Effect*>(mResourceManager.load(L"Material/test.fx.xml").get());
-			e->addComponent(c);
-
-			e.release();
-		}
-
-		{	// Setup entity 2
-			std::auto_ptr<MCD::Entity> e(new MCD::Entity);
-			e->name = L"Sphere 1";
-			e->asChildOf(mUserSubTree);
-			e->localTransform.setTranslation(Vec3f(1, 0, 0));
-
-			// Setup the chamfer box mesh
-			MeshPtr mesh = new Mesh(L"");
-			ChamferBoxBuilder chamferBoxBuilder(1.0f, 10, false);
-			chamferBoxBuilder.commit(*mesh, MeshBuilder::Static);
-
-			// Add component
-			MeshComponent* c = new MeshComponent;
-			c->mesh = mesh;
-			c->effect = static_cast<Effect*>(mResourceManager.load(L"Material/test.fx.xml").get());
-			e->addComponent(c);
-
-			e.release();
+		{	CsInputComponent* c = new CsInputComponent();
+			c->attachTo(mBackRef);
+			mLauncher.init(*c, mUserSubTree);
 		}
 	}
 
 	void update()
 	{
 		makeActive();
-		mResourceManager.processLoadingEvents();
+
+		mLauncher.update(0.01);
 
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
@@ -247,7 +209,7 @@ public:
 		if(mGizmoEnabled)
 			return;
 
-		static const float cCameraVelocity = 10.0f;
+/*		static const float cCameraVelocity = 10.0f;
 		switch(e->KeyCode) {
 		case System::Windows::Forms::Keys::W:
 			mCamera->velocity.z = cCameraVelocity;
@@ -269,12 +231,12 @@ public:
 			break;
 		default:
 			break;
-		}
+		}*/
 	}
 
 	void onKeyUp(System::Object^ sender, System::Windows::Forms::KeyEventArgs^ e)
 	{
-		switch(e->KeyCode) {
+/*		switch(e->KeyCode) {
 		case System::Windows::Forms::Keys::W:
 		case System::Windows::Forms::Keys::S:
 			mCamera->velocity.z = 0;
@@ -289,7 +251,7 @@ public:
 			break;
 		default:
 			break;
-		}
+		}*/
 	}
 
 	void onMouseDown(System::Object^ sender, System::Windows::Forms::MouseEventArgs^ e)
@@ -305,8 +267,8 @@ public:
 				mEntityPicker->setPickRegion(e->X, e->Y);
 			}
 		}
-		else
-			mCamera->isMouseDown = true;
+//		else
+//			mCamera->isMouseDown = true;
 
 		mLastMousePos = Point(e->X, e->Y);
 	}
@@ -315,8 +277,8 @@ public:
 	{
 		if(mGizmoEnabled)
 			mGizmo->mouseUp(e->X, e->Y);
-		else
-			mCamera->isMouseDown = false;
+//		else
+//			mCamera->isMouseDown = false;
 	}
 
 	void onMouseMove(System::Object^ sender, System::Windows::Forms::MouseEventArgs^ e)
@@ -343,10 +305,12 @@ public:
 	bool mGizmoEnabled;
 	Gizmo* mGizmo;
 	MCD::PickComponent* mEntityPicker;
-	WeakPtr<CameraComponent> mCamera;
-	DefaultResourceManager mResourceManager;
+	MCD::WeakPtr<CameraComponent> mCamera;
+	IResourceManager* mResourceManager;
 	bool mPropertyGridNeedRefresh;
 	Point mLastMousePos;
+
+	Launcher mLauncher;
 };	// RenderPanelControlImpl
 
 RenderPanelControl::RenderPanelControl()

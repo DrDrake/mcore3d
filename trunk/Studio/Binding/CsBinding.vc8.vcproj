@@ -2,9 +2,9 @@
 <VisualStudioProject
 	ProjectType="Visual C++"
 	Version="8.00"
-	Name="Binding"
+	Name="CsBinding"
 	ProjectGUID="{32D8BE99-8D55-4AB8-96BE-7DD82F507F62}"
-	RootNamespace="Binding"
+	RootNamespace="CsBinding"
 	Keyword="ManagedCProj"
 	TargetFrameworkVersion="196613"
 	>

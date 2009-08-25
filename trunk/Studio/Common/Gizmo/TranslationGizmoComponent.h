@@ -7,7 +7,7 @@
 class TranslationGizmoComponent : public GizmoBaseComponent
 {
 public:
-	TranslationGizmoComponent(MCD::ResourceManager& resourceManager, sal_in MCD::Entity* hostEntity);
+	TranslationGizmoComponent(MCD::IResourceManager& resourceManager, sal_in MCD::Entity* hostEntity);
 };	// TranslationGizmoComponent
 
 #endif	// __MCD_STUDIO_GIZMO_TRANSLATIONGIZMOCOMPONENT__

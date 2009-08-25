@@ -4,7 +4,7 @@
 #include "../../../MCD/Core/Entity/Entity.h"
 
 namespace MCD {
-class ResourceManager;
+class IResourceManager;
 }
 
 /*!	An entity that representing the Gizmo.
@@ -16,7 +16,7 @@ class ResourceManager;
 class Gizmo : public MCD::Entity
 {
 public:
-	Gizmo(MCD::ResourceManager& resourceManager);
+	Gizmo(MCD::IResourceManager& resourceManager);
 
 // Operation
 	void mouseDown(int x, int y);

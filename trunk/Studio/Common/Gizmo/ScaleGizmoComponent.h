@@ -7,7 +7,7 @@
 class ScaleGizmoComponent : public GizmoBaseComponent
 {
 public:
-	ScaleGizmoComponent(MCD::ResourceManager& resourceManager, sal_in MCD::Entity* hostEntity);
+	ScaleGizmoComponent(MCD::IResourceManager& resourceManager, sal_in MCD::Entity* hostEntity);
 };	// ScaleGizmoComponent
 
 #endif	// __MCD_STUDIO_GIZMO_SCALEGIZMOCOMPONENT__

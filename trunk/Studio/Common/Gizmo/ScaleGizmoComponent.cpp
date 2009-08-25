@@ -1,9 +1,9 @@
 #include "stdafx.h"
 #include "ScaleGizmoComponent.h"
-#include "../DefaultResourceManager.h"
 #include "../../../MCD/Render/Mesh.h"
 #include "../../../MCD/Render/Model.h"
 #include "../../../MCD/Core/Entity/Entity.h"
+#include "../../../MCD/Core/System/ResourceManager.h"
 
 using namespace MCD;
 
@@ -12,14 +12,26 @@ namespace {
 //! The translation arrow for dragging.
 class ArrowComponent : public MyMeshComponent
 {
+	struct Callback : public ResourceManagerCallback
+	{
+		sal_override void doCallback() {
+			MCD_ASSERT(model);
+			if(model && !model->mMeshes.isEmpty())
+				backRef->mesh = model->mMeshes.front().mesh;
+		}
+		ModelPtr model;
+		ArrowComponent* backRef;
+	};	// Callback
+
 public:
-	explicit ArrowComponent(ResourceManager& resourceManager, const ColorRGBAf& c)
+	explicit ArrowComponent(IResourceManager& resourceManager, const ColorRGBAf& c)
 		: MyMeshComponent(c)
 	{
-		ModelPtr model = dynamic_cast<Model*>(resourceManager.load(L"Scale.3ds", true).get());
-		dynamic_cast<DefaultResourceManager&>(resourceManager).processLoadingEvents();
-		if(!model->mMeshes.isEmpty())
-			this->mesh = model->mMeshes.front().mesh;
+		Callback* cb = new Callback();
+		cb->backRef = this;
+		cb->model = dynamic_cast<Model*>(resourceManager.load(L"Scale.3ds", true).get());
+		cb->addDependency(L"Scale.3ds");
+		resourceManager.addCallback(cb);
 	}
 
 	sal_override void mouseMove(Vec2i& oldPos, const Vec2i& newPos,
@@ -42,7 +54,7 @@ public:
 
 }	// namespace
 
-ScaleGizmoComponent::ScaleGizmoComponent(ResourceManager& resourceManager, Entity* hostEntity)
+ScaleGizmoComponent::ScaleGizmoComponent(IResourceManager& resourceManager, Entity* hostEntity)
 	: GizmoBaseComponent(hostEntity)
 {
 	// Add child entities
