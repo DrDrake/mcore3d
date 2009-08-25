@@ -59,6 +59,7 @@ protected:
 		bool operator()(sal_in_z const wchar_t* lhs, sal_in_z const wchar_t* rhs) const;
 	};	// Compare
 
+	Window* mWindow;
 	typedef std::map<const wchar_t*, int, Compare> EventList;
 	EventList mAxisList;
 	EventList mKeyList;
@@ -70,7 +71,6 @@ protected:
 	int8_t mMouseKeyUpBitArray;
 	std::wstring mInputString;
 	Vec2f mMouseAxis, mMouseAxisRaw;
-	Window* mWindow;
 };	// WinMessageInputComponent
 
 }	// namespace MCD

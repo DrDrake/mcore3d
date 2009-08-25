@@ -353,6 +353,8 @@ bool wStr2Double(const wchar_t* wideStr, double& number)
 {
 	// User sscanf or atoi didn't handle error very well
 	// TODO: Use locale facet instead of stringstream
+	// More on http://home.comcast.net/~lang.dennis/code/index.html#xml
+	// and http://www.bsdlover.cn/study/UnixTree/V7/usr/src/libc/gen/atof.c.html
 #ifdef MCD_CYGWIN
 	std::stringstream ss(wStrToStr(wideStr));
 #else

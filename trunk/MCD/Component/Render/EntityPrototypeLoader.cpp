@@ -153,7 +153,6 @@ EntityPrototypePtr EntityPrototypeLoader::addEntityAfterLoad(
 	return callback->entityPrototype;
 }
 
-/*! EntityPrototypeLoaderFactory */
 EntityPrototypeLoaderFactory::EntityPrototypeLoaderFactory(IResourceManager& resourceManager)
     : mResourceManager(resourceManager)
 {
@@ -161,8 +160,21 @@ EntityPrototypeLoaderFactory::EntityPrototypeLoaderFactory(IResourceManager& res
 
 ResourcePtr EntityPrototypeLoaderFactory::createResource(const Path& fileId, const wchar_t* args)
 {
-	if(wstrCaseCmp(fileId.getExtension().c_str(), L"3ds") == 0)
-		return new EntityPrototype(fileId);
+	if(wstrCaseCmp(fileId.getExtension().c_str(), L"3ds") != 0)
+		return nullptr;
+
+	if(!args)
+		return nullptr;
+
+	// Detect the string option
+	NvpParser parser(args);
+	const wchar_t* name, *value;
+	while(parser.next(name, value))
+	{
+		if(wstrCaseCmp(name, L"loadAsEntity") == 0 && wstrCaseCmp(value, L"true") == 0)
+			return new EntityPrototype(fileId);
+	}
+
 	return nullptr;
 }
 

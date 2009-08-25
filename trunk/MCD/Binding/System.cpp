@@ -21,8 +21,8 @@ SCRIPT_CLASS_REGISTER_NAME(IResourceManagerCallback, "ResuorceManagerCallback")
 	.wrappedMethod(xSTRING("addDependency"), &resourceManagerCallbackAddDependency)
 ;}
 
-static Resource* resourceManagerLoad(IResourceManager& self, const wchar_t* fileId, bool block, uint priority) {
-	return self.load(fileId, block, priority).get();
+static Resource* resourceManagerLoad(IResourceManager& self, const wchar_t* fileId, bool block, uint priority, const wchar_t* args) {
+	return self.load(fileId, block, priority, args).get();
 }
 static void resourceManagerAddCallback(IResourceManager& self, GiveUpOwnership<IResourceManagerCallback*> callback) {
 	self.addCallback(callback);

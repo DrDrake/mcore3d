@@ -2,6 +2,7 @@
 #include "Launcher.h"
 #include "Entity.h"
 #include "InputComponent.h"
+#include "PhysicsComponent.h"
 #include "System.h"
 #include "../Component/Physics/RigidBodyComponent.h"
 #include "../Component/Render/EntityPrototypeLoader.h"
@@ -161,9 +162,6 @@ Launcher::Launcher()
 	// Start the physics thread
 	mPhysicsThread.start(mDynamicsWorld, false);
 
-	mRootNode = new Entity();
-	mRootNode->name = L"root";
-
 	mSingleton = this;
 }
 
@@ -188,8 +186,15 @@ Launcher::~Launcher()
 	delete mResourceManager;
 }
 
-void Launcher::init(InputComponent& inputComponent)
+void Launcher::init(InputComponent& inputComponent, Entity* rootNode)
 {
+	if(rootNode)
+		mRootNode = rootNode;
+	else {
+		mRootNode = new Entity();
+		mRootNode->name = L"root";
+	}
+
 	mInputComponent = &inputComponent;
 
 	mScriptComponentManager.registerRootEntity(*mRootNode);
@@ -229,7 +234,7 @@ void Launcher::init(InputComponent& inputComponent)
 
 		// TODO: Use named parameter to pass blocking and priority options
 		L"function loadResource(filePath) {\n"
-		L"	return resourceManager.load(filePath, false, 0);\n"
+		L"	return resourceManager.load(filePath, false, 0, \"\");\n"
 		L"}\n"
 
 		L"function addResourceCallback(filePaths, functor) {\n"
@@ -278,8 +283,10 @@ Entity* Launcher::loadEntity(const wchar_t* filePath, bool createCollisionMesh)
 	};	// EntityLoadCreatePhysicsCallback
 
 	Entity* e = new Entity();
+	e->name = filePath;
 	EntityPrototypeLoader::addEntityAfterLoad(e, *mResourceManager, filePath,
-		createCollisionMesh ? new EntityLoadCreatePhysicsCallback(mDynamicsWorld) : nullptr
+		createCollisionMesh ? new EntityLoadCreatePhysicsCallback(mDynamicsWorld) : nullptr,
+		0, L"loadAsEntity=true"
 	);
 
 	return e;
