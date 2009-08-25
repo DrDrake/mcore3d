@@ -7,7 +7,7 @@
 class RotationGizmoComponent : public GizmoBaseComponent
 {
 public:
-	RotationGizmoComponent(MCD::ResourceManager& resourceManager, sal_in MCD::Entity* hostEntity);
+	RotationGizmoComponent(MCD::IResourceManager& resourceManager, sal_in MCD::Entity* hostEntity);
 };	// RotationGizmoComponent
 
 #endif	// __MCD_STUDIO_GIZMO_ROTATIONGIZMOCOMPONENT__

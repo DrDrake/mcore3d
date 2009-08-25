@@ -64,7 +64,7 @@ public:
 
 }	// namespace
 
-Gizmo::Gizmo(ResourceManager& resourceManager)
+Gizmo::Gizmo(IResourceManager& resourceManager)
 {
 	addComponent(new FollowTransformComponent);
 

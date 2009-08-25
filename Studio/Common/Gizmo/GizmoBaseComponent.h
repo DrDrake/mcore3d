@@ -9,7 +9,7 @@
 #include "../../../MCD/Component/Render/MeshComponent.h"
 
 namespace MCD {
-class ResourceManager;
+class IResourceManager;
 }
 
 MCD::Vec3f unProject(const MCD::Vec3f& p);
