@@ -2,6 +2,7 @@
 #define __MCD_BINDING_SCRIPTCOMPONENTMANAGER__
 
 #include "Binding.h"
+#include "../Core/System/NonCopyable.h"
 
 namespace MCD {
 
@@ -14,7 +15,7 @@ class Path;
 	Squirrel VM and bind some necessary global script variables and
 	functions.
  */
-class MCD_BINDING_API ScriptComponentManager
+class MCD_BINDING_API ScriptComponentManager : Noncopyable
 {
 public:
 	//! We will use the supplied file system to load script.

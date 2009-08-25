@@ -2,7 +2,7 @@
 #define __MCD_BINDING_LAUNCHER__
 
 #include "ScriptComponentManager.h"
-#include "PhysicsComponent.h"
+#include "../Component/Physics/ThreadedDynamicWorld.h"
 #include "../Core/System/Timer.h"
 #include "../Core/System/Thread.h"
 
@@ -36,8 +36,9 @@ public:
 // Operations:
 	/*!	Perform initialization.
 		It will take over the ownership of inputComponent.
+		\param rootNode Optional user supplied Entity root node.
 	 */
-	void init(InputComponent& inputComponent);
+	void init(InputComponent& inputComponent, Entity* rootNode=nullptr);
 
 	/*!	Loads a tree of entity from a file.
 		Currently only *.3ds is supported.

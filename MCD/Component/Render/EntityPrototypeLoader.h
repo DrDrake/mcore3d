@@ -54,7 +54,7 @@ public:
 		sal_in_z const wchar_t* filePath,
 		sal_out_opt LoadCallback* loadCallback = nullptr,
 		uint priority = 0,
-		sal_in_z_opt const wchar_t* args = nullptr);
+		sal_in_z_opt const wchar_t* args = L"loadAsEntity=true");
 
 private:
 	class Impl;
@@ -77,6 +77,10 @@ public:
 	EntityPrototypePtr entityPrototype;
 };	// LoadCallback
 
+/*!	Load a model as a tree of Entity.
+	In order to activate this factory, the string argument should having "loadAsEntity=true"
+	\note Currently only *.3ds file is supported.
+ */
 class MCD_COMPONENT_API EntityPrototypeLoaderFactory : public ResourceManager::IFactory
 {
 public:
