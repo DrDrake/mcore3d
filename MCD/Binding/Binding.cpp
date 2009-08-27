@@ -106,7 +106,7 @@ public:
 	{
 	}
 
-	void runScript(const wchar_t* script)
+	void runScript(const wchar_t* script, bool retVal)
 	{
 		HSQUIRRELVM v = vm.getVM();
 		const wchar_t* scriptName = L"tmp";
@@ -115,7 +115,7 @@ public:
 		sq_compilebuffer(v, script, SQInteger(::wcslen(script)), scriptName, true);
 		sq_pushroottable(v);
 
-		if(!SQ_SUCCEEDED(sq_call(v, 1, false, true)))
+		if(!SQ_SUCCEEDED(sq_call(v, 1, retVal, true)))
 		{
 			const SQChar* s;
 			sq_getlasterror(v);
@@ -139,10 +139,10 @@ ScriptVM::~ScriptVM()
 	delete mImpl;
 }
 
-void ScriptVM::runScript(const wchar_t* script)
+void ScriptVM::runScript(const wchar_t* script, bool retVal)
 {
 	MCD_ASSUME(mImpl);
-	return mImpl->runScript(script);
+	return mImpl->runScript(script, retVal);
 }
 
 void* ScriptVM::getImplementationHandle()

@@ -64,7 +64,7 @@ public:
 
 }	// namespace
 
-Gizmo::Gizmo(IResourceManager& resourceManager)
+Gizmo::Gizmo(IResourceManager& resourceManager, InputComponent* inputComponent)
 {
 	addComponent(new FollowTransformComponent);
 
@@ -77,7 +77,7 @@ Gizmo::Gizmo(IResourceManager& resourceManager)
 		e->name = L"Translation Gizmo";
 		e->asChildOf(sizeFixer);
 
-		translationGizmo = new TranslationGizmoComponent(resourceManager, e);
+		translationGizmo = new TranslationGizmoComponent(resourceManager, e, inputComponent);
 		e->addComponent(translationGizmo.get());
 	}
 
@@ -85,14 +85,14 @@ Gizmo::Gizmo(IResourceManager& resourceManager)
 		e->name = L"Rotation Gizmo";
 		e->asChildOf(sizeFixer);
 
-		rotationGizmo = new RotationGizmoComponent(resourceManager, e);
+		rotationGizmo = new RotationGizmoComponent(resourceManager, e, inputComponent);
 		e->addComponent(rotationGizmo.get());
 	}
 
 	{	Entity* e = new Entity();
 		e->name = L"Scale Gizmo";
 		e->asChildOf(sizeFixer);
-		scaleGizmo = new ScaleGizmoComponent(resourceManager, e);
+		scaleGizmo = new ScaleGizmoComponent(resourceManager, e, inputComponent);
 		e->addComponent(scaleGizmo.get());
 	}
 

@@ -136,8 +136,8 @@ public:
 
 }	// namespace
 
-TranslationGizmoComponent::TranslationGizmoComponent(IResourceManager& resourceManager, Entity* hostEntity)
-	: GizmoBaseComponent(hostEntity)
+TranslationGizmoComponent::TranslationGizmoComponent(IResourceManager& resourceManager, Entity* hostEntity, InputComponent* inputComponent)
+	: GizmoBaseComponent(hostEntity, inputComponent)
 {
 	// Add child entities
 	{	Entity* e = new Entity();

@@ -60,7 +60,7 @@ public:
 		{	// Add a Gizmo
 			// TODO: Move the Gizmo entity to mPredefinedSubTree, make sure all
 			// related stuffs (eg axis picking) are working
-			std::auto_ptr<Gizmo> e(new Gizmo(*mResourceManager));
+			std::auto_ptr<Gizmo> e(new Gizmo(*mResourceManager, mLauncher.inputComponent()));
 			e->name = L"Gizmo";
 			e->enabled = false;	// The gizmo is initially disable, until an object is selected
 			e->asChildOf(&mRootNode);

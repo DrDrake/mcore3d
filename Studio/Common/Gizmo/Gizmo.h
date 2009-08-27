@@ -5,6 +5,7 @@
 
 namespace MCD {
 class IResourceManager;
+class InputComponent;
 }
 
 /*!	An entity that representing the Gizmo.
@@ -16,7 +17,7 @@ class IResourceManager;
 class Gizmo : public MCD::Entity
 {
 public:
-	Gizmo(MCD::IResourceManager& resourceManager);
+	Gizmo(MCD::IResourceManager& resourceManager, sal_in_opt MCD::InputComponent* inputComponent);
 
 // Operation
 	void mouseDown(int x, int y);

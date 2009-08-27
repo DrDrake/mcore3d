@@ -1,5 +1,6 @@
 #include "stdafx.h"
 #include "GizmoBaseComponent.h"
+#include "Gizmo.h"
 #include "../../../MCD/Core/Entity/Entity.h"
 #include "../../../MCD/Component/Render/PickComponent.h"
 #include "../../../3Party/glew/glew.h"
@@ -104,7 +105,8 @@ void MyMeshComponent::render()
 		color = defaultColor;
 }
 
-GizmoBaseComponent::GizmoBaseComponent(Entity* hostEntity)
+GizmoBaseComponent::GizmoBaseComponent(Entity* hostEntity, InputComponent* inputComponent)
+	: mInputComponent(inputComponent)
 {
 	dragging = nullptr;
 
@@ -116,6 +118,26 @@ GizmoBaseComponent::GizmoBaseComponent(Entity* hostEntity)
 	mPickComponent = c;
 	c->entityToPick = hostEntity;
 	e->addComponent(c);
+}
+
+void GizmoBaseComponent::update()
+{
+	InputComponent* input = mInputComponent.get();
+	Gizmo* gizmo = dynamic_cast<Gizmo*>(entity()->parent()->parent());
+	Entity* selectedEntity = gizmo ? gizmo->selectedEntity() : nullptr;
+
+	if(input && selectedEntity)
+	{
+		const Vec2i currentMouseAxis = Vec2i(
+			int(input->getAxis(L"mouse x")),
+			int(input->getAxis(L"mouse y"))
+		);
+
+		if(input->getMouseButton(0))
+			mouseDown(currentMouseAxis.x, currentMouseAxis.y, selectedEntity->localTransform);
+
+		mouseMove(currentMouseAxis.x, currentMouseAxis.y, selectedEntity->localTransform);
+	}
 }
 
 void GizmoBaseComponent::mouseDown(int x, int y, Mat44f& transform)

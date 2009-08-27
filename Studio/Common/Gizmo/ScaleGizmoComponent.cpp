@@ -54,8 +54,8 @@ public:
 
 }	// namespace
 
-ScaleGizmoComponent::ScaleGizmoComponent(IResourceManager& resourceManager, Entity* hostEntity)
-	: GizmoBaseComponent(hostEntity)
+ScaleGizmoComponent::ScaleGizmoComponent(IResourceManager& resourceManager, Entity* hostEntity, InputComponent* inputComponent)
+	: GizmoBaseComponent(hostEntity, inputComponent)
 {
 	// Add child entities
 	{	Entity* e = new Entity();

@@ -34,6 +34,8 @@ public:
 	 */
 	sal_checkreturn bool doFile(const Path& filePath, bool pushRetVal);
 
+	sal_maybenull Entity* runScripAsEntity(const wchar_t* scriptCode);
+
 	//! Invoke all active script components' update() function.
 	void updateScriptComponents();
 

@@ -152,6 +152,8 @@ Launcher* Launcher::mSingleton = nullptr;
 
 Launcher::Launcher()
 	:
+	mRootNode(nullptr),
+	mInputComponent(nullptr),
 	fileSystem(*createDefaultFileSystem()),
 	mResourceManager(new DefaultResourceManager(fileSystem)),	// The ownership of fileSystem will pass to the resource manager
 	mScriptComponentManager(fileSystem)
