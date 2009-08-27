@@ -58,6 +58,8 @@ protected:
 	InputComponent() {}
 };	// InputComponent
 
+typedef WeakPtr<InputComponent> InputComponentPtr;
+
 }	// namespace MCD
 
 #endif	// __MCD_COMPONENT_INPUT_INPUTCOMPONENT__

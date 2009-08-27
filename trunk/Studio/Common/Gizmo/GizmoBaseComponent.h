@@ -1,12 +1,12 @@
 #ifndef __MCD_STUDIO_GIZMOBASECOMPONENT__
 #define __MCD_STUDIO_GIZMOBASECOMPONENT__
 
-#include "../../../MCD/Core/Entity/Component.h"
 #include "../../../MCD/Core/Math/Mat44.h"
 #include "../../../MCD/Core/Math/Ray.h"
 #include "../../../MCD/Core/Math/Vec2.h"
 #include "../../../MCD/Render/Color.h"
 #include "../../../MCD/Component/Render/MeshComponent.h"
+#include "../../../MCD/Component/Input/InputComponent.h"
 
 namespace MCD {
 class IResourceManager;
@@ -41,14 +41,12 @@ public:
 };	// MyMeshComponent
 
 //! An entity that representing the Gizmo
-class GizmoBaseComponent : public MCD::Component
+class GizmoBaseComponent : public MCD::BehaviourComponent
 {
 public:
-	GizmoBaseComponent(sal_in MCD::Entity* hostEntity);
+	GizmoBaseComponent(sal_in MCD::Entity* hostEntity, sal_in_opt MCD::InputComponent* inputComponent);
 
-	sal_override const std::type_info& familyType() const {
-		return typeid(GizmoBaseComponent);
-	}
+	sal_override void update();
 
 	virtual void mouseDown(int x, int y, MCD::Mat44f& transform);
 
@@ -65,6 +63,9 @@ protected:
 
 	//! A shortcut to the pick detection component.
 	MCD::ComponentPtr mPickComponent;
+
+	//! A shortcut to the input component.
+	MCD::InputComponentPtr mInputComponent;
 };	// GizmoBaseComponent
 
 #endif	// __MCD_STUDIO_GIZMOBASECOMPONENT__

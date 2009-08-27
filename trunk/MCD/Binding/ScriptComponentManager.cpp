@@ -33,7 +33,7 @@ ScriptComponentManager::ScriptComponentManager(IFileSystem& fs)
 
 	// Initialize the file name to class mapping, and the script component factory function
 	// TODO: Error handling, ensure the script file does return a class
-	vm.runScript(xSTRING("\
+/*	vm.runScript(xSTRING("\
 		_scriptComponentClassTable <- {};\n\
 		gComponentQueue <- ComponentQueue();\n\
 		\n\
@@ -107,7 +107,48 @@ ScriptComponentManager::ScriptComponentManager(IFileSystem& fs)
 			}\n\
 //			_scriptComponentInstanceSet = null;\n\
 		}\n\
-	"));
+	"));*/
+
+	// Initialize the file name to class mapping, and the script component factory function
+	// TODO: Error handling, ensure the script file does return a class
+	vm.runScript(L"\
+		_scriptComponentClassTable <- {};\n\
+		// This table hold the ownership of all script component instance\n\
+		_scriptComponentInstanceSet <- {};\n\
+		\n\
+		loadComponent <- function(fileName, ...) {\n\
+			local Class;\n\
+			if(fileName in _scriptComponentClassTable) {\n\
+				Class = _scriptComponentClassTable[fileName];\n\
+			} else {\n\
+				Class = scriptComponentManager.doFile(fileName);\n\
+				_scriptComponentClassTable[fileName] <- Class;\n\
+			}\n\
+			local c;\n\
+			if(vargc == 0) {\n\
+				c = Class();\n\
+			}\n\
+			else {\n\
+				c = Class.instance();\n\
+				local args = array(0);\n\
+				args.push(c);\n\
+				for(local i=0; i<vargc; ++i)\n\
+					args.push(vargv[i]);\n\
+				Class.constructor.acall(args);\n\
+			}\n\
+			c._setScriptHandle();\n\
+			_scriptComponentInstanceSet[c] <- c;\n\
+			return c;\n\
+		}\
+		\n\
+		function updateAllScriptComponent() {\n\
+			// TODO: Make this loop more efficient, eliminate the need to call C++ functions\n\
+			foreach(key, value in _scriptComponentInstanceSet) {\n\
+				if(key.entity != null)\n\
+					key.update();\n\
+			}\n\
+		}\n\
+	");
 
 	HSQUIRRELVM v = reinterpret_cast<HSQUIRRELVM>(vm.getImplementationHandle());
 	script::VMCore* v_ = (script::VMCore*)sq_getforeignptr(v);
@@ -212,6 +253,14 @@ bool ScriptComponentManager::doFile(const Path& filePath, bool retval)
 	}
 
 	return false;
+}
+
+Entity* ScriptComponentManager::runScripAsEntity(const wchar_t* scriptCode)
+{
+	vm.runScript(scriptCode);
+	using namespace script::types;
+	HSQUIRRELVM v = (HSQUIRRELVM)vm.getImplementationHandle();
+	return script::types::get(TypeSelect<Entity*>(), v, -1);
 }
 
 void ScriptComponentManager::updateScriptComponents() {

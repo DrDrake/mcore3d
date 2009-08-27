@@ -41,6 +41,8 @@ public:
 	void init(InputComponent& inputComponent, Entity* rootNode=nullptr);
 
 	/*!	Loads a tree of entity from a file.
+		Since the load will performed asynchrously, this function will return an empty
+		Entity immediatly, and more child will be added when load complete.
 		Currently only *.3ds is supported.
 	 */
 	sal_notnull Entity* loadEntity(const wchar_t* filePath, bool createCollisionMesh);
