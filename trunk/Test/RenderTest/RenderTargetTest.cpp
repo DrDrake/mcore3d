@@ -43,7 +43,7 @@ TEST(RenderTargetTest)
 				throw std::runtime_error("");
 			if(!textureBuffer->linkTo(*mRenderTarget))
 				throw std::runtime_error("");
-			mRenderTexture = static_cast<TextureRenderBuffer&>(*textureBuffer).texture;
+			mRenderTexture = textureBuffer->texture;
 
 			// Setup for the depth buffer
 			BackRenderBufferPtr backBuffer = new BackRenderBuffer();

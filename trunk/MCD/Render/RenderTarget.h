@@ -15,19 +15,36 @@ typedef IntrusivePtr<class RenderBuffer> RenderBufferPtr;
 	your rendering away from your window's framebuffer to one or more offscreen framebuffers
 	that you create.
 
-	To use RenderTarget, you have to create some render buffers first. Those buffer
-	By design, the binding code is
+	To use RenderTarget, you have to create some render buffers first. Those buffer are then
+	linked to the RenderTarget and identified by the opengl enum GL_COLOR_ATTACHMENT0_EXT,
+	GL_COLOR_ATTACHMENT1_EXT etc... How the buffers are finally accessed in the glsl depends
+	on the call of glDrawBuffers() to specify.
 
+	Example setup:
 	\code
-	// Setup the RenderTarget
+	// Create a texture buffer
 	RenderTarget renderTarget(width, height);
 	RenderBufferPtr textureBuffer = new TextureRenderBuffer();
+	// You can either ask texture buffer to create a texture for you,
+	textureBuffer->createTexture(width, height, GL_TEXTURE_RECTANGLE_ARB, GL_RGB);
+	// or supply with your own.
+	textureBuffer->texture = yourTexture;
 	textureBuffer->linkTo(renderTarget);
-	mRenderTexture = static_cast<TextureRenderBuffer&>(*textureBuffer).texture;
 
+	// Create a back buffer
 	RenderBufferPtr backBuffer = new BackRenderBuffer();
-	backBuffer->bind(*mRenderTarget);
-	}
+	backBuffer->linkTo(renderTarget);
+
+	// Definds the order of the 2 buffer appear in glsl
+	// This can also be redefined in the render loop
+	renderTarget->bind();
+	GLenum buffers[] = { GL_COLOR_ATTACHMENT0_EXT, GL_COLOR_ATTACHMENT1_EXT };
+	glDrawBuffers(2, buffers);
+	renderTarget->unbind();
+
+	// Check that everythings are fine
+	if(!renderTarget->checkCompleteness())
+		exit(-1);
 	\endcode
 
 	\sa IRenderBuffer
@@ -53,7 +70,7 @@ public:
 	void unbind() const;
 
 	//! Check the render target configuration is correct or not.
-	bool checkCompleteness(sal_out_opt int* errorCode=nullptr) const;
+	sal_checkreturn bool checkCompleteness(sal_out_opt int* errorCode=nullptr) const;
 
 	uint handle() const;
 

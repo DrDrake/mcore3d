@@ -170,7 +170,7 @@ TEST(SSAOTest)
 					throw std::runtime_error("");
 				if(!textureBuffer->linkTo(*mSceneRenderTarget))
 					throw std::runtime_error("");
-				mColorRenderTexture = static_cast<TextureRenderBuffer&>(*textureBuffer).texture;
+				mColorRenderTexture = textureBuffer->texture;
 
 				// normal target
 				textureBuffer = new TextureRenderBuffer(GL_COLOR_ATTACHMENT1_EXT);
@@ -178,7 +178,7 @@ TEST(SSAOTest)
 					throw std::runtime_error("");
 				if(!textureBuffer->linkTo(*mSceneRenderTarget))
 					throw std::runtime_error("");
-				mNormalRenderTexture = static_cast<TextureRenderBuffer&>(*textureBuffer).texture;
+				mNormalRenderTexture = textureBuffer->texture;
 
 				// depth target
 				textureBuffer = new TextureRenderBuffer(GL_DEPTH_ATTACHMENT_EXT);
@@ -186,7 +186,7 @@ TEST(SSAOTest)
 					throw std::runtime_error("");
 				if(!textureBuffer->linkTo(*mSceneRenderTarget))
 					throw std::runtime_error("");
-				mDepthRenderTexture = static_cast<TextureRenderBuffer&>(*textureBuffer).texture;
+				mDepthRenderTexture = textureBuffer->texture;
 
 				{	// Adjust the clamp mode of the depth texture to be clamp to border
 					mDepthRenderTexture->bind();
@@ -213,14 +213,14 @@ TEST(SSAOTest)
 					throw std::runtime_error("");
 				if(!textureBuffer->linkTo(*mSSAORenderTarget))
 					throw std::runtime_error("");
-				mSSAORenderTexture = static_cast<TextureRenderBuffer&>(*textureBuffer).texture;
+				mSSAORenderTexture = textureBuffer->texture;
 
 				textureBuffer = new TextureRenderBuffer(GL_COLOR_ATTACHMENT1_EXT);
 				if(!textureBuffer->createTexture(mSSAORenderTarget->width(), mSSAORenderTarget->height(), GL_TEXTURE_RECTANGLE_ARB, GL_RGBA))
 					throw std::runtime_error("");
 				if(!textureBuffer->linkTo(*mSSAORenderTarget))
 					throw std::runtime_error("");
-				mSSAORenderTexture2 = static_cast<TextureRenderBuffer&>(*textureBuffer).texture;
+				mSSAORenderTexture2 = textureBuffer->texture;
 
 				// tell mSSAORenderTarget that we are using 1 buffer
 				mSSAORenderTarget->bind();

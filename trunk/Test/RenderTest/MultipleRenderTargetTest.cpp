@@ -71,21 +71,21 @@ TEST(MultipleRenderTargetTest)
 				throw std::runtime_error("");
 			if(!textureBuffer->linkTo(*mRenderTarget))
 				throw std::runtime_error("");
-			mColorRenderTexture = static_cast<TextureRenderBuffer&>(*textureBuffer).texture;
+			mColorRenderTexture = textureBuffer->texture;
 
 			textureBuffer = new TextureRenderBuffer(GL_COLOR_ATTACHMENT1_EXT);
 			if(!textureBuffer->createTexture(targetWidth, targetHeight, GL_TEXTURE_RECTANGLE_ARB, GL_RGB))
 				throw std::runtime_error("");
 			if(!textureBuffer->linkTo(*mRenderTarget))
 				throw std::runtime_error("");
-			mNormalRenderTexture = static_cast<TextureRenderBuffer&>(*textureBuffer).texture;
+			mNormalRenderTexture = textureBuffer->texture;
 
 			textureBuffer = new TextureRenderBuffer(GL_DEPTH_ATTACHMENT_EXT);
 			if(!textureBuffer->createTexture(targetWidth, targetHeight, GL_TEXTURE_RECTANGLE_ARB, GL_DEPTH_COMPONENT))
 				throw std::runtime_error("");
 			if(!textureBuffer->linkTo(*mRenderTarget))
 				throw std::runtime_error("");
-			mDepthRenderTexture = static_cast<TextureRenderBuffer&>(*textureBuffer).texture;
+			mDepthRenderTexture = textureBuffer->texture;
 
 			mRenderTarget->bind();
 			GLenum buffers[] = { GL_COLOR_ATTACHMENT0_EXT, GL_COLOR_ATTACHMENT1_EXT };
