@@ -44,7 +44,7 @@ public:
 			return false;
 		if(!textureBuffer->linkTo(*mRenderTarget))
 			return false;
-		mShadowMapProjection.texture = static_cast<TextureRenderBuffer&>(*textureBuffer).texture;
+		mShadowMapProjection.texture = textureBuffer->texture;
 
 		{	// Setup the texture parameters for the shadow map
 			mShadowMapProjection.texture->bind();

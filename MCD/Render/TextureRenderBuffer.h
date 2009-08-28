@@ -7,10 +7,11 @@ namespace MCD {
 
 typedef IntrusivePtr<class Texture> TexturePtr;
 
-/*!	Use a texture as the render target
+/*!	Use a texture as the render target.
 	\note
 		You cannot read from the texture that is bound to
 		it's RenderTargetthat you currently render to.
+	\sa RenderTarget
  */
 class MCD_RENDER_API TextureRenderBuffer : public RenderBuffer
 {

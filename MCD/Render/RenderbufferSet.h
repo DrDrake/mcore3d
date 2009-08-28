@@ -12,7 +12,6 @@
 namespace MCD
 {
 
-// TODO: Should this class have a name that is consit with class RenderBuffer?
 class MCD_RENDER_API RenderBufferSet : private Noncopyable, public IntrusiveSharedObject<int>
 {
 public:
@@ -27,9 +26,9 @@ public:
 
 	struct BufferInfo
 	{
-		RenderBufferPtr	bufferPtr;
-		bool			isTexture;
-		int			format;
+		RenderBufferPtr bufferPtr;
+		bool isTexture;
+		int format;
 
 		sal_maybenull Texture* texture() const
 		{

@@ -11,10 +11,12 @@ class RenderTarget;
 
 /*!	Represent a render buffer.
 	A render buffer is a region of memory that a RenderTarget can render to.
-	There are 2 kinds of render buffer, the first one is the back
+	Currently there are 2 kinds of render buffer, the BackRenderBuffer and TextureRenderBuffer.
 	For simplicity, there is no way to un-link a render buffer from the RenderTarget.
 	Therefore user have to create and bind the render buffer/target from scratch
 	whenever a different configuration is needed.
+
+	\sa RenderTarget
  */
 class MCD_ABSTRACT_CLASS IRenderBuffer
 {
@@ -40,7 +42,7 @@ class MCD_ABSTRACT_CLASS RenderBuffer : public IRenderBuffer, private Noncopyabl
 protected:
 	RenderBuffer() : mRefCount(0) {}
 
-	~RenderBuffer() {}
+	sal_override ~RenderBuffer() {}
 
 public:
 	friend void intrusivePtrAddRef(RenderBuffer* renderBuffer) {

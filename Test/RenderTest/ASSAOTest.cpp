@@ -166,7 +166,7 @@ TEST(ASSAOTest)
 				return nullptr;
 			if(!textureBuffer->linkTo(renderTarget))
 				return nullptr;
-			TexturePtr ret = static_cast<TextureRenderBuffer&>(*textureBuffer).texture;
+			TexturePtr ret = textureBuffer->texture;
 			mResourceManager.cache(ret);
 
 			return ret;
