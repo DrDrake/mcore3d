@@ -106,7 +106,7 @@ public:
 	{
 	}
 
-	void runScript(const wchar_t* script, bool retVal)
+	bool runScript(const wchar_t* script, bool retVal)
 	{
 		HSQUIRRELVM v = vm.getVM();
 		const wchar_t* scriptName = L"tmp";
@@ -122,7 +122,10 @@ public:
 			sq_getstring(v, -1, &s);
 			if(s)
 				sq_getprintfunc(v)(v, s);
+			return false;
 		}
+
+		return true;
 	}
 
 	static const int cInitialStackSize = 64;
@@ -139,7 +142,7 @@ ScriptVM::~ScriptVM()
 	delete mImpl;
 }
 
-void ScriptVM::runScript(const wchar_t* script, bool retVal)
+bool ScriptVM::runScript(const wchar_t* script, bool retVal)
 {
 	MCD_ASSUME(mImpl);
 	return mImpl->runScript(script, retVal);

@@ -24,7 +24,7 @@ public:
 	/*!	Execute a script.
 		\param retVal True for remaining the return value on the stack.
 	 */
-	void runScript(sal_in_z const wchar_t* script, bool retVal=false);
+	sal_checkreturn bool runScript(sal_in_z const wchar_t* script, bool retVal=false);
 
 	//! Get the underlaying scripting VM handle, that is HSQUIRRELVM
 	sal_notnull void* getImplementationHandle();

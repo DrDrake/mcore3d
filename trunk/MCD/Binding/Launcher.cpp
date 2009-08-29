@@ -188,7 +188,7 @@ Launcher::~Launcher()
 	delete mResourceManager;
 }
 
-void Launcher::init(InputComponent& inputComponent, Entity* rootNode)
+bool Launcher::init(InputComponent& inputComponent, Entity* rootNode)
 {
 	if(rootNode)
 		mRootNode = rootNode;
@@ -221,7 +221,7 @@ void Launcher::init(InputComponent& inputComponent, Entity* rootNode)
 	script::ClassTraits<Launcher>::bind(v);
 
 	// Setup some global variable for easy access in script.
-	mScriptComponentManager.vm.runScript(
+	if(!mScriptComponentManager.vm.runScript(
 		L"gLauncher <- _getlauncher();\n"
 
 		L"function loadEntity(filePath, loadOptions={}) {\n"
@@ -248,18 +248,23 @@ void Launcher::init(InputComponent& inputComponent, Entity* rootNode)
 		L"	callback.onLoaded().setHandler(functor);\n"
 		L"	resourceManager.addCallback(callback);\n"
 		L"}\n"
-	);
+	))
+		return false;
 
 	// Patch the original RigidBodyComponent constructor to pass our dynamics world automatically
-	mScriptComponentManager.vm.runScript(L"\
+	if(!mScriptComponentManager.vm.runScript(L"\
 		local backup = RigidBodyComponent.constructor;\n\
 		RigidBodyComponent.constructor <- function(mass, collisionShape) : (backup) {\n\
 			backup.call(this, gLauncher.dynamicsWorld, mass, collisionShape);	// Call the original constructor\n\
 		}\n"
-	);
+	))
+		return false;
 
 	// TODO: Let user supply a command line argument to choose the startup script
-	mScriptComponentManager.doFile(L"init.nut", true);
+	if(!mScriptComponentManager.doFile(L"init.nut", true))
+		return false;
+
+	return true;
 }
 
 Entity* Launcher::loadEntity(const wchar_t* filePath, bool createCollisionMesh)
@@ -284,14 +289,14 @@ Entity* Launcher::loadEntity(const wchar_t* filePath, bool createCollisionMesh)
 		DynamicsWorld& mDynamicsWorld;
 	};	// EntityLoadCreatePhysicsCallback
 
-	Entity* e = new Entity();
+	std::auto_ptr<Entity> e(new Entity());
 	e->name = filePath;
-	EntityPrototypeLoader::addEntityAfterLoad(e, *mResourceManager, filePath,
+	EntityPrototypeLoader::addEntityAfterLoad(e.get(), *mResourceManager, filePath,
 		createCollisionMesh ? new EntityLoadCreatePhysicsCallback(mDynamicsWorld) : nullptr,
 		0, L"loadAsEntity=true"
 	);
 
-	return e;
+	return e.release();
 }
 
 void Launcher::update(float deltaTime)
