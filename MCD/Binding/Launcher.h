@@ -38,7 +38,7 @@ public:
 		It will take over the ownership of inputComponent.
 		\param rootNode Optional user supplied Entity root node.
 	 */
-	void init(InputComponent& inputComponent, Entity* rootNode=nullptr);
+	sal_checkreturn bool init(InputComponent& inputComponent, Entity* rootNode=nullptr);
 
 	/*!	Loads a tree of entity from a file.
 		Since the load will performed asynchrously, this function will return an empty

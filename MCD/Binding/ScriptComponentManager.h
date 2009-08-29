@@ -34,7 +34,11 @@ public:
 	 */
 	sal_checkreturn bool doFile(const Path& filePath, bool pushRetVal);
 
-	sal_maybenull Entity* runScripAsEntity(const wchar_t* scriptCode);
+	/*!	Run a script and return it as en Entity.
+		If any error occurs or the script didn't returning an Entity, null is returned.
+		\param scriptKeepOwnership Options that define C++ or the script Vm owns the Entity.
+	 */
+	sal_maybenull Entity* runScripAsEntity(sal_in_z const wchar_t* scriptCode, bool scriptKeepOwnership=false);
 
 	//! Invoke all active script components' update() function.
 	void updateScriptComponents();

@@ -14,7 +14,7 @@ public:
 	{
 		WinMessageInputComponent* c = new WinMessageInputComponent();
 		c->attachTo(*this);
-		mLauncher.init(*c);
+		(void)mLauncher.init(*c);
 	}
 
 	sal_override ~TestWindow()

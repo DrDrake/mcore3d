@@ -2,6 +2,7 @@
 #include "ScriptComponentManager.h"
 #include "Entity.h"
 #include "../Core/System/FileSystem.h"
+#include "../Core/System/Log.h"
 
 namespace script {
 
@@ -29,11 +30,12 @@ ScriptComponentManager::ScriptComponentManager(IFileSystem& fs)
 	: fileSystem(fs)
 {
 	// Install a println function
-	vm.runScript(xSTRING("function println(s) { print(s + \"\\n\"); }"));
+	if(!vm.runScript(xSTRING("function println(s) { print(s + \"\\n\"); }")))
+		goto OnError;
 
 	// Initialize the file name to class mapping, and the script component factory function
 	// TODO: Error handling, ensure the script file does return a class
-/*	vm.runScript(xSTRING("\
+/*	if(!vm.runScript(xSTRING("\
 		_scriptComponentClassTable <- {};\n\
 		gComponentQueue <- ComponentQueue();\n\
 		\n\
@@ -107,11 +109,12 @@ ScriptComponentManager::ScriptComponentManager(IFileSystem& fs)
 			}\n\
 //			_scriptComponentInstanceSet = null;\n\
 		}\n\
-	"));*/
+	")))
+		goto OnError;*/
 
 	// Initialize the file name to class mapping, and the script component factory function
 	// TODO: Error handling, ensure the script file does return a class
-	vm.runScript(L"\
+	if(!vm.runScript(L"\
 		_scriptComponentClassTable <- {};\n\
 		// This table hold the ownership of all script component instance\n\
 		_scriptComponentInstanceSet <- {};\n\
@@ -148,7 +151,8 @@ ScriptComponentManager::ScriptComponentManager(IFileSystem& fs)
 					key.update();\n\
 			}\n\
 		}\n\
-	");
+	"))
+		goto OnError;
 
 	HSQUIRRELVM v = reinterpret_cast<HSQUIRRELVM>(vm.getImplementationHandle());
 	script::VMCore* v_ = (script::VMCore*)sq_getforeignptr(v);
@@ -160,6 +164,11 @@ ScriptComponentManager::ScriptComponentManager(IFileSystem& fs)
 	script::objNoCare::pushResult(v, this);
 	sq_rawset(v, -3);
 	sq_pop(v, 1);	// Pops the root table
+
+	return;
+
+OnError:
+	Log::write(Log::Error, L"ScriptComponentManager construction failed");
 }
 
 /*!	Script file reader function for sq_compile
@@ -255,20 +264,26 @@ bool ScriptComponentManager::doFile(const Path& filePath, bool retval)
 	return false;
 }
 
-Entity* ScriptComponentManager::runScripAsEntity(const wchar_t* scriptCode)
+Entity* ScriptComponentManager::runScripAsEntity(const wchar_t* scriptCode, bool scriptKeepOwnership)
 {
-	vm.runScript(scriptCode);
 	using namespace script::types;
 	HSQUIRRELVM v = (HSQUIRRELVM)vm.getImplementationHandle();
-	return script::types::get(TypeSelect<Entity*>(), v, -1);
+
+	if(!vm.runScript(scriptCode, true))
+		return nullptr;
+
+	Entity* ret = script::types::get(TypeSelect<Entity*>(), v, -1);
+	if(ret && !scriptKeepOwnership)
+		sq_setreleasehook(v, -1, NULL);
+	return ret;
 }
 
 void ScriptComponentManager::updateScriptComponents() {
-	vm.runScript(xSTRING("updateAllScriptComponent();"));
+	(void)vm.runScript(xSTRING("updateAllScriptComponent();"));
 }
 
 void ScriptComponentManager::shutdown() {
-	vm.runScript(xSTRING("shutdownAllScriptComponent();"));
+	(void)vm.runScript(xSTRING("shutdownAllScriptComponent();"));
 }
 
 }	// namespace MCD
