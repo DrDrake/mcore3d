@@ -240,15 +240,15 @@
 				>
 			</File>
 			<File
+				RelativePath=".\EditableMesh.h"
+				>
+			</File>
+			<File
 				RelativePath=".\Effect.h"
 				>
 			</File>
 			<File
 				RelativePath=".\EffectLoader.h"
-				>
-			</File>
-			<File
-				RelativePath=".\RenderBufferSet.h"
 				>
 			</File>
 			<File
@@ -313,6 +313,10 @@
 			</File>
 			<File
 				RelativePath=".\RenderBuffer.h"
+				>
+			</File>
+			<File
+				RelativePath=".\RenderBufferSet.h"
 				>
 			</File>
 			<File
@@ -393,15 +397,15 @@
 				>
 			</File>
 			<File
+				RelativePath=".\EditableMesh.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\Effect.cpp"
 				>
 			</File>
 			<File
 				RelativePath=".\EffectLoader.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\RenderBufferSet.cpp"
 				>
 			</File>
 			<File
@@ -466,6 +470,10 @@
 			</File>
 			<File
 				RelativePath=".\RenderBuffer.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\RenderBufferSet.cpp"
 				>
 			</File>
 			<File
