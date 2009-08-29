@@ -1,6 +1,5 @@
 #include "Pch.h"
 #include "Mesh.h"
-#include "MeshBuilder.h"	// For ~Mesh() to work
 #include "../../3Party/glew/glew.h"
 
 namespace MCD {
@@ -47,7 +46,6 @@ Mesh::Mesh(const Path& fileId, const Mesh& shareBuffer)
 	mFormat = shareBuffer.mFormat;
 	mVertexCount = shareBuffer.mVertexCount;
 	mIndexCount = shareBuffer.mIndexCount;
-	builder = shareBuffer.builder;
 }
 
 Mesh::~Mesh()

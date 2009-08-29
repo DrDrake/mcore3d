@@ -3,6 +3,7 @@
 #include "Material.h"
 #include "MeshBuilder.h"
 #include "Mesh.h"
+#include "EditableMesh.h"
 #include "Model.h"
 #include "Texture.h"
 #include "TangentSpaceBuilder.h"
@@ -787,18 +788,28 @@ void Max3dsLoader::Impl::commit(Resource& resource)
 	MCD_FOREACH(const ModelInfo& modelInfo, mModelInfo) {
 		
 		// Commit the mesh with the vertex buffer first
-		MeshPtr meshWithoutIndex = new Mesh(L"tmp");
-		modelInfo.meshBuilder->commit(*meshWithoutIndex, storageHint);
+		MeshPtr meshWithoutIndex;
 
-		// assign meshBuilder if requested in args
 		if(mLoadOptions->keepMeshBuilders)
-			meshWithoutIndex->builder = modelInfo.meshBuilder;
+		{
+			meshWithoutIndex = new EditableMesh(L"tmp");
+			((EditableMesh&)*meshWithoutIndex).builder = modelInfo.meshBuilder;
+		}
+		else
+			meshWithoutIndex = new Mesh(L"tmp");
+
+		modelInfo.meshBuilder->commit(*meshWithoutIndex, storageHint);
 
 		// TODO: Handle empty multiSubObject. That is, those meshes without multi-subobject
 		MCD_FOREACH(const MultiSubObject& subObject, modelInfo.multiSubObject) {
 			// Share all the buffers in meshWithoutIndex into this mesh
 			// TODO: Add name to the mesh
-			MeshPtr mesh = new Mesh(L"", *meshWithoutIndex);
+			MeshPtr mesh;
+			
+			if(mLoadOptions->keepMeshBuilders)
+				mesh = new EditableMesh(L"", (EditableMesh&)*meshWithoutIndex);
+			else
+				mesh = new Mesh(L"", *meshWithoutIndex);
 
 			// Let mesh have it's own index buffer
 			mesh->setHandlePtr(Mesh::Index, Mesh::HandlePtr(new uint(0)));

@@ -9,8 +9,6 @@
 
 namespace MCD {
 
-typedef IntrusivePtr<class MeshBuilder> MeshBuilderPtr;
-
 /*!
 	\note Since we use uint16_t to store index data, therefore a single Mesh instance cannot
 		stores more than 65536 vertices.
@@ -56,12 +54,6 @@ public:
 	size_t indexCount() const {
 		return mIndexCount;
 	}
-
-	/*! Pointer to the MeshBuilder of this mesh, it is primaryly used for reading the mesh data
-		without downloading them from the GPU.
-		Please notice that this pointer may be nullptr.
-	*/
-	MeshBuilderPtr builder;
 
 	typedef SharedPtr<uint> HandlePtr;
 

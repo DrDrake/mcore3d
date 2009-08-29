@@ -2,6 +2,7 @@
 #include "../../MCD/Render/Max3dsLoader.h"
 #include "../../MCD/Render/Model.h"
 #include "../../MCD/Render/Mesh.h"
+#include "../../MCD/Render/EditableMesh.h"
 #include "../../MCD/Render/ResourceLoaderFactory.h"
 #include "../../MCD/Render/Texture.h"
 #include "../../MCD/Core/System/ResourceLoader.h"
@@ -73,7 +74,7 @@ TEST(Max3dsLoaderTest)
 					mnm != mModel->mMeshes.end(); 
 					mnm = mnm->next())
 				{
-					MCD_ASSERT(mnm->mesh->builder != nullptr);
+					MCD_ASSERT(((EditableMesh&)*mnm->mesh).builder != nullptr);
 				}
 			}
 		}
