@@ -120,6 +120,9 @@
   <metadata name="mainMenu.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
     <value>17, 17</value>
   </metadata>
+  <metadata name="toolStripMain.Locked" type="System.Boolean, mscorlib, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089">
+    <value>True</value>
+  </metadata>
   <metadata name="toolStripMain.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
     <value>131, 17</value>
   </metadata>
@@ -245,6 +248,9 @@
         TkSuQmCC
 </value>
   </data>
+  <metadata name="toolStripGizmo.Locked" type="System.Boolean, mscorlib, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089">
+    <value>True</value>
+  </metadata>
   <metadata name="toolStripGizmo.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
     <value>230, 17</value>
   </metadata>
@@ -295,6 +301,22 @@
         kSOa23A45LNcMavfywp0o83xZBbi+eUkGEwQBAGm0ynCMGRQvq2f6+5jYTGbc8I+DZxicpLXvd/vI4oi
         dkt18/mZz99yuQQNfLFYYBbdJHIUSYxAPySO46vYKk6wShKs1+tCw42TFfOIn/V9TdYstNls2KHnebmi
         T57PdcR5xETh1/Bnwjec1K9LocXdiwAAAABJRU5ErkJggg==
+</value>
+  </data>
+  <metadata name="toolStripDebug.Locked" type="System.Boolean, mscorlib, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089">
+    <value>True</value>
+  </metadata>
+  <metadata name="toolStripDebug.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
+    <value>354, 17</value>
+  </metadata>
+  <data name="toolStripButtonPlay.Image" type="System.Drawing.Bitmap, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+    <value>
+        iVBORw0KGgoAAAANSUhEUgAAAA4AAAAOCAYAAAAfSC3RAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8
+        YQUAAAAgY0hSTQAAeiYAAICEAAD6AAAAgOgAAHUwAADqYAAAOpgAABdwnLpRPAAAALdJREFUOE9jYKAW
+        ePX5xX+yzEqYEfH/8rOLpGsGabQs0///klSbo6YE/d9wazHpmoMneP8v25+NpPk5cc726XIGawThqEUB
+        YJsvPT1PWLNjs8X/jA2xYE22zfr/dYoV/kukcf9//eE1fs3mNXoomvgTWP6/fk9AEyj+9EqV4TaBNF27
+        f5WwM0EaVfKlwM4DaXr1/hVxmkAapTMEwZqu3LtMvCaQRpFkzv8v370kTRNI46U7l4jSBACo0HhB4E7+
+        ygAAAABJRU5ErkJggg==
 </value>
   </data>
   <metadata name="$this.Locked" type="System.Boolean, mscorlib, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089">

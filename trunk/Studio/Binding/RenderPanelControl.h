@@ -70,6 +70,12 @@ public:
 		void set(GizmoMode);
 	}
 
+	/// Is in playing (debug) mode or not.
+	property bool playing {
+		bool get();
+		void set(bool);
+	}
+
 protected:
 	/// <summary>
 	/// Clean up any resources being used.

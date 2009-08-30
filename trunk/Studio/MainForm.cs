@@ -89,6 +89,9 @@ namespace Studio
 
 			// Selected the newly created scene
 			sceneSelectionChanged(renderPanel, new EventArgs());
+
+			toolStripGizmo.Enabled = true;
+			toolStripDebug.Enabled = true;
 		}
 
 		/// <summary>
@@ -147,8 +150,9 @@ namespace Studio
 
 			if (renderControls.Count == 0)
 			{
+				toolStripGizmo.Enabled = false;
+				toolStripDebug.Enabled = false;
 				clearGizmoButtonsState();
-				toolStripButtonMove.Enabled = false;
 				IsFpsCameraMode = true;
 			}
 		}
@@ -293,6 +297,17 @@ namespace Studio
 		{
 			toolStripButtonTranslate.Enabled = !IsFpsCameraMode;
 			IsFpsCameraMode = IsFpsCameraMode;
+		}
+
+		private void toolStripGizmo_ItemClicked(object sender, ToolStripItemClickedEventArgs e)
+		{
+
+		}
+
+		private void toolStripButtonPlay_Click(object sender, EventArgs e)
+		{
+			currentRenderControl.playing = !currentRenderControl.playing;
+			toolStripGizmo.Enabled = !currentRenderControl.playing;
 		}
 	}
 }

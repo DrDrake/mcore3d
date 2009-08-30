@@ -5,11 +5,12 @@
 #include "../Component/Physics/ThreadedDynamicWorld.h"
 #include "../Core/System/Timer.h"
 #include "../Core/System/Thread.h"
+#include "../Core/System/WeakPtr.h"
 
 namespace MCD {
 
-class InputComponent;
 class IResourceManager;
+typedef WeakPtr<class InputComponent> InputComponentPtr;
 
 class MCD_BINDING_API Launcher
 {
@@ -33,6 +34,19 @@ public:
 		TimeInterval mAccumulateTime;
 	};	// FrameTimer
 
+protected:
+	static Launcher* mSingleton;
+
+	Entity* mRootNode;
+	InputComponentPtr mInputComponent;
+
+	FrameTimer mFrameTimer;
+	IFileSystem& fileSystem;
+	IResourceManager* mResourceManager;
+	Thread mPhysicsThread;
+	ThreadedDynamicsWorld mDynamicsWorld;
+
+public:
 // Operations:
 	/*!	Perform initialization.
 		It will take over the ownership of inputComponent.
@@ -47,16 +61,24 @@ public:
 	 */
 	sal_notnull Entity* loadEntity(const wchar_t* filePath, bool createCollisionMesh);
 
-	sal_override void update(float deltaTime);
+	sal_override void update();
 
 // Attributes:
 	sal_notnull Entity* rootNode() {
 		return mRootNode;
 	}
 
-	sal_notnull InputComponent* inputComponent() {
-		return mInputComponent;
-	}
+	/*!	Assign a node as the root node of Launcher.
+		Previous root node will be deleted.
+	 */
+	void setRootNode(sal_in_opt Entity* e);
+
+	sal_maybenull InputComponent* inputComponent();
+
+	/*!	Assign a new input component.
+		Previous input component will be deleted.
+	 */
+	void setInputComponent(sal_in_opt InputComponent* inputComponent);
 
 	sal_notnull IResourceManager* resourceManager() {
 		return mResourceManager;
@@ -74,18 +96,7 @@ public:
 		return Launcher::mSingleton;
 	}
 
-protected:
-	static Launcher* mSingleton;
-
-	Entity* mRootNode;
-	InputComponent* mInputComponent;
-
-	FrameTimer mFrameTimer;
-	IFileSystem& fileSystem;
-	IResourceManager* mResourceManager;
-	Thread mPhysicsThread;
-	ThreadedDynamicsWorld mDynamicsWorld;
-	ScriptComponentManager mScriptComponentManager;
+	ScriptComponentManager scriptComponentManager;
 };	// Launcher
 
 }	// namespace MCD
