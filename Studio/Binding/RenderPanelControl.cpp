@@ -36,9 +36,18 @@ public:
 		mGizmoEnabled(false), mGizmo(nullptr), mEntityPicker(nullptr),
 		mPredefinedSubTree(nullptr), mUserSubTree(nullptr),
 		mResourceManager(nullptr),
-		mPropertyGridNeedRefresh(false)
+		mPropertyGridNeedRefresh(false),
+		mPlaying(false)
 	{
 		mResourceManager = mLauncher.resourceManager();
+	}
+
+	~RenderPanelControlImpl()
+	{
+		// Maually remove all entity, before the Launcher get destroyed.
+		while(mRootNode.firstChild())
+			delete mRootNode.firstChild();
+		mLauncher.setRootNode(nullptr);
 	}
 
 	void createScene()
@@ -92,6 +101,13 @@ public:
 			e.release();
 		}
 
+		{	// Add a C# contorl event input component
+			CsInputComponent* c = new CsInputComponent();
+			c->attachTo(mBackRef);
+			mLauncher.init(*c, mUserSubTree);
+			mLauncher.scriptComponentManager.doFile(L"scene.nut", true);
+		}
+
 		{	// Add a default camera
 			std::auto_ptr<MCD::Entity> e(new MCD::Entity);
 			e->name = L"Default camera";
@@ -99,20 +115,13 @@ public:
 			e->localTransform.setTranslation(Vec3f(0, 0, 5));
 
 			// Add component
-			mCamera = new CameraComponent;
-			// We relay on Entity's transform rather than the position of MCD::Camera
-			mCamera->camera.position = Vec3f(0, 0, 0);
-			mCamera->camera.lookAt = Vec3f(0, 0, -1);
-			mCamera->camera.upVector = Vec3f(0, 1, 0);
+			mCamera = static_cast<CameraComponent*>(mLauncher.scriptComponentManager.runScripAsComponent(
+				L"return loadComponent(\"FpsCamera.nut\");"
+			));
 			mCamera->clearColor = ColorRGBf(0.5f);	// Set the background color as 50% gray
 			e->addComponent(mCamera.get());
 
 			e.release();
-		}
-
-		{	CsInputComponent* c = new CsInputComponent();
-			c->attachTo(mBackRef);
-			mLauncher.init(*c, mUserSubTree);
 		}
 	}
 
@@ -120,36 +129,36 @@ public:
 	{
 		makeActive();
 
-		mLauncher.update(0.01);
-
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-		// Update behaviour components
-		BehaviourComponent::traverseEntities(&mRootNode);
-
 		glEnable(GL_LIGHTING);
-		RenderableComponent::traverseEntities(mPredefinedSubTree);
 
-		RenderableComponent::traverseEntities(mUserSubTree);
+		mLauncher.update();
 
-		// Draw the Gizmo
-		if(mGizmo && mGizmo->enabled) {
-			glDisable(GL_TEXTURE_2D);
-			glDisable(GL_LIGHTING);
-			glClear(GL_DEPTH_BUFFER_BIT);
-			RenderableComponent::traverseEntities(mGizmo);
+		// Update pre-defined tree
+		if(!mPlaying) {
+			BehaviourComponent::traverseEntities(mPredefinedSubTree);
+			RenderableComponent::traverseEntities(mPredefinedSubTree);
+
+			// Draw the Gizmo
+			if(mGizmo && mGizmo->enabled) {
+				glDisable(GL_TEXTURE_2D);
+				glDisable(GL_LIGHTING);
+				glClear(GL_DEPTH_BUFFER_BIT);
+				BehaviourComponent::traverseEntities(mGizmo);
+				RenderableComponent::traverseEntities(mGizmo);
+			}
+
+			// Handle picking result
+			for(size_t i=0; i<mEntityPicker->hitCount(); ++i) {
+				EntityPtr e = mEntityPicker->hitAtIndex(i);
+				if(!e)
+					continue;
+				mBackRef->entitySelectionChanged(mBackRef, Entity::getEntityFromRawPtr(e.get()));
+				break;	// We only pick the Entity that nearest to the camera
+			}
+			mEntityPicker->clearResult();
+			mEntityPicker->entity()->enabled = false;
 		}
-
-		// Handle picking result
-		for(size_t i=0; i<mEntityPicker->hitCount(); ++i) {
-			EntityPtr e = mEntityPicker->hitAtIndex(i);
-			if(!e)
-				continue;
-			mBackRef->entitySelectionChanged(mBackRef, Entity::getEntityFromRawPtr(e.get()));
-			break;	// We only pick the Entity that nearest to the camera
-		}
-		mEntityPicker->clearResult();
-		mEntityPicker->entity()->enabled = false;
 
 		glFlush();
 		swapBuffers();
@@ -204,54 +213,36 @@ public:
 		update();
 	}
 
+	void setPlaying(bool b)
+	{
+		if(b)
+		{
+			mLauncher.scriptComponentManager.doFile(L"init.nut", true);
+		}
+		else
+		{
+			MCD::Entity* oldUserSubTree = mUserSubTree;
+			mUserSubTree = new MCD::Entity();
+
+			CsInputComponent* c = new CsInputComponent();
+			c->attachTo(mBackRef);
+			mLauncher.setRootNode(mUserSubTree);
+			mLauncher.setInputComponent(c);
+
+			mLauncher.scriptComponentManager.doFile(L"scene.nut", true);
+			delete oldUserSubTree;
+		}
+
+		mCamera->entity()->enabled = !b;
+		mPlaying = b;
+	}
+
 	void onKeyDown(System::Object^ sender, System::Windows::Forms::KeyEventArgs^ e)
 	{
-		if(mGizmoEnabled)
-			return;
-
-/*		static const float cCameraVelocity = 10.0f;
-		switch(e->KeyCode) {
-		case System::Windows::Forms::Keys::W:
-			mCamera->velocity.z = cCameraVelocity;
-			break;
-		case System::Windows::Forms::Keys::S:
-			mCamera->velocity.z = -cCameraVelocity;
-			break;
-		case System::Windows::Forms::Keys::D:
-			mCamera->velocity.x = cCameraVelocity;
-			break;
-		case System::Windows::Forms::Keys::A:
-			mCamera->velocity.x = -cCameraVelocity;
-			break;
-		case System::Windows::Forms::Keys::PageUp:
-			mCamera->velocity.y = cCameraVelocity;
-			break;
-		case System::Windows::Forms::Keys::PageDown:
-			mCamera->velocity.y = -cCameraVelocity;
-			break;
-		default:
-			break;
-		}*/
 	}
 
 	void onKeyUp(System::Object^ sender, System::Windows::Forms::KeyEventArgs^ e)
 	{
-/*		switch(e->KeyCode) {
-		case System::Windows::Forms::Keys::W:
-		case System::Windows::Forms::Keys::S:
-			mCamera->velocity.z = 0;
-			break;
-		case System::Windows::Forms::Keys::D:
-		case System::Windows::Forms::Keys::A:
-			mCamera->velocity.x = 0;
-			break;
-		case System::Windows::Forms::Keys::PageUp:
-		case System::Windows::Forms::Keys::PageDown:
-			mCamera->velocity.y = 0;
-			break;
-		default:
-			break;
-		}*/
 	}
 
 	void onMouseDown(System::Object^ sender, System::Windows::Forms::MouseEventArgs^ e)
@@ -267,8 +258,6 @@ public:
 				mEntityPicker->setPickRegion(e->X, e->Y);
 			}
 		}
-//		else
-//			mCamera->isMouseDown = true;
 
 		mLastMousePos = Point(e->X, e->Y);
 	}
@@ -277,8 +266,6 @@ public:
 	{
 		if(mGizmoEnabled)
 			mGizmo->mouseUp(e->X, e->Y);
-//		else
-//			mCamera->isMouseDown = false;
 	}
 
 	void onMouseMove(System::Object^ sender, System::Windows::Forms::MouseEventArgs^ e)
@@ -289,10 +276,6 @@ public:
 
 			if(mGizmo->isDragging() && mLastMousePos != Point(e->X, e->Y))
 				mPropertyGridNeedRefresh = true;
-		}
-		else
-		{
-//			mCamera->setsetMousePosition(e->X, e->Y);
 		}
 
 		mLastMousePos = Point(e->X, e->Y);
@@ -309,6 +292,7 @@ public:
 	IResourceManager* mResourceManager;
 	bool mPropertyGridNeedRefresh;
 	Point mLastMousePos;
+	bool mPlaying;
 
 	Launcher mLauncher;
 };	// RenderPanelControlImpl
@@ -322,9 +306,7 @@ RenderPanelControl::RenderPanelControl()
 RenderPanelControl::~RenderPanelControl()
 {
 	if(components)
-	{
 		delete components;
-	}
 
 	this->!RenderPanelControl();
 }
@@ -429,6 +411,18 @@ void RenderPanelControl::gizmoEnabled::set(bool value)
 	mImpl->mGizmoEnabled = value;
 	mImpl->mGizmo->enabled = value;
 	mImpl->mEntityPicker->entity()->enabled = value;
+	if(mImpl->mCamera && mImpl->mCamera->entity())
+		mImpl->mCamera->entity()->enabled = !value;
+}
+
+bool RenderPanelControl::playing::get()
+{
+	return mImpl->mPlaying;
+}
+
+void RenderPanelControl::playing::set(bool value)
+{
+	mImpl->setPlaying(value);
 }
 
 System::Void RenderPanelControl::timer_Tick(System::Object^ sender, System::EventArgs^ e)

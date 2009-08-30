@@ -96,7 +96,7 @@ ScriptComponentManager::ScriptComponentManager(IFileSystem& fs)
 			while(true) {\n\
 				queueResult = ::gComponentQueue.getItem(currentTime, queueResult.queueNode);\n\
 				local component = queueResult.component;\n\
-				if(!component)\n\
+				if(!component || !component.entity.enabled)\n\
 					break;\n\
 				component.wakeup();\n\
 			}\n\
@@ -147,8 +147,10 @@ ScriptComponentManager::ScriptComponentManager(IFileSystem& fs)
 		function updateAllScriptComponent() {\n\
 			// TODO: Make this loop more efficient, eliminate the need to call C++ functions\n\
 			foreach(key, value in _scriptComponentInstanceSet) {\n\
-				if(key.entity != null)\n\
-					key.update();\n\
+				try {\n\
+					if(key.entity != null && key.entity.enabled)\n\
+						key.update();\n\
+				} catch(e) {}\n\
 			}\n\
 		}\n\
 	"))
@@ -264,6 +266,7 @@ bool ScriptComponentManager::doFile(const Path& filePath, bool retval)
 	return false;
 }
 
+// TODO: May be generalized both runScripAsEntity() and runScripAsComponent() into a template function of ScriptVM.
 Entity* ScriptComponentManager::runScripAsEntity(const wchar_t* scriptCode, bool scriptKeepOwnership)
 {
 	using namespace script::types;
@@ -273,6 +276,20 @@ Entity* ScriptComponentManager::runScripAsEntity(const wchar_t* scriptCode, bool
 		return nullptr;
 
 	Entity* ret = script::types::get(TypeSelect<Entity*>(), v, -1);
+	if(ret && !scriptKeepOwnership)
+		sq_setreleasehook(v, -1, NULL);
+	return ret;
+}
+
+Component* ScriptComponentManager::runScripAsComponent(const wchar_t* scriptCode, bool scriptKeepOwnership)
+{
+	using namespace script::types;
+	HSQUIRRELVM v = (HSQUIRRELVM)vm.getImplementationHandle();
+
+	if(!vm.runScript(scriptCode, true))
+		return nullptr;
+
+	Component* ret = script::types::get(TypeSelect<Component*>(), v, -1);
 	if(ret && !scriptKeepOwnership)
 		sq_setreleasehook(v, -1, NULL);
 	return ret;

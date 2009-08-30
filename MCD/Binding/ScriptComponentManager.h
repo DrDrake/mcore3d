@@ -6,6 +6,7 @@
 
 namespace MCD {
 
+class Component;
 class Entity;
 class IFileSystem;
 class Path;
@@ -39,6 +40,12 @@ public:
 		\param scriptKeepOwnership Options that define C++ or the script Vm owns the Entity.
 	 */
 	sal_maybenull Entity* runScripAsEntity(sal_in_z const wchar_t* scriptCode, bool scriptKeepOwnership=false);
+
+	/*!	Run a script and return it a Component.
+		If any error occurs or the script didn't returning an Component, null is returned.
+		\param scriptKeepOwnership Options that define C++ or the script Vm owns the Component.
+	 */
+	sal_maybenull Component* runScripAsComponent(sal_in_z const wchar_t* scriptCode, bool scriptKeepOwnership=false);
 
 	//! Invoke all active script components' update() function.
 	void updateScriptComponents();

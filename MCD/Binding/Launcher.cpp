@@ -156,7 +156,7 @@ Launcher::Launcher()
 	mInputComponent(nullptr),
 	fileSystem(*createDefaultFileSystem()),
 	mResourceManager(new DefaultResourceManager(fileSystem)),	// The ownership of fileSystem will pass to the resource manager
-	mScriptComponentManager(fileSystem)
+	scriptComponentManager(fileSystem)
 {
 	FileSystemCollection& fs = dynamic_cast<FileSystemCollection&>(fileSystem);
 	fs.addFileSystem(*(new RawFileSystem(L"")));
@@ -169,10 +169,10 @@ Launcher::Launcher()
 
 Launcher::~Launcher()
 {
-//	mScriptComponentManager.shutdown();
+//	scriptComponentManager.shutdown();
 
 	// Make sure the RigidBodyComponent is freed BEFORE the dynamics world...
-	while(mRootNode->firstChild())
+	if(mRootNode) while(mRootNode->firstChild())
 		delete mRootNode->firstChild();
 
 	// Stop the physics thread
@@ -180,7 +180,7 @@ Launcher::~Launcher()
 	mPhysicsThread.wait();
 
 	// Give the script engine a chance to do cleanups
-//	mScriptComponentManager.updateScriptComponents();
+//	scriptComponentManager.updateScriptComponents();
 
 	// The Entity tree must be destroyed before the script VM.
 	delete mRootNode;
@@ -191,28 +191,17 @@ Launcher::~Launcher()
 bool Launcher::init(InputComponent& inputComponent, Entity* rootNode)
 {
 	if(rootNode)
-		mRootNode = rootNode;
-	else {
-		mRootNode = new Entity();
-		mRootNode->name = L"root";
-	}
+		setRootNode(rootNode);
+	else
+		setRootNode(new Entity());
 
-	mInputComponent = &inputComponent;
-
-	mScriptComponentManager.registerRootEntity(*mRootNode);
-
-	{	// Setup input component
-		std::auto_ptr<Entity> e(new Entity);
-		e->name = L"Input";
-		e->asChildOf(mRootNode);
-		e->addComponent(mInputComponent);
-		e.release();
-	}
+	setInputComponent(&inputComponent);
 
 	using namespace script;
 
-	VMCore* v = (VMCore*)sq_getforeignptr(HSQUIRRELVM(mScriptComponentManager.vm.getImplementationHandle()));
+	VMCore* v = (VMCore*)sq_getforeignptr(HSQUIRRELVM(scriptComponentManager.vm.getImplementationHandle()));
 
+	// TODO: Remove the need of a singleton
 	script::RootDeclarator root(v);
 	root.declareFunction<objNoCare>(L"_getlauncher", &Launcher::sinleton);
 
@@ -221,7 +210,7 @@ bool Launcher::init(InputComponent& inputComponent, Entity* rootNode)
 	script::ClassTraits<Launcher>::bind(v);
 
 	// Setup some global variable for easy access in script.
-	if(!mScriptComponentManager.vm.runScript(
+	if(!scriptComponentManager.vm.runScript(
 		L"gLauncher <- _getlauncher();\n"
 
 		L"function loadEntity(filePath, loadOptions={}) {\n"
@@ -252,16 +241,12 @@ bool Launcher::init(InputComponent& inputComponent, Entity* rootNode)
 		return false;
 
 	// Patch the original RigidBodyComponent constructor to pass our dynamics world automatically
-	if(!mScriptComponentManager.vm.runScript(L"\
+	if(!scriptComponentManager.vm.runScript(L"\
 		local backup = RigidBodyComponent.constructor;\n\
 		RigidBodyComponent.constructor <- function(mass, collisionShape) : (backup) {\n\
 			backup.call(this, gLauncher.dynamicsWorld, mass, collisionShape);	// Call the original constructor\n\
 		}\n"
 	))
-		return false;
-
-	// TODO: Let user supply a command line argument to choose the startup script
-	if(!mScriptComponentManager.doFile(L"init.nut", true))
 		return false;
 
 	return true;
@@ -299,14 +284,48 @@ Entity* Launcher::loadEntity(const wchar_t* filePath, bool createCollisionMesh)
 	return e.release();
 }
 
-void Launcher::update(float deltaTime)
+void Launcher::update()
 {
 	static_cast<DefaultResourceManager*>(mResourceManager)->processLoadingEvents();
 
-	mScriptComponentManager.updateScriptComponents();
+	scriptComponentManager.updateScriptComponents();
 
 	BehaviourComponent::traverseEntities(mRootNode);
 	RenderableComponent::traverseEntities(mRootNode);
 
 	mFrameTimer.nextFrame();
+}
+
+void Launcher::setRootNode(Entity* e)
+{
+//	if(mRootNode)
+//		delete mRootNode;
+
+	mRootNode = e;
+
+	if(!e)
+		return;
+
+	mRootNode->name = L"Launcher root node";
+	scriptComponentManager.registerRootEntity(*e);
+}
+
+InputComponent* Launcher::inputComponent() {
+	return mInputComponent.get();
+}
+
+void Launcher::setInputComponent(InputComponent* inputComponent)
+{
+	if(mInputComponent)
+		delete mInputComponent.get();
+
+	mInputComponent = inputComponent;
+	if(!mRootNode || !inputComponent)
+		return;
+
+	std::auto_ptr<Entity> e(new Entity);
+	e->name = L"Input";
+	e->asChildOf(mRootNode);
+	e->addComponent(inputComponent);
+	e.release();
 }

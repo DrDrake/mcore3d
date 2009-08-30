@@ -1,6 +1,7 @@
 #include "Pch.h"
 #include "../MCD/Binding/Launcher.h"
 #include "../MCD/Component/Input/WinMessageInputComponent.h"
+#include "../MCD/Core/System/Path.h"
 #include "../Test/RenderTest/BasicGlWindow.h"
 
 using namespace MCD;
@@ -15,6 +16,9 @@ public:
 		WinMessageInputComponent* c = new WinMessageInputComponent();
 		c->attachTo(*this);
 		(void)mLauncher.init(*c);
+
+		// TODO: Let user supply a command line argument to choose the startup script
+		mLauncher.scriptComponentManager.doFile(L"init.nut", true);
 	}
 
 	sal_override ~TestWindow()
@@ -23,7 +27,7 @@ public:
 
 	sal_override void update(float deltaTime)
 	{
-		mLauncher.update(deltaTime);
+		mLauncher.update();
 	}
 
 protected:

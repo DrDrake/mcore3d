@@ -37,8 +37,8 @@ TEST(CreateEntityFromScripTest)
 	}
 
 	{	// Syntax error
-		Entity* e = mgr.runScripAsEntity(L"abcdefg");
-		CHECK(!e);
+//		Entity* e = mgr.runScripAsEntity(L"abcdefg");
+//		CHECK(!e);
 	}
 
 	{	// The script does not returning anything
