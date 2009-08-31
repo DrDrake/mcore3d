@@ -222,10 +222,6 @@
 			>
 		</File>
 		<File
-			RelativePath="..\Test\RenderTest\DefaultResourceManager.cpp"
-			>
-		</File>
-		<File
 			RelativePath=".\FpsCamera.nut"
 			>
 		</File>

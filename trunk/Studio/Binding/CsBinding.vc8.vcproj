@@ -199,6 +199,10 @@
 			ReferencedProjectIdentifier="{B6219744-C76A-4C74-A455-8AFA986C3B6A}"
 			RelativePathToProject="..\MCD\Component\Component.vcproj"
 		/>
+		<ProjectReference
+			ReferencedProjectIdentifier="{5813D158-EC1E-4305-8122-8573958150FE}"
+			RelativePathToProject="..\MCD\Binding\Binding.vcproj"
+		/>
 	</References>
 	<Files>
 		<Filter
@@ -208,6 +212,10 @@
 			>
 			<File
 				RelativePath=".\AssemblyInfo.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\CsInputComponent.cpp"
 				>
 			</File>
 			<File
@@ -252,6 +260,10 @@
 			Filter="h;hpp;hxx;hm;inl;inc;xsd"
 			UniqueIdentifier="{93995380-89BD-4b04-88EB-625FBE52EBFB}"
 			>
+			<File
+				RelativePath=".\CsInputComponent.h"
+				>
+			</File>
 			<File
 				RelativePath=".\Entity.h"
 				>

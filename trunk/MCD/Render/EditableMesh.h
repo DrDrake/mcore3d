@@ -22,6 +22,28 @@ public:
 		Please notice that this pointer may be nullptr.
 	*/
 	MeshBuilderPtr builder;
+    
+    void beginEditing();
+
+    /*
+	size_t getTriangleCount() const;
+
+	uint16_t* getTriangleIndexAt(size_t face);
+
+	Vec3f& getPositionAt(uint16_t vertexIndex);
+
+	Vec3f& getNormalAt(uint16_t vertexIndex);
+	
+	Vec3f& getTangentAt(uint16_t vertexIndex);
+
+	Vec2f& getUV0At(uint16_t vertexIndex);
+
+	Vec2f& getUV1At(uint16_t vertexIndex);
+
+	Vec4f& getColorAt(size_t vertexIndex);
+
+	void endEditing(bool commit);
+    */
 
 };	// EditableMesh
 
