@@ -6,6 +6,7 @@
 	ProjectGUID="{500413B2-5AE6-41CE-BCFF-D90DB2755869}"
 	RootNamespace="Render"
 	Keyword="Win32Proj"
+	TargetFrameworkVersion="131072"
 	>
 	<Platforms>
 		<Platform
@@ -73,9 +74,6 @@
 				Name="VCAppVerifierTool"
 			/>
 			<Tool
-				Name="VCWebDeploymentTool"
-			/>
-			<Tool
 				Name="VCPostBuildEventTool"
 			/>
 		</Configuration>
@@ -135,9 +133,6 @@
 			/>
 			<Tool
 				Name="VCAppVerifierTool"
-			/>
-			<Tool
-				Name="VCWebDeploymentTool"
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
@@ -201,9 +196,6 @@
 				Name="VCAppVerifierTool"
 			/>
 			<Tool
-				Name="VCWebDeploymentTool"
-			/>
-			<Tool
 				Name="VCPostBuildEventTool"
 			/>
 		</Configuration>
@@ -211,7 +203,7 @@
 	<References>
 		<ProjectReference
 			ReferencedProjectIdentifier="{8B671592-CBBD-4F9E-BACA-1E4AC1575AC2}"
-			RelativePathToProject="..\MCD\Core\Core.vc8.vcproj"
+			RelativePathToProject="..\MCD\Core\Core.vcproj"
 		/>
 	</References>
 	<Files>
@@ -245,6 +237,10 @@
 			</File>
 			<File
 				RelativePath=".\DdsLoader.h"
+				>
+			</File>
+			<File
+				RelativePath=".\EditableMesh.h"
 				>
 			</File>
 			<File
@@ -320,7 +316,7 @@
 				>
 			</File>
 			<File
-				RelativePath=".\RenderbufferSet.h"
+				RelativePath=".\RenderBufferSet.h"
 				>
 			</File>
 			<File
@@ -401,6 +397,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\EditableMesh.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\Effect.cpp"
 				>
 			</File>
@@ -473,7 +473,7 @@
 				>
 			</File>
 			<File
-				RelativePath=".\RenderbufferSet.cpp"
+				RelativePath=".\RenderBufferSet.cpp"
 				>
 			</File>
 			<File

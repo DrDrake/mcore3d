@@ -245,6 +245,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\Launcher.h"
+				>
+			</File>
+			<File
 				RelativePath=".\Math.h"
 				>
 			</File>
@@ -299,6 +303,10 @@
 			</File>
 			<File
 				RelativePath=".\InputComponent.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\Launcher.cpp"
 				>
 			</File>
 			<File

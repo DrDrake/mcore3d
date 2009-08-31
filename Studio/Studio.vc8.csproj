@@ -136,9 +136,9 @@
       <Project>{C75532C4-765B-418E-B09B-46D36B2ABDB1}</Project>
       <Name>WinFormsUI</Name>
     </ProjectReference>
-    <ProjectReference Include="Binding\Binding.vcproj">
+    <ProjectReference Include="Binding\CsBinding.vcproj">
       <Project>{32D8BE99-8D55-4AB8-96BE-7DD82F507F62}</Project>
-      <Name>Binding</Name>
+      <Name>CsBinding</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
