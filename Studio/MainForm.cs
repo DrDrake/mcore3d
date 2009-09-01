@@ -33,6 +33,17 @@ namespace Studio
 		}
 
 	// Operations
+		void UpdateToolBars()
+		{
+			toolStripGizmo.Enabled = !currentRenderControl.playing;
+
+			{
+				ComponentResourceManager resources = new ComponentResourceManager(typeof(MainForm));
+				toolStripButtonPlay.Image = ((System.Drawing.Image)(
+					resources.GetObject(currentRenderControl.playing ? "stopToolStripButton.Image" : "playToolStripButton.Image"))
+				);
+			}
+		}
 
 	// Events
 		private void MainForm_Load(object sender, EventArgs e)
@@ -129,6 +140,7 @@ namespace Studio
 			toolStripButtonMove.Enabled = true;
 			IsFpsCameraMode = true;
 			updateGizmoButtonsState();
+			UpdateToolBars();
 		}
 
 		void sceneClosing(object sender, FormClosingEventArgs e)
@@ -308,14 +320,7 @@ namespace Studio
 		private void toolStripButtonPlay_Click(object sender, EventArgs e)
 		{
 			currentRenderControl.playing = !currentRenderControl.playing;
-			toolStripGizmo.Enabled = !currentRenderControl.playing;
-
-			{
-				ComponentResourceManager resources = new ComponentResourceManager(typeof(MainForm));
-				toolStripButtonPlay.Image = ((System.Drawing.Image)(
-					resources.GetObject(currentRenderControl.playing ? "stopToolStripButton.Image" : "playToolStripButton.Image"))
-				);
-			}
+			UpdateToolBars();
 		}
 	}
 }
