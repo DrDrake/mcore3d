@@ -137,16 +137,25 @@ void CsInputComponent::attachTo(Control^ control)
 	control->MouseMove += gcnew MouseEventHandler(mMessageRouter, &MessageRouter::onMouseMove);
 }
 
+//! Some key code's string in .net is strange, so we perform a transformation to our usual convention.
+static std::wstring transformKeyString(System::String^ s)
+{
+	std::wstring ret = Utility::toWString(s);
+	if(ret == L"Next")
+		ret = L"PageDown";
+	return ret;
+}
+
 void CsInputComponent::MessageRouter::onKeyUp(System::Object^ sender, KeyEventArgs^ e)
 {
-	std::wstring s = Utility::toWString(e->KeyData.ToString());
+	std::wstring s = transformKeyString(e->KeyData.ToString());
 	mBackRef->mKeyList.erase(s);
 	mBackRef->mKeyUpList[s] = 1;
 }
 
 void CsInputComponent::MessageRouter::onKeyDown(System::Object^ sender, KeyEventArgs^ e)
 {
-	std::wstring s = Utility::toWString(e->KeyData.ToString());
+	std::wstring s = transformKeyString(e->KeyData.ToString());
 	mBackRef->mKeyList[s] = 1;
 	mBackRef->mKeyDownList[s] = 1;
 }

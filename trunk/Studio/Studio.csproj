@@ -175,6 +175,7 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="Icons\File.png" />
+    <None Include="Icons\stop.png" />
     <EmbeddedResource Include="Icons\Folder.png" />
     <EmbeddedResource Include="LogWindow.resx">
       <DependentUpon>LogWindow.cs</DependentUpon>

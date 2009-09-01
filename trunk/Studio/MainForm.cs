@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Windows.Forms;
 using Binding;
 using WeifenLuo.WinFormsUI.Docking;
@@ -308,6 +309,13 @@ namespace Studio
 		{
 			currentRenderControl.playing = !currentRenderControl.playing;
 			toolStripGizmo.Enabled = !currentRenderControl.playing;
+
+			{
+				ComponentResourceManager resources = new ComponentResourceManager(typeof(MainForm));
+				toolStripButtonPlay.Image = ((System.Drawing.Image)(
+					resources.GetObject(currentRenderControl.playing ? "stopToolStripButton.Image" : "playToolStripButton.Image"))
+				);
+			}
 		}
 	}
 }
