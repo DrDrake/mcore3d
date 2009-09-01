@@ -70,7 +70,7 @@ function update()
 			  translation -= localTransform.xBiasVector;
 		if(::gInput.getButton("PageUp"))
 			  translation += localTransform.yBiasVector;
-		if(::gInput.getButton("Next"))
+		if(::gInput.getButton("PageDown"))
 			  translation -= localTransform.yBiasVector;
 
 		translation.mulEqual(::gFrameTimer.frameTime * translationSpeed);

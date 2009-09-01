@@ -102,9 +102,9 @@ public:
 		}
 
 		{	// Add a C# contorl event input component
-			CsInputComponent* c = new CsInputComponent();
-			c->attachTo(mBackRef);
-			mLauncher.init(*c, mUserSubTree);
+			mCsInputComponent = new CsInputComponent();
+			mCsInputComponent->attachTo(mBackRef);
+			mLauncher.init(*mCsInputComponent, mUserSubTree.get());
 			mLauncher.scriptComponentManager.doFile(L"scene.nut", true);
 		}
 
@@ -217,20 +217,27 @@ public:
 	{
 		if(b)
 		{
+			mOldUserSubTree = mUserSubTree->clone();
+			mOldCsInputComponent = new CsInputComponent();
+			std::swap(mUserSubTree, mOldUserSubTree);
+			std::swap(mCsInputComponent, mOldCsInputComponent);
+
+			mOldUserSubTree->unlink();
+			mCsInputComponent->attachTo(mBackRef);
+			mLauncher.setRootNode(mUserSubTree.get());
+			mLauncher.setInputComponent(mCsInputComponent.get());
+			mUserSubTree->asChildOf(&mRootNode);
+
 			mLauncher.scriptComponentManager.doFile(L"init.nut", true);
 		}
 		else
 		{
-			MCD::Entity* oldUserSubTree = mUserSubTree;
-			mUserSubTree = new MCD::Entity();
-
-			CsInputComponent* c = new CsInputComponent();
-			c->attachTo(mBackRef);
-			mLauncher.setRootNode(mUserSubTree);
-			mLauncher.setInputComponent(c);
-
-			mLauncher.scriptComponentManager.doFile(L"scene.nut", true);
-			delete oldUserSubTree;
+			std::swap(mUserSubTree, mOldUserSubTree);
+			std::swap(mCsInputComponent, mOldCsInputComponent);
+			mUserSubTree->asChildOf(&mRootNode);
+			mLauncher.setRootNode(mUserSubTree.get());
+			mLauncher.setInputComponent(mCsInputComponent.get());
+			delete mOldUserSubTree.get();
 		}
 
 		mCamera->entity()->enabled = !b;
@@ -284,7 +291,8 @@ public:
 	gcroot<RenderPanelControl^> mBackRef;
 	float mWidth, mHeight;
 	float mFieldOfView;
-	MCD::Entity mRootNode, *mPredefinedSubTree, *mUserSubTree;
+	MCD::Entity mRootNode, *mPredefinedSubTree;
+	MCD::EntityPtr mUserSubTree;
 	bool mGizmoEnabled;
 	Gizmo* mGizmo;
 	MCD::PickComponent* mEntityPicker;
@@ -295,6 +303,8 @@ public:
 	bool mPlaying;
 
 	Launcher mLauncher;
+	MCD::EntityPtr mOldUserSubTree;
+	MCD::WeakPtr<CsInputComponent> mCsInputComponent, mOldCsInputComponent;
 };	// RenderPanelControlImpl
 
 RenderPanelControl::RenderPanelControl()

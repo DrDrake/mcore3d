@@ -190,13 +190,6 @@ Launcher::~Launcher()
 
 bool Launcher::init(InputComponent& inputComponent, Entity* rootNode)
 {
-	if(rootNode)
-		setRootNode(rootNode);
-	else
-		setRootNode(new Entity());
-
-	setInputComponent(&inputComponent);
-
 	using namespace script;
 
 	VMCore* v = (VMCore*)sq_getforeignptr(HSQUIRRELVM(scriptComponentManager.vm.getImplementationHandle()));
@@ -219,7 +212,6 @@ bool Launcher::init(InputComponent& inputComponent, Entity* rootNode)
 		L"	return gLauncher.loadEntity(filePath, false);\n"
 		L"}\n"
 
-		L"gInput <- gLauncher.inputComponent;\n"
 		L"resourceManager <- gLauncher.resourceManager;\n"
 		L"gFrameTimer <- gLauncher.frameTimer;\n"
 
@@ -248,6 +240,13 @@ bool Launcher::init(InputComponent& inputComponent, Entity* rootNode)
 		}\n"
 	))
 		return false;
+
+	if(rootNode)
+		setRootNode(rootNode);
+	else
+		setRootNode(new Entity());
+
+	setInputComponent(&inputComponent);
 
 	return true;
 }
@@ -316,9 +315,6 @@ InputComponent* Launcher::inputComponent() {
 
 void Launcher::setInputComponent(InputComponent* inputComponent)
 {
-	if(mInputComponent)
-		delete mInputComponent.get();
-
 	mInputComponent = inputComponent;
 	if(!mRootNode || !inputComponent)
 		return;
@@ -328,4 +324,6 @@ void Launcher::setInputComponent(InputComponent* inputComponent)
 	e->asChildOf(mRootNode);
 	e->addComponent(inputComponent);
 	e.release();
+
+	MCD_VERIFY(scriptComponentManager.vm.runScript(L"gInput <- gLauncher.inputComponent;\n"));
 }

@@ -76,7 +76,7 @@ public:
 	sal_maybenull InputComponent* inputComponent();
 
 	/*!	Assign a new input component.
-		Previous input component will be deleted.
+		Previous input component will keep in it's orginal Entity.
 	 */
 	void setInputComponent(sal_in_opt InputComponent* inputComponent);
 

@@ -341,7 +341,7 @@
 			// toolStripButtonPlay
 			// 
 			this.toolStripButtonPlay.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
-			this.toolStripButtonPlay.Image = ((System.Drawing.Image)(resources.GetObject("toolStripButtonPlay.Image")));
+			this.toolStripButtonPlay.Image = ((System.Drawing.Image)(resources.GetObject("playToolStripButton.Image")));
 			this.toolStripButtonPlay.ImageTransparentColor = System.Drawing.Color.Magenta;
 			this.toolStripButtonPlay.Name = "toolStripButtonPlay";
 			this.toolStripButtonPlay.Size = new System.Drawing.Size(23, 22);
