@@ -148,7 +148,7 @@ EntityPrototypePtr EntityPrototypeLoader::addEntityAfterLoad(
 	if(!callback->entityPrototype)
 		Log::format(Log::Warn, L"Fail to load \"%s\" as an EntityPrototype", filePath);
 
-	callback->addDependency(filePath);
+	callback->setMajorDependency(filePath);
 	manager.addCallback(callback);
 	return callback->entityPrototype;
 }

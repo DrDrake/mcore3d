@@ -119,8 +119,6 @@ public:
 	}
 };	// Max3dsMaterial
 
-}	// namespace
-
 /*!	This stream class provides some add on functionality over the std::istream,
 	and provide more error checking.
  */
@@ -175,6 +173,8 @@ public:
 	std::istream& mIs;
 	volatile IResourceLoader::LoadingState& mLoadingState;
 };	// Stream
+
+}	// namespace
 
 // Compute vertex normals
 // Reference: http://www.gamedev.net/community/forums/topic.asp?topic_id=313015
@@ -780,6 +780,8 @@ size_t Max3dsLoader::Impl::readString(std::wstring& str)
 void Max3dsLoader::Impl::commit(Resource& resource)
 {
 	Model& model = dynamic_cast<Model&>(resource);
+	std::wstring str = model.fileId().getString();
+	(void)str;
 
 	// TODO: Design a way to set this variable from outside
 	MeshBuilder::StorageHint storageHint = MeshBuilder::Static;

@@ -227,6 +227,44 @@ TEST(Callback_ResourceManagerTest)
 	CHECK_EQUAL(1u, FakeCallback::count);
 }
 
+TEST(MajorDependency_Callback_ResourceManagerTest)
+{
+	std::auto_ptr<IFileSystem> fs(new RawFileSystem(L"./"));
+	ResourceManager manager(*fs);
+	fs.release();
+
+	// Register factory
+	manager.addFactory(new FakeFactory(L"cpp"));
+
+	ResourcePtr resource1, resource2;
+
+	// Create and register callback
+	{	resource1 = manager.load(L"Main.cpp", true);
+		FakeCallback* callback = new FakeCallback;
+		callback->setMajorDependency(L"Main.cpp");
+		manager.addCallback(callback);
+	}
+
+	{	resource2 = manager.load(L"ResourceManadgerTest.cpp", true);
+		FakeCallback* callback = new FakeCallback;
+		callback->setMajorDependency(L"ResourceManadgerTest.cpp");
+		manager.addCallback(callback);
+	}
+
+	FakeCallback::count = 0;
+	ResourceManager::Event e = manager.popEvent();
+	e.loader->commit(*e.resource);
+	manager.doCallbacks(e);
+	// If addDependency() is used instead of setMajorDependency(),
+	// FakeCallback::count will be 2 instead of 1.
+	CHECK_EQUAL(1u, FakeCallback::count);
+
+	e = manager.popEvent();
+	e.loader->commit(*e.resource);
+	manager.doCallbacks(e);
+	CHECK_EQUAL(2u, FakeCallback::count);
+}
+
 TEST(Negative_ResourceManagerTest)
 {
 	{	// File type not found (resulting null resource)
