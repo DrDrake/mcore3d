@@ -424,6 +424,12 @@ void ResourceManager::doCallbacks(const Event& event)
 			return;
 
 		for(Impl::Callbacks::iterator i=callbacks.begin(); i!=callbacks.end();) {
+			// See if major dependency constrain applied
+			if(!i->mMajorDependency.getString().empty() && i->mMajorDependency != event.resource->fileId()) {
+				++i;
+				continue;
+			}
+
 			if(i->removeDependency(event.resource->fileId()) == 0) {
 				i->doCallback();
 				i = callbacks.erase(i, true);	// Be careful of erasing element during iteration
@@ -431,9 +437,13 @@ void ResourceManager::doCallbacks(const Event& event)
 			else
 				++i;
 		}
-	} else
+	}
+	else	// It's an empty event
 	{
 		for(Impl::Callbacks::iterator i=callbacks.begin(); i!=callbacks.end();) {
+			// NOTE: We need not to check for major dependency because:
+			// -Major dependency not loaded then i->mDependency will not be empty;
+			// -Major dependency loaded but not commited then ResourceManager event list will not be empty
 			if(i->mDependency.empty()) {
 				i->doCallback();
 				i = callbacks.erase(i, true);	// Be careful of erasing element during iteration
@@ -467,6 +477,16 @@ TaskPool& ResourceManager::taskPool()
 void ResourceManagerCallback::addDependency(const Path& fileId)
 {
 	mDependency.push_back(fileId);
+}
+
+void ResourceManagerCallback::setMajorDependency(const Path& fileId)
+{
+	mMajorDependency = fileId;
+	addDependency(fileId);
+}
+
+const Path& ResourceManagerCallback::getMajorDependency() const {
+	return mMajorDependency;
 }
 
 int ResourceManagerCallback::removeDependency(const Path& fileId)

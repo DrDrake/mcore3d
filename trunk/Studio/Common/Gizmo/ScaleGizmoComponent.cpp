@@ -30,7 +30,7 @@ public:
 		Callback* cb = new Callback();
 		cb->backRef = this;
 		cb->model = dynamic_cast<Model*>(resourceManager.load(L"Scale.3ds", true).get());
-		cb->addDependency(L"Scale.3ds");
+		cb->setMajorDependency(L"Scale.3ds");
 		resourceManager.addCallback(cb);
 	}
 

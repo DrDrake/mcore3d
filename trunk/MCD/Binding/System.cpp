@@ -1,6 +1,7 @@
 #include "Pch.h"
 #include "System.h"
 #include "Binding.h"
+#include "Binding.h"
 
 using namespace MCD;
 
@@ -14,17 +15,22 @@ ClassID getClassIDFromObject(const Resource* obj, ClassID original) {
 
 }	// namespace types
 
-static void resourceManagerCallbackAddDependency(IResourceManagerCallback& self, const wchar_t* fileId) {
+static void resourceManagerCallbackAddDependency(ResourceManagerCallback& self, const wchar_t* fileId) {
 	self.addDependency(fileId);
 }
-SCRIPT_CLASS_REGISTER_NAME(IResourceManagerCallback, "ResuorceManagerCallback")
+static void resourceManagerCallbackSetMajorDependency(ResourceManagerCallback& self, const wchar_t* fileId) {
+	self.setMajorDependency(fileId);
+}
+SCRIPT_CLASS_REGISTER_NAME(ResourceManagerCallback, "ResuorceManagerCallback")
+	.enableGetset()
 	.wrappedMethod(xSTRING("addDependency"), &resourceManagerCallbackAddDependency)
+	.wrappedMethod(xSTRING("_setmajorDependency"), &resourceManagerCallbackSetMajorDependency)
 ;}
 
 static Resource* resourceManagerLoad(IResourceManager& self, const wchar_t* fileId, bool block, uint priority, const wchar_t* args) {
 	return self.load(fileId, block, priority, args).get();
 }
-static void resourceManagerAddCallback(IResourceManager& self, GiveUpOwnership<IResourceManagerCallback*> callback) {
+static void resourceManagerAddCallback(IResourceManager& self, GiveUpOwnership<ResourceManagerCallback*> callback) {
 	self.addCallback(callback);
 }
 SCRIPT_CLASS_REGISTER_NAME(IResourceManager, "ResuorceManager")
@@ -64,7 +70,7 @@ namespace MCD {
 void registerSystemBinding(script::VMCore* v)
 {
 	script::ClassTraits<IResourceManager>::bind(v);
-	script::ClassTraits<IResourceManagerCallback>::bind(v);
+	script::ClassTraits<ResourceManagerCallback>::bind(v);
 	script::ClassTraits<Path>::bind(v);
 	script::ClassTraits<Timer>::bind(v);
 	script::ClassTraits<RawFileSystem>::bind(v);

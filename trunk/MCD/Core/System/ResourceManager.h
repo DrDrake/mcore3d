@@ -249,7 +249,7 @@ protected:
 };	// ResourceManager
 
 /*!	Callback for ResourceManager.
-	Example of how to load a mesh before it's depending textures are loaded:
+	Example of how to load a mesh after it's depending textures are loaded:
 	\code
 	// Extend your own callback class from ResourceManagerCallback
 	class MyCallback : public ResourceManagerCallback {
@@ -297,6 +297,18 @@ public:
 	//! Do not invoke it concurrently.
 	sal_override void addDependency(const Path& fileId);
 
+	/*!	Setting the major dependency gives more information to ResourceManager such
+		that only the ResourceManager::Event with that major dependence will trigger
+		the callback.
+		
+		The main purpose of the function is to ensure the major dependency is commited
+		before the callback is invoked. This commit-callback ordering problem occur
+		when you load a resource synchronously and then add a callback before commit.
+	 */
+	void setMajorDependency(const Path& fileId);
+
+	const Path& getMajorDependency() const;
+
 protected:
 	/*!	Return:
 		<0		no dependency removed
@@ -306,6 +318,7 @@ protected:
 
 	typedef std::list<Path> Paths;
 	Paths mDependency;
+	Path mMajorDependency;
 };	// ResourceManagerCallback
 
 }	// namespace MCD
