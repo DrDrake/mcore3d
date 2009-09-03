@@ -28,22 +28,31 @@
 		/// </summary>
 		private void InitializeComponent()
 		{
+			this.components = new System.ComponentModel.Container();
+			System.Windows.Forms.Timer timer1;
 			this.propertyGrid1 = new System.Windows.Forms.PropertyGrid();
+			timer1 = new System.Windows.Forms.Timer(this.components);
 			this.SuspendLayout();
+			// 
+			// timer1
+			// 
+			timer1.Enabled = true;
+			timer1.Interval = 200;
+			timer1.Tick += new System.EventHandler(this.timer1_Tick);
 			// 
 			// propertyGrid1
 			// 
 			this.propertyGrid1.Dock = System.Windows.Forms.DockStyle.Fill;
 			this.propertyGrid1.Location = new System.Drawing.Point(0, 0);
 			this.propertyGrid1.Name = "propertyGrid1";
-			this.propertyGrid1.Size = new System.Drawing.Size(292, 271);
+			this.propertyGrid1.Size = new System.Drawing.Size(292, 250);
 			this.propertyGrid1.TabIndex = 0;
 			// 
 			// PropertyWindow
 			// 
-			this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
+			this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-			this.ClientSize = new System.Drawing.Size(292, 271);
+			this.ClientSize = new System.Drawing.Size(292, 250);
 			this.Controls.Add(this.propertyGrid1);
 			this.DockAreas = ((WeifenLuo.WinFormsUI.Docking.DockAreas)((((((WeifenLuo.WinFormsUI.Docking.DockAreas.Float | WeifenLuo.WinFormsUI.Docking.DockAreas.DockLeft)
 						| WeifenLuo.WinFormsUI.Docking.DockAreas.DockRight)
