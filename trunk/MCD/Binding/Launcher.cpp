@@ -130,7 +130,7 @@ SCRIPT_CLASS_REGISTER_NAME(Launcher::FrameTimer, "FrameTimer")
 ;}
 
 SCRIPT_CLASS_REGISTER(ResourceLoadCallback)
-	.declareClass<ResourceLoadCallback, IResourceManagerCallback>(L"ResourceLoadCallback")
+	.declareClass<ResourceLoadCallback, ResourceManagerCallback>(L"ResourceLoadCallback")
 	.constructor()
 	.scriptEvent(L"onLoaded", &ResourceLoadCallback::onLoaded)
 ;}

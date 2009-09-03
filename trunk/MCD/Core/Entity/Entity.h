@@ -36,9 +36,9 @@ public:
 	void asChildOf(sal_in Entity* parent);
 
 	//! The input parameter should not be the root node.
-	void insertBefore(sal_in Entity* slibing);
+	void insertBefore(sal_in Entity* sibling);
 
-	void insertAfter(sal_in Entity* slibing);
+	void insertAfter(sal_in Entity* sibling);
 
 	/*!	Unlink this entity from it's parent (if any).
 		\note
@@ -144,7 +144,7 @@ public:
 
 protected:
 	//! Pointer to make the entity hierarchy
-	Entity* mParent, *mFirstChild, *mNextSlibing;
+	Entity* mParent, *mFirstChild, *mNextSibling;
 };	// Entity
 
 /*!	We use weak pointer to reference an Entity.

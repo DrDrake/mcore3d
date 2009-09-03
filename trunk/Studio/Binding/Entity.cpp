@@ -87,9 +87,9 @@ Entity::Entity(IntPtr entity)
 				current = current->firstChild;
 				break;
 			}
-			else if(current->nextSlibing)
+			else if(current->nextSibling)
 			{
-				current = current->nextSlibing;
+				current = current->nextSibling;
 				break;
 			}
 			else
@@ -113,20 +113,20 @@ void Entity::asChildOf(Entity^ parent)
 	}
 }
 
-void Entity::insertBefore(Entity^ slibing)
+void Entity::insertBefore(Entity^ sibling)
 {
 	unlink();
-	mImpl->insertBefore(slibing->mImpl);
-	TreeNodeCollection^ nodes = slibing->treeViewNode->Parent->Nodes;
-	nodes->Insert(nodes->IndexOf(slibing->treeViewNode), treeViewNode);
+	mImpl->insertBefore(sibling->mImpl);
+	TreeNodeCollection^ nodes = sibling->treeViewNode->Parent->Nodes;
+	nodes->Insert(nodes->IndexOf(sibling->treeViewNode), treeViewNode);
 }
 
-void Entity::insertAfter(Entity^ slibing)
+void Entity::insertAfter(Entity^ sibling)
 {
 	unlink();
-	mImpl->insertAfter(slibing->mImpl);
-	TreeNodeCollection^ nodes = slibing->treeViewNode->Parent->Nodes;
-	nodes->Insert(nodes->IndexOf(slibing->treeViewNode)+1, treeViewNode);
+	mImpl->insertAfter(sibling->mImpl);
+	TreeNodeCollection^ nodes = sibling->treeViewNode->Parent->Nodes;
+	nodes->Insert(nodes->IndexOf(sibling->treeViewNode)+1, treeViewNode);
 }
 
 void Entity::unlink()
@@ -215,27 +215,27 @@ Entity^ Entity::firstChild::get()
 	return mFirstChild;
 }
 
-Entity^ Entity::nextSlibing::get()
+Entity^ Entity::nextSibling::get()
 {
 	MCD::Entity* n = mImpl->nextSibling();
 
 	// Cache hit
-	if(mNextSlibing != nullptr && mNextSlibing->mImpl == n)
-		return mNextSlibing;
+	if(mNextSibling != nullptr && mNextSibling->mImpl == n)
+		return mNextSibling;
 
 	// Remove from the TreeView (if any)
-	if(mNextSlibing != nullptr)
-		mNextSlibing->treeViewNode->Remove();
+	if(mNextSibling != nullptr)
+		mNextSibling->treeViewNode->Remove();
 
 	if(n) {
-		mNextSlibing = gcnew Entity(n);
-		mNextSlibing->mParent = mParent;
-		parent->treeViewNode->Nodes->Add(mNextSlibing->treeViewNode);
+		mNextSibling = gcnew Entity(n);
+		mNextSibling->mParent = mParent;
+		parent->treeViewNode->Nodes->Add(mNextSibling->treeViewNode);
 	}
 	else
-		mNextSlibing = nullptr;
+		mNextSibling = nullptr;
 
-	return mNextSlibing;
+	return mNextSibling;
 }
 
 array<float>^ Entity::translation::get()
@@ -317,4 +317,38 @@ void Entity::scale::set(array<float>^ value)
 	mImpl->localTransform.setScale(MCD::Vec3f(value[0], value[1], value[2]));
 }
 
+EntityPreorderIterator::EntityPreorderIterator(Entity^ e)
+	: mCurrent(e), mStart(e)
+{
 }
+
+bool EntityPreorderIterator::ended()
+{
+	return mCurrent == nullptr;
+}
+
+Entity^ EntityPreorderIterator::next()
+{
+	// After an upward movement is preformed, we will not visit the child again
+	bool noChildMove = false;
+
+	while(mCurrent)
+	{
+		if(mCurrent->firstChild && !noChildMove)
+			return mCurrent = mCurrent->firstChild;
+		else if(mCurrent->nextSibling)
+			return mCurrent = mCurrent->nextSibling;
+		else
+		{
+			mCurrent = mCurrent->parent;
+			noChildMove = true;
+
+			if(mCurrent == mStart)
+				mCurrent = nullptr;
+		}
+	}
+
+	return mCurrent;
+}
+
+}	// namespace Binding

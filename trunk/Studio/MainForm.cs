@@ -35,14 +35,15 @@ namespace Studio
 	// Operations
 		void UpdateToolBars()
 		{
+			if (currentRenderControl == null)
+				return;
+
 			toolStripGizmo.Enabled = !currentRenderControl.playing;
 
-			{
-				ComponentResourceManager resources = new ComponentResourceManager(typeof(MainForm));
-				toolStripButtonPlay.Image = ((System.Drawing.Image)(
-					resources.GetObject(currentRenderControl.playing ? "stopToolStripButton.Image" : "playToolStripButton.Image"))
-				);
-			}
+			ComponentResourceManager resources = new ComponentResourceManager(typeof(MainForm));
+			toolStripButtonPlay.Image = ((System.Drawing.Image)(
+				resources.GetObject(currentRenderControl.playing ? "stopToolStripButton.Image" : "playToolStripButton.Image"))
+			);
 		}
 
 	// Events

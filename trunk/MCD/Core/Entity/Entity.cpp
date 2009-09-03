@@ -8,7 +8,7 @@ namespace MCD {
 
 Entity::Entity()
 	: enabled(true),
-	  mParent(nullptr), mFirstChild(nullptr), mNextSlibing(nullptr),
+	  mParent(nullptr), mFirstChild(nullptr), mNextSibling(nullptr),
 	  localTransform(Mat44f::cIdentity)
 {
 }
@@ -21,7 +21,7 @@ Entity::~Entity()
 
 	// TODO: Rethink about the ownership of Entity
 	if(children) do {
-		Entity* next = children->mNextSlibing;
+		Entity* next = children->mNextSibling;
 		delete children;
 		children = next;
 	} while(children);
@@ -37,53 +37,53 @@ void Entity::asChildOf(Entity* parent)
 
 	Entity* oldFirstChild = parent->mFirstChild;
 	mParent = parent;
-	mNextSlibing = oldFirstChild;
+	mNextSibling = oldFirstChild;
 	parent->mFirstChild = this;
 }
 
-void Entity::insertBefore(sal_in Entity* slibing)
+void Entity::insertBefore(sal_in Entity* sibling)
 {
-	if(!slibing || !slibing->mParent)
+	if(!sibling || !sibling->mParent)
 		return;
 
 	// Unlink this Entity first
 	unlink();
 
-	Entity* node = slibing->mParent->mFirstChild;
-	if(node == slibing) {
-		slibing->mParent->mFirstChild = this;
-		mParent = slibing->mParent;
-		mNextSlibing = slibing;
+	Entity* node = sibling->mParent->mFirstChild;
+	if(node == sibling) {
+		sibling->mParent->mFirstChild = this;
+		mParent = sibling->mParent;
+		mNextSibling = sibling;
 		return;
 	}
 
 	// Find out which node to insert after,
-	// since we didn't store a previous slibing pointer
+	// since we didn't store a previous sibling pointer
 	while(node) {
-		if(node->mNextSlibing == slibing)
+		if(node->mNextSibling == sibling)
 			break;
-		node = node->mNextSlibing;
+		node = node->mNextSibling;
 	}
 
-	// Should never be null since slibing should contained by slibing->mParent->mFirstChild
+	// Should never be null since sibling should contained by sibling->mParent->mFirstChild
 	MCD_ASSUME(node != nullptr);
 
 	insertAfter(node);
 }
 
-void Entity::insertAfter(sal_in Entity* slibing)
+void Entity::insertAfter(sal_in Entity* sibling)
 {
-	if(!slibing)
+	if(!sibling)
 		return;
 
 	// Unlink this Entity first
 	unlink();
 
-	mParent = slibing->mParent;
+	mParent = sibling->mParent;
 
-	Entity* old = slibing->mNextSlibing;
-	slibing->mNextSlibing = this;
-	mNextSlibing = old;
+	Entity* old = sibling->mNextSibling;
+	sibling->mNextSibling = this;
+	mNextSibling = old;
 }
 
 void Entity::unlink()
@@ -92,22 +92,22 @@ void Entity::unlink()
 		return;
 
 	if(mParent->mFirstChild == this) {
-		mParent->mFirstChild = mNextSlibing;
+		mParent->mFirstChild = mNextSibling;
 	} else {
-		// Find the previous slibing
+		// Find the previous sibling
 		Entity* previous = mParent->mFirstChild;
 		Entity* next;
-		while((next = previous->mNextSlibing) != nullptr) {
+		while((next = previous->mNextSibling) != nullptr) {
 			if(next == this)
 				break;
 			previous = next;
 		}
 
-		previous->mNextSlibing = mNextSlibing;
+		previous->mNextSibling = mNextSibling;
 	}
 
 	mParent = nullptr;
-	mNextSlibing = nullptr;
+	mNextSibling = nullptr;
 	// The children are keep intact
 	// mFirstChild = mFirstChild;
 }
@@ -181,7 +181,7 @@ Entity* Entity::firstChild() {
 }
 
 Entity* Entity::nextSibling() {
-	return mNextSlibing;
+	return mNextSibling;
 }
 
 Mat44f Entity::worldTransform() const
@@ -231,7 +231,7 @@ sal_notnull Entity* Entity::clone() const
 		if(child == mFirstChild)
 			newEnt->mFirstChild = newChild;
 		else
-			lastChild->mNextSlibing = newChild;
+			lastChild->mNextSibling = newChild;
 
 		lastChild = newChild;
 	}

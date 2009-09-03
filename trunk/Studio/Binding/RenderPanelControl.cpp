@@ -160,7 +160,6 @@ public:
 			mEntityPicker->entity()->enabled = false;
 		}
 
-		glFlush();
 		swapBuffers();
 	}
 
