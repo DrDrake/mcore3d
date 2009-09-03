@@ -24,9 +24,9 @@ public:
 
 	void asChildOf(Entity^ parent);
 
-	void insertBefore(Entity^ slibing);
+	void insertBefore(Entity^ sibling);
 
-	void insertAfter(Entity^ slibing);
+	void insertAfter(Entity^ sibling);
 
 	void unlink();
 
@@ -60,7 +60,7 @@ public:
 	}
 
 	[Browsable(false)]
-	property Entity^ nextSlibing {
+	property Entity^ nextSibling {
 		Entity^ get();
 	}
 
@@ -89,7 +89,22 @@ protected:
 	/*!	Cached value of the node pointers, these value will be refreshed
 		every time the property get function is invoked.
 	 */
-	Entity^ mParent, ^mFirstChild, ^mNextSlibing;
-};
+	Entity^ mParent, ^mFirstChild, ^mNextSibling;
+};	// Entity
 
-}
+public ref class EntityPreorderIterator
+{
+public:
+	EntityPreorderIterator(Entity^ e);
+
+	bool ended();
+
+	Entity^ next();
+
+protected:
+	Entity^ mCurrent;
+	//! The position where this iterator is constructed, so it knows where to stop.
+	Entity^ mStart;
+};	// EntityPreorderIterator
+
+}	// namespace Binding

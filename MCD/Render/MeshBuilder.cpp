@@ -350,7 +350,7 @@ uint16_t MeshBuilder::addVertex()
 		mBuffer.mNormals.push_back(mBuffer.mNormal);
 
 	// Loop for all enabled texture unit
-	const size_t  cMaxUnit = (mFormat & Mesh::TextureCoord);
+	const size_t cMaxUnit = (mFormat & Mesh::TextureCoord);
 	for(size_t f=Mesh::TextureCoord0; f <= cMaxUnit; ++f) {
 		mBuffer.assertTextureCoordSize(f);
 		std::vector<float>& vector = mBuffer.mTextureCoords[f];
