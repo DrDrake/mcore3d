@@ -43,18 +43,17 @@ namespace Studio
 			if (entity != null)
 			{
 				// Fill up the tree view
-				treeView.Nodes.Add(entity.treeViewNode.Nodes[0]);
-				treeView.Nodes.Add(entity.treeViewNode.Nodes[1]);
 				treeView.Nodes.Add(entity.treeViewNode.Nodes[2]);
+				treeView.Nodes.Add(entity.treeViewNode.Nodes[1]);
+				treeView.Nodes.Add(entity.treeViewNode.Nodes[0]);
 
-				entity.treeViewNode.Nodes[2].Expand();
+				entity.treeViewNode.Nodes[0].Expand();
 			}
 		}
 
-		private void traverseEntity(Entity e)
-		{
-		}
-
+		/// <summary>
+		/// Perform a lazy update on the tree view
+		/// </summary>
 		public void refreshTreeView()
 		{
 			// Traverse the entity tree means refreshing it to the tree view.

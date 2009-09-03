@@ -174,14 +174,25 @@ Entity^ Entity::firstChild::get()
 	if(mFirstChild != nullptr && mFirstChild->mImpl == n)
 		return mFirstChild;
 
-	// Remove from the TreeView (if any)
-	if(mFirstChild != nullptr)
-		mFirstChild->treeViewNode->Remove();
+	if(n)
+	{
+		if(mFirstChild) {
+			mFirstChild->mImpl = n;
+			mFirstChild->treeViewNode->Remove();
+		} else {
+			mFirstChild = gcnew Entity(n);
+			treeViewNode->Nodes->Add(mFirstChild->treeViewNode);
+		}
 
-	if(n) {
-		mFirstChild = gcnew Entity(n);
 		mFirstChild->mParent = this;
-		treeViewNode->Nodes->Add(mFirstChild->treeViewNode);
+		if(n->firstChild()) {
+			if(gcroot<Entity^>* p = n->firstChild()->userData.getPtr<gcroot<Entity^> >())
+				mFirstChild->mFirstChild = p->operator->();
+		}
+		if(n->nextSibling()) {
+			if(gcroot<Entity^>* p = n->nextSibling()->userData.getPtr<gcroot<Entity^> >())
+				mFirstChild->mNextSibling = p->operator->();
+		}
 	}
 	else
 		mFirstChild = nullptr;
@@ -197,14 +208,25 @@ Entity^ Entity::nextSibling::get()
 	if(mNextSibling != nullptr && mNextSibling->mImpl == n)
 		return mNextSibling;
 
-	// Remove from the TreeView (if any)
-	if(mNextSibling != nullptr)
-		mNextSibling->treeViewNode->Remove();
+	if(n)
+	{
+		if(mNextSibling) {
+			mNextSibling->mImpl = n;
+			mNextSibling->treeViewNode->Remove();
+		} else {
+			mNextSibling = gcnew Entity(n);
+			mParent->treeViewNode->Nodes->Add(mNextSibling->treeViewNode);
+		}
 
-	if(n) {
-		mNextSibling = gcnew Entity(n);
 		mNextSibling->mParent = mParent;
-		parent->treeViewNode->Nodes->Add(mNextSibling->treeViewNode);
+		if(n->firstChild()) {
+			if(gcroot<Entity^>* p = n->firstChild()->userData.getPtr<gcroot<Entity^> >())
+				mNextSibling->mFirstChild = p->operator->();
+		}
+		if(n->nextSibling()) {
+			if(gcroot<Entity^>* p = n->nextSibling()->userData.getPtr<gcroot<Entity^> >())
+				mNextSibling->mNextSibling = p->operator->();
+		}
 	}
 	else
 		mNextSibling = nullptr;

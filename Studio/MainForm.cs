@@ -321,6 +321,8 @@ namespace Studio
 		private void toolStripButtonPlay_Click(object sender, EventArgs e)
 		{
 			currentRenderControl.playing = !currentRenderControl.playing;
+			if(currentRenderControl != null)
+				entityWindow.selectEntityRoot(currentRenderControl.rootEntity);
 			UpdateToolBars();
 		}
 	}

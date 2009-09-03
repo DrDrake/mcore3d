@@ -40,6 +40,7 @@ public:
 		mPlaying(false)
 	{
 		mResourceManager = mLauncher.resourceManager();
+		mRootNode.name = L"Ultimate root node";
 	}
 
 	~RenderPanelControlImpl()
@@ -432,6 +433,11 @@ bool RenderPanelControl::playing::get()
 void RenderPanelControl::playing::set(bool value)
 {
 	mImpl->setPlaying(value);
+
+	// The entity tree is altered, reset it.
+	selectedEntity = nullptr;
+	mRootEntity = nullptr;
+	mRootEntity = rootEntity;
 }
 
 System::Void RenderPanelControl::timer_Tick(System::Object^ sender, System::EventArgs^ e)
