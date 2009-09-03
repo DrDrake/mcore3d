@@ -75,33 +75,7 @@ Entity::Entity(IntPtr entity)
 	treeViewNode = gcnew TreeNode(this->name);
 
 	// Loop all the nodes once, and the tree view nodes will be constructed correctly
-	Entity^ current = this;
-	do
-	{
-		// After an upward movement is preformed, we will not visit the child again
-		bool noChildMove = false;
-		while(current)
-		{
-			if(current->firstChild && !noChildMove)
-			{
-				current = current->firstChild;
-				break;
-			}
-			else if(current->nextSibling)
-			{
-				current = current->nextSibling;
-				break;
-			}
-			else
-			{
-				current = current->parent;
-				noChildMove = true;
-
-				if(current == this)
-					current = nullptr;
-			}
-		}
-	} while(current != nullptr);
+	for (EntityPreorderIterator^ itr = gcnew EntityPreorderIterator(this); !itr->ended(); itr->next()) {}
 }
 
 void Entity::asChildOf(Entity^ parent)

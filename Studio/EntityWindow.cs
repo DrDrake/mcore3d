@@ -51,6 +51,18 @@ namespace Studio
 			}
 		}
 
+		private void traverseEntity(Entity e)
+		{
+		}
+
+		public void refreshTreeView()
+		{
+			// Traverse the entity tree means refreshing it to the tree view.
+			for (EntityPreorderIterator itr = new EntityPreorderIterator(entityRoot); !itr.ended(); itr.next())
+			{
+			}
+		}
+
 	// Attributes
 		/// <summary>
 		/// The Entity system that this EntityWindow associated with.
@@ -121,6 +133,11 @@ namespace Studio
 				entitySelectionChanged(this, null);
 				entity.destroyThis();
 			}
+		}
+
+		private void timer1_Tick(object sender, EventArgs e)
+		{
+			refreshTreeView();
 		}
 	}
 }
