@@ -97,6 +97,10 @@ public ref class EntityPreorderIterator
 public:
 	EntityPreorderIterator(Entity^ e);
 
+	property Entity^ current {
+		Entity^ get() { return mCurrent; }
+	}
+
 	bool ended();
 
 	Entity^ next();

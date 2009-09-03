@@ -28,7 +28,10 @@
 		/// </summary>
 		private void InitializeComponent()
 		{
+			this.components = new System.ComponentModel.Container();
+			System.Windows.Forms.Timer timer1;
 			this.treeView = new CodersLab.Windows.Controls.TreeView();
+			timer1 = new System.Windows.Forms.Timer(this.components);
 			this.SuspendLayout();
 			// 
 			// treeView
@@ -43,6 +46,12 @@
 			this.treeView.TabIndex = 0;
 			this.treeView.KeyUp += new System.Windows.Forms.KeyEventHandler(this.treeView_KeyUp);
 			this.treeView.SelectionsChanged += new System.EventHandler(this.treeView_SelectionsChanged);
+			// 
+			// timer1
+			// 
+			timer1.Enabled = true;
+			timer1.Interval = 200;
+			timer1.Tick += new System.EventHandler(this.timer1_Tick);
 			// 
 			// EntityWindow
 			// 
