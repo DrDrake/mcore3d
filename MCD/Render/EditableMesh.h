@@ -6,6 +6,11 @@
 namespace MCD {
 
 typedef IntrusivePtr<class MeshBuilder> MeshBuilderPtr;
+template<typename T> class Vec3;
+typedef Vec3<float> Vec3f;
+
+template<typename T> class Vec2;
+typedef Vec2<float> Vec2f;
 
 /*! A Mesh which provide data read-back and editing functions.
 */
@@ -22,28 +27,32 @@ public:
 		Please notice that this pointer may be nullptr.
 	*/
 	MeshBuilderPtr builder;
-    
-    void beginEditing();
-
-    /*
+	
+	void beginEditing();
+	
+	/*! Call the after beginEditing() */
 	size_t getTriangleCount() const;
-
+	
+	/*! Call the after beginEditing() */
 	uint16_t* getTriangleIndexAt(size_t face);
-
+	
+	/*! Call the after beginEditing() */
 	Vec3f& getPositionAt(uint16_t vertexIndex);
-
+	
+	/*! Call the after beginEditing() */
 	Vec3f& getNormalAt(uint16_t vertexIndex);
 	
-	Vec3f& getTangentAt(uint16_t vertexIndex);
-
+	/*! Call the after beginEditing() */
 	Vec2f& getUV0At(uint16_t vertexIndex);
-
+	
+	/*! Call the after beginEditing() */
 	Vec2f& getUV1At(uint16_t vertexIndex);
 
-	Vec4f& getColorAt(size_t vertexIndex);
-
 	void endEditing(bool commit);
-    */
+	
+private:
+	class Impl;
+	Impl* mImpl;
 
 };	// EditableMesh
 
