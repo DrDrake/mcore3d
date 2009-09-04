@@ -29,6 +29,7 @@
 
 {	// Setup for the camera
 	local e = Entity();
+	e.localTransform.translation = Vec3(0, 20, 0);
 
 	local camera = loadComponent("FpsCamera.nut");
 	e.addComponent(camera);

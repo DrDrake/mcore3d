@@ -42,8 +42,11 @@ public:
 		while(true) {
 			Component* c = componentQueue.getItem(currentTime, queueNode);
 			// queueNode == null means end of queue, c == null means no more component ought to be run.
-			if(c && queueNode)
+			if(c) {
 				// Do something with the component ...
+				if(!queueNode)
+					break;
+			}
 			else
 				break;
 		}
