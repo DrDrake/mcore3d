@@ -49,6 +49,9 @@ public:
 	Vec2f& getUV1At(uint16_t vertexIndex);
 
 	void endEditing(bool commit);
+
+protected:
+	sal_override ~EditableMesh();
 	
 private:
 	class Impl;
