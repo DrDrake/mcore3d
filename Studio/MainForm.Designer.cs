@@ -284,7 +284,6 @@
 			// 
 			this.toolStripButtonMove.CheckOnClick = true;
 			this.toolStripButtonMove.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
-			this.toolStripButtonMove.Enabled = false;
 			this.toolStripButtonMove.Image = ((System.Drawing.Image)(resources.GetObject("toolStripButtonMove.Image")));
 			this.toolStripButtonMove.ImageTransparentColor = System.Drawing.Color.Magenta;
 			this.toolStripButtonMove.Name = "toolStripButtonMove";
@@ -296,7 +295,6 @@
 			// 
 			this.toolStripButtonTranslate.CheckOnClick = true;
 			this.toolStripButtonTranslate.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
-			this.toolStripButtonTranslate.Enabled = false;
 			this.toolStripButtonTranslate.Image = ((System.Drawing.Image)(resources.GetObject("toolStripButtonTranslate.Image")));
 			this.toolStripButtonTranslate.ImageTransparentColor = System.Drawing.Color.Magenta;
 			this.toolStripButtonTranslate.Name = "toolStripButtonTranslate";
@@ -308,7 +306,6 @@
 			// 
 			this.toolStripButtonRotate.CheckOnClick = true;
 			this.toolStripButtonRotate.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
-			this.toolStripButtonRotate.Enabled = false;
 			this.toolStripButtonRotate.Image = ((System.Drawing.Image)(resources.GetObject("toolStripButtonRotate.Image")));
 			this.toolStripButtonRotate.ImageTransparentColor = System.Drawing.Color.Magenta;
 			this.toolStripButtonRotate.Name = "toolStripButtonRotate";
@@ -319,7 +316,6 @@
 			// toolStripButtonScale
 			// 
 			this.toolStripButtonScale.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
-			this.toolStripButtonScale.Enabled = false;
 			this.toolStripButtonScale.Image = ((System.Drawing.Image)(resources.GetObject("toolStripButtonScale.Image")));
 			this.toolStripButtonScale.ImageTransparentColor = System.Drawing.Color.Magenta;
 			this.toolStripButtonScale.Name = "toolStripButtonScale";

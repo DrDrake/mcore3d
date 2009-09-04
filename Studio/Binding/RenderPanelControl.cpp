@@ -33,7 +33,7 @@ public:
 		:
 		mBackRef(c),
 		mWidth(0), mHeight(0), mFieldOfView(60.0f),
-		mGizmoEnabled(false), mGizmo(nullptr), mEntityPicker(nullptr),
+		mGizmo(nullptr), mEntityPicker(nullptr),
 		mPredefinedSubTree(nullptr), mUserSubTree(nullptr),
 		mResourceManager(nullptr),
 		mPropertyGridNeedRefresh(false),
@@ -254,7 +254,7 @@ public:
 
 	void onMouseDown(System::Object^ sender, System::Windows::Forms::MouseEventArgs^ e)
 	{
-		if(mGizmoEnabled)
+		if(e->Button == MouseButtons::Left)
 		{
 			mGizmo->mouseDown(e->X, e->Y);
 
@@ -271,19 +271,15 @@ public:
 
 	void onMouseUp(System::Object^ sender, System::Windows::Forms::MouseEventArgs^ e)
 	{
-		if(mGizmoEnabled)
-			mGizmo->mouseUp(e->X, e->Y);
+		mGizmo->mouseUp(e->X, e->Y);
 	}
 
 	void onMouseMove(System::Object^ sender, System::Windows::Forms::MouseEventArgs^ e)
 	{
-		if(mGizmoEnabled)
-		{
-			mGizmo->mouseMove(e->X, e->Y);
+		mGizmo->mouseMove(e->X, e->Y);
 
-			if(mGizmo->isDragging() && mLastMousePos != Point(e->X, e->Y))
-				mPropertyGridNeedRefresh = true;
-		}
+		if(mGizmo->isDragging() && mLastMousePos != Point(e->X, e->Y))
+			mPropertyGridNeedRefresh = true;
 
 		mLastMousePos = Point(e->X, e->Y);
 	}
@@ -293,7 +289,6 @@ public:
 	float mFieldOfView;
 	MCD::Entity mRootNode, *mPredefinedSubTree;
 	MCD::EntityPtr mUserSubTree;
-	bool mGizmoEnabled;
 	Gizmo* mGizmo;
 	MCD::PickComponent* mEntityPicker;
 	MCD::WeakPtr<CameraComponent> mCamera;
@@ -409,20 +404,6 @@ void RenderPanelControl::gizmoMode::set(GizmoMode mode)
 		g->setActiveGizmo(g->scaleGizmo);
 	else
 		g->setActiveGizmo(NULL);
-}
-
-bool RenderPanelControl::gizmoEnabled::get()
-{
-	return mImpl->mGizmoEnabled;
-}
-
-void RenderPanelControl::gizmoEnabled::set(bool value)
-{
-	mImpl->mGizmoEnabled = value;
-	mImpl->mGizmo->enabled = value;
-	mImpl->mEntityPicker->entity()->enabled = value;
-	if(mImpl->mCamera && mImpl->mCamera->entity())
-		mImpl->mCamera->entity()->enabled = !value;
 }
 
 bool RenderPanelControl::playing::get()
