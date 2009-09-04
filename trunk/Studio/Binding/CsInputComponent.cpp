@@ -162,14 +162,38 @@ void CsInputComponent::MessageRouter::onKeyDown(System::Object^ sender, KeyEvent
 
 void CsInputComponent::MessageRouter::onMouseUp(System::Object^ sender, MouseEventArgs^ e)
 {
-	mBackRef->mMouseKeyBitArray &= ~(1 << int(e->Button));
-	mBackRef->mMouseKeyUpBitArray |= (1 << int(e->Button));
+	int buttonValue;
+	switch(e->Button) {
+		case MouseButtons::Left:
+			buttonValue = 0;
+			break;
+		case MouseButtons::Right:
+			buttonValue = 1;
+			break;
+		case MouseButtons::Middle:
+			buttonValue = 2;
+			break;
+	}
+	mBackRef->mMouseKeyBitArray &= ~(1 << buttonValue);
+	mBackRef->mMouseKeyUpBitArray |= (1 << buttonValue);
 }
 
 void CsInputComponent::MessageRouter::onMouseDown(System::Object^ sender, MouseEventArgs^ e)
 {
-	mBackRef->mMouseKeyBitArray |= (1 << int(e->Button));
-	mBackRef->mMouseKeyDownBitArray |= (1 << int(e->Button));
+	int buttonValue;
+	switch(e->Button) {
+		case MouseButtons::Left:
+			buttonValue = 0;
+			break;
+		case MouseButtons::Right:
+			buttonValue = 1;
+			break;
+		case MouseButtons::Middle:
+			buttonValue = 2;
+			break;
+	}
+	mBackRef->mMouseKeyBitArray |= (1 << buttonValue);
+	mBackRef->mMouseKeyDownBitArray |= (1 << buttonValue);
 }
 
 void CsInputComponent::MessageRouter::onMouseMove(System::Object^ sender, MouseEventArgs^ e)

@@ -44,6 +44,9 @@ void RigidBodyComponent::Impl::onAdd(Entity* e)
 
 void RigidBodyComponent::Impl::update(Entity* e)
 {
+	if(mShape->isStatic())
+		return;
+
 	// Simple translation of btTransform to MCD Matrix
 	btTransform tx;
 	mMotionState->getWorldTransform(tx);
