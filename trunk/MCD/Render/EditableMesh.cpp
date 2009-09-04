@@ -35,6 +35,10 @@ EditableMesh::EditableMesh(const Path& fileId, const EditableMesh& shareBuffer)
 	this->builder = shareBuffer.builder;
 }
 
+EditableMesh::~EditableMesh()
+{
+}
+
 void EditableMesh::beginEditing()
 {
 	mImpl->mPosPtr		= (Vec3f*)builder->acquireBufferPointer(Mesh::Position);
