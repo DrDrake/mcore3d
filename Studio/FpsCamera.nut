@@ -20,7 +20,7 @@ _accumulateMouseDelta = Vec2(0);
 
 function update()
 {
-/*	local sleep = function(seconds)
+	local sleep = function(seconds)
 	{
 		local begin = ::gFrameTimer.accumulateTime;
 		while(true) {
@@ -30,7 +30,7 @@ function update()
 			if(!::suspend(null))
 				return;
 		}
-	}*/
+	}
 
 	// Make a short-cut first
 	local localTransform = entity.localTransform;
@@ -38,8 +38,8 @@ function update()
 	{	// Handling rotation
 		local currentMouseAxis = ::Vec2(::gInput.getAxis("mouse x"), ::gInput.getAxis("mouse y"));
 
-//		if(::gInput.getMouseButton(1))
-//			sleep(5);
+		if(::gInput.getMouseButton(1))
+			sleep(5);
 
 		if(::gInput.getMouseButton(2) && !::gInput.getMouseButton(0))
 		{

@@ -66,10 +66,18 @@ public:
 			// Returns the node's next position
 			begin = node->mTime.next()->getOuterSafe();
 
-			if(node->mTime.getKey() <= currentTime) {
-				if(Component* c = node->mComponent.getKey().get())
-					return c;
-				delete node;	// Do garbage collection
+			if(node->mTime.getKey() <= currentTime)
+			{
+				const QueueNode* next = node;
+				do {
+					if(Component* c = next->mComponent.getKey().get())
+						return node == next ? c : nullptr;	// node == next means the first iteration of the loop
+
+					// Do garbage collection and remove all null node
+					node = next;
+					next = next->mTime.next()->getOuterSafe();
+					delete node;
+				} while(next);
 			}
 		}
 

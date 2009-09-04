@@ -35,7 +35,7 @@ ScriptComponentManager::ScriptComponentManager(IFileSystem& fs)
 
 	// Initialize the file name to class mapping, and the script component factory function
 	// TODO: Error handling, ensure the script file does return a class
-/*	if(!vm.runScript(xSTRING("\
+	if(!vm.runScript(xSTRING("\
 		_scriptComponentClassTable <- {};\n\
 		gComponentQueue <- ComponentQueue();\n\
 		\n\
@@ -94,11 +94,18 @@ ScriptComponentManager::ScriptComponentManager(IFileSystem& fs)
 			local currentTime = ::gFrameTimer.accumulateTime;\n\
 			local queueResult = ComponentQueueResult();\n\
 			while(true) {\n\
+			print(currentTime);\n\
 				queueResult = ::gComponentQueue.getItem(currentTime, queueResult.queueNode);\n\
 				local component = queueResult.component;\n\
-				if(!component || !component.entity.enabled)\n\
+				if(component) {\n\
+				println(\", yes\");\n\
+					if(component.entity.enabled)\n\
+						component.wakeup();\n\
+					if(!queueResult.queueNode)\n\
+						break;\n\
+				}\n\
+				else\n\
 					break;\n\
-				component.wakeup();\n\
 			}\n\
 		}\n\
 		\n\
@@ -110,11 +117,11 @@ ScriptComponentManager::ScriptComponentManager(IFileSystem& fs)
 //			_scriptComponentInstanceSet = null;\n\
 		}\n\
 	")))
-		goto OnError;*/
+		goto OnError;
 
 	// Initialize the file name to class mapping, and the script component factory function
 	// TODO: Error handling, ensure the script file does return a class
-	if(!vm.runScript(L"\
+/*	if(!vm.runScript(L"\
 		_scriptComponentClassTable <- {};\n\
 		// This table hold the ownership of all script component instance\n\
 		_scriptComponentInstanceSet <- {};\n\
@@ -154,7 +161,7 @@ ScriptComponentManager::ScriptComponentManager(IFileSystem& fs)
 			}\n\
 		}\n\
 	"))
-		goto OnError;
+		goto OnError;*/
 
 	HSQUIRRELVM v = reinterpret_cast<HSQUIRRELVM>(vm.getImplementationHandle());
 	script::VMCore* v_ = (script::VMCore*)sq_getforeignptr(v);
