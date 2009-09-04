@@ -41,7 +41,7 @@ function update()
 //		if(::gInput.getMouseButton(1))
 //			sleep(5);
 
-		if(::gInput.getMouseButton(0))
+		if(::gInput.getMouseButton(2) && !::gInput.getMouseButton(0))
 		{
 			local delta = currentMouseAxis - _lastMouseAxis;
 			delta.mulEqual(-mouseSensitivity);

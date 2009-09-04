@@ -17,20 +17,6 @@ namespace Studio
 		}
 
 	// Properties
-		public bool IsFpsCameraMode
-		{
-			get { return toolStripButtonMove.CheckState == CheckState.Checked; }
-			set
-			{
-				if(IsFpsCameraMode != value)
-					toolStripButtonMove.PerformClick();
-				toolStripButtonRotate.Enabled = !value;
-				toolStripButtonScale.Enabled = !value;
-				toolStripButtonTranslate.Enabled = !value;
-				if(currentRenderControl != null)
-					currentRenderControl.gizmoEnabled = !value;
-			}
-		}
 
 	// Operations
 		void UpdateToolBars()
@@ -138,8 +124,6 @@ namespace Studio
 				onEntitySelectionChanged(this, null);
 			}
 
-			toolStripButtonMove.Enabled = true;
-			IsFpsCameraMode = true;
 			updateGizmoButtonsState();
 			UpdateToolBars();
 		}
@@ -167,7 +151,6 @@ namespace Studio
 				toolStripGizmo.Enabled = false;
 				toolStripDebug.Enabled = false;
 				clearGizmoButtonsState();
-				IsFpsCameraMode = true;
 			}
 		}
 
@@ -292,16 +275,13 @@ namespace Studio
 		{
 			switch (e.KeyChar)
 			{
-				case 'q':
-					toolStripButtonMove.PerformClick();
-					break;
-				case 'w':
+				case '1':
 					toolStripButtonTranslate.PerformClick();
 					break;
-				case 'e':
+				case '2':
 					toolStripButtonRotate.PerformClick();
 					break;
-				case 'r':
+				case '3':
 					toolStripButtonScale.PerformClick();
 					break;
 			}
@@ -309,8 +289,6 @@ namespace Studio
 
 		private void toolStripButtonMove_Click(object sender, EventArgs e)
 		{
-			toolStripButtonTranslate.Enabled = !IsFpsCameraMode;
-			IsFpsCameraMode = IsFpsCameraMode;
 		}
 
 		private void toolStripGizmo_ItemClicked(object sender, ToolStripItemClickedEventArgs e)
