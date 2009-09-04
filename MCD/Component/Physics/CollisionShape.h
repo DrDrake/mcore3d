@@ -33,6 +33,8 @@ protected:
 
 	virtual ~CollisionShape();
 
+	virtual bool isStatic() const = 0;
+
 	/*!	Pointer storing the implementation of the collision shape,
 		that is actually using the type btCollisionShape.
 	 */
@@ -46,6 +48,8 @@ class MCD_COMPONENT_API SphereShape : public CollisionShape
 public:
 	SphereShape(float radius);
 
+	sal_override bool isStatic() const { return false; }
+
 protected:
 	sal_override ~SphereShape() {}
 };	// SphereShape
@@ -56,6 +60,8 @@ class MCD_COMPONENT_API StaticPlaneShape : public CollisionShape
 {
 public:
 	StaticPlaneShape(const Vec3f& planeNormal, float planeConstant);
+
+	sal_override bool isStatic() const { return true; }
 
 protected:
 	sal_override ~StaticPlaneShape() {}
@@ -73,6 +79,8 @@ public:
 			you can pass keepOwnBuffer = false, use with care!
 	 */
 	StaticTriMeshShape(const MeshBuilder& meshBuilder, bool keepOwnBuffer=true);
+
+	sal_override bool isStatic() const { return true; }
 
 protected:
 	sal_override ~StaticTriMeshShape();
