@@ -150,6 +150,11 @@ void SimpleRayMeshIntersect::begin()
 
 void SimpleRayMeshIntersect::test(const Vec3f& rayOrig, const Vec3f& rayDir, bool twoSided)
 {
+	HitResult* result = new HitResult;
+	result->rayOrig = rayOrig;
+	result->rayDir = rayDir;
+	result->closest = nullptr;
+
 	for(std::list<EditableMesh*>::iterator i = mImpl->mMeshes.begin()
 		; i != mImpl->mMeshes.end()
 		; ++i)
@@ -171,11 +176,9 @@ void SimpleRayMeshIntersect::test(const Vec3f& rayOrig, const Vec3f& rayDir, boo
 
 			if(1 == mImpl->intersectTriangle<float>(rayOrig, rayDir, v0, v1, v2, &t, &u, &v, twoSided))
 			{
-				if( t < 0 )
-					continue;
-
-				/*
-				Hit hit;
+				if(t < 0) continue;
+				
+				Hit& hit = *(new Hit);
 				hit.faceIdx = itri;
 				hit.t = t;
 				hit.u = u;
@@ -183,21 +186,17 @@ void SimpleRayMeshIntersect::test(const Vec3f& rayOrig, const Vec3f& rayDir, boo
 				hit.w = (1.0f - u - v);
 				hit.mesh = mesh;
 
-				if(mImpl->mHits.empty())
-				{
-					mImpl->mClosestHit = mImpl->mHits.size();
-				}
-				else
-				{
-					if(t < mImpl->mHits[mImpl->mClosestHit].t)
-						mImpl->mClosestHit = mImpl->mHits.size();
-				}
-
-				mImpl->mHits.push_back(hit);
-				*/
+				if(nullptr == result->closest)
+					result->closest = &hit;
+				else if(t < result->closest->t)
+					result->closest = &hit;
+				
+				result->hits.pushBack(hit);
 			}
 		}
 	}
+
+	mImpl->mLastResults.pushBack(*result);
 }
 
 LinkList<RayMeshIntersect::HitResult>& SimpleRayMeshIntersect::end()
