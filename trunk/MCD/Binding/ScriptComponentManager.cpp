@@ -94,11 +94,9 @@ ScriptComponentManager::ScriptComponentManager(IFileSystem& fs)
 			local currentTime = ::gFrameTimer.accumulateTime;\n\
 			local queueResult = ComponentQueueResult();\n\
 			while(true) {\n\
-			print(currentTime);\n\
 				queueResult = ::gComponentQueue.getItem(currentTime, queueResult.queueNode);\n\
 				local component = queueResult.component;\n\
 				if(component) {\n\
-				println(\", yes\");\n\
 					if(component.entity.enabled)\n\
 						component.wakeup();\n\
 					if(!queueResult.queueNode)\n\
