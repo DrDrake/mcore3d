@@ -4,15 +4,12 @@
 
 #include <list>
 
-namespace MCD
-{
-
-
+namespace MCD {
 
 class SimpleRayMeshIntersect::Impl
 {
 public:
-	LinkList<RayMeshIntersect::HitResult> mLastResults;
+	LinkList<IRayMeshIntersect::HitResult> mLastResults;
 	std::list<EditableMesh*> mMeshes;
 
 // source code copied from:
@@ -113,7 +110,7 @@ public:
 		return intersect_triangle<REAL>(orig.data, dir.data, vert0.data, vert1.data, vert2.data, t, u, v, twosided);
 	}
 
-};
+};	// Impl
 
 SimpleRayMeshIntersect::SimpleRayMeshIntersect()
 	: mImpl(new Impl)
@@ -199,7 +196,7 @@ void SimpleRayMeshIntersect::test(const Vec3f& rayOrig, const Vec3f& rayDir, boo
 	mImpl->mLastResults.pushBack(*result);
 }
 
-LinkList<RayMeshIntersect::HitResult>& SimpleRayMeshIntersect::end()
+LinkList<IRayMeshIntersect::HitResult>& SimpleRayMeshIntersect::end()
 {
 	for(std::list<EditableMesh*>::iterator i = mImpl->mMeshes.begin()
 		; i != mImpl->mMeshes.end()

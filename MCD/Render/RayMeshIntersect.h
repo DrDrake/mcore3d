@@ -3,14 +3,15 @@
 
 #include "ShareLib.h"
 
-#include "../Core/System/LinkList.h"
 #include "../Core/Math/Vec3.h"
+#include "../Core/System/LinkList.h"
 
 namespace MCD
 {
+
 class EditableMesh;
 
-class MCD_ABSTRACT_CLASS MCD_RENDER_API RayMeshIntersect
+class MCD_ABSTRACT_CLASS MCD_RENDER_API IRayMeshIntersect
 {
 public:
 	struct Hit : public LinkListBase::Node<Hit>
@@ -29,7 +30,7 @@ public:
 		Vec3f rayDir;
 	};
 
-	virtual ~RayMeshIntersect() {}
+	virtual ~IRayMeshIntersect() {}
 
 	/*! Clear all added meshes and stored results. */
 	virtual void reset() = 0;
@@ -46,14 +47,14 @@ public:
 	/*! End intersection testes, the results of issued test will be returned. */
 	virtual LinkList<HitResult>& end() = 0;
 
-};	// RayMeshIntersect
+};	// IRayMeshIntersect
 
-class MCD_RENDER_API SimpleRayMeshIntersect : public RayMeshIntersect
+class MCD_RENDER_API SimpleRayMeshIntersect : public IRayMeshIntersect
 {
 public:
 	SimpleRayMeshIntersect();
 
-	virtual ~SimpleRayMeshIntersect();
+	sal_override ~SimpleRayMeshIntersect();
 
 	sal_override void reset();
 
