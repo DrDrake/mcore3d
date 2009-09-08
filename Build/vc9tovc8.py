@@ -23,7 +23,7 @@ def ConvertVCProj( src ):
     Convert( src, os.path.splitext( src )[0] + ".vc8.vcproj", [ ('Version="9.00"', 'Version="8.00"'), (r'[\s]*MinFrameworkVersion=\"[0-9]+\"\n', '') ] )
 
 def ConvertCSProj( src ):
-    Convert( src, os.path.splitext( src )[0] + ".vc8.csproj", [ ('Version="9.00"', 'Version="8.00"'), (r'[\s]*MinFrameworkVersion=\"[0-9]+\"\n', '') ] )
+    Convert( src, os.path.splitext( src )[0] + ".vc8.csproj", [ ('Version="9.00"', 'Version="8.00"'), (r'[\s]*MinFrameworkVersion=\"[0-9]+\"\n', ''), ('MSBuildToolsPath', 'MSBuildBinPath') ] )
 
 def ConvertSln( src ):
     Convert \

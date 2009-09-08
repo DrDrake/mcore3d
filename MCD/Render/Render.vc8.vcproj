@@ -308,6 +308,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\RayMeshIntersect.h"
+				>
+			</File>
+			<File
 				RelativePath=".\Renderable.h"
 				>
 			</File>
@@ -466,6 +470,10 @@
 			</File>
 			<File
 				RelativePath=".\ProjectiveTexture.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\RayMeshIntersect.cpp"
 				>
 			</File>
 			<File
