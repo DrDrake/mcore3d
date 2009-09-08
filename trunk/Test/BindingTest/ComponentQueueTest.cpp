@@ -76,3 +76,75 @@ TEST(ComponentQueueTest)
 		CHECK(!node);
 	}
 }
+
+TEST(DeadObjectRemoval_ComponentQueueTest)
+{
+	ComponentQueue queue;
+	const size_t cCount = 10;
+	std::auto_ptr<MockComponent> c[cCount];
+
+	for(size_t i=0; i<cCount; ++i) {
+		c[i].reset(new MockComponent());
+		queue.setItem(1, *c[i]);
+	}
+
+	{	// A normal loop should invoke all components
+		const ComponentQueue::QueueNode* node = nullptr;
+		size_t count = 0;
+		while(queue.getItem(2, node)) {
+			++count;
+			if(!node) break;
+		}
+		CHECK_EQUAL(cCount, count);
+	}
+
+	{	// Delete some components and the remaining should still get invoked.
+		c[1].reset();
+		c[3].reset();
+		c[4].reset();
+		c[8].reset();
+
+		const ComponentQueue::QueueNode* node = nullptr;
+		size_t count = 0;
+		MockComponent* p = nullptr;
+		while((p = static_cast<MockComponent*>(queue.getItem(2, node))) != nullptr) {
+			++count;
+			if(!node) break;
+		}
+		CHECK_EQUAL(6u, count);
+	}
+
+	{	// Delete some components and only the remaining component with correct timing will be invoked.
+
+		for(size_t i=0; i<cCount; ++i) {
+			c[i].reset(new MockComponent());
+			queue.setItem(float(i), *c[i]);
+		}
+
+		c[3].reset();
+		const ComponentQueue::QueueNode* node = nullptr;
+		size_t count = 0;
+		MockComponent* p = nullptr;
+		while((p = static_cast<MockComponent*>(queue.getItem(2, node))) != nullptr) {
+			++count;
+			if(!node) break;
+		}
+		CHECK_EQUAL(3u, count);
+
+		count = 0;
+		node = nullptr;
+		while((p = static_cast<MockComponent*>(queue.getItem(3, node))) != nullptr) {
+			++count;
+			if(!node) break;
+		}
+		CHECK_EQUAL(3u, count);
+
+		count = 0;
+		node = nullptr;
+		while((p = static_cast<MockComponent*>(queue.getItem(4, node))) != nullptr) {
+			++count;
+			if(!node) break;
+		}
+		CHECK_EQUAL(4u, count);
+	}
+}
