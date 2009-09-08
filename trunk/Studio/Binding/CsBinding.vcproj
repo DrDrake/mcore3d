@@ -232,6 +232,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\MemoryProfilerServer.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\RenderPanelControl.cpp"
 				>
 			</File>
@@ -275,6 +279,10 @@
 			</File>
 			<File
 				RelativePath=".\Global.h"
+				>
+			</File>
+			<File
+				RelativePath=".\MemoryProfilerServer.h"
 				>
 			</File>
 			<File

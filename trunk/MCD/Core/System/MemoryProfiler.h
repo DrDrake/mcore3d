@@ -3,6 +3,7 @@
 
 #include "CallstackProfiler.h"
 #include "Mutex.h"
+#include <string>
 
 namespace MCD {
 
@@ -133,6 +134,9 @@ public:
 
 	bool accept();
 
+	/*!	Flush the report to the client (if connected) and reset the statistic.
+		This function is supposed to be called every 0.5 to few seconds.
+	 */
 	void update();
 
 protected:

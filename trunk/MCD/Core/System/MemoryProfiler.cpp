@@ -705,12 +705,14 @@ public:
 			n = static_cast<MemoryProfilerNode*>(CallstackNode::traverse(n));
 		} while(n != nullptr);
 
-		std::string str = ss.str();
+		std::string str = ss.str() + "\n\n";
 
 		if(::send(clientSock, str.c_str(), str.length(), 0) == SOCKET_ERROR) {
 			std::cout << "sendto() failed" << std::endl;
 			connected = false;
 		}
+
+		profiler.reset();
 	}
 
 	int sock;
