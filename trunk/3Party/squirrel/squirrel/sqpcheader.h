@@ -16,4 +16,7 @@
 #include "sqobject.h"
 #include "sqstate.h"
 
+#include <wchar.h>	// For wcstoul
+#include <wctype.h>	// For is digit etc...
+
 #endif //_SQPCHEADER_H_
