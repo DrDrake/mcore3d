@@ -10,6 +10,7 @@
 #include "../../MCD/Component/Render/PickComponent.h"
 #include "../../MCD/Core/Entity/Entity.h"
 #include "../../MCD/Core/Entity/BehaviourComponent.h"
+#include "../../MCD/Core/System/MemoryProfiler.h"
 #include "../../MCD/Core/System/ResourceManager.h"
 #include "../../MCD/Core/System/WindowEvent.h"
 #include "../../MCD/Render/Camera.h"
@@ -423,6 +424,7 @@ void RenderPanelControl::playing::set(bool value)
 
 System::Void RenderPanelControl::timer_Tick(System::Object^ sender, System::EventArgs^ e)
 {
+	MCD::MemoryProfiler::singleton().nextFrame();
 	this->update();
 }
 
