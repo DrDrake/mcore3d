@@ -15,6 +15,8 @@ class MCD_CORE_API MemoryProfilerNode : public CallstackNode
 public:
 	MemoryProfilerNode(sal_in_z const char name[], sal_maybenull CallstackNode* parent=nullptr);
 
+	~MemoryProfilerNode();
+
 // Operations
 	sal_override void begin();
 
@@ -47,7 +49,8 @@ public:
 		possible, but in some cases (eg. MemoryProfiler::reset and MemoryProfiler::defaultReport)
 		locking is still needed.
 	 */
-	mutable RecursiveMutex mutex;
+	bool mIsMutexOwner;
+	RecursiveMutex* mutex;
 };	// MemoryProfilerNode
 
 /*!	A memory profiler.
@@ -117,6 +120,25 @@ protected:
 	struct TlsList;
 	TlsList* mTlsList;
 };	// MemoryProfiler
+
+//! A TCP server for enabling external statisstic report.
+class MCD_CORE_API MemoryProfilerServer
+{
+public:
+	MemoryProfilerServer();
+
+	~MemoryProfilerServer();
+
+	bool listern(uint16_t port);
+
+	bool accept();
+
+	void update();
+
+protected:
+	class Impl;
+	Impl* mImpl;
+};	// MemoryProfilerServer
 
 }	// namespace MCD
 

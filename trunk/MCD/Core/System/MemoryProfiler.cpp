@@ -12,7 +12,7 @@
 	make cause false positive, therefore we hace a macro to turn on and off the dll main.
 	Use dll main has the benift of capturing more memory allocation.
  */
-#define USE_DLL_MAIN 1
+#define USE_DLL_MAIN 0
 
 using namespace MCD;
 
@@ -138,7 +138,7 @@ void* commonAlloc(sal_in TlsStruct* tls, sal_in void* p, size_t nBytes, int delt
 		node->exclusiveBytes += bytes;
 	}
 
-	{	ScopeLock lock(*gFooterMutex);
+	{	ScopeLock lock(gFooterMutex);
 		MyMemFooter* footer = reinterpret_cast<MyMemFooter*>(nBytes + (char*)p);
 		footer->node = node;
 		footer->fourCC1 = MyMemFooter::cFourCC1;
@@ -203,7 +203,7 @@ LPVOID WINAPI myHeapFree(__in HANDLE hHeap, __in DWORD dwFlags, __deref LPVOID l
 
 			// Race with MemoryProfiler::reset(), MemoryProfiler::defaultReport() and all other
 			// operations if lpMem is allocated from thread A but now free in thread B (this thread)
-			{	ScopeUnlock unlock(*gFooterMutex);	// Prevent lock hierarchy.
+			{	ScopeUnlock unlock(gFooterMutex);	// Prevent lock hierarchy.
 				ScopeRecursiveLock lock2(node->mutex);
 
 				node->exclusiveCount--;
@@ -229,13 +229,20 @@ struct MemoryProfiler::TlsList : public ptr_vector<TlsStruct>
 MemoryProfilerNode::MemoryProfilerNode(const char name[], CallstackNode* parent)
 	:
 	CallstackNode(name, parent), callCount(0),
-	exclusiveCount(0), exclusiveBytes(0), countSinceLastReset(0)
+	exclusiveCount(0), exclusiveBytes(0), countSinceLastReset(0),
+	mIsMutexOwner(false), mutex(nullptr)
 {
+}
+
+MemoryProfilerNode::~MemoryProfilerNode()
+{
+	if(mIsMutexOwner)
+		delete mutex;
 }
 
 void MemoryProfilerNode::begin()
 {
-	MCD_ASSERT(mutex.isLocked());
+	MCD_ASSERT(mutex->isLocked());
 	++callCount;
 }
 
@@ -262,6 +269,7 @@ size_t MemoryProfilerNode::inclusiveCount() const
 		return total;
 
 	do {
+		ScopeRecursiveLock lock(n->mutex);
 		total += n->inclusiveCount();
 		n = static_cast<MemoryProfilerNode*>(n->sibling);
 	} while(n);
@@ -277,6 +285,7 @@ size_t MemoryProfilerNode::inclusiveBytes() const
 		return total;
 
 	do {
+		ScopeRecursiveLock lock(n->mutex);
 		total += n->inclusiveBytes();
 		n = static_cast<MemoryProfilerNode*>(n->sibling);
 	} while(n);
@@ -297,7 +306,7 @@ MemoryProfiler::MemoryProfiler()
 	gFooterMutex = new Mutex(200);
 
 #if !USE_DLL_MAIN
-	onThreadAttach("main thread");
+	onThreadAttach("MAIN THREAD");
 #endif	// !USE_DLL_MAIN
 }
 
@@ -337,9 +346,9 @@ void MemoryProfiler::begin(const char name[])
 	ScopeRecursiveLock lock(node->mutex);
 
 	if(name != node->name) {
-		MemoryProfilerNode* tmp = static_cast<MemoryProfilerNode*>(node->getChildByName(name));
-		lock.swapMutex(tmp->mutex);
-		node = tmp;
+		// NOTE: We have changed the node, but there is no need to lock the
+		// mutex for the new node, since both mutex must be just the same instance.
+		node = static_cast<MemoryProfilerNode*>(node->getChildByName(name));
 
 		// Only alter the current node, if the child node is not recursing
 		if(node->recursionCount == 0)
@@ -422,7 +431,7 @@ std::string MemoryProfiler::defaultReport(size_t nameLength) const
 		<< setw(bytesWidth)		<< "TkBytes"
 		<< setw(bytesWidth)		<< "SkBytes"
 		<< setw(countWidth)		<< "SCount/F"
-		<< setw(countWidth)		<< "Call/F"
+		<< setw(countWidth-2)	<< "Call/F"
 		<< endl;
 
 	MemoryProfilerNode* n = static_cast<MemoryProfilerNode*>(mRootNode);
@@ -438,18 +447,30 @@ std::string MemoryProfiler::defaultReport(size_t nameLength) const
 		if(n->callDepth() == 0 || n->exclusiveCount != 0 || n->countSinceLastReset != 0)
 		{
 			size_t callDepth = n->callDepth();
-			ss.flags(ios_base::left);
-			ss	<< setw(callDepth) << ""
-				<< setw(nameLength - callDepth) << n->name
-				<< setiosflags(ios::right)// << setprecision(3)
-				<< setw(countWidth)		<< (n->inclusiveCount())
-				<< setw(countWidth)		<< (n->exclusiveCount)
-				<< setw(bytesWidth)		<< (float(n->inclusiveBytes()) / 1024)
-				<< setw(bytesWidth)		<< (float(n->exclusiveBytes) / 1024)
-				<< setw(countWidth)		<< (float(n->countSinceLastReset) / frameCount)
-				<< setprecision(2)
-				<< setw(countWidth-2)	<< (float(n->callCount) / frameCount)
-				<< endl;
+			const char* name = n->name;
+			size_t iCount = n->inclusiveCount();
+			size_t eCount = n->exclusiveCount;
+			float iBytes = float(n->inclusiveBytes()) / 1024;
+			float eBytes = float(n->exclusiveBytes) / 1024;
+			float countSinceLastReset = float(n->countSinceLastReset) / frameCount;
+			float callCount = float(n->callCount) / frameCount;
+
+			{	// The string stream will make allocations, therefore we need to unlock the mutex
+				// to prevent dead lock.
+				ScopeRecursiveUnlock unlock(n->mutex);
+				ss.flags(ios_base::left);
+				ss	<< setw(callDepth) << ""
+					<< setw(nameLength - callDepth) << name
+					<< setiosflags(ios::right)// << setprecision(3)
+					<< setw(countWidth)		<< iCount
+					<< setw(countWidth)		<< eCount
+					<< setw(bytesWidth)		<< iBytes
+					<< setw(bytesWidth)		<< eBytes
+					<< setw(countWidth)		<< countSinceLastReset
+					<< setprecision(2)
+					<< setw(countWidth-2)	<< callCount
+					<< endl;
+			}
 		}
 
 		n = static_cast<MemoryProfilerNode*>(CallstackNode::traverse(n));
@@ -512,7 +533,7 @@ BOOL APIENTRY DllMain(HINSTANCE hModule, DWORD dwReason, PVOID lpReserved)
 	switch(dwReason) {
 	case DLL_PROCESS_ATTACH:
 		// Force the profiler to instanciate
-		MemoryProfiler::singleton().onThreadAttach("main thread");
+		MemoryProfiler::singleton().onThreadAttach("MAIN THREAD");
 		break;
 	case DLL_THREAD_ATTACH:
 		MemoryProfiler::singleton().onThreadAttach();
@@ -566,7 +587,20 @@ void MemoryProfiler::setEnable(bool flag) { (void)flag; }
 
 MCD::CallstackNode* MCD::MemoryProfilerNode::createNode(const char name[], MCD::CallstackNode* parent)
 {
-	return new MCD::MemoryProfilerNode(name, parent);
+	MemoryProfilerNode* parentNode = static_cast<MemoryProfilerNode*>(parent);
+	MemoryProfilerNode* n = new MemoryProfilerNode(name, parent);
+
+	// Every thread should have it's own root node which owns a mutex
+	if(!parentNode || parentNode->mutex == nullptr) {
+		n->mutex = new RecursiveMutex();
+		n->mIsMutexOwner = true;
+	}
+	else {
+		n->mutex = parentNode->mutex;
+		n->mIsMutexOwner = false;
+	}
+
+	return n;
 }
 
 MCD::MemoryProfiler& MCD::MemoryProfiler::singleton()
@@ -574,3 +608,141 @@ MCD::MemoryProfiler& MCD::MemoryProfiler::singleton()
 	static MCD::MemoryProfiler instance;
 	return instance;
 }
+
+#if defined(_MSC_VER)
+
+#include <Winsock2.h>
+#pragma comment(lib, "Ws2_32")
+
+namespace MCD {
+
+class MemoryProfilerServer::Impl
+{
+public:
+	bool listern(uint16_t port)
+	{
+		if((sock = ::socket(AF_INET, SOCK_STREAM, 0)) == INVALID_SOCKET)
+			return false;
+
+		unsigned long nonBlocking = 1;
+		if(::ioctlsocket(sock, FIONBIO, &nonBlocking) == SOCKET_ERROR)
+			return false;
+
+		serverAddr.sin_family = AF_INET;
+		serverAddr.sin_port = ::htons(port);
+		serverAddr.sin_addr.s_addr = INADDR_ANY;
+		::memset(&(serverAddr.sin_zero), 0, 8);
+
+		if(::bind(sock, (sockaddr*)(&serverAddr), sizeof(serverAddr)) != 0)
+			return false;
+
+		if(::listen(sock, 5) != 0)
+			return false;
+
+		return true;
+	}
+
+	bool accept()
+	{
+		int sin_size = sizeof(struct sockaddr_in);
+
+		if(connected)
+			return false;
+
+		clientSock = ::accept(sock, (sockaddr*)(&clientAddr), &sin_size);
+
+		if(clientSock != INVALID_SOCKET)
+		{
+			connected = true;
+			std::cout << "Client connected!!" << std::endl;
+			return true;
+		}
+
+		return false;
+	}
+
+	void update()
+	{
+		if(!connected)
+			return;
+
+		std::ostringstream ss;
+		MemoryProfiler& profiler = MemoryProfiler::singleton();
+		MemoryProfilerNode* n = static_cast<MemoryProfilerNode*>(profiler.getRootNode());
+
+		do
+		{	// Race with MemoryProfiler::begin(), MemoryProfiler::end(), commonAlloc() and myHeapFree()
+			ScopeRecursiveLock lock(n->mutex);
+
+			// Skip node that have no allocation at all
+			if(n->inclusiveCount() != 0 || n->countSinceLastReset != 0)
+			{
+				size_t callDepth = n->callDepth();
+				const char* name = n->name;
+				size_t iCount = n->inclusiveCount();
+				size_t eCount = n->exclusiveCount;
+				float iBytes = float(n->inclusiveBytes()) / 1024;
+				float eBytes = float(n->exclusiveBytes) / 1024;
+				float countSinceLastReset = float(n->countSinceLastReset) / profiler.frameCount;
+				float callCount = float(n->callCount) / profiler.frameCount;
+
+				{	// The string stream will make allocations, therefore we need to unlock the mutex
+					// to prevent dead lock.
+					ScopeRecursiveUnlock unlock(n->mutex);
+					ss	<< callDepth << ";"
+						<< n << ";"	// Send the address as the node identifier
+						<< name << ";"
+						<< iCount << ";"
+						<< eCount << ";"
+						<< iBytes << ";"
+						<< eBytes << ";"
+						<< countSinceLastReset << ";"
+						<< callCount << ";"
+						<< std::endl;
+				}
+			}
+
+			n = static_cast<MemoryProfilerNode*>(CallstackNode::traverse(n));
+		} while(n != nullptr);
+
+		std::string str = ss.str();
+
+		if(::send(clientSock, str.c_str(), str.length(), 0) == SOCKET_ERROR) {
+			std::cout << "sendto() failed" << std::endl;
+			connected = false;
+		}
+	}
+
+	int sock;
+	int clientSock;
+	struct sockaddr_in serverAddr, clientAddr;
+	bool connected;
+};	// Impl
+
+MemoryProfilerServer::MemoryProfilerServer()
+	: mImpl(new Impl())
+{
+	WSADATA	wsad;
+	::WSAStartup(WINSOCK_VERSION, &wsad);
+}
+
+MemoryProfilerServer::~MemoryProfilerServer() {
+	delete mImpl;
+	::WSACleanup();
+}
+
+bool MemoryProfilerServer::listern(uint16_t port) {
+	return mImpl->listern(port);
+}
+
+bool MemoryProfilerServer::accept() {
+	return mImpl->accept();
+}
+
+void MemoryProfilerServer::update() {
+	mImpl->update();
+}
+
+}	// namespace MCD
+
+#endif	//_MSC_VER
