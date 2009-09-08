@@ -66,74 +66,6 @@
 			this.panel1.SuspendLayout();
 			this.SuspendLayout();
 			// 
-			// button1
-			// 
-			this.button1.AutoSize = true;
-			this.button1.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
-			this.button1.Dock = System.Windows.Forms.DockStyle.Right;
-			this.button1.Location = new System.Drawing.Point(615, 0);
-			this.button1.Name = "button1";
-			this.button1.Size = new System.Drawing.Size(54, 23);
-			this.button1.TabIndex = 0;
-			this.button1.Text = "Connect";
-			this.button1.UseVisualStyleBackColor = true;
-			this.button1.Click += new System.EventHandler(this.button1_Click);
-			// 
-			// timer1
-			// 
-			this.timer1.Enabled = true;
-			this.timer1.Tick += new System.EventHandler(this.timer1_Tick);
-			// 
-			// backgroundWorker1
-			// 
-			this.backgroundWorker1.WorkerSupportsCancellation = true;
-			this.backgroundWorker1.DoWork += new System.ComponentModel.DoWorkEventHandler(this.backgroundWorker1_DoWork);
-			this.backgroundWorker1.RunWorkerCompleted += new System.ComponentModel.RunWorkerCompletedEventHandler(this.backgroundWorker1_RunWorkerCompleted);
-			// 
-			// textBox1
-			// 
-			this.textBox1.Dock = System.Windows.Forms.DockStyle.Fill;
-			this.textBox1.Location = new System.Drawing.Point(0, 0);
-			this.textBox1.Name = "textBox1";
-			this.textBox1.Size = new System.Drawing.Size(615, 22);
-			this.textBox1.TabIndex = 1;
-			this.textBox1.Text = "localhost:5000";
-			this.textBox1.WordWrap = false;
-			// 
-			// treeViewAdv1
-			// 
-			this.treeViewAdv1.AllowColumnReorder = true;
-			this.treeViewAdv1.BackColor = System.Drawing.SystemColors.Window;
-			this.treeViewAdv1.Columns.Add(treeColumn1);
-			this.treeViewAdv1.Columns.Add(treeColumn2);
-			this.treeViewAdv1.Columns.Add(treeColumn3);
-			this.treeViewAdv1.Columns.Add(treeColumn4);
-			this.treeViewAdv1.Columns.Add(treeColumn5);
-			this.treeViewAdv1.Columns.Add(treeColumn6);
-			this.treeViewAdv1.Columns.Add(treeColumn7);
-			this.treeViewAdv1.DefaultToolTipProvider = null;
-			this.treeViewAdv1.Dock = System.Windows.Forms.DockStyle.Fill;
-			this.treeViewAdv1.DragDropMarkColor = System.Drawing.Color.Black;
-			this.treeViewAdv1.FullRowSelect = true;
-			this.treeViewAdv1.GridLineStyle = ((Aga.Controls.Tree.GridLineStyle)((Aga.Controls.Tree.GridLineStyle.Horizontal | Aga.Controls.Tree.GridLineStyle.Vertical)));
-			this.treeViewAdv1.Indent = 12;
-			this.treeViewAdv1.LineColor = System.Drawing.SystemColors.ControlDark;
-			this.treeViewAdv1.Location = new System.Drawing.Point(0, 23);
-			this.treeViewAdv1.Model = null;
-			this.treeViewAdv1.Name = "treeViewAdv1";
-			this.treeViewAdv1.NodeControls.Add(nodeTextBox1);
-			this.treeViewAdv1.NodeControls.Add(nodeDecimalTextBox1);
-			this.treeViewAdv1.NodeControls.Add(nodeDecimalTextBox2);
-			this.treeViewAdv1.NodeControls.Add(nodeDecimalTextBox3);
-			this.treeViewAdv1.NodeControls.Add(nodeDecimalTextBox4);
-			this.treeViewAdv1.NodeControls.Add(nodeDecimalTextBox5);
-			this.treeViewAdv1.NodeControls.Add(nodeDecimalTextBox6);
-			this.treeViewAdv1.SelectedNode = null;
-			this.treeViewAdv1.Size = new System.Drawing.Size(669, 318);
-			this.treeViewAdv1.TabIndex = 2;
-			this.treeViewAdv1.Text = "treeViewAdv1";
-			this.treeViewAdv1.UseColumns = true;
-			// 
 			// treeColumn1
 			// 
 			treeColumn1.Header = "Callstack";
@@ -248,6 +180,75 @@
 			nodeDecimalTextBox6.LeftMargin = 3;
 			nodeDecimalTextBox6.ParentColumn = treeColumn7;
 			nodeDecimalTextBox6.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
+			// 
+			// button1
+			// 
+			this.button1.AutoSize = true;
+			this.button1.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
+			this.button1.Dock = System.Windows.Forms.DockStyle.Right;
+			this.button1.Location = new System.Drawing.Point(615, 0);
+			this.button1.Name = "button1";
+			this.button1.Size = new System.Drawing.Size(54, 23);
+			this.button1.TabIndex = 0;
+			this.button1.Text = "Connect";
+			this.button1.UseVisualStyleBackColor = true;
+			this.button1.Click += new System.EventHandler(this.button1_Click);
+			// 
+			// timer1
+			// 
+			this.timer1.Enabled = true;
+			this.timer1.Interval = 1000;
+			this.timer1.Tick += new System.EventHandler(this.timer1_Tick);
+			// 
+			// backgroundWorker1
+			// 
+			this.backgroundWorker1.WorkerSupportsCancellation = true;
+			this.backgroundWorker1.DoWork += new System.ComponentModel.DoWorkEventHandler(this.backgroundWorker1_DoWork);
+			this.backgroundWorker1.RunWorkerCompleted += new System.ComponentModel.RunWorkerCompletedEventHandler(this.backgroundWorker1_RunWorkerCompleted);
+			// 
+			// textBox1
+			// 
+			this.textBox1.Dock = System.Windows.Forms.DockStyle.Fill;
+			this.textBox1.Location = new System.Drawing.Point(0, 0);
+			this.textBox1.Name = "textBox1";
+			this.textBox1.Size = new System.Drawing.Size(615, 22);
+			this.textBox1.TabIndex = 1;
+			this.textBox1.Text = "localhost:5000";
+			this.textBox1.WordWrap = false;
+			// 
+			// treeViewAdv1
+			// 
+			this.treeViewAdv1.AllowColumnReorder = true;
+			this.treeViewAdv1.BackColor = System.Drawing.SystemColors.Window;
+			this.treeViewAdv1.Columns.Add(treeColumn1);
+			this.treeViewAdv1.Columns.Add(treeColumn2);
+			this.treeViewAdv1.Columns.Add(treeColumn3);
+			this.treeViewAdv1.Columns.Add(treeColumn4);
+			this.treeViewAdv1.Columns.Add(treeColumn5);
+			this.treeViewAdv1.Columns.Add(treeColumn6);
+			this.treeViewAdv1.Columns.Add(treeColumn7);
+			this.treeViewAdv1.DefaultToolTipProvider = null;
+			this.treeViewAdv1.Dock = System.Windows.Forms.DockStyle.Fill;
+			this.treeViewAdv1.DragDropMarkColor = System.Drawing.Color.Black;
+			this.treeViewAdv1.FullRowSelect = true;
+			this.treeViewAdv1.GridLineStyle = ((Aga.Controls.Tree.GridLineStyle)((Aga.Controls.Tree.GridLineStyle.Horizontal | Aga.Controls.Tree.GridLineStyle.Vertical)));
+			this.treeViewAdv1.Indent = 12;
+			this.treeViewAdv1.LineColor = System.Drawing.SystemColors.ControlDark;
+			this.treeViewAdv1.Location = new System.Drawing.Point(0, 23);
+			this.treeViewAdv1.Model = null;
+			this.treeViewAdv1.Name = "treeViewAdv1";
+			this.treeViewAdv1.NodeControls.Add(nodeTextBox1);
+			this.treeViewAdv1.NodeControls.Add(nodeDecimalTextBox1);
+			this.treeViewAdv1.NodeControls.Add(nodeDecimalTextBox2);
+			this.treeViewAdv1.NodeControls.Add(nodeDecimalTextBox3);
+			this.treeViewAdv1.NodeControls.Add(nodeDecimalTextBox4);
+			this.treeViewAdv1.NodeControls.Add(nodeDecimalTextBox5);
+			this.treeViewAdv1.NodeControls.Add(nodeDecimalTextBox6);
+			this.treeViewAdv1.SelectedNode = null;
+			this.treeViewAdv1.Size = new System.Drawing.Size(669, 318);
+			this.treeViewAdv1.TabIndex = 2;
+			this.treeViewAdv1.Text = "treeViewAdv1";
+			this.treeViewAdv1.UseColumns = true;
 			// 
 			// panel1
 			// 

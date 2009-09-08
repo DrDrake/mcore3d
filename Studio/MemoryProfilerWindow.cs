@@ -23,6 +23,8 @@ namespace Studio
 			mStringList = new List<string>();
 
 			treeViewAdv1.Model = new TreeModel();
+			mMemoryProfilerServer = new Binding.MemoryProfilerServer();
+			mMemoryProfilerServer.listern(5000);
 		}
 
 		/// <summary>
@@ -60,6 +62,18 @@ namespace Studio
 			backgroundWorker1.CancelAsync();
 		}
 
+		private void afterDisconnect()
+		{
+			TreeModel model = treeViewAdv1.Model as TreeModel;
+			mClient.Close();
+			mClient = null;
+			mDisconnectPending = false;
+			textBox1.Enabled = true;
+			button1.Text = "Connect";
+			model.Nodes.Clear();
+			mRootNode = null;
+		}
+
 		private TcpClient mClient;
 		private bool mDisconnectPending;
 		private StreamReader mStreamReader;
@@ -71,18 +85,24 @@ namespace Studio
 		private List<string> mStringList;
 		private CallstackNode mRootNode;
 
+		private Binding.MemoryProfilerServer mMemoryProfilerServer;
+
 		private void timer1_Tick(object sender, EventArgs e)
 		{
+			mMemoryProfilerServer.update();
 			if (!backgroundWorker1.IsBusy && mClient != null && mClient.Connected && !mDisconnectPending)
 				backgroundWorker1.RunWorkerAsync();
+
+			if (mDisconnectPending)
+				afterDisconnect();
 		}
 
 		private void backgroundWorker1_DoWork(object sender, DoWorkEventArgs e)
 		{
 			try
 			{
-				// Split on comma.
-				// If you want to support function name has comma, a more robust regular expression is needed.
+				// Split on ";".
+				// If you want to support function name has ";", a more robust regular expression is needed.
 				Regex regex = new Regex(@";");
 
 				mStringList.Clear();
@@ -148,8 +168,8 @@ namespace Studio
 						node.SCount = Int32.TryParse(tokens[4], out node.SCount) ? node.SCount : -1;
 						node.TkBytes = Double.Parse(tokens[5]);
 						node.SkBytes = Double.Parse(tokens[6]);
-						node.SCountPerFrame = Double.Parse(tokens[7]);
-						node.CallPerFrame = Double.Parse(tokens[8]);
+						node.SCountPerFrame = Double.TryParse(tokens[7], out node.SCountPerFrame) ? node.SCountPerFrame : -1;
+						node.CallPerFrame = Double.TryParse(tokens[8], out node.CallPerFrame) ? node.CallPerFrame : -1;
 					}
 
 					lastLine = s;
@@ -169,18 +189,8 @@ namespace Studio
 			TreeModel model = treeViewAdv1.Model as TreeModel;
 			if (mRootNode != null)
 				model.Nodes.Add(mRootNode);
-
 			if (mDisconnectPending)
-			{
-				mClient.Close();
-				mClient = null;
-				mDisconnectPending = false;
-				textBox1.Enabled = true;
-				button1.Text = "Connect";
-				model.Nodes.Clear();
-				mRootNode = null;
-			}
-
+				afterDisconnect();
 			treeViewAdv1.Refresh();
 		}
 
