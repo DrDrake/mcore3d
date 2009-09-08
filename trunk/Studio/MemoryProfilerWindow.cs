@@ -113,6 +113,7 @@ namespace Studio
 					mRootNode = new CallstackNode();
 
 				CallstackNode node = null;
+				CallstackNode previousNode = null;	// Back up the node of last iteration, for detecting dead nodes.
 
 				// Parse the incomming string message and build a corresponding callstack tree.
 				while (true)
@@ -136,6 +137,8 @@ namespace Studio
 							node = mRootNode;
 						else
 						{
+							previousNode = node;
+
 							// Up the callstack
 							for (int j = node.Level - level; (j--) > -1; )
 								node = node.Parent as CallstackNode;
@@ -161,6 +164,13 @@ namespace Studio
 							node = searchNode;
 						}
 
+						// Remove any "dead" node
+						if (previousNode != node.Parent && previousNode != node.PreviousNode &&
+							(node.PreviousNode as CallstackNode).TCount == 0)
+						{
+							node.PreviousNode.Parent = null;
+						}
+
 						node.Level = level;
 						node.Id = tokens[1];
 						node.Name = tokens[2];
@@ -175,7 +185,7 @@ namespace Studio
 					lastLine = s;
 					mStringList.Add(s);
 					mReportString += s;
-				}
+				}	// while(true)
 			}
 			catch (Exception ex)
 			{
