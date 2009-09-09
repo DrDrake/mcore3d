@@ -1,6 +1,7 @@
 #include "Pch.h"
 #include "RenderableComponent.h"
 #include "../../Core/Entity/Entity.h"
+#include "../../Core/System/MemoryProfiler.h"
 
 #ifdef MCD_VC
 #	pragma comment(lib, "OpenGL32")
@@ -12,6 +13,8 @@ namespace MCD {
 
 void RenderableComponent::traverseEntities(Entity* entityNode)
 {
+	MemoryProfiler::Scope profiler("RenderableComponent::traverseEntities");
+
 	for(EntityPreorderIterator itr(entityNode); !itr.ended();)
 	{
 		if(!itr->enabled) {

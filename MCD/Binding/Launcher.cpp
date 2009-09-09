@@ -9,6 +9,7 @@
 #include "../Component/Render/RenderableComponent.h"
 #include "../Core/System/FileSystemCollection.h"
 #include "../Core/System/Log.h"
+#include "../Core/System/MemoryProfiler.h"
 #include "../Core/System/RawFileSystem.h"
 #include "../Core/System/Resource.h"
 #include "../Core/System/ResourceLoader.h"
@@ -253,6 +254,8 @@ bool Launcher::init(InputComponent& inputComponent, Entity* rootNode)
 
 Entity* Launcher::loadEntity(const wchar_t* filePath, bool createCollisionMesh)
 {
+	MemoryProfiler::Scope profiler("Launcher::loadEntity");
+
 	//! A callback that create static physics collision mesh upon loads complete.
 	class EntityLoadCreatePhysicsCallback : public EntityPrototypeLoader::LoadCallback
 	{
@@ -285,6 +288,8 @@ Entity* Launcher::loadEntity(const wchar_t* filePath, bool createCollisionMesh)
 
 void Launcher::update()
 {
+	MemoryProfiler::Scope profiler("Launcher::update");
+
 	static_cast<DefaultResourceManager*>(mResourceManager)->processLoadingEvents();
 
 	scriptComponentManager.updateScriptComponents();

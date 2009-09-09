@@ -1,11 +1,14 @@
 #include "Pch.h"
 #include "BehaviourComponent.h"
-#include "../Entity/Entity.h"
+#include "Entity.h"
+#include "../System/MemoryProfiler.h"
 
 namespace MCD {
 
 void BehaviourComponent::traverseEntities(Entity* entityNode)
 {
+	MemoryProfiler::Scope profiler("BehaviourComponent::traverseEntities");
+
 	for(EntityPreorderIterator itr(entityNode); !itr.ended();)
 	{
 		if(!itr->enabled) {

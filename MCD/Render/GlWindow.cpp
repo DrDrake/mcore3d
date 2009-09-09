@@ -74,6 +74,8 @@ bool GlWindow::makeActive()
 
 bool GlWindow::swapBuffers()
 {
+	MemoryProfiler::ScopeIgnore ignoreProfiling;
+
 	MCD_ASSUME(mImpl != nullptr);
 	return static_cast<Impl*>(mImpl)->swapBuffers();
 }

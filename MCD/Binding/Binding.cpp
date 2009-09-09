@@ -2,6 +2,7 @@
 #include "Binding.h"
 #include "../Core/System/Platform.h"
 #include "../Core/System/StrUtility.h"
+#include "../Core/System/MemoryProfiler.h"
 #include "../../3Party/jkbind/VMCore.h"
 #include "../../3Party/jkbind/detail/Classes.h"
 #include "../../3Party/squirrel/sqstdio.h"
@@ -145,6 +146,7 @@ ScriptVM::~ScriptVM()
 bool ScriptVM::runScript(const wchar_t* script, bool retVal)
 {
 	MCD_ASSUME(mImpl);
+	MemoryProfiler::Scope profiler("ScriptVM::runScript");
 	return mImpl->runScript(script, retVal);
 }
 
