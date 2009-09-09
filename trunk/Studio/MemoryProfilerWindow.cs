@@ -64,10 +64,10 @@ namespace Studio
 
 		private void afterDisconnect()
 		{
+			mDisconnectPending = false;
 			TreeModel model = treeViewAdv1.Model as TreeModel;
 			mClient.Close();
 			mClient = null;
-			mDisconnectPending = false;
 			textBox1.Enabled = true;
 			button1.Text = "Connect";
 			model.Nodes.Clear();
@@ -93,7 +93,7 @@ namespace Studio
 			if (!backgroundWorker1.IsBusy && mClient != null && mClient.Connected && !mDisconnectPending)
 				backgroundWorker1.RunWorkerAsync();
 
-			if (mDisconnectPending)
+			if (mDisconnectPending && !backgroundWorker1.IsBusy)
 				afterDisconnect();
 		}
 
@@ -165,10 +165,10 @@ namespace Studio
 						}
 
 						// Remove any "dead" node
-						if (previousNode != node.Parent && previousNode != node.PreviousNode &&
-							(node.PreviousNode as CallstackNode).TCount == 0)
+						if (previousNode != null)
 						{
-							node.PreviousNode.Parent = null;
+							while (previousNode.MyNextNode != null && previousNode.MyNextNode != node)
+								previousNode.MyNextNode.Parent = null;
 						}
 
 						node.Level = level;
@@ -186,6 +186,14 @@ namespace Studio
 					mStringList.Add(s);
 					mReportString += s;
 				}	// while(true)
+
+				// Remove any "dead" node
+				{
+					while (node != null && node.MyNextNode != null)
+						node.MyNextNode.Parent = null;
+					while (previousNode != null && previousNode.NextNode != null)
+						previousNode.NextNode.Parent = null;
+				}
 			}
 			catch (Exception ex)
 			{
@@ -221,5 +229,33 @@ namespace Studio
 		public double SkBytes;
 		public double SCountPerFrame;
 		public double CallPerFrame;
+
+		public CallstackNode FirstChild
+		{
+			get
+			{
+				if (Nodes.Count == 0)
+					return null;
+				return (Nodes[0] as CallstackNode);
+			}
+		}
+
+		public CallstackNode NextSibling
+		{
+			get
+			{
+				return (base.NextNode as CallstackNode);
+			}
+		}
+
+		public CallstackNode MyNextNode
+		{
+			get
+			{
+				if (FirstChild != null)
+					return FirstChild;
+				return NextSibling;
+			}
+		}
 	}
 }
