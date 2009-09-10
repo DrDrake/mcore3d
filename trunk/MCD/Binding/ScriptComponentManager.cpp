@@ -300,8 +300,19 @@ Component* ScriptComponentManager::runScripAsComponent(const wchar_t* scriptCode
 	return ret;
 }
 
-void ScriptComponentManager::updateScriptComponents() {
-	(void)vm.runScript(xSTRING("updateAllScriptComponent();"));
+void ScriptComponentManager::updateScriptComponents()
+{
+	// Calling runScript will cause compilation and extra memory consumption,
+	// therefore use function call directly.
+//	(void)vm.runScript(xSTRING("updateAllScriptComponent();"));
+
+	HSQUIRRELVM v = (HSQUIRRELVM)vm.getImplementationHandle();
+	sq_pushroottable(v);
+	sq_pushstring(v, xSTRING("updateAllScriptComponent"), -1);
+	sq_get(v, -2);			// Get the function from the root table
+	sq_pushroottable(v);	// 'this' (function environment object)
+	sq_call(v, 1, SQFalse, SQTrue);
+	sq_pop(v, 2);			// Pops the roottable and the function
 }
 
 void ScriptComponentManager::shutdown() {
