@@ -10,7 +10,7 @@ class SimpleRayMeshIntersect::Impl
 {
 public:
 	LinkList<IRayMeshIntersect::HitResult> mLastResults;
-	std::list<EditableMesh*> mMeshes;
+	LinkList<MeshRecord> mMeshes;
 
 // source code copied from:
 // Fast, Minimum Storage Ray/Triangle Intersection
@@ -124,24 +124,38 @@ SimpleRayMeshIntersect::~SimpleRayMeshIntersect()
 
 void SimpleRayMeshIntersect::reset()
 {
-	mImpl->mMeshes.clear();
+	mImpl->mMeshes.destroyAll();
 	mImpl->mLastResults.destroyAll();
 }
 
 void SimpleRayMeshIntersect::addMesh(EditableMesh& mesh)
 {
-	mImpl->mMeshes.push_back(&mesh);
+	MeshRecord* rec = new MeshRecord(mesh);
+	rec->hasTransform = false;
+	mImpl->mMeshes.pushBack(*rec);
+}
+
+void SimpleRayMeshIntersect::addMesh(EditableMesh& mesh, const Mat44f& transform)
+{
+	MeshRecord* rec = new MeshRecord(mesh);
+	rec->hasTransform = true;
+	rec->transform = transform;
+	mImpl->mMeshes.pushBack(*rec);
+}
+
+void SimpleRayMeshIntersect::build()
+{
 }
 
 void SimpleRayMeshIntersect::begin()
 {
 	mImpl->mLastResults.destroyAll();
 
-	for(std::list<EditableMesh*>::iterator i = mImpl->mMeshes.begin()
+	for(MeshRecord* i = mImpl->mMeshes.begin()
 		; i != mImpl->mMeshes.end()
-		; ++i)
+		; i = i->next())
 	{
-		(*i)->beginEditing();
+		i->mesh.beginEditing();
 	}
 }
 
@@ -152,24 +166,30 @@ void SimpleRayMeshIntersect::test(const Vec3f& rayOrig, const Vec3f& rayDir, boo
 	result->rayDir = rayDir;
 	result->closest = nullptr;
 
-	for(std::list<EditableMesh*>::iterator i = mImpl->mMeshes.begin()
+	for(MeshRecord* i = mImpl->mMeshes.begin()
 		; i != mImpl->mMeshes.end()
-		; ++i)
+		; i = i->next())
 	{
-		EditableMeshPtr mesh = *i;
-		MCD_ASSUME(nullptr != mesh);
+		EditableMesh& mesh = i->mesh;
 
-		const size_t cTriCnt = mesh->getTriangleCount();
+		const size_t cTriCnt = mesh.getTriangleCount();
 
 		for(size_t itri = 0; itri < cTriCnt; ++itri)
 		{
-			uint16_t* idx = mesh->getTriangleIndexAt(itri);
+			uint16_t* idx = mesh.getTriangleIndexAt(itri);
 
 			// NOTE: Will it be more efficient to use the MeshBuilder's buffer and offset
 			// interface, other than the immediate mode interface of EditableMesh?
-			const Vec3f& v0 = mesh->getPositionAt(idx[0]);
-			const Vec3f& v1 = mesh->getPositionAt(idx[1]);
-			const Vec3f& v2 = mesh->getPositionAt(idx[2]);
+			Vec3f v0 = mesh.getPositionAt(idx[0]);
+			Vec3f v1 = mesh.getPositionAt(idx[1]);
+			Vec3f v2 = mesh.getPositionAt(idx[2]);
+
+			if(i->hasTransform)
+			{
+				i->transform.transformPoint(v0);
+				i->transform.transformPoint(v1);
+				i->transform.transformPoint(v2);
+			}
 
 			float t, u, v;
 
@@ -177,13 +197,12 @@ void SimpleRayMeshIntersect::test(const Vec3f& rayOrig, const Vec3f& rayDir, boo
 			{
 				if(t < 0) continue;
 				
-				Hit& hit = *(new Hit);
+				Hit& hit = *(new Hit(*i));
 				hit.faceIdx = itri;
 				hit.t = t;
 				hit.u = u;
 				hit.v = v;
 				hit.w = (1.0f - u - v);
-				hit.mesh = mesh;
 
 				if(nullptr == result->closest)
 					result->closest = &hit;
@@ -200,11 +219,11 @@ void SimpleRayMeshIntersect::test(const Vec3f& rayOrig, const Vec3f& rayDir, boo
 
 LinkList<IRayMeshIntersect::HitResult>& SimpleRayMeshIntersect::end()
 {
-	for(std::list<EditableMesh*>::iterator i = mImpl->mMeshes.begin()
+	for(MeshRecord* i = mImpl->mMeshes.begin()
 		; i != mImpl->mMeshes.end()
-		; ++i)
+		; i = i->next())
 	{
-		(*i)->endEditing(false);
+		i->mesh.endEditing(false);
 	}
 
 	return mImpl->mLastResults;

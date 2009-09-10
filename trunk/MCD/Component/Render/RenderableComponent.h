@@ -15,23 +15,8 @@ public:
 		return typeid(RenderableComponent);
 	}
 
-	class MCD_ABSTRACT_CLASS ICallback
-	{
-	public:
-		virtual ~ICallback() {}
-
-		//! Invoked just after the renderstates are perpared; and before the geometry is rendered.
-		virtual void preGeomRender(RenderableComponent& c) = 0;
-
-		//! Invoked just after the geometry is rendered; and before the renderstates are un-perpared.
-		virtual void postGeomRender(RenderableComponent& c) = 0;
-	};
-
 	//! The derived components should override this function for rendering.
 	virtual void render() = 0;
-
-	//! The derived components may override this function for rendering will Callback support.
-	virtual void render(ICallback& callback) {}
 
 	//! The derived components may override this function for rendering, withou any material.
 	virtual void renderFaceOnly() {}

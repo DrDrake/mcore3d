@@ -23,8 +23,8 @@ class IResourceManager;
 		- Value: true/false
 		- Default: false
  
-	- Name: meshBuilders
-		- Desc: Keep the MeshBuilders to loaded meshes's builder attribute.
+	- Name: editable
+		- Desc: Load the meshes as EditableMesh
 		- Value: true/false
 		- Default: false
 

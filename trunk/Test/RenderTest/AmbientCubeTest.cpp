@@ -10,6 +10,7 @@
 #include "../../MCD/Render/TangentSpaceBuilder.h"
 #include "../../MCD/Component/Render/EntityPrototypeLoader.h"
 #include "../../MCD/Component/Render/MeshComponent.h"
+#include "../../MCD/Component/Render/RenderModifierComponent.h"
 
 #include <fstream>
 
@@ -175,6 +176,7 @@ namespace AmbientCubeTest
 			c->mesh = mesh;
 			c->effect = effect;
 			e->addComponent(c);
+			e->addComponent(new RenderCallback);
 
 			mMeshComponent = c;
 
@@ -226,12 +228,12 @@ namespace AmbientCubeTest
 			UserData(Object& _object) : object(_object) {}
 		};
 
-		class RenderCallback : public RenderableComponent::ICallback
+		class RenderCallback : public RenderModifierComponent
 		{
 		public:
-			sal_override void preGeomRender(RenderableComponent& c)
+			sal_override void preGeomRender()
 			{
-				Entity* e = c.entity();
+				Entity* e = entity();
 				if(nullptr == e) return;
 
 				UserData* userData = e->userData.getPtr<UserData>();
@@ -245,7 +247,7 @@ namespace AmbientCubeTest
 				shd->uniform3fv("g_AmbientCube", 6, userData->object.mAccmMCube.color);
 			}
 
-			sal_override void postGeomRender(RenderableComponent& c)
+			sal_override void postGeomRender()
 			{
 			}
 		};	// ICallback
@@ -312,21 +314,7 @@ namespace AmbientCubeTest
 
 		void render()
 		{
-			Object::RenderCallback callback;
-
-			for(EntityPreorderIterator itr(&mRootNode); !itr.ended();)
-			{
-				if(!itr->enabled) {
-					itr.skipChildren();
-					continue;
-				}
-
-				RenderableComponent* renderable = itr->findComponent<RenderableComponent>();
-				if(renderable)
-					renderable->render(callback);
-
-				itr.next();
-			}
+			RenderableComponent::traverseEntities(&mRootNode);
 		}
 
 		DefaultResourceManager mResourceManager;

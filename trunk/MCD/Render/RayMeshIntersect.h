@@ -4,13 +4,13 @@
 #include "ShareLib.h"
 
 #include "../Core/Math/Vec3.h"
+#include "../Core/Math/Mat44.h"
 #include "../Core/System/LinkList.h"
 #include "../Core/System/SharedPtr.h"
 
 namespace MCD {
 
 class EditableMesh;
-typedef IntrusivePtr<EditableMesh> EditableMeshPtr;
 
 /*!	An interface for performing ray to mesh intersection test.
 	Different implementation can be made eg. SimpleRayMeshIntersect,
@@ -19,12 +19,23 @@ typedef IntrusivePtr<EditableMesh> EditableMeshPtr;
 class MCD_ABSTRACT_CLASS MCD_RENDER_API IRayMeshIntersect
 {
 public:
+	struct MeshRecord : LinkListBase::Node<MeshRecord>
+	{
+		MeshRecord(EditableMesh& _mesh) : mesh(_mesh) {}
+
+		EditableMesh& mesh;
+		bool hasTransform;
+		Mat44f transform;
+	};	// MeshRecord
+
 	struct Hit : public LinkListBase::Node<Hit>
 	{
+		Hit(MeshRecord& _meshRec) : meshRec(_meshRec) {}
+
+		MeshRecord& meshRec;
 		float t;
 		float u, v, w;
 		int faceIdx;
-		EditableMeshPtr mesh;	//!< Note that we take shared ownership of the mesh and always not null.
 	};	// Hit
 
 	struct HitResult : public LinkListBase::Node<HitResult>
@@ -37,14 +48,30 @@ public:
 
 	virtual ~IRayMeshIntersect() {}
 
-	//!	Clear all added meshes and stored results.
+	//!	Clear all added meshes and previous hit-results.
 	virtual void reset() = 0;
 
-	//!	Add a mesh to this intersect object, duplicated mesh will not be checked.
-	// TODO: Any restriction when calling this? Before begin() ?
+	/*!	Add a mesh to this intersect object, duplicated mesh will not be checked.
+		The ownership of the mesh will NOT be alerted.
+		The user must call build after all meshes had been added.
+	*/
 	virtual void addMesh(EditableMesh& mesh) = 0;
 
-	//!	Begin intersection testes, any pervious results will be cleared.
+	/*!	Add a mesh (with transformation) to this intersect object, duplicated mesh will not be checked.
+		The ownership of the mesh will NOT be alerted.
+		The user must call build after all meshes had been added.
+	*/
+	virtual void addMesh(EditableMesh& mesh, const Mat44f& transform) = 0;
+
+	/*!	Call this method the build any internal data-structure after all meshes has been added.
+		\sa addMesh()
+	*/
+	virtual void build() = 0;
+
+	/*!	Begin intersection testes, any pervious results will be cleared.
+		The user should add the meshes before calling this method by using
+		addMesh() and build().
+	*/
 	virtual void begin() = 0;
 
 	//!	Issue an intersection test, the result will be available when end() is called.
@@ -67,6 +94,10 @@ public:
 	sal_override void reset();
 
 	sal_override void addMesh(EditableMesh& mesh);
+
+	sal_override void addMesh(EditableMesh& mesh, const Mat44f& transform);
+
+	sal_override void build();
 
 	sal_override void begin();
 
