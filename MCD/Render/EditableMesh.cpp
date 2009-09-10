@@ -21,8 +21,7 @@ public:
 	Impl() : mPosPtr(nullptr), mNormPtr(nullptr), mUV0Ptr(nullptr), mUV1Ptr(nullptr), mIndexPtr(nullptr)
 	{
 	}
-
-};
+};	// Impl
 
 EditableMesh::EditableMesh(const Path& fileId)
 	: Mesh(fileId)

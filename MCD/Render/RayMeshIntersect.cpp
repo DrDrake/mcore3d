@@ -156,8 +156,8 @@ void SimpleRayMeshIntersect::test(const Vec3f& rayOrig, const Vec3f& rayDir, boo
 		; i != mImpl->mMeshes.end()
 		; ++i)
 	{
-		EditableMesh* mesh = *i;
-		MCD_VERIFY(nullptr != mesh);
+		EditableMeshPtr mesh = *i;
+		MCD_ASSUME(nullptr != mesh);
 
 		const size_t cTriCnt = mesh->getTriangleCount();
 
@@ -165,9 +165,11 @@ void SimpleRayMeshIntersect::test(const Vec3f& rayOrig, const Vec3f& rayDir, boo
 		{
 			uint16_t* idx = mesh->getTriangleIndexAt(itri);
 
-			Vec3f v0 = mesh->getPositionAt(idx[0]);
-			Vec3f v1 = mesh->getPositionAt(idx[1]);
-			Vec3f v2 = mesh->getPositionAt(idx[2]);
+			// NOTE: Will it be more efficient to use the MeshBuilder's buffer and offset
+			// interface, other than the immediate mode interface of EditableMesh?
+			const Vec3f& v0 = mesh->getPositionAt(idx[0]);
+			const Vec3f& v1 = mesh->getPositionAt(idx[1]);
+			const Vec3f& v2 = mesh->getPositionAt(idx[2]);
 
 			float t, u, v;
 
