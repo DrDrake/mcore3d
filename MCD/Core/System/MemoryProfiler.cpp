@@ -70,15 +70,18 @@ protected:
 typedef LPVOID (WINAPI *MyHeapAlloc)(HANDLE, DWORD, SIZE_T);
 typedef LPVOID (WINAPI *MyHeapReAlloc)(HANDLE, DWORD, LPVOID, SIZE_T);
 typedef LPVOID (WINAPI *MyHeapFree)(HANDLE, DWORD, LPVOID);
+typedef SIZE_T (WINAPI *MyHeapSize)(HANDLE, DWORD, LPVOID);
 
 LPVOID WINAPI myHeapAlloc(HANDLE, DWORD, SIZE_T);
 LPVOID WINAPI myHeapReAlloc(HANDLE, DWORD, LPVOID, SIZE_T);
 LPVOID WINAPI myHeapFree(HANDLE, DWORD, LPVOID);
+SIZE_T WINAPI myHeapSize(HANDLE, DWORD, LPVOID);
 
 FunctionPatcher functionPatcher;
 MyHeapAlloc orgHeapAlloc;
 MyHeapReAlloc orgHeapReAlloc;
 MyHeapFree orgHeapFree;
+MyHeapSize orgHeapSize;
 
 DWORD gTlsIndex = 0;
 
@@ -103,7 +106,7 @@ struct MyMemFooter
 		ensure maximum protected as possible.
 	 */
 	uint32_t fourCC1;
-	MCD::MemoryProfilerNode* node;
+	MemoryProfilerNode* node;
 	uint32_t fourCC2;
 
 	/*!	Magic number for HeapFree verification.
@@ -115,27 +118,62 @@ struct MyMemFooter
 	static const uint32_t cFourCC2 = 987654321;
 };	// MyMemFooter
 
-/*!	nBytes does not account for the extra footer size
-	deltaBytes is non-zero when commonAlloc is used for realloc
- */
-void* commonAlloc(sal_in TlsStruct* tls, sal_in void* p, size_t nBytes, int deltaBytes)
+void commonDealloc(__in HANDLE hHeap, __in DWORD dwFlags, __deref LPVOID lpMem)
 {
-	size_t bytes = deltaBytes != 0 ? deltaBytes : nBytes;
+	TlsStruct* tls = getTlsStruct();
+
+	if(lpMem && tls && tls->recurseCount == 0)
+	{
+//		size_t size = HeapSize(hHeap, dwFlags, lpMem);
+		size_t size = orgHeapSize(hHeap, dwFlags, lpMem) - sizeof(MyMemFooter);
+
+		ScopeLock lock1(*gFooterMutex);
+		MyMemFooter* footer = (MyMemFooter*)(((char*)lpMem) + size);
+
+		if(footer->fourCC1 == MyMemFooter::cFourCC1 && footer->fourCC2 == MyMemFooter::cFourCC2)
+		{
+			if(tls->recurseCount != 0)
+				tls = tls;
+
+			MemoryProfilerNode* node = reinterpret_cast<MemoryProfilerNode*>(footer->node);
+			assert(node);
+
+			// Race with MemoryProfiler::defaultReport() and all other
+			// operations if lpMem is allocated from thread A but now free in thread B (this thread)
+			{	ScopeUnlock unlock(gFooterMutex);	// Prevent lock hierarchy.
+				ScopeRecursiveLock lock2(node->mutex);
+
+				node->exclusiveCount--;
+				node->exclusiveBytes -= size;
+				tls->currentAlloc.count--;
+				tls->currentAlloc.bytes -= size;
+			}
+		}
+		else
+			tls = tls;
+	}
+	else
+		tls = tls;
+}
+
+/*!	nBytes does not account for the extra footer size
+ */
+void* commonAlloc(sal_in TlsStruct* tls, sal_in void* p, size_t nBytes)
+{
 	MCD_ASSUME(tls && p && "caller of commonAlloc should ensure tls and p is valid");
 
 	MemoryProfilerNode* node = tls->currentNode();
 
 	{	// Race with MemoryProfiler::reset(), MemoryProfiler::defaultReport() and myHeapFree()
 		ScopeRecursiveLock lock(node->mutex);
-		if(deltaBytes == 0) {
-			tls->currentAlloc.count++;
-			tls->accumAlloc.count++;
-			node->exclusiveCount++;
-			node->countSinceLastReset++;
-		}
-		tls->currentAlloc.bytes += bytes;
-		tls->accumAlloc.bytes += bytes;
-		node->exclusiveBytes += bytes;
+		tls->currentAlloc.count++;
+		tls->accumAlloc.count++;
+		node->exclusiveCount++;
+		node->countSinceLastReset++;
+
+		tls->currentAlloc.bytes += nBytes;
+		tls->accumAlloc.bytes += nBytes;
+		node->exclusiveBytes += nBytes;
 	}
 
 	{	ScopeLock lock(gFooterMutex);
@@ -160,61 +198,38 @@ LPVOID WINAPI myHeapAlloc(__in HANDLE hHeap, __in DWORD dwFlags, __in SIZE_T dwB
 	void* p = orgHeapAlloc(hHeap, dwFlags, dwBytes + sizeof(MyMemFooter));
 	tls->recurseCount--;
 
-	return commonAlloc(tls, p, dwBytes, 0);
+	return commonAlloc(tls, p, dwBytes);
 }
 
 LPVOID WINAPI myHeapReAlloc(__in HANDLE hHeap, __in DWORD dwFlags, __deref LPVOID lpMem, __in SIZE_T dwBytes)
 {
 	TlsStruct* tls = getTlsStruct();
 
-	if(!tls || tls->recurseCount > 0 || lpMem == nullptr || dwBytes == 0)
+	if(!tls || tls->recurseCount > 0)
 		return orgHeapReAlloc(hHeap, dwFlags, lpMem, dwBytes);
 
-	size_t size = HeapSize(hHeap, dwFlags, lpMem);
+	// Remove the statistics for the previous allocation first.
+	commonDealloc(hHeap, dwFlags, lpMem);
 
-	// On VC 2005, orgHeapReAlloc() will not invoke HeapAlloc() and HeapFree(),
-	// but it does on VC 2008
 	tls->recurseCount++;
 	void* p = orgHeapReAlloc(hHeap, dwFlags, lpMem, dwBytes + sizeof(MyMemFooter));
 	tls->recurseCount--;
 
-	int deltaSize = (dwBytes + sizeof(MyMemFooter)) - size;
-
-	return commonAlloc(tls, p, dwBytes, deltaSize);
+	return commonAlloc(tls, p, dwBytes);
 }
 
 LPVOID WINAPI myHeapFree(__in HANDLE hHeap, __in DWORD dwFlags, __deref LPVOID lpMem)
 {
-	TlsStruct* tls = getTlsStruct();
-
-	// NOTE: For VC 2008, myHeapFree may be invoked by HeapRealloc,
-	// therefore we need to check recurseCount
-	if(lpMem && tls && tls->recurseCount == 0)
-	{
-		size_t size = HeapSize(hHeap, dwFlags, lpMem) - sizeof(MyMemFooter);
-
-		ScopeLock lock1(*gFooterMutex);
-		MyMemFooter* footer = (MyMemFooter*)(((char*)lpMem) + size);
-
-		if(footer->fourCC1 == MyMemFooter::cFourCC1 && footer->fourCC2 == MyMemFooter::cFourCC2)
-		{
-			MCD::MemoryProfilerNode* node = reinterpret_cast<MCD::MemoryProfilerNode*>(footer->node);
-			MCD_ASSUME(node);
-
-			// Race with MemoryProfiler::reset(), MemoryProfiler::defaultReport() and all other
-			// operations if lpMem is allocated from thread A but now free in thread B (this thread)
-			{	ScopeUnlock unlock(gFooterMutex);	// Prevent lock hierarchy.
-				ScopeRecursiveLock lock2(node->mutex);
-
-				node->exclusiveCount--;
-				node->exclusiveBytes -= size;
-				tls->currentAlloc.count--;
-				tls->currentAlloc.bytes -= size;
-			}
-		}
-	}
-
+	commonDealloc(hHeap, dwFlags, lpMem);
 	return orgHeapFree(hHeap, dwFlags, lpMem);
+}
+
+SIZE_T WINAPI myHeapSize(__in HANDLE hHeap, __in DWORD dwFlags, __deref LPVOID lpMem)
+{
+	if(dwFlags != 0)
+		return orgHeapSize(hHeap, dwFlags, lpMem);
+	else
+		return orgHeapSize(hHeap, dwFlags, lpMem) - sizeof(MyMemFooter);
 }
 
 }	// namespace
@@ -365,6 +380,7 @@ void MemoryProfiler::end()
 		return;
 
 	TlsStruct* tls = getTlsStruct();
+	MCD_ASSERT(tls != nullptr && "MemoryProfiler::begin should already initialized TLS!");
 	MemoryProfilerNode* node = tls->currentNode();
 
 	// Race with MemoryProfiler::reset(), MemoryProfiler::defaultReport() and myHeapFree()
@@ -509,19 +525,21 @@ void MemoryProfiler::setEnable(bool flag)
 	if(flag) {
 		// Pre-computed prologue size (for different version of Visual Studio) using libdasm
 #if _MSC_VER == 1400	// VC 2005
-		const int prologueSize[] = { 5, 5, 5 };
+		const int prologueSize[] = { 5, 5, 5, 5 };
 #else _MSC_VER > 1400	// VC 2008
-		const int prologueSize[] = { 5, 5 ,5 };
+		const int prologueSize[] = { 5, 5 ,5, 5 };
 #endif
 
 		// Back up the original function and then do patching
 		orgHeapAlloc	= (MyHeapAlloc) functionPatcher.copyPrologue(&HeapAlloc, prologueSize[0]);
 		orgHeapReAlloc	= (MyHeapReAlloc) functionPatcher.copyPrologue(&HeapReAlloc, prologueSize[1]);
 		orgHeapFree		= (MyHeapFree) functionPatcher.copyPrologue(&HeapFree, prologueSize[2]);
+		orgHeapSize		= (MyHeapSize) functionPatcher.copyPrologue(&HeapSize, prologueSize[3]);
 
 		functionPatcher.patch(&HeapAlloc, &myHeapAlloc);
 		functionPatcher.patch(&HeapReAlloc, &myHeapReAlloc);
 		functionPatcher.patch(&HeapFree, &myHeapFree);
+		functionPatcher.patch(&HeapSize, &myHeapSize);
 	}
 }
 
@@ -585,8 +603,10 @@ void MemoryProfiler::setEnable(bool flag) { (void)flag; }
 
 #endif	// _MSC_VER
 
-MCD::CallstackNode* MCD::MemoryProfilerNode::createNode(const char name[], MCD::CallstackNode* parent)
+CallstackNode* MemoryProfilerNode::createNode(const char name[], CallstackNode* parent)
 {
+	MemoryProfiler::ScopeIgnore scopeIgnore;
+
 	MemoryProfilerNode* parentNode = static_cast<MemoryProfilerNode*>(parent);
 	MemoryProfilerNode* n = new MemoryProfilerNode(name, parent);
 
@@ -603,10 +623,22 @@ MCD::CallstackNode* MCD::MemoryProfilerNode::createNode(const char name[], MCD::
 	return n;
 }
 
-MCD::MemoryProfiler& MCD::MemoryProfiler::singleton()
+MemoryProfiler& MemoryProfiler::singleton()
 {
-	static MCD::MemoryProfiler instance;
+	static MemoryProfiler instance;
 	return instance;
+}
+
+MemoryProfiler::ScopeIgnore::ScopeIgnore()
+{
+	if(TlsStruct* tls = getTlsStruct())
+		tls->recurseCount++;
+}
+
+MemoryProfiler::ScopeIgnore::~ScopeIgnore()
+{
+	if(TlsStruct* tls = getTlsStruct())
+		tls->recurseCount--;
 }
 
 #if defined(_MSC_VER)
