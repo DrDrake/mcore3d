@@ -323,6 +323,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\RayMeshIntersectTest.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\RenderTargetTest.cpp"
 				>
 			</File>

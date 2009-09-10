@@ -348,7 +348,7 @@ IResourceLoader::LoadingState Max3dsLoader::Impl::load(std::istream* is, const P
 				if(wstrCaseCmp(name, L"tangents") == 0 && wstrCaseCmp(value, L"true") == 0)
 					mLoadOptions->includeTangents = true;
 
-				if(wstrCaseCmp(name, L"meshBuilders") == 0 && wstrCaseCmp(value, L"true") == 0)
+				if(wstrCaseCmp(name, L"editable") == 0 && wstrCaseCmp(value, L"true") == 0)
 					mLoadOptions->keepMeshBuilders = true;
 			}
 		}

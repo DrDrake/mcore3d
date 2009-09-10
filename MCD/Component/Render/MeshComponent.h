@@ -26,8 +26,6 @@ public:
 // Operations
 	sal_override void render();
 
-	sal_override void render(ICallback& callback);
-
 	sal_override void renderFaceOnly();
 
 // Attrubutes
