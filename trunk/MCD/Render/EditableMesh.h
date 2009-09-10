@@ -13,7 +13,10 @@ template<typename T> class Vec2;
 typedef Vec2<float> Vec2f;
 
 /*! A Mesh which provide data read-back and editing functions.
-*/
+	Currently it just a very thin wrapper over MeshBuilder; transforming
+	the buffer manipulation interface of MeshBuilder into a OpenGL
+	intermediate mode interface.
+ */
 class MCD_RENDER_API EditableMesh : public Mesh
 {
 public:
@@ -25,38 +28,38 @@ public:
 	/*! Pointer to the MeshBuilder of this mesh, it is primaryly used for reading the mesh data
 		without downloading them from the GPU.
 		Please notice that this pointer may be nullptr.
-	*/
+	 */
 	MeshBuilderPtr builder;
-	
+
 	void beginEditing();
-	
-	/*! Call the after beginEditing() */
+
+	//!	Should call after beginEditing()
 	size_t getTriangleCount() const;
-	
-	/*! Call the after beginEditing() */
+
+	//!	Should call after beginEditing()
 	uint16_t* getTriangleIndexAt(size_t face);
-	
-	/*! Call the after beginEditing() */
+
+	//!	Should call after beginEditing()
 	Vec3f& getPositionAt(uint16_t vertexIndex);
-	
-	/*! Call the after beginEditing() */
+
+	//!	Should call after beginEditing()
 	Vec3f& getNormalAt(uint16_t vertexIndex);
-	
-	/*! Call the after beginEditing() */
+
+	//!	Should call after beginEditing()
 	Vec2f& getUV0At(uint16_t vertexIndex);
-	
-	/*! Call the after beginEditing() */
+
+	//!	Should call after beginEditing()
 	Vec2f& getUV1At(uint16_t vertexIndex);
 
+	//!	\param commit Currently this parameter is not used.
 	void endEditing(bool commit);
 
 protected:
 	sal_override ~EditableMesh();
-	
+
 private:
 	class Impl;
 	Impl* mImpl;
-
 };	// EditableMesh
 
 typedef IntrusivePtr<EditableMesh> EditableMeshPtr;
