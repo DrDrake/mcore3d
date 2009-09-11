@@ -25,11 +25,13 @@ public:
 
 EditableMesh::EditableMesh(const Path& fileId)
 	: Mesh(fileId)
+	, mImpl(new Impl)
 {
 }
 
 EditableMesh::EditableMesh(const Path& fileId, const EditableMesh& shareBuffer)
 	: Mesh(fileId, shareBuffer)
+	, mImpl(new Impl)
 {
 	this->builder = shareBuffer.builder;
 }
@@ -38,12 +40,19 @@ EditableMesh::~EditableMesh()
 {
 }
 
+bool EditableMesh::isEditing() const
+{
+	return mImpl->mPosPtr != nullptr;
+}
+
 void EditableMesh::beginEditing()
 {
+	MCD_VERIFY(!isEditing());
+
 	mImpl->mPosPtr		= (Vec3f*)builder->acquireBufferPointer(Mesh::Position);
 	mImpl->mNormPtr		= (Vec3f*)builder->acquireBufferPointer(Mesh::Normal);
 	mImpl->mUV0Ptr		= (Vec2f*)builder->acquireBufferPointer(Mesh::TextureCoord0);
-	mImpl->mUV1Ptr		= (Vec2f*)builder->acquireBufferPointer(Mesh::TextureCoord1);
+	//mImpl->mUV1Ptr		= (Vec2f*)builder->acquireBufferPointer(Mesh::TextureCoord1);
 	mImpl->mIndexPtr	= (uint16_t*)builder->acquireBufferPointer(Mesh::Index, &mImpl->mIndexCnt);
 }
 
@@ -62,7 +71,10 @@ void EditableMesh::endEditing(bool commit)
 
 size_t EditableMesh::getTriangleCount() const
 {
-	MCD_VERIFY(mImpl->mIndexPtr != nullptr);
+	//MCD_VERIFY(mImpl->mIndexPtr != nullptr);
+	if(nullptr == mImpl->mIndexPtr)
+		return 0;
+
 	return mImpl->mIndexCnt / 3;
 }
 

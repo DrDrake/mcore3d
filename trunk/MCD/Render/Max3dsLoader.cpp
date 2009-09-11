@@ -820,12 +820,21 @@ void Max3dsLoader::Impl::commit(Resource& resource)
 			MeshBuilder indexBuilder;
 			indexBuilder.enable(Mesh::Index);
 			size_t faceCount = subObject.mFaceIndex.size();
+
+			if(faceCount > 0 && mLoadOptions->keepMeshBuilders)
+				((EditableMesh&)*mesh).builder->enable(Mesh::Index);
+
 			for(size_t i=0; i<faceCount; ++i) {
 				const size_t vertexIdx = subObject.mFaceIndex[i] * 3;	// From face index to vertex index
 				const uint16_t i1 = modelInfo.index[vertexIdx + 0];
 				const uint16_t i2 = modelInfo.index[vertexIdx + 1];
 				const uint16_t i3 = modelInfo.index[vertexIdx + 2];
 				indexBuilder.addTriangle(i1, i2, i3);
+
+				// make sure the output mesh have indices
+				if(mLoadOptions->keepMeshBuilders)
+					((EditableMesh&)*mesh).builder->addTriangle(i1, i2, i3);
+
 			}
 			indexBuilder.commit(*mesh, Mesh::Index, storageHint);
 

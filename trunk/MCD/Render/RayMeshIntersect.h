@@ -15,6 +15,22 @@ class EditableMesh;
 /*!	An interface for performing ray to mesh intersection test.
 	Different implementation can be made eg. SimpleRayMeshIntersect,
 	MultiThreadRayMeshIntersect and may be CudaRayMeshIntersect.
+
+	Example usage:
+@code
+	SimpleRayMeshIntersect i;
+	i.addMesh(mesh);				// mesh:EditableMesh
+	i.addMesh(mesh, transform);		// transform:Mat44f
+	i.build();
+
+	i.begin();
+	i.test(rayOrig1, rayDir1, false);	// issue an intersection test with ray 1; disabling 2-sided test
+	i.test(rayOrig2, rayDir2, true);	// issue an intersection test with ray 2; enabling 2-sided test
+	i.end();
+
+	LinkList<IRayMeshIntersect::HitResult>& result = i.result(); // there should be two results in the list
+
+@endcode
  */
 class MCD_ABSTRACT_CLASS MCD_RENDER_API IRayMeshIntersect
 {
@@ -46,22 +62,28 @@ public:
 		Vec3f rayDir;
 	};	// HitResult
 
+	struct MCD_RENDER_API Helper
+	{
+		static Vec3f getHitPosition(IRayMeshIntersect::Hit* hit);
+		static Vec3f getHitNormal(IRayMeshIntersect::Hit* hit);
+	};	// Helper
+
 	virtual ~IRayMeshIntersect() {}
 
 	//!	Clear all added meshes and previous hit-results.
 	virtual void reset() = 0;
 
-	/*!	Add a mesh to this intersect object, duplicated mesh will not be checked.
-		The ownership of the mesh will NOT be alerted.
+	/*!	Add a mesh to this intersect object, and this will increase the reference count of the mesh.
+		Duplicated mesh will not be checked.
+		If mesh is nullptr, it will be ignored.
 		The user must call build after all meshes had been added.
 	*/
-	virtual void addMesh(EditableMesh& mesh) = 0;
+	virtual void addMesh(sal_maybenull EditableMesh* mesh) = 0;
 
-	/*!	Add a mesh (with transformation) to this intersect object, duplicated mesh will not be checked.
-		The ownership of the mesh will NOT be alerted.
-		The user must call build after all meshes had been added.
+	/*!	Add a mesh (with transformation) to this intersect object.
+		\sa addMesh()
 	*/
-	virtual void addMesh(EditableMesh& mesh, const Mat44f& transform) = 0;
+	virtual void addMesh(sal_maybenull EditableMesh* mesh, const Mat44f& transform) = 0;
 
 	/*!	Call this method the build any internal data-structure after all meshes has been added.
 		\sa addMesh()
@@ -71,17 +93,28 @@ public:
 	/*!	Begin intersection testes, any pervious results will be cleared.
 		The user should add the meshes before calling this method by using
 		addMesh() and build().
+
+		Call the added mesh's beginEditing() before this method is invoked!
 	*/
 	virtual void begin() = 0;
 
-	//!	Issue an intersection test, the result will be available when end() is called.
+	/*!	Issue an intersection test, the result will be available when end() is called.
+
+		Call the added mesh's beginEditing() before this method is invoked!
+	*/
 	virtual void test(const Vec3f& rayOrig, const Vec3f& rayDir, bool twoSided) = 0;
 
 	/*!	End intersection testes, the results of issued test will be returned.
 		The life-time of the result will keep along witht the concret derived class,
 		and it's content will be cleared when begin() is invoked again.
 	 */
-	virtual LinkList<HitResult>& end() = 0;
+	virtual void end() = 0;
+
+	/*!	Returns the results of issued test between the last begin() & end().
+		The life-time of the results will keep along with the concert derived class,
+		and it's content will be cleared when begin() is invoked again.
+	 */
+	virtual LinkList<IRayMeshIntersect::HitResult>& results() = 0;
 };	// IRayMeshIntersect
 
 class MCD_RENDER_API SimpleRayMeshIntersect : public IRayMeshIntersect, Noncopyable
@@ -93,9 +126,9 @@ public:
 
 	sal_override void reset();
 
-	sal_override void addMesh(EditableMesh& mesh);
+	sal_override void addMesh(sal_maybenull EditableMesh* mesh);
 
-	sal_override void addMesh(EditableMesh& mesh, const Mat44f& transform);
+	sal_override void addMesh(sal_maybenull EditableMesh* mesh, const Mat44f& transform);
 
 	sal_override void build();
 
@@ -103,7 +136,9 @@ public:
 
 	sal_override void test(const Vec3f& rayOrig, const Vec3f& rayDir, bool twoSided);
 
-	sal_override LinkList<HitResult>& end();
+	sal_override void end();
+
+	sal_override LinkList<IRayMeshIntersect::HitResult>& results();
 
 private:
 	class Impl;

@@ -1,17 +1,58 @@
 #include "Pch.h"
 #include "RayMeshIntersect.h"
 #include "EditableMesh.h"
+#include "../Core/System/Log.h"
 
 #include <list>
 
 namespace MCD {
 
+/*!---------------------------------------------------------------------------*/
+Vec3f IRayMeshIntersect::Helper::getHitPosition(IRayMeshIntersect::Hit* hit)
+{
+	const uint16_t* vidx = hit->meshRec.mesh.getTriangleIndexAt(hit->faceIdx);
+
+    Vec3f v0 = hit->meshRec.mesh.getPositionAt(vidx[0]);
+    Vec3f v1 = hit->meshRec.mesh.getPositionAt(vidx[1]);
+    Vec3f v2 = hit->meshRec.mesh.getPositionAt(vidx[2]);
+
+	if(hit->meshRec.hasTransform)
+	{
+		hit->meshRec.transform.transformPoint(v0);
+		hit->meshRec.transform.transformPoint(v1);
+		hit->meshRec.transform.transformPoint(v2);
+	}
+    
+    return hit->w * v0 + hit->u * v1 + hit->v * v2;
+}
+
+Vec3f IRayMeshIntersect::Helper::getHitNormal(IRayMeshIntersect::Hit* hit)
+{
+    const uint16_t* vidx = hit->meshRec.mesh.getTriangleIndexAt(hit->faceIdx);
+
+    Vec3f v0 = hit->meshRec.mesh.getNormalAt(vidx[0]);
+    Vec3f v1 = hit->meshRec.mesh.getNormalAt(vidx[1]);
+    Vec3f v2 = hit->meshRec.mesh.getNormalAt(vidx[2]);
+
+	if(hit->meshRec.hasTransform)
+	{
+		hit->meshRec.transform.transformNormal(v0);
+		hit->meshRec.transform.transformNormal(v1);
+		hit->meshRec.transform.transformNormal(v2);
+	}
+    
+    return hit->w * v0 + hit->u * v1 + hit->v * v2;
+}
+
+/*!---------------------------------------------------------------------------*/
 class SimpleRayMeshIntersect::Impl
 {
 public:
 	LinkList<IRayMeshIntersect::HitResult> mLastResults;
 	LinkList<MeshRecord> mMeshes;
+	std::list<EditableMeshPtr> mMeshOwnerships;
 
+#if 1	// FOLDING
 // source code copied from:
 // Fast, Minimum Storage Ray/Triangle Intersection
 // http://www.cs.virginia.edu/~gfx/Courses/2003/ImageSynthesis/papers/Acceleration/Fast%20MinimumStorage%20RayTriangle%20Intersection.pdf
@@ -100,6 +141,8 @@ public:
 #undef _DOT
 #undef _SUB
 
+#endif	// FOLDING
+
 	template<typename REAL>
 	int intersectTriangle(
 		const Vec3<REAL>& orig, const Vec3<REAL>& dir,
@@ -125,22 +168,37 @@ SimpleRayMeshIntersect::~SimpleRayMeshIntersect()
 void SimpleRayMeshIntersect::reset()
 {
 	mImpl->mMeshes.destroyAll();
+	mImpl->mMeshOwnerships.clear();
 	mImpl->mLastResults.destroyAll();
 }
 
-void SimpleRayMeshIntersect::addMesh(EditableMesh& mesh)
+void SimpleRayMeshIntersect::addMesh(EditableMesh* mesh)
 {
-	MeshRecord* rec = new MeshRecord(mesh);
+	if(nullptr == mesh)
+	{
+		Log::format(Log::Warn, L"Attemping to call SimpleRayMeshIntersect::addMesh() with nullptr");
+		return;
+	}
+
+	MeshRecord* rec = new MeshRecord(*mesh);
 	rec->hasTransform = false;
 	mImpl->mMeshes.pushBack(*rec);
+	mImpl->mMeshOwnerships.push_back(mesh);
 }
 
-void SimpleRayMeshIntersect::addMesh(EditableMesh& mesh, const Mat44f& transform)
+void SimpleRayMeshIntersect::addMesh(EditableMesh* mesh, const Mat44f& transform)
 {
-	MeshRecord* rec = new MeshRecord(mesh);
+	if(nullptr == mesh)
+	{
+		Log::format(Log::Warn, L"Attemping to call SimpleRayMeshIntersect::addMesh() with nullptr");
+		return;
+	}
+
+	MeshRecord* rec = new MeshRecord(*mesh);
 	rec->hasTransform = true;
 	rec->transform = transform;
 	mImpl->mMeshes.pushBack(*rec);
+	mImpl->mMeshOwnerships.push_back(mesh);
 }
 
 void SimpleRayMeshIntersect::build()
@@ -155,8 +213,9 @@ void SimpleRayMeshIntersect::begin()
 		; i != mImpl->mMeshes.end()
 		; i = i->next())
 	{
-		i->mesh.beginEditing();
+		MCD_VERIFY(i->mesh.isEditing());
 	}
+
 }
 
 void SimpleRayMeshIntersect::test(const Vec3f& rayOrig, const Vec3f& rayDir, bool twoSided)
@@ -217,15 +276,12 @@ void SimpleRayMeshIntersect::test(const Vec3f& rayOrig, const Vec3f& rayDir, boo
 	mImpl->mLastResults.pushBack(*result);
 }
 
-LinkList<IRayMeshIntersect::HitResult>& SimpleRayMeshIntersect::end()
+void SimpleRayMeshIntersect::end()
 {
-	for(MeshRecord* i = mImpl->mMeshes.begin()
-		; i != mImpl->mMeshes.end()
-		; i = i->next())
-	{
-		i->mesh.endEditing(false);
-	}
+}
 
+LinkList<IRayMeshIntersect::HitResult>& SimpleRayMeshIntersect::results()
+{
 	return mImpl->mLastResults;
 }
 
