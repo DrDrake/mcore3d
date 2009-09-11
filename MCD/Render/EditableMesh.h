@@ -31,6 +31,8 @@ public:
 	 */
 	MeshBuilderPtr builder;
 
+	bool isEditing() const;
+
 	void beginEditing();
 
 	//!	Should call after beginEditing()
