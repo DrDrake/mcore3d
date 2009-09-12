@@ -70,7 +70,7 @@
 			// 
 			treeColumn1.Header = "Callstack";
 			treeColumn1.SortOrder = System.Windows.Forms.SortOrder.None;
-			treeColumn1.TooltipText = null;
+			treeColumn1.TooltipText = "Function name";
 			treeColumn1.Width = 300;
 			// 
 			// treeColumn2
@@ -78,7 +78,7 @@
 			treeColumn2.Header = "TCount";
 			treeColumn2.SortOrder = System.Windows.Forms.SortOrder.None;
 			treeColumn2.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
-			treeColumn2.TooltipText = null;
+			treeColumn2.TooltipText = "Total no. of allocation count (including child call)";
 			treeColumn2.Width = 60;
 			// 
 			// treeColumn3
@@ -86,7 +86,7 @@
 			treeColumn3.Header = "SCount";
 			treeColumn3.SortOrder = System.Windows.Forms.SortOrder.None;
 			treeColumn3.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
-			treeColumn3.TooltipText = null;
+			treeColumn3.TooltipText = "Self no. of allocation count (child call not included)";
 			treeColumn3.Width = 60;
 			// 
 			// treeColumn4
@@ -94,7 +94,7 @@
 			treeColumn4.Header = "TkBytes";
 			treeColumn4.SortOrder = System.Windows.Forms.SortOrder.None;
 			treeColumn4.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
-			treeColumn4.TooltipText = null;
+			treeColumn4.TooltipText = "Total allocated memory in kilo bytes (including child call)";
 			treeColumn4.Width = 60;
 			// 
 			// treeColumn5
@@ -102,7 +102,7 @@
 			treeColumn5.Header = "SkBytes";
 			treeColumn5.SortOrder = System.Windows.Forms.SortOrder.None;
 			treeColumn5.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
-			treeColumn5.TooltipText = null;
+			treeColumn5.TooltipText = "Self allocated memory in kilo bytes (child call not included)";
 			treeColumn5.Width = 60;
 			// 
 			// treeColumn6
@@ -110,7 +110,7 @@
 			treeColumn6.Header = "SCount/F";
 			treeColumn6.SortOrder = System.Windows.Forms.SortOrder.None;
 			treeColumn6.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
-			treeColumn6.TooltipText = null;
+			treeColumn6.TooltipText = "Self no. of allocation count per frame";
 			treeColumn6.Width = 60;
 			// 
 			// treeColumn7
@@ -118,7 +118,7 @@
 			treeColumn7.Header = "Call/F";
 			treeColumn7.SortOrder = System.Windows.Forms.SortOrder.None;
 			treeColumn7.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
-			treeColumn7.TooltipText = null;
+			treeColumn7.TooltipText = "No. of call per frame";
 			treeColumn7.Width = 60;
 			// 
 			// nodeTextBox1
@@ -186,9 +186,9 @@
 			this.button1.AutoSize = true;
 			this.button1.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
 			this.button1.Dock = System.Windows.Forms.DockStyle.Right;
-			this.button1.Location = new System.Drawing.Point(615, 0);
+			this.button1.Location = new System.Drawing.Point(612, 0);
 			this.button1.Name = "button1";
-			this.button1.Size = new System.Drawing.Size(54, 23);
+			this.button1.Size = new System.Drawing.Size(57, 25);
 			this.button1.TabIndex = 0;
 			this.button1.Text = "Connect";
 			this.button1.UseVisualStyleBackColor = true;
@@ -197,7 +197,7 @@
 			// timer1
 			// 
 			this.timer1.Enabled = true;
-			this.timer1.Interval = 1000;
+			this.timer1.Interval = 500;
 			this.timer1.Tick += new System.EventHandler(this.timer1_Tick);
 			// 
 			// backgroundWorker1
@@ -211,7 +211,7 @@
 			this.textBox1.Dock = System.Windows.Forms.DockStyle.Fill;
 			this.textBox1.Location = new System.Drawing.Point(0, 0);
 			this.textBox1.Name = "textBox1";
-			this.textBox1.Size = new System.Drawing.Size(615, 22);
+			this.textBox1.Size = new System.Drawing.Size(612, 20);
 			this.textBox1.TabIndex = 1;
 			this.textBox1.Text = "localhost:5000";
 			this.textBox1.WordWrap = false;
@@ -234,7 +234,7 @@
 			this.treeViewAdv1.GridLineStyle = ((Aga.Controls.Tree.GridLineStyle)((Aga.Controls.Tree.GridLineStyle.Horizontal | Aga.Controls.Tree.GridLineStyle.Vertical)));
 			this.treeViewAdv1.Indent = 12;
 			this.treeViewAdv1.LineColor = System.Drawing.SystemColors.ControlDark;
-			this.treeViewAdv1.Location = new System.Drawing.Point(0, 23);
+			this.treeViewAdv1.Location = new System.Drawing.Point(0, 25);
 			this.treeViewAdv1.Model = null;
 			this.treeViewAdv1.Name = "treeViewAdv1";
 			this.treeViewAdv1.NodeControls.Add(nodeTextBox1);
@@ -245,7 +245,7 @@
 			this.treeViewAdv1.NodeControls.Add(nodeDecimalTextBox5);
 			this.treeViewAdv1.NodeControls.Add(nodeDecimalTextBox6);
 			this.treeViewAdv1.SelectedNode = null;
-			this.treeViewAdv1.Size = new System.Drawing.Size(669, 318);
+			this.treeViewAdv1.Size = new System.Drawing.Size(669, 344);
 			this.treeViewAdv1.TabIndex = 2;
 			this.treeViewAdv1.Text = "treeViewAdv1";
 			this.treeViewAdv1.UseColumns = true;
@@ -257,14 +257,14 @@
 			this.panel1.Dock = System.Windows.Forms.DockStyle.Top;
 			this.panel1.Location = new System.Drawing.Point(0, 0);
 			this.panel1.Name = "panel1";
-			this.panel1.Size = new System.Drawing.Size(669, 23);
+			this.panel1.Size = new System.Drawing.Size(669, 25);
 			this.panel1.TabIndex = 3;
 			// 
 			// MemoryProfilerWindow
 			// 
-			this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
+			this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-			this.ClientSize = new System.Drawing.Size(669, 341);
+			this.ClientSize = new System.Drawing.Size(669, 369);
 			this.Controls.Add(this.treeViewAdv1);
 			this.Controls.Add(this.panel1);
 			this.DockAreas = ((WeifenLuo.WinFormsUI.Docking.DockAreas)((((((WeifenLuo.WinFormsUI.Docking.DockAreas.Float | WeifenLuo.WinFormsUI.Docking.DockAreas.DockLeft)
@@ -274,8 +274,8 @@
 						| WeifenLuo.WinFormsUI.Docking.DockAreas.Document)));
 			this.Name = "MemoryProfilerWindow";
 			this.ShowHint = WeifenLuo.WinFormsUI.Docking.DockState.DockBottom;
-			this.TabText = "Memory profiler client";
-			this.Text = "Memory profiler client";
+			this.TabText = "Memory profiler";
+			this.Text = "Memory profiler";
 			this.panel1.ResumeLayout(false);
 			this.panel1.PerformLayout();
 			this.ResumeLayout(false);
@@ -292,3 +292,4 @@
 		private System.Windows.Forms.Panel panel1;
 	}
 }
+

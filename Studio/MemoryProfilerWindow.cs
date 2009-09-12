@@ -87,13 +87,20 @@ namespace Studio
 
 		private Binding.MemoryProfilerServer mMemoryProfilerServer;
 
+		/// <summary>
+		/// If I can call RunWorkerAsync() in RunWorkerCompleted(), I do not need this timer
+		/// </summary>
 		private void timer1_Tick(object sender, EventArgs e)
 		{
 			mMemoryProfilerServer.update();
-			if (!backgroundWorker1.IsBusy && mClient != null && mClient.Connected && !mDisconnectPending)
+
+			if (backgroundWorker1.IsBusy)
+				return;
+
+			if (mClient != null && mClient.Connected && !mDisconnectPending)
 				backgroundWorker1.RunWorkerAsync();
 
-			if (mDisconnectPending && !backgroundWorker1.IsBusy)
+			if (mDisconnectPending)
 				afterDisconnect();
 		}
 
@@ -140,8 +147,13 @@ namespace Studio
 							previousNode = node;
 
 							// Up the callstack
-							for (int j = node.Level - level; (j--) > -1; )
+							for (int j = node.Level - level; j > -1; )
+							{
+								// NOTE: node.Level - node.Parent.Level may not simply equals to 1
+								j -= (node.Level - node.Parent.Level);
+
 								node = node.Parent as CallstackNode;
+							}
 
 							// Search for existing node with the same name
 							CallstackNode searchNode = null;
@@ -171,6 +183,7 @@ namespace Studio
 								previousNode.MyNextNode.Parent = null;
 						}
 
+						node.MyPreviousNode = previousNode;
 						node.Level = level;
 						node.Id = tokens[1];
 						node.Name = tokens[2];
@@ -191,8 +204,6 @@ namespace Studio
 				{
 					while (node != null && node.MyNextNode != null)
 						node.MyNextNode.Parent = null;
-					while (previousNode != null && previousNode.NextNode != null)
-						previousNode.NextNode.Parent = null;
 				}
 			}
 			catch (Exception ex)
@@ -230,21 +241,38 @@ namespace Studio
 		public double SCountPerFrame;
 		public double CallPerFrame;
 
-		public CallstackNode FirstChild
+		public new CallstackNode Parent
 		{
 			get
 			{
-				if (Nodes.Count == 0)
-					return null;
-				return (Nodes[0] as CallstackNode);
+				return base.Parent as CallstackNode;
+			}
+
+			set
+			{
+				if (value == null)	// Detaching this node from it's current parent
+				{
+					if (mMyPrevious != null)
+						mMyPrevious.mMyNext = mMyNext;
+					if (mMyNext != null)
+						mMyNext.mMyPrevious = mMyPrevious;
+				}
+				base.Parent = value;
 			}
 		}
 
-		public CallstackNode NextSibling
+		public CallstackNode MyPreviousNode
 		{
 			get
 			{
-				return (base.NextNode as CallstackNode);
+				return mMyPrevious;
+			}
+
+			set
+			{
+				if (value != null)
+					value.mMyNext = this;
+				mMyPrevious = value;
 			}
 		}
 
@@ -252,10 +280,12 @@ namespace Studio
 		{
 			get
 			{
-				if (FirstChild != null)
-					return FirstChild;
-				return NextSibling;
+				return mMyNext;
 			}
 		}
+
+		// These two nodes mantains the linear structure of the comming TCP string protocol.
+		private CallstackNode mMyPrevious;
+		private CallstackNode mMyNext;
 	}
 }
