@@ -24,7 +24,7 @@ protected:
 	sal_override ~Model();
 
 public:
-	struct MeshAndMaterial : public LinkListBase::Node<MeshAndMaterial>
+	struct MCD_RENDER_API MeshAndMaterial : public LinkListBase::Node<MeshAndMaterial>
 	{
 		MeshAndMaterial();
 		~MeshAndMaterial();
