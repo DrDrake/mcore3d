@@ -7,7 +7,6 @@
 #include "EffectLoader.h"
 #include "JpegLoader.h"
 #include "Max3dsLoader.h"
-#include "Mesh.h"
 #include "Model.h"
 #include "ModelPod.h"
 #include "PngLoader.h"

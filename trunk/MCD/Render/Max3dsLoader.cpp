@@ -842,7 +842,7 @@ void Max3dsLoader::Impl::commit(Resource& resource)
 			subObject.material->init();
 
 			Model::MeshAndMaterial* meshMat = new Model::MeshAndMaterial;
-			meshMat->material = subObject.material->clone();
+			meshMat->material.reset(subObject.material->clone());
 			meshMat->mesh = mesh;
 
 			model.mMeshes.pushBack(*meshMat);

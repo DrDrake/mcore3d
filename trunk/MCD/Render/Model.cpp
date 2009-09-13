@@ -9,12 +9,10 @@ namespace MCD {
 Model::MeshAndMaterial::MeshAndMaterial()
 	: material(nullptr)
 {
-	delete material;
 }
 
 Model::MeshAndMaterial::~MeshAndMaterial()
 {
-	delete material;
 }
 
 Model::~Model()
@@ -25,7 +23,7 @@ void Model::draw()
 {
 	for(MeshAndMaterial* meshAndMat = mMeshes.begin(); meshAndMat != mMeshes.end(); meshAndMat = meshAndMat->next())
 	{
-		if(!meshAndMat->mesh || !meshAndMat->material)
+		if(!meshAndMat->mesh || !meshAndMat->material.get())
 			continue;
 
 		size_t passCount = meshAndMat->material->getPassCount();
