@@ -24,13 +24,16 @@ protected:
 	sal_override ~Model();
 
 public:
-	struct MCD_RENDER_API MeshAndMaterial : public LinkListBase::Node<MeshAndMaterial>
+	/*!A simple structure for sotring mesh and material as a pair.
+		To keep it simple, copying this struct is not implemented.
+	 */
+	struct MCD_RENDER_API MeshAndMaterial : public LinkListBase::Node<MeshAndMaterial>, MCD::Noncopyable
 	{
 		MeshAndMaterial();
 		~MeshAndMaterial();
 
 		MeshPtr mesh;
-		Material* material;
+		std::auto_ptr<Material> material;
 	};	// MeshAndMaterial
 
 	typedef LinkList<MeshAndMaterial> MeshList;
