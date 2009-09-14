@@ -3,6 +3,7 @@
 #include "EditableMesh.h"
 #include "MeshBuilder.h"	// For ~Mesh() to work
 
+#include "../Core/Math/Vec4.h"
 #include "../Core/Math/Vec3.h"
 #include "../Core/Math/Vec2.h"
 
@@ -13,13 +14,17 @@ class EditableMesh::Impl
 public:
 	Vec3f* mPosPtr;
 	Vec3f* mNormPtr;
-	Vec2f* mUV0Ptr;
-	Vec2f* mUV1Ptr;
+	
+	typedef float* UVPtr;
+	UVPtr mUVPtr[Mesh::cMaxTextureCoordCount];
+
 	uint16_t* mIndexPtr;
 	size_t mIndexCnt;
 
-	Impl() : mPosPtr(nullptr), mNormPtr(nullptr), mUV0Ptr(nullptr), mUV1Ptr(nullptr), mIndexPtr(nullptr)
+	Impl() : mPosPtr(nullptr), mNormPtr(nullptr), mIndexPtr(nullptr)
 	{
+		for(size_t i=0; i<Mesh::cMaxTextureCoordCount; ++i)
+			mUVPtr[i] = nullptr;
 	}
 };	// Impl
 
@@ -51,8 +56,13 @@ void EditableMesh::beginEditing()
 
 	mImpl->mPosPtr		= (Vec3f*)builder->acquireBufferPointer(Mesh::Position);
 	mImpl->mNormPtr		= (Vec3f*)builder->acquireBufferPointer(Mesh::Normal);
-	mImpl->mUV0Ptr		= (Vec2f*)builder->acquireBufferPointer(Mesh::TextureCoord0);
-	//mImpl->mUV1Ptr		= (Vec2f*)builder->acquireBufferPointer(Mesh::TextureCoord1);
+
+	size_t cUVCnt = builder->format() & Mesh::TextureCoord;
+	MCD_VERIFY(cUVCnt <= Mesh::cMaxTextureCoordCount);
+	
+	for(size_t i=0; i<cUVCnt; ++i)
+		mImpl->mUVPtr[i] = (Impl::UVPtr)builder->acquireBufferPointer(Mesh::TextureCoord0+i);
+
 	mImpl->mIndexPtr	= (uint16_t*)builder->acquireBufferPointer(Mesh::Index, &mImpl->mIndexCnt);
 }
 
@@ -62,8 +72,13 @@ void EditableMesh::endEditing(bool commit)
 
 	_RELEASE_PTR(mImpl->mPosPtr);
 	_RELEASE_PTR(mImpl->mNormPtr);
-	_RELEASE_PTR(mImpl->mUV0Ptr);
-	_RELEASE_PTR(mImpl->mUV1Ptr);
+
+	for(int i=0; i<Mesh::cMaxTextureCoordCount; ++i)
+	{
+		Impl::UVPtr ptr = mImpl->mUVPtr[i];
+		if(ptr) _RELEASE_PTR(ptr);
+	}
+	
 	_RELEASE_PTR(mImpl->mIndexPtr);
 
 #undef _RELEASE_PTR
@@ -96,16 +111,25 @@ Vec3f& EditableMesh::getNormalAt(uint16_t vertexIndex)
 	return mImpl->mNormPtr[vertexIndex];
 }
 
-Vec2f& EditableMesh::getUV0At(uint16_t vertexIndex)
+Vec2f& EditableMesh::getUV2dAt(size_t unit, uint16_t vertexIndex)
 {
-	MCD_VERIFY(mImpl->mUV0Ptr != nullptr);
-	return mImpl->mUV0Ptr[vertexIndex];
+	MCD_VERIFY(unit < Mesh::cMaxTextureCoordCount);
+	MCD_VERIFY(mImpl->mUVPtr[unit] != nullptr);
+	return ((Vec2f*)mImpl->mUVPtr[unit])[vertexIndex];
 }
 
-Vec2f& EditableMesh::getUV1At(uint16_t vertexIndex)
+Vec3f& EditableMesh::getUV3dAt(size_t unit, uint16_t vertexIndex)
 {
-	MCD_VERIFY(mImpl->mUV1Ptr != nullptr);
-	return mImpl->mUV1Ptr[vertexIndex];
+	MCD_VERIFY(unit < Mesh::cMaxTextureCoordCount);
+	MCD_VERIFY(mImpl->mUVPtr[unit] != nullptr);
+	return ((Vec3f*)mImpl->mUVPtr[unit])[vertexIndex];
+}
+
+Vec4f& EditableMesh::getUV4dAt(size_t unit, uint16_t vertexIndex)
+{
+	MCD_VERIFY(unit < Mesh::cMaxTextureCoordCount);
+	MCD_VERIFY(mImpl->mUVPtr[unit] != nullptr);
+	return ((Vec4f*)mImpl->mUVPtr[unit])[vertexIndex];
 }
 
 }	// namespace MCD
