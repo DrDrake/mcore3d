@@ -68,7 +68,7 @@ namespace RayMeshIntersectTest
 			struct AutoAdvance
 			{
 				EntityPreorderIterator& itr;
-				AutoAdvance(EntityPreorderIterator& _itr) : itr(_itr) {}
+				explicit AutoAdvance(EntityPreorderIterator& _itr) : itr(_itr) {}
 				~AutoAdvance() { itr.next(); }
 			};
 
@@ -97,7 +97,8 @@ namespace RayMeshIntersectTest
 
 			// perform testing
 			i.begin();
-			i.test(rayOrig, (rayTarget - rayOrig).normalizedCopy(), false);
+			for(size_t j=0; j<10; ++j) for(size_t k=0; k<10; ++k)
+				i.test(rayOrig, (rayTarget - rayOrig + Vec3f(float(j), 0, float(k))).normalizedCopy(), false);
 			i.end();
 
 			drawHitResults(i.results());
