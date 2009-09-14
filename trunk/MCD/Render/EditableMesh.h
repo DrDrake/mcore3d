@@ -6,6 +6,10 @@
 namespace MCD {
 
 typedef IntrusivePtr<class MeshBuilder> MeshBuilderPtr;
+
+template<typename T> class Vec4;
+typedef Vec4<float> Vec4f;
+
 template<typename T> class Vec3;
 typedef Vec3<float> Vec3f;
 
@@ -48,10 +52,13 @@ public:
 	Vec3f& getNormalAt(uint16_t vertexIndex);
 
 	//!	Should call after beginEditing()
-	Vec2f& getUV0At(uint16_t vertexIndex);
+	Vec2f& getUV2dAt(size_t unit, uint16_t vertexIndex);
 
 	//!	Should call after beginEditing()
-	Vec2f& getUV1At(uint16_t vertexIndex);
+	Vec3f& getUV3dAt(size_t unit, uint16_t vertexIndex);
+
+	//!	Should call after beginEditing()
+	Vec4f& getUV4dAt(size_t unit, uint16_t vertexIndex);
 
 	//!	\param commit Currently this parameter is not used.
 	void endEditing(bool commit);

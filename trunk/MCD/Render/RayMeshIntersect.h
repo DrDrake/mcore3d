@@ -3,7 +3,9 @@
 
 #include "ShareLib.h"
 
+#include "../Core/Math/Vec2.h"
 #include "../Core/Math/Vec3.h"
+#include "../Core/Math/Vec4.h"
 #include "../Core/Math/Mat44.h"
 #include "../Core/System/LinkList.h"
 #include "../Core/System/SharedPtr.h"
@@ -66,6 +68,9 @@ public:
 	{
 		static Vec3f getHitPosition(IRayMeshIntersect::Hit* hit);
 		static Vec3f getHitNormal(IRayMeshIntersect::Hit* hit);
+		static Vec2f getHitUV2d(IRayMeshIntersect::Hit* hit, size_t unit);
+		static Vec3f getHitUV3d(IRayMeshIntersect::Hit* hit, size_t unit);
+		static Vec4f getHitUV4d(IRayMeshIntersect::Hit* hit, size_t unit);
 	};	// Helper
 
 	virtual ~IRayMeshIntersect() {}
