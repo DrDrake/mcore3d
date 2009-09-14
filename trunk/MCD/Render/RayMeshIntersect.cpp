@@ -195,7 +195,9 @@ void SimpleRayMeshIntersect::addMesh(EditableMesh* mesh, const Mat44f& transform
 	}
 
 	MeshRecord* rec = new MeshRecord(*mesh);
-	rec->hasTransform = true;
+
+	rec->hasTransform = !transform.isNearEqual(Mat44f::cIdentity);
+
 	rec->transform = transform;
 	mImpl->mMeshes.pushBack(*rec);
 	mImpl->mMeshOwnerships.push_back(mesh);
