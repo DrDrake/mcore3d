@@ -4,6 +4,9 @@
 #include "../Core/System/Log.h"
 
 #include <list>
+#ifdef _OPENMP
+#	include <omp.h>
+#endif
 
 namespace MCD {
 
@@ -227,15 +230,28 @@ void SimpleRayMeshIntersect::test(const Vec3f& rayOrig, const Vec3f& rayDir, boo
 	result->rayDir = rayDir;
 	result->closest = nullptr;
 
+#ifdef _OPENMP
+	// Create an OpenMP friendy list
+	std::vector<MeshRecord*> recordList;
+	for(MeshRecord* i = mImpl->mMeshes.begin(); i != mImpl->mMeshes.end(); i = i->next())
+		recordList.push_back(&(*i));
+
+//	omp_set_num_threads(8);
+	#pragma omp parallel for schedule(runtime)
+	for(int j=0; j<int(recordList.size()); ++j)
+	{
+		MeshRecord* i = recordList[j];
+#else
 	for(MeshRecord* i = mImpl->mMeshes.begin()
 		; i != mImpl->mMeshes.end()
 		; i = i->next())
 	{
-		EditableMesh& mesh = i->mesh;
+#endif
 
+		EditableMesh& mesh = i->mesh;
 		const size_t cTriCnt = mesh.getTriangleCount();
 
-		for(size_t itri = 0; itri < cTriCnt; ++itri)
+		for(int itri = 0; itri < int(cTriCnt); ++itri)
 		{
 			uint16_t* idx = mesh.getTriangleIndexAt(itri);
 
@@ -269,8 +285,18 @@ void SimpleRayMeshIntersect::test(const Vec3f& rayOrig, const Vec3f& rayDir, boo
 					result->closest = &hit;
 				else if(t < result->closest->t)
 					result->closest = &hit;
-				
+
+#ifdef _OPENMP
+				// Protect the result list being access from multiple OpenMP threads, but no
+				// need to protect against SimpleRayMeshIntersect::results() since we assume
+				// the user can only access the result after all intersection test is finished.
+				#pragma omp critical
+				{
+#endif
 				result->hits.pushBack(hit);
+#ifdef _OPENMP
+				}
+#endif
 			}
 		}
 	}
