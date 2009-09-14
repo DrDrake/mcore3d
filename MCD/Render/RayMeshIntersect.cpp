@@ -237,7 +237,7 @@ void SimpleRayMeshIntersect::test(const Vec3f& rayOrig, const Vec3f& rayDir, boo
 		recordList.push_back(&(*i));
 
 //	omp_set_num_threads(8);
-	#pragma omp parallel for schedule(runtime)
+	#pragma omp parallel for schedule(dynamic)
 	for(int j=0; j<int(recordList.size()); ++j)
 	{
 		MeshRecord* i = recordList[j];
