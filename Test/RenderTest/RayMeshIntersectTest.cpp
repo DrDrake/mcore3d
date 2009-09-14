@@ -31,7 +31,7 @@ namespace RayMeshIntersectTest
 			mResourceManager.addFactory(new EntityPrototypeLoaderFactory(mResourceManager));
 
 			// load scene
-			const wchar_t* scenePath = L"Scene/AmbientCubeScene/AmbientCubeScene.3DS";
+			const wchar_t* scenePath = L"Scene/City/scene.3ds";
 			//const wchar_t* scenePath = L"Scene/City/scene.3ds";
 			EntityPrototypeLoader::addEntityAfterLoad(&mRootNode, mResourceManager, scenePath, 0, 0, L"loadAsEntity=true;editable=true");
 
@@ -97,7 +97,7 @@ namespace RayMeshIntersectTest
 
 			// perform testing
 			i.begin();
-			for(size_t j=0; j<10; ++j) for(size_t k=0; k<10; ++k)
+			for(size_t j=0; j<5; ++j) for(size_t k=0; k<5; ++k)
 				i.test(rayOrig, (rayTarget - rayOrig + Vec3f(float(j), 0, float(k))).normalizedCopy(), false);
 			i.end();
 
