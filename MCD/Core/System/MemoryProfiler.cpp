@@ -21,8 +21,8 @@ namespace {
 struct AllocInfo
 {
 	AllocInfo() : count(0), bytes(0) {}
-	size_t count;
-	size_t bytes;
+	int count;	// May be negative, if thread A allocate and thread B de-allocate
+	int bytes;	//
 };	// AllocInfo
 
 //! A structure that group all global varaibles into a thread local storage.
@@ -70,18 +70,15 @@ protected:
 typedef LPVOID (WINAPI *MyHeapAlloc)(HANDLE, DWORD, SIZE_T);
 typedef LPVOID (WINAPI *MyHeapReAlloc)(HANDLE, DWORD, LPVOID, SIZE_T);
 typedef LPVOID (WINAPI *MyHeapFree)(HANDLE, DWORD, LPVOID);
-typedef SIZE_T (WINAPI *MyHeapSize)(HANDLE, DWORD, LPVOID);
 
 LPVOID WINAPI myHeapAlloc(HANDLE, DWORD, SIZE_T);
 LPVOID WINAPI myHeapReAlloc(HANDLE, DWORD, LPVOID, SIZE_T);
 LPVOID WINAPI myHeapFree(HANDLE, DWORD, LPVOID);
-SIZE_T WINAPI myHeapSize(HANDLE, DWORD, LPVOID);
 
 FunctionPatcher functionPatcher;
 MyHeapAlloc orgHeapAlloc;
 MyHeapReAlloc orgHeapReAlloc;
 MyHeapFree orgHeapFree;
-MyHeapSize orgHeapSize;
 
 DWORD gTlsIndex = 0;
 
@@ -120,23 +117,23 @@ struct MyMemFooter
 
 void commonDealloc(__in HANDLE hHeap, __in DWORD dwFlags, __deref LPVOID lpMem)
 {
-	TlsStruct* tls = getTlsStruct();
+//	TlsStruct* tls = getTlsStruct();
 
-	if(lpMem && tls && tls->recurseCount == 0)
+//	if(!tls)
+//		tls = reinterpret_cast<TlsStruct*>(MemoryProfiler::singleton().onThreadAttach());
+
+	if(lpMem)// && tls && tls->recurseCount == 0)
 	{
-//		size_t size = HeapSize(hHeap, dwFlags, lpMem);
-		size_t size = orgHeapSize(hHeap, dwFlags, lpMem) - sizeof(MyMemFooter);
+		size_t size = HeapSize(hHeap, dwFlags, lpMem) - sizeof(MyMemFooter);
 
 		ScopeLock lock1(*gFooterMutex);
 		MyMemFooter* footer = (MyMemFooter*)(((char*)lpMem) + size);
 
 		if(footer->fourCC1 == MyMemFooter::cFourCC1 && footer->fourCC2 == MyMemFooter::cFourCC2)
 		{
-			if(tls->recurseCount != 0)
-				tls = tls;
-
+			footer->fourCC1 = footer->fourCC2 = 0;
 			MemoryProfilerNode* node = reinterpret_cast<MemoryProfilerNode*>(footer->node);
-			assert(node);
+			MCD_ASSERT(node);
 
 			// Race with MemoryProfiler::defaultReport() and all other
 			// operations if lpMem is allocated from thread A but now free in thread B (this thread)
@@ -145,15 +142,11 @@ void commonDealloc(__in HANDLE hHeap, __in DWORD dwFlags, __deref LPVOID lpMem)
 
 				node->exclusiveCount--;
 				node->exclusiveBytes -= size;
-				tls->currentAlloc.count--;
-				tls->currentAlloc.bytes -= size;
+//				tls->currentAlloc.count--;
+//				tls->currentAlloc.bytes -= size;
 			}
 		}
-		else
-			tls = tls;
 	}
-	else
-		tls = tls;
 }
 
 /*!	nBytes does not account for the extra footer size
@@ -205,12 +198,17 @@ LPVOID WINAPI myHeapReAlloc(__in HANDLE hHeap, __in DWORD dwFlags, __deref LPVOI
 {
 	TlsStruct* tls = getTlsStruct();
 
-	if(!tls || tls->recurseCount > 0)
+	if(!tls || tls->recurseCount > 0 || lpMem == nullptr)
 		return orgHeapReAlloc(hHeap, dwFlags, lpMem, dwBytes);
 
 	// Remove the statistics for the previous allocation first.
 	commonDealloc(hHeap, dwFlags, lpMem);
 
+	if(dwBytes == 0)
+		return orgHeapReAlloc(hHeap, dwFlags, lpMem, dwBytes);
+
+	// On VC 2005, orgHeapReAlloc() will not invoke HeapAlloc() and HeapFree(),
+	// but it does on VC 2008
 	tls->recurseCount++;
 	void* p = orgHeapReAlloc(hHeap, dwFlags, lpMem, dwBytes + sizeof(MyMemFooter));
 	tls->recurseCount--;
@@ -222,14 +220,6 @@ LPVOID WINAPI myHeapFree(__in HANDLE hHeap, __in DWORD dwFlags, __deref LPVOID l
 {
 	commonDealloc(hHeap, dwFlags, lpMem);
 	return orgHeapFree(hHeap, dwFlags, lpMem);
-}
-
-SIZE_T WINAPI myHeapSize(__in HANDLE hHeap, __in DWORD dwFlags, __deref LPVOID lpMem)
-{
-	if(dwFlags != 0)
-		return orgHeapSize(hHeap, dwFlags, lpMem);
-	else
-		return orgHeapSize(hHeap, dwFlags, lpMem) - sizeof(MyMemFooter);
 }
 
 }	// namespace
@@ -363,7 +353,9 @@ void MemoryProfiler::begin(const char name[])
 	if(name != node->name) {
 		// NOTE: We have changed the node, but there is no need to lock the
 		// mutex for the new node, since both mutex must be just the same instance.
+		tls->recurseCount++;
 		node = static_cast<MemoryProfilerNode*>(node->getChildByName(name));
+		tls->recurseCount--;
 
 		// Only alter the current node, if the child node is not recursing
 		if(node->recursionCount == 0)
@@ -380,7 +372,12 @@ void MemoryProfiler::end()
 		return;
 
 	TlsStruct* tls = getTlsStruct();
-	MCD_ASSERT(tls != nullptr && "MemoryProfiler::begin should already initialized TLS!");
+
+	// The code in MemoryProfiler::begin() may be skipped because of !enable()
+	// therefore we need to detect and create tls for MemoryProfiler::end() also.
+	if(!tls)
+		tls = reinterpret_cast<TlsStruct*>(onThreadAttach());
+
 	MemoryProfilerNode* node = tls->currentNode();
 
 	// Race with MemoryProfiler::reset(), MemoryProfiler::defaultReport() and myHeapFree()
@@ -497,6 +494,8 @@ std::string MemoryProfiler::defaultReport(size_t nameLength) const
 
 void* MemoryProfiler::onThreadAttach(const char* threadName)
 {
+	MCD_ASSERT(getTlsStruct() == nullptr);
+
 	// NOTE: Allocation of TlsStruct didn't trigger commonAlloc() since we
 	// haven't called TlsSetValue() yet and so myHeapAlloc will by pass it.
 	TlsStruct* tls = new TlsStruct(threadName);
@@ -525,21 +524,27 @@ void MemoryProfiler::setEnable(bool flag)
 	if(flag) {
 		// Pre-computed prologue size (for different version of Visual Studio) using libdasm
 #if _MSC_VER == 1400	// VC 2005
-		const int prologueSize[] = { 5, 5, 5, 5 };
+		const int prologueSize[] = { 5, 5, 5 };
 #else _MSC_VER > 1400	// VC 2008
-		const int prologueSize[] = { 5, 5 ,5, 5 };
+		const int prologueSize[] = { 5, 5 ,5 };
 #endif
 
-		// Back up the original function and then do patching
-		orgHeapAlloc	= (MyHeapAlloc) functionPatcher.copyPrologue(&HeapAlloc, prologueSize[0]);
-		orgHeapReAlloc	= (MyHeapReAlloc) functionPatcher.copyPrologue(&HeapReAlloc, prologueSize[1]);
-		orgHeapFree		= (MyHeapFree) functionPatcher.copyPrologue(&HeapFree, prologueSize[2]);
-		orgHeapSize		= (MyHeapSize) functionPatcher.copyPrologue(&HeapSize, prologueSize[3]);
+		// Hooking RtlAllocateHeap is more reliable than hooking HeapAlloc, especially in Vista.
+		void* pAlloc = GetProcAddress(GetModuleHandle(L"ntdll.dll"), "RtlAllocateHeap");
+		void* pReAlloc = GetProcAddress(GetModuleHandle(L"ntdll.dll"), "RtlReAllocateHeap");
+		void* pFree = GetProcAddress(GetModuleHandle(L"ntdll.dll"), "RtlFreeHeap");
+//		pAlloc = &HeapAlloc;
+//		pReAlloc = &HeapReAlloc;
+//		pFree = &HeapFree;
 
-		functionPatcher.patch(&HeapAlloc, &myHeapAlloc);
-		functionPatcher.patch(&HeapReAlloc, &myHeapReAlloc);
-		functionPatcher.patch(&HeapFree, &myHeapFree);
-		functionPatcher.patch(&HeapSize, &myHeapSize);
+		// Back up the original function and then do patching
+		orgHeapAlloc = (MyHeapAlloc) functionPatcher.copyPrologue(pAlloc, prologueSize[0]);
+		orgHeapReAlloc = (MyHeapReAlloc) functionPatcher.copyPrologue(pReAlloc, prologueSize[1]);
+		orgHeapFree = (MyHeapFree) functionPatcher.copyPrologue(pFree, prologueSize[2]);
+
+		functionPatcher.patch(pAlloc, &myHeapAlloc);
+		functionPatcher.patch(pReAlloc, &myHeapReAlloc);
+		functionPatcher.patch(pFree, &myHeapFree);
 	}
 }
 
@@ -605,8 +610,6 @@ void MemoryProfiler::setEnable(bool flag) { (void)flag; }
 
 CallstackNode* MemoryProfilerNode::createNode(const char name[], CallstackNode* parent)
 {
-	MemoryProfiler::ScopeIgnore scopeIgnore;
-
 	MemoryProfilerNode* parentNode = static_cast<MemoryProfilerNode*>(parent);
 	MemoryProfilerNode* n = new MemoryProfilerNode(name, parent);
 
@@ -627,18 +630,6 @@ MemoryProfiler& MemoryProfiler::singleton()
 {
 	static MemoryProfiler instance;
 	return instance;
-}
-
-MemoryProfiler::ScopeIgnore::ScopeIgnore()
-{
-	if(TlsStruct* tls = getTlsStruct())
-		tls->recurseCount++;
-}
-
-MemoryProfiler::ScopeIgnore::~ScopeIgnore()
-{
-	if(TlsStruct* tls = getTlsStruct())
-		tls->recurseCount--;
 }
 
 #if defined(_MSC_VER)

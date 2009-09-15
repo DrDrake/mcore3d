@@ -83,15 +83,6 @@ public:
 		}
 	};	// Scope
 
-	//! Handly class for scope profilinig
-	class MCD_CORE_API ScopeIgnore : MCD::Noncopyable
-	{
-	public:
-		ScopeIgnore();
-
-		~ScopeIgnore();
-	};	// ScopeIgnore
-
 	static MemoryProfiler& singleton();
 
 // Operations
