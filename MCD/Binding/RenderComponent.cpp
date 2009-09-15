@@ -13,10 +13,18 @@ using namespace MCD;
 
 namespace script {
 
+static float cameraComponentGetFov(CameraComponent& self) {
+	return self.camera.frustum.fov();
+}
+static void cameraComponentSetFov(CameraComponent& self, float fov) {
+	self.camera.frustum.setFov(fov);
+}
 SCRIPT_CLASS_REGISTER(CameraComponent)
 	.declareClass<CameraComponent, Component>(xSTRING("CameraComponent"))
 	.enableGetset()
 	.constructor()
+	.wrappedMethod(xSTRING("_getfov"), &cameraComponentGetFov)
+	.wrappedMethod(xSTRING("_setfov"), &cameraComponentSetFov)
 ;}
 
 static Mesh* meshComponentGetMesh(MeshComponent& self) {
