@@ -16,6 +16,8 @@ MCD::Vec3f unProject(const MCD::Vec3f& p);
 
 MCD::Vec3f projectToScreen(const MCD::Vec3f& p);
 
+MCD::Vec3f projectToScreenNoModelView(const MCD::Vec3f& p);
+
 MCD::Ray createPickingRay(int x, int y);
 
 class MyMeshComponent : public MCD::MeshComponent

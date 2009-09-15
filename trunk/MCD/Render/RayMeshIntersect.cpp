@@ -15,9 +15,9 @@ Vec3f IRayMeshIntersect::Helper::getHitPosition(IRayMeshIntersect::Hit* hit)
 {
 	const uint16_t* vidx = hit->meshRec.mesh.getTriangleIndexAt(hit->faceIdx);
 
-    Vec3f v0 = hit->meshRec.mesh.getPositionAt(vidx[0]);
-    Vec3f v1 = hit->meshRec.mesh.getPositionAt(vidx[1]);
-    Vec3f v2 = hit->meshRec.mesh.getPositionAt(vidx[2]);
+	Vec3f v0 = hit->meshRec.mesh.getPositionAt(vidx[0]);
+	Vec3f v1 = hit->meshRec.mesh.getPositionAt(vidx[1]);
+	Vec3f v2 = hit->meshRec.mesh.getPositionAt(vidx[2]);
 
 	if(hit->meshRec.hasTransform)
 	{
@@ -25,17 +25,17 @@ Vec3f IRayMeshIntersect::Helper::getHitPosition(IRayMeshIntersect::Hit* hit)
 		hit->meshRec.transform.transformPoint(v1);
 		hit->meshRec.transform.transformPoint(v2);
 	}
-    
-    return hit->w * v0 + hit->u * v1 + hit->v * v2;
+	
+	return hit->w * v0 + hit->u * v1 + hit->v * v2;
 }
 
 Vec3f IRayMeshIntersect::Helper::getHitNormal(IRayMeshIntersect::Hit* hit)
 {
-    const uint16_t* vidx = hit->meshRec.mesh.getTriangleIndexAt(hit->faceIdx);
+	const uint16_t* vidx = hit->meshRec.mesh.getTriangleIndexAt(hit->faceIdx);
 
-    Vec3f v0 = hit->meshRec.mesh.getNormalAt(vidx[0]);
-    Vec3f v1 = hit->meshRec.mesh.getNormalAt(vidx[1]);
-    Vec3f v2 = hit->meshRec.mesh.getNormalAt(vidx[2]);
+	Vec3f v0 = hit->meshRec.mesh.getNormalAt(vidx[0]);
+	Vec3f v1 = hit->meshRec.mesh.getNormalAt(vidx[1]);
+	Vec3f v2 = hit->meshRec.mesh.getNormalAt(vidx[2]);
 
 	if(hit->meshRec.hasTransform)
 	{
@@ -52,8 +52,8 @@ Vec2f IRayMeshIntersect::Helper::getHitUV2d(IRayMeshIntersect::Hit* hit, size_t 
 	const uint16_t* vidx = hit->meshRec.mesh.getTriangleIndexAt(hit->faceIdx);
 
 	Vec2f& v0 = hit->meshRec.mesh.getUV2dAt(unit, vidx[0]);
-    Vec2f& v1 = hit->meshRec.mesh.getUV2dAt(unit, vidx[1]);
-    Vec2f& v2 = hit->meshRec.mesh.getUV2dAt(unit, vidx[2]);
+	Vec2f& v1 = hit->meshRec.mesh.getUV2dAt(unit, vidx[1]);
+	Vec2f& v2 = hit->meshRec.mesh.getUV2dAt(unit, vidx[2]);
 
 	return hit->w * v0 + hit->u * v1 + hit->v * v2;
 }
@@ -63,8 +63,8 @@ Vec3f IRayMeshIntersect::Helper::getHitUV3d(IRayMeshIntersect::Hit* hit, size_t 
 	const uint16_t* vidx = hit->meshRec.mesh.getTriangleIndexAt(hit->faceIdx);
 
 	Vec3f& v0 = hit->meshRec.mesh.getUV3dAt(unit, vidx[0]);
-    Vec3f& v1 = hit->meshRec.mesh.getUV3dAt(unit, vidx[1]);
-    Vec3f& v2 = hit->meshRec.mesh.getUV3dAt(unit, vidx[2]);
+	Vec3f& v1 = hit->meshRec.mesh.getUV3dAt(unit, vidx[1]);
+	Vec3f& v2 = hit->meshRec.mesh.getUV3dAt(unit, vidx[2]);
 
 	return hit->w * v0 + hit->u * v1 + hit->v * v2;
 }
@@ -74,8 +74,8 @@ Vec4f IRayMeshIntersect::Helper::getHitUV4d(IRayMeshIntersect::Hit* hit, size_t 
 	const uint16_t* vidx = hit->meshRec.mesh.getTriangleIndexAt(hit->faceIdx);
 
 	Vec4f& v0 = hit->meshRec.mesh.getUV4dAt(unit, vidx[0]);
-    Vec4f& v1 = hit->meshRec.mesh.getUV4dAt(unit, vidx[1]);
-    Vec4f& v2 = hit->meshRec.mesh.getUV4dAt(unit, vidx[2]);
+	Vec4f& v1 = hit->meshRec.mesh.getUV4dAt(unit, vidx[1]);
+	Vec4f& v2 = hit->meshRec.mesh.getUV4dAt(unit, vidx[2]);
 
 	return hit->w * v0 + hit->u * v1 + hit->v * v2;
 }
@@ -253,7 +253,6 @@ void SimpleRayMeshIntersect::begin()
 	{
 		MCD_VERIFY(i->mesh.isEditing());
 	}
-
 }
 
 void SimpleRayMeshIntersect::test(const Vec3f& rayOrig, const Vec3f& rayDir, bool twoSided)

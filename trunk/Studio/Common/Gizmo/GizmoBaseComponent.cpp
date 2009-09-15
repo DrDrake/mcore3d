@@ -73,6 +73,19 @@ Vec3f projectToScreen(const Vec3f& p)
 	return Vec3f(float(v[0]), float(v[1]), float(v[2]));
 }
 
+Vec3f projectToScreenNoModelView(const Vec3f& p)
+{
+	GLdouble projection[16];
+	glGetDoublev(GL_PROJECTION_MATRIX, projection);
+	GLint viewPort[4];
+	glGetIntegerv(GL_VIEWPORT, viewPort);
+
+	GLdouble v[3] = {0};
+	MCD_VERIFY(gluProject(p[0], p[1], p[2], Mat44<double>::cIdentity.getPtr(), projection, viewPort, &v[0], &v[1], &v[2]) == GL_TRUE);
+
+	return Vec3f(float(v[0]), float(v[1]), float(v[2]));
+}
+
 //! Create a ray casting towards the sceen in world space, x and y are in windows's coordinate.
 Ray createPickingRay(int x, int y)
 {

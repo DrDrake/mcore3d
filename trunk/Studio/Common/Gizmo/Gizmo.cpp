@@ -48,9 +48,18 @@ public:
 		Vec3f p1(trans);
 		Vec3f p2(trans + Vec3f::c100);
 
+		{	// Apply the camera's translation ONLY
+			Mat44f camTransform;
+			glGetFloatv(GL_MODELVIEW_MATRIX, camTransform.getPtr());
+			camTransform = camTransform.transpose();
+			Vec3f camTrans = camTransform.translation();
+			p1 += camTrans;
+			p2 += camTrans;
+		}
+
 		// Test an unit lenght vector to see it's projected lenght on 2D screen.
-		p1 = projectToScreen(p1);
-		p2 = projectToScreen(p2);
+		p1 = projectToScreenNoModelView(p1);
+		p2 = projectToScreenNoModelView(p2);
 
 		if(p1 == p2)
 			return;
