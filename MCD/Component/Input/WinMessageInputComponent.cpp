@@ -57,7 +57,8 @@ bool WinMessageInputComponent::Compare::operator()(const wchar_t* lhs, const wch
 WinMessageInputComponent::WinMessageInputComponent()
 	: mWindow(nullptr), mMousePosition(0),
 	  mMouseKeyBitArray(0), mMouseKeyDownBitArray(0), mMouseKeyUpBitArray(0),
-	  mMouseAxis(0), mMouseAxisRaw(0)
+	  mMouseAxis(0), mMouseAxisRaw(0),
+	  mPreviousMouseAxis(0), mPreviousMouseAxisRaw(0)
 {
 }
 
@@ -74,6 +75,9 @@ void WinMessageInputComponent::update()
 	mMouseKeyDownBitArray = 0;
 	mMouseKeyUpBitArray = 0;
 	mInputString.clear();
+
+	mPreviousMouseAxis = mMouseAxis;
+	mPreviousMouseAxisRaw = mMouseAxisRaw;
 
 	// Perform axis smoothing
 	// TODO: Make the smoothing framerate independent
@@ -95,6 +99,28 @@ float WinMessageInputComponent::getAxisRaw(sal_in_z const wchar_t* axisName) con
 		return mMouseAxisRaw.x;
 	if(wstrCaseCmp(axisName, L"mouse y") == 0)
 		return mMouseAxisRaw.y;
+	return 0;
+}
+
+float WinMessageInputComponent::getAxisDelta(sal_in_z const wchar_t* axisName) const
+{
+	if(wstrCaseCmp(axisName, L"mouse x") == 0)
+		return mMouseAxis.x;
+	if(wstrCaseCmp(axisName, L"mouse y") == 0)
+		return mMouseAxis.y;
+	if(wstrCaseCmp(axisName, L"mouse z") == 0)
+		return mMouseAxis.z;
+	return 0;
+}
+
+float WinMessageInputComponent::getAxisDeltaRaw(sal_in_z const wchar_t* axisName) const
+{
+	if(wstrCaseCmp(axisName, L"mouse x") == 0)
+		return mMouseAxisRaw.x;
+	if(wstrCaseCmp(axisName, L"mouse y") == 0)
+		return mMouseAxisRaw.y;
+	if(wstrCaseCmp(axisName, L"mouse z") == 0)
+		return mMouseAxisRaw.z;
 	return 0;
 }
 
@@ -193,11 +219,17 @@ void WinMessageInputComponent::onEvent(const Event& e)
 		}
 		break;
 	case Event::MouseMoved:
+		mPreviousMouseAxisRaw.x = mMouseAxisRaw.x;
+		mPreviousMouseAxisRaw.y = mMouseAxisRaw.y;
 		{	Vec2i newPos(e.MouseMove.X, e.MouseMove.Y);
 			mMouseAxisRaw.x += (newPos.x - mMousePosition.x);
 			mMouseAxisRaw.y += (newPos.y - mMousePosition.y);
 			mMousePosition = newPos;
 		} break;
+	case Event::MouseWheelMoved:
+		mPreviousMouseAxisRaw.z = mMouseAxisRaw.z;
+		mMouseAxisRaw.z += e.MouseWheel.Delta;
+		break;
 	case Event::MouseButtonPressed:
 		mMouseKeyBitArray |= (1 << int(e.MouseButton.Button));
 		mMouseKeyDownBitArray |= (1 << int(e.MouseButton.Button));

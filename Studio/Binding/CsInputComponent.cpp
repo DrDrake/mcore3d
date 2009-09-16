@@ -18,7 +18,8 @@ bool CsInputComponent::Compare::operator()(const wstring& lhs, const wstring& rh
 CsInputComponent::CsInputComponent()
 	: mControl(nullptr), mMousePosition(0),
 	  mMouseKeyBitArray(0), mMouseKeyDownBitArray(0), mMouseKeyUpBitArray(0),
-	  mMouseAxis(0), mMouseAxisRaw(0)
+	  mMouseAxis(0), mMouseAxisRaw(0),
+	  mPreviousMouseAxis(0), mPreviousMouseAxisRaw(0)
 {
 	mMessageRouter = gcnew MessageRouter();
 	mMessageRouter->mBackRef = this;
@@ -32,6 +33,7 @@ CsInputComponent::~CsInputComponent()
 		mControl->MouseUp -= gcnew MouseEventHandler(mMessageRouter, &MessageRouter::onMouseUp);
 		mControl->MouseDown -= gcnew MouseEventHandler(mMessageRouter, &MessageRouter::onMouseDown);
 		mControl->MouseMove -= gcnew MouseEventHandler(mMessageRouter, &MessageRouter::onMouseMove);
+		mControl->MouseWheel -= gcnew MouseEventHandler(mMessageRouter, &MessageRouter::onMouseWheel);
 	}
 }
 
@@ -42,6 +44,9 @@ void CsInputComponent::update()
 	mMouseKeyDownBitArray = 0;
 	mMouseKeyUpBitArray = 0;
 	mInputString.clear();
+
+	mPreviousMouseAxis = mMouseAxis;
+	mPreviousMouseAxisRaw = mMouseAxisRaw;
 
 	// Perform axis smoothing
 	// TODO: Make the smoothing framerate independent
@@ -54,6 +59,8 @@ float CsInputComponent::getAxis(sal_in_z const wchar_t* axisName) const
 		return mMouseAxis.x;
 	if(wstrCaseCmp(axisName, L"mouse y") == 0)
 		return mMouseAxis.y;
+	if(wstrCaseCmp(axisName, L"mouse z") == 0)
+		return mMouseAxis.z;
 	return 0;
 }
 
@@ -63,6 +70,30 @@ float CsInputComponent::getAxisRaw(sal_in_z const wchar_t* axisName) const
 		return mMouseAxisRaw.x;
 	if(wstrCaseCmp(axisName, L"mouse y") == 0)
 		return mMouseAxisRaw.y;
+	if(wstrCaseCmp(axisName, L"mouse z") == 0)
+		return mMouseAxisRaw.z;
+	return 0;
+}
+
+float CsInputComponent::getAxisDelta(sal_in_z const wchar_t* axisName) const
+{
+	if(wstrCaseCmp(axisName, L"mouse x") == 0)
+		return mMouseAxis.x - mPreviousMouseAxis.x;
+	if(wstrCaseCmp(axisName, L"mouse y") == 0)
+		return mMouseAxis.y - mPreviousMouseAxis.y;
+	if(wstrCaseCmp(axisName, L"mouse z") == 0)
+		return mMouseAxis.z - mPreviousMouseAxis.z;
+	return 0;
+}
+
+float CsInputComponent::getAxisDeltaRaw(sal_in_z const wchar_t* axisName) const
+{
+	if(wstrCaseCmp(axisName, L"mouse x") == 0)
+		return mMouseAxisRaw.x - mPreviousMouseAxisRaw.x;
+	if(wstrCaseCmp(axisName, L"mouse y") == 0)
+		return mMouseAxisRaw.y - mPreviousMouseAxisRaw.y;
+	if(wstrCaseCmp(axisName, L"mouse z") == 0)
+		return mMouseAxisRaw.z - mPreviousMouseAxisRaw.z;
 	return 0;
 }
 
@@ -135,6 +166,7 @@ void CsInputComponent::attachTo(Control^ control)
 	control->MouseUp += gcnew MouseEventHandler(mMessageRouter, &MessageRouter::onMouseUp);
 	control->MouseDown += gcnew MouseEventHandler(mMessageRouter, &MessageRouter::onMouseDown);
 	control->MouseMove += gcnew MouseEventHandler(mMessageRouter, &MessageRouter::onMouseMove);
+	control->MouseWheel  += gcnew MouseEventHandler(mMessageRouter, &MessageRouter::onMouseWheel);
 }
 
 //! Some key code's string in .net is strange, so we perform a transformation to our usual convention.
@@ -198,10 +230,21 @@ void CsInputComponent::MessageRouter::onMouseDown(System::Object^ sender, MouseE
 
 void CsInputComponent::MessageRouter::onMouseMove(System::Object^ sender, MouseEventArgs^ e)
 {
+	mBackRef->mPreviousMouseAxisRaw.x = mBackRef->mMouseAxisRaw.x;
+	mBackRef->mPreviousMouseAxisRaw.y = mBackRef->mMouseAxisRaw.y;
+
 	Vec2i newPos(e->X, e->Y);
 	mBackRef->mMouseAxisRaw.x += (newPos.x - mBackRef->mMousePosition.x);
 	mBackRef->mMouseAxisRaw.y += (newPos.y - mBackRef->mMousePosition.y);
 	mBackRef->mMousePosition = newPos;
+}
+
+void CsInputComponent::MessageRouter::onMouseWheel(System::Object^ sender, MouseEventArgs^ e)
+{
+	mBackRef->mPreviousMouseAxisRaw.z = mBackRef->mMouseAxisRaw.z;
+
+	// See http://msdn.microsoft.com/en-us/library/system.windows.forms.control.mousewheel.aspx
+	mBackRef->mMouseAxisRaw.z += e->Delta / 120;
 }
 
 }	// namespace Binding

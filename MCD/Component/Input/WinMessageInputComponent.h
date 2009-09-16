@@ -3,6 +3,7 @@
 
 #include "InputComponent.h"
 #include "../../Core/System/Window.h"
+#include "../../Core/Math/Vec3.h"
 #include <map>
 
 namespace MCD {
@@ -24,6 +25,10 @@ public:
 	sal_override float getAxis(sal_in_z const wchar_t* axisName) const;
 
 	sal_override float getAxisRaw(sal_in_z const wchar_t* axisName) const;
+
+	sal_override float getAxisDelta(sal_in_z const wchar_t* axisName) const;
+
+	sal_override float getAxisDeltaRaw(sal_in_z const wchar_t* axisName) const;
 
 	sal_override bool anyKey() const;
 
@@ -70,7 +75,8 @@ protected:
 	int8_t mMouseKeyDownBitArray;
 	int8_t mMouseKeyUpBitArray;
 	std::wstring mInputString;
-	Vec2f mMouseAxis, mMouseAxisRaw;
+	Vec3f mMouseAxis, mMouseAxisRaw;	//!< Mouse x, y and wheel as z
+	Vec3f mPreviousMouseAxis, mPreviousMouseAxisRaw;	//!< For calculating delta
 };	// WinMessageInputComponent
 
 }	// namespace MCD

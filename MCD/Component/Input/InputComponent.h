@@ -24,6 +24,10 @@ public:
 
 	virtual float getAxisRaw(sal_in_z const wchar_t* axisName) const = 0;
 
+	virtual float getAxisDelta(sal_in_z const wchar_t* axisName) const = 0;
+
+	virtual float getAxisDeltaRaw(sal_in_z const wchar_t* axisName) const = 0;
+
 	//! Is any key or mouse button currently held down?
 	virtual bool anyKey() const = 0;
 

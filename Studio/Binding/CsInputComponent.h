@@ -1,6 +1,7 @@
 #pragma once
 
 #include "../../MCD/Component/Input/InputComponent.h"
+#include "../../MCD/Core/Math/Vec3.h"
 #undef nullptr
 #include <gcroot.h>
 #include <map>
@@ -22,6 +23,7 @@ public:
 		void onMouseUp(System::Object^ sender, System::Windows::Forms::MouseEventArgs^ e);
 		void onMouseDown(System::Object^ sender, System::Windows::Forms::MouseEventArgs^ e);
 		void onMouseMove(System::Object^ sender, System::Windows::Forms::MouseEventArgs^ e);
+		void onMouseWheel(System::Object^ sender, System::Windows::Forms::MouseEventArgs^ e);
 
 		CsInputComponent* mBackRef;
 	};	// MessageRouter
@@ -37,6 +39,10 @@ public:
 	sal_override float getAxis(sal_in_z const wchar_t* axisName) const;
 
 	sal_override float getAxisRaw(sal_in_z const wchar_t* axisName) const;
+
+	sal_override float getAxisDelta(sal_in_z const wchar_t* axisName) const;
+
+	sal_override float getAxisDeltaRaw(sal_in_z const wchar_t* axisName) const;
 
 	sal_override bool anyKey() const;
 
@@ -79,7 +85,8 @@ protected:
 	int8_t mMouseKeyDownBitArray;
 	int8_t mMouseKeyUpBitArray;
 	std::wstring mInputString;
-	MCD::Vec2f mMouseAxis, mMouseAxisRaw;
+	MCD::Vec3f mMouseAxis, mMouseAxisRaw;	//!< Mouse x, y and wheel as z
+	MCD::Vec3f mPreviousMouseAxis, mPreviousMouseAxisRaw;	//!< For calculating delta
 };	// CsInputComponent
 
 }	// namespace Binding
