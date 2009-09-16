@@ -68,18 +68,6 @@ public:
 			mPredefinedSubTree = e.release();
 		}
 
-		{	// Add a Gizmo
-			// TODO: Move the Gizmo entity to mPredefinedSubTree, make sure all
-			// related stuffs (eg axis picking) are working
-			std::auto_ptr<Gizmo> e(new Gizmo(*mResourceManager, mLauncher.inputComponent()));
-			e->name = L"Gizmo";
-			e->enabled = false;	// The gizmo is initially disable, until an object is selected
-			e->asChildOf(&mRootNode);
-			e->setActiveGizmo(e->translationGizmo.get());
-
-			mGizmo = e.release();
-		}
-
 		{	// Add the ground plane
 			std::auto_ptr<MCD::Entity> e(new MCD::Entity);
 			e->name = L"Ground plane";
@@ -124,6 +112,19 @@ public:
 			e->addComponent(mCamera.get());
 
 			e.release();
+		}
+
+		{	// Add a Gizmo
+			// TODO: Move the Gizmo entity to mPredefinedSubTree, make sure all
+			// related stuffs (eg axis picking) are working
+			std::auto_ptr<Gizmo> e(new Gizmo(*mResourceManager, mLauncher.inputComponent()));
+			e->setCamrea(mCamera->entity());
+			e->name = L"Gizmo";
+			e->enabled = false;	// The gizmo is initially disable, until an object is selected
+			e->asChildOf(&mRootNode);
+			e->setActiveGizmo(e->translationGizmo.get());
+
+			mGizmo = e.release();
 		}
 	}
 
