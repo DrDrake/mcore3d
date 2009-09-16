@@ -77,6 +77,13 @@ function update()
 		localTransform.translateBy(translation);
 	}
 
+	{	// Handle mouse wheel
+		local z = ::gInput.getAxisDelta("mouse z");
+		local newFov = fov * (1 - z / 20);
+		if(newFov < 140)
+			fov = newFov;
+	}
+
 	entity.localTransform = localTransform;
 }
 
