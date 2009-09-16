@@ -42,20 +42,14 @@ public:
 		Entity* e = entity();
 		MCD_ASSUME(e);
 
-		// Get the translation component
-		Vec3f trans = e->worldTransform().translation();
+		// Get only the translation part of the targeting entity.
+		Vec3f p1 = e->worldTransform().translation();
 
-		Vec3f p1(trans);
-		Vec3f p2(trans + Vec3f::c100);
+		// Transform it to camera space.
+		if(camera)
+			camera->worldTransform().inverse().transformPoint(p1);
 
-		{	// Apply the camera's translation ONLY
-			Mat44f camTransform;
-			glGetFloatv(GL_MODELVIEW_MATRIX, camTransform.getPtr());
-			camTransform = camTransform.transpose();
-			Vec3f camTrans = camTransform.translation();
-			p1 += camTrans;
-			p2 += camTrans;
-		}
+		Vec3f p2 = p1 + Vec3f::c100;
 
 		// Test an unit lenght vector to see it's projected lenght on 2D screen.
 		p1 = projectToScreenNoModelView(p1);
@@ -69,6 +63,9 @@ public:
 		const float cPixelSizeForUnitLength = 100.0f;
 		e->localTransform.setScale(Vec3f(cPixelSizeForUnitLength / len));
 	}
+
+	//! To get the camera's world transform.
+	EntityPtr camera;
 };	// FixedScreenSizeComponent
 
 }	// namespace
@@ -204,4 +201,11 @@ bool Gizmo::isDragging() const
 	if(!gizmo)
 		return false;
 	return gizmo->dragging != nullptr;
+}
+
+void Gizmo::setCamrea(const EntityPtr& camera)
+{
+	FixedScreenSizeComponent* component = firstChild()->findComponent<FixedScreenSizeComponent>(typeid(BehaviourComponent));
+	MCD_ASSUME(component);
+	component->camera = camera;
 }

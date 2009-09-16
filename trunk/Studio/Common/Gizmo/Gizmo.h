@@ -35,6 +35,8 @@ public:
 
 	bool isDragging() const;
 
+	void setCamrea(const MCD::EntityPtr& camera);
+
 	MCD::ComponentPtr translationGizmo;
 	MCD::ComponentPtr rotationGizmo;
 	MCD::ComponentPtr scaleGizmo;
