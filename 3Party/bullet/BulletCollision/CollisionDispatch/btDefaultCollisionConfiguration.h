@@ -33,8 +33,8 @@ struct	btDefaultCollisionConstructionInfo
 		:m_stackAlloc(0),
 		m_persistentManifoldPool(0),
 		m_collisionAlgorithmPool(0),
-		m_defaultMaxPersistentManifoldPoolSize(4096),
-		m_defaultMaxCollisionAlgorithmPoolSize(4096),
+		m_defaultMaxPersistentManifoldPoolSize(4096*4),	// NOTE: Pool size enlarged by Ricky Lung by 4 times
+		m_defaultMaxCollisionAlgorithmPoolSize(4096*4),	//
 		m_defaultStackAllocatorSize(0)
 	{
 	}
