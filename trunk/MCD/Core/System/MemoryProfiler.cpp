@@ -131,7 +131,9 @@ void commonDealloc(__in HANDLE hHeap, __in DWORD dwFlags, __deref LPVOID lpMem)
 
 		if(footer->fourCC1 == MyMemFooter::cFourCC1 && footer->fourCC2 == MyMemFooter::cFourCC2)
 		{
+			// Reset the magic number so that commonDealloc() will not applied more than once.
 			footer->fourCC1 = footer->fourCC2 = 0;
+
 			MemoryProfilerNode* node = reinterpret_cast<MemoryProfilerNode*>(footer->node);
 			MCD_ASSERT(node);
 

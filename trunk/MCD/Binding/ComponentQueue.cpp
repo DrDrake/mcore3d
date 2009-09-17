@@ -133,12 +133,20 @@ struct ComponentQueueResult
 SCRIPT_CLASS_DECLAR(ComponentQueueResult);
 SCRIPT_CLASS_DECLAR(ComponentQueue::QueueNode);
 
+// NOTE: This function is not thread safe, cannot' be invoked by more than one thread at a time.
 static ComponentQueueResult* componentQueueGetItem(ComponentQueue& self, float currentTime, const ComponentQueue::QueueNode* begin)
 {
-	ComponentQueueResult result;
+	// NOTE: This function can be thread safe if this variable use TLS
+	static ComponentQueueResult result;
 	result.queueNode = begin;
 	result.component = self.getItem(currentTime, result.queueNode);
-	return new ComponentQueueResult(result);
+
+	// NOTE: We are returning the address of a static variable!
+	// Since the usage pattern of ComponentQueueResult is just very temporary, therefore
+	// instead of dynamically allocating new ComponentQueueResult, we reuse the static
+	// variable. So, make sure ComponentQueue.getItem() will only invoked in only one
+	// thread, and the returning script variable will not be stored.
+	return &result;
 }
 SCRIPT_CLASS_REGISTER_NAME(ComponentQueue::QueueNode, "__ComponentQueueNode__")
 ;}
@@ -153,7 +161,7 @@ SCRIPT_CLASS_REGISTER_NAME(ComponentQueueResult, "ComponentQueueResult")
 SCRIPT_CLASS_REGISTER_NAME(ComponentQueue, "ComponentQueue")
 	.constructor()
 	.method(xSTRING("setItem"), &ComponentQueue::setItem)
-	.wrappedMethod(xSTRING("getItem"), &componentQueueGetItem)
+	.wrappedMethod<objNoCare>(xSTRING("getItem"), &componentQueueGetItem)	// NOTE: Use <objNoCare>, more info in the comments of componentQueueGetItem.
 ;}
 
 }	// namespace script
