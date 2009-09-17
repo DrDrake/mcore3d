@@ -216,7 +216,7 @@
 			this.textBox1.Text = "localhost:5000";
 			this.textBox1.WordWrap = false;
 			// 
-			// treeViewAdv1
+			// treeViewAdv
 			// 
 			this.treeViewAdv1.AllowColumnReorder = true;
 			this.treeViewAdv1.BackColor = System.Drawing.SystemColors.Window;
@@ -236,7 +236,7 @@
 			this.treeViewAdv1.LineColor = System.Drawing.SystemColors.ControlDark;
 			this.treeViewAdv1.Location = new System.Drawing.Point(0, 25);
 			this.treeViewAdv1.Model = null;
-			this.treeViewAdv1.Name = "treeViewAdv1";
+			this.treeViewAdv1.Name = "treeViewAdv";
 			this.treeViewAdv1.NodeControls.Add(nodeTextBox1);
 			this.treeViewAdv1.NodeControls.Add(nodeDecimalTextBox1);
 			this.treeViewAdv1.NodeControls.Add(nodeDecimalTextBox2);
@@ -247,7 +247,7 @@
 			this.treeViewAdv1.SelectedNode = null;
 			this.treeViewAdv1.Size = new System.Drawing.Size(669, 344);
 			this.treeViewAdv1.TabIndex = 2;
-			this.treeViewAdv1.Text = "treeViewAdv1";
+			this.treeViewAdv1.Text = "treeViewAdv";
 			this.treeViewAdv1.UseColumns = true;
 			// 
 			// panel1

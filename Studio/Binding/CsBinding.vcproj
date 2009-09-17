@@ -240,6 +240,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\ResourceManager.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\Stdafx.cpp"
 				>
 				<FileConfiguration
@@ -288,6 +292,10 @@
 			<File
 				RelativePath=".\RenderPanelControl.h"
 				FileType="4"
+				>
+			</File>
+			<File
+				RelativePath=".\ResourceManager.h"
 				>
 			</File>
 			<File

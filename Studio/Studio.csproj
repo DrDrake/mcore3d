@@ -96,6 +96,13 @@
       <DependentUpon>MemoryProfilerWindow.cs</DependentUpon>
     </Compile>
     <Compile Include="Program.cs" />
+    <Compile Include="Project.cs" />
+    <Compile Include="ProjectWindow.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="ProjectWindow.Designer.cs">
+      <DependentUpon>ProjectWindow.cs</DependentUpon>
+    </Compile>
     <Compile Include="Properties\AssemblyInfo.cs" />
     <EmbeddedResource Include="AssertWindow.resx">
       <DependentUpon>AssertWindow.cs</DependentUpon>
@@ -137,6 +144,7 @@
     <Compile Include="PropertyWindow.Designer.cs">
       <DependentUpon>PropertyWindow.cs</DependentUpon>
     </Compile>
+    <Compile Include="TreeNodeBase.cs" />
     <Compile Include="TreeViewRearrange.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -194,6 +202,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="MemoryProfilerWindow.resx">
       <DependentUpon>MemoryProfilerWindow.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="ProjectWindow.resx">
+      <DependentUpon>ProjectWindow.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />

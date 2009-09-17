@@ -35,6 +35,7 @@ namespace Studio
 	// Events
 		private void MainForm_Load(object sender, EventArgs e)
 		{
+			projectWindow = new ProjectWindow();
 			assertWindow = new AssertWindow();
 			entityWindow = new EntityWindow();
 			logWindow = new LogWindow();
@@ -55,6 +56,7 @@ namespace Studio
 			}
 			catch (Exception)
 			{	// Use a default docking if the xml failed to load
+				projectWindow.Show(dockPanel);
 				assertWindow.Show(dockPanel);
 				entityWindow.Show(dockPanel);
 				logWindow.Show(dockPanel);
@@ -177,7 +179,9 @@ namespace Studio
 
 		private IDockContent getDockingFromPersistString(string persistString)
 		{
-			if (persistString == typeof(AssertWindow).ToString())
+			if (persistString == typeof(ProjectWindow).ToString())
+				return projectWindow;
+			else if (persistString == typeof(AssertWindow).ToString())
 				return assertWindow;
 			else if (persistString == typeof(EntityWindow).ToString())
 				return entityWindow;
@@ -203,6 +207,7 @@ namespace Studio
 		/// </summary>
 		List<RenderPanelControl> renderControls;
 
+		ProjectWindow projectWindow;
 		EntityWindow entityWindow;
 		PropertyWindow propertyWindow;
 		AssertWindow assertWindow;
@@ -307,6 +312,11 @@ namespace Studio
 			if(currentRenderControl != null)
 				entityWindow.selectEntityRoot(currentRenderControl.rootEntity);
 			UpdateToolBars();
+		}
+
+		private void openToolStripMenuItem_Click(object sender, EventArgs e)
+		{
+
 		}
 	}
 }
