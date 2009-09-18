@@ -1,11 +1,10 @@
 using System;
 using System.Collections.Generic;
-using System.Text;
+using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Drawing;
-using System.Windows.Forms;
-using System.Collections.ObjectModel;
 using System.Drawing.Design;
+using System.Windows.Forms;
 
 using Aga.Controls.Tree.NodeControls;
 
@@ -178,7 +177,7 @@ namespace Aga.Controls.Tree
 		}
 
 		private int _offsetX;
-		internal int OffsetX
+		public int OffsetX
 		{
 			get { return _offsetX; }
 			private set
@@ -213,6 +212,14 @@ namespace Aga.Controls.Tree
 		#region Public Properties
 
 		#region DesignTime
+
+		private bool _shiftFirstNode;
+		[DefaultValue(false), Category("Behavior")]
+		public bool ShiftFirstNode
+		{
+			get { return _shiftFirstNode; }
+			set { _shiftFirstNode = value; }
+		}
 
 		private bool _displayDraggingNodes;
 		[DefaultValue(false), Category("Behavior")]
@@ -294,7 +301,12 @@ namespace Aga.Controls.Tree
 		}
 
 		private ITreeModel _model;
-		[Category("Data")]
+        /// <Summary>
+        /// The model associated with this <see cref="TreeViewAdv"/>.
+        /// </Summary>
+        /// <seealso cref="ITreeModel"/>
+        /// <seealso cref="TreeModel"/>
+        [Browsable(false)]
 		public ITreeModel Model
 		{
 			get { return _model; }
@@ -314,9 +326,12 @@ namespace Aga.Controls.Tree
 			}
 		}
 
-        // Font proprety for Tahoma as default font
+        // Tahoma is the default font
         private static Font _font = new Font("Tahoma", 8.25F, FontStyle.Regular, GraphicsUnit.Point, ((byte)(0)), false);
-        [Category("Appearance")]
+        /// <summary>
+        /// The font to render <see cref="TreeViewAdv"/> content in.
+        /// </summary>
+        [Category("Appearance"), Description("The font to render TreeViewAdv content in.")]
         public override Font Font
         {
             get
@@ -329,7 +344,7 @@ namespace Aga.Controls.Tree
                     base.Font = _font;
                 else
                 {
-                    if (value == System.Windows.Forms.Control.DefaultFont)
+                    if (value == DefaultFont)
                         base.Font = _font;
                     else
                         base.Font = value;
@@ -365,7 +380,10 @@ namespace Aga.Controls.Tree
 		}
 
 		private bool _autoRowHeight = false;
-		[DefaultValue(false), Category("Appearance")]
+		/// <summary>
+		/// Set to true to expand each row's height to fit the text of it's largest column.
+		/// </summary>
+		[DefaultValue(false), Category("Appearance"), Description("Expand each row's height to fit the text of it's largest column.")]
 		public bool AutoRowHeight
 		{
 			get
@@ -475,6 +493,14 @@ namespace Aga.Controls.Tree
 			set { _loadOnDemand = value; }
 		}
 
+		private bool _unloadCollapsedOnReload = false;
+		[DefaultValue(false), Category("Behavior")]
+		public bool UnloadCollapsedOnReload
+		{
+			get { return _unloadCollapsedOnReload; }
+			set { _unloadCollapsedOnReload = value; }
+		}
+
 		private int _indent = 19;
 		[DefaultValue(19), Category("Behavior")]
 		public int Indent
@@ -552,10 +578,9 @@ namespace Aga.Controls.Tree
 
 		private bool _asyncExpanding;
 		/// <summary>
-		/// When set to true, node contents will be read in background thread
+		/// When set to true, node contents will be read in background thread.
 		/// </summary>
-		[Category("Behavior")]
-		[DefaultValue(false)]
+		[Category("Behavior"), DefaultValue(false), Description("Read children in a background thread when expanding.")]
 		public bool AsyncExpanding
 		{
 			get { return _asyncExpanding; }
@@ -678,7 +703,22 @@ namespace Aga.Controls.Tree
         public int ItemCount
         {
             get { return RowMap.Count; }
-        } 
+        }
+
+		/// <summary>
+		/// Indicates the distance the content is scrolled to the left
+		/// </summary>
+		[Browsable(false)]
+		public int HorizontalScrollPosition
+		{
+			get
+			{
+				if (_hScrollBar.Visible)
+					return _hScrollBar.Value;
+				else
+					return 0;
+			}
+		}
 
 		#endregion
 

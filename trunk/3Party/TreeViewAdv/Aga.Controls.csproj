@@ -2,13 +2,23 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProductVersion>8.0.50727</ProductVersion>
+    <ProductVersion>9.0.30729</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>{E73BB233-D88B-44A7-A98F-D71EE158381D}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>Aga.Controls</RootNamespace>
     <AssemblyName>Aga.Controls</AssemblyName>
+    <SccProjectName>
+    </SccProjectName>
+    <SccLocalPath>
+    </SccLocalPath>
+    <SccAuxPath>
+    </SccAuxPath>
+    <SccProvider>
+    </SccProvider>
+    <SignAssembly>true</SignAssembly>
+    <AssemblyOriginatorKeyFile>key.snk</AssemblyOriginatorKeyFile>
     <FileUpgradeFlags>
     </FileUpgradeFlags>
     <OldToolsVersion>2.0</OldToolsVersion>
@@ -59,6 +69,9 @@
     <Compile Include="Threading\WorkItem.cs" />
     <Compile Include="TimeCounter.cs" />
     <Compile Include="Tree\Input\ReorderColumnState.cs" />
+    <Compile Include="Tree\ListModel.cs" />
+    <Compile Include="Tree\NodeControls\EditEventArgs.cs" />
+    <Compile Include="Tree\NodeControls\LabelEventArgs.cs" />
     <Compile Include="Tree\NodeControls\NodeIntegerTextBox.cs">
       <SubType>Component</SubType>
     </Compile>
@@ -82,6 +95,9 @@
     <Compile Include="Tree\Input\ClickColumnState.cs" />
     <Compile Include="Tree\Input\ColumnState.cs" />
     <Compile Include="Tree\TreeViewAdv.Draw.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="Tree\TreeViewAdv.Editor.cs">
       <SubType>Component</SubType>
     </Compile>
     <Compile Include="Tree\TreeViewAdv.Input.cs">
@@ -122,6 +138,7 @@
     <Compile Include="Tree\TreeColumnEventArgs.cs" />
     <Compile Include="Tree\TreeModel.cs" />
     <Compile Include="Tree\TreeViewAdvCancelEventArgs.cs" />
+    <Compile Include="Tree\DropNodeValidatingEventArgs.cs" />
     <Compile Include="Tree\TreeViewAdvEventArgs.cs" />
     <Compile Include="Tree\TreePathEventArgs.cs" />
     <Compile Include="Tree\EditorContext.cs" />
@@ -163,15 +180,19 @@
     <Compile Include="Tree\TreeViewAdv.Designer.cs">
       <DependentUpon>TreeViewAdv.cs</DependentUpon>
     </Compile>
+    <Compile Include="Tree\TreeViewRowDrawEventArgs.cs" />
+    <Service Include="{94E38DFF-614B-4cbd-B67C-F211BB35CE8B}" />
+    <Service Include="{B4F97281-0DBD-4835-9ED8-7DFB966E87FF}" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="Resources\minus.bmp" />
-    <None Include="Resources\plus.bmp" />
-    <None Include="Resources\check.bmp" />
-    <None Include="Resources\uncheck.bmp" />
-    <None Include="Resources\Leaf.bmp" />
-    <None Include="Resources\Folder.bmp" />
-    <None Include="Resources\FolderClosed.bmp" />
+    <Content Include="key.snk" />
+    <Content Include="Resources\minus.bmp" />
+    <Content Include="Resources\plus.bmp" />
+    <Content Include="Resources\check.bmp" />
+    <Content Include="Resources\uncheck.bmp" />
+    <Content Include="Resources\Leaf.bmp" />
+    <Content Include="Resources\Folder.bmp" />
+    <Content Include="Resources\FolderClosed.bmp" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Properties\Resources.resx">
@@ -179,18 +200,18 @@
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
     </EmbeddedResource>
+    <EmbeddedResource Include="Tree\TreeViewAdv.resx">
+      <DependentUpon>TreeViewAdv.cs</DependentUpon>
+    </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
-    <None Include="Resources\loading_icon" />
+    <Content Include="Resources\loading_icon" />
     <None Include="Tree\ClassDiagram.cd" />
     <None Include="Tree\NodeControls\ClassDiagram.cd" />
-    <None Include="Resources\unknown.bmp" />
+    <Content Include="Resources\unknown.bmp" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="Resources\DVSplit.cur" />
-  </ItemGroup>
-  <ItemGroup>
-    <Service Include="{B4F97281-0DBD-4835-9ED8-7DFB966E87FF}" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
@@ -200,8 +221,4 @@
   <Target Name="AfterBuild">
   </Target>
   -->
-  <PropertyGroup>
-    <PostBuildEvent>
-    </PostBuildEvent>
-  </PropertyGroup>
 </Project>

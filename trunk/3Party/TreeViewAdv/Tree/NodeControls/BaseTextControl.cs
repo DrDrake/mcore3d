@@ -81,6 +81,14 @@ namespace Aga.Controls.Tree.NodeControls
 			set { _useCompatibleTextRendering = value; }
 		}
 
+        private bool _trimMultiLine = false;
+        [DefaultValue(false)]
+		public bool TrimMultiLine
+		{
+            get { return _trimMultiLine; }
+            set { _trimMultiLine = value; }
+		}
+
 		#endregion
 
 		protected BaseTextControl()
@@ -89,9 +97,9 @@ namespace Aga.Controls.Tree.NodeControls
 			_focusPen = new Pen(Color.Black);
 			_focusPen.DashStyle = System.Drawing.Drawing2D.DashStyle.Dot;
 
-			_format = new StringFormat(StringFormatFlags.NoClip | StringFormatFlags.FitBlackBox | StringFormatFlags.MeasureTrailingSpaces);
-			_baseFormatFlags = TextFormatFlags.PreserveGraphicsClipping | TextFormatFlags.NoPrefix |
-                           TextFormatFlags.PreserveGraphicsTranslateTransform;
+			_format = new StringFormat(StringFormatFlags.LineLimit | StringFormatFlags.NoClip | StringFormatFlags.FitBlackBox | StringFormatFlags.MeasureTrailingSpaces);
+			_baseFormatFlags = TextFormatFlags.PreserveGraphicsClipping |
+						   TextFormatFlags.PreserveGraphicsTranslateTransform;
 			SetFormatFlags();
 			LeftMargin = 3;
 		}
@@ -126,7 +134,7 @@ namespace Aga.Controls.Tree.NodeControls
 			else
 			{
 				SizeF sf = context.Graphics.MeasureString(label, font);
-				s = Size.Ceiling(sf); 
+				s = new Size((int)Math.Ceiling(sf.Width), (int)Math.Ceiling(sf.Height));
 			}
 			PerformanceAnalyzer.Finish("GetLabelSize");
 
@@ -139,9 +147,9 @@ namespace Aga.Controls.Tree.NodeControls
 		protected Font GetDrawingFont(TreeNodeAdv node, DrawContext context, string label)
 		{
 			Font font = context.Font;
-			if (DrawText != null)
+			if (DrawTextMustBeFired(node))
 			{
-				DrawEventArgs args = new DrawEventArgs(node, context, label);
+				DrawEventArgs args = new DrawEventArgs(node, this, context, label);
 				args.Font = context.Font;
 				OnDrawText(args);
 				font = args.Font;
@@ -185,10 +193,14 @@ namespace Aga.Controls.Tree.NodeControls
 					_focusPen.Color = SystemColors.InactiveCaption;
 				context.Graphics.DrawRectangle(_focusPen, focusRect);
 			}
+			
+			PerformanceAnalyzer.Start("BaseTextControl.DrawText");
 			if (UseCompatibleTextRendering)
 				TextRenderer.DrawText(context.Graphics, label, font, bounds, textColor, _formatFlags);
 			else
 				context.Graphics.DrawString(label, font, GetFrush(textColor), bounds, _format);
+			PerformanceAnalyzer.Finish("BaseTextControl.DrawText");
+
 			PerformanceAnalyzer.Finish("BaseTextControl.Draw");
 		}
 
@@ -227,9 +239,10 @@ namespace Aga.Controls.Tree.NodeControls
 			if (!context.Enabled)
 				textColor = SystemColors.GrayText;
 
-			if (DrawText != null)
+			if (DrawTextMustBeFired(node))
 			{
-				DrawEventArgs args = new DrawEventArgs(node, context, text);
+				DrawEventArgs args = new DrawEventArgs(node, this, context, text);
+				args.Text = label;
 				args.TextColor = textColor;
 				args.BackgroundBrush = backgroundBrush;
 				args.Font = font;
@@ -256,7 +269,14 @@ namespace Aga.Controls.Tree.NodeControls
 
 		protected virtual string FormatLabel(object obj)
 		{
-			return obj.ToString();
+			string res = obj.ToString();
+			if (TrimMultiLine && res != null)
+			{
+				string[] parts = res.Split('\n');
+				if (parts.Length > 1)
+					return parts[0] + "...";
+			}
+			return res;
 		}
 
 		public void SetLabel(TreeNodeAdv node, string value)
@@ -280,8 +300,16 @@ namespace Aga.Controls.Tree.NodeControls
 		public event EventHandler<DrawEventArgs> DrawText;
 		protected virtual void OnDrawText(DrawEventArgs args)
 		{
+			TreeViewAdv tree = args.Node.Tree;
+			if (tree != null)
+				tree.FireDrawControl(args);
 			if (DrawText != null)
 				DrawText(this, args);
+		}
+
+		protected virtual bool DrawTextMustBeFired(TreeNodeAdv node)
+		{
+			return DrawText != null || (node.Tree != null && node.Tree.DrawControlMustBeFired());
 		}
 	}
 }
