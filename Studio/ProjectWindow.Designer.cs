@@ -67,15 +67,15 @@
 			// nodeTextBox1
 			// 
 			this.nodeTextBox1.DataPropertyName = "Text";
+			this.nodeTextBox1.EditEnabled = true;
 			this.nodeTextBox1.IncrementalSearchEnabled = true;
 			this.nodeTextBox1.LeftMargin = 3;
 			this.nodeTextBox1.ParentColumn = this.treeColumn1;
-			this.nodeTextBox1.ReadOnly = false;
 			// 
 			// mediaPathMenuStrip
 			// 
 			this.mediaPathMenuStrip.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.addPathToolStripMenuItem});
+			this.addPathToolStripMenuItem});
 			this.mediaPathMenuStrip.Name = "mediaPathMenuStrip";
 			this.mediaPathMenuStrip.Size = new System.Drawing.Size(130, 26);
 			// 
@@ -89,7 +89,7 @@
 			// sceneMenuStrip
 			// 
 			this.sceneMenuStrip.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.addSceneToolStripMenuItem});
+			this.addSceneToolStripMenuItem});
 			this.sceneMenuStrip.Name = "sceneMenuStrip";
 			this.sceneMenuStrip.Size = new System.Drawing.Size(136, 26);
 			// 

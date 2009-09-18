@@ -1,17 +1,41 @@
 using System;
-using System.Collections.Generic;
-using System.Text;
-using System.Windows.Forms;
 using System.Drawing;
-using System.Windows.Forms.VisualStyles;
 using System.Diagnostics;
 using System.Drawing.Drawing2D;
+using System.Windows.Forms;
 using Aga.Controls.Tree.NodeControls;
 
 namespace Aga.Controls.Tree
 {
 	public partial class TreeViewAdv
 	{
+		public void AutoSizeColumn(TreeColumn column)
+		{
+			if (!Columns.Contains(column))
+				throw new ArgumentException("column");
+
+			DrawContext context = new DrawContext();
+			context.Graphics = Graphics.FromImage(new Bitmap(1, 1));
+			context.Font = this.Font;
+			int res = 0;
+			for (int row = 0; row < RowCount; row++)
+			{
+				if (row < RowMap.Count)
+				{
+					int w = 0;
+					TreeNodeAdv node = RowMap[row];
+					foreach (NodeControl nc in NodeControls)
+					{
+						if (nc.ParentColumn == column)
+							w += nc.GetActualSize(node, _measureContext).Width;
+					}
+					res = Math.Max(res, w);
+				}
+			}
+
+			if (res > 0)
+				column.Width = res;
+		}
 
 		private void CreatePens()
 		{
@@ -94,7 +118,7 @@ namespace Aga.Controls.Tree
 		{
 			TreeNodeAdv node = RowMap[row];
 			context.DrawSelection = DrawSelectionMode.None;
-			context.CurrentEditorOwner = _currentEditorOwner;
+			context.CurrentEditorOwner = CurrentEditorOwner;
 			if (DragMode)
 			{
 				if ((_dropPosition.Node == node) && _dropPosition.Position == NodePosition.Inside && HighlightDropPosition)
@@ -108,6 +132,8 @@ namespace Aga.Controls.Tree
 					context.DrawSelection = DrawSelectionMode.Inactive;
 			}
 			context.DrawFocus = Focused && CurrentNode == node;
+			
+			OnRowDraw(e, node, context, row, rowRect);
 
 			if (FullRowSelect)
 			{
@@ -189,7 +215,7 @@ namespace Aga.Controls.Tree
 		{
 			foreach (NodeControlInfo item in GetNodeControls(node))
 			{
-				if (item.Bounds.X >= OffsetX && item.Bounds.X - OffsetX < this.Bounds.Width)// skip invisible nodes
+				if (item.Bounds.Right >= OffsetX && item.Bounds.X - OffsetX < this.Bounds.Width)// skip invisible nodes
 				{
 					context.Bounds = item.Bounds;
 					context.Graphics.SetClip(context.Bounds);
