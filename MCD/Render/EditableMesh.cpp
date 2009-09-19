@@ -95,40 +95,40 @@ size_t EditableMesh::getTriangleCount() const
 
 uint16_t* EditableMesh::getTriangleIndexAt(size_t face)
 {
-	MCD_VERIFY(mImpl->mIndexPtr != nullptr);
+	MCD_ASSUME(mImpl && mImpl->mIndexPtr != nullptr);
 	return &mImpl->mIndexPtr[face*3];
 }
 
 Vec3f& EditableMesh::getPositionAt(uint16_t vertexIndex)
 {
-	MCD_VERIFY(mImpl->mPosPtr != nullptr);
+	MCD_ASSUME(mImpl && mImpl->mPosPtr != nullptr);
 	return mImpl->mPosPtr[vertexIndex];
 }
 
 Vec3f& EditableMesh::getNormalAt(uint16_t vertexIndex)
 {
-	MCD_VERIFY(mImpl->mNormPtr != nullptr);
+	MCD_ASSUME(mImpl && mImpl->mNormPtr != nullptr);
 	return mImpl->mNormPtr[vertexIndex];
 }
 
 Vec2f& EditableMesh::getUV2dAt(size_t unit, uint16_t vertexIndex)
 {
-	MCD_VERIFY(unit < Mesh::cMaxTextureCoordCount);
-	MCD_VERIFY(mImpl->mUVPtr[unit] != nullptr);
+	MCD_ASSUME(unit < Mesh::cMaxTextureCoordCount);
+	MCD_ASSUME(mImpl && mImpl->mUVPtr[unit] != nullptr);
 	return ((Vec2f*)mImpl->mUVPtr[unit])[vertexIndex];
 }
 
 Vec3f& EditableMesh::getUV3dAt(size_t unit, uint16_t vertexIndex)
 {
-	MCD_VERIFY(unit < Mesh::cMaxTextureCoordCount);
-	MCD_VERIFY(mImpl->mUVPtr[unit] != nullptr);
+	MCD_ASSUME(unit < Mesh::cMaxTextureCoordCount);
+	MCD_ASSUME(mImpl && mImpl->mUVPtr[unit] != nullptr);
 	return ((Vec3f*)mImpl->mUVPtr[unit])[vertexIndex];
 }
 
 Vec4f& EditableMesh::getUV4dAt(size_t unit, uint16_t vertexIndex)
 {
-	MCD_VERIFY(unit < Mesh::cMaxTextureCoordCount);
-	MCD_VERIFY(mImpl->mUVPtr[unit] != nullptr);
+	MCD_ASSUME(unit < Mesh::cMaxTextureCoordCount);
+	MCD_ASSUME(mImpl && mImpl->mUVPtr[unit] != nullptr);
 	return ((Vec4f*)mImpl->mUVPtr[unit])[vertexIndex];
 }
 
