@@ -37,13 +37,13 @@ public:
 			} else
 			if(loader.load(is) == IResourceLoader::Loaded) {
 				loader.commit(resource);
-				breadk;
+				break;
 			}
 			else
 			if(loader.load(is) == IResourceLoader::Aborted) {
 				// Error handling code here
 				// ...
-				breadk;
+				break;
 			}
 		}
 		\endcode
