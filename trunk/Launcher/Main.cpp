@@ -1,11 +1,42 @@
 #include "Pch.h"
 #include "../MCD/Binding/Launcher.h"
 #include "../MCD/Component/Input/WinMessageInputComponent.h"
+#include "../MCD/Core/System/FileSystemCollection.h"
 #include "../MCD/Core/System/MemoryProfiler.h"
 #include "../MCD/Core/System/Path.h"
+#include "../MCD/Core/System/RawFileSystem.h"
+#include "../MCD/Core/System/ZipFileSystem.h"
 #include "../Test/RenderTest/BasicGlWindow.h"
 
 using namespace MCD;
+
+namespace {
+
+IFileSystem* createDefaultFileSystem()
+{
+	std::auto_ptr<FileSystemCollection> fileSystem(new FileSystemCollection);
+
+	Path actualRoot;
+
+	std::auto_ptr<IFileSystem> rawFs(new RawFileSystem(L""));
+	actualRoot = rawFs->getRoot();
+	fileSystem->addFileSystem(*rawFs.release());
+
+	try {
+		std::auto_ptr<IFileSystem> rawFs(new RawFileSystem(L"Media"));
+		actualRoot = rawFs->getRoot();
+		fileSystem->addFileSystem(*rawFs.release());
+	} catch(...) {}
+
+	try {
+		std::auto_ptr<IFileSystem> zipFs(new ZipFileSystem(actualRoot.getBranchPath() / L"Media.zip"));
+		fileSystem->addFileSystem(*zipFs.release());
+	} catch(...) {}
+
+	return fileSystem.release();
+}
+
+}	// namespace
 
 class TestWindow : public BasicGlWindow
 {
@@ -14,15 +45,19 @@ public:
 		:
 		BasicGlWindow(L"title=Launcher;width=800;height=600;fullscreen=0;FSAA=4")
 	{
+		IFileSystem* fs = createDefaultFileSystem();
+		IResourceManager* mgr = new LauncherDefaultResourceManager(*fs, true);
+		mLauncher.reset(new Launcher(*fs, *mgr, true));
+
 		MemoryProfiler::singleton().setEnable(true);
 		mMemoryProfilerServer.listern(5001);
 
 		WinMessageInputComponent* c = new WinMessageInputComponent();
 		c->attachTo(*this);
-		(void)mLauncher.init(*c);
+		(void)mLauncher->init(*c);
 
 		// TODO: Let user supply a command line argument to choose the startup script
-		mLauncher.scriptComponentManager.doFile(L"init.nut", true);
+		mLauncher->scriptComponentManager.doFile(L"init.nut", true);
 	}
 
 	sal_override ~TestWindow()
@@ -37,11 +72,11 @@ public:
 			mMemoryProfilerServer.update();
 		}
 
-		mLauncher.update();
+		mLauncher->update();
 	}
 
 protected:
-	Launcher mLauncher;
+	std::auto_ptr<Launcher> mLauncher;
 	MemoryProfilerServer mMemoryProfilerServer;
 	Timer mTimer;
 };	// TestWindow

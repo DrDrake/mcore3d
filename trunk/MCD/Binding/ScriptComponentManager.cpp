@@ -3,6 +3,7 @@
 #include "Entity.h"
 #include "../Core/System/FileSystem.h"
 #include "../Core/System/Log.h"
+#include "../Core/System/MemoryProfiler.h"
 
 namespace script {
 
@@ -302,6 +303,8 @@ Component* ScriptComponentManager::runScripAsComponent(const wchar_t* scriptCode
 
 void ScriptComponentManager::updateScriptComponents()
 {
+	MemoryProfiler::Scope profiler("ScriptComponentManager::updateScriptComponents");
+
 	// Calling runScript will cause compilation and extra memory consumption,
 	// therefore use function call directly.
 //	(void)vm.runScript(xSTRING("updateAllScriptComponent();"));

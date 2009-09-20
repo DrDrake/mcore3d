@@ -13,6 +13,7 @@ using namespace System::Drawing;
 namespace Binding {
 
 class RenderPanelControlImpl;
+ref class ResourceManager;
 
 public delegate void EntitySelectionChangedHandler(Object^ sender, Entity^ entity);
 
@@ -28,7 +29,7 @@ public delegate void EntitySelectionChangedHandler(Object^ sender, Entity^ entit
 public ref class RenderPanelControl : public System::Windows::Forms::UserControl
 {
 public:
-	RenderPanelControl(void);
+	RenderPanelControl(ResourceManager^ resourceManager);
 
 	/// Destroy the rendering context
 	void destroy();
@@ -84,6 +85,7 @@ protected:
 private:
 	RenderPanelControlImpl* mImpl;
 	::Binding::Entity^ mRootEntity;
+	::Binding::ResourceManager^ mResourceManager;
 
 private:
 	/// <summary>

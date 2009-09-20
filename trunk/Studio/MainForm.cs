@@ -14,9 +14,11 @@ namespace Studio
 			InitializeComponent();
 			renderControls = new List<RenderPanelControl>();
 			mDeserializeDockContent = new DeserializeDockContent(getDockingFromPersistString);
+			Singleton = this;
 		}
 
 	// Properties
+		MainForm Singleton;
 
 	// Operations
 		void UpdateToolBars()
@@ -71,7 +73,7 @@ namespace Studio
 		{
 			DockContent content = new DockContent();
 			content.Show(dockPanel, DockState.Document);
-			RenderPanelControl renderPanel = new RenderPanelControl();
+			RenderPanelControl renderPanel = new RenderPanelControl(ProjectWindow.Singleton.Project.ResourceManager);
 			renderPanel.propertyGrid = propertyWindow.propertyGrid1;
 			renderPanel.entitySelectionChanged += new EntitySelectionChangedHandler(onEntitySelectionChanged);
 			content.Tag = renderPanel;

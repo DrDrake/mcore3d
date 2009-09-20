@@ -146,6 +146,7 @@
     </Compile>
     <Compile Include="TreeNodeBase.cs" />
     <Compile Include="TreeViewRearrange.cs" />
+    <Compile Include="Utility.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\3Party\DockPanel\WinFormsUI.csproj">

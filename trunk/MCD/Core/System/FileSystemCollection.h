@@ -26,6 +26,8 @@ public:
 	 */
 	void addFileSystem(IFileSystem& fileSystem);
 
+	bool removeFileSystem(const Path& fileSystemRootPath);
+
 	//! Find the FIRST file system which contains the supplied path, returns null if not found.
 	IFileSystem* findFileSystemForPath(const Path& path) const;
 

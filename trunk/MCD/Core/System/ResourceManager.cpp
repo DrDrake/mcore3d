@@ -154,7 +154,8 @@ class ResourceManager::Impl
 	};	// Task
 
 public:
-	Impl(IFileSystem& fileSystem) : mFileSystem(fileSystem)
+	Impl(IFileSystem& fileSystem, bool takeFileSystemOwnership)
+		: mFileSystem(fileSystem), mTakeFileSystemOwnership(takeFileSystemOwnership)
 	{
 		mTaskPool.setThreadCount(1);
 	}
@@ -168,7 +169,8 @@ public:
 		mTaskPool.stop();
 
 		{	ScopeLock lock(mEventQueue.mMutex);
-			delete &mFileSystem;
+			if(mTakeFileSystemOwnership)
+				delete &mFileSystem;
 			removeAllFactory();
 		}
 	}
@@ -247,14 +249,15 @@ public:
 	EventQueue mEventQueue;
 
 	IFileSystem& mFileSystem;
+	bool mTakeFileSystemOwnership;
 
 	typedef ptr_vector<ResourceManagerCallback> Callbacks;
 	Callbacks mCallbacks;
 };	// Impl
 
-ResourceManager::ResourceManager(IFileSystem& fileSystem)
+ResourceManager::ResourceManager(IFileSystem& fileSystem, bool takeFileSystemOwnership)
 {
-	mImpl = new Impl(fileSystem);
+	mImpl = new Impl(fileSystem, takeFileSystemOwnership);
 }
 
 ResourceManager::~ResourceManager()

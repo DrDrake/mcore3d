@@ -228,6 +228,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\FileSystemCollection.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\Global.cpp"
 				>
 			</File>
@@ -279,6 +283,10 @@
 			</File>
 			<File
 				RelativePath=".\Entity.h"
+				>
+			</File>
+			<File
+				RelativePath=".\FileSystemCollection.h"
 				>
 			</File>
 			<File

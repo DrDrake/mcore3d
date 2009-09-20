@@ -3,6 +3,7 @@
 
 #include "ScriptComponentManager.h"
 #include "../Component/Physics/ThreadedDynamicWorld.h"
+#include "../Core/System/ResourceManager.h"
 #include "../Core/System/Timer.h"
 #include "../Core/System/Thread.h"
 #include "../Core/System/WeakPtr.h"
@@ -15,7 +16,12 @@ typedef WeakPtr<class InputComponent> InputComponentPtr;
 class MCD_BINDING_API Launcher
 {
 public:
-	Launcher();
+	explicit Launcher(
+		IFileSystem& fileSystem,
+		IResourceManager& resourceManager,
+		bool takeResourceManagerOwnership = true
+	);
+
 	~Launcher();
 
 	//! A timer to measure the fps
@@ -33,18 +39,6 @@ public:
 		TimeInterval mFrameTime;
 		TimeInterval mAccumulateTime;
 	};	// FrameTimer
-
-protected:
-	static Launcher* mSingleton;
-
-	Entity* mRootNode;
-	InputComponentPtr mInputComponent;
-
-	FrameTimer mFrameTimer;
-	IFileSystem& fileSystem;
-	IResourceManager* mResourceManager;
-	Thread mPhysicsThread;
-	ThreadedDynamicsWorld mDynamicsWorld;
 
 public:
 // Operations:
@@ -97,7 +91,38 @@ public:
 	}
 
 	ScriptComponentManager scriptComponentManager;
+
+protected:
+	static Launcher* mSingleton;
+
+	Entity* mRootNode;
+	InputComponentPtr mInputComponent;
+
+	FrameTimer mFrameTimer;
+	IResourceManager* mResourceManager;
+	bool mTakeResourceManagerOwnership;
+	Thread mPhysicsThread;
+	ThreadedDynamicsWorld mDynamicsWorld;
 };	// Launcher
+
+//! A default implementation of ResourceManager for Launcher
+class MCD_BINDING_API LauncherDefaultResourceManager : public ResourceManager
+{
+public:
+	explicit LauncherDefaultResourceManager(IFileSystem& fileSystem, bool takeFileSystemOwnership=true);
+
+	/*!
+		\return
+			>0 - A resource is sucessfully loaded (partial or full).
+			=0 - There are no more event to process at this moment.
+			<0 - The resource failed to load.
+	 */
+	sal_override int update();
+
+protected:
+	class Impl;
+	Impl* mImpl;
+};	// LauncherDefaultResourceManager
 
 }	// namespace MCD
 
