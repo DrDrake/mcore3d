@@ -356,6 +356,7 @@
 			this.Text = "MCore3d Studio";
 			this.Load += new System.EventHandler(this.MainForm_Load);
 			this.FormClosed += new System.Windows.Forms.FormClosedEventHandler(this.MainForm_FormClosed);
+			this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.MainForm_FormClosing);
 			this.mainMenu.ResumeLayout(false);
 			this.mainMenu.PerformLayout();
 			this.toolStripContainer1.ContentPanel.ResumeLayout(false);

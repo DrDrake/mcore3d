@@ -174,6 +174,14 @@ namespace Studio
 				currentRenderControl.selectedEntity = entity;
 		}
 
+		private void MainForm_FormClosing(object sender, FormClosingEventArgs e)
+		{
+			// Ensure proper destroy sequence.
+			foreach (RenderPanelControl r in renderControls)
+				r.destroy();
+			projectWindow.Project.ResourceManager.destroy();
+		}
+
 		private void MainForm_FormClosed(object sender, FormClosedEventArgs e)
 		{
 			dockPanel.SaveAsXml("layout.xml");

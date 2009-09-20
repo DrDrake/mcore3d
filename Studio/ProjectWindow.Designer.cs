@@ -116,8 +116,6 @@
 			this.ShowHint = WeifenLuo.WinFormsUI.Docking.DockState.DockLeft;
 			this.TabText = "Project";
 			this.Text = "Project";
-			this.Load += new System.EventHandler(this.ProjectWindow_Load);
-			this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.ProjectWindow_FormClosing);
 			this.mediaPathMenuStrip.ResumeLayout(false);
 			this.sceneMenuStrip.ResumeLayout(false);
 			this.ResumeLayout(false);
