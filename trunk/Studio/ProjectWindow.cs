@@ -25,10 +25,6 @@ namespace Studio
 			mProject = new Project();
 		}
 
-		private void ProjectWindow_Load(object sender, System.EventArgs e)
-		{
-		}
-
 		public Node SceneNode;
 		public Node MediaPathNode;
 
@@ -75,11 +71,6 @@ namespace Studio
 			path.Text = d.SelectedPath;
 			mProject.MediaPaths.Add(path);
 			treeViewAdv.FindNodeByTag(MediaPathNode).Expand(true);
-		}
-
-		private void ProjectWindow_FormClosing(object sender, FormClosingEventArgs e)
-		{
-			Project.ResourceManager.destroy();
 		}
 	}
 
