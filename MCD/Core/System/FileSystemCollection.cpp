@@ -23,6 +23,29 @@ public:
 			delete (*i);
 	}
 
+	void addFileSystem(IFileSystem& fileSystem)
+	{
+		Impl::FileSystems::iterator i = std::find(mFileSystems.begin(), mFileSystems.end(), &fileSystem);
+		if(i != mFileSystems.end())
+			mFileSystems.erase(i);
+		mFileSystems.push_back(&fileSystem);
+	}
+
+	bool removeFileSystem(const Path& fileSystemRootPath)
+	{
+		// TODO: Should we consider the full path when preforming the search?
+		for(FileSystems::const_iterator i=mFileSystems.begin(); i!=mFileSystems.end(); ) {
+			IFileSystem* fileSystem = (*i);
+			MCD_ASSUME(fileSystem != nullptr);
+			if(fileSystem->getRoot() == fileSystemRootPath)
+				i = mFileSystems.erase(i);
+			else
+				++i;
+		}
+
+		return false;
+	}
+
 	IFileSystem* findFileSystemForPath(const Path& path) const
 	{
 		for(FileSystems::const_iterator i=mFileSystems.begin(); i!=mFileSystems.end(); ++i) {
@@ -36,7 +59,7 @@ public:
 
 	typedef std::list<IFileSystem*> FileSystems;
 	FileSystems mFileSystems;
-};
+};	// Impl
 
 FileSystemCollection::FileSystemCollection()
 {
@@ -51,11 +74,13 @@ FileSystemCollection::~FileSystemCollection()
 void FileSystemCollection::addFileSystem(IFileSystem& fileSystem)
 {
 	MCD_ASSUME(mImpl);
-	Impl::FileSystems& fileSystems = mImpl->mFileSystems;
-	Impl::FileSystems::iterator i = std::find(fileSystems.begin(), fileSystems.end(), &fileSystem);
-	if(i != fileSystems.end())
-		fileSystems.erase(i);
-	fileSystems.push_back(&fileSystem);
+	mImpl->addFileSystem(fileSystem);
+}
+
+bool FileSystemCollection::removeFileSystem(const Path& fileSystemRootPath)
+{
+	MCD_ASSUME(mImpl);
+	return mImpl->removeFileSystem(fileSystemRootPath);
 }
 
 IFileSystem* FileSystemCollection::findFileSystemForPath(const Path& path) const

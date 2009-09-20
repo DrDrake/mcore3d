@@ -1,6 +1,8 @@
 #include "stdafx.h"
 #include "RenderPanelControl.h"
 #include "CsInputComponent.h"
+#include "FileSystemCollection.h"
+#include "ResourceManager.h"
 #include "../Common/Gizmo/Gizmo.h"
 #include "../Common/GroundPlaneComponent.h"
 
@@ -30,17 +32,17 @@ using namespace MCD;
 class RenderPanelControlImpl : public GlWindow
 {
 public:
-	RenderPanelControlImpl(RenderPanelControl^ c)
+	RenderPanelControlImpl(RenderPanelControl^ c, ResourceManager^ mgr)
 		:
 		mBackRef(c),
 		mWidth(0), mHeight(0), mFieldOfView(60.0f),
 		mGizmo(nullptr), mEntityPicker(nullptr),
 		mPredefinedSubTree(nullptr), mUserSubTree(nullptr),
-		mResourceManager(nullptr),
+		mResourceManager(*mgr->getRawPtr()),
 		mPropertyGridNeedRefresh(false),
-		mPlaying(false)
+		mPlaying(false),
+		mLauncher(*mgr->fileSystemCollection->getRawPtr(), *mgr->getRawPtr(), false)
 	{
-		mResourceManager = mLauncher.resourceManager();
 		mRootNode.name = L"Ultimate root node";
 	}
 
@@ -117,7 +119,7 @@ public:
 		{	// Add a Gizmo
 			// TODO: Move the Gizmo entity to mPredefinedSubTree, make sure all
 			// related stuffs (eg axis picking) are working
-			std::auto_ptr<Gizmo> e(new Gizmo(*mResourceManager, mLauncher.inputComponent()));
+			std::auto_ptr<Gizmo> e(new Gizmo(mResourceManager, mLauncher.inputComponent()));
 			e->setCamrea(mCamera->entity());
 			e->name = L"Gizmo";
 			e->enabled = false;	// The gizmo is initially disable, until an object is selected
@@ -294,7 +296,7 @@ public:
 	Gizmo* mGizmo;
 	MCD::PickComponent* mEntityPicker;
 	MCD::WeakPtr<CameraComponent> mCamera;
-	IResourceManager* mResourceManager;
+	IResourceManager& mResourceManager;
 	bool mPropertyGridNeedRefresh;
 	Point mLastMousePos;
 	bool mPlaying;
@@ -304,10 +306,11 @@ public:
 	MCD::WeakPtr<CsInputComponent> mCsInputComponent, mOldCsInputComponent;
 };	// RenderPanelControlImpl
 
-RenderPanelControl::RenderPanelControl()
+RenderPanelControl::RenderPanelControl(ResourceManager^ resourceManager)
 {
 	InitializeComponent();
 	mImpl = nullptr;
+	mResourceManager = resourceManager;
 }
 
 RenderPanelControl::~RenderPanelControl()
@@ -432,7 +435,7 @@ System::Void RenderPanelControl::timer_Tick(System::Object^ sender, System::Even
 System::Void RenderPanelControl::RenderPanelControl_Load(System::Object^ sender, System::EventArgs^ e)
 {
 	MCD_ASSERT(mImpl == nullptr);
-	mImpl = new RenderPanelControlImpl(this);
+	mImpl = new RenderPanelControlImpl(this, mResourceManager);
 	mImpl->create(Handle.ToPointer(), nullptr);
 	mImpl->makeActive();
 	mImpl->createScene();

@@ -70,6 +70,11 @@ public:
 		resource finished loading.
 	 */
 	virtual void addCallback(sal_in IResourceManagerCallback* callback) = 0;
+
+	/*!	A place for the concret manager to do any necessary update.
+		The return value is specific to the concret derived class.
+	 */
+	virtual int update() = 0;
 };	// IResourceManager
 
 class TaskPool;
@@ -158,11 +163,10 @@ public:
 	};	// IFactory
 
 	/*!	Construct ResourceManager and associate it with a file system.
-		\note It will take ownership of \em fileSystem and delete it on ~ResourceManager()
-			so make sure \em fileSystem is not created on the stack.
+		\param takeFileSystemOwnership If true, ResourceManager will take ownership of \em fileSystem and delete it on ~ResourceManager()
 		\note By default 1 worker thread is used.
 	 */
-	explicit ResourceManager(IFileSystem& fileSystem);
+	explicit ResourceManager(IFileSystem& fileSystem, bool takeFileSystemOwnership=true);
 
 	sal_override ~ResourceManager();
 
@@ -220,6 +224,8 @@ public:
 			because the callback may be modified by the worker thread as well.
 	 */
 	sal_override void addCallback(sal_in IResourceManagerCallback* callback);
+
+	sal_override int update() { return 0; }
 
 	/*!	Resolve dependency and invoke the appropriate callback.
 		\param event Supply with the event returned by popEvent()

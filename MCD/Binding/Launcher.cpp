@@ -7,100 +7,16 @@
 #include "../Component/Physics/RigidBodyComponent.h"
 #include "../Component/Render/EntityPrototypeLoader.h"
 #include "../Component/Render/RenderableComponent.h"
-#include "../Core/System/FileSystemCollection.h"
 #include "../Core/System/Log.h"
 #include "../Core/System/MemoryProfiler.h"
-#include "../Core/System/RawFileSystem.h"
 #include "../Core/System/Resource.h"
 #include "../Core/System/ResourceLoader.h"
-#include "../Core/System/ResourceManager.h"
-#include "../Core/System/ZipFileSystem.h"
 #include "../Render/ResourceLoaderFactory.h"
 #include "../../3Party/jkbind/Declarator.h"
 
 using namespace MCD;
 
 namespace {
-
-IFileSystem* createDefaultFileSystem()
-{
-	std::auto_ptr<FileSystemCollection> fileSystem(new FileSystemCollection);
-
-	Path actualRoot;
-
-	try {
-		std::auto_ptr<IFileSystem> rawFs(new RawFileSystem(L"Media"));
-		actualRoot = rawFs->getRoot();
-		fileSystem->addFileSystem(*rawFs.release());
-	} catch(...) {}
-
-	try {
-		std::auto_ptr<IFileSystem> zipFs(new ZipFileSystem(actualRoot.getBranchPath() / L"Media.zip"));
-		fileSystem->addFileSystem(*zipFs.release());
-	} catch(...) {}
-
-	return fileSystem.release();
-}
-
-class DefaultResourceManager : public MCD::ResourceManager
-{
-public:
-	explicit DefaultResourceManager(MCD::IFileSystem& fileSystem)
-		: ResourceManager(fileSystem)
-	{
-		addFactory(new BitmapLoaderFactory);
-		addFactory(new DdsLoaderFactory);
-		addFactory(new EffectLoaderFactory(*this));
-		addFactory(new JpegLoaderFactory);
-		addFactory(new Max3dsLoaderFactory(*this));
-		addFactory(new PodLoaderFactory(*this));
-		addFactory(new PixelShaderLoaderFactory);
-		addFactory(new PngLoaderFactory);
-		addFactory(new TgaLoaderFactory);
-		addFactory(new VertexShaderLoaderFactory);
-		addFactory(new Max3dsLoaderFactory(*this));
-		addFactory(new EntityPrototypeLoaderFactory(*this));
-
-		// CubemapLoader must be added last (have a higher priority than other image loader factory)
-		addFactory(new CubemapLoaderFactory);
-	}
-
-	~DefaultResourceManager()
-	{
-	}
-
-	/*!
-		\return
-			>0 - A resource is sucessfully loaded (partial or full).
-			=0 - There are no more event to process at this moment.
-			<0 - The resource failed to load.
-	 */
-	int processLoadingEvents()
-	{
-		ResourceManager::Event e = popEvent();
-		if(e.loader) {
-			bool hasError = e.loader->getLoadingState() == IResourceLoader::Aborted;
-
-			if(hasError)
-				Log::format(Log::Warn, L"Resource: %s %s", e.resource->fileId().getString().c_str(), L"failed to load");
-			else	// Allow at most one resource to commit at each time
-				e.loader->commit(*e.resource);
-
-			// Note that commit() is invoked before doCallbacks()
-			doCallbacks(e);
-
-			return hasError ? -1 : 1;
-		}
-
-		return 0;
-	}
-
-protected:
-	void setupFactories();
-
-	class Impl;
-	Impl* mImpl;
-};	// DefaultResourceManager
 
 //! Call a script function when a list of resources were loaded.
 class ResourceLoadCallback : public ResourceManagerCallback
@@ -151,17 +67,14 @@ SCRIPT_CLASS_REGISTER_NAME(Launcher, "MainWindow")
 
 Launcher* Launcher::mSingleton = nullptr;
 
-Launcher::Launcher()
+Launcher::Launcher(IFileSystem& fileSystem, IResourceManager& resourceManager, bool takeResourceManagerOwnership)
 	:
 	mRootNode(nullptr),
 	mInputComponent(nullptr),
-	fileSystem(*createDefaultFileSystem()),
-	mResourceManager(new DefaultResourceManager(fileSystem)),	// The ownership of fileSystem will pass to the resource manager
+	mResourceManager(&resourceManager),
+	mTakeResourceManagerOwnership(takeResourceManagerOwnership),
 	scriptComponentManager(fileSystem)
 {
-	FileSystemCollection& fs = dynamic_cast<FileSystemCollection&>(fileSystem);
-	fs.addFileSystem(*(new RawFileSystem(L"")));
-
 	// Start the physics thread
 	mPhysicsThread.start(mDynamicsWorld, false);
 
@@ -186,7 +99,8 @@ Launcher::~Launcher()
 	// The Entity tree must be destroyed before the script VM.
 	delete mRootNode;
 
-	delete mResourceManager;
+	if(mTakeResourceManagerOwnership)
+		delete mResourceManager;
 }
 
 bool Launcher::init(InputComponent& inputComponent, Entity* rootNode)
@@ -290,7 +204,7 @@ void Launcher::update()
 {
 	MemoryProfiler::Scope profiler("Launcher::update");
 
-	static_cast<DefaultResourceManager*>(mResourceManager)->processLoadingEvents();
+	mResourceManager->update();
 
 	scriptComponentManager.updateScriptComponents();
 
@@ -331,4 +245,44 @@ void Launcher::setInputComponent(InputComponent* inputComponent)
 	e.release();
 
 	MCD_VERIFY(scriptComponentManager.vm.runScript(L"gInput <- gLauncher.inputComponent;\n"));
+}
+
+LauncherDefaultResourceManager::LauncherDefaultResourceManager(IFileSystem& fileSystem, bool takeFileSystemOwnership)
+	: ResourceManager(fileSystem, takeFileSystemOwnership)
+{
+	addFactory(new BitmapLoaderFactory);
+	addFactory(new DdsLoaderFactory);
+	addFactory(new EffectLoaderFactory(*this));
+	addFactory(new JpegLoaderFactory);
+	addFactory(new Max3dsLoaderFactory(*this));
+	addFactory(new PodLoaderFactory(*this));
+	addFactory(new PixelShaderLoaderFactory);
+	addFactory(new PngLoaderFactory);
+	addFactory(new TgaLoaderFactory);
+	addFactory(new VertexShaderLoaderFactory);
+	addFactory(new Max3dsLoaderFactory(*this));
+	addFactory(new EntityPrototypeLoaderFactory(*this));
+
+	// CubemapLoader must be added last (have a higher priority than other image loader factory)
+	addFactory(new CubemapLoaderFactory);
+}
+
+int LauncherDefaultResourceManager::update()
+{
+	ResourceManager::Event e = popEvent();
+	if(e.loader) {
+		bool hasError = e.loader->getLoadingState() == IResourceLoader::Aborted;
+
+		if(hasError)
+			Log::format(Log::Warn, L"Resource: %s %s", e.resource->fileId().getString().c_str(), L"failed to load");
+		else	// Allow at most one resource to commit at each time
+			e.loader->commit(*e.resource);
+
+		// Note that commit() is invoked before doCallbacks()
+		doCallbacks(e);
+
+		return hasError ? -1 : 1;
+	}
+
+	return 0;
 }

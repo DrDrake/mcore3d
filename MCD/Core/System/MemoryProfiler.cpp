@@ -7,6 +7,7 @@
 #include "PtrVector.h"
 #include <iomanip>
 #include <sstream>
+#include <tchar.h>	// For _T()
 
 /*!	When working with run-time analysis tools like Intel Parallel Studio, the use of dll main
 	make cause false positive, therefore we hace a macro to turn on and off the dll main.
@@ -17,13 +18,6 @@
 using namespace MCD;
 
 namespace {
-
-struct AllocInfo
-{
-	AllocInfo() : count(0), bytes(0) {}
-	int count;	// May be negative, if thread A allocate and thread B de-allocate
-	int bytes;	//
-};	// AllocInfo
 
 //! A structure that group all global varaibles into a thread local storage.
 struct TlsStruct
@@ -58,8 +52,6 @@ struct TlsStruct
 		return mCurrentNode = static_cast<MemoryProfilerNode*>(node);
 	}
 
-	AllocInfo currentAlloc;
-	AllocInfo accumAlloc;
 	size_t recurseCount;
 	const char* threadName;
 
@@ -115,42 +107,6 @@ struct MyMemFooter
 	static const uint32_t cFourCC2 = 987654321;
 };	// MyMemFooter
 
-void commonDealloc(__in HANDLE hHeap, __in DWORD dwFlags, __deref LPVOID lpMem)
-{
-//	TlsStruct* tls = getTlsStruct();
-
-//	if(!tls)
-//		tls = reinterpret_cast<TlsStruct*>(MemoryProfiler::singleton().onThreadAttach());
-
-	if(lpMem)// && tls && tls->recurseCount == 0)
-	{
-		size_t size = HeapSize(hHeap, dwFlags, lpMem) - sizeof(MyMemFooter);
-
-		ScopeLock lock1(*gFooterMutex);
-		MyMemFooter* footer = (MyMemFooter*)(((char*)lpMem) + size);
-
-		if(footer->fourCC1 == MyMemFooter::cFourCC1 && footer->fourCC2 == MyMemFooter::cFourCC2)
-		{
-			// Reset the magic number so that commonDealloc() will not applied more than once.
-			footer->fourCC1 = footer->fourCC2 = 0;
-
-			MemoryProfilerNode* node = reinterpret_cast<MemoryProfilerNode*>(footer->node);
-			MCD_ASSERT(node);
-
-			// Race with MemoryProfiler::defaultReport() and all other
-			// operations if lpMem is allocated from thread A but now free in thread B (this thread)
-			{	ScopeUnlock unlock(gFooterMutex);	// Prevent lock hierarchy.
-				ScopeRecursiveLock lock2(node->mutex);
-
-				node->exclusiveCount--;
-				node->exclusiveBytes -= size;
-//				tls->currentAlloc.count--;
-//				tls->currentAlloc.bytes -= size;
-			}
-		}
-	}
-}
-
 /*!	nBytes does not account for the extra footer size
  */
 void* commonAlloc(sal_in TlsStruct* tls, sal_in void* p, size_t nBytes)
@@ -159,15 +115,10 @@ void* commonAlloc(sal_in TlsStruct* tls, sal_in void* p, size_t nBytes)
 
 	MemoryProfilerNode* node = tls->currentNode();
 
-	{	// Race with MemoryProfiler::reset(), MemoryProfiler::defaultReport() and myHeapFree()
+	{	// Race with MemoryProfiler::reset(), MemoryProfiler::defaultReport() and commonDealloc()
 		ScopeRecursiveLock lock(node->mutex);
-		tls->currentAlloc.count++;
-		tls->accumAlloc.count++;
 		node->exclusiveCount++;
 		node->countSinceLastReset++;
-
-		tls->currentAlloc.bytes += nBytes;
-		tls->accumAlloc.bytes += nBytes;
 		node->exclusiveBytes += nBytes;
 	}
 
@@ -179,6 +130,35 @@ void* commonAlloc(sal_in TlsStruct* tls, sal_in void* p, size_t nBytes)
 	}
 
 	return p;
+}
+
+void commonDealloc(__in HANDLE hHeap, __in DWORD dwFlags, __deref LPVOID lpMem)
+{
+	if(!lpMem)
+		return;
+
+	size_t size = HeapSize(hHeap, dwFlags, lpMem) - sizeof(MyMemFooter);
+
+	ScopeLock lock1(*gFooterMutex);
+	MyMemFooter* footer = (MyMemFooter*)(((char*)lpMem) + size);
+
+	if(footer->fourCC1 == MyMemFooter::cFourCC1 && footer->fourCC2 == MyMemFooter::cFourCC2)
+	{
+		// Reset the magic number so that commonDealloc() will not applied more than once.
+		footer->fourCC1 = footer->fourCC2 = 0;
+
+		MemoryProfilerNode* node = reinterpret_cast<MemoryProfilerNode*>(footer->node);
+		MCD_ASSERT(node);
+
+		// Race with MemoryProfiler::defaultReport() and all other
+		// operations if lpMem is allocated from thread A but now free in thread B (this thread)
+		{	ScopeUnlock unlock(gFooterMutex);	// Prevent lock hierarchy.
+			ScopeRecursiveLock lock2(node->mutex);
+
+			node->exclusiveCount--;
+			node->exclusiveBytes -= size;
+		}
+	}
 }
 
 LPVOID WINAPI myHeapAlloc(__in HANDLE hHeap, __in DWORD dwFlags, __in SIZE_T dwBytes)
@@ -256,7 +236,7 @@ void MemoryProfilerNode::begin()
 void MemoryProfilerNode::reset()
 {
 	MemoryProfilerNode* n1, *n2;
-	{	// Race with MemoryProfiler::begin(), MemoryProfiler::end(), commonAlloc() and myHeapFree()
+	{	// Race with MemoryProfiler::begin(), MemoryProfiler::end(), commonAlloc() and commonDealloc()
 		ScopeRecursiveLock lock(mutex);
 		callCount = 0;
 		countSinceLastReset = 0;
@@ -349,7 +329,9 @@ void MemoryProfiler::begin(const char name[])
 		tls = reinterpret_cast<TlsStruct*>(onThreadAttach());
 	MemoryProfilerNode* node = tls->currentNode();
 
-	// Race with MemoryProfiler::reset(), MemoryProfiler::defaultReport() and myHeapFree()
+	// Race with MemoryProfiler::reset(), MemoryProfiler::defaultReport() and commonDealloc()
+	// Yes, not race with commonAlloc(), because only the allocation on the same thread will
+	// access this node.
 	ScopeRecursiveLock lock(node->mutex);
 
 	if(name != node->name) {
@@ -382,7 +364,7 @@ void MemoryProfiler::end()
 
 	MemoryProfilerNode* node = tls->currentNode();
 
-	// Race with MemoryProfiler::reset(), MemoryProfiler::defaultReport() and myHeapFree()
+	// Race with MemoryProfiler::reset(), MemoryProfiler::defaultReport() and commonDealloc()
 	ScopeRecursiveLock lock(node->mutex);
 
 	node->recursionCount--;
@@ -418,23 +400,6 @@ std::string MemoryProfiler::defaultReport(size_t nameLength) const
 {
 	using namespace std;
 	ostringstream ss;
-	AllocInfo tmpAlloc, tmpAccumAlloc;
-
-	{	ScopeLock lock(mTlsList->mutex);
-		for(TlsList::iterator i=mTlsList->begin(); i!=mTlsList->end(); ++i)
-		{
-			tmpAlloc.count += i->currentAlloc.count;
-			tmpAlloc.bytes += i->currentAlloc.bytes;
-			tmpAccumAlloc.count += i->accumAlloc.count;
-			tmpAccumAlloc.bytes += i->accumAlloc.bytes;
-		}
-	}
-
-	ss.flags(ios_base::left);
-	ss	<< setw(30) << "Allocated count: " << setw(10) << tmpAlloc.count
-		<< ", kBytes: " << float(tmpAlloc.bytes) / 1024 << endl;
-	ss	<< setw(30) << "Accumulated allocated count: " << setw(10) << tmpAccumAlloc.count
-		<< ", kBytes: " << float(tmpAccumAlloc.bytes) / 1024 << endl;
 
 	const size_t countWidth = 9;
 	const size_t bytesWidth = 12;
@@ -451,11 +416,11 @@ std::string MemoryProfiler::defaultReport(size_t nameLength) const
 
 	MemoryProfilerNode* n = static_cast<MemoryProfilerNode*>(mRootNode);
 
-	do
+	while(n)
 	{	// NOTE: The following std stream operation may trigger HeapAlloc,
 		// there we need to use recursive mutex here.
 
-		// Race with MemoryProfiler::begin(), MemoryProfiler::end(), commonAlloc() and myHeapFree()
+		// Race with MemoryProfiler::begin(), MemoryProfiler::end(), commonAlloc() and commonDealloc()
 		ScopeRecursiveLock lock(n->mutex);
 
 		// Skip node that have no allocation at all
@@ -489,7 +454,7 @@ std::string MemoryProfiler::defaultReport(size_t nameLength) const
 		}
 
 		n = static_cast<MemoryProfilerNode*>(CallstackNode::traverse(n));
-	} while(n != nullptr);
+	}
 
 	return ss.str();
 }
@@ -532,12 +497,18 @@ void MemoryProfiler::setEnable(bool flag)
 #endif
 
 		// Hooking RtlAllocateHeap is more reliable than hooking HeapAlloc, especially in Vista.
-		void* pAlloc = GetProcAddress(GetModuleHandle(L"ntdll.dll"), "RtlAllocateHeap");
-		void* pReAlloc = GetProcAddress(GetModuleHandle(L"ntdll.dll"), "RtlReAllocateHeap");
-		void* pFree = GetProcAddress(GetModuleHandle(L"ntdll.dll"), "RtlFreeHeap");
-//		pAlloc = &HeapAlloc;
-//		pReAlloc = &HeapReAlloc;
-//		pFree = &HeapFree;
+		HMODULE h = GetModuleHandle(_T("ntdll.dll"));
+		void* pAlloc, *pReAlloc, *pFree;
+		if(h) {
+			pAlloc = GetProcAddress(h, "RtlAllocateHeap");
+			pReAlloc = GetProcAddress(h, "RtlReAllocateHeap");
+			pFree = GetProcAddress(h, "RtlFreeHeap");
+		}
+		else {
+			pAlloc = &HeapAlloc;
+			pReAlloc = &HeapReAlloc;
+			pFree = &HeapFree;
+		}
 
 		// Back up the original function and then do patching
 		orgHeapAlloc = (MyHeapAlloc) functionPatcher.copyPrologue(pAlloc, prologueSize[0]);
@@ -613,7 +584,7 @@ void MemoryProfiler::setEnable(bool flag) { (void)flag; }
 CallstackNode* MemoryProfilerNode::createNode(const char name[], CallstackNode* parent)
 {
 	MemoryProfilerNode* parentNode = static_cast<MemoryProfilerNode*>(parent);
-	MemoryProfilerNode* n = new MemoryProfilerNode(name, parent);
+	std::auto_ptr<MemoryProfilerNode> n(new MemoryProfilerNode(name, parent));
 
 	// Every thread should have it's own root node which owns a mutex
 	if(!parentNode || parentNode->mutex == nullptr) {
@@ -625,7 +596,7 @@ CallstackNode* MemoryProfilerNode::createNode(const char name[], CallstackNode* 
 		n->mIsMutexOwner = false;
 	}
 
-	return n;
+	return n.release();
 }
 
 MemoryProfiler& MemoryProfiler::singleton()
@@ -695,8 +666,8 @@ public:
 		MemoryProfiler& profiler = MemoryProfiler::singleton();
 		MemoryProfilerNode* n = static_cast<MemoryProfilerNode*>(profiler.getRootNode());
 
-		do
-		{	// Race with MemoryProfiler::begin(), MemoryProfiler::end(), commonAlloc() and myHeapFree()
+		while(n)
+		{	// Race with MemoryProfiler::begin(), MemoryProfiler::end(), commonAlloc() and commonDealloc()
 			ScopeRecursiveLock lock(n->mutex);
 
 			// Skip node that have no allocation at all
@@ -728,7 +699,7 @@ public:
 			}
 
 			n = static_cast<MemoryProfilerNode*>(CallstackNode::traverse(n));
-		} while(n != nullptr);
+		}
 
 		std::string str = ss.str() + "\n\n";
 

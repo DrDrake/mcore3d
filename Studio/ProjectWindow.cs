@@ -11,10 +11,8 @@ namespace Studio
 		{
 			InitializeComponent();
 			Singleton = this;
-		}
+			ProjectPath = System.IO.Directory.GetCurrentDirectory();
 
-		private void ProjectWindow_Load(object sender, System.EventArgs e)
-		{
 			TreeModel model = new TreeModel();
 			treeViewAdv.Model = new SortedTreeModel(model);
 
@@ -27,6 +25,10 @@ namespace Studio
 			mProject = new Project();
 		}
 
+		private void ProjectWindow_Load(object sender, System.EventArgs e)
+		{
+		}
+
 		public Node SceneNode;
 		public Node MediaPathNode;
 
@@ -36,6 +38,11 @@ namespace Studio
 		/// and the scene scrips path.
 		/// </summary>
 		public string ProjectPath;
+
+		public Project Project
+		{
+			get { return mProject; }
+		}
 		private Project mProject;
 
 		private void treeViewAdv1_MouseDown(object sender, MouseEventArgs e)
@@ -58,10 +65,21 @@ namespace Studio
 
 		private void addPathToolStripMenuItem_Click(object sender, System.EventArgs e)
 		{
+			FolderBrowserDialog d = new FolderBrowserDialog();
+			d.SelectedPath = ProjectPath;
+
+			if(d.ShowDialog() != DialogResult.OK)
+				return;
+
 			MediaPath path = new MediaPath();
-			path.Text = "./";
+			path.Text = d.SelectedPath;
 			mProject.MediaPaths.Add(path);
 			treeViewAdv.FindNodeByTag(MediaPathNode).Expand(true);
+		}
+
+		private void ProjectWindow_FormClosing(object sender, FormClosingEventArgs e)
+		{
+			Project.ResourceManager.destroy();
 		}
 	}
 

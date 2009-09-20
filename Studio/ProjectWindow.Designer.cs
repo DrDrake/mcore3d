@@ -53,7 +53,7 @@
 			this.treeViewAdv.Name = "treeViewAdv";
 			this.treeViewAdv.NodeControls.Add(this.nodeTextBox1);
 			this.treeViewAdv.SelectedNode = null;
-			this.treeViewAdv.Size = new System.Drawing.Size(292, 250);
+			this.treeViewAdv.Size = new System.Drawing.Size(292, 271);
 			this.treeViewAdv.TabIndex = 0;
 			this.treeViewAdv.Text = "treeViewAdv";
 			this.treeViewAdv.MouseDown += new System.Windows.Forms.MouseEventHandler(this.treeViewAdv1_MouseDown);
@@ -75,47 +75,49 @@
 			// mediaPathMenuStrip
 			// 
 			this.mediaPathMenuStrip.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-			this.addPathToolStripMenuItem});
+            this.addPathToolStripMenuItem});
 			this.mediaPathMenuStrip.Name = "mediaPathMenuStrip";
-			this.mediaPathMenuStrip.Size = new System.Drawing.Size(130, 26);
+			this.mediaPathMenuStrip.Size = new System.Drawing.Size(119, 26);
 			// 
 			// addPathToolStripMenuItem
 			// 
 			this.addPathToolStripMenuItem.Name = "addPathToolStripMenuItem";
-			this.addPathToolStripMenuItem.Size = new System.Drawing.Size(129, 22);
+			this.addPathToolStripMenuItem.Size = new System.Drawing.Size(118, 22);
 			this.addPathToolStripMenuItem.Text = "Add path";
 			this.addPathToolStripMenuItem.Click += new System.EventHandler(this.addPathToolStripMenuItem_Click);
 			// 
 			// sceneMenuStrip
 			// 
 			this.sceneMenuStrip.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-			this.addSceneToolStripMenuItem});
+            this.addSceneToolStripMenuItem});
 			this.sceneMenuStrip.Name = "sceneMenuStrip";
-			this.sceneMenuStrip.Size = new System.Drawing.Size(136, 26);
+			this.sceneMenuStrip.Size = new System.Drawing.Size(125, 26);
 			// 
 			// addSceneToolStripMenuItem
 			// 
 			this.addSceneToolStripMenuItem.Name = "addSceneToolStripMenuItem";
-			this.addSceneToolStripMenuItem.Size = new System.Drawing.Size(135, 22);
+			this.addSceneToolStripMenuItem.Size = new System.Drawing.Size(124, 22);
 			this.addSceneToolStripMenuItem.Text = "Add scene";
 			this.addSceneToolStripMenuItem.Click += new System.EventHandler(this.addSceneToolStripMenuItem_Click);
 			// 
 			// ProjectWindow
 			// 
-			this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
+			this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-			this.ClientSize = new System.Drawing.Size(292, 250);
+			this.ClientSize = new System.Drawing.Size(292, 271);
 			this.Controls.Add(this.treeViewAdv);
 			this.DockAreas = ((WeifenLuo.WinFormsUI.Docking.DockAreas)((((((WeifenLuo.WinFormsUI.Docking.DockAreas.Float | WeifenLuo.WinFormsUI.Docking.DockAreas.DockLeft)
 						| WeifenLuo.WinFormsUI.Docking.DockAreas.DockRight)
 						| WeifenLuo.WinFormsUI.Docking.DockAreas.DockTop)
 						| WeifenLuo.WinFormsUI.Docking.DockAreas.DockBottom)
 						| WeifenLuo.WinFormsUI.Docking.DockAreas.Document)));
+			this.HideOnClose = true;
 			this.Name = "ProjectWindow";
 			this.ShowHint = WeifenLuo.WinFormsUI.Docking.DockState.DockLeft;
 			this.TabText = "Project";
 			this.Text = "Project";
 			this.Load += new System.EventHandler(this.ProjectWindow_Load);
+			this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.ProjectWindow_FormClosing);
 			this.mediaPathMenuStrip.ResumeLayout(false);
 			this.sceneMenuStrip.ResumeLayout(false);
 			this.ResumeLayout(false);
