@@ -73,7 +73,13 @@ namespace Studio
 		{
 			DockContent content = new DockContent();
 			content.Show(dockPanel, DockState.Document);
-			RenderPanelControl renderPanel = new RenderPanelControl(ProjectWindow.Singleton.Project.ResourceManager);
+
+			IntPtr sharedGlContext = new IntPtr(0);
+
+			if (renderControls.Count > 0)
+				sharedGlContext = renderControls[0].glContext;
+
+			RenderPanelControl renderPanel = new RenderPanelControl(ProjectWindow.Singleton.Project.ResourceManager, sharedGlContext);
 			renderPanel.propertyGrid = propertyWindow.propertyGrid1;
 			renderPanel.entitySelectionChanged += new EntitySelectionChangedHandler(onEntitySelectionChanged);
 			content.Tag = renderPanel;

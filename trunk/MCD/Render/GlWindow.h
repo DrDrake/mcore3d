@@ -39,6 +39,9 @@ public:
 	GlWindow();
 	sal_override ~GlWindow();
 
+	//! Get the underlaying opengl context.
+	void* glContext();
+
 	/*!	Create a new window.
 		Additional supported options:
 

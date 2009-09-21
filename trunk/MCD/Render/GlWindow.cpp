@@ -21,6 +21,14 @@ GlWindow::~GlWindow()
 	destroy();
 }
 
+void* GlWindow::glContext()
+{
+	if(!mImpl)
+		return nullptr;
+
+	return static_cast<Impl*>(mImpl)->glContext();
+}
+
 void GlWindow::create(const wchar_t* options) throw(std::exception)
 {
 	create(0, options);

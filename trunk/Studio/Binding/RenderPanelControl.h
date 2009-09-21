@@ -29,7 +29,14 @@ public delegate void EntitySelectionChangedHandler(Object^ sender, Entity^ entit
 public ref class RenderPanelControl : public System::Windows::Forms::UserControl
 {
 public:
-	RenderPanelControl(ResourceManager^ resourceManager);
+	/// Give sharedGlContext a valid OpenGl context so that all resources created
+	/// by sharedGlContext can also be used in this RenderPanelControl. Give it
+	/// null if no sharing is needed.
+	RenderPanelControl(ResourceManager^ resourceManager, IntPtr sharedGlContext);
+
+	property IntPtr glContext {
+		IntPtr get();
+	}
 
 	/// Destroy the rendering context
 	void destroy();
@@ -83,6 +90,7 @@ protected:
 	!RenderPanelControl();	// Finalize
 
 private:
+	IntPtr mSharedGlContext;
 	RenderPanelControlImpl* mImpl;
 	::Binding::Entity^ mRootEntity;
 	::Binding::ResourceManager^ mResourceManager;
