@@ -30,7 +30,7 @@ namespace Studio
 
 			ComponentResourceManager resources = new ComponentResourceManager(typeof(MainForm));
 			toolStripButtonPlay.Image = ((System.Drawing.Image)(
-				resources.GetObject(currentRenderControl.playing ? "stopToolStripButton.Image" : "playToolStripButton.Image"))
+				resources.GetObject(currentRenderControl.playing ? "toolStripButtonStop.Image" : "toolStripButtonPlay.Image"))
 			);
 		}
 
@@ -77,6 +77,7 @@ namespace Studio
 			renderPanel.propertyGrid = propertyWindow.propertyGrid1;
 			renderPanel.entitySelectionChanged += new EntitySelectionChangedHandler(onEntitySelectionChanged);
 			content.Tag = renderPanel;
+			renderPanel.Tag = content;
 			renderControls.Add(renderPanel);
 			renderPanel.Enter += new EventHandler(sceneSelectionChanged);
 			content.FormClosing += new FormClosingEventHandler(sceneClosing);
@@ -324,9 +325,40 @@ namespace Studio
 			UpdateToolBars();
 		}
 
+		private void saveToolStripMenuItem_Click(object sender, EventArgs e)
+		{
+			SaveFileDialog d = new SaveFileDialog();
+			d.Filter = "Xml files (*.xml)|*.xml|All files (*.*)|*.*";
+			d.AutoUpgradeEnabled = false;
+
+			if (d.ShowDialog() != DialogResult.OK)
+				return;
+
+			projectWindow.SaveProject(d.FileName);
+		}
+
 		private void openToolStripMenuItem_Click(object sender, EventArgs e)
 		{
+			OpenFileDialog d = new OpenFileDialog();
+			d.AutoUpgradeEnabled = false;
+			d.Filter = "Xml files (*.xml)|*.xml|All files (*.*)|*.*";
+			if (d.ShowDialog() != DialogResult.OK)
+				return;
 
+			// Only destroy the old manager if the loading success
+			ResourceManager oldMgr = projectWindow.Project.ResourceManager;
+
+			if (projectWindow.LoadProject(d.FileName))
+			{
+				// Close all scene window
+				while (renderControls.Count != 0)
+				{
+					RenderPanelControl r = renderControls[0];
+					(r.Tag as DockContent).Close();
+					r.destroy();
+				}
+				oldMgr.destroy();
+			}
 		}
 	}
 }

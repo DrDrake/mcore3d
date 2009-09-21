@@ -1,6 +1,8 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
+using System.Xml;
+using System.Xml.Serialization;
 using Aga.Controls.Tree;
-using System;
 
 namespace Studio
 {
@@ -47,14 +49,20 @@ namespace Studio
 
 	public class MediaPaths : TreeNodeList<MediaPath>
 	{
+		public MediaPaths()
+			: base(ProjectWindow.Singleton.treeViewAdv, ProjectWindow.Singleton.MediaPathNode)
+		{
+			mFileSystem = ProjectWindow.Singleton.Project.FileSystem;
+		}
+
 		public MediaPaths(TreeViewAdv treeView, Node node, Binding.FileSystemCollection fileSystem)
 			: base(treeView, node)
 		{
 			mFileSystem = fileSystem;
 
 			// TODO: temp
-			Add(new MediaPath("./"));
-			Add(new MediaPath("Media"));
+//			Add(new MediaPath("./"));
+//			Add(new MediaPath("Media"));
 		}
 
 		public virtual new void Add(MediaPath path)
@@ -79,6 +87,44 @@ namespace Studio
 		private Binding.FileSystemCollection mFileSystem;
 	}
 
+	/// <summary>
+	/// A wrapper class to get around various problem in C# serialization
+	/// (in particular, the lack of ignore base class option)
+	/// See http://rboxman.spaces.live.com/blog/cns!F0B1967823B96201!235.entry?wa=wsignin1.0&sa=597236082
+	/// and http://www.codeproject.com/KB/XML/xmlserializerforunknown.aspx
+	/// </summary>
+	public class MediaPathXmlWrapper
+	{
+		#region Basic wrapping
+		public MediaPathXmlWrapper() : this(new MediaPath()) { }
+
+		public MediaPathXmlWrapper(MediaPath val)
+		{
+			this.mVal = val;
+		}
+
+		public static implicit operator MediaPath(MediaPathXmlWrapper wrapper)
+		{
+			return wrapper != null ? wrapper.mVal : null;
+		}
+
+		public static implicit operator MediaPathXmlWrapper(MediaPath val)
+		{
+			return val != null ? new MediaPathXmlWrapper(val) : null;
+		}
+
+		[XmlIgnore]
+		protected MediaPath mVal;
+		#endregion
+
+		[XmlAttribute]
+		public string Path
+		{
+			get { return mVal.Text; }
+			set { mVal.Text = value; }
+		}
+	}
+
 	public class Scene : TreeNodeBase<Scene>
 	{
 		/// <summary>
@@ -92,6 +138,52 @@ namespace Studio
 		public string InitScriptPath;
 	}
 
+	public class SceneXmlWrapper
+	{
+		#region Basic wrapping
+		public SceneXmlWrapper() : this(new Scene()) { }
+
+		public SceneXmlWrapper(Scene val)
+		{
+			this.mVal = val;
+		}
+
+		public static implicit operator Scene(SceneXmlWrapper wrapper)
+		{
+			return wrapper != null ? wrapper.mVal : null;
+		}
+
+		public static implicit operator SceneXmlWrapper(Scene val)
+		{
+			return val != null ? new SceneXmlWrapper(val) : null;
+		}
+
+		[XmlIgnore]
+		protected Scene mVal;
+		#endregion
+
+		[XmlAttribute]
+		public string Name
+		{
+			get { return mVal.Text; }
+			set { mVal.Text = value; }
+		}
+
+		[XmlAttribute]
+		public string SceneScriptPath
+		{
+			get { return mVal.SceneScriptPath; }
+			set { mVal.SceneScriptPath = value; }
+		}
+
+		[XmlAttribute]
+		public string InitScriptPath
+		{
+			get { return mVal.InitScriptPath; }
+			set { mVal.InitScriptPath = value; }
+		}
+	}
+
 	public class Project
 	{
 		public Project()
@@ -102,6 +194,7 @@ namespace Studio
 			Scenes = new TreeNodeList<Scene>(ProjectWindow.Singleton.treeViewAdv, ProjectWindow.Singleton.SceneNode);
 		}
 
+		[XmlAttribute]
 		public string Name;
 
 		public Binding.FileSystemCollection FileSystem
@@ -116,7 +209,40 @@ namespace Studio
 		}
 		private Binding.ResourceManager mResourceManager;
 
+		[XmlArrayItem(ElementName = "MediaPath", Type = typeof(MediaPathXmlWrapper))]
 		public MediaPaths MediaPaths;
+
+		[XmlArrayItem(ElementName = "Scene", Type = typeof(SceneXmlWrapper))]
 		public TreeNodeList<Scene> Scenes;
+
+		/// <summary>
+		/// Serialize the Project class to an Xml file
+		/// <see cref="http://www.switchonthecode.com/tutorials/csharp-tutorial-xml-serialization"/>
+		/// </summary>
+		/// <param name="xmlPath"></param>
+		/// <param name="preference"></param>
+		public static void SerializeToXML(string xmlPath, Project project)
+		{
+			XmlSerializer serializer = new XmlSerializer(typeof(Project));
+			TextWriter textWriter = new StreamWriter(xmlPath);
+			serializer.Serialize(textWriter, project);
+			textWriter.Close();
+		}
+
+		public static Project DeserializeFromXML(string xmlPath)
+		{
+			Project ret = null;
+
+			XmlSerializer deserializer = new XmlSerializer(typeof(Project));
+			TextReader textReader = new StreamReader(xmlPath);
+
+			Project tmp = (Project)deserializer.Deserialize(textReader);
+			textReader.Close();
+
+			if (tmp != null)
+				ret = tmp;
+
+			return ret;
+		}
 	}
 }
