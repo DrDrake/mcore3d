@@ -65,6 +65,9 @@
 			this.toolStripButtonScale = new System.Windows.Forms.ToolStripButton();
 			this.toolStripDebug = new System.Windows.Forms.ToolStrip();
 			this.toolStripButtonPlay = new System.Windows.Forms.ToolStripButton();
+			this.recentProjectsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+			this.saveProjectAsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+			this.toolStripSeparator2 = new System.Windows.Forms.ToolStripSeparator();
 			this.mainMenu.SuspendLayout();
 			this.toolStripContainer1.ContentPanel.SuspendLayout();
 			this.toolStripContainer1.TopToolStripPanel.SuspendLayout();
@@ -92,8 +95,11 @@
 			this.fileToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.newToolStripMenuItem,
             this.openToolStripMenuItem,
-            this.exitToolStripMenuItem,
-            this.saveToolStripMenuItem});
+            this.recentProjectsToolStripMenuItem,
+            this.saveToolStripMenuItem,
+            this.saveProjectAsToolStripMenuItem,
+            this.toolStripSeparator2,
+            this.exitToolStripMenuItem});
 			this.fileToolStripMenuItem.Name = "fileToolStripMenuItem";
 			this.fileToolStripMenuItem.Size = new System.Drawing.Size(39, 20);
 			this.fileToolStripMenuItem.Text = "&File";
@@ -101,29 +107,29 @@
 			// newToolStripMenuItem
 			// 
 			this.newToolStripMenuItem.Name = "newToolStripMenuItem";
-			this.newToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
-			this.newToolStripMenuItem.Text = "&New";
+			this.newToolStripMenuItem.Size = new System.Drawing.Size(170, 22);
+			this.newToolStripMenuItem.Text = "New project...";
 			this.newToolStripMenuItem.Click += new System.EventHandler(this.newToolStripMenuItem_Click);
 			// 
 			// openToolStripMenuItem
 			// 
 			this.openToolStripMenuItem.Name = "openToolStripMenuItem";
-			this.openToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
-			this.openToolStripMenuItem.Text = "Open";
+			this.openToolStripMenuItem.Size = new System.Drawing.Size(170, 22);
+			this.openToolStripMenuItem.Text = "Open project...";
 			this.openToolStripMenuItem.Click += new System.EventHandler(this.openToolStripMenuItem_Click);
 			// 
 			// exitToolStripMenuItem
 			// 
 			this.exitToolStripMenuItem.Name = "exitToolStripMenuItem";
-			this.exitToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+			this.exitToolStripMenuItem.Size = new System.Drawing.Size(170, 22);
 			this.exitToolStripMenuItem.Text = "E&xit";
 			this.exitToolStripMenuItem.Click += new System.EventHandler(this.exitToolStripMenuItem_Click);
 			// 
 			// saveToolStripMenuItem
 			// 
 			this.saveToolStripMenuItem.Name = "saveToolStripMenuItem";
-			this.saveToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
-			this.saveToolStripMenuItem.Text = "&Save";
+			this.saveToolStripMenuItem.Size = new System.Drawing.Size(170, 22);
+			this.saveToolStripMenuItem.Text = "Save project";
 			this.saveToolStripMenuItem.Click += new System.EventHandler(this.saveToolStripMenuItem_Click);
 			// 
 			// editToolStripMenuItem
@@ -411,6 +417,23 @@
 			this.toolStripButtonPlay.Text = "toolStripButton1";
 			this.toolStripButtonPlay.Click += new System.EventHandler(this.toolStripButtonPlay_Click);
 			// 
+			// recentProjectsToolStripMenuItem
+			// 
+			this.recentProjectsToolStripMenuItem.Name = "recentProjectsToolStripMenuItem";
+			this.recentProjectsToolStripMenuItem.Size = new System.Drawing.Size(170, 22);
+			this.recentProjectsToolStripMenuItem.Text = "Recent projects";
+			// 
+			// saveProjectAsToolStripMenuItem
+			// 
+			this.saveProjectAsToolStripMenuItem.Name = "saveProjectAsToolStripMenuItem";
+			this.saveProjectAsToolStripMenuItem.Size = new System.Drawing.Size(170, 22);
+			this.saveProjectAsToolStripMenuItem.Text = "Save project as...";
+			// 
+			// toolStripSeparator2
+			// 
+			this.toolStripSeparator2.Name = "toolStripSeparator2";
+			this.toolStripSeparator2.Size = new System.Drawing.Size(167, 6);
+			// 
 			// MainForm
 			// 
 			this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
@@ -480,5 +503,8 @@
 		private System.Windows.Forms.ToolStripMenuItem memoryProfilerToolStripMenuItem;
 		private System.Windows.Forms.ToolStripMenuItem propertyToolStripMenuItem;
 		private System.Windows.Forms.ToolStripMenuItem projectToolStripMenuItem1;
+		private System.Windows.Forms.ToolStripMenuItem recentProjectsToolStripMenuItem;
+		private System.Windows.Forms.ToolStripMenuItem saveProjectAsToolStripMenuItem;
+		private System.Windows.Forms.ToolStripSeparator toolStripSeparator2;
 	}
 }

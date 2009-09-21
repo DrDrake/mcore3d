@@ -28,6 +28,11 @@ public:
 		destroy();
 	}
 
+	void* glContext()
+	{
+		return mRc;
+	}
+
 	sal_override void createWindow(Window::Handle existingWindowHandle=0)
 	{
 		MemoryProfiler::Scope profiler("GlWindow::createWindow");

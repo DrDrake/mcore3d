@@ -18,6 +18,7 @@
 #include "../../MCD/Render/Camera.h"
 #include "../../MCD/Render/GlWindow.h"
 #include "../../3Party/glew/glew.h"
+#include "../../3Party/glew/wglew.h"
 #undef nullptr
 #include <gcroot.h>
 
@@ -306,9 +307,10 @@ public:
 	MCD::WeakPtr<CsInputComponent> mCsInputComponent, mOldCsInputComponent;
 };	// RenderPanelControlImpl
 
-RenderPanelControl::RenderPanelControl(ResourceManager^ resourceManager)
+RenderPanelControl::RenderPanelControl(ResourceManager^ resourceManager, IntPtr sharedGlContext)
 {
 	InitializeComponent();
+	mSharedGlContext = sharedGlContext;
 	mImpl = nullptr;
 	mResourceManager = resourceManager;
 }
@@ -324,6 +326,13 @@ RenderPanelControl::~RenderPanelControl()
 RenderPanelControl::!RenderPanelControl()
 {
 	destroy();
+}
+
+IntPtr RenderPanelControl::glContext::get()
+{
+	if(!mImpl)
+		return IntPtr(nullptr);
+	return IntPtr(mImpl->glContext());
 }
 
 void RenderPanelControl::destroy()
@@ -437,6 +446,13 @@ System::Void RenderPanelControl::RenderPanelControl_Load(System::Object^ sender,
 	MCD_ASSERT(mImpl == nullptr);
 	mImpl = new RenderPanelControlImpl(this, mResourceManager);
 	mImpl->create(Handle.ToPointer(), nullptr);
+
+	void* sharedGlContext = mSharedGlContext.ToPointer();
+	if(sharedGlContext) {
+		void* thisGlContext = mImpl->glContext();
+		::wglShareLists((HGLRC)sharedGlContext, (HGLRC)thisGlContext);
+	}
+
 	mImpl->makeActive();
 	mImpl->createScene();
 }
