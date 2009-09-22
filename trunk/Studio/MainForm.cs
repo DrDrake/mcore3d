@@ -41,6 +41,7 @@ namespace Studio
 			assertWindow = new AssertWindow();
 			entityWindow = new EntityWindow();
 			logWindow = new LogWindow();
+			codeWindow = new CodeWindow();
 			propertyWindow = new PropertyWindow();
 			memoryProfilerWindow = new MemoryProfilerWindow();
 
@@ -62,6 +63,7 @@ namespace Studio
 				assertWindow.Show(dockPanel);
 				entityWindow.Show(dockPanel);
 				logWindow.Show(dockPanel);
+				codeWindow.Show(dockPanel);
 				propertyWindow.Show(dockPanel);
 				memoryProfilerWindow.Show(dockPanel);
 			}
@@ -204,6 +206,8 @@ namespace Studio
 				return entityWindow;
 			else if (persistString == typeof(LogWindow).ToString())
 				return logWindow;
+			else if (persistString == typeof(CodeWindow).ToString())
+				return codeWindow;
 			else if (persistString == typeof(PropertyWindow).ToString())
 				return propertyWindow;
 			else if (persistString == typeof(MemoryProfilerWindow).ToString())
@@ -229,6 +233,7 @@ namespace Studio
 		PropertyWindow propertyWindow;
 		AssertWindow assertWindow;
 		LogWindow logWindow;
+		CodeWindow codeWindow;
 		MemoryProfilerWindow memoryProfilerWindow;
 
 		private DeserializeDockContent mDeserializeDockContent;

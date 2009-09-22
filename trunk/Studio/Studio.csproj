@@ -51,9 +51,14 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\Bin\CodersLab.Windows.Controls.TreeView.dll</HintPath>
     </Reference>
+    <Reference Include="ScintillaNet, Version=2.0.3138.25704, Culture=neutral, PublicKeyToken=948d6c9751444115, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\Bin\ScintillaNet.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Data" />
     <Reference Include="System.Deployment" />
+    <Reference Include="System.Design" />
     <Reference Include="System.Drawing" />
     <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Xml" />
@@ -64,6 +69,12 @@
     </Compile>
     <Compile Include="AssertWindow.Designer.cs">
       <DependentUpon>AssertWindow.cs</DependentUpon>
+    </Compile>
+    <Compile Include="CodeWindow.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="CodeWindow.Designer.cs">
+      <DependentUpon>CodeWindow.cs</DependentUpon>
     </Compile>
     <Compile Include="DockContent.cs">
       <SubType>Form</SubType>
@@ -197,6 +208,9 @@
   <ItemGroup>
     <Content Include="Icons\File.png" />
     <None Include="Icons\stop.png" />
+    <EmbeddedResource Include="CodeWindow.resx">
+      <DependentUpon>CodeWindow.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="Icons\Folder.png" />
     <EmbeddedResource Include="LogWindow.resx">
       <DependentUpon>LogWindow.cs</DependentUpon>
