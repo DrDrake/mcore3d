@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ScintillaNET>
+	<Language Name="default">
+		<Styles>
+			<Style Name="Default" FontName="Consolas"/>
+		</Styles>
+	</Language>
+	<Language Name="squirrel">
+		<Indentation TabWidth="4" UseTabs="false"/>
+		<Lexer LexerName="cpp" StreamCommentPrefix="{ " StreamCommentSuffix=" }">
+			<Keywords List="0">break case catch class clone continue const default delegate delete else enum extends for function if in null resume return switch this throw try typeof parent yield constructor instanceof true false static do while foreach</Keywords>
+			<Keywords List="1">local</Keywords>
+			<Keywords List="2">ARGS</Keywords>
+		</Lexer>
+		<Styles>
+			<Style Name="CHARACTER" ForeColor="Black" BackColor="Red"/>
+		</Styles>
+	</Language>
+</ScintillaNET>
