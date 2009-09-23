@@ -303,4 +303,109 @@ std::auto_ptr<std::ostream> RawFileSystem::openWrite(const Path& path) const
 	return os;
 }
 
+struct SearchContext
+{
+	~SearchContext() {
+		if(handle != INVALID_HANDLE_VALUE)
+			::FindClose(handle);
+	}
+
+	HANDLE handle;
+	WIN32_FIND_DATA data;
+};	// SearchFileContext
+
+void* RawFileSystem::openFirstChildFolder(const Path& folder) const
+{
+	SearchContext* c = new SearchContext;
+	Path::string_type absolutePath = toAbsolutePath(folder).getString() + L"/*";
+	c->handle = ::FindFirstFile(absolutePath.c_str(), &(c->data));
+
+	if(c->handle == INVALID_HANDLE_VALUE)
+		goto Fail;
+
+	while(!(c->data.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) ||
+		wcscmp(c->data.cFileName, L".") == 0 || wcscmp(c->data.cFileName, L"..") == 0)
+	{
+		if(!FindNextFile(c->handle, &(c->data)))
+			goto Fail;
+	}
+
+	return c;
+
+Fail:
+	closeFirstChildFolder(c);
+	return nullptr;
+}
+
+Path RawFileSystem::getNextSiblingFolder(void* context) const
+{
+	Path ret;
+	if(!context)
+		return ret;
+
+	SearchContext* c = reinterpret_cast<SearchContext*>(context);
+	ret = c->data.cFileName;
+
+	do {
+		if(!::FindNextFile(c->handle, &(c->data))) {
+			c->data.cFileName[0] = '\0';
+			break;
+		}
+	} while(!(c->data.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY));
+
+	return ret;
+}
+
+void RawFileSystem::closeFirstChildFolder(void* context) const
+{
+	SearchContext* c = reinterpret_cast<SearchContext*>(context);
+	delete c;
+}
+
+void* RawFileSystem::openFirstFileInFolder(const Path& folder) const
+{
+	SearchContext* c = new SearchContext;
+	Path::string_type absolutePath = toAbsolutePath(folder).getString() + L"/*";
+	c->handle = ::FindFirstFile(absolutePath.c_str(), &(c->data));
+
+	if(c->handle == INVALID_HANDLE_VALUE)
+		goto Fail;
+
+	while(c->data.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)
+	{
+		if(!FindNextFile(c->handle, &(c->data)))
+			goto Fail;
+	}
+
+	return c;
+
+Fail:
+	closeFirstChildFolder(c);
+	return nullptr;
+}
+
+Path RawFileSystem::getNextFileInFolder(void* context) const
+{
+	Path ret;
+	if(!context)
+		return ret;
+
+	SearchContext* c = reinterpret_cast<SearchContext*>(context);
+	ret = c->data.cFileName;
+
+	do {
+		if(!::FindNextFile(c->handle, &(c->data))) {
+			c->data.cFileName[0] = '\0';
+			break;
+		}
+	} while(c->data.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY);
+
+	return ret;
+}
+
+void RawFileSystem::closeFirstFileInFolder(void* context) const
+{
+	closeFirstChildFolder(context);
+}
+
 }	// namespace MCD

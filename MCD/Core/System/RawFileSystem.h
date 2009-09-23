@@ -42,6 +42,18 @@ public:
 
 	sal_override std::auto_ptr<std::ostream> openWrite(const Path& path) const;
 
+	sal_override sal_maybenull void* openFirstChildFolder(const Path& folder) const;
+
+	sal_override Path getNextSiblingFolder(sal_maybenull void* context) const;
+
+	sal_override void closeFirstChildFolder(sal_maybenull void* context) const;
+
+	sal_override sal_maybenull void* openFirstFileInFolder(const Path& folder) const;
+
+	sal_override Path getNextFileInFolder(sal_maybenull void* context) const;
+
+	sal_override void closeFirstFileInFolder(sal_maybenull void* context) const;
+
 private:
 	//! Convert to absolute path, if necessary
 	Path toAbsolutePath(const Path& path) const;

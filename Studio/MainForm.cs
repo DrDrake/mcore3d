@@ -37,6 +37,10 @@ namespace Studio
 	// Events
 		private void MainForm_Load(object sender, EventArgs e)
 		{
+			// NOTE: Starting up the form is quite time-consumming, especially for the CodeWindow
+			// See http://msdn.microsoft.com/en-us/library/cc656914.aspx
+			// and http://msdn.microsoft.com/en-us/magazine/cc163655.aspx
+			// to improve startup time.
 			projectWindow = new ProjectWindow();
 			assertWindow = new AssertWindow();
 			entityWindow = new EntityWindow();

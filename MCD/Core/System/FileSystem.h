@@ -51,6 +51,18 @@ public:
 
 	//!	Returns a std::ostream for writing, null if fail.
 	virtual std::auto_ptr<std::ostream> openWrite(const Path& path) const = 0;
+
+	virtual sal_maybenull void* openFirstChildFolder(const Path& folder) const { return nullptr; }
+
+	virtual Path getNextSiblingFolder(sal_maybenull void* context) const { return Path(); }
+
+	virtual void closeFirstChildFolder(sal_maybenull void* context) const {}
+
+	virtual sal_maybenull void* openFirstFileInFolder(const Path& folder) const { return nullptr; }
+
+	virtual Path getNextFileInFolder(sal_maybenull void* context) const { return Path(); }
+
+	virtual void closeFirstFileInFolder(sal_maybenull void* context) const {}
 };	// IFileSystem
 
 }	// namespace MCD
