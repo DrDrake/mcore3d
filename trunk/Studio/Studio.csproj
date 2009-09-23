@@ -207,6 +207,9 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="Icons\File.png" />
+    <Content Include="SquirrelForScintilla.xml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
     <None Include="Icons\stop.png" />
     <EmbeddedResource Include="CodeWindow.resx">
       <DependentUpon>CodeWindow.cs</DependentUpon>
