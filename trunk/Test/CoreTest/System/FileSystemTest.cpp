@@ -77,6 +77,29 @@ TEST(RawFileSystemMonitorTest)
 	fs.remove(L"2.txt");
 }
 
+TEST(RawFileSystemListingTest)
+{
+	RawFileSystem fs(L"./");
+
+	{	void* c = fs.openFirstChildFolder(L"");
+		Path p;
+		do {
+			p = fs.getNextSiblingFolder(c);
+		} while(!p.getString().empty());
+		fs.closeFirstChildFolder(c);
+	}
+
+	{	void* c = fs.openFirstFileInFolder(L"");
+		Path p;
+		do {
+			p = fs.getNextFileInFolder(c);
+		} while(!p.getString().empty());
+		fs.closeFirstFileInFolder(c);
+	}
+
+	CHECK(true);
+}
+
 #endif	// MCD_VC
 
 TEST(ZipFileSystemTest)
