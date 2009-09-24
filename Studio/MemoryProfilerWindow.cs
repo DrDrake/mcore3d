@@ -25,6 +25,8 @@ namespace Studio
 			treeViewAdv1.Model = new TreeModel();
 			mMemoryProfilerServer = new Binding.MemoryProfilerServer();
 			mMemoryProfilerServer.listern(5000);
+
+			timer1.Enabled = true;
 		}
 
 		/// <summary>

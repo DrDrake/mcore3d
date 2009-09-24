@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Windows.Forms;
 using Aga.Controls.Tree;
+using Binding;
 
 namespace Studio
 {
@@ -8,14 +9,16 @@ namespace Studio
 	{
 		public static ProjectWindow Singleton;
 
-		public ProjectWindow()
+		public ProjectWindow(MainForm mainForm)
 		{
 			InitializeComponent();
 			Singleton = this;
 			mContext = new Context(treeViewAdv);
 			mContext.Project = new Project();
+			mMainForm = mainForm;
 		}
 
+	// Operations
 		/// <summary>
 		/// Make a new project, the main window should responsible for cleanning up
 		/// all the scene windows before calling this.
@@ -58,6 +61,37 @@ namespace Studio
 			}
 		}
 
+		private void OpenProject(string path)
+		{
+			// Only destroy the old manager if the loading success
+			ResourceManager oldMgr = Project.ResourceManager;
+
+			// LoadProject() should handled all exception.
+			if (LoadProject(path))
+			{
+				// Close all scene window
+				mMainForm.CloseAllDocuments();
+				oldMgr.destroy();
+			}
+
+			// Inform the user-preference
+			mMainForm.UserPreference.OpenProject(path);
+			UpdateRecentProjectList();
+		}
+
+		private void UpdateRecentProjectList()
+		{
+			recentProjectsToolStripMenuItem.DropDownItems.Clear();
+			foreach (string path in mMainForm.UserPreference.RecentProjects)
+			{
+				ToolStripMenuItem i = new ToolStripMenuItem();
+				i.Click += new EventHandler(openRecentProject);
+				i.Text = path;
+				recentProjectsToolStripMenuItem.DropDownItems.Add(i);
+			}
+		}
+
+	// Attributes
 		public Node SceneNode
 		{
 			get { return mContext.SceneNode; }
@@ -85,6 +119,14 @@ namespace Studio
 		}
 
 		private Context mContext;
+		private MainForm mMainForm;
+
+	// Events
+		private void ProjectWindow_Load(object sender, EventArgs e)
+		{
+			ToolStripManager.Merge(this.MainMenuStrip, MainForm.Singleton.MainMenuStrip);
+			UpdateRecentProjectList();
+		}
 
 		private void treeViewAdv1_MouseDown(object sender, MouseEventArgs e)
 		{
@@ -119,6 +161,42 @@ namespace Studio
 			path.Text = d.SelectedPath;
 			Project.MediaPaths.Add(path);
 			treeViewAdv.FindNodeByTag(MediaPathNode).Expand(true);
+		}
+
+		private void newProjectToolStripMenuItem_Click(object sender, EventArgs e)
+		{
+
+		}
+
+		private void openProjectToolStripMenuItem_Click(object sender, EventArgs e)
+		{
+			OpenFileDialog d = new OpenFileDialog();
+			d.AutoUpgradeEnabled = false;
+//			d.InitialDirectory = Environment.GetFolderPath(Environment.SpecialFolder.Personal);
+			d.Filter = "Xml files (*.xml)|*.xml|All files (*.*)|*.*";
+			if (d.ShowDialog(this) != DialogResult.OK)
+				return;
+
+			OpenProject(d.FileName);
+		}
+
+		private void openRecentProject(object sender, EventArgs e)
+		{
+			ToolStripMenuItem m = (ToolStripMenuItem)sender;
+			OpenProject(m.Text);
+		}
+
+		private void saveProjectToolStripMenuItem_Click(object sender, EventArgs e)
+		{
+			SaveFileDialog d = new SaveFileDialog();
+			d.AutoUpgradeEnabled = false;
+//			d.InitialDirectory = Environment.GetFolderPath(Environment.SpecialFolder.Personal);
+			d.Filter = "Xml files (*.xml)|*.xml|All files (*.*)|*.*";
+
+			if (d.ShowDialog(this) != DialogResult.OK)
+				return;
+
+			SaveProject(d.FileName);
 		}
 	}
 
