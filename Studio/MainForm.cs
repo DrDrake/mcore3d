@@ -13,7 +13,7 @@ namespace Studio
 		{
 			InitializeComponent();
 			renderControls = new List<RenderPanelControl>();
-			mDeserializeDockContent = new DeserializeDockContent(getDockingFromPersistString);
+			mDeserializeDockContent = new DeserializeDockContent(GetDockingFromPersistString);
 			Singleton = this;
 		}
 
@@ -34,6 +34,84 @@ namespace Studio
 			);
 		}
 
+		private void UpdateRecentProjectList()
+		{
+			recentProjectsToolStripMenuItem.DropDownItems.Clear();
+			foreach (string path in mUserPreference.RecentProjects)
+			{
+				ToolStripMenuItem i = new ToolStripMenuItem();
+				i.Click += new EventHandler(openProjectRecentList_Click);
+				i.Text = path;
+				recentProjectsToolStripMenuItem.DropDownItems.Add(i);
+			}
+		}
+
+		private void OpenProject(string path)
+		{
+			// Only destroy the old manager if the loading success
+			ResourceManager oldMgr = projectWindow.Project.ResourceManager;
+
+			// projectWindow.LoadProject() should handled all exception.
+			if (projectWindow.LoadProject(path))
+			{
+				// Close all scene window
+				while (renderControls.Count != 0)
+				{
+					RenderPanelControl r = renderControls[0];
+					(r.Tag as DockContent).Close();
+					r.destroy();
+				}
+				oldMgr.destroy();
+			}
+
+			// Inform the user-preference
+			mUserPreference.OpenProject(path);
+			UpdateRecentProjectList();
+		}
+
+		private IDockContent GetDockingFromPersistString(string persistString)
+		{
+			if (persistString == typeof(ProjectWindow).ToString())
+				return projectWindow;
+			else if (persistString == typeof(AssertWindow).ToString())
+				return assertWindow;
+			else if (persistString == typeof(EntityWindow).ToString())
+				return entityWindow;
+			else if (persistString == typeof(LogWindow).ToString())
+				return logWindow;
+			else if (persistString == typeof(CodeWindow).ToString())
+				return codeWindow;
+			else if (persistString == typeof(PropertyWindow).ToString())
+				return propertyWindow;
+			else if (persistString == typeof(MemoryProfilerWindow).ToString())
+				return memoryProfilerWindow;
+
+			// For example, the docking state of renderWindow will not be laoded
+			return null;
+		}
+
+	// Attrubutes
+		/// <summary>
+		/// The current selected rendering panel.
+		/// </summary>
+		RenderPanelControl currentRenderControl;
+
+		/// <summary>
+		/// A list of all rendering panels.
+		/// </summary>
+		List<RenderPanelControl> renderControls;
+
+		ProjectWindow projectWindow;
+		EntityWindow entityWindow;
+		PropertyWindow propertyWindow;
+		AssertWindow assertWindow;
+		LogWindow logWindow;
+		CodeWindow codeWindow;
+		MemoryProfilerWindow memoryProfilerWindow;
+
+		private UserPreference mUserPreference;
+		private DeserializeDockContent mDeserializeDockContent;
+		
 	// Events
 		private void MainForm_Load(object sender, EventArgs e)
 		{
@@ -73,6 +151,9 @@ namespace Studio
 			}
 
 			dockPanel.ResumeLayout(true, true);
+
+			mUserPreference = UserPreference.DeserializeFromXML("userPreference.xml");
+			UpdateRecentProjectList();
 		}
 
 		private void newToolStripMenuItem_Click(object sender, EventArgs e)
@@ -198,49 +279,8 @@ namespace Studio
 		private void MainForm_FormClosed(object sender, FormClosedEventArgs e)
 		{
 			dockPanel.SaveAsXml("layout.xml");
+			UserPreference.SerializeToXML("userPreference.xml", mUserPreference);
 		}
-
-		private IDockContent getDockingFromPersistString(string persistString)
-		{
-			if (persistString == typeof(ProjectWindow).ToString())
-				return projectWindow;
-			else if (persistString == typeof(AssertWindow).ToString())
-				return assertWindow;
-			else if (persistString == typeof(EntityWindow).ToString())
-				return entityWindow;
-			else if (persistString == typeof(LogWindow).ToString())
-				return logWindow;
-			else if (persistString == typeof(CodeWindow).ToString())
-				return codeWindow;
-			else if (persistString == typeof(PropertyWindow).ToString())
-				return propertyWindow;
-			else if (persistString == typeof(MemoryProfilerWindow).ToString())
-				return memoryProfilerWindow;
-
-			// For example, the docking state of renderWindow will not be laoded
-			return null;
-		}
-
-	// Attrubutes
-		/// <summary>
-		/// The current selected rendering panel.
-		/// </summary>
-		RenderPanelControl currentRenderControl;
-
-		/// <summary>
-		/// A list of all rendering panels.
-		/// </summary>
-		List<RenderPanelControl> renderControls;
-
-		ProjectWindow projectWindow;
-		EntityWindow entityWindow;
-		PropertyWindow propertyWindow;
-		AssertWindow assertWindow;
-		LogWindow logWindow;
-		CodeWindow codeWindow;
-		MemoryProfilerWindow memoryProfilerWindow;
-
-		private DeserializeDockContent mDeserializeDockContent;
 
 		/// <summary>
 		/// Redirect Tool bar button click to the menu item.
@@ -352,6 +392,12 @@ namespace Studio
 			projectWindow.SaveProject(d.FileName);
 		}
 
+		private void openProjectRecentList_Click(object sender, EventArgs e)
+		{
+			ToolStripMenuItem m = (ToolStripMenuItem)sender;
+			OpenProject(m.Text);
+		}
+
 		private void openToolStripMenuItem_Click(object sender, EventArgs e)
 		{
 			OpenFileDialog d = new OpenFileDialog();
@@ -360,20 +406,7 @@ namespace Studio
 			if (d.ShowDialog() != DialogResult.OK)
 				return;
 
-			// Only destroy the old manager if the loading success
-			ResourceManager oldMgr = projectWindow.Project.ResourceManager;
-
-			if (projectWindow.LoadProject(d.FileName))
-			{
-				// Close all scene window
-				while (renderControls.Count != 0)
-				{
-					RenderPanelControl r = renderControls[0];
-					(r.Tag as DockContent).Close();
-					r.destroy();
-				}
-				oldMgr.destroy();
-			}
+			OpenProject(d.FileName);
 		}
 	}
 }

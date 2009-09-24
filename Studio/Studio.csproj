@@ -157,6 +157,7 @@
     </Compile>
     <Compile Include="TreeNodeBase.cs" />
     <Compile Include="TreeViewRearrange.cs" />
+    <Compile Include="UserPreference.cs" />
     <Compile Include="Utility.cs" />
   </ItemGroup>
   <ItemGroup>
