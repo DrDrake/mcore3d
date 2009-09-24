@@ -18,10 +18,20 @@ namespace Studio
 		}
 
 	// Properties
-		MainForm Singleton;
+		public static MainForm Singleton;
 
 	// Operations
-		void UpdateToolBars()
+		public void CloseAllDocuments()
+		{
+			while (renderControls.Count != 0)
+			{
+				RenderPanelControl r = renderControls[0];
+				(r.Tag as DockContent).Close();
+				r.destroy();
+			}
+		}
+
+		private void UpdateToolBars()
 		{
 			if (currentRenderControl == null)
 				return;
@@ -32,41 +42,6 @@ namespace Studio
 			toolStripButtonPlay.Image = ((System.Drawing.Image)(
 				resources.GetObject(currentRenderControl.playing ? "toolStripButtonStop.Image" : "toolStripButtonPlay.Image"))
 			);
-		}
-
-		private void UpdateRecentProjectList()
-		{
-			recentProjectsToolStripMenuItem.DropDownItems.Clear();
-			foreach (string path in mUserPreference.RecentProjects)
-			{
-				ToolStripMenuItem i = new ToolStripMenuItem();
-				i.Click += new EventHandler(openProjectRecentList_Click);
-				i.Text = path;
-				recentProjectsToolStripMenuItem.DropDownItems.Add(i);
-			}
-		}
-
-		private void OpenProject(string path)
-		{
-			// Only destroy the old manager if the loading success
-			ResourceManager oldMgr = projectWindow.Project.ResourceManager;
-
-			// projectWindow.LoadProject() should handled all exception.
-			if (projectWindow.LoadProject(path))
-			{
-				// Close all scene window
-				while (renderControls.Count != 0)
-				{
-					RenderPanelControl r = renderControls[0];
-					(r.Tag as DockContent).Close();
-					r.destroy();
-				}
-				oldMgr.destroy();
-			}
-
-			// Inform the user-preference
-			mUserPreference.OpenProject(path);
-			UpdateRecentProjectList();
 		}
 
 		private IDockContent GetDockingFromPersistString(string persistString)
@@ -90,7 +65,7 @@ namespace Studio
 			return null;
 		}
 
-	// Attrubutes
+	// Attributes
 		/// <summary>
 		/// The current selected rendering panel.
 		/// </summary>
@@ -109,17 +84,19 @@ namespace Studio
 		CodeWindow codeWindow;
 		MemoryProfilerWindow memoryProfilerWindow;
 
-		private UserPreference mUserPreference;
+		public UserPreference UserPreference;
 		private DeserializeDockContent mDeserializeDockContent;
 		
 	// Events
 		private void MainForm_Load(object sender, EventArgs e)
 		{
+			UserPreference = UserPreference.DeserializeFromXML("userPreference.xml");
+
 			// NOTE: Starting up the form is quite time-consumming, especially for the CodeWindow
 			// See http://msdn.microsoft.com/en-us/library/cc656914.aspx
 			// and http://msdn.microsoft.com/en-us/magazine/cc163655.aspx
 			// to improve startup time.
-			projectWindow = new ProjectWindow();
+			projectWindow = new ProjectWindow(this);
 			assertWindow = new AssertWindow();
 			entityWindow = new EntityWindow();
 			logWindow = new LogWindow();
@@ -151,9 +128,6 @@ namespace Studio
 			}
 
 			dockPanel.ResumeLayout(true, true);
-
-			mUserPreference = UserPreference.DeserializeFromXML("userPreference.xml");
-			UpdateRecentProjectList();
 		}
 
 		private void newToolStripMenuItem_Click(object sender, EventArgs e)
@@ -279,7 +253,7 @@ namespace Studio
 		private void MainForm_FormClosed(object sender, FormClosedEventArgs e)
 		{
 			dockPanel.SaveAsXml("layout.xml");
-			UserPreference.SerializeToXML("userPreference.xml", mUserPreference);
+			UserPreference.SerializeToXML("userPreference.xml", UserPreference);
 		}
 
 		/// <summary>
@@ -378,35 +352,6 @@ namespace Studio
 			if(currentRenderControl != null)
 				entityWindow.selectEntityRoot(currentRenderControl.rootEntity);
 			UpdateToolBars();
-		}
-
-		private void saveToolStripMenuItem_Click(object sender, EventArgs e)
-		{
-			SaveFileDialog d = new SaveFileDialog();
-			d.Filter = "Xml files (*.xml)|*.xml|All files (*.*)|*.*";
-			d.AutoUpgradeEnabled = false;
-
-			if (d.ShowDialog() != DialogResult.OK)
-				return;
-
-			projectWindow.SaveProject(d.FileName);
-		}
-
-		private void openProjectRecentList_Click(object sender, EventArgs e)
-		{
-			ToolStripMenuItem m = (ToolStripMenuItem)sender;
-			OpenProject(m.Text);
-		}
-
-		private void openToolStripMenuItem_Click(object sender, EventArgs e)
-		{
-			OpenFileDialog d = new OpenFileDialog();
-			d.AutoUpgradeEnabled = false;
-			d.Filter = "Xml files (*.xml)|*.xml|All files (*.*)|*.*";
-			if (d.ShowDialog() != DialogResult.OK)
-				return;
-
-			OpenProject(d.FileName);
 		}
 	}
 }

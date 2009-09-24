@@ -124,7 +124,6 @@
 			// nodeTextBox1
 			// 
 			nodeTextBox1.DataPropertyName = "Name";
-			nodeTextBox1.EditEnabled = false;
 			nodeTextBox1.IncrementalSearchEnabled = true;
 			nodeTextBox1.LeftMargin = 3;
 			nodeTextBox1.ParentColumn = treeColumn1;
@@ -132,7 +131,6 @@
 			// nodeDecimalTextBox1
 			// 
 			nodeDecimalTextBox1.DataPropertyName = "TCount";
-			nodeDecimalTextBox1.EditEnabled = false;
 			nodeDecimalTextBox1.IncrementalSearchEnabled = true;
 			nodeDecimalTextBox1.LeftMargin = 3;
 			nodeDecimalTextBox1.ParentColumn = treeColumn2;
@@ -141,7 +139,6 @@
 			// nodeDecimalTextBox2
 			// 
 			nodeDecimalTextBox2.DataPropertyName = "SCount";
-			nodeDecimalTextBox2.EditEnabled = false;
 			nodeDecimalTextBox2.IncrementalSearchEnabled = true;
 			nodeDecimalTextBox2.LeftMargin = 3;
 			nodeDecimalTextBox2.ParentColumn = treeColumn3;
@@ -150,7 +147,6 @@
 			// nodeDecimalTextBox3
 			// 
 			nodeDecimalTextBox3.DataPropertyName = "TkBytes";
-			nodeDecimalTextBox3.EditEnabled = false;
 			nodeDecimalTextBox3.IncrementalSearchEnabled = true;
 			nodeDecimalTextBox3.LeftMargin = 3;
 			nodeDecimalTextBox3.ParentColumn = treeColumn4;
@@ -159,7 +155,6 @@
 			// nodeDecimalTextBox4
 			// 
 			nodeDecimalTextBox4.DataPropertyName = "SkBytes";
-			nodeDecimalTextBox4.EditEnabled = false;
 			nodeDecimalTextBox4.IncrementalSearchEnabled = true;
 			nodeDecimalTextBox4.LeftMargin = 3;
 			nodeDecimalTextBox4.ParentColumn = treeColumn5;
@@ -186,9 +181,9 @@
 			this.button1.AutoSize = true;
 			this.button1.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
 			this.button1.Dock = System.Windows.Forms.DockStyle.Right;
-			this.button1.Location = new System.Drawing.Point(612, 0);
+			this.button1.Location = new System.Drawing.Point(615, 0);
 			this.button1.Name = "button1";
-			this.button1.Size = new System.Drawing.Size(57, 25);
+			this.button1.Size = new System.Drawing.Size(54, 23);
 			this.button1.TabIndex = 0;
 			this.button1.Text = "Connect";
 			this.button1.UseVisualStyleBackColor = true;
@@ -196,7 +191,6 @@
 			// 
 			// timer1
 			// 
-			this.timer1.Enabled = true;
 			this.timer1.Interval = 500;
 			this.timer1.Tick += new System.EventHandler(this.timer1_Tick);
 			// 
@@ -211,12 +205,12 @@
 			this.textBox1.Dock = System.Windows.Forms.DockStyle.Fill;
 			this.textBox1.Location = new System.Drawing.Point(0, 0);
 			this.textBox1.Name = "textBox1";
-			this.textBox1.Size = new System.Drawing.Size(612, 20);
+			this.textBox1.Size = new System.Drawing.Size(615, 22);
 			this.textBox1.TabIndex = 1;
 			this.textBox1.Text = "localhost:5000";
 			this.textBox1.WordWrap = false;
 			// 
-			// treeViewAdv
+			// treeViewAdv1
 			// 
 			this.treeViewAdv1.AllowColumnReorder = true;
 			this.treeViewAdv1.BackColor = System.Drawing.SystemColors.Window;
@@ -234,9 +228,9 @@
 			this.treeViewAdv1.GridLineStyle = ((Aga.Controls.Tree.GridLineStyle)((Aga.Controls.Tree.GridLineStyle.Horizontal | Aga.Controls.Tree.GridLineStyle.Vertical)));
 			this.treeViewAdv1.Indent = 12;
 			this.treeViewAdv1.LineColor = System.Drawing.SystemColors.ControlDark;
-			this.treeViewAdv1.Location = new System.Drawing.Point(0, 25);
+			this.treeViewAdv1.Location = new System.Drawing.Point(0, 23);
 			this.treeViewAdv1.Model = null;
-			this.treeViewAdv1.Name = "treeViewAdv";
+			this.treeViewAdv1.Name = "treeViewAdv1";
 			this.treeViewAdv1.NodeControls.Add(nodeTextBox1);
 			this.treeViewAdv1.NodeControls.Add(nodeDecimalTextBox1);
 			this.treeViewAdv1.NodeControls.Add(nodeDecimalTextBox2);
@@ -245,7 +239,7 @@
 			this.treeViewAdv1.NodeControls.Add(nodeDecimalTextBox5);
 			this.treeViewAdv1.NodeControls.Add(nodeDecimalTextBox6);
 			this.treeViewAdv1.SelectedNode = null;
-			this.treeViewAdv1.Size = new System.Drawing.Size(669, 344);
+			this.treeViewAdv1.Size = new System.Drawing.Size(669, 318);
 			this.treeViewAdv1.TabIndex = 2;
 			this.treeViewAdv1.Text = "treeViewAdv";
 			this.treeViewAdv1.UseColumns = true;
@@ -257,14 +251,14 @@
 			this.panel1.Dock = System.Windows.Forms.DockStyle.Top;
 			this.panel1.Location = new System.Drawing.Point(0, 0);
 			this.panel1.Name = "panel1";
-			this.panel1.Size = new System.Drawing.Size(669, 25);
+			this.panel1.Size = new System.Drawing.Size(669, 23);
 			this.panel1.TabIndex = 3;
 			// 
 			// MemoryProfilerWindow
 			// 
-			this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
+			this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-			this.ClientSize = new System.Drawing.Size(669, 369);
+			this.ClientSize = new System.Drawing.Size(669, 341);
 			this.Controls.Add(this.treeViewAdv1);
 			this.Controls.Add(this.panel1);
 			this.DockAreas = ((WeifenLuo.WinFormsUI.Docking.DockAreas)((((((WeifenLuo.WinFormsUI.Docking.DockAreas.Float | WeifenLuo.WinFormsUI.Docking.DockAreas.DockLeft)
