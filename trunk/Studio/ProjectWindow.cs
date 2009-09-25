@@ -171,7 +171,6 @@ namespace Studio
 		private void openProjectToolStripMenuItem_Click(object sender, EventArgs e)
 		{
 			OpenFileDialog d = new OpenFileDialog();
-			d.AutoUpgradeEnabled = false;
 //			d.InitialDirectory = Environment.GetFolderPath(Environment.SpecialFolder.Personal);
 			d.Filter = "Xml files (*.xml)|*.xml|All files (*.*)|*.*";
 			if (d.ShowDialog(this) != DialogResult.OK)
@@ -189,7 +188,6 @@ namespace Studio
 		private void saveProjectToolStripMenuItem_Click(object sender, EventArgs e)
 		{
 			SaveFileDialog d = new SaveFileDialog();
-			d.AutoUpgradeEnabled = false;
 //			d.InitialDirectory = Environment.GetFolderPath(Environment.SpecialFolder.Personal);
 			d.Filter = "Xml files (*.xml)|*.xml|All files (*.*)|*.*";
 

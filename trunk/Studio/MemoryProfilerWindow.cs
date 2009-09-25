@@ -26,6 +26,7 @@ namespace Studio
 			mMemoryProfilerServer = new Binding.MemoryProfilerServer();
 			mMemoryProfilerServer.listern(5000);
 
+			// All setup finished, we can start the timer.
 			timer1.Enabled = true;
 		}
 
@@ -77,7 +78,8 @@ namespace Studio
 		}
 
 		private TcpClient mClient;
-		private bool mDisconnectPending;
+		private bool mDisconnectPending = false;
+		private bool mPasued = false;
 		private StreamReader mStreamReader;
 
 		/// <summary>
@@ -134,6 +136,9 @@ namespace Studio
 					// We use double new line as a terminate indicator
 					if (s == lastLine && s == "")
 						break;
+
+					if (mPasued)
+						continue;
 
 					if (s.Length > 0)
 					{
@@ -228,6 +233,15 @@ namespace Studio
 		private void button1_Click(object sender, EventArgs e)
 		{
 			connect(this.textBox1.Text);
+
+			if (mPasued)
+				button2_Click(sender, new EventArgs());
+		}
+
+		private void button2_Click(object sender, EventArgs e)
+		{
+			mPasued = !mPasued;
+			this.button2.Text = mPasued ? "Resume" : "Pause";
 		}
 	}
 
@@ -242,6 +256,28 @@ namespace Studio
 		public double SkBytes;
 		public double SCountPerFrame;
 		public double CallPerFrame;
+
+		/// <summary>
+		/// Rounded TkBytes to the nearest integer, and display as "<1" if TkBytes is less than 1 but not zero
+		/// </summary>
+		public string TkBytesAsString
+		{
+			get
+			{
+				return (TkBytes < 1 && TkBytes > 0) ? "< 1" : Math.Round(TkBytes).ToString();
+			}
+		}
+
+		/// <summary>
+		/// Rounded SkBytes to the nearest integer, and display as "<1" if SkBytes is less than 1 but not zero
+		/// </summary>
+		public string SkBytesAsString
+		{
+			get
+			{
+				return (SkBytes < 1 && SkBytes > 0) ? "< 1" : Math.Round(SkBytes).ToString();
+			}
+		}
 
 		public new CallstackNode Parent
 		{
