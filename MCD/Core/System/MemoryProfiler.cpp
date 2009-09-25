@@ -62,15 +62,18 @@ protected:
 typedef LPVOID (WINAPI *MyHeapAlloc)(HANDLE, DWORD, SIZE_T);
 typedef LPVOID (WINAPI *MyHeapReAlloc)(HANDLE, DWORD, LPVOID, SIZE_T);
 typedef LPVOID (WINAPI *MyHeapFree)(HANDLE, DWORD, LPVOID);
+typedef SIZE_T (WINAPI *MyHeapSize)(HANDLE, DWORD, LPCVOID);
 
 LPVOID WINAPI myHeapAlloc(HANDLE, DWORD, SIZE_T);
 LPVOID WINAPI myHeapReAlloc(HANDLE, DWORD, LPVOID, SIZE_T);
 LPVOID WINAPI myHeapFree(HANDLE, DWORD, LPVOID);
+SIZE_T WINAPI myHeapSize(HANDLE, DWORD, LPCVOID);
 
 FunctionPatcher functionPatcher;
 MyHeapAlloc orgHeapAlloc;
 MyHeapReAlloc orgHeapReAlloc;
 MyHeapFree orgHeapFree;
+MyHeapSize orgHeapSize;
 
 DWORD gTlsIndex = 0;
 
@@ -137,7 +140,7 @@ void commonDealloc(__in HANDLE hHeap, __in DWORD dwFlags, __deref LPVOID lpMem)
 	if(!lpMem)
 		return;
 
-	size_t size = HeapSize(hHeap, dwFlags, lpMem) - sizeof(MyMemFooter);
+	size_t size = HeapSize(hHeap, dwFlags, lpMem);
 
 	ScopeLock lock1(*gFooterMutex);
 	MyMemFooter* footer = (MyMemFooter*)(((char*)lpMem) + size);
@@ -202,6 +205,21 @@ LPVOID WINAPI myHeapFree(__in HANDLE hHeap, __in DWORD dwFlags, __deref LPVOID l
 {
 	commonDealloc(hHeap, dwFlags, lpMem);
 	return orgHeapFree(hHeap, dwFlags, lpMem);
+}
+
+/*!	If we didn't patch the HeapSize() function as well, some weird things may happens,
+	for instance the C# Window's form's OpenFileDialog on Vista machine.
+ */
+SIZE_T WINAPI myHeapSize(__in HANDLE hHeap, __in DWORD dwFlags, __in LPCVOID lpMem)
+{
+	SIZE_T orgSize = orgHeapSize(hHeap, dwFlags, lpMem);
+	MyMemFooter* footer = (MyMemFooter*)(((char*)lpMem) + orgSize - sizeof(MyMemFooter));
+
+	// Not every allocation is patched, therefore we need to check for the magic number.
+	if(footer->fourCC1 == MyMemFooter::cFourCC1 && footer->fourCC2 == MyMemFooter::cFourCC2)
+		return orgSize - sizeof(MyMemFooter);
+	else
+		return orgSize;
 }
 
 }	// namespace
@@ -491,33 +509,37 @@ void MemoryProfiler::setEnable(bool flag)
 	if(flag) {
 		// Pre-computed prologue size (for different version of Visual Studio) using libdasm
 #if _MSC_VER == 1400	// VC 2005
-		const int prologueSize[] = { 5, 5, 5 };
+		const int prologueSize[] = { 5, 5, 5, 5 };
 #else _MSC_VER > 1400	// VC 2008
-		const int prologueSize[] = { 5, 5 ,5 };
+		const int prologueSize[] = { 5, 5 ,5, 5 };
 #endif
 
 		// Hooking RtlAllocateHeap is more reliable than hooking HeapAlloc, especially in Vista.
 		HMODULE h = GetModuleHandle(_T("ntdll.dll"));
-		void* pAlloc, *pReAlloc, *pFree;
+		void* pAlloc, *pReAlloc, *pFree, *pSize;
 		if(h) {
 			pAlloc = GetProcAddress(h, "RtlAllocateHeap");
 			pReAlloc = GetProcAddress(h, "RtlReAllocateHeap");
 			pFree = GetProcAddress(h, "RtlFreeHeap");
+			pSize = GetProcAddress(h, "RtlSizeHeap");
 		}
 		else {
 			pAlloc = &HeapAlloc;
 			pReAlloc = &HeapReAlloc;
 			pFree = &HeapFree;
+			pSize = &HeapSize;
 		}
 
 		// Back up the original function and then do patching
 		orgHeapAlloc = (MyHeapAlloc) functionPatcher.copyPrologue(pAlloc, prologueSize[0]);
 		orgHeapReAlloc = (MyHeapReAlloc) functionPatcher.copyPrologue(pReAlloc, prologueSize[1]);
 		orgHeapFree = (MyHeapFree) functionPatcher.copyPrologue(pFree, prologueSize[2]);
+		orgHeapSize = (MyHeapSize) functionPatcher.copyPrologue(pSize, prologueSize[3]);
 
 		functionPatcher.patch(pAlloc, &myHeapAlloc);
 		functionPatcher.patch(pReAlloc, &myHeapReAlloc);
 		functionPatcher.patch(pFree, &myHeapFree);
+		functionPatcher.patch(pSize, &myHeapSize);
 	}
 }
 
