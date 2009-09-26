@@ -10,6 +10,6 @@ return class extends RigidBodyComponent
 		sleep(4);
 //		local e = entity;
 //		e.transform.translateBy(Vec3(0, 5, 0));
-		::println("hi");
+//		::println("hi");
 	}
 }

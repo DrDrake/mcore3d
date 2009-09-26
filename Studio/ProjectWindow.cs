@@ -1,8 +1,8 @@
 ﻿using System;
+using System.IO;
 using System.Windows.Forms;
 using Aga.Controls.Tree;
 using Binding;
-using System.IO;
 
 namespace Studio
 {
@@ -14,8 +14,6 @@ namespace Studio
 		{
 			InitializeComponent();
 			Singleton = this;
-//			mContext = new Context(treeViewAdv);
-//			mContext.Project = new Project();
 			mMainForm = mainForm;
 
 			ToolStripManager.Merge(this.MainMenuStrip, MainForm.Singleton.MainMenuStrip);
@@ -23,26 +21,22 @@ namespace Studio
 		}
 
 	// Operations
-		/// <summary>
-		/// Make a new project, the main window should responsible for cleanning up
-		/// all the scene windows before calling this.
-		/// </summary>
-		public void NewProject()
+		public void NewProject(string path)
 		{
+			CloseProject();
+
 			mContext = new Context(treeViewAdv);
+			mContext.ProjectPath = path;
 			mContext.Project = new Project();
+
+			// Inform the user-preference
+			mMainForm.UserPreference.OpenProject(path);
+			UpdateRecentProjectList();
+
+			SaveProject(path);
 		}
 
-		public void SaveProject(string path)
-		{
-			Project.SerializeToXML(path, Project);
-		}
-
-		/// <summary>
-		/// Open an existing project, the main window should responsible for cleanning up
-		/// all the scene windows before calling this.
-		/// </summary>
-		public bool LoadProject(string path)
+		private bool LoadProject(string path)
 		{
 			Context backupContext = mContext;
 
@@ -65,26 +59,7 @@ namespace Studio
 			}
 		}
 
-		private void NewProject(string path)
-		{
-			// Close all scene window and destroy the original resource manager
-			mMainForm.CloseAllDocuments();
-
-			if(Project != null)
-				Project.ResourceManager.destroy();
-
-			mContext = new Context(treeViewAdv);
-			mContext.ProjectPath = path;
-			mContext.Project = new Project();
-
-			// Inform the user-preference
-			mMainForm.UserPreference.OpenProject(path);
-			UpdateRecentProjectList();
-
-			SaveProject(path);
-		}
-
-		private void OpenProject(string path)
+		public void OpenProject(string path)
 		{
 			// Only destroy the old manager if the loading success
 			ResourceManager oldMgr = Project == null ? null : Project.ResourceManager;
@@ -102,6 +77,25 @@ namespace Studio
 			// Inform the user-preference
 			mMainForm.UserPreference.OpenProject(path);
 			UpdateRecentProjectList();
+		}
+
+		public void SaveProject(string path)
+		{
+			Project.SerializeToXML(path, Project);
+		}
+
+		public void CloseProject()
+		{
+			if (mContext == null)
+				return;
+
+			// Close all scene window
+			mMainForm.CloseAllDocuments();
+			Project.ResourceManager.destroy();
+
+			mContext = null;
+			treeViewAdv.Model = null;
+			GC.Collect();
 		}
 
 		private void UpdateRecentProjectList()
@@ -239,6 +233,11 @@ namespace Studio
 				return;
 
 			SaveProject(d.FileName);
+		}
+
+		private void closeProjectToolStripMenuItem_Click(object sender, EventArgs e)
+		{
+			CloseProject();
 		}
 	}
 

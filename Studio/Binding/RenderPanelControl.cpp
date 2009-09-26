@@ -109,7 +109,7 @@ public:
 
 			// Add component
 			mCamera = static_cast<CameraComponent*>(mLauncher.scriptComponentManager.runScripAsComponent(
-				L"return loadComponent(\"FpsCamera.nut\");"
+				L"return loadComponent(\"StudioFpsCamera.nut\");"
 			));
 			mCamera->clearColor = ColorRGBf(0.5f);	// Set the background color as 50% gray
 			e->addComponent(mCamera.get());
