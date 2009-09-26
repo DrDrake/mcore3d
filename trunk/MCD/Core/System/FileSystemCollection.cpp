@@ -3,6 +3,7 @@
 #include "StrUtility.h"
 #include <algorithm>
 #include <list>
+#include <set>
 #include <stdexcept>
 
 namespace MCD {
@@ -13,6 +14,16 @@ static void throwError(const std::string& prefix, const std::wstring& pathStr, c
 		prefix + "\"" + wStrToStr(pathStr) + "\"" + sufix
 	);
 }
+
+namespace {
+
+struct SearchContext
+{
+	std::set<Path> uniquePaths;
+	std::set<Path>::const_iterator iterator;
+};	// SearchFileContext
+
+}	// namespace
 
 class FileSystemCollection::Impl
 {
@@ -55,6 +66,66 @@ public:
 				return fileSystem;
 		}
 		return nullptr;
+	}
+
+	void* openFirstChildFolder(const Path& folder) const
+	{
+		SearchContext* context = new SearchContext;
+
+		for(FileSystems::const_iterator i=mFileSystems.begin(); i!=mFileSystems.end(); ++i)
+		{
+			IFileSystem& fs = *(*i);
+
+			void* c = fs.openFirstChildFolder(folder);
+			Path p;
+			while(true) {
+				p = fs.getNextSiblingFolder(c);
+				if(p.getString().empty())
+					break;
+				context->uniquePaths.insert(p);
+			}
+			fs.closeFirstChildFolder(c);
+		}
+
+		context->iterator = context->uniquePaths.begin();
+		return context;
+	}
+
+	void* openFirstFileInFolder(const Path& folder) const
+	{
+		SearchContext* context = new SearchContext;
+
+		for(FileSystems::const_iterator i=mFileSystems.begin(); i!=mFileSystems.end(); ++i)
+		{
+			IFileSystem& fs = *(*i);
+
+			void* c = fs.openFirstFileInFolder(folder);
+			Path p;
+			while(true) {
+				p = fs.getNextFileInFolder(c);
+				if(p.getString().empty())
+					break;
+				context->uniquePaths.insert(p);
+			}
+			fs.closeFirstFileInFolder(c);
+		}
+
+		context->iterator = context->uniquePaths.begin();
+		return context;
+	}
+
+	//! This function is shared by both getNextSiblingFolder() and getNextFileInFolder()
+	Path getNextSearchPath(void* context) const
+	{
+		SearchContext* c = reinterpret_cast<SearchContext*>(context);
+		Path ret;
+
+		if(c->iterator != c->uniquePaths.end()) {
+			ret = *c->iterator;
+			++(c->iterator);
+		}
+
+		return ret;
 	}
 
 	typedef std::list<IFileSystem*> FileSystems;
@@ -169,6 +240,41 @@ std::auto_ptr<std::ostream> FileSystemCollection::openWrite(const Path& path) co
 	// TODO: Implement
 	MCD_ASSERT(false && "Not implement yet");
 	return std::auto_ptr<std::ostream>();
+}
+
+void* FileSystemCollection::openFirstChildFolder(const Path& folder) const
+{
+	MCD_ASSUME(mImpl);
+	return mImpl->openFirstChildFolder(folder);
+}
+
+Path FileSystemCollection::getNextSiblingFolder(void* context) const
+{
+	MCD_ASSUME(mImpl);
+	return mImpl->getNextSearchPath(context);
+}
+
+void FileSystemCollection::closeFirstChildFolder(void* context) const
+{
+	SearchContext* c = reinterpret_cast<SearchContext*>(context);
+	delete c;
+}
+
+void* FileSystemCollection::openFirstFileInFolder(const Path& folder) const
+{
+	MCD_ASSUME(mImpl);
+	return mImpl->openFirstChildFolder(folder);
+}
+
+Path FileSystemCollection::getNextFileInFolder(void* context) const
+{
+	MCD_ASSUME(mImpl);
+	return mImpl->getNextSearchPath(context);
+}
+
+void FileSystemCollection::closeFirstFileInFolder(void* context) const
+{
+	closeFirstChildFolder(context);
 }
 
 }	// namespace MCD

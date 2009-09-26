@@ -47,9 +47,9 @@
 			System.Windows.Forms.Panel panel1;
 			this.button1 = new System.Windows.Forms.Button();
 			this.button2 = new System.Windows.Forms.Button();
+			this.textBox1 = new System.Windows.Forms.TextBox();
 			this.timer1 = new System.Windows.Forms.Timer(this.components);
 			this.backgroundWorker1 = new System.ComponentModel.BackgroundWorker();
-			this.textBox1 = new System.Windows.Forms.TextBox();
 			this.treeViewAdv1 = new Aga.Controls.Tree.TreeViewAdv();
 			treeColumn1 = new Aga.Controls.Tree.TreeColumn();
 			treeColumn2 = new Aga.Controls.Tree.TreeColumn();
@@ -211,6 +211,7 @@
 			// 
 			this.button2.AutoSize = true;
 			this.button2.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
+			this.button2.Enabled = false;
 			this.button2.Location = new System.Drawing.Point(60, 0);
 			this.button2.Margin = new System.Windows.Forms.Padding(3, 0, 0, 0);
 			this.button2.Name = "button2";
@@ -219,6 +220,26 @@
 			this.button2.Text = "Pause";
 			this.button2.UseVisualStyleBackColor = true;
 			this.button2.Click += new System.EventHandler(this.button2_Click);
+			// 
+			// panel1
+			// 
+			panel1.Controls.Add(this.textBox1);
+			panel1.Controls.Add(flowLayoutPanel1);
+			panel1.Dock = System.Windows.Forms.DockStyle.Top;
+			panel1.Location = new System.Drawing.Point(0, 0);
+			panel1.Name = "panel1";
+			panel1.Size = new System.Drawing.Size(669, 23);
+			panel1.TabIndex = 3;
+			// 
+			// textBox1
+			// 
+			this.textBox1.Dock = System.Windows.Forms.DockStyle.Fill;
+			this.textBox1.Location = new System.Drawing.Point(0, 0);
+			this.textBox1.Name = "textBox1";
+			this.textBox1.Size = new System.Drawing.Size(568, 22);
+			this.textBox1.TabIndex = 1;
+			this.textBox1.Text = "localhost:5000";
+			this.textBox1.WordWrap = false;
 			// 
 			// timer1
 			// 
@@ -230,16 +251,6 @@
 			this.backgroundWorker1.WorkerSupportsCancellation = true;
 			this.backgroundWorker1.DoWork += new System.ComponentModel.DoWorkEventHandler(this.backgroundWorker1_DoWork);
 			this.backgroundWorker1.RunWorkerCompleted += new System.ComponentModel.RunWorkerCompletedEventHandler(this.backgroundWorker1_RunWorkerCompleted);
-			// 
-			// textBox1
-			// 
-			this.textBox1.Dock = System.Windows.Forms.DockStyle.Fill;
-			this.textBox1.Location = new System.Drawing.Point(0, 0);
-			this.textBox1.Name = "textBox1";
-			this.textBox1.Size = new System.Drawing.Size(568, 22);
-			this.textBox1.TabIndex = 1;
-			this.textBox1.Text = "localhost:5000";
-			this.textBox1.WordWrap = false;
 			// 
 			// treeViewAdv1
 			// 
@@ -274,16 +285,6 @@
 			this.treeViewAdv1.TabIndex = 2;
 			this.treeViewAdv1.Text = "treeViewAdv";
 			this.treeViewAdv1.UseColumns = true;
-			// 
-			// panel1
-			// 
-			panel1.Controls.Add(this.textBox1);
-			panel1.Controls.Add(flowLayoutPanel1);
-			panel1.Dock = System.Windows.Forms.DockStyle.Top;
-			panel1.Location = new System.Drawing.Point(0, 0);
-			panel1.Name = "panel1";
-			panel1.Size = new System.Drawing.Size(669, 23);
-			panel1.TabIndex = 3;
 			// 
 			// MemoryProfilerWindow
 			// 

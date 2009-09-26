@@ -303,6 +303,8 @@ std::auto_ptr<std::ostream> RawFileSystem::openWrite(const Path& path) const
 	return os;
 }
 
+namespace {
+
 struct SearchContext
 {
 	~SearchContext() {
@@ -313,6 +315,8 @@ struct SearchContext
 	HANDLE handle;
 	WIN32_FIND_DATA data;
 };	// SearchFileContext
+
+}	// namespace
 
 void* RawFileSystem::openFirstChildFolder(const Path& folder) const
 {

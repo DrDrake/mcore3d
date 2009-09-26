@@ -35,10 +35,18 @@ public:
 
 	typedef System::Collections::Generic::List<System::String^> FileSystems;
 
+	typedef System::Collections::Specialized::StringCollection StringCollection;
+
 	// TODO: Can make it IEnumerable?
-	property FileSystems^ fileSystems {
-		FileSystems^ get();
+	property StringCollection^ fileSystems {
+		StringCollection^ get();
 	}
+
+	//! Gets all the first level directories under \em path.
+	StringCollection^ getDirectories(System::String^ path);
+
+	//! Gets all the first level files under \em path.
+	StringCollection^ getFiles(System::String^ path);
 
 protected:
 	~FileSystemCollection();
@@ -46,7 +54,7 @@ protected:
 
 	MCD::FileSystemCollection* mImpl;
 
-	FileSystems^ mFileSystems;
+	StringCollection^ mFileSystems;
 };	// FileSystemCollection
 
 }	// namespace Binding
