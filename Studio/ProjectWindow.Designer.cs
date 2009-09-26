@@ -36,7 +36,7 @@
 			this.addPathToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.sceneMenuStrip = new System.Windows.Forms.ContextMenuStrip(this.components);
 			this.addSceneToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-			this.menuStrip1 = new System.Windows.Forms.MenuStrip();
+			this.menuStripMain = new System.Windows.Forms.MenuStrip();
 			this.fileToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.newProjectToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.openProjectToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -46,7 +46,7 @@
 			this.toolStripSeparator1 = new System.Windows.Forms.ToolStripSeparator();
 			this.mediaPathMenuStrip.SuspendLayout();
 			this.sceneMenuStrip.SuspendLayout();
-			this.menuStrip1.SuspendLayout();
+			this.menuStripMain.SuspendLayout();
 			this.SuspendLayout();
 			// 
 			// treeViewAdv
@@ -62,7 +62,7 @@
 			this.treeViewAdv.Name = "treeViewAdv";
 			this.treeViewAdv.NodeControls.Add(this.nodeTextBox1);
 			this.treeViewAdv.SelectedNode = null;
-			this.treeViewAdv.Size = new System.Drawing.Size(292, 250);
+			this.treeViewAdv.Size = new System.Drawing.Size(292, 271);
 			this.treeViewAdv.TabIndex = 0;
 			this.treeViewAdv.Text = "treeViewAdv";
 			this.treeViewAdv.MouseDown += new System.Windows.Forms.MouseEventHandler(this.treeViewAdv1_MouseDown);
@@ -86,12 +86,12 @@
 			this.mediaPathMenuStrip.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.addPathToolStripMenuItem});
 			this.mediaPathMenuStrip.Name = "mediaPathMenuStrip";
-			this.mediaPathMenuStrip.Size = new System.Drawing.Size(130, 26);
+			this.mediaPathMenuStrip.Size = new System.Drawing.Size(119, 26);
 			// 
 			// addPathToolStripMenuItem
 			// 
 			this.addPathToolStripMenuItem.Name = "addPathToolStripMenuItem";
-			this.addPathToolStripMenuItem.Size = new System.Drawing.Size(129, 22);
+			this.addPathToolStripMenuItem.Size = new System.Drawing.Size(118, 22);
 			this.addPathToolStripMenuItem.Text = "Add path";
 			this.addPathToolStripMenuItem.Click += new System.EventHandler(this.addPathToolStripMenuItem_Click);
 			// 
@@ -100,25 +100,25 @@
 			this.sceneMenuStrip.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.addSceneToolStripMenuItem});
 			this.sceneMenuStrip.Name = "sceneMenuStrip";
-			this.sceneMenuStrip.Size = new System.Drawing.Size(136, 26);
+			this.sceneMenuStrip.Size = new System.Drawing.Size(125, 26);
 			// 
 			// addSceneToolStripMenuItem
 			// 
 			this.addSceneToolStripMenuItem.Name = "addSceneToolStripMenuItem";
-			this.addSceneToolStripMenuItem.Size = new System.Drawing.Size(135, 22);
+			this.addSceneToolStripMenuItem.Size = new System.Drawing.Size(124, 22);
 			this.addSceneToolStripMenuItem.Text = "Add scene";
 			this.addSceneToolStripMenuItem.Click += new System.EventHandler(this.addSceneToolStripMenuItem_Click);
 			// 
-			// menuStrip1
+			// menuStripMain
 			// 
-			this.menuStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+			this.menuStripMain.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.fileToolStripMenuItem});
-			this.menuStrip1.Location = new System.Drawing.Point(0, 0);
-			this.menuStrip1.Name = "menuStrip1";
-			this.menuStrip1.Size = new System.Drawing.Size(292, 24);
-			this.menuStrip1.TabIndex = 2;
-			this.menuStrip1.Text = "menuStrip1";
-			this.menuStrip1.Visible = false;
+			this.menuStripMain.Location = new System.Drawing.Point(0, 0);
+			this.menuStripMain.Name = "menuStripMain";
+			this.menuStripMain.Size = new System.Drawing.Size(292, 24);
+			this.menuStripMain.TabIndex = 2;
+			this.menuStripMain.Text = "menuStrip1";
+			this.menuStripMain.Visible = false;
 			// 
 			// fileToolStripMenuItem
 			// 
@@ -131,7 +131,7 @@
             this.toolStripSeparator1});
 			this.fileToolStripMenuItem.MergeAction = System.Windows.Forms.MergeAction.MatchOnly;
 			this.fileToolStripMenuItem.Name = "fileToolStripMenuItem";
-			this.fileToolStripMenuItem.Size = new System.Drawing.Size(39, 20);
+			this.fileToolStripMenuItem.Size = new System.Drawing.Size(35, 20);
 			this.fileToolStripMenuItem.Text = "&File";
 			// 
 			// newProjectToolStripMenuItem
@@ -139,7 +139,7 @@
 			this.newProjectToolStripMenuItem.MergeAction = System.Windows.Forms.MergeAction.Insert;
 			this.newProjectToolStripMenuItem.MergeIndex = 0;
 			this.newProjectToolStripMenuItem.Name = "newProjectToolStripMenuItem";
-			this.newProjectToolStripMenuItem.Size = new System.Drawing.Size(170, 22);
+			this.newProjectToolStripMenuItem.Size = new System.Drawing.Size(161, 22);
 			this.newProjectToolStripMenuItem.Text = "New project...";
 			this.newProjectToolStripMenuItem.Click += new System.EventHandler(this.newProjectToolStripMenuItem_Click);
 			// 
@@ -148,7 +148,7 @@
 			this.openProjectToolStripMenuItem.MergeAction = System.Windows.Forms.MergeAction.Insert;
 			this.openProjectToolStripMenuItem.MergeIndex = 1;
 			this.openProjectToolStripMenuItem.Name = "openProjectToolStripMenuItem";
-			this.openProjectToolStripMenuItem.Size = new System.Drawing.Size(170, 22);
+			this.openProjectToolStripMenuItem.Size = new System.Drawing.Size(161, 22);
 			this.openProjectToolStripMenuItem.Text = "Open project...";
 			this.openProjectToolStripMenuItem.Click += new System.EventHandler(this.openProjectToolStripMenuItem_Click);
 			// 
@@ -157,7 +157,7 @@
 			this.recentProjectsToolStripMenuItem.MergeAction = System.Windows.Forms.MergeAction.Insert;
 			this.recentProjectsToolStripMenuItem.MergeIndex = 2;
 			this.recentProjectsToolStripMenuItem.Name = "recentProjectsToolStripMenuItem";
-			this.recentProjectsToolStripMenuItem.Size = new System.Drawing.Size(170, 22);
+			this.recentProjectsToolStripMenuItem.Size = new System.Drawing.Size(161, 22);
 			this.recentProjectsToolStripMenuItem.Text = "Recent projects";
 			// 
 			// saveProjectToolStripMenuItem
@@ -165,7 +165,7 @@
 			this.saveProjectToolStripMenuItem.MergeAction = System.Windows.Forms.MergeAction.Insert;
 			this.saveProjectToolStripMenuItem.MergeIndex = 3;
 			this.saveProjectToolStripMenuItem.Name = "saveProjectToolStripMenuItem";
-			this.saveProjectToolStripMenuItem.Size = new System.Drawing.Size(170, 22);
+			this.saveProjectToolStripMenuItem.Size = new System.Drawing.Size(161, 22);
 			this.saveProjectToolStripMenuItem.Text = "Save project";
 			this.saveProjectToolStripMenuItem.Click += new System.EventHandler(this.saveProjectToolStripMenuItem_Click);
 			// 
@@ -174,22 +174,23 @@
 			this.saveProjectAsToolStripMenuItem.MergeAction = System.Windows.Forms.MergeAction.Insert;
 			this.saveProjectAsToolStripMenuItem.MergeIndex = 4;
 			this.saveProjectAsToolStripMenuItem.Name = "saveProjectAsToolStripMenuItem";
-			this.saveProjectAsToolStripMenuItem.Size = new System.Drawing.Size(170, 22);
+			this.saveProjectAsToolStripMenuItem.Size = new System.Drawing.Size(161, 22);
 			this.saveProjectAsToolStripMenuItem.Text = "Save project as...";
+			this.saveProjectAsToolStripMenuItem.Click += new System.EventHandler(this.saveProjectAsToolStripMenuItem_Click);
 			// 
 			// toolStripSeparator1
 			// 
 			this.toolStripSeparator1.MergeAction = System.Windows.Forms.MergeAction.Insert;
 			this.toolStripSeparator1.MergeIndex = 5;
 			this.toolStripSeparator1.Name = "toolStripSeparator1";
-			this.toolStripSeparator1.Size = new System.Drawing.Size(167, 6);
+			this.toolStripSeparator1.Size = new System.Drawing.Size(158, 6);
 			// 
 			// ProjectWindow
 			// 
-			this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
+			this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-			this.ClientSize = new System.Drawing.Size(292, 250);
-			this.Controls.Add(this.menuStrip1);
+			this.ClientSize = new System.Drawing.Size(292, 271);
+			this.Controls.Add(this.menuStripMain);
 			this.Controls.Add(this.treeViewAdv);
 			this.DockAreas = ((WeifenLuo.WinFormsUI.Docking.DockAreas)((((((WeifenLuo.WinFormsUI.Docking.DockAreas.Float | WeifenLuo.WinFormsUI.Docking.DockAreas.DockLeft)
 						| WeifenLuo.WinFormsUI.Docking.DockAreas.DockRight)
@@ -197,7 +198,7 @@
 						| WeifenLuo.WinFormsUI.Docking.DockAreas.DockBottom)
 						| WeifenLuo.WinFormsUI.Docking.DockAreas.Document)));
 			this.HideOnClose = true;
-			this.MainMenuStrip = this.menuStrip1;
+			this.MainMenuStrip = this.menuStripMain;
 			this.Name = "ProjectWindow";
 			this.ShowHint = WeifenLuo.WinFormsUI.Docking.DockState.DockLeft;
 			this.TabText = "Project";
@@ -205,8 +206,8 @@
 			this.Load += new System.EventHandler(this.ProjectWindow_Load);
 			this.mediaPathMenuStrip.ResumeLayout(false);
 			this.sceneMenuStrip.ResumeLayout(false);
-			this.menuStrip1.ResumeLayout(false);
-			this.menuStrip1.PerformLayout();
+			this.menuStripMain.ResumeLayout(false);
+			this.menuStripMain.PerformLayout();
 			this.ResumeLayout(false);
 			this.PerformLayout();
 
@@ -221,7 +222,7 @@
 		private System.Windows.Forms.ContextMenuStrip sceneMenuStrip;
 		private System.Windows.Forms.ToolStripMenuItem addSceneToolStripMenuItem;
 		public Aga.Controls.Tree.TreeViewAdv treeViewAdv;
-		private System.Windows.Forms.MenuStrip menuStrip1;
+		private System.Windows.Forms.MenuStrip menuStripMain;
 		private System.Windows.Forms.ToolStripMenuItem fileToolStripMenuItem;
 		private System.Windows.Forms.ToolStripMenuItem newProjectToolStripMenuItem;
 		private System.Windows.Forms.ToolStripMenuItem openProjectToolStripMenuItem;

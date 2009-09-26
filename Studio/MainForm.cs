@@ -128,6 +128,9 @@ namespace Studio
 			}
 
 			dockPanel.ResumeLayout(true, true);
+
+//			AssertBrowsingForm f = new AssertBrowsingForm(projectWindow.Project.FileSystem);
+//			f.Show();
 		}
 
 		private void newToolStripMenuItem_Click(object sender, EventArgs e)
@@ -247,7 +250,8 @@ namespace Studio
 			// Ensure proper destroy sequence.
 			foreach (RenderPanelControl r in renderControls)
 				r.destroy();
-			projectWindow.Project.ResourceManager.destroy();
+			if(projectWindow.Project != null)
+				projectWindow.Project.ResourceManager.destroy();
 		}
 
 		private void MainForm_FormClosed(object sender, FormClosedEventArgs e)

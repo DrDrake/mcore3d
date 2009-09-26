@@ -30,6 +30,10 @@ namespace Studio
 			if (depth <= 0)
 				return;
 
+			// Remove the first slash, if any
+			if (dir.Length > 0 && dir[0] == '/')
+				dir = dir.Remove(0, 1);
+
 			nodes.Clear();
 
 			// Put the directory.GetDirectories() in a try block in case any error.

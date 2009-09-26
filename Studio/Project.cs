@@ -24,7 +24,7 @@ namespace Studio
 			// TODO: Should we uncache all resources in ResourceManager or simply warn the user?
 			set
 			{
-				string projectPath = ProjectWindow.Singleton.ProjectPath;
+				string projectPath = ProjectWindow.Singleton.ProjectDirectory;
 				value = Utility.RelativePathTo(projectPath, value, '/');
 
 				if (Path.IsPathRooted(value))
@@ -62,7 +62,7 @@ namespace Studio
 
 			// NOTE: We at least add the resource path that the Studio needs.
 			// TODO: Should we embed all the Studio specific resource to the executable?
-			mFileSystem.addFileSystem("./");
+//			mFileSystem.addFileSystem("./");
 			mFileSystem.addFileSystem("Media");
 		}
 

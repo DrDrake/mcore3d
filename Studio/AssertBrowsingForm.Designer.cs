@@ -28,11 +28,38 @@ namespace Studio
 		/// </summary>
 		private void InitializeComponent()
 		{
-			this.components = new System.ComponentModel.Container();
+			this.splitContainer1 = new System.Windows.Forms.SplitContainer();
+			this.splitContainer1.SuspendLayout();
+			this.SuspendLayout();
+			// 
+			// splitContainer1
+			// 
+			this.splitContainer1.Dock = System.Windows.Forms.DockStyle.Fill;
+			this.splitContainer1.FixedPanel = System.Windows.Forms.FixedPanel.Panel1;
+			this.splitContainer1.Location = new System.Drawing.Point(0, 0);
+			this.splitContainer1.Name = "splitContainer1";
+			this.splitContainer1.Size = new System.Drawing.Size(592, 371);
+			this.splitContainer1.SplitterDistance = 200;
+			this.splitContainer1.TabIndex = 0;
+			// 
+			// AssertBrowsingForm
+			// 
+			this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-			this.Text = "AssertBrowsingForm";
+			this.ClientSize = new System.Drawing.Size(592, 371);
+			this.Controls.Add(this.splitContainer1);
+			this.Name = "AssertBrowsingForm";
+			this.Text = "Assert Browser";
+			this.Load += new System.EventHandler(this.AssertBrowsingForm_Load);
+			this.splitContainer1.ResumeLayout(false);
+			this.ResumeLayout(false);
+
 		}
 
 		#endregion
+
+		private System.Windows.Forms.SplitContainer splitContainer1;
+
+
 	}
 }
