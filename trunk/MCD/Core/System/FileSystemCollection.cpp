@@ -263,7 +263,7 @@ void FileSystemCollection::closeFirstChildFolder(void* context) const
 void* FileSystemCollection::openFirstFileInFolder(const Path& folder) const
 {
 	MCD_ASSUME(mImpl);
-	return mImpl->openFirstChildFolder(folder);
+	return mImpl->openFirstFileInFolder(folder);
 }
 
 Path FileSystemCollection::getNextFileInFolder(void* context) const

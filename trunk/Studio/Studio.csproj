@@ -224,6 +224,9 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <None Include="Icons\stop.png" />
+    <EmbeddedResource Include="AssertBrowsingForm.resx">
+      <DependentUpon>AssertBrowsingForm.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="AssertTreeViewControl.resx">
       <DependentUpon>AssertTreeViewControl.cs</DependentUpon>
     </EmbeddedResource>

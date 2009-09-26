@@ -2,6 +2,7 @@
 using System.Windows.Forms;
 using Aga.Controls.Tree;
 using Binding;
+using System.IO;
 
 namespace Studio
 {
@@ -13,8 +14,8 @@ namespace Studio
 		{
 			InitializeComponent();
 			Singleton = this;
-			mContext = new Context(treeViewAdv);
-			mContext.Project = new Project();
+//			mContext = new Context(treeViewAdv);
+//			mContext.Project = new Project();
 			mMainForm = mainForm;
 
 			ToolStripManager.Merge(this.MainMenuStrip, MainForm.Singleton.MainMenuStrip);
@@ -48,33 +49,54 @@ namespace Studio
 			try
 			{
 				mContext = new Context(treeViewAdv);
-				mContext.Project = Project.DeserializeFromXML(path);
 				mContext.ProjectPath = path;
-				treeViewAdv.FindNodeByTag(MediaPathNode).Expand(true);
+				mContext.Project = Project.DeserializeFromXML(path);
 				return true;
 			}
 			catch(Exception ex)
 			{
 				// In case of any error, restore to the previous context
 				mContext = backupContext;
-				treeViewAdv.Model = mContext.TreeModel;
+				if(mContext != null)
+					treeViewAdv.Model = mContext.TreeModel;
 
 				MessageBox.Show("Load project failed!\n" + ex.Message);
 				return false;
 			}
 		}
 
+		private void NewProject(string path)
+		{
+			// Close all scene window and destroy the original resource manager
+			mMainForm.CloseAllDocuments();
+
+			if(Project != null)
+				Project.ResourceManager.destroy();
+
+			mContext = new Context(treeViewAdv);
+			mContext.ProjectPath = path;
+			mContext.Project = new Project();
+
+			// Inform the user-preference
+			mMainForm.UserPreference.OpenProject(path);
+			UpdateRecentProjectList();
+
+			SaveProject(path);
+		}
+
 		private void OpenProject(string path)
 		{
 			// Only destroy the old manager if the loading success
-			ResourceManager oldMgr = Project.ResourceManager;
+			ResourceManager oldMgr = Project == null ? null : Project.ResourceManager;
 
 			// LoadProject() should handled all exception.
 			if (LoadProject(path))
 			{
 				// Close all scene window
 				mMainForm.CloseAllDocuments();
-				oldMgr.destroy();
+
+				if(oldMgr != null)
+					oldMgr.destroy();
 			}
 
 			// Inform the user-preference
@@ -116,9 +138,14 @@ namespace Studio
 			set { mContext.ProjectPath = value; }
 		}
 
+		public string ProjectDirectory
+		{
+			get { return mContext.ProjectDirectory; }
+		}
+
 		public Project Project
 		{
-			get { return mContext.Project; }
+			get { return mContext == null ? null : mContext.Project; }
 		}
 
 		private Context mContext;
@@ -153,7 +180,7 @@ namespace Studio
 		private void addPathToolStripMenuItem_Click(object sender, System.EventArgs e)
 		{
 			FolderBrowserDialog d = new FolderBrowserDialog();
-			d.SelectedPath = ProjectPath;
+			d.SelectedPath = ProjectDirectory;
 
 			if(d.ShowDialog() != DialogResult.OK)
 				return;
@@ -166,7 +193,15 @@ namespace Studio
 
 		private void newProjectToolStripMenuItem_Click(object sender, EventArgs e)
 		{
+			SaveFileDialog d = new SaveFileDialog();
+			d.Title = "Select a location for the new project";
+			d.Filter = "Xml files (*.xml)|*.xml|All files (*.*)|*.*";
+			d.RestoreDirectory = true; 
 
+			if (d.ShowDialog(this) != DialogResult.OK)
+				return;
+
+			NewProject(d.FileName);
 		}
 
 		private void openProjectToolStripMenuItem_Click(object sender, EventArgs e)
@@ -174,6 +209,8 @@ namespace Studio
 			OpenFileDialog d = new OpenFileDialog();
 //			d.InitialDirectory = Environment.GetFolderPath(Environment.SpecialFolder.Personal);
 			d.Filter = "Xml files (*.xml)|*.xml|All files (*.*)|*.*";
+			d.RestoreDirectory = true;
+
 			if (d.ShowDialog(this) != DialogResult.OK)
 				return;
 
@@ -188,9 +225,15 @@ namespace Studio
 
 		private void saveProjectToolStripMenuItem_Click(object sender, EventArgs e)
 		{
+			SaveProject(ProjectPath);
+		}
+
+		private void saveProjectAsToolStripMenuItem_Click(object sender, EventArgs e)
+		{
 			SaveFileDialog d = new SaveFileDialog();
-//			d.InitialDirectory = Environment.GetFolderPath(Environment.SpecialFolder.Personal);
+			d.InitialDirectory = ProjectDirectory;
 			d.Filter = "Xml files (*.xml)|*.xml|All files (*.*)|*.*";
+			d.RestoreDirectory = true;
 
 			if (d.ShowDialog(this) != DialogResult.OK)
 				return;
@@ -206,7 +249,7 @@ namespace Studio
 	{
 		public Context(TreeViewAdv treeView)
 		{
-			ProjectPath = System.IO.Directory.GetCurrentDirectory();
+//			ProjectPath = System.IO.Directory.GetCurrentDirectory();
 
 			TreeModel model = new TreeModel();
 			TreeModel = new SortedTreeModel(model);
@@ -217,12 +260,19 @@ namespace Studio
 
 			MediaPathNode = new FixedNode("Media paths");
 			model.Nodes.Add(MediaPathNode);
+
+			treeView.FindNodeByTag(SceneNode).AutoExpandOnStructureChanged = true;
+			treeView.FindNodeByTag(MediaPathNode).AutoExpandOnStructureChanged = true;
 		}
 
 		public SortedTreeModel TreeModel;
 		public Node SceneNode;
 		public Node MediaPathNode;
 		public string ProjectPath;
+		public string ProjectDirectory
+		{
+			get { return Path.GetDirectoryName(ProjectPath) + "\\"; }
+		}
 		public Project Project;
 	}
 
