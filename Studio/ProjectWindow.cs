@@ -16,6 +16,9 @@ namespace Studio
 			mContext = new Context(treeViewAdv);
 			mContext.Project = new Project();
 			mMainForm = mainForm;
+
+			ToolStripManager.Merge(this.MainMenuStrip, MainForm.Singleton.MainMenuStrip);
+			UpdateRecentProjectList();
 		}
 
 	// Operations
@@ -124,8 +127,6 @@ namespace Studio
 	// Events
 		private void ProjectWindow_Load(object sender, EventArgs e)
 		{
-			ToolStripManager.Merge(this.MainMenuStrip, MainForm.Singleton.MainMenuStrip);
-			UpdateRecentProjectList();
 		}
 
 		private void treeViewAdv1_MouseDown(object sender, MouseEventArgs e)

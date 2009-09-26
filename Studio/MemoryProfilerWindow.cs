@@ -51,6 +51,7 @@ namespace Studio
 
 				textBox1.Enabled = false;
 				button1.Text = "Disconnect";
+				button2.Enabled = true;
 			}
 			catch (Exception ex)
 			{
@@ -73,6 +74,11 @@ namespace Studio
 			mClient = null;
 			textBox1.Enabled = true;
 			button1.Text = "Connect";
+
+			if (mPasued)
+				button2_Click(this, new EventArgs());
+			button2.Enabled = false;
+
 			model.Nodes.Clear();
 			mRootNode = null;
 		}
@@ -232,16 +238,13 @@ namespace Studio
 
 		private void button1_Click(object sender, EventArgs e)
 		{
-			connect(this.textBox1.Text);
-
-			if (mPasued)
-				button2_Click(sender, new EventArgs());
+			connect(textBox1.Text);
 		}
 
 		private void button2_Click(object sender, EventArgs e)
 		{
 			mPasued = !mPasued;
-			this.button2.Text = mPasued ? "Resume" : "Pause";
+			button2.Text = mPasued ? "Resume" : "Pause";
 		}
 	}
 

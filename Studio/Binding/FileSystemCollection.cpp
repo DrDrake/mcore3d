@@ -16,7 +16,7 @@ namespace Binding {
 FileSystemCollection::FileSystemCollection()
 {
 	mImpl = new MCD::FileSystemCollection();
-	mFileSystems = gcnew System::Collections::Generic::List<System::String^>();
+	mFileSystems = gcnew StringCollection();
 }
 
 FileSystemCollection::~FileSystemCollection()
@@ -80,9 +80,47 @@ bool FileSystemCollection::removeFileSystem(String^ pathToFileSystem)
 	return mImpl->removeFileSystem(Utility::toWString(pathToFileSystem));
 }
 
-FileSystemCollection::FileSystems^ FileSystemCollection::fileSystems::get()
+FileSystemCollection::StringCollection^ FileSystemCollection::fileSystems::get()
 {
 	return mFileSystems;
+}
+
+FileSystemCollection::StringCollection^ FileSystemCollection::getDirectories(String^ path)
+{
+	StringCollection^ sc = gcnew StringCollection();
+
+	{	void* c = mImpl->openFirstChildFolder(Utility::toWString(path));
+		Path p;
+		while(true)
+		{
+			Path p(mImpl->getNextSiblingFolder(c));
+			if(p.getString().empty())
+				break;
+			sc->Add(gcnew String(p.getString().c_str()));
+		}
+		mImpl->closeFirstChildFolder(c);
+	}
+
+	return sc;
+}
+
+FileSystemCollection::StringCollection^ FileSystemCollection::getFiles(String^ path)
+{
+	StringCollection^ sc = gcnew StringCollection();
+
+	{	void* c = mImpl->openFirstFileInFolder(Utility::toWString(path));
+		Path p;
+		while(true)
+		{
+			Path p(mImpl->getNextFileInFolder(c));
+			if(p.getString().empty())
+				break;
+			sc->Add(gcnew String(p.getString().c_str()));
+		}
+		mImpl->closeFirstFileInFolder(c);
+	}
+
+	return sc;
 }
 
 }	// namespace Binding

@@ -60,9 +60,10 @@ namespace Studio
 		{
 			mFileSystem = fileSystem;
 
-			// TODO: temp
-//			Add(new MediaPath("./"));
-//			Add(new MediaPath("Media"));
+			// NOTE: We at least add the resource path that the Studio needs.
+			// TODO: Should we embed all the Studio specific resource to the executable?
+			mFileSystem.addFileSystem("./");
+			mFileSystem.addFileSystem("Media");
 		}
 
 		public virtual new void Add(MediaPath path)

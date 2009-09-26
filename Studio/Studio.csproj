@@ -64,6 +64,18 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="AssertBrowsingForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="AssertBrowsingForm.Designer.cs">
+      <DependentUpon>AssertBrowsingForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="AssertTreeViewControl.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="AssertTreeViewControl.Designer.cs">
+      <DependentUpon>AssertTreeViewControl.cs</DependentUpon>
+    </Compile>
     <Compile Include="AssertWindow.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -212,6 +224,9 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <None Include="Icons\stop.png" />
+    <EmbeddedResource Include="AssertTreeViewControl.resx">
+      <DependentUpon>AssertTreeViewControl.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="CodeWindow.resx">
       <DependentUpon>CodeWindow.cs</DependentUpon>
     </EmbeddedResource>
