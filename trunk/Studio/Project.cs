@@ -74,8 +74,11 @@ namespace Studio
 					throw new Exception("The path: \"" + path.Text + "\" already exist");
 			}
 
+			string projectPath = ProjectWindow.Singleton.ProjectDirectory;
+			string fullPath = Path.Combine(projectPath, path.Text);
+			mFileSystem.addFileSystem(fullPath);
+
 			base.Add(path);
-			mFileSystem.addFileSystem(path.Text);
 		}
 
 		public virtual new void Remove(MediaPath path)

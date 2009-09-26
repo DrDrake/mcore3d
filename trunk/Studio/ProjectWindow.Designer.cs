@@ -43,6 +43,7 @@
 			this.recentProjectsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.saveProjectToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.saveProjectAsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+			this.closeProjectToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.toolStripSeparator1 = new System.Windows.Forms.ToolStripSeparator();
 			this.mediaPathMenuStrip.SuspendLayout();
 			this.sceneMenuStrip.SuspendLayout();
@@ -128,6 +129,7 @@
             this.recentProjectsToolStripMenuItem,
             this.saveProjectToolStripMenuItem,
             this.saveProjectAsToolStripMenuItem,
+            this.closeProjectToolStripMenuItem,
             this.toolStripSeparator1});
 			this.fileToolStripMenuItem.MergeAction = System.Windows.Forms.MergeAction.MatchOnly;
 			this.fileToolStripMenuItem.Name = "fileToolStripMenuItem";
@@ -178,10 +180,19 @@
 			this.saveProjectAsToolStripMenuItem.Text = "Save project as...";
 			this.saveProjectAsToolStripMenuItem.Click += new System.EventHandler(this.saveProjectAsToolStripMenuItem_Click);
 			// 
+			// closeProjectToolStripMenuItem
+			// 
+			this.closeProjectToolStripMenuItem.MergeAction = System.Windows.Forms.MergeAction.Insert;
+			this.closeProjectToolStripMenuItem.MergeIndex = 5;
+			this.closeProjectToolStripMenuItem.Name = "closeProjectToolStripMenuItem";
+			this.closeProjectToolStripMenuItem.Size = new System.Drawing.Size(161, 22);
+			this.closeProjectToolStripMenuItem.Text = "Close project";
+			this.closeProjectToolStripMenuItem.Click += new System.EventHandler(this.closeProjectToolStripMenuItem_Click);
+			// 
 			// toolStripSeparator1
 			// 
 			this.toolStripSeparator1.MergeAction = System.Windows.Forms.MergeAction.Insert;
-			this.toolStripSeparator1.MergeIndex = 5;
+			this.toolStripSeparator1.MergeIndex = 6;
 			this.toolStripSeparator1.Name = "toolStripSeparator1";
 			this.toolStripSeparator1.Size = new System.Drawing.Size(158, 6);
 			// 
@@ -230,5 +241,6 @@
 		private System.Windows.Forms.ToolStripMenuItem saveProjectToolStripMenuItem;
 		private System.Windows.Forms.ToolStripMenuItem saveProjectAsToolStripMenuItem;
 		private System.Windows.Forms.ToolStripSeparator toolStripSeparator1;
+		private System.Windows.Forms.ToolStripMenuItem closeProjectToolStripMenuItem;
 	}
 }

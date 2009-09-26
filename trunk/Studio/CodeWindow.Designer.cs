@@ -40,19 +40,18 @@
 			this.scintilla1.Dock = System.Windows.Forms.DockStyle.Fill;
 			this.scintilla1.IsBraceMatching = true;
 			this.scintilla1.Location = new System.Drawing.Point(0, 0);
-			this.scintilla1.Margins.Margin1.Width = 0;
 			this.scintilla1.Margins.Margin2.Width = 10;
 			this.scintilla1.Margins.Margin3.Width = 10;
 			this.scintilla1.Name = "scintilla1";
-			this.scintilla1.Size = new System.Drawing.Size(292, 250);
+			this.scintilla1.Size = new System.Drawing.Size(292, 271);
 			this.scintilla1.TabIndex = 0;
 			this.scintilla1.Text = resources.GetString("scintilla1.Text");
 			// 
 			// CodeWindow
 			// 
-			this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
+			this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-			this.ClientSize = new System.Drawing.Size(292, 250);
+			this.ClientSize = new System.Drawing.Size(292, 271);
 			this.Controls.Add(this.scintilla1);
 			this.Name = "CodeWindow";
 			this.TabText = "CodeWindow";
