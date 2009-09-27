@@ -29,6 +29,10 @@ namespace Studio
 		private void InitializeComponent()
 		{
 			this.splitContainer1 = new System.Windows.Forms.SplitContainer();
+			this.listView1 = new System.Windows.Forms.ListView();
+			this.treeView1 = new Studio.AssertTreeViewControl();
+			this.splitContainer1.Panel1.SuspendLayout();
+			this.splitContainer1.Panel2.SuspendLayout();
 			this.splitContainer1.SuspendLayout();
 			this.SuspendLayout();
 			// 
@@ -38,9 +42,37 @@ namespace Studio
 			this.splitContainer1.FixedPanel = System.Windows.Forms.FixedPanel.Panel1;
 			this.splitContainer1.Location = new System.Drawing.Point(0, 0);
 			this.splitContainer1.Name = "splitContainer1";
+			// 
+			// splitContainer1.Panel1
+			// 
+			this.splitContainer1.Panel1.Controls.Add(this.treeView1);
+			// 
+			// splitContainer1.Panel2
+			// 
+			this.splitContainer1.Panel2.Controls.Add(this.listView1);
 			this.splitContainer1.Size = new System.Drawing.Size(592, 371);
 			this.splitContainer1.SplitterDistance = 200;
 			this.splitContainer1.TabIndex = 0;
+			// 
+			// listView1
+			// 
+			this.listView1.Dock = System.Windows.Forms.DockStyle.Fill;
+			this.listView1.Location = new System.Drawing.Point(0, 0);
+			this.listView1.Name = "listView1";
+			this.listView1.Size = new System.Drawing.Size(388, 371);
+			this.listView1.TabIndex = 0;
+			this.listView1.UseCompatibleStateImageBehavior = false;
+			this.listView1.View = System.Windows.Forms.View.Tile;
+			// 
+			// treeView1
+			// 
+			this.treeView1.Dock = System.Windows.Forms.DockStyle.Fill;
+			this.treeView1.Location = new System.Drawing.Point(0, 0);
+			this.treeView1.Name = "treeView1";
+			this.treeView1.SelectedNode = null;
+			this.treeView1.Size = new System.Drawing.Size(200, 371);
+			this.treeView1.TabIndex = 1;
+			this.treeView1.AfterSelect += new System.Windows.Forms.TreeViewEventHandler(this.treeView1_AfterSelect);
 			// 
 			// AssertBrowsingForm
 			// 
@@ -51,6 +83,8 @@ namespace Studio
 			this.Name = "AssertBrowsingForm";
 			this.Text = "Assert Browser";
 			this.Load += new System.EventHandler(this.AssertBrowsingForm_Load);
+			this.splitContainer1.Panel1.ResumeLayout(false);
+			this.splitContainer1.Panel2.ResumeLayout(false);
 			this.splitContainer1.ResumeLayout(false);
 			this.ResumeLayout(false);
 
@@ -59,6 +93,8 @@ namespace Studio
 		#endregion
 
 		private System.Windows.Forms.SplitContainer splitContainer1;
+		private System.Windows.Forms.ListView listView1;
+		private Studio.AssertTreeViewControl treeView1;
 
 
 	}

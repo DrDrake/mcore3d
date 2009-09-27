@@ -18,6 +18,7 @@ namespace Studio
 
 			ToolStripManager.Merge(this.MainMenuStrip, MainForm.Singleton.MainMenuStrip);
 			UpdateRecentProjectList();
+			UpdateMenuItemEnableStatus();
 		}
 
 	// Operations
@@ -34,6 +35,7 @@ namespace Studio
 			UpdateRecentProjectList();
 
 			SaveProject(path);
+			UpdateMenuItemEnableStatus();
 		}
 
 		private bool LoadProject(string path)
@@ -45,6 +47,8 @@ namespace Studio
 				mContext = new Context(treeViewAdv);
 				mContext.ProjectPath = path;
 				mContext.Project = Project.DeserializeFromXML(path);
+				AssertBrowsingForm f = new AssertBrowsingForm(Project.FileSystem);
+				f.Show();
 				return true;
 			}
 			catch(Exception ex)
@@ -77,6 +81,8 @@ namespace Studio
 			// Inform the user-preference
 			mMainForm.UserPreference.OpenProject(path);
 			UpdateRecentProjectList();
+
+			UpdateMenuItemEnableStatus();
 		}
 
 		public void SaveProject(string path)
@@ -96,6 +102,8 @@ namespace Studio
 			mContext = null;
 			treeViewAdv.Model = null;
 			GC.Collect();
+
+			UpdateMenuItemEnableStatus();
 		}
 
 		private void UpdateRecentProjectList()
@@ -108,6 +116,14 @@ namespace Studio
 				i.Text = path;
 				recentProjectsToolStripMenuItem.DropDownItems.Add(i);
 			}
+		}
+
+		private void UpdateMenuItemEnableStatus()
+		{
+			bool hasProject = (Project != null);
+			closeProjectToolStripMenuItem.Visible = hasProject;
+			saveProjectToolStripMenuItem.Visible = hasProject;
+			saveProjectAsToolStripMenuItem.Visible = hasProject;
 		}
 
 	// Attributes

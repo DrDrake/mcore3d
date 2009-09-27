@@ -12,14 +12,24 @@ namespace Studio
 			mFsCollection = fs;
 		}
 
+		private FileSystemCollection mFsCollection;
+
 		private void AssertBrowsingForm_Load(object sender, EventArgs e)
 		{
-			AssertTreeViewControl c = new AssertTreeViewControl(mFsCollection);
-			c.Dock = DockStyle.Fill;
-			this.splitContainer1.Panel1.Controls.Add(c);
-			c.refresh("");
+			treeView1.FsCollection = mFsCollection;
+			treeView1.refresh("");
 		}
 
-		private FileSystemCollection mFsCollection;
+		private void treeView1_AfterSelect(object sender, TreeViewEventArgs e)
+		{
+			listView1.Items.Clear();
+
+			string directoryName = treeView1.SelectedNode.FullPath;
+
+			foreach (string fileName in mFsCollection.getFiles(directoryName))
+			{
+				listView1.Items.Add(fileName);
+			}
+		}
 	}
 }
