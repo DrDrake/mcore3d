@@ -1,21 +1,24 @@
 using System.Windows.Forms;
 using Binding;
 using System.Collections.Specialized;
+using System.ComponentModel;
 
 namespace Studio
 {
 	public partial class AssertTreeViewControl : UserControl
 	{
-		public AssertTreeViewControl(FileSystemCollection fsCollection)
+		public AssertTreeViewControl()
 		{
 			InitializeComponent();
-			mFsCollection = fsCollection;
 		}
 
 		public void refresh(string dir)
 		{
 			treeView1.Nodes.Clear();
-			populateTree(dir, treeView1.Nodes, 2);
+			TreeNode n = new TreeNode("\\");
+			treeView1.Nodes.Add(n);
+			populateTree(dir, n.Nodes, 2);
+			n.Expand();
 		}
 
 		/// <summary>
@@ -40,7 +43,7 @@ namespace Studio
 			try
 			{
 				// Loop through each subdirectory
-				foreach (string d in mFsCollection.getDirectories(dir))
+				foreach (string d in FsCollection.getDirectories(dir))
 				{
 					// Creates a new node
 					TreeNode t = new TreeNode(d);
@@ -56,7 +59,7 @@ namespace Studio
 			try
 			{
 				// Lastly, loop through each file in the directory, and add these as nodes
-				foreach (string f in mFsCollection.getFiles(dir))
+/*				foreach (string f in FsCollection.getFiles(dir))
 				{
 					// Create a new node
 					TreeNode t = new TreeNode(f);
@@ -64,7 +67,7 @@ namespace Studio
 					t.SelectedImageIndex = 1;
 					// Add it to the "master"
 					nodes.Add(t);
-				}
+				}*/
 			}
 			catch
 			{
@@ -80,6 +83,20 @@ namespace Studio
 			treeView1.EndUpdate();
 		}
 
-		private FileSystemCollection mFsCollection;
+		public FileSystemCollection FsCollection;
+
+		public event TreeViewEventHandler AfterSelect;
+
+		public TreeNode SelectedNode
+		{
+			get { return treeView1.SelectedNode; }
+			set { treeView1.SelectedNode = value; }
+		}
+
+		private void treeView1_AfterSelect(object sender, TreeViewEventArgs e)
+		{
+			if(AfterSelect != null)
+				AfterSelect(sender, e);
+		}
 	}
 }

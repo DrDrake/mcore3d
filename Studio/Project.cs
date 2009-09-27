@@ -62,7 +62,6 @@ namespace Studio
 
 			// NOTE: We at least add the resource path that the Studio needs.
 			// TODO: Should we embed all the Studio specific resource to the executable?
-//			mFileSystem.addFileSystem("./");
 			mFileSystem.addFileSystem("Media");
 		}
 

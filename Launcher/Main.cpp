@@ -57,6 +57,7 @@ public:
 		(void)mLauncher->init(*c);
 
 		// TODO: Let user supply a command line argument to choose the startup script
+		mLauncher->scriptComponentManager.doFile(L"scene.nut", true);
 		mLauncher->scriptComponentManager.doFile(L"init.nut", true);
 	}
 

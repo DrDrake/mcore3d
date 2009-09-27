@@ -18,6 +18,7 @@ namespace Studio
 		/// <returns>
 		/// The relative path from the start directory to the end path.
 		/// Null if any of the input is null.
+		/// <remarks>Reference: http://weblogs.asp.net/pwelter34/archive/2006/02/08/create-a-relative-path-code-snippet.aspx</remarks>
 		/// </returns>
 		public static string RelativePathTo(string fromDirectory, string toPath, char outputSeparator)
 		{
