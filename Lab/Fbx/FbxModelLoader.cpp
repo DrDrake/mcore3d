@@ -72,7 +72,7 @@ void FbxModelLoader::Impl::commit(Resource& resource)
 	MCD_ASSUME(mFbxFile.get() != nullptr);
 
 	Model& model = dynamic_cast<Model&>(resource);
-	ModelImporter().import(*mFbxFile, model);
+	ModelImporter().import(*mFbxFile, model, true);
 }
 
 IResourceLoader::LoadingState FbxModelLoader::Impl::getLoadingState() const

@@ -14,7 +14,7 @@ class MCD_FBX_API ModelImporter
 public:
     ModelImporter();
 
-	void import(FbxFile& fbxfile, Model& outModel);
+	void import(FbxFile& fbxfile, Model& outModel, bool editable);
 };
 
 }	// namespace MCD

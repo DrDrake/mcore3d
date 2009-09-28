@@ -27,8 +27,8 @@ private:
 	{
 		Vec3f pos;
 		Vec3f normal;
-		Vec3f tangent;
-		Vec4f color;
+		//Vec3f tangent;
+		//Vec4f color;
 		Vec2f uv0;
 		Vec2f uv1;
 	};
@@ -100,7 +100,7 @@ public:
 				vert.normal = Vec3f((float)nx, (float)ny, (float)nz);
 				vert.uv0 = Vec2f((float)u0, (float)v0);
 				vert.uv1 = Vec2f((float)u1, (float)v1);
-				vert.color = Vec4f(cr, cg, cb, ca);
+				//vert.color = Vec4f(cr, cg, cb, ca);
 
 				size_t vertIdx = mIdxMesh.addVertex(hash, vert);
 				mIdxMesh.mIndexArray.push_back(vertIdx);
@@ -126,7 +126,7 @@ public:
 			Vertex &vert = mIdxMesh.mVertexArray[ivert];
 			transform.transformPoint(vert.pos);
 			transform.transformNormal(vert.normal);
-			transform.transformNormal(vert.tangent);
+			//transform.transformNormal(vert.tangent);
 		}
 	}
 
@@ -162,7 +162,7 @@ public:
 		return material;
 	}
 
-	void toMeshes(Model& outModel)
+	void toMeshes(Model& outModel, bool editable)
 	{
 		MeshBuilderPtr builder = new MeshBuilder(false);
 		if(mIdxMesh.mVertexArray.size() >= 0x0000ffff)
@@ -173,7 +173,7 @@ public:
 
 		builder->enable
 			( Mesh::Position | Mesh::Normal	// position, normal
-			| Mesh::TextureCoord3			// uv0, uv1, tangent, and color
+			| Mesh::TextureCoord1			// uv0, uv1
 			| Mesh::Index);
 
 		builder->textureUnit(Mesh::TextureCoord0);
@@ -182,11 +182,11 @@ public:
 		builder->textureUnit(Mesh::TextureCoord1);
 		builder->textureCoordSize(2);
 
-		builder->textureUnit(Mesh::TextureCoord2);
-		builder->textureCoordSize(3);
+		//builder->textureUnit(Mesh::TextureCoord2);
+		//builder->textureCoordSize(3);
 
-		builder->textureUnit(Mesh::TextureCoord3);
-		builder->textureCoordSize(4);
+		//builder->textureUnit(Mesh::TextureCoord3);
+		//builder->textureCoordSize(4);
 
 		for(size_t ivert = 0; ivert < mIdxMesh.mVertexArray.size(); ++ivert)
 		{
@@ -201,11 +201,11 @@ public:
 			builder->textureUnit(Mesh::TextureCoord1);
 			builder->textureCoord(vert.uv1);
 
-			builder->textureUnit(Mesh::TextureCoord2);
-			builder->textureCoord(vert.tangent);
+			//builder->textureUnit(Mesh::TextureCoord2);
+			//builder->textureCoord(vert.tangent);
 
-			builder->textureUnit(Mesh::TextureCoord3);
-			builder->textureCoord(vert.color);
+			//builder->textureUnit(Mesh::TextureCoord3);
+			//builder->textureCoord(vert.color);
 
 			uint16_t idx = builder->addVertex();
 
@@ -238,13 +238,13 @@ public:
 		outModel.mMeshes.pushBack(*m);
 	}
 
-	void toMeshesWithMaterials(Model& outModel)
+	void toMeshesWithMaterials(Model& outModel, bool editable)
 	{
 		const int cMtlCnt = mFbxNode.getKFbxNode()->GetMaterialCount();
 
 		if(cMtlCnt < 2)
 		{
-			toMeshes(outModel);
+			toMeshes(outModel, editable);
 			return;
 		}
 
@@ -288,7 +288,6 @@ public:
 
 			if(cVertexCnt == 0)
 			{
-				Log::format(Log::Error, L"Mesh: has 0 vertex!!");
 				continue;
 			}
 
@@ -307,11 +306,11 @@ public:
 			builder->textureUnit(Mesh::TextureCoord1);
 			builder->textureCoordSize(2);
 
-			builder->textureUnit(Mesh::TextureCoord2);
-			builder->textureCoordSize(3);
+			//builder->textureUnit(Mesh::TextureCoord2);
+			//builder->textureCoordSize(3);
 
-			builder->textureUnit(Mesh::TextureCoord3);
-			builder->textureCoordSize(4);
+			//builder->textureUnit(Mesh::TextureCoord3);
+			//builder->textureCoordSize(4);
 
 			for(size_t ivert = 0; ivert < cVertexCnt; ++ivert)
 			{
@@ -326,11 +325,11 @@ public:
 				builder->textureUnit(Mesh::TextureCoord1);
 				builder->textureCoord(vert.uv1);
 
-				builder->textureUnit(Mesh::TextureCoord2);
-				builder->textureCoord(vert.tangent);
+				//builder->textureUnit(Mesh::TextureCoord2);
+				//builder->textureCoord(vert.tangent);
 
-				builder->textureUnit(Mesh::TextureCoord3);
-				builder->textureCoord(vert.color);
+				//builder->textureUnit(Mesh::TextureCoord3);
+				//builder->textureCoord(vert.color);
 
 				uint16_t idx = builder->addVertex();
 
@@ -353,10 +352,18 @@ public:
 			Model::MeshAndMaterial* m = new Model::MeshAndMaterial;
 
 			m->material.reset(importMaterial(mFbxNode.getKFbxNode()->GetMaterial(imtl)));
-			m->mesh = new EditableMesh;
+			if(editable)
+			{
+				m->mesh = new EditableMesh;
+				((EditableMesh*)(m->mesh.get()))->builder = builder;
+			}
+			else
+			{
+				m->mesh = new Mesh;
+			}
+
 			builder->commit(*m->mesh, MeshBuilder::Static);
-			((EditableMesh*)(m->mesh.get()))->builder = builder;
-			
+				
 			outModel.mMeshes.pushBack(*m);
 		}
 	}
@@ -367,7 +374,7 @@ ModelImporter::ModelImporter()
 {
 }
 
-void ModelImporter::import(FbxFile& fbxfile, Model& outModel)
+void ModelImporter::import(FbxFile& fbxfile, Model& outModel, bool editable)
 {
 	KArrayTemplate<KFbxNode*> meshNodes;
 	fbxfile.scene()->FillNodeArray(meshNodes, KFbxNodeAttribute::eMESH);
@@ -377,7 +384,7 @@ void ModelImporter::import(FbxFile& fbxfile, Model& outModel)
 	for(size_t imesh = 0; imesh < meshCnt; ++imesh)
 	{
 		FbxMeshConverter converter(meshNodes.GetAt(imesh));
-		converter.toMeshesWithMaterials(outModel);
+		converter.toMeshesWithMaterials(outModel, editable);
 	}
 }
 
