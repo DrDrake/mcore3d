@@ -222,6 +222,14 @@
 			>
 		</File>
 		<File
+			RelativePath=".\FbxMaterialAdaptors.cpp"
+			>
+		</File>
+		<File
+			RelativePath=".\FbxMaterialAdaptors.h"
+			>
+		</File>
+		<File
 			RelativePath=".\FbxMeshAdaptors.cpp"
 			>
 		</File>

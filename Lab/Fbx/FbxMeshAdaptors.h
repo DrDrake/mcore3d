@@ -4,23 +4,6 @@
 namespace MCD
 {
 
-class MCD_FBX_API FbxMaterialAdaptor
-{
-public:
-	FbxMaterialAdaptor(KFbxSurfaceMaterial* fbxmaterial);
-
-	~FbxMaterialAdaptor();
-
-	std::string getMaterialName() const;
-
-	std::string getFxParams() const;
-
-private:
-	class Impl;
-	Impl* mImpl;
-
-};  // class FbxMaterialAdaptor
-
 /*! A wrapper which hides the detials on how to access the mesh data inside a KFbxMesh.
 	The mesh data are accessed using the both face and vertex index.
 */
