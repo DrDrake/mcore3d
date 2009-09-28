@@ -252,4 +252,7 @@
   <Target Name="AfterBuild">
   </Target>
   -->
+  <PropertyGroup>
+    <PostBuildEvent>sgen.exe $(TargetPath)</PostBuildEvent>
+  </PropertyGroup>
 </Project>
