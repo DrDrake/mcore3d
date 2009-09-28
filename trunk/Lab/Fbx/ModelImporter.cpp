@@ -155,7 +155,7 @@ public:
 					, MCD::ColorRGBAf(1, 1, 1, 1)
 					, MCD::ColorRGBAf(1, 1, 1, 1)
 					, ColorProperty::ColorOperation::Replace
-					, 64.0f)
+					, 16.0f)
 				, 0);
 		}
 
@@ -282,7 +282,13 @@ public:
 
 			if(cVertexCnt >= 0xffff)
 			{
-				Log::format(Log::Error, L"TriangleBuffer: too many vertices %d (max. %d)!!", cVertexCnt, 0xffff);
+				Log::format(Log::Error, L"Mesh: too many vertices %d (max. %d)!!", cVertexCnt, 0xffff);
+				continue;
+			}
+
+			if(cVertexCnt == 0)
+			{
+				Log::format(Log::Error, L"Mesh: has 0 vertex!!");
 				continue;
 			}
 
