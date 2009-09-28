@@ -41,6 +41,7 @@
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
+				AdditionalIncludeDirectories="&quot;$(ProjectDir)&quot;"
 			/>
 			<Tool
 				Name="VCManagedResourceCompilerTool"
@@ -103,6 +104,7 @@
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
+				AdditionalIncludeDirectories="&quot;$(ProjectDir)&quot;"
 			/>
 			<Tool
 				Name="VCManagedResourceCompilerTool"
@@ -163,6 +165,7 @@
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
+				AdditionalIncludeDirectories="&quot;$(ProjectDir)&quot;"
 			/>
 			<Tool
 				Name="VCManagedResourceCompilerTool"
@@ -480,6 +483,7 @@
 					>
 					<Tool
 						Name="VCCLCompilerTool"
+						OpenMP="false"
 						DisableSpecificWarnings="4652"
 					/>
 				</FileConfiguration>
@@ -488,6 +492,7 @@
 					>
 					<Tool
 						Name="VCCLCompilerTool"
+						OpenMP="false"
 						DisableSpecificWarnings="4652"
 					/>
 				</FileConfiguration>
@@ -496,6 +501,7 @@
 					>
 					<Tool
 						Name="VCCLCompilerTool"
+						OpenMP="false"
 						DisableSpecificWarnings="4652"
 					/>
 				</FileConfiguration>
