@@ -4,6 +4,7 @@
 #include "FbxFile.h"
 #include "FbxMeshAdaptors.h"
 #include "FbxNodeAdaptors.h"
+#include "FbxMaterialAdaptors.h"
 
 
 #include "../../MCD/Render/EditableMesh.h"
@@ -134,17 +135,17 @@ public:
 	{
 		Material* material = new Material;
 
-		KFbxSurfacePhong* phong = KFbxCast<KFbxSurfacePhong>(fbxMtl);
+		FbxPhongMaterialAdaptor phong(fbxMtl);
 
-        if(nullptr != phong)
+        if(phong.valid())
         {
 			material->addProperty
 				( new StandardProperty
-					( MCD::ColorRGBAf(float(phong->GetAmbientColor().Get()[0]), float(phong->GetAmbientColor().Get()[1]), float(phong->GetAmbientColor().Get()[2]), 1)
-					, MCD::ColorRGBAf(float(phong->GetDiffuseColor().Get()[0]), float(phong->GetDiffuseColor().Get()[1]), float(phong->GetDiffuseColor().Get()[2]), 1)
-					, MCD::ColorRGBAf(float(phong->GetSpecularColor().Get()[0]), float(phong->GetSpecularColor().Get()[1]), float(phong->GetSpecularColor().Get()[2]), 1)
+					( phong.getAmbientColor()
+					, phong.getDiffuseColor()
+					, phong.getSpecularColor()
 					, ColorProperty::ColorOperation::Replace
-					, float(phong->GetShininess().Get()))
+					, phong.getShininess() )
 				, 0);
 		}
 		else
