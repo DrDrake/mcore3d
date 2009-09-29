@@ -1,4 +1,4 @@
-using System.Windows.Forms;
+﻿using System.Windows.Forms;
 using Binding;
 using System.Collections.Specialized;
 using System.ComponentModel;
@@ -10,6 +10,9 @@ namespace Studio
 		public AssertTreeViewControl()
 		{
 			InitializeComponent();
+
+			SkipList = new StringCollection();
+			SkipList.Add(".svn");
 		}
 
 		public void refresh(string dir)
@@ -45,6 +48,9 @@ namespace Studio
 				// Loop through each subdirectory
 				foreach (string d in FsCollection.getDirectories(dir))
 				{
+					if (SkipList.Contains(d))
+						continue;
+
 					// Creates a new node
 					TreeNode t = new TreeNode(d);
 					// Populate the new node recursively
@@ -76,14 +82,21 @@ namespace Studio
 
 		private void treeView1_BeforeExpand(object sender, TreeViewCancelEventArgs e)
 		{
+			Cursor = Cursors.WaitCursor;
 			treeView1.BeginUpdate();
 
 			populateTree(e.Node.FullPath, e.Node.Nodes, 2);
 
 			treeView1.EndUpdate();
+			Cursor = Cursors.Arrow;
 		}
 
 		public FileSystemCollection FsCollection;
+
+		/// <summary>
+		/// List of folder to be excluded.
+		/// </summary>
+		public StringCollection SkipList;
 
 		public event TreeViewEventHandler AfterSelect;
 

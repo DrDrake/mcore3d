@@ -83,6 +83,7 @@ namespace Studio
 		LogWindow logWindow;
 		CodeWindow codeWindow;
 		MemoryProfilerWindow memoryProfilerWindow;
+		public AssertBrowsingForm assertBrowsingForm;
 
 		public UserPreference UserPreference;
 		private DeserializeDockContent mDeserializeDockContent;
@@ -100,7 +101,7 @@ namespace Studio
 			assertWindow = new AssertWindow();
 			entityWindow = new EntityWindow();
 			logWindow = new LogWindow();
-			codeWindow = new CodeWindow();
+//			codeWindow = new CodeWindow();
 			propertyWindow = new PropertyWindow();
 			memoryProfilerWindow = new MemoryProfilerWindow();
 
@@ -122,7 +123,7 @@ namespace Studio
 				assertWindow.Show(dockPanel);
 				entityWindow.Show(dockPanel);
 				logWindow.Show(dockPanel);
-				codeWindow.Show(dockPanel);
+//				codeWindow.Show(dockPanel);
 				propertyWindow.Show(dockPanel);
 				memoryProfilerWindow.Show(dockPanel);
 			}
@@ -356,6 +357,11 @@ namespace Studio
 			if(currentRenderControl != null)
 				entityWindow.selectEntityRoot(currentRenderControl.rootEntity);
 			UpdateToolBars();
+		}
+
+		private void assetBrowserToolStripMenuItem_Click(object sender, EventArgs e)
+		{
+			assertBrowsingForm.Show();
 		}
 	}
 }

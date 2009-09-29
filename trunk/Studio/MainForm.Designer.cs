@@ -34,7 +34,7 @@
 			this.exitToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.editToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.windowToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-			this.assertToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+			this.assetBrowserToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.entityToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.logToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.memoryProfilerToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -110,7 +110,7 @@
 			// windowToolStripMenuItem
 			// 
 			this.windowToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.assertToolStripMenuItem,
+            this.assetBrowserToolStripMenuItem,
             this.entityToolStripMenuItem,
             this.logToolStripMenuItem,
             this.memoryProfilerToolStripMenuItem,
@@ -120,11 +120,12 @@
 			this.windowToolStripMenuItem.Size = new System.Drawing.Size(47, 20);
 			this.windowToolStripMenuItem.Text = "View";
 			// 
-			// assertToolStripMenuItem
+			// assetBrowserToolStripMenuItem
 			// 
-			this.assertToolStripMenuItem.Name = "assertToolStripMenuItem";
-			this.assertToolStripMenuItem.Size = new System.Drawing.Size(168, 22);
-			this.assertToolStripMenuItem.Text = "Asset";
+			this.assetBrowserToolStripMenuItem.Name = "assetBrowserToolStripMenuItem";
+			this.assetBrowserToolStripMenuItem.Size = new System.Drawing.Size(168, 22);
+			this.assetBrowserToolStripMenuItem.Text = "Asset browser";
+			this.assetBrowserToolStripMenuItem.Click += new System.EventHandler(this.assetBrowserToolStripMenuItem_Click);
 			// 
 			// entityToolStripMenuItem
 			// 
@@ -446,7 +447,7 @@
 		private System.Windows.Forms.ToolStrip toolStripDebug;
 		private System.Windows.Forms.ToolStripButton toolStripButtonPlay;
 		private System.Windows.Forms.ToolStripMenuItem windowToolStripMenuItem;
-		private System.Windows.Forms.ToolStripMenuItem assertToolStripMenuItem;
+		private System.Windows.Forms.ToolStripMenuItem assetBrowserToolStripMenuItem;
 		private System.Windows.Forms.ToolStripMenuItem entityToolStripMenuItem;
 		private System.Windows.Forms.ToolStripMenuItem logToolStripMenuItem;
 		private System.Windows.Forms.ToolStripMenuItem memoryProfilerToolStripMenuItem;

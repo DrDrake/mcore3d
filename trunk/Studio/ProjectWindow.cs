@@ -16,6 +16,8 @@ namespace Studio
 			Singleton = this;
 			mMainForm = mainForm;
 
+			// Using menu merging can module the code, so less messy for the MainForm.cs
+			// Reference: http://social.msdn.microsoft.com/Forums/en-US/winforms/thread/83a2d5c7-61d7-44c7-8b54-3346d0749b00
 			ToolStripManager.Merge(this.MainMenuStrip, MainForm.Singleton.MainMenuStrip);
 			UpdateRecentProjectList();
 			UpdateMenuItemEnableStatus();
@@ -47,18 +49,24 @@ namespace Studio
 				mContext = new Context(treeViewAdv);
 				mContext.ProjectPath = path;
 				mContext.Project = Project.DeserializeFromXML(path);
-				AssertBrowsingForm f = new AssertBrowsingForm(Project.FileSystem);
-				f.Show();
 				return true;
 			}
 			catch(Exception ex)
 			{
 				// In case of any error, restore to the previous context
 				mContext = backupContext;
-				if(mContext != null)
+				if (mContext != null)
 					treeViewAdv.Model = mContext.TreeModel;
+				else
+					treeViewAdv.Model = null;
 
-				MessageBox.Show("Load project failed!\n" + ex.Message);
+				DialogResult r = MessageBox.Show("Load project failed!\n" + ex.Message, "Error", MessageBoxButtons.YesNo);
+				if (r == DialogResult.Yes)
+				{
+					mMainForm.UserPreference.RecentProjects.Remove(path);
+					UpdateRecentProjectList();
+				}
+
 				return false;
 			}
 		}
@@ -76,11 +84,11 @@ namespace Studio
 
 				if(oldMgr != null)
 					oldMgr.destroy();
-			}
 
-			// Inform the user-preference
-			mMainForm.UserPreference.OpenProject(path);
-			UpdateRecentProjectList();
+				// Inform the user-preference
+				mMainForm.UserPreference.OpenProject(path);
+				UpdateRecentProjectList();
+			}
 
 			UpdateMenuItemEnableStatus();
 		}
@@ -137,6 +145,11 @@ namespace Studio
 			get { return mContext.MediaPathNode; }
 		}
 
+		public Scene SelectedScene
+		{
+			get { return treeViewAdv.SelectedNode.Tag as Scene; }
+		}
+
 		/// <summary>
 		/// Where this project is saved.
 		/// All other paths are relative to this path, for instance the media paths
@@ -174,9 +187,11 @@ namespace Studio
 				return;
 
 			if (treeViewAdv.SelectedNode.Tag as Node == SceneNode)
-				treeViewAdv.ContextMenuStrip = sceneMenuStrip;
-			if (treeViewAdv.SelectedNode.Tag as Node == MediaPathNode)
-				treeViewAdv.ContextMenuStrip = mediaPathMenuStrip;
+				treeViewAdv.ContextMenuStrip = menuStripScene;
+			else if (treeViewAdv.SelectedNode.Tag as Node == MediaPathNode)
+				treeViewAdv.ContextMenuStrip = menuStripMediaPath;
+			else if (treeViewAdv.SelectedNode.Tag is Scene)
+				treeViewAdv.ContextMenuStrip = menuStripAddScript;
 		}
 
 		private void addSceneToolStripMenuItem_Click(object sender, System.EventArgs e)
@@ -199,6 +214,21 @@ namespace Studio
 			path.Text = d.SelectedPath;
 			Project.MediaPaths.Add(path);
 			treeViewAdv.FindNodeByTag(MediaPathNode).Expand(true);
+		}
+
+		private void addSceneScriptToolStripMenuItem_Click(object sender, EventArgs e)
+		{
+
+		}
+
+		private void addRunScriptToolStripMenuItem_Click(object sender, EventArgs e)
+		{
+
+		}
+
+		private void deleteSceneToolStripMenuItem_Click(object sender, EventArgs e)
+		{
+			SelectedScene.Parent = null;
 		}
 
 		private void newProjectToolStripMenuItem_Click(object sender, EventArgs e)
@@ -288,7 +318,17 @@ namespace Studio
 		{
 			get { return Path.GetDirectoryName(ProjectPath) + "\\"; }
 		}
-		public Project Project;
+		public Project Project
+		{
+			get { return mProject; }
+			set
+			{
+				mProject = value;
+				MainForm.Singleton.assertBrowsingForm = new AssertBrowsingForm(mProject.FileSystem);
+//				MainForm.Singleton.assertBrowsingForm.Show();
+			}
+		}
+		Project mProject;
 	}
 
 	/// <summary>
