@@ -75,7 +75,7 @@ long ov_tell_func(void* datasource)
 
 }	// namespace
 
-class WaveLoader::Impl
+class OggLoader::Impl
 {
 public:
 	ALenum format;
@@ -85,18 +85,18 @@ public:
 	Mutex mMutex;
 };	// Impl
 
-WaveLoader::WaveLoader()
+OggLoader::OggLoader()
 {
 	initVorbis();
 	mImpl = new Impl();
 }
 
-WaveLoader::~WaveLoader()
+OggLoader::~OggLoader()
 {
 	delete mImpl;
 }
 
-IResourceLoader::LoadingState WaveLoader::load(std::istream* is, const Path*, const wchar_t*)
+IResourceLoader::LoadingState OggLoader::load(std::istream* is, const Path*, const wchar_t*)
 {
 	MCD_ASSUME(mImpl != nullptr);
 	ScopeLock lock(mImpl->mMutex);
@@ -131,7 +131,7 @@ IResourceLoader::LoadingState WaveLoader::load(std::istream* is, const Path*, co
 	return (loadingState = (result == 0) ? Loaded : Aborted);
 }
 
-void WaveLoader::commit(Resource& resource)
+void OggLoader::commit(Resource& resource)
 {
 	// Will throw exception if the resource is not of the type Texture
 	AudioBuffer& audioBuffer = dynamic_cast<AudioBuffer&>(resource);
@@ -142,7 +142,7 @@ void WaveLoader::commit(Resource& resource)
 //		bReturn = AL_TRUE;
 }
 
-IResourceLoader::LoadingState WaveLoader::getLoadingState() const
+IResourceLoader::LoadingState OggLoader::getLoadingState() const
 {
 	// We don't have arithmetics on loadingState, so we don't need to lock on it
 	return loadingState;
