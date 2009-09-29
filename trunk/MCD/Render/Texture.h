@@ -2,7 +2,6 @@
 #define __MCD_RENDER_TEXTURE__
 
 #include "ShareLib.h"
-#include "../Core/System/NonCopyable.h"
 #include "../Core/System/Resource.h"
 
 namespace MCD {
