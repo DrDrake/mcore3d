@@ -23,11 +23,18 @@ namespace Studio
 	// Operations
 		public void CloseAllDocuments()
 		{
-			while (renderControls.Count != 0)
+			List<IDockContent> dockContent = new List<IDockContent>();
+			dockContent.AddRange(dockPanel.Documents);
+
+			foreach (IDockContent _d in dockContent)
 			{
-				RenderPanelControl r = renderControls[0];
-				(r.Tag as DockContent).Close();
-				r.destroy();
+				DockContent d = _d as DockContent;
+				if (d == null)
+					continue;
+
+				d.Close();
+				if (d.Tag is RenderPanelControl)
+					(d.Tag as RenderPanelControl).destroy();
 			}
 		}
 
@@ -101,7 +108,6 @@ namespace Studio
 			assertWindow = new AssertWindow();
 			entityWindow = new EntityWindow();
 			logWindow = new LogWindow();
-//			codeWindow = new CodeWindow();
 			propertyWindow = new PropertyWindow();
 			memoryProfilerWindow = new MemoryProfilerWindow();
 
@@ -123,15 +129,11 @@ namespace Studio
 				assertWindow.Show(dockPanel);
 				entityWindow.Show(dockPanel);
 				logWindow.Show(dockPanel);
-//				codeWindow.Show(dockPanel);
 				propertyWindow.Show(dockPanel);
 				memoryProfilerWindow.Show(dockPanel);
 			}
 
 			dockPanel.ResumeLayout(true, true);
-
-//			AssertBrowsingForm f = new AssertBrowsingForm(projectWindow.Project.FileSystem);
-//			f.Show();
 		}
 
 		private void newToolStripMenuItem_Click(object sender, EventArgs e)

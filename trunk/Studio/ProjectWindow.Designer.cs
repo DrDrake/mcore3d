@@ -31,10 +31,11 @@
 			this.components = new System.ComponentModel.Container();
 			this.treeViewAdv = new Aga.Controls.Tree.TreeViewAdv();
 			this.treeColumn1 = new Aga.Controls.Tree.TreeColumn();
+			this.nodeIcon1 = new Aga.Controls.Tree.NodeControls.NodeIcon();
 			this.nodeTextBox1 = new Aga.Controls.Tree.NodeControls.NodeTextBox();
-			this.menuStripMediaPath = new System.Windows.Forms.ContextMenuStrip(this.components);
+			this.menuStripMediaPaths = new System.Windows.Forms.ContextMenuStrip(this.components);
 			this.addPathToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-			this.menuStripScene = new System.Windows.Forms.ContextMenuStrip(this.components);
+			this.menuStripScenes = new System.Windows.Forms.ContextMenuStrip(this.components);
 			this.addSceneToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.menuStripMain = new System.Windows.Forms.MenuStrip();
 			this.fileToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -45,14 +46,22 @@
 			this.saveProjectAsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.closeProjectToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.toolStripSeparator1 = new System.Windows.Forms.ToolStripSeparator();
-			this.menuStripAddScript = new System.Windows.Forms.ContextMenuStrip(this.components);
-			this.addSceneScriptToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-			this.addRunScriptToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+			this.menuStripScene = new System.Windows.Forms.ContextMenuStrip(this.components);
+			this.addScriptToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.deleteSceneToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-			this.menuStripMediaPath.SuspendLayout();
-			this.menuStripScene.SuspendLayout();
+			this.toolStripSeparator2 = new System.Windows.Forms.ToolStripSeparator();
+			this.openToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+			this.runToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+			this.menuStripScript = new System.Windows.Forms.ContextMenuStrip(this.components);
+			this.setAsStartupScriptToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+			this.deleteToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+			this.toolStripSeparator3 = new System.Windows.Forms.ToolStripSeparator();
+			this.openToolStripMenuItem1 = new System.Windows.Forms.ToolStripMenuItem();
+			this.menuStripMediaPaths.SuspendLayout();
+			this.menuStripScenes.SuspendLayout();
 			this.menuStripMain.SuspendLayout();
-			this.menuStripAddScript.SuspendLayout();
+			this.menuStripScene.SuspendLayout();
+			this.menuStripScript.SuspendLayout();
 			this.SuspendLayout();
 			// 
 			// treeViewAdv
@@ -66,6 +75,7 @@
 			this.treeViewAdv.Location = new System.Drawing.Point(0, 0);
 			this.treeViewAdv.Model = null;
 			this.treeViewAdv.Name = "treeViewAdv";
+			this.treeViewAdv.NodeControls.Add(this.nodeIcon1);
 			this.treeViewAdv.NodeControls.Add(this.nodeTextBox1);
 			this.treeViewAdv.SelectedNode = null;
 			this.treeViewAdv.Size = new System.Drawing.Size(292, 250);
@@ -79,6 +89,13 @@
 			this.treeColumn1.SortOrder = System.Windows.Forms.SortOrder.None;
 			this.treeColumn1.TooltipText = null;
 			// 
+			// nodeIcon1
+			// 
+			this.nodeIcon1.DataPropertyName = "Icon";
+			this.nodeIcon1.LeftMargin = 1;
+			this.nodeIcon1.ParentColumn = this.treeColumn1;
+			this.nodeIcon1.ScaleMode = Aga.Controls.Tree.ImageScaleMode.AlwaysScale;
+			// 
 			// nodeTextBox1
 			// 
 			this.nodeTextBox1.DataPropertyName = "Text";
@@ -87,12 +104,12 @@
 			this.nodeTextBox1.LeftMargin = 3;
 			this.nodeTextBox1.ParentColumn = this.treeColumn1;
 			// 
-			// menuStripMediaPath
+			// menuStripMediaPaths
 			// 
-			this.menuStripMediaPath.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+			this.menuStripMediaPaths.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.addPathToolStripMenuItem});
-			this.menuStripMediaPath.Name = "mediaPathMenuStrip";
-			this.menuStripMediaPath.Size = new System.Drawing.Size(130, 26);
+			this.menuStripMediaPaths.Name = "mediaPathMenuStrip";
+			this.menuStripMediaPaths.Size = new System.Drawing.Size(130, 26);
 			// 
 			// addPathToolStripMenuItem
 			// 
@@ -101,12 +118,12 @@
 			this.addPathToolStripMenuItem.Text = "Add path";
 			this.addPathToolStripMenuItem.Click += new System.EventHandler(this.addPathToolStripMenuItem_Click);
 			// 
-			// menuStripScene
+			// menuStripScenes
 			// 
-			this.menuStripScene.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+			this.menuStripScenes.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.addSceneToolStripMenuItem});
-			this.menuStripScene.Name = "sceneMenuStrip";
-			this.menuStripScene.Size = new System.Drawing.Size(136, 26);
+			this.menuStripScenes.Name = "sceneMenuStrip";
+			this.menuStripScenes.Size = new System.Drawing.Size(136, 26);
 			// 
 			// addSceneToolStripMenuItem
 			// 
@@ -201,35 +218,84 @@
 			this.toolStripSeparator1.Name = "toolStripSeparator1";
 			this.toolStripSeparator1.Size = new System.Drawing.Size(167, 6);
 			// 
-			// menuStripAddScript
+			// menuStripScene
 			// 
-			this.menuStripAddScript.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.addSceneScriptToolStripMenuItem,
-            this.addRunScriptToolStripMenuItem,
-            this.deleteSceneToolStripMenuItem});
-			this.menuStripAddScript.Name = "sceneMenuStrip";
-			this.menuStripAddScript.Size = new System.Drawing.Size(169, 92);
+			this.menuStripScene.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.addScriptToolStripMenuItem,
+            this.deleteSceneToolStripMenuItem,
+            this.toolStripSeparator2,
+            this.openToolStripMenuItem,
+            this.runToolStripMenuItem});
+			this.menuStripScene.Name = "sceneMenuStrip";
+			this.menuStripScene.Size = new System.Drawing.Size(134, 98);
 			// 
-			// addSceneScriptToolStripMenuItem
+			// addScriptToolStripMenuItem
 			// 
-			this.addSceneScriptToolStripMenuItem.Name = "addSceneScriptToolStripMenuItem";
-			this.addSceneScriptToolStripMenuItem.Size = new System.Drawing.Size(168, 22);
-			this.addSceneScriptToolStripMenuItem.Text = "Add scene script";
-			this.addSceneScriptToolStripMenuItem.Click += new System.EventHandler(this.addSceneScriptToolStripMenuItem_Click);
-			// 
-			// addRunScriptToolStripMenuItem
-			// 
-			this.addRunScriptToolStripMenuItem.Name = "addRunScriptToolStripMenuItem";
-			this.addRunScriptToolStripMenuItem.Size = new System.Drawing.Size(168, 22);
-			this.addRunScriptToolStripMenuItem.Text = "Add run script";
-			this.addRunScriptToolStripMenuItem.Click += new System.EventHandler(this.addRunScriptToolStripMenuItem_Click);
+			this.addScriptToolStripMenuItem.Name = "addScriptToolStripMenuItem";
+			this.addScriptToolStripMenuItem.Size = new System.Drawing.Size(133, 22);
+			this.addScriptToolStripMenuItem.Text = "Add script";
+			this.addScriptToolStripMenuItem.Click += new System.EventHandler(this.addSceneScriptToolStripMenuItem_Click);
 			// 
 			// deleteSceneToolStripMenuItem
 			// 
 			this.deleteSceneToolStripMenuItem.Name = "deleteSceneToolStripMenuItem";
-			this.deleteSceneToolStripMenuItem.Size = new System.Drawing.Size(168, 22);
+			this.deleteSceneToolStripMenuItem.Size = new System.Drawing.Size(133, 22);
 			this.deleteSceneToolStripMenuItem.Text = "Delete";
 			this.deleteSceneToolStripMenuItem.Click += new System.EventHandler(this.deleteSceneToolStripMenuItem_Click);
+			// 
+			// toolStripSeparator2
+			// 
+			this.toolStripSeparator2.Name = "toolStripSeparator2";
+			this.toolStripSeparator2.Size = new System.Drawing.Size(130, 6);
+			// 
+			// openToolStripMenuItem
+			// 
+			this.openToolStripMenuItem.Name = "openToolStripMenuItem";
+			this.openToolStripMenuItem.Size = new System.Drawing.Size(133, 22);
+			this.openToolStripMenuItem.Text = "Open";
+			this.openToolStripMenuItem.Click += new System.EventHandler(this.openSceneToolStripMenuItem_Click);
+			// 
+			// runToolStripMenuItem
+			// 
+			this.runToolStripMenuItem.Name = "runToolStripMenuItem";
+			this.runToolStripMenuItem.Size = new System.Drawing.Size(133, 22);
+			this.runToolStripMenuItem.Text = "Run";
+			// 
+			// menuStripScript
+			// 
+			this.menuStripScript.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.setAsStartupScriptToolStripMenuItem,
+            this.deleteToolStripMenuItem,
+            this.toolStripSeparator3,
+            this.openToolStripMenuItem1});
+			this.menuStripScript.Name = "menuStripScript";
+			this.menuStripScript.Size = new System.Drawing.Size(185, 98);
+			// 
+			// setAsStartupScriptToolStripMenuItem
+			// 
+			this.setAsStartupScriptToolStripMenuItem.Name = "setAsStartupScriptToolStripMenuItem";
+			this.setAsStartupScriptToolStripMenuItem.Size = new System.Drawing.Size(184, 22);
+			this.setAsStartupScriptToolStripMenuItem.Text = "Set as startup script";
+			this.setAsStartupScriptToolStripMenuItem.Click += new System.EventHandler(this.setAsStartupScriptToolStripMenuItem_Click);
+			// 
+			// deleteToolStripMenuItem
+			// 
+			this.deleteToolStripMenuItem.Name = "deleteToolStripMenuItem";
+			this.deleteToolStripMenuItem.Size = new System.Drawing.Size(184, 22);
+			this.deleteToolStripMenuItem.Text = "Delete";
+			this.deleteToolStripMenuItem.Click += new System.EventHandler(this.deleteToolStripMenuItem_Click);
+			// 
+			// toolStripSeparator3
+			// 
+			this.toolStripSeparator3.Name = "toolStripSeparator3";
+			this.toolStripSeparator3.Size = new System.Drawing.Size(181, 6);
+			// 
+			// openToolStripMenuItem1
+			// 
+			this.openToolStripMenuItem1.Name = "openToolStripMenuItem1";
+			this.openToolStripMenuItem1.Size = new System.Drawing.Size(184, 22);
+			this.openToolStripMenuItem1.Text = "Open";
+			this.openToolStripMenuItem1.Click += new System.EventHandler(this.openScriptToolStripMenuItem1_Click);
 			// 
 			// ProjectWindow
 			// 
@@ -250,11 +316,12 @@
 			this.TabText = "Project";
 			this.Text = "Project";
 			this.Load += new System.EventHandler(this.ProjectWindow_Load);
-			this.menuStripMediaPath.ResumeLayout(false);
-			this.menuStripScene.ResumeLayout(false);
+			this.menuStripMediaPaths.ResumeLayout(false);
+			this.menuStripScenes.ResumeLayout(false);
 			this.menuStripMain.ResumeLayout(false);
 			this.menuStripMain.PerformLayout();
-			this.menuStripAddScript.ResumeLayout(false);
+			this.menuStripScene.ResumeLayout(false);
+			this.menuStripScript.ResumeLayout(false);
 			this.ResumeLayout(false);
 			this.PerformLayout();
 
@@ -264,9 +331,9 @@
 
 		private Aga.Controls.Tree.TreeColumn treeColumn1;
 		private Aga.Controls.Tree.NodeControls.NodeTextBox nodeTextBox1;
-		private System.Windows.Forms.ContextMenuStrip menuStripMediaPath;
+		private System.Windows.Forms.ContextMenuStrip menuStripMediaPaths;
 		private System.Windows.Forms.ToolStripMenuItem addPathToolStripMenuItem;
-		private System.Windows.Forms.ContextMenuStrip menuStripScene;
+		private System.Windows.Forms.ContextMenuStrip menuStripScenes;
 		private System.Windows.Forms.ToolStripMenuItem addSceneToolStripMenuItem;
 		public Aga.Controls.Tree.TreeViewAdv treeViewAdv;
 		private System.Windows.Forms.MenuStrip menuStripMain;
@@ -278,9 +345,17 @@
 		private System.Windows.Forms.ToolStripMenuItem saveProjectAsToolStripMenuItem;
 		private System.Windows.Forms.ToolStripSeparator toolStripSeparator1;
 		private System.Windows.Forms.ToolStripMenuItem closeProjectToolStripMenuItem;
-		private System.Windows.Forms.ContextMenuStrip menuStripAddScript;
-		private System.Windows.Forms.ToolStripMenuItem addSceneScriptToolStripMenuItem;
-		private System.Windows.Forms.ToolStripMenuItem addRunScriptToolStripMenuItem;
+		private System.Windows.Forms.ContextMenuStrip menuStripScene;
+		private System.Windows.Forms.ToolStripMenuItem addScriptToolStripMenuItem;
 		private System.Windows.Forms.ToolStripMenuItem deleteSceneToolStripMenuItem;
+		private System.Windows.Forms.ContextMenuStrip menuStripScript;
+		private System.Windows.Forms.ToolStripMenuItem setAsStartupScriptToolStripMenuItem;
+		private System.Windows.Forms.ToolStripMenuItem deleteToolStripMenuItem;
+		private Aga.Controls.Tree.NodeControls.NodeIcon nodeIcon1;
+		private System.Windows.Forms.ToolStripSeparator toolStripSeparator2;
+		private System.Windows.Forms.ToolStripMenuItem openToolStripMenuItem;
+		private System.Windows.Forms.ToolStripMenuItem runToolStripMenuItem;
+		private System.Windows.Forms.ToolStripSeparator toolStripSeparator3;
+		private System.Windows.Forms.ToolStripMenuItem openToolStripMenuItem1;
 	}
 }
