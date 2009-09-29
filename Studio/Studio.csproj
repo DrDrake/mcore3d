@@ -253,6 +253,6 @@
   </Target>
   -->
   <PropertyGroup>
-    <PostBuildEvent>sgen.exe /force $(TargetPath)</PostBuildEvent>
+    <PostBuildEvent>sgen.exe /nologo /force $(TargetPath)</PostBuildEvent>
   </PropertyGroup>
 </Project>

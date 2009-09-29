@@ -1,4 +1,6 @@
 ﻿using System;
+using System.ComponentModel;
+using System.Drawing;
 using System.IO;
 using System.Xml;
 using System.Xml.Serialization;
@@ -49,12 +51,6 @@ namespace Studio
 
 	public class MediaPaths : TreeNodeList<MediaPath>
 	{
-		public MediaPaths()
-			: base(ProjectWindow.Singleton.treeViewAdv, ProjectWindow.Singleton.MediaPathNode)
-		{
-			mFileSystem = ProjectWindow.Singleton.Project.FileSystem;
-		}
-
 		public MediaPaths(TreeViewAdv treeView, Node node, Binding.FileSystemCollection fileSystem)
 			: base(treeView, node)
 		{
@@ -130,15 +126,109 @@ namespace Studio
 
 	public class Scene : TreeNodeBase<Scene>
 	{
-		/// <summary>
-		/// The script to be run when the scene is loaded into the editor.
-		/// </summary>
-		public string SceneScriptPath;
+		public Scene()
+		{
+			Scripts = new SceneScripts(ProjectWindow.Singleton.treeViewAdv, this);
+		}
 
-		/// <summary>
-		/// The script to be run when the play button is pressed.
-		/// </summary>
-		public string InitScriptPath;
+		public SceneScript StarupScript
+		{
+			get
+			{
+				foreach (SceneScript s in Scripts)
+				{
+					if (s.IsStartupScript)
+						return s;
+				}
+				return null;
+			}
+
+			/// <summary>
+			/// This function will ensure only one script in the list will be act as startup script.
+			/// </summary>
+			set
+			{
+				if (value.Parent != this)
+					return;
+
+				foreach (SceneScript s in Scripts)
+					s.IsStartupScript = false;
+
+				value.IsStartupScript = true;
+			}
+		}
+
+		public SceneScripts Scripts;
+	}
+
+	public class SceneScript : TreeNodeBase<SceneScript>
+	{
+		public string Path
+		{
+			get { return Text; }
+			set { Text = value; }
+		}
+
+		public bool IsStartupScript = false;
+
+		public Image Icon
+		{
+			get
+			{
+				if (!IsStartupScript)
+					return null;
+
+				ComponentResourceManager resources = new ComponentResourceManager(typeof(MainForm));
+				return ((System.Drawing.Image)(resources.GetObject("toolStripButtonPlay.Image")));
+			}
+		}
+	}
+
+	public class SceneScripts : TreeNodeList<SceneScript>
+	{
+		public SceneScripts(TreeViewAdv treeView, Node node)
+			: base(treeView, node)
+		{
+		}
+	}
+
+	public class SceneScriptXmlWrapper
+	{
+		#region Basic wrapping
+		public SceneScriptXmlWrapper() : this(new SceneScript()) { }
+
+		public SceneScriptXmlWrapper(SceneScript val)
+		{
+			this.mVal = val;
+		}
+
+		public static implicit operator SceneScript(SceneScriptXmlWrapper wrapper)
+		{
+			return wrapper != null ? wrapper.mVal : null;
+		}
+
+		public static implicit operator SceneScriptXmlWrapper(SceneScript val)
+		{
+			return val != null ? new SceneScriptXmlWrapper(val) : null;
+		}
+
+		[XmlIgnore]
+		protected SceneScript mVal;
+		#endregion
+
+		[XmlAttribute]
+		public string Path
+		{
+			get { return mVal.Path; }
+			set { mVal.Path = value; }
+		}
+
+		[XmlAttribute, DefaultValue(false)]
+		public bool IsStartupScript
+		{
+			get { return mVal.IsStartupScript; }
+			set { mVal.IsStartupScript = value; }
+		}
 	}
 
 	public class SceneXmlWrapper
@@ -172,18 +262,11 @@ namespace Studio
 			set { mVal.Text = value; }
 		}
 
-		[XmlAttribute]
-		public string SceneScriptPath
+		[XmlArrayItem(ElementName = "Script", Type = typeof(SceneScriptXmlWrapper))]
+		public SceneScripts Scripts
 		{
-			get { return mVal.SceneScriptPath; }
-			set { mVal.SceneScriptPath = value; }
-		}
-
-		[XmlAttribute]
-		public string InitScriptPath
-		{
-			get { return mVal.InitScriptPath; }
-			set { mVal.InitScriptPath = value; }
+			get { return mVal.Scripts; }
+			set { mVal.Scripts = value; }
 		}
 	}
 
@@ -221,6 +304,9 @@ namespace Studio
 		/// <summary>
 		/// Serialize the Project class to an Xml file
 		/// <see cref="http://www.switchonthecode.com/tutorials/csharp-tutorial-xml-serialization"/>
+		/// Currently we use sgen.exe to generate the serializatin assemblies during post build event,
+		/// if a more advanced generation tool is needed, see:
+		/// <see cref="http://www.codeplex.com/xgenplus"/>
 		/// </summary>
 		/// <param name="xmlPath"></param>
 		/// <param name="preference"></param>

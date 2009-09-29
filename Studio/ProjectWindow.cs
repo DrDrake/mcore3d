@@ -150,6 +150,11 @@ namespace Studio
 			get { return treeViewAdv.SelectedNode.Tag as Scene; }
 		}
 
+		public SceneScript SelectedScript
+		{
+			get { return treeViewAdv.SelectedNode.Tag as SceneScript; }
+		}
+
 		/// <summary>
 		/// Where this project is saved.
 		/// All other paths are relative to this path, for instance the media paths
@@ -187,11 +192,16 @@ namespace Studio
 				return;
 
 			if (treeViewAdv.SelectedNode.Tag as Node == SceneNode)
-				treeViewAdv.ContextMenuStrip = menuStripScene;
+				treeViewAdv.ContextMenuStrip = menuStripScenes;
 			else if (treeViewAdv.SelectedNode.Tag as Node == MediaPathNode)
-				treeViewAdv.ContextMenuStrip = menuStripMediaPath;
+				treeViewAdv.ContextMenuStrip = menuStripMediaPaths;
 			else if (treeViewAdv.SelectedNode.Tag is Scene)
-				treeViewAdv.ContextMenuStrip = menuStripAddScript;
+			{
+				treeViewAdv.ContextMenuStrip = menuStripScene;
+				runToolStripMenuItem.Enabled = SelectedScene.StarupScript != null;
+			}
+			else if (treeViewAdv.SelectedNode.Tag is SceneScript)
+				treeViewAdv.ContextMenuStrip = menuStripScript;
 		}
 
 		private void addSceneToolStripMenuItem_Click(object sender, System.EventArgs e)
@@ -218,17 +228,14 @@ namespace Studio
 
 		private void addSceneScriptToolStripMenuItem_Click(object sender, EventArgs e)
 		{
-
-		}
-
-		private void addRunScriptToolStripMenuItem_Click(object sender, EventArgs e)
-		{
-
+			SceneScript s = new SceneScript();
+			s.Path = "hahaha";
+			SelectedScene.Scripts.Add(s);
 		}
 
 		private void deleteSceneToolStripMenuItem_Click(object sender, EventArgs e)
 		{
-			SelectedScene.Parent = null;
+			Project.Scenes.Remove(SelectedScene);
 		}
 
 		private void newProjectToolStripMenuItem_Click(object sender, EventArgs e)
@@ -284,6 +291,27 @@ namespace Studio
 		private void closeProjectToolStripMenuItem_Click(object sender, EventArgs e)
 		{
 			CloseProject();
+		}
+
+		private void setAsStartupScriptToolStripMenuItem_Click(object sender, EventArgs e)
+		{
+			(SelectedScript.Parent as Scene).StarupScript = SelectedScript;
+			treeViewAdv.Refresh();
+		}
+
+		private void deleteToolStripMenuItem_Click(object sender, EventArgs e)
+		{
+			(SelectedScript.Parent as Scene).Scripts.Remove(SelectedScript);
+		}
+
+		private void openSceneToolStripMenuItem_Click(object sender, EventArgs e)
+		{
+		}
+
+		private void openScriptToolStripMenuItem1_Click(object sender, EventArgs e)
+		{
+			CodeWindow codeWindow = new CodeWindow();
+			codeWindow.Show(MainForm.Singleton.dockPanel);
 		}
 	}
 
