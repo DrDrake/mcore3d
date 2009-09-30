@@ -81,6 +81,7 @@
 			this.treeViewAdv.Size = new System.Drawing.Size(292, 250);
 			this.treeViewAdv.TabIndex = 0;
 			this.treeViewAdv.Text = "treeViewAdv";
+			this.treeViewAdv.DoubleClick += new System.EventHandler(this.treeViewAdv_DoubleClick);
 			this.treeViewAdv.MouseDown += new System.Windows.Forms.MouseEventHandler(this.treeViewAdv1_MouseDown);
 			// 
 			// treeColumn1
@@ -269,7 +270,7 @@
             this.toolStripSeparator3,
             this.openToolStripMenuItem1});
 			this.menuStripScript.Name = "menuStripScript";
-			this.menuStripScript.Size = new System.Drawing.Size(185, 98);
+			this.menuStripScript.Size = new System.Drawing.Size(185, 76);
 			// 
 			// setAsStartupScriptToolStripMenuItem
 			// 
@@ -295,7 +296,7 @@
 			this.openToolStripMenuItem1.Name = "openToolStripMenuItem1";
 			this.openToolStripMenuItem1.Size = new System.Drawing.Size(184, 22);
 			this.openToolStripMenuItem1.Text = "Open";
-			this.openToolStripMenuItem1.Click += new System.EventHandler(this.openScriptToolStripMenuItem1_Click);
+			this.openToolStripMenuItem1.Click += new System.EventHandler(this.openScriptToolStripMenuItem_Click);
 			// 
 			// ProjectWindow
 			// 

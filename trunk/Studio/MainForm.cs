@@ -38,6 +38,10 @@ namespace Studio
 			}
 		}
 
+		public void OpenScene(String[] scripts)
+		{
+		}
+
 		private void UpdateToolBars()
 		{
 			if (currentRenderControl == null)
@@ -61,8 +65,6 @@ namespace Studio
 				return entityWindow;
 			else if (persistString == typeof(LogWindow).ToString())
 				return logWindow;
-			else if (persistString == typeof(CodeWindow).ToString())
-				return codeWindow;
 			else if (persistString == typeof(PropertyWindow).ToString())
 				return propertyWindow;
 			else if (persistString == typeof(MemoryProfilerWindow).ToString())
@@ -81,14 +83,13 @@ namespace Studio
 		/// <summary>
 		/// A list of all rendering panels.
 		/// </summary>
-		List<RenderPanelControl> renderControls;
+		public List<RenderPanelControl> renderControls;
 
-		ProjectWindow projectWindow;
+		public ProjectWindow projectWindow;
 		EntityWindow entityWindow;
 		PropertyWindow propertyWindow;
 		AssertWindow assertWindow;
 		LogWindow logWindow;
-		CodeWindow codeWindow;
 		MemoryProfilerWindow memoryProfilerWindow;
 		public AssertBrowsingForm assertBrowsingForm;
 

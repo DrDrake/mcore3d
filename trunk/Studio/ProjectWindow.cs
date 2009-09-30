@@ -3,6 +3,8 @@ using System.IO;
 using System.Windows.Forms;
 using Aga.Controls.Tree;
 using Binding;
+using System.Collections.Generic;
+using WeifenLuo.WinFormsUI.Docking;
 
 namespace Studio
 {
@@ -179,6 +181,9 @@ namespace Studio
 		private Context mContext;
 		private MainForm mMainForm;
 
+		/// Ensure one window for one script
+		private List<WeakReference> mOpenedCodeWindows = new List<WeakReference>();
+
 	// Events
 		private void ProjectWindow_Load(object sender, EventArgs e)
 		{
@@ -308,10 +313,30 @@ namespace Studio
 		{
 		}
 
-		private void openScriptToolStripMenuItem1_Click(object sender, EventArgs e)
+		private void openScriptToolStripMenuItem_Click(object sender, EventArgs e)
 		{
+			foreach (Studio.DockContent doc in MainForm.Singleton.dockPanel.Documents)
+			{
+				if (doc.ToolTipText == SelectedScript.Path)
+				{
+					(doc as CodeWindow).Show();
+					return;
+				}
+			}
+
 			CodeWindow codeWindow = new CodeWindow();
+			codeWindow.ToolTipText = SelectedScript.Path;
+			codeWindow.TabText = Path.GetFileName(SelectedScript.Path);
+			codeWindow.scintilla.Text = Project.FileSystem.openAsString(SelectedScript.Path);
 			codeWindow.Show(MainForm.Singleton.dockPanel);
+		}
+
+		private void treeViewAdv_DoubleClick(object sender, EventArgs e)
+		{
+			if (SelectedScript != null)
+				openScriptToolStripMenuItem_Click(sender, new EventArgs());
+			else if (SelectedScene != null)
+				openSceneToolStripMenuItem_Click(sender, new EventArgs());
 		}
 	}
 
