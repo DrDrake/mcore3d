@@ -33,6 +33,12 @@ public:
 
 	bool removeFileSystem(System::String^ pathToFileSystem);
 
+	/*!	Open the file and return it as a whole single string.
+		\note It gives you a raw array of char representation of the file content,
+			don't expect to have any line ending or unicode converstion.
+	 */
+	System::String^ openAsString(System::String^ path);
+
 	typedef System::Collections::Generic::List<System::String^> FileSystems;
 
 	typedef System::Collections::Specialized::StringCollection StringCollection;

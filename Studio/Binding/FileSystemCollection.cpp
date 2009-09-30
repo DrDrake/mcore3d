@@ -6,6 +6,7 @@
 #include "../../MCD/Core/System/RawFileSystem.h"
 #undef nullptr
 #include <gcroot.h>
+#include <sstream>
 
 using namespace MCD;
 using namespace System;
@@ -78,6 +79,19 @@ bool FileSystemCollection::removeFileSystem(String^ pathToFileSystem)
 {
 	mFileSystems->Remove(pathToFileSystem);
 	return mImpl->removeFileSystem(Utility::toWString(pathToFileSystem));
+}
+
+String^ FileSystemCollection::openAsString(String^ path)
+{
+	std::auto_ptr<std::istream> is = mImpl->openRead(Utility::toWString(path));
+
+	if(!is.get())
+		return L"";
+
+	std::ostringstream buffer;
+	buffer << is->rdbuf();
+
+	return gcnew String(buffer.str().c_str());
 }
 
 FileSystemCollection::StringCollection^ FileSystemCollection::fileSystems::get()
