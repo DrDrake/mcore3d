@@ -97,6 +97,82 @@ float FbxPhongMaterialAdaptor::getShininess() const
 	return mImpl->mPhong->GetShininess().Get();
 }
 
+bool FbxPhongMaterialAdaptor::hasDiffuseTexture() const
+{
+	return !getDiffuseTextureFilename().empty();
+}
+
+std::string FbxPhongMaterialAdaptor::getDiffuseTextureFilename() const
+{
+	KFbxProperty prop = mImpl->mPhong->FindProperty(KFbxSurfaceMaterial::sDiffuse);
+	if(!prop.IsValid()) return "";
+
+	KFbxTexture* text = KFbxCast <KFbxTexture>(prop.GetSrcObject(KFbxTexture::ClassId, 0));
+	if(nullptr == text) return "";
+
+	const char* texFilename = text->GetFileName();
+	if(strlen(texFilename) == 0) return "";
+
+	return text->GetFileName();
+}
+
+bool FbxPhongMaterialAdaptor::hasSpecularTexture() const
+{
+	return !getSpecularTextureFilename().empty();
+}
+
+std::string FbxPhongMaterialAdaptor::getSpecularTextureFilename() const
+{
+	KFbxProperty prop = mImpl->mPhong->FindProperty(KFbxSurfaceMaterial::sSpecular);
+	if(!prop.IsValid()) return "";
+
+	KFbxTexture* text = KFbxCast <KFbxTexture>(prop.GetSrcObject(KFbxTexture::ClassId, 0));
+	if(nullptr == text) return "";
+
+	const char* texFilename = text->GetFileName();
+	if(strlen(texFilename) == 0) return "";
+
+	return text->GetFileName();
+}
+
+bool FbxPhongMaterialAdaptor::hasBumpTexture() const
+{
+	return !getBumpTextureFilename().empty();
+}
+
+std::string FbxPhongMaterialAdaptor::getBumpTextureFilename() const
+{
+	KFbxProperty prop = mImpl->mPhong->FindProperty(KFbxSurfaceMaterial::sBump);
+	if(!prop.IsValid()) return "";
+
+	KFbxTexture* text = KFbxCast <KFbxTexture>(prop.GetSrcObject(KFbxTexture::ClassId, 0));
+	if(nullptr == text) return "";
+
+	const char* texFilename = text->GetFileName();
+	if(strlen(texFilename) == 0) return "";
+
+	return text->GetFileName();
+}
+
+bool FbxPhongMaterialAdaptor::hasSelfIllumTexture() const
+{
+	return !getSelfIllumTextureFilename().empty();
+}
+
+std::string FbxPhongMaterialAdaptor::getSelfIllumTextureFilename() const
+{
+	KFbxProperty prop = mImpl->mPhong->FindProperty(KFbxSurfaceMaterial::sEmissive);
+	if(!prop.IsValid()) return "";
+
+	KFbxTexture* text = KFbxCast <KFbxTexture>(prop.GetSrcObject(KFbxTexture::ClassId, 0));
+	if(nullptr == text) return "";
+
+	const char* texFilename = text->GetFileName();
+	if(strlen(texFilename) == 0) return "";
+
+	return text->GetFileName();
+}
+
 /*----------------------------------------------------------------------------*/
 /*! FbxFxMaterialAdaptor */
 class FbxFxMaterialAdaptor::Impl : public FbxMaterialAdaptorImplBase

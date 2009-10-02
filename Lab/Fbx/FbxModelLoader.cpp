@@ -38,6 +38,7 @@ private:
 };	// Impl
 
 FbxModelLoader::Impl::Impl(IResourceManager* resourceManager)
+	: mResourceManager(resourceManager)
 {
 
 }
@@ -72,7 +73,7 @@ void FbxModelLoader::Impl::commit(Resource& resource)
 	MCD_ASSUME(mFbxFile.get() != nullptr);
 
 	Model& model = dynamic_cast<Model&>(resource);
-	ModelImporter().import(*mFbxFile, model, true);
+	ModelImporter(mResourceManager).import(*mFbxFile, model, true);
 }
 
 IResourceLoader::LoadingState FbxModelLoader::Impl::getLoadingState() const
