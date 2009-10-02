@@ -79,7 +79,10 @@ TEST(Leaf_PathTest)
 		{L"C:",		L"C:"},
 		{L"/",		L"C:/"},
 		{L"\\",		L"C:\\"},
-		{L"\\B",	L"C:\\B"},
+		{L"B",		L"C:/B"},
+		{L"B",		L"C:\\B"},
+		{L"b",		L"C:\\a/b"},
+		{L"b",		L"C:\\a\\b"},
 		{L"/",		L"game:/"},
 		{L"\\",		L"game:\\"},
 #endif
