@@ -20,6 +20,18 @@ public:
 	ColorRGBAf getDiffuseColor() const;
 	ColorRGBAf getSpecularColor() const;
 	float getShininess() const;
+	
+	bool hasDiffuseTexture() const;
+	std::string getDiffuseTextureFilename() const;
+
+	bool hasSpecularTexture() const;
+	std::string getSpecularTextureFilename() const;
+
+	bool hasBumpTexture() const;
+	std::string getBumpTextureFilename() const;
+
+	bool hasSelfIllumTexture() const;
+	std::string getSelfIllumTextureFilename() const;
 
 private:
 	class Impl;

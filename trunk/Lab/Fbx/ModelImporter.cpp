@@ -6,7 +6,7 @@
 #include "FbxNodeAdaptors.h"
 #include "FbxMaterialAdaptors.h"
 
-
+#include "../../MCD/Core/System/ResourceManager.h"
 #include "../../MCD/Render/EditableMesh.h"
 #include "../../MCD/Render/MeshBuilder.h"
 #include "../../MCD/Render/Material.h"
@@ -16,6 +16,16 @@
 #include <map>
 #include <vector>
 #include <algorithm>
+
+// this is need for Texture property :-<
+// TODO: try to hide this for cross API
+#include "../../3Party/glew/glew.h"
+
+#if defined(MCD_VC)
+#	pragma comment(lib, "OpenGL32")
+#	pragma comment(lib, "GLU32")
+#	pragma comment(lib, "glew")
+#endif
 
 namespace MCD
 {
@@ -71,12 +81,14 @@ private:
 	IndexedMeshBuilder mIdxMesh;
 	FbxMeshAdaptor mFbxMesh;
 	FbxNodeAdaptor mFbxNode;
+	IResourceManager* mResMgr;
 
 
 public:
-	FbxMeshConverter(KFbxNode* meshNode)
+	FbxMeshConverter(KFbxNode* meshNode, IResourceManager* resMgr)
 		: mFbxMesh((KFbxMesh*)meshNode->GetNodeAttribute())
 		, mFbxNode(meshNode)
+		, mResMgr(resMgr)
 	{
 		// read geometry
 		const int cFaceCnt = mFbxMesh.getFaceCount();
@@ -141,12 +153,22 @@ public:
         {
 			material->addProperty
 				( new StandardProperty
-					( phong.getAmbientColor()
-					, phong.getDiffuseColor()
-					, phong.getSpecularColor()
+					( phong.getAmbientColor(), phong.getDiffuseColor(), phong.getSpecularColor()
 					, ColorProperty::ColorOperation::Replace
 					, phong.getShininess() )
 				, 0);
+
+			if(nullptr != mResMgr)
+			{
+				if(phong.hasDiffuseTexture())
+				{
+					Path texpath(strToWStr(phong.getDiffuseTextureFilename()));	
+					Texture* texture = (Texture*)mResMgr->load(texpath.getLeaf()).get();
+					material->addProperty
+						( new TextureProperty(texture, 0, GL_LINEAR, GL_LINEAR)
+						, 0);
+				}
+			}
 		}
 		else
 		{
@@ -298,7 +320,7 @@ public:
 			// convert to MeshBuilder
 			builder->enable
 				( Mesh::Position | Mesh::Normal	// position, normal
-				| Mesh::TextureCoord3			// uv0, uv1, tangent, and color
+				| Mesh::TextureCoord1			// uv0, uv1, tangent, and color
 				| Mesh::Index);
 
 			builder->textureUnit(Mesh::TextureCoord0);
@@ -371,7 +393,8 @@ public:
 
 };	// FbxMeshConverter
 
-ModelImporter::ModelImporter()
+ModelImporter::ModelImporter(IResourceManager* resMgr)
+	: mResMgr(resMgr)
 {
 }
 
@@ -384,7 +407,7 @@ void ModelImporter::import(FbxFile& fbxfile, Model& outModel, bool editable)
 
 	for(size_t imesh = 0; imesh < meshCnt; ++imesh)
 	{
-		FbxMeshConverter converter(meshNodes.GetAt(imesh));
+		FbxMeshConverter converter(meshNodes.GetAt(imesh), mResMgr);
 		converter.toMeshesWithMaterials(outModel, editable);
 	}
 }

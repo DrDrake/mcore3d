@@ -25,8 +25,8 @@ public:
 		mResMgr.addFactory(new FbxModelLoaderFactory(mResMgr));
 
 		// open fbx file
-		std::wstring fbxfilepath = (Path::getCurrentPath() / L"media/CornellBox.fbx").getString();
-
+		//std::wstring fbxfilepath = (Path::getCurrentPath() / L"media/CornellBox.fbx").getString();
+		std::wstring fbxfilepath = (Path::getCurrentPath() / L"media/Test_ModelLoader_Materials.fbx").getString();
 		//std::wstring fbxfilepath = (Path::getCurrentPath() / L"media/scene02_cave_master.fbx").getString();
 
 		mModel = dynamic_cast<Model*>(mResMgr.load(fbxfilepath).get());

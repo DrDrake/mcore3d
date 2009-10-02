@@ -7,14 +7,17 @@ namespace MCD
 {
 
 class FbxFile;
-class ErrorList;
+class IResourceManager;
 
 class MCD_FBX_API ModelImporter
 {
 public:
-    ModelImporter();
+    ModelImporter(sal_maybenull IResourceManager* resMgr = nullptr);
 
 	void import(FbxFile& fbxfile, Model& outModel, bool editable);
+
+private:
+	IResourceManager* mResMgr;
 };
 
 }	// namespace MCD
