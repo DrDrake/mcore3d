@@ -82,13 +82,14 @@ private:
 	FbxMeshAdaptor mFbxMesh;
 	FbxNodeAdaptor mFbxNode;
 	IResourceManager* mResMgr;
-
+	Path mRootPath;
 
 public:
-	FbxMeshConverter(KFbxNode* meshNode, IResourceManager* resMgr)
+	FbxMeshConverter(KFbxNode* meshNode, IResourceManager* resMgr, const Path& rootPath)
 		: mFbxMesh((KFbxMesh*)meshNode->GetNodeAttribute())
 		, mFbxNode(meshNode)
 		, mResMgr(resMgr)
+		, mRootPath(rootPath)
 	{
 		// read geometry
 		const int cFaceCnt = mFbxMesh.getFaceCount();
@@ -162,8 +163,14 @@ public:
 			{
 				if(phong.hasDiffuseTexture())
 				{
-					Path texpath(strToWStr(phong.getDiffuseTextureFilename()));	
-					Texture* texture = (Texture*)mResMgr->load(texpath.getLeaf()).get();
+					// TODO: fixed the Path::getLeaf() problem with '\\'
+					std::wstring temp = strToWStr(phong.getDiffuseTextureFilename());
+					for(size_t i=0; i<temp.length(); ++i)
+						if(temp[i] == '\\') temp[i] = '/';
+
+					Path texpath(temp);
+
+					Texture* texture = (Texture*)mResMgr->load(mRootPath / texpath.getLeaf()).get();
 					material->addProperty
 						( new TextureProperty(texture, 0, GL_LINEAR, GL_LINEAR)
 						, 0);
@@ -405,9 +412,12 @@ void ModelImporter::import(FbxFile& fbxfile, Model& outModel, bool editable)
 
 	const int meshCnt = meshNodes.GetCount();
 
+	Path rootPath(strToWStr(fbxfile.filePath()));
+	rootPath = rootPath.getBranchPath();
+
 	for(size_t imesh = 0; imesh < meshCnt; ++imesh)
 	{
-		FbxMeshConverter converter(meshNodes.GetAt(imesh), mResMgr);
+		FbxMeshConverter converter(meshNodes.GetAt(imesh), mResMgr, rootPath);
 		converter.toMeshesWithMaterials(outModel, editable);
 	}
 }
