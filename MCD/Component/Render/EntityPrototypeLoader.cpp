@@ -5,7 +5,6 @@
 #include "../../Core/System/Log.h"
 #include "../../Core/System/MemoryProfiler.h"
 #include "../../Core/System/StrUtility.h"
-#include "../../Render/Max3dsLoader.h"
 #include "../../Render/Model.h"
 #include "../../Render/Effect.h"
 #include "../../Render/Mesh.h"
@@ -30,11 +29,13 @@ private:
 	IResourceManager* mResourceManager;
 
 // Actual Loaders
-	Max3dsLoader m3dsLoader;
+	mutable Mutex mMutex;
+	std::auto_ptr<IResourceLoader> mConcreteLoader;
+	ResourcePtr mConcreteResource;
 };	// Impl
 
 EntityPrototypeLoader::Impl::Impl(IResourceManager* resourceManager)
-	: m3dsLoader(resourceManager)
+	: mResourceManager(resourceManager)
 {
 }
 
@@ -44,13 +45,55 @@ EntityPrototypeLoader::Impl::~Impl()
 
 IResourceLoader::LoadingState EntityPrototypeLoader::Impl::load(std::istream* is, const Path* fileId, const wchar_t* args)
 {
-	return m3dsLoader.load(is, fileId, args);
+	{
+		ScopeLock lock(mMutex);
+
+		if(nullptr == mConcreteLoader.get())
+		{
+			std::wstring newArgs;
+
+			if(nullptr != args)
+			{
+				NvpParser parser(args);
+				const wchar_t* name, *value;
+				while(parser.next(name, value))
+				{
+					// skip the loadAsEntity arg
+					if(wstrCaseCmp(name, L"loadAsEntity") == 0)
+						continue;
+
+					newArgs += name;
+					newArgs += L"=";
+					newArgs += value;
+					newArgs += L"; ";
+				}
+			}
+
+			std::pair<IResourceLoader*, ResourcePtr> r = mResourceManager->customLoad
+				(*fileId
+				, newArgs.empty() ? nullptr : newArgs.c_str());
+
+			if(nullptr == r.first)
+				return Aborted;
+
+			mConcreteLoader.reset(r.first);
+			mConcreteResource = r.second;
+		}
+	}
+
+	return mConcreteLoader->load(is, fileId, args);
 }
 
 void EntityPrototypeLoader::Impl::commit(Resource& resource)
 {
-	ModelPtr model = new Model(resource.fileId());
-	m3dsLoader.commit(*model);
+	MCD_ASSUME(mConcreteLoader.get());
+	MCD_ASSUME(mConcreteResource.get());
+
+	// invoke the concrete loader to commit
+	mConcreteLoader->commit(*mConcreteResource);
+
+	Model* model = dynamic_cast<Model*>(mConcreteResource.get());
+	MCD_ASSUME(model);
 
 	// Convert Model to EntityPrototype
 	EntityPrototype& ep = dynamic_cast<EntityPrototype&>(resource);
@@ -80,7 +123,13 @@ void EntityPrototypeLoader::Impl::commit(Resource& resource)
 
 IResourceLoader::LoadingState EntityPrototypeLoader::Impl::getLoadingState() const
 {
-	return m3dsLoader.getLoadingState();
+	{	ScopeLock lock(mMutex);
+
+		if(nullptr == mConcreteLoader.get())
+			return Aborted;
+	}
+
+	return mConcreteLoader->getLoadingState();
 }
 
 EntityPrototypeLoader::EntityPrototypeLoader(IResourceManager* resourceManager)

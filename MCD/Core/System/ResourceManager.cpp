@@ -313,6 +313,23 @@ ResourcePtr ResourceManager::load(const Path& fileId, bool block, uint priority,
 	return resource;
 }
 
+std::pair<IResourceLoader*, ResourcePtr> ResourceManager::customLoad(const Path& fileId, const wchar_t* args)
+{
+	MCD_ASSUME(mImpl != nullptr);
+	ScopeLock lock(mImpl->mEventQueue.mMutex);
+
+	IResourceLoader* loader = nullptr;
+	ResourcePtr resource = mImpl->createResource(fileId, args, loader);
+
+	if(!resource || !loader) {
+		Log::format(Log::Warn, L"No loader for \"%s\" can be found", fileId.getString().c_str());
+		delete loader;
+		return std::make_pair((IResourceLoader*)nullptr, (Resource*)nullptr);
+	}
+
+	return std::make_pair(loader, resource);
+}
+
 ResourcePtr ResourceManager::reload(const Path& fileId, bool block, uint priority, const wchar_t* args)
 {
 	MCD_ASSUME(mImpl != nullptr);
