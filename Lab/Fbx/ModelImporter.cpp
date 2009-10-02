@@ -21,12 +21,6 @@
 // TODO: try to hide this for cross API
 #include "../../3Party/glew/glew.h"
 
-#if defined(MCD_VC)
-#	pragma comment(lib, "OpenGL32")
-#	pragma comment(lib, "GLU32")
-#	pragma comment(lib, "glew")
-#endif
-
 namespace MCD
 {
 
@@ -159,22 +153,14 @@ public:
 					, phong.getShininess() )
 				, 0);
 
-			if(nullptr != mResMgr)
+			if(nullptr != mResMgr && phong.hasDiffuseTexture())
 			{
-				if(phong.hasDiffuseTexture())
-				{
-					// TODO: fixed the Path::getLeaf() problem with '\\'
-					std::wstring temp = strToWStr(phong.getDiffuseTextureFilename());
-					for(size_t i=0; i<temp.length(); ++i)
-						if(temp[i] == '\\') temp[i] = '/';
+				Path texpath(strToWStr(phong.getDiffuseTextureFilename()));
 
-					Path texpath(temp);
-
-					Texture* texture = (Texture*)mResMgr->load(mRootPath / texpath.getLeaf()).get();
-					material->addProperty
-						( new TextureProperty(texture, 0, GL_LINEAR, GL_LINEAR)
-						, 0);
-				}
+				Texture* texture = (Texture*)mResMgr->load(mRootPath / texpath.getLeaf()).get();
+				material->addProperty
+					( new TextureProperty(texture, 0, GL_LINEAR, GL_LINEAR)
+					, 0);
 			}
 		}
 		else
