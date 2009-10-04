@@ -67,6 +67,24 @@ TEST(Basic_ResourceManagerTest)
 	// Register factory
 	manager.addFactory(new FakeFactory(L"cpp"));
 
+	{	// Test for customLoad()
+		std::pair<IResourceLoader*, ResourcePtr> result = manager.customLoad(L"Main.cpp");
+		CHECK(result.first);
+		delete result.first;
+
+		// Even file not found, it still return something.
+		result = manager.customLoad(L"__fileNotFound__.cpp");
+		CHECK(result.first);
+		CHECK(result.second);
+		delete result.first;
+
+		// Fail if the file extension type not found
+		result = manager.customLoad(L"__fileNotFound__.xxx");
+		CHECK(!result.first);
+		CHECK(!result.second);
+		delete result.first;
+	}
+
 	ResourcePtr resource = manager.load(L"Main.cpp");
 	CHECK(resource != nullptr);
 
@@ -83,6 +101,7 @@ TEST(Basic_ResourceManagerTest)
 		event.loader->commit(*event.resource);
 		break;
 	}
+
 
 	{	// Get a resource with the same id should return the same resource
 		ResourcePtr resource2 = manager.load(L"Main.cpp");

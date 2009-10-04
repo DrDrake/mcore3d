@@ -43,6 +43,7 @@ public:
 	virtual ~IResourceManager() {}
 
 	/*!	Load a resource.
+		It should be the most frequently used function of the IResourceManager.
 		The interface itself doesn't define how a resource is cached, what this function
 		will be returned is totally up to the implementation.
 		\param fileId Unique identifier for the resource to load.
@@ -52,12 +53,13 @@ public:
 	 */
 	virtual ResourcePtr load(const Path& fileId, bool block=false, uint priority=0, sal_in_z_opt const wchar_t* args=nullptr) = 0;
 
-	/*! Perform a custum loading operation.
+	/*!	Perform a custum loading operation.
 		This will find the appropriate IResourceLoader and creates the Resource for the given fileId.
+		Same as IResourceManager::load(), this interface say nothing about whether the resource will be cached or not.
 		This method is suitable for high-level resource loaders which would like to dispatch their loading operations.
 		\param fileId Unique identifier for the resource to load.
 		\param extra arguments (encoded as name-value paired strings) for loading the resource; similar to program arguments.
-	*/
+	 */
 	virtual std::pair<IResourceLoader*, ResourcePtr> customLoad(const Path& fileId, sal_in_z_opt const wchar_t* args=nullptr) = 0;
 
 	/*!	Cache the given resource.
@@ -185,12 +187,14 @@ public:
 	 */
 	sal_override ResourcePtr load(const Path& fileId, bool block=false, uint priority=0, sal_in_z_opt const wchar_t* args=nullptr);
 
-		/*! Perform a custum loading operation.
+	/*!	Perform a custum loading operation.
 		This will find the appropriate IResourceLoader and creates the Resource for the given fileId.
+		This method will NOT cache the returning resource.
 		This method is suitable for high-level resource loaders which would like to dispatch their loading operations.
+		\note User should manage the life time of the returning IResourceLoader.
 		\param fileId Unique identifier for the resource to load.
 		\param extra arguments (encoded as name-value paired strings) for loading the resource; similar to program arguments.
-	*/
+	 */
 	sal_override std::pair<IResourceLoader*, ResourcePtr> customLoad(const Path& fileId, sal_in_z_opt const wchar_t* args=nullptr);
 
 	/*!	By pass the cache and doing an explicitly reload.
