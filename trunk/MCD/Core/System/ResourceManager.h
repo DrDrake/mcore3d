@@ -91,8 +91,8 @@ public:
 	 */
 	virtual void addCallback(sal_in IResourceManagerCallback* callback) = 0;
 
-	/*!	A place for the concret manager to do any necessary update.
-		The return value is specific to the concret derived class.
+	/*!	A place for the concrete manager to do any necessary update.
+		The return value is specific to the concrete derived class.
 	 */
 	virtual int update() = 0;
 };	// IResourceManager

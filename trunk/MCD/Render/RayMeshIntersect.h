@@ -110,7 +110,7 @@ public:
 	virtual void test(const Vec3f& rayOrig, const Vec3f& rayDir, bool twoSided) = 0;
 
 	/*!	End intersection testes, the results of issued test will be returned.
-		The life-time of the result will keep along witht the concret derived class,
+		The life-time of the result will keep along witht the concrete derived class,
 		and it's content will be cleared when begin() is invoked again.
 	 */
 	virtual void end() = 0;
