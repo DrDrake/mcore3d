@@ -68,6 +68,11 @@ int TaskPool::Task::priority() const
 	return getKey();
 }
 
+void TaskPool::Task::setPriority(int priority)
+{
+	return setKey(priority);
+}
+
 class TaskPool::Runnable : public ThreadPool::IRunnable
 {
 public:

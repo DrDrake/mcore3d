@@ -53,7 +53,7 @@ public:
 	 */
 	virtual ResourcePtr load(const Path& fileId, bool block=false, uint priority=0, sal_in_z_opt const wchar_t* args=nullptr) = 0;
 
-	/*!	Perform a custum loading operation.
+	/*!	Perform a custum loading operation (Advanced usage).
 		This will find the appropriate IResourceLoader and creates the Resource for the given fileId.
 		Same as IResourceManager::load(), this interface say nothing about whether the resource will be cached or not.
 		This method is suitable for high-level resource loaders which would like to dispatch their loading operations.
@@ -61,6 +61,16 @@ public:
 		\param extra arguments (encoded as name-value paired strings) for loading the resource; similar to program arguments.
 	 */
 	virtual std::pair<IResourceLoader*, ResourcePtr> customLoad(const Path& fileId, sal_in_z_opt const wchar_t* args=nullptr) = 0;
+
+	/*!	Re-schedule the next partial loading process in NON-BLOCKING mode (Advanced usage).
+		After a resource is partially loaded, the IResourceLoader has the ability to decide when
+		the next progressive load should be preformed. When the IResourceLoader or anyone decided
+		that it's time to continue the progressive load, call this function.
+		\param context Is a pointer to a IResourceManager implementation specific object
+			obtained though IResourceLoader::onPartialLoaded()
+		\see IResourceLoader::onPartialLoaded()
+	 */
+	virtual void reSchedule(sal_in void* context, uint priority=0, sal_in_z_opt const wchar_t* args=nullptr) = 0;
 
 	/*!	Cache the given resource.
 		The given resource is assumed to be fully loaded, no loading will be preformed
@@ -203,6 +213,16 @@ public:
 		\note This function is not part of the IResourceManager interface.
 	 */
 	ResourcePtr reload(const Path& fileId, bool block=false, uint priority=0, sal_in_z_opt const wchar_t* args=nullptr);
+
+	/*!	Re-schedule the next partial loading process in NON-BLOCKING mode (Advanced usage).
+		After a resource is partially loaded, the IResourceLoader has the ability to decide when
+		the next progressive load should be preformed. When the IResourceLoader or anyone decided
+		that it's time to continue the progressive load, call this function.
+		\param context Is a pointer to a IResourceManager implementation specific object
+			obtained though IResourceLoader::onPartialLoaded()
+		\see IResourceLoader::onPartialLoaded()
+	 */
+	sal_override void reSchedule(sal_in void* context, uint priority=0, sal_in_z_opt const wchar_t* args=nullptr);
 
 	/*!	Cache the given resource.
 		The given resource is assumed to be fully loaded, no loading will be preformed

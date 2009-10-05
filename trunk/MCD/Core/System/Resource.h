@@ -30,6 +30,7 @@ protected:
 };	// Resource
 
 typedef IntrusivePtr<Resource> ResourcePtr;
+typedef WeakPtr<Resource> ResourceWeakPtr;
 
 }	// namespace MCD
 

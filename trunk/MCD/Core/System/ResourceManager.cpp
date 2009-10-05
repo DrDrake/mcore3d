@@ -20,8 +20,6 @@
 #	pragma warning(pop)
 #endif
 
-#define USE_MORE_PARALLEL_LOADING_SCHEDULE 1
-
 namespace MCD {
 
 struct MapNode
@@ -48,8 +46,7 @@ struct MapNode
 
 	PathKey mPathKey;
 	IResourceLoader::LoadingState mLoadingState;	//!< As an information for resolving dependency
-	typedef WeakPtr<Resource> WeakResPtr;
-	WeakResPtr mResource;
+	ResourceWeakPtr mResource;
 };	// MapNode
 
 class ResourceManager::Impl
@@ -92,13 +89,15 @@ class ResourceManager::Impl
 		Mutex mMutex;
 	};	// EventQueue
 
+public:
 	class Task : public MCD::TaskPool::Task
 	{
 	public:
-		Task(MapNode& mapNode, const SharedPtr<IResourceLoader>& loader,
+		Task(ResourceManager& manager, MapNode& mapNode, const SharedPtr<IResourceLoader>& loader,
 			EventQueue& eventQueue, std::istream* is, uint priority, TaskPool& taskPool, const wchar_t* args)
 			:
 			MCD::TaskPool::Task(priority),
+			mResourceManager(manager),
 			mMapNode(mapNode),
 			mResource(mapNode.mResource.get()),
 			mLoader(loader),
@@ -116,7 +115,8 @@ class ResourceManager::Impl
 			Mutex& mutex = mEventQueue.mMutex;
 			ScopeLock lock(mutex);
 
-			while(thread.keepRun()) {
+			while(thread.keepRun())
+			{
 				IResourceLoader::LoadingState state;
 				{	ScopeUnlock unlock(mutex);
 					state = mLoader->load(mIStream.get(), mResource ? &mResource->fileId() : nullptr, mArgs.c_str());
@@ -128,22 +128,21 @@ class ResourceManager::Impl
 
 //				mSleep(1);
 
-				if(state & IResourceLoader::Stopped) {
+				if(state & IResourceLoader::Stopped)
 					break;
-				}
 
-				if(USE_MORE_PARALLEL_LOADING_SCHEDULE) {
-					// Creat a new schedule that has a lower priority
-					Task* task = new Task(mMapNode, mLoader, mEventQueue, mIStream.release(), priority()+1, mTaskPool, mArgs.c_str());
-					mTaskPool.enqueue(*task);
-					break;
-				}
+				Task* task = new Task(mResourceManager, mMapNode, mLoader, mEventQueue, mIStream.release(), priority(), mTaskPool, mArgs.c_str());
+
+				// The onPartialLoaded() callback will decide when to continue the partial load
+				mLoader->onPartialLoaded(mResourceManager, task, priority(), mArgs.c_str());
+				break;
 			}
 
 			// Remember TaskPool::Task need to do cleanup after finished the job
 			delete this;
 		}
 
+		ResourceManager& mResourceManager;
 		MapNode& mMapNode;
 		ResourcePtr mResource;				// Hold the life of the resource
 		SharedPtr<IResourceLoader> mLoader;	// Hold the life of the IResourceLoader
@@ -154,8 +153,8 @@ class ResourceManager::Impl
 	};	// Task
 
 public:
-	Impl(IFileSystem& fileSystem, bool takeFileSystemOwnership)
-		: mFileSystem(fileSystem), mTakeFileSystemOwnership(takeFileSystemOwnership)
+	Impl(ResourceManager& manager, IFileSystem& fileSystem, bool takeFileSystemOwnership)
+		: mResourceManager(manager), mFileSystem(fileSystem), mTakeFileSystemOwnership(takeFileSystemOwnership)
 	{
 		mTaskPool.setThreadCount(1);
 	}
@@ -202,7 +201,7 @@ public:
 		std::auto_ptr<std::istream> is(mFileSystem.openRead(fileId));
 
 		// Create the task to submit to the task pool
-		Task* task = new Task(node, &loader, mEventQueue, is.get(), priority, mTaskPool, args);
+		Task* task = new Task(mResourceManager, node, &loader, mEventQueue, is.get(), priority, mTaskPool, args);
 		is.release();	// We have transfered the ownership of istream to Task
 
 		mTaskPool.enqueue(*task);
@@ -248,6 +247,7 @@ public:
 
 	EventQueue mEventQueue;
 
+	ResourceManager& mResourceManager;
 	IFileSystem& mFileSystem;
 	bool mTakeFileSystemOwnership;
 
@@ -257,7 +257,7 @@ public:
 
 ResourceManager::ResourceManager(IFileSystem& fileSystem, bool takeFileSystemOwnership)
 {
-	mImpl = new Impl(fileSystem, takeFileSystemOwnership);
+	mImpl = new Impl(*this, fileSystem, takeFileSystemOwnership);
 }
 
 ResourceManager::~ResourceManager()
@@ -359,6 +359,18 @@ ResourcePtr ResourceManager::reload(const Path& fileId, bool block, uint priorit
 		mImpl->backgroundLoad(fileId, args, *node, *loader, priority);
 
 	return node->mResource.get();
+}
+
+void ResourceManager::reSchedule(void* context, uint priority, const wchar_t* args)
+{
+	MCD_ASSUME(mImpl != nullptr);
+	if(!context)
+		return;
+
+	Impl::Task* task = reinterpret_cast<Impl::Task*>(context);
+	task->setPriority(priority);
+	task->mArgs = args;
+	mImpl->mTaskPool.enqueue(*task);
 }
 
 ResourcePtr ResourceManager::cache(const ResourcePtr& resource)

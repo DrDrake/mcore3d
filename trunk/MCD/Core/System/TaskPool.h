@@ -57,6 +57,8 @@ public:
 			{ Negative -> low, Normal -> normal, Positive -> hight } priority
 		 */
 		int priority() const;
+
+		void setPriority(int priority);
 	};	// Task
 
 	TaskPool();
