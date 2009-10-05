@@ -2,7 +2,11 @@
 
 #include "../../Test/RenderTest/BasicGlWindow.h"
 #include "../../Test/RenderTest/DefaultResourceManager.h"
+
 #include "../../MCD/Core/Math/Mat44.h"
+#include "../../MCD/Component/Render/EntityPrototypeLoader.h"
+#include "../../MCD/Component/Render/MeshComponent.h"
+
 #include "../Fbx/FbxModelLoader.h"
 
 using namespace MCD;
@@ -14,7 +18,7 @@ class TestApp : public BasicGlWindow
 {
 public:
 	DefaultResourceManager mResMgr;
-	ModelPtr mModel;
+	Entity mRootNode;
 
 	TestApp()
 		: BasicGlWindow( L"title=TestFbxModelLoader;width=800;height=600;FSAA=1" )
@@ -23,13 +27,14 @@ public:
 		mCamera.moveForward(-10.0f);
 
 		mResMgr.addFactory(new FbxModelLoaderFactory(mResMgr));
+		mResMgr.addFactory(new EntityPrototypeLoaderFactory(mResMgr));
 
 		// open fbx file
 		//std::wstring fbxfilepath = (Path::getCurrentPath() / L"media/CornellBox.fbx").getString();
 		std::wstring fbxfilepath = (Path::getCurrentPath() / L"media/Test_ModelLoader_Materials.fbx").getString();
 		//std::wstring fbxfilepath = (Path::getCurrentPath() / L"media/scene02_cave_master.fbx").getString();
-
-		mModel = dynamic_cast<Model*>(mResMgr.load(fbxfilepath).get());
+		
+		EntityPrototypeLoader::addEntityAfterLoad(&mRootNode, mResMgr, fbxfilepath.c_str());
 
 		GLfloat ambientLight[] = { 0.0f, 0.0f, 0.0f, 1.0f };
 		GLfloat diffuseLight[] = { 1.0f, 1.0f, 1.0f, 1.0f };
@@ -50,9 +55,8 @@ public:
 		GLfloat lightPos[] = { 200, 200, 200, 1.0f };
 		glLightfv(GL_LIGHT0, GL_POSITION, lightPos);
 
-		// render the triangle buffers
-		if(nullptr != mModel)
-			mModel->draw();
+		// render the meshes
+		RenderableComponent::traverseEntities(&mRootNode);
 	}
 
 };	// class TestApp
