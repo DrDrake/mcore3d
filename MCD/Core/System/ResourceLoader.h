@@ -57,7 +57,7 @@ public:
 
 	virtual LoadingState getLoadingState() const = 0;
 
-	/*!	Callback that will be invoked by a concret IResourceManager when a resource loader
+	/*!	Callback that will be invoked by a concrete IResourceManager when a resource loader
 		finished part of the progressive load in NON-BLOCKING mode.
 		\param context Pass this context (now or later) to IResourceManager::reSchedule() and
 			the manager will continue the loading of that resource.

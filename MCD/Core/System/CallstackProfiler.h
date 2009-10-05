@@ -86,7 +86,7 @@ public:
 	end() inside the function you want to profile.
 
 	This class is also supposed to be inherited to provide some
-	concret profiling service.
+	concrete profiling service.
  */
 class MCD_CORE_API CallstackProfiler : Noncopyable
 {
@@ -102,7 +102,7 @@ public:
 
 // Attributes
 	/*!	Before the profiler can use, user should create and add
-		an instance of concret CallstackNode. The life time of this
+		an instance of concrete CallstackNode. The life time of this
 		root node will be handled by CallstackProfiler. 
 	 */
 	void setRootNode(sal_maybenull CallstackNode* root);

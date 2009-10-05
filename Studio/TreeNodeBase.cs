@@ -70,6 +70,12 @@ namespace Studio
 			base.Remove(obj);
 		}
 
+		public virtual new void Clear()
+		{
+			while (base.Count > 0)
+				this.Remove(base[0]);
+		}
+
 		public TreeViewAdv TreeView;
 		public Node Node;
 	}	// TreeNodeList<T>
