@@ -5,6 +5,7 @@
 #include "../Core/Math/BasicFunction.h"
 #include "../Core/System/Log.h"
 #include "../Core/System/MemoryProfiler.h"
+#include "../Core/System/ResourceManager.h"
 #include "../../3Party/glew/glew.h"
 #include <memory.h>	// For memcpy
 
@@ -91,6 +92,11 @@ IResourceLoader::LoadingState TextureLoaderBase::getLoadingState() const
 {
 	// We don't have arithmetics on loadingState, so we don't need to lock on it
 	return loadingState;
+}
+
+void TextureLoaderBase::onPartialLoaded(IResourceManager& manager, void* context, uint priority, const wchar_t* args)
+{
+	manager.reSchedule(context, priority+1, args);
 }
 
 void TextureLoaderBase::preUploadData()

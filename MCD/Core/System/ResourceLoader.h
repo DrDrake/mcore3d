@@ -6,6 +6,7 @@
 
 namespace MCD {
 
+class IResourceManager;
 class Resource;
 class Path;
 
@@ -55,6 +56,17 @@ public:
 	virtual void commit(Resource& resource) = 0;
 
 	virtual LoadingState getLoadingState() const = 0;
+
+	/*!	Callback that will be invoked by a concret IResourceManager when a resource loader
+		finished part of the progressive load in NON-BLOCKING mode.
+		\param context Pass this context (now or later) to IResourceManager::reSchedule() and
+			the manager will continue the loading of that resource.
+		\note Make sure the context variable will finally (in destructor) be pass to the
+			IResourceManager::reSchedule() to prevent memory leak.
+	 */
+	virtual void onPartialLoaded(IResourceManager& manager, sal_in void* context, uint priority, sal_in_z_opt const wchar_t* args) {
+		MCD_ASSERT(false && "Override function not implemented");
+	}
 };	// IResourceLoader
 
 }	// namespace MCD
