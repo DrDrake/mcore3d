@@ -5,19 +5,19 @@
 #include "../../Core/System/Log.h"
 #include "../../Core/System/MemoryProfiler.h"
 #include "../../Core/System/StrUtility.h"
-#include "../../Render/Model.h"
 #include "../../Render/Effect.h"
 #include "../../Render/Mesh.h"
+#include "../../Render/Model.h"
 
 namespace MCD {
 
-/*! EntityPrototypeLoader */
 class EntityPrototypeLoader::Impl
 {
 public:
-	Impl(IResourceManager* resourceManager);
-
-	~Impl();
+	Impl(IResourceManager* resourceManager)
+		: mResourceManager(resourceManager)
+	{
+	}
 
 	IResourceLoader::LoadingState load(std::istream* is, const Path* fileId, const wchar_t* args);
 
@@ -34,51 +34,39 @@ private:
 	ResourcePtr mConcreteResource;
 };	// Impl
 
-EntityPrototypeLoader::Impl::Impl(IResourceManager* resourceManager)
-	: mResourceManager(resourceManager)
-{
-}
-
-EntityPrototypeLoader::Impl::~Impl()
-{
-}
-
 IResourceLoader::LoadingState EntityPrototypeLoader::Impl::load(std::istream* is, const Path* fileId, const wchar_t* args)
 {
+	if(nullptr == mConcreteLoader.get())
 	{
-		ScopeLock lock(mMutex);
+		std::wstring newArgs;
 
-		if(nullptr == mConcreteLoader.get())
+		if(nullptr != args)
 		{
-			std::wstring newArgs;
-
-			if(nullptr != args)
+			NvpParser parser(args);
+			const wchar_t* name, *value;
+			while(parser.next(name, value))
 			{
-				NvpParser parser(args);
-				const wchar_t* name, *value;
-				while(parser.next(name, value))
-				{
-					// skip the loadAsEntity arg
-					if(wstrCaseCmp(name, L"loadAsEntity") == 0)
-						continue;
+				// skip the loadAsEntity arg
+				if(wstrCaseCmp(name, L"loadAsEntity") == 0)
+					continue;
 
-					newArgs += name;
-					newArgs += L"=";
-					newArgs += value;
-					newArgs += L"; ";
-				}
+				newArgs += name;
+				newArgs += L"=";
+				newArgs += value;
+				newArgs += L"; ";
 			}
-
-			std::pair<IResourceLoader*, ResourcePtr> r = mResourceManager->customLoad
-				(*fileId
-				, newArgs.empty() ? nullptr : newArgs.c_str());
-
-			if(nullptr == r.first)
-				return Aborted;
-
-			mConcreteLoader.reset(r.first);
-			mConcreteResource = r.second;
 		}
+
+		std::pair<IResourceLoader*, ResourcePtr> r = mResourceManager->customLoad
+			(*fileId
+			, newArgs.empty() ? nullptr : newArgs.c_str());
+
+		if(nullptr == r.first)
+			return Aborted;
+
+		ScopeLock lock(mMutex);
+		mConcreteLoader.reset(r.first);
+		mConcreteResource = r.second;
 	}
 
 	return mConcreteLoader->load(is, fileId, args);
@@ -89,7 +77,7 @@ void EntityPrototypeLoader::Impl::commit(Resource& resource)
 	MCD_ASSUME(mConcreteLoader.get());
 	MCD_ASSUME(mConcreteResource.get());
 
-	// invoke the concrete loader to commit
+	// Invoke the concrete loader to commit
 	mConcreteLoader->commit(*mConcreteResource);
 
 	Model* model = dynamic_cast<Model*>(mConcreteResource.get());
@@ -106,11 +94,13 @@ void EntityPrototypeLoader::Impl::commit(Resource& resource)
 		)
 	{
 		std::auto_ptr<Entity> e(new Entity);
+		// TODO: Give the entity a name
+		e->name = L"";
 		e->localTransform = Mat44f::cIdentity;
 
 		MeshComponent* c = new MeshComponent;
 		c->mesh = meshAndMat->mesh;
-        c->effect = new Effect(Path(L""));
+		c->effect = new Effect(Path(L""));
 		c->effect->material.reset(meshAndMat->material->clone());
 		e->addComponent(c);
 

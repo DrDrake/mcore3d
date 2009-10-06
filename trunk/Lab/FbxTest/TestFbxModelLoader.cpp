@@ -1,13 +1,11 @@
 #include "Pch.h"
 
+#include "../Fbx/FbxModelLoader.h"
 #include "../../Test/RenderTest/BasicGlWindow.h"
 #include "../../Test/RenderTest/DefaultResourceManager.h"
-
 #include "../../MCD/Core/Math/Mat44.h"
 #include "../../MCD/Component/Render/EntityPrototypeLoader.h"
 #include "../../MCD/Component/Render/MeshComponent.h"
-
-#include "../Fbx/FbxModelLoader.h"
 
 using namespace MCD;
 
@@ -33,7 +31,7 @@ public:
 		//std::wstring fbxfilepath = (Path::getCurrentPath() / L"media/CornellBox.fbx").getString();
 		std::wstring fbxfilepath = (Path::getCurrentPath() / L"media/Test_ModelLoader_Materials.fbx").getString();
 		//std::wstring fbxfilepath = (Path::getCurrentPath() / L"media/scene02_cave_master.fbx").getString();
-		
+
 		EntityPrototypeLoader::addEntityAfterLoad(&mRootNode, mResMgr, fbxfilepath.c_str());
 
 		GLfloat ambientLight[] = { 0.0f, 0.0f, 0.0f, 1.0f };
@@ -58,7 +56,6 @@ public:
 		// render the meshes
 		RenderableComponent::traverseEntities(&mRootNode);
 	}
-
 };	// class TestApp
 
 }	// namespace TestFbxModelLoader

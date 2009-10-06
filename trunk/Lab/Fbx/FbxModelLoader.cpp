@@ -19,8 +19,6 @@ class FbxModelLoader::Impl
 public:
 	Impl(IResourceManager* resourceManager);
 
-	~Impl();
-
 	IResourceLoader::LoadingState load(std::istream* is, const Path* fileId, const wchar_t* args);
 
 	void commit(Resource& resource);
@@ -34,16 +32,10 @@ private:
 
 	volatile IResourceLoader::LoadingState mLoadingState;
 	mutable Mutex mMutex;
-
 };	// Impl
 
 FbxModelLoader::Impl::Impl(IResourceManager* resourceManager)
 	: mResourceManager(resourceManager)
-{
-
-}
-
-FbxModelLoader::Impl::~Impl()
 {
 }
 
@@ -58,17 +50,20 @@ IResourceLoader::LoadingState FbxModelLoader::Impl::load(std::istream* is, const
 
 	mFbxFile.reset(new FbxFile(fileId->getString().c_str()));
 
-	if(mFbxFile->open())
-		mLoadingState = Loaded;
-	else
-		mLoadingState = Aborted;
+	bool ok;
 
-	return mLoadingState;
+	{	// Unlock the mutex and ready for the actual load
+		ScopeUnlock unlock(mMutex);
+		ok = mFbxFile->open();
+	}
+
+	return (mLoadingState = ok ? Loaded : Aborted);
 }
 
 void FbxModelLoader::Impl::commit(Resource& resource)
 {
-	ScopeLock lock(mMutex);
+	// There is no need to do a mutex lock because Max3dsLoader didn't support progressive loading.
+	// Therefore, commit will not be invoked if the load() function itsn't finished.
 
 	MCD_ASSUME(mFbxFile.get() != nullptr);
 

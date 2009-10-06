@@ -354,9 +354,9 @@ IResourceLoader::LoadingState Max3dsLoader::Impl::load(std::istream* is, const P
 		}
 	}
 
-	ScopeLock lock(mMutex);
-
-	mLoadingState = is ? NotLoaded : Aborted;
+	{	ScopeLock lock(mMutex);
+		mLoadingState = is ? NotLoaded : Aborted;
+	}
 
 	if(mLoadingState & Stopped)
 		return mLoadingState;
@@ -723,7 +723,9 @@ IResourceLoader::LoadingState Max3dsLoader::Impl::load(std::istream* is, const P
 		meshBuilder.releaseBufferPointer(vertex);
 	}
 
-	mLoadingState = Loaded;
+	{	ScopeLock lock(mMutex);
+		mLoadingState = Loaded;
+	}
 
 	return mLoadingState;
 }
@@ -779,16 +781,16 @@ size_t Max3dsLoader::Impl::readString(std::wstring& str)
 
 void Max3dsLoader::Impl::commit(Resource& resource)
 {
+	// There is no need to do a mutex lock because Max3dsLoader didn't support progressive loading.
+	// Therefore, commit will not be invoked if the load() function itsn't finished.
+
 	Model& model = dynamic_cast<Model&>(resource);
-	std::wstring str = model.fileId().getString();
-	(void)str;
 
 	// TODO: Design a way to set this variable from outside
 	MeshBuilder::StorageHint storageHint = MeshBuilder::Static;
 
-	ScopeLock lock(mMutex);
-	MCD_FOREACH(const ModelInfo& modelInfo, mModelInfo) {
-		
+	MCD_FOREACH(const ModelInfo& modelInfo, mModelInfo)
+	{		
 		// Commit the mesh with the vertex buffer first
 		MeshPtr meshWithoutIndex;
 
@@ -803,7 +805,8 @@ void Max3dsLoader::Impl::commit(Resource& resource)
 		modelInfo.meshBuilder->commit(*meshWithoutIndex, storageHint);
 
 		// TODO: Handle empty multiSubObject. That is, those meshes without multi-subobject
-		MCD_FOREACH(const MultiSubObject& subObject, modelInfo.multiSubObject) {
+		MCD_FOREACH(const MultiSubObject& subObject, modelInfo.multiSubObject)
+		{
 			// Share all the buffers in meshWithoutIndex into this mesh
 			// TODO: Add name to the mesh
 			MeshPtr mesh;
