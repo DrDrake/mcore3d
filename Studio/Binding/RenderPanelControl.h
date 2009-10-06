@@ -2,14 +2,6 @@
 
 #include "Entity.h"
 
-using namespace System;
-using namespace System::ComponentModel;
-using namespace System::Collections;
-using namespace System::Windows::Forms;
-using namespace System::Data;
-using namespace System::Drawing;
-
-
 namespace Binding {
 
 class RenderPanelControlImpl;
@@ -61,7 +53,7 @@ public:
 
 	/// When en entity is updated, refresh it's corresponding property grid.
 	/// TODO: Revise and find a better solution that free the grid from RenderPanelControl.
-	PropertyGrid^ propertyGrid;
+	System::Windows::Forms::PropertyGrid^ propertyGrid;
 
 	enum class GizmoMode
 	{
@@ -73,10 +65,13 @@ public:
 		void set(GizmoMode);
 	}
 
+	void play(System::String^ scriptFilePath);
+
+	void stop();
+
 	/// Is in playing (debug) mode or not.
 	property bool playing {
 		bool get();
-		void set(bool);
 	}
 
 protected:
