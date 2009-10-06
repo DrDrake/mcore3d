@@ -112,19 +112,16 @@ public:
 		{
 			MemoryProfiler::Scope profiler("ResourceManager::Task::run");
 
-			Mutex& mutex = mEventQueue.mMutex;
-			ScopeLock lock(mutex);
-
 			while(thread.keepRun())
 			{
 				IResourceLoader::LoadingState state;
-				{	ScopeUnlock unlock(mutex);
-					state = mLoader->load(mIStream.get(), mResource ? &mResource->fileId() : nullptr, mArgs.c_str());
-				}
+				state = mLoader->load(mIStream.get(), mResource ? &mResource->fileId() : nullptr, mArgs.c_str());
 
-				mMapNode.mLoadingState = state;
-				Event event = { mResource, mLoader };
-				mEventQueue.pushBack(event);
+				{	ScopeLock lock(mEventQueue.mMutex);
+					mMapNode.mLoadingState = state;
+					Event event = { mResource, mLoader };
+					mEventQueue.pushBack(event);
+				}
 
 //				mSleep(1);
 
@@ -204,6 +201,8 @@ public:
 		Task* task = new Task(mResourceManager, node, &loader, mEventQueue, is.get(), priority, mTaskPool, args);
 		is.release();	// We have transfered the ownership of istream to Task
 
+		// Prevent lock hierarchy with mTaskPool's internal mutex.
+		ScopeUnlock unlock(mEventQueue.mMutex);
 		mTaskPool.enqueue(*task);
 	}
 
@@ -316,10 +315,12 @@ ResourcePtr ResourceManager::load(const Path& fileId, bool block, uint priority,
 std::pair<IResourceLoader*, ResourcePtr> ResourceManager::customLoad(const Path& fileId, const wchar_t* args)
 {
 	MCD_ASSUME(mImpl != nullptr);
-	ScopeLock lock(mImpl->mEventQueue.mMutex);
-
 	IResourceLoader* loader = nullptr;
-	ResourcePtr resource = mImpl->createResource(fileId, args, loader);
+
+	ResourcePtr resource;
+	{	ScopeLock lock(mImpl->mEventQueue.mMutex);
+		resource = mImpl->createResource(fileId, args, loader);
+	}
 
 	if(!resource || !loader) {
 		Log::format(Log::Warn, L"No loader for \"%s\" can be found", fileId.getString().c_str());
@@ -363,6 +364,7 @@ ResourcePtr ResourceManager::reload(const Path& fileId, bool block, uint priorit
 
 void ResourceManager::reSchedule(void* context, uint priority, const wchar_t* args)
 {
+	// NOTE: There is no need to lock, since mTaskPool's operation is already thread safe
 	MCD_ASSUME(mImpl != nullptr);
 	if(!context)
 		return;
