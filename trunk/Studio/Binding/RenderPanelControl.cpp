@@ -3,6 +3,7 @@
 #include "CsInputComponent.h"
 #include "FileSystemCollection.h"
 #include "ResourceManager.h"
+#include "Utility.h"
 #include "../Common/Gizmo/Gizmo.h"
 #include "../Common/GroundPlaneComponent.h"
 
@@ -25,6 +26,11 @@
 #pragma comment(lib, "OpenGL32")
 #pragma comment(lib, "GLU32")
 #pragma comment(lib, "glew")
+
+using namespace System;
+using namespace System::Data;
+using namespace System::Drawing;
+using namespace System::Windows::Forms;
 
 namespace Binding {
 
@@ -218,35 +224,35 @@ public:
 		update();
 	}
 
-	void setPlaying(bool b)
+	void play(const wchar_t* scriptFilePath)
 	{
-		if(b)
-		{
-			mOldUserSubTree = mUserSubTree->clone();
-			mOldCsInputComponent = new CsInputComponent();
-			std::swap(mUserSubTree, mOldUserSubTree);
-			std::swap(mCsInputComponent, mOldCsInputComponent);
+		mOldUserSubTree = mUserSubTree->clone();
+		mOldCsInputComponent = new CsInputComponent();
+		std::swap(mUserSubTree, mOldUserSubTree);
+		std::swap(mCsInputComponent, mOldCsInputComponent);
 
-			mOldUserSubTree->unlink();
-			mCsInputComponent->attachTo(mBackRef);
-			mLauncher.setRootNode(mUserSubTree.get());
-			mLauncher.setInputComponent(mCsInputComponent.get());
-			mUserSubTree->asChildOf(&mRootNode);
+		mOldUserSubTree->unlink();
+		mCsInputComponent->attachTo(mBackRef);
+		mLauncher.setRootNode(mUserSubTree.get());
+		mLauncher.setInputComponent(mCsInputComponent.get());
+		mUserSubTree->asChildOf(&mRootNode);
 
-			mLauncher.scriptComponentManager.doFile(L"init.nut", true);
-		}
-		else
-		{
-			std::swap(mUserSubTree, mOldUserSubTree);
-			std::swap(mCsInputComponent, mOldCsInputComponent);
-			mUserSubTree->asChildOf(&mRootNode);
-			mLauncher.setRootNode(mUserSubTree.get());
-			mLauncher.setInputComponent(mCsInputComponent.get());
-			delete mOldUserSubTree.get();
-		}
+		mLauncher.scriptComponentManager.doFile(scriptFilePath, true);
+		mCamera->entity()->enabled = false;
+		mPlaying = true;
+	}
 
-		mCamera->entity()->enabled = !b;
-		mPlaying = b;
+	void stop()
+	{
+		std::swap(mUserSubTree, mOldUserSubTree);
+		std::swap(mCsInputComponent, mOldCsInputComponent);
+		mUserSubTree->asChildOf(&mRootNode);
+		mLauncher.setRootNode(mUserSubTree.get());
+		mLauncher.setInputComponent(mCsInputComponent.get());
+		delete mOldUserSubTree.get();
+
+		mCamera->entity()->enabled = true;
+		mPlaying = false;
 	}
 
 	void onKeyDown(System::Object^ sender, System::Windows::Forms::KeyEventArgs^ e)
@@ -420,19 +426,29 @@ void RenderPanelControl::gizmoMode::set(GizmoMode mode)
 		g->setActiveGizmo(NULL);
 }
 
-bool RenderPanelControl::playing::get()
+void RenderPanelControl::play(String^ scriptFilePath)
 {
-	return mImpl->mPlaying;
-}
-
-void RenderPanelControl::playing::set(bool value)
-{
-	mImpl->setPlaying(value);
+	mImpl->play(Utility::toWString(scriptFilePath).c_str());
 
 	// The entity tree is altered, reset it.
 	selectedEntity = nullptr;
 	mRootEntity = nullptr;
 	mRootEntity = rootEntity;
+}
+
+void RenderPanelControl::stop()
+{
+	mImpl->stop();
+
+	// The entity tree is altered, reset it.
+	selectedEntity = nullptr;
+	mRootEntity = nullptr;
+	mRootEntity = rootEntity;
+}
+
+bool RenderPanelControl::playing::get()
+{
+	return mImpl->mPlaying;
 }
 
 System::Void RenderPanelControl::timer_Tick(System::Object^ sender, System::EventArgs^ e)
