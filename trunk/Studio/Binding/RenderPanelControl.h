@@ -65,6 +65,8 @@ public:
 		void set(GizmoMode);
 	}
 
+	void executeScript(System::String^ scriptFilePath);
+
 	void play(System::String^ scriptFilePath);
 
 	void stop();

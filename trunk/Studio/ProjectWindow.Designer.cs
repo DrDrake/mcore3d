@@ -78,6 +78,7 @@
 			this.treeViewAdv.NodeControls.Add(this.nodeIcon1);
 			this.treeViewAdv.NodeControls.Add(this.nodeTextBox1);
 			this.treeViewAdv.SelectedNode = null;
+			this.treeViewAdv.ShowNodeToolTips = true;
 			this.treeViewAdv.Size = new System.Drawing.Size(292, 250);
 			this.treeViewAdv.TabIndex = 0;
 			this.treeViewAdv.Text = "treeViewAdv";

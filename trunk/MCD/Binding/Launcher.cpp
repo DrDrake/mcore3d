@@ -238,11 +238,13 @@ void Launcher::setInputComponent(InputComponent* inputComponent)
 	if(!mRootNode || !inputComponent)
 		return;
 
-	std::auto_ptr<Entity> e(new Entity);
-	e->name = L"Input";
-	e->asChildOf(mRootNode);
-	e->addComponent(inputComponent);
-	e.release();
+	if(inputComponent->entity() == nullptr) {
+		std::auto_ptr<Entity> e(new Entity);
+		e->name = L"Input";
+		e->asChildOf(mRootNode);
+		e->addComponent(inputComponent);
+		e.release();
+	}
 
 	MCD_VERIFY(scriptComponentManager.vm.runScript(L"gInput <- gLauncher.inputComponent;\n"));
 }

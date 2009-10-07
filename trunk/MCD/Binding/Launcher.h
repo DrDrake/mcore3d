@@ -71,6 +71,7 @@ public:
 
 	/*!	Assign a new input component.
 		Previous input component will keep in it's orginal Entity.
+		An Entity will be created if the incomming inputComponent doesn't have one already.
 	 */
 	void setInputComponent(sal_in_opt InputComponent* inputComponent);
 

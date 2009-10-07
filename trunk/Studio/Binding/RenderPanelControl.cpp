@@ -104,14 +104,12 @@ public:
 			mCsInputComponent = new CsInputComponent();
 			mCsInputComponent->attachTo(mBackRef);
 			mLauncher.init(*mCsInputComponent, mUserSubTree.get());
-			mLauncher.scriptComponentManager.doFile(L"scene.nut", true);
 		}
 
 		{	// Add a default camera
 			std::auto_ptr<MCD::Entity> e(new MCD::Entity);
 			e->name = L"Default camera";
 			e->asChildOf(mPredefinedSubTree);
-			e->localTransform.setTranslation(Vec3f(0, 0, 5));
 
 			// Add component
 			mCamera = static_cast<CameraComponent*>(mLauncher.scriptComponentManager.runScripAsComponent(
@@ -224,13 +222,20 @@ public:
 		update();
 	}
 
+	void executeScript(const wchar_t* scriptFilePath)
+	{
+		mLauncher.scriptComponentManager.doFile(scriptFilePath, true);
+	}
+
 	void play(const wchar_t* scriptFilePath)
 	{
+		// Backup the old sub-tree and input component
 		mOldUserSubTree = mUserSubTree->clone();
 		mOldCsInputComponent = new CsInputComponent();
 		std::swap(mUserSubTree, mOldUserSubTree);
 		std::swap(mCsInputComponent, mOldCsInputComponent);
 
+		// Use the new sub-tree
 		mOldUserSubTree->unlink();
 		mCsInputComponent->attachTo(mBackRef);
 		mLauncher.setRootNode(mUserSubTree.get());
@@ -244,6 +249,7 @@ public:
 
 	void stop()
 	{
+		// Restore the old backup sub-tree and input component
 		std::swap(mUserSubTree, mOldUserSubTree);
 		std::swap(mCsInputComponent, mOldCsInputComponent);
 		mUserSubTree->asChildOf(&mRootNode);
@@ -424,6 +430,11 @@ void RenderPanelControl::gizmoMode::set(GizmoMode mode)
 		g->setActiveGizmo(g->scaleGizmo);
 	else
 		g->setActiveGizmo(NULL);
+}
+
+void RenderPanelControl::executeScript(System::String^ scriptFilePath)
+{
+	mImpl->executeScript(Utility::toWString(scriptFilePath).c_str());
 }
 
 void RenderPanelControl::play(String^ scriptFilePath)
