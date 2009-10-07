@@ -11,14 +11,18 @@ namespace Studio
 			InitializeComponent();
 		}
 
-		public RenderPanelControl Init(IntPtr sharedGlContext)
+		public RenderPanelControl Init(IntPtr sharedGlContext, Scene scene)
 		{
+			mScene = scene;
+
 			mRenderControl = new RenderPanelControl(ProjectWindow.Singleton.Project.ResourceManager, sharedGlContext);
 			mRenderControl.propertyGrid = MainForm.Singleton.propertyWindow.propertyGrid1;
 			this.Tag = mRenderControl;
 			mRenderControl.Tag = this;
+
 			mRenderControl.Dock = DockStyle.Fill;
 			this.panel1.Controls.Add(mRenderControl);
+			this.TabText = scene.Text;
 
 			// Broadcasting the key event from render panel to 
 			mRenderControl.KeyPress += new KeyPressEventHandler(RenderWindow_KeyPress);
@@ -43,9 +47,13 @@ namespace Studio
 			toolStripButtonTranslate.Checked = false;
 		}
 
-		private RenderPanelControl mRenderControl;
-
+		public Scene Scene
+		{
+			get { return mScene; }
+		}
 		private Scene mScene;
+
+		private RenderPanelControl mRenderControl;
 
 		private void toolStripButtonMove_Click(object sender, EventArgs e)
 		{

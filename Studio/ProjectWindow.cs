@@ -311,6 +311,7 @@ namespace Studio
 
 		private void openSceneToolStripMenuItem_Click(object sender, EventArgs e)
 		{
+			MainForm.Singleton.OpenScene(SelectedScene);
 		}
 
 		private void openScriptToolStripMenuItem_Click(object sender, EventArgs e)
@@ -336,7 +337,14 @@ namespace Studio
 			if (SelectedScript != null)
 				openScriptToolStripMenuItem_Click(sender, new EventArgs());
 			else if (SelectedScene != null)
+			{
+				// Undo the node expand/collapse effect during the double-click
+				if (SelectedScene.TreeNode.IsExpanded)
+					SelectedScene.TreeNode.Collapse();
+				else
+					SelectedScene.TreeNode.Expand();
 				openSceneToolStripMenuItem_Click(sender, new EventArgs());
+			}
 		}
 	}
 

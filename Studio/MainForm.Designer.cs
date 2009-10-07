@@ -227,7 +227,6 @@
 			this.newToolStripButton.Name = "newToolStripButton";
 			this.newToolStripButton.Size = new System.Drawing.Size(23, 22);
 			this.newToolStripButton.Text = "&New";
-			this.newToolStripButton.Click += new System.EventHandler(this.newToolStripMenuItem_Click);
 			// 
 			// openToolStripButton
 			// 

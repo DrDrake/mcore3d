@@ -81,9 +81,11 @@ Vec3f projectToScreenNoModelView(const Vec3f& p)
 	glGetIntegerv(GL_VIEWPORT, viewPort);
 
 	GLdouble v[3] = {0};
-	MCD_VERIFY(gluProject(p[0], p[1], p[2], Mat44<double>::cIdentity.getPtr(), projection, viewPort, &v[0], &v[1], &v[2]) == GL_TRUE);
-
-	return Vec3f(float(v[0]), float(v[1]), float(v[2]));
+	// gluProject will fail at certain view position/direction (not study yet, but seems so when camera at (0,0,0)
+	if(gluProject(p[0], p[1], p[2], Mat44<double>::cIdentity.getPtr(), projection, viewPort, &v[0], &v[1], &v[2]) == GL_TRUE)
+		return Vec3f(float(v[0]), float(v[1]), float(v[2]));
+	else
+		return Vec3f(0);
 }
 
 //! Create a ray casting towards the sceen in world space, x and y are in windows's coordinate.

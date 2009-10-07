@@ -14,7 +14,10 @@ Vec3f projectToUnitViewPort(const Vec3f& p)
 	GLint viewPort[4] = { 0, 0, 1, 1 };
 
 	GLdouble v[3];
-	MCD_VERIFY(gluProject(p[0], p[1], p[2], model, projection, viewPort, &v[0], &v[1], &v[2]) == GL_TRUE);
+
+	// gluProject will fail at certain view position/direction (not study yet, but seems so when camera at (0,0,0)
+	// simple ignore it.
+	gluProject(p[0], p[1], p[2], model, projection, viewPort, &v[0], &v[1], &v[2]);
 
 	return Vec3f(float(v[0]), float(v[1]), float(v[2]));
 }

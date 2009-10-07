@@ -131,6 +131,28 @@ namespace Studio
 			Scripts = new SceneScripts(ProjectWindow.Singleton.treeViewAdv, this);
 		}
 
+		/// <summary>
+		/// Gets an array of non-startup scripts
+		/// </summary>
+		public SceneScript[] SceneScripts
+		{
+			get
+			{
+				SceneScript[] ret = null;
+				ret = new SceneScript[StarupScript == null ? Scripts.Count : Scripts.Count - 1];
+
+				int idx = 0;
+				foreach (SceneScript s in Scripts)
+				{
+					if (s.IsStartupScript)
+						continue;
+					ret[idx++] = s;
+				}
+
+				return ret;
+			}
+		}
+
 		public SceneScript StarupScript
 		{
 			get
