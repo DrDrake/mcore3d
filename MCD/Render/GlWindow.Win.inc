@@ -9,6 +9,18 @@
 #pragma comment(lib, "GLU32")
 #pragma comment(lib, "glew")
 
+#include "../Core/Math/Mat44.h"
+
+PFNGLLOADTRANSPOSEMATRIXFPROC a;
+
+static void __stdcall myLoadTransposeMatrixf(const GLfloat m[16])
+{
+	MCD::Mat44f tmp;
+	tmp.copyFrom(m);
+	tmp = tmp.transpose();
+	glLoadMatrixf(tmp.getPtr());
+}
+
 namespace MCD {
 
 class GlWindow::Impl : public Window::Impl
@@ -156,6 +168,10 @@ private:
 
 		{	// Initialize glew
 			GLenum err = glewInit();
+			
+			if(glLoadTransposeMatrixf == nullptr)
+				glLoadTransposeMatrixf = /*(PFNGLLOADTRANSPOSEMATRIXFPROC)*/myLoadTransposeMatrixf;
+
 			if(err != GLEW_OK)
 				return false;
 		}
