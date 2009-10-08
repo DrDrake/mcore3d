@@ -22,6 +22,8 @@ public:
 	//! We will use the supplied file system to load script.
 	ScriptComponentManager(IFileSystem& fs);
 
+	~ScriptComponentManager();
+
 	/*!	Set the entity to appear as the root entity in the script VM.
 		\note The VM take no ownership of the entity.
 		\note Make sure the ScriptComponentManager destroy after the entity.

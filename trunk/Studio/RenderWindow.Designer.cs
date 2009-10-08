@@ -123,6 +123,7 @@
 			this.Name = "RenderWindow";
 			this.TabText = "RenderWindow";
 			this.Text = "RenderWindow";
+			this.Enter += new System.EventHandler(this.RenderWindow_Enter);
 			this.toolStripGizmo.ResumeLayout(false);
 			this.toolStripGizmo.PerformLayout();
 			this.ResumeLayout(false);

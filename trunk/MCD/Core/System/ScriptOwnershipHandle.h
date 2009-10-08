@@ -19,11 +19,18 @@ public:
 	//! Destructor will invoke destroy.
 	~ScriptOwnershipHandle();
 
+	/*!	Inform the Script VM that this object is gonna destroy.
+		All reference to this object in the script should become null afterward.
+		\note This function is invoked in ~ScriptOwnershipHandle() automatically,
+			so normally user need not to invoke this function.
+	 */
 	void destroy();
 
 	/*!	Associate a weak pointer pointing to the object at index.
-		If the supplied HSQUIRRELVM is null, then any previous
-		associated handle will be removed.
+		\note If the supplied HSQUIRRELVM is null, then any previous
+			associated handle will be removed.
+		\note If this function is called a second time with the parameter
+			\em vm differ as before, then the function simply returns.
 	 */
 	void setHandle(void* vm, int index);
 

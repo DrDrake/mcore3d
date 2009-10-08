@@ -59,12 +59,24 @@ void ScriptOwnershipHandle::setHandle(void* v, int index)
 	HSQOBJECT* _weakRef = reinterpret_cast<HSQOBJECT*>(weakRef);
 	HSQUIRRELVM& _vm = reinterpret_cast<HSQUIRRELVM&>(vm);
 
-	if(vm)	// Remove previous reference
+	// Release the reference if a null vm is supplied
+	if(vm && !v) {
+		sq_release(_vm, _weakRef);
+		vm = v;
+		return;
+	}
+	// We don't like to change our vm once it is set.
+	else if(vm && vm != v)
+		return;
+
+	vm = v;
+
+/*	if(vm)	// Remove previous reference
 		sq_release(_vm, _weakRef);
 	vm = v;
 
 	if(!v)
-		return;
+		return;*/
 
 	sq_weakref(_vm, index);	// Create a weak reference to the object at index
 	sq_getstackobj(_vm, -1, _weakRef);

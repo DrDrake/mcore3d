@@ -97,13 +97,11 @@ ScriptComponentManager::ScriptComponentManager(IFileSystem& fs)
 			while(true) {\n\
 				queueResult = ::gComponentQueue.getItem(currentTime, queueResult.queueNode);\n\
 				local component = queueResult.component;\n\
-				if(component) {\n\
-					if(component.entity.enabled)\n\
-						component.wakeup();\n\
-					if(!queueResult.queueNode)\n\
-						break;\n\
-				}\n\
-				else\n\
+				if(!component)\n\
+					break;\n\
+				if(component.entity.enabled)\n\
+					component.wakeup();\n\
+				if(!queueResult.queueNode)\n\
 					break;\n\
 			}\n\
 		}\n\
@@ -111,56 +109,18 @@ ScriptComponentManager::ScriptComponentManager(IFileSystem& fs)
 		// Quit all the threads\n\
 		function shutdownAllScriptComponent() {\n\
 			foreach(key, value in _scriptComponentInstanceSet) {\n\
-				value.wakeup(false);\n\
+				if(key == null)\n\
+					continue;\n\
+//				key._releaseScriptHandle();\n\
+				key.thread = null;\n\
+//				value.wakeup(false);\n\
 			}\n\
-//			_scriptComponentInstanceSet = null;\n\
+			_scriptComponentClassTable = {};\n\
+			_scriptComponentInstanceSet = {};\n\
+			gComponentQueue = ComponentQueue();\n\
 		}\n\
 	")))
 		goto OnError;
-
-	// Initialize the file name to class mapping, and the script component factory function
-	// TODO: Error handling, ensure the script file does return a class
-/*	if(!vm.runScript(L"\
-		_scriptComponentClassTable <- {};\n\
-		// This table hold the ownership of all script component instance\n\
-		_scriptComponentInstanceSet <- {};\n\
-		\n\
-		loadComponent <- function(fileName, ...) {\n\
-			local Class;\n\
-			if(fileName in _scriptComponentClassTable) {\n\
-				Class = _scriptComponentClassTable[fileName];\n\
-			} else {\n\
-				Class = scriptComponentManager.doFile(fileName);\n\
-				_scriptComponentClassTable[fileName] <- Class;\n\
-			}\n\
-			local c;\n\
-			if(vargc == 0) {\n\
-				c = Class();\n\
-			}\n\
-			else {\n\
-				c = Class.instance();\n\
-				local args = array(0);\n\
-				args.push(c);\n\
-				for(local i=0; i<vargc; ++i)\n\
-					args.push(vargv[i]);\n\
-				Class.constructor.acall(args);\n\
-			}\n\
-			c._setScriptHandle();\n\
-			_scriptComponentInstanceSet[c] <- c;\n\
-			return c;\n\
-		}\
-		\n\
-		function updateAllScriptComponent() {\n\
-			// TODO: Make this loop more efficient, eliminate the need to call C++ functions\n\
-			foreach(key, value in _scriptComponentInstanceSet) {\n\
-				try {\n\
-					if(key.entity != null && key.entity.enabled)\n\
-						key.update();\n\
-				} catch(e) {}\n\
-			}\n\
-		}\n\
-	"))
-		goto OnError;*/
 
 	HSQUIRRELVM v = reinterpret_cast<HSQUIRRELVM>(vm.getImplementationHandle());
 	script::VMCore* v_ = (script::VMCore*)sq_getforeignptr(v);
@@ -177,6 +137,11 @@ ScriptComponentManager::ScriptComponentManager(IFileSystem& fs)
 
 OnError:
 	Log::write(Log::Error, L"ScriptComponentManager construction failed");
+}
+
+ScriptComponentManager::~ScriptComponentManager()
+{
+	shutdown();
 }
 
 /*!	Script file reader function for sq_compile
@@ -248,6 +213,8 @@ void ScriptComponentManager::registerRootEntity(Entity& entity)
 // TODO: Support byte code loading
 bool ScriptComponentManager::doFile(const Path& filePath, bool retval)
 {
+	MemoryProfiler::Scope profiler("ScriptComponentManager::doFile");
+
 	HSQUIRRELVM v = reinterpret_cast<HSQUIRRELVM>(vm.getImplementationHandle());
 
 	if(loadFile(v, fileSystem, filePath))

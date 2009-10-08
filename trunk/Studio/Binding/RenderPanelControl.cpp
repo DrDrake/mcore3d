@@ -253,6 +253,7 @@ public:
 		std::swap(mUserSubTree, mOldUserSubTree);
 		std::swap(mCsInputComponent, mOldCsInputComponent);
 		mUserSubTree->asChildOf(&mRootNode);
+		mLauncher.scriptComponentManager.shutdown();
 		mLauncher.setRootNode(mUserSubTree.get());
 		mLauncher.setInputComponent(mCsInputComponent.get());
 		delete mOldUserSubTree.get();
@@ -439,6 +440,8 @@ void RenderPanelControl::executeScript(System::String^ scriptFilePath)
 
 void RenderPanelControl::play(String^ scriptFilePath)
 {
+	MemoryProfiler::Scope profiler("RenderPanelControl::play");
+
 	mImpl->play(Utility::toWString(scriptFilePath).c_str());
 
 	// The entity tree is altered, reset it.
@@ -449,6 +452,8 @@ void RenderPanelControl::play(String^ scriptFilePath)
 
 void RenderPanelControl::stop()
 {
+	MemoryProfiler::Scope profiler("RenderPanelControl::stop");
+
 	mImpl->stop();
 
 	// The entity tree is altered, reset it.

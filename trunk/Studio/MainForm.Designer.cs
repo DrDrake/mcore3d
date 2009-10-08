@@ -58,6 +58,8 @@
 			this.toolStripDebug = new System.Windows.Forms.ToolStrip();
 			this.toolStripButtonPlay = new System.Windows.Forms.ToolStripButton();
 			this.backgroundWorker1 = new System.ComponentModel.BackgroundWorker();
+			this.toolStripButtonStop = new System.Windows.Forms.ToolStripButton();
+			this.toolStripButtonRestart = new System.Windows.Forms.ToolStripButton();
 			this.mainMenu.SuspendLayout();
 			this.toolStripContainer1.ContentPanel.SuspendLayout();
 			this.toolStripContainer1.TopToolStripPanel.SuspendLayout();
@@ -215,7 +217,7 @@
             this.helpToolStripButton});
 			this.toolStripMain.Location = new System.Drawing.Point(3, 0);
 			this.toolStripMain.Name = "toolStripMain";
-			this.toolStripMain.Size = new System.Drawing.Size(239, 25);
+			this.toolStripMain.Size = new System.Drawing.Size(208, 25);
 			this.toolStripMain.TabIndex = 0;
 			this.toolStripMain.ItemClicked += new System.Windows.Forms.ToolStripItemClickedEventHandler(this.toolStripMain_ItemClicked);
 			// 
@@ -306,10 +308,12 @@
 			this.toolStripDebug.Dock = System.Windows.Forms.DockStyle.None;
 			this.toolStripDebug.Enabled = false;
 			this.toolStripDebug.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.toolStripButtonPlay});
-			this.toolStripDebug.Location = new System.Drawing.Point(242, 0);
+            this.toolStripButtonPlay,
+            this.toolStripButtonStop,
+            this.toolStripButtonRestart});
+			this.toolStripDebug.Location = new System.Drawing.Point(211, 0);
 			this.toolStripDebug.Name = "toolStripDebug";
-			this.toolStripDebug.Size = new System.Drawing.Size(35, 25);
+			this.toolStripDebug.Size = new System.Drawing.Size(112, 25);
 			this.toolStripDebug.TabIndex = 2;
 			// 
 			// toolStripButtonPlay
@@ -321,6 +325,26 @@
 			this.toolStripButtonPlay.Size = new System.Drawing.Size(23, 22);
 			this.toolStripButtonPlay.Text = "toolStripButton1";
 			this.toolStripButtonPlay.Click += new System.EventHandler(this.toolStripButtonPlay_Click);
+			// 
+			// toolStripButtonStop
+			// 
+			this.toolStripButtonStop.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
+			this.toolStripButtonStop.Image = ((System.Drawing.Image)(resources.GetObject("toolStripButtonStop.Image")));
+			this.toolStripButtonStop.ImageTransparentColor = System.Drawing.Color.Magenta;
+			this.toolStripButtonStop.Name = "toolStripButtonStop";
+			this.toolStripButtonStop.Size = new System.Drawing.Size(23, 22);
+			this.toolStripButtonStop.Text = "toolStripButton1";
+			this.toolStripButtonStop.Click += new System.EventHandler(this.toolStripButtonStop_Click);
+			// 
+			// toolStripButtonRestart
+			// 
+			this.toolStripButtonRestart.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
+			this.toolStripButtonRestart.Image = ((System.Drawing.Image)(resources.GetObject("toolStripButtonRestart.Image")));
+			this.toolStripButtonRestart.ImageTransparentColor = System.Drawing.Color.Magenta;
+			this.toolStripButtonRestart.Name = "toolStripButtonRestart";
+			this.toolStripButtonRestart.Size = new System.Drawing.Size(23, 22);
+			this.toolStripButtonRestart.Text = "toolStripButton1";
+			this.toolStripButtonRestart.Click += new System.EventHandler(this.toolStripButtonRestart_Click);
 			// 
 			// MainForm
 			// 
@@ -382,5 +406,7 @@
 		private System.Windows.Forms.ToolStripMenuItem projectToolStripMenuItem1;
 		private System.ComponentModel.BackgroundWorker backgroundWorker1;
 		public WeifenLuo.WinFormsUI.Docking.DockPanel dockPanel;
+		private System.Windows.Forms.ToolStripButton toolStripButtonStop;
+		private System.Windows.Forms.ToolStripButton toolStripButtonRestart;
 	}
 }
