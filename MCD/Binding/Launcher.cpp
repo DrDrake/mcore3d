@@ -83,7 +83,7 @@ Launcher::Launcher(IFileSystem& fileSystem, IResourceManager& resourceManager, b
 
 Launcher::~Launcher()
 {
-//	scriptComponentManager.shutdown();
+	scriptComponentManager.shutdown();
 
 	// Make sure the RigidBodyComponent is freed BEFORE the dynamics world...
 	if(mRootNode) while(mRootNode->firstChild())

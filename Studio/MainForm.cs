@@ -47,10 +47,12 @@ namespace Studio
 			if (currentRenderControl == null)
 				return;
 
-			ComponentResourceManager resources = new ComponentResourceManager(typeof(MainForm));
-			toolStripButtonPlay.Image = ((System.Drawing.Image)(
-				resources.GetObject(currentRenderControl.playing ? "toolStripButtonStop.Image" : "toolStripButtonPlay.Image"))
-			);
+			RenderWindow renderWindow = currentRenderControl.Tag as RenderWindow;
+
+			// TODO: Check the startup script does exist in the file system
+			toolStripButtonPlay.Enabled = (!currentRenderControl.playing && renderWindow.Scene.StarupScript != null);
+			toolStripButtonStop.Enabled = currentRenderControl.playing;
+			toolStripButtonRestart.Enabled = currentRenderControl.playing;
 		}
 
 		private IDockContent GetDockingFromPersistString(string persistString)
@@ -269,14 +271,25 @@ namespace Studio
 		{
 			RenderWindow renderWindow = currentRenderControl.Tag as RenderWindow;
 
-			if (currentRenderControl.playing)
-				currentRenderControl.stop();
-			else
-				currentRenderControl.play(renderWindow.Scene.StarupScript.Path);
+			// TODO: Check the startup script does exist in the file system
+			if (renderWindow.Scene.StarupScript == null)
+				return;
 
-			if(currentRenderControl != null)
-				entityWindow.selectEntityRoot(currentRenderControl.rootEntity);
+			currentRenderControl.play(renderWindow.Scene.StarupScript.Path);
+			entityWindow.selectEntityRoot(currentRenderControl.rootEntity);
 			UpdateToolBars();
+		}
+
+		private void toolStripButtonStop_Click(object sender, EventArgs e)
+		{
+			currentRenderControl.stop();
+			UpdateToolBars();
+		}
+
+		private void toolStripButtonRestart_Click(object sender, EventArgs e)
+		{
+			toolStripButtonStop_Click(sender, e);
+			toolStripButtonPlay_Click(sender, e);
 		}
 
 		private void assetBrowserToolStripMenuItem_Click(object sender, EventArgs e)

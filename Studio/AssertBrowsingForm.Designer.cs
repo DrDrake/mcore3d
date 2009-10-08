@@ -38,8 +38,8 @@
 			this.textBoxFolderPath = new System.Windows.Forms.TextBox();
 			this.buttonUpFolder = new System.Windows.Forms.Button();
 			this.button1 = new System.Windows.Forms.Button();
-			this.pictureBoxPreview = new System.Windows.Forms.PictureBox();
 			this.treeView1 = new Studio.AssertTreeViewControl();
+			this.pictureBoxPreview = new System.Windows.Forms.PictureBox();
 			panel1 = new System.Windows.Forms.Panel();
 			panel2 = new System.Windows.Forms.Panel();
 			label1 = new System.Windows.Forms.Label();
@@ -66,15 +66,15 @@
 			panel1.Dock = System.Windows.Forms.DockStyle.Fill;
 			panel1.Location = new System.Drawing.Point(0, 0);
 			panel1.Name = "panel1";
-			panel1.Size = new System.Drawing.Size(480, 564);
+			panel1.Size = new System.Drawing.Size(480, 611);
 			panel1.TabIndex = 1;
 			// 
 			// listView1
 			// 
 			this.listView1.Dock = System.Windows.Forms.DockStyle.Fill;
-			this.listView1.Location = new System.Drawing.Point(0, 26);
+			this.listView1.Location = new System.Drawing.Point(0, 28);
 			this.listView1.Name = "listView1";
-			this.listView1.Size = new System.Drawing.Size(480, 509);
+			this.listView1.Size = new System.Drawing.Size(480, 552);
 			this.listView1.TabIndex = 0;
 			this.listView1.UseCompatibleStateImageBehavior = false;
 			this.listView1.View = System.Windows.Forms.View.Tile;
@@ -88,10 +88,10 @@
 			panel2.Controls.Add(this.buttonUpFolder);
 			panel2.Dock = System.Windows.Forms.DockStyle.Top;
 			panel2.Location = new System.Drawing.Point(0, 0);
-			panel2.MinimumSize = new System.Drawing.Size(2, 26);
+			panel2.MinimumSize = new System.Drawing.Size(2, 28);
 			panel2.Name = "panel2";
 			panel2.Padding = new System.Windows.Forms.Padding(2);
-			panel2.Size = new System.Drawing.Size(480, 26);
+			panel2.Size = new System.Drawing.Size(480, 28);
 			panel2.TabIndex = 2;
 			// 
 			// textBoxFolderPath
@@ -99,7 +99,7 @@
 			this.textBoxFolderPath.Dock = System.Windows.Forms.DockStyle.Fill;
 			this.textBoxFolderPath.Location = new System.Drawing.Point(40, 2);
 			this.textBoxFolderPath.Name = "textBoxFolderPath";
-			this.textBoxFolderPath.Size = new System.Drawing.Size(409, 22);
+			this.textBoxFolderPath.Size = new System.Drawing.Size(407, 20);
 			this.textBoxFolderPath.TabIndex = 1;
 			// 
 			// label1
@@ -107,7 +107,7 @@
 			label1.Dock = System.Windows.Forms.DockStyle.Left;
 			label1.Location = new System.Drawing.Point(2, 2);
 			label1.Name = "label1";
-			label1.Size = new System.Drawing.Size(38, 22);
+			label1.Size = new System.Drawing.Size(38, 24);
 			label1.TabIndex = 2;
 			label1.Text = "Folder:";
 			label1.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
@@ -117,9 +117,9 @@
 			this.buttonUpFolder.AutoSize = true;
 			this.buttonUpFolder.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
 			this.buttonUpFolder.Dock = System.Windows.Forms.DockStyle.Right;
-			this.buttonUpFolder.Location = new System.Drawing.Point(449, 2);
+			this.buttonUpFolder.Location = new System.Drawing.Point(447, 2);
 			this.buttonUpFolder.Name = "buttonUpFolder";
-			this.buttonUpFolder.Size = new System.Drawing.Size(29, 22);
+			this.buttonUpFolder.Size = new System.Drawing.Size(31, 24);
 			this.buttonUpFolder.TabIndex = 3;
 			this.buttonUpFolder.Text = "Up";
 			this.buttonUpFolder.UseVisualStyleBackColor = true;
@@ -128,9 +128,9 @@
 			// 
 			panel3.Controls.Add(this.button1);
 			panel3.Dock = System.Windows.Forms.DockStyle.Bottom;
-			panel3.Location = new System.Drawing.Point(0, 535);
+			panel3.Location = new System.Drawing.Point(0, 580);
 			panel3.Name = "panel3";
-			panel3.Size = new System.Drawing.Size(480, 29);
+			panel3.Size = new System.Drawing.Size(480, 31);
 			panel3.TabIndex = 3;
 			// 
 			// button1
@@ -138,7 +138,7 @@
 			this.button1.Dock = System.Windows.Forms.DockStyle.Right;
 			this.button1.Location = new System.Drawing.Point(405, 0);
 			this.button1.Name = "button1";
-			this.button1.Size = new System.Drawing.Size(75, 29);
+			this.button1.Size = new System.Drawing.Size(75, 31);
 			this.button1.TabIndex = 0;
 			this.button1.Text = "Select";
 			this.button1.UseVisualStyleBackColor = true;
@@ -159,9 +159,19 @@
 			// splitContainer2.Panel2
 			// 
 			splitContainer2.Panel2.Controls.Add(this.pictureBoxPreview);
-			splitContainer2.Size = new System.Drawing.Size(300, 564);
-			splitContainer2.SplitterDistance = 300;
+			splitContainer2.Size = new System.Drawing.Size(300, 611);
+			splitContainer2.SplitterDistance = 347;
 			splitContainer2.TabIndex = 2;
+			// 
+			// treeView1
+			// 
+			this.treeView1.Dock = System.Windows.Forms.DockStyle.Fill;
+			this.treeView1.Location = new System.Drawing.Point(0, 0);
+			this.treeView1.Name = "treeView1";
+			this.treeView1.SelectedNode = null;
+			this.treeView1.Size = new System.Drawing.Size(300, 347);
+			this.treeView1.TabIndex = 1;
+			this.treeView1.AfterSelect += new System.Windows.Forms.TreeViewEventHandler(this.treeView1_AfterSelect);
 			// 
 			// pictureBoxPreview
 			// 
@@ -186,25 +196,15 @@
 			// splitContainer1.Panel2
 			// 
 			splitContainer1.Panel2.Controls.Add(panel1);
-			splitContainer1.Size = new System.Drawing.Size(784, 564);
+			splitContainer1.Size = new System.Drawing.Size(784, 611);
 			splitContainer1.SplitterDistance = 300;
 			splitContainer1.TabIndex = 0;
 			// 
-			// treeView1
-			// 
-			this.treeView1.Dock = System.Windows.Forms.DockStyle.Fill;
-			this.treeView1.Location = new System.Drawing.Point(0, 0);
-			this.treeView1.Name = "treeView1";
-			this.treeView1.SelectedNode = null;
-			this.treeView1.Size = new System.Drawing.Size(300, 300);
-			this.treeView1.TabIndex = 1;
-			this.treeView1.AfterSelect += new System.Windows.Forms.TreeViewEventHandler(this.treeView1_AfterSelect);
-			// 
 			// AssertBrowsingForm
 			// 
-			this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
+			this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-			this.ClientSize = new System.Drawing.Size(784, 564);
+			this.ClientSize = new System.Drawing.Size(784, 611);
 			this.Controls.Add(splitContainer1);
 			this.Name = "AssertBrowsingForm";
 			this.Text = "Assert Browser";

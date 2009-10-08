@@ -99,5 +99,12 @@ namespace Studio
 					break;
 			}
 		}
+
+		private void RenderWindow_Enter(object sender, EventArgs e)
+		{
+			// Forward the enter event to the render control
+			if(mRenderControl != null)
+				mRenderControl.Focus();
+		}
 	}
 }
