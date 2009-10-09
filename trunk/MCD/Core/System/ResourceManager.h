@@ -11,9 +11,9 @@
 namespace MCD {
 
 class IFileSystem;
-class IResourceLoader;
 class Path;
 typedef IntrusivePtr<class Resource> ResourcePtr;
+typedef SharedPtr<class IResourceLoader> IResourceLoaderPtr;
 
 /*!	A class that represent a callback for the IResourceManager.
 	As part of the loading process, we want some callback after certain resource(s)
@@ -49,18 +49,19 @@ public:
 		\param fileId Unique identifier for the resource to load.
 		\param block Weather the function should block until the load process finish.
 		\param priority The loading priority for background/progressive loading.
-		\param extra arguments (encoded as name-value paired strings) for loading the resource; similar to program arguments.
+		\param args Extra arguments (encoded as name-value paired strings) for loading the resource; similar to program arguments.
+		\param loader An optional parameter to retrieve the IResourceLoader.
 	 */
-	virtual ResourcePtr load(const Path& fileId, bool block=false, uint priority=0, sal_in_z_opt const wchar_t* args=nullptr) = 0;
+	virtual ResourcePtr load(const Path& fileId, bool block=false, uint priority=0, sal_in_z_opt const wchar_t* args=nullptr, sal_out_opt IResourceLoaderPtr* loader=nullptr) = 0;
 
 	/*!	Perform a custum loading operation (Advanced usage).
 		This will find the appropriate IResourceLoader and creates the Resource for the given fileId.
 		Same as IResourceManager::load(), this interface say nothing about whether the resource will be cached or not.
 		This method is suitable for high-level resource loaders which would like to dispatch their loading operations.
 		\param fileId Unique identifier for the resource to load.
-		\param extra arguments (encoded as name-value paired strings) for loading the resource; similar to program arguments.
+		\param args Extra arguments (encoded as name-value paired strings) for loading the resource; similar to program arguments.
 	 */
-	virtual std::pair<IResourceLoader*, ResourcePtr> customLoad(const Path& fileId, sal_in_z_opt const wchar_t* args=nullptr) = 0;
+	virtual std::pair<IResourceLoaderPtr, ResourcePtr> customLoad(const Path& fileId, sal_in_z_opt const wchar_t* args=nullptr) = 0;
 
 	/*!	Re-schedule the next partial loading process in NON-BLOCKING mode (Advanced usage).
 		After a resource is partially loaded, the IResourceLoader has the ability to decide when
@@ -195,17 +196,16 @@ public:
 		cached instance will be returned and no event generated.
 		\note Blocking load will also generate events.
 	 */
-	sal_override ResourcePtr load(const Path& fileId, bool block=false, uint priority=0, sal_in_z_opt const wchar_t* args=nullptr);
+	sal_override ResourcePtr load(const Path& fileId, bool block=false, uint priority=0, sal_in_z_opt const wchar_t* args=nullptr, sal_out_opt IResourceLoaderPtr* loader=nullptr);
 
 	/*!	Perform a custum loading operation.
 		This will find the appropriate IResourceLoader and creates the Resource for the given fileId.
 		This method will NOT cache the returning resource.
 		This method is suitable for high-level resource loaders which would like to dispatch their loading operations.
-		\note User should manage the life time of the returning IResourceLoader.
 		\param fileId Unique identifier for the resource to load.
-		\param extra arguments (encoded as name-value paired strings) for loading the resource; similar to program arguments.
+		\param args Extra arguments (encoded as name-value paired strings) for loading the resource; similar to program arguments.
 	 */
-	sal_override std::pair<IResourceLoader*, ResourcePtr> customLoad(const Path& fileId, sal_in_z_opt const wchar_t* args=nullptr);
+	sal_override std::pair<IResourceLoaderPtr, ResourcePtr> customLoad(const Path& fileId, sal_in_z_opt const wchar_t* args=nullptr);
 
 	/*!	By pass the cache and doing an explicitly reload.
 		Return the original resource if reload is preformed, otherwise a new resource is
@@ -244,8 +244,8 @@ public:
 	 */
 	struct Event
 	{
-		ResourcePtr resource;				//!< May be null
-		SharedPtr<IResourceLoader> loader;	//!< May be null
+		ResourcePtr resource;		//!< May be null
+		IResourceLoaderPtr loader;	//!< May be null
 	};	// Event
 
 	/*!	Get any loading event from the event queue.

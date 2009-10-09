@@ -20,11 +20,10 @@ AudioSource::~AudioSource()
 
 bool AudioSource::load(IResourceManager& resourceManager, const Path& fileId)
 {
-	std::pair<IResourceLoader*, ResourcePtr> ret =
-		resourceManager.customLoad(fileId);
-
-	loader = dynamic_cast<IAudioStreamLoader*>(ret.first) ? ret.first : nullptr;
-	buffer = dynamic_cast<AudioBuffer*>(ret.second.get());
+	IResourceLoaderPtr _loader = nullptr;
+	ResourcePtr res = resourceManager.load(fileId, false, 0, nullptr, &_loader);
+	loader = dynamic_cast<IAudioStreamLoader*>(_loader.get()) ? _loader : nullptr;
+	buffer = dynamic_cast<AudioBuffer*>(res.get());
 
 	// TODO: Log
 	if(!loader || !buffer)

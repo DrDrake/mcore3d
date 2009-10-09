@@ -30,13 +30,13 @@ private:
 
 // Actual Loaders
 	mutable Mutex mMutex;
-	std::auto_ptr<IResourceLoader> mConcreteLoader;
+	IResourceLoaderPtr mConcreteLoader;
 	ResourcePtr mConcreteResource;
 };	// Impl
 
 IResourceLoader::LoadingState EntityPrototypeLoader::Impl::load(std::istream* is, const Path* fileId, const wchar_t* args)
 {
-	if(nullptr == mConcreteLoader.get())
+	if(!mConcreteLoader)
 	{
 		std::wstring newArgs;
 
@@ -57,7 +57,7 @@ IResourceLoader::LoadingState EntityPrototypeLoader::Impl::load(std::istream* is
 			}
 		}
 
-		std::pair<IResourceLoader*, ResourcePtr> r = mResourceManager->customLoad
+		std::pair<IResourceLoaderPtr, ResourcePtr> r = mResourceManager->customLoad
 			(*fileId
 			, newArgs.empty() ? nullptr : newArgs.c_str());
 
@@ -65,7 +65,7 @@ IResourceLoader::LoadingState EntityPrototypeLoader::Impl::load(std::istream* is
 			return Aborted;
 
 		ScopeLock lock(mMutex);
-		mConcreteLoader.reset(r.first);
+		mConcreteLoader = r.first;
 		mConcreteResource = r.second;
 	}
 
@@ -74,8 +74,8 @@ IResourceLoader::LoadingState EntityPrototypeLoader::Impl::load(std::istream* is
 
 void EntityPrototypeLoader::Impl::commit(Resource& resource)
 {
-	MCD_ASSUME(mConcreteLoader.get());
-	MCD_ASSUME(mConcreteResource.get());
+	MCD_ASSERT(mConcreteLoader.get());
+	MCD_ASSERT(mConcreteResource.get());
 
 	// Invoke the concrete loader to commit
 	mConcreteLoader->commit(*mConcreteResource);
@@ -115,7 +115,7 @@ IResourceLoader::LoadingState EntityPrototypeLoader::Impl::getLoadingState() con
 {
 	{	ScopeLock lock(mMutex);
 
-		if(nullptr == mConcreteLoader.get())
+		if(!mConcreteLoader)
 			return Aborted;
 	}
 
