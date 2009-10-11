@@ -86,11 +86,12 @@ ScriptComponentManager::ScriptComponentManager(IFileSystem& fs)
 			c._setScriptHandle();\n\
 			c.thread = newthread(_scriptComponentThreadFunction);\n\
 			c.thread.call(c);\n\
-			_scriptComponentInstanceSet[c] <- c.thread;\n\
+			_scriptComponentInstanceSet[c.thread] <- c;\n\
 			gComponentQueue.setItem(0, c);\n\
 			return c;\n\
 		}\
 		\n\
+		_lastCollectComponnetGarbageTime <- 0;\n\
 		function updateAllScriptComponent() {\n\
 			local currentTime = ::gFrameTimer.accumulateTime;\n\
 			local queueResult = ComponentQueueResult();\n\
@@ -104,16 +105,33 @@ ScriptComponentManager::ScriptComponentManager(IFileSystem& fs)
 				if(!queueResult.queueNode)\n\
 					break;\n\
 			}\n\
+			// Periodically cleanup any unused entry in the thread-component table\n\
+			if(currentTime - _lastCollectComponnetGarbageTime > 2) {\n\
+				_lastCollectComponnetGarbageTime = currentTime;\n\
+				collectComponnetGarbage();\n\
+			}\n\
+		}\n\
+		\n\
+		// \n\
+		function collectComponnetGarbage() {\n\
+			foreach(key, value in _scriptComponentInstanceSet) {\n\
+				if(value == null || value.entity == null)\n\
+					delete _scriptComponentInstanceSet[key];\n\
+			}\n\
+		}\n\
+		\n\
+		function clearClassCache() {\n\
+			_scriptComponentClassTable = {};\n\
 		}\n\
 		\n\
 		// Quit all the threads\n\
 		function shutdownAllScriptComponent() {\n\
 			foreach(key, value in _scriptComponentInstanceSet) {\n\
-				if(key == null)\n\
+				if(value == null)\n\
 					continue;\n\
-//				key._releaseScriptHandle();\n\
-				key.thread = null;\n\
-//				value.wakeup(false);\n\
+//				value._releaseScriptHandle();\n\
+				value.thread = null;\n\
+//				key.wakeup(false);\n\
 			}\n\
 			_scriptComponentClassTable = {};\n\
 			_scriptComponentInstanceSet = {};\n\

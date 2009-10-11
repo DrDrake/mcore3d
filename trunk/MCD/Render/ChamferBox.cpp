@@ -17,7 +17,7 @@ ChamferBoxBuilder::ChamferBoxBuilder(float filletRadius, size_t filletSegmentCou
 		meshFormat |= Mesh::TextureCoord1;
 	else
 		meshFormat |= Mesh::TextureCoord0;
-	
+
 	enable(meshFormat);
 
 	textureUnit(Mesh::TextureCoord0);
