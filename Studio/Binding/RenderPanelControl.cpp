@@ -253,10 +253,12 @@ public:
 		std::swap(mUserSubTree, mOldUserSubTree);
 		std::swap(mCsInputComponent, mOldCsInputComponent);
 		mUserSubTree->asChildOf(&mRootNode);
-		mLauncher.scriptComponentManager.shutdown();
 		mLauncher.setRootNode(mUserSubTree.get());
 		mLauncher.setInputComponent(mCsInputComponent.get());
 		delete mOldUserSubTree.get();
+
+		// Clear the class cache so that all component scripts will be reloaded from the file system on next play()
+		(void)mLauncher.scriptComponentManager.vm.runScript(L"clearClassCache();");
 
 		mCamera->entity()->enabled = true;
 		mPlaying = false;

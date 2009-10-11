@@ -88,6 +88,32 @@ class TestBasicBinding
 		}
 	}
 
+	function testDestroyedCppObjInTable()
+	{
+		local foo = Foo();
+		local bar = Bar();
+		foo.addBar(bar);
+
+		local t = {};
+		t[bar] <- "haha";
+
+		assert(t[bar] == "haha");
+		assert(t.len() == 1);
+
+		foo = null;	// bar will also deleted
+		assert(null == bar);
+		assert(t.len() == 1);
+
+		// TODO: It's a know problem that a squirrel table key becomming null by
+		// destruction from C++ will resulting a non-removable entry in the table.
+		foreach(key, value in t) {
+			assert(key == null);
+			assert(value == "haha");
+		}
+
+		assert(t.len() == 1);
+	}
+
 	//! Any experimental feature
 	function testPropertyConstructor()
 	{
