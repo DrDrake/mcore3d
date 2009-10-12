@@ -57,21 +57,21 @@ ScriptComponentManager::ScriptComponentManager(IFileSystem& fs)
 		\n\
 		loadComponent <- function(fileName, ...) {\n\
 			local Class;\n\
-			if(fileName in _scriptComponentClassTable) {\n\
-				Class = _scriptComponentClassTable[fileName];\n\
+			if(fileName in ::_scriptComponentClassTable) {\n\
+				Class = ::_scriptComponentClassTable[fileName];\n\
 			} else {\n\
-				Class = scriptComponentManager.doFile(fileName);\n\
+				Class = ::scriptComponentManager.doFile(fileName);\n\
 				Class.thread <- null;	// Adds the thread variable\n\
 				Class.sleep <- function(second) {\n\
 					if(second < 0) second = 3.0e38;\n\
 					local wakeUpTime = ::gFrameTimer.accumulateTime + second;\n\
-					gComponentQueue.setItem(wakeUpTime, this);\n\
+					::gComponentQueue.setItem(wakeUpTime, this);\n\
 					::suspend(null);\n\
 				}\n\
 				Class.wakeup <- function() {\n\
 					thread.wakeup(true);\n\
 				}\n\
-				_scriptComponentClassTable[fileName] <- Class;\n\
+				::_scriptComponentClassTable[fileName] <- Class;\n\
 			}\n\
 			local c;\n\
 			if(vargc == 0) {\n\
@@ -88,15 +88,15 @@ ScriptComponentManager::ScriptComponentManager(IFileSystem& fs)
 			c._setScriptHandle();\n\
 			c.thread = newthread(_scriptComponentThreadFunction);\n\
 			c.thread.call(c.weakref());\n\
-			_scriptComponentInstanceSet[c.thread] <- c;\n\
-			gComponentQueue.setItem(0, c);\n\
+			::_scriptComponentInstanceSet[c.thread] <- c;\n\
+			::gComponentQueue.setItem(0, c);\n\
 			return c;\n\
 		}\
 		\n\
 		_lastCollectComponnetGarbageTime <- 0;\n\
 		function updateAllScriptComponent() {\n\
 			local currentTime = ::gFrameTimer.accumulateTime;\n\
-			local queueResult = ComponentQueueResult();\n\
+			local queueResult = ::ComponentQueueResult();\n\
 			while(true) {\n\
 				queueResult = ::gComponentQueue.getItem(currentTime, queueResult.queueNode);\n\
 				local component = queueResult.component;\n\
@@ -116,24 +116,24 @@ ScriptComponentManager::ScriptComponentManager(IFileSystem& fs)
 		\n\
 		// Collect any detached or removed Component.\n\
 		function collectComponnetGarbage() {\n\
-			foreach(key, value in _scriptComponentInstanceSet) {\n\
+			foreach(key, value in ::_scriptComponentInstanceSet) {\n\
 				if(value == null || value.entity == null)\n\
-					delete _scriptComponentInstanceSet[key];\n\
+					delete ::_scriptComponentInstanceSet[key];\n\
 			}\n\
 			println(::collectgarbage());\n\
 		}\n\
 		\n\
 		function clearClassCache() {\n\
-			_scriptComponentClassTable = {};\n\
+			::_scriptComponentClassTable = {};\n\
 		}\n\
 		\n\
 		// Quit all the threads\n\
 		function shutdownAllScriptComponent() {\n\
-			while(_scriptComponentInstanceSet.len() > 0)\n\
+			while(::_scriptComponentInstanceSet.len() > 0)\n\
 				collectComponnetGarbage();\n\
-			_scriptComponentClassTable = {};\n\
-			_scriptComponentInstanceSet = {};\n\
-			gComponentQueue = ComponentQueue();\n\
+			::_scriptComponentClassTable = {};\n\
+			::_scriptComponentInstanceSet = {};\n\
+			::gComponentQueue = ComponentQueue();\n\
 		}\n\
 	")))
 		goto OnError;
@@ -290,15 +290,23 @@ void ScriptComponentManager::updateScriptComponents()
 
 	// Calling runScript will cause compilation and extra memory consumption,
 	// therefore use function call directly.
-	(void)vm.runScript(xSTRING("updateAllScriptComponent();"));
+//	(void)vm.runScript(xSTRING("updateAllScriptComponent();"));
 
-/*	HSQUIRRELVM v = (HSQUIRRELVM)vm.getImplementationHandle();
+	HSQUIRRELVM v = (HSQUIRRELVM)vm.getImplementationHandle();
 	sq_pushroottable(v);
 	sq_pushstring(v, xSTRING("updateAllScriptComponent"), -1);
 	sq_get(v, -2);			// Get the function from the root table
 	sq_pushroottable(v);	// 'this' (function environment object)
-	sq_call(v, 1, SQFalse, SQTrue);
-	sq_pop(v, 2);			// Pops the roottable and the function*/
+
+	if(SQ_SUCCEEDED(sq_call(v, 1, SQFalse, SQTrue))) {
+		sq_pop(v, 2);		// Pops the roottable and the function
+	} else {
+		const SQChar* s = nullptr;
+		sq_getlasterror(v);
+		sq_getstring(v, -1, &s);
+		if(s)
+			sq_getprintfunc(v)(v, s);
+	}
 }
 
 void ScriptComponentManager::shutdown() {
