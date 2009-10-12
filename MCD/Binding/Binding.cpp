@@ -103,10 +103,6 @@ public:
 		registerScriptComponentBinding(&vm);
 	}
 
-	~Impl()
-	{
-	}
-
 	bool runScript(const wchar_t* script, bool retVal)
 	{
 		HSQUIRRELVM v = vm.getVM();
