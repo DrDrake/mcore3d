@@ -43,11 +43,13 @@ ScriptComponentManager::ScriptComponentManager(IFileSystem& fs)
 		// This table hold the ownership of all script component instance\n\
 		_scriptComponentInstanceSet <- {};\n\
 		\n\
-		function _scriptComponentThreadFunction(component) {\n\
+		function _scriptComponentThreadFunction(c) {\n\
 			while(true) {\n\
+				local component = c.ref();\n\
 				local e = component.entity;\n\
 				if(e != null && e.enabled)\n\
 					component.update();\n\
+				component = null;\n\
 				if(!::suspend(null))\n\
 					return;\n\
 			}\n\
@@ -85,7 +87,7 @@ ScriptComponentManager::ScriptComponentManager(IFileSystem& fs)
 			}\n\
 			c._setScriptHandle();\n\
 			c.thread = newthread(_scriptComponentThreadFunction);\n\
-			c.thread.call(c);\n\
+			c.thread.call(c.weakref());\n\
 			_scriptComponentInstanceSet[c.thread] <- c;\n\
 			gComponentQueue.setItem(0, c);\n\
 			return c;\n\
@@ -98,7 +100,7 @@ ScriptComponentManager::ScriptComponentManager(IFileSystem& fs)
 			while(true) {\n\
 				queueResult = ::gComponentQueue.getItem(currentTime, queueResult.queueNode);\n\
 				local component = queueResult.component;\n\
-				if(!component)\n\
+				if(!component || !component.entity)\n\
 					break;\n\
 				if(component.entity.enabled)\n\
 					component.wakeup();\n\
@@ -106,18 +108,19 @@ ScriptComponentManager::ScriptComponentManager(IFileSystem& fs)
 					break;\n\
 			}\n\
 			// Periodically cleanup any unused entry in the thread-component table\n\
-			if(currentTime - _lastCollectComponnetGarbageTime > 2) {\n\
+			if(currentTime - _lastCollectComponnetGarbageTime > 0.1) {\n\
 				_lastCollectComponnetGarbageTime = currentTime;\n\
 				collectComponnetGarbage();\n\
 			}\n\
 		}\n\
 		\n\
-		// \n\
+		// Collect any detached or removed Component.\n\
 		function collectComponnetGarbage() {\n\
 			foreach(key, value in _scriptComponentInstanceSet) {\n\
 				if(value == null || value.entity == null)\n\
 					delete _scriptComponentInstanceSet[key];\n\
 			}\n\
+			println(::collectgarbage());\n\
 		}\n\
 		\n\
 		function clearClassCache() {\n\
@@ -126,13 +129,8 @@ ScriptComponentManager::ScriptComponentManager(IFileSystem& fs)
 		\n\
 		// Quit all the threads\n\
 		function shutdownAllScriptComponent() {\n\
-			foreach(key, value in _scriptComponentInstanceSet) {\n\
-				if(value == null)\n\
-					continue;\n\
-//				value._releaseScriptHandle();\n\
-				value.thread = null;\n\
-//				key.wakeup(false);\n\
-			}\n\
+			while(_scriptComponentInstanceSet.len() > 0)\n\
+				collectComponnetGarbage();\n\
 			_scriptComponentClassTable = {};\n\
 			_scriptComponentInstanceSet = {};\n\
 			gComponentQueue = ComponentQueue();\n\
@@ -292,15 +290,15 @@ void ScriptComponentManager::updateScriptComponents()
 
 	// Calling runScript will cause compilation and extra memory consumption,
 	// therefore use function call directly.
-//	(void)vm.runScript(xSTRING("updateAllScriptComponent();"));
+	(void)vm.runScript(xSTRING("updateAllScriptComponent();"));
 
-	HSQUIRRELVM v = (HSQUIRRELVM)vm.getImplementationHandle();
+/*	HSQUIRRELVM v = (HSQUIRRELVM)vm.getImplementationHandle();
 	sq_pushroottable(v);
 	sq_pushstring(v, xSTRING("updateAllScriptComponent"), -1);
 	sq_get(v, -2);			// Get the function from the root table
 	sq_pushroottable(v);	// 'this' (function environment object)
 	sq_call(v, 1, SQFalse, SQTrue);
-	sq_pop(v, 2);			// Pops the roottable and the function
+	sq_pop(v, 2);			// Pops the roottable and the function*/
 }
 
 void ScriptComponentManager::shutdown() {
