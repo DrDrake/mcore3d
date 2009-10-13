@@ -86,7 +86,7 @@ ScriptComponentManager::ScriptComponentManager(IFileSystem& fs)
 				Class.constructor.acall(args);\n\
 			}\n\
 			c._setScriptHandle();\n\
-			c.thread = newthread(_scriptComponentThreadFunction);\n\
+			c.thread = newthread(::_scriptComponentThreadFunction);\n\
 			c.thread.call(c.weakref());\n\
 			::_scriptComponentInstanceSet[c.thread] <- c;\n\
 			::gComponentQueue.setItem(0, c);\n\
@@ -108,9 +108,9 @@ ScriptComponentManager::ScriptComponentManager(IFileSystem& fs)
 					break;\n\
 			}\n\
 			// Periodically cleanup any unused entry in the thread-component table\n\
-			if(currentTime - _lastCollectComponnetGarbageTime > 0.1) {\n\
-				_lastCollectComponnetGarbageTime = currentTime;\n\
-				collectComponnetGarbage();\n\
+			if(currentTime - ::_lastCollectComponnetGarbageTime > 0.2) {\n\
+				::_lastCollectComponnetGarbageTime = currentTime;\n\
+				::collectComponnetGarbage();\n\
 			}\n\
 		}\n\
 		\n\
@@ -120,20 +120,27 @@ ScriptComponentManager::ScriptComponentManager(IFileSystem& fs)
 				if(value == null || value.entity == null)\n\
 					delete ::_scriptComponentInstanceSet[key];\n\
 			}\n\
-			println(::collectgarbage());\n\
+			local nCollected = ::collectgarbage();\n\
+			if(nCollected) ::println(\"Warn: Number of garbage collected: \" + nCollected);\n\
 		}\n\
 		\n\
 		function clearClassCache() {\n\
 			::_scriptComponentClassTable = {};\n\
 		}\n\
 		\n\
-		// Quit all the threads\n\
+		// Quit all the threads and destroy all components\n\
 		function shutdownAllScriptComponent() {\n\
-			while(::_scriptComponentInstanceSet.len() > 0)\n\
-				collectComponnetGarbage();\n\
+			while(::_scriptComponentInstanceSet.len() > 0) {\n\
+				foreach(key, value in ::_scriptComponentInstanceSet) {\n\
+					if(value != null)\n\
+						value.destroySelf();\n\
+					delete ::_scriptComponentInstanceSet[key];\n\
+				}\n\
+			}\n\
 			::_scriptComponentClassTable = {};\n\
 			::_scriptComponentInstanceSet = {};\n\
 			::gComponentQueue = ComponentQueue();\n\
+			::collectgarbage();\n\
 		}\n\
 	")))
 		goto OnError;

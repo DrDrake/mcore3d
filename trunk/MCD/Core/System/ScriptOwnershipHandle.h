@@ -29,8 +29,8 @@ public:
 	/*!	Associate a weak pointer pointing to the object at index.
 		\note If the supplied HSQUIRRELVM is null, then any previous
 			associated handle will be removed.
-		\note If this function is called a second time with the parameter
-			\em vm differ as before, then the function simply returns.
+		\note If this function is called a second time with the parameter \em vm differ
+			as before, the old one will be released before assigning the new one.
 	 */
 	void setHandle(void* vm, int index);
 
