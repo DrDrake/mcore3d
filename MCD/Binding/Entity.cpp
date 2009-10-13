@@ -42,18 +42,16 @@ static int componentSetScriptHandle(HSQUIRRELVM vm)
 	Component* c = get(types::TypeSelect<Component*>(), vm, 1);
 	c->scriptOwnershipHandle.setHandle(vm, -1);
 	return 1;
-}/*
-static int componentReleaseScriptHandle(HSQUIRRELVM vm)
+}
+static void componentDestroySelf(GiveUpOwnership<Component*> obj)
 {
-	Component* c = get(types::TypeSelect<Component*>(), vm, 1);
-	c->scriptOwnershipHandle.setHandle(nullptr, 0);
-	return 1;
-}*/
+	delete obj;
+}
 SCRIPT_CLASS_REGISTER_NAME(Component, "Component")
 	.enableGetset()
 	.method<objNoCare>(xSTRING("_getentity"), &Component::entity)
 	.rawMethod(xSTRING("_setScriptHandle"), &componentSetScriptHandle)
-//	.rawMethod(xSTRING("_releaseScriptHandle"), &componentReleaseScriptHandle)
+	.wrappedMethod(xSTRING("destroySelf"), &componentDestroySelf)
 ;}
 
 static void entityAddChild(Entity& self, GiveUpOwnership<Entity*> e) {
