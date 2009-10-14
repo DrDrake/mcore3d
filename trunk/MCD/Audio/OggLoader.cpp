@@ -7,6 +7,15 @@
 #include "../../3Party/OpenAL/al.h"
 #include "../../3Party/VorbisOgg/vorbisfile.h"
 
+#ifdef MCD_VC
+#	pragma warning(push)
+#	pragma warning(disable: 6011)
+#endif
+#include <deque>
+#ifdef MCD_VC
+#	pragma warning(pop)
+#endif
+
 namespace MCD {
 
 namespace {
@@ -140,11 +149,163 @@ size_t gDecodeOggVorbis(OggVorbis_File* psOggVorbisFile, char* pDecodeBuffer, si
 class OggLoader::Impl
 {
 public:
+	struct Task
+	{
+		int bufferIdx;
+		AudioBufferPtr buffer;	// TODO: May not needed
+	};	// Task
+
+	class TaskQueue
+	{
+	public:
+		void push(const Task& task)
+		{
+			ScopeLock lock(mMutex);
+			mQueue.push_back(task);
+		}
+
+		Task pop()
+		{
+			ScopeLock lock(mMutex);
+			
+			Task ret = { -1, nullptr };
+			if(!mQueue.empty()) {
+				ret = mQueue.front();
+				mQueue.pop_front();
+			}
+			return ret;
+		}
+
+		bool isEmpty() const
+		{
+			ScopeLock lock(mMutex);
+			return mQueue.empty();
+		}
+
+		std::deque<Task> mQueue;
+		mutable Mutex mMutex;
+	};	// TaskQueue
+
+	Impl()
+		: partialLoadContext(nullptr), resourceManager(nullptr)
+		, mHeaderLoaded(false), mIStream(nullptr)
+	{}
+
+	bool loadHeader(std::istream* is)
+	{
+		MCD_ASSERT(mMutex.isLocked());
+
+		if(mHeaderLoaded)
+			return true;
+
+		mIStream = is;
+		mOggFileCallbacks.read_func = ov_read_func;
+		mOggFileCallbacks.seek_func = ov_seek_func;
+		mOggFileCallbacks.close_func = ov_close_func;
+		mOggFileCallbacks.tell_func = ov_tell_func;
+
+		{	ScopeUnlock unlock(mMutex);
+			if(gFnOvOpenCallbacks(is, &mOggFile, nullptr, 0, mOggFileCallbacks) != 0)
+				return false;
+
+			// Get some information about the file (Channels, Format, and Frequency)
+			mVorbisInfo = gFnOvInfo(&mOggFile, -1);
+			if(!mVorbisInfo)
+				return false;
+
+			mBufferSize = mVorbisInfo->rate;
+			mBufferSize -= mBufferSize % 4;
+
+			format = AL_FORMAT_STEREO16;
+			frequency = mVorbisInfo->rate;
+		}
+
+		return mHeaderLoaded = true;
+	}
+
+	//! Returns -1 for error, 0 for eof, 1 for success
+	int loadData()
+	{
+		MCD_ASSERT(mMutex.isLocked());
+
+		if(!mIStream)
+			return -1;
+
+		// Try to process all the items in the task queue
+		while(true)
+		{
+			Task task = mTaskQueue.pop();
+			if(task.bufferIdx == -1 || !task.buffer)
+				break;
+
+			ScopeUnlock unlock(mMutex);
+
+			// TODO: Optimize to use less dynamic allocation
+			void* buf = ::malloc(mBufferSize);
+			if(!buf)
+				return -1;
+
+			AudioBuffer& buffer = *task.buffer;
+			size_t bytesWritten = gDecodeOggVorbis(&mOggFile, (char*)buf, mBufferSize, mVorbisInfo->channels);
+			// NOTE: Make sure no other thread is using this buffer handle, otherwise we
+			// need to move the alBufferData() function to do inside commit().
+			alBufferData(buffer.handles[task.bufferIdx], format, buf, bytesWritten, frequency);
+
+			Task task2 = { task.bufferIdx, nullptr };
+			mCommitQueue.push(task2);
+
+			if(!checkAndPrintError("alBufferData failed: "))
+				return -1;
+
+			::free(buf);
+
+			// Eof
+			if(bytesWritten < mBufferSize)
+				return 0;
+		}
+
+		return 1;
+	}
+
+	void requestLoad(const AudioBufferPtr& buffer, size_t bufferIndex)
+	{
+		Task taks = { int(bufferIndex), buffer };
+		mTaskQueue.push(taks);
+
+		ScopeLock lock(mMutex);
+
+		// If partialLoadContext is null, a loading is already in progress,
+		// onPartialLoaded() will be invoked soon.
+		if(!resourceManager || !partialLoadContext)
+			return;
+
+		// Otherwise we can tell resource manager to re-schedule the load immediatly.
+		resourceManager->reSchedule(partialLoadContext, 0, nullptr);
+		resourceManager = nullptr;
+		partialLoadContext = nullptr;
+	}
+
+	int popLoadedBuffer()
+	{
+		Task task = mCommitQueue.pop();
+		return task.bufferIdx;
+	}
+
+	size_t mBufferSize;	//!< Calculated suitable buffer size for each buffer in AudioBuffer.
 	ALenum format;
-	ALsizei dataSize;
 	ALsizei frequency;
-	char* data;
+	void* partialLoadContext;
+	IResourceManager* resourceManager;
 	Mutex mMutex;
+
+	TaskQueue mTaskQueue, mCommitQueue;
+
+	// Information about the Ogg file
+	bool mHeaderLoaded;
+	OggVorbis_File mOggFile;
+	ov_callbacks mOggFileCallbacks;
+	vorbis_info* mVorbisInfo;
+	std::istream* mIStream;
 };	// Impl
 
 OggLoader::OggLoader()
@@ -164,64 +325,27 @@ IResourceLoader::LoadingState OggLoader::load(std::istream* is, const Path*, con
 	ScopeLock lock(mImpl->mMutex);
 
 	if(!is)
-		loadingState = Aborted;
+		return loadingState = Aborted;
 	else if(loadingState == Aborted)
 		loadingState = NotLoaded;
 
-//	if(loadingState & Stopped)
-//		return loadingState;
+	if(!mImpl->loadHeader(is))
+		return loadingState = Aborted;
 
-	ov_callbacks callbacks;
-	callbacks.read_func = ov_read_func;
-	callbacks.seek_func = ov_seek_func;
-	callbacks.close_func = ov_close_func;
-	callbacks.tell_func = ov_tell_func;
-
-	OggVorbis_File oggVorbisFile;
-
-	if(!gFnOvOpenCallbacks(is, &oggVorbisFile, nullptr, 0, callbacks))
-	{
+	int result = mImpl->loadData();
+	if(result == 1)
+		loadingState = PartialLoaded;
+	else if(result == 0)
+		loadingState = Loaded;
+	else
 		loadingState = Aborted;
-	}
 
-	// Get some information about the file (Channels, Format, and Frequency)
-	if(vorbis_info* psVorbisInfo = gFnOvInfo(&oggVorbisFile, -1))
-	{
-		size_t bufferSize = psVorbisInfo->rate;
-		bufferSize -= bufferSize % 2;
-		(void)bufferSize;
-
-		// TODO: Check success
-		void* buf = malloc(bufferSize);
-
-		size_t bytesWritten = gDecodeOggVorbis(&oggVorbisFile, (char*)buf, bufferSize, psVorbisInfo->channels);
-		(void)bytesWritten;
-	}
-
-	int result;
-	{	// There is no need to do a mutex lock during loading, since
-		// no body can access the mImageData if the loading isn't finished.
-
-		ScopeUnlock unlock(mImpl->mMutex);
-
-		// TODO: Actual load from wave file
-//		char* bufferData = nullptr;
-		result = 0;
-	}
-
-	return (loadingState = (result == 0) ? Loaded : Aborted);
+	return loadingState;
 }
 
 void OggLoader::commit(Resource& resource)
 {
-	// Will throw exception if the resource is not of the type AudioBuffer
-	AudioBuffer& audioBuffer = dynamic_cast<AudioBuffer&>(resource);
-
-	for(size_t i=0; i<audioBuffer.bufferCount(); ++i)
-		alBufferData(audioBuffer.handles[i], mImpl->format, mImpl->data, mImpl->dataSize, mImpl->frequency);
-
-//	if(alGetError() == AL_NO_ERROR)
-//		bReturn = AL_TRUE;
+	// Currently nothing to do inside commit
 }
 
 IResourceLoader::LoadingState OggLoader::getLoadingState() const
@@ -230,13 +354,33 @@ IResourceLoader::LoadingState OggLoader::getLoadingState() const
 	return loadingState;
 }
 
+// Invoked in resource manager worker thread
 void OggLoader::onPartialLoaded(IResourceManager& manager, void* context, uint priority, const wchar_t* args)
 {
-	manager.reSchedule(context, priority, args);
+	MCD_ASSUME(mImpl);
+
+	if(mImpl->mTaskQueue.isEmpty()) {
+		ScopeLock lock(mImpl->mMutex);
+		mImpl->partialLoadContext = context;
+		mImpl->resourceManager = &manager;
+	} else {
+		// Re-schedule immediatly if the task queue isn't empty,
+		// this situation is rare but possible when the load() function completes in
+		// it's worker thread and then someone call requestLoad() in main thread
+		// while onPartialLoaded() is not yet invoked.
+		manager.reSchedule(context, priority, args);
+	}
 }
 
+// Invoked by user or AudioSource
 void OggLoader::requestLoad(const AudioBufferPtr& buffer, size_t bufferIndex)
 {
+	mImpl->requestLoad(buffer, bufferIndex);
+}
+
+int OggLoader::popLoadedBuffer()
+{
+	return mImpl->popLoadedBuffer();
 }
 
 }	// namespace MCD

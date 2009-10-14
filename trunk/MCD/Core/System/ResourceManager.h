@@ -70,6 +70,7 @@ public:
 		\param context Is a pointer to a IResourceManager implementation specific object
 			obtained though IResourceLoader::onPartialLoaded()
 		\see IResourceLoader::onPartialLoaded()
+		\note This function should be thread safe and can be invoked by any thread.
 	 */
 	virtual void reSchedule(sal_in void* context, uint priority=0, sal_in_z_opt const wchar_t* args=nullptr) = 0;
 
@@ -221,6 +222,7 @@ public:
 		\param context Is a pointer to a IResourceManager implementation specific object
 			obtained though IResourceLoader::onPartialLoaded()
 		\see IResourceLoader::onPartialLoaded()
+		\note This function is thread safe and can be invoked by any thread.
 	 */
 	sal_override void reSchedule(sal_in void* context, uint priority=0, sal_in_z_opt const wchar_t* args=nullptr);
 

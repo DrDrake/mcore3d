@@ -93,6 +93,7 @@ public:
 	class Task : public MCD::TaskPool::Task
 	{
 	public:
+		// TODO: Fix MapNode ownershipe problem cause by c calling uncache()
 		Task(ResourceManager& manager, MapNode& mapNode, const IResourceLoaderPtr& loader,
 			EventQueue& eventQueue, std::istream* is, uint priority, TaskPool& taskPool, const wchar_t* args)
 			:
@@ -375,6 +376,8 @@ void ResourceManager::reSchedule(void* context, uint priority, const wchar_t* ar
 
 	Impl::Task* task = reinterpret_cast<Impl::Task*>(context);
 	task->setPriority(priority);
+	if(!args)
+		args = L"";
 	task->mArgs = args;
 	mImpl->mTaskPool.enqueue(*task);
 }
@@ -413,7 +416,7 @@ void ResourceManager::uncache(const Path& fileId)
 	MCD_ASSUME(mImpl != nullptr);
 	ScopeLock lock(mImpl->mEventQueue.mMutex);
 
-	// Find and remove the existing resource from the manager
+	// Find and remove the existing resource linkage from the manager
 	delete mImpl->findMapNode(fileId);
 }
 

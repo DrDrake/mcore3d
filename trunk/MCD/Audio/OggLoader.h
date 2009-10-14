@@ -36,6 +36,8 @@ public:
 	 */
 	sal_override void requestLoad(const AudioBufferPtr& buffer, size_t bufferIndex);
 
+	sal_override int popLoadedBuffer();
+
 // Attributes
 	volatile LoadingState loadingState;
 

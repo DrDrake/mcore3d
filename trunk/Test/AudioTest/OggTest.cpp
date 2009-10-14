@@ -9,6 +9,7 @@ using namespace MCD;
 
 #include "../../MCD/Audio/AudioBuffer.h"
 #include "../../MCD/Core/System/StrUtility.h"
+#include "../../MCD/Core/System/Thread.h"
 
 class OggLoaderFactory : public ResourceManager::IFactory
 {
@@ -26,12 +27,8 @@ public:
 
 TEST(OggTest)
 {
-	OggLoader loader;
-	std::ifstream is("stereo.ogg", std::ios_base::binary);
+	initAudio();
 
-//	loader.load(&is);
-
-	// Creating the manager and destroy it immediatly
 	std::auto_ptr<IFileSystem> fs(new RawFileSystem(L"./"));
 	ResourceManager manager(*fs);
 	fs.release();
@@ -39,15 +36,22 @@ TEST(OggTest)
 	manager.addFactory(new OggLoaderFactory);
 	AudioSource source;
 	source.load(manager, L"stereo.ogg");
+//	source.load(manager, L"BaseSound.ogg");
 
-	while(true) {	// Poll for event
+	source.play();
+
+	// Ensure the source has start to play
+	while(!source.isPlaying()) {
+		source.update();
+		manager.popEvent();
+	}
+
+	while(source.isPlaying()) {
+		mSleep(1);
+		source.update();
 		ResourceManager::Event event = manager.popEvent();
 		if(!event.loader) continue;
 
-		if(event.loader->getLoadingState() != IResourceLoader::Loaded)
-			CHECK(false);
-
 		event.loader->commit(*event.resource);
-		break;
 	}
 }

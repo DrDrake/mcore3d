@@ -11,6 +11,7 @@ namespace MCD {
 AudioSource::AudioSource()
 {
 	alGenSources(1, &handle);
+	mRequestPlay = false;
 }
 
 AudioSource::~AudioSource()
@@ -18,37 +19,44 @@ AudioSource::~AudioSource()
 	alDeleteSources(1, &handle);
 }
 
-bool AudioSource::load(IResourceManager& resourceManager, const Path& fileId)
+class FakeCallback : public ResourceManagerCallback
 {
-	IResourceLoaderPtr _loader = nullptr;
-	ResourcePtr res = resourceManager.load(fileId, false, 0, nullptr, &_loader);
-	loader = dynamic_cast<IAudioStreamLoader*>(_loader.get()) ? _loader : nullptr;
+public:
+	sal_override void doCallback()
+	{
+		++count;
+	}
+
+	static size_t count;
+};	// FakeCallback
+
+bool AudioSource::load(IResourceManager& resourceManager, const Path& fileId, const wchar_t* args)
+{
+	IAudioStreamLoader* _loader = nullptr;
+	ResourcePtr res = resourceManager.load(fileId, false, 0, args, &loader);
+	_loader = dynamic_cast<IAudioStreamLoader*>(loader.get());
 	buffer = dynamic_cast<AudioBuffer*>(res.get());
 
 	// TODO: Log
-	if(!loader || !buffer)
+	if(!_loader || !buffer)
 		return false;
+//	resourceManager.uncache(fileId);
+
+	// Fill up the initial buffers
+	for(size_t i=0; i<buffer->bufferCount(); ++i)
+		_loader->requestLoad(buffer, i);
 
 	return true;
 }
 
 void AudioSource::play()
 {
-	if(!buffer)
-		return;
-
-	// Do actual play
-	alSourcePlay(handle);
+	mRequestPlay = true;;
 }
 
 void AudioSource::stop()
 {
-	if(!buffer)
-		return;
-
-	// Stop the Source and clear the Queue
-	alSourceStop(handle);
-	alSourcei(handle, AL_BUFFER, 0);
+	mRequestPlay = false;
 }
 
 void AudioSource::update()
@@ -56,33 +64,54 @@ void AudioSource::update()
 	if(!buffer)
 		return;
 
-	// Check which buffer is played
-
-	// Tells resource Loader continue to load
-	// loader.continueLoad();
+	IAudioStreamLoader* _loader = dynamic_cast<IAudioStreamLoader*>(loader.get());
 
 	// Request the number of OpenAL Buffers have been processed (played) on the Source
-	ALint iBuffersProcessed = 0;
-	alGetSourcei(handle, AL_BUFFERS_PROCESSED, &iBuffersProcessed);
+	ALint buffersProcessed = 0;
+	alGetSourcei(handle, AL_BUFFERS_PROCESSED, &buffersProcessed);
 
-	// For each processed buffer, remove it from the Source Queue, read next chunk of audio
-	// data from disk, fill buffer with new data, and add it to the Source Queue
-	while(iBuffersProcessed)
+	// For each processed buffer, remove it from the Source Queue
+	while(buffersProcessed)
 	{
 		// Remove the Buffer from the Queue.  (uiBuffer contains the Buffer ID for the unqueued Buffer)
 		ALuint uiBuffer = 0;
 		alSourceUnqueueBuffers(handle, 1, &uiBuffer);
 
-		// Read more audio data (if there is any)
-/*		ulBytesWritten = DecodeOggVorbis(&sOggVorbisFile, pDecodeBuffer, ulBufferSize, ulChannels);
-		if (ulBytesWritten)
-		{
-			alBufferData(uiBuffer, ulFormat, pDecodeBuffer, ulBytesWritten, ulFrequency);
-			alSourceQueueBuffers(handle, 1, &uiBuffer);
-		}*/
+		// Tells resource loader continue to load
+		for(size_t i=0; i<buffer->bufferCount(); ++i) {
+			if(buffer->handles[i] == uiBuffer) {
+				_loader->requestLoad(buffer, i);
+				break;
+			}
+		}
 
-		--iBuffersProcessed;
+		--buffersProcessed;
 	}
+
+	// Queue new buffers that were loaded by the loader
+	int bufferIdx;
+	while((bufferIdx = _loader->popLoadedBuffer()) != -1) {
+		alSourceQueueBuffers(handle, 1, &buffer->handles[bufferIdx]);
+		checkAndPrintError("alSourceQueueBuffers failed: ");
+	}
+
+	if(!isPlaying() && mRequestPlay) {
+		// Do actual play
+		alSourcePlay(handle);
+		checkAndPrintError("alSourcePlay failed: ");
+	}
+	else if(isPlaying() && !mRequestPlay) {
+		// Stop the Source and clear the Queue
+		alSourceStop(handle);
+		alSourcei(handle, AL_BUFFER, 0);
+	}
+}
+
+bool AudioSource::isPlaying() const
+{
+	ALint val;
+	alGetSourcei(handle, AL_SOURCE_STATE, &val);
+	return val == AL_PLAYING;
 }
 
 }	// namespace MCD
