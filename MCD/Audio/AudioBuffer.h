@@ -6,6 +6,14 @@
 
 namespace MCD {
 
+// TODO: Move to a better place
+void MCD_AUDIO_API initAudio();
+
+// TODO: Temp
+bool MCD_AUDIO_API checkAndPrintError(const char* prefixMessage);
+
+/*!	A very light weighted class storing an array of
+ */
 class MCD_AUDIO_API AudioBuffer : public Resource
 {
 public:
