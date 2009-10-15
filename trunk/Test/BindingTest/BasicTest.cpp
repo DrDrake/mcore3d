@@ -121,8 +121,7 @@ TEST(Basic_BindingTest)
 	script::VMCore* v = (script::VMCore*)sq_getforeignptr(HSQUIRRELVM(vm.getImplementationHandle()));
 	script::ClassTraits<Foo>::bind(v);
 	script::ClassTraits<Bar>::bind(v);
-	runScriptFile(vm, "BasicTest.nut");
-	CHECK(true);
+	CHECK(runScriptFile(vm, "BasicTest.nut"));
 }
 
 TEST(ScriptInheritCppClass_BindingTest)
@@ -131,13 +130,11 @@ TEST(ScriptInheritCppClass_BindingTest)
 	script::VMCore* v = (script::VMCore*)sq_getforeignptr(HSQUIRRELVM(vm.getImplementationHandle()));
 	script::ClassTraits<Foo>::bind(v);
 	script::ClassTraits<Bar>::bind(v);
-	runScriptFile(vm, "ScriptInheritCppClassTest.nut");
-	CHECK(true);
+	CHECK(runScriptFile(vm, "ScriptInheritCppClassTest.nut"));
 }
 
 TEST(Coroutine_BindingTest)
 {
 	ScriptVM vm;
-	runScriptFile(vm, "CoroutineTest.nut");
-	CHECK(true);
+	CHECK(runScriptFile(vm, "CoroutineTest.nut"));
 }

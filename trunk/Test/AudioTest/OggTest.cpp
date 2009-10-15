@@ -35,7 +35,7 @@ TEST(OggTest)
 
 	manager.addFactory(new OggLoaderFactory);
 	AudioSource source;
-	source.load(manager, L"stereo.ogg");
+	CHECK(source.load(manager, L"stereo.ogg"));
 //	source.load(manager, L"BaseSound.ogg");
 
 	source.play();

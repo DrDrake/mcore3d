@@ -4,4 +4,4 @@ class ScriptVM;
 
 }	// namespace MCD
 
-extern void runScriptFile(MCD::ScriptVM& vm, const char* filePath);
+extern sal_checkreturn bool runScriptFile(MCD::ScriptVM& vm, const char* filePath);

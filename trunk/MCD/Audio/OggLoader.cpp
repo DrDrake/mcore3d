@@ -220,7 +220,8 @@ public:
 			frequency = mVorbisInfo->rate;
 		}
 
-		return mHeaderLoaded = true;
+		mHeaderLoaded = true;
+		return mHeaderLoaded;
 	}
 
 	//! Returns -1 for error, 0 for eof, 1 for success

@@ -7,6 +7,5 @@ using namespace MCD;
 TEST(Math_BindingTest)
 {
 	ScriptVM vm;
-	runScriptFile(vm, "MathTest.nut");
-	CHECK(true);
+	CHECK(runScriptFile(vm, "MathTest.nut"));
 }

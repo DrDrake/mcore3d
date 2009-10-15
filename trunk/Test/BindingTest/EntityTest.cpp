@@ -7,6 +7,5 @@ using namespace MCD;
 TEST(Entity_BindingTest)
 {
 	ScriptVM vm;
-	runScriptFile(vm, "EntityTest.nut");
-	CHECK(true);
+	CHECK(runScriptFile(vm, "EntityTest.nut"));
 }
