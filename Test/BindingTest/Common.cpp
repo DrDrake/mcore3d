@@ -3,7 +3,7 @@
 #include "../../MCD/Binding/Binding.h"
 #include <fstream>
 
-void runScriptFile(MCD::ScriptVM& vm, const char* filePath)
+bool runScriptFile(MCD::ScriptVM& vm, const char* filePath)
 {
 	std::wifstream file(filePath);
 	if(file) {
@@ -11,8 +11,10 @@ void runScriptFile(MCD::ScriptVM& vm, const char* filePath)
 		buffer << file.rdbuf();
 		file.close();
 
-		vm.runScript(buffer.str().c_str());
+		return vm.runScript(buffer.str().c_str());
 	}
 	else
 		std::cerr << "File '" << filePath << "' not found\n";
+
+	return false;
 }

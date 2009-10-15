@@ -58,7 +58,7 @@ TEST(EventBindingTest)
 	script::VMCore* v = (script::VMCore*)sq_getforeignptr(HSQUIRRELVM(vm.getImplementationHandle()));
 	script::ClassTraits<Button>::bind(v);
 
-	vm.runScript(L"\
+	CHECK(vm.runScript(L"\
 		button <- Button.defaultButton();\
 		button.onMousePressed().setHandler(\
 			function(sender, x, y) {\
@@ -66,7 +66,7 @@ TEST(EventBindingTest)
 				sender.y = y;\
 			}\
 		);\
-	");
+	"));
 
 	Button& b = *Button::defaultButton();
 	CHECK_EQUAL(0, b.posX);

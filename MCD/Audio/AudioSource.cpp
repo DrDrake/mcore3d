@@ -67,6 +67,8 @@ void AudioSource::update()
 		return;
 
 	IAudioStreamLoader* _loader = dynamic_cast<IAudioStreamLoader*>(loader.get());
+	if(!_loader)
+		return;
 
 	// Request the number of OpenAL Buffers have been processed (played) on the Source
 	ALint buffersProcessed = 0;
