@@ -85,8 +85,9 @@ public:
 	/*!	Give up the control (un-cache it) over the resource with that fileId.
 		Do nothing if that fileId is not already in the manager.
 		Useful to reload a resource as a new instance.
+		\return The previous cached resource, if any.
 	 */
-	virtual void uncache(const Path& fileId) = 0;
+	virtual ResourcePtr uncache(const Path& fileId) = 0;
 
 	/*!	As part of the loading process, we want some callback after certain
 		resource finished loading.
@@ -237,8 +238,9 @@ public:
 	/*!	Give up the control (un-cache it) over the resource with that fileId.
 		Do nothing if that fileId is not already in the manager.
 		Useful to reload a resource as a new instance.
+		\return The previous cached resource, if any.
 	 */
-	sal_override void uncache(const Path& fileId);
+	sal_override ResourcePtr uncache(const Path& fileId);
 
 	/*! Event for notifying the loading status of a resource.
 		\note The member \em resource and \em loader may be null to

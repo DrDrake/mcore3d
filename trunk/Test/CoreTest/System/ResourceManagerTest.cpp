@@ -154,7 +154,7 @@ TEST(Basic_ResourceManagerTest)
 		CHECK(manager.popEvent().loader == nullptr);
 
 		// But if we uncache it, then a new resource will be loaded
-		manager.uncache(L"Main.cpp");
+		CHECK_EQUAL(resource, manager.uncache(L"Main.cpp"));
 		ResourcePtr resource2 = manager.load(L"Main.cpp", true);
 		CHECK(manager.popEvent().loader != nullptr);
 		CHECK(resource != resource2);
@@ -162,11 +162,18 @@ TEST(Basic_ResourceManagerTest)
 	}
 
 	{	// Relaoding
+
+		// The same resource object should be returned.
 		while(manager.popEvent().loader) {}
 		CHECK_EQUAL(resource, manager.reload(L"Main.cpp", true));
 		CHECK(manager.popEvent().loader != nullptr);
 
-		manager.uncache(L"ResourceManadgerTest.cpp");
+		// But a new resource object will be returned if it is uncached before.
+		CHECK_EQUAL(resource, manager.uncache(L"Main.cpp"));
+		ResourcePtr p = manager.reload(L"Main.cpp");
+		CHECK(p && p != resource);
+
+		CHECK(manager.uncache(L"ResourceManadgerTest.cpp") == nullptr);
 		CHECK(manager.reload(L"ResourceManadgerTest.cpp") != nullptr);
 	}
 

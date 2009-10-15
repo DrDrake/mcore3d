@@ -40,7 +40,9 @@ bool AudioSource::load(IResourceManager& resourceManager, const Path& fileId, co
 	// TODO: Log
 	if(!_loader || !buffer)
 		return false;
-//	resourceManager.uncache(fileId);
+
+	// Each streamming audio should have it's own buffer, so we uncache it from the manager.
+	resourceManager.uncache(fileId);
 
 	// Fill up the initial buffers
 	for(size_t i=0; i<buffer->bufferCount(); ++i)
@@ -51,7 +53,7 @@ bool AudioSource::load(IResourceManager& resourceManager, const Path& fileId, co
 
 void AudioSource::play()
 {
-	mRequestPlay = true;;
+	mRequestPlay = true;
 }
 
 void AudioSource::stop()
@@ -73,7 +75,7 @@ void AudioSource::update()
 	// For each processed buffer, remove it from the Source Queue
 	while(buffersProcessed)
 	{
-		// Remove the Buffer from the Queue.  (uiBuffer contains the Buffer ID for the unqueued Buffer)
+		// Remove the Buffer from the Queue. (uiBuffer contains the Buffer ID for the unqueued Buffer)
 		ALuint uiBuffer = 0;
 		alSourceUnqueueBuffers(handle, 1, &uiBuffer);
 

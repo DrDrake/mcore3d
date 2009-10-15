@@ -40,13 +40,18 @@ struct MapNode
 		:
 		mPathKey(resource.fileId()),
 		mLoadingState(IResourceLoader::NotLoaded),
-		mResource(&resource)
+		mResource(&resource), mIsUncached(false)
 	{
 	}
 
 	PathKey mPathKey;
 	IResourceLoader::LoadingState mLoadingState;	//!< As an information for resolving dependency
 	ResourceWeakPtr mResource;
+
+	/*!	Due to the importance of MapNode, we cannot simply delete a MapNode or set mResource to null
+		to preform a resource uncache operation.
+	 */
+	bool mIsUncached;
 };	// MapNode
 
 class ResourceManager::Impl
@@ -93,7 +98,6 @@ public:
 	class Task : public MCD::TaskPool::Task
 	{
 	public:
-		// TODO: Fix MapNode ownershipe problem cause by c calling uncache()
 		Task(ResourceManager& manager, MapNode& mapNode, const IResourceLoaderPtr& loader,
 			EventQueue& eventQueue, std::istream* is, uint priority, TaskPool& taskPool, const wchar_t* args)
 			:
@@ -271,7 +275,8 @@ ResourcePtr ResourceManager::load(const Path& fileId, bool block, uint priority,
 	ScopeLock lock(mImpl->mEventQueue.mMutex);
 
 	// Find for existing resource (Cache hit!)
-	if(MapNode* node = mImpl->findMapNode(fileId))
+	MapNode* node = mImpl->findMapNode(fileId);
+	if(node)
 	{
 		// NOTE: Use a local variable to hold the life-time of the cached resource,
 		// prevent it being deleted in another thread.
@@ -287,10 +292,14 @@ ResourcePtr ResourceManager::load(const Path& fileId, bool block, uint priority,
 			MapNode* nextNode = node->mPathKey.next()->getOuterSafe();
 			if(nextNode && !nextNode->mResource)
 				delete nextNode;
-			return p;
+
+			if(!node->mIsUncached)
+				return p;
 		}
-		else	// Unfortunately, the resource is already deleted
+		else {	// Unfortunately, the resource is already deleted
 			delete node;
+			node = nullptr;
+		}
 	}
 
 	IResourceLoaderPtr loader = nullptr;
@@ -308,8 +317,14 @@ ResourcePtr ResourceManager::load(const Path& fileId, bool block, uint priority,
 		return nullptr;
 	}
 
-	MapNode* node = new MapNode(*resource);
-	MCD_VERIFY(mImpl->mResourceMap.insertUnique(node->mPathKey));
+	if(!node) {
+		node = new MapNode(*resource);
+		MCD_VERIFY(mImpl->mResourceMap.insertUnique(node->mPathKey));
+	} else {
+		node->mIsUncached = false;
+		node->mResource = resource.get();
+		node->mLoadingState = IResourceLoader::NotLoaded;
+	}
 
 	// Now we can begin the load operation
 	if(block)
@@ -347,7 +362,7 @@ ResourcePtr ResourceManager::reload(const Path& fileId, bool block, uint priorit
 	MapNode* node = mImpl->findMapNode(fileId);
 
 	// The resource is not found
-	if(!node || !node->mResource) {
+	if(!node || !node->mResource || node->mIsUncached) {
 		lock.mutex().unlock();
 		lock.cancel();
 		return load(fileId, block, priority);
@@ -411,13 +426,18 @@ ResourcePtr ResourceManager::cache(const ResourcePtr& resource)
 	return ret;
 }
 
-void ResourceManager::uncache(const Path& fileId)
+ResourcePtr ResourceManager::uncache(const Path& fileId)
 {
 	MCD_ASSUME(mImpl != nullptr);
 	ScopeLock lock(mImpl->mEventQueue.mMutex);
 
 	// Find and remove the existing resource linkage from the manager
-	delete mImpl->findMapNode(fileId);
+	MapNode* mapNode = mImpl->findMapNode(fileId);
+	if(!mapNode)
+		return nullptr;
+
+	mapNode->mIsUncached = true;
+	return mapNode->mResource.get();
 }
 
 ResourceManager::Event ResourceManager::popEvent()
