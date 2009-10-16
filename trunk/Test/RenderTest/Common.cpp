@@ -153,8 +153,8 @@ bool loadShaderProgram(
 	DefaultResourceManager& resourceManager)
 {
 	// Load the shaders synchronously
-	ShaderPtr vs = dynamic_cast<Shader*>(resourceManager.load(vsSource, true).get());
-	ShaderPtr ps = dynamic_cast<Shader*>(resourceManager.load(psSource, true).get());
+	ShaderPtr vs = dynamic_cast<Shader*>(resourceManager.load(vsSource, IResourceManager::Block).get());
+	ShaderPtr ps = dynamic_cast<Shader*>(resourceManager.load(psSource, IResourceManager::Block).get());
 
 	while(true) {
 		int result = resourceManager.processLoadingEvents();

@@ -2,6 +2,7 @@
 #include "AudioSource.h"
 #include "AudioBuffer.h"
 #include "AudioLoader.h"
+#include "../Core/System/Log.h"
 #include "../Core/System/ResourceLoader.h"
 #include "../Core/System/ResourceManager.h"
 #include "../../3Party/OpenAL/al.h"
@@ -12,6 +13,7 @@ AudioSource::AudioSource()
 {
 	alGenSources(1, &handle);
 	mRequestPlay = false;
+	mRequestPause = false;
 }
 
 AudioSource::~AudioSource()
@@ -19,27 +21,21 @@ AudioSource::~AudioSource()
 	alDeleteSources(1, &handle);
 }
 
-class FakeCallback : public ResourceManagerCallback
-{
-public:
-	sal_override void doCallback()
-	{
-		++count;
-	}
-
-	static size_t count;
-};	// FakeCallback
-
-bool AudioSource::load(IResourceManager& resourceManager, const Path& fileId, const wchar_t* args)
+bool AudioSource::load(IResourceManager& resourceManager, const Path& fileId, bool firstBufferBlock, const wchar_t* args)
 {
 	IAudioStreamLoader* _loader = nullptr;
-	ResourcePtr res = resourceManager.load(fileId, false, 0, args, &loader);
+	ResourcePtr res = resourceManager.load(
+		fileId, firstBufferBlock ? IResourceManager::FirstPartialBlock : IResourceManager::NonBlock,
+		0, args, &loader
+	);
+
 	_loader = dynamic_cast<IAudioStreamLoader*>(loader.get());
 	buffer = dynamic_cast<AudioBuffer*>(res.get());
 
-	// TODO: Log
-	if(!_loader || !buffer)
+	if(!_loader || !buffer) {
+		Log::format(Log::Error, L"Fail to load audio: %s", fileId.getString().c_str());
 		return false;
+	}
 
 	// Each streamming audio should have it's own buffer, so we uncache it from the manager.
 	resourceManager.uncache(fileId);
@@ -53,11 +49,21 @@ bool AudioSource::load(IResourceManager& resourceManager, const Path& fileId, co
 
 void AudioSource::play()
 {
+	// TODO: Implement the rewind feature for streamming source
+	alSourcePlay(handle);
 	mRequestPlay = true;
+	mRequestPause = false;
+}
+
+void AudioSource::pause()
+{
+	alSourcePause(handle);
+	mRequestPause = true;
 }
 
 void AudioSource::stop()
 {
+	alSourceStop(handle);
 	mRequestPlay = false;
 }
 
@@ -99,23 +105,38 @@ void AudioSource::update()
 		checkAndPrintError("alSourceQueueBuffers failed: ");
 	}
 
-	if(!isPlaying() && mRequestPlay) {
+	bool reallyPlaying = isReallyPlaying();
+
+	if(!reallyPlaying && mRequestPlay) {
 		// Do actual play
 		alSourcePlay(handle);
 		checkAndPrintError("alSourcePlay failed: ");
 	}
-	else if(isPlaying() && !mRequestPlay) {
+	else if(reallyPlaying && !mRequestPlay) {
 		// Stop the Source and clear the Queue
 		alSourceStop(handle);
 		alSourcei(handle, AL_BUFFER, 0);
 	}
+
+	if(reallyPlaying && mRequestPause)
+		alSourcePause(handle);
 }
 
 bool AudioSource::isPlaying() const
 {
+	return mRequestPlay;
+}
+
+bool AudioSource::isReallyPlaying() const
+{
 	ALint val;
 	alGetSourcei(handle, AL_SOURCE_STATE, &val);
 	return val == AL_PLAYING;
+}
+
+bool AudioSource::isPaused() const
+{
+	return mRequestPause;
 }
 
 }	// namespace MCD

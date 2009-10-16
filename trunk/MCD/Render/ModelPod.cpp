@@ -290,7 +290,7 @@ void PodLoader::Impl::commit(Resource& resource)
 		Path adjustedPath = mPath.hasRootDirectory() ? texturePath : mPath.getBranchPath() / texturePath;
 
 		if(mResourceManager)
-			model.mImpl->mTextures[i] = dynamic_cast<Texture*>(mResourceManager->load(adjustedPath, false).get());
+			model.mImpl->mTextures[i] = dynamic_cast<Texture*>(mResourceManager->load(adjustedPath).get());
 		else
 			model.mImpl->mTextures[i] = new Texture(adjustedPath);
 	}

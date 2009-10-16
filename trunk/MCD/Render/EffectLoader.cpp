@@ -162,7 +162,7 @@ public:
 		// Adjust the path to load the texture relative to the xml or relative to the root folder.
 		Path path(file);
 		path = path.hasRootDirectory() ? path : context.basePath / path;
-		TexturePtr texture = dynamic_cast<Texture*>(context.resourceManager.load(path, false).get());
+		TexturePtr texture = dynamic_cast<Texture*>(context.resourceManager.load(path).get());
 
 		// filter attribute
 		int minFilter = GL_LINEAR;

@@ -25,8 +25,8 @@ TEST(MultipleRenderTargetTest)
 		bool initShaderProgram(const wchar_t* vsSource, const wchar_t* psSource, ShaderProgram& shaderProgram)
 		{
 			// Load the shaders synchronously
-			ShaderPtr vs = dynamic_cast<Shader*>(mResourceManager.load(vsSource, true).get());
-			ShaderPtr ps = dynamic_cast<Shader*>(mResourceManager.load(psSource, true).get());
+			ShaderPtr vs = dynamic_cast<Shader*>(mResourceManager.load(vsSource, IResourceManager::Block).get());
+			ShaderPtr ps = dynamic_cast<Shader*>(mResourceManager.load(psSource, IResourceManager::Block).get());
 
 			while(true) {
 				int result = mResourceManager.processLoadingEvents();

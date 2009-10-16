@@ -28,7 +28,8 @@ SCRIPT_CLASS_REGISTER_NAME(ResourceManagerCallback, "ResuorceManagerCallback")
 ;}
 
 static Resource* resourceManagerLoad(IResourceManager& self, const wchar_t* fileId, bool block, uint priority, const wchar_t* args) {
-	return self.load(fileId, block, priority, args).get();
+	// TODO: Fix the blocking option
+	return self.load(fileId, IResourceManager::NonBlock, priority, args).get();
 }
 static void resourceManagerAddCallback(IResourceManager& self, GiveUpOwnership<ResourceManagerCallback*> callback) {
 	self.addCallback(callback);
