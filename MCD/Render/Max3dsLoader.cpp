@@ -657,7 +657,7 @@ IResourceLoader::LoadingState Max3dsLoader::Impl::load(std::istream* is, const P
 				// We assume the texture is at the same path as the 3ds file itself.
 				Path adjustedPath = fileId ? fileId->getBranchPath()/textureFileName : textureFileName;
 				if(mResourceManager)
-					currentMaterial->texture = dynamic_cast<Texture*>(mResourceManager->load(adjustedPath, false).get());
+					currentMaterial->texture = dynamic_cast<Texture*>(mResourceManager->load(adjustedPath).get());
 				else
 					currentMaterial->texture = new Texture(adjustedPath);
 			}	break;

@@ -36,7 +36,7 @@ TEST(Max3dsLoaderTest)
 		void load3ds(const wchar_t* fileId)
 		{
 			const wchar_t* args = L"editable=true";
-			mModel = dynamic_cast<Model*>(mResourceManager->load(fileId, false, 0, args).get());
+			mModel = dynamic_cast<Model*>(mResourceManager->load(fileId, IResourceManager::NonBlock, 0, args).get());
 		}
 
 		void processResourceLoadingEvents()

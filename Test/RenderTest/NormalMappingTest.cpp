@@ -37,7 +37,7 @@ public:
 			// Override the default loader of *.3ds file
 			mResourceManager.addFactory(new EntityPrototypeLoaderFactory(mResourceManager));
 
-			mEntProto = dynamic_cast<EntityPrototype*>(mResourceManager.load(L"Scene/City/scene.3ds", false, 0, L"tangents=true").get());
+			mEntProto = dynamic_cast<EntityPrototype*>(mResourceManager.load(L"Scene/City/scene.3ds", IResourceManager::NonBlock, 0, L"tangents=true").get());
 		}
 		{	// Setup entity 1
 			std::auto_ptr<Entity> e(new Entity);

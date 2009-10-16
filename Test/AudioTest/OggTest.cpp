@@ -35,18 +35,18 @@ TEST(OggTest)
 
 	manager.addFactory(new OggLoaderFactory);
 	AudioSource source;
-	CHECK(source.load(manager, L"stereo.ogg"));
+	CHECK(source.load(manager, L"stereo.ogg", true));
 //	source.load(manager, L"BaseSound.ogg");
 
 	source.play();
 
 	// Ensure the source has start to play
-	while(!source.isPlaying()) {
+	while(!source.isReallyPlaying()) {
 		source.update();
 		manager.popEvent();
 	}
 
-	while(source.isPlaying()) {
+	while(source.isReallyPlaying()) {
 		mSleep(1);
 		source.update();
 		ResourceManager::Event event = manager.popEvent();

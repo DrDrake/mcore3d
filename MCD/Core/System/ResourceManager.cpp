@@ -197,7 +197,7 @@ public:
 		mEventQueue.pushBack(event);
 	}
 
-	void backgroundLoad(const Path& fileId, const wchar_t* args, MapNode& node, const IResourceLoaderPtr& loader, uint priority)
+	void backgroundLoad(const Path& fileId, const wchar_t* args, MapNode& node, const IResourceLoaderPtr& loader, bool firstPartialBlock, uint priority)
 	{
 		MCD_ASSERT(mEventQueue.mMutex.isLocked());
 		std::auto_ptr<std::istream> is(mFileSystem.openRead(fileId));
@@ -206,9 +206,15 @@ public:
 		Task* task = new Task(mResourceManager, node, loader, mEventQueue, is.get(), priority, mTaskPool, args);
 		is.release();	// We have transfered the ownership of istream to Task
 
-		// Prevent lock hierarchy with mTaskPool's internal mutex.
+		// Prevent lock hierarchy.
 		ScopeUnlock unlock(mEventQueue.mMutex);
-		mTaskPool.enqueue(*task);
+
+		if(firstPartialBlock) {
+			loader->load(is.get(), &fileId, args);
+			loader->onPartialLoaded(mResourceManager, task, priority, args);
+		} else {
+			mTaskPool.enqueue(*task);
+		}
 	}
 
 	void addFactory(IFactory* factory)
@@ -269,7 +275,7 @@ ResourceManager::~ResourceManager()
 	delete mImpl;
 }
 
-ResourcePtr ResourceManager::load(const Path& fileId, bool block, uint priority, const wchar_t* args, IResourceLoaderPtr* _loader)
+ResourcePtr ResourceManager::load(const Path& fileId, BlockingMode blockingMode, uint priority, const wchar_t* args, IResourceLoaderPtr* _loader)
 {
 	MCD_ASSUME(mImpl != nullptr);
 	ScopeLock lock(mImpl->mEventQueue.mMutex);
@@ -327,10 +333,10 @@ ResourcePtr ResourceManager::load(const Path& fileId, bool block, uint priority,
 	}
 
 	// Now we can begin the load operation
-	if(block)
+	if(blockingMode == Block)
 		mImpl->blockingLoad(fileId, args, *node, loader);
 	else
-		mImpl->backgroundLoad(fileId, args, *node, loader, priority);
+		mImpl->backgroundLoad(fileId, args, *node, loader, blockingMode==FirstPartialBlock, priority);
 
 	return resource;
 }
@@ -353,7 +359,7 @@ std::pair<IResourceLoaderPtr, ResourcePtr> ResourceManager::customLoad(const Pat
 	return std::make_pair(loader, resource);
 }
 
-ResourcePtr ResourceManager::reload(const Path& fileId, bool block, uint priority, const wchar_t* args)
+ResourcePtr ResourceManager::reload(const Path& fileId, BlockingMode blockingMode, uint priority, const wchar_t* args)
 {
 	MCD_ASSUME(mImpl != nullptr);
 	ScopeLock lock(mImpl->mEventQueue.mMutex);
@@ -365,7 +371,7 @@ ResourcePtr ResourceManager::reload(const Path& fileId, bool block, uint priorit
 	if(!node || !node->mResource || node->mIsUncached) {
 		lock.mutex().unlock();
 		lock.cancel();
-		return load(fileId, block, priority);
+		return load(fileId, blockingMode, priority);
 	}
 
 	// We are only interested in the loader, the returned resource pointer is simple ignored.
@@ -374,10 +380,10 @@ ResourcePtr ResourceManager::reload(const Path& fileId, bool block, uint priorit
 		return nullptr;
 
 	// Now we can begin the load operation
-	if(block)
+	if(blockingMode == Block)
 		mImpl->blockingLoad(fileId, args, *node, loader);
 	else
-		mImpl->backgroundLoad(fileId, args, *node, loader, priority);
+		mImpl->backgroundLoad(fileId, args, *node, loader, blockingMode==FirstPartialBlock, priority);
 
 	return node->mResource.get();
 }

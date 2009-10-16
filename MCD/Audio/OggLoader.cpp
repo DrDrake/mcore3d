@@ -70,7 +70,7 @@ size_t ov_read_func(void* ptr, size_t eleSize, size_t count, void* userData)
 
 int ov_seek_func(void* userData, ogg_int64_t offset, int whence)
 {
-		return -1;
+	return -1;
 /*	std::istream* is = reinterpret_cast<std::istream*>(userData);
 	if(whence == SEEK_SET)
 		is->seekg(long(offset), std::ios_base::beg);
@@ -81,7 +81,8 @@ int ov_seek_func(void* userData, ogg_int64_t offset, int whence)
 	else
 		return -1;
 
-	return (is->eof() || is->bad()) ? -1 : 0;*/
+	if(is->eof() || is->bad()) return -1;
+	return is->tellg();*/
 }
 
 int ov_close_func(void* userData)
@@ -144,6 +145,37 @@ size_t gDecodeOggVorbis(OggVorbis_File* psOggVorbisFile, char* pDecodeBuffer, si
 	return ulBytesDone;
 }
 
+// Calculate how large a single buffer is needed in order to play a sound with duration in milli seconds.
+size_t calculateBufferSize(size_t bufferDurationMs, vorbis_info* info)
+{
+	size_t bufferInByte = 0;
+	size_t channel2 = info->channels * 2;
+
+	// Frequency * 2 (16bit) * fraction of a second
+	bufferInByte = info->rate * channel2 * bufferDurationMs / 1000;
+	// Important: The buffer Size must be an exact multiple of the block alignment.
+	bufferInByte -= (bufferInByte % channel2);
+
+	return bufferInByte;
+}
+
+ALenum getFormat(vorbis_info* info)
+{
+	switch(info->channels) {
+	case 1:
+		return AL_FORMAT_MONO16;
+	case 2:
+		return AL_FORMAT_STEREO16;
+	case 4:
+		return alGetEnumValue("AL_FORMAT_QUAD16");
+	case 6:
+		return alGetEnumValue("AL_FORMAT_51CHN16");
+	default:
+		MCD_ASSERT(false);
+		return -1;
+	}
+}
+
 }	// namespace
 
 class OggLoader::Impl
@@ -191,6 +223,11 @@ public:
 		, mHeaderLoaded(false), mIStream(nullptr)
 	{}
 
+	~Impl()
+	{
+		gFnOvClear(&mOggFile);
+	}
+
 	bool loadHeader(std::istream* is)
 	{
 		MCD_ASSERT(mMutex.isLocked());
@@ -213,10 +250,8 @@ public:
 			if(!mVorbisInfo)
 				return false;
 
-			mBufferSize = mVorbisInfo->rate;
-			mBufferSize -= mBufferSize % 4;
-
-			format = AL_FORMAT_STEREO16;
+			mBufferSize = calculateBufferSize(250, mVorbisInfo);
+			format = getFormat(mVorbisInfo);
 			frequency = mVorbisInfo->rate;
 		}
 

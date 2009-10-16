@@ -182,7 +182,7 @@ EntityPrototypePtr EntityPrototypeLoader::addEntityAfterLoad(
 		callback = new LoadCallback();
 
 	callback->addToHere = addToHere;
-	callback->entityPrototype = dynamic_cast<EntityPrototype*>(manager.load(filePath, false, priority, args).get());
+	callback->entityPrototype = dynamic_cast<EntityPrototype*>(manager.load(filePath, IResourceManager::NonBlock, priority, args).get());
 
 	if(!callback->entityPrototype)
 		Log::format(Log::Warn, L"Fail to load \"%s\" as an EntityPrototype", filePath);

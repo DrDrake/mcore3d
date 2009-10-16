@@ -110,16 +110,16 @@ TEST(Basic_ResourceManagerTest)
 	}
 
 	{	// Try to load another resource
-		ResourcePtr resource2 = manager.load(L"ResourceManadgerTest.cpp", true);
+		ResourcePtr resource2 = manager.load(L"ResourceManadgerTest.cpp", IResourceManager::Block);
 		CHECK(resource != resource2);
 		ResourceManager::Event event = manager.popEvent();
 		CHECK(event.loader != nullptr);
 	}
 
 	{	// Load it twice, to trigger the code that handle garbage collection
-		CHECK(manager.load(L"ResourceManadgerTest.cpp", true));
+		CHECK(manager.load(L"ResourceManadgerTest.cpp", IResourceManager::Block));
 		manager.popEvent();
-		CHECK(manager.load(L"ResourceManadgerTest.cpp", true));
+		CHECK(manager.load(L"ResourceManadgerTest.cpp", IResourceManager::Block));
 	}
 
 	{	// After trying to load another resource, a garbage collection take place
@@ -150,12 +150,12 @@ TEST(Basic_ResourceManagerTest)
 
 	{	// Main.cpp should be cached, loading it again should not generate events
 		while(manager.popEvent().loader) {}
-		manager.load(L"Main.cpp", true);
+		manager.load(L"Main.cpp", IResourceManager::Block);
 		CHECK(manager.popEvent().loader == nullptr);
 
 		// But if we uncache it, then a new resource will be loaded
 		CHECK_EQUAL(resource, manager.uncache(L"Main.cpp"));
-		ResourcePtr resource2 = manager.load(L"Main.cpp", true);
+		ResourcePtr resource2 = manager.load(L"Main.cpp", IResourceManager::Block);
 		CHECK(manager.popEvent().loader != nullptr);
 		CHECK(resource != resource2);
 		resource = resource2;	// Keep the resource for further testing
@@ -165,7 +165,7 @@ TEST(Basic_ResourceManagerTest)
 
 		// The same resource object should be returned.
 		while(manager.popEvent().loader) {}
-		CHECK_EQUAL(resource, manager.reload(L"Main.cpp", true));
+		CHECK_EQUAL(resource, manager.reload(L"Main.cpp", IResourceManager::Block));
 		CHECK(manager.popEvent().loader != nullptr);
 
 		// But a new resource object will be returned if it is uncached before.
@@ -231,13 +231,13 @@ TEST(Callback_ResourceManagerTest)
 
 	// Will not trigger any callback
 	FakeCallback::count = 0;
-	manager.load(L"ResourceManadgerTest.cpp", true);
+	manager.load(L"ResourceManadgerTest.cpp", IResourceManager::Block);
 	manager.doCallbacks(manager.popEvent());
 	CHECK_EQUAL(0u, FakeCallback::count);
 
 	// Will trigger the two callbacks
 	FakeCallback::count = 0;
-	ResourcePtr resource = manager.load(L"Main.cpp", true);
+	ResourcePtr resource = manager.load(L"Main.cpp", IResourceManager::Block);
 	manager.doCallbacks(manager.popEvent());
 	CHECK_EQUAL(2u, FakeCallback::count);
 
@@ -262,13 +262,13 @@ TEST(MajorDependency_Callback_ResourceManagerTest)
 	ResourcePtr resource1, resource2;
 
 	// Create and register callback
-	{	resource1 = manager.load(L"Main.cpp", true);
+	{	resource1 = manager.load(L"Main.cpp", IResourceManager::Block);
 		FakeCallback* callback = new FakeCallback;
 		callback->setMajorDependency(L"Main.cpp");
 		manager.addCallback(callback);
 	}
 
-	{	resource2 = manager.load(L"ResourceManadgerTest.cpp", true);
+	{	resource2 = manager.load(L"ResourceManadgerTest.cpp", IResourceManager::Block);
 		FakeCallback* callback = new FakeCallback;
 		callback->setMajorDependency(L"ResourceManadgerTest.cpp");
 		manager.addCallback(callback);
@@ -295,7 +295,7 @@ TEST(Negative_ResourceManagerTest)
 		ResourceManager manager(*fs);
 		fs.release();
 		manager.addFactory(new FakeFactory(L"txt"));	// FakeFactory will not response to *.cpp
-		ResourcePtr resource = manager.load(L"Main.cpp", false, 0);
+		ResourcePtr resource = manager.load(L"Main.cpp");
 		CHECK(!resource);
 	}
 
@@ -304,7 +304,7 @@ TEST(Negative_ResourceManagerTest)
 		ResourceManager manager(*fs);
 		fs.release();
 		manager.addFactory(new FakeFactory(L"cpp"));
-		ResourcePtr resource = manager.load(L"__fileNotFound__.cpp", false, 0);
+		ResourcePtr resource = manager.load(L"__fileNotFound__.cpp");
 
 		while(true) {	// Poll for event
 			ResourceManager::Event event = manager.popEvent();

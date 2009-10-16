@@ -30,13 +30,24 @@ public:
 
 		\param args Extra parameter as a name-value pair string that will pass to the audio loader.
 	 */
-	sal_checkreturn bool load(IResourceManager& resourceManager, const Path& fileId, sal_in_z_opt const wchar_t* args=nullptr);
+	sal_checkreturn bool load(IResourceManager& resourceManager, const Path& fileId, bool firstBufferBlock=false, sal_in_z_opt const wchar_t* args=nullptr);
 
+	/*!	Start to play the audio, if some of the background loading buffer becomes available.
+		If currently there is no buffer to play, keep calling update() and resource manager's update().
+		The real playing status can be query using isReallyPlaying().
+
+		If the audio source is in a pause state, calling play() can resume it; if it's already playing,
+		calling play() again will rewind the play position to the beginning.
+	 */
 	void play();
+
+	void pause();
 
 	void stop();
 
-	//! Check buffer status...
+	/*!	Because of the asyn nature of audio streamming, we need an update function to do necessary
+		processing.
+	 */
 	void update();
 
 // Attributes
@@ -46,14 +57,19 @@ public:
 
 	AudioBufferPtr buffer;
 
-	/*!	Returns whether the audio source is playing.
+	bool isPlaying() const;
+
+	/*!	Returns whether the audio source is really playing in the driver level.
 		This function defins the playing status at the very low level; if the source is temporary
 		out of buffer, this function will return false until the buffer gets loaded again.
 	 */
-	bool isPlaying() const;
+	bool isReallyPlaying() const;
+
+	bool isPaused() const;
 
 private:
 	bool mRequestPlay;
+	bool mRequestPause;
 };	// AudioSource
 
 }	// namespace MCD

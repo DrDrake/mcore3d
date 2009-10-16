@@ -63,7 +63,7 @@ int DefaultResourceManager::processLoadingEvents()
 	{	// Reload any changed files in the RawFileSystem
 		std::wstring path = mImpl->mMonitor.getChangedFile();
 		while(!path.empty()) {
-			reload(Path(path).normalize(), false);
+			reload(Path(path).normalize(), IResourceManager::NonBlock);
 			path = mImpl->mMonitor.getChangedFile();
 		}
 	}

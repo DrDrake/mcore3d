@@ -444,7 +444,7 @@ TEST(ASSAOTest)
 
 		void loadModel(const wchar_t* fileId)
 		{
-			mModel = mResourceManager.load(fileId, true).get();
+			mModel = mResourceManager.load(fileId, IResourceManager::Block).get();
 			mRenderable = dynamic_cast<IRenderable*>(mModel.get());
 		}
 

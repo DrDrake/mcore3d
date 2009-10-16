@@ -40,6 +40,13 @@ public:
 class MCD_ABSTRACT_CLASS IResourceManager
 {
 public:
+	enum BlockingMode
+	{
+		NonBlock = 0,
+		Block = 1,
+		FirstPartialBlock = 2
+	};	// BlockingMode
+
 	virtual ~IResourceManager() {}
 
 	/*!	Load a resource.
@@ -52,7 +59,7 @@ public:
 		\param args Extra arguments (encoded as name-value paired strings) for loading the resource; similar to program arguments.
 		\param loader An optional parameter to retrieve the IResourceLoader.
 	 */
-	virtual ResourcePtr load(const Path& fileId, bool block=false, uint priority=0, sal_in_z_opt const wchar_t* args=nullptr, sal_out_opt IResourceLoaderPtr* loader=nullptr) = 0;
+	virtual ResourcePtr load(const Path& fileId, BlockingMode blockingMode=NonBlock, uint priority=0, sal_in_z_opt const wchar_t* args=nullptr, sal_out_opt IResourceLoaderPtr* loader=nullptr) = 0;
 
 	/*!	Perform a custum loading operation (Advanced usage).
 		This will find the appropriate IResourceLoader and creates the Resource for the given fileId.
@@ -198,7 +205,7 @@ public:
 		cached instance will be returned and no event generated.
 		\note Blocking load will also generate events.
 	 */
-	sal_override ResourcePtr load(const Path& fileId, bool block=false, uint priority=0, sal_in_z_opt const wchar_t* args=nullptr, sal_out_opt IResourceLoaderPtr* loader=nullptr);
+	sal_override ResourcePtr load(const Path& fileId, BlockingMode blockingMode=NonBlock, uint priority=0, sal_in_z_opt const wchar_t* args=nullptr, sal_out_opt IResourceLoaderPtr* loader=nullptr);
 
 	/*!	Perform a custum loading operation.
 		This will find the appropriate IResourceLoader and creates the Resource for the given fileId.
@@ -214,7 +221,7 @@ public:
 		returned just like calling load().
 		\note This function is not part of the IResourceManager interface.
 	 */
-	ResourcePtr reload(const Path& fileId, bool block=false, uint priority=0, sal_in_z_opt const wchar_t* args=nullptr);
+	ResourcePtr reload(const Path& fileId, BlockingMode blockingMode=NonBlock, uint priority=0, sal_in_z_opt const wchar_t* args=nullptr);
 
 	/*!	Re-schedule the next partial loading process in NON-BLOCKING mode (Advanced usage).
 		After a resource is partially loaded, the IResourceLoader has the ability to decide when
