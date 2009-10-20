@@ -75,7 +75,7 @@ namespace Studio
 		{
 			treeView.BeginUpdate();
 
-			populateTree("Media/" + e.Node.FullPath, e.Node.Nodes, 2);
+			populateTree(Path.Combine("Media", e.Node.FullPath), e.Node.Nodes, 2);
 
 			treeView.EndUpdate();
 		}
