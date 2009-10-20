@@ -29,7 +29,7 @@ public:
 	{
 		Callback* cb = new Callback();
 		cb->backRef = this;
-		cb->model = dynamic_cast<Model*>(resourceManager.load(L"Rotate.3ds", true).get());
+		cb->model = dynamic_cast<Model*>(resourceManager.load(L"Rotate.3ds").get());
 		cb->setMajorDependency(L"Rotate.3ds");
 		resourceManager.addCallback(cb);
 	}
