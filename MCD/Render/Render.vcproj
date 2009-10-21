@@ -41,7 +41,6 @@
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
-				AdditionalIncludeDirectories="&quot;$(ProjectDir)&quot;"
 			/>
 			<Tool
 				Name="VCManagedResourceCompilerTool"
@@ -104,7 +103,6 @@
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
-				AdditionalIncludeDirectories="&quot;$(ProjectDir)&quot;"
 			/>
 			<Tool
 				Name="VCManagedResourceCompilerTool"
@@ -165,7 +163,6 @@
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
-				AdditionalIncludeDirectories="&quot;$(ProjectDir)&quot;"
 			/>
 			<Tool
 				Name="VCManagedResourceCompilerTool"

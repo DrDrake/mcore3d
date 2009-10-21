@@ -223,11 +223,23 @@
 				>
 			</File>
 			<File
+				RelativePath=".\FileSystemCollection.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\Global.cpp"
 				>
 			</File>
 			<File
+				RelativePath=".\MemoryProfilerServer.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\RenderPanelControl.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\ResourceManager.cpp"
 				>
 			</File>
 			<File
@@ -269,12 +281,24 @@
 				>
 			</File>
 			<File
+				RelativePath=".\FileSystemCollection.h"
+				>
+			</File>
+			<File
 				RelativePath=".\Global.h"
+				>
+			</File>
+			<File
+				RelativePath=".\MemoryProfilerServer.h"
 				>
 			</File>
 			<File
 				RelativePath=".\RenderPanelControl.h"
 				FileType="4"
+				>
+			</File>
+			<File
+				RelativePath=".\ResourceManager.h"
 				>
 			</File>
 			<File

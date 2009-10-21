@@ -475,6 +475,33 @@
 			<File
 				RelativePath=".\RayMeshIntersect.cpp"
 				>
+				<FileConfiguration
+					Name="Debug|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						OpenMP="false"
+						DisableSpecificWarnings="4652"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						OpenMP="false"
+						DisableSpecificWarnings="4652"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Analysis|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						OpenMP="false"
+						DisableSpecificWarnings="4652"
+					/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath=".\RenderBuffer.cpp"
