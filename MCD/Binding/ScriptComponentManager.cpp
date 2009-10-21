@@ -1,8 +1,8 @@
 #include "Pch.h"
 #include "ScriptComponentManager.h"
+#include "Binding.h"
 #include "Entity.h"
 #include "../Core/System/FileSystem.h"
-#include "../Core/System/Log.h"
 #include "../Core/System/MemoryProfiler.h"
 
 namespace script {
@@ -27,16 +27,23 @@ SCRIPT_CLASS_REGISTER_NAME(ScriptComponentManager, "ScriptComponentManager")
 
 namespace MCD {
 
-ScriptComponentManager::ScriptComponentManager(IFileSystem& fs)
-	: fileSystem(fs)
+ScriptComponentManager::ScriptComponentManager()
+	: vm(nullptr), fileSystem(nullptr)
 {
+}
+
+bool ScriptComponentManager::init(ScriptVM& vm, IFileSystem& fs)
+{
+	this->vm = &vm;
+	fileSystem = &fs;
+
 	// Install a println function
 	if(!vm.runScript(xSTRING("function println(s) { print(s + \"\\n\"); }")))
-		goto OnError;
+		return false;
 
 	// Initialize the file name to class mapping, and the script component factory function
 	// TODO: Error handling, ensure the script file does return a class
-	if(!vm.runScript(xSTRING("\
+	if(!vm.runScript(xSTRING("\n\
 		_scriptComponentClassTable <- {};\n\
 		gComponentQueue <- ComponentQueue();\n\
 		\n\
@@ -142,8 +149,8 @@ ScriptComponentManager::ScriptComponentManager(IFileSystem& fs)
 			::gComponentQueue = ComponentQueue();\n\
 			::collectgarbage();\n\
 		}\n\
-	")))
-		goto OnError;
+	"), L"ScriptComponentManager.nut"))
+		return false;
 
 	HSQUIRRELVM v = reinterpret_cast<HSQUIRRELVM>(vm.getImplementationHandle());
 	script::VMCore* v_ = (script::VMCore*)sq_getforeignptr(v);
@@ -156,10 +163,7 @@ ScriptComponentManager::ScriptComponentManager(IFileSystem& fs)
 	sq_rawset(v, -3);
 	sq_pop(v, 1);	// Pops the root table
 
-	return;
-
-OnError:
-	Log::write(Log::Error, L"ScriptComponentManager construction failed");
+	return true;
 }
 
 ScriptComponentManager::~ScriptComponentManager()
@@ -223,7 +227,8 @@ static bool loadFile(HSQUIRRELVM v, IFileSystem& fs, const Path& filePath)
 
 void ScriptComponentManager::registerRootEntity(Entity& entity)
 {
-	HSQUIRRELVM v = reinterpret_cast<HSQUIRRELVM>(vm.getImplementationHandle());
+	MCD_ASSUME(vm);
+	HSQUIRRELVM v = reinterpret_cast<HSQUIRRELVM>(vm->getImplementationHandle());
 
 	// Set a global variable to the root entity.
 	sq_pushroottable(v);
@@ -238,9 +243,11 @@ bool ScriptComponentManager::doFile(const Path& filePath, bool retval)
 {
 	MemoryProfiler::Scope profiler("ScriptComponentManager::doFile");
 
-	HSQUIRRELVM v = reinterpret_cast<HSQUIRRELVM>(vm.getImplementationHandle());
+	MCD_ASSUME(vm);
+	HSQUIRRELVM v = reinterpret_cast<HSQUIRRELVM>(vm->getImplementationHandle());
 
-	if(loadFile(v, fileSystem, filePath))
+	MCD_ASSUME(fileSystem);
+	if(loadFile(v, *fileSystem, filePath))
 	{
 //		sq_push(v, -2);			// Instead of pushing the original self, we
 		sq_pushroottable(v);	// push the root table for use with dofile
@@ -266,9 +273,10 @@ bool ScriptComponentManager::doFile(const Path& filePath, bool retval)
 Entity* ScriptComponentManager::runScripAsEntity(const wchar_t* scriptCode, bool scriptKeepOwnership)
 {
 	using namespace script::types;
-	HSQUIRRELVM v = (HSQUIRRELVM)vm.getImplementationHandle();
+	MCD_ASSUME(vm);
+	HSQUIRRELVM v = (HSQUIRRELVM)vm->getImplementationHandle();
 
-	if(!vm.runScript(scriptCode, true))
+	if(!vm->runScript(scriptCode, L"unnamed script", true))
 		return nullptr;
 
 	Entity* ret = script::types::get(TypeSelect<Entity*>(), v, -1);
@@ -280,9 +288,10 @@ Entity* ScriptComponentManager::runScripAsEntity(const wchar_t* scriptCode, bool
 Component* ScriptComponentManager::runScripAsComponent(const wchar_t* scriptCode, bool scriptKeepOwnership)
 {
 	using namespace script::types;
-	HSQUIRRELVM v = (HSQUIRRELVM)vm.getImplementationHandle();
+	MCD_ASSUME(vm);
+	HSQUIRRELVM v = (HSQUIRRELVM)vm->getImplementationHandle();
 
-	if(!vm.runScript(scriptCode, true))
+	if(!vm->runScript(scriptCode, L"unnamed script", true))
 		return nullptr;
 
 	Component* ret = script::types::get(TypeSelect<Component*>(), v, -1);
@@ -297,9 +306,10 @@ void ScriptComponentManager::updateScriptComponents()
 
 	// Calling runScript will cause compilation and extra memory consumption,
 	// therefore use function call directly.
-//	(void)vm.runScript(xSTRING("updateAllScriptComponent();"));
+//	(void)vm->runScript(xSTRING("updateAllScriptComponent();"));
 
-	HSQUIRRELVM v = (HSQUIRRELVM)vm.getImplementationHandle();
+	MCD_ASSUME(vm);
+	HSQUIRRELVM v = (HSQUIRRELVM)vm->getImplementationHandle();
 	sq_pushroottable(v);
 	sq_pushstring(v, xSTRING("updateAllScriptComponent"), -1);
 	sq_get(v, -2);			// Get the function from the root table
@@ -316,8 +326,13 @@ void ScriptComponentManager::updateScriptComponents()
 	}
 }
 
-void ScriptComponentManager::shutdown() {
-	(void)vm.runScript(xSTRING("shutdownAllScriptComponent();"));
+void ScriptComponentManager::shutdown()
+{
+	if(!vm)
+		return;
+
+	(void)vm->runScript(xSTRING("shutdownAllScriptComponent();"));
+	vm = nullptr;
 }
 
 }	// namespace MCD

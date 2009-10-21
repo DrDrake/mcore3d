@@ -103,13 +103,13 @@ public:
 		registerScriptComponentBinding(&vm);
 	}
 
-	bool runScript(const wchar_t* script, bool retVal)
+	bool runScript(const wchar_t* script, bool retVal, const wchar_t* scriptName)
 	{
 		HSQUIRRELVM v = vm.getVM();
-		const wchar_t* scriptName = L"tmp";
 
 		sq_setcompilererrorhandler(v, &onCompileError);
-		sq_compilebuffer(v, script, SQInteger(::wcslen(script)), scriptName, true);
+		if(!SQ_SUCCEEDED(sq_compilebuffer(v, script, SQInteger(::wcslen(script)), scriptName, true)))
+			return false;
 		sq_pushroottable(v);
 
 		if(!SQ_SUCCEEDED(sq_call(v, 1, retVal, true)))
@@ -139,11 +139,11 @@ ScriptVM::~ScriptVM()
 	delete mImpl;
 }
 
-bool ScriptVM::runScript(const wchar_t* script, bool retVal)
+bool ScriptVM::runScript(const wchar_t* script, const wchar_t* scriptName, bool retVal)
 {
 	MCD_ASSUME(mImpl);
 	MemoryProfiler::Scope profiler("ScriptVM::runScript");
-	return mImpl->runScript(script, retVal);
+	return mImpl->runScript(script, retVal, scriptName);
 }
 
 void* ScriptVM::getImplementationHandle()

@@ -1,6 +1,7 @@
 #ifndef __MCD_BINDING_LAUNCHER__
 #define __MCD_BINDING_LAUNCHER__
 
+#include "Binding.h"	// For definiation of ScriptVM
 #include "ScriptComponentManager.h"
 #include "../Component/Physics/ThreadedDynamicWorld.h"
 #include "../Core/System/ResourceManager.h"
@@ -16,7 +17,8 @@ typedef WeakPtr<class InputComponent> InputComponentPtr;
 class MCD_BINDING_API Launcher
 {
 public:
-	explicit Launcher(
+	//! Will not take ownership of fileSystem.
+	Launcher(
 		IFileSystem& fileSystem,
 		IResourceManager& resourceManager,
 		bool takeResourceManagerOwnership = true
@@ -42,6 +44,11 @@ public:
 
 public:
 // Operations:
+	/*!	Call this to host the remote debugger server.
+		It is advised to call this before init()
+	 */
+	sal_checkreturn bool enableDebugger(size_t port);
+
 	/*!	Perform initialization.
 		It will take over the ownership of inputComponent.
 		\param rootNode Optional user supplied Entity root node.
@@ -63,7 +70,7 @@ public:
 	}
 
 	/*!	Assign a node as the root node of Launcher.
-		Previous root node will be deleted.
+		Ownership to the Previous root node will be released.
 	 */
 	void setRootNode(sal_in_opt Entity* e);
 
@@ -91,13 +98,18 @@ public:
 		return Launcher::mSingleton;
 	}
 
+	ScriptVM vm;
+
 	ScriptComponentManager scriptComponentManager;
 
 protected:
 	static Launcher* mSingleton;
 
+	IFileSystem& mFileSystem;
 	Entity* mRootNode;
 	InputComponentPtr mInputComponent;
+
+	void* mDbgContext;
 
 	FrameTimer mFrameTimer;
 	IResourceManager* mResourceManager;

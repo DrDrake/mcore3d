@@ -1,7 +1,7 @@
 #ifndef __MCD_BINDING_SCRIPTCOMPONENTMANAGER__
 #define __MCD_BINDING_SCRIPTCOMPONENTMANAGER__
 
-#include "Binding.h"
+#include "ShareLib.h"
 #include "../Core/System/NonCopyable.h"
 
 namespace MCD {
@@ -10,6 +10,7 @@ class Component;
 class Entity;
 class IFileSystem;
 class Path;
+class ScriptVM;
 
 /*!	A centralized class to control the ScriptComponent.
 	In order to execute the ScriptComponent, this class host a
@@ -19,10 +20,15 @@ class Path;
 class MCD_BINDING_API ScriptComponentManager : Noncopyable
 {
 public:
-	//! We will use the supplied file system to load script.
-	ScriptComponentManager(IFileSystem& fs);
+	ScriptComponentManager();
 
 	~ScriptComponentManager();
+
+	/*!	Initialize the manager with the file system and the script VM.
+		The supplied file system will be used to search for script files.
+		\note Will not take ownership of both \em fs and \em vm.
+	 */
+	sal_checkreturn bool init(ScriptVM& vm, IFileSystem& fs);
 
 	/*!	Set the entity to appear as the root entity in the script VM.
 		\note The VM take no ownership of the entity.
@@ -55,8 +61,8 @@ public:
 	//! Do cleanups
 	void shutdown();
 
-	ScriptVM vm;
-	IFileSystem& fileSystem;
+	ScriptVM* vm;
+	IFileSystem* fileSystem;
 };	// ScriptComponentManager
 
 }	// namespace script

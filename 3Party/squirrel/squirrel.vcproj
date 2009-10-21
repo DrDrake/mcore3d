@@ -329,6 +329,30 @@
 				</File>
 			</Filter>
 		</Filter>
+		<Filter
+			Name="sqdbg"
+			>
+			<File
+				RelativePath=".\sqdbg\serialize_state.inl"
+				>
+			</File>
+			<File
+				RelativePath=".\sqdbg\sqdbgserver.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\sqdbg\sqdbgserver.h"
+				>
+			</File>
+			<File
+				RelativePath=".\sqdbg\sqrdbg.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\sqdbg\sqrdbg.h"
+				>
+			</File>
+		</Filter>
 		<File
 			RelativePath=".\sqstdaux.h"
 			>
