@@ -14,6 +14,11 @@
 #include "../Render/ResourceLoaderFactory.h"
 #include "../../3Party/jkbind/Declarator.h"
 
+// For sqdbg
+#include "../../3Party/squirrel/sqdbg/sqrdbg.h"
+#include "../../3Party/squirrel/sqdbg/sqdbgserver.h"
+#include "../../3Party/squirrel/sqstdaux.h"
+
 using namespace MCD;
 
 namespace {
@@ -69,11 +74,12 @@ Launcher* Launcher::mSingleton = nullptr;
 
 Launcher::Launcher(IFileSystem& fileSystem, IResourceManager& resourceManager, bool takeResourceManagerOwnership)
 	:
+	mFileSystem(fileSystem),
 	mRootNode(nullptr),
 	mInputComponent(nullptr),
+	mDbgContext(nullptr),
 	mResourceManager(&resourceManager),
-	mTakeResourceManagerOwnership(takeResourceManagerOwnership),
-	scriptComponentManager(fileSystem)
+	mTakeResourceManagerOwnership(takeResourceManagerOwnership)
 {
 	// Start the physics thread
 	mPhysicsThread.start(mDynamicsWorld, false);
@@ -83,31 +89,55 @@ Launcher::Launcher(IFileSystem& fileSystem, IResourceManager& resourceManager, b
 
 Launcher::~Launcher()
 {
-	scriptComponentManager.shutdown();
-
-	// Make sure the RigidBodyComponent is freed BEFORE the dynamics world...
+	// NOTE: All components should be destroyed before script VM release those handles,
+	// because these components use co-routine which have it's own VM. Otherwise the
+	// ScriptOwnershipHandle would refernece an already destroyed VM.
+	// Also make sure the RigidBodyComponent is freed BEFORE the dynamics world...
 	if(mRootNode) while(mRootNode->firstChild())
 		delete mRootNode->firstChild();
+	delete mRootNode;
+
+	// Give the script engine a chance to do cleanups
+//	scriptComponentManager.updateScriptComponents();
+
+	scriptComponentManager.shutdown();
 
 	// Stop the physics thread
 	mPhysicsThread.postQuit();
 	mPhysicsThread.wait();
 
-	// Give the script engine a chance to do cleanups
-//	scriptComponentManager.updateScriptComponents();
-
-	// The Entity tree must be destroyed before the script VM.
-	delete mRootNode;
-
 	if(mTakeResourceManagerOwnership)
 		delete mResourceManager;
+}
+
+// TODO: Separate the wait connection from this function, such that the client will
+// able to connect to this debugging server multiple times.
+bool Launcher::enableDebugger(size_t port)
+{
+	HSQUIRRELVM v = HSQUIRRELVM(vm.getImplementationHandle());
+	sqstd_seterrorhandlers(v);
+
+	// Initializes the debugger on the specific port 4321, enables autoupdate
+	HSQREMOTEDBG rdbg = sq_rdbg_init(v, port, SQFalse);
+	mDbgContext = rdbg;
+
+	if(!rdbg)
+		return false;
+
+	// Enables debug info generation (for the compiler)
+	sq_enabledebuginfo(v, SQTrue);
+
+	// Suspends current thread until the debugger client connects
+	return SQ_SUCCEEDED(sq_rdbg_waitforconnections(rdbg));
 }
 
 bool Launcher::init(InputComponent& inputComponent, Entity* rootNode)
 {
 	using namespace script;
 
-	VMCore* v = (VMCore*)sq_getforeignptr(HSQUIRRELVM(scriptComponentManager.vm.getImplementationHandle()));
+	scriptComponentManager.init(vm, mFileSystem);
+
+	VMCore* v = (VMCore*)sq_getforeignptr(HSQUIRRELVM(vm.getImplementationHandle()));
 
 	// TODO: Remove the need of a singleton
 	script::RootDeclarator root(v);
@@ -118,7 +148,7 @@ bool Launcher::init(InputComponent& inputComponent, Entity* rootNode)
 	script::ClassTraits<Launcher>::bind(v);
 
 	// Setup some global variable for easy access in script.
-	if(!scriptComponentManager.vm.runScript(
+	if(!vm.runScript(
 		L"gLauncher <- _getlauncher();\n"
 
 		L"function loadEntity(filePath, loadOptions={}) {\n"
@@ -148,7 +178,7 @@ bool Launcher::init(InputComponent& inputComponent, Entity* rootNode)
 		return false;
 
 	// Patch the original RigidBodyComponent constructor to pass our dynamics world automatically
-	if(!scriptComponentManager.vm.runScript(L"\
+	if(!vm.runScript(L"\
 		local backup = RigidBodyComponent.constructor;\n\
 		RigidBodyComponent.constructor <- function(mass, collisionShape) : (backup) {\n\
 			backup.call(this, gLauncher.dynamicsWorld, mass, collisionShape);	// Call the original constructor\n\
@@ -204,6 +234,8 @@ void Launcher::update()
 {
 	MemoryProfiler::Scope profiler("Launcher::update");
 
+	HSQREMOTEDBG rdbg = reinterpret_cast<HSQREMOTEDBG>(mDbgContext);
+	sq_rdbg_update(rdbg);
 	mResourceManager->update();
 
 	scriptComponentManager.updateScriptComponents();
@@ -216,9 +248,6 @@ void Launcher::update()
 
 void Launcher::setRootNode(Entity* e)
 {
-//	if(mRootNode)
-//		delete mRootNode;
-
 	mRootNode = e;
 
 	if(!e)
@@ -246,7 +275,7 @@ void Launcher::setInputComponent(InputComponent* inputComponent)
 		e.release();
 	}
 
-	MCD_VERIFY(scriptComponentManager.vm.runScript(L"gInput <- gLauncher.inputComponent;\n"));
+	MCD_VERIFY(vm.runScript(L"gInput <- gLauncher.inputComponent;\n"));
 }
 
 LauncherDefaultResourceManager::LauncherDefaultResourceManager(IFileSystem& fileSystem, bool takeFileSystemOwnership)

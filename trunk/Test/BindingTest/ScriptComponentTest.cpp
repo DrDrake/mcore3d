@@ -1,4 +1,5 @@
 #include "Pch.h"
+#include "../../MCD/Binding/Binding.h"
 #include "../../MCD/Binding/ScriptComponentManager.h"
 #include "../../MCD/Core/Entity/Entity.h"
 #include "../../MCD/Core/System/RawFileSystem.h"
@@ -8,7 +9,9 @@ using namespace MCD;
 TEST(ScriptComponentTest)
 {
 	RawFileSystem fs(L"");
-	ScriptComponentManager mgr(fs);
+	ScriptVM vm;
+	ScriptComponentManager mgr;
+	mgr.init(vm, fs);
 	Entity root;
 	mgr.registerRootEntity(root);
 
@@ -18,7 +21,9 @@ TEST(ScriptComponentTest)
 TEST(CreateEntityFromScripTest)
 {
 	RawFileSystem fs(L"");
-	ScriptComponentManager mgr(fs);
+	ScriptVM vm;
+	ScriptComponentManager mgr;
+	mgr.init(vm, fs);
 
 	{	// C++ keep ownership
 		Entity* e = mgr.runScripAsEntity(L"local e=Entity();e.name=\"CreateEntityFromScripTest\";return e;");

@@ -22,9 +22,10 @@ public:
 	~ScriptVM();
 
 	/*!	Execute a script.
+		\param scriptName A name of the script for debugging purpose.
 		\param retVal True for remaining the return value on the stack.
 	 */
-	sal_checkreturn bool runScript(sal_in_z const wchar_t* script, bool retVal=false);
+	sal_checkreturn bool runScript(sal_in_z const wchar_t* script, sal_in_z const wchar_t* scriptName=L"unnamed script", bool retVal=false);
 
 	//! Get the underlaying scripting VM handle, that is HSQUIRRELVM
 	sal_notnull void* getImplementationHandle();
