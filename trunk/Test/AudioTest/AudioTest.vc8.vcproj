@@ -2,9 +2,9 @@
 <VisualStudioProject
 	ProjectType="Visual C++"
 	Version="8.00"
-	Name="RenderTest"
-	ProjectGUID="{4DA3080B-CD7B-454F-8D08-493605EE4980}"
-	RootNamespace="RenderTest"
+	Name="AudioTest"
+	ProjectGUID="{44759314-9FC1-4ABC-B595-62B23DDD8014}"
+	RootNamespace="AudioTest"
 	Keyword="Win32Proj"
 	TargetFrameworkVersion="131072"
 	>
@@ -204,12 +204,8 @@
 			RelativePathToProject="..\MCD\Core\Core.vcproj"
 		/>
 		<ProjectReference
-			ReferencedProjectIdentifier="{500413B2-5AE6-41CE-BCFF-D90DB2755869}"
-			RelativePathToProject="..\MCD\Render\Render.vcproj"
-		/>
-		<ProjectReference
-			ReferencedProjectIdentifier="{B6219744-C76A-4C74-A455-8AFA986C3B6A}"
-			RelativePathToProject="..\MCD\Component\Component.vcproj"
+			ReferencedProjectIdentifier="{5570494C-4F2D-4C2B-956A-E1804C73C524}"
+			RelativePathToProject="..\MCD\Audio\Audio.vcproj"
 		/>
 	</References>
 	<Files>
@@ -217,18 +213,6 @@
 			Name="Header Files"
 			Filter="h"
 			>
-			<File
-				RelativePath=".\BasicGlWindow.h"
-				>
-			</File>
-			<File
-				RelativePath=".\Common.h"
-				>
-			</File>
-			<File
-				RelativePath=".\DefaultResourceManager.h"
-				>
-			</File>
 			<File
 				RelativePath=".\Pch.h"
 				>
@@ -239,51 +223,11 @@
 			Filter="cpp;"
 			>
 			<File
-				RelativePath=".\AmbientCubeTest.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\ASSAOTest.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\BasicGlWindow.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\Common.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\DefaultResourceManager.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\FrustumTest.cpp"
-				>
-			</File>
-			<File
 				RelativePath=".\Main.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".\MaterialTest.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\Max3dsLoaderTest.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\MeshTest.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\MultipleRenderTargetTest.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\NormalMappingTest.cpp"
+				RelativePath=".\OggTest.cpp"
 				>
 			</File>
 			<File
@@ -314,138 +258,9 @@
 					/>
 				</FileConfiguration>
 			</File>
-			<File
-				RelativePath=".\PostProcessingTest.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\ProjectiveTextureTest.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\RayMeshIntersectTest.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\RenderTargetTest.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\ShadowMapTest.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\SSAOTest.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\TextureLoaderTest.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\VolSpotlightTest.cpp"
-				>
-			</File>
-		</Filter>
-		<Filter
-			Name="Shader Files"
-			Filter="glvs;glps"
-			>
-			<Filter
-				Name="MRT"
-				>
-				<File
-					RelativePath=".\Media\Shader\MRT\Depth.glps"
-					>
-				</File>
-				<File
-					RelativePath=".\Media\Shader\MRT\Depth.glvs"
-					>
-				</File>
-				<File
-					RelativePath=".\Media\Shader\MRT\Scene.glps"
-					>
-				</File>
-				<File
-					RelativePath=".\Media\Shader\MRT\Scene.glvs"
-					>
-				</File>
-			</Filter>
-			<Filter
-				Name="SSAO"
-				>
-				<File
-					RelativePath=".\Media\Shader\SSAO\Blur.glps"
-					>
-				</File>
-				<File
-					RelativePath=".\Media\Shader\SSAO\Blur.glvs"
-					>
-				</File>
-				<File
-					RelativePath=".\Media\Shader\SSAO\Combine.glps"
-					>
-				</File>
-				<File
-					RelativePath=".\Media\Shader\SSAO\Combine.glvs"
-					>
-				</File>
-				<File
-					RelativePath=".\Media\Shader\SSAO\Scene.glps"
-					>
-				</File>
-				<File
-					RelativePath=".\Media\Shader\SSAO\Scene.glvs"
-					>
-				</File>
-				<File
-					RelativePath=".\Media\Shader\SSAO\SSAO.glps"
-					>
-				</File>
-				<File
-					RelativePath=".\Media\Shader\SSAO\SSAO.glvs"
-					>
-				</File>
-				<File
-					RelativePath=".\Media\Shader\SSAO\SSAOv1.glps"
-					>
-				</File>
-				<File
-					RelativePath=".\Media\Shader\SSAO\SSAOv2.glps"
-					>
-				</File>
-			</Filter>
-			<Filter
-				Name="ShadowMap"
-				>
-				<File
-					RelativePath=".\Media\Shader\ShadowMap\Scene.glps"
-					>
-				</File>
-				<File
-					RelativePath=".\Media\Shader\ShadowMap\Scene.glvs"
-					>
-				</File>
-			</Filter>
-			<Filter
-				Name="ProjectiveTexture"
-				>
-				<File
-					RelativePath=".\Media\Shader\ProjectiveTexture\Scene.glps"
-					>
-				</File>
-				<File
-					RelativePath=".\Media\Shader\ProjectiveTexture\Scene.glvs"
-					>
-				</File>
-			</Filter>
 		</Filter>
 		<File
 			RelativePath=".\RunTest.txt"
-			>
-		</File>
-		<File
-			RelativePath=".\Scene.txt"
 			>
 		</File>
 	</Files>
