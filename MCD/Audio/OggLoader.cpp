@@ -21,8 +21,9 @@ namespace MCD {
 namespace {
 
 // Ogg function pointers
+// Reference of vorbisfile: http://xiph.org/vorbis/doc/vorbisfile/overview.html
 typedef int (*LPOVCLEAR)(OggVorbis_File* vf);
-typedef long (*LPOVREAD)(OggVorbis_File* vf,char* buffer, int length, int bigendianp, int word, int sgned, int* bitstream);
+typedef long (*LPOVREAD)(OggVorbis_File* vf, char* buffer, int length, int bigendianp, int word, int sgned, int* bitstream);
 typedef ogg_int64_t (*LPOVPCMTOTAL)(OggVorbis_File* vf, int i);
 typedef vorbis_info* (*LPOVINFO)(OggVorbis_File* vf, int link);
 typedef vorbis_comment* (*LPOVCOMMENT)(OggVorbis_File* vf, int link);
@@ -221,7 +222,9 @@ public:
 	Impl()
 		: partialLoadContext(nullptr), resourceManager(nullptr)
 		, mHeaderLoaded(false), mIStream(nullptr)
-	{}
+	{
+		::memset(&mInfo, 0, sizeof(mInfo));
+	}
 
 	~Impl()
 	{
@@ -249,11 +252,13 @@ public:
 			mVorbisInfo = gFnOvInfo(&mOggFile, -1);
 			if(!mVorbisInfo)
 				return false;
-
-			mBufferSize = calculateBufferSize(250, mVorbisInfo);
-			format = getFormat(mVorbisInfo);
-			frequency = mVorbisInfo->rate;
 		}
+
+		mBufferSize = calculateBufferSize(250, mVorbisInfo);
+		format = getFormat(mVorbisInfo);
+		frequency = mVorbisInfo->rate;
+		mInfo.frequency = frequency;
+		mInfo.totalPcm = gFnOvPcmTotal(&mOggFile, -1);
 
 		mHeaderLoaded = true;
 		return mHeaderLoaded;
@@ -342,6 +347,7 @@ public:
 	ov_callbacks mOggFileCallbacks;
 	vorbis_info* mVorbisInfo;
 	std::istream* mIStream;
+	IAudioStreamLoader::Info mInfo;
 };	// Impl
 
 OggLoader::OggLoader()
@@ -417,6 +423,14 @@ void OggLoader::requestLoad(const AudioBufferPtr& buffer, size_t bufferIndex)
 int OggLoader::popLoadedBuffer()
 {
 	return mImpl->popLoadedBuffer();
+}
+
+IAudioStreamLoader::Info OggLoader::info() const
+{
+	MCD_ASSUME(mImpl);
+
+	ScopeLock lock(mImpl->mMutex);
+	return mImpl->mInfo;
 }
 
 }	// namespace MCD

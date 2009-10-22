@@ -210,7 +210,8 @@ public:
 		ScopeUnlock unlock(mEventQueue.mMutex);
 
 		if(firstPartialBlock) {
-			loader->load(is.get(), &fileId, args);
+			// Note that the variable "is" is already release and equals to null, use task->mIStream instead.
+			loader->load(task->mIStream.get(), &fileId, args);
 			loader->onPartialLoaded(mResourceManager, task, priority, args);
 		} else {
 			mTaskPool.enqueue(*task);
