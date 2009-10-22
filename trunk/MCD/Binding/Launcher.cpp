@@ -112,7 +112,7 @@ Launcher::~Launcher()
 
 // TODO: Separate the wait connection from this function, such that the client will
 // able to connect to this debugging server multiple times.
-bool Launcher::enableDebugger(size_t port)
+bool Launcher::enableDebugger(size_t port, bool blockUntilConnected)
 {
 	HSQUIRRELVM v = HSQUIRRELVM(vm.getImplementationHandle());
 	sqstd_seterrorhandlers(v);
@@ -127,8 +127,12 @@ bool Launcher::enableDebugger(size_t port)
 	// Enables debug info generation (for the compiler)
 	sq_enabledebuginfo(v, SQTrue);
 
-	// Suspends current thread until the debugger client connects
-	return SQ_SUCCEEDED(sq_rdbg_waitforconnections(rdbg));
+	if(blockUntilConnected) {
+		// Suspends current thread until the debugger client connects
+		return SQ_SUCCEEDED(sq_rdbg_waitforconnections(rdbg));
+	}
+	else
+		return true;
 }
 
 bool Launcher::init(InputComponent& inputComponent, Entity* rootNode)

@@ -47,7 +47,7 @@ public:
 	/*!	Call this to host the remote debugger server.
 		It is advised to call this before init()
 	 */
-	sal_checkreturn bool enableDebugger(size_t port);
+	sal_checkreturn bool enableDebugger(size_t port, bool blockUntilConnected);
 
 	/*!	Perform initialization.
 		It will take over the ownership of inputComponent.

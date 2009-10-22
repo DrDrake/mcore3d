@@ -95,6 +95,7 @@ const SQChar *EscapeXMLString(HSQUIRRELVM v,const SQChar *s)
 
 SQDbgServer::SQDbgServer(HSQUIRRELVM v)
 {
+	_port = 0;
 	_ready = false;
 	_nestedcalls = 0;
 	_autoupdate = false;
