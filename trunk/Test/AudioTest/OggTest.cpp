@@ -38,6 +38,9 @@ TEST(OggTest)
 	CHECK(source.load(manager, L"stereo.ogg", true));
 //	source.load(manager, L"BaseSound.ogg");
 
+	CHECK_EQUAL(22050u, source.frequency());
+	CHECK_EQUAL(55167u, source.totalPcm());
+
 	source.play();
 
 	// Ensure the source has start to play

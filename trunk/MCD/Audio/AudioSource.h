@@ -57,6 +57,13 @@ public:
 
 	AudioBufferPtr buffer;
 
+	size_t frequency() const;
+
+	/*!	Total length of the audio in unit of PCM.
+		Note that the total time in seconds can be calculated by totalPcm() / frequency().
+	 */
+	uint64_t totalPcm() const;
+
 	bool isPlaying() const;
 
 	/*!	Returns whether the audio source is really playing in the driver level.

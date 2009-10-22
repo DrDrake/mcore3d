@@ -28,6 +28,14 @@ public:
 		\return The index of which sub-buffer in AudioBuffer is loaded, -1 if nothing new is loaded.
 	 */
 	virtual int popLoadedBuffer() = 0;
+
+	struct Info
+	{
+		size_t frequency;
+		uint64_t totalPcm;	//!< Total length of the audio in unit of PCM.
+	};	// Info
+
+	virtual Info info() const = 0;
 };	// IAudioStreamLoader
 
 }	// namespace MCD

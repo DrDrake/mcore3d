@@ -122,6 +122,22 @@ void AudioSource::update()
 		alSourcePause(handle);
 }
 
+size_t AudioSource::frequency() const
+{
+	IAudioStreamLoader* _loader = dynamic_cast<IAudioStreamLoader*>(loader.get());
+	if(!_loader)
+		return 0;
+	return _loader->info().frequency;
+}
+
+uint64_t AudioSource::totalPcm() const
+{
+	IAudioStreamLoader* _loader = dynamic_cast<IAudioStreamLoader*>(loader.get());
+	if(!_loader)
+		return 0;
+	return _loader->info().totalPcm;
+}
+
 bool AudioSource::isPlaying() const
 {
 	return mRequestPlay;

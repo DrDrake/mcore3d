@@ -38,6 +38,8 @@ public:
 
 	sal_override int popLoadedBuffer();
 
+	sal_override Info info() const;
+
 // Attributes
 	volatile LoadingState loadingState;
 
