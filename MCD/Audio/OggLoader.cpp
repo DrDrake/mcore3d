@@ -64,14 +64,15 @@ void initVorbis()
 size_t ov_read_func(void* ptr, size_t eleSize, size_t count, void* userData)
 {
 	std::istream* is = reinterpret_cast<std::istream*>(userData);
-	is->read((char*)ptr, eleSize * count);
-	return is->gcount();
+	// NOTE: is->read() + is->gcount() didn't work as expected.
+	// use the underlaying buffer is more reliable.
+	return is->rdbuf()->sgetn((char*)ptr, eleSize * count);
 }
 
+// Return 0 on success >0 on fail, -1 if non seekable
 int ov_seek_func(void* userData, ogg_int64_t offset, int whence)
 {
-	return -1;
-/*	std::istream* is = reinterpret_cast<std::istream*>(userData);
+	std::istream* is = reinterpret_cast<std::istream*>(userData);
 	if(whence == SEEK_SET)
 		is->seekg(long(offset), std::ios_base::beg);
 	else if(whence == SEEK_CUR)
@@ -81,8 +82,7 @@ int ov_seek_func(void* userData, ogg_int64_t offset, int whence)
 	else
 		return -1;
 
-	if(is->eof() || is->bad()) return -1;
-	return is->tellg();*/
+	return (is->eof() || is->bad()) ? 1 : 0;
 }
 
 int ov_close_func(void* userData)
