@@ -131,6 +131,7 @@ public:
 	int _recursionlevel;
 	int _maxrecursion;
 	int _nestedcalls;
+	unsigned short _port;
 	bool _ready;
 	bool _autoupdate;
 	HSQOBJECT _serializefunc;

@@ -54,7 +54,7 @@ public:
 
 		WinMessageInputComponent* c = new WinMessageInputComponent();
 		c->attachTo(*this);
-		mLauncher->enableDebugger(4321);
+		mLauncher->enableDebugger(4321, false);
 		(void)mLauncher->init(*c);
 
 		// TODO: Let user supply a command line argument to choose the startup script
