@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <MediaPaths>
+    <MediaPath Path="./" />
+    <MediaPath Path="../Test/RenderTest/Media" />
+  </MediaPaths>
+  <Scenes>
+    <Scene Name="New scene">
+      <Scripts>
+        <Script Path="scene.nut" />
+        <Script Path="init.nut" IsStartupScript="true" />
+      </Scripts>
+    </Scene>
+  </Scenes>
+</Project>
