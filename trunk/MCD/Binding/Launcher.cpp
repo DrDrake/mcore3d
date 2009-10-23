@@ -239,7 +239,8 @@ void Launcher::update()
 	MemoryProfiler::Scope profiler("Launcher::update");
 
 	HSQREMOTEDBG rdbg = reinterpret_cast<HSQREMOTEDBG>(mDbgContext);
-	sq_rdbg_update(rdbg);
+	if(rdbg)
+		sq_rdbg_update(rdbg);
 	mResourceManager->update();
 
 	scriptComponentManager.updateScriptComponents();

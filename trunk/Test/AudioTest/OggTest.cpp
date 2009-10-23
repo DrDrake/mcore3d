@@ -25,15 +25,21 @@ public:
 	}
 };	// OggFactory
 
-TEST(OggTest)
+class OggTestFixture
 {
-	initAudio();
+protected:
+	OggTestFixture()
+		: manager(*(new RawFileSystem(L"./")))
+	{
+		initAudio();
+		manager.addFactory(new OggLoaderFactory);
+	}
 
-	std::auto_ptr<IFileSystem> fs(new RawFileSystem(L"./"));
-	ResourceManager manager(*fs);
-	fs.release();
+	ResourceManager manager;
+};	// OggTestFixture
 
-	manager.addFactory(new OggLoaderFactory);
+TEST_FIXTURE(OggTestFixture, OggStreamBlockFirstPartialTest)
+{
 	AudioSource source;
 	CHECK(source.load(manager, L"stereo.ogg", true));
 //	source.load(manager, L"BaseSound.ogg");
