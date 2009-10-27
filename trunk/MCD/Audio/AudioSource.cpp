@@ -5,6 +5,7 @@
 #include "../Core/System/Log.h"
 #include "../Core/System/ResourceLoader.h"
 #include "../Core/System/ResourceManager.h"
+#include "../Core/System/Thread.h"	// for mSleep()
 #include "../../3Party/OpenAL/al.h"
 
 namespace MCD {
@@ -43,6 +44,17 @@ bool AudioSource::load(IResourceManager& resourceManager, const Path& fileId, bo
 	// Fill up the initial buffers
 	for(size_t i=0; i<buffer->bufferCount(); ++i)
 		_loader->requestLoad(buffer, i);
+
+	if(firstBufferBlock) {
+		int bufferIdx;
+
+		// Wait until the worker thread give us response.
+		while((bufferIdx = _loader->popLoadedBuffer()) == -1)
+			MCD::mSleep(1);
+
+		alSourceQueueBuffers(handle, 1, &buffer->handles[bufferIdx]);
+		checkAndPrintError("alSourceQueueBuffers failed: ");
+	}
 
 	return true;
 }
