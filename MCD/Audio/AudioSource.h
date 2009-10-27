@@ -28,6 +28,14 @@ public:
 		Therefore, there is no distintion between streamming and non-streamming audio, stream or not
 		is just simply depends on the buffer size.
 
+		\param firstBufferBlock
+			If set to true, the call will block until the first audio buffer finished loading, such that
+			the audio source can play immediatly and the source's property like frequency() and totalPcm()
+			can be get.
+			If it's set to false, all the property funtions like frequency() and totalPcm() will not gives
+			valid result until the first buffer is loaded. While the play() function will pend its operation
+			until the update() function detected there is buffer loaded.
+
 		\param args Extra parameter as a name-value pair string that will pass to the audio loader.
 	 */
 	sal_checkreturn bool load(IResourceManager& resourceManager, const Path& fileId, bool firstBufferBlock=false, sal_in_z_opt const wchar_t* args=nullptr);

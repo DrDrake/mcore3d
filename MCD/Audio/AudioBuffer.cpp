@@ -24,6 +24,9 @@ void MCD_AUDIO_API initAudio()
 	static ALCdevice* device = nullptr;
 	static ALCcontext* context = nullptr; 
 
+	if(device)
+		return;
+
 	device = alcOpenDevice(nullptr);
 	context = alcCreateContext(device, nullptr);
 	alcMakeContextCurrent(context);

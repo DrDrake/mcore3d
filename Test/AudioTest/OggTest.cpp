@@ -38,15 +38,37 @@ protected:
 	ResourceManager manager;
 };	// OggTestFixture
 
+// This first-block mode is convenience to the user for getting the source's property,
+// and have exact timming on when to play the source.
 TEST_FIXTURE(OggTestFixture, OggStreamBlockFirstPartialTest)
 {
 	AudioSource source;
 	CHECK(source.load(manager, L"stereo.ogg", true));
-//	source.load(manager, L"BaseSound.ogg");
 
 	CHECK_EQUAL(22050u, source.frequency());
 	CHECK_EQUAL(55167u, source.totalPcm());
 
+	// The source start to play instantly at this call.
+	source.play();
+
+	while(source.isReallyPlaying()) {
+		mSleep(1);
+		source.update();
+		ResourceManager::Event event = manager.popEvent();
+		if(!event.loader) continue;
+
+		event.loader->commit(*event.resource);
+	}
+}
+
+// Most of the cases this non-block mode is used, which should gives shortest loading time.
+// The draw back is that it's harder to sure when the source is actually played.
+TEST_FIXTURE(OggTestFixture, OggStreamNonBlock)
+{
+	AudioSource source;
+	CHECK(source.load(manager, L"stereo.ogg", false));
+
+	// Calling play() just inform the source to play when data is ready.
 	source.play();
 
 	// Ensure the source has start to play
@@ -54,6 +76,10 @@ TEST_FIXTURE(OggTestFixture, OggStreamBlockFirstPartialTest)
 		source.update();
 		manager.popEvent();
 	}
+
+	// Then we can examin the properties.
+	CHECK_EQUAL(22050u, source.frequency());
+	CHECK_EQUAL(55167u, source.totalPcm());
 
 	while(source.isReallyPlaying()) {
 		mSleep(1);
