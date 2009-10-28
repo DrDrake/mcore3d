@@ -35,12 +35,24 @@ protected:
 		manager.addFactory(new OggLoaderFactory);
 	}
 
+	void waitForSourceFinish(AudioSource& source)
+	{
+		while(source.isReallyPlaying()) {
+			mSleep(1);
+			source.update();
+			ResourceManager::Event event = manager.popEvent();
+			if(!event.loader) continue;
+
+			event.loader->commit(*event.resource);
+		}
+	}
+
 	ResourceManager manager;
 };	// OggTestFixture
 
 // This first-block mode is convenience to the user for getting the source's property,
 // and have exact timming on when to play the source.
-TEST_FIXTURE(OggTestFixture, OggStreamBlockFirstPartialTest)
+TEST_FIXTURE(OggTestFixture, aOggStreamBlockFirstPartialTest)
 {
 	AudioSource source;
 	CHECK(source.load(manager, L"stereo.ogg", true));
@@ -51,19 +63,12 @@ TEST_FIXTURE(OggTestFixture, OggStreamBlockFirstPartialTest)
 	// The source start to play instantly at this call.
 	source.play();
 
-	while(source.isReallyPlaying()) {
-		mSleep(1);
-		source.update();
-		ResourceManager::Event event = manager.popEvent();
-		if(!event.loader) continue;
-
-		event.loader->commit(*event.resource);
-	}
+	waitForSourceFinish(source);
 }
 
 // Most of the cases this non-block mode is used, which should gives shortest loading time.
 // The draw back is that it's harder to sure when the source is actually played.
-TEST_FIXTURE(OggTestFixture, OggStreamNonBlock)
+TEST_FIXTURE(OggTestFixture, cOggStreamNonBlock)
 {
 	AudioSource source;
 	CHECK(source.load(manager, L"stereo.ogg", false));
@@ -81,12 +86,24 @@ TEST_FIXTURE(OggTestFixture, OggStreamNonBlock)
 	CHECK_EQUAL(22050u, source.frequency());
 	CHECK_EQUAL(55167u, source.totalPcm());
 
-	while(source.isReallyPlaying()) {
-		mSleep(1);
-		source.update();
-		ResourceManager::Event event = manager.popEvent();
-		if(!event.loader) continue;
+	waitForSourceFinish(source);
+}
 
-		event.loader->commit(*event.resource);
-	}
+#include "../../MCD/Audio/AudioEffect.h"
+
+// TODO: Move the effect test to somewhere else
+TEST_FIXTURE(OggTestFixture, bEffect)
+{
+	initAudioEffect();
+
+	AudioSource source;
+	CHECK(source.load(manager, L"stereo.ogg", true));
+
+	AudioEffect effect;
+	effect.create();
+
+	effect.bind(source);
+	source.play();
+
+	waitForSourceFinish(source);
 }
