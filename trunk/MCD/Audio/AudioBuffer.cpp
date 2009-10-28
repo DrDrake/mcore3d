@@ -79,4 +79,23 @@ AudioBuffer::~AudioBuffer()
 	alDeleteBuffers(mBufferCount, handles);
 }
 
+size_t AudioBuffer::getPcm(uint handle)
+{
+	if(!alIsBuffer(handle))
+		return 0;
+
+	static const size_t bitsPerByte = 8;
+	ALint bits, channels, sizeInBytes;
+
+	alGetBufferi(handle, AL_BITS, &bits);
+	alGetBufferi(handle, AL_CHANNELS, &channels);
+	alGetBufferi(handle, AL_SIZE, &sizeInBytes);
+
+	if(bitsPerByte == 0 || channels * bits == 0)
+		return 0;
+
+	size_t pcm = sizeInBytes / (channels * bits / bitsPerByte);
+	return pcm;
+}
+
 }	// namespace MCD

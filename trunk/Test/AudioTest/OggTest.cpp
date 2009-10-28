@@ -52,23 +52,26 @@ protected:
 
 // This first-block mode is convenience to the user for getting the source's property,
 // and have exact timming on when to play the source.
-TEST_FIXTURE(OggTestFixture, aOggStreamBlockFirstPartialTest)
+TEST_FIXTURE(OggTestFixture, OggStreamBlockFirstPartialTest)
 {
 	AudioSource source;
 	CHECK(source.load(manager, L"stereo.ogg", true));
 
 	CHECK_EQUAL(22050u, source.frequency());
 	CHECK_EQUAL(55167u, source.totalPcm());
+	CHECK_EQUAL(0u, source.currentPcm());
 
 	// The source start to play instantly at this call.
 	source.play();
 
 	waitForSourceFinish(source);
+
+	CHECK_EQUAL(source.totalPcm(), source.currentPcm());
 }
 
 // Most of the cases this non-block mode is used, which should gives shortest loading time.
 // The draw back is that it's harder to sure when the source is actually played.
-TEST_FIXTURE(OggTestFixture, cOggStreamNonBlock)
+TEST_FIXTURE(OggTestFixture, OggStreamNonBlock)
 {
 	AudioSource source;
 	CHECK(source.load(manager, L"stereo.ogg", false));
@@ -87,12 +90,14 @@ TEST_FIXTURE(OggTestFixture, cOggStreamNonBlock)
 	CHECK_EQUAL(55167u, source.totalPcm());
 
 	waitForSourceFinish(source);
+
+	CHECK_EQUAL(source.totalPcm(), source.currentPcm());
 }
 
 #include "../../MCD/Audio/AudioEffect.h"
 
 // TODO: Move the effect test to somewhere else
-TEST_FIXTURE(OggTestFixture, bEffect)
+TEST_FIXTURE(OggTestFixture, Effect)
 {
 	initAudioEffect();
 

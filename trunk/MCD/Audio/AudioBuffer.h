@@ -12,7 +12,9 @@ void MCD_AUDIO_API initAudio();
 // TODO: Temp
 bool MCD_AUDIO_API checkAndPrintError(const char* prefixMessage);
 
-/*!	A very light weighted class storing an array of
+/*!	A very light weighted class storing an array of handle to the underlaying audio API.
+	To retreive more information about the sub buffers (eg. frequency, channels) use
+	the underlaying audio API.
  */
 class MCD_AUDIO_API AudioBuffer : public Resource
 {
@@ -30,6 +32,13 @@ public:
 	size_t bufferCount() const {
 		return mBufferCount;
 	}
+
+	/*!	Get the PCM for the specific sub buffer's handle.
+		Returns 0 if there is error.
+
+		\note PCM = sizeInBytes / (channels * bitDepth / bitsPerByte)
+	 */
+	static size_t getPcm(uint handle);
 
 protected:
 	sal_override ~AudioBuffer();
