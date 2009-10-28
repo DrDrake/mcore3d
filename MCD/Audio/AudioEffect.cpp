@@ -62,6 +62,7 @@ void AudioEffect::setParameters(sal_in_z_opt const char* paramNameValuePair)
 
 float AudioEffect::getParameterf(sal_in_z_opt const char* paramName)
 {
+	return 0;
 }
 
 }	// namespace MCD

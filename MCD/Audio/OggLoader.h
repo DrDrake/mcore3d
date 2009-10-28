@@ -38,9 +38,11 @@ public:
 
 	sal_override int popLoadedBuffer();
 
+// Attributes
 	sal_override Info info() const;
 
-// Attributes
+	sal_override uint64_t pcmOffset() const;
+
 	volatile LoadingState loadingState;
 
 protected:

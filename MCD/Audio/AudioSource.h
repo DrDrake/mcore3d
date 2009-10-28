@@ -72,6 +72,8 @@ public:
 	 */
 	uint64_t totalPcm() const;
 
+	uint64_t currentPcm() const;
+
 	bool isPlaying() const;
 
 	/*!	Returns whether the audio source is really playing in the driver level.
@@ -85,6 +87,7 @@ public:
 private:
 	bool mRequestPlay;
 	bool mRequestPause;
+	uint64_t mRoughPcmOffsetSinceLastSeek;
 };	// AudioSource
 
 }	// namespace MCD

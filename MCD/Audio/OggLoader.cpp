@@ -28,6 +28,7 @@ typedef ogg_int64_t (*LPOVPCMTOTAL)(OggVorbis_File* vf, int i);
 typedef vorbis_info* (*LPOVINFO)(OggVorbis_File* vf, int link);
 typedef vorbis_comment* (*LPOVCOMMENT)(OggVorbis_File* vf, int link);
 typedef int (*LPOVOPENCALLBACKS)(void* datasource, OggVorbis_File* vf, char* initial, long ibytes, ov_callbacks callbacks);
+typedef ogg_int64_t (*LPOVPCMTELL)(OggVorbis_File* vf);
 
 LPOVCLEAR			gFnOvClear = nullptr;
 LPOVREAD			gFnOvRead = nullptr;
@@ -35,6 +36,7 @@ LPOVPCMTOTAL		gFnOvPcmTotal = nullptr;
 LPOVINFO			gFnOvInfo = nullptr;
 LPOVCOMMENT			gFnOvComment = nullptr;
 LPOVOPENCALLBACKS	gFnOvOpenCallbacks = nullptr;
+LPOVPCMTELL			gFnOvPcmTell = nullptr;
 
 bool gVorbisInited = false;
 
@@ -52,6 +54,7 @@ void initVorbis()
 		gFnOvInfo = (LPOVINFO)GetProcAddress(h, "ov_info");
 		gFnOvComment = (LPOVCOMMENT)GetProcAddress(h, "ov_comment");
 		gFnOvOpenCallbacks = (LPOVOPENCALLBACKS)GetProcAddress(h, "ov_open_callbacks");
+		gFnOvPcmTell = (LPOVPCMTELL)GetProcAddress(h, "ov_pcm_tell");
 
 		if (gFnOvClear && gFnOvRead && gFnOvPcmTotal && gFnOvInfo &&
 			gFnOvComment && gFnOvOpenCallbacks)
@@ -106,33 +109,26 @@ void swap(short& s1, short& s2)
 
 size_t gDecodeOggVorbis(OggVorbis_File* psOggVorbisFile, char* pDecodeBuffer, size_t ulBufferSize, size_t ulChannels)
 {
-	int current_section;
-	long lDecodeSize;
 	unsigned long ulSamples;
-	short* pSamples;
-
 	unsigned long ulBytesDone = 0;
-	while (true)
-	{
-		lDecodeSize = gFnOvRead(psOggVorbisFile, pDecodeBuffer + ulBytesDone, ulBufferSize - ulBytesDone, 0, 2, 1, &current_section);
-		if (lDecodeSize > 0)
-		{
-			ulBytesDone += lDecodeSize;
 
-			if (ulBytesDone >= ulBufferSize)
-				break;
-		}
-		else
-		{
+	while(true)
+	{
+		long decodeSize = gFnOvRead(psOggVorbisFile, pDecodeBuffer + ulBytesDone, ulBufferSize - ulBytesDone, 0, 2, 1, nullptr);
+
+		if(decodeSize <= 0)
 			break;
-		}
+
+		ulBytesDone += decodeSize;
+		if (ulBytesDone >= ulBufferSize)
+			break;
 	}
 
 	// Mono, Stereo and 4-Channel files decode into the same channel order as WAVEFORMATEXTENSIBLE,
 	// however 6-Channels files need to be re-ordered
 	if (ulChannels == 6)
 	{		
-		pSamples = (short*)pDecodeBuffer;
+		short* pSamples = (short*)pDecodeBuffer;
 		for (ulSamples = 0; ulSamples < (ulBufferSize>>1); ulSamples+=6)
 		{
 			// WAVEFORMATEXTENSIBLE Order : FL, FR, FC, LFE, RL, RR
@@ -150,12 +146,13 @@ size_t gDecodeOggVorbis(OggVorbis_File* psOggVorbisFile, char* pDecodeBuffer, si
 size_t calculateBufferSize(size_t bufferDurationMs, vorbis_info* info)
 {
 	size_t bufferInByte = 0;
-	size_t channel2 = info->channels * 2;
+	size_t channel = info->channels * 2;
 
+	// TODO: The operation may cause overflow
 	// Frequency * 2 (16bit) * fraction of a second
-	bufferInByte = info->rate * channel2 * bufferDurationMs / 1000;
+	bufferInByte = info->rate * channel * bufferDurationMs / 1000;
 	// Important: The buffer Size must be an exact multiple of the block alignment.
-	bufferInByte -= (bufferInByte % channel2);
+	bufferInByte -= (bufferInByte % channel);
 
 	return bufferInByte;
 }
@@ -185,6 +182,7 @@ public:
 	struct Task
 	{
 		int bufferIdx;
+		uint64_t pcmOffset;
 		AudioBufferPtr buffer;	// TODO: May not needed
 	};	// Task
 
@@ -201,7 +199,7 @@ public:
 		{
 			ScopeLock lock(mMutex);
 			
-			Task ret = { -1, nullptr };
+			Task ret = { -1, 0, nullptr };
 			if(!mQueue.empty()) {
 				ret = mQueue.front();
 				mQueue.pop_front();
@@ -222,6 +220,7 @@ public:
 	Impl()
 		: partialLoadContext(nullptr), resourceManager(nullptr)
 		, mHeaderLoaded(false), mIStream(nullptr)
+		, mCurrentPcmOffset(0)
 	{
 		::memset(&mInfo, 0, sizeof(mInfo));
 	}
@@ -288,11 +287,12 @@ public:
 
 			AudioBuffer& buffer = *task.buffer;
 			size_t bytesWritten = gDecodeOggVorbis(&mOggFile, (char*)buf, mBufferSize, mVorbisInfo->channels);
+
 			// NOTE: Make sure no other thread is using this buffer handle, otherwise we
 			// need to move the alBufferData() function to do inside commit().
 			alBufferData(buffer.handles[task.bufferIdx], format, buf, bytesWritten, frequency);
 
-			Task task2 = { task.bufferIdx, nullptr };
+			Task task2 = { task.bufferIdx, gFnOvPcmTell(&mOggFile), nullptr };
 			mCommitQueue.push(task2);
 
 			if(!checkAndPrintError("alBufferData failed: "))
@@ -310,7 +310,7 @@ public:
 
 	void requestLoad(const AudioBufferPtr& buffer, size_t bufferIndex)
 	{
-		Task taks = { int(bufferIndex), buffer };
+		Task taks = { int(bufferIndex), 0, buffer };
 		mTaskQueue.push(taks);
 
 		ScopeLock lock(mMutex);
@@ -329,6 +329,11 @@ public:
 	int popLoadedBuffer()
 	{
 		Task task = mCommitQueue.pop();
+		ScopeLock lock(mMutex);
+
+		if(task.bufferIdx != -1)
+			mCurrentPcmOffset = task.pcmOffset;
+
 		return task.bufferIdx;
 	}
 
@@ -348,6 +353,7 @@ public:
 	vorbis_info* mVorbisInfo;
 	std::istream* mIStream;
 	IAudioStreamLoader::Info mInfo;
+	uint64_t mCurrentPcmOffset;	//!< The PCM 
 };	// Impl
 
 OggLoader::OggLoader()
@@ -431,6 +437,14 @@ IAudioStreamLoader::Info OggLoader::info() const
 
 	ScopeLock lock(mImpl->mMutex);
 	return mImpl->mInfo;
+}
+
+uint64_t OggLoader::pcmOffset() const
+{
+	MCD_ASSUME(mImpl);
+
+	ScopeLock lock(mImpl->mMutex);
+	return mImpl->mCurrentPcmOffset;
 }
 
 }	// namespace MCD

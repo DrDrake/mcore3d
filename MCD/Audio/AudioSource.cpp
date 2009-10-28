@@ -15,6 +15,7 @@ AudioSource::AudioSource()
 	alGenSources(1, &handle);
 	mRequestPlay = false;
 	mRequestPause = false;
+	mRoughPcmOffsetSinceLastSeek = 0;
 }
 
 AudioSource::~AudioSource()
@@ -99,6 +100,8 @@ void AudioSource::update()
 		ALuint uiBuffer = 0;
 		alSourceUnqueueBuffers(handle, 1, &uiBuffer);
 
+		mRoughPcmOffsetSinceLastSeek += AudioBuffer::getPcm(uiBuffer);
+
 		// Tells resource loader continue to load
 		for(size_t i=0; i<buffer->bufferCount(); ++i) {
 			if(buffer->handles[i] == uiBuffer) {
@@ -148,6 +151,14 @@ uint64_t AudioSource::totalPcm() const
 	if(!_loader)
 		return 0;
 	return _loader->info().totalPcm;
+}
+
+uint64_t AudioSource::currentPcm() const
+{
+	ALint fineOffset;
+	alGetSourcei(handle, AL_SAMPLE_OFFSET, &fineOffset);
+
+	return fineOffset + mRoughPcmOffsetSinceLastSeek;
 }
 
 bool AudioSource::isPlaying() const

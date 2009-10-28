@@ -36,6 +36,13 @@ public:
 	};	// Info
 
 	virtual Info info() const = 0;
+
+	/*!	The current read offset in the audio PCM stream.
+		Since the load operation may performed in multi-thread environment, the more accurate
+		definition of the offset should be how many PCM from the beginning is already passed
+		by the repeatitive call of popLoadedBuffer().
+	 */
+	virtual uint64_t pcmOffset() const = 0;
 };	// IAudioStreamLoader
 
 }	// namespace MCD
