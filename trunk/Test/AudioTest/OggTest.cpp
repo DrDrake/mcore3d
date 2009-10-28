@@ -1,29 +1,13 @@
 #include "Pch.h"
+#include "../../MCD/Audio/AudioBuffer.h"
 #include "../../MCD/Audio/AudioSource.h"
-#include "../../MCD/Audio/OggLoader.h"
+#include "../../MCD/Audio/ResourceLoaderFactory.h"
 #include "../../MCD/Core/System/RawFileSystem.h"
+#include "../../MCD/Core/System/ResourceLoader.h"
 #include "../../MCD/Core/System/ResourceManager.h"
-#include <fstream>
+#include "../../MCD/Core/System/Thread.h"	// for mSleep()
 
 using namespace MCD;
-
-#include "../../MCD/Audio/AudioBuffer.h"
-#include "../../MCD/Core/System/StrUtility.h"
-#include "../../MCD/Core/System/Thread.h"
-
-class OggLoaderFactory : public ResourceManager::IFactory
-{
-public:
-	sal_override ResourcePtr createResource(const Path& fileId, const wchar_t* args) {
-		if(wstrCaseCmp(fileId.getExtension().c_str(), L"ogg") == 0)
-			return new AudioBuffer(fileId, AudioBuffer::cMaxBuffers);
-		return nullptr;
-	}
-
-	sal_override IResourceLoader* createLoader() {
-		return new OggLoader;
-	}
-};	// OggFactory
 
 class OggTestFixture
 {
@@ -38,8 +22,12 @@ protected:
 	void waitForSourceFinish(AudioSource& source)
 	{
 		while(source.isReallyPlaying()) {
-			mSleep(1);
+			mSleep(100);
 			source.update();
+
+//			if(source.frequency() > 0)
+//				std::cout << float(source.currentPcm()) / source.frequency() << std::endl;
+
 			ResourceManager::Event event = manager.popEvent();
 			if(!event.loader) continue;
 
@@ -52,7 +40,7 @@ protected:
 
 // This first-block mode is convenience to the user for getting the source's property,
 // and have exact timming on when to play the source.
-TEST_FIXTURE(OggTestFixture, OggStreamBlockFirstPartialTest)
+TEST_FIXTURE(OggTestFixture, StreamBlockFirstPartialTest)
 {
 	AudioSource source;
 	CHECK(source.load(manager, L"stereo.ogg", true));
@@ -69,9 +57,28 @@ TEST_FIXTURE(OggTestFixture, OggStreamBlockFirstPartialTest)
 	CHECK_EQUAL(source.totalPcm(), source.currentPcm());
 }
 
+// Test the case when using only a sinlge sub-buffer.
+// For a single sub-buffer source, the buffer length should be large enough to store the whole audio.
+TEST_FIXTURE(OggTestFixture, SingleSubBuffer)
+{
+	AudioSource source;
+	CHECK(source.load(manager, L"stereo.ogg", true, L"bufferCount=1;subBufferLength=2600"));
+
+	CHECK_EQUAL(22050u, source.frequency());
+	CHECK_EQUAL(55167u, source.totalPcm());
+	CHECK_EQUAL(0u, source.currentPcm());
+
+	// The source start to play instantly at this call.
+	source.play();
+
+	waitForSourceFinish(source);
+
+	CHECK_EQUAL(source.totalPcm(), source.currentPcm());
+}
+
 // Most of the cases this non-block mode is used, which should gives shortest loading time.
 // The draw back is that it's harder to sure when the source is actually played.
-TEST_FIXTURE(OggTestFixture, OggStreamNonBlock)
+TEST_FIXTURE(OggTestFixture, StreamNonBlockTest)
 {
 	AudioSource source;
 	CHECK(source.load(manager, L"stereo.ogg", false));
@@ -97,7 +104,7 @@ TEST_FIXTURE(OggTestFixture, OggStreamNonBlock)
 #include "../../MCD/Audio/AudioEffect.h"
 
 // TODO: Move the effect test to somewhere else
-TEST_FIXTURE(OggTestFixture, Effect)
+TEST_FIXTURE(OggTestFixture, EffectTest)
 {
 	initAudioEffect();
 

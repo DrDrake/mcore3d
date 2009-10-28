@@ -37,6 +37,9 @@ public:
 			until the update() function detected there is buffer loaded.
 
 		\param args Extra parameter as a name-value pair string that will pass to the audio loader.
+			Currently supported in OggLoader:
+			Name: bufferCount, Value: 1 - AudioBuffer::cMaxBuffers
+			Name: subBufferLength, Value: 10 - *, Desc: Duration of each sub-buffer in milli seconds
 	 */
 	sal_checkreturn bool load(IResourceManager& resourceManager, const Path& fileId, bool firstBufferBlock=false, sal_in_z_opt const wchar_t* args=nullptr);
 
