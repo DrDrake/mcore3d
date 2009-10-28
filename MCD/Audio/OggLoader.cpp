@@ -4,6 +4,7 @@
 #include "../Core/System/Mutex.h"
 #include "../Core/System/PlatformInclude.h"
 #include "../Core/System/ResourceManager.h"
+#include "../Core/System/StrUtility.h"
 #include "../../3Party/OpenAL/al.h"
 #include "../../3Party/VorbisOgg/vorbisfile.h"
 
@@ -174,6 +175,27 @@ ALenum getFormat(vorbis_info* info)
 	}
 }
 
+size_t parseSubBufferLength(const wchar_t* args)
+{
+	// Returns 250ms by default
+	size_t len = 250;
+
+	if(!args)
+		return len;
+
+	NvpParser parser(args);
+	const wchar_t* name, *value;
+	while(parser.next(name, value))
+	{
+		if(wstrCaseCmp(name, L"subBufferLength") == 0) {
+			len = wStr2IntWithDefault(value, len);
+			break;
+		}
+	}
+
+	return len < 10 ? 10 : len;
+}
+
 }	// namespace
 
 class OggLoader::Impl
@@ -230,7 +252,7 @@ public:
 		gFnOvClear(&mOggFile);
 	}
 
-	bool loadHeader(std::istream* is)
+	bool loadHeader(std::istream* is, const wchar_t* args)
 	{
 		MCD_ASSERT(mMutex.isLocked());
 
@@ -253,7 +275,7 @@ public:
 				return false;
 		}
 
-		mBufferSize = calculateBufferSize(250, mVorbisInfo);
+		mBufferSize = calculateBufferSize(parseSubBufferLength(args), mVorbisInfo);
 		format = getFormat(mVorbisInfo);
 		frequency = mVorbisInfo->rate;
 		mInfo.frequency = frequency;
@@ -367,7 +389,7 @@ OggLoader::~OggLoader()
 	delete mImpl;
 }
 
-IResourceLoader::LoadingState OggLoader::load(std::istream* is, const Path*, const wchar_t*)
+IResourceLoader::LoadingState OggLoader::load(std::istream* is, const Path*, const wchar_t* args)
 {
 	MCD_ASSUME(mImpl != nullptr);
 	ScopeLock lock(mImpl->mMutex);
@@ -377,7 +399,7 @@ IResourceLoader::LoadingState OggLoader::load(std::istream* is, const Path*, con
 	else if(loadingState == Aborted)
 		loadingState = NotLoaded;
 
-	if(!mImpl->loadHeader(is))
+	if(!mImpl->loadHeader(is, args))
 		return loadingState = Aborted;
 
 	int result = mImpl->loadData();
