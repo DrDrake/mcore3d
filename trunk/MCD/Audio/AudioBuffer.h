@@ -6,9 +6,6 @@
 
 namespace MCD {
 
-// TODO: Move to a better place
-void MCD_AUDIO_API initAudio();
-
 // TODO: Temp
 bool MCD_AUDIO_API checkAndPrintError(const char* prefixMessage);
 

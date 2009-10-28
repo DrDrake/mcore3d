@@ -2,38 +2,8 @@
 #include "AudioBuffer.h"
 #include "../Core/System/Utility.h"
 #include "../../3Party/OpenAL/al.h"
-#include "../../3Party/OpenAL/alc.h"
-
-#if defined(MCD_VC)
-#	pragma comment(lib, "OpenAL32")
-#endif
 
 namespace MCD {
-
-/*	Some usefull links:
-	Offset
-	http://www.nabble.com/AL_*_OFFSET-resolution-td14216950.html
-	Calculate the current playing time:
-	http://opensource.creative.com/pipermail/openal/2008-March/011015.html
-	Jump to particular position:
-	http://stackoverflow.com/questions/434599/openal-how-does-one-jump-to-a-particular-offset-more-than-once
- */
-
-void MCD_AUDIO_API initAudio()
-{
-	static ALCdevice* device = nullptr;
-	static ALCcontext* context = nullptr; 
-
-	if(device)
-		return;
-
-	device = alcOpenDevice(nullptr);
-	context = alcCreateContext(device, nullptr);
-	alcMakeContextCurrent(context);
-
-	ALboolean g_bEAX = alIsExtensionPresent("EAX2.0");
-	(void)g_bEAX;
-}
 
 const char* getALErrorString(ALenum err)
 {

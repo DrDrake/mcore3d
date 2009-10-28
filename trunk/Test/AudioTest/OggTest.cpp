@@ -1,5 +1,6 @@
 #include "Pch.h"
 #include "../../MCD/Audio/AudioBuffer.h"
+#include "../../MCD/Audio/AudioDevice.h"
 #include "../../MCD/Audio/AudioSource.h"
 #include "../../MCD/Audio/ResourceLoaderFactory.h"
 #include "../../MCD/Core/System/RawFileSystem.h"
@@ -15,8 +16,13 @@ protected:
 	OggTestFixture()
 		: manager(*(new RawFileSystem(L"./")))
 	{
-		initAudio();
+		initAudioDevice();
 		manager.addFactory(new OggLoaderFactory);
+	}
+
+	~OggTestFixture()
+	{
+		closeAudioDevice();
 	}
 
 	void waitForSourceFinish(AudioSource& source)
@@ -25,8 +31,8 @@ protected:
 			mSleep(100);
 			source.update();
 
-//			if(source.frequency() > 0)
-//				std::cout << float(source.currentPcm()) / source.frequency() << std::endl;
+			if(source.frequency() > 0)
+				std::cout << float(source.currentPcm()) / source.frequency() << std::endl;
 
 			ResourceManager::Event event = manager.popEvent();
 			if(!event.loader) continue;
