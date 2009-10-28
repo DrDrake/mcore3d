@@ -216,6 +216,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\AudioDevice.h"
+				>
+			</File>
+			<File
 				RelativePath=".\AudioEffect.h"
 				>
 			</File>
@@ -242,6 +246,10 @@
 			>
 			<File
 				RelativePath=".\AudioBuffer.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\AudioDevice.cpp"
 				>
 			</File>
 			<File
