@@ -11,7 +11,7 @@ TEST(ScriptComponentTest)
 	RawFileSystem fs(L"");
 	ScriptVM vm;
 	ScriptComponentManager mgr;
-	mgr.init(vm, fs);
+	CHECK(mgr.init(vm, fs));
 	Entity root;
 	mgr.registerRootEntity(root);
 
@@ -23,7 +23,7 @@ TEST(CreateEntityFromScripTest)
 	RawFileSystem fs(L"");
 	ScriptVM vm;
 	ScriptComponentManager mgr;
-	mgr.init(vm, fs);
+	CHECK(mgr.init(vm, fs));
 
 	{	// C++ keep ownership
 		Entity* e = mgr.runScripAsEntity(L"local e=Entity();e.name=\"CreateEntityFromScripTest\";return e;");

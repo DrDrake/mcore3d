@@ -18,14 +18,14 @@ IFileSystem* createDefaultFileSystem()
 
 	Path actualRoot;
 
-	std::auto_ptr<IFileSystem> rawFs(new RawFileSystem(L""));
-	actualRoot = rawFs->getRoot();
-	fileSystem->addFileSystem(*rawFs.release());
+	std::auto_ptr<IFileSystem> rawFs1(new RawFileSystem(L""));
+	actualRoot = rawFs1->getRoot();
+	fileSystem->addFileSystem(*rawFs1.release());
 
 	try {
-		std::auto_ptr<IFileSystem> rawFs(new RawFileSystem(L"Media"));
-		actualRoot = rawFs->getRoot();
-		fileSystem->addFileSystem(*rawFs.release());
+		std::auto_ptr<IFileSystem> rawFs2(new RawFileSystem(L"Media"));
+		actualRoot = rawFs2->getRoot();
+		fileSystem->addFileSystem(*rawFs2.release());
 	} catch(...) {}
 
 	try {
@@ -46,20 +46,20 @@ public:
 		BasicGlWindow(L"title=Launcher;width=800;height=600;fullscreen=0;FSAA=4")
 	{
 		IFileSystem* fs = createDefaultFileSystem();
-		IResourceManager* mgr = new LauncherDefaultResourceManager(*fs, true);
-		mLauncher.reset(new Launcher(*fs, *mgr, true));
+		std::auto_ptr<IResourceManager> mgr(new LauncherDefaultResourceManager(*fs, true));
+		mLauncher.reset(new Launcher(*fs, *mgr.release(), true));
 
 		MemoryProfiler::singleton().setEnable(true);
 		mMemoryProfilerServer.listern(5001);
 
 		WinMessageInputComponent* c = new WinMessageInputComponent();
 		c->attachTo(*this);
-		mLauncher->enableDebugger(4321, false);
+		(void)mLauncher->enableDebugger(4321, false);
 		(void)mLauncher->init(*c);
 
 		// TODO: Let user supply a command line argument to choose the startup script
-		mLauncher->scriptComponentManager.doFile(L"scene.nut", true);
-		mLauncher->scriptComponentManager.doFile(L"init.nut", true);
+		(void)mLauncher->scriptComponentManager.doFile(L"scene.nut", true);
+		(void)mLauncher->scriptComponentManager.doFile(L"init.nut", true);
 	}
 
 	sal_override ~TestWindow()

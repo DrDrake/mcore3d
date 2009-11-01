@@ -139,7 +139,8 @@ bool Launcher::init(InputComponent& inputComponent, Entity* rootNode)
 {
 	using namespace script;
 
-	scriptComponentManager.init(vm, mFileSystem);
+	if(!scriptComponentManager.init(vm, mFileSystem))
+		return false;
 
 	VMCore* v = (VMCore*)sq_getforeignptr(HSQUIRRELVM(vm.getImplementationHandle()));
 

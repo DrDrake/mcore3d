@@ -211,8 +211,8 @@ public:
 
 		if(firstPartialBlock) {
 			// Note that the variable "is" is already release and equals to null, use task->mIStream instead.
-			loader->load(task->mIStream.get(), &fileId, args);
-			loader->onPartialLoaded(mResourceManager, task, priority, args);
+			if(loader->load(task->mIStream.get(), &fileId, args))
+				loader->onPartialLoaded(mResourceManager, task, priority, args);
 		} else {
 			mTaskPool.enqueue(*task);
 		}
