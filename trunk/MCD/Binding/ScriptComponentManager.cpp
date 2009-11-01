@@ -43,7 +43,7 @@ bool ScriptComponentManager::init(ScriptVM& vm, IFileSystem& fs)
 
 	// Initialize the file name to class mapping, and the script component factory function
 	// TODO: Error handling, ensure the script file does return a class
-	if(!vm.runScript(xSTRING("\n\
+	if(!vm.runScript(xSTRING("\
 		_scriptComponentClassTable <- {};\n\
 		gComponentQueue <- ComponentQueue();\n\
 		\n\
@@ -98,7 +98,7 @@ bool ScriptComponentManager::init(ScriptVM& vm, IFileSystem& fs)
 			::_scriptComponentInstanceSet[c.thread] <- c;\n\
 			::gComponentQueue.setItem(0, c);\n\
 			return c;\n\
-		}\
+		}\n\
 		\n\
 		_lastCollectComponnetGarbageTime <- 0;\n\
 		function updateAllScriptComponent() {\n\

@@ -61,7 +61,7 @@ size_t AudioBuffer::getPcm(uint handle)
 	alGetBufferi(handle, AL_CHANNELS, &channels);
 	alGetBufferi(handle, AL_SIZE, &sizeInBytes);
 
-	if(bitsPerByte == 0 || channels * bits == 0)
+	if(channels * bits == 0)
 		return 0;
 
 	size_t pcm = sizeInBytes / (channels * bits / bitsPerByte);

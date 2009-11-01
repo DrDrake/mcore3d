@@ -8,6 +8,9 @@ namespace MCD {
 
 ResourcePtr OggLoaderFactory::createResource(const Path& fileId, const wchar_t* args)
 {
+	if(wstrCaseCmp(fileId.getExtension().c_str(), L"ogg") != 0)
+		return nullptr;
+
 	int bufferCount = AudioBuffer::cMaxBuffers;
 
 	if(args) {
@@ -27,9 +30,7 @@ ResourcePtr OggLoaderFactory::createResource(const Path& fileId, const wchar_t* 
 			bufferCount = AudioBuffer::cMaxBuffers;
 	}
 
-	if(wstrCaseCmp(fileId.getExtension().c_str(), L"ogg") == 0)
-		return new AudioBuffer(fileId, bufferCount);
-	return nullptr;
+	return new AudioBuffer(fileId, bufferCount);
 }
 
 IResourceLoader* OggLoaderFactory::createLoader()

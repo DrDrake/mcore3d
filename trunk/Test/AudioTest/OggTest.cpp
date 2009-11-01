@@ -14,9 +14,9 @@ class OggTestFixture
 {
 protected:
 	OggTestFixture()
-		: manager(*(new RawFileSystem(L"./")))
+		: fs(new RawFileSystem(L"./")), manager(*fs)
 	{
-		initAudioDevice();
+		(void)initAudioDevice();
 		manager.addFactory(new OggLoaderFactory);
 	}
 
@@ -31,8 +31,8 @@ protected:
 			mSleep(100);
 			source.update();
 
-			if(source.frequency() > 0)
-				std::cout << float(source.currentPcm()) / source.frequency() << std::endl;
+//			if(source.frequency() > 0)
+//				std::cout << float(source.currentPcm()) / source.frequency() << std::endl;
 
 			ResourceManager::Event event = manager.popEvent();
 			if(!event.loader) continue;
@@ -41,6 +41,7 @@ protected:
 		}
 	}
 
+	RawFileSystem* fs;
 	ResourceManager manager;
 };	// OggTestFixture
 
