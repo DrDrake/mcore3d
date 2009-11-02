@@ -403,6 +403,11 @@ IResourceLoader::LoadingState OggLoader::load(std::istream* is, const Path*, con
 		return loadingState = Aborted;
 
 	int result = mImpl->loadData();
+
+	// The loading state may changed by another thread during mImpl->loadData()
+	if(loadingState == Aborted)
+		return loadingState;
+
 	if(result == 1)
 		loadingState = PartialLoaded;
 	else if(result == 0)
@@ -446,6 +451,11 @@ void OggLoader::onPartialLoaded(IResourceManager& manager, void* context, uint p
 void OggLoader::requestLoad(const AudioBufferPtr& buffer, size_t bufferIndex)
 {
 	mImpl->requestLoad(buffer, bufferIndex);
+}
+
+void OggLoader::cancelLoad()
+{
+	loadingState = Aborted;
 }
 
 int OggLoader::popLoadedBuffer()

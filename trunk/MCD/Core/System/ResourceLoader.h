@@ -2,6 +2,7 @@
 #define __MCD_CORE_SYSTEM_RESOURCELOADER__
 
 #include "Platform.h"
+#include "../ShareLib.h"
 #include <iosfwd>
 
 namespace MCD {
@@ -12,7 +13,7 @@ class Path;
 
 /*!	Resource loader.
  */
-class MCD_ABSTRACT_CLASS IResourceLoader
+class MCD_ABSTRACT_CLASS MCD_CORE_API IResourceLoader
 {
 public:
 	enum LoadingState
@@ -59,14 +60,16 @@ public:
 
 	/*!	Callback that will be invoked by a concrete IResourceManager when a resource loader
 		finished part of the progressive load in NON-BLOCKING mode.
+
+		The default implementation of this function will schedule the load immediatly:
+		manager.reSchedule(context, priority, args);
+
 		\param context Pass this context (now or later) to IResourceManager::reSchedule() and
 			the manager will continue the loading of that resource.
-		\note Make sure the context variable will finally (in destructor) be pass to the
-			IResourceManager::reSchedule() to prevent memory leak.
+		\note If the context haven't pass to IResourceManager::reSchedule(), then the user should
+			make sure the context will pass to IResourceManager::cancelSchedule() to prevent memory leak.
 	 */
-	virtual void onPartialLoaded(IResourceManager& manager, sal_in void* context, uint priority, sal_in_z_opt const wchar_t* args) {
-		MCD_ASSERT(false && "Override function not implemented");
-	}
+	virtual void onPartialLoaded(IResourceManager& manager, sal_in void* context, uint priority, sal_in_z_opt const wchar_t* args);
 };	// IResourceLoader
 
 }	// namespace MCD

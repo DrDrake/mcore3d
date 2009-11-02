@@ -569,4 +569,9 @@ int ResourceManagerCallback::removeDependency(const Path& fileId)
 	return mDependency.size();
 }
 
+void IResourceLoader::onPartialLoaded(IResourceManager& manager, sal_in void* context, uint priority, sal_in_z_opt const wchar_t* args)
+{
+	manager.reSchedule(context, priority, args);
+}
+
 }	// namespace MCD
