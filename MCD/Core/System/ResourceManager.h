@@ -11,7 +11,6 @@
 namespace MCD {
 
 class IFileSystem;
-class Path;
 typedef IntrusivePtr<class Resource> ResourcePtr;
 typedef SharedPtr<class IResourceLoader> IResourceLoaderPtr;
 

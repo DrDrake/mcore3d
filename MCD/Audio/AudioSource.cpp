@@ -21,6 +21,11 @@ AudioSource::AudioSource()
 AudioSource::~AudioSource()
 {
 	alDeleteSources(1, &handle);
+
+	// Cancel any pended loading operations
+	IAudioStreamLoader* _loader = dynamic_cast<IAudioStreamLoader*>(loader.get());
+	if(_loader)
+		_loader->cancelLoad();
 }
 
 bool AudioSource::load(IResourceManager& resourceManager, const Path& fileId, bool firstBufferBlock, const wchar_t* args)
