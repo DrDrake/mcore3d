@@ -25,7 +25,7 @@ AudioSource::~AudioSource()
 	// Cancel any pended loading operations
 	IAudioStreamLoader* _loader = dynamic_cast<IAudioStreamLoader*>(loader.get());
 	if(_loader)
-		_loader->cancelLoad();
+		_loader->abortLoad();
 }
 
 bool AudioSource::load(IResourceManager& resourceManager, const Path& fileId, bool firstBufferBlock, const wchar_t* args)
@@ -91,38 +91,39 @@ void AudioSource::update()
 		return;
 
 	IAudioStreamLoader* _loader = dynamic_cast<IAudioStreamLoader*>(loader.get());
-	if(!_loader)
-		return;
-
-	// Request the number of OpenAL Buffers have been processed (played) on the Source
-	ALint buffersProcessed = 0;
-	alGetSourcei(handle, AL_BUFFERS_PROCESSED, &buffersProcessed);
-
-	// For each processed buffer, remove it from the Source Queue
-	while(buffersProcessed)
+	if(_loader)
 	{
-		// Remove the Buffer from the Queue. (uiBuffer contains the Buffer ID for the unqueued Buffer)
-		ALuint uiBuffer = 0;
-		alSourceUnqueueBuffers(handle, 1, &uiBuffer);
+		// Request the number of OpenAL Buffers have been processed (played) on the Source
+		ALint buffersProcessed = 0;
+		alGetSourcei(handle, AL_BUFFERS_PROCESSED, &buffersProcessed);
 
-		mRoughPcmOffsetSinceLastSeek += AudioBuffer::getPcm(uiBuffer);
+		// For each processed buffer, remove it from the Source Queue
+		while(buffersProcessed)
+		{
+			// Remove the Buffer from the Queue. (uiBuffer contains the Buffer ID for the unqueued Buffer)
+			ALuint uiBuffer = 0;
+			alSourceUnqueueBuffers(handle, 1, &uiBuffer);
+			checkAndPrintError("alSourceUnqueueBuffers failed: ");
 
-		// Tells resource loader continue to load
-		for(size_t i=0; i<buffer->bufferCount(); ++i) {
-			if(buffer->handles[i] == uiBuffer) {
-				_loader->requestLoad(buffer, i);
-				break;
+			mRoughPcmOffsetSinceLastSeek += AudioBuffer::getPcm(uiBuffer);
+
+			// Tells resource loader continue to load
+			for(size_t i=0; i<buffer->bufferCount(); ++i) {
+				if(buffer->handles[i] == uiBuffer) {
+					_loader->requestLoad(buffer, i);
+					break;
+				}
 			}
+
+			--buffersProcessed;
 		}
 
-		--buffersProcessed;
-	}
-
-	// Queue new buffers that were loaded by the loader
-	int bufferIdx;
-	while((bufferIdx = _loader->popLoadedBuffer()) != -1) {
-		alSourceQueueBuffers(handle, 1, &buffer->handles[bufferIdx]);
-		checkAndPrintError("alSourceQueueBuffers failed: ");
+		// Queue new buffers that were loaded by the loader
+		int bufferIdx;
+		while((bufferIdx = _loader->popLoadedBuffer()) != -1) {
+			alSourceQueueBuffers(handle, 1, &buffer->handles[bufferIdx]);
+			checkAndPrintError("alSourceQueueBuffers failed: ");
+		}
 	}
 
 	bool reallyPlaying = isReallyPlaying();
@@ -166,9 +167,33 @@ uint64_t AudioSource::currentPcm() const
 	return fineOffset + mRoughPcmOffsetSinceLastSeek;
 }
 
+bool AudioSource::seek(uint64_t pcmOffset)
+{
+	IAudioStreamLoader* _loader = dynamic_cast<IAudioStreamLoader*>(loader.get());
+	if(!_loader)
+		return false;
+
+	bool result = _loader->seek(pcmOffset);
+	if(result) {
+		// Discard all remaining buffer in OpenAL
+		alSourceStop(handle);
+
+		// TODO: The following step should make the seek more accurate, but
+		// somehow it's broken right now, fix it.
+		// Discard all remaining loaded buffer in the loader
+//		while(_loader->popLoadedBuffer() != -1) {}
+
+		mRoughPcmOffsetSinceLastSeek = pcmOffset;
+	}
+
+	return result;
+}
+
 bool AudioSource::isPlaying() const
 {
-	return mRequestPlay;
+	uint64_t total = totalPcm();
+	bool eof = total == 0 ? false : currentPcm() >= total;
+	return mRequestPlay && !eof;
 }
 
 bool AudioSource::isReallyPlaying() const

@@ -27,17 +27,17 @@ typedef int (*LPOVCLEAR)(OggVorbis_File* vf);
 typedef long (*LPOVREAD)(OggVorbis_File* vf, char* buffer, int length, int bigendianp, int word, int sgned, int* bitstream);
 typedef ogg_int64_t (*LPOVPCMTOTAL)(OggVorbis_File* vf, int i);
 typedef vorbis_info* (*LPOVINFO)(OggVorbis_File* vf, int link);
-typedef vorbis_comment* (*LPOVCOMMENT)(OggVorbis_File* vf, int link);
 typedef int (*LPOVOPENCALLBACKS)(void* datasource, OggVorbis_File* vf, char* initial, long ibytes, ov_callbacks callbacks);
 typedef ogg_int64_t (*LPOVPCMTELL)(OggVorbis_File* vf);
+typedef int (*LPOVPCMSEEKLAP)(OggVorbis_File*vf, ogg_int64_t pos);
 
 LPOVCLEAR			gFnOvClear = nullptr;
 LPOVREAD			gFnOvRead = nullptr;
 LPOVPCMTOTAL		gFnOvPcmTotal = nullptr;
 LPOVINFO			gFnOvInfo = nullptr;
-LPOVCOMMENT			gFnOvComment = nullptr;
 LPOVOPENCALLBACKS	gFnOvOpenCallbacks = nullptr;
 LPOVPCMTELL			gFnOvPcmTell = nullptr;
+LPOVPCMSEEKLAP		gFnOvPcmSeekLap = nullptr;
 
 bool gVorbisInited = false;
 
@@ -53,12 +53,12 @@ void initVorbis()
 		gFnOvRead = (LPOVREAD)GetProcAddress(h, "ov_read");
 		gFnOvPcmTotal = (LPOVPCMTOTAL)GetProcAddress(h, "ov_pcm_total");
 		gFnOvInfo = (LPOVINFO)GetProcAddress(h, "ov_info");
-		gFnOvComment = (LPOVCOMMENT)GetProcAddress(h, "ov_comment");
 		gFnOvOpenCallbacks = (LPOVOPENCALLBACKS)GetProcAddress(h, "ov_open_callbacks");
 		gFnOvPcmTell = (LPOVPCMTELL)GetProcAddress(h, "ov_pcm_tell");
+		gFnOvPcmSeekLap = (LPOVPCMSEEKLAP)GetProcAddress(h, "ov_pcm_seek_lap");
 
 		if (gFnOvClear && gFnOvRead && gFnOvPcmTotal && gFnOvInfo &&
-			gFnOvComment && gFnOvOpenCallbacks)
+			gFnOvOpenCallbacks && gFnOvPcmTell && gFnOvPcmSeekLap)
 		{
 			gVorbisInited = true;
 		}
@@ -308,13 +308,20 @@ public:
 				return -1;
 
 			AudioBuffer& buffer = *task.buffer;
-			size_t bytesWritten = gDecodeOggVorbis(&mOggFile, (char*)buf, mBufferSize, mVorbisInfo->channels);
+			size_t bytesWritten;
+			uint64_t pcmTell;
+			
+			{	// Protect against the seek(pcmOffset) function
+				ScopeLock lock(mSeekMutex);
+				bytesWritten = gDecodeOggVorbis(&mOggFile, (char*)buf, mBufferSize, mVorbisInfo->channels);
+				pcmTell = gFnOvPcmTell(&mOggFile);
+			}
 
 			// NOTE: Make sure no other thread is using this buffer handle, otherwise we
 			// need to move the alBufferData() function to do inside commit().
 			alBufferData(buffer.handles[task.bufferIdx], format, buf, bytesWritten, frequency);
 
-			Task task2 = { task.bufferIdx, gFnOvPcmTell(&mOggFile), nullptr };
+			Task task2 = { task.bufferIdx, pcmTell, nullptr };
 			mCommitQueue.push(task2);
 
 			if(!checkAndPrintError("alBufferData failed: "))
@@ -359,12 +366,25 @@ public:
 		return task.bufferIdx;
 	}
 
+	bool seek(uint64_t pcmOffset)
+	{
+		{	ScopeLock lock(mMutex);
+			if(!mHeaderLoaded || !mOggFile.seekable)
+				return false;
+		}
+
+		ScopeLock lock(mSeekMutex);
+		int result = gFnOvPcmSeekLap(&mOggFile, pcmOffset);
+
+		return result == 0;
+	}
+
 	size_t mBufferSize;	//!< Calculated suitable buffer size for each buffer in AudioBuffer.
 	ALenum format;
 	ALsizei frequency;
 	void* partialLoadContext;
 	IResourceManager* resourceManager;
-	Mutex mMutex;
+	Mutex mMutex, mSeekMutex;
 
 	TaskQueue mTaskQueue, mCommitQueue;
 
@@ -453,9 +473,15 @@ void OggLoader::requestLoad(const AudioBufferPtr& buffer, size_t bufferIndex)
 	mImpl->requestLoad(buffer, bufferIndex);
 }
 
-void OggLoader::cancelLoad()
+void OggLoader::abortLoad()
 {
-	loadingState = Aborted;
+	{	ScopeLock lock(mImpl->mMutex);
+		loadingState = Aborted;
+	}
+
+	// Notify the resource manager to trigger IResourceLoader::load(),
+	// so that all stuffs will be clear because of the Abort state.
+	requestLoad(nullptr, 0);
 }
 
 int OggLoader::popLoadedBuffer()
@@ -477,6 +503,18 @@ uint64_t OggLoader::pcmOffset() const
 
 	ScopeLock lock(mImpl->mMutex);
 	return mImpl->mCurrentPcmOffset;
+}
+
+bool OggLoader::seek(uint64_t pcmOffset)
+{
+	MCD_ASSUME(mImpl);
+
+	{	ScopeLock lock(mImpl->mMutex);
+		if(loadingState & IResourceLoader::Stopped)
+			return false;
+	}
+
+	return mImpl->seek(pcmOffset);
 }
 
 }	// namespace MCD
