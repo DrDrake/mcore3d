@@ -209,6 +209,10 @@
 			Name="System"
 			>
 			<File
+				RelativePath=".\System\AdvancedResourceManagerTest.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\System\CondVarTest.cpp"
 				>
 			</File>
@@ -346,10 +350,6 @@
 			>
 		</File>
 		<File
-			RelativePath="..\..\MCD\Core\Pch.cpp"
-			>
-		</File>
-		<File
 			RelativePath=".\Pch.cpp"
 			>
 			<FileConfiguration
@@ -376,6 +376,10 @@
 					UsePrecompiledHeader="1"
 				/>
 			</FileConfiguration>
+		</File>
+		<File
+			RelativePath="..\..\MCD\Core\Pch.cpp"
+			>
 		</File>
 		<File
 			RelativePath=".\Pch.h"
