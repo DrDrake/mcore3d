@@ -1,6 +1,7 @@
 #include "Pch.h"
 #include "../../MCD/Audio/AudioBuffer.h"
 #include "../../MCD/Audio/AudioDevice.h"
+#include "../../MCD/Audio/AudioDevice.h"
 #include "../../MCD/Audio/AudioSource.h"
 #include "../../MCD/Audio/ResourceLoaderFactory.h"
 #include "../../MCD/Core/System/RawFileSystem.h"
@@ -27,7 +28,7 @@ protected:
 
 	void waitForSourceFinish(AudioSource& source)
 	{
-		while(source.isReallyPlaying()) {
+		while(source.isPlaying()) {
 			mSleep(100);
 			source.update();
 
@@ -106,6 +107,33 @@ TEST_FIXTURE(OggTestFixture, StreamNonBlockTest)
 	waitForSourceFinish(source);
 
 	CHECK_EQUAL(source.totalPcm(), source.currentPcm());
+}
+
+TEST_FIXTURE(OggTestFixture, SeekingTest)
+{
+	AudioSource source;
+	CHECK(source.load(manager, L"stereo.ogg"));
+
+	source.play();
+
+	int count = 0;
+	while(source.isPlaying()) {
+		source.update();
+		ResourceManager::Event event = manager.popEvent();
+
+		if(event.loader)
+			event.loader->commit(*event.resource);
+
+		mSleep(100);
+
+//		std::cout << float(source.currentPcm()) / 4410;
+		if(count % 10 == 0) {
+			source.seek(int(count * 0.9) * 4410);
+//			std::cout << ", " << int(count * 0.9);
+		}
+//		std::cout << std::endl;
+		++count;
+	}
 }
 
 #include "../../MCD/Audio/AudioEffect.h"

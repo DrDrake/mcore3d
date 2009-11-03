@@ -36,7 +36,7 @@ public:
 	 */
 	sal_override void requestLoad(const AudioBufferPtr& buffer, size_t bufferIndex);
 
-	sal_override void cancelLoad();
+	sal_override void abortLoad();
 
 	sal_override int popLoadedBuffer();
 
@@ -44,6 +44,8 @@ public:
 	sal_override Info info() const;
 
 	sal_override uint64_t pcmOffset() const;
+
+	sal_override sal_checkreturn bool seek(uint64_t pcmOffset);
 
 	volatile LoadingState loadingState;
 

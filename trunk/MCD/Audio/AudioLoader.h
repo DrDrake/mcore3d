@@ -24,7 +24,7 @@ public:
 	 */
 	virtual void requestLoad(const AudioBufferPtr& buffer, size_t bufferIndex) = 0;
 
-	virtual void cancelLoad() = 0;
+	virtual void abortLoad() = 0;
 
 	/*!	Ask the loader about any newly loaded buffer.
 		\return The index of which sub-buffer in AudioBuffer is loaded, -1 if nothing new is loaded.
@@ -45,6 +45,9 @@ public:
 		by the repeatitive call of popLoadedBuffer().
 	 */
 	virtual uint64_t pcmOffset() const = 0;
+
+	//!	Seek to a specific pcm offset position, if the binded IO stream supports seeking.
+	virtual sal_checkreturn bool seek(uint64_t pcmOffset) = 0;
 };	// IAudioStreamLoader
 
 }	// namespace MCD

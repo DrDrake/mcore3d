@@ -77,6 +77,8 @@ public:
 
 	uint64_t currentPcm() const;
 
+	sal_checkreturn bool seek(uint64_t pcmOffset);
+
 	bool isPlaying() const;
 
 	/*!	Returns whether the audio source is really playing in the driver level.
