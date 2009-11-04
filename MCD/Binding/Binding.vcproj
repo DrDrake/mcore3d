@@ -222,12 +222,20 @@
 			ReferencedProjectIdentifier="{B6219744-C76A-4C74-A455-8AFA986C3B6A}"
 			RelativePathToProject="..\MCD\Component\Component.vcproj"
 		/>
+		<ProjectReference
+			ReferencedProjectIdentifier="{5570494C-4F2D-4C2B-956A-E1804C73C524}"
+			RelativePathToProject="..\MCD\Audio\Audio.vcproj"
+		/>
 	</References>
 	<Files>
 		<Filter
 			Name="Header Files"
 			Filter="h"
 			>
+			<File
+				RelativePath=".\AudioComponent.h"
+				>
+			</File>
 			<File
 				RelativePath=".\Binding.h"
 				>
@@ -289,6 +297,10 @@
 			Name="Source Files"
 			Filter="cpp;"
 			>
+			<File
+				RelativePath=".\AudioComponent.cpp"
+				>
+			</File>
 			<File
 				RelativePath=".\Binding.cpp"
 				>

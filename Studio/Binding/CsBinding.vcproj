@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="big5"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <VisualStudioProject
 	ProjectType="Visual C++"
 	Version="9.00"
@@ -207,6 +207,10 @@
 		<ProjectReference
 			ReferencedProjectIdentifier="{5813D158-EC1E-4305-8122-8573958150FE}"
 			RelativePathToProject="..\MCD\Binding\Binding.vcproj"
+		/>
+		<ProjectReference
+			ReferencedProjectIdentifier="{5570494C-4F2D-4C2B-956A-E1804C73C524}"
+			RelativePathToProject="..\MCD\Audio\Audio.vcproj"
 		/>
 	</References>
 	<Files>

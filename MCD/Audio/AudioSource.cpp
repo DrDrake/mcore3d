@@ -5,6 +5,7 @@
 #include "../Core/System/Log.h"
 #include "../Core/System/ResourceLoader.h"
 #include "../Core/System/ResourceManager.h"
+#include "../Core/System/StrUtility.h"	// for NvpParser
 #include "../Core/System/Thread.h"	// for mSleep()
 #include "../../3Party/OpenAL/al.h"
 
@@ -28,11 +29,23 @@ AudioSource::~AudioSource()
 		_loader->abortLoad();
 }
 
-bool AudioSource::load(IResourceManager& resourceManager, const Path& fileId, bool firstBufferBlock, const wchar_t* args)
+bool AudioSource::load(IResourceManager& resourceManager, const Path& fileId, const wchar_t* args)
 {
+	bool blockLoadFirstBuffer = false;
+	{	NvpParser parser(args);
+		const wchar_t* name, *value;
+		while(parser.next(name, value))
+		{
+			if(wstrCaseCmp(name, L"blockLoadFirstBuffer") == 0) {
+				blockLoadFirstBuffer = (wStr2IntWithDefault(value, 0) > 1);
+				break;
+			}
+		}
+	}
+
 	IAudioStreamLoader* _loader = nullptr;
 	ResourcePtr res = resourceManager.load(
-		fileId, firstBufferBlock ? IResourceManager::FirstPartialBlock : IResourceManager::NonBlock,
+		fileId, blockLoadFirstBuffer ? IResourceManager::FirstPartialBlock : IResourceManager::NonBlock,
 		0, args, &loader
 	);
 
@@ -49,7 +62,7 @@ bool AudioSource::load(IResourceManager& resourceManager, const Path& fileId, bo
 
 	fillUpInitialBuffers();
 
-	if(firstBufferBlock) {
+	if(blockLoadFirstBuffer) {
 		int bufferIdx;
 
 		// Wait until the worker thread give us response.
@@ -81,6 +94,27 @@ void AudioSource::stop()
 {
 	stopAndUnqueueBuffers();
 	mRequestPlay = false;
+}
+
+bool AudioSource::seek(uint64_t pcmOffset)
+{
+	IAudioStreamLoader* _loader = dynamic_cast<IAudioStreamLoader*>(loader.get());
+	if(!_loader)
+		return false;
+
+	if(!_loader->seek(pcmOffset))
+		return false;
+
+	stopAndUnqueueBuffers();
+
+	// Discard all remaining loaded buffer in the loader
+	while(_loader->popLoadedBuffer() != -1) {}
+
+	fillUpInitialBuffers();
+
+	mRoughPcmOffsetSinceLastSeek = pcmOffset;
+
+	return true;
 }
 
 void AudioSource::update()
@@ -163,27 +197,6 @@ uint64_t AudioSource::currentPcm() const
 	alGetSourcei(handle, AL_SAMPLE_OFFSET, &fineOffset);
 
 	return fineOffset + mRoughPcmOffsetSinceLastSeek;
-}
-
-bool AudioSource::seek(uint64_t pcmOffset)
-{
-	IAudioStreamLoader* _loader = dynamic_cast<IAudioStreamLoader*>(loader.get());
-	if(!_loader)
-		return false;
-
-	if(!_loader->seek(pcmOffset))
-		return false;
-
-	stopAndUnqueueBuffers();
-
-	// Discard all remaining loaded buffer in the loader
-	while(_loader->popLoadedBuffer() != -1) {}
-
-	fillUpInitialBuffers();
-
-	mRoughPcmOffsetSinceLastSeek = pcmOffset;
-
-	return true;
 }
 
 bool AudioSource::isPlaying() const

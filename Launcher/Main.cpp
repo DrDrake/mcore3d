@@ -1,4 +1,5 @@
 #include "Pch.h"
+#include "../MCD/Audio/AudioDevice.h"
 #include "../MCD/Binding/Launcher.h"
 #include "../MCD/Component/Input/WinMessageInputComponent.h"
 #include "../MCD/Core/System/FileSystemCollection.h"
@@ -45,6 +46,8 @@ public:
 		:
 		BasicGlWindow(L"title=Launcher;width=800;height=600;fullscreen=0;FSAA=4")
 	{
+		initAudioDevice();
+
 		IFileSystem* fs = createDefaultFileSystem();
 		std::auto_ptr<IResourceManager> mgr(new LauncherDefaultResourceManager(*fs, true));
 		mLauncher.reset(new Launcher(*fs, *mgr.release(), true));
@@ -64,6 +67,7 @@ public:
 
 	sal_override ~TestWindow()
 	{
+		closeAudioDevice();
 	}
 
 	sal_override void update(float deltaTime)

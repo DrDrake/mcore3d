@@ -28,20 +28,22 @@ public:
 		Therefore, there is no distintion between streamming and non-streamming audio, stream or not
 		is just simply depends on the buffer size.
 
-		\param firstBufferBlock
-			If set to true, the call will block until the first audio buffer finished loading, such that
-			the audio source can play immediatly and the source's property like frequency() and totalPcm()
-			can be get.
-			If it's set to false, all the property funtions like frequency() and totalPcm() will not gives
-			valid result until the first buffer is loaded. While the play() function will pend its operation
-			until the update() function detected there is buffer loaded.
-
 		\param args Extra parameter as a name-value pair string that will pass to the audio loader.
 			Currently supported in OggLoader:
-			Name: bufferCount, Value: 1 - AudioBuffer::cMaxBuffers
-			Name: subBufferLength, Value: 10 - *, Desc: Duration of each sub-buffer in milli seconds
+			Name: bufferCount, Value: 1 - AudioBuffer::cMaxBuffers, Default: AudioBuffer::cMaxBuffers
+			Name: subBufferLength, Value: 10 - *, Default: 250, Desc: Duration of each sub-buffer in milli seconds
+			Name: blockLoadFirstBuffer, Value: 0/1, Default: 0, Desc:
+				If set to true, the call will block until the first audio buffer finished loading, such that
+				the audio source can play immediatly and the source's property like frequency() and totalPcm()
+				can be get.
+				If it's set to false, all the property funtions like frequency() and totalPcm() will not gives
+				valid result until the first buffer is loaded. While the play() function will pend its operation
+				until the update() function detected there is buffer loaded.
 	 */
-	sal_checkreturn bool load(IResourceManager& resourceManager, const Path& fileId, bool firstBufferBlock=false, sal_in_z_opt const wchar_t* args=nullptr);
+	sal_checkreturn bool load(
+		IResourceManager& resourceManager, const Path& fileId,
+		sal_in_z_opt const wchar_t* args=nullptr
+	);
 
 	/*!	Start to play the audio, if some of the background loading buffer becomes available.
 		If currently there is no buffer to play, keep calling update() and resource manager's update().
@@ -55,6 +57,8 @@ public:
 	void pause();
 
 	void stop();
+
+	sal_checkreturn bool seek(uint64_t pcmOffset);
 
 	/*!	Because of the asyn nature of audio streamming, we need an update function to do necessary
 		processing.
@@ -76,8 +80,6 @@ public:
 	uint64_t totalPcm() const;
 
 	uint64_t currentPcm() const;
-
-	sal_checkreturn bool seek(uint64_t pcmOffset);
 
 	bool isPlaying() const;
 

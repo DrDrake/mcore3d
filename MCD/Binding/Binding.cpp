@@ -38,15 +38,16 @@ static void printfunc(HSQUIRRELVM v, const SQChar* s, ...)
 	va_end(vl);
 }
 
-extern void registerComponentQueueBinding(script::VMCore* v);
-extern void registerEntityBinding(script::VMCore* v);
-extern void registerInputComponentBinding(script::VMCore* v);
+extern void registerSystemBinding(script::VMCore* v);
 extern void registerMathBinding(script::VMCore* v);
-extern void registerPhysicsComponentBinding(script::VMCore* v);
 extern void registerRenderBinding(script::VMCore* v);
+extern void registerEntityBinding(script::VMCore* v);
+extern void registerComponentQueueBinding(script::VMCore* v);
+extern void registerAudioComponentBinding(script::VMCore* v);
+extern void registerInputComponentBinding(script::VMCore* v);
+extern void registerPhysicsComponentBinding(script::VMCore* v);
 extern void registerRenderComponentBinding(script::VMCore* v);
 extern void registerScriptComponentBinding(script::VMCore* v);
-extern void registerSystemBinding(script::VMCore* v);
 
 static void onCompileError(HSQUIRRELVM v,const SQChar* desc, const SQChar* source, SQInteger line, SQInteger column)
 {
@@ -97,6 +98,7 @@ public:
 		registerEntityBinding(&vm);
 
 		registerComponentQueueBinding(&vm);
+		registerAudioComponentBinding(&vm);
 		registerInputComponentBinding(&vm);
 		registerPhysicsComponentBinding(&vm);
 		registerRenderComponentBinding(&vm);

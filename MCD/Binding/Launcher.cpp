@@ -4,6 +4,8 @@
 #include "InputComponent.h"
 #include "PhysicsComponent.h"
 #include "System.h"
+#include "../Audio/ResourceLoaderFactory.h"
+#include "../Component/Audio/AudioSourceComponent.h"
 #include "../Component/Physics/RigidBodyComponent.h"
 #include "../Component/Render/EntityPrototypeLoader.h"
 #include "../Component/Render/RenderableComponent.h"
@@ -191,6 +193,16 @@ bool Launcher::init(InputComponent& inputComponent, Entity* rootNode)
 	))
 		return false;
 
+	// Patch the original AudioSourceComponent constructor to pass our resource manager automatically
+	if(!vm.runScript(L"\
+		local backup = AudioSourceComponent.constructor;\n\
+		AudioSourceComponent.constructor <- function(fileId, args) : (backup) {\n\
+			backup.call(this);	// Call the original constructor\n\
+			this.load(resourceManager, fileId, args);\n\
+		}\n"
+	))
+		return false;
+
 	if(rootNode)
 		setRootNode(rootNode);
 	else
@@ -248,6 +260,7 @@ void Launcher::update()
 
 	BehaviourComponent::traverseEntities(mRootNode);
 	RenderableComponent::traverseEntities(mRootNode);
+	AudioComponent::traverseEntities(mRootNode);
 
 	mFrameTimer.nextFrame();
 }
@@ -292,6 +305,7 @@ LauncherDefaultResourceManager::LauncherDefaultResourceManager(IFileSystem& file
 	addFactory(new EffectLoaderFactory(*this));
 	addFactory(new JpegLoaderFactory);
 	addFactory(new Max3dsLoaderFactory(*this));
+	addFactory(new OggLoaderFactory);
 	addFactory(new PodLoaderFactory(*this));
 	addFactory(new PixelShaderLoaderFactory);
 	addFactory(new PngLoaderFactory);
