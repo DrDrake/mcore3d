@@ -249,7 +249,8 @@ public:
 
 	~Impl()
 	{
-		gFnOvClear(&mOggFile);
+		if(mHeaderLoaded)
+			gFnOvClear(&mOggFile);
 	}
 
 	bool loadHeader(std::istream* is, const wchar_t* args)

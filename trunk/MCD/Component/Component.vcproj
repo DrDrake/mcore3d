@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="big5"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <VisualStudioProject
 	ProjectType="Visual C++"
 	Version="9.00"
@@ -209,6 +209,10 @@
 			ReferencedProjectIdentifier="{500413B2-5AE6-41CE-BCFF-D90DB2755869}"
 			RelativePathToProject="..\MCD\Render\Render.vcproj"
 		/>
+		<ProjectReference
+			ReferencedProjectIdentifier="{5570494C-4F2D-4C2B-956A-E1804C73C524}"
+			RelativePathToProject="..\MCD\Audio\Audio.vcproj"
+		/>
 	</References>
 	<Files>
 		<Filter
@@ -342,6 +346,18 @@
 		<Filter
 			Name="Script"
 			>
+		</Filter>
+		<Filter
+			Name="Audio"
+			>
+			<File
+				RelativePath=".\Audio\AudioSourceComponent.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\Audio\AudioSourceComponent.h"
+				>
+			</File>
 		</Filter>
 		<File
 			RelativePath=".\Pch.cpp"

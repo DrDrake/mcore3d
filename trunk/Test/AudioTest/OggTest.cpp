@@ -46,12 +46,24 @@ protected:
 	ResourceManager manager;
 };	// OggTestFixture
 
+TEST_FIXTURE(OggTestFixture, BasicTest)
+{
+	{	// Construct and destroy
+		AudioSource source;
+	}
+
+	{	// Construct, load and destroy
+		AudioSource source;
+		CHECK(source.load(manager, L"stereo.ogg"));
+	}
+}
+
 // This first-block mode is convenience to the user for getting the source's property,
 // and have exact timming on when to play the source.
 TEST_FIXTURE(OggTestFixture, StreamBlockFirstPartialTest)
 {
 	AudioSource source;
-	CHECK(source.load(manager, L"stereo.ogg", true));
+	CHECK(source.load(manager, L"stereo.ogg", L"blockLoadFirstBuffer=1"));
 
 	CHECK_EQUAL(22050u, source.frequency());
 	CHECK_EQUAL(55167u, source.totalPcm());
@@ -70,7 +82,7 @@ TEST_FIXTURE(OggTestFixture, StreamBlockFirstPartialTest)
 TEST_FIXTURE(OggTestFixture, SingleSubBuffer)
 {
 	AudioSource source;
-	CHECK(source.load(manager, L"stereo.ogg", true, L"bufferCount=1;subBufferLength=2600"));
+	CHECK(source.load(manager, L"stereo.ogg", L"blockLoadFirstBuffer=1;bufferCount=1;subBufferLength=2600"));
 
 	CHECK_EQUAL(22050u, source.frequency());
 	CHECK_EQUAL(55167u, source.totalPcm());
@@ -89,7 +101,7 @@ TEST_FIXTURE(OggTestFixture, SingleSubBuffer)
 TEST_FIXTURE(OggTestFixture, StreamNonBlockTest)
 {
 	AudioSource source;
-	CHECK(source.load(manager, L"stereo.ogg", false));
+	CHECK(source.load(manager, L"stereo.ogg"));
 
 	// Calling play() just inform the source to play when data is ready.
 	source.play();
@@ -143,7 +155,7 @@ TEST_FIXTURE(OggTestFixture, EffectTest)
 	initAudioEffect();
 
 	AudioSource source;
-	CHECK(source.load(manager, L"stereo.ogg", true));
+	CHECK(source.load(manager, L"stereo.ogg"));
 
 	AudioEffect effect;
 	effect.create();
