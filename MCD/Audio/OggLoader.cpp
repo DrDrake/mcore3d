@@ -431,7 +431,8 @@ IResourceLoader::LoadingState OggLoader::load(std::istream* is, const Path*, con
 	if(result == 1)
 		loadingState = PartialLoaded;
 	else if(result == 0)
-		loadingState = Loaded;
+//		loadingState = Loaded;
+		loadingState = PartialLoaded;
 	else
 		loadingState = Aborted;
 

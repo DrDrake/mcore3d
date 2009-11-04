@@ -117,7 +117,7 @@ TEST_FIXTURE(OggTestFixture, SeekingTest)
 	source.play();
 
 	int count = 0;
-	while(source.isPlaying()) {
+	while(source.isPlaying() && count < 40) {
 		source.update();
 		ResourceManager::Event event = manager.popEvent();
 
@@ -126,13 +126,12 @@ TEST_FIXTURE(OggTestFixture, SeekingTest)
 
 		mSleep(100);
 
-//		std::cout << float(source.currentPcm()) / 4410;
-		if(count % 10 == 0) {
-			source.seek(int(count * 0.9) * 4410);
-//			std::cout << ", " << int(count * 0.9);
+		// Seek to half of the current PCM every 1 second
+		if(count++ % 10 == 0) {
+			uint64_t backupPcm = source.currentPcm();
+			source.seek(source.currentPcm() / 2);
+			CHECK_EQUAL(backupPcm / 2, source.currentPcm());
 		}
-//		std::cout << std::endl;
-		++count;
 	}
 }
 

@@ -47,9 +47,7 @@ bool AudioSource::load(IResourceManager& resourceManager, const Path& fileId, bo
 	// Each streamming audio should have it's own buffer, so we uncache it from the manager.
 	resourceManager.uncache(fileId);
 
-	// Fill up the initial buffers
-	for(size_t i=0; i<buffer->bufferCount(); ++i)
-		_loader->requestLoad(buffer, i);
+	fillUpInitialBuffers();
 
 	if(firstBufferBlock) {
 		int bufferIdx;
@@ -81,7 +79,7 @@ void AudioSource::pause()
 
 void AudioSource::stop()
 {
-	alSourceStop(handle);
+	stopAndUnqueueBuffers();
 	mRequestPlay = false;
 }
 
@@ -173,20 +171,19 @@ bool AudioSource::seek(uint64_t pcmOffset)
 	if(!_loader)
 		return false;
 
-	bool result = _loader->seek(pcmOffset);
-	if(result) {
-		// Discard all remaining buffer in OpenAL
-		alSourceStop(handle);
+	if(!_loader->seek(pcmOffset))
+		return false;
 
-		// TODO: The following step should make the seek more accurate, but
-		// somehow it's broken right now, fix it.
-		// Discard all remaining loaded buffer in the loader
-//		while(_loader->popLoadedBuffer() != -1) {}
+	stopAndUnqueueBuffers();
 
-		mRoughPcmOffsetSinceLastSeek = pcmOffset;
-	}
+	// Discard all remaining loaded buffer in the loader
+	while(_loader->popLoadedBuffer() != -1) {}
 
-	return result;
+	fillUpInitialBuffers();
+
+	mRoughPcmOffsetSinceLastSeek = pcmOffset;
+
+	return true;
 }
 
 bool AudioSource::isPlaying() const
@@ -206,6 +203,28 @@ bool AudioSource::isReallyPlaying() const
 bool AudioSource::isPaused() const
 {
 	return mRequestPause;
+}
+
+void AudioSource::fillUpInitialBuffers()
+{
+	IAudioStreamLoader* _loader = dynamic_cast<IAudioStreamLoader*>(loader.get());
+	if(!buffer || !_loader)
+		return;
+
+	for(size_t i=0; i<buffer->bufferCount(); ++i)
+		_loader->requestLoad(buffer, i);
+}
+
+void AudioSource::stopAndUnqueueBuffers()
+{
+	alSourceStop(handle);
+
+	ALint buffersProcessed = 0;
+	alGetSourcei(handle, AL_BUFFERS_PROCESSED, &buffersProcessed);
+
+	ALuint dummy[AudioBuffer::cMaxBuffers];
+	alSourceUnqueueBuffers(handle, buffersProcessed, dummy);
+	checkAndPrintError("alSourceUnqueueBuffers failed: ");
 }
 
 }	// namespace MCD

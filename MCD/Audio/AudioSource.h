@@ -90,6 +90,9 @@ public:
 	bool isPaused() const;
 
 private:
+	void fillUpInitialBuffers();
+	void stopAndUnqueueBuffers();
+
 	bool mRequestPlay;
 	bool mRequestPause;
 	uint64_t mRoughPcmOffsetSinceLastSeek;
