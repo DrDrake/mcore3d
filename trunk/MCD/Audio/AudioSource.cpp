@@ -31,8 +31,11 @@ AudioSource::~AudioSource()
 
 bool AudioSource::load(IResourceManager& resourceManager, const Path& fileId, const wchar_t* args)
 {
+	// Determine the "blockLoadFirstBuffer" option in args
 	bool blockLoadFirstBuffer = false;
-	{	NvpParser parser(args);
+	if(args)
+	{
+		NvpParser parser(args);
 		const wchar_t* name, *value;
 		while(parser.next(name, value))
 		{
