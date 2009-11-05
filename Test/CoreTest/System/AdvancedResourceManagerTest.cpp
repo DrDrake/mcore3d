@@ -6,8 +6,8 @@
 
 using namespace MCD;
 
-// Test the loader controled delaying of progressive load. The best application is
-// the use in Audio streamming.
+// Test the loader controled delaying of progressive load. The most noticable 
+// application is the use in Audio streamming.
 
 namespace {
 
@@ -53,6 +53,12 @@ public:
 		requestLoad();
 	}
 
+	sal_override LoadingState getLoadingState() const
+	{
+		ScopeLock lock(mMutex);
+		return mState;
+	}
+
 protected:
 	sal_override sal_checkreturn LoadingState load(
 		sal_maybenull std::istream* is, sal_maybenull const Path* fileId=nullptr, sal_maybenull const wchar_t* args=nullptr)
@@ -77,12 +83,6 @@ protected:
 	}
 
 	sal_override void commit(Resource&) {}
-
-	sal_override LoadingState getLoadingState() const
-	{
-		ScopeLock lock(mMutex);
-		return mState;
-	}
 
 	sal_override void onPartialLoaded(IResourceManager& manager, void* context, uint priority, const wchar_t* args)
 	{
@@ -144,7 +144,7 @@ protected:
 
 }	// namespace
 
-// If we didn't actively request the loader to continue to load, the
+// If we didn't actively request the loader to continue the load, the
 // load will never finish.
 TEST_FIXTURE_CTOR(DelayLoaderTestFixture, (IResourceManager::FirstPartialBlock), NoRequest)
 {
@@ -156,5 +156,18 @@ TEST_FIXTURE_CTOR(DelayLoaderTestFixture, (IResourceManager::FirstPartialBlock),
 		CHECK_EQUAL(1u, loader->getLoadCount());
 	}
 
-	CHECK(loader);
+	// Since we use FirstPartialBlock, so the load count will be at least 1
+	CHECK_EQUAL(1u, loader->getLoadCount());
+}
+
+TEST_FIXTURE_CTOR(DelayLoaderTestFixture, (IResourceManager::FirstPartialBlock), ContinueRequest)
+{
+	while(loader->getLoadingState() != IResourceLoader::Loaded) {
+		loader->requestLoad();
+		ResourceManager::Event event = manager.popEvent();
+		if(!event.loader) continue;
+
+	}
+
+	CHECK_EQUAL(10u, loader->getLoadCount());
 }
