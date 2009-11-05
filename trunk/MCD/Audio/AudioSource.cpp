@@ -231,6 +231,7 @@ void AudioSource::fillUpInitialBuffers()
 		_loader->requestLoad(buffer, i);
 }
 
+// In OpenAL, we need to manually unqueue the buffers after alSourceStop()
 void AudioSource::stopAndUnqueueBuffers()
 {
 	alSourceStop(handle);
