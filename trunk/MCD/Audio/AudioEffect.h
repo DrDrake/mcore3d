@@ -25,6 +25,8 @@ public:
 
 	void bind(AudioSource& source);
 
+	void unbind(AudioSource& source);
+
 	void setParameters(sal_in_z_opt const char* paramNameValuePair=nullptr);
 
 	float getParameterf(sal_in_z_opt const char* paramName=nullptr);

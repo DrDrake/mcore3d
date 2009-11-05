@@ -9,6 +9,7 @@
 
 #define _WINDOWS
 #include "../../MCD/Audio/AudioDevice.h"
+#include "../../MCD/Audio/AudioEffect.h"
 #include "../../MCD/Binding/Launcher.h"
 #include "../../MCD/Component/Render/CameraComponent.h"
 #include "../../MCD/Component/Render/PickComponent.h"
@@ -51,7 +52,6 @@ public:
 		mPlaying(false),
 		mLauncher(*mgr->fileSystemCollection->getRawPtr(), *mgr->getRawPtr(), false)
 	{
-		initAudioDevice();
 		mRootNode.name = L"Ultimate root node";
 	}
 
@@ -61,9 +61,6 @@ public:
 		while(mRootNode.firstChild())
 			delete mRootNode.firstChild();
 		mLauncher.setRootNode(nullptr);
-
-		// TODO: Better to ensure closeAudioDevice() invoke after all member variable destroyed.
-		closeAudioDevice();
 	}
 
 	void createScene()
@@ -309,6 +306,13 @@ public:
 		mLastMousePos = Point(e->X, e->Y);
 	}
 
+	//! A helper class object to ensure proper init/close invocation order.
+	struct AudioInitiator {
+		AudioInitiator() { initAudioDevice(); initAudioEffect(); }
+		~AudioInitiator() { closeAudioDevice(); }
+	};	// AudioInitiator
+
+	AudioInitiator mAudioInitiator;
 	gcroot<RenderPanelControl^> mBackRef;
 	float mWidth, mHeight;
 	float mFieldOfView;

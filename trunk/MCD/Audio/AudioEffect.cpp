@@ -42,10 +42,11 @@ AudioEffect::~AudioEffect()
 	alDeleteAuxiliaryEffectSlots(1, &slotHandle);
 }
 
-void AudioEffect::create(sal_in_z_opt const char* effectName)
+void AudioEffect::create(const char* effectName)
 {
 	alEffecti(handle, AL_EFFECT_TYPE, AL_EFFECT_REVERB);
 	alEffectf(handle, AL_REVERB_DECAY_TIME, 5.0f);
+	alEffectf(handle, AL_REVERB_GAIN, 1.0f);
 	alAuxiliaryEffectSloti(slotHandle, AL_EFFECTSLOT_EFFECT, handle);
 	checkAndPrintError("");
 }
@@ -56,11 +57,17 @@ void AudioEffect::bind(AudioSource& source)
 	checkAndPrintError("");
 }
 
-void AudioEffect::setParameters(sal_in_z_opt const char* paramNameValuePair)
+void AudioEffect::unbind(AudioSource& source)
+{
+	alSource3i(source.handle, AL_AUXILIARY_SEND_FILTER, AL_EFFECTSLOT_NULL, 0, AL_FILTER_NULL);
+	checkAndPrintError("");
+}
+
+void AudioEffect::setParameters(const char* paramNameValuePair)
 {
 }
 
-float AudioEffect::getParameterf(sal_in_z_opt const char* paramName)
+float AudioEffect::getParameterf(const char* paramName)
 {
 	return 0;
 }

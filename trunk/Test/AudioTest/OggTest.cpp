@@ -68,6 +68,7 @@ TEST_FIXTURE(OggTestFixture, StreamBlockFirstPartialTest)
 	CHECK_EQUAL(22050u, source.frequency());
 	CHECK_EQUAL(55167u, source.totalPcm());
 	CHECK_EQUAL(0u, source.currentPcm());
+	CHECK_EQUAL(1, source.gain());
 
 	// The source start to play instantly at this call.
 	source.play();
@@ -155,7 +156,7 @@ TEST_FIXTURE(OggTestFixture, EffectTest)
 	initAudioEffect();
 
 	AudioSource source;
-	CHECK(source.load(manager, L"stereo.ogg"));
+	CHECK(source.load(manager, L"stereo.ogg", L"blockLoadFirstBuffer=1"));
 
 	AudioEffect effect;
 	effect.create();

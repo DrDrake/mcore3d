@@ -1,5 +1,6 @@
 #include "Pch.h"
 #include "AudioSourceComponent.h"
+#include "AudioEffectComponent.h"
 #include "../../Core/Entity/Entity.h"
 #include "../../Core/System/MemoryProfiler.h"
 
@@ -27,6 +28,17 @@ void AudioComponent::traverseEntities(Entity* entityNode)
 void AudioSourceComponent::update()
 {
 	audioSource.update();
+}
+
+void AudioSourceComponent::setEffect(AudioEffectComponent* effect)
+{
+	if(!effect) {
+		if(mEffect)
+			mEffect->audioEffect.unbind(audioSource);
+	} else
+		effect->audioEffect.bind(audioSource);
+
+	mEffect = effect;
 }
 
 }	// namespace MCD

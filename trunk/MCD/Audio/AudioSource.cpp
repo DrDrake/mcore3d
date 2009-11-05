@@ -14,6 +14,7 @@ namespace MCD {
 AudioSource::AudioSource()
 {
 	alGenSources(1, &handle);
+	checkAndPrintError("alGenSources failed: ");
 	mRequestPlay = false;
 	mRequestPause = false;
 	mRoughPcmOffsetSinceLastSeek = 0;
@@ -40,7 +41,7 @@ bool AudioSource::load(IResourceManager& resourceManager, const Path& fileId, co
 		while(parser.next(name, value))
 		{
 			if(wstrCaseCmp(name, L"blockLoadFirstBuffer") == 0) {
-				blockLoadFirstBuffer = (wStr2IntWithDefault(value, 0) > 1);
+				blockLoadFirstBuffer = (wStr2IntWithDefault(value, 0) > 0);
 				break;
 			}
 		}
@@ -122,7 +123,7 @@ bool AudioSource::seek(uint64_t pcmOffset)
 
 void AudioSource::update()
 {
-	if(!buffer)
+	if(!buffer || mRequestPause)
 		return;
 
 	IAudioStreamLoader* _loader = dynamic_cast<IAudioStreamLoader*>(loader.get());
@@ -160,6 +161,9 @@ void AudioSource::update()
 			checkAndPrintError("alSourceQueueBuffers failed: ");
 		}
 	}
+
+	if(currentPcm() == totalPcm())
+		stop();
 
 	bool reallyPlaying = isReallyPlaying();
 
@@ -204,9 +208,7 @@ uint64_t AudioSource::currentPcm() const
 
 bool AudioSource::isPlaying() const
 {
-	uint64_t total = totalPcm();
-	bool eof = total == 0 ? false : currentPcm() >= total;
-	return mRequestPlay && !eof;
+	return mRequestPlay;
 }
 
 bool AudioSource::isReallyPlaying() const
@@ -219,6 +221,18 @@ bool AudioSource::isReallyPlaying() const
 bool AudioSource::isPaused() const
 {
 	return mRequestPause;
+}
+
+float AudioSource::gain() const
+{
+	ALfloat value = 0;
+	alGetSourcef(handle, AL_GAIN, &value);
+	return value;
+}
+
+void AudioSource::setGain(float value)
+{
+	alSourcef(handle, AL_GAIN, value);
 }
 
 void AudioSource::fillUpInitialBuffers()

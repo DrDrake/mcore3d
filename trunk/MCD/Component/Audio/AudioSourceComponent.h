@@ -20,6 +20,8 @@ public:
 	static void traverseEntities(sal_maybenull Entity* entityNode);
 };	// AudioComponent
 
+typedef WeakPtr<class AudioEffectComponent> AudioEffectComponentPtr;
+
 /*!	
  */
 class MCD_COMPONENT_API AudioSourceComponent : public AudioComponent
@@ -54,7 +56,14 @@ public:
 
 	bool isPaused() const { return audioSource.isPaused(); }
 
+	AudioEffectComponent* effect() { return mEffect.get(); }
+
+	void setEffect(sal_in_opt AudioEffectComponent* effect);
+
 	AudioSource audioSource;
+
+protected:
+	AudioEffectComponentPtr mEffect;
 };	// AudioSourceComponent
 
 typedef WeakPtr<AudioSourceComponent> AudioSourceComponentPtr;
