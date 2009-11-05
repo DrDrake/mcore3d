@@ -12,6 +12,7 @@ typedef IntrusivePtr<class AudioBuffer> AudioBufferPtr;
 typedef SharedPtr<class IResourceLoader> IResourceLoaderPtr;
 
 /*!	Represent an audio source, which manage the lower level AudioBuffer and it's loader.
+	\todo Make a prioritized source pooling system.
  */
 class MCD_AUDIO_API AudioSource : Noncopyable
 {
@@ -90,6 +91,11 @@ public:
 	bool isReallyPlaying() const;
 
 	bool isPaused() const;
+
+	float gain() const;
+
+	//! Set the volumn from 0 to 1, default is 1.
+	void setGain(float value);
 
 private:
 	void fillUpInitialBuffers();

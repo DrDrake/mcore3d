@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="big5"?>
 <VisualStudioProject
 	ProjectType="Visual C++"
 	Version="9.00"
@@ -350,6 +350,14 @@
 		<Filter
 			Name="Audio"
 			>
+			<File
+				RelativePath=".\Audio\AudioEffectComponent.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\Audio\AudioEffectComponent.h"
+				>
+			</File>
 			<File
 				RelativePath=".\Audio\AudioSourceComponent.cpp"
 				>

@@ -11,6 +11,12 @@ SCRIPT_CLASS_REGISTER(AudioComponent)
 	.declareClass<AudioComponent, Component>(xSTRING("AudioComponent"))
 ;}
 
+SCRIPT_CLASS_REGISTER(AudioEffectComponent)
+	.declareClass<AudioEffectComponent, AudioComponent>(xSTRING("AudioEffectComponent"))
+	.constructor()
+	.method(xSTRING("create"), &AudioEffectComponent::create)
+;}
+
 static bool audioSourceComponentLoad(
 	AudioSourceComponent& self, IResourceManager& resourceManager,
 	const wchar_t* path, const wchar_t* args)
@@ -40,6 +46,8 @@ SCRIPT_CLASS_REGISTER(AudioSourceComponent)
 	.wrappedMethod(xSTRING("_getcurrentTime"), &audioSourceComponentCurrentTime)
 	.method(xSTRING("_getisPlaying"), &AudioSourceComponent::isPlaying)
 	.method(xSTRING("_getisPaused"), &AudioSourceComponent::isPaused)
+	.method(xSTRING("_geteffect"), &AudioSourceComponent::effect)
+	.method(xSTRING("_seteffect"), &AudioSourceComponent::setEffect)
 ;}
 
 }	// namespace script
@@ -49,6 +57,7 @@ namespace MCD {
 void registerAudioComponentBinding(script::VMCore* v)
 {
 	script::ClassTraits<AudioComponent>::bind(v);
+	script::ClassTraits<AudioEffectComponent>::bind(v);
 	script::ClassTraits<AudioSourceComponent>::bind(v);
 }
 
