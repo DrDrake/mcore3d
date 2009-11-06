@@ -37,6 +37,7 @@ struct SQVM : public CHAINABLE_OBJ
 	};
 
 	struct CallInfo{
+		CallInfo() { memset(this, 0, sizeof(CallInfo)); }	// NOTE: Shutup the uninitialized memory access warning in memory checking tools
 		//CallInfo() { _generator._type = OT_NULL;}
 		SQInstruction *_ip;
 		SQObjectPtr *_literals;
