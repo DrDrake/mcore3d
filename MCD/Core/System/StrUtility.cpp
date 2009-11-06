@@ -8,6 +8,7 @@
 #include <stdexcept>
 #include <vector>
 #include <memory.h> // For memcpy
+#include <errno.h>
 
 #ifdef MCD_CYGWIN
 #	include "PlatformInclude.h"
@@ -329,15 +330,11 @@ std::wstring double2WStr(double number)
 
 bool wStr2Int(const wchar_t* wideStr, int& number)
 {
-	// User sscanf or atoi didn't handle error very well
-	// TODO: Use locale facet instead of stringstream
-#ifdef MCD_CYGWIN
-	std::stringstream ss(wStrToStr(wideStr));
-#else
-	std::wstringstream ss(wideStr);
-#endif
-	ss >> number;
-	return !ss.fail();
+	// User sscanf or atoi didn't handle error very well,
+	// while wistringstream in MSVC gives mis-matched memory allocation in Intel parallel studio.
+	wchar_t* p = nullptr;
+	number = wcstol(wideStr, &p, 10);
+	return errno != EINVAL && errno != ERANGE && wideStr != p;
 }
 
 int wStr2IntWithDefault(sal_in_z const wchar_t* wideStr, int defaultVal)
