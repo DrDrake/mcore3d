@@ -11,6 +11,7 @@
 namespace MCD {
 
 class IFileSystem;
+class IPartialLoadContext;
 typedef IntrusivePtr<class Resource> ResourcePtr;
 typedef SharedPtr<class IResourceLoader> IResourceLoaderPtr;
 
@@ -68,17 +69,6 @@ public:
 		\param args Extra arguments (encoded as name-value paired strings) for loading the resource; similar to program arguments.
 	 */
 	virtual std::pair<IResourceLoaderPtr, ResourcePtr> customLoad(const Path& fileId, sal_in_z_opt const wchar_t* args=nullptr) = 0;
-
-	/*!	Re-schedule the next partial loading process in NON-BLOCKING mode (Advanced usage).
-		After a resource is partially loaded, the IResourceLoader has the ability to decide when
-		the next progressive load should be preformed. When the IResourceLoader or anyone decided
-		that it's time to continue the progressive load, call this function.
-		\param context Is a pointer to a IResourceManager implementation specific object
-			obtained though IResourceLoader::onPartialLoaded()
-		\see IResourceLoader::onPartialLoaded()
-		\note This function should be thread safe and can be invoked by any thread.
-	 */
-	virtual void reSchedule(sal_in void* context, uint priority=0, sal_in_z_opt const wchar_t* args=nullptr) = 0;
 
 	/*!	Cache the given resource.
 		The given resource is assumed to be fully loaded, no loading will be preformed
@@ -221,17 +211,6 @@ public:
 		\note This function is not part of the IResourceManager interface.
 	 */
 	ResourcePtr reload(const Path& fileId, BlockingMode blockingMode=NonBlock, uint priority=0, sal_in_z_opt const wchar_t* args=nullptr);
-
-	/*!	Re-schedule the next partial loading process in NON-BLOCKING mode (Advanced usage).
-		After a resource is partially loaded, the IResourceLoader has the ability to decide when
-		the next progressive load should be preformed. When the IResourceLoader or anyone decided
-		that it's time to continue the progressive load, call this function.
-		\param context Is a pointer to a IResourceManager implementation specific object
-			obtained though IResourceLoader::onPartialLoaded()
-		\see IResourceLoader::onPartialLoaded()
-		\note This function is thread safe and can be invoked by any thread.
-	 */
-	sal_override void reSchedule(sal_in void* context, uint priority=0, sal_in_z_opt const wchar_t* args=nullptr);
 
 	/*!	Cache the given resource.
 		The given resource is assumed to be fully loaded, no loading will be preformed

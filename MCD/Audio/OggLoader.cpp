@@ -240,8 +240,7 @@ public:
 	};	// TaskQueue
 
 	Impl()
-		: partialLoadContext(nullptr), resourceManager(nullptr)
-		, mHeaderLoaded(false), mIStream(nullptr)
+		: mHeaderLoaded(false), mIStream(nullptr)
 		, mCurrentPcmOffset(0)
 	{
 		::memset(&mInfo, 0, sizeof(mInfo));
@@ -347,13 +346,11 @@ public:
 
 		// If partialLoadContext is null, a loading is already in progress,
 		// onPartialLoaded() will be invoked soon.
-		if(!resourceManager || !partialLoadContext)
+		if(!partialLoadContext.get())
 			return;
 
 		// Otherwise we can tell resource manager to re-schedule the load immediatly.
-		resourceManager->reSchedule(partialLoadContext, 0, nullptr);
-		resourceManager = nullptr;
-		partialLoadContext = nullptr;
+		partialLoadContext.release()->continueLoad(0, nullptr);
 	}
 
 	int popLoadedBuffer()
@@ -383,8 +380,7 @@ public:
 	size_t mBufferSize;	//!< Calculated suitable buffer size for each buffer in AudioBuffer.
 	ALenum format;
 	ALsizei frequency;
-	void* partialLoadContext;
-	IResourceManager* resourceManager;
+	std::auto_ptr<IPartialLoadContext> partialLoadContext;
 	Mutex mMutex, mSeekMutex;
 
 	TaskQueue mTaskQueue, mCommitQueue;
@@ -452,20 +448,20 @@ IResourceLoader::LoadingState OggLoader::getLoadingState() const
 }
 
 // Invoked in resource manager worker thread
-void OggLoader::onPartialLoaded(IResourceManager& manager, void* context, uint priority, const wchar_t* args)
+void OggLoader::onPartialLoaded(IPartialLoadContext& context, uint priority, const wchar_t* args)
 {
 	MCD_ASSUME(mImpl);
 
 	if(mImpl->mTaskQueue.isEmpty()) {
 		ScopeLock lock(mImpl->mMutex);
-		mImpl->partialLoadContext = context;
-		mImpl->resourceManager = &manager;
+		MCD_ASSERT(mImpl->partialLoadContext.get() == nullptr);
+		mImpl->partialLoadContext.reset(&context);
 	} else {
 		// Re-schedule immediatly if the task queue isn't empty,
 		// this situation is rare but possible when the load() function completes in
 		// it's worker thread and then someone call requestLoad() in main thread
 		// while onPartialLoaded() is not yet invoked.
-		manager.reSchedule(context, priority, args);
+		context.continueLoad(priority, args);
 	}
 }
 
@@ -477,6 +473,8 @@ void OggLoader::requestLoad(const AudioBufferPtr& buffer, size_t bufferIndex)
 
 void OggLoader::abortLoad()
 {
+	MCD_ASSUME(mImpl);
+
 	{	ScopeLock lock(mImpl->mMutex);
 		loadingState = Aborted;
 	}
@@ -484,6 +482,8 @@ void OggLoader::abortLoad()
 	// Notify the resource manager to trigger IResourceLoader::load(),
 	// so that all stuffs will be clear because of the Abort state.
 	requestLoad(nullptr, 0);
+
+	mImpl->partialLoadContext.reset();
 }
 
 int OggLoader::popLoadedBuffer()

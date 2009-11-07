@@ -94,9 +94,9 @@ IResourceLoader::LoadingState TextureLoaderBase::getLoadingState() const
 	return loadingState;
 }
 
-void TextureLoaderBase::onPartialLoaded(IResourceManager& manager, void* context, uint priority, const wchar_t* args)
+void TextureLoaderBase::onPartialLoaded(IPartialLoadContext& context, uint priority, const wchar_t* args)
 {
-	manager.reSchedule(context, priority+1, args);
+	context.continueLoad(priority+1, args);
 }
 
 void TextureLoaderBase::preUploadData()

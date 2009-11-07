@@ -27,7 +27,7 @@ public:
 
 	sal_override LoadingState getLoadingState() const;
 
-	sal_override void onPartialLoaded(IResourceManager& manager, sal_in void* context, uint priority, sal_in_z_opt const wchar_t* args);
+	sal_override void onPartialLoaded(IPartialLoadContext& context, uint priority, sal_in_z_opt const wchar_t* args);
 
 	/*!	Invoked by AudioSource when new buffer data need to be load.
 		Each request will be queued up and executed inside the commit() function after the load is finished.

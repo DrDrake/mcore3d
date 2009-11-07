@@ -7,9 +7,35 @@
 
 namespace MCD {
 
-class IResourceManager;
-class Resource;
 class Path;
+class Resource;
+
+/*	A context for the user of IResourceLoader to control when to continue a progressive load.
+	\note One of the concret implementation of IPartialLoadContext is developed inside ResourceManager.
+
+	By design, the ownership of IPartialLoadContext should give away once continueLoad()
+	is invoked. Following is an example usage:
+	\code
+	void MyLoader::onPartialLoaded(IPartialLoadContext& context, uint priority, const wchar_t* args) {
+		// Backup the context for later use.
+		mContext.reset(&context);
+	}
+	void MyLoader::TimeToContinueLoad() {
+		if(!mContext.get()) return;
+		// IMPORTANT: Release the auto_ptr since it's ownership is passed to the
+		// concret implementation behind IPartialLoadContext
+		mContext.release()->continueLoad(0, nullptr);
+	}
+	std::auto_ptr<IPartialLoadContext> mContext;
+	\endcode
+ */
+class MCD_ABSTRACT_CLASS IPartialLoadContext
+{
+public:
+	virtual ~IPartialLoadContext() {}
+
+	virtual void continueLoad(uint priority, sal_in_z_opt const wchar_t* args) = 0;
+};	// IPartialLoadContext
 
 /*!	Resource loader.
  */
@@ -58,18 +84,18 @@ public:
 
 	virtual LoadingState getLoadingState() const = 0;
 
-	/*!	Callback that will be invoked by a concrete IResourceManager when a resource loader
-		finished part of the progressive load in NON-BLOCKING mode.
+	/*!	User of IResourceLoader should invoke this function when IResourceLoader::load()
+		returns a state with IResourceLoader::PartialLoaded, and pass it with a concret
+		implementation of IPartialLoadContext, such that the derived class of IResourceLoader
+		has a chance to control when the progressive load should continue.
 
-		The default implementation of this function will schedule the load immediatly:
-		manager.reSchedule(context, priority, args);
+		The derived class of IResourceLoader has the responsibility to delete the context,
+		if the context has never be continue it's loading.
 
-		\param context Pass this context (now or later) to IResourceManager::reSchedule() and
-			the manager will continue the loading of that resource.
-		\note If the context haven't pass to IResourceManager::reSchedule(), then the user should
-			make sure the context will pass to IResourceManager::cancelSchedule() to prevent memory leak.
+		\note The default implementation of this function will continue the load immediatly:
+			context.continueLoad(priority, args);
 	 */
-	virtual void onPartialLoaded(IResourceManager& manager, sal_in void* context, uint priority, sal_in_z_opt const wchar_t* args);
+	virtual void onPartialLoaded(IPartialLoadContext& context, uint priority, sal_in_z_opt const wchar_t* args);
 };	// IResourceLoader
 
 }	// namespace MCD

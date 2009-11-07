@@ -122,6 +122,7 @@ TEST_FIXTURE(OggTestFixture, StreamNonBlockTest)
 	CHECK_EQUAL(source.totalPcm(), source.currentPcm());
 }
 
+// TODO: Has memory leak sometimes
 TEST_FIXTURE(OggTestFixture, SeekingTest)
 {
 	AudioSource source;
