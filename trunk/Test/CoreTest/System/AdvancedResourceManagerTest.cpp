@@ -16,8 +16,12 @@ class DelayLoader : public IResourceLoader
 public:
 	DelayLoader()
 		: mState(NotLoaded), mLoadCount(0), mRequestPending(false)
-		, mPartialLoadContext(nullptr), mResourceManager(nullptr)
 	{}
+
+	sal_override ~DelayLoader()
+	{
+		abortLoad();
+	}
 
 	void requestLoad()
 	{
@@ -25,15 +29,13 @@ public:
 
 		// If mPartialLoadContext is null, a loading is already in progress,
 		// onPartialLoaded() will be invoked soon, therefore we just pend the request.
-		if(!mResourceManager || !mPartialLoadContext) {
+		if(!mPartialLoadContext.get()) {
 			mRequestPending = true;
 			return;
 		}
 
 		// Otherwise we can tell resource manager to re-schedule the load immediatly.
-		mResourceManager->reSchedule(mPartialLoadContext, 0, nullptr);
-		mResourceManager = nullptr;
-		mPartialLoadContext = nullptr;
+		mPartialLoadContext.release()->continueLoad(0, nullptr);
 	}
 
 	size_t getLoadCount() const
@@ -44,13 +46,7 @@ public:
 
 	void abortLoad()
 	{
-		{	ScopeLock lock(mMutex);
-			mState = Aborted;
-		}
-
-		// Notify the resource manager to trigger IResourceLoader::load(),
-		// so that all stuffs will be clear because of the Abort state.
-		requestLoad();
+		mPartialLoadContext.reset();
 	}
 
 	sal_override LoadingState getLoadingState() const
@@ -84,24 +80,23 @@ protected:
 
 	sal_override void commit(Resource&) {}
 
-	sal_override void onPartialLoaded(IResourceManager& manager, void* context, uint priority, const wchar_t* args)
+	sal_override void onPartialLoaded(IPartialLoadContext& context, uint priority, const wchar_t* args)
 	{
 		ScopeLock lock(mMutex);
 
 		if(mRequestPending) {
-			manager.reSchedule(context, priority, args);
+			MCD_ASSERT(mPartialLoadContext.get() == nullptr);
+			context.continueLoad(priority, args);
 			mRequestPending = false;
 		} else {
-			mPartialLoadContext = context;
-			mResourceManager = &manager;
+			mPartialLoadContext.reset(&context);
 		}
 	}
 
 	volatile LoadingState mState;
 	size_t mLoadCount;		//!< For test purpose
 	bool mRequestPending;	//!< Indicate a continue load request is pending or not
-	void* mPartialLoadContext;
-	IResourceManager* mResourceManager;
+	std::auto_ptr<IPartialLoadContext> mPartialLoadContext;
 	mutable Mutex mMutex;
 };	// FakeLoader
 

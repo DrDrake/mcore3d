@@ -22,6 +22,8 @@
 
 namespace MCD {
 
+namespace {
+
 struct MapNode
 {
 	// Use Path as the key, note that we should store a copy of the Path in PathKey rather than a reference,
@@ -53,6 +55,8 @@ struct MapNode
 	 */
 	bool mIsUncached;
 };	// MapNode
+
+}	// namespace
 
 class ResourceManager::Impl
 {
@@ -95,7 +99,7 @@ class ResourceManager::Impl
 	};	// EventQueue
 
 public:
-	class Task : public MCD::TaskPool::Task
+	class Task : public MCD::TaskPool::Task, public IPartialLoadContext
 	{
 	public:
 		Task(ResourceManager& manager, MapNode& mapNode, const IResourceLoaderPtr& loader,
@@ -136,12 +140,20 @@ public:
 				Task* task = new Task(mResourceManager, mMapNode, mLoader, mEventQueue, mIStream.release(), priority(), mTaskPool, mArgs.c_str());
 
 				// The onPartialLoaded() callback will decide when to continue the partial load
-				mLoader->onPartialLoaded(mResourceManager, task, priority(), mArgs.c_str());
+				mLoader->onPartialLoaded(*task, priority(), mArgs.c_str());
 				break;
 			}
 
 			// Remember TaskPool::Task need to do cleanup after finished the job
 			delete this;
+		}
+
+		sal_override void continueLoad(uint priority, const wchar_t* args)
+		{
+			// NOTE: There is no need to lock, since mTaskPool's operation is already thread safe
+			setPriority(priority);
+			mArgs = args ? args : L"";
+			mTaskPool.enqueue(*this);
 		}
 
 		ResourceManager& mResourceManager;
@@ -212,7 +224,7 @@ public:
 		if(firstPartialBlock) {
 			// Note that the variable "is" is already release and equals to null, use task->mIStream instead.
 			if(loader->load(task->mIStream.get(), &fileId, args))
-				loader->onPartialLoaded(mResourceManager, task, priority, args);
+				loader->onPartialLoaded(*task, priority, args);
 		} else {
 			mTaskPool.enqueue(*task);
 		}
@@ -389,21 +401,6 @@ ResourcePtr ResourceManager::reload(const Path& fileId, BlockingMode blockingMod
 	return node->mResource.get();
 }
 
-void ResourceManager::reSchedule(void* context, uint priority, const wchar_t* args)
-{
-	// NOTE: There is no need to lock, since mTaskPool's operation is already thread safe
-	MCD_ASSUME(mImpl != nullptr);
-	if(!context)
-		return;
-
-	Impl::Task* task = reinterpret_cast<Impl::Task*>(context);
-	task->setPriority(priority);
-	if(!args)
-		args = L"";
-	task->mArgs = args;
-	mImpl->mTaskPool.enqueue(*task);
-}
-
 ResourcePtr ResourceManager::cache(const ResourcePtr& resource)
 {
 	if(!resource)
@@ -569,9 +566,9 @@ int ResourceManagerCallback::removeDependency(const Path& fileId)
 	return mDependency.size();
 }
 
-void IResourceLoader::onPartialLoaded(IResourceManager& manager, sal_in void* context, uint priority, sal_in_z_opt const wchar_t* args)
+void IResourceLoader::onPartialLoaded(IPartialLoadContext& context, uint priority, const wchar_t* args)
 {
-	manager.reSchedule(context, priority, args);
+	context.continueLoad(priority, args);
 }
 
 }	// namespace MCD
