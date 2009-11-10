@@ -3,6 +3,7 @@
 
 #include "ShareLib.h"
 #include "../Core/System/NonCopyable.h"
+#include "../Core/System/Timer.h"
 
 namespace MCD {
 
@@ -19,6 +20,23 @@ class ScriptVM;
  */
 class MCD_BINDING_API ScriptComponentManager : Noncopyable
 {
+public:
+	//! A timer to measure fps and manage the waking up of co-routine
+	class FrameTimer : protected DeltaTimer
+	{
+	public:
+		FrameTimer() : DeltaTimer(TimeInterval(1.0/60)) {}
+
+		float frameTime() const { return float(mFrameTime.asSecond()); }
+		float accumulateTime() const { return float(mAccumulateTime.asSecond()); }
+		float fps() const { return 1.0f / frameTime(); }
+		void nextFrame() { mFrameTime = getDelta(); mAccumulateTime = mTimer.get(); }
+
+	protected:
+		TimeInterval mFrameTime;
+		TimeInterval mAccumulateTime;
+	};	// FrameTimer
+
 public:
 	ScriptComponentManager();
 
@@ -63,6 +81,7 @@ public:
 
 	ScriptVM* vm;
 	IFileSystem* fileSystem;
+	FrameTimer frameTimer;
 };	// ScriptComponentManager
 
 }	// namespace script

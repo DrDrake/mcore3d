@@ -26,23 +26,6 @@ public:
 
 	~Launcher();
 
-	//! A timer to measure the fps
-	class FrameTimer : protected DeltaTimer
-	{
-	public:
-		FrameTimer() : DeltaTimer(TimeInterval(1.0/60)) {}
-
-		float frameTime() const { return float(mFrameTime.asSecond()); }
-		float accumulateTime() const { return float(mAccumulateTime.asSecond()); }
-		float fps() const { return 1.0f / frameTime(); }
-		void nextFrame() { mFrameTime = getDelta(); mAccumulateTime = mTimer.get(); }
-
-	protected:
-		TimeInterval mFrameTime;
-		TimeInterval mAccumulateTime;
-	};	// FrameTimer
-
-public:
 // Operations:
 	/*!	Call this to host the remote debugger server.
 		It is advised to call this before init()
@@ -90,10 +73,6 @@ public:
 		return &mDynamicsWorld;
 	}
 
-	sal_notnull FrameTimer* frameTimer() {
-		return &mFrameTimer;
-	}
-
 	static Launcher* sinleton() {
 		return Launcher::mSingleton;
 	}
@@ -111,7 +90,6 @@ protected:
 
 	void* mDbgContext;
 
-	FrameTimer mFrameTimer;
 	IResourceManager* mResourceManager;
 	bool mTakeResourceManagerOwnership;
 	Thread mPhysicsThread;
