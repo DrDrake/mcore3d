@@ -411,27 +411,19 @@ IResourceLoader::LoadingState OggLoader::load(std::istream* is, const Path*, con
 	MCD_ASSUME(mImpl != nullptr);
 	ScopeLock lock(mImpl->mMutex);
 
-	if(!is)
-		return loadingState = Aborted;
-	else if(loadingState == Aborted)
-		loadingState = NotLoaded;
-
-	if(!mImpl->loadHeader(is, args))
+	if(!is || !mImpl->loadHeader(is, args))
 		return loadingState = Aborted;
 
+	// NOTE: The mutex will unlock for a while in mImpl->loadData().
 	int result = mImpl->loadData();
 
 	// The loading state may changed by another thread during mImpl->loadData()
 	if(loadingState == Aborted)
 		return loadingState;
 
-	if(result == 1)
-		loadingState = PartialLoaded;
-	else if(result == 0)
-//		loadingState = Loaded;
-		loadingState = PartialLoaded;
-	else
-		loadingState = Aborted;
+	// NOTE: Differ from other loaders, this streamming loader will never return
+	// IResourceLoader::Loaded, in favour of audio seeking/looping.
+	loadingState = result == -1 ? Aborted : PartialLoaded;
 
 	return loadingState;
 }
