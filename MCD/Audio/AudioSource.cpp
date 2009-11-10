@@ -162,7 +162,7 @@ void AudioSource::update()
 		}
 	}
 
-	if(currentPcm() == totalPcm())
+	if(currentPcm() == totalPcm() && totalPcm() > 0)
 		stop();
 
 	bool reallyPlaying = isReallyPlaying();
