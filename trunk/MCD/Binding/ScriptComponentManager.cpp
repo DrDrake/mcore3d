@@ -9,6 +9,9 @@ namespace script {
 
 using namespace MCD;
 
+SCRIPT_CLASS_DECLAR(ScriptComponentManager);
+SCRIPT_CLASS_DECLAR(ScriptComponentManager::FrameTimer);
+
 static int scriptComponentManagerDoFile(HSQUIRRELVM v)
 {
 	// TODO: Parameter type checking
@@ -18,9 +21,17 @@ static int scriptComponentManagerDoFile(HSQUIRRELVM v)
 	return self.doFile(filePath, true) ? 1 : 0;
 }
 
-SCRIPT_CLASS_DECLAR(ScriptComponentManager);
 SCRIPT_CLASS_REGISTER_NAME(ScriptComponentManager, "ScriptComponentManager")
+	.enableGetset()
 	.rawMethod(xSTRING("doFile"), &scriptComponentManagerDoFile)
+	.getter(L"_getframeTimer", &ScriptComponentManager::frameTimer)
+;}
+
+SCRIPT_CLASS_REGISTER_NAME(ScriptComponentManager::FrameTimer, "FrameTimer")
+	.enableGetset()
+	.method(L"_getframeTime", &ScriptComponentManager::FrameTimer::frameTime)
+	.method(L"_getaccumulateTime", &ScriptComponentManager::FrameTimer::accumulateTime)
+	.method(L"_getfps", &ScriptComponentManager::FrameTimer::fps)
 ;}
 
 }	// namespace script
@@ -37,6 +48,18 @@ bool ScriptComponentManager::init(ScriptVM& vm, IFileSystem& fs)
 	this->vm = &vm;
 	fileSystem = &fs;
 
+	HSQUIRRELVM v = reinterpret_cast<HSQUIRRELVM>(vm.getImplementationHandle());
+	script::VMCore* v_ = (script::VMCore*)sq_getforeignptr(v);
+	script::ClassTraits<ScriptComponentManager>::bind(v_);
+	script::ClassTraits<FrameTimer>::bind(v_);
+
+	// Set a global variable to the script manager.
+	sq_pushroottable(v);
+	sq_pushstring(v, xSTRING("scriptComponentManager"), -1);
+	script::objNoCare::pushResult(v, this);
+	sq_rawset(v, -3);
+	sq_pop(v, 1);	// Pops the root table
+
 	// Install a println function
 	if(!vm.runScript(xSTRING("function println(s) { print(s + \"\\n\"); }")))
 		return false;
@@ -44,6 +67,7 @@ bool ScriptComponentManager::init(ScriptVM& vm, IFileSystem& fs)
 	// Initialize the file name to class mapping, and the script component factory function
 	// TODO: Error handling, ensure the script file does return a class
 	if(!vm.runScript(xSTRING("\
+		gFrameTimer <- scriptComponentManager.frameTimer;\n\
 		_scriptComponentClassTable <- {};\n\
 		gComponentQueue <- ComponentQueue();\n\
 		\n\
@@ -151,17 +175,6 @@ bool ScriptComponentManager::init(ScriptVM& vm, IFileSystem& fs)
 		}\n\
 	"), L"ScriptComponentManager.nut"))
 		return false;
-
-	HSQUIRRELVM v = reinterpret_cast<HSQUIRRELVM>(vm.getImplementationHandle());
-	script::VMCore* v_ = (script::VMCore*)sq_getforeignptr(v);
-	script::ClassTraits<ScriptComponentManager>::bind(v_);
-
-	// Set a global variable to the script manager.
-	sq_pushroottable(v);
-	sq_pushstring(v, xSTRING("scriptComponentManager"), -1);
-	script::objNoCare::pushResult(v, this);
-	sq_rawset(v, -3);
-	sq_pop(v, 1);	// Pops the root table
 
 	return true;
 }
@@ -324,6 +337,8 @@ void ScriptComponentManager::updateScriptComponents()
 		if(s)
 			sq_getprintfunc(v)(v, s);
 	}
+
+	frameTimer.nextFrame();
 }
 
 void ScriptComponentManager::shutdown()

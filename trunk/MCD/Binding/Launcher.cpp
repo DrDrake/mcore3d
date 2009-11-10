@@ -42,16 +42,8 @@ public:
 
 namespace script {
 
-SCRIPT_CLASS_DECLAR(Launcher::FrameTimer);
 SCRIPT_CLASS_DECLAR(ResourceLoadCallback);
 SCRIPT_CLASS_DECLAR(Launcher);
-
-SCRIPT_CLASS_REGISTER_NAME(Launcher::FrameTimer, "FrameTimer")
-	.enableGetset()
-	.method(L"_getframeTime", &Launcher::FrameTimer::frameTime)
-	.method(L"_getaccumulateTime", &Launcher::FrameTimer::accumulateTime)
-	.method(L"_getfps", &Launcher::FrameTimer::fps)
-;}
 
 SCRIPT_CLASS_REGISTER(ResourceLoadCallback)
 	.declareClass<ResourceLoadCallback, ResourceManagerCallback>(L"ResourceLoadCallback")
@@ -66,7 +58,6 @@ SCRIPT_CLASS_REGISTER_NAME(Launcher, "MainWindow")
 	.method<objNoCare>(L"_getinputComponent", &Launcher::inputComponent)
 	.method<objNoCare>(L"_getresourceManager", &Launcher::resourceManager)
 	.method<objNoCare>(L"_getdynamicsWorld", &Launcher::dynamicsWorld)
-	.method<objNoCare>(L"_getframeTimer", &Launcher::frameTimer)
 //	.rawMethod(L"addCallback", &Launcher::addCallback)
 ;}
 
@@ -150,7 +141,6 @@ bool Launcher::init(InputComponent& inputComponent, Entity* rootNode)
 	script::RootDeclarator root(v);
 	root.declareFunction<objNoCare>(L"_getlauncher", &Launcher::sinleton);
 
-	script::ClassTraits<FrameTimer>::bind(v);
 	script::ClassTraits<ResourceLoadCallback>::bind(v);
 	script::ClassTraits<Launcher>::bind(v);
 
@@ -165,7 +155,6 @@ bool Launcher::init(InputComponent& inputComponent, Entity* rootNode)
 		L"}\n"
 
 		L"resourceManager <- gLauncher.resourceManager;\n"
-		L"gFrameTimer <- gLauncher.frameTimer;\n"
 
 		// TODO: Use named parameter to pass blocking and priority options
 		L"function loadResource(filePath) {\n"
@@ -261,8 +250,6 @@ void Launcher::update()
 	BehaviourComponent::traverseEntities(mRootNode);
 	RenderableComponent::traverseEntities(mRootNode);
 	AudioComponent::traverseEntities(mRootNode);
-
-	mFrameTimer.nextFrame();
 }
 
 void Launcher::setRootNode(Entity* e)
