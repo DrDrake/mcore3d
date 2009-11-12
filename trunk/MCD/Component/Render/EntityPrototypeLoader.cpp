@@ -100,8 +100,7 @@ void EntityPrototypeLoader::Impl::commit(Resource& resource)
 
 		MeshComponent* c = new MeshComponent;
 		c->mesh = meshAndMat->mesh;
-		c->effect = new Effect(Path(L""));
-		c->effect->material.reset(meshAndMat->material->clone());
+		c->effect = meshAndMat->effect;
 		e->addComponent(c);
 
 		e->asChildOf(entRoot);

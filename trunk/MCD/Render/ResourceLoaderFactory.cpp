@@ -9,6 +9,7 @@
 #include "Max3dsLoader.h"
 #include "Model.h"
 #include "ModelPod.h"
+#include "OgreMeshLoader.h"
 #include "PngLoader.h"
 #include "Shader.h"
 #include "ShaderLoader.h"
@@ -138,6 +139,23 @@ ResourcePtr Max3dsLoaderFactory::createResource(const Path& fileId, const wchar_
 IResourceLoader* Max3dsLoaderFactory::createLoader()
 {
 	return new Max3dsLoader(&mResourceManager);
+}
+
+OgreMeshLoaderFactory::OgreMeshLoaderFactory(IResourceManager& resourceManager)
+	: mResourceManager(resourceManager)
+{
+}
+
+ResourcePtr OgreMeshLoaderFactory::createResource(const Path& fileId, const wchar_t* args)
+{
+	if(wstrCaseCmp(fileId.getExtension().c_str(), L"mesh") == 0)
+		return new Model(fileId);
+	return nullptr;
+}
+
+IResourceLoader* OgreMeshLoaderFactory::createLoader()
+{
+	return new OgreMeshLoader(&mResourceManager);
 }
 
 PodLoaderFactory::PodLoaderFactory(IResourceManager& resourceManager)

@@ -296,6 +296,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\OgreMeshLoader.h"
+				>
+			</File>
+			<File
 				RelativePath=".\PlaneMeshBuilder.h"
 				>
 			</File>
@@ -458,6 +462,10 @@
 			</File>
 			<File
 				RelativePath=".\ModelPod.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\OgreMeshLoader.cpp"
 				>
 			</File>
 			<File

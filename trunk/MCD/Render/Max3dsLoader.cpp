@@ -790,7 +790,7 @@ void Max3dsLoader::Impl::commit(Resource& resource)
 	MeshBuilder::StorageHint storageHint = MeshBuilder::Static;
 
 	MCD_FOREACH(const ModelInfo& modelInfo, mModelInfo)
-	{		
+	{
 		// Commit the mesh with the vertex buffer first
 		MeshPtr meshWithoutIndex;
 
@@ -845,8 +845,9 @@ void Max3dsLoader::Impl::commit(Resource& resource)
 			subObject.material->init();
 
 			Model::MeshAndMaterial* meshMat = new Model::MeshAndMaterial;
-			meshMat->material.reset(subObject.material->clone());
 			meshMat->mesh = mesh;
+			meshMat->effect = new Effect(L"");
+			meshMat->effect->material.reset(subObject.material->clone());
 
 			model.mMeshes.pushBack(*meshMat);
 		}
