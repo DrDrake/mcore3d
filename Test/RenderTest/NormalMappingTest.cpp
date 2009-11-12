@@ -33,12 +33,13 @@ public:
 		// load normal mapping effect
 		mEffect = static_cast<Effect*>(mResourceManager.load(L"Material/normalmapping.fx.xml").get());
 
-		{	// TODO: Remove the use of Entity in render test
-			// Override the default loader of *.3ds file
+		{	// Override the default loader of *.3ds file
 			mResourceManager.addFactory(new EntityPrototypeLoaderFactory(mResourceManager));
 
-			mEntProto = dynamic_cast<EntityPrototype*>(mResourceManager.load(L"Scene/City/scene.3ds", IResourceManager::NonBlock, 0, L"tangents=true").get());
+			// TODO: Remove the use of Entity in render test
+			mEntProto = dynamic_cast<EntityPrototype*>(mResourceManager.load(L"Scene/City/scene.3ds", IResourceManager::NonBlock, 0, L"loadAsEntity=true;tangents=true").get());
 		}
+
 		{	// Setup entity 1
 			std::auto_ptr<Entity> e(new Entity);
 			e->name = L"ChamferBox 1";
@@ -97,7 +98,6 @@ public:
 			if(mat) for(size_t i=0; i<mat->getPassCount(); ++i)
 			{
 				mat->preRender(i);
-				//mEntProto->draw();
 				RenderableComponent::traverseEntities(mEntProto->entity.get());
 				mat->postRender(i);
 			}
@@ -109,8 +109,6 @@ public:
 			glPopMatrix();
 		}
 
-		glTranslatef(0.0f, -10.0f, 0.0f);
-
 		RenderableComponent::traverseEntities(&mRootNode);
 	}
 
@@ -121,19 +119,8 @@ public:
 
 }	// namespace NormalMappingTest
 
-#include "../../MCD/Core/System/MemoryProfiler.h"
-
 TEST(NormalMappingTest)
 {
-	MemoryProfiler::singleton().setEnable(true);
-
-	{	NormalMappingTest::TestWindow window;
-		window.mainLoop();
-
-		std::string s = MemoryProfiler::singleton().defaultReport(30);
-		std::cout << s << std::endl;
-	}
-
-	std::string s = MemoryProfiler::singleton().defaultReport(30);
-	std::cout << s << std::endl;
+	NormalMappingTest::TestWindow window;
+	window.mainLoop();
 }

@@ -9,6 +9,7 @@ namespace MCD {
 
 class Material;
 
+//! A simple wrapper over the Material to make it a kind of Resource.
 class MCD_RENDER_API Effect : public Resource
 {
 public:
@@ -16,6 +17,8 @@ public:
 
 	sal_override ~Effect();
 
+	/*!	\note Aware that the material pointer may be null during background loading.
+	 */
 	std::auto_ptr<Material> material;
 };	// Effect
 

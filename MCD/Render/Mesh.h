@@ -32,7 +32,7 @@ public:
 		Normal			= 1 << 6,		//!< Normal				(3 floats)
 
 		MaxTypeEntry	= Normal << 1	//!< For debugging assertion check only
-	};
+	};	// DataType
 
 	//! Maximum number of texture coordinate per vertex.
 	static const size_t cMaxTextureCoordCount = 6;

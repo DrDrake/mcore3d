@@ -76,6 +76,20 @@ private:
 	IResourceManager& mResourceManager;
 };	// Max3dsLoaderFactory
 
+class MCD_RENDER_API OgreMeshLoaderFactory : public ResourceManager::IFactory
+{
+public:
+	OgreMeshLoaderFactory(IResourceManager& resourceManager);
+	sal_override ResourcePtr createResource(const Path& fileId, const wchar_t* args);
+	sal_override IResourceLoader* createLoader();
+
+private:
+	/*!	This loader factory is going to be owned by the mResourceManager, so we can
+		use mResourceManager freely during the life-time of the loader factory.
+	 */
+	IResourceManager& mResourceManager;
+};	// OgreMeshLoaderFactory
+
 class MCD_RENDER_API PodLoaderFactory : public ResourceManager::IFactory
 {
 public:

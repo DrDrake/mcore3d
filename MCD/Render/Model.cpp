@@ -1,5 +1,6 @@
 #include "Pch.h"
 #include "Model.h"
+#include "Material.h"
 #include "Mesh.h"
 #include "Texture.h"	// TODO: Remove this dependency
 #include "../Core/System/Utility.h"
@@ -7,7 +8,6 @@
 namespace MCD {
 
 Model::MeshAndMaterial::MeshAndMaterial()
-	: material(nullptr)
 {
 }
 
@@ -23,15 +23,19 @@ void Model::draw()
 {
 	for(MeshAndMaterial* meshAndMat = mMeshes.begin(); meshAndMat != mMeshes.end(); meshAndMat = meshAndMat->next())
 	{
-		if(!meshAndMat->mesh || !meshAndMat->material.get())
+		if(!meshAndMat->mesh || !meshAndMat->effect)
 			continue;
 
-		size_t passCount = meshAndMat->material->getPassCount();
+		Material* material = meshAndMat->effect->material.get();
+		if(!material)
+			continue;
+
+		size_t passCount = material->getPassCount();
 		for(size_t passId = 0; passId < passCount; ++passId)
 		{
-			meshAndMat->material->preRender(passId);
+			material->preRender(passId);
 			meshAndMat->mesh->draw();
-			meshAndMat->material->postRender(passId);
+			material->postRender(passId);
 		}
 	}
 }

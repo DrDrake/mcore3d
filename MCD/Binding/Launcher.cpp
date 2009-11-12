@@ -309,12 +309,13 @@ int LauncherDefaultResourceManager::update()
 {
 	ResourceManager::Event e = popEvent();
 	if(e.loader) {
-		bool hasError = e.loader->getLoadingState() == IResourceLoader::Aborted;
+		const IResourceLoader::LoadingState loadingState = e.loader->getLoadingState();
+		const bool hasError = loadingState == IResourceLoader::Aborted;
 
 		if(hasError)
 			Log::format(Log::Warn, L"Resource: %s %s", e.resource->fileId().getString().c_str(), L"failed to load");
-		else	// Allow at most one resource to commit at each time
-			e.loader->commit(*e.resource);
+		else if(loadingState != IResourceLoader::Loading)
+			e.loader->commit(*e.resource);	// Allow one resource to commit for each frame
 
 		// Note that commit() is invoked before doCallbacks()
 		doCallbacks(e);

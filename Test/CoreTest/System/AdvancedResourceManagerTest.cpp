@@ -161,7 +161,6 @@ TEST_FIXTURE_CTOR(DelayLoaderTestFixture, (IResourceManager::FirstPartialBlock),
 		loader->requestLoad();
 		ResourceManager::Event event = manager.popEvent();
 		if(!event.loader) continue;
-
 	}
 
 	CHECK_EQUAL(10u, loader->getLoadCount());

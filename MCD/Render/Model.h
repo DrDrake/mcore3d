@@ -1,7 +1,7 @@
 #ifndef __MCD_RENDER_MODEL__
 #define __MCD_RENDER_MODEL__
 
-#include "Material.h"
+#include "Effect.h"
 #include "Renderable.h"
 #include "../Core/System/LinkList.h"
 #include "../Core/System/Resource.h"
@@ -33,7 +33,7 @@ public:
 		~MeshAndMaterial();
 
 		MeshPtr mesh;
-		std::auto_ptr<Material> material;
+		EffectPtr effect;
 	};	// MeshAndMaterial
 
 	typedef LinkList<MeshAndMaterial> MeshList;

@@ -185,7 +185,7 @@ public:
 			placed somewhere quick to update, even at the expense of faster rendering.
 		 */
 		Stream	= 0x88E0,
-	};
+	};	// StorageHint
 
 	//!	Commit the stored buffer in the builder into a mesh.
 	void commit(Mesh& mesh, StorageHint storageHint);
