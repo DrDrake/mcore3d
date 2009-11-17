@@ -56,6 +56,11 @@ public:
 
 	bool isPaused() const { return audioSource.isPaused(); }
 
+	float gain() const { return audioSource.gain(); }
+
+	//! Set the volumn from 0 to 1, default is 1.
+	void setGain(float value) { audioSource.setGain(value); }
+
 	AudioEffectComponent* effect() { return mEffect.get(); }
 
 	void setEffect(sal_in_opt AudioEffectComponent* effect);

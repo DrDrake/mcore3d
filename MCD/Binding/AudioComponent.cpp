@@ -46,6 +46,8 @@ SCRIPT_CLASS_REGISTER(AudioSourceComponent)
 	.wrappedMethod(xSTRING("_getcurrentTime"), &audioSourceComponentCurrentTime)
 	.method(xSTRING("_getisPlaying"), &AudioSourceComponent::isPlaying)
 	.method(xSTRING("_getisPaused"), &AudioSourceComponent::isPaused)
+	.method(xSTRING("_getgain"), &AudioSourceComponent::gain)
+	.method(xSTRING("_setgain"), &AudioSourceComponent::setGain)
 	.method(xSTRING("_geteffect"), &AudioSourceComponent::effect)
 	.method(xSTRING("_seteffect"), &AudioSourceComponent::setEffect)
 ;}
