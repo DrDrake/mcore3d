@@ -115,19 +115,18 @@ public:
 };	// Impl
 
 RawFileSystemMonitor::RawFileSystemMonitor(const wchar_t* path, bool recursive)
+	: mImpl(*new Impl(path, recursive))
 {
-	mImpl = new Impl(path, recursive);
 }
 
 RawFileSystemMonitor::~RawFileSystemMonitor()
 {
-	delete mImpl;
+	delete &mImpl;
 }
 
 std::wstring RawFileSystemMonitor::getChangedFile() const
 {
-	MCD_ASSUME(mImpl);
-	return mImpl->getChangedFile();
+	return mImpl.getChangedFile();
 }
 
 

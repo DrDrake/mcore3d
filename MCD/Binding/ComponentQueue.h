@@ -56,7 +56,7 @@ public:
 
 protected:
 	class Impl;
-	Impl* mImpl;
+	Impl& mImpl;
 };	// ComponentQueue
 
 }	// namespace MCD

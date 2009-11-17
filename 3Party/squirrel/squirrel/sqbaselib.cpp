@@ -800,7 +800,7 @@ static SQInteger thread_wakeup(HSQUIRRELVM v)
 		if(state != SQ_VMSTATE_SUSPENDED) {
 			switch(state) {
 				case SQ_VMSTATE_IDLE:
-					return sq_throwerror(v,_SC("cannot wakeup a idle thread"));
+					return sq_throwerror(v,_SC("cannot wakeup an idle thread"));
 				break;
 				case SQ_VMSTATE_RUNNING:
 					return sq_throwerror(v,_SC("cannot wakeup a running thread"));

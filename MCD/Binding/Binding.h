@@ -32,7 +32,7 @@ public:
 
 private:
 	class Impl;
-	Impl* mImpl;
+	Impl& mImpl;
 };	// ScriptVM
 
 }	// namespace MCD

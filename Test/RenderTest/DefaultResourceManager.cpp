@@ -45,26 +45,23 @@ public:
 
 DefaultResourceManager::DefaultResourceManager(IFileSystem& fileSystem)
 	: ResourceManager(fileSystem)
+	, mImpl(*new Impl(fileSystem.getRoot().getString().c_str()))
 {
-	Path root = fileSystem.getRoot();
-	mImpl = new Impl(root.getString().c_str());
 	setupFactories();
 }
 
 DefaultResourceManager::~DefaultResourceManager()
 {
-	delete mImpl;
+	delete &mImpl;
 }
 
 int DefaultResourceManager::processLoadingEvents()
 {
-	MCD_ASSUME(mImpl);
-
 	{	// Reload any changed files in the RawFileSystem
-		std::wstring path = mImpl->mMonitor.getChangedFile();
+		std::wstring path = mImpl.mMonitor.getChangedFile();
 		while(!path.empty()) {
 			reload(Path(path).normalize(), IResourceManager::NonBlock);
-			path = mImpl->mMonitor.getChangedFile();
+			path = mImpl.mMonitor.getChangedFile();
 		}
 	}
 

@@ -32,7 +32,7 @@ public:
 
 private:
 	class Impl;
-	Impl* mImpl;
+	Impl& mImpl;
 };	// ScriptLoader
 
 class MCD_BINDING_API Script : public Resource

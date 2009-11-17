@@ -23,7 +23,7 @@ typedef WeakPtr<class Entity> EntityPtr;
 class MCD_COMPONENT_API PickComponent : public BehaviourComponent
 {
 	class Impl;
-	Impl* mImpl;
+	Impl& mImpl;
 
 public:
 	PickComponent();

@@ -378,73 +378,63 @@ public:
 };	// Impl
 
 XmlParser::XmlParser()
+	: mImpl(*new Impl)
 {
-	mImpl = new Impl();
 }
 
 XmlParser::~XmlParser()
 {
-	delete mImpl;
+	delete &mImpl;
 }
 
 void XmlParser::parse(wchar_t* source)
 {
-	MCD_ASSUME(mImpl);
-	mImpl->parse(source);
+	mImpl.parse(source);
 }
 
 XmlParser::Event::Enum XmlParser::nextEvent()
 {
-	MCD_ASSUME(mImpl);
-	return mImpl->nextEvent();
+	return mImpl.nextEvent();
 }
 
 const wchar_t* XmlParser::elementName() const
 {
-	MCD_ASSUME(mImpl);
-	return mImpl->mElementName;
+	return mImpl.mElementName;
 }
 
 bool XmlParser::isEmptyElement() const
 {
-	MCD_ASSUME(mImpl);
-	return mImpl->mIsEmptyElement;
+	return mImpl.mIsEmptyElement;
 }
 
 const wchar_t* XmlParser::textData() const
 {
-	MCD_ASSUME(mImpl);
-	return mImpl->mText;
+	return mImpl.mText;
 }
 
 size_t XmlParser::attributeCount() const
 {
-	MCD_ASSUME(mImpl);
-	return mImpl->mAttrubutes.size();
+	return mImpl.mAttrubutes.size();
 }
 
 const wchar_t* XmlParser::attributeName(size_t idx) const
 {
-	MCD_ASSUME(mImpl);
-	return idx < mImpl->mAttrubutes.size() ? mImpl->mAttrubutes.at(idx).name : nullptr;
+	return idx < mImpl.mAttrubutes.size() ? mImpl.mAttrubutes.at(idx).name : nullptr;
 }
 
 const wchar_t* XmlParser::attributeValue(size_t idx) const
 {
-	MCD_ASSUME(mImpl);
-	return idx < mImpl->mAttrubutes.size() ? mImpl->mAttrubutes.at(idx).value : nullptr;
+	return idx < mImpl.mAttrubutes.size() ? mImpl.mAttrubutes.at(idx).value : nullptr;
 }
 
 const wchar_t* XmlParser::attributeValue(const wchar_t* name) const
 {
-	MCD_ASSUME(mImpl);
-	return mImpl->attributeValue(name);
+	return mImpl.attributeValue(name);
 }
 
 const wchar_t* XmlParser::attributeValueIgnoreCase(const wchar_t* name) const
 {
-	MCD_ASSUME(mImpl);
-	return mImpl->attributeValueIgnoreCase(name);
+	return mImpl.attributeValueIgnoreCase(name);
 }
 
 float XmlParser::attributeValueAsFloat(size_t idx, float defaultValue) const

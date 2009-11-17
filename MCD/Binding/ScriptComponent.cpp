@@ -35,20 +35,19 @@ public:
 };
 
 ScriptLoader::ScriptLoader()
+	: mImpl(*new Impl)
 {
-	mImpl = new Impl();
 }
 
 ScriptLoader::~ScriptLoader()
 {
-	delete mImpl;
+	delete &mImpl;
 }
 
 IResourceLoader::LoadingState ScriptLoader::load(std::istream* is, const Path* fileId)
 {
 	MemoryProfiler::Scope scope("ScriptLoader::load");
-	MCD_ASSUME(mImpl != nullptr);
-	return mImpl->load(is, fileId);
+	return mImpl.load(is, fileId);
 }
 
 void ScriptLoader::commit(Resource& resource)
@@ -57,8 +56,7 @@ void ScriptLoader::commit(Resource& resource)
 
 IResourceLoader::LoadingState ScriptLoader::getLoadingState() const
 {
-	MCD_ASSUME(mImpl != nullptr);
-	return mImpl->getLoadingState();
+	return mImpl.getLoadingState();
 }
 
 Script::Script(const Path& fileId)

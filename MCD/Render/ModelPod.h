@@ -17,7 +17,7 @@ public:
 	sal_override void draw();
 
 	class Impl;
-	Impl* mImpl;
+	Impl& mImpl;
 };	// ModelPod
 
 typedef IntrusivePtr<ModelPod> ModelPodPtr;
@@ -50,7 +50,7 @@ public:
 
 protected:
 	class Impl;
-	Impl* mImpl;
+	Impl& mImpl;
 };	// PodLoader
 
 }	// namespace MCD

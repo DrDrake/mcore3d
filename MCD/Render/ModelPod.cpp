@@ -201,20 +201,18 @@ void ModelPod::Impl::draw()
 }
 
 ModelPod::ModelPod(const Path& fileId)
-	: Resource(fileId)
+	: Resource(fileId), mImpl(*new Impl)
 {
-	mImpl = new Impl;
 }
 
 ModelPod::~ModelPod()
 {
-	delete mImpl;
+	delete &mImpl;
 }
 
 void ModelPod::draw()
 {
-	MCD_ASSUME(mImpl != nullptr);
-	return mImpl->draw();
+	return mImpl.draw();
 }
 
 }	// namespace MCD
@@ -227,7 +225,11 @@ namespace MCD {
 class PodLoader::Impl
 {
 public:
-	~Impl();
+	Impl(IResourceManager* manager) : mResourceManager(manager) {}
+
+	~Impl() {
+		mPod.Destroy();
+	}
 
 	IResourceLoader::LoadingState load(std::istream* is, const Path* fileId);
 
@@ -237,12 +239,7 @@ public:
 	Path mPath;
 	IResourceManager* mResourceManager;
 	volatile IResourceLoader::LoadingState mLoadingState;
-};
-
-PodLoader::Impl::~Impl()
-{
-	mPod.Destroy();
-}
+};	// Impl
 
 IResourceLoader::LoadingState PodLoader::Impl::load(std::istream* is, const Path* fileId)
 {
@@ -269,13 +266,13 @@ IResourceLoader::LoadingState PodLoader::Impl::load(std::istream* is, const Path
 void PodLoader::Impl::commit(Resource& resource)
 {
 	ModelPod& model = dynamic_cast<ModelPod&>(resource);
-	CPVRTModelPOD& pod = model.mImpl->mPod;
+	CPVRTModelPOD& pod = model.mImpl.mPod;
 
 	// TODO: Error checking
 	pod.CopyFromMemory(mPod);
 
 	// Load textures
-	model.mImpl->mTextures.resize(pod.nNumTexture);
+	model.mImpl.mTextures.resize(pod.nNumTexture);
 
 	if(pod.pTexture) for(size_t i=0; i<pod.nNumTexture; ++i)
 	{
@@ -290,41 +287,37 @@ void PodLoader::Impl::commit(Resource& resource)
 		Path adjustedPath = mPath.hasRootDirectory() ? texturePath : mPath.getBranchPath() / texturePath;
 
 		if(mResourceManager)
-			model.mImpl->mTextures[i] = dynamic_cast<Texture*>(mResourceManager->load(adjustedPath).get());
+			model.mImpl.mTextures[i] = dynamic_cast<Texture*>(mResourceManager->load(adjustedPath).get());
 		else
-			model.mImpl->mTextures[i] = new Texture(adjustedPath);
+			model.mImpl.mTextures[i] = new Texture(adjustedPath);
 	}
 
-	model.mImpl->initBuffers();
+	model.mImpl.initBuffers();
 }
 
 PodLoader::PodLoader(IResourceManager* resourceManager)
+	: mImpl(*new Impl(resourceManager))
 {
-	mImpl = new Impl;
-	mImpl->mResourceManager = resourceManager;
 }
 
 PodLoader::~PodLoader()
 {
-	delete mImpl;
+	delete &mImpl;
 }
 
 IResourceLoader::LoadingState PodLoader::load(std::istream* is, const Path* fileId, const wchar_t*)
 {
-	MCD_ASSUME(mImpl != nullptr);
-	return mImpl->load(is, fileId);
+	return mImpl.load(is, fileId);
 }
 
 void PodLoader::commit(Resource& resource)
 {
-	MCD_ASSUME(mImpl != nullptr);
-	mImpl->commit(resource);
+	mImpl.commit(resource);
 }
 
 IResourceLoader::LoadingState PodLoader::getLoadingState() const
 {
-	MCD_ASSUME(mImpl != nullptr);
-	return mImpl->mLoadingState;
+	return mImpl.mLoadingState;
 }
 
 }	// namespace MCD

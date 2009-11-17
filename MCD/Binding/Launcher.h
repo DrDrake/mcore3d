@@ -109,10 +109,6 @@ public:
 			<0 - The resource failed to load.
 	 */
 	sal_override int update();
-
-protected:
-	class Impl;
-	Impl* mImpl;
 };	// LauncherDefaultResourceManager
 
 }	// namespace MCD

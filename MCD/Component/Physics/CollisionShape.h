@@ -87,7 +87,7 @@ protected:
 
 private:
 	class Impl;
-	Impl* mImpl;
+	Impl& mImpl;
 };	// StaticTriMeshShape
 
 typedef IntrusivePtr<StaticTriMeshShape> StaticTriMeshShapePtr;

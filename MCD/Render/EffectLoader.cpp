@@ -839,31 +839,28 @@ public:
 };	// Impl
 
 EffectLoader::EffectLoader(IResourceManager& resourceManager)
+	: mImpl(*new Impl(resourceManager))
 {
-	mImpl = new Impl(resourceManager);
 }
 
 EffectLoader::~EffectLoader()
 {
-	delete mImpl;
+	delete &mImpl;
 }
 
 IResourceLoader::LoadingState EffectLoader::load(std::istream* is, const Path* fileId, const wchar_t*)
 {
-	MCD_ASSUME(mImpl);
-	return mImpl->load(is, fileId);
+	return mImpl.load(is, fileId);
 }
 
 void EffectLoader::commit(Resource& resource)
 {
-	MCD_ASSUME(mImpl);
-	mImpl->commit(resource);
+	mImpl.commit(resource);
 }
 
 IResourceLoader::LoadingState EffectLoader::getLoadingState() const
 {
-	MCD_ASSUME(mImpl);
-	return mImpl->mLoadingState;
+	return mImpl.mLoadingState;
 }
 
 }	// namespace MCD

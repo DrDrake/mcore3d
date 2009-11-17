@@ -68,7 +68,7 @@ public:
 
 private:
 	class Impl;
-	Impl* mImpl;
+	Impl& mImpl;
 };	// FileSystemCollection
 
 }	// namespace MCD

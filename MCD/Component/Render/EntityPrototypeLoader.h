@@ -58,7 +58,7 @@ public:
 
 private:
 	class Impl;
-	Impl* mImpl;
+	Impl& mImpl;
 };	// EntityPrototypeLoader
 
 /*!	Kind of ResourceManagerCallback to use with EntityPrototypeLoader::addEntityAfterLoad()

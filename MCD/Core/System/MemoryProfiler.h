@@ -141,7 +141,7 @@ public:
 
 protected:
 	class Impl;
-	Impl* mImpl;
+	Impl& mImpl;
 };	// MemoryProfilerServer
 
 }	// namespace MCD

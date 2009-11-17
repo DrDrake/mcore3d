@@ -25,7 +25,7 @@ protected:
 	void setupFactories();
 
 	class Impl;
-	Impl* mImpl;
+	Impl& mImpl;
 };	// DefaultResourceManager
 
 #endif	// __MCD_RENDERTEST_DEFAULTRESOURCEMANAGER__
