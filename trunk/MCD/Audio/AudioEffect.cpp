@@ -33,6 +33,7 @@ void initAudioEffect()
 AudioEffect::AudioEffect()
 {
 	alGenEffects(1, &handle);
+	// TODO: Pooling of auxiliary effect slots 
 	alGenAuxiliaryEffectSlots(1, &slotHandle);
 }
 
