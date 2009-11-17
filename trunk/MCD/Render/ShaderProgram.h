@@ -86,7 +86,7 @@ protected:
 	static ShaderProgram* mCurrent;
 
 	class Impl;
-	Impl* mImpl;
+	Impl& mImpl;
 };	// ShaderProgram
 
 }	// namespace MCD

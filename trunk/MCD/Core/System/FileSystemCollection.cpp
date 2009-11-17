@@ -133,39 +133,35 @@ public:
 };	// Impl
 
 FileSystemCollection::FileSystemCollection()
+	: mImpl(*new Impl)
 {
-	mImpl = new Impl;
 }
 
 FileSystemCollection::~FileSystemCollection()
 {
-	delete mImpl;
+	delete &mImpl;
 }
 
 void FileSystemCollection::addFileSystem(IFileSystem& fileSystem)
 {
-	MCD_ASSUME(mImpl);
-	mImpl->addFileSystem(fileSystem);
+	mImpl.addFileSystem(fileSystem);
 }
 
 bool FileSystemCollection::removeFileSystem(const Path& fileSystemRootPath)
 {
-	MCD_ASSUME(mImpl);
-	return mImpl->removeFileSystem(fileSystemRootPath);
+	return mImpl.removeFileSystem(fileSystemRootPath);
 }
 
 IFileSystem* FileSystemCollection::findFileSystemForPath(const Path& path) const
 {
-	MCD_ASSUME(mImpl);
-	return mImpl->findFileSystemForPath(path);
+	return mImpl.findFileSystemForPath(path);
 }
 
 Path FileSystemCollection::getRoot() const {
-	MCD_ASSUME(mImpl);
-	if(mImpl->mFileSystems.empty())
+	if(mImpl.mFileSystems.empty())
 		return Path();
 	else
-		return mImpl->mFileSystems.front()->getRoot();
+		return mImpl.mFileSystems.front()->getRoot();
 }
 
 bool FileSystemCollection::setRoot(const Path&) {
@@ -174,14 +170,12 @@ bool FileSystemCollection::setRoot(const Path&) {
 
 bool FileSystemCollection::isExists(const Path& path) const
 {
-	MCD_ASSUME(mImpl);
-	return mImpl->findFileSystemForPath(path) != nullptr;
+	return mImpl.findFileSystemForPath(path) != nullptr;
 }
 
 bool FileSystemCollection::isDirectory(const Path& path) const
 {
-	MCD_ASSUME(mImpl);
-	IFileSystem* fileSystem = mImpl->findFileSystemForPath(path);
+	IFileSystem* fileSystem = mImpl.findFileSystemForPath(path);
 	if(!fileSystem)
 		throwError("Directory ", path.getString(), " does not exist");
 
@@ -190,8 +184,7 @@ bool FileSystemCollection::isDirectory(const Path& path) const
 
 uint64_t FileSystemCollection::getSize(const Path& path) const
 {
-	MCD_ASSUME(mImpl);
-	IFileSystem* fileSystem = mImpl->findFileSystemForPath(path);
+	IFileSystem* fileSystem = mImpl.findFileSystemForPath(path);
 	if(!fileSystem)
 		throwError("File ", path.getString(), " does not exist");
 
@@ -200,8 +193,7 @@ uint64_t FileSystemCollection::getSize(const Path& path) const
 
 std::time_t FileSystemCollection::getLastWriteTime(const Path& path) const
 {
-	MCD_ASSUME(mImpl);
-	IFileSystem* fileSystem = mImpl->findFileSystemForPath(path);
+	IFileSystem* fileSystem = mImpl.findFileSystemForPath(path);
 	if(!fileSystem)
 		return 0;
 
@@ -216,8 +208,7 @@ bool FileSystemCollection::makeDir(const Path& path) const
 
 bool FileSystemCollection::remove(const Path& path) const
 {
-	MCD_ASSUME(mImpl);
-	IFileSystem* fileSystem = mImpl->findFileSystemForPath(path);
+	IFileSystem* fileSystem = mImpl.findFileSystemForPath(path);
 	if(!fileSystem)
 		return false;
 
@@ -227,8 +218,7 @@ bool FileSystemCollection::remove(const Path& path) const
 
 std::auto_ptr<std::istream> FileSystemCollection::openRead(const Path& path) const
 {
-	MCD_ASSUME(mImpl);
-	IFileSystem* fileSystem = mImpl->findFileSystemForPath(path);
+	IFileSystem* fileSystem = mImpl.findFileSystemForPath(path);
 	if(!fileSystem)
 		return std::auto_ptr<std::istream>();
 
@@ -244,14 +234,12 @@ std::auto_ptr<std::ostream> FileSystemCollection::openWrite(const Path& path) co
 
 void* FileSystemCollection::openFirstChildFolder(const Path& folder) const
 {
-	MCD_ASSUME(mImpl);
-	return mImpl->openFirstChildFolder(folder);
+	return mImpl.openFirstChildFolder(folder);
 }
 
 Path FileSystemCollection::getNextSiblingFolder(void* context) const
 {
-	MCD_ASSUME(mImpl);
-	return mImpl->getNextSearchPath(context);
+	return mImpl.getNextSearchPath(context);
 }
 
 void FileSystemCollection::closeFirstChildFolder(void* context) const
@@ -262,14 +250,12 @@ void FileSystemCollection::closeFirstChildFolder(void* context) const
 
 void* FileSystemCollection::openFirstFileInFolder(const Path& folder) const
 {
-	MCD_ASSUME(mImpl);
-	return mImpl->openFirstFileInFolder(folder);
+	return mImpl.openFirstFileInFolder(folder);
 }
 
 Path FileSystemCollection::getNextFileInFolder(void* context) const
 {
-	MCD_ASSUME(mImpl);
-	return mImpl->getNextSearchPath(context);
+	return mImpl.getNextSearchPath(context);
 }
 
 void FileSystemCollection::closeFirstFileInFolder(void* context) const

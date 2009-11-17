@@ -38,7 +38,7 @@ public:
 
 protected:
 	class Impl;
-	Impl* mImpl;
+	Impl& mImpl;
 };	// OgreMeshLoader
 
 }	// namespace MCD

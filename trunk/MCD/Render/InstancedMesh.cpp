@@ -89,27 +89,24 @@ public:
 };	// Impl
 
 InstancedMesh::InstancedMesh(const MeshPtr& mesh, const EffectPtr& effect)
-	: mesh(mesh), effect(effect)
+	: mesh(mesh), effect(effect), mImpl(*new Impl)
 {
-	mImpl = new Impl();
 }
 
 InstancedMesh::~InstancedMesh()
 {
-	delete mImpl;
+	delete &mImpl;
 }
 
 void InstancedMesh::update(const Mat44f& viewMat)
 {
-	MCD_ASSUME(mImpl);
 	if(mesh && effect)
-		mImpl->update(viewMat, *mesh, *effect);
+		mImpl.update(viewMat, *mesh, *effect);
 }
 
 void InstancedMesh::registerPerInstanceInfo(const Mat44f& info)
 {
-	MCD_ASSUME(mImpl);
-	mImpl->mPerInstanceInfo.push_back(info);
+	mImpl.mPerInstanceInfo.push_back(info);
 }
 
 }	// namespace MCD

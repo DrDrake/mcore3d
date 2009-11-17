@@ -740,27 +740,27 @@ public:
 };	// Impl
 
 MemoryProfilerServer::MemoryProfilerServer()
-	: mImpl(new Impl())
+	: mImpl(*new Impl)
 {
 	WSADATA	wsad;
 	::WSAStartup(WINSOCK_VERSION, &wsad);
 }
 
 MemoryProfilerServer::~MemoryProfilerServer() {
-	delete mImpl;
+	delete &mImpl;
 	::WSACleanup();
 }
 
 bool MemoryProfilerServer::listern(uint16_t port) {
-	return mImpl->listern(port);
+	return mImpl.listern(port);
 }
 
 bool MemoryProfilerServer::accept() {
-	return mImpl->accept();
+	return mImpl.accept();
 }
 
 void MemoryProfilerServer::update() {
-	mImpl->update();
+	mImpl.update();
 }
 
 }	// namespace MCD

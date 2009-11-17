@@ -34,21 +34,19 @@ public:
 };	//Impl
 
 PickComponent::PickComponent()
+	: mImpl(*new Impl)
 {
-	mImpl = new Impl;
 }
 
 PickComponent::~PickComponent()
 {
-	delete mImpl;
+	delete &mImpl;
 }
 
 void PickComponent::update()
 {
 	if(!entityToPick)
 		return;
-
-	MCD_ASSUME(mImpl);
 
 	// The pick buffer for the opengl to store picking results.
 	GLuint pickBuffer[1024];
@@ -71,10 +69,10 @@ void PickComponent::update()
 		glPushMatrix();
 		glLoadIdentity();
 		gluPickMatrix(
-			mImpl->x,
-			view[3] - mImpl->y,	// Invert the y-axis
-			mImpl->width,
-			mImpl->height,
+			mImpl.x,
+			view[3] - mImpl.y,	// Invert the y-axis
+			mImpl.width,
+			mImpl.height,
 			view);
 		glMultMatrixf(projectionMatrix);
 		glMatrixMode(GL_MODELVIEW);
@@ -109,7 +107,7 @@ void PickComponent::update()
 
 	size_t hitCount = glRenderMode(GL_RENDER);
 
-	mImpl->pickedEntities.clear();
+	mImpl.pickedEntities.clear();
 
 	// Loop though the pick buffer to extract the information
 	size_t index = 0;
@@ -123,39 +121,38 @@ void PickComponent::update()
 				minDepth, maxDepth,
 				EntityPtr(reinterpret_cast<Entity*>(pickBuffer[index++]))
 			};
-			mImpl->pickedEntities.push_back(result);
+			mImpl.pickedEntities.push_back(result);
 		}
 		MCD_ASSERT(index <= MCD_COUNTOF(pickBuffer));
 	}
 
 	// Sort the entities so that the one that closer to the camera will come first
-	std::sort(mImpl->pickedEntities.begin( ), mImpl->pickedEntities.end(), Impl::PickResultSort());
+	std::sort(mImpl.pickedEntities.begin( ), mImpl.pickedEntities.end(), Impl::PickResultSort());
 }
 
 void PickComponent::setPickRegion(size_t x, size_t y, size_t width, size_t height)
 {
-	mImpl->x = x;
-	mImpl->y = y;
-	mImpl->width = width;
-	mImpl->height = height;
+	mImpl.x = x;
+	mImpl.y = y;
+	mImpl.width = width;
+	mImpl.height = height;
 }
 
 size_t PickComponent::hitCount() const
 {
-	MCD_ASSUME(mImpl);
-	return mImpl->pickedEntities.size();
+	return mImpl.pickedEntities.size();
 }
 
 EntityPtr PickComponent::hitAtIndex(size_t index)
 {
 	if(index >= hitCount())
 		return nullptr;
-	return mImpl->pickedEntities[index].entity;
+	return mImpl.pickedEntities[index].entity;
 }
 
 void PickComponent::clearResult()
 {
-	mImpl->pickedEntities.clear();
+	mImpl.pickedEntities.clear();
 }
 
 }	// namespace MCD

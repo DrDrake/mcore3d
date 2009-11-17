@@ -864,33 +864,30 @@ IResourceLoader::LoadingState Max3dsLoader::Impl::getLoadingState() const
 }
 
 Max3dsLoader::Max3dsLoader(IResourceManager* resourceManager)
+	: mImpl(*new Impl(resourceManager))
 {
-	mImpl = new Impl(resourceManager);
 }
 
 Max3dsLoader::~Max3dsLoader()
 {
-	delete mImpl;
+	delete &mImpl;
 }
 
 IResourceLoader::LoadingState Max3dsLoader::load(std::istream* is, const Path* fileId, const wchar_t* args)
 {
 	MemoryProfiler::Scope scope("Max3dsLoader::load");
-	MCD_ASSUME(mImpl != nullptr);
-	return mImpl->load(is, fileId, args);
+	return mImpl.load(is, fileId, args);
 }
 
 void Max3dsLoader::commit(Resource& resource)
 {
 	MemoryProfiler::Scope scope("Max3dsLoader::commit");
-	MCD_ASSUME(mImpl != nullptr);
-	mImpl->commit(resource);
+	mImpl.commit(resource);
 }
 
 IResourceLoader::LoadingState Max3dsLoader::getLoadingState() const
 {
-	MCD_ASSUME(mImpl != nullptr);
-	return mImpl->getLoadingState();
+	return mImpl.getLoadingState();
 }
 
 }	// namespace MCD

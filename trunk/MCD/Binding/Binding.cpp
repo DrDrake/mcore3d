@@ -132,26 +132,24 @@ public:
 };	// Impl
 
 ScriptVM::ScriptVM()
+	: mImpl(*new Impl())
 {
-	mImpl = new Impl();
 }
 
 ScriptVM::~ScriptVM()
 {
-	delete mImpl;
+	delete &mImpl;
 }
 
 bool ScriptVM::runScript(const wchar_t* script, const wchar_t* scriptName, bool retVal)
 {
-	MCD_ASSUME(mImpl);
 	MemoryProfiler::Scope profiler("ScriptVM::runScript");
-	return mImpl->runScript(script, retVal, scriptName);
+	return mImpl.runScript(script, retVal, scriptName);
 }
 
 void* ScriptVM::getImplementationHandle()
 {
-	MCD_ASSUME(mImpl);
-	return mImpl->vm.getVM();
+	return mImpl.vm.getVM();
 }
 
 }	// namespace MCD

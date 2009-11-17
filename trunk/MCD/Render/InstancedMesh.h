@@ -39,7 +39,7 @@ public:
 
 private:
 	class Impl;
-	Impl* mImpl;
+	Impl& mImpl;
 };	// InstancedMesh
 
 typedef IntrusivePtr<InstancedMesh> InstancedMeshPtr;

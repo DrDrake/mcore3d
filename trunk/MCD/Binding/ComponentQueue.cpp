@@ -88,25 +88,23 @@ public:
 };	// Impl
 
 ComponentQueue::ComponentQueue()
+	: mImpl(*new Impl)
 {
-	mImpl = new Impl();
 }
 
 ComponentQueue::~ComponentQueue()
 {
-	delete mImpl;
+	delete &mImpl;
 }
 
 void ComponentQueue::setItem(float wakeUpTime, Component& component)
 {
-	MCD_ASSUME(mImpl);
-	mImpl->setItem(wakeUpTime, component);
+	mImpl.setItem(wakeUpTime, component);
 }
 
 Component* ComponentQueue::getItem(float currentTime, const ComponentQueue::QueueNode*& begin)
 {
-	MCD_ASSUME(mImpl);
-	return mImpl->getItem(currentTime, begin);
+	return mImpl.getItem(currentTime, begin);
 }
 
 void registerComponentQueueBinding(script::VMCore* v);

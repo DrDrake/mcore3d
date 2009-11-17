@@ -192,20 +192,20 @@ public:
 };	// Impl
 
 SimpleRayMeshIntersect::SimpleRayMeshIntersect()
-	: mImpl(new Impl)
+	: mImpl(*new Impl)
 {
 }
 
 SimpleRayMeshIntersect::~SimpleRayMeshIntersect()
 {
-	delete mImpl;
+	delete &mImpl;
 }
 
 void SimpleRayMeshIntersect::reset()
 {
-	mImpl->mMeshes.destroyAll();
-	mImpl->mMeshOwnerships.clear();
-	mImpl->mLastResults.destroyAll();
+	mImpl.mMeshes.destroyAll();
+	mImpl.mMeshOwnerships.clear();
+	mImpl.mLastResults.destroyAll();
 }
 
 void SimpleRayMeshIntersect::addMesh(EditableMesh* mesh)
@@ -218,8 +218,8 @@ void SimpleRayMeshIntersect::addMesh(EditableMesh* mesh)
 
 	MeshRecord* rec = new MeshRecord(*mesh);
 	rec->hasTransform = false;
-	mImpl->mMeshes.pushBack(*rec);
-	mImpl->mMeshOwnerships.push_back(mesh);
+	mImpl.mMeshes.pushBack(*rec);
+	mImpl.mMeshOwnerships.push_back(mesh);
 }
 
 void SimpleRayMeshIntersect::addMesh(EditableMesh* mesh, const Mat44f& transform)
@@ -235,8 +235,8 @@ void SimpleRayMeshIntersect::addMesh(EditableMesh* mesh, const Mat44f& transform
 	rec->hasTransform = !transform.isNearEqual(Mat44f::cIdentity);
 
 	rec->transform = transform;
-	mImpl->mMeshes.pushBack(*rec);
-	mImpl->mMeshOwnerships.push_back(mesh);
+	mImpl.mMeshes.pushBack(*rec);
+	mImpl.mMeshOwnerships.push_back(mesh);
 }
 
 void SimpleRayMeshIntersect::build()
@@ -245,10 +245,10 @@ void SimpleRayMeshIntersect::build()
 
 void SimpleRayMeshIntersect::begin()
 {
-	mImpl->mLastResults.destroyAll();
+	mImpl.mLastResults.destroyAll();
 
-	for(MeshRecord* i = mImpl->mMeshes.begin()
-		; i != mImpl->mMeshes.end()
+	for(MeshRecord* i = mImpl.mMeshes.begin()
+		; i != mImpl.mMeshes.end()
 		; i = i->next())
 	{
 		MCD_VERIFY(i->mesh.isEditing());
@@ -265,7 +265,7 @@ void SimpleRayMeshIntersect::test(const Vec3f& rayOrig, const Vec3f& rayDir, boo
 #ifdef _OPENMP
 	// Create an OpenMP friendy list
 	std::vector<MeshRecord*> recordList;
-	for(MeshRecord* i = mImpl->mMeshes.begin(); i != mImpl->mMeshes.end(); i = i->next())
+	for(MeshRecord* i = mImpl.mMeshes.begin(); i != mImpl.mMeshes.end(); i = i->next())
 		recordList.push_back(&(*i));
 
 //	omp_set_num_threads(8);
@@ -274,8 +274,8 @@ void SimpleRayMeshIntersect::test(const Vec3f& rayOrig, const Vec3f& rayDir, boo
 	{
 		MeshRecord* i = recordList[j];
 #else
-	for(MeshRecord* i = mImpl->mMeshes.begin()
-		; i != mImpl->mMeshes.end()
+	for(MeshRecord* i = mImpl.mMeshes.begin()
+		; i != mImpl.mMeshes.end()
 		; i = i->next())
 	{
 #endif
@@ -302,7 +302,7 @@ void SimpleRayMeshIntersect::test(const Vec3f& rayOrig, const Vec3f& rayDir, boo
 
 			float t, u, v;
 
-			if(1 == mImpl->intersectTriangle<float>(rayOrig, rayDir, v0, v1, v2, &t, &u, &v, twoSided))
+			if(1 == mImpl.intersectTriangle<float>(rayOrig, rayDir, v0, v1, v2, &t, &u, &v, twoSided))
 			{
 				if(t < 0) continue;
 				
@@ -333,7 +333,7 @@ void SimpleRayMeshIntersect::test(const Vec3f& rayOrig, const Vec3f& rayDir, boo
 		}
 	}
 
-	mImpl->mLastResults.pushBack(*result);
+	mImpl.mLastResults.pushBack(*result);
 }
 
 void SimpleRayMeshIntersect::end()
@@ -342,7 +342,7 @@ void SimpleRayMeshIntersect::end()
 
 LinkList<IRayMeshIntersect::HitResult>& SimpleRayMeshIntersect::results()
 {
-	return mImpl->mLastResults;
+	return mImpl.mLastResults;
 }
 
 }	// namespace MCD

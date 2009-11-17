@@ -396,28 +396,27 @@ public:
 };	// Impl
 
 OggLoader::OggLoader()
+	: mImpl(*new Impl)
 {
 	initVorbis();
-	mImpl = new Impl();
 }
 
 OggLoader::~OggLoader()
 {
-	delete mImpl;
+	delete &mImpl;
 }
 
 IResourceLoader::LoadingState OggLoader::load(std::istream* is, const Path*, const wchar_t* args)
 {
-	MCD_ASSUME(mImpl != nullptr);
-	ScopeLock lock(mImpl->mMutex);
+	ScopeLock lock(mImpl.mMutex);
 
-	if(!is || !mImpl->loadHeader(is, args))
+	if(!is || !mImpl.loadHeader(is, args))
 		return loadingState = Aborted;
 
-	// NOTE: The mutex will unlock for a while in mImpl->loadData().
-	int result = mImpl->loadData();
+	// NOTE: The mutex will unlock for a while in mImpl.loadData().
+	int result = mImpl.loadData();
 
-	// The loading state may changed by another thread during mImpl->loadData()
+	// The loading state may changed by another thread during mImpl.loadData()
 	if(loadingState == Aborted)
 		return loadingState;
 
@@ -442,12 +441,10 @@ IResourceLoader::LoadingState OggLoader::getLoadingState() const
 // Invoked in resource manager worker thread
 void OggLoader::onPartialLoaded(IPartialLoadContext& context, uint priority, const wchar_t* args)
 {
-	MCD_ASSUME(mImpl);
-
-	if(mImpl->mTaskQueue.isEmpty()) {
-		ScopeLock lock(mImpl->mMutex);
-		MCD_ASSERT(mImpl->partialLoadContext.get() == nullptr);
-		mImpl->partialLoadContext.reset(&context);
+	if(mImpl.mTaskQueue.isEmpty()) {
+		ScopeLock lock(mImpl.mMutex);
+		MCD_ASSERT(mImpl.partialLoadContext.get() == nullptr);
+		mImpl.partialLoadContext.reset(&context);
 	} else {
 		// Re-schedule immediatly if the task queue isn't empty,
 		// this situation is rare but possible when the load() function completes in
@@ -460,14 +457,12 @@ void OggLoader::onPartialLoaded(IPartialLoadContext& context, uint priority, con
 // Invoked by user or AudioSource
 void OggLoader::requestLoad(const AudioBufferPtr& buffer, size_t bufferIndex)
 {
-	mImpl->requestLoad(buffer, bufferIndex);
+	mImpl.requestLoad(buffer, bufferIndex);
 }
 
 void OggLoader::abortLoad()
 {
-	MCD_ASSUME(mImpl);
-
-	{	ScopeLock lock(mImpl->mMutex);
+	{	ScopeLock lock(mImpl.mMutex);
 		loadingState = Aborted;
 	}
 
@@ -475,40 +470,34 @@ void OggLoader::abortLoad()
 	// so that all stuffs will be clear because of the Abort state.
 	requestLoad(nullptr, 0);
 
-	mImpl->partialLoadContext.reset();
+	mImpl.partialLoadContext.reset();
 }
 
 int OggLoader::popLoadedBuffer()
 {
-	return mImpl->popLoadedBuffer();
+	return mImpl.popLoadedBuffer();
 }
 
 IAudioStreamLoader::Info OggLoader::info() const
 {
-	MCD_ASSUME(mImpl);
-
-	ScopeLock lock(mImpl->mMutex);
-	return mImpl->mInfo;
+	ScopeLock lock(mImpl.mMutex);
+	return mImpl.mInfo;
 }
 
 uint64_t OggLoader::pcmOffset() const
 {
-	MCD_ASSUME(mImpl);
-
-	ScopeLock lock(mImpl->mMutex);
-	return mImpl->mCurrentPcmOffset;
+	ScopeLock lock(mImpl.mMutex);
+	return mImpl.mCurrentPcmOffset;
 }
 
 bool OggLoader::seek(uint64_t pcmOffset)
 {
-	MCD_ASSUME(mImpl);
-
-	{	ScopeLock lock(mImpl->mMutex);
+	{	ScopeLock lock(mImpl.mMutex);
 		if(loadingState & IResourceLoader::Stopped)
 			return false;
 	}
 
-	return mImpl->seek(pcmOffset);
+	return mImpl.seek(pcmOffset);
 }
 
 }	// namespace MCD

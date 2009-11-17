@@ -483,33 +483,30 @@ void OgreMeshLoader::Impl::commit(Resource& resource)
 }
 
 OgreMeshLoader::OgreMeshLoader(IResourceManager* resourceManager)
+	: mImpl(*new Impl(resourceManager))
 {
-	mImpl = new Impl(resourceManager);
 }
 
 OgreMeshLoader::~OgreMeshLoader()
 {
-	delete mImpl;
+	delete &mImpl;
 }
 
 IResourceLoader::LoadingState OgreMeshLoader::load(std::istream* is, const Path* fileId, const wchar_t* args)
 {
 	MemoryProfiler::Scope scope("OgreMeshLoader::load");
-	MCD_ASSUME(mImpl != nullptr);
-	return mImpl->load(is, fileId, args);
+	return mImpl.load(is, fileId, args);
 }
 
 void OgreMeshLoader::commit(Resource& resource)
 {
 	MemoryProfiler::Scope scope("OgreMeshLoader::commit");
-	MCD_ASSUME(mImpl != nullptr);
-	return mImpl->commit(resource);
+	return mImpl.commit(resource);
 }
 
 IResourceLoader::LoadingState OgreMeshLoader::getLoadingState() const
 {
-	MCD_ASSUME(mImpl != nullptr);
-	return mImpl->getLoadingState();
+	return mImpl.getLoadingState();
 }
 
 }	// namespace MCD

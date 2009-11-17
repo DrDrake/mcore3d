@@ -120,16 +120,16 @@ public:
 };	// Impl
 
 StaticTriMeshShape::StaticTriMeshShape(const MeshPtr& mesh)
+	: mImpl(*new Impl(mesh, shapeImpl))
 {
-	mImpl = new Impl(mesh, shapeImpl);
 }
 
 StaticTriMeshShape::StaticTriMeshShape(const MeshBuilder& meshBuilder, bool keepOwnBuffer)
+	: mImpl(*new Impl(const_cast<MeshBuilder&>(meshBuilder), keepOwnBuffer, shapeImpl))
 {
-	mImpl = new Impl(const_cast<MeshBuilder&>(meshBuilder), keepOwnBuffer, shapeImpl);
 }
 
 StaticTriMeshShape::~StaticTriMeshShape()
 {
-	delete mImpl;
+	delete &mImpl;
 }

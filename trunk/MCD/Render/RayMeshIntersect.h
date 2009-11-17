@@ -147,7 +147,7 @@ public:
 
 private:
 	class Impl;
-	Impl* mImpl;
+	Impl& mImpl;
 };	// SimpleRayMeshIntersect
 
 }	// namespace MCD

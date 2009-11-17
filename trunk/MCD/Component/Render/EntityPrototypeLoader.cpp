@@ -122,33 +122,30 @@ IResourceLoader::LoadingState EntityPrototypeLoader::Impl::getLoadingState() con
 }
 
 EntityPrototypeLoader::EntityPrototypeLoader(IResourceManager* resourceManager)
+	: mImpl(*new Impl(resourceManager))
 {
-	mImpl = new Impl(resourceManager);
 }
 
 EntityPrototypeLoader::~EntityPrototypeLoader()
 {
-	delete mImpl;
+	delete &mImpl;
 }
 
 IResourceLoader::LoadingState EntityPrototypeLoader::load(std::istream* is, const Path* fileId, const wchar_t* args)
 {
 	MemoryProfiler::Scope scope("EntityPrototypeLoader::load");
-	MCD_ASSUME(mImpl != nullptr);
-	return mImpl->load(is, fileId, args);
+	return mImpl.load(is, fileId, args);
 }
 
 void EntityPrototypeLoader::commit(Resource& resource)
 {
 	MemoryProfiler::Scope scope("EntityPrototypeLoader::commit");
-	MCD_ASSUME(mImpl != nullptr);
-	mImpl->commit(resource);
+	mImpl.commit(resource);
 }
 
 IResourceLoader::LoadingState EntityPrototypeLoader::getLoadingState() const
 {
-	MCD_ASSUME(mImpl != nullptr);
-	return mImpl->getLoadingState();
+	return mImpl.getLoadingState();
 }
 
 void EntityPrototypeLoader::LoadCallback::doCallback()

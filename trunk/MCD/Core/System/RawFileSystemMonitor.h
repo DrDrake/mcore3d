@@ -38,7 +38,7 @@ public:
 
 private:
 	class Impl;
-	Impl* mImpl;
+	Impl& mImpl;
 };	// RawFileSystemMonitor
 
 }	// namespace MCD
