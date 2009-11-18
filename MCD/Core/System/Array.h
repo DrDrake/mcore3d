@@ -10,7 +10,7 @@ namespace MCD {
 	A replacement for plan old array, adapted from boost's array.hpp
 	The index operator[] has range check in debug mode.
  */
-template<class T, size_t N_>
+template<typename T, size_t N_>
 class Array
 {
 public:
@@ -89,6 +89,29 @@ private:
 			throw std::out_of_range("MCD::Array out of range");
 	}
 };	// Array
+
+/*!	An class that wrap around a raw pointer and tread it as an array of type T.
+	This class also support array stride, making it very usefull when working with
+	vertex buffer.
+ */
+template<typename T>
+class ArrayWrapper
+{
+public:
+	ArrayWrapper(void* _data, size_t elementCount, size_t _stride=0)
+		: data(_data), size(elementCount), stride(_stride == 0 ? sizeof(T) : _stride)
+	{}
+
+	T& operator[](size_t i)
+	{
+		MCD_ASSUME(i < size);
+		return (*reinterpret_cast<T*>(data))[i*stride];
+	}
+
+	char* const data;
+	const size_t size;
+	const size_t stride;
+};	// ArrayWrapper
 
 }	// namespace MCD
 
