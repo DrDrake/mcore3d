@@ -3,7 +3,6 @@
 
 #include "ShareLib.h"
 #include "../Core/System/Array.h"
-#include "../Core/System/NonCopyable.h"
 #include "../Core/System/Resource.h"
 #include "../Core/System/SharedPtr.h"
 
@@ -87,7 +86,7 @@ public:
 	//! Render the mesh with all associated color, normal, texture coordinate etc.
 	void draw();
 
-	/*!	Render the mesh without any material.
+	/*!	Render the mesh without any attributes other then position.
 		Only the vertex and index buffer is used, this function is usefull for example
 		depth pre-pass or render for picking.
 	 */
