@@ -5,6 +5,154 @@
 
 using namespace MCD;
 
+TEST(A_MeshBuilderTest)
+{
+	{	// Simple create and destroy a mesh builder
+		MeshBuilder2 builder;
+	}
+
+	{	// Check against the initial states
+		MeshBuilder2 builder;
+
+		CHECK_EQUAL(1u, builder.attributeCount());	// The "index" is already reserved.
+		CHECK_EQUAL(0u, builder.vertexCount());
+		CHECK_EQUAL(0u, builder.indexCount());
+
+		// Try to declare the default attribute id 0 (which means index) will fail
+		CHECK(0 > builder.declareAttribute(1, nullptr, 0));
+
+		CHECK(!builder.acquirePointer(0));
+
+		CHECK(builder.resizeBuffers(10, 20));
+
+		CHECK_EQUAL(-1, builder.findAttributeId(""));
+	}
+
+	{	// More complicated cases
+		MeshBuilder2 builder;
+
+		int posId = builder.declareAttribute(sizeof(float) * 3, "position", 1);
+		CHECK(posId > 0);
+		CHECK_EQUAL(posId, builder.findAttributeId("position"));
+
+		int normalId = builder.declareAttribute(sizeof(float) * 3, "normal", 1);
+		CHECK(normalId > posId);
+
+		int uvId = builder.declareAttribute(sizeof(float) * 2, "uv2f", 1);
+		CHECK(uvId > normalId);
+
+		int weightId = builder.declareAttribute(sizeof(float), "boneWeight", 2);
+		CHECK(weightId > uvId);
+
+		CHECK_EQUAL(5u, builder.attributeCount());
+
+		// No more declaration can be made after resize
+		CHECK(builder.resizeBuffers(8, 12));
+		CHECK_EQUAL(-1, builder.declareAttribute(1));
+
+		CHECK_EQUAL(8u, builder.vertexCount());
+		CHECK_EQUAL(12u, builder.indexCount());
+
+		size_t count, stride, sizeInByte;
+		const char* semantic;
+
+		// Get the data pointer for the various attributes
+		char* pos = builder.acquirePointer(posId, &count, &stride, &sizeInByte, &semantic);
+		CHECK(pos);
+		CHECK_EQUAL(sizeof(float) * 8, stride);
+		CHECK_EQUAL(builder.vertexCount(), count);
+		CHECK_EQUAL(sizeof(float) * 3, sizeInByte);
+		CHECK_EQUAL(std::string("position"), semantic);
+
+		char* normal = builder.acquirePointer(normalId, &count, &stride, &sizeInByte, &semantic);
+		CHECK_EQUAL(sizeof(float) * 8, stride);
+		CHECK_EQUAL(builder.vertexCount(), count);
+		CHECK_EQUAL(sizeof(float) * 3, sizeInByte);
+		CHECK_EQUAL(std::string("normal"), semantic);
+		CHECK_EQUAL(normal, pos + sizeof(float) * 3);
+
+		char* uv = builder.acquirePointer(uvId, &count, &stride, &sizeInByte, &semantic);
+		CHECK_EQUAL(sizeof(float) * 8, stride);
+		CHECK_EQUAL(builder.vertexCount(), count);
+		CHECK_EQUAL(sizeof(float) * 2, sizeInByte);
+		CHECK_EQUAL(std::string("uv2f"), semantic);
+		CHECK_EQUAL(uv, normal + sizeof(float) * 3);
+
+		char* weight = builder.acquirePointer(weightId, &count, &stride, &sizeInByte, &semantic);
+		CHECK(weight);
+		CHECK_EQUAL(sizeof(float), stride);
+		CHECK_EQUAL(builder.vertexCount(), count);
+		CHECK_EQUAL(stride, sizeInByte);
+
+		// Get the index buffer pointer
+		uint16_t* idxPtr = (uint16_t*)builder.acquirePointer(0, &count, &stride, &sizeInByte, &semantic);
+		CHECK(idxPtr);
+		CHECK_EQUAL(sizeof(uint16_t), stride);
+		CHECK_EQUAL(builder.indexCount(), count);
+		CHECK_EQUAL(sizeof(uint16_t), sizeInByte);
+		CHECK_EQUAL(std::string("index"), semantic);
+	}
+}
+
+TEST(A_MeshBuilderIMTest)
+{
+	{	// Simple create and destroy a mesh builder
+		MeshBuilderIM builder;
+	}
+
+	{	// Check against the initial states
+		MeshBuilderIM builder;
+
+		CHECK_EQUAL(0u, builder.vertexCount());
+		CHECK_EQUAL(0u, builder.indexCount());
+
+		CHECK(!builder.acquirePointer(0));
+	}
+
+	{	// More complicated cases
+		MeshBuilderIM builder;
+
+		int posId = builder.declareAttribute(sizeof(float) * 3, "position", 1);
+		CHECK(posId > 0);
+		CHECK_EQUAL(posId, builder.findAttributeId("position"));
+
+		int normalId = builder.declareAttribute(sizeof(float) * 3, "normal", 1);
+		CHECK(normalId > posId);
+
+		int uvId = builder.declareAttribute(sizeof(float) * 2, "uv2f", 1);
+		CHECK(uvId > normalId);
+
+		int weightId = builder.declareAttribute(sizeof(float), "boneWeight", 2);
+		CHECK(weightId > uvId);
+
+		CHECK_EQUAL(5u, builder.attributeCount());
+
+		{	uint16_t index[3];
+			for(size_t i=0; i<3; ++i) {
+				Vec3f pos(1.23f + i), normal(Vec3f::c001);
+				Vec2f uv(0.0f + i);
+				float weight = float(i);
+
+				builder.vertexAttribute(posId, &pos);
+				builder.vertexAttribute(normalId, &normal);
+				builder.vertexAttribute(uvId, &uv);
+				builder.vertexAttribute(weightId, &weight);
+
+				index[i] = builder.addVertex();
+				CHECK_EQUAL(i, index[i]);
+			}
+
+			builder.addTriangle(index[0], index[1], index[2]);
+		}
+
+		// No more declaration can be made after a triangle is added
+		CHECK_EQUAL(-1, builder.declareAttribute(1));
+
+		CHECK_EQUAL(3u, builder.vertexCount());
+		CHECK_EQUAL(3u, builder.indexCount());
+	}
+}
+
 TEST(Basic_MeshBuilderTest)
 {
 	{	// Simple create and destroy a mesh

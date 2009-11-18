@@ -8,6 +8,165 @@
 
 namespace MCD {
 
+/*!	Providing a simple interface for declarating (generic) vertex attributes and building the buffers.
+	The buffers are then utilized and commit to Mesh.
+
+	Example:
+	\code
+	// Declare an vertex with position, normal and uv within a buffer, and
+	// bond weight, bond indice in another buffer
+	MeshBuilder2 builder;
+	int posId = builder.declareAttribute(sizeof(float)*3, 1);
+	int normalId = builder.declareAttribute(sizeof(float)*3, 1);
+	int uvId = builder.declareAttribute(sizeof(float)*2, 1);
+
+	int weightId = builder.declareAttribute(sizeof(float), 2);
+	int indiceId = builder.declareAttribute(sizeof(int), 2);
+
+	// Make 1000 of those declared vertex, and 2000 index.
+	builder.reserveVertex(1000);
+	builder.reserveIndex(2000);
+
+	// Acquire the buffer pointer and fill up the data yourself.
+	size_t stride1, totalSizeInByte1;
+	char* buf1 = builder.acquirePointer(posId, &stride1, &totalSizeInByte1);
+
+	size_t stride2, totalSizeInByte2;
+	char* buf2 = builder.acquirePointer(weightId, &stride2, &totalSizeInByte2);
+
+	// Get the index buffer.
+	const size_t indexCount = builder.indexCount();
+	uint16_t* idxPtr = (uint16_t*)builder.acquirePointer(0);
+
+	// Fill up the data ...
+	\endcode
+ */
+class MCD_RENDER_API MeshBuilder2 : public IntrusiveSharedObject<AtomicInteger>, private Noncopyable
+{
+public:
+	explicit MeshBuilder2(bool isCreatedOnStack=true);
+
+	sal_override ~MeshBuilder2();
+
+// Operations
+	/*!	Call this function to declare the vertex attributes you want.
+		\param sizeInBytes
+			The size in bytes of the attribute.
+		\param bufferId
+			Feed this param with different value if you want to group different attributes into set of buffers.
+			The value zero is reserved for index buffer, otherwise you can supply successive values 1,2,3,etc...
+		\return The attribute ID for future reference, -1 if any error occured.
+	 */
+	int declareAttribute(size_t sizeInBytes, const char* semantic=nullptr, size_t bufferId=1);
+
+	/*!	Resize the buffers.
+		\note No more declareAttribute() can be made after this function is invoked, unless clear() is used.
+		\note Remember only 65536 vertex is supported.
+	 */
+	sal_checkreturn bool resizeBuffers(uint16_t vertexCount, size_t indexCount);
+
+	//!	Clear the mesh builder to it's initial state.
+	void clear();
+
+	//! Clear only the buffers, keeping the declarations.
+	void clearBuffers();
+
+// Query
+//	int getAttribute(int attributeId, size_t& sizeInBytes);
+
+	/*! Number of attribtues defined.
+		\note The vertex index is also accounted as an attribute.
+	 */
+	size_t attributeCount() const;
+
+	uint16_t vertexCount() const;
+
+	size_t indexCount() const;
+
+	/*!	Search the attribute ID with the given semantic name.
+		Returns -1 if non of the semantic can be found.
+	 */
+	int findAttributeId(const char* semantic) const;
+
+	/*!	Acquire the data pointer from the internal buffer.
+		This function also expose the associated properties of that attribute.
+		\param attributedId
+			The ID returned from declareAttribute(), or 0 for index buffer
+		\param count
+			The number of element of this attribute in the buffer.
+		\param stride
+			The byte offset between consecutive vertex attributes, which is equal to the size of a vertex.
+			Note that stride will not be zero even the data are tightly packed.
+		\param sizeInByte
+			The size in byte of a single attribtue.
+		\param semantic
+			The semantic string for this attribute, this const char* pointer
+			will become invalid after the call to clear().
+
+		\note If stride == sizeInByte it means a whole buffer is dedicated to that attribute.
+	 */
+	sal_maybenull char* acquirePointer(
+		int attributeId,
+		sal_out_opt size_t* count=nullptr,
+		sal_out_opt size_t* stride=nullptr,
+		sal_out_opt size_t* sizeInByte=nullptr,
+		sal_out_opt const char** semantic=nullptr
+	);
+
+protected:
+	class Impl;
+	Impl& mImpl;
+
+#ifndef NDEBUG
+	mutable bool mIsCreatedOnStack;
+	MCD_RENDER_API friend void intrusivePtrAddRef(MeshBuilder2* p);
+	MCD_RENDER_API friend void intrusivePtrRelease(MeshBuilder2* p);
+#endif
+};	// MeshBuilder2
+
+/*!	Extension of MeshBuilder2, which support immediate mode mesh construction.
+ */
+class MCD_RENDER_API MeshBuilderIM : public MeshBuilder2
+{
+public:
+	explicit MeshBuilderIM(bool isCreatedOnStack=true);
+
+	sal_override ~MeshBuilderIM();
+
+	/*!	Pre-allocating vertex and index buffer for faster insertion.
+		\note This function better be invoked after all vertex declarations are done.
+	 */
+	sal_checkreturn bool reserveBuffers(uint16_t vertexCount, size_t indexCount);
+
+	/*!	Assign a vertex attribute to the current state.
+		\return false if attributeId is invalid.
+		\note Beware that you are passing the correct data type to the void* pointer.
+	 */
+	sal_checkreturn bool vertexAttribute(int attributeId, const void* data);
+
+	/*!	Adds a new vertex using current vertex attributes (position, normal etc...).
+		\return The vertex index, uint16_t(-1) if there is error.
+	 */
+	uint16_t addVertex();
+
+	/*!	Adds a new triangle using the supplied indexes.
+		\return False if any of the index is out of range.
+		\note No more declareAttribute() can be made after this function is invoked, unless clear() is used.
+	 */
+	sal_checkreturn bool addTriangle(uint16_t idx1, uint16_t idx2, uint16_t idx3);
+
+	/*!	Adds a new quad using the supplied indexes.
+		\return False if any of the index is out of range.
+		\note Two triangles are generated internally.
+		\note No more declareAttribute() can be made after this function is invoked, unless clear() is used.
+	 */
+	sal_checkreturn bool addQuad(uint16_t idx1, uint16_t idx2, uint16_t idx3, uint16_t idx4);
+
+protected:
+	class Impl2;
+	Impl2& mImpl2;
+};	// MeshBuilderIM
+
 class Mesh;
 struct ColorRGB8;
 
@@ -221,6 +380,12 @@ protected:
 };	// MeshBuilder
 
 typedef IntrusivePtr<MeshBuilder> MeshBuilderPtr;
+
+/*!	Commit the data in the MeshBuilder2 to a Mesh.
+	int attributeMap[] = { 0, Mesh::Index, 1, Mesh::Position, 2, Mesh::Normal }
+	Make sure the element count of attributeMap is >= builder.attributeCount() * 2.
+ */
+MCD_RENDER_API void commitMesh(MeshBuilder2& builder, Mesh& mesh, const int* attributeMap, MeshBuilder::StorageHint storageHint);
 
 }	// namespace MCD
 
