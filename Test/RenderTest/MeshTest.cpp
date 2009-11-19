@@ -21,7 +21,8 @@ TEST(A_MeshBuilderTest)
 		// Try to declare the default attribute id 0 (which means index) will fail
 		CHECK(0 > builder.declareAttribute(1, nullptr, 0));
 
-		CHECK(!builder.acquirePointer(0));
+		CHECK(!builder.getAttributePointer(0));
+		CHECK(!builder.getBufferPointer(0));
 
 		CHECK(builder.resizeBuffers(10, 20));
 
@@ -46,10 +47,7 @@ TEST(A_MeshBuilderTest)
 
 		CHECK_EQUAL(5u, builder.attributeCount());
 
-		// No more declaration can be made after resize
 		CHECK(builder.resizeBuffers(8, 12));
-		CHECK_EQUAL(-1, builder.declareAttribute(1));
-
 		CHECK_EQUAL(8u, builder.vertexCount());
 		CHECK_EQUAL(12u, builder.indexCount());
 
@@ -57,35 +55,35 @@ TEST(A_MeshBuilderTest)
 		const char* semantic;
 
 		// Get the data pointer for the various attributes
-		char* pos = builder.acquirePointer(posId, &count, &stride, &sizeInByte, &semantic);
+		char* pos = builder.getAttributePointer(posId, &count, &stride, &sizeInByte, &semantic);
 		CHECK(pos);
 		CHECK_EQUAL(sizeof(float) * 8, stride);
 		CHECK_EQUAL(builder.vertexCount(), count);
 		CHECK_EQUAL(sizeof(float) * 3, sizeInByte);
 		CHECK_EQUAL(std::string("position"), semantic);
 
-		char* normal = builder.acquirePointer(normalId, &count, &stride, &sizeInByte, &semantic);
+		char* normal = builder.getAttributePointer(normalId, &count, &stride, &sizeInByte, &semantic);
 		CHECK_EQUAL(sizeof(float) * 8, stride);
 		CHECK_EQUAL(builder.vertexCount(), count);
 		CHECK_EQUAL(sizeof(float) * 3, sizeInByte);
 		CHECK_EQUAL(std::string("normal"), semantic);
 		CHECK_EQUAL(normal, pos + sizeof(float) * 3);
 
-		char* uv = builder.acquirePointer(uvId, &count, &stride, &sizeInByte, &semantic);
+		char* uv = builder.getAttributePointer(uvId, &count, &stride, &sizeInByte, &semantic);
 		CHECK_EQUAL(sizeof(float) * 8, stride);
 		CHECK_EQUAL(builder.vertexCount(), count);
 		CHECK_EQUAL(sizeof(float) * 2, sizeInByte);
 		CHECK_EQUAL(std::string("uv2f"), semantic);
 		CHECK_EQUAL(uv, normal + sizeof(float) * 3);
 
-		char* weight = builder.acquirePointer(weightId, &count, &stride, &sizeInByte, &semantic);
+		char* weight = builder.getAttributePointer(weightId, &count, &stride, &sizeInByte, &semantic);
 		CHECK(weight);
 		CHECK_EQUAL(sizeof(float), stride);
 		CHECK_EQUAL(builder.vertexCount(), count);
 		CHECK_EQUAL(stride, sizeInByte);
 
 		// Get the index buffer pointer
-		uint16_t* idxPtr = (uint16_t*)builder.acquirePointer(0, &count, &stride, &sizeInByte, &semantic);
+		uint16_t* idxPtr = (uint16_t*)builder.getAttributePointer(0, &count, &stride, &sizeInByte, &semantic);
 		CHECK(idxPtr);
 		CHECK_EQUAL(sizeof(uint16_t), stride);
 		CHECK_EQUAL(builder.indexCount(), count);
@@ -106,7 +104,8 @@ TEST(A_MeshBuilderIMTest)
 		CHECK_EQUAL(0u, builder.vertexCount());
 		CHECK_EQUAL(0u, builder.indexCount());
 
-		CHECK(!builder.acquirePointer(0));
+		CHECK(!builder.getAttributePointer(0));
+		CHECK(!builder.getBufferPointer(0));
 	}
 
 	{	// More complicated cases
@@ -144,9 +143,6 @@ TEST(A_MeshBuilderIMTest)
 
 			builder.addTriangle(index[0], index[1], index[2]);
 		}
-
-		// No more declaration can be made after a triangle is added
-		CHECK_EQUAL(-1, builder.declareAttribute(1));
 
 		CHECK_EQUAL(3u, builder.vertexCount());
 		CHECK_EQUAL(3u, builder.indexCount());
