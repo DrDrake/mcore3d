@@ -5,7 +5,6 @@
 #include "../../MCD/Render/Effect.h"
 #include "../../MCD/Render/Material.h"
 #include "../../MCD/Render/Model.h"
-#include "../../MCD/Render/TangentSpaceBuilder.h"
 #include "../../MCD/Component/Render/EntityPrototypeLoader.h"
 #include "../../MCD/Component/Render/MeshComponent.h"
 #include "../../MCD/Render/Mesh.h"
@@ -48,10 +47,7 @@ public:
 
 			// Setup the chamfer box mesh
 			MeshPtr mesh = new Mesh(L"");
-			ChamferBoxBuilder chamferBoxBuilder(0.4f, 3, true);
-			TangentSpaceBuilder().compute(chamferBoxBuilder, Mesh::TextureCoord0, Mesh::TextureCoord1);
-
-			chamferBoxBuilder.commit(*mesh, MeshBuilder::Static);
+			ChamferBoxBuilder(0.4f, 3, true).commit(*mesh, MeshBuilder::Static);
 
 			// Add component
 			MeshComponent* c = new MeshComponent;
@@ -68,11 +64,9 @@ public:
 			e->asChildOf(&mRootNode);
 			e->localTransform.setTranslation(Vec3f(1, 0, 0));
 
-			// Setup the chamfer box mesh
+			// Setup the chamfer box mesh as a shpere
 			MeshPtr mesh = new Mesh(L"");
-			ChamferBoxBuilder chamferBoxBuilder(1.0f, 5, true);
-			TangentSpaceBuilder().compute(chamferBoxBuilder, Mesh::TextureCoord0, Mesh::TextureCoord1);
-			chamferBoxBuilder.commit(*mesh, MeshBuilder::Static);
+			ChamferBoxBuilder(1.0f, 5, true).commit(*mesh, MeshBuilder::Static);
 
 			// Add component
 			MeshComponent* c = new MeshComponent;

@@ -6,14 +6,15 @@
 namespace MCD {
 
 //! Create a chamfer box with length = 2
-class MCD_RENDER_API ChamferBoxBuilder : public MCD::MeshBuilder
+class MCD_RENDER_API ChamferBoxBuilder : public MCD::MeshBuilderIM
 {
 public:
-	using MeshBuilder::StorageHint;
+	ChamferBoxBuilder(float filletRadius, size_t filletSegmentCount, bool includeTangents = false);
 
-	ChamferBoxBuilder(float filletRadius, size_t filletSegmentCount, bool includeTangents = true);
+	void commit(Mesh& mesh, MeshBuilder::StorageHint storageHint);
 
-	void commit(Mesh& mesh, StorageHint storageHint);
+	//! The index id generated.
+	int posId, normalId, uvId, tangentId;
 };	// ChamferBoxBuilder
 
 }	// namespace MCD

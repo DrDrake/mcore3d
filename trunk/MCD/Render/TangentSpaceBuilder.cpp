@@ -1,8 +1,8 @@
 #include "Pch.h"
-
 #include "TangentSpaceBuilder.h"
 #include "MeshBuilder.h"
 #include "Mesh.h"
+#include "../Core/System/Array.h"
 
 namespace MCD {
 
@@ -40,26 +40,24 @@ private:
 	size_t			mDataSize;	//! The number of elements (not memory size!)
 };	// MeshBufferPointer
 
-}	// namespace
-
-void TangentSpaceBuilder::computeTangentBasis(
+void computeTangentBasis(
 	const Vec3f& P1, const Vec3f& P2, const Vec3f& P3, 
 	const Vec2f& UV1, const Vec2f& UV2, const Vec2f& UV3,
-	Vec3f &tangent, Vec3f &bitangent
+	Vec3f& tangent, Vec3f& bitangent
 	)
 {
 	// reference: http://www.3dkingdoms.com/weekly/weekly.php?a=37
-	Vec3f Edge1 = P2 - P1;
-	Vec3f Edge2 = P3 - P1;
-	Vec2f Edge1uv = UV2 - UV1;
-	Vec2f Edge2uv = UV3 - UV1;
+	const Vec3f Edge1 = P2 - P1;
+	const Vec3f Edge2 = P3 - P1;
+	const Vec2f Edge1uv = UV2 - UV1;
+	const Vec2f Edge2uv = UV3 - UV1;
 
-	float cp = Edge1uv.y * Edge2uv.x - Edge1uv.x * Edge2uv.y;
+	const float cp = Edge1uv.y * Edge2uv.x - Edge1uv.x * Edge2uv.y;
 
 	if ( cp != 0.0f )
 	{
 		float mul = 1.0f / cp;
-		tangent   = (Edge1 * -Edge2uv.y + Edge2 * Edge1uv.y) * mul;
+		tangent = (Edge1 * -Edge2uv.y + Edge2 * Edge1uv.y) * mul;
 		bitangent = (Edge1 * -Edge2uv.x + Edge2 * Edge1uv.x) * mul;
 
 		tangent.normalize();
@@ -67,46 +65,25 @@ void TangentSpaceBuilder::computeTangentBasis(
 	}
 }
 
-void TangentSpaceBuilder::compute(MeshBuilder& builder, int uvDataType, int tangentDataType)
+typedef ArrayWrapper<uint16_t> IndexArray;
+typedef ArrayWrapper<Vec2f> Vec2fArray;
+typedef ArrayWrapper<Vec3f> Vec3fArray;
+
+void compute(
+	const IndexArray& indexBuf, const Vec3fArray& posBuf,
+	const Vec3fArray& nrmBuf, const Vec2fArray& uvBuf, Vec3fArray& outTangBuf
+)
 {
-	const uint cCurrentFormat = builder.format();
+	MCD_ASSERT(posBuf.size == nrmBuf.size && uvBuf.size == outTangBuf.size && posBuf.size == outTangBuf.size);
 
-	if(0 == (cCurrentFormat & tangentDataType))
-		return;
+	const size_t vertexCnt = posBuf.size;
+	const size_t faceCnt = indexBuf.size / 3;
 
-	// acquire mesh buffer pointers
-	MeshBufferPointer xyzPtr(builder, Mesh::Position);
-	MeshBufferPointer nrmPtr(builder, Mesh::Normal);
-	MeshBufferPointer uvPtr(builder, (Mesh::DataType)uvDataType);
-	MeshBufferPointer tangPtr(builder, (Mesh::DataType)tangentDataType);
-
-	// make sure the data
-	if(xyzPtr.size() != uvPtr.size() || xyzPtr.size() != tangPtr.size())
-		return;
-
-	MeshBufferPointer idxPtr(builder, Mesh::Index);
-
-	// we supports triangles only :-)
-	const size_t cFaceCnt	= idxPtr.size() / 3;
-	const size_t cVertexCnt = xyzPtr.size();
-
-	compute(
-		cFaceCnt, cVertexCnt, 
-		idxPtr.as<uint16_t>(), xyzPtr.as<Vec3f>(), nrmPtr.as<Vec3f>(), uvPtr.as<Vec2f>(),
-		tangPtr.as<Vec3f>() );
-}
-
-void TangentSpaceBuilder::compute(
-	const size_t faceCnt, const size_t vertexCnt,
-	const uint16_t* indexBuf, const Vec3f* posBuf, const Vec3f* nrmBuf, const Vec2f* uvBuf,
-	Vec3f* outTangBuf
-	)
-{
-	// initialize tangents to zero-length vectors
+	// Initialize tangents to zero-length vectors
 	for(size_t ivert = 0; ivert < vertexCnt; ++ivert)
 		outTangBuf[ivert] = Vec3f::cZero;
 
-	// compute tangent for each face and add to each corresponding vertex
+	// Compute tangent for each face and add to each corresponding vertex
 	for(size_t iface = 0; iface < faceCnt; ++iface)
 	{
 		const uint16_t v0 = indexBuf[iface*3+0];
@@ -140,7 +117,7 @@ void TangentSpaceBuilder::compute(
 		//Vec3f vB1 = vT1.cross(vN1);
 		//Vec3f vB2 = vT2.cross(vN2);
 		
-		// write smoothed tangents back
+		// Write smoothed tangents back
 		outTangBuf[v0] += vT0;
 		outTangBuf[v1] += vT1;
 		outTangBuf[v2] += vT2;
@@ -149,6 +126,75 @@ void TangentSpaceBuilder::compute(
 	// finally normalize the tangents
 	for(size_t ivert = 0; ivert < vertexCnt; ++ivert)
 		outTangBuf[ivert].normalize();
+}
+
+}	// namespace
+
+bool TangentSpaceBuilder::compute(MeshBuilder& builder, int uvDataType, int tangentDataType)
+{
+	const uint cCurrentFormat = builder.format();
+
+	if(0 == (cCurrentFormat & tangentDataType))
+		return false;
+
+	// acquire mesh buffer pointers
+	MeshBufferPointer xyzPtr(builder, Mesh::Position);
+	MeshBufferPointer nrmPtr(builder, Mesh::Normal);
+	MeshBufferPointer uvPtr(builder, (Mesh::DataType)uvDataType);
+	MeshBufferPointer tangPtr(builder, (Mesh::DataType)tangentDataType);
+
+	// make sure the data
+	if(xyzPtr.size() != uvPtr.size() || xyzPtr.size() != tangPtr.size())
+		return false;
+
+	MeshBufferPointer idxPtr(builder, Mesh::Index);
+
+	// we supports triangles only :-)
+	const size_t cFaceCnt	= idxPtr.size() / 3;
+	const size_t cVertexCnt = xyzPtr.size();
+
+	compute(
+		cFaceCnt, cVertexCnt,
+		idxPtr.as<uint16_t>(), xyzPtr.as<Vec3f>(), nrmPtr.as<Vec3f>(), uvPtr.as<Vec2f>(),
+		tangPtr.as<Vec3f>()
+	);
+
+	return true;
+}
+
+bool TangentSpaceBuilder::compute(MeshBuilder2& builder, int indexIdx, int posIdx, int normalIdx, int uvIdx, int tangentIdx)
+{
+	const IndexArray idxPtr = builder.getAttributeAs<uint16_t>(indexIdx);
+	const Vec3fArray posPtr = builder.getAttributeAs<Vec3f>(posIdx);
+	const Vec3fArray nrmPtr = builder.getAttributeAs<Vec3f>(normalIdx);
+	const Vec2fArray uvPtr = builder.getAttributeAs<Vec2f>(uvIdx);
+	Vec3fArray tangentPtr = builder.getAttributeAs<Vec3f>(tangentIdx);
+
+	if(!idxPtr.data || !posPtr.data || !nrmPtr.data || !uvPtr.data || !tangentPtr.data)
+		return false;
+
+	if(idxPtr.size != builder.indexCount())
+		return false;
+	if(posPtr.size != builder.vertexCount())
+		return false;
+
+	MCD::compute(idxPtr, posPtr, nrmPtr, uvPtr,	tangentPtr);
+
+	return true;
+}
+
+void TangentSpaceBuilder::compute(
+	const size_t faceCnt, const size_t vertexCnt,
+	const uint16_t* indexBuf, const Vec3f* posBuf, const Vec3f* nrmBuf, const Vec2f* uvBuf,
+	Vec3f* outTangBuf
+	)
+{
+	Vec3fArray result(outTangBuf, vertexCnt);
+	MCD::compute(
+		IndexArray((void*)indexBuf, faceCnt*3), Vec3fArray((void*)posBuf, vertexCnt),
+		Vec3fArray((void*)nrmBuf, vertexCnt), Vec2fArray((void*)uvBuf, vertexCnt),
+		result
+	);
 }
 
 }	// namespace MCD

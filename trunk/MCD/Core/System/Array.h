@@ -99,18 +99,24 @@ class ArrayWrapper
 {
 public:
 	ArrayWrapper(void* _data, size_t elementCount, size_t _stride=0)
-		: data(_data), size(elementCount), stride(_stride == 0 ? sizeof(T) : _stride)
+		: data((char*)_data), size(elementCount), stride(_stride == 0 ? sizeof(T) : _stride)
 	{}
 
 	T& operator[](size_t i)
 	{
 		MCD_ASSUME(i < size);
-		return (*reinterpret_cast<T*>(data))[i*stride];
+		return *reinterpret_cast<T*>(data + i*stride);
 	}
 
-	char* const data;
-	const size_t size;
-	const size_t stride;
+	const T& operator[](size_t i) const
+	{
+		MCD_ASSUME(i < size);
+		return *reinterpret_cast<T*>(data + i*stride);
+	}
+
+	char* data;
+	size_t size;
+	size_t stride;
 };	// ArrayWrapper
 
 }	// namespace MCD

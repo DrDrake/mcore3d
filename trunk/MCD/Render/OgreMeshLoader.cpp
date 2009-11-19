@@ -102,7 +102,7 @@ size_t getAttributeSize(VertexElementType type)
 
 sal_notnull const char* getSemanticString(VertexElementSemantic semantic, uint16_t colorOrCoordIdx)
 {
- 	static const char* coordTable[] = { "uv1", "uv2", "uv3" };
+ 	static const char* coordTable[] = { "uv1", "uv2", "uv3", "uv4" };
 	switch(semantic) {
 	case VES_POSITION:				return "position";
 	case VES_BLEND_WEIGHTS:			return "boneWeight";
@@ -110,7 +110,7 @@ sal_notnull const char* getSemanticString(VertexElementSemantic semantic, uint16
 	case VES_NORMAL:				return "normal";
 	case VES_DIFFUSE:				return "diffuse";
 	case VES_SPECULAR:				return "specular";
-	case VES_TEXTURE_COORDINATES:	return colorOrCoordIdx < 3 ? coordTable[colorOrCoordIdx] : "";
+	case VES_TEXTURE_COORDINATES:	return colorOrCoordIdx < MCD_COUNTOF(coordTable) ? coordTable[colorOrCoordIdx] : "";
 	case VES_BINORMAL:				return "binormal";
 	case VES_TANGENT:				return "tangent";
 	default:						return "";
@@ -155,7 +155,7 @@ class Geometry : public MeshBuilder2
 public:
 	Geometry(size_t indexCount)
 	{
-		resizeBuffers(0, indexCount);
+		(void)resizeBuffers(0, indexCount);
 	}
 
 	void addDeclaration(const VertexDeclaration& declaration)
@@ -319,7 +319,7 @@ IResourceLoader::LoadingState OgreMeshLoader::Impl::load(std::istream* is, const
 		ABORT_IF(vertexCount >= size_t(std::numeric_limits<uint16_t>::max()));
 
 		Geometry& geo = mGeometry[mCurrentGeometryIdx];
-		geo.resizeBuffers(uint16_t(vertexCount), geo.indexCount());
+		ABORT_IF(!geo.resizeBuffers(uint16_t(vertexCount), geo.indexCount()));
 	}	break;
 
 	case M_GEOMETRY_VERTEX_DECLARATION:
@@ -414,6 +414,7 @@ static int semanticToMeshDataType(const char* semantic)
 	if(strcmp(semantic, "uv1") == 0)		return Mesh::TextureCoord0;
 	if(strcmp(semantic, "uv2") == 0)		return Mesh::TextureCoord1;
 	if(strcmp(semantic, "uv3") == 0)		return Mesh::TextureCoord2;
+	if(strcmp(semantic, "uv4") == 0)		return Mesh::TextureCoord3;
 	return -1;
 }
 

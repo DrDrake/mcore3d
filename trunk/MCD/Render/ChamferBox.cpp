@@ -2,6 +2,7 @@
 #include "ChamferBox.h"
 #include "MeshBuilder.h"
 #include "Mesh.h"
+#include "TangentSpaceBuilder.h"
 #include "../Core/Math/Vec2.h"
 #include "../Core/Math/Mat33.h"
 #include "../Core/Math/BasicFunction.h"
@@ -11,23 +12,13 @@ using namespace MCD;
 
 ChamferBoxBuilder::ChamferBoxBuilder(float filletRadius, size_t filletSegmentCount, bool includeTangents)
 {
-	uint meshFormat = Mesh::Position | Mesh::Normal | Mesh::Index;
+	posId = declareAttribute(sizeof(float) * 3, "position", 1);
+	normalId = declareAttribute(sizeof(float) * 3, "normal", 2);
+	uvId = declareAttribute(sizeof(float) * 2, "uv1", 3);
 
+	tangentId = -1;
 	if(includeTangents)
-		meshFormat |= Mesh::TextureCoord1;
-	else
-		meshFormat |= Mesh::TextureCoord0;
-
-	enable(meshFormat);
-
-	textureUnit(Mesh::TextureCoord0);
-	textureCoordSize(2);
-
-	if(includeTangents)
-	{
-		textureUnit(Mesh::TextureCoord1);
-		textureCoordSize(3);
-	}
+		tangentId = declareAttribute(sizeof(float) * 3, "tangent", 4);
 
 	const size_t cubeFaceCount = 6;
 	const size_t rowCount = (filletSegmentCount + 1) * 2;	// Number of vertex along y direction
@@ -40,8 +31,7 @@ ChamferBoxBuilder::ChamferBoxBuilder(float filletRadius, size_t filletSegmentCou
 	const Vec3f center(0, 0, 0);
 	const Vec3f extent(1.0f);
 
-	reserveVertex(vertexCount * cubeFaceCount);
-	reserveTriangle(indexCount * cubeFaceCount / 3);
+	reserveBuffers(uint16_t(vertexCount * cubeFaceCount), indexCount * cubeFaceCount);
 
 	const Array<Mat33f, cubeFaceCount> transforms = {
 		Mat33f::cIdentity,
@@ -80,7 +70,7 @@ ChamferBoxBuilder::ChamferBoxBuilder(float filletRadius, size_t filletSegmentCou
 					position.y = corner.y + (y - filletSegmentCount - 1) * segmentWidth;
 				}
 
-				Vec3f diff = position - corner;
+				const Vec3f diff = position - corner;
 				Vec3f p(corner), n(0, 0, 1);
 
 				if(diff.length() > 0) {
@@ -92,25 +82,14 @@ ChamferBoxBuilder::ChamferBoxBuilder(float filletRadius, size_t filletSegmentCou
 				p = transforms[cubeFace] * p;
 				n = transforms[cubeFace] * n;
 
-				Vec2f uv(position.x / extent.x, position.y / extent.y);
+				const Vec2f uv(position.x / extent.x, position.y / extent.y);
 
-				MeshBuilder::position(p);
-				MeshBuilder::normal(n);
+				MCD_VERIFY(vertexAttribute(posId, &p));
+				MCD_VERIFY(vertexAttribute(normalId, &n));
+				MCD_VERIFY(vertexAttribute(uvId, &uv));
+				// We will calculate the tangent using TangentSpaceBuilder later on.
 
-				if(includeTangents)
-				{
-					textureUnit(Mesh::TextureCoord0);
-					MeshBuilder::textureCoord(uv);
-
-					textureUnit(Mesh::TextureCoord1);
-					MeshBuilder::textureCoord(Vec3f(0,0,0));
-				}
-				else
-				{
-					MeshBuilder::textureCoord(uv);
-				}
-
-				MeshBuilder::addVertex();
+				MCD_VERIFY(addVertex() != uint16_t(-1));
 			}
 		}
 	}
@@ -150,9 +129,20 @@ ChamferBoxBuilder::ChamferBoxBuilder(float filletRadius, size_t filletSegmentCou
 			}
 		}
 	}
+
+	if(includeTangents)
+		TangentSpaceBuilder().compute(*this, 0,	posId, normalId, uvId, tangentId);
 }
 
-void ChamferBoxBuilder::commit(Mesh& mesh, StorageHint storageHint)
+void ChamferBoxBuilder::commit(Mesh& mesh, MeshBuilder::StorageHint storageHint)
 {
-	MeshBuilder::commit(mesh, storageHint);
+	int map[10] = {
+		0,			Mesh::Index,
+		posId,		Mesh::Position,
+		normalId,	Mesh::Normal,
+		uvId,		Mesh::TextureCoord0,
+		tangentId,	Mesh::TextureCoord1,
+	};
+
+	commitMesh(*this, mesh, map, storageHint);
 }
