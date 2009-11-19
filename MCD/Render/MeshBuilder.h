@@ -2,6 +2,7 @@
 #define __MCD_RENDER_MESHBUILDER__
 
 #include "ShareLib.h"
+#include "../Core/System/Array.h"
 #include "../Core/System/Atomic.h"
 #include "../Core/System/IntrusivePtr.h"
 #include "../Core/System/NonCopyable.h"
@@ -120,6 +121,24 @@ public:
 		sal_out_opt size_t* sizeInByte=nullptr,
 		sal_out_opt const char** semantic=nullptr
 	) const;
+
+	/*!	Returns the required attribute as a ArrayWrapper with the correct stride.
+		Returns an ArrayWrpper of null if error occurred.
+	 */
+	template<typename T> ArrayWrapper<T> getAttributeAs(int attributeId)
+	{
+		size_t count, stride, sizeInByte;
+		char* p = getAttributePointer(attributeId, &count, &stride, &sizeInByte);
+		if(sizeof(T) == sizeInByte)
+			return ArrayWrapper<T>(p, count, stride);
+		MCD_ASSERT(false);
+		return ArrayWrapper<T>(nullptr, 0, 0);
+	}
+
+	template<typename T> const ArrayWrapper<T> getAttributeAs(int attributeId) const
+	{
+		return const_cast<MeshBuilder2*>(this)->getAttributeAs(attributeId);
+	}
 
 	sal_maybenull char* getBufferPointer(
 		size_t bufferIdx,

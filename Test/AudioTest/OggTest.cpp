@@ -143,7 +143,7 @@ TEST_FIXTURE(OggTestFixture, SeekingTest)
 		// Seek to half of the current PCM every 1 second
 		if(count++ % 10 == 0) {
 			uint64_t backupPcm = source.currentPcm();
-			source.seek(source.currentPcm() / 2);
+			CHECK(source.seek(source.currentPcm() / 2));
 			CHECK_EQUAL(backupPcm / 2, source.currentPcm());
 		}
 	}

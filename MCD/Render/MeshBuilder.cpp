@@ -91,7 +91,8 @@ int MeshBuilder2::declareAttribute(size_t sizeInBytes, const char* semantic, siz
 
 	mImpl.buffers[bufferId].elementSize += sizeInBytes;
 
-	resizeBuffers(currentVertexCount, indexCount());
+	if(!resizeBuffers(currentVertexCount, indexCount()))
+		return -1;
 
 	return mImpl.attributes.size() - 1;
 }
@@ -277,17 +278,16 @@ uint16_t MeshBuilderIM::addVertex()
 	for(size_t i=1; i<attributeCount; ++i)
 	{
 		const Impl::Attribute& a = mImpl.attributes[i];
+		const size_t elementSize = mImpl.buffers[a.bufferId].elementSize;
 
 		// Skip those un-assigned attribute
 		if(mImpl2[i].size() != a.sizeInByte)
 			continue;
 
 		const char* srcPtr = &mImpl2[i][0];
-		char* destPtr = &mImpl.buffers[a.bufferId][a.offset];
+		char* destPtr = &mImpl.buffers[a.bufferId][oldVeretxCount * elementSize + a.offset];
 		::memcpy(destPtr, srcPtr, a.sizeInByte);
 	}
-
-	mImpl.vertexCount++;
 
 	return oldVeretxCount;
 }
@@ -844,15 +844,18 @@ void commitMesh(MeshBuilder2& builder, Mesh& mesh, const int* attributeMap, Mesh
 			data = &conversionBuffer[0];
 		}
 
-		const int format = attributeMap[i * 2 + 1];
-		Accessor::format(mesh) |= format;
+		const Mesh::DataType format = Mesh::DataType(attributeMap[i * 2 + 1]);
 
 		// Handle the component count for texture coordinates
 		// NOTE: Assuming texture coordinate is only float.
-		if(format < Mesh::TextureCoord)
-			Accessor::componentCount(mesh, Mesh::DataType(format)) = uint8_t(sizeInByte / sizeof(float));
+		if(format < Mesh::TextureCoord) {
+			Accessor::componentCount(mesh, format) = uint8_t(sizeInByte / sizeof(float));
+			Accessor::format(mesh) = (Accessor::format(mesh) & ~Mesh::TextureCoord);
+		}
 
-		uint* handle = &Accessor::handle(mesh, Mesh::DataType(format));
+		Accessor::format(mesh) |= format;
+
+		uint* handle = &Accessor::handle(mesh, format);
 		if(!*handle)
 			glGenBuffers(1, handle);
 

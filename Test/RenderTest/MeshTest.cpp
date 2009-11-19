@@ -2,6 +2,7 @@
 #include "../../MCD/Render/Color.h"
 #include "../../MCD/Render/MeshBuilder.h"
 #include "../../MCD/Render/Mesh.h"
+#include "../../MCD/Core/System/Array.h"
 
 using namespace MCD;
 
@@ -128,24 +129,33 @@ TEST(A_MeshBuilderIMTest)
 
 		{	uint16_t index[3];
 			for(size_t i=0; i<3; ++i) {
-				Vec3f pos(1.23f + i), normal(Vec3f::c001);
-				Vec2f uv(0.0f + i);
-				float weight = float(i);
+				const Vec3f pos(1.23f + i), normal(Vec3f::c001);
+				const Vec2f uv(0.0f + i);
+				const float weight = float(i);
 
-				builder.vertexAttribute(posId, &pos);
-				builder.vertexAttribute(normalId, &normal);
-				builder.vertexAttribute(uvId, &uv);
-				builder.vertexAttribute(weightId, &weight);
+				CHECK(builder.vertexAttribute(posId, &pos));
+				CHECK(builder.vertexAttribute(normalId, &normal));
+				CHECK(builder.vertexAttribute(uvId, &uv));
+				CHECK(builder.vertexAttribute(weightId, &weight));
 
 				index[i] = builder.addVertex();
 				CHECK_EQUAL(i, index[i]);
 			}
 
-			builder.addTriangle(index[0], index[1], index[2]);
+			CHECK(builder.addTriangle(index[0], index[1], index[2]));
 		}
 
 		CHECK_EQUAL(3u, builder.vertexCount());
 		CHECK_EQUAL(3u, builder.indexCount());
+
+		// Verify the result
+		for(size_t i=0; i<3; ++i) {
+			const Vec3f pos(1.23f + i);
+			size_t stride;
+			char* posPtr = builder.getAttributePointer(posId, nullptr, &stride);
+			ArrayWrapper<Vec3f> a(posPtr, builder.vertexCount(), stride);
+			CHECK(a[i].isNearEqual(pos));
+		}
 	}
 }
 

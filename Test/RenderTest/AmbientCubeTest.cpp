@@ -7,7 +7,6 @@
 #include "../../MCD/Render/Effect.h"
 #include "../../MCD/Render/Material.h"
 #include "../../MCD/Render/Mesh.h"
-#include "../../MCD/Render/TangentSpaceBuilder.h"
 #include "../../MCD/Component/Render/EntityPrototypeLoader.h"
 #include "../../MCD/Component/Render/MeshComponent.h"
 #include "../../MCD/Component/Render/RenderModifierComponent.h"
@@ -276,9 +275,7 @@ namespace AmbientCubeTest
 
 			// load object mesh
 			MeshPtr mesh = new Mesh(L"");
-			ChamferBoxBuilder chamferBoxBuilder(0.5f, 3, true);
-			TangentSpaceBuilder().compute(chamferBoxBuilder, Mesh::TextureCoord0, Mesh::TextureCoord1);
-			chamferBoxBuilder.commit(*mesh, MeshBuilder::Static);
+			ChamferBoxBuilder(0.5f, 3, true).commit(*mesh, MeshBuilder::Static);
 
 			// load object effect
 			EffectPtr effect = dynamic_cast<Effect*>(mResourceManager.load(L"Material/ambientcube.fx.xml").get());
