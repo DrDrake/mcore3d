@@ -53,8 +53,8 @@ public:
 	// Use ptr_vector such that resizing of it will not trigger inner vector's copying.
 	Buffers buffers;
 
-	//! The declarations cannot be change once the vertex buffer is allocated.
-	bool declarationLocked;
+	uint16_t vertexCount;
+	size_t indexCount;
 };	// Impl
 
 MeshBuilder2::MeshBuilder2(bool isCreatedOnStack)
@@ -74,8 +74,10 @@ MeshBuilder2::~MeshBuilder2()
 int MeshBuilder2::declareAttribute(size_t sizeInBytes, const char* semantic, size_t bufferId)
 {
 	// bufferId = 0 is reserved for index buffer
-	if(sizeInBytes == 0 || bufferId == 0 || mImpl.declarationLocked)
+	if(sizeInBytes == 0 || bufferId == 0)
 		return -1;
+
+	uint16_t currentVertexCount = vertexCount();
 
 	// Create new buffer to match the bufferId param
 	while(bufferId >= mImpl.buffers.size())
@@ -88,6 +90,8 @@ int MeshBuilder2::declareAttribute(size_t sizeInBytes, const char* semantic, siz
 	mImpl.attributes.push_back(a);
 
 	mImpl.buffers[bufferId].elementSize += sizeInBytes;
+
+	resizeBuffers(currentVertexCount, indexCount());
 
 	return mImpl.attributes.size() - 1;
 }
@@ -102,7 +106,8 @@ bool MeshBuilder2::resizeBuffers(uint16_t vertexCount, size_t indexCount)
 	for(Impl::Buffers::iterator i=(++mImpl.buffers.begin()); i!=mImpl.buffers.end(); ++i)
 		i->resize(i->elementSize * vertexCount);
 
-	mImpl.declarationLocked = true;
+	mImpl.vertexCount = vertexCount;
+	mImpl.indexCount = indexCount;
 
 	return true;
 }
@@ -110,7 +115,6 @@ bool MeshBuilder2::resizeBuffers(uint16_t vertexCount, size_t indexCount)
 void MeshBuilder2::clear()
 {
 	mImpl.attributes.clear();
-	mImpl.declarationLocked = false;
 
 	// Prepare the index as a default attribute
 	Impl::Attribute a = { sizeof(uint16_t), 0, 0, "index" };
@@ -127,6 +131,9 @@ void MeshBuilder2::clearBuffers()
 	Impl::Buffer* b = new Impl::Buffer;
 	b->elementSize = sizeof(uint16_t);
 	mImpl.buffers.push_back(b);
+
+	mImpl.vertexCount = 0;
+	mImpl.indexCount = 0;
 }
 
 size_t MeshBuilder2::attributeCount() const
@@ -136,18 +143,13 @@ size_t MeshBuilder2::attributeCount() const
 
 uint16_t MeshBuilder2::vertexCount() const
 {
-	if(mImpl.buffers.size() <= 1)
-		return 0;
-
-	const size_t elementSize = mImpl.buffers[1].elementSize;
-	const size_t totalSize = mImpl.buffers[1].size();
-
-	return uint16_t(totalSize / elementSize);
+	return mImpl.vertexCount;
 }
 
 size_t MeshBuilder2::indexCount() const
 {
-	return mImpl.buffers[0].size() / mImpl.buffers[0].elementSize;
+	MCD_ASSERT(mImpl.buffers[0].size() / mImpl.buffers[0].elementSize == mImpl.indexCount);
+	return mImpl.indexCount;
 }
 
 int MeshBuilder2::findAttributeId(const char* semantic) const
@@ -159,7 +161,7 @@ int MeshBuilder2::findAttributeId(const char* semantic) const
 	return -1;
 }
 
-char* MeshBuilder2::acquirePointer(int attributeId, size_t* count, size_t* stride, size_t* sizeInByte, const char** semantic)
+char* MeshBuilder2::getAttributePointer(int attributeId, size_t* count, size_t* stride, size_t* sizeInByte, const char** semantic)
 {
 	if(attributeId < 0 || size_t(attributeId) >= mImpl.attributes.size())
 		return nullptr;
@@ -178,6 +180,26 @@ char* MeshBuilder2::acquirePointer(int attributeId, size_t* count, size_t* strid
 	if(semantic) *semantic = a.semantic.c_str();
 
 	return &mImpl.buffers[bufferIdx][a.offset];
+}
+
+const char* MeshBuilder2::getAttributePointer(int attributeId, size_t* count, size_t* stride, size_t* sizeInByte, const char** semantic) const
+{
+	return const_cast<MeshBuilder2*>(this)->getAttributePointer(attributeId, count, stride, sizeInByte, semantic);
+}
+
+char* MeshBuilder2::getBufferPointer(size_t bufferIdx, size_t* sizeInByte)
+{
+	if(bufferIdx >= mImpl.buffers.size() || mImpl.buffers[bufferIdx].size() == 0)
+		return nullptr;
+
+	if(sizeInByte) *sizeInByte = mImpl.buffers[bufferIdx].size();
+
+	return &mImpl.buffers[bufferIdx][0];
+}
+
+const char* MeshBuilder2::getBufferPointer(size_t bufferIdx, size_t* sizeInByte) const
+{
+	return const_cast<MeshBuilder2*>(this)->getBufferPointer(bufferIdx, sizeInByte);
 }
 
 #ifndef NDEBUG
@@ -249,7 +271,7 @@ uint16_t MeshBuilderIM::addVertex()
 
 	const size_t attributeCount = mImpl.attributes.size();
 	if(mImpl2.size() != attributeCount)
-		return false;
+		return uint16_t(-1);
 
 	// Copy the data
 	for(size_t i=1; i<attributeCount; ++i)
@@ -264,6 +286,8 @@ uint16_t MeshBuilderIM::addVertex()
 		char* destPtr = &mImpl.buffers[a.bufferId][a.offset];
 		::memcpy(destPtr, srcPtr, a.sizeInByte);
 	}
+
+	mImpl.vertexCount++;
 
 	return oldVeretxCount;
 }
@@ -285,7 +309,7 @@ bool MeshBuilderIM::addTriangle(uint16_t idx1, uint16_t idx2, uint16_t idx3)
 	MCD_ASSERT(sizeof(tmp) == buffer.elementSize * 3);
 
 	buffer.insert(buffer.end(), (char*)(tmp), (char*)(tmp) + sizeof(tmp));
-	mImpl.declarationLocked = true;
+	mImpl.indexCount += 3;
 
 	return true;
 }
@@ -793,21 +817,40 @@ void commitMesh(MeshBuilder2& builder, Mesh& mesh, const int* attributeMap, Mesh
 
 	typedef Mesh::PrivateAccessor<MeshBuilder> Accessor;
 	Accessor::vertexCount(mesh) = builder.vertexCount();
+	Accessor::indexCount(mesh) = builder.indexCount();
+	std::vector<char> conversionBuffer;
 
 	for(size_t i=0; i<attributeCount; ++i)
 	{
 		size_t count, stride, sizeInByte;
-		const int attributeId = attributeMap[i * 2];	// attributeId < 0 will result a null return for acquirePointer()
-		const char* data = builder.acquirePointer(attributeId, &count, &stride, &sizeInByte);
+		const int attributeId = attributeMap[i * 2];
+		if(attributeId < 0)	// Skip those unsupported semantics
+			continue;
 
-		// NOTE: Only one buffer per attribute is supported!
-		if(!data || stride * stride != sizeInByte) {
+		const char* data = builder.getAttributePointer(attributeId, &count, &stride, &sizeInByte);
+
+		if(!data) {
 			Log::write(Log::Warn, L"Error occured when committing data from MeshBuilder2 to Mesh");
 			continue;
 		}
 
+		// Convert the interleaved attributes to a single buffer.
+		if(stride != sizeInByte) {
+			conversionBuffer.resize(count * sizeInByte);
+			const char* src = data;
+			char* dest = &conversionBuffer[0];
+			for(size_t j=0; j<count; ++j, src += stride, dest += sizeInByte)
+				::memcpy(dest, src, sizeInByte);
+			data = &conversionBuffer[0];
+		}
+
 		const int format = attributeMap[i * 2 + 1];
 		Accessor::format(mesh) |= format;
+
+		// Handle the component count for texture coordinates
+		// NOTE: Assuming texture coordinate is only float.
+		if(format < Mesh::TextureCoord)
+			Accessor::componentCount(mesh, Mesh::DataType(format)) = uint8_t(sizeInByte / sizeof(float));
 
 		uint* handle = &Accessor::handle(mesh, Mesh::DataType(format));
 		if(!*handle)

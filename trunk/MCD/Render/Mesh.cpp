@@ -61,6 +61,7 @@ Mesh::~Mesh()
 
 static void bindTextureCoord(Mesh::DataType textureUnit, int handle, size_t componentCount)
 {
+	MCD_ASSERT(componentCount > 0);
 	glClientActiveTexture(GL_TEXTURE0 + GLenum(textureUnit) - 1);
 	glBindBuffer(GL_ARRAY_BUFFER, handle);
 	glTexCoordPointer(componentCount, GL_FLOAT, 0, nullptr);

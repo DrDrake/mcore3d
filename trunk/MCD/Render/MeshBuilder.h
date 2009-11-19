@@ -29,14 +29,14 @@ namespace MCD {
 
 	// Acquire the buffer pointer and fill up the data yourself.
 	size_t stride1, totalSizeInByte1;
-	char* buf1 = builder.acquirePointer(posId, &stride1, &totalSizeInByte1);
+	char* buf1 = builder.getAttributePointer(posId, &stride1, &totalSizeInByte1);
 
 	size_t stride2, totalSizeInByte2;
-	char* buf2 = builder.acquirePointer(weightId, &stride2, &totalSizeInByte2);
+	char* buf2 = builder.getAttributePointer(weightId, &stride2, &totalSizeInByte2);
 
 	// Get the index buffer.
 	const size_t indexCount = builder.indexCount();
-	uint16_t* idxPtr = (uint16_t*)builder.acquirePointer(0);
+	uint16_t* idxPtr = (uint16_t*)builder.getAttributePointer(0);
 
 	// Fill up the data ...
 	\endcode
@@ -56,11 +56,11 @@ public:
 			Feed this param with different value if you want to group different attributes into set of buffers.
 			The value zero is reserved for index buffer, otherwise you can supply successive values 1,2,3,etc...
 		\return The attribute ID for future reference, -1 if any error occured.
+		\note The behaviour is undefined if declareAttribute() is invoked after some data is written to the buffer.
 	 */
 	int declareAttribute(size_t sizeInBytes, const char* semantic=nullptr, size_t bufferId=1);
 
 	/*!	Resize the buffers.
-		\note No more declareAttribute() can be made after this function is invoked, unless clear() is used.
 		\note Remember only 65536 vertex is supported.
 	 */
 	sal_checkreturn bool resizeBuffers(uint16_t vertexCount, size_t indexCount);
@@ -105,13 +105,31 @@ public:
 
 		\note If stride == sizeInByte it means a whole buffer is dedicated to that attribute.
 	 */
-	sal_maybenull char* acquirePointer(
+	sal_maybenull char* getAttributePointer(
 		int attributeId,
 		sal_out_opt size_t* count=nullptr,
 		sal_out_opt size_t* stride=nullptr,
 		sal_out_opt size_t* sizeInByte=nullptr,
 		sal_out_opt const char** semantic=nullptr
 	);
+
+	sal_maybenull const char* getAttributePointer(
+		int attributeId,
+		sal_out_opt size_t* count=nullptr,
+		sal_out_opt size_t* stride=nullptr,
+		sal_out_opt size_t* sizeInByte=nullptr,
+		sal_out_opt const char** semantic=nullptr
+	) const;
+
+	sal_maybenull char* getBufferPointer(
+		size_t bufferIdx,
+		sal_out_opt size_t* sizeInByte=nullptr
+	);
+
+	sal_maybenull const char* getBufferPointer(
+		size_t bufferIdx,
+		sal_out_opt size_t* sizeInByte=nullptr
+	) const;
 
 protected:
 	class Impl;

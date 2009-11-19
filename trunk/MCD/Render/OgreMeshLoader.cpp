@@ -11,6 +11,7 @@
 #include "../Core/System/ResourceManager.h"
 #include "../Core/System/StrUtility.h"
 #include "../Core/System/Utility.h"	// for FOR_EACH
+#include <limits>
 
 namespace MCD {
 
@@ -72,6 +73,50 @@ enum VertexElementType
 	VET_UINT1 = 12
 };	// VertexElementType
 
+size_t getAttributeSize(VertexElementType type)
+{
+	switch(type) {
+	case VET_FLOAT1:
+	case VET_FLOAT2:
+	case VET_FLOAT3:
+	case VET_FLOAT4:
+		return sizeof(float) * (type - VET_FLOAT1 + 1);
+	case VET_SHORT1:
+	case VET_SHORT2:
+	case VET_SHORT3:
+	case VET_SHORT4:
+		return sizeof(float) * (type - VET_SHORT1 + 1);
+	case VET_UBYTE4:
+	case VET_COLOUR_ARGB:
+	case VET_COLOUR_ABGR:
+		return 4;
+	// TODO: Assign the remaining values
+	case VET_COLOUR:
+	case VET_UINT1:
+		MCD_ASSERT(false);
+		return 0;
+	default:
+		return 0;
+	}
+}
+
+sal_notnull const char* getSemanticString(VertexElementSemantic semantic, uint16_t colorOrCoordIdx)
+{
+ 	static const char* coordTable[] = { "uv1", "uv2", "uv3" };
+	switch(semantic) {
+	case VES_POSITION:				return "position";
+	case VES_BLEND_WEIGHTS:			return "boneWeight";
+	case VES_BLEND_INDICES:			return "boneIndex";
+	case VES_NORMAL:				return "normal";
+	case VES_DIFFUSE:				return "diffuse";
+	case VES_SPECULAR:				return "specular";
+	case VES_TEXTURE_COORDINATES:	return colorOrCoordIdx < 3 ? coordTable[colorOrCoordIdx] : "";
+	case VES_BINORMAL:				return "binormal";
+	case VES_TANGENT:				return "tangent";
+	default:						return "";
+	}
+}
+
 struct ChunkHeader
 {
 	uint16_t id;
@@ -105,45 +150,27 @@ struct VertexDeclaration
 	static const size_t cSize = sizeof(uint16_t) * 5;
 };	// VertexDeclaration
 
-struct RawVertexBuffer
+class Geometry : public MeshBuilder2
 {
-	RawVertexBuffer() : data(nullptr), vertexSize(0) {}
-	char* data;
-	size_t vertexSize;	//!< Size of a single vertex in byte
-};	// RawVertexBuffer
-
-struct Geometry
-{
-	Geometry() { vertexCount = 0; }
-
-	~Geometry()
+public:
+	Geometry(size_t indexCount)
 	{
-		for(size_t i=rawVertexBuffers.size(); i--;)
-			delete[] rawVertexBuffers[i].data;
+		resizeBuffers(0, indexCount);
 	}
 
-	size_t vertexCount;
-	std::vector<VertexDeclaration> VertexDeclarations;
-	std::vector<RawVertexBuffer> rawVertexBuffers;
-};	// Geometry
-
-// Assuming each ModelInfo owns an unique Geometry.
-struct ModelInfo : public Geometry
-{
-	ModelInfo(size_t indexCount_)
+	void addDeclaration(const VertexDeclaration& declaration)
 	{
-		indexBuffer = new uint16_t[indexCount_];
-		indexCount = indexCount_;
+		declareAttribute(
+			getAttributeSize(VertexElementType(declaration.type)),
+			getSemanticString(VertexElementSemantic(declaration.semantic), declaration.index),
+			declaration.source + 1	// One buffer index is already reserved for index buffer
+		);
 	}
-
-	~ModelInfo() { delete[] indexBuffer; }
 
 	std::wstring name;
 	std::wstring materialName;
 	ResourcePtr material;
-	uint16_t* indexBuffer;
-	size_t indexCount;
-};	// ModelInfo
+};	// Geometry
 
 sal_checkreturn bool readString(std::istream& is, char* buf, size_t bufLen)
 {
@@ -180,7 +207,7 @@ public:
 	Impl(IResourceManager* resourceManager)
 		: mResourceManager(resourceManager)
 		, mVersionHeaderLoaded(false)
-		, mCurrentModelInfoIdx(-1)
+		, mCurrentGeometryIdx(-1)
 		, mFileId(nullptr)
 	{
 	}
@@ -214,8 +241,8 @@ private:
 	volatile IResourceLoader::LoadingState mLoadingState;
 	mutable Mutex mMutex;
 
-	ptr_vector<ModelInfo> mModelInfo;
-	int mCurrentModelInfoIdx;	// Can be negative
+	ptr_vector<Geometry> mGeometry;
+	int mCurrentGeometryIdx;	// Can be negative
 
 	const Path* mFileId;
 };	// Impl
@@ -269,24 +296,30 @@ IResourceLoader::LoadingState OgreMeshLoader::Impl::load(std::istream* is, const
         bool indexes32Bit;
 		ABORT_IF(!readBool(*is, indexes32Bit));
 
-		ModelInfo* info = new ModelInfo(indexCount);
-		info->materialName = strToWStr(materialName);
+		Geometry* geo = new Geometry(indexCount);
+		geo->materialName = strToWStr(materialName);
 
 		{	// Load material, assume the material is at the same path as the .mesh file itself.
-			Path adjustedPath = mFileId ? mFileId->getBranchPath() / info->materialName : info->materialName;
-			info->material = mResourceManager->load(adjustedPath);
+			Path adjustedPath = mFileId ? mFileId->getBranchPath() / geo->materialName : geo->materialName;
+			geo->material = mResourceManager->load(adjustedPath);
 		}
 
-		readUInt16Array(*is, info->indexBuffer, indexCount);
-		mModelInfo.push_back(info);
-		++mCurrentModelInfoIdx;
+		char* p = geo->getBufferPointer(0);
+		ABORT_IF(!p || !readUInt16Array(*is, (uint16_t*)p, indexCount));
+
+		mGeometry.push_back(geo);
+		++mCurrentGeometryIdx;
 	}	break;
 
 	case M_GEOMETRY:
 	{
 		uint32_t vertexCount;
 		is->read((char*)&vertexCount, sizeof(vertexCount));
-		mModelInfo[mCurrentModelInfoIdx].vertexCount = vertexCount;
+
+		ABORT_IF(vertexCount >= size_t(std::numeric_limits<uint16_t>::max()));
+
+		Geometry& geo = mGeometry[mCurrentGeometryIdx];
+		geo.resizeBuffers(uint16_t(vertexCount), geo.indexCount());
 	}	break;
 
 	case M_GEOMETRY_VERTEX_DECLARATION:
@@ -294,35 +327,31 @@ IResourceLoader::LoadingState OgreMeshLoader::Impl::load(std::istream* is, const
 
 	case M_GEOMETRY_VERTEX_ELEMENT:
 	{
-		ModelInfo& modelInfo = mModelInfo[mCurrentModelInfoIdx];
-		modelInfo.VertexDeclarations.push_back(VertexDeclaration());
+		Geometry& geo = mGeometry[mCurrentGeometryIdx];
 
-		VertexDeclaration& decl = modelInfo.VertexDeclarations.back();
+		VertexDeclaration decl;
 		is->read((char*)&decl, VertexDeclaration::cSize);
+		geo.addDeclaration(decl);
 	}	break;
 
 	case M_GEOMETRY_VERTEX_BUFFER:
 	{
-		ModelInfo& modelInfo = mModelInfo[mCurrentModelInfoIdx];
+		Geometry& geo = mGeometry[mCurrentGeometryIdx];
 
 		uint16_t bindIndex;
 		ABORT_IF(!readUInt16Array(*is, &bindIndex, 1));
 
-		// TODO: Vertex the vertexSize is valid according to modelInfo.VertexDeclarations
+		// TODO: Vertex the vertexSize is valid according to geo.VertexDeclarations
 		uint16_t vertexSize;
 		ABORT_IF(!readUInt16Array(*is, &vertexSize, 1));
-
-		if(bindIndex >= modelInfo.rawVertexBuffers.size())
-			modelInfo.rawVertexBuffers.resize(bindIndex + 1);
 
 		// Read the chunk M_GEOMETRY_VERTEX_BUFFER_DATA
 		ABORT_IF(!header.readFrom(*is) || header.id != M_GEOMETRY_VERTEX_BUFFER_DATA);
 
-		const size_t sizeInBytes = vertexSize * modelInfo.vertexCount;
-		char* buf = new char[sizeInBytes];
-		modelInfo.rawVertexBuffers[bindIndex].data = buf;
-		modelInfo.rawVertexBuffers[bindIndex].vertexSize = vertexSize;
-		is->read(buf, sizeInBytes);
+		size_t sizeInByte;
+		char* buf = geo.getBufferPointer(bindIndex + 1, &sizeInByte);
+		ABORT_IF(size_t(vertexSize) * geo.vertexCount() != sizeInByte);
+		is->read(buf, sizeInByte);
 	}	break;
 
 	case M_GEOMETRY_VERTEX_BUFFER_DATA:
@@ -342,8 +371,8 @@ IResourceLoader::LoadingState OgreMeshLoader::Impl::load(std::istream* is, const
 		char subMeshName[256];
 		ABORT_IF(!readString(*is, subMeshName, sizeof(subMeshName)));
 
-		if(idx < mModelInfo.size())
-			mModelInfo[idx].name = strToWStr(subMeshName);
+		if(idx < mGeometry.size())
+			mGeometry[idx].name = strToWStr(subMeshName);
 	}	break;
 
 	// Skip uninterested chunks
@@ -378,6 +407,16 @@ public:
 	}
 };	// WhiteMaterial
 
+static int semanticToMeshDataType(const char* semantic)
+{
+	if(strcmp(semantic, "position") == 0)	return Mesh::Position;
+	if(strcmp(semantic, "normal") == 0)		return Mesh::Normal;
+	if(strcmp(semantic, "uv1") == 0)		return Mesh::TextureCoord0;
+	if(strcmp(semantic, "uv2") == 0)		return Mesh::TextureCoord1;
+	if(strcmp(semantic, "uv3") == 0)		return Mesh::TextureCoord2;
+	return -1;
+}
+
 void OgreMeshLoader::Impl::commit(Resource& resource)
 {
 	// There is no need to do a mutex lock because OgreMeshLoader didn't support progressive loading.
@@ -385,83 +424,26 @@ void OgreMeshLoader::Impl::commit(Resource& resource)
 
 	Model& model = dynamic_cast<Model&>(resource);
 
-	MeshBuilder builder;
-
-	MCD_FOREACH(const ModelInfo& modelInfo, mModelInfo)
+	MCD_FOREACH(const Geometry& geo, mGeometry)
 	{
-		MeshPtr mesh = new Mesh(modelInfo.name);
-		(void)mesh;
+		MeshPtr mesh = new Mesh(geo.name);
+		const size_t attributeCount = geo.attributeCount();
 
-		builder.clear();
-		builder.enable(Mesh::Position | Mesh::Index);
-		builder.reserveVertex(modelInfo.vertexCount);
-		builder.reserveTriangle(modelInfo.indexCount / 3);
+		{	// Generate the required semantic to Mesh::DataType mapping and then commit the data to mesh.
+			int* map = new int[attributeCount * 2];
+			map[0] = 0; map[1] = Mesh::Index;
 
-		// First pass to enable the possile data types first.
-		MCD_FOREACH(const VertexDeclaration& decl, modelInfo.VertexDeclarations)
-		{
-			switch(decl.semantic)
-			{
-			case VES_NORMAL:
-				builder.enable(Mesh::Normal);
-				break;
-			case VES_TEXTURE_COORDINATES:
-				builder.enable(Mesh::TextureCoord0 + decl.index);
-				builder.textureUnit(Mesh::TextureCoord0 + decl.index);
-				builder.textureCoordSize(decl.type + VET_FLOAT2);
-				break;
+			for(size_t i=1; i<attributeCount; ++i) {
+				const char* semantic;
+				MCD_VERIFY(geo.getAttributePointer(i, nullptr, nullptr, nullptr, &semantic));
+				const int dataType = semanticToMeshDataType(semantic);
+				map[i * 2 + 1] = dataType;
+				map[i * 2] = dataType == -1 ? -1 : i;
 			}
+
+			commitMesh(const_cast<Geometry&>(geo), *mesh, map, MeshBuilder::Static);
+			delete[] map; map = nullptr;
 		}
-
-		// TODO: This loop is very slow, can be optimized the run-time by using extra memory.
-		for(size_t i=0; i<modelInfo.vertexCount; ++i)
-		{
-			MCD_FOREACH(const VertexDeclaration& decl, modelInfo.VertexDeclarations)
-			{
-				const RawVertexBuffer& rawVertexBuffer = modelInfo.rawVertexBuffers[decl.source];
-				const char* const p = rawVertexBuffer.data + i * rawVertexBuffer.vertexSize + decl.offset;
-
-				switch(decl.semantic)
-				{
-					case VES_POSITION:
-						builder.position(*reinterpret_cast<const Vec3f*>(p));
-						break;
-					case VES_NORMAL:
-						builder.normal(*reinterpret_cast<const Vec3f*>(p));
-						break;
-					case VES_TEXTURE_COORDINATES:
-						builder.textureUnit(Mesh::TextureCoord0 + decl.index);
-						switch(decl.type) {
-						case VET_FLOAT2:
-							builder.textureCoord(*reinterpret_cast<const Vec2f*>(p));
-							break;
-						case VET_FLOAT3:
-							builder.textureCoord(*reinterpret_cast<const Vec3f*>(p));
-							break;
-						case VET_FLOAT4:
-							builder.textureCoord(*reinterpret_cast<const Vec4f*>(p));
-							break;
-						default:
-							// Other texture coordinates are currently ignored
-							break;
-						}
-						break;
-					default:
-						// Other semantics are currently ignored
-						break;
-				}
-			}
-			builder.addVertex();
-		}
-
-		for(size_t i=0; i<modelInfo.indexCount; i+=3)
-		{
-			uint16_t* idx = &modelInfo.indexBuffer[i];
-			builder.addTriangle(idx[0], idx[1], idx[2]);
-		}
-
-		// TODO: Design a way to set this variable from outside
-		builder.commit(*mesh, MeshBuilder::Static);
 
 		Model::MeshAndMaterial* meshMat = new Model::MeshAndMaterial;
 		model.mMeshes.pushBack(*meshMat);
@@ -470,13 +452,13 @@ void OgreMeshLoader::Impl::commit(Resource& resource)
 		meshMat->effect = new Effect(L"");
 
 		// Use the default white material if none can load
-		if(!modelInfo.material)
+		if(!geo.material)
 			meshMat->effect->material.reset(new WhiteMaterial);
 		else
 		{
-			if(Texture* texture = dynamic_cast<Texture*>(modelInfo.material.get()))
+			if(Texture* texture = dynamic_cast<Texture*>(geo.material.get()))
 				meshMat->effect->material.reset(new WhiteMaterial(texture));
-			if(Effect* effect = dynamic_cast<Effect*>(modelInfo.material.get()))
+			if(Effect* effect = dynamic_cast<Effect*>(geo.material.get()))
 				meshMat->effect = effect;
 		}
 	}
