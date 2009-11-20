@@ -6,6 +6,16 @@
 
 using namespace MCD;
 
+namespace {
+
+const MeshBuilder2::Semantic indexSemantic =		{ "index", sizeof(uint16_t), 1, 0 };
+const MeshBuilder2::Semantic positionSemantic =		{ "position", sizeof(float), 3, 0 };
+const MeshBuilder2::Semantic normalSemantic =		{ "normal", sizeof(float), 3, 0 };
+const MeshBuilder2::Semantic uvSemantic =			{ "uv", sizeof(float), 2, 0 };
+const MeshBuilder2::Semantic blendWeightSemantic =	{ "blendWeight", sizeof(float), 1, 0 };
+
+}	// namespace
+
 TEST(A_MeshBuilderTest)
 {
 	{	// Simple create and destroy a mesh builder
@@ -20,7 +30,7 @@ TEST(A_MeshBuilderTest)
 		CHECK_EQUAL(0u, builder.indexCount());
 
 		// Try to declare the default attribute id 0 (which means index) will fail
-		CHECK(0 > builder.declareAttribute(1, nullptr, 0));
+		CHECK(0 > builder.declareAttribute(indexSemantic, 0));
 
 		CHECK(!builder.getAttributePointer(0));
 		CHECK(!builder.getBufferPointer(0));
@@ -33,17 +43,17 @@ TEST(A_MeshBuilderTest)
 	{	// More complicated cases
 		MeshBuilder2 builder;
 
-		int posId = builder.declareAttribute(sizeof(float) * 3, "position", 1);
+		int posId = builder.declareAttribute(positionSemantic, 1);
 		CHECK(posId > 0);
 		CHECK_EQUAL(posId, builder.findAttributeId("position"));
 
-		int normalId = builder.declareAttribute(sizeof(float) * 3, "normal", 1);
+		int normalId = builder.declareAttribute(normalSemantic, 1);
 		CHECK(normalId > posId);
 
-		int uvId = builder.declareAttribute(sizeof(float) * 2, "uv2f", 1);
+		int uvId = builder.declareAttribute(uvSemantic, 1);
 		CHECK(uvId > normalId);
 
-		int weightId = builder.declareAttribute(sizeof(float), "boneWeight", 2);
+		int weightId = builder.declareAttribute(blendWeightSemantic, 2);
 		CHECK(weightId > uvId);
 
 		CHECK_EQUAL(5u, builder.attributeCount());
@@ -52,44 +62,50 @@ TEST(A_MeshBuilderTest)
 		CHECK_EQUAL(8u, builder.vertexCount());
 		CHECK_EQUAL(12u, builder.indexCount());
 
-		size_t count, stride, sizeInByte;
-		const char* semantic;
+		size_t count, stride;
+		MeshBuilder2::Semantic semantic;
 
 		// Get the data pointer for the various attributes
-		char* pos = builder.getAttributePointer(posId, &count, &stride, &sizeInByte, &semantic);
+		char* pos = builder.getAttributePointer(posId, &count, &stride, &semantic);
 		CHECK(pos);
 		CHECK_EQUAL(sizeof(float) * 8, stride);
 		CHECK_EQUAL(builder.vertexCount(), count);
-		CHECK_EQUAL(sizeof(float) * 3, sizeInByte);
-		CHECK_EQUAL(std::string("position"), semantic);
+		CHECK_EQUAL(3u, semantic.elementCount);
+		CHECK_EQUAL(sizeof(float), semantic.elementSize);
+		CHECK_EQUAL(std::string("position"), semantic.name);
 
-		char* normal = builder.getAttributePointer(normalId, &count, &stride, &sizeInByte, &semantic);
+		char* normal = builder.getAttributePointer(normalId, &count, &stride, &semantic);
 		CHECK_EQUAL(sizeof(float) * 8, stride);
 		CHECK_EQUAL(builder.vertexCount(), count);
-		CHECK_EQUAL(sizeof(float) * 3, sizeInByte);
-		CHECK_EQUAL(std::string("normal"), semantic);
+		CHECK_EQUAL(3u, semantic.elementCount);
+		CHECK_EQUAL(sizeof(float), semantic.elementSize);
+		CHECK_EQUAL(std::string("normal"), semantic.name);
 		CHECK_EQUAL(normal, pos + sizeof(float) * 3);
 
-		char* uv = builder.getAttributePointer(uvId, &count, &stride, &sizeInByte, &semantic);
+		char* uv = builder.getAttributePointer(uvId, &count, &stride, &semantic);
 		CHECK_EQUAL(sizeof(float) * 8, stride);
 		CHECK_EQUAL(builder.vertexCount(), count);
-		CHECK_EQUAL(sizeof(float) * 2, sizeInByte);
-		CHECK_EQUAL(std::string("uv2f"), semantic);
+		CHECK_EQUAL(2u, semantic.elementCount);
+		CHECK_EQUAL(sizeof(float), semantic.elementSize);
+		CHECK_EQUAL(std::string("uv"), semantic.name);
 		CHECK_EQUAL(uv, normal + sizeof(float) * 3);
 
-		char* weight = builder.getAttributePointer(weightId, &count, &stride, &sizeInByte, &semantic);
+		char* weight = builder.getAttributePointer(weightId, &count, &stride, &semantic);
 		CHECK(weight);
 		CHECK_EQUAL(sizeof(float), stride);
 		CHECK_EQUAL(builder.vertexCount(), count);
-		CHECK_EQUAL(stride, sizeInByte);
+		CHECK_EQUAL(1u, semantic.elementCount);
+		CHECK_EQUAL(sizeof(float), semantic.elementSize);
+		CHECK_EQUAL(std::string("blendWeight"), semantic.name);
 
 		// Get the index buffer pointer
-		uint16_t* idxPtr = (uint16_t*)builder.getAttributePointer(0, &count, &stride, &sizeInByte, &semantic);
+		uint16_t* idxPtr = (uint16_t*)builder.getAttributePointer(0, &count, &stride, &semantic);
 		CHECK(idxPtr);
 		CHECK_EQUAL(sizeof(uint16_t), stride);
 		CHECK_EQUAL(builder.indexCount(), count);
-		CHECK_EQUAL(sizeof(uint16_t), sizeInByte);
-		CHECK_EQUAL(std::string("index"), semantic);
+		CHECK_EQUAL(1u, semantic.elementCount);
+		CHECK_EQUAL(sizeof(uint16_t), semantic.elementSize);
+		CHECK_EQUAL(std::string("index"), semantic.name);
 	}
 }
 
@@ -112,17 +128,17 @@ TEST(A_MeshBuilderIMTest)
 	{	// More complicated cases
 		MeshBuilderIM builder;
 
-		int posId = builder.declareAttribute(sizeof(float) * 3, "position", 1);
+		int posId = builder.declareAttribute(positionSemantic, 1);
 		CHECK(posId > 0);
 		CHECK_EQUAL(posId, builder.findAttributeId("position"));
 
-		int normalId = builder.declareAttribute(sizeof(float) * 3, "normal", 1);
+		int normalId = builder.declareAttribute(normalSemantic, 1);
 		CHECK(normalId > posId);
 
-		int uvId = builder.declareAttribute(sizeof(float) * 2, "uv2f", 1);
+		int uvId = builder.declareAttribute(uvSemantic, 1);
 		CHECK(uvId > normalId);
 
-		int weightId = builder.declareAttribute(sizeof(float), "boneWeight", 2);
+		int weightId = builder.declareAttribute(blendWeightSemantic, 2);
 		CHECK(weightId > uvId);
 
 		CHECK_EQUAL(5u, builder.attributeCount());

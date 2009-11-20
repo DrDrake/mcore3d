@@ -336,6 +336,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\SemanticMap.h"
+				>
+			</File>
+			<File
 				RelativePath=".\Shader.h"
 				>
 			</File>
@@ -529,6 +533,10 @@
 			</File>
 			<File
 				RelativePath=".\Shader.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\SemanticMap.cpp"
 				>
 			</File>
 			<File

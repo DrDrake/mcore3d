@@ -10,14 +10,16 @@ namespace MCD {
 class IResourceManager;
 
 /*!	Loader for the Ogre 's .mesh file format.
+	// A tool for converting *.3ds to *.mesh:
+	// http://david.geldreich.free.fr/dev.html
  */
 class MCD_RENDER_API OgreMeshLoader : public IResourceLoader, private Noncopyable
 {
 public:
 	/*!	Constructor, take a ResourceManager as an optional parameter.
-		Since the 3ds model may reference some texture files, therefore it needs
-		a resource manager in order to load the textures. If null pointer is supplied
-		as the manager,
+		Since the mesh file may reference some texture/material files, therefore it
+		needs a resource manager in order to load them. If null pointer is supplied,
+		no texture/material will be loaded.
 	 */
 	explicit OgreMeshLoader(sal_maybenull IResourceManager* resourceManager = nullptr);
 
