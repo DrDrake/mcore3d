@@ -5,6 +5,7 @@
 #include "Mesh.h"
 #include "MeshBuilder.h"
 #include "Model.h"
+#include "SemanticMap.h"
 #include "../Core/System/MemoryProfiler.h"
 #include "../Core/System/Mutex.h"
 #include "../Core/System/PtrVector.h"
@@ -73,50 +74,6 @@ enum VertexElementType
 	VET_UINT1 = 12
 };	// VertexElementType
 
-size_t getAttributeSize(VertexElementType type)
-{
-	switch(type) {
-	case VET_FLOAT1:
-	case VET_FLOAT2:
-	case VET_FLOAT3:
-	case VET_FLOAT4:
-		return sizeof(float) * (type - VET_FLOAT1 + 1);
-	case VET_SHORT1:
-	case VET_SHORT2:
-	case VET_SHORT3:
-	case VET_SHORT4:
-		return sizeof(float) * (type - VET_SHORT1 + 1);
-	case VET_UBYTE4:
-	case VET_COLOUR_ARGB:
-	case VET_COLOUR_ABGR:
-		return 4;
-	// TODO: Assign the remaining values
-	case VET_COLOUR:
-	case VET_UINT1:
-		MCD_ASSERT(false);
-		return 0;
-	default:
-		return 0;
-	}
-}
-
-sal_notnull const char* getSemanticString(VertexElementSemantic semantic, uint16_t colorOrCoordIdx)
-{
- 	static const char* coordTable[] = { "uv1", "uv2", "uv3", "uv4" };
-	switch(semantic) {
-	case VES_POSITION:				return "position";
-	case VES_BLEND_WEIGHTS:			return "boneWeight";
-	case VES_BLEND_INDICES:			return "boneIndex";
-	case VES_NORMAL:				return "normal";
-	case VES_DIFFUSE:				return "diffuse";
-	case VES_SPECULAR:				return "specular";
-	case VES_TEXTURE_COORDINATES:	return colorOrCoordIdx < MCD_COUNTOF(coordTable) ? coordTable[colorOrCoordIdx] : "";
-	case VES_BINORMAL:				return "binormal";
-	case VES_TANGENT:				return "tangent";
-	default:						return "";
-	}
-}
-
 struct ChunkHeader
 {
 	uint16_t id;
@@ -150,21 +107,42 @@ struct VertexDeclaration
 	static const size_t cSize = sizeof(uint16_t) * 5;
 };	// VertexDeclaration
 
+size_t getChannelCount(const VertexDeclaration& d)
+{
+	switch(d.type) {
+	case VET_FLOAT1: case VET_SHORT1: return 1;
+	case VET_FLOAT2: case VET_SHORT2: return 2;
+	case VET_FLOAT3: case VET_SHORT3: return 3;
+	case VET_FLOAT4: case VET_SHORT4: return 4;
+	case VET_COLOUR_ARGB: case VET_COLOUR_ABGR: return 4;
+	default: return 0;
+	}
+}
+
+MeshBuilder2::Semantic getSemantic(const VertexDeclaration& d)
+{
+	const SemanticMap& map = SemanticMap::getSingleton();
+	MeshBuilder2::Semantic nullSemantic = { "", 0, 0, 0 };
+	switch(d.semantic) {
+	case VES_POSITION:				return (d.type == VET_FLOAT3) ? map.position() : nullSemantic;
+	case VES_BLEND_WEIGHTS:			return map.blendWeight();	// TODO: Check that map.blendWeight() return the expected elementSize
+	case VES_BLEND_INDICES:			return map.blendIndex();	// TODO: Check that map.blendIndex() return the expected elementSize
+	case VES_NORMAL:				return (d.type == VET_FLOAT3) ? map.normal() : nullSemantic;
+	case VES_DIFFUSE:				return map.color(0, getChannelCount(d), 1);
+	case VES_SPECULAR:				return map.color(1, getChannelCount(d), 1);
+	case VES_TEXTURE_COORDINATES:	return map.uv(d.index, getChannelCount(d));
+	case VES_BINORMAL:				return map.binormal();
+	case VES_TANGENT:				return map.tangent();
+	default:						return nullSemantic;
+	}
+}
+
 class Geometry : public MeshBuilder2
 {
 public:
 	Geometry(size_t indexCount)
 	{
 		(void)resizeBuffers(0, indexCount);
-	}
-
-	void addDeclaration(const VertexDeclaration& declaration)
-	{
-		declareAttribute(
-			getAttributeSize(VertexElementType(declaration.type)),
-			getSemanticString(VertexElementSemantic(declaration.semantic), declaration.index),
-			declaration.source + 1	// One buffer index is already reserved for index buffer
-		);
 	}
 
 	std::wstring name;
@@ -331,7 +309,12 @@ IResourceLoader::LoadingState OgreMeshLoader::Impl::load(std::istream* is, const
 
 		VertexDeclaration decl;
 		is->read((char*)&decl, VertexDeclaration::cSize);
-		geo.addDeclaration(decl);
+
+		geo.declareAttribute(
+			getSemantic(decl),
+			decl.source + 1	// One buffer index is already reserved for index buffer
+		);
+
 	}	break;
 
 	case M_GEOMETRY_VERTEX_BUFFER:
@@ -435,9 +418,9 @@ void OgreMeshLoader::Impl::commit(Resource& resource)
 			map[0] = 0; map[1] = Mesh::Index;
 
 			for(size_t i=1; i<attributeCount; ++i) {
-				const char* semantic;
-				MCD_VERIFY(geo.getAttributePointer(i, nullptr, nullptr, nullptr, &semantic));
-				const int dataType = semanticToMeshDataType(semantic);
+				MeshBuilder2::Semantic semantic;
+				MCD_VERIFY(geo.getAttributePointer(i, nullptr, nullptr, &semantic));
+				const int dataType = semanticToMeshDataType(semantic.name);
 				map[i * 2 + 1] = dataType;
 				map[i * 2] = dataType == -1 ? -1 : i;
 			}

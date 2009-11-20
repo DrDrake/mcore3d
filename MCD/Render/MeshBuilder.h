@@ -12,6 +12,9 @@ namespace MCD {
 /*!	Providing a simple interface for declarating (generic) vertex attributes and building the buffers.
 	The buffers are then utilized and commit to Mesh.
 
+	There is a one to one mapping between attribute ID and semantic string, the purpose of attribute ID
+	is for performance only.
+
 	Example:
 	\code
 	// Declare an vertex with position, normal and uv within a buffer, and
@@ -45,6 +48,14 @@ namespace MCD {
 class MCD_RENDER_API MeshBuilder2 : public IntrusiveSharedObject<AtomicInteger>, private Noncopyable
 {
 public:
+	struct Semantic
+	{
+		const char* name;		//! Unique string that identify the semantic
+		size_t elementSize;		//! Size in byte of individual element in this semanitc, eg. Vec3f -> sizeof(float)
+		size_t elementCount;	//! Number of element in this semanitc, eg. Vec3f -> 3
+		size_t channelIndex;	//! The channel index for color/texture coordinate
+	};	// Semantic
+
 	explicit MeshBuilder2(bool isCreatedOnStack=true);
 
 	sal_override ~MeshBuilder2();
@@ -59,7 +70,7 @@ public:
 		\return The attribute ID for future reference, -1 if any error occured.
 		\note The behaviour is undefined if declareAttribute() is invoked after some data is written to the buffer.
 	 */
-	int declareAttribute(size_t sizeInBytes, const char* semantic=nullptr, size_t bufferId=1);
+	int declareAttribute(const Semantic& semantic, size_t bufferId=1);
 
 	/*!	Resize the buffers.
 		\note Remember only 65536 vertex is supported.
@@ -87,22 +98,21 @@ public:
 	/*!	Search the attribute ID with the given semantic name.
 		Returns -1 if non of the semantic can be found.
 	 */
-	int findAttributeId(const char* semantic) const;
+	int findAttributeId(const char* semanticName) const;
 
 	/*!	Acquire the data pointer from the internal buffer.
 		This function also expose the associated properties of that attribute.
 		\param attributedId
 			The ID returned from declareAttribute(), or 0 for index buffer
 		\param count
-			The number of element of this attribute in the buffer.
+			The number of attributes in the buffer.
 		\param stride
 			The byte offset between consecutive vertex attributes, which is equal to the size of a vertex.
 			Note that stride will not be zero even the data are tightly packed.
-		\param sizeInByte
-			The size in byte of a single attribtue.
 		\param semantic
-			The semantic string for this attribute, this const char* pointer
-			will become invalid after the call to clear().
+			The semantic for this attribute, as it was passed to declareAttribute().
+			Since all error checking is done in declareAttribute(), the returned semantic
+			by this function should be always valid.
 
 		\note If stride == sizeInByte it means a whole buffer is dedicated to that attribute.
 	 */
@@ -110,16 +120,14 @@ public:
 		int attributeId,
 		sal_out_opt size_t* count=nullptr,
 		sal_out_opt size_t* stride=nullptr,
-		sal_out_opt size_t* sizeInByte=nullptr,
-		sal_out_opt const char** semantic=nullptr
+		sal_out_opt Semantic* semantic=nullptr
 	);
 
 	sal_maybenull const char* getAttributePointer(
 		int attributeId,
 		sal_out_opt size_t* count=nullptr,
 		sal_out_opt size_t* stride=nullptr,
-		sal_out_opt size_t* sizeInByte=nullptr,
-		sal_out_opt const char** semantic=nullptr
+		sal_out_opt Semantic* semantic=nullptr
 	) const;
 
 	/*!	Returns the required attribute as a ArrayWrapper with the correct stride.
@@ -127,9 +135,10 @@ public:
 	 */
 	template<typename T> ArrayWrapper<T> getAttributeAs(int attributeId)
 	{
-		size_t count, stride, sizeInByte;
-		char* p = getAttributePointer(attributeId, &count, &stride, &sizeInByte);
-		if(sizeof(T) == sizeInByte)
+		size_t count, stride;
+		Semantic semantic;
+		char* p = getAttributePointer(attributeId, &count, &stride, &semantic);
+		if(sizeof(T) == semantic.elementCount * semantic.elementSize)
 			return ArrayWrapper<T>(p, count, stride);
 		MCD_ASSERT(false);
 		return ArrayWrapper<T>(nullptr, 0, 0);
@@ -203,6 +212,8 @@ protected:
 	class Impl2;
 	Impl2& mImpl2;
 };	// MeshBuilderIM
+
+typedef IntrusivePtr<MeshBuilderIM> MeshBuilderIMPtr;
 
 class Mesh;
 struct ColorRGB8;

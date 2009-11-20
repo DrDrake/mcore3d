@@ -2,6 +2,7 @@
 #include "ChamferBox.h"
 #include "MeshBuilder.h"
 #include "Mesh.h"
+#include "SemanticMap.h"
 #include "TangentSpaceBuilder.h"
 #include "../Core/Math/Vec2.h"
 #include "../Core/Math/Mat33.h"
@@ -12,13 +13,14 @@ using namespace MCD;
 
 ChamferBoxBuilder::ChamferBoxBuilder(float filletRadius, size_t filletSegmentCount, bool includeTangents)
 {
-	posId = declareAttribute(sizeof(float) * 3, "position", 1);
-	normalId = declareAttribute(sizeof(float) * 3, "normal", 2);
-	uvId = declareAttribute(sizeof(float) * 2, "uv1", 3);
+	const SemanticMap& map = SemanticMap::getSingleton();
+	posId = declareAttribute(map.position(), 1);
+	normalId = declareAttribute(map.normal(), 2);
+	uvId = declareAttribute(map.uv(0, 2), 3);
 
 	tangentId = -1;
 	if(includeTangents)
-		tangentId = declareAttribute(sizeof(float) * 3, "tangent", 4);
+		tangentId = declareAttribute(map.tangent(), 4);
 
 	const size_t cubeFaceCount = 6;
 	const size_t rowCount = (filletSegmentCount + 1) * 2;	// Number of vertex along y direction
