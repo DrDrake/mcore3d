@@ -1,23 +1,18 @@
 #include "Pch.h"
 #include "Model.h"
+#include "Effect.h"
 #include "Material.h"
 #include "Mesh.h"
-#include "Texture.h"	// TODO: Remove this dependency
+#include "MeshBuilder.h"
 #include "../Core/System/Utility.h"
 
 namespace MCD {
 
-Model::MeshAndMaterial::MeshAndMaterial()
-{
-}
+Model::MeshAndMaterial::MeshAndMaterial() {}
 
-Model::MeshAndMaterial::~MeshAndMaterial()
-{
-}
+Model::MeshAndMaterial::~MeshAndMaterial() {}
 
-Model::~Model()
-{
-}
+Model::~Model() {}
 
 void Model::draw()
 {

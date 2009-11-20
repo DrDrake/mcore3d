@@ -1,5 +1,6 @@
 #include "Pch.h"
 #include "Max3dsLoader.h"
+#include "Effect.h"
 #include "Material.h"
 #include "MeshBuilder.h"
 #include "Mesh.h"
@@ -299,6 +300,7 @@ private:
 
 	struct ModelInfo
 	{
+		std::wstring name;
 		MeshBuilderPtr meshBuilder;	//! Contains vertex buffer only
 		std::vector<uint16_t> index;//! The triangle index
 		std::list<MultiSubObject> multiSubObject;
@@ -407,6 +409,7 @@ IResourceLoader::LoadingState Max3dsLoader::Impl::load(std::istream* is, const P
 					ABORTLOADING();
 
 				ModelInfo modelInfo;
+				modelInfo.name = objectName;
 				modelInfo.meshBuilder = currentMeshBuilder;
 				mModelInfo.push_back(modelInfo);
 				currentMeshBuilder->enable(Mesh::Position | Mesh::Normal);
@@ -848,6 +851,7 @@ void Max3dsLoader::Impl::commit(Resource& resource)
 			meshMat->mesh = mesh;
 			meshMat->effect = new Effect(L"");
 			meshMat->effect->material.reset(subObject.material->clone());
+			meshMat->name = modelInfo.name;
 
 			model.mMeshes.pushBack(*meshMat);
 		}

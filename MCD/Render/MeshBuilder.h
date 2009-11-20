@@ -170,6 +170,8 @@ protected:
 #endif
 };	// MeshBuilder2
 
+typedef IntrusivePtr<MeshBuilder2> MeshBuilder2Ptr;
+
 /*!	Extension of MeshBuilder2, which support immediate mode mesh construction.
  */
 class MCD_RENDER_API MeshBuilderIM : public MeshBuilder2

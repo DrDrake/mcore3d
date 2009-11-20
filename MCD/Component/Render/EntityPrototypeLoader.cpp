@@ -94,8 +94,7 @@ void EntityPrototypeLoader::Impl::commit(Resource& resource)
 		)
 	{
 		std::auto_ptr<Entity> e(new Entity);
-		// TODO: Give the entity a name
-		e->name = L"";
+		e->name = meshAndMat->name;
 		e->localTransform = Mat44f::cIdentity;
 
 		MeshComponent* c = new MeshComponent;

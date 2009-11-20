@@ -20,6 +20,8 @@ typedef Vec2<float> Vec2f;
 	Currently it just a very thin wrapper over MeshBuilder; transforming
 	the buffer manipulation interface of MeshBuilder into a OpenGL
 	intermediate mode interface.
+
+	\note After introducing MeshBuilder2 into Model, this class is deprecated.
  */
 class MCD_RENDER_API EditableMesh : public Mesh
 {
