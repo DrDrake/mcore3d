@@ -1,7 +1,7 @@
 #ifndef __MCD_RENDER_MODEL__
 #define __MCD_RENDER_MODEL__
 
-#include "Effect.h"
+#include "ShareLib.h"
 #include "Renderable.h"
 #include "../Core/System/LinkList.h"
 #include "../Core/System/Resource.h"
@@ -9,6 +9,8 @@
 namespace MCD {
 
 typedef IntrusivePtr<class Mesh> MeshPtr;
+typedef IntrusivePtr<class MeshBuilder2> MeshBuilder2Ptr;
+typedef IntrusivePtr<class Effect> EffectPtr;
 
 /*!	Basically it's a list of Mesh - Material pairs.
 	It make shared ownership on Mesh and exclusive ownership on Materail.
@@ -24,7 +26,7 @@ protected:
 	sal_override ~Model();
 
 public:
-	/*!A simple structure for sotring mesh and material as a pair.
+	/*!	A simple structure for storing mesh, mesh builder and material as a tuple.
 		To keep it simple, copying this struct is not implemented.
 	 */
 	struct MCD_RENDER_API MeshAndMaterial : public LinkListBase::Node<MeshAndMaterial>, MCD::Noncopyable
@@ -34,6 +36,13 @@ public:
 
 		MeshPtr mesh;
 		EffectPtr effect;
+		std::wstring name;
+
+		/*! Pointer to the MeshBuilder2 of this mesh, it is primaryly used for reading the mesh data
+			without downloading them from the GPU.
+			Please notice that this pointer may be nullptr.
+		 */
+		MeshBuilder2Ptr meshBuilder;
 	};	// MeshAndMaterial
 
 	typedef LinkList<MeshAndMaterial> MeshList;

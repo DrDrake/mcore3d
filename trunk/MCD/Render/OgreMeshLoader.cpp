@@ -137,17 +137,19 @@ MeshBuilder2::Semantic getSemantic(const VertexDeclaration& d)
 	}
 }
 
-class Geometry : public MeshBuilder2
+class Geometry
 {
 public:
 	Geometry(size_t indexCount)
 	{
-		(void)resizeBuffers(0, indexCount);
+		meshBuilder = new MeshBuilder2(false);
+		(void)meshBuilder->resizeBuffers(0, indexCount);
 	}
 
 	std::wstring name;
 	std::wstring materialName;
 	ResourcePtr material;
+	MeshBuilder2Ptr meshBuilder;
 };	// Geometry
 
 sal_checkreturn bool readString(std::istream& is, char* buf, size_t bufLen)
@@ -282,7 +284,7 @@ IResourceLoader::LoadingState OgreMeshLoader::Impl::load(std::istream* is, const
 			geo->material = mResourceManager->load(adjustedPath);
 		}
 
-		char* p = geo->getBufferPointer(0);
+		char* p = geo->meshBuilder->getBufferPointer(0);
 		ABORT_IF(!p || !readUInt16Array(*is, (uint16_t*)p, indexCount));
 
 		mGeometry.push_back(geo);
@@ -296,8 +298,8 @@ IResourceLoader::LoadingState OgreMeshLoader::Impl::load(std::istream* is, const
 
 		ABORT_IF(vertexCount >= size_t(std::numeric_limits<uint16_t>::max()));
 
-		Geometry& geo = mGeometry[mCurrentGeometryIdx];
-		ABORT_IF(!geo.resizeBuffers(uint16_t(vertexCount), geo.indexCount()));
+		MeshBuilder2& builder = *mGeometry[mCurrentGeometryIdx].meshBuilder;
+		ABORT_IF(!builder.resizeBuffers(uint16_t(vertexCount), builder.indexCount()));
 	}	break;
 
 	case M_GEOMETRY_VERTEX_DECLARATION:
@@ -310,7 +312,7 @@ IResourceLoader::LoadingState OgreMeshLoader::Impl::load(std::istream* is, const
 		VertexDeclaration decl;
 		is->read((char*)&decl, VertexDeclaration::cSize);
 
-		geo.declareAttribute(
+		geo.meshBuilder->declareAttribute(
 			getSemantic(decl),
 			decl.source + 1	// One buffer index is already reserved for index buffer
 		);
@@ -332,8 +334,8 @@ IResourceLoader::LoadingState OgreMeshLoader::Impl::load(std::istream* is, const
 		ABORT_IF(!header.readFrom(*is) || header.id != M_GEOMETRY_VERTEX_BUFFER_DATA);
 
 		size_t sizeInByte;
-		char* buf = geo.getBufferPointer(bindIndex + 1, &sizeInByte);
-		ABORT_IF(size_t(vertexSize) * geo.vertexCount() != sizeInByte);
+		char* buf = geo.meshBuilder->getBufferPointer(bindIndex + 1, &sizeInByte);
+		ABORT_IF(size_t(vertexSize) * geo.meshBuilder->vertexCount() != sizeInByte);
 		is->read(buf, sizeInByte);
 	}	break;
 
@@ -411,7 +413,7 @@ void OgreMeshLoader::Impl::commit(Resource& resource)
 	MCD_FOREACH(const Geometry& geo, mGeometry)
 	{
 		MeshPtr mesh = new Mesh(geo.name);
-		const size_t attributeCount = geo.attributeCount();
+		const size_t attributeCount = geo.meshBuilder->attributeCount();
 
 		{	// Generate the required semantic to Mesh::DataType mapping and then commit the data to mesh.
 			int* map = new int[attributeCount * 2];
@@ -419,13 +421,13 @@ void OgreMeshLoader::Impl::commit(Resource& resource)
 
 			for(size_t i=1; i<attributeCount; ++i) {
 				MeshBuilder2::Semantic semantic;
-				MCD_VERIFY(geo.getAttributePointer(i, nullptr, nullptr, &semantic));
+				MCD_VERIFY(geo.meshBuilder->getAttributePointer(i, nullptr, nullptr, &semantic));
 				const int dataType = semanticToMeshDataType(semantic.name);
 				map[i * 2 + 1] = dataType;
 				map[i * 2] = dataType == -1 ? -1 : i;
 			}
 
-			commitMesh(const_cast<Geometry&>(geo), *mesh, map, MeshBuilder::Static);
+			commitMesh(*geo.meshBuilder, *mesh, map, MeshBuilder::Static);
 			delete[] map; map = nullptr;
 		}
 
@@ -434,6 +436,8 @@ void OgreMeshLoader::Impl::commit(Resource& resource)
 
 		meshMat->mesh = mesh;
 		meshMat->effect = new Effect(L"");
+		meshMat->name = geo.name;
+		meshMat->meshBuilder = geo.meshBuilder;	// TODO: Parse args to decide conserve mesh builder or not.
 
 		// Use the default white material if none can load
 		if(!geo.material)

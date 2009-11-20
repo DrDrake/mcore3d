@@ -14,9 +14,9 @@ class MCD_COMPONENT_API EntityPrototypeLoader : public IResourceLoader, private 
 {
 public:
 	/*!	Constructor, take a ResourceManager as an optional parameter.
-		Since the 3ds model may reference some texture files, therefore it needs
-		a resource manager in order to load the textures. If null pointer is supplied
-		as the manager,
+		Since the mesh file may reference some texture/material files, therefore it
+		needs a resource manager in order to load them. If null pointer is supplied,
+		no texture/material will be loaded.
 	 */
 	explicit EntityPrototypeLoader(sal_maybenull IResourceManager* resourceManager = nullptr);
 
