@@ -101,6 +101,9 @@ Launcher::~Launcher()
 
 	if(mTakeResourceManagerOwnership)
 		delete mResourceManager;
+
+	if(mDbgContext)
+		sq_rdbg_shutdown(HSQREMOTEDBG(mDbgContext));
 }
 
 // TODO: Separate the wait connection from this function, such that the client will
