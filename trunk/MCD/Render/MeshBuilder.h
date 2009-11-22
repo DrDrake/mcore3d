@@ -17,32 +17,27 @@ namespace MCD {
 
 	Example:
 	\code
-	// Declare an vertex with position, normal and uv within a buffer, and
-	// bond weight, bond indice in another buffer
-	MeshBuilder2 builder;
-	int posId = builder.declareAttribute(sizeof(float)*3, 1);
-	int normalId = builder.declareAttribute(sizeof(float)*3, 1);
-	int uvId = builder.declareAttribute(sizeof(float)*2, 1);
+	// Get the default semantic map
+	const SemanticMap& map = SemanticMap::getSingleton();
 
-	int weightId = builder.declareAttribute(sizeof(float), 2);
-	int indiceId = builder.declareAttribute(sizeof(int), 2);
+	// Declare an vertex with position, normal and uv2f within a buffer, and
+	// blend weight, blend index in another buffer.
+	MeshBuilder2 builder;
+	int posId = builder.declareAttribute(map.position(), 1);
+	int normalId = builder.declareAttribute(map.normal(), 1);
+	int uvId = builder.declareAttribute(map.uv(0, 2), 1);
+
+	int blendWeightId = builder.declareAttribute(map.blendWeight(), 2);
+	int blendIndexId = builder.declareAttribute(map.blendIndex(), 2);
 
 	// Make 1000 of those declared vertex, and 2000 index.
-	builder.reserveVertex(1000);
-	builder.reserveIndex(2000);
+	if(!resizeBuffers(1000, 2000)) return false;
 
 	// Acquire the buffer pointer and fill up the data yourself.
-	size_t stride1, totalSizeInByte1;
-	char* buf1 = builder.getAttributePointer(posId, &stride1, &totalSizeInByte1);
-
-	size_t stride2, totalSizeInByte2;
-	char* buf2 = builder.getAttributePointer(weightId, &stride2, &totalSizeInByte2);
-
-	// Get the index buffer.
-	const size_t indexCount = builder.indexCount();
-	uint16_t* idxPtr = (uint16_t*)builder.getAttributePointer(0);
-
-	// Fill up the data ...
+	ArrayWrapper<uint16_t> posArray = builder.getAttributeAs<uint16_t>(0);
+	ArrayWrapper<Vec3f> posArray = builder.getAttributeAs<Vec3f>(posId);
+	ArrayWrapper<Vec3f> normalArray = builder.getAttributeAs<Vec3f>(normalId);
+	// ...
 	\endcode
  */
 class MCD_RENDER_API MeshBuilder2 : public IntrusiveSharedObject<AtomicInteger>, private Noncopyable
@@ -62,13 +57,14 @@ public:
 
 // Operations
 	/*!	Call this function to declare the vertex attributes you want.
-		\param sizeInBytes
-			The size in bytes of the attribute.
+		\param semantic
+			The semantic for this attribute. You can get some preset semantics using SemanticMap::getSingleton().
 		\param bufferId
 			Feed this param with different value if you want to group different attributes into set of buffers.
 			The value zero is reserved for index buffer, otherwise you can supply successive values 1,2,3,etc...
 		\return The attribute ID for future reference, -1 if any error occured.
-		\note The behaviour is undefined if declareAttribute() is invoked after some data is written to the buffer.
+
+		\note You can invoke declareAttribute() even when there are datas already in the buffers.
 	 */
 	int declareAttribute(const Semantic& semantic, size_t bufferId=1);
 
@@ -84,8 +80,6 @@ public:
 	void clearBuffers();
 
 // Query
-//	int getAttribute(int attributeId, size_t& sizeInBytes);
-
 	/*! Number of attribtues defined.
 		\note The vertex index is also accounted as an attribute.
 	 */
@@ -105,7 +99,7 @@ public:
 		\param attributedId
 			The ID returned from declareAttribute(), or 0 for index buffer
 		\param count
-			The number of attributes in the buffer.
+			The number of attributes in the buffer, may equal to indexCount() or vertexCount().
 		\param stride
 			The byte offset between consecutive vertex attributes, which is equal to the size of a vertex.
 			Note that stride will not be zero even the data are tightly packed.
