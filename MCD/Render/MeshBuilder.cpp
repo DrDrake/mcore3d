@@ -73,26 +73,42 @@ MeshBuilder2::~MeshBuilder2()
 int MeshBuilder2::declareAttribute(const Semantic& semantic, size_t bufferId)
 {
 	// bufferId = 0 is reserved for index buffer
-	if(semantic.elementSize == 0 || bufferId == 0)
+	if(semantic.elementCount * semantic.elementSize == 0 || bufferId == 0)
 		return -1;
 
-	uint16_t currentVertexCount = vertexCount();
+	if(semantic.name == nullptr || ::strlen(semantic.name) == 0)
+		return -1;
 
 	// Create new buffer to match the bufferId param
 	while(bufferId >= mImpl.buffers.size())
 		mImpl.buffers.push_back(new Impl::Buffer);
 
-	if(semantic.name == nullptr || ::strlen(semantic.name) == 0)
-		return -1;
-
 	const size_t sizeInBytes = semantic.elementCount * semantic.elementSize;
 	Impl::Attribute a = { mImpl.buffers[bufferId].elementSize, bufferId, semantic };
 	mImpl.attributes.push_back(a);
 
-	mImpl.buffers[bufferId].elementSize += sizeInBytes;
+	Impl::Buffer& buf = mImpl.buffers[bufferId];
 
-	if(!resizeBuffers(currentVertexCount, indexCount()))
-		return -1;
+	{	// Resize the buffer for the new attribute
+		size_t oldSize = buf.size();
+		size_t newSize = (buf.elementSize + sizeInBytes) * vertexCount();
+		buf.resize(newSize);
+
+		// Rearrange the interleaved content (if any)
+		if(oldSize != 0) {
+			const size_t oldEleSize = buf.elementSize;
+			const size_t newEleSize = oldEleSize + sizeInBytes;
+
+			// We loop form end to begin
+			for(size_t i=mImpl.vertexCount; i--;) {
+				const char* const src = &buf[i*oldEleSize];
+				char* const dest = &buf[i*newEleSize];
+				::memcpy(dest, src, oldEleSize);
+			}
+		}
+	}
+
+	buf.elementSize += sizeInBytes;
 
 	return mImpl.attributes.size() - 1;
 }

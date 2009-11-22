@@ -16,7 +16,7 @@ const MeshBuilder2::Semantic blendWeightSemantic =	{ "blendWeight", sizeof(float
 
 }	// namespace
 
-TEST(A_MeshBuilderTest)
+TEST(MeshBuilderTest)
 {
 	{	// Simple create and destroy a mesh builder
 		MeshBuilder2 builder;
@@ -109,7 +109,34 @@ TEST(A_MeshBuilderTest)
 	}
 }
 
-TEST(A_MeshBuilderIMTest)
+TEST(MeshBuilderLateDeclareTest)
+{
+	MeshBuilderIM builder;
+
+	int posId = builder.declareAttribute(positionSemantic, 1);
+	int normalId = builder.declareAttribute(normalSemantic, 1);
+
+	// Adds 2 vertex with 2 attribute first
+	const Vec3f pos(1, 2, 3);
+	builder.vertexAttribute(posId, &pos);
+
+	const Vec3f normal(1, 0, 0);
+	builder.vertexAttribute(normalId, &normal);
+
+	builder.addVertex();
+	builder.addVertex();
+
+	// Then add another attribute declaration
+	builder.declareAttribute(uvSemantic, 1);
+
+	CHECK(builder.getAttributeAs<Vec3f>(posId)[0].isNearEqual(pos));
+	CHECK(builder.getAttributeAs<Vec3f>(normalId)[0].isNearEqual(normal));
+
+	CHECK(builder.getAttributeAs<Vec3f>(posId)[1].isNearEqual(pos));
+	CHECK(builder.getAttributeAs<Vec3f>(normalId)[1].isNearEqual(normal));
+}
+
+TEST(MeshBuilderIMTest)
 {
 	{	// Simple create and destroy a mesh builder
 		MeshBuilderIM builder;
