@@ -14,8 +14,8 @@
 
 using namespace MCD;
 
-typedef ArrayWrapper<uint16_t> IndexArray;
-typedef ArrayWrapper<Vec3f> Vec3fArray;
+typedef StrideArray<uint16_t> IndexArray;
+typedef StrideArray<Vec3f> Vec3fArray;
 
 CollisionShape::CollisionShape()
 	: shapeImpl(nullptr)

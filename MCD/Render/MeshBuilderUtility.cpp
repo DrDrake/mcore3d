@@ -32,9 +32,9 @@ void MeshBuilderUtility::computNormal(MeshBuilder2& builder, size_t whichBufferI
 	const size_t indexCount = builder.indexCount();
 	const size_t vertexCount = builder.vertexCount();
 
-	const ArrayWrapper<uint16_t> index = builder.getAttributeAs<uint16_t>(builder.findAttributeId(map.index().name));
-	const ArrayWrapper<Vec3f> vertex = builder.getAttributeAs<Vec3f>(builder.findAttributeId(map.position().name));
-	ArrayWrapper<Vec3f> normal = builder.getAttributeAs<Vec3f>(builder.findAttributeId(map.normal().name));
+	const StrideArray<uint16_t> index = builder.getAttributeAs<uint16_t>(builder.findAttributeId(map.index().name));
+	const StrideArray<Vec3f> vertex = builder.getAttributeAs<Vec3f>(builder.findAttributeId(map.position().name));
+	StrideArray<Vec3f> normal = builder.getAttributeAs<Vec3f>(builder.findAttributeId(map.normal().name));
 
 	// Initialize the normal to zero first
 	for(size_t i=0; i<vertexCount; ++i)

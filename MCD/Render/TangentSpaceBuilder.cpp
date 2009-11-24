@@ -65,9 +65,9 @@ void computeTangentBasis(
 	}
 }
 
-typedef ArrayWrapper<uint16_t> IndexArray;
-typedef ArrayWrapper<Vec2f> Vec2fArray;
-typedef ArrayWrapper<Vec3f> Vec3fArray;
+typedef StrideArray<uint16_t> IndexArray;
+typedef StrideArray<Vec2f> Vec2fArray;
+typedef StrideArray<Vec3f> Vec3fArray;
 
 void compute(
 	const IndexArray& indexBuf, const Vec3fArray& posBuf,

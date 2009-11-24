@@ -34,9 +34,9 @@ namespace MCD {
 	if(!resizeBuffers(1000, 2000)) return false;
 
 	// Acquire the buffer pointer and fill up the data yourself.
-	ArrayWrapper<uint16_t> indexArray = builder.getAttributeAs<uint16_t>(0);
-	ArrayWrapper<Vec3f> posArray = builder.getAttributeAs<Vec3f>(posId);
-	ArrayWrapper<Vec3f> normalArray = builder.getAttributeAs<Vec3f>(normalId);
+	StrideArray<uint16_t> indexArray = builder.getAttributeAs<uint16_t>(0);
+	StrideArray<Vec3f> posArray = builder.getAttributeAs<Vec3f>(posId);
+	StrideArray<Vec3f> normalArray = builder.getAttributeAs<Vec3f>(normalId);
 	// ...
 	\endcode
  */
@@ -124,21 +124,21 @@ public:
 		sal_out_opt Semantic* semantic=nullptr
 	) const;
 
-	/*!	Returns the required attribute as a ArrayWrapper with the correct stride.
+	/*!	Returns the required attribute as a StrideArray with the correct stride.
 		Returns an ArrayWrpper of null if error occurred.
 	 */
-	template<typename T> ArrayWrapper<T> getAttributeAs(int attributeId)
+	template<typename T> StrideArray<T> getAttributeAs(int attributeId)
 	{
 		size_t count, stride;
 		Semantic semantic;
 		char* p = getAttributePointer(attributeId, &count, &stride, &semantic);
 		if(sizeof(T) == semantic.elementCount * semantic.elementSize)
-			return ArrayWrapper<T>(p, count, stride);
+			return StrideArray<T>(p, count, stride);
 		MCD_ASSERT(false);
-		return ArrayWrapper<T>(nullptr, 0, 0);
+		return StrideArray<T>(nullptr, 0, 0);
 	}
 
-	template<typename T> const ArrayWrapper<T> getAttributeAs(int attributeId) const
+	template<typename T> const StrideArray<T> getAttributeAs(int attributeId) const
 	{
 		return const_cast<MeshBuilder2*>(this)->getAttributeAs(attributeId);
 	}

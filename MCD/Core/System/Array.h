@@ -95,10 +95,10 @@ private:
 	vertex buffer.
  */
 template<typename T>
-class ArrayWrapper
+class StrideArray
 {
 public:
-	ArrayWrapper(void* _data, size_t elementCount, size_t _stride=0)
+	StrideArray(void* _data, size_t elementCount, size_t _stride=0)
 		: data((char*)_data), size(elementCount), stride(_stride == 0 ? sizeof(T) : _stride)
 	{}
 
@@ -117,7 +117,32 @@ public:
 	char* data;
 	size_t size;
 	size_t stride;
-};	// ArrayWrapper
+};	// StrideArray
+
+//!	Specialization of StrideArray which give more room for the compiler to do optimization.
+template<typename T, size_t stride=sizeof(T)>
+class FixStrideArray
+{
+public:
+	FixStrideArray(void* _data, size_t elementCount)
+		: data((char*)_data), size(elementCount)
+	{}
+
+	T& operator[](size_t i)
+	{
+		MCD_ASSUME(i < size);
+		return *reinterpret_cast<T*>(data + i*stride);
+	}
+
+	const T& operator[](size_t i) const
+	{
+		MCD_ASSUME(i < size);
+		return *reinterpret_cast<T*>(data + i*stride);
+	}
+
+	char* data;
+	size_t size;
+};	// FixStrideArray
 
 }	// namespace MCD
 

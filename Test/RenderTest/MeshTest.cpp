@@ -196,7 +196,7 @@ TEST(MeshBuilderIMTest)
 			const Vec3f pos(1.23f + i);
 			size_t stride;
 			char* posPtr = builder.getAttributePointer(posId, nullptr, &stride);
-			ArrayWrapper<Vec3f> a(posPtr, builder.vertexCount(), stride);
+			StrideArray<Vec3f> a(posPtr, builder.vertexCount(), stride);
 			CHECK(a[i].isNearEqual(pos));
 		}
 	}
