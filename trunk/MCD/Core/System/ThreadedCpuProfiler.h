@@ -4,6 +4,7 @@
 #include "CallstackProfiler.h"
 #include "Mutex.h"
 #include "Timer.h"
+#include <string>
 
 namespace MCD {
 

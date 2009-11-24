@@ -288,6 +288,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\MeshBuilderUtility.h"
+				>
+			</File>
+			<File
 				RelativePath=".\Model.h"
 				>
 			</File>
@@ -462,6 +466,10 @@
 			</File>
 			<File
 				RelativePath=".\Model.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\MeshBuilderUtility.cpp"
 				>
 			</File>
 			<File
