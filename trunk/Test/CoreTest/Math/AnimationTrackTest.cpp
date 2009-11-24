@@ -55,3 +55,40 @@ TEST(Slerp_AnimationTrackTest)
 	CHECK(v.isNearEqual(Vec3f::c010));
 	CHECK_CLOSE(Mathf::cPi() * 3/4, angle, 1e-6);
 }
+
+#include "../../../MCD/Core/System/Timer.h"
+
+TEST(Performance_AnimationTrackTest)
+{
+	const size_t frameCount = 256;
+	const size_t subtrackCount = 8;
+
+	AnimationTrack track(frameCount, subtrackCount);
+
+	// Making half are Liner, half are Slerp
+	for(size_t i=0; i<track.subtrackCount()/2; ++i)
+		track.subtrackFlags[i] = AnimationTrack::Slerp;
+
+	for(size_t i=0; i<frameCount; ++i)
+		track.keyframeTimes[i] = float(i);
+
+	// Fill with some random floating point data
+	for(size_t i=0; i<subtrackCount; ++i) {
+		AnimationTrack::KeyFrames frames = track.getKeyFramesForSubtrack(i);
+		for(size_t j=0; j<frameCount; ++j)
+			reinterpret_cast<Quaternionf&>(frames[j]) = Vec4f(Mathf::random(), Mathf::random(), Mathf::random(), Mathf::random());
+	}
+
+	{	DeltaTimer timer;
+		const float totalTime = track.totalTime();
+
+		size_t count = 0;
+		for(float t=0; t<totalTime; t+=0.1f, ++count)
+			track.update(t);
+
+		const double timeElasped = timer.getDelta().asSecond();
+		const double attributePerSecond = double(subtrackCount) * count / timeElasped;
+		(void)attributePerSecond;
+//		std::cout << attributePerSecond;
+	}
+}

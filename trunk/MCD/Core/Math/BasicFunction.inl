@@ -4,7 +4,7 @@ template<typename Real>
 Real Math<Real>::sinZeroHalfPI(Real x)
 {
 	// From ID software, "Slerping Clock Cycles"
-	MCD_ASSUME(x > 0 && x < cPiOver2());
+	MCD_ASSUME(x >= 0 && x <= cPiOver2());
 	const Real s = x * x;
 	Real t = Real(-2.39e-08);
 	t *= s;

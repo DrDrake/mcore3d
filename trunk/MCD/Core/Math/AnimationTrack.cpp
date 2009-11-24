@@ -65,22 +65,22 @@ void AnimationTrack::update(float currentTime)
 		currentTime = Mathf::clamp(currentTime, currentTime, totalTime());
 
 	// Phase 2: for each track, find t_current and t_pervious
-	// update track->t_current and track->t_pervious
 	int curr = -1;
 
 	// For most cases the parameter currentTime is increasing, so as an optimization
 	// we start the search from the cached frame index.
-	for(size_t i=frame1Idx; i < keyframeCount(); ++i)
+	for(size_t i=frame2Idx; i < keyframeCount(); ++i)
 		if(keyframeTimes[i] >= currentTime) { curr = i; break; }
 
 	// If none is found, start the search from the beginning.
-	if(curr == -1) for(size_t i=0; i < frame1Idx; ++i)
-		if(keyframeTimes[i] >= currentTime) { curr = i; break; }
+	if(curr == int(keyframeCount() - 1))
+		for(size_t i=0; i < frame2Idx; ++i)
+			if(keyframeTimes[i] >= currentTime) { curr = i; break; }
 
 	MCD_ASSERT(curr != -1);
 
-	frame2Idx = size_t(curr);
-	frame1Idx = (frame2Idx == 0) ? keyframeCount() - 1 : frame2Idx - 1;
+	frame2Idx = (curr == 0) ? 1 : size_t(curr);
+	frame1Idx = frame2Idx - 1;
 
 	// Phase 3: compute the weight between the frame1Idx and frame2Idx for each track
 	const float t1 = keyframeTimes[frame1Idx];
