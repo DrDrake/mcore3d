@@ -66,6 +66,12 @@ public:
 		sinResult = sin(theta);	cosResult = cos(theta);
 	}
 
+	//! A fast version of sin() given that x is in the range 0 to Pi/2.
+	static Real sinZeroHalfPI(Real x);
+
+	//! A fast version of atan() given that x and y are positive.
+	static Real aTanPositive(Real y, Real x);
+
 	/*!	Arc-sine function.
 		Clamp the input to [-1, 1]
 	 */
@@ -101,10 +107,8 @@ public:
 		return value;
 	}
 
-	/*! Generate a random number within the range (0..1)
-	 */
-	static Real random()
-	{
+	//! Generate a random number within the range (0..1)
+	static Real random() {
 		return (Real)rand() / (Real)RAND_MAX;
 	}
 
@@ -129,5 +133,7 @@ static inline bool isPowerOf2(int v) {
 }
 
 }	// namespace MCD
+
+#include "BasicFunction.inl"
 
 #endif	// __MCD_CORE_MATH_BASICFUNCTION__

@@ -540,7 +540,15 @@
 				Name="Header Files"
 				>
 				<File
+					RelativePath=".\Math\AnimationTrack.h"
+					>
+				</File>
+				<File
 					RelativePath=".\Math\BasicFunction.h"
+					>
+				</File>
+				<File
+					RelativePath=".\Math\BasicFunction.inl"
 					>
 				</File>
 				<File
@@ -619,6 +627,10 @@
 			<Filter
 				Name="Source Files"
 				>
+				<File
+					RelativePath=".\Math\AnimationTrack.cpp"
+					>
+				</File>
 				<File
 					RelativePath=".\Math\Intersection.cpp"
 					>

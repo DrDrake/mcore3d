@@ -305,6 +305,10 @@
 			Name="Math"
 			>
 			<File
+				RelativePath=".\Math\AnimationTrackTest.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\Math\IntersectionTest.cpp"
 				>
 			</File>
@@ -350,6 +354,10 @@
 			>
 		</File>
 		<File
+			RelativePath="..\..\MCD\Core\Pch.cpp"
+			>
+		</File>
+		<File
 			RelativePath=".\Pch.cpp"
 			>
 			<FileConfiguration
@@ -376,10 +384,6 @@
 					UsePrecompiledHeader="1"
 				/>
 			</FileConfiguration>
-		</File>
-		<File
-			RelativePath="..\..\MCD\Core\Pch.cpp"
-			>
 		</File>
 		<File
 			RelativePath=".\Pch.h"
