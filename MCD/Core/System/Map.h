@@ -4,10 +4,7 @@
 #include "../ShareLib.h"
 #include "NonCopyable.h"
 #include "TypeTrait.h"	// For ParamType
-
-#ifdef __CPP_TEST__
-#	include <string>
-#endif
+#include <string>
 
 namespace MCD {
 

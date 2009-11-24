@@ -17,7 +17,10 @@
 #	define _WIN32_WINNT 0x0501	// We support Windows Server 2003, Windows XP or above (note that Windows 2000 is not supported because of IOCP).
 #endif
 
-#define NOMINMAX
+#ifndef NOMINMAX
+#	define NOMINMAX
+#endif
+
 #define UNICODE
 #define _UNICODE
 #include <windows.h>

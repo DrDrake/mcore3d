@@ -3,6 +3,7 @@
 
 #include "CallstackProfiler.h"
 #include "Timer.h"
+#include <string>
 
 namespace MCD {
 

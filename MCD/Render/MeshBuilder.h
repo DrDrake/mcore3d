@@ -34,7 +34,7 @@ namespace MCD {
 	if(!resizeBuffers(1000, 2000)) return false;
 
 	// Acquire the buffer pointer and fill up the data yourself.
-	ArrayWrapper<uint16_t> posArray = builder.getAttributeAs<uint16_t>(0);
+	ArrayWrapper<uint16_t> indexArray = builder.getAttributeAs<uint16_t>(0);
 	ArrayWrapper<Vec3f> posArray = builder.getAttributeAs<Vec3f>(posId);
 	ArrayWrapper<Vec3f> normalArray = builder.getAttributeAs<Vec3f>(normalId);
 	// ...

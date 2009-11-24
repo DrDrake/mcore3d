@@ -44,12 +44,18 @@
 #endif
 #define _CRT_SECURE_CPP_OVERLOAD_STANDARD_NAMES 1
 // Suppress the 4996 deprecation warning
-#define _CRT_SECURE_NO_DEPRECATE
-#define _CRT_NONSTDC_NO_DEPRECATE
-#define _SCL_SECURE_NO_DEPRECATE
+#ifndef _CRT_SECURE_NO_DEPRECATE
+#	define _CRT_SECURE_NO_DEPRECATE
+#endif
+#ifndef _CRT_NONSTDC_NO_DEPRECATE
+#	define _CRT_NONSTDC_NO_DEPRECATE
+#endif
+#ifndef _SCL_SECURE_NO_DEPRECATE
+#	define _SCL_SECURE_NO_DEPRECATE
+#endif
 
 // Disable secure stl on release build
-#if defined(NDEBUG)
+#if defined(NDEBUG) && !defined(_SECURE_SCL)
 #	define _SECURE_SCL 0
 #endif
 
