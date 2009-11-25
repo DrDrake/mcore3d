@@ -223,6 +223,10 @@
 			Filter="cpp;"
 			>
 			<File
+				RelativePath=".\AnimationComponentTest.cpp"
+				>
+			</File>
+			<File
 				RelativePath="..\RenderTest\BasicGlWindow.cpp"
 				>
 			</File>
