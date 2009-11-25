@@ -7,32 +7,22 @@
 
 namespace MCD {
 
-AnimationTrack::AnimationTrack(size_t keyFrameCnt, size_t subtrackCnt)
-	: keyframes(nullptr, 0)
+AnimationTrack::AnimationTrack(const Path& fileId)
+	: Resource(fileId)
+	, keyframes(nullptr, 0)
 	, keyframeTimes(nullptr, 0)
 	, subtrackFlags(nullptr, 0)
 	, loop(true), frame1Idx(0), frame2Idx(1), ratio(0)
 	, interpolatedResult(nullptr, 0)
 {
-	if(keyFrameCnt < 2) keyFrameCnt = 2;
-	if(subtrackCnt < 1) subtrackCnt = 1;
-
-	MemoryProfiler::Scope scope("AnimationTrack::AnimationTrack");
-	keyframes = KeyFrames(new KeyFrame[keyFrameCnt * subtrackCnt], keyFrameCnt * subtrackCnt);
-	keyframeTimes = FixStrideArray<float>(new float[keyFrameCnt], keyFrameCnt);
-	subtrackFlags = FixStrideArray<Flags>(new Flags[subtrackCnt], subtrackCnt);
-	interpolatedResult = KeyFrames(new KeyFrame[subtrackCnt], subtrackCnt);
-
-	for(size_t i=0; i<subtrackFlags.size; ++i)
-		subtrackFlags[i] = Linear;
 }
 
 AnimationTrack::~AnimationTrack()
 {
-	delete[] &keyframes[0];
-	delete[] &keyframeTimes[0];
-	delete[] &subtrackFlags[0];
-	delete[] &interpolatedResult[0];
+	delete[] keyframes.getPtr();
+	delete[] keyframeTimes.getPtr();
+	delete[] subtrackFlags.getPtr();
+	delete[] interpolatedResult.getPtr();
 }
 
 AnimationTrack::KeyFrames AnimationTrack::getKeyFramesForSubtrack(size_t index)
@@ -56,8 +46,36 @@ float AnimationTrack::currentTime() const
 	return t1 + ratio * (t2 - t1);
 }
 
+bool AnimationTrack::init(size_t keyFrameCnt, size_t subtrackCnt)
+{
+	if(keyFrameCnt < 2 || subtrackCnt < 1)
+		return false;
+
+	if(keyframes.data || keyframeTimes.data || subtrackFlags.data || interpolatedResult.data)
+		return false;
+
+	MemoryProfiler::Scope scope("AnimationTrack::init");
+	keyframes = KeyFrames(new KeyFrame[keyFrameCnt * subtrackCnt], keyFrameCnt * subtrackCnt);
+	keyframeTimes = FixStrideArray<float>(new float[keyFrameCnt], keyFrameCnt);
+	subtrackFlags = FixStrideArray<Flags>(new Flags[subtrackCnt], subtrackCnt);
+	interpolatedResult = KeyFrames(new KeyFrame[subtrackCnt], subtrackCnt);
+
+	::memset(keyframes.data, 0, keyframes.sizeInByte());
+	::memset(keyframeTimes.data, 0, keyframeTimes.sizeInByte());
+	::memset(subtrackFlags.data, 0, subtrackFlags.sizeInByte());
+	::memset(interpolatedResult.data, 0, interpolatedResult.sizeInByte());
+
+	for(size_t i=0; i<subtrackFlags.size; ++i)
+		subtrackFlags[i] = Linear;
+
+	return true;
+}
+
 void AnimationTrack::update(float currentTime)
 {
+	if(keyframeTimes.size < 2)
+		return;
+
 	// Phase 1: find the wrapped version of currentTime
 	if(loop)
 		currentTime = ::fmodf(currentTime, totalTime());
@@ -65,19 +83,10 @@ void AnimationTrack::update(float currentTime)
 		currentTime = Mathf::clamp(currentTime, currentTime, totalTime());
 
 	// Phase 2: for each track, find t_current and t_pervious
-	int curr = -1;
+	size_t curr = keyframeTimes[frame1Idx] < currentTime ? frame1Idx : 0;
 
-	// For most cases the parameter currentTime is increasing, so as an optimization
-	// we start the search from the cached frame index.
-	for(size_t i=frame2Idx; i < keyframeCount(); ++i)
+	for(size_t i=curr; i < keyframeCount(); ++i)
 		if(keyframeTimes[i] >= currentTime) { curr = i; break; }
-
-	// If none is found, start the search from the beginning.
-	if(curr == int(keyframeCount() - 1))
-		for(size_t i=0; i < frame2Idx; ++i)
-			if(keyframeTimes[i] >= currentTime) { curr = i; break; }
-
-	MCD_ASSERT(curr != -1);
 
 	frame2Idx = (curr == 0) ? 1 : size_t(curr);
 	frame1Idx = frame2Idx - 1;

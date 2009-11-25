@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="big5"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <VisualStudioProject
 	ProjectType="Visual C++"
 	Version="9.00"
@@ -218,6 +218,14 @@
 		<Filter
 			Name="Render"
 			>
+			<File
+				RelativePath=".\Render\AnimationComponent.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\Render\AnimationComponent.h"
+				>
+			</File>
 			<File
 				RelativePath=".\Render\CameraComponent.cpp"
 				>

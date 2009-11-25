@@ -540,6 +540,10 @@
 				Name="Header Files"
 				>
 				<File
+					RelativePath=".\Math\AnimationInstance.h"
+					>
+				</File>
+				<File
 					RelativePath=".\Math\AnimationTrack.h"
 					>
 				</File>
@@ -627,6 +631,10 @@
 			<Filter
 				Name="Source Files"
 				>
+				<File
+					RelativePath=".\Math\AnimationInstance.cpp"
+					>
+				</File>
 				<File
 					RelativePath=".\Math\AnimationTrack.cpp"
 					>

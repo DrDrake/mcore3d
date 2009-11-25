@@ -1,34 +1,39 @@
 #ifndef __MCD_CORE_MATH_ANIMATIONTRACK__
 #define __MCD_CORE_MATH_ANIMATIONTRACK__
 
-#include "../ShareLib.h"
 #include "../System/Array.h"
+#include "../System/Resource.h"
 
 namespace MCD {
 
-/*!	
+/*!	A kind of Resource which stores animation data.
+	In most cases user should use AnimationInstance for working with
+	per instance information like current animation time, weight etc.
+
 	Restriction: all sub-track are having the same number of key frame.
 
 	Example:
 	\code
-	AnimationTrack track(2, 1);	// One sub-track with 2 frame
+	AnimationTrackPtr track = new AnimationTrack(L"trackName");
+	track->init(2, 1);	// One sub-track with 2 frame
+
 	// Fill the frame time
-	track.keyframeTimes[0] = 0.0f;
-	track.keyframeTimes[1] = 1.0f;
+	track->keyframeTimes[0] = 0.0f;
+	track->keyframeTimes[1] = 1.0f;
 
 	// Fill the attribute
-	AnimationTrack::KeyFrames frames = track.getKeyFramesForSubtrack(0);
+	AnimationTrack::KeyFrames frames = track->getKeyFramesForSubtrack(0);
 	reinterpret_cast<Vec4f&>(frames[0]) = Vec4f(1);
 	reinterpret_cast<Vec4f&>(frames[1]) = Vec4f(2);
 
 	// For each frame:
-	track.update(currentAnimationTime);
+	track->update(currentAnimationTime);
 
 	// Get the interpolated attributes and do what ever you need.
-	const Vec4f& pos = reinterpret_cast<const Vec4f&>(track.interpolatedResult[0]);
+	const Vec4f& pos = reinterpret_cast<const Vec4f&>(track->interpolatedResult[0]);
 	\endcode
  */
-class MCD_CORE_API AnimationTrack
+class MCD_CORE_API AnimationTrack : public Resource
 {
 public:
 	enum Flags
@@ -45,11 +50,11 @@ public:
 
 	typedef FixStrideArray<KeyFrame> KeyFrames;
 
-	AnimationTrack(size_t keyFrameCnt, size_t subtrackCnt);
-
-	~AnimationTrack();
+	explicit AnimationTrack(const Path& fileId);
 
 // Operations
+	sal_checkreturn bool init(size_t keyFrameCnt, size_t subtrackCnt);
+
 	/*!	Set the track's time to a specific value, and cache the interpolated result,
 		this result can be retrived using \em interpolatedResult.
 	 */
@@ -106,7 +111,12 @@ public:
 	size_t frame2Idx;	//!< Index to keyframeTimes that just after the current time.
 	float ratio;		//!< The ratio between frame1Idx and frame2Idx that define the current time.
 	KeyFrames interpolatedResult;
+
+protected:
+	sal_override ~AnimationTrack();
 };	// AnimationTrack
+
+typedef IntrusivePtr<AnimationTrack> AnimationTrackPtr;
 
 }	// namespace MCD
 
