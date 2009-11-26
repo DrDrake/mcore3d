@@ -60,10 +60,33 @@ public:
 	 */
 	void update(float currentTime);
 
+	//!	 The no lock version of update().
+	void updateNoLock(float currentTime);
+
 	/*!	Check that the data has no problem (eg key time not in ascending order).
 		\return False if something wrong.
 	 */
 	sal_checkreturn bool checkValid() const;
+
+	void acquireReadLock();
+
+	void releaseReadLock();
+
+	/*!	Since there will be a seperated thread for animation update, me must
+		try to acquire a mutex lock before we can modify the data in AnimationTrack.
+		After the write lock is acquired, isCommitted() will return false.
+	 */
+	void acquireWriteLock();
+
+	/*!	The paired function with acquireLock().
+		After the write lock is released, isCommitted() will return true.
+	 */
+	void releaseWriteLock();
+
+	/*!	Returns true after the wirte lock is released.
+		Returns false if the write lock is never acquired.
+	 */
+	sal_checkreturn bool isCommitted() const;
 
 // Attributes
 	/*!	Number of keyframes for each sub-track.
@@ -106,12 +129,6 @@ public:
 	//! Whether the current time will wrap over if it's larger than totalTime().
 	bool loop;
 
-	/*!	A boolean variable to indicate all the data are ready, meaning animation thread
-		can safely READ the data.
-		If modifing the animation data is needed, set this flag to false first.
-	 */
-	bool committed;
-
 	// Cached variables, updated after calling update()
 	size_t frame1Idx;	//!< Index to keyframeTimes that just before the current time.
 	size_t frame2Idx;	//!< Index to keyframeTimes that just after the current time.
@@ -120,6 +137,14 @@ public:
 
 protected:
 	sal_override ~AnimationTrack();
+
+	/*!	A boolean variable to indicate all the data are ready, meaning animation thread
+		can safely READ the data.
+		If modifing the animation data is needed, set this flag to false first.
+	 */
+	bool mCommitted;
+
+	Mutex mMutex;
 };	// AnimationTrack
 
 typedef IntrusivePtr<AnimationTrack> AnimationTrackPtr;

@@ -29,10 +29,14 @@ void AnimationInstance::update()
 		if(wt.weight == 0 || !wt.track) continue;
 
 		AnimationTrack& t = *wt.track;
-		t.update(time);
+
+		t.acquireReadLock();
+		t.updateNoLock(time);
 
 		for(size_t i=0; i<t.subtrackCount(); ++i)
 			reinterpret_cast<Vec4f&>(result[i]) += wt.weight * reinterpret_cast<Vec4f&>(t.interpolatedResult[i]);
+
+		t.releaseReadLock();
 	}
 }
 
@@ -104,7 +108,7 @@ bool AnimationInstance::isAllTrackCommited() const
 {
 	ScopeRecursiveLock lock(mMutex);
 	MCD_FOREACH(const WeightedTrack& t, mTracks)
-		if(t.track && !t.track->committed) return false;
+		if(t.track && !t.track->isCommitted()) return false;
 	return true;
 }
 
