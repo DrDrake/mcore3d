@@ -8,7 +8,7 @@ namespace MCD {
 
 /*!	Stores per-instance data where the sharing semantic AnimationTrack didn't has.
 
-	This class is thread-safe in a way that update() and isAllTrackCommited
+	This class is thread-safe in a way that update() and isAllTrackCommited()
 	can run in thread A while all other functions run in thread B.
  */
 class MCD_CORE_API AnimationInstance
@@ -48,7 +48,7 @@ public:
 
 	sal_maybenull const WeightedTrack* getTrack(size_t index) const;
 
-	//! Indicating all tracks data are committed.
+	//! Indicating all tracks data are committed, ie. ready to call update().
 	sal_checkreturn bool isAllTrackCommited() const;
 
 	//! Ok, this simple variable need not to be absolutely thread-safe.

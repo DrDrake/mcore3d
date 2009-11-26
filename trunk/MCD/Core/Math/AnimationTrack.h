@@ -10,27 +10,37 @@ namespace MCD {
 	In most cases user should use AnimationInstance for working with
 	per instance information like current animation time, weight etc.
 
+	For thread safty reasons, all data read and write operations should be enclosed
+	in read lock and write lock respectively.
+
 	Restriction: all sub-track are having the same number of key frame.
 
 	Example:
 	\code
 	AnimationTrackPtr track = new AnimationTrack(L"trackName");
-	track->init(2, 1);	// One sub-track with 2 frame
 
-	// Fill the frame time
-	track->keyframeTimes[0] = 0.0f;
-	track->keyframeTimes[1] = 1.0f;
+	{	track->acquireWriteLock();
+		track->init(2, 1);	// One sub-track with 2 frame
 
-	// Fill the attribute
-	AnimationTrack::KeyFrames frames = track->getKeyFramesForSubtrack(0);
-	reinterpret_cast<Vec4f&>(frames[0]) = Vec4f(1);
-	reinterpret_cast<Vec4f&>(frames[1]) = Vec4f(2);
+		// Fill the frame time
+		track->keyframeTimes[0] = 0.0f;
+		track->keyframeTimes[1] = 1.0f;
+
+		// Fill the attribute
+		AnimationTrack::KeyFrames frames = track->getKeyFramesForSubtrack(0);
+		reinterpret_cast<Vec4f&>(frames[0]) = Vec4f(1);
+		reinterpret_cast<Vec4f&>(frames[1]) = Vec4f(2);
+
+		track->releaseWriteLock();
+	}
 
 	// For each frame:
-	track->update(currentAnimationTime);
+	track->acquireReadLock();
+	track->updateNoLock(currentAnimationTime);
 
 	// Get the interpolated attributes and do what ever you need.
 	const Vec4f& pos = reinterpret_cast<const Vec4f&>(track->interpolatedResult[0]);
+	track->releaseReadLock();
 	\endcode
  */
 class MCD_CORE_API AnimationTrack : public Resource
@@ -53,6 +63,7 @@ public:
 	explicit AnimationTrack(const Path& fileId);
 
 // Operations
+	//!	Can be invoked multiple times.
 	sal_checkreturn bool init(size_t keyFrameCnt, size_t subtrackCnt);
 
 	/*!	Set the track's time to a specific value, and cache the interpolated result,
@@ -83,7 +94,8 @@ public:
 	 */
 	void releaseWriteLock();
 
-	/*!	Returns true after the wirte lock is released.
+	/*!	To indicate that all animation data are ready to use.
+		Returns true after the wirte lock is released.
 		Returns false if the write lock is never acquired.
 	 */
 	sal_checkreturn bool isCommitted() const;

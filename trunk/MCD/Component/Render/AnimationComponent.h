@@ -58,9 +58,7 @@ public:
 	~AnimationThread();
 
 // Operations
-	void start();
-
-	void stop();
+	void pause(bool p);
 
 	void addAnimationComponent(AnimationComponent& ac);
 
