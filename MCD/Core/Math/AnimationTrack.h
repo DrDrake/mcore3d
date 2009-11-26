@@ -106,6 +106,12 @@ public:
 	//! Whether the current time will wrap over if it's larger than totalTime().
 	bool loop;
 
+	/*!	A boolean variable to indicate all the data are ready, meaning animation thread
+		can safely READ the data.
+		If modifing the animation data is needed, set this flag to false first.
+	 */
+	bool committed;
+
 	// Cached variables, updated after calling update()
 	size_t frame1Idx;	//!< Index to keyframeTimes that just before the current time.
 	size_t frame2Idx;	//!< Index to keyframeTimes that just after the current time.

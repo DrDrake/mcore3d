@@ -22,38 +22,7 @@ public:
 		mResourceManager(*createDefaultFileSystem())
 	{
 		const size_t frameCount = 50;
-
-		{	// Manually creat the animation track
-			animationTrack = new AnimationTrack(L"");
-			animationTrack->init(frameCount, 3);
-
-			for(size_t i=0; i<animationTrack->keyframeCount(); ++i)
-				animationTrack->keyframeTimes[i] = float(i);
-
-			// Setup position animation
-			AnimationTrack::KeyFrames frames = animationTrack->getKeyFramesForSubtrack(0);
-			for(size_t i=0; i<frameCount; ++i) {
-				Vec3f position(Mathf::random(), Mathf::random(), Mathf::random());
-				position *= 5;
-				reinterpret_cast<Vec3f&>(frames[i]) = position;
-			}
-			reinterpret_cast<Vec3f&>(frames[frameCount-1]) = reinterpret_cast<Vec3f&>(frames[0]);
-
-			// Setup rotation animation
-			animationTrack->subtrackFlags[1] = AnimationTrack::Slerp;
-			frames = animationTrack->getKeyFramesForSubtrack(1);
-			for(size_t i=0; i<frameCount; ++i)
-				reinterpret_cast<Quaternionf&>(frames[i]) = randomQuaternion();
-			reinterpret_cast<Quaternionf&>(frames[frameCount-1]) = reinterpret_cast<Quaternionf&>(frames[0]);
-
-			// Setup scaling animation
-			frames = animationTrack->getKeyFramesForSubtrack(2);
-			for(size_t i=0; i<frameCount; ++i) {
-				Vec3f scale(Mathf::random() * 2);
-				reinterpret_cast<Vec3f&>(frames[i]) = scale;
-			}
-			reinterpret_cast<Vec3f&>(frames[frameCount-1]) = reinterpret_cast<Vec3f&>(frames[0]);
-		}
+		loadAnimationTrack(frameCount);
 
 		{	// Setup the chamfer box mesh
 			mesh = new Mesh(L"");
@@ -87,7 +56,7 @@ public:
 			c->mesh = mesh;
 		}
 
-		{	AnimationComponent* c = new AnimationComponent;
+		{	AnimationComponent* c = new AnimationComponent(animationThread);
 			e2->addComponent(c);
 			c->animationInstance.addTrack(*animationTrack);
 			c->animationInstance.time = initialAnimationTime;
@@ -115,8 +84,47 @@ public:
 		BehaviourComponent::traverseEntities(&mRootNode);
 	}
 
+	void loadAnimationTrack(size_t frameCount)
+	{
+		// Manually creat the animation track
+		animationTrack = new AnimationTrack(L"");
+		animationTrack->init(frameCount, 3);
+
+		for(size_t i=0; i<animationTrack->keyframeCount(); ++i)
+			animationTrack->keyframeTimes[i] = float(i);
+
+		// Setup position animation
+		AnimationTrack::KeyFrames frames = animationTrack->getKeyFramesForSubtrack(0);
+		for(size_t i=0; i<frameCount; ++i) {
+			Vec3f position(Mathf::random(), Mathf::random(), Mathf::random());
+			position *= 5;
+			reinterpret_cast<Vec3f&>(frames[i]) = position;
+		}
+		reinterpret_cast<Vec3f&>(frames[frameCount-1]) = reinterpret_cast<Vec3f&>(frames[0]);
+
+		// Setup rotation animation
+		animationTrack->subtrackFlags[1] = AnimationTrack::Slerp;
+		frames = animationTrack->getKeyFramesForSubtrack(1);
+		for(size_t i=0; i<frameCount; ++i)
+			reinterpret_cast<Quaternionf&>(frames[i]) = randomQuaternion();
+		reinterpret_cast<Quaternionf&>(frames[frameCount-1]) = reinterpret_cast<Quaternionf&>(frames[0]);
+
+		// Setup scaling animation
+		frames = animationTrack->getKeyFramesForSubtrack(2);
+		for(size_t i=0; i<frameCount; ++i) {
+			Vec3f scale(Mathf::random() * 2);
+			reinterpret_cast<Vec3f&>(frames[i]) = scale;
+		}
+		reinterpret_cast<Vec3f&>(frames[frameCount-1]) = reinterpret_cast<Vec3f&>(frames[0]);
+
+		animationTrack->committed = true;
+	}
+
+	// The animation thread must destroy after mRootNode.
+	AnimationThread animationThread;
 	Entity mRootNode;
 	MeshPtr mesh;
+	Timer mTimer;	// Simulate a reload of the AnimationTrack every few seconds.
 	AnimationTrackPtr animationTrack;
 	DefaultResourceManager mResourceManager;
 };	// TestWindow
