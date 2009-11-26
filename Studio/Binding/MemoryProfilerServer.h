@@ -1,12 +1,11 @@
 #pragma once
 
 #include "../../MCD/Core/System/MemoryProfiler.h"
+#include "../../MCD/Core/System/ThreadedCpuProfiler.h"
 #undef nullptr
 
 namespace Binding {
 
-/*!	A place for everyone to access
- */
 public ref class MemoryProfilerServer
 {
 public:
@@ -24,5 +23,23 @@ protected:
 
 	MCD::MemoryProfilerServer* mImpl;
 };	// MemoryProfilerServer
+
+public ref class CpuProfilerServer
+{
+public:
+	CpuProfilerServer();
+
+	bool listern(uint16_t port);
+
+	bool accept();
+
+	void update();
+
+protected:
+	~CpuProfilerServer();
+	!CpuProfilerServer();
+
+	MCD::ThreadedCpuProfilerServer* mImpl;
+};	// CpuProfilerServer
 
 }	// namespace Binding

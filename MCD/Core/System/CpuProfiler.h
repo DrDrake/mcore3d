@@ -46,6 +46,19 @@ class MCD_CORE_API CpuProfiler : public CallstackProfiler
 public:
 	CpuProfiler();
 
+	//! Handly class for scope profilinig
+	class Scope : MCD::Noncopyable
+	{
+	public:
+		Scope(const char name[]) {
+			CpuProfiler::singleton().begin(name);
+		}
+
+		~Scope() {
+			CpuProfiler::singleton().end();
+		}
+	};	// Scope
+
 	static CpuProfiler& singleton();
 
 // Operations

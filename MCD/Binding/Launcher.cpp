@@ -13,6 +13,7 @@
 #include "../Core/System/MemoryProfiler.h"
 #include "../Core/System/Resource.h"
 #include "../Core/System/ResourceLoader.h"
+#include "../Core/System/ThreadedCpuProfiler.h"
 #include "../Render/ResourceLoaderFactory.h"
 #include "../../3Party/jkbind/Declarator.h"
 
@@ -241,7 +242,8 @@ Entity* Launcher::loadEntity(const wchar_t* filePath, bool createCollisionMesh)
 
 void Launcher::update()
 {
-	MemoryProfiler::Scope profiler("Launcher::update");
+	MemoryProfiler::Scope memProfiler("Launcher::update");
+	ThreadedCpuProfiler::Scope cpuProfiler("Launcher::update");
 
 	HSQREMOTEDBG rdbg = reinterpret_cast<HSQREMOTEDBG>(mDbgContext);
 	if(rdbg)

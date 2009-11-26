@@ -51,6 +51,19 @@ class MCD_CORE_API ThreadedCpuProfiler : public CallstackProfiler
 	sal_override ~ThreadedCpuProfiler();
 
 public:
+		//! Handly class for scope profilinig
+	class Scope : MCD::Noncopyable
+	{
+	public:
+		Scope(const char name[]) {
+			ThreadedCpuProfiler::singleton().begin(name);
+		}
+
+		~Scope() {
+			ThreadedCpuProfiler::singleton().end();
+		}
+	};	// Scope
+
 	static ThreadedCpuProfiler& singleton();
 
 // Operations
@@ -90,6 +103,28 @@ protected:
 	struct TlsList;
 	TlsList* mTlsList;
 };	// ThreadedCpuProfiler
+
+//! A TCP server for enabling external statistic report.
+class MCD_CORE_API ThreadedCpuProfilerServer
+{
+public:
+	ThreadedCpuProfilerServer();
+
+	~ThreadedCpuProfilerServer();
+
+	bool listern(uint16_t port);
+
+	bool accept();
+
+	/*!	Flush the report to the client (if connected) and reset the statistic.
+		This function is supposed to be called every 0.5 to few seconds.
+	 */
+	void update();
+
+protected:
+	class Impl;
+	Impl& mImpl;
+};	// ThreadedCpuProfilerServer
 
 }	// namespace MCD
 

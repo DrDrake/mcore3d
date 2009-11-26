@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.IO;
@@ -9,9 +9,9 @@ using Aga.Controls.Tree;
 
 namespace Studio
 {
-	public partial class MemoryProfilerWindow : DockContent
+	public partial class CpuProfilerWindow : DockContent
 	{
-		public MemoryProfilerWindow()
+		public CpuProfilerWindow()
 		{
 			InitializeComponent();
 
@@ -23,8 +23,8 @@ namespace Studio
 			mStringList = new List<string>();
 
 			treeViewAdv1.Model = new TreeModel();
-			mMemoryProfilerServer = new Binding.MemoryProfilerServer();
-			mMemoryProfilerServer.listern(5000);
+			mMemoryProfilerServer = new Binding.CpuProfilerServer();
+			mMemoryProfilerServer.listern(5001);
 
 			// All setup finished, we can start the timer.
 			timer1.Enabled = true;
@@ -93,9 +93,9 @@ namespace Studio
 		/// </summary>
 		private string mReportString;
 		private List<string> mStringList;
-		private MemCallstackNode mRootNode;
+		private CpuCallstackNode mRootNode;
 
-		private Binding.MemoryProfilerServer mMemoryProfilerServer;
+		private Binding.CpuProfilerServer mMemoryProfilerServer;
 
 		/// <summary>
 		/// If I can call RunWorkerAsync() in RunWorkerCompleted(), I do not need this timer
@@ -127,10 +127,10 @@ namespace Studio
 				string lastLine = "";
 
 				if (mRootNode == null)
-					mRootNode = new MemCallstackNode();
+					mRootNode = new CpuCallstackNode();
 
-				MemCallstackNode node = null;
-				MemCallstackNode previousNode = null;	// Back up the node of last iteration, for detecting dead nodes.
+				CpuCallstackNode node = null;
+				CpuCallstackNode previousNode = null;	// Back up the node of last iteration, for detecting dead nodes.
 
 				// Parse the incomming string message and build a corresponding callstack tree.
 				while (true)
@@ -165,12 +165,12 @@ namespace Studio
 								// NOTE: node.Level - node.Parent.Level may not simply equals to 1
 								j -= (node.Level - node.Parent.Level);
 
-								node = node.Parent as MemCallstackNode;
+								node = node.Parent as CpuCallstackNode;
 							}
 
 							// Search for existing node with the same name
-							MemCallstackNode searchNode = null;
-							foreach (MemCallstackNode n in node.Nodes)
+							CpuCallstackNode searchNode = null;
+							foreach (CpuCallstackNode n in node.Nodes)
 							{
 								if (n.Id == id)
 								{
@@ -182,7 +182,7 @@ namespace Studio
 							// Create a new node if none has found
 							if (searchNode == null)
 							{
-								searchNode = new MemCallstackNode();
+								searchNode = new CpuCallstackNode();
 								searchNode.Parent = node;
 							}
 
@@ -200,12 +200,10 @@ namespace Studio
 						node.Level = level;
 						node.Id = tokens[1];
 						node.Name = tokens[2];
-						node.TCount = Int32.TryParse(tokens[3], out node.TCount) ? node.TCount : -1;
-						node.SCount = Int32.TryParse(tokens[4], out node.SCount) ? node.SCount : -1;
-						node.TkBytes = Double.Parse(tokens[5]);
-						node.SkBytes = Double.Parse(tokens[6]);
-						node.SCountPerFrame = Double.TryParse(tokens[7], out node.SCountPerFrame) ? node.SCountPerFrame : -1;
-						node.CallPerFrame = Double.TryParse(tokens[8], out node.CallPerFrame) ? node.CallPerFrame : -1;
+						node.TTime = Double.TryParse(tokens[3], out node.TTime) ? node.TTime : 0;
+						node.STime = Double.TryParse(tokens[4], out node.STime) ? node.STime : 0;
+						node.TTimePerCall = Double.TryParse(tokens[5], out node.TTimePerCall) ? node.TTimePerCall : 0;
+						node.CallPerFrame = Double.TryParse(tokens[6], out node.CallPerFrame) ? node.CallPerFrame : 0;
 					}
 
 					lastLine = s;
@@ -248,45 +246,21 @@ namespace Studio
 		}
 	}
 
-	class MemCallstackNode : Aga.Controls.Tree.Node
+	class CpuCallstackNode : Aga.Controls.Tree.Node
 	{
 		public int Level;
 		public string Id;
 		public string Name;
-		public int TCount;
-		public int SCount;
-		public double TkBytes;
-		public double SkBytes;
-		public double SCountPerFrame;
+		public double TTime;
+		public double STime;
+		public double TTimePerCall;
 		public double CallPerFrame;
 
-		/// <summary>
-		/// Rounded TkBytes to the nearest integer, and display as "<1" if TkBytes is less than 1 but not zero
-		/// </summary>
-		public string TkBytesAsString
+		public new CpuCallstackNode Parent
 		{
 			get
 			{
-				return (TkBytes < 1 && TkBytes > 0) ? "< 1" : Math.Round(TkBytes).ToString();
-			}
-		}
-
-		/// <summary>
-		/// Rounded SkBytes to the nearest integer, and display as "<1" if SkBytes is less than 1 but not zero
-		/// </summary>
-		public string SkBytesAsString
-		{
-			get
-			{
-				return (SkBytes < 1 && SkBytes > 0) ? "< 1" : Math.Round(SkBytes).ToString();
-			}
-		}
-
-		public new MemCallstackNode Parent
-		{
-			get
-			{
-				return base.Parent as MemCallstackNode;
+				return base.Parent as CpuCallstackNode;
 			}
 
 			set
@@ -302,7 +276,7 @@ namespace Studio
 			}
 		}
 
-		public MemCallstackNode MyPreviousNode
+		public CpuCallstackNode MyPreviousNode
 		{
 			get
 			{
@@ -317,7 +291,7 @@ namespace Studio
 			}
 		}
 
-		public MemCallstackNode MyNextNode
+		public CpuCallstackNode MyNextNode
 		{
 			get
 			{
@@ -326,7 +300,7 @@ namespace Studio
 		}
 
 		// These two nodes mantains the linear structure of the comming TCP string protocol.
-		private MemCallstackNode mMyPrevious;
-		private MemCallstackNode mMyNext;
+		private CpuCallstackNode mMyPrevious;
+		private CpuCallstackNode mMyNext;
 	}
 }
