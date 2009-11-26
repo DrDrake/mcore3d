@@ -90,14 +90,10 @@ public:
 			Thread::wait();
 	}
 
-	void start()
-	{
-		if(cUseAnimationThread)
-			Thread::start(*this, false);
-	}
-
 	sal_override void run(Thread& thread) throw()
 	{
+		mPaused = false;
+
 		// A local container of animation instance shared pointer to minize mutex lock time
 		typedef std::vector<AnimationInstancePtr> Anims;
 		Anims anims;
@@ -105,6 +101,11 @@ public:
 		// TODO: Clamp the rate of animation update to the framerate.
 		while(Thread::keepRun())
 		{
+			if(mPaused) {
+				mSleep(10);
+				continue;
+			}
+
 			{	ScopeLock lock(mMutex);
 				anims.assign(mAnimationInstances.begin(), mAnimationInstances.end());
 			}
@@ -112,11 +113,12 @@ public:
 			for(Anims::const_iterator i=anims.begin(); i != anims.end(); ++i)
 				(*i)->update();
 
-			mSleep(0);
+			mSleep(1);
 		}
 	}
 
 	Mutex mMutex;
+	bool mPaused;
 
 	typedef AnimationComponent::AnimationInstancePtr AnimationInstancePtr;
 	std::set<AnimationInstancePtr> mAnimationInstances;
@@ -125,7 +127,8 @@ public:
 AnimationThread::AnimationThread()
 	: mImpl(*new Impl)
 {
-	mImpl.start();
+	if(cUseAnimationThread)
+		mImpl.start(mImpl, false);
 }
 
 AnimationThread::~AnimationThread()
@@ -133,13 +136,9 @@ AnimationThread::~AnimationThread()
 	delete &mImpl;
 }
 
-void AnimationThread::start()
+void AnimationThread::pause(bool p)
 {
-	mImpl.start();
-}
-
-void AnimationThread::stop()
-{
+	mImpl.mPaused = p;
 }
 
 void AnimationThread::addAnimationComponent(AnimationComponent& ac)

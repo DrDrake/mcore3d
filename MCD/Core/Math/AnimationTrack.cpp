@@ -27,6 +27,8 @@ AnimationTrack::~AnimationTrack()
 
 AnimationTrack::KeyFrames AnimationTrack::getKeyFramesForSubtrack(size_t index)
 {
+	MCD_ASSERT(mMutex.isLocked());
+
 	if(index < subtrackCount())
 		return KeyFrames(&keyframes[index * keyframeCount()], keyframeCount());
 
@@ -51,6 +53,8 @@ bool AnimationTrack::init(size_t keyFrameCnt, size_t subtrackCnt)
 	if(keyFrameCnt < 2 || subtrackCnt < 1)
 		return false;
 
+	MCD_ASSERT(mMutex.isLocked());
+
 	if(isCommitted())
 		return false;
 
@@ -58,8 +62,6 @@ bool AnimationTrack::init(size_t keyFrameCnt, size_t subtrackCnt)
 	delete[] keyframeTimes.getPtr();
 	delete[] subtrackFlags.getPtr();
 	delete[] interpolatedResult.getPtr();
-//	if(keyframes.data || keyframeTimes.data || subtrackFlags.data || interpolatedResult.data)
-//		return false;
 
 	MemoryProfiler::Scope scope("AnimationTrack::init");
 	keyframes = KeyFrames(new KeyFrame[keyFrameCnt * subtrackCnt], keyFrameCnt * subtrackCnt);
@@ -86,6 +88,8 @@ void AnimationTrack::update(float currentTime)
 
 void AnimationTrack::updateNoLock(float currentTime)
 {
+	MCD_ASSERT(mMutex.isLocked());
+
 	if(keyframeTimes.size < 2 || !mCommitted)
 		return;
 

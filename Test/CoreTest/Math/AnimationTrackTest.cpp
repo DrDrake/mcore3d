@@ -11,25 +11,38 @@ TEST(AnimationTrackTest)
 	}
 
 	{	AnimationTrackPtr track = new AnimationTrack(L"");
+		CHECK(!track->isCommitted());
+
+		track->acquireWriteLock();
+		CHECK(!track->init(1, 1));
+		CHECK(!track->init(2, 0));
 		CHECK(track->init(2, 1));
-		CHECK(!track->init(2, 1));
+		track->releaseWriteLock();
+
+		CHECK(track->isCommitted());
 		CHECK_EQUAL(2u, track->keyframeCount());
 		CHECK_EQUAL(1u, track->subtrackCount());
 	}
 
 	{	AnimationTrackPtr track = new AnimationTrack(L"");
-		CHECK(track->init(2, 1));
+		
+		{	track->acquireWriteLock();
+			CHECK(track->init(3, 1));
+			CHECK(track->init(2, 1));	// init() can be invoked multiple times.
 
-		track->keyframeTimes[0] = 0;
-		track->keyframeTimes[1] = 1;
+			track->keyframeTimes[0] = 0;
+			track->keyframeTimes[1] = 1;
 
-		CHECK(track->checkValid());
-		CHECK_EQUAL(0, track->currentTime());
-		CHECK_EQUAL(AnimationTrack::Linear, track->subtrackFlags[0]);
+			CHECK(track->checkValid());
+			CHECK_EQUAL(0, track->currentTime());
+			CHECK_EQUAL(AnimationTrack::Linear, track->subtrackFlags[0]);
 
-		AnimationTrack::KeyFrames frames = track->getKeyFramesForSubtrack(0);
-		reinterpret_cast<Vec4f&>(frames[0]) = Vec4f(1);
-		reinterpret_cast<Vec4f&>(frames[1]) = Vec4f(2);
+			AnimationTrack::KeyFrames frames = track->getKeyFramesForSubtrack(0);
+			reinterpret_cast<Vec4f&>(frames[0]) = Vec4f(1);
+			reinterpret_cast<Vec4f&>(frames[1]) = Vec4f(2);
+
+			track->releaseWriteLock();
+		}
 
 		{	// Test for the update() function
 			track->update(0.5f);
@@ -61,18 +74,23 @@ TEST(AnimationTrackTest)
 TEST(Slerp_AnimationTrackTest)
 {
 	AnimationTrackPtr track = new AnimationTrack(L"");
-	CHECK(track->init(2, 1));
+	
+	{	track->acquireWriteLock();
+		CHECK(track->init(2, 1));
 
-	track->keyframeTimes[0] = 0;
-	track->keyframeTimes[1] = 1;
-	track->subtrackFlags[0] = AnimationTrack::Slerp;
+		track->keyframeTimes[0] = 0;
+		track->keyframeTimes[1] = 1;
+		track->subtrackFlags[0] = AnimationTrack::Slerp;
 
-	AnimationTrack::KeyFrames frames = track->getKeyFramesForSubtrack(0);
-	Quaternionf& q1 = reinterpret_cast<Quaternionf&>(frames[0]);
-	Quaternionf& q2 = reinterpret_cast<Quaternionf&>(frames[1]);
+		AnimationTrack::KeyFrames frames = track->getKeyFramesForSubtrack(0);
+		Quaternionf& q1 = reinterpret_cast<Quaternionf&>(frames[0]);
+		Quaternionf& q2 = reinterpret_cast<Quaternionf&>(frames[1]);
 
-	q1.fromAxisAngle(Vec3f::c010, Mathf::cPiOver2());	// Rotate around y-axis 45 degree anti-clockwise
-	q2.fromAxisAngle(Vec3f::c010, Mathf::cPi());		// Rotate around y-axis 90 degree anti-clockwise
+		q1.fromAxisAngle(Vec3f::c010, Mathf::cPiOver2());	// Rotate around y-axis 45 degree anti-clockwise
+		q2.fromAxisAngle(Vec3f::c010, Mathf::cPi());		// Rotate around y-axis 90 degree anti-clockwise
+
+		track->releaseWriteLock();
+	}
 
 	track->update(0.5f);
 
@@ -92,20 +110,25 @@ TEST(Performance_AnimationTrackTest)
 	const size_t subtrackCount = 8;
 
 	AnimationTrackPtr track = new AnimationTrack(L"");
-	CHECK(track->init(frameCount, subtrackCount));
 
-	// Making half are Liner, half are Slerp
-	for(size_t i=0; i<track->subtrackCount()/2; ++i)
-		track->subtrackFlags[i] = AnimationTrack::Slerp;
+	{	track->acquireWriteLock();
+		CHECK(track->init(frameCount, subtrackCount));
 
-	for(size_t i=0; i<frameCount; ++i)
-		track->keyframeTimes[i] = float(i);
+		// Making half are Liner, half are Slerp
+		for(size_t i=0; i<track->subtrackCount()/2; ++i)
+			track->subtrackFlags[i] = AnimationTrack::Slerp;
 
-	// Fill with some random floating point data
-	for(size_t i=0; i<subtrackCount; ++i) {
-		AnimationTrack::KeyFrames frames = track->getKeyFramesForSubtrack(i);
-		for(size_t j=0; j<frameCount; ++j)
-			reinterpret_cast<Quaternionf&>(frames[j]) = Vec4f(Mathf::random(), Mathf::random(), Mathf::random(), Mathf::random());
+		for(size_t i=0; i<frameCount; ++i)
+			track->keyframeTimes[i] = float(i);
+
+		// Fill with some random floating point data
+		for(size_t i=0; i<subtrackCount; ++i) {
+			AnimationTrack::KeyFrames frames = track->getKeyFramesForSubtrack(i);
+			for(size_t j=0; j<frameCount; ++j)
+				reinterpret_cast<Quaternionf&>(frames[j]) = Vec4f(Mathf::random(), Mathf::random(), Mathf::random(), Mathf::random());
+		}
+
+		track->releaseWriteLock();
 	}
 
 	{	DeltaTimer timer;
