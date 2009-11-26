@@ -129,7 +129,7 @@ public:
 		\param[in] axis The rotation axis, need NOT to be normalized.
 		\param[in] angle The angle of rotation in radian.
 	 */
-	void fromAxisAngle(const Vec3<T>& axis, param_type angle);
+	Quaternion& fromAxisAngle(const Vec3<T>& axis, param_type angle);
 
 	/*!	Convert the quaternion to a rotation axis and the angle.
 		\param[out] axis The rotation axis, need NOT to be normalized.
@@ -142,7 +142,7 @@ public:
 		trace = m00 + m11 + m22 + 1 > 0 (the matrix is special orthogonal
 		which cannot represent a reflection component).
 	 */
-	void fromMatrix(const Mat33<T>& pureRotation);
+	Quaternion& fromMatrix(const Mat33<T>& pureRotation);
 
 	//!	Convert the quaternion to a matrix.
 	void toMatrix(Mat33<T>& matrix) const;

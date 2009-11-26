@@ -48,7 +48,7 @@ Quaternion<T>& Quaternion<T>::operator*=(const Quaternion& rhs)
 }
 
 template<typename T>
-void Quaternion<T>::fromAxisAngle(const Vec3<T>& axis, param_type angle)
+Quaternion<T>& Quaternion<T>::fromAxisAngle(const Vec3<T>& axis, param_type angle)
 {
 	T sin, cos;
 	Math<T>::sinCos(angle * T(0.5), sin, cos);
@@ -59,6 +59,8 @@ void Quaternion<T>::fromAxisAngle(const Vec3<T>& axis, param_type angle)
 	const Vec3<T> u(axis * (sin / scaleDown));
 	setVec3(u);
 	w = cos;
+
+	return *this;
 }
 
 template<typename T>
@@ -77,7 +79,7 @@ void Quaternion<T>::toAxisAngle(Vec3<T>& axis, T& angle) const
 }
 
 template<typename T>
-void Quaternion<T>::fromMatrix(const Mat33<T>& matrix)
+Quaternion<T>& Quaternion<T>::fromMatrix(const Mat33<T>& matrix)
 {
 	MCD_ASSERT(Mathf::isNearEqual(matrix.determinant(), 1) && "The matrix should be orthoginal");
 	MCD_ASSERT(matrix.m00 + matrix.m11 + matrix.m22 + 1 > 0 && "The matrix should be special orthoginal");
@@ -96,6 +98,8 @@ void Quaternion<T>::fromMatrix(const Mat33<T>& matrix)
 	x = (T)copysign(x, matrix.m21 - matrix.m12);
 	y = (T)copysign(y, matrix.m02 - matrix.m20);
 	z = (T)copysign(z, matrix.m10 - matrix.m01);
+
+	return *this;
 }
 
 template<typename T>

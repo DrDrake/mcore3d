@@ -3,6 +3,7 @@
 #include "../RenderTest/DefaultResourceManager.h"
 #include "../../MCD/Core/Entity/Entity.h"
 #include "../../MCD/Core/Math/AnimationInstance.h"
+#include "../../MCD/Core/Math/Quaternion.h"
 #include "../../MCD/Render/ChamferBox.h"
 #include "../../MCD/Render/Mesh.h"
 #include "../../MCD/Component/Render/MeshComponent.h"
@@ -20,27 +21,38 @@ public:
 		BasicGlWindow(L"title=AnimationComponentTest;width=800;height=600;fullscreen=0;FSAA=4"),
 		mResourceManager(*createDefaultFileSystem())
 	{
+		const size_t frameCount = 50;
+
 		{	// Manually creat the animation track
 			animationTrack = new AnimationTrack(L"");
-			animationTrack->init(5, 2);
+			animationTrack->init(frameCount, 3);
 
 			for(size_t i=0; i<animationTrack->keyframeCount(); ++i)
 				animationTrack->keyframeTimes[i] = float(i);
 
+			// Setup position animation
 			AnimationTrack::KeyFrames frames = animationTrack->getKeyFramesForSubtrack(0);
-			reinterpret_cast<Vec3f&>(frames[0]) = Vec3f( 1, 0,  0);
-			reinterpret_cast<Vec3f&>(frames[1]) = Vec3f( 0, 0, -1);
-			reinterpret_cast<Vec3f&>(frames[2]) = Vec3f(-1, 0,  0);
-			reinterpret_cast<Vec3f&>(frames[3]) = Vec3f( 0, 0,  1);
-			reinterpret_cast<Vec3f&>(frames[4]) = Vec3f( 1, 0,  0);
-
-			frames = animationTrack->getKeyFramesForSubtrack(1);
-			for(size_t i=0; i<5; ++i) {
-				// TODO: Generate valid random quaternion.
-				Vec4f q(Mathf::random(), Mathf::random(), Mathf::random(), Mathf::random());
-				q /= q.length();
-				reinterpret_cast<Vec4f&>(frames[0]) = q;
+			for(size_t i=0; i<frameCount; ++i) {
+				Vec3f position(Mathf::random(), Mathf::random(), Mathf::random());
+				position *= 5;
+				reinterpret_cast<Vec3f&>(frames[i]) = position;
 			}
+			reinterpret_cast<Vec3f&>(frames[frameCount-1]) = reinterpret_cast<Vec3f&>(frames[0]);
+
+			// Setup rotation animation
+			animationTrack->subtrackFlags[1] = AnimationTrack::Slerp;
+			frames = animationTrack->getKeyFramesForSubtrack(1);
+			for(size_t i=0; i<frameCount; ++i)
+				reinterpret_cast<Quaternionf&>(frames[i]) = randomQuaternion();
+			reinterpret_cast<Quaternionf&>(frames[frameCount-1]) = reinterpret_cast<Quaternionf&>(frames[0]);
+
+			// Setup scaling animation
+			frames = animationTrack->getKeyFramesForSubtrack(2);
+			for(size_t i=0; i<frameCount; ++i) {
+				Vec3f scale(Mathf::random() * 2);
+				reinterpret_cast<Vec3f&>(frames[i]) = scale;
+			}
+			reinterpret_cast<Vec3f&>(frames[frameCount-1]) = reinterpret_cast<Vec3f&>(frames[0]);
 		}
 
 		{	// Setup the chamfer box mesh
@@ -52,8 +64,8 @@ public:
 		const size_t boxCount = 1000;
 		for(size_t i=0; i<boxCount; ++i) {
 			Vec3f pos(Mathf::random(), Mathf::random(), Mathf::random());
-			pos = (pos * 2 - 1) * boxCount/10;;
-			createBox(pos, Mathf::random() * 4);
+			pos = (pos * 2 - 1) * boxCount/10;
+			createBox(pos, Mathf::random() * frameCount);
 		}
 	}
 
@@ -83,6 +95,13 @@ public:
 
 		e1.release();
 		e2.release();
+	}
+
+	Quaternionf randomQuaternion()
+	{
+		Quaternionf q(Mathf::random(), Mathf::random(), Mathf::random(), Mathf::random());
+		q /= q.length();
+		return q;
 	}
 
 	sal_override void update(float deltaTime)
