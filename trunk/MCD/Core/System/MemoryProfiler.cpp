@@ -432,46 +432,45 @@ std::string MemoryProfiler::defaultReport(size_t nameLength) const
 		<< setw(countWidth-2)	<< "Call/F"
 		<< endl;
 
-	MemoryProfilerNode* n = static_cast<MemoryProfilerNode*>(mRootNode);
+	for(CallstackNode* cn = mRootNode; cn; cn = CallstackNode::traverse(cn))
+	{
+		MemoryProfilerNode* n = static_cast<MemoryProfilerNode*>(cn);
 
-	while(n)
-	{	// NOTE: The following std stream operation may trigger HeapAlloc,
+		// NOTE: The following std stream operation may trigger HeapAlloc,
 		// there we need to use recursive mutex here.
 
 		// Race with MemoryProfiler::begin(), MemoryProfiler::end(), commonAlloc() and commonDealloc()
 		ScopeRecursiveLock lock(n->mutex);
 
 		// Skip node that have no allocation at all
-		if(n->callDepth() == 0 || n->exclusiveCount != 0 || n->countSinceLastReset != 0)
-		{
-			size_t callDepth = n->callDepth();
-			const char* name = n->name;
-			size_t iCount = n->inclusiveCount();
-			size_t eCount = n->exclusiveCount;
-			float iBytes = float(n->inclusiveBytes()) / 1024;
-			float eBytes = float(n->exclusiveBytes) / 1024;
-			float countSinceLastReset = float(n->countSinceLastReset) / frameCount;
-			float callCount = float(n->callCount) / frameCount;
+		if(n->callDepth() != 0 && n->exclusiveCount == 0 && n->countSinceLastReset == 0)
+			continue;
 
-			{	// The string stream will make allocations, therefore we need to unlock the mutex
-				// to prevent dead lock.
-				ScopeRecursiveUnlock unlock(n->mutex);
-				ss.flags(ios_base::left);
-				ss	<< setw(callDepth) << ""
-					<< setw(nameLength - callDepth) << name
-					<< setiosflags(ios::right)// << setprecision(3)
-					<< setw(countWidth)		<< iCount
-					<< setw(countWidth)		<< eCount
-					<< setw(bytesWidth)		<< iBytes
-					<< setw(bytesWidth)		<< eBytes
-					<< setw(countWidth)		<< countSinceLastReset
-					<< setprecision(2)
-					<< setw(countWidth-2)	<< callCount
-					<< endl;
-			}
+		size_t callDepth = n->callDepth();
+		const char* name = n->name;
+		size_t iCount = n->inclusiveCount();
+		size_t eCount = n->exclusiveCount;
+		float iBytes = float(n->inclusiveBytes()) / 1024;
+		float eBytes = float(n->exclusiveBytes) / 1024;
+		float countSinceLastReset = float(n->countSinceLastReset) / frameCount;
+		float callCount = float(n->callCount) / frameCount;
+
+		{	// The string stream will make allocations, therefore we need to unlock the mutex
+			// to prevent dead lock.
+			ScopeRecursiveUnlock unlock(n->mutex);
+			ss.flags(ios_base::left);
+			ss	<< setw(callDepth) << ""
+				<< setw(nameLength - callDepth) << name
+				<< setiosflags(ios::right)// << setprecision(3)
+				<< setw(countWidth)		<< iCount
+				<< setw(countWidth)		<< eCount
+				<< setw(bytesWidth)		<< iBytes
+				<< setw(bytesWidth)		<< eBytes
+				<< setw(countWidth)		<< countSinceLastReset
+				<< setprecision(2)
+				<< setw(countWidth-2)	<< callCount
+				<< endl;
 		}
-
-		n = static_cast<MemoryProfilerNode*>(CallstackNode::traverse(n));
 	}
 
 	return ss.str();
@@ -686,41 +685,41 @@ public:
 
 		std::ostringstream ss;
 		MemoryProfiler& profiler = MemoryProfiler::singleton();
-		MemoryProfilerNode* n = static_cast<MemoryProfilerNode*>(profiler.getRootNode());
 
-		while(n)
-		{	// Race with MemoryProfiler::begin(), MemoryProfiler::end(), commonAlloc() and commonDealloc()
+		for(CallstackNode* cn = profiler.getRootNode(); cn; cn = CallstackNode::traverse(cn))
+		{
+			MemoryProfilerNode* n = static_cast<MemoryProfilerNode*>(cn);
+
+			// Race with MemoryProfiler::begin(), MemoryProfiler::end(), commonAlloc() and commonDealloc()
 			ScopeRecursiveLock lock(n->mutex);
 
 			// Skip node that have no allocation at all
-			if(n->inclusiveCount() != 0 || n->countSinceLastReset != 0)
-			{
-				size_t callDepth = n->callDepth();
-				const char* name = n->name;
-				size_t iCount = n->inclusiveCount();
-				size_t eCount = n->exclusiveCount;
-				float iBytes = float(n->inclusiveBytes()) / 1024;
-				float eBytes = float(n->exclusiveBytes) / 1024;
-				float countSinceLastReset = float(n->countSinceLastReset) / profiler.frameCount;
-				float callCount = float(n->callCount) / profiler.frameCount;
+			if(n->inclusiveCount() == 0 && n->countSinceLastReset == 0)
+				continue;
 
-				{	// The string stream will make allocations, therefore we need to unlock the mutex
-					// to prevent dead lock.
-					ScopeRecursiveUnlock unlock(n->mutex);
-					ss	<< callDepth << ";"
-						<< n << ";"	// Send the address as the node identifier
-						<< name << ";"
-						<< iCount << ";"
-						<< eCount << ";"
-						<< iBytes << ";"
-						<< eBytes << ";"
-						<< countSinceLastReset << ";"
-						<< callCount << ";"
-						<< std::endl;
-				}
+			size_t callDepth = n->callDepth();
+			const char* name = n->name;
+			size_t iCount = n->inclusiveCount();
+			size_t eCount = n->exclusiveCount;
+			float iBytes = float(n->inclusiveBytes()) / 1024;
+			float eBytes = float(n->exclusiveBytes) / 1024;
+			float countSinceLastReset = float(n->countSinceLastReset) / profiler.frameCount;
+			float callCount = float(n->callCount) / profiler.frameCount;
+
+			{	// The string stream will make allocations, therefore we need to unlock the mutex
+				// to prevent dead lock.
+				ScopeRecursiveUnlock unlock(n->mutex);
+				ss	<< callDepth << ";"
+					<< n << ";"	// Send the address as the node identifier
+					<< name << ";"
+					<< iCount << ";"
+					<< eCount << ";"
+					<< iBytes << ";"
+					<< eBytes << ";"
+					<< countSinceLastReset << ";"
+					<< callCount << ";"
+					<< std::endl;
 			}
-
-			n = static_cast<MemoryProfilerNode*>(CallstackNode::traverse(n));
 		}
 
 		std::string str = ss.str() + "\n\n";

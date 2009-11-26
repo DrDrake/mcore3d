@@ -69,6 +69,8 @@ namespace Studio
 				return propertyWindow;
 			else if (persistString == typeof(MemoryProfilerWindow).ToString())
 				return memoryProfilerWindow;
+			else if (persistString == typeof(CpuProfilerWindow).ToString())
+				return cpuProfilerWindow;
 
 			// For example, the docking state of renderWindow will not be laoded
 			return null;
@@ -91,6 +93,7 @@ namespace Studio
 		AssertWindow assertWindow;
 		LogWindow logWindow;
 		MemoryProfilerWindow memoryProfilerWindow;
+		CpuProfilerWindow cpuProfilerWindow;
 		public AssertBrowsingForm assertBrowsingForm;
 
 		public UserPreference UserPreference;
@@ -111,6 +114,7 @@ namespace Studio
 			logWindow = new LogWindow();
 			propertyWindow = new PropertyWindow();
 			memoryProfilerWindow = new MemoryProfilerWindow();
+			cpuProfilerWindow = new CpuProfilerWindow();
 
 			// The Global object can be accessed though Global::instance
 			new Global(logWindow.textBox);
@@ -132,6 +136,7 @@ namespace Studio
 				logWindow.Show(dockPanel);
 				propertyWindow.Show(dockPanel);
 				memoryProfilerWindow.Show(dockPanel);
+				cpuProfilerWindow.Show(dockPanel);
 			}
 
 			dockPanel.ResumeLayout(true, true);

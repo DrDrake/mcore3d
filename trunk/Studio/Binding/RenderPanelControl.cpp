@@ -17,6 +17,7 @@
 #include "../../MCD/Core/Entity/BehaviourComponent.h"
 #include "../../MCD/Core/System/MemoryProfiler.h"
 #include "../../MCD/Core/System/ResourceManager.h"
+#include "../../MCD/Core/System/ThreadedCpuProfiler.h"
 #include "../../MCD/Core/System/WindowEvent.h"
 #include "../../MCD/Render/Camera.h"
 #include "../../MCD/Render/GlWindow.h"
@@ -139,6 +140,8 @@ public:
 
 	void update()
 	{
+		MCD::ThreadedCpuProfiler::Scope scope("RenderPanelControl::update");
+
 		makeActive();
 
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -480,8 +483,10 @@ bool RenderPanelControl::playing::get()
 
 System::Void RenderPanelControl::timer_Tick(System::Object^ sender, System::EventArgs^ e)
 {
-	MCD::MemoryProfiler::singleton().nextFrame();
 	this->update();
+
+	MCD::MemoryProfiler::singleton().nextFrame();
+	MCD::ThreadedCpuProfiler::singleton().nextFrame();
 }
 
 System::Void RenderPanelControl::RenderPanelControl_Load(System::Object^ sender, System::EventArgs^ e)

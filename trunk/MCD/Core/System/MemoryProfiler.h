@@ -122,7 +122,7 @@ protected:
 	TlsList* mTlsList;
 };	// MemoryProfiler
 
-//! A TCP server for enabling external statisstic report.
+//! A TCP server for enabling external statistic report.
 class MCD_CORE_API MemoryProfilerServer
 {
 public:

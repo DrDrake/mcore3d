@@ -35,4 +35,36 @@ void MemoryProfilerServer::update()
 	mImpl->update();
 }
 
+CpuProfilerServer::CpuProfilerServer()
+{
+	mImpl = new MCD::ThreadedCpuProfilerServer;
+	MCD::ThreadedCpuProfiler::singleton().enable = true;
+}
+
+CpuProfilerServer::~CpuProfilerServer()
+{
+	this->!CpuProfilerServer();
+}
+
+CpuProfilerServer::!CpuProfilerServer()
+{
+	delete mImpl;
+}
+
+bool CpuProfilerServer::listern(uint16_t port)
+{
+	return mImpl->listern(port);
+}
+
+bool CpuProfilerServer::accept()
+{
+	return mImpl->accept();
+}
+
+void CpuProfilerServer::update()
+{
+	accept();
+	mImpl->update();
+}
+
 }	// namespace Binding
