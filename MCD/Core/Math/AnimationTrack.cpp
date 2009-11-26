@@ -12,7 +12,7 @@ AnimationTrack::AnimationTrack(const Path& fileId)
 	, keyframes(nullptr, 0)
 	, keyframeTimes(nullptr, 0)
 	, subtrackFlags(nullptr, 0)
-	, loop(true), committed(false), frame1Idx(0), frame2Idx(1), ratio(0)
+	, loop(true), mCommitted(false), frame1Idx(0), frame2Idx(1), ratio(0)
 	, interpolatedResult(nullptr, 0)
 {
 }
@@ -51,8 +51,15 @@ bool AnimationTrack::init(size_t keyFrameCnt, size_t subtrackCnt)
 	if(keyFrameCnt < 2 || subtrackCnt < 1)
 		return false;
 
-	if(keyframes.data || keyframeTimes.data || subtrackFlags.data || interpolatedResult.data)
+	if(isCommitted())
 		return false;
+
+	delete[] keyframes.getPtr();
+	delete[] keyframeTimes.getPtr();
+	delete[] subtrackFlags.getPtr();
+	delete[] interpolatedResult.getPtr();
+//	if(keyframes.data || keyframeTimes.data || subtrackFlags.data || interpolatedResult.data)
+//		return false;
 
 	MemoryProfiler::Scope scope("AnimationTrack::init");
 	keyframes = KeyFrames(new KeyFrame[keyFrameCnt * subtrackCnt], keyFrameCnt * subtrackCnt);
@@ -73,7 +80,13 @@ bool AnimationTrack::init(size_t keyFrameCnt, size_t subtrackCnt)
 
 void AnimationTrack::update(float currentTime)
 {
-	if(keyframeTimes.size < 2 || !committed)
+	ScopeLock lock(mMutex);
+	return updateNoLock(currentTime);
+}
+
+void AnimationTrack::updateNoLock(float currentTime)
+{
+	if(keyframeTimes.size < 2 || !mCommitted)
 		return;
 
 	// Phase 1: find the wrapped version of currentTime
@@ -150,6 +163,33 @@ bool AnimationTrack::checkValid() const
 	}
 
 	return true;
+}
+
+void AnimationTrack::acquireReadLock()
+{
+	mMutex.lock();
+	MCD_ASSERT(isCommitted());
+}
+
+void AnimationTrack::releaseReadLock()
+{
+	mMutex.unlock();
+}
+
+void AnimationTrack::acquireWriteLock()
+{
+	mMutex.lock();
+	mCommitted = false;
+}
+
+void AnimationTrack::releaseWriteLock()
+{
+	mCommitted = true;
+	mMutex.unlock();
+}
+
+bool AnimationTrack::isCommitted() const {
+	return mCommitted;
 }
 
 }	// namespace MCD

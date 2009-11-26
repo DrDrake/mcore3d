@@ -6,7 +6,7 @@
 #include "../../Core/System/Thread.h"
 #include <set>
 
-#define USE_ANIMATION_THREAD 1
+static const bool cUseAnimationThread = true;
 
 namespace MCD {
 
@@ -70,7 +70,7 @@ void AnimationComponent::update()
 
 	animationInstance.time += float(timer.getDelta().asSecond());
 
-	if(!USE_ANIMATION_THREAD)
+	if(!cUseAnimationThread)
 		static_cast<MyAnimationInstance&>(animationInstance).update();
 
 	// Update the Entity's transform from the interpolatedResult.
@@ -92,7 +92,7 @@ public:
 
 	void start()
 	{
-		if(USE_ANIMATION_THREAD)
+		if(cUseAnimationThread)
 			Thread::start(*this, false);
 	}
 
