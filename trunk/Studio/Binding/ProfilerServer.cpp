@@ -1,5 +1,5 @@
 #include "stdafx.h"
-#include "MemoryProfilerServer.h"
+#include "ProfilerServer.h"
 
 namespace Binding {
 
