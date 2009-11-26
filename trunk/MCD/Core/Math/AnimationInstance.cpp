@@ -18,8 +18,12 @@ AnimationInstance::~AnimationInstance()
 // TODO: Optimize for single tracks (mTracks.size() == 0)?
 void AnimationInstance::update()
 {
+	ScopeRecursiveLock lock(mMutex);
+
+	AnimationTrack::KeyFrames& result = const_cast<AnimationTrack::KeyFrames&>(interpolatedResult);
+
 	// Zero out interpolatedResult first
-	::memset(&interpolatedResult[0], 0, interpolatedResult.sizeInByte());
+	::memset(&result[0], 0, result.sizeInByte());
 
 	MCD_FOREACH(const WeightedTrack& wt, mTracks) {
 		if(wt.weight == 0 || !wt.track) continue;
@@ -28,12 +32,14 @@ void AnimationInstance::update()
 		t.update(time);
 
 		for(size_t i=0; i<t.subtrackCount(); ++i)
-			reinterpret_cast<Vec4f&>(interpolatedResult[i]) += wt.weight * reinterpret_cast<Vec4f&>(t.interpolatedResult[i]);
+			reinterpret_cast<Vec4f&>(result[i]) += wt.weight * reinterpret_cast<Vec4f&>(t.interpolatedResult[i]);
 	}
 }
 
 bool AnimationInstance::addTrack(AnimationTrack& track, float weight)
 {
+	ScopeRecursiveLock lock(mMutex);
+
 	if(track.subtrackCount() == 0)
 		return false;
 
@@ -44,7 +50,7 @@ bool AnimationInstance::addTrack(AnimationTrack& track, float weight)
 	mTracks.push_back(t);
 
 	delete[] interpolatedResult.getPtr();
-	interpolatedResult = AnimationTrack::KeyFrames(
+	const_cast<AnimationTrack::KeyFrames&>(interpolatedResult) = AnimationTrack::KeyFrames(
 		new AnimationTrack::KeyFrame[track.subtrackCount()], track.subtrackCount()
 	);
 
@@ -53,12 +59,16 @@ bool AnimationInstance::addTrack(AnimationTrack& track, float weight)
 
 void AnimationInstance::removeTrack(size_t index)
 {
+	ScopeRecursiveLock lock(mMutex);
+
 	mTracks.erase(mTracks.begin() + index);
 	normalizeWeight();
 }
 
 void AnimationInstance::normalizeWeight()
 {
+	ScopeRecursiveLock lock(mMutex);
+
 	float totalWeight = 0;
 	MCD_FOREACH(const WeightedTrack& t, mTracks) {
 		if(t.track)	// Ignore null track
@@ -72,7 +82,8 @@ void AnimationInstance::normalizeWeight()
 	}
 }
 
-size_t AnimationInstance::trackCount() const {
+size_t AnimationInstance::trackCount() const
+{
 	return mTracks.size();
 }
 
@@ -87,6 +98,14 @@ AnimationInstance::WeightedTrack* AnimationInstance::getTrack(size_t index)
 {
 	if(index < mTracks.size()) return nullptr;
 	return &mTracks[index];
+}
+
+bool AnimationInstance::isAllTrackCommited() const
+{
+	ScopeRecursiveLock lock(mMutex);
+	MCD_FOREACH(const WeightedTrack& t, mTracks)
+		if(t.track && !t.track->committed) return false;
+	return true;
 }
 
 const AnimationInstance::WeightedTrack* AnimationInstance::getTrack(size_t index) const

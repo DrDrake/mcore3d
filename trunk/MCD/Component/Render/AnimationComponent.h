@@ -9,12 +9,15 @@
 
 namespace MCD {
 
+class AnimationThread;
 class AnimationInstance;
 
 class MCD_COMPONENT_API AnimationComponent : public BehaviourComponent
 {
+	class MyAnimationInstance;
+
 public:
-	AnimationComponent();
+	explicit AnimationComponent(AnimationThread& animThread);
 
 	sal_override ~AnimationComponent();
 
@@ -34,11 +37,15 @@ public:
 	DeltaTimer timer;
 
 protected:
+	friend class AnimationThread;
+
 	/*!	In order to decouple the multi-thread life-time problem,
 		we share the AnimationInstance with the animation update thread.
 	 */
-	typedef SharedPtr<AnimationInstance> AnimationInstancePtr;	// TODO: Thread safe to use SharedPtr?
-	const AnimationInstancePtr animationInstanceHolder;
+	typedef SharedPtr<MyAnimationInstance> AnimationInstancePtr;	// TODO: Thread safe to use SharedPtr?
+	const AnimationInstancePtr mAnimationInstanceHolder;
+
+	AnimationThread& mAnimationThread;
 };	// AnimationComponent
 
 typedef WeakPtr<AnimationComponent> AnimationComponentPtr;
@@ -46,12 +53,22 @@ typedef WeakPtr<AnimationComponent> AnimationComponentPtr;
 class MCD_COMPONENT_API AnimationThread
 {
 public:
+	AnimationThread();
+
+	~AnimationThread();
+
 // Operations
-	void update();
+	void start();
+
+	void stop();
 
 	void addAnimationComponent(AnimationComponent& ac);
 
 	void removeAnimationComponent(AnimationComponent& ac);
+
+protected:
+	class Impl;
+	Impl& mImpl;
 };	// AnimationThreadComponent
 
 }	// namespace MCD

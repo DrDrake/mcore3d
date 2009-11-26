@@ -7,6 +7,9 @@
 namespace MCD {
 
 /*!	Stores per-instance data where the sharing semantic AnimationTrack didn't has.
+
+	This class is thread-safe in a way that update() and isAllTrackCommited
+	can run in thread A while all other functions run in thread B.
  */
 class MCD_CORE_API AnimationInstance
 {
@@ -45,13 +48,20 @@ public:
 
 	sal_maybenull const WeightedTrack* getTrack(size_t index) const;
 
+	//! Indicating all tracks data are committed.
+	sal_checkreturn bool isAllTrackCommited() const;
+
+	//! Ok, this simple variable need not to be absolutely thread-safe.
 	float time;
+
 	// TODO: Store AnimationTrack::frame2Idx as an optimization.
-	AnimationTrack::KeyFrames interpolatedResult;
+	const AnimationTrack::KeyFrames interpolatedResult;
 
 protected:
 	typedef std::vector<WeightedTrack> Tracks;
 	Tracks mTracks;
+
+	mutable RecursiveMutex mMutex;
 };	// AnimationInstance
 
 }	// namespace MCD
