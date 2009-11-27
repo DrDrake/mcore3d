@@ -48,7 +48,7 @@ class GizmoBaseComponent : public MCD::BehaviourComponent
 public:
 	GizmoBaseComponent(sal_in MCD::Entity* hostEntity, sal_in_opt MCD::InputComponent* inputComponent);
 
-	sal_override void update();
+	sal_override void update(float dt);
 
 	virtual void mouseDown(int x, int y, MCD::Mat44f& transform);
 

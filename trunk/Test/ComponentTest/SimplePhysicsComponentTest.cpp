@@ -92,7 +92,7 @@ TEST(SimplePhysicsComponentTest)
 			mResourceManager.processLoadingEvents();
 
 			RenderableComponent::traverseEntities(&mRootNode);
-			BehaviourComponent::traverseEntities(&mRootNode);
+			BehaviourComponent::traverseEntities(&mRootNode, 0.0f);
 
 			mDynamicsWorld.stepSimulation(deltaTime, 10);
 		}

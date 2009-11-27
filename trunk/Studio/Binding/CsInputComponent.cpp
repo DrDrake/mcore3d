@@ -37,7 +37,7 @@ CsInputComponent::~CsInputComponent()
 	}
 }
 
-void CsInputComponent::update()
+void CsInputComponent::update(float)
 {
 	mKeyDownList.clear();
 	mKeyUpList.clear();

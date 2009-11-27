@@ -71,7 +71,7 @@ RigidBodyComponent::~RigidBodyComponent(void)
 	delete mImpl;
 }
 
-void RigidBodyComponent::update()
+void RigidBodyComponent::update(float)
 {
 	MCD_ASSUME(mImpl);
 	if(Entity* e = entity())

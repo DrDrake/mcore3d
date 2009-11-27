@@ -90,6 +90,8 @@ protected:
 
 	void* mDbgContext;
 
+	DeltaTimer mDeltaTimer;
+
 	IResourceManager* mResourceManager;
 	bool mTakeResourceManagerOwnership;
 	Thread mPhysicsThread;

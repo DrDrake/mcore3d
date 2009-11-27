@@ -47,7 +47,7 @@ class MCD_BINDING_API ScriptComponent : public BehaviourComponent
 public:
 // Operations
 	//! The derived components should override this function for defining behaviour.
-	sal_override void update();
+	sal_override void update(float dt);
 };	// ScriptComponent
 
 }	// namespace MCD

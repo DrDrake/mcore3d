@@ -5,7 +5,7 @@
 
 namespace MCD {
 
-void BehaviourComponent::traverseEntities(Entity* entityNode)
+void BehaviourComponent::traverseEntities(Entity* entityNode, float dt)
 {
 	MemoryProfiler::Scope profiler("BehaviourComponent::traverseEntities");
 
@@ -18,7 +18,7 @@ void BehaviourComponent::traverseEntities(Entity* entityNode)
 
 		BehaviourComponent* behaviour = itr->findComponent<BehaviourComponent>();
 		if(behaviour)
-			behaviour->update();
+			behaviour->update(dt);
 
 		itr.next();
 	}

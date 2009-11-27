@@ -43,7 +43,7 @@ PickComponent::~PickComponent()
 	delete &mImpl;
 }
 
-void PickComponent::update()
+void PickComponent::update(float)
 {
 	if(!entityToPick)
 		return;

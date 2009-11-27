@@ -142,6 +142,7 @@ public:
 	{
 		MCD::ThreadedCpuProfiler::Scope scope("RenderPanelControl::update");
 
+		const float dt = mDeltaTimer.getDelta().asSecond();
 		makeActive();
 
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -151,7 +152,7 @@ public:
 
 		// Update pre-defined tree
 		if(!mPlaying) {
-			BehaviourComponent::traverseEntities(mPredefinedSubTree);
+			BehaviourComponent::traverseEntities(mPredefinedSubTree, dt);
 			RenderableComponent::traverseEntities(mPredefinedSubTree);
 
 			// Draw the Gizmo
@@ -159,7 +160,7 @@ public:
 				glDisable(GL_TEXTURE_2D);
 				glDisable(GL_LIGHTING);
 				glClear(GL_DEPTH_BUFFER_BIT);
-				BehaviourComponent::traverseEntities(mGizmo);
+				BehaviourComponent::traverseEntities(mGizmo, dt);
 				RenderableComponent::traverseEntities(mGizmo);
 			}
 
@@ -328,6 +329,7 @@ public:
 	bool mPropertyGridNeedRefresh;
 	Point mLastMousePos;
 	bool mPlaying;
+	DeltaTimer mDeltaTimer;
 
 	Launcher mLauncher;
 	MCD::EntityPtr mOldUserSubTree;

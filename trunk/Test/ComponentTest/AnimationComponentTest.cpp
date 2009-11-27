@@ -88,7 +88,7 @@ public:
 
 		mRootNode.localTransform.setTranslation(Vec3f(0, 0, -200));
 		RenderableComponent::traverseEntities(&mRootNode);
-		BehaviourComponent::traverseEntities(&mRootNode);
+		BehaviourComponent::traverseEntities(&mRootNode, 0.0f);
 	}
 
 	void loadAnimationTrack()
