@@ -22,7 +22,7 @@ public:
 	sal_override ~AnimationComponent();
 
 // Operations
-	sal_override void update();
+	sal_override void update(float dt);
 
 // Attrubutes
 	/*!	Sub-track,	usage
@@ -32,9 +32,6 @@ public:
 		3		->	Color		(Linear)
 	 */
 	AnimationInstance& animationInstance;
-
-	// TODO: Remove the use of timer here
-	DeltaTimer timer;
 
 protected:
 	friend class AnimationThread;

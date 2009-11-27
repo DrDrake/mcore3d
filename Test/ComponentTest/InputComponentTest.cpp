@@ -35,7 +35,7 @@ public:
 
 	sal_override void update(float deltaTime)
 	{
-		BehaviourComponent::traverseEntities(&mRootNode);
+		BehaviourComponent::traverseEntities(&mRootNode, 0.0f);
 /*
 		// Show the picking result
 		for(size_t i=0; i<mPicker->hitCount(); ++i) {

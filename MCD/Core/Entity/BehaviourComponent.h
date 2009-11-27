@@ -13,10 +13,10 @@ public:
 	}
 
 	//! The derived components should override this function for defining behaviour.
-	virtual void update() = 0;
+	virtual void update(float dt) = 0;
 
 	//! Invoke the BehaviourComponent::update() in every Entity under the entityNode sub-tree.
-	static void traverseEntities(sal_maybenull Entity* entityNode);
+	static void traverseEntities(sal_maybenull Entity* entityNode, float dt);
 };	// Component
 
 }	// namespace MCD

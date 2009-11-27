@@ -63,12 +63,12 @@ AnimationComponent::~AnimationComponent()
 	mAnimationThread.removeAnimationComponent(*this);
 }
 
-void AnimationComponent::update()
+void AnimationComponent::update(float dt)
 {
 	if(!entity() || !entity()->enabled)
 		return;
 
-	animationInstance.time += float(timer.getDelta().asSecond());
+	animationInstance.time += dt;
 
 	if(!cUseAnimationThread)
 		static_cast<MyAnimationInstance&>(animationInstance).update();

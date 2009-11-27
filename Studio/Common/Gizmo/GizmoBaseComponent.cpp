@@ -16,9 +16,9 @@ class MyPickComponent : public PickComponent
 public:
 	MyPickComponent() : selectedMesh(nullptr) {}
 
-	sal_override void update()
+	sal_override void update(float dt)
 	{
-		PickComponent::update();
+		PickComponent::update(dt);
 		selectedMesh = nullptr;
 
 		// Handle picking result
@@ -135,7 +135,7 @@ GizmoBaseComponent::GizmoBaseComponent(Entity* hostEntity, InputComponent* input
 	e->addComponent(c);
 }
 
-void GizmoBaseComponent::update()
+void GizmoBaseComponent::update(float)
 {
 	InputComponent* input = mInputComponent.get();
 	Gizmo* gizmo = dynamic_cast<Gizmo*>(entity()->parent()->parent());

@@ -64,7 +64,7 @@ Script::Script(const Path& fileId)
 {
 }
 
-void ScriptComponent::update()
+void ScriptComponent::update(float)
 {
 }
 

@@ -94,7 +94,7 @@ TEST(PickComponentTest)
 
 			glTranslatef(0.0f, 0.0f, -5.0f);
 
-			BehaviourComponent::traverseEntities(&mRootNode);
+			BehaviourComponent::traverseEntities(&mRootNode, 0.0f);
 			RenderableComponent::traverseEntities(&mRootNode);
 
 			// Show the picking result

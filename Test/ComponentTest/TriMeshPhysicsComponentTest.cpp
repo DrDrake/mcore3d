@@ -150,7 +150,7 @@ TEST(TriMeshPhysicsComponentTest)
 			mBallInstMesh->update(viewMat);
 #endif
 
-			BehaviourComponent::traverseEntities(&mRootNode);
+			BehaviourComponent::traverseEntities(&mRootNode, 0.0f);
 			mDynamicsWorld.stepSimulation(deltaTime, 10);
 		}
 

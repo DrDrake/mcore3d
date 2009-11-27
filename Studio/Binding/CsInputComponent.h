@@ -34,7 +34,7 @@ public:
 	sal_override ~CsInputComponent();
 
 // Operations
-	sal_override void update();
+	sal_override void update(float dt);
 
 	sal_override float getAxis(sal_in_z const wchar_t* axisName) const;
 

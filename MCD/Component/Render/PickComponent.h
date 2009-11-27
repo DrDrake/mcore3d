@@ -32,7 +32,7 @@ public:
 
 // Operations
 	//! Preform the picking detection.
-	sal_override void update();
+	sal_override void update(float dt);
 
 	/*!	Restrict the area of picking detection.
 		It's a retangular region of width and height centered at x, y.

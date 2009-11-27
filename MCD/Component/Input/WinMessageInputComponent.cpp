@@ -68,7 +68,7 @@ WinMessageInputComponent::~WinMessageInputComponent()
 		mWindow->removeListener(*this);
 }
 
-void WinMessageInputComponent::update()
+void WinMessageInputComponent::update(float)
 {
 	mKeyDownList.clear();
 	mKeyUpList.clear();

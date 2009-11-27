@@ -14,7 +14,7 @@ class FollowTransformComponent : public BehaviourComponent
 {
 public:
 	FollowTransformComponent() : ignoreRotation(false) {}
-	sal_override void update()
+	sal_override void update(float)
 	{
 		Entity* e = entity();
 		MCD_ASSUME(e);
@@ -37,7 +37,7 @@ public:
 class FixedScreenSizeComponent : public BehaviourComponent
 {
 public:
-	sal_override void update()
+	sal_override void update(float)
 	{
 		Entity* e = entity();
 		MCD_ASSUME(e);

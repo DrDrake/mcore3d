@@ -252,7 +252,7 @@ void Launcher::update()
 
 	scriptComponentManager.updateScriptComponents();
 
-	BehaviourComponent::traverseEntities(mRootNode);
+	BehaviourComponent::traverseEntities(mRootNode, mDeltaTimer.getDelta().asSecond());
 	RenderableComponent::traverseEntities(mRootNode);
 	AudioComponent::traverseEntities(mRootNode);
 }

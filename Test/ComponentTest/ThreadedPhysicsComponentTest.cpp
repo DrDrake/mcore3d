@@ -157,7 +157,7 @@ TEST(ThreadedPhysicsComponentTest)
 			mBallInstMesh->update(viewMat);
 #endif
 
-			BehaviourComponent::traverseEntities(&mRootNode);
+			BehaviourComponent::traverseEntities(&mRootNode, 0.0f);
 		}
 
 		virtual ~TestWindow()

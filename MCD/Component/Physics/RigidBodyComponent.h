@@ -28,7 +28,7 @@ public:
 	sal_override ~RigidBodyComponent();
 
 // Override from BehaviourComponent
-	sal_override void update();
+	sal_override void update(float dt);
 
 	void applyForce(const Vec3f& force, const Vec3f& rel_pos);
 
