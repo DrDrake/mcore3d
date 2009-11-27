@@ -88,7 +88,7 @@ public:
 
 		mRootNode.localTransform.setTranslation(Vec3f(0, 0, -200));
 		RenderableComponent::traverseEntities(&mRootNode);
-		BehaviourComponent::traverseEntities(&mRootNode, 0.0f);
+		BehaviourComponent::traverseEntities(&mRootNode, float(mDeltaTimer.getDelta().asSecond()));
 	}
 
 	void loadAnimationTrack()
@@ -133,6 +133,7 @@ public:
 	Entity mRootNode;
 	MeshPtr mesh;
 	Timer mTimer;	// Simulate a reload of the AnimationTrack every few seconds.
+	DeltaTimer mDeltaTimer;
 	AnimationTrackPtr animationTrack;
 	DefaultResourceManager mResourceManager;
 };	// TestWindow
