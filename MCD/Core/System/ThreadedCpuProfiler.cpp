@@ -333,7 +333,7 @@ public:
 		return false;
 	}
 
-	void update()
+	void flush()
 	{
 		if(!connected)
 			return;
@@ -405,8 +405,12 @@ bool ThreadedCpuProfilerServer::accept() {
 	return mImpl.accept();
 }
 
-void ThreadedCpuProfilerServer::update() {
-	mImpl.update();
+void ThreadedCpuProfilerServer::nextFrame() {
+	ThreadedCpuProfiler::singleton().nextFrame();
+}
+
+void ThreadedCpuProfilerServer::flush() {
+	mImpl.flush();
 }
 
 #endif	//_MSC_VER

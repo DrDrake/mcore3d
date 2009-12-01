@@ -134,10 +134,12 @@ public:
 
 	bool accept();
 
+	void nextFrame();
+
 	/*!	Flush the report to the client (if connected) and reset the statistic.
 		This function is supposed to be called every 0.5 to few seconds.
 	 */
-	void update();
+	void flush();
 
 protected:
 	class Impl;

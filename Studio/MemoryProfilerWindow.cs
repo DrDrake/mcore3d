@@ -102,7 +102,7 @@ namespace Studio
 		/// </summary>
 		private void timer1_Tick(object sender, EventArgs e)
 		{
-			mMemoryProfilerServer.update();
+			mMemoryProfilerServer.flush();
 
 			if (backgroundWorker1.IsBusy)
 				return;

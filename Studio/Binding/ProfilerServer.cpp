@@ -29,10 +29,10 @@ bool MemoryProfilerServer::accept()
 	return mImpl->accept();
 }
 
-void MemoryProfilerServer::update()
+void MemoryProfilerServer::flush()
 {
 	accept();
-	mImpl->update();
+	mImpl->flush();
 }
 
 CpuProfilerServer::CpuProfilerServer()
@@ -61,10 +61,10 @@ bool CpuProfilerServer::accept()
 	return mImpl->accept();
 }
 
-void CpuProfilerServer::update()
+void CpuProfilerServer::flush()
 {
 	accept();
-	mImpl->update();
+	mImpl->flush();
 }
 
 }	// namespace Binding

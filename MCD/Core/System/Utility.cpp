@@ -40,4 +40,11 @@ void swapMemory(void* p1, void* p2, size_t size)
 	}
 }
 
+bool isLittleEndian()
+{
+	short int word = 0x0001;
+	char* byte = (char*)&word;
+	return byte[0] != 0;
+}
+
 }	// namespace MCD
