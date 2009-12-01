@@ -29,16 +29,18 @@ namespace Studio
 		private void InitializeComponent()
 		{
 			this.components = new System.ComponentModel.Container();
-			this.treeColumn1 = new Aga.Controls.Tree.TreeColumn();
-			this.treeColumn2 = new Aga.Controls.Tree.TreeColumn();
-			this.treeColumn3 = new Aga.Controls.Tree.TreeColumn();
-			this.treeColumn4 = new Aga.Controls.Tree.TreeColumn();
-			this.treeColumn5 = new Aga.Controls.Tree.TreeColumn();
-			this.nodeTextBox1 = new Aga.Controls.Tree.NodeControls.NodeTextBox();
-			this.nodeDecimalTextBox1 = new Aga.Controls.Tree.NodeControls.NodeDecimalTextBox();
-			this.nodeDecimalTextBox2 = new Aga.Controls.Tree.NodeControls.NodeDecimalTextBox();
-			this.nodeTextBox2 = new Aga.Controls.Tree.NodeControls.NodeTextBox();
-			this.nodeTextBox3 = new Aga.Controls.Tree.NodeControls.NodeTextBox();
+			Aga.Controls.Tree.TreeColumn treeColumn1;
+			Aga.Controls.Tree.TreeColumn treeColumn2;
+			Aga.Controls.Tree.TreeColumn treeColumn3;
+			Aga.Controls.Tree.TreeColumn treeColumn4;
+			Aga.Controls.Tree.TreeColumn treeColumn6;
+			Aga.Controls.Tree.NodeControls.NodeTextBox nodeTextBox1;
+			Aga.Controls.Tree.NodeControls.NodeDecimalTextBox nodeDecimalTextBox1;
+			Aga.Controls.Tree.NodeControls.NodeDecimalTextBox nodeDecimalTextBox2;
+			Aga.Controls.Tree.NodeControls.NodeTextBox nodeTextBox2;
+			Aga.Controls.Tree.NodeControls.NodeTextBox nodeTextBox4;
+			Aga.Controls.Tree.TreeColumn treeColumn5;
+			Aga.Controls.Tree.NodeControls.NodeTextBox nodeTextBox3;
 			this.flowLayoutPanel1 = new System.Windows.Forms.FlowLayoutPanel();
 			this.button1 = new System.Windows.Forms.Button();
 			this.button2 = new System.Windows.Forms.Button();
@@ -47,87 +49,115 @@ namespace Studio
 			this.timer1 = new System.Windows.Forms.Timer(this.components);
 			this.backgroundWorker1 = new System.ComponentModel.BackgroundWorker();
 			this.treeViewAdv1 = new Aga.Controls.Tree.TreeViewAdv();
+			treeColumn1 = new Aga.Controls.Tree.TreeColumn();
+			treeColumn2 = new Aga.Controls.Tree.TreeColumn();
+			treeColumn3 = new Aga.Controls.Tree.TreeColumn();
+			treeColumn4 = new Aga.Controls.Tree.TreeColumn();
+			treeColumn6 = new Aga.Controls.Tree.TreeColumn();
+			nodeTextBox1 = new Aga.Controls.Tree.NodeControls.NodeTextBox();
+			nodeDecimalTextBox1 = new Aga.Controls.Tree.NodeControls.NodeDecimalTextBox();
+			nodeDecimalTextBox2 = new Aga.Controls.Tree.NodeControls.NodeDecimalTextBox();
+			nodeTextBox2 = new Aga.Controls.Tree.NodeControls.NodeTextBox();
+			nodeTextBox4 = new Aga.Controls.Tree.NodeControls.NodeTextBox();
+			treeColumn5 = new Aga.Controls.Tree.TreeColumn();
+			nodeTextBox3 = new Aga.Controls.Tree.NodeControls.NodeTextBox();
 			this.flowLayoutPanel1.SuspendLayout();
 			this.panel1.SuspendLayout();
 			this.SuspendLayout();
 			// 
 			// treeColumn1
 			// 
-			this.treeColumn1.Header = "Callstack";
-			this.treeColumn1.SortOrder = System.Windows.Forms.SortOrder.None;
-			this.treeColumn1.TooltipText = "Function name";
-			this.treeColumn1.Width = 300;
+			treeColumn1.Header = "Callstack";
+			treeColumn1.SortOrder = System.Windows.Forms.SortOrder.None;
+			treeColumn1.TooltipText = "Function name";
+			treeColumn1.Width = 300;
 			// 
 			// treeColumn2
 			// 
-			this.treeColumn2.Header = "TT/F %";
-			this.treeColumn2.SortOrder = System.Windows.Forms.SortOrder.None;
-			this.treeColumn2.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
-			this.treeColumn2.TooltipText = "Total time per frame (including child call) in percentage";
-			this.treeColumn2.Width = 60;
+			treeColumn2.Header = "TT/F %";
+			treeColumn2.SortOrder = System.Windows.Forms.SortOrder.None;
+			treeColumn2.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
+			treeColumn2.TooltipText = "Total time per frame (including child call) in percentage";
+			treeColumn2.Width = 60;
 			// 
 			// treeColumn3
 			// 
-			this.treeColumn3.Header = "ST/F %";
-			this.treeColumn3.SortOrder = System.Windows.Forms.SortOrder.None;
-			this.treeColumn3.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
-			this.treeColumn3.TooltipText = "Self time per frame (child call not included) in percentage";
-			this.treeColumn3.Width = 60;
+			treeColumn3.Header = "ST/F %";
+			treeColumn3.SortOrder = System.Windows.Forms.SortOrder.None;
+			treeColumn3.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
+			treeColumn3.TooltipText = "Self time per frame (child call not included) in percentage";
+			treeColumn3.Width = 60;
 			// 
 			// treeColumn4
 			// 
-			this.treeColumn4.Header = "TT/C";
-			this.treeColumn4.SortOrder = System.Windows.Forms.SortOrder.None;
-			this.treeColumn4.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
-			this.treeColumn4.TooltipText = "Total time per call (including child call) in second";
-			this.treeColumn4.Width = 60;
+			treeColumn4.Header = "TT/C ms";
+			treeColumn4.SortOrder = System.Windows.Forms.SortOrder.None;
+			treeColumn4.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
+			treeColumn4.TooltipText = "Total time per call (including child call) in milli second";
+			treeColumn4.Width = 60;
 			// 
-			// treeColumn5
+			// treeColumn6
 			// 
-			this.treeColumn5.Header = "C/F";
-			this.treeColumn5.SortOrder = System.Windows.Forms.SortOrder.None;
-			this.treeColumn5.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
-			this.treeColumn5.TooltipText = "Call per frame";
-			this.treeColumn5.Width = 60;
+			treeColumn6.Header = "Call/F";
+			treeColumn6.SortOrder = System.Windows.Forms.SortOrder.None;
+			treeColumn6.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
+			treeColumn6.TooltipText = "Call per frame";
+			treeColumn6.Width = 60;
 			// 
 			// nodeTextBox1
 			// 
-			this.nodeTextBox1.DataPropertyName = "Name";
-			this.nodeTextBox1.IncrementalSearchEnabled = true;
-			this.nodeTextBox1.LeftMargin = 3;
-			this.nodeTextBox1.ParentColumn = this.treeColumn1;
+			nodeTextBox1.DataPropertyName = "Name";
+			nodeTextBox1.IncrementalSearchEnabled = true;
+			nodeTextBox1.LeftMargin = 3;
+			nodeTextBox1.ParentColumn = treeColumn1;
 			// 
 			// nodeDecimalTextBox1
 			// 
-			this.nodeDecimalTextBox1.DataPropertyName = "TTime";
-			this.nodeDecimalTextBox1.IncrementalSearchEnabled = true;
-			this.nodeDecimalTextBox1.LeftMargin = 3;
-			this.nodeDecimalTextBox1.ParentColumn = this.treeColumn2;
-			this.nodeDecimalTextBox1.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
+			nodeDecimalTextBox1.DataPropertyName = "TTime";
+			nodeDecimalTextBox1.IncrementalSearchEnabled = true;
+			nodeDecimalTextBox1.LeftMargin = 3;
+			nodeDecimalTextBox1.ParentColumn = treeColumn2;
+			nodeDecimalTextBox1.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
 			// 
 			// nodeDecimalTextBox2
 			// 
-			this.nodeDecimalTextBox2.DataPropertyName = "STime";
-			this.nodeDecimalTextBox2.IncrementalSearchEnabled = true;
-			this.nodeDecimalTextBox2.LeftMargin = 3;
-			this.nodeDecimalTextBox2.ParentColumn = this.treeColumn3;
-			this.nodeDecimalTextBox2.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
+			nodeDecimalTextBox2.DataPropertyName = "STime";
+			nodeDecimalTextBox2.IncrementalSearchEnabled = true;
+			nodeDecimalTextBox2.LeftMargin = 3;
+			nodeDecimalTextBox2.ParentColumn = treeColumn3;
+			nodeDecimalTextBox2.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
 			// 
 			// nodeTextBox2
 			// 
-			this.nodeTextBox2.DataPropertyName = "TTimePerCall";
-			this.nodeTextBox2.IncrementalSearchEnabled = true;
-			this.nodeTextBox2.LeftMargin = 3;
-			this.nodeTextBox2.ParentColumn = this.treeColumn4;
-			this.nodeTextBox2.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
+			nodeTextBox2.DataPropertyName = "TTimePerCall";
+			nodeTextBox2.IncrementalSearchEnabled = true;
+			nodeTextBox2.LeftMargin = 3;
+			nodeTextBox2.ParentColumn = treeColumn4;
+			nodeTextBox2.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
+			// 
+			// nodeTextBox4
+			// 
+			nodeTextBox4.DataPropertyName = "CallPerFrame";
+			nodeTextBox4.IncrementalSearchEnabled = true;
+			nodeTextBox4.LeftMargin = 3;
+			nodeTextBox4.ParentColumn = treeColumn6;
+			nodeTextBox4.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
+			// 
+			// treeColumn5
+			// 
+			treeColumn5.Header = "ST/C ms";
+			treeColumn5.SortOrder = System.Windows.Forms.SortOrder.None;
+			treeColumn5.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
+			treeColumn5.TooltipText = "Self time per call (child call not included) in milli second";
+			treeColumn5.Width = 60;
 			// 
 			// nodeTextBox3
 			// 
-			this.nodeTextBox3.DataPropertyName = "CallPerFrame";
-			this.nodeTextBox3.IncrementalSearchEnabled = true;
-			this.nodeTextBox3.LeftMargin = 3;
-			this.nodeTextBox3.ParentColumn = this.treeColumn5;
-			this.nodeTextBox3.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
+			nodeTextBox3.DataPropertyName = "STimePerCall";
+			nodeTextBox3.IncrementalSearchEnabled = true;
+			nodeTextBox3.LeftMargin = 3;
+			nodeTextBox3.ParentColumn = treeColumn5;
+			nodeTextBox3.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
 			// 
 			// flowLayoutPanel1
 			// 
@@ -204,11 +234,12 @@ namespace Studio
 			// 
 			this.treeViewAdv1.AllowColumnReorder = true;
 			this.treeViewAdv1.BackColor = System.Drawing.SystemColors.Window;
-			this.treeViewAdv1.Columns.Add(this.treeColumn1);
-			this.treeViewAdv1.Columns.Add(this.treeColumn2);
-			this.treeViewAdv1.Columns.Add(this.treeColumn3);
-			this.treeViewAdv1.Columns.Add(this.treeColumn4);
-			this.treeViewAdv1.Columns.Add(this.treeColumn5);
+			this.treeViewAdv1.Columns.Add(treeColumn1);
+			this.treeViewAdv1.Columns.Add(treeColumn2);
+			this.treeViewAdv1.Columns.Add(treeColumn3);
+			this.treeViewAdv1.Columns.Add(treeColumn4);
+			this.treeViewAdv1.Columns.Add(treeColumn5);
+			this.treeViewAdv1.Columns.Add(treeColumn6);
 			this.treeViewAdv1.DefaultToolTipProvider = null;
 			this.treeViewAdv1.Dock = System.Windows.Forms.DockStyle.Fill;
 			this.treeViewAdv1.DragDropMarkColor = System.Drawing.Color.Black;
@@ -219,11 +250,12 @@ namespace Studio
 			this.treeViewAdv1.Location = new System.Drawing.Point(0, 23);
 			this.treeViewAdv1.Model = null;
 			this.treeViewAdv1.Name = "treeViewAdv1";
-			this.treeViewAdv1.NodeControls.Add(this.nodeTextBox1);
-			this.treeViewAdv1.NodeControls.Add(this.nodeDecimalTextBox1);
-			this.treeViewAdv1.NodeControls.Add(this.nodeDecimalTextBox2);
-			this.treeViewAdv1.NodeControls.Add(this.nodeTextBox2);
-			this.treeViewAdv1.NodeControls.Add(this.nodeTextBox3);
+			this.treeViewAdv1.NodeControls.Add(nodeTextBox1);
+			this.treeViewAdv1.NodeControls.Add(nodeDecimalTextBox1);
+			this.treeViewAdv1.NodeControls.Add(nodeDecimalTextBox2);
+			this.treeViewAdv1.NodeControls.Add(nodeTextBox2);
+			this.treeViewAdv1.NodeControls.Add(nodeTextBox3);
+			this.treeViewAdv1.NodeControls.Add(nodeTextBox4);
 			this.treeViewAdv1.SelectedNode = null;
 			this.treeViewAdv1.Size = new System.Drawing.Size(669, 318);
 			this.treeViewAdv1.TabIndex = 2;
@@ -262,16 +294,6 @@ namespace Studio
 		private System.Windows.Forms.TextBox textBox1;
 		private Aga.Controls.Tree.TreeViewAdv treeViewAdv1;
 		private System.Windows.Forms.Button button2;
-		private Aga.Controls.Tree.TreeColumn treeColumn1;
-		private Aga.Controls.Tree.TreeColumn treeColumn2;
-		private Aga.Controls.Tree.TreeColumn treeColumn3;
-		private Aga.Controls.Tree.TreeColumn treeColumn4;
-		private Aga.Controls.Tree.TreeColumn treeColumn5;
-		private Aga.Controls.Tree.NodeControls.NodeTextBox nodeTextBox1;
-		private Aga.Controls.Tree.NodeControls.NodeDecimalTextBox nodeDecimalTextBox1;
-		private Aga.Controls.Tree.NodeControls.NodeDecimalTextBox nodeDecimalTextBox2;
-		private Aga.Controls.Tree.NodeControls.NodeTextBox nodeTextBox2;
-		private Aga.Controls.Tree.NodeControls.NodeTextBox nodeTextBox3;
 		private System.Windows.Forms.FlowLayoutPanel flowLayoutPanel1;
 		private System.Windows.Forms.Panel panel1;
 	}

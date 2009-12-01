@@ -82,6 +82,9 @@ MCD_INLINE2 Target polymorphic_downcast(Source& x) {
 //! Swap the memory content pointed by the 2 pointers.
 MCD_CORE_API void swapMemory(sal_inout_bcount(size) void* p1, sal_inout_bcount(size) void* p2, size_t size);
 
+//! Returns true if the platform the code is ran on is little endian.
+MCD_CORE_API bool isLittleEndian();
+
 }	// namespace MCD
 
 #endif	// __MCD_CORE_SYSTEM_UTILITY__

@@ -162,6 +162,8 @@ void AudioSource::update()
 		}
 	}
 
+	MCD_ASSERT(totalPcm() == 0 || currentPcm() <= totalPcm());
+
 	if(currentPcm() == totalPcm() && totalPcm() > 0)
 		stop();
 

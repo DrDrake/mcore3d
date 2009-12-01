@@ -678,7 +678,7 @@ public:
 		return false;
 	}
 
-	void update()
+	void flush()
 	{
 		if(!connected)
 			return;
@@ -758,8 +758,12 @@ bool MemoryProfilerServer::accept() {
 	return mImpl.accept();
 }
 
-void MemoryProfilerServer::update() {
-	mImpl.update();
+void MemoryProfilerServer::nextFrame() {
+	MemoryProfiler::singleton().nextFrame();
+}
+
+void MemoryProfilerServer::flush() {
+	mImpl.flush();
 }
 
 }	// namespace MCD

@@ -102,7 +102,7 @@ namespace Studio
 		/// </summary>
 		private void timer1_Tick(object sender, EventArgs e)
 		{
-			mMemoryProfilerServer.update();
+			mMemoryProfilerServer.flush();
 
 			if (backgroundWorker1.IsBusy)
 				return;
@@ -202,8 +202,9 @@ namespace Studio
 						node.Name = tokens[2];
 						node.TTime = Double.TryParse(tokens[3], out node.TTime) ? node.TTime : 0;
 						node.STime = Double.TryParse(tokens[4], out node.STime) ? node.STime : 0;
-						node.TTimePerCall = Double.TryParse(tokens[5], out node.TTimePerCall) ? node.TTimePerCall : 0;
-						node.CallPerFrame = Double.TryParse(tokens[6], out node.CallPerFrame) ? node.CallPerFrame : 0;
+						node.TTimePerCall = Double.TryParse(tokens[5], out node.TTimePerCall) ? node.TTimePerCall * 1000 : 0;
+						node.STimePerCall = Double.TryParse(tokens[6], out node.STimePerCall) ? node.STimePerCall * 1000 : 0;
+						node.CallPerFrame = Double.TryParse(tokens[7], out node.CallPerFrame) ? node.CallPerFrame : 0;
 					}
 
 					lastLine = s;
@@ -254,6 +255,7 @@ namespace Studio
 		public double TTime;
 		public double STime;
 		public double TTimePerCall;
+		public double STimePerCall;
 		public double CallPerFrame;
 
 		public new CpuCallstackNode Parent

@@ -15,7 +15,7 @@ public:
 
 	bool accept();
 
-	void update();
+	void flush();
 
 protected:
 	~MemoryProfilerServer();
@@ -33,7 +33,7 @@ public:
 
 	bool accept();
 
-	void update();
+	void flush();
 
 protected:
 	~CpuProfilerServer();

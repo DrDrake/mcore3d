@@ -2,12 +2,48 @@
 ;	Reference: http://www.virtualdub.org/blog/pivot/entry.php?id=120
 
 ;------------------------------------------------------------------------------
+;  MCD::StrideArray
+;------------------------------------------------------------------------------
+MCD::StrideArray<*> {
+	preview (
+		#(
+			"data=", (void*)$e.data, " eleCnt=", $e.size, " stride=", $e.stride, " sizeInBytes=", $e.size * $e.stride
+		)
+	)
+
+	children (
+		#array(
+			expr: (($T1*)($e.data + $i * $e.stride))[0],
+			size: $e.size
+		)
+	)
+}
+
+;------------------------------------------------------------------------------
+;  MCD::FixStrideArray
+;------------------------------------------------------------------------------
+MCD::FixStrideArray<*,*> {
+	preview (
+		#(
+			"data=", (void*)$e.data, " eleCnt=", $e.size, " stride=", $e.cStride, " sizeInBytes=", $e.size * $e.cStride
+		)
+	)
+
+	children (
+		#array(
+			expr: (($T1*)($e.data + $i * $e.cStride))[0],
+			size: $e.size
+		)
+	)
+}
+
+;------------------------------------------------------------------------------
 ;  MCD::Vec 2-4
 ;------------------------------------------------------------------------------
 MCD::Vec2<*> {
 	preview (
 		#(
-			"x=", $c.x, ", y=", $c.y
+			"x=", $e.x, ", y=", $e.y
 		)
 	)
 }
@@ -15,7 +51,7 @@ MCD::Vec2<*> {
 MCD::Vec3<*> {
 	preview (
 		#(
-			"x=", $c.x, ", y=", $c.y, ", z=", $c.z
+			"x=", $e.x, ", y=", $e.y, ", z=", $e.z
 		)
 	)
 }
@@ -23,7 +59,7 @@ MCD::Vec3<*> {
 MCD::Vec4<*> {
 	preview (
 		#(
-			"x=", $c.x, ", y=", $c.y, ", z=", $c.z, ", w=", $c.w
+			"x=", $e.x, ", y=", $e.y, ", z=", $e.z, ", w=", $e.w
 		)
 	)
 }
@@ -31,7 +67,7 @@ MCD::Vec4<*> {
 MCD::Quaternion<*> {
 	preview (
 		#(
-			"x=", $c.x, ", y=", $c.y, ", z=", $c.z, ", w=", $c.w
+			"x=", $e.x, ", y=", $e.y, ", z=", $e.z, ", w=", $e.w
 		)
 	)
 }
@@ -43,9 +79,9 @@ MCD::Quaternion<*> {
 MCD::Mat33<*> {
 	stringview (
 		#(
-			$c.m00, ", ", $c.m01, ", ", $c.m02, "<br>",
-			$c.m10, ", ", $c.m11, ", ", $c.m12, "<br>",
-			$c.m20, ", ", $c.m21, ", ", $c.m22
+			$e.m00, ", ", $e.m01, ", ", $e.m02, "<br>",
+			$e.m10, ", ", $e.m11, ", ", $e.m12, "<br>",
+			$e.m20, ", ", $e.m21, ", ", $e.m22
 		)
 	)
 }
@@ -53,10 +89,10 @@ MCD::Mat33<*> {
 MCD::Mat44<*> {
 	stringview (
 		#(
-			$c.m00, ", ", $c.m01, ", ", $c.m02, ", ", $c.m03, "<br>",
-			$c.m10, ", ", $c.m11, ", ", $c.m12, ", ", $c.m13, "<br>",
-			$c.m20, ", ", $c.m21, ", ", $c.m22, ", ", $c.m23, "<br>",
-			$c.m30, ", ", $c.m31, ", ", $c.m32, ", ", $c.m33
+			$e.m00, ", ", $e.m01, ", ", $e.m02, ", ", $e.m03, "<br>",
+			$e.m10, ", ", $e.m11, ", ", $e.m12, ", ", $e.m13, "<br>",
+			$e.m20, ", ", $e.m21, ", ", $e.m22, ", ", $e.m23, "<br>",
+			$e.m30, ", ", $e.m31, ", ", $e.m32, ", ", $e.m33
 		)
 	)
 }
@@ -70,13 +106,13 @@ MCD::LinkList<*> {
 	(
 		#(
 			"[",
-				$c.mCount,
+				$e.mCount,
 			"](",
 
 			#list
 			(
-				head : $c.mHead->mNext,
-				size : $c.mCount,
+				head : $e.mHead->mNext,
+				size : $e.mCount,
 				next : mNext
 			) : ($T1*)(&$e),
 
@@ -88,8 +124,8 @@ MCD::LinkList<*> {
 	(
 		#list
 		(
-			head : $c.mHead->mNext,
-			size : $c.mCount,
+			head : $e.mHead->mNext,
+			size : $e.mCount,
 			next : mNext
 		) : ($T1*)(&$e)
 	)
@@ -104,8 +140,8 @@ MCD::Map<*> {
 	(
 		#tree
 		(
-			head : $c.mRoot,
-			size : $c.mCount,
+			head : $e.mRoot,
+			size : $e.mCount,
 			left : mChildren,
 			right : mRight
 		) : &$e
@@ -116,7 +152,7 @@ MCD::MapBase<*>::Node<*> {
 	preview
 	(
 		#(
-			"Key=", $c.mKey
+			"Key=", $e.mKey
 		)
 	)
 }
@@ -128,34 +164,34 @@ MCD::MapBase<*>::Node<*> {
 MCD::IntrudsivePtr<*> {
 	preview (
 		#(
-			"Addr=", (void*)($c.mPtr),
-			"] ", (*(($T1 *)$c.mPtr))
+			"Addr=", (void*)($e.mPtr),
+			"] ", (*(($T1 *)$e.mPtr))
 		)
 	)
 	children (
 		#( 
-			Pointee: (*(($T1 *)$c.mPtr))
+			Pointee: (*(($T1 *)$e.mPtr))
 		)
 	)
 }
 
 MCD::WeakPtr<*> {
 	preview (
-		#if($c.mValidityFlag.mPtr->mIsValid == 1)
+		#if($e.mValidityFlag.mPtr->mIsValid == 1)
 		(#(
-			"[Addr=", (void*)($c.mPtr),
-			"] ", (*(($T1 *)$c.mPtr))
+			"[Addr=", (void*)($e.mPtr),
+			"] ", (*(($T1 *)$e.mPtr))
 		))
 		#else
 		(#(
 			"[Addr=", (void*)(0),
-			"] ", (*(($T1 *)$c.mPtr))
+			"] ", (*(($T1 *)$e.mPtr))
 		))
 	)
 	children (
-		#if($c.mValidityFlag.mPtr->mIsValid == 1)
+		#if($e.mValidityFlag.mPtr->mIsValid == 1)
 		(#(
-			Pointee: *(($T1 *)$c.mPtr)
+			Pointee: *(($T1 *)$e.mPtr)
 		))
 		#else
 		(#(

@@ -43,7 +43,7 @@ void GroundPlaneComponent::render()
 	float len = (p2 - p1).length();
 	int cLineCount = int(1.0f / len);
 	int factor = int(::log10f(len));
-	len *= ::powf(10, -(factor - 1));
+	len *= ::powf(10.0f, float(-(factor - 1)));
 
 //	const float cPixelSizeForUnitLength = 100.0f;
 //	e->localTransform.setScale(Vec3f(cPixelSizeForUnitLength / len));

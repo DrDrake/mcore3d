@@ -142,7 +142,7 @@ public:
 	{
 		MCD::ThreadedCpuProfiler::Scope scope("RenderPanelControl::update");
 
-		const float dt = mDeltaTimer.getDelta().asSecond();
+		const float dt = float(mDeltaTimer.getDelta().asSecond());
 		makeActive();
 
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);

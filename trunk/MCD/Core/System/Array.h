@@ -120,7 +120,7 @@ public:
 	size_t sizeInByte() const { return size * stride; }
 
 	char* data;
-	size_t size;
+	size_t size;	//!< Element count.
 	size_t stride;
 };	// StrideArray
 
@@ -131,6 +131,9 @@ class FixStrideArray
 public:
 	FixStrideArray(void* _data, size_t elementCount)
 		: data((char*)_data), size(elementCount)
+#ifndef NDEBUG
+		, cStride(stride)
+#endif
 	{}
 
 	T& operator[](size_t i)
@@ -151,7 +154,12 @@ public:
 	size_t sizeInByte() const { return size * stride; }
 
 	char* data;
-	size_t size;
+	size_t size;	//!< Element count.
+
+#ifndef NDEBUG
+	//! For Visual Studio debugger visualization purpose.
+	size_t cStride;
+#endif
 };	// FixStrideArray
 
 }	// namespace MCD
