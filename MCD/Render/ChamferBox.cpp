@@ -33,7 +33,7 @@ ChamferBoxBuilder::ChamferBoxBuilder(float filletRadius, size_t filletSegmentCou
 	const Vec3f center(0, 0, 0);
 	const Vec3f extent(1.0f);
 
-	reserveBuffers(uint16_t(vertexCount * cubeFaceCount), indexCount * cubeFaceCount);
+	MCD_VERIFY(reserveBuffers(uint16_t(vertexCount * cubeFaceCount), indexCount * cubeFaceCount));
 
 	const Array<Mat33f, cubeFaceCount> transforms = {
 		Mat33f::cIdentity,
@@ -133,7 +133,7 @@ ChamferBoxBuilder::ChamferBoxBuilder(float filletRadius, size_t filletSegmentCou
 	}
 
 	if(includeTangents)
-		TangentSpaceBuilder().compute(*this, 0,	posId, normalId, uvId, tangentId);
+		MCD_VERIFY(TangentSpaceBuilder().compute(*this, 0,	posId, normalId, uvId, tangentId));
 }
 
 void ChamferBoxBuilder::commit(Mesh& mesh, MeshBuilder::StorageHint storageHint)

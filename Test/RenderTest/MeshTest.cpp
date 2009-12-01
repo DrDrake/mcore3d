@@ -118,10 +118,10 @@ TEST(MeshBuilderLateDeclareTest)
 
 	// Adds 2 vertex with 2 attribute first
 	const Vec3f pos(1, 2, 3);
-	builder.vertexAttribute(posId, &pos);
+	CHECK(builder.vertexAttribute(posId, &pos));
 
 	const Vec3f normal(1, 0, 0);
-	builder.vertexAttribute(normalId, &normal);
+	CHECK(builder.vertexAttribute(normalId, &normal));
 
 	builder.addVertex();
 	builder.addVertex();

@@ -5,6 +5,7 @@
 #include "RigidBodyComponent.inl"	// We need to access some implementation of RigidBodyComponent
 #include "MathConvertor.inl"
 #include "../../Core/System/MemoryProfiler.h"
+#include "../../Core/System/ThreadedCpuProfiler.h"
 #include "../../../3Party/bullet/btBulletDynamicsCommon.h"
 
 using namespace MCD;
@@ -73,6 +74,7 @@ Vec3f DynamicsWorld::gravity() const
 void DynamicsWorld::stepSimulation(float timeStep, int maxSubStep)
 {
 	MemoryProfiler::Scope profiler("DynamicsWorld::stepSimulation");
+	ThreadedCpuProfiler::Scope scope("DynamicsWorld::stepSimulation");
 
 	MCD_ASSUME(mImpl && mImpl->mDynamicsWorld);
 	mImpl->mDynamicsWorld->stepSimulation(timeStep, maxSubStep);

@@ -60,7 +60,7 @@ public:
 
 		{	AnimationComponent* c = new AnimationComponent(animationThread);
 			e2->addComponent(c);
-			c->animationInstance.addTrack(*animationTrack);
+			MCD_VERIFY(c->animationInstance.addTrack(*animationTrack));
 			c->animationInstance.time = initialAnimationTime;
 		}
 
