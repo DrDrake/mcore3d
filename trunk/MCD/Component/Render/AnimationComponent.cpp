@@ -65,7 +65,8 @@ AnimationComponent::~AnimationComponent()
 
 void AnimationComponent::update(float dt)
 {
-	if(!entity() || !entity()->enabled)
+	Entity* e = entity();
+	if(!e || !e->enabled)
 		return;
 
 	animationInstance.time += dt;
@@ -77,7 +78,7 @@ void AnimationComponent::update(float dt)
 	// NOTE: This assignment will cause data race since the animation thread is keep updating
 	// animationInstance).transform, but it isn't a problem at all because the matrix
 	// change relativly smooth over time.
-	entity()->localTransform = static_cast<MyAnimationInstance&>(animationInstance).transform;
+	e->localTransform = static_cast<MyAnimationInstance&>(animationInstance).transform;
 }
 
 class AnimationThread::Impl : public Thread::IRunnable, public Thread

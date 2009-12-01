@@ -39,7 +39,7 @@ protected:
 	/*!	In order to decouple the multi-thread life-time problem,
 		we share the AnimationInstance with the animation update thread.
 	 */
-	typedef SharedPtr<MyAnimationInstance> AnimationInstancePtr;	// TODO: Thread safe to use SharedPtr?
+	typedef SharedPtr<MyAnimationInstance> AnimationInstancePtr;
 	const AnimationInstancePtr mAnimationInstanceHolder;
 
 	AnimationThread& mAnimationThread;

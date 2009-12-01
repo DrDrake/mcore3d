@@ -38,11 +38,15 @@ AnimationTrack::KeyFrames AnimationTrack::getKeyFramesForSubtrack(size_t index)
 
 float AnimationTrack::totalTime() const
 {
+	MCD_ASSERT(mMutex.isLocked());
+
 	return keyframeTimes[keyframeCount() - 1];
 }
 
 float AnimationTrack::currentTime() const
 {
+	MCD_ASSERT(mMutex.isLocked());
+
 	const float t1 = keyframeTimes[frame1Idx];
 	const float t2 = keyframeTimes[frame2Idx];
 	return t1 + ratio * (t2 - t1);
@@ -50,7 +54,7 @@ float AnimationTrack::currentTime() const
 
 bool AnimationTrack::init(size_t keyFrameCnt, size_t subtrackCnt)
 {
-	if(keyFrameCnt < 2 || subtrackCnt < 1)
+	if(keyFrameCnt < 1 || subtrackCnt < 1)
 		return false;
 
 	MCD_ASSERT(mMutex.isLocked());
@@ -90,8 +94,16 @@ void AnimationTrack::updateNoLock(float currentTime)
 {
 	MCD_ASSERT(mMutex.isLocked());
 
-	if(keyframeTimes.size < 2 || !mCommitted)
+	if(!mCommitted)
 		return;
+
+	// If the animation has only one frame, there is no need to 
+	// do any interpolation, simply copy the data.
+	if(keyframeTimes.size < 2) {
+		for(size_t i=0; i<subtrackFlags.size; ++i)
+			interpolatedResult[i] = getKeyFramesForSubtrack(i)[0];
+		return;
+	}
 
 	// Phase 1: find the wrapped version of currentTime
 	if(loop)
@@ -154,7 +166,9 @@ void AnimationTrack::updateNoLock(float currentTime)
 
 bool AnimationTrack::checkValid() const
 {
-	if(keyframeCount() < 2 || subtrackCount() < 1)
+	MCD_ASSERT(mMutex.isLocked());
+
+	if(keyframeCount() < 1 || subtrackCount() < 1)
 		return false;
 
 	{	// Check that keyframeTimes are positive, unique and in ascending order.
@@ -172,7 +186,6 @@ bool AnimationTrack::checkValid() const
 void AnimationTrack::acquireReadLock()
 {
 	mMutex.lock();
-	MCD_ASSERT(isCommitted());
 }
 
 void AnimationTrack::releaseReadLock()
@@ -193,6 +206,7 @@ void AnimationTrack::releaseWriteLock()
 }
 
 bool AnimationTrack::isCommitted() const {
+	MCD_ASSERT(mMutex.isLocked());
 	return mCommitted;
 }
 

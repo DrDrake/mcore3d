@@ -2,6 +2,7 @@
 #include "AnimationInstance.h"
 #include "Vec4.h"
 #include "../System/Utility.h"
+#include "../System/Log.h"
 
 namespace MCD {
 
@@ -15,12 +16,52 @@ AnimationInstance::~AnimationInstance()
 	delete[] interpolatedResult.getPtr();
 }
 
+bool AnimationInstance::resetInterpolatedResult()
+{
+	if(mTracks.empty())
+		return false;
+
+	mTracks[0].track->acquireReadLock();
+	const size_t cSubtrackCnt = mTracks[0].track->subtrackCount();
+	mTracks[0].track->releaseReadLock();
+
+	MCD_FOREACH(const WeightedTrack& wt, mTracks) {
+		wt.track->acquireReadLock();
+
+		if(!wt.track->isCommitted()) {
+			wt.track->releaseReadLock();
+			return false;
+		}
+
+		if(cSubtrackCnt != wt.track->subtrackCount()) {
+			Log::format(
+				Log::Warn,
+				L"Incompatible AnimationTrack: subtrack count not matched."
+				L"Animation will not be updated.");
+
+			wt.track->releaseReadLock();
+			return false;
+		}
+
+		wt.track->releaseReadLock();
+	}
+
+	const_cast<AnimationTrack::KeyFrames&>(interpolatedResult) =
+		AnimationTrack::KeyFrames(new AnimationTrack::KeyFrame[cSubtrackCnt], cSubtrackCnt);
+
+	return true;
+}
+
 // TODO: Optimize for single tracks (mTracks.size() == 0)?
 void AnimationInstance::update()
 {
 	ScopeRecursiveLock lock(mMutex);
 
 	AnimationTrack::KeyFrames& result = const_cast<AnimationTrack::KeyFrames&>(interpolatedResult);
+
+	if(!result.data)
+		if(!resetInterpolatedResult())
+			return;
 
 	// Zero out interpolatedResult first
 	::memset(&result[0], 0, result.sizeInByte());
@@ -31,7 +72,7 @@ void AnimationInstance::update()
 		AnimationTrack& t = *wt.track;
 
 		t.acquireReadLock();
-		t.updateNoLock(time);
+		t.updateNoLock(time * wt.frameRate);
 
 		for(size_t i=0; i<t.subtrackCount(); ++i)
 			reinterpret_cast<Vec4f&>(result[i]) += wt.weight * reinterpret_cast<Vec4f&>(t.interpolatedResult[i]);
@@ -40,23 +81,16 @@ void AnimationInstance::update()
 	}
 }
 
-bool AnimationInstance::addTrack(AnimationTrack& track, float weight)
+bool AnimationInstance::addTrack(AnimationTrack& track, float weight, float frameRate)
 {
 	ScopeRecursiveLock lock(mMutex);
 
-	if(track.subtrackCount() == 0)
-		return false;
-
-	if(!mTracks.empty() && subtrackCount() != track.subtrackCount())
-		return false;
-
-	WeightedTrack t = { weight, &track };
+	WeightedTrack t = { weight, frameRate, &track };
 	mTracks.push_back(t);
 
+	// Destroy the interpolatedResult and let update() to recreate it,
 	delete[] interpolatedResult.getPtr();
-	const_cast<AnimationTrack::KeyFrames&>(interpolatedResult) = AnimationTrack::KeyFrames(
-		new AnimationTrack::KeyFrame[track.subtrackCount()], track.subtrackCount()
-	);
+	const_cast<AnimationTrack::KeyFrames&>(interpolatedResult) = AnimationTrack::KeyFrames(nullptr, 0);
 
 	return true;
 }
@@ -107,8 +141,13 @@ AnimationInstance::WeightedTrack* AnimationInstance::getTrack(size_t index)
 bool AnimationInstance::isAllTrackCommited() const
 {
 	ScopeRecursiveLock lock(mMutex);
-	MCD_FOREACH(const WeightedTrack& t, mTracks)
-		if(t.track && !t.track->isCommitted()) return false;
+	MCD_FOREACH(const WeightedTrack& t, mTracks) {
+		t.track->acquireReadLock();
+		const bool committed = t.track && t.track->isCommitted();
+		t.track->releaseReadLock();
+		if(!committed)
+			return false;
+	}
 	return true;
 }
 

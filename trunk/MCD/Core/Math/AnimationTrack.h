@@ -63,7 +63,9 @@ public:
 	explicit AnimationTrack(const Path& fileId);
 
 // Operations
-	//!	Can be invoked multiple times.
+	/*!	Can be invoked multiple times.
+		Parameters \em keyFrameCnt and \em subtrackCnt should be larger than zero.
+	 */
 	sal_checkreturn bool init(size_t keyFrameCnt, size_t subtrackCnt);
 
 	/*!	Set the track's time to a specific value, and cache the interpolated result,

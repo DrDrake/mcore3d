@@ -11,17 +11,21 @@ TEST(AnimationTrackTest)
 	}
 
 	{	AnimationTrackPtr track = new AnimationTrack(L"");
+		track->acquireReadLock();
 		CHECK(!track->isCommitted());
+		track->releaseReadLock();
 
 		track->acquireWriteLock();
-		CHECK(!track->init(1, 1));
-		CHECK(!track->init(2, 0));
-		CHECK(track->init(2, 1));
+		CHECK(!track->init(0, 1));
+		CHECK(!track->init(1, 0));
+		CHECK(track->init(1, 1));
 		track->releaseWriteLock();
 
+		track->acquireReadLock();
 		CHECK(track->isCommitted());
-		CHECK_EQUAL(2u, track->keyframeCount());
+		CHECK_EQUAL(1u, track->keyframeCount());
 		CHECK_EQUAL(1u, track->subtrackCount());
+		track->releaseReadLock();
 	}
 
 	{	AnimationTrackPtr track = new AnimationTrack(L"");
@@ -44,30 +48,34 @@ TEST(AnimationTrackTest)
 			track->releaseWriteLock();
 		}
 
+		track->acquireReadLock();
+
 		{	// Test for the update() function
-			track->update(0.5f);
+			track->updateNoLock(0.5f);
 			const Vec4f& pos = reinterpret_cast<const Vec4f&>(track->interpolatedResult[0]);
 			CHECK(pos.isNearEqual(Vec4f(1.5f)));
 		}
 
 		{	// Try to play backward from time 0.5 back to 0.1
-			track->update(0.0f);
+			track->updateNoLock(0.0f);
 			const Vec4f& pos = reinterpret_cast<const Vec4f&>(track->interpolatedResult[0]);
 			CHECK(pos.isNearEqual(Vec4f(1)));
 		}
 
 		{	// Try to play over totalTime() under loop mode
-			track->update(track->totalTime() * 2);
+			track->updateNoLock(track->totalTime() * 2);
 			const Vec4f& pos = reinterpret_cast<const Vec4f&>(track->interpolatedResult[0]);
 			CHECK(pos.isNearEqual(Vec4f(1)));
 		}
 
 		{	// Try to play over totalTime() not under loop mode
 			track->loop = false;
-			track->update(track->totalTime() * 2);
+			track->updateNoLock(track->totalTime() * 2);
 			const Vec4f& pos = reinterpret_cast<const Vec4f&>(track->interpolatedResult[0]);
 			CHECK(pos.isNearEqual(Vec4f(2)));
 		}
+
+		track->releaseReadLock();
 	}
 }
 
@@ -92,14 +100,16 @@ TEST(Slerp_AnimationTrackTest)
 		track->releaseWriteLock();
 	}
 
-	track->update(0.5f);
-
+	track->acquireReadLock();
+	track->updateNoLock(0.5f);
 	const Quaternionf& q = reinterpret_cast<const Quaternionf&>(track->interpolatedResult[0]);
+
 	Vec3f v;
 	float angle;
 	q.toAxisAngle(v, angle);
 	CHECK(v.isNearEqual(Vec3f::c010));
 	CHECK_CLOSE(Mathf::cPi() * 3/4, angle, 1e-6);
+	track->releaseReadLock();
 }
 
 #include "../../../MCD/Core/System/Timer.h"
@@ -131,12 +141,14 @@ TEST(Performance_AnimationTrackTest)
 		track->releaseWriteLock();
 	}
 
-	{	DeltaTimer timer;
+	{	track->acquireReadLock();
+		DeltaTimer timer;
 		const float totalTime = track->totalTime();
 
 		size_t count = 0;
 		for(float t=0; t<totalTime; t+=0.1f, ++count)
-			track->update(t);
+			track->updateNoLock(t);
+		track->releaseReadLock();
 
 		const double timeElasped = timer.getDelta().asSecond();
 		const double attributePerSecond = double(subtrackCount) * count / timeElasped;

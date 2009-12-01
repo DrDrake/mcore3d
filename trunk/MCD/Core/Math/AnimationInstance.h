@@ -22,7 +22,7 @@ public:
 	void update();
 
 	//!	May fail if the sub-track count are not matched.
-	sal_checkreturn bool addTrack(AnimationTrack& track, float weight=1.0f);
+	sal_checkreturn bool addTrack(AnimationTrack& track, float weight=1.0f, float frameRate=1.0f);
 
 	//! Will perform normalizeWeight() automatically.
 	void removeTrack(size_t index);
@@ -34,6 +34,7 @@ public:
 	struct WeightedTrack
 	{
 		float weight;
+		float frameRate;
 		AnimationTrackPtr track;
 	};	// WeightedTrack
 
@@ -58,6 +59,9 @@ public:
 	const AnimationTrack::KeyFrames interpolatedResult;
 
 protected:
+	//! The cache need to recreate when new track is added.
+	sal_checkreturn bool resetInterpolatedResult();
+
 	typedef std::vector<WeightedTrack> Tracks;
 	Tracks mTracks;
 
