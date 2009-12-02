@@ -81,11 +81,11 @@ void AnimationInstance::update()
 	}
 }
 
-bool AnimationInstance::addTrack(AnimationTrack& track, float weight, float frameRate)
+bool AnimationInstance::addTrack(AnimationTrack& track, float weight, float framerate)
 {
 	ScopeRecursiveLock lock(mMutex);
 
-	WeightedTrack t = { weight, frameRate, &track };
+	WeightedTrack t = { weight, framerate <= 0 ? track.naturalFramerate : framerate, &track };
 	mTracks.push_back(t);
 
 	// Destroy the interpolatedResult and let update() to recreate it,

@@ -21,8 +21,10 @@ public:
 // Operations
 	void update();
 
-	//!	May fail if the sub-track count are not matched.
-	sal_checkreturn bool addTrack(AnimationTrack& track, float weight=1.0f, float frameRate=1.0f);
+	/*!	May fail if the sub-track count are not matched.
+		\parameter framerate Override AnimationTrack::naturalFramerate if it's value is larger than zero.
+	 */
+	sal_checkreturn bool addTrack(AnimationTrack& track, float weight=1.0f, float framerate=0.0f);
 
 	//! Will perform normalizeWeight() automatically.
 	void removeTrack(size_t index);
