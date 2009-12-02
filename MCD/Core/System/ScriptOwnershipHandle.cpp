@@ -56,15 +56,13 @@ void ScriptOwnershipHandle::destroy()
 
 void ScriptOwnershipHandle::setHandle(void* v, int index)
 {
-	HSQOBJECT* _weakRef = reinterpret_cast<HSQOBJECT*>(weakRef);
-	HSQUIRRELVM& _vm = reinterpret_cast<HSQUIRRELVM&>(vm);
+	if(!v) return;
+	if(vm) return;	// Ignore setting the handle from secondary VM
 
-	if(vm)	// Remove previous reference
-		sq_release(_vm, _weakRef);
 	vm = v;
 
-	if(!vm)
-		return;
+	HSQOBJECT* _weakRef = reinterpret_cast<HSQOBJECT*>(weakRef);
+	HSQUIRRELVM& _vm = reinterpret_cast<HSQUIRRELVM&>(vm);
 
 	sq_weakref(_vm, index);	// Create a weak reference to the object at index
 	sq_getstackobj(_vm, -1, _weakRef);
@@ -74,18 +72,21 @@ void ScriptOwnershipHandle::setHandle(void* v, int index)
 
 bool ScriptOwnershipHandle::pushHandle(void* v)
 {
-	// A safty check in multiple VM situation
-	if(!v || v != vm)
-		return false;
+	// Ok, even v != vm, there is no problem.
+	if(!v) return false;
 
 	HSQOBJECT* _weakRef = reinterpret_cast<HSQOBJECT*>(weakRef);
 
 	// Get the SQObject of what the weak reference pointing to.
 	SQObject& o = _weakRef->_unVal.pWeakRef->_obj;
-	if(!sq_isinstance(o))	// The strong reference may already released
+	if(!sq_isinstance(o)) {	// The strong reference may already released
+		sq_release(reinterpret_cast<HSQUIRRELVM>(v), _weakRef);	// TODO: Is passing "v" as the VM correct?
+		sq_resetobject(_weakRef);
+		vm = nullptr;
 		return false;
+	}
 
-	sq_pushobject(reinterpret_cast<HSQUIRRELVM>(vm), o);
+	sq_pushobject(reinterpret_cast<HSQUIRRELVM>(v), o);	// NOTE: We are passing v but not vm.
 	return true;
 }
 
