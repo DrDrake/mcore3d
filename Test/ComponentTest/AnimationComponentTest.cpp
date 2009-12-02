@@ -16,6 +16,7 @@ namespace {
 class TestWindow : public BasicGlWindow
 {
 	static const size_t cFrameCount = 50;
+	static const size_t cBoxCount = 1000;
 
 public:
 	TestWindow()
@@ -32,12 +33,8 @@ public:
 			chamferBoxBuilder.commit(*mesh, MeshBuilder::Static);
 		}
 
-		const size_t boxCount = 1000;
-		for(size_t i=0; i<boxCount; ++i) {
-			Vec3f pos(Mathf::random(), Mathf::random(), Mathf::random());
-			pos = (pos * 2 - 1) * boxCount/10;
-			createBox(pos, Mathf::random() * cFrameCount);
-		}
+		for(size_t i=0; i<cBoxCount; ++i)
+			createARandomBox();
 	}
 
 	void createBox(const Vec3f& position, float initialAnimationTime)
@@ -68,6 +65,26 @@ public:
 		e2.release();
 	}
 
+	void createARandomBox()
+	{
+		Vec3f pos(Mathf::random(), Mathf::random(), Mathf::random());
+		pos = (pos * 2 - 1) * cBoxCount/10;
+		createBox(pos, Mathf::random() * cFrameCount);
+	}
+
+	void destroyARandomBox()
+	{
+		// Search for a random Entity to remove
+		Entity* e = mRootNode.firstChild();
+		size_t idx = rand() % cBoxCount;
+
+		while(idx--) {
+			if(!e) return;
+			e = e->nextSibling();
+		}
+		delete e;
+	}
+
 	Quaternionf randomQuaternion()
 	{
 		Quaternionf q(Mathf::random(), Mathf::random(), Mathf::random(), Mathf::random());
@@ -85,6 +102,11 @@ public:
 			loadAnimationTrack();
 			mTimer.reset();
 		}
+
+		if(Mathf::random() > 0.002)
+			createARandomBox();
+		if(Mathf::random() > 0.002)
+			destroyARandomBox();
 
 		mRootNode.localTransform.setTranslation(Vec3f(0, 0, -200));
 		RenderableComponent::traverseEntities(&mRootNode);

@@ -143,6 +143,12 @@ public:
 	//! Whether the current time will wrap over if it's larger than totalTime().
 	bool loop;
 
+	/*! The natural framerate for this animation (default value is 1).
+		This variable is not used directly in this class, but to be used by client
+		in order to pass the correct time value to update() function.
+	 */
+	float naturalFramerate;
+
 	// Cached variables, updated after calling update()
 	size_t frame1Idx;	//!< Index to keyframeTimes that just before the current time.
 	size_t frame2Idx;	//!< Index to keyframeTimes that just after the current time.
@@ -159,7 +165,7 @@ protected:
 	bool mCommitted;
 
 	Mutex mMutex;
-};	// AnimationTrack
+};	// 
 
 typedef IntrusivePtr<AnimationTrack> AnimationTrackPtr;
 

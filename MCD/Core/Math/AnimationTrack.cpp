@@ -12,8 +12,9 @@ AnimationTrack::AnimationTrack(const Path& fileId)
 	, keyframes(nullptr, 0)
 	, keyframeTimes(nullptr, 0)
 	, subtrackFlags(nullptr, 0)
-	, loop(true), mCommitted(false), frame1Idx(0), frame2Idx(1), ratio(0)
-	, interpolatedResult(nullptr, 0)
+	, loop(true), naturalFramerate(1)
+	, frame1Idx(0), frame2Idx(1), ratio(0), interpolatedResult(nullptr, 0)
+	, mCommitted(false)
 {
 }
 
