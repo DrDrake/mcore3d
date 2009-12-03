@@ -126,16 +126,8 @@ bool ScriptComponentManager::init(ScriptVM& vm, IFileSystem& fs)
 		\n\
 		_lastCollectComponnetGarbageTime <- 0;\n\
 		function updateAllScriptComponent() {\n\
-			local currentTime = ::gFrameTimer.accumulateTime;\n\
-			local queueResult = ::ComponentQueueResult();\n\
-			while(true) {\n\
-				queueResult = ::gComponentQueue.getItem(currentTime, queueResult.queueNode);\n\
-				local component = queueResult.component;\n\
-				if(component && component.entity && component.entity.enabled)\n\
-					component.wakeup();\n\
-				if(!queueResult.queueNode)\n\
-					break;\n\
-			}\n\
+			local currentTime = ::gFrameTimer._getaccumulateTime();\n\
+			::gComponentQueue.update(currentTime);\n\
 			// Periodically cleanup any unused entry in the thread-component table\n\
 			if(currentTime - ::_lastCollectComponnetGarbageTime > 0.2) {\n\
 				::_lastCollectComponnetGarbageTime = currentTime;\n\
