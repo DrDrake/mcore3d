@@ -128,38 +128,32 @@ struct ComponentQueueResult
 	const QueueNode* queueNode;
 };	// ComponentQueueResult
 
-SCRIPT_CLASS_DECLAR(ComponentQueueResult);
-SCRIPT_CLASS_DECLAR(ComponentQueue::QueueNode);
-
-// NOTE: This function is not thread safe, cannot' be invoked by more than one thread at a time.
-static ComponentQueueResult* componentQueueGetItem(ComponentQueue& self, float currentTime, const ComponentQueue::QueueNode* begin)
+static int componentQueueUpdate(HSQUIRRELVM vm)
 {
-	// NOTE: This function can be thread safe if this variable use TLS
-	static ComponentQueueResult result;
-	result.queueNode = begin;
-	result.component = self.getItem(currentTime, result.queueNode);
+	script::detail::StackHandler sa(vm);
+	ComponentQueue& q = get(types::TypeSelect<ComponentQueue&>(), vm, 1);
+	float time = sa.getFloat(2);
 
-	// NOTE: We are returning the address of a static variable!
-	// Since the usage pattern of ComponentQueueResult is just very temporary, therefore
-	// instead of dynamically allocating new ComponentQueueResult, we reuse the static
-	// variable. So, make sure ComponentQueue.getItem() will only invoked in only one
-	// thread, and the returning script variable will not be stored.
-	return &result;
+	const ComponentQueue::QueueNode* queueNode = nullptr;
+	do {
+		Component* c = q.getItem(time, queueNode);
+		if(c && c->entity() && c->entity()->enabled) {
+			objNoCare::pushResult(vm, c);
+			sq_pushstring(vm, xSTRING("wakeup"), -1);
+			sq_get(vm, -2);	// Get the "wakeup" function from the component
+			objNoCare::pushResult(vm, c);
+			sq_call(vm, 1, SQFalse, SQTrue);
+			sq_pop(vm, 2);	// Pops the component and the function
+		}
+	} while(queueNode);
+
+	return 1;
 }
-SCRIPT_CLASS_REGISTER_NAME(ComponentQueue::QueueNode, "__ComponentQueueNode__")
-;}
-
-SCRIPT_CLASS_REGISTER_NAME(ComponentQueueResult, "ComponentQueueResult")
-	.enableGetset()
-	.constructor()
-	.method<objNoCare>(xSTRING("_getcomponent"), &ComponentQueueResult::getComponent)
-	.method<objNoCare>(xSTRING("_getqueueNode"), &ComponentQueueResult::getQueueNode)
-;}
 
 SCRIPT_CLASS_REGISTER_NAME(ComponentQueue, "ComponentQueue")
 	.constructor()
 	.method(xSTRING("setItem"), &ComponentQueue::setItem)
-	.wrappedMethod<objNoCare>(xSTRING("getItem"), &componentQueueGetItem)	// NOTE: Use <objNoCare>, more info in the comments of componentQueueGetItem.
+	.rawMethod(xSTRING("update"), &componentQueueUpdate)
 ;}
 
 }	// namespace script
@@ -167,6 +161,4 @@ SCRIPT_CLASS_REGISTER_NAME(ComponentQueue, "ComponentQueue")
 void MCD::registerComponentQueueBinding(script::VMCore* v)
 {
 	script::ClassTraits<ComponentQueue>::bind(v);
-	script::ClassTraits<ComponentQueue::QueueNode>::bind(v);
-	script::ClassTraits<script::ComponentQueueResult>::bind(v);
 }
