@@ -155,12 +155,16 @@ static Vec3f subVec3(const Vec3f& lhs, const Vec3f& rhs) { return lhs - rhs; }
 static Vec3f mulVec3(const Vec3f& lhs, float rhs) { return lhs * rhs; }
 static Vec3f unmVec3(const Vec3f& lhs) { return -lhs; }
 static bool isEqualVec3(const Vec3f& lhs, const Vec3f& rhs) { return lhs == rhs; }
-static void vec3AddEqual(Vec3f& lhs, const Vec3f& rhs) { lhs += rhs; }
-static void vec3MulEqual(Vec3f& lhs, float rhs) { lhs *= rhs; }
 static int cmpVec3(const Vec3f& lhs, const Vec3f& rhs) {
 	if(lhs == rhs) return 0;
 	return 1;
 //	return lhs > rhs ? 1 : -1;
+}
+static void vec3AddEqual(Vec3f& lhs, const Vec3f& rhs) { lhs += rhs; }
+static void vec3MulEqual(Vec3f& lhs, float rhs) { lhs *= rhs; }
+static void vec3FromHex(Vec3f& v, const wchar_t* s) {
+	MCD_ASSERT(::wcslen(s) == sizeof(float) * 2 * 3);
+	::swscanf(s, L"%X%X%X", &v.x, &v.y, &v.z);
 }
 
 SCRIPT_CLASS_REGISTER_NAME(Vec3f, "Vec3")
@@ -186,6 +190,8 @@ SCRIPT_CLASS_REGISTER_NAME(Vec3f, "Vec3")
 	.wrappedMethod(xSTRING("_cmp"), &cmpVec3)
 	.wrappedMethod(xSTRING("addEqual"), &vec3AddEqual)
 	.wrappedMethod(xSTRING("mulEqual"), &vec3MulEqual)
+	.wrappedMethod(xSTRING("fromHex"), &vec3FromHex)
+	.runScript(xSTRING("Vec3.toHex <- function(){return ::floatToHex(x)+::floatToHex(y)+::floatToHex(z);}"))
 	.runScript(xSTRING("Vec3._tostring <- function(){return x+\", \"+y+\", \"+z;}"))	// Vec3.tostring()
 ;}
 

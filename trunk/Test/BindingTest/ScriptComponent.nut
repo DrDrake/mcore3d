@@ -18,7 +18,19 @@ return class extends ScriptComponent
 //		println(position);
 	}
 
-	hp = 100;
+	function serialize(state) {
+		::ScriptComponent.serialize(state);
+		local name = state.getObjName(this, null);
+		state.output += ::format("\t%s.hp = %i;\n", name, hp);
+		state.output += ::format("\t%s.position.fromHex(\"%s\");\n", name, position.toHex());
+		state.output += ::format("\t%s.speed.fromHex(\"%s\");\n", name, speed.toHex());
+		state.addReference(this, "anotherComponent", anotherComponent);
+	}
+
+	hp = null;
 	position = null;
 	speed = null;
+	anotherComponent = null;
+
+	static classString = "::loadComponent(ScriptComponent.nut)";
 }

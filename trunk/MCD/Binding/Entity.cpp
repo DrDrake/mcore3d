@@ -52,6 +52,18 @@ SCRIPT_CLASS_REGISTER_NAME(Component, "Component")
 	.method<objNoCare>(xSTRING("_getentity"), &Component::entity)
 	.rawMethod(xSTRING("_setScriptHandle"), &componentSetScriptHandle)
 	.wrappedMethod(xSTRING("destroySelf"), &componentDestroySelf)
+	// The base serialize() function that responsible for construction and assigning itself to Entity.
+	// Derived components should override this script function for serializing their specific data.
+	.runScript(
+		xSTRING("Component.serialize<-function(state) {")
+		xSTRING("local name = state.getObjName(this, \"c\");")
+		xSTRING("local entityName = state.getObjName(entity, null);")
+		xSTRING("state.output += ::format(")
+		xSTRING("@\"\tlocal %s = %s;\n")
+		xSTRING("\t%s.addComponent(%s);\n")
+		xSTRING("\", name, classString, entityName, name);")
+		xSTRING("state.resolveReference(this);}")
+	);
 ;}
 
 static void entityAddChild(Entity& self, GiveUpOwnership<Entity*> e) {
@@ -71,6 +83,10 @@ static Entity* entityUnlink(Entity& e) {
 static void entityAddComponent(Entity& self, GiveUpOwnership<Component*> c) {
 	self.addComponent(c);
 }
+static Component* entityNextComponent(Entity& self, Component* c) {
+	c = (c == nullptr) ? self.components.begin() : c->next();
+	return c == self.components.end() ? nullptr : c;
+}
 SCRIPT_CLASS_REGISTER_NAME(Entity, "Entity")
 	.enableGetset()
 	.constructor()
@@ -87,6 +103,8 @@ SCRIPT_CLASS_REGISTER_NAME(Entity, "Entity")
 	.method<objNoCare>(xSTRING("_getparentNode"), &Entity::parent)		// The node's life time is controled by the
 	.method<objNoCare>(xSTRING("_getfirstChild"), &Entity::firstChild)	// node tree's root node, therefore we use
 	.method<objNoCare>(xSTRING("_getnextSibling"), &Entity::nextSibling)// objNoCare as the return policy.
+	.wrappedMethod<objNoCare>(xSTRING("_nextComponent"), &entityNextComponent)
+	.runScript(xSTRING("Entity._getcomponents<-function(){local c;for(;c=_nextComponent(c);)yield c;}return null;"))	// Generator for foreach
 ;}
 
 }	// namespace script

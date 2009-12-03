@@ -234,6 +234,10 @@
 			>
 		</File>
 		<File
+			RelativePath=".\EntitySerializationTest.nut"
+			>
+		</File>
+		<File
 			RelativePath=".\EntityTest.cpp"
 			>
 		</File>
