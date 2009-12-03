@@ -64,6 +64,25 @@ SCRIPT_CLASS_REGISTER_NAME(RawFileSystem, "RawFileSystem")
 SCRIPT_CLASS_REGISTER_NAME(Resource, "Resource")
 ;}
 
+// TODO: Handle endian problem
+static const wchar_t* floatToHex(float f) {
+	static wchar_t buf[64];	// NOTE: Will have multi-thread problem if the VM support multi-thread later.
+	MCD_ASSERT(sizeof(float) == sizeof(int));
+	if(f == 0)
+		::swprintf(buf, sizeof(buf)/sizeof(wchar_t), L"%s", L"00000000");
+	else
+		::swprintf(buf, sizeof(buf)/sizeof(wchar_t), L"%X", *((int*)(&f)));
+	MCD_ASSERT(::wcslen(buf) == sizeof(float) * 2);
+	return buf;
+}
+
+static float floatFromHex(const wchar_t* s) {
+	MCD_ASSERT(::wcslen(s) == sizeof(float) * 2);
+	float ret;
+	::swscanf(s, L"%X", (int*)(&ret));
+	return ret;
+}
+
 }	// namespace script
 
 namespace MCD {
@@ -76,6 +95,10 @@ void registerSystemBinding(script::VMCore* v)
 	script::ClassTraits<Timer>::bind(v);
 	script::ClassTraits<RawFileSystem>::bind(v);
 	script::ClassTraits<Resource>::bind(v);
+
+	script::RootDeclarator root(v);
+	root.declareFunction(xSTRING("floatToHex"), &script::floatToHex);
+	root.declareFunction(xSTRING("floatFromHex"), &script::floatFromHex);
 }
 
 }	// namespace MCD

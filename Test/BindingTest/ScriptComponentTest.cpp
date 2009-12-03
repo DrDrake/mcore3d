@@ -18,6 +18,18 @@ TEST(ScriptComponentTest)
 	CHECK(mgr.doFile(L"ScriptComponentTestInit.nut", true));
 }
 
+TEST(EntitySerializationTest)
+{
+	RawFileSystem fs(L"");
+	ScriptVM vm;
+	ScriptComponentManager mgr;
+	CHECK(mgr.init(vm, fs));
+	Entity root;
+	mgr.registerRootEntity(root);
+
+	CHECK(mgr.doFile(L"EntitySerializationTest.nut", true));
+}
+
 TEST(CreateEntityFromScripTest)
 {
 	RawFileSystem fs(L"");

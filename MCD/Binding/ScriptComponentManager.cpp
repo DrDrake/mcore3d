@@ -131,9 +131,7 @@ bool ScriptComponentManager::init(ScriptVM& vm, IFileSystem& fs)
 			while(true) {\n\
 				queueResult = ::gComponentQueue.getItem(currentTime, queueResult.queueNode);\n\
 				local component = queueResult.component;\n\
-				if(!component || !component.entity)\n\
-					break;\n\
-				if(component.entity.enabled)\n\
+				if(component && component.entity && component.entity.enabled)\n\
 					component.wakeup();\n\
 				if(!queueResult.queueNode)\n\
 					break;\n\
