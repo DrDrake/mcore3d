@@ -31,14 +31,7 @@ protected:
 		while(source.isPlaying()) {
 			mSleep(100);
 			source.update();
-
-//			if(source.frequency() > 0)
-//				std::cout << float(source.currentPcm()) / source.frequency() << std::endl;
-
-			ResourceManager::Event event = manager.popEvent();
-			if(!event.loader) continue;
-
-			event.loader->commit(*event.resource);
+			manager.popEvent();
 		}
 	}
 
@@ -122,7 +115,6 @@ TEST_FIXTURE(OggTestFixture, StreamNonBlockTest)
 	CHECK_EQUAL(source.totalPcm(), source.currentPcm());
 }
 
-// TODO: Has memory leak sometimes
 TEST_FIXTURE(OggTestFixture, SeekingTest)
 {
 	AudioSource source;
@@ -146,6 +138,40 @@ TEST_FIXTURE(OggTestFixture, SeekingTest)
 			CHECK(source.seek(source.currentPcm() / 2));
 			CHECK_EQUAL(backupPcm / 2, source.currentPcm());
 		}
+	}
+}
+
+TEST_FIXTURE(OggTestFixture, LoopTest)
+{
+	AudioSource source;
+	CHECK(source.load(manager, L"stereo.ogg"));
+
+	source.play();
+	waitForSourceFinish(source);
+
+	source.seek(0);
+	source.play();
+	waitForSourceFinish(source);
+}
+
+#include "../../MCD/Core/System/Timer.h"
+
+TEST_FIXTURE(OggTestFixture, MultiSourceTest)
+{
+	AudioSource source1, source2;
+	CHECK(source1.load(manager, L"stereo.ogg"));
+	CHECK(source2.load(manager, L"stereo.ogg"));
+
+	source1.play();
+	Timer timer;
+
+	while(source1.isPlaying() || source2.isPlaying()) {
+		if(timer.get().asSecond() > 1 && !source2.isPlaying())
+			source2.play();
+
+		manager.popEvent();
+		source1.update();
+		source2.update();
 	}
 }
 
