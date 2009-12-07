@@ -13,7 +13,7 @@ int main(int, char const*[])
 
 	size_t ret;
 	CppTestHarness::TestRunner runner;
-	runner.ShowTestName(false);
+	runner.ShowTestName(true);
 
 	// RunTest.txt will not be committed
 	// Just creates a text file named "RunTest.txt" in "{mcdRoot}\Test\RenderTest"

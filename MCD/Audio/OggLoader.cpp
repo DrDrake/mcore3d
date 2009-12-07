@@ -320,17 +320,18 @@ public:
 				pcmTell = gFnOvPcmTell(&mOggFile);
 			}
 
-			// NOTE: We perform the following even (bytesWritten == 0), for the task and commit queue work correctly.
+			if(bytesWritten > 0) {
+				// NOTE: Luckly that the OpenAl function alBufferData is thread safe.
+				// NOTE: Make sure no other thread is using this buffer HANDLE, otherwise we
+				// need to move the alBufferData() function to do inside commit().
+				alBufferData(buffer.handles[task.bufferIdx], format, &mTmpBuf[0], bytesWritten, frequency);
 
-			// NOTE: Make sure no other thread is using this buffer handle, otherwise we
-			// need to move the alBufferData() function to do inside commit().
-			alBufferData(buffer.handles[task.bufferIdx], format, &mTmpBuf[0], bytesWritten, frequency);
+				Task task2 = { task.bufferIdx, pcmTell, nullptr };
+				mCommitQueue.push(task2);
 
-			Task task2 = { task.bufferIdx, pcmTell, nullptr };
-			mCommitQueue.push(task2);
-
-			if(!checkAndPrintError("alBufferData failed: "))
-				return -1;
+				if(!checkAndPrintError("alBufferData failed: "))
+					return -1;
+			}
 
 			// Eof
 			if(bytesWritten < mBufferSize)

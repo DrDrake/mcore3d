@@ -51,7 +51,7 @@ class MCD_CORE_API ThreadedCpuProfiler : public CallstackProfiler
 	sal_override ~ThreadedCpuProfiler();
 
 public:
-		//! Handly class for scope profilinig
+	//! Handly class for scope profilinig
 	class Scope : MCD::Noncopyable
 	{
 	public:

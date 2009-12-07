@@ -140,7 +140,9 @@ void AudioSource::update()
 			alSourceUnqueueBuffers(handle, 1, &uiBuffer);
 			checkAndPrintError("alSourceUnqueueBuffers failed: ");
 
-			mRoughPcmOffsetSinceLastSeek += AudioBuffer::getPcm(uiBuffer);
+			uint64_t elaspedPcm = AudioBuffer::getPcm(uiBuffer);
+			MCD_ASSERT(elaspedPcm > 0 && "Make sure the audio loader won't gives data of zero length");
+			mRoughPcmOffsetSinceLastSeek += elaspedPcm;
 
 			// Tells resource loader continue to load, if the audio is not ended.
 			if(!isPcmPlayToEnd()) for(size_t i=0; i<buffer->bufferCount(); ++i) {
