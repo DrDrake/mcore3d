@@ -7,6 +7,7 @@
 #include "../Core/System/StrUtility.h"
 #include "../../3Party/OpenAL/al.h"
 #include "../../3Party/VorbisOgg/vorbisfile.h"
+#include <vector>
 
 #ifdef MCD_VC
 #	pragma warning(push)
@@ -276,6 +277,10 @@ public:
 		}
 
 		mBufferSize = calculateBufferSize(parseSubBufferLength(args), mVorbisInfo);
+
+		if(mBufferSize == 0)
+			return false;
+
 		format = getFormat(mVorbisInfo);
 		frequency = mVorbisInfo->rate;
 		mInfo.frequency = frequency;
@@ -302,10 +307,8 @@ public:
 
 			ScopeUnlock unlock(mMutex);
 
-			// TODO: Optimize to use less dynamic allocation
-			void* buf = ::malloc(mBufferSize);
-			if(!buf)
-				return -1;
+			MCD_ASSERT(mBufferSize > 0);
+			mTmpBuf.resize(mBufferSize);
 
 			AudioBuffer& buffer = *task.buffer;
 			size_t bytesWritten;
@@ -313,21 +316,21 @@ public:
 			
 			{	// Protect against the seek(pcmOffset) function
 				ScopeLock lock(mSeekMutex);
-				bytesWritten = gDecodeOggVorbis(&mOggFile, (char*)buf, mBufferSize, mVorbisInfo->channels);
+				bytesWritten = gDecodeOggVorbis(&mOggFile, &mTmpBuf[0], mBufferSize, mVorbisInfo->channels);
 				pcmTell = gFnOvPcmTell(&mOggFile);
 			}
 
+			// NOTE: We perform the following even (bytesWritten == 0), for the task and commit queue work correctly.
+
 			// NOTE: Make sure no other thread is using this buffer handle, otherwise we
 			// need to move the alBufferData() function to do inside commit().
-			alBufferData(buffer.handles[task.bufferIdx], format, buf, bytesWritten, frequency);
+			alBufferData(buffer.handles[task.bufferIdx], format, &mTmpBuf[0], bytesWritten, frequency);
 
 			Task task2 = { task.bufferIdx, pcmTell, nullptr };
 			mCommitQueue.push(task2);
 
 			if(!checkAndPrintError("alBufferData failed: "))
 				return -1;
-
-			::free(buf);
 
 			// Eof
 			if(bytesWritten < mBufferSize)
@@ -392,11 +395,13 @@ public:
 	vorbis_info* mVorbisInfo;
 	std::istream* mIStream;
 	IAudioStreamLoader::Info mInfo;
-	uint64_t mCurrentPcmOffset;	//!< The PCM 
+	uint64_t mCurrentPcmOffset;	//!< The PCM
+
+	std::vector<char> mTmpBuf;
 };	// Impl
 
 OggLoader::OggLoader()
-	: mImpl(*new Impl)
+	: mImpl(*new Impl), loadingState(NotLoaded)
 {
 	initVorbis();
 }

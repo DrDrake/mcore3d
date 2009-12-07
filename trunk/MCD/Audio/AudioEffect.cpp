@@ -31,6 +31,7 @@ void initAudioEffect()
 }
 
 AudioEffect::AudioEffect()
+	: handle(0), slotHandle(0)
 {
 	alGenEffects(1, &handle);
 	// TODO: Pooling of auxiliary effect slots 
