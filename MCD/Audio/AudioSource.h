@@ -100,6 +100,7 @@ public:
 private:
 	void fillUpInitialBuffers();
 	void stopAndUnqueueBuffers();
+	bool isPcmPlayToEnd() const;
 
 	bool mRequestPlay;
 	bool mRequestPause;

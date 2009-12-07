@@ -126,8 +126,7 @@ void AudioSource::update()
 	if(!buffer || mRequestPause)
 		return;
 
-	IAudioStreamLoader* _loader = dynamic_cast<IAudioStreamLoader*>(loader.get());
-	if(_loader)
+	if(IAudioStreamLoader* _loader = dynamic_cast<IAudioStreamLoader*>(loader.get()))
 	{
 		// Request the number of OpenAL Buffers have been processed (played) on the Source
 		ALint buffersProcessed = 0;
@@ -143,8 +142,8 @@ void AudioSource::update()
 
 			mRoughPcmOffsetSinceLastSeek += AudioBuffer::getPcm(uiBuffer);
 
-			// Tells resource loader continue to load
-			for(size_t i=0; i<buffer->bufferCount(); ++i) {
+			// Tells resource loader continue to load, if the audio is not ended.
+			if(!isPcmPlayToEnd()) for(size_t i=0; i<buffer->bufferCount(); ++i) {
 				if(buffer->handles[i] == uiBuffer) {
 					_loader->requestLoad(buffer, i);
 					break;
@@ -162,9 +161,7 @@ void AudioSource::update()
 		}
 	}
 
-	MCD_ASSERT(totalPcm() == 0 || currentPcm() <= totalPcm());
-
-	if(currentPcm() == totalPcm() && totalPcm() > 0)
+	if(isPcmPlayToEnd())
 		stop();
 
 	bool reallyPlaying = isReallyPlaying();
@@ -186,18 +183,16 @@ void AudioSource::update()
 
 size_t AudioSource::frequency() const
 {
-	IAudioStreamLoader* _loader = dynamic_cast<IAudioStreamLoader*>(loader.get());
-	if(!_loader)
-		return 0;
-	return _loader->info().frequency;
+	if(IAudioStreamLoader* _loader = dynamic_cast<IAudioStreamLoader*>(loader.get()))
+		return _loader->info().frequency;
+	return 0;
 }
 
 uint64_t AudioSource::totalPcm() const
 {
-	IAudioStreamLoader* _loader = dynamic_cast<IAudioStreamLoader*>(loader.get());
-	if(!_loader)
-		return 0;
-	return _loader->info().totalPcm;
+	if(IAudioStreamLoader* _loader = dynamic_cast<IAudioStreamLoader*>(loader.get()))
+		return _loader->info().totalPcm;
+	return 0;
 }
 
 uint64_t AudioSource::currentPcm() const
@@ -258,6 +253,12 @@ void AudioSource::stopAndUnqueueBuffers()
 	ALuint dummy[AudioBuffer::cMaxBuffers];
 	alSourceUnqueueBuffers(handle, buffersProcessed, dummy);
 	checkAndPrintError("alSourceUnqueueBuffers failed: ");
+}
+
+bool AudioSource::isPcmPlayToEnd() const
+{
+	MCD_ASSERT(totalPcm() == 0 || currentPcm() <= totalPcm());
+	return currentPcm() == totalPcm() && totalPcm() > 0;
 }
 
 }	// namespace MCD
