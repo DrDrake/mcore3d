@@ -26,14 +26,20 @@ public:
 	 */
 	void destroy();
 
-	/*!	Associate a weak pointer pointing to the object at index.
-		\note If the supplied HSQUIRRELVM is null, then any previous
-			associated handle will be removed.
-		\note If this function is called a second time with the parameter \em vm differ
-			as before, the old one will be released before assigning the new one.
+	/*!	Point the ScriptOwnershipHandle to the squirrel object at index.
+		\param keepStrongRef Set to true if you want ScriptOwnershipHandle hold
+			a strong reference to the squirrel object. That is, the squirrel object
+			will absolutely follow the life time of ScriptOwnershipHandle.
+		\note Do nothing if the \em vm parameter is null.
+		\note Only the first time invocation is effective, all subsequence call will
+			be simply ignored.
 	 */
-	void setHandle(void* vm, int index);
+	void setHandle(void* vm, int index, bool keepStrongRef=false);
 
+	//!	Change to use strong or weak reference after the initial choice passed in setHandle().
+	void useStrongReference(bool strong);
+
+	//! Push the stored squirrel object handle to the VM stack.
 	bool pushHandle(void* vm);
 
 	void* vm;	//!< The scripting virtual machine of the type HSQUIRRELVM
@@ -43,7 +49,7 @@ public:
 		assert is performed on the cpp to assert the buffer
 		size is always valid.
 	 */
-	char weakRef[sizeof(void*) * 2];
+	char mRef[sizeof(void*) * 2];
 };	// ScriptOwnershipHandle
 
 }	// namespace MCD

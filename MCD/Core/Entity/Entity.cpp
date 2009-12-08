@@ -39,6 +39,8 @@ void Entity::asChildOf(Entity* parent)
 	mParent = parent;
 	mNextSibling = oldFirstChild;
 	parent->mFirstChild = this;
+
+	scriptOwnershipHandle.useStrongReference(true);
 }
 
 void Entity::insertBefore(sal_in Entity* sibling)
@@ -84,6 +86,8 @@ void Entity::insertAfter(sal_in Entity* sibling)
 	Entity* old = sibling->mNextSibling;
 	sibling->mNextSibling = this;
 	mNextSibling = old;
+
+	scriptOwnershipHandle.useStrongReference(true);
 }
 
 void Entity::unlink()
@@ -110,6 +114,8 @@ void Entity::unlink()
 	mNextSibling = nullptr;
 	// The children are keep intact
 	// mFirstChild = mFirstChild;
+
+	scriptOwnershipHandle.useStrongReference(false);
 }
 
 Component* Entity::findComponent(const std::type_info& familyType) const

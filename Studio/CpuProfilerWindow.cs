@@ -23,8 +23,8 @@ namespace Studio
 			mStringList = new List<string>();
 
 			treeViewAdv1.Model = new TreeModel();
-			mMemoryProfilerServer = new Binding.CpuProfilerServer();
-			mMemoryProfilerServer.listern(5001);
+			mCpuProfilerServer = new Binding.CpuProfilerServer();
+			mCpuProfilerServer.listern(5001);
 
 			// All setup finished, we can start the timer.
 			timer1.Enabled = true;
@@ -95,14 +95,14 @@ namespace Studio
 		private List<string> mStringList;
 		private CpuCallstackNode mRootNode;
 
-		private Binding.CpuProfilerServer mMemoryProfilerServer;
+		private Binding.CpuProfilerServer mCpuProfilerServer;
 
 		/// <summary>
 		/// If I can call RunWorkerAsync() in RunWorkerCompleted(), I do not need this timer
 		/// </summary>
 		private void timer1_Tick(object sender, EventArgs e)
 		{
-			mMemoryProfilerServer.flush();
+			mCpuProfilerServer.flush();
 
 			if (backgroundWorker1.IsBusy)
 				return;
