@@ -121,6 +121,7 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalDependencies="OpenGL32.lib"
+				DelayLoadDLLs="opengl32.dll"
 				ImportLibrary="../../Lib/$(TargetName).lib"
 			/>
 			<Tool

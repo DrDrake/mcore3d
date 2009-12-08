@@ -95,8 +95,8 @@ GlobalDeclarator GlobalDeclarator::declareNamespace(const xchar* name)
 
 ScriptObject GlobalDeclarator::pushClass(const xchar* className, ClassID classID, const std::type_info& typeID, ClassID parentClassID)
 {
-	if(ClassesManager::associateClassID)
-		ClassesManager::associateClassID(typeID, classID);
+	if(ClassesManager::associateClassID())
+		ClassesManager::associateClassID()(typeID, classID);
 
 	int top = sq_gettop(_vm);
 

@@ -115,6 +115,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
+				DelayLoadDLLs="gdi32.dll;opengl32.dll;user32.dll"
 			/>
 			<Tool
 				Name="VCALinkTool"

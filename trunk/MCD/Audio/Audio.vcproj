@@ -115,6 +115,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
+				DelayLoadDLLs="openal32.dll"
 			/>
 			<Tool
 				Name="VCALinkTool"
@@ -224,6 +225,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\AudioListener.h"
+				>
+			</File>
+			<File
 				RelativePath=".\AudioLoader.h"
 				>
 			</File>
@@ -254,6 +259,10 @@
 			</File>
 			<File
 				RelativePath=".\AudioEffect.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\AudioListener.cpp"
 				>
 			</File>
 			<File

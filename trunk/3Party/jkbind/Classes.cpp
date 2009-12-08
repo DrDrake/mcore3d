@@ -4,7 +4,17 @@
 namespace script {
 namespace detail {
 
-ClassesManager::AssociateClassID ClassesManager::associateClassID = NULL;
+// NOTE: File scope static varible is used instead of class static variable
+// to favour enabling delay load of jkbind.dll
+static ClassesManager::AssociateClassID gAssociateClassID = NULL;
+
+ClassesManager::AssociateClassID ClassesManager::associateClassID() {
+	return gAssociateClassID;
+}
+
+void ClassesManager::setAssociateClassID(AssociateClassID aid) {
+	gAssociateClassID = aid;
+}
 
 ScriptObject ClassesManager::_findClass(HSQUIRRELVM v, ClassID classType)
 {
