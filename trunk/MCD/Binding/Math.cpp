@@ -40,11 +40,22 @@ static int mat44Create(HSQUIRRELVM vm)
 	return 1;
 }
 
+static float mat44GetAt(const Mat44f& m, size_t i, size_t j) { return m[i][j]; }
 static Mat44f addMat44(const Mat44f& lhs, const Mat44f& rhs) { return lhs + rhs; }
 static Mat44f subMat44(const Mat44f& lhs, const Mat44f& rhs) { return lhs - rhs; }
 static Mat44f mulMat44(const Mat44f& lhs, const Mat44f& rhs) { return lhs * rhs; }
 static Mat44f scalarMulMat44(const Mat44f& lhs, float rhs) { return lhs * rhs; }
 static bool isEqualMat44(const Mat44f& lhs, const Mat44f& rhs) { return lhs == rhs; }
+static bool mat44IsIdentity(const Mat44f& m) { return m == Mat44f::cIdentity; }
+static void mat44FromHex(Mat44f& m, const wchar_t* s) {
+	MCD_ASSERT(::wcslen(s) == sizeof(float) * 2 * (4*4));
+	::swscanf(s, L"%X%X%X%X%X%X%X%X%X%X%X%X%X%X%X%X",
+		&m.m00, &m.m01, &m.m02, &m.m03,
+		&m.m10, &m.m11, &m.m12, &m.m13,
+		&m.m20, &m.m21, &m.m22, &m.m23,
+		&m.m30, &m.m31, &m.m32, &m.m33
+	);
+}
 
 SCRIPT_CLASS_REGISTER_NAME(Mat44f, "Mat44")
 	.enableGetset()
@@ -53,6 +64,7 @@ SCRIPT_CLASS_REGISTER_NAME(Mat44f, "Mat44")
 	.getset(xSTRING("m10"), &Mat44f::m10)	.getset(xSTRING("m11"), &Mat44f::m11)	.getset(xSTRING("m12"), &Mat44f::m12)	.getset(xSTRING("m13"), &Mat44f::m13)
 	.getset(xSTRING("m20"), &Mat44f::m20)	.getset(xSTRING("m21"), &Mat44f::m21)	.getset(xSTRING("m22"), &Mat44f::m22)	.getset(xSTRING("m23"), &Mat44f::m23)
 	.getset(xSTRING("m30"), &Mat44f::m30)	.getset(xSTRING("m31"), &Mat44f::m31)	.getset(xSTRING("m32"), &Mat44f::m32)	.getset(xSTRING("m33"), &Mat44f::m33)
+	.wrappedMethod(xSTRING("getAt"), &mat44GetAt)
 	.method(xSTRING("_gettranspose"), (Mat44f (Mat44f::*)()const)&Mat44f::transpose)
 	.method(xSTRING("_getdeterminant"), &Mat44f::determinant)
 	.method(xSTRING("_getinverse"), (Mat44f (Mat44f::*)()const)&Mat44f::inverse)
@@ -72,7 +84,10 @@ SCRIPT_CLASS_REGISTER_NAME(Mat44f, "Mat44")
 	.wrappedMethod(xSTRING("scalarMul"), &scalarMulMat44)
 //	.wrappedMethod(xSTRING("scalarDiv"), &scalarDivMat44)
 	.wrappedMethod(xSTRING("isEqual"), &isEqualMat44)
-//	.runScript(xSTRING("Mat44.identity <- Mat44()")	// TODO: Add identity
+	.wrappedMethod(xSTRING("isIdentity"), &mat44IsIdentity)
+	.wrappedMethod(xSTRING("fromHex"), &mat44FromHex)
+//	.runScript(xSTRING("Mat44.identity <- 123"))	// TODO: Add identity
+	.runScript(xSTRING("Mat44.toHex <- function(){local str=\"\"; for(local i=0;i<4;++i) for(local j=0;j<4;++j) str+=::floatToHex(getAt(i,j)); return str;}"))
 	.runScript(xSTRING("Mat44._tostring <- function(){return xBiasVector+\"), \"+yBiasVector+\"), \"+zBiasVector;}"))	// Vec3.tostring()
 ;}
 
@@ -108,6 +123,10 @@ static Vec2f addVec2(const Vec2f& lhs, const Vec2f& rhs) { return lhs + rhs; }
 static Vec2f subVec2(const Vec2f& lhs, const Vec2f& rhs) { return lhs - rhs; }
 static bool isEqualVec2(const Vec2f& lhs, const Vec2f& rhs) { return lhs == rhs; }
 static void vec2MulEqual(Vec2f& lhs, float rhs) { lhs *= rhs; }
+static void vec2FromHex(Vec2f& v, const wchar_t* s) {
+	MCD_ASSERT(::wcslen(s) == sizeof(float) * 2 * 2);
+	::swscanf(s, L"%X%X", &v.x, &v.y);
+}
 
 SCRIPT_CLASS_REGISTER_NAME(Vec2f, "Vec2")
 	.enableGetset()
@@ -118,6 +137,8 @@ SCRIPT_CLASS_REGISTER_NAME(Vec2f, "Vec2")
 	.wrappedMethod(xSTRING("_sub"), &subVec2)
 	.wrappedMethod(xSTRING("isEqual"), &isEqualVec2)
 	.wrappedMethod(xSTRING("mulEqual"), &vec2MulEqual)
+	.wrappedMethod(xSTRING("fromHex"), &vec2FromHex)
+	.runScript(xSTRING("Vec2.toHex <- function(){return ::floatToHex(x)+::floatToHex(y);}"))
 	.runScript(xSTRING("Vec2._tostring <- function(){return x+\", \"+y;}"))	// Vec2.tostring()
 ;}
 

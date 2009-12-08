@@ -75,7 +75,7 @@ public:
 		if(mTimer.get().asSecond() > 0.5) {
 			mTimer.reset();
 			mMemoryProfilerServer.accept();
-			mMemoryProfilerServer.update();
+			mMemoryProfilerServer.flush();
 		}
 
 		mLauncher->update();
