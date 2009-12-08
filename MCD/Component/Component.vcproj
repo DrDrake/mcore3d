@@ -115,6 +115,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
+				DelayLoadDLLs="MCDAudio.dll;MCDRender.dll;glu32.dll;opengl32.dll"
 			/>
 			<Tool
 				Name="VCALinkTool"

@@ -52,7 +52,8 @@ public:
 		\endcode
 	 */
 	typedef void (*AssociateClassID)(const std::type_info& typeInfo, ClassID classID);
-	JKBIND_API static AssociateClassID associateClassID;
+	JKBIND_API static AssociateClassID associateClassID();
+	JKBIND_API static void setAssociateClassID(AssociateClassID);
 
 private:
 	static ScriptObject _findClass(HSQUIRRELVM v, ClassID classType);

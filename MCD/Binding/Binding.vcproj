@@ -119,6 +119,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
+				DelayLoadDLLs="MCDAudio.dll;MCDRender.dll;jkbind.dll;squirrel.dll"
 				RandomizedBaseAddress="1"
 				DataExecutionPrevention="0"
 			/>

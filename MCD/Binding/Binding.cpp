@@ -79,7 +79,7 @@ public:
 	Impl() : vm(cInitialStackSize)
 	{
 		// Set the binder's associateClassID() function
-		script::detail::ClassesManager::associateClassID = &MCD::associateClassID;
+		script::detail::ClassesManager::setAssociateClassID(&MCD::associateClassID);
 
 		HSQUIRRELVM v = vm.getVM();
 		sq_setprintfunc(v, printfunc);

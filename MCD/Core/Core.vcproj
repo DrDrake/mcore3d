@@ -115,6 +115,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
+				DelayLoadDLLs="shell32.dll;squirrel.dll;user32.dll;ws2_32.dll"
 			/>
 			<Tool
 				Name="VCALinkTool"

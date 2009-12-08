@@ -62,6 +62,9 @@ bool Mutex::tryLock()
 
 RecursiveMutex::RecursiveMutex(int spinCount)
 {
+	// If you see this static assert, please check the size of the CRITICAL_SECTION
+	MCD_STATIC_ASSERT(sizeof(mMutex) == sizeof(CRITICAL_SECTION));
+
 	// Fallback to InitializeCriticalSection if InitializeCriticalSectionAndSpinCount didn't success
 	if(spinCount < 0 || !::InitializeCriticalSectionAndSpinCount((LPCRITICAL_SECTION)&mMutex, spinCount))
 		::InitializeCriticalSection((LPCRITICAL_SECTION)&mMutex);
