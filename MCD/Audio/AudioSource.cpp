@@ -234,6 +234,30 @@ void AudioSource::setGain(float value)
 	alSourcef(handle, AL_GAIN, value);
 }
 
+Vec3f AudioSource::position() const
+{
+	Vec3f ret;
+	::alGetSourcef(handle, AL_POSITION, ret.data);
+	return ret;
+}
+
+void AudioSource::setPosition(const Vec3f& p)
+{
+	::alSourcefv(handle, AL_POSITION, p.data);
+}
+
+Vec3f AudioSource::velocity() const
+{
+	Vec3f ret;
+	::alGetSourcefv(handle, AL_VELOCITY, ret.data);
+	return ret;
+}
+
+void AudioSource::setVelocity(const Vec3f& v)
+{
+	::alSourcefv(handle, AL_VELOCITY, v.data);
+}
+
 void AudioSource::fillUpInitialBuffers()
 {
 	IAudioStreamLoader* _loader = dynamic_cast<IAudioStreamLoader*>(loader.get());

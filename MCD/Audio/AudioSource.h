@@ -2,6 +2,7 @@
 #define __MCD_AUDIO_AUDIOSOURCE__
 
 #include "ShareLib.h"
+#include "../Core/Math/Vec3.h"
 #include "../Core/System/Resource.h"
 #include "../Core/System/SharedPtr.h"
 
@@ -96,6 +97,15 @@ public:
 
 	//! Set the volumn from 0 to 1, default is 1.
 	void setGain(float value);
+
+// 3d attributes
+	Vec3f position() const;
+
+	void setPosition(const Vec3f& p);
+
+	Vec3f velocity() const;
+
+	void setVelocity(const Vec3f& v);
 
 private:
 	void fillUpInitialBuffers();

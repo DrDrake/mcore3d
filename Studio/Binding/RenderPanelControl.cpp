@@ -136,6 +136,9 @@ public:
 
 			mGizmo = e.release();
 		}
+
+		// Initialize the serialization system
+		MCD_VERIFY(executeScriptFile(L"EntitySerialization.nut"));
 	}
 
 	void update()
@@ -228,9 +231,9 @@ public:
 		update();
 	}
 
-	void executeScript(const wchar_t* scriptFilePath)
+	bool executeScriptFile(const wchar_t* scriptFilePath)
 	{
-		mLauncher.scriptComponentManager.doFile(scriptFilePath, true);
+		return mLauncher.scriptComponentManager.doFile(scriptFilePath, true);
 	}
 
 	void play(const wchar_t* scriptFilePath)
@@ -449,9 +452,9 @@ void RenderPanelControl::gizmoMode::set(GizmoMode mode)
 		g->setActiveGizmo(NULL);
 }
 
-void RenderPanelControl::executeScript(System::String^ scriptFilePath)
+bool RenderPanelControl::executeScriptFile(System::String^ scriptFilePath)
 {
-	mImpl->executeScript(Utility::toWString(scriptFilePath).c_str());
+	return mImpl->executeScriptFile(Utility::toWString(scriptFilePath).c_str());
 }
 
 void RenderPanelControl::play(String^ scriptFilePath)
@@ -481,6 +484,11 @@ void RenderPanelControl::stop()
 bool RenderPanelControl::playing::get()
 {
 	return mImpl->mPlaying;
+}
+
+void RenderPanelControl::printSerailize()
+{
+	(void)mImpl->mLauncher.vm.runScript(L"::gSerializationState.output=\"\";rootEntity.serialize(::gSerializationState);println(::gSerializationState.output);");
 }
 
 System::Void RenderPanelControl::timer_Tick(System::Object^ sender, System::EventArgs^ e)

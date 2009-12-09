@@ -65,7 +65,7 @@ public:
 		void set(GizmoMode);
 	}
 
-	void executeScript(System::String^ scriptFilePath);
+	bool executeScriptFile(System::String^ scriptFilePath);
 
 	void play(System::String^ scriptFilePath);
 
@@ -75,6 +75,8 @@ public:
 	property bool playing {
 		bool get();
 	}
+
+	void printSerailize();
 
 protected:
 	/// <summary>

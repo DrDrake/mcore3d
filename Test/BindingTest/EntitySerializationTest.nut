@@ -40,14 +40,18 @@ rootEntity.name = "root";
 
 class SerializationState
 {
-	constructor() {
-		varNameMap[rootEntity] <- "rootEntity";
+	constructor(rootObj, rootVarName) {
+		varNameMap = {};	// Don't know why varNameMap = { rootObj = rootVarName } won't work
+		varNameMap[rootObj] <- rootVarName;
+		prefixCounter = {};
+		pendingRef = {};
+		output = "";
 	}
 
 	function getObjName(obj, namePrefix) {
 		if(obj in varNameMap)
 			return varNameMap[obj];
-		assert(namePrefix != null);
+		assert(namePrefix != null); 
 
 		if(namePrefix in prefixCounter)
 			prefixCounter[namePrefix]++;
@@ -82,15 +86,15 @@ class SerializationState
 		delete pendingRef[obj];
 	}
 
-	varNameMap = {};	// Map between an object and it's corresponding variable name
-	prefixCounter = {};	// Prefix is 'e' for Entity, 'c' for Component
-	pendingRef = {};	// A map for tracking reference dependency problem
-	output = "";
+	varNameMap = null;	// Map between an object and it's corresponding variable name
+	prefixCounter = null;	// Prefix is 'e' for Entity, 'c' for Component
+	pendingRef = null;	// A map for tracking reference dependency problem
+	output = null;
 }
 
-state <- SerializationState();
+gState <- SerializationState(rootEntity, "rootEntity");
 
-function writeOutput(entity)
+function serailizeEntity(state, entity)
 {
 	local parentVarName = state.getObjName(entity.parentNode, null);
 	local thisVarName = state.getObjName(entity, "e");
@@ -105,6 +109,9 @@ function writeOutput(entity)
 
 	if(!entity.enabled)
 		state.output += ::format("%s.enabled = false;\n", thisVarName);
+
+	if(!entity.localTransform.isIdentity())
+		state.output += ::format("%s.transform.fromHex(\"%s\");\n", thisVarName, entity.localTransform.toHex());
 
 	// Components
 	foreach(c in entity.components)
@@ -123,11 +130,11 @@ function traverse(entity)
 
 	// We skip the root entity
 	if(entity != rootEntity)
-		writeOutput(entity);
+		entity.serialize(gState);
 
 	traverse(entity.firstChild);
 }
 
 traverse(rootEntity);
 
-//println(state.output);
+println(gState.output);

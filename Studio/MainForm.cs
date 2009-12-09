@@ -164,8 +164,12 @@ namespace Studio
 			toolStripDebug.Enabled = true;
 
 			// Execute all scene setup scripts
+			// TODO: Error handling
 			foreach (SceneScript s in scene.SceneScripts)
-				renderPanel.executeScript(s.Path);
+			{
+				bool ok = renderPanel.executeScriptFile(s.Path);
+				System.Diagnostics.Debug.Assert(ok, "scrip fail");
+			}
 		}
 
 		/// <summary>
@@ -300,6 +304,11 @@ namespace Studio
 		private void assetBrowserToolStripMenuItem_Click(object sender, EventArgs e)
 		{
 			assertBrowsingForm.Show();
+		}
+
+		private void saveToolStripButton_Click(object sender, EventArgs e)
+		{
+			currentRenderControl.printSerailize();
 		}
 	}
 }
