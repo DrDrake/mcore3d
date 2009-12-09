@@ -18,18 +18,6 @@ TEST(ScriptComponentTest)
 	CHECK(mgr.doFile(L"ScriptComponentTestInit.nut", true));
 }
 
-TEST(EntitySerializationTest)
-{
-	RawFileSystem fs(L"");
-	ScriptVM vm;
-	ScriptComponentManager mgr;
-	CHECK(mgr.init(vm, fs));
-	Entity root;
-	mgr.registerRootEntity(root);
-
-	CHECK(mgr.doFile(L"EntitySerializationTest.nut", true));
-}
-
 TEST(CreateEntityFromScripTest)
 {
 	RawFileSystem fs(L"");
@@ -38,7 +26,7 @@ TEST(CreateEntityFromScripTest)
 	CHECK(mgr.init(vm, fs));
 
 	{	// C++ keep ownership
-		Entity* e = mgr.runScripAsEntity(L"local e=Entity();e.name=\"CreateEntityFromScripTest\";return e;");
+		Entity* e = mgr.runScripAsEntity(L"local e=Entity(\"CreateEntityFromScripTest\");return e;");
 		CHECK(e);
 		if(e) {
 			CHECK_EQUAL(L"CreateEntityFromScripTest", e->name);
@@ -47,7 +35,7 @@ TEST(CreateEntityFromScripTest)
 	}
 
 	{	// Script keep ownership
-		Entity* e = mgr.runScripAsEntity(L"local e=Entity();e.name=\"CreateEntityFromScripTest\";return e;", true);
+		Entity* e = mgr.runScripAsEntity(L"local e=Entity(\"CreateEntityFromScripTest\");return e;", true);
 		CHECK(e);
 		if(e)
 			CHECK_EQUAL(L"CreateEntityFromScripTest", e->name);
