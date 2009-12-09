@@ -137,6 +137,7 @@ void AudioSource::update()
 		{
 			// Remove the Buffer from the Queue. (uiBuffer contains the Buffer ID for the unqueued Buffer)
 			ALuint uiBuffer = 0;
+			alGetError();
 			alSourceUnqueueBuffers(handle, 1, &uiBuffer);
 			checkAndPrintError("alSourceUnqueueBuffers failed: ");
 
@@ -158,6 +159,7 @@ void AudioSource::update()
 		// Queue new buffers that were loaded by the loader
 		int bufferIdx;
 		while((bufferIdx = _loader->popLoadedBuffer()) != -1) {
+			alGetError();
 			alSourceQueueBuffers(handle, 1, &buffer->handles[bufferIdx]);
 			checkAndPrintError("alSourceQueueBuffers failed: ");
 		}
@@ -170,6 +172,7 @@ void AudioSource::update()
 
 	if(!reallyPlaying && mRequestPlay) {
 		// Do actual play
+		alGetError();
 		alSourcePlay(handle);
 		checkAndPrintError("alSourcePlay failed: ");
 	}
@@ -181,6 +184,13 @@ void AudioSource::update()
 
 	if(reallyPlaying && mRequestPause)
 		alSourcePause(handle);
+}
+
+size_t AudioSource::channelCount() const
+{
+	if(IAudioStreamLoader* _loader = dynamic_cast<IAudioStreamLoader*>(loader.get()))
+		return _loader->info().channelCount;
+	return 0;
 }
 
 size_t AudioSource::frequency() const
@@ -237,7 +247,7 @@ void AudioSource::setGain(float value)
 Vec3f AudioSource::position() const
 {
 	Vec3f ret;
-	::alGetSourcef(handle, AL_POSITION, ret.data);
+	::alGetSourcefv(handle, AL_POSITION, ret.data);
 	return ret;
 }
 

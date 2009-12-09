@@ -223,6 +223,10 @@
 			Filter="cpp;"
 			>
 			<File
+				RelativePath=".\3DTest.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\Main.cpp"
 				>
 			</File>
