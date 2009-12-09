@@ -283,6 +283,7 @@ public:
 
 		format = getFormat(mVorbisInfo);
 		frequency = mVorbisInfo->rate;
+		mInfo.channelCount = mVorbisInfo->channels;
 		mInfo.frequency = frequency;
 		mInfo.totalPcm = gFnOvPcmTotal(&mOggFile, -1);
 

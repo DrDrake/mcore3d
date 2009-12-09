@@ -1,6 +1,4 @@
 #include "Pch.h"
-#include "../../MCD/Audio/AudioBuffer.h"
-#include "../../MCD/Audio/AudioDevice.h"
 #include "../../MCD/Audio/AudioDevice.h"
 #include "../../MCD/Audio/AudioSource.h"
 #include "../../MCD/Audio/ResourceLoaderFactory.h"
@@ -10,6 +8,8 @@
 #include "../../MCD/Core/System/Thread.h"	// for mSleep()
 
 using namespace MCD;
+
+namespace {
 
 class OggTestFixture
 {
@@ -39,6 +39,8 @@ protected:
 	ResourceManager manager;
 };	// OggTestFixture
 
+}	// namespace
+
 TEST_FIXTURE(OggTestFixture, BasicTest)
 {
 	{	// Construct and destroy
@@ -58,6 +60,7 @@ TEST_FIXTURE(OggTestFixture, StreamBlockFirstPartialTest)
 	AudioSource source;
 	CHECK(source.load(manager, L"stereo.ogg", L"blockLoadFirstBuffer=1"));
 
+	CHECK_EQUAL(2u, source.channelCount());
 	CHECK_EQUAL(22050u, source.frequency());
 	CHECK_EQUAL(55167u, source.totalPcm());
 	CHECK_EQUAL(0u, source.currentPcm());
@@ -78,6 +81,7 @@ TEST_FIXTURE(OggTestFixture, SingleSubBuffer)
 	AudioSource source;
 	CHECK(source.load(manager, L"stereo.ogg", L"blockLoadFirstBuffer=1;bufferCount=1;subBufferLength=2600"));
 
+	CHECK_EQUAL(2u, source.channelCount());
 	CHECK_EQUAL(22050u, source.frequency());
 	CHECK_EQUAL(55167u, source.totalPcm());
 	CHECK_EQUAL(0u, source.currentPcm());
@@ -107,6 +111,7 @@ TEST_FIXTURE(OggTestFixture, StreamNonBlockTest)
 	}
 
 	// Then we can examin the properties.
+	CHECK_EQUAL(2u, source.channelCount());
 	CHECK_EQUAL(22050u, source.frequency());
 	CHECK_EQUAL(55167u, source.totalPcm());
 

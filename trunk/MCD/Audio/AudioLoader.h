@@ -33,6 +33,7 @@ public:
 
 	struct Info
 	{
+		size_t channelCount;//!< The number of channesl.
 		size_t frequency;
 		uint64_t totalPcm;	//!< Total length of the audio in unit of PCM.
 	};	// Info

@@ -74,6 +74,8 @@ public:
 
 	AudioBufferPtr buffer;
 
+	size_t channelCount() const;
+
 	size_t frequency() const;
 
 	/*!	Total length of the audio in unit of PCM.
