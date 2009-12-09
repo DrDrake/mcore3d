@@ -120,7 +120,7 @@ bool ScriptOwnershipHandle::pushHandle(void* v)
 	MCD_ASSUME(ref);
 
 	SQObject* o = nullptr;
-	if(ref->_type == OT_INSTANCE)
+	if(ref->_type == OT_INSTANCE || ref->_type == OT_NULL)
 		o = ref;
 	else if(ref->_type == OT_WEAKREF)
 	{

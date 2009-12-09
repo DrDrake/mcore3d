@@ -165,6 +165,7 @@ void Entity::addComponent(Component* component)
 	component->mEntity = this;
 
 	component->onAdd();
+	component->scriptOwnershipHandle.useStrongReference(true);
 }
 
 void Entity::removeComponent(const std::type_info& familyType)

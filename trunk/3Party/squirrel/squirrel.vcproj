@@ -122,6 +122,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
+				DelayLoadDLLs="wsock32.dll"
 				GenerateDebugInformation="true"
 				ImportLibrary="../../Lib/$(TargetName).lib"
 			/>

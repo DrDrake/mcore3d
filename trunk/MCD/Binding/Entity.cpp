@@ -105,6 +105,8 @@ SCRIPT_CLASS_REGISTER_NAME(Entity, "Entity")
 	.method<objNoCare>(xSTRING("_getnextSibling"), &Entity::nextSibling)// objNoCare as the return policy.
 	.wrappedMethod<objNoCare>(xSTRING("_nextComponent"), &entityNextComponent)
 	.runScript(xSTRING("Entity._getcomponents<-function(){local c;for(;c=_nextComponent(c);)yield c;}return null;"))	// Generator for foreach
+	.runScript(xSTRING("Entity.serialize<-null;Entity._serialize<-function(state){::entitySerializeTraverse(this,state);}"))	// The default serialization function
+	.runScript(xSTRING("local bk=Entity.constructor;Entity.constructor<-function(name=\"\"):(bk){bk.call(this);this._setname(name);serialize=Entity._serialize}"))
 ;}
 
 }	// namespace script
