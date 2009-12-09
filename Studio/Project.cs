@@ -139,7 +139,7 @@ namespace Studio
 			get
 			{
 				SceneScript[] ret = null;
-				ret = new SceneScript[StarupScript == null ? Scripts.Count : Scripts.Count - 1];
+				ret = new SceneScript[StartupScript == null ? Scripts.Count : Scripts.Count - 1];
 
 				int idx = 0;
 				foreach (SceneScript s in Scripts)
@@ -153,7 +153,7 @@ namespace Studio
 			}
 		}
 
-		public SceneScript StarupScript
+		public SceneScript StartupScript
 		{
 			get
 			{
@@ -288,7 +288,6 @@ namespace Studio
 		public SceneScripts Scripts
 		{
 			get { return mVal.Scripts; }
-			set { mVal.Scripts = value; }
 		}
 	}
 
@@ -332,7 +331,7 @@ namespace Studio
 		/// </summary>
 		/// <param name="xmlPath"></param>
 		/// <param name="preference"></param>
-		public static void SerializeToXML(string xmlPath, Project project)
+		public static void SerializeToXml(string xmlPath, Project project)
 		{
 			XmlSerializer serializer = new XmlSerializer(typeof(Project));
 			TextWriter textWriter = new StreamWriter(xmlPath);

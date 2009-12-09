@@ -50,7 +50,7 @@ namespace Studio
 			RenderWindow renderWindow = currentRenderControl.Tag as RenderWindow;
 
 			// TODO: Check the startup script does exist in the file system
-			toolStripButtonPlay.Enabled = (!currentRenderControl.playing && renderWindow.Scene.StarupScript != null);
+			toolStripButtonPlay.Enabled = (!currentRenderControl.playing && renderWindow.Scene.StartupScript != null);
 			toolStripButtonStop.Enabled = currentRenderControl.playing;
 			toolStripButtonRestart.Enabled = currentRenderControl.playing;
 		}
@@ -102,7 +102,7 @@ namespace Studio
 	// Events
 		private void MainForm_Load(object sender, EventArgs e)
 		{
-			UserPreference = UserPreference.DeserializeFromXML("userPreference.xml");
+			UserPreference = UserPreference.DeserializeFromXml("userPreference.xml");
 
 			// NOTE: Starting up the form is quite time-consumming, especially for the CodeWindow
 			// See http://msdn.microsoft.com/en-us/library/cc656914.aspx
@@ -256,7 +256,7 @@ namespace Studio
 		private void MainForm_FormClosed(object sender, FormClosedEventArgs e)
 		{
 			dockPanel.SaveAsXml("layout.xml");
-			UserPreference.SerializeToXML("userPreference.xml", UserPreference);
+			UserPreference.SerializeToXml("userPreference.xml", UserPreference);
 		}
 
 		/// <summary>
@@ -281,10 +281,10 @@ namespace Studio
 			RenderWindow renderWindow = currentRenderControl.Tag as RenderWindow;
 
 			// TODO: Check the startup script does exist in the file system
-			if (renderWindow.Scene.StarupScript == null)
+			if (renderWindow.Scene.StartupScript == null)
 				return;
 
-			currentRenderControl.play(renderWindow.Scene.StarupScript.Path);
+			currentRenderControl.play(renderWindow.Scene.StartupScript.Path);
 			entityWindow.selectEntityRoot(currentRenderControl.rootEntity);
 			UpdateToolBars();
 		}

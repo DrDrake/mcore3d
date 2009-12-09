@@ -57,7 +57,6 @@
 			this.helpToolStripButton = new System.Windows.Forms.ToolStripButton();
 			this.toolStripDebug = new System.Windows.Forms.ToolStrip();
 			this.toolStripButtonPlay = new System.Windows.Forms.ToolStripButton();
-			this.backgroundWorker1 = new System.ComponentModel.BackgroundWorker();
 			this.toolStripButtonStop = new System.Windows.Forms.ToolStripButton();
 			this.toolStripButtonRestart = new System.Windows.Forms.ToolStripButton();
 			this.mainMenu.SuspendLayout();
@@ -405,7 +404,6 @@
 		private System.Windows.Forms.ToolStripMenuItem memoryProfilerToolStripMenuItem;
 		private System.Windows.Forms.ToolStripMenuItem propertyToolStripMenuItem;
 		private System.Windows.Forms.ToolStripMenuItem projectToolStripMenuItem1;
-		private System.ComponentModel.BackgroundWorker backgroundWorker1;
 		public WeifenLuo.WinFormsUI.Docking.DockPanel dockPanel;
 		private System.Windows.Forms.ToolStripButton toolStripButtonStop;
 		private System.Windows.Forms.ToolStripButton toolStripButtonRestart;

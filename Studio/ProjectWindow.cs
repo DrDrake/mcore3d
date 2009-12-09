@@ -97,7 +97,7 @@ namespace Studio
 
 		public void SaveProject(string path)
 		{
-			Project.SerializeToXML(path, Project);
+			Project.SerializeToXml(path, Project);
 		}
 
 		public void CloseProject()
@@ -203,7 +203,7 @@ namespace Studio
 			else if (treeViewAdv.SelectedNode.Tag is Scene)
 			{
 				treeViewAdv.ContextMenuStrip = menuStripScene;
-				runToolStripMenuItem.Enabled = SelectedScene.StarupScript != null;
+				runToolStripMenuItem.Enabled = SelectedScene.StartupScript != null;
 			}
 			else if (treeViewAdv.SelectedNode.Tag is SceneScript)
 				treeViewAdv.ContextMenuStrip = menuStripScript;
@@ -300,7 +300,7 @@ namespace Studio
 
 		private void setAsStartupScriptToolStripMenuItem_Click(object sender, EventArgs e)
 		{
-			(SelectedScript.Parent as Scene).StarupScript = SelectedScript;
+			(SelectedScript.Parent as Scene).StartupScript = SelectedScript;
 			treeViewAdv.Refresh();
 		}
 

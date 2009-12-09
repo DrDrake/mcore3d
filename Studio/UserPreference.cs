@@ -20,7 +20,7 @@ namespace Studio
 				RecentProjects.RemoveAt(RecentProjects.Count - 1);
 		}
 
-		public static void SerializeToXML(string xmlPath, UserPreference preference)
+		public static void SerializeToXml(string xmlPath, UserPreference preference)
 		{
 			XmlSerializer serializer = new XmlSerializer(typeof(UserPreference));
 			TextWriter textWriter = new StreamWriter(xmlPath);
@@ -28,7 +28,7 @@ namespace Studio
 			textWriter.Close();
 		}
 
-		public static UserPreference DeserializeFromXML(string xmlPath)
+		public static UserPreference DeserializeFromXml(string xmlPath)
 		{
 			UserPreference ret = new UserPreference();
 			try
