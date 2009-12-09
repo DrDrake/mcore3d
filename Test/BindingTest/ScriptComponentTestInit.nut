@@ -5,7 +5,7 @@ assert(c1.entity == null);
 rootEntity.addComponent(c1);
 assert(c1.entity != null);
 
-local e = Entity();
+local e = Entity("");
 rootEntity.addChild(e);
 e.addComponent(c1);
 

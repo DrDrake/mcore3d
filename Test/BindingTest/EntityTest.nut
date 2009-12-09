@@ -13,35 +13,27 @@ class TestEntity
 
 	function setUp()
 	{
-		root = Entity();
-		root.name = "root";
+		root = Entity("root");
 
-		e1 = Entity();
-		e1.name = "e1";
+		e1 = Entity("e1");
 		root.addChild(e1);
 
-		e2 = Entity();
-		e2.name = "e2";
+		e2 = Entity("e2");
 		root.addChild(e2);
 
-		e3 = Entity();
-		e3.name = "e3";
+		e3 = Entity("e3");
 		root.addChild(e3);
 
-		e11 = Entity();
-		e11.name = "e11";
+		e11 = Entity("e11");
 		e1.addChild(e11);
 		
-		e12 = Entity();
-		e12.name = "e12";
+		e12 = Entity("e12");
 		e1.addChild(e12);
 
-		e13 = Entity();
-		e13.name = "e13";
+		e13 = Entity("e13");
 		e1.addChild(e13);
 
-		e21 = Entity();
-		e21.name = "e21";
+		e21 = Entity("e21");
 		e2.addChild(e21);
 	}
 
@@ -163,6 +155,24 @@ class TestEntity
 		root.name = "Root node";
 		root.localTransform = Mat44();
 	}
+
+	function testComponentsIteration()
+	{
+		local e = Entity("");
+		local c = [ ScriptComponent(), MeshComponent() ];
+		c[0]._setScriptHandle();
+		c[1]._setScriptHandle();
+		e.addComponent(c[0]);
+		e.addComponent(c[1]);
+
+		local count = 0;
+		foreach(i,ic in e.components) {
+			assert(c[i] == ic);
+			++count;
+		}
+
+		assert(count == 2);
+	}
 }
 
 SqUnit().run();
@@ -172,14 +182,12 @@ function println(s) {
 	print(s + "\n");
 }
 
-local root = Entity();
+local root = Entity("Root node");
 assert(root.parentNode == null);
 root.enabled = true;
-root.name = "Root node";
 
-local n1 = Entity();
+local n1 = Entity("Child node 1");
 root.addChild(n1);
-n1.name = "Child node 1";
 n1.localTransform = Mat44();
 assert(root.name == "Root node");
 assert(root.firstChild.name == "Child node 1");
