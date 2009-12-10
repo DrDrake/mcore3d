@@ -3,6 +3,7 @@
 
 #include "ShareLib.h"
 #include "../Core/System/Platform.h"
+#include <string>
 
 //struct SQVM;
 //typedef struct SQVM* HSQUIRRELVM;
@@ -26,6 +27,11 @@ public:
 		\param retVal True for remaining the return value on the stack.
 	 */
 	sal_checkreturn bool runScript(sal_in_z const wchar_t* script, sal_in_z const wchar_t* scriptName=L"unnamed script", bool retVal=false);
+
+	/*!	Execute a script and return the result as a string.
+		\note Return empty string if the script has error or the script doesn't return a string.
+	 */
+	std::wstring runScriptAsString(sal_in_z const wchar_t* script, sal_in_z const wchar_t* scriptName=L"unnamed script");
 
 	//! Get the underlaying scripting VM handle, that is HSQUIRRELVM
 	sal_notnull void* getImplementationHandle();

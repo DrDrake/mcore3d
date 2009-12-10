@@ -13,7 +13,8 @@ namespace MCD {
 
 AudioSource::AudioSource()
 {
-	alGenSources(1, &handle);
+	::alGetError();
+	::alGenSources(1, &handle);
 	checkAndPrintError("alGenSources failed: ");
 	mRequestPlay = false;
 	mRequestPause = false;

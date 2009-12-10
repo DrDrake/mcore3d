@@ -104,6 +104,7 @@ bool ScriptComponentManager::init(ScriptVM& vm, IFileSystem& fs)
 				}\n\
 				::_scriptComponentClassTable[fileName] <- Class;\n\
 			}\n\
+			Class.classString <- null;\n\
 			local c;\n\
 			if(vargc == 0) {\n\
 				c = Class();\n\
@@ -119,6 +120,7 @@ bool ScriptComponentManager::init(ScriptVM& vm, IFileSystem& fs)
 			c._setScriptHandle();\n\
 			c.thread = newthread(::_scriptComponentThreadFunction);\n\
 			c.thread.call(c.weakref());\n\
+			c.classString = format(\"loadComponent(\\\"%s\\\")\", fileName);\n\
 			::_scriptComponentInstanceSet[c.thread] <- c;\n\
 			::gComponentQueue.setItem(0, c);\n\
 			return c;\n\

@@ -156,7 +156,7 @@ bool Launcher::init(InputComponent& inputComponent, Entity* rootNode)
 		L"	if(\"createStaticRigidBody\" in loadOptions && loadOptions[\"createStaticRigidBody\"])\n"
 		L"		return gLauncher.loadEntity(filePath, true);\n"
 		L"	local e = gLauncher.loadEntity(filePath, false);\n"
-		L"	e.serialize = function(state) : (e,filePath) { writeOutputWithConstructionString(e,state,format(\"loadEntity(%s,%s)\",filePath,\"{}\")); };\n"
+		L"	e.serialize = function(state) : (e,filePath) { writeOutputWithConstructionString(e,state,format(\"loadEntity(\\\"%s\\\",%s)\",filePath,\"{}\")); };\n"
 		L"	return e;\n"
 		L"}\n"
 

@@ -96,9 +96,6 @@ function entitySerializeTraverse(entity, state)
 
 	try { entity.nextSibling.serialize(state); } catch(err) {}
 
-//	if(!entity._shouldSerialize)
-//		return;
-
 	// We skip the root entity
 	if(entity != rootEntity)
 		writeOutput(entity, state);
@@ -108,3 +105,13 @@ function entitySerializeTraverse(entity, state)
 
 gSerializationState <- SerializationState();
 rootEntity.serialize = Entity._serialize;
+
+// Registration for various components
+
+PickComponent.classString <- "PickComponent()";
+PickComponent.serialize <- function(state)
+{
+	::Component.serialize(state);
+	local name = state.getObjName(this, null);
+	state.addReference(this, "entityToPick", entityToPick);
+}

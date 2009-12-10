@@ -147,6 +147,14 @@ bool ScriptVM::runScript(const wchar_t* script, const wchar_t* scriptName, bool 
 	return mImpl.runScript(script, retVal, scriptName);
 }
 
+std::wstring ScriptVM::runScriptAsString(const wchar_t* script, const wchar_t* scriptName)
+{
+	const wchar_t* str = L"";
+	if(runScript(script, scriptName, true))
+		sq_getstring(mImpl.vm.getVM(), -1, &str);
+	return str;
+}
+
 void* ScriptVM::getImplementationHandle()
 {
 	return mImpl.vm.getVM();

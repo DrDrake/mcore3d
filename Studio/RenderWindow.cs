@@ -4,9 +4,10 @@ using Binding;
 
 namespace Studio
 {
-	public partial class RenderWindow : DockContent
+	public partial class RenderWindow : Document
 	{
-		public RenderWindow()
+		public RenderWindow(string path)
+			: base(path)
 		{
 			InitializeComponent();
 		}
@@ -45,6 +46,12 @@ namespace Studio
 			toolStripButtonRotate.Checked = false;
 			toolStripButtonScale.Checked = false;
 			toolStripButtonTranslate.Checked = false;
+		}
+
+		public override bool SaveDocument()
+		{
+			FileSystemCollection fs = ProjectWindow.Singleton.Project.ResourceManager.fileSystemCollection;
+			return fs.saveString(Path, "// MCore Studio generated scene file\n" + mRenderControl.serailizeScene());
 		}
 
 		public Scene Scene

@@ -23,6 +23,7 @@
 #include "../../MCD/Render/GlWindow.h"
 #include "../../3Party/glew/glew.h"
 #include "../../3Party/glew/wglew.h"
+#include "../../3Party/squirrel/squirrel.h"
 #undef nullptr
 #include <gcroot.h>
 
@@ -486,9 +487,12 @@ bool RenderPanelControl::playing::get()
 	return mImpl->mPlaying;
 }
 
-void RenderPanelControl::printSerailize()
+System::String^ RenderPanelControl::serailizeScene()
 {
-	(void)mImpl->mLauncher.vm.runScript(L"::gSerializationState.output=\"\";rootEntity.serialize(::gSerializationState);println(::gSerializationState.output);");
+	std::wstring str = mImpl->mLauncher.vm.runScriptAsString(
+		L"gSerializationState.output=\"\";rootEntity.serialize(gSerializationState);return gSerializationState.output;"
+	);
+	return gcnew System::String(str.c_str());
 }
 
 System::Void RenderPanelControl::timer_Tick(System::Object^ sender, System::EventArgs^ e)

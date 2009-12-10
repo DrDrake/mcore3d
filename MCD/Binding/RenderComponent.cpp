@@ -1,6 +1,7 @@
 #include "Pch.h"
 #include "RenderComponent.h"
 #include "Binding.h"
+#include "Entity.h"
 #include "Math.h"
 #include "Render.h"
 #include "System.h"
@@ -8,6 +9,7 @@
 #include "../Render/Mesh.h"
 #include "../Component/Render/CameraComponent.h"
 #include "../Component/Render/MeshComponent.h"
+#include "../Component/Render/PickComponent.h"
 
 using namespace MCD;
 
@@ -50,6 +52,28 @@ SCRIPT_CLASS_REGISTER(MeshComponent)
 	.wrappedMethod(xSTRING("_seteffect"), &meshComponentSetEffect)
 ;}
 
+static Entity* pickComponentGetEntityToPick(PickComponent& self) {
+	return self.entityToPick.get();
+}
+static void pickComponentSetEntityToPick(PickComponent& self, Entity* e) {
+	self.entityToPick = e;
+}
+static Entity* pickComponentHitAtIndex(PickComponent& self, size_t index) {
+	return self.hitAtIndex(index).get();
+}
+SCRIPT_CLASS_REGISTER(PickComponent)
+	.declareClass<PickComponent, Component>(xSTRING("PickComponent"))
+	.enableGetset()
+	.constructor()
+	.method(xSTRING("_setPickRegion"), &PickComponent::setPickRegion)
+	.wrappedMethod<objNoCare>(xSTRING("_getentityToPick"), &pickComponentGetEntityToPick)
+	.wrappedMethod(xSTRING("_setentityToPick"), &pickComponentSetEntityToPick)
+	.method(xSTRING("_gethitCount"), &PickComponent::hitCount)
+	.wrappedMethod<objNoCare>(xSTRING("hitAtIndex"), &pickComponentHitAtIndex)
+	.runScript(xSTRING("PickComponent.setPickRegion<-function(x,y,w=1,h=1){return _setPickRegion(x,y,w,h);}"))
+	.runScript(xSTRING("PickComponent._gethitResults<-function(){local c=_gethitCount();for(local i=0;i<c;++i)yield hitAtIndex(i);return null;}"))	// Generator for foreach
+;}
+
 SCRIPT_CLASS_REGISTER(RenderableComponent)
 	.declareClass<RenderableComponent, Component>(xSTRING("RenderableComponent"))
 	.enableGetset()
@@ -63,6 +87,7 @@ void registerRenderComponentBinding(script::VMCore* v)
 {
 	script::ClassTraits<CameraComponent>::bind(v);
 	script::ClassTraits<MeshComponent>::bind(v);
+	script::ClassTraits<PickComponent>::bind(v);
 	script::ClassTraits<RenderableComponent>::bind(v);
 }
 
