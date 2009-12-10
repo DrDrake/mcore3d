@@ -57,9 +57,10 @@ public:
 	/*!	Load and execute a script file.
 		The script file will be search inside \em fileSystem.
 		\param pushRetVal Push the return value (if any) onto the VM stack.
+		\param vm The specific squirrel VM that calling this function, pass null if the main VM should be used.
 		\return False if file not found or compile error or run-time error.
 	 */
-	sal_checkreturn bool doFile(const Path& filePath, bool pushRetVal);
+	sal_checkreturn bool doFile(const Path& filePath, bool pushRetVal, void* vm=nullptr);
 
 	/*!	Run a script and return it as en Entity.
 		If any error occurs or the script didn't returning an Entity, null is returned.

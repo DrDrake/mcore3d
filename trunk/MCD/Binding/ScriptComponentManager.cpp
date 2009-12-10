@@ -18,7 +18,7 @@ static int scriptComponentManagerDoFile(HSQUIRRELVM v)
 	script::detail::StackHandler sa(v);
 	ScriptComponentManager& self = get(types::TypeSelect<ScriptComponentManager&>(), v, 1);
 	const wchar_t* filePath = sa.getString(2);
-	return self.doFile(filePath, true) ? 1 : 0;
+	return self.doFile(filePath, true, v) ? 1 : 0;
 }
 
 SCRIPT_CLASS_REGISTER_NAME(ScriptComponentManager, "ScriptComponentManager")
@@ -242,12 +242,14 @@ void ScriptComponentManager::registerRootEntity(Entity& entity)
 }
 
 // TODO: Support byte code loading
-bool ScriptComponentManager::doFile(const Path& filePath, bool retval)
+bool ScriptComponentManager::doFile(const Path& filePath, bool retval, void* vm_)
 {
 	MemoryProfiler::Scope profiler("ScriptComponentManager::doFile");
 
+	// NOTE: When this function is invoked by a squirrel thread, the vm of that thread should
+	// be used instead of the main vm.
 	MCD_ASSUME(vm);
-	HSQUIRRELVM v = reinterpret_cast<HSQUIRRELVM>(vm->getImplementationHandle());
+	HSQUIRRELVM v = vm_ ? (HSQUIRRELVM)vm_ : reinterpret_cast<HSQUIRRELVM>(vm->getImplementationHandle());
 
 	MCD_ASSUME(fileSystem);
 	if(loadFile(v, *fileSystem, filePath))
