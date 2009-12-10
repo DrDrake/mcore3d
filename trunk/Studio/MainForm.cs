@@ -144,7 +144,7 @@ namespace Studio
 
 		public void OpenScene(Scene scene)
 		{
-			RenderWindow renderWindow = new RenderWindow();
+			RenderWindow renderWindow = new RenderWindow(scene.SceneScripts[0].Path);
 			renderWindow.Show(dockPanel, DockState.Document);
 
 			IntPtr sharedGlContext = new IntPtr(0);
@@ -168,7 +168,7 @@ namespace Studio
 			foreach (SceneScript s in scene.SceneScripts)
 			{
 				bool ok = renderPanel.executeScriptFile(s.Path);
-				System.Diagnostics.Debug.Assert(ok, "scrip fail");
+				System.Diagnostics.Debug.Assert(ok, "script fail");
 			}
 		}
 
@@ -308,7 +308,14 @@ namespace Studio
 
 		private void saveToolStripButton_Click(object sender, EventArgs e)
 		{
-			currentRenderControl.printSerailize();
+			Document d = dockPanel.ActiveDocument as Document;
+			if(d != null)
+				d.SaveDocument();
+		}
+
+		private void saveAllToolStripButton_Click(object sender, EventArgs e)
+		{
+
 		}
 	}
 }

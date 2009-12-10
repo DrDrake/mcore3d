@@ -76,7 +76,8 @@ public:
 		bool get();
 	}
 
-	void printSerailize();
+	/// Serialize the scene as a squirrel script.
+	System::String^ serailizeScene();
 
 protected:
 	/// <summary>

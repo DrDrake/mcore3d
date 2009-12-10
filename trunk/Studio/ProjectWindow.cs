@@ -325,7 +325,7 @@ namespace Studio
 				}
 			}
 
-			CodeWindow codeWindow = new CodeWindow();
+			CodeWindow codeWindow = new CodeWindow(SelectedScript.Path);
 			codeWindow.ToolTipText = SelectedScript.Path;
 			codeWindow.TabText = Path.GetFileName(SelectedScript.Path);
 			codeWindow.scintilla.Text = Project.FileSystem.openAsString(SelectedScript.Path);

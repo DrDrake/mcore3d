@@ -50,8 +50,10 @@ public:
 	//! How should it behave? remove the first or all? For simplicity, I choose to just remove the first.
 	sal_override bool remove(const Path& path) const;
 
+	//!	Open the first occuring file in the file systems.
 	sal_override std::auto_ptr<std::istream> openRead(const Path& path) const;
 
+	//!	Serach for any existing file in the file systems first, if none then save at the first writable file system.
 	sal_override std::auto_ptr<std::ostream> openWrite(const Path& path) const;
 
 	sal_override sal_maybenull void* openFirstChildFolder(const Path& folder) const;

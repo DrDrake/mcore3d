@@ -1,7 +1,7 @@
 ﻿
 namespace Studio
 {
-	public partial class CodeWindow : DockContent
+	public partial class CodeWindow : Document
 	{
 		/// <summary>
 		/// Using the ScintillaNet control for text editing.
@@ -10,7 +10,8 @@ namespace Studio
 		/// See: http://scintillanet.codeplex.com/WorkItem/View.aspx?WorkItemId=24671
 		/// See: http://scintillanet.codeplex.com/WorkItem/View.aspx?WorkItemId=24757
 		/// </summary>
-		public CodeWindow()
+		public CodeWindow(string path)
+			: base(path)
 		{
 			InitializeComponent();
 

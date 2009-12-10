@@ -227,8 +227,16 @@ std::auto_ptr<std::istream> FileSystemCollection::openRead(const Path& path) con
 
 std::auto_ptr<std::ostream> FileSystemCollection::openWrite(const Path& path) const
 {
-	// TODO: Implement
-	MCD_ASSERT(false && "Not implement yet");
+	if(IFileSystem* fileSystem = mImpl.findFileSystemForPath(path))
+		return fileSystem->openWrite(path);
+
+	std::auto_ptr<std::ostream> ret;
+	for(Impl::FileSystems::iterator i=mImpl.mFileSystems.begin(); i!=mImpl.mFileSystems.end(); ++i) {
+		ret = (*i)->openWrite(path);
+		if(ret.get())
+			return ret;
+	}
+
 	return std::auto_ptr<std::ostream>();
 }
 

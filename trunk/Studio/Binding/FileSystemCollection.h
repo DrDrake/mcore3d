@@ -39,6 +39,11 @@ public:
 	 */
 	System::String^ openAsString(System::String^ path);
 
+	/*!	Save a text string to a file.
+		The string will be saved in UTF-8 encoding.
+	 */
+	bool saveString(System::String^ path, System::String^ str);
+
 	typedef System::Collections::Generic::List<System::String^> FileSystems;
 
 	typedef System::Collections::Specialized::StringCollection StringCollection;

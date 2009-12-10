@@ -103,6 +103,7 @@ public:
 	Priority getPriority() const;
 
 	/*!	Set the thread's scheduling priority.
+		Only effective after the thread is started.
 		\note Not working on CYGWIN, only work for super user on Linux
 	 */
 	void setPriority(Priority priority);

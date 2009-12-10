@@ -4,6 +4,7 @@
 #include "../../MCD/Core/System/Log.h"
 #include "../../MCD/Core/System/FileSystemCollection.h"
 #include "../../MCD/Core/System/RawFileSystem.h"
+#include "../../MCD/Core/System/StrUtility.h"
 #undef nullptr
 #include <gcroot.h>
 #include <sstream>
@@ -92,6 +93,22 @@ String^ FileSystemCollection::openAsString(String^ path)
 	buffer << is->rdbuf();
 
 	return gcnew String(buffer.str().c_str());
+}
+
+bool FileSystemCollection::saveString(System::String^ path, System::String^ str)
+{
+	std::auto_ptr<std::ostream> os = mImpl->openWrite(Utility::toWString(path));
+	if(!os.get())
+		return false;
+
+	std::wstring ws = Utility::toWString(str);
+	std::string utf8;
+	if(!wStrToUtf8(ws, utf8))
+		return false;
+
+	if(!utf8.empty())
+		os->write(&utf8[0], utf8.size());
+	return true;
 }
 
 FileSystemCollection::StringCollection^ FileSystemCollection::fileSystems::get()
