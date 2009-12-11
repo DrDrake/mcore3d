@@ -85,7 +85,7 @@ public:
 
 			// Limit the framerate of the physics thread
 			if(instanceFps > cFpsLimit)
-				mSleep(size_t(1000.0f / instanceFps));
+				mSleep(size_t(1000.0f/cFpsLimit - 1000.0f / instanceFps));
 
 			doQueueJob();
 		}
