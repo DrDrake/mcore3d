@@ -5,6 +5,10 @@
 	/// </summary>
 	public class Document : Studio.DockContent
 	{
+		public Document()
+		{
+		}
+
 		public Document(string path)
 		{
 			mPath = path;

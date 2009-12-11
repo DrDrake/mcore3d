@@ -104,7 +104,8 @@ bool ScriptComponentManager::init(ScriptVM& vm, IFileSystem& fs)
 				}\n\
 				::_scriptComponentClassTable[fileName] <- Class;\n\
 			}\n\
-			Class.classString <- null;\n\
+			if(!(\"classString\" in Class))\n\
+				Class.classString <- null;\n\
 			local c;\n\
 			if(vargc == 0) {\n\
 				c = Class();\n\

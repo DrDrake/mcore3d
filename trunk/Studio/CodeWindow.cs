@@ -1,4 +1,5 @@
-﻿
+﻿using Binding;
+
 namespace Studio
 {
 	public partial class CodeWindow : Document
@@ -21,6 +22,24 @@ namespace Studio
 			marker.Symbol = ScintillaNet.MarkerSymbol.RoundRectangle; // the ultraedit style
 			this.scintilla.Lines[3].AddMarker(marker);
 			this.scintilla.Lines[10].AddMarker(marker);
+		}
+
+		public override bool SaveDocument()
+		{
+			FileSystemCollection fs = ProjectWindow.Singleton.Project.ResourceManager.fileSystemCollection;
+			if (fs.saveString(Path, scintilla.Text))
+			{
+				scintilla.Modified = false;
+				if (TabText.EndsWith("*"))
+					TabText.Remove(TabText.Length - 1);
+			}
+			return false;
+		}
+
+		private void scintilla_TextChanged(object sender, System.EventArgs e)
+		{
+			if(!TabText.EndsWith("*"))
+				this.TabText += "*";
 		}
 	}
 }

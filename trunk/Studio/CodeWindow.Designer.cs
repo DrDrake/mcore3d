@@ -28,7 +28,6 @@
 		/// </summary>
 		private void InitializeComponent()
 		{
-			System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(CodeWindow));
 			this.scintilla = new ScintillaNet.Scintilla();
 			((System.ComponentModel.ISupportInitialize)(this.scintilla)).BeginInit();
 			this.SuspendLayout();
@@ -43,15 +42,15 @@
 			this.scintilla.Margins.Margin2.Width = 10;
 			this.scintilla.Margins.Margin3.Width = 10;
 			this.scintilla.Name = "scintilla";
-			this.scintilla.Size = new System.Drawing.Size(292, 271);
+			this.scintilla.Size = new System.Drawing.Size(292, 250);
 			this.scintilla.TabIndex = 0;
-			this.scintilla.Text = resources.GetString("scintilla.Text");
+			this.scintilla.TextChanged += new System.EventHandler(this.scintilla_TextChanged);
 			// 
 			// CodeWindow
 			// 
-			this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
+			this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-			this.ClientSize = new System.Drawing.Size(292, 271);
+			this.ClientSize = new System.Drawing.Size(292, 250);
 			this.Controls.Add(this.scintilla);
 			this.Name = "CodeWindow";
 			this.TabText = "CodeWindow";
