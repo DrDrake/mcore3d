@@ -466,11 +466,11 @@
 				>
 			</File>
 			<File
-				RelativePath=".\Model.cpp"
+				RelativePath=".\MeshBuilderUtility.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".\MeshBuilderUtility.cpp"
+				RelativePath=".\Model.cpp"
 				>
 			</File>
 			<File
@@ -541,11 +541,11 @@
 				>
 			</File>
 			<File
-				RelativePath=".\Shader.cpp"
+				RelativePath=".\SemanticMap.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".\SemanticMap.cpp"
+				RelativePath=".\Shader.cpp"
 				>
 			</File>
 			<File

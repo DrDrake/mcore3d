@@ -170,6 +170,11 @@ size_t MeshBuilder2::indexCount() const
 	return mImpl.indexCount;
 }
 
+size_t MeshBuilder2::bufferCount() const
+{
+	return mImpl.buffers.size();
+}
+
 int MeshBuilder2::findAttributeId(const char* semanticName) const
 {
 	for(size_t i=1; i<mImpl.attributes.size(); ++i)
@@ -204,19 +209,20 @@ const char* MeshBuilder2::getAttributePointer(int attributeId, size_t* count, si
 	return const_cast<MeshBuilder2*>(this)->getAttributePointer(attributeId, count, stride, semantic);
 }
 
-char* MeshBuilder2::getBufferPointer(size_t bufferIdx, size_t* sizeInByte)
+char* MeshBuilder2::getBufferPointer(size_t bufferIdx,  size_t* elementSize, size_t* sizeInByte)
 {
 	if(bufferIdx >= mImpl.buffers.size() || mImpl.buffers[bufferIdx].size() == 0)
 		return nullptr;
 
+	if(elementSize) *elementSize = mImpl.buffers[bufferIdx].elementSize;
 	if(sizeInByte) *sizeInByte = mImpl.buffers[bufferIdx].size();
 
 	return &mImpl.buffers[bufferIdx][0];
 }
 
-const char* MeshBuilder2::getBufferPointer(size_t bufferIdx, size_t* sizeInByte) const
+const char* MeshBuilder2::getBufferPointer(size_t bufferIdx,  size_t* elementSize, size_t* sizeInByte) const
 {
-	return const_cast<MeshBuilder2*>(this)->getBufferPointer(bufferIdx, sizeInByte);
+	return const_cast<MeshBuilder2*>(this)->getBufferPointer(bufferIdx, elementSize, sizeInByte);
 }
 
 #ifndef NDEBUG

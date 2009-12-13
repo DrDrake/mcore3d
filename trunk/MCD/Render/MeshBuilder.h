@@ -89,6 +89,8 @@ public:
 
 	size_t indexCount() const;
 
+	size_t bufferCount() const;
+
 	/*!	Search the attribute ID with the given semantic name.
 		Returns -1 if non of the semantic can be found.
 	 */
@@ -132,9 +134,8 @@ public:
 		size_t count, stride;
 		Semantic semantic;
 		char* p = getAttributePointer(attributeId, &count, &stride, &semantic);
-		if(sizeof(T) == semantic.elementCount * semantic.elementSize)
+		if(p && sizeof(T) == semantic.elementCount * semantic.elementSize)
 			return StrideArray<T>(p, count, stride);
-		MCD_ASSERT(false);
 		return StrideArray<T>(nullptr, 0, 0);
 	}
 
@@ -145,11 +146,13 @@ public:
 
 	sal_maybenull char* getBufferPointer(
 		size_t bufferIdx,
+		sal_out_opt size_t* elementSize=nullptr,
 		sal_out_opt size_t* sizeInByte=nullptr
 	);
 
 	sal_maybenull const char* getBufferPointer(
 		size_t bufferIdx,
+		sal_out_opt size_t* elementSize=nullptr,
 		sal_out_opt size_t* sizeInByte=nullptr
 	) const;
 
