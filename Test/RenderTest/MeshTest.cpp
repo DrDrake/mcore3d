@@ -28,6 +28,7 @@ TEST(MeshBuilderTest)
 		CHECK_EQUAL(1u, builder.attributeCount());	// The "index" is already reserved.
 		CHECK_EQUAL(0u, builder.vertexCount());
 		CHECK_EQUAL(0u, builder.indexCount());
+		CHECK_EQUAL(1u, builder.bufferCount());		// There is the build-in index buffer
 
 		// Try to declare the default attribute id 0 (which means index) will fail
 		CHECK(0 > builder.declareAttribute(indexSemantic, 0));
@@ -61,6 +62,7 @@ TEST(MeshBuilderTest)
 		CHECK(builder.resizeBuffers(8, 12));
 		CHECK_EQUAL(8u, builder.vertexCount());
 		CHECK_EQUAL(12u, builder.indexCount());
+		CHECK_EQUAL(3u, builder.bufferCount());
 
 		size_t count, stride;
 		MeshBuilder2::Semantic semantic;
@@ -106,6 +108,18 @@ TEST(MeshBuilderTest)
 		CHECK_EQUAL(1u, semantic.elementCount);
 		CHECK_EQUAL(sizeof(uint16_t), semantic.elementSize);
 		CHECK_EQUAL(std::string("index"), semantic.name);
+
+		// Get the individual buffer's pointer
+		size_t totalSize;
+		char* buf0 = builder.getBufferPointer(0, &stride, &totalSize);
+		CHECK_EQUAL((char*)idxPtr, buf0);
+		CHECK_EQUAL(sizeof(uint16_t), stride);
+		CHECK_EQUAL(sizeof(uint16_t)*builder.indexCount(), totalSize);
+
+		char* buf1 = builder.getBufferPointer(1, &stride, &totalSize);
+		CHECK_EQUAL((char*)pos, buf1);
+		CHECK_EQUAL(sizeof(float)*8, stride);
+		CHECK_EQUAL(sizeof(float)*8*builder.vertexCount(), totalSize);
 	}
 }
 
