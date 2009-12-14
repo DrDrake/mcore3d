@@ -154,9 +154,10 @@ TEST(Normalize_PathTest)
 {
 	const wchar_t* data[][2] = {
 		{L"",			L""},			// Should keep untouched
+		{L"",			L"."},
 		{L"",			L"./"},
 		{L"C:",			L"C:"},
-		{L"C:/",		L"C:\\"},
+		{L"C:/",		L"C:\\"},		// Back slash to slash
 		{L"C:/B",		L"C:\\B"},
 		{L"file:///",	L"file:///"},
 		{L"file:///a",	L"file:///a"},
@@ -176,12 +177,19 @@ TEST(Normalize_PathTest)
 		{L"/bar",		L"/home/../bar"},
 		{L"C:/",		L"C:/A/B/../.."},
 		{L"C:/",		L"C:\\A\\B/../.."},
+		{L"..",			L".."},
+		{L"../..",		L"../.."},
 		{L"..",			L"../"},
 		{L"../..",		L"../../"},
 	};
 
-	for(size_t i=0; i<MCD_COUNTOF(data); ++i)
-		CHECK_EQUAL(data[i][0], Path(data[i][1]).normalize().getString());
+	for(size_t i=0; i<MCD_COUNTOF(data); ++i) {
+		Path nrm = Path(data[i][1]).normalize();
+		CHECK_EQUAL(data[i][0], nrm.getString());
+
+		// Second normalization should do nothing
+		CHECK_EQUAL(data[i][0], nrm.normalize().getString());
+	}
 }
 
 TEST(Append_PathTest)
@@ -219,9 +227,10 @@ TEST(CurrentPath_PathTest)
 TEST(Iterator_PathIteratorTest)
 {
 	const wchar_t* data[][2] = {
-		{L"a/b/c",	L"a, a/b, a/b/c, "},	// Begin without slash
-		{L"/a/b/c",	L"/a, /a/b, /a/b/c, "},	// Begin with slash
-		{L"/a/b/c/",L"/a, /a/b, /a/b/c, "},	// End with slash
+		{L"a/b/c",	L"a, a/b, a/b/c, "},		// Begin without slash
+		{L"/a/b/c",	L"/a, /a/b, /a/b/c, "},		// Begin with slash
+		{L"/a/b/c/",L"/a, /a/b, /a/b/c, "},		// End with slash
+		{L"../../a/",L".., ../.., ../../a, "},	// Test with ..
 	};
 
 	for(size_t i=0; i<MCD_COUNTOF(data); ++i) {

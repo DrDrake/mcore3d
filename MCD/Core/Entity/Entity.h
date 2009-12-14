@@ -81,11 +81,30 @@ public:
 		return findComponentInChildren<T>(typeid(T));
 	}
 
-	/*!	Return the firstly found Entity undert the children, with the name supplied.
+	//!	Instead of simply returning true or false, the no. of level is returned.
+	size_t isAncestorOf(const Entity& e) const;
+
+	/*!	Return the firstly found Entity along the siblings, with the name supplied.
+		Returns null if none is found.
+	 */
+	sal_maybenull Entity* findEntityInSibling(sal_in_z const wchar_t* name) const;
+
+	/*!	Return the firstly found Entity under the descendants (including indirect children), with the name supplied.
 		Returns null if none is found.
 		\note This entity will also be considered.
 	 */
-	sal_maybenull Entity* findEntityInChildren(sal_in_z const wchar_t* name) const;
+	sal_maybenull Entity* findEntityInDescendants(sal_in_z const wchar_t* name) const;
+
+	/*!	Use a file system like path syntax to local an entity in the entity tree.
+		This entity will be returned if empty string is supplied.
+		\note Linear complexity.
+	 */
+	sal_maybenull Entity* findEntityByPath(sal_in_z const wchar_t* path) const;
+
+	/*!	Comput the relative path from one Entity to this Entity.
+		Returns empty string with both Entity are just the same.
+	 */
+	std::wstring getRelativePathFrom(const Entity& e) const;
 
 	/*!	Add a new component into the Entity.
 		Only a single instance is allowed for each family type of Component,
@@ -118,10 +137,13 @@ public:
 	std::wstring name;
 
 	sal_maybenull Entity* parent();
+	sal_maybenull Entity* parent() const;
 
 	sal_maybenull Entity* firstChild();
+	sal_maybenull Entity* firstChild() const;
 
 	sal_maybenull Entity* nextSibling();
+	sal_maybenull Entity* nextSibling() const;
 
 	Mat44f localTransform;
 

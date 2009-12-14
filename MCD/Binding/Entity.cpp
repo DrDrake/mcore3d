@@ -95,14 +95,17 @@ SCRIPT_CLASS_REGISTER_NAME(Entity, "Entity")
 	.wrappedMethod(xSTRING("insertAfter"), &entityInsertAfter)
 	.wrappedMethod(xSTRING("unlink"), &entityUnlink)					// If the node is unlinked, it's ownership will give to the script
 	.wrappedMethod(xSTRING("addComponent"), &entityAddComponent)
+	.method(xSTRING("isAncestorOf"), &Entity::isAncestorOf)
+	.method<objNoCare>(xSTRING("findEntityByPath"), &Entity::findEntityByPath)
+	.method(xSTRING("getRelativePathFrom"), &Entity::getRelativePathFrom)
 	.getset(xSTRING("enabled"), &Entity::enabled)
 	.getset(xSTRING("name"), &Entity::name)
 	.getset(xSTRING("localTransform"), &Entity::localTransform)
 	.method(xSTRING("_getworldTransform"), &Entity::worldTransform)
 	.method(xSTRING("_setworldTransform"), &Entity::setWorldTransform)
-	.method<objNoCare>(xSTRING("_getparentNode"), &Entity::parent)		// The node's life time is controled by the
-	.method<objNoCare>(xSTRING("_getfirstChild"), &Entity::firstChild)	// node tree's root node, therefore we use
-	.method<objNoCare>(xSTRING("_getnextSibling"), &Entity::nextSibling)// objNoCare as the return policy.
+	.method<objNoCare>(xSTRING("_getparentNode"), (Entity* (Entity::*)())(&Entity::parent))			// The node's life time is controled by the
+	.method<objNoCare>(xSTRING("_getfirstChild"), (Entity* (Entity::*)())(&Entity::firstChild))		// node tree's root node, therefore we use
+	.method<objNoCare>(xSTRING("_getnextSibling"), (Entity* (Entity::*)())(&Entity::nextSibling))	// objNoCare as the return policy.
 	.wrappedMethod<objNoCare>(xSTRING("_nextComponent"), &entityNextComponent)
 	.runScript(xSTRING("Entity._getcomponents<-function(){local c;for(;c=_nextComponent(c);)yield c;}return null;"))	// Generator for foreach
 	.runScript(xSTRING("Entity.serialize<-null;Entity._serialize<-function(state){::entitySerializeTraverse(this,state);}"))	// The default serialization function

@@ -194,8 +194,10 @@ Path& Path::normalize()
 	}
 
 	// Remove trailing '.'
-	if(!mStr.empty() && mStr[mStr.size()-1] == L('.'))
-		mStr.resize(mStr.size() - 1);
+	if(!mStr.empty() && mStr[mStr.size()-1] == L('.')) {
+		if(mStr.size() == 1 || mStr[mStr.size()-2] != L('.'))	// If not ".."
+			mStr.resize(mStr.size() - 1);
+	}
 
 	// Remove trailing '/' but not the root path "/"
 	beg = mStr.rfind(L("/"));
@@ -282,12 +284,13 @@ PathIterator::PathIterator(const Path& path)
 		++currentIndex;
 }
 
-Path::string_type PathIterator::next()
+Path::string_type PathIterator::next(bool returnFullPath)
 {
+	size_t oldIndex = currentIndex;
 	currentIndex = mStr.find(L"/", currentIndex);
 	if(currentIndex == Path::string_type::npos)
 		return Path::string_type();
-	return mStr.substr(0, currentIndex++);
+	return mStr.substr(returnFullPath ? 0 : oldIndex, currentIndex++);
 }
 
 }	// namespace MCD
