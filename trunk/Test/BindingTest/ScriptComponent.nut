@@ -31,6 +31,4 @@ return class extends ScriptComponent
 	position = null;
 	speed = null;
 	anotherComponent = null;
-
-	static classString = "::loadComponent(ScriptComponent.nut)";
 }

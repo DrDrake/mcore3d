@@ -70,6 +70,13 @@ TEST(Hierarchy_EntityTest)
 	CHECK_EQUAL(e2, e3->nextSibling());
 	CHECK_EQUAL(e1, e2->nextSibling());
 	CHECK(!e1->nextSibling());
+
+	CHECK(!root.isAncestorOf(root));
+	CHECK_EQUAL(1u, root.isAncestorOf(*e1));
+	CHECK_EQUAL(1u, root.isAncestorOf(*e2));
+	CHECK_EQUAL(2u, root.isAncestorOf(*e11));
+	CHECK(!e1->isAncestorOf(root));
+	CHECK(!e1->isAncestorOf(*e2));
 }
 
 TEST(Unlink_EntityTest)
@@ -229,10 +236,52 @@ TEST(PreorderIterator_EntityTest)
 TEST(Find_EntityTest)
 {
 	Entity root;
-	CHECK(!root.findEntityInChildren(L"e21"));
+	CHECK(!root.findEntityInDescendants(L"e21"));
 
 	createTree(root);
-	CHECK_EQUAL(e21, root.findEntityInChildren(L"e21"));
+	CHECK_EQUAL(e21, root.findEntityInDescendants(L"e21"));
+}
+
+TEST(FindByPath_EntityTest)
+{
+	Entity root;
+	createTree(root);
+	CHECK_EQUAL(&root, root.findEntityByPath(L""));
+
+	CHECK(!root.findEntityByPath(L"../"));
+
+	CHECK_EQUAL(&root, root.findEntityByPath(L"./"));
+
+	CHECK_EQUAL(&root, e1->findEntityByPath(L".."));
+	CHECK_EQUAL(&root, e1->findEntityByPath(L"../"));
+	CHECK_EQUAL(&root, e11->findEntityByPath(L"../../"));
+
+	CHECK_EQUAL(e1, root.findEntityByPath(L"e1"));
+	CHECK_EQUAL(e11, root.findEntityByPath(L"e1/e11"));
+	CHECK(!root.findEntityByPath(L"e1/not exist"));
+
+	CHECK_EQUAL(e2, e1->findEntityByPath(L"../e2"));
+}
+
+TEST(GetRelativePath_EntityTest)
+{
+	Entity root;
+	createTree(root);
+
+	CHECK_EQUAL(L"", root.getRelativePathFrom(root));
+	CHECK_EQUAL(L"", e1->getRelativePathFrom(*e1));
+
+	CHECK_EQUAL(L"../", root.getRelativePathFrom(*e1));
+	CHECK_EQUAL(L"../../", root.getRelativePathFrom(*e11));
+
+	CHECK_EQUAL(L"e1/", e1->getRelativePathFrom(root));
+	CHECK_EQUAL(L"e1/e11/", e11->getRelativePathFrom(root));
+
+	CHECK_EQUAL(L"../e2/", e2->getRelativePathFrom(*e1));
+	CHECK_EQUAL(L"../e1/", e1->getRelativePathFrom(*e2));
+
+	CHECK_EQUAL(L"../../e1/e12/", e12->getRelativePathFrom(*e21));
+	CHECK_EQUAL(L"../../e2/e21/", e21->getRelativePathFrom(*e12));
 }
 
 namespace Clone_EntityTest
@@ -289,12 +338,12 @@ TEST(Clone_EntityTest)
 	e13->localTransform.setTranslation(Vec3f(3, 2, 1));
 
 	std::auto_ptr<Entity> clone_root(root.clone());
-	Entity* clone_e1 = clone_root->findEntityInChildren(L"e1");
-	Entity* clone_e2 = clone_root->findEntityInChildren(L"e2");
-	Entity* clone_e3 = clone_root->findEntityInChildren(L"e3");
-	Entity* clone_e11 = clone_root->findEntityInChildren(L"e11");
-	Entity* clone_e12 = clone_root->findEntityInChildren(L"e12");
-	Entity* clone_e13 = clone_root->findEntityInChildren(L"e13");
+	Entity* clone_e1 = clone_root->findEntityInDescendants(L"e1");
+	Entity* clone_e2 = clone_root->findEntityInDescendants(L"e2");
+	Entity* clone_e3 = clone_root->findEntityInDescendants(L"e3");
+	Entity* clone_e11 = clone_root->findEntityInDescendants(L"e11");
+	Entity* clone_e12 = clone_root->findEntityInDescendants(L"e12");
+	Entity* clone_e13 = clone_root->findEntityInDescendants(L"e13");
 
 	{
 		bool allNotNull = clone_e1 && clone_e2 && clone_e3 && clone_e11 && clone_e12 && clone_e13;

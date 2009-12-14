@@ -149,8 +149,12 @@ public:
 
 	Path getPath() const;
 
-	//! Advance the iterator, and return it's previous result.
-	Path::string_type next();
+	/*!	Advance the iterator, and return it's previous result.
+		\param returnFullPath
+			true: "a/b/c" -> a, a/b, a/b/c
+			false: "a/b/c" -> a, b, c
+	 */
+	Path::string_type next(bool returnFullPath=true);
 
 protected:
 	Path::string_type mStr;

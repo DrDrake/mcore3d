@@ -2,6 +2,7 @@
 #include "Entity.h"
 #include "Component.h"
 #include "../System/Log.h"
+#include "../System/Path.h"
 #include "../System/Utility.h"
 
 namespace MCD {
@@ -45,6 +46,8 @@ void Entity::asChildOf(Entity* parent)
 
 void Entity::insertBefore(sal_in Entity* sibling)
 {
+	MCD_ASSERT(sibling->mParent && "There should only one a single root node");
+
 	if(!sibling || !sibling->mParent)
 		return;
 
@@ -75,6 +78,8 @@ void Entity::insertBefore(sal_in Entity* sibling)
 
 void Entity::insertAfter(sal_in Entity* sibling)
 {
+	MCD_ASSERT(sibling->mParent && "There should only one a single root node");
+
 	if(!sibling)
 		return;
 
@@ -140,7 +145,26 @@ Component* Entity::findComponentInChildren(const std::type_info& familyType) con
 	return nullptr;
 }
 
-Entity* Entity::findEntityInChildren(const wchar_t* name) const
+size_t Entity::isAncestorOf(const Entity& e_) const
+{
+	size_t count = 0;
+	for(const Entity* e = e_.parent(); e; e=e->parent(), ++count)
+		if(e == this)
+			return count + 1;
+	return false;
+}
+
+Entity* Entity::findEntityInSibling(sal_in_z const wchar_t* name) const
+{
+	for(Entity* e=const_cast<Entity*>(this); e; e=e->nextSibling()) {
+		if(e->name == name)
+			return e;
+	}
+
+	return nullptr;
+}
+
+Entity* Entity::findEntityInDescendants(const wchar_t* name) const
 {
 	for(EntityPreorderIterator itr(const_cast<Entity*>(this)); !itr.ended(); itr.next()) {
 		if(itr->name == name)
@@ -148,6 +172,87 @@ Entity* Entity::findEntityInChildren(const wchar_t* name) const
 	}
 
 	return nullptr;
+}
+
+Entity* Entity::findEntityByPath(const wchar_t* path) const
+{
+	PathIterator itr(path);
+	const Entity* e = this;
+
+	do {
+		std::wstring s = itr.next(false);
+		if(s.empty())
+			break;
+
+		// Remove trailing slash
+		if(s[s.size() - 1] == L'/')
+			s.resize(s.size() - 1);
+
+		if(s == L"..")
+			e = e->parent();
+		else if(e)
+			e = e->findEntityInDescendants(s.c_str());
+	} while(e);
+
+	return const_cast<Entity*>(e);
+}
+
+std::wstring Entity::getRelativePathFrom(const Entity& from) const
+{
+	std::wstring ret;
+	const Entity* lcp = nullptr;
+	size_t levelDiff = 0;
+
+	{	// Find the most descend (lowest) common parent
+		int thisLevel = 0, fromLevel = 0;
+		for(const Entity* e = this; e; e=e->parent())
+			++thisLevel;
+		for(const Entity* e = &from; e; e=e->parent())
+			++fromLevel;
+
+		size_t commonLevel = thisLevel < fromLevel ? thisLevel : fromLevel;
+
+		const Entity *e1 = this, *e2 = &from;
+
+		for(int i=thisLevel-commonLevel; i--; )
+			e1 = e1->parent();
+		for(int i=fromLevel-commonLevel; i--; ) {
+			e2 = e2->parent();
+			ret += L"../";
+		}
+
+		// Go up to the parent until both become the same
+		for(size_t i=commonLevel; i--; ) {
+			if(e1 == e2)
+				break;
+			e1 = e1->parent();
+			e2 = e2->parent();
+			ret += L"../";
+			--commonLevel;	// Note that we haven't interfered the loop
+		}
+
+		lcp = e1;
+		MCD_ASSERT(lcp);
+		levelDiff = thisLevel - commonLevel;
+	}
+
+	if(levelDiff > 0)
+	{	// We need a temporary buffer to reverse the Entities.
+		const Entity** tmp = (const Entity**)MCD_STACKALLOCA(sizeof(Entity*) * levelDiff);
+		size_t count = 0;
+
+		for(const Entity* e = this; e != lcp; e=e->parent(), ++count)
+			tmp[count] = e;
+
+		MCD_ASSERT(count == levelDiff);
+
+		for(size_t i=count; i--; )
+			ret += tmp[i]->name + L"/";
+
+		MCD_STACKFREE(tmp);
+	}
+
+	return ret;
 }
 
 void Entity::addComponent(Component* component)
@@ -183,11 +288,23 @@ Entity* Entity::parent() {
 	return mParent;
 }
 
+Entity* Entity::parent() const {
+	return mParent;
+}
+
 Entity* Entity::firstChild() {
 	return mFirstChild;
 }
 
+Entity* Entity::firstChild() const {
+	return mFirstChild;
+}
+
 Entity* Entity::nextSibling() {
+	return mNextSibling;
+}
+
+Entity* Entity::nextSibling() const {
 	return mNextSibling;
 }
 
