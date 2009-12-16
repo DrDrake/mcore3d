@@ -191,7 +191,11 @@ Entity* Entity::findEntityByPath(const wchar_t* path) const
 		if(s == L"..")
 			e = e->parent();
 		else if(e)
-			e = e->findEntityInDescendants(s.c_str());
+		{
+			for(e=e->firstChild(); e; e=e->nextSibling())
+				if(e->name == s)
+					break;
+		}
 	} while(e);
 
 	return const_cast<Entity*>(e);

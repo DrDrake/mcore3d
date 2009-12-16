@@ -261,6 +261,8 @@ TEST(FindByPath_EntityTest)
 	CHECK(!root.findEntityByPath(L"e1/not exist"));
 
 	CHECK_EQUAL(e2, e1->findEntityByPath(L"../e2"));
+
+	CHECK(!root.findEntityByPath(L"e11"));
 }
 
 TEST(GetRelativePath_EntityTest)

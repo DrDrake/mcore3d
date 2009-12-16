@@ -490,7 +490,11 @@ bool RenderPanelControl::playing::get()
 System::String^ RenderPanelControl::serailizeScene()
 {
 	std::wstring str = mImpl->mLauncher.vm.runScriptAsString(
-		L"gSerializationState.output=\"\";rootEntity.serialize(gSerializationState);return gSerializationState.output;"
+		L"gSerializationState.output=\"\";gSerializationState.patch.clear();"
+		L"rootEntity.serialize(gSerializationState);"
+		L"local ret = gSerializationState.output + gSerializationState.getPatchString();"
+		L"gSerializationState.reset();"
+		L"return ret;"
 	);
 	return gcnew System::String(str.c_str());
 }
