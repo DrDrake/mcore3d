@@ -149,12 +149,22 @@ namespace Studio
 
 		public Scene SelectedScene
 		{
-			get { return treeViewAdv.SelectedNode.Tag as Scene; }
+			get
+			{
+				if (treeViewAdv.SelectedNode == null)
+					return null;
+				return treeViewAdv.SelectedNode.Tag as Scene;
+			}
 		}
 
 		public SceneScript SelectedScript
 		{
-			get { return treeViewAdv.SelectedNode.Tag as SceneScript; }
+			get
+			{
+				if (treeViewAdv.SelectedNode == null)
+					return null;
+				return treeViewAdv.SelectedNode.Tag as SceneScript;
+			}
 		}
 
 		/// <summary>
