@@ -49,12 +49,12 @@ static bool isEqualMat44(const Mat44f& lhs, const Mat44f& rhs) { return lhs == r
 static bool mat44IsIdentity(const Mat44f& m) { return m == Mat44f::cIdentity; }
 static void mat44FromHex(Mat44f& m, const wchar_t* s) {
 	MCD_ASSERT(::wcslen(s) == sizeof(float) * 2 * (4*4));
-	::swscanf(s, L"%X%X%X%X%X%X%X%X%X%X%X%X%X%X%X%X",
+	MCD_VERIFY(::swscanf(s, L"%8X%8X%8X%8X%8X%8X%8X%8X%8X%8X%8X%8X%8X%8X%8X%8X",
 		&m.m00, &m.m01, &m.m02, &m.m03,
 		&m.m10, &m.m11, &m.m12, &m.m13,
 		&m.m20, &m.m21, &m.m22, &m.m23,
 		&m.m30, &m.m31, &m.m32, &m.m33
-	);
+	) == 16);
 }
 
 SCRIPT_CLASS_REGISTER_NAME(Mat44f, "Mat44")
@@ -86,7 +86,6 @@ SCRIPT_CLASS_REGISTER_NAME(Mat44f, "Mat44")
 	.wrappedMethod(xSTRING("isEqual"), &isEqualMat44)
 	.wrappedMethod(xSTRING("isIdentity"), &mat44IsIdentity)
 	.wrappedMethod(xSTRING("fromHex"), &mat44FromHex)
-//	.runScript(xSTRING("Mat44.identity <- 123"))	// TODO: Add identity
 	.runScript(xSTRING("Mat44.toHex <- function(){local str=\"\"; for(local i=0;i<4;++i) for(local j=0;j<4;++j) str+=::floatToHex(getAt(i,j)); return str;}"))
 	.runScript(xSTRING("Mat44._tostring <- function(){return xBiasVector+\"), \"+yBiasVector+\"), \"+zBiasVector;}"))	// Vec3.tostring()
 ;}

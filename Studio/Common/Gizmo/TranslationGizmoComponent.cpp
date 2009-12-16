@@ -45,8 +45,10 @@ public:
 		// http://www.ziggyware.com/readarticle.php?article_id=189
 
 		// Transform the axis direction on the screen space
-		Vec3f start = projectToScreen(oldTransform.translation());
-		Vec3f end = projectToScreen(oldTransform.translation() + dragDirection);
+		// NOTE: projectToScreen() may fail if oldTransform.translation() is behind the camera.
+		Vec3f start, end;
+		if(!projectToScreen(oldTransform.translation(), start)) return;
+		if(!projectToScreen(oldTransform.translation() + dragDirection, end)) return;
 		Vec3f screenDir = (end - start).normalizedCopy();
 
 		// Project the mouse dragging direciton to the screen space arrow direction

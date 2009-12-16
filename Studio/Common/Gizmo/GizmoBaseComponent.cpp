@@ -58,7 +58,7 @@ Vec3f unProject(const Vec3f& p)
 	return Vec3f(float(v[0]), float(v[1]), float(v[2]));
 }
 
-Vec3f projectToScreen(const Vec3f& p)
+bool projectToScreen(const Vec3f& p, Vec3f& result)
 {
 	GLdouble model[16];
 	glGetDoublev(GL_MODELVIEW_MATRIX, model);
@@ -68,9 +68,13 @@ Vec3f projectToScreen(const Vec3f& p)
 	glGetIntegerv(GL_VIEWPORT, viewPort);
 
 	GLdouble v[3] = {0};
-	MCD_VERIFY(gluProject(p[0], p[1], p[2], model, projection, viewPort, &v[0], &v[1], &v[2]) == GL_TRUE);
 
-	return Vec3f(float(v[0]), float(v[1]), float(v[2]));
+	bool ok = gluProject(p[0], p[1], p[2], model, projection, viewPort, &v[0], &v[1], &v[2]) == GL_TRUE;
+	result.x = float(v[0]);
+	result.y = float(v[1]);
+	result.z = float(v[2]);
+
+	return ok;
 }
 
 Vec3f projectToScreenNoModelView(const Vec3f& p)

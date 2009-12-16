@@ -201,6 +201,21 @@ class TestMat44
 		m.scaleBy(Vec3(1/0.5, 1.0/2, 1.0/3));
 		assert(m.scale.isEqual(Vec3(1)));
 	}
+
+	function testHex()
+	{
+		local a = Mat44(
+			3, 2, 1, 1,
+			2, 2, 2, 2,
+			2, 1, 1, 2,
+			2, 1, 0, 1);
+
+		local b = Mat44();
+
+		b.fromHex(a.toHex());
+
+		assert(a.isEqual(b));
+	}
 }	// TestMat44
 
 SqUnit().run();
