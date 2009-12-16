@@ -71,8 +71,6 @@ public:
 
 	//! Where the tree of loaded Entity will add to.
 	EntityPtr addToHere;
-	//! The tree of Entity that is added to \em addToHere.
-	EntityPtr entityAdded;
 	//! The entityPrototype that \em entityAdded clones from.
 	EntityPrototypePtr entityPrototype;
 };	// LoadCallback

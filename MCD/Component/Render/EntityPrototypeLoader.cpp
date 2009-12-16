@@ -87,6 +87,7 @@ void EntityPrototypeLoader::Impl::commit(Resource& resource)
 	EntityPrototype& ep = dynamic_cast<EntityPrototype&>(resource);
 
 	Entity* entRoot = new Entity;
+	entRoot->name = L"tmp root";
 
 	for(Model::MeshAndMaterial* meshAndMat = model->mMeshes.begin()
 		; meshAndMat != model->mMeshes.end()
@@ -155,14 +156,17 @@ void EntityPrototypeLoader::LoadCallback::doCallback()
 	if(!addHere || !entityPrototype)
 		return;
 
-	Entity* e = entityPrototype->entity.get();
-	if(!e)	// Loading of the Entity failed
+	Entity* e_ = entityPrototype->entity.get();
+	if(!e_)	// Loading of the Entity failed
 		return;
-	e = e->clone();
-	MCD_ASSUME(e);
+	std::auto_ptr<Entity> e(e_->clone());
+	MCD_ASSERT(e.get());
 
-	e->asChildOf(addHere);
-	entityAdded = e;
+	// Move all the node in the tmp root to the target.
+	while(Entity* i=e->firstChild()) {
+		i->unlink();
+		i->asChildOf(addHere);
+	}
 }
 
 EntityPrototypePtr EntityPrototypeLoader::addEntityAfterLoad(

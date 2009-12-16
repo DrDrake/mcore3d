@@ -155,9 +155,7 @@ bool Launcher::init(InputComponent& inputComponent, Entity* rootNode)
 		L"function loadEntity(filePath, loadOptions={}) {\n"
 		L"	if(\"createStaticRigidBody\" in loadOptions && loadOptions[\"createStaticRigidBody\"])\n"
 		L"		return gLauncher.loadEntity(filePath, true);\n"
-		L"	local e = gLauncher.loadEntity(filePath, false);\n"
-		L"	e.serialize = function(state) : (e,filePath) { writeOutputWithConstructionString(e,state,format(\"loadEntity(\\\"%s\\\",%s)\",filePath,\"{}\")); };\n"
-		L"	return e;\n"
+		L"	return gLauncher.loadEntity(filePath, false);\n"
 		L"}\n"
 
 		L"resourceManager <- gLauncher.resourceManager;\n"
@@ -225,8 +223,8 @@ Entity* Launcher::loadEntity(const wchar_t* filePath, bool createCollisionMesh)
 			LoadCallback::doCallback();
 
 			// Create physics components
-			if(entityAdded)
-				createStaticRigidBody(mDynamicsWorld, *entityAdded);
+			if(addToHere)
+				createStaticRigidBody(mDynamicsWorld, *addToHere);
 		}
 
 	protected:
@@ -234,7 +232,7 @@ Entity* Launcher::loadEntity(const wchar_t* filePath, bool createCollisionMesh)
 	};	// EntityLoadCreatePhysicsCallback
 
 	std::auto_ptr<Entity> e(new Entity());
-	e->name = filePath;
+	e->name = Path(filePath).getLeaf();	// Only use the file name, the branch path is ignored.
 	EntityPrototypeLoader::addEntityAfterLoad(e.get(), *mResourceManager, filePath,
 		createCollisionMesh ? new EntityLoadCreatePhysicsCallback(mDynamicsWorld) : nullptr,
 		0, L"loadAsEntity=true"
@@ -329,6 +327,11 @@ int LauncherDefaultResourceManager::update()
 		doCallbacks(e);
 
 		return hasError ? -1 : 1;
+	}
+	else {
+		// Remember to call doCallbacks() even for empty Event such that
+		// invoking addCallback() after a resource is loaded will also trigger the callback.
+		doCallbacks(e);
 	}
 
 	return 0;
