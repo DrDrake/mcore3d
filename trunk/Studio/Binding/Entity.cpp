@@ -170,9 +170,7 @@ Entity^ Entity::firstChild::get()
 	if(mFirstChild != nullptr && mFirstChild->mImpl == n)
 		return mFirstChild;
 
-	// Remove from the TreeView (if any)
-	if(mFirstChild != nullptr)
-		isChildrenDirty = true;
+	isChildrenDirty = true;
 
 	if(n) {
 		mFirstChild = gcnew Entity(n);
@@ -192,9 +190,7 @@ Entity^ Entity::nextSibling::get()
 	if(mNextSibling != nullptr && mNextSibling->mImpl == n)
 		return mNextSibling;
 
-	// Remove from the TreeView (if any)
-	if(mNextSibling != nullptr)
-		makeParentDirty();
+	makeParentDirty();
 
 	if(n) {
 		mNextSibling = gcnew Entity(n);

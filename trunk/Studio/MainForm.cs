@@ -194,7 +194,7 @@ namespace Studio
 			if (currentRenderControl != null)
 			{
 				currentRenderControl.enableAutoUpdate(true);
-				entityWindow.selectEntityRoot(currentRenderControl.rootEntity);
+				entityWindow.selectEntityRoot(currentRenderControl.userRootEntity);
 				onEntitySelectionChanged(this, currentRenderControl.selectedEntity);
 			}
 			else
@@ -285,13 +285,14 @@ namespace Studio
 				return;
 
 			currentRenderControl.play(renderWindow.Scene.StartupScript.Path);
-			entityWindow.selectEntityRoot(currentRenderControl.rootEntity);
+			entityWindow.selectEntityRoot(currentRenderControl.userRootEntity);
 			UpdateToolBars();
 		}
 
 		private void toolStripButtonStop_Click(object sender, EventArgs e)
 		{
 			currentRenderControl.stop();
+			entityWindow.selectEntityRoot(currentRenderControl.userRootEntity);
 			UpdateToolBars();
 		}
 
