@@ -403,6 +403,13 @@ void RenderPanelControl::enableAutoUpdate(bool flag)
 	return mRootEntity;
 }
 
+::Binding::Entity^ RenderPanelControl::userRootEntity::get()
+{
+	if(mUserRootEntity == nullptr)
+		mUserRootEntity = gcnew ::Binding::Entity(IntPtr(mImpl->mLauncher.rootNode()));
+	return mUserRootEntity;
+}
+
 ::Binding::Entity^ RenderPanelControl::selectedEntity::get()
 {
 	MCD::Entity* e = mImpl->mGizmo->selectedEntity();

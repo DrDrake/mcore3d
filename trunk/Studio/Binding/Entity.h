@@ -18,6 +18,8 @@ public ref class Entity
 	// Actually it become private because of the native parameter.
 	Entity(MCD::Entity* entity);
 
+	void makeParentDirty();
+
 public:
 	//! Create the Entity, all the cache/internal/tree-view node pointers will be initialized as well.
 	Entity(IntPtr entity);
@@ -82,7 +84,11 @@ public:
 		void set(array<float>^ value);
 	}
 
-	System::Windows::Forms::TreeNode^ treeViewNode;
+	/*!	Flag to inform the Gui view that the structure for this node's children
+		is changed and need to refresh.
+		Remember to set it to false after the view has handled the changes.
+	 */
+	bool isChildrenDirty;
 
 protected:
 	MCD::Entity* mImpl;

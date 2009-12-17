@@ -92,9 +92,10 @@ class SerializationState
 		local path = entity.getRelativePathFrom(rootEntity);
 		if(!(path in patch))
 		{
+			local varName = getObjName(entity, null);
 			currentPatch = PatchBlock();
 			currentPatch.entity = entity;
-			currentPatch.preOutput = ::format("addResourceCallback(\"%s\", function()\n{\n", resourceFilePath);
+			currentPatch.preOutput = ::format("addResourceCallback(\"%s\", function() : (%s)\n{\n", resourceFilePath, varName);
 			currentPatch.postOutput = "});\n";
 			patch.rawset(path, currentPatch);
 		}

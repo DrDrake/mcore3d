@@ -60,30 +60,32 @@ public:
 	}*/
 };
 
+void Entity::makeParentDirty()
+{
+	if(parent)
+		parent->isChildrenDirty = true;
+}
+
 Entity::Entity(MCD::Entity* entity)
 {
 	mImpl = entity;
 	mImpl->userData.setPtr(new gcroot<Entity^>(this));	// MCD::Entity::userData will reference back the C# Entity
-	treeViewNode = gcnew TreeNode(this->name);
-	treeViewNode->Tag = this;
+	isChildrenDirty = false;
 }
 
 Entity::Entity(IntPtr entity)
 {
 	mImpl = reinterpret_cast<MCD::Entity*>(entity.ToPointer());
 	mImpl->userData.setPtr(new gcroot<Entity^>(this));	// MCD::Entity::userData will reference back the C# Entity
-	treeViewNode = gcnew TreeNode(this->name);
-
-	// Loop all the nodes once, and the tree view nodes will be constructed correctly
-	for (EntityPreorderIterator^ itr = gcnew EntityPreorderIterator(this); !itr->ended(); itr->next()) {}
+	isChildrenDirty = false;
 }
 
-void Entity::asChildOf(Entity^ parent)
+void Entity::asChildOf(Entity^ parent_)
 {
-	if(parent) {
+	if(parent_) {
 		unlink();
-		parent->treeViewNode->Nodes->Add(treeViewNode);
 		mImpl->asChildOf(parent->mImpl);
+		makeParentDirty();
 	}
 }
 
@@ -91,25 +93,20 @@ void Entity::insertBefore(Entity^ sibling)
 {
 	unlink();
 	mImpl->insertBefore(sibling->mImpl);
-	TreeNodeCollection^ nodes = sibling->treeViewNode->Parent->Nodes;
-	nodes->Insert(nodes->IndexOf(sibling->treeViewNode), treeViewNode);
+	makeParentDirty();
 }
 
 void Entity::insertAfter(Entity^ sibling)
 {
 	unlink();
 	mImpl->insertAfter(sibling->mImpl);
-	TreeNodeCollection^ nodes = sibling->treeViewNode->Parent->Nodes;
-	nodes->Insert(nodes->IndexOf(sibling->treeViewNode)+1, treeViewNode);
+	makeParentDirty();
 }
 
 void Entity::unlink()
 {
-	if(treeViewNode->Parent == nullptr)
-		throw gcnew NullReferenceException();
-
+	makeParentDirty();
 	mImpl->unlink();
-	treeViewNode->Parent->Nodes->Remove(treeViewNode);
 }
 
 void Entity::destroyThis()
@@ -152,7 +149,6 @@ String^ Entity::name::get()
 void Entity::name::set(String^ value)
 {
 	mImpl->name = Utility::toWString(value);
-	treeViewNode->Text = value;
 }
 
 Entity^ Entity::parent::get()
@@ -174,37 +170,14 @@ Entity^ Entity::firstChild::get()
 	if(mFirstChild != nullptr && mFirstChild->mImpl == n)
 		return mFirstChild;
 
-
 	// Remove from the TreeView (if any)
 	if(mFirstChild != nullptr)
-		mFirstChild->treeViewNode->Remove();
+		isChildrenDirty = true;
 
 	if(n) {
 		mFirstChild = gcnew Entity(n);
 		mFirstChild->mParent = this;
-		treeViewNode->Nodes->Add(mFirstChild->treeViewNode);
 	}
-
-/*	if(n)
-	{
-		if(mFirstChild) {
-			mFirstChild->mImpl = n;
-			mFirstChild->treeViewNode->Remove();
-		} else {
-			mFirstChild = gcnew Entity(n);
-		}
-
-		treeViewNode->Nodes->Add(mFirstChild->treeViewNode);
-		mFirstChild->mParent = this;
-		if(n->firstChild()) {
-			if(gcroot<Entity^>* p = n->firstChild()->userData.getPtr<gcroot<Entity^> >())
-				mFirstChild->mFirstChild = p->operator->();
-		}
-		if(n->nextSibling()) {
-			if(gcroot<Entity^>* p = n->nextSibling()->userData.getPtr<gcroot<Entity^> >())
-				mFirstChild->mNextSibling = p->operator->();
-		}
-	}*/
 	else
 		mFirstChild = nullptr;
 
@@ -219,37 +192,14 @@ Entity^ Entity::nextSibling::get()
 	if(mNextSibling != nullptr && mNextSibling->mImpl == n)
 		return mNextSibling;
 
-
 	// Remove from the TreeView (if any)
 	if(mNextSibling != nullptr)
-		mNextSibling->treeViewNode->Remove();
+		makeParentDirty();
 
 	if(n) {
 		mNextSibling = gcnew Entity(n);
 		mNextSibling->mParent = mParent;
-		parent->treeViewNode->Nodes->Add(mNextSibling->treeViewNode);
 	}
-
-/*	if(n)
-	{
-		if(mNextSibling) {
-			mNextSibling->mImpl = n;
-			mNextSibling->treeViewNode->Remove();
-		} else {
-			mNextSibling = gcnew Entity(n);
-		}
-
-		mParent->treeViewNode->Nodes->Add(mNextSibling->treeViewNode);
-		mNextSibling->mParent = mParent;
-		if(n->firstChild()) {
-			if(gcroot<Entity^>* p = n->firstChild()->userData.getPtr<gcroot<Entity^> >())
-				mNextSibling->mFirstChild = p->operator->();
-		}
-		if(n->nextSibling()) {
-			if(gcroot<Entity^>* p = n->nextSibling()->userData.getPtr<gcroot<Entity^> >())
-				mNextSibling->mNextSibling = p->operator->();
-		}
-	}*/
 	else
 		mNextSibling = nullptr;
 

@@ -43,6 +43,10 @@ public:
 		::Binding::Entity^ get();
 	}
 
+	property ::Binding::Entity^ userRootEntity {
+		::Binding::Entity^ get();
+	}
+
 	property ::Binding::Entity^ selectedEntity {
 		::Binding::Entity^ get();
 		void set(::Binding::Entity^);
@@ -92,7 +96,7 @@ protected:
 private:
 	IntPtr mSharedGlContext;
 	RenderPanelControlImpl* mImpl;
-	::Binding::Entity^ mRootEntity;
+	::Binding::Entity ^mRootEntity, ^mUserRootEntity;
 	::Binding::ResourceManager^ mResourceManager;
 
 private:

@@ -28,30 +28,44 @@
 		/// </summary>
 		private void InitializeComponent()
 		{
-			this.components = new System.ComponentModel.Container();
-			System.Windows.Forms.Timer timer1;
-			this.treeView = new CodersLab.Windows.Controls.TreeView();
-			timer1 = new System.Windows.Forms.Timer(this.components);
+			Aga.Controls.Tree.TreeColumn treeColumn1;
+			Aga.Controls.Tree.NodeControls.NodeTextBox nodeTextBox1;
+			this.treeView = new Aga.Controls.Tree.TreeViewAdv();
+			treeColumn1 = new Aga.Controls.Tree.TreeColumn();
+			nodeTextBox1 = new Aga.Controls.Tree.NodeControls.NodeTextBox();
 			this.SuspendLayout();
+			// 
+			// treeColumn1
+			// 
+			treeColumn1.Header = "";
+			treeColumn1.SortOrder = System.Windows.Forms.SortOrder.None;
+			treeColumn1.TooltipText = null;
 			// 
 			// treeView
 			// 
-			this.treeView.AllowDrop = true;
+			this.treeView.BackColor = System.Drawing.SystemColors.Window;
+			this.treeView.Columns.Add(treeColumn1);
+			this.treeView.DefaultToolTipProvider = null;
 			this.treeView.Dock = System.Windows.Forms.DockStyle.Fill;
+			this.treeView.DragDropMarkColor = System.Drawing.Color.Black;
+			this.treeView.LineColor = System.Drawing.SystemColors.ControlDark;
 			this.treeView.Location = new System.Drawing.Point(0, 0);
+			this.treeView.Model = null;
 			this.treeView.Name = "treeView";
-			this.treeView.SelectionBackColor = System.Drawing.SystemColors.Highlight;
-			this.treeView.SelectionMode = CodersLab.Windows.Controls.TreeViewSelectionMode.MultiSelect;
+			this.treeView.NodeControls.Add(nodeTextBox1);
+			this.treeView.SelectedNode = null;
 			this.treeView.Size = new System.Drawing.Size(292, 250);
-			this.treeView.TabIndex = 0;
+			this.treeView.TabIndex = 1;
+			this.treeView.Text = "treeViewAdv1";
+			this.treeView.SelectionChanged += new System.EventHandler(this.treeView_SelectionChanged);
 			this.treeView.KeyUp += new System.Windows.Forms.KeyEventHandler(this.treeView_KeyUp);
-			this.treeView.SelectionsChanged += new System.EventHandler(this.treeView_SelectionsChanged);
 			// 
-			// timer1
+			// nodeTextBox1
 			// 
-			timer1.Enabled = true;
-			timer1.Interval = 200;
-			timer1.Tick += new System.EventHandler(this.timer1_Tick);
+			nodeTextBox1.DataPropertyName = "name";
+			nodeTextBox1.IncrementalSearchEnabled = true;
+			nodeTextBox1.LeftMargin = 3;
+			nodeTextBox1.ParentColumn = treeColumn1;
 			// 
 			// EntityWindow
 			// 
@@ -67,7 +81,6 @@
 			this.Name = "EntityWindow";
 			this.ShowHint = WeifenLuo.WinFormsUI.Docking.DockState.DockLeft;
 			this.TabText = "Entity Explorer";
-			this.Tag = this.treeView;
 			this.Text = "Entity Explorer";
 			this.ResumeLayout(false);
 
@@ -75,7 +88,8 @@
 
 		#endregion
 
-		public CodersLab.Windows.Controls.TreeView treeView;
+		private Aga.Controls.Tree.TreeViewAdv treeView;
+
 
 	}
 }
