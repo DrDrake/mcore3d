@@ -231,7 +231,7 @@ namespace Aga.Controls.Tree.NodeControls
 			else if (context.DrawSelection == DrawSelectionMode.Inactive)
 			{
 				textColor = SystemColors.ControlText;
-                backgroundBrush = SystemBrushes.InactiveBorder;
+				backgroundBrush = SystemBrushes.InactiveCaption;
 			}
 			else if (context.DrawSelection == DrawSelectionMode.FullRowSelect)
 				textColor = SystemColors.HighlightText;

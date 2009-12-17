@@ -103,6 +103,7 @@
     <Compile Include="Document.cs">
       <SubType>Form</SubType>
     </Compile>
+    <Compile Include="EntityTreeModel.cs" />
     <Compile Include="EntityWindow.cs">
       <SubType>Form</SubType>
     </Compile>
