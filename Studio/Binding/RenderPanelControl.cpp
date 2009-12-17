@@ -405,7 +405,7 @@ void RenderPanelControl::enableAutoUpdate(bool flag)
 
 ::Binding::Entity^ RenderPanelControl::userRootEntity::get()
 {
-	if(mUserRootEntity == nullptr)
+	if(mUserRootEntity == nullptr || mUserRootEntity->getRawEntityPtr() != mImpl->mLauncher.rootNode())
 		mUserRootEntity = gcnew ::Binding::Entity(IntPtr(mImpl->mLauncher.rootNode()));
 	return mUserRootEntity;
 }

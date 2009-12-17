@@ -14,6 +14,7 @@ namespace Studio
 	{
 		private Entity _root;
 		private System.Windows.Forms.Timer _timer;
+		private EntityPreorderIterator _updateIterator;	// For preforming incremental Entity tree update
 
 		public EntityTreeModel(Entity rootEntity)
 		{
@@ -27,7 +28,7 @@ namespace Studio
 		TreePath ToTreePath(Entity e)
 		{
 			List<Entity> items = new List<Entity>();
-			while(e != _root)
+			while(e != null && e != _root)
 			{
 				items.Add(e);
 				e = e.parent;
@@ -46,13 +47,15 @@ namespace Studio
 			if (StructureChanged == null)
 				return;
 
-			for (EntityPreorderIterator itr = new EntityPreorderIterator(_root); !itr.ended(); itr.next())
-			{
-				if (!itr.current.isChildrenDirty)
-					continue;
+			if (_updateIterator == null || _updateIterator.ended())
+				_updateIterator = new EntityPreorderIterator(_root);
 
-				StructureChanged(this, new TreePathEventArgs(ToTreePath(itr.current)));
-				itr.current.isChildrenDirty = false;
+			for (int i = 0; i < _timer.Interval/2 && !_updateIterator.ended(); ++i, _updateIterator.next())
+			{
+				if (!_updateIterator.current.isChildrenDirty)
+					continue;
+				StructureChanged(this, new TreePathEventArgs(ToTreePath(_updateIterator.current)));
+				_updateIterator.current.isChildrenDirty = false;
 			}
 		}
 
