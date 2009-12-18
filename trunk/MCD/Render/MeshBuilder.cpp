@@ -129,6 +129,16 @@ bool MeshBuilder2::resizeBuffers(uint16_t vertexCount, size_t indexCount)
 	return true;
 }
 
+bool MeshBuilder2::resizeVertexBuffer(uint16_t vertexCount)
+{
+	return resizeBuffers(vertexCount, indexCount());
+}
+
+bool MeshBuilder2::resizeIndexBuffer(size_t indexCount)
+{
+	return resizeBuffers(vertexCount(), indexCount);
+}
+
 void MeshBuilder2::clear()
 {
 	mImpl.attributes.clear();
@@ -184,7 +194,7 @@ int MeshBuilder2::findAttributeId(const char* semanticName) const
 	return -1;
 }
 
-char* MeshBuilder2::getAttributePointer(int attributeId, size_t* count, size_t* stride, Semantic* semantic)
+char* MeshBuilder2::getAttributePointer(int attributeId, size_t* count, size_t* stride, size_t* bufferId, Semantic* semantic)
 {
 	if(attributeId < 0 || size_t(attributeId) >= mImpl.attributes.size())
 		return nullptr;
@@ -199,14 +209,15 @@ char* MeshBuilder2::getAttributePointer(int attributeId, size_t* count, size_t* 
 
 	if(count) *count = totalSize / elementSize;
 	if(stride) *stride = elementSize;
+	if(bufferId) *bufferId = bufferIdx;
 	if(semantic) *semantic = a.semantic;
 
 	return &mImpl.buffers[bufferIdx][a.offset];
 }
 
-const char* MeshBuilder2::getAttributePointer(int attributeId, size_t* count, size_t* stride, Semantic* semantic) const
+const char* MeshBuilder2::getAttributePointer(int attributeId, size_t* count, size_t* stride, size_t* bufferId, Semantic* semantic) const
 {
-	return const_cast<MeshBuilder2*>(this)->getAttributePointer(attributeId, count, stride, semantic);
+	return const_cast<MeshBuilder2*>(this)->getAttributePointer(attributeId, count, stride, bufferId, semantic);
 }
 
 char* MeshBuilder2::getBufferPointer(size_t bufferIdx,  size_t* elementSize, size_t* sizeInByte)
@@ -852,7 +863,7 @@ void commitMesh(MeshBuilder2& builder, Mesh& mesh, const int* attributeMap, Mesh
 			continue;
 
 		MeshBuilder2::Semantic semantic;
-		const char* data = builder.getAttributePointer(attributeId, &count, &stride, &semantic);
+		const char* data = builder.getAttributePointer(attributeId, &count, &stride, nullptr, &semantic);
 		const size_t attributeSize = semantic.elementCount * semantic.elementSize;
 
 		if(!data) {

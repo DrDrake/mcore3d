@@ -400,16 +400,14 @@ IResourceLoader::LoadingState Max3dsLoader::Impl::load(std::istream* is, const P
 			// Chunk Length: len(object name) + sub chunks
 			//-------------------------------------------
 			case OBJECT:
-			{	// Currently the object name has no use.
-				std::wstring objectName;
-				readString(objectName);
+			{
+				ModelInfo modelInfo;
+				readString(modelInfo.name);
 
 				currentMeshBuilder = new MeshBuilder(false);
 				if(!currentMeshBuilder)
 					ABORTLOADING();
 
-				ModelInfo modelInfo;
-				modelInfo.name = objectName;
 				modelInfo.meshBuilder = currentMeshBuilder;
 				mModelInfo.push_back(modelInfo);
 				currentMeshBuilder->enable(Mesh::Position | Mesh::Normal);
