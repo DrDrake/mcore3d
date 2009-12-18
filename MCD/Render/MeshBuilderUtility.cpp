@@ -10,12 +10,13 @@ namespace MCD {
 
 bool MeshBuilderUtility::copyVertexAttributes(
 	MeshBuilder2& srcBuilder, MeshBuilder2& destBuilder,
-	FixStrideArray<uint16_t> srcIndex, FixStrideArray<uint16_t> destIndex)
+	FixStrideArray<uint16_t> srcIndex)//, FixStrideArray<uint16_t> destIndex)
 {
 	const size_t bufferCount = srcBuilder.bufferCount();
 
 	if(bufferCount != destBuilder.bufferCount()) return false;
-	if(srcIndex.size != destIndex.size) return false;
+
+	destBuilder.resizeVertexBuffer(uint16_t(srcIndex.size));
 
 	for(size_t i=1; i<bufferCount; ++i)	// We skip the first buffer, which is index buffer
 	{
@@ -26,20 +27,12 @@ bool MeshBuilderUtility::copyVertexAttributes(
 
 		if(!p1 || !p2 || elementSize1 != elementSize2) return false;
 		const size_t srcVertexCount = totalSize1 / elementSize1;
-		const size_t destVertexCount = totalSize2 / elementSize2;
 
 		for(size_t j=0; j<srcIndex.size; ++j) {
 			if(srcIndex[j] >= srcVertexCount) return false;
-			if(destIndex[j] >= destVertexCount) return false;
-			::memcpy(p2 + destIndex[j] * elementSize2, p1 + srcIndex[j] * elementSize1, elementSize1);
+			::memcpy(p2 + j * elementSize2, p1 + srcIndex[j] * elementSize1, elementSize1);
 		}
 	}
-
-	// Assign index to destBuilder
-	destBuilder.resizeBuffers(destBuilder.vertexCount(), destIndex.size);
-	StrideArray<uint16_t> idx = destBuilder.getAttributeAs<uint16_t>(0);
-	for(size_t i=0; i<destIndex.size; ++i)
-		idx[i] = destIndex[i];
 
 	return true;
 }
@@ -48,7 +41,7 @@ bool MeshBuilderUtility::copyVertexAttributes(
 	\param outBuilders Pointer to an array of MeshBuilder. We will fill both vertex and index data into them.
 	\param faceIndices An array of index which those index are indexing the srcBuilder.
  */
-void MeshBuilderUtility::split(size_t splitCount, MeshBuilder2& srcBuilder, MeshBuilderIM* outBuilders, StrideArray<uint16_t>* faceIndices)
+void MeshBuilderUtility::split(size_t splitCount, MeshBuilder2& srcBuilder, MeshBuilder2* outBuilders, StrideArray<uint16_t>* faceIndices)
 {
 	MCD_ASSERT(srcBuilder.vertexCount() < uint16_t(-1) && "uint16_t(-1) is reserved for error indication");
 
@@ -56,14 +49,15 @@ void MeshBuilderUtility::split(size_t splitCount, MeshBuilder2& srcBuilder, Mesh
 	for(size_t i=0; i<splitCount; ++i) {
 		outBuilders[i].clear();
 		for(size_t j=1; j<srcBuilder.attributeCount(); ++j) {
+			size_t bufferId;
 			MeshBuilder2::Semantic semantic;
-			if(srcBuilder.getAttributePointer(j, nullptr, nullptr, &semantic))
-				outBuilders[i].declareAttribute(semantic, 1);	// TODO: Get the buffer ID from srcBuilder
+			if(srcBuilder.getAttributePointer(j, nullptr, nullptr, &bufferId, &semantic))
+				outBuilders[i].declareAttribute(semantic, bufferId);
 		}
 	}
 
 	// A map that use old index as key to find the new index.
-	std::vector<uint16_t> idxMap, outIdx;
+	std::vector<uint16_t> idxMap, uniqueIdx;
 	idxMap.resize(srcBuilder.vertexCount());
 
 	for(size_t i=0; i<splitCount; ++i)
@@ -71,23 +65,27 @@ void MeshBuilderUtility::split(size_t splitCount, MeshBuilder2& srcBuilder, Mesh
 		const StrideArray<uint16_t> srcIdx = faceIndices[i];
 		idxMap.assign(idxMap.size(), uint16_t(-1));
 
-		outIdx.resize(srcIdx.size);
+		uniqueIdx.clear();
 		uint16_t uniqueVertexCount = 0;
+		outBuilders[i].resizeIndexBuffer(srcIdx.size);
+		StrideArray<uint16_t> outIdx(outBuilders[i].getBufferPointer(0), srcIdx.size); 
 
-		// Assign the index map first
+		// Build up the unique index map
 		for(size_t j=0; j<srcIdx.size; ++j) {
 			uint16_t& val = idxMap[srcIdx[j]];
-			if(val == uint16_t(-1))
+			if(val == uint16_t(-1)) {
 				val = uniqueVertexCount++;
+				uniqueIdx.push_back(srcIdx[j]);
+			}
 			outIdx[j] = val;
 		}
 
-		outBuilders[i].resizeBuffers(uniqueVertexCount, outIdx.size());
+		MCD_ASSERT(uniqueVertexCount <= srcIdx.size);
+		outBuilders[i].resizeVertexBuffer(uniqueVertexCount);
 
 		copyVertexAttributes(
 			srcBuilder, outBuilders[i],
-			FixStrideArray<uint16_t>(srcIdx.data, srcIdx.size),
-			FixStrideArray<uint16_t>(&outIdx[0], outIdx.size())
+			FixStrideArray<uint16_t>(&uniqueIdx[0], uniqueIdx.size())
 		);
 	}
 }

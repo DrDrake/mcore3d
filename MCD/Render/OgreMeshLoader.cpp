@@ -421,7 +421,7 @@ void OgreMeshLoader::Impl::commit(Resource& resource)
 
 			for(size_t i=1; i<attributeCount; ++i) {
 				MeshBuilder2::Semantic semantic;
-				MCD_VERIFY(geo.meshBuilder->getAttributePointer(i, nullptr, nullptr, &semantic));
+				MCD_VERIFY(geo.meshBuilder->getAttributePointer(i, nullptr, nullptr, nullptr, &semantic));
 				const int dataType = semanticToMeshDataType(semantic.name);
 				map[i * 2 + 1] = dataType;
 				map[i * 2] = dataType == -1 ? -1 : i;

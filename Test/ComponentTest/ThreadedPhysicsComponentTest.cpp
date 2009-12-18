@@ -56,8 +56,8 @@ TEST(ThreadedPhysicsComponentTest)
 				LoadCallback::doCallback();
 
 				// Create physics components
-				if(entityAdded)
-					createStaticRigidBody(mDynamicsWorld, *entityAdded);
+				if(addToHere)
+					createStaticRigidBody(mDynamicsWorld, *addToHere);
 			}
 
 		protected:

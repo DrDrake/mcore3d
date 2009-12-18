@@ -14,21 +14,22 @@ class MeshBuilderIM;
 class MCD_RENDER_API MeshBuilderUtility
 {
 public:
-	/*!	Copy vertex data from one builder to another.
-		The index buffer of the destBuilder will simply copy from desdtIndex.
+	/*!	Copy selective vertex data from one builder to another.
+		It will not modify the index buffer of destBuilder.
 		Requirement:
 		-Both builder should have the same attribute declarations.
 		-The destBuilder should resized with enough vertex count.
-		-Both index array should have the same size.
-		-The index in both index array should be within the vertex count of their corresponding builder.
+		-The index in srcIndex should be within the vertex count of srcBuilder.
 		-The vertex count in srcBuilder can be equals or larger than that of destBuilder.
+		Limitations:
+		-Duplicated value in srcIndex will resulting duplicated vertex data in destBuilder
 	 */
 	static bool copyVertexAttributes(
 		MeshBuilder2& srcBuilder, MeshBuilder2& destBuilder,
-		FixStrideArray<uint16_t> srcIndex, FixStrideArray<uint16_t> destIndex
+		FixStrideArray<uint16_t> srcIndex
 	);
 
-	static void split(size_t splitCount, MeshBuilder2& srcBuilder, MeshBuilderIM* outBuilders, StrideArray<uint16_t>* faceIndices);
+	static void split(size_t splitCount, MeshBuilder2& srcBuilder, MeshBuilder2* outBuilders, StrideArray<uint16_t>* faceIndices);
 
 	/*!	Compute vertex normals
 		Reference: http://www.gamedev.net/community/forums/topic.asp?topic_id=313015

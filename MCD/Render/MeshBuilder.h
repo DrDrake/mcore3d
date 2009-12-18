@@ -73,6 +73,10 @@ public:
 	 */
 	sal_checkreturn bool resizeBuffers(uint16_t vertexCount, size_t indexCount);
 
+	sal_checkreturn bool resizeVertexBuffer(uint16_t vertexCount);
+
+	sal_checkreturn bool resizeIndexBuffer(size_t indexCount);
+
 	//!	Clear the mesh builder to it's initial state.
 	void clear();
 
@@ -116,6 +120,7 @@ public:
 		int attributeId,
 		sal_out_opt size_t* count=nullptr,
 		sal_out_opt size_t* stride=nullptr,
+		sal_out_opt size_t* bufferId=nullptr,
 		sal_out_opt Semantic* semantic=nullptr
 	);
 
@@ -123,6 +128,7 @@ public:
 		int attributeId,
 		sal_out_opt size_t* count=nullptr,
 		sal_out_opt size_t* stride=nullptr,
+		sal_out_opt size_t* bufferId=nullptr,
 		sal_out_opt Semantic* semantic=nullptr
 	) const;
 
@@ -133,7 +139,7 @@ public:
 	{
 		size_t count, stride;
 		Semantic semantic;
-		char* p = getAttributePointer(attributeId, &count, &stride, &semantic);
+		char* p = getAttributePointer(attributeId, &count, &stride, nullptr, &semantic);
 		if(p && sizeof(T) == semantic.elementCount * semantic.elementSize)
 			return StrideArray<T>(p, count, stride);
 		return StrideArray<T>(nullptr, 0, 0);
