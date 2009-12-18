@@ -58,11 +58,9 @@ DefaultResourceManager::~DefaultResourceManager()
 int DefaultResourceManager::processLoadingEvents()
 {
 	{	// Reload any changed files in the RawFileSystem
-		std::wstring path = mImpl.mMonitor.getChangedFile();
-		while(!path.empty()) {
+		std::wstring path;
+		while(!(path = mImpl.mMonitor.getChangedFile()).empty())
 			reload(Path(path).normalize(), IResourceManager::NonBlock);
-			path = mImpl.mMonitor.getChangedFile();
-		}
 	}
 
 	ResourceManager::Event e = popEvent();

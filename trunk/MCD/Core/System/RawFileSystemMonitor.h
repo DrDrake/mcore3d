@@ -36,6 +36,9 @@ public:
 	 */
 	std::wstring getChangedFile() const;
 
+	//!	Returns the path that pass to RawFileSystemMonitor's constructor
+	std::wstring& monitringPath() const;
+
 private:
 	class Impl;
 	Impl& mImpl;
