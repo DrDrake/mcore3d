@@ -13,7 +13,7 @@ class RawFileSystemMonitor::Impl
 {
 public:
 	Impl(const wchar_t* path, bool recursive)
-		: mRecursive(recursive)
+		: mMonitringPath(path), mRecursive(recursive)
 	{
 		MCD_ASSERT(int(mBuffer) % 4 == 0 && "Address of mBuffer must be 4-byte aligned");
 
@@ -107,6 +107,7 @@ public:
 		return L"";
 	}
 
+	std::wstring mMonitringPath;
 	HANDLE mDirectory;
 	bool mRecursive;
 	mutable int mBuffer[2048];	//!< This buffer must be 4-byte aligned, therefore we use int as the type.
@@ -129,6 +130,10 @@ std::wstring RawFileSystemMonitor::getChangedFile() const
 	return mImpl.getChangedFile();
 }
 
+std::wstring& RawFileSystemMonitor::monitringPath() const
+{
+	return mImpl.mMonitringPath;
+}
 
 #else
 
@@ -143,6 +148,12 @@ RawFileSystemMonitor::~RawFileSystemMonitor()
 std::wstring RawFileSystemMonitor::getChangedFile() const
 {
 	return L"";
+}
+
+std::wstring& RawFileSystemMonitor::monitringPath() const
+{
+	static std::wstring s;
+	return s;
 }
 
 #endif	// MCD_VC

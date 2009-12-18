@@ -57,6 +57,18 @@ public:
 		return false;
 	}
 
+	IFileSystem* getNextFileSystem(IFileSystem* previousFs)
+	{
+		FileSystems::const_iterator ret = mFileSystems.end();
+		for(FileSystems::const_iterator i=mFileSystems.begin(); i!=mFileSystems.end(); ) {
+			if((*i) == previousFs)
+				ret = ++i;
+			else
+				++i;
+		}
+		return ret == mFileSystems.end() ? nullptr : *ret;
+	}
+
 	IFileSystem* findFileSystemForPath(const Path& path) const
 	{
 		for(FileSystems::const_iterator i=mFileSystems.begin(); i!=mFileSystems.end(); ++i) {
@@ -150,6 +162,11 @@ void FileSystemCollection::addFileSystem(IFileSystem& fileSystem)
 bool FileSystemCollection::removeFileSystem(const Path& fileSystemRootPath)
 {
 	return mImpl.removeFileSystem(fileSystemRootPath);
+}
+
+IFileSystem* FileSystemCollection::getNextFileSystem(IFileSystem* previousFs)
+{
+	return mImpl.getNextFileSystem(previousFs);
 }
 
 IFileSystem* FileSystemCollection::findFileSystemForPath(const Path& path) const

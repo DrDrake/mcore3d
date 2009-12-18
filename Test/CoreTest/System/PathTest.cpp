@@ -24,6 +24,25 @@ TEST(Basic_PathTest)
 	}
 }
 
+TEST(Comparsion_PathTest)
+{
+	Path p1(L"abc");
+	Path p2(L"aBc");
+
+	// Case in-sensitive comparison on windows platform
+#ifdef MCD_WIN32
+	CHECK(p1 == p2);
+#else
+	CHECK(p1 != p2);
+#endif
+
+	Path p3(L"def");
+	CHECK(p1 != p3);
+	CHECK(p2 != p3);
+
+	CHECK(Path(L"1") < Path(L"2"));
+}
+
 TEST(RootName_PathTest)
 {
 	const wchar_t* data[][2] = {

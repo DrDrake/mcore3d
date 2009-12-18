@@ -1,9 +1,12 @@
 #pragma once
 
 #include "../../MCD/Core/System/FileSystemCollection.h"
-#undef nullptr
+#include "../../MCD/Core/System/PtrVector.h"
+#include "../../MCD/Core/System/RawFileSystemMonitor.h"
 
 namespace Binding {
+
+class RawFileMonitors : public MCD::ptr_vector<MCD::RawFileSystemMonitor> {};
 
 /*!	A place for everyone to access
  */
@@ -11,6 +14,8 @@ public ref class FileSystemCollection
 {
 public:
 	FileSystemCollection();
+
+	RawFileMonitors& monitors();
 
 // Functions from MCD::FileSystemCollection
 	System::String^ getRoot();
@@ -64,6 +69,7 @@ protected:
 	!FileSystemCollection();
 
 	MCD::FileSystemCollection* mImpl;
+	RawFileMonitors* mMonitors;
 
 	StringCollection^ mFileSystems;
 };	// FileSystemCollection

@@ -28,6 +28,9 @@ public:
 
 	bool removeFileSystem(const Path& fileSystemRootPath);
 
+	//!	For iterating the file systems in the collection.
+	sal_maybenull IFileSystem* getNextFileSystem(sal_maybenull IFileSystem* previousFs=nullptr);
+
 	//! Find the FIRST file system which contains the supplied path, returns null if not found.
 	IFileSystem* findFileSystemForPath(const Path& path) const;
 

@@ -7,7 +7,9 @@
 
 namespace MCD {
 
-//! A path class that is similar the one provided in boost.
+/*!	A path class that is similar the one provided in boost.
+	\note Comparison of Path in windows is case in-sensitive.
+ */
 class MCD_CORE_API Path
 {
 public:
@@ -101,18 +103,23 @@ public:
 		return Path(*this) /= rhs;
 	}
 
-	//! Beware that comparison may not be accurate if the path are not normalized.
+	/*!	Beware that comparison may not be accurate if the path are not normalized.
+		Also, comparsion on Windows platforms are case in-sensitive.
+	 */
 	bool operator==(const Path& rhs) const {
-		return mStr == rhs.mStr;
+		return compare(rhs) == 0;
 	}
 
 	bool operator!=(const Path& rhs) const {
-		return mStr != rhs.mStr;
+		return compare(rhs) != 0;
 	}
 
 	bool operator<(const Path& rhs) const {
-		return mStr < rhs.mStr;
+		return compare(rhs) < 0;
 	}
+
+	//!	A comparison function that gives int as the result just like what wstrCaseCmp() does.
+	int compare(const Path& rhs) const;
 
 	/*!	Get the current path of the running process.
 		\note It will return an empty path if the operation fail.

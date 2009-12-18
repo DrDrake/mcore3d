@@ -222,6 +222,11 @@ Path& Path::operator/=(const Path& rhs)
 	return *this;
 }
 
+int Path::compare(const Path& rhs) const
+{
+	return wstrCaseCmp(mStr.c_str(), rhs.mStr.c_str());
+}
+
 Path Path::getCurrentPath()
 {
 #ifdef MCD_VC

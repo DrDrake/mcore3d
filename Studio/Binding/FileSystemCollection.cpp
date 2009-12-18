@@ -1,12 +1,8 @@
 #include "stdafx.h"
 #include "FileSystemCollection.h"
 #include "Utility.h"
-#include "../../MCD/Core/System/Log.h"
-#include "../../MCD/Core/System/FileSystemCollection.h"
 #include "../../MCD/Core/System/RawFileSystem.h"
 #include "../../MCD/Core/System/StrUtility.h"
-#undef nullptr
-#include <gcroot.h>
 #include <sstream>
 
 using namespace MCD;
@@ -14,10 +10,10 @@ using namespace System;
 
 namespace Binding {
 
-
 FileSystemCollection::FileSystemCollection()
 {
 	mImpl = new MCD::FileSystemCollection();
+	mMonitors = new RawFileMonitors;
 	mFileSystems = gcnew StringCollection();
 }
 
@@ -29,7 +25,14 @@ FileSystemCollection::~FileSystemCollection()
 FileSystemCollection::!FileSystemCollection()
 {
 	delete mImpl;
+	delete mMonitors;
 	mImpl = nullptr;
+	mMonitors = nullptr;
+}
+
+RawFileMonitors& FileSystemCollection::monitors()
+{
+	return *mMonitors;
 }
 
 String^ FileSystemCollection::getRoot()
@@ -72,14 +75,25 @@ void FileSystemCollection::addFileSystem(String^ pathToFileSystem)
 
 	if(fs) {
 		mImpl->addFileSystem(*fs);
+		mMonitors->push_back(new RawFileSystemMonitor(fs->getRoot().getString().c_str(), true));
 		mFileSystems->Add(pathToFileSystem);
 	}
 }
 
 bool FileSystemCollection::removeFileSystem(String^ pathToFileSystem)
 {
+	std::wstring ws = Utility::toWString(pathToFileSystem);
+	IFileSystem* f = mImpl->findFileSystemForPath(ws);
+	if(!f) return false;
+
+	for(RawFileMonitors::iterator i=mMonitors->begin(); i!=mMonitors->end(); ++i)
+		if(i->monitringPath() == ws) {	// TODO: Is this comparison reliable?
+			mMonitors->erase(i);
+			break;
+		}
+
 	mFileSystems->Remove(pathToFileSystem);
-	return mImpl->removeFileSystem(Utility::toWString(pathToFileSystem));
+	return mImpl->removeFileSystem(ws);
 }
 
 String^ FileSystemCollection::openAsString(String^ path)

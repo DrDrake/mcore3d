@@ -50,6 +50,7 @@ public:
 		mGizmo(nullptr), mEntityPicker(nullptr),
 		mPredefinedSubTree(nullptr), mUserSubTree(nullptr),
 		mResourceManager(*mgr->getRawPtr()),
+		mResourceManageRef(mgr),
 		mPropertyGridNeedRefresh(false),
 		mPlaying(false),
 		mLauncher(*mgr->fileSystemCollection->getRawPtr(), *mgr->getRawPtr(), false)
@@ -153,6 +154,7 @@ public:
 		glEnable(GL_LIGHTING);
 
 		mLauncher.update();
+		mResourceManageRef->pollForUpdatedFiles();
 
 		// Update pre-defined tree
 		if(!mPlaying) {
@@ -330,6 +332,7 @@ public:
 	MCD::PickComponent* mEntityPicker;
 	MCD::WeakPtr<CameraComponent> mCamera;
 	IResourceManager& mResourceManager;
+	gcroot<ResourceManager^> mResourceManageRef;
 	bool mPropertyGridNeedRefresh;
 	Point mLastMousePos;
 	bool mPlaying;
