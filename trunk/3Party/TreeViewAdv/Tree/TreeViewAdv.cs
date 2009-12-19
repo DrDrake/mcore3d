@@ -433,13 +433,31 @@ namespace Aga.Controls.Tree
 		{
 			while (Selection.Count > 0)
 			{
-				TreeNodeAdv t = Selection[0];
+				var t = Selection[0];
 				t.IsSelected = false;
 				Selection.Remove(t); //hack
 			}
 		}
 
 		#endregion
+
+		protected override void Dispose(bool disposing)
+		{
+			if (disposing)
+			{
+				AbortBackgroundExpandingThreads();
+				if (_model != null)
+					UnbindModelEvents();
+				ExpandingIcon.IconChanged -= ExpandingIconChanged;
+				if (components != null)
+					components.Dispose();
+				if (_dragBitmap != null) _dragBitmap.Dispose();
+				if (_dragTimer != null) _dragTimer.Dispose();
+				if (_linePen != null) _linePen.Dispose();
+				if (_markPen != null) _markPen.Dispose();
+			}
+			base.Dispose(disposing);
+		}
 
 		protected override void OnSizeChanged(EventArgs e)
 		{
@@ -520,6 +538,12 @@ namespace Aga.Controls.Tree
 			UpdateView();
 			ChangeInput();
 			base.OnGotFocus(e);
+		}
+
+		protected override void OnLostFocus(EventArgs e)
+		{
+			UpdateView();
+			base.OnLostFocus(e);
 		}
 
 		protected override void OnFontChanged(EventArgs e)
@@ -693,6 +717,8 @@ namespace Aga.Controls.Tree
 				if (parentNode.AutoExpandOnStructureChanged)
 					parentNode.ExpandAll();
 			}
+			else
+				parentNode.Nodes.Clear();
 		}
 
 		private void AddNewNode(TreeNodeAdv parent, object tag, int index)
@@ -1058,6 +1084,54 @@ namespace Aga.Controls.Tree
 			_model.StructureChanged -= new EventHandler<TreePathEventArgs>(_model_StructureChanged);
 		}
 
+		private static object[] GetRelativePath(TreeNodeAdv root, TreeNodeAdv node)
+		{
+			int level = 0;
+			TreeNodeAdv current = node;
+			while (current != root && current != null)
+			{
+				current = current.Parent;
+				level++;
+			}
+			if (current != null)
+			{
+				object[] result = new object[level];
+				current = node;
+				while (current != root && current != null)
+				{
+					level--;
+					result[level] = current.Tag;
+					current = current.Parent;
+				}
+				return result;
+			}
+			return null;
+		}
+
+		private TreeNodeAdv FindChildNode(TreeNodeAdv root, object[] relativePath, int level, bool readChilds)
+		{
+			if (relativePath == null)
+				return null;
+			if (level == relativePath.Length)
+				return root;
+
+			if (!root.IsExpandedOnce && readChilds)
+				ReadChilds(root);
+
+			for (int i = 0; i < root.Nodes.Count; i++)
+			{
+				TreeNodeAdv node = root.Nodes[i];
+				if (node.Tag == relativePath[level])
+				{
+					if (level == relativePath.Length - 1)
+						return node;
+					else
+						return FindChildNode(node, relativePath, level + 1, readChilds);
+				}
+			}
+			return null;
+		}
+
 		private void _model_StructureChanged(object sender, TreePathEventArgs e)
 		{
 			if (e.Path == null)
@@ -1069,10 +1143,42 @@ namespace Aga.Controls.Tree
 				if (node != Root)
 					node.IsLeaf = Model.IsLeaf(GetPath(node));
 
-                Dictionary<object, object> list = new Dictionary<object, object>();
+				object[] currentPath = GetRelativePath(node, _currentNode);
+				object[] selectionStartPath = GetRelativePath(node, _selectionStart);
+				List<object[]> selectionPaths = new List<object[]>();
+				foreach (var selectionNode in Selection)
+				{
+					object[] selectionPath = GetRelativePath(node, selectionNode);
+					if (selectionPath != null)
+						selectionPaths.Add(selectionPath);
+				}
+
+				
+				var list = new Dictionary<object, object>();
 				SaveExpandedNodes(node, list);
 				ReadChilds(node);
 				RestoreExpandedNodes(node, list);
+
+				bool suspendSelectionEventBefore = SuspendSelectionEvent;
+				bool suspendUpdateBefore = _suspendUpdate;
+				SuspendSelectionEvent = true;
+				_suspendUpdate = true;
+
+				//Restore Selection:
+				foreach ( var selectionPath in selectionPaths)
+				{
+					TreeNodeAdv selectionNode = FindChildNode(node, selectionPath, 0, false);
+					if (selectionNode != null)
+						selectionNode.IsSelected = true;
+				}
+
+				if (currentPath != null)
+					_currentNode = FindChildNode(node, currentPath, 0, false);
+				if (selectionStartPath != null)
+					_selectionStart = FindChildNode(node, selectionStartPath, 0, false);
+
+				_suspendUpdate = suspendUpdateBefore;
+				SuspendSelectionEvent = suspendSelectionEventBefore;
 
 				UpdateSelection();
 				SmartFullUpdate();
@@ -1086,7 +1192,7 @@ namespace Aga.Controls.Tree
 			if (node.Tag != null && list.ContainsKey(node.Tag))
 			{
 				node.IsExpanded = true;
-				foreach (TreeNodeAdv child in node.Children)
+				foreach (var child in node.Children)
 					RestoreExpandedNodes(child, list);
 			}
 		}
@@ -1096,7 +1202,7 @@ namespace Aga.Controls.Tree
 			if (node.IsExpanded && node.Tag != null)
 			{
 				list.Add(node.Tag, null);
-                foreach (TreeNodeAdv child in node.Children)
+				foreach (var child in node.Children)
 					SaveExpandedNodes(child, list);
 			}
 		}
