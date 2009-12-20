@@ -27,6 +27,8 @@ typedef WeakPtr<class AudioEffectComponent> AudioEffectComponentPtr;
 class MCD_COMPONENT_API AudioSourceComponent : public AudioComponent
 {
 public:
+	AudioSourceComponent();
+
 // Operations
 	sal_override void update();
 
@@ -66,6 +68,16 @@ public:
 	void setEffect(sal_in_opt AudioEffectComponent* effect);
 
 	AudioSource audioSource;
+
+	/*!	If set to true, the AudioSourceComponent will destroy itself when the audio playback is finished.
+		Default is false.
+	 */
+	bool destroyAfterFinish;
+
+	/*!	If set to true, the Entity that contain this AudioSourceComponent will destroy when the audio playback is finished.
+		Default is false.
+	 */
+	bool destroyEntityAfterFinish;
 
 protected:
 	AudioEffectComponentPtr mEffect;

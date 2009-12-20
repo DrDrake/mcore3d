@@ -25,9 +25,20 @@ void AudioComponent::traverseEntities(Entity* entityNode)
 	}
 }
 
+AudioSourceComponent::AudioSourceComponent()
+{
+	destroyAfterFinish = false;
+	destroyEntityAfterFinish = false;
+}
+
 void AudioSourceComponent::update()
 {
 	audioSource.update();
+
+	if(audioSource.isPcmPlayToEnd()) {
+		if(destroyAfterFinish) destroyThis();
+		if(destroyEntityAfterFinish) delete entity();
+	}
 }
 
 void AudioSourceComponent::setEffect(AudioEffectComponent* effect)

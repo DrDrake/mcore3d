@@ -237,6 +237,9 @@ namespace Studio
 
 		private void onEntitySelectionChanged(object sender, Entity entity)
 		{
+			if (entity != null && !entity.isValid())
+				entity = null;
+
 			// Inform other window about the changed selecion
 			entityWindow.selectedEntity = entity;
 			propertyWindow.propertyGrid1.SelectedObject = entity;
