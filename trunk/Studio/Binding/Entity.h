@@ -18,11 +18,17 @@ public ref class Entity
 	// Actually it become private because of the native parameter.
 	Entity(MCD::Entity* entity);
 
-	void makeParentDirty();
+	~Entity();
+	!Entity();
+
+	void markParentDirty();
 
 public:
 	//! Create the Entity, all the cache/internal/tree-view node pointers will be initialized as well.
 	Entity(IntPtr entity);
+
+	//!	The C++ counter part may destroy at any time, use this function to check.
+	bool isValid();
 
 	void asChildOf(Entity^ parent);
 
@@ -91,7 +97,22 @@ public:
 	bool isChildrenDirty;
 
 protected:
+	MCD::Entity* ptr();
+
+	// Real pointers (fetch from the Entity's weak pointer)
+	MCD::Entity* _rParent();
+	MCD::Entity* _rFirstChild();
+	MCD::Entity* _rNextSibling();
+
+	// Cached value may be daling pointer, don't dereference it,
+	// just for comparison against those real one.
+	MCD::Entity* _cParent();
+	MCD::Entity* _cFirstChild();
+	MCD::Entity* _cNextSibling();
+
 	MCD::Entity* mImpl;
+	MCD::EntityPtr* mIsValid;
+
 	/*!	Cached value of the node pointers, these value will be refreshed
 		every time the property get function is invoked.
 	 */

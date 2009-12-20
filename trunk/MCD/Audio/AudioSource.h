@@ -93,6 +93,8 @@ public:
 	 */
 	bool isReallyPlaying() const;
 
+	bool isPcmPlayToEnd() const;
+
 	bool isPaused() const;
 
 	float gain() const;
@@ -112,7 +114,6 @@ public:
 private:
 	void fillUpInitialBuffers();
 	void stopAndUnqueueBuffers();
-	bool isPcmPlayToEnd() const;
 
 	bool mRequestPlay;
 	bool mRequestPause;

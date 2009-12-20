@@ -60,7 +60,7 @@ public:
 	}*/
 };
 
-void Entity::makeParentDirty()
+void Entity::markParentDirty()
 {
 	if(parent)
 		parent->isChildrenDirty = true;
@@ -70,6 +70,7 @@ Entity::Entity(MCD::Entity* entity)
 {
 	mImpl = entity;
 	mImpl->userData.setPtr(new gcroot<Entity^>(this));	// MCD::Entity::userData will reference back the C# Entity
+	mIsValid = new MCD::EntityPtr(mImpl);
 	isChildrenDirty = false;
 }
 
@@ -77,7 +78,61 @@ Entity::Entity(IntPtr entity)
 {
 	mImpl = reinterpret_cast<MCD::Entity*>(entity.ToPointer());
 	mImpl->userData.setPtr(new gcroot<Entity^>(this));	// MCD::Entity::userData will reference back the C# Entity
+	mIsValid = new MCD::EntityPtr(mImpl);
 	isChildrenDirty = false;
+}
+
+Entity::~Entity()
+{
+	this->!Entity();
+}
+
+Entity::!Entity()
+{
+	delete mIsValid;
+}
+
+bool Entity::isValid()
+{
+	return ptr() != nullptr;
+}
+
+MCD::Entity* Entity::ptr()
+{
+	MCD::Entity* p = mIsValid->get();
+	if(!p && mParent)
+		mParent->isChildrenDirty = true;
+	return p;
+}
+
+MCD::Entity* Entity::_rParent()
+{
+	MCD::Entity* p = ptr();
+	return p ? p->parent() : nullptr;
+}
+
+MCD::Entity* Entity::_rFirstChild()
+{
+	MCD::Entity* p = ptr();
+	return p ? p->firstChild() : nullptr;
+}
+
+MCD::Entity* Entity::_rNextSibling()
+{
+	MCD::Entity* p = ptr();
+	return p ? p->nextSibling() : nullptr;
+}
+
+MCD::Entity* Entity::_cParent() {
+	return mParent ? mParent->mImpl : nullptr;
+}
+
+MCD::Entity* Entity::_cFirstChild() {
+	return mFirstChild ? mFirstChild->mImpl : nullptr;
+}
+
+MCD::Entity* Entity::_cNextSibling() {
+	return mNextSibling ? mNextSibling->mImpl : nullptr;
 }
 
 void Entity::asChildOf(Entity^ parent_)
@@ -85,7 +140,7 @@ void Entity::asChildOf(Entity^ parent_)
 	if(parent_) {
 		unlink();
 		mImpl->asChildOf(parent->mImpl);
-		makeParentDirty();
+		markParentDirty();
 	}
 }
 
@@ -93,19 +148,19 @@ void Entity::insertBefore(Entity^ sibling)
 {
 	unlink();
 	mImpl->insertBefore(sibling->mImpl);
-	makeParentDirty();
+	markParentDirty();
 }
 
 void Entity::insertAfter(Entity^ sibling)
 {
 	unlink();
 	mImpl->insertAfter(sibling->mImpl);
-	makeParentDirty();
+	markParentDirty();
 }
 
 void Entity::unlink()
 {
-	makeParentDirty();
+	markParentDirty();
 	mImpl->unlink();
 }
 
@@ -118,7 +173,7 @@ void Entity::destroyThis()
 
 MCD::Entity* Entity::getRawEntityPtr()
 {
-	return mImpl;
+	return mIsValid ? mIsValid->get() : nullptr;
 }
 
 Entity^ Entity::getEntityFromRawPtr(MCD::Entity* entity)
@@ -143,7 +198,8 @@ void Entity::enabled::set(bool value)
 
 String^ Entity::name::get()
 {
-   return gcnew String(mImpl->name.c_str());
+	if(!ptr()) return nullptr;
+	return gcnew String(mImpl->name.c_str());
 }
 
 void Entity::name::set(String^ value)
@@ -153,51 +209,43 @@ void Entity::name::set(String^ value)
 
 Entity^ Entity::parent::get()
 {
-	MCD::Entity* n = mImpl->parent();
+	MCD::Entity* r = _rParent();
+	MCD::Entity* c = _cParent();
 
-	// Cache hit
-	if(mParent != nullptr && mParent->mImpl == n)
-		return mParent;
+	if(r != c || (mParent && !c)) {
+		if(mParent)
+			mParent->isChildrenDirty = true;
+		mParent = (r ? gcnew Entity(r) : nullptr);
+	}
 
-	return n ? gcnew Entity(n) : nullptr;
+	return mParent;
 }
 
 Entity^ Entity::firstChild::get()
 {
-	MCD::Entity* n = mImpl->firstChild();
+	MCD::Entity* r = _rFirstChild();
+	MCD::Entity* c = _cFirstChild();
 
-	// Cache hit
-	if(mFirstChild != nullptr && mFirstChild->mImpl == n)
-		return mFirstChild;
-
-	isChildrenDirty = true;
-
-	if(n) {
-		mFirstChild = gcnew Entity(n);
-		mFirstChild->mParent = this;
+	if(r != c || (mFirstChild && !c)) {
+		isChildrenDirty = true;
+		if(mFirstChild = (r ? gcnew Entity(r) : nullptr))
+			mFirstChild->mParent = this;
 	}
-	else
-		mFirstChild = nullptr;
 
 	return mFirstChild;
 }
 
 Entity^ Entity::nextSibling::get()
 {
-	MCD::Entity* n = mImpl->nextSibling();
+	MCD::Entity* r = _rNextSibling();
+	MCD::Entity* c = _cNextSibling();
 
-	// Cache hit
-	if(mNextSibling != nullptr && mNextSibling->mImpl == n)
-		return mNextSibling;
-
-	makeParentDirty();
-
-	if(n) {
-		mNextSibling = gcnew Entity(n);
-		mNextSibling->mParent = mParent;
+	if(r != c || (mNextSibling && !c)) {
+		if(mParent)
+			mParent->isChildrenDirty = true;
+		if(mNextSibling = (r ? gcnew Entity(r) : nullptr))
+			mNextSibling->mParent = mParent;
 	}
-	else
-		mNextSibling = nullptr;
 
 	return mNextSibling;
 }
@@ -298,10 +346,11 @@ Entity^ EntityPreorderIterator::next()
 
 	while(mCurrent)
 	{
-		if(mCurrent->firstChild && !noChildMove)
-			return mCurrent = mCurrent->firstChild;
-		else if(mCurrent->nextSibling)
-			return mCurrent = mCurrent->nextSibling;
+		Entity ^fc, ^ns;
+		if(!noChildMove && (fc = mCurrent->firstChild))
+			return mCurrent = fc;
+		else if(ns = mCurrent->nextSibling)
+			return mCurrent = ns;
 		else
 		{
 			mCurrent = mCurrent->parent;

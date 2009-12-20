@@ -228,6 +228,12 @@ bool AudioSource::isReallyPlaying() const
 	return val == AL_PLAYING;
 }
 
+bool AudioSource::isPcmPlayToEnd() const
+{
+	MCD_ASSERT(totalPcm() == 0 || currentPcm() <= totalPcm());
+	return currentPcm() == totalPcm() && totalPcm() > 0;
+}
+
 bool AudioSource::isPaused() const
 {
 	return mRequestPause;
@@ -290,12 +296,6 @@ void AudioSource::stopAndUnqueueBuffers()
 	ALuint dummy[AudioBuffer::cMaxBuffers];
 	alSourceUnqueueBuffers(handle, buffersProcessed, dummy);
 	checkAndPrintError("alSourceUnqueueBuffers failed: ");
-}
-
-bool AudioSource::isPcmPlayToEnd() const
-{
-	MCD_ASSERT(totalPcm() == 0 || currentPcm() <= totalPcm());
-	return currentPcm() == totalPcm() && totalPcm() > 0;
 }
 
 }	// namespace MCD

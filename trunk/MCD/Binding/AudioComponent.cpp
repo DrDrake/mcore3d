@@ -50,6 +50,8 @@ SCRIPT_CLASS_REGISTER(AudioSourceComponent)
 	.method(xSTRING("_setgain"), &AudioSourceComponent::setGain)
 	.method(xSTRING("_geteffect"), &AudioSourceComponent::effect)
 	.method(xSTRING("_seteffect"), &AudioSourceComponent::setEffect)
+	.getset(xSTRING("destroyAfterFinish"), &AudioSourceComponent::destroyAfterFinish)
+	.getset(xSTRING("destroyEntityAfterFinish"), &AudioSourceComponent::destroyEntityAfterFinish)
 	.runScript(xSTRING("AudioSourceComponent.classString<-\"AudioComponent()\""))	// The default construction stirng for serialization
 ;}
 
