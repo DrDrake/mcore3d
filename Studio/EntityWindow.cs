@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Drawing;
 using System.Windows.Forms;
+using Aga.Controls.Tree;
 using global::Binding;
 
 namespace Studio
@@ -64,12 +66,68 @@ namespace Studio
 		private void treeView_KeyUp(object sender, System.Windows.Forms.KeyEventArgs e)
 		{
 			// Press delete key will delete the selected node from the scene graph
-			if (e.KeyCode == Keys.Delete && selectedEntity != null)
+			if (e.KeyCode == Keys.Delete && treeView.SelectedNodes.Count > 0)
 			{
-				Entity entity = selectedEntity;
 				entitySelectionChanged(this, null);
-				entity.destroyThis();
+
+				foreach (TreeNodeAdv n in treeView.SelectedNodes)
+				{
+					Entity en = (n.Tag as Entity);
+					en.destroyThis();
+				}
 			}
+		}
+
+		private void treeView_ItemDrag(object sender, ItemDragEventArgs e)
+		{
+			treeView.DoDragDropSelectedNodes(DragDropEffects.Move);
+		}
+
+		private void treeView_DragOver(object sender, DragEventArgs e)
+		{
+			e.Effect = e.AllowedEffect;
+		}
+
+		/// <summary>
+		/// Reference on how to do drap drop:
+		/// TreeViewAdv example's SimpleExample.cs
+		/// </summary>
+		private void treeView_DragDrop(object sender, DragEventArgs e)
+		{
+			treeView.BeginUpdate();
+
+			TreeNodeAdv[] nodes = (TreeNodeAdv[])e.Data.GetData(typeof(TreeNodeAdv[]));
+			Entity dropEntity = treeView.DropPosition.Node.Tag as Entity;
+
+			if (treeView.DropPosition.Position == NodePosition.Inside)
+			{
+				foreach (TreeNodeAdv n in nodes)
+				{
+					Entity en = (n.Tag as Entity);
+					en.asChildOf(dropEntity);
+				}
+				treeView.DropPosition.Node.IsExpanded = true;
+			}
+			else
+			{
+				foreach (TreeNodeAdv n in nodes)
+				{
+					System.Diagnostics.Debug.Assert(dropEntity != null);
+					Entity en = (n.Tag as Entity);
+
+					if (treeView.DropPosition.Position == NodePosition.Before)
+					{
+						en.insertAfter(dropEntity);
+					}
+					else if (treeView.DropPosition.Position == NodePosition.After)
+					{
+						en.insertBefore(dropEntity);
+						dropEntity = en;
+					}
+				}
+			}
+
+			treeView.EndUpdate();
 		}
 	}
 }

@@ -165,6 +165,11 @@ public:
 	Components components;
 
 protected:
+	/*!	When preforming some "move" operation, we don't want the unlink() function
+		release the strong script reference.
+	 */
+	void unlink(bool keepScriptStrongReference);
+
 	//! Pointer to make the entity hierarchy
 	Entity* mParent, *mFirstChild, *mNextSibling;
 };	// Entity

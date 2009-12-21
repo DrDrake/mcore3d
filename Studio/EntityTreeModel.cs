@@ -21,7 +21,7 @@ namespace Studio
 			_root = rootEntity;
 			_timer = new System.Windows.Forms.Timer();
 			_timer.Enabled = true;
-			_timer.Interval = 200;
+			_timer.Interval = 100;
 			_timer.Tick += new EventHandler(_timer_Tick);
 		}
 
@@ -50,7 +50,8 @@ namespace Studio
 			if (_updateIterator == null || _updateIterator.ended())
 				_updateIterator = new EntityPreorderIterator(_root);
 
-			for (int i = 0; i < _timer.Interval/2 && !_updateIterator.ended(); ++i, _updateIterator.next())
+			int limit = _timer.Interval * 4;	// Give a limit on how many update can be preformed per timer tick.
+			for (int i = 0; i < limit && !_updateIterator.ended(); ++i, _updateIterator.next())
 			{
 				if (!_updateIterator.current.isChildrenDirty)
 					continue;

@@ -33,15 +33,13 @@ void Entity::asChildOf(Entity* parent)
 	if(!parent)
 		return;
 
-	// Unlink this Entity first
-	unlink();
+	// Unlink this Entity first (keep strong script reference)
+	unlink(true);
 
 	Entity* oldFirstChild = parent->mFirstChild;
 	mParent = parent;
 	mNextSibling = oldFirstChild;
 	parent->mFirstChild = this;
-
-	scriptOwnershipHandle.useStrongReference(true);
 }
 
 void Entity::insertBefore(sal_in Entity* sibling)
@@ -51,8 +49,8 @@ void Entity::insertBefore(sal_in Entity* sibling)
 	if(!sibling || !sibling->mParent)
 		return;
 
-	// Unlink this Entity first
-	unlink();
+	// Unlink this Entity first (keep strong script reference)
+	unlink(true);
 
 	Entity* node = sibling->mParent->mFirstChild;
 	if(node == sibling) {
@@ -83,19 +81,22 @@ void Entity::insertAfter(sal_in Entity* sibling)
 	if(!sibling)
 		return;
 
-	// Unlink this Entity first
-	unlink();
+	// Unlink this Entity first (keep strong script reference)
+	unlink(true);
 
 	mParent = sibling->mParent;
 
 	Entity* old = sibling->mNextSibling;
 	sibling->mNextSibling = this;
 	mNextSibling = old;
-
-	scriptOwnershipHandle.useStrongReference(true);
 }
 
 void Entity::unlink()
+{
+	unlink(false);
+}
+
+void Entity::unlink(bool keepScriptStrongReference)
 {
 	if(!mParent)
 		return;
@@ -120,7 +121,7 @@ void Entity::unlink()
 	// The children are keep intact
 	// mFirstChild = mFirstChild;
 
-	scriptOwnershipHandle.useStrongReference(false);
+	scriptOwnershipHandle.useStrongReference(keepScriptStrongReference);
 }
 
 Component* Entity::findComponent(const std::type_info& familyType) const
