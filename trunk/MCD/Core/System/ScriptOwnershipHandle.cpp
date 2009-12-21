@@ -44,6 +44,10 @@ void ScriptOwnershipHandle::destroy()
 		// Get the SQObject of what the weak reference pointing to.
 		o = &(ref->_unVal.pWeakRef->_obj);
 	}
+	else if(ref->_type == OT_NULL) {
+		vm = nullptr;
+		return;
+	}
 	else { MCD_ASSERT(false); }
 	MCD_ASSUME(o);
 

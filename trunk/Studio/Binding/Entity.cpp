@@ -138,30 +138,29 @@ MCD::Entity* Entity::_cNextSibling() {
 void Entity::asChildOf(Entity^ parent_)
 {
 	if(parent_) {
-		unlink();
-		mImpl->asChildOf(parent->mImpl);
+		mImpl->asChildOf(parent_->mImpl);
 		markParentDirty();
 	}
 }
 
-void Entity::insertBefore(Entity^ sibling)
+void Entity::insertBefore(Entity^ sibling_)
 {
-	unlink();
-	mImpl->insertBefore(sibling->mImpl);
+	mImpl->insertBefore(sibling_->mImpl);
 	markParentDirty();
 }
 
-void Entity::insertAfter(Entity^ sibling)
+void Entity::insertAfter(Entity^ sibling_)
 {
-	unlink();
-	mImpl->insertAfter(sibling->mImpl);
+	mImpl->insertAfter(sibling_->mImpl);
 	markParentDirty();
 }
 
 void Entity::unlink()
 {
-	markParentDirty();
-	mImpl->unlink();
+	if(isValid()) {
+		markParentDirty();
+		mImpl->unlink();
+	}
 }
 
 void Entity::destroyThis()

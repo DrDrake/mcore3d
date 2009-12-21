@@ -41,8 +41,16 @@
 			treeColumn1.SortOrder = System.Windows.Forms.SortOrder.None;
 			treeColumn1.TooltipText = null;
 			// 
+			// nodeTextBox1
+			// 
+			nodeTextBox1.DataPropertyName = "name";
+			nodeTextBox1.IncrementalSearchEnabled = true;
+			nodeTextBox1.LeftMargin = 3;
+			nodeTextBox1.ParentColumn = treeColumn1;
+			// 
 			// treeView
 			// 
+			this.treeView.AllowDrop = true;
 			this.treeView.BackColor = System.Drawing.SystemColors.Window;
 			this.treeView.Columns.Add(treeColumn1);
 			this.treeView.DefaultToolTipProvider = null;
@@ -54,18 +62,15 @@
 			this.treeView.Name = "treeView";
 			this.treeView.NodeControls.Add(nodeTextBox1);
 			this.treeView.SelectedNode = null;
+			this.treeView.SelectionMode = Aga.Controls.Tree.TreeSelectionMode.MultiSameParent;
 			this.treeView.Size = new System.Drawing.Size(292, 250);
 			this.treeView.TabIndex = 1;
 			this.treeView.Text = "treeViewAdv1";
 			this.treeView.SelectionChanged += new System.EventHandler(this.treeView_SelectionChanged);
+			this.treeView.DragOver += new System.Windows.Forms.DragEventHandler(this.treeView_DragOver);
+			this.treeView.DragDrop += new System.Windows.Forms.DragEventHandler(this.treeView_DragDrop);
 			this.treeView.KeyUp += new System.Windows.Forms.KeyEventHandler(this.treeView_KeyUp);
-			// 
-			// nodeTextBox1
-			// 
-			nodeTextBox1.DataPropertyName = "name";
-			nodeTextBox1.IncrementalSearchEnabled = true;
-			nodeTextBox1.LeftMargin = 3;
-			nodeTextBox1.ParentColumn = treeColumn1;
+			this.treeView.ItemDrag += new System.Windows.Forms.ItemDragEventHandler(this.treeView_ItemDrag);
 			// 
 			// EntityWindow
 			// 
