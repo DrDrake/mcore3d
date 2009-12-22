@@ -42,6 +42,8 @@ public:
 	//! Push the stored squirrel object handle to the VM stack.
 	bool pushHandle(void* vm);
 
+	sal_checkreturn bool cloneTo(ScriptOwnershipHandle& other) const;
+
 	void* vm;	//!< The scripting virtual machine of the type HSQUIRRELVM
 
 	/*!	We use a char buffer to represent a HSQOBJECT object,
