@@ -146,4 +146,30 @@ bool ScriptOwnershipHandle::pushHandle(void* v)
 	return true;
 }
 
+bool ScriptOwnershipHandle::cloneTo(ScriptOwnershipHandle& other) const
+{
+	// Nullify the target script handle first
+	if(other.vm) {
+		HSQOBJECT* ref = reinterpret_cast<HSQOBJECT*>(other.mRef);
+		sq_release(reinterpret_cast<HSQUIRRELVM>(other.vm), ref);
+	}
+
+	other.vm = vm;
+
+	// Invoke the squirrel object's clone function
+	HSQOBJECT* ref = (HSQOBJECT*)(mRef);
+	const HSQUIRRELVM& _vm = reinterpret_cast<const HSQUIRRELVM&>(vm);
+
+	sq_pushobject(_vm, *ref);
+	// Clone may fail
+	if(SQ_FAILED(sq_clone(_vm, -1))) {
+		sq_pop(_vm, 1);
+		return false;
+	}
+	MCD_VERIFY(SQ_SUCCEEDED(sq_getstackobj(_vm, -1, ref)));
+	sq_pop(_vm, 2);
+
+	return true;
+}
+
 }	// namespace MCD

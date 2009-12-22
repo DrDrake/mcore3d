@@ -1,5 +1,7 @@
 dofile("squnit.nut", true);
 
+Entity.scriptVar <- null;
+
 class TestEntity
 {
 	root = null;
@@ -156,6 +158,34 @@ class TestEntity
 		root.localTransform = Mat44();
 	}
 
+	function testScriptOwnershipHandle()
+	{
+		{	// Should not create memory leak
+			local e = Entity();
+		}
+
+		{	// Any script side member variables assigned to Entity
+			// should be persisted even crossing the script/cpp boundary.
+			// This feature is made possible by using scriptOwnershipHandle.useStrongReference()
+			local root = Entity();
+			local e = Entity("ricky");
+			e.scriptVar = 123;
+			root.addChild(e);
+			e = null;	// No more reference to Entity: 'e' on the script side.
+			// But root.firstChild should already kept a strong reference to the script object after addChild().
+			assertEquals(123, root.firstChild.scriptVar);
+		}
+
+		{	// The cpp side should release the strong ownership once
+			// the Entity is unlinked
+			local root = Entity();
+			local e = Entity();
+			root.addChild(e);
+			e = null;
+			root.firstChild.unlink();
+		}
+	}
+
 	function testComponentsIteration()
 	{
 		local e = Entity("");
@@ -176,28 +206,3 @@ class TestEntity
 }
 
 SqUnit().run();
-return;
-
-function println(s) {
-	print(s + "\n");
-}
-
-local root = Entity("Root node");
-assert(root.parentNode == null);
-root.enabled = true;
-
-local n1 = Entity("Child node 1");
-root.addChild(n1);
-n1.localTransform = Mat44();
-assert(root.name == "Root node");
-assert(root.firstChild.name == "Child node 1");
-
-local camera = CameraComponent();
-n1.addComponent(camera);
-assert(n1.name == camera.entity.name);
-println(camera.velocity);
-assert(camera);
-n1.unlink();
-assert(camera);
-n1 = null;
-assert(!camera);
