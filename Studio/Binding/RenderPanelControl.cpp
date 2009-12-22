@@ -106,9 +106,15 @@ public:
 		}
 
 		{	// Add a C# contorl event input component
+			std::auto_ptr<MCD::Entity> e(new MCD::Entity);
+			e->name = L"Scene view input";
+			e->asChildOf(mPredefinedSubTree);
 			mCsInputComponent = new CsInputComponent();
 			mCsInputComponent->attachTo(mBackRef);
+			e->addComponent(mCsInputComponent.get());
 			mLauncher.init(*mCsInputComponent, mUserSubTree.get());
+
+			e.release();
 		}
 
 		{	// Add a default camera
@@ -152,6 +158,10 @@ public:
 
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		glEnable(GL_LIGHTING);
+
+		// Although the following BehaviourComponent::traverseEntities() will update the input component,
+		// but for faster response we make an explicit update() before the launcher's update()
+		mCsInputComponent->update(dt);
 
 		mLauncher.update();
 		mResourceManageRef->pollForUpdatedFiles();
@@ -243,15 +253,11 @@ public:
 	{
 		// Backup the old sub-tree and input component
 		mOldUserSubTree = mUserSubTree->clone();
-		mOldCsInputComponent = new CsInputComponent();
 		std::swap(mUserSubTree, mOldUserSubTree);
-		std::swap(mCsInputComponent, mOldCsInputComponent);
 
 		// Use the new sub-tree
 		mOldUserSubTree->unlink();
-		mCsInputComponent->attachTo(mBackRef);
 		mLauncher.setRootNode(mUserSubTree.get());
-		mLauncher.setInputComponent(mCsInputComponent.get());
 		mUserSubTree->asChildOf(&mRootNode);
 
 		mLauncher.scriptComponentManager.doFile(scriptFilePath, true);
@@ -263,10 +269,8 @@ public:
 	{
 		// Restore the old backup sub-tree and input component
 		std::swap(mUserSubTree, mOldUserSubTree);
-		std::swap(mCsInputComponent, mOldCsInputComponent);
 		mUserSubTree->asChildOf(&mRootNode);
 		mLauncher.setRootNode(mUserSubTree.get());
-		mLauncher.setInputComponent(mCsInputComponent.get());
 		delete mOldUserSubTree.get();
 
 		// Clear the class cache so that all component scripts will be reloaded from the file system on next play()
@@ -340,7 +344,7 @@ public:
 
 	Launcher mLauncher;
 	MCD::EntityPtr mOldUserSubTree;
-	MCD::WeakPtr<CsInputComponent> mCsInputComponent, mOldCsInputComponent;
+	MCD::WeakPtr<CsInputComponent> mCsInputComponent;
 };	// RenderPanelControlImpl
 
 RenderPanelControl::RenderPanelControl(ResourceManager^ resourceManager, IntPtr sharedGlContext)
