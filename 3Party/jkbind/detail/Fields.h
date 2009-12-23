@@ -7,6 +7,9 @@ namespace detail {
 template<typename ResultPolicy, typename Callee, typename RawField>
 inline int PushField(Callee* callee, RawField (Callee::*fieldPtr), HSQUIRRELVM v)
 {
+	if(!callee)
+		return sq_throwerror(v, xSTRING("This pointer is null"));
+
 	typedef types::GetterSetter<RawField> GetterSetter;
 	ResultPolicy::pushResult(v, GetterSetter::get(callee->*fieldPtr));
 	return 1;
@@ -29,6 +32,9 @@ SQInteger fieldGetterFunction(HSQUIRRELVM v)
 template<typename Callee, typename RawField>
 inline int AssignField(Callee* callee, RawField (Callee::*fieldPtr), HSQUIRRELVM v, int index)
 {
+	if(!callee)
+		return sq_throwerror(v, xSTRING("This pointer is null"));
+
 	typedef typename types::GetterSetter<RawField>::setterType fieldType;
 #if jkDEBUG_SCRIPT
 	if (!match(types::TypeSelect<fieldType>(), v,index))
@@ -51,7 +57,7 @@ SQInteger fieldSetterFunction(HSQUIRRELVM v)
 	return AssignField<Callee>(instance, field, v, 2);
 }
 
-}   //namespace detail
-}   //namespace script
+}	//namespace detail
+}	//namespace script
 
 #endif//___SCRIPT_DETAIL_FIELDS___

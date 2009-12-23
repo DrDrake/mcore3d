@@ -48,6 +48,8 @@ public:
 // Operations
 	//! The derived components should override this function for defining behaviour.
 	sal_override void update(float dt);
+
+	sal_override sal_maybenull Component* clone() const;
 };	// ScriptComponent
 
 }	// namespace MCD

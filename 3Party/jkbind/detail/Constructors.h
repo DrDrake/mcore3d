@@ -36,7 +36,13 @@ T* constructionFunction(A1 a1, A2 a2, A3 a3, A4 a4)
 	return jkSCRIPT_NEW T(a1, a2, a3, a4);
 }
 
-}   //namespace detail
-}   //namespace script
+template<typename T, T* F(const T*)>
+T* cloneFunction(T* srcObj)
+{
+	return F(srcObj);
+}
+
+}	//namespace detail
+}	//namespace script
 
 #endif//___SCRIPT_DETAIL_CONSTRUCTORS___

@@ -102,7 +102,9 @@ ScriptObject GlobalDeclarator::pushClass(const xchar* className, ClassID classID
 
 	ScriptObject newClass = ClassesManager::createClass(_vm, _hostObject, classID, className, parentClassID);
 
-	ClassesManager::disableCloningForClass(_vm, newClass);
+	// TODO: Calling disableCloningForClass here would override the base class's _cloned function.
+	// Therefore it is more preferable to make a mother of all base class to perform the disabling.
+//	ClassesManager::disableCloningForClass(_vm, newClass);
 	ClassesManager::createMemoryControllerSlotForClass(_vm, newClass);
 
 	sq_settop(_vm,top);
