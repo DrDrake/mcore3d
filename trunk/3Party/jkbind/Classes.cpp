@@ -57,7 +57,7 @@ void ClassesManager::createObjectInstanceOnStackPure(HSQUIRRELVM v, ClassID clas
 	intance.attachToStackObject(-1);
 
 	//setting up memory controller
-	sq_setinstanceup(v, -1, const_cast<void*>(c_this));
+	jkSCRIPT_API_VERIFY(sq_setinstanceup(v, -1, const_cast<void*>(c_this)));
 
 	sq_settop(v, top);
 	sq_pushobject(v, intance.getObjectHandle());

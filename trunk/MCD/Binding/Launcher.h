@@ -34,6 +34,7 @@ public:
 
 	/*!	Perform initialization.
 		It will take over the ownership of inputComponent.
+		If the inputComponent is already attached to an Entity, it will continue to host in that Entity.
 		\param rootNode Optional user supplied Entity root node.
 	 */
 	sal_checkreturn bool init(InputComponent& inputComponent, Entity* rootNode=nullptr);

@@ -31,6 +31,9 @@ ClassID getClassIDFromObject(const Component* obj, ClassID original) {
 
 }	// namespace types
 
+static Component* componentClone(const Component* c) {
+	return c ? c->clone() : nullptr;
+}
 /*!	Associate a script object to the Component, such that when a C++ function
 	returns a most derived Component object (even the Component is sub-classed
 	in the scripting side) the actual script object is returned instead of
@@ -49,6 +52,7 @@ static void componentDestroySelf(GiveUpOwnership<Component*> obj)
 }
 SCRIPT_CLASS_REGISTER_NAME(Component, "Component")
 	.enableGetset()
+	.clone<&componentClone>()
 	.method<objNoCare>(xSTRING("_getentity"), &Component::entity)
 	.rawMethod(xSTRING("_setScriptHandle"), &componentSetScriptHandle)
 	.wrappedMethod(xSTRING("destroySelf"), &componentDestroySelf)
@@ -66,6 +70,16 @@ SCRIPT_CLASS_REGISTER_NAME(Component, "Component")
 	);
 ;}
 
+// This clone function will not clone the Components and Entity's children,
+// those objects' clonning are performed by script.
+static Entity* entityClone(const Entity* e)
+{
+	Entity* newEnt = new Entity;
+	newEnt->enabled = e->enabled;
+	newEnt->name = e->name;
+	newEnt->localTransform = e->localTransform;
+	return newEnt;
+}
 static void entityAddChild(Entity& self, GiveUpOwnership<Entity*> e) {
 	e.value->asChildOf(&self);
 }
@@ -89,7 +103,8 @@ static Component* entityNextComponent(Entity& self, Component* c) {
 }
 SCRIPT_CLASS_REGISTER_NAME(Entity, "Entity")
 	.enableGetset()
-	.constructor()
+	.constructor(xSTRING("_orgConstructor"))
+	.clone<&entityClone>(xSTRING("_orgCloned"))
 	.wrappedMethod(xSTRING("addChild"), &entityAddChild)
 	.wrappedMethod(xSTRING("insertBefore"), &entityInsertBefore)
 	.wrappedMethod(xSTRING("insertAfter"), &entityInsertAfter)
@@ -111,7 +126,8 @@ SCRIPT_CLASS_REGISTER_NAME(Entity, "Entity")
 	.runScript(xSTRING("Entity.directSerialize<-null;"))
 	.runScript(xSTRING("Entity.deferSerialize<-function(state){::entityDeferSerializeTraverse(this,state);}"))
 	.runScript(xSTRING("Entity.serialize<-function(state){directSerialize?directSerialize(state):deferSerialize(state);}"))
-	.runScript(xSTRING("local bk=Entity.constructor;Entity.constructor<-function(name=\"\"):(bk){bk.call(this);this._setname(name);directSerialize=function(state){::entityDirectSerializeTraverse(this,state);}}"))
+	.runScript(xSTRING("Entity.constructor<-function(name=\"\"){_orgConstructor.call(this);this._setname(name);directSerialize=function(state){::entityDirectSerializeTraverse(this,state);}}"))
+	.runScript(xSTRING("Entity._cloned<-function(org){_orgCloned(org);foreach(i,c in org.components){addComponent(clone c)}}"))
 ;}
 
 }	// namespace script

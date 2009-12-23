@@ -2,6 +2,16 @@ dofile("squnit.nut", true);
 
 Entity.scriptVar <- null;
 
+// TODO: Don't know why extend from ScriptComponent will make clone not work
+class MyComponent extends MeshComponent
+{
+	constructor() {
+		MeshComponent.constructor();
+		name = "MyComponent";
+	}
+	name = null;
+}
+
 class TestEntity
 {
 	root = null;
@@ -168,12 +178,29 @@ class TestEntity
 			// should be persisted even crossing the script/cpp boundary.
 			// This feature is made possible by using scriptOwnershipHandle.useStrongReference()
 			local root = Entity();
-			local e = Entity("ricky");
+			local e = Entity();
 			e.scriptVar = 123;
 			root.addChild(e);
 			e = null;	// No more reference to Entity: 'e' on the script side.
 			// But root.firstChild should already kept a strong reference to the script object after addChild().
 			assertEquals(123, root.firstChild.scriptVar);
+		}
+
+		{	// Moving an Entity from one place to another should kept it's strong reference
+			local root = Entity();
+			local e = Entity("1");
+			e.scriptVar = 123;
+			root.addChild(e);
+			e = Entity("2");
+			e.scriptVar = 456;
+			root.addChild(e);
+			e = null;
+
+			assertEquals(456, root.firstChild.scriptVar);
+			assertEquals(123, root.firstChild.nextSibling.scriptVar);
+
+			root.firstChild.addChild(root.firstChild.nextSibling);
+			assertEquals(123, root.firstChild.firstChild.scriptVar);
 		}
 
 		{	// The cpp side should release the strong ownership once
@@ -184,6 +211,56 @@ class TestEntity
 			e = null;
 			root.firstChild.unlink();
 		}
+	}
+
+	function testComponentClone()
+	{
+		local c = MyComponent();
+		c.name = "abcde";
+
+		local c2 = clone c;
+		assert(c != c2);
+		assertEquals("abcde", c2.name);
+	}
+
+	function testEntityClone()
+	{
+		local root = Entity("root");
+		
+		{	// Setup the entities and components
+			local mc = MyComponent();
+			root.addComponent(mc);
+			root.scriptVar = 123;
+
+			local e = Entity("child");
+			e.scriptVar = 456;
+			root.addChild(e);
+		}
+
+		local cloned = clone root;
+		assert(cloned != root);
+		assertEquals(root.name, cloned.name);
+		assertEquals(root.scriptVar, cloned.scriptVar);
+
+		{	// Test the clonning of Entity's components
+			local c1, c2;
+			foreach(i,c in root.components)
+				c1 = c;
+			foreach(i,c in cloned.components)
+				c2 = c;
+
+			assert(c1);
+			assert(c2);
+			assertEquals(c1.name, c2.name);
+			assertEquals(root, c1.entity);
+			assertEquals(cloned, c2.entity);
+		}
+return;
+		assert(root.firstChild);
+		assert(cloned.firstChild);
+		assert(root.firstChild != cloned.firstChild);
+		assertEquals(root.firstChild.name, cloned.firstChild.name);
+		assertEquals(root.firstChild.scriptVar, cloned.firstChild.scriptVar);
 	}
 
 	function testComponentsIteration()

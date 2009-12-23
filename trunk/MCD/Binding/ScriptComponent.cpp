@@ -68,6 +68,11 @@ void ScriptComponent::update(float)
 {
 }
 
+Component* ScriptComponent::clone() const
+{
+	return new ScriptComponent;
+}
+
 void registerScriptComponentBinding(script::VMCore* v)
 {
 	script::ClassTraits<ScriptComponent>::bind(v);

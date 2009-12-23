@@ -341,7 +341,7 @@ void Entity::setWorldTransform(const Mat44f& transform)
 sal_notnull Entity* Entity::clone() const
 {
 	std::auto_ptr<Entity> newEnt(new Entity());
-	
+
 	newEnt->enabled = enabled;
 	newEnt->name = name;
 	newEnt->localTransform = localTransform;
