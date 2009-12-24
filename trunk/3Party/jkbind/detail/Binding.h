@@ -26,7 +26,7 @@ template<class RT, typename ReturnPolicy>
 struct ReturnSpecialization {
 
 	//
-	//Standart functions
+	//Standard functions
 	//
 
 	static int Call(RT (*func)(),HSQUIRRELVM v,int /*index*/) {

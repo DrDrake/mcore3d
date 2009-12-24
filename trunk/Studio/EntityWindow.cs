@@ -80,12 +80,15 @@ namespace Studio
 
 		private void treeView_ItemDrag(object sender, ItemDragEventArgs e)
 		{
-			treeView.DoDragDropSelectedNodes(DragDropEffects.Move);
+			treeView.DoDragDropSelectedNodes(DragDropEffects.Move | DragDropEffects.Copy);
 		}
 
 		private void treeView_DragOver(object sender, DragEventArgs e)
 		{
-			e.Effect = e.AllowedEffect;
+			if ((e.KeyState & 8) == 8)	// Ctrl key pressed
+				e.Effect = DragDropEffects.Copy;
+			else
+				e.Effect = DragDropEffects.Move;
 		}
 
 		/// <summary>
@@ -104,6 +107,10 @@ namespace Studio
 				foreach (TreeNodeAdv n in nodes)
 				{
 					Entity en = (n.Tag as Entity);
+
+					if ((e.KeyState & 8) == 8)	// Ctrl key pressed
+						en = en.clone();
+
 					en.asChildOf(dropEntity);
 				}
 				treeView.DropPosition.Node.IsExpanded = true;
@@ -114,6 +121,9 @@ namespace Studio
 				{
 					System.Diagnostics.Debug.Assert(dropEntity != null);
 					Entity en = (n.Tag as Entity);
+
+					if ((e.KeyState & 8) == 8)	// Ctrl key pressed
+						en = en.clone();
 
 					if (treeView.DropPosition.Position == NodePosition.Before)
 					{
