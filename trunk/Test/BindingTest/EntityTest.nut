@@ -238,7 +238,7 @@ class TestEntity
 		}
 
 		local cloned = clone root;
-		assert(cloned != root);
+		assert(cloned && cloned != root);
 		assertEquals(root.name, cloned.name);
 		assertEquals(root.scriptVar, cloned.scriptVar);
 
@@ -255,7 +255,7 @@ class TestEntity
 			assertEquals(root, c1.entity);
 			assertEquals(cloned, c2.entity);
 		}
-return;
+
 		assert(root.firstChild);
 		assert(cloned.firstChild);
 		assert(root.firstChild != cloned.firstChild);

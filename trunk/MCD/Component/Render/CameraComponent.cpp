@@ -10,6 +10,14 @@ CameraComponent::CameraComponent()
 {
 }
 
+Component* CameraComponent::clone() const
+{
+	CameraComponent* cloned = new CameraComponent;
+	cloned->camera = this->camera;
+	cloned->clearColor = this->clearColor;
+	return cloned;
+}
+
 void CameraComponent::render()
 {
 	Entity* e = entity();

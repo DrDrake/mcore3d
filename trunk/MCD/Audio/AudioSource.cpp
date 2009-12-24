@@ -19,6 +19,7 @@ AudioSource::AudioSource()
 	mRequestPlay = false;
 	mRequestPause = false;
 	mRoughPcmOffsetSinceLastSeek = 0;
+	mResourceManager = nullptr;
 }
 
 AudioSource::~AudioSource()
@@ -77,6 +78,10 @@ bool AudioSource::load(IResourceManager& resourceManager, const Path& fileId, co
 		alSourceQueueBuffers(handle, 1, &buffer->handles[bufferIdx]);
 		checkAndPrintError("alSourceQueueBuffers failed: ");
 	}
+
+	mFileId = fileId;
+	mLoadOptions = args ? args : L"";
+	mResourceManager = &resourceManager;
 
 	return true;
 }
@@ -273,6 +278,21 @@ Vec3f AudioSource::velocity() const
 void AudioSource::setVelocity(const Vec3f& v)
 {
 	::alSourcefv(handle, AL_VELOCITY, v.data);
+}
+
+const Path& AudioSource::fileId() const
+{
+	return mFileId;
+}
+
+const std::wstring& AudioSource::loadOptions() const
+{
+	return mLoadOptions;
+}
+
+IResourceManager* AudioSource::resourceManager() const
+{
+	return mResourceManager;
 }
 
 void AudioSource::fillUpInitialBuffers()

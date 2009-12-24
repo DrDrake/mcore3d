@@ -16,11 +16,24 @@ public:
 
 	sal_override ~EntityPrototype();
 
-	//! When an EntityPrototype is loaded, mEntity is not be NULL
+	//! When an EntityPrototype is loaded, \em entity is not be NULL
 	std::auto_ptr<Entity> entity;
 };	// EntityPrototype
 
 typedef IntrusivePtr<EntityPrototype> EntityPrototypePtr;
+
+//!	To owns the life-time of EntityPrototype.
+class MCD_COMPONENT_API EntityPrototypeComponent : public Component
+{
+public:
+	sal_override const std::type_info& familyType() const {
+		return typeid(EntityPrototypeComponent);
+	}
+
+	sal_override sal_maybenull Component* clone() const;
+
+	EntityPrototypePtr entityPrototype;
+};	// EntityPrototypeComponent
 
 }	// namespace MCD
 

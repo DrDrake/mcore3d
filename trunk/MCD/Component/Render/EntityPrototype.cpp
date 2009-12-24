@@ -12,4 +12,11 @@ EntityPrototype::~EntityPrototype()
 {
 }
 
+Component* EntityPrototypeComponent::clone() const
+{
+	EntityPrototypeComponent* c = new EntityPrototypeComponent;
+	c->entityPrototype = entityPrototype;
+	return c;
+}
+
 }	// namespace MCD

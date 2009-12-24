@@ -6,6 +6,7 @@
 
 namespace MCD {
 
+class AnimationComponent;
 class CameraComponent;
 class MeshComponent;
 class PickComponent;
@@ -15,6 +16,7 @@ class RenderableComponent;
 
 namespace script {
 
+SCRIPT_CLASS_DECLAR_EXPORT(MCD::AnimationComponent, MCD_BINDING_API);
 SCRIPT_CLASS_DECLAR_EXPORT(MCD::CameraComponent, MCD_BINDING_API);
 SCRIPT_CLASS_DECLAR_EXPORT(MCD::MeshComponent, MCD_BINDING_API);
 SCRIPT_CLASS_DECLAR_EXPORT(MCD::PickComponent, MCD_BINDING_API);

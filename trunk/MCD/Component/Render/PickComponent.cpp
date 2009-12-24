@@ -43,6 +43,13 @@ PickComponent::~PickComponent()
 	delete &mImpl;
 }
 
+Component* PickComponent::clone() const
+{
+	PickComponent* cloned = new PickComponent;
+	cloned->entityToPick = this->entityToPick;
+	return cloned;
+}
+
 void PickComponent::update(float)
 {
 	if(!entityToPick)
