@@ -92,6 +92,13 @@ Entity::!Entity()
 	delete mIsValid;
 }
 
+Entity^ Entity::clone()
+{
+	if(!ptr())
+		return nullptr;
+	return gcnew Entity(ptr()->clone());
+}
+
 bool Entity::isValid()
 {
 	return ptr() != nullptr;
@@ -139,6 +146,7 @@ void Entity::asChildOf(Entity^ parent_)
 {
 	if(parent_) {
 		mImpl->asChildOf(parent_->mImpl);
+		mParent = parent_;
 		markParentDirty();
 	}
 }
@@ -146,12 +154,14 @@ void Entity::asChildOf(Entity^ parent_)
 void Entity::insertBefore(Entity^ sibling_)
 {
 	mImpl->insertBefore(sibling_->mImpl);
+	mParent = sibling_->parent;
 	markParentDirty();
 }
 
 void Entity::insertAfter(Entity^ sibling_)
 {
 	mImpl->insertAfter(sibling_->mImpl);
+	mParent = sibling_->parent;
 	markParentDirty();
 }
 
@@ -247,6 +257,14 @@ Entity^ Entity::nextSibling::get()
 	}
 
 	return mNextSibling;
+}
+
+Entity^ Entity::findEntityByPath(String^ path)
+{
+	MCD::Entity* e = ptr();
+	if(!e) return nullptr;
+
+	return getEntityFromRawPtr(e->findEntityByPath(Utility::toWString(path).c_str()));
 }
 
 array<float>^ Entity::translation::get()

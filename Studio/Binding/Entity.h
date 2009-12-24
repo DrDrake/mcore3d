@@ -27,6 +27,8 @@ public:
 	//! Create the Entity, all the cache/internal/tree-view node pointers will be initialized as well.
 	Entity(IntPtr entity);
 
+	Entity^ clone();
+
 	//!	The C++ counter part may destroy at any time, use this function to check.
 	bool isValid();
 
@@ -71,6 +73,8 @@ public:
 	property Entity^ nextSibling {
 		Entity^ get();
 	}
+
+	Entity^ findEntityByPath(String^ path);
 
 	[Category("Transform"), Description("Local position"), TypeConverter(Vector3Converter::typeid)]
 	property array<float>^ translation {
