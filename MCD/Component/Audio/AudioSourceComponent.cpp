@@ -31,6 +31,19 @@ AudioSourceComponent::AudioSourceComponent()
 	destroyEntityAfterFinish = false;
 }
 
+Component* AudioSourceComponent::clone() const
+{
+	AudioSourceComponent* cloned = new AudioSourceComponent;
+
+	if(IResourceManager* mgr = audioSource.resourceManager())
+		cloned->load(*mgr, audioSource.fileId(), audioSource.loadOptions().c_str());
+
+	cloned->destroyAfterFinish = this->destroyAfterFinish;
+	cloned->destroyEntityAfterFinish = this->destroyEntityAfterFinish;
+	cloned->setEffect(this->mEffect.get());
+	return cloned;
+}
+
 void AudioSourceComponent::update()
 {
 	audioSource.update();

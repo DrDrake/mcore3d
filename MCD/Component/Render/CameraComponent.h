@@ -14,6 +14,11 @@ class MCD_COMPONENT_API CameraComponent : public RenderableComponent
 public:
 	CameraComponent();
 
+// Cloning
+	sal_override sal_checkreturn bool cloneable() const { return true; }
+
+	sal_override sal_notnull Component* clone() const;
+
 // Operations
 	sal_override void render();
 

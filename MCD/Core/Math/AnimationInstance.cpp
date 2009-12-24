@@ -16,8 +16,24 @@ AnimationInstance::~AnimationInstance()
 	delete[] interpolatedResult.getPtr();
 }
 
+AnimationInstance::AnimationInstance(const AnimationInstance& rhs)
+	: time(rhs.time), interpolatedResult(nullptr, 0), mTracks(rhs.mTracks)
+{
+}
+
+AnimationInstance& AnimationInstance::operator=(const AnimationInstance& rhs)
+{
+	time = rhs.time;
+	mTracks = rhs.mTracks;
+	(void)resetInterpolatedResult();
+	return *this;
+}
+
 bool AnimationInstance::resetInterpolatedResult()
 {
+	delete[] interpolatedResult.getPtr();
+	const_cast<AnimationTrack::KeyFrames&>(interpolatedResult) = AnimationTrack::KeyFrames(nullptr, 0);
+
 	if(mTracks.empty())
 		return false;
 
@@ -59,9 +75,8 @@ void AnimationInstance::update()
 
 	AnimationTrack::KeyFrames& result = const_cast<AnimationTrack::KeyFrames&>(interpolatedResult);
 
-	if(!result.data)
-		if(!resetInterpolatedResult())
-			return;
+	if(!result.data && !resetInterpolatedResult())
+		return;
 
 	// Zero out interpolatedResult first
 	::memset(&result[0], 0, result.sizeInByte());

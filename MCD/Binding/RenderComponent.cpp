@@ -7,6 +7,7 @@
 #include "System.h"
 #include "../Render/Effect.h"
 #include "../Render/Mesh.h"
+#include "../Component/Render/AnimationComponent.h"
 #include "../Component/Render/CameraComponent.h"
 #include "../Component/Render/MeshComponent.h"
 #include "../Component/Render/PickComponent.h"
@@ -14,6 +15,16 @@
 using namespace MCD;
 
 namespace script {
+
+// TODO: Remove this temporary solution
+static AnimationThread thread;
+static AnimationComponent* animationComponentCreate() {
+	return new AnimationComponent(thread);
+}
+SCRIPT_CLASS_REGISTER(AnimationComponent)
+	.declareClass<AnimationComponent, Component>(xSTRING("AnimationComponent"))
+	.staticMethod<construct>(xSTRING("constructor"), &animationComponentCreate)
+;}
 
 static float cameraComponentGetFov(CameraComponent& self) {
 	return self.camera.frustum.fov();
@@ -85,6 +96,7 @@ namespace MCD {
 
 void registerRenderComponentBinding(script::VMCore* v)
 {
+	script::ClassTraits<AnimationComponent>::bind(v);
 	script::ClassTraits<CameraComponent>::bind(v);
 	script::ClassTraits<MeshComponent>::bind(v);
 	script::ClassTraits<PickComponent>::bind(v);

@@ -29,6 +29,12 @@ class MCD_COMPONENT_API AudioSourceComponent : public AudioComponent
 public:
 	AudioSourceComponent();
 
+// Cloning
+	sal_override sal_checkreturn bool cloneable() const { return true; }
+
+	//!	Note that the current playing position will not be applied to the cloned component.
+	sal_override sal_notnull Component* clone() const;
+
 // Operations
 	sal_override void update();
 

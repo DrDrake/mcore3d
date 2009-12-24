@@ -18,6 +18,10 @@ public:
 
 	~AnimationInstance();
 
+	AnimationInstance(const AnimationInstance& rhs);
+
+	AnimationInstance& operator=(const AnimationInstance& rhs);
+
 // Operations
 	void update();
 

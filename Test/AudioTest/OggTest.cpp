@@ -50,6 +50,8 @@ TEST_FIXTURE(OggTestFixture, BasicTest)
 	{	// Construct, load and destroy
 		AudioSource source;
 		CHECK(source.load(manager, L"stereo.ogg"));
+		CHECK_EQUAL(L"stereo.ogg", source.fileId().getString());
+		CHECK_EQUAL(&manager, source.resourceManager());
 	}
 }
 
@@ -60,6 +62,7 @@ TEST_FIXTURE(OggTestFixture, StreamBlockFirstPartialTest)
 	AudioSource source;
 	CHECK(source.load(manager, L"stereo.ogg", L"blockLoadFirstBuffer=1"));
 
+	CHECK_EQUAL(L"blockLoadFirstBuffer=1", source.loadOptions());
 	CHECK_EQUAL(2u, source.channelCount());
 	CHECK_EQUAL(22050u, source.frequency());
 	CHECK_EQUAL(55167u, source.totalPcm());

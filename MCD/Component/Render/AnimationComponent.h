@@ -21,6 +21,11 @@ public:
 
 	sal_override ~AnimationComponent();
 
+// Cloning
+	sal_override sal_checkreturn bool cloneable() const { return true; }
+
+	sal_override sal_notnull Component* clone() const;
+
 // Operations
 	sal_override void update(float dt);
 

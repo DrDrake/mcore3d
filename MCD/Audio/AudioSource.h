@@ -111,6 +111,13 @@ public:
 
 	void setVelocity(const Vec3f& v);
 
+// Load attributes
+	const Path& fileId() const;
+
+	const std::wstring& loadOptions() const;
+
+	sal_maybenull IResourceManager* resourceManager() const;
+
 private:
 	void fillUpInitialBuffers();
 	void stopAndUnqueueBuffers();
@@ -118,6 +125,10 @@ private:
 	bool mRequestPlay;
 	bool mRequestPause;
 	uint64_t mRoughPcmOffsetSinceLastSeek;
+
+	Path mFileId;
+	std::wstring mLoadOptions;
+	IResourceManager* mResourceManager;
 };	// AudioSource
 
 }	// namespace MCD

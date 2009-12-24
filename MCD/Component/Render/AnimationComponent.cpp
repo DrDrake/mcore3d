@@ -63,6 +63,13 @@ AnimationComponent::~AnimationComponent()
 	mAnimationThread.removeAnimationComponent(*this);
 }
 
+Component* AnimationComponent::clone() const
+{
+	AnimationComponent* cloned = new AnimationComponent(mAnimationThread);
+	cloned->animationInstance = this->animationInstance;
+	return cloned;
+}
+
 void AnimationComponent::update(float dt)
 {
 	Entity* e = entity();
