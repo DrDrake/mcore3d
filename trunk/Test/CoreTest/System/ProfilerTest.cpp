@@ -252,7 +252,7 @@ public:
 
 void funA();
 void funB();
-void funC(void* newByFunB);
+void funC(int* newByFunB);
 void funD();
 
 // Recurse itself
@@ -309,7 +309,7 @@ void funB() {
 	recurse1(10);
 }
 
-void funC(void* newByFunB)
+void funC(int* newByFunB)
 {
 	ScopeProfiler profile("funC");
 	delete[] newByFunB;

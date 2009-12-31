@@ -85,7 +85,22 @@ namespace Studio
 
 		private void treeView_DragOver(object sender, DragEventArgs e)
 		{
-			if ((e.KeyState & 8) == 8)	// Ctrl key pressed
+			e.Effect = DragDropEffects.None;
+
+			bool ctrlKeyPressed = (e.KeyState & 8) == 8;
+
+			// Dis-allow dropping a node to itself
+			if (!ctrlKeyPressed && treeView.DropPosition.Node != null)
+			{
+				TreeNodeAdv[] nodes = (TreeNodeAdv[])e.Data.GetData(typeof(TreeNodeAdv[]));
+				Entity dropEntity = treeView.DropPosition.Node.Tag as Entity;
+
+				foreach (TreeNodeAdv n in nodes)
+					if (dropEntity == (n.Tag as Entity))
+						return;
+			}
+
+			if (ctrlKeyPressed)
 				e.Effect = DragDropEffects.Copy;
 			else
 				e.Effect = DragDropEffects.Move;
@@ -98,6 +113,9 @@ namespace Studio
 		private void treeView_DragDrop(object sender, DragEventArgs e)
 		{
 			treeView.BeginUpdate();
+
+			if (treeView.DropPosition.Node == null)
+				return;
 
 			TreeNodeAdv[] nodes = (TreeNodeAdv[])e.Data.GetData(typeof(TreeNodeAdv[]));
 			Entity dropEntity = treeView.DropPosition.Node.Tag as Entity;
