@@ -67,6 +67,25 @@ void ScriptOwnershipHandle::destroy()
 	vm = nullptr;
 }
 
+void ScriptOwnershipHandle::setNull()
+{
+	if(!vm) return;
+	HSQOBJECT* ref = reinterpret_cast<HSQOBJECT*>(mRef);
+	HSQUIRRELVM& _vm = reinterpret_cast<HSQUIRRELVM&>(vm);
+	sq_release(_vm, ref);
+	vm = nullptr;
+}
+
+void ScriptOwnershipHandle::removeReleaseHook()
+{
+	if(!vm) return;
+	HSQOBJECT* ref = reinterpret_cast<HSQOBJECT*>(mRef);
+	HSQUIRRELVM& _vm = reinterpret_cast<HSQUIRRELVM&>(vm);
+	sq_pushobject(_vm, *ref);
+	sq_setreleasehook(_vm, -1, nullptr);
+	sq_pop(_vm, 1);
+}
+
 void ScriptOwnershipHandle::setHandle(void* v, int index, bool keepStrongRef)
 {
 	if(!v) return;
@@ -104,7 +123,8 @@ void ScriptOwnershipHandle::useStrongReference(bool strong)
 		sq_addref(_vm, &o);
 		sq_release(_vm, ref);
 		*ref = o;
-	} else if(!strong && ref->_type == OT_INSTANCE) {
+	}
+	else if(!strong && ref->_type == OT_INSTANCE) {
 		// Transform the strong ref to weak ref
 		sq_pushobject(_vm, *ref);
 		sq_release(_vm, ref);
@@ -112,6 +132,12 @@ void ScriptOwnershipHandle::useStrongReference(bool strong)
 		sq_getstackobj(_vm, -1, ref);
 		sq_addref(_vm, ref);
 		sq_pop(_vm, 2);
+	}
+	else if(ref->_type == OT_NULL) {
+		vm = nullptr;
+	}
+	else {
+		MCD_ASSERT(ref->_type == OT_WEAKREF || ref->_type == OT_INSTANCE);
 	}
 }
 
@@ -146,15 +172,15 @@ bool ScriptOwnershipHandle::pushHandle(void* v)
 	return true;
 }
 
-bool ScriptOwnershipHandle::cloneTo(ScriptOwnershipHandle& other) const
+void* ScriptOwnershipHandle::cloneTo(ScriptOwnershipHandle& other) const
 {
-	// Nullify the target script handle first
-	if(other.vm) {
-		HSQOBJECT* ref = reinterpret_cast<HSQOBJECT*>(other.mRef);
-		sq_release(reinterpret_cast<HSQUIRRELVM>(other.vm), ref);
-	}
+	if(!vm)
+		return nullptr;
 
-	other.vm = vm;
+	if(other.vm) {
+		MCD_ASSERT(false && "Decide what to do with the original handle before over writing it");
+		return nullptr;
+	}
 
 	// Invoke the squirrel object's clone function
 	HSQOBJECT* ref = (HSQOBJECT*)(mRef);
@@ -164,12 +190,20 @@ bool ScriptOwnershipHandle::cloneTo(ScriptOwnershipHandle& other) const
 	// Clone may fail
 	if(SQ_FAILED(sq_clone(_vm, -1))) {
 		sq_pop(_vm, 1);
-		return false;
+		return nullptr;
 	}
+
+	ref = (HSQOBJECT*)(other.mRef);
 	MCD_VERIFY(SQ_SUCCEEDED(sq_getstackobj(_vm, -1, ref)));
+	void* ret = nullptr;
+	MCD_VERIFY(SQ_SUCCEEDED(sq_getinstanceup(_vm, -1, &ret, nullptr)));
+
+	// Ensure the returning object has one strong reference.
+	other.setHandle(vm, -1, true);
+
 	sq_pop(_vm, 2);
 
-	return true;
+	return ret;
 }
 
 }	// namespace MCD

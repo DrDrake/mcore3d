@@ -99,6 +99,13 @@ bool ScriptComponentManager::init(ScriptVM& vm, IFileSystem& fs)
 					::gComponentQueue.setItem(wakeUpTime, this);\n\
 					::suspend(null);\n\
 				}\n\
+				Class._cloned <- function(org) {\n\
+					_orgCloned(org);\n\
+					this.thread = newthread(::_scriptComponentThreadFunction);\n\
+					this.thread.call(this.weakref());\n\
+					::_scriptComponentInstanceSet[this.thread] <- this;\n\
+					::gComponentQueue.setItem(0, this);\n\
+				}\n\
 				Class.wakeup <- function() {\n\
 					thread.wakeup(true);\n\
 				}\n\

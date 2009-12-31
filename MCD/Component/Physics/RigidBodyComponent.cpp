@@ -71,6 +71,13 @@ RigidBodyComponent::~RigidBodyComponent(void)
 	delete mImpl;
 }
 
+Component* RigidBodyComponent::clone() const
+{
+	if(!mImpl) return nullptr;
+	RigidBodyComponent* cloned = new RigidBodyComponent(*mImpl->mDynamicsWorld, mImpl->mMass, mImpl->mShape);
+	return cloned;
+}
+
 void RigidBodyComponent::update(float)
 {
 	MCD_ASSUME(mImpl);
