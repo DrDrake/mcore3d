@@ -63,6 +63,10 @@ public:
 		// Maually remove all entity, before the Launcher get destroyed.
 		while(mRootNode.firstChild())
 			delete mRootNode.firstChild();
+
+		// Remember to clear the old user sub-tree also
+		delete mOldUserSubTree.get();
+
 		mLauncher.setRootNode(nullptr);
 	}
 
@@ -267,6 +271,9 @@ public:
 
 	void stop()
 	{
+		if(!mOldUserSubTree.get())	// Not playing
+			return;
+
 		// Restore the old backup sub-tree and input component
 		std::swap(mUserSubTree, mOldUserSubTree);
 		mUserSubTree->asChildOf(&mRootNode);
