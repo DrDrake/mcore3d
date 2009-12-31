@@ -16,6 +16,9 @@ Entity::Entity()
 
 Entity::~Entity()
 {
+	// Prevent calling "this" destructor again
+	scriptOwnershipHandle.removeReleaseHook();
+
 	unlink();
 
 	Entity* children = mFirstChild;
@@ -46,9 +49,12 @@ void Entity::asChildOf(Entity* parent)
 
 void Entity::insertBefore(sal_in Entity* sibling)
 {
+	if(!sibling)
+		return;
+
 	MCD_ASSERT(sibling->mParent && "There should only one a single root node");
 
-	if(!sibling || !sibling->mParent)
+	if(!sibling->mParent)
 		return;
 
 	// Unlink this Entity first (keep strong script reference)
@@ -78,10 +84,10 @@ void Entity::insertBefore(sal_in Entity* sibling)
 
 void Entity::insertAfter(sal_in Entity* sibling)
 {
-	MCD_ASSERT(sibling->mParent && "There should only one a single root node");
-
 	if(!sibling)
 		return;
+
+	MCD_ASSERT(sibling->mParent && "There should only one a single root node");
 
 	// Unlink this Entity first (keep strong script reference)
 	unlink(true);
@@ -340,6 +346,17 @@ void Entity::setWorldTransform(const Mat44f& transform)
 
 sal_notnull Entity* Entity::clone() const
 {
+	{	// Try using script handle's clone function first
+		ScriptOwnershipHandle dummy;
+		// TODO: Add some type safty?
+		Entity* e = reinterpret_cast<Entity*>(scriptOwnershipHandle.cloneTo(dummy));
+		if(e) {
+			e->scriptOwnershipHandle.useStrongReference(true);
+			dummy.setNull();
+			return e;
+		}
+	}
+
 	std::auto_ptr<Entity> newEnt(new Entity());
 
 	newEnt->enabled = enabled;

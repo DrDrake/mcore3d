@@ -9,6 +9,11 @@ namespace MCD {
 
 /*	A handle that bring strong linkage between a cpp and script object.
 	It work together with jkbind's addHandleToObject() and pushHandleFromObject().
+
+	Owning this ScriptOwnershipHandle also means having the ultimate strong ownership
+	of it's pointee object; because once destroy() is called, even there are still many
+	strong reference on the script VM side, those reference will force to null too.
+
 	\warn Be aware of threading problems, especially in the destructor
  */
 class MCD_CORE_API ScriptOwnershipHandle
@@ -26,6 +31,18 @@ public:
 	 */
 	void destroy();
 
+	/*!	Only set the ScriptOwnershipHandle to it's initial null state,
+		without forcing to destroy the object. Also aim to release the very strong
+		ownership.
+	 */
+	void setNull();
+
+	/*!	Prevents the ScriptOwnershipHandle calling the pointee's C++ destructor.
+		It's usefull when actually your pointee own this ScriptOwnershipHandle,
+		call removeReleaseHook() in the destructor can prevent recursive destructor call.
+	 */
+	void removeReleaseHook();
+
 	/*!	Point the ScriptOwnershipHandle to the squirrel object at index.
 		\param keepStrongRef Set to true if you want ScriptOwnershipHandle hold
 			a strong reference to the squirrel object. That is, the squirrel object
@@ -42,7 +59,11 @@ public:
 	//! Push the stored squirrel object handle to the VM stack.
 	bool pushHandle(void* vm);
 
-	sal_checkreturn bool cloneTo(ScriptOwnershipHandle& other) const;
+	/*!	Clone the current script object, and returns it's corresponding C++ part if success.
+		\param other Another ScriptOwnershipHandle to temporary hold a strong reference to
+			the returning object. It must be in a null state when passing in.
+	 */
+	sal_maybenull void* cloneTo(ScriptOwnershipHandle& other) const;
 
 	void* vm;	//!< The scripting virtual machine of the type HSQUIRRELVM
 

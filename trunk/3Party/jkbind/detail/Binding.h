@@ -14,9 +14,11 @@ namespace script {
 namespace detail {
 
 #if jkDEBUG_SCRIPT
-#   define sq_argassert(arg,_index_) if (!match(types::TypeSelect<P##arg>(), v,_index_)) return sq_throwerror(v,xSTRING("Incorrect function argument"))
+#	define sq_argassert(arg,_index_) if (!match(types::TypeSelect<P##arg>(), v,_index_)) return sq_throwerror(v,xSTRING("Incorrect function argument"))
+#	define sq_thisassert(p) if (!(p)) return sq_throwerror(v,xSTRING("Try to call member funciton on null"))
 #else
-#   define sq_argassert(arg,_index_)
+#	define sq_argassert(arg,_index_)
+#	define sq_thisassert(p)
 #endif
 
 ///
@@ -1007,10 +1009,11 @@ public:
 	static inline int Dispatch(HSQUIRRELVM v)
 	{
 		StackHandler sa(v);
-		Callee* instance(0);
+		Callee* instance(NULL);
 		instance = (Callee*)sa.getInstanceUp(1, 0);
-		int paramCount = sa.getParamCount();
+		sq_thisassert(instance);
 
+		int paramCount = sa.getParamCount();
 		Func func = getFunctionPointer<Func>(v, paramCount);
 
 		return Call<ResultPolicy, Callee>(*instance, func, v, 2);

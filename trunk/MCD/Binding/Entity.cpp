@@ -52,7 +52,9 @@ static void componentDestroySelf(GiveUpOwnership<Component*> obj)
 }
 SCRIPT_CLASS_REGISTER_NAME(Component, "Component")
 	.enableGetset()
-	.clone<&componentClone>()
+	// There is problem for derived class to use base class's _cloned()
+	// therefore an alternative name is used.
+	.clone<&componentClone>(xSTRING("_orgCloned"))
 	.method<objNoCare>(xSTRING("_getentity"), &Component::entity)
 	.rawMethod(xSTRING("_setScriptHandle"), &componentSetScriptHandle)
 	.wrappedMethod(xSTRING("destroySelf"), &componentDestroySelf)
@@ -67,7 +69,10 @@ SCRIPT_CLASS_REGISTER_NAME(Component, "Component")
 		xSTRING("\t%s.addComponent(%s);\n")
 		xSTRING("\", name, classString, entityName, name);")
 		xSTRING("state.resolveReference(this);}")
-	);
+	)
+	.runScript(
+		xSTRING("Component._cloned<-function(org){_orgCloned(org);}")
+	)
 ;}
 
 // This clone function will not clone the Components and Entity's children,
