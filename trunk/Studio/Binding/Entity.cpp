@@ -146,6 +146,7 @@ void Entity::asChildOf(Entity^ parent_)
 {
 	if(parent_) {
 		mImpl->asChildOf(parent_->mImpl);
+		// Explicitly set mParent, otherwise multiple C# Entity may map to a single C++ Entity
 		mParent = parent_;
 		markParentDirty();
 	}
@@ -154,6 +155,7 @@ void Entity::asChildOf(Entity^ parent_)
 void Entity::insertBefore(Entity^ sibling_)
 {
 	mImpl->insertBefore(sibling_->mImpl);
+	// Explicitly set mParent, otherwise multiple C# Entity may map to a single C++ Entity
 	mParent = sibling_->parent;
 	markParentDirty();
 }
@@ -161,6 +163,7 @@ void Entity::insertBefore(Entity^ sibling_)
 void Entity::insertAfter(Entity^ sibling_)
 {
 	mImpl->insertAfter(sibling_->mImpl);
+	// Explicitly set mParent, otherwise multiple C# Entity may map to a single C++ Entity
 	mParent = sibling_->parent;
 	markParentDirty();
 }

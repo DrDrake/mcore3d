@@ -16,9 +16,6 @@ Entity::Entity()
 
 Entity::~Entity()
 {
-	// Prevent calling "this" destructor again
-	scriptOwnershipHandle.removeReleaseHook();
-
 	unlink();
 
 	Entity* children = mFirstChild;
@@ -45,6 +42,7 @@ void Entity::asChildOf(Entity* parent)
 	parent->mFirstChild = this;
 
 	scriptOwnershipHandle.useStrongReference(true);
+	scriptOwnershipHandle.removeReleaseHook();
 }
 
 void Entity::insertBefore(sal_in Entity* sibling)
@@ -99,6 +97,7 @@ void Entity::insertAfter(sal_in Entity* sibling)
 	mNextSibling = old;
 
 	scriptOwnershipHandle.useStrongReference(true);
+	scriptOwnershipHandle.removeReleaseHook();
 }
 
 void Entity::unlink()
@@ -286,6 +285,7 @@ void Entity::addComponent(Component* component)
 
 	component->onAdd();
 	component->scriptOwnershipHandle.useStrongReference(true);
+	component->scriptOwnershipHandle.removeReleaseHook();
 }
 
 void Entity::removeComponent(const std::type_info& familyType)
@@ -352,6 +352,7 @@ sal_notnull Entity* Entity::clone() const
 		Entity* e = reinterpret_cast<Entity*>(scriptOwnershipHandle.cloneTo(dummy));
 		if(e) {
 			e->scriptOwnershipHandle.useStrongReference(true);
+			e->scriptOwnershipHandle.removeReleaseHook();
 			dummy.setNull();
 			return e;
 		}
