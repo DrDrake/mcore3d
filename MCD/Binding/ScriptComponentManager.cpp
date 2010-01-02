@@ -77,6 +77,7 @@ bool ScriptComponentManager::init(ScriptVM& vm, IFileSystem& fs)
 		function _scriptComponentThreadFunction(c) {\n\
 			while(true) {\n\
 				local component = c.ref();\n\
+				if(!component) return;\n\
 				local e = component.entity;\n\
 				if(e != null && e.enabled)\n\
 					component.update();\n\
