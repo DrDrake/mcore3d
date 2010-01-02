@@ -45,7 +45,7 @@ public:
 	bool removeFileSystem(const Path& fileSystemRootPath)
 	{
 		// TODO: Should we consider the full path when preforming the search?
-		for(FileSystems::const_iterator i=mFileSystems.begin(); i!=mFileSystems.end(); ) {
+		for(FileSystems::iterator i=mFileSystems.begin(); i!=mFileSystems.end(); ) {
 			IFileSystem* fileSystem = (*i);
 			MCD_ASSUME(fileSystem != nullptr);
 			if(fileSystem->getRoot() == fileSystemRootPath)

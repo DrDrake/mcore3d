@@ -307,6 +307,8 @@ namespace {
 
 struct SearchContext
 {
+#ifdef MCD_VC
+
 	~SearchContext() {
 		if(handle != INVALID_HANDLE_VALUE)
 			::FindClose(handle);
@@ -314,12 +316,15 @@ struct SearchContext
 
 	HANDLE handle;
 	WIN32_FIND_DATA data;
+#endif
+
 };	// SearchFileContext
 
 }	// namespace
 
 void* RawFileSystem::openFirstChildFolder(const Path& folder) const
 {
+#ifdef MCD_VC
 	SearchContext* c = new SearchContext;
 	Path::string_type absolutePath = toAbsolutePath(folder).getString() + L"/*";
 	c->handle = ::FindFirstFile(absolutePath.c_str(), &(c->data));
@@ -338,6 +343,8 @@ void* RawFileSystem::openFirstChildFolder(const Path& folder) const
 
 Fail:
 	closeFirstChildFolder(c);
+#endif
+
 	return nullptr;
 }
 
@@ -347,6 +354,7 @@ Path RawFileSystem::getNextSiblingFolder(void* context) const
 	if(!context)
 		return ret;
 
+#ifdef MCD_VC
 	SearchContext* c = reinterpret_cast<SearchContext*>(context);
 	ret = c->data.cFileName;
 
@@ -356,6 +364,7 @@ Path RawFileSystem::getNextSiblingFolder(void* context) const
 			break;
 		}
 	} while(!(c->data.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY));
+#endif
 
 	return ret;
 }
@@ -368,6 +377,7 @@ void RawFileSystem::closeFirstChildFolder(void* context) const
 
 void* RawFileSystem::openFirstFileInFolder(const Path& folder) const
 {
+#ifdef MCD_VC
 	SearchContext* c = new SearchContext;
 	Path::string_type absolutePath = toAbsolutePath(folder).getString() + L"/*";
 	c->handle = ::FindFirstFile(absolutePath.c_str(), &(c->data));
@@ -385,6 +395,8 @@ void* RawFileSystem::openFirstFileInFolder(const Path& folder) const
 
 Fail:
 	closeFirstChildFolder(c);
+#endif
+
 	return nullptr;
 }
 
@@ -394,6 +406,7 @@ Path RawFileSystem::getNextFileInFolder(void* context) const
 	if(!context)
 		return ret;
 
+#ifdef MCD_VC
 	SearchContext* c = reinterpret_cast<SearchContext*>(context);
 	ret = c->data.cFileName;
 
@@ -403,6 +416,7 @@ Path RawFileSystem::getNextFileInFolder(void* context) const
 			break;
 		}
 	} while(c->data.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY);
+#endif
 
 	return ret;
 }
