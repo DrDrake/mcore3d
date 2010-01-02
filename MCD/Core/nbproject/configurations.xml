@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<configurationDescriptor version="51">
+<configurationDescriptor version="62">
   <logicalFolder name="root" displayName="root" projectFiles="true">
     <logicalFolder name="HeaderFiles"
                    displayName="Header Files"
@@ -61,8 +61,8 @@
           <itemPath>System/ScriptOwnershipHandle.h</itemPath>
           <itemPath>System/SharedPtr.h</itemPath>
           <itemPath>System/StaticAssert.h</itemPath>
-          <itemPath>System/Stream.h</itemPath>
           <itemPath>System/StrUtility.h</itemPath>
+          <itemPath>System/Stream.h</itemPath>
           <itemPath>System/TaskPool.h</itemPath>
           <itemPath>System/Thread.h</itemPath>
           <itemPath>System/ThreadPool.h</itemPath>
@@ -71,12 +71,12 @@
           <itemPath>System/UserData.h</itemPath>
           <itemPath>System/Utility.h</itemPath>
           <itemPath>System/WeakPtr.h</itemPath>
-          <itemPath>System/Window.h</itemPath>
-          <itemPath>System/Window.inl</itemPath>
           <itemPath>System/Window.Win.inc</itemPath>
           <itemPath>System/Window.Win.inl</itemPath>
           <itemPath>System/Window.X11.inc</itemPath>
           <itemPath>System/Window.X11.inl</itemPath>
+          <itemPath>System/Window.h</itemPath>
+          <itemPath>System/Window.inl</itemPath>
           <itemPath>System/WindowEvent.h</itemPath>
           <itemPath>System/XmlParser.h</itemPath>
           <itemPath>System/ZipFileSystem.h</itemPath>
@@ -108,7 +108,6 @@
           <itemPath>System/CondVar.cpp</itemPath>
           <itemPath>System/CpuProfiler.cpp</itemPath>
           <itemPath>System/CpuProfiler.h</itemPath>
-          <itemPath>System/dbgint.h</itemPath>
           <itemPath>System/ErrorCode.cpp</itemPath>
           <itemPath>System/Exception.cpp</itemPath>
           <itemPath>System/FileSystemCollection.cpp</itemPath>
@@ -125,8 +124,8 @@
           <itemPath>System/Resource.cpp</itemPath>
           <itemPath>System/ResourceManager.cpp</itemPath>
           <itemPath>System/ScriptOwnershipHandle.cpp</itemPath>
-          <itemPath>System/Stream.cpp</itemPath>
           <itemPath>System/StrUtility.cpp</itemPath>
+          <itemPath>System/Stream.cpp</itemPath>
           <itemPath>System/TaskPool.cpp</itemPath>
           <itemPath>System/Thread.cpp</itemPath>
           <itemPath>System/ThreadPool.cpp</itemPath>
@@ -135,6 +134,7 @@
           <itemPath>System/Window.cpp</itemPath>
           <itemPath>System/XmlParser.cpp</itemPath>
           <itemPath>System/ZipFileSystem.cpp</itemPath>
+          <itemPath>System/dbgint.h</itemPath>
         </logicalFolder>
         <itemPath>.dep.inc</itemPath>
       </logicalFolder>
@@ -155,7 +155,6 @@
       </toolsSet>
       <compileType>
         <linkerTool>
-          <output>Debug/${PLATFORM}/libCore.so</output>
           <linkerLibItems>
             <linkerLibProjectItem>
               <makeArtifact PL="../../3Party/squirrel"
@@ -174,349 +173,19 @@
             <linkerOptionItem>-lX11</linkerOptionItem>
           </linkerLibItems>
         </linkerTool>
+        <requiredProjects>
+          <makeArtifact PL="../../3Party/squirrel"
+                        CT="2"
+                        CN="Debug"
+                        AC="false"
+                        BL="true"
+                        WD="../../3Party/squirrel"
+                        BC="${MAKE}  -f Makefile CONF=Debug"
+                        CC="${MAKE}  -f Makefile CONF=Debug clean"
+                        OP="dist/Debug/GNU-Linux-x86/libsquirrel.so">
+          </makeArtifact>
+        </requiredProjects>
       </compileType>
-      <item path=".dep.inc">
-        <itemTool>3</itemTool>
-      </item>
-      <item path="Core.h">
-        <itemTool>3</itemTool>
-      </item>
-      <item path="Entity/BehaviourComponent.cpp">
-        <itemTool>1</itemTool>
-      </item>
-      <item path="Entity/BehaviourComponent.h">
-        <itemTool>3</itemTool>
-      </item>
-      <item path="Entity/Component.cpp">
-        <itemTool>1</itemTool>
-      </item>
-      <item path="Entity/Component.h">
-        <itemTool>3</itemTool>
-      </item>
-      <item path="Entity/Entity.cpp">
-        <itemTool>1</itemTool>
-      </item>
-      <item path="Entity/Entity.h">
-        <itemTool>3</itemTool>
-      </item>
-      <item path="Entity/Pch.h">
-        <itemTool>3</itemTool>
-      </item>
-      <item path="Math/BasicFunction.h">
-        <itemTool>3</itemTool>
-      </item>
-      <item path="Math/IncludeAll.h">
-        <itemTool>3</itemTool>
-      </item>
-      <item path="Math/Intersection.cpp">
-        <itemTool>1</itemTool>
-      </item>
-      <item path="Math/Intersection.h">
-        <itemTool>3</itemTool>
-      </item>
-      <item path="Math/Magnitude.h">
-        <itemTool>3</itemTool>
-      </item>
-      <item path="Math/Mat33.h">
-        <itemTool>3</itemTool>
-      </item>
-      <item path="Math/Mat33.inl">
-        <itemTool>3</itemTool>
-      </item>
-      <item path="Math/Mat44.h">
-        <itemTool>3</itemTool>
-      </item>
-      <item path="Math/Mat44.inl">
-        <itemTool>3</itemTool>
-      </item>
-      <item path="Math/Pch.h">
-        <itemTool>3</itemTool>
-      </item>
-      <item path="Math/Plane.h">
-        <itemTool>3</itemTool>
-      </item>
-      <item path="Math/Quaternion.h">
-        <itemTool>3</itemTool>
-      </item>
-      <item path="Math/Quaternion.inl">
-        <itemTool>3</itemTool>
-      </item>
-      <item path="Math/Ray.h">
-        <itemTool>3</itemTool>
-      </item>
-      <item path="Math/SrtTransform.cpp">
-        <itemTool>1</itemTool>
-      </item>
-      <item path="Math/SrtTransform.h">
-        <itemTool>3</itemTool>
-      </item>
-      <item path="Math/Tuple.h">
-        <itemTool>3</itemTool>
-      </item>
-      <item path="Math/Vec2.h">
-        <itemTool>3</itemTool>
-      </item>
-      <item path="Math/Vec2.inl">
-        <itemTool>3</itemTool>
-      </item>
-      <item path="Math/Vec3.h">
-        <itemTool>3</itemTool>
-      </item>
-      <item path="Math/Vec3.inl">
-        <itemTool>3</itemTool>
-      </item>
-      <item path="Math/Vec4.h">
-        <itemTool>3</itemTool>
-      </item>
-      <item path="Pch.h">
-        <itemTool>3</itemTool>
-      </item>
-      <item path="ShareLib.h">
-        <itemTool>3</itemTool>
-      </item>
-      <item path="System/Array.h">
-        <itemTool>3</itemTool>
-      </item>
-      <item path="System/Atomic.h">
-        <itemTool>3</itemTool>
-      </item>
-      <item path="System/CallstackProfiler.cpp">
-        <itemTool>1</itemTool>
-      </item>
-      <item path="System/CallstackProfiler.h">
-        <itemTool>3</itemTool>
-      </item>
-      <item path="System/CondVar.cpp">
-        <itemTool>1</itemTool>
-      </item>
-      <item path="System/CondVar.h">
-        <itemTool>3</itemTool>
-      </item>
-      <item path="System/CpuProfiler.cpp">
-        <itemTool>1</itemTool>
-      </item>
-      <item path="System/CpuProfiler.h">
-        <itemTool>3</itemTool>
-      </item>
-      <item path="System/ErrorCode.cpp">
-        <itemTool>1</itemTool>
-      </item>
-      <item path="System/ErrorCode.h">
-        <itemTool>3</itemTool>
-      </item>
-      <item path="System/Exception.cpp">
-        <itemTool>1</itemTool>
-      </item>
-      <item path="System/Exception.h">
-        <itemTool>3</itemTool>
-      </item>
-      <item path="System/FileSystem.h">
-        <itemTool>3</itemTool>
-      </item>
-      <item path="System/FileSystemCollection.cpp">
-        <itemTool>1</itemTool>
-      </item>
-      <item path="System/FileSystemCollection.h">
-        <itemTool>3</itemTool>
-      </item>
-      <item path="System/FunctionPatcher.inc">
-        <itemTool>3</itemTool>
-      </item>
-      <item path="System/IncludeAll.h">
-        <itemTool>3</itemTool>
-      </item>
-      <item path="System/IntrusivePtr.h">
-        <itemTool>3</itemTool>
-      </item>
-      <item path="System/LinkList.cpp">
-        <itemTool>1</itemTool>
-      </item>
-      <item path="System/LinkList.h">
-        <itemTool>3</itemTool>
-      </item>
-      <item path="System/Log.cpp">
-        <itemTool>1</itemTool>
-      </item>
-      <item path="System/Log.h">
-        <itemTool>3</itemTool>
-      </item>
-      <item path="System/Macros.h">
-        <itemTool>3</itemTool>
-      </item>
-      <item path="System/Map.cpp">
-        <itemTool>1</itemTool>
-      </item>
-      <item path="System/Map.h">
-        <itemTool>3</itemTool>
-      </item>
-      <item path="System/MemoryProfiler.cpp">
-        <itemTool>1</itemTool>
-      </item>
-      <item path="System/MemoryProfiler.h">
-        <itemTool>3</itemTool>
-      </item>
-      <item path="System/Mutex.cpp">
-        <itemTool>1</itemTool>
-      </item>
-      <item path="System/Mutex.h">
-        <itemTool>3</itemTool>
-      </item>
-      <item path="System/NonCopyable.h">
-        <itemTool>3</itemTool>
-      </item>
-      <item path="System/Path.cpp">
-        <itemTool>1</itemTool>
-      </item>
-      <item path="System/Path.h">
-        <itemTool>3</itemTool>
-      </item>
-      <item path="System/Pch.h">
-        <itemTool>3</itemTool>
-      </item>
-      <item path="System/Platform.h">
-        <itemTool>3</itemTool>
-      </item>
-      <item path="System/PlatformInclude.h">
-        <itemTool>3</itemTool>
-      </item>
-      <item path="System/PlatformIncludeFwd.h">
-        <itemTool>3</itemTool>
-      </item>
-      <item path="System/PtrVector.h">
-        <itemTool>3</itemTool>
-      </item>
-      <item path="System/RawFileSystem.cpp">
-        <itemTool>1</itemTool>
-      </item>
-      <item path="System/RawFileSystem.h">
-        <itemTool>3</itemTool>
-      </item>
-      <item path="System/RawFileSystemMonitor.cpp">
-        <itemTool>1</itemTool>
-      </item>
-      <item path="System/RawFileSystemMonitor.h">
-        <itemTool>3</itemTool>
-      </item>
-      <item path="System/Resource.cpp">
-        <itemTool>1</itemTool>
-      </item>
-      <item path="System/Resource.h">
-        <itemTool>3</itemTool>
-      </item>
-      <item path="System/ResourceLoader.h">
-        <itemTool>3</itemTool>
-      </item>
-      <item path="System/ResourceManager.cpp">
-        <itemTool>1</itemTool>
-      </item>
-      <item path="System/ResourceManager.h">
-        <itemTool>3</itemTool>
-      </item>
-      <item path="System/ScriptOwnershipHandle.cpp">
-        <itemTool>1</itemTool>
-      </item>
-      <item path="System/ScriptOwnershipHandle.h">
-        <itemTool>3</itemTool>
-      </item>
-      <item path="System/SharedPtr.h">
-        <itemTool>3</itemTool>
-      </item>
-      <item path="System/StaticAssert.h">
-        <itemTool>3</itemTool>
-      </item>
-      <item path="System/StrUtility.cpp">
-        <itemTool>1</itemTool>
-      </item>
-      <item path="System/StrUtility.h">
-        <itemTool>3</itemTool>
-      </item>
-      <item path="System/Stream.cpp">
-        <itemTool>1</itemTool>
-      </item>
-      <item path="System/Stream.h">
-        <itemTool>3</itemTool>
-      </item>
-      <item path="System/TaskPool.cpp">
-        <itemTool>1</itemTool>
-      </item>
-      <item path="System/TaskPool.h">
-        <itemTool>3</itemTool>
-      </item>
-      <item path="System/Thread.cpp">
-        <itemTool>1</itemTool>
-      </item>
-      <item path="System/Thread.h">
-        <itemTool>3</itemTool>
-      </item>
-      <item path="System/ThreadPool.cpp">
-        <itemTool>1</itemTool>
-      </item>
-      <item path="System/ThreadPool.h">
-        <itemTool>3</itemTool>
-      </item>
-      <item path="System/Timer.cpp">
-        <itemTool>1</itemTool>
-      </item>
-      <item path="System/Timer.h">
-        <itemTool>3</itemTool>
-      </item>
-      <item path="System/TypeTrait.h">
-        <itemTool>3</itemTool>
-      </item>
-      <item path="System/UserData.h">
-        <itemTool>3</itemTool>
-      </item>
-      <item path="System/Utility.cpp">
-        <itemTool>1</itemTool>
-      </item>
-      <item path="System/Utility.h">
-        <itemTool>3</itemTool>
-      </item>
-      <item path="System/WeakPtr.h">
-        <itemTool>3</itemTool>
-      </item>
-      <item path="System/Window.Win.inc">
-        <itemTool>3</itemTool>
-      </item>
-      <item path="System/Window.Win.inl">
-        <itemTool>3</itemTool>
-      </item>
-      <item path="System/Window.X11.inc">
-        <itemTool>3</itemTool>
-      </item>
-      <item path="System/Window.X11.inl">
-        <itemTool>3</itemTool>
-      </item>
-      <item path="System/Window.cpp">
-        <itemTool>1</itemTool>
-      </item>
-      <item path="System/Window.h">
-        <itemTool>3</itemTool>
-      </item>
-      <item path="System/Window.inl">
-        <itemTool>3</itemTool>
-      </item>
-      <item path="System/WindowEvent.h">
-        <itemTool>3</itemTool>
-      </item>
-      <item path="System/XmlParser.cpp">
-        <itemTool>1</itemTool>
-      </item>
-      <item path="System/XmlParser.h">
-        <itemTool>3</itemTool>
-      </item>
-      <item path="System/ZipFileSystem.cpp">
-        <itemTool>1</itemTool>
-      </item>
-      <item path="System/ZipFileSystem.h">
-        <itemTool>3</itemTool>
-      </item>
-      <item path="System/ZipFileSystem.inc">
-        <itemTool>3</itemTool>
-      </item>
-      <item path="System/dbgint.h">
-        <itemTool>3</itemTool>
-      </item>
     </conf>
     <conf name="Release" type="2">
       <toolsSet>
@@ -525,17 +194,16 @@
         <platform>2</platform>
       </toolsSet>
       <compileType>
-        <cCompilerTool>
+        <cTool>
           <developmentMode>5</developmentMode>
-        </cCompilerTool>
-        <ccCompilerTool>
+        </cTool>
+        <ccTool>
           <developmentMode>5</developmentMode>
-        </ccCompilerTool>
+        </ccTool>
         <fortranCompilerTool>
           <developmentMode>5</developmentMode>
         </fortranCompilerTool>
         <linkerTool>
-          <output>Release/${PLATFORM}/libCore.so</output>
           <linkerLibItems>
             <linkerLibProjectItem>
               <makeArtifact PL="../../3Party/squirrel"
@@ -554,349 +222,19 @@
             <linkerOptionItem>-lX11</linkerOptionItem>
           </linkerLibItems>
         </linkerTool>
+        <requiredProjects>
+          <makeArtifact PL="../../3Party/squirrel"
+                        CT="2"
+                        CN="Release"
+                        AC="true"
+                        BL="true"
+                        WD="../../3Party/squirrel"
+                        BC="${MAKE}  -f Makefile CONF=Release"
+                        CC="${MAKE}  -f Makefile CONF=Release clean"
+                        OP="dist/Release/GNU-Linux-x86/libsquirrel.so">
+          </makeArtifact>
+        </requiredProjects>
       </compileType>
-      <item path=".dep.inc">
-        <itemTool>3</itemTool>
-      </item>
-      <item path="Core.h">
-        <itemTool>3</itemTool>
-      </item>
-      <item path="Entity/BehaviourComponent.cpp">
-        <itemTool>1</itemTool>
-      </item>
-      <item path="Entity/BehaviourComponent.h">
-        <itemTool>3</itemTool>
-      </item>
-      <item path="Entity/Component.cpp">
-        <itemTool>1</itemTool>
-      </item>
-      <item path="Entity/Component.h">
-        <itemTool>3</itemTool>
-      </item>
-      <item path="Entity/Entity.cpp">
-        <itemTool>1</itemTool>
-      </item>
-      <item path="Entity/Entity.h">
-        <itemTool>3</itemTool>
-      </item>
-      <item path="Entity/Pch.h">
-        <itemTool>3</itemTool>
-      </item>
-      <item path="Math/BasicFunction.h">
-        <itemTool>3</itemTool>
-      </item>
-      <item path="Math/IncludeAll.h">
-        <itemTool>3</itemTool>
-      </item>
-      <item path="Math/Intersection.cpp">
-        <itemTool>1</itemTool>
-      </item>
-      <item path="Math/Intersection.h">
-        <itemTool>3</itemTool>
-      </item>
-      <item path="Math/Magnitude.h">
-        <itemTool>3</itemTool>
-      </item>
-      <item path="Math/Mat33.h">
-        <itemTool>3</itemTool>
-      </item>
-      <item path="Math/Mat33.inl">
-        <itemTool>3</itemTool>
-      </item>
-      <item path="Math/Mat44.h">
-        <itemTool>3</itemTool>
-      </item>
-      <item path="Math/Mat44.inl">
-        <itemTool>3</itemTool>
-      </item>
-      <item path="Math/Pch.h">
-        <itemTool>3</itemTool>
-      </item>
-      <item path="Math/Plane.h">
-        <itemTool>3</itemTool>
-      </item>
-      <item path="Math/Quaternion.h">
-        <itemTool>3</itemTool>
-      </item>
-      <item path="Math/Quaternion.inl">
-        <itemTool>3</itemTool>
-      </item>
-      <item path="Math/Ray.h">
-        <itemTool>3</itemTool>
-      </item>
-      <item path="Math/SrtTransform.cpp">
-        <itemTool>1</itemTool>
-      </item>
-      <item path="Math/SrtTransform.h">
-        <itemTool>3</itemTool>
-      </item>
-      <item path="Math/Tuple.h">
-        <itemTool>3</itemTool>
-      </item>
-      <item path="Math/Vec2.h">
-        <itemTool>3</itemTool>
-      </item>
-      <item path="Math/Vec2.inl">
-        <itemTool>3</itemTool>
-      </item>
-      <item path="Math/Vec3.h">
-        <itemTool>3</itemTool>
-      </item>
-      <item path="Math/Vec3.inl">
-        <itemTool>3</itemTool>
-      </item>
-      <item path="Math/Vec4.h">
-        <itemTool>3</itemTool>
-      </item>
-      <item path="Pch.h">
-        <itemTool>3</itemTool>
-      </item>
-      <item path="ShareLib.h">
-        <itemTool>3</itemTool>
-      </item>
-      <item path="System/Array.h">
-        <itemTool>3</itemTool>
-      </item>
-      <item path="System/Atomic.h">
-        <itemTool>3</itemTool>
-      </item>
-      <item path="System/CallstackProfiler.cpp">
-        <itemTool>1</itemTool>
-      </item>
-      <item path="System/CallstackProfiler.h">
-        <itemTool>3</itemTool>
-      </item>
-      <item path="System/CondVar.cpp">
-        <itemTool>1</itemTool>
-      </item>
-      <item path="System/CondVar.h">
-        <itemTool>3</itemTool>
-      </item>
-      <item path="System/CpuProfiler.cpp">
-        <itemTool>1</itemTool>
-      </item>
-      <item path="System/CpuProfiler.h">
-        <itemTool>3</itemTool>
-      </item>
-      <item path="System/ErrorCode.cpp">
-        <itemTool>1</itemTool>
-      </item>
-      <item path="System/ErrorCode.h">
-        <itemTool>3</itemTool>
-      </item>
-      <item path="System/Exception.cpp">
-        <itemTool>1</itemTool>
-      </item>
-      <item path="System/Exception.h">
-        <itemTool>3</itemTool>
-      </item>
-      <item path="System/FileSystem.h">
-        <itemTool>3</itemTool>
-      </item>
-      <item path="System/FileSystemCollection.cpp">
-        <itemTool>1</itemTool>
-      </item>
-      <item path="System/FileSystemCollection.h">
-        <itemTool>3</itemTool>
-      </item>
-      <item path="System/FunctionPatcher.inc">
-        <itemTool>3</itemTool>
-      </item>
-      <item path="System/IncludeAll.h">
-        <itemTool>3</itemTool>
-      </item>
-      <item path="System/IntrusivePtr.h">
-        <itemTool>3</itemTool>
-      </item>
-      <item path="System/LinkList.cpp">
-        <itemTool>1</itemTool>
-      </item>
-      <item path="System/LinkList.h">
-        <itemTool>3</itemTool>
-      </item>
-      <item path="System/Log.cpp">
-        <itemTool>1</itemTool>
-      </item>
-      <item path="System/Log.h">
-        <itemTool>3</itemTool>
-      </item>
-      <item path="System/Macros.h">
-        <itemTool>3</itemTool>
-      </item>
-      <item path="System/Map.cpp">
-        <itemTool>1</itemTool>
-      </item>
-      <item path="System/Map.h">
-        <itemTool>3</itemTool>
-      </item>
-      <item path="System/MemoryProfiler.cpp">
-        <itemTool>1</itemTool>
-      </item>
-      <item path="System/MemoryProfiler.h">
-        <itemTool>3</itemTool>
-      </item>
-      <item path="System/Mutex.cpp">
-        <itemTool>1</itemTool>
-      </item>
-      <item path="System/Mutex.h">
-        <itemTool>3</itemTool>
-      </item>
-      <item path="System/NonCopyable.h">
-        <itemTool>3</itemTool>
-      </item>
-      <item path="System/Path.cpp">
-        <itemTool>1</itemTool>
-      </item>
-      <item path="System/Path.h">
-        <itemTool>3</itemTool>
-      </item>
-      <item path="System/Pch.h">
-        <itemTool>3</itemTool>
-      </item>
-      <item path="System/Platform.h">
-        <itemTool>3</itemTool>
-      </item>
-      <item path="System/PlatformInclude.h">
-        <itemTool>3</itemTool>
-      </item>
-      <item path="System/PlatformIncludeFwd.h">
-        <itemTool>3</itemTool>
-      </item>
-      <item path="System/PtrVector.h">
-        <itemTool>3</itemTool>
-      </item>
-      <item path="System/RawFileSystem.cpp">
-        <itemTool>1</itemTool>
-      </item>
-      <item path="System/RawFileSystem.h">
-        <itemTool>3</itemTool>
-      </item>
-      <item path="System/RawFileSystemMonitor.cpp">
-        <itemTool>1</itemTool>
-      </item>
-      <item path="System/RawFileSystemMonitor.h">
-        <itemTool>3</itemTool>
-      </item>
-      <item path="System/Resource.cpp">
-        <itemTool>1</itemTool>
-      </item>
-      <item path="System/Resource.h">
-        <itemTool>3</itemTool>
-      </item>
-      <item path="System/ResourceLoader.h">
-        <itemTool>3</itemTool>
-      </item>
-      <item path="System/ResourceManager.cpp">
-        <itemTool>1</itemTool>
-      </item>
-      <item path="System/ResourceManager.h">
-        <itemTool>3</itemTool>
-      </item>
-      <item path="System/ScriptOwnershipHandle.cpp">
-        <itemTool>1</itemTool>
-      </item>
-      <item path="System/ScriptOwnershipHandle.h">
-        <itemTool>3</itemTool>
-      </item>
-      <item path="System/SharedPtr.h">
-        <itemTool>3</itemTool>
-      </item>
-      <item path="System/StaticAssert.h">
-        <itemTool>3</itemTool>
-      </item>
-      <item path="System/StrUtility.cpp">
-        <itemTool>1</itemTool>
-      </item>
-      <item path="System/StrUtility.h">
-        <itemTool>3</itemTool>
-      </item>
-      <item path="System/Stream.cpp">
-        <itemTool>1</itemTool>
-      </item>
-      <item path="System/Stream.h">
-        <itemTool>3</itemTool>
-      </item>
-      <item path="System/TaskPool.cpp">
-        <itemTool>1</itemTool>
-      </item>
-      <item path="System/TaskPool.h">
-        <itemTool>3</itemTool>
-      </item>
-      <item path="System/Thread.cpp">
-        <itemTool>1</itemTool>
-      </item>
-      <item path="System/Thread.h">
-        <itemTool>3</itemTool>
-      </item>
-      <item path="System/ThreadPool.cpp">
-        <itemTool>1</itemTool>
-      </item>
-      <item path="System/ThreadPool.h">
-        <itemTool>3</itemTool>
-      </item>
-      <item path="System/Timer.cpp">
-        <itemTool>1</itemTool>
-      </item>
-      <item path="System/Timer.h">
-        <itemTool>3</itemTool>
-      </item>
-      <item path="System/TypeTrait.h">
-        <itemTool>3</itemTool>
-      </item>
-      <item path="System/UserData.h">
-        <itemTool>3</itemTool>
-      </item>
-      <item path="System/Utility.cpp">
-        <itemTool>1</itemTool>
-      </item>
-      <item path="System/Utility.h">
-        <itemTool>3</itemTool>
-      </item>
-      <item path="System/WeakPtr.h">
-        <itemTool>3</itemTool>
-      </item>
-      <item path="System/Window.Win.inc">
-        <itemTool>3</itemTool>
-      </item>
-      <item path="System/Window.Win.inl">
-        <itemTool>3</itemTool>
-      </item>
-      <item path="System/Window.X11.inc">
-        <itemTool>3</itemTool>
-      </item>
-      <item path="System/Window.X11.inl">
-        <itemTool>3</itemTool>
-      </item>
-      <item path="System/Window.cpp">
-        <itemTool>1</itemTool>
-      </item>
-      <item path="System/Window.h">
-        <itemTool>3</itemTool>
-      </item>
-      <item path="System/Window.inl">
-        <itemTool>3</itemTool>
-      </item>
-      <item path="System/WindowEvent.h">
-        <itemTool>3</itemTool>
-      </item>
-      <item path="System/XmlParser.cpp">
-        <itemTool>1</itemTool>
-      </item>
-      <item path="System/XmlParser.h">
-        <itemTool>3</itemTool>
-      </item>
-      <item path="System/ZipFileSystem.cpp">
-        <itemTool>1</itemTool>
-      </item>
-      <item path="System/ZipFileSystem.h">
-        <itemTool>3</itemTool>
-      </item>
-      <item path="System/ZipFileSystem.inc">
-        <itemTool>3</itemTool>
-      </item>
-      <item path="System/dbgint.h">
-        <itemTool>3</itemTool>
-      </item>
     </conf>
   </confs>
 </configurationDescriptor>

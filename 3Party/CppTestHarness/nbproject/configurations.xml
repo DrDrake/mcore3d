@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<configurationDescriptor version="51">
+<configurationDescriptor version="62">
   <logicalFolder name="root" displayName="root" projectFiles="true">
     <logicalFolder name="CppTestHarness"
                    displayName="CppTestHarness"
@@ -47,89 +47,10 @@
       </toolsSet>
       <compileType>
         <linkerTool>
-          <output>Debug/${PLATFORM}/libCppTestHarness.so</output>
           <linkerLibItems>
           </linkerLibItems>
         </linkerTool>
       </compileType>
-      <item path="AssertException.cpp">
-        <itemTool>1</itemTool>
-      </item>
-      <item path="AssertException.h">
-        <itemTool>3</itemTool>
-      </item>
-      <item path="CheckMacros.h">
-        <itemTool>3</itemTool>
-      </item>
-      <item path="Checks.cpp">
-        <itemTool>1</itemTool>
-      </item>
-      <item path="Checks.h">
-        <itemTool>3</itemTool>
-      </item>
-      <item path="Config.h">
-        <itemTool>3</itemTool>
-      </item>
-      <item path="CppTestHarness.h">
-        <itemTool>3</itemTool>
-      </item>
-      <item path="HTMLTestReporter.cpp">
-        <itemTool>1</itemTool>
-      </item>
-      <item path="HTMLTestReporter.h">
-        <itemTool>3</itemTool>
-      </item>
-      <item path="PrintfTestReporter.cpp">
-        <itemTool>1</itemTool>
-      </item>
-      <item path="PrintfTestReporter.h">
-        <itemTool>3</itemTool>
-      </item>
-      <item path="ReportAssert.cpp">
-        <itemTool>1</itemTool>
-      </item>
-      <item path="ReportAssert.h">
-        <itemTool>3</itemTool>
-      </item>
-      <item path="SignalTranslator.h">
-        <itemTool>3</itemTool>
-      </item>
-      <item path="Test.cpp">
-        <itemTool>1</itemTool>
-      </item>
-      <item path="Test.h">
-        <itemTool>3</itemTool>
-      </item>
-      <item path="TestLauncher.cpp">
-        <itemTool>1</itemTool>
-      </item>
-      <item path="TestLauncher.h">
-        <itemTool>3</itemTool>
-      </item>
-      <item path="TestMacros.h">
-        <itemTool>3</itemTool>
-      </item>
-      <item path="TestReporter.cpp">
-        <itemTool>1</itemTool>
-      </item>
-      <item path="TestReporter.h">
-        <itemTool>3</itemTool>
-      </item>
-      <item path="TestResults.cpp">
-        <itemTool>1</itemTool>
-      </item>
-      <item path="TestResults.h">
-        <itemTool>3</itemTool>
-      </item>
-      <item path="TestRunner.cpp">
-        <itemTool>1</itemTool>
-      </item>
-      <item path="TestRunner.h">
-        <itemTool>3</itemTool>
-      </item>
-      <item path="TypedTestLauncher.h">
-        <itemTool>3</itemTool>
-      </item>
     </conf>
     <conf name="Release" type="2">
       <toolsSet>
@@ -138,99 +59,20 @@
         <platform>2</platform>
       </toolsSet>
       <compileType>
-        <cCompilerTool>
+        <cTool>
           <developmentMode>5</developmentMode>
-        </cCompilerTool>
-        <ccCompilerTool>
+        </cTool>
+        <ccTool>
           <developmentMode>5</developmentMode>
-        </ccCompilerTool>
+        </ccTool>
         <fortranCompilerTool>
           <developmentMode>5</developmentMode>
         </fortranCompilerTool>
         <linkerTool>
-          <output>Release/${PLATFORM}/libCppTestHarness.so</output>
           <linkerLibItems>
           </linkerLibItems>
         </linkerTool>
       </compileType>
-      <item path="AssertException.cpp">
-        <itemTool>1</itemTool>
-      </item>
-      <item path="AssertException.h">
-        <itemTool>3</itemTool>
-      </item>
-      <item path="CheckMacros.h">
-        <itemTool>3</itemTool>
-      </item>
-      <item path="Checks.cpp">
-        <itemTool>1</itemTool>
-      </item>
-      <item path="Checks.h">
-        <itemTool>3</itemTool>
-      </item>
-      <item path="Config.h">
-        <itemTool>3</itemTool>
-      </item>
-      <item path="CppTestHarness.h">
-        <itemTool>3</itemTool>
-      </item>
-      <item path="HTMLTestReporter.cpp">
-        <itemTool>1</itemTool>
-      </item>
-      <item path="HTMLTestReporter.h">
-        <itemTool>3</itemTool>
-      </item>
-      <item path="PrintfTestReporter.cpp">
-        <itemTool>1</itemTool>
-      </item>
-      <item path="PrintfTestReporter.h">
-        <itemTool>3</itemTool>
-      </item>
-      <item path="ReportAssert.cpp">
-        <itemTool>1</itemTool>
-      </item>
-      <item path="ReportAssert.h">
-        <itemTool>3</itemTool>
-      </item>
-      <item path="SignalTranslator.h">
-        <itemTool>3</itemTool>
-      </item>
-      <item path="Test.cpp">
-        <itemTool>1</itemTool>
-      </item>
-      <item path="Test.h">
-        <itemTool>3</itemTool>
-      </item>
-      <item path="TestLauncher.cpp">
-        <itemTool>1</itemTool>
-      </item>
-      <item path="TestLauncher.h">
-        <itemTool>3</itemTool>
-      </item>
-      <item path="TestMacros.h">
-        <itemTool>3</itemTool>
-      </item>
-      <item path="TestReporter.cpp">
-        <itemTool>1</itemTool>
-      </item>
-      <item path="TestReporter.h">
-        <itemTool>3</itemTool>
-      </item>
-      <item path="TestResults.cpp">
-        <itemTool>1</itemTool>
-      </item>
-      <item path="TestResults.h">
-        <itemTool>3</itemTool>
-      </item>
-      <item path="TestRunner.cpp">
-        <itemTool>1</itemTool>
-      </item>
-      <item path="TestRunner.h">
-        <itemTool>3</itemTool>
-      </item>
-      <item path="TypedTestLauncher.h">
-        <itemTool>3</itemTool>
-      </item>
     </conf>
   </confs>
 </configurationDescriptor>

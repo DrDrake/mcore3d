@@ -6,10 +6,12 @@
 
 # Macros
 TOP=`pwd`
-PLATFORM=GNU-Linux-x86
-TMPDIR=build/Debug/${PLATFORM}/tmp-packaging
+CND_PLATFORM=GNU-Linux-x86
+CND_CONF=Debug
+CND_DISTDIR=dist
+TMPDIR=build/${CND_CONF}/${CND_PLATFORM}/tmp-packaging
 TMPDIRNAME=tmp-packaging
-OUTPUT_PATH=Debug/${PLATFORM}/libCppTestHarness.so
+OUTPUT_PATH=${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/libCppTestHarness.so
 OUTPUT_BASENAME=libCppTestHarness.so
 PACKAGE_TOP_DIR=libCppTestHarness.so/
 
@@ -50,7 +52,7 @@ function copyFileToTmpDir
 
 # Setup
 cd "${TOP}"
-mkdir -p dist/Debug/${PLATFORM}/package
+mkdir -p ${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/package
 rm -rf ${TMPDIR}
 mkdir -p ${TMPDIR}
 
@@ -62,9 +64,9 @@ copyFileToTmpDir "${OUTPUT_PATH}" "${TMPDIR}/${PACKAGE_TOP_DIR}lib/${OUTPUT_BASE
 
 # Generate tar file
 cd "${TOP}"
-rm -f dist/Debug/${PLATFORM}/package/libCppTestHarness.so.tar
+rm -f ${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/package/libCppTestHarness.so.tar
 cd ${TMPDIR}
-tar -vcf ../../../../dist/Debug/${PLATFORM}/package/libCppTestHarness.so.tar *
+tar -vcf ../../../../${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/package/libCppTestHarness.so.tar *
 checkReturnCode
 
 # Cleanup

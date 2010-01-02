@@ -245,6 +245,24 @@ MemoryProfilerNode::~MemoryProfilerNode()
 		delete mutex;
 }
 
+CallstackNode* MemoryProfilerNode::createNode(const char name[], CallstackNode* parent)
+{
+	MemoryProfilerNode* parentNode = static_cast<MemoryProfilerNode*>(parent);
+	std::auto_ptr<MemoryProfilerNode> n(new MemoryProfilerNode(name, parent));
+
+	// Every thread should have it's own root node which owns a mutex
+	if(!parentNode || parentNode->mutex == nullptr) {
+		n->mutex = new RecursiveMutex();
+		n->mIsMutexOwner = true;
+	}
+	else {
+		n->mutex = parentNode->mutex;
+		n->mIsMutexOwner = false;
+	}
+
+	return n.release();
+}
+
 void MemoryProfilerNode::begin()
 {
 	MCD_ASSERT(mutex->isLocked());
@@ -570,6 +588,13 @@ MemoryProfilerNode::MemoryProfilerNode(const char name[], CallstackNode* parent)
 	: CallstackNode(name, parent)
 {}
 
+MemoryProfilerNode::~MemoryProfilerNode()
+{}
+
+CallstackNode* MemoryProfilerNode::createNode(const char name[], CallstackNode* parent) {
+	return nullptr;
+}
+
 void MemoryProfilerNode::begin() {}
 
 MemoryProfiler::MemoryProfiler() {}
@@ -602,25 +627,7 @@ void MemoryProfiler::setEnable(bool flag) { (void)flag; }
 
 #endif	// _MSC_VER
 
-CallstackNode* MemoryProfilerNode::createNode(const char name[], CallstackNode* parent)
-{
-	MemoryProfilerNode* parentNode = static_cast<MemoryProfilerNode*>(parent);
-	std::auto_ptr<MemoryProfilerNode> n(new MemoryProfilerNode(name, parent));
-
-	// Every thread should have it's own root node which owns a mutex
-	if(!parentNode || parentNode->mutex == nullptr) {
-		n->mutex = new RecursiveMutex();
-		n->mIsMutexOwner = true;
-	}
-	else {
-		n->mutex = parentNode->mutex;
-		n->mIsMutexOwner = false;
-	}
-
-	return n.release();
-}
-
-MemoryProfiler& MemoryProfiler::singleton()
+MCD::MemoryProfiler& MCD::MemoryProfiler::singleton()
 {
 	static MemoryProfiler instance;
 	return instance;

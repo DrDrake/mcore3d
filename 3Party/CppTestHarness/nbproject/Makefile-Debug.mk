@@ -16,15 +16,18 @@ CC=gcc
 CCC=g++
 CXX=g++
 FC=
+AS=as
 
 # Macros
-PLATFORM=GNU-Linux-x86
+CND_PLATFORM=GNU-Linux-x86
+CND_CONF=Debug
+CND_DISTDIR=dist
 
 # Include project Makefile
 include Makefile
 
 # Object Directory
-OBJECTDIR=build/Debug/${PLATFORM}
+OBJECTDIR=build/${CND_CONF}/${CND_PLATFORM}
 
 # Object Files
 OBJECTFILES= \
@@ -49,63 +52,66 @@ CXXFLAGS=
 # Fortran Compiler Flags
 FFLAGS=
 
+# Assembler Flags
+ASFLAGS=
+
 # Link Libraries and Options
 LDLIBSOPTIONS=
 
 # Build Targets
 .build-conf: ${BUILD_SUBPROJECTS}
-	${MAKE}  -f nbproject/Makefile-Debug.mk Debug/${PLATFORM}/libCppTestHarness.so
+	${MAKE}  -f nbproject/Makefile-Debug.mk dist/Debug/GNU-Linux-x86/libCppTestHarness.so
 
-Debug/${PLATFORM}/libCppTestHarness.so: ${OBJECTFILES}
-	${MKDIR} -p Debug/${PLATFORM}
-	${LINK.cc} -shared -o Debug/${PLATFORM}/libCppTestHarness.so -fPIC ${OBJECTFILES} ${LDLIBSOPTIONS} 
+dist/Debug/GNU-Linux-x86/libCppTestHarness.so: ${OBJECTFILES}
+	${MKDIR} -p dist/Debug/GNU-Linux-x86
+	${LINK.cc} -shared -o ${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/libCppTestHarness.so -fPIC ${OBJECTFILES} ${LDLIBSOPTIONS} 
 
-${OBJECTDIR}/TestLauncher.o: TestLauncher.cpp 
+${OBJECTDIR}/TestLauncher.o: nbproject/Makefile-${CND_CONF}.mk TestLauncher.cpp 
 	${MKDIR} -p ${OBJECTDIR}
 	${RM} $@.d
 	$(COMPILE.cc) -g -fPIC  -MMD -MP -MF $@.d -o ${OBJECTDIR}/TestLauncher.o TestLauncher.cpp
 
-${OBJECTDIR}/PrintfTestReporter.o: PrintfTestReporter.cpp 
+${OBJECTDIR}/PrintfTestReporter.o: nbproject/Makefile-${CND_CONF}.mk PrintfTestReporter.cpp 
 	${MKDIR} -p ${OBJECTDIR}
 	${RM} $@.d
 	$(COMPILE.cc) -g -fPIC  -MMD -MP -MF $@.d -o ${OBJECTDIR}/PrintfTestReporter.o PrintfTestReporter.cpp
 
-${OBJECTDIR}/Test.o: Test.cpp 
+${OBJECTDIR}/Test.o: nbproject/Makefile-${CND_CONF}.mk Test.cpp 
 	${MKDIR} -p ${OBJECTDIR}
 	${RM} $@.d
 	$(COMPILE.cc) -g -fPIC  -MMD -MP -MF $@.d -o ${OBJECTDIR}/Test.o Test.cpp
 
-${OBJECTDIR}/AssertException.o: AssertException.cpp 
+${OBJECTDIR}/AssertException.o: nbproject/Makefile-${CND_CONF}.mk AssertException.cpp 
 	${MKDIR} -p ${OBJECTDIR}
 	${RM} $@.d
 	$(COMPILE.cc) -g -fPIC  -MMD -MP -MF $@.d -o ${OBJECTDIR}/AssertException.o AssertException.cpp
 
-${OBJECTDIR}/ReportAssert.o: ReportAssert.cpp 
+${OBJECTDIR}/ReportAssert.o: nbproject/Makefile-${CND_CONF}.mk ReportAssert.cpp 
 	${MKDIR} -p ${OBJECTDIR}
 	${RM} $@.d
 	$(COMPILE.cc) -g -fPIC  -MMD -MP -MF $@.d -o ${OBJECTDIR}/ReportAssert.o ReportAssert.cpp
 
-${OBJECTDIR}/TestRunner.o: TestRunner.cpp 
+${OBJECTDIR}/TestRunner.o: nbproject/Makefile-${CND_CONF}.mk TestRunner.cpp 
 	${MKDIR} -p ${OBJECTDIR}
 	${RM} $@.d
 	$(COMPILE.cc) -g -fPIC  -MMD -MP -MF $@.d -o ${OBJECTDIR}/TestRunner.o TestRunner.cpp
 
-${OBJECTDIR}/TestResults.o: TestResults.cpp 
+${OBJECTDIR}/TestResults.o: nbproject/Makefile-${CND_CONF}.mk TestResults.cpp 
 	${MKDIR} -p ${OBJECTDIR}
 	${RM} $@.d
 	$(COMPILE.cc) -g -fPIC  -MMD -MP -MF $@.d -o ${OBJECTDIR}/TestResults.o TestResults.cpp
 
-${OBJECTDIR}/TestReporter.o: TestReporter.cpp 
+${OBJECTDIR}/TestReporter.o: nbproject/Makefile-${CND_CONF}.mk TestReporter.cpp 
 	${MKDIR} -p ${OBJECTDIR}
 	${RM} $@.d
 	$(COMPILE.cc) -g -fPIC  -MMD -MP -MF $@.d -o ${OBJECTDIR}/TestReporter.o TestReporter.cpp
 
-${OBJECTDIR}/Checks.o: Checks.cpp 
+${OBJECTDIR}/Checks.o: nbproject/Makefile-${CND_CONF}.mk Checks.cpp 
 	${MKDIR} -p ${OBJECTDIR}
 	${RM} $@.d
 	$(COMPILE.cc) -g -fPIC  -MMD -MP -MF $@.d -o ${OBJECTDIR}/Checks.o Checks.cpp
 
-${OBJECTDIR}/HTMLTestReporter.o: HTMLTestReporter.cpp 
+${OBJECTDIR}/HTMLTestReporter.o: nbproject/Makefile-${CND_CONF}.mk HTMLTestReporter.cpp 
 	${MKDIR} -p ${OBJECTDIR}
 	${RM} $@.d
 	$(COMPILE.cc) -g -fPIC  -MMD -MP -MF $@.d -o ${OBJECTDIR}/HTMLTestReporter.o HTMLTestReporter.cpp
@@ -116,7 +122,7 @@ ${OBJECTDIR}/HTMLTestReporter.o: HTMLTestReporter.cpp
 # Clean Targets
 .clean-conf:
 	${RM} -r build/Debug
-	${RM} Debug/${PLATFORM}/libCppTestHarness.so
+	${RM} dist/Debug/GNU-Linux-x86/libCppTestHarness.so
 
 # Subprojects
 .clean-subprojects:

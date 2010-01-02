@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<configurationDescriptor version="51">
+<configurationDescriptor version="62">
   <logicalFolder name="root" displayName="root" projectFiles="true">
     <logicalFolder name="squirrel" displayName="squirrel" projectFiles="true">
       <logicalFolder name="sqstdlib" displayName="sqstdlib" projectFiles="true">
@@ -51,7 +51,6 @@
       <itemPath>sqstdstring.h</itemPath>
       <itemPath>sqstdsystem.h</itemPath>
       <itemPath>squirrel.h</itemPath>
-      <itemPath>wcshelper.h</itemPath>
     </logicalFolder>
     <logicalFolder name="ExternalFiles"
                    displayName="Important Files"
@@ -73,144 +72,6 @@
           </linkerLibItems>
         </linkerTool>
       </compileType>
-      <item path="sqstdaux.h">
-        <itemTool>3</itemTool>
-      </item>
-      <item path="sqstdblob.h">
-        <itemTool>3</itemTool>
-      </item>
-      <item path="sqstdio.h">
-        <itemTool>3</itemTool>
-      </item>
-      <item path="sqstdlib/sqstdaux.cpp">
-        <itemTool>1</itemTool>
-      </item>
-      <item path="sqstdlib/sqstdblob.cpp">
-        <itemTool>1</itemTool>
-      </item>
-      <item path="sqstdlib/sqstdblobimpl.h">
-        <itemTool>3</itemTool>
-      </item>
-      <item path="sqstdlib/sqstdio.cpp">
-        <itemTool>1</itemTool>
-      </item>
-      <item path="sqstdlib/sqstdmath.cpp">
-        <itemTool>1</itemTool>
-      </item>
-      <item path="sqstdlib/sqstdrex.cpp">
-        <itemTool>1</itemTool>
-      </item>
-      <item path="sqstdlib/sqstdstream.cpp">
-        <itemTool>1</itemTool>
-      </item>
-      <item path="sqstdlib/sqstdstream.h">
-        <itemTool>3</itemTool>
-      </item>
-      <item path="sqstdlib/sqstdstring.cpp">
-        <itemTool>1</itemTool>
-      </item>
-      <item path="sqstdlib/sqstdsystem.cpp">
-        <itemTool>1</itemTool>
-      </item>
-      <item path="sqstdmath.h">
-        <itemTool>3</itemTool>
-      </item>
-      <item path="sqstdstring.h">
-        <itemTool>3</itemTool>
-      </item>
-      <item path="sqstdsystem.h">
-        <itemTool>3</itemTool>
-      </item>
-      <item path="squirrel.h">
-        <itemTool>3</itemTool>
-      </item>
-      <item path="squirrel/sqapi.cpp">
-        <itemTool>1</itemTool>
-      </item>
-      <item path="squirrel/sqarray.h">
-        <itemTool>3</itemTool>
-      </item>
-      <item path="squirrel/sqbaselib.cpp">
-        <itemTool>1</itemTool>
-      </item>
-      <item path="squirrel/sqclass.cpp">
-        <itemTool>1</itemTool>
-      </item>
-      <item path="squirrel/sqclass.h">
-        <itemTool>3</itemTool>
-      </item>
-      <item path="squirrel/sqclosure.h">
-        <itemTool>3</itemTool>
-      </item>
-      <item path="squirrel/sqcompiler.cpp">
-        <itemTool>1</itemTool>
-      </item>
-      <item path="squirrel/sqcompiler.h">
-        <itemTool>3</itemTool>
-      </item>
-      <item path="squirrel/sqdebug.cpp">
-        <itemTool>1</itemTool>
-      </item>
-      <item path="squirrel/sqfuncproto.h">
-        <itemTool>3</itemTool>
-      </item>
-      <item path="squirrel/sqfuncstate.cpp">
-        <itemTool>1</itemTool>
-      </item>
-      <item path="squirrel/sqfuncstate.h">
-        <itemTool>3</itemTool>
-      </item>
-      <item path="squirrel/sqlexer.cpp">
-        <itemTool>1</itemTool>
-      </item>
-      <item path="squirrel/sqlexer.h">
-        <itemTool>3</itemTool>
-      </item>
-      <item path="squirrel/sqmem.cpp">
-        <itemTool>1</itemTool>
-      </item>
-      <item path="squirrel/sqobject.cpp">
-        <itemTool>1</itemTool>
-      </item>
-      <item path="squirrel/sqobject.h">
-        <itemTool>3</itemTool>
-      </item>
-      <item path="squirrel/sqopcodes.h">
-        <itemTool>3</itemTool>
-      </item>
-      <item path="squirrel/sqpcheader.h">
-        <itemTool>3</itemTool>
-      </item>
-      <item path="squirrel/sqstate.cpp">
-        <itemTool>1</itemTool>
-      </item>
-      <item path="squirrel/sqstate.h">
-        <itemTool>3</itemTool>
-      </item>
-      <item path="squirrel/sqstring.h">
-        <itemTool>3</itemTool>
-      </item>
-      <item path="squirrel/sqtable.cpp">
-        <itemTool>1</itemTool>
-      </item>
-      <item path="squirrel/sqtable.h">
-        <itemTool>3</itemTool>
-      </item>
-      <item path="squirrel/squserdata.h">
-        <itemTool>3</itemTool>
-      </item>
-      <item path="squirrel/squtils.h">
-        <itemTool>3</itemTool>
-      </item>
-      <item path="squirrel/sqvm.cpp">
-        <itemTool>1</itemTool>
-      </item>
-      <item path="squirrel/sqvm.h">
-        <itemTool>3</itemTool>
-      </item>
-      <item path="wcshelper.h">
-        <itemTool>3</itemTool>
-      </item>
     </conf>
     <conf name="Release" type="2">
       <toolsSet>
@@ -219,12 +80,12 @@
         <platform>2</platform>
       </toolsSet>
       <compileType>
-        <cCompilerTool>
+        <cTool>
           <developmentMode>5</developmentMode>
-        </cCompilerTool>
-        <ccCompilerTool>
+        </cTool>
+        <ccTool>
           <developmentMode>5</developmentMode>
-        </ccCompilerTool>
+        </ccTool>
         <fortranCompilerTool>
           <developmentMode>5</developmentMode>
         </fortranCompilerTool>
@@ -233,144 +94,6 @@
           </linkerLibItems>
         </linkerTool>
       </compileType>
-      <item path="sqstdaux.h">
-        <itemTool>3</itemTool>
-      </item>
-      <item path="sqstdblob.h">
-        <itemTool>3</itemTool>
-      </item>
-      <item path="sqstdio.h">
-        <itemTool>3</itemTool>
-      </item>
-      <item path="sqstdlib/sqstdaux.cpp">
-        <itemTool>1</itemTool>
-      </item>
-      <item path="sqstdlib/sqstdblob.cpp">
-        <itemTool>1</itemTool>
-      </item>
-      <item path="sqstdlib/sqstdblobimpl.h">
-        <itemTool>3</itemTool>
-      </item>
-      <item path="sqstdlib/sqstdio.cpp">
-        <itemTool>1</itemTool>
-      </item>
-      <item path="sqstdlib/sqstdmath.cpp">
-        <itemTool>1</itemTool>
-      </item>
-      <item path="sqstdlib/sqstdrex.cpp">
-        <itemTool>1</itemTool>
-      </item>
-      <item path="sqstdlib/sqstdstream.cpp">
-        <itemTool>1</itemTool>
-      </item>
-      <item path="sqstdlib/sqstdstream.h">
-        <itemTool>3</itemTool>
-      </item>
-      <item path="sqstdlib/sqstdstring.cpp">
-        <itemTool>1</itemTool>
-      </item>
-      <item path="sqstdlib/sqstdsystem.cpp">
-        <itemTool>1</itemTool>
-      </item>
-      <item path="sqstdmath.h">
-        <itemTool>3</itemTool>
-      </item>
-      <item path="sqstdstring.h">
-        <itemTool>3</itemTool>
-      </item>
-      <item path="sqstdsystem.h">
-        <itemTool>3</itemTool>
-      </item>
-      <item path="squirrel.h">
-        <itemTool>3</itemTool>
-      </item>
-      <item path="squirrel/sqapi.cpp">
-        <itemTool>1</itemTool>
-      </item>
-      <item path="squirrel/sqarray.h">
-        <itemTool>3</itemTool>
-      </item>
-      <item path="squirrel/sqbaselib.cpp">
-        <itemTool>1</itemTool>
-      </item>
-      <item path="squirrel/sqclass.cpp">
-        <itemTool>1</itemTool>
-      </item>
-      <item path="squirrel/sqclass.h">
-        <itemTool>3</itemTool>
-      </item>
-      <item path="squirrel/sqclosure.h">
-        <itemTool>3</itemTool>
-      </item>
-      <item path="squirrel/sqcompiler.cpp">
-        <itemTool>1</itemTool>
-      </item>
-      <item path="squirrel/sqcompiler.h">
-        <itemTool>3</itemTool>
-      </item>
-      <item path="squirrel/sqdebug.cpp">
-        <itemTool>1</itemTool>
-      </item>
-      <item path="squirrel/sqfuncproto.h">
-        <itemTool>3</itemTool>
-      </item>
-      <item path="squirrel/sqfuncstate.cpp">
-        <itemTool>1</itemTool>
-      </item>
-      <item path="squirrel/sqfuncstate.h">
-        <itemTool>3</itemTool>
-      </item>
-      <item path="squirrel/sqlexer.cpp">
-        <itemTool>1</itemTool>
-      </item>
-      <item path="squirrel/sqlexer.h">
-        <itemTool>3</itemTool>
-      </item>
-      <item path="squirrel/sqmem.cpp">
-        <itemTool>1</itemTool>
-      </item>
-      <item path="squirrel/sqobject.cpp">
-        <itemTool>1</itemTool>
-      </item>
-      <item path="squirrel/sqobject.h">
-        <itemTool>3</itemTool>
-      </item>
-      <item path="squirrel/sqopcodes.h">
-        <itemTool>3</itemTool>
-      </item>
-      <item path="squirrel/sqpcheader.h">
-        <itemTool>3</itemTool>
-      </item>
-      <item path="squirrel/sqstate.cpp">
-        <itemTool>1</itemTool>
-      </item>
-      <item path="squirrel/sqstate.h">
-        <itemTool>3</itemTool>
-      </item>
-      <item path="squirrel/sqstring.h">
-        <itemTool>3</itemTool>
-      </item>
-      <item path="squirrel/sqtable.cpp">
-        <itemTool>1</itemTool>
-      </item>
-      <item path="squirrel/sqtable.h">
-        <itemTool>3</itemTool>
-      </item>
-      <item path="squirrel/squserdata.h">
-        <itemTool>3</itemTool>
-      </item>
-      <item path="squirrel/squtils.h">
-        <itemTool>3</itemTool>
-      </item>
-      <item path="squirrel/sqvm.cpp">
-        <itemTool>1</itemTool>
-      </item>
-      <item path="squirrel/sqvm.h">
-        <itemTool>3</itemTool>
-      </item>
-      <item path="wcshelper.h">
-        <itemTool>3</itemTool>
-      </item>
     </conf>
   </confs>
 </configurationDescriptor>

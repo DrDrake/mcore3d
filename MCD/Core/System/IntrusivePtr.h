@@ -185,7 +185,9 @@ public:
 	}
 
 	friend void intrusivePtrRelease(IntrusiveSharedObject* p) {
-		if(--(p->mRefCount) == 0)
+		// NOTE: Gcc4.2 failed to compile "--(p->mRefCount)" correctly.
+		p->mRefCount--;
+		if(p->mRefCount == 0)
 			delete p;
 	}
 

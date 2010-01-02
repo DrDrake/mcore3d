@@ -138,6 +138,7 @@ std::wstring& RawFileSystemMonitor::monitringPath() const
 #else
 
 RawFileSystemMonitor::RawFileSystemMonitor(const wchar_t* path, bool recursive)
+	: mImpl(*((Impl*)nullptr))
 {
 }
 

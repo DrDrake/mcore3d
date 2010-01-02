@@ -224,7 +224,11 @@ Path& Path::operator/=(const Path& rhs)
 
 int Path::compare(const Path& rhs) const
 {
+#ifdef MCD_WIN32
 	return wstrCaseCmp(mStr.c_str(), rhs.mStr.c_str());
+#else
+	return ::wcscmp(mStr.c_str(), rhs.mStr.c_str());
+#endif
 }
 
 Path Path::getCurrentPath()
