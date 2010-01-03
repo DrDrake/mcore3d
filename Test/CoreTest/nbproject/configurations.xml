@@ -87,12 +87,22 @@
                             WD="../../MCD/Core"
                             BC="${MAKE}  -f Makefile CONF=Debug"
                             CC="${MAKE}  -f Makefile CONF=Debug clean"
-                            OP="Debug/GNU-Linux-x86/libCore.so">
+                            OP="dist/Debug/GNU-Linux-x86/libCore.so">
               </makeArtifact>
             </linkerLibProjectItem>
           </linkerLibItems>
         </linkerTool>
         <requiredProjects>
+          <makeArtifact PL="../../3Party/CppTestHarness"
+                        CT="2"
+                        CN="Debug"
+                        AC="true"
+                        BL="true"
+                        WD="../../3Party/CppTestHarness"
+                        BC="${MAKE}  -f Makefile CONF=Debug"
+                        CC="${MAKE}  -f Makefile CONF=Debug clean"
+                        OP="dist/Debug/GNU-Linux-x86/libCppTestHarness.so">
+          </makeArtifact>
           <makeArtifact PL="../../MCD/Core"
                         CT="2"
                         CN="Debug"
@@ -101,7 +111,7 @@
                         WD="../../MCD/Core"
                         BC="${MAKE}  -f Makefile CONF=Debug"
                         CC="${MAKE}  -f Makefile CONF=Debug clean"
-                        OP="Debug/GNU-Linux-x86/libCore.so">
+                        OP="dist/Debug/GNU-Linux-x86/libCore.so">
           </makeArtifact>
         </requiredProjects>
       </compileType>
@@ -126,18 +136,6 @@
           <output>${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/coretest</output>
           <linkerLibItems>
             <linkerLibProjectItem>
-              <makeArtifact PL="../../MCD/Core"
-                            CT="2"
-                            CN="Release"
-                            AC="false"
-                            BL="true"
-                            WD="../../MCD/Core"
-                            BC="${MAKE}  -f Makefile CONF=Release"
-                            CC="${MAKE}  -f Makefile CONF=Release clean"
-                            OP="Release/GNU-Linux-x86/libCore.so">
-              </makeArtifact>
-            </linkerLibProjectItem>
-            <linkerLibProjectItem>
               <makeArtifact PL="../../3Party/CppTestHarness"
                             CT="2"
                             CN="Release"
@@ -149,19 +147,21 @@
                             OP="dist/Release/GNU-Linux-x86/libCppTestHarness.so">
               </makeArtifact>
             </linkerLibProjectItem>
+            <linkerLibProjectItem>
+              <makeArtifact PL="../../MCD/Core"
+                            CT="2"
+                            CN="Release"
+                            AC="false"
+                            BL="true"
+                            WD="../../MCD/Core"
+                            BC="${MAKE}  -f Makefile CONF=Release"
+                            CC="${MAKE}  -f Makefile CONF=Release clean"
+                            OP="dist/Release/GNU-Linux-x86/libCore.so">
+              </makeArtifact>
+            </linkerLibProjectItem>
           </linkerLibItems>
         </linkerTool>
         <requiredProjects>
-          <makeArtifact PL="../../MCD/Core"
-                        CT="2"
-                        CN="Release"
-                        AC="false"
-                        BL="true"
-                        WD="../../MCD/Core"
-                        BC="${MAKE}  -f Makefile CONF=Release"
-                        CC="${MAKE}  -f Makefile CONF=Release clean"
-                        OP="Release/GNU-Linux-x86/libCore.so">
-          </makeArtifact>
           <makeArtifact PL="../../3Party/CppTestHarness"
                         CT="2"
                         CN="Release"
@@ -171,6 +171,16 @@
                         BC="${MAKE}  -f Makefile CONF=Release"
                         CC="${MAKE}  -f Makefile CONF=Release clean"
                         OP="dist/Release/GNU-Linux-x86/libCppTestHarness.so">
+          </makeArtifact>
+          <makeArtifact PL="../../MCD/Core"
+                        CT="2"
+                        CN="Release"
+                        AC="false"
+                        BL="true"
+                        WD="../../MCD/Core"
+                        BC="${MAKE}  -f Makefile CONF=Release"
+                        CC="${MAKE}  -f Makefile CONF=Release clean"
+                        OP="dist/Release/GNU-Linux-x86/libCore.so">
           </makeArtifact>
         </requiredProjects>
       </compileType>

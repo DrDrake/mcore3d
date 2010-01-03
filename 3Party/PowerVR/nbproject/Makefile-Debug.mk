@@ -16,15 +16,18 @@ CC=gcc
 CCC=g++
 CXX=g++
 FC=
+AS=as
 
 # Macros
-PLATFORM=GNU-Linux-x86
+CND_PLATFORM=GNU-Linux-x86
+CND_CONF=Debug
+CND_DISTDIR=dist
 
 # Include project Makefile
 include Makefile
 
 # Object Directory
-OBJECTDIR=build/Debug/${PLATFORM}
+OBJECTDIR=build/${CND_CONF}/${CND_PLATFORM}
 
 # Object Files
 OBJECTFILES= \
@@ -44,38 +47,41 @@ CXXFLAGS=
 # Fortran Compiler Flags
 FFLAGS=
 
+# Assembler Flags
+ASFLAGS=
+
 # Link Libraries and Options
 LDLIBSOPTIONS=
 
 # Build Targets
 .build-conf: ${BUILD_SUBPROJECTS}
-	${MAKE}  -f nbproject/Makefile-Debug.mk Debug/${PLATFORM}/libPowerVR.so
+	${MAKE}  -f nbproject/Makefile-Debug.mk dist/Debug/GNU-Linux-x86/libPowerVR.so
 
-Debug/${PLATFORM}/libPowerVR.so: ${OBJECTFILES}
-	${MKDIR} -p Debug/${PLATFORM}
-	${LINK.cc} -shared -o Debug/${PLATFORM}/libPowerVR.so -fPIC ${OBJECTFILES} ${LDLIBSOPTIONS} 
+dist/Debug/GNU-Linux-x86/libPowerVR.so: ${OBJECTFILES}
+	${MKDIR} -p dist/Debug/GNU-Linux-x86
+	${LINK.cc} -shared -o ${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/libPowerVR.so -fPIC ${OBJECTFILES} ${LDLIBSOPTIONS} 
 
-${OBJECTDIR}/PVRTModelPOD.o: PVRTModelPOD.cpp 
+${OBJECTDIR}/PVRTModelPOD.o: nbproject/Makefile-${CND_CONF}.mk PVRTModelPOD.cpp 
 	${MKDIR} -p ${OBJECTDIR}
 	${RM} $@.d
 	$(COMPILE.cc) -g -fPIC  -MMD -MP -MF $@.d -o ${OBJECTDIR}/PVRTModelPOD.o PVRTModelPOD.cpp
 
-${OBJECTDIR}/PVRTVertex.o: PVRTVertex.cpp 
+${OBJECTDIR}/PVRTVertex.o: nbproject/Makefile-${CND_CONF}.mk PVRTVertex.cpp 
 	${MKDIR} -p ${OBJECTDIR}
 	${RM} $@.d
 	$(COMPILE.cc) -g -fPIC  -MMD -MP -MF $@.d -o ${OBJECTDIR}/PVRTVertex.o PVRTVertex.cpp
 
-${OBJECTDIR}/PVRTQuaternionF.o: PVRTQuaternionF.cpp 
+${OBJECTDIR}/PVRTQuaternionF.o: nbproject/Makefile-${CND_CONF}.mk PVRTQuaternionF.cpp 
 	${MKDIR} -p ${OBJECTDIR}
 	${RM} $@.d
 	$(COMPILE.cc) -g -fPIC  -MMD -MP -MF $@.d -o ${OBJECTDIR}/PVRTQuaternionF.o PVRTQuaternionF.cpp
 
-${OBJECTDIR}/PVRTError.o: PVRTError.cpp 
+${OBJECTDIR}/PVRTError.o: nbproject/Makefile-${CND_CONF}.mk PVRTError.cpp 
 	${MKDIR} -p ${OBJECTDIR}
 	${RM} $@.d
 	$(COMPILE.cc) -g -fPIC  -MMD -MP -MF $@.d -o ${OBJECTDIR}/PVRTError.o PVRTError.cpp
 
-${OBJECTDIR}/PVRTMatrixF.o: PVRTMatrixF.cpp 
+${OBJECTDIR}/PVRTMatrixF.o: nbproject/Makefile-${CND_CONF}.mk PVRTMatrixF.cpp 
 	${MKDIR} -p ${OBJECTDIR}
 	${RM} $@.d
 	$(COMPILE.cc) -g -fPIC  -MMD -MP -MF $@.d -o ${OBJECTDIR}/PVRTMatrixF.o PVRTMatrixF.cpp
@@ -86,7 +92,7 @@ ${OBJECTDIR}/PVRTMatrixF.o: PVRTMatrixF.cpp
 # Clean Targets
 .clean-conf:
 	${RM} -r build/Debug
-	${RM} Debug/${PLATFORM}/libPowerVR.so
+	${RM} dist/Debug/GNU-Linux-x86/libPowerVR.so
 
 # Subprojects
 .clean-subprojects:

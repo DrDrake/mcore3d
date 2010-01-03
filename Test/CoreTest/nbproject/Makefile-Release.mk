@@ -78,15 +78,15 @@ FFLAGS=
 ASFLAGS=
 
 # Link Libraries and Options
-LDLIBSOPTIONS=-Wl,-rpath ../../MCD/Core/Release/GNU-Linux-x86 -L../../MCD/Core/Release/GNU-Linux-x86 -lCore -Wl,-rpath ../../3Party/CppTestHarness/dist/Release/GNU-Linux-x86 -L../../3Party/CppTestHarness/dist/Release/GNU-Linux-x86 -lCppTestHarness
+LDLIBSOPTIONS=-Wl,-rpath ../../3Party/CppTestHarness/dist/Release/GNU-Linux-x86 -L../../3Party/CppTestHarness/dist/Release/GNU-Linux-x86 -lCppTestHarness -Wl,-rpath ../../MCD/Core/dist/Release/GNU-Linux-x86 -L../../MCD/Core/dist/Release/GNU-Linux-x86 -lCore
 
 # Build Targets
 .build-conf: ${BUILD_SUBPROJECTS}
 	${MAKE}  -f nbproject/Makefile-Release.mk dist/Release/GNU-Linux-x86/coretest
 
-dist/Release/GNU-Linux-x86/coretest: ../../MCD/Core/Release/GNU-Linux-x86/libCore.so
-
 dist/Release/GNU-Linux-x86/coretest: ../../3Party/CppTestHarness/dist/Release/GNU-Linux-x86/libCppTestHarness.so
+
+dist/Release/GNU-Linux-x86/coretest: ../../MCD/Core/dist/Release/GNU-Linux-x86/libCore.so
 
 dist/Release/GNU-Linux-x86/coretest: ${OBJECTFILES}
 	${MKDIR} -p dist/Release/GNU-Linux-x86
@@ -254,10 +254,10 @@ ${OBJECTDIR}/System/WeakPtrTest.o: nbproject/Makefile-${CND_CONF}.mk System/Weak
 
 # Subprojects
 .build-subprojects:
-	cd ../../MCD/Core && ${MAKE}  -f Makefile CONF=Release
 	cd ../../3Party/CppTestHarness && ${MAKE}  -f Makefile CONF=Release
 	cd ../../MCD/Core && ${MAKE}  -f Makefile CONF=Release
 	cd ../../3Party/CppTestHarness && ${MAKE}  -f Makefile CONF=Release
+	cd ../../MCD/Core && ${MAKE}  -f Makefile CONF=Release
 
 # Clean Targets
 .clean-conf: ${CLEAN_SUBPROJECTS}
@@ -266,10 +266,10 @@ ${OBJECTDIR}/System/WeakPtrTest.o: nbproject/Makefile-${CND_CONF}.mk System/Weak
 
 # Subprojects
 .clean-subprojects:
-	cd ../../MCD/Core && ${MAKE}  -f Makefile CONF=Release clean
 	cd ../../3Party/CppTestHarness && ${MAKE}  -f Makefile CONF=Release clean
 	cd ../../MCD/Core && ${MAKE}  -f Makefile CONF=Release clean
 	cd ../../3Party/CppTestHarness && ${MAKE}  -f Makefile CONF=Release clean
+	cd ../../MCD/Core && ${MAKE}  -f Makefile CONF=Release clean
 
 # Enable dependency checking
 .dep.inc: .depcheck-impl

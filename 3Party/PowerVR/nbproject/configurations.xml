@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<configurationDescriptor version="51">
+<configurationDescriptor version="62">
   <logicalFolder name="root" displayName="root" projectFiles="true">
     <logicalFolder name="PowerVR" displayName="PowerVR" projectFiles="true">
       <itemPath>PVRTBoneBatch.h</itemPath>
@@ -34,56 +34,10 @@
       </toolsSet>
       <compileType>
         <linkerTool>
-          <output>Debug/${PLATFORM}/libPowerVR.so</output>
           <linkerLibItems>
           </linkerLibItems>
         </linkerTool>
       </compileType>
-      <item path="PVRTBoneBatch.h">
-        <itemTool>3</itemTool>
-      </item>
-      <item path="PVRTError.cpp">
-        <itemTool>1</itemTool>
-      </item>
-      <item path="PVRTError.h">
-        <itemTool>3</itemTool>
-      </item>
-      <item path="PVRTFixedPoint.h">
-        <itemTool>3</itemTool>
-      </item>
-      <item path="PVRTGlobal.h">
-        <itemTool>3</itemTool>
-      </item>
-      <item path="PVRTMatrix.h">
-        <itemTool>3</itemTool>
-      </item>
-      <item path="PVRTMatrixF.cpp">
-        <itemTool>1</itemTool>
-      </item>
-      <item path="PVRTMisc.h">
-        <itemTool>3</itemTool>
-      </item>
-      <item path="PVRTModelPOD.cpp">
-        <itemTool>1</itemTool>
-      </item>
-      <item path="PVRTModelPOD.h">
-        <itemTool>3</itemTool>
-      </item>
-      <item path="PVRTQuaternion.h">
-        <itemTool>3</itemTool>
-      </item>
-      <item path="PVRTQuaternionF.cpp">
-        <itemTool>1</itemTool>
-      </item>
-      <item path="PVRTVector.h">
-        <itemTool>3</itemTool>
-      </item>
-      <item path="PVRTVertex.cpp">
-        <itemTool>1</itemTool>
-      </item>
-      <item path="PVRTVertex.h">
-        <itemTool>3</itemTool>
-      </item>
     </conf>
     <conf name="Release" type="2">
       <toolsSet>
@@ -92,66 +46,20 @@
         <platform>2</platform>
       </toolsSet>
       <compileType>
-        <cCompilerTool>
+        <cTool>
           <developmentMode>5</developmentMode>
-        </cCompilerTool>
-        <ccCompilerTool>
+        </cTool>
+        <ccTool>
           <developmentMode>5</developmentMode>
-        </ccCompilerTool>
+        </ccTool>
         <fortranCompilerTool>
           <developmentMode>5</developmentMode>
         </fortranCompilerTool>
         <linkerTool>
-          <output>Release/${PLATFORM}/libPowerVR.so</output>
           <linkerLibItems>
           </linkerLibItems>
         </linkerTool>
       </compileType>
-      <item path="PVRTBoneBatch.h">
-        <itemTool>3</itemTool>
-      </item>
-      <item path="PVRTError.cpp">
-        <itemTool>1</itemTool>
-      </item>
-      <item path="PVRTError.h">
-        <itemTool>3</itemTool>
-      </item>
-      <item path="PVRTFixedPoint.h">
-        <itemTool>3</itemTool>
-      </item>
-      <item path="PVRTGlobal.h">
-        <itemTool>3</itemTool>
-      </item>
-      <item path="PVRTMatrix.h">
-        <itemTool>3</itemTool>
-      </item>
-      <item path="PVRTMatrixF.cpp">
-        <itemTool>1</itemTool>
-      </item>
-      <item path="PVRTMisc.h">
-        <itemTool>3</itemTool>
-      </item>
-      <item path="PVRTModelPOD.cpp">
-        <itemTool>1</itemTool>
-      </item>
-      <item path="PVRTModelPOD.h">
-        <itemTool>3</itemTool>
-      </item>
-      <item path="PVRTQuaternion.h">
-        <itemTool>3</itemTool>
-      </item>
-      <item path="PVRTQuaternionF.cpp">
-        <itemTool>1</itemTool>
-      </item>
-      <item path="PVRTVector.h">
-        <itemTool>3</itemTool>
-      </item>
-      <item path="PVRTVertex.cpp">
-        <itemTool>1</itemTool>
-      </item>
-      <item path="PVRTVertex.h">
-        <itemTool>3</itemTool>
-      </item>
     </conf>
   </confs>
 </configurationDescriptor>

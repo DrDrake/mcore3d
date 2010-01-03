@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<configurationDescriptor version="51">
+<configurationDescriptor version="62">
   <logicalFolder name="root" displayName="root" projectFiles="true">
     <logicalFolder name="Render" displayName="Render" projectFiles="true">
       <itemPath>BackRenderBuffer.cpp</itemPath>
@@ -16,16 +16,18 @@
       <itemPath>CubemapLoader.h</itemPath>
       <itemPath>DdsLoader.cpp</itemPath>
       <itemPath>DdsLoader.h</itemPath>
+      <itemPath>EditableMesh.cpp</itemPath>
+      <itemPath>EditableMesh.h</itemPath>
       <itemPath>Effect.cpp</itemPath>
       <itemPath>Effect.h</itemPath>
       <itemPath>EffectLoader.cpp</itemPath>
       <itemPath>EffectLoader.h</itemPath>
       <itemPath>Frustum.cpp</itemPath>
       <itemPath>Frustum.h</itemPath>
-      <itemPath>GlWindow.cpp</itemPath>
-      <itemPath>GlWindow.h</itemPath>
       <itemPath>GlWindow.Win.inc</itemPath>
       <itemPath>GlWindow.X11.inc</itemPath>
+      <itemPath>GlWindow.cpp</itemPath>
+      <itemPath>GlWindow.h</itemPath>
       <itemPath>JpegLoader.cpp</itemPath>
       <itemPath>JpegLoader.h</itemPath>
       <itemPath>Material.cpp</itemPath>
@@ -42,19 +44,23 @@
       <itemPath>Model.h</itemPath>
       <itemPath>ModelPod.cpp</itemPath>
       <itemPath>ModelPod.h</itemPath>
+      <itemPath>OgreMeshLoader.cpp</itemPath>
+      <itemPath>OgreMeshLoader.h</itemPath>
       <itemPath>Pch.h</itemPath>
       <itemPath>PngLoader.cpp</itemPath>
       <itemPath>PngLoader.h</itemPath>
       <itemPath>ProjectiveTexture.cpp</itemPath>
       <itemPath>ProjectiveTexture.h</itemPath>
       <itemPath>Render.h</itemPath>
-      <itemPath>Renderable.h</itemPath>
       <itemPath>RenderBuffer.cpp</itemPath>
       <itemPath>RenderBuffer.h</itemPath>
       <itemPath>RenderTarget.cpp</itemPath>
       <itemPath>RenderTarget.h</itemPath>
+      <itemPath>Renderable.h</itemPath>
       <itemPath>ResourceLoaderFactory.cpp</itemPath>
       <itemPath>ResourceLoaderFactory.h</itemPath>
+      <itemPath>SemanticMap.cpp</itemPath>
+      <itemPath>SemanticMap.h</itemPath>
       <itemPath>Shader.cpp</itemPath>
       <itemPath>Shader.h</itemPath>
       <itemPath>ShaderLoader.cpp</itemPath>
@@ -90,7 +96,7 @@
       </toolsSet>
       <compileType>
         <linkerTool>
-          <output>Debug/${PLATFORM}/libRender.so</output>
+          <output>${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/libRender.so</output>
           <linkerLibItems>
             <linkerLibProjectItem>
               <makeArtifact PL="../Core"
@@ -101,19 +107,7 @@
                             WD="../Core"
                             BC="${MAKE}  -f Makefile CONF=Debug"
                             CC="${MAKE}  -f Makefile CONF=Debug clean"
-                            OP="Debug/GNU-Linux-x86/libCore.so">
-              </makeArtifact>
-            </linkerLibProjectItem>
-            <linkerLibProjectItem>
-              <makeArtifact PL="../../3Party/SmallJpeg"
-                            CT="2"
-                            CN="Debug"
-                            AC="true"
-                            BL="true"
-                            WD="../../3Party/SmallJpeg"
-                            BC="${MAKE}  -f Makefile CONF=Debug"
-                            CC="${MAKE}  -f Makefile CONF=Debug clean"
-                            OP="Debug/GNU-Linux-x86/libSmallJpeg.so">
+                            OP="dist/Debug/GNU-Linux-x86/libCore.so">
               </makeArtifact>
             </linkerLibProjectItem>
             <linkerLibProjectItem>
@@ -125,229 +119,39 @@
                             WD="../../3Party/PowerVR"
                             BC="${MAKE}  -f Makefile CONF=Debug"
                             CC="${MAKE}  -f Makefile CONF=Debug clean"
-                            OP="Debug/GNU-Linux-x86/libPowerVR.so">
+                            OP="dist/Debug/GNU-Linux-x86/libPowerVR.so">
+              </makeArtifact>
+            </linkerLibProjectItem>
+            <linkerLibProjectItem>
+              <makeArtifact PL="../../3Party/SmallJpeg"
+                            CT="2"
+                            CN="Debug"
+                            AC="true"
+                            BL="true"
+                            WD="../../3Party/SmallJpeg"
+                            BC="${MAKE}  -f Makefile CONF=Debug"
+                            CC="${MAKE}  -f Makefile CONF=Debug clean"
+                            OP="dist/Debug/GNU-Linux-x86/libSmallJpeg.so">
+              </makeArtifact>
+            </linkerLibProjectItem>
+            <linkerLibProjectItem>
+              <makeArtifact PL="../../3Party/glew"
+                            CT="2"
+                            CN="Debug"
+                            AC="true"
+                            BL="true"
+                            WD="../../3Party/glew"
+                            BC="${MAKE}  -f Makefile CONF=Debug"
+                            CC="${MAKE}  -f Makefile CONF=Debug clean"
+                            OP="dist/Debug/GNU-Linux-x86/libglew.so">
               </makeArtifact>
             </linkerLibProjectItem>
             <linkerOptionItem>-lGL</linkerOptionItem>
             <linkerOptionItem>-lGLU</linkerOptionItem>
-            <linkerOptionItem>-lGLEW</linkerOptionItem>
             <linkerOptionItem>-lpng</linkerOptionItem>
           </linkerLibItems>
         </linkerTool>
       </compileType>
-      <item path="BackRenderBuffer.cpp">
-        <itemTool>1</itemTool>
-      </item>
-      <item path="BackRenderBuffer.h">
-        <itemTool>3</itemTool>
-      </item>
-      <item path="BitmapLoader.cpp">
-        <itemTool>1</itemTool>
-      </item>
-      <item path="BitmapLoader.h">
-        <itemTool>3</itemTool>
-      </item>
-      <item path="Camera.cpp">
-        <itemTool>1</itemTool>
-      </item>
-      <item path="Camera.h">
-        <itemTool>3</itemTool>
-      </item>
-      <item path="ChamferBox.cpp">
-        <itemTool>1</itemTool>
-      </item>
-      <item path="ChamferBox.h">
-        <itemTool>3</itemTool>
-      </item>
-      <item path="Color.cpp">
-        <itemTool>1</itemTool>
-      </item>
-      <item path="Color.h">
-        <itemTool>3</itemTool>
-      </item>
-      <item path="CubemapLoader.cpp">
-        <itemTool>1</itemTool>
-      </item>
-      <item path="CubemapLoader.h">
-        <itemTool>3</itemTool>
-      </item>
-      <item path="DdsLoader.cpp">
-        <itemTool>1</itemTool>
-      </item>
-      <item path="DdsLoader.h">
-        <itemTool>3</itemTool>
-      </item>
-      <item path="Effect.cpp">
-        <itemTool>1</itemTool>
-      </item>
-      <item path="Effect.h">
-        <itemTool>3</itemTool>
-      </item>
-      <item path="EffectLoader.cpp">
-        <itemTool>1</itemTool>
-      </item>
-      <item path="EffectLoader.h">
-        <itemTool>3</itemTool>
-      </item>
-      <item path="Frustum.cpp">
-        <itemTool>1</itemTool>
-      </item>
-      <item path="Frustum.h">
-        <itemTool>3</itemTool>
-      </item>
-      <item path="GlWindow.Win.inc">
-        <itemTool>3</itemTool>
-      </item>
-      <item path="GlWindow.X11.inc">
-        <itemTool>3</itemTool>
-      </item>
-      <item path="GlWindow.cpp">
-        <itemTool>1</itemTool>
-      </item>
-      <item path="GlWindow.h">
-        <itemTool>3</itemTool>
-      </item>
-      <item path="JpegLoader.cpp">
-        <itemTool>1</itemTool>
-      </item>
-      <item path="JpegLoader.h">
-        <itemTool>3</itemTool>
-      </item>
-      <item path="Material.cpp">
-        <itemTool>1</itemTool>
-      </item>
-      <item path="Material.h">
-        <itemTool>3</itemTool>
-      </item>
-      <item path="MaterialProperty.cpp">
-        <itemTool>1</itemTool>
-      </item>
-      <item path="MaterialProperty.h">
-        <itemTool>3</itemTool>
-      </item>
-      <item path="Max3dsLoader.cpp">
-        <itemTool>1</itemTool>
-      </item>
-      <item path="Max3dsLoader.h">
-        <itemTool>3</itemTool>
-      </item>
-      <item path="Mesh.cpp">
-        <itemTool>1</itemTool>
-      </item>
-      <item path="Mesh.h">
-        <itemTool>3</itemTool>
-      </item>
-      <item path="MeshBuilder.cpp">
-        <itemTool>1</itemTool>
-      </item>
-      <item path="MeshBuilder.h">
-        <itemTool>3</itemTool>
-      </item>
-      <item path="Model.cpp">
-        <itemTool>1</itemTool>
-      </item>
-      <item path="Model.h">
-        <itemTool>3</itemTool>
-      </item>
-      <item path="ModelPod.cpp">
-        <itemTool>1</itemTool>
-      </item>
-      <item path="ModelPod.h">
-        <itemTool>3</itemTool>
-      </item>
-      <item path="Pch.h">
-        <itemTool>3</itemTool>
-      </item>
-      <item path="PngLoader.cpp">
-        <itemTool>1</itemTool>
-      </item>
-      <item path="PngLoader.h">
-        <itemTool>3</itemTool>
-      </item>
-      <item path="ProjectiveTexture.cpp">
-        <itemTool>1</itemTool>
-      </item>
-      <item path="ProjectiveTexture.h">
-        <itemTool>3</itemTool>
-      </item>
-      <item path="Render.h">
-        <itemTool>3</itemTool>
-      </item>
-      <item path="RenderBuffer.cpp">
-        <itemTool>1</itemTool>
-      </item>
-      <item path="RenderBuffer.h">
-        <itemTool>3</itemTool>
-      </item>
-      <item path="RenderTarget.cpp">
-        <itemTool>1</itemTool>
-      </item>
-      <item path="RenderTarget.h">
-        <itemTool>3</itemTool>
-      </item>
-      <item path="Renderable.h">
-        <itemTool>3</itemTool>
-      </item>
-      <item path="ResourceLoaderFactory.cpp">
-        <itemTool>1</itemTool>
-      </item>
-      <item path="ResourceLoaderFactory.h">
-        <itemTool>3</itemTool>
-      </item>
-      <item path="Shader.cpp">
-        <itemTool>1</itemTool>
-      </item>
-      <item path="Shader.h">
-        <itemTool>3</itemTool>
-      </item>
-      <item path="ShaderLoader.cpp">
-        <itemTool>1</itemTool>
-      </item>
-      <item path="ShaderLoader.h">
-        <itemTool>3</itemTool>
-      </item>
-      <item path="ShaderProgram.cpp">
-        <itemTool>1</itemTool>
-      </item>
-      <item path="ShaderProgram.h">
-        <itemTool>3</itemTool>
-      </item>
-      <item path="ShareLib.h">
-        <itemTool>3</itemTool>
-      </item>
-      <item path="TangentSpaceBuilder.cpp">
-        <itemTool>1</itemTool>
-      </item>
-      <item path="TangentSpaceBuilder.h">
-        <itemTool>3</itemTool>
-      </item>
-      <item path="Texture.cpp">
-        <itemTool>1</itemTool>
-      </item>
-      <item path="Texture.h">
-        <itemTool>3</itemTool>
-      </item>
-      <item path="TextureLoaderBase.cpp">
-        <itemTool>1</itemTool>
-      </item>
-      <item path="TextureLoaderBase.h">
-        <itemTool>3</itemTool>
-      </item>
-      <item path="TextureLoaderBaseImpl.inc">
-        <itemTool>3</itemTool>
-      </item>
-      <item path="TextureRenderBuffer.cpp">
-        <itemTool>1</itemTool>
-      </item>
-      <item path="TextureRenderBuffer.h">
-        <itemTool>3</itemTool>
-      </item>
-      <item path="TgaLoader.cpp">
-        <itemTool>1</itemTool>
-      </item>
-      <item path="TgaLoader.h">
-        <itemTool>3</itemTool>
-      </item>
     </conf>
     <conf name="Release" type="2">
       <toolsSet>
@@ -356,17 +160,16 @@
         <platform>2</platform>
       </toolsSet>
       <compileType>
-        <cCompilerTool>
+        <cTool>
           <developmentMode>5</developmentMode>
-        </cCompilerTool>
-        <ccCompilerTool>
+        </cTool>
+        <ccTool>
           <developmentMode>5</developmentMode>
-        </ccCompilerTool>
+        </ccTool>
         <fortranCompilerTool>
           <developmentMode>5</developmentMode>
         </fortranCompilerTool>
         <linkerTool>
-          <output>Release/${PLATFORM}/libRender.so</output>
           <linkerLibItems>
             <linkerLibProjectItem>
               <makeArtifact PL="../Core"
@@ -377,225 +180,51 @@
                             WD="../Core"
                             BC="${MAKE}  -f Makefile CONF=Release"
                             CC="${MAKE}  -f Makefile CONF=Release clean"
-                            OP="Release/GNU-Linux-x86/libCore.so">
+                            OP="dist/Release/GNU-Linux-x86/libCore.so">
               </makeArtifact>
             </linkerLibProjectItem>
+            <linkerLibProjectItem>
+              <makeArtifact PL="../../3Party/PowerVR"
+                            CT="2"
+                            CN="Release"
+                            AC="false"
+                            BL="true"
+                            WD="../../3Party/PowerVR"
+                            BC="${MAKE}  -f Makefile CONF=Release"
+                            CC="${MAKE}  -f Makefile CONF=Release clean"
+                            OP="dist/Release/GNU-Linux-x86/libPowerVR.so">
+              </makeArtifact>
+            </linkerLibProjectItem>
+            <linkerLibProjectItem>
+              <makeArtifact PL="../../3Party/SmallJpeg"
+                            CT="2"
+                            CN="Release"
+                            AC="false"
+                            BL="true"
+                            WD="../../3Party/SmallJpeg"
+                            BC="${MAKE}  -f Makefile CONF=Release"
+                            CC="${MAKE}  -f Makefile CONF=Release clean"
+                            OP="dist/Release/GNU-Linux-x86/libSmallJpeg.so">
+              </makeArtifact>
+            </linkerLibProjectItem>
+            <linkerLibProjectItem>
+              <makeArtifact PL="../../3Party/glew"
+                            CT="2"
+                            CN="Release"
+                            AC="false"
+                            BL="true"
+                            WD="../../3Party/glew"
+                            BC="${MAKE}  -f Makefile CONF=Release"
+                            CC="${MAKE}  -f Makefile CONF=Release clean"
+                            OP="dist/Release/GNU-Linux-x86/libglew.so">
+              </makeArtifact>
+            </linkerLibProjectItem>
+            <linkerOptionItem>-lGL</linkerOptionItem>
+            <linkerOptionItem>-lGLU</linkerOptionItem>
+            <linkerOptionItem>-lpng</linkerOptionItem>
           </linkerLibItems>
         </linkerTool>
       </compileType>
-      <item path="BackRenderBuffer.cpp">
-        <itemTool>1</itemTool>
-      </item>
-      <item path="BackRenderBuffer.h">
-        <itemTool>3</itemTool>
-      </item>
-      <item path="BitmapLoader.cpp">
-        <itemTool>1</itemTool>
-      </item>
-      <item path="BitmapLoader.h">
-        <itemTool>3</itemTool>
-      </item>
-      <item path="Camera.cpp">
-        <itemTool>1</itemTool>
-      </item>
-      <item path="Camera.h">
-        <itemTool>3</itemTool>
-      </item>
-      <item path="ChamferBox.cpp">
-        <itemTool>1</itemTool>
-      </item>
-      <item path="ChamferBox.h">
-        <itemTool>3</itemTool>
-      </item>
-      <item path="Color.cpp">
-        <itemTool>1</itemTool>
-      </item>
-      <item path="Color.h">
-        <itemTool>3</itemTool>
-      </item>
-      <item path="CubemapLoader.cpp">
-        <itemTool>1</itemTool>
-      </item>
-      <item path="CubemapLoader.h">
-        <itemTool>3</itemTool>
-      </item>
-      <item path="DdsLoader.cpp">
-        <itemTool>1</itemTool>
-      </item>
-      <item path="DdsLoader.h">
-        <itemTool>3</itemTool>
-      </item>
-      <item path="Effect.cpp">
-        <itemTool>1</itemTool>
-      </item>
-      <item path="Effect.h">
-        <itemTool>3</itemTool>
-      </item>
-      <item path="EffectLoader.cpp">
-        <itemTool>1</itemTool>
-      </item>
-      <item path="EffectLoader.h">
-        <itemTool>3</itemTool>
-      </item>
-      <item path="Frustum.cpp">
-        <itemTool>1</itemTool>
-      </item>
-      <item path="Frustum.h">
-        <itemTool>3</itemTool>
-      </item>
-      <item path="GlWindow.Win.inc">
-        <itemTool>3</itemTool>
-      </item>
-      <item path="GlWindow.X11.inc">
-        <itemTool>3</itemTool>
-      </item>
-      <item path="GlWindow.cpp">
-        <itemTool>1</itemTool>
-      </item>
-      <item path="GlWindow.h">
-        <itemTool>3</itemTool>
-      </item>
-      <item path="JpegLoader.cpp">
-        <itemTool>1</itemTool>
-      </item>
-      <item path="JpegLoader.h">
-        <itemTool>3</itemTool>
-      </item>
-      <item path="Material.cpp">
-        <itemTool>1</itemTool>
-      </item>
-      <item path="Material.h">
-        <itemTool>3</itemTool>
-      </item>
-      <item path="MaterialProperty.cpp">
-        <itemTool>1</itemTool>
-      </item>
-      <item path="MaterialProperty.h">
-        <itemTool>3</itemTool>
-      </item>
-      <item path="Max3dsLoader.cpp">
-        <itemTool>1</itemTool>
-      </item>
-      <item path="Max3dsLoader.h">
-        <itemTool>3</itemTool>
-      </item>
-      <item path="Mesh.cpp">
-        <itemTool>1</itemTool>
-      </item>
-      <item path="Mesh.h">
-        <itemTool>3</itemTool>
-      </item>
-      <item path="MeshBuilder.cpp">
-        <itemTool>1</itemTool>
-      </item>
-      <item path="MeshBuilder.h">
-        <itemTool>3</itemTool>
-      </item>
-      <item path="Model.cpp">
-        <itemTool>1</itemTool>
-      </item>
-      <item path="Model.h">
-        <itemTool>3</itemTool>
-      </item>
-      <item path="ModelPod.cpp">
-        <itemTool>1</itemTool>
-      </item>
-      <item path="ModelPod.h">
-        <itemTool>3</itemTool>
-      </item>
-      <item path="Pch.h">
-        <itemTool>3</itemTool>
-      </item>
-      <item path="PngLoader.cpp">
-        <itemTool>1</itemTool>
-      </item>
-      <item path="PngLoader.h">
-        <itemTool>3</itemTool>
-      </item>
-      <item path="ProjectiveTexture.cpp">
-        <itemTool>1</itemTool>
-      </item>
-      <item path="ProjectiveTexture.h">
-        <itemTool>3</itemTool>
-      </item>
-      <item path="Render.h">
-        <itemTool>3</itemTool>
-      </item>
-      <item path="RenderBuffer.cpp">
-        <itemTool>1</itemTool>
-      </item>
-      <item path="RenderBuffer.h">
-        <itemTool>3</itemTool>
-      </item>
-      <item path="RenderTarget.cpp">
-        <itemTool>1</itemTool>
-      </item>
-      <item path="RenderTarget.h">
-        <itemTool>3</itemTool>
-      </item>
-      <item path="Renderable.h">
-        <itemTool>3</itemTool>
-      </item>
-      <item path="ResourceLoaderFactory.cpp">
-        <itemTool>1</itemTool>
-      </item>
-      <item path="ResourceLoaderFactory.h">
-        <itemTool>3</itemTool>
-      </item>
-      <item path="Shader.cpp">
-        <itemTool>1</itemTool>
-      </item>
-      <item path="Shader.h">
-        <itemTool>3</itemTool>
-      </item>
-      <item path="ShaderLoader.cpp">
-        <itemTool>1</itemTool>
-      </item>
-      <item path="ShaderLoader.h">
-        <itemTool>3</itemTool>
-      </item>
-      <item path="ShaderProgram.cpp">
-        <itemTool>1</itemTool>
-      </item>
-      <item path="ShaderProgram.h">
-        <itemTool>3</itemTool>
-      </item>
-      <item path="ShareLib.h">
-        <itemTool>3</itemTool>
-      </item>
-      <item path="TangentSpaceBuilder.cpp">
-        <itemTool>1</itemTool>
-      </item>
-      <item path="TangentSpaceBuilder.h">
-        <itemTool>3</itemTool>
-      </item>
-      <item path="Texture.cpp">
-        <itemTool>1</itemTool>
-      </item>
-      <item path="Texture.h">
-        <itemTool>3</itemTool>
-      </item>
-      <item path="TextureLoaderBase.cpp">
-        <itemTool>1</itemTool>
-      </item>
-      <item path="TextureLoaderBase.h">
-        <itemTool>3</itemTool>
-      </item>
-      <item path="TextureLoaderBaseImpl.inc">
-        <itemTool>3</itemTool>
-      </item>
-      <item path="TextureRenderBuffer.cpp">
-        <itemTool>1</itemTool>
-      </item>
-      <item path="TextureRenderBuffer.h">
-        <itemTool>3</itemTool>
-      </item>
-      <item path="TgaLoader.cpp">
-        <itemTool>1</itemTool>
-      </item>
-      <item path="TgaLoader.h">
-        <itemTool>3</itemTool>
-      </item>
     </conf>
   </confs>
 </configurationDescriptor>

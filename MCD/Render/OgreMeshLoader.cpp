@@ -13,6 +13,7 @@
 #include "../Core/System/StrUtility.h"
 #include "../Core/System/Utility.h"	// for FOR_EACH
 #include <limits>
+#include <string.h>	// for strcmp
 
 namespace MCD {
 
@@ -334,7 +335,7 @@ IResourceLoader::LoadingState OgreMeshLoader::Impl::load(std::istream* is, const
 		ABORT_IF(!header.readFrom(*is) || header.id != M_GEOMETRY_VERTEX_BUFFER_DATA);
 
 		size_t sizeInByte;
-		char* buf = geo.meshBuilder->getBufferPointer(bindIndex + 1, &sizeInByte);
+		char* buf = geo.meshBuilder->getBufferPointer(bindIndex + 1, nullptr, &sizeInByte);
 		ABORT_IF(size_t(vertexSize) * geo.meshBuilder->vertexCount() != sizeInByte);
 		is->read(buf, sizeInByte);
 	}	break;

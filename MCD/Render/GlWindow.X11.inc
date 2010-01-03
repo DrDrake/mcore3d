@@ -21,6 +21,11 @@ public:
 		destroy();
 	}
 
+	void* glContext()
+	{
+		return mGlxContext;
+	}
+
 	sal_override void createWindow(Window::Handle existingWindowHandle=0)
 	{
 		// Open the display at first call
@@ -35,6 +40,11 @@ public:
 			GLX_GREEN_SIZE, 8,
 			0
 		};
+
+		{	int dummy;
+			if(!glXQueryExtension(gDisplay, &dummy, &dummy))
+				throw std::runtime_error("glXQueryExtension failed");
+		}
 
 		XVisualInfo* visualInfo = ::glXChooseVisual(gDisplay, DefaultScreen(gDisplay), attributes);
 

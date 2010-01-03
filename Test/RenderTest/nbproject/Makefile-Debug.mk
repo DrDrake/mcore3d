@@ -16,21 +16,23 @@ CC=gcc
 CCC=g++
 CXX=g++
 FC=
+AS=as
 
 # Macros
-PLATFORM=GNU-Linux-x86
+CND_PLATFORM=GNU-Linux-x86
+CND_CONF=Debug
+CND_DISTDIR=dist
 
 # Include project Makefile
 include Makefile
 
 # Object Directory
-OBJECTDIR=build/Debug/${PLATFORM}
+OBJECTDIR=build/${CND_CONF}/${CND_PLATFORM}
 
 # Object Files
 OBJECTFILES= \
 	${OBJECTDIR}/TextureLoaderTest.o \
 	${OBJECTDIR}/MaterialTest.o \
-	${OBJECTDIR}/Max3dsLoaderTest.o \
 	${OBJECTDIR}/ShadowMapTest.o \
 	${OBJECTDIR}/MeshTest.o \
 	${OBJECTDIR}/ASSAOTest.o \
@@ -55,99 +57,97 @@ CXXFLAGS=
 # Fortran Compiler Flags
 FFLAGS=
 
+# Assembler Flags
+ASFLAGS=
+
 # Link Libraries and Options
-LDLIBSOPTIONS=-Wl,-rpath ../../MCD/Render/Debug/GNU-Linux-x86 -L../../MCD/Render/Debug/GNU-Linux-x86 -lRender -Wl,-rpath ../../MCD/Core/Debug/GNU-Linux-x86 -L../../MCD/Core/Debug/GNU-Linux-x86 -lCore -Wl,-rpath ../../3Party/CppTestHarness/Debug/GNU-Linux-x86 -L../../3Party/CppTestHarness/Debug/GNU-Linux-x86 -lCppTestHarness
+LDLIBSOPTIONS=-Wl,-rpath /home/ricky/mcore3d/3Party/glew/dist/Debug/GNU-Linux-x86 -Wl,-rpath ../../MCD/Render/dist/Debug/GNU-Linux-x86 -L../../MCD/Render/dist/Debug/GNU-Linux-x86 -lRender -Wl,-rpath ../../MCD/Core/dist/Debug/GNU-Linux-x86 -L../../MCD/Core/dist/Debug/GNU-Linux-x86 -lCore -Wl,-rpath ../../3Party/CppTestHarness/dist/Debug/GNU-Linux-x86 -L../../3Party/CppTestHarness/dist/Debug/GNU-Linux-x86 -lCppTestHarness
 
 # Build Targets
 .build-conf: ${BUILD_SUBPROJECTS}
-	${MAKE}  -f nbproject/Makefile-Debug.mk Debug/${PLATFORM}/rendertest
+	${MAKE}  -f nbproject/Makefile-Debug.mk dist/Debug/GNU-Linux-x86/rendertest
 
-Debug/${PLATFORM}/rendertest: ../../MCD/Render/Debug/GNU-Linux-x86/libRender.so
+dist/Debug/GNU-Linux-x86/rendertest: ../../MCD/Render/dist/Debug/GNU-Linux-x86/libRender.so
 
-Debug/${PLATFORM}/rendertest: ../../MCD/Core/Debug/GNU-Linux-x86/libCore.so
+dist/Debug/GNU-Linux-x86/rendertest: ../../MCD/Core/dist/Debug/GNU-Linux-x86/libCore.so
 
-Debug/${PLATFORM}/rendertest: ../../3Party/CppTestHarness/Debug/GNU-Linux-x86/libCppTestHarness.so
+dist/Debug/GNU-Linux-x86/rendertest: ../../3Party/CppTestHarness/dist/Debug/GNU-Linux-x86/libCppTestHarness.so
 
-Debug/${PLATFORM}/rendertest: ${OBJECTFILES}
-	${MKDIR} -p Debug/${PLATFORM}
-	${LINK.cc} -o Debug/${PLATFORM}/rendertest ${OBJECTFILES} ${LDLIBSOPTIONS} 
+dist/Debug/GNU-Linux-x86/rendertest: ${OBJECTFILES}
+	${MKDIR} -p dist/Debug/GNU-Linux-x86
+	${LINK.cc} -o ${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/rendertest ${OBJECTFILES} ${LDLIBSOPTIONS} 
 
-${OBJECTDIR}/TextureLoaderTest.o: TextureLoaderTest.cpp 
+${OBJECTDIR}/TextureLoaderTest.o: nbproject/Makefile-${CND_CONF}.mk TextureLoaderTest.cpp 
 	${MKDIR} -p ${OBJECTDIR}
 	${RM} $@.d
 	$(COMPILE.cc) -g -MMD -MP -MF $@.d -o ${OBJECTDIR}/TextureLoaderTest.o TextureLoaderTest.cpp
 
-${OBJECTDIR}/MaterialTest.o: MaterialTest.cpp 
+${OBJECTDIR}/MaterialTest.o: nbproject/Makefile-${CND_CONF}.mk MaterialTest.cpp 
 	${MKDIR} -p ${OBJECTDIR}
 	${RM} $@.d
 	$(COMPILE.cc) -g -MMD -MP -MF $@.d -o ${OBJECTDIR}/MaterialTest.o MaterialTest.cpp
 
-${OBJECTDIR}/Max3dsLoaderTest.o: Max3dsLoaderTest.cpp 
-	${MKDIR} -p ${OBJECTDIR}
-	${RM} $@.d
-	$(COMPILE.cc) -g -MMD -MP -MF $@.d -o ${OBJECTDIR}/Max3dsLoaderTest.o Max3dsLoaderTest.cpp
-
-${OBJECTDIR}/ShadowMapTest.o: ShadowMapTest.cpp 
+${OBJECTDIR}/ShadowMapTest.o: nbproject/Makefile-${CND_CONF}.mk ShadowMapTest.cpp 
 	${MKDIR} -p ${OBJECTDIR}
 	${RM} $@.d
 	$(COMPILE.cc) -g -MMD -MP -MF $@.d -o ${OBJECTDIR}/ShadowMapTest.o ShadowMapTest.cpp
 
-${OBJECTDIR}/MeshTest.o: MeshTest.cpp 
+${OBJECTDIR}/MeshTest.o: nbproject/Makefile-${CND_CONF}.mk MeshTest.cpp 
 	${MKDIR} -p ${OBJECTDIR}
 	${RM} $@.d
 	$(COMPILE.cc) -g -MMD -MP -MF $@.d -o ${OBJECTDIR}/MeshTest.o MeshTest.cpp
 
-${OBJECTDIR}/ASSAOTest.o: ASSAOTest.cpp 
+${OBJECTDIR}/ASSAOTest.o: nbproject/Makefile-${CND_CONF}.mk ASSAOTest.cpp 
 	${MKDIR} -p ${OBJECTDIR}
 	${RM} $@.d
 	$(COMPILE.cc) -g -MMD -MP -MF $@.d -o ${OBJECTDIR}/ASSAOTest.o ASSAOTest.cpp
 
-${OBJECTDIR}/BasicGlWindow.o: BasicGlWindow.cpp 
+${OBJECTDIR}/BasicGlWindow.o: nbproject/Makefile-${CND_CONF}.mk BasicGlWindow.cpp 
 	${MKDIR} -p ${OBJECTDIR}
 	${RM} $@.d
 	$(COMPILE.cc) -g -MMD -MP -MF $@.d -o ${OBJECTDIR}/BasicGlWindow.o BasicGlWindow.cpp
 
-${OBJECTDIR}/DefaultResourceManager.o: DefaultResourceManager.cpp 
+${OBJECTDIR}/DefaultResourceManager.o: nbproject/Makefile-${CND_CONF}.mk DefaultResourceManager.cpp 
 	${MKDIR} -p ${OBJECTDIR}
 	${RM} $@.d
 	$(COMPILE.cc) -g -MMD -MP -MF $@.d -o ${OBJECTDIR}/DefaultResourceManager.o DefaultResourceManager.cpp
 
-${OBJECTDIR}/FrustumTest.o: FrustumTest.cpp 
+${OBJECTDIR}/FrustumTest.o: nbproject/Makefile-${CND_CONF}.mk FrustumTest.cpp 
 	${MKDIR} -p ${OBJECTDIR}
 	${RM} $@.d
 	$(COMPILE.cc) -g -MMD -MP -MF $@.d -o ${OBJECTDIR}/FrustumTest.o FrustumTest.cpp
 
-${OBJECTDIR}/NormalMappingTest.o: NormalMappingTest.cpp 
+${OBJECTDIR}/NormalMappingTest.o: nbproject/Makefile-${CND_CONF}.mk NormalMappingTest.cpp 
 	${MKDIR} -p ${OBJECTDIR}
 	${RM} $@.d
 	$(COMPILE.cc) -g -MMD -MP -MF $@.d -o ${OBJECTDIR}/NormalMappingTest.o NormalMappingTest.cpp
 
-${OBJECTDIR}/Common.o: Common.cpp 
+${OBJECTDIR}/Common.o: nbproject/Makefile-${CND_CONF}.mk Common.cpp 
 	${MKDIR} -p ${OBJECTDIR}
 	${RM} $@.d
 	$(COMPILE.cc) -g -MMD -MP -MF $@.d -o ${OBJECTDIR}/Common.o Common.cpp
 
-${OBJECTDIR}/SSAOTest.o: SSAOTest.cpp 
+${OBJECTDIR}/SSAOTest.o: nbproject/Makefile-${CND_CONF}.mk SSAOTest.cpp 
 	${MKDIR} -p ${OBJECTDIR}
 	${RM} $@.d
 	$(COMPILE.cc) -g -MMD -MP -MF $@.d -o ${OBJECTDIR}/SSAOTest.o SSAOTest.cpp
 
-${OBJECTDIR}/MultipleRenderTargetTest.o: MultipleRenderTargetTest.cpp 
+${OBJECTDIR}/MultipleRenderTargetTest.o: nbproject/Makefile-${CND_CONF}.mk MultipleRenderTargetTest.cpp 
 	${MKDIR} -p ${OBJECTDIR}
 	${RM} $@.d
 	$(COMPILE.cc) -g -MMD -MP -MF $@.d -o ${OBJECTDIR}/MultipleRenderTargetTest.o MultipleRenderTargetTest.cpp
 
-${OBJECTDIR}/ProjectiveTextureTest.o: ProjectiveTextureTest.cpp 
+${OBJECTDIR}/ProjectiveTextureTest.o: nbproject/Makefile-${CND_CONF}.mk ProjectiveTextureTest.cpp 
 	${MKDIR} -p ${OBJECTDIR}
 	${RM} $@.d
 	$(COMPILE.cc) -g -MMD -MP -MF $@.d -o ${OBJECTDIR}/ProjectiveTextureTest.o ProjectiveTextureTest.cpp
 
-${OBJECTDIR}/RenderTargetTest.o: RenderTargetTest.cpp 
+${OBJECTDIR}/RenderTargetTest.o: nbproject/Makefile-${CND_CONF}.mk RenderTargetTest.cpp 
 	${MKDIR} -p ${OBJECTDIR}
 	${RM} $@.d
 	$(COMPILE.cc) -g -MMD -MP -MF $@.d -o ${OBJECTDIR}/RenderTargetTest.o RenderTargetTest.cpp
 
-${OBJECTDIR}/Main.o: Main.cpp 
+${OBJECTDIR}/Main.o: nbproject/Makefile-${CND_CONF}.mk Main.cpp 
 	${MKDIR} -p ${OBJECTDIR}
 	${RM} $@.d
 	$(COMPILE.cc) -g -MMD -MP -MF $@.d -o ${OBJECTDIR}/Main.o Main.cpp
@@ -161,7 +161,7 @@ ${OBJECTDIR}/Main.o: Main.cpp
 # Clean Targets
 .clean-conf: ${CLEAN_SUBPROJECTS}
 	${RM} -r build/Debug
-	${RM} Debug/${PLATFORM}/rendertest
+	${RM} dist/Debug/GNU-Linux-x86/rendertest
 
 # Subprojects
 .clean-subprojects:
