@@ -11,6 +11,7 @@
             <sourceEncoding>UTF-8</sourceEncoding>
             <make-dep-projects>
                 <make-dep-project>../../3Party/PowerVR</make-dep-project>
+                <make-dep-project>../../3Party/glew</make-dep-project>
                 <make-dep-project>../../3Party/SmallJpeg</make-dep-project>
                 <make-dep-project>../Core</make-dep-project>
             </make-dep-projects>

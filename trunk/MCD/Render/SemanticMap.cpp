@@ -1,6 +1,7 @@
 #include "Pch.h"
 #include "SemanticMap.h"
 #include "../Core/System/Utility.h"	// for MCD_COUNTOF
+#include <memory>	// for auto_ptr
 
 namespace MCD {
 

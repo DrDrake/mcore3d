@@ -1,6 +1,7 @@
 #include "Pch.h"
 #include "GlWindow.h"
 #include "../Core/System/Log.h"
+#include "../Core/System/MemoryProfiler.h"
 #include "../Core/System/Window.inl"
 #include "../../3Party/glew/glew.h"
 

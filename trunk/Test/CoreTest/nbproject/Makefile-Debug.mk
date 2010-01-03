@@ -78,7 +78,7 @@ FFLAGS=
 ASFLAGS=
 
 # Link Libraries and Options
-LDLIBSOPTIONS=-Wl,-rpath ../../3Party/CppTestHarness/dist/Debug/GNU-Linux-x86 -L../../3Party/CppTestHarness/dist/Debug/GNU-Linux-x86 -lCppTestHarness -Wl,-rpath ../../MCD/Core/Debug/GNU-Linux-x86 -L../../MCD/Core/Debug/GNU-Linux-x86 -lCore
+LDLIBSOPTIONS=-Wl,-rpath ../../3Party/CppTestHarness/dist/Debug/GNU-Linux-x86 -L../../3Party/CppTestHarness/dist/Debug/GNU-Linux-x86 -lCppTestHarness -Wl,-rpath ../../MCD/Core/dist/Debug/GNU-Linux-x86 -L../../MCD/Core/dist/Debug/GNU-Linux-x86 -lCore
 
 # Build Targets
 .build-conf: ${BUILD_SUBPROJECTS}
@@ -86,7 +86,7 @@ LDLIBSOPTIONS=-Wl,-rpath ../../3Party/CppTestHarness/dist/Debug/GNU-Linux-x86 -L
 
 dist/Debug/GNU-Linux-x86/coretest: ../../3Party/CppTestHarness/dist/Debug/GNU-Linux-x86/libCppTestHarness.so
 
-dist/Debug/GNU-Linux-x86/coretest: ../../MCD/Core/Debug/GNU-Linux-x86/libCore.so
+dist/Debug/GNU-Linux-x86/coretest: ../../MCD/Core/dist/Debug/GNU-Linux-x86/libCore.so
 
 dist/Debug/GNU-Linux-x86/coretest: ${OBJECTFILES}
 	${MKDIR} -p dist/Debug/GNU-Linux-x86
@@ -256,6 +256,7 @@ ${OBJECTDIR}/System/WeakPtrTest.o: nbproject/Makefile-${CND_CONF}.mk System/Weak
 .build-subprojects:
 	cd ../../3Party/CppTestHarness && ${MAKE}  -f Makefile CONF=Debug
 	cd ../../MCD/Core && ${MAKE}  -f Makefile CONF=Debug
+	cd ../../3Party/CppTestHarness && ${MAKE}  -f Makefile CONF=Debug
 	cd ../../MCD/Core && ${MAKE}  -f Makefile CONF=Debug
 
 # Clean Targets
@@ -267,6 +268,7 @@ ${OBJECTDIR}/System/WeakPtrTest.o: nbproject/Makefile-${CND_CONF}.mk System/Weak
 .clean-subprojects:
 	cd ../../3Party/CppTestHarness && ${MAKE}  -f Makefile CONF=Debug clean
 	cd ../../MCD/Core && ${MAKE}  -f Makefile CONF=Debug clean
+	cd ../../3Party/CppTestHarness && ${MAKE}  -f Makefile CONF=Debug clean
 	cd ../../MCD/Core && ${MAKE}  -f Makefile CONF=Debug clean
 
 # Enable dependency checking

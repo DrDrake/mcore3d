@@ -378,14 +378,14 @@ public:
 	{
 		/*! The data stored in the buffer object is unlikely to change and will be used
 			possibly many times as a source for drawing. This hint tells the implementation
-			to put the data somewhere it¡¦s quick to draw from, but probably not quick to
+			to put the data somewhere it' s quick to draw from, but probably not quick to
 			update.
 		 */
 		Static	= 0x88E4,
 
 		/*! The data stored in the buffer object is likely to change frequently but is likely
 			to be used as a source for drawing several times in between changes. This hint
-			tells the implementation to put the data somewhere it won¡¦t be too painful to
+			tells the implementation to put the data somewhere it won't be too painful to
 			update once in a while.
 		 */
 		Dynamic	= 0x88E8,

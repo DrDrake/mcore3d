@@ -16,15 +16,18 @@ CC=gcc
 CCC=g++
 CXX=g++
 FC=
+AS=as
 
 # Macros
-PLATFORM=GNU-Linux-x86
+CND_PLATFORM=GNU-Linux-x86
+CND_CONF=Debug
+CND_DISTDIR=dist
 
 # Include project Makefile
 include Makefile
 
 # Object Directory
-OBJECTDIR=build/Debug/${PLATFORM}
+OBJECTDIR=build/${CND_CONF}/${CND_PLATFORM}
 
 # Object Files
 OBJECTFILES= \
@@ -43,33 +46,36 @@ CXXFLAGS=-msse2
 # Fortran Compiler Flags
 FFLAGS=-msse2
 
+# Assembler Flags
+ASFLAGS=
+
 # Link Libraries and Options
 LDLIBSOPTIONS=
 
 # Build Targets
 .build-conf: ${BUILD_SUBPROJECTS}
-	${MAKE}  -f nbproject/Makefile-Debug.mk Debug/${PLATFORM}/libSmallJpeg.so
+	${MAKE}  -f nbproject/Makefile-Debug.mk dist/Debug/GNU-Linux-x86/libSmallJpeg.so
 
-Debug/${PLATFORM}/libSmallJpeg.so: ${OBJECTFILES}
-	${MKDIR} -p Debug/${PLATFORM}
-	${LINK.cc} -shared -o Debug/${PLATFORM}/libSmallJpeg.so -fPIC ${OBJECTFILES} ${LDLIBSOPTIONS} 
+dist/Debug/GNU-Linux-x86/libSmallJpeg.so: ${OBJECTFILES}
+	${MKDIR} -p dist/Debug/GNU-Linux-x86
+	${LINK.cc} -shared -o ${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/libSmallJpeg.so -fPIC ${OBJECTFILES} ${LDLIBSOPTIONS} 
 
-${OBJECTDIR}/jidctfst.o: jidctfst.cpp 
+${OBJECTDIR}/jidctfst.o: nbproject/Makefile-${CND_CONF}.mk jidctfst.cpp 
 	${MKDIR} -p ${OBJECTDIR}
 	${RM} $@.d
 	$(COMPILE.cc) -g -fPIC  -MMD -MP -MF $@.d -o ${OBJECTDIR}/jidctfst.o jidctfst.cpp
 
-${OBJECTDIR}/jpegdecoder.o: jpegdecoder.cpp 
+${OBJECTDIR}/jpegdecoder.o: nbproject/Makefile-${CND_CONF}.mk jpegdecoder.cpp 
 	${MKDIR} -p ${OBJECTDIR}
 	${RM} $@.d
 	$(COMPILE.cc) -g -fPIC  -MMD -MP -MF $@.d -o ${OBJECTDIR}/jpegdecoder.o jpegdecoder.cpp
 
-${OBJECTDIR}/idct.o: idct.cpp 
+${OBJECTDIR}/idct.o: nbproject/Makefile-${CND_CONF}.mk idct.cpp 
 	${MKDIR} -p ${OBJECTDIR}
 	${RM} $@.d
 	$(COMPILE.cc) -g -fPIC  -MMD -MP -MF $@.d -o ${OBJECTDIR}/idct.o idct.cpp
 
-${OBJECTDIR}/H2v2.o: H2v2.cpp 
+${OBJECTDIR}/H2v2.o: nbproject/Makefile-${CND_CONF}.mk H2v2.cpp 
 	${MKDIR} -p ${OBJECTDIR}
 	${RM} $@.d
 	$(COMPILE.cc) -g -fPIC  -MMD -MP -MF $@.d -o ${OBJECTDIR}/H2v2.o H2v2.cpp
@@ -80,7 +86,7 @@ ${OBJECTDIR}/H2v2.o: H2v2.cpp
 # Clean Targets
 .clean-conf:
 	${RM} -r build/Debug
-	${RM} Debug/${PLATFORM}/libSmallJpeg.so
+	${RM} dist/Debug/GNU-Linux-x86/libSmallJpeg.so
 
 # Subprojects
 .clean-subprojects:

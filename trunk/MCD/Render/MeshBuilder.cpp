@@ -8,6 +8,7 @@
 #include "../Core/System/Log.h"
 #include "../../3Party/glew/glew.h"
 #include <limits>
+#include <string.h>	// for strlen
 #ifdef MCD_VC
 #	pragma warning(push)
 #	pragma warning(disable: 6011)

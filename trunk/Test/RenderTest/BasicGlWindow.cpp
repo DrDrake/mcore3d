@@ -6,6 +6,7 @@
 #include "../../MCD/Core/System/MemoryProfiler.h"
 #include "../../3Party/glew/glew.h"
 #include <iostream>
+#include <stdio.h>	// for printf
 
 #if defined(MCD_VC)
 #	pragma comment(lib, "OpenGL32")
