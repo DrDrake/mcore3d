@@ -33,8 +33,7 @@ struct ReturnSpecialization {
 
 	static int Call(RT (*func)(),HSQUIRRELVM v,int /*index*/) {
 		RT ret = func();
-		ReturnPolicy::template pushResult<RT>(v,ret);
-		return 1;
+		return ReturnPolicy::template pushResult<RT>(v,ret);
 	}
 
 	template<typename P1>
@@ -43,8 +42,7 @@ struct ReturnSpecialization {
 		RT ret = func(
 			get(types::TypeSelect<P1>(),v,index + 0)
 			);
-		ReturnPolicy::template pushResult<RT>(v,ret);
-		return 1;
+		return ReturnPolicy::template pushResult<RT>(v,ret);
 	}
 
 	template<typename P1,typename P2>
@@ -55,8 +53,7 @@ struct ReturnSpecialization {
 			get(types::TypeSelect<P1>(),v,index + 0),
 			get(types::TypeSelect<P2>(),v,index + 1)
 			);
-		ReturnPolicy::template pushResult<RT>(v,ret);
-		return 1;
+		return ReturnPolicy::template pushResult<RT>(v,ret);
 	}
 
 	template<typename P1,typename P2,typename P3>
@@ -69,8 +66,7 @@ struct ReturnSpecialization {
 			get(types::TypeSelect<P2>(),v,index + 1),
 			get(types::TypeSelect<P3>(),v,index + 2)
 			);
-		ReturnPolicy::template pushResult<RT>(v,ret);
-		return 1;
+		return ReturnPolicy::template pushResult<RT>(v,ret);
 	}
 
 	template<typename P1,typename P2,typename P3,typename P4>
@@ -85,8 +81,7 @@ struct ReturnSpecialization {
 			get(types::TypeSelect<P3>(),v,index + 2),
 			get(types::TypeSelect<P4>(),v,index + 3)
 			);
-		ReturnPolicy::template pushResult<RT>(v,ret);
-		return 1;
+		return ReturnPolicy::template pushResult<RT>(v,ret);
 	}
 
 	template<typename P1,typename P2,typename P3,typename P4,typename P5>
@@ -103,8 +98,7 @@ struct ReturnSpecialization {
 			get(types::TypeSelect<P4>(),v,index + 3),
 			get(types::TypeSelect<P5>(),v,index + 4)
 			);
-		ReturnPolicy::template pushResult<RT>(v,ret);
-		return 1;
+		return ReturnPolicy::template pushResult<RT>(v,ret);
 	}
 
 	template<typename P1,typename P2,typename P3,typename P4,typename P5,typename P6>
@@ -123,8 +117,7 @@ struct ReturnSpecialization {
 			get(types::TypeSelect<P5>(),v,index + 4),
 			get(types::TypeSelect<P6>(),v,index + 5)
 			);
-		ReturnPolicy::template pushResult<RT>(v,ret);
-		return 1;
+		return ReturnPolicy::template pushResult<RT>(v,ret);
 	}
 
 	template<typename P1,typename P2,typename P3,typename P4,typename P5,typename P6,typename P7>
@@ -145,8 +138,7 @@ struct ReturnSpecialization {
 			get(types::TypeSelect<P6>(),v,index + 5),
 			get(types::TypeSelect<P6>(),v,index + 6)
 			);
-		ReturnPolicy::template pushResult<RT>(v,ret);
-		return 1;
+		return ReturnPolicy::template pushResult<RT>(v,ret);
 	}
 
 	//
@@ -156,8 +148,7 @@ struct ReturnSpecialization {
 	template <typename Callee>
 	static int Call(Callee & callee,RT (Callee::*func)(),HSQUIRRELVM v,int /*index*/) {
 		RT ret = (callee.*func)();
-		ReturnPolicy::template pushResult<RT>(v,ret);
-		return 1;
+		return ReturnPolicy::template pushResult<RT>(v,ret);
 	}
 
 	template <typename Callee,typename P1>
@@ -166,8 +157,7 @@ struct ReturnSpecialization {
 		RT ret = (callee.*func)(
 			get(types::TypeSelect<P1>(),v,index + 0)
 			);
-		ReturnPolicy::template pushResult<RT>(v,ret);
-		return 1;
+		return ReturnPolicy::template pushResult<RT>(v,ret);
 	}
 
 	template<typename Callee,typename P1,typename P2>
@@ -178,8 +168,7 @@ struct ReturnSpecialization {
 			get(types::TypeSelect<P1>(),v,index + 0),
 			get(types::TypeSelect<P2>(),v,index + 1)
 			);
-		ReturnPolicy::template pushResult<RT>(v,ret);
-		return 1;
+		return ReturnPolicy::template pushResult<RT>(v,ret);
 	}
 
 	template<typename Callee,typename P1,typename P2,typename P3>
@@ -192,8 +181,7 @@ struct ReturnSpecialization {
 			get(types::TypeSelect<P2>(),v,index + 1),
 			get(types::TypeSelect<P3>(),v,index + 2)
 			);
-		ReturnPolicy::template pushResult<RT>(v,ret);
-		return 1;
+		return ReturnPolicy::template pushResult<RT>(v,ret);
 	}
 
 	template<typename Callee,typename P1,typename P2,typename P3,typename P4>
@@ -208,8 +196,7 @@ struct ReturnSpecialization {
 			get(types::TypeSelect<P3>(),v,index + 2),
 			get(types::TypeSelect<P4>(),v,index + 3)
 			);
-		ReturnPolicy::template pushResult<RT>(v,ret);
-		return 1;
+		return ReturnPolicy::template pushResult<RT>(v,ret);
 	}
 
 	template<typename Callee,typename P1,typename P2,typename P3,typename P4,typename P5>
@@ -226,8 +213,7 @@ struct ReturnSpecialization {
 			get(types::TypeSelect<P4>(),v,index + 3),
 			get(types::TypeSelect<P5>(),v,index + 4)
 			);
-		ReturnPolicy::template pushResult<RT>(v,ret);
-		return 1;
+		return ReturnPolicy::template pushResult<RT>(v,ret);
 	}
 
 	template<typename Callee,typename P1,typename P2,typename P3,typename P4,typename P5,typename P6>
@@ -246,8 +232,7 @@ struct ReturnSpecialization {
 			get(types::TypeSelect<P5>(),v,index + 4),
 			get(types::TypeSelect<P6>(),v,index + 5)
 			);
-		ReturnPolicy::template pushResult<RT>(v,ret);
-		return 1;
+		return ReturnPolicy::template pushResult<RT>(v,ret);
 	}
 
 	template<typename Callee,typename P1,typename P2,typename P3,typename P4,typename P5,typename P6,typename P7>
@@ -268,8 +253,7 @@ struct ReturnSpecialization {
 			get(types::TypeSelect<P6>(),v,index + 5),
 			get(types::TypeSelect<P7>(),v,index + 6)
 			);
-		ReturnPolicy::template pushResult<RT>(v,ret);
-		return 1;
+		return ReturnPolicy::template pushResult<RT>(v,ret);
 	}
 
 	//
@@ -279,8 +263,7 @@ struct ReturnSpecialization {
 	template <typename Callee>
 	static int Call(Callee & callee,RT (Callee::*func)() const,HSQUIRRELVM v,int /*index*/) {
 		RT ret = (callee.*func)();
-		ReturnPolicy::template pushResult<RT>(v,ret);
-		return 1;
+		return ReturnPolicy::template pushResult<RT>(v,ret);
 	}
 
 	template <typename Callee,typename P1>
@@ -289,8 +272,7 @@ struct ReturnSpecialization {
 		RT ret = (callee.*func)(
 			get(types::TypeSelect<P1>(),v,index + 0)
 			);
-		ReturnPolicy::template pushResult<RT>(v,ret);
-		return 1;
+		return ReturnPolicy::template pushResult<RT>(v,ret);
 	}
 
 	template<typename Callee,typename P1,typename P2>
@@ -301,8 +283,7 @@ struct ReturnSpecialization {
 			get(types::TypeSelect<P1>(),v,index + 0),
 			get(types::TypeSelect<P2>(),v,index + 1)
 			);
-		ReturnPolicy::template pushResult<RT>(v,ret);
-		return 1;
+		return ReturnPolicy::template pushResult<RT>(v,ret);
 	}
 
 	template<typename Callee,typename P1,typename P2,typename P3>
@@ -315,8 +296,7 @@ struct ReturnSpecialization {
 			get(types::TypeSelect<P2>(),v,index + 1),
 			get(types::TypeSelect<P3>(),v,index + 2)
 			);
-		ReturnPolicy::template pushResult<RT>(v,ret);
-		return 1;
+		return ReturnPolicy::template pushResult<RT>(v,ret);
 	}
 
 	template<typename Callee,typename P1,typename P2,typename P3,typename P4>
@@ -331,8 +311,7 @@ struct ReturnSpecialization {
 			get(types::TypeSelect<P3>(),v,index + 2),
 			get(types::TypeSelect<P4>(),v,index + 3)
 			);
-		ReturnPolicy::template pushResult<RT>(v,ret);
-		return 1;
+		return ReturnPolicy::template pushResult<RT>(v,ret);
 	}
 
 	template<typename Callee,typename P1,typename P2,typename P3,typename P4,typename P5>
@@ -349,8 +328,7 @@ struct ReturnSpecialization {
 			get(types::TypeSelect<P4>(),v,index + 3),
 			get(types::TypeSelect<P5>(),v,index + 4)
 			);
-		ReturnPolicy::template pushResult<RT>(v,ret);
-		return 1;
+		return ReturnPolicy::template pushResult<RT>(v,ret);
 	}
 
 	template<typename Callee,typename P1,typename P2,typename P3,typename P4,typename P5,typename P6>
@@ -369,8 +347,7 @@ struct ReturnSpecialization {
 			get(types::TypeSelect<P5>(),v,index + 4),
 			get(types::TypeSelect<P6>(),v,index + 5)
 			);
-		ReturnPolicy::template pushResult<RT>(v,ret);
-		return 1;
+		return ReturnPolicy::template pushResult<RT>(v,ret);
 	}
 
 	template<typename Callee,typename P1,typename P2,typename P3,typename P4,typename P5,typename P6,typename P7>
@@ -391,8 +368,7 @@ struct ReturnSpecialization {
 			get(types::TypeSelect<P6>(),v,index + 5),
 			get(types::TypeSelect<P7>(),v,index + 6)
 			);
-		ReturnPolicy::template pushResult<RT>(v,ret);
-		return 1;
+		return ReturnPolicy::template pushResult<RT>(v,ret);
 	}
 };
 

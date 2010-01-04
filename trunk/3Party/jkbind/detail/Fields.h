@@ -11,8 +11,7 @@ inline int PushField(Callee* callee, RawField (Callee::*fieldPtr), HSQUIRRELVM v
 		return sq_throwerror(v, xSTRING("This pointer is null"));
 
 	typedef types::GetterSetter<RawField> GetterSetter;
-	ResultPolicy::pushResult(v, GetterSetter::get(callee->*fieldPtr));
-	return 1;
+	return ResultPolicy::template pushResult(v, GetterSetter::get(callee->*fieldPtr));
 }
 
 template<typename Callee, typename Field, typename ReturnPolicy>

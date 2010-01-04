@@ -25,9 +25,10 @@ class plain
 {
 public:
 	template<typename RT>
-	static inline void pushResult(HSQUIRRELVM v, RT result)
+	static inline SQInteger pushResult(HSQUIRRELVM v, RT result)
 	{
 		types::push(v, result);
+		return 1;
 	}
 };
 
@@ -51,12 +52,13 @@ class alreadyAsArg
 {
 public:
 	template<typename RT>
-	static inline void pushResult(HSQUIRRELVM v, RT result)
+	static inline SQInteger pushResult(HSQUIRRELVM v, RT result)
 	{
 		HSQOBJECT existingObj;
 		sq_resetobject(&existingObj);
 		sq_getstackobj(v, argNum, &existingObj);
 		sq_pushobject(v, existingObj);
+		return 1;
 	}
 };
 
@@ -74,9 +76,10 @@ class objNoCare
 {
 public:
 	template<typename RT>
-	static inline void pushResult(HSQUIRRELVM v, RT result)
+	static inline SQInteger pushResult(HSQUIRRELVM v, RT result)
 	{
 		types::push(v, result);
+		return 1;
 	}
 };
 
@@ -87,14 +90,18 @@ class construct
 {
 public:
 	template<typename RT>
-	static inline void pushResult(HSQUIRRELVM v, RT result)
+	static SQInteger pushResult(HSQUIRRELVM v, RT result)
 	{
 		typedef typename ptr::pointer<RT>::HostType HostType;
 		HostType* obj = ptr::pointer<RT>::to(result);
-		// TODO: Support negative indexing
-		sq_setinstanceup(v, 1, obj);
+
+		if(!obj || SQ_FAILED(sq_setinstanceup(v, 1, obj)))
+			return sq_throwerror(v, xSTRING("Failed to clone object"));
+
 		sq_setreleasehook(v, 1, _memoryControllerHook<HostType>);
 		types::addHandleToObject(v, obj, 1);
+
+		return 1;
 	}
 
 private:
@@ -114,10 +121,11 @@ class objOwn
 {
 public:
 	template<typename RT>
-	static inline void pushResult(HSQUIRRELVM v, RT result)
+	static inline SQInteger pushResult(HSQUIRRELVM v, RT result)
 	{
 		types::push(v, result);
 		sq_setreleasehook(v, -1, _memoryControllerHook<typename ptr::pointer<RT>::HostType>);
+		return 1;
 	}
 
 private:
@@ -138,7 +146,7 @@ class objPtr
 {
 public:
 	template<typename RT>
-	static inline void pushResult(HSQUIRRELVM v, RT result)
+	static inline SQInteger pushResult(HSQUIRRELVM v, RT result)
 	{
 		types::push(v, result);
 //		typedef typename ptr::pointer<RT>::HostType HostType;
@@ -149,6 +157,8 @@ public:
 		new(sq_newuserdata(v, sizeof(RT))) RT(result);
 		sq_setreleasehook(v, -1, _memoryControllerHook<RT>);
 //		jkSCRIPT_VERIFY(sq_set(v, -3));
+
+		return 1;
 	}
 
 private:
@@ -169,13 +179,14 @@ class objRefCount
 {
 public:
 	template<typename RT>
-	static inline void pushResult(HSQUIRRELVM v, RT result)
+	static inline SQInteger pushResult(HSQUIRRELVM v, RT result)
 	{
 		typedef typename ptr::pointer<RT>::HostType HostType;
 		HostType* obj = ptr::pointer<RT>::to(result);
 		RefPolicy::addRef(obj);
 		types::push(v, result);
 		sq_setreleasehook(v, -1, _memoryControllerHook<HostType>);
+		return 1;
 	}
 
 private:
@@ -196,16 +207,20 @@ class constructObjRefCount
 {
 public:
 	template<typename RT>
-	static inline void pushResult(HSQUIRRELVM v, RT result)
+	static inline SQInteger pushResult(HSQUIRRELVM v, RT result)
 	{
 		typedef typename ptr::pointer<RT>::HostType HostType;
 		HostType* obj = ptr::pointer<RT>::to(result);
 
 		RefPolicy::addRef(obj);
 		// TODO: Support negative indexing
-		sq_setinstanceup(v, 1, obj);
+		if(SQ_FAILED(sq_setinstanceup(v, 1, obj)))
+			return -1;
+
 		sq_setreleasehook(v, 1, _memoryControllerHook<HostType>);
 		types::addHandleToObject(v, obj, 1);
+
+		return 1;
 	}
 
 private:
