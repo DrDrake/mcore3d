@@ -231,6 +231,7 @@ std::wstring Entity::getRelativePathFrom(const Entity& from) const
 		for(int i=thisLevel-commonLevel; i--; )
 			e1 = e1->parent();
 		for(int i=fromLevel-commonLevel; i--; ) {
+			MCD_ASSUME(e2);
 			e2 = e2->parent();
 			ret += L"../";
 		}
@@ -239,6 +240,8 @@ std::wstring Entity::getRelativePathFrom(const Entity& from) const
 		for(size_t i=commonLevel; i--; ) {
 			if(e1 == e2)
 				break;
+			MCD_ASSUME(e1);
+			MCD_ASSUME(e2);
 			e1 = e1->parent();
 			e2 = e2->parent();
 			ret += L"../";
@@ -246,8 +249,11 @@ std::wstring Entity::getRelativePathFrom(const Entity& from) const
 		}
 
 		lcp = e1;
-		MCD_ASSERT(lcp);
 		levelDiff = thisLevel - commonLevel;
+
+		// The 2 incomming nodes are of seperated tree.
+		if(!lcp)
+			return L"";
 	}
 
 	if(levelDiff > 0)
@@ -255,8 +261,11 @@ std::wstring Entity::getRelativePathFrom(const Entity& from) const
 		const Entity** tmp = (const Entity**)MCD_STACKALLOCA(sizeof(Entity*) * levelDiff);
 		size_t count = 0;
 
-		for(const Entity* e = this; e != lcp; e=e->parent(), ++count)
+		for(const Entity* e = this; e != lcp; ++count) {
 			tmp[count] = e;
+			MCD_ASSUME(e);
+			e = e->parent();
+		}
 
 		MCD_ASSERT(count == levelDiff);
 

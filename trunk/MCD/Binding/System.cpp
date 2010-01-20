@@ -79,7 +79,7 @@ static const wchar_t* floatToHex(float f) {
 static float floatFromHex(const wchar_t* s) {
 	MCD_ASSERT(::wcslen(s) == sizeof(float) * 2);
 	float ret;
-	::swscanf(s, L"%X", (int*)(&ret));
+	MCD_VERIFY(::swscanf(s, L"%X", (int*)(&ret)) == 1);
 	return ret;
 }
 

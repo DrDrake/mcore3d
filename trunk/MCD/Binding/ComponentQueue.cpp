@@ -137,7 +137,8 @@ static int componentQueueUpdate(HSQUIRRELVM vm)
 	const ComponentQueue::QueueNode* queueNode = nullptr;
 	do {
 		Component* c = q.getItem(time, queueNode);
-		if(c && c->entity() && c->entity()->enabled) {
+		Entity* e;
+		if(c && (e = c->entity()) != nullptr && e->enabled) {
 			objNoCare::pushResult(vm, c);
 			sq_pushstring(vm, xSTRING("wakeup"), -1);
 			sq_get(vm, -2);	// Get the "wakeup" function from the component
