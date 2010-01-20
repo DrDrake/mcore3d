@@ -284,6 +284,14 @@ TEST(GetRelativePath_EntityTest)
 
 	CHECK_EQUAL(L"../../e1/e12/", e12->getRelativePathFrom(*e21));
 	CHECK_EQUAL(L"../../e2/e21/", e21->getRelativePathFrom(*e12));
+
+	// Test with 2 totally seperated tree
+	Entity root2;
+	CHECK_EQUAL(L"", root.getRelativePathFrom(root2));
+
+	Entity* e = new Entity;
+	e->asChildOf(&root2);
+	CHECK_EQUAL(L"", e1->getRelativePathFrom(*e));
 }
 
 namespace Clone_EntityTest

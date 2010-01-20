@@ -50,10 +50,10 @@ static bool mat44IsIdentity(const Mat44f& m) { return m == Mat44f::cIdentity; }
 static void mat44FromHex(Mat44f& m, const wchar_t* s) {
 	MCD_ASSERT(::wcslen(s) == sizeof(float) * 2 * (4*4));
 	MCD_VERIFY(::swscanf(s, L"%8X%8X%8X%8X%8X%8X%8X%8X%8X%8X%8X%8X%8X%8X%8X%8X",
-		&m.m00, &m.m01, &m.m02, &m.m03,
-		&m.m10, &m.m11, &m.m12, &m.m13,
-		&m.m20, &m.m21, &m.m22, &m.m23,
-		&m.m30, &m.m31, &m.m32, &m.m33
+		(int*)&m.m00, (int*)&m.m01, (int*)&m.m02, (int*)&m.m03,
+		(int*)&m.m10, (int*)&m.m11, (int*)&m.m12, (int*)&m.m13,
+		(int*)&m.m20, (int*)&m.m21, (int*)&m.m22, (int*)&m.m23,
+		(int*)&m.m30, (int*)&m.m31, (int*)&m.m32, (int*)&m.m33
 	) == 16);
 }
 
@@ -124,7 +124,7 @@ static bool isEqualVec2(const Vec2f& lhs, const Vec2f& rhs) { return lhs == rhs;
 static void vec2MulEqual(Vec2f& lhs, float rhs) { lhs *= rhs; }
 static void vec2FromHex(Vec2f& v, const wchar_t* s) {
 	MCD_ASSERT(::wcslen(s) == sizeof(float) * 2 * 2);
-	::swscanf(s, L"%X%X", &v.x, &v.y);
+	MCD_VERIFY(::swscanf(s, L"%X%X", (int*)&v.x, (int*)&v.y) == 2);
 }
 
 SCRIPT_CLASS_REGISTER_NAME(Vec2f, "Vec2")
@@ -184,7 +184,7 @@ static void vec3AddEqual(Vec3f& lhs, const Vec3f& rhs) { lhs += rhs; }
 static void vec3MulEqual(Vec3f& lhs, float rhs) { lhs *= rhs; }
 static void vec3FromHex(Vec3f& v, const wchar_t* s) {
 	MCD_ASSERT(::wcslen(s) == sizeof(float) * 2 * 3);
-	::swscanf(s, L"%X%X%X", &v.x, &v.y, &v.z);
+	MCD_VERIFY(::swscanf(s, L"%X%X%X", (int*)&v.x, (int*)&v.y, (int*)&v.z) == 3);
 }
 
 SCRIPT_CLASS_REGISTER_NAME(Vec3f, "Vec3")

@@ -81,16 +81,27 @@ void AnimationInstance::update()
 	// Zero out interpolatedResult first
 	::memset(&result[0], 0, result.sizeInByte());
 
-	MCD_FOREACH(const WeightedTrack& wt, mTracks) {
+	// We cannot use foreach here
+	const size_t cTrackCnt = mTracks.size();
+
+	for(size_t i = 0; i < cTrackCnt; ++i) {
+
+		WeightedTrack& wt = mTracks[i];
+
 		if(wt.weight == 0 || !wt.track) continue;
 
 		AnimationTrack& t = *wt.track;
 
 		t.acquireReadLock();
+
+		// Assign naturalFramerate to wt.frameRate if it is <= 0
+		if(wt.frameRate <= 0)
+			wt.frameRate = wt.track->naturalFramerate;
+
 		t.updateNoLock(time * wt.frameRate);
 
-		for(size_t i=0; i<t.subtrackCount(); ++i)
-			reinterpret_cast<Vec4f&>(result[i]) += wt.weight * reinterpret_cast<Vec4f&>(t.interpolatedResult[i]);
+		for(size_t j=0; j<t.subtrackCount(); ++j)
+			reinterpret_cast<Vec4f&>(result[j]) += wt.weight * reinterpret_cast<Vec4f&>(t.interpolatedResult[j]);
 
 		t.releaseReadLock();
 	}
@@ -100,7 +111,7 @@ bool AnimationInstance::addTrack(AnimationTrack& track, float weight, float fram
 {
 	ScopeRecursiveLock lock(mMutex);
 
-	WeightedTrack t = { weight, framerate <= 0 ? track.naturalFramerate : framerate, &track };
+	WeightedTrack t = { weight, framerate, &track };
 	mTracks.push_back(t);
 
 	// Destroy the interpolatedResult and let update() to recreate it,

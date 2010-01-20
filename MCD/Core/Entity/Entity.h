@@ -102,7 +102,7 @@ public:
 	sal_maybenull Entity* findEntityByPath(sal_in_z const wchar_t* path) const;
 
 	/*!	Comput the relative path from one Entity to this Entity.
-		Returns empty string with both Entity are just the same.
+		Returns empty string when both Entity are just the same, or they are not in the same tree.
 	 */
 	std::wstring getRelativePathFrom(const Entity& e) const;
 
