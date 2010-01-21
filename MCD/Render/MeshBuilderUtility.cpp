@@ -16,7 +16,7 @@ bool MeshBuilderUtility::copyVertexAttributes(
 
 	if(bufferCount != destBuilder.bufferCount()) return false;
 
-	destBuilder.resizeVertexBuffer(uint16_t(srcIndex.size));
+	if(!destBuilder.resizeVertexBuffer(uint16_t(srcIndex.size))) return false;
 
 	for(size_t i=1; i<bufferCount; ++i)	// We skip the first buffer, which is index buffer
 	{
@@ -67,7 +67,7 @@ void MeshBuilderUtility::split(size_t splitCount, MeshBuilder2& srcBuilder, Mesh
 
 		uniqueIdx.clear();
 		uint16_t uniqueVertexCount = 0;
-		outBuilders[i].resizeIndexBuffer(srcIdx.size);
+		MCD_VERIFY(outBuilders[i].resizeIndexBuffer(srcIdx.size));
 		StrideArray<uint16_t> outIdx(outBuilders[i].getBufferPointer(0), srcIdx.size); 
 
 		// Build up the unique index map
@@ -81,7 +81,7 @@ void MeshBuilderUtility::split(size_t splitCount, MeshBuilder2& srcBuilder, Mesh
 		}
 
 		MCD_ASSERT(uniqueVertexCount <= srcIdx.size);
-		outBuilders[i].resizeVertexBuffer(uniqueVertexCount);
+		MCD_VERIFY(outBuilders[i].resizeVertexBuffer(uniqueVertexCount));
 
 		copyVertexAttributes(
 			srcBuilder, outBuilders[i],

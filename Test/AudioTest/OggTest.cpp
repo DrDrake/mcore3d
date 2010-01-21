@@ -157,7 +157,7 @@ TEST_FIXTURE(OggTestFixture, LoopTest)
 	source.play();
 	waitForSourceFinish(source);
 
-	source.seek(0);
+	CHECK(source.seek(0));
 	source.play();
 	waitForSourceFinish(source);
 }

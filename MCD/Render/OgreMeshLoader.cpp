@@ -432,8 +432,9 @@ void OgreMeshLoader::Impl::commit(Resource& resource)
 			delete[] map; map = nullptr;
 		}
 
-		Model::MeshAndMaterial* meshMat = new Model::MeshAndMaterial;
+		std::auto_ptr<Model::MeshAndMaterial> meshMat(new Model::MeshAndMaterial);
 		model.mMeshes.pushBack(*meshMat);
+		meshMat.release	();
 
 		meshMat->mesh = mesh;
 		meshMat->effect = new Effect(L"");
