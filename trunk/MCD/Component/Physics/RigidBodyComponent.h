@@ -30,7 +30,7 @@ public:
 // Cloning
 	sal_override sal_checkreturn bool cloneable() const { return true; }
 
-	sal_override sal_notnull Component* clone() const;
+	sal_override sal_maybenull Component* clone() const;
 
 // Override from BehaviourComponent
 	sal_override void update(float dt);

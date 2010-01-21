@@ -845,13 +845,14 @@ void Max3dsLoader::Impl::commit(Resource& resource)
 			// Assign material
 			subObject.material->init();
 
-			Model::MeshAndMaterial* meshMat = new Model::MeshAndMaterial;
+			std::auto_ptr<Model::MeshAndMaterial> meshMat(new Model::MeshAndMaterial);
 			meshMat->mesh = mesh;
 			meshMat->effect = new Effect(L"");
 			meshMat->effect->material.reset(subObject.material->clone());
 			meshMat->name = modelInfo.name;
 
 			model.mMeshes.pushBack(*meshMat);
+			meshMat.release();
 		}
 	}
 
