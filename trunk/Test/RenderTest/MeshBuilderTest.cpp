@@ -115,12 +115,13 @@ TEST_FIXTURE(MeshBuilderTestFixture, split)
 
 	uint16_t i_[cSplitCount][4] =			{ { 4, 7, 7, 3 }, { 5, 6, 7, 999 }, { 2, 2, 5, 2 } };
 	uint16_t expectedIdx_[cSplitCount][4] =	{ { 0, 1, 1, 2 }, { 0, 1, 2, 999 }, { 0, 0, 1, 0 } };
+	MeshBuilder2* destBuildersArray[cSplitCount] = { &destBuilders[0], &destBuilders[1], &destBuilders[2] };
 
 	StrideArray<uint16_t> indices[cSplitCount] = {
 		StrideArray<uint16_t>(i_[0], 4), StrideArray<uint16_t>(i_[1], 3), StrideArray<uint16_t>(i_[2], 4)
 	};
 
-	MeshBuilderUtility::split(cSplitCount, srcBuilder, destBuilders, indices);
+	MeshBuilderUtility::split(cSplitCount, srcBuilder, destBuildersArray, indices);
 
 	for(size_t i=0; i<cSplitCount; ++i) {
 		MeshBuilder2& destBuilder = destBuilders[i];
