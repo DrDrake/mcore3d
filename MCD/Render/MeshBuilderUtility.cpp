@@ -39,20 +39,23 @@ bool MeshBuilderUtility::copyVertexAttributes(
 
 /*!	\param srcBuilder Contains a large buffer of vertex attribute, the inside index buffer is ignored.
 	\param outBuilders Pointer to an array of MeshBuilder. We will fill both vertex and index data into them.
-	\param faceIndices An array of index which those index are indexing the srcBuilder.
+	\param faceIndices An array of index which indexing the srcBuilder vertex.
  */
-void MeshBuilderUtility::split(size_t splitCount, MeshBuilder2& srcBuilder, MeshBuilder2* outBuilders, StrideArray<uint16_t>* faceIndices)
+void MeshBuilderUtility::split(size_t splitCount, MeshBuilder2& srcBuilder, MeshBuilder2** outBuilders, StrideArray<uint16_t>* faceIndices)
 {
+	if(splitCount == 0)
+		return;
+
 	MCD_ASSERT(srcBuilder.vertexCount() < uint16_t(-1) && "uint16_t(-1) is reserved for error indication");
 
 	// Multiplex the declarations from srcBuilder to outBuilders
 	for(size_t i=0; i<splitCount; ++i) {
-		outBuilders[i].clear();
+		outBuilders[i]->clear();
 		for(size_t j=1; j<srcBuilder.attributeCount(); ++j) {
 			size_t bufferId;
 			MeshBuilder2::Semantic semantic;
 			if(srcBuilder.getAttributePointer(j, nullptr, nullptr, &bufferId, &semantic))
-				outBuilders[i].declareAttribute(semantic, bufferId);
+				outBuilders[i]->declareAttribute(semantic, bufferId);
 		}
 	}
 
@@ -67,8 +70,8 @@ void MeshBuilderUtility::split(size_t splitCount, MeshBuilder2& srcBuilder, Mesh
 
 		uniqueIdx.clear();
 		uint16_t uniqueVertexCount = 0;
-		MCD_VERIFY(outBuilders[i].resizeIndexBuffer(srcIdx.size));
-		StrideArray<uint16_t> outIdx(outBuilders[i].getBufferPointer(0), srcIdx.size); 
+		MCD_VERIFY(outBuilders[i]->resizeIndexBuffer(srcIdx.size));
+		StrideArray<uint16_t> outIdx(outBuilders[i]->getBufferPointer(0), srcIdx.size); 
 
 		// Build up the unique index map
 		for(size_t j=0; j<srcIdx.size; ++j) {
@@ -81,10 +84,10 @@ void MeshBuilderUtility::split(size_t splitCount, MeshBuilder2& srcBuilder, Mesh
 		}
 
 		MCD_ASSERT(uniqueVertexCount <= srcIdx.size);
-		MCD_VERIFY(outBuilders[i].resizeVertexBuffer(uniqueVertexCount));
+		MCD_VERIFY(outBuilders[i]->resizeVertexBuffer(uniqueVertexCount));
 
 		copyVertexAttributes(
-			srcBuilder, outBuilders[i],
+			srcBuilder, *outBuilders[i],
 			FixStrideArray<uint16_t>(&uniqueIdx[0], uniqueIdx.size())
 		);
 	}
@@ -94,8 +97,8 @@ void MeshBuilderUtility::computNormal(MeshBuilder2& builder, size_t whichBufferI
 {
 	const SemanticMap& map = SemanticMap::getSingleton();
 
-	if(!builder.declareAttribute(map.normal(), whichBufferIdStoreNormal))
-		Log::write(Log::Warn, L"The mesh already has a normal semantic");
+	// In case that the builder doesn't has a normal attribute yet.
+	builder.declareAttribute(map.normal(), whichBufferIdStoreNormal);
 
 	const size_t indexCount = builder.indexCount();
 	const size_t vertexCount = builder.vertexCount();

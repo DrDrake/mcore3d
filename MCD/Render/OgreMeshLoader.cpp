@@ -433,9 +433,6 @@ void OgreMeshLoader::Impl::commit(Resource& resource)
 		}
 
 		std::auto_ptr<Model::MeshAndMaterial> meshMat(new Model::MeshAndMaterial);
-		model.mMeshes.pushBack(*meshMat);
-		meshMat.release	();
-
 		meshMat->mesh = mesh;
 		meshMat->effect = new Effect(L"");
 		meshMat->name = geo.name;
@@ -451,6 +448,9 @@ void OgreMeshLoader::Impl::commit(Resource& resource)
 			if(Effect* effect = dynamic_cast<Effect*>(geo.material.get()))
 				meshMat->effect = effect;
 		}
+
+		model.mMeshes.pushBack(*meshMat);
+		meshMat.release();
 	}
 }
 

@@ -80,6 +80,9 @@ int MeshBuilder2::declareAttribute(const Semantic& semantic, size_t bufferId)
 	if(semantic.name == nullptr || ::strlen(semantic.name) == 0)
 		return -1;
 
+	if(findAttributeId(semantic.name) != -1)
+		return -1;
+
 	// Create new buffer to match the bufferId param
 	while(bufferId >= mImpl.buffers.size())
 		mImpl.buffers.push_back(new Impl::Buffer);
@@ -188,7 +191,7 @@ size_t MeshBuilder2::bufferCount() const
 
 int MeshBuilder2::findAttributeId(const char* semanticName) const
 {
-	for(size_t i=1; i<mImpl.attributes.size(); ++i)
+	for(size_t i=0; i<mImpl.attributes.size(); ++i)
 		if(::strcmp(mImpl.attributes[i].semantic.name, semanticName) == 0)
 			return i;
 

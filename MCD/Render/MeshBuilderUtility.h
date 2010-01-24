@@ -29,7 +29,7 @@ public:
 		FixStrideArray<uint16_t> srcIndex
 	);
 
-	static void split(size_t splitCount, MeshBuilder2& srcBuilder, MeshBuilder2* outBuilders, StrideArray<uint16_t>* faceIndices);
+	static void split(size_t splitCount, MeshBuilder2& srcBuilder, MeshBuilder2** outBuilders, StrideArray<uint16_t>* faceIndices);
 
 	/*!	Compute vertex normals
 		Reference: http://www.gamedev.net/community/forums/topic.asp?topic_id=313015
