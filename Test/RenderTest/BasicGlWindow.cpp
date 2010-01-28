@@ -99,16 +99,13 @@ BasicGlWindow::BasicGlWindow(const wchar_t* options)
 	// Set up and enable light 0
 	glEnable(GL_LIGHTING);
 	glEnable(GL_LIGHT0);
-	GLfloat ambientLight[] = { 0.5f, 0.5f, 0.5f, 1.0f };
+	GLfloat ambientLight[] = { 0.1f, 0.1f, 0.1f, 1.0f };
 	GLfloat diffuseLight[] = { 1.0f, 1.0f, 1.0f, 1.0f };
 	GLfloat specular[] = { 1.0f, 1.0f, 1.0f, 1.0f };
 
 	glLightfv(GL_LIGHT0, GL_AMBIENT, ambientLight);
 	glLightfv(GL_LIGHT0, GL_DIFFUSE, diffuseLight);
 	glLightfv(GL_LIGHT0, GL_SPECULAR, specular);
-
-	GLfloat lightPos[] = { 200, 200, 200, 1.0f };
-	glLightfv(GL_LIGHT0, GL_POSITION, lightPos);
 }
 
 BasicGlWindow::~BasicGlWindow()
@@ -140,8 +137,15 @@ void BasicGlWindow::preUpdate()
 {
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
+	// NOTE: this should be set per-frame since the light position
+	// stored in opengl is view-dependent
+	GLfloat lightPos[] = { 200, 200, 200, 1.0f };
+	glLightfv(GL_LIGHT0, GL_POSITION, lightPos);
+
 	glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();
+
+
 }
 
 void BasicGlWindow::update(float deltaTime)

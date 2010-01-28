@@ -65,7 +65,7 @@ TEST(copyEmptyVertexAttributes_MeshBuilderUtilityTest)
 {
 	// Empty builder
 	MeshBuilder2 srcBuilder, destBuilder;
-	CHECK(MeshBuilderUtility::copyVertexAttributes(
+	CHECK(!MeshBuilderUtility::copyVertexAttributes(
 		srcBuilder, destBuilder, FixStrideArray<uint16_t>(nullptr, 0)
 	));
 }

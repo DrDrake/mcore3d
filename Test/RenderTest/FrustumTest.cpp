@@ -31,7 +31,7 @@ TEST(FrustumTest)
 
 		// Change aspect ratio independently
 		f.setAcpectRatio(16.0f/9);
-		CHECK_CLOSE(10.0f, f.fov(), 1e-6);
+		CHECK_CLOSE(10.0f, f.fov(), 1e-5);
 		CHECK_CLOSE(16.0f/9, f.aspectRatio(), 1e-6);
 	}
 

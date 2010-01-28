@@ -456,11 +456,6 @@ TEST(ASSAOTest)
 			if(!mSceneRenderTarget.get() || !mSSAORenderTarget.get())
 				return;
 
-			// NOTE: this should be set per-frame since the light position
-			// stored in opengl is view-dependent
-			GLfloat lightPos[] = { 200, 200, 200, 1.0f };
-			glLightfv(GL_LIGHT0, GL_POSITION, lightPos);
-
 			drawScene();
 
 			postProcessing();
