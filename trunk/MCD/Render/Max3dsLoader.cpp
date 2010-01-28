@@ -3,21 +3,25 @@
 #include "Effect.h"
 #include "Material.h"
 #include "MeshBuilder.h"
+#include "MeshBuilderUtility.h"
 #include "Mesh.h"
-#include "EditableMesh.h"
 #include "Model.h"
+#include "SemanticMap.h"
 #include "Texture.h"
 #include "TangentSpaceBuilder.h"
-#include "../Core/Math/Vec2.h"
-#include "../Core/Math/Vec3.h"
+//#include "../Core/Math/Vec2.h"
+//#include "../Core/Math/Vec3.h"
 #include "../Core/Math/Mat44.h"
+#include "../Core/System/Log.h"
 #include "../Core/System/MemoryProfiler.h"
 #include "../Core/System/Mutex.h"
 #include "../Core/System/ResourceManager.h"
 #include "../Core/System/StrUtility.h"
 #include "../Core/System/Utility.h"
-#include <list>
+#include <limits>	// For numeric_limits
+#include <map>
 #include <memory>	// For auto_ptr
+#include <set>
 
 namespace MCD {
 
@@ -110,11 +114,10 @@ public:
 				, ColorProperty::ColorOperation::Replace
 				, shininess)
 			, 0
-			);
+		);
 
-		if(texture) {
+		if(texture)
 			addProperty(new TextureProperty(texture.get(), 0, GL_LINEAR, GL_LINEAR), 0);
-		}
 
 		inited = true;
 	}
@@ -136,6 +139,17 @@ public:
 		mIs.read((char*)&t, sizeof(t));
 		if(mIs.gcount() != sizeof(t))
 			mLoadingState = IResourceLoader::Aborted;
+	}
+
+	template<typename T>
+	void read(StrideArray<T>& t)
+	{
+		if(t.size == t.stride)
+			read(t.data, t.sizeInByte());
+		else {
+			for(size_t i=0; i<t.size; ++i)
+				read(t[i]);
+		}
 	}
 
 	void read(void* p, size_t size)
@@ -177,88 +191,6 @@ public:
 
 }	// namespace
 
-// Compute vertex normals
-// Reference: http://www.gamedev.net/community/forums/topic.asp?topic_id=313015
-// Reference: http://www.devmaster.net/forums/showthread.php?t=414
-static void computeNormal(const Vec3f* vertex, Vec3f* normal, const uint16_t* index, uint16_t vertexCount, size_t indexCount)
-{
-	// Calculate the face normal for each face
-	for(size_t i=0; i<indexCount; i+=3) {
-		uint16_t i0 = index[i+0];
-		uint16_t i1 = index[i+1];
-		uint16_t i2 = index[i+2];
-		Vec3f v1 = vertex[i0];
-		Vec3f v2 = vertex[i1];
-		Vec3f v3 = vertex[i2];
-
-		// We need not to normalize this faceNormal, since a vertex's normal
-		// should be influenced by a larger polygon.
-		Vec3f faceNormal = (v3 - v2) ^ (v1 - v2);
-
-		// Add the face normal to the corresponding vertices
-		normal[i0] += faceNormal;
-		normal[i1] += faceNormal;
-		normal[i2] += faceNormal;
-	}
-
-	// Normalize for each vertex normal
-	for(size_t i=0; i<vertexCount; ++i) {
-		normal[i].normalize();
-	}
-}
-
-static void computeNormal(const Vec3f* vertex, Vec3f* normal, const uint16_t* index, const uint32_t* smoothingGroup, uint16_t vertexCount, size_t indexCount)
-{
-	const size_t triangleCount = indexCount / 3;
-	std::vector<Vec3f> faceNormal;
-	faceNormal.reserve(triangleCount);
-
-	// Calculate the face normal for each triangle
-	for(size_t f = 0; f<indexCount; f+=3) {
-		uint16_t i0 = index[f+0];
-		uint16_t i1 = index[f+1];
-		uint16_t i2 = index[f+2];
-		const Vec3f& v1 = vertex[i0];
-		const Vec3f& v2 = vertex[i1];
-		const Vec3f& v3 = vertex[i2];
-		faceNormal.push_back((v3 - v2) ^ (v1 - v2));
-	}
-
-	//! Store info on which index is associated with a vertex (a single vertex can associate with a numbers of index)
-	typedef std::vector<size_t> Indexes;
-	typedef std::vector<Indexes> Vertex2TriangleIndexMapping;
-	Vertex2TriangleIndexMapping mapping;
-	mapping.resize(vertexCount);
-
-	// Loop for every triangle f
-	for(size_t f=0; f<indexCount; f+=3) {
-		// Loop for every vertex of f, namely v
-		for(size_t v=f; v<f+3u; ++v) {
-			uint16_t indexOfV = index[v];
-			mapping[indexOfV].push_back(v/3);	// Divided by 3 to make it triangle index
-		}
-	}
-
-	// Loop for every triangle f
-	for(size_t f=0; f<indexCount; f+=3) {
-		// Loop for every vertex of f, namely v
-		for(size_t v=f; v<f+3u; ++v) {
-			// Loop for every triangle f2 in mapping[index of v]
-			uint16_t indexOfV = index[v];
-			const Indexes& indexes = mapping[indexOfV];
-			MCD_FOREACH(uint16_t f2, indexes) {
-				// If f2 and f share smoothing groups
-				if(smoothingGroup[f/3] | smoothingGroup[f2])
-					normal[indexOfV] += faceNormal[f2];
-			}
-		}
-	}
-
-	// Normalize for each vertex normal
-	for(uint16_t v=0; v<vertexCount; ++v)
-		normal[v].normalize();
-}
-
 class Max3dsLoader::Impl
 {
 public:
@@ -279,32 +211,38 @@ public:
 	size_t readString(std::wstring& str);
 
 private:
+	//! Read all 3DS chunk data and store those information into mModelInfo
+	void readChunks(const Path* fileId);
+
+	//! Process the 3DS Max friendy format into real-time API friendly format
+	void postProcess();
+
+private:
 	Stream* mStream;
 	IResourceManager* mResourceManager;
 
 	struct LoadOptions
 	{
 		bool includeTangents;
-		bool keepMeshBuilders;
-	};
+	};	// LoadOptions
 
 	std::auto_ptr<LoadOptions> mLoadOptions;
 
 	//! Represent which face the material is assigned to.
 	struct MultiSubObject
 	{
-		//Material* material;
 		Max3dsMaterial* material;
-		std::vector<uint16_t> mFaceIndex;	//! Index to the index buffer
+		std::vector<uint16_t> mFaceIndex;	//!< Index to the face
+		std::vector<uint16_t> mIndexIndex;	//!< Transform mFaceIndex to vertex index
+		MeshBuilder2Ptr splittedBuilder;	//!< Assigned from the ModelInfo, after splitting the main builder into smaller one for each material
 	};	// MultiSubObject
 
 	struct ModelInfo
 	{
 		std::wstring name;
-		MeshBuilderPtr meshBuilder;	//! Contains vertex buffer only
-		std::vector<uint16_t> index;//! The triangle index
+		MeshBuilder2Ptr meshBuilder;			//!< Contains vertex buffer only
+		std::vector<uint32_t> smoothingGroup;	//!< Which smoothing group the face belongs to
 		std::list<MultiSubObject> multiSubObject;
-		std::vector<uint32_t> smoothingGroup;
 	};	// ModelInfo
 
 	std::list<ModelInfo> mModelInfo;
@@ -312,13 +250,30 @@ private:
 	typedef std::list<Max3dsMaterial*> MaterialList;
 	MaterialList mMaterials;
 
+	Max3dsMaterial mDefaultMaterial;
+
+	SemanticMap::Semantic mIndexSemantic, mPositionSemantic, mNormalSemantic;
+	SemanticMap::Semantic mUvSemantic, mTangentSemantic;
+
 	volatile IResourceLoader::LoadingState mLoadingState;
 	mutable Mutex mMutex;
 };	// Impl
 
+static const int cIndexAttId = 0, cPositionAttId = 1, cNormalAttId = 2;
+
 Max3dsLoader::Impl::Impl(IResourceManager* resourceManager)
 	: mStream(nullptr), mResourceManager(resourceManager), mLoadingState(NotLoaded)
 {
+	mDefaultMaterial.ambient = ColorRGBf(0.5f);
+	mDefaultMaterial.diffuse = ColorRGBf(1);
+	mDefaultMaterial.specular = ColorRGBf(0.5f);
+	mDefaultMaterial.shininess = 10;
+
+	mIndexSemantic = SemanticMap::getSingleton().index();
+	mPositionSemantic = SemanticMap::getSingleton().position();
+	mNormalSemantic = SemanticMap::getSingleton().normal();
+	mUvSemantic = SemanticMap::getSingleton().uv(0, 2);
+	mTangentSemantic = SemanticMap::getSingleton().tangent();
 }
 
 Max3dsLoader::Impl::~Impl()
@@ -330,45 +285,11 @@ Max3dsLoader::Impl::~Impl()
 
 #define ABORTLOADING() { mLoadingState = Aborted; break; }
 
-IResourceLoader::LoadingState Max3dsLoader::Impl::load(std::istream* is, const Path* fileId, const wchar_t* args)
+void Max3dsLoader::Impl::readChunks(const Path* fileId)
 {
-	using namespace std;
-
-	// parse the load options from args
-	if(mLoadOptions.get() == nullptr)
-	{
-		mLoadOptions.reset(new LoadOptions);
-		mLoadOptions->includeTangents = false;
-		mLoadOptions->keepMeshBuilders = false;
-
-		if(nullptr != args)
-		{
-			NvpParser parser(args);
-			const wchar_t* name, *value;
-			while(parser.next(name, value))
-			{
-				if(wstrCaseCmp(name, L"tangents") == 0 && wstrCaseCmp(value, L"true") == 0)
-					mLoadOptions->includeTangents = true;
-
-				if(wstrCaseCmp(name, L"editable") == 0 && wstrCaseCmp(value, L"true") == 0)
-					mLoadOptions->keepMeshBuilders = true;
-			}
-		}
-	}
-
-	{	ScopeLock lock(mMutex);
-		mLoadingState = is ? NotLoaded : Aborted;
-	}
-
-	if(mLoadingState & Stopped)
-		return mLoadingState;
-
-	if(!mStream)
-		mStream = new Stream(*is, mLoadingState);
-
 	ChunkHeader header;
 
-	MeshBuilderPtr currentMeshBuilder = nullptr;
+	MeshBuilder2Ptr currentMeshBuilder = nullptr;
 	Max3dsMaterial* currentMaterial = nullptr;
 
 	// When mirror is used in the 3DS, the triangle winding order need to be inverted.
@@ -404,13 +325,14 @@ IResourceLoader::LoadingState Max3dsLoader::Impl::load(std::istream* is, const P
 				ModelInfo modelInfo;
 				readString(modelInfo.name);
 
-				currentMeshBuilder = new MeshBuilder(false);
+				currentMeshBuilder = new MeshBuilder2(false);
 				if(!currentMeshBuilder)
 					ABORTLOADING();
 
 				modelInfo.meshBuilder = currentMeshBuilder;
 				mModelInfo.push_back(modelInfo);
-				currentMeshBuilder->enable(Mesh::Position | Mesh::Normal);
+				currentMeshBuilder->declareAttribute(mPositionSemantic, 1);
+				currentMeshBuilder->declareAttribute(mNormalSemantic, 2);
 			}	break;
 
 			//--------------- TRIG_MESH ---------------
@@ -434,7 +356,10 @@ IResourceLoader::LoadingState Max3dsLoader::Impl::load(std::istream* is, const P
 				if(mModelInfo.empty() || currentMeshBuilder != mModelInfo.back().meshBuilder)
 					ABORTLOADING();
 
-				currentMeshBuilder->reserveVertex(vertexCount);
+				if(!currentMeshBuilder->resizeBuffers(vertexCount, currentMeshBuilder->indexCount()))
+					ABORTLOADING();
+
+				StrideArray<Vec3f> posArray = currentMeshBuilder->getAttributeAs<Vec3f>(cPositionAttId);
 
 				for(size_t i=0; i<vertexCount; ++i) {
 					Vec3f v;
@@ -448,9 +373,7 @@ IResourceLoader::LoadingState Max3dsLoader::Impl::load(std::istream* is, const P
 					std::swap(v.y, v.z);
 					v.z = -v.z;
 
-					currentMeshBuilder->position(v);
-					currentMeshBuilder->normal(Vec3f::cZero);	// We calculate the normal after all faces are known
-					currentMeshBuilder->addVertex();
+					posArray[i] = v;
 				}
 			}	break;
 
@@ -459,6 +382,7 @@ IResourceLoader::LoadingState Max3dsLoader::Impl::load(std::istream* is, const P
 				Mat44f matrix = Mat44f::cIdentity;
 				for(size_t i=0; i<4; ++i)
 					mStream->read(matrix.data2D[i], sizeof(float) * 3);
+				matrix = matrix.transpose();
 
 				if((invertWinding = (matrix.determinant() < 0)) == true) {
 					Mat44f inv = matrix.inverse();
@@ -470,17 +394,14 @@ IResourceLoader::LoadingState Max3dsLoader::Impl::load(std::istream* is, const P
 
 					matrix = (inv * matrix);
 
-					size_t vertexCount = 0;
-					Vec3f* vertex = reinterpret_cast<Vec3f*>(currentMeshBuilder->acquireBufferPointer(Mesh::Position, &vertexCount));
+					StrideArray<Vec3f> vertex = currentMeshBuilder->getAttributeAs<Vec3f>(cPositionAttId);
 
-					for(size_t i=0; i<vertexCount; ++i) {
+					for(size_t i=0; i<vertex.size; ++i) {
 						Vec4f tmp(vertex[i].x, -vertex[i].z, vertex[i].y, 0);
 						// TODO: Use matrix.transform once the function is available
 						tmp = (matrix * tmp) + matrix[3];
 						vertex[i] = Vec3f(tmp.x, tmp.z, -tmp.y);
 					}
-
-					currentMeshBuilder->releaseBufferPointer(vertex);
 				}
 			}	break;
 
@@ -498,8 +419,10 @@ IResourceLoader::LoadingState Max3dsLoader::Impl::load(std::istream* is, const P
 				if(mModelInfo.empty())
 					ABORTLOADING();
 
-				std::vector<uint16_t>& idx = mModelInfo.back().index;
-				idx.resize(faceCount * 3);	// Each triangle has 3 vertex
+				if(!currentMeshBuilder->resizeIndexBuffer(faceCount * 3))	// Each triangle has 3 vertex
+					ABORTLOADING();
+
+				StrideArray<uint16_t> idx = currentMeshBuilder->getAttributeAs<uint16_t>(cIndexAttId);
 
 				for(size_t i=0; i<faceCount; ++i) {
 					// Read 3 indexes at once
@@ -509,7 +432,7 @@ IResourceLoader::LoadingState Max3dsLoader::Impl::load(std::istream* is, const P
 				}
 
 				if(invertWinding) {
-					for(size_t i=0; i<idx.size(); i+=3)
+					for(size_t i=0; i<idx.size; i+=3)
 						std::swap(idx[i], idx[i+2]);
 				}
 			}	break;
@@ -562,7 +485,7 @@ IResourceLoader::LoadingState Max3dsLoader::Impl::load(std::istream* is, const P
 					ABORTLOADING();
 
 				std::vector<uint32_t>& smoothingGroup = mModelInfo.back().smoothingGroup;
-				smoothingGroup.resize(mModelInfo.back().index.size() / 3);	// Count of index / 3 = numbers of face
+				smoothingGroup.resize(currentMeshBuilder->indexCount() / 3);	// Count of index / 3 = numbers of face
 
 				if(!smoothingGroup.empty())
 					mStream->read(&smoothingGroup[0], smoothingGroup.size() * sizeof(uint32_t));
@@ -582,23 +505,18 @@ IResourceLoader::LoadingState Max3dsLoader::Impl::load(std::istream* is, const P
 				if(mModelInfo.empty() || currentMeshBuilder != mModelInfo.back().meshBuilder)
 					ABORTLOADING();
 
-				currentMeshBuilder->enable(Mesh::TextureCoord0);
-				currentMeshBuilder->textureUnit(Mesh::TextureCoord0);
-				currentMeshBuilder->textureCoordSize(2);
-				size_t coordCount = 0;
-				Vec2f* coord = reinterpret_cast<Vec2f*>(currentMeshBuilder->acquireBufferPointer(Mesh::TextureCoord0, &coordCount));
+				int uvId = currentMeshBuilder->declareAttribute(mUvSemantic, 3);
+				StrideArray<Vec2f> coord = currentMeshBuilder->getAttributeAs<Vec2f>(uvId);
 
-				if(count != coordCount)
+				if(count != coord.size)
 					ABORTLOADING();
 
-				mStream->read(coord, sizeof(Vec2f) * count);
+				mStream->read(coord);
 
 				// Open gl flipped the texture vertically
 				// Reference: http://www.devolution.com/pipermail/sdl/2002-September/049064.html
 				for(size_t i=0; i<count; ++i)
 					coord[i].y = 1 - coord[i].y;
-
-				currentMeshBuilder->releaseBufferPointer(coord);
 			}	break;
 
 			case MATERIAL:	// Material Start
@@ -670,59 +588,271 @@ IResourceLoader::LoadingState Max3dsLoader::Impl::load(std::istream* is, const P
 				mStream->skip(header.length - 6);
 		}
 	}
+}
+
+#undef ABORTLOADING
+
+//!	Generate necessary vertex to ensure each vertex will only rest in one smoothing group.
+static sal_checkreturn bool splitSmoothingGroupVertex(MeshBuilder2& builder, const std::vector<uint32_t>& smoothingGroups)
+{
+	if(smoothingGroups.empty())
+		return true;
+
+	StrideArray<Vec3f> vertex = builder.getAttributeAs<Vec3f>(cPositionAttId);
+	StrideArray<uint16_t> idx = builder.getAttributeAs<uint16_t>(cIndexAttId);
+	const uint16_t faceCount = uint16_t(idx.size / 3);
+
+	// A map to remember which "index-smoothing group pair" is already processed.
+	typedef std::map<uint64_t, uint16_t> NerVertexMap;
+	NerVertexMap newVertex;
+
+	// Create a smoothing group to face info
+	MCD_ASSERT(smoothingGroups.size() == faceCount);
+	std::vector<uint16_t> g2f[32];
+	for(uint16_t i=0; i<faceCount; ++i) {
+		uint32_t sg = smoothingGroups[i];
+		for(size_t j=0; j<32; ++j) {
+			if(sg & (1 << j))
+				g2f[j].push_back(i);
+		}
+	}
+
+	// Create a vertex to smoothing group info
+	std::vector<uint32_t> v2g(vertex.size, 0);
+	for(size_t i=0; i<idx.size; ++i)
+		v2g[idx[i]] |= smoothingGroups[i/3];
+
+	// Loop for all vertex
+	const size_t startingVertexCount = vertex.size;	// We will append vertex, so backup the current count first.
+	for(size_t i=0; i<startingVertexCount; ++i)
+	{
+		uint32_t sg = v2g[i];
+
+		// If the vertex has only one smoothing group, great! nothing more need to do.
+		if(isPowerOf2(sg))
+			continue;
+
+		// Foreach smoothing group
+		bool firstGroupIgnored = false;
+		for(size_t j=0; j<32; ++j) {
+			if(!(sg & (1 << j)))
+				continue;
+			if(!firstGroupIgnored) {
+				firstGroupIgnored = true;
+				continue;
+			}
+
+			// Scan which face index in this smoothing group use this vertex
+			for(size_t k=0; k<g2f[j].size(); ++k) {
+				const uint16_t faceIdx = g2f[j][k];
+
+				// Scan for each vertex in the j'th smoothing group's k'th face.
+				for(uint16_t l=0; l<3; ++l) {
+					const uint16_t indexIndex = faceIdx * 3 + l;
+					const uint16_t vidx = idx[indexIndex];
+					if(vidx != i)
+						continue;
+
+					uint64_t key = (uint64_t(vidx) << 32) + sg;
+					NerVertexMap::const_iterator itr = newVertex.find(key);
+					if(itr != newVertex.end()) {
+						idx[indexIndex] = itr->second;
+						continue;
+					}
+
+					uint16_t srcIdx = vidx;
+					uint16_t destIdx = uint16_t(vertex.size);
+					newVertex[key] = destIdx;
+					idx[indexIndex] = destIdx;
+
+					// Check that adding more vertex will not causing uint16_t overflow
+					if(vertex.size + 1 >= std::numeric_limits<uint16_t>::max())
+						return false;
+
+					if(!builder.resizeVertexBuffer(uint16_t(vertex.size + 1)))
+						return false;
+
+					// Remember to re-assign "vertex" pointer after the builder has resized.
+					vertex = builder.getAttributeAs<Vec3f>(cPositionAttId);
+
+					// Perform the vertex data copying.
+					if(!MeshBuilderUtility::copyVertexAttributes(
+						builder, builder,
+						FixStrideArray<uint16_t>(&srcIdx,1), FixStrideArray<uint16_t>(&destIdx,1)
+					))
+						return false;
+				}
+			}
+		}
+	}
+
+	return true;
+}
+
+// Reference: http://www.gamedev.net/community/forums/topic.asp?topic_id=504353&whichpage=1&#3290286
+static void computNormal(MeshBuilder2& builder, const std::vector<uint32_t>& smoothingGroups)
+{
+	StrideArray<Vec3f> vertex = builder.getAttributeAs<Vec3f>(cPositionAttId);
+	StrideArray<uint16_t> index = builder.getAttributeAs<uint16_t>(cIndexAttId);
+	StrideArray<Vec3f> normal = builder.getAttributeAs<Vec3f>(cNormalAttId);
+
+	struct Comparator
+	{
+		bool operator()(const Vec3f& lhs, const Vec3f& rhs) const {
+			return memcmp(&lhs, &rhs, sizeof(lhs)) < 0;
+		}
+	};
+
+	// Map between vertex to (multiple) vertex index's index.
+	// This map aims to find out distinct vertex that having the same position.
+	typedef std::map<Vec3f, std::set<uint16_t>, Comparator> Position2Faces;
+	Position2Faces position2Faces;
+
+	for(uint16_t i=0; i<index.size; ++i)
+		position2Faces[vertex[index[i]]].insert(i);
+
+	// Initialize the normal to zero first
+	for(size_t i=0; i<vertex.size; ++i)
+		normal[i] = Vec3f::cZero;
+
+	// Calculate the face normal for each face
+	for(size_t i=0; i<index.size; i+=3) {
+		const Vec3f& v1 = vertex[index[i+0]];
+		const Vec3f& v2 = vertex[index[i+1]];
+		const Vec3f& v3 = vertex[index[i+2]];
+
+		// We need not to normalize this faceNormal, since a vertex's normal
+		// should be influenced more by a larger polygon.
+		const Vec3f faceNormal = (v3 - v2) ^ (v1 - v2);
+
+		// The smoothing group for this face
+		int sg = smoothingGroups[i/3];
+
+		for(size_t j=0; j<3; ++j) {
+			MCD_FOREACH(uint16_t f, position2Faces[vertex[index[i+j]]]) {
+				if(sg & smoothingGroups[f/3])
+					normal[index[f]] += faceNormal;
+			}
+		}
+	}
+
+	// Normalize for each vertex normal
+	for(size_t i=0; i<vertex.size; ++i)
+		normal[i].normalize();
+}
+
+void Max3dsLoader::Impl::postProcess()
+{
+	MCD_FOREACH(const ModelInfo& _model, mModelInfo)
+	{
+		ModelInfo& model = const_cast<ModelInfo&>(_model);
+		MeshBuilder2& meshBuilder = *model.meshBuilder;
+
+		// Compute tangent space if needed
+		int uvId = meshBuilder.findAttributeId(mUvSemantic.name);
+		if(mLoadOptions->includeTangents && uvId != -1)
+		{
+			TangentSpaceBuilder tsBuilder;
+			int tanId = meshBuilder.declareAttribute(mTangentSemantic, 4);
+			MCD_VERIFY(tsBuilder.compute(meshBuilder, cIndexAttId, cPositionAttId, cNormalAttId, uvId, tanId));
+		}
+
+		if(!splitSmoothingGroupVertex(meshBuilder, model.smoothingGroup)) {
+			Log::write(Log::Warn, L"Failed to split smoothing group, mesh skipped");
+			continue;
+		}
+
+		// We don't use MeshBuilderUtility::computNormal because there may have
+		// multiple vertex that are having the same vertex position (UV degenerated vertex).
+//		MeshBuilderUtility::computNormal(meshBuilder, 2);
+		computNormal(meshBuilder, model.smoothingGroup);
+
+		if(model.multiSubObject.size() == 0) {	// The model has no multi subobject
+			MultiSubObject subObject;
+			subObject.splittedBuilder = model.meshBuilder;
+			subObject.material = &mDefaultMaterial;
+			model.multiSubObject.push_back(subObject);
+		}
+		else if(model.multiSubObject.size() == 1) {	// Single material, no need to split the mesh.
+			model.multiSubObject.begin()->splittedBuilder = model.meshBuilder;
+		}
+		else
+		{
+			MeshBuilder2** subBuilders = (MeshBuilder2**)MCD_STACKALLOCA(sizeof(MeshBuilder2*) * model.multiSubObject.size());
+			StrideArray<uint16_t>* faceIndices = (StrideArray<uint16_t>*)MCD_STACKALLOCA(sizeof(StrideArray<uint16_t>) * model.multiSubObject.size());
+
+			size_t i = 0;
+			MCD_FOREACH(const MultiSubObject& _subObject, model.multiSubObject)
+			{
+				MultiSubObject& subObject = const_cast<MultiSubObject&>(_subObject);
+				subBuilders[i] = new MeshBuilder2(false);
+				subObject.splittedBuilder = subBuilders[i];
+
+				StrideArray<uint16_t> idx = meshBuilder.getAttributeAs<uint16_t>(cIndexAttId);
+				const size_t faceCount = subObject.mFaceIndex.size();
+
+				std::vector<uint16_t>& indexIndex = subObject.mIndexIndex;
+				indexIndex.resize(faceCount * 3);
+				for(size_t j=0; j<faceCount; ++j) {
+					const size_t fIdx = subObject.mFaceIndex[j] * 3;
+					indexIndex[j*3 + 0] = idx[fIdx + 0];
+					indexIndex[j*3 + 1] = idx[fIdx + 1];
+					indexIndex[j*3 + 2] = idx[fIdx + 2];
+				}
+
+				faceIndices[i] = StrideArray<uint16_t>((uint16_t*)&indexIndex[0], indexIndex.size());
+				++i;
+			}
+
+			MeshBuilderUtility::split(model.multiSubObject.size(), meshBuilder, subBuilders, faceIndices);
+
+			MCD_STACKFREE(subBuilders);
+			MCD_STACKFREE(faceIndices);
+		}
+	}
+}
+
+IResourceLoader::LoadingState Max3dsLoader::Impl::load(std::istream* is, const Path* fileId, const wchar_t* args)
+{
+	using namespace std;
+
+	// Parse the load options from args
+	if(mLoadOptions.get() == nullptr)
+	{
+		mLoadOptions.reset(new LoadOptions);
+		mLoadOptions->includeTangents = false;
+
+		if(nullptr != args)
+		{
+			NvpParser parser(args);
+			const wchar_t* name, *value;
+			while(parser.next(name, value))
+			{
+				if(wstrCaseCmp(name, L"tangents") == 0 && wstrCaseCmp(value, L"true") == 0)
+					mLoadOptions->includeTangents = true;
+			}
+		}
+	}
+
+	{	ScopeLock lock(mMutex);
+		mLoadingState = is ? NotLoaded : Aborted;
+	}
+
+	if(mLoadingState & Stopped)
+		return mLoadingState;
+
+	if(!mStream)
+		mStream = new Stream(*is, mLoadingState);
+
+	readChunks(fileId);
 
 	if(mLoadingState == Aborted)
 		return mLoadingState;
 
-	// Calculate vertex normal for each mesh
-	TangentSpaceBuilder tsBuilder;
+	postProcess();
 
-	MCD_FOREACH(const ModelInfo& model, mModelInfo) {
-		MeshBuilder& meshBuilder = *model.meshBuilder;
-		size_t vertexCount, indexCount = model.index.size();
-
-		if(indexCount == 0)
-			continue;
-
-		Vec3f* vertex = reinterpret_cast<Vec3f*>(meshBuilder.acquireBufferPointer(Mesh::Position, &vertexCount));
-		Vec3f* normal = reinterpret_cast<Vec3f*>(meshBuilder.acquireBufferPointer(Mesh::Normal));
-
-		if(!vertex || !normal)
-			continue;
-
-		const uint16_t* index = &model.index[0];
-
-		if(vertex && normal && indexCount > 0) {
-			// We have 2 different routines for calculating normals, one with the
-			// smoothing group information and one does not.
-			if(model.smoothingGroup.empty())
-				computeNormal(vertex, normal, index, uint16_t(vertexCount), indexCount);
-			else
-				computeNormal(vertex, normal, index, &(model.smoothingGroup[0]), uint16_t(vertexCount), indexCount);
-		}
-
-#pragma warning(push)
-#pragma warning (disable : 6240)
-		if((meshBuilder.format() & Mesh::TextureCoord0) && mLoadOptions->includeTangents) {
-#pragma warning(pop)
-			meshBuilder.enable(Mesh::TextureCoord1);
-			meshBuilder.textureUnit(Mesh::TextureCoord1);
-			meshBuilder.textureCoordSize(3);
-
-			Vec2f* uv = reinterpret_cast<Vec2f*>(meshBuilder.acquireBufferPointer(Mesh::TextureCoord0));
-			Vec3f* tangent = reinterpret_cast<Vec3f*>(meshBuilder.acquireBufferPointer(Mesh::TextureCoord1));
-
-			if(uv && tangent) {
-				tsBuilder.compute(indexCount / 3, vertexCount, index, vertex, normal, uv, tangent);
-
-				meshBuilder.releaseBufferPointer(tangent);
-				meshBuilder.releaseBufferPointer(uv);
-			}
-		}
-
-		meshBuilder.releaseBufferPointer(normal);
-		meshBuilder.releaseBufferPointer(vertex);
-	}
+	if(mLoadingState == Aborted)
+		return mLoadingState;
 
 	{	ScopeLock lock(mMutex);
 		mLoadingState = Loaded;
@@ -792,55 +922,14 @@ void Max3dsLoader::Impl::commit(Resource& resource)
 
 	MCD_FOREACH(const ModelInfo& modelInfo, mModelInfo)
 	{
-		// Commit the mesh with the vertex buffer first
-		MeshPtr meshWithoutIndex;
-
-		if(mLoadOptions->keepMeshBuilders)
-		{
-			meshWithoutIndex = new EditableMesh(L"tmp");
-			((EditableMesh&)*meshWithoutIndex).builder = modelInfo.meshBuilder;
-		}
-		else
-			meshWithoutIndex = new Mesh(L"tmp");
-
-		modelInfo.meshBuilder->commit(*meshWithoutIndex, storageHint);
-
-		// TODO: Handle empty multiSubObject. That is, those meshes without multi-subobject
 		MCD_FOREACH(const MultiSubObject& subObject, modelInfo.multiSubObject)
 		{
-			// Share all the buffers in meshWithoutIndex into this mesh
-			// TODO: Add name to the mesh
-			MeshPtr mesh;
-			
-			if(mLoadOptions->keepMeshBuilders)
-				mesh = new EditableMesh(L"", (EditableMesh&)*meshWithoutIndex);
-			else
-				mesh = new Mesh(L"", *meshWithoutIndex);
+			if(!subObject.splittedBuilder)
+				continue;
 
-			// Let mesh have it's own index buffer
-			mesh->setHandlePtr(Mesh::Index, Mesh::HandlePtr(new uint(0)));
-
-			// Setup the index buffer
-			MeshBuilder indexBuilder;
-			indexBuilder.enable(Mesh::Index);
-			size_t faceCount = subObject.mFaceIndex.size();
-
-			if(faceCount > 0 && mLoadOptions->keepMeshBuilders)
-				((EditableMesh&)*mesh).builder->enable(Mesh::Index);
-
-			for(size_t i=0; i<faceCount; ++i) {
-				const size_t vertexIdx = subObject.mFaceIndex[i] * 3;	// From face index to vertex index
-				const uint16_t i1 = modelInfo.index[vertexIdx + 0];
-				const uint16_t i2 = modelInfo.index[vertexIdx + 1];
-				const uint16_t i3 = modelInfo.index[vertexIdx + 2];
-				indexBuilder.addTriangle(i1, i2, i3);
-
-				// make sure the output mesh have indices
-				if(mLoadOptions->keepMeshBuilders)
-					((EditableMesh&)*mesh).builder->addTriangle(i1, i2, i3);
-
-			}
-			indexBuilder.commit(*mesh, Mesh::Index, storageHint);
+			MeshPtr mesh = new Mesh(L"tmp");
+			int attributeMap[] = { 0, Mesh::Index, 1, Mesh::Position, 2, Mesh::Normal, 3, Mesh::TextureCoord0, 4, Mesh::TextureCoord1 };
+			commitMesh(*subObject.splittedBuilder, *mesh, attributeMap, storageHint);
 
 			// Assign material
 			subObject.material->init();
@@ -856,7 +945,7 @@ void Max3dsLoader::Impl::commit(Resource& resource)
 		}
 	}
 
-	// remember to reset the LoadOptions
+	// Remember to reset the LoadOptions
 	mLoadOptions.reset();
 }
 

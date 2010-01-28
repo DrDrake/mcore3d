@@ -119,8 +119,6 @@ TEST(VolSpotlightTest)
 
 		sal_override void update(float deltaTime)
 		{
-			GLfloat lightPos[] = { 200, 200, 200, 1.0f };
-			glLightfv(GL_LIGHT0, GL_POSITION, lightPos);
 			mResourceManager.processLoadingEvents();
 
 			Vec4f camLocalPos = mCone->worldTransform().inverse() * Vec4f(mCamera.position, 1);

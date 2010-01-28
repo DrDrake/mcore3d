@@ -10,13 +10,16 @@ namespace MCD {
 
 bool MeshBuilderUtility::copyVertexAttributes(
 	MeshBuilder2& srcBuilder, MeshBuilder2& destBuilder,
-	FixStrideArray<uint16_t> srcIndex)//, FixStrideArray<uint16_t> destIndex)
+	FixStrideArray<uint16_t> srcIndex, FixStrideArray<uint16_t> destIndex)
 {
 	const size_t bufferCount = srcBuilder.bufferCount();
 
 	if(bufferCount != destBuilder.bufferCount()) return false;
+	const size_t destVertexCount = destBuilder.vertexCount();
 
-	if(!destBuilder.resizeVertexBuffer(uint16_t(srcIndex.size))) return false;
+	if(!srcIndex.data) return false;
+	if(destIndex.size && srcIndex.size != destIndex.size) return false;
+	if(destBuilder.vertexCount() < srcIndex.size && !destBuilder.resizeVertexBuffer(uint16_t(srcIndex.size))) return false;
 
 	for(size_t i=1; i<bufferCount; ++i)	// We skip the first buffer, which is index buffer
 	{
@@ -28,10 +31,17 @@ bool MeshBuilderUtility::copyVertexAttributes(
 		if(!p1 || !p2 || elementSize1 != elementSize2) return false;
 		const size_t srcVertexCount = totalSize1 / elementSize1;
 
-		for(size_t j=0; j<srcIndex.size; ++j) {
-			if(srcIndex[j] >= srcVertexCount) return false;
-			::memcpy(p2 + j * elementSize2, p1 + srcIndex[j] * elementSize1, elementSize1);
-		}
+		if(destIndex.data && destIndex.size)
+			for(size_t j=0; j<srcIndex.size; ++j) {
+				if(srcIndex[j] >= srcVertexCount) return false;
+				if(destIndex[j] >= destVertexCount) return false;
+				::memcpy(p2 + destIndex[j] * elementSize2, p1 + srcIndex[j] * elementSize1, elementSize1);
+			}
+		else
+			for(size_t j=0; j<srcIndex.size; ++j) {
+				if(srcIndex[j] >= srcVertexCount) return false;
+				::memcpy(p2 + j * elementSize2, p1 + srcIndex[j] * elementSize1, elementSize1);
+			}
 	}
 
 	return true;
@@ -121,7 +131,7 @@ void MeshBuilderUtility::computNormal(MeshBuilder2& builder, size_t whichBufferI
 		const Vec3f& v3 = vertex[i2];
 
 		// We need not to normalize this faceNormal, since a vertex's normal
-		// should be influenced by a larger polygon.
+		// should be influenced more by a larger polygon.
 		const Vec3f faceNormal = (v3 - v2) ^ (v1 - v2);
 
 		// Add the face normal to the corresponding vertices

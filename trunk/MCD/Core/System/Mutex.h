@@ -17,7 +17,7 @@ public:
 	/*!	Construct a mutex with an optional spin count.
 		Use spinCount = -1 to disable spinning.
 	 */
-	Mutex(int spinCount = 200);
+	explicit Mutex(int spinCount = 200);
 	~Mutex();
 
 	void lock();
@@ -53,7 +53,7 @@ public:
 	/*!	Construct a recursive mutex with an optional spin count.
 		Use spinCount = -1 to disable spinning.
 	 */
-	RecursiveMutex(int spintCount = 200);
+	explicit RecursiveMutex(int spintCount = 200);
 	~RecursiveMutex();
 
 	void lock();

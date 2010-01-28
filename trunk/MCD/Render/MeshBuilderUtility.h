@@ -15,18 +15,21 @@ class MCD_RENDER_API MeshBuilderUtility
 {
 public:
 	/*!	Copy selective vertex data from one builder to another.
+		The vertex data in srcBuilder specified by srcIndex will fill to the position in destBuilder specified by destIndex.
+		If destIndex is null, the vertex data in srcBuilder specified by srcIndex will fill to destBuilder in sequence.
 		It will not modify the index buffer of destBuilder.
+		The destBuilder will be resized accordingly.
 		Requirement:
 		-Both builder should have the same attribute declarations.
-		-The destBuilder should resized with enough vertex count.
 		-The index in srcIndex should be within the vertex count of srcBuilder.
-		-The vertex count in srcBuilder can be equals or larger than that of destBuilder.
+		-The index in destIndex should be within the vertex count of destBuilder.
+		-The size of srcIndex and destIndex must be the same.
 		Limitations:
 		-Duplicated value in srcIndex will resulting duplicated vertex data in destBuilder
 	 */
-	static bool copyVertexAttributes(
+	static sal_checkreturn bool copyVertexAttributes(
 		MeshBuilder2& srcBuilder, MeshBuilder2& destBuilder,
-		FixStrideArray<uint16_t> srcIndex
+		FixStrideArray<uint16_t> srcIndex, FixStrideArray<uint16_t> destIndex=FixStrideArray<uint16_t>(nullptr,0)
 	);
 
 	static void split(size_t splitCount, MeshBuilder2& srcBuilder, MeshBuilder2** outBuilders, StrideArray<uint16_t>* faceIndices);
