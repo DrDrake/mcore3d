@@ -28,7 +28,7 @@ namespace MCD {
 class MCD_RENDER_API SemanticMap
 {
 public:
-	typedef MeshBuilder2::Semantic Semantic;
+	typedef MeshBuilder::Semantic Semantic;
 	virtual ~SemanticMap() {}
 
 	virtual Semantic index() const;

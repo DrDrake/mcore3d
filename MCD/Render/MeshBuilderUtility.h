@@ -6,8 +6,7 @@
 
 namespace MCD {
 
-class MeshBuilder2;
-class MeshBuilderIM;
+class MeshBuilder;
 
 /*!
  */
@@ -28,17 +27,17 @@ public:
 		-Duplicated value in srcIndex will resulting duplicated vertex data in destBuilder
 	 */
 	static sal_checkreturn bool copyVertexAttributes(
-		MeshBuilder2& srcBuilder, MeshBuilder2& destBuilder,
+		MeshBuilder& srcBuilder, MeshBuilder& destBuilder,
 		FixStrideArray<uint16_t> srcIndex, FixStrideArray<uint16_t> destIndex=FixStrideArray<uint16_t>(nullptr,0)
 	);
 
-	static void split(size_t splitCount, MeshBuilder2& srcBuilder, MeshBuilder2** outBuilders, StrideArray<uint16_t>* faceIndices);
+	static void split(size_t splitCount, MeshBuilder& srcBuilder, MeshBuilder** outBuilders, StrideArray<uint16_t>* faceIndices);
 
 	/*!	Compute vertex normals
 		Reference: http://www.gamedev.net/community/forums/topic.asp?topic_id=313015
 		Reference: http://www.devmaster.net/forums/showthread.php?t=414
 	 */
-	static void computNormal(MeshBuilder2& builder, size_t whichBufferIdStoreNormal);
+	static void computNormal(MeshBuilder& builder, size_t whichBufferIdStoreNormal);
 };	// MeshBuilderUtility
 
 }	// namespace MCD

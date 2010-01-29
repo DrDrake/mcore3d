@@ -4,7 +4,7 @@
 #include "Mesh.h"
 
 namespace MCD {
-
+/*
 typedef IntrusivePtr<class MeshBuilder> MeshBuilderPtr;
 
 template<typename T> class Vec4;
@@ -21,8 +21,8 @@ typedef Vec2<float> Vec2f;
 	the buffer manipulation interface of MeshBuilder into a OpenGL
 	intermediate mode interface.
 
-	\note After introducing MeshBuilder2 into Model, this class is deprecated.
- */
+	\note After introducing MeshBuilder into Model, this class is deprecated.
+ /
 class MCD_RENDER_API EditableMesh : public Mesh
 {
 public:
@@ -34,7 +34,7 @@ public:
 	/*! Pointer to the MeshBuilder of this mesh, it is primaryly used for reading the mesh data
 		without downloading them from the GPU.
 		Please notice that this pointer may be nullptr.
-	 */
+	 /
 	MeshBuilderPtr builder;
 
 	bool isEditing() const;
@@ -74,7 +74,7 @@ private:
 };	// EditableMesh
 
 typedef IntrusivePtr<EditableMesh> EditableMeshPtr;
-
+*/
 }	// namespace MCD
 
 #endif	// __MCD_RENDER_EDITABLEMESH__

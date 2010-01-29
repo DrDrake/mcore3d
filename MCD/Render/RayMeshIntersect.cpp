@@ -9,8 +9,7 @@
 #endif
 
 namespace MCD {
-
-/*!---------------------------------------------------------------------------*/
+/*
 Vec3f IRayMeshIntersect::Helper::getHitPosition(IRayMeshIntersect::Hit* hit)
 {
 	const uint16_t* vidx = hit->meshRec.mesh.getTriangleIndexAt(hit->faceIdx);
@@ -80,7 +79,6 @@ Vec4f IRayMeshIntersect::Helper::getHitUV4d(IRayMeshIntersect::Hit* hit, size_t 
 	return hit->w * v0 + hit->u * v1 + hit->v * v2;
 }
 
-/*!---------------------------------------------------------------------------*/
 class SimpleRayMeshIntersect::Impl
 {
 public:
@@ -344,5 +342,5 @@ LinkList<IRayMeshIntersect::HitResult>& SimpleRayMeshIntersect::results()
 {
 	return mImpl.mLastResults;
 }
-
+*/
 }	// namespace MCD

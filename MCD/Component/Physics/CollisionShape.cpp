@@ -8,10 +8,6 @@
 #include "../../../3Party/bullet/btBulletCollisionCommon.h"
 #include "../../../3Party/glew/glew.h"
 
-#ifdef MCD_VC
-#	pragma comment(lib, "glew")
-#endif	// MCD_VC
-
 using namespace MCD;
 
 typedef StrideArray<uint16_t> IndexArray;
@@ -67,7 +63,7 @@ public:
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 	}
 
-	Impl(MeshBuilder2& meshBuilder, int positionId, bool keepOwnBuffer, void*& shapeImpl)
+	Impl(MeshBuilder& meshBuilder, int positionId, bool keepOwnBuffer, void*& shapeImpl)
 		: mVertexBuffer(nullptr), mIndexBuffer(nullptr)
 	{
 		const IndexArray idxPtr = meshBuilder.getAttributeAs<uint16_t>(0);
@@ -131,8 +127,8 @@ StaticTriMeshShape::StaticTriMeshShape(const MeshPtr& mesh)
 {
 }
 
-StaticTriMeshShape::StaticTriMeshShape(const MeshBuilder2& meshBuilder,int positionId, bool keepOwnBuffer)
-	: mImpl(*new Impl(const_cast<MeshBuilder2&>(meshBuilder), positionId, keepOwnBuffer, shapeImpl))
+StaticTriMeshShape::StaticTriMeshShape(const MeshBuilder& meshBuilder,int positionId, bool keepOwnBuffer)
+	: mImpl(*new Impl(const_cast<MeshBuilder&>(meshBuilder), positionId, keepOwnBuffer, shapeImpl))
 {
 }
 

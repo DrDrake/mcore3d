@@ -8,7 +8,7 @@
 #include "../Core/Math/Vec2.h"
 
 namespace MCD {
-
+/*
 class EditableMesh::Impl
 {
 public:
@@ -131,5 +131,5 @@ Vec4f& EditableMesh::getUV4dAt(size_t unit, uint16_t vertexIndex)
 	MCD_ASSUME(mImpl && mImpl->mUVPtr[unit] != nullptr);
 	return ((Vec4f*)mImpl->mUVPtr[unit])[vertexIndex];
 }
-
+*/
 }	// namespace MCD

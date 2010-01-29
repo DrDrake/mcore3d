@@ -4,45 +4,42 @@
 #include "ShareLib.h"
 #include "../Core/Math/Vec2.h"
 #include "../Core/Math/Vec3.h"
+#include "../Core/System/Array.h"
 
 namespace MCD {
 
 class MeshBuilder;
-class MeshBuilder2;
 
-/*!	The compute tangent space for MeshBuilders.
-
+/*!	Computes tangent space for MeshBuilders.
 	Usage:
 	\code
 	TangentSpaceBuilder tsbuilder;
+	MeshBuilder meshBuilder;
 
-	Mesh::DataType sourceUV = Mesh::TextureCoord0;
-	Mesh::DataType outputUV = Mesh::TextureCoord1;
+	int posIdx = meshBuilder.declareAttribute(SemanticMap::getSingleton().position(), 1);
+	int normalIdx = meshBuilder.declareAttribute(SemanticMap::getSingleton().normal(), 1);
+	int uvIdx = meshBuilder.declareAttribute(SemanticMap::getSingleton().uv(0, 2), 1);
+	int tangentIdx = meshBuilder.declareAttribute(SemanticMap::getSingleton().tangent(), 1);
 
-	// please make sure meshBuilder have allocate the space for
-	// outputUV (as an array of Vec3)
-	tsbuilder.compute(meshBuilder, sourceUV, outputUV);
+	tsbuilder.compute(meshBuilder, 0, posIdx, normalIdx, uvIdx, tangentIdx);
 	\endcode
  */
 class MCD_RENDER_API TangentSpaceBuilder
 {
 public:
-	sal_checkreturn bool compute(MeshBuilder& builder, int uvDataType, int tangentDataType);
-
 	//!	Returns false if any of the attribute index is invalid.
 	sal_checkreturn bool compute(
-		MeshBuilder2& builder, int indexIdx,
+		MeshBuilder& builder, int indexIdx,
 		int posIdx, int normalIdx,
 		int uvIdx, int tangentIdx
 	);
 
 	void compute(
-		const size_t faceCnt, const size_t vertexCnt,
-		sal_in_ecount(faceCnt * 3) const uint16_t* indexBuf,
-		sal_in_ecount(vertexCnt) const Vec3f* posBuf,
-		sal_in_ecount(vertexCnt) const Vec3f* nrmBuf,
-		sal_in_ecount(vertexCnt) const Vec2f* uvBuf,
-		sal_out_ecount(vertexCnt) Vec3f* outTangBuf
+		const StrideArray<uint16_t>& indexArray,
+		const StrideArray<Vec3f>& positionArray,
+		const StrideArray<Vec3f>& normalArray,
+		const StrideArray<Vec2f>& uvArray,
+		StrideArray<Vec3f>& outTangentArray
 	);
 };	// TangentSpaceBuilder
 

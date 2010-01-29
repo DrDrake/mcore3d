@@ -120,10 +120,10 @@ size_t getChannelCount(const VertexDeclaration& d)
 	}
 }
 
-MeshBuilder2::Semantic getSemantic(const VertexDeclaration& d)
+MeshBuilder::Semantic getSemantic(const VertexDeclaration& d)
 {
 	const SemanticMap& map = SemanticMap::getSingleton();
-	MeshBuilder2::Semantic nullSemantic = { "", 0, 0, 0 };
+	MeshBuilder::Semantic nullSemantic = { "", 0, 0, 0 };
 	switch(d.semantic) {
 	case VES_POSITION:				return (d.type == VET_FLOAT3) ? map.position() : nullSemantic;
 	case VES_BLEND_WEIGHTS:			return map.blendWeight();	// TODO: Check that map.blendWeight() return the expected elementSize
@@ -143,14 +143,14 @@ class Geometry
 public:
 	Geometry(size_t indexCount)
 	{
-		meshBuilder = new MeshBuilder2(false);
+		meshBuilder = new MeshBuilder(false);
 		(void)meshBuilder->resizeBuffers(0, indexCount);
 	}
 
 	std::wstring name;
 	std::wstring materialName;
 	ResourcePtr material;
-	MeshBuilder2Ptr meshBuilder;
+	MeshBuilderPtr meshBuilder;
 };	// Geometry
 
 sal_checkreturn bool readString(std::istream& is, char* buf, size_t bufLen)
@@ -299,7 +299,7 @@ IResourceLoader::LoadingState OgreMeshLoader::Impl::load(std::istream* is, const
 
 		ABORT_IF(vertexCount >= size_t(std::numeric_limits<uint16_t>::max()));
 
-		MeshBuilder2& builder = *mGeometry[mCurrentGeometryIdx].meshBuilder;
+		MeshBuilder& builder = *mGeometry[mCurrentGeometryIdx].meshBuilder;
 		ABORT_IF(!builder.resizeBuffers(uint16_t(vertexCount), builder.indexCount()));
 	}	break;
 
@@ -421,7 +421,7 @@ void OgreMeshLoader::Impl::commit(Resource& resource)
 			map[0] = 0; map[1] = Mesh::Index;
 
 			for(size_t i=1; i<attributeCount; ++i) {
-				MeshBuilder2::Semantic semantic;
+				MeshBuilder::Semantic semantic;
 				MCD_VERIFY(geo.meshBuilder->getAttributePointer(i, nullptr, nullptr, nullptr, &semantic));
 				const int dataType = semanticToMeshDataType(semantic.name);
 				map[i * 2 + 1] = dataType;
