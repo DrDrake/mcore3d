@@ -1,7 +1,6 @@
 #include "Pch.h"
 #include "DefaultResourceManager.h"
 #include "../../MCD/Render/Model.h"
-#include "../../MCD/Render/EditableMesh.h"
 #include "../../MCD/Render/Texture.h"
 #include "../../MCD/Core/System/ResourceLoader.h"
 #include "../../MCD/Core/System/RawFileSystem.h"
@@ -26,8 +25,7 @@ TEST(ModelLoaderTest)
 
 		void loadModel(const wchar_t* fileId)
 		{
-			const wchar_t* args = L"editable=true";
-			mModel = dynamic_cast<Model*>(mResourceManager->load(fileId, IResourceManager::NonBlock, 0, args).get());
+			mModel = dynamic_cast<Model*>(mResourceManager->load(fileId, IResourceManager::NonBlock, 0).get());
 		}
 
 		sal_override void update(float deltaTime)
@@ -46,16 +44,6 @@ TEST(ModelLoaderTest)
 				return;
 
 			mModel->draw();
-
-			// verify the effect of 'editable=true' arg
-			for(Model::MeshAndMaterial* mnm = mModel->mMeshes.begin();
-				mnm != mModel->mMeshes.end(); 
-				mnm = mnm->next())
-			{
-				EditableMesh* eMesh = dynamic_cast<EditableMesh*>(mnm->mesh.get());
-				MCD_ASSERT(eMesh && eMesh->builder != nullptr);
-				(void)eMesh;	// Remove warning in RELEASE mode
-			}
 		}
 
 		ModelPtr mModel;

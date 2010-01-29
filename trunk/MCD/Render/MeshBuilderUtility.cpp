@@ -4,12 +4,11 @@
 #include "SemanticMap.h"
 #include "../Core/Math/Vec3.h"
 #include "../Core/System/Log.h"
-#include <map>
 
 namespace MCD {
 
 bool MeshBuilderUtility::copyVertexAttributes(
-	MeshBuilder2& srcBuilder, MeshBuilder2& destBuilder,
+	MeshBuilder& srcBuilder, MeshBuilder& destBuilder,
 	FixStrideArray<uint16_t> srcIndex, FixStrideArray<uint16_t> destIndex)
 {
 	const size_t bufferCount = srcBuilder.bufferCount();
@@ -51,7 +50,7 @@ bool MeshBuilderUtility::copyVertexAttributes(
 	\param outBuilders Pointer to an array of MeshBuilder. We will fill both vertex and index data into them.
 	\param faceIndices An array of index which indexing the srcBuilder vertex.
  */
-void MeshBuilderUtility::split(size_t splitCount, MeshBuilder2& srcBuilder, MeshBuilder2** outBuilders, StrideArray<uint16_t>* faceIndices)
+void MeshBuilderUtility::split(size_t splitCount, MeshBuilder& srcBuilder, MeshBuilder** outBuilders, StrideArray<uint16_t>* faceIndices)
 {
 	if(splitCount == 0)
 		return;
@@ -63,7 +62,7 @@ void MeshBuilderUtility::split(size_t splitCount, MeshBuilder2& srcBuilder, Mesh
 		outBuilders[i]->clear();
 		for(size_t j=1; j<srcBuilder.attributeCount(); ++j) {
 			size_t bufferId;
-			MeshBuilder2::Semantic semantic;
+			MeshBuilder::Semantic semantic;
 			if(srcBuilder.getAttributePointer(j, nullptr, nullptr, &bufferId, &semantic))
 				outBuilders[i]->declareAttribute(semantic, bufferId);
 		}
@@ -103,7 +102,7 @@ void MeshBuilderUtility::split(size_t splitCount, MeshBuilder2& srcBuilder, Mesh
 	}
 }
 
-void MeshBuilderUtility::computNormal(MeshBuilder2& builder, size_t whichBufferIdStoreNormal)
+void MeshBuilderUtility::computNormal(MeshBuilder& builder, size_t whichBufferIdStoreNormal)
 {
 	const SemanticMap& map = SemanticMap::getSingleton();
 

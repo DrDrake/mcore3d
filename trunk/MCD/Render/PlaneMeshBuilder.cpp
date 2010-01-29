@@ -1,40 +1,28 @@
 #include "Pch.h"
 #include "PlaneMeshBuilder.h"
 #include "Mesh.h"
+#include "SemanticMap.h"
 #include "../Core/Math/Vec2.h"
-#include "../Core/Math/Mat33.h"
-#include "../Core/Math/BasicFunction.h"
-#include "../../3Party/glew/glew.h"
+#include "../Core/Math/Vec3.h"
 
 using namespace MCD;
 
-PlaneMeshBuilder::PlaneMeshBuilder(float width, float height, size_t widthSegmentCount, size_t heightSegmentCount, bool includeTangents)
+PlaneMeshBuilder::PlaneMeshBuilder(float width, float height, uint16_t widthSegmentCount, uint16_t heightSegmentCount, bool includeTangents)
 {
-	uint meshFormat = Mesh::Position | Mesh::Normal | Mesh::Index;
+	int posId = declareAttribute(SemanticMap::getSingleton().position(), 1);
+	int normalId = declareAttribute(SemanticMap::getSingleton().normal(), 1);
+	int uvId = declareAttribute(SemanticMap::getSingleton().uv(0, 2), 1);
+	int tangentId = -1;
 
 	if(includeTangents)
-		meshFormat |= Mesh::TextureCoord1;
-	else
-		meshFormat |= Mesh::TextureCoord0;
-	
-	enable(meshFormat);
+		tangentId = declareAttribute(SemanticMap::getSingleton().tangent(), 1);
 
-	textureUnit(Mesh::TextureCoord0);
-	textureCoordSize(2);
+	const uint16_t vxCount = widthSegmentCount + 1;	// Number of vertex along x direction
+	const uint16_t vyCount = heightSegmentCount + 1;	// Number of vertex along y direction
+	const uint16_t vertexCount = vxCount * vyCount;	// Number of vertex for the whole plane
+	const uint16_t triCount = 2 * widthSegmentCount * heightSegmentCount;
 
-	if(includeTangents)
-	{
-		textureUnit(Mesh::TextureCoord1);
-		textureCoordSize(3);
-	}
-
-	const size_t vxCount = widthSegmentCount + 1;	// Number of vertex along x direction
-	const size_t vyCount = heightSegmentCount + 1;	// Number of vertex along y direction
-	const size_t vertexCount = vxCount * vyCount;	// Number of vertex for the whole plane
-	const size_t triCount = 2 * widthSegmentCount * heightSegmentCount;
-	
-	reserveVertex(vertexCount);
-	reserveTriangle(triCount);
+	reserveBuffers(vertexCount, triCount * 3);
 
 	const Vec3f startingCornerXY(-width / 2.0f, 0, -height / 2.0f);
 	const Vec3f deltaX(width / widthSegmentCount, 0, 0);
@@ -48,19 +36,16 @@ PlaneMeshBuilder::PlaneMeshBuilder(float width, float height, size_t widthSegmen
 	Vec2f vUV = startingCornerUV;
 
 	// Create vertices
-	for(size_t x = 0; x < vxCount; ++x)
+	for(uint16_t x = 0; x < vxCount; ++x)
 	{
-		for(size_t y = 0; y < vyCount; ++y)
+		for(uint16_t y = 0; y < vyCount; ++y)
 		{
-			position(vXY);
-			normal(Vec3f(0, 1, 0));
-			textureUnit(Mesh::TextureCoord0);
-			textureCoord(vUV);
+			vertexAttribute(posId, &vXY);
+			vertexAttribute(normalId, &Vec3f::c010);
+			vertexAttribute(uvId, &vUV);
 			if(includeTangents)
-			{
-				textureUnit(Mesh::TextureCoord1);
-				textureCoord(Vec3f(0, 0, 1));
-			}
+				vertexAttribute(tangentId, &Vec3f::c001);
+
 			addVertex();
 			vXY += deltaX;
 			vUV += deltaU;
@@ -72,22 +57,23 @@ PlaneMeshBuilder::PlaneMeshBuilder(float width, float height, size_t widthSegmen
 	}
 
 	// Create index
-	for(size_t y = 0; y < heightSegmentCount; ++y)
+	for(uint16_t y = 0; y < heightSegmentCount; ++y)
 	{
-		size_t indexedVertexCount = (y * vxCount);
-		for(size_t x = indexedVertexCount; x < indexedVertexCount + widthSegmentCount; ++x)
+		uint16_t indexedVertexCount = (y * vxCount);
+		for(uint16_t x = indexedVertexCount; x < indexedVertexCount + widthSegmentCount; ++x)
 		{       
 			addQuad(
-				(uint16_t) x,
-				(uint16_t)(x + vxCount),
-				(uint16_t)(x + vxCount + 1),
-				(uint16_t)(x + 1)
-				);
+				x,
+				x + vxCount,
+				x + vxCount + 1,
+				x + 1
+			);
 		}
 	}
 }
 
 void PlaneMeshBuilder::commit(Mesh& mesh, StorageHint storageHint)
 {
-	MeshBuilder::commit(mesh, storageHint);
+	int attributeMap[] = { 0, Mesh::Index, 1, Mesh::Position, 2, Mesh::Normal, 3, Mesh::TextureCoord0, 4, Mesh::TextureCoord1 };
+	commitMesh(*this, mesh, attributeMap, storageHint);
 }

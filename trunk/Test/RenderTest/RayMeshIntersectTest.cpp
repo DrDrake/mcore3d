@@ -15,7 +15,7 @@
 
 using namespace MCD;
 
-//--------------------------------------------------------------------------
+/*
 namespace RayMeshIntersectTest {
 
 class TestWindow : public BasicGlWindow
@@ -177,3 +177,4 @@ TEST(RayMeshIntersectTest)
 	RayMeshIntersectTest::TestWindow window;
 	window.mainLoop();
 }
+*/

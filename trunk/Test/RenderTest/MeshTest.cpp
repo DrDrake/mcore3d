@@ -8,22 +8,22 @@ using namespace MCD;
 
 namespace {
 
-const MeshBuilder2::Semantic indexSemantic =		{ "index", sizeof(uint16_t), 1, 0 };
-const MeshBuilder2::Semantic positionSemantic =		{ "position", sizeof(float), 3, 0 };
-const MeshBuilder2::Semantic normalSemantic =		{ "normal", sizeof(float), 3, 0 };
-const MeshBuilder2::Semantic uvSemantic =			{ "uv", sizeof(float), 2, 0 };
-const MeshBuilder2::Semantic blendWeightSemantic =	{ "blendWeight", sizeof(float), 1, 0 };
+const MeshBuilder::Semantic indexSemantic =		{ "index", sizeof(uint16_t), 1, 0 };
+const MeshBuilder::Semantic positionSemantic =		{ "position", sizeof(float), 3, 0 };
+const MeshBuilder::Semantic normalSemantic =		{ "normal", sizeof(float), 3, 0 };
+const MeshBuilder::Semantic uvSemantic =			{ "uv", sizeof(float), 2, 0 };
+const MeshBuilder::Semantic blendWeightSemantic =	{ "blendWeight", sizeof(float), 1, 0 };
 
 }	// namespace
 
 TEST(MeshBuilderTest)
 {
 	{	// Simple create and destroy a mesh builder
-		MeshBuilder2 builder;
+		MeshBuilder builder;
 	}
 
 	{	// Check against the initial states
-		MeshBuilder2 builder;
+		MeshBuilder builder;
 
 		CHECK_EQUAL(1u, builder.attributeCount());	// The "index" is already reserved.
 		CHECK_EQUAL(0u, builder.vertexCount());
@@ -42,7 +42,7 @@ TEST(MeshBuilderTest)
 	}
 
 	{	// More complicated cases
-		MeshBuilder2 builder;
+		MeshBuilder builder;
 
 		int posId = builder.declareAttribute(positionSemantic, 1);
 		CHECK(posId > 0);
@@ -65,7 +65,7 @@ TEST(MeshBuilderTest)
 		CHECK_EQUAL(3u, builder.bufferCount());
 
 		size_t count, stride, bufferId;
-		MeshBuilder2::Semantic semantic;
+		MeshBuilder::Semantic semantic;
 
 		// Get the data pointer for the various attributes
 		char* pos = builder.getAttributePointer(posId, &count, &stride, &bufferId, &semantic);
@@ -220,7 +220,7 @@ TEST(MeshBuilderIMTest)
 		}
 	}
 }
-
+/*
 TEST(Basic_MeshBuilderTest)
 {
 	{	// Simple create and destroy a mesh
@@ -465,3 +465,4 @@ TEST(SharedVertex_MeshBuilderTest)
 
 	CHECK(true);
 }
+*/

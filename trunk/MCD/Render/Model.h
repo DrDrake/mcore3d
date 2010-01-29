@@ -9,7 +9,7 @@
 namespace MCD {
 
 typedef IntrusivePtr<class Mesh> MeshPtr;
-typedef IntrusivePtr<class MeshBuilder2> MeshBuilder2Ptr;
+typedef IntrusivePtr<class MeshBuilder> MeshBuilderPtr;
 typedef IntrusivePtr<class Effect> EffectPtr;
 
 /*!	Basically it's a list of Mesh - Material pairs.
@@ -38,11 +38,11 @@ public:
 		EffectPtr effect;
 		std::wstring name;
 
-		/*! Pointer to the MeshBuilder2 of this mesh, it is primaryly used for reading the mesh data
+		/*! Pointer to the MeshBuilder of this mesh, it is primaryly used for reading the mesh data
 			without downloading them from the GPU.
 			Please notice that this pointer may be nullptr.
 		 */
-		MeshBuilder2Ptr meshBuilder;
+		MeshBuilderPtr meshBuilder;
 	};	// MeshAndMaterial
 
 	typedef LinkList<MeshAndMaterial> MeshList;

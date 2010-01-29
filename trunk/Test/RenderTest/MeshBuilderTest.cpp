@@ -10,11 +10,11 @@ using namespace MCD;
 
 namespace {
 
-const MeshBuilder2::Semantic indexSemantic =		{ "index", sizeof(uint16_t), 1, 0 };
-const MeshBuilder2::Semantic positionSemantic =		{ "position", sizeof(float), 3, 0 };
-const MeshBuilder2::Semantic normalSemantic =		{ "normal", sizeof(float), 3, 0 };
-const MeshBuilder2::Semantic uvSemantic =			{ "uv", sizeof(float), 2, 0 };
-const MeshBuilder2::Semantic blendWeightSemantic =	{ "blendWeight", sizeof(float), 1, 0 };
+const MeshBuilder::Semantic indexSemantic =			{ "index", sizeof(uint16_t), 1, 0 };
+const MeshBuilder::Semantic positionSemantic =		{ "position", sizeof(float), 3, 0 };
+const MeshBuilder::Semantic normalSemantic =		{ "normal", sizeof(float), 3, 0 };
+const MeshBuilder::Semantic uvSemantic =			{ "uv", sizeof(float), 2, 0 };
+const MeshBuilder::Semantic blendWeightSemantic =	{ "blendWeight", sizeof(float), 1, 0 };
 
 class MeshBuilderTestFixture
 {
@@ -52,7 +52,7 @@ protected:
 		return true;
 	}
 
-	MeshBuilder2 srcBuilder;
+	MeshBuilder srcBuilder;
 	int posId, normalId, uvId;
 	StrideArray<Vec3f> pos, normal;
 	StrideArray<Vec2f> uv;
@@ -64,7 +64,7 @@ protected:
 TEST(copyEmptyVertexAttributes_MeshBuilderUtilityTest)
 {
 	// Empty builder
-	MeshBuilder2 srcBuilder, destBuilder;
+	MeshBuilder srcBuilder, destBuilder;
 	CHECK(!MeshBuilderUtility::copyVertexAttributes(
 		srcBuilder, destBuilder, FixStrideArray<uint16_t>(nullptr, 0)
 	));
@@ -75,7 +75,7 @@ TEST_FIXTURE(MeshBuilderTestFixture, copyVertexAttributes)
 	CHECK(setupSrcBuilder());
 
 	// Setting up destBuilder
-	MeshBuilder2 destBuilder;
+	MeshBuilder destBuilder;
 	destBuilder.declareAttribute(positionSemantic, 1);
 	destBuilder.declareAttribute(normalSemantic, 1);
 	destBuilder.declareAttribute(uvSemantic, 2);
@@ -105,7 +105,7 @@ TEST_FIXTURE(MeshBuilderTestFixture, split)
 	CHECK(setupSrcBuilder());
 
 	static const size_t cSplitCount = 3;
-	MeshBuilder2 destBuilders[cSplitCount];
+	MeshBuilder destBuilders[cSplitCount];
 
 	for(size_t i=0; i<MCD_COUNTOF(destBuilders); ++i) {
 		destBuilders[i].declareAttribute(positionSemantic, 1);
@@ -115,7 +115,7 @@ TEST_FIXTURE(MeshBuilderTestFixture, split)
 
 	uint16_t i_[cSplitCount][4] =			{ { 4, 7, 7, 3 }, { 5, 6, 7, 999 }, { 2, 2, 5, 2 } };
 	uint16_t expectedIdx_[cSplitCount][4] =	{ { 0, 1, 1, 2 }, { 0, 1, 2, 999 }, { 0, 0, 1, 0 } };
-	MeshBuilder2* destBuildersArray[cSplitCount] = { &destBuilders[0], &destBuilders[1], &destBuilders[2] };
+	MeshBuilder* destBuildersArray[cSplitCount] = { &destBuilders[0], &destBuilders[1], &destBuilders[2] };
 
 	StrideArray<uint16_t> indices[cSplitCount] = {
 		StrideArray<uint16_t>(i_[0], 4), StrideArray<uint16_t>(i_[1], 3), StrideArray<uint16_t>(i_[2], 4)
@@ -124,7 +124,7 @@ TEST_FIXTURE(MeshBuilderTestFixture, split)
 	MeshBuilderUtility::split(cSplitCount, srcBuilder, destBuildersArray, indices);
 
 	for(size_t i=0; i<cSplitCount; ++i) {
-		MeshBuilder2& destBuilder = destBuilders[i];
+		MeshBuilder& destBuilder = destBuilders[i];
 
 		StrideArray<Vec3f> pos_ = destBuilder.getAttributeAs<Vec3f>(posId);
 		StrideArray<Vec3f> normal_ = destBuilder.getAttributeAs<Vec3f>(normalId);

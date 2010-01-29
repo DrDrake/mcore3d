@@ -6,12 +6,12 @@
 namespace MCD {
 
 //! Create a plane mesh
-class MCD_RENDER_API PlaneMeshBuilder : public MeshBuilder
+class MCD_RENDER_API PlaneMeshBuilder : public MeshBuilderIM
 {
 public:
 	using MeshBuilder::StorageHint;
 
-	PlaneMeshBuilder(float width, float height, size_t widthSegmentCount, size_t heightSegmentCount, bool includeTangents = true);
+	PlaneMeshBuilder(float width, float height, uint16_t widthSegmentCount, uint16_t heightSegmentCount, bool includeTangents = true);
 
 	void commit(Mesh& mesh, StorageHint storageHint);
 };	// PlaneMeshBuilder

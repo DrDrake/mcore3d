@@ -9,8 +9,6 @@
 #include "SemanticMap.h"
 #include "Texture.h"
 #include "TangentSpaceBuilder.h"
-//#include "../Core/Math/Vec2.h"
-//#include "../Core/Math/Vec3.h"
 #include "../Core/Math/Mat44.h"
 #include "../Core/System/Log.h"
 #include "../Core/System/MemoryProfiler.h"
@@ -234,13 +232,13 @@ private:
 		Max3dsMaterial* material;
 		std::vector<uint16_t> mFaceIndex;	//!< Index to the face
 		std::vector<uint16_t> mIndexIndex;	//!< Transform mFaceIndex to vertex index
-		MeshBuilder2Ptr splittedBuilder;	//!< Assigned from the ModelInfo, after splitting the main builder into smaller one for each material
+		MeshBuilderPtr splittedBuilder;		//!< Assigned from the ModelInfo, after splitting the main builder into smaller one for each material
 	};	// MultiSubObject
 
 	struct ModelInfo
 	{
 		std::wstring name;
-		MeshBuilder2Ptr meshBuilder;			//!< Contains vertex buffer only
+		MeshBuilderPtr meshBuilder;			//!< Contains vertex buffer only
 		std::vector<uint32_t> smoothingGroup;	//!< Which smoothing group the face belongs to
 		std::list<MultiSubObject> multiSubObject;
 	};	// ModelInfo
@@ -289,7 +287,7 @@ void Max3dsLoader::Impl::readChunks(const Path* fileId)
 {
 	ChunkHeader header;
 
-	MeshBuilder2Ptr currentMeshBuilder = nullptr;
+	MeshBuilderPtr currentMeshBuilder = nullptr;
 	Max3dsMaterial* currentMaterial = nullptr;
 
 	// When mirror is used in the 3DS, the triangle winding order need to be inverted.
@@ -325,7 +323,7 @@ void Max3dsLoader::Impl::readChunks(const Path* fileId)
 				ModelInfo modelInfo;
 				readString(modelInfo.name);
 
-				currentMeshBuilder = new MeshBuilder2(false);
+				currentMeshBuilder = new MeshBuilder(false);
 				if(!currentMeshBuilder)
 					ABORTLOADING();
 
@@ -593,7 +591,7 @@ void Max3dsLoader::Impl::readChunks(const Path* fileId)
 #undef ABORTLOADING
 
 //!	Generate necessary vertex to ensure each vertex will only rest in one smoothing group.
-static sal_checkreturn bool splitSmoothingGroupVertex(MeshBuilder2& builder, const std::vector<uint32_t>& smoothingGroups)
+static sal_checkreturn bool splitSmoothingGroupVertex(MeshBuilder& builder, const std::vector<uint32_t>& smoothingGroups)
 {
 	if(smoothingGroups.empty())
 		return true;
@@ -690,7 +688,7 @@ static sal_checkreturn bool splitSmoothingGroupVertex(MeshBuilder2& builder, con
 }
 
 // Reference: http://www.gamedev.net/community/forums/topic.asp?topic_id=504353&whichpage=1&#3290286
-static void computNormal(MeshBuilder2& builder, const std::vector<uint32_t>& smoothingGroups)
+static void computNormal(MeshBuilder& builder, const std::vector<uint32_t>& smoothingGroups)
 {
 	StrideArray<Vec3f> vertex = builder.getAttributeAs<Vec3f>(cPositionAttId);
 	StrideArray<uint16_t> index = builder.getAttributeAs<uint16_t>(cIndexAttId);
@@ -746,7 +744,7 @@ void Max3dsLoader::Impl::postProcess()
 	MCD_FOREACH(const ModelInfo& _model, mModelInfo)
 	{
 		ModelInfo& model = const_cast<ModelInfo&>(_model);
-		MeshBuilder2& meshBuilder = *model.meshBuilder;
+		MeshBuilder& meshBuilder = *model.meshBuilder;
 
 		// Compute tangent space if needed
 		int uvId = meshBuilder.findAttributeId(mUvSemantic.name);
@@ -778,14 +776,14 @@ void Max3dsLoader::Impl::postProcess()
 		}
 		else
 		{
-			MeshBuilder2** subBuilders = (MeshBuilder2**)MCD_STACKALLOCA(sizeof(MeshBuilder2*) * model.multiSubObject.size());
+			MeshBuilder** subBuilders = (MeshBuilder**)MCD_STACKALLOCA(sizeof(MeshBuilder*) * model.multiSubObject.size());
 			StrideArray<uint16_t>* faceIndices = (StrideArray<uint16_t>*)MCD_STACKALLOCA(sizeof(StrideArray<uint16_t>) * model.multiSubObject.size());
 
 			size_t i = 0;
 			MCD_FOREACH(const MultiSubObject& _subObject, model.multiSubObject)
 			{
 				MultiSubObject& subObject = const_cast<MultiSubObject&>(_subObject);
-				subBuilders[i] = new MeshBuilder2(false);
+				subBuilders[i] = new MeshBuilder(false);
 				subObject.splittedBuilder = subBuilders[i];
 
 				StrideArray<uint16_t> idx = meshBuilder.getAttributeAs<uint16_t>(cIndexAttId);
