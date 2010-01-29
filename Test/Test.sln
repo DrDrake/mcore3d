@@ -31,6 +31,10 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "AudioTest", "AudioTest\Audi
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Audio", "Audio", "{ED4A2DE1-B996-4115-86BD-66C5FD58019F}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Network", "..\MCD\Network\Network.vcproj", "{5C3CE976-3FD0-43F0-9259-71EB4ED98A81}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "NetworkTest", "NetworkTest\NetworkTest.vcproj", "{049D1641-00B0-477F-9716-70503831E690}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Analysis|Win32 = Analysis|Win32
@@ -98,6 +102,18 @@ Global
 		{44759314-9FC1-4ABC-B595-62B23DDD8014}.Debug|Win32.Build.0 = Debug|Win32
 		{44759314-9FC1-4ABC-B595-62B23DDD8014}.Release|Win32.ActiveCfg = Release|Win32
 		{44759314-9FC1-4ABC-B595-62B23DDD8014}.Release|Win32.Build.0 = Release|Win32
+		{5C3CE976-3FD0-43F0-9259-71EB4ED98A81}.Analysis|Win32.ActiveCfg = Analysis|Win32
+		{5C3CE976-3FD0-43F0-9259-71EB4ED98A81}.Analysis|Win32.Build.0 = Analysis|Win32
+		{5C3CE976-3FD0-43F0-9259-71EB4ED98A81}.Debug|Win32.ActiveCfg = Debug|Win32
+		{5C3CE976-3FD0-43F0-9259-71EB4ED98A81}.Debug|Win32.Build.0 = Debug|Win32
+		{5C3CE976-3FD0-43F0-9259-71EB4ED98A81}.Release|Win32.ActiveCfg = Release|Win32
+		{5C3CE976-3FD0-43F0-9259-71EB4ED98A81}.Release|Win32.Build.0 = Release|Win32
+		{049D1641-00B0-477F-9716-70503831E690}.Analysis|Win32.ActiveCfg = Analysis|Win32
+		{049D1641-00B0-477F-9716-70503831E690}.Analysis|Win32.Build.0 = Analysis|Win32
+		{049D1641-00B0-477F-9716-70503831E690}.Debug|Win32.ActiveCfg = Debug|Win32
+		{049D1641-00B0-477F-9716-70503831E690}.Debug|Win32.Build.0 = Debug|Win32
+		{049D1641-00B0-477F-9716-70503831E690}.Release|Win32.ActiveCfg = Release|Win32
+		{049D1641-00B0-477F-9716-70503831E690}.Release|Win32.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
