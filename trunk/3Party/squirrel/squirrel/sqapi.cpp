@@ -63,6 +63,7 @@ HSQUIRRELVM sq_open(SQInteger initialstacksize)
 
 HSQUIRRELVM sq_newthread(HSQUIRRELVM friendvm, SQInteger initialstacksize)
 {
+	initialstacksize *= 8;
 	SQSharedState *ss;
 	SQVM *v;
 	ss=_ss(friendvm);
