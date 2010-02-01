@@ -380,7 +380,6 @@ void Max3dsLoader::Impl::readChunks(const Path* fileId)
 				Mat44f matrix = Mat44f::cIdentity;
 				for(size_t i=0; i<4; ++i)
 					mStream->read(matrix.data2D[i], sizeof(float) * 3);
-				matrix = matrix.transpose();
 
 				if((invertWinding = (matrix.determinant() < 0)) == true) {
 					Mat44f inv = matrix.inverse();
@@ -713,22 +712,40 @@ static void computNormal(MeshBuilder& builder, const std::vector<uint32_t>& smoo
 	for(size_t i=0; i<vertex.size; ++i)
 		normal[i] = Vec3f::cZero;
 
-	// Calculate the face normal for each face
-	for(size_t i=0; i<index.size; i+=3) {
-		const Vec3f& v1 = vertex[index[i+0]];
-		const Vec3f& v2 = vertex[index[i+1]];
-		const Vec3f& v3 = vertex[index[i+2]];
+	if(smoothingGroups.size() == index.size / 3) {
+		// Calculate the face normal for each face
+		for(size_t i=0; i<index.size; i+=3) {
+			const Vec3f& v1 = vertex[index[i+0]];
+			const Vec3f& v2 = vertex[index[i+1]];
+			const Vec3f& v3 = vertex[index[i+2]];
 
-		// We need not to normalize this faceNormal, since a vertex's normal
-		// should be influenced more by a larger polygon.
-		const Vec3f faceNormal = (v3 - v2) ^ (v1 - v2);
+			// We need not to normalize this faceNormal, since a vertex's normal
+			// should be influenced more by a larger polygon.
+			const Vec3f faceNormal = (v3 - v2) ^ (v1 - v2);
 
-		// The smoothing group for this face
-		int sg = smoothingGroups[i/3];
+			// The smoothing group for this face
+			int sg = smoothingGroups[i/3];
 
-		for(size_t j=0; j<3; ++j) {
-			MCD_FOREACH(uint16_t f, position2Faces[vertex[index[i+j]]]) {
-				if(sg & smoothingGroups[f/3])
+			for(size_t j=0; j<3; ++j) {
+				MCD_FOREACH(uint16_t f, position2Faces[vertex[index[i+j]]]) {
+					if(sg & smoothingGroups[f/3])
+						normal[index[f]] += faceNormal;
+				}
+			}
+		}
+	}
+	else {
+		for(size_t i=0; i<index.size; i+=3) {
+			const Vec3f& v1 = vertex[index[i+0]];
+			const Vec3f& v2 = vertex[index[i+1]];
+			const Vec3f& v3 = vertex[index[i+2]];
+
+			// We need not to normalize this faceNormal, since a vertex's normal
+			// should be influenced more by a larger polygon.
+			const Vec3f faceNormal = (v3 - v2) ^ (v1 - v2);
+
+			for(size_t j=0; j<3; ++j) {
+				MCD_FOREACH(uint16_t f, position2Faces[vertex[index[i+j]]])
 					normal[index[f]] += faceNormal;
 			}
 		}
