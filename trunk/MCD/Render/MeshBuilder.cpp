@@ -1,6 +1,7 @@
 #include "Pch.h"
 #include "MeshBuilder.h"
 #include "Mesh.h"
+#include "SemanticMap.h"
 #include "../Core/Math/Vec2.h"
 #include "../Core/Math/Vec3.h"
 #include "../Core/Math/Vec4.h"
@@ -146,7 +147,7 @@ void MeshBuilder::clear()
 {
 	mImpl.attributes.clear();
 
-	Semantic indexSemantic = { "index", sizeof(uint16_t), 1, 0 };
+	Semantic indexSemantic = { "index", TYPE_UINT16, sizeof(uint16_t), 1, 0 };
 	// Prepare the index as a default attribute
 	Impl::Attribute a = { 0, 0, indexSemantic };
 	mImpl.attributes.push_back(a);
@@ -197,7 +198,7 @@ int MeshBuilder::findAttributeId(const char* semanticName) const
 	return -1;
 }
 
-char* MeshBuilder::getAttributePointer(int attributeId, size_t* count, size_t* stride, size_t* bufferId, Semantic* semantic)
+char* MeshBuilder::getAttributePointer(int attributeId, size_t* count, size_t* stride, size_t* bufferId, size_t* offset, Semantic* semantic)
 {
 	if(attributeId < 0 || size_t(attributeId) >= mImpl.attributes.size())
 		return nullptr;
@@ -214,13 +215,14 @@ char* MeshBuilder::getAttributePointer(int attributeId, size_t* count, size_t* s
 	if(stride) *stride = elementSize;
 	if(bufferId) *bufferId = bufferIdx;
 	if(semantic) *semantic = a.semantic;
+	if(offset) *offset = a.offset;
 
 	return &mImpl.buffers[bufferIdx][a.offset];
 }
 
-const char* MeshBuilder::getAttributePointer(int attributeId, size_t* count, size_t* stride, size_t* bufferId, Semantic* semantic) const
+const char* MeshBuilder::getAttributePointer(int attributeId, size_t* count, size_t* stride, size_t* bufferId, size_t* offset, Semantic* semantic) const
 {
-	return const_cast<MeshBuilder*>(this)->getAttributePointer(attributeId, count, stride, bufferId, semantic);
+	return const_cast<MeshBuilder*>(this)->getAttributePointer(attributeId, count, stride, bufferId, offset, semantic);
 }
 
 char* MeshBuilder::getBufferPointer(size_t bufferIdx,  size_t* elementSize, size_t* sizeInByte)
@@ -358,92 +360,83 @@ bool MeshBuilderIM::addQuad(uint16_t idx1, uint16_t idx2, uint16_t idx3, uint16_
 	return true;
 }
 
-template<>
-class Mesh::PrivateAccessor<MeshBuilder>
+static int toGlType(MeshBuilder::ElementType type)
 {
-public:
-	static uint& handle(Mesh& mesh, Mesh::DataType dataType) {
-		const Mesh::HandlePtr& ptr = mesh.handlePtr(dataType);
-		MCD_ASSERT(ptr);
-		// We should not modify the value of the handle if it's already shared.
-		// Note that the variable 'ptr' itself already consume 1 reference count
-		MCD_ASSERT(ptr.referenceCount() == 1);
-		return *ptr;
-	}
+	static const int mapping[] = {
+		-1,
+		GL_INT, GL_UNSIGNED_INT,
+		GL_BYTE, GL_UNSIGNED_BYTE,
+		GL_SHORT, GL_UNSIGNED_SHORT,
+		GL_FLOAT, GL_DOUBLE,
+		-1
+	};
 
-	static uint8_t& componentCount(Mesh& mesh, Mesh::DataType dataType) {
-		uint8_t* p = mesh.componentCountPtr(dataType);
-		MCD_ASSUME(p != nullptr);
-		return *p;
-	}
+	return mapping[type - MeshBuilder::TYPE_NOT_USED];
+}
 
-	static uint& format(Mesh& mesh) {
-		return mesh.mFormat;
-	}
-
-	static size_t& vertexCount(Mesh& mesh) {
-		return mesh.mVertexCount;
-	}
-
-	static size_t& indexCount(Mesh& mesh) {
-		return mesh.mIndexCount;
-	}
-};	// PrivateAccessor
-
-void commitMesh(MeshBuilder& builder, Mesh& mesh, const int* attributeMap, MeshBuilder::StorageHint storageHint)
+bool commitMesh(const MeshBuilder& builder, Mesh& mesh, MeshBuilder::StorageHint storageHint)
 {
 	const size_t attributeCount = builder.attributeCount();
+	const size_t bufferCount = builder.bufferCount();
 
-	typedef Mesh::PrivateAccessor<MeshBuilder> Accessor;
-	Accessor::vertexCount(mesh) = builder.vertexCount();
-	Accessor::indexCount(mesh) = builder.indexCount();
-	std::vector<char> conversionBuffer;
+	if(attributeCount > Mesh::cMaxAttributeCount)
+		return false;
+	if(bufferCount > Mesh::cMaxBufferCount)
+		return false;
 
-	for(size_t i=0; i<attributeCount; ++i)
+	mesh.clear();
+
+	mesh.attributeCount = attributeCount;
+	mesh.indexCount = builder.indexCount();
+	mesh.vertexCount = builder.vertexCount();
+
+	for(uint8_t i=0; i<attributeCount; ++i)
 	{
-		size_t count, stride;
-		const int attributeId = attributeMap[i * 2];
-		if(attributeId < 0)	// Skip those unsupported semantics
-			continue;
-
+		size_t count, stride, bufferId, offset;
 		MeshBuilder::Semantic semantic;
-		const char* data = builder.getAttributePointer(attributeId, &count, &stride, nullptr, &semantic);
-		const size_t attributeSize = semantic.elementCount * semantic.elementSize;
 
-		if(!data) {
-			Log::write(Log::Warn, L"Error occured when committing data from MeshBuilder to Mesh");
-			continue;
-		}
+		const char* data = builder.getAttributePointer(i, &count, &stride, &bufferId, &offset, &semantic);
+		(void)data;	// Ignore the data pointer in this loop
 
-		// Convert the interleaved attributes to a single buffer.
-		if(stride != attributeSize) {
-			conversionBuffer.resize(count * attributeSize);
-			const char* src = data;
-			char* dest = &conversionBuffer[0];
-			for(size_t j=0; j<count; ++j, src += stride, dest += attributeSize)
-				::memcpy(dest, src, attributeSize);
-			data = &conversionBuffer[0];
-		}
+		Mesh::Attribute& a = mesh.attributes[i];
+		a.dataType = toGlType(semantic.elementType);
+		a.elementSize = uint16_t(semantic.elementSize);
+		a.elementCount = uint8_t(semantic.elementCount);
+		a.bufferIndex = uint8_t(bufferId);
+		a.byteOffset = uint8_t(offset);
+		a.stride = uint16_t(stride);
+		a.semantic = semantic.name;
 
-		const Mesh::DataType format = Mesh::DataType(attributeMap[i * 2 + 1]);
+		// Setup the short cut attribute indices
+		const SemanticMap& semanticMap = SemanticMap::getSingleton();
+		if(strcmp(semantic.name, semanticMap.index().name) == 0)
+			mesh.indexAttrIdx = i;
+		else if(strcmp(semantic.name, semanticMap.position().name) == 0)
+			mesh.positionAttrIdx = i;
+		else if(strcmp(semantic.name, semanticMap.normal().name) == 0)
+			mesh.normalAttrIdx = i;
+		else if(strcmp(semantic.name, semanticMap.uv(0, a.elementCount).name) == 0)
+			mesh.uv0AttrIdx = i;
+		else if(strcmp(semantic.name, semanticMap.uv(1, a.elementCount).name) == 0)
+			mesh.uv1AttrIdx = i;
+		else if(strcmp(semantic.name, semanticMap.uv(2, a.elementCount).name) == 0)
+			mesh.uv2AttrIdx = i;
+	}
 
-		// Handle the component count for texture coordinates
-		// NOTE: Assuming texture coordinate is only float.
-		if(format < Mesh::TextureCoord) {
-			Accessor::componentCount(mesh, format) = uint8_t(semantic.elementCount);
-			Accessor::format(mesh) = (Accessor::format(mesh) & ~Mesh::TextureCoord);	// Remove any TextureCoord format flag
-		}
-
-		Accessor::format(mesh) |= format;
-
-		uint* handle = &Accessor::handle(mesh, format);
+	for(size_t i=0; i<bufferCount; ++i)
+	{
+		uint* handle = mesh.handles[i].get();
 		if(!*handle)
 			glGenBuffers(1, handle);
 
-		const GLenum verOrIdxBuf = attributeId == 0 ? GL_ELEMENT_ARRAY_BUFFER : GL_ARRAY_BUFFER;
+		const GLenum verOrIdxBuf = i == 0 ? GL_ELEMENT_ARRAY_BUFFER : GL_ARRAY_BUFFER;
 		glBindBuffer(verOrIdxBuf, *handle);
-		glBufferData(verOrIdxBuf, count * attributeSize, data, storageHint);
+		size_t sizeInByte;
+		const char* data = builder.getBufferPointer(i, nullptr, &sizeInByte);
+		glBufferData(verOrIdxBuf, sizeInByte, data, storageHint);
 	}
+
+	return true;
 }
 
 }	// namespace MCD

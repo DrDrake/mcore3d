@@ -43,9 +43,20 @@ namespace MCD {
 class MCD_RENDER_API MeshBuilder : public IntrusiveSharedObject<AtomicInteger>, private Noncopyable
 {
 public:
+	enum ElementType
+	{
+		TYPE_NOT_USED,
+		TYPE_INT,		TYPE_UINT,
+		TYPE_INT8,		TYPE_UINT8,
+		TYPE_INT16,		TYPE_UINT16,
+		TYPE_FLOAT,		TYPE_DOUBLE,
+		TYPE_NONE	//!< For error indication
+	};	// ElementType
+
 	struct Semantic
 	{
 		const char* name;		//! Unique string that identify the semantic
+		ElementType elementType;//! The data type of the element
 		size_t elementSize;		//! Size in byte of individual element in this semanitc, eg. Vec3f -> sizeof(float)
 		size_t elementCount;	//! Number of element in this semanitc, eg. Vec3f -> 3
 		size_t channelIndex;	//! The channel index for color/texture coordinate
@@ -135,6 +146,8 @@ public:
 		\param stride
 			The byte offset between consecutive vertex attributes, which is equal to the size of a vertex.
 			Note that stride will not be zero even the data are tightly packed.
+		\param offset
+			Byte offset of this attribute in it's buffer.
 		\param semantic
 			The semantic for this attribute, as it was passed to declareAttribute().
 			Since all error checking is done in declareAttribute(), the returned semantic
@@ -147,6 +160,7 @@ public:
 		sal_out_opt size_t* count=nullptr,
 		sal_out_opt size_t* stride=nullptr,
 		sal_out_opt size_t* bufferId=nullptr,
+		sal_out_opt size_t* offset=nullptr,
 		sal_out_opt Semantic* semantic=nullptr
 	);
 
@@ -155,6 +169,7 @@ public:
 		sal_out_opt size_t* count=nullptr,
 		sal_out_opt size_t* stride=nullptr,
 		sal_out_opt size_t* bufferId=nullptr,
+		sal_out_opt size_t* offset=nullptr,
 		sal_out_opt Semantic* semantic=nullptr
 	) const;
 
@@ -165,7 +180,7 @@ public:
 	{
 		size_t count, stride;
 		Semantic semantic;
-		char* p = getAttributePointer(attributeId, &count, &stride, nullptr, &semantic);
+		char* p = getAttributePointer(attributeId, &count, &stride, nullptr, nullptr, &semantic);
 		if(p && sizeof(T) == semantic.elementCount * semantic.elementSize)
 			return StrideArray<T>(p, count, stride);
 		return StrideArray<T>(nullptr, 0, 0);
@@ -248,11 +263,8 @@ typedef IntrusivePtr<MeshBuilderIM> MeshBuilderIMPtr;
 
 class Mesh;
 
-/*!	Commit the data in the MeshBuilder to a Mesh.
-	int attributeMap[] = { 0, Mesh::Index, 1, Mesh::Position, 2, Mesh::Normal }
-	Make sure the element count of attributeMap is >= builder.attributeCount() * 2.
- */
-MCD_RENDER_API void commitMesh(MeshBuilder& builder, Mesh& mesh, const int* attributeMap, MeshBuilder::StorageHint storageHint);
+//!	Commit the data in the MeshBuilder to a Mesh.
+MCD_RENDER_API sal_checkreturn bool commitMesh(const MeshBuilder& builder, Mesh& mesh, MeshBuilder::StorageHint storageHint);
 
 }	// namespace MCD
 

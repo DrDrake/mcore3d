@@ -11,8 +11,6 @@ class MCD_RENDER_API ChamferBoxBuilder : public MCD::MeshBuilderIM
 public:
 	ChamferBoxBuilder(float filletRadius, size_t filletSegmentCount, bool includeTangents = false);
 
-	void commit(Mesh& mesh, MeshBuilder::StorageHint storageHint);
-
 	//! The index id generated.
 	int posId, normalId, uvId, tangentId;
 };	// ChamferBoxBuilder

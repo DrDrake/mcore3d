@@ -34,7 +34,7 @@ static Mesh* chamferBoxMeshCreate(float filletRadius, size_t filletSegmentCount)
 {
 	Mesh* mesh = new Mesh();
 	ChamferBoxBuilder builder(filletRadius, filletSegmentCount);
-	builder.commit(*mesh, MeshBuilder::Static);
+	commitMesh(builder, *mesh, MeshBuilder::Static);
 	return mesh;
 }
 

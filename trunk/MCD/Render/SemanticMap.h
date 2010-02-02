@@ -12,16 +12,16 @@ namespace MCD {
 	has a static storage.
 
 	The default		implementation of SemanticMap has the following semantics:
-	name			elementSize,		elementCount	channelIndex
-	"index",		sizeof(uint16_t),	1,				0
-	"position",		sizeof(float),		3,				0
-	"normal",		sizeof(float),		3,				0
-	"tangent",		sizeof(float),		3,				0
-	"binormal",		sizeof(float),		3,				0
-	"blendWeight",	sizeof(float),		1,				0
-	"blendIndex",	sizeof(uint8_t),	1,				0
-	"uv[i]",		sizeof(float),		[c],			[i]
-	"color[i]",		[s],				[c],			[i]
+	name			elementType,		elementSize,		elementCount	channelIndex
+	"index",		TYPE_UINT16,		sizeof(uint16_t),	1,				0
+	"position",		TYPE_FLOAT,			sizeof(float),		3,				0
+	"normal",		TYPE_FLOAT,			sizeof(float),		3,				0
+	"tangent",		TYPE_FLOAT,			sizeof(float),		3,				0
+	"binormal",		TYPE_FLOAT,			sizeof(float),		3,				0
+	"blendWeight",	TYPE_FLOAT,			sizeof(float),		1,				0
+	"blendIndex",	TYPE_UINT8,			sizeof(uint8_t),	1,				0
+	"uv[i]",		TYPE_FLOAT,			sizeof(float),		[c],			[i]
+	"color[i]",		TYPE_UINT8,			[s],				[c],			[i]
 
 	where [i], [s], [c] are depends on the input parameter.
  */
@@ -29,6 +29,8 @@ class MCD_RENDER_API SemanticMap
 {
 public:
 	typedef MeshBuilder::Semantic Semantic;
+	typedef MeshBuilder::ElementType ElementType;
+
 	virtual ~SemanticMap() {}
 
 	virtual Semantic index() const;

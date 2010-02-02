@@ -10,11 +10,11 @@ using namespace MCD;
 
 namespace {
 
-const MeshBuilder::Semantic indexSemantic =			{ "index", sizeof(uint16_t), 1, 0 };
-const MeshBuilder::Semantic positionSemantic =		{ "position", sizeof(float), 3, 0 };
-const MeshBuilder::Semantic normalSemantic =		{ "normal", sizeof(float), 3, 0 };
-const MeshBuilder::Semantic uvSemantic =			{ "uv", sizeof(float), 2, 0 };
-const MeshBuilder::Semantic blendWeightSemantic =	{ "blendWeight", sizeof(float), 1, 0 };
+const MeshBuilder::Semantic indexSemantic =			{ "index", MeshBuilder::TYPE_UINT16, sizeof(uint16_t), 1, 0 };
+const MeshBuilder::Semantic positionSemantic =		{ "position", MeshBuilder::TYPE_FLOAT, sizeof(float), 3, 0 };
+const MeshBuilder::Semantic normalSemantic =		{ "normal", MeshBuilder::TYPE_FLOAT, sizeof(float), 3, 0 };
+const MeshBuilder::Semantic uvSemantic =			{ "uv", MeshBuilder::TYPE_FLOAT, sizeof(float), 2, 0 };
+const MeshBuilder::Semantic blendWeightSemantic =	{ "blendWeight", MeshBuilder::TYPE_FLOAT, sizeof(float), 1, 0 };
 
 class MeshBuilderTestFixture
 {

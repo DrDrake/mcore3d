@@ -63,7 +63,7 @@ void MeshBuilderUtility::split(size_t splitCount, MeshBuilder& srcBuilder, MeshB
 		for(size_t j=1; j<srcBuilder.attributeCount(); ++j) {
 			size_t bufferId;
 			MeshBuilder::Semantic semantic;
-			if(srcBuilder.getAttributePointer(j, nullptr, nullptr, &bufferId, &semantic))
+			if(srcBuilder.getAttributePointer(j, nullptr, nullptr, &bufferId, nullptr, &semantic))
 				outBuilders[i]->declareAttribute(semantic, bufferId);
 		}
 	}

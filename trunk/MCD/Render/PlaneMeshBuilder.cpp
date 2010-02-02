@@ -1,6 +1,5 @@
 #include "Pch.h"
 #include "PlaneMeshBuilder.h"
-#include "Mesh.h"
 #include "SemanticMap.h"
 #include "../Core/Math/Vec2.h"
 #include "../Core/Math/Vec3.h"
@@ -70,10 +69,4 @@ PlaneMeshBuilder::PlaneMeshBuilder(float width, float height, uint16_t widthSegm
 			);
 		}
 	}
-}
-
-void PlaneMeshBuilder::commit(Mesh& mesh, StorageHint storageHint)
-{
-	int attributeMap[] = { 0, Mesh::Index, 1, Mesh::Position, 2, Mesh::Normal, 3, Mesh::TextureCoord0, 4, Mesh::TextureCoord1 };
-	commitMesh(*this, mesh, attributeMap, storageHint);
 }

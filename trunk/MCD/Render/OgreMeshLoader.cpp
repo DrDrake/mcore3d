@@ -123,7 +123,7 @@ size_t getChannelCount(const VertexDeclaration& d)
 MeshBuilder::Semantic getSemantic(const VertexDeclaration& d)
 {
 	const SemanticMap& map = SemanticMap::getSingleton();
-	MeshBuilder::Semantic nullSemantic = { "", 0, 0, 0 };
+	MeshBuilder::Semantic nullSemantic = { "", MeshBuilder::TYPE_NONE, 0, 0, 0 };
 	switch(d.semantic) {
 	case VES_POSITION:				return (d.type == VET_FLOAT3) ? map.position() : nullSemantic;
 	case VES_BLEND_WEIGHTS:			return map.blendWeight();	// TODO: Check that map.blendWeight() return the expected elementSize
@@ -392,7 +392,7 @@ public:
 			addProperty(new TextureProperty(texture.get(), 0, GL_LINEAR, GL_LINEAR), 0);
 	}
 };	// WhiteMaterial
-
+/*
 static int semanticToMeshDataType(const char* semantic)
 {
 	if(strcmp(semantic, "position") == 0)	return Mesh::Position;
@@ -403,7 +403,7 @@ static int semanticToMeshDataType(const char* semantic)
 	if(strcmp(semantic, "uv4") == 0)		return Mesh::TextureCoord3;
 	return -1;
 }
-
+*/
 void OgreMeshLoader::Impl::commit(Resource& resource)
 {
 	// There is no need to do a mutex lock because OgreMeshLoader didn't support progressive loading.
@@ -414,23 +414,7 @@ void OgreMeshLoader::Impl::commit(Resource& resource)
 	MCD_FOREACH(const Geometry& geo, mGeometry)
 	{
 		MeshPtr mesh = new Mesh(geo.name);
-		const size_t attributeCount = geo.meshBuilder->attributeCount();
-
-		{	// Generate the required semantic to Mesh::DataType mapping and then commit the data to mesh.
-			int* map = new int[attributeCount * 2];
-			map[0] = 0; map[1] = Mesh::Index;
-
-			for(size_t i=1; i<attributeCount; ++i) {
-				MeshBuilder::Semantic semantic;
-				MCD_VERIFY(geo.meshBuilder->getAttributePointer(i, nullptr, nullptr, nullptr, &semantic));
-				const int dataType = semanticToMeshDataType(semantic.name);
-				map[i * 2 + 1] = dataType;
-				map[i * 2] = dataType == -1 ? -1 : i;
-			}
-
-			commitMesh(*geo.meshBuilder, *mesh, map, MeshBuilder::Static);
-			delete[] map; map = nullptr;
-		}
+		commitMesh(*geo.meshBuilder, *mesh, MeshBuilder::Static);
 
 		std::auto_ptr<Model::MeshAndMaterial> meshMat(new Model::MeshAndMaterial);
 		meshMat->mesh = mesh;

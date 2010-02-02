@@ -26,7 +26,7 @@ TEST(SimplePhysicsComponentTest)
 			// Setup the sphere mesh
 			MeshPtr mesh = new Mesh;
 			ChamferBoxBuilder chamferBoxBuilder(1.0f, 5);
-			chamferBoxBuilder.commit(*mesh, MeshBuilder::Static);
+			commitMesh(chamferBoxBuilder, *mesh, MeshBuilder::Static);
 
 			// Setup the collision mesh
 			CollisionShapePtr sphereShape = new SphereShape(1);
@@ -65,7 +65,7 @@ TEST(SimplePhysicsComponentTest)
 				// Setup the ground mesh
 				MeshPtr meshGround = new Mesh;
 				PlaneMeshBuilder pBuilder(100, 100, 2, 2);
-				pBuilder.commit(*meshGround, MeshBuilder::Static);
+				commitMesh(pBuilder, *meshGround, MeshBuilder::Static);
 
 				// Add component
 				MeshComponent* c = new MeshComponent;

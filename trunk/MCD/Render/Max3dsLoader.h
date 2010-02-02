@@ -22,11 +22,6 @@ class IResourceManager;
 		- Desc: Compute tangent space for loaded meshes.
 		- Value: true/false
 		- Default: false
- 
-	- Name: editable
-		- Desc: Load the meshes as EditableMesh
-		- Value: true/false
-		- Default: false
 
 	\sa http://www.flipcode.com/archives/Another_3DS_LoaderViewer_Class.shtml
 	\sa http://www.gamedev.net/community/forums/topic.asp?topic_id=382606
