@@ -1,6 +1,6 @@
 #include "Pch.h"
 #include "RayMeshIntersect.h"
-#include "EditableMesh.h"
+#include "Mesh.h"
 #include "../Core/System/Log.h"
 
 #include <list>
@@ -24,7 +24,7 @@ Vec3f IRayMeshIntersect::Helper::getHitPosition(IRayMeshIntersect::Hit* hit)
 		hit->meshRec.transform.transformPoint(v1);
 		hit->meshRec.transform.transformPoint(v2);
 	}
-	
+
 	return hit->w * v0 + hit->u * v1 + hit->v * v2;
 }
 
@@ -42,7 +42,7 @@ Vec3f IRayMeshIntersect::Helper::getHitNormal(IRayMeshIntersect::Hit* hit)
 		hit->meshRec.transform.transformNormal(v1);
 		hit->meshRec.transform.transformNormal(v2);
 	}
-	
+
 	return hit->w * v0 + hit->u * v1 + hit->v * v2;
 }
 
@@ -84,7 +84,7 @@ class SimpleRayMeshIntersect::Impl
 public:
 	LinkList<IRayMeshIntersect::HitResult> mLastResults;
 	LinkList<MeshRecord> mMeshes;
-	std::list<EditableMeshPtr> mMeshOwnerships;
+	std::list<MeshPtr> mMeshOwnerships;
 
 #if 1	// FOLDING
 // source code copied from:
@@ -181,7 +181,7 @@ public:
 	int intersectTriangle(
 		const Vec3<REAL>& orig, const Vec3<REAL>& dir,
 		const Vec3<REAL>& vert0, const Vec3<REAL>& vert1, const Vec3<REAL>& vert2,
-		REAL *t, REAL *u, REAL *v,
+		REAL* t, REAL* u, REAL* v,
 		bool twosided)
 	{
 		return intersect_triangle<REAL>(orig.data, dir.data, vert0.data, vert1.data, vert2.data, t, u, v, twosided);
@@ -206,7 +206,7 @@ void SimpleRayMeshIntersect::reset()
 	mImpl.mLastResults.destroyAll();
 }
 
-void SimpleRayMeshIntersect::addMesh(EditableMesh* mesh)
+void SimpleRayMeshIntersect::addMesh(Mesh* mesh)
 {
 	if(nullptr == mesh)
 	{
@@ -220,7 +220,7 @@ void SimpleRayMeshIntersect::addMesh(EditableMesh* mesh)
 	mImpl.mMeshOwnerships.push_back(mesh);
 }
 
-void SimpleRayMeshIntersect::addMesh(EditableMesh* mesh, const Mat44f& transform)
+void SimpleRayMeshIntersect::addMesh(Mesh* mesh, const Mat44f& transform)
 {
 	if(nullptr == mesh)
 	{
@@ -278,8 +278,8 @@ void SimpleRayMeshIntersect::test(const Vec3f& rayOrig, const Vec3f& rayDir, boo
 	{
 #endif
 
-		EditableMesh& mesh = i->mesh;
-		const size_t cTriCnt = mesh.getTriangleCount();
+		Mesh& mesh = i->mesh;
+		const size_t cTriCnt = mesh.indexCount / 3;
 
 		for(int itri = 0; itri < int(cTriCnt); ++itri)
 		{
@@ -303,7 +303,7 @@ void SimpleRayMeshIntersect::test(const Vec3f& rayOrig, const Vec3f& rayDir, boo
 			if(1 == mImpl.intersectTriangle<float>(rayOrig, rayDir, v0, v1, v2, &t, &u, &v, twoSided))
 			{
 				if(t < 0) continue;
-				
+
 				Hit& hit = *(new Hit(*i));
 				hit.faceIdx = itri;
 				hit.t = t;

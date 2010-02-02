@@ -12,7 +12,7 @@
 
 namespace MCD {
 
-class EditableMesh;
+class Mesh;
 
 /*!	An interface for performing ray to mesh intersection test.
 	Different implementation can be made eg. SimpleRayMeshIntersect,
@@ -21,7 +21,7 @@ class EditableMesh;
 	Example usage:
 @code
 	SimpleRayMeshIntersect i;
-	i.addMesh(mesh);				// mesh:EditableMesh
+	i.addMesh(mesh);				// mesh:Mesh
 	i.addMesh(mesh, transform);		// transform:Mat44f
 	i.build();
 
@@ -39,9 +39,9 @@ class MCD_ABSTRACT_CLASS MCD_RENDER_API IRayMeshIntersect
 public:
 	struct MeshRecord : LinkListBase::Node<MeshRecord>
 	{
-		MeshRecord(EditableMesh& _mesh) : mesh(_mesh) {}
+		MeshRecord(Mesh& _mesh) : mesh(_mesh) {}
 
-		EditableMesh& mesh;
+		Mesh& mesh;
 		bool hasTransform;
 		Mat44f transform;
 	};	// MeshRecord
@@ -83,12 +83,12 @@ public:
 		If mesh is nullptr, it will be ignored.
 		The user must call build after all meshes had been added.
 	*/
-	virtual void addMesh(sal_maybenull EditableMesh* mesh) = 0;
+	virtual void addMesh(sal_maybenull Mesh* mesh) = 0;
 
 	/*!	Add a mesh (with transformation) to this intersect object.
 		\sa addMesh()
 	*/
-	virtual void addMesh(sal_maybenull EditableMesh* mesh, const Mat44f& transform) = 0;
+	virtual void addMesh(sal_maybenull Mesh* mesh, const Mat44f& transform) = 0;
 
 	/*!	Call this method the build any internal data-structure after all meshes has been added.
 		\sa addMesh()
@@ -131,9 +131,9 @@ public:
 
 	sal_override void reset();
 
-	sal_override void addMesh(sal_maybenull EditableMesh* mesh);
+	sal_override void addMesh(sal_maybenull Mesh* mesh);
 
-	sal_override void addMesh(sal_maybenull EditableMesh* mesh, const Mat44f& transform);
+	sal_override void addMesh(sal_maybenull Mesh* mesh, const Mat44f& transform);
 
 	sal_override void build();
 

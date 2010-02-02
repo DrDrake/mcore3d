@@ -241,10 +241,6 @@
 				>
 			</File>
 			<File
-				RelativePath=".\EditableMesh.h"
-				>
-			</File>
-			<File
 				RelativePath=".\Effect.h"
 				>
 			</File>
@@ -411,10 +407,6 @@
 			</File>
 			<File
 				RelativePath=".\DdsLoader.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\EditableMesh.cpp"
 				>
 			</File>
 			<File

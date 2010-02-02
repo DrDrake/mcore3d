@@ -65,11 +65,11 @@ public:
 					}
 
 					{	// Issue a single draw call to draw the meshes
-						mesh.bind(Mesh::Index);
-						glEnableClientState(GL_VERTEX_ARRAY);
-						mesh.bind(Mesh::Position);
+//						mesh.bind(Mesh::Index);
+//						glEnableClientState(GL_VERTEX_ARRAY);
+//						mesh.bind(Mesh::Position);
 
-						glDrawElementsInstancedEXT(GL_TRIANGLES, mesh.indexCount(), GL_UNSIGNED_SHORT, 0, mPerInstanceInfo.size());
+//						glDrawElementsInstancedEXT(GL_TRIANGLES, mesh.indexCount(), GL_UNSIGNED_SHORT, 0, mPerInstanceInfo.size());
 
 						glDisableClientState(GL_VERTEX_ARRAY);
 					}

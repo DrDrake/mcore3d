@@ -11,79 +11,71 @@ namespace MCD {
 /*!
 	\note Since we use uint16_t to store index data, therefore a single Mesh instance cannot
 		stores more than 65536 vertices.
+
+	\sa http://www.opengl.org/wiki/GlVertexAttribPointer
+		http://www.opengl.org/sdk/docs/man/xhtml/glVertexAttribPointer.xml
  */
 class MCD_RENDER_API Mesh : public Resource
 {
 public:
-	//!	Enum values to describe what the mesh content represent.
-	enum DataType
-	{
-		TextureCoord	= (1 << 3) - 1,	//!< Texture coordinate
-		TextureCoord0	= 1,
-		TextureCoord1	= 2,
-		TextureCoord2	= 3,
-		TextureCoord3	= 4,
-		TextureCoord4	= 5,
-		TextureCoord5	= 6,
-		Position		= 1 << 3,		//!< Vertex position	(3 floats)
-		Index			= 1 << 4,		//!< Index				(1 uint16_t)
-		Color			= 1 << 5,		//!< Color				(3 uint8_t)
-		Normal			= 1 << 6,		//!< Normal				(3 floats)
-
-		MaxTypeEntry	= Normal << 1	//!< For debugging assertion check only
-	};	// DataType
-
-	//! Maximum number of texture coordinate per vertex.
-	static const size_t cMaxTextureCoordCount = 6;
-
 	explicit Mesh(const Path& fileId = L"");
 
-	//! Construct that take another mesh's buffers to share with.
-	Mesh(const Path& fileId, const Mesh& shareBuffer);
+	//!	Enum values to describe what option is needed in map()
+	enum MapOption
+	{
+		Read	= 1 << 0,
+		Write	= 1 << 1,
+	};	// MapOption
 
-	//! Test against the DataType enum using logical &
-	uint format() const {
-		return mFormat;
-	}
+// Attributes
+	//! Declare what a single vertex attribute contains.
+	struct Attribute
+	{
+		int dataType;			//!< GL_INT, GL_FLOAT etc...
+		uint16_t elementSize;	//!< Size in byte of the attribute, ie: Vec3f -> sizeof(float)
+		uint8_t elementCount;	//!< Number of components, ie: Vec3f -> 3
+		uint8_t bufferIndex;	//!< Index to the buffer object array: \em handles
+		uint16_t byteOffset;	//!< Byte offset of this attribute in a single vertex
+		uint16_t stride;		//!< Byte offset to the next element in the buffer
+		const char* semantic;	//!< Shader uniform name
+	};	// Attribute
 
-	size_t vertexCount() const {
-		return mVertexCount;
-	}
+	//! Maximum number of separated buffer object.
+	static const size_t cMaxBufferCount = 8;
 
-	size_t indexCount() const {
-		return mIndexCount;
-	}
+	//! Maximum number of attributes, should be >= cMaxBufferCount.
+	static const size_t cMaxAttributeCount = 8;
 
 	typedef SharedPtr<uint> HandlePtr;
+	typedef Array<HandlePtr, cMaxBufferCount> Handles;
 
-	/*!	Get the buffer object handle for the corresponding data type.
-		Returns 0 if the data type is not found in this mesh.
+	/*!	Handles to opengl buffer objects.
+		The first one should be index buffer.
+		\note
+			The handles can be shared because SharedPtr is used.
+		\note
+			The array element should never be null, while it's pointee value
+			may have a zero value to indicate empty handle.
 	 */
-	uint handle(DataType dataType) const;
+	Handles handles;
+	size_t bufferCount;		//!< Number of elements in handles
 
-	/*!	Get a shared pointer to the handle with the supplied data type.
-		Use this function to modify the handles.
-		Returns null if the data type is not found in this mesh.
+	typedef Array<Attribute, cMaxAttributeCount> Attributes;
+	Attributes attributes;
+	size_t attributeCount;	//!< Number of attributes in attributes
+
+	size_t vertexCount;
+
+	size_t indexCount;
+
+	/*!	A short-cut for mapping commonly used semantic to the \em attributes array.
+		A value of -1 means no such attribute.
 	 */
-	const HandlePtr& handlePtr(DataType dataType);
+	int8_t indexAttrIdx, positionAttrIdx, normalAttrIdx;
+	int8_t uv0AttrIdx, uv1AttrIdx, uv2AttrIdx;
 
-	/*!	Set the handle pointer for the corresponding data type.
-		Most likely you will share the vertex buffer by various meshes, for example:
-		\code
-		mesh1->setHandlePtr(Mesh::Position, mesh2->handlePtr(Mesh::Position));
-		\endcode
-	 */
-	void setHandlePtr(DataType dataType, const HandlePtr& handlePtr);
-
-	//! Get the component count for the corresponding data type.
-	uint8_t componentCount(DataType dataType) const;
-
-	//! Bind the corresponding buffer object of a specific data type.
-	void bind(DataType dataType);
-
-	void unbind();
-
-	//! Render the mesh with all associated color, normal, texture coordinate etc.
+// Operations
+	//! Render the mesh with all associated attributes.
 	void draw();
 
 	/*!	Render the mesh without any attributes other then position.
@@ -92,43 +84,43 @@ public:
 	 */
 	void drawFaceOnly();
 
-	/*!	User can define this class in their scope in order to modify the data member in Texture.
-		Various texture loaders use this technique to modify the texture.
+	//!	Clear all buffers and reseting the Mesh into it's initial state.
+	void clear();
+
+	//!	An object for remembering which buffer is already mapped using mapBuffer().
+	struct MappedBuffers : public Array<void*, cMaxBufferCount>
+	{
+		MappedBuffers() { assign(nullptr); }
+	};	// MappedBuffers
+
+	/*! Map the corresponding buffer object of a specific attribute.
+		\sa mapAttribute()
+		\return The pointer to the data for read / write; nullptr if any errors occur.
+	*/
+	sal_maybenull void* mapBuffer(size_t bufferIdx, MappedBuffers& mapped, MapOption mapOptions=Read);
+
+	/*!	Map a specific attribute in the buffer.
+		Usage:
+		\code
+		Mesh::MappedBuffers mapped;
+		StrideArray<Vec3f> vertex = mesh.mapAttribute<Vec3f>(mesh->positionAttrIdx, mapped);
+		StrideArray<uint16_t> index = mesh.mapAttribute<uint16_t>(mesh->indexAttrIdx, mapped);
+		// Use the vertex and index array ...
+		mesh.unmapBuffers(mapped);
+		\endcode
 	 */
-	template<class T> class PrivateAccessor;
+	template<typename T> StrideArray<T> mapAttribute(size_t attributeIdx, MappedBuffers& mapped, MapOption mapOptions=Read)
+	{
+		const Attribute& a = attributes[attributeIdx];
+		MCD_ASSERT(a.elementSize * a.elementCount == sizeof(T));
+		size_t count = (attributeIdx == size_t(indexAttrIdx)) ? indexCount : vertexCount;
+		return StrideArray<T>(static_cast<char*>(mapBuffer(a.bufferIndex, mapped, mapOptions)) + a.byteOffset, count, a.stride);
+	}
+
+	void unmapBuffers(MappedBuffers& mapped);
 
 protected:
 	sal_override ~Mesh();
-
-	/*!	Get a pointer to the component with the supplied data type.
-		Use this function to modify the component count for the various texture coordinates.
-		Returns null if the data type is not found in this mesh or it's not related to texture coordinate.
-	 */
-	uint8_t* componentCountPtr(DataType dataType);
-
-protected:
-	/*!	Handles to opengl buffer objects.
-		[0] for position
-		[1] for index
-		[2] for color
-		[3] for normal
-		[4-10] for texture coordinate[0-7]
-
-		\note
-			The array element should never be null, while it's pointee value
-			may have a zero value to indicate empty handle.
-	 */
-	Array<HandlePtr, 4 + cMaxTextureCoordCount> mHandles;
-
-	//!	Specifies the number of component for a particular DataType
-	Array<uint8_t, 4 + cMaxTextureCoordCount> mComponentCount;
-
-	//! Union (using logical &) of different DataType
-	uint mFormat;
-
-	size_t mVertexCount;
-
-	size_t mIndexCount;
 };	// Mesh
 
 typedef IntrusivePtr<Mesh> MeshPtr;

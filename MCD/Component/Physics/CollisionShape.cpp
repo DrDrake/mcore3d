@@ -38,29 +38,14 @@ class StaticTriMeshShape::Impl
 public:
 	Impl(const MeshPtr& mesh, void*& shapeImpl) : mVertexBuffer(nullptr), mIndexBuffer(nullptr)
 	{
-		// Get the vertex buffer
-		uint vertexHandle = mesh->handle(Mesh::Position);
-		size_t vertexCount = mesh->vertexCount();
-		glBindBuffer(GL_ARRAY_BUFFER, vertexHandle);
-		const Vec3f* vertexBuffer = reinterpret_cast<Vec3f*>(glMapBuffer(GL_ARRAY_BUFFER, GL_READ_ONLY));
+		Mesh::MappedBuffers mapped;
+		StrideArray<Vec3f> vertex = mesh->mapAttribute<Vec3f>(mesh->positionAttrIdx, mapped, Mesh::Read);
+		StrideArray<uint16_t> index = mesh->mapAttribute<uint16_t>(mesh->indexAttrIdx, mapped, Mesh::Read);
 
-		// Get the index buffer
-		uint indexHandle = mesh->handle(Mesh::Index);
-		size_t indexCount = mesh->indexCount();
-		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indexHandle);
-		const uint16_t* indexBuffer = reinterpret_cast<uint16_t*>(glMapBuffer(GL_ELEMENT_ARRAY_BUFFER, GL_READ_ONLY));
-
-		init(
-			Vec3fArray((void*)vertexBuffer, vertexCount),
-			IndexArray((void*)indexBuffer, indexCount),
-			true, shapeImpl
-		);
+		init(vertex, index, true, shapeImpl);
 
 		// Unlock the buffers
-		glUnmapBuffer(GL_ARRAY_BUFFER);
-		glBindBuffer(GL_ARRAY_BUFFER, 0);
-		glUnmapBuffer(GL_ELEMENT_ARRAY_BUFFER);
-		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+		mesh->unmapBuffers(mapped);
 	}
 
 	Impl(MeshBuilder& meshBuilder, int positionId, bool keepOwnBuffer, void*& shapeImpl)

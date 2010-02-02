@@ -275,7 +275,7 @@ namespace AmbientCubeTest
 
 			// load object mesh
 			MeshPtr mesh = new Mesh(L"");
-			ChamferBoxBuilder(0.5f, 3, true).commit(*mesh, MeshBuilder::Static);
+			commitMesh(ChamferBoxBuilder(0.5f, 3, true), *mesh, MeshBuilder::Static);
 
 			// load object effect
 			EffectPtr effect = dynamic_cast<Effect*>(mResourceManager.load(L"Material/ambientcube.fx.xml").get());

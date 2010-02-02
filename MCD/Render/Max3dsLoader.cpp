@@ -942,9 +942,8 @@ void Max3dsLoader::Impl::commit(Resource& resource)
 			if(!subObject.splittedBuilder)
 				continue;
 
-			MeshPtr mesh = new Mesh(L"tmp");
-			int attributeMap[] = { 0, Mesh::Index, 1, Mesh::Position, 2, Mesh::Normal, 3, Mesh::TextureCoord0, 4, Mesh::TextureCoord1 };
-			commitMesh(*subObject.splittedBuilder, *mesh, attributeMap, storageHint);
+			MeshPtr mesh = new Mesh(L"");
+			commitMesh(*subObject.splittedBuilder, *mesh, storageHint);
 
 			// Assign material
 			subObject.material->init();

@@ -45,7 +45,7 @@ TEST(PickComponentTest)
 				// Setup the chamfer box mesh
 				MeshPtr mesh = new Mesh(L"");
 				ChamferBoxBuilder chamferBoxBuilder(0.4f, 10);
-				chamferBoxBuilder.commit(*mesh, MeshBuilder::Static);
+				commitMesh(chamferBoxBuilder, *mesh, MeshBuilder::Static);
 
 				// Add component
 				MeshComponent* c = new MeshComponent;
@@ -65,7 +65,7 @@ TEST(PickComponentTest)
 				// Setup the chamfer box mesh
 				MeshPtr mesh = new Mesh(L"");
 				ChamferBoxBuilder chamferBoxBuilder(1.0f, 10);
-				chamferBoxBuilder.commit(*mesh, MeshBuilder::Static);
+				commitMesh(chamferBoxBuilder, *mesh, MeshBuilder::Static);
 
 				// Add component
 				MeshComponent* c = new MeshComponent;

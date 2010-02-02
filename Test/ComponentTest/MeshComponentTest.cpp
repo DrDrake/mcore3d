@@ -36,7 +36,7 @@ public:
 			// Setup the chamfer box mesh
 			MeshPtr mesh = new Mesh(L"");
 			ChamferBoxBuilder chamferBoxBuilder(0.4f, 3);
-			chamferBoxBuilder.commit(*mesh, MeshBuilder::Static);
+			commitMesh(chamferBoxBuilder, *mesh, MeshBuilder::Static);
 
 			// Add component
 			MeshComponent* c = new MeshComponent;
@@ -56,7 +56,7 @@ public:
 			// Setup the chamfer box mesh
 			MeshPtr mesh = new Mesh(L"");
 			ChamferBoxBuilder chamferBoxBuilder(1.0f, 5);
-			chamferBoxBuilder.commit(*mesh, MeshBuilder::Static);
+			commitMesh(chamferBoxBuilder, *mesh, MeshBuilder::Static);
 
 			// Add component
 			MeshComponent* c = new MeshComponent;

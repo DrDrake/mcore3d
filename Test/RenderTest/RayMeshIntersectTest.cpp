@@ -5,7 +5,7 @@
 #include "../../MCD/Core/System/Log.h"
 #include "../../MCD/Render/Effect.h"
 #include "../../MCD/Render/Mesh.h"
-#include "../../MCD/Render/EditableMesh.h"
+//#include "../../MCD/Render/EditableMesh.h"
 #include "../../MCD/Render/RayMeshIntersect.h"
 
 #include "../../MCD/Component/Render/EntityPrototypeLoader.h"

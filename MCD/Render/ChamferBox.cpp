@@ -1,13 +1,11 @@
 #include "Pch.h"
 #include "ChamferBox.h"
 #include "MeshBuilder.h"
-#include "Mesh.h"
 #include "SemanticMap.h"
 #include "TangentSpaceBuilder.h"
 #include "../Core/Math/Vec2.h"
 #include "../Core/Math/Mat33.h"
 #include "../Core/Math/BasicFunction.h"
-#include "../../3Party/glew/glew.h"
 
 using namespace MCD;
 
@@ -134,17 +132,4 @@ ChamferBoxBuilder::ChamferBoxBuilder(float filletRadius, size_t filletSegmentCou
 
 	if(includeTangents)
 		MCD_VERIFY(TangentSpaceBuilder().compute(*this, 0,	posId, normalId, uvId, tangentId));
-}
-
-void ChamferBoxBuilder::commit(Mesh& mesh, MeshBuilder::StorageHint storageHint)
-{
-	int map[10] = {
-		0,			Mesh::Index,
-		posId,		Mesh::Position,
-		normalId,	Mesh::Normal,
-		uvId,		Mesh::TextureCoord0,
-		tangentId,	Mesh::TextureCoord1,
-	};
-
-	commitMesh(*this, mesh, map, storageHint);
 }
