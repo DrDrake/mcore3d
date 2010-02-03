@@ -1,5 +1,6 @@
 #include "Pch.h"
 #include "Mesh.h"
+#include "../Core/System/Log.h"
 #include "../../3Party/glew/glew.h"
 
 namespace MCD {
@@ -20,49 +21,65 @@ static void bindUv(int unit, const Mesh::Attribute& a, const Mesh::Handles& hand
 	glEnableClientState(GL_TEXTURE_COORD_ARRAY);
 	glClientActiveTexture(GL_TEXTURE0 + GLenum(unit));
 	glBindBuffer(GL_ARRAY_BUFFER, *handles[a.bufferIndex]);
-	glTexCoordPointer(a.elementCount, a.dataType, a.stride, (void*)a.byteOffset);
+	glTexCoordPointer(a.elementCount, a.dataType, a.stride, (const void*)a.byteOffset);
 }
 
 void Mesh::draw()
 {
-	// Get the current shader program
-/*	GLint shaderProgram = 0;
-	glGetIntegerv(GL_CURRENT_PROGRAM, &shaderProgram);
-
-	if(shaderProgram <= 0)
+	if(indexCount == 0)
 		return;
 
-	// TODO: Make a [vertex array/shader program] pair cache?
+	// An array to indicate which attribute is processed by fixed function.
+	bool processed[cMaxAttributeCount] = { false };
 
-	// Bind vertex buffers
-	for(size_t i=1; i<attributeCount; ++i)
-	{
-		const Attribute& att = attributes[i];
-		const GLint attributeLocation = glGetAttribLocation(shaderProgram, att.semantic);
-		glBindBuffer(GL_ARRAY_BUFFER, *handles[att.bufferIndex]);
-		glVertexAttribPointer(attributeLocation, att.elementCount, att.dataType, GL_FALSE, att.stride, (const void*)(att.byteOffset));
-		glEnableVertexAttribArray(attributeLocation);
-	}
+	MCD_ASSUME(indexAttrIdx > -1);
+	MCD_ASSUME(positionAttrIdx > -1);
 
-	// Unbind the buffers
-	glBindBuffer(GL_ARRAY_BUFFER, 0);
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
-
-	// TODO: Call glDisableVertexAttribArray*/
+	processed[indexAttrIdx] = true;
+	processed[positionAttrIdx] = true;
 
 	if(normalAttrIdx > -1) {
+		processed[normalAttrIdx] = true;
 		glEnableClientState(GL_NORMAL_ARRAY);
 		const Attribute& a = attributes[normalAttrIdx];
 		glBindBuffer(GL_ARRAY_BUFFER, *handles[a.bufferIndex]);
-		glNormalPointer(a.dataType, a.stride, (void*)a.byteOffset);
+		glNormalPointer(a.dataType, a.stride, (const void*)a.byteOffset);
 	}
 
-	if(uv0AttrIdx > -1)
+	if(uv0AttrIdx > -1) {
+		processed[uv0AttrIdx] = true;
 		bindUv(0, attributes[uv0AttrIdx], handles);
-	if(uv1AttrIdx > -1)
+	}
+	if(uv1AttrIdx > -1) {
+		processed[uv1AttrIdx] = true;
 		bindUv(1, attributes[uv1AttrIdx], handles);
-	if(uv2AttrIdx > -1)
+	}
+	if(uv2AttrIdx > -1) {
+		processed[uv2AttrIdx] = true;
 		bindUv(2, attributes[uv2AttrIdx], handles);
+	}
+
+	// Get the current shader program
+	GLint shaderProgram = 0;
+	glGetIntegerv(GL_CURRENT_PROGRAM, &shaderProgram);
+
+	if(shaderProgram > 0) {
+		// TODO: Make a [vertex array/shader program] pair cache?
+		for(size_t i=1; i<attributeCount; ++i) {
+			if(processed[i]) continue;
+
+			const Attribute& a = attributes[i];
+			const GLint attributeLocation = glGetAttribLocation(shaderProgram, a.semantic);
+
+			if(attributeLocation == -1)	// NOTE: Log::format need %s or %S on different implementation of wprintf.
+				Log::format(Log::Warn, L"Shader attribute '%S' not found.", a.semantic);
+
+			glBindBuffer(GL_ARRAY_BUFFER, *handles[a.bufferIndex]);
+			glVertexAttribPointer(attributeLocation, a.elementCount, a.dataType, GL_FALSE, a.stride, (const void*)(a.byteOffset));
+			glEnableVertexAttribArray(attributeLocation);
+		}
+		// TODO: Call glDisableVertexAttribArray?
+	}
 
 	drawFaceOnly();
 
@@ -80,7 +97,7 @@ void Mesh::drawFaceOnly()
 		glEnableClientState(GL_VERTEX_ARRAY);
 		const Attribute& a = attributes[positionAttrIdx];
 		glBindBuffer(GL_ARRAY_BUFFER, *handles[a.bufferIndex]);
-		glVertexPointer(3, a.dataType, a.stride, (void*)a.byteOffset);
+		glVertexPointer(3, a.dataType, a.stride, (const void*)a.byteOffset);
 	}
 
 	{	const Attribute& a = attributes[indexAttrIdx];

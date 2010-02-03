@@ -149,180 +149,176 @@ public:
 };	// AmbientCubeSetLoader
 
 //--------------------------------------------------------------------------
-namespace AmbientCubeTest
+namespace AmbientCubeTest {
+
+class Object
 {
-	class Object
+private:
+	MeshComponent* mMeshComponent;
+	AmbientCubeSet* mMCubes;
+	AmbientCube mAccmMCube;
+
+public:
+	Object(const wchar_t* name, Entity* root
+		, const MeshPtr& mesh
+		, const EffectPtr& effect
+		, AmbientCubeSet* mcubes)
+		: mMCubes(mcubes)
 	{
-	private:
-		MeshComponent* mMeshComponent;
-		AmbientCubeSet* mMCubes;
-		AmbientCube mAccmMCube;
+		// create entity
+		std::auto_ptr<Entity> e(new Entity);
+		e->name = name;
+		e->asChildOf(root);
+		e->localTransform.setScale(Vec3f(0.5f, 0.5f, 0.5f));
 
-	public:
-		Object(const wchar_t* name, Entity* root
-			, const MeshPtr& mesh
-			, const EffectPtr& effect
-			, AmbientCubeSet* mcubes)
-			: mMCubes(mcubes)
+		MeshComponent* c = new MeshComponent;
+		c->mesh = mesh;
+		c->effect = effect;
+		e->addComponent(c);
+		e->addComponent(new RenderCallback);
+
+		mMeshComponent = c;
+
+		// set the this to entity's user-data
+		e->userData.setPtr<UserData>(new UserData(*this));
+
+		e.release();
+
+		// init ambient cube
+		mAccmMCube.setColor(0, Vec3f(1,0,0));
+		mAccmMCube.setColor(1, Vec3f(0,0,0));
+		mAccmMCube.setColor(2, Vec3f(0,1,0));
+		mAccmMCube.setColor(3, Vec3f(0,0,0));
+		mAccmMCube.setColor(4, Vec3f(0,0,1));
+		mAccmMCube.setColor(5, Vec3f(0,0,0));
+	}
+
+	void update(float deltaTime)
+	{
+		if(nullptr != mMCubes && !mMCubes->isEmpty())
 		{
-			// create entity
-			std::auto_ptr<Entity> e(new Entity);
-			e->name = name;
-			e->asChildOf(root);
-			e->localTransform.setScale(Vec3f(0.5f, 0.5f, 0.5f));
-
-			MeshComponent* c = new MeshComponent;
-			c->mesh = mesh;
-			c->effect = effect;
-			e->addComponent(c);
-			e->addComponent(new RenderCallback);
-
-			mMeshComponent = c;
-
-			// set the this to entity's user-data
-			e->userData.setPtr<UserData>(new UserData(*this));
-
-			e.release();
-
-			// init ambient cube
-			mAccmMCube.setColor(0, Vec3f(1,0,0));
-			mAccmMCube.setColor(1, Vec3f(0,0,0));
-			mAccmMCube.setColor(2, Vec3f(0,1,0));
-			mAccmMCube.setColor(3, Vec3f(0,0,0));
-			mAccmMCube.setColor(4, Vec3f(0,0,1));
-			mAccmMCube.setColor(5, Vec3f(0,0,0));
-
-            //mAccmMCube = (*mMCubes->findClosest(worldTransform().translation()));
-
+			if(AmbientCube* mcube = mMCubes->findClosest(worldTransform().translation()))
+				mAccmMCube.mix(*mcube, deltaTime * 2.0f);
 		}
+	}
 
-		void update(float deltaTime)
-		{
-			if(nullptr != mMCubes && !mMCubes->isEmpty())
-			{
-				if(AmbientCube* mcube = mMCubes->findClosest(worldTransform().translation()))
-					mAccmMCube.mix(*mcube, deltaTime * 2.0f);
-			}
-		}
+	Mat44f worldTransform() const
+	{
+		MCD_ASSUME(mMeshComponent);
+		Entity* e = mMeshComponent->entity();
+		MCD_ASSUME(e);
+		return e->worldTransform();
+	}
 
-		Mat44f worldTransform() const
-		{
-			MCD_ASSUME(mMeshComponent);
-			Entity* e = mMeshComponent->entity();
-			MCD_ASSUME(e);
-			return e->worldTransform();
-		}
+	Mat44f& localTransform()
+	{
+		MCD_ASSUME(mMeshComponent);
+		Entity* e = mMeshComponent->entity();
+		MCD_ASSUME(e);
+		return e->localTransform;
+	}
 
-		Mat44f& localTransform()
-		{
-			MCD_ASSUME(mMeshComponent);
-			Entity* e = mMeshComponent->entity();
-			MCD_ASSUME(e);
-			return e->localTransform;
-		}
+	struct UserData
+	{
+		Object& object;
+		UserData(Object& _object) : object(_object) {}
+	};
 
-		struct UserData
-		{
-			Object& object;
-			UserData(Object& _object) : object(_object) {}
-		};
-
-		class RenderCallback : public RenderModifierComponent
-		{
-		public:
-			sal_override void preGeomRender()
-			{
-				Entity* e = entity();
-				if(nullptr == e) return;
-
-				UserData* userData = e->userData.getPtr<UserData>();
-				if(nullptr == userData) return;
-
-				ShaderProgram* shd = ShaderProgram::current();
-				if(nullptr == shd) return;
-
-				Mat44f worldTran = userData->object.worldTransform();
-				shd->uniformMatrix4fv("g_WorldMatrix", 1, true, (float*)&worldTran);
-				shd->uniform3fv("g_AmbientCube", 6, userData->object.mAccmMCube.color);
-			}
-
-			sal_override void postGeomRender()
-			{
-			}
-		};	// ICallback
-	};	// Object
-
-	class TestWindow : public BasicGlWindow
+	class RenderCallback : public RenderModifierComponent
 	{
 	public:
-		TestWindow()
-			:
-			BasicGlWindow(L"title=AmbientCubeTest;width=800;height=600;fullscreen=0;FSAA=4"),
-			mResourceManager(*createDefaultFileSystem()),
-			mAccumTime(0)
+		sal_override void preGeomRender()
 		{
-			// Override the default loader of *.3ds file
-			mResourceManager.addFactory(new EntityPrototypeLoaderFactory(mResourceManager));
+			Entity* e = entity();
+			if(nullptr == e) return;
 
-			// load scene
-			const wchar_t* scenePath = L"Scene/AmbientCubeScene/AmbientCubeScene.3DS";
-			EntityPrototypeLoader::addEntityAfterLoad(&mRootNode, mResourceManager, scenePath);
+			UserData* userData = e->userData.getPtr<UserData>();
+			if(nullptr == userData) return;
 
-			// load ambient cubes
-			const wchar_t* mcubePath = L"Media/Scene/AmbientCubeScene/ambient_cube_scene.mcube";
-			AmbientCubeSetLoader mcubeLoader;
-			mAmbientCubes.reset( mcubeLoader.load(mcubePath) );
+			ShaderProgram* shd = ShaderProgram::current();
+			if(nullptr == shd) return;
 
-			// load object mesh
-			MeshPtr mesh = new Mesh(L"");
-			commitMesh(ChamferBoxBuilder(0.5f, 3, true), *mesh, MeshBuilder::Static);
-
-			// load object effect
-			EffectPtr effect = dynamic_cast<Effect*>(mResourceManager.load(L"Material/ambientcube.fx.xml").get());
-			
-			// create objects
-			mObj1.reset(new Object(L"ChamferBox 1", &mRootNode, mesh, effect, mAmbientCubes.get()));
-			mObj2.reset(new Object(L"ChamferBox 2", &mRootNode, mesh, effect, mAmbientCubes.get()));
-
-			// disable Lighting
-			glDisable(GL_LIGHTING);
+			Mat44f worldTran = userData->object.worldTransform();
+			shd->uniformMatrix4fv("g_WorldMatrix", 1, true, (float*)&worldTran);
+			shd->uniform3fv("g_AmbientCube", 6, userData->object.mAccmMCube.color);
 		}
 
-		sal_override void update(float deltaTime)
+		sal_override void postGeomRender()
 		{
-			// update mAccumTime;
-			mAccumTime += deltaTime;
-
-			// remember to process loading events
-			mResourceManager.processLoadingEvents();
-
-			// update the transform
-			const float ct = cosf(mAccumTime * 0.5f);
-			const float st = sinf(mAccumTime * 0.5f);
-			mObj1->localTransform().setTranslation(Vec3f(ct * 4, 2, -1));
-			mObj1->update(deltaTime);
-
-			mObj2->localTransform().setTranslation(Vec3f(st * 4, 2, 1));
-			mObj2->update(deltaTime);
-
-			// finally render
-			render();
 		}
+	};	// ICallback
+};	// Object
 
-		void render()
-		{
-			RenderableComponent::traverseEntities(&mRootNode);
-		}
+class TestWindow : public BasicGlWindow
+{
+public:
+	TestWindow()
+		:
+		BasicGlWindow(L"title=AmbientCubeTest;width=800;height=600;fullscreen=0;FSAA=4"),
+		mResourceManager(*createDefaultFileSystem()),
+		mAccumTime(0)
+	{
+		// Override the default loader of *.3ds file
+		mResourceManager.addFactory(new EntityPrototypeLoaderFactory(mResourceManager));
 
-		DefaultResourceManager mResourceManager;
+		// load scene
+		const wchar_t* scenePath = L"Scene/AmbientCubeScene/AmbientCubeScene.3DS";
+		EntityPrototypeLoader::addEntityAfterLoad(&mRootNode, mResourceManager, scenePath);
+
+		// load ambient cubes
+		const wchar_t* mcubePath = L"Media/Scene/AmbientCubeScene/ambient_cube_scene.mcube";
+		AmbientCubeSetLoader mcubeLoader;
+		mAmbientCubes.reset( mcubeLoader.load(mcubePath) );
+
+		// load object mesh
+		MeshPtr mesh = new Mesh(L"");
+		commitMesh(ChamferBoxBuilder(0.5f, 3, true), *mesh, MeshBuilder::Static);
+
+		// load object effect
+		EffectPtr effect = dynamic_cast<Effect*>(mResourceManager.load(L"Material/ambientcube.fx.xml").get());
 		
-		float mAccumTime;
-		Entity mRootNode;
-		std::auto_ptr<AmbientCubeSet> mAmbientCubes;
-		std::auto_ptr<Object> mObj1;
-		std::auto_ptr<Object> mObj2;
+		// create objects
+		mObj1.reset(new Object(L"ChamferBox 1", &mRootNode, mesh, effect, mAmbientCubes.get()));
+		mObj2.reset(new Object(L"ChamferBox 2", &mRootNode, mesh, effect, mAmbientCubes.get()));
 
-	};	// TestWindow
+		// disable Lighting
+		glDisable(GL_LIGHTING);
+	}
+
+	sal_override void update(float deltaTime)
+	{
+		// update mAccumTime;
+		mAccumTime += deltaTime;
+
+		// remember to process loading events
+		mResourceManager.processLoadingEvents();
+
+		// update the transform
+		const float ct = cosf(mAccumTime * 0.5f);
+		const float st = sinf(mAccumTime * 0.5f);
+		mObj1->localTransform().setTranslation(Vec3f(ct * 4, 2, -1));
+		mObj1->update(deltaTime);
+
+		mObj2->localTransform().setTranslation(Vec3f(st * 4, 2, 1));
+		mObj2->update(deltaTime);
+
+		// finally render
+		render();
+	}
+
+	void render()
+	{
+		RenderableComponent::traverseEntities(&mRootNode);
+	}
+
+	DefaultResourceManager mResourceManager;
+	
+	float mAccumTime;
+	Entity mRootNode;
+	std::auto_ptr<AmbientCubeSet> mAmbientCubes;
+	std::auto_ptr<Object> mObj1;
+	std::auto_ptr<Object> mObj2;
+};	// TestWindow
 
 }	// namespace AmbientCubeTest
 

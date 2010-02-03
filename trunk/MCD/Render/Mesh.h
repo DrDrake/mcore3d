@@ -73,8 +73,6 @@ public:
 	 */
 	int8_t indexAttrIdx, positionAttrIdx, normalAttrIdx;
 	int8_t uv0AttrIdx, uv1AttrIdx, uv2AttrIdx;
-	int8_t tangentAttrIdx, binormalAttrIdx;
-	int8_t blendWeightAttrIdx, blendIndexAttrIdx;
 
 // Operations
 	//! Render the mesh with all associated attributes.
