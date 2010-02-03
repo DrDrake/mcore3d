@@ -384,6 +384,9 @@ bool commitMesh(const MeshBuilder& builder, Mesh& mesh, MeshBuilder::StorageHint
 	if(bufferCount > Mesh::cMaxBufferCount)
 		return false;
 
+	MCD_ASSERT(attributeCount > 0 && bufferCount > 0);
+	MCD_ASSERT(builder.vertexCount() > 0 && builder.indexCount() > 0);
+
 	mesh.clear();
 
 	mesh.bufferCount = bufferCount;
@@ -396,8 +399,8 @@ bool commitMesh(const MeshBuilder& builder, Mesh& mesh, MeshBuilder::StorageHint
 		size_t count, stride, bufferId, offset;
 		MeshBuilder::Semantic semantic;
 
-		const char* data = builder.getAttributePointer(i, &count, &stride, &bufferId, &offset, &semantic);
-		(void)data;	// Ignore the data pointer in this loop
+		if(!builder.getAttributePointer(i, &count, &stride, &bufferId, &offset, &semantic))
+			continue;
 
 		Mesh::Attribute& a = mesh.attributes[i];
 		a.dataType = toGlType(semantic.elementType);
@@ -433,8 +436,8 @@ bool commitMesh(const MeshBuilder& builder, Mesh& mesh, MeshBuilder::StorageHint
 		const GLenum verOrIdxBuf = i == 0 ? GL_ELEMENT_ARRAY_BUFFER : GL_ARRAY_BUFFER;
 		glBindBuffer(verOrIdxBuf, *handle);
 		size_t sizeInByte;
-		const char* data = builder.getBufferPointer(i, nullptr, &sizeInByte);
-		glBufferData(verOrIdxBuf, sizeInByte, data, storageHint);
+		if(const char* data = builder.getBufferPointer(i, nullptr, &sizeInByte))
+			glBufferData(verOrIdxBuf, sizeInByte, data, storageHint);
 	}
 
 	return true;

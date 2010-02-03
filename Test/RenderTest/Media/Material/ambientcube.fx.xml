@@ -33,18 +33,17 @@
 		<vertex>
 			<![CDATA[
 #version 120
-varying vec3 vertex, normal, tangent;
+varying vec3 normal, v2fTangent;
 uniform mat4 g_WorldMatrix;
+in vec3 tangent;
 
 void main()
 {
 	gl_Position = ftransform();
 
-	vertex = (gl_ModelViewMatrix * gl_Vertex).xyz;
-
 	// No need to do normalize since we do it on fragment shader anyway
 	normal = mat3(g_WorldMatrix) * gl_Normal;
-	tangent = mat3(g_WorldMatrix) * gl_MultiTexCoord1.xyz;
+	v2fTangent = mat3(g_WorldMatrix) * tangent;
 
 	// texture coordinate
 	gl_TexCoord[0] = gl_MultiTexCoord0 * 0.25;
@@ -56,7 +55,7 @@ void main()
 		<fragment>
 			<![CDATA[
 #version 120
-varying vec3 vertex, normal, tangent;
+varying vec3 normal, v2fTangent;
 uniform vec3 g_AmbientCube[6];
 uniform sampler2D diffuseMap;
 uniform sampler2D normalMap;
@@ -80,7 +79,7 @@ vec3 ambientLight( vec3 normal, vec3 ambientCube[6] )
 
 void main()
 {
-	vec3 T = tangent;
+	vec3 T = v2fTangent;
 	vec3 B = cross(normal, T);
 
 	vec3 bump = texture2D(normalMap, gl_TexCoord[0].xy).xyz;

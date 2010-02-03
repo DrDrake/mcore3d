@@ -81,7 +81,7 @@ TEST(MeshBuilderTest)
 		char* normal = builder.getAttributePointer(normalId, &count, &stride, &bufferId, &offset, &semantic);
 		CHECK_EQUAL(sizeof(float) * 8, stride);
 		CHECK_EQUAL(1u, bufferId);
-		CHECK_EQUAL(0u, offset);
+		CHECK_EQUAL(12u, offset);
 		CHECK_EQUAL(builder.vertexCount(), count);
 		CHECK_EQUAL(3u, semantic.elementCount);
 		CHECK_EQUAL(sizeof(float), semantic.elementSize);
@@ -91,7 +91,7 @@ TEST(MeshBuilderTest)
 		char* uv = builder.getAttributePointer(uvId, &count, &stride, &bufferId, &offset, &semantic);
 		CHECK_EQUAL(sizeof(float) * 8, stride);
 		CHECK_EQUAL(1u, bufferId);
-		CHECK_EQUAL(0u, offset);
+		CHECK_EQUAL(24u, offset);
 		CHECK_EQUAL(builder.vertexCount(), count);
 		CHECK_EQUAL(2u, semantic.elementCount);
 		CHECK_EQUAL(sizeof(float), semantic.elementSize);

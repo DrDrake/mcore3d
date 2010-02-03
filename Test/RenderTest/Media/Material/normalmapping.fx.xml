@@ -37,7 +37,8 @@
 		<!-- Reference external file as vertex shader -->
 		<vertex>
 			<![CDATA[
-varying vec3 vertex, normal, tangent, lightDir, osvertex, osnormal;
+varying vec3 vertex, normal, v2fTangent, lightDir, osvertex, osnormal;
+in vec3 tangent;
 
 void main()
 {
@@ -49,7 +50,7 @@ void main()
 
 	// No need to do normalize since we do it on fragment shader anyway
 	normal = gl_NormalMatrix * gl_Normal;
-	tangent = gl_NormalMatrix * gl_MultiTexCoord1.xyz;
+	v2fTangent = gl_NormalMatrix * tangent;
 
 	// viewspace lightDir
 	lightDir = gl_NormalMatrix * normalize(gl_LightSource[0].position.xyz - osvertex);
@@ -65,7 +66,7 @@ void main()
 			<parameter name="frensel" type="float" label="Frensel Term">0.75</parameter>
 			<![CDATA[
 #version 120
-varying vec3 vertex, normal, tangent, lightDir, osvertex, osnormal;
+varying vec3 vertex, normal, v2fTangent, lightDir, osvertex, osnormal;
 uniform sampler2D diffuseMap;
 uniform sampler2D normalMap;
 uniform samplerCube envMap;
@@ -77,7 +78,7 @@ void main()
 	vec4 diffuse = gl_FrontLightProduct[0].diffuse;
 	vec4 specular = gl_FrontLightProduct[0].specular;
 
-	vec3 T = tangent;
+	vec3 T = v2fTangent;
 	vec3 B = cross(normal, T);
 
 	vec3 bump = texture2D(normalMap, gl_TexCoord[0].xy * 4.0).xyz;
