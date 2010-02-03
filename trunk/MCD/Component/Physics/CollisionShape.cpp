@@ -73,9 +73,9 @@ public:
 			mIndexBuffer = new uint16_t[indexBuffer.size];
 
 			for(size_t i=0; i<vertexBuffer.size; ++i)
-				mVertexBuffer[i] =  vertexBuffer[i];
+				mVertexBuffer[i] = vertexBuffer[i];
 			for(size_t i=0; i<indexBuffer.size; ++i)
-				mIndexBuffer[i] =  indexBuffer[i];
+				mIndexBuffer[i] = indexBuffer[i];
 
 			vertexBuffer = Vec3fArray(mVertexBuffer, vertexBuffer.size);
 			indexBuffer = IndexArray(mIndexBuffer, indexBuffer.size);

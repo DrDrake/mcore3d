@@ -392,18 +392,7 @@ public:
 			addProperty(new TextureProperty(texture.get(), 0, GL_LINEAR, GL_LINEAR), 0);
 	}
 };	// WhiteMaterial
-/*
-static int semanticToMeshDataType(const char* semantic)
-{
-	if(strcmp(semantic, "position") == 0)	return Mesh::Position;
-	if(strcmp(semantic, "normal") == 0)		return Mesh::Normal;
-	if(strcmp(semantic, "uv1") == 0)		return Mesh::TextureCoord0;
-	if(strcmp(semantic, "uv2") == 0)		return Mesh::TextureCoord1;
-	if(strcmp(semantic, "uv3") == 0)		return Mesh::TextureCoord2;
-	if(strcmp(semantic, "uv4") == 0)		return Mesh::TextureCoord3;
-	return -1;
-}
-*/
+
 void OgreMeshLoader::Impl::commit(Resource& resource)
 {
 	// There is no need to do a mutex lock because OgreMeshLoader didn't support progressive loading.

@@ -1,21 +1,13 @@
 #include "Pch.h"
 #include "../RenderTest/BasicGlWindow.h"
 #include "../RenderTest/DefaultResourceManager.h"
-#include "../../MCD/Core/Entity/Entity.h"
-#include "../../MCD/Core/System/Log.h"
-#include "../../MCD/Render/Effect.h"
-#include "../../MCD/Render/Mesh.h"
-//#include "../../MCD/Render/EditableMesh.h"
 #include "../../MCD/Render/RayMeshIntersect.h"
-
 #include "../../MCD/Component/Render/EntityPrototypeLoader.h"
 #include "../../MCD/Component/Render/MeshComponent.h"
-
 #include <fstream>
 
 using namespace MCD;
 
-/*
 namespace RayMeshIntersectTest {
 
 class TestWindow : public BasicGlWindow
@@ -32,7 +24,7 @@ public:
 
 		// Load scene
 		const wchar_t* scenePath = L"Scene/City/scene.3ds";
-		EntityPrototypeLoader::addEntityAfterLoad(&mRootNode, mResourceManager, scenePath, 0, 0, L"loadAsEntity=true;editable=true");
+		EntityPrototypeLoader::addEntityAfterLoad(&mRootNode, mResourceManager, scenePath, 0, 0, L"loadAsEntity=true");
 
 		// Disable Lighting
 		glDisable(GL_LIGHTING);
@@ -59,37 +51,33 @@ public:
 		const float st = sinf(mAccumTime * 0.5f);
 		const float r = 12.0f;
 
-		const Vec3f rayOrig( 0, 10, 0 );
-		const Vec3f rayTarget( ct * r, -10, st * r );
+		const Vec3f rayOrig(0, 10, 0);
+		const Vec3f rayTarget(ct * r, -10, st * r);
 
 		SimpleRayMeshIntersect i;
 
-		struct AutoAdvance
-		{
-			EntityPreorderIterator& itr;
-			explicit AutoAdvance(EntityPreorderIterator& _itr) : itr(_itr) {}
-			~AutoAdvance() { itr.next(); }
-		};
-
-		// Add meshes to intersect object and invoke EditableMesh::beginEditing()
+		// Add meshes to intersect object
 		for(EntityPreorderIterator itr(&mRootNode); !itr.ended();)
 		{
-			if(!itr->enabled)
-			{
+			if(!itr->enabled) {
 				itr.skipChildren();
 				continue;
 			}
 
+			struct AutoAdvance
+			{
+				EntityPreorderIterator& itr;
+				explicit AutoAdvance(EntityPreorderIterator& _itr) : itr(_itr) {}
+				~AutoAdvance() { itr.next(); }
+			};
+
 			AutoAdvance autoadv(itr);
 
 			MeshComponent* meshComp = dynamic_cast<MeshComponent*>(itr->findComponent<RenderableComponent>());
-			if(!meshComp) continue;
+			if(!meshComp || !meshComp->mesh)
+				continue;
 
-			EditableMesh* mesh = dynamic_cast<EditableMesh*>(meshComp->mesh.get());
-			if(!mesh) continue;
-
-			mesh->beginEditing();
-			i.addMesh(mesh, itr->worldTransform());
+			i.addMesh(*meshComp->mesh, itr->worldTransform());
 		}
 
 		i.build();
@@ -101,26 +89,6 @@ public:
 		i.end();
 
 		drawHitResults(i.results());
-
-		// Invoke EditableMesh::endEditing()
-		for(EntityPreorderIterator itr(&mRootNode); !itr.ended();)
-		{
-			if(!itr->enabled)
-			{
-				itr.skipChildren();
-				continue;
-			}
-
-			AutoAdvance autoadv(itr);
-
-			MeshComponent* meshComp = dynamic_cast<MeshComponent*>(itr->findComponent<RenderableComponent>());
-			if(!meshComp) continue;
-
-			EditableMesh* mesh = dynamic_cast<EditableMesh*>(meshComp->mesh.get());
-			if(!mesh) continue;
-
-			mesh->endEditing(false);
-		}
 	}
 
 	void drawHitResults(LinkList<IRayMeshIntersect::HitResult>& results)
@@ -135,8 +103,8 @@ public:
 			r != results.end();
 			r = r->next() )
 		{
-			Vec3f rayOrig = r->rayOrig;
-			Vec3f rayTarget = r->rayOrig + r->rayDir * 20.0f;
+			const Vec3f& rayOrig = r->rayOrig;
+			const Vec3f& rayTarget = r->rayOrig + r->rayDir * 20.0f;
 
 			if(r->hits.isEmpty())
 			{
@@ -147,7 +115,7 @@ public:
 			else
 			{
 				glColor3f(1.0f, 0.0f, 0.0f);
-				Vec3f hitPos = IRayMeshIntersect::Helper::getHitPosition(r->closest);
+				const Vec3f hitPos = rayOrig + r->closest->t * (rayTarget - rayOrig).normalizedCopy();
 				glVertex3fv(rayOrig.data);
 				glVertex3fv(hitPos.data);
 
@@ -177,4 +145,3 @@ TEST(RayMeshIntersectTest)
 	RayMeshIntersectTest::TestWindow window;
 	window.mainLoop();
 }
-*/

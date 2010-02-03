@@ -274,7 +274,7 @@ void BasicGlWindow::update()
 	++mFrameCounter;
 
 	if(mOneSecondCountDown < 0) {
-		printf("FPS: %f\n", float(mFrameCounter) / (1-mOneSecondCountDown));
+		printf("FPS: %f\r", float(mFrameCounter) / (1-mOneSecondCountDown));
 		mOneSecondCountDown = 1 + mOneSecondCountDown;
 		mFrameCounter = 0;
 	}

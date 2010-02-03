@@ -103,6 +103,7 @@
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
+				OpenMP="true"
 			/>
 			<Tool
 				Name="VCManagedResourceCompilerTool"
@@ -502,7 +503,6 @@
 					>
 					<Tool
 						Name="VCCLCompilerTool"
-						OpenMP="false"
 						DisableSpecificWarnings="4652"
 					/>
 				</FileConfiguration>
