@@ -44,12 +44,6 @@ void Mesh::draw()
 		glEnableVertexAttribArray(attributeLocation);
 	}
 
-	// Bind index buffer
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, *handles[0]);
-
-	// Actual draw
-	glDrawElements(GL_TRIANGLES, indexCount, GL_UNSIGNED_SHORT, 0);
-
 	// Unbind the buffers
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
@@ -71,6 +65,10 @@ void Mesh::draw()
 		bindUv(2, attributes[uv2AttrIdx], handles);
 
 	drawFaceOnly();
+
+	glDisableClientState(GL_COLOR_ARRAY);
+	glDisableClientState(GL_NORMAL_ARRAY);
+	glDisableClientState(GL_TEXTURE_COORD_ARRAY);
 }
 
 void Mesh::drawFaceOnly()
@@ -91,6 +89,8 @@ void Mesh::drawFaceOnly()
 	}
 
 	glDisableClientState(GL_VERTEX_ARRAY);
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 }
 
 void Mesh::clear()
@@ -135,7 +135,9 @@ void* Mesh::mapBuffer(size_t bufferIdx, MappedBuffers& mapped, MapOption mapOpti
 
 	glBindBuffer(target, *handles[bufferIdx]);
 
-	return glMapBuffer(target, flags);
+	void* ret = glMapBuffer(target, flags);
+	mapped[bufferIdx] = ret;
+	return ret;
 }
 
 void Mesh::unmapBuffers(MappedBuffers& mapped)

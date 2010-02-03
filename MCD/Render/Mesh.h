@@ -8,7 +8,7 @@
 
 namespace MCD {
 
-/*!
+/*!	Represent an indexed triangle mesh.
 	\note Since we use uint16_t to store index data, therefore a single Mesh instance cannot
 		stores more than 65536 vertices.
 
@@ -73,6 +73,8 @@ public:
 	 */
 	int8_t indexAttrIdx, positionAttrIdx, normalAttrIdx;
 	int8_t uv0AttrIdx, uv1AttrIdx, uv2AttrIdx;
+	int8_t tangentAttrIdx, binormalAttrIdx;
+	int8_t blendWeightAttrIdx, blendIndexAttrIdx;
 
 // Operations
 	//! Render the mesh with all associated attributes.

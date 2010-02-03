@@ -386,6 +386,7 @@ bool commitMesh(const MeshBuilder& builder, Mesh& mesh, MeshBuilder::StorageHint
 
 	mesh.clear();
 
+	mesh.bufferCount = bufferCount;
 	mesh.attributeCount = attributeCount;
 	mesh.indexCount = builder.indexCount();
 	mesh.vertexCount = builder.vertexCount();

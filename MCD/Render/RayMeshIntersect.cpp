@@ -1,82 +1,48 @@
 #include "Pch.h"
 #include "RayMeshIntersect.h"
 #include "Mesh.h"
-#include "../Core/System/Log.h"
 
-#include <list>
+#include <vector>
 #ifdef _OPENMP
 #	include <omp.h>
 #endif
 
 namespace MCD {
-/*
-Vec3f IRayMeshIntersect::Helper::getHitPosition(IRayMeshIntersect::Hit* hit)
+
+struct IRayMeshIntersect::MeshRecord : LinkListBase::Node<MeshRecord>
 {
-	const uint16_t* vidx = hit->meshRec.mesh.getTriangleIndexAt(hit->faceIdx);
-
-	Vec3f v0 = hit->meshRec.mesh.getPositionAt(vidx[0]);
-	Vec3f v1 = hit->meshRec.mesh.getPositionAt(vidx[1]);
-	Vec3f v2 = hit->meshRec.mesh.getPositionAt(vidx[2]);
-
-	if(hit->meshRec.hasTransform)
+	MCD_IMPLICIT MeshRecord(Mesh& mesh)
+		: mesh(&mesh), mappedBuffers()
+		, vertex(mesh.mapAttribute<Vec3f>(mesh.positionAttrIdx, mappedBuffers, Mesh::Read))
+		, index(mesh.mapAttribute<uint16_t>(mesh.indexAttrIdx, mappedBuffers, Mesh::Read))
 	{
-		hit->meshRec.transform.transformPoint(v0);
-		hit->meshRec.transform.transformPoint(v1);
-		hit->meshRec.transform.transformPoint(v2);
+		// Map all the buffers to easy hit result quering
+		for(size_t i=0; i<mesh.bufferCount; ++i)
+			mesh.mapBuffer(i, mappedBuffers, Mesh::Read);
 	}
 
-	return hit->w * v0 + hit->u * v1 + hit->v * v2;
-}
-
-Vec3f IRayMeshIntersect::Helper::getHitNormal(IRayMeshIntersect::Hit* hit)
-{
-	const uint16_t* vidx = hit->meshRec.mesh.getTriangleIndexAt(hit->faceIdx);
-
-	Vec3f v0 = hit->meshRec.mesh.getNormalAt(vidx[0]);
-	Vec3f v1 = hit->meshRec.mesh.getNormalAt(vidx[1]);
-	Vec3f v2 = hit->meshRec.mesh.getNormalAt(vidx[2]);
-
-	if(hit->meshRec.hasTransform)
-	{
-		hit->meshRec.transform.transformNormal(v0);
-		hit->meshRec.transform.transformNormal(v1);
-		hit->meshRec.transform.transformNormal(v2);
+	~MeshRecord() {
+		mesh->unmapBuffers(mappedBuffers);
 	}
 
-	return hit->w * v0 + hit->u * v1 + hit->v * v2;
+	MeshPtr mesh;	//!< Keeps the life of the mesh.
+	Mesh::MappedBuffers mappedBuffers;
+	StrideArray<Vec3f> vertex;
+	StrideArray<uint16_t> index;
+	Mat44f transform;
+	bool hasTransform;
+};	// MeshRecord
+
+Mesh& IRayMeshIntersect::Hit::mesh() {
+	return *meshRec.mesh;
 }
 
-Vec2f IRayMeshIntersect::Helper::getHitUV2d(IRayMeshIntersect::Hit* hit, size_t unit)
-{
-	const uint16_t* vidx = hit->meshRec.mesh.getTriangleIndexAt(hit->faceIdx);
-
-	Vec2f& v0 = hit->meshRec.mesh.getUV2dAt(unit, vidx[0]);
-	Vec2f& v1 = hit->meshRec.mesh.getUV2dAt(unit, vidx[1]);
-	Vec2f& v2 = hit->meshRec.mesh.getUV2dAt(unit, vidx[2]);
-
-	return hit->w * v0 + hit->u * v1 + hit->v * v2;
+const Mat44f* IRayMeshIntersect::Hit::transform() {
+	return meshRec.hasTransform ? &meshRec.transform : nullptr;
 }
 
-Vec3f IRayMeshIntersect::Helper::getHitUV3d(IRayMeshIntersect::Hit* hit, size_t unit)
-{
-	const uint16_t* vidx = hit->meshRec.mesh.getTriangleIndexAt(hit->faceIdx);
-
-	Vec3f& v0 = hit->meshRec.mesh.getUV3dAt(unit, vidx[0]);
-	Vec3f& v1 = hit->meshRec.mesh.getUV3dAt(unit, vidx[1]);
-	Vec3f& v2 = hit->meshRec.mesh.getUV3dAt(unit, vidx[2]);
-
-	return hit->w * v0 + hit->u * v1 + hit->v * v2;
-}
-
-Vec4f IRayMeshIntersect::Helper::getHitUV4d(IRayMeshIntersect::Hit* hit, size_t unit)
-{
-	const uint16_t* vidx = hit->meshRec.mesh.getTriangleIndexAt(hit->faceIdx);
-
-	Vec4f& v0 = hit->meshRec.mesh.getUV4dAt(unit, vidx[0]);
-	Vec4f& v1 = hit->meshRec.mesh.getUV4dAt(unit, vidx[1]);
-	Vec4f& v2 = hit->meshRec.mesh.getUV4dAt(unit, vidx[2]);
-
-	return hit->w * v0 + hit->u * v1 + hit->v * v2;
+Mesh::MappedBuffers& IRayMeshIntersect::Hit::mappedBuffers() {
+	return meshRec.mappedBuffers;
 }
 
 class SimpleRayMeshIntersect::Impl
@@ -84,7 +50,6 @@ class SimpleRayMeshIntersect::Impl
 public:
 	LinkList<IRayMeshIntersect::HitResult> mLastResults;
 	LinkList<MeshRecord> mMeshes;
-	std::list<MeshPtr> mMeshOwnerships;
 
 #if 1	// FOLDING
 // source code copied from:
@@ -202,39 +167,24 @@ SimpleRayMeshIntersect::~SimpleRayMeshIntersect()
 void SimpleRayMeshIntersect::reset()
 {
 	mImpl.mMeshes.destroyAll();
-	mImpl.mMeshOwnerships.clear();
 	mImpl.mLastResults.destroyAll();
 }
 
-void SimpleRayMeshIntersect::addMesh(Mesh* mesh)
+void SimpleRayMeshIntersect::addMesh(Mesh& mesh)
 {
-	if(nullptr == mesh)
-	{
-		Log::format(Log::Warn, L"Attemping to call SimpleRayMeshIntersect::addMesh() with nullptr");
-		return;
-	}
-
-	MeshRecord* rec = new MeshRecord(*mesh);
+	MeshRecord* rec = new MeshRecord(mesh);
 	rec->hasTransform = false;
 	mImpl.mMeshes.pushBack(*rec);
-	mImpl.mMeshOwnerships.push_back(mesh);
 }
 
-void SimpleRayMeshIntersect::addMesh(Mesh* mesh, const Mat44f& transform)
+void SimpleRayMeshIntersect::addMesh(Mesh& mesh, const Mat44f& transform)
 {
-	if(nullptr == mesh)
-	{
-		Log::format(Log::Warn, L"Attemping to call SimpleRayMeshIntersect::addMesh() with nullptr");
-		return;
-	}
-
-	MeshRecord* rec = new MeshRecord(*mesh);
+	MeshRecord* rec = new MeshRecord(mesh);
 
 	rec->hasTransform = !transform.isNearEqual(Mat44f::cIdentity);
 
 	rec->transform = transform;
 	mImpl.mMeshes.pushBack(*rec);
-	mImpl.mMeshOwnerships.push_back(mesh);
 }
 
 void SimpleRayMeshIntersect::build()
@@ -244,13 +194,6 @@ void SimpleRayMeshIntersect::build()
 void SimpleRayMeshIntersect::begin()
 {
 	mImpl.mLastResults.destroyAll();
-
-	for(MeshRecord* i = mImpl.mMeshes.begin()
-		; i != mImpl.mMeshes.end()
-		; i = i->next())
-	{
-		MCD_VERIFY(i->mesh.isEditing());
-	}
 }
 
 void SimpleRayMeshIntersect::test(const Vec3f& rayOrig, const Vec3f& rayDir, bool twoSided)
@@ -266,7 +209,6 @@ void SimpleRayMeshIntersect::test(const Vec3f& rayOrig, const Vec3f& rayDir, boo
 	for(MeshRecord* i = mImpl.mMeshes.begin(); i != mImpl.mMeshes.end(); i = i->next())
 		recordList.push_back(&(*i));
 
-//	omp_set_num_threads(8);
 	#pragma omp parallel for schedule(dynamic)
 	for(int j=0; j<int(recordList.size()); ++j)
 	{
@@ -278,21 +220,15 @@ void SimpleRayMeshIntersect::test(const Vec3f& rayOrig, const Vec3f& rayDir, boo
 	{
 #endif
 
-		Mesh& mesh = i->mesh;
-		const size_t cTriCnt = mesh.indexCount / 3;
+		const size_t cTriCnt = i->mesh->indexCount / 3;
 
 		for(int itri = 0; itri < int(cTriCnt); ++itri)
 		{
-			uint16_t* idx = mesh.getTriangleIndexAt(itri);
+			Vec3f v0 = i->vertex[i->index[itri*3 + 0]];
+			Vec3f v1 = i->vertex[i->index[itri*3 + 1]];
+			Vec3f v2 = i->vertex[i->index[itri*3 + 2]];
 
-			// NOTE: Will it be more efficient to use the MeshBuilder's buffer and offset
-			// interface, other than the immediate mode interface of EditableMesh?
-			Vec3f v0 = mesh.getPositionAt(idx[0]);
-			Vec3f v1 = mesh.getPositionAt(idx[1]);
-			Vec3f v2 = mesh.getPositionAt(idx[2]);
-
-			if(i->hasTransform)
-			{
+			if(i->hasTransform) {
 				i->transform.transformPoint(v0);
 				i->transform.transformPoint(v1);
 				i->transform.transformPoint(v2);
@@ -342,5 +278,5 @@ LinkList<IRayMeshIntersect::HitResult>& SimpleRayMeshIntersect::results()
 {
 	return mImpl.mLastResults;
 }
-*/
+
 }	// namespace MCD
