@@ -325,6 +325,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\Math\SkeletonTest.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\Math\TupleTest.cpp"
 				>
 			</File>

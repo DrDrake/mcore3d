@@ -69,6 +69,7 @@ bool AnimationInstance::resetInterpolatedResult()
 }
 
 // TODO: Optimize for single tracks (mTracks.size() == 0)?
+// TODO: Revise the memory layout (currently every frame of a single subtrack is contigous)
 void AnimationInstance::update()
 {
 	ScopeRecursiveLock lock(mMutex);
