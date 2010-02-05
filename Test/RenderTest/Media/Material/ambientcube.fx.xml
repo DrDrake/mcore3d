@@ -19,7 +19,6 @@
 	<!-- The first occuring texture will use texture unit 0 -->
 	<texture
 		file="../Fieldstone.jpg"
-		shaderName="diffuseMap"
 		filter="linear_linear_point"
 	/>
 	<texture
@@ -57,7 +56,6 @@ void main()
 #version 120
 varying vec3 normal, v2fTangent;
 uniform vec3 g_AmbientCube[6];
-uniform sampler2D diffuseMap;
 uniform sampler2D normalMap;
 
 vec3 ambientLight( vec3 normal, vec3 ambientCube[6] )
@@ -92,10 +90,6 @@ void main()
 		+ normalize(normal) * bump.z
 		);
 
-	vec4 base = texture2D(diffuseMap, gl_TexCoord[0].xy);
-	float ndotv = max( 0, dot(normal, vec3(0,0,1)) );
-
-	//gl_FragColor = base * ndotv;
 	gl_FragColor = vec4( ambientLight( nrm, g_AmbientCube ), 1 );
 }
 			]]>

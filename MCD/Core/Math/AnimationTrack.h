@@ -15,6 +15,9 @@ namespace MCD {
 
 	Restriction: all sub-track are having the same number of key frame.
 
+	\note The memory layout of the key frames is:
+	subTrack1Frame1, subTrack2Frame1, subTrack1Frame2, subTrack2Frame2, ...
+
 	Example:
 	\code
 	AnimationTrackPtr track = new AnimationTrack(L"trackName");
@@ -165,7 +168,7 @@ protected:
 	bool mCommitted;
 
 	Mutex mMutex;
-};	// 
+};	// AnimationTrack
 
 typedef IntrusivePtr<AnimationTrack> AnimationTrackPtr;
 
