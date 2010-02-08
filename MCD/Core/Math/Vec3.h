@@ -24,17 +24,18 @@ class Vec3 : public MathTuple<T, 3, Vec3<T>, Vec3TupleUnion<T> >
 
 	public:
 	typedef typename super_type::param_type param_type;
+	typedef typename super_type::const_param_type const_param_type;
 	using super_type::x;
 	using super_type::y;
 	using super_type::z;
 
 	inline Vec3() {}
 
-	explicit Vec3(const param_type val)
+	explicit Vec3(const_param_type val)
 		: super_type(val)
 	{}
 
-	Vec3(const param_type x_, const param_type y_, const param_type z_) {
+	Vec3(const_param_type x_, const_param_type y_, const_param_type z_) {
 		x = x_; y = y_; z = z_;
 	}
 

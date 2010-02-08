@@ -55,10 +55,11 @@ public:
 
 	//! Parameter type for fast function passing
 	typedef typename MCD::ParamType<T>::RET param_type;
+	typedef typename MCD::ParamType<const T>::RET const_param_type;
 
 	MathTuple() {}
 
-	MathTuple(const param_type val) {
+	MathTuple(const_param_type val) {
 		(*this) = val;
 	}
 
@@ -89,7 +90,7 @@ public:
 	}
 
 	//! Assign a value to all of the elements
-	R& operator=(const param_type val)
+	R& operator=(const_param_type val)
 	{
 		for(size_t i=0; i<N; ++i)
 			data[i] = val;
@@ -153,22 +154,22 @@ public:
 		return static_cast<R&>(*this);
 	}
 
-	R& operator*=(const param_type rhs)
+	R& operator*=(const_param_type rhs)
 	{
 		for(size_t i=0; i<N; ++i)
 			data[i] *= rhs;
 		return static_cast<R&>(*this);
 	}
 
-	R& operator/=(const param_type rhs) {
+	R& operator/=(const_param_type rhs) {
 		return (*this) *= (T(1.0) / rhs);
 	}
 
-	friend bool operator==(const param_type lhs, const MathTuple& rhs) {
+	friend bool operator==(const_param_type lhs, const MathTuple& rhs) {
 		return MathTuple(lhs) == rhs;
 	}
 
-	friend bool operator!=(const param_type lhs, const MathTuple& rhs) {
+	friend bool operator!=(const_param_type lhs, const MathTuple& rhs) {
 		return !(lhs == rhs);
 	}
 
@@ -181,7 +182,7 @@ public:
 		return true;
 	}
 
-	friend R operator+(const MathTuple& lhs, const param_type rhs)
+	friend R operator+(const MathTuple& lhs, const_param_type rhs)
 	{
 		R tmp;
 		for(size_t i=0; i<N; ++i)
@@ -189,15 +190,15 @@ public:
 		return tmp;
 	}
 
-	friend R operator+(const param_type lhs, const MathTuple& rhs) {
+	friend R operator+(const_param_type lhs, const MathTuple& rhs) {
 		return rhs + lhs;
 	}
 
-	friend R operator-(const MathTuple& lhs, const param_type rhs) {
+	friend R operator-(const MathTuple& lhs, const_param_type rhs) {
 		return lhs + (-rhs);
 	}
 
-	friend R operator-(const param_type lhs, const MathTuple& rhs)
+	friend R operator-(const_param_type lhs, const MathTuple& rhs)
 	{
 		R tmp;
 		for(size_t i=0; i<N; ++i)
@@ -205,7 +206,7 @@ public:
 		return tmp;
 	}
 
-	friend R operator*(const MathTuple& lhs, const param_type rhs)
+	friend R operator*(const MathTuple& lhs, const_param_type rhs)
 	{
 		R tmp;
 		for(size_t i=0; i<N; ++i)
@@ -213,15 +214,15 @@ public:
 		return tmp;
 	}
 
-	friend R operator*(const param_type lhs, const MathTuple& rhs) {
+	friend R operator*(const_param_type lhs, const MathTuple& rhs) {
 		return rhs * lhs;
 	}
 
-	friend R operator/(const MathTuple& lhs, const param_type rhs) {
+	friend R operator/(const MathTuple& lhs, const_param_type rhs) {
 		return lhs * (T(1.0) / rhs);
 	}
 
-	friend R operator/(const param_type lhs, const MathTuple& rhs)
+	friend R operator/(const_param_type lhs, const MathTuple& rhs)
 	{
 		R tmp;
 		for(size_t i=0; i<N; ++i)

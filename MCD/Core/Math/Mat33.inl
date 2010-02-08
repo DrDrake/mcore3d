@@ -52,7 +52,7 @@ Mat33<T>& Mat33<T>::operator*=(const Mat33& rhs)
 }
 
 template<typename T>
-Mat33<T>& Mat33<T>::operator*=(const param_type rhs) {
+Mat33<T>& Mat33<T>::operator*=(const_param_type rhs) {
 	return super_type::operator*=(rhs);
 }
 
@@ -163,7 +163,7 @@ bool Mat33<T>::getRotationXYZ(T& thetaX, T& thetaY, T& thetaZ)
 }
 
 template<typename T>
-void Mat33<T>::makeXYZRotation(const param_type thetaX, const param_type thetaY, const param_type thetaZ, Mat33& result)
+void Mat33<T>::makeXYZRotation(const_param_type thetaX, const_param_type thetaY, const_param_type thetaZ, Mat33& result)
 {
 	// Reference: OgreMatrix3.cpp
 	float cos, sin;
@@ -181,7 +181,7 @@ void Mat33<T>::makeXYZRotation(const param_type thetaX, const param_type thetaY,
 }
 
 template<typename T>
-Mat33<T> Mat33<T>::makeXYZRotation(const param_type thetaX, const param_type thetaY, const param_type thetaZ)
+Mat33<T> Mat33<T>::makeXYZRotation(const_param_type thetaX, const_param_type thetaY, const_param_type thetaZ)
 {
 	Mat33 result;
 	makeXYZRotation(thetaX, thetaY, thetaZ, result);

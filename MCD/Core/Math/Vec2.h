@@ -24,16 +24,17 @@ class Vec2 : public MathTuple<T, 2, Vec2<T>, Vec2TupleUnion<T> >
 
 public:
 	typedef typename super_type::param_type param_type;
+	typedef typename super_type::const_param_type const_param_type;
 	using super_type::x;
 	using super_type::y;
 
 	inline Vec2() {}
 
-	explicit Vec2(const param_type val)
+	explicit Vec2(const_param_type val)
 		: super_type(val)
 	{}
 
-	Vec2(const param_type x_, const param_type y_) {
+	Vec2(const_param_type x_, const_param_type y_) {
 		x = x_; y = y_;
 	}
 

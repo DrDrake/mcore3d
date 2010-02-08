@@ -54,6 +54,7 @@ class Quaternion : public MathTuple<T, 4, Quaternion<T>, QuaternionTupleUnion<T>
 
 public:
 	typedef typename super_type::param_type param_type;
+	typedef typename super_type::const_param_type const_param_type;
 	using super_type::x;
 	using super_type::y;
 	using super_type::z;
@@ -61,11 +62,11 @@ public:
 
 	inline Quaternion() {}
 
-	explicit Quaternion(const param_type val)
+	explicit Quaternion(const_param_type val)
 		: super_type(val)
 	{}
 
-	Quaternion(const param_type x_, const param_type y_, const param_type z_, const param_type w_) {
+	Quaternion(const_param_type x_, const_param_type y_, const_param_type z_, const_param_type w_) {
 		x = x_; y = y_; z = z_; w = w_;
 	}
 
@@ -73,7 +74,7 @@ public:
 		x = xyzw.x; y = xyzw.y; z = xyzw.z; w = xyzw.w;
 	}
 
-	Quaternion(const Vec3<T>& xyz, const param_type w_) {
+	Quaternion(const Vec3<T>& xyz, const_param_type w_) {
 		x = xyz.x; y = xyz.y; z = xyz.z; w = w_;
 	}
 

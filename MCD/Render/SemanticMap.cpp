@@ -12,8 +12,8 @@ SemanticMap::Semantic SemanticMap::position() const		{ static const Semantic map
 SemanticMap::Semantic SemanticMap::normal() const		{ static const Semantic map = { "normal", MeshBuilder::TYPE_FLOAT, sizeof(float), 3, 0 }; return map; }
 SemanticMap::Semantic SemanticMap::tangent() const		{ static const Semantic map = { "tangent", MeshBuilder::TYPE_FLOAT, sizeof(float), 3, 0 }; return map; }
 SemanticMap::Semantic SemanticMap::binormal() const		{ static const Semantic map = { "binormal", MeshBuilder::TYPE_FLOAT, sizeof(float), 3, 0 }; return map; }
-SemanticMap::Semantic SemanticMap::blendWeight() const	{ static const Semantic map = { "blendWeight", MeshBuilder::TYPE_FLOAT, sizeof(float), 1, 0 }; return map; }
-SemanticMap::Semantic SemanticMap::blendIndex() const	{ static const Semantic map = { "blendIndex", MeshBuilder::TYPE_UINT8, sizeof(uint8_t), 1, 0 }; return map; }
+SemanticMap::Semantic SemanticMap::blendWeight() const	{ static const Semantic map = { "blendWeight", MeshBuilder::TYPE_FLOAT, sizeof(float), 4, 0 }; return map; }
+SemanticMap::Semantic SemanticMap::blendIndex() const	{ static const Semantic map = { "blendIndex", MeshBuilder::TYPE_UINT8, sizeof(uint8_t), 4, 0 }; return map; }
 
 SemanticMap::Semantic SemanticMap::uv(size_t index, size_t elementCount) const
 {

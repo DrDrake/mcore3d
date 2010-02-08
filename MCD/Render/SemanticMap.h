@@ -18,8 +18,8 @@ namespace MCD {
 	"normal",		TYPE_FLOAT,			sizeof(float),		3,				0
 	"tangent",		TYPE_FLOAT,			sizeof(float),		3,				0
 	"binormal",		TYPE_FLOAT,			sizeof(float),		3,				0
-	"blendWeight",	TYPE_FLOAT,			sizeof(float),		1,				0
-	"blendIndex",	TYPE_UINT8,			sizeof(uint8_t),	1,				0
+	"blendWeight",	TYPE_FLOAT,			sizeof(float),		4,				0
+	"blendIndex",	TYPE_UINT8,			sizeof(uint8_t),	4,				0
 	"uv[i]",		TYPE_FLOAT,			sizeof(float),		[c],			[i]
 	"color[i]",		TYPE_UINT8,			[s],				[c],			[i]
 

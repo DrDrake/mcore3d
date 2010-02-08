@@ -55,6 +55,7 @@ class Mat33 : public MathTuple<T, 3*3, Mat33<T>, Mat33TupleUnion<T> >
 
 public:
 	typedef typename super_type::param_type param_type;
+	typedef typename super_type::const_param_type const_param_type;
 	using super_type::r0;	using super_type::r1;	using super_type::r2;
 	using super_type::m00;	using super_type::m01;	using super_type::m02;
 	using super_type::m10;	using super_type::m11;	using super_type::m12;
@@ -64,7 +65,7 @@ public:
 
 	inline Mat33() {}
 
-	explicit Mat33(const param_type val)
+	explicit Mat33(const_param_type val)
 		: super_type(val)
 	{}
 
@@ -73,9 +74,9 @@ public:
 	}
 
 	Mat33(
-		const param_type m00_, const param_type m01_, const param_type m02_,
-		const param_type m10_, const param_type m11_, const param_type m12_,
-		const param_type m20_, const param_type m21_, const param_type m22_)
+		const_param_type m00_, const_param_type m01_, const_param_type m02_,
+		const_param_type m10_, const_param_type m11_, const_param_type m12_,
+		const_param_type m20_, const_param_type m21_, const_param_type m22_)
 	{
 		m00 = m00_; m01 = m01_; m02 = m02_;
 		m10 = m10_; m11 = m11_; m12 = m12_;
@@ -102,13 +103,13 @@ public:
 
 	Mat33& operator*=(const Mat33& rhs);
 
-	Mat33& operator*=(const param_type rhs);
+	Mat33& operator*=(const_param_type rhs);
 
 	void mul(const Vec3<T>& rhs, Vec3<T>& result) const;
 
 	Vec3<T> operator*(const Vec3<T>& rhs) const;
 
-//	friend Mat33<T> operator/(const param_type lhs, const MathTuple& rhs) {
+//	friend Mat33<T> operator/(const_param_type lhs, const MathTuple& rhs) {
 //	}
 
 	void transpose(Mat33& result) const;
@@ -140,9 +141,9 @@ public:
 		\param thetaY Rotation of angle in radius, counter clockwise from the y-axis.
 		\param thetaZ Rotation of angle in radius, counter clockwise from the z-axis.
 	 */
-	static void makeXYZRotation(const param_type thetaX, const param_type thetaY, const param_type thetaZ, Mat33& result);
+	static void makeXYZRotation(const_param_type thetaX, const_param_type thetaY, const_param_type thetaZ, Mat33& result);
 
-	static Mat33 makeXYZRotation(const param_type thetaX, const param_type thetaY, const param_type thetaZ);
+	static Mat33 makeXYZRotation(const_param_type thetaX, const_param_type thetaY, const_param_type thetaZ);
 
 	/*!	Creates a rotation matrix.
 		\param axis The rotation axis.
