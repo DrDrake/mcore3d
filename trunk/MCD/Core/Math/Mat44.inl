@@ -113,7 +113,7 @@ Mat44<T>& Mat44<T>::operator*=(const Mat44& rhs)
 }
 
 template<typename T>
-Mat44<T>& Mat44<T>::operator*=(const param_type rhs) {
+Mat44<T>& Mat44<T>::operator*=(const_param_type rhs) {
 	return super_type::operator*=(rhs);
 }
 

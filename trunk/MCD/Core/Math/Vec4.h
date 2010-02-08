@@ -23,6 +23,7 @@ class Vec4 : public MathTuple<T, 4, Vec4<T>, Vec4TupleUnion<T> >
 
 	public:
 	typedef typename super_type::param_type param_type;
+	typedef typename super_type::const_param_type const_param_type;
 	using super_type::x;
 	using super_type::y;
 	using super_type::z;
@@ -30,15 +31,15 @@ class Vec4 : public MathTuple<T, 4, Vec4<T>, Vec4TupleUnion<T> >
 
 	inline Vec4() {}
 
-	explicit Vec4(const param_type val)
+	explicit Vec4(const_param_type val)
 		: super_type(val)
 	{}
 
-	Vec4(const param_type x_, const param_type y_, const param_type z_, const param_type w_) {
+	Vec4(const_param_type x_, const_param_type y_, const_param_type z_, const_param_type w_) {
 		x = x_; y = y_; z = z_; w = w_;
 	}
 
-	Vec4(const Vec3<T>& xyz, const param_type w_) {
+	Vec4(const Vec3<T>& xyz, const_param_type w_) {
 		x = xyz.x; y = xyz.y; z = xyz.z; w = w_;
 	}
 

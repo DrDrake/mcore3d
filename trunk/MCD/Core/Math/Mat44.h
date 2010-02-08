@@ -40,6 +40,7 @@ class Mat44 : public MathTuple<T, 4*4, Mat44<T>, Mat44TupleUnion<T> >
 public:
 	// NOTE: I want to get rid of these noisy type forwarding, but GCC keeps complain without it.
 	typedef typename super_type::param_type param_type;
+	typedef typename super_type::const_param_type const_param_type;
 	using super_type::r0;	using super_type::r1;	using super_type::r2;	using super_type::r3;
 	using super_type::m00;	using super_type::m01;	using super_type::m02;	using super_type::m03;
 	using super_type::m10;	using super_type::m11;	using super_type::m12;	using super_type::m13;
@@ -55,7 +56,7 @@ public:
 	 */
 	inline Mat44() {}
 
-	explicit Mat44(const param_type val)
+	explicit Mat44(const_param_type val)
 		: super_type(val)
 	{}
 
@@ -64,10 +65,10 @@ public:
 	}
 
 	Mat44(
-		const param_type m00_, const param_type m01_, const param_type m02_, const param_type m03_,
-		const param_type m10_, const param_type m11_, const param_type m12_, const param_type m13_,
-		const param_type m20_, const param_type m21_, const param_type m22_, const param_type m23_,
-		const param_type m30_, const param_type m31_, const param_type m32_, const param_type m33_)
+		const_param_type m00_, const_param_type m01_, const_param_type m02_, const_param_type m03_,
+		const_param_type m10_, const_param_type m11_, const_param_type m12_, const_param_type m13_,
+		const_param_type m20_, const_param_type m21_, const_param_type m22_, const_param_type m23_,
+		const_param_type m30_, const_param_type m31_, const_param_type m32_, const_param_type m33_)
 	{
 		m00 = m00_; m01 = m01_; m02 = m02_; m03 = m03_;
 		m10 = m10_; m11 = m11_; m12 = m12_; m13 = m13_;
@@ -102,13 +103,13 @@ public:
 
 	Mat44& operator*=(const Mat44& rhs);
 
-	Mat44& operator*=(const param_type rhs);
+	Mat44& operator*=(const_param_type rhs);
 
 	void mul(const Vec4<T>& rhs, Vec4<T>& result) const;
 
 	Vec4<T> operator*(const Vec4<T>& rhs) const;
 
-//	friend Mat44<T> operator/(const param_type lhs, const MathTuple& rhs) {
+//	friend Mat44<T> operator/(const_param_type lhs, const MathTuple& rhs) {
 //	}
 
 	void transpose(Mat44& result) const;
