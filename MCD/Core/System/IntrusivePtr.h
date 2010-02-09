@@ -195,7 +195,6 @@ protected:
 	mutable CounterType mRefCount;
 };	// IntrusiveSharedObject
 
-
 }	// namespace MCD
 
 #endif	// __MCD_CORE_SYSTEM_INTRUSIVEPTR__

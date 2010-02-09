@@ -318,7 +318,7 @@ TEST(Basic_MeshBuilderTest)
 
 		BasicGlWindow window(L"show=0, width=1, height=1");
 		MeshPtr mesh = new Mesh(L"");
-		builder.commit(*mesh, MeshBuilder::Static);
+		builder.commit(*mesh, Mesh::Static);
 
 		CHECK(mesh->format() == builder.format());
 		CHECK_EQUAL(3u, mesh->vertexCount());
@@ -338,7 +338,7 @@ TEST(ChamferBox_MeshBuilderTest)
 		{
 			mMesh = new Mesh(L"");
 			ChamferBoxBuilder chamferBoxBuilder(0.4f, 10);
-			chamferBoxBuilder.commit(*mMesh, MeshBuilder::Static);
+			chamferBoxBuilder.commit(*mMesh, Mesh::Static);
 		}
 
 		sal_override void update(float deltaTime)
@@ -403,7 +403,7 @@ TEST(Quad_MeshBuilderTest)
 				uint16_t idx4 = builder.addVertex();
 
 				builder.addQuad(idx1, idx2, idx3, idx4);
-			builder.commit(*mMesh, MeshBuilder::Static);
+			builder.commit(*mMesh, Mesh::Static);
 		}
 
 		sal_override void update(float deltaTime)
@@ -452,7 +452,7 @@ TEST(SharedVertex_MeshBuilderTest)
 	vertexBuilder.addVertex();
 	vertexBuilder.position(Vec3f(1, 1, 1));
 	vertexBuilder.addVertex();
-	vertexBuilder.commit(*mesh1, MeshBuilder::Static);
+	vertexBuilder.commit(*mesh1, Mesh::Static);
 
 	// Set mesh2 to share the same vertex buffer as mesh1
 	mesh2->setHandlePtr(Mesh::Position, mesh1->handlePtr(Mesh::Position));
@@ -460,13 +460,13 @@ TEST(SharedVertex_MeshBuilderTest)
 	// Index for mesh1
 	indexBuilder.enable(Mesh::Index);
 	indexBuilder.addTriangle(0, 1, 2);
-	indexBuilder.commit(*mesh1, Mesh::Index, MeshBuilder::Static);
+	indexBuilder.commit(*mesh1, Mesh::Index, Mesh::Static);
 
 	// Index for mesh2
 	indexBuilder.clear();
 	indexBuilder.enable(Mesh::Index);
 	indexBuilder.addTriangle(2, 3, 0);
-	indexBuilder.commit(*mesh2, Mesh::Index, MeshBuilder::Static);
+	indexBuilder.commit(*mesh2, Mesh::Index, Mesh::Static);
 
 	CHECK(true);
 }

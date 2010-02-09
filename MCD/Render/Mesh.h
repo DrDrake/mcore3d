@@ -8,6 +8,8 @@
 
 namespace MCD {
 
+typedef IntrusivePtr<class Mesh> MeshPtr;
+
 /*!	Represent an indexed triangle mesh.
 	\note Since we use uint16_t to store index data, therefore a single Mesh instance cannot
 		stores more than 65536 vertices.
@@ -26,6 +28,31 @@ public:
 		Read	= 1 << 0,
 		Write	= 1 << 1,
 	};	// MapOption
+
+	enum StorageHint
+	{
+		/*! The data stored in the buffer object is unlikely to change and will be used
+			possibly many times as a source for drawing. This hint tells the implementation
+			to put the data somewhere it' s quick to draw from, but probably not quick to
+			update.
+		 */
+		Static	= 0x88E4,
+
+		/*! The data stored in the buffer object is likely to change frequently but is likely
+			to be used as a source for drawing several times in between changes. This hint
+			tells the implementation to put the data somewhere it won't be too painful to
+			update once in a while.
+		 */
+		Dynamic	= 0x88E8,
+
+		/*! The data store in the buffer object is likely to change frequently and will be
+			used only once (or at least very few times) in between changes. This hint tells
+			the implementation that you have time-sensitive data such as animated geometry
+			that will be used once and then replaced. It is crucial that the data be
+			placed somewhere quick to update, even at the expense of faster rendering.
+		 */
+		Stream	= 0x88E0,
+	};	// StorageHint
 
 // Attributes
 	//! Declare what a single vertex attribute contains.
@@ -60,6 +87,9 @@ public:
 	Handles handles;
 	size_t bufferCount;		//!< Number of elements in handles
 
+	//!	Get the size in byte of a particular buffer.
+	size_t bufferSize(size_t bufferIndex) const;
+
 	typedef Array<Attribute, cMaxAttributeCount> Attributes;
 	Attributes attributes;
 	size_t attributeCount;	//!< Number of attributes in attributes
@@ -86,6 +116,8 @@ public:
 
 	//!	Clear all buffers and reseting the Mesh into it's initial state.
 	void clear();
+
+	sal_notnull MeshPtr clone(sal_in_z const wchar_t* name, StorageHint hint);
 
 	//!	An object for remembering which buffer is already mapped using mapBuffer().
 	struct MappedBuffers : public Array<void*, cMaxBufferCount>
@@ -123,7 +155,10 @@ protected:
 	sal_override ~Mesh();
 };	// Mesh
 
-typedef IntrusivePtr<Mesh> MeshPtr;
+class MeshBuilder;
+
+//!	Commit the data in a MeshBuilder to the Mesh.
+MCD_RENDER_API sal_checkreturn bool commitMesh(const MeshBuilder& builder, Mesh& mesh, Mesh::StorageHint storageHint);
 
 }	// namespace MCD
 

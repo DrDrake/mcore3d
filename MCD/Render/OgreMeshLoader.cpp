@@ -403,7 +403,7 @@ void OgreMeshLoader::Impl::commit(Resource& resource)
 	MCD_FOREACH(const Geometry& geo, mGeometry)
 	{
 		MeshPtr mesh = new Mesh(geo.name);
-		commitMesh(*geo.meshBuilder, *mesh, MeshBuilder::Static);
+		commitMesh(*geo.meshBuilder, *mesh, Mesh::Static);
 
 		std::auto_ptr<Model::MeshAndMaterial> meshMat(new Model::MeshAndMaterial);
 		meshMat->mesh = mesh;

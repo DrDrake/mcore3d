@@ -67,7 +67,7 @@ public:
 		return N;
 	}
 
-	param_type operator[](const size_t i) const
+	const_param_type operator[](const size_t i) const
 	{
 		MCD_ASSUME(i < N);
 		return data[i];
