@@ -98,8 +98,14 @@ template<typename T>
 class StrideArray
 {
 public:
-	StrideArray(void* _data, size_t elementCount, size_t _stride=0)
+	StrideArray(const void* _data, size_t elementCount, size_t _stride=0)
 		: data((char*)_data), size(elementCount), stride(_stride == 0 ? sizeof(T) : _stride)
+	{}
+
+	//! Construct from non-const version of StrideArray<T>, U must have the const qualifier.
+	template<typename U>
+	MCD_IMPLICIT StrideArray(const StrideArray<U>& rhs)
+		: data((char*)const_cast<T*>(rhs.getPtr())), size(rhs.size), stride(rhs.stride)
 	{}
 
 	T& operator[](size_t i)
@@ -129,10 +135,19 @@ template<typename T, size_t stride=sizeof(T)>
 class FixStrideArray
 {
 public:
-	FixStrideArray(void* _data, size_t elementCount)
+	FixStrideArray(const void* _data, size_t elementCount)
 		: data((char*)_data), size(elementCount)
 #ifndef NDEBUG
 		, cStride(stride)
+#endif
+	{}
+
+	//! Construct from non-const version of FixStrideArray<T>, U must have the const qualifier.
+	template<typename U>
+	MCD_IMPLICIT FixStrideArray(const FixStrideArray<U>& rhs)
+		: data((char*)const_cast<T*>(rhs.getPtr())), size(rhs.size)
+#ifndef NDEBUG
+		, cStride(rhs.stride)
 #endif
 	{}
 

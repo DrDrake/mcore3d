@@ -933,7 +933,7 @@ void Max3dsLoader::Impl::commit(Resource& resource)
 	Model& model = dynamic_cast<Model&>(resource);
 
 	// TODO: Design a way to set this variable from outside
-	MeshBuilder::StorageHint storageHint = MeshBuilder::Static;
+	Mesh::StorageHint storageHint = Mesh::Static;
 
 	MCD_FOREACH(const ModelInfo& modelInfo, mModelInfo)
 	{

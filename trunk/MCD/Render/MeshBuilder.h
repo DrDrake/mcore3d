@@ -62,31 +62,6 @@ public:
 		size_t channelIndex;	//! The channel index for color/texture coordinate
 	};	// Semantic
 
-	enum StorageHint
-	{
-		/*! The data stored in the buffer object is unlikely to change and will be used
-			possibly many times as a source for drawing. This hint tells the implementation
-			to put the data somewhere it' s quick to draw from, but probably not quick to
-			update.
-		 */
-		Static	= 0x88E4,
-
-		/*! The data stored in the buffer object is likely to change frequently but is likely
-			to be used as a source for drawing several times in between changes. This hint
-			tells the implementation to put the data somewhere it won't be too painful to
-			update once in a while.
-		 */
-		Dynamic	= 0x88E8,
-
-		/*! The data store in the buffer object is likely to change frequently and will be
-			used only once (or at least very few times) in between changes. This hint tells
-			the implementation that you have time-sensitive data such as animated geometry
-			that will be used once and then replaced. It is crucial that the data be
-			placed somewhere quick to update, even at the expense of faster rendering.
-		 */
-		Stream	= 0x88E0,
-	};	// StorageHint
-
 	explicit MeshBuilder(bool isCreatedOnStack=true);
 
 	sal_override ~MeshBuilder();
@@ -260,11 +235,6 @@ protected:
 };	// MeshBuilderIM
 
 typedef IntrusivePtr<MeshBuilderIM> MeshBuilderIMPtr;
-
-class Mesh;
-
-//!	Commit the data in the MeshBuilder to a Mesh.
-MCD_RENDER_API sal_checkreturn bool commitMesh(const MeshBuilder& builder, Mesh& mesh, MeshBuilder::StorageHint storageHint);
 
 }	// namespace MCD
 

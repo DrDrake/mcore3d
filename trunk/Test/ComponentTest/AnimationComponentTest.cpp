@@ -30,7 +30,7 @@ public:
 		{	// Setup the chamfer box mesh
 			mesh = new Mesh(L"");
 			ChamferBoxBuilder chamferBoxBuilder(0.4f, 3);
-			commitMesh(chamferBoxBuilder, *mesh, MeshBuilder::Static);
+			commitMesh(chamferBoxBuilder, *mesh, Mesh::Static);
 		}
 
 		for(size_t i=0; i<cBoxCount; ++i)

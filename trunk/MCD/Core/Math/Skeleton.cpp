@@ -6,7 +6,6 @@ namespace MCD {
 
 void Skeleton::init(size_t jointCount)
 {
-	this->jointCount = jointCount;
 	transforms.resize(jointCount, Mat44f::cIdentity);
 	parents.resize(jointCount);
 }

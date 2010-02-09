@@ -1,13 +1,11 @@
 #include "Pch.h"
 #include "MeshBuilder.h"
 #include "Mesh.h"
-#include "SemanticMap.h"
 #include "../Core/Math/Vec2.h"
 #include "../Core/Math/Vec3.h"
 #include "../Core/Math/Vec4.h"
 #include "../Core/System/Log.h"
 #include "../Core/System/PtrVector.h"
-#include "../../3Party/glew/glew.h"
 #include <limits>
 #include <string.h>	// for strlen
 
@@ -357,89 +355,6 @@ bool MeshBuilderIM::addQuad(uint16_t idx1, uint16_t idx2, uint16_t idx3, uint16_
 		return false;
 	if(!addTriangle(idx3, idx4, idx1))
 		return false;
-	return true;
-}
-
-static int toGlType(MeshBuilder::ElementType type)
-{
-	static const int mapping[] = {
-		-1,
-		GL_INT, GL_UNSIGNED_INT,
-		GL_BYTE, GL_UNSIGNED_BYTE,
-		GL_SHORT, GL_UNSIGNED_SHORT,
-		GL_FLOAT, GL_DOUBLE,
-		-1
-	};
-
-	return mapping[type - MeshBuilder::TYPE_NOT_USED];
-}
-
-bool commitMesh(const MeshBuilder& builder, Mesh& mesh, MeshBuilder::StorageHint storageHint)
-{
-	const size_t attributeCount = builder.attributeCount();
-	const size_t bufferCount = builder.bufferCount();
-
-	if(attributeCount > Mesh::cMaxAttributeCount)
-		return false;
-	if(bufferCount > Mesh::cMaxBufferCount)
-		return false;
-
-	MCD_ASSERT(attributeCount > 0 && bufferCount > 0);
-	MCD_ASSERT(builder.vertexCount() > 0 && builder.indexCount() > 0);
-
-	mesh.clear();
-
-	mesh.bufferCount = bufferCount;
-	mesh.attributeCount = attributeCount;
-	mesh.indexCount = builder.indexCount();
-	mesh.vertexCount = builder.vertexCount();
-
-	for(uint8_t i=0; i<attributeCount; ++i)
-	{
-		size_t count, stride, bufferId, offset;
-		MeshBuilder::Semantic semantic;
-
-		if(!builder.getAttributePointer(i, &count, &stride, &bufferId, &offset, &semantic))
-			continue;
-
-		Mesh::Attribute& a = mesh.attributes[i];
-		a.dataType = toGlType(semantic.elementType);
-		a.elementSize = uint16_t(semantic.elementSize);
-		a.elementCount = uint8_t(semantic.elementCount);
-		a.bufferIndex = uint8_t(bufferId);
-		a.byteOffset = uint8_t(offset);
-		a.stride = uint16_t(stride);
-		a.semantic = semantic.name;
-
-		// Setup the short cut attribute indices
-		const SemanticMap& semanticMap = SemanticMap::getSingleton();
-		if(strcmp(semantic.name, semanticMap.index().name) == 0)
-			mesh.indexAttrIdx = i;
-		else if(strcmp(semantic.name, semanticMap.position().name) == 0)
-			mesh.positionAttrIdx = i;
-		else if(strcmp(semantic.name, semanticMap.normal().name) == 0)
-			mesh.normalAttrIdx = i;
-		else if(strcmp(semantic.name, semanticMap.uv(0, a.elementCount).name) == 0)
-			mesh.uv0AttrIdx = i;
-		else if(strcmp(semantic.name, semanticMap.uv(1, a.elementCount).name) == 0)
-			mesh.uv1AttrIdx = i;
-		else if(strcmp(semantic.name, semanticMap.uv(2, a.elementCount).name) == 0)
-			mesh.uv2AttrIdx = i;
-	}
-
-	for(size_t i=0; i<bufferCount; ++i)
-	{
-		uint* handle = mesh.handles[i].get();
-		if(!*handle)
-			glGenBuffers(1, handle);
-
-		const GLenum verOrIdxBuf = i == 0 ? GL_ELEMENT_ARRAY_BUFFER : GL_ARRAY_BUFFER;
-		glBindBuffer(verOrIdxBuf, *handle);
-		size_t sizeInByte;
-		if(const char* data = builder.getBufferPointer(i, nullptr, &sizeInByte))
-			glBufferData(verOrIdxBuf, sizeInByte, data, storageHint);
-	}
-
 	return true;
 }
 

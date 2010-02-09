@@ -144,8 +144,6 @@ void BasicGlWindow::preUpdate()
 
 	glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();
-
-
 }
 
 void BasicGlWindow::update(float deltaTime)

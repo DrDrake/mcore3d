@@ -1,5 +1,7 @@
 #include "Pch.h"
 #include "Mesh.h"
+#include "MeshBuilder.h"
+#include "SemanticMap.h"
 #include "../Core/System/Log.h"
 #include "../../3Party/glew/glew.h"
 
@@ -16,12 +18,34 @@ Mesh::~Mesh()
 	clear();
 }
 
+size_t Mesh::bufferSize(size_t bufferIndex) const
+{
+	MCD_ASSUME(bufferIndex < cMaxBufferCount);
+	if(bufferIndex >= bufferCount)
+		return 0;
+
+	size_t sum = 0;
+	for(size_t i=0; i<attributeCount; ++i) {
+		if(attributes[i].bufferIndex != bufferIndex)
+			continue;
+		sum += attributes[0].elementCount * attributes[0].elementSize;
+	}
+
+	return sum * (bufferIndex == 0 ? indexCount : vertexCount);
+}
+
 static void bindUv(int unit, const Mesh::Attribute& a, const Mesh::Handles& handles)
 {
 	glEnableClientState(GL_TEXTURE_COORD_ARRAY);
-	glClientActiveTexture(GL_TEXTURE0 + GLenum(unit));
+
+	if(unit != 0)
+		glClientActiveTexture(GL_TEXTURE0 + GLenum(unit));
+
 	glBindBuffer(GL_ARRAY_BUFFER, *handles[a.bufferIndex]);
 	glTexCoordPointer(a.elementCount, a.dataType, a.stride, (const void*)a.byteOffset);
+
+	if(unit != 0)
+		glClientActiveTexture(GL_TEXTURE0);
 }
 
 void Mesh::draw()
@@ -131,6 +155,35 @@ void Mesh::clear()
 	uv0AttrIdx = uv1AttrIdx = uv2AttrIdx = -1;
 }
 
+MeshPtr Mesh::clone(const wchar_t* name, StorageHint hint)
+{
+	MeshPtr ret = new Mesh(name);
+
+	ret->bufferCount = bufferCount;
+	ret->attributes = attributes;
+	ret->attributeCount = attributeCount;
+	ret->vertexCount = vertexCount;
+	ret->indexCount = indexCount;
+
+	ret->indexAttrIdx = indexAttrIdx;
+	ret->positionAttrIdx = positionAttrIdx;
+	ret->normalAttrIdx = normalAttrIdx;
+	ret->uv0AttrIdx = uv0AttrIdx;
+	ret->uv1AttrIdx = uv1AttrIdx;
+	ret->uv2AttrIdx = uv2AttrIdx;
+
+	MappedBuffers mapped;
+	for(size_t i=0; i<bufferCount; ++i) {
+		void* data = mapBuffer(i, mapped);
+		const GLenum verOrIdxBuf = i == 0 ? GL_ELEMENT_ARRAY_BUFFER : GL_ARRAY_BUFFER;
+		glBindBuffer(verOrIdxBuf, *ret->handles[i]);
+		glBufferData(verOrIdxBuf, bufferSize(i), data, hint);
+	}
+	unmapBuffers(mapped);
+
+	return ret;
+}
+
 void* Mesh::mapBuffer(size_t bufferIdx, MappedBuffers& mapped, MapOption mapOptions)
 {
 	if(bufferIdx >= bufferCount)
@@ -171,6 +224,89 @@ void Mesh::unmapBuffers(MappedBuffers& mapped)
 
 		mapped[i] = nullptr;	// Just feeling set it to null is more safe :)
 	}
+}
+
+static int toGlType(MeshBuilder::ElementType type)
+{
+	static const int mapping[] = {
+		-1,
+		GL_INT, GL_UNSIGNED_INT,
+		GL_BYTE, GL_UNSIGNED_BYTE,
+		GL_SHORT, GL_UNSIGNED_SHORT,
+		GL_FLOAT, GL_DOUBLE,
+		-1
+	};
+
+	return mapping[type - MeshBuilder::TYPE_NOT_USED];
+}
+
+bool commitMesh(const MeshBuilder& builder, Mesh& mesh, Mesh::StorageHint storageHint)
+{
+	const size_t attributeCount = builder.attributeCount();
+	const size_t bufferCount = builder.bufferCount();
+
+	if(attributeCount > Mesh::cMaxAttributeCount)
+		return false;
+	if(bufferCount > Mesh::cMaxBufferCount)
+		return false;
+
+	MCD_ASSERT(attributeCount > 0 && bufferCount > 0);
+	MCD_ASSERT(builder.vertexCount() > 0 && builder.indexCount() > 0);
+
+	mesh.clear();
+
+	mesh.bufferCount = bufferCount;
+	mesh.attributeCount = attributeCount;
+	mesh.indexCount = builder.indexCount();
+	mesh.vertexCount = builder.vertexCount();
+
+	for(uint8_t i=0; i<attributeCount; ++i)
+	{
+		size_t count, stride, bufferId, offset;
+		MeshBuilder::Semantic semantic;
+
+		if(!builder.getAttributePointer(i, &count, &stride, &bufferId, &offset, &semantic))
+			continue;
+
+		Mesh::Attribute& a = mesh.attributes[i];
+		a.dataType = toGlType(semantic.elementType);
+		a.elementSize = uint16_t(semantic.elementSize);
+		a.elementCount = uint8_t(semantic.elementCount);
+		a.bufferIndex = uint8_t(bufferId);
+		a.byteOffset = uint8_t(offset);
+		a.stride = uint16_t(stride);
+		a.semantic = semantic.name;
+
+		// Setup the short cut attribute indices
+		const SemanticMap& semanticMap = SemanticMap::getSingleton();
+		if(strcmp(semantic.name, semanticMap.index().name) == 0)
+			mesh.indexAttrIdx = i;
+		else if(strcmp(semantic.name, semanticMap.position().name) == 0)
+			mesh.positionAttrIdx = i;
+		else if(strcmp(semantic.name, semanticMap.normal().name) == 0)
+			mesh.normalAttrIdx = i;
+		else if(strcmp(semantic.name, semanticMap.uv(0, a.elementCount).name) == 0)
+			mesh.uv0AttrIdx = i;
+		else if(strcmp(semantic.name, semanticMap.uv(1, a.elementCount).name) == 0)
+			mesh.uv1AttrIdx = i;
+		else if(strcmp(semantic.name, semanticMap.uv(2, a.elementCount).name) == 0)
+			mesh.uv2AttrIdx = i;
+	}
+
+	for(size_t i=0; i<bufferCount; ++i)
+	{
+		uint* handle = mesh.handles[i].get();
+		if(!*handle)
+			glGenBuffers(1, handle);
+
+		const GLenum verOrIdxBuf = i == 0 ? GL_ELEMENT_ARRAY_BUFFER : GL_ARRAY_BUFFER;
+		glBindBuffer(verOrIdxBuf, *handle);
+		size_t sizeInByte;
+		if(const char* data = builder.getBufferPointer(i, nullptr, &sizeInByte))
+			glBufferData(verOrIdxBuf, sizeInByte, data, storageHint);
+	}
+
+	return true;
 }
 
 }	// namespace MCD
