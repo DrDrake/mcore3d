@@ -8,7 +8,14 @@ namespace MCD {
 class Mesh;
 class SkeletonPose;
 
-MCD_RENDER_API void skinningPositionOnly(const SkeletonPose& skeleton, Mesh& mesh, Mesh& basePoseMesh, size_t jointIndex, size_t weightIndex);
+MCD_RENDER_API void skinning(
+	const SkeletonPose& skeleton,
+	Mesh& mesh,
+	Mesh& basePoseMesh,
+	size_t jointIndex,
+	size_t weightIndex,
+	int normalIndex	// Pass -1 if no need to skin the normal (assumming both mesh has the same normal attribute index)
+);
 
 }	// namespace MCD
 

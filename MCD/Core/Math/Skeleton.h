@@ -103,9 +103,18 @@ protected:
 
 typedef IntrusivePtr<SkeletonAnimation> SkeletonAnimationPtr;
 
-MCD_CORE_API void skinningPositionOnly(
+MCD_CORE_API void skinning(
 	const StrideArray<Vec3f>& outPos,
-	const StrideArray<const Vec3f>& basePose,
+	const StrideArray<const Vec3f>& basePosePos,
+	const StrideArray<const Mat44f>& joints,
+	const StrideArray<const Vec4<uint8_t> >& jointIndice,
+	const StrideArray<const Vec4f>& weight);
+
+MCD_CORE_API void skinning(
+	const StrideArray<Vec3f>& outPos,
+	const StrideArray<Vec3f>& outNormal,
+	const StrideArray<const Vec3f>& basePosePos,
+	const StrideArray<const Vec3f>& basePoseNormal,
 	const StrideArray<const Mat44f>& joints,
 	const StrideArray<const Vec4<uint8_t> >& jointIndice,
 	const StrideArray<const Vec4f>& weight);
