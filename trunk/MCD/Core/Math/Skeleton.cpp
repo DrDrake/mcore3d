@@ -4,21 +4,52 @@
 
 namespace MCD {
 
-void Skeleton::init(size_t jointCount)
+void SkeletonPose::init(size_t jointCount)
 {
 	transforms.resize(jointCount, Mat44f::cIdentity);
-	parents.resize(jointCount);
 }
 
-void SkeletonAnimation::applyTo(Skeleton& skeleton, int firstJoint, int lastJoint)
+Skeleton::Skeleton(const Path& fileId)
+	: Resource(fileId)
+{}
+
+void Skeleton::init(size_t jointCount)
 {
+	parents.resize(jointCount);
+	names.resize(jointCount);
+}
+
+int Skeleton::findJointByName(const wchar_t* name) const
+{
+	for(size_t i=0; i<names.size(); ++i)
+		if(names[i] == name )
+			return int(i);
+	return -1;
+}
+
+Skeleton::~Skeleton()
+{}
+
+SkeletonAnimation::SkeletonAnimation(const Path& fileId)
+	: Resource(fileId)
+{}
+
+SkeletonAnimation::~SkeletonAnimation()
+{}
+
+void SkeletonAnimation::applyTo(SkeletonPose& pose, int firstJoint, int lastJoint)
+{
+	if(!skeleton)
+		return;
+
 	if(firstJoint < 0) firstJoint = 0;
-	if(lastJoint < 0) lastJoint = skeleton.transforms.size() - 1;
+	if(lastJoint < 0) lastJoint = pose.transforms.size() - 1;
 
 	MCD_ASSERT(firstJoint < lastJoint);
-	MCD_ASSERT(lastJoint < int(skeleton.transforms.size()));
+	MCD_ASSERT(lastJoint < int(pose.transforms.size()));
+	MCD_ASSERT(pose.jointCount() == skeleton->parents.size());
 
-	size_t trackPerJoint = anim.subtrackCount() / skeleton.transforms.size();
+	size_t trackPerJoint = anim.subtrackCount() / pose.transforms.size();
 	if(trackPerJoint < 0)
 		return;
 
@@ -39,8 +70,34 @@ void SkeletonAnimation::applyTo(Skeleton& skeleton, int firstJoint, int lastJoin
 
 			m.setMat33(tmp);
 			m.setTranslation(reinterpret_cast<const Vec3f&>(result[i * trackPerJoint + Translation]));
-			skeleton.transforms[i] = skeleton.transforms[skeleton.parents[i]] * m;
+			pose.transforms[i] = pose.transforms[skeleton->parents[i]] * m;
 		}
+	}
+}
+
+void skinningPositionOnly(
+	const StrideArray<Vec3f>& outPos,
+	const StrideArray<const Vec3f>& basePose,
+	const StrideArray<const Mat44f>& joints,
+	const StrideArray<const Vec4<uint8_t> >& jointIndice,
+	const StrideArray<const Vec4f>& weight)
+{
+	MCD_ASSERT(outPos.size == basePose.size);
+	MCD_ASSERT(jointIndice.size == weight.size);
+	MCD_ASSERT(outPos.size == weight.size);
+
+	for(size_t i=0; i<outPos.size; ++i) {
+		Vec3f p(0);
+		for(size_t j=0; j<4; ++j) {
+			float w = weight[i][j];
+			if(w <= 0)
+				break;
+			Vec3f tmp = basePose[i];
+			size_t jointIdx = jointIndice[i][j];
+			joints[jointIdx].transformPoint(tmp);
+			p += tmp * w;
+		}
+		outPos[i] = p;
 	}
 }
 

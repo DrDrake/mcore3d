@@ -108,20 +108,13 @@ public:
 		: data((char*)const_cast<T*>(rhs.getPtr())), size(rhs.size), stride(rhs.stride)
 	{}
 
-	T& operator[](size_t i)
+	T& operator[](size_t i) const
 	{
 		MCD_ASSUME(i < size);
 		return *reinterpret_cast<T*>(data + i*stride);
 	}
 
-	const T& operator[](size_t i) const
-	{
-		MCD_ASSUME(i < size);
-		return *reinterpret_cast<T*>(data + i*stride);
-	}
-
-	T* getPtr() { return reinterpret_cast<T*>(data); }
-	const T* getPtr() const { return reinterpret_cast<const T*>(data); }
+	T* getPtr() const { return reinterpret_cast<T*>(data); }
 
 	size_t sizeInByte() const { return size * stride; }
 
@@ -151,20 +144,13 @@ public:
 #endif
 	{}
 
-	T& operator[](size_t i)
+	T& operator[](size_t i) const
 	{
 		MCD_ASSUME(i < size);
 		return *reinterpret_cast<T*>(data + i*stride);
 	}
 
-	const T& operator[](size_t i) const
-	{
-		MCD_ASSUME(i < size);
-		return *reinterpret_cast<T*>(data + i*stride);
-	}
-
-	T* getPtr() { return reinterpret_cast<T*>(data); }
-	const T* getPtr() const { return reinterpret_cast<const T*>(data); }
+	T* getPtr() const { return reinterpret_cast<T*>(data); }
 
 	size_t sizeInByte() const { return size * stride; }
 

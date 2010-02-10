@@ -3,17 +3,15 @@
 
 #include "Mat44.h"
 #include "AnimationInstance.h"
+#include "../System/Resource.h"
 
 namespace MCD {
 
 /*!	Skeleton, consist of a number of joints which are represented by a transformation matrix.
 	\sa http://cache-www.intel.com/cd/00/00/29/37/293749_293749.pdf
 	\todo http://www.unrealtechnology.com/features.php?ref=animation
-
-	\note Applying the skeleton is implemented in the Render module,
-		since there may have software or hardware method.
  */
-class MCD_CORE_API Skeleton
+class MCD_CORE_API SkeletonPose
 {
 public:
 // Operations
@@ -28,10 +26,6 @@ public:
 	 */
 	std::vector<Mat44f> transforms;
 
-	/*!	Array of index specifing the parent of a joint.
-		The root joint will indicate by an index which point to itself, ie at index = 0.
-	 */
-	std::vector<size_t> parents;
 
 	//!	Usefull for getting back the joint's location, even the base pose is already baked into the animation.
 	std::vector<Mat44f> basePoseInverse;
@@ -43,29 +37,56 @@ public:
 
 	Mat44f& rootJointTransform() { return transforms[0]; }
 	const Mat44f& rootJointTransform() const { return transforms[0]; }
+};	// SkeletonPose
+
+class MCD_CORE_API Skeleton : public Resource
+{
+public:
+	explicit Skeleton(const Path& fileId);
+
+// Operations
+	//!	Resize the various array.
+	void init(size_t jointCount);
+
+	//!	Returns -1 if the name cannot be found.
+	int findJointByName(const wchar_t* name) const;
+
+// Attributes
+	/*!	Array of index specifing the parent of a joint.
+		The root joint will indicate by an index which point to itself, ie at index = 0.
+	 */
+	std::vector<size_t> parents;
+
+	//!	Name of each joint
+	std::vector<std::wstring> names;
+
+protected:
+	sal_override ~Skeleton();
 };	// Skeleton
 
-class MCD_CORE_API SkeletonAnimation
+typedef IntrusivePtr<Skeleton> SkeletonPtr;
+
+class MCD_CORE_API SkeletonAnimation : public Resource
 {
+protected:
 public:
 	enum TrackIdx {
 		Translation = 0,
 		Rotation = 1
 	};
 
-	/*!	Transforms local joint matrices (relative to parent joints) to global joint matrices (object or world space).
+	explicit SkeletonAnimation(const Path& fileId);
 
-		The routine works on skeleton::transforms and transforms the joint matrices in-place.
+	/*!	Transforms local joint matrices (relative to parent joints) to global joint matrices (object or world space).
+		The routine works on SkeletonPose::transforms and transforms the joint matrices in-place.
 		Furthermore the index of the first and last joint of a sequence of joints that need to be
 		transformed are specified. This allows the complete skeleton to be split up in multiple
 		sequences of joints that are transformed. Joints inbetween such sequences can then be
 		transformed separately and additional modifications can be applied where necessary.
 
-		The root joints' transform should be assigned before every call of this function.
-
-		Assertion fail if the skeleton's size didn't match the track, or firstJoint/lastJoint is out of range.
+		Assertion fail if the pose's size didn't match the track, or firstJoint/lastJoint is out of range.
 	 */
-	void applyTo(Skeleton& skeleton, int firstJoint=-1, int lastJoint=-1);
+	void applyTo(SkeletonPose& pose, int firstJoint=-1, int lastJoint=-1);
 
 	/*!	The track suppose to have sub-track(s) of joint's rotation, translation and or scale.
 		Assumptions:
@@ -73,7 +94,21 @@ public:
 			The order of the sub-tracks are assumed to be rotation, translation and then scale.
 	 */
 	AnimationInstance anim;
+
+	SkeletonPtr skeleton;
+
+protected:
+	sal_override ~SkeletonAnimation();
 };	// SkeletonAnimation
+
+typedef IntrusivePtr<SkeletonAnimation> SkeletonAnimationPtr;
+
+MCD_CORE_API void skinningPositionOnly(
+	const StrideArray<Vec3f>& outPos,
+	const StrideArray<const Vec3f>& basePose,
+	const StrideArray<const Mat44f>& joints,
+	const StrideArray<const Vec4<uint8_t> >& jointIndice,
+	const StrideArray<const Vec4f>& weight);
 
 }	// namespace MCD
 

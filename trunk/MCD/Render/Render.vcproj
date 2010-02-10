@@ -354,6 +354,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\Skinning.h"
+				>
+			</File>
+			<File
 				RelativePath=".\TangentSpaceBuilder.h"
 				>
 			</File>
@@ -546,6 +550,10 @@
 			</File>
 			<File
 				RelativePath=".\ShaderProgram.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\Skinning.cpp"
 				>
 			</File>
 			<File
