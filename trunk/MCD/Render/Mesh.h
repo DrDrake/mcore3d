@@ -143,6 +143,7 @@ public:
 	 */
 	template<typename T> StrideArray<T> mapAttribute(size_t attributeIdx, MappedBuffers& mapped, MapOption mapOptions=Read)
 	{
+		MCD_ASSUME(attributeIdx < attributeCount);
 		const Attribute& a = attributes[attributeIdx];
 		MCD_ASSERT(a.elementSize * a.elementCount == sizeof(T));
 		size_t count = (attributeIdx == size_t(indexAttrIdx)) ? indexCount : vertexCount;
