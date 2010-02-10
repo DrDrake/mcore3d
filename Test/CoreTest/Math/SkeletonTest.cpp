@@ -48,33 +48,36 @@ TEST(SkeletonTest)
 		track->releaseWriteLock();
 	}
 
-	Skeleton skeleton;
-	skeleton.init(jointCount);
+	SkeletonPtr skeleton = new Skeleton(L"");
+	skeleton->init(jointCount);
+	skeleton->parents[0] = 0;
+	skeleton->parents[1] = 0;
+	skeleton->parents[2] = 1;
 
-	skeleton.parents[0] = 0;
-	skeleton.parents[1] = 0;
-	skeleton.parents[2] = 1;
+	SkeletonAnimationPtr skAnimation = new SkeletonAnimation(L"");
+	skAnimation->skeleton = skeleton;
 
-	SkeletonAnimation skAnimation;
-	skAnimation.anim.addTrack(*track, 1);
+	skAnimation->anim.addTrack(*track, 1);
+	skAnimation->anim.time = 0.0f;
+	skAnimation->anim.update();
 
-	skAnimation.anim.time = 0.0f;
-	skAnimation.anim.update();
-	skeleton.rootJointTransform() = Mat44f::cIdentity;
-	skeleton.rootJointTransform().translateBy(Vec3f::c001);	// Set the skeleton's object transform
-	skAnimation.applyTo(skeleton);
+	SkeletonPose pose;
+	pose.init(jointCount);
+	pose.rootJointTransform() = Mat44f::cIdentity;
+	pose.rootJointTransform().translateBy(Vec3f::c001);	// Set the skeleton pose's object transform
+	skAnimation->applyTo(pose);
 
-	CHECK(skeleton.transforms[0].translation() == Vec3f(0, 0.5f, 1));
-	CHECK(skeleton.transforms[1].translation() == Vec3f(0, 1.5f, 1));
-	CHECK(skeleton.transforms[2].translation() == Vec3f(0, 2.5f, 1));
+	CHECK(pose.transforms[0].translation() == Vec3f(0, 0.5f, 1));
+	CHECK(pose.transforms[1].translation() == Vec3f(0, 1.5f, 1));
+	CHECK(pose.transforms[2].translation() == Vec3f(0, 2.5f, 1));
 
-	skAnimation.anim.time = 0.5f;
-	skAnimation.anim.update();
-	skeleton.rootJointTransform() = Mat44f::cIdentity;
-	skeleton.rootJointTransform().translateBy(Vec3f(0, 0, 2));	// Set the skeleton's object transform
-	skAnimation.applyTo(skeleton);
+	skAnimation->anim.time = 0.5f;
+	skAnimation->anim.update();
+	pose.rootJointTransform() = Mat44f::cIdentity;
+	pose.rootJointTransform().translateBy(Vec3f(0, 0, 2));	// Set the skeleton's object transform
+	skAnimation->applyTo(pose);
 
-	CHECK(skeleton.transforms[0].translation() == Vec3f(0, 0.5f, 2));
-	CHECK(skeleton.transforms[1].translation().isNearEqual(Vec3f(-0.15643446f, 1.4876883f, 2)));
-	CHECK(skeleton.transforms[2].translation().isNearEqual(Vec3f(-0.46545148f, 2.4387448f, 2)));
+	CHECK(pose.transforms[0].translation() == Vec3f(0, 0.5f, 2));
+	CHECK(pose.transforms[1].translation().isNearEqual(Vec3f(-0.15643446f, 1.4876883f, 2)));
+	CHECK(pose.transforms[2].translation().isNearEqual(Vec3f(-0.46545148f, 2.4387448f, 2)));
 }

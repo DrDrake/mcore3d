@@ -28,7 +28,7 @@ size_t Mesh::bufferSize(size_t bufferIndex) const
 	for(size_t i=0; i<attributeCount; ++i) {
 		if(attributes[i].bufferIndex != bufferIndex)
 			continue;
-		sum += attributes[0].elementCount * attributes[0].elementSize;
+		sum += attributes[i].elementCount * attributes[i].elementSize;
 	}
 
 	return sum * (bufferIndex == 0 ? indexCount : vertexCount);
