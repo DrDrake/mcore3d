@@ -6,6 +6,7 @@
 #include "MeshBuilder.h"
 #include "Model.h"
 #include "SemanticMap.h"
+#include "../Core/System/Log.h"
 #include "../Core/System/MemoryProfiler.h"
 #include "../Core/System/Mutex.h"
 #include "../Core/System/PtrVector.h"
@@ -403,7 +404,9 @@ void OgreMeshLoader::Impl::commit(Resource& resource)
 	MCD_FOREACH(const Geometry& geo, mGeometry)
 	{
 		MeshPtr mesh = new Mesh(geo.name);
-		commitMesh(*geo.meshBuilder, *mesh, Mesh::Static);
+
+		if(!commitMesh(*geo.meshBuilder, *mesh, Mesh::Static))
+			Log::write(Log::Warn, L"Failed to commit mesh");
 
 		std::auto_ptr<Model::MeshAndMaterial> meshMat(new Model::MeshAndMaterial);
 		meshMat->mesh = mesh;

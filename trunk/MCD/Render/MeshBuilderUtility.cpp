@@ -95,10 +95,10 @@ void MeshBuilderUtility::split(size_t splitCount, MeshBuilder& srcBuilder, MeshB
 		MCD_ASSERT(uniqueVertexCount <= srcIdx.size);
 		MCD_VERIFY(outBuilders[i]->resizeVertexBuffer(uniqueVertexCount));
 
-		copyVertexAttributes(
+		MCD_VERIFY(copyVertexAttributes(
 			srcBuilder, *outBuilders[i],
 			FixStrideArray<uint16_t>(&uniqueIdx[0], uniqueIdx.size())
-		);
+		));
 	}
 }
 

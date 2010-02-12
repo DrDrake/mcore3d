@@ -62,7 +62,7 @@ TEST(SkeletonTest)
 	SkeletonAnimationPtr skAnimation = new SkeletonAnimation(L"");
 	skAnimation->skeleton = skeleton;
 
-	skAnimation->anim.addTrack(*track, 1);
+	CHECK(skAnimation->anim.addTrack(*track, 1));
 	skAnimation->anim.time = 0.0f;
 	skAnimation->anim.update();
 

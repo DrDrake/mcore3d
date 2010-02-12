@@ -272,7 +272,7 @@ public:
 
 		// load object mesh
 		MeshPtr mesh = new Mesh(L"");
-		commitMesh(ChamferBoxBuilder(0.5f, 3, true), *mesh, Mesh::Static);
+		MCD_VERIFY(commitMesh(ChamferBoxBuilder(0.5f, 3, true), *mesh, Mesh::Static));
 
 		// load object effect
 		EffectPtr effect = dynamic_cast<Effect*>(mResourceManager.load(L"Material/ambientcube.fx.xml").get());

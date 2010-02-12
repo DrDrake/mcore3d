@@ -94,7 +94,7 @@ TEST(ThreadedPhysicsComponentTest)
 			// Setup the chamfer box mesh
 			MeshPtr ballMesh = new Mesh(L"");
 			ChamferBoxBuilder chamferBoxBuilder(1.0f, 2);
-			commitMesh(chamferBoxBuilder, *ballMesh, Mesh::Static);
+			MCD_VERIFY(commitMesh(chamferBoxBuilder, *ballMesh, Mesh::Static));
 
 			mBallInstMesh = new InstancedMesh(ballMesh, static_cast<Effect*>(mResourceManager.load(L"Material/hwinst.fx.xml").get()));
 
