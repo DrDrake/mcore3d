@@ -99,8 +99,10 @@ float AnimationTrack::totalTime(size_t index) const
 {
 	MCD_ASSERT(mMutex.isLocked());
 
-	if(index < subtrackCount())
-		return keyframes[subtracks[index].frameCount - 1].time;
+	if(index < subtrackCount()) {
+		KeyFrames f = const_cast<AnimationTrack*>(this)->getKeyFramesForSubtrack(index);
+		return f[subtracks[index].frameCount - 1].time;
+	}
 	return 0;
 }
 

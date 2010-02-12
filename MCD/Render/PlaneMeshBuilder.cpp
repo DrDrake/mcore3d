@@ -21,7 +21,7 @@ PlaneMeshBuilder::PlaneMeshBuilder(float width, float height, uint16_t widthSegm
 	const uint16_t vertexCount = vxCount * vyCount;	// Number of vertex for the whole plane
 	const uint16_t triCount = 2 * widthSegmentCount * heightSegmentCount;
 
-	reserveBuffers(vertexCount, triCount * 3);
+	MCD_VERIFY(reserveBuffers(vertexCount, triCount * 3));
 
 	const Vec3f startingCornerXY(-width / 2.0f, 0, -height / 2.0f);
 	const Vec3f deltaX(width / widthSegmentCount, 0, 0);
@@ -39,11 +39,11 @@ PlaneMeshBuilder::PlaneMeshBuilder(float width, float height, uint16_t widthSegm
 	{
 		for(uint16_t y = 0; y < vyCount; ++y)
 		{
-			vertexAttribute(posId, &vXY);
-			vertexAttribute(normalId, &Vec3f::c010);
-			vertexAttribute(uvId, &vUV);
+			MCD_VERIFY(vertexAttribute(posId, &vXY));
+			MCD_VERIFY(vertexAttribute(normalId, &Vec3f::c010));
+			MCD_VERIFY(vertexAttribute(uvId, &vUV));
 			if(includeTangents)
-				vertexAttribute(tangentId, &Vec3f::c001);
+				MCD_VERIFY(vertexAttribute(tangentId, &Vec3f::c001));
 
 			addVertex();
 			vXY += deltaX;
@@ -61,12 +61,12 @@ PlaneMeshBuilder::PlaneMeshBuilder(float width, float height, uint16_t widthSegm
 		uint16_t indexedVertexCount = (y * vxCount);
 		for(uint16_t x = indexedVertexCount; x < indexedVertexCount + widthSegmentCount; ++x)
 		{       
-			addQuad(
+			MCD_VERIFY(addQuad(
 				x,
 				x + vxCount,
 				x + vxCount + 1,
 				x + 1
-			);
+			));
 		}
 	}
 }

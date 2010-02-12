@@ -943,7 +943,10 @@ void Max3dsLoader::Impl::commit(Resource& resource)
 				continue;
 
 			MeshPtr mesh = new Mesh(L"");
-			commitMesh(*subObject.splittedBuilder, *mesh, storageHint);
+			if(!commitMesh(*subObject.splittedBuilder, *mesh, storageHint)) {
+				Log::write(Log::Warn, L"Failed to commit mesh");
+				continue;
+			}
 
 			// Assign material
 			subObject.material->init();

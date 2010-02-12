@@ -176,7 +176,10 @@ MeshPtr Mesh::clone(const wchar_t* name, StorageHint hint)
 	for(size_t i=0; i<bufferCount; ++i) {
 		void* data = mapBuffer(i, mapped);
 		const GLenum verOrIdxBuf = i == 0 ? GL_ELEMENT_ARRAY_BUFFER : GL_ARRAY_BUFFER;
-		glBindBuffer(verOrIdxBuf, *ret->handles[i]);
+		uint* handle = ret->handles[i].get();
+		MCD_ASSUME(handle);
+		glGenBuffers(1, handle);
+		glBindBuffer(verOrIdxBuf, *handle);
 		glBufferData(verOrIdxBuf, bufferSize(i), data, hint);
 	}
 	unmapBuffers(mapped);
@@ -296,6 +299,7 @@ bool commitMesh(const MeshBuilder& builder, Mesh& mesh, Mesh::StorageHint storag
 	for(size_t i=0; i<bufferCount; ++i)
 	{
 		uint* handle = mesh.handles[i].get();
+		MCD_ASSUME(handle);
 		if(!*handle)
 			glGenBuffers(1, handle);
 
