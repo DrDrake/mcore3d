@@ -15,30 +15,35 @@ TEST(SkeletonTest)
 
 	static const size_t jointCount = 3;
 	static const size_t frameCount = 2;
+	static const size_t subtrackCount = jointCount * 2;
 
 	{	track->acquireWriteLock();
 
 		// Number of tracks = number of joint * attribute count (which is 2 because of translation and rotation)
-		CHECK(track->init(frameCount, jointCount * 2));
-
-		track->keyframeTimes[0] = 0;
-		track->keyframeTimes[1] = 1;
+		size_t tmp[subtrackCount] = { frameCount };
+		for(size_t i=0; i<subtrackCount; ++i)
+			tmp[i] = frameCount;
+		CHECK(track->init(StrideArray<const size_t>(tmp, subtrackCount)));
 
 		// Setting up the transform for each joint relative to it's parent joint.
 		for(size_t i=0; i<track->subtrackCount(); ++i) {
+			AnimationTrack::KeyFrames frames = track->getKeyFramesForSubtrack(i);
+
+			// Setup time
+			for(size_t j=0; j<frames.size; ++j)
+				frames[j].time = float(j);
+
 			// Setup translation
 			if(i % 2 == 0) {
-				track->subtrackFlags[i] = AnimationTrack::Linear;
-				for(size_t j=0; j<track->keyframeCount(); ++j) {
-					AnimationTrack::KeyFrames frames = track->getKeyFramesForSubtrack(i);
+				track->subtracks[i].flag = AnimationTrack::Linear;
+				for(size_t j=0; j<frames.size; ++j) {
 					reinterpret_cast<Vec3f&>(frames[j]) = Vec3f(0, i == 0 ? 0.5f : 1, 0);
 				}
 			}
 			// Setup rotation
 			else {
-				track->subtrackFlags[i] = AnimationTrack::Slerp;
-				for(size_t j=0; j<track->keyframeCount(); ++j) {
-					AnimationTrack::KeyFrames frames = track->getKeyFramesForSubtrack(i);
+				track->subtracks[i].flag = AnimationTrack::Slerp;
+				for(size_t j=0; j<frames.size; ++j) {
 					Quaternionf& q = reinterpret_cast<Quaternionf&>(frames[j]);
 					q.fromAxisAngle(Vec3f::c001, Mathf::cPi() * j / 10);	// Rotate around z-axis anti-clockwise for each key frame
 				}

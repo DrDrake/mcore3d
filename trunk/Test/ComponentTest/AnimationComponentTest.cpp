@@ -118,10 +118,19 @@ public:
 		// Manually creat the animation track
 		animationTrack->acquireWriteLock();
 
-		MCD_VERIFY(animationTrack->init(cFrameCount, 3));
+		const size_t cSubtrackCount = 3;
+		size_t tmp[cSubtrackCount] = { cFrameCount };
+		for(size_t i=0; i<cSubtrackCount; ++i)
+			tmp[i] = cFrameCount;
 
-		for(size_t i=0; i<animationTrack->keyframeCount(); ++i)
-			animationTrack->keyframeTimes[i] = float(i);
+		MCD_VERIFY(animationTrack->init(StrideArray<const size_t>(tmp, cSubtrackCount)));
+
+		// Assign the time of each frame
+		for(size_t i=0; i<cSubtrackCount; ++i) {
+			AnimationTrack::KeyFrames frames = animationTrack->getKeyFramesForSubtrack(i);
+			for(size_t j=0; j<frames.size; ++j)
+				frames[j].time = float(j);
+		}
 
 		// Setup position animation
 		AnimationTrack::KeyFrames frames = animationTrack->getKeyFramesForSubtrack(0);
@@ -133,7 +142,7 @@ public:
 		reinterpret_cast<Vec3f&>(frames[cFrameCount-1]) = reinterpret_cast<Vec3f&>(frames[0]);
 
 		// Setup rotation animation
-		animationTrack->subtrackFlags[1] = AnimationTrack::Slerp;
+		animationTrack->subtracks[1].flag = AnimationTrack::Slerp;
 		frames = animationTrack->getKeyFramesForSubtrack(1);
 		for(size_t i=0; i<cFrameCount; ++i)
 			reinterpret_cast<Quaternionf&>(frames[i]) = randomQuaternion();

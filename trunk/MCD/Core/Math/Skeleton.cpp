@@ -60,7 +60,7 @@ void SkeletonAnimation::applyTo(SkeletonPose& pose, int firstJoint, int lastJoin
 
 		// NOTE: Accessing interpolatedResult will cause race condition with animation thread,
 		// but it's fine for smoothing varing data.
-		const AnimationTrack::KeyFrames& result = anim.interpolatedResult;
+		const AnimationInstance::KeyFrames& result = anim.weightedResult;
 
 		MCD_ASSERT(result.data && "Call AnimationInstance::update() before applying skeleton animation");
 

@@ -14,6 +14,22 @@ namespace MCD {
 class MCD_CORE_API AnimationInstance
 {
 public:
+	struct KeyFrame
+	{
+		float v[4];
+	};	// KeyFrame
+
+	struct WeightedTrack
+	{
+		float weight;
+		float frameRate;
+		AnimationTrackPtr track;
+	};	// WeightedTrack
+
+	typedef FixStrideArray<KeyFrame> KeyFrames;
+	typedef AnimationTrack::Interpolation Interpolation;
+	typedef AnimationTrack::Interpolations Interpolations;
+
 	AnimationInstance();
 
 	~AnimationInstance();
@@ -23,6 +39,7 @@ public:
 	AnimationInstance& operator=(const AnimationInstance& rhs);
 
 // Operations
+	//!	Calculat the interpolation results according to the member variable \em time.
 	void update();
 
 	/*!	May fail if the sub-track count are not matched.
@@ -37,13 +54,6 @@ public:
 	void normalizeWeight();
 
 // Attributes
-	struct WeightedTrack
-	{
-		float weight;
-		float frameRate;
-		AnimationTrackPtr track;
-	};	// WeightedTrack
-
 	size_t trackCount() const;
 
 	size_t subtrackCount() const;
@@ -61,8 +71,11 @@ public:
 	//! Ok, this simple variable need not to be absolutely thread-safe.
 	float time;
 
-	// TODO: Store AnimationTrack::frame2Idx as an optimization.
-	const AnimationTrack::KeyFrames interpolatedResult;
+	//!	The final weighted interpolation result.
+	const KeyFrames weightedResult;
+
+	//!	Store the interpolation results for individual sub-tracks.
+	const Interpolations interpolations;
 
 protected:
 	//! The cache need to recreate when new track is added.

@@ -25,8 +25,8 @@ public:
 
 		AnimationInstance::update();
 
-		// Update the Entity's transform from the interpolatedResult.
-		const AnimationTrack::KeyFrames& frames = interpolatedResult;
+		// Update the Entity's transform from the weightedResult.
+		const AnimationInstance::KeyFrames& frames = weightedResult;
 
 		// Position
 		if(frames.size > 0)

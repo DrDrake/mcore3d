@@ -7,17 +7,18 @@
 namespace MCD {
 
 AnimationInstance::AnimationInstance()
-	: time(0), interpolatedResult(nullptr, 0)
+	: time(0), weightedResult(nullptr, 0), interpolations(nullptr, 0)
 {
 }
 
 AnimationInstance::~AnimationInstance()
 {
-	delete[] interpolatedResult.getPtr();
+	delete[] weightedResult.getPtr();
+	delete[] interpolations.getPtr();
 }
 
 AnimationInstance::AnimationInstance(const AnimationInstance& rhs)
-	: time(rhs.time), interpolatedResult(nullptr, 0), mTracks(rhs.mTracks)
+	: time(rhs.time), weightedResult(nullptr, 0), interpolations(nullptr, 0), mTracks(rhs.mTracks)
 {
 }
 
@@ -31,23 +32,21 @@ AnimationInstance& AnimationInstance::operator=(const AnimationInstance& rhs)
 
 bool AnimationInstance::resetInterpolatedResult()
 {
-	delete[] interpolatedResult.getPtr();
-	const_cast<AnimationTrack::KeyFrames&>(interpolatedResult) = AnimationTrack::KeyFrames(nullptr, 0);
+	delete[] weightedResult.getPtr();
+	delete[] interpolations.getPtr();
+	const_cast<KeyFrames&>(weightedResult) = KeyFrames(nullptr, 0);
+	const_cast<Interpolations&>(interpolations) = Interpolations(nullptr, 0);
 
 	if(mTracks.empty())
 		return false;
 
-	mTracks[0].track->acquireReadLock();
 	const size_t cSubtrackCnt = mTracks[0].track->subtrackCount();
-	mTracks[0].track->releaseReadLock();
 
 	MCD_FOREACH(const WeightedTrack& wt, mTracks) {
-		wt.track->acquireReadLock();
+		AnimationTrack::ScopedReadLock readLock(*wt.track);
 
-		if(!wt.track->isCommitted()) {
-			wt.track->releaseReadLock();
+		if(!wt.track->isCommitted())
 			return false;
-		}
 
 		if(cSubtrackCnt != wt.track->subtrackCount()) {
 			Log::format(
@@ -55,56 +54,50 @@ bool AnimationInstance::resetInterpolatedResult()
 				L"Incompatible AnimationTrack: subtrack count not matched."
 				L"Animation will not be updated.");
 
-			wt.track->releaseReadLock();
 			return false;
 		}
-
-		wt.track->releaseReadLock();
 	}
 
-	const_cast<AnimationTrack::KeyFrames&>(interpolatedResult) =
-		AnimationTrack::KeyFrames(new AnimationTrack::KeyFrame[cSubtrackCnt], cSubtrackCnt);
+	const_cast<KeyFrames&>(weightedResult) =
+		KeyFrames(new KeyFrame[cSubtrackCnt], cSubtrackCnt);
+
+	const_cast<Interpolations&>(interpolations) =
+		Interpolations(new Interpolation[cSubtrackCnt], cSubtrackCnt);
 
 	return true;
 }
 
-// TODO: Optimize for single tracks (mTracks.size() == 0)?
-// TODO: Revise the memory layout (currently every frame of a single subtrack is contigous)
+// TODO: Optimize for single tracks (mTracks.size() == 1)?
 void AnimationInstance::update()
 {
 	ScopeRecursiveLock lock(mMutex);
 
-	AnimationTrack::KeyFrames& result = const_cast<AnimationTrack::KeyFrames&>(interpolatedResult);
+	KeyFrames& result = const_cast<KeyFrames&>(weightedResult);
 
 	if(!result.data && !resetInterpolatedResult())
 		return;
 
-	// Zero out interpolatedResult first
+	// Zero out weightedResult first
 	::memset(&result[0], 0, result.sizeInByte());
 
 	// We cannot use foreach here
 	const size_t cTrackCnt = mTracks.size();
 
 	for(size_t i = 0; i < cTrackCnt; ++i) {
-
 		WeightedTrack& wt = mTracks[i];
 
 		if(wt.weight == 0 || !wt.track) continue;
 
 		AnimationTrack& t = *wt.track;
 
-		t.acquireReadLock();
-
 		// Assign naturalFramerate to wt.frameRate if it is <= 0
 		if(wt.frameRate <= 0)
 			wt.frameRate = wt.track->naturalFramerate;
 
-		t.updateNoLock(time * wt.frameRate);
+		t.interpolate(time * wt.frameRate, interpolations);
 
 		for(size_t j=0; j<t.subtrackCount(); ++j)
-			reinterpret_cast<Vec4f&>(result[j]) += wt.weight * reinterpret_cast<Vec4f&>(t.interpolatedResult[j]);
-
-		t.releaseReadLock();
+			reinterpret_cast<Vec4f&>(result[j]) += wt.weight * reinterpret_cast<Vec4f&>(interpolations[j].v);
 	}
 }
 
@@ -115,9 +108,9 @@ bool AnimationInstance::addTrack(AnimationTrack& track, float weight, float fram
 	WeightedTrack t = { weight, framerate, &track };
 	mTracks.push_back(t);
 
-	// Destroy the interpolatedResult and let update() to recreate it,
-	delete[] interpolatedResult.getPtr();
-	const_cast<AnimationTrack::KeyFrames&>(interpolatedResult) = AnimationTrack::KeyFrames(nullptr, 0);
+	// Destroy the weightedResult and let update() to recreate it,
+	delete[] weightedResult.getPtr();
+	const_cast<KeyFrames&>(weightedResult) = KeyFrames(nullptr, 0);
 
 	return true;
 }
@@ -161,7 +154,7 @@ size_t AnimationInstance::subtrackCount() const
 
 AnimationInstance::WeightedTrack* AnimationInstance::getTrack(size_t index)
 {
-	if(index < mTracks.size()) return nullptr;
+	if(index >= mTracks.size()) return nullptr;
 	return &mTracks[index];
 }
 
