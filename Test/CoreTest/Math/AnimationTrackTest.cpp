@@ -16,62 +16,73 @@ TEST(AnimationTrackTest)
 		track->releaseReadLock();
 
 		track->acquireWriteLock();
-		CHECK(!track->init(0, 1));
-		CHECK(!track->init(1, 0));
-		CHECK(track->init(1, 1));
+		CHECK(!track->init(StrideArray<const size_t>(nullptr, 0)));
 		track->releaseWriteLock();
 
 		track->acquireReadLock();
 		CHECK(track->isCommitted());
-		CHECK_EQUAL(1u, track->keyframeCount());
-		CHECK_EQUAL(1u, track->subtrackCount());
+		CHECK_EQUAL(0u, track->keyframeCount(0));
+		CHECK_EQUAL(0u, track->subtrackCount());
 		track->releaseReadLock();
 	}
 
 	{	AnimationTrackPtr track = new AnimationTrack(L"");
 		
 		{	track->acquireWriteLock();
-			CHECK(track->init(3, 1));
-			CHECK(track->init(2, 1));	// init() can be invoked multiple times.
+			size_t tmp[] = { 3 };
+			CHECK(track->init(StrideArray<const size_t>(tmp, 1)));
+			CHECK_EQUAL(3u, track->keyframeCount(0));
+			CHECK_EQUAL(0u, track->keyframeCount(1));
+			CHECK_EQUAL(1u, track->subtrackCount());
 
-			track->keyframeTimes[0] = 0;
-			track->keyframeTimes[1] = 1;
+			tmp[0] = 2;
+			CHECK(track->init(StrideArray<const size_t>(tmp, 1)));	// init() can be invoked multiple times.
 
-			CHECK(track->checkValid());
-			CHECK_EQUAL(0, track->currentTime());
-			CHECK_EQUAL(AnimationTrack::Linear, track->subtrackFlags[0]);
+			CHECK_EQUAL(2u, track->keyframeCount(0));
+			CHECK_EQUAL(0u, track->keyframeCount(1));
+			CHECK_EQUAL(1u, track->subtrackCount());
 
 			AnimationTrack::KeyFrames frames = track->getKeyFramesForSubtrack(0);
+			frames[0].time = 0;
+			frames[1].time = 1;
+
+			CHECK(track->checkValid());
+			CHECK_EQUAL(AnimationTrack::Linear, track->subtracks[0].flag);
+			CHECK_EQUAL(1, track->totalTime(0));
+
 			reinterpret_cast<Vec4f&>(frames[0]) = Vec4f(1);
 			reinterpret_cast<Vec4f&>(frames[1]) = Vec4f(2);
 
 			track->releaseWriteLock();
+			CHECK_EQUAL(1, track->totalTime());
 		}
 
+		AnimationTrack::Interpolation interpolation[1];
+		AnimationTrack::Interpolations results(interpolation, 1);
 		track->acquireReadLock();
 
-		{	// Test for the update() function
-			track->updateNoLock(0.5f);
-			const Vec4f& pos = reinterpret_cast<const Vec4f&>(track->interpolatedResult[0]);
+		{	// Test for the interpolate() function
+			track->interpolateNoLock(0.5f, results);
+			const Vec4f& pos = reinterpret_cast<const Vec4f&>(results[0]);
 			CHECK(pos.isNearEqual(Vec4f(1.5f)));
 		}
 
 		{	// Try to play backward from time 0.5 back to 0.1
-			track->updateNoLock(0.0f);
-			const Vec4f& pos = reinterpret_cast<const Vec4f&>(track->interpolatedResult[0]);
+			track->interpolateNoLock(0.0f, results);
+			const Vec4f& pos = reinterpret_cast<const Vec4f&>(results[0]);
 			CHECK(pos.isNearEqual(Vec4f(1)));
 		}
 
 		{	// Try to play over totalTime() under loop mode
-			track->updateNoLock(track->totalTime() * 2);
-			const Vec4f& pos = reinterpret_cast<const Vec4f&>(track->interpolatedResult[0]);
+			track->interpolateNoLock(track->totalTime() * 2, results);
+			const Vec4f& pos = reinterpret_cast<const Vec4f&>(results[0]);
 			CHECK(pos.isNearEqual(Vec4f(1)));
 		}
 
 		{	// Try to play over totalTime() not under loop mode
 			track->loop = false;
-			track->updateNoLock(track->totalTime() * 2);
-			const Vec4f& pos = reinterpret_cast<const Vec4f&>(track->interpolatedResult[0]);
+			track->interpolateNoLock(track->totalTime() * 2, results);
+			const Vec4f& pos = reinterpret_cast<const Vec4f&>(results[0]);
 			CHECK(pos.isNearEqual(Vec4f(2)));
 		}
 
@@ -84,13 +95,15 @@ TEST(Slerp_AnimationTrackTest)
 	AnimationTrackPtr track = new AnimationTrack(L"");
 	
 	{	track->acquireWriteLock();
-		CHECK(track->init(2, 1));
-
-		track->keyframeTimes[0] = 0;
-		track->keyframeTimes[1] = 1;
-		track->subtrackFlags[0] = AnimationTrack::Slerp;
+		size_t tmp[] = { 2 };
+		CHECK(track->init(StrideArray<const size_t>(tmp, 1)));
 
 		AnimationTrack::KeyFrames frames = track->getKeyFramesForSubtrack(0);
+		frames[0].time = 0;
+		frames[1].time = 1;
+
+		track->subtracks[0].flag = AnimationTrack::Slerp;
+
 		Quaternionf& q1 = reinterpret_cast<Quaternionf&>(frames[0]);
 		Quaternionf& q2 = reinterpret_cast<Quaternionf&>(frames[1]);
 
@@ -100,9 +113,11 @@ TEST(Slerp_AnimationTrackTest)
 		track->releaseWriteLock();
 	}
 
+	AnimationTrack::Interpolation interpolation[1];
+	AnimationTrack::Interpolations results(interpolation, 1);
 	track->acquireReadLock();
-	track->updateNoLock(0.5f);
-	const Quaternionf& q = reinterpret_cast<const Quaternionf&>(track->interpolatedResult[0]);
+	track->interpolateNoLock(0.5f, results);
+	const Quaternionf& q = reinterpret_cast<const Quaternionf&>(results[0]);
 
 	Vec3f v;
 	float angle;
@@ -122,37 +137,47 @@ TEST(Performance_AnimationTrackTest)
 	AnimationTrackPtr track = new AnimationTrack(L"");
 
 	{	track->acquireWriteLock();
-		CHECK(track->init(frameCount, subtrackCount));
+		size_t tmp[subtrackCount] = { frameCount };
+
+		for(size_t i=0; i<subtrackCount; ++i)
+			tmp[i] = frameCount;
+		CHECK(track->init(StrideArray<const size_t>(tmp, subtrackCount)));
 
 		// Making half are Liner, half are Slerp
 		for(size_t i=0; i<track->subtrackCount()/2; ++i)
-			track->subtrackFlags[i] = AnimationTrack::Slerp;
+			track->subtracks[i].flag = AnimationTrack::Slerp;
 
-		for(size_t i=0; i<frameCount; ++i)
-			track->keyframeTimes[i] = float(i);
-
-		// Fill with some random floating point data
 		for(size_t i=0; i<subtrackCount; ++i) {
 			AnimationTrack::KeyFrames frames = track->getKeyFramesForSubtrack(i);
-			for(size_t j=0; j<frameCount; ++j)
+			for(size_t j=0; j<frameCount; ++j) {
+				// Assign the time of each frame
+				frames[j].time = float(j);
+				// Fill with some random floating point data
 				reinterpret_cast<Quaternionf&>(frames[j]) = Vec4f(Mathf::random(), Mathf::random(), Mathf::random(), Mathf::random());
+			}
 		}
 
 		track->releaseWriteLock();
 	}
 
 	{	track->acquireReadLock();
+		AnimationTrack::Interpolation interpolation[subtrackCount];
+		AnimationTrack::Interpolations results(interpolation, subtrackCount);
 		DeltaTimer timer;
 		const float totalTime = track->totalTime();
 
 		size_t count = 0;
 		for(float t=0; t<totalTime; t+=0.1f, ++count)
-			track->updateNoLock(t);
+			track->interpolateNoLock(t, results);
 		track->releaseReadLock();
 
 		const double timeElasped = timer.getDelta().asSecond();
 		const double attributePerSecond = double(subtrackCount) * count / timeElasped;
 		(void)attributePerSecond;
+
+		// NOTE: The variable sub-track frame count support was added at revision 733.
+		// This new version does slow down the calculation by a factor of 2, but I 
+		// beleive the memory saving should out perform the wasted CPU cycles.
 //		std::cout << attributePerSecond;
 	}
 }

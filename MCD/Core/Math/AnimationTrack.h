@@ -49,6 +49,9 @@ namespace MCD {
 class MCD_CORE_API AnimationTrack : public Resource
 {
 public:
+	explicit AnimationTrack(const Path& fileId);
+
+// Inner types
 	enum Flags
 	{
 		Linear	= 1,
@@ -59,89 +62,109 @@ public:
 	struct KeyFrame
 	{
 		float v[4];
+		float time;
 	};	// KeyFrame
 
 	typedef FixStrideArray<KeyFrame> KeyFrames;
 
-	explicit AnimationTrack(const Path& fileId);
+	struct Subtrack
+	{
+		const size_t index;	//!< Index to the \em keyframes member variable. Assigned by init(), don't modify it.
+		size_t frameCount;	//!< Number of frames for a sub-track
+		Flags flag;
+	};	// Subtrack
+
+	typedef FixStrideArray<Subtrack> Subtracks;
+
+	struct Interpolation
+	{
+		MCD_CORE_API Interpolation();
+		float v[4];
+		size_t frame1Idx;	//!< Index of key frame that just before the current time.
+		size_t frame2Idx;	//!< Index of key frame that just after the current time.
+		float ratio;		//!< The ratio between frame1Idx and frame2Idx that define the current time.
+	};	// Interpolation
+
+	typedef FixStrideArray<Interpolation> Interpolations;
+
+	struct MCD_CORE_API ScopedReadLock {
+		ScopedReadLock(const AnimationTrack& a);
+		~ScopedReadLock();
+		const AnimationTrack& track;
+	};	// ScopedReadLock
+
+	struct MCD_CORE_API ScopedWriteLock {
+		ScopedWriteLock(const AnimationTrack& a);
+		~ScopedWriteLock();
+		const AnimationTrack& track;
+	};	// ScopedWriteLock
 
 // Operations
 	/*!	Can be invoked multiple times.
-		Parameters \em keyFrameCnt and \em subtrackCnt should be larger than zero.
+		\param subtrackFrameCount Array specifing there are how many key frames for each sub-track.
 	 */
-	sal_checkreturn bool init(size_t keyFrameCnt, size_t subtrackCnt);
+	sal_checkreturn bool init(const StrideArray<const size_t>& subtrackFrameCount);
 
-	/*!	Set the track's time to a specific value, and cache the interpolated result,
-		this result can be retrived using \em interpolatedResult.
+	/*!	Get interpolation results at a specific time.
+		\note With acquireWriteLock() and releaseWriteLock() implied.
 	 */
-	void update(float currentTime);
+	void interpolate(float time, const Interpolations& result) const;
 
-	//!	 The no lock version of update().
-	void updateNoLock(float currentTime);
+	//!	 The no lock version of interpolate().
+	void interpolateNoLock(float time, const Interpolations& result) const;
 
 	/*!	Check that the data has no problem (eg key time not in ascending order).
 		\return False if something wrong.
 	 */
 	sal_checkreturn bool checkValid() const;
 
-	void acquireReadLock();
+	void acquireReadLock() const;
 
-	void releaseReadLock();
+	void releaseReadLock() const;
 
 	/*!	Since there will be a seperated thread for animation update, me must
 		try to acquire a mutex lock before we can modify the data in AnimationTrack.
 		After the write lock is acquired, isCommitted() will return false.
 	 */
-	void acquireWriteLock();
+	void acquireWriteLock() const;
 
 	/*!	The paired function with acquireLock().
 		After the write lock is released, isCommitted() will return true.
 	 */
-	void releaseWriteLock();
-
-	/*!	To indicate that all animation data are ready to use.
-		Returns true after the wirte lock is released.
-		Returns false if the write lock is never acquired.
-	 */
-	sal_checkreturn bool isCommitted() const;
+	void releaseWriteLock() const;
 
 // Attributes
-	/*!	Number of keyframes for each sub-track.
-		All sub-track are having the same number of key frame.
-	 */
-	size_t keyframeCount() const { return keyframeTimes.size; }
-
 	/*!	Number of sub-track.
 		For example, one sub-track for position, another sub-track for color.
 	 */
-	size_t subtrackCount() const { return subtrackFlags.size; }
+	size_t subtrackCount() const;
 
-	//! The total time of the animation, ie. keyframeTimes[keyframeCount() - 1].
+	//!	Number of keyframes for the specific sub-track.
+	size_t keyframeCount(size_t subtrackIndex) const;
+
+	//! The total time of the specific sub-track.
+	float totalTime(size_t subtrackIndex) const;
+
+	//!	The longest total time among all sub-tracks.
 	float totalTime() const;
-
-	float currentTime() const;
 
 	/*!	Get the key frames for the sub-track at \em index.
 		What it does actually is just return a slice of \em keyframes.
 	 */
-	KeyFrames getKeyFramesForSubtrack(size_t index);
+	KeyFrames getKeyFramesForSubtrack(size_t subtrackIndex);
 
 	/*!	The keyframes for each sub tracks, packed in a single array.
-		The array size should be keyframeCount() * subtrackCount().
 		To get the key frames of a specific sub-track, use getKeyFramesForSubtrack().
+		The memory layout is:
+		t1f1, t1f2, t1f3, t2f1, t2f2, t3f1, t3f2, ...
 	 */
 	KeyFrames keyframes;
-
-	/*!	Sorted (in ascending order) keyframe time shared by each sub-track.
-		The array size should be keyframeCount().
-	 */
-	FixStrideArray<float> keyframeTimes;
 
 	/*!	The flags for each subtrack (e.g. interpolation methods)
 		The array size should be subtrackCount().
 		By default the values are initialized to Flags::Linear.
 	 */
-	FixStrideArray<Flags> subtrackFlags;
+	Subtracks subtracks;
 
 	//! Whether the current time will wrap over if it's larger than totalTime().
 	bool loop;
@@ -152,22 +175,28 @@ public:
 	 */
 	float naturalFramerate;
 
-	// Cached variables, updated after calling update()
-	size_t frame1Idx;	//!< Index to keyframeTimes that just before the current time.
-	size_t frame2Idx;	//!< Index to keyframeTimes that just after the current time.
-	float ratio;		//!< The ratio between frame1Idx and frame2Idx that define the current time.
-	KeyFrames interpolatedResult;
+	/*!	To indicate that all animation data are ready to use.
+		Returns true after the wirte lock is released.
+		Returns false if the write lock is never acquired.
+	 */
+	sal_checkreturn bool isCommitted() const;
 
 protected:
 	sal_override ~AnimationTrack();
+
+	void interpolateSingleSubtrack(float time, Interpolation& result, size_t trackIndex) const;
+
+	//!	The longest total time among all sub-tracks, assigned in releaseWriteLock().
+	mutable float mTotalTime;
 
 	/*!	A boolean variable to indicate all the data are ready, meaning animation thread
 		can safely READ the data.
 		If modifing the animation data is needed, set this flag to false first.
 	 */
-	bool mCommitted;
+	mutable bool mCommitted;
 
-	Mutex mMutex;
+	//!	Protect between the reader (update function) and the writer (animation loader).
+	mutable Mutex mMutex;
 };	// AnimationTrack
 
 typedef IntrusivePtr<AnimationTrack> AnimationTrackPtr;

@@ -118,6 +118,8 @@ public:
 
 	size_t sizeInByte() const { return size * stride; }
 
+	bool isEmpty() const { return !data || size == 0 || stride == 0; }
+
 	char* data;
 	size_t size;	//!< Element count.
 	size_t stride;
