@@ -86,7 +86,7 @@ bool RenderBufferSet::textureBuffer(int format, const wchar_t* texname)
 		return false;
 
 	{	mRenderTarget.bind();
-		bool ok = checkDeviceStatus(true);
+		const bool ok = checkDeviceStatus(false);
 		mRenderTarget.unbind();
 		if(!ok)
 			return false;
@@ -110,7 +110,7 @@ bool RenderBufferSet::checkDeviceStatus(bool reportSuccess)
 	using namespace std;
 
 	// check FBO status
-	int status = glCheckFramebufferStatusEXT(GL_FRAMEBUFFER_EXT);
+	const int status = glCheckFramebufferStatusEXT(GL_FRAMEBUFFER_EXT);
 	switch(status)
 	{
 	case GL_FRAMEBUFFER_COMPLETE_EXT:

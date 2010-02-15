@@ -8,7 +8,6 @@
 #include "../../MCD/Render/ShaderProgram.h"
 #include "../../MCD/Core/Entity/Entity.h"
 #include "../../MCD/Core/System/Array.h"
-#include "../../MCD/Core/System/Log.h"
 
 using namespace MCD;
 
@@ -87,12 +86,10 @@ public:
 		if(0 == width || 0 == height)
 			return;
 
-		Log::format(Log::Info, L"onResize %03d x %03d\n", width, height);
-
-		int format = GL_RGBA8;
+		const int format = GL_RGBA8;
 		//int format = GL_RGBA16F_ARB;
 
-		bool useTexRect = false;
+		const bool useTexRect = false;
 
 		mBuffersFull.reset( new RenderBufferSet(mResourceManager, width, height, RenderBufferSet::DepthBuffer_Texture24, useTexRect) );
 		MCD_VERIFY(mBuffersFull->textureBuffer(format, L"rtt:/full.0.buf"));
@@ -106,8 +103,6 @@ public:
 		
 		// load normal mapping effect
 		mEffect = static_cast<Effect*>(mResourceManager.load(L"Material/postprocessingtest.fx.xml").get());
-
-		Log::write(Log::Info, L"loading effect");
 	}
 
 	Material::Pass& pass(Material* mat, int pass)

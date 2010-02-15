@@ -67,7 +67,8 @@ RigidBodyComponent::RigidBodyComponent(DynamicsWorld& dynamicsWorld, float mass,
 
 RigidBodyComponent::~RigidBodyComponent(void)
 {
-	onRemove();
+	// mImpl may be null after onRemove() is called.
+	if(mImpl) onRemove();
 	delete mImpl;
 }
 
