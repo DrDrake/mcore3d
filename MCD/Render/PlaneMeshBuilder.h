@@ -9,7 +9,7 @@ namespace MCD {
 class MCD_RENDER_API PlaneMeshBuilder : public MeshBuilderIM
 {
 public:
-	PlaneMeshBuilder(float width, float height, uint16_t widthSegmentCount, uint16_t heightSegmentCount, bool includeTangents = true);
+	PlaneMeshBuilder(float width, float height, uint16_t widthSegmentCount, uint16_t heightSegmentCount, bool includeTangents = false);
 };	// PlaneMeshBuilder
 
 }	// namespace MCD

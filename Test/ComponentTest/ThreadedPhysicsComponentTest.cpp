@@ -14,7 +14,7 @@
 
 using namespace MCD;
 
-#define USE_HARDWARE_INSTANCE
+//#define USE_HARDWARE_INSTANCE
 
 // InstancedMeshComponent is a renderable
 // When it is visited by Renderable Vistor, it does not render anything, but register the per-instance info to the InstancedMesh
@@ -71,17 +71,22 @@ TEST(ThreadedPhysicsComponentTest)
 		{
 			mRootNode.name = L"root";
 
+			// A scene node is added such that MyLoadCallback will not try to create rigid body for other Entities.
+			mSceneNode = new Entity();
+			mSceneNode->asChildOf(&mRootNode);
+
 			// Override the default loader of *.3ds file
 			mResourceManager.addFactory(new EntityPrototypeLoaderFactory(mResourceManager));
 
 			{	// Use a 3ds mesh as the ground
 				std::auto_ptr<MyLoadCallback> callback(new MyLoadCallback(mDynamicsWorld));
 				EntityPrototypeLoader::addEntityAfterLoad(
-					&mRootNode,
+					mSceneNode,
 					mResourceManager,
 					L"Scene/City/scene.3ds",
 					callback.get()
 				);
+				callback.release();
 			}
 
 			// The maximum random displacement added to the balls
@@ -168,6 +173,7 @@ TEST(ThreadedPhysicsComponentTest)
 		}
 
 		Entity mRootNode;
+		EntityPtr mSceneNode;
 		InstancedMeshPtr mBallInstMesh;
 		ThreadedDynamicsWorld mDynamicsWorld;
 		DefaultResourceManager mResourceManager;
