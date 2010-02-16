@@ -1,4 +1,6 @@
-﻿namespace Studio
+﻿using System.Windows.Forms;
+
+namespace Studio
 {
 	/// <summary>
 	/// A base class providing interface for a document.
@@ -29,5 +31,9 @@
 			get { return mPath; }
 		}
 		private string mPath;
+
+		public virtual ToolStrip UseToolStrip() { return null; }
+
+		public virtual void UnuseToolStrip() { }
 	}
 }

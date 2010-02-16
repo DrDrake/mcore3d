@@ -6,9 +6,10 @@ namespace Studio
 {
 	public partial class RenderWindow : Document
 	{
-		public RenderWindow(string path)
+		public RenderWindow(string path, EntityWindow entityWindow)
 			: base(path)
 		{
+			mEntityWindow = entityWindow;
 			InitializeComponent();
 		}
 
@@ -27,6 +28,8 @@ namespace Studio
 
 			// Broadcasting the key event from render panel to 
 			mRenderControl.KeyPress += new KeyPressEventHandler(RenderWindow_KeyPress);
+
+			UpdateToolBar();
 
 			return mRenderControl;
 		}
@@ -54,6 +57,18 @@ namespace Studio
 			return fs.saveString(Path, "// MCore Studio generated scene file\n" + mRenderControl.serailizeScene());
 		}
 
+		public override ToolStrip UseToolStrip()
+		{
+			toolStripGizmo.Visible = true;
+			return toolStripGizmo;
+		}
+
+		public override void UnuseToolStrip()
+		{
+			toolStripGizmo.Visible = false;
+			this.Controls.Add(this.toolStripGizmo);
+		}
+
 		public Scene Scene
 		{
 			get { return mScene; }
@@ -61,6 +76,16 @@ namespace Studio
 		private Scene mScene;
 
 		private RenderPanelControl mRenderControl;
+
+		private EntityWindow mEntityWindow;
+
+		private void UpdateToolBar()
+		{
+			// TODO: Check the startup script does exist in the file system
+			toolStripButtonPlay.Enabled = (!mRenderControl.playing && Scene.StartupScript != null);
+			toolStripButtonStop.Enabled = mRenderControl.playing;
+			toolStripButtonRestart.Enabled = mRenderControl.playing;
+		}
 
 		private void toolStripButtonMove_Click(object sender, EventArgs e)
 		{
@@ -112,6 +137,29 @@ namespace Studio
 			// Forward the enter event to the render control
 			if(mRenderControl != null)
 				mRenderControl.Focus();
+		}
+
+		private void toolStripButtonPlay_Click(object sender, EventArgs e)
+		{
+			if (Scene.StartupScript == null)
+				return;
+
+			mRenderControl.play(Scene.StartupScript.Path);
+			mEntityWindow.selectEntityRoot(mRenderControl.userRootEntity);
+			UpdateToolBar();
+		}
+
+		private void toolStripButtonStop_Click(object sender, EventArgs e)
+		{
+			mRenderControl.stop();
+			mEntityWindow.selectEntityRoot(mRenderControl.userRootEntity);
+			UpdateToolBar();
+		}
+
+		private void toolStripButtonRestart_Click(object sender, EventArgs e)
+		{
+			toolStripButtonStop_Click(sender, e);
+			toolStripButtonPlay_Click(sender, e);
 		}
 	}
 }

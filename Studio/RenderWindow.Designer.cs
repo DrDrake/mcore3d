@@ -34,7 +34,10 @@
 			this.toolStripButtonTranslate = new System.Windows.Forms.ToolStripButton();
 			this.toolStripButtonRotate = new System.Windows.Forms.ToolStripButton();
 			this.toolStripButtonScale = new System.Windows.Forms.ToolStripButton();
+			this.toolStripSeparator1 = new System.Windows.Forms.ToolStripSeparator();
 			this.toolStripButtonPlay = new System.Windows.Forms.ToolStripButton();
+			this.toolStripButtonStop = new System.Windows.Forms.ToolStripButton();
+			this.toolStripButtonRestart = new System.Windows.Forms.ToolStripButton();
 			this.panel1 = new System.Windows.Forms.Panel();
 			this.toolStripGizmo.SuspendLayout();
 			this.SuspendLayout();
@@ -47,7 +50,10 @@
             this.toolStripButtonTranslate,
             this.toolStripButtonRotate,
             this.toolStripButtonScale,
-            this.toolStripButtonPlay});
+            this.toolStripSeparator1,
+            this.toolStripButtonPlay,
+            this.toolStripButtonStop,
+            this.toolStripButtonRestart});
 			this.toolStripGizmo.Location = new System.Drawing.Point(0, 0);
 			this.toolStripGizmo.Name = "toolStripGizmo";
 			this.toolStripGizmo.Size = new System.Drawing.Size(292, 25);
@@ -96,6 +102,11 @@
 			this.toolStripButtonScale.Text = "Scale";
 			this.toolStripButtonScale.Click += new System.EventHandler(this.toolStripButtonScale_Click);
 			// 
+			// toolStripSeparator1
+			// 
+			this.toolStripSeparator1.Name = "toolStripSeparator1";
+			this.toolStripSeparator1.Size = new System.Drawing.Size(6, 25);
+			// 
 			// toolStripButtonPlay
 			// 
 			this.toolStripButtonPlay.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
@@ -103,21 +114,42 @@
 			this.toolStripButtonPlay.ImageTransparentColor = System.Drawing.Color.Magenta;
 			this.toolStripButtonPlay.Name = "toolStripButtonPlay";
 			this.toolStripButtonPlay.Size = new System.Drawing.Size(23, 22);
-			this.toolStripButtonPlay.Text = "toolStripButton1";
+			this.toolStripButtonPlay.Text = "Play";
+			this.toolStripButtonPlay.Click += new System.EventHandler(this.toolStripButtonPlay_Click);
+			// 
+			// toolStripButtonStop
+			// 
+			this.toolStripButtonStop.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
+			this.toolStripButtonStop.Image = ((System.Drawing.Image)(resources.GetObject("toolStripButtonStop.Image")));
+			this.toolStripButtonStop.ImageTransparentColor = System.Drawing.Color.Magenta;
+			this.toolStripButtonStop.Name = "toolStripButtonStop";
+			this.toolStripButtonStop.Size = new System.Drawing.Size(23, 22);
+			this.toolStripButtonStop.Text = "Stop";
+			this.toolStripButtonStop.Click += new System.EventHandler(this.toolStripButtonStop_Click);
+			// 
+			// toolStripButtonRestart
+			// 
+			this.toolStripButtonRestart.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
+			this.toolStripButtonRestart.Image = ((System.Drawing.Image)(resources.GetObject("toolStripButtonRestart.Image")));
+			this.toolStripButtonRestart.ImageTransparentColor = System.Drawing.Color.Magenta;
+			this.toolStripButtonRestart.Name = "toolStripButtonRestart";
+			this.toolStripButtonRestart.Size = new System.Drawing.Size(23, 22);
+			this.toolStripButtonRestart.Text = "Restart";
+			this.toolStripButtonRestart.Click += new System.EventHandler(this.toolStripButtonRestart_Click);
 			// 
 			// panel1
 			// 
 			this.panel1.Dock = System.Windows.Forms.DockStyle.Fill;
 			this.panel1.Location = new System.Drawing.Point(0, 25);
 			this.panel1.Name = "panel1";
-			this.panel1.Size = new System.Drawing.Size(292, 225);
+			this.panel1.Size = new System.Drawing.Size(292, 246);
 			this.panel1.TabIndex = 1;
 			// 
 			// RenderWindow
 			// 
-			this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
+			this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-			this.ClientSize = new System.Drawing.Size(292, 250);
+			this.ClientSize = new System.Drawing.Size(292, 271);
 			this.Controls.Add(this.panel1);
 			this.Controls.Add(this.toolStripGizmo);
 			this.Name = "RenderWindow";
@@ -139,7 +171,10 @@
 		private System.Windows.Forms.ToolStripButton toolStripButtonRotate;
 		private System.Windows.Forms.ToolStripButton toolStripButtonScale;
 		private System.Windows.Forms.Panel panel1;
+		private System.Windows.Forms.ToolStripButton toolStripButtonStop;
+		private System.Windows.Forms.ToolStripButton toolStripButtonRestart;
 		private System.Windows.Forms.ToolStripButton toolStripButtonPlay;
+		private System.Windows.Forms.ToolStripSeparator toolStripSeparator1;
 
 	}
 }
