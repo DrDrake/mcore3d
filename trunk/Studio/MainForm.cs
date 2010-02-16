@@ -42,19 +42,6 @@ namespace Studio
 		{
 		}
 
-		private void UpdateToolBars()
-		{
-			if (currentRenderControl == null)
-				return;
-
-			RenderWindow renderWindow = currentRenderControl.Tag as RenderWindow;
-
-			// TODO: Check the startup script does exist in the file system
-			toolStripButtonPlay.Enabled = (!currentRenderControl.playing && renderWindow.Scene.StartupScript != null);
-			toolStripButtonStop.Enabled = currentRenderControl.playing;
-			toolStripButtonRestart.Enabled = currentRenderControl.playing;
-		}
-
 		private IDockContent GetDockingFromPersistString(string persistString)
 		{
 			if (persistString == typeof(ProjectWindow).ToString())
@@ -144,7 +131,7 @@ namespace Studio
 
 		public void OpenScene(Scene scene)
 		{
-			RenderWindow renderWindow = new RenderWindow(scene.SceneScripts[0].Path);
+			RenderWindow renderWindow = new RenderWindow(scene.SceneScripts[0].Path, entityWindow);
 			renderWindow.Show(dockPanel, DockState.Document);
 
 			IntPtr sharedGlContext = new IntPtr(0);
@@ -160,8 +147,6 @@ namespace Studio
 
 			// Selected the newly created scene
 			sceneSelectionChanged(renderPanel, new EventArgs());
-
-			toolStripDebug.Enabled = true;
 
 			// Execute all scene setup scripts
 			// TODO: Error handling
@@ -202,8 +187,6 @@ namespace Studio
 				entityWindow.selectEntityRoot(null);
 				onEntitySelectionChanged(this, null);
 			}
-
-			UpdateToolBars();
 		}
 
 		void sceneClosing(object sender, FormClosingEventArgs e)
@@ -222,11 +205,6 @@ namespace Studio
 				RenderPanelControl c = (RenderPanelControl)d.Tag;
 				c.destroy();
 				renderControls.Remove(c);
-			}
-
-			if (renderControls.Count == 0)
-			{
-				toolStripDebug.Enabled = false;
 			}
 		}
 
@@ -279,32 +257,6 @@ namespace Studio
 			}
 		}
 
-		private void toolStripButtonPlay_Click(object sender, EventArgs e)
-		{
-			RenderWindow renderWindow = currentRenderControl.Tag as RenderWindow;
-
-			// TODO: Check the startup script does exist in the file system
-			if (renderWindow.Scene.StartupScript == null)
-				return;
-
-			currentRenderControl.play(renderWindow.Scene.StartupScript.Path);
-			entityWindow.selectEntityRoot(currentRenderControl.userRootEntity);
-			UpdateToolBars();
-		}
-
-		private void toolStripButtonStop_Click(object sender, EventArgs e)
-		{
-			currentRenderControl.stop();
-			entityWindow.selectEntityRoot(currentRenderControl.userRootEntity);
-			UpdateToolBars();
-		}
-
-		private void toolStripButtonRestart_Click(object sender, EventArgs e)
-		{
-			toolStripButtonStop_Click(sender, e);
-			toolStripButtonPlay_Click(sender, e);
-		}
-
 		private void assetBrowserToolStripMenuItem_Click(object sender, EventArgs e)
 		{
 			assertBrowsingForm.Show();
@@ -321,5 +273,23 @@ namespace Studio
 		{
 
 		}
+
+		private void dockPanel_ActiveDocumentChanged(object sender, EventArgs e)
+		{
+			// Advanced usage of tool strip:
+			// http://www.scribd.com/doc/7336829/Windows-Forms-ToolStrip-Course
+			if (mPreviousActiveDocument != null)
+				mPreviousActiveDocument.UnuseToolStrip();
+			mPreviousActiveDocument = dockPanel.ActiveDocument as Document;
+			if (mPreviousActiveDocument != null)
+			{
+				ToolStrip s = mPreviousActiveDocument.UseToolStrip();
+				// TODO: Make the position arragement more generic.
+				int width = toolStripMain.Location.X + toolStripMain.Bounds.Width;
+				if(s != null)
+					toolStripContainer1.TopToolStripPanel.Join(s, width, 0);
+			}
+		}
+		Document mPreviousActiveDocument;
 	}
 }
