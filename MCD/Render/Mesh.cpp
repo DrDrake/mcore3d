@@ -187,6 +187,15 @@ MeshPtr Mesh::clone(const wchar_t* name, StorageHint hint)
 	return ret;
 }
 
+int Mesh::finidAttributeBySemantic(const char* semantic) const
+{
+	for(size_t i=0; i<attributeCount; ++i) {
+		if(::strcmp(attributes[i].semantic, semantic) == 0)
+			return i;
+	}
+	return -1;
+}
+
 void* Mesh::mapBuffer(size_t bufferIdx, MappedBuffers& mapped, MapOption mapOptions)
 {
 	if(bufferIdx >= bufferCount)
@@ -213,7 +222,12 @@ void* Mesh::mapBuffer(size_t bufferIdx, MappedBuffers& mapped, MapOption mapOpti
 	return ret;
 }
 
-void Mesh::unmapBuffers(MappedBuffers& mapped)
+const void* Mesh::mapBuffer(size_t bufferIdx, MappedBuffers& mapped) const
+{
+	return const_cast<Mesh*>(this)->mapBuffer(bufferIdx, mapped, Mesh::Read);
+}
+
+void Mesh::unmapBuffers(MappedBuffers& mapped) const
 {
 	for(size_t i=0; i<bufferCount; ++i) {
 		if(!mapped[i])

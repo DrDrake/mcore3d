@@ -45,7 +45,7 @@ class MCD_RENDER_API MeshBuilder : public IntrusiveSharedObject<AtomicInteger>, 
 public:
 	enum ElementType
 	{
-		TYPE_NOT_USED,
+		TYPE_NOT_USED = 0,
 		TYPE_INT,		TYPE_UINT,
 		TYPE_INT8,		TYPE_UINT8,
 		TYPE_INT16,		TYPE_UINT16,

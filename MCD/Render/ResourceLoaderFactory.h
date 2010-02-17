@@ -62,6 +62,13 @@ public:
 	sal_override IResourceLoader* createLoader();
 };	// PixelShaderLoaderFactory
 
+class MCD_RENDER_API MeshLoaderFactory : public ResourceManager::IFactory
+{
+public:
+	sal_override ResourcePtr createResource(const Path& fileId, const wchar_t* args);
+	sal_override IResourceLoader* createLoader();
+};	// MeshLoaderFactory
+
 class MCD_RENDER_API Max3dsLoaderFactory : public ResourceManager::IFactory
 {
 public:

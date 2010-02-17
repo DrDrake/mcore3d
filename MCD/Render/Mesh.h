@@ -119,6 +119,9 @@ public:
 
 	sal_notnull MeshPtr clone(sal_in_z const wchar_t* name, StorageHint hint);
 
+	//!	Return -1 if the semnatic cannot be found.
+	int finidAttributeBySemantic(const char* semantic) const;
+
 	//!	An object for remembering which buffer is already mapped using mapBuffer().
 	struct MappedBuffers : public Array<void*, cMaxBufferCount>
 	{
@@ -130,6 +133,8 @@ public:
 		\return The pointer to the data for read / write; nullptr if any errors occur.
 	*/
 	sal_maybenull void* mapBuffer(size_t bufferIdx, MappedBuffers& mapped, MapOption mapOptions=Read);
+
+	sal_maybenull const void* mapBuffer(size_t bufferIdx, MappedBuffers& mapped) const;
 
 	/*!	Map a specific attribute in the buffer.
 		Usage:
@@ -150,7 +155,7 @@ public:
 		return StrideArray<T>(static_cast<char*>(mapBuffer(a.bufferIndex, mapped, mapOptions)) + a.byteOffset, count, a.stride);
 	}
 
-	void unmapBuffers(MappedBuffers& mapped);
+	void unmapBuffers(MappedBuffers& mapped) const;
 
 protected:
 	sal_override ~Mesh();

@@ -157,7 +157,7 @@ public:
 sal_checkreturn bool readString(std::istream& is, char* buf, size_t bufLen)
 {
 	is.getline(buf, bufLen, '\n');
-	size_t readCnt = is.gcount();
+	size_t readCnt = static_cast<size_t>(is.gcount());
 	return readCnt > 0 && readCnt < bufLen;
 }
 
@@ -212,7 +212,6 @@ public:
 
 	IResourceLoader::LoadingState getLoadingState() const
 	{
-		ScopeLock lock(mMutex);
 		return mLoadingState;
 	}
 
@@ -221,7 +220,6 @@ private:
 	bool mVersionHeaderLoaded;
 
 	volatile IResourceLoader::LoadingState mLoadingState;
-	mutable Mutex mMutex;
 
 	ptr_vector<Geometry> mGeometry;
 	int mCurrentGeometryIdx;	// Can be negative
