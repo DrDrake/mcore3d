@@ -7,6 +7,8 @@
 #include "EffectLoader.h"
 #include "JpegLoader.h"
 #include "Max3dsLoader.h"
+#include "Mesh.h"
+#include "MeshLoader.h"
 #include "Model.h"
 #include "ModelPod.h"
 #include "OgreMeshLoader.h"
@@ -119,9 +121,22 @@ ResourcePtr PixelShaderLoaderFactory::createResource(const Path& fileId, const w
 	return shader;
 }
 
+IResourceLoader* MeshLoaderFactory::createLoader()
+{
+	return new MeshLoader;
+}
+
+ResourcePtr MeshLoaderFactory::createResource(const Path& fileId, const wchar_t* args)
+{
+	MeshPtr mesh;
+	if(wstrCaseCmp(fileId.getExtension().c_str(), L"msh") == 0)
+		mesh = new Mesh(fileId);
+	return mesh;
+}
+
 IResourceLoader* PixelShaderLoaderFactory::createLoader()
 {
-	return new ShaderLoader(GL_FRAGMENT_SHADER);
+	return new MeshLoader;
 }
 
 Max3dsLoaderFactory::Max3dsLoaderFactory(IResourceManager& resourceManager)

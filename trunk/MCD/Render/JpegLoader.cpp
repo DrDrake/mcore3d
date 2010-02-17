@@ -27,12 +27,12 @@ public:
 	sal_override int read(uchar* Pbuf, int max_bytes_to_read, bool* Peof_flag)
 	{
 		mIStream.read((char*)Pbuf, max_bytes_to_read);
-		size_t readCount = mIStream.gcount();
+		std::streamsize readCount = mIStream.gcount();
 
 		if(Peof_flag)
 			*Peof_flag = (readCount == 0);
 
-		return readCount;
+		return static_cast<int>(readCount);
 	}
 
 	std::istream& mIStream;

@@ -290,6 +290,14 @@
 				>
 			</File>
 			<File
+				RelativePath=".\MeshLoader.h"
+				>
+			</File>
+			<File
+				RelativePath=".\MeshWriter.h"
+				>
+			</File>
+			<File
 				RelativePath=".\Model.h"
 				>
 			</File>
@@ -464,6 +472,14 @@
 			</File>
 			<File
 				RelativePath=".\MeshBuilderUtility.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\MeshLoader.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\MeshWriter.cpp"
 				>
 			</File>
 			<File

@@ -51,6 +51,11 @@ public:
 	//! Almost the same as uv(), with additional elementSize (float -> 4, byte -> 1)
 	virtual Semantic color(size_t index, size_t elementCount, size_t elementSize) const;
 
+	/*!	Find a semantic by it's name.
+		\note User has to fill \em elementType, elementSize and elementCount themself after find().
+	 */
+	virtual sal_checkreturn bool find(sal_in_z const char* name, Semantic& semantic);
+
 	/*!	Let user to register their own derived Semantic.
 		Will take over the ownership of the input and delete previous SemanticMap.
 	 */

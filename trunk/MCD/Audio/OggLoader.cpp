@@ -72,7 +72,7 @@ size_t ov_read_func(void* ptr, size_t eleSize, size_t count, void* userData)
 	std::istream* is = reinterpret_cast<std::istream*>(userData);
 	// NOTE: is->read() + is->gcount() didn't work as expected.
 	// use the underlaying buffer is more reliable.
-	return is->rdbuf()->sgetn((char*)ptr, eleSize * count);
+	return static_cast<size_t>(is->rdbuf()->sgetn((char*)ptr, eleSize * count));
 }
 
 // Return 0 on success >0 on fail, -1 if non seekable
@@ -99,7 +99,7 @@ int ov_close_func(void* userData)
 long ov_tell_func(void* userData)
 {
 	std::istream* is = reinterpret_cast<std::istream*>(userData);
-	return is->tellg();
+	return static_cast<long>(is->tellg());
 }
 
 void swap(short& s1, short& s2)

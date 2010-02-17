@@ -189,7 +189,7 @@ IResourceLoader::LoadingState PngLoader::load(std::istream* is, const Path*, con
 	{	ScopeUnlock unlock(mutex);
 		is->read(buff, sizeof(buff));
 	}
-	size_t readCount = is->gcount();
+	png_size_t readCount = static_cast<png_size_t>(is->gcount());
 
 	png_process_data(impl->png_ptr, impl->info_ptr, (png_bytep)buff, readCount);
 
