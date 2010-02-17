@@ -208,6 +208,10 @@
 				RelativePath=".\pngconf.h"
 				>
 			</File>
+			<File
+				RelativePath=".\pngpriv.h"
+				>
+			</File>
 		</Filter>
 	</Files>
 	<Globals>

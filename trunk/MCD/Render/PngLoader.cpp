@@ -38,7 +38,7 @@ public:
 
 		info_ptr = png_create_info_struct(png_ptr);
 		if(!info_ptr) {
-			png_destroy_read_struct(&png_ptr, png_infopp_NULL, png_infopp_NULL);
+			png_destroy_read_struct(&png_ptr, nullptr, nullptr);
 			throw std::runtime_error("png reader error");
 		}
 
