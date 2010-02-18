@@ -136,6 +136,16 @@ private:
 	StreamBuf mBuffer;
 };	// Stream
 
+// Utility functions for binary read/write
+MCD_CORE_API void write(std::ostream& os, uint16_t val);
+MCD_CORE_API void write(std::ostream& os, uint32_t val);
+MCD_CORE_API void write(std::ostream& os, const char* val, size_t len=0);
+
+MCD_CORE_API sal_checkreturn bool read(std::istream& is, uint16_t& val);
+MCD_CORE_API sal_checkreturn bool read(std::istream& is, uint32_t& val);
+MCD_CORE_API sal_checkreturn bool read(std::istream& is, std::string& val);
+MCD_CORE_API sal_checkreturn size_t read(std::istream& is, char* buf, size_t bufLen);
+
 }	// namespace MCD
 
 #endif	// __MCD_CORE_SYSTEM_STREAM__

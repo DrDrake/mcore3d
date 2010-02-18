@@ -365,7 +365,7 @@ IResourceLoader::LoadingState OgreMeshLoader::Impl::load(std::istream* is, const
 		is->seekg(header.length - ChunkHeader::cSize, std::ios_base::cur);
 	}
 
-	return mLoadingState;
+	return mLoadingState = Loaded;
 
 	#undef ABORT_IF
 }

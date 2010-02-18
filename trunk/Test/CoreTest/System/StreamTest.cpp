@@ -1,5 +1,6 @@
 #include "Pch.h"
 #include "../../../MCD/Core/System/Stream.h"
+#include "../../../MCD/Core/System/Utility.h"	// For MCD_COUNTOF
 #include <fstream>
 #include <iterator>
 #include <memory>	// For auto_ptr
@@ -359,5 +360,54 @@ TEST(StringBuffer_StreamTest)
 			int ret = tester.singleTest();
 			if(ret != 1) CHECK_EQUAL(0, ret);
 		}
+	}
+}
+
+TEST(BinaryUtility_StreamTest)
+{
+	std::stringstream s;
+
+	{	uint16_t val = 123;
+		write(s, val);
+
+		val = 0;
+		CHECK(read(s, val));
+		CHECK_EQUAL(123u, val);
+	}
+
+	{	// Fail case
+		s.clear();
+		uint16_t val = 123;
+		write(s, val);
+
+		uint32_t val2 = 0;
+		CHECK(!read(s, val2));
+		CHECK_EQUAL(123u, val2);	// Operation failed but val2 is already altered.
+	}
+
+	{	// String IO
+		s.clear();
+		const char val[] = "hello!";
+		write(s, val);
+
+		char buf[64];
+		CHECK_EQUAL(::strlen(val), read(s, buf, MCD_COUNTOF(buf)));
+		CHECK(::strcmp(val, buf) == 0);
+
+		// Partial wirte
+		s.clear();
+		write(s, val, 4);
+		CHECK_EQUAL(4u, read(s, buf, MCD_COUNTOF(buf)));
+		CHECK(::strcmp("hell", buf) == 0);
+	}
+
+	{	// Read string with limited buffer
+		s.clear();
+		const char val[] = "hello!";
+		write(s, val);
+
+		char buf[4];
+		CHECK_EQUAL(MCD_COUNTOF(buf)-1, read(s, buf, MCD_COUNTOF(buf)));
+		CHECK(::strcmp("hel", buf) == 0);
 	}
 }

@@ -279,6 +279,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\MeshWriterLoaderTest.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\ModelLoaderTest.cpp"
 				>
 			</File>
