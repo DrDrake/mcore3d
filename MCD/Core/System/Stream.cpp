@@ -262,4 +262,49 @@ StreamBuf* Stream::rdbuf() const {
 	return const_cast<StreamBuf*>(&mBuffer);
 }
 
+void write(std::ostream& os, uint16_t val) {
+	os.write(reinterpret_cast<const char*>(&val), sizeof(val));
+}
+
+void write(std::ostream& os, uint32_t val) {
+	os.write(reinterpret_cast<const char*>(&val), sizeof(val));
+}
+
+void write(std::ostream& os, const char* val, size_t len)
+{
+	// NOTE: We assume uint32_t as the string length
+	uint32_t len_ = static_cast<uint32_t>(len == 0 ? ::strlen(val) : len);
+	write(os, len_);
+	os.write(val, len_);
+}
+
+bool read(std::istream& is, uint16_t& val) {
+	return is.rdbuf()->sgetn(reinterpret_cast<char*>(&val), sizeof(val)) == sizeof(val);
+}
+
+bool read(std::istream& is, uint32_t& val) {
+	return is.rdbuf()->sgetn(reinterpret_cast<char*>(&val), sizeof(val)) == sizeof(val);
+}
+
+bool read(std::istream& is, std::string& val)
+{
+	// NOTE: We assume uint32_t as the string length
+	uint32_t len_;
+	if(!read(is, len_))
+		return false;
+	val.resize(len_);
+	return static_cast<size_t>(is.rdbuf()->sgetn(&val[0], len_)) == len_;
+}
+
+size_t read(std::istream& is, char* buf, size_t bufLen)
+{
+	// NOTE: We assume uint32_t as the string length
+	uint32_t len_;
+	read(is, len_);
+	if(len_ >= bufLen) len_ = bufLen - 1;	// Check bufLen and reserve room for '\0'
+	std::streamsize readCnt = is.rdbuf()->sgetn(buf, len_);
+	buf[readCnt] = '\0';
+	return static_cast<size_t>(readCnt);
+}
+
 }	// namespace MCD

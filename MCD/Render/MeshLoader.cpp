@@ -3,6 +3,7 @@
 #include "Mesh.h"
 #include "SemanticMap.h"
 #include "../Core/System/MemoryProfiler.h"
+#include "../Core/System/Stream.h"
 #include <iostream>
 
 namespace MCD {
@@ -56,7 +57,10 @@ IResourceLoader::LoadingState MeshLoader::Impl::load(std::istream* is, const Pat
 		return mLoadingState;
 
 	// Read the counts
-	(*is) >> bufferCount >> attributeCount >> vertexCount >> indexCount;
+	ABORT_IF(!MCD::read(*is, bufferCount));
+	ABORT_IF(!MCD::read(*is, attributeCount));
+	ABORT_IF(!MCD::read(*is, vertexCount));
+	ABORT_IF(!MCD::read(*is, indexCount));
 
 	SemanticMap& semanticMap = SemanticMap::getSingleton();
 
@@ -66,11 +70,11 @@ IResourceLoader::LoadingState MeshLoader::Impl::load(std::istream* is, const Pat
 		is->read((char*)&attributes[i], sizeof(Mesh::Attribute));
 
 		// Reconstruct the static string pointer from SemanticMap
-		std::string semanticName;
-		(*is) >> semanticName;
+		char buf[128];
+		ABORT_IF(MCD::read(*is, buf, sizeof(buf)) == 0);
 
 		MeshBuilder::Semantic semantic;
-		ABORT_IF(!semanticMap.find(semanticName.c_str(), semantic));
+		ABORT_IF(!semanticMap.find(buf, semantic));
 
 		attributes[i].semantic = semantic.name;
 	}
@@ -78,13 +82,13 @@ IResourceLoader::LoadingState MeshLoader::Impl::load(std::istream* is, const Pat
 	// Read the buffers
 	for(size_t i=0; i<bufferCount; ++i) {
 		uint32_t size = 0;
-		(*is) >> size;
+		MCD::read(*is, size);
 		bufferSizes[i] = size;
 		buffers[i] = new char[size];
-		is->read((char*)buffers[i], size);
+		ABORT_IF(is->rdbuf()->sgetn((char*)buffers[i], size) != std::streamsize(size));
 	}
 
-	return mLoadingState;
+	return mLoadingState = Loaded;
 
 	#undef ABORT_IF
 }

@@ -13,12 +13,12 @@ ChamferBoxBuilder::ChamferBoxBuilder(float filletRadius, size_t filletSegmentCou
 {
 	const SemanticMap& map = SemanticMap::getSingleton();
 	posId = declareAttribute(map.position(), 1);
-	normalId = declareAttribute(map.normal(), 2);
-	uvId = declareAttribute(map.uv(0, 2), 3);
+	normalId = declareAttribute(map.normal(), 1);
+	uvId = declareAttribute(map.uv(0, 2), 1);
 
 	tangentId = -1;
 	if(includeTangents)
-		tangentId = declareAttribute(map.tangent(), 4);
+		tangentId = declareAttribute(map.tangent(), 2);
 
 	const size_t cubeFaceCount = 6;
 	const size_t rowCount = (filletSegmentCount + 1) * 2;	// Number of vertex along y direction
