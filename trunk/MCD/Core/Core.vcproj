@@ -613,6 +613,14 @@
 					>
 				</File>
 				<File
+					RelativePath=".\Math\SkeletonLoader.h"
+					>
+				</File>
+				<File
+					RelativePath=".\Math\SkeletonWriter.h"
+					>
+				</File>
+				<File
 					RelativePath=".\Math\SrtTransform.h"
 					>
 				</File>
@@ -666,6 +674,14 @@
 				</File>
 				<File
 					RelativePath=".\Math\Skeleton.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\Math\SkeletonLoader.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\Math\SkeletonWriter.cpp"
 					>
 				</File>
 				<File

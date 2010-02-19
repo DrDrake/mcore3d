@@ -27,6 +27,12 @@ int Skeleton::findJointByName(const wchar_t* name) const
 	return -1;
 }
 
+void Skeleton::swap(Skeleton& rhs)
+{
+	std::swap(parents, rhs.parents);
+	std::swap(names, rhs.names);
+}
+
 Skeleton::~Skeleton()
 {}
 

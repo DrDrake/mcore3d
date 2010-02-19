@@ -19,6 +19,8 @@
 #include "TgaLoader.h"
 #include "../Core/Math/AnimationTrack.h"
 #include "../Core/Math/AnimationTrackLoader.h"
+#include "../Core/Math/Skeleton.h"
+#include "../Core/Math/SkeletonLoader.h"
 #include "../Core/System/Path.h"
 #include "../Core/System/StrUtility.h"
 
@@ -76,6 +78,30 @@ IResourceLoader* DdsLoaderFactory::createLoader()
 	return new DdsLoader;
 }
 
+EffectLoaderFactory::EffectLoaderFactory(IResourceManager& resourceManager)
+	: mResourceManager(resourceManager)
+{
+}
+
+ResourcePtr EffectLoaderFactory::createResource(const Path& fileId, const wchar_t* args)
+{
+	// We try to detect the fileId haveing a ".fx.xml" or not.
+	if(wstrCaseCmp(fileId.getExtension().c_str(), L"xml") != 0)
+		return nullptr;
+
+	Path p = fileId;
+	p.removeExtension();
+	if(wstrCaseCmp(p.getExtension().c_str(), L"fx") != 0)
+		return nullptr;
+
+	return new Effect(fileId);
+}
+
+IResourceLoader* EffectLoaderFactory::createLoader()
+{
+	return new EffectLoader(mResourceManager);
+}
+
 ResourcePtr JpegLoaderFactory::createResource(const Path& fileId, const wchar_t* args)
 {
 	std::wstring extStr = fileId.getExtension();
@@ -90,6 +116,66 @@ IResourceLoader* JpegLoaderFactory::createLoader()
 	return new JpegLoader;
 }
 
+Max3dsLoaderFactory::Max3dsLoaderFactory(IResourceManager& resourceManager)
+	: mResourceManager(resourceManager)
+{
+}
+
+ResourcePtr Max3dsLoaderFactory::createResource(const Path& fileId, const wchar_t* args)
+{
+	if(wstrCaseCmp(fileId.getExtension().c_str(), L"3ds") == 0)
+		return new Model(fileId);
+	return nullptr;
+}
+
+IResourceLoader* Max3dsLoaderFactory::createLoader()
+{
+	return new Max3dsLoader(&mResourceManager);
+}
+
+IResourceLoader* MeshLoaderFactory::createLoader()
+{
+	return new MeshLoader;
+}
+
+ResourcePtr MeshLoaderFactory::createResource(const Path& fileId, const wchar_t* args)
+{
+	MeshPtr mesh;
+	if(wstrCaseCmp(fileId.getExtension().c_str(), L"msh") == 0)
+		mesh = new Mesh(fileId);
+	return mesh;
+}
+
+OgreMeshLoaderFactory::OgreMeshLoaderFactory(IResourceManager& resourceManager)
+	: mResourceManager(resourceManager)
+{
+}
+
+ResourcePtr OgreMeshLoaderFactory::createResource(const Path& fileId, const wchar_t* args)
+{
+	if(wstrCaseCmp(fileId.getExtension().c_str(), L"mesh") == 0)
+		return new Model(fileId);
+	return nullptr;
+}
+
+IResourceLoader* OgreMeshLoaderFactory::createLoader()
+{
+	return new OgreMeshLoader(&mResourceManager);
+}
+
+ResourcePtr PixelShaderLoaderFactory::createResource(const Path& fileId, const wchar_t* args)
+{
+	ShaderPtr shader;
+	if(wstrCaseCmp(fileId.getExtension().c_str(), L"glps") == 0)
+		shader = new Shader(fileId);
+	return shader;
+}
+
+IResourceLoader* PixelShaderLoaderFactory::createLoader()
+{
+	return new MeshLoader;
+}
+
 ResourcePtr PngLoaderFactory::createResource(const Path& fileId, const wchar_t* args)
 {
 	if(wstrCaseCmp(fileId.getExtension().c_str(), L"png") == 0)
@@ -100,6 +186,35 @@ ResourcePtr PngLoaderFactory::createResource(const Path& fileId, const wchar_t* 
 IResourceLoader* PngLoaderFactory::createLoader()
 {
 	return new PngLoader;
+}
+
+PodLoaderFactory::PodLoaderFactory(IResourceManager& resourceManager)
+	: mResourceManager(resourceManager)
+{
+}
+
+ResourcePtr PodLoaderFactory::createResource(const Path& fileId, const wchar_t* args)
+{
+	if(wstrCaseCmp(fileId.getExtension().c_str(), L"pod") == 0)
+		return new ModelPod(fileId);
+	return nullptr;
+}
+
+IResourceLoader* PodLoaderFactory::createLoader()
+{
+	return new PodLoader(&mResourceManager);
+}
+
+ResourcePtr SkeletonLoaderFactory::createResource(const Path& fileId, const wchar_t* args)
+{
+	if(wstrCaseCmp(fileId.getExtension().c_str(), L"skt") == 0)
+		return new Skeleton(fileId);
+	return nullptr;
+}
+
+IResourceLoader* SkeletonLoaderFactory::createLoader()
+{
+	return new SkeletonLoader;
 }
 
 ResourcePtr TgaLoaderFactory::createResource(const Path& fileId, const wchar_t* args)
@@ -125,107 +240,6 @@ ResourcePtr VertexShaderLoaderFactory::createResource(const Path& fileId, const 
 IResourceLoader* VertexShaderLoaderFactory::createLoader()
 {
 	return new ShaderLoader(GL_VERTEX_SHADER);
-}
-
-ResourcePtr PixelShaderLoaderFactory::createResource(const Path& fileId, const wchar_t* args)
-{
-	ShaderPtr shader;
-	if(wstrCaseCmp(fileId.getExtension().c_str(), L"glps") == 0)
-		shader = new Shader(fileId);
-	return shader;
-}
-
-IResourceLoader* MeshLoaderFactory::createLoader()
-{
-	return new MeshLoader;
-}
-
-ResourcePtr MeshLoaderFactory::createResource(const Path& fileId, const wchar_t* args)
-{
-	MeshPtr mesh;
-	if(wstrCaseCmp(fileId.getExtension().c_str(), L"msh") == 0)
-		mesh = new Mesh(fileId);
-	return mesh;
-}
-
-IResourceLoader* PixelShaderLoaderFactory::createLoader()
-{
-	return new MeshLoader;
-}
-
-Max3dsLoaderFactory::Max3dsLoaderFactory(IResourceManager& resourceManager)
-	: mResourceManager(resourceManager)
-{
-}
-
-ResourcePtr Max3dsLoaderFactory::createResource(const Path& fileId, const wchar_t* args)
-{
-	if(wstrCaseCmp(fileId.getExtension().c_str(), L"3ds") == 0)
-		return new Model(fileId);
-	return nullptr;
-}
-
-IResourceLoader* Max3dsLoaderFactory::createLoader()
-{
-	return new Max3dsLoader(&mResourceManager);
-}
-
-OgreMeshLoaderFactory::OgreMeshLoaderFactory(IResourceManager& resourceManager)
-	: mResourceManager(resourceManager)
-{
-}
-
-ResourcePtr OgreMeshLoaderFactory::createResource(const Path& fileId, const wchar_t* args)
-{
-	if(wstrCaseCmp(fileId.getExtension().c_str(), L"mesh") == 0)
-		return new Model(fileId);
-	return nullptr;
-}
-
-IResourceLoader* OgreMeshLoaderFactory::createLoader()
-{
-	return new OgreMeshLoader(&mResourceManager);
-}
-
-PodLoaderFactory::PodLoaderFactory(IResourceManager& resourceManager)
-	: mResourceManager(resourceManager)
-{
-}
-
-ResourcePtr PodLoaderFactory::createResource(const Path& fileId, const wchar_t* args)
-{
-	if(wstrCaseCmp(fileId.getExtension().c_str(), L"pod") == 0)
-		return new ModelPod(fileId);
-	return nullptr;
-}
-
-IResourceLoader* PodLoaderFactory::createLoader()
-{
-	return new PodLoader(&mResourceManager);
-}
-
-EffectLoaderFactory::EffectLoaderFactory(IResourceManager& resourceManager)
-	: mResourceManager(resourceManager)
-{
-}
-
-ResourcePtr EffectLoaderFactory::createResource(const Path& fileId, const wchar_t* args)
-{
-	// We try to detect the fileId haveing a ".fx.xml" or not.
-	if(wstrCaseCmp(fileId.getExtension().c_str(), L"xml") != 0)
-		return nullptr;
-
-	Path p = fileId;
-	p.removeExtension();
-	if(wstrCaseCmp(p.getExtension().c_str(), L"fx") != 0)
-		return nullptr;
-
-	return new Effect(fileId);
-}
-
-IResourceLoader* EffectLoaderFactory::createLoader()
-{
-	return new EffectLoader(mResourceManager);
 }
 
 }	// namespace MCD

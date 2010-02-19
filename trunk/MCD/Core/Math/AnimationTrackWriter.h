@@ -1,5 +1,5 @@
-#ifndef __MCD_CORE_ANIMATIONTRACKWRITER__
-#define __MCD_CORE_ANIMATIONTRACKWRITER__
+#ifndef __MCD_CORE_MATH_ANIMATIONTRACKWRITER__
+#define __MCD_CORE_MATH_ANIMATIONTRACKWRITER__
 
 #include "../ShareLib.h"
 #include "../System/Platform.h"
@@ -9,7 +9,7 @@ namespace MCD {
 
 class AnimationTrack;
 
-/*!	A very simple writer that dump the AnimationTrac into the output stream.
+/*!	A very simple writer that dump the AnimationTrack into the output stream.
  */
 class MCD_CORE_API AnimationTrackWriter
 {
@@ -19,4 +19,4 @@ public:
 
 }	// namespace MCD
 
-#endif	// __MCD_CORE_ANIMATIONTRACKWRITER__
+#endif	// __MCD_CORE_MATH_ANIMATIONTRACKWRITER__
