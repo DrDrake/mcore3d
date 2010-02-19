@@ -1,5 +1,6 @@
 #include "Pch.h"
 #include "Stream.h"
+#include "StrUtility.h"
 
 using namespace std;
 
@@ -282,6 +283,14 @@ void write(std::ostream& os, float val) {
 	os.write(reinterpret_cast<const char*>(&val), sizeof(val));
 }
 
+void writeString(std::ostream& os, const std::string& val) {
+	writeString(os, val.c_str(), val.size());
+}
+
+void writeString(std::ostream& os, const std::wstring& val) {
+	writeString(os, wStrToStr(val));
+}
+
 void writeString(std::ostream& os, const char* val, size_t len)
 {
 	// NOTE: We assume uint32_t as the string length
@@ -326,6 +335,14 @@ bool readString(std::istream& is, std::string& val)
 		return false;
 	val.resize(len_);
 	return static_cast<size_t>(is.rdbuf()->sgetn(&val[0], len_)) == len_;
+}
+
+bool readString(std::istream& is, std::wstring& val)
+{
+	std::string str;
+	bool ret = readString(is, str);
+	val = strToWStr(str);
+	return ret;
 }
 
 size_t readString(std::istream& is, char* buf, size_t bufLen)

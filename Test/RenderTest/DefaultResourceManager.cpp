@@ -102,6 +102,7 @@ void DefaultResourceManager::setupFactories()
 	addFactory(new PodLoaderFactory(*this));
 	addFactory(new PixelShaderLoaderFactory);
 	addFactory(new PngLoaderFactory);
+	addFactory(new SkeletonLoaderFactory);
 	addFactory(new TgaLoaderFactory);
 	addFactory(new VertexShaderLoaderFactory);
 

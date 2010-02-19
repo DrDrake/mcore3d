@@ -51,6 +51,11 @@ public:
 	//!	Returns -1 if the name cannot be found.
 	int findJointByName(const wchar_t* name) const;
 
+	/*!	Swap with another Skeleton, used in SkeletonLoader to minimize memory copy.
+		\note The resource name will not be swap.
+	 */
+	void swap(Skeleton& rhs);
+
 // Attributes
 	/*!	Array of index specifing the parent of a joint.
 		The root joint will indicate by an index which point to itself, ie at index = 0.

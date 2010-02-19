@@ -144,6 +144,8 @@ MCD_CORE_API void write(std::ostream& os, uint32_t val);
 MCD_CORE_API void write(std::ostream& os, float val);
 
 //!	Specialization for writing string
+MCD_CORE_API void writeString(std::ostream& os, const std::string& val);
+MCD_CORE_API void writeString(std::ostream& os, const std::wstring& val);
 MCD_CORE_API void writeString(std::ostream& os, const char* val, size_t len=0);
 
 //!	Generic write
@@ -158,6 +160,7 @@ MCD_CORE_API sal_checkreturn bool read(std::istream& is, float& val);
 
 //!	Specialization for reading string
 MCD_CORE_API sal_checkreturn bool readString(std::istream& is, std::string& val);
+MCD_CORE_API sal_checkreturn bool readString(std::istream& is, std::wstring& val);
 MCD_CORE_API sal_checkreturn size_t readString(std::istream& is, char* buf, size_t bufLen);
 MCD_CORE_API sal_checkreturn size_t readString(std::istream& is, char* buf, size_t bufLen, char seperator);
 
