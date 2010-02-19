@@ -67,11 +67,11 @@ IResourceLoader::LoadingState MeshLoader::Impl::load(std::istream* is, const Pat
 	// Write the attribute descriptions
 	for(size_t i=0; i<attributeCount; ++i) {
 		// NOTE: For simplicity, Mesh::Attribute::semantic is read but ignored.
-		is->read((char*)&attributes[i], sizeof(Mesh::Attribute));
+		ABORT_IF(!MCD::read(*is, &attributes[i], sizeof(Mesh::Attribute)));
 
 		// Reconstruct the static string pointer from SemanticMap
 		char buf[128];
-		ABORT_IF(MCD::read(*is, buf, sizeof(buf)) == 0);
+		ABORT_IF(MCD::readString(*is, buf, sizeof(buf)) == 0);
 
 		MeshBuilder::Semantic semantic;
 		ABORT_IF(!semanticMap.find(buf, semantic));
@@ -85,7 +85,7 @@ IResourceLoader::LoadingState MeshLoader::Impl::load(std::istream* is, const Pat
 		MCD::read(*is, size);
 		bufferSizes[i] = size;
 		buffers[i] = new char[size];
-		ABORT_IF(is->rdbuf()->sgetn((char*)buffers[i], size) != std::streamsize(size));
+		ABORT_IF(MCD::read(*is, buffers[i], size) != std::streamsize(size));
 	}
 
 	return mLoadingState = Loaded;

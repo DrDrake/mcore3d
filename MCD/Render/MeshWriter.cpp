@@ -22,7 +22,7 @@ bool MeshWriter::write(std::ostream& os, const Mesh& mesh)
 	for(size_t i=0; i<mesh.attributeCount; ++i) {
 		// NOTE: For simplicity, Mesh::Attribute::semantic is written but ignored.
 		os.write((char*)&mesh.attributes[i], sizeof(Mesh::Attribute));
-		MCD::write(os, mesh.attributes[i].semantic);
+		MCD::writeString(os, mesh.attributes[i].semantic);
 	}
 
 	// Write the buffers
@@ -35,7 +35,7 @@ bool MeshWriter::write(std::ostream& os, const Mesh& mesh)
 			return false;
 		}
 		MCD::write(os, uint32_t(size));
-		os.write((char*)data, size);
+		MCD::write(os, data, size);
 	}
 	mesh.unmapBuffers(mapped);
 

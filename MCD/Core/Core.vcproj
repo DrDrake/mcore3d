@@ -549,6 +549,14 @@
 					>
 				</File>
 				<File
+					RelativePath=".\Math\AnimationTrackLoader.h"
+					>
+				</File>
+				<File
+					RelativePath=".\Math\AnimationTrackWriter.h"
+					>
+				</File>
+				<File
 					RelativePath=".\Math\BasicFunction.h"
 					>
 				</File>
@@ -642,6 +650,14 @@
 				</File>
 				<File
 					RelativePath=".\Math\AnimationTrack.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\Math\AnimationTrackLoader.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\Math\AnimationTrackWriter.cpp"
 					>
 				</File>
 				<File

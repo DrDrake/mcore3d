@@ -157,7 +157,7 @@ public:
 		Semantic semantic;
 		char* p = getAttributePointer(attributeId, &count, &stride, nullptr, nullptr, &semantic);
 		if(p && sizeof(T) == semantic.elementCount * semantic.elementSize)
-			return StrideArray<T>(p, count, stride);
+			return StrideArray<T>(reinterpret_cast<T*>(p), count, stride);
 		return StrideArray<T>(nullptr, 0, 0);
 	}
 

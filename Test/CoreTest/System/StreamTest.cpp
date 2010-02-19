@@ -388,26 +388,26 @@ TEST(BinaryUtility_StreamTest)
 	{	// String IO
 		s.clear();
 		const char val[] = "hello!";
-		write(s, val);
+		writeString(s, val);
 
 		char buf[64];
-		CHECK_EQUAL(::strlen(val), read(s, buf, MCD_COUNTOF(buf)));
+		CHECK_EQUAL(::strlen(val), readString(s, buf, MCD_COUNTOF(buf)));
 		CHECK(::strcmp(val, buf) == 0);
 
 		// Partial wirte
 		s.clear();
-		write(s, val, 4);
-		CHECK_EQUAL(4u, read(s, buf, MCD_COUNTOF(buf)));
+		writeString(s, val, 4);
+		CHECK_EQUAL(4u, readString(s, buf, MCD_COUNTOF(buf)));
 		CHECK(::strcmp("hell", buf) == 0);
 	}
 
 	{	// Read string with limited buffer
 		s.clear();
 		const char val[] = "hello!";
-		write(s, val);
+		writeString(s, val);
 
 		char buf[4];
-		CHECK_EQUAL(MCD_COUNTOF(buf)-1, read(s, buf, MCD_COUNTOF(buf)));
+		CHECK_EQUAL(MCD_COUNTOF(buf)-1, readString(s, buf, MCD_COUNTOF(buf)));
 		CHECK(::strcmp("hel", buf) == 0);
 	}
 }

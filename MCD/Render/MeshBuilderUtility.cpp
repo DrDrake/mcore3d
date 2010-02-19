@@ -80,7 +80,7 @@ void MeshBuilderUtility::split(size_t splitCount, MeshBuilder& srcBuilder, MeshB
 		uniqueIdx.clear();
 		uint16_t uniqueVertexCount = 0;
 		MCD_VERIFY(outBuilders[i]->resizeIndexBuffer(srcIdx.size));
-		StrideArray<uint16_t> outIdx(outBuilders[i]->getBufferPointer(0), srcIdx.size); 
+		StrideArray<uint16_t> outIdx(reinterpret_cast<uint16_t*>(outBuilders[i]->getBufferPointer(0)), srcIdx.size); 
 
 		// Build up the unique index map
 		for(size_t j=0; j<srcIdx.size; ++j) {

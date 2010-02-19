@@ -6,6 +6,13 @@
 
 namespace MCD {
 
+class MCD_RENDER_API AnimationTrackLoaderFactory : public ResourceManager::IFactory
+{
+public:
+	sal_override ResourcePtr createResource(const Path& fileId, const wchar_t* args);
+	sal_override IResourceLoader* createLoader();
+};	// AnimationTrackLoaderFactory
+
 class MCD_RENDER_API CubemapLoaderFactory : public ResourceManager::IFactory
 {
 public:

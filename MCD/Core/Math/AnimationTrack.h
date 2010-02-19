@@ -133,6 +133,11 @@ public:
 	 */
 	void releaseWriteLock() const;
 
+	/*!	Swap with another AnimationTrack, used in AnimationTrackLoader to minimize memory copy.
+		\note The resource name will not be swap.
+	 */
+	void swap(AnimationTrack& rhs);
+
 // Attributes
 	/*!	Number of sub-track.
 		For example, one sub-track for position, another sub-track for color.
