@@ -21,6 +21,8 @@ public:
 	 */
 	virtual int processLoadingEvents();
 
+	MCD::IFileSystem& fileSystem() const;
+
 protected:
 	void setupFactories();
 

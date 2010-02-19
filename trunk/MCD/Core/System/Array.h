@@ -98,9 +98,11 @@ template<typename T>
 class StrideArray
 {
 public:
-	StrideArray(const void* _data, size_t elementCount, size_t _stride=0)
+	StrideArray(const T* _data, size_t elementCount, size_t _stride=0)
 		: data((char*)_data), size(elementCount), stride(_stride == 0 ? sizeof(T) : _stride)
-	{}
+	{
+		MCD_ASSERT(stride >= sizeof(T));
+	}
 
 	//! Construct from non-const version of StrideArray<T>, U must have the const qualifier.
 	template<typename U>
@@ -130,7 +132,7 @@ template<typename T, size_t stride=sizeof(T)>
 class FixStrideArray
 {
 public:
-	FixStrideArray(const void* _data, size_t elementCount)
+	FixStrideArray(const T* _data, size_t elementCount)
 		: data((char*)_data), size(elementCount)
 #ifndef NDEBUG
 		, cStride(stride)

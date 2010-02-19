@@ -35,17 +35,19 @@ IFileSystem* createDefaultFileSystem()
 class DefaultResourceManager::Impl
 {
 public:
-	Impl(const wchar_t* monitorDirectory)
-		: mMonitor(monitorDirectory, true)
+	Impl(IFileSystem& fileSystem)
+		: mMonitor(fileSystem.getRoot().getString().c_str(), true)
+		, mFileSystem(fileSystem)
 	{
 	}
 
 	MCD::RawFileSystemMonitor mMonitor;
+	IFileSystem& mFileSystem;
 };	// Impl
 
 DefaultResourceManager::DefaultResourceManager(IFileSystem& fileSystem)
 	: ResourceManager(fileSystem)
-	, mImpl(*new Impl(fileSystem.getRoot().getString().c_str()))
+	, mImpl(*new Impl(fileSystem))
 {
 	setupFactories();
 }
@@ -53,6 +55,11 @@ DefaultResourceManager::DefaultResourceManager(IFileSystem& fileSystem)
 DefaultResourceManager::~DefaultResourceManager()
 {
 	delete &mImpl;
+}
+
+MCD::IFileSystem& DefaultResourceManager::fileSystem() const
+{
+	return mImpl.mFileSystem;
 }
 
 int DefaultResourceManager::processLoadingEvents()
@@ -84,6 +91,7 @@ int DefaultResourceManager::processLoadingEvents()
 
 void DefaultResourceManager::setupFactories()
 {
+	addFactory(new AnimationTrackLoaderFactory);
 	addFactory(new BitmapLoaderFactory);
 	addFactory(new DdsLoaderFactory);
 	addFactory(new EffectLoaderFactory(*this));

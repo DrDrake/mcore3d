@@ -11,6 +11,7 @@
 #include "../Core/System/Mutex.h"
 #include "../Core/System/PtrVector.h"
 #include "../Core/System/ResourceManager.h"
+#include "../Core/System/Stream.h"
 #include "../Core/System/StrUtility.h"
 #include "../Core/System/Utility.h"	// for FOR_EACH
 #include <limits>
@@ -154,25 +155,8 @@ public:
 	MeshBuilderPtr meshBuilder;
 };	// Geometry
 
-sal_checkreturn bool readString(std::istream& is, char* buf, size_t bufLen)
-{
-	is.getline(buf, bufLen, '\n');
-	size_t readCnt = static_cast<size_t>(is.gcount());
-	return readCnt > 0 && readCnt < bufLen;
-}
-
-sal_checkreturn bool readBool(std::istream& is, bool& result)
-{
-	uint8_t tmp;
-	is.read((char*)&tmp, 1);
-	result = tmp > 0;
-	return is.gcount() == 1;
-}
-
-sal_checkreturn bool readUInt32Array(std::istream& is, uint32_t* result, size_t count)
-{
-	is.read((char*)result, sizeof(*result) * count);
-	return is.gcount() == std::streamsize(sizeof(*result) * count);
+sal_checkreturn bool myReadString(std::istream& is, char* buf, size_t bufLen) {
+	return MCD::readString(is, buf, bufLen, '\n') > 0;
 }
 
 sal_checkreturn bool readUInt16Array(std::istream& is, uint16_t* result, size_t count)
@@ -203,7 +187,7 @@ public:
 			return false;
 
 		char buf[256];
-		return mVersionHeaderLoaded = readString(is, buf, sizeof(buf));
+		return mVersionHeaderLoaded = myReadString(is, buf, sizeof(buf));
 	}
 
 	IResourceLoader::LoadingState load(std::istream* is, const Path* fileId, const wchar_t* args);
@@ -260,21 +244,21 @@ IResourceLoader::LoadingState OgreMeshLoader::Impl::load(std::istream* is, const
 	case M_SUBMESH:
 	{
 		char materialName[256];
-		ABORT_IF(!readString(*is, materialName, sizeof(materialName)));
+		ABORT_IF(!myReadString(*is, materialName, sizeof(materialName)));
 
 		bool useSharedVertices;
-		ABORT_IF(!readBool(*is, useSharedVertices));
+		ABORT_IF(!read(*is, useSharedVertices));
 
 		// TODO: Handle shared vertices between sub-meshes
 		ABORT_IF(useSharedVertices);
 
 		// TODO: Check the vertex count will not overflow according to indexes32Bit
-        uint32_t indexCount;
+		uint32_t indexCount;
 		is->read((char*)&indexCount, sizeof(indexCount));
 
 		// TODO: Handle 32-bit index
-        bool indexes32Bit;
-		ABORT_IF(!readBool(*is, indexes32Bit));
+		bool indexes32Bit;
+		ABORT_IF(!read(*is, indexes32Bit));
 
 		Geometry* geo = new Geometry(indexCount);
 		geo->materialName = strToWStr(materialName);
@@ -354,7 +338,7 @@ IResourceLoader::LoadingState OgreMeshLoader::Impl::load(std::istream* is, const
 		ABORT_IF(!readUInt16Array(*is, &idx, 1));
 
 		char subMeshName[256];
-		ABORT_IF(!readString(*is, subMeshName, sizeof(subMeshName)));
+		ABORT_IF(!myReadString(*is, subMeshName, sizeof(subMeshName)));
 
 		if(idx < mGeometry.size())
 			mGeometry[idx].name = strToWStr(subMeshName);
@@ -365,7 +349,7 @@ IResourceLoader::LoadingState OgreMeshLoader::Impl::load(std::istream* is, const
 		is->seekg(header.length - ChunkHeader::cSize, std::ios_base::cur);
 	}
 
-	return mLoadingState = Loaded;
+	return mLoadingState;
 
 	#undef ABORT_IF
 }

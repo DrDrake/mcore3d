@@ -96,16 +96,18 @@ void TextureProperty::begin() const
 {
 	if(!texture || !texture->isValid())
 		return;
-	
-	glActiveTexture(GL_TEXTURE0 + unit);
+
+	if(unit != 0)
+		glActiveTexture(GL_TEXTURE0 + unit);
 
 	glEnable(texture->type);
 	texture->bind();
 	
-	glTexParameteri(texture->type, GL_TEXTURE_MIN_FILTER, minFilter);
-	glTexParameteri(texture->type, GL_TEXTURE_MAG_FILTER, magFilter);
-	
-	glActiveTexture(GL_TEXTURE0);
+//	glTexParameteri(texture->type, GL_TEXTURE_MIN_FILTER, minFilter);
+//	glTexParameteri(texture->type, GL_TEXTURE_MAG_FILTER, magFilter);
+
+	if(unit != 0)
+		glActiveTexture(GL_TEXTURE0);
 }
 
 void TextureProperty::end() const
@@ -113,10 +115,14 @@ void TextureProperty::end() const
 	if(!texture || !texture->isValid())
 		return;
 
-	glActiveTexture(GL_TEXTURE0 + unit);
+	if(unit != 0)
+		glActiveTexture(GL_TEXTURE0 + unit);
+
 	texture->unbind();
 	glDisable(texture->type);
-	glActiveTexture(GL_TEXTURE0);
+
+	if(unit != 0)
+		glActiveTexture(GL_TEXTURE0);
 }
 
 // Shader

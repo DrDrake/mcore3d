@@ -1,22 +1,22 @@
-#ifndef __MCD_RENDER_MESHLOADER__
-#define __MCD_RENDER_MESHLOADER__
+#ifndef __MCD_CORE_ANIMATIONTRACKLOADER__
+#define __MCD_CORE_ANIMATIONTRACKLOADER__
 
-#include "ShareLib.h"
-#include "../Core/System/NonCopyable.h"
-#include "../Core/System/ResourceLoader.h"
+#include "../ShareLib.h"
+#include "../System/NonCopyable.h"
+#include "../System/ResourceLoader.h"
 
 namespace MCD {
 
 class IResourceManager;
 
-/*!	Loader for MCore's .msh file format.
+/*!	Loader for the Ogre 's .mesh file format.
  */
-class MCD_RENDER_API MeshLoader : public IResourceLoader, private Noncopyable
+class MCD_CORE_API AnimationTrackLoader : public IResourceLoader, private Noncopyable
 {
 public:
-	MeshLoader();
+	AnimationTrackLoader();
 
-	sal_override ~MeshLoader();
+	sal_override ~AnimationTrackLoader();
 
 	/*!	Load data from stream.
 		Block until all the data is read into it's internal buffer.
@@ -34,8 +34,8 @@ public:
 protected:
 	class Impl;
 	Impl& mImpl;
-};	// MeshLoader
+};	// AnimationTrackLoader
 
 }	// namespace MCD
 
-#endif	// __MCD_RENDER_MESHLOADER__
+#endif	// __MCD_CORE_ANIMATIONTRACKLOADER__

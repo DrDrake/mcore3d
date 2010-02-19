@@ -262,6 +262,14 @@ StreamBuf* Stream::rdbuf() const {
 	return const_cast<StreamBuf*>(&mBuffer);
 }
 
+void write(std::ostream& os, bool val) {
+	write(os, static_cast<char>(val));
+}
+
+void write(std::ostream& os, char val) {
+	os.write(&val, sizeof(val));
+}
+
 void write(std::ostream& os, uint16_t val) {
 	os.write(reinterpret_cast<const char*>(&val), sizeof(val));
 }
@@ -270,12 +278,32 @@ void write(std::ostream& os, uint32_t val) {
 	os.write(reinterpret_cast<const char*>(&val), sizeof(val));
 }
 
-void write(std::ostream& os, const char* val, size_t len)
+void write(std::ostream& os, float val) {
+	os.write(reinterpret_cast<const char*>(&val), sizeof(val));
+}
+
+void writeString(std::ostream& os, const char* val, size_t len)
 {
 	// NOTE: We assume uint32_t as the string length
 	uint32_t len_ = static_cast<uint32_t>(len == 0 ? ::strlen(val) : len);
 	write(os, len_);
 	os.write(val, len_);
+}
+
+void write(std::ostream& os, const void* val, std::streamsize size) {
+	os.rdbuf()->sputn(reinterpret_cast<const char*>(val), size);
+}
+
+bool read(std::istream& is, bool& val)
+{
+	char val_;
+	if(!read(is, val_)) return false;
+	val = val_ > 0;
+	return true;
+}
+
+bool read(std::istream& is, char& val) {
+	return is.rdbuf()->sgetn(&val, sizeof(val)) == sizeof(val);
 }
 
 bool read(std::istream& is, uint16_t& val) {
@@ -286,7 +314,11 @@ bool read(std::istream& is, uint32_t& val) {
 	return is.rdbuf()->sgetn(reinterpret_cast<char*>(&val), sizeof(val)) == sizeof(val);
 }
 
-bool read(std::istream& is, std::string& val)
+bool read(std::istream& is, float& val) {
+	return is.rdbuf()->sgetn(reinterpret_cast<char*>(&val), sizeof(val)) == sizeof(val);
+}
+
+bool readString(std::istream& is, std::string& val)
 {
 	// NOTE: We assume uint32_t as the string length
 	uint32_t len_;
@@ -296,7 +328,7 @@ bool read(std::istream& is, std::string& val)
 	return static_cast<size_t>(is.rdbuf()->sgetn(&val[0], len_)) == len_;
 }
 
-size_t read(std::istream& is, char* buf, size_t bufLen)
+size_t readString(std::istream& is, char* buf, size_t bufLen)
 {
 	// NOTE: We assume uint32_t as the string length
 	uint32_t len_;
@@ -305,6 +337,16 @@ size_t read(std::istream& is, char* buf, size_t bufLen)
 	std::streamsize readCnt = is.rdbuf()->sgetn(buf, len_);
 	buf[readCnt] = '\0';
 	return static_cast<size_t>(readCnt);
+}
+
+size_t readString(std::istream& is, char* buf, size_t bufLen, char seperator)
+{
+	is.getline(buf, bufLen, seperator);
+	return static_cast<size_t>(is.gcount());
+}
+
+std::streamsize read(std::istream& is, void* val, std::streamsize size) {
+	return is.rdbuf()->sgetn(reinterpret_cast<char*>(val), size);
 }
 
 }	// namespace MCD

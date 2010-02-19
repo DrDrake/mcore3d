@@ -17,10 +17,24 @@
 #include "ShaderLoader.h"
 #include "Texture.h"
 #include "TgaLoader.h"
+#include "../Core/Math/AnimationTrack.h"
+#include "../Core/Math/AnimationTrackLoader.h"
 #include "../Core/System/Path.h"
 #include "../Core/System/StrUtility.h"
 
 namespace MCD {
+
+ResourcePtr AnimationTrackLoaderFactory::createResource(const Path& fileId, const wchar_t* args)
+{
+	if(wstrCaseCmp(fileId.getExtension().c_str(), L"anim") == 0)
+		return new AnimationTrack(fileId);
+	return nullptr;
+}
+
+IResourceLoader* AnimationTrackLoaderFactory::createLoader()
+{
+	return new AnimationTrackLoader;
+}
 
 ResourcePtr BitmapLoaderFactory::createResource(const Path& fileId, const wchar_t* args)
 {

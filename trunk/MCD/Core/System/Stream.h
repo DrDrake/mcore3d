@@ -136,15 +136,33 @@ private:
 	StreamBuf mBuffer;
 };	// Stream
 
-// Utility functions for binary read/write
+//!	Utility functions for binary write
+MCD_CORE_API void write(std::ostream& os, bool val);
+MCD_CORE_API void write(std::ostream& os, char val);
 MCD_CORE_API void write(std::ostream& os, uint16_t val);
 MCD_CORE_API void write(std::ostream& os, uint32_t val);
-MCD_CORE_API void write(std::ostream& os, const char* val, size_t len=0);
+MCD_CORE_API void write(std::ostream& os, float val);
 
+//!	Specialization for writing string
+MCD_CORE_API void writeString(std::ostream& os, const char* val, size_t len=0);
+
+//!	Generic write
+MCD_CORE_API void write(std::ostream& os, const void* val, std::streamsize size);
+
+//!	Utility functions for binary read
+MCD_CORE_API sal_checkreturn bool read(std::istream& is, bool& val);
+MCD_CORE_API sal_checkreturn bool read(std::istream& is, char& val);
 MCD_CORE_API sal_checkreturn bool read(std::istream& is, uint16_t& val);
 MCD_CORE_API sal_checkreturn bool read(std::istream& is, uint32_t& val);
-MCD_CORE_API sal_checkreturn bool read(std::istream& is, std::string& val);
-MCD_CORE_API sal_checkreturn size_t read(std::istream& is, char* buf, size_t bufLen);
+MCD_CORE_API sal_checkreturn bool read(std::istream& is, float& val);
+
+//!	Specialization for reading string
+MCD_CORE_API sal_checkreturn bool readString(std::istream& is, std::string& val);
+MCD_CORE_API sal_checkreturn size_t readString(std::istream& is, char* buf, size_t bufLen);
+MCD_CORE_API sal_checkreturn size_t readString(std::istream& is, char* buf, size_t bufLen, char seperator);
+
+//!	Generic read
+MCD_CORE_API sal_checkreturn std::streamsize read(std::istream& is, void* val, std::streamsize size);
 
 }	// namespace MCD
 

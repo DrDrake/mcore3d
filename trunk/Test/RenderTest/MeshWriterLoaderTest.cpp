@@ -46,6 +46,7 @@ TEST(MeshWriterLoaderTest)
 
 	fs.release();
 
+	// Check the result
 	CHECK_EQUAL(mesh->bufferCount, mesh2->bufferCount);
 	CHECK_EQUAL(mesh->attributeCount, mesh2->attributeCount);
 	CHECK_EQUAL(mesh->vertexCount, mesh2->vertexCount);

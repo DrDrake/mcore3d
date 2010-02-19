@@ -48,7 +48,7 @@ bool AnimationTrack::init(const StrideArray<const size_t>& subtrackFrameCount)
 	if(subtrackFrameCount.isEmpty())
 		return false;
 
-	MCD_ASSERT(mMutex.isLocked());
+	MCD_ASSERT(mMutex.isLocked() && "Please acquire write lock first");
 
 	if(isCommitted())
 		return false;
@@ -63,8 +63,8 @@ bool AnimationTrack::init(const StrideArray<const size_t>& subtrackFrameCount)
 
 	const size_t subtrackCount = subtrackFrameCount.size;
 	MemoryProfiler::Scope scope("AnimationTrack::init");
-	keyframes = KeyFrames(::malloc(totalFrameCount * sizeof(KeyFrame)), totalFrameCount);
-	subtracks = Subtracks(::malloc(subtrackCount * sizeof(Subtrack)), subtrackCount);
+	keyframes = KeyFrames(reinterpret_cast<KeyFrame*>(::malloc(totalFrameCount * sizeof(KeyFrame))), totalFrameCount);
+	subtracks = Subtracks(reinterpret_cast<Subtrack*>(::malloc(subtrackCount * sizeof(Subtrack))), subtrackCount);
 
 	::memset(keyframes.data, 0, keyframes.sizeInByte());
 	::memset(subtracks.data, 0, subtracks.sizeInByte());
@@ -88,7 +88,7 @@ size_t AnimationTrack::subtrackCount() const
 
 size_t AnimationTrack::keyframeCount(size_t index) const
 {
-	MCD_ASSERT(mMutex.isLocked());
+	MCD_ASSERT(mMutex.isLocked() && "Please acquire read lock first");
 
 	if(index < subtrackCount())
 		return subtracks[index].frameCount;
@@ -97,7 +97,7 @@ size_t AnimationTrack::keyframeCount(size_t index) const
 
 float AnimationTrack::totalTime(size_t index) const
 {
-	MCD_ASSERT(mMutex.isLocked());
+	MCD_ASSERT(mMutex.isLocked() && "Please acquire read lock first");
 
 	if(index < subtrackCount()) {
 		KeyFrames f = const_cast<AnimationTrack*>(this)->getKeyFramesForSubtrack(index);
@@ -115,7 +115,7 @@ float AnimationTrack::totalTime() const
 
 AnimationTrack::KeyFrames AnimationTrack::getKeyFramesForSubtrack(size_t index)
 {
-	MCD_ASSERT(mMutex.isLocked());
+	MCD_ASSERT(mMutex.isLocked() && "Please acquire write lock first");
 
 	if(index < subtrackCount())
 		return KeyFrames(&keyframes[subtracks[index].index], subtracks[index].frameCount);
@@ -139,7 +139,7 @@ void AnimationTrack::interpolateNoLock(float time, const Interpolations& result)
 
 void AnimationTrack::interpolateSingleSubtrack(float time, Interpolation& result, size_t trackIndex) const
 {
-	MCD_ASSERT(mMutex.isLocked());
+	MCD_ASSERT(mMutex.isLocked() && "Please acquire read lock first");
 
 	if(!mCommitted)
 		return;
@@ -214,7 +214,7 @@ void AnimationTrack::interpolateSingleSubtrack(float time, Interpolation& result
 
 bool AnimationTrack::checkValid() const
 {
-	MCD_ASSERT(mMutex.isLocked());
+	MCD_ASSERT(mMutex.isLocked() && "Please acquire read lock first");
 
 	if(subtrackCount() == 0)
 		return false;
@@ -265,9 +265,21 @@ void AnimationTrack::releaseWriteLock() const
 	mMutex.unlock();
 }
 
+void AnimationTrack::swap(AnimationTrack& rhs)
+{
+	AnimationTrack::ScopedWriteLock lock(*this), lock2(rhs);
+
+	std::swap(keyframes, rhs.keyframes);
+	std::swap(subtracks, rhs.subtracks);
+	std::swap(loop, rhs.loop);
+	std::swap(naturalFramerate, rhs.naturalFramerate);
+	std::swap(mTotalTime, rhs.mTotalTime);
+	std::swap(mCommitted, rhs.mCommitted);
+}
+
 bool AnimationTrack::isCommitted() const
 {
-	MCD_ASSERT(mMutex.isLocked());
+	MCD_ASSERT(mMutex.isLocked() && "Please acquire read lock first");
 	return mCommitted;
 }
 

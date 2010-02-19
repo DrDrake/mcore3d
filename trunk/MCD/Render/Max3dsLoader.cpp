@@ -14,6 +14,7 @@
 #include "../Core/System/MemoryProfiler.h"
 #include "../Core/System/Mutex.h"
 #include "../Core/System/ResourceManager.h"
+#include "../Core/System/Stream.h"
 #include "../Core/System/StrUtility.h"
 #include "../Core/System/Utility.h"
 #include <limits>	// For numeric_limits
@@ -124,10 +125,10 @@ public:
 /*!	This stream class provides some add on functionality over the std::istream,
 	and provide more error checking.
  */
-class Stream
+class MyStream
 {
 public:
-	Stream(std::istream& is, volatile IResourceLoader::LoadingState& loadingState)
+	MyStream(std::istream& is, volatile IResourceLoader::LoadingState& loadingState)
 		: mIs(is), mLoadingState(loadingState)
 	{}
 
@@ -163,8 +164,8 @@ public:
 		header.length = 0;
 
 		// We use the raw std::istream to get ride the IResourceLoader::Aborted
-		mIs.read((char*)&header.id, sizeof(header.id));
-		mIs.read((char*)&header.length, sizeof(header.length));
+		(void)MCD::read(mIs, header.id);
+		(void)MCD::read(mIs, header.length);
 
 		if(header.id == 0 || header.length == 0) {
 			if(header.id != 0 || header.length != 0)
@@ -185,7 +186,7 @@ public:
 
 	std::istream& mIs;
 	volatile IResourceLoader::LoadingState& mLoadingState;
-};	// Stream
+};	// MyStream
 
 }	// namespace
 
@@ -216,7 +217,7 @@ private:
 	void postProcess();
 
 private:
-	Stream* mStream;
+	MyStream* mStream;
 	IResourceManager* mResourceManager;
 
 	struct LoadOptions
@@ -857,7 +858,7 @@ IResourceLoader::LoadingState Max3dsLoader::Impl::load(std::istream* is, const P
 		return mLoadingState;
 
 	if(!mStream)
-		mStream = new Stream(*is, mLoadingState);
+		mStream = new MyStream(*is, mLoadingState);
 
 	readChunks(fileId);
 
