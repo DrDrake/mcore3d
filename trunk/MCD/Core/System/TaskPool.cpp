@@ -50,6 +50,7 @@ public:
 
 TaskPool::Task::Task(int priority)
 	: MapBase<int>::Node<Task>(priority)
+	, taskPool(nullptr)
 {
 }
 
@@ -113,6 +114,8 @@ TaskPool::~TaskPool()
 
 void TaskPool::enqueue(Task& task)
 {
+	// NOTE: The assignment should appear before insert()
+	task.taskPool = this;
 	mTaskQueue->insert(task);
 }
 

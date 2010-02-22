@@ -103,7 +103,7 @@ public:
 	{
 	public:
 		Task(ResourceManager& manager, MapNode& mapNode, const IResourceLoaderPtr& loader,
-			EventQueue& eventQueue, std::istream* is, uint priority, TaskPool& taskPool, const wchar_t* args)
+			EventQueue& eventQueue, std::istream* is, uint priority, TaskPool& tp, const wchar_t* args)
 			:
 			MCD::TaskPool::Task(priority),
 			mResourceManager(manager),
@@ -112,9 +112,9 @@ public:
 			mLoader(loader),
 			mEventQueue(eventQueue),
 			mIStream(is),
-			mTaskPool(taskPool),
 			mArgs(args == nullptr ? L"" : args)
 		{
+			taskPool = &tp;	// We make an early assignment of the taskPool member variable
 		}
 
 		sal_override void run(Thread& thread) throw()
@@ -137,7 +137,7 @@ public:
 				if(state & IResourceLoader::Stopped)
 					break;
 
-				Task* task = new Task(mResourceManager, mMapNode, mLoader, mEventQueue, mIStream.release(), priority(), mTaskPool, mArgs.c_str());
+				Task* task = new Task(mResourceManager, mMapNode, mLoader, mEventQueue, mIStream.release(), priority(), *taskPool, mArgs.c_str());
 
 				// The onPartialLoaded() callback will decide when to continue the partial load
 				mLoader->onPartialLoaded(*task, priority(), mArgs.c_str());
@@ -153,7 +153,8 @@ public:
 			// NOTE: There is no need to lock, since mTaskPool's operation is already thread safe
 			setPriority(priority);
 			mArgs = args ? args : L"";
-			mTaskPool.enqueue(*this);
+			MCD_ASSUME(taskPool);
+			taskPool->enqueue(*this);
 		}
 
 		ResourceManager& mResourceManager;
@@ -162,15 +163,21 @@ public:
 		IResourceLoaderPtr mLoader;			// Hold the life of the IResourceLoader
 		EventQueue& mEventQueue;
 		std::auto_ptr<std::istream> mIStream;	// Keep the life of the stream align with the Task
-		TaskPool& mTaskPool;
 		std::wstring mArgs;
 	};	// Task
 
 public:
-	Impl(ResourceManager& manager, IFileSystem& fileSystem, bool takeFileSystemOwnership)
-		: mResourceManager(manager), mFileSystem(fileSystem), mTakeFileSystemOwnership(takeFileSystemOwnership)
+	Impl(TaskPool* externalTaskPool, ResourceManager& manager, IFileSystem& fileSystem, bool takeFileSystemOwnership)
+		: mTaskPool(externalTaskPool)
+		, mResourceManager(manager)
+		, mFileSystem(fileSystem)
+		, mTakeFileSystemOwnership(takeFileSystemOwnership)
 	{
-		mTaskPool.setThreadCount(1);
+		mIsExternalTaskPool = externalTaskPool != nullptr;
+		if(!externalTaskPool)
+			mTaskPool.reset(new TaskPool);
+
+		mTaskPool->setThreadCount(1);
 	}
 
 	~Impl()
@@ -179,13 +186,16 @@ public:
 		// Tasks may be invoked in this thread context and so they
 		// may try to acquire mEventQueue.mMutex. Acquiring the mutex
 		// before calling task pool stop will result a dead lock.
-		mTaskPool.stop();
+		mTaskPool->stop();
 
 		{	ScopeLock lock(mEventQueue.mMutex);
 			if(mTakeFileSystemOwnership)
 				delete &mFileSystem;
 			removeAllFactory();
 		}
+
+		if(mIsExternalTaskPool)
+			mTaskPool.release();
 	}
 
 	MapNode* findMapNode(const Path& fileId)
@@ -215,7 +225,7 @@ public:
 		std::auto_ptr<std::istream> is(mFileSystem.openRead(fileId));
 
 		// Create the task to submit to the task pool
-		Task* task = new Task(mResourceManager, node, loader, mEventQueue, is.get(), priority, mTaskPool, args);
+		Task* task = new Task(mResourceManager, node, loader, mEventQueue, is.get(), priority, *mTaskPool, args);
 		is.release();	// We have transfered the ownership of istream to Task
 
 		// Prevent lock hierarchy.
@@ -226,7 +236,7 @@ public:
 			if(loader->load(task->mIStream.get(), &fileId, args))
 				loader->onPartialLoaded(*task, priority, args);
 		} else {
-			mTaskPool.enqueue(*task);
+			mTaskPool->enqueue(*task);
 		}
 	}
 
@@ -261,7 +271,8 @@ public:
 	}
 
 public:
-	TaskPool mTaskPool;
+	std::auto_ptr<TaskPool> mTaskPool;
+	bool mIsExternalTaskPool;
 
 	Map<MapNode::PathKey> mResourceMap;
 
@@ -280,7 +291,12 @@ public:
 
 ResourceManager::ResourceManager(IFileSystem& fileSystem, bool takeFileSystemOwnership)
 {
-	mImpl = new Impl(*this, fileSystem, takeFileSystemOwnership);
+	mImpl = new Impl(nullptr, *this, fileSystem, takeFileSystemOwnership);
+}
+
+ResourceManager::ResourceManager(IFileSystem& fileSystem, TaskPool& taskPool, bool takeFileSystemOwnership)
+{
+	mImpl = new Impl(&taskPool, *this, fileSystem, takeFileSystemOwnership);
 }
 
 ResourceManager::~ResourceManager()
@@ -536,7 +552,7 @@ void ResourceManager::removeAllFactory()
 TaskPool& ResourceManager::taskPool()
 {
 	MCD_ASSUME(mImpl != nullptr);
-	return mImpl->mTaskPool;
+	return *mImpl->mTaskPool;
 }
 
 void ResourceManagerCallback::addDependency(const Path& fileId)

@@ -59,6 +59,14 @@ public:
 		int priority() const;
 
 		void setPriority(int priority);
+
+		/*!	Automatically points to the TaskPool once the Task is enqueued.
+			This point can be null but never points to invalid TaskPool, since
+			all Task will also destroyed if the TaskPool destroy.
+
+			This variable is usefull when you want to enqueue more tasks in the task.
+		 */
+		sal_maybenull TaskPool* taskPool;
 	};	// Task
 
 	TaskPool();
