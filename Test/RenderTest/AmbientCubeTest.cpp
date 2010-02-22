@@ -303,11 +303,6 @@ public:
 		mObj2->update(deltaTime);
 
 		// finally render
-		render();
-	}
-
-	void render()
-	{
 		RenderableComponent::traverseEntities(&mRootNode);
 	}
 

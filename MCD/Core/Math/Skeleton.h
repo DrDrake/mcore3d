@@ -26,7 +26,6 @@ public:
 	 */
 	std::vector<Mat44f> transforms;
 
-
 	//!	Usefull for getting back the joint's location, even the base pose is already baked into the animation.
 	std::vector<Mat44f> basePoseInverse;
 
