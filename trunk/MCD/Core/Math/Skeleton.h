@@ -26,9 +26,6 @@ public:
 	 */
 	std::vector<Mat44f> transforms;
 
-	//!	Usefull for getting back the joint's location, even the base pose is already baked into the animation.
-	std::vector<Mat44f> basePoseInverse;
-
 	//! Including the root joint.
 	size_t jointCount() const {
 		return transforms.size();
@@ -38,14 +35,18 @@ public:
 	const Mat44f& rootJointTransform() const { return transforms[0]; }
 };	// SkeletonPose
 
+// TODO: Utilize StrideArray to unify the scattered std::vectors.
 class MCD_CORE_API Skeleton : public Resource
 {
 public:
 	explicit Skeleton(const Path& fileId);
 
 // Operations
-	//!	Resize the various array.
+	//!	Resize the various array, including \em basePose.
 	void init(size_t jointCount);
+
+	//!	Calculate the inverse of basePose's matrix and assign to \em basePoseInverse.
+	void initBasePoseInverse();
 
 	//!	Returns -1 if the name cannot be found.
 	int findJointByName(const wchar_t* name) const;
@@ -63,6 +64,13 @@ public:
 
 	//!	Name of each joint
 	std::vector<std::wstring> names;
+
+	SkeletonPose basePose;
+
+	/*!	Usefull for skinning using the base pose, or getting back the joint's location,
+		even the base pose is already baked into the animation.
+	 */
+	std::vector<Mat44f> basePoseInverse;
 
 protected:
 	sal_override ~Skeleton();
