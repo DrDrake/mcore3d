@@ -183,9 +183,15 @@ public:
 
 	/*!	Construct ResourceManager and associate it with a file system.
 		\param takeFileSystemOwnership If true, ResourceManager will take ownership of \em fileSystem and delete it on ~ResourceManager()
-		\note By default 1 worker thread is used.
+		\note One thread is created internally.
 	 */
 	explicit ResourceManager(IFileSystem& fileSystem, bool takeFileSystemOwnership=true);
+
+	/*!	Constructor that take an external TaskPool for job processing.
+		\note The taskPool should has a longer life time than the ResourceManager, and make sure
+			the taskPool is in the stopped state before ResourceManager get destroyed.
+	 */
+	ResourceManager(IFileSystem& fileSystem, TaskPool& taskPool, bool takeFileSystemOwnership=true);
 
 	sal_override ~ResourceManager();
 
