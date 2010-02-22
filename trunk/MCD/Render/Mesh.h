@@ -152,7 +152,7 @@ public:
 		const Attribute& a = attributes[attributeIdx];
 		MCD_ASSERT(a.elementSize * a.elementCount == sizeof(T));
 		size_t count = (attributeIdx == size_t(indexAttrIdx)) ? indexCount : vertexCount;
-		return StrideArray<T>(reinterpret_cast<T*>(mapBuffer(a.bufferIndex, mapped, mapOptions)) + a.byteOffset, count, a.stride);
+		return StrideArray<T>(reinterpret_cast<T*>(static_cast<char*>(mapBuffer(a.bufferIndex, mapped, mapOptions)) + a.byteOffset), count, a.stride);
 	}
 
 	void unmapBuffers(MappedBuffers& mapped) const;

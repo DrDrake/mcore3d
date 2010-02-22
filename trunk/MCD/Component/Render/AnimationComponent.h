@@ -5,13 +5,12 @@
 #include "../../Core/Entity/BehaviourComponent.h"
 #include "../../Core/System/SharedPtr.h"
 
-#include "../../Core/System/Timer.h"
-
 namespace MCD {
 
 class AnimationThread;
 class AnimationInstance;
 
+//!	A component that use the AnimationInstance to control some aspects of an Entity.
 class MCD_COMPONENT_API AnimationComponent : public BehaviourComponent
 {
 	class MyAnimationInstance;

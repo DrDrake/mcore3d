@@ -154,6 +154,7 @@ TEST(ThreadedPhysicsComponentTest)
 		{
 			mResourceManager.processLoadingEvents();
 
+			BehaviourComponent::traverseEntities(&mRootNode, deltaTime);
 			RenderableComponent::traverseEntities(&mRootNode);
 
 #ifdef USE_HARDWARE_INSTANCE
@@ -161,8 +162,6 @@ TEST(ThreadedPhysicsComponentTest)
 			mCamera.computeView(viewMat.getPtr());
 			mBallInstMesh->update(viewMat);
 #endif
-
-			BehaviourComponent::traverseEntities(&mRootNode, 0.0f);
 		}
 
 		virtual ~TestWindow()
