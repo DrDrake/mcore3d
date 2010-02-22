@@ -17,6 +17,14 @@ void Skeleton::init(size_t jointCount)
 {
 	parents.resize(jointCount);
 	names.resize(jointCount);
+	basePose.init(jointCount);
+	basePoseInverse.resize(jointCount);
+}
+
+void Skeleton::initBasePoseInverse()
+{
+	for(size_t i=0; i<basePoseInverse.size(); ++i)
+		basePose.transforms[i].inverse(basePoseInverse[i]);
 }
 
 int Skeleton::findJointByName(const wchar_t* name) const
@@ -31,6 +39,8 @@ void Skeleton::swap(Skeleton& rhs)
 {
 	std::swap(parents, rhs.parents);
 	std::swap(names, rhs.names);
+	std::swap(basePose, rhs.basePose);
+	std::swap(basePoseInverse, rhs.basePoseInverse);
 }
 
 Skeleton::~Skeleton()

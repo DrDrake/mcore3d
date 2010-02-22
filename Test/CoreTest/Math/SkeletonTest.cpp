@@ -55,6 +55,10 @@ TEST(SkeletonTest)
 
 	SkeletonPtr skeleton = new Skeleton(L"");
 	skeleton->init(jointCount);
+
+	CHECK_EQUAL(jointCount, skeleton->basePose.jointCount());
+	CHECK_EQUAL(jointCount, skeleton->basePoseInverse.size());
+
 	skeleton->parents[0] = 0;
 	skeleton->parents[1] = 0;
 	skeleton->parents[2] = 1;
