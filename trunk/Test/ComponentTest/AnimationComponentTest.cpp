@@ -4,6 +4,7 @@
 #include "../../MCD/Core/Entity/Entity.h"
 #include "../../MCD/Core/Math/AnimationInstance.h"
 #include "../../MCD/Core/Math/Quaternion.h"
+#include "../../MCD/Core/System/TaskPool.h"
 #include "../../MCD/Render/ChamferBox.h"
 #include "../../MCD/Render/Mesh.h"
 #include "../../MCD/Component/Render/MeshComponent.h"
@@ -33,6 +34,11 @@ public:
 			MCD_VERIFY(commitMesh(chamferBoxBuilder, *mesh, Mesh::Static));
 		}
 
+		{	// Setup the animation updater
+			updater = new AnimationUpdaterComponent(&taskPool);
+			mRootNode.addComponent(updater.get());
+		}
+
 		for(size_t i=0; i<cBoxCount; ++i)
 			createARandomBox();
 	}
@@ -55,7 +61,7 @@ public:
 			c->mesh = mesh;
 		}
 
-		{	AnimationComponent* c = new AnimationComponent(animationThread);
+		{	AnimationComponent* c = new AnimationComponent(*updater);
 			e2->addComponent(c);
 			MCD_VERIFY(c->animationInstance.addTrack(*animationTrack));
 			c->animationInstance.time = initialAnimationTime;
@@ -63,6 +69,8 @@ public:
 
 		e1.release();
 		e2.release();
+
+		taskPool.setThreadCount(1);
 	}
 
 	void createARandomBox()
@@ -160,12 +168,13 @@ public:
 	}
 
 	// The animation thread must destroy after mRootNode.
-	AnimationThread animationThread;
+	AnimationUpdaterComponentPtr updater;
 	Entity mRootNode;
 	MeshPtr mesh;
 	Timer mTimer;	// Simulate a reload of the AnimationTrack every few seconds.
 	AnimationTrackPtr animationTrack;
 	DefaultResourceManager mResourceManager;
+	TaskPool taskPool;
 };	// TestWindow
 
 }	// namespace

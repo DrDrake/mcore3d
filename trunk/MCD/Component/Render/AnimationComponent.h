@@ -7,8 +7,9 @@
 
 namespace MCD {
 
-class AnimationThread;
 class AnimationInstance;
+class TaskPool;
+typedef WeakPtr<class AnimationUpdaterComponent> AnimationUpdaterComponentPtr;
 
 //!	A component that use the AnimationInstance to control some aspects of an Entity.
 class MCD_COMPONENT_API AnimationComponent : public BehaviourComponent
@@ -16,14 +17,15 @@ class MCD_COMPONENT_API AnimationComponent : public BehaviourComponent
 	class MyAnimationInstance;
 
 public:
-	explicit AnimationComponent(AnimationThread& animThread);
+	explicit AnimationComponent(AnimationUpdaterComponent& animationThread);
 
 	sal_override ~AnimationComponent();
 
 // Cloning
-	sal_override sal_checkreturn bool cloneable() const { return true; }
+	sal_override sal_checkreturn bool cloneable() const;
 
-	sal_override sal_notnull Component* clone() const;
+	//!	Clone will fail if the associated AnimationUpdaterComponent is already destroyed.
+	sal_override sal_maybenull Component* clone() const;
 
 // Operations
 	sal_override void update(float dt);
@@ -37,28 +39,36 @@ public:
 	 */
 	AnimationInstance& animationInstance;
 
+	const AnimationUpdaterComponentPtr animationUpdater;
+
 protected:
-	friend class AnimationThread;
+	friend class AnimationUpdaterComponent;
 
 	/*!	In order to decouple the multi-thread life-time problem,
 		we share the AnimationInstance with the animation update thread.
 	 */
 	typedef SharedPtr<MyAnimationInstance> AnimationInstancePtr;
 	const AnimationInstancePtr mAnimationInstanceHolder;
-
-	AnimationThread& mAnimationThread;
 };	// AnimationComponent
 
 typedef WeakPtr<AnimationComponent> AnimationComponentPtr;
 
-class MCD_COMPONENT_API AnimationThread
+/*!	Centralize the update of many AnimationComponent, resulting better cache coherent.
+	It can also be able to utilize TaskPool for animation update.
+ */
+class MCD_COMPONENT_API AnimationUpdaterComponent : public BehaviourComponent
 {
 public:
-	AnimationThread();
+	/*!	Multi-thread is used if \em taskPool is not null.
+		User has to take care the life time of \em taskPool to be longer than this.
+	 */
+	explicit AnimationUpdaterComponent(sal_in_opt TaskPool* taskPool);
 
-	~AnimationThread();
+	sal_override ~AnimationUpdaterComponent();
 
 // Operations
+	sal_override void update(float dt);
+
 	void pause(bool p);
 
 	void addAnimationComponent(AnimationComponent& ac);
@@ -68,7 +78,7 @@ public:
 protected:
 	class Impl;
 	Impl& mImpl;
-};	// AnimationThreadComponent
+};	// AnimationUpdaterComponent
 
 }	// namespace MCD
 

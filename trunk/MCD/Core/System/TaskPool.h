@@ -45,6 +45,10 @@ public:
 	/*!	A unit of task to put into the job pool.
 		The task must handle their life time, and make sure it's destruction
 		will not happen during the execution of run().
+
+		\note We didn't store a pointer back to TaskPool, cos it's too complicated to 
+			deal with both the life-time and thread problem (especially Task::update() may invoke
+			delete this). This is better be done on application level where more assumption can be made.
 	 */
 	class MCD_CORE_API MCD_ABSTRACT_CLASS Task : public Thread::IRunnable, public MapBase<int>::Node<Task>
 	{
@@ -54,19 +58,11 @@ public:
 
 	public:
 		/*!	Get the priority of the task
-			{ Negative -> low, Normal -> normal, Positive -> hight } priority
+			{ Negative -> low, Zero -> normal, Positive -> hight } priority
 		 */
 		int priority() const;
 
 		void setPriority(int priority);
-
-		/*!	Automatically points to the TaskPool once the Task is enqueued.
-			This point can be null but never points to invalid TaskPool, since
-			all Task will also destroyed if the TaskPool destroy.
-
-			This variable is usefull when you want to enqueue more tasks in the task.
-		 */
-		sal_maybenull TaskPool* taskPool;
 	};	// Task
 
 	TaskPool();

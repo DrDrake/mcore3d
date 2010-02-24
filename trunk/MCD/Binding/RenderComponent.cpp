@@ -16,14 +16,12 @@ using namespace MCD;
 
 namespace script {
 
-// TODO: Remove this temporary solution
-static AnimationThread thread;
-static AnimationComponent* animationComponentCreate() {
-	return new AnimationComponent(thread);
-}
 SCRIPT_CLASS_REGISTER(AnimationComponent)
 	.declareClass<AnimationComponent, Component>(xSTRING("AnimationComponent"))
-	.staticMethod<construct>(xSTRING("constructor"), &animationComponentCreate)
+	.constructor<AnimationUpdaterComponent&>()
+;}
+SCRIPT_CLASS_REGISTER(AnimationUpdaterComponent)
+	.declareClass<AnimationUpdaterComponent, Component>(xSTRING("AnimationUpdaterComponent"))
 ;}
 
 static float cameraComponentGetFov(CameraComponent& self) {

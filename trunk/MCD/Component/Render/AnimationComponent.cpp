@@ -3,10 +3,8 @@
 #include "../../Core/Entity/Entity.h"
 #include "../../Core/Math/AnimationInstance.h"
 #include "../../Core/Math/Quaternion.h"
-#include "../../Core/System/Thread.h"
+#include "../../Core/System/TaskPool.h"
 #include <set>
-
-static const bool cUseAnimationThread = true;
 
 namespace MCD {
 
@@ -50,36 +48,44 @@ public:
 	Mat44f transform;
 };	// MyAnimationInstance
 
-AnimationComponent::AnimationComponent(AnimationThread& animThread)
+AnimationComponent::AnimationComponent(AnimationUpdaterComponent& updater)
 	: animationInstance(*new MyAnimationInstance)
+	, animationUpdater(&updater)
 	, mAnimationInstanceHolder(static_cast<MyAnimationInstance*>(&animationInstance))
-	, mAnimationThread(animThread)
 {
-	animThread.addAnimationComponent(*this);
+	updater.addAnimationComponent(*this);
 }
 
 AnimationComponent::~AnimationComponent()
 {
-	mAnimationThread.removeAnimationComponent(*this);
+	if(animationUpdater)
+		animationUpdater->removeAnimationComponent(*this);
+}
+
+bool AnimationComponent::cloneable() const {
+	return animationUpdater != nullptr;
 }
 
 Component* AnimationComponent::clone() const
 {
-	AnimationComponent* cloned = new AnimationComponent(mAnimationThread);
+	if(!animationUpdater)
+		return nullptr;
+	AnimationComponent* cloned = new AnimationComponent(*animationUpdater);
 	cloned->animationInstance = this->animationInstance;
 	return cloned;
 }
 
 void AnimationComponent::update(float dt)
 {
+	// TODO: Handle disabled AnimationComponent in AnimationUpdaterComponent
 	Entity* e = entity();
 	if(!e || !e->enabled)
 		return;
 
 	animationInstance.time += dt;
 
-	if(!cUseAnimationThread)
-		static_cast<MyAnimationInstance&>(animationInstance).update();
+	// NOTE: The actual update() is NOT performed right here, MANY updates will
+	// be batched together and processed in AnimationUpdaterComponent later in time.
 
 	// Update the Entity's transform from the interpolatedResult.
 	// NOTE: This assignment will cause data race since the animation thread is keep updating
@@ -88,74 +94,87 @@ void AnimationComponent::update(float dt)
 	e->localTransform = static_cast<MyAnimationInstance&>(animationInstance).transform;
 }
 
-class AnimationThread::Impl : public Thread::IRunnable, public Thread
+class AnimationUpdaterComponent::Impl : public MCD::TaskPool::Task
 {
 public:
-	~Impl()
-	{
-		// Ensure the thread is stopped before mAnimationInstances get destroyed.
-		if(Thread::keepRun())
-			Thread::wait();
-	}
+	Impl(TaskPool* taskPool) : Task(0), mTaskPool(taskPool), mPaused(false), mIsUpdating(false) {}
 
 	sal_override void run(Thread& thread) throw()
 	{
-		mPaused = false;
-
-		// A local container of animation instance shared pointer to minize mutex lock time
-		typedef std::vector<AnimationInstancePtr> Anims;
-		Anims anims;
-
-		// TODO: Clamp the rate of animation update to the framerate.
-		while(Thread::keepRun())
-		{
-			if(mPaused) {
-				mSleep(10);
-				continue;
-			}
-
-			{	ScopeLock lock(mMutex);
-				anims.assign(mAnimationInstances.begin(), mAnimationInstances.end());
-			}
-
-			for(Anims::const_iterator i=anims.begin(); i != anims.end(); ++i)
-				(*i)->update();
-
-			mSleep(1);
-		}
+		realUpdate();
 	}
+
+	MCD_NOINLINE void update()
+	{
+		if(mTaskPool) {
+			// NOTE: Only schedule the task if it's not running, such that time is not
+			// wasted for update an animation multiple times (with a not updated time value).
+			if(!mIsUpdating)
+				mTaskPool->enqueue(*this);
+		}
+		else
+			realUpdate();
+	}
+
+	void realUpdate()
+	{
+		if(mPaused)
+			return;
+
+		mIsUpdating = true;
+
+		{	ScopeLock lock(mMutex);
+			mAnims.resize(mAnimationInstances.size());
+			mAnims.assign(mAnimationInstances.begin(), mAnimationInstances.end());
+		}
+
+		for(Anims::const_iterator i=mAnims.begin(); i != mAnims.end(); ++i)
+			(*i)->update();
+
+		mIsUpdating = false;
+	}
+
+	sal_maybenull TaskPool* mTaskPool;
 
 	Mutex mMutex;
 	bool mPaused;
+	volatile bool mIsUpdating;
 
 	typedef AnimationComponent::AnimationInstancePtr AnimationInstancePtr;
 	std::set<AnimationInstancePtr> mAnimationInstances;
+
+	// A local container of animation instance shared pointer to minize mutex lock time
+	typedef std::vector<AnimationInstancePtr> Anims;
+	Anims mAnims;
 };	// Impl
 
-AnimationThread::AnimationThread()
-	: mImpl(*new Impl)
+AnimationUpdaterComponent::AnimationUpdaterComponent(TaskPool* taskPool)
+	: mImpl(*new Impl(taskPool))
 {
-	if(cUseAnimationThread)
-		mImpl.start(mImpl, false);
 }
 
-AnimationThread::~AnimationThread()
+AnimationUpdaterComponent::~AnimationUpdaterComponent()
 {
 	delete &mImpl;
 }
 
-void AnimationThread::pause(bool p)
+void AnimationUpdaterComponent::update(float dt)
+{
+	mImpl.update();
+}
+
+void AnimationUpdaterComponent::pause(bool p)
 {
 	mImpl.mPaused = p;
 }
 
-void AnimationThread::addAnimationComponent(AnimationComponent& ac)
+void AnimationUpdaterComponent::addAnimationComponent(AnimationComponent& ac)
 {
 	ScopeLock lock(mImpl.mMutex);
 	mImpl.mAnimationInstances.insert(ac.mAnimationInstanceHolder);
 }
 
-void AnimationThread::removeAnimationComponent(AnimationComponent& ac)
+void AnimationUpdaterComponent::removeAnimationComponent(AnimationComponent& ac)
 {
 	ScopeLock lock(mImpl.mMutex);
 	mImpl.mAnimationInstances.erase(ac.mAnimationInstanceHolder);

@@ -103,7 +103,7 @@ public:
 	{
 	public:
 		Task(ResourceManager& manager, MapNode& mapNode, const IResourceLoaderPtr& loader,
-			EventQueue& eventQueue, std::istream* is, uint priority, TaskPool& tp, const wchar_t* args)
+			EventQueue& eventQueue, std::istream* is, uint priority, TaskPool& taskPool, const wchar_t* args)
 			:
 			MCD::TaskPool::Task(priority),
 			mResourceManager(manager),
@@ -112,9 +112,9 @@ public:
 			mLoader(loader),
 			mEventQueue(eventQueue),
 			mIStream(is),
+			mTaskPool(taskPool),
 			mArgs(args == nullptr ? L"" : args)
 		{
-			taskPool = &tp;	// We make an early assignment of the taskPool member variable
 		}
 
 		sal_override void run(Thread& thread) throw()
@@ -137,7 +137,7 @@ public:
 				if(state & IResourceLoader::Stopped)
 					break;
 
-				Task* task = new Task(mResourceManager, mMapNode, mLoader, mEventQueue, mIStream.release(), priority(), *taskPool, mArgs.c_str());
+				Task* task = new Task(mResourceManager, mMapNode, mLoader, mEventQueue, mIStream.release(), priority(), mTaskPool, mArgs.c_str());
 
 				// The onPartialLoaded() callback will decide when to continue the partial load
 				mLoader->onPartialLoaded(*task, priority(), mArgs.c_str());
@@ -153,8 +153,7 @@ public:
 			// NOTE: There is no need to lock, since mTaskPool's operation is already thread safe
 			setPriority(priority);
 			mArgs = args ? args : L"";
-			MCD_ASSUME(taskPool);
-			taskPool->enqueue(*this);
+			mTaskPool.enqueue(*this);
 		}
 
 		ResourceManager& mResourceManager;
@@ -163,6 +162,7 @@ public:
 		IResourceLoaderPtr mLoader;			// Hold the life of the IResourceLoader
 		EventQueue& mEventQueue;
 		std::auto_ptr<std::istream> mIStream;	// Keep the life of the stream align with the Task
+		TaskPool& mTaskPool;
 		std::wstring mArgs;
 	};	// Task
 
