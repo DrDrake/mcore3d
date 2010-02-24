@@ -3,10 +3,12 @@
 #include "Entity.h"
 #include "InputComponent.h"
 #include "PhysicsComponent.h"
+#include "RenderComponent.h"
 #include "System.h"
 #include "../Audio/ResourceLoaderFactory.h"
 #include "../Component/Audio/AudioSourceComponent.h"
 #include "../Component/Physics/RigidBodyComponent.h"
+#include "../Component/Render/AnimationComponent.h"
 #include "../Component/Render/EntityPrototypeLoader.h"
 #include "../Component/Render/RenderableComponent.h"
 #include "../Core/System/Log.h"
@@ -59,6 +61,7 @@ SCRIPT_CLASS_REGISTER_NAME(Launcher, "MainWindow")
 	.method<objNoCare>(L"_getinputComponent", &Launcher::inputComponent)
 	.method<objNoCare>(L"_getresourceManager", &Launcher::resourceManager)
 	.method<objNoCare>(L"_getdynamicsWorld", &Launcher::dynamicsWorld)
+	.method<objNoCare>(L"_getanimationUpdater", &Launcher::animationUpdater)
 //	.rawMethod(L"addCallback", &Launcher::addCallback)
 ;}
 
@@ -77,6 +80,7 @@ Launcher::Launcher(IFileSystem& fileSystem, IResourceManager& resourceManager, b
 {
 	// Start the physics thread
 	mPhysicsThread.start(mDynamicsWorld, false);
+	mTaskPool.setThreadCount(1);
 
 	mSingleton = this;
 }
@@ -177,6 +181,15 @@ bool Launcher::init(InputComponent& inputComponent, Entity* rootNode)
 	))
 		return false;
 
+	// Patch the original AnimationComponent constructor to pass our AnimationUpdaterComponent automatically
+	if(!vm.runScript(L"\
+		local backup = AnimationComponent.constructor;\n\
+		AnimationComponent.constructor <- function() : (backup) {\n\
+			backup.call(this, gLauncher.animationUpdater);	// Call the original constructor\n\
+		}\n"
+	))
+		return false;
+
 	// Patch the original RigidBodyComponent constructor to pass our dynamics world automatically
 	if(!vm.runScript(L"\
 		local backup = RigidBodyComponent.constructor;\n\
@@ -201,6 +214,17 @@ bool Launcher::init(InputComponent& inputComponent, Entity* rootNode)
 		setRootNode(rootNode);
 	else
 		setRootNode(new Entity());
+
+	{	// Setup AnimationUpdaterComponent
+		if(mAnimationUpdater && mAnimationUpdater->entity())
+			delete mAnimationUpdater->entity();
+
+		Entity* e = new Entity;
+		e->name = L"Animation updater";
+		mAnimationUpdater = new AnimationUpdaterComponent(&mTaskPool);
+		e->addComponent(mAnimationUpdater.get());
+		e->asChildOf(mRootNode);
+	}
 
 	setInputComponent(&inputComponent);
 

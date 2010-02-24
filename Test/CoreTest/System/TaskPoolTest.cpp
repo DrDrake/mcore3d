@@ -18,8 +18,6 @@ TEST(Basic_TaskPoolTest)
 
 		sal_override void run(Thread& thread) throw()
 		{
-			MCD_ASSERT(taskPool);
-
 			int ranNum = mSeed;
 
 			for(size_t i=0; i<mLoopCount; ++i) {
@@ -49,10 +47,11 @@ TEST(Basic_TaskPoolTest)
 		for(size_t i=0; i<10; ++i) {
 			CHECK_EQUAL(0, task[0].priority());
 			taskPool.enqueue(task[i]);
-			CHECK_EQUAL(&taskPool, task[i].taskPool);
 		}
 
 		mSleep(1);
+
+		taskPool.stop();
 	}
 }
 

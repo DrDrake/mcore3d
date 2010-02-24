@@ -6,13 +6,14 @@
 #include "../Component/Physics/ThreadedDynamicWorld.h"
 #include "../Core/System/ResourceManager.h"
 #include "../Core/System/Timer.h"
-#include "../Core/System/Thread.h"
+#include "../Core/System/TaskPool.h"
 #include "../Core/System/WeakPtr.h"
 
 namespace MCD {
 
 class IResourceManager;
 typedef WeakPtr<class InputComponent> InputComponentPtr;
+typedef WeakPtr<class AnimationUpdaterComponent> AnimationUpdaterComponentPtr;
 
 class MCD_BINDING_API Launcher
 {
@@ -74,6 +75,10 @@ public:
 		return &mDynamicsWorld;
 	}
 
+	sal_maybenull AnimationUpdaterComponent* animationUpdater() {
+		return mAnimationUpdater.get();
+	}
+
 	static Launcher* sinleton() {
 		return Launcher::mSingleton;
 	}
@@ -97,6 +102,8 @@ protected:
 	bool mTakeResourceManagerOwnership;
 	Thread mPhysicsThread;
 	ThreadedDynamicsWorld mDynamicsWorld;
+	AnimationUpdaterComponentPtr mAnimationUpdater;
+	TaskPool mTaskPool;
 };	// Launcher
 
 //! A default implementation of ResourceManager for Launcher
