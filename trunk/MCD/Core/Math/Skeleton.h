@@ -80,7 +80,6 @@ typedef IntrusivePtr<Skeleton> SkeletonPtr;
 
 class MCD_CORE_API SkeletonAnimation : public Resource
 {
-protected:
 public:
 	enum TrackIdx {
 		Translation = 0,
@@ -89,6 +88,7 @@ public:
 
 	explicit SkeletonAnimation(const Path& fileId);
 
+// Operations
 	/*!	Transforms local joint matrices (relative to parent joints) to global joint matrices (object or world space).
 		The routine works on SkeletonPose::transforms and transforms the joint matrices in-place.
 		Furthermore the index of the first and last joint of a sequence of joints that need to be
@@ -100,6 +100,7 @@ public:
 	 */
 	void applyTo(SkeletonPose& pose, int firstJoint=-1, int lastJoint=-1);
 
+// Attributes
 	/*!	The track suppose to have sub-track(s) of joint's rotation, translation and or scale.
 		Assumptions:
 			The sub-track index corresponds to Skeleton::transforms.

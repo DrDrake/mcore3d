@@ -12,6 +12,8 @@ Model::MeshAndMaterial::MeshAndMaterial() {}
 
 Model::MeshAndMaterial::~MeshAndMaterial() {}
 
+Model::Model(const Path& fileId) : Resource(fileId) {}
+
 Model::~Model() {}
 
 void Model::draw()

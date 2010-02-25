@@ -104,7 +104,7 @@ public:
 		realUpdate();
 	}
 
-	MCD_NOINLINE void update()
+	void update()
 	{
 		if(mTaskPool) {
 			// NOTE: Only schedule the task if it's not running, such that time is not

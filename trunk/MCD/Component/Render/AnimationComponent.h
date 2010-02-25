@@ -1,5 +1,5 @@
-#ifndef __MCD_RENDER_COMPONENTS_ANIMATIONCOMPONENT__
-#define __MCD_RENDER_COMPONENTS_ANIMATIONCOMPONENT__
+#ifndef __MCD_COMPONENTS_RENDER_ANIMATIONCOMPONENT__
+#define __MCD_COMPONENTS_RENDER_ANIMATIONCOMPONENT__
 
 #include "../ShareLib.h"
 #include "../../Core/Entity/BehaviourComponent.h"
@@ -17,7 +17,7 @@ class MCD_COMPONENT_API AnimationComponent : public BehaviourComponent
 	class MyAnimationInstance;
 
 public:
-	explicit AnimationComponent(AnimationUpdaterComponent& animationThread);
+	explicit AnimationComponent(AnimationUpdaterComponent& updater);
 
 	sal_override ~AnimationComponent();
 
@@ -30,7 +30,7 @@ public:
 // Operations
 	sal_override void update(float dt);
 
-// Attrubutes
+// Attributes
 	/*!	Sub-track,	usage
 		0		->	Position	(Linear)
 		1		->	Orientation	(Slerp)
@@ -45,7 +45,7 @@ protected:
 	friend class AnimationUpdaterComponent;
 
 	/*!	In order to decouple the multi-thread life-time problem,
-		we share the AnimationInstance with the animation update thread.
+		we share the AnimationInstance with the updater thread.
 	 */
 	typedef SharedPtr<MyAnimationInstance> AnimationInstancePtr;
 	const AnimationInstancePtr mAnimationInstanceHolder;
@@ -82,4 +82,4 @@ protected:
 
 }	// namespace MCD
 
-#endif	// __MCD_RENDER_COMPONENTS_ANIMATIONCOMPONENT__
+#endif	// __MCD_COMPONENTS_RENDER_ANIMATIONCOMPONENT__
