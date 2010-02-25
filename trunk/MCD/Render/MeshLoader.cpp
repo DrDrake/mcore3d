@@ -82,7 +82,7 @@ IResourceLoader::LoadingState MeshLoader::Impl::load(std::istream* is, const Pat
 	// Read the buffers
 	for(size_t i=0; i<bufferCount; ++i) {
 		uint32_t size = 0;
-		MCD::read(*is, size);
+		ABORT_IF(!MCD::read(*is, size));
 		bufferSizes[i] = size;
 		buffers[i] = new char[size];
 		ABORT_IF(MCD::read(*is, buffers[i], size) != std::streamsize(size));

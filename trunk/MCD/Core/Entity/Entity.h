@@ -112,7 +112,7 @@ public:
 		If the supplied component is already added to some other Entity, the
 		add operation will be canceled.
 	 */
-	void addComponent(sal_in Component* component);
+	void addComponent(sal_in_opt Component* component);
 
 	/*!	Remove the component from this Entity.
 		The component will be also deleted, so it is wise to use the

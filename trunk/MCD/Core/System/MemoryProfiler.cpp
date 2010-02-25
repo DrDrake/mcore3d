@@ -520,6 +520,7 @@ bool MemoryProfiler::enable() const
 
 void MemoryProfiler::setEnable(bool flag)
 {
+	flag = false;
 	CallstackProfiler::enable = flag;
 	functionPatcher.UnpatchAll();
 
