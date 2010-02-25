@@ -219,7 +219,7 @@ bool Launcher::init(InputComponent& inputComponent, Entity* rootNode)
 		if(mAnimationUpdater && mAnimationUpdater->entity())
 			delete mAnimationUpdater->entity();
 
-		Entity* e = new Entity;
+		EntityPtr e = new Entity;
 		e->name = L"Animation updater";
 		mAnimationUpdater = new AnimationUpdaterComponent(&mTaskPool);
 		e->addComponent(mAnimationUpdater.get());

@@ -1,6 +1,7 @@
 #include "Pch.h"
 #include "Skeleton.h"
 #include "Quaternion.h"
+#include "../System/Log.h"
 
 namespace MCD {
 
@@ -23,8 +24,11 @@ void Skeleton::init(size_t jointCount)
 
 void Skeleton::initBasePoseInverse()
 {
+	bool ok = true;
 	for(size_t i=0; i<basePoseInverse.size(); ++i)
-		basePose.transforms[i].inverse(basePoseInverse[i]);
+		ok = ok && basePose.transforms[i].inverse(basePoseInverse[i]);
+	if(!ok)
+		Log::write(Log::Warn, L"Skeleton::initBasePoseInverse() failed");
 }
 
 int Skeleton::findJointByName(const wchar_t* name) const

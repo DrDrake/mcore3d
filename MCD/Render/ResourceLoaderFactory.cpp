@@ -173,7 +173,7 @@ ResourcePtr PixelShaderLoaderFactory::createResource(const Path& fileId, const w
 
 IResourceLoader* PixelShaderLoaderFactory::createLoader()
 {
-	return new MeshLoader;
+	return new ShaderLoader(GL_FRAGMENT_SHADER);
 }
 
 ResourcePtr PngLoaderFactory::createResource(const Path& fileId, const wchar_t* args)

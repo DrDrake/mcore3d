@@ -349,7 +349,7 @@ size_t readString(std::istream& is, char* buf, size_t bufLen)
 {
 	// NOTE: We assume uint32_t as the string length
 	uint32_t len_;
-	read(is, len_);
+	if(!read(is, len_)) return 0;
 	if(len_ >= bufLen) len_ = bufLen - 1;	// Check bufLen and reserve room for '\0'
 	std::streamsize readCnt = is.rdbuf()->sgetn(buf, len_);
 	buf[readCnt] = '\0';

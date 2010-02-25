@@ -33,7 +33,7 @@ TEST(AnimationTrackWriterLoaderTest)
 
 	{	// Save the track
 		std::ofstream os("TestData/tmp.anim", std::ios::binary);
-		AnimationTrackWriter::write(os, *track);
+		CHECK(AnimationTrackWriter::write(os, *track));
 	}
 
 	{	// Load the track

@@ -32,7 +32,7 @@ TEST(MeshWriterLoaderTest)
 
 	// Write it to a tmp file
 	{	std::auto_ptr<std::ostream> os(fs->openWrite(L"tmp.msh"));
-		MeshWriter::write(*os, *mesh);
+		CHECK(MeshWriter::write(*os, *mesh));
 
 		// Consume the reload event casue by the write operation
 		manager.processLoadingEvents();
