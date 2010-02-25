@@ -36,6 +36,9 @@ public:
 	sal_override void render();
 
 // Attrubutes
+	/*!	This Model MAY be shared by multiple SkinMeshComponent, and is being
+		modified during render();
+	 */
 	const ModelPtr meshes;
 	const ModelPtr basePoseMeshes;
 	SkeletonPose pose;			//!< The current pose
