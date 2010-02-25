@@ -1,5 +1,6 @@
 #include "Pch.h"
 #include "SkinMeshComponent.h"
+#include "../../Render/Effect.h"
 #include "../../Render/Mesh.h"
 #include "../../Render/Model.h"
 #include "../../Render/Skinning.h"
@@ -8,6 +9,22 @@
 #include "../../Core/System/ResourceManager.h"
 
 namespace MCD {
+
+// TODO: Move this function back to Model's member, if somehow a generic clone function is implemented later.
+static Model* cloneModel(const Model& model)
+{
+	Model* ret = new Model(L"");
+
+	// We need to deep copy the Mesh and shallow copy the Effect
+	for(const Model::MeshAndMaterial* i = model.mMeshes.begin(); i != model.mMeshes.end(); i = i->next()) {
+		Model::MeshAndMaterial* m = new Model::MeshAndMaterial;
+		m->mesh = i->mesh->clone(L"", Mesh::Dynamic);
+		m->effect = i->effect;
+		ret->mMeshes.pushBack(*m);
+	}
+
+	return ret;
+}
 
 SkinMeshComponent::SkinMeshComponent()
 {
@@ -35,7 +52,7 @@ bool SkinMeshComponent::init(IResourceManager& resourceManager, const Model& bas
 	ResourcePtr r = resourceManager.load(newPath);
 
 	if(!r) {
-//		r = basePose.clone();
+		r = cloneModel(basePose);
 		resourceManager.cache(r);
 	}
 
