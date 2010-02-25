@@ -18,14 +18,12 @@ typedef IntrusivePtr<class Effect> EffectPtr;
 class MCD_RENDER_API Model : public Resource, public IRenderable
 {
 public:
-	explicit Model(const Path& fileId) : Resource(fileId) {}
+	explicit Model(const Path& fileId);
 
+// Operations
 	sal_override void draw();
 
-protected:
-	sal_override ~Model();
-
-public:
+// Attributes
 	/*!	A simple structure for storing mesh, mesh builder and material as a tuple.
 		To keep it simple, copying this struct is not implemented.
 	 */
@@ -36,7 +34,7 @@ public:
 
 		MeshPtr mesh;
 		EffectPtr effect;
-		std::wstring name;
+		std::wstring name;	// TODO: To be remove.
 
 		/*! Pointer to the MeshBuilder of this mesh, it is primaryly used for reading the mesh data
 			without downloading them from the GPU.
@@ -47,6 +45,9 @@ public:
 
 	typedef LinkList<MeshAndMaterial> MeshList;
 	MeshList mMeshes;
+
+protected:
+	sal_override ~Model();
 };	// Model
 
 typedef IntrusivePtr<Model> ModelPtr;

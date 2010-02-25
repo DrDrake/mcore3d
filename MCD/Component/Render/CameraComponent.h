@@ -1,5 +1,5 @@
-#ifndef __MCD_RENDER_COMPONENTS_CAMERACOMPONENT__
-#define __MCD_RENDER_COMPONENTS_CAMERACOMPONENT__
+#ifndef __MCD_COMPONENTS_RENDER_CAMERACOMPONENT__
+#define __MCD_COMPONENTS_RENDER_CAMERACOMPONENT__
 
 #include "RenderableComponent.h"
 #include "../../Render/Camera.h"
@@ -32,4 +32,4 @@ typedef WeakPtr<CameraComponent> CameraComponentPtr;
 
 }	// namespace MCD
 
-#endif	// __MCD_RENDER_COMPONENTS_CAMERACOMPONENT__
+#endif	// __MCD_COMPONENTS_RENDER_CAMERACOMPONENT__

@@ -283,6 +283,22 @@
 				RelativePath=".\Render\RenderModifierComponent.h"
 				>
 			</File>
+			<File
+				RelativePath=".\Render\SkeletonAnimationComponent.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\Render\SkeletonAnimationComponent.h"
+				>
+			</File>
+			<File
+				RelativePath=".\Render\SkinMeshComponent.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\Render\SkinMeshComponent.h"
+				>
+			</File>
 		</Filter>
 		<Filter
 			Name="Physics"
@@ -351,10 +367,6 @@
 				RelativePath=".\Input\WinMessageInputComponent.h"
 				>
 			</File>
-		</Filter>
-		<Filter
-			Name="Script"
-			>
 		</Filter>
 		<Filter
 			Name="Audio"
