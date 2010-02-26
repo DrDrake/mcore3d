@@ -5,7 +5,7 @@
 
 namespace MCD {
 
-//! Create a plane mesh
+//! Create a plane mesh laying on the xz plane.
 class MCD_RENDER_API PlaneMeshBuilder : public MeshBuilderIM
 {
 public:
