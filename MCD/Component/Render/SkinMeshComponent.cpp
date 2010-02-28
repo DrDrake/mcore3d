@@ -18,7 +18,7 @@ static Model* cloneModel(const Model& model)
 	// We need to deep copy the Mesh and shallow copy the Effect
 	for(const Model::MeshAndMaterial* i = model.mMeshes.begin(); i != model.mMeshes.end(); i = i->next()) {
 		Model::MeshAndMaterial* m = new Model::MeshAndMaterial;
-		m->mesh = i->mesh->clone(L"", Mesh::Dynamic);
+		m->mesh = i->mesh->clone(L"", Mesh::Stream);
 		m->effect = i->effect;
 		ret->mMeshes.pushBack(*m);
 	}
@@ -57,13 +57,15 @@ bool SkinMeshComponent::init(IResourceManager& resourceManager, const Model& bas
 	}
 
 	const_cast<ModelPtr&>(meshes) = dynamic_cast<Model*>(r.get());
+	const_cast<ModelPtr&>(basePoseMeshes) = const_cast<Model*>(&basePose);
+
 	return meshes.get() != nullptr;
 }
 
 void SkinMeshComponent::render()
 {
 	Entity* e = entity();
-	if(!e || !e->enabled)
+	if(!e || !e->enabled || !basePoseMeshes || !meshes || !skeleton)
 		return;
 
 	mTmpPose = pose;
@@ -77,7 +79,9 @@ void SkinMeshComponent::render()
 		Model::MeshAndMaterial* j = basePoseMeshes->mMeshes.begin();
 		for(; i != meshes->mMeshes.end() && j != basePoseMeshes->mMeshes.end(); i = i->next(), j = j->next()) {
 			Mesh* m = i->mesh.get();
-			MCD::skinning(mTmpPose, *m, *j->mesh, 5, 6, m->normalAttrIdx);
+			if(!m || !j->mesh)
+				continue;
+			MCD::skinning(mTmpPose, *m, *j->mesh, 4, 5, m->normalAttrIdx);
 		}
 	}
 

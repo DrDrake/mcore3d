@@ -110,7 +110,7 @@ public:
 			// NOTE: Only schedule the task if it's not running, such that time is not
 			// wasted for update an animation multiple times (with a not updated time value).
 			if(!mIsUpdating)
-				mTaskPool->enqueue(*this);
+				(void)mTaskPool->enqueue(*this);
 		}
 		else
 			realUpdate();

@@ -59,7 +59,7 @@ SkeletonAnimation::~SkeletonAnimation()
 
 void SkeletonAnimation::applyTo(SkeletonPose& pose, int firstJoint, int lastJoint)
 {
-	if(!skeleton)
+	if(!skeleton || pose.transforms.empty())
 		return;
 
 	if(firstJoint < 0) firstJoint = 0;

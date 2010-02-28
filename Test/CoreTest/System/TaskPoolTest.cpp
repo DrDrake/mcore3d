@@ -46,7 +46,7 @@ TEST(Basic_TaskPoolTest)
 
 		for(size_t i=0; i<10; ++i) {
 			CHECK_EQUAL(0, task[0].priority());
-			taskPool.enqueue(task[i]);
+			CHECK(taskPool.enqueue(task[i]));
 		}
 
 		mSleep(1);
@@ -71,7 +71,7 @@ TEST(DeleteTask_TaskPoolTest)
 	taskPool.setThreadCount(2);
 
 	for(size_t i=0; i<10; ++i)
-		taskPool.enqueue(*(new Task));
+		CHECK(taskPool.enqueue(*(new Task)));
 
 	mSleep(1);
 	CHECK(true);

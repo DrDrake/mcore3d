@@ -8,10 +8,10 @@ using namespace MCD;
 
 PlaneMeshBuilder::PlaneMeshBuilder(float width, float height, uint16_t widthSegmentCount, uint16_t heightSegmentCount, bool includeTangents)
 {
-	int posId = declareAttribute(SemanticMap::getSingleton().position(), 1);
-	int normalId = declareAttribute(SemanticMap::getSingleton().normal(), 1);
-	int uvId = declareAttribute(SemanticMap::getSingleton().uv(0, 2), 1);
-	int tangentId = -1;
+	posId = declareAttribute(SemanticMap::getSingleton().position(), 1);
+	normalId = declareAttribute(SemanticMap::getSingleton().normal(), 1);
+	uvId = declareAttribute(SemanticMap::getSingleton().uv(0, 2), 1);
+	tangentId = -1;
 
 	if(includeTangents)
 		tangentId = declareAttribute(SemanticMap::getSingleton().tangent(), 1);
@@ -35,9 +35,9 @@ PlaneMeshBuilder::PlaneMeshBuilder(float width, float height, uint16_t widthSegm
 	Vec2f vUV = startingCornerUV;
 
 	// Create vertices
-	for(uint16_t x = 0; x < vxCount; ++x)
+	for(uint16_t z = 0; z < vzCount; ++z)
 	{
-		for(uint16_t z = 0; z < vzCount; ++z)
+		for(uint16_t x = 0; x < vxCount; ++x)
 		{
 			MCD_VERIFY(vertexAttribute(posId, &vXZ));
 			MCD_VERIFY(vertexAttribute(normalId, &Vec3f::c010));
@@ -56,17 +56,19 @@ PlaneMeshBuilder::PlaneMeshBuilder(float width, float height, uint16_t widthSegm
 	}
 
 	// Create index
-	for(uint16_t x = 0; x < widthSegmentCount; ++x)
+	for(uint16_t z = 0; z < heightSegmentCount; ++z)
 	{
-		uint16_t indexedVertexCount = (x * vzCount);
-		for(uint16_t z = indexedVertexCount; z < indexedVertexCount + heightSegmentCount; ++z)
+		uint16_t indexedVertexCount = (z * vxCount);
+		for(uint16_t x = indexedVertexCount; x < indexedVertexCount + widthSegmentCount; ++x)
 		{       
 			MCD_VERIFY(addQuad(
-				z,
-				z + vzCount,
-				z + vzCount + 1,
-				z + 1
+				x,
+				x + vxCount,
+				x + vxCount + 1,
+				x + 1
 			));
 		}
 	}
+
+	MCD_ASSERT(indexCount() / 3 == triCount);
 }

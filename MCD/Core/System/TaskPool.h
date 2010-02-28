@@ -77,8 +77,10 @@ public:
 	 */
 	~TaskPool();
 
-	//! Put a task to the pool.
-	void enqueue(Task& task);
+	/*!	Put a task to the pool. Fail if the task is already in a queue.
+		\note Keep retry the enqueue operation if you need to ensure it success.
+	 */
+	sal_checkreturn bool enqueue(Task& task);
 
 	/*! Set the number of thread.
 		\param wait Weather the function should block until the desired number of thread is achieved.
