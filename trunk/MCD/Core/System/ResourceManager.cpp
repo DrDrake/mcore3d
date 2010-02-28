@@ -428,6 +428,11 @@ ResourcePtr ResourceManager::cache(const ResourcePtr& resource)
 	ResourcePtr ret;
 	MapNode* node;
 
+	if(resource->fileId().getString().empty()) {
+		MCD_ASSERT(false && "It's meaningless to cache a resource without a name");
+		return nullptr;
+	}
+
 	// Find for existing resource
 	if((node = mImpl->findMapNode(resource->fileId())) != nullptr) {
 		ret = node->mResource.get();

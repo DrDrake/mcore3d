@@ -95,7 +95,7 @@ public:
 
 	Quaternionf randomQuaternion()
 	{
-		Quaternionf q(Mathf::random(), Mathf::random(), Mathf::random(), Mathf::random());
+		Quaternionf q(Mathf::random() * 2 -1, Mathf::random() * 2 -1, Mathf::random() * 2 -1, Mathf::random() * 2 -1);
 		q /= q.length();
 		return q;
 	}
@@ -127,11 +127,9 @@ public:
 		animationTrack->acquireWriteLock();
 
 		const size_t cSubtrackCount = 3;
-		size_t tmp[cSubtrackCount] = { cFrameCount };
-		for(size_t i=0; i<cSubtrackCount; ++i)
-			tmp[i] = cFrameCount;
+		std::vector<size_t> tmp(cSubtrackCount, cFrameCount);
 
-		MCD_VERIFY(animationTrack->init(StrideArray<const size_t>(tmp, cSubtrackCount)));
+		MCD_VERIFY(animationTrack->init(StrideArray<const size_t>(&tmp[0], cSubtrackCount)));
 
 		// Assign the time of each frame
 		for(size_t i=0; i<cSubtrackCount; ++i) {
@@ -167,7 +165,6 @@ public:
 		animationTrack->releaseWriteLock();
 	}
 
-	// The animation thread must destroy after mRootNode.
 	AnimationUpdaterComponentPtr updater;
 	Entity mRootNode;
 	MeshPtr mesh;

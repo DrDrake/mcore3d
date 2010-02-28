@@ -17,10 +17,11 @@ void skinning(
 		return;
 
 	Mesh::MappedBuffers mapped, basePoseMapped;
+	const Mesh::MapOption writeOption = Mesh::MapOption(Mesh::Write| Mesh::Discard);
 
 	if(normalIndex == -1) {	// Skinning position only
 		skinning(
-			mesh.mapAttribute<Vec3f>(mesh.positionAttrIdx, mapped, Mesh::Write),
+			mesh.mapAttribute<Vec3f>(mesh.positionAttrIdx, mapped, writeOption),
 			basePoseMesh.mapAttribute<const Vec3f>(basePoseMesh.positionAttrIdx, basePoseMapped, Mesh::Read),
 			StrideArray<const Mat44f>(&skeleton.transforms[0], skeleton.jointCount()),
 			mesh.mapAttribute<const Vec4<uint8_t> >(jointIndex, mapped),
@@ -28,8 +29,8 @@ void skinning(
 		);
 	} else {				// Skinning position and normal
 		skinning(
-			mesh.mapAttribute<Vec3f>(mesh.positionAttrIdx, mapped, Mesh::Write),
-			mesh.mapAttribute<Vec3f>(normalIndex, mapped, Mesh::Write),
+			mesh.mapAttribute<Vec3f>(mesh.positionAttrIdx, mapped, writeOption),
+			mesh.mapAttribute<Vec3f>(normalIndex, mapped, writeOption),
 			basePoseMesh.mapAttribute<const Vec3f>(basePoseMesh.positionAttrIdx, basePoseMapped, Mesh::Read),
 			basePoseMesh.mapAttribute<const Vec3f>(normalIndex, basePoseMapped, Mesh::Read),
 			StrideArray<const Mat44f>(&skeleton.transforms[0], skeleton.jointCount()),
