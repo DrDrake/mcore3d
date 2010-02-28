@@ -7,13 +7,14 @@
 #include "../../Core/Entity/Entity.h"
 #include "../../Core/Math/Skeleton.h"
 #include "../../Core/System/ResourceManager.h"
+#include "../../../3Party/glew/glew.h"
 
 namespace MCD {
 
 // TODO: Move this function back to Model's member, if somehow a generic clone function is implemented later.
-static Model* cloneModel(const Model& model)
+static Model* cloneModel(const Model& model, const Path& newPath)
 {
-	Model* ret = new Model(L"");
+	Model* ret = new Model(newPath);
 
 	// We need to deep copy the Mesh and shallow copy the Effect
 	for(const Model::MeshAndMaterial* i = model.mMeshes.begin(); i != model.mMeshes.end(); i = i->next()) {
@@ -52,8 +53,8 @@ bool SkinMeshComponent::init(IResourceManager& resourceManager, const Model& bas
 	ResourcePtr r = resourceManager.load(newPath);
 
 	if(!r) {
-		r = cloneModel(basePose);
-		resourceManager.cache(r);
+		r = cloneModel(basePose, newPath);
+		resourceManager.cache(r);	// Make each unique basePose has an uniqe shadow mesh as a temporary for skinning
 	}
 
 	const_cast<ModelPtr&>(meshes) = dynamic_cast<Model*>(r.get());
@@ -67,6 +68,9 @@ void SkinMeshComponent::render()
 	Entity* e = entity();
 	if(!e || !e->enabled || !basePoseMeshes || !meshes || !skeleton)
 		return;
+
+	glPushMatrix();
+	glMultTransposeMatrixf(e->worldTransform().getPtr());
 
 	mTmpPose = pose;
 
@@ -86,6 +90,8 @@ void SkinMeshComponent::render()
 	}
 
 	meshes->draw();
+
+	glPopMatrix();
 }
 
 }	// namespace MCD

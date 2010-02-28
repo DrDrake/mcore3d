@@ -27,6 +27,7 @@ public:
 	{
 		Read	= 1 << 0,
 		Write	= 1 << 1,
+		Discard	= 1 << 2	//!< The written data is used by the GPU only once.
 	};	// MapOption
 
 	enum StorageHint

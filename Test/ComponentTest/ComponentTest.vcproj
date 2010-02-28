@@ -255,6 +255,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\SkeletonAnimationComponentTest.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\ThreadedPhysicsComponentTest.cpp"
 				>
 			</File>

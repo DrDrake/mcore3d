@@ -65,6 +65,7 @@ public:
 	//!	Name of each joint
 	std::vector<std::wstring> names;
 
+	//!	Transforms in the basePose are relative to the root joint.
 	SkeletonPose basePose;
 
 	/*!	Usefull for skinning using the base pose, or getting back the joint's location,
@@ -105,6 +106,7 @@ public:
 		Assumptions:
 			The sub-track index corresponds to Skeleton::transforms.
 			The order of the sub-tracks are assumed to be rotation, translation and then scale.
+			Each joint's transform is relative to IT'S parent.
 	 */
 	AnimationInstance anim;
 

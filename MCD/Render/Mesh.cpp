@@ -208,7 +208,7 @@ void* Mesh::mapBuffer(size_t bufferIdx, MappedBuffers& mapped, MapOption mapOpti
 	const GLenum target = (bufferIdx == indexBufferId) ? GL_ELEMENT_ARRAY_BUFFER : GL_ARRAY_BUFFER;
 
 	GLenum flags = 0;
-	if(int(mapOptions) & Read && int(mapOptions) & Write)
+	if(mapOptions & Read && mapOptions & Write)
 		flags = GL_READ_WRITE;
 	else if(mapOptions & Read)
 		flags = GL_READ_ONLY;
@@ -216,6 +216,12 @@ void* Mesh::mapBuffer(size_t bufferIdx, MappedBuffers& mapped, MapOption mapOpti
 		flags = GL_WRITE_ONLY;
 
 	glBindBuffer(target, *handles[bufferIdx]);
+
+	// See the VBO's spec for the optimization about glMapBuffer() using glBufferData() with null data.
+	// reference: http://www.songho.ca/opengl/gl_vbo.html
+	// reference: http://hacksoflife.blogspot.com/2010/02/double-buffering-vbos.html
+	if(mapOptions & Discard)
+		glBufferData(target, bufferSize(bufferIdx), nullptr, GL_STATIC_READ);
 
 	void* ret = glMapBuffer(target, flags);
 	mapped[bufferIdx] = ret;
