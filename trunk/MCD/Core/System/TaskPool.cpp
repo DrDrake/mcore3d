@@ -11,11 +11,14 @@ class TaskPool::TaskQueue : public Map<TaskPool::Task>
 	typedef Map<TaskPool::Task> Super;
 
 public:
-	void insert(Task& task)
+	sal_checkreturn bool insert(Task& task)
 	{
 		ScopeLock lock(mCondVar);
+		if(task.isInMap())
+			return false;
 		Super::insert(task);
 		mCondVar.signalNoLock();
+		return true;
 	}
 
 	sal_checkreturn Task* pop(Thread& thread)
@@ -111,9 +114,9 @@ TaskPool::~TaskPool()
 	delete mTaskQueue;
 }
 
-void TaskPool::enqueue(Task& task)
+bool TaskPool::enqueue(Task& task)
 {
-	mTaskQueue->insert(task);
+	return mTaskQueue->insert(task);
 }
 
 void TaskPool::setThreadCount(size_t targetCount, bool wait)

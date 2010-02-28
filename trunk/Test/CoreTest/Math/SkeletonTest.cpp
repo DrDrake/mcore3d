@@ -17,13 +17,11 @@ TEST(SkeletonTest)
 	static const size_t frameCount = 2;
 	static const size_t subtrackCount = jointCount * 2;
 
-	{	track->acquireWriteLock();
+	{	AnimationTrack::ScopedWriteLock lock(*track);
 
 		// Number of tracks = number of joint * attribute count (which is 2 because of translation and rotation)
-		size_t tmp[subtrackCount] = { frameCount };
-		for(size_t i=0; i<subtrackCount; ++i)
-			tmp[i] = frameCount;
-		CHECK(track->init(StrideArray<const size_t>(tmp, subtrackCount)));
+		std::vector<size_t> tmp(subtrackCount, frameCount);
+		CHECK(track->init(StrideArray<const size_t>(&tmp[0], subtrackCount)));
 
 		// Setting up the transform for each joint relative to it's parent joint.
 		for(size_t i=0; i<track->subtrackCount(); ++i) {
@@ -49,8 +47,6 @@ TEST(SkeletonTest)
 				}
 			}
 		}
-
-		track->releaseWriteLock();
 	}
 
 	SkeletonPtr skeleton = new Skeleton(L"");

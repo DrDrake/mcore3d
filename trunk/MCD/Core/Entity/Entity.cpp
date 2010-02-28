@@ -30,6 +30,7 @@ Entity::~Entity()
 
 void Entity::asChildOf(Entity* parent)
 {
+	MCD_ASSERT(parent);
 	if(!parent)
 		return;
 

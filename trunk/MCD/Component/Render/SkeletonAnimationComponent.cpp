@@ -67,7 +67,7 @@ public:
 			// NOTE: Only schedule the task if it's not running, such that time is not
 			// wasted for update an animation multiple times (with a not updated time value).
 			if(!mIsUpdating)
-				mTaskPool->enqueue(*this);
+				(void)mTaskPool->enqueue(*this);	//NOTE: Simply ignore request if it's already in the queue
 		}
 		else
 			realUpdate();
@@ -92,8 +92,9 @@ public:
 			ScopeLock lock(mMutex);
 
 			// Even WeakPtr is thread-safe, i->second may get deleted just after this line and before the next line
-			if(i->second)
-				i->first->applyTo(i->second->pose);
+			SkinMeshComponent* sm = i->second->skinMesh.get();
+			if(sm)
+				i->first->applyTo(sm->pose);
 		}
 
 		mIsUpdating = false;
@@ -105,10 +106,10 @@ public:
 	bool mPaused;
 	volatile bool mIsUpdating;
 
-	std::map<SkeletonAnimationPtr, SkinMeshComponentPtr> mSkeletonAnimations;
+	std::map<SkeletonAnimationPtr, SkeletonAnimationComponentPtr> mSkeletonAnimations;
 
 	// A local container of animation instance shared pointer to minize mutex lock time
-	typedef std::vector<std::pair<SkeletonAnimationPtr, SkinMeshComponentPtr> > Anims;
+	typedef std::vector<std::pair<SkeletonAnimationPtr, SkeletonAnimationComponentPtr> > Anims;
 	Anims mAnims;
 };	// Impl
 
@@ -135,7 +136,7 @@ void SkeletonAnimationUpdaterComponent::pause(bool p)
 void SkeletonAnimationUpdaterComponent::addSkeletonAnimationComponent(SkeletonAnimationComponent& ac)
 {
 	ScopeLock lock(mImpl.mMutex);
-	mImpl.mSkeletonAnimations[&ac.skeletonAnimation] = ac.skinMesh;
+	mImpl.mSkeletonAnimations[&ac.skeletonAnimation] = &ac;
 }
 
 void SkeletonAnimationUpdaterComponent::removeSkeletonAnimationComponent(SkeletonAnimationComponent& ac)

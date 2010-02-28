@@ -153,7 +153,7 @@ public:
 			// NOTE: There is no need to lock, since mTaskPool's operation is already thread safe
 			setPriority(priority);
 			mArgs = args ? args : L"";
-			mTaskPool.enqueue(*this);
+			MCD_VERIFY(mTaskPool.enqueue(*this));
 		}
 
 		ResourceManager& mResourceManager;
@@ -236,7 +236,7 @@ public:
 			if(loader->load(task->mIStream.get(), &fileId, args))
 				loader->onPartialLoaded(*task, priority, args);
 		} else {
-			mTaskPool->enqueue(*task);
+			MCD_VERIFY(mTaskPool->enqueue(*task));
 		}
 	}
 

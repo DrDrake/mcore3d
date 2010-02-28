@@ -76,6 +76,7 @@ public:
 		\return The attribute ID for future reference, -1 if any error occured.
 
 		\note You can invoke declareAttribute() even when there are datas already in the buffers.
+		\note Calling declareAttribute() will invalidate the pointer returned by getAttributePointer() and getAttributeAs()
 		\note Return failure if the semantic is already declared once.
 	 */
 	int declareAttribute(const Semantic& semantic, size_t bufferId=1);
