@@ -39,14 +39,14 @@ public:
 	virtual sal_maybenull Component* clone() const { return nullptr; }
 
 	//!	Callback function that will invoked just after the component is added to an Entity.
-	virtual void onAdd() {}
+	virtual void onAdd();
 
 	/*!	Callback function that will invoked just before the component is removed from an Entity.
 		\note The derived class's callback will not be invoked by default when the Component
 			is being destroyed, since virtual function cannot be called inside the base destructor.
 			If you need that behaviour, call onRemove() explicitly in the derived class destructor.
 	 */
-	virtual void onRemove() {}
+	virtual void onRemove();
 
 // Attributes
 	//! The Entity that this component belongs to.

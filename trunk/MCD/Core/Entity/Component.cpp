@@ -10,6 +10,12 @@ Component::Component()
 {
 }
 
+// NOTE: This simply empty is put in cpp otherwise Intel Parallel Studio will
+// report false positive memory error.
+void Component::onAdd() {}
+
+void Component::onRemove() {}
+
 Entity* Component::entity() const {
 	return mEntity;
 }
