@@ -33,6 +33,8 @@ public:
 	EffectPtr effect;
 };	// MeshComponent
 
+typedef WeakPtr<MeshComponent> MeshComponentPtr;
+
 }	// namespace MCD
 
 #endif	// __MCD_COMPONENT_RENDER_MESHCOMPONENT__
