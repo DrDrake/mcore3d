@@ -210,7 +210,7 @@
 	</References>
 	<Files>
 		<File
-			RelativePath=".\BasicTest.cpp"
+			RelativePath=".\BsdSocketTest.cpp"
 			>
 		</File>
 		<File
