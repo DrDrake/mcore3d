@@ -214,6 +214,10 @@
 			Filter="h"
 			>
 			<File
+				RelativePath=".\BsdSocket.h"
+				>
+			</File>
+			<File
 				RelativePath=".\IPAddress.h"
 				>
 			</File>
@@ -230,6 +234,10 @@
 			Name="Source Files"
 			Filter="cpp;"
 			>
+			<File
+				RelativePath=".\BsdSocket.cpp"
+				>
+			</File>
 			<File
 				RelativePath=".\IPAddress.cpp"
 				>

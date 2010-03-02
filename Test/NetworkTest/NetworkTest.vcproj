@@ -210,6 +210,10 @@
 	</References>
 	<Files>
 		<File
+			RelativePath=".\BasicTest.cpp"
+			>
+		</File>
+		<File
 			RelativePath=".\Main.cpp"
 			>
 		</File>

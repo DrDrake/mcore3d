@@ -98,7 +98,6 @@ sockaddr& IPAddress::nativeAddr() const
 	);
 }
 
-
 bool IPAddress::operator==(const IPAddress& rhs) const {
 	return false;
 }
