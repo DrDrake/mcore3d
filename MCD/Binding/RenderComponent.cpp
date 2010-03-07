@@ -16,6 +16,15 @@ using namespace MCD;
 
 namespace script {
 
+namespace types {
+
+static void destroy(MCD::AnimationComponent* obj)	{ obj->destroyThis(); }
+static void destroy(MCD::CameraComponent* obj)		{ obj->destroyThis(); }
+static void destroy(MCD::MeshComponent* obj)		{ obj->destroyThis(); }
+static void destroy(MCD::PickComponent* obj)		{ obj->destroyThis(); }
+
+}	// namespace types
+
 SCRIPT_CLASS_REGISTER(AnimationComponent)
 	.declareClass<AnimationComponent, Component>(xSTRING("AnimationComponent"))
 	.constructor<AnimationUpdaterComponent&>()

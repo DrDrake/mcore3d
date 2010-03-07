@@ -109,7 +109,7 @@ private:
 	static SQInteger _memoryControllerHook(SQUserPointer p, SQInteger size)
 	{
 		T* data = (T*)p;
-		jkSCRIPT_DELETE data;
+		script::types::destroy(data);
 		return 1;
 	}
 };
@@ -133,7 +133,7 @@ private:
 	static SQInteger _memoryControllerHook(SQUserPointer p,SQInteger size)
 	{
 		T* data = (T*)p;
-		jkSCRIPT_DELETE data;
+		script::types::destroy(data);
 		return 1;
 	}
 };

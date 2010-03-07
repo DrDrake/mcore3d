@@ -5,15 +5,15 @@ using namespace MCD;
 
 namespace {
 
-class Base : public WeakPtrTarget {};
+class Base : public IntrusiveWeakPtrTarget {};
 
 class Derived : public Base {};
 
-typedef WeakPtr<Base> BasePointer;
+typedef IntrusiveWeakPtr<Base> BasePointer;
 
 }	// namespace
 
-TEST(WeakPtrTest)
+TEST(IntrusiveWeakPtrTest)
 {
 	// Plain usage
 	Base b;
@@ -34,6 +34,9 @@ TEST(WeakPtrTest)
 		// Assignment to self
 		wpB = wpB;
 		CHECK_EQUAL(wpB.get(), wpB1.get());
+
+		// Acquire destruction lock before destructor
+		b1.destructionLock();
 	}
 
 	{	// Assignment operator with casting
@@ -44,6 +47,9 @@ TEST(WeakPtrTest)
 		// Copy constructor with casting
 		BasePointer wpBD(&d);
 		CHECK_EQUAL(wpBD.get(), &d);
+
+		// Acquire destruction lock before destructor
+		d.destructionLock();
 
 		// Destruction of target
 	}
@@ -68,9 +74,18 @@ TEST(WeakPtrTest)
 
 			CHECK_EQUAL(temp1.get(), (Base*)(&d2));
 			CHECK_EQUAL(temp2.get(), (Base*)(&d1));
+
+			// Acquire destruction lock before destructor
+			d2.destructionLock();
 		}
 
 		CHECK(temp1.get() == nullptr);
 		CHECK(temp2.get() != nullptr);
+
+		// Acquire destruction lock before destructor
+		d1.destructionLock();
 	}
+
+	// Acquire destruction lock before destructor
+	b.destructionLock();
 }

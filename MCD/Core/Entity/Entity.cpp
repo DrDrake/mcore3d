@@ -16,6 +16,9 @@ Entity::Entity()
 
 Entity::~Entity()
 {
+	if(!mParent)	// If it's the root node, supress the assertion in IntrusiveWeakPtrTarget
+		destructionLock();
+
 	unlink();
 
 	Entity* children = mFirstChild;
@@ -23,6 +26,7 @@ Entity::~Entity()
 	// TODO: Rethink about the ownership of Entity
 	if(children) do {
 		Entity* next = children->mNextSibling;
+		children->destructionLock();
 		delete children;
 		children = next;
 	} while(children);
@@ -303,7 +307,7 @@ void Entity::removeComponent(const std::type_info& familyType)
 	for(Component* c = components.begin(); c != components.end(); c = c->next()) {
 		if(c->familyType() == familyType) {
 			c->onRemove();
-			delete c;
+			c->destroyThis();
 			return;
 		}
 	}
@@ -354,7 +358,7 @@ void Entity::setWorldTransform(const Mat44f& transform)
 		localTransform = transform;
 }
 
-sal_notnull Entity* Entity::clone() const
+Entity* Entity::clone() const
 {
 	{	// Try using script handle's clone function first
 		ScriptOwnershipHandle dummy;
@@ -398,6 +402,15 @@ sal_notnull Entity* Entity::clone() const
 	}
 
 	return newEnt.release();
+}
+
+void Entity::destroyThis()
+{
+	if(!this)	// NOTE: Make this function behaive like the delete operator: do nothing no null.
+		return;
+	if(mParent)
+		destructionLock();
+	delete this;
 }
 
 EntityPreorderIterator::EntityPreorderIterator(Entity* start)

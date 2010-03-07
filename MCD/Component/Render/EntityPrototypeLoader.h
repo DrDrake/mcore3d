@@ -8,7 +8,7 @@
 namespace MCD {
 
 class IResourceManager;
-typedef WeakPtr<class Entity> EntityPtr;
+typedef IntrusiveWeakPtr<class Entity> EntityPtr;
 
 class MCD_COMPONENT_API EntityPrototypeLoader : public IResourceLoader, private Noncopyable
 {

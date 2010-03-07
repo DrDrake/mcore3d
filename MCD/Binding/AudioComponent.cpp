@@ -7,6 +7,13 @@ using namespace MCD;
 
 namespace script {
 
+namespace types {
+
+static void destroy(MCD::AudioEffectComponent* obj)	{ obj->destroyThis(); }
+static void destroy(MCD::AudioSourceComponent* obj)	{ obj->destroyThis(); }
+
+}	// namespace types
+
 SCRIPT_CLASS_REGISTER(AudioComponent)
 	.declareClass<AudioComponent, Component>(xSTRING("AudioComponent"))
 ;}

@@ -61,11 +61,14 @@ public:
 	~RenderPanelControlImpl()
 	{
 		// Maually remove all entity, before the Launcher get destroyed.
-		while(mRootNode.firstChild())
-			delete mRootNode.firstChild();
+		while(MCD::Entity* e = mRootNode.firstChild())
+			e->destroyThis();
 
 		// Remember to clear the old user sub-tree also
-		delete mOldUserSubTree.get();
+		if(mOldUserSubTree) {
+			mOldUserSubTree->destroyThis();
+			mOldUserSubTree = NULL;
+		}
 
 		mLauncher.setRootNode(nullptr);
 	}
@@ -278,7 +281,11 @@ public:
 		std::swap(mUserSubTree, mOldUserSubTree);
 		mUserSubTree->asChildOf(&mRootNode);
 		mLauncher.setRootNode(mUserSubTree.get());
-		delete mOldUserSubTree.get();
+
+		if(mOldUserSubTree) {
+			mOldUserSubTree->destroyThis();
+			mOldUserSubTree = NULL;
+		}
 
 		// Clear the class cache so that all component scripts will be reloaded from the file system on next play()
 		(void)mLauncher.vm.runScript(L"clearClassCache();");
@@ -341,7 +348,7 @@ public:
 	MCD::EntityPtr mUserSubTree;
 	Gizmo* mGizmo;
 	MCD::PickComponent* mEntityPicker;
-	MCD::WeakPtr<CameraComponent> mCamera;
+	MCD::IntrusiveWeakPtr<CameraComponent> mCamera;
 	IResourceManager& mResourceManager;
 	gcroot<ResourceManager^> mResourceManageRef;
 	bool mPropertyGridNeedRefresh;
@@ -351,7 +358,7 @@ public:
 
 	Launcher mLauncher;
 	MCD::EntityPtr mOldUserSubTree;
-	MCD::WeakPtr<CsInputComponent> mCsInputComponent;
+	MCD::IntrusiveWeakPtr<CsInputComponent> mCsInputComponent;
 };	// RenderPanelControlImpl
 
 RenderPanelControl::RenderPanelControl(ResourceManager^ resourceManager, IntPtr sharedGlContext)

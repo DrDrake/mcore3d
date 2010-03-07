@@ -82,6 +82,12 @@ void registerScriptComponentBinding(script::VMCore* v)
 
 namespace script {
 
+namespace types {
+
+static void destroy(MCD::ScriptComponent* obj)	{ obj->destroyThis(); }
+
+}	// namespace type
+
 SCRIPT_CLASS_REGISTER(ScriptComponent)
 	.declareClass<ScriptComponent, Component>(xSTRING("ScriptComponent"))
 	.constructor()

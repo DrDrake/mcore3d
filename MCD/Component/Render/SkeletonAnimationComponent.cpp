@@ -88,15 +88,15 @@ public:
 		for(Anims::const_iterator i=mAnims.begin(); i != mAnims.end(); ++i) {
 			i->first->anim.update();
 
-			// Ensure the SkeletonAnimationComponent will not be deleted when applying the animation
-			ScopeLock lock(mMutex);
+			// Ensure the SkeletonAnimationComponent will not be deleted within this scope
+			ScopeLock lock(i->second.destructionMutex());
 
-			// TODO: Even WeakPtr is thread-safe, i->second may get deleted just after this line and before the next line
 			if(!i->second)
 				continue;
 
-			SkinMeshComponent* sm = i->second->skinMesh.get();
-			if(sm) {
+			// Ensure the SkinMeshComponent will not be deleted within this scope
+			ScopeLock lock2(i->second->skinMesh.destructionMutex());
+			if(SkinMeshComponent* sm = i->second->skinMesh.get()) {
 				sm->pose.rootJointTransform() = Mat44f::cIdentity;
 				i->first->applyTo(sm->pose);
 			}

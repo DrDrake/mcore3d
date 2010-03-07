@@ -6,7 +6,7 @@
 
 namespace MCD {
 
-typedef WeakPtr<class Entity> EntityPtr;
+typedef IntrusiveWeakPtr<class Entity> EntityPtr;
 
 /*!	Detect which entity (with mesh component) is being packed
 	within certain screen rectangle area.
@@ -57,7 +57,7 @@ public:
 
 // Attrubutes
 	/*!	The tree of entities that we want to test the picking against with.
-		EntityPtr (a WeakPtr) is used since the entiy can be destroyed at any time.
+		EntityPtr (a IntrusiveWeakPtr) is used since the entiy can be destroyed at any time.
 	 */
 	EntityPtr entityToPick;
 };	// MeshComponent

@@ -9,6 +9,10 @@ namespace script {
 
 namespace types {
 
+void destroy(MCD::Component* obj) {
+	obj->destroyThis();
+}
+
 void addHandleToObject(HSQUIRRELVM v, Entity* obj, int idx) {
 	obj->scriptOwnershipHandle.setHandle(v, idx);
 }
@@ -48,7 +52,7 @@ static int componentSetScriptHandle(HSQUIRRELVM vm)
 }
 static void componentDestroySelf(GiveUpOwnership<Component*> obj)
 {
-	delete obj;
+	obj.value->destroyThis();
 }
 SCRIPT_CLASS_REGISTER_NAME(Component, "Component")
 	.enableGetset()

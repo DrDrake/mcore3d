@@ -41,7 +41,7 @@ TEST(Create_BaiscPhysicsComponentTest)
 
 	// Step the simulation as well as removing objects
 	while(rootNode.firstChild()) {
-		delete rootNode.firstChild();
+		rootNode.firstChild()->destroyThis();
 		dynamicsWorld.stepSimulation(0.1f, 10);
 		BehaviourComponent::traverseEntities(&rootNode, 0.0f);
 	}
@@ -79,5 +79,5 @@ TEST(CreateThreaded_BaiscPhysicsComponentTest)
 
 	// Make sure the RigidBodyComponent is freed BEFORE the dynamics world...
 	while(rootNode.firstChild())
-		delete rootNode.firstChild();
+		rootNode.firstChild()->destroyThis();
 }

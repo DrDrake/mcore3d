@@ -28,7 +28,7 @@ public:
 	ColorRGBf clearColor;
 };	// CameraComponent
 
-typedef WeakPtr<CameraComponent> CameraComponentPtr;
+typedef IntrusiveWeakPtr<CameraComponent> CameraComponentPtr;
 
 }	// namespace MCD
 

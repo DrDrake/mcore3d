@@ -9,6 +9,8 @@ namespace script {
 
 namespace types {
 
+static void destroy(MCD::RigidBodyComponent* obj)	{ obj->destroyThis(); }
+
 void addHandleToObject(HSQUIRRELVM v, CollisionShape* obj, int idx) {
 	obj->scriptOwnershipHandle.setHandle(v, idx);
 }

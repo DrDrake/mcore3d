@@ -23,7 +23,7 @@ class Component;
 	     |    |
 	     n21  n31--n32--n33
  */
-class MCD_CORE_API Entity : public WeakPtrTarget, Noncopyable
+class MCD_CORE_API Entity : public IntrusiveWeakPtrTarget, Noncopyable
 {
 public:
 	Entity();
@@ -130,6 +130,7 @@ public:
 	 */
 	virtual sal_notnull Entity* clone() const;
 
+	virtual void destroyThis();
 
 // Attributes
 	bool enabled;
@@ -179,7 +180,7 @@ protected:
 	the root node of an Entity tree handle the lifetime of all it's children.
 	For external reference, we should use a weak reference.
  */
-typedef WeakPtr<Entity> EntityPtr;
+typedef IntrusiveWeakPtr<Entity> EntityPtr;
 
 }	// namespace MCD
 
