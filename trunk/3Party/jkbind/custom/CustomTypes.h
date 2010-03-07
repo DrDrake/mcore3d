@@ -38,6 +38,11 @@ template<> struct GetterSetter<const stdSTRING> {
 	static inline type& get(type& val) { return val; }
 };
 
+template<typename T>
+static void destroy(T* obj) {
+	delete obj;
+}
+
 }	//namespace types
 }	//namespace script
 

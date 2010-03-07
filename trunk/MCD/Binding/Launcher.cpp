@@ -92,8 +92,8 @@ Launcher::~Launcher()
 	// ScriptOwnershipHandle would refernece an already destroyed VM.
 	// Also make sure the RigidBodyComponent is freed BEFORE the dynamics world...
 	if(mRootNode) while(mRootNode->firstChild())
-		delete mRootNode->firstChild();
-	delete mRootNode;
+		mRootNode->firstChild()->destroyThis();
+	mRootNode->destroyThis();
 
 	// Give the script engine a chance to do cleanups
 //	scriptComponentManager.updateScriptComponents();

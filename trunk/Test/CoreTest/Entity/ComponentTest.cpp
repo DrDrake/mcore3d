@@ -126,7 +126,7 @@ TEST(Callback_ComponentTest)
 	root.addComponent(c);
 
 	CHECK(!onRemoveCalled);
-	delete c;
+	c->destroyThis();
 	CHECK(onRemoveCalled);
 }
 

@@ -20,7 +20,7 @@ public:
 	static void traverseEntities(sal_maybenull Entity* entityNode);
 };	// AudioComponent
 
-typedef WeakPtr<class AudioEffectComponent> AudioEffectComponentPtr;
+typedef IntrusiveWeakPtr<class AudioEffectComponent> AudioEffectComponentPtr;
 
 /*!	
  */
@@ -89,7 +89,7 @@ protected:
 	AudioEffectComponentPtr mEffect;
 };	// AudioSourceComponent
 
-typedef WeakPtr<AudioSourceComponent> AudioSourceComponentPtr;
+typedef IntrusiveWeakPtr<AudioSourceComponent> AudioSourceComponentPtr;
 
 }	// namespace MCD
 

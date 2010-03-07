@@ -19,7 +19,7 @@ public:
 	AudioEffect audioEffect;
 };	// AudioEffectComponent
 
-typedef WeakPtr<AudioEffectComponent> AudioEffectComponentPtr;
+typedef IntrusiveWeakPtr<AudioEffectComponent> AudioEffectComponentPtr;
 
 }	// namespace MCD
 

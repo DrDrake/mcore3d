@@ -101,7 +101,7 @@ TEST(SimplePhysicsComponentTest)
 		{
 			// Make sure the RigidBodyComponent is freed BEFORE the dynamics world...
 			while(mRootNode.firstChild())
-				delete mRootNode.firstChild();
+				mRootNode.firstChild()->destroyThis();
 		}
 
 		Entity mRootNode;

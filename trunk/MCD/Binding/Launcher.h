@@ -12,8 +12,8 @@
 namespace MCD {
 
 class IResourceManager;
-typedef WeakPtr<class InputComponent> InputComponentPtr;
-typedef WeakPtr<class AnimationUpdaterComponent> AnimationUpdaterComponentPtr;
+typedef IntrusiveWeakPtr<class InputComponent> InputComponentPtr;
+typedef IntrusiveWeakPtr<class AnimationUpdaterComponent> AnimationUpdaterComponentPtr;
 
 class MCD_BINDING_API Launcher
 {

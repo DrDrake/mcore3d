@@ -9,6 +9,10 @@ namespace {
 class MockComponent : public Component
 {
 public:
+	sal_override ~MockComponent() {
+		destructionLock();	// Just to supress the weak pointer's assertion
+	}
+
 	sal_override const std::type_info& familyType() const {
 		return typeid(MockComponent);
 	}

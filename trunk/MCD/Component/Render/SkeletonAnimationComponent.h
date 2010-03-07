@@ -9,8 +9,8 @@ namespace MCD {
 
 class TaskPool;
 typedef IntrusivePtr<class SkeletonAnimation> SkeletonAnimationPtr;
-typedef WeakPtr<class SkeletonAnimationUpdaterComponent> SkeletonAnimationUpdaterComponentPtr;
-typedef WeakPtr<class SkinMeshComponent> SkinMeshComponentPtr;
+typedef IntrusiveWeakPtr<class SkeletonAnimationUpdaterComponent> SkeletonAnimationUpdaterComponentPtr;
+typedef IntrusiveWeakPtr<class SkinMeshComponent> SkinMeshComponentPtr;
 
 //!	A component that use the AnimationInstance to control some aspects of an Entity.
 class MCD_COMPONENT_API SkeletonAnimationComponent : public BehaviourComponent
@@ -45,7 +45,7 @@ public:
 	const SkeletonAnimationUpdaterComponentPtr animationUpdater;
 };	// SkeletonAnimationComponent
 
-typedef WeakPtr<SkeletonAnimationComponent> SkeletonAnimationComponentPtr;
+typedef IntrusiveWeakPtr<SkeletonAnimationComponent> SkeletonAnimationComponentPtr;
 
 /*!	Centralize the update of many SkeletonAnimationComponent, resulting better cache coherent.
 	It can also be able to utilize TaskPool for animation update.

@@ -269,7 +269,7 @@ public:
 			if(!e) return;
 			e = e->nextSibling();
 		}
-		delete e;
+		e->destroyThis();
 	}
 
 	sal_override void update(float deltaTime)
@@ -281,10 +281,10 @@ public:
 			mTimer.reset();
 		}
 
-		if(Mathf::random() > 0.002)
+		for(size_t i=0; i<cTubeCount/10; ++i) {
 			createARandomTube();
-		if(Mathf::random() > 0.002)
 			destroyARandomTube();
+		}
 
 		mRootNode.localTransform.setTranslation(Vec3f(0, 0, -200));
 		RenderableComponent::traverseEntities(&mRootNode);

@@ -48,7 +48,7 @@ protected:
 	SkeletonPose mTmpPose;		//!< Member variable to reduce memory allocation during render().
 };	// SkinMeshComponent
 
-typedef WeakPtr<SkinMeshComponent> SkinMeshComponentPtr;
+typedef IntrusiveWeakPtr<SkinMeshComponent> SkinMeshComponentPtr;
 
 }	// namespace MCD
 

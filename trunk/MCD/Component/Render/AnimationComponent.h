@@ -9,7 +9,7 @@ namespace MCD {
 
 class AnimationInstance;
 class TaskPool;
-typedef WeakPtr<class AnimationUpdaterComponent> AnimationUpdaterComponentPtr;
+typedef IntrusiveWeakPtr<class AnimationUpdaterComponent> AnimationUpdaterComponentPtr;
 
 //!	A component that use the AnimationInstance to control some aspects of an Entity.
 class MCD_COMPONENT_API AnimationComponent : public BehaviourComponent
@@ -51,7 +51,7 @@ protected:
 	const AnimationInstancePtr mAnimationInstanceHolder;
 };	// AnimationComponent
 
-typedef WeakPtr<AnimationComponent> AnimationComponentPtr;
+typedef IntrusiveWeakPtr<AnimationComponent> AnimationComponentPtr;
 
 /*!	Centralize the update of many AnimationComponent, resulting better cache coherent.
 	It can also be able to utilize TaskPool for animation update.

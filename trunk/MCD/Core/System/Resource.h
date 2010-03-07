@@ -10,7 +10,7 @@ namespace MCD {
 
 /*!	Resource
  */
-class MCD_CORE_API Resource : public WeakPtrTarget, public IntrusiveSharedObject<AtomicInteger>, Noncopyable
+class MCD_CORE_API Resource : public IntrusiveSharedWeakPtrTarget<AtomicInteger>, Noncopyable
 {
 public:
 	explicit Resource(const Path& fileId);
@@ -30,7 +30,7 @@ protected:
 };	// Resource
 
 typedef IntrusivePtr<Resource> ResourcePtr;
-typedef WeakPtr<Resource> ResourceWeakPtr;
+typedef IntrusiveWeakPtr<Resource> ResourceWeakPtr;
 
 }	// namespace MCD
 

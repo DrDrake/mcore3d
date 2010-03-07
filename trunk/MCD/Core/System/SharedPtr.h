@@ -6,38 +6,59 @@
 
 namespace MCD {
 
-/*!	The default proxy object to be used by SharedPtr.
-	Handles reference counter and deletion of object for IntrusivePtr.
+/*!	The default proxy object to be used by SharedPtr and WeakPtr.
+	Handles reference counter and deletion of object.
  */
 template<typename T>
 class SharedPtrProxyObject
 {
 public:
-	SharedPtrProxyObject() : mPtr(nullptr), mRefCount(0) {}
+	SharedPtrProxyObject() : mPtr(nullptr), mRefCount(0), mUseCount(0) {}
 
-	SharedPtrProxyObject(sal_in_opt T* p) : mPtr(p), mRefCount(0) {}
+	explicit SharedPtrProxyObject(sal_in_opt T* p) : mPtr(p), mRefCount(0), mUseCount(0) {}
 
 	~SharedPtrProxyObject() {
-		// It will share the same life with the pointee object.
-		delete mPtr;
+		MCD_ASSERT(mRefCount == 0);
+		MCD_ASSERT(mUseCount == 0);
+	}
+
+	T* getPtrIncrementUseCount() {
+		if(mUseCount > 0) {
+			incrementUseCount();
+			return mPtr;
+		}
+		return nullptr;
+	}
+
+	void incrementUseCount() {
+		if(mPtr)
+			++mUseCount;
+	}
+
+	void decrementUseCount() {
+		if(mPtr && --mUseCount == 0) {
+			delete mPtr;
+			mPtr = nullptr;
+		}
+	}
+
+	friend void intrusivePtrAddRef(sal_notnull SharedPtrProxyObject* p) {
+		++(p->mRefCount);
+	}
+
+	friend void intrusivePtrRelease(sal_notnull SharedPtrProxyObject* p) {
+		if(--(p->mRefCount) == 0)
+			delete p;
 	}
 
 	T* mPtr;
 
-	//! The reference counter. Use atomic integer for thread-safty
-	AtomicInteger mRefCount;
+	//! The reference counters. Use atomic integer for thread-safty
+	MCD::AtomicInteger mRefCount;	//! Manage the life of SharedPtrProxyObject itself
+	MCD::AtomicInteger mUseCount;	//! Manage the life of pointee object
 };	// SharedPtrProxyObject
 
-template<typename T>
-void intrusivePtrAddRef(sal_notnull SharedPtrProxyObject<T>* p) {
-	++(p->mRefCount);
-}
-
-template<typename T>
-void intrusivePtrRelease(sal_notnull SharedPtrProxyObject<T>* p) {
-	if(--(p->mRefCount) == 0)
-		delete p;
-}
+template<class T, class Proxy> class WeakPtr;
 
 /*!	A simple reference counted smart pointer (non-intrusive).
 	The implementation of SharedPtr use IntrusivePtr to hold a reference to a proxy object, where
@@ -71,29 +92,34 @@ class SharedPtr : protected IntrusivePtr<Proxy>
 {
 	typedef SharedPtr<T> this_type;
 	typedef IntrusivePtr<Proxy> Super;
+	friend class WeakPtr<T, Proxy>;
 
 public:
-	SharedPtr() : Super(), mPtr(nullptr) {}
+	SharedPtr() : Super(new Proxy), mPtr(nullptr) {}
 
-	MCD_IMPLICIT SharedPtr(sal_in_opt T* p, bool addRef=true)
-		: Super(new Proxy(p), addRef), mPtr(p)
+	MCD_IMPLICIT SharedPtr(sal_in_opt T* p)
+		: Super(new Proxy(p)), mPtr(p)
 	{
+		Super::get()->incrementUseCount();
 	}
 
-/*	MCD_IMPLICIT SharedPtr(sal_in Proxy* proxy, bool addRef=true)
-		: Super(proxy, addRef), mPtr(proxy->mPtr)
+	//!
+	explicit SharedPtr(const Super& proxy)
+		: Super(proxy), mPtr(proxy->getPtrIncrementUseCount())
 	{
-	}*/
+	}
 
 	template<typename U>
 	SharedPtr(const SharedPtr<U>& rhs)
 		: Super(rhs), mPtr(rhs.get())
 	{
+		Super::get()->incrementUseCount();
 	}
 
 	SharedPtr(const SharedPtr& rhs)
 		: Super(rhs), mPtr(rhs.get())
 	{
+		Super::get()->incrementUseCount();
 	}
 
 	template<typename U>
@@ -101,6 +127,11 @@ public:
 	{
 		this_type(rhs).swap(*this);
 		return *this;
+	}
+
+	~SharedPtr()
+	{
+		Super::get()->decrementUseCount();
 	}
 
 	SharedPtr& operator=(const SharedPtr& rhs)
@@ -158,13 +189,13 @@ public:
 	}
 
 	size_t referenceCount() const {
-		return Super::getNotNull()->mRefCount;
+		return Super::getNotNull()->mUseCount;
 	}
 
 private:
 	/*!	This is a cached copy of the pointer embedded in the proxy object for fast access.
 		If this variable is removed due to memory constrain, one more indirection will
-		introduced in the accessing functions.
+		introduced in the accessor functions.
 	 */
 	T* mPtr;
 };	// SharedPtr

@@ -12,7 +12,12 @@ class FakeResource : public Resource
 public:
 	explicit FakeResource(const Path& fileId) : Resource(fileId) {}
 	std::vector<int> data;
+
+protected:
+	~FakeResource() {}
 };	// FakeResource
+
+typedef IntrusivePtr<FakeResource> FakeResourcePtr;
 
 class FakeResourceLoader : public IResourceLoader
 {
@@ -49,19 +54,19 @@ protected:
 TEST(Basic_ResourceLoaderTest)
 {
 	static const wchar_t fileName[] = L"./myResource.bin";
-	FakeResource resource(fileName);
-	CHECK_EQUAL(fileName, resource.fileId().getString());
+	FakeResourcePtr resource = new FakeResource(fileName);
+	CHECK_EQUAL(fileName, resource->fileId().getString());
 
 	FakeResourceLoader loader;
 	CHECK_EQUAL(IResourceLoader::NotLoaded, loader.getLoadingState());
 
 	CHECK_EQUAL(IResourceLoader::Loaded, loader.load(nullptr));
-	loader.commit(resource);
+	loader.commit(*resource);
 
 	// The second commit is ignonred for this loader
-	loader.commit(resource);
+	loader.commit(*resource);
 
-	CHECK_EQUAL(1u, resource.data.size());
+	CHECK_EQUAL(1u, resource->data.size());
 }
 
 #include "../../../MCD/Core/System/Thread.h"
@@ -141,7 +146,7 @@ TEST(Async_ResourceLoaderTest)
 		CondVar mCondVar;
 	};	// Runnable
 
-	FakeResource resource(L"./myResource.bin");
+	FakeResourcePtr resource = new FakeResource(L"./myResource.bin");
 	FakeAsyncResourceLoader loader;
 
 	CHECK_EQUAL(IResourceLoader::NotLoaded, loader.getLoadingState());

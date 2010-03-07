@@ -313,8 +313,9 @@ ResourcePtr ResourceManager::load(const Path& fileId, BlockingMode blockingMode,
 	MapNode* node = mImpl->findMapNode(fileId);
 	if(node)
 	{
-		// NOTE: Use a local variable to hold the life-time of the cached resource,
-		// prevent it being deleted in another thread.
+		// NOTE: Prevent the resource being deleted in another thread.
+		ScopeLock lock(node->mResource.destructionMutex());
+
 		ResourcePtr p = node->mResource.get();
 
 		if(node->mResource)	// Weak pointer not null, the resource is still alive
@@ -332,6 +333,8 @@ ResourcePtr ResourceManager::load(const Path& fileId, BlockingMode blockingMode,
 				return p;
 		}
 		else {	// Unfortunately, the resource is already deleted
+			lock.mutex().unlock();
+			lock.cancel();
 			delete node;
 			node = nullptr;
 		}

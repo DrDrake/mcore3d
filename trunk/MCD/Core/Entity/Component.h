@@ -13,9 +13,13 @@ namespace MCD {
 class Entity;
 
 /*!	Base class for everything attached to Entity.
+
+	Deleting a Component will automatically remove itself from the Entity where it attached to.
+	You may need to invoke destructionLock() before deleting a Component for thread safty issues
+	with weak pointer, or call destroyThis() which handle both destructionLock() and delete.
  */
 class MCD_ABSTRACT_CLASS MCD_CORE_API Component :
-	public WeakPtrTarget, public LinkListBase::Node<Component>, Noncopyable
+	public IntrusiveWeakPtrTarget, public LinkListBase::Node<Component>, Noncopyable
 {
 public:
 	Component();
@@ -48,6 +52,9 @@ public:
 	 */
 	virtual void onRemove();
 
+	//!	Overrided LinkListBase::NodeBase::destroyThis() for handling IntrusiveWeakPtrTarget::destructionLock().
+	sal_override void destroyThis() throw();
+
 // Attributes
 	//! The Entity that this component belongs to.
 	sal_maybenull Entity* entity() const;
@@ -66,7 +73,7 @@ protected:
 /*!	We use weak pointer to reference a Component.
 	It's too easy to make cyclic-reference hell if we use reference counted pointer.
  */
-typedef WeakPtr<Component> ComponentPtr;
+typedef IntrusiveWeakPtr<Component> ComponentPtr;
 
 /*!	An iterator that traverse over all Component within a certain Entity tree.
 	Example:

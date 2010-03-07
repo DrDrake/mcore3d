@@ -16,6 +16,12 @@ void Component::onAdd() {}
 
 void Component::onRemove() {}
 
+void Component::destroyThis() throw()
+{
+	destructionLock();
+	delete this;
+}
+
 Entity* Component::entity() const {
 	return mEntity;
 }

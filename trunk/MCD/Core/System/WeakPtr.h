@@ -2,15 +2,16 @@
 #define __MCD_CORE_SYSTEM_WEAKPTR__
 
 #include "IntrusivePtr.h"
+#include "Mutex.h"
 #include <utility>
 
 namespace MCD {
 
-//!	\sa WeakPtr
-class WeakPtrFlag
+//!	\sa IntrusiveWeakPtr
+class IntrusiveWeakPtrFlag
 {
 public:
-	WeakPtrFlag(bool isValid=true)
+	IntrusiveWeakPtrFlag(bool isValid=true)
 		: mRefCount(0), mIsValid(isValid)
 	{}
 
@@ -22,57 +23,98 @@ public:
 		return mIsValid;
 	}
 
-	friend void intrusivePtrAddRef(sal_notnull WeakPtrFlag* p) {
+	friend void intrusivePtrAddRef(sal_notnull IntrusiveWeakPtrFlag* p) {
 		++(p->mRefCount);
 	}
 
-	friend void intrusivePtrRelease(sal_notnull WeakPtrFlag* p) {
+	friend void intrusivePtrRelease(sal_notnull IntrusiveWeakPtrFlag* p) {
 		if(--(p->mRefCount) == 0)
 			delete p;
 	}
 
+	Mutex& destructionMutex() const {
+		return mMutex;
+	}
+
 private:
-	size_t mRefCount;	//!< Reference counter for the flag
-	bool mIsValid;		//!< Flag indicating the object is alive or not
-};	// WeakPtrFlag
+	size_t mRefCount;		//!< Reference counter for the flag
+	bool mIsValid;			//!< Flag indicating the object is alive or not
+	mutable Mutex mMutex;	//!< Help to ensure the
+};	// IntrusiveWeakPtrFlag
 
-template<class T> class WeakPtr;
+template<class T> class IntrusiveWeakPtr;
 
-//!	\sa WeakPtr
-class WeakPtrTarget
+//!	\sa IntrusiveWeakPtr
+class IntrusiveWeakPtrTarget
 {
-	template<class T> friend class WeakPtr;
+	template<class T> friend class IntrusiveWeakPtr;
 
 public:
-	WeakPtrTarget()
-		: mValidityFlag(new WeakPtrFlag(true))
+	IntrusiveWeakPtrTarget()
+		: mValidityFlag(new IntrusiveWeakPtrFlag(true))
 	{
 	}
 
 	// Prevent copy of other object's flag
-	WeakPtrTarget(const WeakPtrTarget&)
-		: mValidityFlag(new WeakPtrFlag(true))
+	IntrusiveWeakPtrTarget(const IntrusiveWeakPtrTarget&)
+		: mValidityFlag(new IntrusiveWeakPtrFlag(true))
 	{
 	}
 
-	WeakPtrTarget& operator=(const WeakPtrTarget&) {
+	IntrusiveWeakPtrTarget& operator=(const IntrusiveWeakPtrTarget&) {
 		// Do nothing
 		return *this;
 	}
 
+	void destructionLock() {
+		mValidityFlag.getNotNull()->destructionMutex().lock();
+	}
+
 protected:
 	// Protected to prevent deletion via base class (non-virtual destructor)
-	~WeakPtrTarget () {
-		mValidityFlag.getNotNull()->setValid(false);
+	~IntrusiveWeakPtrTarget()
+	{
+		IntrusiveWeakPtrFlag& flag = *mValidityFlag.getNotNull();
+		MCD_ASSERT(flag.destructionMutex().isLocked() && "Make sure destructionLock() is called before detroying IntrusiveWeakPtrTarget");
+		flag.setValid(false);
+		flag.destructionMutex().unlock();
 	}
 
 private:
-	const IntrusivePtr<WeakPtrFlag>& validityFlag() const {
+	const IntrusivePtr<IntrusiveWeakPtrFlag>& validityFlag() const {
 		return mValidityFlag;
 	}
 
-	IntrusivePtr<WeakPtrFlag> mValidityFlag;
-};	// WeakPtrTarget
+	IntrusivePtr<IntrusiveWeakPtrFlag> mValidityFlag;
+};	// IntrusiveWeakPtrTarget
+
+/*!	Convience class for combining shared object and weak pointer target,
+	will handle destructionLock() automatically.
+ */
+template<typename CounterType>
+class MCD_ABSTRACT_CLASS IntrusiveSharedWeakPtrTarget : public IntrusiveWeakPtrTarget
+{
+public:
+	IntrusiveSharedWeakPtrTarget() : mRefCount(0) {}
+
+	virtual ~IntrusiveSharedWeakPtrTarget() {}
+
+	friend void intrusivePtrAddRef(IntrusiveSharedWeakPtrTarget* p) {
+		++(p->mRefCount);
+	}
+
+	friend void intrusivePtrRelease(IntrusiveSharedWeakPtrTarget* p) {
+		// NOTE: Gcc4.2 failed to compile "--(p->mRefCount)" correctly.
+		p->mRefCount--;
+		if(p->mRefCount == 0) {
+			p->destructionLock();	// NOTE: We preform the lock before deleting.
+			delete p;
+		}
+	}
+
+protected:
+	mutable CounterType mRefCount;
+};	// IntrusiveSharedWeakPtrTarget
 
 /*!	A weak pointer class to avoid dangling pointer.
 	Introduction:
@@ -82,7 +124,7 @@ private:
 	become invalid, and the standard actually says that any use of an invalid pointer value is
 	undefined behavior.
 
-	In contrast to plain pointers, the WeakPtr can validly be in one of three distinct
+	In contrast to plain pointers, the IntrusiveWeakPtr can validly be in one of three distinct
 	states: null, pointing to a valid object or target object destroyed. In order to achieve
 	this, the target object's destructor informs all relevant weak pointers that their target
 	has disappeared. The weak pointers then catch any access after their target object has
@@ -120,16 +162,16 @@ private:
 
 	Usage:
 	In order for a class to be eligible as a weak pointer target, it must provide access to
-	an object validity flag via the	validityFlag method returning IntrusivePtr<WeakPtrFlag>.
+	an object validity flag via the	validityFlag method returning IntrusivePtr<IntrusiveWeakPtrFlag>.
 	This flag must be initialized true and remain true until the object is destroyed, at which
 	point it must be set to false. It is also very important that every object have its own flag,
 	distinct from every other object's, including copies made via a copy constructor or
 	assignment operator.
 
-	To make adding this support as easy as possible, the WeakPtrTarget is provided that client
+	To make adding this support as easy as possible, the IntrusiveWeakPtrTarget is provided that client
 	classes can use by public inheritance. Note that this is just one possible implementation of the
-	requirements, provided for convenience. The WeakPtr template does not require that the target
-	class derive from WeakPtrTarget, only that it has a compatible method called validityFlag.
+	requirements, provided for convenience. The IntrusiveWeakPtr template does not require that the target
+	class derive from IntrusiveWeakPtrTarget, only that it has a compatible method called validityFlag.
 
 	Thread safety:
 	The constructors and assignment operators have to initialize 2 variables (the pointer and the flag),
@@ -154,33 +196,33 @@ private:
 	\sa http://www.jelovic.com/articles/smart_pointer_thread_safety.htm
  */
 template<class T>
-class WeakPtr
+class IntrusiveWeakPtr
 {
-	typedef WeakPtr<T> this_type;
+	typedef IntrusiveWeakPtr<T> this_type;
 
 public:
 	//! Raw pointer constructor (handles null pointer).
-	MCD_IMPLICIT WeakPtr(sal_in_opt T* ptr = nullptr) :
+	MCD_IMPLICIT IntrusiveWeakPtr(sal_in_opt T* ptr = nullptr) :
 		mPtr(ptr),
-		mValidityFlag(ptr == nullptr ? new WeakPtrFlag(false) : ptr->validityFlag())
+		mValidityFlag(ptr == nullptr ? new IntrusiveWeakPtrFlag(false) : ptr->validityFlag())
 	{
 	}
 
 	//! Object reference constructor (guaranteed non-null, faster).
-	explicit WeakPtr(T& obj) :
+	explicit IntrusiveWeakPtr(T& obj) :
 		mPtr(&obj),
 		mValidityFlag(obj.validityFlag())
 	{
 	}
 
 	template<class U>
-	WeakPtr(const WeakPtr<U>& rhs) :
+	IntrusiveWeakPtr(const IntrusiveWeakPtr<U>& rhs) :
 		mPtr(rhs.get()),	// The plain pointer cannot always be copied, at least deference occur during virtual inheritance casting
 		mValidityFlag(rhs.mValidityFlag)
 	{
 	}
 
-	WeakPtr(const WeakPtr& rhs) :
+	IntrusiveWeakPtr(const IntrusiveWeakPtr& rhs) :
 		mPtr(rhs.mPtr),
 		mValidityFlag(rhs.mValidityFlag)
 	{
@@ -190,7 +232,7 @@ public:
 		return mValidityFlag.getNotNull()->isValid() ? mPtr : nullptr;
 	}
 
-	//! Use this when you sure the WeakPtr is not null to suppress compiler warning
+	//! Use this when you sure the IntrusiveWeakPtr is not null to suppress compiler warning
 	sal_notnull T* getNotNull() const {
 		T* p = get();
 		MCD_ASSUME(p);
@@ -218,7 +260,7 @@ public:
 		return get() == nullptr;
 	}
 
-	void swap(WeakPtr& rhs)
+	void swap(IntrusiveWeakPtr& rhs)
 	{
 		// TODO: Would this be thread safe?
 		T*temp = get();
@@ -227,48 +269,52 @@ public:
 		mValidityFlag.swap(rhs.mValidityFlag);
 	}
 
+	Mutex& destructionMutex() const {
+		return mValidityFlag->destructionMutex();
+	}
+
 private:
 	T* mPtr;
-	IntrusivePtr<WeakPtrFlag> mValidityFlag;
-};	// WeakPtr
+	IntrusivePtr<IntrusiveWeakPtrFlag> mValidityFlag;
+};	// IntrusiveWeakPtr
 
 template<class T, class U> inline
-bool operator==(const WeakPtr<T>& a, const WeakPtr<U>& b) {
+bool operator==(const IntrusiveWeakPtr<T>& a, const IntrusiveWeakPtr<U>& b) {
 	return a.get() == b.get();
 }
 
 template<class T, class U> inline
-bool operator!=(const WeakPtr<T>& a, const WeakPtr<U>& b) {
+bool operator!=(const IntrusiveWeakPtr<T>& a, const IntrusiveWeakPtr<U>& b) {
 	return a.get() != b.get();
 }
 
 template<class T, class U> inline
-bool operator<(const WeakPtr<T>& a, const WeakPtr<U>& b) {
+bool operator<(const IntrusiveWeakPtr<T>& a, const IntrusiveWeakPtr<U>& b) {
 	return a.get() < b.get();
 }
 
 template<class T, class U> inline
-bool operator==(const WeakPtr<T>& a, sal_in_opt U* b) {
+bool operator==(const IntrusiveWeakPtr<T>& a, sal_in_opt U* b) {
 	return a.get() == b;
 }
 
 template<class T, class U> inline
-bool operator!=(const WeakPtr<T>& a, sal_in_opt U* b) {
+bool operator!=(const IntrusiveWeakPtr<T>& a, sal_in_opt U* b) {
 	return a.get() != b;
 }
 
 template<class T, class U> inline
-bool operator==(sal_in_opt T* a, const WeakPtr<U>& b) {
+bool operator==(sal_in_opt T* a, const IntrusiveWeakPtr<U>& b) {
 	return a == b.get();
 }
 
 template<class T, class U> inline
-bool operator!=(sal_in_opt T* a, const WeakPtr<U>& b) {
+bool operator!=(sal_in_opt T* a, const IntrusiveWeakPtr<U>& b) {
 	return a != b.get();
 }
 
 template<class T> inline
-void swap(WeakPtr<T>& lhs, WeakPtr<T>& rhs) {
+void swap(IntrusiveWeakPtr<T>& lhs, IntrusiveWeakPtr<T>& rhs) {
 	lhs.swap(rhs);
 }
 
