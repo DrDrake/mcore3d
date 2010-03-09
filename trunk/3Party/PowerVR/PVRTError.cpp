@@ -2,9 +2,9 @@
 
  @File         PVRTError.cpp
 
- @Title        
+ @Title        PVRTError
 
- @Copyright    Copyright (C) 2008 - 2008 by Imagination Technologies Limited.
+ @Copyright    Copyright (C)  Imagination Technologies Limited.
 
  @Platform     ANSI compatible
 
@@ -63,7 +63,7 @@ void PVRTErrorOutputDebug(char const * const format, ...)
 	#elif defined(_WIN32) && !defined(UNDER_CE)
 		OutputDebugString(pszString);
 	#else
-		fprintf(stderr, pszString);
+		fprintf(stderr, "%s", pszString);
 	#endif
 #endif
 }

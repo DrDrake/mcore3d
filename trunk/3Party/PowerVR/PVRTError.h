@@ -2,9 +2,9 @@
 
  @File         PVRTError.h
 
- @Title        
+ @Title        PVRTError
 
- @Copyright    Copyright (C) 2008 - 2008 by Imagination Technologies Limited.
+ @Copyright    Copyright (C)  Imagination Technologies Limited.
 
  @Platform     ANSI compatible
 
@@ -21,7 +21,6 @@
 #else
 #include <stdio.h>
 #endif
-
 /*!***************************************************************************
  Macros
 *****************************************************************************/
@@ -49,7 +48,8 @@
 enum EPVRTError
 {
 	PVR_SUCCESS = 0,
-	PVR_FAIL = 1
+	PVR_FAIL = 1,
+	PVR_OVERFLOW = 2
 };
 
 /*!***************************************************************************

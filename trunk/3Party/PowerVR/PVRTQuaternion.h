@@ -2,9 +2,9 @@
 
  @File         PVRTQuaternion.h
 
- @Title        PFX file parser.
+ @Title        PVRTQuaternion
 
- @Copyright    Copyright (C) 1999 - 2008 by Imagination Technologies Limited.
+ @Copyright    Copyright (C)  Imagination Technologies Limited.
 
  @Platform     ANSI compatible
 

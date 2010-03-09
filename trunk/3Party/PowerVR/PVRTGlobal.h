@@ -2,9 +2,9 @@
 
  @File         PVRTGlobal.h
 
- @Title        
+ @Title        PVRTGlobal
 
- @Copyright    Copyright (C) 2007 - 2008 by Imagination Technologies Limited.
+ @Copyright    Copyright (C)  Imagination Technologies Limited.
 
  @Platform     ANSI compatible
 
@@ -53,18 +53,26 @@
 	#define _RPT4(a,b,c,d,e,f)
 #else
 
-#ifdef WIN32
+#ifdef _WIN32
 
 #else
-#ifdef __linux__
+#if defined(__linux__) || defined(__APPLE__)
 	#define _ASSERT(a)((void)0)
 	#define _ASSERTE(a)((void)0)
 	#ifdef _DEBUG
+		#ifndef _RPT0
 		#define _RPT0(a,b) printf(b)
+		#endif
+		#ifndef _RPT1
 		#define _RPT1(a,b,c) printf(b,c)
+		#endif
 	#else
+		#ifndef _RPT0
 	    #define _RPT0(a,b)((void)0)
+		#endif
+		#ifndef _RPT1
 	    #define _RPT1(a,b,c)((void)0)
+		#endif
 	#endif
 	#define _RPT2(a,b,c,d)((void)0)
 	#define _RPT3(a,b,c,d,e)((void)0)

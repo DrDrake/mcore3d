@@ -2,9 +2,9 @@
 
  @File         PVRTModelPOD.h
 
- @Title        
+ @Title        PVRTModelPOD
 
- @Copyright    Copyright (C) 2003 - 2008 by Imagination Technologies Limited.
+ @Copyright    Copyright (C)  Imagination Technologies Limited.
 
  @Platform     ANSI compatible
 
@@ -15,9 +15,9 @@
 #define _PVRTMODELPOD_H_
 
 #include "PVRTVector.h"
+#include "PVRTError.h"
 #include "PVRTVertex.h"
 #include "PVRTBoneBatch.h"
-#include "PVRTError.h"
 #include <iosfwd>
 
 /****************************************************************************
@@ -37,8 +37,9 @@
 ******************************************************************************/
 enum EPODLight
 {
-	ePODPoint=0,	/*!< Point light */
-	ePODDirectional /*!< Directional light */
+	ePODPoint=0,	 /*!< Point light */
+	ePODDirectional, /*!< Directional light */
+	ePODSpot		 /*!< Spot light */
 };
 
 /*!****************************************************************************
@@ -61,6 +62,55 @@ enum EPODAnimationData
 	ePODHasRotationAni	= 0x02, /*!< Rotation animation */
 	ePODHasScaleAni		= 0x04, /*!< Scale animation */
 	ePODHasMatrixAni	= 0x08  /*!< Matrix animation */
+};
+
+/*!****************************************************************************
+ @Struct      EPODMaterialFlags
+ @Brief       Enum for the material flag options
+******************************************************************************/
+enum EPODMaterialFlags
+{
+	ePODEnableBlending	= 0x01,	/*!< Enable blending for this material */
+};
+
+/*!****************************************************************************
+ @Struct      EPODBlendFunc
+ @Brief       Enum for the POD format blend functions
+******************************************************************************/
+enum EPODBlendFunc
+{
+	ePODBlendFunc_ZERO,
+	ePODBlendFunc_ONE,
+	ePODBlendFunc_BLEND_FACTOR,
+	ePODBlendFunc_ONE_MINUS_BLEND_FACTOR,
+
+	ePODBlendFunc_SRC_COLOR = 0x0300,
+	ePODBlendFunc_ONE_MINUS_SRC_COLOR,
+	ePODBlendFunc_SRC_ALPHA,
+	ePODBlendFunc_ONE_MINUS_SRC_ALPHA,
+	ePODBlendFunc_DST_ALPHA,
+	ePODBlendFunc_ONE_MINUS_DST_ALPHA,
+	ePODBlendFunc_DST_COLOR,
+	ePODBlendFunc_ONE_MINUS_DST_COLOR,
+	ePODBlendFunc_SRC_ALPHA_SATURATE,
+
+	ePODBlendFunc_CONSTANT_COLOR = 0x8001,
+	ePODBlendFunc_ONE_MINUS_CONSTANT_COLOR,
+	ePODBlendFunc_CONSTANT_ALPHA,
+	ePODBlendFunc_ONE_MINUS_CONSTANT_ALPHA
+};
+
+/*!****************************************************************************
+ @Struct      EPODBlendOp
+ @Brief       Enum for the POD format blend operation
+******************************************************************************/
+enum EPODBlendOp
+{
+	ePODBlendOp_ADD = 0x8006,
+	ePODBlendOp_MIN,
+	ePODBlendOp_MAX,
+	ePODBlendOp_SUBTRACT = 0x800A,
+	ePODBlendOp_REVERSE_SUBTRACT,
 };
 
 /****************************************************************************
@@ -104,7 +154,12 @@ struct SPODCamera {
 struct SPODLight {
 	int			nIdxTarget;		/*!< Index of the target object */
 	VERTTYPE	pfColour[3];	/*!< Light colour (0.0f -> 1.0f for each channel) */
-	EPODLight	eType;			/*!< Light type (point, directional etc.) */
+	EPODLight	eType;			/*!< Light type (point, directional, spot etc.) */
+	float		fConstantAttenuation;	/*!< Constant attenuation */
+	float		fLinearAttenuation;		/*!< Linear atternuation */
+	float		fQuadraticAttenuation;	/*!< Quadratic attenuation */
+	float		fFalloffAngle;			/*!< Falloff angle (in radians) */
+	float		fFalloffExponent;		/*!< Falloff exponent */
 };
 
 /*!****************************************************************************
@@ -165,15 +220,35 @@ struct SPODTexture {
  @Brief       Struct for storing POD material data
 ******************************************************************************/
 struct SPODMaterial {
-	char		*pszName;			/*!< Name of material */
-	int			nIdxTexDiffuse;		/*!< Idx into textures for diffuse texture */
-	VERTTYPE	fMatOpacity;		/*!< Material opacity (used with vertex alpha ?) */
-	VERTTYPE	pfMatAmbient[3];	/*!< Ambient RGB value */
-	VERTTYPE	pfMatDiffuse[3];	/*!< Diffuse RGB value */
-	VERTTYPE	pfMatSpecular[3];	/*!< Specular RGB value */
-	VERTTYPE	fMatShininess;		/*!< Material shininess */
-	char		*pszEffectFile;		/*!< Name of effect file */
-	char		*pszEffectName;		/*!< Name of effect in the effect file */
+	char		*pszName;				/*!< Name of material */
+	int			nIdxTexDiffuse;			/*!< Idx into pTexture for the diffuse texture */
+	int			nIdxTexAmbient;			/*!< Idx into pTexture for the ambient texture */
+	int			nIdxTexSpecularColour;	/*!< Idx into pTexture for the specular colour texture */
+	int			nIdxTexSpecularLevel;	/*!< Idx into pTexture for the specular level texture */
+	int			nIdxTexBump;			/*!< Idx into pTexture for the bump map */
+	int			nIdxTexEmissive;		/*!< Idx into pTexture for the emissive texture */
+	int			nIdxTexGlossiness;		/*!< Idx into pTexture for the glossiness texture */
+	int			nIdxTexOpacity;			/*!< Idx into pTexture for the opacity texture */
+	int			nIdxTexReflection;		/*!< Idx into pTexture for the reflection texture */
+	int			nIdxTexRefraction;		/*!< Idx into pTexture for the refraction texture */
+	VERTTYPE	fMatOpacity;			/*!< Material opacity (used with vertex alpha ?) */
+	VERTTYPE	pfMatAmbient[3];		/*!< Ambient RGB value */
+	VERTTYPE	pfMatDiffuse[3];		/*!< Diffuse RGB value */
+	VERTTYPE	pfMatSpecular[3];		/*!< Specular RGB value */
+	VERTTYPE	fMatShininess;			/*!< Material shininess */
+	char		*pszEffectFile;			/*!< Name of effect file */
+	char		*pszEffectName;			/*!< Name of effect in the effect file */
+
+	EPODBlendFunc	eBlendSrcRGB;		/*!< Blending RGB source value */
+	EPODBlendFunc	eBlendSrcA;			/*!< Blending alpha source value */
+	EPODBlendFunc	eBlendDstRGB;		/*!< Blending RGB destination value */
+	EPODBlendFunc	eBlendDstA;			/*!< Blending alpha destination value */
+	EPODBlendOp		eBlendOpRGB;		/*!< Blending RGB operation */
+	EPODBlendOp		eBlendOpA;			/*!< Blending alpha operation */
+	VERTTYPE		pfBlendColour[4];	/*!< A RGBA colour to be used in blending */
+	VERTTYPE		pfBlendFactor[4];	/*!< An array of blend factors, one for each RGBA component */
+
+	unsigned int	nFlags;				/*!< Stores information about the material e.g. Enable blending */
 };
 
 /*!****************************************************************************
@@ -205,8 +280,6 @@ struct SPODScene {
 
 	unsigned int	nNumFrame;		/*!< Number of frames of animation */
 	unsigned int	nFlags;			/*!< PVRTMODELPODSF_* bit-flags */
-
-	bool bBigEndian;				/*!< bool to say if the scene is big endian or not */
 };
 
 struct SPVRTPODImpl;	// Internal implementation data
@@ -234,6 +307,8 @@ public:
 	 @Input			stream			Input data stream
 	 @Output		pszExpOpt		String in which to place exporter options
 	 @Input			count			Maximum number of characters to store.
+	 @Output		pszHistory		String in which to place the pod file history
+	 @Input			historyCount	Maximum number of characters to store.
 	 @Return		PVR_SUCCESS if successful, PVR_FAIL if not
 	 @Description	Loads the specified ".POD" file; returns the scene in
 					pScene. This structure must later be destroyed with
@@ -246,7 +321,55 @@ public:
 	EPVRTError ReadFromStream(
 		std::istream&	stream,
 		char			* const pszExpOpt = NULL,
-		const size_t	count = 0);
+		const size_t	count = 0,
+		char			* const pszHistory = NULL,
+		const size_t	historyCount = 0);
+
+	/*!***************************************************************************
+	 @Function		ReadFromFile
+	 @Input			pszFileName		Filename to load
+	 @Output		pszExpOpt		String in which to place exporter options
+	 @Input			count			Maximum number of characters to store.
+	 @Output		pszHistory		String in which to place the pod file history
+	 @Input			historyCount	Maximum number of characters to store.
+	 @Return		PVR_SUCCESS if successful, PVR_FAIL if not
+	 @Description	Loads the specified ".POD" file; returns the scene in
+					pScene. This structure must later be destroyed with
+					PVRTModelPODDestroy() to prevent memory leaks.
+					".POD" files are exported using the PVRGeoPOD exporters.
+					If pszExpOpt is NULL, the scene is loaded; otherwise the
+					scene is not loaded and pszExpOpt is filled in. The same
+					is true for pszHistory.
+	*****************************************************************************/
+	EPVRTError ReadFromFile(
+		const char		* const pszFileName,
+		char			* const pszExpOpt = NULL,
+		const size_t	count = 0,
+		char			* const pszHistory = NULL,
+		const size_t	historyCount = 0);
+
+	/*!***************************************************************************
+	 @Function		ReadFromMemory
+	 @Input			pData			Data to load
+	 @Input			i32Size			Size of data
+	 @Output		pszExpOpt		String in which to place exporter options
+	 @Input			count			Maximum number of characters to store.
+	 @Output		pszHistory		String in which to place the pod file history
+	 @Input			historyCount	Maximum number of characters to store.
+	 @Return		PVR_SUCCESS if successful, PVR_FAIL if not
+	 @Description	Loads the supplied pod data. This data can be exported
+					directly to a header using one of the pod exporters.
+					If pszExpOpt is NULL, the scene is loaded; otherwise the
+					scene is not loaded and pszExpOpt is filled in. The same
+					is true for pszHistory.
+	*****************************************************************************/
+	EPVRTError ReadFromMemory(
+		const char		* pData,
+		const size_t	i32Size,
+		char			* const pszExpOpt = NULL,
+		const size_t	count = NULL,
+		char			* const pszHistory = NULL,
+		const size_t	historyCount = NULL);
 
 	/*!***************************************************************************
 	 @Function		ReadFromMemory
@@ -268,6 +391,21 @@ public:
 	EPVRTError CopyFromMemory(
 		const SPODScene &scene);
 
+#ifdef WIN32
+	/*!***************************************************************************
+	 @Function		ReadFromResource
+	 @Input			pszName			Name of the resource to load from
+	 @Return		PVR_SUCCESS if successful, PVR_FAIL if not
+	 @Description	Loads the specified ".POD" file; returns the scene in
+					pScene. This structure must later be destroyed with
+					PVRTModelPODDestroy() to prevent memory leaks.
+					".POD" files are exported from 3D Studio MAX using a
+					PowerVR plugin.
+	*****************************************************************************/
+	EPVRTError ReadFromResource(
+		const TCHAR * const pszName);
+#endif
+
 	/*!***********************************************************************
 	 @Function		InitImpl
 	 @Description	Used by the Read*() fns to initialise implementation
@@ -277,6 +415,12 @@ public:
 					Otherwise, do not call this function.
 	*************************************************************************/
 	EPVRTError InitImpl();
+
+	/*!***********************************************************************
+	 @Function		DestroyImpl
+	 @Description	Used to free memory allocated by the implementation.
+	*************************************************************************/
+	void DestroyImpl();
 
 	/*!***********************************************************************
 	 @Function		FlushCache
@@ -542,17 +686,10 @@ public:
 	 @Function		SavePOD
 	 @Input			pszFilename		Filename to save to
 	 @Input			pszExpOpt		A string containing the options used by the exporter
+	 @Input			pszHistory		A string containing the history of the exported pod file
 	 @Description	Save a binary POD file (.POD).
 	*****************************************************************************/
-	EPVRTError SavePOD(const char * const pszFilename, const char * const pszExpOpt = 0);
-
-	/*!***********************************************************************
-	 @Function		SaveH
-	 @Input			pszFilename		Filename to save to
-	 @Input			pszExpOpt		A string containing the options used by the exporter
-	 @Description	Save a header file (.H).
-	*************************************************************************/
-	EPVRTError SaveH(const char * const pszFilename, const char * const pszExpOpt = 0);
+	EPVRTError SavePOD(const char * const pszFilename, const char * const pszExpOpt = 0, const char * const pszHistory = 0);
 
 private:
 	SPVRTPODImpl	*m_pImpl;	/*!< Internal implementation data */
@@ -642,13 +779,6 @@ unsigned int PVRTModelPODCountIndices(const SPODMesh &mesh);
 				floating-point.
 *****************************************************************************/
 void PVRTModelPODToggleFixedPoint(SPODScene &s);
-
-/*!***************************************************************************
- @Function		PVRTModelPODToggleEndianness
- @Modified		scene		Scene to modify
- @Description	Switch the scene data between big and little endianness
-*****************************************************************************/
-void PVRTModelPODToggleEndianness(SPODScene &scene);
 
 #endif /* _PVRTMODELPOD_H_ */
 

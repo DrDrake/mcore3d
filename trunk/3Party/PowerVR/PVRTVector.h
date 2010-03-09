@@ -2,9 +2,9 @@
 
  @File         PVRTVector.h
 
- @Title        PFX file parser.
+ @Title        PVRTVector
 
- @Copyright    Copyright (C) 2007 - 2008 by Imagination Technologies Limited.
+ @Copyright    Copyright (C)  Imagination Technologies Limited.
 
  @Platform     ANSI compatible
 
@@ -45,7 +45,7 @@ void PVRTLinearEqSolve(VERTTYPE * const pRes, VERTTYPE ** const pSrc, const int 
 /*!***************************************************************************
 	** PVRTVec2 2 component vector
 	****************************************************************************/
-struct PVRTVec2 
+struct PVRTVec2
 {
 	VERTTYPE x, y;
 	/*!***************************************************************************
@@ -106,7 +106,7 @@ struct PVRTVec2
 		PVRTVec2 out(*this);
 		return out -= rhs;
 	}
-	
+
 	/*!***************************************************************************
 		@Function			+=
 		@Input				rhs another Vec2
@@ -119,7 +119,7 @@ struct PVRTVec2
 		y += rhs.y;
 		return *this;
 	}
-	
+
 	/*!***************************************************************************
 		@Function			-=
 		@Input				rhs another Vec2
@@ -132,7 +132,7 @@ struct PVRTVec2
 		y -= rhs.y;
 		return *this;
 	}
-	
+
 	/*!***************************************************************************
 		@Function			-
 		@Input				rhs another Vec2
@@ -140,7 +140,7 @@ struct PVRTVec2
 		@Description		negation operator for a Vec2
 		****************************************************************************/
 	friend PVRTVec2 operator- (const PVRTVec2& rhs) { return PVRTVec2(-rhs.x, -rhs.y); }
-	
+
 	/*!***************************************************************************
 		@Function			*
 		@Input				lhs scalar
@@ -153,7 +153,7 @@ struct PVRTVec2
 		PVRTVec2 out(lhs);
 		return out *= rhs;
 	}
-	
+
 	/*!***************************************************************************
 		@Function			/
 		@Input				lhs scalar
@@ -166,7 +166,7 @@ struct PVRTVec2
 		PVRTVec2 out(lhs);
 		return out /= rhs;
 	}
-	
+
 	/*!***************************************************************************
 		@Function			*
 		@Input				rhs a scalar
@@ -178,7 +178,7 @@ struct PVRTVec2
 		PVRTVec2 out(*this);
 		return out *= rhs;
 	}
-	
+
 	/*!***************************************************************************
 		@Function			*=
 		@Input				rhs a scalar
@@ -216,7 +216,7 @@ struct PVRTVec2
 		PVRTVec2 out(*this);
 		return out /= rhs;
 	}
-	
+
 	/*!***************************************************************************
 		@Function			/=
 		@Input				rhs a scalar
@@ -229,7 +229,7 @@ struct PVRTVec2
 		y = VERTTYPEDIV(y, rhs);
 		return *this;
 	}
-	
+
 	/*!***************************************************************************
 		@Function			/=
 		@Input				rhs a Vec2
@@ -241,7 +241,35 @@ struct PVRTVec2
 		x = VERTTYPEDIV(x, rhs.x);
 		y = VERTTYPEDIV(y, rhs.y);
 		return *this;
-	}	
+	}
+
+	/*!***************************************************************************
+	@Function			==
+	@Input				rhs a single value
+	@Returns			true if the two vectors are equal
+	@Description		PVRTVec2 equality operator
+	****************************************************************************/
+	bool operator==(const PVRTVec2& rhs) const
+	{
+		if(x != rhs.x) return false;
+		if(y != rhs.y) return false;
+		return true;
+	}
+
+	/*!***************************************************************************
+	@Function			!=
+	@Input				rhs a single value
+	@Returns			true if the two vectors are not equal
+	@Description		PVRTVec2 inequality operator
+	****************************************************************************/
+	bool operator!=(const PVRTVec2& rhs) const
+	{
+		if(x == rhs.x)
+			return false;
+
+		return true;
+	}
+
 	// FUNCTIONS
 	/*!***************************************************************************
 		@Function			lenSqr
@@ -252,7 +280,7 @@ struct PVRTVec2
 	{
 		return VERTTYPEMUL(x,x)+VERTTYPEMUL(y,y);
 	}
-	
+
 	/*!***************************************************************************
 		@Function			length
 		@Returns			the of the magnitude of the vector
@@ -262,7 +290,7 @@ struct PVRTVec2
 	{
 		return (VERTTYPE) f2vt(sqrt(vt2f(x)*vt2f(x) + vt2f(y)*vt2f(y)));
 	}
-	
+
 	/*!***************************************************************************
 		@Function			normalize
 		@Returns			the normalized value of the vector
@@ -272,7 +300,7 @@ struct PVRTVec2
 	{
 		return *this /= length();
 	}
-	
+
 	/*!***************************************************************************
 		@Function			normalized
 		@Returns			returns the normalized value of the vector
@@ -305,7 +333,7 @@ struct PVRTVec2
 	{
 		return VERTTYPEMUL(x, rhs.x) + VERTTYPEMUL(y, rhs.y);
 	}
-			
+
 	/*!***************************************************************************
 		@Function			ptr
 		@Returns			pointer
@@ -540,6 +568,33 @@ struct PVRTVec3 : public PVRTVECTOR3
 		return *this;
 	}
 
+/*!***************************************************************************
+ @Function			==
+ @Input				rhs a single value
+ @Returns			true if the two vectors are equal
+ @Description		PVRTVec3 equality operator
+****************************************************************************/
+	bool operator==(const PVRTVec3& rhs) const
+	{
+		if(x != rhs.x) return false;
+		if(y != rhs.y) return false;
+		if(z != rhs.z) return false;
+		return true;
+	}
+
+/*!***************************************************************************
+@Function			!=
+@Input				rhs a single value
+@Returns			true if the two vectors are not equal
+@Description		PVRTVec3 inequality operator
+	****************************************************************************/
+	bool operator!=(const PVRTVec3& rhs) const
+	{
+		if(x == rhs.x)
+			return false;
+
+		return true;
+	}
 	// FUNCTIONS
 /*!***************************************************************************
  @Function			lenSqr
@@ -890,6 +945,34 @@ friend PVRTVec4 operator*(const VERTTYPE lhs, const PVRTVec4&  rhs)
 	return out;
 }
 
+/*!***************************************************************************
+ @Function			==
+ @Input				rhs a single value
+ @Returns			true if the two vectors are equal
+ @Description		PVRTVec4 equality operator
+****************************************************************************/
+	bool operator==(const PVRTVec4& rhs) const
+	{
+		if(x != rhs.x) return false;
+		if(y != rhs.y) return false;
+		if(z != rhs.z) return false;
+		if(w != rhs.w) return false;
+		return true;
+	}
+
+/*!***************************************************************************
+@Function			!=
+@Input				rhs a single value
+@Returns			true if the two vectors are not equal
+@Description		PVRTVec4 inequality operator
+	****************************************************************************/
+	bool operator!=(const PVRTVec3& rhs) const
+	{
+		if(x == rhs.x)
+			return false;
+
+		return true;
+	}
 /*!***************************************************************************
 ** Functions
 ****************************************************************************/
@@ -1675,7 +1758,7 @@ struct PVRTMat4 : public PVRTMATRIX
 			for(j = 0; j < 4; ++j)
 			{
 				ppRows[j][0] = PVRTMat4::Identity().f[i + 4 * j];
-				memcpy(&ppRows[j][1], &f[j * 4], 4 * sizeof(float));
+				memcpy(&ppRows[j][1], &f[j * 4], 4 * sizeof(VERTTYPE));
 			}
 
 			PVRTLinearEqSolve(pRes, (VERTTYPE**)ppRows, 4);
