@@ -2,9 +2,9 @@
 
  @File         PVRTVertex.cpp
 
- @Title        PFX file parser.
+ @Title        PVRTVertex
 
- @Copyright    Copyright (C) 2003 - 2008 by Imagination Technologies Limited.
+ @Copyright    Copyright (C)  Imagination Technologies Limited.
 
  @Platform     ANSI compatible
 
@@ -723,6 +723,13 @@ EPVRTError PVRTVertexGenerateTangentSpace(
 				_RPT0(_CRT_WARN,"PVRTVertexGenerateTangentSpace() ran out of working space! (Too many split vertices)\n");
 				return PVR_FAIL;
 			}
+
+			if(*pnVtxNumOut > 0x0ffff)
+			{
+				_RPT0(_CRT_WARN,"PVRTVertexGenerateTangentSpace() created more vertices than pwIdx can index!\n");
+				return PVR_OVERFLOW;
+			}
+
 			memcpy(&(*pVtxOut)[(*pnVtxNumOut) * nStride], &pVtx[nVert*nStride], nStride);
 			PVRTVertexWrite((char*)&(*pVtxOut)[(*pnVtxNumOut) * nStride] + nOffsetTan, eTypeTan, 3, (PVRTVECTOR4f*) &pfPos0[0]);
 			PVRTVertexWrite((char*)&(*pVtxOut)[(*pnVtxNumOut) * nStride] + nOffsetBin, eTypeBin, 3, (PVRTVECTOR4f*) &pfPos1[0]);

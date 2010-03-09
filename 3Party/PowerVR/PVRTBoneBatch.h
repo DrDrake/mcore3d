@@ -2,9 +2,9 @@
 
  @File         PVRTBoneBatch.h
 
- @Title        
+ @Title        PVRTBoneBatch
 
- @Copyright    Copyright (C) 2003 - 2008 by Imagination Technologies Limited.
+ @Copyright    Copyright (C)  Imagination Technologies Limited.
 
  @Platform     ANSI compatible
 
@@ -47,10 +47,10 @@ public:
 	 @Input			nTriNum			Number of triangles
 	 @Input			nBatchBoneMax	Number of bones a batch can reference
 	 @Input			nVertexBones	Number of bones affecting each vertex
-	 @Returns		true if successful
+	 @Returns		PVR_SUCCESS if successful
 	 @Description	Fills the bone batch structure
 	*************************************************************************/
-	bool Create(
+	EPVRTError Create(
 		int					* const pnVtxNumOut,
 		char				** const pVtxOut,
 		unsigned short		* const pwIdx,

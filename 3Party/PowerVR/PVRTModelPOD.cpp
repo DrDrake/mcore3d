@@ -2,9 +2,9 @@
 
  @File         PVRTModelPOD.cpp
 
- @Title        
+ @Title        PVRTModelPOD
 
- @Copyright    Copyright (C) 2003 - 2008 by Imagination Technologies Limited.
+ @Copyright    Copyright (C)  Imagination Technologies Limited.
 
  @Platform     ANSI compatible
 
@@ -15,16 +15,17 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
-//#include <time.h>
 
 #include "PVRTGlobal.h"
 //#include "PVRTContext.h"
 #include "PVRTFixedPoint.h"
 #include "PVRTMatrix.h"
 #include "PVRTQuaternion.h"
+#include "PVRTVertex.h"
+#include "PVRTBoneBatch.h"
 #include "PVRTModelPOD.h"
 #include "PVRTMisc.h"
-//#include "PVRTResourceFile.h"
+#include "PVRTResourceFile.h"
 
 /****************************************************************************
 ** Defines
@@ -47,6 +48,7 @@ enum EPODFileName
 	ePODFileVersion				= 1000,
 	ePODFileScene,
 	ePODFileExpOpt,
+	ePODFileHistory,
 	ePODFileEndiannessMisMatch  = -402456576,
 
 	ePODFileColourBackground	= 2000,
@@ -76,6 +78,24 @@ enum EPODFileName
 	ePODFileMatShininess,
 	ePODFileMatEffectFile,
 	ePODFileMatEffectName,
+	ePODFileMatIdxTexAmbient,
+	ePODFileMatIdxTexSpecularColour,
+	ePODFileMatIdxTexSpecularLevel,
+	ePODFileMatIdxTexBump,
+	ePODFileMatIdxTexEmissive,
+	ePODFileMatIdxTexGlossiness,
+	ePODFileMatIdxTexOpacity,
+	ePODFileMatIdxTexReflection,
+	ePODFileMatIdxTexRefraction,
+	ePODFileMatBlendSrcRGB,
+	ePODFileMatBlendSrcA,
+	ePODFileMatBlendDstRGB,
+	ePODFileMatBlendDstA,
+	ePODFileMatBlendOpRGB,
+	ePODFileMatBlendOpA,
+	ePODFileMatBlendColour,
+	ePODFileMatBlendFactor,
+	ePODFileMatFlags,
 
 	ePODFileTexName				= 4000,
 
@@ -117,6 +137,11 @@ enum EPODFileName
 	ePODFileLightIdxTgt			= 7000,
 	ePODFileLightColour,
 	ePODFileLightType,
+	ePODFileLightConstantAttenuation,
+	ePODFileLightLinearAttenuation,
+	ePODFileLightQuadraticAttenuation,
+	ePODFileLightFalloffAngle,
+	ePODFileLightFalloffExponent,
 
 	ePODFileCamIdxTgt			= 8000,
 	ePODFileCamFOV,
@@ -244,6 +269,36 @@ public:
 		return Read(&n, sizeof(T));
 	}
 
+	template <typename T>
+	bool Read32(T &n)
+	{
+		unsigned char ub[4];
+
+		if(Read(&ub, 4))
+		{
+			unsigned int *pn = (unsigned int*) &n;
+			*pn = (unsigned int) ((ub[3] << 24) | (ub[2] << 16) | (ub[1] << 8) | ub[0]);
+			return true;
+		}
+
+		return false;
+	}
+
+	template <typename T>
+	bool Read16(T &n)
+	{
+		unsigned char ub[2];
+
+		if(Read(&ub, 2))
+		{
+			unsigned short *pn = (unsigned short*) &n;
+			*pn = (unsigned short) ((ub[1] << 8) | ub[0]);
+			return true;
+		}
+
+		return false;
+	}
+
 	bool ReadMarker(unsigned int &nName, unsigned int &nLen);
 
 	template <typename T>
@@ -253,36 +308,66 @@ public:
 			return false;
 		return Read(lpBuffer, dwNumberOfBytesToRead);
 	}
+
+	template <typename T>
+	bool ReadAfterAlloc32(T* &lpBuffer, const unsigned int dwNumberOfBytesToRead)
+	{
+		if(!SafeAlloc(lpBuffer, dwNumberOfBytesToRead))
+			return false;
+		return ReadArray32((unsigned int*) lpBuffer, dwNumberOfBytesToRead / 4);
+	}
+
+	bool ReadArray32(unsigned int *pn, unsigned int i32Size)
+	{
+		bool bRet = true;
+
+		for(unsigned int i = 0; i < i32Size; ++i)
+			bRet &= Read32(pn[i]);
+
+		return bRet;
+	}
+
+	template <typename T>
+	bool ReadAfterAlloc16(T* &lpBuffer, const unsigned int dwNumberOfBytesToRead)
+	{
+		if(!SafeAlloc(lpBuffer, dwNumberOfBytesToRead))
+			return false;
+		return ReadArray16((unsigned short*) lpBuffer, dwNumberOfBytesToRead / 2);
+	}
+
+	bool ReadArray16(unsigned short* pn, unsigned int i32Size)
+	{
+		bool bRet = true;
+
+		for(unsigned int i = 0; i < i32Size; ++i)
+			bRet &= Read16(pn[i]);
+
+		return bRet;
+	}
 };
 
 bool CSource::ReadMarker(unsigned int &nName, unsigned int &nLen)
 {
-	if(!Read(&nName, sizeof(nName)))
+	if(!Read32(nName))
 		return false;
-	if(!Read(&nLen, sizeof(nLen)))
+	if(!Read32(nLen))
 		return false;
 	return true;
 }
 
 #include <iostream>
 
-class CSourceStream : public CSource
+class CSourceIOStream : public CSource
 {
 protected:
 	std::istream* m_Stream;
 
 public:
 	/*!***************************************************************************
-	@Function			CSourceStream
+	@Function			CSourceIOStream
 	@Description		Constructor
 	*****************************************************************************/
-	CSourceStream(std::istream& stream) : m_Stream(&stream) {}
-
-	/*!***************************************************************************
-	@Function			~CSourceStream
-	@Description		Destructor
-	*****************************************************************************/
-	virtual ~CSourceStream() {}
+	CSourceIOStream(std::istream& stream) : m_Stream(&stream) {}
 
 	virtual bool Read(void* lpBuffer, const unsigned int dwNumberOfBytesToRead)
 	{
@@ -296,6 +381,164 @@ public:
 		return m_Stream->good();
 	}
 };
+
+/*!***************************************************************************
+ Class: CSourceStream
+*****************************************************************************/
+class CSourceStream : public CSource
+{
+protected:
+	CPVRTResourceFile* m_pFile;
+	size_t m_BytesReadCount;
+
+public:
+	/*!***************************************************************************
+	@Function			CSourceStream
+	@Description		Constructor
+	*****************************************************************************/
+	CSourceStream() : m_pFile(0), m_BytesReadCount(0) {}
+
+	/*!***************************************************************************
+	@Function			~CSourceStream
+	@Description		Destructor
+	*****************************************************************************/
+	virtual ~CSourceStream();
+
+	bool Init(const char * const pszFileName);
+	bool Init(const char * const pData, const size_t i32Size);
+
+	virtual bool Read(void* lpBuffer, const unsigned int dwNumberOfBytesToRead);
+	virtual bool Skip(const unsigned int nBytes);
+};
+
+/*!***************************************************************************
+@Function			~CSourceStream
+@Description		Destructor
+*****************************************************************************/
+CSourceStream::~CSourceStream()
+{
+	delete m_pFile;
+}
+
+bool CSourceStream::Init(const char * const pszFileName)
+{
+	m_BytesReadCount = 0;
+	// NOTE: Commented out by Ricky
+/*	if (m_pFile) delete m_pFile;
+
+	m_pFile = new CPVRTResourceFile(pszFileName);
+	if (!m_pFile->IsOpen())
+	{
+		delete m_pFile;
+		m_pFile = 0;
+		return false;
+	}*/
+	return true;
+}
+
+bool CSourceStream::Init(const char * pData, size_t i32Size)
+{
+	m_BytesReadCount = 0;
+	// NOTE: Commented out by Ricky
+/*	if (m_pFile) delete m_pFile;
+
+	m_pFile = new CPVRTResourceFile(pData, i32Size);
+	if (!m_pFile->IsOpen())
+	{
+		delete m_pFile;
+		m_pFile = 0;
+		return false;
+	}*/
+	return true;
+}
+
+bool CSourceStream::Read(void* lpBuffer, const unsigned int dwNumberOfBytesToRead)
+{
+	// NOTE: Commented out by Ricky
+/*	_ASSERT(lpBuffer);
+	_ASSERT(m_pFile);
+
+	if (m_BytesReadCount + dwNumberOfBytesToRead > m_pFile->Size()) return false;
+
+	memcpy(lpBuffer, &(m_pFile->StringPtr())[m_BytesReadCount], dwNumberOfBytesToRead);
+
+	m_BytesReadCount += dwNumberOfBytesToRead;*/
+	return true;
+}
+
+bool CSourceStream::Skip(const unsigned int nBytes)
+{
+	// NOTE: Commented out by Ricky
+/*	if (m_BytesReadCount + nBytes > m_pFile->Size()) return false;
+	m_BytesReadCount += nBytes;*/
+	return true;
+}
+
+#ifdef WIN32
+/*!***************************************************************************
+ Class: CSourceResource
+*****************************************************************************/
+class CSourceResource : public CSource
+{
+protected:
+	const unsigned char	*m_pData;
+	unsigned int		m_nSize, m_nReadPos;
+
+public:
+	bool Init(const TCHAR * const pszName);
+	virtual bool Read(void* lpBuffer, const unsigned int dwNumberOfBytesToRead);
+	virtual bool Skip(const unsigned int nBytes);
+};
+
+bool CSourceResource::Init(const TCHAR * const pszName)
+{
+	HRSRC	hR;
+	HGLOBAL	hG;
+
+	// Find the resource
+	hR = FindResource(GetModuleHandle(NULL), pszName, RT_RCDATA);
+	if(!hR)
+		return false;
+
+	// How big is the resource?
+	m_nSize = SizeofResource(NULL, hR);
+	if(!m_nSize)
+		return false;
+
+	// Get a pointer to the resource data
+	hG = LoadResource(NULL, hR);
+	if(!hG)
+		return false;
+
+	m_pData = (unsigned char*)LockResource(hG);
+	if(!m_pData)
+		return false;
+
+	m_nReadPos = 0;
+	return true;
+}
+
+bool CSourceResource::Read(void* lpBuffer, const unsigned int dwNumberOfBytesToRead)
+{
+	if(m_nReadPos + dwNumberOfBytesToRead > m_nSize)
+		return false;
+
+	_ASSERT(lpBuffer);
+	memcpy(lpBuffer, &m_pData[m_nReadPos], dwNumberOfBytesToRead);
+	m_nReadPos += dwNumberOfBytesToRead;
+	return true;
+}
+
+bool CSourceResource::Skip(const unsigned int nBytes)
+{
+	if(m_nReadPos + nBytes > m_nSize)
+		return false;
+
+	m_nReadPos += nBytes;
+	return true;
+}
+
+#endif /* WIN32 */
 
 /****************************************************************************
 ** Local code: File writing
@@ -319,6 +562,47 @@ static bool WriteFileSafe(FILE *pFile, const void * const lpBuffer, const unsign
 	return true;
 }
 
+static bool WriteFileSafe16(FILE *pFile, const unsigned short * const lpBuffer, const unsigned int nSize)
+{
+	if(nSize)
+	{
+		unsigned char ub[2];
+		bool bRet = true;
+
+		for(unsigned int i = 0; i < nSize; ++i)
+		{
+			ub[0] = (unsigned char) lpBuffer[i];
+			ub[1] = lpBuffer[i] >> 8;
+
+			bRet &= (fwrite(ub, 2, 1, pFile) == 1);
+		}
+
+		return bRet;
+	}
+	return true;
+}
+
+static bool WriteFileSafe32(FILE *pFile, const unsigned int * const lpBuffer, const unsigned int nSize)
+{
+	if(nSize)
+	{
+		unsigned char ub[4];
+		bool bRet = true;
+
+		for(unsigned int i = 0; i < nSize; ++i)
+		{
+			ub[0] = lpBuffer[i];
+			ub[1] = lpBuffer[i] >> 8;
+			ub[2] = lpBuffer[i] >> 16;
+			ub[3] = lpBuffer[i] >> 24;
+
+			bRet &= (fwrite(ub, 4, 1, pFile) == 1);
+		}
+
+		return bRet;
+	}
+	return true;
+}
 /*!***************************************************************************
  @Function			WriteMarker
  @Input				pFile
@@ -333,22 +617,18 @@ static bool WriteMarker(
 	FILE				* const pFile,
 	const unsigned int	nName,
 	const bool			bEnd,
-	const bool			bChangeEndian,
 	const unsigned int	nLen = 0)
 {
-	unsigned int pnData[2];
+	unsigned int nMarker;
+	bool bRet;
 
 	_ASSERT((nName & ~PVRTMODELPOD_TAG_MASK) == nName);
-	pnData[0] = nName | (bEnd ? PVRTMODELPOD_TAG_END : PVRTMODELPOD_TAG_START);
-	pnData[1] = nLen;
+	nMarker = nName | (bEnd ? PVRTMODELPOD_TAG_END : PVRTMODELPOD_TAG_START);
 
-	if(bChangeEndian)
-	{
-		PVRTByteSwap((unsigned char*) &pnData[0], sizeof(pnData[0]));
-		PVRTByteSwap((unsigned char*) &pnData[1], sizeof(pnData[1]));
-	}
+	bRet  = WriteFileSafe32(pFile, &nMarker, 1);
+	bRet &= WriteFileSafe32(pFile, &nLen, 1);
 
-	return WriteFileSafe(pFile, pnData, sizeof(pnData));
+	return bRet;
 }
 
 /*!***************************************************************************
@@ -365,15 +645,66 @@ static bool WriteData(
 	FILE				* const pFile,
 	const unsigned int	nName,
 	const void			* const pData,
-	const bool			bChangeEndian,
 	const unsigned int	nLen)
 {
 	if(pData)
 	{
 		_ASSERT(nLen);
-		if(!WriteMarker(pFile, nName, false, bChangeEndian, nLen)) return false;
+		if(!WriteMarker(pFile, nName, false, nLen)) return false;
 		if(!WriteFileSafe(pFile, pData, nLen)) return false;
-		if(!WriteMarker(pFile, nName, true, bChangeEndian, 0)) return false;
+		if(!WriteMarker(pFile, nName, true)) return false;
+	}
+	return true;
+}
+
+/*!***************************************************************************
+ @Function			WriteData16
+ @Input				pFile
+ @Input				nName
+ @Input				pData
+ @Input				i32Size
+ @Return			true if successful
+ @Description		Write i32Size no. of unsigned shorts from pData, bracketed by
+					an nName begin/end markers.
+*****************************************************************************/
+template <typename T>
+static bool WriteData16(
+	FILE				* const pFile,
+	const unsigned int	nName,
+	const T	* const pData,
+	int i32Size = 1)
+{
+	if(pData)
+	{
+		if(!WriteMarker(pFile, nName, false, 2 * i32Size)) return false;
+		if(!WriteFileSafe16(pFile, (unsigned short*) pData, i32Size)) return false;
+		if(!WriteMarker(pFile, nName, true)) return false;
+	}
+	return true;
+}
+
+/*!***************************************************************************
+ @Function			WriteData32
+ @Input				pFile
+ @Input				nName
+ @Input				pData
+ @Input				i32Size
+ @Return			true if successful
+ @Description		Write i32Size no. of unsigned ints from pData, bracketed by
+					an nName begin/end markers.
+*****************************************************************************/
+template <typename T>
+static bool WriteData32(
+	FILE				* const pFile,
+	const unsigned int	nName,
+	const T	* const pData,
+	int i32Size = 1)
+{
+	if(pData)
+	{
+		if(!WriteMarker(pFile, nName, false, 4 * i32Size)) return false;
+		if(!WriteFileSafe32(pFile, (unsigned int*) pData, i32Size)) return false;
+		if(!WriteMarker(pFile, nName, true)) return false;
 	}
 	return true;
 }
@@ -390,18 +721,11 @@ template <typename T>
 static bool WriteData(
 	FILE				* const pFile,
 	const unsigned int	nName,
-	const bool			bChangeEndian,
 	const T				&n)
 {
-	int nSize = sizeof(T);
+	unsigned int nSize = sizeof(T);
 
-	if(bChangeEndian)
-		PVRTByteSwap((unsigned char*) &n, (int) nSize);
-
-	bool bRet = WriteData(pFile, nName, (void*)&n, bChangeEndian, (unsigned int) nSize);
-
-	if(bChangeEndian)
-		PVRTByteSwap((unsigned char*) &n, (int) nSize);
+	bool bRet = WriteData(pFile, nName, (void*)&n, nSize);
 
 	return bRet;
 }
@@ -413,7 +737,6 @@ static bool WriteData(
  @Input				n
  @Input				nEntries
  @Input				bValidData
- @Input				bChangeEndian
  @Return			true if successful
  @Description		Write the value n, bracketed by an nName begin/end markers.
 *****************************************************************************/
@@ -422,22 +745,113 @@ static bool WriteCPODData(
 	const unsigned int	nName,
 	const CPODData		&n,
 	const unsigned int	nEntries,
-	const bool			bValidData,
-	const bool			bChangeEndian)
+	const bool			bValidData)
 {
-	if(!WriteMarker(pFile, nName, false, bChangeEndian)) return false;
-	if(!WriteData(pFile, ePODFileDataType, bChangeEndian, n.eType)) return false;
-	if(!WriteData(pFile, ePODFileN, bChangeEndian, n.n)) return false;
-	if(!WriteData(pFile, ePODFileStride, bChangeEndian, n.nStride)) return false;
+	if(!WriteMarker(pFile, nName, false)) return false;
+	if(!WriteData32(pFile, ePODFileDataType, &n.eType)) return false;
+	if(!WriteData32(pFile, ePODFileN, &n.n)) return false;
+	if(!WriteData32(pFile, ePODFileStride, &n.nStride)) return false;
 	if(bValidData)
 	{
-		if(!WriteData(pFile, ePODFileData, n.pData, bChangeEndian, nEntries * n.nStride)) return false;
+		switch(PVRTModelPODDataTypeSize(n.eType))
+		{
+			case 1: if(!WriteData(pFile, ePODFileData, n.pData, nEntries * n.nStride)) return false; break;
+			case 2: if(!WriteData16(pFile, ePODFileData, n.pData, nEntries * (n.nStride / 2))) return false; break;
+			case 4: if(!WriteData32(pFile, ePODFileData, n.pData, nEntries * (n.nStride / 4))) return false; break;
+			default: { _ASSERT(false); }
+		};
 	}
 	else
 	{
-		if(!WriteData(pFile, ePODFileData, bChangeEndian, n.pData)) return false;
+		unsigned int offset = (unsigned int) n.pData;
+		if(!WriteData32(pFile, ePODFileData, &offset)) return false;
 	}
-	if(!WriteMarker(pFile, nName, true, bChangeEndian)) return false;
+	if(!WriteMarker(pFile, nName, true)) return false;
+	return true;
+}
+
+/*!***************************************************************************
+ @Function			WriteSingleValueIntoInterleaved
+ @Input				pFile
+ @Input				pData
+ @Input				nNo
+ @Input				nBytes
+ @Input				nStride
+ @Return			true if successful
+ @Description		Write a single value (e.g. position, normal) from pData
+					to the file.
+*****************************************************************************/
+static bool WriteSingleValueIntoInterleaved(FILE * const pFile, unsigned char **pData, unsigned int nNo, size_t nBytes, unsigned int nStride)
+{
+	if(*pData)
+	{
+		switch(nBytes)
+		{
+			case 1: if(!WriteFileSafe(pFile, *pData, nNo)) return false; break;
+			case 2: if(!WriteFileSafe16(pFile, (unsigned short*) *pData, nNo)) return false; break;
+			case 4: if(!WriteFileSafe32(pFile, (unsigned int*) *pData, nNo)) return false; break;
+			default: { _ASSERT(false); }
+		};
+
+		*pData += nStride;
+	}
+
+	return true;
+}
+
+/*!***************************************************************************
+ @Function			WriteInterleaved
+ @Input				pFile
+ @Input				mesh
+ @Return			true if successful
+ @Description		Write out the interleaved data to file. Always assumes the
+					interleaved data is in a particular order.
+*****************************************************************************/
+static bool WriteInterleaved(FILE * const pFile, SPODMesh &mesh)
+{
+	if(!mesh.pInterleaved)
+		return true;
+
+	unsigned int i;
+	unsigned char * pVertices, *pNormals, *pTangents, *pBinormals, *pVColours, **pUVW = 0, *pBoneID, *pBoneWeight;
+
+	pVertices = mesh.sVertex.n ? mesh.pInterleaved + (size_t) mesh.sVertex.pData  : 0;
+	pNormals  = mesh.sNormals.n ? mesh.pInterleaved + (size_t) mesh.sNormals.pData : 0;
+	pTangents = mesh.sTangents.n ? mesh.pInterleaved + (size_t) mesh.sTangents.pData : 0;
+	pBinormals= mesh.sBinormals.n ? mesh.pInterleaved + (size_t) mesh.sBinormals.pData : 0;
+	pVColours = mesh.sVtxColours.n ? mesh.pInterleaved + (size_t) mesh.sVtxColours.pData : 0;
+
+	if(mesh.nNumUVW)
+	{
+		pUVW = new unsigned char*[mesh.nNumUVW];
+
+		for(i = 0; i < mesh.nNumUVW; ++i)
+			pUVW[i] = mesh.psUVW[i].n ? mesh.pInterleaved + (size_t) mesh.psUVW[i].pData : 0;
+	}
+
+	pBoneID = mesh.sBoneIdx.n ? mesh.pInterleaved + (size_t) mesh.sBoneIdx.pData : 0;
+	pBoneWeight = mesh.sBoneWeight.n ? mesh.pInterleaved + (size_t) mesh.sBoneWeight.pData : 0;
+
+	if(!WriteMarker(pFile, ePODFileMeshInterleaved, false, mesh.nNumVertex * mesh.sVertex.nStride)) return false;
+
+	for(i = 0; i < mesh.nNumVertex; ++i)
+	{
+		WriteSingleValueIntoInterleaved(pFile, &pVertices, mesh.sVertex.n, PVRTModelPODDataTypeSize(mesh.sVertex.eType), mesh.sVertex.nStride);
+		WriteSingleValueIntoInterleaved(pFile, &pNormals, mesh.sNormals.n, PVRTModelPODDataTypeSize(mesh.sNormals.eType), mesh.sNormals.nStride);
+		WriteSingleValueIntoInterleaved(pFile, &pTangents, mesh.sTangents.n, PVRTModelPODDataTypeSize(mesh.sTangents.eType), mesh.sTangents.nStride);
+		WriteSingleValueIntoInterleaved(pFile, &pBinormals, mesh.sBinormals.n, PVRTModelPODDataTypeSize(mesh.sBinormals.eType), mesh.sBinormals.nStride);
+		WriteSingleValueIntoInterleaved(pFile, &pVColours, mesh.sVtxColours.n, PVRTModelPODDataTypeSize(mesh.sVtxColours.eType), mesh.sVtxColours.nStride);
+
+		for(unsigned int j = 0; j < mesh.nNumUVW; ++j)
+			WriteSingleValueIntoInterleaved(pFile, &pUVW[j], mesh.psUVW[j].n, PVRTModelPODDataTypeSize(mesh.psUVW[j].eType), mesh.psUVW[j].nStride);
+
+		WriteSingleValueIntoInterleaved(pFile, &pBoneID, mesh.sBoneIdx.n, PVRTModelPODDataTypeSize(mesh.sBoneIdx.eType), mesh.sBoneIdx.nStride);
+		WriteSingleValueIntoInterleaved(pFile, &pBoneWeight, mesh.sBoneWeight.n, PVRTModelPODDataTypeSize(mesh.sBoneWeight.eType), mesh.sBoneWeight.nStride);
+	}
+
+	delete[] pUVW;
+
+	if(!WriteMarker(pFile, ePODFileMeshInterleaved, true)) return false;
 	return true;
 }
 
@@ -452,147 +866,185 @@ static bool WriteCPODData(
 static bool WritePOD(
 	FILE			* const pFile,
 	const char		* const pszExpOpt,
+	const char		* const pszHistory,
 	const SPODScene	&s)
 {
 	unsigned int i, j;
-	bool bChangeEndian = s.bBigEndian == PVRTIsLittleEndian();
 
 	// Save: file version
 	{
-		const char *pszVersion = PVRTMODELPOD_VERSION;
+		char *pszVersion = (char*)PVRTMODELPOD_VERSION;
 
-		if(!WriteData(pFile, ePODFileVersion, pszVersion, bChangeEndian, (unsigned int)strlen(pszVersion) + 1)) return false;
+		if(!WriteData(pFile, ePODFileVersion, pszVersion, (unsigned int)strlen(pszVersion) + 1)) return false;
 	}
 
 	// Save: exporter options
 	if(pszExpOpt && *pszExpOpt)
 	{
-		if(!WriteData(pFile, ePODFileExpOpt, pszExpOpt, bChangeEndian, (unsigned int)strlen(pszExpOpt) + 1)) return false;
+		if(!WriteData(pFile, ePODFileExpOpt, pszExpOpt, (unsigned int)strlen(pszExpOpt) + 1)) return false;
+	}
+
+	// Save: .pod file history
+	if(pszHistory && *pszHistory)
+	{
+		if(!WriteData(pFile, ePODFileHistory, pszHistory, (unsigned int)strlen(pszHistory) + 1)) return false;
 	}
 
 	// Save: scene descriptor
-	if(!WriteMarker(pFile, ePODFileScene, false, bChangeEndian)) return false;
+	if(!WriteMarker(pFile, ePODFileScene, false)) return false;
 
 	{
-		if(!WriteData(pFile, ePODFileColourBackground,	bChangeEndian, s.pfColourBackground)) return false;
-		if(!WriteData(pFile, ePODFileColourAmbient,		bChangeEndian, s.pfColourAmbient)) return false;
-		if(!WriteData(pFile, ePODFileNumCamera,			bChangeEndian, s.nNumCamera)) return false;
-		if(!WriteData(pFile, ePODFileNumLight,			bChangeEndian, s.nNumLight)) return false;
-		if(!WriteData(pFile, ePODFileNumMesh,			bChangeEndian, s.nNumMesh)) return false;
-		if(!WriteData(pFile, ePODFileNumNode,			bChangeEndian, s.nNumNode)) return false;
-		if(!WriteData(pFile, ePODFileNumMeshNode,		bChangeEndian, s.nNumMeshNode)) return false;
-		if(!WriteData(pFile, ePODFileNumTexture,		bChangeEndian, s.nNumTexture)) return false;
-		if(!WriteData(pFile, ePODFileNumMaterial,		bChangeEndian, s.nNumMaterial)) return false;
-		if(!WriteData(pFile, ePODFileNumFrame,			bChangeEndian, s.nNumFrame)) return false;
-		if(!WriteData(pFile, ePODFileFlags,				bChangeEndian, s.nFlags)) return false;
+		if(!WriteData32(pFile, ePODFileColourBackground,	s.pfColourBackground, sizeof(s.pfColourBackground) / sizeof(*s.pfColourBackground))) return false;
+		if(!WriteData32(pFile, ePODFileColourAmbient,		s.pfColourAmbient, sizeof(s.pfColourAmbient) / sizeof(*s.pfColourAmbient))) return false;
+		if(!WriteData32(pFile, ePODFileNumCamera, &s.nNumCamera)) return false;
+		if(!WriteData32(pFile, ePODFileNumLight, &s.nNumLight)) return false;
+		if(!WriteData32(pFile, ePODFileNumMesh,	&s.nNumMesh)) return false;
+		if(!WriteData32(pFile, ePODFileNumNode,	&s.nNumNode)) return false;
+		if(!WriteData32(pFile, ePODFileNumMeshNode,	&s.nNumMeshNode)) return false;
+		if(!WriteData32(pFile, ePODFileNumTexture, &s.nNumTexture)) return false;
+		if(!WriteData32(pFile, ePODFileNumMaterial,	&s.nNumMaterial)) return false;
+		if(!WriteData32(pFile, ePODFileNumFrame, &s.nNumFrame)) return false;
+		if(!WriteData32(pFile, ePODFileFlags, &s.nFlags)) return false;
 		// Save: cameras
 		for(i = 0; i < s.nNumCamera; ++i)
 		{
-			if(!WriteMarker(pFile, ePODFileCamera, false, bChangeEndian)) return false;
-			if(!WriteData(pFile, ePODFileCamIdxTgt,		bChangeEndian, s.pCamera[i].nIdxTarget)) return false;
-			if(!WriteData(pFile, ePODFileCamFOV,		bChangeEndian, s.pCamera[i].fFOV)) return false;
-			if(!WriteData(pFile, ePODFileCamFar,		bChangeEndian, s.pCamera[i].fFar)) return false;
-			if(!WriteData(pFile, ePODFileCamNear,		bChangeEndian, s.pCamera[i].fNear)) return false;
-			if(!WriteData(pFile, ePODFileCamAnimFOV,	s.pCamera[i].pfAnimFOV, bChangeEndian, s.nNumFrame * sizeof(*s.pCamera[i].pfAnimFOV))) return false;
-			if(!WriteMarker(pFile, ePODFileCamera, true, bChangeEndian)) return false;
+			if(!WriteMarker(pFile, ePODFileCamera, false)) return false;
+			if(!WriteData32(pFile, ePODFileCamIdxTgt, &s.pCamera[i].nIdxTarget)) return false;
+			if(!WriteData32(pFile, ePODFileCamFOV,	  &s.pCamera[i].fFOV)) return false;
+			if(!WriteData32(pFile, ePODFileCamFar,	  &s.pCamera[i].fFar)) return false;
+			if(!WriteData32(pFile, ePODFileCamNear,	  &s.pCamera[i].fNear)) return false;
+			if(!WriteData32(pFile, ePODFileCamAnimFOV,	s.pCamera[i].pfAnimFOV, s.nNumFrame)) return false;
+			if(!WriteMarker(pFile, ePODFileCamera, true)) return false;
 		}
 		// Save: lights
 		for(i = 0; i < s.nNumLight; ++i)
 		{
-			if(!WriteMarker(pFile, ePODFileLight, false, bChangeEndian)) return false;
-			if(!WriteData(pFile, ePODFileLightIdxTgt,	bChangeEndian, s.pLight[i].nIdxTarget)) return false;
-			if(!WriteData(pFile, ePODFileLightColour,	bChangeEndian, s.pLight[i].pfColour)) return false;
-			if(!WriteData(pFile, ePODFileLightType,		bChangeEndian, s.pLight[i].eType)) return false;
-			if(!WriteMarker(pFile, ePODFileLight, true, bChangeEndian)) return false;
+			if(!WriteMarker(pFile, ePODFileLight, false)) return false;
+			if(!WriteData32(pFile, ePODFileLightIdxTgt,	&s.pLight[i].nIdxTarget)) return false;
+			if(!WriteData32(pFile, ePODFileLightColour,	s.pLight[i].pfColour, sizeof(s.pLight[i].pfColour) / sizeof(*s.pLight[i].pfColour))) return false;
+			if(!WriteData32(pFile, ePODFileLightType,	&s.pLight[i].eType)) return false;
+
+			if(s.pLight[i].eType != ePODDirectional)
+			{
+				if(!WriteData32(pFile, ePODFileLightConstantAttenuation,	&s.pLight[i].fConstantAttenuation))  return false;
+				if(!WriteData32(pFile, ePODFileLightLinearAttenuation,		&s.pLight[i].fLinearAttenuation))	  return false;
+				if(!WriteData32(pFile, ePODFileLightQuadraticAttenuation,	&s.pLight[i].fQuadraticAttenuation)) return false;
+			}
+
+			if(s.pLight[i].eType == ePODSpot)
+			{
+				if(!WriteData32(pFile, ePODFileLightFalloffAngle,			&s.pLight[i].fFalloffAngle))		  return false;
+				if(!WriteData32(pFile, ePODFileLightFalloffExponent,		&s.pLight[i].fFalloffExponent))	  return false;
+			}
+
+			if(!WriteMarker(pFile, ePODFileLight, true)) return false;
 		}
 
 		// Save: materials
 		for(i = 0; i < s.nNumMaterial; ++i)
 		{
-			if(!WriteMarker(pFile, ePODFileMaterial, false, bChangeEndian)) return false;
-			if(!WriteData(pFile, ePODFileMatName,			s.pMaterial[i].pszName, bChangeEndian, (unsigned int)strlen(s.pMaterial[i].pszName)+1)) return false;
-			if(!WriteData(pFile, ePODFileMatIdxTexDiffuse,	bChangeEndian, s.pMaterial[i].nIdxTexDiffuse)) return false;
-			if(!WriteData(pFile, ePODFileMatOpacity,		bChangeEndian, s.pMaterial[i].fMatOpacity)) return false;
-			if(!WriteData(pFile, ePODFileMatAmbient,		bChangeEndian, s.pMaterial[i].pfMatAmbient)) return false;
-			if(!WriteData(pFile, ePODFileMatDiffuse,		bChangeEndian, s.pMaterial[i].pfMatDiffuse)) return false;
-			if(!WriteData(pFile, ePODFileMatSpecular,		bChangeEndian, s.pMaterial[i].pfMatSpecular)) return false;
-			if(!WriteData(pFile, ePODFileMatShininess,		bChangeEndian, s.pMaterial[i].fMatShininess)) return false;
-			if(!WriteData(pFile, ePODFileMatEffectFile,		s.pMaterial[i].pszEffectFile, bChangeEndian, s.pMaterial[i].pszEffectFile ? ((unsigned int)strlen(s.pMaterial[i].pszEffectFile)+1) : 0)) return false;
-			if(!WriteData(pFile, ePODFileMatEffectName,		s.pMaterial[i].pszEffectName, bChangeEndian, s.pMaterial[i].pszEffectName ? ((unsigned int)strlen(s.pMaterial[i].pszEffectName)+1) : 0)) return false;
-			if(!WriteMarker(pFile, ePODFileMaterial, true, bChangeEndian)) return false;
+			if(!WriteMarker(pFile, ePODFileMaterial, false)) return false;
+			if(!WriteData32(pFile, ePODFileMatFlags,  &s.pMaterial[i].nFlags)) return false;
+			if(!WriteData(pFile,   ePODFileMatName,			s.pMaterial[i].pszName, (unsigned int)strlen(s.pMaterial[i].pszName)+1)) return false;
+			if(!WriteData32(pFile, ePODFileMatIdxTexDiffuse,	&s.pMaterial[i].nIdxTexDiffuse)) return false;
+			if(!WriteData32(pFile, ePODFileMatIdxTexAmbient,	&s.pMaterial[i].nIdxTexAmbient)) return false;
+			if(!WriteData32(pFile, ePODFileMatIdxTexSpecularColour,	&s.pMaterial[i].nIdxTexSpecularColour)) return false;
+			if(!WriteData32(pFile, ePODFileMatIdxTexSpecularLevel,	&s.pMaterial[i].nIdxTexSpecularLevel)) return false;
+			if(!WriteData32(pFile, ePODFileMatIdxTexBump,	&s.pMaterial[i].nIdxTexBump)) return false;
+			if(!WriteData32(pFile, ePODFileMatIdxTexEmissive,	&s.pMaterial[i].nIdxTexEmissive)) return false;
+			if(!WriteData32(pFile, ePODFileMatIdxTexGlossiness,	&s.pMaterial[i].nIdxTexGlossiness)) return false;
+			if(!WriteData32(pFile, ePODFileMatIdxTexOpacity,	&s.pMaterial[i].nIdxTexOpacity)) return false;
+			if(!WriteData32(pFile, ePODFileMatIdxTexReflection,	&s.pMaterial[i].nIdxTexReflection)) return false;
+			if(!WriteData32(pFile, ePODFileMatIdxTexRefraction,	&s.pMaterial[i].nIdxTexRefraction)) return false;
+			if(!WriteData32(pFile, ePODFileMatOpacity,	&s.pMaterial[i].fMatOpacity)) return false;
+			if(!WriteData32(pFile, ePODFileMatAmbient,		s.pMaterial[i].pfMatAmbient, sizeof(s.pMaterial[i].pfMatAmbient) / sizeof(*s.pMaterial[i].pfMatAmbient))) return false;
+			if(!WriteData32(pFile, ePODFileMatDiffuse,		s.pMaterial[i].pfMatDiffuse, sizeof(s.pMaterial[i].pfMatDiffuse) / sizeof(*s.pMaterial[i].pfMatDiffuse))) return false;
+			if(!WriteData32(pFile, ePODFileMatSpecular,		s.pMaterial[i].pfMatSpecular, sizeof(s.pMaterial[i].pfMatSpecular) / sizeof(*s.pMaterial[i].pfMatSpecular))) return false;
+			if(!WriteData32(pFile, ePODFileMatShininess, &s.pMaterial[i].fMatShininess)) return false;
+			if(!WriteData(pFile, ePODFileMatEffectFile,		s.pMaterial[i].pszEffectFile, s.pMaterial[i].pszEffectFile ? ((unsigned int)strlen(s.pMaterial[i].pszEffectFile)+1) : 0)) return false;
+			if(!WriteData(pFile, ePODFileMatEffectName,		s.pMaterial[i].pszEffectName, s.pMaterial[i].pszEffectName ? ((unsigned int)strlen(s.pMaterial[i].pszEffectName)+1) : 0)) return false;
+			if(!WriteData32(pFile, ePODFileMatBlendSrcRGB,  &s.pMaterial[i].eBlendSrcRGB))return false;
+			if(!WriteData32(pFile, ePODFileMatBlendSrcA,	&s.pMaterial[i].eBlendSrcA))	return false;
+			if(!WriteData32(pFile, ePODFileMatBlendDstRGB,  &s.pMaterial[i].eBlendDstRGB))return false;
+			if(!WriteData32(pFile, ePODFileMatBlendDstA,	&s.pMaterial[i].eBlendDstA))	return false;
+			if(!WriteData32(pFile, ePODFileMatBlendOpRGB,	&s.pMaterial[i].eBlendOpRGB)) return false;
+			if(!WriteData32(pFile, ePODFileMatBlendOpA,		&s.pMaterial[i].eBlendOpA))	return false;
+			if(!WriteData32(pFile, ePODFileMatBlendColour, s.pMaterial[i].pfBlendColour, sizeof(s.pMaterial[i].pfBlendColour) / sizeof(*s.pMaterial[i].pfBlendColour))) return false;
+			if(!WriteData32(pFile, ePODFileMatBlendFactor, s.pMaterial[i].pfBlendFactor, sizeof(s.pMaterial[i].pfBlendFactor) / sizeof(*s.pMaterial[i].pfBlendFactor))) return false;
+			if(!WriteMarker(pFile, ePODFileMaterial, true)) return false;
 		}
 
 		// Save: meshes
 		for(i = 0; i < s.nNumMesh; ++i)
 		{
-			if(!WriteMarker(pFile, ePODFileMesh, false, bChangeEndian)) return false;
+			if(!WriteMarker(pFile, ePODFileMesh, false)) return false;
 
-			if(!WriteData(pFile, ePODFileMeshNumVtx,			bChangeEndian, s.pMesh[i].nNumVertex)) return false;
-			if(!WriteData(pFile, ePODFileMeshNumFaces,			bChangeEndian, s.pMesh[i].nNumFaces)) return false;
-			if(!WriteData(pFile, ePODFileMeshNumUVW,			bChangeEndian, s.pMesh[i].nNumUVW)) return false;
-			if(!WriteData(pFile, ePODFileMeshStripLength,		s.pMesh[i].pnStripLength, bChangeEndian, s.pMesh[i].nNumStrips * sizeof(*s.pMesh[i].pnStripLength))) return false;
-			if(!WriteData(pFile, ePODFileMeshNumStrips,			bChangeEndian, s.pMesh[i].nNumStrips)) return false;
-			if(!WriteData(pFile, ePODFileMeshInterleaved,		s.pMesh[i].pInterleaved, bChangeEndian, s.pMesh[i].nNumVertex * s.pMesh[i].sVertex.nStride)) return false;
-			if(!WriteData(pFile, ePODFileMeshBoneBatchBoneMax,	bChangeEndian, s.pMesh[i].sBoneBatches.nBatchBoneMax)) return false;
-			if(!WriteData(pFile, ePODFileMeshBoneBatchCnt,		bChangeEndian, s.pMesh[i].sBoneBatches.nBatchCnt)) return false;
-			if(!WriteData(pFile, ePODFileMeshBoneBatches,		s.pMesh[i].sBoneBatches.pnBatches, bChangeEndian, s.pMesh[i].sBoneBatches.nBatchBoneMax * s.pMesh[i].sBoneBatches.nBatchCnt * sizeof(*s.pMesh[i].sBoneBatches.pnBatches))) return false;
-			if(!WriteData(pFile, ePODFileMeshBoneBatchBoneCnts,	s.pMesh[i].sBoneBatches.pnBatchBoneCnt, bChangeEndian, s.pMesh[i].sBoneBatches.nBatchCnt * sizeof(*s.pMesh[i].sBoneBatches.pnBatchBoneCnt))) return false;
-			if(!WriteData(pFile, ePODFileMeshBoneBatchOffsets,	s.pMesh[i].sBoneBatches.pnBatchOffset, bChangeEndian, s.pMesh[i].sBoneBatches.nBatchCnt * sizeof(*s.pMesh[i].sBoneBatches.pnBatchOffset))) return false;
+			if(!WriteData32(pFile, ePODFileMeshNumVtx,			&s.pMesh[i].nNumVertex)) return false;
+			if(!WriteData32(pFile, ePODFileMeshNumFaces,		&s.pMesh[i].nNumFaces)) return false;
+			if(!WriteData32(pFile, ePODFileMeshNumUVW,			&s.pMesh[i].nNumUVW)) return false;
+			if(!WriteData32(pFile, ePODFileMeshStripLength,		s.pMesh[i].pnStripLength, s.pMesh[i].nNumStrips)) return false;
+			if(!WriteData32(pFile, ePODFileMeshNumStrips,		&s.pMesh[i].nNumStrips)) return false;
+			if(!WriteInterleaved(pFile, s.pMesh[i])) return false;
+			if(!WriteData32(pFile, ePODFileMeshBoneBatchBoneMax,&s.pMesh[i].sBoneBatches.nBatchBoneMax)) return false;
+			if(!WriteData32(pFile, ePODFileMeshBoneBatchCnt,	&s.pMesh[i].sBoneBatches.nBatchCnt)) return false;
+			if(!WriteData32(pFile, ePODFileMeshBoneBatches,		s.pMesh[i].sBoneBatches.pnBatches, s.pMesh[i].sBoneBatches.nBatchBoneMax * s.pMesh[i].sBoneBatches.nBatchCnt)) return false;
+			if(!WriteData32(pFile, ePODFileMeshBoneBatchBoneCnts,	s.pMesh[i].sBoneBatches.pnBatchBoneCnt, s.pMesh[i].sBoneBatches.nBatchCnt)) return false;
+			if(!WriteData32(pFile, ePODFileMeshBoneBatchOffsets,	s.pMesh[i].sBoneBatches.pnBatchOffset,s.pMesh[i].sBoneBatches.nBatchCnt)) return false;
 
-			if(!WriteCPODData(pFile, ePODFileMeshFaces,			s.pMesh[i].sFaces,		PVRTModelPODCountIndices(s.pMesh[i]), true, bChangeEndian)) return false;
-			if(!WriteCPODData(pFile, ePODFileMeshVtx,			s.pMesh[i].sVertex,		s.pMesh[i].nNumVertex, s.pMesh[i].pInterleaved == 0, bChangeEndian)) return false;
-			if(!WriteCPODData(pFile, ePODFileMeshNor,			s.pMesh[i].sNormals,	s.pMesh[i].nNumVertex, s.pMesh[i].pInterleaved == 0, bChangeEndian)) return false;
-			if(!WriteCPODData(pFile, ePODFileMeshTan,			s.pMesh[i].sTangents,	s.pMesh[i].nNumVertex, s.pMesh[i].pInterleaved == 0, bChangeEndian)) return false;
-			if(!WriteCPODData(pFile, ePODFileMeshBin,			 s.pMesh[i].sBinormals,	s.pMesh[i].nNumVertex, s.pMesh[i].pInterleaved == 0, bChangeEndian)) return false;
+			if(!WriteCPODData(pFile, ePODFileMeshFaces,			s.pMesh[i].sFaces,		PVRTModelPODCountIndices(s.pMesh[i]), true)) return false;
+			if(!WriteCPODData(pFile, ePODFileMeshVtx,			s.pMesh[i].sVertex,		s.pMesh[i].nNumVertex, s.pMesh[i].pInterleaved == 0)) return false;
+			if(!WriteCPODData(pFile, ePODFileMeshNor,			s.pMesh[i].sNormals,	s.pMesh[i].nNumVertex, s.pMesh[i].pInterleaved == 0)) return false;
+			if(!WriteCPODData(pFile, ePODFileMeshTan,			s.pMesh[i].sTangents,	s.pMesh[i].nNumVertex, s.pMesh[i].pInterleaved == 0)) return false;
+			if(!WriteCPODData(pFile, ePODFileMeshBin,			 s.pMesh[i].sBinormals,	s.pMesh[i].nNumVertex, s.pMesh[i].pInterleaved == 0)) return false;
 
 			for(j = 0; j < s.pMesh[i].nNumUVW; ++j)
-				if(!WriteCPODData(pFile, ePODFileMeshUVW,		s.pMesh[i].psUVW[j],	s.pMesh[i].nNumVertex, s.pMesh[i].pInterleaved == 0, bChangeEndian)) return false;
+				if(!WriteCPODData(pFile, ePODFileMeshUVW,		s.pMesh[i].psUVW[j],	s.pMesh[i].nNumVertex, s.pMesh[i].pInterleaved == 0)) return false;
 
-			if(!WriteCPODData(pFile, ePODFileMeshVtxCol,		s.pMesh[i].sVtxColours, s.pMesh[i].nNumVertex, s.pMesh[i].pInterleaved == 0, bChangeEndian)) return false;
-			if(!WriteCPODData(pFile, ePODFileMeshBoneIdx,		s.pMesh[i].sBoneIdx,	s.pMesh[i].nNumVertex, s.pMesh[i].pInterleaved == 0, bChangeEndian)) return false;
-			if(!WriteCPODData(pFile, ePODFileMeshBoneWeight,	s.pMesh[i].sBoneWeight,	s.pMesh[i].nNumVertex, s.pMesh[i].pInterleaved == 0, bChangeEndian)) return false;
+			if(!WriteCPODData(pFile, ePODFileMeshVtxCol,		s.pMesh[i].sVtxColours, s.pMesh[i].nNumVertex, s.pMesh[i].pInterleaved == 0)) return false;
+			if(!WriteCPODData(pFile, ePODFileMeshBoneIdx,		s.pMesh[i].sBoneIdx,	s.pMesh[i].nNumVertex, s.pMesh[i].pInterleaved == 0)) return false;
+			if(!WriteCPODData(pFile, ePODFileMeshBoneWeight,	s.pMesh[i].sBoneWeight,	s.pMesh[i].nNumVertex, s.pMesh[i].pInterleaved == 0)) return false;
 
-			if(!WriteMarker(pFile, ePODFileMesh, true, bChangeEndian)) return false;
+			if(!WriteMarker(pFile, ePODFileMesh, true)) return false;
 		}
 
 		int iTransformationNo;
 		// Save: node
 		for(i = 0; i < s.nNumNode; ++i)
 		{
-			if(!WriteMarker(pFile, ePODFileNode, false, bChangeEndian)) return false;
+			if(!WriteMarker(pFile, ePODFileNode, false)) return false;
 
 			{
-				if(!WriteData(pFile, ePODFileNodeIdx,		bChangeEndian, s.pNode[i].nIdx)) return false;
-				if(!WriteData(pFile, ePODFileNodeName,		s.pNode[i].pszName, bChangeEndian, (unsigned int)strlen(s.pNode[i].pszName)+1)) return false;
-				if(!WriteData(pFile, ePODFileNodeIdxMat,	bChangeEndian, s.pNode[i].nIdxMaterial)) return false;
-				if(!WriteData(pFile, ePODFileNodeIdxParent,	bChangeEndian, s.pNode[i].nIdxParent)) return false;
-				if(!WriteData(pFile, ePODFileNodeAnimFlags, bChangeEndian, s.pNode[i].nAnimFlags)) return false;
+				if(!WriteData32(pFile, ePODFileNodeIdx,		&s.pNode[i].nIdx)) return false;
+				if(!WriteData(pFile, ePODFileNodeName,		s.pNode[i].pszName, (unsigned int)strlen(s.pNode[i].pszName)+1)) return false;
+				if(!WriteData32(pFile, ePODFileNodeIdxMat,	&s.pNode[i].nIdxMaterial)) return false;
+				if(!WriteData32(pFile, ePODFileNodeIdxParent, &s.pNode[i].nIdxParent)) return false;
+				if(!WriteData32(pFile, ePODFileNodeAnimFlags, &s.pNode[i].nAnimFlags)) return false;
 
 				iTransformationNo = s.pNode[i].nAnimFlags & ePODHasPositionAni ? s.nNumFrame : 1;
-				if(!WriteData(pFile, ePODFileNodeAnimPos,	s.pNode[i].pfAnimPosition,	bChangeEndian, iTransformationNo * 3  * sizeof(*s.pNode[i].pfAnimPosition))) return false;
+				if(!WriteData32(pFile, ePODFileNodeAnimPos,	s.pNode[i].pfAnimPosition,	iTransformationNo * 3)) return false;
 
 				iTransformationNo = s.pNode[i].nAnimFlags & ePODHasRotationAni ? s.nNumFrame : 1;
-				if(!WriteData(pFile, ePODFileNodeAnimRot,	s.pNode[i].pfAnimRotation,	bChangeEndian, iTransformationNo * 4  * sizeof(*s.pNode[i].pfAnimRotation))) return false;
+				if(!WriteData32(pFile, ePODFileNodeAnimRot,	s.pNode[i].pfAnimRotation,	iTransformationNo * 4)) return false;
 
 				iTransformationNo = s.pNode[i].nAnimFlags & ePODHasScaleAni ? s.nNumFrame : 1;
-				if(!WriteData(pFile, ePODFileNodeAnimScale,	s.pNode[i].pfAnimScale,		bChangeEndian, iTransformationNo * 7  * sizeof(*s.pNode[i].pfAnimScale)))    return false;
+				if(!WriteData32(pFile, ePODFileNodeAnimScale,	s.pNode[i].pfAnimScale,		iTransformationNo * 7))    return false;
 
 				iTransformationNo = s.pNode[i].nAnimFlags & ePODHasMatrixAni ? s.nNumFrame : 1;
-				if(!WriteData(pFile, ePODFileNodeAnimMatrix,s.pNode[i].pfAnimMatrix,	bChangeEndian, iTransformationNo * 16 * sizeof(*s.pNode[i].pfAnimMatrix)))   return false;
+				if(!WriteData32(pFile, ePODFileNodeAnimMatrix,s.pNode[i].pfAnimMatrix,	iTransformationNo * 16))   return false;
 			}
 
-			if(!WriteMarker(pFile, ePODFileNode, true, bChangeEndian)) return false;
+			if(!WriteMarker(pFile, ePODFileNode, true)) return false;
 		}
 
 		// Save: texture
 		for(i = 0; i < s.nNumTexture; ++i)
 		{
-			if(!WriteMarker(pFile, ePODFileTexture, false, bChangeEndian)) return false;
-			if(!WriteData(pFile, ePODFileTexName, s.pTexture[i].pszName, bChangeEndian, (unsigned int)strlen(s.pTexture[i].pszName)+1)) return false;
-			if(!WriteMarker(pFile, ePODFileTexture, true, bChangeEndian)) return false;
+			if(!WriteMarker(pFile, ePODFileTexture, false)) return false;
+			if(!WriteData(pFile, ePODFileTexName, s.pTexture[i].pszName, (unsigned int)strlen(s.pTexture[i].pszName)+1)) return false;
+			if(!WriteMarker(pFile, ePODFileTexture, true)) return false;
 		}
 	}
-	if(!WriteMarker(pFile, ePODFileScene, true, bChangeEndian)) return false;
+	if(!WriteMarker(pFile, ePODFileScene, true)) return false;
 
 	return true;
 }
@@ -615,7 +1067,7 @@ static bool ReadCPODData(
 	const unsigned int	nSpec,
 	const bool			bValidData)
 {
-	unsigned int nName, nLen;
+	unsigned int nName, nLen, nBuff;
 
 	while(src.ReadMarker(nName, nLen))
 	{
@@ -624,10 +1076,33 @@ static bool ReadCPODData(
 
 		switch(nName)
 		{
-		case ePODFileDataType:	if(!src.Read(s.eType)) return false;					break;
-		case ePODFileN:			if(!src.Read(s.n)) return false;						break;
-		case ePODFileStride:	if(!src.Read(s.nStride)) return false;					break;
-		case ePODFileData:		if(bValidData) { if(!src.ReadAfterAlloc(s.pData, nLen)) return false; } else { if(!src.Read(s.pData)) return false; }	break;
+		case ePODFileDataType:	if(!src.Read32(s.eType)) return false;					break;
+		case ePODFileN:			if(!src.Read32(s.n)) return false;						break;
+		case ePODFileStride:	if(!src.Read32(s.nStride)) return false;					break;
+		case ePODFileData:
+			if(bValidData)
+			{
+				switch(PVRTModelPODDataTypeSize(s.eType))
+				{
+					case 1: if(!src.ReadAfterAlloc(s.pData, nLen)) return false; break;
+					case 2: if(!src.ReadAfterAlloc16(s.pData, nLen)) return false; break;
+					case 4: if(!src.ReadAfterAlloc32(s.pData, nLen)) return false; break;
+					default:
+						{ _ASSERT(false);}
+				}
+			}
+			else
+			{
+				if(src.Read32(nBuff))
+				{
+					s.pData = (unsigned char*)nBuff;
+				}
+				else
+				{
+					return false;
+				}
+			}
+		 break;
 
 		default:
 			if(!src.Skip(nLen)) return false;
@@ -648,6 +1123,7 @@ static bool ReadCamera(
 	CSource		&src)
 {
 	unsigned int nName, nLen;
+	s.pfAnimFOV = 0;
 
 	while(src.ReadMarker(nName, nLen))
 	{
@@ -655,11 +1131,11 @@ static bool ReadCamera(
 		{
 		case ePODFileCamera | PVRTMODELPOD_TAG_END:			return true;
 
-		case ePODFileCamIdxTgt:		if(!src.Read(s.nIdxTarget)) return false;					break;
-		case ePODFileCamFOV:		if(!src.Read(s.fFOV)) return false;							break;
-		case ePODFileCamFar:		if(!src.Read(s.fFar)) return false;							break;
-		case ePODFileCamNear:		if(!src.Read(s.fNear)) return false;						break;
-		case ePODFileCamAnimFOV:	if(!src.ReadAfterAlloc(s.pfAnimFOV, nLen)) return false;	break;
+		case ePODFileCamIdxTgt:		if(!src.Read32(s.nIdxTarget)) return false;					break;
+		case ePODFileCamFOV:		if(!src.Read32(s.fFOV)) return false;							break;
+		case ePODFileCamFar:		if(!src.Read32(s.fFar)) return false;							break;
+		case ePODFileCamNear:		if(!src.Read32(s.fNear)) return false;						break;
+		case ePODFileCamAnimFOV:	if(!src.ReadAfterAlloc32(s.pfAnimFOV, nLen)) return false;	break;
 
 		default:
 			if(!src.Skip(nLen)) return false;
@@ -687,10 +1163,14 @@ static bool ReadLight(
 		{
 		case ePODFileLight | PVRTMODELPOD_TAG_END:			return true;
 
-		case ePODFileLightIdxTgt:	if(!src.Read(s.nIdxTarget)) return false;	break;
-		case ePODFileLightColour:	if(!src.Read(s.pfColour)) return false;		break;
-		case ePODFileLightType:		if(!src.Read(s.eType)) return false;		break;
-
+		case ePODFileLightIdxTgt:	if(!src.Read32(s.nIdxTarget)) return false;	break;
+		case ePODFileLightColour:	if(!src.ReadArray32((unsigned int*) s.pfColour, 3)) return false;		break;
+		case ePODFileLightType:		if(!src.Read32(s.eType)) return false;		break;
+		case ePODFileLightConstantAttenuation: 		if(!src.Read32(s.fConstantAttenuation))	return false;	break;
+		case ePODFileLightLinearAttenuation:		if(!src.Read32(s.fLinearAttenuation))		return false;	break;
+		case ePODFileLightQuadraticAttenuation:		if(!src.Read32(s.fQuadraticAttenuation))	return false;	break;
+		case ePODFileLightFalloffAngle:				if(!src.Read32(s.fFalloffAngle))			return false;	break;
+		case ePODFileLightFalloffExponent:			if(!src.Read32(s.fFalloffExponent))		return false;	break;
 		default:
 			if(!src.Skip(nLen)) return false;
 		}
@@ -711,27 +1191,145 @@ static bool ReadMaterial(
 {
 	unsigned int nName, nLen;
 
+	// Set texture IDs to -1
+	s.nIdxTexDiffuse = -1;
+	s.nIdxTexAmbient = -1;
+	s.nIdxTexSpecularColour = -1;
+	s.nIdxTexSpecularLevel = -1;
+	s.nIdxTexBump = -1;
+	s.nIdxTexEmissive = -1;
+	s.nIdxTexGlossiness = -1;
+	s.nIdxTexOpacity = -1;
+	s.nIdxTexReflection = -1;
+	s.nIdxTexRefraction = -1;
+
+	// Set defaults for blend modes
+	s.eBlendSrcRGB = s.eBlendSrcA = ePODBlendFunc_ONE;
+	s.eBlendDstRGB = s.eBlendDstA = ePODBlendFunc_ZERO;
+	s.eBlendOpRGB  = s.eBlendOpA  = ePODBlendOp_ADD;
+
+	memset(s.pfBlendColour, 0, sizeof(s.pfBlendColour));
+	memset(s.pfBlendFactor, 0, sizeof(s.pfBlendFactor));
+
+	// Set default for material flags
+	s.nFlags = 0;
+
 	while(src.ReadMarker(nName, nLen))
 	{
 		switch(nName)
 		{
 		case ePODFileMaterial | PVRTMODELPOD_TAG_END:			return true;
 
-		case ePODFileMatName:			if(!src.ReadAfterAlloc(s.pszName, nLen)) return false;			break;
-		case ePODFileMatIdxTexDiffuse:	if(!src.Read(s.nIdxTexDiffuse)) return false;					break;
-		case ePODFileMatOpacity:		if(!src.Read(s.fMatOpacity)) return false;						break;
-		case ePODFileMatAmbient:		if(!src.Read(s.pfMatAmbient)) return false;						break;
-		case ePODFileMatDiffuse:		if(!src.Read(s.pfMatDiffuse)) return false;						break;
-		case ePODFileMatSpecular:		if(!src.Read(s.pfMatSpecular)) return false;					break;
-		case ePODFileMatShininess:		if(!src.Read(s.fMatShininess)) return false;					break;
+		case ePODFileMatFlags:					if(!src.Read32(s.nFlags)) return false;				break;
+		case ePODFileMatName:					if(!src.ReadAfterAlloc(s.pszName, nLen)) return false;		break;
+		case ePODFileMatIdxTexDiffuse:			if(!src.Read32(s.nIdxTexDiffuse)) return false;				break;
+		case ePODFileMatIdxTexAmbient:			if(!src.Read32(s.nIdxTexAmbient)) return false;				break;
+		case ePODFileMatIdxTexSpecularColour:	if(!src.Read32(s.nIdxTexSpecularColour)) return false;		break;
+		case ePODFileMatIdxTexSpecularLevel:	if(!src.Read32(s.nIdxTexSpecularLevel)) return false;			break;
+		case ePODFileMatIdxTexBump:				if(!src.Read32(s.nIdxTexBump)) return false;					break;
+		case ePODFileMatIdxTexEmissive:			if(!src.Read32(s.nIdxTexEmissive)) return false;				break;
+		case ePODFileMatIdxTexGlossiness:		if(!src.Read32(s.nIdxTexGlossiness)) return false;			break;
+		case ePODFileMatIdxTexOpacity:			if(!src.Read32(s.nIdxTexOpacity)) return false;				break;
+		case ePODFileMatIdxTexReflection:		if(!src.Read32(s.nIdxTexReflection)) return false;			break;
+		case ePODFileMatIdxTexRefraction:		if(!src.Read32(s.nIdxTexRefraction)) return false;			break;
+		case ePODFileMatOpacity:		if(!src.Read32(s.fMatOpacity)) return false;						break;
+		case ePODFileMatAmbient:		if(!src.ReadArray32((unsigned int*) s.pfMatAmbient,  sizeof(s.pfMatAmbient) / sizeof(*s.pfMatAmbient))) return false;		break;
+		case ePODFileMatDiffuse:		if(!src.ReadArray32((unsigned int*) s.pfMatDiffuse,  sizeof(s.pfMatDiffuse) / sizeof(*s.pfMatDiffuse))) return false;		break;
+		case ePODFileMatSpecular:		if(!src.ReadArray32((unsigned int*) s.pfMatSpecular, sizeof(s.pfMatSpecular) / sizeof(*s.pfMatSpecular))) return false;		break;
+		case ePODFileMatShininess:		if(!src.Read32(s.fMatShininess)) return false;					break;
 		case ePODFileMatEffectFile:		if(!src.ReadAfterAlloc(s.pszEffectFile, nLen)) return false;	break;
 		case ePODFileMatEffectName:		if(!src.ReadAfterAlloc(s.pszEffectName, nLen)) return false;	break;
+		case ePODFileMatBlendSrcRGB:	if(!src.Read32(s.eBlendSrcRGB))	return false;	break;
+		case ePODFileMatBlendSrcA:		if(!src.Read32(s.eBlendSrcA))		return false;	break;
+		case ePODFileMatBlendDstRGB:	if(!src.Read32(s.eBlendDstRGB))	return false;	break;
+		case ePODFileMatBlendDstA:		if(!src.Read32(s.eBlendDstA))		return false;	break;
+		case ePODFileMatBlendOpRGB:		if(!src.Read32(s.eBlendOpRGB))	return false;	break;
+		case ePODFileMatBlendOpA:		if(!src.Read32(s.eBlendOpA))		return false;	break;
+		case ePODFileMatBlendColour:	if(!src.ReadArray32((unsigned int*) s.pfBlendColour, sizeof(s.pfBlendColour) / sizeof(*s.pfBlendColour)))	return false;	break;
+		case ePODFileMatBlendFactor:	if(!src.ReadArray32((unsigned int*) s.pfBlendFactor, sizeof(s.pfBlendFactor) / sizeof(*s.pfBlendFactor)))	return false;	break;
 
 		default:
 			if(!src.Skip(nLen)) return false;
 		}
 	}
 	return false;
+}
+
+/*!***************************************************************************
+ @Function			PVRTFixInterleavedEndiannessUsingCPODData
+ @Modified			pInterleaved - The interleaved data
+ @Input				data - The CPODData.
+ @Return			ui32Size - Number of elements in pInterleaved
+ @Description		Called multiple times and goes through the interleaved data
+					correcting the endianness.
+*****************************************************************************/
+void PVRTFixInterleavedEndiannessUsingCPODData(unsigned char* pInterleaved, CPODData &data, unsigned int ui32Size)
+{
+	if(!data.n)
+		return;
+
+	size_t ui32TypeSize = PVRTModelPODDataTypeSize(data.eType);
+
+	unsigned char ub[4];
+	unsigned char *pData = pInterleaved + (size_t) data.pData;
+
+	switch(ui32TypeSize)
+	{
+		case 1: return;
+		case 2:
+			{
+				for(unsigned int i = 0; i < ui32Size; ++i)
+				{
+					for(unsigned int j = 0; j < data.n; ++j)
+					{
+						ub[0] = pData[ui32TypeSize * j + 0];
+						ub[1] = pData[ui32TypeSize * j + 1];
+
+						((unsigned short*) pData)[j] = (unsigned short) ((ub[1] << 8) | ub[0]);
+					}
+
+					pData += data.nStride;
+				}
+			}
+			break;
+		case 4:
+			{
+				for(unsigned int i = 0; i < ui32Size; ++i)
+				{
+					for(unsigned int j = 0; j < data.n; ++j)
+					{
+						ub[0] = pData[ui32TypeSize * j + 0];
+						ub[1] = pData[ui32TypeSize * j + 1];
+						ub[2] = pData[ui32TypeSize * j + 2];
+						ub[3] = pData[ui32TypeSize * j + 3];
+
+						((unsigned int*) pData)[j] = (unsigned int) ((ub[3] << 24) | (ub[2] << 16) | (ub[1] << 8) | ub[0]);
+					}
+
+					pData += data.nStride;
+				}
+			}
+			break;
+		default: { _ASSERT(false); }
+	};
+}
+
+void PVRTFixInterleavedEndianness(SPODMesh &s)
+{
+	if(!s.pInterleaved || PVRTIsLittleEndian())
+		return;
+
+	PVRTFixInterleavedEndiannessUsingCPODData(s.pInterleaved, s.sVertex, s.nNumVertex);
+	PVRTFixInterleavedEndiannessUsingCPODData(s.pInterleaved, s.sNormals, s.nNumVertex);
+	PVRTFixInterleavedEndiannessUsingCPODData(s.pInterleaved, s.sTangents, s.nNumVertex);
+	PVRTFixInterleavedEndiannessUsingCPODData(s.pInterleaved, s.sBinormals, s.nNumVertex);
+
+	for(unsigned int i = 0; i < s.nNumUVW; ++i)
+		PVRTFixInterleavedEndiannessUsingCPODData(s.pInterleaved, s.psUVW[i], s.nNumVertex);
+
+	PVRTFixInterleavedEndiannessUsingCPODData(s.pInterleaved, s.sVtxColours, s.nNumVertex);
+	PVRTFixInterleavedEndiannessUsingCPODData(s.pInterleaved, s.sBoneIdx, s.nNumVertex);
+	PVRTFixInterleavedEndiannessUsingCPODData(s.pInterleaved, s.sBoneWeight, s.nNumVertex);
 }
 
 /*!***************************************************************************
@@ -753,20 +1351,22 @@ static bool ReadMesh(
 		switch(nName)
 		{
 		case ePODFileMesh | PVRTMODELPOD_TAG_END:
-			if(nUVWs != s.nNumUVW) return false;
+			if(nUVWs != s.nNumUVW)
+				return false;
+			PVRTFixInterleavedEndianness(s);
 			return true;
 
-		case ePODFileMeshNumVtx:			if(!src.Read(s.nNumVertex)) return false;													break;
-		case ePODFileMeshNumFaces:			if(!src.Read(s.nNumFaces)) return false;													break;
-		case ePODFileMeshNumUVW:			if(!src.Read(s.nNumUVW)) return false;	if(!SafeAlloc(s.psUVW, s.nNumUVW)) return false;	break;
-		case ePODFileMeshStripLength:		if(!src.ReadAfterAlloc(s.pnStripLength, nLen)) return false;								break;
-		case ePODFileMeshNumStrips:			if(!src.Read(s.nNumStrips)) return false;													break;
+		case ePODFileMeshNumVtx:			if(!src.Read32(s.nNumVertex)) return false;													break;
+		case ePODFileMeshNumFaces:			if(!src.Read32(s.nNumFaces)) return false;													break;
+		case ePODFileMeshNumUVW:			if(!src.Read32(s.nNumUVW)) return false;	if(!SafeAlloc(s.psUVW, s.nNumUVW)) return false;	break;
+		case ePODFileMeshStripLength:		if(!src.ReadAfterAlloc32(s.pnStripLength, nLen)) return false;								break;
+		case ePODFileMeshNumStrips:			if(!src.Read32(s.nNumStrips)) return false;													break;
 		case ePODFileMeshInterleaved:		if(!src.ReadAfterAlloc(s.pInterleaved, nLen)) return false;									break;
-		case ePODFileMeshBoneBatches:		if(!src.ReadAfterAlloc(s.sBoneBatches.pnBatches, nLen)) return false;						break;
-		case ePODFileMeshBoneBatchBoneCnts:	if(!src.ReadAfterAlloc(s.sBoneBatches.pnBatchBoneCnt, nLen)) return false;					break;
-		case ePODFileMeshBoneBatchOffsets:	if(!src.ReadAfterAlloc(s.sBoneBatches.pnBatchOffset, nLen)) return false;					break;
-		case ePODFileMeshBoneBatchBoneMax:	if(!src.Read(s.sBoneBatches.nBatchBoneMax)) return false;									break;
-		case ePODFileMeshBoneBatchCnt:		if(!src.Read(s.sBoneBatches.nBatchCnt)) return false;										break;
+		case ePODFileMeshBoneBatches:		if(!src.ReadAfterAlloc32(s.sBoneBatches.pnBatches, nLen)) return false;						break;
+		case ePODFileMeshBoneBatchBoneCnts:	if(!src.ReadAfterAlloc32(s.sBoneBatches.pnBatchBoneCnt, nLen)) return false;					break;
+		case ePODFileMeshBoneBatchOffsets:	if(!src.ReadAfterAlloc32(s.sBoneBatches.pnBatchOffset, nLen)) return false;					break;
+		case ePODFileMeshBoneBatchBoneMax:	if(!src.Read32(s.sBoneBatches.nBatchBoneMax)) return false;									break;
+		case ePODFileMeshBoneBatchCnt:		if(!src.Read32(s.sBoneBatches.nBatchCnt)) return false;										break;
 
 		case ePODFileMeshFaces:			if(!ReadCPODData(s.sFaces, src, ePODFileMeshFaces, true)) return false;			break;
 		case ePODFileMeshVtx:			if(!ReadCPODData(s.sVertex, src, ePODFileMeshVtx, s.pInterleaved == 0)) return false;			break;
@@ -801,7 +1401,6 @@ static bool ReadNode(
 	VERTTYPE fPos[3]   = {0,0,0};
 	VERTTYPE fQuat[4]  = {0,0,0,f2vt(1)};
 	VERTTYPE fScale[7] = {f2vt(1),f2vt(1),f2vt(1),0,0,0,0};
-	unsigned int nSizeOfOldScale = sizeof(VERTTYPE) * 3;
 
 	while(src.ReadMarker(nName, nLen))
 	{
@@ -836,20 +1435,20 @@ static bool ReadNode(
 			}
 			return true;
 
-		case ePODFileNodeIdx:		if(!src.Read(s.nIdx)) return false;								break;
+		case ePODFileNodeIdx:		if(!src.Read32(s.nIdx)) return false;								break;
 		case ePODFileNodeName:		if(!src.ReadAfterAlloc(s.pszName, nLen)) return false;			break;
-		case ePODFileNodeIdxMat:	if(!src.Read(s.nIdxMaterial)) return false;						break;
-		case ePODFileNodeIdxParent:	if(!src.Read(s.nIdxParent)) return false;						break;
-		case ePODFileNodeAnimFlags:if(!src.Read(s.nAnimFlags))return false;							break;
-		case ePODFileNodeAnimPos:	if(!src.ReadAfterAlloc(s.pfAnimPosition, nLen)) return false;	break;
-		case ePODFileNodeAnimRot:	if(!src.ReadAfterAlloc(s.pfAnimRotation, nLen)) return false;	break;
-		case ePODFileNodeAnimScale:	if(!src.ReadAfterAlloc(s.pfAnimScale, nLen)) return false;		break;
-		case ePODFileNodeAnimMatrix:if(!src.ReadAfterAlloc(s.pfAnimMatrix, nLen)) return false;	break;
+		case ePODFileNodeIdxMat:	if(!src.Read32(s.nIdxMaterial)) return false;						break;
+		case ePODFileNodeIdxParent:	if(!src.Read32(s.nIdxParent)) return false;						break;
+		case ePODFileNodeAnimFlags:if(!src.Read32(s.nAnimFlags))return false;							break;
+		case ePODFileNodeAnimPos:	if(!src.ReadAfterAlloc32(s.pfAnimPosition, nLen)) return false;	break;
+		case ePODFileNodeAnimRot:	if(!src.ReadAfterAlloc32(s.pfAnimRotation, nLen)) return false;	break;
+		case ePODFileNodeAnimScale:	if(!src.ReadAfterAlloc32(s.pfAnimScale, nLen)) return false;		break;
+		case ePODFileNodeAnimMatrix:if(!src.ReadAfterAlloc32(s.pfAnimMatrix, nLen)) return false;	break;
 
 		// Parameters from the older pod format
-		case ePODFileNodePos:		if(!src.Read(fPos))   return false;		bOldNodeFormat = true;		break;
-		case ePODFileNodeRot:		if(!src.Read(fQuat))  return false;		bOldNodeFormat = true;		break;
-		case ePODFileNodeScale:		if(!src.Read(fScale,nSizeOfOldScale)) return false;		bOldNodeFormat = true;		break;
+		case ePODFileNodePos:		if(!src.ReadArray32((unsigned int*) fPos, 3))   return false;		bOldNodeFormat = true;		break;
+		case ePODFileNodeRot:		if(!src.ReadArray32((unsigned int*) fQuat, 4))  return false;		bOldNodeFormat = true;		break;
+		case ePODFileNodeScale:		if(!src.ReadArray32((unsigned int*) fScale,3)) return false;		bOldNodeFormat = true;		break;
 
 		default:
 			if(!src.Skip(nLen)) return false;
@@ -914,17 +1513,17 @@ static bool ReadScene(
 			if(nNodes		!= s.nNumNode) return false;
 			return true;
 
-		case ePODFileColourBackground:	if(!src.Read(s.pfColourBackground)) return false;	break;
-		case ePODFileColourAmbient:		if(!src.Read(s.pfColourAmbient)) return false;		break;
-		case ePODFileNumCamera:			if(!src.Read(s.nNumCamera)) return false;			if(!SafeAlloc(s.pCamera, s.nNumCamera)) return false;		break;
-		case ePODFileNumLight:			if(!src.Read(s.nNumLight)) return false;			if(!SafeAlloc(s.pLight, s.nNumLight)) return false;			break;
-		case ePODFileNumMesh:			if(!src.Read(s.nNumMesh)) return false;				if(!SafeAlloc(s.pMesh, s.nNumMesh)) return false;			break;
-		case ePODFileNumNode:			if(!src.Read(s.nNumNode)) return false;				if(!SafeAlloc(s.pNode, s.nNumNode)) return false;			break;
-		case ePODFileNumMeshNode:		if(!src.Read(s.nNumMeshNode)) return false;			break;
-		case ePODFileNumTexture:		if(!src.Read(s.nNumTexture)) return false;			if(!SafeAlloc(s.pTexture, s.nNumTexture)) return false;		break;
-		case ePODFileNumMaterial:		if(!src.Read(s.nNumMaterial)) return false;			if(!SafeAlloc(s.pMaterial, s.nNumMaterial)) return false;	break;
-		case ePODFileNumFrame:			if(!src.Read(s.nNumFrame)) return false;			break;
-		case ePODFileFlags:				if(!src.Read(s.nFlags)) return false;				break;
+		case ePODFileColourBackground:	if(!src.ReadArray32((unsigned int*) s.pfColourBackground, sizeof(s.pfColourBackground) / sizeof(*s.pfColourBackground))) return false;	break;
+		case ePODFileColourAmbient:		if(!src.ReadArray32((unsigned int*) s.pfColourAmbient, sizeof(s.pfColourAmbient) / sizeof(*s.pfColourAmbient))) return false;		break;
+		case ePODFileNumCamera:			if(!src.Read32(s.nNumCamera)) return false;			if(!SafeAlloc(s.pCamera, s.nNumCamera)) return false;		break;
+		case ePODFileNumLight:			if(!src.Read32(s.nNumLight)) return false;			if(!SafeAlloc(s.pLight, s.nNumLight)) return false;			break;
+		case ePODFileNumMesh:			if(!src.Read32(s.nNumMesh)) return false;				if(!SafeAlloc(s.pMesh, s.nNumMesh)) return false;			break;
+		case ePODFileNumNode:			if(!src.Read32(s.nNumNode)) return false;				if(!SafeAlloc(s.pNode, s.nNumNode)) return false;			break;
+		case ePODFileNumMeshNode:		if(!src.Read32(s.nNumMeshNode)) return false;			break;
+		case ePODFileNumTexture:		if(!src.Read32(s.nNumTexture)) return false;			if(!SafeAlloc(s.pTexture, s.nNumTexture)) return false;		break;
+		case ePODFileNumMaterial:		if(!src.Read32(s.nNumMaterial)) return false;			if(!SafeAlloc(s.pMaterial, s.nNumMaterial)) return false;	break;
+		case ePODFileNumFrame:			if(!src.Read32(s.nNumFrame)) return false;			break;
+		case ePODFileFlags:				if(!src.Read32(s.nFlags)) return false;				break;
 
 		case ePODFileCamera:	if(!ReadCamera(s.pCamera[nCameras++], src)) return false;		break;
 		case ePODFileLight:		if(!ReadLight(s.pLight[nLights++], src)) return false;			break;
@@ -946,6 +1545,8 @@ static bool ReadScene(
  @Input				src				CSource object to read data from.
  @Output			pszExpOpt		Export options.
  @Input				count			Data size.
+ @Output			pszHistory		Export history.
+ @Input				historyCount	History data size.
  @Description		Loads the specified ".POD" file; returns the scene in
 					pScene. This structure must later be destroyed with
 					PVRTModelPODDestroy() to prevent memory leaks.
@@ -957,13 +1558,15 @@ static bool Read(
 	SPODScene		* const pS,
 	CSource			&src,
 	char			* const pszExpOpt,
-	const size_t	count)
+	const size_t	count,
+	char			* const pszHistory,
+	const size_t	historyCount)
 {
 	unsigned int	nName, nLen;
 	bool			bVersionOK = false, bDone = false;
-
-	if(pS)
-		pS->bBigEndian = !PVRTIsLittleEndian();
+	bool			bNeedOptions = pszExpOpt != 0;
+	bool			bNeedHistory = pszHistory != 0;
+	bool			bLoadingOptionsOrHistory = bNeedOptions || bNeedHistory;
 
 	while(src.ReadMarker(nName, nLen))
 	{
@@ -991,10 +1594,32 @@ static bool Read(
 			continue;
 
 		case ePODFileExpOpt:
-			if(pszExpOpt)
+			if(bNeedOptions)
 			{
-				if(!src.Read(pszExpOpt, PVRT_MIN(nLen, (unsigned int) count))) return false;
-				return true;
+				if(!src.Read(pszExpOpt, PVRT_MIN(nLen, (unsigned int) count)))
+					return false;
+
+				bNeedOptions = false;
+
+				if(count < nLen)
+					nLen -= (unsigned int) count ; // Adjust nLen as the read has moved our position
+				else
+					nLen = 0;
+			}
+			break;
+
+		case ePODFileHistory:
+			if(bNeedHistory)
+			{
+				if(!src.Read(pszHistory, PVRT_MIN(nLen, (unsigned int) historyCount)))
+					return false;
+
+				bNeedHistory = false;
+
+				if(count < nLen)
+					nLen -= (unsigned int) historyCount; // Adjust nLen as the read has moved our position
+				else
+					nLen = 0;
 			}
 			break;
 
@@ -1007,10 +1632,16 @@ static bool Read(
 
 		}
 
+		if(bLoadingOptionsOrHistory && !bNeedOptions && !bNeedHistory)
+			return true; // The options and/or history has been loaded
+
 		// Unhandled data, skip it
 		if(!src.Skip(nLen))
 			return false;
 	}
+
+	if(bLoadingOptionsOrHistory)
+		return true;
 
 	/*
 		Convert data to fixed or float point as this build desires
@@ -1026,37 +1657,134 @@ static bool Read(
 	return bVersionOK == true && bDone == true;
 }
 
+/*!***************************************************************************
+ @Function			ReadFromSourceStream
+ @Output			pS				CPVRTModelPOD data. May not be NULL.
+ @Input				src				CSource object to read data from.
+ @Output			pszExpOpt		Export options.
+ @Input				count			Data size.
+ @Output			pszHistory		Export history.
+ @Input				historyCount	History data size.
+ @Description		Loads the ".POD" data from the source stream; returns the scene
+					in pS.
+*****************************************************************************/
+static EPVRTError ReadFromSourceStream(
+	CPVRTModelPOD	* const pS,
+	CSourceStream &src,
+	char			* const pszExpOpt,
+	const size_t	count,
+	char			* const pszHistory,
+	const size_t	historyCount)
+{
+	memset(pS, 0, sizeof(*pS));
+	if(!Read(pszExpOpt || pszHistory ? NULL : pS, src, pszExpOpt, count, pszHistory, historyCount))
+		return PVR_FAIL;
+
+	if(pS->InitImpl() != PVR_SUCCESS)
+		return PVR_FAIL;
+
+	return PVR_SUCCESS;
+}
+
 /****************************************************************************
 ** Class: CPVRTModelPOD
 ****************************************************************************/
 
 /*!***************************************************************************
- @Function			ReadFromStream
- @Input				stream			Input data stream
- @Output			pszExpOpt		String in which to place exporter options
- @Input				count			Maximum number of characters to store.
- @Return			PVR_SUCCESS if successful, PVR_FAIL if not
- @Description		Loads the specified ".POD" file; returns the scene in
-					pScene. This structure must later be destroyed with
-					PVRTModelPODDestroy() to prevent memory leaks.
-					".POD" files are exported from 3D Studio MAX using a
-					PowerVR plugin.
-					If pszExpOpt is NULL, the scene is loaded; otherwise the
-					scene is not loaded and pszExpOpt is filled in.
+ @Function		ReadFromStream
+ @Input			stream			Input data stream
+ @Output		pszExpOpt		String in which to place exporter options
+ @Input			count			Maximum number of characters to store.
+ @Output		pszHistory		String in which to place the pod file history
+ @Input			historyCount	Maximum number of characters to store.
+ @Return		PVR_SUCCESS if successful, PVR_FAIL if not
+ @Description	Loads the specified ".POD" file; returns the scene in
+				pScene. This structure must later be destroyed with
+				PVRTModelPODDestroy() to prevent memory leaks.
+				".POD" files are exported from 3D Studio MAX using a
+				PowerVR plugin.
+				If pszExpOpt is NULL, the scene is loaded; otherwise the
+				scene is not loaded and pszExpOpt is filled in.
 *****************************************************************************/
 EPVRTError CPVRTModelPOD::ReadFromStream(
 	std::istream&	stream,
 	char			* const pszExpOpt,
-	const size_t	count)
+	const size_t	count,
+	char			* const pszHistory,
+	const size_t	historyCount)
 {
-	CSourceStream src(stream);
+	CSourceIOStream src(stream);
 
 	memset(this, 0, sizeof(*this));
-	if(!Read(pszExpOpt ? NULL : this, src, pszExpOpt, count))
+	if(!Read(pszExpOpt || pszHistory ? NULL : this, src, pszExpOpt, count, pszHistory, historyCount))
 		return PVR_FAIL;
-	if(InitImpl() != PVR_SUCCESS)
+
+	if(this->InitImpl() != PVR_SUCCESS)
 		return PVR_FAIL;
+
 	return PVR_SUCCESS;
+}
+
+/*!***************************************************************************
+ @Function			ReadFromFile
+ @Input				pszFileName		Filename to load
+ @Output			pszExpOpt		String in which to place exporter options
+ @Input				count			Maximum number of characters to store.
+ @Output			pszHistory		String in which to place the pod file history
+ @Input				historyCount	Maximum number of characters to store.
+ @Return			PVR_SUCCESS if successful, PVR_FAIL if not
+ @Description		Loads the specified ".POD" file; returns the scene in
+					pScene. This structure must later be destroyed with
+					PVRTModelPODDestroy() to prevent memory leaks.
+					".POD" files are exported using the PVRGeoPOD exporters.
+					If pszExpOpt is NULL, the scene is loaded; otherwise the
+					scene is not loaded and pszExpOpt is filled in. The same
+					is true for pszHistory.
+*****************************************************************************/
+EPVRTError CPVRTModelPOD::ReadFromFile(
+	const char		* const pszFileName,
+	char			* const pszExpOpt,
+	const size_t	count,
+	char			* const pszHistory,
+	const size_t	historyCount)
+{
+	CSourceStream src;
+
+	if(!src.Init(pszFileName))
+		return PVR_FAIL;
+
+	return ReadFromSourceStream(this, src, pszExpOpt, count, pszHistory, historyCount);
+}
+
+/*!***************************************************************************
+ @Function			ReadFromMemory
+ @Input				pData			Data to load
+ @Input				i32Size			Size of data
+ @Output			pszExpOpt		String in which to place exporter options
+ @Input				count			Maximum number of characters to store.
+ @Output			pszHistory		String in which to place the pod file history
+ @Input				historyCount	Maximum number of characters to store.
+ @Return			PVR_SUCCESS if successful, PVR_FAIL if not
+ @Description		Loads the supplied pod data. This data can be exported
+					directly to a header using one of the pod exporters.
+					If pszExpOpt is NULL, the scene is loaded; otherwise the
+					scene is not loaded and pszExpOpt is filled in. The same
+					is true for pszHistory.
+*****************************************************************************/
+EPVRTError CPVRTModelPOD::ReadFromMemory(
+	const char		* pData,
+	const size_t	i32Size,
+	char			* const pszExpOpt,
+	const size_t	count,
+	char			* const pszHistory,
+	const size_t	historyCount)
+{
+	CSourceStream src;
+
+	if(!src.Init(pData, i32Size))
+		return PVR_FAIL;
+
+	return ReadFromSourceStream(this, src, pszExpOpt, count, pszHistory, historyCount);
 }
 
 /*!***************************************************************************
@@ -1127,7 +1855,6 @@ EPVRTError CPVRTModelPOD::CopyFromMemory(const SPODScene &scene)
 	// SPODScene
 	nNumFrame	= scene.nNumFrame;
 	nFlags		= scene.nFlags;
-	bBigEndian	= scene.bBigEndian;
 
 	for(i = 0; i < 3; ++i)
 	{
@@ -1293,12 +2020,7 @@ EPVRTError CPVRTModelPOD::CopyFromMemory(const SPODScene &scene)
 
 		for(i = 0; i < nNumLight; ++i)
 		{
-			pLight[i].nIdxTarget = scene.pLight[i].nIdxTarget;
-
-			for(j = 0; j < 3; ++j)
-				pLight[i].pfColour[j] = scene.pLight[i].pfColour[j];
-
-			pLight[i].eType = scene.pLight[i].eType;
+			memcpy(&pLight[i], &scene.pLight[i], sizeof(SPODLight));
 		}
 	}
 
@@ -1321,20 +2043,14 @@ EPVRTError CPVRTModelPOD::CopyFromMemory(const SPODScene &scene)
 
 		for(i = 0; i < nNumMaterial; ++i)
 		{
+			memcpy(&pMaterial[i], &scene.pMaterial[i], sizeof(SPODMaterial));
+
+			pMaterial[i].pszName = 0;
+			pMaterial[i].pszEffectFile = 0;
+			pMaterial[i].pszEffectName = 0;
+
 			if(scene.pMaterial[i].pszName && SafeAlloc(pMaterial[i].pszName, strlen(scene.pMaterial[i].pszName) + 1))
 				memcpy(pMaterial[i].pszName, scene.pMaterial[i].pszName, strlen(scene.pMaterial[i].pszName) + 1);
-
-			pMaterial[i].nIdxTexDiffuse = scene.pMaterial[i].nIdxTexDiffuse;
-			pMaterial[i].fMatOpacity = scene.pMaterial[i].fMatOpacity;
-
-			for(j = 0; j < 3; ++j)
-			{
-				pMaterial[i].pfMatAmbient[j]  = scene.pMaterial[i].pfMatAmbient[j];
-				pMaterial[i].pfMatDiffuse[j]  = scene.pMaterial[i].pfMatDiffuse[j];
-				pMaterial[i].pfMatSpecular[j] = scene.pMaterial[i].pfMatSpecular[j];
-			}
-
-			pMaterial[i].fMatShininess = scene.pMaterial[i].fMatShininess;
 
 			if(scene.pMaterial[i].pszEffectFile && SafeAlloc(pMaterial[i].pszEffectFile, strlen(scene.pMaterial[i].pszEffectFile) + 1))
 				memcpy(pMaterial[i].pszEffectFile, scene.pMaterial[i].pszEffectFile, strlen(scene.pMaterial[i].pszEffectFile) + 1);
@@ -1349,6 +2065,34 @@ EPVRTError CPVRTModelPOD::CopyFromMemory(const SPODScene &scene)
 
 	return PVR_SUCCESS;
 }
+
+#ifdef WIN32
+/*!***************************************************************************
+ @Function			ReadFromResource
+ @Input				pszName			Name of the resource to load from
+ @Return			PVR_SUCCESS if successful, PVR_FAIL if not
+ @Description		Loads the specified ".POD" file; returns the scene in
+					pScene. This structure must later be destroyed with
+					PVRTModelPODDestroy() to prevent memory leaks.
+					".POD" files are exported from 3D Studio MAX using a
+					PowerVR plugin.
+*****************************************************************************/
+EPVRTError CPVRTModelPOD::ReadFromResource(
+	const TCHAR * const pszName)
+{
+	CSourceResource src;
+
+	if(!src.Init(pszName))
+		return PVR_FAIL;
+
+	memset(this, 0, sizeof(*this));
+	if(!Read(this, src, NULL, 0, NULL, 0))
+		return PVR_FAIL;
+	if(InitImpl() != PVR_SUCCESS)
+		return PVR_FAIL;
+	return PVR_SUCCESS;
+}
+#endif /* WIN32 */
 
 /*!***********************************************************************
  @Function		InitImpl
@@ -1379,6 +2123,23 @@ EPVRTError CPVRTModelPOD::InitImpl()
 	FlushCache();
 
 	return PVR_SUCCESS;
+}
+
+/*!***********************************************************************
+ @Function		DestroyImpl
+ @Description	Used to free memory allocated by the implementation.
+*************************************************************************/
+void CPVRTModelPOD::DestroyImpl()
+{
+	if(m_pImpl)
+	{
+		if(m_pImpl->pfCache)		delete [] m_pImpl->pfCache;
+		if(m_pImpl->pWmCache)		delete [] m_pImpl->pWmCache;
+		if(m_pImpl->pWmZeroCache)	delete [] m_pImpl->pWmZeroCache;
+
+		delete m_pImpl;
+		m_pImpl = 0;
+	}
 }
 
 /*!***********************************************************************
@@ -1486,10 +2247,7 @@ void CPVRTModelPOD::Destroy()
 		}
 
 		// Free the working space used by the implementation
-		delete [] m_pImpl->pfCache;
-		delete [] m_pImpl->pWmCache;
-		delete [] m_pImpl->pWmZeroCache;
-		delete m_pImpl;
+		DestroyImpl();
 	}
 
 	memset(this, 0, sizeof(*this));
@@ -2081,7 +2839,7 @@ PVRTVec4 CPVRTModelPOD::GetLightPosition(const unsigned int u32Idx) const
 	GetLight(vPos,vDir,u32Idx);
 
 	_ASSERT(u32Idx < nNumLight);
-	_ASSERT(pLight[u32Idx].eType==ePODPoint);
+	_ASSERT(pLight[u32Idx].eType!=ePODDirectional);
 	return PVRTVec4(vPos,1);
 }
 
@@ -2097,8 +2855,8 @@ PVRTVec4 CPVRTModelPOD::GetLightDirection(const unsigned int u32Idx) const
 	GetLight(vPos,vDir,u32Idx);
 
 	_ASSERT(u32Idx < nNumLight);
-	_ASSERT(pLight[u32Idx].eType==ePODDirectional);
-	return PVRTVec4(vDir,1);
+	_ASSERT(pLight[u32Idx].eType!=ePODPoint);
+	return PVRTVec4(vDir,0);
 }
 
 /*!***************************************************************************
@@ -2197,7 +2955,7 @@ EPVRTError CPVRTModelPOD::CreateSkinIdxWeight(
  @Input				pszExpOpt		A string containing the options used by the exporter
  @Description		Save a binary POD file (.POD).
 *****************************************************************************/
-EPVRTError CPVRTModelPOD::SavePOD(const char * const pszFilename, const char * const pszExpOpt)
+EPVRTError CPVRTModelPOD::SavePOD(const char * const pszFilename, const char * const pszExpOpt, const char * const pszHistory)
 {
 	FILE	*pFile;
 	bool	bRet;
@@ -2206,7 +2964,7 @@ EPVRTError CPVRTModelPOD::SavePOD(const char * const pszFilename, const char * c
 	if(!pFile)
 		return PVR_FAIL;
 
-	bRet = WritePOD(pFile, pszExpOpt, *this);
+	bRet = WritePOD(pFile, pszExpOpt, pszHistory, *this);
 
 	// Done
 	fclose(pFile);
@@ -2406,6 +3164,13 @@ void PVRTModelPODDataShred(CPODData &data, const unsigned int nCnt, const unsign
 
 	// Allocate output memory
 	data.nStride = (unsigned int)PVRTModelPODDataStride(data);
+
+	if(data.nStride == 0)
+	{
+		FREE(data.pData);
+		return;
+	}
+
 	data.pData = (unsigned char*)malloc(data.nStride * nCnt);
 
 	for(i = 0; i < nCnt; ++i)
@@ -2616,11 +3381,10 @@ void PVRTModelPODToggleStrips(SPODMesh &mesh)
 	{
 		unsigned int nListIdxCnt, nStripIdxCnt;
 
-		/*
-			Convert to list
-		*/
+		//	Convert to list
 		nListIdxCnt		= 0;
 		nStripIdxCnt	= 0;
+
 		for(unsigned int i = 0; i < mesh.nNumStrips; ++i)
 		{
 			for(unsigned int j = 0; j < mesh.pnStripLength[i]; ++j)
@@ -2669,67 +3433,84 @@ void PVRTModelPODToggleStrips(SPODMesh &mesh)
 	else
 	{
 		int		nIdxCnt;
+		int		nBatchCnt;
 		unsigned int n0, n1, n2;
-		unsigned int p0, p1, p2;
+		unsigned int p0, p1, p2, nFaces;
+		unsigned char* pFaces;
 
-		/*
-			Convert to strips
-		*/
+		//	Convert to strips
 		mesh.pnStripLength	= (unsigned int*)calloc(mesh.nNumFaces, sizeof(*mesh.pnStripLength));
 		mesh.nNumStrips		= 0;
 		nIdxCnt				= 0;
+		nBatchCnt			= mesh.sBoneBatches.nBatchCnt ? mesh.sBoneBatches.nBatchCnt : 1;
 
-		n0 = 0;
-		n1 = 0;
-		n2 = 0;
-
-		for(unsigned int i = 0; i < mesh.nNumFaces; ++i)
+		for(int h = 0; h < nBatchCnt; ++h)
 		{
-			p0 = n0;
-			p1 = n1;
-			p2 = n2;
+			n0 = 0;
+			n1 = 0;
+			n2 = 0;
 
-			PVRTVertexRead(&n0, (char*)old.pData + (3 * i + 0) * old.nStride, old.eType);
-			PVRTVertexRead(&n1, (char*)old.pData + (3 * i + 1) * old.nStride, old.eType);
-			PVRTVertexRead(&n2, (char*)old.pData + (3 * i + 2) * old.nStride, old.eType);
-
-			if(mesh.pnStripLength[mesh.nNumStrips])
+			if(!mesh.sBoneBatches.nBatchCnt)
 			{
-				if(mesh.pnStripLength[mesh.nNumStrips] & 0x01)
-				{
-					if(p1 == n1 && p2 == n0)
-					{
-						PVRTVertexWrite((char*)mesh.sFaces.pData + nIdxCnt * mesh.sFaces.nStride, mesh.sFaces.eType, n2);
-						++nIdxCnt;
-						mesh.pnStripLength[mesh.nNumStrips] += 1;
-						continue;
-					}
-				}
+				nFaces = mesh.nNumFaces;
+				pFaces = old.pData;
+			}
+			else
+			{
+				if(h + 1 < mesh.sBoneBatches.nBatchCnt)
+					nFaces = mesh.sBoneBatches.pnBatchOffset[h+1] - mesh.sBoneBatches.pnBatchOffset[h];
 				else
-				{
-					if(p2 == n1 && p0 == n0)
-					{
-						PVRTVertexWrite((char*)mesh.sFaces.pData + nIdxCnt * mesh.sFaces.nStride, mesh.sFaces.eType, n2);
-						++nIdxCnt;
-						mesh.pnStripLength[mesh.nNumStrips] += 1;
-						continue;
-					}
-				}
+					nFaces = mesh.nNumFaces - mesh.sBoneBatches.pnBatchOffset[h];
 
-				++mesh.nNumStrips;
+				pFaces = &old.pData[3 * mesh.sBoneBatches.pnBatchOffset[h] * old.nStride];
 			}
 
-			/*
-				Start of strip, copy entire triangle
-			*/
-			PVRTVertexWrite((char*)mesh.sFaces.pData + nIdxCnt * mesh.sFaces.nStride, mesh.sFaces.eType, n0);
-			++nIdxCnt;
-			PVRTVertexWrite((char*)mesh.sFaces.pData + nIdxCnt * mesh.sFaces.nStride, mesh.sFaces.eType, n1);
-			++nIdxCnt;
-			PVRTVertexWrite((char*)mesh.sFaces.pData + nIdxCnt * mesh.sFaces.nStride, mesh.sFaces.eType, n2);
-			++nIdxCnt;
+			for(unsigned int i = 0; i < nFaces; ++i)
+			{
+				p0 = n0;
+				p1 = n1;
+				p2 = n2;
 
-			mesh.pnStripLength[mesh.nNumStrips] += 1;
+				PVRTVertexRead(&n0, (char*)pFaces + (3 * i + 0) * old.nStride, old.eType);
+				PVRTVertexRead(&n1, (char*)pFaces + (3 * i + 1) * old.nStride, old.eType);
+				PVRTVertexRead(&n2, (char*)pFaces + (3 * i + 2) * old.nStride, old.eType);
+
+				if(mesh.pnStripLength[mesh.nNumStrips])
+				{
+					if(mesh.pnStripLength[mesh.nNumStrips] & 0x01)
+					{
+						if(p1 == n1 && p2 == n0)
+						{
+							PVRTVertexWrite((char*)mesh.sFaces.pData + nIdxCnt * mesh.sFaces.nStride, mesh.sFaces.eType, n2);
+							++nIdxCnt;
+							mesh.pnStripLength[mesh.nNumStrips] += 1;
+							continue;
+						}
+					}
+					else
+					{
+						if(p2 == n1 && p0 == n0)
+						{
+							PVRTVertexWrite((char*)mesh.sFaces.pData + nIdxCnt * mesh.sFaces.nStride, mesh.sFaces.eType, n2);
+							++nIdxCnt;
+							mesh.pnStripLength[mesh.nNumStrips] += 1;
+							continue;
+						}
+					}
+
+					++mesh.nNumStrips;
+				}
+
+				//	Start of strip, copy entire triangle
+				PVRTVertexWrite((char*)mesh.sFaces.pData + nIdxCnt * mesh.sFaces.nStride, mesh.sFaces.eType, n0);
+				++nIdxCnt;
+				PVRTVertexWrite((char*)mesh.sFaces.pData + nIdxCnt * mesh.sFaces.nStride, mesh.sFaces.eType, n1);
+				++nIdxCnt;
+				PVRTVertexWrite((char*)mesh.sFaces.pData + nIdxCnt * mesh.sFaces.nStride, mesh.sFaces.eType, n2);
+				++nIdxCnt;
+
+				mesh.pnStripLength[mesh.nNumStrips] += 1;
+			}
 		}
 
 		if(mesh.pnStripLength[mesh.nNumStrips])
@@ -2809,6 +3590,11 @@ void PVRTModelPODToggleFixedPoint(SPODScene &s)
 		for(i = 0; i < s.nNumLight; ++i)
 		{
 			FixedToFloat((float*)&s.pLight[i].pfColour, (int*)&s.pLight[i].pfColour, 3);
+			FixedToFloat((float*)&s.pLight[i].fConstantAttenuation, (int*)&s.pLight[i].fConstantAttenuation, 1);
+			FixedToFloat((float*)&s.pLight[i].fLinearAttenuation,	(int*)&s.pLight[i].fLinearAttenuation, 1);
+			FixedToFloat((float*)&s.pLight[i].fQuadraticAttenuation,(int*)&s.pLight[i].fQuadraticAttenuation, 1);
+			FixedToFloat((float*)&s.pLight[i].fFalloffAngle,		(int*)&s.pLight[i].fFalloffAngle, 1);
+			FixedToFloat((float*)&s.pLight[i].fFalloffExponent,		(int*)&s.pLight[i].fFalloffExponent, 1);
 		}
 
 		for(i = 0; i < s.nNumNode; ++i)
@@ -2854,6 +3640,11 @@ void PVRTModelPODToggleFixedPoint(SPODScene &s)
 		for(i = 0; i < s.nNumLight; ++i)
 		{
 			FloatToFixed((int*)&s.pLight[i].pfColour, (float*)&s.pLight[i].pfColour, 3);
+			FloatToFixed((int*)&s.pLight[i].fConstantAttenuation, (float*)&s.pLight[i].fConstantAttenuation, 1);
+			FloatToFixed((int*)&s.pLight[i].fLinearAttenuation,	(float*)&s.pLight[i].fLinearAttenuation, 1);
+			FloatToFixed((int*)&s.pLight[i].fQuadraticAttenuation,(float*)&s.pLight[i].fQuadraticAttenuation, 1);
+			FloatToFixed((int*)&s.pLight[i].fFalloffAngle,		(float*)&s.pLight[i].fFalloffAngle, 1);
+			FloatToFixed((int*)&s.pLight[i].fFalloffExponent,		(float*)&s.pLight[i].fFalloffExponent, 1);
 		}
 
 		for(i = 0; i < s.nNumNode; ++i)
@@ -2886,139 +3677,6 @@ void PVRTModelPODToggleFixedPoint(SPODScene &s)
 
 	// Done
 	s.nFlags ^= PVRTMODELPODSF_FIXED;
-}
-
-/*!***************************************************************************
- @Function		ToggleCPODDataEndianness
- @Modified		Target The pod data
- @Input			ui32No Number of vertices
- @Modified		pInterleaved The pod scenes interleaved data
- @Description	Modify the endianness of Target and pInterleaved
-*****************************************************************************/
-void ToggleCPODDataEndianness(CPODData &Target, unsigned int ui32No, unsigned char* pInterleaved)
-{
-	size_t ui32Size = PVRTModelPODDataTypeSize(Target.eType);
-
-	if(Target.n > 0 && ui32Size > 1)
-	{
-		if(!pInterleaved && Target.pData)
-		{
-
-			for(unsigned int i = 0; i < ui32Size * Target.n * ui32No; i += (unsigned int) ui32Size)
-				PVRTByteSwap(&Target.pData[i], (int) ui32Size);
-
-		}
-		else if(pInterleaved) // Toggle data in array
-		{
-			unsigned char* pData = pInterleaved + (size_t) Target.pData;
-
-			while(ui32No > 0)
-			{
-				for(unsigned int i = 0; i < ui32Size * Target.n; i += (unsigned int) ui32Size)
-				{
-					PVRTByteSwap(&pData[i], (int) ui32Size);
-				}
-
-				pData += Target.nStride;
-
-				--ui32No;
-			}
-		}
-	}
-}
-
-/*!***************************************************************************
- @Function		PVRTModelPODToggleEndianness
- @Modified		scene
- @Description	Modify the endianness of the scene
-*****************************************************************************/
-void PVRTModelPODToggleEndianness(SPODScene &scene)
-{
-	unsigned int i,j;
-
-	// Nodes
-	for(i = 0; i < scene.nNumNode; ++i)
-	{
-		unsigned int i32Size;
-
-		i32Size = scene.pNode[i].nAnimFlags & ePODHasPositionAni ? scene.nNumFrame : 1;
-
-		if(scene.pNode[i].pfAnimPosition)
-		{
-			for(j = 0; j < i32Size * 3; ++j)
-				PVRTByteSwap((unsigned char*) &scene.pNode[i].pfAnimPosition[j], sizeof(*scene.pNode[i].pfAnimPosition));
-		}
-
-		i32Size = scene.pNode[i].nAnimFlags & ePODHasRotationAni ? scene.nNumFrame : 1;
-
-		if(scene.pNode[i].pfAnimRotation)
-		{
-			for(j = 0; j < i32Size * 4; ++j)
-				PVRTByteSwap((unsigned char*) &scene.pNode[i].pfAnimRotation[j], sizeof(*scene.pNode[i].pfAnimRotation));
-		}
-
-		i32Size = scene.pNode[i].nAnimFlags & ePODHasScaleAni ? scene.nNumFrame : 1;
-
-		if(scene.pNode[i].pfAnimScale)
-		{
-			for(j = 0; j < i32Size * 7; ++j)
-				PVRTByteSwap((unsigned char*) &scene.pNode[i].pfAnimScale[j], sizeof(*scene.pNode[i].pfAnimScale));
-		}
-
-		i32Size = scene.pNode[i].nAnimFlags & ePODHasMatrixAni ? scene.nNumFrame : 1;
-
-		if(scene.pNode[i].pfAnimMatrix)
-		{
-			for(j = 0; j < i32Size * 16; ++j)
-				PVRTByteSwap((unsigned char*) &scene.pNode[i].pfAnimMatrix[j], sizeof(*scene.pNode[i].pfAnimMatrix));
-		}
-	}
-
-	// Meshes
-	for(i = 0; i < scene.nNumMesh; ++i)
-	{
-		// Face data
-		ToggleCPODDataEndianness(scene.pMesh[i].sFaces, scene.pMesh[i].nNumFaces * 3, 0);
-
-		// Vertex data
-		ToggleCPODDataEndianness(scene.pMesh[i].sVertex	    , scene.pMesh[i].nNumVertex, scene.pMesh[i].pInterleaved);
-		ToggleCPODDataEndianness(scene.pMesh[i].sNormals	, scene.pMesh[i].nNumVertex, scene.pMesh[i].pInterleaved);
-		ToggleCPODDataEndianness(scene.pMesh[i].sTangents	, scene.pMesh[i].nNumVertex, scene.pMesh[i].pInterleaved);
-		ToggleCPODDataEndianness(scene.pMesh[i].sBinormals  , scene.pMesh[i].nNumVertex, scene.pMesh[i].pInterleaved);
-		ToggleCPODDataEndianness(scene.pMesh[i].sVtxColours	, scene.pMesh[i].nNumVertex, scene.pMesh[i].pInterleaved);
-		ToggleCPODDataEndianness(scene.pMesh[i].sBoneIdx	, scene.pMesh[i].nNumVertex, scene.pMesh[i].pInterleaved);
-		ToggleCPODDataEndianness(scene.pMesh[i].sBoneWeight	, scene.pMesh[i].nNumVertex, scene.pMesh[i].pInterleaved);
-
-		for(j = 0; j < scene.pMesh[i].nNumUVW; ++j)
-			ToggleCPODDataEndianness(scene.pMesh[i].psUVW[j], scene.pMesh[i].nNumVertex, scene.pMesh[i].pInterleaved);
-
-		if(scene.pMesh[i].pnStripLength)
-		{
-			for(j = 0; j < scene.pMesh[i].nNumFaces; ++j)
-				PVRTByteSwap((unsigned char*) &scene.pMesh[i].pnStripLength[j], sizeof(*scene.pMesh[i].pnStripLength));
-		}
-
-		for(j = 0; j < (unsigned int) scene.pMesh[i].sBoneBatches.nBatchCnt; ++j)
-		{
-			PVRTByteSwap((unsigned char*) &scene.pMesh[i].sBoneBatches.pnBatchBoneCnt[j], sizeof(*scene.pMesh[i].sBoneBatches.pnBatchBoneCnt));
-			PVRTByteSwap((unsigned char*) &scene.pMesh[i].sBoneBatches.pnBatchOffset[j], sizeof(*scene.pMesh[i].sBoneBatches.pnBatchOffset));
-		}
-
-		for(j = 0; j < (unsigned int) scene.pMesh[i].sBoneBatches.nBatchCnt * scene.pMesh[i].sBoneBatches.nBatchBoneMax; ++j)
-			PVRTByteSwap((unsigned char*) &scene.pMesh[i].sBoneBatches.pnBatches[j], sizeof(*scene.pMesh[i].sBoneBatches.pnBatches));
-	}
-
-	// Cameras
-	for(i = 0; i < scene.nNumCamera; ++i)
-	{
-		if(scene.pCamera[i].pfAnimFOV)
-		{
-			for(j = 0; j < sizeof(*scene.pCamera[i].pfAnimFOV) * scene.nNumFrame; ++i)
-				PVRTByteSwap((unsigned char*) &scene.pCamera[i].pfAnimFOV[i], sizeof(*scene.pCamera[i].pfAnimFOV));
-		}
-	}
-
-	scene.bBigEndian = !scene.bBigEndian;
 }
 
 /*****************************************************************************
