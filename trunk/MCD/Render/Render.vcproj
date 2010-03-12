@@ -302,10 +302,6 @@
 				>
 			</File>
 			<File
-				RelativePath=".\ModelPod.h"
-				>
-			</File>
-			<File
 				RelativePath=".\OgreMeshLoader.h"
 				>
 			</File>
@@ -484,10 +480,6 @@
 			</File>
 			<File
 				RelativePath=".\Model.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\ModelPod.cpp"
 				>
 			</File>
 			<File

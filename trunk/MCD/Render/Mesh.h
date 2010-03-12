@@ -10,6 +10,7 @@ namespace MCD {
 
 typedef IntrusivePtr<class Mesh> MeshPtr;
 
+// TODO: Refactor it by referencing the design of SPODMesh in the PowerVR SDK, and see if it fits DirectX too.
 /*!	Represent an indexed triangle mesh.
 	\note Since we use uint16_t to store index data, therefore a single Mesh instance cannot
 		stores more than 65536 vertices.
@@ -88,7 +89,7 @@ public:
 	Handles handles;
 	size_t bufferCount;		//!< Number of elements in handles
 
-	//!	Get the size in byte of a particular buffer.
+	//!	Get the size in byte of a particular buffer, it calculates base on an attribute's stride.
 	size_t bufferSize(size_t bufferIndex) const;
 
 	typedef Array<Attribute, cMaxAttributeCount> Attributes;

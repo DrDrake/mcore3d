@@ -10,6 +10,7 @@ namespace MCD {
 class IResourceManager;
 typedef IntrusiveWeakPtr<class Entity> EntityPtr;
 
+//!	Deprecated. It is going to be replaced by something like "EntityPrototypeLoaderComponent"
 class MCD_COMPONENT_API EntityPrototypeLoader : public IResourceLoader, private Noncopyable
 {
 public:

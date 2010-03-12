@@ -24,14 +24,13 @@ size_t Mesh::bufferSize(size_t bufferIndex) const
 	if(bufferIndex >= bufferCount)
 		return 0;
 
-	size_t sum = 0;
 	for(size_t i=0; i<attributeCount; ++i) {
 		if(attributes[i].bufferIndex != bufferIndex)
 			continue;
-		sum += attributes[i].elementCount * attributes[i].elementSize;
+		return attributes[i].stride * (bufferIndex == 0 ? indexCount : vertexCount);
 	}
 
-	return sum * (bufferIndex == 0 ? indexCount : vertexCount);
+	return 0;
 }
 
 static void bindUv(int unit, const Mesh::Attribute& a, const Mesh::Handles& handles)
@@ -326,8 +325,10 @@ bool commitMesh(const MeshBuilder& builder, Mesh& mesh, Mesh::StorageHint storag
 		const GLenum verOrIdxBuf = i == 0 ? GL_ELEMENT_ARRAY_BUFFER : GL_ARRAY_BUFFER;
 		glBindBuffer(verOrIdxBuf, *handle);
 		size_t sizeInByte;
-		if(const char* data = builder.getBufferPointer(i, nullptr, &sizeInByte))
+		if(const char* data = builder.getBufferPointer(i, nullptr, &sizeInByte)) {
+			MCD_ASSERT(sizeInByte == mesh.bufferSize(i));
 			glBufferData(verOrIdxBuf, sizeInByte, data, storageHint);
+		}
 	}
 
 	return true;
