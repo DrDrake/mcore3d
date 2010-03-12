@@ -323,7 +323,6 @@ LauncherDefaultResourceManager::LauncherDefaultResourceManager(IFileSystem& file
 	addFactory(new JpegLoaderFactory);
 	addFactory(new Max3dsLoaderFactory(*this));
 	addFactory(new OggLoaderFactory);
-	addFactory(new PodLoaderFactory(*this));
 	addFactory(new PixelShaderLoaderFactory);
 	addFactory(new PngLoaderFactory);
 	addFactory(new TgaLoaderFactory);

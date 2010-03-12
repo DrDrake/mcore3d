@@ -4,7 +4,7 @@
 #include "../../MCD/Render/ChamferBox.h"
 #include "../../MCD/Render/Effect.h"
 #include "../../MCD/Render/Mesh.h"
-#include "../../MCD/Component/Render/EntityPrototypeLoader.h"
+#include "../../MCD/Core/Entity/Entity.h"
 #include "../../MCD/Component/Render/MeshComponent.h"
 
 using namespace MCD;
@@ -19,13 +19,6 @@ public:
 		BasicGlWindow(L"title=MeshComponentTest;width=800;height=600;fullscreen=0;FSAA=4"),
 		mResourceManager(*createDefaultFileSystem())
 	{
-		// Override the default loader of *.3ds file
-		mResourceManager.addFactory(new EntityPrototypeLoaderFactory(mResourceManager));
-
-		const wchar_t* filepath = L"Scene/City/scene.3ds";
-
-		EntityPrototypeLoader::addEntityAfterLoad(&mRootNode, mResourceManager, filepath);
-
 		std::auto_ptr<Entity> group1(new Entity);
 		{	// Setup entity 1
 			std::auto_ptr<Entity> e(new Entity);
@@ -67,14 +60,16 @@ public:
 			e.release();
 		}
 
-		group1->localTransform.setTranslation(Vec3f(0, 11, 0));
+		group1->localTransform.setTranslation(Vec3f(0, 2, 0));
 		group1->asChildOf(&mRootNode);
 
 		// Clone a copy of group1
 		std::auto_ptr<Entity> group2(group1->clone());
 
-		group2->localTransform.setTranslation(Vec3f(0, 9, 0));
+		group2->localTransform.setTranslation(Vec3f(0, 0, 0));
 		group2->asChildOf(&mRootNode);
+
+		mRootNode.localTransform.setTranslation(Vec3f(0, 0, -10));
 
 		// Remember to release the auto_ptr :-)
 		group1.release();
@@ -83,11 +78,7 @@ public:
 
 	sal_override void update(float deltaTime)
 	{
-		GLfloat lightPos[] = { 200, 200, 200, 1.0f };
-		glLightfv(GL_LIGHT0, GL_POSITION, lightPos);
 		mResourceManager.processLoadingEvents();
-
-		mRootNode.localTransform.setTranslation(Vec3f(0, 10, 0));
 		RenderableComponent::traverseEntities(&mRootNode);
 	}
 

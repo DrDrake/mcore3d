@@ -99,7 +99,6 @@ void DefaultResourceManager::setupFactories()
 	addFactory(new Max3dsLoaderFactory(*this));
 	addFactory(new MeshLoaderFactory);
 	addFactory(new OgreMeshLoaderFactory(*this));
-	addFactory(new PodLoaderFactory(*this));
 	addFactory(new PixelShaderLoaderFactory);
 	addFactory(new PngLoaderFactory);
 	addFactory(new SkeletonLoaderFactory);

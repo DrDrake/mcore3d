@@ -101,17 +101,6 @@ public:
 	sal_override IResourceLoader* createLoader();
 };	// PngLoaderFactory
 
-class MCD_RENDER_API PodLoaderFactory : public ResourceManager::IFactory
-{
-public:
-	PodLoaderFactory(IResourceManager& resourceManager);
-	sal_override ResourcePtr createResource(const Path& fileId, const wchar_t* args);
-	sal_override IResourceLoader* createLoader();
-
-private:
-	IResourceManager& mResourceManager;
-};	// PodLoaderFactory
-
 class MCD_RENDER_API SkeletonLoaderFactory : public ResourceManager::IFactory
 {
 public:

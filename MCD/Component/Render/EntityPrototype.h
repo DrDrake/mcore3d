@@ -9,15 +9,17 @@ namespace MCD {
 
 class IResourceManager;
 
+// TODO: Move this class to system since it is not render specific.
 class MCD_COMPONENT_API EntityPrototype : public Resource
 {
 public:
 	explicit EntityPrototype(const Path& fileId);
 
-	sal_override ~EntityPrototype();
-
 	//! When an EntityPrototype is loaded, \em entity is not be NULL
 	std::auto_ptr<Entity> entity;
+
+protected:
+	sal_override ~EntityPrototype();
 };	// EntityPrototype
 
 typedef IntrusivePtr<EntityPrototype> EntityPrototypePtr;

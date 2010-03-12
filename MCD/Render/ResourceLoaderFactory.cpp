@@ -10,7 +10,6 @@
 #include "Mesh.h"
 #include "MeshLoader.h"
 #include "Model.h"
-#include "ModelPod.h"
 #include "OgreMeshLoader.h"
 #include "PngLoader.h"
 #include "Shader.h"
@@ -186,23 +185,6 @@ ResourcePtr PngLoaderFactory::createResource(const Path& fileId, const wchar_t* 
 IResourceLoader* PngLoaderFactory::createLoader()
 {
 	return new PngLoader;
-}
-
-PodLoaderFactory::PodLoaderFactory(IResourceManager& resourceManager)
-	: mResourceManager(resourceManager)
-{
-}
-
-ResourcePtr PodLoaderFactory::createResource(const Path& fileId, const wchar_t* args)
-{
-	if(wstrCaseCmp(fileId.getExtension().c_str(), L"pod") == 0)
-		return new ModelPod(fileId);
-	return nullptr;
-}
-
-IResourceLoader* PodLoaderFactory::createLoader()
-{
-	return new PodLoader(&mResourceManager);
 }
 
 ResourcePtr SkeletonLoaderFactory::createResource(const Path& fileId, const wchar_t* args)
