@@ -13,6 +13,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Launcher", "Launcher.vcproj
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Audio", "..\MCD\Audio\Audio.vcproj", "{5570494C-4F2D-4C2B-956A-E1804C73C524}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Loader", "..\MCD\Loader\Loader.vcproj", "{393AC843-B488-4E7F-BFA3-8E5C6F7352FD}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Analysis|Win32 = Analysis|Win32
@@ -56,6 +58,12 @@ Global
 		{5570494C-4F2D-4C2B-956A-E1804C73C524}.Debug|Win32.Build.0 = Debug|Win32
 		{5570494C-4F2D-4C2B-956A-E1804C73C524}.Release|Win32.ActiveCfg = Release|Win32
 		{5570494C-4F2D-4C2B-956A-E1804C73C524}.Release|Win32.Build.0 = Release|Win32
+		{393AC843-B488-4E7F-BFA3-8E5C6F7352FD}.Analysis|Win32.ActiveCfg = Analysis|Win32
+		{393AC843-B488-4E7F-BFA3-8E5C6F7352FD}.Analysis|Win32.Build.0 = Analysis|Win32
+		{393AC843-B488-4E7F-BFA3-8E5C6F7352FD}.Debug|Win32.ActiveCfg = Debug|Win32
+		{393AC843-B488-4E7F-BFA3-8E5C6F7352FD}.Debug|Win32.Build.0 = Debug|Win32
+		{393AC843-B488-4E7F-BFA3-8E5C6F7352FD}.Release|Win32.ActiveCfg = Release|Win32
+		{393AC843-B488-4E7F-BFA3-8E5C6F7352FD}.Release|Win32.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
