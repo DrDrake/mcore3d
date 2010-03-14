@@ -6,6 +6,7 @@
 #include "RenderComponent.h"
 #include "System.h"
 #include "../Audio/ResourceLoaderFactory.h"
+#include "../Component/PrefabLoaderComponent.h"
 #include "../Component/Audio/AudioSourceComponent.h"
 #include "../Component/Physics/RigidBodyComponent.h"
 #include "../Component/Render/AnimationComponent.h"
@@ -16,6 +17,7 @@
 #include "../Core/System/Resource.h"
 #include "../Core/System/ResourceLoader.h"
 #include "../Core/System/ThreadedCpuProfiler.h"
+#include "../Loader/PodLoader.h"
 #include "../Render/ResourceLoaderFactory.h"
 #include "../../3Party/jkbind/Declarator.h"
 
@@ -58,6 +60,7 @@ SCRIPT_CLASS_REGISTER_NAME(Launcher, "MainWindow")
 	.enableGetset()
 	.method<objNoCare>(L"_getrootEntity", &Launcher::rootNode)
 	.method(L"loadEntity", &Launcher::loadEntity)
+	.method(L"loadEntity2", &Launcher::loadEntity2)
 	.method<objNoCare>(L"_getinputComponent", &Launcher::inputComponent)
 	.method<objNoCare>(L"_getresourceManager", &Launcher::resourceManager)
 	.method<objNoCare>(L"_getdynamicsWorld", &Launcher::dynamicsWorld)
@@ -164,6 +167,10 @@ bool Launcher::init(InputComponent& inputComponent, Entity* rootNode)
 		L"	return gLauncher.loadEntity(filePath, false);\n"
 		L"}\n"
 
+		L"function loadEntity2(filePath, loadOptions={}) {\n"
+		L"	return gLauncher.loadEntity2(filePath);\n"
+		L"}\n"
+
 		L"resourceManager <- gLauncher.resourceManager;\n"
 
 		// TODO: Use named parameter to pass blocking and priority options
@@ -267,6 +274,11 @@ Entity* Launcher::loadEntity(const wchar_t* filePath, bool createCollisionMesh)
 	return e.release();
 }
 
+Entity* Launcher::loadEntity2(const wchar_t* filePath)
+{
+	return PrefabLoaderComponent::loadEntity(*mResourceManager, filePath, false);
+}
+
 void Launcher::update()
 {
 	MemoryProfiler::Scope memProfiler("Launcher::update");
@@ -327,6 +339,7 @@ LauncherDefaultResourceManager::LauncherDefaultResourceManager(IFileSystem& file
 	addFactory(new OggLoaderFactory);
 	addFactory(new PixelShaderLoaderFactory);
 	addFactory(new PngLoaderFactory);
+	addFactory(new PodLoaderFactory(*this));
 	addFactory(new TgaLoaderFactory);
 	addFactory(new VertexShaderLoaderFactory);
 	addFactory(new Max3dsLoaderFactory(*this));
