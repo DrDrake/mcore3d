@@ -53,6 +53,7 @@ public:
 
 TEST(PrefabLoaderComponentTest)
 {
+
 class TestWindow : public BasicGlWindow
 {
 public:

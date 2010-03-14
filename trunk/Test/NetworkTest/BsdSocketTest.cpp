@@ -33,7 +33,7 @@ struct SimpleConnector : public MCD::Thread::IRunnable
 
 	sal_override void run(Thread& thread) throw() {
 		BsdSocket s;
-		s.create(BsdSocket::TCP);
+		MCD_VERIFY(s.create(BsdSocket::TCP));
 		bool connected = false;
 		while(thread.keepRun()) {
 			connected = s.connect(endPoint) == 0;
@@ -59,7 +59,7 @@ TEST_FIXTURE(BsdSocketTestFixture, BlockingAcceptAndConnect)
 	Thread thread(connector, false);
 
 	BsdSocket s2;
-	s1.accept(s2);
+	CHECK(s1.accept(s2) == 0);
 
 	thread.wait();
 }
@@ -72,7 +72,7 @@ TEST_FIXTURE(BsdSocketTestFixture, NonBlockingAccept)
 	CHECK_EQUAL(0, s1.listen());
 
 	BsdSocket s2;
-	s1.setBlocking(false);
+	CHECK(s1.setBlocking(false) == 0);
 	CHECK(BsdSocket::inProgress(s1.accept(s2)));
 	CHECK(BsdSocket::inProgress(s1.lastError));
 
