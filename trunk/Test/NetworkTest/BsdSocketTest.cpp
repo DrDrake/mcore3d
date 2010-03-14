@@ -33,7 +33,7 @@ struct SimpleConnector : public MCD::Thread::IRunnable
 
 	sal_override void run(Thread& thread) throw() {
 		BsdSocket s;
-		MCD_VERIFY(s.create(BsdSocket::TCP));
+		MCD_VERIFY(s.create(BsdSocket::TCP) == 0);
 		bool connected = false;
 		while(thread.keepRun()) {
 			connected = s.connect(endPoint) == 0;

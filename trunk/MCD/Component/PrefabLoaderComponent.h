@@ -26,6 +26,8 @@ public:
 // Operations
 	sal_override void update(float dt);
 
+	void reload();
+
 	//!	Client code responsible for ownership of the returning Entity.
 	static sal_maybenull Entity* loadEntity(IResourceManager& resourceManager, const wchar_t* filePath, bool createCollisionMesh);
 

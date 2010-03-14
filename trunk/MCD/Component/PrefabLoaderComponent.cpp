@@ -29,9 +29,9 @@ void PrefabLoaderComponent::update(float dt)
 	if(!prefab->entity.get())
 		return;
 
-	// Assume child nodes mean loaded
-	if(e->firstChild())
-		return;
+	// Remove all existing child nodes first
+	while(Entity* child = e->firstChild())
+		child->destroyThis();
 
 	// Clone the Entity tree from the prefab
 	for(Entity* i=prefab->entity->firstChild(); i; i = i->nextSibling()) {
@@ -43,6 +43,10 @@ void PrefabLoaderComponent::update(float dt)
 	mLoaded = true;
 
 	// TODO: Should PrefabLoaderComponent remove itself?
+}
+
+void PrefabLoaderComponent::reload() {
+	mLoaded = false;
 }
 
 bool PrefabLoaderComponent::isLoaded() const {
