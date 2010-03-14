@@ -242,6 +242,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\Component.h"
+				>
+			</File>
+			<File
 				RelativePath=".\ComponentQueue.h"
 				>
 			</File>
@@ -304,6 +308,10 @@
 			</File>
 			<File
 				RelativePath=".\Binding.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\Component.cpp"
 				>
 			</File>
 			<File

@@ -12,6 +12,11 @@ class IResourceManager;
 
 /*!	Loader for PowerVR's .pod file format.
 	\sa http://www.imgtec.com/powervr/insider/powervr-pvrgeopod.asp
+
+	\note The max pod exporter plugin didn't handle multi-material, therefore it is
+		best to split the mesh with multi-material into multiple mesh first.
+		There is a max script (for Max 9) to do that:
+		http://www.scriptspot.com/3ds-max/scripts/detach-by-material-id
  */
 class MCD_LOADER_API PodLoader : public IResourceLoader, private Noncopyable
 {

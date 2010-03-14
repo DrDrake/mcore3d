@@ -91,9 +91,11 @@ Launcher::~Launcher()
 	// because these components use co-routine which have it's own VM. Otherwise the
 	// ScriptOwnershipHandle would refernece an already destroyed VM.
 	// Also make sure the RigidBodyComponent is freed BEFORE the dynamics world...
-	if(mRootNode) while(mRootNode->firstChild())
-		mRootNode->firstChild()->destroyThis();
-	mRootNode->destroyThis();
+	if(mRootNode) {
+		while(Entity* c = mRootNode->firstChild())
+			c->destroyThis();
+		mRootNode->destroyThis();
+	}
 
 	// Give the script engine a chance to do cleanups
 //	scriptComponentManager.updateScriptComponents();

@@ -90,7 +90,7 @@ public:
 			if(!e) return;
 			e = e->nextSibling();
 		}
-		e->destroyThis();
+		Entity::destroy(e);
 	}
 
 	Quaternionf randomQuaternion()

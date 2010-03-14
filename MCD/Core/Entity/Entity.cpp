@@ -413,6 +413,13 @@ void Entity::destroyThis()
 	delete this;
 }
 
+void Entity::destroy(Entity*& entity)
+{
+	if(entity)
+		entity->destroyThis();
+	entity = nullptr;
+}
+
 EntityPreorderIterator::EntityPreorderIterator(Entity* start)
 	: mCurrent(start), mStart(start)
 {}

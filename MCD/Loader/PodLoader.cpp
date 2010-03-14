@@ -146,14 +146,14 @@ IResourceLoader::LoadingState PodLoader::Impl::load(std::istream* is, const Path
 		m->mRenderPasses.push_back(new Material::Pass);
 		m->addProperty(
 			new StandardProperty(
-				ColorRGBAf(0.5f, material.fMatOpacity),
-				ColorRGBAf(1, material.fMatOpacity),
-				ColorRGBAf(0.2f, material.fMatOpacity),
-//				ColorRGBAf(reinterpret_cast<const ColorRGBf&>(*material.pfMatAmbient), material.fMatOpacity),
-//				ColorRGBAf(reinterpret_cast<const ColorRGBf&>(*material.pfMatDiffuse), material.fMatOpacity),
-//				ColorRGBAf(reinterpret_cast<const ColorRGBf&>(*material.pfMatSpecular), material.fMatOpacity),
+//				ColorRGBAf(0.5f, material.fMatOpacity),
+//				ColorRGBAf(1, material.fMatOpacity),
+//				ColorRGBAf(0.2f, material.fMatOpacity),
+				ColorRGBAf(reinterpret_cast<const ColorRGBf&>(*material.pfMatAmbient), material.fMatOpacity),
+				ColorRGBAf(reinterpret_cast<const ColorRGBf&>(*material.pfMatDiffuse), material.fMatOpacity),
+				ColorRGBAf(reinterpret_cast<const ColorRGBf&>(*material.pfMatSpecular), material.fMatOpacity),
 				ColorProperty::ColorOperation::Replace,
-				material.fMatShininess
+				material.fMatShininess * 100	// TODO: There is some problem in the shininess value
 			), 0
 		);
 
@@ -254,9 +254,8 @@ IResourceLoader::LoadingState PodLoader::Impl::load(std::istream* is, const Path
 
 		if(podNode.nIdxParent + 1 >= int(nodeToEntity.size()))
 			continue;
-//			return mLoadingState = Aborted;
 
-		e->asChildOf(nodeToEntity[podNode.nIdxParent + 1].get());	// SPODNode::nIdxParent gives -1 for no parent
+		e->asChildOf(nodeToEntity[podNode.nIdxParent + 1].getNotNull());	// SPODNode::nIdxParent gives -1 for no parent
 
 		{	// Calculate the local matrix
 			PVRTMat4& mat = reinterpret_cast<PVRTMat4&>(e->localTransform);

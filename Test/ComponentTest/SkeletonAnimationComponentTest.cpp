@@ -111,6 +111,12 @@ SkeletonAnimationPtr buildSkeletonAnimation(float totalLength, uint8_t jointCoun
 
 		// Number of tracks = number of joint * attribute count (which is 2 because of translation and rotation)
 		std::vector<size_t> tmp(subtrackCount, frameCount);
+
+		// Use only one frame for translation, since the length of the bone is constant
+		for(size_t i=0; i<subtrackCount; ++i)
+			if(i % 2 == 0)
+				tmp[i] = 1;
+
 		MCD_VERIFY(track->init(StrideArray<const size_t>(&tmp[0], subtrackCount)));
 
 		// Setting up the transform for each joint relative to it's parent joint.
@@ -172,9 +178,10 @@ public:
 		{	// Setup the tube skin mesh
 			MeshPtr mesh = buildCylinder(2, cTubeLength, cTubeSwegmentCount);
 			mBasePoseMesh = new Model(L"BasePose");
-			Model::MeshAndMaterial* mm = new Model::MeshAndMaterial;
+			std::auto_ptr<Model::MeshAndMaterial> mm(new Model::MeshAndMaterial);
 			mm->mesh = mesh;
 			mBasePoseMesh->mMeshes.pushBack(*mm);
+			mm.release();
 		}
 
 		{	// Setup the skeleton animation
@@ -232,7 +239,7 @@ public:
 		{
 			SkinMeshComponent* sm = new SkinMeshComponent();
 			e3->addComponent(sm);
-			sm->init(mResourceManager, *mBasePoseMesh);
+			MCD_VERIFY(sm->init(mResourceManager, *mBasePoseMesh));
 			sm->pose.init(mSkeletonAnimation->skeleton->basePose.jointCount());
 			sm->skeleton = mSkeletonAnimation->skeleton;
 
@@ -269,7 +276,7 @@ public:
 			if(!e) return;
 			e = e->nextSibling();
 		}
-		e->destroyThis();
+		Entity::destroy(e);
 	}
 
 	sal_override void update(float deltaTime)
