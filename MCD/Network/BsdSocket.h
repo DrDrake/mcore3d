@@ -81,14 +81,8 @@ public:
 	void close();
 
 // Attributes
-	//! Check against the socket to see it's valid or not
-	bool isValid() const;
-
 	//! Whether the socket is bound to a specific local port.
 	bool IsBound() const;
-
-	//! Whether the socket is connected to a remote host as of the last Send or Receive operation
-	bool isConnected() const;
 
 	/*!	Gets an IPEndPoint that contains the local IP address and port number to which your socket is bounded
 		Throw if the socket is not bounded
@@ -118,6 +112,9 @@ public:
 
 	//!
 	bool GetSocketErrorCode(int& errorCode) const;
+
+	//!	Check the error code whether it indicating a socket operations is in progress.
+	static bool inProgress(int code);
 
 	const socket_t& fd() const;
 	void setFd(const socket_t& f);
