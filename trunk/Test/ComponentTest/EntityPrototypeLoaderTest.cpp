@@ -2,16 +2,13 @@
 #include "../RenderTest/BasicGlWindow.h"
 #include "../RenderTest/DefaultResourceManager.h"
 #include "../../MCD/Loader/PodLoader.h"
-#include "../../MCD/Render/ChamferBox.h"
-#include "../../MCD/Render/Effect.h"
-#include "../../MCD/Render/Mesh.h"
-#include "../../MCD/Core/Entity/Entity.h"
 #include "../../MCD/Component/Render/EntityPrototype.h"
-#include "../../MCD/Component/Render/MeshComponent.h"
+#include "../../MCD/Component/Render/RenderableComponent.h"
 
 using namespace MCD;
 
-namespace {
+TEST(EntityPrototypeLoaderTest)
+{
 
 class TestWindow : public BasicGlWindow
 {
@@ -22,14 +19,11 @@ public:
 		mResourceManager(*createDefaultFileSystem())
 	{
 		mResourceManager.addFactory(new PodLoaderFactory(mResourceManager));
+
 		const wchar_t* fileId = L"Scene/City/scene.pod";
-//		const wchar_t* fileId = L"Scene/Sponza/scene2.pod";
-//		const wchar_t* fileId = L"Scene/NPC/scene.pod";
-//		const wchar_t* fileId = L"Scene/man.pod";
 		mEntityPrototype = dynamic_cast<EntityPrototype*>(mResourceManager.load(fileId).get());
 
 		mRootNode.localTransform.setScale(Vec3f(0.1f));
-		mRootNode.localTransform.setTranslation(Vec3f(0, 0, -10));
 	}
 
 	sal_override void update(float deltaTime)
@@ -51,10 +45,43 @@ public:
 	DefaultResourceManager mResourceManager;
 };	// TestWindow
 
-}	// namespace
+	TestWindow window;
+	window.mainLoop();
+}
 
-TEST(EntityPrototypeLoaderTest)
+#include "../../MCD/Component/PrefabLoaderComponent.h"
+
+TEST(PrefabLoaderComponentTest)
 {
+class TestWindow : public BasicGlWindow
+{
+public:
+	TestWindow()
+		:
+		BasicGlWindow(L"title=PrefabLoaderComponentTest;width=800;height=600;fullscreen=0;FSAA=4"),
+		mResourceManager(*createDefaultFileSystem())
+	{
+		mResourceManager.addFactory(new PodLoaderFactory(mResourceManager));
+
+		const wchar_t* fileId = L"Scene/City/scene.pod";
+		EntityPtr e = PrefabLoaderComponent::loadEntity(mResourceManager, fileId, false);
+		if(e)
+			e->asChildOf(&mRootNode);
+
+		mRootNode.localTransform.setScale(Vec3f(0.1f));
+	}
+
+	sal_override void update(float deltaTime)
+	{
+		mResourceManager.processLoadingEvents();
+		BehaviourComponent::traverseEntities(&mRootNode, deltaTime);
+		RenderableComponent::traverseEntities(&mRootNode);
+	}
+
+	Entity mRootNode;
+	DefaultResourceManager mResourceManager;
+};	// TestWindow
+
 	TestWindow window;
 	window.mainLoop();
 }

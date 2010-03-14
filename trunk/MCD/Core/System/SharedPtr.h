@@ -100,7 +100,7 @@ public:
 	MCD_IMPLICIT SharedPtr(sal_in_opt T* p)
 		: Super(new Proxy(p)), mPtr(p)
 	{
-		Super::get()->incrementUseCount();
+		Super::getNotNull()->incrementUseCount();
 	}
 
 	//!
@@ -113,13 +113,13 @@ public:
 	SharedPtr(const SharedPtr<U>& rhs)
 		: Super(rhs), mPtr(rhs.get())
 	{
-		Super::get()->incrementUseCount();
+		Super::getNotNull()->incrementUseCount();
 	}
 
 	SharedPtr(const SharedPtr& rhs)
 		: Super(rhs), mPtr(rhs.get())
 	{
-		Super::get()->incrementUseCount();
+		Super::getNotNull()->incrementUseCount();
 	}
 
 	template<typename U>
@@ -131,7 +131,7 @@ public:
 
 	~SharedPtr()
 	{
-		Super::get()->decrementUseCount();
+		Super::getNotNull()->decrementUseCount();
 	}
 
 	SharedPtr& operator=(const SharedPtr& rhs)

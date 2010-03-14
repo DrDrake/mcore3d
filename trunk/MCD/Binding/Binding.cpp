@@ -42,6 +42,7 @@ extern void registerSystemBinding(script::VMCore* v);
 extern void registerMathBinding(script::VMCore* v);
 extern void registerRenderBinding(script::VMCore* v);
 extern void registerEntityBinding(script::VMCore* v);
+extern void registerComponentBinding(script::VMCore* v);
 extern void registerComponentQueueBinding(script::VMCore* v);
 extern void registerAudioComponentBinding(script::VMCore* v);
 extern void registerInputComponentBinding(script::VMCore* v);
@@ -97,6 +98,7 @@ public:
 		registerRenderBinding(&vm);
 		registerEntityBinding(&vm);
 
+		registerComponentBinding(&vm);
 		registerComponentQueueBinding(&vm);
 		registerAudioComponentBinding(&vm);
 		registerInputComponentBinding(&vm);

@@ -132,6 +132,9 @@ public:
 
 	virtual void destroyThis();
 
+	//!	A SAL friendy version of destroyThis().
+	static void destroy(sal_maybenull Entity*& entity);
+
 // Attributes
 	bool enabled;
 

@@ -422,6 +422,14 @@
 			>
 		</File>
 		<File
+			RelativePath=".\PrefabLoaderComponent.cpp"
+			>
+		</File>
+		<File
+			RelativePath=".\PrefabLoaderComponent.h"
+			>
+		</File>
+		<File
 			RelativePath=".\ShareLib.h"
 			>
 		</File>

@@ -162,8 +162,8 @@ TEST(TriMeshPhysicsComponentTest)
 		virtual ~TestWindow()
 		{
 			// Make sure the RigidBodyComponent is freed BEFORE the dynamics world...
-			while(mRootNode.firstChild())
-				mRootNode.firstChild()->destroyThis();
+			while(Entity* child = mRootNode.firstChild())
+				child->destroyThis();
 		}
 	};	// TestWindow
 

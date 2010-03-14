@@ -314,7 +314,7 @@ ResourcePtr ResourceManager::load(const Path& fileId, BlockingMode blockingMode,
 	if(node)
 	{
 		// NOTE: Prevent the resource being deleted in another thread.
-		ScopeLock lock(node->mResource.destructionMutex());
+		ScopeLock lock2(node->mResource.destructionMutex());
 
 		ResourcePtr p = node->mResource.get();
 
@@ -333,8 +333,8 @@ ResourcePtr ResourceManager::load(const Path& fileId, BlockingMode blockingMode,
 				return p;
 		}
 		else {	// Unfortunately, the resource is already deleted
-			lock.mutex().unlock();
-			lock.cancel();
+			lock2.mutex().unlock();
+			lock2.cancel();
 			delete node;
 			node = nullptr;
 		}
