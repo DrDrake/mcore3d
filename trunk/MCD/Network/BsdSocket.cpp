@@ -159,6 +159,11 @@ ssize_t BsdSocket::receive(void* buf, size_t len, int flags)
 	return ret;
 }
 
+bool BsdSocket::inProgress(int code)
+{
+	return code == EINPROGRESS || code == EWOULDBLOCK;
+}
+
 const socket_t& BsdSocket::fd() const {
 	return *reinterpret_cast<const socket_t*>(mFd);
 }

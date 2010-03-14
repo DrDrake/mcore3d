@@ -214,6 +214,10 @@
 			>
 		</File>
 		<File
+			RelativePath=".\IPEndPointTest.cpp"
+			>
+		</File>
+		<File
 			RelativePath=".\Main.cpp"
 			>
 		</File>

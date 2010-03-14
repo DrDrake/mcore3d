@@ -5,7 +5,9 @@
 namespace MCD {
 
 IPEndPoint::IPEndPoint(const IPAddress& address, uint16_t port)
+	: mAddress(address)
 {
+	setPort(port);
 }
 
 bool IPEndPoint::parse(sal_in_z const char* addressAndPort)
@@ -18,7 +20,9 @@ const IPAddress& IPEndPoint::address() const {
 }
 
 void IPEndPoint::setAddress(const IPAddress& address) {
+	uint16_t p = port();
 	mAddress = address;
+	setPort(p);
 }
 
 uint16_t IPEndPoint::port() const {
