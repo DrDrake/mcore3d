@@ -273,6 +273,10 @@
 			RelativePath=".\Pch.h"
 			>
 		</File>
+		<File
+			RelativePath=".\scene.nut"
+			>
+		</File>
 	</Files>
 	<Globals>
 	</Globals>
