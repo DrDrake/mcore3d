@@ -6,6 +6,7 @@
 
 namespace MCD {
 
+class DynamicsWorld;
 class IResourceManager;
 typedef IntrusivePtr<class EntityPrototype> EntityPrototypePtr;
 
@@ -28,8 +29,15 @@ public:
 
 	void reload();
 
-	//!	Client code responsible for ownership of the returning Entity.
-	static sal_maybenull Entity* loadEntity(IResourceManager& resourceManager, const wchar_t* filePath, bool createCollisionMesh);
+	/*!	Client code responsible for ownership of the returning Entity.
+		\param	Static rigid body will be create for all the mesh in the prefab, if a DynamicsWorld is supplied.
+	 */
+	// TODO: Change DynamicsWorld into a component and use weak pointer.
+	static sal_maybenull Entity* loadEntity(
+		IResourceManager& resourceManager,
+		const wchar_t* filePath,
+		sal_in_opt DynamicsWorld* dynamicsWorld=nullptr
+	);
 
 // Attributes
 	EntityPrototypePtr prefab;

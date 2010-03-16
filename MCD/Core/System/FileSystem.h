@@ -21,6 +21,8 @@ namespace MCD {
 
 	Since a stream is not copyable, an auto pointer is returned from OpenRead and
 	OpenWrite. The callee of OpenRead/OpenWrite is then the owner of the stream.
+
+	\sa There is a library that act similar to our IFileSystem: http://icculus.org/physfs/
  */
 class MCD_ABSTRACT_CLASS IFileSystem
 {

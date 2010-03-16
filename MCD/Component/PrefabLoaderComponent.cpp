@@ -1,5 +1,6 @@
 #include "Pch.h"
 #include "PrefabLoaderComponent.h"
+#include "Physics/RigidBodyComponent.h"
 #include "Render/EntityPrototype.h"
 #include "../Core/Entity/Entity.h"
 #include "../Core/System/ResourceManager.h"
@@ -16,6 +17,7 @@ Component* PrefabLoaderComponent::clone() const
 {
 	PrefabLoaderComponent* cloned = new PrefabLoaderComponent();
 	cloned->prefab = prefab;
+	cloned->mLoaded = mLoaded;
 	return cloned;
 }
 
@@ -53,7 +55,7 @@ bool PrefabLoaderComponent::isLoaded() const {
 	return mLoaded;
 }
 
-Entity* PrefabLoaderComponent::loadEntity(IResourceManager& resourceManager, const wchar_t* filePath, bool createCollisionMesh)
+Entity* PrefabLoaderComponent::loadEntity(IResourceManager& resourceManager, const wchar_t* filePath, DynamicsWorld* dynamicsWorld)
 {
 	EntityPrototypePtr prefab = dynamic_cast<EntityPrototype*>(resourceManager.load(filePath).get());
 	if(!prefab)
@@ -66,6 +68,27 @@ Entity* PrefabLoaderComponent::loadEntity(IResourceManager& resourceManager, con
 	PrefabLoaderComponentPtr c = new PrefabLoaderComponent;
 	c->prefab = prefab;
 	e->addComponent(c.get());
+
+	//! A callback that create static physics collision mesh upon loads complete.
+	struct CreatePhysics : public ResourceManagerCallback
+	{
+		sal_override void doCallback()
+		{
+			if(prefab && prefab->entity.get() && dynamicsWorld)
+				createStaticRigidBody(*dynamicsWorld, *prefab->entity);
+		}
+
+		EntityPrototypePtr prefab;
+		DynamicsWorld* dynamicsWorld;
+	};	// CreatePhysics
+
+	if(dynamicsWorld) {
+		CreatePhysics* callback = new CreatePhysics();
+		callback->prefab = prefab;
+		callback->dynamicsWorld = dynamicsWorld;
+		callback->addDependency(filePath);
+		resourceManager.addCallback(callback);
+	}
 
 	return e.get();
 }
