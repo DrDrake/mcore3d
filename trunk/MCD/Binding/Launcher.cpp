@@ -168,7 +168,9 @@ bool Launcher::init(InputComponent& inputComponent, Entity* rootNode)
 		L"}\n"
 
 		L"function loadEntity2(filePath, loadOptions={}) {\n"
-		L"	return gLauncher.loadEntity2(filePath);\n"
+		L"	if(\"createStaticRigidBody\" in loadOptions && loadOptions[\"createStaticRigidBody\"])\n"
+		L"		return gLauncher.loadEntity2(filePath, true);\n"
+		L"	return gLauncher.loadEntity2(filePath, false);\n"
 		L"}\n"
 
 		L"resourceManager <- gLauncher.resourceManager;\n"
@@ -274,9 +276,12 @@ Entity* Launcher::loadEntity(const wchar_t* filePath, bool createCollisionMesh)
 	return e.release();
 }
 
-Entity* Launcher::loadEntity2(const wchar_t* filePath)
+Entity* Launcher::loadEntity2(const wchar_t* filePath, bool createCollisionMesh)
 {
-	return PrefabLoaderComponent::loadEntity(*mResourceManager, filePath, false);
+	Entity* ret = PrefabLoaderComponent::loadEntity(
+		*mResourceManager, filePath, createCollisionMesh ? &mDynamicsWorld : nullptr
+	);
+	return ret ? ret : new Entity();
 }
 
 void Launcher::update()

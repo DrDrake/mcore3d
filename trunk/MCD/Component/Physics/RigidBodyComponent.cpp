@@ -23,12 +23,21 @@ RigidBodyComponent::Impl::~Impl()
 	delete mMotionState;
 }
 
+// This function apply transform to a collision shape, with the care of scaling
+static void setShapeTransform(Mat44f transform, btTransform& tx, btCollisionShape* shape)
+{
+	Vec3f scaling = transform.scale();
+	transform.setScale(Vec3f(1));	// Bullet handles scaling differently from translation and rotation.
+	tx.setFromOpenGLMatrix(transform.transpose().getPtr());
+	shape->setLocalScaling(toBullet(scaling));
+}
+
 void RigidBodyComponent::Impl::onAdd(Entity* e)
 {
-	// TODO: Add some warning if the incomming Entity didn't have an identity wrold transform.
 	MCD_ASSUME(e);
 
-	btTransform tx(btQuaternion(0,0,0,1), toBullet(e->localTransform.translation()));
+	btTransform tx;
+	setShapeTransform(e->worldTransform(), tx, reinterpret_cast<btCollisionShape*>(mShape->shapeImpl));
 
 	mMotionState = new btDefaultMotionState(tx);
 
@@ -36,7 +45,7 @@ void RigidBodyComponent::Impl::onAdd(Entity* e)
 		(btScalar)mMass, mMotionState, reinterpret_cast<btCollisionShape*>(mShape->shapeImpl)
 	);
 
-	// TODO: Assume sphere...
+	// TODO: Assume sphere mass...
 	rbInfo.m_localInertia = btVector3(mMass, mMass, mMass);
 
 	mRigidBody = new btRigidBody(rbInfo);
@@ -44,8 +53,12 @@ void RigidBodyComponent::Impl::onAdd(Entity* e)
 
 void RigidBodyComponent::Impl::update(Entity* e)
 {
-	if(mShape->isStatic())
+	if(mShape->isStatic()) {
+		btTransform tx;
+		setShapeTransform(e->worldTransform(), tx, reinterpret_cast<btCollisionShape*>(mShape->shapeImpl));
+		mRigidBody->setWorldTransform(tx);	// NOTE: We need to set transfrom on mRigidBody but not mMotionState
 		return;
+	}
 
 	// Simple translation of btTransform to MCD Matrix
 	btTransform tx;
