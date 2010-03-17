@@ -65,7 +65,7 @@ void SkeletonAnimation::applyTo(SkeletonPose& pose, int firstJoint, int lastJoin
 	if(firstJoint < 0) firstJoint = 0;
 	if(lastJoint < 0) lastJoint = pose.transforms.size() - 1;
 
-	MCD_ASSERT(firstJoint < lastJoint);
+	MCD_ASSERT(firstJoint <= lastJoint);
 	MCD_ASSERT(lastJoint < int(pose.transforms.size()));
 	MCD_ASSERT(pose.jointCount() == skeleton->parents.size());
 

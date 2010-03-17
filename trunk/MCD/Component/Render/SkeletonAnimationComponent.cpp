@@ -31,10 +31,30 @@ Component* SkeletonAnimationComponent::clone() const
 	if(!animationUpdater)
 		return nullptr;
 	SkeletonAnimationComponent* cloned = new SkeletonAnimationComponent(*animationUpdater);
-	cloned->skinMesh = this->skinMesh;
+	cloned->skinMesh = this->skinMesh;	// This will be re-assigned in postClone()
 	cloned->skeletonAnimation.anim = this->skeletonAnimation.anim;
 	cloned->skeletonAnimation.skeleton = this->skeletonAnimation.skeleton;
 	return cloned;
+}
+
+bool SkeletonAnimationComponent::postClone(const Entity& src, Entity& dest)
+{
+	// Find the Component in the src tree that corresponding to this
+	SkeletonAnimationComponent* srcComponent = dynamic_cast<SkeletonAnimationComponent*>(
+		ComponentPreorderIterator::componentByOffset(src, ComponentPreorderIterator::offsetFrom(dest, *this))
+	);
+
+	if(!srcComponent)
+		return false;
+	if(!srcComponent->skinMesh)
+		return true;
+
+	// Find the Component in the src tree that corresponding to referenceToAnother
+	skinMesh = dynamic_cast<SkinMeshComponent*>(
+		ComponentPreorderIterator::componentByOffset(dest, ComponentPreorderIterator::offsetFrom(src, *srcComponent->skinMesh))
+	);
+
+	return true;
 }
 
 void SkeletonAnimationComponent::update(float dt)

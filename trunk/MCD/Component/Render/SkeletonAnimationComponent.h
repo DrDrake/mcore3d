@@ -34,6 +34,8 @@ public:
 	//!	Clone will fail if the associated SkeletonAnimationUpdaterComponent is already destroyed.
 	sal_override sal_maybenull Component* clone() const;
 
+	sal_override sal_checkreturn bool postClone(const Entity& src, Entity& dest);
+
 // Operations
 	sal_override void update(float dt);
 

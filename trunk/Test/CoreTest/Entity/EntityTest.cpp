@@ -265,6 +265,18 @@ TEST(FindByPath_EntityTest)
 	CHECK(!root.findEntityByPath(L"e11"));
 }
 
+TEST(CommonAncestor_EntityTest)
+{
+	Entity root;
+	createTree(root);
+
+	CHECK_EQUAL(e1, Entity::commonAncestor(*e13, *e11));
+	CHECK_EQUAL(&root, Entity::commonAncestor(*e3, *e11));
+
+	Entity dummy;
+	CHECK(nullptr == Entity::commonAncestor(dummy, *e11));
+}
+
 TEST(GetRelativePath_EntityTest)
 {
 	Entity root;
@@ -411,4 +423,79 @@ TEST(Clone_EntityTest)
 #ifdef MCD_VC
 #	pragma warning(pop)
 #endif
+}
+
+#include "../../../MCD/Core/Entity/BehaviourComponent.h"
+
+// Ensure the reference structure from one component to another is preserved after clone
+TEST(ComponentCrossReference_Clone_EntityTest)
+{
+
+typedef IntrusiveWeakPtr<class MockComponent> MockComponentPtr;
+
+class MockComponent : public BehaviourComponent
+{
+public:
+	sal_override sal_checkreturn bool cloneable() const { return true; }
+
+	sal_override sal_maybenull Component* clone() const { return new MockComponent(); }
+
+	sal_override sal_checkreturn bool postClone(const Entity& src, Entity& dest)
+	{
+		// Find the Component in the src tree that corresponding to this
+		MockComponent* srcComponent = dynamic_cast<MockComponent*>(
+			ComponentPreorderIterator::componentByOffset(src, ComponentPreorderIterator::offsetFrom(dest, *this))
+		);
+
+		if(!srcComponent)
+			return false;
+		if(!srcComponent->referenceToAnother)
+			return true;
+
+		// Find the Component in the src tree that corresponding to referenceToAnother
+		referenceToAnother = dynamic_cast<MockComponent*>(
+			ComponentPreorderIterator::componentByOffset(dest, ComponentPreorderIterator::offsetFrom(src, *srcComponent->referenceToAnother))
+		);
+
+		return true;
+	}
+
+	sal_override void update(float dt) {}
+
+	MockComponentPtr referenceToAnother;
+};	// MockComponent
+
+	Entity root;
+	root.name = L"root";
+
+	EntityPtr e1 = new Entity();
+	e1->asChildOf(&root);
+	MockComponent* c1 = new MockComponent();
+	e1->addComponent(c1);
+
+	EntityPtr e2 = new Entity();
+	e2->asChildOf(&root);
+	MockComponent* c2 = new MockComponent();
+	e2->addComponent(c2);
+
+	c1->referenceToAnother = c2;
+	c2->referenceToAnother = c1;
+
+	// Clone the entity tree
+	EntityPtr cloned = root.clone();
+
+	// Verify that the new cloned tree has the desired component cross-reference.
+	MockComponent *cc1 = nullptr, *cc2 = nullptr;
+	size_t i = 0;
+	for(ComponentPreorderIterator itr(cloned.get()); !itr.ended(); itr.next(), ++i) {
+		if(i == 0) cc1 = dynamic_cast<MockComponent*>(itr.current());
+		if(i == 1) cc2 = dynamic_cast<MockComponent*>(itr.current());
+	}
+
+	if(cc1 && cc2) {
+		CHECK_EQUAL(cc2, cc1->referenceToAnother);
+		CHECK_EQUAL(cc1, cc2->referenceToAnother);
+	}
+	else
+		CHECK(false);
 }
