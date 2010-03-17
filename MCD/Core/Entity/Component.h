@@ -42,6 +42,12 @@ public:
 	 */
 	virtual sal_maybenull Component* clone() const { return nullptr; }
 
+	/*!	After an Entity tree is cloned, a second pass is performed to resolve the
+		inter-dependency between all the components, and then reproduce that dependency
+		on the new cloned tree.
+	 */
+	virtual sal_checkreturn bool postClone(const Entity& src, Entity& dest) { return true; }
+
 	//!	Callback function that will invoked just after the component is added to an Entity.
 	virtual void onAdd();
 
@@ -106,6 +112,12 @@ public:
 
 	//! Returns the next element in the collection, and advances to the next.
 	sal_maybenull Component* next();
+
+	//!	Returns how many preorder iterations should preformed inorder to get component from entity.
+	static sal_checkreturn int offsetFrom(const Entity& entity, Component& component);
+
+	//!	Returns a component identified by an offset from an Entity.
+	static sal_maybenull Component* componentByOffset(const Entity& entity, int offset);
 
 protected:
 	Component* mCurrent;

@@ -67,4 +67,24 @@ Component* ComponentPreorderIterator::next()
 	return mCurrent;
 }
 
+int ComponentPreorderIterator::offsetFrom(const Entity& entity, Component& component)
+{
+	int i = 0;
+	for(ComponentPreorderIterator itr(const_cast<Entity*>(&entity)); !itr.ended(); itr.next(), ++i) {
+		if(itr.current() != &component) continue;
+		return i;
+	}
+	return -1;
+}
+
+Component* ComponentPreorderIterator::componentByOffset(const Entity& entity, int offset)
+{
+	int i = 0;
+	for(ComponentPreorderIterator itr(const_cast<Entity*>(&entity)); !itr.ended(); itr.next(), ++i) {
+		if(i == offset)
+			return itr.current();
+	}
+	return nullptr;
+}
+
 }	// namespace MCD

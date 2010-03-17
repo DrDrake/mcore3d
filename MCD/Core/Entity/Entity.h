@@ -84,6 +84,9 @@ public:
 	//!	Instead of simply returning true or false, the no. of level is returned.
 	size_t isAncestorOf(const Entity& e) const;
 
+	//!	Return the youngest common ancestor of the 2 entities, null if none.
+	static sal_maybenull Entity* commonAncestor(const Entity& e1, const Entity& e2);
+
 	/*!	Return the firstly found Entity along the siblings, with the name supplied.
 		Returns null if none is found.
 	 */
@@ -173,6 +176,9 @@ protected:
 		release the strong script reference.
 	 */
 	void unlink(bool keepScriptStrongReference);
+
+	//!	Helper function for clone().
+	virtual sal_notnull Entity* recursiveClone() const;
 
 	//! Pointer to make the entity hierarchy
 	Entity* mParent, *mFirstChild, *mNextSibling;

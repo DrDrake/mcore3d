@@ -169,6 +169,36 @@ size_t Entity::isAncestorOf(const Entity& e_) const
 	return false;
 }
 
+Entity* Entity::commonAncestor(const Entity& e1, const Entity& e2)
+{
+	int level1 = 0, level2 = 0;
+	for(const Entity* e = &e1; e; e=e->parent())
+		++level1;
+	for(const Entity* e = &e2; e; e=e->parent())
+		++level2;
+
+	size_t commonLevel = level1 < level2 ? level1 : level2;
+
+	const Entity *p1 = &e1, *p2 = &e2;
+
+	for(int i=level1-commonLevel; i--; )
+		p1 = p1->parent();
+	for(int i=level2-commonLevel; i--; )
+		p2 = p2->parent();
+
+	// Go up to the parent until both become the same
+	for(size_t i=commonLevel; i--; ) {
+		if(p1 == p2)
+			return const_cast<Entity*>(p1);
+		MCD_ASSUME(p1);
+		MCD_ASSUME(p2);
+		p1 = p1->parent();
+		p2 = p2->parent();
+	}
+
+	return nullptr;
+}
+
 Entity* Entity::findEntityInSibling(sal_in_z const wchar_t* name) const
 {
 	for(Entity* e=const_cast<Entity*>(this); e; e=e->nextSibling()) {
@@ -222,44 +252,15 @@ std::wstring Entity::getRelativePathFrom(const Entity& from) const
 	const Entity* lcp = nullptr;
 	size_t levelDiff = 0;
 
-	{	// Find the most descend (lowest) common parent
-		int thisLevel = 0, fromLevel = 0;
-		for(const Entity* e = this; e; e=e->parent())
-			++thisLevel;
-		for(const Entity* e = &from; e; e=e->parent())
-			++fromLevel;
-
-		size_t commonLevel = thisLevel < fromLevel ? thisLevel : fromLevel;
-
-		const Entity *e1 = this, *e2 = &from;
-
-		for(int i=thisLevel-commonLevel; i--; )
-			e1 = e1->parent();
-		for(int i=fromLevel-commonLevel; i--; ) {
-			MCD_ASSUME(e2);
-			e2 = e2->parent();
+	// Find the most descend (lowest) common parent
+	if((lcp = commonAncestor(*this, from)) != nullptr) {
+		for(const Entity* e=this; e != lcp; e = e->parent())
+			++levelDiff;
+		for(const Entity* e=&from; e != lcp; e = e->parent())
 			ret += L"../";
-		}
-
-		// Go up to the parent until both become the same
-		for(size_t i=commonLevel; i--; ) {
-			if(e1 == e2)
-				break;
-			MCD_ASSUME(e1);
-			MCD_ASSUME(e2);
-			e1 = e1->parent();
-			e2 = e2->parent();
-			ret += L"../";
-			--commonLevel;	// Note that we haven't interfered the loop
-		}
-
-		lcp = e1;
-		levelDiff = thisLevel - commonLevel;
-
-		// The 2 incomming nodes are of seperated tree.
-		if(!lcp)
-			return L"";
 	}
+	else	// The 2 incomming nodes are of seperated tree.
+		return L"";
 
 	if(levelDiff > 0)
 	{	// We need a temporary buffer to reverse the Entities.
@@ -358,7 +359,7 @@ void Entity::setWorldTransform(const Mat44f& transform)
 		localTransform = transform;
 }
 
-Entity* Entity::clone() const
+Entity* Entity::recursiveClone() const
 {
 	{	// Try using script handle's clone function first
 		ScriptOwnershipHandle dummy;
@@ -391,7 +392,7 @@ Entity* Entity::clone() const
 	// Clone the children Entity
 	for(Entity* child = mFirstChild; nullptr != child; child = child->nextSibling())
 	{
-		Entity* newChild = child->clone();	// Note that we call clone() recursively
+		Entity* newChild = child->recursiveClone();	// Note that we call recursiveClone() recursively
 		newChild->mParent = newEnt.get();
 		if(child == mFirstChild)
 			newEnt->mFirstChild = newChild;
@@ -402,6 +403,17 @@ Entity* Entity::clone() const
 	}
 
 	return newEnt.release();
+}
+
+Entity* Entity::clone() const
+{
+	Entity* ret = recursiveClone();
+
+	// Perform the postClone() operation on all components.
+	for(ComponentPreorderIterator itr(ret); !itr.ended(); itr.next())
+		MCD_VERIFY(itr->postClone(*this, *ret));
+
+	return ret;
 }
 
 void Entity::destroyThis()
