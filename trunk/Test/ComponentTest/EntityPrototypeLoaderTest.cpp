@@ -21,7 +21,7 @@ public:
 		mResourceManager.addFactory(new PodLoaderFactory(mResourceManager));
 
 		const wchar_t* fileId = L"Scene/City/scene.pod";
-		mEntityPrototype = dynamic_cast<EntityPrototype*>(mResourceManager.load(fileId).get());
+		mPrefab = dynamic_cast<Prefab*>(mResourceManager.load(fileId).get());
 
 		mRootNode.localTransform.setScale(Vec3f(0.1f));
 	}
@@ -31,17 +31,17 @@ public:
 		mResourceManager.processLoadingEvents();
 
 		// Detect whether the entity prototype is loaded, and move the entity tree to our root if so.
-		if(mEntityPrototype && mEntityPrototype->entity.get()) {
-			mEntityPrototype->entity->asChildOf(&mRootNode);
-			mEntityPrototype->entity.release();
-			mEntityPrototype = nullptr;
+		if(mPrefab && mPrefab->entity.get()) {
+			mPrefab->entity->asChildOf(&mRootNode);
+			mPrefab->entity.release();
+			mPrefab = nullptr;
 		}
 
 		RenderableComponent::traverseEntities(&mRootNode);
 	}
 
 	Entity mRootNode;
-	EntityPrototypePtr mEntityPrototype;
+	PrefabPtr mPrefab;
 	DefaultResourceManager mResourceManager;
 };	// TestWindow
 

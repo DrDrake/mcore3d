@@ -83,8 +83,8 @@ void EntityPrototypeLoader::Impl::commit(Resource& resource)
 	Model* model = dynamic_cast<Model*>(mConcreteResource.get());
 	MCD_ASSUME(model);
 
-	// Convert Model to EntityPrototype
-	EntityPrototype& ep = dynamic_cast<EntityPrototype&>(resource);
+	// Convert Model to Prefab
+	Prefab& ep = dynamic_cast<Prefab&>(resource);
 
 	Entity* entRoot = new Entity;
 	entRoot->name = L"tmp root";
@@ -169,7 +169,7 @@ void EntityPrototypeLoader::LoadCallback::doCallback()
 	}
 }
 
-EntityPrototypePtr EntityPrototypeLoader::addEntityAfterLoad(
+PrefabPtr EntityPrototypeLoader::addEntityAfterLoad(
 	const EntityPtr& addToHere, IResourceManager& manager,
 	const wchar_t* filePath,
 	LoadCallback* loadCallback,
@@ -181,10 +181,10 @@ EntityPrototypePtr EntityPrototypeLoader::addEntityAfterLoad(
 		callback = new LoadCallback();
 
 	callback->addToHere = addToHere;
-	callback->entityPrototype = dynamic_cast<EntityPrototype*>(manager.load(filePath, IResourceManager::NonBlock, priority, args).get());
+	callback->entityPrototype = dynamic_cast<Prefab*>(manager.load(filePath, IResourceManager::NonBlock, priority, args).get());
 
 	if(!callback->entityPrototype)
-		Log::format(Log::Warn, L"Fail to load \"%s\" as an EntityPrototype", filePath);
+		Log::format(Log::Warn, L"Fail to load \"%s\" as an Prefab", filePath);
 
 	callback->setMajorDependency(filePath);
 	manager.addCallback(callback);
@@ -207,7 +207,7 @@ ResourcePtr EntityPrototypeLoaderFactory::createResource(const Path& fileId, con
 	while(parser.next(name, value))
 	{
 		if(wstrCaseCmp(name, L"loadAsEntity") == 0 && wstrCaseCmp(value, L"true") == 0)
-			return new EntityPrototype(fileId);
+			return new Prefab(fileId);
 	}
 
 	return nullptr;

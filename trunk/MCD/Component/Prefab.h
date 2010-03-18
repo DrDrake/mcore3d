@@ -1,5 +1,5 @@
-#ifndef __MCD_COMPONENT_RENDER_ENTITYPROTOTYPE__
-#define __MCD_COMPONENT_RENDER_ENTITYPROTOTYPE__
+#ifndef __MCD_COMPONENT_PREFAB__
+#define __MCD_COMPONENT_PREFAB__
 
 #include "ShareLib.h"
 #include "../Core/System/Resource.h"
@@ -9,34 +9,23 @@ namespace MCD {
 
 class IResourceManager;
 
-// TODO: Move this class to system since it is not render specific.
-class MCD_COMPONENT_API EntityPrototype : public Resource
+/*!	A kind of resource that owns a tree of Entity, it can be regarded as a pre-fabricated
+	game object which then cloned for use.
+ */
+class MCD_COMPONENT_API Prefab : public Resource
 {
 public:
-	explicit EntityPrototype(const Path& fileId);
+	explicit Prefab(const Path& fileId);
 
-	//! When an EntityPrototype is loaded, \em entity is not be NULL
+	//! When an Prefab is loaded, \em entity is not be NULL
 	std::auto_ptr<Entity> entity;
 
 protected:
-	sal_override ~EntityPrototype();
-};	// EntityPrototype
+	sal_override ~Prefab();
+};	// Prefab
 
-typedef IntrusivePtr<EntityPrototype> EntityPrototypePtr;
-
-//!	To owns the life-time of EntityPrototype.
-class MCD_COMPONENT_API EntityPrototypeComponent : public Component
-{
-public:
-	sal_override const std::type_info& familyType() const {
-		return typeid(EntityPrototypeComponent);
-	}
-
-	sal_override sal_maybenull Component* clone() const;
-
-	EntityPrototypePtr entityPrototype;
-};	// EntityPrototypeComponent
+typedef IntrusivePtr<Prefab> PrefabPtr;
 
 }	// namespace MCD
 
-#endif	// __MCD_COMPONENT_RENDER_ENTITYPROTOTYPE__
+#endif	// __MCD_COMPONENT_PREFAB__

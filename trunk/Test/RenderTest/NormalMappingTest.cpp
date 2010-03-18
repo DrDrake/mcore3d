@@ -16,7 +16,7 @@ namespace NormalMappingTest {
 class TestWindow : public BasicGlWindow
 {
 private:
-	EntityPrototypePtr mEntProto;
+	PrefabPtr mPrefab;
 	EffectPtr mEffect;
 
 public:
@@ -36,7 +36,7 @@ public:
 			mResourceManager.addFactory(new EntityPrototypeLoaderFactory(mResourceManager));
 
 			// TODO: Remove the use of Entity in render test
-			mEntProto = dynamic_cast<EntityPrototype*>(mResourceManager.load(L"Scene/City/scene.3ds", IResourceManager::NonBlock, 0, L"loadAsEntity=true;tangents=true").get());
+			mPrefab = dynamic_cast<Prefab*>(mResourceManager.load(L"Scene/City/scene.3ds", IResourceManager::NonBlock, 0, L"loadAsEntity=true;tangents=true").get());
 		}
 
 		{	// Setup entity 1
@@ -82,7 +82,7 @@ public:
 	{
 		mResourceManager.processLoadingEvents();
 
-		if(mEntProto)
+		if(mPrefab)
 		{
 			glPushMatrix();
 			glScalef(0.01f, 0.01f, 0.01f);
@@ -92,12 +92,12 @@ public:
 			if(mat) for(size_t i=0; i<mat->getPassCount(); ++i)
 			{
 				mat->preRender(i);
-				RenderableComponent::traverseEntities(mEntProto->entity.get());
+				RenderableComponent::traverseEntities(mPrefab->entity.get());
 				mat->postRender(i);
 			}
 			else
 			{
-				RenderableComponent::traverseEntities(mEntProto->entity.get());
+				RenderableComponent::traverseEntities(mPrefab->entity.get());
 			}
 
 			glPopMatrix();

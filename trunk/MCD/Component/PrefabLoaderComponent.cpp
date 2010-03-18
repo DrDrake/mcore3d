@@ -57,7 +57,7 @@ bool PrefabLoaderComponent::isLoaded() const {
 
 Entity* PrefabLoaderComponent::loadEntity(IResourceManager& resourceManager, const wchar_t* filePath, DynamicsWorld* dynamicsWorld)
 {
-	EntityPrototypePtr prefab = dynamic_cast<EntityPrototype*>(resourceManager.load(filePath).get());
+	PrefabPtr prefab = dynamic_cast<Prefab*>(resourceManager.load(filePath).get());
 	if(!prefab)
 		return nullptr;
 
@@ -78,7 +78,7 @@ Entity* PrefabLoaderComponent::loadEntity(IResourceManager& resourceManager, con
 				createStaticRigidBody(*dynamicsWorld, *prefab->entity);
 		}
 
-		EntityPrototypePtr prefab;
+		PrefabPtr prefab;
 		DynamicsWorld* dynamicsWorld;
 	};	// CreatePhysics
 

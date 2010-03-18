@@ -42,15 +42,15 @@ public:
 		and add them to a specific entity node after the load completes.
 
 		If you know that the resource will load multiple times, you need to keep
-		the returned EntityPrototypePtr. Otherwise the entity prototype will be
+		the returned PrefabPtr. Otherwise the entity prototype will be
 		destroyed once the load is completed.
 
-		If the load operation failed, a EntityPrototype with it's \em entity equals to
+		If the load operation failed, a Prefab with it's \em entity equals to
 		null will be returned.
 
 		\param loadCallback Optional parameter for the user to get notification when the loads complete.
 	 */
-	static EntityPrototypePtr addEntityAfterLoad(
+	static PrefabPtr addEntityAfterLoad(
 		const EntityPtr& addToHere, IResourceManager& manager,
 		sal_in_z const wchar_t* filePath,
 		sal_out_opt LoadCallback* loadCallback = nullptr,
@@ -73,7 +73,7 @@ public:
 	//! Where the tree of loaded Entity will add to.
 	EntityPtr addToHere;
 	//! The entityPrototype that \em entityAdded clones from.
-	EntityPrototypePtr entityPrototype;
+	PrefabPtr entityPrototype;
 };	// LoadCallback
 
 /*!	Load a model as a tree of Entity.

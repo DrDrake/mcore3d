@@ -8,9 +8,9 @@ namespace MCD {
 
 class DynamicsWorld;
 class IResourceManager;
-typedef IntrusivePtr<class EntityPrototype> EntityPrototypePtr;
+typedef IntrusivePtr<class Prefab> PrefabPtr;
 
-/*!	Monitor the loading progress of the EntityPrototype.
+/*!	Monitor the loading progress of the Prefab.
 	Once the load operation is finished, the Entity tree will clone to the PrefabLoaderComponent
 	attached Entity.
  */
@@ -40,7 +40,7 @@ public:
 	);
 
 // Attributes
-	EntityPrototypePtr prefab;
+	PrefabPtr prefab;
 
 	bool isLoaded() const;
 
