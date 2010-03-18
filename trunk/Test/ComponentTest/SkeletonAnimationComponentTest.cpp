@@ -237,18 +237,18 @@ public:
 
 		// Setup skin mesh and skeleton animation components
 		{
-			SkinMeshComponent* sm = new SkinMeshComponent();
-			e3->addComponent(sm);
-			MCD_VERIFY(sm->init(mResourceManager, *mBasePoseMesh));
-			sm->pose.init(mSkeletonAnimation->skeleton->basePose.jointCount());
-			sm->skeleton = mSkeletonAnimation->skeleton;
-
 			SkeletonAnimationComponent* sa = new SkeletonAnimationComponent(*skeletonAnimationUpdater);
 			e3->addComponent(sa);
+			sa->pose.init(mSkeletonAnimation->skeleton->basePose.jointCount());
 			sa->skeletonAnimation.anim = mSkeletonAnimation->anim;
 			sa->skeletonAnimation.anim.time = initialAnimationTime;
 			sa->skeletonAnimation.skeleton = mSkeletonAnimation->skeleton;
-			sa->skinMesh = sm;
+
+			SkinMeshComponent* sm = new SkinMeshComponent();
+			e3->addComponent(sm);
+			MCD_VERIFY(sm->init(mResourceManager, *mBasePoseMesh));
+			sm->skeleton = mSkeletonAnimation->skeleton;
+			sm->skeletonAnimation = sa;
 		}
 
 		taskPool.setThreadCount(1);
