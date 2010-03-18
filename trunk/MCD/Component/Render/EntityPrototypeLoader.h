@@ -1,7 +1,7 @@
 #ifndef __MCD_COMPONENT_RENDER_ENTITYPROTOTYPELOADER__
 #define __MCD_COMPONENT_RENDER_ENTITYPROTOTYPELOADER__
 
-#include "EntityPrototype.h"
+#include "../Prefab.h"
 #include "../../Core/System/ResourceLoader.h"
 #include "../../Core/System/ResourceManager.h"
 

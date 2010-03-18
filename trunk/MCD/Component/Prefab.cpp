@@ -1,5 +1,5 @@
 #include "Pch.h"
-#include "EntityPrototype.h"
+#include "Prefab.h"
 
 namespace MCD {
 

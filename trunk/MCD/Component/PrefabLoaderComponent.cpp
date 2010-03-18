@@ -1,7 +1,7 @@
 #include "Pch.h"
 #include "PrefabLoaderComponent.h"
 #include "Physics/RigidBodyComponent.h"
-#include "Render/EntityPrototype.h"
+#include "Prefab.h"
 #include "../Core/Entity/Entity.h"
 #include "../Core/System/ResourceManager.h"
 

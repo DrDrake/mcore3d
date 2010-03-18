@@ -1,9 +1,9 @@
 #ifndef __MCD_COMPONENT_RENDER_ENTITYPROTOTYPE__
 #define __MCD_COMPONENT_RENDER_ENTITYPROTOTYPE__
 
-#include "../ShareLib.h"
-#include "../../Core/System/Resource.h"
-#include "../../Core/Entity/Entity.h"
+#include "ShareLib.h"
+#include "../Core/System/Resource.h"
+#include "../Core/Entity/Entity.h"
 
 namespace MCD {
 

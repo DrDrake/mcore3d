@@ -236,14 +236,6 @@
 				>
 			</File>
 			<File
-				RelativePath=".\Render\EntityPrototype.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\Render\EntityPrototype.h"
-				>
-			</File>
-			<File
 				RelativePath=".\Render\EntityPrototypeLoader.cpp"
 				>
 			</File>
@@ -419,6 +411,14 @@
 		</File>
 		<File
 			RelativePath=".\Pch.h"
+			>
+		</File>
+		<File
+			RelativePath=".\Prefab.cpp"
+			>
+		</File>
+		<File
+			RelativePath=".\Prefab.h"
 			>
 		</File>
 		<File

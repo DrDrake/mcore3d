@@ -2,8 +2,8 @@
 #include "../RenderTest/BasicGlWindow.h"
 #include "../RenderTest/DefaultResourceManager.h"
 #include "../../MCD/Loader/PodLoader.h"
-#include "../../MCD/Component/Render/EntityPrototype.h"
 #include "../../MCD/Component/Render/RenderableComponent.h"
+#include "../../MCD/Component/Prefab.h"
 
 using namespace MCD;
 

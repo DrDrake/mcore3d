@@ -1,7 +1,7 @@
 #include "Pch.h"
 #include "Component.h"
 #include "Binding.h"
-#include "../Component/Render/EntityPrototype.h"
+#include "../Component/Prefab.h"
 #include "../Component/PrefabLoaderComponent.h"
 
 using namespace MCD;
