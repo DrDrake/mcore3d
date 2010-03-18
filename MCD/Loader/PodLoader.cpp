@@ -1,7 +1,7 @@
 #include "Pch.h"
 #include "PodLoader.h"
-#include "../Component/Render/EntityPrototype.h"
 #include "../Component/Render/MeshComponent.h"
+#include "../Component/Prefab.h"
 #include "../Render/Effect.h"
 #include "../Render/Material.h"
 #include "../Render/Mesh.h"

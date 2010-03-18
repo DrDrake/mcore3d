@@ -1,7 +1,7 @@
 #include "Pch.h"
 #include "EntityPrototypeLoader.h"
-#include "EntityPrototype.h"
 #include "MeshComponent.h"
+#include "../Prefab.h"
 #include "../../Core/System/Log.h"
 #include "../../Core/System/MemoryProfiler.h"
 #include "../../Core/System/StrUtility.h"
