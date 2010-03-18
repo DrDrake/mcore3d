@@ -1,6 +1,5 @@
 #include "Pch.h"
 #include "SkeletonAnimationComponent.h"
-#include "SkinMeshComponent.h"
 #include "../../Core/Entity/Entity.h"
 #include "../../Core/Math/Skeleton.h"
 #include "../../Core/System/TaskPool.h"
@@ -31,30 +30,10 @@ Component* SkeletonAnimationComponent::clone() const
 	if(!animationUpdater)
 		return nullptr;
 	SkeletonAnimationComponent* cloned = new SkeletonAnimationComponent(*animationUpdater);
-	cloned->skinMesh = this->skinMesh;	// This will be re-assigned in postClone()
+	cloned->pose = this->pose;
 	cloned->skeletonAnimation.anim = this->skeletonAnimation.anim;
 	cloned->skeletonAnimation.skeleton = this->skeletonAnimation.skeleton;
 	return cloned;
-}
-
-bool SkeletonAnimationComponent::postClone(const Entity& src, Entity& dest)
-{
-	// Find the Component in the src tree that corresponding to this
-	SkeletonAnimationComponent* srcComponent = dynamic_cast<SkeletonAnimationComponent*>(
-		ComponentPreorderIterator::componentByOffset(src, ComponentPreorderIterator::offsetFrom(dest, *this))
-	);
-
-	if(!srcComponent)
-		return false;
-	if(!srcComponent->skinMesh)
-		return true;
-
-	// Find the Component in the src tree that corresponding to referenceToAnother
-	skinMesh = dynamic_cast<SkinMeshComponent*>(
-		ComponentPreorderIterator::componentByOffset(dest, ComponentPreorderIterator::offsetFrom(src, *srcComponent->skinMesh))
-	);
-
-	return true;
 }
 
 void SkeletonAnimationComponent::update(float dt)
@@ -114,12 +93,8 @@ public:
 			if(!i->second)
 				continue;
 
-			// Ensure the SkinMeshComponent will not be deleted within this scope
-			ScopeLock lock2(i->second->skinMesh.destructionMutex());
-			if(SkinMeshComponent* sm = i->second->skinMesh.get()) {
-				sm->pose.rootJointTransform() = Mat44f::cIdentity;
-				i->first->applyTo(sm->pose);
-			}
+			i->second->pose.rootJointTransform() = Mat44f::cIdentity;
+			i->first->applyTo(i->second->pose);
 		}
 
 		mIsUpdating = false;
@@ -131,6 +106,7 @@ public:
 	bool mPaused;
 	volatile bool mIsUpdating;
 
+	// The storage of SkeletonAnimationPtr keeps the resource valid while the thread is updating.
 	std::map<SkeletonAnimationPtr, SkeletonAnimationComponentPtr> mSkeletonAnimations;
 
 	// A local container of animation instance shared pointer to minize mutex lock time

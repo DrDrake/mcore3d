@@ -1,5 +1,6 @@
 #include "Pch.h"
 #include "SkinMeshComponent.h"
+#include "SkeletonAnimationComponent.h"
 #include "../../Render/Effect.h"
 #include "../../Render/Mesh.h"
 #include "../../Render/Model.h"
@@ -41,7 +42,28 @@ Component* SkinMeshComponent::clone() const
 	const_cast<ModelPtr&>(cloned->basePoseMeshes) = this->basePoseMeshes;
 	const_cast<ModelPtr&>(cloned->meshes) = this->meshes;
 	cloned->skeleton = this->skeleton;
+	cloned->skeletonAnimation = this->skeletonAnimation;	// This will be re-assigned in postClone()
 	return cloned;
+}
+
+bool SkinMeshComponent::postClone(const Entity& src, Entity& dest)
+{
+	// Find the Component in the src tree that corresponding to this
+	SkinMeshComponent* srcComponent = dynamic_cast<SkinMeshComponent*>(
+		ComponentPreorderIterator::componentByOffset(src, ComponentPreorderIterator::offsetFrom(dest, *this))
+	);
+
+	if(!srcComponent)
+		return false;
+	if(!srcComponent->skeletonAnimation)
+		return true;
+
+	// Find the Component in the src tree that corresponding to referenceToAnother
+	skeletonAnimation = dynamic_cast<SkeletonAnimationComponent*>(
+		ComponentPreorderIterator::componentByOffset(dest, ComponentPreorderIterator::offsetFrom(src, *srcComponent->skeletonAnimation))
+	);
+
+	return true;
 }
 
 bool SkinMeshComponent::init(IResourceManager& resourceManager, const Model& basePose, const wchar_t* namePrefix)
@@ -66,16 +88,16 @@ bool SkinMeshComponent::init(IResourceManager& resourceManager, const Model& bas
 void SkinMeshComponent::render()
 {
 	Entity* e = entity();
-	if(!e || !e->enabled || !basePoseMeshes || !meshes || !skeleton)
+	if(!e || !e->enabled || !basePoseMeshes || !meshes || !skeleton || !skeletonAnimation)
 		return;
 
 	glPushMatrix();
 	glMultTransposeMatrixf(e->worldTransform().getPtr());
 
-	mTmpPose = pose;
+	mTmpPose = skeletonAnimation->pose;
 
 	// NOTE: If the inverse was already baked into the animation track, we can skip this multiplication
-	for(size_t i=0; i<pose.transforms.size(); ++i)
+	for(size_t i=0; i<mTmpPose.transforms.size(); ++i)
 		mTmpPose.transforms[i] *= skeleton->basePoseInverse[i];
 
 	{	// Perform skinning

@@ -3,6 +3,7 @@
 
 #include "../ShareLib.h"
 #include "../../Core/Entity/BehaviourComponent.h"
+#include "../../Core/Math/Skeleton.h"
 #include "../../Core/System/SharedPtr.h"
 
 namespace MCD {
@@ -34,14 +35,19 @@ public:
 	//!	Clone will fail if the associated SkeletonAnimationUpdaterComponent is already destroyed.
 	sal_override sal_maybenull Component* clone() const;
 
-	sal_override sal_checkreturn bool postClone(const Entity& src, Entity& dest);
-
 // Operations
 	sal_override void update(float dt);
 
-// Attributes
-	SkinMeshComponentPtr skinMesh;	//!< The animation will apply to skinMesh's pose
+// Helper functions for manipulating the underlaying skeletonAnimation
+	//!	
+//	sal_checkreturn int addTrack(AnimationTrack& track);
 
+// Attributes
+	SkeletonPose pose;	//!< The current pose
+
+	/*!	Each SkeletonAnimationComponent should has it's own instance of skeletonAnimation.
+		To share animation data, share the AnimationTrack inside SkeletonAnimation.
+	 */
 	SkeletonAnimation& skeletonAnimation;
 
 	const SkeletonAnimationUpdaterComponentPtr animationUpdater;
