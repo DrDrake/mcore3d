@@ -321,14 +321,14 @@ void PodLoader::Impl::commit(Resource& resource)
 		}
 	}
 
-	EntityPrototype& ep = dynamic_cast<EntityPrototype&>(resource);
-	ep.entity.reset(new Entity());
+	Prefab& prefab = dynamic_cast<Prefab&>(resource);
+	prefab.entity.reset(new Entity());
 
 	// Clone all the node in mRootEntity to the target.
 	for(Entity* i=mRootEntity.firstChild(); i; i = i->nextSibling()) {
 		Entity* e = i->clone();
 		MCD_ASSERT(e);
-		e->asChildOf(ep.entity.get());
+		e->asChildOf(prefab.entity.get());
 	}
 }
 
@@ -367,7 +367,7 @@ PodLoaderFactory::PodLoaderFactory(IResourceManager& resourceManager)
 ResourcePtr PodLoaderFactory::createResource(const Path& fileId, const wchar_t* args)
 {
 	if(wstrCaseCmp(fileId.getExtension().c_str(), L"pod") == 0)
-		return new EntityPrototype(fileId);
+		return new Prefab(fileId);
 	return nullptr;
 }
 

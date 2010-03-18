@@ -3,20 +3,13 @@
 
 namespace MCD {
 
-EntityPrototype::EntityPrototype(const Path& fileId)
+Prefab::Prefab(const Path& fileId)
 	: Resource(fileId)
 {
 }
 
-EntityPrototype::~EntityPrototype()
+Prefab::~Prefab()
 {
-}
-
-Component* EntityPrototypeComponent::clone() const
-{
-	EntityPrototypeComponent* c = new EntityPrototypeComponent;
-	c->entityPrototype = entityPrototype;
-	return c;
 }
 
 }	// namespace MCD

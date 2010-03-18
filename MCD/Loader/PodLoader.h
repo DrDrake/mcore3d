@@ -32,7 +32,7 @@ public:
 		sal_maybenull std::istream* is, sal_maybenull const Path* fileId=nullptr, sal_in_z_opt const wchar_t* args=nullptr);
 
 	/*!	Commit the data form it's internal buffer to the resource.
-		The resource can be of type Mesh or EntityPrototype.
+		The resource must be of type Prefab.
 	 */
 	sal_override void commit(Resource& resource);
 
