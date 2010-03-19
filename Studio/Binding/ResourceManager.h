@@ -1,7 +1,13 @@
 #pragma once
 
-#include "../../MCD/Core/System/ResourceManager.h"
+#include "../../MCD/Core/System/Platform.h"
 #undef nullptr
+
+namespace MCD {
+
+class IResourceManager;
+
+}	// namespace MCD
 
 namespace Binding {
 

@@ -14,6 +14,7 @@ namespace MCD {
 class IResourceManager;
 typedef IntrusiveWeakPtr<class InputComponent> InputComponentPtr;
 typedef IntrusiveWeakPtr<class AnimationUpdaterComponent> AnimationUpdaterComponentPtr;
+typedef IntrusiveWeakPtr<class SkeletonAnimationUpdaterComponent> SkeletonAnimationUpdaterComponentPtr;
 
 class MCD_BINDING_API Launcher
 {
@@ -81,6 +82,10 @@ public:
 		return mAnimationUpdater.get();
 	}
 
+	sal_maybenull SkeletonAnimationUpdaterComponent* skeletonAnimationUpdater() {
+		return mSkeletonAnimationUpdater.get();
+	}
+
 	static Launcher* sinleton() {
 		return Launcher::mSingleton;
 	}
@@ -105,6 +110,7 @@ protected:
 	Thread mPhysicsThread;
 	ThreadedDynamicsWorld mDynamicsWorld;
 	AnimationUpdaterComponentPtr mAnimationUpdater;
+	SkeletonAnimationUpdaterComponentPtr mSkeletonAnimationUpdater;
 	TaskPool mTaskPool;
 };	// Launcher
 

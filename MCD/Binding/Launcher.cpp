@@ -12,6 +12,7 @@
 #include "../Component/Render/AnimationComponent.h"
 #include "../Component/Render/EntityPrototypeLoader.h"
 #include "../Component/Render/RenderableComponent.h"
+#include "../Component/Render/SkeletonAnimationComponent.h"
 #include "../Core/System/Log.h"
 #include "../Core/System/MemoryProfiler.h"
 #include "../Core/System/Resource.h"
@@ -65,6 +66,7 @@ SCRIPT_CLASS_REGISTER_NAME(Launcher, "MainWindow")
 	.method<objNoCare>(L"_getresourceManager", &Launcher::resourceManager)
 	.method<objNoCare>(L"_getdynamicsWorld", &Launcher::dynamicsWorld)
 	.method<objNoCare>(L"_getanimationUpdater", &Launcher::animationUpdater)
+	.method<objNoCare>(L"_getskeletonAnimationUpdater", &Launcher::skeletonAnimationUpdater)
 //	.rawMethod(L"addCallback", &Launcher::addCallback)
 ;}
 

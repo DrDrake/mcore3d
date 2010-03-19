@@ -2,25 +2,31 @@
 #define __MCD_BINDING_SYSTEM__
 
 #include "ShareLib.h"
-#include "../Core/System/IncludeAll.h"
 #include "../../3Party/jkbind/Declarator.h"
+
+namespace MCD {
+
+class IResourceManager;
+class ResourceManagerCallback;
+class Path;
+class RawFileSystem;
+class Resource;
+class Timer;
+
+}	// namespace MCD
 
 namespace script {
 
 SCRIPT_CLASS_DECLAR_EXPORT(MCD::IResourceManager, MCD_BINDING_API);
 SCRIPT_CLASS_DECLAR_EXPORT(MCD::ResourceManagerCallback, MCD_BINDING_API);
 SCRIPT_CLASS_DECLAR_EXPORT(MCD::Path, MCD_BINDING_API);
-SCRIPT_CLASS_DECLAR_EXPORT(MCD::Timer, MCD_BINDING_API);
 SCRIPT_CLASS_DECLAR_EXPORT(MCD::RawFileSystem, MCD_BINDING_API);
 SCRIPT_CLASS_DECLAR_EXPORT(MCD::Resource, MCD_BINDING_API);
+SCRIPT_CLASS_DECLAR_EXPORT(MCD::Timer, MCD_BINDING_API);
 
-struct ResourceRefPolicy {
-	static void addRef(MCD::Resource* resource) {
-		intrusivePtrAddRef(resource);
-	}
-	static void releaseRef(MCD::Resource* resource) {
-		intrusivePtrRelease(resource);
-	}
+struct MCD_BINDING_API ResourceRefPolicy {
+	static void addRef(MCD::Resource* resource);
+	static void releaseRef(MCD::Resource* resource);
 };	// ResourceRefPolicy
 
 namespace types {

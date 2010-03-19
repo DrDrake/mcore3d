@@ -11,6 +11,8 @@
 #include "../Component/Render/CameraComponent.h"
 #include "../Component/Render/MeshComponent.h"
 #include "../Component/Render/PickComponent.h"
+#include "../Component/Render/SkeletonAnimationComponent.h"
+#include "../Component/Render/SkinMeshComponent.h"
 
 using namespace MCD;
 
@@ -97,6 +99,29 @@ SCRIPT_CLASS_REGISTER(RenderableComponent)
 	.enableGetset()
 ;}
 
+SCRIPT_CLASS_REGISTER(SkeletonAnimationComponent)
+	.declareClass<SkeletonAnimationComponent, Component>(xSTRING("SkeletonAnimationComponent"))
+	.enableGetset()
+;}
+
+SCRIPT_CLASS_REGISTER(SkeletonAnimationUpdaterComponent)
+	.declareClass<SkeletonAnimationUpdaterComponent, Component>(xSTRING("SkeletonAnimationUpdaterComponent"))
+;}
+
+static SkeletonAnimationComponent* skinMeshComponentGetSkeletonAnimation(SkinMeshComponent& self) {
+	return self.skeletonAnimation.get();
+}
+static void skinMeshComponentSetSkeletonAnimation(SkinMeshComponent& self, SkeletonAnimationComponent* c) {
+	self.skeletonAnimation = c;
+}
+
+SCRIPT_CLASS_REGISTER(SkinMeshComponent)
+	.declareClass<SkinMeshComponent, Component>(xSTRING("SkinMeshComponent"))
+	.enableGetset()
+	.wrappedMethod<objNoCare>(xSTRING("_getskeletonAnimation"), &skinMeshComponentGetSkeletonAnimation)
+	.wrappedMethod(xSTRING("_setskeletonAnimation"), &skinMeshComponentSetSkeletonAnimation)
+;}
+
 }	// namespace script
 
 namespace MCD {
@@ -108,6 +133,8 @@ void registerRenderComponentBinding(script::VMCore* v)
 	script::ClassTraits<MeshComponent>::bind(v);
 	script::ClassTraits<PickComponent>::bind(v);
 	script::ClassTraits<RenderableComponent>::bind(v);
+	script::ClassTraits<SkeletonAnimationComponent>::bind(v);
+	script::ClassTraits<SkinMeshComponent>::bind(v);
 }
 
 }	// namespace MCD

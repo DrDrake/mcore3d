@@ -1,11 +1,21 @@
 #include "Pch.h"
 #include "System.h"
 #include "Binding.h"
-#include "Binding.h"
+#include "../Core/System/RawFileSystem.h"
+#include "../Core/System/Resource.h"
+#include "../Core/System/ResourceManager.h"
+#include "../Core/System/Timer.h"
 
 using namespace MCD;
 
 namespace script {
+
+void ResourceRefPolicy::addRef(MCD::Resource* resource) {
+	intrusivePtrAddRef(resource);
+}
+void ResourceRefPolicy::releaseRef(MCD::Resource* resource) {
+	intrusivePtrRelease(resource);
+}
 
 namespace types {
 
