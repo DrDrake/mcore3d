@@ -239,6 +239,17 @@ bool Launcher::init(InputComponent& inputComponent, Entity* rootNode)
 		e->asChildOf(mRootNode);
 	}
 
+	{	// Setup SkeletonAnimationUpdaterComponent
+		if(mSkeletonAnimationUpdater && mSkeletonAnimationUpdater->entity())
+			delete mSkeletonAnimationUpdater->entity();
+
+		EntityPtr e = new Entity;
+		e->name = L"Skeleton animation updater";
+		mSkeletonAnimationUpdater = new SkeletonAnimationUpdaterComponent(&taskPool);
+		e->addComponent(mSkeletonAnimationUpdater.get());
+		e->asChildOf(mRootNode);
+	}
+
 	setInputComponent(&inputComponent);
 
 	return true;

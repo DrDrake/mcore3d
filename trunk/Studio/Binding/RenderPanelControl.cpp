@@ -14,6 +14,7 @@
 #include "../../MCD/Component/Render/AnimationComponent.h"
 #include "../../MCD/Component/Render/CameraComponent.h"
 #include "../../MCD/Component/Render/PickComponent.h"
+#include "../../MCD/Component/Render/SkeletonAnimationComponent.h"
 #include "../../MCD/Core/Entity/Entity.h"
 #include "../../MCD/Core/Entity/BehaviourComponent.h"
 #include "../../MCD/Core/System/MemoryProfiler.h"
@@ -158,6 +159,11 @@ public:
 			e->asChildOf(mPredefinedSubTree);
 		}
 
+		{	// Move launcher's skeleton animation updater into mPredefinedSubTree
+			MCD::EntityPtr e = mLauncher.skeletonAnimationUpdater()->entity();
+			e->asChildOf(mPredefinedSubTree);
+		}
+
 		// Initialize the serialization system
 		MCD_VERIFY(executeScriptFile(L"EntitySerialization.nut"));
 	}
@@ -204,8 +210,10 @@ public:
 			mEntityPicker->clearResult();
 			mEntityPicker->entity()->enabled = false;
 		}
-		else
+		else {
 			mLauncher.animationUpdater()->update(dt);
+			mLauncher.skeletonAnimationUpdater()->update(dt);
+		}
 
 		swapBuffers();
 	}

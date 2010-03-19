@@ -138,7 +138,7 @@ SCRIPT_CLASS_REGISTER_NAME(Entity, "Entity")
 	.runScript(xSTRING("Entity.constructor<-function(name=\"\"){_orgConstructor.call(this);this._setname(name);directSerialize=function(state){::entityDirectSerializeTraverse(this,state);};}"))
 	.runScript(xSTRING("Entity._cloned<-function(org){_orgCloned(org);")
 			   xSTRING("foreach(i,c in org.components){addComponent(clone c)};")
-			   xSTRING("for(local i=org.firstChild; i; i=i.nextSibling){local e=clone i;addChild(e);};")
+			   xSTRING("for(local i=org.firstChild, last=null; i; i=i.nextSibling){local e=clone i;if(last)e.insertAfter(last);else addChild(e);last=e;};")
 			   xSTRING("}"))
 ;}
 
