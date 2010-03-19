@@ -85,7 +85,7 @@ Launcher::Launcher(IFileSystem& fileSystem, IResourceManager& resourceManager, b
 {
 	// Start the physics thread
 	mPhysicsThread.start(mDynamicsWorld, false);
-	mTaskPool.setThreadCount(1);
+	taskPool.setThreadCount(1);
 
 	mSingleton = this;
 }
@@ -234,7 +234,7 @@ bool Launcher::init(InputComponent& inputComponent, Entity* rootNode)
 
 		EntityPtr e = new Entity;
 		e->name = L"Animation updater";
-		mAnimationUpdater = new AnimationUpdaterComponent(&mTaskPool);
+		mAnimationUpdater = new AnimationUpdaterComponent(&taskPool);
 		e->addComponent(mAnimationUpdater.get());
 		e->asChildOf(mRootNode);
 	}
