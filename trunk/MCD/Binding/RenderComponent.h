@@ -12,6 +12,9 @@ class CameraComponent;
 class MeshComponent;
 class PickComponent;
 class RenderableComponent;
+class SkeletonAnimationComponent;
+class SkeletonAnimationUpdaterComponent;
+class SkinMeshComponent;
 
 }	// namespace MCD
 
@@ -23,6 +26,9 @@ SCRIPT_CLASS_DECLAR_EXPORT(MCD::CameraComponent, MCD_BINDING_API);
 SCRIPT_CLASS_DECLAR_EXPORT(MCD::MeshComponent, MCD_BINDING_API);
 SCRIPT_CLASS_DECLAR_EXPORT(MCD::PickComponent, MCD_BINDING_API);
 SCRIPT_CLASS_DECLAR_EXPORT(MCD::RenderableComponent, MCD_BINDING_API);
+SCRIPT_CLASS_DECLAR_EXPORT(MCD::SkeletonAnimationComponent, MCD_BINDING_API);
+SCRIPT_CLASS_DECLAR_EXPORT(MCD::SkeletonAnimationUpdaterComponent, MCD_BINDING_API);
+SCRIPT_CLASS_DECLAR_EXPORT(MCD::SkinMeshComponent, MCD_BINDING_API);
 
 }	// namespace script
 	

@@ -107,7 +107,7 @@ void SkinMeshComponent::render()
 			Mesh* m = i->mesh.get();
 			if(!m || !j->mesh)
 				continue;
-			MCD::skinning(mTmpPose, *m, *j->mesh, 4, 5, m->normalAttrIdx);
+			MCD::skinning(mTmpPose, *m, *j->mesh, 4, 5, m->normalAttrIdx);	// TODO: Remove the hardcoded constants
 		}
 	}
 
