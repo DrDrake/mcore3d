@@ -94,6 +94,8 @@ public:
 
 	ScriptComponentManager scriptComponentManager;
 
+	TaskPool taskPool;
+
 protected:
 	static Launcher* mSingleton;
 
@@ -111,7 +113,6 @@ protected:
 	ThreadedDynamicsWorld mDynamicsWorld;
 	AnimationUpdaterComponentPtr mAnimationUpdater;
 	SkeletonAnimationUpdaterComponentPtr mSkeletonAnimationUpdater;
-	TaskPool mTaskPool;
 };	// Launcher
 
 //! A default implementation of ResourceManager for Launcher

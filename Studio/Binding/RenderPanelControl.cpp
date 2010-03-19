@@ -11,6 +11,7 @@
 #include "../../MCD/Audio/AudioDevice.h"
 #include "../../MCD/Audio/AudioEffect.h"
 #include "../../MCD/Binding/Launcher.h"
+#include "../../MCD/Component/Render/AnimationComponent.h"
 #include "../../MCD/Component/Render/CameraComponent.h"
 #include "../../MCD/Component/Render/PickComponent.h"
 #include "../../MCD/Core/Entity/Entity.h"
@@ -152,6 +153,11 @@ public:
 			mGizmo = e.release();
 		}
 
+		{	// Move launcher's animation updater into mPredefinedSubTree
+			MCD::EntityPtr e = mLauncher.animationUpdater()->entity();
+			e->asChildOf(mPredefinedSubTree);
+		}
+
 		// Initialize the serialization system
 		MCD_VERIFY(executeScriptFile(L"EntitySerialization.nut"));
 	}
@@ -198,6 +204,8 @@ public:
 			mEntityPicker->clearResult();
 			mEntityPicker->entity()->enabled = false;
 		}
+		else
+			mLauncher.animationUpdater()->update(dt);
 
 		swapBuffers();
 	}
