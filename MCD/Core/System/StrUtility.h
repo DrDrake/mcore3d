@@ -27,39 +27,34 @@ MCD_CORE_API sal_checkreturn bool utf8ToWStr(const std::string& utf8Str, std::ws
 MCD_CORE_API sal_checkreturn bool wStrToUtf8(sal_in_z sal_in_ecount(maxCount) const wchar_t* wideStr, size_t maxCount, std::string& utf8Str);
 MCD_CORE_API sal_checkreturn bool wStrToUtf8(const std::wstring& wideStr, std::string& utf8Str);
 
-//! Integer number to narrow string.
+//! Number to string.
 MCD_CORE_API std::string int2Str(int number);
+MCD_CORE_API std::string float2Str(float number);
+MCD_CORE_API std::string double2Str(double number);
 
-//! Integer number to wide string.
-MCD_CORE_API std::wstring int2WStr(int number);
+//! Number array to string.
+MCD_CORE_API std::string intArray2Str(sal_in sal_in_ecount(count) const int* numbers, size_t count);
+MCD_CORE_API std::string floatArray2Str(sal_in sal_in_ecount(count) const float* numbers, size_t count);
 
-//! Real number to wide string.
-MCD_CORE_API std::wstring double2WStr(double number);
+//! String to number.
+MCD_CORE_API sal_checkreturn bool str2Int(sal_in_z const char* str, int& number);
+MCD_CORE_API sal_checkreturn bool str2Double(sal_in_z const char* str, double& number);
 
-//! Wide string to integer.
-MCD_CORE_API sal_checkreturn bool wStr2Int(sal_in_z const wchar_t* wideStr, int& number);
+//! String to number with a supplied default value in case the parse failed.
+MCD_CORE_API int str2IntWithDefault(sal_in_z const char* str, int defaultVal);
+MCD_CORE_API int str2DoubleWithDefault(sal_in_z const char* str, double defaultVal);
 
-//! Wide string to integer with a supplied default value in case the parse failed.
-MCD_CORE_API int wStr2IntWithDefault(sal_in_z const wchar_t* wideStr, int defaultVal);
-
-//! Wide string to double.
-MCD_CORE_API sal_checkreturn bool wStr2Double(sal_in_z const wchar_t* wideStr, double& number);
-
-/*!	Wide string to array of integer.
+/*!	String to array of number.
 	\return Return null if parse failed. Using delete[] to cleanup the memory.
 	\param size
 		As input, it indicate the maximum number to parse, use 0 to indicate don't care;
 		as an output it tells you the actual number of element parsed.
  */
-MCD_CORE_API sal_maybenull int* wStrToIntArray(sal_in_z const wchar_t* wideStr, sal_inout size_t& size);
+MCD_CORE_API sal_maybenull int* strToIntArray(sal_in_z const char* str, sal_inout size_t& size);
+MCD_CORE_API sal_maybenull float* strToFloatArray(sal_in_z const char* str, sal_inout size_t& size);
 
-/*!	Wide string to array of float.
-	\return Return null if parse failed. Using delete[] to cleanup the memory.
-	\param size
-		As input, it indicate the maximum number to parse, use 0 to indicate don't care;
-		as an output it tells you the actual number of element parsed.
- */
-MCD_CORE_API sal_maybenull float* wStrToFloatArray(sal_in_z const wchar_t* wideStr, sal_inout size_t& size);
+//! Compare two character strings, ignoring case.
+MCD_CORE_API sal_checkreturn int strCaseCmp(sal_in_z const char* string1, sal_in_z const char* string2);
 
 //! Compare two wide-character strings, ignoring case.
 MCD_CORE_API sal_checkreturn int wstrCaseCmp(sal_in_z const wchar_t* string1, sal_in_z const wchar_t* string2);
@@ -72,7 +67,7 @@ MCD_CORE_API sal_checkreturn int wstrCaseCmp(sal_in_z const wchar_t* string1, sa
 
 	Example:
 	\code
-	const wchar_t* str = L"x = 1; city = 'Hong Kong'";
+	const wchar_t* str = "x = 1; city = 'Hong Kong'";
 	NvpParser parser(str);
 	wchar_t* name, *value;
 	parser.next(name, value);	// name = "x", value = "1"
@@ -83,22 +78,22 @@ MCD_CORE_API sal_checkreturn int wstrCaseCmp(sal_in_z const wchar_t* string1, sa
 class MCD_CORE_API NvpParser : Noncopyable
 {
 public:
-	NvpParser(sal_in_z_opt const wchar_t* str = nullptr);
+	NvpParser(sal_in_z_opt const char* str = nullptr);
 
 	~NvpParser();
 
-	void init(sal_in_z_opt const wchar_t* str = nullptr);
+	void init(sal_in_z_opt const char* str = nullptr);
 
 	/*!	Get the next name/value pair.
 		\param name Output parameter to get the name
 		\param value Output parameter to get the corresponding value to \em name
 		\return true on success, false if no more pair
 	 */
-	sal_checkreturn bool next(const wchar_t*& name, const wchar_t*& value);
+	sal_checkreturn bool next(const char*& name, const char*& value);
 
 protected:
-	wchar_t* mStr;
-	wchar_t* mPos;
+	char* mStr;
+	char* mPos;
 };	// NvpParser
 
 }	// namespace MCD

@@ -20,7 +20,7 @@ TEST(SimplePhysicsComponentTest)
 	public:
 		TestWindow()
 			:
-			BasicGlWindow(L"title=SimplePhysicsComponentTest;width=800;height=600;fullscreen=0;FSAA=4"),
+			BasicGlWindow("title=SimplePhysicsComponentTest;width=800;height=600;fullscreen=0;FSAA=4"),
 			mResourceManager(*createDefaultFileSystem())
 		{
 			// Setup the sphere mesh
@@ -37,7 +37,7 @@ TEST(SimplePhysicsComponentTest)
 			for(int b = 0; b < 2; ++b)
 			{	// Setup balls
 				std::auto_ptr<Entity> e(new Entity);
-				e->name = L"ChamferBox 1";
+				e->name = "ChamferBox 1";
 				if (b == 0)
 					e->localTransform.setTranslation(Vec3f(-1.5, 5, 0));
 				else
@@ -46,7 +46,7 @@ TEST(SimplePhysicsComponentTest)
 				// Add component
 				MeshComponent* c = new MeshComponent;
 				c->mesh = mesh;
-				c->effect = dynamic_cast<Effect*>(mResourceManager.load(L"Material/test.fx.xml").get());
+				c->effect = dynamic_cast<Effect*>(mResourceManager.load("Material/test.fx.xml").get());
 				e->addComponent(c);
 
 				// Create the phyiscs component
@@ -59,7 +59,7 @@ TEST(SimplePhysicsComponentTest)
 
 			{	// Setup the ground
 				std::auto_ptr<Entity> e(new Entity);
-				e->name = L"Ground";
+				e->name = "Ground";
 				e->localTransform.setTranslation(Vec3f(0, 0, 0));
 
 				// Setup the ground mesh
@@ -70,7 +70,7 @@ TEST(SimplePhysicsComponentTest)
 				// Add component
 				MeshComponent* c = new MeshComponent;
 				c->mesh = meshGround;
-				c->effect = dynamic_cast<Effect*>(mResourceManager.load(L"Material/test.fx.xml").get());
+				c->effect = dynamic_cast<Effect*>(mResourceManager.load("Material/test.fx.xml").get());
 				e->addComponent(c);
 
 				// Create the phyiscs component

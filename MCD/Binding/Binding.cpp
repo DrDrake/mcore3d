@@ -12,7 +12,7 @@
 #include <map>
 #include <stdarg.h>	// For va_list
 #include <stdio.h>	// For vwprintf
-#include <string.h>	// For wcslen
+#include <string.h>	// For strlen
 
 #ifdef MCD_VC
 #	ifndef NDEBUG
@@ -34,7 +34,7 @@ static void printfunc(HSQUIRRELVM v, const SQChar* s, ...)
 	MCD_ASSERT(s != nullptr);
 	va_list vl;
 	va_start(vl, s);
-	vwprintf(s, vl);
+	vprintf(s, vl);
 	va_end(vl);
 }
 
@@ -52,7 +52,7 @@ extern void registerScriptComponentBinding(script::VMCore* v);
 
 static void onCompileError(HSQUIRRELVM v,const SQChar* desc, const SQChar* source, SQInteger line, SQInteger column)
 {
-	wprintf(L"Compile error: \"%s\" at line %i, column %i\n", desc, line, column);
+	printf("Compile error: \"%s\" at line %i, column %i\n", desc, line, column);
 }
 
 struct TypeInfo
@@ -107,12 +107,12 @@ public:
 		registerScriptComponentBinding(&vm);
 	}
 
-	bool runScript(const wchar_t* script, bool retVal, const wchar_t* scriptName)
+	bool runScript(const char* script, bool retVal, const char* scriptName)
 	{
 		HSQUIRRELVM v = vm.getVM();
 
 		sq_setcompilererrorhandler(v, &onCompileError);
-		if(!SQ_SUCCEEDED(sq_compilebuffer(v, script, SQInteger(::wcslen(script)), scriptName, true)))
+		if(!SQ_SUCCEEDED(sq_compilebuffer(v, script, SQInteger(::strlen(script)), scriptName, true)))
 			return false;
 		sq_pushroottable(v);
 
@@ -143,15 +143,15 @@ ScriptVM::~ScriptVM()
 	delete &mImpl;
 }
 
-bool ScriptVM::runScript(const wchar_t* script, const wchar_t* scriptName, bool retVal)
+bool ScriptVM::runScript(const char* script, const char* scriptName, bool retVal)
 {
 	MemoryProfiler::Scope profiler("ScriptVM::runScript");
 	return mImpl.runScript(script, retVal, scriptName);
 }
 
-std::wstring ScriptVM::runScriptAsString(const wchar_t* script, const wchar_t* scriptName)
+std::string ScriptVM::runScriptAsString(const char* script, const char* scriptName)
 {
-	const wchar_t* str = L"";
+	const char* str = "";
 	if(runScript(script, scriptName, true))
 		sq_getstring(mImpl.vm.getVM(), -1, &str);
 	return str;
@@ -174,45 +174,6 @@ ClassID getClassIDFromTypeInfo(const std::type_info& typeInfo, ClassID original)
 		return i->second;
 	return original;
 }
-
-#ifdef SQUNICODE
-
-void push(HSQUIRRELVM v, const char* value)
-{
-	// TODO: Error handling
-	std::wstring s = MCD::strToWStr(value);
-	sq_pushstring(v, s.c_str(), -1);
-}
-
-// NOTE: This funciton use local variable to store the returning char*
-const char* get(TypeSelect<const char*>, HSQUIRRELVM v, int idx)
-{
-	const wchar_t* s;
-	jkSCRIPT_API_VERIFY(sq_getstring(v, idx, &s));
-	static std::string buf;
-	buf = MCD::wStrToStr(s);
-	return buf.c_str();
-}
-
-#else
-
-void push(HSQUIRRELVM v, const wchar_t* value)
-{
-	// TODO: Error handling
-	std::string s = MCD::wStrToStr(value);
-	sq_pushstring(v, s.c_str(), -1);
-}
-
-const wchar_t* get(TypeSelect<const wchar_t*>, HSQUIRRELVM v, int idx)
-{
-	const char_t* s;
-	jkSCRIPT_API_VERIFY(sq_getstring(v, idx, &s));
-	static std::wstring buf;
-	buf = MCD::strToWStr(s);
-	return buf.c_str();
-}
-
-#endif
 
 }	// namespace types
 }	// namespace script

@@ -17,14 +17,6 @@
 #	define MCD_CYGWIN
 #endif
 
-#ifndef UNICODE
-#	define UNICODE
-#endif
-
-#ifndef _UNICODE
-#	define _UNICODE
-#endif
-
 //////////////////////////////////////////////////////////////////////////
 // For Visual Studio
 

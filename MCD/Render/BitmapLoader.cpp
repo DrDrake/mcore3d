@@ -62,7 +62,7 @@ public:
 		// Check against the magic 2 bytes.
 		// The value of 'BM' in integer is 19778 (assuming little endian)
 		if(fileHeader.bfType != 19778u) {
-			Log::format(Log::Error, L"BitmapLoader: Invalid bitmap header, operation aborted");
+			Log::format(Log::Error, "BitmapLoader: Invalid bitmap header, operation aborted");
 			return -1;
 		}
 
@@ -74,12 +74,12 @@ public:
 		mInternalFmt = GL_RGB;
 
 		if(infoHeader.biBitCount != 24) {
-			Log::format(Log::Error, L"BitmapLoader: Only 24-bit color is supported, operation aborted");
+			Log::format(Log::Error, "BitmapLoader: Only 24-bit color is supported, operation aborted");
 			return -1;
 		}
 
 		if(infoHeader.biCompression != 0) {
-			Log::format(Log::Error, L"BitmapLoader: Compressed bmp is not supported, operation aborted");
+			Log::format(Log::Error, "BitmapLoader: Compressed bmp is not supported, operation aborted");
 			return -1;
 		}
 
@@ -99,7 +99,7 @@ public:
 		mImageData = new byte_t[rowByte * mHeight];
 
 		if(!mImageData) {
-			Log::format(Log::Error, L"BitmapLoader: Corruption of file or not enough memory, operation aborted");
+			Log::format(Log::Error, "BitmapLoader: Corruption of file or not enough memory, operation aborted");
 			return -1;
 		}
 
@@ -112,7 +112,7 @@ public:
 			byte_t* p = &mImageData[invertedH * rowByte];
 			is.read((char*)p, rowByte);
 			if(is.gcount() != std::streamsize(rowByte)) {
-				Log::format(Log::Warn, L"BitmapLoader: End of file, bitmap data incomplete");
+				Log::format(Log::Warn, "BitmapLoader: End of file, bitmap data incomplete");
 				return 0;
 			}
 		}
@@ -133,7 +133,7 @@ BitmapLoader::BitmapLoader()
 	setImpl(new LoaderImpl(*this));
 }
 
-IResourceLoader::LoadingState BitmapLoader::load(std::istream* is, const Path*, const wchar_t*)
+IResourceLoader::LoadingState BitmapLoader::load(std::istream* is, const Path*, const char*)
 {
 	MCD_ASSUME(mImpl != nullptr);
 	ScopeLock lock(mImpl->mMutex);

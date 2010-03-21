@@ -176,7 +176,7 @@ ALenum getFormat(vorbis_info* info)
 	}
 }
 
-size_t parseSubBufferLength(const wchar_t* args)
+size_t parseSubBufferLength(const char* args)
 {
 	// Returns 250ms by default
 	size_t len = 250;
@@ -185,11 +185,11 @@ size_t parseSubBufferLength(const wchar_t* args)
 		return len;
 
 	NvpParser parser(args);
-	const wchar_t* name, *value;
+	const char* name, *value;
 	while(parser.next(name, value))
 	{
-		if(wstrCaseCmp(name, L"subBufferLength") == 0) {
-			len = wStr2IntWithDefault(value, len);
+		if(strCaseCmp(name, "subBufferLength") == 0) {
+			len = str2IntWithDefault(value, len);
 			break;
 		}
 	}
@@ -253,7 +253,7 @@ public:
 			gFnOvClear(&mOggFile);
 	}
 
-	bool loadHeader(std::istream* is, const wchar_t* args)
+	bool loadHeader(std::istream* is, const char* args)
 	{
 		MCD_ASSERT(mMutex.isLocked());
 
@@ -413,7 +413,7 @@ OggLoader::~OggLoader()
 	delete &mImpl;
 }
 
-IResourceLoader::LoadingState OggLoader::load(std::istream* is, const Path*, const wchar_t* args)
+IResourceLoader::LoadingState OggLoader::load(std::istream* is, const Path*, const char* args)
 {
 	ScopeLock lock(mImpl.mMutex);
 
@@ -446,7 +446,7 @@ IResourceLoader::LoadingState OggLoader::getLoadingState() const
 }
 
 // Invoked in resource manager worker thread
-void OggLoader::onPartialLoaded(IPartialLoadContext& context, uint priority, const wchar_t* args)
+void OggLoader::onPartialLoaded(IPartialLoadContext& context, uint priority, const char* args)
 {
 	if(mImpl.mTaskQueue.isEmpty()) {
 		ScopeLock lock(mImpl.mMutex);

@@ -15,15 +15,15 @@ TEST(ModelLoaderTest)
 	public:
 		TestWindow()
 			:
-			BasicGlWindow(L"title=ModelLoaderTest;width=800;height=600;fullscreen=0;FSAA=4"),
+			BasicGlWindow("title=ModelLoaderTest;width=800;height=600;fullscreen=0;FSAA=4"),
 			mAngle(0)
 		{
-			std::auto_ptr<IFileSystem> fs(new RawFileSystem(L"./Media/"));
+			std::auto_ptr<IFileSystem> fs(new RawFileSystem("./Media/"));
 			mResourceManager.reset(new DefaultResourceManager(*fs));
 			fs.release();
 		}
 
-		void loadModel(const wchar_t* fileId)
+		void loadModel(const char* fileId)
 		{
 			mModel = dynamic_cast<Model*>(mResourceManager->load(fileId, IResourceManager::NonBlock, 0).get());
 		}
@@ -55,8 +55,8 @@ TEST(ModelLoaderTest)
 	{
 		TestWindow window;
 
-//		window.loadModel(L"testbox.mesh");
-		window.loadModel(L"Scene/City/scene.3ds");
+//		window.loadModel("testbox.mesh");
+		window.loadModel("Scene/City/scene.3ds");
 
 		window.mainLoop();
 	}

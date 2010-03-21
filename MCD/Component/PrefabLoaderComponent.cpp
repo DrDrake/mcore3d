@@ -55,7 +55,7 @@ bool PrefabLoaderComponent::isLoaded() const {
 	return mLoaded;
 }
 
-Entity* PrefabLoaderComponent::loadEntity(IResourceManager& resourceManager, const wchar_t* filePath, DynamicsWorld* dynamicsWorld)
+Entity* PrefabLoaderComponent::loadEntity(IResourceManager& resourceManager, const char* filePath, DynamicsWorld* dynamicsWorld)
 {
 	PrefabPtr prefab = dynamic_cast<Prefab*>(resourceManager.load(filePath).get());
 	if(!prefab)

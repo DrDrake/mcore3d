@@ -15,7 +15,7 @@ class ThreeDTestFixture
 {
 protected:
 	ThreeDTestFixture()
-		: fs(new RawFileSystem(L"./")), manager(*fs)
+		: fs(new RawFileSystem("./")), manager(*fs)
 	{
 		(void)initAudioDevice();
 		manager.addFactory(new OggLoaderFactory);
@@ -35,7 +35,7 @@ protected:
 TEST_FIXTURE(ThreeDTestFixture, LeftToRight)
 {
 	AudioSource source;
-	CHECK(source.load(manager, L"mono.ogg", L"blockLoadFirstBuffer=1"));
+	CHECK(source.load(manager, "mono.ogg", "blockLoadFirstBuffer=1"));
 
 	CHECK_EQUAL(1u, source.channelCount());
 	CHECK_EQUAL(22050u, source.frequency());

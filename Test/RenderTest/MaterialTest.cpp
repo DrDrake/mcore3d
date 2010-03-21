@@ -14,15 +14,15 @@ TEST(MaterialTest)
 	public:
 		TestWindow()
 			:
-			BasicGlWindow(L"title=MaterialTest;width=800;height=600;fullscreen=0;FSAA=4"),
+			BasicGlWindow("title=MaterialTest;width=800;height=600;fullscreen=0;FSAA=4"),
 			mResourceManager(*createDefaultFileSystem())
 		{
 			// Setup the chamfer box mesh
-			mMesh = new Mesh(L"");
+			mMesh = new Mesh("");
 			ChamferBoxBuilder chamferBoxBuilder(0.4f, 3);
 			MCD_VERIFY(commitMesh(chamferBoxBuilder, *mMesh, Mesh::Static));
 
-			mEffect = static_cast<Effect*>(mResourceManager.load(L"Material/test.fx.xml").get());
+			mEffect = static_cast<Effect*>(mResourceManager.load("Material/test.fx.xml").get());
 		}
 
 		sal_override void update(float deltaTime)

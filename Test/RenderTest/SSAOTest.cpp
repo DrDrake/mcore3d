@@ -16,7 +16,7 @@ using namespace MCD;
 
 static TexturePtr generateRandomTexture(uint textureSize)
 {
-	TexturePtr texture = new Texture(L"");
+	TexturePtr texture = new Texture("");
 	texture->width = textureSize;
 	texture->height = textureSize;
 	texture->type = GL_TEXTURE_2D;
@@ -75,15 +75,15 @@ TEST(SSAOTest)
 	public:
 		TestWindow()
 			:
-			BasicGlWindow(L"title=SSAOTest;width=800;height=600;fullscreen=0;FSAA=4"),
+			BasicGlWindow("title=SSAOTest;width=800;height=600;fullscreen=0;FSAA=4"),
 			mUseSSAO(true), mShowTexture(false),
 			mSSAORescale(0.5f), mSSAORadius(0.5f), mBlurPassCount(2),
 			mRenderable(nullptr), mResourceManager(*createDefaultFileSystem())
 		{
-			if( !loadShaderProgram(L"Shader/SSAO/Scene.glvs", L"Shader/SSAO/Scene.glps", mScenePass, mResourceManager) ||
-				!loadShaderProgram(L"Shader/SSAO/SSAO.glvs", L"Shader/SSAO/SSAO.glps", mSSAOPass, mResourceManager) ||
-				!loadShaderProgram(L"Shader/SSAO/Blur.glvs", L"Shader/SSAO/Blur.glps", mBlurPass, mResourceManager) ||
-				!loadShaderProgram(L"Shader/SSAO/Combine.glvs", L"Shader/SSAO/Combine.glps", mCombinePass, mResourceManager))
+			if( !loadShaderProgram("Shader/SSAO/Scene.glvs", "Shader/SSAO/Scene.glps", mScenePass, mResourceManager) ||
+				!loadShaderProgram("Shader/SSAO/SSAO.glvs", "Shader/SSAO/SSAO.glps", mSSAOPass, mResourceManager) ||
+				!loadShaderProgram("Shader/SSAO/Blur.glvs", "Shader/SSAO/Blur.glps", mBlurPass, mResourceManager) ||
+				!loadShaderProgram("Shader/SSAO/Combine.glvs", "Shader/SSAO/Combine.glps", mCombinePass, mResourceManager))
 			{
 				throw std::runtime_error("Fail to load shader");
 			}
@@ -393,7 +393,7 @@ TEST(SSAOTest)
 			mCombinePass.unbind();
 		}
 
-		void loadModel(const wchar_t* fileId)
+		void loadModel(const char* fileId)
 		{
 			mModel = mResourceManager.load(fileId).get();
 			mRenderable = dynamic_cast<IRenderable*>(mModel.get());
@@ -431,15 +431,15 @@ TEST(SSAOTest)
 	{
 		TestWindow window;
 
-//		window.loadModel(L"ANDOX.3DS");
-//		window.loadModel(L"TextureBoxSphere.3ds");
-//		window.loadModel(L"House/house.3ds");
-//		window.loadModel(L"City/city.3ds");
-//		window.loadModel(L"Scene/01/scene.3ds");
-		window.loadModel(L"Scene/03/scene.3ds");
-//		window.loadModel(L"Church/sponza/sponza.3ds");
-//		window.loadModel(L"3M00696/buelllightning.3DS");
-//		window.loadModel(L"Lamborghini Gallardo Polizia/Lamborghini Gallardo Polizia.3DS");
+//		window.loadModel("ANDOX.3DS");
+//		window.loadModel("TextureBoxSphere.3ds");
+//		window.loadModel("House/house.3ds");
+//		window.loadModel("City/city.3ds");
+//		window.loadModel("Scene/01/scene.3ds");
+		window.loadModel("Scene/03/scene.3ds");
+//		window.loadModel("Church/sponza/sponza.3ds");
+//		window.loadModel("3M00696/buelllightning.3DS");
+//		window.loadModel("Lamborghini Gallardo Polizia/Lamborghini Gallardo Polizia.3DS");
 
 		window.mainLoop();
 	}

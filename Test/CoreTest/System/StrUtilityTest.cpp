@@ -72,45 +72,38 @@ TEST(Utf8Test)
 TEST(NumberToStrTest)
 {
 	CHECK_EQUAL("-123", int2Str(-123));
-	CHECK_EQUAL(L"-123", int2WStr(-123));
-
 	CHECK_EQUAL("0", int2Str(0));
-	CHECK_EQUAL(L"0", int2WStr(0));
-
 	CHECK_EQUAL("123", int2Str(123));
-	CHECK_EQUAL(L"123", int2WStr(123));
-
 	CHECK_EQUAL("1234567890", int2Str(1234567890));
-	CHECK_EQUAL(L"1234567890", int2WStr(1234567890));
 }
 
 TEST(StrtoNumberTest)
 {
 	struct S {
-		const wchar_t* wideStr;
+		const char* wideStr;
 		int number;
 		bool success;
 	};
 
 	const S data[] = {
-		{L"",			0,		false},
-		{L"0",			0,		true},
-		{L"123",		123,	true},
-		{L"-123",		-123,	true},
-		{L"ABC",		0,		false},	// Not a number
-		{L"99999999999",0,		false},	// Overflow
+		{"",			0,		false},
+		{"0",			0,		true},
+		{"123",			123,	true},
+		{"-123",		-123,	true},
+		{"ABC",			0,		false},	// Not a number
+		{"99999999999",	0,		false},	// Overflow
 	};
 
 	for(size_t i=0; i<MCD_COUNTOF(data); ++i) {
 		// Without default value
 		int a;
-		bool ok = wStr2Int(data[i].wideStr, a);
+		bool ok = str2Int(data[i].wideStr, a);
 		CHECK(ok == data[i].success);
 		if(ok)
 			CHECK_EQUAL(data[i].number, a);
 
 		// With default value
-		a = wStr2IntWithDefault(data[i].wideStr, -123);
+		a = str2IntWithDefault(data[i].wideStr, -123);
 		CHECK_EQUAL(data[i].success ? data[i].number : -123, a);
 	}
 }
@@ -118,7 +111,7 @@ TEST(StrtoNumberTest)
 TEST(StrtoFloatArrayTest)
 {
 	struct S {
-		const wchar_t* wideStr;
+		const char* wideStr;
 		const float* values;
 		size_t expectCount;
 		size_t maxCount;
@@ -130,26 +123,26 @@ TEST(StrtoFloatArrayTest)
 	const float v3[] = {1, 2, 3};
 
 	const S data[] = {
-		{L"",			nullptr,	0u,	 0u, false},	// Exact count
-		{L"0",			v1,			1u,	 1u, true},		//
-		{L"1 2",		v2,			2u,	 2u, true},		//
-		{L"1 2 3",		v3,			3u,	 3u, true},		//
-		{L"",			nullptr,	0u,	10u, false},	// Bigger count
-		{L"0",			v1,			1u,	10u, true},		//
-		{L"1 2",		v2,			2u,	20u, true},		//
-		{L"",			nullptr,	0u,	 0u, false},	// Smaller count
-		{L"1 2",		v2,			1u,	 1u, true},		//
-		{L"1 2 3",		v3,			2u,	 2u, true},		//
-		{L"",			nullptr,	0u,	 0u, false},	// Don't care count
-		{L"abc",		nullptr,	0u,	 0u, false},	//
-		{L"0",			v1,			1u,	 0u, true},		//
-		{L"1 2",		v2,			2u,	 0u, true},		//
-		{L"1 2 3 a",	v3,			3u,	 0u, true},		//
+		{"",		nullptr,	0u,	 0u, false},	// Exact count
+		{"0",		v1,			1u,	 1u, true},		//
+		{"1 2",		v2,			2u,	 2u, true},		//
+		{"1 2 3",	v3,			3u,	 3u, true},		//
+		{"",		nullptr,	0u,	10u, false},	// Bigger count
+		{"0",		v1,			1u,	10u, true},		//
+		{"1 2",		v2,			2u,	20u, true},		//
+		{"",		nullptr,	0u,	 0u, false},	// Smaller count
+		{"1 2",		v2,			1u,	 1u, true},		//
+		{"1 2 3",	v3,			2u,	 2u, true},		//
+		{"",		nullptr,	0u,	 0u, false},	// Don't care count
+		{"abc",		nullptr,	0u,	 0u, false},	//
+		{"0",		v1,			1u,	 0u, true},		//
+		{"1 2",		v2,			2u,	 0u, true},		//
+		{"1 2 3 a",	v3,			3u,	 0u, true},		//
 	};
 
 	for(size_t i=0; i<MCD_COUNTOF(data); ++i) {
 		size_t size = data[i].maxCount;
-		float* ret = wStrToFloatArray(data[i].wideStr, size);
+		float* ret = strToFloatArray(data[i].wideStr, size);
 		CHECK_EQUAL(data[i].success, ret != nullptr);
 		CHECK_EQUAL(data[i].expectCount, size);
 
@@ -167,38 +160,38 @@ TEST(WStrCaseCmpTest)
 
 TEST(NvpParserTest)
 {
-	const wchar_t* str =
-		L"x = '1';\n "
-		L"y = 2; \t"
-		L"z=1.23;"
-		L"Empty='';"				// Representation of an empty string value
-		L"ShortName =Ricky;"		// String without space ok
-		L"FullName = 'Ricky Lung';"	// Space inside quot ok
-		L"City = \"Hong Kong;\";"	// Another type of quot
-		L"Text1 = \"'1', '2'\";"	// Quot inside string is ignored
-		L"Text2 = '\"1\", \"2\"';";	// Quot inside string is ignored
+	const char* str =
+		"x = '1';\n "
+		"y = 2; \t"
+		"z=1.23;"
+		"Empty='';"				// Representation of an empty string value
+		"ShortName =Ricky;"		// String without space ok
+		"FullName = 'Ricky Lung';"	// Space inside quot ok
+		"City = \"Hong Kong;\";"	// Another type of quot
+		"Text1 = \"'1', '2'\";"	// Quot inside string is ignored
+		"Text2 = '\"1\", \"2\"';";	// Quot inside string is ignored
 
 	struct S {
-		const wchar_t* name;
-		const wchar_t* value;
+		const char* name;
+		const char* value;
 	};
 
 	const S data[] = {
-		{ L"x",			L"1"},
-		{ L"y",			L"2"},
-		{ L"z",			L"1.23"},
-		{ L"Empty",		L""},
-		{ L"ShortName",	L"Ricky"},
-		{ L"FullName",	L"Ricky Lung"},
-		{ L"City",		L"Hong Kong;"},
-		{ L"Text1",		L"'1', '2'"},
-		{ L"Text2",		L"\"1\", \"2\""},
+		{ "x",			"1"},
+		{ "y",			"2"},
+		{ "z",			"1.23"},
+		{ "Empty",		""},
+		{ "ShortName",	"Ricky"},
+		{ "FullName",	"Ricky Lung"},
+		{ "City",		"Hong Kong;"},
+		{ "Text1",		"'1', '2'"},
+		{ "Text2",		"\"1\", \"2\""},
 	};
 
 	NvpParser parser(str);
 
 	for(size_t i=0; i<MCD_COUNTOF(data); ++i) {
-		const wchar_t* name = nullptr, *value = nullptr;
+		const char* name = nullptr, *value = nullptr;
 		CHECK(parser.next(name, value));
 
 		if(!name || !value) {
@@ -206,12 +199,12 @@ TEST(NvpParserTest)
 			continue;
 		}
 
-		CHECK_EQUAL(std::wstring(data[i].name), name);
-		CHECK_EQUAL(std::wstring(data[i].value), value);
+		CHECK_EQUAL(std::string(data[i].name), name);
+		CHECK_EQUAL(std::string(data[i].value), value);
 	}
 
 	{	// No more pair to parse
-		const wchar_t* name = nullptr, *value = nullptr;
+		const char* name = nullptr, *value = nullptr;
 		CHECK(!parser.next(name, value));
 		CHECK(!name);
 		CHECK(!value);

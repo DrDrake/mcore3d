@@ -34,7 +34,7 @@ public:
 
 	sal_override LoadingState getLoadingState() const;
 
-	sal_override void onPartialLoaded(IPartialLoadContext& context, uint priority, sal_in_z_opt const wchar_t* args);
+	sal_override void onPartialLoaded(IPartialLoadContext& context, uint priority, sal_in_z_opt const char* args);
 
 // Attributes
 	volatile LoadingState loadingState;

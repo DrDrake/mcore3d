@@ -12,10 +12,8 @@ namespace {
 typedef Path::string_type string_type;
 typedef Path::string_type::size_type size_type;
 
-#define L(x)	L ## x
-
 static bool IsSlash(Path::char_type c) {
-	return c == L('/') || c == L('\\');
+	return c == '/' || c == '\\';
 }
 
 //! Find the offset of the first non-slash character in the path, starting from $initialOffset
@@ -34,19 +32,19 @@ static size_type FindRelativePathPos(const string_type& path)
 	if(path.empty())
 		return string_type::npos;
 
-	size_type pos = path.find(L(':'));
+	size_type pos = path.find(':');
 
 	if(pos != string_type::npos)
 		return FindNonSlash(path, pos+1);
 
-	return path[0] == L('/') ? 1 : 0;
+	return path[0] == '/' ? 1 : 0;
 }
 
 }	// namespace
 
 Path::string_type Path::getRootName() const
 {
-	size_type pos(mStr.find(L(':')));
+	size_type pos(mStr.find(':'));
 	if(pos != string_type::npos)
 		return mStr.substr(0, pos + 1);
 
@@ -57,7 +55,7 @@ Path::string_type Path::getRootDirectory() const
 {
 	if(mStr.empty())
 		return string_type();
-	return (mStr[0] == L('/') || !getRootName().empty()) ?	L("/") : L("");
+	return (mStr[0] == '/' || !getRootName().empty()) ?	"/" : "";
 }
 
 // POSIX & Windows cases:	"", "/", "/foo", "foo", "foo/bar"
@@ -114,15 +112,15 @@ Path::string_type Path::getExtension() const
 
 	while(i--) {
 		const char_type c = mStr[i];
-		if(c == L'.') {
+		if(c == '.') {
 			++i;	// Skip the dot character
 			return mStr.substr(i, mStr.size() - i);
 		}
-		else if(c == L'\\' || c == L'/')
+		else if(c == '\\' || c == '/')
 			break;
 	}
 
-	return L"";
+	return "";
 }
 
 void Path::removeExtension()
@@ -133,11 +131,11 @@ void Path::removeExtension()
 
 	while(i--) {
 		const char_type c = mStr[i];
-		if(c == L'.') {
+		if(c == '.') {
 			mStr.resize(i);
 			return;
 		}
-		else if(c == L'\\' || c == L'/')
+		else if(c == '\\' || c == '/')
 			break;
 	}
 }
@@ -150,24 +148,24 @@ Path& Path::normalize()
 	// Unify all '\' into '/'
 	for(size_type i=0, count=mStr.size(); i<count; ++i)
 		if(mStr[i] == '\\')
-			mStr[i] = L('/');
+			mStr[i] = '/';
 
 	size_type end, beg(0), start = FindRelativePathPos(mStr);
 
-	while( (beg = mStr.find(L("/.."), beg)) != string_type::npos ) {
+	while( (beg = mStr.find("/..", beg)) != string_type::npos ) {
 		end = beg + 3;
-		if( (beg == 1 && mStr[0] == L('.'))
-			|| (beg == 2 && mStr[0] == L('.') && mStr[1] == L('.'))
+		if( (beg == 1 && mStr[0] == '.')
+			|| (beg == 2 && mStr[0] == '.' && mStr[1] == '.')
 			// NOTE: The following 2 lines of code cause problem in Rational Purify,
 			// and the purpose of it is not totally understand yet.
-/*			|| (beg > 2 && mStr[beg-3] == L('/')
-			&& mStr[beg-2] == L('.') && mStr[beg-1] == L('.'))*/ )
+/*			|| (beg > 2 && mStr[beg-3] == '/'
+			&& mStr[beg-2] == '.' && mStr[beg-1] == '.')*/ )
 		{
 			beg = end;
 			continue;
 		}
 		if(end < mStr.size()) {
-			if(mStr[end] == L('/'))
+			if(mStr[end] == '/')
 				++end;
 			else {	// name starts with ..
 				beg = end;
@@ -176,8 +174,8 @@ Path& Path::normalize()
 		}
 
 		// end is one past end of substr to be erased; now set beg
-		while(beg > start && mStr[--beg] != L('/')) {}
-		if(mStr[beg] == L('/'))
+		while(beg > start && mStr[--beg] != '/') {}
+		if(mStr[beg] == '/')
 			++beg;
 		mStr.erase(beg, end - beg);
 		if(beg)
@@ -186,21 +184,21 @@ Path& Path::normalize()
 
 	// Remove all "./" (note that remove from the back is more efficient)
 	end = string_type::npos;
-	while( (beg = mStr.rfind(L("./"), end)) != string_type::npos ) {
-		if(beg == 0 || mStr[beg-1] != L('.'))	// Not confuse with "../"
+	while( (beg = mStr.rfind("./", end)) != string_type::npos ) {
+		if(beg == 0 || mStr[beg-1] != '.')	// Not confuse with "../"
 			mStr.erase(beg, 2);
 		else
 			end = beg - 1;
 	}
 
 	// Remove trailing '.'
-	if(!mStr.empty() && mStr[mStr.size()-1] == L('.')) {
-		if(mStr.size() == 1 || mStr[mStr.size()-2] != L('.'))	// If not ".."
+	if(!mStr.empty() && mStr[mStr.size()-1] == '.') {
+		if(mStr.size() == 1 || mStr[mStr.size()-2] != '.')	// If not ".."
 			mStr.resize(mStr.size() - 1);
 	}
 
 	// Remove trailing '/' but not the root path "/"
-	beg = mStr.rfind(L("/"));
+	beg = mStr.rfind("/");
 	if(beg != string_type::npos && beg > start && beg == mStr.size() -1)
 		mStr.resize(mStr.size() - 1);
 
@@ -214,8 +212,8 @@ Path& Path::operator/=(const Path& rhs)
 	if(!mStr.empty() && rhs.hasRootDirectory())
 		throw std::runtime_error("should not append a path with root directory unless lhs is empty");
 
-	if(!mStr.empty() && mStr[mStr.size()-1] != L('/'))
-		mStr += L("/");
+	if(!mStr.empty() && mStr[mStr.size()-1] != '/')
+		mStr += "/";
 	mStr += rhs.mStr;
 	normalize();
 
@@ -224,11 +222,7 @@ Path& Path::operator/=(const Path& rhs)
 
 int Path::compare(const Path& rhs) const
 {
-#ifdef MCD_WIN32
-	return wstrCaseCmp(mStr.c_str(), rhs.mStr.c_str());
-#else
-	return ::wcscmp(mStr.c_str(), rhs.mStr.c_str());
-#endif
+	return strCaseCmp(mStr.c_str(), rhs.mStr.c_str());
 }
 
 Path Path::getCurrentPath()
@@ -237,48 +231,45 @@ Path Path::getCurrentPath()
 	// We use GetCurrentDirectoryW since it directly support unicode
 
 	DWORD sz;
-	char_type dummy[1];	// Use a dummy to avoid a warning in Intel Thread Checker: passing nullptr to GetCurrentDirectoryW
+	wchar_t dummy[1];	// Use a dummy to avoid a warning in Intel Thread Checker: passing nullptr to GetCurrentDirectoryW
 
 	// Query the required buffer size
 	if((sz = ::GetCurrentDirectoryW(0, dummy)) == 0)
 		return Path();
 
-	char_type* buf = (char_type*)MCD_STACKALLOCA(sz * sizeof(char_type));
+	wchar_t* buf = (wchar_t*)MCD_STACKALLOCA(sz * sizeof(wchar_t));
 	if(::GetCurrentDirectoryW(sz, buf) == 0)
 		return Path();
 
-	Path tmp(buf);
+	std::string utf8Str;
+	MCD_VERIFY(wStrToUtf8(buf, utf8Str));
+	Path tmp(utf8Str);
 	MCD_STACKFREE(buf);
 	return tmp.normalize();
 #else
-	// For other system we assume it have a UTF-8 locale so wStrToStr will work as expected
+	// For other system we assume it have a UTF-8 locale
 
 	char* buffer = getcwd( nullptr, 0);
 
 	if(!buffer)
 		return Path();
 
-	Path ret;
-	if(strToWStr(buffer, ret.mStr))
-		return ret.normalize();
-	else
-		return Path();
+	Path ret(buffer);
+	return ret.normalize();
 #endif
 }
 
 void Path::setCurrentPath(const Path& path)
 {
 #ifdef MCD_VC
-	if(::SetCurrentDirectoryW(path.getString().c_str()) == false) {
-		std::string narrowStr;
-		MCD_VERIFY(wStrToStr(path.getString().c_str(), narrowStr));
+	std::wstring wideString;
+	MCD_VERIFY(utf8ToWStr(path.getString(), wideString));
+	if(::SetCurrentDirectoryW(wideString.c_str()) == false) {
 #else
-	std::string narrowStr;
-	MCD_VERIFY(wStrToStr(path.getString().c_str(), narrowStr));
-	if(chdir(narrowStr.c_str()) != 0) {
+	if(chdir(path.getString().c_str()) != 0) {
 #endif
 		throw std::runtime_error(
-			MCD::getErrorMessage(("Unable to set current path to '" + narrowStr + "': ").c_str(), MCD::getLastError())
+			MCD::getErrorMessage(("Unable to set current path to '" + path.getString() + "': ").c_str(), MCD::getLastError())
 		);
 	}
 }
@@ -286,17 +277,17 @@ void Path::setCurrentPath(const Path& path)
 // We will first normalize the incomming path and then append an extra "/"
 // so that it work naturally with the next() function.
 PathIterator::PathIterator(const Path& path)
-	: mStr(Path(path).normalize().getString() + L"/"), currentIndex(0)
+	: mStr(Path(path).normalize().getString() + "/"), currentIndex(0)
 {
 	// Handle the case when there is a root directory
-	if(mStr[0] == L'/')
+	if(mStr[0] == '/')
 		++currentIndex;
 }
 
 Path::string_type PathIterator::next(bool returnFullPath)
 {
 	size_t oldIndex = currentIndex;
-	currentIndex = mStr.find(L"/", currentIndex);
+	currentIndex = mStr.find("/", currentIndex);
 	if(currentIndex == Path::string_type::npos)
 		return Path::string_type();
 	return mStr.substr(returnFullPath ? 0 : oldIndex, currentIndex++);

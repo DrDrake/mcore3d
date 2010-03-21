@@ -190,8 +190,11 @@ void Window::Impl::createWindow(Window::Handle existingWindowHandle)
 			windowHeight = (mHeight == CW_USEDEFAULT ? mHeight :  rect.bottom - rect.top);
 		}
 
-		mWnd = ::CreateWindow(
-			cWindowClass, mTitle.c_str(),
+		std::wstring wideStr;
+		MCD_VERIFY(utf8ToWStr(mTitle, wideStr));
+
+		mWnd = ::CreateWindowW(
+			cWindowClass, wideStr.c_str(),
 			style,
 			CW_USEDEFAULT, CW_USEDEFAULT,
 			windowWidth, windowHeight,
@@ -257,13 +260,13 @@ void Window::Impl::onDestroy()
 //////////////////////////////////////////////////////////////////////////
 // Begin of setting options
 
-void Window::Impl::setColorBits(const wchar_t* value)
+void Window::Impl::setColorBits(const char* value)
 {
 	// Cannot change the color bits once the window is created
 	if(mWnd)
 		return;
 
-	uint colorBits = wStr2IntWithDefault(value, 32);
+	uint colorBits = str2IntWithDefault(value, 32);
 	if(colorBits != 4 && colorBits != 8 && colorBits != 16 && colorBits != 32)
 		return;
 
@@ -271,7 +274,7 @@ void Window::Impl::setColorBits(const wchar_t* value)
 }
 
 // "curosrPosition = 'x=123; y=456'"
-void Window::Impl::setCursorPosition(const wchar_t* value)
+void Window::Impl::setCursorPosition(const char* value)
 {
 	int x, y;
 	parseXy(value, x, y);
@@ -281,12 +284,12 @@ void Window::Impl::setCursorPosition(const wchar_t* value)
 }
 
 // "fullscreen = 0|1"
-void Window::Impl::setFullscreen(const wchar_t* value)
+void Window::Impl::setFullscreen(const char* value)
 {
 	// Cannot change the fullscreen mode once the window is created
 	if(mWnd)
 		return;
-	mFullScreen = (wStr2IntWithDefault(value, false) == 1);
+	mFullScreen = (str2IntWithDefault(value, false) == 1);
 }
 
 void Window::Impl::setFullscreen(bool flag)
@@ -309,7 +312,7 @@ void Window::Impl::setFullscreen(bool flag)
 		// Apply fullscreen mode
 		if(::ChangeDisplaySettings(&devMode, CDS_FULLSCREEN) != DISP_CHANGE_SUCCESSFUL) {
 			mFullScreen = false;
-			Log::write(Log::Error, L"Fail to enter full screen mode");
+			Log::write(Log::Error, "Fail to enter full screen mode");
 			return;
 		}
 
@@ -328,7 +331,7 @@ void Window::Impl::setFullscreen(bool flag)
 	else {
 		// Restore the backup settings
 		if(::ChangeDisplaySettings(&mDisplaySettingBackup, CDS_RESET) != DISP_CHANGE_SUCCESSFUL) {
-			Log::write(Log::Error, L"Fail to restore original screen setting from full screen mode");
+			Log::write(Log::Error, "Fail to restore original screen setting from full screen mode");
 		}
 
 		::SetWindowLong(mWnd, GWL_STYLE, WS_OVERLAPPEDWINDOW);
@@ -338,53 +341,55 @@ void Window::Impl::setFullscreen(bool flag)
 }
 
 // "height = 600"
-void Window::Impl::setHeight(const wchar_t* value)
+void Window::Impl::setHeight(const char* value)
 {
-	mHeight = wStr2IntWithDefault(value, 600);
+	mHeight = str2IntWithDefault(value, 600);
 }
 
 // "show = 0|1"
-void Window::Impl::setShowWindow(const wchar_t* value)
+void Window::Impl::setShowWindow(const char* value)
 {
-	mShowWindow = wStr2IntWithDefault(value, 1) == 1 ? SW_SHOW : SW_HIDE;
+	mShowWindow = str2IntWithDefault(value, 1) == 1 ? SW_SHOW : SW_HIDE;
 	::ShowWindow(mWnd, mShowWindow);
 }
 
 // "showCursor = 0|1"
-void Window::Impl::setShowCursor(const wchar_t* value)
+void Window::Impl::setShowCursor(const char* value)
 {
-	::ShowCursor(wStr2IntWithDefault(value, 1) == 1);
+	::ShowCursor(str2IntWithDefault(value, 1) == 1);
 }
 
 // "title = 'Simple game engine'"
-void Window::Impl::setTitle(const wchar_t* value)
+void Window::Impl::setTitle(const char* value)
 {
 	mTitle = value;
-	::SetWindowTextW(mWnd, value);
+	std::wstring wideStr;
+	MCD_VERIFY(utf8ToWStr(mTitle, wideStr));
+	::SetWindowTextW(mWnd, wideStr.c_str());
 }
 
 // "width = 800"
-void Window::Impl::setWidth(const wchar_t* value)
+void Window::Impl::setWidth(const char* value)
 {
-	mWidth = wStr2IntWithDefault(value, 800);
+	mWidth = str2IntWithDefault(value, 800);
 }
 
-sal_override void Window::Impl::setOption(const wchar_t* name, const wchar_t* value)
+sal_override void Window::Impl::setOption(const char* name, const char* value)
 {
-	struct S {	const wchar_t* name; void (Impl::*fun)(const wchar_t*); };
+	struct S {	const char* name; void (Impl::*fun)(const char*); };
 	static const S table[] = {
-		{ L"colorBits",			&Impl::setColorBits },
-		{ L"curosrPosition",	&Impl::setCursorPosition },
-		{ L"fullscreen",		&Impl::setFullscreen },
-		{ L"height",			&Impl::setHeight },
-		{ L"show",				&Impl::setShowWindow },
-		{ L"showCursor",		&Impl::setShowCursor },
-		{ L"title",				&Impl::setTitle },
-		{ L"width",				&Impl::setWidth },
+		{ "colorBits",		&Impl::setColorBits },
+		{ "curosrPosition",	&Impl::setCursorPosition },
+		{ "fullscreen",		&Impl::setFullscreen },
+		{ "height",			&Impl::setHeight },
+		{ "show",			&Impl::setShowWindow },
+		{ "showCursor",		&Impl::setShowCursor },
+		{ "title",			&Impl::setTitle },
+		{ "width",			&Impl::setWidth },
 	};
 
 	for(size_t i=0; i<MCD_COUNTOF(table); ++i) {
-		if(::wcscmp(name, table[i].name) == 0) {
+		if(::strcmp(name, table[i].name) == 0) {
 			(this->*(table[i].fun))(value);
 			return;
 		}
@@ -403,7 +408,7 @@ sal_override void Window::Impl::processEvent(bool blocking)
 			TranslateMessage(&message);
 			DispatchMessage(&message);
 		} else {
-			Log::format(Log::Error, L"Win32 API GetMessage failed with message:\"%s\"", strToWStr(getErrorMessage(nullptr)).c_str());
+			Log::format(Log::Error, "Win32 API GetMessage failed with message:\"%s\"", getErrorMessage(nullptr).c_str());
 		}
 	}
 	else while(::PeekMessage(&message, mWnd, 0, 0, PM_REMOVE)) {

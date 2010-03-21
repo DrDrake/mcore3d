@@ -8,46 +8,46 @@ using namespace MCD;
 
 TEST(ScriptComponentTest)
 {
-	RawFileSystem fs(L"");
+	RawFileSystem fs("");
 	ScriptVM vm;
 	ScriptComponentManager mgr;
 	CHECK(mgr.init(vm, fs));
 	Entity root;
 	mgr.registerRootEntity(root);
 
-	CHECK(mgr.doFile(L"ScriptComponentTestInit.nut", true));
+	CHECK(mgr.doFile("ScriptComponentTestInit.nut", true));
 }
 
 TEST(CreateEntityFromScripTest)
 {
-	RawFileSystem fs(L"");
+	RawFileSystem fs("");
 	ScriptVM vm;
 	ScriptComponentManager mgr;
 	CHECK(mgr.init(vm, fs));
 
 	{	// C++ keep ownership
-		Entity* e = mgr.runScripAsEntity(L"local e=Entity(\"CreateEntityFromScripTest\");return e;");
+		Entity* e = mgr.runScripAsEntity("local e=Entity(\"CreateEntityFromScripTest\");return e;");
 		CHECK(e);
 		if(e) {
-			CHECK_EQUAL(L"CreateEntityFromScripTest", e->name);
+			CHECK_EQUAL("CreateEntityFromScripTest", e->name);
 			delete e;
 		}
 	}
 
 	{	// Script keep ownership
-		Entity* e = mgr.runScripAsEntity(L"local e=Entity(\"CreateEntityFromScripTest\");return e;", true);
+		Entity* e = mgr.runScripAsEntity("local e=Entity(\"CreateEntityFromScripTest\");return e;", true);
 		CHECK(e);
 		if(e)
-			CHECK_EQUAL(L"CreateEntityFromScripTest", e->name);
+			CHECK_EQUAL("CreateEntityFromScripTest", e->name);
 	}
 
 	{	// Syntax error
-//		Entity* e = mgr.runScripAsEntity(L"abcdefg");
+//		Entity* e = mgr.runScripAsEntity("abcdefg");
 //		CHECK(!e);
 	}
 
 	{	// The script does not returning anything
-		Entity* e = mgr.runScripAsEntity(L"local a=0;");
+		Entity* e = mgr.runScripAsEntity("local a=0;");
 		CHECK(!e);
 	}
 }

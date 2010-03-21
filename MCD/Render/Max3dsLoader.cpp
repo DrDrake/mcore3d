@@ -89,7 +89,7 @@ struct ChunkHeader
 class Max3dsMaterial : public Material
 {
 public:
-	std::wstring mName;
+	std::string mName;
 
 // Attributes
 	ColorRGBf ambient, diffuse, specular;
@@ -197,7 +197,7 @@ public:
 
 	~Impl();
 
-	IResourceLoader::LoadingState load(std::istream* is, const Path* fileId, const wchar_t* args);
+	IResourceLoader::LoadingState load(std::istream* is, const Path* fileId, const char* args);
 
 	void commit(Resource& resource);
 
@@ -207,7 +207,7 @@ public:
 
 	int16_t readPercentageAsInt();
 
-	size_t readString(std::wstring& str);
+	size_t readString(std::string& str);
 
 private:
 	//! Read all 3DS chunk data and store those information into mModelInfo
@@ -238,7 +238,7 @@ private:
 
 	struct ModelInfo
 	{
-		std::wstring name;
+		std::string name;
 		MeshBuilderPtr meshBuilder;			//!< Contains vertex buffer only
 		std::vector<uint32_t> smoothingGroup;	//!< Which smoothing group the face belongs to
 		std::list<MultiSubObject> multiSubObject;
@@ -443,7 +443,7 @@ void Max3dsLoader::Impl::readChunks(const Path* fileId)
 				if(mModelInfo.empty())
 					ABORTLOADING();
 
-				std::wstring materialName;
+				std::string materialName;
 				readString(materialName);
 
 				// Get the number of faces of the object concerned by this material
@@ -568,7 +568,7 @@ void Max3dsLoader::Impl::readChunks(const Path* fileId)
 			case MAT_MAPNAME:	// Material - Texture Name
 			{
 				if(!currentMaterial) ABORTLOADING();
-				std::wstring textureFileName;
+				std::string textureFileName;
 				readString(textureFileName);
 
 				// We assume the texture is at the same path as the 3ds file itself.
@@ -774,7 +774,7 @@ void Max3dsLoader::Impl::postProcess()
 		}
 
 		if(!splitSmoothingGroupVertex(meshBuilder, model.smoothingGroup)) {
-			Log::write(Log::Warn, L"Failed to split smoothing group, mesh skipped");
+			Log::write(Log::Warn, "Failed to split smoothing group, mesh skipped");
 			continue;
 		}
 
@@ -828,7 +828,7 @@ void Max3dsLoader::Impl::postProcess()
 	}
 }
 
-IResourceLoader::LoadingState Max3dsLoader::Impl::load(std::istream* is, const Path* fileId, const wchar_t* args)
+IResourceLoader::LoadingState Max3dsLoader::Impl::load(std::istream* is, const Path* fileId, const char* args)
 {
 	using namespace std;
 
@@ -841,10 +841,10 @@ IResourceLoader::LoadingState Max3dsLoader::Impl::load(std::istream* is, const P
 		if(nullptr != args)
 		{
 			NvpParser parser(args);
-			const wchar_t* name, *value;
+			const char* name, *value;
 			while(parser.next(name, value))
 			{
-				if(wstrCaseCmp(name, L"tangents") == 0 && wstrCaseCmp(value, L"true") == 0)
+				if(strCaseCmp(name, "tangents") == 0 && strCaseCmp(value, "true") == 0)
 					mLoadOptions->includeTangents = true;
 			}
 		}
@@ -908,19 +908,17 @@ int16_t Max3dsLoader::Impl::readPercentageAsInt()
 	return Math<int16_t>::clamp(percentage, -100, 100);
 }
 
-size_t Max3dsLoader::Impl::readString(std::wstring& str)
+size_t Max3dsLoader::Impl::readString(std::string& str)
 {
 	size_t i = 0;
-	std::string objectName;
+	str.clear();
 	const size_t maxLength = 128;	// Max length to prevent infinite loop
 	char c = '\0';
 	do {
 		mStream->read(c);
-		objectName += c;
+		str += c;
 		++i;
 	} while(c != '\0' && i < maxLength);
-
-	str = strToWStr(objectName);
 
 	// Returns how much is read from the stream
 	return i;
@@ -943,9 +941,9 @@ void Max3dsLoader::Impl::commit(Resource& resource)
 			if(!subObject.splittedBuilder || subObject.splittedBuilder->vertexCount() == 0)
 				continue;
 
-			MeshPtr mesh = new Mesh(L"");
+			MeshPtr mesh = new Mesh("");
 			if(!commitMesh(*subObject.splittedBuilder, *mesh, storageHint)) {
-				Log::write(Log::Warn, L"Failed to commit mesh");
+				Log::write(Log::Warn, "Failed to commit mesh");
 				continue;
 			}
 
@@ -954,7 +952,7 @@ void Max3dsLoader::Impl::commit(Resource& resource)
 
 			std::auto_ptr<Model::MeshAndMaterial> meshMat(new Model::MeshAndMaterial);
 			meshMat->mesh = mesh;
-			meshMat->effect = new Effect(L"");
+			meshMat->effect = new Effect("");
 			meshMat->effect->material.reset(subObject.material->clone());
 			meshMat->name = modelInfo.name;
 
@@ -983,7 +981,7 @@ Max3dsLoader::~Max3dsLoader()
 	delete &mImpl;
 }
 
-IResourceLoader::LoadingState Max3dsLoader::load(std::istream* is, const Path* fileId, const wchar_t* args)
+IResourceLoader::LoadingState Max3dsLoader::load(std::istream* is, const Path* fileId, const char* args)
 {
 	MemoryProfiler::Scope scope("Max3dsLoader::load");
 	return mImpl.load(is, fileId, args);

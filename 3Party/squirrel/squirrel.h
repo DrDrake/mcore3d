@@ -101,7 +101,7 @@ struct SQClass;
 struct SQInstance;
 struct SQDelegable;
 
-#if defined(UNICODE) || defined(_UNICODE)
+#ifdef _UNICODE
 #define SQUNICODE
 #endif
 
@@ -113,7 +113,7 @@ struct SQDelegable;
 #endif
 
 #else
-//typedef unsigned short wchar_t;
+typedef unsigned short wchar_t;
 #endif
 
 typedef wchar_t SQChar;

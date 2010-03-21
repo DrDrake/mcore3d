@@ -18,7 +18,7 @@ public:
 		Block until the whole shader source file is loaded.
 	 */
 	sal_override LoadingState load(
-		sal_maybenull std::istream* is, sal_maybenull const Path* fileId=nullptr, sal_in_z_opt const wchar_t* args=nullptr);
+		sal_maybenull std::istream* is, sal_maybenull const Path* fileId=nullptr, sal_in_z_opt const char* args=nullptr);
 
 	/*!	Commit the data form it's internal buffer to the resource.
 		The resource must be of type Shader.

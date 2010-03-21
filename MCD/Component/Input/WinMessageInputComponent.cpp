@@ -9,31 +9,31 @@
 namespace MCD {
 
 // Convert the Key::Code into a string
-static sal_maybenull const wchar_t* keyToString(MCD::Key::Code key)
+static sal_maybenull const char* keyToString(MCD::Key::Code key)
 {
 	// NOTE: The following code need to be in syn with the definition of
 	// MCD::Key in Core/System/WindowEvent.h
-	static const wchar_t* mapping[] = {
-		L"a", L"b", L"c", L"d", L"e", L"f", L"g", L"h", L"i", L"j", L"k", L"l", L"m",
-		L"n", L"o", L"p", L"q", L"r", L"s", L"t", L"u", L"v", L"w", L"x", L"y", L"z",
-		L"0", L"1", L"2", L"3", L"4", L"5", L"6", L"7", L"8", L"9",
-		L"Escape",
-		L"LControl", L"LShift", L"LAlt", L"LSystem",
-		L"RControl", L"RShift", L"RAlt", L"RSystem",
-		L"Menu", L"LBracket", L"RBracket",
-		L"SemiColon", L"Comma", L"Period",
-		L"Quote", L"Slash", L"BackSlash",
-		L"Tilde", L"Equal", L"Dash",
-		L"Space", L"Return", L"Back",
-		L"Tab", L"PageUp", L"PageDown",
-		L"End", L"Home", L"Insert", L"Delete",
-		L"Add", L"Subtract", L"Multiply", L"Divide",
-		L"Left", L"Right", L"Up", L"Down",
-		L"Numpad0", L"Numpad1", L"Numpad2", L"Numpad3", L"Numpad4",
-		L"Numpad5", L"Numpad6", L"Numpad7", L"Numpad8", L"Numpad9",
-		L"F1", L"F2", L"F3", L"F4", L"F5", L"F6", L"F7", L"F8",
-		L"F9", L"F10", L"F11", L"F12", L"F13", L"F14", L"F15",
-		L"Pause",
+	static const char* mapping[] = {
+		"a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m",
+		"n", "o", "p", "q", "r", "s", "t", "u", "v", "w", "x", "y", "z",
+		"0", "1", "2", "3", "4", "5", "6", "7", "8", "9",
+		"Escape",
+		"LControl", "LShift", "LAlt", "LSystem",
+		"RControl", "RShift", "RAlt", "RSystem",
+		"Menu", "LBracket", "RBracket",
+		"SemiColon", "Comma", "Period",
+		"Quote", "Slash", "BackSlash",
+		"Tilde", "Equal", "Dash",
+		"Space", "Return", "Back",
+		"Tab", "PageUp", "PageDown",
+		"End", "Home", "Insert", "Delete",
+		"Add", "Subtract", "Multiply", "Divide",
+		"Left", "Right", "Up", "Down",
+		"Numpad0", "Numpad1", "Numpad2", "Numpad3", "Numpad4",
+		"Numpad5", "Numpad6", "Numpad7", "Numpad8", "Numpad9",
+		"F1", "F2", "F3", "F4", "F5", "F6", "F7", "F8",
+		"F9", "F10", "F11", "F12", "F13", "F14", "F15",
+		"Pause",
 	};
 
 	int k = key;
@@ -50,8 +50,8 @@ static sal_maybenull const wchar_t* keyToString(MCD::Key::Code key)
 		return nullptr;
 }
 
-bool WinMessageInputComponent::Compare::operator()(const wchar_t* lhs, const wchar_t* rhs) const {
-	return wcscmp(lhs, rhs) < 0;
+bool WinMessageInputComponent::Compare::operator()(const char* lhs, const char* rhs) const {
+	return strcmp(lhs, rhs) < 0;
 }
 
 WinMessageInputComponent::WinMessageInputComponent()
@@ -84,42 +84,42 @@ void WinMessageInputComponent::update(float)
 	mMouseAxis = mMouseAxisRaw * 0.5f + mMouseAxis * 0.5f;
 }
 
-float WinMessageInputComponent::getAxis(sal_in_z const wchar_t* axisName) const
+float WinMessageInputComponent::getAxis(sal_in_z const char* axisName) const
 {
-	if(wstrCaseCmp(axisName, L"mouse x") == 0)
+	if(strCaseCmp(axisName, "mouse x") == 0)
 		return mMouseAxis.x;
-	if(wstrCaseCmp(axisName, L"mouse y") == 0)
+	if(strCaseCmp(axisName, "mouse y") == 0)
 		return mMouseAxis.y;
 	return 0;
 }
 
-float WinMessageInputComponent::getAxisRaw(sal_in_z const wchar_t* axisName) const
+float WinMessageInputComponent::getAxisRaw(sal_in_z const char* axisName) const
 {
-	if(wstrCaseCmp(axisName, L"mouse x") == 0)
+	if(strCaseCmp(axisName, "mouse x") == 0)
 		return mMouseAxisRaw.x;
-	if(wstrCaseCmp(axisName, L"mouse y") == 0)
+	if(strCaseCmp(axisName, "mouse y") == 0)
 		return mMouseAxisRaw.y;
 	return 0;
 }
 
-float WinMessageInputComponent::getAxisDelta(sal_in_z const wchar_t* axisName) const
+float WinMessageInputComponent::getAxisDelta(sal_in_z const char* axisName) const
 {
-	if(wstrCaseCmp(axisName, L"mouse x") == 0)
+	if(strCaseCmp(axisName, "mouse x") == 0)
 		return mMouseAxis.x;
-	if(wstrCaseCmp(axisName, L"mouse y") == 0)
+	if(strCaseCmp(axisName, "mouse y") == 0)
 		return mMouseAxis.y;
-	if(wstrCaseCmp(axisName, L"mouse z") == 0)
+	if(strCaseCmp(axisName, "mouse z") == 0)
 		return mMouseAxis.z;
 	return 0;
 }
 
-float WinMessageInputComponent::getAxisDeltaRaw(sal_in_z const wchar_t* axisName) const
+float WinMessageInputComponent::getAxisDeltaRaw(sal_in_z const char* axisName) const
 {
-	if(wstrCaseCmp(axisName, L"mouse x") == 0)
+	if(strCaseCmp(axisName, "mouse x") == 0)
 		return mMouseAxisRaw.x;
-	if(wstrCaseCmp(axisName, L"mouse y") == 0)
+	if(strCaseCmp(axisName, "mouse y") == 0)
 		return mMouseAxisRaw.y;
-	if(wstrCaseCmp(axisName, L"mouse z") == 0)
+	if(strCaseCmp(axisName, "mouse z") == 0)
 		return mMouseAxisRaw.z;
 	return 0;
 }
@@ -134,7 +134,7 @@ bool WinMessageInputComponent::anyKeyDown() const
 	return !mKeyDownList.empty();
 }
 
-bool WinMessageInputComponent::getButton(const wchar_t* buttonName) const
+bool WinMessageInputComponent::getButton(const char* buttonName) const
 {
 	EventList::const_iterator i = mKeyList.find(buttonName);
 	if(i == mKeyList.end())
@@ -143,12 +143,12 @@ bool WinMessageInputComponent::getButton(const wchar_t* buttonName) const
 	return i->second == 1;
 }
 
-bool WinMessageInputComponent::getButtonDown(const wchar_t* buttonName) const
+bool WinMessageInputComponent::getButtonDown(const char* buttonName) const
 {
 	return mKeyDownList.find(buttonName) != mKeyDownList.end();
 }
 
-bool WinMessageInputComponent::getButtonUp(const wchar_t* buttonName) const
+bool WinMessageInputComponent::getButtonUp(const char* buttonName) const
 {
 	return mKeyUpList.find(buttonName) != mKeyUpList.end();
 }
@@ -179,7 +179,7 @@ bool WinMessageInputComponent::getMouseButtonUp(int button) const
 	return (mMouseKeyUpBitArray & (1 << button)) > 0;
 }
 
-const wchar_t* WinMessageInputComponent::inputString() const
+const char* WinMessageInputComponent::inputString() const
 {
 	return mInputString.c_str();
 }
@@ -197,7 +197,7 @@ Window* WinMessageInputComponent::getWindow()
 
 void WinMessageInputComponent::onEvent(const Event& e)
 {
-	const wchar_t* keyName = keyToString(e.Key.Code);
+	const char* keyName = keyToString(e.Key.Code);
 
 	if(e.Type == Event::KeyPressed && !keyName) {
 		MCD_ASSERT(false && "Unknow key code");
@@ -239,8 +239,10 @@ void WinMessageInputComponent::onEvent(const Event& e)
 		mMouseKeyUpBitArray |= (1 << int(e.MouseButton.Button));
 		break;
 	case Event::TextEntered:
-		mInputString += e.Text.Unicode;
-		break;
+		{	std::string utf8Str;
+			MCD_VERIFY(wStrToUtf8((wchar_t*)(&e.Text.Unicode), 1, utf8Str));
+			mInputString += utf8Str;
+		} break;
 	default:
 		break;
 	}

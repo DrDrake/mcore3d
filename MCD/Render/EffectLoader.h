@@ -39,7 +39,7 @@ public:
 
 		virtual ~ILoader() {}
 		//! Returns the xml element name that this loader response to.
-		virtual const wchar_t* name() const = 0;
+		virtual const char* name() const = 0;
 		virtual bool load(XmlParser& parser, IMaterial& material, Context& context) = 0;
         virtual void newPass() = 0;
 	};	// ILoader
@@ -49,7 +49,7 @@ public:
 	sal_override ~EffectLoader();
 
 	sal_override LoadingState load(
-		sal_maybenull std::istream* is, sal_maybenull const Path* fileId=nullptr, sal_in_z_opt const wchar_t* args=nullptr);
+		sal_maybenull std::istream* is, sal_maybenull const Path* fileId=nullptr, sal_in_z_opt const char* args=nullptr);
 
 	sal_override void commit(Resource& resource);
 

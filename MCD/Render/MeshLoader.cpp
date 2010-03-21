@@ -22,7 +22,7 @@ public:
 			delete buffers[i];
 	}
 
-	IResourceLoader::LoadingState load(std::istream* is, const Path* fileId, const wchar_t* args);
+	IResourceLoader::LoadingState load(std::istream* is, const Path* fileId, const char* args);
 
 	void commit(Resource& resource);
 
@@ -43,7 +43,7 @@ private:
 	volatile IResourceLoader::LoadingState mLoadingState;
 };	// Impl
 
-IResourceLoader::LoadingState MeshLoader::Impl::load(std::istream* is, const Path* fileId, const wchar_t* args)
+IResourceLoader::LoadingState MeshLoader::Impl::load(std::istream* is, const Path* fileId, const char* args)
 {
 	// Simplying the error check
 	#define ABORT_IF(expression) if(expression) { MCD_ASSERT(false); return mLoadingState = Aborted; }
@@ -152,7 +152,7 @@ MeshLoader::~MeshLoader()
 	delete &mImpl;
 }
 
-IResourceLoader::LoadingState MeshLoader::load(std::istream* is, const Path* fileId, const wchar_t* args)
+IResourceLoader::LoadingState MeshLoader::load(std::istream* is, const Path* fileId, const char* args)
 {
 	MemoryProfiler::Scope scope("MeshLoader::load");
 	return mImpl.load(is, fileId, args);

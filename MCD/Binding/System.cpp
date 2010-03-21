@@ -25,10 +25,10 @@ ClassID getClassIDFromObject(const Resource* obj, ClassID original) {
 
 }	// namespace types
 
-static void resourceManagerCallbackAddDependency(ResourceManagerCallback& self, const wchar_t* fileId) {
+static void resourceManagerCallbackAddDependency(ResourceManagerCallback& self, const char* fileId) {
 	self.addDependency(fileId);
 }
-static void resourceManagerCallbackSetMajorDependency(ResourceManagerCallback& self, const wchar_t* fileId) {
+static void resourceManagerCallbackSetMajorDependency(ResourceManagerCallback& self, const char* fileId) {
 	self.setMajorDependency(fileId);
 }
 SCRIPT_CLASS_REGISTER_NAME(ResourceManagerCallback, "ResuorceManagerCallback")
@@ -37,7 +37,7 @@ SCRIPT_CLASS_REGISTER_NAME(ResourceManagerCallback, "ResuorceManagerCallback")
 	.wrappedMethod(xSTRING("_setmajorDependency"), &resourceManagerCallbackSetMajorDependency)
 ;}
 
-static Resource* resourceManagerLoad(IResourceManager& self, const wchar_t* fileId, bool block, uint priority, const wchar_t* args) {
+static Resource* resourceManagerLoad(IResourceManager& self, const char* fileId, bool block, uint priority, const char* args) {
 	// TODO: Fix the blocking option
 	return self.load(fileId, IResourceManager::NonBlock, priority, args).get();
 }
@@ -75,21 +75,21 @@ SCRIPT_CLASS_REGISTER_NAME(Resource, "Resource")
 ;}
 
 // TODO: Handle endian problem
-static const wchar_t* floatToHex(float f) {
-	static wchar_t buf[64];	// NOTE: Will have multi-thread problem if the VM support multi-thread later.
+static const char* floatToHex(float f) {
+	static char buf[64];	// NOTE: Will have multi-thread problem if the VM support multi-thread later.
 	MCD_ASSERT(sizeof(float) == sizeof(int));
 	if(f == 0)
-		::swprintf(buf, sizeof(buf)/sizeof(wchar_t), L"%s", L"00000000");
+		::sprintf(buf, "%s", "00000000");
 	else
-		::swprintf(buf, sizeof(buf)/sizeof(wchar_t), L"%X", *((int*)(&f)));
-	MCD_ASSERT(::wcslen(buf) == sizeof(float) * 2);
+		::sprintf(buf, "%X", *((int*)(&f)));
+	MCD_ASSERT(::strlen(buf) == sizeof(float) * 2);
 	return buf;
 }
 
-static float floatFromHex(const wchar_t* s) {
-	MCD_ASSERT(::wcslen(s) == sizeof(float) * 2);
+static float floatFromHex(const char* s) {
+	MCD_ASSERT(::strlen(s) == sizeof(float) * 2);
 	float ret;
-	MCD_VERIFY(::swscanf(s, L"%X", (int*)(&ret)) == 1);
+	MCD_VERIFY(::sscanf(s, "%X", (int*)(&ret)) == 1);
 	return ret;
 }
 

@@ -110,10 +110,10 @@ public:
 		return false;
 	}
 
-	sal_override void setOption(const wchar_t* name, const wchar_t* value)
+	sal_override void setOption(const char* name, const char* value)
 	{
-		if(::wcscmp(name, L"FSAA") == 0)
-			mMultiSampleLevel = wStr2IntWithDefault(value, 0);
+		if(::strcmp(name, "FSAA") == 0)
+			mMultiSampleLevel = str2IntWithDefault(value, 0);
 		else
 			Super::setOption(name, value);
 	}

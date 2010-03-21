@@ -199,7 +199,7 @@ Entity* Entity::commonAncestor(const Entity& e1, const Entity& e2)
 	return nullptr;
 }
 
-Entity* Entity::findEntityInSibling(sal_in_z const wchar_t* name) const
+Entity* Entity::findEntityInSibling(sal_in_z const char* name) const
 {
 	for(Entity* e=const_cast<Entity*>(this); e; e=e->nextSibling()) {
 		if(e->name == name)
@@ -209,7 +209,7 @@ Entity* Entity::findEntityInSibling(sal_in_z const wchar_t* name) const
 	return nullptr;
 }
 
-Entity* Entity::findEntityInDescendants(const wchar_t* name) const
+Entity* Entity::findEntityInDescendants(const char* name) const
 {
 	for(EntityPreorderIterator itr(const_cast<Entity*>(this)); !itr.ended(); itr.next()) {
 		if(itr->name == name)
@@ -219,21 +219,21 @@ Entity* Entity::findEntityInDescendants(const wchar_t* name) const
 	return nullptr;
 }
 
-Entity* Entity::findEntityByPath(const wchar_t* path) const
+Entity* Entity::findEntityByPath(const char* path) const
 {
 	PathIterator itr(path);
 	const Entity* e = this;
 
 	do {
-		std::wstring s = itr.next(false);
+		std::string s = itr.next(false);
 		if(s.empty())
 			break;
 
 		// Remove trailing slash
-		if(s[s.size() - 1] == L'/')
+		if(s[s.size() - 1] == '/')
 			s.resize(s.size() - 1);
 
-		if(s == L"..")
+		if(s == "..")
 			e = e->parent();
 		else if(e)
 		{
@@ -246,9 +246,9 @@ Entity* Entity::findEntityByPath(const wchar_t* path) const
 	return const_cast<Entity*>(e);
 }
 
-std::wstring Entity::getRelativePathFrom(const Entity& from) const
+std::string Entity::getRelativePathFrom(const Entity& from) const
 {
-	std::wstring ret;
+	std::string ret;
 	const Entity* lcp = nullptr;
 	size_t levelDiff = 0;
 
@@ -257,10 +257,10 @@ std::wstring Entity::getRelativePathFrom(const Entity& from) const
 		for(const Entity* e=this; e != lcp; e = e->parent())
 			++levelDiff;
 		for(const Entity* e=&from; e != lcp; e = e->parent())
-			ret += L"../";
+			ret += "../";
 	}
 	else	// The 2 incomming nodes are of seperated tree.
-		return L"";
+		return "";
 
 	if(levelDiff > 0)
 	{	// We need a temporary buffer to reverse the Entities.
@@ -276,7 +276,7 @@ std::wstring Entity::getRelativePathFrom(const Entity& from) const
 		MCD_ASSERT(count == levelDiff);
 
 		for(size_t i=count; i--; )
-			ret += tmp[i]->name + L"/";
+			ret += tmp[i]->name + "/";
 
 		MCD_STACKFREE(tmp);
 	}
@@ -290,7 +290,7 @@ void Entity::addComponent(Component* component)
 		return;
 
 	if(component->entity() != nullptr) {
-		Log::format(Log::Warn, L"The component is already added to an Entity");
+		Log::format(Log::Warn, "The component is already added to an Entity");
 		return;
 	}
 

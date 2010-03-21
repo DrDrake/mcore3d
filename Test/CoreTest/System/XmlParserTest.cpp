@@ -7,7 +7,7 @@ TEST(XmlParserTest)
 {
 	XmlParser parser;
 
-	std::wstring xmlString(L"\
+	std::string xmlString("\
 	<?xml version=\"1.0\"?>\
 	<config>\
 		<!-- This is a comment -->\
@@ -24,7 +24,7 @@ TEST(XmlParserTest)
 	");
 
 	// Note that the data in xmlString will be modified by the parser
-	parser.parse(const_cast<wchar_t*>(xmlString.c_str()));
+	parser.parse(const_cast<char*>(xmlString.c_str()));
 
 	bool ended = false;
 	size_t eventCount = 0;
@@ -59,37 +59,37 @@ TEST(XmlParserTest)
 		switch(e)
 		{
 		case Event::BeginElement:
-			if(wcscmp(parser.elementName(), L"config") == 0) {
+			if(strcmp(parser.elementName(), "config") == 0) {
 				CHECK_EQUAL(0u, parser.attributeCount());
 				CHECK(!parser.isEmptyElement());
 			}
-			else if(wcscmp(parser.elementName(), L"model") == 0) {
+			else if(strcmp(parser.elementName(), "model") == 0) {
 				CHECK_EQUAL(2u, parser.attributeCount());
 				CHECK(parser.isEmptyElement());
 
-				CHECK_EQUAL(std::wstring(L"scene.3ds"), parser.attributeValue(L"file"));
-				CHECK_EQUAL(std::wstring(L"mesh"), parser.attributeValue(L"type"));
+				CHECK_EQUAL(std::string("scene.3ds"), parser.attributeValue("file"));
+				CHECK_EQUAL(std::string("mesh"), parser.attributeValue("type"));
 			}
-			else if(wcscmp(parser.elementName(), L"messageText") == 0) {
+			else if(strcmp(parser.elementName(), "messageText") == 0) {
 				CHECK_EQUAL(1u, parser.attributeCount());
 				CHECK(!parser.isEmptyElement());
 			}
-			else if(wcscmp(parser.elementName(), L"fragment") == 0) {
+			else if(strcmp(parser.elementName(), "fragment") == 0) {
 				CHECK_EQUAL(0u, parser.attributeCount());
 				CHECK(!parser.isEmptyElement());
 			}
 			break;
 
 		case Event::Comment:
-			CHECK_EQUAL(std::wstring(L" This is a comment "), parser.textData());
+			CHECK_EQUAL(std::string(" This is a comment "), parser.textData());
 			break;
 
 		case Event::Text:
-			CHECK_EQUAL(std::wstring(L"\t\t\tWelcome to \"MCore 3D Engine\".\t\t"), parser.textData());
+			CHECK_EQUAL(std::string("\t\t\tWelcome to \"MCore 3D Engine\".\t\t"), parser.textData());
 			break;
 
 		case Event::CData:
-			CHECK_EQUAL(std::wstring(L"\t\t\tmain() {}\t\t"), parser.textData());
+			CHECK_EQUAL(std::string("\t\t\tmain() {}\t\t"), parser.textData());
 			break;
 
 		case Event::Error:

@@ -6,20 +6,20 @@
 
 namespace MCD {
 
-ResourcePtr OggLoaderFactory::createResource(const Path& fileId, const wchar_t* args)
+ResourcePtr OggLoaderFactory::createResource(const Path& fileId, const char* args)
 {
-	if(wstrCaseCmp(fileId.getExtension().c_str(), L"ogg") != 0)
+	if(strCaseCmp(fileId.getExtension().c_str(), "ogg") != 0)
 		return nullptr;
 
 	int bufferCount = AudioBuffer::cMaxBuffers;
 
 	if(args) {
 		NvpParser parser(args);
-		const wchar_t* name, *value;
+		const char* name, *value;
 		while(parser.next(name, value))
 		{
-			if(wstrCaseCmp(name, L"bufferCount") == 0) {
-				bufferCount = wStr2IntWithDefault(value, AudioBuffer::cMaxBuffers);
+			if(strCaseCmp(name, "bufferCount") == 0) {
+				bufferCount = str2IntWithDefault(value, AudioBuffer::cMaxBuffers);
 				break;
 			}
 		}

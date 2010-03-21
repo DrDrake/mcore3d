@@ -297,7 +297,7 @@ uint16_t MeshBuilderIM::addVertex()
 	const uint16_t oldVeretxCount = vertexCount();
 
 	if(oldVeretxCount == std::numeric_limits<uint16_t>::max()) {
-		Log::write(Log::Error, L"Maximum number of vertex reached in MeshBuilderIM. Try to split your mesh into multiple parts.");
+		Log::write(Log::Error, "Maximum number of vertex reached in MeshBuilderIM. Try to split your mesh into multiple parts.");
 		return uint16_t(-1);
 	}
 

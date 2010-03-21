@@ -17,12 +17,12 @@ TEST(MultipleRenderTargetTest)
 	public:
 		TestWindow()
 			:
-			BasicGlWindow(L"title=MultipleRenderTargetTest;width=800;height=600;fullscreen=0;FSAA=4"),
+			BasicGlWindow("title=MultipleRenderTargetTest;width=800;height=600;fullscreen=0;FSAA=4"),
 			mResourceManager(*createDefaultFileSystem())
 		{
 		}
 
-		bool initShaderProgram(const wchar_t* vsSource, const wchar_t* psSource, ShaderProgram& shaderProgram)
+		bool initShaderProgram(const char* vsSource, const char* psSource, ShaderProgram& shaderProgram)
 		{
 			// Load the shaders synchronously
 			ShaderPtr vs = dynamic_cast<Shader*>(mResourceManager.load(vsSource, IResourceManager::Block).get());
@@ -140,7 +140,7 @@ TEST(MultipleRenderTargetTest)
 			drawViewportQuad(w, 0, w, h, mNormalRenderTexture->type);
 		}
 
-		void load3ds(const wchar_t* fileId)
+		void load3ds(const char* fileId)
 		{
 			mModel = dynamic_cast<Model*>(mResourceManager.load(fileId).get());
 		}
@@ -170,16 +170,16 @@ TEST(MultipleRenderTargetTest)
 	{
 		TestWindow window;
 
-		if(!window.initShaderProgram(L"Shader/MRT/Scene.glvs", L"Shader/MRT/Scene.glps", window.mScenePass) ||
-		   !window.initShaderProgram(L"Shader/MRT/Depth.glvs", L"Shader/MRT/Depth.glps", window.mDepthPass))
+		if(!window.initShaderProgram("Shader/MRT/Scene.glvs", "Shader/MRT/Scene.glps", window.mScenePass) ||
+		   !window.initShaderProgram("Shader/MRT/Depth.glvs", "Shader/MRT/Depth.glps", window.mDepthPass))
 		{
 			CHECK(false);
 			return;
 		}
 
-		window.load3ds(L"TextureBoxSphere.3DS");
-		window.load3ds(L"3M00696/buelllightning.3DS");
-//		window.load3ds(L"Scene/City/scene.3ds");
+		window.load3ds("TextureBoxSphere.3DS");
+		window.load3ds("3M00696/buelllightning.3DS");
+//		window.load3ds("Scene/City/scene.3ds");
 
 		window.mainLoop();
 	}

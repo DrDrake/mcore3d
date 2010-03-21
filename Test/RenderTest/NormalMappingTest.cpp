@@ -22,7 +22,7 @@ private:
 public:
 	TestWindow()
 		:
-		BasicGlWindow(L"title=NormalMappingTest;width=800;height=600;fullscreen=0;FSAA=4"),
+		BasicGlWindow("title=NormalMappingTest;width=800;height=600;fullscreen=0;FSAA=4"),
 		mResourceManager(*createDefaultFileSystem())
 	{
 		this->mCameraVelocity = 0.5f;
@@ -30,23 +30,23 @@ public:
 		this->mCamera.frustum.setFov(60);
 
 		// load normal mapping effect
-		mEffect = static_cast<Effect*>(mResourceManager.load(L"Material/normalmapping.fx.xml").get());
+		mEffect = static_cast<Effect*>(mResourceManager.load("Material/normalmapping.fx.xml").get());
 
 		{	// Override the default loader of *.3ds file
 			mResourceManager.addFactory(new EntityPrototypeLoaderFactory(mResourceManager));
 
 			// TODO: Remove the use of Entity in render test
-			mPrefab = dynamic_cast<Prefab*>(mResourceManager.load(L"Scene/City/scene.3ds", IResourceManager::NonBlock, 0, L"loadAsEntity=true;tangents=true").get());
+			mPrefab = dynamic_cast<Prefab*>(mResourceManager.load("Scene/City/scene.3ds", IResourceManager::NonBlock, 0, "loadAsEntity=true;tangents=true").get());
 		}
 
 		{	// Setup entity 1
 			std::auto_ptr<Entity> e(new Entity);
-			e->name = L"ChamferBox 1";
+			e->name = "ChamferBox 1";
 			e->asChildOf(&mRootNode);
 			e->localTransform = Mat44f(Mat33f::makeXYZRotation(0, Mathf::cPiOver4(), 0));
 
 			// Setup the chamfer box mesh
-			MeshPtr mesh = new Mesh(L"");
+			MeshPtr mesh = new Mesh("");
 			MCD_VERIFY(commitMesh(ChamferBoxBuilder(0.4f, 3, true), *mesh, Mesh::Static));
 
 			// Add component
@@ -60,12 +60,12 @@ public:
 
 		{	// Setup entity 2
 			std::auto_ptr<Entity> e(new Entity);
-			e->name = L"Sphere 1";
+			e->name = "Sphere 1";
 			e->asChildOf(&mRootNode);
 			e->localTransform.setTranslation(Vec3f(1, 0, 0));
 
 			// Setup the chamfer box mesh as a shpere
-			MeshPtr mesh = new Mesh(L"");
+			MeshPtr mesh = new Mesh("");
 			MCD_VERIFY(commitMesh(ChamferBoxBuilder(1.0f, 5, true), *mesh, Mesh::Static));
 
 			// Add component

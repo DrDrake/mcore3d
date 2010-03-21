@@ -48,14 +48,14 @@ public:
 
 	TestWindow()
 		:
-		BasicGlWindow(L"title=PostProcessingTest;width=800;height=600;fullscreen=0;FSAA=1"),
+		BasicGlWindow("title=PostProcessingTest;width=800;height=600;fullscreen=0;FSAA=1"),
 		mResourceManager(*createDefaultFileSystem())
 	{
 		// move slower
 		mCameraVelocity = 5.0f;
 
 		// load model
-		mModel = dynamic_cast<Model*>(mResourceManager.load(L"Scene/City/scene.3ds").get());
+		mModel = dynamic_cast<Model*>(mResourceManager.load("Scene/City/scene.3ds").get());
 
 		// sun
 		m_sunPos = Vec3f(-500.0f, 200.0f, -500.0f);
@@ -92,17 +92,17 @@ public:
 		const bool useTexRect = false;
 
 		mBuffersFull.reset( new RenderBufferSet(mResourceManager, width, height, RenderBufferSet::DepthBuffer_Texture24, useTexRect) );
-		MCD_VERIFY(mBuffersFull->textureBuffer(format, L"rtt:/full.0.buf"));
-		MCD_VERIFY(mBuffersFull->textureBuffer(format, L"rtt:/full.1.buf"));
+		MCD_VERIFY(mBuffersFull->textureBuffer(format, "rtt:/full.0.buf"));
+		MCD_VERIFY(mBuffersFull->textureBuffer(format, "rtt:/full.1.buf"));
 
 		GLuint halfWidth = std::max((GLuint)2, GLuint(width / 2));
 		GLuint halfHeight = std::max((GLuint)2, GLuint(height / 2));
 		mBuffersHalf.reset( new RenderBufferSet(mResourceManager, halfWidth, halfHeight, RenderBufferSet::DepthBuffer_Texture24, useTexRect) );
-		MCD_VERIFY(mBuffersHalf->textureBuffer(format, L"rtt:/half.0.buf"));
-		MCD_VERIFY(mBuffersHalf->textureBuffer(format, L"rtt:/half.1.buf"));
+		MCD_VERIFY(mBuffersHalf->textureBuffer(format, "rtt:/half.0.buf"));
+		MCD_VERIFY(mBuffersHalf->textureBuffer(format, "rtt:/half.1.buf"));
 		
 		// load normal mapping effect
-		mEffect = static_cast<Effect*>(mResourceManager.load(L"Material/postprocessingtest.fx.xml").get());
+		mEffect = static_cast<Effect*>(mResourceManager.load("Material/postprocessingtest.fx.xml").get());
 	}
 
 	Material::Pass& pass(Material* mat, int pass)

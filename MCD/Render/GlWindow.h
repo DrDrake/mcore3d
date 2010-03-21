@@ -10,8 +10,8 @@ namespace MCD {
 	Example:
 	\code
 	GlWindow window;
-	window.create(L"title='Hello world!';width=400;height=300");
-	window.setOptions(L"showCursor=0");
+	window.create("title='Hello world!';width=400;height=300");
+	window.setOptions("showCursor=0");
 	window.makeActive();
 
 	while(true) {
@@ -47,11 +47,11 @@ public:
 
 		FSAA = '0|2|4|16' // Full-screen anti-aliasing\n
 	 */
-	sal_override void create(sal_in_z_opt const wchar_t* options=nullptr) throw(std::exception);
+	sal_override void create(sal_in_z_opt const char* options=nullptr) throw(std::exception);
 
 	/*!	Create a window from an existing control.
 	 */
-	sal_override void create(Handle existingControl, sal_in_z_opt const wchar_t* options=nullptr) throw(std::exception);
+	sal_override void create(Handle existingControl, sal_in_z_opt const char* options=nullptr) throw(std::exception);
 
 	/*!	Destroy the window and perform necessary cleanup.
 	 */

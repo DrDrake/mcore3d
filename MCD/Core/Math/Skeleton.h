@@ -49,7 +49,7 @@ public:
 	void initBasePoseInverse();
 
 	//!	Returns -1 if the name cannot be found.
-	int findJointByName(const wchar_t* name) const;
+	int findJointByName(const char* name) const;
 
 	/*!	Swap with another Skeleton, used in SkeletonLoader to minimize memory copy.
 		\note The resource name will not be swap.
@@ -63,7 +63,7 @@ public:
 	std::vector<size_t> parents;
 
 	//!	Name of each joint
-	std::vector<std::wstring> names;
+	std::vector<std::string> names;
 
 	//!	Transforms in the basePose are relative to the root joint.
 	SkeletonPose basePose;

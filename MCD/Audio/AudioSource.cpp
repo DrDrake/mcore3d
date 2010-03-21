@@ -32,18 +32,18 @@ AudioSource::~AudioSource()
 		_loader->abortLoad();
 }
 
-bool AudioSource::load(IResourceManager& resourceManager, const Path& fileId, const wchar_t* args)
+bool AudioSource::load(IResourceManager& resourceManager, const Path& fileId, const char* args)
 {
 	// Determine the "blockLoadFirstBuffer" option in args
 	bool blockLoadFirstBuffer = false;
 	if(args)
 	{
 		NvpParser parser(args);
-		const wchar_t* name, *value;
+		const char* name, *value;
 		while(parser.next(name, value))
 		{
-			if(wstrCaseCmp(name, L"blockLoadFirstBuffer") == 0) {
-				blockLoadFirstBuffer = (wStr2IntWithDefault(value, 0) > 0);
+			if(strCaseCmp(name, "blockLoadFirstBuffer") == 0) {
+				blockLoadFirstBuffer = (str2IntWithDefault(value, 0) > 0);
 				break;
 			}
 		}
@@ -59,7 +59,7 @@ bool AudioSource::load(IResourceManager& resourceManager, const Path& fileId, co
 	buffer = dynamic_cast<AudioBuffer*>(res.get());
 
 	if(!_loader || !buffer) {
-		Log::format(Log::Error, L"Fail to load audio: %s", fileId.getString().c_str());
+		Log::format(Log::Error, "Fail to load audio: %s", fileId.getString().c_str());
 		return false;
 	}
 
@@ -80,7 +80,7 @@ bool AudioSource::load(IResourceManager& resourceManager, const Path& fileId, co
 	}
 
 	mFileId = fileId;
-	mLoadOptions = args ? args : L"";
+	mLoadOptions = args ? args : "";
 	mResourceManager = &resourceManager;
 
 	return true;
@@ -285,7 +285,7 @@ const Path& AudioSource::fileId() const
 	return mFileId;
 }
 
-const std::wstring& AudioSource::loadOptions() const
+const std::string& AudioSource::loadOptions() const
 {
 	return mLoadOptions;
 }

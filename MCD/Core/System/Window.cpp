@@ -10,15 +10,15 @@
 namespace MCD {
 
 //! Parse a string with the format "x=123;y=456;"
-static void parseXy(const wchar_t* option, int& x, int& y)
+static void parseXy(const char* option, int& x, int& y)
 {
-	const wchar_t* name = nullptr, *value = nullptr;
+	const char* name = nullptr, *value = nullptr;
 	NvpParser parser(option);
 	while(parser.next(name, value)) {
-		if(*name == L'x')
-			x = wStr2IntWithDefault(value, 0);
-		else if(*name == L'y')
-			y = wStr2IntWithDefault(value, 0);
+		if(*name == 'x')
+			x = str2IntWithDefault(value, 0);
+		else if(*name == 'y')
+			y = str2IntWithDefault(value, 0);
 	}
 }
 
@@ -26,12 +26,12 @@ ImplBase::ImplBase()
 {
 	// Give a small value
 	mWidth = mHeight = 1;
-	mTitle = L"Simple game engine";
+	mTitle = "Simple game engine";
 }
 
-void ImplBase::setOptions(const wchar_t* option)
+void ImplBase::setOptions(const char* option)
 {
-	const wchar_t* name = nullptr, *value = nullptr;
+	const char* name = nullptr, *value = nullptr;
 	NvpParser parser(option);
 	while(parser.next(name, value)) {
 		setOption(name, value);
@@ -104,12 +104,12 @@ Window::Handle Window::handle()
 	return mImpl->mWnd;
 }
 
-void Window::create(const wchar_t* options) throw(std::exception)
+void Window::create(const char* options) throw(std::exception)
 {
 	create(0, options);
 }
 
-void Window::create(Handle existingControl, const wchar_t* options) throw(std::exception)
+void Window::create(Handle existingControl, const char* options) throw(std::exception)
 {
 	if(!mImpl)
 		mImpl = new Impl(*this);
@@ -120,7 +120,7 @@ void Window::create(Handle existingControl, const wchar_t* options) throw(std::e
 	mImpl->createWindow(existingControl);
 }
 
-void Window::setOptions(const wchar_t* options)
+void Window::setOptions(const char* options)
 {
 	MCD_ASSUME(mImpl != nullptr);
 	mImpl->setOptions(options);

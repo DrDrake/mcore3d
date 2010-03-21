@@ -31,7 +31,7 @@ class DefaultResourceManager;
 
 //! Load the shaders synchronously
 bool loadShaderProgram(
-	const wchar_t* vsSource, const wchar_t* psSource,
+	const char* vsSource, const char* psSource,
 	MCD::ShaderProgram& shaderProgram,
 	DefaultResourceManager& resourceManager);
 

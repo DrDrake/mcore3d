@@ -27,7 +27,7 @@ public:
 		Block until all the data is read into it's internal buffer.
 	 */
 	sal_override LoadingState load(
-		sal_maybenull std::istream* is, sal_maybenull const Path* fileId=nullptr, sal_maybenull const wchar_t* args=nullptr);
+		sal_maybenull std::istream* is, sal_maybenull const Path* fileId=nullptr, sal_maybenull const char* args=nullptr);
 
 	/*!	Commit the data form it's internal buffer to the resource.
 		The resource must be of type Model.
@@ -52,10 +52,10 @@ public:
 	 */
 	static PrefabPtr addEntityAfterLoad(
 		const EntityPtr& addToHere, IResourceManager& manager,
-		sal_in_z const wchar_t* filePath,
+		sal_in_z const char* filePath,
 		sal_out_opt LoadCallback* loadCallback = nullptr,
 		uint priority = 0,
-		sal_in_z_opt const wchar_t* args = L"loadAsEntity=true");
+		sal_in_z_opt const char* args = "loadAsEntity=true");
 
 private:
 	class Impl;
@@ -84,7 +84,7 @@ class MCD_COMPONENT_API EntityPrototypeLoaderFactory : public ResourceManager::I
 {
 public:
     EntityPrototypeLoaderFactory(IResourceManager& resourceManager);
-	sal_override ResourcePtr createResource(const Path& fileId, const wchar_t* args);
+	sal_override ResourcePtr createResource(const Path& fileId, const char* args);
 	sal_override IResourceLoader* createLoader();
 
 private:

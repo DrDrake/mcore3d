@@ -51,18 +51,18 @@ void ClassDeclaratorBase::enableGetset()
 	xchar buffer[256];
 
 	// Shut up MSVC code analysis warnings
-	if(::wcslen(mClassName) + ((sizeof(set1) + sizeof(set2))/sizeof(xchar)) > (sizeof buffer/sizeof(xchar)))
+	if(::strlen(mClassName) + ((sizeof(set1) + sizeof(set2))/sizeof(xchar)) > (sizeof buffer/sizeof(xchar)))
 		return;
 
-	::wcscpy(buffer, mClassName);
-	::wcscat(buffer, get1);
-	::wcscat(buffer, mClassName);
-	::wcscat(buffer, get2);
+	::strcpy(buffer, mClassName);
+	::strcat(buffer, get1);
+	::strcat(buffer, mClassName);
+	::strcat(buffer, get2);
 	runScript(buffer);
-	::wcscpy(buffer, mClassName);
-	::wcscat(buffer, set1);
-	::wcscat(buffer, mClassName);
-	::wcscat(buffer, set2);
+	::strcpy(buffer, mClassName);
+	::strcat(buffer, set1);
+	::strcat(buffer, mClassName);
+	::strcat(buffer, set2);
 	runScript(buffer);
 }
 

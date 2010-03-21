@@ -30,12 +30,12 @@ void* GlWindow::glContext()
 	return static_cast<Impl*>(mImpl)->glContext();
 }
 
-void GlWindow::create(const wchar_t* options) throw(std::exception)
+void GlWindow::create(const char* options) throw(std::exception)
 {
 	create(0, options);
 }
 
-void GlWindow::create(Handle existingControl, const wchar_t* options) throw(std::exception)
+void GlWindow::create(Handle existingControl, const char* options) throw(std::exception)
 {
 	if(!mImpl)
 		mImpl = new Impl(*this);
@@ -54,7 +54,7 @@ void GlWindow::create(Handle existingControl, const wchar_t* options) throw(std:
 		if(options)
 			impl->setOptions(options);
 		if(!impl->detectMultiSamplePixelFormat())
-			Log::format(Log::Warn, L"The requested level of full-screen anti-aliasing is not supported.");
+			Log::format(Log::Warn, "The requested level of full-screen anti-aliasing is not supported.");
 		impl->destroy();
 		impl->mShowWindow = showBackup;
 	}

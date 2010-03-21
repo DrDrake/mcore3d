@@ -21,7 +21,7 @@ typedef IntrusivePtr<class Mesh> MeshPtr;
 class MCD_RENDER_API Mesh : public Resource
 {
 public:
-	explicit Mesh(const Path& fileId = L"");
+	explicit Mesh(const Path& fileId = "");
 
 	//!	Enum values to describe what option is needed in map()
 	enum MapOption
@@ -119,7 +119,7 @@ public:
 	//!	Clear all buffers and reseting the Mesh into it's initial state.
 	void clear();
 
-	sal_notnull MeshPtr clone(sal_in_z const wchar_t* name, StorageHint hint);
+	sal_notnull MeshPtr clone(sal_in_z const char* name, StorageHint hint);
 
 	//!	Return -1 if the semnatic cannot be found.
 	int finidAttributeBySemantic(const char* semantic) const;

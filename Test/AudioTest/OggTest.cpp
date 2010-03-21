@@ -15,7 +15,7 @@ class OggTestFixture
 {
 protected:
 	OggTestFixture()
-		: fs(new RawFileSystem(L"./")), manager(*fs)
+		: fs(new RawFileSystem("./")), manager(*fs)
 	{
 		(void)initAudioDevice();
 		manager.addFactory(new OggLoaderFactory);
@@ -49,8 +49,8 @@ TEST_FIXTURE(OggTestFixture, BasicTest)
 
 	{	// Construct, load and destroy
 		AudioSource source;
-		CHECK(source.load(manager, L"stereo.ogg"));
-		CHECK_EQUAL(L"stereo.ogg", source.fileId().getString());
+		CHECK(source.load(manager, "stereo.ogg"));
+		CHECK_EQUAL("stereo.ogg", source.fileId().getString());
 		CHECK_EQUAL(&manager, source.resourceManager());
 	}
 }
@@ -60,9 +60,9 @@ TEST_FIXTURE(OggTestFixture, BasicTest)
 TEST_FIXTURE(OggTestFixture, StreamBlockFirstPartialTest)
 {
 	AudioSource source;
-	CHECK(source.load(manager, L"stereo.ogg", L"blockLoadFirstBuffer=1"));
+	CHECK(source.load(manager, "stereo.ogg", "blockLoadFirstBuffer=1"));
 
-	CHECK_EQUAL(L"blockLoadFirstBuffer=1", source.loadOptions());
+	CHECK_EQUAL("blockLoadFirstBuffer=1", source.loadOptions());
 	CHECK_EQUAL(2u, source.channelCount());
 	CHECK_EQUAL(22050u, source.frequency());
 	CHECK_EQUAL(55167u, source.totalPcm());
@@ -82,7 +82,7 @@ TEST_FIXTURE(OggTestFixture, StreamBlockFirstPartialTest)
 TEST_FIXTURE(OggTestFixture, SingleSubBuffer)
 {
 	AudioSource source;
-	CHECK(source.load(manager, L"stereo.ogg", L"blockLoadFirstBuffer=1;bufferCount=1;subBufferLength=2600"));
+	CHECK(source.load(manager, "stereo.ogg", "blockLoadFirstBuffer=1;bufferCount=1;subBufferLength=2600"));
 
 	CHECK_EQUAL(2u, source.channelCount());
 	CHECK_EQUAL(22050u, source.frequency());
@@ -102,7 +102,7 @@ TEST_FIXTURE(OggTestFixture, SingleSubBuffer)
 TEST_FIXTURE(OggTestFixture, StreamNonBlockTest)
 {
 	AudioSource source;
-	CHECK(source.load(manager, L"stereo.ogg"));
+	CHECK(source.load(manager, "stereo.ogg"));
 
 	// Calling play() just inform the source to play when data is ready.
 	source.play();
@@ -126,7 +126,7 @@ TEST_FIXTURE(OggTestFixture, StreamNonBlockTest)
 TEST_FIXTURE(OggTestFixture, SeekingTest)
 {
 	AudioSource source;
-	CHECK(source.load(manager, L"stereo.ogg"));
+	CHECK(source.load(manager, "stereo.ogg"));
 
 	source.play();
 
@@ -152,7 +152,7 @@ TEST_FIXTURE(OggTestFixture, SeekingTest)
 TEST_FIXTURE(OggTestFixture, LoopTest)
 {
 	AudioSource source;
-	CHECK(source.load(manager, L"stereo.ogg"));
+	CHECK(source.load(manager, "stereo.ogg"));
 
 	source.play();
 	waitForSourceFinish(source);
@@ -167,8 +167,8 @@ TEST_FIXTURE(OggTestFixture, LoopTest)
 TEST_FIXTURE(OggTestFixture, MultiSourceTest)
 {
 	AudioSource source1, source2;
-	CHECK(source1.load(manager, L"stereo.ogg"));
-	CHECK(source2.load(manager, L"stereo.ogg"));
+	CHECK(source1.load(manager, "stereo.ogg"));
+	CHECK(source2.load(manager, "stereo.ogg"));
 
 	source1.play();
 	Timer timer;
@@ -191,7 +191,7 @@ TEST_FIXTURE(OggTestFixture, EffectTest)
 	initAudioEffect();
 
 	AudioSource source;
-	CHECK(source.load(manager, L"stereo.ogg", L"blockLoadFirstBuffer=1"));
+	CHECK(source.load(manager, "stereo.ogg", "blockLoadFirstBuffer=1"));
 
 	AudioEffect effect;
 	effect.create();

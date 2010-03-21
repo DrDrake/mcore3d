@@ -9,7 +9,7 @@ namespace MCD {
 class MCD_AUDIO_API OggLoaderFactory : public ResourceManager::IFactory
 {
 public:
-	sal_override ResourcePtr createResource(const Path& fileId, const wchar_t* args);
+	sal_override ResourcePtr createResource(const Path& fileId, const char* args);
 	sal_override IResourceLoader* createLoader();
 };	// OggLoaderFactory
 

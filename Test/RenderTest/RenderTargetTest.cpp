@@ -16,11 +16,11 @@ TEST(RenderTargetTest)
 	public:
 		TestWindow()
 			:
-			BasicGlWindow(L"title=RenderTargetTest;width=800;height=600;"),
+			BasicGlWindow("title=RenderTargetTest;width=800;height=600;"),
 			mAngle(0), mLargerSide(0)
 		{
 			// Setup the chamfer box mesh
-			mMesh = new Mesh(L"");
+			mMesh = new Mesh("");
 			ChamferBoxBuilder chamferBoxBuilder(0.4f, 10);
 			MCD_VERIFY(commitMesh(chamferBoxBuilder, *mMesh, Mesh::Static));
 		}

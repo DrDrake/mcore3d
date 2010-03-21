@@ -50,7 +50,7 @@ CubemapLoader::CubemapLoader()
 	setImpl(new LoaderImpl(*this));
 }
 
-IResourceLoader::LoadingState CubemapLoader::load(std::istream* is, const Path* fileId, const wchar_t*)
+IResourceLoader::LoadingState CubemapLoader::load(std::istream* is, const Path* fileId, const char*)
 {
 	MCD_ASSUME(mImpl != nullptr);
 
@@ -62,18 +62,18 @@ IResourceLoader::LoadingState CubemapLoader::load(std::istream* is, const Path* 
 		if(!fileId)
 			return (loadingState = IResourceLoader::Aborted);
 
-		std::wstring ext = fileId->getExtension();
+		std::string ext = fileId->getExtension();
 
 		TextureLoaderBase* loader = nullptr;
 
 		// dispatch to other image loaders
-		if(wstrCaseCmp(ext.c_str(), L"bmp") == 0)
+		if(strCaseCmp(ext.c_str(), "bmp") == 0)
 			loader = new BitmapLoader;
-		else if(wstrCaseCmp(ext.c_str(), L"jpg") == 0)
+		else if(strCaseCmp(ext.c_str(), "jpg") == 0)
 			loader = new JpegLoader;
-		else if(wstrCaseCmp(ext.c_str(), L"png") == 0)
+		else if(strCaseCmp(ext.c_str(), "png") == 0)
 			loader = new PngLoader;
-		else if(wstrCaseCmp(ext.c_str(), L"tga") == 0)
+		else if(strCaseCmp(ext.c_str(), "tga") == 0)
 			loader = new TgaLoader;
 
 		impl->mLoaderDelegate.reset(loader);

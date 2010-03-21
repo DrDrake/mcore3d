@@ -131,7 +131,7 @@ GizmoBaseComponent::GizmoBaseComponent(Entity* hostEntity, InputComponent* input
 
 	// Add an entity for picking
 	Entity* e = new Entity();
-	e->name = L"Picker";
+	e->name = "Picker";
 	e->asChildOf(hostEntity);
 	MyPickComponent* c = new MyPickComponent;
 	mPickComponent = c;
@@ -148,8 +148,8 @@ void GizmoBaseComponent::update(float)
 	if(input && selectedEntity)
 	{
 		const Vec2i currentMouseAxis = Vec2i(
-			int(input->getAxis(L"mouse x")),
-			int(input->getAxis(L"mouse y"))
+			int(input->getAxis("mouse x")),
+			int(input->getAxis("mouse y"))
 		);
 
 		if(input->getMouseButton(0))

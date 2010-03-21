@@ -38,9 +38,9 @@ public:
 		\param type Can be GL_TEXTURE_2D or GL_TEXTURE_RECTANGLE_ARB.
 		\param usage Can be GL_COLOR_ATTACHMENTn_EXT or GL_DEPTH_ATTACHMENT_EXT
 	 */
-	sal_checkreturn bool createTexture(size_t width, size_t height, int type, int format, const wchar_t* name=nullptr);
+	sal_checkreturn bool createTexture(size_t width, size_t height, int type, int format, const char* name=nullptr);
 
-	sal_checkreturn bool create(size_t width, size_t height, int type, int format, int dataType, int components, const wchar_t* name=nullptr);
+	sal_checkreturn bool create(size_t width, size_t height, int type, int format, int dataType, int components, const char* name=nullptr);
 
 // Attributes
 	sal_override size_t width() const;

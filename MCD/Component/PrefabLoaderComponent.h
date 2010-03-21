@@ -35,7 +35,7 @@ public:
 	// TODO: Change DynamicsWorld into a component and use weak pointer.
 	static sal_maybenull Entity* loadEntity(
 		IResourceManager& resourceManager,
-		const wchar_t* filePath,
+		const char* filePath,
 		sal_in_opt DynamicsWorld* dynamicsWorld=nullptr
 	);
 

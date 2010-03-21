@@ -148,7 +148,7 @@ void minizeEnergy(float* data, size_t sampleCount, size_t stride)
 #include "../../MCD/Render/ShaderProgram.h"
 
 bool loadShaderProgram(
-	const wchar_t* vsSource, const wchar_t* psSource,
+	const char* vsSource, const char* psSource,
 	ShaderProgram& shaderProgram,
 	DefaultResourceManager& resourceManager)
 {

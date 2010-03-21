@@ -10,9 +10,9 @@ namespace MCD {
 class AnimationTrackLoader::Impl
 {
 public:
-	Impl() : track(new AnimationTrack(L"tmp")) {}
+	Impl() : track(new AnimationTrack("tmp")) {}
 
-	IResourceLoader::LoadingState load(std::istream* is, const Path* fileId, const wchar_t* args);
+	IResourceLoader::LoadingState load(std::istream* is, const Path* fileId, const char* args);
 
 	void commit(Resource& resource);
 
@@ -21,7 +21,7 @@ public:
 	volatile IResourceLoader::LoadingState mLoadingState;
 };	// Impl
 
-IResourceLoader::LoadingState AnimationTrackLoader::Impl::load(std::istream* is, const Path* fileId, const wchar_t* args)
+IResourceLoader::LoadingState AnimationTrackLoader::Impl::load(std::istream* is, const Path* fileId, const char* args)
 {
 	// Simplying the error check
 	#define ABORT_IF(expression) if(expression) { MCD_ASSERT(false); return mLoadingState = Aborted; }
@@ -82,7 +82,7 @@ AnimationTrackLoader::~AnimationTrackLoader()
 	delete &mImpl;
 }
 
-IResourceLoader::LoadingState AnimationTrackLoader::load(std::istream* is, const Path* fileId, const wchar_t* args)
+IResourceLoader::LoadingState AnimationTrackLoader::load(std::istream* is, const Path* fileId, const char* args)
 {
 	MemoryProfiler::Scope scope("AnimationTrackLoader::load");
 	return mImpl.load(is, fileId, args);

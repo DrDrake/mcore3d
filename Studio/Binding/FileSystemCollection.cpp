@@ -37,27 +37,27 @@ RawFileMonitors& FileSystemCollection::monitors()
 
 String^ FileSystemCollection::getRoot()
 {
-	return gcnew String(mImpl->getRoot().getString().c_str());
+	return Utility::fromUtf8(mImpl->getRoot().getString());
 }
 
 bool FileSystemCollection::setRoot(String^ rootPath)
 {
-	return mImpl->setRoot(Utility::toWString(rootPath));
+	return mImpl->setRoot(Utility::toUtf8String(rootPath));
 }
 
 bool FileSystemCollection::isExists(String^ path)
 {
-	return mImpl->isExists(Utility::toWString(path));
+	return mImpl->isExists(Utility::toUtf8String(path));
 }
 
 bool FileSystemCollection::isDirectory(String^ path)
 {
-	return mImpl->isDirectory(Utility::toWString(path));
+	return mImpl->isDirectory(Utility::toUtf8String(path));
 }
 
 uint64_t FileSystemCollection::getSize(String^ path)
 {
-	return mImpl->getSize(Utility::toWString(path));
+	return mImpl->getSize(Utility::toUtf8String(path));
 }
 
 MCD::FileSystemCollection* FileSystemCollection::getRawPtr()
@@ -71,7 +71,7 @@ void FileSystemCollection::addFileSystem(String^ pathToFileSystem)
 
 	// Check the corresponding file system according to the input: pathToFileSystem
 	if(IO::Directory::Exists(pathToFileSystem))
-		fs = new MCD::RawFileSystem(Utility::toWString(pathToFileSystem));
+		fs = new MCD::RawFileSystem(Utility::toUtf8String(pathToFileSystem));
 
 	if(fs) {
 		mImpl->addFileSystem(*fs);
@@ -82,7 +82,7 @@ void FileSystemCollection::addFileSystem(String^ pathToFileSystem)
 
 bool FileSystemCollection::removeFileSystem(String^ pathToFileSystem)
 {
-	std::wstring ws = Utility::toWString(pathToFileSystem);
+	std::string ws = Utility::toUtf8String(pathToFileSystem);
 	IFileSystem* f = mImpl->findFileSystemForPath(ws);
 	if(!f) return false;
 
@@ -98,10 +98,10 @@ bool FileSystemCollection::removeFileSystem(String^ pathToFileSystem)
 
 String^ FileSystemCollection::openAsString(String^ path)
 {
-	std::auto_ptr<std::istream> is = mImpl->openRead(Utility::toWString(path));
+	std::auto_ptr<std::istream> is = mImpl->openRead(Utility::toUtf8String(path));
 
 	if(!is.get())
-		return L"";
+		return "";
 
 	std::ostringstream buffer;
 	buffer << is->rdbuf();
@@ -111,14 +111,11 @@ String^ FileSystemCollection::openAsString(String^ path)
 
 bool FileSystemCollection::saveString(System::String^ path, System::String^ str)
 {
-	std::auto_ptr<std::ostream> os = mImpl->openWrite(Utility::toWString(path));
+	std::auto_ptr<std::ostream> os = mImpl->openWrite(Utility::toUtf8String(path));
 	if(!os.get())
 		return false;
 
-	std::wstring ws = Utility::toWString(str);
-	std::string utf8;
-	if(!wStrToUtf8(ws, utf8))
-		return false;
+	std::string utf8 = Utility::toUtf8String(str);
 
 	if(!utf8.empty())
 		os->write(&utf8[0], utf8.size());
@@ -134,14 +131,14 @@ FileSystemCollection::StringCollection^ FileSystemCollection::getDirectories(Str
 {
 	StringCollection^ sc = gcnew StringCollection();
 
-	{	void* c = mImpl->openFirstChildFolder(Utility::toWString(path));
+	{	void* c = mImpl->openFirstChildFolder(Utility::toUtf8String(path));
 		Path p;
 		while(true)
 		{
 			Path p(mImpl->getNextSiblingFolder(c));
 			if(p.getString().empty())
 				break;
-			sc->Add(gcnew String(p.getString().c_str()));
+			sc->Add(Utility::fromUtf8(p.getString()));
 		}
 		mImpl->closeFirstChildFolder(c);
 	}
@@ -153,14 +150,14 @@ FileSystemCollection::StringCollection^ FileSystemCollection::getFiles(String^ p
 {
 	StringCollection^ sc = gcnew StringCollection();
 
-	{	void* c = mImpl->openFirstFileInFolder(Utility::toWString(path));
+	{	void* c = mImpl->openFirstFileInFolder(Utility::toUtf8String(path));
 		Path p;
 		while(true)
 		{
 			Path p(mImpl->getNextFileInFolder(c));
 			if(p.getString().empty())
 				break;
-			sc->Add(gcnew String(p.getString().c_str()));
+			sc->Add(Utility::fromUtf8(p.getString()));
 		}
 		mImpl->closeFirstFileInFolder(c);
 	}

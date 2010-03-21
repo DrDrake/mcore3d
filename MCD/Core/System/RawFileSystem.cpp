@@ -25,17 +25,17 @@ static std::string getSysErrorMsg(const std::string& prefix)
 	return MCD::getErrorMessage(prefix.c_str(), errCode);
 }
 
-static void throwError(const std::string& prefix, const std::wstring& pathStr)
+static void throwError(const std::string& prefix, const std::string& pathStr)
 {
 	throw std::runtime_error(getSysErrorMsg(
-		prefix + "\"" + wStrToStr(pathStr) + "\": "
+		prefix + "\"" + pathStr + "\": "
 	));
 }
 
-static void throwError(const std::string& prefix, const std::wstring& pathStr, const std::string& sufix)
+static void throwError(const std::string& prefix, const std::string& pathStr, const std::string& sufix)
 {
 	throw std::runtime_error(
-		prefix + "\"" + wStrToStr(pathStr) + "\"" + sufix
+		prefix + "\"" + pathStr + "\"" + sufix
 	);
 }
 
@@ -45,18 +45,20 @@ void toNativePath(Path& path)
 #ifdef MCD_VC
 	Path::string_type& str = const_cast<Path::string_type&>(path.getString());
 	for(size_t i=0; i< str.size(); ++i)
-		if(str[i] == L'/')
-			str[i] = L'\\';
+		if(str[i] == '/')
+			str[i] = '\\';
 #else
 	// No need to do anything for Linux systems
 #endif
 }
 
-bool isExistsImpl(sal_in_z sal_notnull const wchar_t* path)
+bool isExistsImpl(sal_in_z sal_notnull const char* path)
 {
 #ifdef MCD_VC
-	MCD_ASSERT(::wcslen(path) < MAX_PATH);
-	if(::GetFileAttributesW(path) == INVALID_FILE_ATTRIBUTES) {
+	std::wstring wideStr;
+	MCD_VERIFY(utf8ToWStr(path, wideStr));
+	MCD_ASSERT(wideStr.length() < MAX_PATH);
+	if(::GetFileAttributesW(wideStr.c_str()) == INVALID_FILE_ATTRIBUTES) {
 		// GetFileAttributes failed because the path does not exist
 		// for any other error we assume the file does exist and fall through,
 		// this may not be the best policy though...  (JM 20040330)
@@ -74,9 +76,7 @@ bool isExistsImpl(sal_in_z sal_notnull const wchar_t* path)
 	}
 #else
 	struct stat pathStat;
-	std::string narrowStr;
-	MCD_VERIFY(wStrToStr(path, narrowStr));
-	if(::stat(narrowStr.c_str(), &pathStat) != 0) {
+	if(::stat(path, &pathStat) != 0) {
 		// stat failed because the path does not exist
 		// for any other error we assume the file does exist and fall through,
 		// this may not be the best policy though...  (JM 20040330)
@@ -88,18 +88,18 @@ bool isExistsImpl(sal_in_z sal_notnull const wchar_t* path)
 	return true;
 }
 
-bool isDirectoryImpl(sal_in_z sal_notnull const wchar_t* path)
+bool isDirectoryImpl(sal_in_z sal_notnull const char* path)
 {
 #ifdef MCD_VC
-	DWORD attributes = ::GetFileAttributesW(path);
+	std::wstring wideStr;
+	MCD_VERIFY(utf8ToWStr(path, wideStr));
+	DWORD attributes = ::GetFileAttributesW(wideStr.c_str());
 	if(attributes == 0xFFFFFFFF)
 		throwError("Error getting directory for ", path);
 	return (attributes & FILE_ATTRIBUTE_DIRECTORY) != 0;
 #else
 	struct stat pathStat;
-	std::string narrowStr;
-	MCD_VERIFY(wStrToStr(path, narrowStr));
-	if(::stat(narrowStr.c_str(), &pathStat) != 0)
+	if(::stat(path, &pathStat) != 0)
 		throwError("Error getting directory for ", path);
 	return S_ISDIR(pathStat.st_mode);
 #endif
@@ -129,7 +129,7 @@ bool RawFileSystem::setRoot(const Path& rootPath)
 		return true;
 	}
 	else {	// Search for existance of a "*.dir" file which act as a shortcut file
-		Path::string_type shortCut = rootPath.getString() + L".dir";
+		Path::string_type shortCut = rootPath.getString() + ".dir";
 		if(isExistsImpl(shortCut.c_str()) && !isDirectoryImpl(shortCut.c_str()))
 		{
 			std::auto_ptr<std::istream> is = openRead(shortCut);
@@ -138,7 +138,7 @@ bool RawFileSystem::setRoot(const Path& rootPath)
 				// Read the directory that this shortcut points to
 				std::string dir;
 				(*is) >> dir;
-				mRootPath = strToWStr(dir);
+				mRootPath = dir;
 				return true;
 			}
 		}
@@ -170,8 +170,10 @@ uint64_t RawFileSystem::getSize(const Path& path) const
 {
 	Path::string_type absolutePath = toAbsolutePath(path).getString();
 #ifdef MCD_VC
+	std::wstring wideStr;
+	MCD_VERIFY(utf8ToWStr(absolutePath.c_str(), wideStr));
 	WIN32_FILE_ATTRIBUTE_DATA fad;
-	if(!::GetFileAttributesExW(absolutePath.c_str(), ::GetFileExInfoStandard, &fad))
+	if(!::GetFileAttributesExW(wideStr.c_str(), ::GetFileExInfoStandard, &fad))
 		throwError("Error getting file size for ", absolutePath);
 	if((fad.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) != 0)
 		throwError("The path ", absolutePath, " is a directory");
@@ -180,9 +182,7 @@ uint64_t RawFileSystem::getSize(const Path& path) const
 		+ fad.nFileSizeLow;
 #else
 	struct stat pathStat;
-	std::string narrowStr;
-	MCD_VERIFY(wStrToStr(absolutePath.c_str(), narrowStr));
-	if(::stat(narrowStr.c_str(), &pathStat) != 0)
+	if(::stat(absolutePath.c_str(), &pathStat) != 0)
 		throwError("Error getting file size for ", absolutePath);
 	if(S_ISDIR(pathStat.st_mode))
 		throwError("The path ", absolutePath, " is a directory");
@@ -194,9 +194,7 @@ std::time_t RawFileSystem::getLastWriteTime(const Path& path) const
 {
 	struct stat pathStat;
 	Path::string_type absolutePath = toAbsolutePath(path).getString();
-	std::string narrowStr;
-	MCD_VERIFY(wStrToStr(absolutePath.c_str(), narrowStr));
-	if(::stat(narrowStr.c_str(), &pathStat) != 0)
+	if(::stat(absolutePath.c_str(), &pathStat) != 0)
 		throwError("Error getting last write time ", absolutePath);
 	return pathStat.st_mtime;
 }
@@ -206,21 +204,21 @@ bool RawFileSystem::makeDir(const Path& path) const
 #ifdef MCD_VC
 	Path absolutePath = toAbsolutePath(path);
 	toNativePath(absolutePath);
-	return ::SHCreateDirectoryEx(nullptr, absolutePath.getString().c_str(), nullptr) == 0;
+	std::wstring wideStr;
+	MCD_VERIFY(utf8ToWStr(absolutePath.getString().c_str(), wideStr));
+	return ::SHCreateDirectoryExW(nullptr, wideStr.c_str(), nullptr) == 0;
 #else
 	struct LocalClass {
-		static bool mkdir(const std::wstring& path) {
-			std::string narrowStr;
-			MCD_VERIFY(wStrToStr(path.c_str(), narrowStr));
+		static bool mkdir(const std::string& path) {
 			// The mkdir mode is set the 777, see http://docs.sun.com/app/docs/doc/816-5167/chmod-2?a=view
-			return ::mkdir(narrowStr.c_str(), S_IRWXU | S_IRWXG | S_IRWXO) == 0;
+			return ::mkdir(path.c_str(), S_IRWXU | S_IRWXG | S_IRWXO) == 0;
 		}
 	};	// LocalClass
 
 	bool success = false;
 	PathIterator itr(path);
 	while(true) {
-		std::wstring s = itr.next();
+		std::string s = itr.next();
 		if(s.empty())
 			break;
 		if(isExists(s)) {
@@ -242,13 +240,18 @@ bool RawFileSystem::remove(const Path& path) const
 #ifdef MCD_VC
 	Path absolutePath = toAbsolutePath(path);
 	toNativePath(absolutePath);
-	size_t len = absolutePath.getString().size();
+
+	std::wstring wideStr;
+	MCD_VERIFY(utf8ToWStr(absolutePath.getString(), wideStr));
+
+	size_t len = wideStr.size();
 
 	SHFILEOPSTRUCT fileOp;
-	Path::char_type* buf = (Path::char_type*)MCD_STACKALLOCA(sizeof(Path::char_type) * (absolutePath.getString().size() + 2));
-	::memcpy(buf, absolutePath.getString().c_str(), len * sizeof(Path::char_type));
+	wchar_t* buf = (wchar_t*)MCD_STACKALLOCA(sizeof(wchar_t) * (len + 2));
+	::memcpy(buf, wideStr.c_str(), len * sizeof(wchar_t));
 	buf[len] = buf[len+1] = L'\0';	// Double null terminated
 	::ZeroMemory(&fileOp, sizeof(fileOp));
+
 	fileOp.wFunc = FO_DELETE;
 	fileOp.pFrom = buf;
 	fileOp.fFlags = FOF_SILENT | FOF_ALLOWUNDO | FOF_NOCONFIRMATION;
@@ -259,9 +262,7 @@ bool RawFileSystem::remove(const Path& path) const
 #else
 	// TODO: Not recursive remove is not implemented yet,
 	// unless directory listing is ready
-	std::string narrowStr;
-	MCD_VERIFY(wStrToStr(path.getString().c_str(), narrowStr));
-	return ::rmdir(narrowStr.c_str()) == 0;
+	return ::rmdir(path.getString().c_str()) == 0;
 #endif
 }
 
@@ -274,7 +275,7 @@ std::auto_ptr<std::istream> RawFileSystem::openRead(const Path& path) const
 	auto_ptr<istream> is(new ifstream(absolutePath.c_str(), ios::in | ios::binary));
 #else
 	string aStr;
-	MCD_VERIFY(wStrToStr(absolutePath.c_str(), aStr));
+	MCD_VERIFY(wStrToUtf8(absolutePath.c_str(), aStr));
 	auto_ptr<istream> is(new ifstream(aStr.c_str(), ios::in | ios::binary));
 #endif
 
@@ -293,7 +294,7 @@ std::auto_ptr<std::ostream> RawFileSystem::openWrite(const Path& path) const
 	auto_ptr<ostream> os(new ofstream(absolutePath.c_str(), ios::out | ios::binary));
 #else
 	string aStr;
-	MCD_VERIFY(wStrToStr(absolutePath.c_str(), aStr));
+	MCD_VERIFY(wStrToUtf8(absolutePath.c_str(), aStr));
 	auto_ptr<ostream> os(new ofstream(aStr.c_str(), ios::out | ios::binary));
 #endif
 
@@ -308,7 +309,6 @@ namespace {
 struct SearchContext
 {
 #ifdef MCD_VC
-
 	~SearchContext() {
 		if(handle != INVALID_HANDLE_VALUE)
 			::FindClose(handle);
@@ -326,14 +326,17 @@ void* RawFileSystem::openFirstChildFolder(const Path& folder) const
 {
 #ifdef MCD_VC
 	SearchContext* c = new SearchContext;
-	Path::string_type absolutePath = toAbsolutePath(folder).getString() + L"/*";
-	c->handle = ::FindFirstFile(absolutePath.c_str(), &(c->data));
+	Path::string_type absolutePath = toAbsolutePath(folder).getString() + "/*";
+
+	std::wstring wideStr;
+	MCD_VERIFY(utf8ToWStr(absolutePath, wideStr));
+	c->handle = ::FindFirstFileW(wideStr.c_str(), &(c->data));
 
 	if(c->handle == INVALID_HANDLE_VALUE)
 		goto Fail;
 
 	while(!(c->data.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) ||
-		wcscmp(c->data.cFileName, L".") == 0 || wcscmp(c->data.cFileName, L"..") == 0)
+		::wcscmp(c->data.cFileName, L".") == 0 || ::wcscmp(c->data.cFileName, L"..") == 0)
 	{
 		if(!FindNextFile(c->handle, &(c->data)))
 			goto Fail;
@@ -356,10 +359,12 @@ Path RawFileSystem::getNextSiblingFolder(void* context) const
 
 #ifdef MCD_VC
 	SearchContext* c = reinterpret_cast<SearchContext*>(context);
-	ret = c->data.cFileName;
+	std::string utf8Str;
+	MCD_VERIFY(wStrToUtf8(c->data.cFileName, utf8Str));
+	ret = utf8Str;
 
 	do {
-		if(!::FindNextFile(c->handle, &(c->data))) {
+		if(!::FindNextFileW(c->handle, &(c->data))) {
 			c->data.cFileName[0] = '\0';
 			break;
 		}
@@ -379,8 +384,10 @@ void* RawFileSystem::openFirstFileInFolder(const Path& folder) const
 {
 #ifdef MCD_VC
 	SearchContext* c = new SearchContext;
-	Path::string_type absolutePath = toAbsolutePath(folder).getString() + L"/*";
-	c->handle = ::FindFirstFile(absolutePath.c_str(), &(c->data));
+	Path::string_type absolutePath = toAbsolutePath(folder).getString() + "/*";
+	std::wstring wideStr;
+	MCD_VERIFY(utf8ToWStr(absolutePath, wideStr));
+	c->handle = ::FindFirstFileW(wideStr.c_str(), &(c->data));
 
 	if(c->handle == INVALID_HANDLE_VALUE)
 		goto Fail;
@@ -408,10 +415,12 @@ Path RawFileSystem::getNextFileInFolder(void* context) const
 
 #ifdef MCD_VC
 	SearchContext* c = reinterpret_cast<SearchContext*>(context);
-	ret = c->data.cFileName;
+	std::string utf8Str;
+	MCD_VERIFY(wStrToUtf8(c->data.cFileName, utf8Str));
+	ret = utf8Str;
 
 	do {
-		if(!::FindNextFile(c->handle, &(c->data))) {
+		if(!::FindNextFileW(c->handle, &(c->data))) {
 			c->data.cFileName[0] = '\0';
 			break;
 		}

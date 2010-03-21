@@ -57,7 +57,7 @@ public:
 
 protected:
 	sal_override sal_checkreturn LoadingState load(
-		sal_maybenull std::istream* is, sal_maybenull const Path* fileId=nullptr, sal_maybenull const wchar_t* args=nullptr)
+		sal_maybenull std::istream* is, sal_maybenull const Path* fileId=nullptr, sal_maybenull const char* args=nullptr)
 	{
 		ScopeLock lock(mMutex);
 
@@ -80,7 +80,7 @@ protected:
 
 	sal_override void commit(Resource&) {}
 
-	sal_override void onPartialLoaded(IPartialLoadContext& context, uint priority, const wchar_t* args)
+	sal_override void onPartialLoaded(IPartialLoadContext& context, uint priority, const char* args)
 	{
 		ScopeLock lock(mMutex);
 
@@ -103,8 +103,8 @@ protected:
 class DelayLoaderFactory : public ResourceManager::IFactory
 {
 public:
-	sal_override ResourcePtr createResource(const Path& fileId, const wchar_t* args) {
-		return new Resource(L"");
+	sal_override ResourcePtr createResource(const Path& fileId, const char* args) {
+		return new Resource("");
 	}
 
 	sal_override IResourceLoader* createLoader() {
@@ -116,10 +116,10 @@ class DelayLoaderTestFixture
 {
 protected:
 	DelayLoaderTestFixture(IResourceManager::BlockingMode blockingMode)
-		: fs(new RawFileSystem(L"./")), manager(*fs)
+		: fs(new RawFileSystem("./")), manager(*fs)
 	{
 		manager.addFactory(new DelayLoaderFactory);
-		res = manager.load(L"", blockingMode,	0, nullptr, &_loader);
+		res = manager.load("", blockingMode,	0, nullptr, &_loader);
 		loader = dynamic_cast<DelayLoader*>(_loader.get());
 	}
 

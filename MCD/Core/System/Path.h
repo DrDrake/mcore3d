@@ -13,7 +13,7 @@ namespace MCD {
 class MCD_CORE_API Path
 {
 public:
-	typedef wchar_t char_type;
+	typedef char char_type;
 	typedef std::basic_string<char_type> string_type;
 
 	Path() {}
@@ -118,7 +118,7 @@ public:
 		return compare(rhs) < 0;
 	}
 
-	//!	A comparison function that gives int as the result just like what wstrCaseCmp() does.
+	//!	A comparison function that gives int as the result just like what strCaseCmp() does.
 	int compare(const Path& rhs) const;
 
 	/*!	Get the current path of the running process.

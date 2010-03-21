@@ -35,10 +35,7 @@ public:
 		if(loc != -1)
 			mUniforms.insert(std::make_pair(key, loc));
 		else
-		{
-			// TODO: Log more information, becare of the char* wchar_t* issues
-			Log::format(Log::Error, L"Shader uniform not found");
-		}
+			Log::format(Log::Error, "Shader uniform '%s' not found", name);
 		
 		return loc;
 	}

@@ -26,12 +26,12 @@ public:
 		\param scriptName A name of the script for debugging purpose.
 		\param retVal True for remaining the return value on the stack.
 	 */
-	sal_checkreturn bool runScript(sal_in_z const wchar_t* script, sal_in_z const wchar_t* scriptName=L"unnamed script", bool retVal=false);
+	sal_checkreturn bool runScript(sal_in_z const char* script, sal_in_z const char* scriptName="unnamed script", bool retVal=false);
 
 	/*!	Execute a script and return the result as a string.
 		\note Return empty string if the script has error or the script doesn't return a string.
 	 */
-	std::wstring runScriptAsString(sal_in_z const wchar_t* script, sal_in_z const wchar_t* scriptName=L"unnamed script");
+	std::string runScriptAsString(sal_in_z const char* script, sal_in_z const char* scriptName="unnamed script");
 
 	//! Get the underlaying scripting VM handle, that is HSQUIRRELVM
 	sal_notnull void* getImplementationHandle();
@@ -57,8 +57,8 @@ template<typename T> class TypeSelect;
 extern void push(HSQUIRRELVM v, const char* value);
 extern const char* get(TypeSelect<const char*>, HSQUIRRELVM v, int idx);
 #else
-extern void push(HSQUIRRELVM v, const wchar_t* value);
-extern const wchar_t* get(TypeSelect<const wchar_t*>, HSQUIRRELVM v, int idx);
+extern void push(HSQUIRRELVM v, const char* value);
+extern const char* get(TypeSelect<const char*>, HSQUIRRELVM v, int idx);
 #endif*/
 
 }	// namespace types

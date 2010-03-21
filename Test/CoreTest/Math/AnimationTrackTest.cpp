@@ -7,10 +7,10 @@ using namespace MCD;
 
 TEST(AnimationTrackTest)
 {
-	{	AnimationTrackPtr track = new AnimationTrack(L"");
+	{	AnimationTrackPtr track = new AnimationTrack("");
 	}
 
-	{	AnimationTrackPtr track = new AnimationTrack(L"");
+	{	AnimationTrackPtr track = new AnimationTrack("");
 		track->acquireReadLock();
 		CHECK(!track->isCommitted());
 		track->releaseReadLock();
@@ -26,7 +26,7 @@ TEST(AnimationTrackTest)
 		track->releaseReadLock();
 	}
 
-	{	AnimationTrackPtr track = new AnimationTrack(L"");
+	{	AnimationTrackPtr track = new AnimationTrack("");
 		
 		{	track->acquireWriteLock();
 			size_t tmp[] = { 3 };
@@ -92,7 +92,7 @@ TEST(AnimationTrackTest)
 
 TEST(Slerp_AnimationTrackTest)
 {
-	AnimationTrackPtr track = new AnimationTrack(L"");
+	AnimationTrackPtr track = new AnimationTrack("");
 	
 	{	track->acquireWriteLock();
 		size_t tmp[] = { 2 };
@@ -134,7 +134,7 @@ TEST(Performance_AnimationTrackTest)
 	const size_t frameCount = 256;
 	const size_t subtrackCount = 8;
 
-	AnimationTrackPtr track = new AnimationTrack(L"");
+	AnimationTrackPtr track = new AnimationTrack("");
 
 	{	track->acquireWriteLock();
 		size_t tmp[subtrackCount] = { frameCount };

@@ -25,7 +25,7 @@ public:
 	FakeResourceLoader() : mLoadingState(NotLoaded), mCommited(false) {}
 
 	sal_override LoadingState load(
-		sal_maybenull std::istream*, sal_maybenull const Path* fileId=nullptr, sal_maybenull const wchar_t* args=nullptr)
+		sal_maybenull std::istream*, sal_maybenull const Path* fileId=nullptr, sal_maybenull const char* args=nullptr)
 	{
 		(void)fileId;
 		mBuffer.push_back(1);
@@ -53,7 +53,7 @@ protected:
 
 TEST(Basic_ResourceLoaderTest)
 {
-	static const wchar_t fileName[] = L"./myResource.bin";
+	static const char fileName[] = "./myResource.bin";
 	FakeResourcePtr resource = new FakeResource(fileName);
 	CHECK_EQUAL(fileName, resource->fileId().getString());
 
@@ -84,7 +84,7 @@ public:
 	{}
 
 	sal_override LoadingState load(
-		sal_maybenull std::istream*, sal_maybenull const Path* fileId=nullptr, sal_maybenull const wchar_t* args=nullptr)
+		sal_maybenull std::istream*, sal_maybenull const Path* fileId=nullptr, sal_maybenull const char* args=nullptr)
 	{
 		(void)fileId;
 		ScopeLock lock(mMutex);
@@ -146,7 +146,7 @@ TEST(Async_ResourceLoaderTest)
 		CondVar mCondVar;
 	};	// Runnable
 
-	FakeResourcePtr resource = new FakeResource(L"./myResource.bin");
+	FakeResourcePtr resource = new FakeResource("./myResource.bin");
 	FakeAsyncResourceLoader loader;
 
 	CHECK_EQUAL(IResourceLoader::NotLoaded, loader.getLoadingState());

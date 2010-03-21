@@ -25,9 +25,9 @@ public:
 
 	virtual ~ImplBase() {}
 
-	virtual void setOption(const wchar_t* name, const wchar_t* value) = 0;
+	virtual void setOption(const char* name, const char* value) = 0;
 
-	MCD_CORE_API virtual void setOptions(const wchar_t* option);
+	MCD_CORE_API virtual void setOptions(const char* option);
 
 	//! Send event to all window listeners
 	void SendEvent(const Event& eventToSend);
@@ -44,7 +44,7 @@ public:
 
 	//! Width and height of the window (not client area)
 	uint mWidth, mHeight;
-	std::wstring mTitle;
+	std::string mTitle;
 
 	std::set<IWindowListener*> mListeners;
 	std::queue<Event> mEventQueue;

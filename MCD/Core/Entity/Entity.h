@@ -90,24 +90,24 @@ public:
 	/*!	Return the firstly found Entity along the siblings, with the name supplied.
 		Returns null if none is found.
 	 */
-	sal_maybenull Entity* findEntityInSibling(sal_in_z const wchar_t* name) const;
+	sal_maybenull Entity* findEntityInSibling(sal_in_z const char* name) const;
 
 	/*!	Return the firstly found Entity under the descendants (including indirect children), with the name supplied.
 		Returns null if none is found.
 		\note This entity will also be considered.
 	 */
-	sal_maybenull Entity* findEntityInDescendants(sal_in_z const wchar_t* name) const;
+	sal_maybenull Entity* findEntityInDescendants(sal_in_z const char* name) const;
 
 	/*!	Use a file system like path syntax to local an entity in the entity tree.
 		This entity will be returned if empty string is supplied.
 		\note Linear complexity.
 	 */
-	sal_maybenull Entity* findEntityByPath(sal_in_z const wchar_t* path) const;
+	sal_maybenull Entity* findEntityByPath(sal_in_z const char* path) const;
 
 	/*!	Comput the relative path from one Entity to this Entity.
 		Returns empty string when both Entity are just the same, or they are not in the same tree.
 	 */
-	std::wstring getRelativePathFrom(const Entity& e) const;
+	std::string getRelativePathFrom(const Entity& e) const;
 
 	/*!	Add a new component into the Entity.
 		Only a single instance is allowed for each family type of Component,
@@ -141,7 +141,7 @@ public:
 // Attributes
 	bool enabled;
 
-	std::wstring name;
+	std::string name;
 
 	sal_maybenull Entity* parent();
 	sal_maybenull Entity* parent() const;

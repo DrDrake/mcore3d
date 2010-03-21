@@ -103,7 +103,7 @@ public:
 	{
 	public:
 		Task(ResourceManager& manager, MapNode& mapNode, const IResourceLoaderPtr& loader,
-			EventQueue& eventQueue, std::istream* is, uint priority, TaskPool& taskPool, const wchar_t* args)
+			EventQueue& eventQueue, std::istream* is, uint priority, TaskPool& taskPool, const char* args)
 			:
 			MCD::TaskPool::Task(priority),
 			mResourceManager(manager),
@@ -113,7 +113,7 @@ public:
 			mEventQueue(eventQueue),
 			mIStream(is),
 			mTaskPool(taskPool),
-			mArgs(args == nullptr ? L"" : args)
+			mArgs(args == nullptr ? "" : args)
 		{
 		}
 
@@ -148,11 +148,11 @@ public:
 			delete this;
 		}
 
-		sal_override void continueLoad(uint priority, const wchar_t* args)
+		sal_override void continueLoad(uint priority, const char* args)
 		{
 			// NOTE: There is no need to lock, since mTaskPool's operation is already thread safe
 			setPriority(priority);
-			mArgs = args ? args : L"";
+			mArgs = args ? args : "";
 			MCD_VERIFY(mTaskPool.enqueue(*this));
 		}
 
@@ -163,7 +163,7 @@ public:
 		EventQueue& mEventQueue;
 		std::auto_ptr<std::istream> mIStream;	// Keep the life of the stream align with the Task
 		TaskPool& mTaskPool;
-		std::wstring mArgs;
+		std::string mArgs;
 	};	// Task
 
 public:
@@ -203,7 +203,7 @@ public:
 		return mResourceMap.find(fileId)->getOuterSafe();
 	}
 
-	void blockingLoad(const Path& fileId, const wchar_t* args, MapNode& node, const IResourceLoaderPtr& loader)
+	void blockingLoad(const Path& fileId, const char* args, MapNode& node, const IResourceLoaderPtr& loader)
 	{
 		MCD_ASSERT(mEventQueue.mMutex.isLocked());
 		std::auto_ptr<std::istream> is(mFileSystem.openRead(fileId));
@@ -219,7 +219,7 @@ public:
 		mEventQueue.pushBack(event);
 	}
 
-	void backgroundLoad(const Path& fileId, const wchar_t* args, MapNode& node, const IResourceLoaderPtr& loader, bool firstPartialBlock, uint priority)
+	void backgroundLoad(const Path& fileId, const char* args, MapNode& node, const IResourceLoaderPtr& loader, bool firstPartialBlock, uint priority)
 	{
 		MCD_ASSERT(mEventQueue.mMutex.isLocked());
 		std::auto_ptr<std::istream> is(mFileSystem.openRead(fileId));
@@ -252,7 +252,7 @@ public:
 		mFactories.clear();
 	}
 
-	ResourcePtr createResource(const Path& fileId, const wchar_t* args, IResourceLoaderPtr& loader)
+	ResourcePtr createResource(const Path& fileId, const char* args, IResourceLoaderPtr& loader)
 	{
 		MCD_ASSERT(mEventQueue.mMutex.isLocked());
 		ResourcePtr ret;
@@ -304,7 +304,7 @@ ResourceManager::~ResourceManager()
 	delete mImpl;
 }
 
-ResourcePtr ResourceManager::load(const Path& fileId, BlockingMode blockingMode, uint priority, const wchar_t* args, IResourceLoaderPtr* _loader)
+ResourcePtr ResourceManager::load(const Path& fileId, BlockingMode blockingMode, uint priority, const char* args, IResourceLoaderPtr* _loader)
 {
 	MCD_ASSUME(mImpl != nullptr);
 	ScopeLock lock(mImpl->mEventQueue.mMutex);
@@ -347,7 +347,7 @@ ResourcePtr ResourceManager::load(const Path& fileId, BlockingMode blockingMode,
 		*_loader = loader;
 
 	if(!resource || !loader) {
-		Log::format(Log::Warn, L"No loader for \"%s\" can be found", fileId.getString().c_str());
+		Log::format(Log::Warn, "No loader for \"%s\" can be found", fileId.getString().c_str());
 
 		if(_loader)
 			*_loader = nullptr;
@@ -373,7 +373,7 @@ ResourcePtr ResourceManager::load(const Path& fileId, BlockingMode blockingMode,
 	return resource;
 }
 
-std::pair<IResourceLoaderPtr, ResourcePtr> ResourceManager::customLoad(const Path& fileId, const wchar_t* args)
+std::pair<IResourceLoaderPtr, ResourcePtr> ResourceManager::customLoad(const Path& fileId, const char* args)
 {
 	MCD_ASSUME(mImpl != nullptr);
 	IResourceLoaderPtr loader = nullptr;
@@ -384,14 +384,14 @@ std::pair<IResourceLoaderPtr, ResourcePtr> ResourceManager::customLoad(const Pat
 	}
 
 	if(!resource || !loader) {
-		Log::format(Log::Warn, L"No loader for \"%s\" can be found", fileId.getString().c_str());
+		Log::format(Log::Warn, "No loader for \"%s\" can be found", fileId.getString().c_str());
 		return std::make_pair(IResourceLoaderPtr(nullptr), (Resource*)nullptr);
 	}
 
 	return std::make_pair(loader, resource);
 }
 
-ResourcePtr ResourceManager::reload(const Path& fileId, BlockingMode blockingMode, uint priority, const wchar_t* args)
+ResourcePtr ResourceManager::reload(const Path& fileId, BlockingMode blockingMode, uint priority, const char* args)
 {
 	MCD_ASSUME(mImpl != nullptr);
 	ScopeLock lock(mImpl->mEventQueue.mMutex);
@@ -590,7 +590,7 @@ int ResourceManagerCallback::removeDependency(const Path& fileId)
 	return mDependency.size();
 }
 
-void IResourceLoader::onPartialLoaded(IPartialLoadContext& context, uint priority, const wchar_t* args)
+void IResourceLoader::onPartialLoaded(IPartialLoadContext& context, uint priority, const char* args)
 {
 	context.continueLoad(priority, args);
 }

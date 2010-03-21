@@ -15,12 +15,12 @@ class TestWindow : public BasicGlWindow
 public:
 	TestWindow()
 		:
-		BasicGlWindow(L"title=EntityPrototypeLoaderTest;width=800;height=600;fullscreen=0;FSAA=4"),
+		BasicGlWindow("title=EntityPrototypeLoaderTest;width=800;height=600;fullscreen=0;FSAA=4"),
 		mResourceManager(*createDefaultFileSystem())
 	{
 		mResourceManager.addFactory(new PodLoaderFactory(mResourceManager));
 
-		const wchar_t* fileId = L"Scene/City/scene.pod";
+		const char* fileId = "Scene/City/scene.pod";
 		mPrefab = dynamic_cast<Prefab*>(mResourceManager.load(fileId).get());
 
 		mRootNode.localTransform.setScale(Vec3f(0.1f));
@@ -59,12 +59,12 @@ class TestWindow : public BasicGlWindow
 public:
 	TestWindow()
 		:
-		BasicGlWindow(L"title=PrefabLoaderComponentTest;width=800;height=600;fullscreen=0;FSAA=4"),
+		BasicGlWindow("title=PrefabLoaderComponentTest;width=800;height=600;fullscreen=0;FSAA=4"),
 		mResourceManager(*createDefaultFileSystem())
 	{
 		mResourceManager.addFactory(new PodLoaderFactory(mResourceManager));
 
-		const wchar_t* fileId = L"Scene/City/scene.pod";
+		const char* fileId = "Scene/City/scene.pod";
 		EntityPtr e = PrefabLoaderComponent::loadEntity(mResourceManager, fileId, false);
 		if(e)
 			e->asChildOf(&mRootNode);

@@ -66,7 +66,7 @@ MeshPtr buildCylinder(float radius, float length, uint8_t jointCount)
 		jointWeight[i][3] = 0.1f;
 	}
 
-	MeshPtr ret = new Mesh(L"");
+	MeshPtr ret = new Mesh("");
 	MCD_VERIFY(commitMesh(builder, *ret, Mesh::Static));
 	return ret;
 }
@@ -80,8 +80,8 @@ Quaternionf randomQuaternion()
 
 SkeletonAnimationPtr buildSkeletonAnimation(float totalLength, uint8_t jointCount)
 {
-	SkeletonAnimationPtr skeletonAnimation = new SkeletonAnimation(L"");
-	AnimationTrackPtr track = new AnimationTrack(L"");
+	SkeletonAnimationPtr skeletonAnimation = new SkeletonAnimation("");
+	AnimationTrackPtr track = new AnimationTrack("");
 
 	MCD_ASSUME(totalLength > 0);
 	MCD_ASSUME(jointCount > 0);
@@ -91,7 +91,7 @@ SkeletonAnimationPtr buildSkeletonAnimation(float totalLength, uint8_t jointCoun
 	const float jointLength = totalLength / jointCount;
 
 	{	// Setup the skeleton
-		SkeletonPtr skeleton = new Skeleton(L"");
+		SkeletonPtr skeleton = new Skeleton("");
 		skeletonAnimation->skeleton = skeleton;
 		skeleton->init(jointCount);
 
@@ -166,10 +166,10 @@ class TestWindow : public BasicGlWindow
 public:
 	TestWindow()
 		:
-		BasicGlWindow(L"title=SkeletonAnimationComponentTest;width=800;height=600;fullscreen=0;FSAA=4"),
+		BasicGlWindow("title=SkeletonAnimationComponentTest;width=800;height=600;fullscreen=0;FSAA=4"),
 		mResourceManager(*createDefaultFileSystem())
 	{
-		animationTrack = new AnimationTrack(L"");
+		animationTrack = new AnimationTrack("");
 		loadAnimationTrack();
 
 		const float cTubeLength = 20;
@@ -177,7 +177,7 @@ public:
 
 		{	// Setup the tube skin mesh
 			MeshPtr mesh = buildCylinder(2, cTubeLength, cTubeSwegmentCount);
-			mBasePoseMesh = new Model(L"BasePose");
+			mBasePoseMesh = new Model("BasePose");
 			std::auto_ptr<Model::MeshAndMaterial> mm(new Model::MeshAndMaterial);
 			mm->mesh = mesh;
 			mBasePoseMesh->mMeshes.pushBack(*mm);

@@ -32,8 +32,8 @@ public:
 	{
 		Callback* cb = new Callback();
 		cb->backRef = this;
-		cb->model = dynamic_cast<Model*>(resourceManager.load(L"Arrow.3ds").get());
-		cb->setMajorDependency(L"Arrow.3ds");
+		cb->model = dynamic_cast<Model*>(resourceManager.load("Arrow.3ds").get());
+		cb->setMajorDependency("Arrow.3ds");
 		resourceManager.addCallback(cb);
 	}
 
@@ -143,7 +143,7 @@ TranslationGizmoComponent::TranslationGizmoComponent(IResourceManager& resourceM
 {
 	// Add child entities
 	{	Entity* e = new Entity();
-		e->name = L"X arrow";
+		e->name = "X arrow";
 		e->asChildOf(hostEntity);
 		ArrowComponent* c = new ArrowComponent(resourceManager, ColorRGBAf(1, 0, 0, 0.8f));
 		c->dragDirection = Vec3f::c100;
@@ -153,7 +153,7 @@ TranslationGizmoComponent::TranslationGizmoComponent(IResourceManager& resourceM
 	}
 
 	{	Entity* e = new Entity();
-		e->name = L"Y arrow";
+		e->name = "Y arrow";
 		e->asChildOf(hostEntity);
 		ArrowComponent* c = new ArrowComponent(resourceManager, ColorRGBAf(0, 1, 0, 0.8f));
 		c->dragDirection = Vec3f::c010;
@@ -162,7 +162,7 @@ TranslationGizmoComponent::TranslationGizmoComponent(IResourceManager& resourceM
 	}
 
 	{	Entity* e = new Entity();
-		e->name = L"Z arrow";
+		e->name = "Z arrow";
 		e->asChildOf(hostEntity);
 		ArrowComponent* c = new ArrowComponent(resourceManager, ColorRGBAf(0, 0, 1, 0.8f));
 		c->dragDirection = Vec3f::c001;
@@ -172,7 +172,7 @@ TranslationGizmoComponent::TranslationGizmoComponent(IResourceManager& resourceM
 	}
 
 	{	Entity* e = new Entity();
-		e->name = L"YZ plane";
+		e->name = "YZ plane";
 		e->asChildOf(hostEntity);
 		PlaneComponent* c = new PlaneComponent(resourceManager, ColorRGBAf(1, 0, 0, 0.8f));
 		c->planeNormal = Vec3f::c100;
@@ -182,7 +182,7 @@ TranslationGizmoComponent::TranslationGizmoComponent(IResourceManager& resourceM
 	}
 
 	{	Entity* e = new Entity();
-		e->name = L"XY plane";
+		e->name = "XY plane";
 		e->asChildOf(hostEntity);
 		PlaneComponent* c = new PlaneComponent(resourceManager, ColorRGBAf(0, 0, 1, 0.8f));
 		c->planeNormal = Vec3f::c001;
@@ -191,7 +191,7 @@ TranslationGizmoComponent::TranslationGizmoComponent(IResourceManager& resourceM
 	}
 
 	{	Entity* e = new Entity();
-		e->name = L"XZ plane";
+		e->name = "XZ plane";
 		e->asChildOf(hostEntity);
 		PlaneComponent* c = new PlaneComponent(resourceManager, ColorRGBAf(0, 1, 0, 0.8f));
 		c->planeNormal = Vec3f::c010;

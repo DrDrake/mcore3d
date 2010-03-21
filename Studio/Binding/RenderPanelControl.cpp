@@ -57,7 +57,7 @@ public:
 		mPlaying(false),
 		mLauncher(*mgr->fileSystemCollection->getRawPtr(), *mgr->getRawPtr(), false)
 	{
-		mRootNode.name = L"Ultimate root node";
+		mRootNode.name = "Ultimate root node";
 	}
 
 	~RenderPanelControlImpl()
@@ -79,21 +79,21 @@ public:
 	{
 		{	// Setup user defined sub-tree
 			std::auto_ptr<MCD::Entity> e(new MCD::Entity);
-			e->name = L"Studio user defined sub-tree";
+			e->name = "Studio user defined sub-tree";
 			e->asChildOf(&mRootNode);
 			mUserSubTree = e.release();
 		}
 
 		{	// Setup pre-defined sub-tree
 			std::auto_ptr<MCD::Entity> e(new MCD::Entity);
-			e->name = L"Studio pre-defined sub-tree";
+			e->name = "Studio pre-defined sub-tree";
 			e->asChildOf(&mRootNode);
 			mPredefinedSubTree = e.release();
 		}
 
 		{	// Add the ground plane
 			std::auto_ptr<MCD::Entity> e(new MCD::Entity);
-			e->name = L"Ground plane";
+			e->name = "Ground plane";
 			e->asChildOf(mPredefinedSubTree);
 
 			// Add component
@@ -105,7 +105,7 @@ public:
 
 		{	// Add picking detector
 			std::auto_ptr<MCD::Entity> e(new MCD::Entity);
-			e->name = L"Entity picker";
+			e->name = "Entity picker";
 			e->asChildOf(mPredefinedSubTree);
 			mEntityPicker = new PickComponent;
 			mEntityPicker->entityToPick = mUserSubTree;
@@ -116,7 +116,7 @@ public:
 
 		{	// Add a C# contorl event input component
 			std::auto_ptr<MCD::Entity> e(new MCD::Entity);
-			e->name = L"Scene view input";
+			e->name = "Scene view input";
 			e->asChildOf(mPredefinedSubTree);
 			mCsInputComponent = new CsInputComponent();
 			mCsInputComponent->attachTo(mBackRef);
@@ -128,12 +128,12 @@ public:
 
 		{	// Add a default camera
 			std::auto_ptr<MCD::Entity> e(new MCD::Entity);
-			e->name = L"Default camera";
+			e->name = "Default camera";
 			e->asChildOf(mPredefinedSubTree);
 
 			// Add component
 			mCamera = static_cast<CameraComponent*>(mLauncher.scriptComponentManager.runScripAsComponent(
-				L"return loadComponent(\"StudioFpsCamera.nut\");"
+				"return loadComponent(\"StudioFpsCamera.nut\");"
 			));
 			mCamera->clearColor = ColorRGBf(0.5f);	// Set the background color as 50% gray
 			e->addComponent(mCamera.get());
@@ -146,7 +146,7 @@ public:
 			// related stuffs (eg axis picking) are working
 			std::auto_ptr<Gizmo> e(new Gizmo(mResourceManager, mLauncher.inputComponent()));
 			e->setCamrea(mCamera->entity());
-			e->name = L"Gizmo";
+			e->name = "Gizmo";
 			e->enabled = false;	// The gizmo is initially disable, until an object is selected
 			e->asChildOf(&mRootNode);
 			e->setActiveGizmo(e->translationGizmo.get());
@@ -165,7 +165,7 @@ public:
 		}
 
 		// Initialize the serialization system
-		MCD_VERIFY(executeScriptFile(L"EntitySerialization.nut"));
+		MCD_VERIFY(executeScriptFile("EntitySerialization.nut"));
 	}
 
 	void update()
@@ -267,12 +267,12 @@ public:
 		update();
 	}
 
-	bool executeScriptFile(const wchar_t* scriptFilePath)
+	bool executeScriptFile(const char* scriptFilePath)
 	{
 		return mLauncher.scriptComponentManager.doFile(scriptFilePath, true);
 	}
 
-	void play(const wchar_t* scriptFilePath)
+	void play(const char* scriptFilePath)
 	{
 		// Backup the old sub-tree and input component
 		mOldUserSubTree = mUserSubTree->clone();
@@ -304,7 +304,7 @@ public:
 		}
 
 		// Clear the class cache so that all component scripts will be reloaded from the file system on next play()
-		(void)mLauncher.vm.runScript(L"clearClassCache();");
+		(void)mLauncher.vm.runScript("clearClassCache();");
 
 		mCamera->entity()->enabled = true;
 		mPlaying = false;
@@ -499,14 +499,14 @@ void RenderPanelControl::gizmoMode::set(GizmoMode mode)
 
 bool RenderPanelControl::executeScriptFile(System::String^ scriptFilePath)
 {
-	return mImpl->executeScriptFile(Utility::toWString(scriptFilePath).c_str());
+	return mImpl->executeScriptFile(Utility::toUtf8String(scriptFilePath).c_str());
 }
 
 void RenderPanelControl::play(String^ scriptFilePath)
 {
 	MemoryProfiler::Scope profiler("RenderPanelControl::play");
 
-	mImpl->play(Utility::toWString(scriptFilePath).c_str());
+	mImpl->play(Utility::toUtf8String(scriptFilePath).c_str());
 
 	// The entity tree is altered, reset it.
 	selectedEntity = nullptr;
@@ -533,12 +533,12 @@ bool RenderPanelControl::playing::get()
 
 System::String^ RenderPanelControl::serailizeScene()
 {
-	std::wstring str = mImpl->mLauncher.vm.runScriptAsString(
-		L"gSerializationState.output=\"\";gSerializationState.patch.clear();"
-		L"rootEntity.serialize(gSerializationState);"
-		L"local ret = gSerializationState.output + gSerializationState.getPatchString();"
-		L"gSerializationState.reset();"
-		L"return ret;"
+	std::string str = mImpl->mLauncher.vm.runScriptAsString(
+		"gSerializationState.output=\"\";gSerializationState.patch.clear();"
+		"rootEntity.serialize(gSerializationState);"
+		"local ret = gSerializationState.output + gSerializationState.getPatchString();"
+		"gSerializationState.reset();"
+		"return ret;"
 	);
 	return gcnew System::String(str.c_str());
 }

@@ -22,14 +22,14 @@ class TestWindow : public BasicGlWindow
 public:
 	TestWindow()
 		:
-		BasicGlWindow(L"title=AnimationComponentTest;width=800;height=600;fullscreen=0;FSAA=4"),
+		BasicGlWindow("title=AnimationComponentTest;width=800;height=600;fullscreen=0;FSAA=4"),
 		mResourceManager(*createDefaultFileSystem())
 	{
-		animationTrack = new AnimationTrack(L"");
+		animationTrack = new AnimationTrack("");
 		loadAnimationTrack();
 
 		{	// Setup the chamfer box mesh
-			mesh = new Mesh(L"");
+			mesh = new Mesh("");
 			ChamferBoxBuilder chamferBoxBuilder(0.4f, 3);
 			MCD_VERIFY(commitMesh(chamferBoxBuilder, *mesh, Mesh::Static));
 		}

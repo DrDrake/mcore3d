@@ -40,7 +40,7 @@ public:
 
 	sal_checkreturn bool load(
 		IResourceManager& resourceManager, const Path& fileId,
-		sal_in_z_opt const wchar_t* args=nullptr)
+		sal_in_z_opt const char* args=nullptr)
 	{
 		return audioSource.load(resourceManager, fileId, args);
 	}

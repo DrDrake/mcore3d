@@ -51,8 +51,8 @@ bool AnimationInstance::resetInterpolatedResult()
 		if(cSubtrackCnt != wt.track->subtrackCount()) {
 			Log::format(
 				Log::Warn,
-				L"Incompatible AnimationTrack: subtrack count not matched."
-				L"Animation will not be updated.");
+				"Incompatible AnimationTrack: subtrack count not matched."
+				"Animation will not be updated.");
 
 			return false;
 		}

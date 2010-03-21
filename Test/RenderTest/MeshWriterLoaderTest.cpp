@@ -15,23 +15,23 @@ TEST(MeshWriterLoaderTest)
 	public:
 		TestWindow()
 			:
-			BasicGlWindow(L"title=ModelLoaderTest;width=800;height=600;fullscreen=0;FSAA=4")
+			BasicGlWindow("title=ModelLoaderTest;width=800;height=600;fullscreen=0;FSAA=4")
 		{
 		}
 	};	// TestWindow
 
 	TestWindow window;
 
-	std::auto_ptr<IFileSystem> fs(new RawFileSystem(L"./Media/"));
+	std::auto_ptr<IFileSystem> fs(new RawFileSystem("./Media/"));
 	DefaultResourceManager manager(*fs);
 
 	// Setup the chamfer box mesh
-	MeshPtr mesh = new Mesh(L"");
+	MeshPtr mesh = new Mesh("");
 	ChamferBoxBuilder chamferBoxBuilder(0.4f, 3);
 	MCD_VERIFY(commitMesh(chamferBoxBuilder, *mesh, Mesh::Static));
 
 	// Write it to a tmp file
-	{	std::auto_ptr<std::ostream> os(fs->openWrite(L"tmp.msh"));
+	{	std::auto_ptr<std::ostream> os(fs->openWrite("tmp.msh"));
 		CHECK(MeshWriter::write(*os, *mesh));
 
 		// Consume the reload event casue by the write operation
@@ -39,7 +39,7 @@ TEST(MeshWriterLoaderTest)
 	}
 
 	// Load it back
-	MeshPtr mesh2 = dynamic_cast<Mesh*>(manager.load(L"tmp.msh", IResourceManager::Block).get());
+	MeshPtr mesh2 = dynamic_cast<Mesh*>(manager.load("tmp.msh", IResourceManager::Block).get());
 	CHECK(mesh2);
 
 	manager.processLoadingEvents();

@@ -75,12 +75,12 @@ Gizmo::Gizmo(IResourceManager& resourceManager, InputComponent* inputComponent)
 	addComponent(new FollowTransformComponent);
 
 	Entity* sizeFixer = new Entity();
-	sizeFixer->name = L"Fixed screenSize";
+	sizeFixer->name = "Fixed screenSize";
 	sizeFixer->addComponent(new FixedScreenSizeComponent);
 	sizeFixer->asChildOf(this);
 
 	{	Entity* e = new Entity();
-		e->name = L"Translation Gizmo";
+		e->name = "Translation Gizmo";
 		e->asChildOf(sizeFixer);
 
 		translationGizmo = new TranslationGizmoComponent(resourceManager, e, inputComponent);
@@ -88,7 +88,7 @@ Gizmo::Gizmo(IResourceManager& resourceManager, InputComponent* inputComponent)
 	}
 
 	{	Entity* e = new Entity();
-		e->name = L"Rotation Gizmo";
+		e->name = "Rotation Gizmo";
 		e->asChildOf(sizeFixer);
 
 		rotationGizmo = new RotationGizmoComponent(resourceManager, e, inputComponent);
@@ -96,7 +96,7 @@ Gizmo::Gizmo(IResourceManager& resourceManager, InputComponent* inputComponent)
 	}
 
 	{	Entity* e = new Entity();
-		e->name = L"Scale Gizmo";
+		e->name = "Scale Gizmo";
 		e->asChildOf(sizeFixer);
 		scaleGizmo = new ScaleGizmoComponent(resourceManager, e, inputComponent);
 		e->addComponent(scaleGizmo.get());

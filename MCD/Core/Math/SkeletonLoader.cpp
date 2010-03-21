@@ -10,9 +10,9 @@ namespace MCD {
 class SkeletonLoader::Impl
 {
 public:
-	Impl() : skeleton(new Skeleton(L"tmp")) {}
+	Impl() : skeleton(new Skeleton("tmp")) {}
 
-	IResourceLoader::LoadingState load(std::istream* is, const Path* fileId, const wchar_t* args);
+	IResourceLoader::LoadingState load(std::istream* is, const Path* fileId, const char* args);
 
 	void commit(Resource& resource);
 
@@ -20,7 +20,7 @@ public:
 	volatile IResourceLoader::LoadingState mLoadingState;
 };	// Impl
 
-IResourceLoader::LoadingState SkeletonLoader::Impl::load(std::istream* is, const Path* fileId, const wchar_t* args)
+IResourceLoader::LoadingState SkeletonLoader::Impl::load(std::istream* is, const Path* fileId, const char* args)
 {
 	// Simplying the error check
 	#define ABORT_IF(expression) if(expression) { MCD_ASSERT(false); return mLoadingState = Aborted; }
@@ -70,7 +70,7 @@ SkeletonLoader::~SkeletonLoader()
 	delete &mImpl;
 }
 
-IResourceLoader::LoadingState SkeletonLoader::load(std::istream* is, const Path* fileId, const wchar_t* args)
+IResourceLoader::LoadingState SkeletonLoader::load(std::istream* is, const Path* fileId, const char* args)
 {
 	MemoryProfiler::Scope scope("SkeletonLoader::load");
 	return mImpl.load(is, fileId, args);

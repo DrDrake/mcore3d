@@ -52,22 +52,22 @@ SCRIPT_CLASS_DECLAR(ResourceLoadCallback);
 SCRIPT_CLASS_DECLAR(Launcher);
 
 SCRIPT_CLASS_REGISTER(ResourceLoadCallback)
-	.declareClass<ResourceLoadCallback, ResourceManagerCallback>(L"ResourceLoadCallback")
+	.declareClass<ResourceLoadCallback, ResourceManagerCallback>("ResourceLoadCallback")
 	.constructor()
-	.scriptEvent(L"onLoaded", &ResourceLoadCallback::onLoaded)
+	.scriptEvent("onLoaded", &ResourceLoadCallback::onLoaded)
 ;}
 
 SCRIPT_CLASS_REGISTER_NAME(Launcher, "MainWindow")
 	.enableGetset()
-	.method<objNoCare>(L"_getrootEntity", &Launcher::rootNode)
-	.method(L"loadEntity", &Launcher::loadEntity)
-	.method(L"loadEntity2", &Launcher::loadEntity2)
-	.method<objNoCare>(L"_getinputComponent", &Launcher::inputComponent)
-	.method<objNoCare>(L"_getresourceManager", &Launcher::resourceManager)
-	.method<objNoCare>(L"_getdynamicsWorld", &Launcher::dynamicsWorld)
-	.method<objNoCare>(L"_getanimationUpdater", &Launcher::animationUpdater)
-	.method<objNoCare>(L"_getskeletonAnimationUpdater", &Launcher::skeletonAnimationUpdater)
-//	.rawMethod(L"addCallback", &Launcher::addCallback)
+	.method<objNoCare>("_getrootEntity", &Launcher::rootNode)
+	.method("loadEntity", &Launcher::loadEntity)
+	.method("loadEntity2", &Launcher::loadEntity2)
+	.method<objNoCare>("_getinputComponent", &Launcher::inputComponent)
+	.method<objNoCare>("_getresourceManager", &Launcher::resourceManager)
+	.method<objNoCare>("_getdynamicsWorld", &Launcher::dynamicsWorld)
+	.method<objNoCare>("_getanimationUpdater", &Launcher::animationUpdater)
+	.method<objNoCare>("_getskeletonAnimationUpdater", &Launcher::skeletonAnimationUpdater)
+//	.rawMethod("addCallback", &Launcher::addCallback)
 ;}
 
 }	// namespace script
@@ -154,48 +154,48 @@ bool Launcher::init(InputComponent& inputComponent, Entity* rootNode)
 
 	// TODO: Remove the need of a singleton
 	script::RootDeclarator root(v);
-	root.declareFunction<objNoCare>(L"_getlauncher", &Launcher::sinleton);
+	root.declareFunction<objNoCare>("_getlauncher", &Launcher::sinleton);
 
 	script::ClassTraits<ResourceLoadCallback>::bind(v);
 	script::ClassTraits<Launcher>::bind(v);
 
 	// Setup some global variable for easy access in script.
 	if(!vm.runScript(
-		L"gLauncher <- _getlauncher();\n"
+		"gLauncher <- _getlauncher();\n"
 
-		L"function loadEntity(filePath, loadOptions={}) {\n"
-		L"	if(\"createStaticRigidBody\" in loadOptions && loadOptions[\"createStaticRigidBody\"])\n"
-		L"		return gLauncher.loadEntity(filePath, true);\n"
-		L"	return gLauncher.loadEntity(filePath, false);\n"
-		L"}\n"
+		"function loadEntity(filePath, loadOptions={}) {\n"
+		"	if(\"createStaticRigidBody\" in loadOptions && loadOptions[\"createStaticRigidBody\"])\n"
+		"		return gLauncher.loadEntity(filePath, true);\n"
+		"	return gLauncher.loadEntity(filePath, false);\n"
+		"}\n"
 
-		L"function loadEntity2(filePath, loadOptions={}) {\n"
-		L"	if(\"createStaticRigidBody\" in loadOptions && loadOptions[\"createStaticRigidBody\"])\n"
-		L"		return gLauncher.loadEntity2(filePath, true);\n"
-		L"	return gLauncher.loadEntity2(filePath, false);\n"
-		L"}\n"
+		"function loadEntity2(filePath, loadOptions={}) {\n"
+		"	if(\"createStaticRigidBody\" in loadOptions && loadOptions[\"createStaticRigidBody\"])\n"
+		"		return gLauncher.loadEntity2(filePath, true);\n"
+		"	return gLauncher.loadEntity2(filePath, false);\n"
+		"}\n"
 
-		L"resourceManager <- gLauncher.resourceManager;\n"
+		"resourceManager <- gLauncher.resourceManager;\n"
 
 		// TODO: Use named parameter to pass blocking and priority options
-		L"function loadResource(filePath) {\n"
-		L"	return resourceManager.load(filePath, false, 0, \"\");\n"
-		L"}\n"
+		"function loadResource(filePath) {\n"
+		"	return resourceManager.load(filePath, false, 0, \"\");\n"
+		"}\n"
 
-		L"function addResourceCallback(filePaths, functor) {\n"
-		L"	local callback = ResourceLoadCallback();\n"
-		L"	if(typeof filePaths == \"string\")\n"
-		L"		callback.addDependency(filePaths);\n"
-		L"	else foreach(path in filePaths)\n"
-		L"		callback.addDependency(path);\n"
-		L"	callback.onLoaded().setHandler(functor);\n"
-		L"	resourceManager.addCallback(callback);\n"
-		L"}\n"
+		"function addResourceCallback(filePaths, functor) {\n"
+		"	local callback = ResourceLoadCallback();\n"
+		"	if(typeof filePaths == \"string\")\n"
+		"		callback.addDependency(filePaths);\n"
+		"	else foreach(path in filePaths)\n"
+		"		callback.addDependency(path);\n"
+		"	callback.onLoaded().setHandler(functor);\n"
+		"	resourceManager.addCallback(callback);\n"
+		"}\n"
 	))
 		return false;
 
 	// Patch the original AnimationComponent constructor to pass our AnimationUpdaterComponent automatically
-	if(!vm.runScript(L"\
+	if(!vm.runScript("\
 		local backup = AnimationComponent.constructor;\n\
 		AnimationComponent.constructor <- function() : (backup) {\n\
 			backup.call(this, gLauncher.animationUpdater);	// Call the original constructor\n\
@@ -204,7 +204,7 @@ bool Launcher::init(InputComponent& inputComponent, Entity* rootNode)
 		return false;
 
 	// Patch the original RigidBodyComponent constructor to pass our dynamics world automatically
-	if(!vm.runScript(L"\
+	if(!vm.runScript("\
 		local backup = RigidBodyComponent.constructor;\n\
 		RigidBodyComponent.constructor <- function(mass, collisionShape) : (backup) {\n\
 			backup.call(this, gLauncher.dynamicsWorld, mass, collisionShape);	// Call the original constructor\n\
@@ -213,7 +213,7 @@ bool Launcher::init(InputComponent& inputComponent, Entity* rootNode)
 		return false;
 
 	// Patch the original AudioSourceComponent constructor to pass our resource manager automatically
-	if(!vm.runScript(L"\
+	if(!vm.runScript("\
 		local backup = AudioSourceComponent.constructor;\n\
 		AudioSourceComponent.constructor <- function(fileId, args=\"\") : (backup) {\n\
 			backup.call(this);	// Call the original constructor\n\
@@ -233,7 +233,7 @@ bool Launcher::init(InputComponent& inputComponent, Entity* rootNode)
 			delete mAnimationUpdater->entity();
 
 		EntityPtr e = new Entity;
-		e->name = L"Animation updater";
+		e->name = "Animation updater";
 		mAnimationUpdater = new AnimationUpdaterComponent(&taskPool);
 		e->addComponent(mAnimationUpdater.get());
 		e->asChildOf(mRootNode);
@@ -244,7 +244,7 @@ bool Launcher::init(InputComponent& inputComponent, Entity* rootNode)
 			delete mSkeletonAnimationUpdater->entity();
 
 		EntityPtr e = new Entity;
-		e->name = L"Skeleton animation updater";
+		e->name = "Skeleton animation updater";
 		mSkeletonAnimationUpdater = new SkeletonAnimationUpdaterComponent(&taskPool);
 		e->addComponent(mSkeletonAnimationUpdater.get());
 		e->asChildOf(mRootNode);
@@ -255,7 +255,7 @@ bool Launcher::init(InputComponent& inputComponent, Entity* rootNode)
 	return true;
 }
 
-Entity* Launcher::loadEntity(const wchar_t* filePath, bool createCollisionMesh)
+Entity* Launcher::loadEntity(const char* filePath, bool createCollisionMesh)
 {
 	MemoryProfiler::Scope profiler("Launcher::loadEntity");
 
@@ -283,13 +283,13 @@ Entity* Launcher::loadEntity(const wchar_t* filePath, bool createCollisionMesh)
 	e->name = Path(filePath).getLeaf();	// Only use the file name, the branch path is ignored.
 	EntityPrototypeLoader::addEntityAfterLoad(e.get(), *mResourceManager, filePath,
 		createCollisionMesh ? new EntityLoadCreatePhysicsCallback(mDynamicsWorld) : nullptr,
-		0, L"loadAsEntity=true"
+		0, "loadAsEntity=true"
 	);
 
 	return e.release();
 }
 
-Entity* Launcher::loadEntity2(const wchar_t* filePath, bool createCollisionMesh)
+Entity* Launcher::loadEntity2(const char* filePath, bool createCollisionMesh)
 {
 	Entity* ret = PrefabLoaderComponent::loadEntity(
 		*mResourceManager, filePath, createCollisionMesh ? &mDynamicsWorld : nullptr
@@ -321,7 +321,7 @@ void Launcher::setRootNode(Entity* e)
 	if(!e)
 		return;
 
-	mRootNode->name = L"Launcher root node";
+	mRootNode->name = "Launcher root node";
 	scriptComponentManager.registerRootEntity(*e);
 }
 
@@ -337,13 +337,13 @@ void Launcher::setInputComponent(InputComponent* inputComponent)
 
 	if(inputComponent->entity() == nullptr) {
 		std::auto_ptr<Entity> e(new Entity);
-		e->name = L"Input";
+		e->name = "Input";
 		e->asChildOf(mRootNode);
 		e->addComponent(inputComponent);
 		e.release();
 	}
 
-	MCD_VERIFY(vm.runScript(L"gInput <- gLauncher.inputComponent;\n"));
+	MCD_VERIFY(vm.runScript("gInput <- gLauncher.inputComponent;\n"));
 }
 
 LauncherDefaultResourceManager::LauncherDefaultResourceManager(IFileSystem& fileSystem, bool takeFileSystemOwnership)
@@ -375,7 +375,7 @@ int LauncherDefaultResourceManager::update()
 		const bool hasError = loadingState == IResourceLoader::Aborted;
 
 		if(hasError)
-			Log::format(Log::Warn, L"Resource: %s %s", e.resource->fileId().getString().c_str(), L"failed to load");
+			Log::format(Log::Warn, "Resource: %s %s", e.resource->fileId().getString().c_str(), "failed to load");
 		else if(loadingState != IResourceLoader::Loading)
 			e.loader->commit(*e.resource);	// Allow one resource to commit for each frame
 

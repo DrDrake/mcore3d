@@ -29,8 +29,8 @@ public:
 	{
 		Callback* cb = new Callback();
 		cb->backRef = this;
-		cb->model = dynamic_cast<Model*>(resourceManager.load(L"Rotate.3ds").get());
-		cb->setMajorDependency(L"Rotate.3ds");
+		cb->model = dynamic_cast<Model*>(resourceManager.load("Rotate.3ds").get());
+		cb->setMajorDependency("Rotate.3ds");
 		resourceManager.addCallback(cb);
 	}
 
@@ -70,7 +70,7 @@ RotationGizmoComponent::RotationGizmoComponent(IResourceManager& resourceManager
 {
 	// Add child entities
 	{	Entity* e = new Entity();
-		e->name = L"X arrow";
+		e->name = "X arrow";
 		e->asChildOf(hostEntity);
 		ArrowComponent* c = new ArrowComponent(resourceManager, ColorRGBAf(1, 0, 0, 0.8f));
 		c->rotationAxis = Vec3f::c100;
@@ -80,7 +80,7 @@ RotationGizmoComponent::RotationGizmoComponent(IResourceManager& resourceManager
 	}
 
 	{	Entity* e = new Entity();
-		e->name = L"Y arrow";
+		e->name = "Y arrow";
 		e->asChildOf(hostEntity);
 		ArrowComponent* c = new ArrowComponent(resourceManager, ColorRGBAf(0, 1, 0, 0.8f));
 		c->rotationAxis = Vec3f::c010;
@@ -89,7 +89,7 @@ RotationGizmoComponent::RotationGizmoComponent(IResourceManager& resourceManager
 	}
 
 	{	Entity* e = new Entity();
-		e->name = L"Z arrow";
+		e->name = "Z arrow";
 		e->asChildOf(hostEntity);
 		ArrowComponent* c = new ArrowComponent(resourceManager, ColorRGBAf(0, 0, 1, 0.8f));
 		c->rotationAxis = Vec3f::c001;

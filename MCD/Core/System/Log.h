@@ -29,7 +29,7 @@ public:
 		The ownership is given to the log once the stream is associated with the log,
 		and it will be deleted in stop().
 	 */
-	static void start(sal_in std::wostream* os);
+	static void start(sal_in std::ostream* os);
 
 	/*!	Set the logging level.
 		All level are on by default.
@@ -37,15 +37,15 @@ public:
 	static void setLevel(Level level);
 
 	//! Write the message to the log.
-	static void write(Level level, sal_in_z const wchar_t* msg);
+	static void write(Level level, sal_in_z const char* msg);
 
 	//! Write a formatted message to the log, similar to what printf does.
 #ifdef MCD_VC
-	static void format(Level level, sal_format_guard const wchar_t* fmt, ...);
+	static void format(Level level, sal_format_guard const char* fmt, ...);
 #elif __GNUC__ >= 4
-	static void format(Level level, const wchar_t* fmt, ...) /*__attribute__((format(wprintf, 1, 2)))*/;
+	static void format(Level level, const char* fmt, ...) __attribute__((format(printf, 1, 2)));
 #else
-	static void format(Level level, const wchar_t* fmt, ...);
+	static void format(Level level, const char* fmt, ...);
 #endif
 	;
 

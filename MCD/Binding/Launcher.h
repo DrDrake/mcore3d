@@ -46,9 +46,9 @@ public:
 		Entity immediatly, and more child will be added when load complete.
 		Currently only *.3ds is supported.
 	 */
-	sal_notnull Entity* loadEntity(const wchar_t* filePath, bool createCollisionMesh);
+	sal_notnull Entity* loadEntity(const char* filePath, bool createCollisionMesh);
 
-	sal_notnull Entity* loadEntity2(const wchar_t* filePath, bool createCollisionMesh);
+	sal_notnull Entity* loadEntity2(const char* filePath, bool createCollisionMesh);
 
 	sal_override void update();
 

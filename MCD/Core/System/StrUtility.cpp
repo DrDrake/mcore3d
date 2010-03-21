@@ -302,73 +302,77 @@ std::string int2Str(int number)
 	return ss.str();
 }
 
-std::wstring int2WStr(int number)
+std::string float2Str(float number)
 {
-#ifdef MCD_CYGWIN
-	std::stringstream ss;
-	ss << number;
-	return strToWStr(ss.str());
-#else
-	std::wstringstream ss;
-	ss << number;
-	return ss.str();
-#endif
+	return double2Str(number);
 }
 
-std::wstring double2WStr(double number)
+std::string double2Str(double number)
 {
-#ifdef MCD_CYGWIN
 	std::stringstream ss;
 	ss << number;
-	return strToWStr(ss.str());
-#else
-	std::wstringstream ss;
-	ss << number;
 	return ss.str();
-#endif
 }
 
-bool wStr2Int(const wchar_t* wideStr, int& number)
+std::string intArray2Str(const int* numbers, size_t count)
+{
+	MCD_VERIFY(numbers != nullptr);
+	if(!numbers) return "";
+
+	std::stringstream ss;
+	for(size_t i=0; i<count; ++i)
+		ss << numbers[i] << " ";
+	return ss.str();
+}
+
+std::string floatArray2Str(const float* numbers, size_t count)
+{
+	MCD_VERIFY(numbers != nullptr);
+	if(!numbers) return "";
+
+	std::stringstream ss;
+	for(size_t i=0; i<count; ++i)
+		ss << numbers[i] << " ";
+	return ss.str();
+}
+
+bool str2Int(sal_in_z const char* str, int& number)
 {
 	// User sscanf or atoi didn't handle error very well,
 	// while wistringstream in MSVC gives mis-matched memory allocation in Intel parallel studio.
-	wchar_t* p = nullptr;
-	number = wcstol(wideStr, &p, 10);
-	return errno != EINVAL && errno != ERANGE && wideStr != p;
+	char* p = nullptr;
+	number = strtol(str, &p, 10);
+	return errno != EINVAL && errno != ERANGE && str != p;
 }
 
-int wStr2IntWithDefault(sal_in_z const wchar_t* wideStr, int defaultVal)
+int str2IntWithDefault(sal_in_z const char* str, int defaultVal)
 {
-	if(!wideStr) return defaultVal;
+	if(!str) return defaultVal;
 	int ret;
-	if(wStr2Int(wideStr, ret))
+	if(str2Int(str, ret))
 		return ret;
 	return defaultVal;
 }
 
-bool wStr2Double(const wchar_t* wideStr, double& number)
+bool str2Double(const char* str, double& number)
 {
-	// User sscanf or atoi didn't handle error very well
+	// Use of sscanf or atoi didn't handle error very well
 	// TODO: Use locale facet instead of stringstream
 	// More on http://home.comcast.net/~lang.dennis/code/index.html#xml
 	// and http://www.bsdlover.cn/study/UnixTree/V7/usr/src/libc/gen/atof.c.html
-#ifdef MCD_CYGWIN
-	std::stringstream ss(wStrToStr(wideStr));
-#else
-	std::wstringstream ss(wideStr);
-#endif
+	std::stringstream ss(str);
 	ss >> number;
 	return !ss.fail();
 }
 
-int* wStrToIntArray(const wchar_t* wideStr, size_t& size)
+int* strToIntArray(sal_in_z const char* str, size_t& size)
 {
 	const size_t maxSize = size;
 	size = 0;
 	int* ret = nullptr;
 	std::vector<int> buffer;
 
-	std::wstringstream ss(wideStr);
+	std::stringstream ss(str);
 
 	for(size=0; maxSize == 0 || size < maxSize; ++size) {
 		int number;
@@ -388,14 +392,14 @@ int* wStrToIntArray(const wchar_t* wideStr, size_t& size)
 	return ret;
 }
 
-float* wStrToFloatArray(const wchar_t* wideStr, size_t& size)
+float* strToFloatArray(sal_in_z const char* str, size_t& size)
 {
 	const size_t maxSize = size;
 	size = 0;
 	float* ret = nullptr;
 	std::vector<float> buffer;
 
-	std::wstringstream ss(wideStr);
+	std::stringstream ss(str);
 
 	for(size=0; maxSize == 0 || size < maxSize; ++size) {
 		float number;
@@ -415,6 +419,7 @@ float* wStrToFloatArray(const wchar_t* wideStr, size_t& size)
 	return ret;
 }
 
+
 int wstrCaseCmp(const wchar_t* string1, const wchar_t* string2)
 {
 #ifdef MCD_VC
@@ -433,16 +438,23 @@ int wstrCaseCmp(const wchar_t* string1, const wchar_t* string2)
 #endif
 }
 
-NvpParser::NvpParser(const wchar_t* str)
+int strCaseCmp(const char* string1, const char* string2)
+{
+#ifdef MCD_VC
+	return ::stricmp(string1, string2);
+#endif
+}
+
+NvpParser::NvpParser(const char* str)
 	: mStr(nullptr), mPos(nullptr)
 {
 	init(str);
 }
 
-void NvpParser::init(const wchar_t* str)
+void NvpParser::init(const char* str)
 {
 	::free(mStr);
-	mStr = mPos = ::wcsdup(str);
+	mStr = mPos = ::strdup(str);
 }
 
 NvpParser::~NvpParser()
@@ -450,18 +462,18 @@ NvpParser::~NvpParser()
 	::free(mStr);
 }
 
-bool advancePos(wchar_t*& pos)
+bool advancePos(char*& pos)
 {
-	if(*pos != L'\0') {
+	if(*pos != '\0') {
 		++pos;
 		return true;
 	}
 	return false;
 }
 
-static void skipSeps(wchar_t*& pos)
+static void skipSeps(char*& pos)
 {
-	static const wchar_t cSeps[] = L"; \t\n\r";
+	static const char cSeps[] = "; \t\n\r";
 	static const size_t cCount = MCD_COUNTOF(cSeps) - 1;
 
 	for(size_t i=cCount; i--;) {
@@ -473,9 +485,9 @@ static void skipSeps(wchar_t*& pos)
 	}
 }
 
-void skipNonSeps(wchar_t*& pos)
+void skipNonSeps(char*& pos)
 {
-	static const wchar_t cSeps[] = L"=; \t\n\r";
+	static const char cSeps[] = "=; \t\n\r";
 	static const size_t cCount = MCD_COUNTOF(cSeps) - 1;
 
 	do {
@@ -486,30 +498,30 @@ void skipNonSeps(wchar_t*& pos)
 	} while(advancePos(pos));
 }
 
-bool NvpParser::next(const wchar_t*& name, const wchar_t*& value)
+bool NvpParser::next(const char*& name, const char*& value)
 {
-	static const wchar_t cQuots[] = L"'\"";
+	static const char cQuots[] = "'\"";
 
 	// Get the name
 	skipSeps(mPos);
-	wchar_t* name_ = mPos;
+	char* name_ = mPos;
 	skipNonSeps(mPos);
 
-	if(*mPos != L'=' && advancePos(mPos)) {
-		*(mPos-1) = L'\0';
+	if(*mPos != '=' && advancePos(mPos)) {
+		*(mPos-1) = '\0';
 		skipSeps(mPos);
 	}
 
 	// Should be '='
-	if(*mPos != L'=')
+	if(*mPos != '=')
 		return false;
-	*(mPos++) = L'\0';
+	*(mPos++) = '\0';
 
 	// Get the value
 	skipSeps(mPos);
 	// Get quoted string
 	if(*mPos == cQuots[0] || *mPos == cQuots[1]) {
-		wchar_t quot = *mPos;
+		char quot = *mPos;
 		value = mPos + 1;
 		while(advancePos(mPos) && *mPos != quot);
 	} else {
@@ -518,7 +530,7 @@ bool NvpParser::next(const wchar_t*& name, const wchar_t*& value)
 	}
 
 	if(advancePos(mPos))
-		*(mPos-1) = L'\0';
+		*(mPos-1) = '\0';
 
 	name = name_;
 	return true;

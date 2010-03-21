@@ -94,8 +94,8 @@ void Mesh::draw()
 			const Attribute& a = attributes[i];
 			const GLint attributeLocation = glGetAttribLocation(shaderProgram, a.semantic);
 
-			if(attributeLocation == -1)	// NOTE: Log::format need %s or %S on different implementation of wprintf.
-				Log::format(Log::Warn, L"Shader attribute '%S' not found.", a.semantic);
+			if(attributeLocation == -1)
+				Log::format(Log::Warn, "Shader attribute '%s' not found.", a.semantic);
 
 			glBindBuffer(GL_ARRAY_BUFFER, *handles[a.bufferIndex]);
 			glVertexAttribPointer(attributeLocation, a.elementCount, a.dataType, GL_FALSE, a.stride, (const void*)(a.byteOffset));
@@ -154,7 +154,7 @@ void Mesh::clear()
 	uv0AttrIdx = uv1AttrIdx = uv2AttrIdx = -1;
 }
 
-MeshPtr Mesh::clone(const wchar_t* name, StorageHint hint)
+MeshPtr Mesh::clone(const char* name, StorageHint hint)
 {
 	MeshPtr ret = new Mesh(name);
 

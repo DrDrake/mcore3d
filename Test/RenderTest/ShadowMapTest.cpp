@@ -16,7 +16,7 @@ namespace {
 class TestWindow : public BasicGlWindow
 {
 public:
-	TestWindow(const wchar_t* options)
+	TestWindow(const char* options)
 		:
 		BasicGlWindow(options),
 		mResourceManager(*createDefaultFileSystem())
@@ -120,7 +120,7 @@ public:
 		mRenderTarget->unbind();
 	}
 
-	void load3ds(const wchar_t* fileId)
+	void load3ds(const char* fileId)
 	{
 		mModel = dynamic_cast<Model*>(mResourceManager.load(fileId).get());
 	}
@@ -192,8 +192,8 @@ public:
 
 TEST(ShadowMapTest)
 {
-	TestWindow window(L"title=ShadowMapTest;width=800;height=600;fullscreen=0;FSAA=4");
-	window.load3ds(L"Scene/City/scene.3ds");
+	TestWindow window("title=ShadowMapTest;width=800;height=600;fullscreen=0;FSAA=4");
+	window.load3ds("Scene/City/scene.3ds");
 	window.mainLoop();
 	CHECK(true);
 }
@@ -208,17 +208,17 @@ namespace {
 class ShaderTestWindow : public TestWindow
 {
 public:
-	ShaderTestWindow(const wchar_t* options) : TestWindow(options)
+	ShaderTestWindow(const char* options) : TestWindow(options)
 	{
 		if(!loadShaderProgram(
-			L"Shader/ShadowMap/Scene.glvs", L"Shader/ShadowMap/Scene.glps",
+			"Shader/ShadowMap/Scene.glvs", "Shader/ShadowMap/Scene.glps",
 			mShadowMapShader, mResourceManager))
 		{
 			throw std::runtime_error("Fail to load shader");
 		}
 
         if(!loadShaderProgram(
-			L"Shader/ShadowMap/DebugShadowMap.glvs", L"Shader/ShadowMap/DebugShadowMap.glps",
+			"Shader/ShadowMap/DebugShadowMap.glvs", "Shader/ShadowMap/DebugShadowMap.glps",
 			mDebugShadowMapShader, mResourceManager))
 		{
 			throw std::runtime_error("Fail to load shader");
@@ -272,8 +272,8 @@ public:
 
 TEST(ShadowMapShaderTest)
 {
-	ShaderTestWindow window(L"title=ShadowMapShaderTest;width=800;height=600;fullscreen=0;FSAA=4");
-	window.load3ds(L"Scene/City/scene.3ds");
+	ShaderTestWindow window("title=ShadowMapShaderTest;width=800;height=600;fullscreen=0;FSAA=4");
+	window.load3ds("Scene/City/scene.3ds");
 	window.mainLoop();
 	CHECK(true);
 }
