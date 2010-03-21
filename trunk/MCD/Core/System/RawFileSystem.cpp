@@ -269,9 +269,17 @@ bool RawFileSystem::remove(const Path& path) const
 std::auto_ptr<std::istream> RawFileSystem::openRead(const Path& path) const
 {
 	using namespace std;
+	auto_ptr<istream> is;
 	Path::string_type absolutePath = toAbsolutePath(path).getString();
 
-	auto_ptr<istream> is(new ifstream(absolutePath.c_str(), ios::in | ios::binary));
+#ifdef MCD_VC
+	std::wstring wideStr;
+	if(utf8ToWStr(absolutePath, wideStr))
+		is.reset(new ifstream(wideStr.c_str(), ios::in | ios::binary));
+#else
+	is.reset(new ifstream(absolutePath.c_str(), ios::in | ios::binary));
+#endif
+
 	if(!is.get() || !(*is))
 		is.reset();
 
@@ -281,9 +289,17 @@ std::auto_ptr<std::istream> RawFileSystem::openRead(const Path& path) const
 std::auto_ptr<std::ostream> RawFileSystem::openWrite(const Path& path) const
 {
 	using namespace std;
+	auto_ptr<ostream> os;
 	Path::string_type absolutePath = toAbsolutePath(path).getString();
 
-	auto_ptr<ostream> os(new ofstream(absolutePath.c_str(), ios::out | ios::binary));
+#ifdef MCD_VC
+	std::wstring wideStr;
+	if(utf8ToWStr(absolutePath, wideStr))
+		os.reset(new ofstream(wideStr.c_str(), ios::out | ios::binary));
+#else
+	os.reset(new ofstream(absolutePath.c_str(), ios::out | ios::binary));
+#endif
+
 	if(!os.get() || !(*os))
 		os.reset();
 
