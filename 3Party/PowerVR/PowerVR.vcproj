@@ -132,6 +132,10 @@
 			Filter="cpp;c;cxx;def;odl;idl;hpj;bat;asm"
 			>
 			<File
+				RelativePath=".\PVRTDecompress.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\PVRTError.cpp"
 				>
 			</File>
@@ -158,6 +162,10 @@
 			>
 			<File
 				RelativePath=".\PVRTBoneBatch.h"
+				>
+			</File>
+			<File
+				RelativePath=".\PVRTDecompress.h"
 				>
 			</File>
 			<File
@@ -194,6 +202,10 @@
 			</File>
 			<File
 				RelativePath=".\PVRTString.h"
+				>
+			</File>
+			<File
+				RelativePath=".\PVRTTexture.h"
 				>
 			</File>
 			<File

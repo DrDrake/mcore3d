@@ -1,5 +1,6 @@
 #include "StdAfx.h"
 #include "Global.h"
+#include "Utility.h"
 #include "../../MCD/Core/System/Log.h"
 #include <sstream>
 #include <gcroot.h>
@@ -11,6 +12,17 @@ namespace Binding {
 
 namespace {
 
+ref class AppendOperation
+{
+public:
+	System::Windows::Forms::TextBox^ textBox;
+	System::String^ str;
+
+	void execute() {
+		textBox->AppendText(str);
+	}
+};
+
 /*!	A simple STL stream buffer than redirect the inputting string into our text box
 	\ref http://thecodeproject.com/debug/debugout.asp
  */
@@ -21,7 +33,8 @@ class MyStreamBuf : public std::basic_stringbuf<CharT, TraitsT>
 	typedef System::Windows::Forms::TextBox TextBox;
 
 public:
-	MyStreamBuf() : textBox(nullptr) {}
+	MyStreamBuf() : textBox(nullptr) {
+	}
 
 	virtual ~MyStreamBuf() {
 		sync();
@@ -88,7 +101,14 @@ int MyStreamBuf<char>::sync()
 
 	// NOTE: Don't know why the textBox will be disposed even I use gcroot to reference it.
 	if(textBox && !textBox->IsDisposed)
-		textBox->AppendText(gcnew System::String(str().c_str()));
+	{
+		// Call textBox->BeginInvoke() to make this function .NET GUI thread safe
+		AppendOperation^ op = gcnew AppendOperation;
+		op->textBox = textBox;
+		op->str = Utility::fromUtf8(str());
+
+		textBox->BeginInvoke(gcnew System::Windows::Forms::MethodInvoker(op, &AppendOperation::execute));
+	}
 
 	str(std::basic_string<char>());	// Clear the string buffer
 	int result = super_type::sync();
@@ -111,14 +131,12 @@ Global::Global(System::Windows::Forms::TextBox^ textBox)
 	Log::setLevel(Log::Level(Log::Error | Log::Warn | Log::Info));
 }
 
-Global::~Global()
-{
+Global::~Global() {
 	this->!Global();
 }
 
-Global::!Global()
-{
+Global::!Global() {
 	Log::stop();
 }
 
-}
+}	// namespace Binding
