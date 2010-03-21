@@ -2,6 +2,7 @@
 #include "XmlParser.h"
 #include "StrUtility.h"
 #include <vector>
+#include <memory.h>	// For memcpy
 
 namespace MCD {
 

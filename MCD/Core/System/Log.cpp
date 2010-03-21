@@ -3,6 +3,7 @@
 #include "Utility.h"
 #include <iostream>
 #include <stdarg.h>
+#include <stdio.h>	// For vsprintf
 
 #ifdef MCD_CYGWIN
 #	include "StrUtility.h"

@@ -3,6 +3,7 @@
 #include "Window.X11.inl"
 #include <GL/glx.h>
 //#include <X11/extensions/Xrandr.h>
+#include <string.h>	// For strcmp
 
 namespace MCD {
 
@@ -224,7 +225,7 @@ void Window::Impl::createWindow(Window::Handle existingWindowHandle)
 		throw std::runtime_error("X11 API call 'XCreateWindow' failed");
 
 	// Set the window title
-	::XStoreName(gDisplay, mWnd, wStrToStr(mTitle).c_str());
+	::XStoreName(gDisplay, mWnd, mTitle.c_str());
 
 	::XMapWindow(gDisplay, mWnd);
 
@@ -275,7 +276,7 @@ void Window::Impl::destroy()
 // Begin of setting options
 
 // "curosrPosition = 'x=123; y=456'"
-void Window::Impl::setCursorPosition(const wchar_t* value)
+void Window::Impl::setCursorPosition(const char* value)
 {
 	int x, y;
 	parseXy(value, x, y);
@@ -284,15 +285,15 @@ void Window::Impl::setCursorPosition(const wchar_t* value)
 }
 
 // "height = 600"
-void Window::Impl::setHeight(const wchar_t* value)
+void Window::Impl::setHeight(const char* value)
 {
-	mHeight = wStr2IntWithDefault(value, 600);
+	mHeight = str2IntWithDefault(value, 600);
 }
 
 // "show = 0|1"
-void Window::Impl::setShowWindow(const wchar_t* value)
+void Window::Impl::setShowWindow(const char* value)
 {
-	if(wStr2IntWithDefault(value, 1) == 1)
+	if(str2IntWithDefault(value, 1) == 1)
 		::XMapWindow(gDisplay, mWnd);
 	else
 		::XUnmapWindow(gDisplay, mWnd);
@@ -301,38 +302,38 @@ void Window::Impl::setShowWindow(const wchar_t* value)
 }
 
 // "showCursor = 0|1"
-void Window::Impl::setShowCursor(const wchar_t* value)
+void Window::Impl::setShowCursor(const char* value)
 {
-	::XDefineCursor(gDisplay, mWnd, wStr2IntWithDefault(value, 1) == 1 ? None : gHiddenCursor);
+	::XDefineCursor(gDisplay, mWnd, str2IntWithDefault(value, 1) == 1 ? None : gHiddenCursor);
 	::XFlush(gDisplay);
 }
 
 // "title = 'Simple game engine'"
-void Window::Impl::setTitle(const wchar_t* value)
+void Window::Impl::setTitle(const char* value)
 {
 	mTitle = value;
 }
 
 // "width = 800"
-void Window::Impl::setWidth(const wchar_t* value)
+void Window::Impl::setWidth(const char* value)
 {
-	mWidth = wStr2IntWithDefault(value, 800);
+	mWidth = str2IntWithDefault(value, 800);
 }
 
-sal_override void Window::Impl::setOption(const wchar_t* name, const wchar_t* value)
+sal_override void Window::Impl::setOption(const char* name, const char* value)
 {
-	struct S {	const wchar_t* name; void (Impl::*fun)(const wchar_t*); };
+	struct S {	const char* name; void (Impl::*fun)(const char*); };
 	static const S table[] = {
-		{ L"curosrPosition",	&Impl::setCursorPosition },
-		{ L"height",			&Impl::setHeight },
-		{ L"show",				&Impl::setShowWindow },
-		{ L"showCursor",		&Impl::setShowCursor },
-		{ L"title",				&Impl::setTitle },
-		{ L"width",				&Impl::setWidth },
+		{ "curosrPosition",	&Impl::setCursorPosition },
+		{ "height",			&Impl::setHeight },
+		{ "show",			&Impl::setShowWindow },
+		{ "showCursor",		&Impl::setShowCursor },
+		{ "title",			&Impl::setTitle },
+		{ "width",			&Impl::setWidth },
 	};
 
 	for(size_t i=0; i<sizeof(table)/sizeof(S); ++i) {
-		if(::wcscmp(name, table[i].name) == 0) {
+		if(::strcmp(name, table[i].name) == 0) {
 			(this->*(table[i].fun))(value);
 			return;
 		}

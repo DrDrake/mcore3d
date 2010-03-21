@@ -271,14 +271,7 @@ std::auto_ptr<std::istream> RawFileSystem::openRead(const Path& path) const
 	using namespace std;
 	Path::string_type absolutePath = toAbsolutePath(path).getString();
 
-#ifdef MCD_VC
 	auto_ptr<istream> is(new ifstream(absolutePath.c_str(), ios::in | ios::binary));
-#else
-	string aStr;
-	MCD_VERIFY(wStrToUtf8(absolutePath.c_str(), aStr));
-	auto_ptr<istream> is(new ifstream(aStr.c_str(), ios::in | ios::binary));
-#endif
-
 	if(!is.get() || !(*is))
 		is.reset();
 
@@ -290,14 +283,7 @@ std::auto_ptr<std::ostream> RawFileSystem::openWrite(const Path& path) const
 	using namespace std;
 	Path::string_type absolutePath = toAbsolutePath(path).getString();
 
-#ifdef MCD_VC
 	auto_ptr<ostream> os(new ofstream(absolutePath.c_str(), ios::out | ios::binary));
-#else
-	string aStr;
-	MCD_VERIFY(wStrToUtf8(absolutePath.c_str(), aStr));
-	auto_ptr<ostream> os(new ofstream(aStr.c_str(), ios::out | ios::binary));
-#endif
-
 	if(!os.get() || !(*os))
 		os.reset();
 

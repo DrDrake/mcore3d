@@ -134,20 +134,9 @@
                             OP="dist/Debug/GNU-Linux-x86/libSmallJpeg.so">
               </makeArtifact>
             </linkerLibProjectItem>
-            <linkerLibProjectItem>
-              <makeArtifact PL="../../3Party/glew"
-                            CT="2"
-                            CN="Debug"
-                            AC="true"
-                            BL="true"
-                            WD="../../3Party/glew"
-                            BC="${MAKE}  -f Makefile CONF=Debug"
-                            CC="${MAKE}  -f Makefile CONF=Debug clean"
-                            OP="dist/Debug/GNU-Linux-x86/libglew.so">
-              </makeArtifact>
-            </linkerLibProjectItem>
             <linkerOptionItem>-lGL</linkerOptionItem>
             <linkerOptionItem>-lGLU</linkerOptionItem>
+            <linkerOptionItem>-lGLEW</linkerOptionItem>
             <linkerOptionItem>-lpng</linkerOptionItem>
           </linkerLibItems>
         </linkerTool>
@@ -207,20 +196,9 @@
                             OP="dist/Release/GNU-Linux-x86/libSmallJpeg.so">
               </makeArtifact>
             </linkerLibProjectItem>
-            <linkerLibProjectItem>
-              <makeArtifact PL="../../3Party/glew"
-                            CT="2"
-                            CN="Release"
-                            AC="false"
-                            BL="true"
-                            WD="../../3Party/glew"
-                            BC="${MAKE}  -f Makefile CONF=Release"
-                            CC="${MAKE}  -f Makefile CONF=Release clean"
-                            OP="dist/Release/GNU-Linux-x86/libglew.so">
-              </makeArtifact>
-            </linkerLibProjectItem>
             <linkerOptionItem>-lGL</linkerOptionItem>
             <linkerOptionItem>-lGLU</linkerOptionItem>
+            <linkerOptionItem>-lGLEW</linkerOptionItem>
             <linkerOptionItem>-lpng</linkerOptionItem>
           </linkerLibItems>
         </linkerTool>

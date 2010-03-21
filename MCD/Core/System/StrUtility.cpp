@@ -442,6 +442,8 @@ int strCaseCmp(const char* string1, const char* string2)
 {
 #ifdef MCD_VC
 	return ::stricmp(string1, string2);
+#else
+	return ::strcasecmp(string1, string2);
 #endif
 }
 

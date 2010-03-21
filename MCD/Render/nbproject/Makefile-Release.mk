@@ -81,7 +81,7 @@ FFLAGS=
 ASFLAGS=
 
 # Link Libraries and Options
-LDLIBSOPTIONS=-Wl,-rpath ../Core/dist/Release/GNU-Linux-x86 -L../Core/dist/Release/GNU-Linux-x86 -lCore -Wl,-rpath ../../3Party/PowerVR/dist/Release/GNU-Linux-x86 -L../../3Party/PowerVR/dist/Release/GNU-Linux-x86 -lPowerVR -Wl,-rpath ../../3Party/SmallJpeg/dist/Release/GNU-Linux-x86 -L../../3Party/SmallJpeg/dist/Release/GNU-Linux-x86 -lSmallJpeg -Wl,-rpath ../../3Party/glew/dist/Release/GNU-Linux-x86 -L../../3Party/glew/dist/Release/GNU-Linux-x86 -lglew -lGL -lGLU -lpng
+LDLIBSOPTIONS=-Wl,-rpath ../Core/dist/Release/GNU-Linux-x86 -L../Core/dist/Release/GNU-Linux-x86 -lCore -Wl,-rpath ../../3Party/PowerVR/dist/Release/GNU-Linux-x86 -L../../3Party/PowerVR/dist/Release/GNU-Linux-x86 -lPowerVR -Wl,-rpath ../../3Party/SmallJpeg/dist/Release/GNU-Linux-x86 -L../../3Party/SmallJpeg/dist/Release/GNU-Linux-x86 -lSmallJpeg -lGL -lGLU -lGLEW -lpng
 
 # Build Targets
 .build-conf: ${BUILD_SUBPROJECTS}
@@ -92,8 +92,6 @@ dist/Release/GNU-Linux-x86/libRender.so: ../Core/dist/Release/GNU-Linux-x86/libC
 dist/Release/GNU-Linux-x86/libRender.so: ../../3Party/PowerVR/dist/Release/GNU-Linux-x86/libPowerVR.so
 
 dist/Release/GNU-Linux-x86/libRender.so: ../../3Party/SmallJpeg/dist/Release/GNU-Linux-x86/libSmallJpeg.so
-
-dist/Release/GNU-Linux-x86/libRender.so: ../../3Party/glew/dist/Release/GNU-Linux-x86/libglew.so
 
 dist/Release/GNU-Linux-x86/libRender.so: ${OBJECTFILES}
 	${MKDIR} -p dist/Release/GNU-Linux-x86
@@ -279,7 +277,6 @@ ${OBJECTDIR}/ShaderProgram.o: nbproject/Makefile-${CND_CONF}.mk ShaderProgram.cp
 	cd ../Core && ${MAKE}  -f Makefile CONF=Release
 	cd ../../3Party/PowerVR && ${MAKE}  -f Makefile CONF=Release
 	cd ../../3Party/SmallJpeg && ${MAKE}  -f Makefile CONF=Release
-	cd ../../3Party/glew && ${MAKE}  -f Makefile CONF=Release
 
 # Clean Targets
 .clean-conf: ${CLEAN_SUBPROJECTS}
@@ -291,7 +288,6 @@ ${OBJECTDIR}/ShaderProgram.o: nbproject/Makefile-${CND_CONF}.mk ShaderProgram.cp
 	cd ../Core && ${MAKE}  -f Makefile CONF=Release clean
 	cd ../../3Party/PowerVR && ${MAKE}  -f Makefile CONF=Release clean
 	cd ../../3Party/SmallJpeg && ${MAKE}  -f Makefile CONF=Release clean
-	cd ../../3Party/glew && ${MAKE}  -f Makefile CONF=Release clean
 
 # Enable dependency checking
 .dep.inc: .depcheck-impl
