@@ -4,6 +4,7 @@
 #include "PlatformInclude.h"
 #include "StrUtility.h"
 #include <stdexcept>
+#include <string.h>	// For strcmp
 
 namespace MCD {
 
@@ -222,7 +223,11 @@ Path& Path::operator/=(const Path& rhs)
 
 int Path::compare(const Path& rhs) const
 {
+#ifdef _WIN32
 	return strCaseCmp(mStr.c_str(), rhs.mStr.c_str());
+#else
+	return ::strcmp(mStr.c_str(), rhs.mStr.c_str());
+#endif
 }
 
 Path Path::getCurrentPath()

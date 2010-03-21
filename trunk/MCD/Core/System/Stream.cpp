@@ -1,6 +1,7 @@
 #include "Pch.h"
 #include "Stream.h"
 #include "StrUtility.h"
+#include <string.h>	// For strlen
 
 using namespace std;
 

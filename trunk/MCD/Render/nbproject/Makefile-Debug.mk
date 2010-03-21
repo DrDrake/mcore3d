@@ -81,7 +81,7 @@ FFLAGS=
 ASFLAGS=
 
 # Link Libraries and Options
-LDLIBSOPTIONS=-Wl,-rpath ../Core/dist/Debug/GNU-Linux-x86 -L../Core/dist/Debug/GNU-Linux-x86 -lCore -Wl,-rpath ../../3Party/PowerVR/dist/Debug/GNU-Linux-x86 -L../../3Party/PowerVR/dist/Debug/GNU-Linux-x86 -lPowerVR -Wl,-rpath ../../3Party/SmallJpeg/dist/Debug/GNU-Linux-x86 -L../../3Party/SmallJpeg/dist/Debug/GNU-Linux-x86 -lSmallJpeg -Wl,-rpath ../../3Party/glew/dist/Debug/GNU-Linux-x86 -L../../3Party/glew/dist/Debug/GNU-Linux-x86 -lglew -lGL -lGLU -lpng
+LDLIBSOPTIONS=-Wl,-rpath ../Core/dist/Debug/GNU-Linux-x86 -L../Core/dist/Debug/GNU-Linux-x86 -lCore -Wl,-rpath ../../3Party/PowerVR/dist/Debug/GNU-Linux-x86 -L../../3Party/PowerVR/dist/Debug/GNU-Linux-x86 -lPowerVR -Wl,-rpath ../../3Party/SmallJpeg/dist/Debug/GNU-Linux-x86 -L../../3Party/SmallJpeg/dist/Debug/GNU-Linux-x86 -lSmallJpeg -lGL -lGLU -lGLEW -lpng
 
 # Build Targets
 .build-conf: ${BUILD_SUBPROJECTS}
@@ -92,8 +92,6 @@ dist/Debug/GNU-Linux-x86/libRender.so: ../Core/dist/Debug/GNU-Linux-x86/libCore.
 dist/Debug/GNU-Linux-x86/libRender.so: ../../3Party/PowerVR/dist/Debug/GNU-Linux-x86/libPowerVR.so
 
 dist/Debug/GNU-Linux-x86/libRender.so: ../../3Party/SmallJpeg/dist/Debug/GNU-Linux-x86/libSmallJpeg.so
-
-dist/Debug/GNU-Linux-x86/libRender.so: ../../3Party/glew/dist/Debug/GNU-Linux-x86/libglew.so
 
 dist/Debug/GNU-Linux-x86/libRender.so: ${OBJECTFILES}
 	${MKDIR} -p dist/Debug/GNU-Linux-x86
@@ -279,7 +277,6 @@ ${OBJECTDIR}/ShaderProgram.o: nbproject/Makefile-${CND_CONF}.mk ShaderProgram.cp
 	cd ../Core && ${MAKE}  -f Makefile CONF=Debug
 	cd ../../3Party/PowerVR && ${MAKE}  -f Makefile CONF=Debug
 	cd ../../3Party/SmallJpeg && ${MAKE}  -f Makefile CONF=Debug
-	cd ../../3Party/glew && ${MAKE}  -f Makefile CONF=Debug
 
 # Clean Targets
 .clean-conf: ${CLEAN_SUBPROJECTS}
@@ -291,7 +288,6 @@ ${OBJECTDIR}/ShaderProgram.o: nbproject/Makefile-${CND_CONF}.mk ShaderProgram.cp
 	cd ../Core && ${MAKE}  -f Makefile CONF=Debug clean
 	cd ../../3Party/PowerVR && ${MAKE}  -f Makefile CONF=Debug clean
 	cd ../../3Party/SmallJpeg && ${MAKE}  -f Makefile CONF=Debug clean
-	cd ../../3Party/glew && ${MAKE}  -f Makefile CONF=Debug clean
 
 # Enable dependency checking
 .dep.inc: .depcheck-impl
