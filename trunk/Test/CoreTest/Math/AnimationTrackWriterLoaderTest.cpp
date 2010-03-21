@@ -10,7 +10,7 @@ using namespace MCD;
 
 TEST(AnimationTrackWriterLoaderTest)
 {
-	AnimationTrackPtr track = new AnimationTrack(L"");
+	AnimationTrackPtr track = new AnimationTrack("");
 	
 	{	// Create the source track
 		AnimationTrack::ScopedWriteLock lock(*track);
@@ -41,7 +41,7 @@ TEST(AnimationTrackWriterLoaderTest)
 		std::ifstream is("TestData/tmp.anim", std::ios::binary);
 		CHECK_EQUAL(IResourceLoader::Loaded, loader.load(&is, nullptr));
 
-		AnimationTrackPtr track2 = new AnimationTrack(L"");
+		AnimationTrackPtr track2 = new AnimationTrack("");
 		loader.commit(*track2);
 
 		// Check the result

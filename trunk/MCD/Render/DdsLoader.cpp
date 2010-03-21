@@ -281,7 +281,7 @@ public:
 
 		glewInit();
 		if(!glCompressedTexImage2D) {
-			Log::write(Log::Error, L"DdsLoader: glCompressedTexImage2D is not supported, operation aborted");
+			Log::write(Log::Error, "DdsLoader: glCompressedTexImage2D is not supported, operation aborted");
 			return;
 		}
 
@@ -322,7 +322,7 @@ DdsLoader::DdsLoader()
 	setImpl(new LoaderImpl(*this));
 }
 
-IResourceLoader::LoadingState DdsLoader::load(std::istream* is, const Path*, const wchar_t*)
+IResourceLoader::LoadingState DdsLoader::load(std::istream* is, const Path*, const char*)
 {
 	MCD_ASSUME(mImpl != nullptr);
 	ScopeLock lock(mImpl->mMutex);

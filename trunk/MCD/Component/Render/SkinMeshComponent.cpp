@@ -20,7 +20,7 @@ static Model* cloneModel(const Model& model, const Path& newPath)
 	// We need to deep copy the Mesh and shallow copy the Effect
 	for(const Model::MeshAndMaterial* i = model.mMeshes.begin(); i != model.mMeshes.end(); i = i->next()) {
 		Model::MeshAndMaterial* m = new Model::MeshAndMaterial;
-		m->mesh = i->mesh->clone(L"", Mesh::Stream);
+		m->mesh = i->mesh->clone("", Mesh::Stream);
 		m->effect = i->effect;
 		ret->mMeshes.pushBack(*m);
 	}
@@ -66,12 +66,12 @@ bool SkinMeshComponent::postClone(const Entity& src, Entity& dest)
 	return true;
 }
 
-bool SkinMeshComponent::init(IResourceManager& resourceManager, const Model& basePose, const wchar_t* namePrefix)
+bool SkinMeshComponent::init(IResourceManager& resourceManager, const Model& basePose, const char* namePrefix)
 {
 	if(basePose.fileId().getString().empty())
 		return false;
 
-	Path newPath = Path(std::wstring(namePrefix) + basePose.fileId().getString());
+	Path newPath = Path(std::string(namePrefix) + basePose.fileId().getString());
 	ResourcePtr r = resourceManager.load(newPath);
 
 	if(!r) {

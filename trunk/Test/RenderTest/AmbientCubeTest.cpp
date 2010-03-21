@@ -83,20 +83,20 @@ AmbientCube* AmbientCubeSet::findClosest(const Vec3f& targetPos)
 class AmbientCubeSetLoader
 {
 public:
-	sal_maybenull AmbientCubeSet* load(const wchar_t* filePath)
+	sal_maybenull AmbientCubeSet* load(const char* filePath)
 	{
 		std::ifstream fin;
 		fin.open(filePath, std::ifstream::in);
 
 		if(!fin.good())
 		{
-			Log::format( Log::Error, L"AmbientCubeSetLoader: File %s not found", filePath );
+			Log::format( Log::Error, "AmbientCubeSetLoader: File %s not found", filePath );
 			return nullptr;
 		}
 
 		if(fin.eof())
 		{
-			Log::format( Log::Error, L"AmbientCubeSetLoader: File %s is empty", filePath );
+			Log::format( Log::Error, "AmbientCubeSetLoader: File %s is empty", filePath );
 			return nullptr;
 		}
 
@@ -110,7 +110,7 @@ public:
 
 			if(!fin.good() && !fin.eof())
 			{
-				Log::format( Log::Error, L"AmbientCubeSetLoader: Failed to read line %d", lineNo );
+				Log::format( Log::Error, "AmbientCubeSetLoader: Failed to read line %d", lineNo );
 				break;
 			}
 
@@ -132,7 +132,7 @@ public:
 				if(21 != read)
 				{
 					// invalid format, just skip it
-					Log::format( Log::Error, L"AmbientCubeSetLoader: Invalid format at line %d", lineNo );
+					Log::format( Log::Error, "AmbientCubeSetLoader: Invalid format at line %d", lineNo );
 					continue;
 				}
 
@@ -159,7 +159,7 @@ private:
 	AmbientCube mAccmMCube;
 
 public:
-	Object(const wchar_t* name, Entity* root
+	Object(const char* name, Entity* root
 		, const MeshPtr& mesh
 		, const EffectPtr& effect
 		, AmbientCubeSet* mcubes)
@@ -254,7 +254,7 @@ class TestWindow : public BasicGlWindow
 public:
 	TestWindow()
 		:
-		BasicGlWindow(L"title=AmbientCubeTest;width=800;height=600;fullscreen=0;FSAA=4"),
+		BasicGlWindow("title=AmbientCubeTest;width=800;height=600;fullscreen=0;FSAA=4"),
 		mResourceManager(*createDefaultFileSystem()),
 		mAccumTime(0)
 	{
@@ -262,24 +262,24 @@ public:
 		mResourceManager.addFactory(new EntityPrototypeLoaderFactory(mResourceManager));
 
 		// load scene
-		const wchar_t* scenePath = L"Scene/AmbientCubeScene/AmbientCubeScene.3DS";
+		const char* scenePath = "Scene/AmbientCubeScene/AmbientCubeScene.3DS";
 		EntityPrototypeLoader::addEntityAfterLoad(&mRootNode, mResourceManager, scenePath);
 
 		// load ambient cubes
-		const wchar_t* mcubePath = L"Media/Scene/AmbientCubeScene/ambient_cube_scene.mcube";
+		const char* mcubePath = "Media/Scene/AmbientCubeScene/ambient_cube_scene.mcube";
 		AmbientCubeSetLoader mcubeLoader;
 		mAmbientCubes.reset( mcubeLoader.load(mcubePath) );
 
 		// load object mesh
-		MeshPtr mesh = new Mesh(L"");
+		MeshPtr mesh = new Mesh("");
 		MCD_VERIFY(commitMesh(ChamferBoxBuilder(0.5f, 3, true), *mesh, Mesh::Static));
 
 		// load object effect
-		EffectPtr effect = dynamic_cast<Effect*>(mResourceManager.load(L"Material/ambientcube.fx.xml").get());
+		EffectPtr effect = dynamic_cast<Effect*>(mResourceManager.load("Material/ambientcube.fx.xml").get());
 		
 		// create objects
-		mObj1.reset(new Object(L"ChamferBox 1", &mRootNode, mesh, effect, mAmbientCubes.get()));
-		mObj2.reset(new Object(L"ChamferBox 2", &mRootNode, mesh, effect, mAmbientCubes.get()));
+		mObj1.reset(new Object("ChamferBox 1", &mRootNode, mesh, effect, mAmbientCubes.get()));
+		mObj2.reset(new Object("ChamferBox 2", &mRootNode, mesh, effect, mAmbientCubes.get()));
 
 		// disable Lighting
 		glDisable(GL_LIGHTING);

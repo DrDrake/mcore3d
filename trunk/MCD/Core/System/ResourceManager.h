@@ -59,7 +59,7 @@ public:
 		\param args Extra arguments (encoded as name-value paired strings) for loading the resource; similar to program arguments.
 		\param loader An optional parameter to retrieve the IResourceLoader.
 	 */
-	virtual ResourcePtr load(const Path& fileId, BlockingMode blockingMode=NonBlock, uint priority=0, sal_in_z_opt const wchar_t* args=nullptr, sal_out_opt IResourceLoaderPtr* loader=nullptr) = 0;
+	virtual ResourcePtr load(const Path& fileId, BlockingMode blockingMode=NonBlock, uint priority=0, sal_in_z_opt const char* args=nullptr, sal_out_opt IResourceLoaderPtr* loader=nullptr) = 0;
 
 	/*!	Perform a custum loading operation (Advanced usage).
 		This will find the appropriate IResourceLoader and creates the Resource for the given fileId.
@@ -68,7 +68,7 @@ public:
 		\param fileId Unique identifier for the resource to load.
 		\param args Extra arguments (encoded as name-value paired strings) for loading the resource; similar to program arguments.
 	 */
-	virtual std::pair<IResourceLoaderPtr, ResourcePtr> customLoad(const Path& fileId, sal_in_z_opt const wchar_t* args=nullptr) = 0;
+	virtual std::pair<IResourceLoaderPtr, ResourcePtr> customLoad(const Path& fileId, sal_in_z_opt const char* args=nullptr) = 0;
 
 	/*!	Cache the given resource.
 		The given resource is assumed to be fully loaded, no loading will be preformed
@@ -107,7 +107,7 @@ class ResourceManagerCallback;
 	class JpgLoaderFactory : public ResourceManager::IFactory {
 	public:
 		sal_override ResourcePtr createResource(const Path& fileId) {
-			if(wstrCaseCmp(fileId.getExtension().c_str(), L"jpg") == 0)
+			if(wstrCaseCmp(fileId.getExtension().c_str(), "jpg") == 0)
 				return new Texture(fileId);
 			return nullptr;
 		}
@@ -119,7 +119,7 @@ class ResourceManagerCallback;
 	// ...
 
 	// Create a resource manager using the current directory
-	ResourceManager manager(new MCD::RawFileSystem(L"./"));
+	ResourceManager manager(new MCD::RawFileSystem("./"));
 
 	// Associate a jpg loader to the manager
 	manager.addFactory(new JpgLoaderFactory);
@@ -128,9 +128,9 @@ class ResourceManagerCallback;
 
 	// Some where in time you want to load a texture
 	ResourcePtr resource = manager.load(
-		L"logo.jpg",	// Path to the resource in the file system
-		false,			// True for blocking load; false for background load
-		0				// The load priority (for background load)
+		"logo.jpg",	// Path to the resource in the file system
+		false,		// True for blocking load; false for background load
+		0			// The load priority (for background load)
 	);
 
 	// ...
@@ -169,13 +169,13 @@ public:
 			Example implementation for loading a jpg file:
 			\code
 			sal_override ResourcePtr createResource(const Path& file) {
-				if(path.getExtension() == std::wstring(L"jpg"))
+				if(path.getExtension() == std::string("jpg"))
 					return new Texture(file);
 				return nullptr;
 			}
 			\endcode
 		 */
-		virtual ResourcePtr createResource(const Path& fileId, sal_in_z_opt const wchar_t* args) = 0;
+		virtual ResourcePtr createResource(const Path& fileId, sal_in_z_opt const char* args) = 0;
 
 		//! Overrided function should create and return a concrete resource loader.
 		sal_notnull virtual IResourceLoader* createLoader() = 0;
@@ -200,7 +200,7 @@ public:
 		cached instance will be returned and no event generated.
 		\note Blocking load will also generate events.
 	 */
-	sal_override ResourcePtr load(const Path& fileId, BlockingMode blockingMode=NonBlock, uint priority=0, sal_in_z_opt const wchar_t* args=nullptr, sal_out_opt IResourceLoaderPtr* loader=nullptr);
+	sal_override ResourcePtr load(const Path& fileId, BlockingMode blockingMode=NonBlock, uint priority=0, sal_in_z_opt const char* args=nullptr, sal_out_opt IResourceLoaderPtr* loader=nullptr);
 
 	/*!	Perform a custum loading operation.
 		This will find the appropriate IResourceLoader and creates the Resource for the given fileId.
@@ -209,14 +209,14 @@ public:
 		\param fileId Unique identifier for the resource to load.
 		\param args Extra arguments (encoded as name-value paired strings) for loading the resource; similar to program arguments.
 	 */
-	sal_override std::pair<IResourceLoaderPtr, ResourcePtr> customLoad(const Path& fileId, sal_in_z_opt const wchar_t* args=nullptr);
+	sal_override std::pair<IResourceLoaderPtr, ResourcePtr> customLoad(const Path& fileId, sal_in_z_opt const char* args=nullptr);
 
 	/*!	By pass the cache and doing an explicitly reload.
 		Return the original resource if reload is preformed, otherwise a new resource is
 		returned just like calling load().
 		\note This function is not part of the IResourceManager interface.
 	 */
-	ResourcePtr reload(const Path& fileId, BlockingMode blockingMode=NonBlock, uint priority=0, sal_in_z_opt const wchar_t* args=nullptr);
+	ResourcePtr reload(const Path& fileId, BlockingMode blockingMode=NonBlock, uint priority=0, sal_in_z_opt const char* args=nullptr);
 
 	/*!	Cache the given resource.
 		The given resource is assumed to be fully loaded, no loading will be preformed
@@ -297,7 +297,7 @@ protected:
 	public:
 		// Invoked after all depending resources are loaded.
 		sal_override void doCallback() {
-			*externalReference = manager->load(L"MyMesh.3ds");
+			*externalReference = manager->load("MyMesh.3ds");
 		}
 
 		ResourcePtr* externalReference;
@@ -315,8 +315,8 @@ protected:
 	MyCallback* callback = new MyCallback;
 	callback->externalReference = &mesh;
 	callback->manager = &manager;
-	callback->addDependency(L"texture1.jpg");
-	callback->addDependency(L"texture2.png");
+	callback->addDependency("texture1.jpg");
+	callback->addDependency("texture2.png");
 	manager.addCallback(callback);
 
 	// ...

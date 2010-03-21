@@ -229,7 +229,7 @@ TEST(MeshBuilderIMTest)
 TEST(Basic_MeshBuilderTest)
 {
 	{	// Simple create and destroy a mesh
-		MCD::ResourcePtr mesh = new Mesh(L"");
+		MCD::ResourcePtr mesh = new Mesh("");
 		mesh = nullptr;
 	}
 
@@ -316,8 +316,8 @@ TEST(Basic_MeshBuilderTest)
 			builder.releaseBufferPointer(index);
 		}
 
-		BasicGlWindow window(L"show=0, width=1, height=1");
-		MeshPtr mesh = new Mesh(L"");
+		BasicGlWindow window("show=0, width=1, height=1");
+		MeshPtr mesh = new Mesh("");
 		builder.commit(*mesh, Mesh::Static);
 
 		CHECK(mesh->format() == builder.format());
@@ -334,9 +334,9 @@ TEST(ChamferBox_MeshBuilderTest)
 	public:
 		TestWindow()
 			:
-			BasicGlWindow(L"title=ChamferBox_MeshBuilderTest;width=800;height=600"), mAngle(0)
+			BasicGlWindow("title=ChamferBox_MeshBuilderTest;width=800;height=600"), mAngle(0)
 		{
-			mMesh = new Mesh(L"");
+			mMesh = new Mesh("");
 			ChamferBoxBuilder chamferBoxBuilder(0.4f, 10);
 			chamferBoxBuilder.commit(*mMesh, Mesh::Static);
 		}
@@ -369,9 +369,9 @@ TEST(Quad_MeshBuilderTest)
 	public:
 		TestWindow()
 			:
-			BasicGlWindow(L"title=Quad_MeshBuilderTest;width=800;height=600"), mAngle(0)
+			BasicGlWindow("title=Quad_MeshBuilderTest;width=800;height=600"), mAngle(0)
 		{
-			mMesh = new Mesh(L"");
+			mMesh = new Mesh("");
 			MeshBuilder builder;
 
 			builder.enable(Mesh::Position | Mesh::Color | Mesh::Normal | Mesh::TextureCoord0 | Mesh::Index);
@@ -437,9 +437,9 @@ TEST(Quad_MeshBuilderTest)
 // Multiple mesh object are sharing the same vertex buffer
 TEST(SharedVertex_MeshBuilderTest)
 {
-	BasicGlWindow window(L"show=0, width=1, height=1");
-	MeshPtr mesh1 = new Mesh(L"");
-	MeshPtr mesh2 = new Mesh(L"");
+	BasicGlWindow window("show=0, width=1, height=1");
+	MeshPtr mesh1 = new Mesh("");
+	MeshPtr mesh2 = new Mesh("");
 	MeshBuilder vertexBuilder, indexBuilder;
 
 	// Build the vertex

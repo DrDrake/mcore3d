@@ -11,7 +11,7 @@ ShaderLoader::ShaderLoader(int shaderType)
 {
 }
 
-IResourceLoader::LoadingState ShaderLoader::load(std::istream* is, const Path*, const wchar_t*)
+IResourceLoader::LoadingState ShaderLoader::load(std::istream* is, const Path*, const char*)
 {
 	mLoadingState = is ? NotLoaded : Aborted;
 
@@ -40,8 +40,7 @@ void ShaderLoader::commit(Resource& resource)
 	if(!shader.compile(mSourceCode.c_str())) {
 		std::string log;
 		shader.getLog(log);
-		// TODO: Not using %S for every platform
-		Log::format(Log::Error, L"%S", log.c_str());
+		Log::format(Log::Error, "%s", log.c_str());
 	}
 }
 

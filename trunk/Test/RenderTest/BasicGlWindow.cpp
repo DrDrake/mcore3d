@@ -70,7 +70,7 @@ void MovingCamera::update(float deltaTime)
 	}
 }
 
-BasicGlWindow::BasicGlWindow(const wchar_t* options)
+BasicGlWindow::BasicGlWindow(const char* options)
 	:
 	mKeepRun(true),
 	mIteration(0),
@@ -79,7 +79,7 @@ BasicGlWindow::BasicGlWindow(const wchar_t* options)
 	mFrameCounter(0), mOneSecondCountDown(1.0f)
 {
 #ifndef MCD_CYGWIN
-	Log::start(&std::wcout);
+	Log::start(&std::cout);
 	Log::setLevel(Log::Level(Log::Error | Log::Warn | Log::Info));
 #endif
 
@@ -209,12 +209,12 @@ void BasicGlWindow::onEvent(const Event& e)
 		break;
 
 	case Event::MouseButtonPressed:
-		//setOptions(L"showCursor=0");
+		//setOptions("showCursor=0");
 		mCamera.setMouseDown(true);
 		break;
 
 	case Event::MouseButtonReleased:
-		//setOptions(L"showCursor=1");
+		//setOptions("showCursor=1");
 		mCamera.setMouseDown(false);
 		break;
 

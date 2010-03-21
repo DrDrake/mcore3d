@@ -1,6 +1,5 @@
 #include "Pch.h"
 #include "FileSystemCollection.h"
-#include "StrUtility.h"
 #include <algorithm>
 #include <list>
 #include <set>
@@ -8,10 +7,10 @@
 
 namespace MCD {
 
-static void throwError(const std::string& prefix, const std::wstring& pathStr, const std::string& sufix)
+static void throwError(const std::string& prefix, const std::string& pathStr, const std::string& sufix)
 {
 	throw std::runtime_error(
-		prefix + "\"" + wStrToStr(pathStr) + "\"" + sufix
+		prefix + "\"" + pathStr + "\"" + sufix
 	);
 }
 

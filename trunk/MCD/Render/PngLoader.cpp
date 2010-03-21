@@ -88,7 +88,7 @@ public:
 			}
 			break;
 		case PNG_COLOR_TYPE_PALETTE:	// Color palette is not supported
-			Log::write(Log::Error, L"PngLoader: image using color palette is not supported, operation aborted");
+			Log::write(Log::Error, "PngLoader: image using color palette is not supported, operation aborted");
 		default:
 			mHasError = true;
 			break;
@@ -154,7 +154,7 @@ PngLoader::PngLoader()
 	setImpl(new LoaderImpl(*this));
 }
 
-IResourceLoader::LoadingState PngLoader::load(std::istream* is, const Path*, const wchar_t*)
+IResourceLoader::LoadingState PngLoader::load(std::istream* is, const Path*, const char*)
 {
 	MemoryProfiler::Scope scope("PngLoader::load");
 	MCD_ASSUME(mImpl != nullptr);

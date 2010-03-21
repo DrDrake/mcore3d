@@ -44,10 +44,10 @@ SCRIPT_CLASS_DECLAR(Button);
 
 SCRIPT_CLASS_REGISTER_NAME(Button, "Button")
 	.enableGetset()
-	.scriptEvent(L"onMousePressed", &Button::onMousePressed)
-	.staticMethod<objNoCare>(L"defaultButton", &Button::defaultButton)
-	.getset(L"x", &Button::posX)
-	.getset(L"y", &Button::posY)
+	.scriptEvent("onMousePressed", &Button::onMousePressed)
+	.staticMethod<objNoCare>("defaultButton", &Button::defaultButton)
+	.getset("x", &Button::posX)
+	.getset("y", &Button::posY)
 ;}
 
 }	// namespace script
@@ -58,7 +58,7 @@ TEST(EventBindingTest)
 	script::VMCore* v = (script::VMCore*)sq_getforeignptr(HSQUIRRELVM(vm.getImplementationHandle()));
 	script::ClassTraits<Button>::bind(v);
 
-	CHECK(vm.runScript(L"\
+	CHECK(vm.runScript("\
 		button <- Button.defaultButton();\
 		button.onMousePressed().setHandler(\
 			function(sender, x, y) {\

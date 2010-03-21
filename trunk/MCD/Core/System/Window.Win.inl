@@ -32,31 +32,31 @@ public:
 	// Begin of setting options
 
 	// "colorBits = 32"
-	void setColorBits(const wchar_t* value);
+	void setColorBits(const char* value);
 
 	// "curosrPosition = 'x=123; y=456'"
-	void setCursorPosition(const wchar_t* value);
+	void setCursorPosition(const char* value);
 
 	// "fullscreen = 0|1"
-	void setFullscreen(const wchar_t* value);
+	void setFullscreen(const char* value);
 	void setFullscreen(bool flag);
 
 	// "height = 600"
-	void setHeight(const wchar_t* value);
+	void setHeight(const char* value);
 
 	// "show = 0|1"
-	void setShowWindow(const wchar_t* value);
+	void setShowWindow(const char* value);
 
 	// "showCursor = 0|1"
-	void setShowCursor(const wchar_t* value);
+	void setShowCursor(const char* value);
 
 	// "title = 'Simple game engine'"
-	void setTitle(const wchar_t* value);
+	void setTitle(const char* value);
 
 	// "width = 800"
-	void setWidth(const wchar_t* value);
+	void setWidth(const char* value);
 
-	sal_override void setOption(const wchar_t* name, const wchar_t* value);
+	sal_override void setOption(const char* name, const char* value);
 
 	// End of setting options
 	//////////////////////////////////////////////////////////////////////////

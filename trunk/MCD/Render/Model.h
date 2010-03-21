@@ -34,7 +34,7 @@ public:
 
 		MeshPtr mesh;
 		EffectPtr effect;
-		std::wstring name;	// TODO: To be remove.
+		std::string name;	// TODO: To be remove.
 
 		/*! Pointer to the MeshBuilder of this mesh, it is primaryly used for reading the mesh data
 			without downloading them from the GPU.

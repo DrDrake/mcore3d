@@ -19,13 +19,13 @@ IFileSystem* createDefaultFileSystem()
 	Path actualRoot;
 
 	try {
-		std::auto_ptr<IFileSystem> rawFs(new RawFileSystem(L"Media"));
+		std::auto_ptr<IFileSystem> rawFs(new RawFileSystem("Media"));
 		actualRoot = rawFs->getRoot();
 		fileSystem->addFileSystem(*rawFs.release());
 	} catch(...) {}
 
 	try {
-		std::auto_ptr<IFileSystem> zipFs(new ZipFileSystem(actualRoot.getBranchPath() / L"Media.zip"));
+		std::auto_ptr<IFileSystem> zipFs(new ZipFileSystem(actualRoot.getBranchPath() / "Media.zip"));
 		fileSystem->addFileSystem(*zipFs.release());
 	} catch(...) {}
 
@@ -65,7 +65,7 @@ MCD::IFileSystem& DefaultResourceManager::fileSystem() const
 int DefaultResourceManager::processLoadingEvents()
 {
 	{	// Reload any changed files in the RawFileSystem
-		std::wstring path;
+		std::string path;
 		while(!(path = mImpl.mMonitor.getChangedFile()).empty())
 			reload(Path(path).normalize(), IResourceManager::NonBlock);
 	}
@@ -76,7 +76,7 @@ int DefaultResourceManager::processLoadingEvents()
 		const bool hasError = loadingState == IResourceLoader::Aborted;
 
 		if(hasError)
-			Log::format(Log::Warn, L"Resource: %s %s", e.resource->fileId().getString().c_str(), L"failed to load");
+			Log::format(Log::Warn, "Resource: %s %s", e.resource->fileId().getString().c_str(), "failed to load");
 		else if(loadingState != IResourceLoader::Loading)
 			e.loader->commit(*e.resource);	// Allow one resource to commit for each frame
 

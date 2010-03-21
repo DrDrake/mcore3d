@@ -24,8 +24,8 @@ public:
 	Example:
 	\code
 	Window window;
-	window.create(L"title='Hello world!';width=400;height=300");
-	window.setOptions(L"showCursor=0");
+	window.create("title='Hello world!';width=400;height=300");
+	window.setOptions("showCursor=0");
 
 	while(true) {
 		Event e;
@@ -72,11 +72,11 @@ public:
 		colorBits = 4|8|16|32 \n
 		fullscreen = 0|1 \n
 	 */
-	void create(sal_in_z_opt const wchar_t* options=nullptr) throw(std::exception);
+	void create(sal_in_z_opt const char* options=nullptr) throw(std::exception);
 
 	/*!	Create a window from an existing control.
 	 */
-	void create(Handle existingControl, sal_in_z_opt const wchar_t* options=nullptr) throw(std::exception);
+	void create(Handle existingControl, sal_in_z_opt const char* options=nullptr) throw(std::exception);
 
 	/*!	Change some of the properties of the window.
 		\note Not all options that can be set in create() can be applied here,
@@ -88,7 +88,7 @@ public:
 		show = 0|1 \n
 		showCursor = 0|1 \n
 	 */
-	void setOptions(sal_in_z sal_notnull const wchar_t* options);
+	void setOptions(sal_in_z sal_notnull const char* options);
 
 	/*!	Destroy the window and perform necessary cleanup.
 		\note Will be invoked in ~Window()

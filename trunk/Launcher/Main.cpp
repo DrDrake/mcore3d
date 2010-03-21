@@ -19,18 +19,18 @@ IFileSystem* createDefaultFileSystem()
 
 	Path actualRoot;
 
-	std::auto_ptr<IFileSystem> rawFs1(new RawFileSystem(L""));
+	std::auto_ptr<IFileSystem> rawFs1(new RawFileSystem(""));
 	actualRoot = rawFs1->getRoot();
 	fileSystem->addFileSystem(*rawFs1.release());
 
 	try {
-		std::auto_ptr<IFileSystem> rawFs2(new RawFileSystem(L"Media"));
+		std::auto_ptr<IFileSystem> rawFs2(new RawFileSystem("Media"));
 		actualRoot = rawFs2->getRoot();
 		fileSystem->addFileSystem(*rawFs2.release());
 	} catch(...) {}
 
 	try {
-		std::auto_ptr<IFileSystem> zipFs(new ZipFileSystem(actualRoot.getBranchPath() / L"Media.zip"));
+		std::auto_ptr<IFileSystem> zipFs(new ZipFileSystem(actualRoot.getBranchPath() / "Media.zip"));
 		fileSystem->addFileSystem(*zipFs.release());
 	} catch(...) {}
 
@@ -44,7 +44,7 @@ class TestWindow : public BasicGlWindow
 public:
 	TestWindow()
 		:
-		BasicGlWindow(L"title=Launcher;width=800;height=600;fullscreen=0;FSAA=4")
+		BasicGlWindow("title=Launcher;width=800;height=600;fullscreen=0;FSAA=4")
 	{
 		initAudioDevice();
 
@@ -61,8 +61,8 @@ public:
 		(void)mLauncher->init(*c);
 
 		// TODO: Let user supply a command line argument to choose the startup script
-		(void)mLauncher->scriptComponentManager.doFile(L"scene.nut", true);
-		(void)mLauncher->scriptComponentManager.doFile(L"init.nut", true);
+		(void)mLauncher->scriptComponentManager.doFile("scene.nut", true);
+		(void)mLauncher->scriptComponentManager.doFile("init.nut", true);
 	}
 
 	sal_override ~TestWindow()

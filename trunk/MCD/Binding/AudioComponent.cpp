@@ -26,7 +26,7 @@ SCRIPT_CLASS_REGISTER(AudioEffectComponent)
 
 static bool audioSourceComponentLoad(
 	AudioSourceComponent& self, IResourceManager& resourceManager,
-	const wchar_t* path, const wchar_t* args)
+	const char* path, const char* args)
 {
 	return self.load(resourceManager, path, args);
 }

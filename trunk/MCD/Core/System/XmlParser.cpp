@@ -9,40 +9,40 @@ namespace MCD {
 // http://www.ambiera.com/irrxml/
 
 //! returns true if a character is whitespace
-static inline bool isWhiteSpace(wchar_t c)
+static inline bool isWhiteSpace(char c)
 {
-	return (c == L' ' || c == L'\t' || c == L'\n' || c == L'\r');
+	return (c == ' ' || c == '\t' || c == '\n' || c == '\r');
 }
 
-static const wchar_t* createString(const wchar_t* begin, wchar_t* end)
+static const char* createString(const char* begin, char* end)
 {
-	*end = L'\0';
+	*end = '\0';
 	return begin;
 }
 
 // Returns true if both string are equals.
 // The string lhs should be null terminated while rhs need not to be.
-static bool MyStrCmpLhsFixed(const wchar_t* lhs, const wchar_t* rhs)
+static bool MyStrCmpLhsFixed(const char* lhs, const char* rhs)
 {
-	for(;*lhs != L'\0'; ++lhs, ++rhs)
+	for(;*lhs != '\0'; ++lhs, ++rhs)
 		if(*lhs != *rhs)
 			return false;
 	return true;
 }
 
-static const wchar_t* escapeString(wchar_t* begin, wchar_t* end)
+static const char* escapeString(char* begin, char* end)
 {
 	// Characters that need to escape
 	// Reference: http://www.w3schools.com/xml/xml_cdata.asp
-	static const wchar_t cEscapeChar[5] = {L'&', L'<', L'>', L'\'', L'\"'};
-	static const wchar_t* cEscapeString[5] = {L"&amp;", L"&lt;", L"&gt;", L"&apos;", L"&quot;"};
+	static const char cEscapeChar[5] = {'&', '<', '>', '\'', '\"'};
+	static const char* cEscapeString[5] = {"&amp;", "&lt;", "&gt;", "&apos;", "&quot;"};
 	static const size_t cEscapeStringLen[5] = {5, 4, 4, 6, 6};
 
-	wchar_t* str = begin;
+	char* str = begin;
 
 	// Scan for '&' character
 	for(; str != end; ++str) {
-		if(*str != L'&')
+		if(*str != '&')
 			continue;
 
 		// Loop for all escape string
@@ -53,15 +53,15 @@ static const wchar_t* escapeString(wchar_t* begin, wchar_t* end)
 			// Replace with cEscapeChar
 			*str = cEscapeChar[i];
 			// Move the chars to the front
-			const wchar_t* trailPos = str + cEscapeStringLen[i];
-			::wmemcpy(str+1, trailPos, end - trailPos);
+			const char* trailPos = str + cEscapeStringLen[i];
+			::memcpy(str+1, trailPos, end - trailPos);
 			// Adjust the new end
 			end -= (cEscapeStringLen[i] - 1);
 			break;
 		}
 	}
 
-	*end = L'\0';
+	*end = '\0';
 
 	return begin;
 }
@@ -71,8 +71,8 @@ class XmlParser::Impl
 	typedef XmlParser::Event Event;
 
 	struct Attribute {
-		const wchar_t* name;
-		const wchar_t* value;
+		const char* name;
+		const char* value;
 	};	// Attribute
 
 	typedef std::vector<Attribute> Attrubutes;
@@ -83,11 +83,11 @@ public:
 		parse(nullptr);
 	}
 
-	void parse(wchar_t* source)
+	void parse(char* source)
 	{
 		p = source;
-		mElementName = L"";
-		mText = L"";
+		mElementName = "";
+		mText = "";
 		mHasBackupOpenTag = false;
 		mCurrentNodeType = Event::Error;
 		mAttrubutes.clear();
@@ -98,14 +98,14 @@ public:
 		if(!p)
 			return mCurrentNodeType = Event::Error;
 
-		wchar_t* start = p;
-		wchar_t* backup = p;
+		char* start = p;
+		char* backup = p;
 
 		// More forward until '<' found
-		if(!mHasBackupOpenTag) while(*p != L'<' && *p)
+		if(!mHasBackupOpenTag) while(*p != '<' && *p)
 			++p;
 		else
-			*p = L'<';
+			*p = '<';
 
 		if(!*p)
 			return mCurrentNodeType = Event::EndDocument;
@@ -120,13 +120,13 @@ public:
 
 		// Based on current token, parse and report next element
 		switch(*p) {
-		case L'/':
+		case '/':
 			parseClosingXMLElement();
 			break;
-		case L'?':
+		case '?':
 			ignoreDefinition();
 			break;
-		case L'!':
+		case '!':
 			if(!parseCDATA())
 				parseComment();
 			break;
@@ -136,19 +136,19 @@ public:
 		}
 
 		if(mHasBackupOpenTag) {
-			*backup = L'\0';
+			*backup = '\0';
 			mHasBackupOpenTag = false;
 		}
 
 		return mCurrentNodeType;
 	}
 
-	bool setText(wchar_t* start, wchar_t* end)
+	bool setText(char* start, char* end)
 	{
 		// Check if text is more than 2 characters, and if not, check if there is
 		// only white space, so that this text won't be reported
 		if(end - start < 3) {
-			const wchar_t* q = start;
+			const char* q = start;
 			for(; q != end; ++q)
 				if(!isWhiteSpace(*q))
 					break;
@@ -158,7 +158,7 @@ public:
 		}
 
 		// Since we may lost the '<' character, we use a special tag to remember it
-		mHasBackupOpenTag = (*end == L'<');
+		mHasBackupOpenTag = (*end == '<');
 
 		// Set current text to the parsed text, and replace xml special characters
 		mText = escapeString(start, end);
@@ -175,7 +175,7 @@ public:
 		mCurrentNodeType = Event::Unknown;
 
 		// Move until end marked with '>' reached
-		while(*p && *p != L'>')
+		while(*p && *p != '>')
 			++p;
 		++p;
 	}
@@ -186,15 +186,15 @@ public:
 		mCurrentNodeType = Event::Comment;
 		++p;
 
-		const wchar_t* pCommentBegin = p;
+		const char* pCommentBegin = p;
 
 		int count = 1;
 
 		// Move until end of comment reached
 		while(*p && count) {
-			if(*p == L'>')
+			if(*p == '>')
 				--count;
-			else if(*p == L'<')
+			else if(*p == '<')
 				++count;
 			++p;
 		}
@@ -210,45 +210,45 @@ public:
 		mAttrubutes.clear();
 
 		// Find name
-		const wchar_t* startName = p;
+		const char* startName = p;
 
 		// find end of element
-		while(*p != L'>' && !isWhiteSpace(*p))
+		while(*p != '>' && !isWhiteSpace(*p))
 			++p;
 
-		wchar_t* endName = p;
+		char* endName = p;
 
 		// find mAttrubutes
-		while(*p != L'>')
+		while(*p != '>')
 		{
 			if(isWhiteSpace(*p))
 				++p;
 			else
 			{
-				if(*p != L'/')
+				if(*p != '/')
 				{
 					// We've got an attribute
 
 					// Read the attribute names
-					const wchar_t* attributeNameBegin = p;
+					const char* attributeNameBegin = p;
 
-					while(!isWhiteSpace(*p) && *p != L'=')
+					while(!isWhiteSpace(*p) && *p != '=')
 						++p;
 
-					wchar_t* attributeNameEnd = p;
+					char* attributeNameEnd = p;
 					++p;
 
 					// Read the attribute value, check for quotes and single quotes
-					while((*p != L'\"') && (*p != L'\'') && *p)
+					while((*p != '\"') && (*p != '\'') && *p)
 						++p;
 
 					if(!*p) // Malformatted xml file
 						return;
 
-					const wchar_t attributeQuoteChar = *p;
+					const char attributeQuoteChar = *p;
 
 					++p;
-					wchar_t* attributeValueBegin = p;
+					char* attributeValueBegin = p;
 
 					while(*p != attributeQuoteChar && *p)
 						++p;
@@ -256,7 +256,7 @@ public:
 					if(!*p) // Malformatted xml file
 						return;
 
-					wchar_t* attributeValueEnd = p;
+					char* attributeValueEnd = p;
 					++p;
 
 					Attribute attr;
@@ -275,7 +275,7 @@ public:
 		}
 
 		// Check if this tag is closing directly
-		if(endName > startName && *(endName-1) == L'/')
+		if(endName > startName && *(endName-1) == '/')
 		{
 			// Directly closing tag
 			mIsEmptyElement = true;
@@ -295,9 +295,9 @@ public:
 		mAttrubutes.clear();
 
 		++p;
-		wchar_t* pBeginClose = p;
+		char* pBeginClose = p;
 
-		while(*p && *p != L'>')
+		while(*p && *p != '>')
 			++p;
 
 		if(!*p) {
@@ -312,7 +312,7 @@ public:
 	//! Parses a possible CDATA section, returns false if begin was not a CDATA section
 	bool parseCDATA()
 	{
-		if(*(p+1) != L'[')
+		if(*(p+1) != '[')
 			return false;
 
 		mCurrentNodeType = Event::CData;
@@ -327,12 +327,12 @@ public:
 		if(!*p)
 			return true;
 
-		const wchar_t* cDataBegin = p;
-		wchar_t* cDataEnd = nullptr;
+		const char* cDataBegin = p;
+		char* cDataEnd = nullptr;
 
 		// Find end of CDATA
 		while(*p && !cDataEnd) {
-			if(*p == L'>' && (*(p-1) == L']') && (*(p-2) == L']'))
+			if(*p == '>' && (*(p-1) == ']') && (*(p-2) == ']'))
 				cDataEnd = p - 2;
 			++p;
 		}
@@ -340,36 +340,36 @@ public:
 		if(cDataEnd)
 			mText = createString(cDataBegin, cDataEnd);
 		else
-			mText = L"";
+			mText = "";
 
 		return true;
 	}
 
-	const wchar_t* attributeValue(const wchar_t* name) const
+	const char* attributeValue(const char* name) const
 	{
 		if(!name)
 			return nullptr;
 
 		for(Attrubutes::const_iterator i=mAttrubutes.begin(); i!=mAttrubutes.end(); ++i)
-			if(::wcscmp(name, i->name) == 0)
+			if(::strcmp(name, i->name) == 0)
 				return i->value;
 		return nullptr;
 	}
 
-	const wchar_t* attributeValueIgnoreCase(const wchar_t* name) const
+	const char* attributeValueIgnoreCase(const char* name) const
 	{
 		if(!name)
 			return nullptr;
 
 		for(Attrubutes::const_iterator i=mAttrubutes.begin(); i!=mAttrubutes.end(); ++i)
-			if(wstrCaseCmp(name, i->name) == 0)
+			if(strCaseCmp(name, i->name) == 0)
 				return i->value;
 		return nullptr;
 	}
 
-	wchar_t* p;	//!< The current pointer
-	const wchar_t* mText;
-	const wchar_t* mElementName;
+	char* p;	//!< The current pointer
+	const char* mText;
+	const char* mElementName;
 	bool mIsEmptyElement;
 	bool mHasBackupOpenTag;	//! Set to true when '\0' is assigned because of Text event.
 	Event::Enum mCurrentNodeType;
@@ -387,7 +387,7 @@ XmlParser::~XmlParser()
 	delete &mImpl;
 }
 
-void XmlParser::parse(wchar_t* source)
+void XmlParser::parse(char* source)
 {
 	mImpl.parse(source);
 }
@@ -397,7 +397,7 @@ XmlParser::Event::Enum XmlParser::nextEvent()
 	return mImpl.nextEvent();
 }
 
-const wchar_t* XmlParser::elementName() const
+const char* XmlParser::elementName() const
 {
 	return mImpl.mElementName;
 }
@@ -407,7 +407,7 @@ bool XmlParser::isEmptyElement() const
 	return mImpl.mIsEmptyElement;
 }
 
-const wchar_t* XmlParser::textData() const
+const char* XmlParser::textData() const
 {
 	return mImpl.mText;
 }
@@ -417,22 +417,22 @@ size_t XmlParser::attributeCount() const
 	return mImpl.mAttrubutes.size();
 }
 
-const wchar_t* XmlParser::attributeName(size_t idx) const
+const char* XmlParser::attributeName(size_t idx) const
 {
 	return idx < mImpl.mAttrubutes.size() ? mImpl.mAttrubutes.at(idx).name : nullptr;
 }
 
-const wchar_t* XmlParser::attributeValue(size_t idx) const
+const char* XmlParser::attributeValue(size_t idx) const
 {
 	return idx < mImpl.mAttrubutes.size() ? mImpl.mAttrubutes.at(idx).value : nullptr;
 }
 
-const wchar_t* XmlParser::attributeValue(const wchar_t* name) const
+const char* XmlParser::attributeValue(const char* name) const
 {
 	return mImpl.attributeValue(name);
 }
 
-const wchar_t* XmlParser::attributeValueIgnoreCase(const wchar_t* name) const
+const char* XmlParser::attributeValueIgnoreCase(const char* name) const
 {
 	return mImpl.attributeValueIgnoreCase(name);
 }
@@ -442,12 +442,12 @@ float XmlParser::attributeValueAsFloat(size_t idx, float defaultValue) const
 	return stringToFloat(attributeValue(idx), defaultValue);
 }
 
-float XmlParser::attributeValueAsFloat(sal_in_z const wchar_t* name, float defaultValue) const
+float XmlParser::attributeValueAsFloat(sal_in_z const char* name, float defaultValue) const
 {
 	return stringToFloat(attributeValue(name), defaultValue);
 }
 
-float XmlParser::attributeValueAsFloatIgnoreCase(sal_in_z const wchar_t* name, float defaultValue) const
+float XmlParser::attributeValueAsFloatIgnoreCase(sal_in_z const char* name, float defaultValue) const
 {
 	return stringToFloat(attributeValueIgnoreCase(name), defaultValue);
 }
@@ -457,34 +457,34 @@ bool XmlParser::attributeValueAsBool(size_t idx, bool defaultValue) const
 	return stringToBool(attributeValue(idx), defaultValue);
 }
 
-bool XmlParser::attributeValueAsBool(sal_in_z const wchar_t* name, bool defaultValue) const
+bool XmlParser::attributeValueAsBool(sal_in_z const char* name, bool defaultValue) const
 {
 	return stringToBool(attributeValue(name), defaultValue);
 }
 
-bool XmlParser::attributeValueAsBoolIgnoreCase(sal_in_z const wchar_t* name, bool defaultValue) const
+bool XmlParser::attributeValueAsBoolIgnoreCase(sal_in_z const char* name, bool defaultValue) const
 {
 	return stringToBool(attributeValueIgnoreCase(name), defaultValue);
 }
 
-float XmlParser::stringToFloat(const wchar_t* str, float defaultValue)
+float XmlParser::stringToFloat(const char* str, float defaultValue)
 {
 	double value = defaultValue;
-	if(!str || !wStr2Double(str, value))
+	if(!str || !str2Double(str, value))
 		return defaultValue;
 	return float(value);
 }
 
-bool XmlParser::stringToBool(const wchar_t* str, bool defaultValue)
+bool XmlParser::stringToBool(const char* str, bool defaultValue)
 {
 	double number = 0.0;
 	if(!str)
 		return defaultValue;
-	else if(wStr2Double(str, number))
+	else if(str2Double(str, number))
 		return number > 0;
-	else if(wstrCaseCmp(str, L"true") == 0)
+	else if(strCaseCmp(str, "true") == 0)
 		return true;
-	else if(wstrCaseCmp(str, L"false") == 0)
+	else if(strCaseCmp(str, "false") == 0)
 		return false;
 	return defaultValue;
 }

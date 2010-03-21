@@ -11,8 +11,8 @@ using namespace std;
 
 namespace Binding {
 
-bool CsInputComponent::Compare::operator()(const wstring& lhs, const wstring& rhs) const {
-	return wstrCaseCmp(lhs.c_str(), rhs.c_str()) < 0;
+bool CsInputComponent::Compare::operator()(const string& lhs, const string& rhs) const {
+	return strCaseCmp(lhs.c_str(), rhs.c_str()) < 0;
 }
 
 CsInputComponent::CsInputComponent()
@@ -53,46 +53,46 @@ void CsInputComponent::update(float)
 	mMouseAxis = mMouseAxisRaw * 0.5f + mMouseAxis * 0.5f;
 }
 
-float CsInputComponent::getAxis(sal_in_z const wchar_t* axisName) const
+float CsInputComponent::getAxis(sal_in_z const char* axisName) const
 {
-	if(wstrCaseCmp(axisName, L"mouse x") == 0)
+	if(strCaseCmp(axisName, "mouse x") == 0)
 		return mMouseAxis.x;
-	if(wstrCaseCmp(axisName, L"mouse y") == 0)
+	if(strCaseCmp(axisName, "mouse y") == 0)
 		return mMouseAxis.y;
-	if(wstrCaseCmp(axisName, L"mouse z") == 0)
+	if(strCaseCmp(axisName, "mouse z") == 0)
 		return mMouseAxis.z;
 	return 0;
 }
 
-float CsInputComponent::getAxisRaw(sal_in_z const wchar_t* axisName) const
+float CsInputComponent::getAxisRaw(sal_in_z const char* axisName) const
 {
-	if(wstrCaseCmp(axisName, L"mouse x") == 0)
+	if(strCaseCmp(axisName, "mouse x") == 0)
 		return mMouseAxisRaw.x;
-	if(wstrCaseCmp(axisName, L"mouse y") == 0)
+	if(strCaseCmp(axisName, "mouse y") == 0)
 		return mMouseAxisRaw.y;
-	if(wstrCaseCmp(axisName, L"mouse z") == 0)
+	if(strCaseCmp(axisName, "mouse z") == 0)
 		return mMouseAxisRaw.z;
 	return 0;
 }
 
-float CsInputComponent::getAxisDelta(sal_in_z const wchar_t* axisName) const
+float CsInputComponent::getAxisDelta(sal_in_z const char* axisName) const
 {
-	if(wstrCaseCmp(axisName, L"mouse x") == 0)
+	if(strCaseCmp(axisName, "mouse x") == 0)
 		return mMouseAxis.x - mPreviousMouseAxis.x;
-	if(wstrCaseCmp(axisName, L"mouse y") == 0)
+	if(strCaseCmp(axisName, "mouse y") == 0)
 		return mMouseAxis.y - mPreviousMouseAxis.y;
-	if(wstrCaseCmp(axisName, L"mouse z") == 0)
+	if(strCaseCmp(axisName, "mouse z") == 0)
 		return mMouseAxis.z - mPreviousMouseAxis.z;
 	return 0;
 }
 
-float CsInputComponent::getAxisDeltaRaw(sal_in_z const wchar_t* axisName) const
+float CsInputComponent::getAxisDeltaRaw(sal_in_z const char* axisName) const
 {
-	if(wstrCaseCmp(axisName, L"mouse x") == 0)
+	if(strCaseCmp(axisName, "mouse x") == 0)
 		return mMouseAxisRaw.x - mPreviousMouseAxisRaw.x;
-	if(wstrCaseCmp(axisName, L"mouse y") == 0)
+	if(strCaseCmp(axisName, "mouse y") == 0)
 		return mMouseAxisRaw.y - mPreviousMouseAxisRaw.y;
-	if(wstrCaseCmp(axisName, L"mouse z") == 0)
+	if(strCaseCmp(axisName, "mouse z") == 0)
 		return mMouseAxisRaw.z - mPreviousMouseAxisRaw.z;
 	return 0;
 }
@@ -107,7 +107,7 @@ bool CsInputComponent::anyKeyDown() const
 	return !mKeyDownList.empty();
 }
 
-bool CsInputComponent::getButton(const wchar_t* buttonName) const
+bool CsInputComponent::getButton(const char* buttonName) const
 {
 	EventList::const_iterator i = mKeyList.find(buttonName);
 	if(i == mKeyList.end())
@@ -116,12 +116,12 @@ bool CsInputComponent::getButton(const wchar_t* buttonName) const
 	return i->second == 1;
 }
 
-bool CsInputComponent::getButtonDown(const wchar_t* buttonName) const
+bool CsInputComponent::getButtonDown(const char* buttonName) const
 {
 	return mKeyDownList.find(buttonName) != mKeyDownList.end();
 }
 
-bool CsInputComponent::getButtonUp(const wchar_t* buttonName) const
+bool CsInputComponent::getButtonUp(const char* buttonName) const
 {
 	return mKeyUpList.find(buttonName) != mKeyUpList.end();
 }
@@ -152,7 +152,7 @@ bool CsInputComponent::getMouseButtonUp(int button) const
 	return (mMouseKeyUpBitArray & (1 << button)) > 0;
 }
 
-const wchar_t* CsInputComponent::inputString() const
+const char* CsInputComponent::inputString() const
 {
 	return mInputString.c_str();
 }
@@ -170,24 +170,24 @@ void CsInputComponent::attachTo(Control^ control)
 }
 
 //! Some key code's string in .net is strange, so we perform a transformation to our usual convention.
-static std::wstring transformKeyString(System::String^ s)
+static std::string transformKeyString(System::String^ s)
 {
-	std::wstring ret = Utility::toWString(s);
-	if(ret == L"Next")
-		ret = L"PageDown";
+	std::string ret = Utility::toUtf8String(s);
+	if(ret == "Next")
+		ret = "PageDown";
 	return ret;
 }
 
 void CsInputComponent::MessageRouter::onKeyUp(System::Object^ sender, KeyEventArgs^ e)
 {
-	std::wstring s = transformKeyString(e->KeyData.ToString());
+	std::string s = transformKeyString(e->KeyData.ToString());
 	mBackRef->mKeyList.erase(s);
 	mBackRef->mKeyUpList[s] = 1;
 }
 
 void CsInputComponent::MessageRouter::onKeyDown(System::Object^ sender, KeyEventArgs^ e)
 {
-	std::wstring s = transformKeyString(e->KeyData.ToString());
+	std::string s = transformKeyString(e->KeyData.ToString());
 	mBackRef->mKeyList[s] = 1;
 	mBackRef->mKeyDownList[s] = 1;
 }

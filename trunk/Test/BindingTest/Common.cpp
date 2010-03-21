@@ -5,9 +5,9 @@
 
 bool runScriptFile(MCD::ScriptVM& vm, const char* filePath)
 {
-	std::wifstream file(filePath);
+	std::ifstream file(filePath);
 	if(file) {
-		std::wostringstream buffer;
+		std::ostringstream buffer;
 		buffer << file.rdbuf();
 		file.close();
 

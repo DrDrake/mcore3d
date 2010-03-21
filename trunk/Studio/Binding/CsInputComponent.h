@@ -36,23 +36,23 @@ public:
 // Operations
 	sal_override void update(float dt);
 
-	sal_override float getAxis(sal_in_z const wchar_t* axisName) const;
+	sal_override float getAxis(sal_in_z const char* axisName) const;
 
-	sal_override float getAxisRaw(sal_in_z const wchar_t* axisName) const;
+	sal_override float getAxisRaw(sal_in_z const char* axisName) const;
 
-	sal_override float getAxisDelta(sal_in_z const wchar_t* axisName) const;
+	sal_override float getAxisDelta(sal_in_z const char* axisName) const;
 
-	sal_override float getAxisDeltaRaw(sal_in_z const wchar_t* axisName) const;
+	sal_override float getAxisDeltaRaw(sal_in_z const char* axisName) const;
 
 	sal_override bool anyKey() const;
 
 	sal_override bool anyKeyDown() const;
 
-	sal_override bool getButton(sal_in_z const wchar_t* buttonName) const;
+	sal_override bool getButton(sal_in_z const char* buttonName) const;
 
-	sal_override bool getButtonDown(sal_in_z const wchar_t* buttonName) const;
+	sal_override bool getButtonDown(sal_in_z const char* buttonName) const;
 
-	sal_override bool getButtonUp(sal_in_z const wchar_t* buttonName) const;
+	sal_override bool getButtonUp(sal_in_z const char* buttonName) const;
 
 	sal_override MCD::Vec2i getMousePosition() const;
 
@@ -62,20 +62,20 @@ public:
 
 	sal_override bool getMouseButtonUp(int button) const;
 
-	sal_override sal_out_z const wchar_t* inputString() const;
+	sal_override sal_out_z const char* inputString() const;
 
 	//!	Attach the CsInputComponent to an existing windows control.
 	void attachTo(System::Windows::Forms::Control^ control);
 
 protected:
 	struct Compare {
-		bool operator()(const std::wstring& lhs, const std::wstring& rhs) const;
+		bool operator()(const std::string& lhs, const std::string& rhs) const;
 	};	// Compare
 
 	gcroot<System::Windows::Forms::Control^> mControl;
 	gcroot<MessageRouter^> mMessageRouter;
 
-	typedef std::map<std::wstring, int, Compare> EventList;
+	typedef std::map<std::string, int, Compare> EventList;
 	EventList mAxisList;
 	EventList mKeyList;
 	EventList mKeyDownList;
@@ -84,7 +84,7 @@ protected:
 	int8_t mMouseKeyBitArray;	//!< 8 bit can store 8 mouse key
 	int8_t mMouseKeyDownBitArray;
 	int8_t mMouseKeyUpBitArray;
-	std::wstring mInputString;
+	std::string mInputString;
 	MCD::Vec3f mMouseAxis, mMouseAxisRaw;	//!< Mouse x, y and wheel as z
 	MCD::Vec3f mPreviousMouseAxis, mPreviousMouseAxisRaw;	//!< For calculating delta
 };	// CsInputComponent

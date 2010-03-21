@@ -11,7 +11,7 @@ TEST(SkeletonTest)
 	// |-Bone02 [0, 1.5, 0]
 	//   |-Bone03 [0, 2.5, 0]
 	// And an animation that will rotate each joint around z-axis
-	AnimationTrackPtr track = new AnimationTrack(L"");
+	AnimationTrackPtr track = new AnimationTrack("");
 
 	static const size_t jointCount = 3;
 	static const size_t frameCount = 2;
@@ -49,7 +49,7 @@ TEST(SkeletonTest)
 		}
 	}
 
-	SkeletonPtr skeleton = new Skeleton(L"");
+	SkeletonPtr skeleton = new Skeleton("");
 	skeleton->init(jointCount);
 
 	CHECK_EQUAL(jointCount, skeleton->basePose.jointCount());
@@ -59,7 +59,7 @@ TEST(SkeletonTest)
 	skeleton->parents[1] = 0;
 	skeleton->parents[2] = 1;
 
-	SkeletonAnimationPtr skAnimation = new SkeletonAnimation(L"");
+	SkeletonAnimationPtr skAnimation = new SkeletonAnimation("");
 	skAnimation->skeleton = skeleton;
 
 	CHECK(skAnimation->anim.addTrack(*track, 1));

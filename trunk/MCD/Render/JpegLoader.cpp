@@ -64,12 +64,12 @@ public:
 			mDecoder = new jpeg_decoder(mStream = new Stream(is), true);
 
 			if(mDecoder->get_error_code() != JPGD_OKAY) {
-				Log::format(Log::Error, L"JpegLoader: load error, operation aborted");
+				Log::format(Log::Error, "JpegLoader: load error, operation aborted");
 				return Aborted;
 			}
 
 			if(mDecoder->begin() != JPGD_OKAY) {
-				Log::format(Log::Error, L"JpegLoader: load error, operation aborted");
+				Log::format(Log::Error, "JpegLoader: load error, operation aborted");
 				return Aborted;
 			}
 
@@ -81,7 +81,7 @@ public:
 				mFormat = GL_RGBA;
 			}
 			else {
-				Log::format(Log::Error, L"JpegLoader: image with number of color component equals to %i is not supported, operation aborted", c);
+				Log::format(Log::Error, "JpegLoader: image with number of color component equals to %i is not supported, operation aborted", c);
 				return JPGD_FAILED;
 			}
 
@@ -120,7 +120,7 @@ JpegLoader::JpegLoader()
 	setImpl(new LoaderImpl(*this));
 }
 
-IResourceLoader::LoadingState JpegLoader::load(std::istream* is, const Path*, const wchar_t*)
+IResourceLoader::LoadingState JpegLoader::load(std::istream* is, const Path*, const char*)
 {
 	MemoryProfiler::Scope scope("JpegLoader::load");
 	MCD_ASSUME(mImpl != nullptr);

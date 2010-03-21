@@ -19,10 +19,10 @@ using namespace std;
 
 namespace MCD {
 
-static void throwError(const std::string& prefix, const std::wstring& pathStr, const std::string& sufix)
+static void throwError(const std::string& prefix, const std::string& pathStr, const std::string& sufix)
 {
 	throw std::runtime_error(
-		prefix + "\"" + wStrToStr(pathStr) + "\"" + sufix
+		prefix + "\"" + pathStr + "\"" + sufix
 	);
 }
 
@@ -132,16 +132,10 @@ public:
 			if(GetZipItem(mZipHandle, i, &ze) != ZR_OK) // Fetch individual details
 				continue;
 
-			std::wstring filePath;
-
-			// We assume the file name stored in the zip file use utf-8 encoding
-			if(!utf8ToWStr(ze.name, MAX_PATH, filePath) || filePath.empty()) {
-				Log::format(Log::Warn, L"The zip file: \"%s\" contains a file path that is not encoded in UTF-8", mZipFilePath.getString().c_str());
-				continue;
-			}
+			std::string filePath(ze.name);
 
 			// Remove trailling '/' if any
-			if(filePath[filePath.size() - 1] == L'/')
+			if(filePath[filePath.size() - 1] == '/')
 				filePath.resize(filePath.size() - 1);
 
 			mFileMap[filePath] = ze;
@@ -189,7 +183,7 @@ public:
 	}
 
 	HZIP mZipHandle;
-	typedef std::map<std::wstring, ZIPENTRY> FileMap;
+	typedef std::map<std::string, ZIPENTRY> FileMap;
 	FileMap mFileMap;
 	Path mZipFilePath;
 };	// Impl
@@ -217,7 +211,7 @@ bool ZipFileSystem::setRoot(const Path& zipFilePath)
 	if(absolutePath != mZipFilePath)
 	{
 		mImpl = new Impl;
-		bool ok = mImpl->init(wStrToStr(zipFilePath.getString()).c_str());
+		bool ok = mImpl->init(zipFilePath.getString().c_str());
 		if(ok)
 			mImpl->mZipFilePath = mZipFilePath = absolutePath;
 		return ok;

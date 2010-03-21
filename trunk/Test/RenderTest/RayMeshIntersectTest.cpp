@@ -15,7 +15,7 @@ class TestWindow : public BasicGlWindow
 public:
 	TestWindow()
 		:
-		BasicGlWindow(L"title=RayMeshIntersectTest;width=800;height=600;fullscreen=0;FSAA=4"),
+		BasicGlWindow("title=RayMeshIntersectTest;width=800;height=600;fullscreen=0;FSAA=4"),
 		mResourceManager(*createDefaultFileSystem()),
 		mAccumTime(0)
 	{
@@ -23,8 +23,8 @@ public:
 		mResourceManager.addFactory(new EntityPrototypeLoaderFactory(mResourceManager));
 
 		// Load scene
-		const wchar_t* scenePath = L"Scene/City/scene.3ds";
-		EntityPrototypeLoader::addEntityAfterLoad(&mRootNode, mResourceManager, scenePath, 0, 0, L"loadAsEntity=true");
+		const char* scenePath = "Scene/City/scene.3ds";
+		EntityPrototypeLoader::addEntityAfterLoad(&mRootNode, mResourceManager, scenePath, 0, 0, "loadAsEntity=true");
 
 		// Disable Lighting
 		glDisable(GL_LIGHTING);

@@ -24,7 +24,7 @@ using namespace MCD;
 
 static TexturePtr generateRandomTexture(uint textureSize)
 {
-	TexturePtr texture = new Texture(L"texture:dither");
+	TexturePtr texture = new Texture("texture:dither");
 	texture->width = textureSize;
 	texture->height = textureSize;
 	texture->type = GL_TEXTURE_2D;
@@ -66,20 +66,20 @@ TEST(ASSAOTest)
 	public:
 		TestWindow()
 			:
-			BasicGlWindow(L"title=ASSAOTest;width=800;height=600;fullscreen=0;FSAA=4"),
+			BasicGlWindow("title=ASSAOTest;width=800;height=600;fullscreen=0;FSAA=4"),
 			mUseSSAO(true), mBlurSSAO(true), mShowTexture(false),
 			mSSAORescale(0.5f), mSSAORadius(0.5f), mBlurPassCount(0),
 			mRenderable(nullptr), mResourceManager(*createDefaultFileSystem())
 		{
-			if( !loadShaderProgram(L"Shader/ASSAO/SSAO.glvs", L"Shader/ASSAO/SSAO.glps", mSSAOPass, mResourceManager) ||
-				!loadShaderProgram(L"Shader/ASSAO/Blur.glvs", L"Shader/ASSAO/Blur.glps", mBlurPass, mResourceManager) ||
-				!loadShaderProgram(L"Shader/ASSAO/Combine.glvs", L"Shader/ASSAO/Combine.glps", mCombinePass, mResourceManager))
+			if( !loadShaderProgram("Shader/ASSAO/SSAO.glvs", "Shader/ASSAO/SSAO.glps", mSSAOPass, mResourceManager) ||
+				!loadShaderProgram("Shader/ASSAO/Blur.glvs", "Shader/ASSAO/Blur.glps", mBlurPass, mResourceManager) ||
+				!loadShaderProgram("Shader/ASSAO/Combine.glvs", "Shader/ASSAO/Combine.glps", mCombinePass, mResourceManager))
 			{
 				throw std::runtime_error("Fail to load shader");
 			}
 
-			mSceneEffect = static_cast<Effect*>(mResourceManager.load(L"Material/ShowOffTest/ScenePass.fx.xml").get());
-//			mSSAOEffect = static_cast<Effect*>(mResourceManager.load(L"Material/ShowOffTest/SSAOPass.fx.xml").get());
+			mSceneEffect = static_cast<Effect*>(mResourceManager.load("Material/ShowOffTest/ScenePass.fx.xml").get());
+//			mSSAOEffect = static_cast<Effect*>(mResourceManager.load("Material/ShowOffTest/SSAOPass.fx.xml").get());
 
 			// Load the random normal map
 			mDitherTexture = generateRandomTexture(32);
@@ -148,17 +148,17 @@ TEST(ASSAOTest)
 			if(e.Type == Event::MouseWheelMoved)
 				updateViewFrustum();
 
-			std::wstring title = L"title=\"ASSAO test ";
-			title += std::wstring(L"[Half resolution (F2):") + (mSSAORescale == 0.5f ? L"on" : L"off") + L"] ";
-			title += std::wstring(L"[Blur pass (F3/Shift+F3):") + int2WStr(mBlurPassCount) + L"] ";
-			title += std::wstring(L"[SSAO radius (F5/Shift+F5):") + double2WStr(mSSAORadius) + L"] ";
-			title += L"\"";
+			std::string title = "title=\"ASSAO test ";
+			title += std::string("[Half resolution (F2):") + (mSSAORescale == 0.5f ? "on" : "off") + "] ";
+			title += std::string("[Blur pass (F3/Shift+F3):") + int2Str(mBlurPassCount) + "] ";
+			title += std::string("[SSAO radius (F5/Shift+F5):") + double2Str(mSSAORadius) + "] ";
+			title += "\"";
 			setOptions(title.c_str());
 		}
 
 		TexturePtr createRenderTexture(
 			RenderTarget& renderTarget, int attachmentType, int textureType,
-			size_t width, size_t height, const wchar_t* resourceName
+			size_t width, size_t height, const char* resourceName
 			)
 		{
 			TextureRenderBufferPtr textureBuffer = new TextureRenderBuffer(attachmentType);
@@ -191,9 +191,9 @@ TEST(ASSAOTest)
 			// Setup scene's render target, where the scene will output the color, depth and normal
 			mSceneRenderTarget.reset(new RenderTarget(width, height));
 
-			mColorRenderTexture = createRenderTexture(*mSceneRenderTarget, GL_COLOR_ATTACHMENT0_EXT, GL_RGB, width, height, L"renderBuffer:color");
-			mNormalRenderTexture = createRenderTexture(*mSceneRenderTarget, GL_COLOR_ATTACHMENT1_EXT, GL_RGB, width, height, L"renderBuffer:normal");
-			mDepthRenderTexture = createRenderTexture(*mSceneRenderTarget, GL_DEPTH_ATTACHMENT_EXT, GL_DEPTH_COMPONENT, width, height, L"renderBuffer:depth");
+			mColorRenderTexture = createRenderTexture(*mSceneRenderTarget, GL_COLOR_ATTACHMENT0_EXT, GL_RGB, width, height, "renderBuffer:color");
+			mNormalRenderTexture = createRenderTexture(*mSceneRenderTarget, GL_COLOR_ATTACHMENT1_EXT, GL_RGB, width, height, "renderBuffer:normal");
+			mDepthRenderTexture = createRenderTexture(*mSceneRenderTarget, GL_DEPTH_ATTACHMENT_EXT, GL_DEPTH_COMPONENT, width, height, "renderBuffer:depth");
 
 			mSceneRenderTarget->bind();
 			GLenum buffers[] = { GL_COLOR_ATTACHMENT0_EXT, GL_COLOR_ATTACHMENT1_EXT };
@@ -208,8 +208,8 @@ TEST(ASSAOTest)
 			size_t height2 = size_t(height * mSSAORescale);
 			mSSAORenderTarget.reset(new RenderTarget(width2, height2));
 
-			mAccum1 = createRenderTexture(*mSSAORenderTarget, GL_COLOR_ATTACHMENT0_EXT, GL_RGBA, width2, height2, L"renderBuffer:Accum1");
-			mAccum2 = createRenderTexture(*mSSAORenderTarget, GL_COLOR_ATTACHMENT1_EXT, GL_RGBA, width2, height2, L"renderBuffer:Accum2");
+			mAccum1 = createRenderTexture(*mSSAORenderTarget, GL_COLOR_ATTACHMENT0_EXT, GL_RGBA, width2, height2, "renderBuffer:Accum1");
+			mAccum2 = createRenderTexture(*mSSAORenderTarget, GL_COLOR_ATTACHMENT1_EXT, GL_RGBA, width2, height2, "renderBuffer:Accum2");
 
 			if(!mSSAORenderTarget->checkCompleteness())
 				throw std::runtime_error("Fail to create mSSAORenderTarget");
@@ -321,7 +321,7 @@ TEST(ASSAOTest)
 			glScalef(scale, scale, scale);
 
 			if(mBox == nullptr) {
-				mBox = new Mesh(L"");
+				mBox = new Mesh("");
 				boxX = 1;
 				ChamferBoxBuilder chamferBoxBuilder(0.4f, 2);
 				MCD_VERIFY(commitMesh(chamferBoxBuilder, *mBox, Mesh::Static));
@@ -442,7 +442,7 @@ TEST(ASSAOTest)
 			mCombinePass.unbind();
 		}
 
-		void loadModel(const wchar_t* fileId)
+		void loadModel(const char* fileId)
 		{
 			mModel = mResourceManager.load(fileId, IResourceManager::Block).get();
 			mRenderable = dynamic_cast<IRenderable*>(mModel.get());
@@ -487,7 +487,7 @@ TEST(ASSAOTest)
 	{
 		TestWindow window;
 
-		std::wstring sceneName(L"Scene/03/scene.3ds");
+		std::string sceneName("Scene/03/scene.3ds");
 
 		{	// try to read the sceneName from Scene.txt
 			std::ifstream infile;
@@ -495,30 +495,27 @@ TEST(ASSAOTest)
 			infile.open("Scene.txt", std::ifstream::in);
 			if(infile.good())
 			{
-				// we found it, read the sceneName and close the file
-				std::string line;
-				infile >> line;
+				// We found it, read the sceneName and close the file
+				infile >> sceneName;
 				infile.close();
 
-				if(!line.empty()) {
-					if(!MCD::strToWStr(line.c_str(), line.length(), sceneName))
-						return;
-				}
+				if(sceneName.empty())
+					return;
 			}
 		}
 
 		window.loadModel(sceneName.c_str());
 
-//		window.loadModel(L"Stanford/dragon.3DS");
-//		window.loadModel(L"TextureBoxSphere.3ds");
-//		window.loadModel(L"Scene/House/scene.3ds");
-//		window.loadModel(L"Scene/City/scene.3ds");
-//		window.loadModel(L"Scene/03/scene.3ds");
-//		window.loadModel(L"Ship/01/scene.3ds");
-//		window.loadModel(L"Scene/National Stadium/scene.pod");
-//		window.loadModel(L"Church/sponza/sponza.3ds");
-//		window.loadModel(L"3M00696/buelllightning.3DS");
-//		window.loadModel(L"Lamborghini Gallardo Polizia/Lamborghini Gallardo Polizia.3DS");
+//		window.loadModel("Stanford/dragon.3DS");
+//		window.loadModel("TextureBoxSphere.3ds");
+//		window.loadModel("Scene/House/scene.3ds");
+//		window.loadModel("Scene/City/scene.3ds");
+//		window.loadModel("Scene/03/scene.3ds");
+//		window.loadModel("Ship/01/scene.3ds");
+//		window.loadModel("Scene/National Stadium/scene.pod");
+//		window.loadModel("Church/sponza/sponza.3ds");
+//		window.loadModel("3M00696/buelllightning.3DS");
+//		window.loadModel("Lamborghini Gallardo Polizia/Lamborghini Gallardo Polizia.3DS");
 
 		window.mainLoop();
 	}

@@ -8,7 +8,7 @@
 namespace MCD {
 
 SkeletonAnimationComponent::SkeletonAnimationComponent(SkeletonAnimationUpdaterComponent& updater)
-	: mSkeletonAnimation(new SkeletonAnimation(L""))
+	: mSkeletonAnimation(new SkeletonAnimation(""))
 	, skeletonAnimation(*mSkeletonAnimation)
 	, animationUpdater(&updater)
 {

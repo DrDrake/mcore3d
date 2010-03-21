@@ -30,7 +30,7 @@ bool initAudioDevice()
 	gDevice = alcOpenDevice(nullptr);
 
 	if(!gDevice) {
-		Log::write(Log::Error, L"Fail to initialize audio device");
+		Log::write(Log::Error, "Fail to initialize audio device");
 		return false;
 	}
 

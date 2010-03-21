@@ -14,7 +14,7 @@ namespace {
 class TestWindow : public BasicGlWindow
 {
 public:
-	TestWindow(const wchar_t* options)
+	TestWindow(const char* options)
 		:
 		BasicGlWindow(options),
 		mAngle(0), mTime(0), mResourceManager(*createDefaultFileSystem())
@@ -23,12 +23,12 @@ public:
 		mLightCamera = Camera(Vec3f(10, 20, 0), Vec3f(2, 0, 0), Vec3f::c001);
 	}
 
-	void load3ds(const wchar_t* fileId)
+	void load3ds(const char* fileId)
 	{
 		mModel = dynamic_cast<Model*>(mResourceManager.load(fileId).get());
 	}
 
-	void loadTexture(const wchar_t* fileId)
+	void loadTexture(const char* fileId)
 	{
 		mTextureToProject = dynamic_cast<Texture*>(mResourceManager.load(fileId).get());
 	}
@@ -154,10 +154,10 @@ public:
 
 TEST(ProjectiveTextureTest)
 {
-	TestWindow window(L"title=ProjectiveTextureTest;width=800;height=600;fullscreen=0;FSAA=4");
+	TestWindow window("title=ProjectiveTextureTest;width=800;height=600;fullscreen=0;FSAA=4");
 
-	window.load3ds(L"Scene/City/scene.3ds");
-	window.loadTexture(L"Progressive512x512.jpg");
+	window.load3ds("Scene/City/scene.3ds");
+	window.loadTexture("Progressive512x512.jpg");
 	window.mainLoop();
 
 	CHECK(true);
@@ -173,10 +173,10 @@ namespace {
 class ShaderTestWindow : public TestWindow
 {
 public:
-	ShaderTestWindow(const wchar_t* options) : TestWindow(options)
+	ShaderTestWindow(const char* options) : TestWindow(options)
 	{
 		if(!loadShaderProgram(
-			L"Shader/ProjectiveTexture/Scene.glvs", L"Shader/ProjectiveTexture/Scene.glps",
+			"Shader/ProjectiveTexture/Scene.glvs", "Shader/ProjectiveTexture/Scene.glps",
 			mProjectiveTextureShader, mResourceManager))
 		{
 			throw std::runtime_error("Fail to load shader");
@@ -213,10 +213,10 @@ public:
 
 TEST(ProjectiveTextureShaderTest)
 {
-	ShaderTestWindow window(L"title=ProjectiveTextureShaderTest;width=800;height=600;fullscreen=0;FSAA=4");
+	ShaderTestWindow window("title=ProjectiveTextureShaderTest;width=800;height=600;fullscreen=0;FSAA=4");
 
-	window.load3ds(L"Scene/City/scene.3ds");
-	window.loadTexture(L"Progressive512x512.jpg");
+	window.load3ds("Scene/City/scene.3ds");
+	window.loadTexture("Progressive512x512.jpg");
 	window.mainLoop();
 
 	CHECK(true);

@@ -20,34 +20,34 @@ Entity* e21;
  */
 void createTree(Entity& root)
 {
-	root.name = L"root";
+	root.name = "root";
 
 	e1 = new Entity;
-	e1->name = L"e1";
+	e1->name = "e1";
 	e1->asChildOf(&root);
 
 	e2 = new Entity;
-	e2->name = L"e2";
+	e2->name = "e2";
 	e2->asChildOf(&root);
 
 	e3 = new Entity;
-	e3->name = L"e3";
+	e3->name = "e3";
 	e3->asChildOf(&root);
 
 	e11 = new Entity;
-	e11->name = L"e11";
+	e11->name = "e11";
 	e11->asChildOf(e1);
 
 	e12 = new Entity;
-	e12->name = L"e12";
+	e12->name = "e12";
 	e12->asChildOf(e1);
 
 	e13 = new Entity;
-	e13->name = L"e13";
+	e13->name = "e13";
 	e13->asChildOf(e1);
 
 	e21 = new Entity;
-	e21->name = L"e21";
+	e21->name = "e21";
 	e21->asChildOf(e2);
 }
 
@@ -236,33 +236,33 @@ TEST(PreorderIterator_EntityTest)
 TEST(Find_EntityTest)
 {
 	Entity root;
-	CHECK(!root.findEntityInDescendants(L"e21"));
+	CHECK(!root.findEntityInDescendants("e21"));
 
 	createTree(root);
-	CHECK_EQUAL(e21, root.findEntityInDescendants(L"e21"));
+	CHECK_EQUAL(e21, root.findEntityInDescendants("e21"));
 }
 
 TEST(FindByPath_EntityTest)
 {
 	Entity root;
 	createTree(root);
-	CHECK_EQUAL(&root, root.findEntityByPath(L""));
+	CHECK_EQUAL(&root, root.findEntityByPath(""));
 
-	CHECK(!root.findEntityByPath(L"../"));
+	CHECK(!root.findEntityByPath("../"));
 
-	CHECK_EQUAL(&root, root.findEntityByPath(L"./"));
+	CHECK_EQUAL(&root, root.findEntityByPath("./"));
 
-	CHECK_EQUAL(&root, e1->findEntityByPath(L".."));
-	CHECK_EQUAL(&root, e1->findEntityByPath(L"../"));
-	CHECK_EQUAL(&root, e11->findEntityByPath(L"../../"));
+	CHECK_EQUAL(&root, e1->findEntityByPath(".."));
+	CHECK_EQUAL(&root, e1->findEntityByPath("../"));
+	CHECK_EQUAL(&root, e11->findEntityByPath("../../"));
 
-	CHECK_EQUAL(e1, root.findEntityByPath(L"e1"));
-	CHECK_EQUAL(e11, root.findEntityByPath(L"e1/e11"));
-	CHECK(!root.findEntityByPath(L"e1/not exist"));
+	CHECK_EQUAL(e1, root.findEntityByPath("e1"));
+	CHECK_EQUAL(e11, root.findEntityByPath("e1/e11"));
+	CHECK(!root.findEntityByPath("e1/not exist"));
 
-	CHECK_EQUAL(e2, e1->findEntityByPath(L"../e2"));
+	CHECK_EQUAL(e2, e1->findEntityByPath("../e2"));
 
-	CHECK(!root.findEntityByPath(L"e11"));
+	CHECK(!root.findEntityByPath("e11"));
 }
 
 TEST(CommonAncestor_EntityTest)
@@ -282,28 +282,28 @@ TEST(GetRelativePath_EntityTest)
 	Entity root;
 	createTree(root);
 
-	CHECK_EQUAL(L"", root.getRelativePathFrom(root));
-	CHECK_EQUAL(L"", e1->getRelativePathFrom(*e1));
+	CHECK_EQUAL("", root.getRelativePathFrom(root));
+	CHECK_EQUAL("", e1->getRelativePathFrom(*e1));
 
-	CHECK_EQUAL(L"../", root.getRelativePathFrom(*e1));
-	CHECK_EQUAL(L"../../", root.getRelativePathFrom(*e11));
+	CHECK_EQUAL("../", root.getRelativePathFrom(*e1));
+	CHECK_EQUAL("../../", root.getRelativePathFrom(*e11));
 
-	CHECK_EQUAL(L"e1/", e1->getRelativePathFrom(root));
-	CHECK_EQUAL(L"e1/e11/", e11->getRelativePathFrom(root));
+	CHECK_EQUAL("e1/", e1->getRelativePathFrom(root));
+	CHECK_EQUAL("e1/e11/", e11->getRelativePathFrom(root));
 
-	CHECK_EQUAL(L"../e2/", e2->getRelativePathFrom(*e1));
-	CHECK_EQUAL(L"../e1/", e1->getRelativePathFrom(*e2));
+	CHECK_EQUAL("../e2/", e2->getRelativePathFrom(*e1));
+	CHECK_EQUAL("../e1/", e1->getRelativePathFrom(*e2));
 
-	CHECK_EQUAL(L"../../e1/e12/", e12->getRelativePathFrom(*e21));
-	CHECK_EQUAL(L"../../e2/e21/", e21->getRelativePathFrom(*e12));
+	CHECK_EQUAL("../../e1/e12/", e12->getRelativePathFrom(*e21));
+	CHECK_EQUAL("../../e2/e21/", e21->getRelativePathFrom(*e12));
 
 	// Test with 2 totally seperated tree
 	Entity root2;
-	CHECK_EQUAL(L"", root.getRelativePathFrom(root2));
+	CHECK_EQUAL("", root.getRelativePathFrom(root2));
 
 	Entity* e = new Entity;
 	e->asChildOf(&root2);
-	CHECK_EQUAL(L"", e1->getRelativePathFrom(*e));
+	CHECK_EQUAL("", e1->getRelativePathFrom(*e));
 }
 
 namespace Clone_EntityTest
@@ -360,12 +360,12 @@ TEST(Clone_EntityTest)
 	e13->localTransform.setTranslation(Vec3f(3, 2, 1));
 
 	std::auto_ptr<Entity> clone_root(root.clone());
-	Entity* clone_e1 = clone_root->findEntityInDescendants(L"e1");
-	Entity* clone_e2 = clone_root->findEntityInDescendants(L"e2");
-	Entity* clone_e3 = clone_root->findEntityInDescendants(L"e3");
-	Entity* clone_e11 = clone_root->findEntityInDescendants(L"e11");
-	Entity* clone_e12 = clone_root->findEntityInDescendants(L"e12");
-	Entity* clone_e13 = clone_root->findEntityInDescendants(L"e13");
+	Entity* clone_e1 = clone_root->findEntityInDescendants("e1");
+	Entity* clone_e2 = clone_root->findEntityInDescendants("e2");
+	Entity* clone_e3 = clone_root->findEntityInDescendants("e3");
+	Entity* clone_e11 = clone_root->findEntityInDescendants("e11");
+	Entity* clone_e12 = clone_root->findEntityInDescendants("e12");
+	Entity* clone_e13 = clone_root->findEntityInDescendants("e13");
 
 	{
 		bool allNotNull = clone_e1 && clone_e2 && clone_e3 && clone_e11 && clone_e12 && clone_e13;
@@ -374,13 +374,13 @@ TEST(Clone_EntityTest)
 			return;
 	}
 
-	CHECK_EQUAL(clone_root->name, L"root");
-	CHECK_EQUAL(clone_e1->name, L"e1");
-	CHECK_EQUAL(clone_e2->name, L"e2");
-	CHECK_EQUAL(clone_e3->name, L"e3");
-	CHECK_EQUAL(clone_e11->name, L"e11");
-	CHECK_EQUAL(clone_e12->name, L"e12");
-	CHECK_EQUAL(clone_e13->name, L"e13");
+	CHECK_EQUAL(clone_root->name, "root");
+	CHECK_EQUAL(clone_e1->name, "e1");
+	CHECK_EQUAL(clone_e2->name, "e2");
+	CHECK_EQUAL(clone_e3->name, "e3");
+	CHECK_EQUAL(clone_e11->name, "e11");
+	CHECK_EQUAL(clone_e12->name, "e12");
+	CHECK_EQUAL(clone_e13->name, "e13");
 
 	// Check the clone_root's structure
 	CHECK(!clone_root->parent());
@@ -466,7 +466,7 @@ public:
 };	// MockComponent
 
 	Entity root;
-	root.name = L"root";
+	root.name = "root";
 
 	EntityPtr e1 = new Entity();
 	e1->asChildOf(&root);

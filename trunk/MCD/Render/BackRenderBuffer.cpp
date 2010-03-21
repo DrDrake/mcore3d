@@ -60,7 +60,7 @@ void BackRenderBuffer::create(size_t width, size_t height, int format, int usage
 
 	int maxWidthHeight = mWidth > mHeight ? mWidth : mHeight;
 	if(maxWidthHeight > maxRenderbufferWidth)
-		Log::format(Log::Error, L"Reaching the size limit of render buffer: expecting %i, but only %i is supported",
+		Log::format(Log::Error, "Reaching the size limit of render buffer: expecting %i, but only %i is supported",
 			maxWidthHeight, maxRenderbufferWidth);
 
 	glGenRenderbuffersEXT(1, &mHandle);

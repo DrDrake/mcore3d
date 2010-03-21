@@ -66,10 +66,10 @@ TEST(ThreadedPhysicsComponentTest)
 
 		TestWindow()
 			:
-			BasicGlWindow(L"title=ThreadedPhysicsComponentTest;width=800;height=600;fullscreen=0;FSAA=4"),
+			BasicGlWindow("title=ThreadedPhysicsComponentTest;width=800;height=600;fullscreen=0;FSAA=4"),
 			mResourceManager(*createDefaultFileSystem())
 		{
-			mRootNode.name = L"root";
+			mRootNode.name = "root";
 
 			// A scene node is added such that MyLoadCallback will not try to create rigid body for other Entities.
 			mSceneNode = new Entity();
@@ -83,7 +83,7 @@ TEST(ThreadedPhysicsComponentTest)
 				EntityPrototypeLoader::addEntityAfterLoad(
 					mSceneNode,
 					mResourceManager,
-					L"Scene/City/scene.3ds",
+					"Scene/City/scene.3ds",
 					callback.get()
 				);
 				callback.release();
@@ -97,11 +97,11 @@ TEST(ThreadedPhysicsComponentTest)
 			Vec3f ballInitialPosition(0, 290, 0), ballPosXDelta(10, 0, 0), ballPosYDelta(0, 0, 10);
 
 			// Setup the chamfer box mesh
-			MeshPtr ballMesh = new Mesh(L"");
+			MeshPtr ballMesh = new Mesh("");
 			ChamferBoxBuilder chamferBoxBuilder(1.0f, 2);
 			MCD_VERIFY(commitMesh(chamferBoxBuilder, *ballMesh, Mesh::Static));
 
-			mBallInstMesh = new InstancedMesh(ballMesh, static_cast<Effect*>(mResourceManager.load(L"Material/hwinst.fx.xml").get()));
+			mBallInstMesh = new InstancedMesh(ballMesh, static_cast<Effect*>(mResourceManager.load("Material/hwinst.fx.xml").get()));
 
 			// Ball count
 			int xCount = 32, yCount = 32;
@@ -113,7 +113,7 @@ TEST(ThreadedPhysicsComponentTest)
 				for(int y = 0; y < yCount; ++y)
 				{	// Build entity
 					std::auto_ptr<Entity> e(new Entity);
-					e->name = L"Shpere";
+					e->name = "Shpere";
 					e->localTransform = Mat44f(Mat33f::makeXYZRotation(0, Mathf::cPiOver4(), 0));
 
 					// Add some randomness
@@ -128,7 +128,7 @@ TEST(ThreadedPhysicsComponentTest)
 #else
 					MeshComponent* c = new MeshComponent;
 					c->mesh = ballMesh;
-					c->effect = dynamic_cast<Effect*>(mResourceManager.load(L"Material/simple.fx.xml").get());
+					c->effect = dynamic_cast<Effect*>(mResourceManager.load("Material/simple.fx.xml").get());
 					e->addComponent(c);
 #endif
 

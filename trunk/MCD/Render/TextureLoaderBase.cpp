@@ -64,7 +64,7 @@ void TextureLoaderBase::commit(Resource& resource)
 	texture.type = textureType();	// Currently only support the loading of 2D texture
 
 	if(!isPowerOf2(mImpl->mWidth) || !isPowerOf2(mImpl->mHeight))
-		Log::format(Log::Warn, L"Texture:'%s' has non-power of 2 size, which may hurt performance",
+		Log::format(Log::Warn, "Texture:'%s' has non-power of 2 size, which may hurt performance",
 			resource.fileId().getString().c_str());
 
 	GLuint* handle = reinterpret_cast<GLuint*>(&texture.handle);
@@ -94,7 +94,7 @@ IResourceLoader::LoadingState TextureLoaderBase::getLoadingState() const
 	return loadingState;
 }
 
-void TextureLoaderBase::onPartialLoaded(IPartialLoadContext& context, uint priority, const wchar_t* args)
+void TextureLoaderBase::onPartialLoaded(IPartialLoadContext& context, uint priority, const char* args)
 {
 	context.continueLoad(priority+1, args);
 }

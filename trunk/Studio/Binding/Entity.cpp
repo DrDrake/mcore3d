@@ -211,12 +211,12 @@ void Entity::enabled::set(bool value)
 String^ Entity::name::get()
 {
 	if(!ptr()) return nullptr;
-	return gcnew String(mImpl->name.c_str());
+	return Utility::fromUtf8(mImpl->name);
 }
 
 void Entity::name::set(String^ value)
 {
-	mImpl->name = Utility::toWString(value);
+	mImpl->name = Utility::toUtf8String(value);
 }
 
 Entity^ Entity::parent::get()
@@ -267,7 +267,7 @@ Entity^ Entity::findEntityByPath(String^ path)
 	MCD::Entity* e = ptr();
 	if(!e) return nullptr;
 
-	return getEntityFromRawPtr(e->findEntityByPath(Utility::toWString(path).c_str()));
+	return getEntityFromRawPtr(e->findEntityByPath(Utility::toUtf8String(path).c_str()));
 }
 
 array<float>^ Entity::translation::get()

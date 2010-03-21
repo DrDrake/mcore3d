@@ -149,8 +149,8 @@ public:
 		(void)meshBuilder->resizeBuffers(0, indexCount);
 	}
 
-	std::wstring name;
-	std::wstring materialName;
+	std::string name;
+	std::string materialName;
 	ResourcePtr material;
 	MeshBuilderPtr meshBuilder;
 };	// Geometry
@@ -190,7 +190,7 @@ public:
 		return mVersionHeaderLoaded = myReadString(is, buf, sizeof(buf));
 	}
 
-	IResourceLoader::LoadingState load(std::istream* is, const Path* fileId, const wchar_t* args);
+	IResourceLoader::LoadingState load(std::istream* is, const Path* fileId, const char* args);
 
 	void commit(Resource& resource);
 
@@ -211,7 +211,7 @@ private:
 	const Path* mFileId;
 };	// Impl
 
-IResourceLoader::LoadingState OgreMeshLoader::Impl::load(std::istream* is, const Path* fileId, const wchar_t* args)
+IResourceLoader::LoadingState OgreMeshLoader::Impl::load(std::istream* is, const Path* fileId, const char* args)
 {
 	// Simplying the error check
 	#define ABORT_IF(expression) if(expression) { MCD_ASSERT(false); return mLoadingState = Aborted; }
@@ -261,10 +261,10 @@ IResourceLoader::LoadingState OgreMeshLoader::Impl::load(std::istream* is, const
 		ABORT_IF(!read(*is, indexes32Bit));
 
 		Geometry* geo = new Geometry(indexCount);
-		geo->materialName = strToWStr(materialName);
+		geo->materialName = materialName;
 
 		{	// Load material, assume the material is at the same path as the .mesh file itself.
-			Path adjustedPath = mFileId ? mFileId->getBranchPath() / geo->materialName : geo->materialName;
+			Path adjustedPath = mFileId ? mFileId->getBranchPath() / materialName : materialName;
 			geo->material = mResourceManager->load(adjustedPath);
 		}
 
@@ -341,7 +341,7 @@ IResourceLoader::LoadingState OgreMeshLoader::Impl::load(std::istream* is, const
 		ABORT_IF(!myReadString(*is, subMeshName, sizeof(subMeshName)));
 
 		if(idx < mGeometry.size())
-			mGeometry[idx].name = strToWStr(subMeshName);
+			mGeometry[idx].name = subMeshName;
 	}	break;
 
 	// Skip uninterested chunks
@@ -388,11 +388,11 @@ void OgreMeshLoader::Impl::commit(Resource& resource)
 		MeshPtr mesh = new Mesh(geo.name);
 
 		if(!commitMesh(*geo.meshBuilder, *mesh, Mesh::Static))
-			Log::write(Log::Warn, L"Failed to commit mesh");
+			Log::write(Log::Warn, "Failed to commit mesh");
 
 		std::auto_ptr<Model::MeshAndMaterial> meshMat(new Model::MeshAndMaterial);
 		meshMat->mesh = mesh;
-		meshMat->effect = new Effect(L"");
+		meshMat->effect = new Effect("");
 		meshMat->name = geo.name;
 		meshMat->meshBuilder = geo.meshBuilder;	// TODO: Parse args to decide conserve mesh builder or not.
 
@@ -422,7 +422,7 @@ OgreMeshLoader::~OgreMeshLoader()
 	delete &mImpl;
 }
 
-IResourceLoader::LoadingState OgreMeshLoader::load(std::istream* is, const Path* fileId, const wchar_t* args)
+IResourceLoader::LoadingState OgreMeshLoader::load(std::istream* is, const Path* fileId, const char* args)
 {
 	MemoryProfiler::Scope scope("OgreMeshLoader::load");
 	return mImpl.load(is, fileId, args);

@@ -34,7 +34,7 @@ public:
 
 		Fail if \em basePose didn't has a resource name, or the clone operation fail.
 	 */
-	sal_checkreturn bool init(IResourceManager& resourceManager, const Model& basePose, sal_in_z const wchar_t* namePrefix=L"skinning");
+	sal_checkreturn bool init(IResourceManager& resourceManager, const Model& basePose, sal_in_z const char* namePrefix="skinning");
 
 	sal_override void render();
 

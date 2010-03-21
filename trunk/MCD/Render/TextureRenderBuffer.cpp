@@ -35,9 +35,9 @@ bool TextureRenderBuffer::linkTo(RenderTarget& renderTarget)
 	return true;
 }
 
-bool TextureRenderBuffer::createTexture(size_t width, size_t height, int type, int format, const wchar_t* name)
+bool TextureRenderBuffer::createTexture(size_t width, size_t height, int type, int format, const char* name)
 {
-	if((texture = new Texture(name ? name : L"TextureRenderBuffer:")) == nullptr)
+	if((texture = new Texture(name ? name : "TextureRenderBuffer:")) == nullptr)
 		return false;
 
 	if(type != GL_TEXTURE_2D && type != GL_TEXTURE_RECTANGLE_ARB)
@@ -67,9 +67,9 @@ bool TextureRenderBuffer::createTexture(size_t width, size_t height, int type, i
 	return true;
 }
 
-bool TextureRenderBuffer::create(size_t width, size_t height, int type, int format, int dataType, int components, const wchar_t* name)
+bool TextureRenderBuffer::create(size_t width, size_t height, int type, int format, int dataType, int components, const char* name)
 {
-	if((texture = new Texture(name ? name : L"TextureRenderBuffer:")) == nullptr)
+	if((texture = new Texture(name ? name : "TextureRenderBuffer:")) == nullptr)
 		return false;
 
 	if(type != GL_TEXTURE_2D && type != GL_TEXTURE_RECTANGLE_ARB)

@@ -62,16 +62,10 @@ public:
 	}
 	void Error(const SQChar *s, ...)
 	{
-		// NOTE: Modified by Ricky Lung so that it compiles on GCC
-		const int tempMessageSize = 256;
-		static SQChar temp[tempMessageSize];    // TOD: This is not thread safe
+		static SQChar temp[256];
 		va_list vl;
 		va_start(vl, s);
-#ifdef _MSC_VER
-		scvsprintf(temp, tempMessageSize, s, vl);
-#else
 		scvsprintf(temp, s, vl);
-#endif
 		va_end(vl);
 		compilererror = temp;
 		longjmp(_errorjmp,1);

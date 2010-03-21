@@ -17,11 +17,11 @@ class TestWindow : public BasicGlWindow
 public:
 	TestWindow()
 		:
-		BasicGlWindow(L"title=InputComponentTest;width=800;height=600;fullscreen=0;FSAA=4")
+		BasicGlWindow("title=InputComponentTest;width=800;height=600;fullscreen=0;FSAA=4")
 	{
 		{	// Setup the input entity
 			std::auto_ptr<Entity> e(new Entity);
-			e->name = L"Input entity";
+			e->name = "Input entity";
 			e->asChildOf(&mRootNode);
 
 			WinMessageInputComponent* c = new WinMessageInputComponent();

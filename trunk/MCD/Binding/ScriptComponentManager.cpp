@@ -17,21 +17,21 @@ static int scriptComponentManagerDoFile(HSQUIRRELVM v)
 	// TODO: Parameter type checking
 	script::detail::StackHandler sa(v);
 	ScriptComponentManager& self = get(types::TypeSelect<ScriptComponentManager&>(), v, 1);
-	const wchar_t* filePath = sa.getString(2);
+	const char* filePath = sa.getString(2);
 	return self.doFile(filePath, true, v) ? 1 : 0;
 }
 
 SCRIPT_CLASS_REGISTER_NAME(ScriptComponentManager, "ScriptComponentManager")
 	.enableGetset()
 	.rawMethod(xSTRING("doFile"), &scriptComponentManagerDoFile)
-	.getter(L"_getframeTimer", &ScriptComponentManager::frameTimer)
+	.getter("_getframeTimer", &ScriptComponentManager::frameTimer)
 ;}
 
 SCRIPT_CLASS_REGISTER_NAME(ScriptComponentManager::FrameTimer, "FrameTimer")
 	.enableGetset()
-	.method(L"_getframeTime", &ScriptComponentManager::FrameTimer::frameTime)
-	.method(L"_getaccumulateTime", &ScriptComponentManager::FrameTimer::accumulateTime)
-	.method(L"_getfps", &ScriptComponentManager::FrameTimer::fps)
+	.method("_getframeTime", &ScriptComponentManager::FrameTimer::frameTime)
+	.method("_getaccumulateTime", &ScriptComponentManager::FrameTimer::accumulateTime)
+	.method("_getfps", &ScriptComponentManager::FrameTimer::fps)
 ;}
 
 }	// namespace script
@@ -174,7 +174,7 @@ bool ScriptComponentManager::init(ScriptVM& vm, IFileSystem& fs)
 			::gComponentQueue = ComponentQueue();\n\
 			::collectgarbage();\n\
 		}\n\
-	"), L"ScriptComponentManager.nut"))
+	"), "ScriptComponentManager.nut"))
 		return false;
 
 	return true;
@@ -286,13 +286,13 @@ bool ScriptComponentManager::doFile(const Path& filePath, bool retval, void* vm_
 }
 
 // TODO: May be generalized both runScripAsEntity() and runScripAsComponent() into a template function of ScriptVM.
-Entity* ScriptComponentManager::runScripAsEntity(const wchar_t* scriptCode, bool scriptKeepOwnership)
+Entity* ScriptComponentManager::runScripAsEntity(const char* scriptCode, bool scriptKeepOwnership)
 {
 	using namespace script::types;
 	MCD_ASSUME(vm);
 	HSQUIRRELVM v = (HSQUIRRELVM)vm->getImplementationHandle();
 
-	if(!vm->runScript(scriptCode, L"unnamed script", true))
+	if(!vm->runScript(scriptCode, "unnamed script", true))
 		return nullptr;
 
 	Entity* ret = script::types::get(TypeSelect<Entity*>(), v, -1);
@@ -301,13 +301,13 @@ Entity* ScriptComponentManager::runScripAsEntity(const wchar_t* scriptCode, bool
 	return ret;
 }
 
-Component* ScriptComponentManager::runScripAsComponent(const wchar_t* scriptCode, bool scriptKeepOwnership)
+Component* ScriptComponentManager::runScripAsComponent(const char* scriptCode, bool scriptKeepOwnership)
 {
 	using namespace script::types;
 	MCD_ASSUME(vm);
 	HSQUIRRELVM v = (HSQUIRRELVM)vm->getImplementationHandle();
 
-	if(!vm->runScript(scriptCode, L"unnamed script", true))
+	if(!vm->runScript(scriptCode, "unnamed script", true))
 		return nullptr;
 
 	Component* ret = script::types::get(TypeSelect<Component*>(), v, -1);

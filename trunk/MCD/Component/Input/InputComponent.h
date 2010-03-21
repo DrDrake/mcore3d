@@ -20,13 +20,13 @@ public:
 
 		\note Always return 0 if the axisName is not found.
 	 */
-	virtual float getAxis(sal_in_z const wchar_t* axisName) const = 0;
+	virtual float getAxis(sal_in_z const char* axisName) const = 0;
 
-	virtual float getAxisRaw(sal_in_z const wchar_t* axisName) const = 0;
+	virtual float getAxisRaw(sal_in_z const char* axisName) const = 0;
 
-	virtual float getAxisDelta(sal_in_z const wchar_t* axisName) const = 0;
+	virtual float getAxisDelta(sal_in_z const char* axisName) const = 0;
 
-	virtual float getAxisDeltaRaw(sal_in_z const wchar_t* axisName) const = 0;
+	virtual float getAxisDeltaRaw(sal_in_z const char* axisName) const = 0;
 
 	//! Is any key or mouse button currently held down?
 	virtual bool anyKey() const = 0;
@@ -35,13 +35,13 @@ public:
 	virtual bool anyKeyDown() const = 0;
 
 	//!	Returns true while the virtual button identified by buttonName is held down.
-	virtual bool getButton(sal_in_z const wchar_t* buttonName) const = 0;
+	virtual bool getButton(sal_in_z const char* buttonName) const = 0;
 
 	//!	Returns true during the frame the user pressed down the virtual button identified by buttonName.
-	virtual bool getButtonDown(sal_in_z const wchar_t* buttonName) const = 0;
+	virtual bool getButtonDown(sal_in_z const char* buttonName) const = 0;
 
 	//!	Returns true the first frame the user releases the virtual button identified by buttonName.
-	virtual bool getButtonUp(sal_in_z const wchar_t* buttonName) const = 0;
+	virtual bool getButtonUp(sal_in_z const char* buttonName) const = 0;
 
 	//! The current mouse position in pixel coordinates.
 	virtual Vec2i getMousePosition() const = 0;
@@ -56,7 +56,7 @@ public:
 	virtual bool getMouseButtonUp(int button) const = 0;
 
 	//! Returns the keyboard input entered this frame.
-	virtual sal_out_z const wchar_t* inputString() const = 0;
+	virtual sal_out_z const char* inputString() const = 0;
 
 protected:
 	InputComponent() {}

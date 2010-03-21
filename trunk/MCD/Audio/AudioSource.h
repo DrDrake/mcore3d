@@ -44,7 +44,7 @@ public:
 	 */
 	sal_checkreturn bool load(
 		IResourceManager& resourceManager, const Path& fileId,
-		sal_in_z_opt const wchar_t* args=nullptr
+		sal_in_z_opt const char* args=nullptr
 	);
 
 	/*!	Start to play the audio, if some of the background loading buffer becomes available.
@@ -114,7 +114,7 @@ public:
 // Load attributes
 	const Path& fileId() const;
 
-	const std::wstring& loadOptions() const;
+	const std::string& loadOptions() const;
 
 	sal_maybenull IResourceManager* resourceManager() const;
 
@@ -127,7 +127,7 @@ private:
 	uint64_t mRoughPcmOffsetSinceLastSeek;
 
 	Path mFileId;
-	std::wstring mLoadOptions;
+	std::string mLoadOptions;
 	IResourceManager* mResourceManager;
 };	// AudioSource
 

@@ -9,7 +9,7 @@ namespace MCD {
 /*!	To monitor file changes under a particular folder.
 	Example:
 	\code
-	RawFileSystemMonitor monitor(L"pathToMonitor", true);
+	RawFileSystemMonitor monitor("pathToMonitor", true);
 	// In your main loop:
 	while(true) {
 		std::wstring path;
@@ -22,7 +22,7 @@ namespace MCD {
 class MCD_CORE_API RawFileSystemMonitor : Noncopyable
 {
 public:
-	RawFileSystemMonitor(const wchar_t* path, bool recursive);
+	RawFileSystemMonitor(const char* path, bool recursive);
 
 	~RawFileSystemMonitor();
 
@@ -34,10 +34,10 @@ public:
 			The current implementation use a fixed buffer to capture all the
 			file changes between calls of getChangedFile().
 	 */
-	std::wstring getChangedFile() const;
+	std::string getChangedFile() const;
 
 	//!	Returns the path that pass to RawFileSystemMonitor's constructor
-	std::wstring& monitringPath() const;
+	std::string& monitringPath() const;
 
 private:
 	class Impl;

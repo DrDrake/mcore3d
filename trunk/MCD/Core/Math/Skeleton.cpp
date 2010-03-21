@@ -28,10 +28,10 @@ void Skeleton::initBasePoseInverse()
 	for(size_t i=0; i<basePoseInverse.size(); ++i)
 		ok = ok && basePose.transforms[i].inverse(basePoseInverse[i]);
 	if(!ok)
-		Log::write(Log::Warn, L"Skeleton::initBasePoseInverse() failed");
+		Log::write(Log::Warn, "Skeleton::initBasePoseInverse() failed");
 }
 
-int Skeleton::findJointByName(const wchar_t* name) const
+int Skeleton::findJointByName(const char* name) const
 {
 	for(size_t i=0; i<names.size(); ++i)
 		if(names[i] == name )

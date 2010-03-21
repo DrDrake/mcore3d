@@ -100,17 +100,17 @@ static void fooAddBar(Foo& self, GiveUpOwnership<Bar*> e) {
 
 SCRIPT_CLASS_REGISTER_NAME(Foo, "Foo")
 	.constructor()
-	.method(L"destroy", &Foo::destroy)
-	.method(L"printMe", &Foo::printMe)
-	.wrappedMethod(L"addBar", &fooAddBar)
-	.method<objNoCare>(L"getBar", &Foo::getBar)
-	.method(L"detachBar", &Foo::detachBar)
-	.method(L"acceptNullBar", &Foo::acceptNullBar)
+	.method("destroy", &Foo::destroy)
+	.method("printMe", &Foo::printMe)
+	.wrappedMethod("addBar", &fooAddBar)
+	.method<objNoCare>("getBar", &Foo::getBar)
+	.method("detachBar", &Foo::detachBar)
+	.method("acceptNullBar", &Foo::acceptNullBar)
 ;}
 
 SCRIPT_CLASS_REGISTER_NAME(Bar, "Bar")
 	.constructor()
-	.method(L"printMe", &Bar::printMe)
+	.method("printMe", &Bar::printMe)
 ;}
 
 }	// namespace script

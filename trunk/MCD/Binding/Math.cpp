@@ -31,7 +31,7 @@ static int mat44Create(HSQUIRRELVM vm)
 			);
 		break;
 	default:
-		return sa.throwError(L"Mat44.constructor() wrong parameters");
+		return sa.throwError("Mat44.constructor() wrong parameters");
 	}
 
 	// Pops the input params
@@ -47,9 +47,9 @@ static Mat44f mulMat44(const Mat44f& lhs, const Mat44f& rhs) { return lhs * rhs;
 static Mat44f scalarMulMat44(const Mat44f& lhs, float rhs) { return lhs * rhs; }
 static bool isEqualMat44(const Mat44f& lhs, const Mat44f& rhs) { return lhs == rhs; }
 static bool mat44IsIdentity(const Mat44f& m) { return m == Mat44f::cIdentity; }
-static void mat44FromHex(Mat44f& m, const wchar_t* s) {
-	MCD_ASSERT(::wcslen(s) == sizeof(float) * 2 * (4*4));
-	MCD_VERIFY(::swscanf(s, L"%8X%8X%8X%8X%8X%8X%8X%8X%8X%8X%8X%8X%8X%8X%8X%8X",
+static void mat44FromHex(Mat44f& m, const char* s) {
+	MCD_ASSERT(::strlen(s) == sizeof(float) * 2 * (4*4));
+	MCD_VERIFY(::sscanf(s, "%8X%8X%8X%8X%8X%8X%8X%8X%8X%8X%8X%8X%8X%8X%8X%8X",
 		(int*)&m.m00, (int*)&m.m01, (int*)&m.m02, (int*)&m.m03,
 		(int*)&m.m10, (int*)&m.m11, (int*)&m.m12, (int*)&m.m13,
 		(int*)&m.m20, (int*)&m.m21, (int*)&m.m22, (int*)&m.m23,
@@ -110,7 +110,7 @@ static int vec2Create(HSQUIRRELVM vm)
 		v = new Vec2f(sa.getFloat(2), sa.getFloat(3));	// Element-wise construct
 		break;
 	default:
-		return sa.throwError(L"Vec2.constructor() wrong parameters");
+		return sa.throwError("Vec2.constructor() wrong parameters");
 	}
 
 	// Pops the input params
@@ -122,9 +122,9 @@ static Vec2f addVec2(const Vec2f& lhs, const Vec2f& rhs) { return lhs + rhs; }
 static Vec2f subVec2(const Vec2f& lhs, const Vec2f& rhs) { return lhs - rhs; }
 static bool isEqualVec2(const Vec2f& lhs, const Vec2f& rhs) { return lhs == rhs; }
 static void vec2MulEqual(Vec2f& lhs, float rhs) { lhs *= rhs; }
-static void vec2FromHex(Vec2f& v, const wchar_t* s) {
-	MCD_ASSERT(::wcslen(s) == sizeof(float) * 2 * 2);
-	MCD_VERIFY(::swscanf(s, L"%X%X", (int*)&v.x, (int*)&v.y) == 2);
+static void vec2FromHex(Vec2f& v, const char* s) {
+	MCD_ASSERT(::strlen(s) == sizeof(float) * 2 * 2);
+	MCD_VERIFY(::sscanf(s, "%X%X", (int*)&v.x, (int*)&v.y) == 2);
 }
 
 SCRIPT_CLASS_REGISTER_NAME(Vec2f, "Vec2")
@@ -161,7 +161,7 @@ static int vec3Create(HSQUIRRELVM vm)
 		v = new Vec3f(sa.getFloat(2), sa.getFloat(3), sa.getFloat(4));	// Element-wise construct
 		break;
 	default:
-		return sa.throwError(L"Vec3.constructor() wrong parameters");
+		return sa.throwError("Vec3.constructor() wrong parameters");
 	}
 
 	// Pops the input params
@@ -182,9 +182,9 @@ static int cmpVec3(const Vec3f& lhs, const Vec3f& rhs) {
 }
 static void vec3AddEqual(Vec3f& lhs, const Vec3f& rhs) { lhs += rhs; }
 static void vec3MulEqual(Vec3f& lhs, float rhs) { lhs *= rhs; }
-static void vec3FromHex(Vec3f& v, const wchar_t* s) {
-	MCD_ASSERT(::wcslen(s) == sizeof(float) * 2 * 3);
-	MCD_VERIFY(::swscanf(s, L"%X%X%X", (int*)&v.x, (int*)&v.y, (int*)&v.z) == 3);
+static void vec3FromHex(Vec3f& v, const char* s) {
+	MCD_ASSERT(::strlen(s) == sizeof(float) * 2 * 3);
+	MCD_VERIFY(::sscanf(s, "%X%X%X", (int*)&v.x, (int*)&v.y, (int*)&v.z) == 3);
 }
 
 SCRIPT_CLASS_REGISTER_NAME(Vec3f, "Vec3")

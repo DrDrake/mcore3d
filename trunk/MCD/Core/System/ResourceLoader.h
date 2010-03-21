@@ -16,7 +16,7 @@ class Resource;
 	By design, the ownership of IPartialLoadContext should give away once continueLoad()
 	is invoked. Following is an example usage:
 	\code
-	void MyLoader::onPartialLoaded(IPartialLoadContext& context, uint priority, const wchar_t* args) {
+	void MyLoader::onPartialLoaded(IPartialLoadContext& context, uint priority, const char* args) {
 		// Backup the context for later use.
 		mContext.reset(&context);
 	}
@@ -34,7 +34,7 @@ class MCD_ABSTRACT_CLASS IPartialLoadContext
 public:
 	virtual ~IPartialLoadContext() {}
 
-	virtual void continueLoad(uint priority, sal_in_z_opt const wchar_t* args) = 0;
+	virtual void continueLoad(uint priority, sal_in_z_opt const char* args) = 0;
 };	// IPartialLoadContext
 
 /*!	Resource loader.
@@ -77,7 +77,7 @@ public:
 		\endcode
 	 */
 	virtual sal_checkreturn LoadingState load(
-		sal_maybenull std::istream* is, sal_maybenull const Path* fileId=nullptr, sal_in_z_opt const wchar_t* args=nullptr) = 0;
+		sal_maybenull std::istream* is, sal_maybenull const Path* fileId=nullptr, sal_in_z_opt const char* args=nullptr) = 0;
 
 	//! Commit the data buffer in the loader to the resource.
 	virtual void commit(Resource& resource) = 0;
@@ -95,7 +95,7 @@ public:
 		\note The default implementation of this function will continue the load immediatly:
 			context.continueLoad(priority, args);
 	 */
-	virtual void onPartialLoaded(IPartialLoadContext& context, uint priority, sal_in_z_opt const wchar_t* args);
+	virtual void onPartialLoaded(IPartialLoadContext& context, uint priority, sal_in_z_opt const char* args);
 };	// IResourceLoader
 
 }	// namespace MCD

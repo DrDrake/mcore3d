@@ -19,7 +19,7 @@ public:
 	{
 	}
 
-	IResourceLoader::LoadingState load(std::istream* is, const Path* fileId, const wchar_t* args);
+	IResourceLoader::LoadingState load(std::istream* is, const Path* fileId, const char* args);
 
 	void commit(Resource& resource);
 
@@ -34,26 +34,26 @@ private:
 	ResourcePtr mConcreteResource;
 };	// Impl
 
-IResourceLoader::LoadingState EntityPrototypeLoader::Impl::load(std::istream* is, const Path* fileId, const wchar_t* args)
+IResourceLoader::LoadingState EntityPrototypeLoader::Impl::load(std::istream* is, const Path* fileId, const char* args)
 {
 	if(!mConcreteLoader)
 	{
-		std::wstring newArgs;
+		std::string newArgs;
 
 		if(nullptr != args)
 		{
 			NvpParser parser(args);
-			const wchar_t* name, *value;
+			const char* name, *value;
 			while(parser.next(name, value))
 			{
 				// skip the loadAsEntity arg
-				if(wstrCaseCmp(name, L"loadAsEntity") == 0)
+				if(strCaseCmp(name, "loadAsEntity") == 0)
 					continue;
 
 				newArgs += name;
-				newArgs += L"=";
+				newArgs += "=";
 				newArgs += value;
-				newArgs += L"; ";
+				newArgs += "; ";
 			}
 		}
 
@@ -87,7 +87,7 @@ void EntityPrototypeLoader::Impl::commit(Resource& resource)
 	Prefab& ep = dynamic_cast<Prefab&>(resource);
 
 	Entity* entRoot = new Entity;
-	entRoot->name = L"tmp root";
+	entRoot->name = "tmp root";
 
 	for(Model::MeshAndMaterial* meshAndMat = model->mMeshes.begin()
 		; meshAndMat != model->mMeshes.end()
@@ -131,7 +131,7 @@ EntityPrototypeLoader::~EntityPrototypeLoader()
 	delete &mImpl;
 }
 
-IResourceLoader::LoadingState EntityPrototypeLoader::load(std::istream* is, const Path* fileId, const wchar_t* args)
+IResourceLoader::LoadingState EntityPrototypeLoader::load(std::istream* is, const Path* fileId, const char* args)
 {
 	MemoryProfiler::Scope scope("EntityPrototypeLoader::load");
 	return mImpl.load(is, fileId, args);
@@ -171,10 +171,10 @@ void EntityPrototypeLoader::LoadCallback::doCallback()
 
 PrefabPtr EntityPrototypeLoader::addEntityAfterLoad(
 	const EntityPtr& addToHere, IResourceManager& manager,
-	const wchar_t* filePath,
+	const char* filePath,
 	LoadCallback* loadCallback,
 	uint priority,
-	const wchar_t* args)
+	const char* args)
 {
 	LoadCallback* callback = loadCallback;
 	if(!callback)
@@ -184,7 +184,7 @@ PrefabPtr EntityPrototypeLoader::addEntityAfterLoad(
 	callback->entityPrototype = dynamic_cast<Prefab*>(manager.load(filePath, IResourceManager::NonBlock, priority, args).get());
 
 	if(!callback->entityPrototype)
-		Log::format(Log::Warn, L"Fail to load \"%s\" as an Prefab", filePath);
+		Log::format(Log::Warn, "Fail to load \"%s\" as an Prefab", filePath);
 
 	callback->setMajorDependency(filePath);
 	manager.addCallback(callback);
@@ -196,17 +196,17 @@ EntityPrototypeLoaderFactory::EntityPrototypeLoaderFactory(IResourceManager& res
 {
 }
 
-ResourcePtr EntityPrototypeLoaderFactory::createResource(const Path& fileId, const wchar_t* args)
+ResourcePtr EntityPrototypeLoaderFactory::createResource(const Path& fileId, const char* args)
 {
 	if(!args)
 		return nullptr;
 
 	// Detect the string option
 	NvpParser parser(args);
-	const wchar_t* name, *value;
+	const char* name, *value;
 	while(parser.next(name, value))
 	{
-		if(wstrCaseCmp(name, L"loadAsEntity") == 0 && wstrCaseCmp(value, L"true") == 0)
+		if(strCaseCmp(name, "loadAsEntity") == 0 && strCaseCmp(value, "true") == 0)
 			return new Prefab(fileId);
 	}
 

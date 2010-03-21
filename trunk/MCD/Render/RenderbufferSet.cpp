@@ -23,7 +23,7 @@ RenderBufferSet::RenderBufferSet(
 		bufferPtr->create(width, height, GL_DEPTH_COMPONENT24, GL_DEPTH_ATTACHMENT_EXT);
 
 		if(!bufferPtr->linkTo(mRenderTarget))
-			Log::format(Log::Error, L"RenderBufferSet::RenderBufferSet() failed to link render target");
+			Log::format(Log::Error, "RenderBufferSet::RenderBufferSet() failed to link render target");
 
 		mDepthBufferInfo.format = GL_DEPTH_COMPONENT24;
 		mDepthBufferInfo.isTexture = false;
@@ -51,10 +51,10 @@ RenderBufferSet::RenderBufferSet(
 
 		// Depth texture must use GL_TEXTURE_RECTANGLE_ARB
 		if(!bufferPtr->create(width, height, GL_TEXTURE_RECTANGLE_ARB, format, dataType, components))
-			Log::format(Log::Error, L"RenderBufferSet: failed to create depth texture:%x", format);
+			Log::format(Log::Error, "RenderBufferSet: failed to create depth texture:%x", format);
 
 		if(!bufferPtr->linkTo(mRenderTarget))
-			Log::format(Log::Error, L"RenderBufferSet::RenderBufferSet() failed to link render target");
+			Log::format(Log::Error, "RenderBufferSet::RenderBufferSet() failed to link render target");
 
 		mDepthBufferInfo.format = format;
 		mDepthBufferInfo.isTexture = true;
@@ -66,7 +66,7 @@ RenderBufferSet::~RenderBufferSet()
 {
 }
 
-bool RenderBufferSet::textureBuffer(int format, const wchar_t* texname)
+bool RenderBufferSet::textureBuffer(int format, const char* texname)
 {
 	int dataType, components;
 
@@ -78,7 +78,7 @@ bool RenderBufferSet::textureBuffer(int format, const wchar_t* texname)
 	//todo: also specific dataType, components
 	if(!bufferPtr->create(mRenderTarget.width(), mRenderTarget.height(), mTexTarget, format, dataType, components, texname))
 	{
-		Log::format(Log::Error, L"RenderBufferSet: failed to create texture buffer:%s %x", texname, format);
+		Log::format(Log::Error, "RenderBufferSet: failed to create texture buffer:%s %x", texname, format);
 		return false;
 	}
 
@@ -115,39 +115,39 @@ bool RenderBufferSet::checkDeviceStatus(bool reportSuccess)
 	{
 	case GL_FRAMEBUFFER_COMPLETE_EXT:
 		if(reportSuccess)
-			Log::write(Log::Info, L"Framebuffer complete.");
+			Log::write(Log::Info, "Framebuffer complete.");
 		return true;
 
 	case GL_FRAMEBUFFER_INCOMPLETE_ATTACHMENT_EXT:
-		Log::write(Log::Error, L"[ERROR] Framebuffer incomplete: Attachment is NOT complete.");
+		Log::write(Log::Error, "[ERROR] Framebuffer incomplete: Attachment is NOT complete.");
 		return false;
 
 	case GL_FRAMEBUFFER_INCOMPLETE_MISSING_ATTACHMENT_EXT:
-		Log::write(Log::Error, L"[ERROR] Framebuffer incomplete: No image is attached to FBO.");
+		Log::write(Log::Error, "[ERROR] Framebuffer incomplete: No image is attached to FBO.");
 		return false;
 
 	case GL_FRAMEBUFFER_INCOMPLETE_DIMENSIONS_EXT:
-		Log::write(Log::Error, L"[ERROR] Framebuffer incomplete: Attached images have different dimensions.");
+		Log::write(Log::Error, "[ERROR] Framebuffer incomplete: Attached images have different dimensions.");
 		return false;
 
 	case GL_FRAMEBUFFER_INCOMPLETE_FORMATS_EXT:
-		Log::write(Log::Error, L"[ERROR] Framebuffer incomplete: Color attached images have different internal formats.");
+		Log::write(Log::Error, "[ERROR] Framebuffer incomplete: Color attached images have different internal formats.");
 		return false;
 
 	case GL_FRAMEBUFFER_INCOMPLETE_DRAW_BUFFER_EXT:
-		Log::write(Log::Error, L"[ERROR] Framebuffer incomplete: Draw buffer.");
+		Log::write(Log::Error, "[ERROR] Framebuffer incomplete: Draw buffer.");
 		return false;
 
 	case GL_FRAMEBUFFER_INCOMPLETE_READ_BUFFER_EXT:
-		Log::write(Log::Error, L"[ERROR] Framebuffer incomplete: Read buffer.");
+		Log::write(Log::Error, "[ERROR] Framebuffer incomplete: Read buffer.");
 		return false;
 
 	case GL_FRAMEBUFFER_UNSUPPORTED_EXT:
-		Log::write(Log::Error, L"[ERROR] Unsupported by FBO implementation.");
+		Log::write(Log::Error, "[ERROR] Unsupported by FBO implementation.");
 		return false;
 
 	default:
-		Log::write(Log::Error, L"[ERROR] Unknow error.");
+		Log::write(Log::Error, "[ERROR] Unknow error.");
 		return false;
 	}
 }

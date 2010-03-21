@@ -34,7 +34,7 @@ protected:
 class BasicGlWindow : public MCD::GlWindow
 {
 public:
-	BasicGlWindow(const wchar_t* options = L"width=800;height=600;FSAA=4");
+	BasicGlWindow(const char* options = "width=800;height=600;FSAA=4");
 
 	sal_override ~BasicGlWindow();
 

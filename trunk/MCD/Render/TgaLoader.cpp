@@ -27,7 +27,7 @@ public:
 
 		// Should be image type 2 (color) or type 10 (rle compressed color)
 		if(header[2] != 2 && header[2] != 10) {
-			Log::format(Log::Error, L"TgaLoader: Invalid tga header, operation aborted");
+			Log::format(Log::Error, "TgaLoader: Invalid tga header, operation aborted");
 			return -1;
 		}
 
@@ -45,7 +45,7 @@ public:
 		else if(bytePerPixel == 4)
 			mInternalFmt = GL_RGBA;
 		else {
-			Log::format(Log::Error, L"TgaLoader: Invalid bit-per pixel, operation aborted");
+			Log::format(Log::Error, "TgaLoader: Invalid bit-per pixel, operation aborted");
 			return -1;
 		}
 
@@ -61,7 +61,7 @@ public:
 		mImageData = new byte_t[imageByte];
 
 		if(!mImageData) {
-			Log::format(Log::Error, L"TgaLoader: Corruption of file or not enough memory, operation aborted");
+			Log::format(Log::Error, "TgaLoader: Corruption of file or not enough memory, operation aborted");
 			return -1;
 		}
 
@@ -139,7 +139,7 @@ TgaLoader::TgaLoader()
 	setImpl(new LoaderImpl(*this));
 }
 
-IResourceLoader::LoadingState TgaLoader::load(std::istream* is, const Path*, const wchar_t*)
+IResourceLoader::LoadingState TgaLoader::load(std::istream* is, const Path*, const char*)
 {
 	MCD_ASSUME(mImpl != nullptr);
 	ScopeLock lock(mImpl->mMutex);

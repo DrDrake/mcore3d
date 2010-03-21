@@ -23,7 +23,7 @@ public:
 		Binding::RawFileMonitors& monitors = fsCollection->monitors();
 		for(size_t i=0; i<monitors.size(); ++i)
 		{	// Reload any changed files in the RawFileSystem
-			std::wstring path;
+			std::string path;
 			while(!(path = monitors[i].getChangedFile()).empty())
 				mgr.reload(Path(path).normalize(), IResourceManager::NonBlock);
 		}

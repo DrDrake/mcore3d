@@ -64,7 +64,7 @@ public:
 };	// MyOStream
 
 template<>
-std::streamsize MyStreamBuf<wchar_t>::xsputn(const char_type* p, std::streamsize count)
+std::streamsize MyStreamBuf<char>::xsputn(const char_type* p, std::streamsize count)
 {
 	_Lock();
 	std::streamsize result = super_type::xsputn(p, count);
@@ -73,7 +73,7 @@ std::streamsize MyStreamBuf<wchar_t>::xsputn(const char_type* p, std::streamsize
 }
 
 template<>
-MyStreamBuf<wchar_t>::int_type MyStreamBuf<wchar_t>::overflow(int_type c)
+MyStreamBuf<char>::int_type MyStreamBuf<char>::overflow(int_type c)
 {
 	_Lock();
 	int_type result = super_type::overflow(c);
@@ -82,7 +82,7 @@ MyStreamBuf<wchar_t>::int_type MyStreamBuf<wchar_t>::overflow(int_type c)
 }
 
 template<>
-int MyStreamBuf<wchar_t>::sync()
+int MyStreamBuf<char>::sync()
 {
 	_Lock();
 
@@ -90,7 +90,7 @@ int MyStreamBuf<wchar_t>::sync()
 	if(textBox && !textBox->IsDisposed)
 		textBox->AppendText(gcnew System::String(str().c_str()));
 
-	str(std::basic_string<wchar_t>());	// Clear the string buffer
+	str(std::basic_string<char>());	// Clear the string buffer
 	int result = super_type::sync();
 	_Unlock();
 
@@ -105,7 +105,7 @@ Global::Global(System::Windows::Forms::TextBox^ textBox)
 		throw gcnew System::Exception("Global cannot be constructed more than once");
 	instance = this;
 
-	MyOStream<wchar_t>* os  = new MyOStream<wchar_t>();
+	MyOStream<char>* os  = new MyOStream<char>();
 	os->setTextBox(textBox);
 	Log::start(os);
 	Log::setLevel(Log::Level(Log::Error | Log::Warn | Log::Info));

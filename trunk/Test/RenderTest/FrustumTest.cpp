@@ -6,7 +6,7 @@ using namespace MCD;
 
 TEST(FrustumTest)
 {
-	BasicGlWindow window(L"show=0");
+	BasicGlWindow window("show=0");
 
 	{	// Perspective transform
 		Mat44f m1;

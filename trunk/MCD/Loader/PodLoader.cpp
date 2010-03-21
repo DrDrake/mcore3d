@@ -43,7 +43,7 @@ public:
 		mPod.Destroy();
 	}
 
-	IResourceLoader::LoadingState load(std::istream* is, const Path* fileId, const wchar_t* args);
+	IResourceLoader::LoadingState load(std::istream* is, const Path* fileId, const char* args);
 
 	void commit(Resource& resource);
 
@@ -108,7 +108,7 @@ static void assignAttribute(Mesh& mesh, std::vector<void*>& bufferPtrs, const SP
 	mesh.attributeCount++;
 }
 
-IResourceLoader::LoadingState PodLoader::Impl::load(std::istream* is, const Path* fileId, const wchar_t* args)
+IResourceLoader::LoadingState PodLoader::Impl::load(std::istream* is, const Path* fileId, const char* args)
 {
 	mLoadingState = is ? NotLoaded : Aborted;
 
@@ -123,11 +123,7 @@ IResourceLoader::LoadingState PodLoader::Impl::load(std::istream* is, const Path
 	// Load the textures ASAP
 	for(size_t i=0; i<mPod.nNumTexture; ++i)
 	{
-		std::wstring texturePath;
-		if(!strToWStr(mPod.pTexture[i].pszName, texturePath)) {
-			mTextures.push_back(new Texture(L""));
-			continue;
-		}
+		std::string texturePath(mPod.pTexture[i].pszName);
 
 		// We assume the texture is relative to the pod file, if the texture file didn't has a root path.
 		Path adjustedPath = fileId ? fileId->getBranchPath()/texturePath : texturePath;
@@ -187,7 +183,7 @@ IResourceLoader::LoadingState PodLoader::Impl::load(std::istream* is, const Path
 			a.semantic = semanticMap.index().name;
 		}
 		else {
-			Log::write(Log::Warn, L"Empty mesh data in pod");
+			Log::write(Log::Warn, "Empty mesh data in pod");
 			continue;
 		}
 
@@ -200,7 +196,7 @@ IResourceLoader::LoadingState PodLoader::Impl::load(std::istream* is, const Path
 			a.semantic = semanticMap.position().name;
 		}
 		else {
-			Log::write(Log::Warn, L"Empty mesh data in pod");
+			Log::write(Log::Warn, "Empty mesh data in pod");
 			continue;
 		}
 
@@ -250,7 +246,7 @@ IResourceLoader::LoadingState PodLoader::Impl::load(std::istream* is, const Path
 			continue;
 
 		EntityPtr e = new Entity();
-		e->name = strToWStr(podNode.pszName);
+		e->name = podNode.pszName;
 
 		if(podNode.nIdxParent + 1 >= int(nodeToEntity.size()))
 			continue;
@@ -278,7 +274,7 @@ IResourceLoader::LoadingState PodLoader::Impl::load(std::istream* is, const Path
 
 			// Setup for material
 			if(podNode.nIdxMaterial >= 0 && podNode.nIdxMaterial < int(mMaterials.size())) {
-				c->effect = new Effect(L"");
+				c->effect = new Effect("");
 				c->effect->material.reset(mMaterials[podNode.nIdxMaterial].clone());
 			}
 		}
@@ -342,7 +338,7 @@ PodLoader::~PodLoader()
 	delete &mImpl;
 }
 
-IResourceLoader::LoadingState PodLoader::load(std::istream* is, const Path* fileId, const wchar_t* args)
+IResourceLoader::LoadingState PodLoader::load(std::istream* is, const Path* fileId, const char* args)
 {
 	MemoryProfiler::Scope scope("PodLoader::load");
 	return mImpl.load(is, fileId, args);
@@ -364,9 +360,9 @@ PodLoaderFactory::PodLoaderFactory(IResourceManager& resourceManager)
 {
 }
 
-ResourcePtr PodLoaderFactory::createResource(const Path& fileId, const wchar_t* args)
+ResourcePtr PodLoaderFactory::createResource(const Path& fileId, const char* args)
 {
-	if(wstrCaseCmp(fileId.getExtension().c_str(), L"pod") == 0)
+	if(strCaseCmp(fileId.getExtension().c_str(), "pod") == 0)
 		return new Prefab(fileId);
 	return nullptr;
 }

@@ -70,7 +70,7 @@ TEST(Basic_ComponentTest)
 
 	// Test findComponentInChildren
 	std::auto_ptr<Entity> e(new Entity);
-	e->name = L"Component 3";
+	e->name = "Component 3";
 	ComponentPtr c3 = new DummyComponent3;
 	e->addComponent(c3.getNotNull());
 	e->asChildOf(&root);

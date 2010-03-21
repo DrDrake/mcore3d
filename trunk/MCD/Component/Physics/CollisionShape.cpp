@@ -57,7 +57,7 @@ public:
 		if(idxPtr.data && posPtr.data)
 			init(posPtr, idxPtr, keepOwnBuffer, shapeImpl);
 		else {
-			Log::write(Log::Error, L"An empty mesh is passed into StaticTriMeshShape constructor");
+			Log::write(Log::Error, "An empty mesh is passed into StaticTriMeshShape constructor");
 			shapeImpl = nullptr;
 		}
 	}

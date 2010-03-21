@@ -13,18 +13,18 @@
 using namespace MCD;
 
 //! Create the corresponding texture loader from the file extension
-static std::auto_ptr<IResourceLoader> createLoader(const wchar_t* file)
+static std::auto_ptr<IResourceLoader> createLoader(const char* file)
 {
 	Path path(file);
 	Path::string_type ext = path.getExtension();
 
-	if(ext == L"bmp")
+	if(ext == "bmp")
 		return std::auto_ptr<IResourceLoader>(new BitmapLoader);
-	else if(ext == L"jpg")
+	else if(ext == "jpg")
 		return std::auto_ptr<IResourceLoader>(new JpegLoader);
-	else if(ext == L"png")
+	else if(ext == "png")
 		return std::auto_ptr<IResourceLoader>(new PngLoader);
-	else if(ext == L"tga")
+	else if(ext == "tga")
 		return std::auto_ptr<IResourceLoader>(new TgaLoader);
 	else
 		return std::auto_ptr<IResourceLoader>(nullptr);
@@ -32,27 +32,27 @@ static std::auto_ptr<IResourceLoader> createLoader(const wchar_t* file)
 
 struct TestStruct
 {
-	const wchar_t* path;
+	const char* path;
 	size_t expectingWidth;
 	size_t expectingHeight;
 	int format;
 };
 
 TestStruct gTestStruct[] = {
-	{ L"4x4.bmp",					4,   4,   GL_RGB },
-	{ L"4x4.jpg",					4,   4,   GL_RGB },
-	{ L"4x4.png",					4,   4,   GL_RGB },
-	{ L"Gray512x512.jpg",			512, 512, GL_LUMINANCE },
-	{ L"Normal512x512.jpg",			512, 512, GL_RGB },
-	{ L"Progressive512x512.jpg",	512, 512, GL_RGB },
-	{ L"Interlaced256x256.png",		256, 256, GL_RGB },
-	{ L"InterlacedGray256x256.png",	256, 256, GL_LUMINANCE },
-	{ L"InterlacedTrans256x256.png",256, 256, GL_RGBA },
-	{ L"normal128x128.png",			128, 128, GL_RGB },
-	{ L"Compressed256x256.tga",		256, 256, GL_RGB },
-	{ L"CompressedTrans256x256.tga",256, 256, GL_RGBA },
-	{ L"Normal128x128.tga",			128, 128, GL_RGB },
-	{ L"NormalTrans128x128.tga",	128, 128, GL_RGBA },
+	{ "4x4.bmp",					4,   4,   GL_RGB },
+	{ "4x4.jpg",					4,   4,   GL_RGB },
+	{ "4x4.png",					4,   4,   GL_RGB },
+	{ "Gray512x512.jpg",			512, 512, GL_LUMINANCE },
+	{ "Normal512x512.jpg",			512, 512, GL_RGB },
+	{ "Progressive512x512.jpg",		512, 512, GL_RGB },
+	{ "Interlaced256x256.png",		256, 256, GL_RGB },
+	{ "InterlacedGray256x256.png",	256, 256, GL_LUMINANCE },
+	{ "InterlacedTrans256x256.png",	256, 256, GL_RGBA },
+	{ "normal128x128.png",			128, 128, GL_RGB },
+	{ "Compressed256x256.tga",		256, 256, GL_RGB },
+	{ "CompressedTrans256x256.tga",	256, 256, GL_RGBA },
+	{ "Normal128x128.tga",			128, 128, GL_RGB },
+	{ "NormalTrans128x128.tga",		128, 128, GL_RGBA },
 };
 
 TEST(Syn_TextureLoaderTest)
@@ -70,7 +70,7 @@ TEST(Syn_TextureLoaderTest)
 
 		CHECK_EQUAL(IResourceLoader::NotLoaded, loader->getLoadingState());
 
-		RawFileSystem fs(L"./Media");
+		RawFileSystem fs("./Media");
 		std::auto_ptr<std::istream> is = fs.openRead(texture.fileId());
 
 		// Assure we can read the file
@@ -142,7 +142,7 @@ TEST(Asyn_TextureLoaderTest)
 
 		CHECK_EQUAL(IResourceLoader::NotLoaded, loader->getLoadingState());
 
-		RawFileSystem fs(L"./Media");
+		RawFileSystem fs("./Media");
 		std::auto_ptr<std::istream> is = fs.openRead(texture.fileId());
 
 		// Assure we can read the file
@@ -168,13 +168,13 @@ TEST(Asyn_TextureLoaderTest)
 
 TEST(Error_TextureLoaderTest)
 {
-	MCD::ResourcePtr resource = new Texture(L"error.png");
+	MCD::ResourcePtr resource = new Texture("error.png");
 	Texture& texture = static_cast<Texture&>(*resource);
 	PngLoader loader;
 
 	CHECK_EQUAL(IResourceLoader::NotLoaded, loader.getLoadingState());
 
-	RawFileSystem fs(L"./Media");
+	RawFileSystem fs("./Media");
 	std::auto_ptr<std::istream> is = fs.openRead(texture.fileId());
 
 	// Assure we can read the file
@@ -227,14 +227,14 @@ class TestWindow : public BasicGlWindow
 public:
 	TestWindow()
 		:
-		BasicGlWindow(L"title=RotatingBox_TextureTest;width=800;height=600;fullscreen=0"),
+		BasicGlWindow("title=RotatingBox_TextureTest;width=800;height=600;fullscreen=0"),
 		mAngle(0),
 		mFullLoaded(false)
 	{
-		mTexture = new Texture(L"Media/InterlacedTrans256x256.png");
+		mTexture = new Texture("Media/InterlacedTrans256x256.png");
 		Texture& texture = static_cast<Texture&>(*mTexture);
 
-		RawFileSystem fs(L"./");
+		RawFileSystem fs("./");
 		mIStream.reset(fs.openRead(texture.fileId()).release());
 
 		// Assure we can read the file
