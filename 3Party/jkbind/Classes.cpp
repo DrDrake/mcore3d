@@ -4,6 +4,21 @@
 namespace script {
 namespace detail {
 
+//
+// closures
+//
+
+static SQInteger _cloneDisabler(HSQUIRRELVM v)
+{
+	jkSCRIPT_ERROR_CLONE_DISABLED;
+	return sq_throwerror(v, xSTRING("Cloning for this class is disabled"));
+}
+
+static SQInteger _typeOf(HSQUIRRELVM v)
+{
+	return 1;	// Simply return the type name on the stack
+}
+
 // NOTE: File scope static varible is used instead of class static variable
 // to favour enabling delay load of jkbind.dll
 static ClassesManager::AssociateClassID gAssociateClassID = NULL;
@@ -97,12 +112,22 @@ ScriptObject ClassesManager::createClass(HSQUIRRELVM v, ScriptObject& root, Clas
 	return newClass;
 }
 
+void ClassesManager::typeofForClass(HSQUIRRELVM v, ScriptObject& classObj, const xchar* typeName)
+{
+	sq_pushobject(v, classObj.handle());			//class
+	sq_pushstring(v, xSTRING("_typeof"), -1);		//class, functionName
+	sq_pushstring(v, typeName, -1);					//class, functionName, typeName
+	sq_newclosure(v, &_typeOf, 1);					//class, functionName, func
+	jkSCRIPT_API_VERIFY(sq_newslot(v, -3, true));	//class
+	sq_pop(v, 1);
+}
+
 void ClassesManager::disableCloningForClass(HSQUIRRELVM v, ScriptObject& classObj)
 {
-	sq_pushobject(v, classObj.handle());        //class
-	sq_pushstring(v, xSTRING("_cloned"), -1);   //class, name
-	sq_newclosure(v, &_cloneDisabler, 0);       //class, name, func
-	jkSCRIPT_API_VERIFY(sq_newslot(v, -3, true));    //class
+	sq_pushobject(v, classObj.handle());			//class
+	sq_pushstring(v, xSTRING("_cloned"), -1);		//class, name
+	sq_newclosure(v, &_cloneDisabler, 0);			//class, name, func
+	jkSCRIPT_API_VERIFY(sq_newslot(v, -3, true));	//class
 	sq_pop(v, 1);
 }
 
@@ -113,16 +138,6 @@ void ClassesManager::createMemoryControllerSlotForClass(HSQUIRRELVM v, ScriptObj
 	sq_pushnull(v);
 	jkSCRIPT_API_VERIFY(sq_createslot(v, -3));
 	sq_pop(v, 1); //popping class
-}
-
-//
-// closures
-//
-
-SQInteger ClassesManager::_cloneDisabler(HSQUIRRELVM v)
-{
-	jkSCRIPT_ERROR_CLONE_DISABLED;
-	return sq_throwerror(v, xSTRING("Cloning for this class is disabled"));
 }
 
 //

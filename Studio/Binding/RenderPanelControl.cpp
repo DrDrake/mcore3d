@@ -178,10 +178,6 @@ public:
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		glEnable(GL_LIGHTING);
 
-		// Although the following BehaviourComponent::traverseEntities() will update the input component,
-		// but for faster response we make an explicit update() before the launcher's update()
-		mCsInputComponent->update(dt);
-
 		mLauncher.update();
 		mResourceManageRef->pollForUpdatedFiles();
 
@@ -213,6 +209,8 @@ public:
 		else {
 			mLauncher.animationUpdater()->update(dt);
 			mLauncher.skeletonAnimationUpdater()->update(dt);
+			// Update the C# input component the last, such that the getButtonDown() run correctly.
+			mCsInputComponent->update(dt);
 		}
 
 		swapBuffers();

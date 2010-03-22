@@ -106,6 +106,7 @@ ScriptObject GlobalDeclarator::pushClass(const xchar* className, ClassID classID
 	// Therefore it is more preferable to make a mother of all base class to perform the disabling.
 //	ClassesManager::disableCloningForClass(_vm, newClass);
 	ClassesManager::createMemoryControllerSlotForClass(_vm, newClass);
+	ClassesManager::typeofForClass(_vm, newClass, className);
 
 	sq_settop(_vm,top);
 

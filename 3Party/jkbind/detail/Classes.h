@@ -16,7 +16,8 @@ class ClassesManager
 public:
 	JKBIND_API static ScriptObject createClass(HSQUIRRELVM v, ScriptObject& root, ClassID classType, const xchar* name, ClassID parentClass);
 	JKBIND_API static void createObjectInstanceOnStackPure(HSQUIRRELVM v, ClassID classType, const void* c_this);
-		   
+
+	JKBIND_API static void typeofForClass(HSQUIRRELVM v, ScriptObject& classObj, const xchar* typeName);
 	JKBIND_API static void disableCloningForClass(HSQUIRRELVM v, ScriptObject& classObj);
 	JKBIND_API static void createMemoryControllerSlotForClass(HSQUIRRELVM v, ScriptObject& classObj);
 		   
@@ -57,7 +58,6 @@ public:
 
 private:
 	static ScriptObject _findClass(HSQUIRRELVM v, ClassID classType);
-	static SQInteger _cloneDisabler(HSQUIRRELVM v);
 };
 
 ScriptObject createTable(HSQUIRRELVM v);

@@ -188,8 +188,9 @@ void CsInputComponent::MessageRouter::onKeyUp(System::Object^ sender, KeyEventAr
 void CsInputComponent::MessageRouter::onKeyDown(System::Object^ sender, KeyEventArgs^ e)
 {
 	std::string s = transformKeyString(e->KeyData.ToString());
+	if(!mBackRef->getButton(s.c_str()))
+		mBackRef->mKeyDownList[s] = 1;
 	mBackRef->mKeyList[s] = 1;
-	mBackRef->mKeyDownList[s] = 1;
 }
 
 void CsInputComponent::MessageRouter::onMouseUp(System::Object^ sender, MouseEventArgs^ e)
