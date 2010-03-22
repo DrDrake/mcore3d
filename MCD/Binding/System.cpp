@@ -33,8 +33,8 @@ static void resourceManagerCallbackSetMajorDependency(ResourceManagerCallback& s
 }
 SCRIPT_CLASS_REGISTER_NAME(ResourceManagerCallback, "ResuorceManagerCallback")
 	.enableGetset()
-	.wrappedMethod(xSTRING("addDependency"), &resourceManagerCallbackAddDependency)
-	.wrappedMethod(xSTRING("_setmajorDependency"), &resourceManagerCallbackSetMajorDependency)
+	.wrappedMethod("addDependency", &resourceManagerCallbackAddDependency)
+	.wrappedMethod("_setmajorDependency", &resourceManagerCallbackSetMajorDependency)
 ;}
 
 static Resource* resourceManagerLoad(IResourceManager& self, const char* fileId, bool block, uint priority, const char* args) {
@@ -45,13 +45,13 @@ static void resourceManagerAddCallback(IResourceManager& self, GiveUpOwnership<R
 	self.addCallback(callback);
 }
 SCRIPT_CLASS_REGISTER_NAME(IResourceManager, "ResuorceManager")
-	.wrappedMethod<objRefCount<ResourceRefPolicy> >(xSTRING("load"), &resourceManagerLoad)
-	.wrappedMethod(xSTRING("addCallback"), &resourceManagerAddCallback)
+	.wrappedMethod<objRefCount<ResourceRefPolicy> >("load", &resourceManagerLoad)
+	.wrappedMethod("addCallback", &resourceManagerAddCallback)
 ;}
 
 SCRIPT_CLASS_REGISTER_NAME(Path, "Path")
 	.constructor()
-	.method(xSTRING("getString"), &Path::getString)
+	.method("getString", &Path::getString)
 ;}
 
 static float timerGet(Timer& timer) {
@@ -62,13 +62,13 @@ static float timerReset(Timer& timer) {
 }
 SCRIPT_CLASS_REGISTER_NAME(Timer, "Timer")
 	.constructor()
-	.wrappedMethod(xSTRING("get"), &timerGet)
-	.wrappedMethod(xSTRING("reset"), &timerReset)
+	.wrappedMethod("get", &timerGet)
+	.wrappedMethod("reset", &timerReset)
 ;}
 
 SCRIPT_CLASS_REGISTER_NAME(RawFileSystem, "RawFileSystem")
 	.constructor<const Path&>()
-	.method(xSTRING("setRoot"), &RawFileSystem::setRoot)
+	.method("setRoot", &RawFileSystem::setRoot)
 ;}
 
 SCRIPT_CLASS_REGISTER_NAME(Resource, "Resource")
@@ -107,8 +107,8 @@ void registerSystemBinding(script::VMCore* v)
 	script::ClassTraits<Resource>::bind(v);
 
 	script::RootDeclarator root(v);
-	root.declareFunction(xSTRING("floatToHex"), &script::floatToHex);
-	root.declareFunction(xSTRING("floatFromHex"), &script::floatFromHex);
+	root.declareFunction("floatToHex", &script::floatToHex);
+	root.declareFunction("floatFromHex", &script::floatFromHex);
 }
 
 }	// namespace MCD

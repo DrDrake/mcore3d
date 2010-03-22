@@ -58,24 +58,24 @@ SCRIPT_CLASS_REGISTER_NAME(Component, "Component")
 	.enableGetset()
 	// There is problem for derived class to use base class's _cloned()
 	// therefore an alternative name is used.
-	.clone<&componentClone>(xSTRING("_orgCloned"))
-	.method<objNoCare>(xSTRING("_getentity"), &Component::entity)
-	.rawMethod(xSTRING("_setScriptHandle"), &componentSetScriptHandle)
-	.wrappedMethod(xSTRING("destroySelf"), &componentDestroySelf)
+	.clone<&componentClone>("_orgCloned")
+	.method<objNoCare>("_getentity", &Component::entity)
+	.rawMethod("_setScriptHandle", &componentSetScriptHandle)
+	.wrappedMethod("destroySelf", &componentDestroySelf)
 	// The base serialize() function that responsible for construction and assigning itself to Entity.
 	// Derived components should override this script function for serializing their specific data.
 	.runScript(
-		xSTRING("Component.serialize<-function(state) {")
-		xSTRING("local name = state.getObjName(this, \"c\");")
-		xSTRING("local entityName = state.getObjName(entity, null);")
-		xSTRING("state.output += ::format(")
-		xSTRING("@\"\tlocal %s = %s;\n")
-		xSTRING("\t%s.addComponent(%s);\n")
-		xSTRING("\", name, classString, entityName, name);")
-		xSTRING("state.resolveReference(this);}")
+		"Component.serialize<-function(state) {"
+		"local name = state.getObjName(this, \"c\");"
+		"local entityName = state.getObjName(entity, null);"
+		"state.output += ::format("
+		"@\"\tlocal %s = %s;\n"
+		"\t%s.addComponent(%s);\n"
+		"\", name, classString, entityName, name);"
+		"state.resolveReference(this);}"
 	)
 	.runScript(
-		xSTRING("Component._cloned<-function(org){_orgCloned(org);}")
+		"Component._cloned<-function(org){_orgCloned(org);}"
 	)
 ;}
 
@@ -112,34 +112,34 @@ static Component* entityNextComponent(Entity& self, Component* c) {
 }
 SCRIPT_CLASS_REGISTER_NAME(Entity, "Entity")
 	.enableGetset()
-	.constructor(xSTRING("_orgConstructor"))
-	.clone<&entityClone>(xSTRING("_orgCloned"))
-	.wrappedMethod(xSTRING("addChild"), &entityAddChild)
-	.wrappedMethod(xSTRING("insertBefore"), &entityInsertBefore)
-	.wrappedMethod(xSTRING("insertAfter"), &entityInsertAfter)
-	.wrappedMethod(xSTRING("unlink"), &entityUnlink)					// If the node is unlinked, it's ownership will give to the script
-	.wrappedMethod(xSTRING("addComponent"), &entityAddComponent)
-	.method(xSTRING("isAncestorOf"), &Entity::isAncestorOf)
-	.method<objNoCare>(xSTRING("findEntityByPath"), &Entity::findEntityByPath)
-	.method(xSTRING("getRelativePathFrom"), &Entity::getRelativePathFrom)
-	.getset(xSTRING("enabled"), &Entity::enabled)
-	.getset(xSTRING("name"), &Entity::name)
-	.getset(xSTRING("localTransform"), &Entity::localTransform)
-	.method(xSTRING("_getworldTransform"), &Entity::worldTransform)
-	.method(xSTRING("_setworldTransform"), &Entity::setWorldTransform)
-	.method<objNoCare>(xSTRING("_getparentNode"), (Entity* (Entity::*)())(&Entity::parent))			// The node's life time is controled by the
-	.method<objNoCare>(xSTRING("_getfirstChild"), (Entity* (Entity::*)())(&Entity::firstChild))		// node tree's root node, therefore we use
-	.method<objNoCare>(xSTRING("_getnextSibling"), (Entity* (Entity::*)())(&Entity::nextSibling))	// objNoCare as the return policy.
-	.wrappedMethod<objNoCare>(xSTRING("_nextComponent"), &entityNextComponent)
-	.runScript(xSTRING("Entity._getcomponents<-function(){local c;for(;c=_nextComponent(c);)yield c;}return null;"))	// Generator for foreach
-	.runScript(xSTRING("Entity.directSerialize<-null;"))
-	.runScript(xSTRING("Entity.deferSerialize<-function(state){::entityDeferSerializeTraverse(this,state);}"))
-	.runScript(xSTRING("Entity.serialize<-function(state){directSerialize?directSerialize(state):deferSerialize(state);}"))
-	.runScript(xSTRING("Entity.constructor<-function(name=\"\"){_orgConstructor.call(this);this._setname(name);directSerialize=function(state){::entityDirectSerializeTraverse(this,state);};}"))
-	.runScript(xSTRING("Entity._cloned<-function(org){_orgCloned(org);")
-			   xSTRING("foreach(i,c in org.components){addComponent(clone c)};")
-			   xSTRING("for(local i=org.firstChild, last=null; i; i=i.nextSibling){local e=clone i;if(last)e.insertAfter(last);else addChild(e);last=e;};")
-			   xSTRING("}"))
+	.constructor("_orgConstructor")
+	.clone<&entityClone>("_orgCloned")
+	.wrappedMethod("addChild", &entityAddChild)
+	.wrappedMethod("insertBefore", &entityInsertBefore)
+	.wrappedMethod("insertAfter", &entityInsertAfter)
+	.wrappedMethod("unlink", &entityUnlink)					// If the node is unlinked, it's ownership will give to the script
+	.wrappedMethod("addComponent", &entityAddComponent)
+	.method("isAncestorOf", &Entity::isAncestorOf)
+	.method<objNoCare>("findEntityByPath", &Entity::findEntityByPath)
+	.method("getRelativePathFrom", &Entity::getRelativePathFrom)
+	.getset("enabled", &Entity::enabled)
+	.getset("name", &Entity::name)
+	.getset("localTransform", &Entity::localTransform)
+	.method("_getworldTransform", &Entity::worldTransform)
+	.method("_setworldTransform", &Entity::setWorldTransform)
+	.method<objNoCare>("_getparentNode", (Entity* (Entity::*)())(&Entity::parent))			// The node's life time is controled by the
+	.method<objNoCare>("_getfirstChild", (Entity* (Entity::*)())(&Entity::firstChild))		// node tree's root node, therefore we use
+	.method<objNoCare>("_getnextSibling", (Entity* (Entity::*)())(&Entity::nextSibling))	// objNoCare as the return policy.
+	.wrappedMethod<objNoCare>("_nextComponent", &entityNextComponent)
+	.runScript("Entity._getcomponents<-function(){local c;for(;c=_nextComponent(c);)yield c;}return null;")	// Generator for foreach
+	.runScript("Entity.directSerialize<-null;")
+	.runScript("Entity.deferSerialize<-function(state){::entityDeferSerializeTraverse(this,state);}")
+	.runScript("Entity.serialize<-function(state){directSerialize?directSerialize(state):deferSerialize(state);}")
+	.runScript("Entity.constructor<-function(name=\"\"){_orgConstructor.call(this);this._setname(name);directSerialize=function(state){::entityDirectSerializeTraverse(this,state);};}")
+	.runScript("Entity._cloned<-function(org){_orgCloned(org);"
+			   "foreach(i,c in org.components){addComponent(clone c)};"
+			   "for(local i=org.firstChild, last=null; i; i=i.nextSibling){local e=clone i;if(last)e.insertAfter(last);else addChild(e);last=e;};"
+			   "}")
 ;}
 
 }	// namespace script

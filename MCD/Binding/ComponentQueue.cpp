@@ -140,7 +140,7 @@ static int componentQueueUpdate(HSQUIRRELVM vm)
 		Entity* e;
 		if(c && (e = c->entity()) != nullptr && e->enabled) {
 			objNoCare::pushResult(vm, c);
-			sq_pushstring(vm, xSTRING("wakeup"), -1);
+			sq_pushstring(vm, "wakeup", -1);
 			sq_get(vm, -2);	// Get the "wakeup" function from the component
 			objNoCare::pushResult(vm, c);
 			sq_call(vm, 1, SQFalse, SQTrue);
@@ -153,8 +153,8 @@ static int componentQueueUpdate(HSQUIRRELVM vm)
 
 SCRIPT_CLASS_REGISTER_NAME(ComponentQueue, "ComponentQueue")
 	.constructor()
-	.method(xSTRING("setItem"), &ComponentQueue::setItem)
-	.rawMethod(xSTRING("update"), &componentQueueUpdate)
+	.method("setItem", &ComponentQueue::setItem)
+	.rawMethod("update", &componentQueueUpdate)
 ;}
 
 }	// namespace script

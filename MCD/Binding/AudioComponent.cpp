@@ -15,13 +15,13 @@ static void destroy(MCD::AudioSourceComponent* obj)	{ obj->destroyThis(); }
 }	// namespace types
 
 SCRIPT_CLASS_REGISTER(AudioComponent)
-	.declareClass<AudioComponent, Component>(xSTRING("AudioComponent"))
+	.declareClass<AudioComponent, Component>("AudioComponent")
 ;}
 
 SCRIPT_CLASS_REGISTER(AudioEffectComponent)
-	.declareClass<AudioEffectComponent, AudioComponent>(xSTRING("AudioEffectComponent"))
+	.declareClass<AudioEffectComponent, AudioComponent>("AudioEffectComponent")
 	.constructor()
-	.method(xSTRING("create"), &AudioEffectComponent::create)
+	.method("create", &AudioEffectComponent::create)
 ;}
 
 static bool audioSourceComponentLoad(
@@ -40,26 +40,26 @@ static double audioSourceComponentCurrentTime(AudioSourceComponent& self) {
 	return double(self.currentPcm()) / self.frequency();
 }
 SCRIPT_CLASS_REGISTER(AudioSourceComponent)
-	.declareClass<AudioSourceComponent, AudioComponent>(xSTRING("AudioSourceComponent"))
+	.declareClass<AudioSourceComponent, AudioComponent>("AudioSourceComponent")
 	.enableGetset()
 	.constructor()
-	.wrappedMethod(xSTRING("load"), &audioSourceComponentLoad)
-	.method(xSTRING("play"), &AudioSourceComponent::play)
-	.method(xSTRING("pause"), &AudioSourceComponent::pause)
-	.method(xSTRING("stop"), &AudioSourceComponent::stop)
-	.wrappedMethod(xSTRING("seek"), &audioSourceComponentSeek)
-	.method(xSTRING("_getfrequency"), &AudioSourceComponent::frequency)
-	.wrappedMethod(xSTRING("_gettotalTime"), &audioSourceComponentTotalTime)
-	.wrappedMethod(xSTRING("_getcurrentTime"), &audioSourceComponentCurrentTime)
-	.method(xSTRING("_getisPlaying"), &AudioSourceComponent::isPlaying)
-	.method(xSTRING("_getisPaused"), &AudioSourceComponent::isPaused)
-	.method(xSTRING("_getgain"), &AudioSourceComponent::gain)
-	.method(xSTRING("_setgain"), &AudioSourceComponent::setGain)
-	.method(xSTRING("_geteffect"), &AudioSourceComponent::effect)
-	.method(xSTRING("_seteffect"), &AudioSourceComponent::setEffect)
-	.getset(xSTRING("destroyAfterFinish"), &AudioSourceComponent::destroyAfterFinish)
-	.getset(xSTRING("destroyEntityAfterFinish"), &AudioSourceComponent::destroyEntityAfterFinish)
-	.runScript(xSTRING("AudioSourceComponent.classString<-\"AudioComponent()\""))	// The default construction stirng for serialization
+	.wrappedMethod("load", &audioSourceComponentLoad)
+	.method("play", &AudioSourceComponent::play)
+	.method("pause", &AudioSourceComponent::pause)
+	.method("stop", &AudioSourceComponent::stop)
+	.wrappedMethod("seek", &audioSourceComponentSeek)
+	.method("_getfrequency", &AudioSourceComponent::frequency)
+	.wrappedMethod("_gettotalTime", &audioSourceComponentTotalTime)
+	.wrappedMethod("_getcurrentTime", &audioSourceComponentCurrentTime)
+	.method("_getisPlaying", &AudioSourceComponent::isPlaying)
+	.method("_getisPaused", &AudioSourceComponent::isPaused)
+	.method("_getgain", &AudioSourceComponent::gain)
+	.method("_setgain", &AudioSourceComponent::setGain)
+	.method("_geteffect", &AudioSourceComponent::effect)
+	.method("_seteffect", &AudioSourceComponent::setEffect)
+	.getset("destroyAfterFinish", &AudioSourceComponent::destroyAfterFinish)
+	.getset("destroyEntityAfterFinish", &AudioSourceComponent::destroyEntityAfterFinish)
+	.runScript("AudioSourceComponent.classString<-\"AudioComponent()\"")	// The default construction stirng for serialization
 ;}
 
 }	// namespace script

@@ -23,7 +23,7 @@ static int scriptComponentManagerDoFile(HSQUIRRELVM v)
 
 SCRIPT_CLASS_REGISTER_NAME(ScriptComponentManager, "ScriptComponentManager")
 	.enableGetset()
-	.rawMethod(xSTRING("doFile"), &scriptComponentManagerDoFile)
+	.rawMethod("doFile", &scriptComponentManagerDoFile)
 	.getter("_getframeTimer", &ScriptComponentManager::frameTimer)
 ;}
 
@@ -55,7 +55,7 @@ bool ScriptComponentManager::init(ScriptVM& vm, IFileSystem& fs)
 
 	// Set a global variable to the script manager.
 	sq_pushroottable(v);
-	sq_pushstring(v, xSTRING("scriptComponentManager"), -1);
+	sq_pushstring(v, "scriptComponentManager", -1);
 	script::objNoCare::pushResult(v, this);
 	sq_rawset(v, -3);
 	sq_pop(v, 1);	// Pops the root table
@@ -246,7 +246,7 @@ void ScriptComponentManager::registerRootEntity(Entity& entity)
 
 	// Set a global variable to the root entity.
 	sq_pushroottable(v);
-	sq_pushstring(v, xSTRING("rootEntity"), -1);
+	sq_pushstring(v, "rootEntity", -1);
 	script::objNoCare::pushResult(v, &entity);
 	sq_rawset(v, -3);
 	sq_pop(v, 1);	// Pops the root table
@@ -322,12 +322,12 @@ void ScriptComponentManager::updateScriptComponents()
 
 	// Calling runScript will cause compilation and extra memory consumption,
 	// therefore use function call directly.
-//	(void)vm->runScript(xSTRING("updateAllScriptComponent();"));
+//	(void)vm->runScript("updateAllScriptComponent();");
 
 	MCD_ASSUME(vm);
 	HSQUIRRELVM v = (HSQUIRRELVM)vm->getImplementationHandle();
 	sq_pushroottable(v);
-	sq_pushstring(v, xSTRING("updateAllScriptComponent"), -1);
+	sq_pushstring(v, "updateAllScriptComponent", -1);
 	sq_get(v, -2);			// Get the function from the root table
 	sq_pushroottable(v);	// 'this' (function environment object)
 
@@ -349,7 +349,7 @@ void ScriptComponentManager::shutdown()
 	if(!vm)
 		return;
 
-	(void)vm->runScript(xSTRING("shutdownAllScriptComponent();"));
+	(void)vm->runScript("shutdownAllScriptComponent();");
 	vm = nullptr;
 }
 
