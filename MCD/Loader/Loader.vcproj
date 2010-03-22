@@ -263,6 +263,14 @@
 			>
 		</File>
 		<File
+			RelativePath=".\PvrLoader.cpp"
+			>
+		</File>
+		<File
+			RelativePath=".\PvrLoader.h"
+			>
+		</File>
+		<File
 			RelativePath=".\ShareLib.h"
 			>
 		</File>

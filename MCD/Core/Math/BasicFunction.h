@@ -96,6 +96,10 @@ public:
 		return isNearZero(lhs - rhs, tolerance);
 	}
 
+	static Real min(Real v1, Real v2) {
+		return v1 < v2 ? v1 : v2;
+	}
+
 	static Real max(Real v1, Real v2) {
 		return v1 > v2 ? v1 : v2;
 	}
