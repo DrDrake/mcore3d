@@ -19,6 +19,7 @@
 #include "../Core/System/ResourceLoader.h"
 #include "../Core/System/ThreadedCpuProfiler.h"
 #include "../Loader/PodLoader.h"
+#include "../Loader/PvrLoader.h"
 #include "../Render/ResourceLoaderFactory.h"
 #include "../../3Party/jkbind/Declarator.h"
 
@@ -358,6 +359,7 @@ LauncherDefaultResourceManager::LauncherDefaultResourceManager(IFileSystem& file
 	addFactory(new PixelShaderLoaderFactory);
 	addFactory(new PngLoaderFactory);
 	addFactory(new PodLoaderFactory(*this));
+	addFactory(new PvrLoaderFactory);
 	addFactory(new TgaLoaderFactory);
 	addFactory(new VertexShaderLoaderFactory);
 	addFactory(new Max3dsLoaderFactory(*this));

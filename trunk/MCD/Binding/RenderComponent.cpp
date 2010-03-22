@@ -27,14 +27,27 @@ static void destroy(MCD::PickComponent* obj)		{ obj->destroyThis(); }
 
 }	// namespace types
 
+// AnimationComponent
+static float animationComponentGetTime(AnimationComponent& self) {
+	return self.animationInstance.time;
+}
+static void animationComponentSetTime(AnimationComponent& self, float time) {
+	self.animationInstance.time = time;
+}
 SCRIPT_CLASS_REGISTER(AnimationComponent)
 	.declareClass<AnimationComponent, Component>("AnimationComponent")
+	.enableGetset()
 	.constructor<AnimationUpdaterComponent&>()
+	.wrappedMethod("_gettime", &animationComponentGetTime)
+	.wrappedMethod("_settime", &animationComponentSetTime)
 ;}
+
+// AnimationUpdaterComponent
 SCRIPT_CLASS_REGISTER(AnimationUpdaterComponent)
 	.declareClass<AnimationUpdaterComponent, Component>("AnimationUpdaterComponent")
 ;}
 
+// CameraComponent
 static float cameraComponentGetFov(CameraComponent& self) {
 	return self.camera.frustum.fov();
 }
@@ -49,6 +62,7 @@ SCRIPT_CLASS_REGISTER(CameraComponent)
 	.wrappedMethod("_setfov", &cameraComponentSetFov)
 ;}
 
+// MeshComponent
 static Mesh* meshComponentGetMesh(MeshComponent& self) {
 	return self.mesh.get();
 }
@@ -61,7 +75,6 @@ static Effect* meshComponentGetEffect(MeshComponent& self) {
 static void meshComponentSetEffect(MeshComponent& self, Effect* effect) {
 	self.effect = effect;
 }
-
 SCRIPT_CLASS_REGISTER(MeshComponent)
 	.declareClass<MeshComponent, Component>("MeshComponent")
 	.enableGetset()
@@ -72,6 +85,7 @@ SCRIPT_CLASS_REGISTER(MeshComponent)
 	.wrappedMethod("_seteffect", &meshComponentSetEffect)
 ;}
 
+// PickComponent
 static Entity* pickComponentGetEntityToPick(PickComponent& self) {
 	return self.entityToPick.get();
 }
@@ -94,27 +108,38 @@ SCRIPT_CLASS_REGISTER(PickComponent)
 	.runScript("PickComponent._gethitResults<-function(){local c=_gethitCount();for(local i=0;i<c;++i)yield hitAtIndex(i);return null;}")	// Generator for foreach
 ;}
 
+// RenderableComponent
 SCRIPT_CLASS_REGISTER(RenderableComponent)
 	.declareClass<RenderableComponent, Component>("RenderableComponent")
 	.enableGetset()
 ;}
 
+// SkeletonAnimationComponent
+static float skeletonAnimationComponentGetTime(SkeletonAnimationComponent& self) {
+	return self.skeletonAnimation.anim.time;
+}
+static void skeletonAnimationComponentSetTime(SkeletonAnimationComponent& self, float time) {
+	self.skeletonAnimation.anim.time = time;
+}
 SCRIPT_CLASS_REGISTER(SkeletonAnimationComponent)
 	.declareClass<SkeletonAnimationComponent, Component>("SkeletonAnimationComponent")
 	.enableGetset()
+	.wrappedMethod("_gettime", &skeletonAnimationComponentGetTime)
+	.wrappedMethod("_settime", &skeletonAnimationComponentSetTime)
 ;}
 
+// SkeletonAnimationUpdaterComponent
 SCRIPT_CLASS_REGISTER(SkeletonAnimationUpdaterComponent)
 	.declareClass<SkeletonAnimationUpdaterComponent, Component>("SkeletonAnimationUpdaterComponent")
 ;}
 
+// SkinMeshComponent
 static SkeletonAnimationComponent* skinMeshComponentGetSkeletonAnimation(SkinMeshComponent& self) {
 	return self.skeletonAnimation.get();
 }
 static void skinMeshComponentSetSkeletonAnimation(SkinMeshComponent& self, SkeletonAnimationComponent* c) {
 	self.skeletonAnimation = c;
 }
-
 SCRIPT_CLASS_REGISTER(SkinMeshComponent)
 	.declareClass<SkinMeshComponent, Component>("SkinMeshComponent")
 	.enableGetset()

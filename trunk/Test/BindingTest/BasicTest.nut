@@ -13,6 +13,12 @@ class TestBasicBinding
 		assert(foo instanceof Foo);
 	}
 
+	function testTypeof()
+	{
+		local foo = Foo();
+		assert(typeof foo == "Foo");
+	}
+
 	function testReference()
 	{
 		local foo = Foo();
