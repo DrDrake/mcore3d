@@ -38,16 +38,16 @@ static SphereShape* sphereShapeCreate(float radius) {
 }
 
 SCRIPT_CLASS_REGISTER(SphereShape)
-	.declareClass<SphereShape, CollisionShape>(xSTRING("SphereShape"))
-	.staticMethod<constructObjRefCount<refPolicy> >(xSTRING("constructor"), &sphereShapeCreate)
+	.declareClass<SphereShape, CollisionShape>("SphereShape")
+	.staticMethod<constructObjRefCount<refPolicy> >("constructor", &sphereShapeCreate)
 ;}
 
 SCRIPT_CLASS_REGISTER(StaticPlaneShape)
-	.declareClass<StaticPlaneShape, CollisionShape>(xSTRING("StaticPlaneShape"))
+	.declareClass<StaticPlaneShape, CollisionShape>("StaticPlaneShape")
 ;}
 
 SCRIPT_CLASS_REGISTER(StaticTriMeshShape)
-	.declareClass<StaticTriMeshShape, CollisionShape>(xSTRING("StaticTriMeshShape"))
+	.declareClass<StaticTriMeshShape, CollisionShape>("StaticTriMeshShape")
 ;}
 
 static RigidBodyComponent* rigidBodyComponentCreate(DynamicsWorld* dynamicsWorld, float mass, CollisionShape* collisionShape) {
@@ -55,15 +55,15 @@ static RigidBodyComponent* rigidBodyComponentCreate(DynamicsWorld* dynamicsWorld
 }
 
 SCRIPT_CLASS_REGISTER(RigidBodyComponent)
-	.declareClass<RigidBodyComponent, Component>(xSTRING("RigidBodyComponent"))
-	.staticMethod<construct>(xSTRING("constructor"), &rigidBodyComponentCreate)
+	.declareClass<RigidBodyComponent, Component>("RigidBodyComponent")
+	.staticMethod<construct>("constructor", &rigidBodyComponentCreate)
 ;}
 
 SCRIPT_CLASS_REGISTER_NAME(DynamicsWorld, "DynamicsWorld")
 ;}
 
 SCRIPT_CLASS_REGISTER(ThreadedDynamicsWorld)
-	.declareClass<ThreadedDynamicsWorld, DynamicsWorld>(xSTRING("ThreadedDynamicsWorld"))
+	.declareClass<ThreadedDynamicsWorld, DynamicsWorld>("ThreadedDynamicsWorld")
 ;}
 
 }	// namespace script

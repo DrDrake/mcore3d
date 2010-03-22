@@ -28,11 +28,11 @@ static void destroy(MCD::PickComponent* obj)		{ obj->destroyThis(); }
 }	// namespace types
 
 SCRIPT_CLASS_REGISTER(AnimationComponent)
-	.declareClass<AnimationComponent, Component>(xSTRING("AnimationComponent"))
+	.declareClass<AnimationComponent, Component>("AnimationComponent")
 	.constructor<AnimationUpdaterComponent&>()
 ;}
 SCRIPT_CLASS_REGISTER(AnimationUpdaterComponent)
-	.declareClass<AnimationUpdaterComponent, Component>(xSTRING("AnimationUpdaterComponent"))
+	.declareClass<AnimationUpdaterComponent, Component>("AnimationUpdaterComponent")
 ;}
 
 static float cameraComponentGetFov(CameraComponent& self) {
@@ -42,11 +42,11 @@ static void cameraComponentSetFov(CameraComponent& self, float fov) {
 	self.camera.frustum.setFov(fov);
 }
 SCRIPT_CLASS_REGISTER(CameraComponent)
-	.declareClass<CameraComponent, Component>(xSTRING("CameraComponent"))
+	.declareClass<CameraComponent, Component>("CameraComponent")
 	.enableGetset()
 	.constructor()
-	.wrappedMethod(xSTRING("_getfov"), &cameraComponentGetFov)
-	.wrappedMethod(xSTRING("_setfov"), &cameraComponentSetFov)
+	.wrappedMethod("_getfov", &cameraComponentGetFov)
+	.wrappedMethod("_setfov", &cameraComponentSetFov)
 ;}
 
 static Mesh* meshComponentGetMesh(MeshComponent& self) {
@@ -63,13 +63,13 @@ static void meshComponentSetEffect(MeshComponent& self, Effect* effect) {
 }
 
 SCRIPT_CLASS_REGISTER(MeshComponent)
-	.declareClass<MeshComponent, Component>(xSTRING("MeshComponent"))
+	.declareClass<MeshComponent, Component>("MeshComponent")
 	.enableGetset()
 	.constructor()
-	.wrappedMethod<objRefCount<ResourceRefPolicy> >(xSTRING("_getmesh"), &meshComponentGetMesh)
-	.wrappedMethod(xSTRING("_setmesh"), &meshComponentSetMesh)
-	.wrappedMethod<objRefCount<ResourceRefPolicy> >(xSTRING("_geteffect"), &meshComponentGetEffect)
-	.wrappedMethod(xSTRING("_seteffect"), &meshComponentSetEffect)
+	.wrappedMethod<objRefCount<ResourceRefPolicy> >("_getmesh", &meshComponentGetMesh)
+	.wrappedMethod("_setmesh", &meshComponentSetMesh)
+	.wrappedMethod<objRefCount<ResourceRefPolicy> >("_geteffect", &meshComponentGetEffect)
+	.wrappedMethod("_seteffect", &meshComponentSetEffect)
 ;}
 
 static Entity* pickComponentGetEntityToPick(PickComponent& self) {
@@ -82,30 +82,30 @@ static Entity* pickComponentHitAtIndex(PickComponent& self, size_t index) {
 	return self.hitAtIndex(index).get();
 }
 SCRIPT_CLASS_REGISTER(PickComponent)
-	.declareClass<PickComponent, Component>(xSTRING("PickComponent"))
+	.declareClass<PickComponent, Component>("PickComponent")
 	.enableGetset()
 	.constructor()
-	.method(xSTRING("_setPickRegion"), &PickComponent::setPickRegion)
-	.wrappedMethod<objNoCare>(xSTRING("_getentityToPick"), &pickComponentGetEntityToPick)
-	.wrappedMethod(xSTRING("_setentityToPick"), &pickComponentSetEntityToPick)
-	.method(xSTRING("_gethitCount"), &PickComponent::hitCount)
-	.wrappedMethod<objNoCare>(xSTRING("hitAtIndex"), &pickComponentHitAtIndex)
-	.runScript(xSTRING("PickComponent.setPickRegion<-function(x,y,w=1,h=1){return _setPickRegion(x,y,w,h);}"))
-	.runScript(xSTRING("PickComponent._gethitResults<-function(){local c=_gethitCount();for(local i=0;i<c;++i)yield hitAtIndex(i);return null;}"))	// Generator for foreach
+	.method("_setPickRegion", &PickComponent::setPickRegion)
+	.wrappedMethod<objNoCare>("_getentityToPick", &pickComponentGetEntityToPick)
+	.wrappedMethod("_setentityToPick", &pickComponentSetEntityToPick)
+	.method("_gethitCount", &PickComponent::hitCount)
+	.wrappedMethod<objNoCare>("hitAtIndex", &pickComponentHitAtIndex)
+	.runScript("PickComponent.setPickRegion<-function(x,y,w=1,h=1){return _setPickRegion(x,y,w,h);}")
+	.runScript("PickComponent._gethitResults<-function(){local c=_gethitCount();for(local i=0;i<c;++i)yield hitAtIndex(i);return null;}")	// Generator for foreach
 ;}
 
 SCRIPT_CLASS_REGISTER(RenderableComponent)
-	.declareClass<RenderableComponent, Component>(xSTRING("RenderableComponent"))
+	.declareClass<RenderableComponent, Component>("RenderableComponent")
 	.enableGetset()
 ;}
 
 SCRIPT_CLASS_REGISTER(SkeletonAnimationComponent)
-	.declareClass<SkeletonAnimationComponent, Component>(xSTRING("SkeletonAnimationComponent"))
+	.declareClass<SkeletonAnimationComponent, Component>("SkeletonAnimationComponent")
 	.enableGetset()
 ;}
 
 SCRIPT_CLASS_REGISTER(SkeletonAnimationUpdaterComponent)
-	.declareClass<SkeletonAnimationUpdaterComponent, Component>(xSTRING("SkeletonAnimationUpdaterComponent"))
+	.declareClass<SkeletonAnimationUpdaterComponent, Component>("SkeletonAnimationUpdaterComponent")
 ;}
 
 static SkeletonAnimationComponent* skinMeshComponentGetSkeletonAnimation(SkinMeshComponent& self) {
@@ -116,10 +116,10 @@ static void skinMeshComponentSetSkeletonAnimation(SkinMeshComponent& self, Skele
 }
 
 SCRIPT_CLASS_REGISTER(SkinMeshComponent)
-	.declareClass<SkinMeshComponent, Component>(xSTRING("SkinMeshComponent"))
+	.declareClass<SkinMeshComponent, Component>("SkinMeshComponent")
 	.enableGetset()
-	.wrappedMethod<objNoCare>(xSTRING("_getskeletonAnimation"), &skinMeshComponentGetSkeletonAnimation)
-	.wrappedMethod(xSTRING("_setskeletonAnimation"), &skinMeshComponentSetSkeletonAnimation)
+	.wrappedMethod<objNoCare>("_getskeletonAnimation", &skinMeshComponentGetSkeletonAnimation)
+	.wrappedMethod("_setskeletonAnimation", &skinMeshComponentSetSkeletonAnimation)
 ;}
 
 }	// namespace script

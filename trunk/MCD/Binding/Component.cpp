@@ -15,7 +15,7 @@ static void destroy(MCD::PrefabLoaderComponent* obj)	{ obj->destroyThis(); }
 }	// namespace types
 
 SCRIPT_CLASS_REGISTER(PrefabLoaderComponent)
-	.declareClass<PrefabLoaderComponent, Component>(xSTRING("PrefabLoaderComponent"))
+	.declareClass<PrefabLoaderComponent, Component>("PrefabLoaderComponent")
 	.constructor()
 ;}
 

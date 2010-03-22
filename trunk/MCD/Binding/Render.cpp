@@ -19,11 +19,11 @@ struct resourceRefPolicy {
 };	// resourceRefPolicy
 
 SCRIPT_CLASS_REGISTER(Effect)
-	.declareClass<Effect, Resource>(xSTRING("Effect"))
+	.declareClass<Effect, Resource>("Effect")
 ;}
 
 SCRIPT_CLASS_REGISTER(Mesh)
-	.declareClass<Mesh, Resource>(xSTRING("Mesh"))
+	.declareClass<Mesh, Resource>("Mesh")
 ;}
 
 }	// namespace script
@@ -46,7 +46,7 @@ void registerRenderBinding(script::VMCore* v)
 	script::ClassTraits<Mesh>::bind(v);
 
 	RootDeclarator root(v);
-	root.declareFunction<objRefCount<resourceRefPolicy> >(xSTRING("ChamferBoxMesh"), &chamferBoxMeshCreate);
+	root.declareFunction<objRefCount<resourceRefPolicy> >("ChamferBoxMesh", &chamferBoxMeshCreate);
 }
 
 }	// namespace MCD

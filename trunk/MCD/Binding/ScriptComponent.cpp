@@ -89,7 +89,7 @@ static void destroy(MCD::ScriptComponent* obj)	{ obj->destroyThis(); }
 }	// namespace type
 
 SCRIPT_CLASS_REGISTER(ScriptComponent)
-	.declareClass<ScriptComponent, Component>(xSTRING("ScriptComponent"))
+	.declareClass<ScriptComponent, Component>("ScriptComponent")
 	.constructor()
 ;}
 
