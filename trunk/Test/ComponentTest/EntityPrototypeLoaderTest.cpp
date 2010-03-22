@@ -2,6 +2,7 @@
 #include "../RenderTest/BasicGlWindow.h"
 #include "../RenderTest/DefaultResourceManager.h"
 #include "../../MCD/Loader/PodLoader.h"
+#include "../../MCD/Loader/PvrLoader.h"
 #include "../../MCD/Component/Render/RenderableComponent.h"
 #include "../../MCD/Component/Prefab.h"
 
@@ -19,6 +20,7 @@ public:
 		mResourceManager(*createDefaultFileSystem())
 	{
 		mResourceManager.addFactory(new PodLoaderFactory(mResourceManager));
+		mResourceManager.addFactory(new PvrLoaderFactory());
 
 		const char* fileId = "Scene/City/scene.pod";
 		mPrefab = dynamic_cast<Prefab*>(mResourceManager.load(fileId).get());
