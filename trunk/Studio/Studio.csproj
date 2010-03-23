@@ -275,6 +275,6 @@
   </Target>
   -->
   <PropertyGroup>
-    <PostBuildEvent>sgen.exe /nologo /force $(TargetPath)</PostBuildEvent>
+    <PostBuildEvent>$(SolutionDir)../Bin/sgen.exe /nologo /force $(TargetPath)</PostBuildEvent>
   </PropertyGroup>
 </Project>
