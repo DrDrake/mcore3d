@@ -164,7 +164,7 @@ void AnimationTrack::interpolateSingleSubtrack(float time, Interpolation& result
 		size_t curr = frames[result.frame1Idx].time < time ? result.frame1Idx : 0;
 
 		for(size_t i=curr; i < frames.size; ++i)
-			if(frames[i].time >= time) { curr = i; break; }
+			if(frames[i].time > time) { curr = i; break; }
 
 		result.frame2Idx = (curr == 0) ? 1 : size_t(curr);
 		result.frame1Idx = result.frame2Idx - 1;

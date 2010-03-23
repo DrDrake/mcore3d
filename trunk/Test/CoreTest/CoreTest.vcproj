@@ -305,6 +305,10 @@
 			Name="Math"
 			>
 			<File
+				RelativePath=".\Math\AnimationInstanceTest.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\Math\AnimationTrackTest.cpp"
 				>
 			</File>
