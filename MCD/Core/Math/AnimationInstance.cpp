@@ -101,11 +101,11 @@ void AnimationInstance::update()
 	}
 }
 
-bool AnimationInstance::addTrack(AnimationTrack& track, float weight, float framerate)
+bool AnimationInstance::addTrack(AnimationTrack& track, float weight, float framerate, const char* name)
 {
 	ScopeRecursiveLock lock(mMutex);
 
-	WeightedTrack t = { weight, framerate, &track };
+	WeightedTrack t = { weight, framerate, name, &track };
 	mTracks.push_back(t);
 
 	// Destroy the weightedResult and let update() to recreate it,
@@ -158,6 +158,34 @@ AnimationInstance::WeightedTrack* AnimationInstance::getTrack(size_t index)
 	return &mTracks[index];
 }
 
+const AnimationInstance::WeightedTrack* AnimationInstance::getTrack(size_t index) const
+{
+	return const_cast<AnimationInstance*>(this)->getTrack(index);
+}
+
+AnimationInstance::WeightedTrack* AnimationInstance::getTrack(const char* weightedTrackName)
+{
+	MCD_FOREACH(const WeightedTrack& t, mTracks) {
+		if(t.name == weightedTrackName)
+			return const_cast<WeightedTrack*>(&t);
+	}
+	return nullptr;
+}
+
+const AnimationInstance::WeightedTrack* AnimationInstance::getTrack(const char* weightedTrackName) const
+{
+	return const_cast<AnimationInstance*>(this)->getTrack(weightedTrackName);
+}
+
+int AnimationInstance::getTrackIndex(sal_in_z const char* weightedTrackName) const
+{
+	for(size_t i=0; i<mTracks.size(); ++i) {
+		if(mTracks[i].name == weightedTrackName)
+			return i;
+	}
+	return -1;
+}
+
 bool AnimationInstance::isAllTrackCommited() const
 {
 	ScopeRecursiveLock lock(mMutex);
@@ -171,9 +199,22 @@ bool AnimationInstance::isAllTrackCommited() const
 	return true;
 }
 
-const AnimationInstance::WeightedTrack* AnimationInstance::getTrack(size_t index) const
+size_t AnimationInstance::currentFrame(size_t weightedTrackIndex) const
 {
-	return const_cast<AnimationInstance*>(this)->getTrack(index);
+	if(weightedTrackIndex >= interpolations.size)
+		return 0;
+
+	return interpolations[weightedTrackIndex].frame1Idx;
+}
+
+void AnimationInstance::setTimeByFrameIndex(size_t frameIndex, size_t weightedTrackIndex)
+{
+	WeightedTrack* t = getTrack(weightedTrackIndex);
+	if(!t || !t->track || t->track->keyframes.size == 0)
+		return;
+
+	const size_t maxFrameIdx = t->track->keyframes.size - 1;
+	time = t->track->keyframes[frameIndex < maxFrameIdx ? frameIndex : maxFrameIdx].time;
 }
 
 }	// namespace MCD

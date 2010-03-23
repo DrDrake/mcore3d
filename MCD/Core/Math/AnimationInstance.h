@@ -23,6 +23,7 @@ public:
 	{
 		float weight;
 		float frameRate;
+		std::string name;
 		AnimationTrackPtr track;
 	};	// WeightedTrack
 
@@ -45,7 +46,7 @@ public:
 	/*!	May fail if the sub-track count are not matched.
 		\parameter framerate Override AnimationTrack::naturalFramerate if it's value is larger than zero.
 	 */
-	sal_checkreturn bool addTrack(AnimationTrack& track, float weight=1.0f, float framerate=0.0f);
+	sal_checkreturn bool addTrack(AnimationTrack& track, float weight=1.0f, float framerate=0.0f, sal_in_z const char* name="unnamed");
 
 	//! Will perform normalizeWeight() automatically.
 	void removeTrack(size_t index);
@@ -62,11 +63,26 @@ public:
 		\note Remember to call normalizeWeight() after you have changed WeightedTrack::weight.
 	 */
 	sal_maybenull WeightedTrack* getTrack(size_t index);
-
 	sal_maybenull const WeightedTrack* getTrack(size_t index) const;
+
+	//!	Return null if the track name is not found.
+	sal_maybenull WeightedTrack* getTrack(sal_in_z const char* weightedTrackName);
+	sal_maybenull const WeightedTrack* getTrack(sal_in_z const char* weightedTrackName) const;
+
+	//!	Return -1 if the track name is not found.
+	sal_checkreturn int getTrackIndex(sal_in_z const char* weightedTrackName) const;
 
 	//! Indicating all tracks data are committed, ie. ready to call update().
 	sal_checkreturn bool isAllTrackCommited() const;
+
+	//!	Returns the current frame of the given weighted track, 0 if \em weightedTrackIndex is out of bound.
+	sal_checkreturn size_t currentFrame(size_t weightedTrackIndex=0) const;
+
+	/*!	Set the \em time variable by using a particular frame time of a particular weighted track.
+		Perform wrapping if loop, otherwise the last frame is used for out of bound frame index.
+		Do nothing if \em weightedTrackIndex is out of bound.
+	 */
+	void setTimeByFrameIndex(size_t frameIndex, size_t weightedTrackIndex=0);
 
 	//! Ok, this simple variable need not to be absolutely thread-safe.
 	float time;
