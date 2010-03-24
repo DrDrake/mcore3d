@@ -62,26 +62,26 @@ TEST(AnimationTrackTest)
 		track->acquireReadLock();
 
 		{	// Test for the interpolate() function
-			track->interpolateNoLock(0.5f, results);
+			CHECK_EQUAL(0.5f, track->interpolateNoLock(0.5f, results));
 			const Vec4f& pos = reinterpret_cast<const Vec4f&>(results[0]);
 			CHECK(pos.isNearEqual(Vec4f(1.5f)));
 		}
 
 		{	// Try to play backward from time 0.5 back to 0.1
-			track->interpolateNoLock(0.0f, results);
+			CHECK_EQUAL(0.0f, track->interpolateNoLock(0.0f, results));
 			const Vec4f& pos = reinterpret_cast<const Vec4f&>(results[0]);
 			CHECK(pos.isNearEqual(Vec4f(1)));
 		}
 
 		{	// Try to play over totalTime() under loop mode
-			track->interpolateNoLock(track->totalTime() * 2, results);
+			CHECK_EQUAL(0.0f, track->interpolateNoLock(track->totalTime() * 2, results));
 			const Vec4f& pos = reinterpret_cast<const Vec4f&>(results[0]);
 			CHECK(pos.isNearEqual(Vec4f(1)));
 		}
 
 		{	// Try to play over totalTime() not under loop mode
 			track->loop = false;
-			track->interpolateNoLock(track->totalTime() * 2, results);
+			CHECK_EQUAL(track->totalTime(), track->interpolateNoLock(track->totalTime() * 2, results));
 			const Vec4f& pos = reinterpret_cast<const Vec4f&>(results[0]);
 			CHECK(pos.isNearEqual(Vec4f(2)));
 		}
@@ -116,7 +116,7 @@ TEST(Slerp_AnimationTrackTest)
 	AnimationTrack::Interpolation interpolation[1];
 	AnimationTrack::Interpolations results(interpolation, 1);
 	track->acquireReadLock();
-	track->interpolateNoLock(0.5f, results);
+	CHECK_EQUAL(0.5f, track->interpolateNoLock(0.5f, results));
 	const Quaternionf& q = reinterpret_cast<const Quaternionf&>(results[0]);
 
 	Vec3f v;
@@ -168,7 +168,7 @@ TEST(Performance_AnimationTrackTest)
 
 		size_t count = 0;
 		for(float t=0; t<totalTime; t+=0.1f, ++count)
-			track->interpolateNoLock(t, results);
+			CHECK_EQUAL(t, track->interpolateNoLock(t, results));
 		track->releaseReadLock();
 
 		const double timeElasped = timer.getDelta().asSecond();

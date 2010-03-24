@@ -100,3 +100,76 @@ TEST(AnimationInstanceTest)
 		CHECK_EQUAL(2.0f, a.time);
 	}
 }
+
+TEST(BasicEvent_AnimationInstanceTest)
+{
+	AnimationInstance::Events e;
+	e.destroyData = &::free;
+
+	CHECK(!e.getEvent(0));
+
+	struct LocalClass {
+		static void callback(const AnimationInstance::Event& e) {
+		}
+	};	// LocalClass
+
+	e.setEvent(0, &LocalClass::callback, ::strdup("event1"));
+	CHECK_EQUAL(std::string("event1"), (char*)e.getEvent(0)->data);
+
+	e.setEvent(2, &LocalClass::callback, ::strdup("event2"));
+	CHECK(!e.getEvent(1));
+	CHECK_EQUAL(std::string("event2"), (char*)e.getEvent(2)->data);
+
+	// Replacing old data
+	e.setEvent(0, &LocalClass::callback, ::strdup("event0"));
+	CHECK_EQUAL(std::string("event0"), (char*)e.getEvent(0)->data);
+
+	// Remove data
+	e.setEvent(0, nullptr, nullptr);
+	CHECK(!e.getEvent(0));
+}
+
+static size_t gEventCallbackResult1 = size_t(-1);
+static size_t gEventCallbackResult2 = size_t(-1);
+
+TEST(EventCallback_AnimationInstanceTest)
+{
+	AnimationInstance a;
+	AnimationTrackPtr track = new AnimationTrack("track");
+	CHECK(a.addTrack(*track, 1, 1, "wtrack"));
+
+	struct LocalClass {
+		static void callback1(const AnimationInstance::Event& e) {
+			gEventCallbackResult1 = size_t(e.data);
+		}
+	};	// LocalClass
+
+	{	AnimationTrack::ScopedWriteLock lock(*track);
+		size_t tmp[] = { 3 };
+		CHECK(track->init(StrideArray<const size_t>(tmp, 1)));
+
+		AnimationTrack::KeyFrames frames = track->getKeyFramesForSubtrack(0);
+		frames[0].time = 0;
+		frames[1].time = 1;
+		frames[2].time = 2;
+	}
+
+	AnimationInstance::WeightedTrack& wt = *a.getTrack(0u);
+	wt.edgeEvents.setEvent(0, &LocalClass::callback1, (void*)10u);
+	wt.edgeEvents.setEvent(2, &LocalClass::callback1, (void*)20u);
+
+	gEventCallbackResult1 = size_t(-1);
+	gEventCallbackResult2 = size_t(-1);
+
+	a.time = 0;
+	a.update();
+	CHECK_EQUAL(size_t(-1), gEventCallbackResult1);
+
+	a.time = 0.9f;
+	a.update();
+	CHECK_EQUAL(size_t(-1), gEventCallbackResult1);
+
+	a.time = 1.0f;
+	a.update();
+	CHECK_EQUAL(10u, gEventCallbackResult1);
+}

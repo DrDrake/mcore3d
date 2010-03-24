@@ -124,20 +124,25 @@ AnimationTrack::KeyFrames AnimationTrack::getKeyFramesForSubtrack(size_t index)
 	return KeyFrames(nullptr, 0);
 }
 
-void AnimationTrack::interpolate(float time, const Interpolations& result) const
+float AnimationTrack::interpolate(float time, const Interpolations& result, int loopOverride) const
 {
-	acquireReadLock();
-	interpolateNoLock(time, result);
-	releaseReadLock();
+	ScopedReadLock lock(*this);
+	return interpolateNoLock(time, result, loopOverride);
 }
 
-void AnimationTrack::interpolateNoLock(float time, const Interpolations& result) const
+float AnimationTrack::interpolateNoLock(float time, const Interpolations& result, int loopOverride) const
 {
+	// Find the wrapped time
+	bool loop_ = loopOverride <= -1 ? loop : loopOverride != 0;
+	time = loop_ ? ::fmodf(time, totalTime()) : Mathf::clamp(time, time, totalTime());
+
 	for(size_t i=0; i<subtracks.size; ++i)
-		interpolateSingleSubtrack(time, result[i], i);
+		interpolateSingleSubtrack(time, result[i], i, loopOverride);
+
+	return time;
 }
 
-void AnimationTrack::interpolateSingleSubtrack(float time, Interpolation& result, size_t trackIndex) const
+void AnimationTrack::interpolateSingleSubtrack(float time, Interpolation& result, size_t trackIndex, int loopOverride) const
 {
 	MCD_ASSERT(mMutex.isLocked() && "Please acquire read lock first");
 
@@ -153,17 +158,16 @@ void AnimationTrack::interpolateSingleSubtrack(float time, Interpolation& result
 		return;
 	}
 
-	{	// Phase 1: find the wrapped version of time
-		if(loop)
-			time = ::fmodf(time, totalTime());
-		else
-			time = Mathf::clamp(time, time, totalTime(trackIndex));
+	{	// Phase 1: Clamp the time within the sub-track's total time
+		time = Mathf::clamp(time, time, totalTime(trackIndex));
 	}
 
 	{	// Phase 2: Find the current and pervious frame index
 		size_t curr = frames[result.frame1Idx].time < time ? result.frame1Idx : 0;
 
-		for(size_t i=curr; i < frames.size; ++i)
+		// Scan for a frame with it's time larger than the current. If none can find, the last frame index is used.
+		size_t i = curr;
+		for(curr = frames.size - 1; i < frames.size; ++i)
 			if(frames[i].time > time) { curr = i; break; }
 
 		result.frame2Idx = (curr == 0) ? 1 : size_t(curr);

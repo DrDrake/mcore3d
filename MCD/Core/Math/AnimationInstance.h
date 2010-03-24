@@ -14,6 +14,42 @@ namespace MCD {
 class MCD_CORE_API AnimationInstance
 {
 public:
+// Event data types
+	struct Event;
+	typedef void (*EventCallback)(const Event& eventData);
+
+	struct Event
+	{
+		size_t virtualFrameIdx;
+		void* data;	//!< This pointer will be cleanup by Events::destroyData.
+		EventCallback callback;
+	};	// Event
+
+	class MCD_CORE_API Events : protected std::vector<Event>
+	{
+	public:
+		Events();
+
+		//!	Will invoke \em destroyData on every Event.
+		~Events();
+
+		/*!	Associate an Event with the specific frame index.
+			The old Event::data is destroyed by \em destroyData if \em virtualFrameIdx already exist.
+			Passing null \em callback means remove an Event at the specific index \em virtualFrameIdx.
+		 */
+		void setEvent(size_t virtualFrameIdx, sal_maybenull EventCallback callback, sal_maybenull void* data);
+
+		sal_maybenull const Event* getEvent(size_t virtualFrameIdx) const;
+
+		bool empty() const;
+
+		void clear();
+
+		typedef void (*DestroyData)(void*);
+		DestroyData destroyData;
+	};	// Events
+
+// Key frame and weighted track data types
 	struct KeyFrame
 	{
 		float v[4];
@@ -23,14 +59,18 @@ public:
 	{
 		float weight;
 		float frameRate;
+		int loopOverride;	//!< To override the AnimationTrack::loop variable. Negative means use AnimationTrack::loop, 0 for no loop, 1 for loop.
+		float lastEventTime;//!<	For tracking which event callback need to invoke since last update(). Internal use, user no need to touch with it.
 		std::string name;
 		AnimationTrackPtr track;
+		Events edgeEvents, levelEvents;
 	};	// WeightedTrack
 
 	typedef FixStrideArray<KeyFrame> KeyFrames;
 	typedef AnimationTrack::Interpolation Interpolation;
 	typedef AnimationTrack::Interpolations Interpolations;
 
+// Constructors, destructor and assignment operator
 	AnimationInstance();
 
 	~AnimationInstance();
@@ -40,7 +80,9 @@ public:
 	AnimationInstance& operator=(const AnimationInstance& rhs);
 
 // Operations
-	//!	Calculat the interpolation results according to the member variable \em time.
+	/*!	Calculat the interpolation results according to the member variable \em time.
+		It also invoke the event callback if necessary.
+	 */
 	void update();
 
 	/*!	May fail if the sub-track count are not matched.
