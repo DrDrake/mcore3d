@@ -22,7 +22,7 @@ namespace MCD {
 	\code
 	AnimationTrackPtr track = new AnimationTrack(L"trackName");
 
-	{	track->acquireWriteLock();
+	{	AnimationTrack::ScopedWriteLock lock(*track);
 		track->init(2, 1);	// One sub-track with 2 frame
 
 		// Fill the frame time
@@ -33,8 +33,6 @@ namespace MCD {
 		AnimationTrack::KeyFrames frames = track->getKeyFramesForSubtrack(0);
 		reinterpret_cast<Vec4f&>(frames[0]) = Vec4f(1);
 		reinterpret_cast<Vec4f&>(frames[1]) = Vec4f(2);
-
-		track->releaseWriteLock();
 	}
 
 	// For each frame:
@@ -62,7 +60,7 @@ public:
 	struct KeyFrame
 	{
 		float v[4];
-		float time;
+		float time;	//!< This variable is also interpreted as the virtual frame index.
 	};	// KeyFrame
 
 	typedef FixStrideArray<KeyFrame> KeyFrames;
@@ -106,12 +104,14 @@ public:
 	sal_checkreturn bool init(const StrideArray<const size_t>& subtrackFrameCount);
 
 	/*!	Get interpolation results at a specific time.
+		Set the variable \em loopOverride with 0 to force loop, 1 for no loop and -1 for using AnimationTrack::loop.
+		\return The wrapped or clamped \em time for out of bound condition.
 		\note With acquireWriteLock() and releaseWriteLock() implied.
 	 */
-	void interpolate(float time, const Interpolations& result) const;
+	float interpolate(float time, const Interpolations& result, int loopOverride=-1) const;
 
 	//!	 The no lock version of interpolate().
-	void interpolateNoLock(float time, const Interpolations& result) const;
+	float interpolateNoLock(float time, const Interpolations& result, int loopOverride=-1) const;
 
 	/*!	Check that the data has no problem (eg key time not in ascending order).
 		\return False if something wrong.
@@ -189,7 +189,7 @@ public:
 protected:
 	sal_override ~AnimationTrack();
 
-	void interpolateSingleSubtrack(float time, Interpolation& result, size_t trackIndex) const;
+	void interpolateSingleSubtrack(float time, Interpolation& result, size_t trackIndex, int loopOverride) const;
 
 	//!	The longest total time among all sub-tracks, assigned in releaseWriteLock().
 	mutable float mTotalTime;

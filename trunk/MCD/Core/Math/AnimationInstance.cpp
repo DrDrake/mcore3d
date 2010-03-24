@@ -6,6 +6,65 @@
 
 namespace MCD {
 
+AnimationInstance::Events::Events() : destroyData(nullptr) {}
+
+AnimationInstance::Events::~Events() {
+	clear();
+}
+
+void AnimationInstance::Events::setEvent(size_t virtualFrameIdx, EventCallback callback, void* data)
+{
+	// Search for any existing index
+	const_iterator i;
+	for(i=begin(); i!=end(); ++i)
+		if(i->virtualFrameIdx == virtualFrameIdx)
+			break;
+
+	// Adding new value
+	if(callback && i == end()) {
+		Event e = { virtualFrameIdx, data, callback };
+		insert(i, e);
+		return;
+	}
+
+	// Update value
+	if(callback && i != end()) {
+		if(destroyData) destroyData(i->data);
+		const_cast<void*&>(i->data) = data;
+		const_cast<EventCallback&>(i->callback) = callback;
+		return;
+	}
+
+	// Removal
+	if(i != end()) {
+		if(destroyData) destroyData(i->data);
+		erase(i);
+		return;
+	}
+}
+
+const AnimationInstance::Event* AnimationInstance::Events::getEvent(size_t virtualFrameIdx) const
+{
+	for(const_iterator i=begin(); i!=end(); ++i)
+		if(i->virtualFrameIdx == virtualFrameIdx)
+			return &(*i);
+
+	return nullptr;
+}
+
+bool AnimationInstance::Events::empty() const {
+	return std::vector<Event>::empty();
+}
+
+void AnimationInstance::Events::clear()
+{
+	if(destroyData) {
+		for(iterator i=begin(); i!=end(); ++i)
+			destroyData(i->data);
+	}
+	std::vector<Event>::clear();
+}
+
 AnimationInstance::AnimationInstance()
 	: time(0), weightedResult(nullptr, 0), interpolations(nullptr, 0)
 {
@@ -94,10 +153,31 @@ void AnimationInstance::update()
 		if(wt.frameRate <= 0)
 			wt.frameRate = wt.track->naturalFramerate;
 
-		t.interpolate(time * wt.frameRate, interpolations);
+		const float adjustedTime = t.interpolate(time * wt.frameRate, interpolations, wt.loopOverride);
 
 		for(size_t j=0; j<t.subtrackCount(); ++j)
 			reinterpret_cast<Vec4f&>(result[j]) += wt.weight * reinterpret_cast<Vec4f&>(interpolations[j].v);
+
+		// Invoke event callback if necessary
+		const size_t lastVirtualFrameIdx = size_t(wt.lastEventTime);
+		const size_t currentVirtualFrameIdx = size_t(adjustedTime);
+
+		for(size_t j=lastVirtualFrameIdx; j<currentVirtualFrameIdx; ++j) {
+			if(wt.edgeEvents.empty())
+				continue;
+			if(const Event* e = wt.edgeEvents.getEvent(j)) {
+				MCD_ASSUME(e->callback);
+				e->callback(*e);
+			}
+		}
+		if(!wt.levelEvents.empty()) {
+			if(const Event* e = wt.levelEvents.getEvent(currentVirtualFrameIdx)) {
+				MCD_ASSUME(e->callback);
+				e->callback(*e);
+			}
+		}
+
+		wt.lastEventTime = adjustedTime;
 	}
 }
 
@@ -105,7 +185,7 @@ bool AnimationInstance::addTrack(AnimationTrack& track, float weight, float fram
 {
 	ScopeRecursiveLock lock(mMutex);
 
-	WeightedTrack t = { weight, framerate, name, &track };
+	WeightedTrack t = { weight, framerate, -1, 0.0f, name, &track };
 	mTracks.push_back(t);
 
 	// Destroy the weightedResult and let update() to recreate it,
