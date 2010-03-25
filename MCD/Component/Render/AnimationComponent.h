@@ -30,6 +30,17 @@ public:
 // Operations
 	sal_override void update(float dt);
 
+// Event
+	void setEdgeEvent(sal_in_z const char* weightedTrackName, size_t virtualFrameIdx, sal_maybenull void* data);
+
+	void setLevelEvent(sal_in_z const char* weightedTrackName, size_t virtualFrameIdx, sal_maybenull void* data);
+
+	typedef void (*Callback)(AnimationComponent& c, size_t virtualFrameIdx, void* eventData);
+	Callback callback;
+
+	typedef void (*DestroyData)(void* eventData);
+	DestroyData destroyData;
+
 // Attributes
 	/*!	Sub-track,	usage
 		0		->	Position	(Linear)
