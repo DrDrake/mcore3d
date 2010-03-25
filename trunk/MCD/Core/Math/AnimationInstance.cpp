@@ -12,41 +12,48 @@ AnimationInstance::Events::~Events() {
 	clear();
 }
 
-void AnimationInstance::Events::setEvent(size_t virtualFrameIdx, void* data)
+AnimationInstance::Event* AnimationInstance::Events::setEvent(size_t virtualFrameIdx, void* data)
 {
 	// Search for any existing index
-	const_iterator i;
+	iterator i;
 	for(i=begin(); i!=end(); ++i)
 		if(i->virtualFrameIdx == virtualFrameIdx)
 			break;
 
 	// Adding new value
 	if(data && i == end()) {
-		Event e = { virtualFrameIdx, data };
-		insert(i, e);
-		return;
+		// Perform insertion sort: search for any existing index that has
+		// the value just larger than the input frame index
+		for(i=begin(); i!=end(); ++i)
+			if(i->virtualFrameIdx > virtualFrameIdx)
+				break;
+
+		Event e = { virtualFrameIdx, data, callback, destroyData };
+		return &*(insert(i, e));
 	}
 
 	// Update value
 	if(data && i != end()) {
-		if(destroyData) destroyData(i->data);
+		if(i->destroyData) i->destroyData(i->data);
 		const_cast<void*&>(i->data) = data;
-		return;
+		return &(*i);
 	}
 
 	// Removal
 	if(i != end()) {
-		if(destroyData) destroyData(i->data);
+		if(i->destroyData) i->destroyData(i->data);
 		erase(i);
-		return;
+		return nullptr;
 	}
+
+	return nullptr;
 }
 
-const AnimationInstance::Event* AnimationInstance::Events::getEvent(size_t virtualFrameIdx) const
+AnimationInstance::Event* AnimationInstance::Events::getEvent(size_t virtualFrameIdx) const
 {
 	for(const_iterator i=begin(); i!=end(); ++i)
 		if(i->virtualFrameIdx == virtualFrameIdx)
-			return &(*i);
+			return &const_cast<Event&>(*i);
 
 	return nullptr;
 }
@@ -58,12 +65,15 @@ size_t AnimationInstance::Events::lastVirtualFrameIdx() const
 	return back().virtualFrameIdx;
 }
 
+bool AnimationInstance::Events::empty() const {
+	return std::vector<Event>::empty();
+}
+
 void AnimationInstance::Events::clear()
 {
-	if(destroyData) {
-		for(iterator i=begin(); i!=end(); ++i)
-			destroyData(i->data);
-	}
+	for(iterator i=begin(); i!=end(); ++i)
+		if(i->destroyData)
+			i->destroyData(i->data);
 	std::vector<Event>::clear();
 }
 
@@ -165,16 +175,16 @@ void AnimationInstance::update()
 			const size_t lastVirtualFrameIdx = size_t(wt.lastEventTime);
 			const size_t currentVirtualFrameIdx = size_t(adjustedTime);
 
-			if(wt.edgeEvents.callback) for(size_t j=lastVirtualFrameIdx; j!=currentVirtualFrameIdx + triggerWhenEnter;) {
+			if(!wt.edgeEvents.empty()) for(size_t j=lastVirtualFrameIdx; j!=currentVirtualFrameIdx + triggerWhenEnter;) {
 				if(const Event* e = wt.edgeEvents.getEvent(j))
-					wt.edgeEvents.callback(*e);
+					e->callback(*e);
 				++j;
 				// Handles the case when the time is loop over.
 				j = j > wt.edgeEvents.lastVirtualFrameIdx() + triggerWhenEnter ? 0 : j;
 			}
-			if(wt.levelEvents.callback) {
+			if(!wt.levelEvents.empty()) {
 				if(const Event* e = wt.levelEvents.getEvent(currentVirtualFrameIdx))
-					wt.levelEvents.callback(*e);
+					e->callback(*e);
 			}
 
 			wt.lastEventTime = adjustedTime + triggerWhenEnter;

@@ -17,12 +17,20 @@ public:
 // Event data types
 	struct Event
 	{
-		size_t virtualFrameIdx;
-		void* data;	//!< This pointer will be cleanup by Events::destroyData.
+		size_t virtualFrameIdx;	//!< Do not edit this value by yourself, Events::setEvent() will assign it and keeps all Event sorted by frame index.
+		void* data;				//!< This pointer will be cleanup by Events::destroyData.
+
+		typedef void (*Callback)(const Event& event);
+		Callback callback;
+
+		typedef void (*DestroyData)(void* eventData);
+		DestroyData destroyData;
 	};	// Event
 
 	class MCD_CORE_API Events : protected std::vector<Event>
 	{
+		friend class AnimationInstance;
+
 	public:
 		Events();
 
@@ -32,21 +40,24 @@ public:
 		/*!	Associate an Event with the specific frame index.
 			The old Event::data is destroyed by \em destroyData if \em virtualFrameIdx already exist.
 			Passing null \em data means remove an Event at the specific index \em virtualFrameIdx.
-		 */
-		void setEvent(size_t virtualFrameIdx, sal_maybenull void* data);
+			User may alter \em Event::callback and \em Event::destroyData using getEvent to match with
+				their own callbacks other than the defaults provided by the class \em Events
 
-		sal_maybenull const Event* getEvent(size_t virtualFrameIdx) const;
+			\note This function will keep all events sorted according to the virtual frame index.
+		 */
+		sal_maybenull Event* setEvent(size_t virtualFrameIdx, sal_maybenull void* data);
+
+		//!	Returns null if there is no event at the specific virtual frame index.
+		sal_maybenull Event* getEvent(size_t virtualFrameIdx) const;
 
 		//!	Returns the last event's virtualFrameIdx, zero if there are no events.
 		size_t lastVirtualFrameIdx() const;
 
+		bool empty() const;
 		void clear();
 
-		typedef void (*Callback)(const Event& event);
-		Callback callback;
-
-		typedef void (*DestroyData)(void* eventData);
-		DestroyData destroyData;
+		Event::Callback callback;		//!< Defautl event Callback when calling setEvent
+		Event::DestroyData destroyData;	//!< Defautl destroy callback when calling setEvent
 	};	// Events
 
 // Key frame and weighted track data types

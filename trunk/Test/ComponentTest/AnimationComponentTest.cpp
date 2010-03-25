@@ -181,3 +181,54 @@ TEST(AnimationComponentTest)
 	TestWindow window;
 	window.mainLoop();
 }
+
+struct EventResult {
+	AnimationComponentPtr c;
+	size_t virtualFrameIdx;
+	size_t data;
+};
+
+static std::vector<EventResult> gEventCallbackResult;
+
+TEST(Event_AnimationComponentTest)
+{
+	Entity e1, e2;
+
+	AnimationUpdaterComponentPtr updater = new AnimationUpdaterComponent(nullptr);
+	AnimationComponentPtr c = new AnimationComponent(*updater);
+
+	e1.addComponent(updater.get());
+	e2.addComponent(c.get());
+
+	AnimationTrackPtr track = new AnimationTrack("track");
+	CHECK(c->animationInstance.addTrack(*track, 1, 1, "wtrack"));
+
+	{	AnimationTrack::ScopedWriteLock lock(*track);
+		size_t tmp[] = { 3 };
+		CHECK(track->init(StrideArray<const size_t>(tmp, 1)));
+
+		AnimationTrack::KeyFrames frames = track->getKeyFramesForSubtrack(0);
+		frames[0].time = 0;
+		frames[1].time = 1;
+		frames[2].time = 2;
+	}
+
+	struct LocalClass {
+		static void callback(AnimationComponent& c, size_t virtualFrameIdx, void* data) {
+			EventResult result = { &c, virtualFrameIdx, size_t(data) };
+			gEventCallbackResult.push_back(result);
+		}
+	};	// LocalClass
+	c->callback = &LocalClass::callback;
+
+	c->setEdgeEvent("noSuchTrack", 0, nullptr);	// Do nothing if the weighted track's name is not found
+	c->setEdgeEvent("wtrack", 0, (void*)size_t(10));
+	c->setEdgeEvent("wtrack", 2, (void*)size_t(20));
+
+	gEventCallbackResult.clear();
+
+	updater->update(0);
+	CHECK_EQUAL(c, gEventCallbackResult[0].c);
+	CHECK_EQUAL(0u, gEventCallbackResult[0].virtualFrameIdx);
+	CHECK_EQUAL(10u, gEventCallbackResult[0].data);
+}

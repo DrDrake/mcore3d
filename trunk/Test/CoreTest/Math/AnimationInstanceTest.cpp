@@ -115,21 +115,21 @@ TEST(BasicEvent_AnimationInstanceTest)
 	e.callback = &LocalClass::callback;
 	e.destroyData = &::free;
 
-	e.setEvent(0, ::strdup("event1"));
+	CHECK(e.setEvent(0, ::strdup("event1")));
 	CHECK_EQUAL(0u, e.lastVirtualFrameIdx());
 	CHECK_EQUAL(std::string("event1"), (char*)e.getEvent(0)->data);
 
-	e.setEvent(2, ::strdup("event2"));
+	CHECK(e.setEvent(2, ::strdup("event2")));
 	CHECK_EQUAL(2u, e.lastVirtualFrameIdx());
 	CHECK(!e.getEvent(1));
 	CHECK_EQUAL(std::string("event2"), (char*)e.getEvent(2)->data);
 
 	// Replacing old data
-	e.setEvent(0, ::strdup("event0"));
+	CHECK(e.setEvent(0, ::strdup("event0")));
 	CHECK_EQUAL(std::string("event0"), (char*)e.getEvent(0)->data);
 
 	// Remove data
-	e.setEvent(0, nullptr);
+	CHECK(!e.setEvent(0, nullptr));
 	CHECK(!e.getEvent(0));
 }
 
@@ -141,15 +141,6 @@ TEST(EventCallback_AnimationInstanceTest)
 	AnimationTrackPtr track = new AnimationTrack("track");
 	CHECK(a.addTrack(*track, 1, 1, "wtrack"));
 
-	struct LocalClass {
-		static void callback1(const AnimationInstance::Event& e) {
-			gEventCallbackResult1.push_back(size_t(e.data));
-		}
-		static void callback2(const AnimationInstance::Event& e) {
-			gEventCallbackResult2.push_back(size_t(e.data));
-		}
-	};	// LocalClass
-
 	{	AnimationTrack::ScopedWriteLock lock(*track);
 		size_t tmp[] = { 3 };
 		CHECK(track->init(StrideArray<const size_t>(tmp, 1)));
@@ -160,15 +151,24 @@ TEST(EventCallback_AnimationInstanceTest)
 		frames[2].time = 2;
 	}
 
+	struct LocalClass {
+		static void callback1(const AnimationInstance::Event& e) {
+			gEventCallbackResult1.push_back(size_t(e.data));
+		}
+		static void callback2(const AnimationInstance::Event& e) {
+			gEventCallbackResult2.push_back(size_t(e.data));
+		}
+	};	// LocalClass
+
 	AnimationInstance::WeightedTrack& wt = *a.getTrack(0u);
 
 	wt.edgeEvents.callback = &LocalClass::callback1;
-	wt.edgeEvents.setEvent(0, (void*)10u);
-	wt.edgeEvents.setEvent(2, (void*)20u);
+	CHECK(wt.edgeEvents.setEvent(0, (void*)10u));
+	CHECK(wt.edgeEvents.setEvent(2, (void*)20u));
 
 	wt.levelEvents.callback = &LocalClass::callback2;
-	wt.levelEvents.setEvent(0, (void*)10u);
-	wt.levelEvents.setEvent(2, (void*)20u);
+	CHECK(wt.levelEvents.setEvent(0, (void*)10u));
+	CHECK(wt.levelEvents.setEvent(2, (void*)20u));
 
 	gEventCallbackResult1.clear();
 	gEventCallbackResult2.clear();

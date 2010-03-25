@@ -8,6 +8,56 @@
 
 namespace MCD {
 
+struct Data
+{
+	void* data;
+	AnimationComponent::Callback callback;
+	AnimationComponentPtr animationComponent;
+};	// Data
+
+static void eventCallback(const AnimationInstance::Event& e)
+{
+	if(Data* data = reinterpret_cast<Data*>(e.data)) {
+		if(data->callback && data->animationComponent)
+			data->callback(*data->animationComponent, e.virtualFrameIdx, data->data);
+	}
+}
+
+static void eventDestroy(void* eventData)
+{
+	delete reinterpret_cast<Data*>(eventData);
+}
+
+static void setEvent(AnimationComponent& c, AnimationInstance::Events& events, const char* weightedTrackName, size_t virtualFrameIdx, void* data)
+{
+	AnimationInstance::WeightedTrack* wt = c.animationInstance.getTrack(weightedTrackName);
+	if(!wt)
+		return;
+
+	std::auto_ptr<Data> d(new Data);
+	d->data = data;
+	d->callback = c.callback;
+	d->animationComponent = &c;
+
+	if(AnimationInstance::Event* e = wt->edgeEvents.setEvent(virtualFrameIdx, d.get())) {
+		e->data = d.release();
+		e->callback = &eventCallback;
+		e->destroyData = &eventDestroy;
+	}
+}
+
+void AnimationComponent::setEdgeEvent(const char* weightedTrackName, size_t virtualFrameIdx, void* data)
+{
+	if(AnimationInstance::WeightedTrack* wt = animationInstance.getTrack(weightedTrackName))
+		setEvent(*this, wt->edgeEvents, weightedTrackName, virtualFrameIdx, data);
+}
+
+void AnimationComponent::setLevelEvent(const char* weightedTrackName, size_t virtualFrameIdx, void* data)
+{
+	if(AnimationInstance::WeightedTrack* wt = animationInstance.getTrack(weightedTrackName))
+		setEvent(*this, wt->levelEvents, weightedTrackName, virtualFrameIdx, data);
+}
+
 class AnimationComponent::MyAnimationInstance : public AnimationInstance
 {
 public:
@@ -46,13 +96,17 @@ public:
 	}
 
 	Mat44f transform;
+	AnimationComponentPtr backRef;
 };	// MyAnimationInstance
 
 AnimationComponent::AnimationComponent(AnimationUpdaterComponent& updater)
-	: animationInstance(*new MyAnimationInstance)
+	: callback(nullptr)
+	, destroyData(nullptr)
+	, animationInstance(*new MyAnimationInstance)
 	, animationUpdater(&updater)
 	, mAnimationInstanceHolder(static_cast<MyAnimationInstance*>(&animationInstance))
 {
+	static_cast<MyAnimationInstance&>(animationInstance).backRef = this;
 	updater.addAnimationComponent(*this);
 }
 
@@ -128,8 +182,20 @@ public:
 			mAnims.assign(mAnimationInstances.begin(), mAnimationInstances.end());
 		}
 
-		for(Anims::const_iterator i=mAnims.begin(); i != mAnims.end(); ++i)
-			(*i)->update();
+		for(Anims::const_iterator i=mAnims.begin(); i != mAnims.end(); ++i) {
+			AnimationComponent::MyAnimationInstance& a = **i;
+			// NOTE: If we ignore Entity::enabled, a simple "a.update()" can make the job done.
+			ScopeLock lock(a.backRef.destructionMutex());
+			if(AnimationComponent* c = a.backRef.get()) {
+				if(Entity* e = c->entity()) {
+					if(e->enabled) {
+						lock.mutex().unlock();
+						lock.cancel();
+						a.update();
+					}
+				}
+			}
+		}
 
 		mIsUpdating = false;
 	}
