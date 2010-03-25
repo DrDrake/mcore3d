@@ -15,14 +15,10 @@ class MCD_CORE_API AnimationInstance
 {
 public:
 // Event data types
-	struct Event;
-	typedef void (*EventCallback)(const Event& eventData);
-
 	struct Event
 	{
 		size_t virtualFrameIdx;
 		void* data;	//!< This pointer will be cleanup by Events::destroyData.
-		EventCallback callback;
 	};	// Event
 
 	class MCD_CORE_API Events : protected std::vector<Event>
@@ -35,17 +31,21 @@ public:
 
 		/*!	Associate an Event with the specific frame index.
 			The old Event::data is destroyed by \em destroyData if \em virtualFrameIdx already exist.
-			Passing null \em callback means remove an Event at the specific index \em virtualFrameIdx.
+			Passing null \em data means remove an Event at the specific index \em virtualFrameIdx.
 		 */
-		void setEvent(size_t virtualFrameIdx, sal_maybenull EventCallback callback, sal_maybenull void* data);
+		void setEvent(size_t virtualFrameIdx, sal_maybenull void* data);
 
 		sal_maybenull const Event* getEvent(size_t virtualFrameIdx) const;
 
-		bool empty() const;
+		//!	Returns the last event's virtualFrameIdx, zero if there are no events.
+		size_t lastVirtualFrameIdx() const;
 
 		void clear();
 
-		typedef void (*DestroyData)(void*);
+		typedef void (*Callback)(const Event& event);
+		Callback callback;
+
+		typedef void (*DestroyData)(void* eventData);
 		DestroyData destroyData;
 	};	// Events
 
@@ -60,7 +60,7 @@ public:
 		float weight;
 		float frameRate;
 		int loopOverride;	//!< To override the AnimationTrack::loop variable. Negative means use AnimationTrack::loop, 0 for no loop, 1 for loop.
-		float lastEventTime;//!<	For tracking which event callback need to invoke since last update(). Internal use, user no need to touch with it.
+		float lastEventTime;//!< For tracking which event callback need to invoke since last update(). Internal use, user no need to touch with it.
 		std::string name;
 		AnimationTrackPtr track;
 		Events edgeEvents, levelEvents;
