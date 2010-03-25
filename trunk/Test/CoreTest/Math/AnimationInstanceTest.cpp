@@ -104,33 +104,36 @@ TEST(AnimationInstanceTest)
 TEST(BasicEvent_AnimationInstanceTest)
 {
 	AnimationInstance::Events e;
-	e.destroyData = &::free;
-
 	CHECK(!e.getEvent(0));
+	CHECK_EQUAL(0u, e.lastVirtualFrameIdx());
 
 	struct LocalClass {
 		static void callback(const AnimationInstance::Event& e) {
 		}
 	};	// LocalClass
 
-	e.setEvent(0, &LocalClass::callback, ::strdup("event1"));
+	e.callback = &LocalClass::callback;
+	e.destroyData = &::free;
+
+	e.setEvent(0, ::strdup("event1"));
+	CHECK_EQUAL(0u, e.lastVirtualFrameIdx());
 	CHECK_EQUAL(std::string("event1"), (char*)e.getEvent(0)->data);
 
-	e.setEvent(2, &LocalClass::callback, ::strdup("event2"));
+	e.setEvent(2, ::strdup("event2"));
+	CHECK_EQUAL(2u, e.lastVirtualFrameIdx());
 	CHECK(!e.getEvent(1));
 	CHECK_EQUAL(std::string("event2"), (char*)e.getEvent(2)->data);
 
 	// Replacing old data
-	e.setEvent(0, &LocalClass::callback, ::strdup("event0"));
+	e.setEvent(0, ::strdup("event0"));
 	CHECK_EQUAL(std::string("event0"), (char*)e.getEvent(0)->data);
 
 	// Remove data
-	e.setEvent(0, nullptr, nullptr);
+	e.setEvent(0, nullptr);
 	CHECK(!e.getEvent(0));
 }
 
-static size_t gEventCallbackResult1 = size_t(-1);
-static size_t gEventCallbackResult2 = size_t(-1);
+static std::vector<size_t> gEventCallbackResult1, gEventCallbackResult2;
 
 TEST(EventCallback_AnimationInstanceTest)
 {
@@ -140,7 +143,10 @@ TEST(EventCallback_AnimationInstanceTest)
 
 	struct LocalClass {
 		static void callback1(const AnimationInstance::Event& e) {
-			gEventCallbackResult1 = size_t(e.data);
+			gEventCallbackResult1.push_back(size_t(e.data));
+		}
+		static void callback2(const AnimationInstance::Event& e) {
+			gEventCallbackResult2.push_back(size_t(e.data));
 		}
 	};	// LocalClass
 
@@ -155,21 +161,46 @@ TEST(EventCallback_AnimationInstanceTest)
 	}
 
 	AnimationInstance::WeightedTrack& wt = *a.getTrack(0u);
-	wt.edgeEvents.setEvent(0, &LocalClass::callback1, (void*)10u);
-	wt.edgeEvents.setEvent(2, &LocalClass::callback1, (void*)20u);
 
-	gEventCallbackResult1 = size_t(-1);
-	gEventCallbackResult2 = size_t(-1);
+	wt.edgeEvents.callback = &LocalClass::callback1;
+	wt.edgeEvents.setEvent(0, (void*)10u);
+	wt.edgeEvents.setEvent(2, (void*)20u);
 
+	wt.levelEvents.callback = &LocalClass::callback2;
+	wt.levelEvents.setEvent(0, (void*)10u);
+	wt.levelEvents.setEvent(2, (void*)20u);
+
+	gEventCallbackResult1.clear();
+	gEventCallbackResult2.clear();
+
+	// Got both trigger and level event
 	a.time = 0;
 	a.update();
-	CHECK_EQUAL(size_t(-1), gEventCallbackResult1);
+	CHECK_EQUAL(10u, gEventCallbackResult1[0]);
+	CHECK_EQUAL(10u, gEventCallbackResult2[0]);
 
+	// Still in the time of the first frame, no trigger event but a level event
 	a.time = 0.9f;
 	a.update();
-	CHECK_EQUAL(size_t(-1), gEventCallbackResult1);
+	CHECK_EQUAL(1u, gEventCallbackResult1.size());
+	CHECK_EQUAL(10u, gEventCallbackResult2[1]);
 
+	// No event for both edge and level
 	a.time = 1.0f;
 	a.update();
-	CHECK_EQUAL(10u, gEventCallbackResult1);
+	CHECK_EQUAL(1u, gEventCallbackResult1.size());
+	CHECK_EQUAL(2u, gEventCallbackResult2.size());
+
+	// 2 events for looped time edge event, and one level event
+	a.time = 2.2f;
+	a.update();
+	CHECK_EQUAL(20u, gEventCallbackResult1[1]);
+	CHECK_EQUAL(10u, gEventCallbackResult1[2]);
+	CHECK_EQUAL(10u, gEventCallbackResult2[2]);
+
+	// Disable looping, and test for the last frame. Both edge and level should got event
+	wt.loopOverride = 0;
+	a.update();
+	CHECK_EQUAL(20u, gEventCallbackResult1[3]);
+	CHECK_EQUAL(20u, gEventCallbackResult1[3]);
 }

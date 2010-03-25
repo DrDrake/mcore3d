@@ -6,13 +6,13 @@
 
 namespace MCD {
 
-AnimationInstance::Events::Events() : destroyData(nullptr) {}
+AnimationInstance::Events::Events() : callback(nullptr), destroyData(nullptr) {}
 
 AnimationInstance::Events::~Events() {
 	clear();
 }
 
-void AnimationInstance::Events::setEvent(size_t virtualFrameIdx, EventCallback callback, void* data)
+void AnimationInstance::Events::setEvent(size_t virtualFrameIdx, void* data)
 {
 	// Search for any existing index
 	const_iterator i;
@@ -21,17 +21,16 @@ void AnimationInstance::Events::setEvent(size_t virtualFrameIdx, EventCallback c
 			break;
 
 	// Adding new value
-	if(callback && i == end()) {
-		Event e = { virtualFrameIdx, data, callback };
+	if(data && i == end()) {
+		Event e = { virtualFrameIdx, data };
 		insert(i, e);
 		return;
 	}
 
 	// Update value
-	if(callback && i != end()) {
+	if(data && i != end()) {
 		if(destroyData) destroyData(i->data);
 		const_cast<void*&>(i->data) = data;
-		const_cast<EventCallback&>(i->callback) = callback;
 		return;
 	}
 
@@ -52,8 +51,11 @@ const AnimationInstance::Event* AnimationInstance::Events::getEvent(size_t virtu
 	return nullptr;
 }
 
-bool AnimationInstance::Events::empty() const {
-	return std::vector<Event>::empty();
+size_t AnimationInstance::Events::lastVirtualFrameIdx() const
+{
+	if(empty())
+		return 0;
+	return back().virtualFrameIdx;
 }
 
 void AnimationInstance::Events::clear()
@@ -158,26 +160,25 @@ void AnimationInstance::update()
 		for(size_t j=0; j<t.subtrackCount(); ++j)
 			reinterpret_cast<Vec4f&>(result[j]) += wt.weight * reinterpret_cast<Vec4f&>(interpolations[j].v);
 
-		// Invoke event callback if necessary
-		const size_t lastVirtualFrameIdx = size_t(wt.lastEventTime);
-		const size_t currentVirtualFrameIdx = size_t(adjustedTime);
+		{	// Invoke event callback if necessary
+			const size_t triggerWhenEnter = 1;	// Set this to 1 for triggering the event when the frame is enter, otherwise triggered when leaving the frame.
+			const size_t lastVirtualFrameIdx = size_t(wt.lastEventTime);
+			const size_t currentVirtualFrameIdx = size_t(adjustedTime);
 
-		for(size_t j=lastVirtualFrameIdx; j<currentVirtualFrameIdx; ++j) {
-			if(wt.edgeEvents.empty())
-				continue;
-			if(const Event* e = wt.edgeEvents.getEvent(j)) {
-				MCD_ASSUME(e->callback);
-				e->callback(*e);
+			if(wt.edgeEvents.callback) for(size_t j=lastVirtualFrameIdx; j!=currentVirtualFrameIdx + triggerWhenEnter;) {
+				if(const Event* e = wt.edgeEvents.getEvent(j))
+					wt.edgeEvents.callback(*e);
+				++j;
+				// Handles the case when the time is loop over.
+				j = j > wt.edgeEvents.lastVirtualFrameIdx() + triggerWhenEnter ? 0 : j;
 			}
-		}
-		if(!wt.levelEvents.empty()) {
-			if(const Event* e = wt.levelEvents.getEvent(currentVirtualFrameIdx)) {
-				MCD_ASSUME(e->callback);
-				e->callback(*e);
+			if(wt.levelEvents.callback) {
+				if(const Event* e = wt.levelEvents.getEvent(currentVirtualFrameIdx))
+					wt.levelEvents.callback(*e);
 			}
-		}
 
-		wt.lastEventTime = adjustedTime;
+			wt.lastEventTime = adjustedTime + triggerWhenEnter;
+		}
 	}
 }
 
