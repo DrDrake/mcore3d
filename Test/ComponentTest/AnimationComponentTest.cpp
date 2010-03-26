@@ -194,7 +194,10 @@ TEST(Event_AnimationComponentTest)
 {
 	Entity e1, e2;
 
-	AnimationUpdaterComponentPtr updater = new AnimationUpdaterComponent(nullptr);
+	TaskPool taskPool;
+	taskPool.setThreadCount(1);
+
+	AnimationUpdaterComponentPtr updater = new AnimationUpdaterComponent(&taskPool);
 	AnimationComponentPtr c = new AnimationComponent(*updater);
 
 	e1.addComponent(updater.get());
@@ -227,7 +230,10 @@ TEST(Event_AnimationComponentTest)
 
 	gEventCallbackResult.clear();
 
-	updater->update(0);
+	while(gEventCallbackResult.empty()) {
+		updater->update(0);
+	}
+
 	CHECK_EQUAL(c, gEventCallbackResult[0].c);
 	CHECK_EQUAL(0u, gEventCallbackResult[0].virtualFrameIdx);
 	CHECK_EQUAL(10u, gEventCallbackResult[0].data);

@@ -224,7 +224,7 @@ class ShaderLoader : public EffectLoader::ILoader
 		int getUniformLocation(uint shaderProgramHandle) const {
 			int location = glGetUniformLocation(shaderProgramHandle, mName.c_str());
 			if(location < 0)
-				Log::format(Log::Error, "Fail to bind uniform '%s'", strToWStr(mName).c_str());
+				Log::format(Log::Error, "Fail to bind uniform '%s'", mName.c_str());
 			return location;
 		}
 

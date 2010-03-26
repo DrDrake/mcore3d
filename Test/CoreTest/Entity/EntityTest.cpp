@@ -468,12 +468,12 @@ public:
 	Entity root;
 	root.name = "root";
 
-	EntityPtr e1 = new Entity();
+	e1 = new Entity();
 	e1->asChildOf(&root);
 	MockComponent* c1 = new MockComponent();
 	e1->addComponent(c1);
 
-	EntityPtr e2 = new Entity();
+	e2 = new Entity();
 	e2->asChildOf(&root);
 	MockComponent* c2 = new MockComponent();
 	e2->addComponent(c2);

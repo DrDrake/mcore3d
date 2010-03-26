@@ -254,9 +254,9 @@ std::string Entity::getRelativePathFrom(const Entity& from) const
 
 	// Find the most descend (lowest) common parent
 	if((lcp = commonAncestor(*this, from)) != nullptr) {
-		for(const Entity* e=this; e != lcp; e = e->parent())
+		for(const Entity* e=this; e != lcp && e; e = e->parent())
 			++levelDiff;
-		for(const Entity* e=&from; e != lcp; e = e->parent())
+		for(const Entity* e=&from; e != lcp && e; e = e->parent())
 			ret += "../";
 	}
 	else	// The 2 incomming nodes are of seperated tree.

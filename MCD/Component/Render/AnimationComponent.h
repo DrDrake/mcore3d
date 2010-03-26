@@ -31,6 +31,7 @@ public:
 	sal_override void update(float dt);
 
 // Event
+	//!	The parameter \em data will be cleanup by \em AnimationComponent::destroyData immediatly if the operation failed.
 	void setEdgeEvent(sal_in_z const char* weightedTrackName, size_t virtualFrameIdx, sal_maybenull void* data);
 
 	void setLevelEvent(sal_in_z const char* weightedTrackName, size_t virtualFrameIdx, sal_maybenull void* data);
@@ -86,10 +87,16 @@ public:
 
 	void removeAnimationComponent(AnimationComponent& ac);
 
+// Attributes
+	sal_maybenull TaskPool* taskPool();
+
 protected:
+	friend class AnimationComponent;
 	class Impl;
 	Impl& mImpl;
 };	// AnimationUpdaterComponent
+
+typedef IntrusiveWeakPtr<AnimationUpdaterComponent> AnimationUpdaterComponentPtr;
 
 }	// namespace MCD
 
