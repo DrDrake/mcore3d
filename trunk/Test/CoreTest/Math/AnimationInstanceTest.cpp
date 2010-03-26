@@ -117,16 +117,25 @@ TEST(BasicEvent_AnimationInstanceTest)
 
 	CHECK(e.setEvent(0, ::strdup("event1")));
 	CHECK_EQUAL(0u, e.lastVirtualFrameIdx());
-	CHECK_EQUAL(std::string("event1"), (char*)e.getEvent(0)->data);
+	if(AnimationInstance::Event* ev = e.getEvent(0)) {
+		CHECK_EQUAL(std::string("event1"), (char*)ev->data);
+	} else
+		CHECK(false);
 
 	CHECK(e.setEvent(2, ::strdup("event2")));
 	CHECK_EQUAL(2u, e.lastVirtualFrameIdx());
 	CHECK(!e.getEvent(1));
-	CHECK_EQUAL(std::string("event2"), (char*)e.getEvent(2)->data);
+	if(AnimationInstance::Event* ev = e.getEvent(2)) {
+		CHECK_EQUAL(std::string("event2"), (char*)ev->data);
+	} else
+		CHECK(false);
 
 	// Replacing old data
 	CHECK(e.setEvent(0, ::strdup("event0")));
-	CHECK_EQUAL(std::string("event0"), (char*)e.getEvent(0)->data);
+	if(AnimationInstance::Event* ev = e.getEvent(0)) {
+		CHECK_EQUAL(std::string("event0"), (char*)ev->data);
+	} else
+		CHECK(false);
 
 	// Remove data
 	CHECK(!e.setEvent(0, nullptr));

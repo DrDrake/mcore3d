@@ -5,57 +5,97 @@
 #include "../../Core/Math/Quaternion.h"
 #include "../../Core/System/TaskPool.h"
 #include <set>
+#ifdef MCD_VC
+#	pragma warning(push)
+#	pragma warning(disable: 6011)
+#endif
+#include <queue>
+#ifdef MCD_VC
+#	pragma warning(pop)
+#endif
 
 namespace MCD {
 
-struct Data
+class EventQueue;
+
+//!	The life time of this event data follows that of AnimationComponent
+struct EventData
 {
 	void* data;
+	size_t virtualFrameIdx;
 	AnimationComponent::Callback callback;
 	AnimationComponentPtr animationComponent;
-};	// Data
+	EventQueue* evenQueue;
+};	// EventData
+
+// We embed the AnimationComponentPtr so that we can check that the EventData is destroyed or not.
+class EventQueue : protected std::deque<std::pair<EventData*, AnimationComponentPtr> >
+{
+public:
+	// Run in animation updating thread
+	void push(EventData& e)
+	{
+		ScopeLock lock(mMutex);
+		push_back(std::make_pair(&e, e.animationComponent));
+	}
+
+	// This function should be run in main thread
+	sal_maybenull EventData* pop()
+	{
+		ScopeLock lock(mMutex);
+
+		// Loop until there is a valid event data
+		while(!empty()) {
+			std::pair<EventData*, AnimationComponentPtr> pair = front();
+			if(pair.first && pair.second)
+				return pair.first;
+		}
+		return nullptr;
+	}
+
+	Mutex mMutex;
+};	// EventQueue
 
 static void eventCallback(const AnimationInstance::Event& e)
 {
-	if(Data* data = reinterpret_cast<Data*>(e.data)) {
-		if(data->callback && data->animationComponent)
-			data->callback(*data->animationComponent, e.virtualFrameIdx, data->data);
+	if(EventData* data = reinterpret_cast<EventData*>(e.data)) {
+		if(data->callback && data->animationComponent) {
+			if(data->evenQueue)
+				data->evenQueue->push(*data);
+			else {
+				MCD_ASSERT(data->virtualFrameIdx == e.virtualFrameIdx);
+				data->callback(*data->animationComponent, e.virtualFrameIdx, data->data);
+			}
+		}
 	}
 }
 
 static void eventDestroy(void* eventData)
 {
-	delete reinterpret_cast<Data*>(eventData);
+	delete reinterpret_cast<EventData*>(eventData);
 }
 
-static void setEvent(AnimationComponent& c, AnimationInstance::Events& events, const char* weightedTrackName, size_t virtualFrameIdx, void* data)
+static void setEvent(AnimationComponent& c, AnimationInstance::Events& events, const char* weightedTrackName, size_t virtualFrameIdx, void* data, EventQueue* eventQueue)
 {
 	AnimationInstance::WeightedTrack* wt = c.animationInstance.getTrack(weightedTrackName);
-	if(!wt)
+	if(!wt) {
+		if(c.destroyData)
+			c.destroyData(data);
 		return;
+	}
 
-	std::auto_ptr<Data> d(new Data);
+	std::auto_ptr<EventData> d(new EventData);
 	d->data = data;
+	d->virtualFrameIdx = virtualFrameIdx;
 	d->callback = c.callback;
 	d->animationComponent = &c;
+	d->evenQueue = eventQueue;
 
 	if(AnimationInstance::Event* e = wt->edgeEvents.setEvent(virtualFrameIdx, d.get())) {
 		e->data = d.release();
 		e->callback = &eventCallback;
 		e->destroyData = &eventDestroy;
 	}
-}
-
-void AnimationComponent::setEdgeEvent(const char* weightedTrackName, size_t virtualFrameIdx, void* data)
-{
-	if(AnimationInstance::WeightedTrack* wt = animationInstance.getTrack(weightedTrackName))
-		setEvent(*this, wt->edgeEvents, weightedTrackName, virtualFrameIdx, data);
-}
-
-void AnimationComponent::setLevelEvent(const char* weightedTrackName, size_t virtualFrameIdx, void* data)
-{
-	if(AnimationInstance::WeightedTrack* wt = animationInstance.getTrack(weightedTrackName))
-		setEvent(*this, wt->levelEvents, weightedTrackName, virtualFrameIdx, data);
 }
 
 class AnimationComponent::MyAnimationInstance : public AnimationInstance
@@ -165,6 +205,10 @@ public:
 			// wasted for update an animation multiple times (with a not updated time value).
 			if(!mIsUpdating)
 				(void)mTaskPool->enqueue(*this);
+
+			// Consume the event callbacks in mEventQueue
+			if(EventData* e = mEventQueue.pop())
+				e->callback(*e->animationComponent, e->virtualFrameIdx, e->data);
 		}
 		else
 			realUpdate();
@@ -212,7 +256,25 @@ public:
 	// A local container of animation instance shared pointer to minize mutex lock time
 	typedef std::vector<AnimationInstancePtr> Anims;
 	Anims mAnims;
+
+	EventQueue mEventQueue;
 };	// Impl
+
+void AnimationComponent::setEdgeEvent(const char* weightedTrackName, size_t virtualFrameIdx, void* data)
+{
+	if(AnimationInstance::WeightedTrack* wt = animationInstance.getTrack(weightedTrackName)) {
+		EventQueue* q = animationUpdater->taskPool() ? &animationUpdater->mImpl.mEventQueue : nullptr;
+		setEvent(*this, wt->edgeEvents, weightedTrackName, virtualFrameIdx, data, q);
+	}
+}
+
+void AnimationComponent::setLevelEvent(const char* weightedTrackName, size_t virtualFrameIdx, void* data)
+{
+	if(AnimationInstance::WeightedTrack* wt = animationInstance.getTrack(weightedTrackName)) {
+		EventQueue* q = animationUpdater->taskPool() ? &animationUpdater->mImpl.mEventQueue : nullptr;
+		setEvent(*this, wt->levelEvents, weightedTrackName, virtualFrameIdx, data, q);
+	}
+}
 
 AnimationUpdaterComponent::AnimationUpdaterComponent(TaskPool* taskPool)
 	: mImpl(*new Impl(taskPool))
@@ -244,6 +306,10 @@ void AnimationUpdaterComponent::removeAnimationComponent(AnimationComponent& ac)
 {
 	ScopeLock lock(mImpl.mMutex);
 	mImpl.mAnimationInstances.erase(ac.mAnimationInstanceHolder);
+}
+
+TaskPool* AnimationUpdaterComponent::taskPool() {
+	return mImpl.mTaskPool;
 }
 
 }	// namespace MCD
