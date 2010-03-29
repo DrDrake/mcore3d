@@ -229,6 +229,7 @@ namespace Studio
 
 		private void addPathToolStripMenuItem_Click(object sender, System.EventArgs e)
 		{
+			// TODO: Support adding zip file as file system
 			FolderBrowserDialog d = new FolderBrowserDialog();
 			d.SelectedPath = ProjectDirectory;
 

@@ -3,6 +3,7 @@
 #include "Utility.h"
 #include "../../MCD/Core/System/RawFileSystem.h"
 #include "../../MCD/Core/System/StrUtility.h"
+#include "../../MCD/Core/System/ZipFileSystem.h"
 #include <sstream>
 
 using namespace MCD;
@@ -72,6 +73,8 @@ void FileSystemCollection::addFileSystem(String^ pathToFileSystem)
 	// Check the corresponding file system according to the input: pathToFileSystem
 	if(IO::Directory::Exists(pathToFileSystem))
 		fs = new MCD::RawFileSystem(Utility::toUtf8String(pathToFileSystem));
+	else if(IO::File::Exists(pathToFileSystem) && IO::Path::GetExtension(pathToFileSystem)->ToLowerInvariant() == ".zip")
+		fs = new MCD::ZipFileSystem(Utility::toUtf8String(pathToFileSystem));
 
 	if(fs) {
 		mImpl->addFileSystem(*fs);
