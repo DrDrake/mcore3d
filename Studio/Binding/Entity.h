@@ -94,6 +94,10 @@ public:
 		void set(array<float>^ value);
 	}
 
+	property array<String^>^ components {
+		array<String^>^ get();
+	}
+
 	/*!	Flag to inform the Gui view that the structure for this node's children
 		is changed and need to refresh.
 		Remember to set it to false after the view has handled the changes.
