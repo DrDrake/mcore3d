@@ -349,6 +349,17 @@ void Entity::scale::set(array<float>^ value)
 	mImpl->localTransform.setScale(MCD::Vec3f(value[0], value[1], value[2]));
 }
 
+array<String^>^ Entity::components::get()
+{
+	array<String^>^ a = gcnew array<String^>(mImpl->components.elementCount());
+
+	size_t i=0;
+	for(MCD::Component* c = mImpl->components.begin(); c != mImpl->components.end(); c = c->next(), ++i) {
+		a[i] = Utility::fromUtf8(typeid(*c).name());
+	}
+	return a;
+}
+
 EntityPreorderIterator::EntityPreorderIterator(Entity^ e)
 	: mCurrent(e), mStart(e)
 {
