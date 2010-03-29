@@ -222,7 +222,7 @@ TEST(Event_AnimationComponentTest)
 			gEventCallbackResult.push_back(result);
 		}
 	};	// LocalClass
-	c->callback = &LocalClass::callback;
+	c->defaultCallback = &LocalClass::callback;
 
 	c->setEdgeEvent("noSuchTrack", 0, nullptr);	// Do nothing if the weighted track's name is not found
 	c->setEdgeEvent("wtrack", 0, (void*)size_t(10));

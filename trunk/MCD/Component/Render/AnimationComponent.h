@@ -4,6 +4,7 @@
 #include "../ShareLib.h"
 #include "../../Core/Entity/BehaviourComponent.h"
 #include "../../Core/System/SharedPtr.h"
+#include "../../../3Party/jkbind/Declarator.h"
 
 namespace MCD {
 
@@ -31,16 +32,29 @@ public:
 	sal_override void update(float dt);
 
 // Event
-	//!	The parameter \em data will be cleanup by \em AnimationComponent::destroyData immediatly if the operation failed.
-	void setEdgeEvent(sal_in_z const char* weightedTrackName, size_t virtualFrameIdx, sal_maybenull void* data);
-
-	void setLevelEvent(sal_in_z const char* weightedTrackName, size_t virtualFrameIdx, sal_maybenull void* data);
-
 	typedef void (*Callback)(AnimationComponent& c, size_t virtualFrameIdx, void* eventData);
-	Callback callback;
+	Callback defaultCallback;
 
 	typedef void (*DestroyData)(void* eventData);
-	DestroyData destroyData;
+	DestroyData defaultDestroyData;
+
+	//!	The parameter \em data will be cleanup by \em AnimationComponent::destroyData immediatly if the operation failed.
+	void setEdgeEvent(
+		sal_in_z const char* weightedTrackName, size_t virtualFrameIdx, sal_maybenull void* data,
+		sal_maybenull Callback callback=nullptr, sal_maybenull DestroyData destroyData=nullptr
+	);
+
+	void setLevelEvent(
+		sal_in_z const char* weightedTrackName, size_t virtualFrameIdx, sal_maybenull void* data,
+		sal_maybenull Callback callback=nullptr, sal_maybenull DestroyData destroyData=nullptr
+	);
+
+	class ScriptCallback;
+	script::Event<
+		void, script::plain, size_t,
+		script::objNoCare, AnimationComponent*,
+		script::plain, const char*
+	> scriptCallback;
 
 // Attributes
 	/*!	Sub-track,	usage

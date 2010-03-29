@@ -50,9 +50,6 @@ public:
 		//!	Returns null if there is no event at the specific virtual frame index.
 		sal_maybenull Event* getEvent(size_t virtualFrameIdx) const;
 
-		//!	Returns the last event's virtualFrameIdx, zero if there are no events.
-		size_t lastVirtualFrameIdx() const;
-
 		bool empty() const;
 		void clear();
 
@@ -111,6 +108,9 @@ public:
 	size_t trackCount() const;
 
 	size_t subtrackCount() const;
+
+	//!	It's the longest track's totalTime().
+	float totalTime() const;
 
 	/*!	Return null if index out of range.
 		\note Remember to call normalizeWeight() after you have changed WeightedTrack::weight.

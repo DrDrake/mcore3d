@@ -58,13 +58,6 @@ AnimationInstance::Event* AnimationInstance::Events::getEvent(size_t virtualFram
 	return nullptr;
 }
 
-size_t AnimationInstance::Events::lastVirtualFrameIdx() const
-{
-	if(empty())
-		return 0;
-	return back().virtualFrameIdx;
-}
-
 bool AnimationInstance::Events::empty() const {
 	return std::vector<Event>::empty();
 }
@@ -175,12 +168,15 @@ void AnimationInstance::update()
 			const size_t lastVirtualFrameIdx = size_t(wt.lastEventTime);
 			const size_t currentVirtualFrameIdx = size_t(adjustedTime);
 
-			if(!wt.edgeEvents.empty()) for(size_t j=lastVirtualFrameIdx; j!=currentVirtualFrameIdx + triggerWhenEnter;) {
-				if(const Event* e = wt.edgeEvents.getEvent(j))
-					e->callback(*e);
-				++j;
-				// Handles the case when the time is loop over.
-				j = j > wt.edgeEvents.lastVirtualFrameIdx() + triggerWhenEnter ? 0 : j;
+			if(!wt.edgeEvents.empty()) {
+				const size_t largestFrameCount = size_t(totalTime());
+				for(size_t j=lastVirtualFrameIdx; j!=currentVirtualFrameIdx + triggerWhenEnter;) {
+					if(const Event* e = wt.edgeEvents.getEvent(j))
+						e->callback(*e);
+					++j;
+					// Handles the case when the time is loop over.
+					j = j > largestFrameCount + triggerWhenEnter ? 0 : j;
+				}
 			}
 			if(!wt.levelEvents.empty()) {
 				if(const Event* e = wt.levelEvents.getEvent(currentVirtualFrameIdx))
@@ -241,6 +237,18 @@ size_t AnimationInstance::subtrackCount() const
 	if(mTracks.empty() || !mTracks[0].track)
 		return 0;
 	return mTracks[0].track->subtrackCount();
+}
+
+float AnimationInstance::totalTime() const
+{
+	float longest = 0;
+	MCD_FOREACH(const WeightedTrack& t, mTracks) {
+		if(t.track) {	// Ignore null track
+			float tmp = t.track->totalTime();
+			longest = tmp > longest ? tmp : longest;
+		}
+	}
+	return longest;
 }
 
 AnimationInstance::WeightedTrack* AnimationInstance::getTrack(size_t index)

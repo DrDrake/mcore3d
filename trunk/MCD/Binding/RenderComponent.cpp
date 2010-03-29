@@ -34,12 +34,28 @@ static float animationComponentGetTime(AnimationComponent& self) {
 static void animationComponentSetTime(AnimationComponent& self, float time) {
 	self.animationInstance.time = time;
 }
+static void animationComponentCallback(AnimationComponent& c, size_t virtualFrameIdx, void* eventData) {
+	if(c.scriptCallback.isAssigned())
+		c.scriptCallback.call(virtualFrameIdx, &c, reinterpret_cast<const char*>(eventData));
+}
+static void animationComponentDestroyData(void* data) {
+	::free(data);	// The data is the event string passed to animationComponentSetXXXEvent
+}
+static void animationComponentSetEdgeEvent(AnimationComponent& self, const char* weightedTrackName, size_t virtualFrameIdx, const char* eventString) {
+	self.setEdgeEvent(weightedTrackName, virtualFrameIdx, ::strdup(eventString), &animationComponentCallback, &animationComponentDestroyData);
+}
+static void animationComponentSetLevelEvent(AnimationComponent& self, const char* weightedTrackName, size_t virtualFrameIdx, const char* eventString) {
+	self.setLevelEvent(weightedTrackName, virtualFrameIdx, ::strdup(eventString), &animationComponentCallback, &animationComponentDestroyData);
+}
 SCRIPT_CLASS_REGISTER(AnimationComponent)
 	.declareClass<AnimationComponent, Component>("AnimationComponent")
 	.enableGetset()
 	.constructor<AnimationUpdaterComponent&>()
 	.wrappedMethod("_gettime", &animationComponentGetTime)
 	.wrappedMethod("_settime", &animationComponentSetTime)
+	.scriptEvent("onEvent", &AnimationComponent::scriptCallback)
+	.wrappedMethod("setEdgeEvent", &animationComponentSetEdgeEvent)
+	.wrappedMethod("setLevelEvent", &animationComponentSetLevelEvent)
 ;}
 
 // AnimationUpdaterComponent
