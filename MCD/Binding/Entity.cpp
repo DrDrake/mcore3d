@@ -136,6 +136,7 @@ SCRIPT_CLASS_REGISTER_NAME(Entity, "Entity")
 	.runScript("Entity.deferSerialize<-function(state){::entityDeferSerializeTraverse(this,state);}")
 	.runScript("Entity.serialize<-function(state){directSerialize?directSerialize(state):deferSerialize(state);}")
 	.runScript("Entity.constructor<-function(name=\"\"){_orgConstructor.call(this);this._setname(name);directSerialize=function(state){::entityDirectSerializeTraverse(this,state);};}")
+	.runScript("Entity.componentByType<-function(componentTypeName){foreach(i,c in components)if(typeof c == componentTypeName)return c;};")
 	.runScript("Entity._cloned<-function(org){_orgCloned(org);"
 			   "foreach(i,c in org.components){addComponent(clone c)};"
 			   "for(local i=org.firstChild, last=null; i; i=i.nextSibling){local e=clone i;if(last)e.insertAfter(last);else addChild(e);last=e;};"

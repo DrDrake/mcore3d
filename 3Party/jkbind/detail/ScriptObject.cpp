@@ -3,6 +3,20 @@
 namespace script {
 namespace detail {
 
+ScriptObject::ScriptObject(const ScriptObject& o)
+	:_vm(o._vm),
+	_o(o._o)
+{
+	sq_addref(_vm, &_o);
+}
+
+ScriptObject::ScriptObject(HSQUIRRELVM vm, HSQOBJECT o)
+	:_vm(vm),
+	_o(o)
+{
+	sq_addref(_vm, &_o);
+}
+
 ScriptObject& ScriptObject::operator =(const ScriptObject& o)
 {
 	jkSCRIPT_LOGIC_ASSERT(_vm == o._vm);

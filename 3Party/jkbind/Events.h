@@ -27,7 +27,7 @@ public:
 protected:
 	char			_callee[sizeof(ScriptObject)];
 	char			_func[sizeof(ScriptObject)];
-	WeakPtr<VMCore> _vm;
+	base::WeakPtr<VMCore> _vm;
 	bool			_assigned;
 };
 

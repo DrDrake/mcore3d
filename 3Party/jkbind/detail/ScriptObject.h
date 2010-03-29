@@ -27,19 +27,9 @@ public:
 		sq_resetobject(&_o);
 	}
 
-	ScriptObject(const ScriptObject& o)
-		:_vm(o._vm),
-		_o(o._o)
-	{
-		sq_addref(_vm, &_o);
-	}
+	ScriptObject(const ScriptObject& o);
 
-	ScriptObject(HSQUIRRELVM vm, HSQOBJECT o)
-		:_vm(vm),
-		_o(o)
-	{
-		sq_addref(_vm, &_o);
-	}
+	ScriptObject(HSQUIRRELVM vm, HSQOBJECT o);
 
 	ScriptObject& operator =(const ScriptObject& o);
 
