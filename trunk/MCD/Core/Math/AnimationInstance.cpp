@@ -12,6 +12,15 @@ AnimationInstance::Events::~Events() {
 	clear();
 }
 
+AnimationInstance::Events::Events(const Events& rhs) {
+	// Do nothing
+}
+
+AnimationInstance::Events& AnimationInstance::Events::operator=(const Events& rhs) {
+	// Do nothing
+	return *this;
+}
+
 AnimationInstance::Event* AnimationInstance::Events::setEvent(size_t virtualFrameIdx, void* data)
 {
 	// Search for any existing index

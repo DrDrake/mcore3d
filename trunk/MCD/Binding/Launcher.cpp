@@ -17,6 +17,7 @@
 #include "../Core/System/MemoryProfiler.h"
 #include "../Core/System/Resource.h"
 #include "../Core/System/ResourceLoader.h"
+#include "../Core/System/StrUtility.h"
 #include "../Core/System/ThreadedCpuProfiler.h"
 #include "../Loader/PodLoader.h"
 #include "../Loader/PvrLoader.h"
@@ -165,15 +166,20 @@ bool Launcher::init(InputComponent& inputComponent, Entity* rootNode)
 		"gLauncher <- _getlauncher();\n"
 
 		"function loadEntity(filePath, loadOptions={}) {\n"
-		"	if(\"createStaticRigidBody\" in loadOptions && loadOptions[\"createStaticRigidBody\"])\n"
-		"		return gLauncher.loadEntity(filePath, true);\n"
-		"	return gLauncher.loadEntity(filePath, false);\n"
+		"	local args = \"\";\n"
+		"	if(\"createCollisionMesh\" in loadOptions && loadOptions[\"createCollisionMesh\"])\n"
+		"		args += \";createCollisionMesh=true\";\n"
+		"	if(\"anim\" in loadOptions)\n"
+		"		foreach(a in loadOptions[\"anim\"])\n"
+		"			args += \";anim=\"+a;\n"
+		"	return gLauncher.loadEntity(filePath, args);\n"
 		"}\n"
 
 		"function loadEntity2(filePath, loadOptions={}) {\n"
-		"	if(\"createStaticRigidBody\" in loadOptions && loadOptions[\"createStaticRigidBody\"])\n"
-		"		return gLauncher.loadEntity2(filePath, true);\n"
-		"	return gLauncher.loadEntity2(filePath, false);\n"
+		"	local args = \"\";\n"
+		"	if(\"createCollisionMesh\" in loadOptions && loadOptions[\"createCollisionMesh\"])\n"
+		"		args += \";createCollisionMesh=true\";\n"
+		"	return gLauncher.loadEntity2(filePath, args);\n"
 		"}\n"
 
 		"resourceManager <- gLauncher.resourceManager;\n"
@@ -256,7 +262,7 @@ bool Launcher::init(InputComponent& inputComponent, Entity* rootNode)
 	return true;
 }
 
-Entity* Launcher::loadEntity(const char* filePath, bool createCollisionMesh)
+Entity* Launcher::loadEntity(const char* filePath, const char* args)
 {
 	MemoryProfiler::Scope profiler("Launcher::loadEntity");
 
@@ -280,20 +286,43 @@ Entity* Launcher::loadEntity(const char* filePath, bool createCollisionMesh)
 		DynamicsWorld& mDynamicsWorld;
 	};	// EntityLoadCreatePhysicsCallback
 
+	bool createCollisionMesh = false;
+	if(nullptr != args) {
+		NvpParser parser(args);
+		const char* name, *value;
+		while(parser.next(name, value)) {
+			if(strCaseCmp(name, "createCollisionMesh") == 0 && strCaseCmp(value, "true") == 0)
+				createCollisionMesh = true;
+		}
+	}
+
+	std::string argString = args;
+	argString += ";loadAsEntity=true";
+
 	std::auto_ptr<Entity> e(new Entity());
 	e->name = Path(filePath).getLeaf();	// Only use the file name, the branch path is ignored.
 	EntityPrototypeLoader::addEntityAfterLoad(e.get(), *mResourceManager, filePath,
 		createCollisionMesh ? new EntityLoadCreatePhysicsCallback(mDynamicsWorld) : nullptr,
-		0, "loadAsEntity=true"
+		0, argString.c_str()
 	);
 
 	return e.release();
 }
 
-Entity* Launcher::loadEntity2(const char* filePath, bool createCollisionMesh)
+Entity* Launcher::loadEntity2(const char* filePath, const char* args)
 {
+	bool createCollisionMesh = false;
+	if(nullptr != args) {
+		NvpParser parser(args);
+		const char* name, *value;
+		while(parser.next(name, value)) {
+			if(strCaseCmp(name, "createCollisionMesh") == 0 && strCaseCmp(value, "true") == 0)
+				createCollisionMesh = true;
+		}
+	}
+
 	Entity* ret = PrefabLoaderComponent::loadEntity(
-		*mResourceManager, filePath, createCollisionMesh ? &mDynamicsWorld : nullptr
+		*mResourceManager, filePath, args, createCollisionMesh ? &mDynamicsWorld : nullptr
 	);
 	return ret ? ret : new Entity();
 }

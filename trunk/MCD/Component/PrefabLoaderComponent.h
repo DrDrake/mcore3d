@@ -36,6 +36,7 @@ public:
 	static sal_maybenull Entity* loadEntity(
 		IResourceManager& resourceManager,
 		const char* filePath,
+		sal_in_z_opt const char* args=nullptr,
 		sal_in_opt DynamicsWorld* dynamicsWorld=nullptr
 	);
 

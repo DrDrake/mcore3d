@@ -194,7 +194,8 @@ Component* AnimationComponent::clone() const
 
 void AnimationComponent::update(float dt)
 {
-	// TODO: Handle disabled AnimationComponent in AnimationUpdaterComponent
+	// TODO: Handle disabled AnimationComponent in AnimationUpdaterComponent, or
+	// only submit enabled animation components to the updater in this function.
 	Entity* e = entity();
 	if(!e || !e->enabled)
 		return;

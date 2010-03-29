@@ -37,6 +37,10 @@ public:
 		//!	Will invoke \em destroyData on every Event.
 		~Events();
 
+		//!	Coping of Events will simply does nothing.
+		Events(const Events& rhs);
+		Events& operator=(const Events& rhs);
+
 		/*!	Associate an Event with the specific frame index.
 			The old Event::data is destroyed by \em destroyData if \em virtualFrameIdx already exist.
 			Passing null \em data means remove an Event at the specific index \em virtualFrameIdx.
