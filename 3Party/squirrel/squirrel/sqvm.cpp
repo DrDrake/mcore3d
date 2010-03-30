@@ -272,7 +272,7 @@ void SQVM::ToString(const SQObjectPtr &o,SQObjectPtr &res)
 }
 
 
-bool SQVM::StringCat(const SQObjectPtr &str,const SQObjectPtr &obj,SQObjectPtr &dest)
+bool SQVM::StringCat(SQObjectPtr str,SQObjectPtr obj,SQObjectPtr &dest)
 {
 	SQObjectPtr a, b;
 	ToString(str, a);
@@ -297,7 +297,7 @@ void SQVM::TypeOf(const SQObjectPtr &obj1,SQObjectPtr &dest)
 
 bool SQVM::Init(SQVM *friendvm, SQInteger stacksize)
 {
-	_stack.resize(stacksize);
+	_stack.resize(stacksize*10);
 	_alloccallsstacksize = 4;
 	_callstackdata.resize(_alloccallsstacksize);
 	_callsstacksize = 0;
