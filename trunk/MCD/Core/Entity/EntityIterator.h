@@ -22,6 +22,8 @@ class MCD_CORE_API EntityPreorderIterator
 public:
 	explicit EntityPreorderIterator(sal_maybenull Entity* start);
 
+	explicit EntityPreorderIterator(sal_maybenull Entity* start, sal_maybenull Entity* current);
+
 	// NOTE: Assumming the iterator is valid and so the returned pointer will not be null.
 	sal_notnull Entity* operator->() {
 		return mCurrent;

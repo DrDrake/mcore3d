@@ -436,6 +436,10 @@ EntityPreorderIterator::EntityPreorderIterator(Entity* start)
 	: mCurrent(start), mStart(start)
 {}
 
+EntityPreorderIterator::EntityPreorderIterator(Entity* start, Entity* current)
+	: mCurrent(current), mStart(start)
+{}
+
 Entity* EntityPreorderIterator::next()
 {
 	// After an upward movement is preformed, we will not visit the child again
