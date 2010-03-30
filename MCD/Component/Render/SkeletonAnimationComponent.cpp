@@ -3,6 +3,7 @@
 #include "../../Core/Entity/Entity.h"
 #include "../../Core/Math/Skeleton.h"
 #include "../../Core/System/TaskPool.h"
+#include "../../Core/System/ThreadedCpuProfiler.h"
 #include <map>
 
 namespace MCD {
@@ -76,6 +77,8 @@ public:
 	{
 		if(mPaused)
 			return;
+
+		ThreadedCpuProfiler::Scope cpuProfiler("SkeletonAnimationUpdaterComponent::update");
 
 		mIsUpdating = true;
 

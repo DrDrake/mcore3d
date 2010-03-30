@@ -4,6 +4,7 @@
 #include "../../Core/Math/AnimationInstance.h"
 #include "../../Core/Math/Quaternion.h"
 #include "../../Core/System/TaskPool.h"
+#include "../../Core/System/ThreadedCpuProfiler.h"
 #include <set>
 #ifdef MCD_VC
 #	pragma warning(push)
@@ -242,6 +243,8 @@ public:
 	{
 		if(mPaused)
 			return;
+
+		ThreadedCpuProfiler::Scope cpuProfiler("AnimationUpdaterComponent::update");
 
 		mIsUpdating = true;
 

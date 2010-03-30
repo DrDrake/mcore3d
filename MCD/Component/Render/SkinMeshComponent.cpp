@@ -8,6 +8,7 @@
 #include "../../Core/Entity/Entity.h"
 #include "../../Core/Math/Skeleton.h"
 #include "../../Core/System/ResourceManager.h"
+#include "../../Core/System/ThreadedCpuProfiler.h"
 #include "../../../3Party/glew/glew.h"
 
 namespace MCD {
@@ -101,6 +102,8 @@ void SkinMeshComponent::render()
 		mTmpPose.transforms[i] *= skeleton->basePoseInverse[i];
 
 	{	// Perform skinning
+		ThreadedCpuProfiler::Scope cpuProfiler("SkinMeshComponent::cpu skinning");
+
 		Model::MeshAndMaterial* i = meshes->mMeshes.begin();
 		Model::MeshAndMaterial* j = basePoseMeshes->mMeshes.begin();
 		for(; i != meshes->mMeshes.end() && j != basePoseMeshes->mMeshes.end(); i = i->next(), j = j->next()) {
