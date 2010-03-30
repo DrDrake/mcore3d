@@ -38,6 +38,11 @@ ComponentPreorderIterator::ComponentPreorderIterator(Entity* start)
 	}
 }
 
+ComponentPreorderIterator::ComponentPreorderIterator(Entity* start, Component* current)
+	: mCurrent(current), mCurrentEntity(start, current ? current->entity() : nullptr)
+{
+}
+
 Component* ComponentPreorderIterator::next()
 {
 	if(!mCurrent)

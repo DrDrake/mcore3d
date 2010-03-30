@@ -277,7 +277,14 @@ class TestEntity
 			assert(c[i] == ic);
 			++count;
 		}
+		assert(count == 2);
 
+		// Loop for all components in the children nodes as well
+		count = 0;
+		foreach(i,ic in e.allcomponents) {
+			assert(c[i] == ic);
+			++count;
+		}
 		assert(count == 2);
 	}
 }

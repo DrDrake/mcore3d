@@ -95,6 +95,8 @@ class MCD_CORE_API ComponentPreorderIterator
 public:
 	explicit ComponentPreorderIterator(sal_maybenull Entity* start);
 
+	ComponentPreorderIterator(sal_maybenull Entity* start, sal_maybenull Component* current);
+
 	// NOTE: Assumming the iterator is valid and so the returned pointer will not be null.
 	sal_notnull Component* operator->() {
 		return mCurrent;

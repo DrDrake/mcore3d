@@ -59,6 +59,7 @@ SCRIPT_CLASS_REGISTER_NAME(Component, "Component")
 	// There is problem for derived class to use base class's _cloned()
 	// therefore an alternative name is used.
 	.clone<&componentClone>("_orgCloned")
+	.method("_postClone", &Component::postClone)
 	.method<objNoCare>("_getentity", &Component::entity)
 	.rawMethod("_setScriptHandle", &componentSetScriptHandle)
 	.wrappedMethod("destroySelf", &componentDestroySelf)
@@ -110,6 +111,9 @@ static Component* entityNextComponent(Entity& self, Component* c) {
 	c = (c == nullptr) ? self.components.begin() : c->next();
 	return c == self.components.end() ? nullptr : c;
 }
+static Component* entityNextChildrenComponent(Entity& self, Component* c) {
+	return c ? ComponentPreorderIterator(&self, c).next() : ComponentPreorderIterator(&self).current();
+}
 SCRIPT_CLASS_REGISTER_NAME(Entity, "Entity")
 	.enableGetset()
 	.constructor("_orgConstructor")
@@ -131,7 +135,9 @@ SCRIPT_CLASS_REGISTER_NAME(Entity, "Entity")
 	.method<objNoCare>("_getfirstChild", (Entity* (Entity::*)())(&Entity::firstChild))		// node tree's root node, therefore we use
 	.method<objNoCare>("_getnextSibling", (Entity* (Entity::*)())(&Entity::nextSibling))	// objNoCare as the return policy.
 	.wrappedMethod<objNoCare>("_nextComponent", &entityNextComponent)
+	.wrappedMethod<objNoCare>("_nextChildrenComponent", &entityNextChildrenComponent)
 	.runScript("Entity._getcomponents<-function(){local c;for(;c=_nextComponent(c);)yield c;}return null;")	// Generator for foreach
+	.runScript("Entity._getallcomponents<-function(){local c;for(;c=_nextChildrenComponent(c);)yield c;}return null;")	// Generator for foreach
 	.runScript("Entity.directSerialize<-null;")
 	.runScript("Entity.deferSerialize<-function(state){::entityDeferSerializeTraverse(this,state);}")
 	.runScript("Entity.serialize<-function(state){directSerialize?directSerialize(state):deferSerialize(state);}")
@@ -140,6 +146,7 @@ SCRIPT_CLASS_REGISTER_NAME(Entity, "Entity")
 	.runScript("Entity._cloned<-function(org){_orgCloned(org);"
 			   "foreach(i,c in org.components){addComponent(clone c)};"
 			   "for(local i=org.firstChild, last=null; i; i=i.nextSibling){local e=clone i;if(last)e.insertAfter(last);else addChild(e);last=e;};"
+			   "foreach(i,c in allcomponents){c._postClone(org,this);};"
 			   "}")
 ;}
 
