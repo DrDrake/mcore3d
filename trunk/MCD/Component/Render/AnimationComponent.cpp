@@ -3,8 +3,10 @@
 #include "../../Core/Entity/Entity.h"
 #include "../../Core/Math/AnimationInstance.h"
 #include "../../Core/Math/Quaternion.h"
+#include "../../Core/System/Log.h"
 #include "../../Core/System/TaskPool.h"
 #include "../../Core/System/ThreadedCpuProfiler.h"
+#include "../../Render/Color.h"
 #include <set>
 #ifdef MCD_VC
 #	pragma warning(push)
@@ -125,11 +127,6 @@ static void setEvent(
 class AnimationComponent::MyAnimationInstance : public AnimationInstance
 {
 public:
-	MyAnimationInstance()
-	{
-		transform = Mat44f::cIdentity;
-	}
-
 	void update()
 	{
 		if(!AnimationInstance::isAllTrackCommited())
@@ -137,29 +134,39 @@ public:
 
 		AnimationInstance::update();
 
-		// Update the Entity's transform from the weightedResult.
-		const AnimationInstance::KeyFrames& frames = weightedResult;
+		ScopeLock lock(mutex);
+		const size_t animDataCount = animData.size();
+		for(size_t i=0; i<animDataCount; ++i) {
+			// Update the Entity's transform from the weightedResult.
+			Mat44f& mat = animData[i].transform;
+			const AnimationInstance::KeyFrames& frames = weightedResult;
+			const size_t subtrackIdxOffset = i * subtrackPerEntity;
 
-		// Position
-		if(frames.size > 0)
-			transform.setTranslation(reinterpret_cast<const Vec3f&>(frames[0]));	// The fourth component is ignored
+			// Position
+			mat.setTranslation(reinterpret_cast<const Vec3f&>(frames[subtrackIdxOffset + 0]));	// The fourth component is ignored
 
-		if(frames.size > 1) {
+			// Rotation
 			Mat33f m;
-			reinterpret_cast<const Quaternionf&>(frames[1]).toMatrix(m);
+			reinterpret_cast<const Quaternionf&>(frames[subtrackIdxOffset + 1]).toMatrix(m);
 			MCD_ASSERT("Not pure rotation matrix!" && Mathf::isNearEqual(m.determinant(), 1, 1e-5f));
-			transform.setMat33(m);
+			mat.setMat33(m);
+
+			// Since the scale is always be one after appling the unit quaternion,
+			// therefore using scaleBy() is faster than using setScale().
+			mat.scaleBy(reinterpret_cast<const Vec3f&>(frames[subtrackIdxOffset + 2]));	// The fourth component is ignored
+
+			// Update the color.
+			animData[i].color = reinterpret_cast<const ColorRGBAf&>(frames[subtrackIdxOffset + 3]);
 		}
-
-		// Since the scale is always be one after appling the unit quaternion,
-		// therefore using scaleBy() is faster than using setScale().
-		if(frames.size > 2)
-			transform.scaleBy(reinterpret_cast<const Vec3f&>(frames[2]));	// The fourth component is ignored
-
-		// TODO: Update the color.
 	}
 
-	Mat44f transform;
+	mutable Mutex mutex;	// Mutex for thread-safe resize of \em animData
+	struct AnimData { 
+		AnimData() : transform(Mat44f::cIdentity), color(1, 1) {}
+		Mat44f transform; ColorRGBAf color;
+	};
+	typedef std::vector<AnimData> AnimDataList;
+	AnimDataList animData;
 	AnimationComponentPtr backRef;
 };	// MyAnimationInstance
 
@@ -210,7 +217,25 @@ void AnimationComponent::update(float dt)
 	// NOTE: This assignment will cause data race since the animation thread is keep updating
 	// animationInstance).transform, but it isn't a problem at all because the matrix
 	// change relativly smooth over time.
-	e->localTransform = static_cast<MyAnimationInstance&>(animationInstance).transform;
+	MyAnimationInstance& myAnim = static_cast<MyAnimationInstance&>(*mAnimationInstanceHolder);
+	const size_t animDataCount = myAnim.animData.size();
+	const size_t affectingEntityCount = affectingEntities.size();
+
+	if(affectingEntityCount > 0) {
+		for(size_t i=0; i<affectingEntityCount; ++i) {
+			if(const EntityPtr& e_ = affectingEntities[i]) {
+				if(i < animDataCount) {	// Excessing registered affecting entity than the sub-track count will be ignored.
+					e_->localTransform = myAnim.animData[i].transform;
+					// TODO: Apply the color to RenderableComponent
+				}
+			}
+		}
+	}
+	// If there is no affecting entity registered, affect on it's host entity.
+	else if(animDataCount > 0) {
+		e->localTransform = myAnim.animData[0].transform;
+		// TODO: Apply the color to RenderableComponent
+	}
 }
 
 class AnimationUpdaterComponent::Impl : public MCD::TaskPool::Task
@@ -258,6 +283,16 @@ public:
 			// NOTE: If we ignore Entity::enabled, a simple "a.update()" can make the job done.
 			ScopeLock lock(a.backRef.destructionMutex());
 			if(AnimationComponent* c = a.backRef.get()) {
+				// Poll for the sub-track count and adjust the MyAnimationInstance accordingly
+				if(a.subtrackCount() != a.animData.size() * AnimationComponent::subtrackPerEntity) {
+					if(false && c->animationInstance.subtrackCount() % AnimationComponent::subtrackPerEntity != 0)
+						Log::format(Log::Warn, "AnimationComponent use at least %d sub-track per entity, but only %d sub-track are given to %d entities",
+							AnimationComponent::subtrackPerEntity, c->animationInstance.subtrackCount(), c->affectingEntities.size()
+						);
+					ScopeLock lock2(a.mutex);
+					a.animData.resize(c->animationInstance.subtrackCount() / AnimationComponent::subtrackPerEntity);
+				}
+
 				if(Entity* e = c->entity()) {
 					if(e->enabled) {
 						lock.mutex().unlock();
