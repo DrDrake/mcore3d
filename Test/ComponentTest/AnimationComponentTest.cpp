@@ -102,8 +102,6 @@ public:
 
 	sal_override void update(float deltaTime)
 	{
-		GLfloat lightPos[] = { 200, 200, 200, 1.0f };
-		glLightfv(GL_LIGHT0, GL_POSITION, lightPos);
 		mResourceManager.processLoadingEvents();
 
 		if(mTimer.get().asSecond() > 2) {
@@ -126,7 +124,7 @@ public:
 		// Manually creat the animation track
 		animationTrack->acquireWriteLock();
 
-		const size_t cSubtrackCount = 3;
+		const size_t cSubtrackCount = AnimationComponent::subtrackPerEntity;
 		std::vector<size_t> tmp(cSubtrackCount, cFrameCount);
 
 		MCD_VERIFY(animationTrack->init(StrideArray<const size_t>(&tmp[0], cSubtrackCount)));

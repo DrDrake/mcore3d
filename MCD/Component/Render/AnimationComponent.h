@@ -5,14 +5,20 @@
 #include "../../Core/Entity/BehaviourComponent.h"
 #include "../../Core/System/SharedPtr.h"
 #include "../../../3Party/jkbind/Declarator.h"
+#include <vector>
 
 namespace MCD {
 
 class AnimationInstance;
 class TaskPool;
+typedef IntrusiveWeakPtr<class Entity> EntityPtr;
 typedef IntrusiveWeakPtr<class AnimationUpdaterComponent> AnimationUpdaterComponentPtr;
 
-//!	A component that use the AnimationInstance to control some aspects of an Entity.
+/*!	A component that use the AnimationInstance to control some aspects of an Entity.
+	If the member variable \em affectingEntities is empty then this component will
+	control over it's hosting Entity; otherwise all the sub-tracks will corresponds
+	to the Entity in \em affectingEntities.
+ */
 class MCD_COMPONENT_API AnimationComponent : public BehaviourComponent
 {
 	class MyAnimationInstance;
@@ -51,7 +57,6 @@ public:
 		sal_maybenull Callback callback=nullptr, sal_maybenull DestroyData destroyData=nullptr
 	);
 
-	class ScriptCallback;
 	script::Event<
 		void, script::plain, size_t,
 		script::objNoCare, AnimationComponent*,
@@ -64,8 +69,14 @@ public:
 		1		->	Orientation	(Slerp)
 		2		->	Scale		(Linear)
 		3		->	Color		(Linear)
+
+		The number of sub-tracks in the AnimationInstance should be multiple of 4.
 	 */
 	AnimationInstance& animationInstance;
+
+	static const size_t subtrackPerEntity = 4;
+
+	std::vector<EntityPtr> affectingEntities;
 
 	const AnimationUpdaterComponentPtr animationUpdater;
 
