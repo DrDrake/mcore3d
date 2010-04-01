@@ -490,4 +490,24 @@ Entity* EntityPreorderIterator::skipChildren()
 	return mCurrent;
 }
 
+int EntityPreorderIterator::offsetFrom(const Entity& from, const Entity& to)
+{
+	int i = 0;
+	for(EntityPreorderIterator itr(const_cast<Entity*>(&from)); !itr.ended(); itr.next(), ++i) {
+		if(itr.current() != &to) continue;
+		return i;
+	}
+	return -1;
+}
+
+Entity* EntityPreorderIterator::entityByOffset(const Entity& entity, int offset)
+{
+	int i = 0;
+	for(EntityPreorderIterator itr(const_cast<Entity*>(&entity)); !itr.ended(); itr.next(), ++i) {
+		if(i == offset)
+			return itr.current();
+	}
+	return nullptr;
+}
+
 }	// namespace MCD

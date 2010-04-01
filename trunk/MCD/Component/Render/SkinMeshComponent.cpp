@@ -59,7 +59,7 @@ bool SkinMeshComponent::postClone(const Entity& src, Entity& dest)
 	if(!srcComponent->skeletonAnimation)
 		return true;
 
-	// Find the Component in the src tree that corresponding to referenceToAnother
+	// Find the Component in the src tree that corresponding to srcComponent->skeletonAnimation
 	skeletonAnimation = dynamic_cast<SkeletonAnimationComponent*>(
 		ComponentPreorderIterator::componentByOffset(dest, ComponentPreorderIterator::offsetFrom(src, *srcComponent->skeletonAnimation))
 	);

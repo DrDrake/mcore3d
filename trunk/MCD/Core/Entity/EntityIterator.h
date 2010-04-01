@@ -73,6 +73,12 @@ public:
 	 */
 	sal_maybenull Entity* skipChildren();
 
+	//!	Returns how many preorder iterations are the 2 Entity aparted from.
+	static sal_checkreturn int offsetFrom(const Entity& from, const Entity& to);
+
+	//!	Returns an Entity identified by an offset from an Entity.
+	static sal_maybenull Entity* entityByOffset(const Entity& entity, int offset);
+
 protected:
 	Entity* mCurrent;
 	//! The position where this iterator is constructed, so it knows where to stop.
