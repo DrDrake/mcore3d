@@ -57,28 +57,36 @@ public:
 	//! Establishes a connection to a remote host.
 	sal_checkreturn ErrorCode connect(const IPEndPoint& endPoint);
 
+	//!	Returns -1 for any error
 	sal_checkreturn ssize_t send(const void* data, size_t len, int flags=0);
 
+	//!	Returns -1 for any error
 	sal_checkreturn ssize_t receive(void* buf, size_t len, int flags=0);
 
+	//!	Returns -1 for any error
+	sal_checkreturn ssize_t sendTo(const void* data, size_t len, const IPEndPoint& destEndPoint, int flags=0);
+
+	//!	Returns -1 for any error
+	sal_checkreturn ssize_t receiveFrom(void* buf, size_t len, IPEndPoint& srcEndPoint, int flags=0);
+
 	/*	To assure that all data is sent and received on a connected socket before it is closed,
-		an application should use ShutDownXXX() to close connection before calling Close().
+		an application should use ShutDownXXX() to close connection before calling close().
 		Reference: See MSDN on ::shutdown
 	 */
 
 	//! Shutdown read
-	void shutDownRead();
+	sal_checkreturn ErrorCode shutDownRead();
 
 	//! Shutdown write
-	void shutDownWrite();
+	sal_checkreturn ErrorCode shutDownWrite();
 
 	//! Shutdown read and write
-	void shutDownReadWrite();
+	sal_checkreturn ErrorCode shutDownReadWrite();
 
 	//! Close the socket
 	void requestClose();
 
-	void close();
+	sal_checkreturn ErrorCode close();
 
 // Attributes
 	//! Whether the socket is bound to a specific local port.

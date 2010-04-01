@@ -3,7 +3,6 @@
 
 #include "Atomic.h"
 #include "Path.h"
-#include "IntrusivePtr.h"
 #include "WeakPtr.h"
 
 namespace MCD {

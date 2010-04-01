@@ -3,6 +3,7 @@
 
 #include "ShareLib.h"
 #include "../Core/System/Platform.h"
+#include <string>
 
 // Forward declaration of platform dependent type
 struct sockaddr;
@@ -34,10 +35,15 @@ public:
 	static IPAddress getAny();
 	static IPAddress getIPv6Any();
 
-	bool operator==(const IPAddress& rhs) const;
-	bool operator<(const IPAddress& rhs) const;
+	uint64_t getInt() const;
+
+	std::string getString() const;
 
 	sockaddr& nativeAddr() const;	//! Function that cast mSockAddr into sockaddr
+
+	bool operator==(const IPAddress& rhs) const;
+	bool operator!=(const IPAddress& rhs) const;
+	bool operator<(const IPAddress& rhs) const;
 
 protected:
 	char mSockAddr[16];

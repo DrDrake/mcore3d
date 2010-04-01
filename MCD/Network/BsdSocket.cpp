@@ -76,6 +76,7 @@ BsdSocket::BsdSocket()
 BsdSocket::~BsdSocket()
 {
 	MCD_STATIC_ASSERT(sizeof(SOCKET) == sizeof(mFd));
+	close();
 }
 
 ErrorCode BsdSocket::create(SocketType type)
@@ -157,6 +158,67 @@ ssize_t BsdSocket::receive(void* buf, size_t len, int flags)
 	ssize_t ret = ::recv(fd(), (char*)buf, toInt(len), flags);
 	lastError = ret < 0 ? getLastError() : OK;
 	return ret;
+}
+
+ssize_t BsdSocket::sendTo(const void* data, size_t len, const IPEndPoint& destEndPoint, int flags)
+{
+	sockaddr addr = destEndPoint.address().nativeAddr();
+	ssize_t ret = ::sendto(fd(), (const char*)data, toInt(len), flags, &addr, sizeof(addr));
+	lastError = ret < 0 ? getLastError() : OK;
+	return ret;
+}
+
+ssize_t BsdSocket::receiveFrom(void* buf, size_t len, IPEndPoint& srcEndPoint, int flags)
+{
+	sockaddr& addr = srcEndPoint.address().nativeAddr();
+	int bufSize = sizeof(addr);
+	ssize_t ret = ::recvfrom(fd(), (char*)buf, toInt(len), flags, &addr, &bufSize);
+	MCD_ASSERT(bufSize == sizeof(addr));
+	lastError = ret < 0 ? getLastError() : OK;
+	return ret;
+}
+
+ErrorCode BsdSocket::shutDownRead()
+{
+	if(fd() != INVALID_SOCKET && ::shutdown(fd(), SD_RECEIVE) == OK)
+		return OK;
+	return lastError = getLastError();
+}
+
+ErrorCode BsdSocket::shutDownWrite()
+{
+	if(fd() != INVALID_SOCKET && ::shutdown(fd(), SD_SEND) == OK)
+		return OK;
+	return lastError = getLastError();
+}
+
+ErrorCode BsdSocket::shutDownReadWrite()
+{
+	if(fd() != INVALID_SOCKET && ::shutdown(fd(), SD_BOTH) == OK)
+		return OK;
+	return lastError = getLastError();
+}
+
+ErrorCode BsdSocket::close()
+{
+#if defined(MCD_WIN32)
+	if(::closesocket(fd()) == OK)
+		return OK;
+#else
+	if(::clode(fd()) == OK)
+		return OK;
+#endif
+	return lastError = getLastError();
+}
+
+IPEndPoint BsdSocket::remoteEndPoint() const
+{
+	sockaddr addr;
+	::memset(&addr, 0, sizeof(addr));
+	socklen_t len = sizeof(addr);
+	if(::getpeername(fd(), &addr, &len) == OK)
+		return IPEndPoint(addr);
+	return IPEndPoint(addr);
 }
 
 bool BsdSocket::inProgress(int code)

@@ -2,6 +2,7 @@
 #include "IPAddress.h"
 #include "Platform.h"
 #include "../Core/System/StaticAssert.h"
+#include <sstream>
 
 namespace MCD {
 
@@ -49,10 +50,8 @@ IPAddress::IPAddress(const sockaddr& ip)
 
 bool IPAddress::parse(sal_in_z_opt const char* ipOrHostName)
 {
-	if(ipOrHostName == nullptr || ipOrHostName[0] == 0) {
-//		*this = IPAddress::GetLoopBack();
-		return true;
-	}
+	if(ipOrHostName == nullptr || ipOrHostName[0] == 0)
+		return false;
 
 	struct addrinfo hints;
 	struct addrinfo* res = nullptr;
@@ -86,9 +85,36 @@ IPAddress IPAddress::getAny() {
 	return IPAddress(0);
 }
 
-IPAddress IPAddress::getIPv6Any() {
+IPAddress IPAddress::getIPv6Any()
+{
 	MCD_ASSERT(false);
 	return IPAddress(0);
+}
+
+uint64_t IPAddress::getInt() const
+{
+	uint64_t ip = 0;
+	BigInt& bi = reinterpret_cast<BigInt&>(ip);
+	::memcpy(&bi, &nativeAddr().sa_data[2], 4);
+
+	// Correct the byte order
+	bi.mShort[0] = ntohs(bi.mShort[0]);
+	bi.mShort[1] = ntohs(bi.mShort[1]);
+
+	return ip;
+}
+
+std::string IPAddress::getString() const {
+	std::ostringstream os;
+
+	const sockaddr& addr = nativeAddr();
+	// Note that the cast from uint8_t to size_t is necessary
+	os	<< size_t(uint8_t(addr.sa_data[2])) << '.'
+		<< size_t(uint8_t(addr.sa_data[3])) << '.'
+		<< size_t(uint8_t(addr.sa_data[4])) << '.'
+		<< size_t(uint8_t(addr.sa_data[5]));
+
+	return os.str();
 }
 
 sockaddr& IPAddress::nativeAddr() const
@@ -99,11 +125,15 @@ sockaddr& IPAddress::nativeAddr() const
 }
 
 bool IPAddress::operator==(const IPAddress& rhs) const {
-	return false;
+	return getInt() == rhs.getInt();;
+}
+
+bool IPAddress::operator!=(const IPAddress& rhs) const {
+	return !(*this == rhs);
 }
 
 bool IPAddress::operator<(const IPAddress& rhs) const {
-	return false;
+	return getInt() < rhs.getInt();;
 }
 
 }	// namespace MCD
