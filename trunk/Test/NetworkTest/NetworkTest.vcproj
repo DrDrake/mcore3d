@@ -253,6 +253,10 @@
 			RelativePath=".\Pch.h"
 			>
 		</File>
+		<File
+			RelativePath=".\ReactorTest.cpp"
+			>
+		</File>
 	</Files>
 	<Globals>
 	</Globals>

@@ -10,6 +10,8 @@ namespace MCD {
 class MCD_NETWORK_API IPEndPoint
 {
 public:
+	explicit IPEndPoint(const sockaddr& addr);
+
 	//!	Default constructor gives loopback ip
 	IPEndPoint(const IPAddress& address, uint16_t port);
 
@@ -18,13 +20,17 @@ public:
 	sal_checkreturn bool parse(sal_in_z const char* addressAndPort);
 
 // Attributes
+	IPAddress& address();
 	const IPAddress& address() const;
 	void setAddress(const IPAddress& address);
 
 	uint16_t port() const;
 	void setPort(uint16_t port);
 
+	std::string getString() const;
+
 	bool operator==(const IPEndPoint& rhs) const;
+	bool operator!=(const IPEndPoint& rhs) const;
 	bool operator<(const IPEndPoint& rhs) const;
 
 protected:
