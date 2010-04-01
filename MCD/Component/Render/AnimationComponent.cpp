@@ -200,6 +200,29 @@ Component* AnimationComponent::clone() const
 	return cloned;
 }
 
+bool AnimationComponent::postClone(const Entity& src, Entity& dest)
+{
+	// Find the Component in the src tree that corresponding to this
+	AnimationComponent* srcComponent = dynamic_cast<AnimationComponent*>(
+		ComponentPreorderIterator::componentByOffset(src, ComponentPreorderIterator::offsetFrom(dest, *this))
+	);
+
+	if(!srcComponent)
+		return false;
+
+	affectingEntities.clear();
+	for(size_t i=0; i<srcComponent->affectingEntities.size(); ++i) {
+		if(EntityPtr targetSrc = srcComponent->affectingEntities[i]) {
+			// Find the Component in the src tree that corresponding to referenceToAnother
+			EntityPtr targetDest = EntityPreorderIterator::entityByOffset(dest, EntityPreorderIterator::offsetFrom(src, *targetSrc));
+			if(targetDest)
+				affectingEntities.push_back(targetDest);
+		}
+	}
+
+	return true;
+}
+
 void AnimationComponent::update(float dt)
 {
 	// TODO: Handle disabled AnimationComponent in AnimationUpdaterComponent, or
