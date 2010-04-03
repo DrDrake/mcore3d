@@ -1,5 +1,6 @@
 #include "Pch.h"
 #include "PodLoader.h"
+#include "../Component/Render/AnimationComponent.h"
 #include "../Component/Render/MeshComponent.h"
 #include "../Component/Prefab.h"
 #include "../Render/Effect.h"
@@ -9,6 +10,8 @@
 #include "../Core/System/Log.h"
 #include "../Core/System/MemoryProfiler.h"
 #include "../Core/System/StrUtility.h"
+#include "../Core/Math/AnimationInstance.h"
+#include "../Core/Math/Quaternion.h"
 #include "../../3Party/glew/glew.h"
 #include "../../3Party/PowerVR/PVRTModelPOD.h"
 
@@ -34,8 +37,8 @@ class PodMaterial : public Material
 class PodLoader::Impl
 {
 public:
-	Impl(IResourceManager* resourceManager)
-		: mResourceManager(resourceManager)
+	Impl(IResourceManager* resourceManager, AnimationUpdaterComponent* animationUpdater)
+		: mResourceManager(resourceManager), mAnimationUpdater(animationUpdater)
 	{
 	}
 
@@ -48,6 +51,7 @@ public:
 	void commit(Resource& resource);
 
 	IResourceManager* mResourceManager;
+	AnimationUpdaterComponent* mAnimationUpdater;
 
 	Entity mRootEntity;
 	CPVRTModelPOD mPod;
@@ -233,8 +237,20 @@ IResourceLoader::LoadingState PodLoader::Impl::load(std::istream* is, const Path
 		// NOTE: The upload of vertex data is postponed until commit() which is run in main thread.
 	}
 
+	// Create AnimationComponent if necessary
+	size_t nodeWithAnimCount = 0;
+	AnimationComponentPtr animationComponent;
+	if(mAnimationUpdater && mPod.nNumFrame > 0) {
+		EntityPtr e = new Entity();
+		e->name = "Animation controller";
+		animationComponent = new AnimationComponent(*mAnimationUpdater);
+		e->addComponent(animationComponent.get());
+		e->asChildOf(&mRootEntity);
+	}
+
 	// Index of pod node to Entity
 	std::vector<EntityPtr> nodeToEntity;
+	std::vector<std::pair<const SPODNode*, EntityPtr> > animNodeToEntity;
 	nodeToEntity.push_back(&mRootEntity);	// SPODNode::nIdxParent gives -1 for no parent
 
 	// Loop for all nodes
@@ -245,13 +261,18 @@ IResourceLoader::LoadingState PodLoader::Impl::load(std::istream* is, const Path
 		if(podNode.nIdx < 0 || podNode.nIdx >= int(mMeshes.size()))
 			continue;
 
-		EntityPtr e = new Entity();
-		e->name = podNode.pszName;
-
 		if(podNode.nIdxParent + 1 >= int(nodeToEntity.size()))
 			continue;
 
+		EntityPtr e = new Entity();
+		e->name = podNode.pszName;
 		e->asChildOf(nodeToEntity[podNode.nIdxParent + 1].getNotNull());	// SPODNode::nIdxParent gives -1 for no parent
+		nodeToEntity.push_back(e.get());
+
+		if(podNode.nAnimFlags > 0) {
+			animNodeToEntity.push_back(std::make_pair(&podNode, e));
+			++nodeWithAnimCount;
+		}
 
 		{	// Calculate the local matrix
 			PVRTMat4& mat = reinterpret_cast<PVRTMat4&>(e->localTransform);
@@ -276,6 +297,68 @@ IResourceLoader::LoadingState PodLoader::Impl::load(std::istream* is, const Path
 			if(podNode.nIdxMaterial >= 0 && podNode.nIdxMaterial < int(mMaterials.size())) {
 				c->effect = new Effect("");
 				c->effect->material.reset(mMaterials[podNode.nIdxMaterial].clone());
+			}
+		}
+	}
+
+	if(mAnimationUpdater && mPod.nNumFrame > 0) {
+		// Initialize animation track
+		AnimationTrackPtr animationTrack = new AnimationTrack("");
+		MCD_VERIFY(animationComponent->animationInstance.addTrack(*animationTrack));
+
+		const size_t cSubtrackCount = AnimationComponent::subtrackPerEntity * nodeWithAnimCount;
+		std::vector<size_t> tmp(cSubtrackCount, mPod.nNumFrame);
+
+		AnimationTrack::ScopedWriteLock lock(*animationTrack);
+		MCD_VERIFY(animationTrack->init(StrideArray<const size_t>(&tmp[0], cSubtrackCount)));
+		animationTrack->naturalFramerate = 30;
+
+		// Assign the time of each frame
+		for(size_t i=0; i<cSubtrackCount; ++i) {
+			AnimationTrack::KeyFrames frames = animationTrack->getKeyFramesForSubtrack(i);
+			for(size_t j=0; j<frames.size; ++j)
+				frames[j].time = float(j);
+		}
+
+		// Calculate animation data and link up with the entities
+		for(size_t i=0; i<animNodeToEntity.size(); ++i) {
+			const SPODNode& podNode = *animNodeToEntity[i].first;
+	
+			Entity& e = *animNodeToEntity[i].second;
+			animationComponent->affectingEntities.push_back(&e);
+
+			// Translation
+			AnimationTrack::KeyFrames frames = animationTrack->getKeyFramesForSubtrack(i * AnimationComponent::subtrackPerEntity + 0);
+			if(podNode.nAnimFlags & ePODHasPositionAni) {
+				for(size_t j=0; j<mPod.nNumFrame; ++j)
+					reinterpret_cast<Vec3f&>(frames[j]) = reinterpret_cast<Vec3f&>(podNode.pfAnimPosition[j * 3]);
+			}
+			else {
+				for(size_t j=0; j<mPod.nNumFrame; ++j)
+					reinterpret_cast<Vec3f&>(frames[j]) = reinterpret_cast<Vec3f&>(podNode.pfAnimPosition[0 * 3]);
+			}
+
+			// Rotation
+			frames = animationTrack->getKeyFramesForSubtrack(i * AnimationComponent::subtrackPerEntity + 1);
+			animationTrack->subtracks[i * AnimationComponent::subtrackPerEntity + 1].flag = AnimationTrack::Slerp;
+			if(podNode.nAnimFlags & ePODHasRotationAni) {
+				for(size_t j=0; j<mPod.nNumFrame; ++j)
+					reinterpret_cast<Quaternionf&>(frames[j]) = reinterpret_cast<Quaternionf&>(podNode.pfAnimRotation[j * 4]).inverseUnit();
+			}
+			else {
+				for(size_t j=0; j<mPod.nNumFrame; ++j)
+					reinterpret_cast<Quaternionf&>(frames[j]) = reinterpret_cast<Quaternionf&>(podNode.pfAnimRotation[0 * 4]).inverseUnit();
+			}
+
+			// Scale
+			frames = animationTrack->getKeyFramesForSubtrack(i * AnimationComponent::subtrackPerEntity + 2);
+			if(podNode.nAnimFlags & ePODHasScaleAni) {
+				for(size_t j=0; j<mPod.nNumFrame; ++j)
+					reinterpret_cast<Vec3f&>(frames[j]) = reinterpret_cast<Vec3f&>(podNode.pfAnimScale[j * 7]);
+			}
+			else {
+				for(size_t j=0; j<mPod.nNumFrame; ++j)
+					reinterpret_cast<Vec3f&>(frames[j]) = reinterpret_cast<Vec3f&>(podNode.pfAnimScale[0 * 7]);
 			}
 		}
 	}
@@ -321,15 +404,19 @@ void PodLoader::Impl::commit(Resource& resource)
 	prefab.entity.reset(new Entity());
 
 	// Clone all the node in mRootEntity to the target.
-	for(Entity* i=mRootEntity.firstChild(); i; i = i->nextSibling()) {
-		Entity* e = i->clone();
-		MCD_ASSERT(e);
-		e->asChildOf(prefab.entity.get());
+	Entity* cloned = mRootEntity.clone();
+	for(Entity* i=cloned->firstChild(); i;) {
+		Entity* bk = i;
+		i = i->nextSibling();
+		bk->asChildOf(prefab.entity.get());
 	}
 }
 
-PodLoader::PodLoader(IResourceManager* resourceManager)
-	: mImpl(*new Impl(resourceManager))
+PodLoader::PodLoader(
+	IResourceManager* resourceManager,
+	AnimationUpdaterComponent* animationUpdater
+)
+	: mImpl(*new Impl(resourceManager, animationUpdater))
 {
 }
 
@@ -355,8 +442,12 @@ IResourceLoader::LoadingState PodLoader::getLoadingState() const
 }
 
 
-PodLoaderFactory::PodLoaderFactory(IResourceManager& resourceManager)
+PodLoaderFactory::PodLoaderFactory(
+	IResourceManager& resourceManager,
+	AnimationUpdaterComponent* animationUpdater
+)
     : mResourceManager(resourceManager)
+	, mAnimationUpdater(animationUpdater)
 {
 }
 
@@ -369,7 +460,7 @@ ResourcePtr PodLoaderFactory::createResource(const Path& fileId, const char* arg
 
 IResourceLoader* PodLoaderFactory::createLoader()
 {
-	return new PodLoader(&mResourceManager);
+	return new PodLoader(&mResourceManager, mAnimationUpdater);
 }
 
 }	// namespace MCD

@@ -36,10 +36,11 @@ void PrefabLoaderComponent::update(float dt)
 		child->destroyThis();
 
 	// Clone the Entity tree from the prefab
-	for(Entity* i=prefab->entity->firstChild(); i; i = i->nextSibling()) {
-		Entity* tmp = i->clone();
-		MCD_ASSERT(tmp);
-		tmp->asChildOf(e);
+	Entity* cloned = prefab->entity->clone();
+	for(Entity* i=cloned->firstChild(); i;) {
+		Entity* bk = i;
+		i = i->nextSibling();
+		bk->asChildOf(e);
 	}
 
 	mLoaded = true;

@@ -64,6 +64,7 @@ public:
 		BasicGlWindow("title=PrefabLoaderComponentTest;width=800;height=600;fullscreen=0;FSAA=4"),
 		mResourceManager(*createDefaultFileSystem())
 	{
+		mResourceManager.addFactory(new PvrLoaderFactory);
 		mResourceManager.addFactory(new PodLoaderFactory(mResourceManager));
 
 		const char* fileId = "Scene/City/scene.pod";
