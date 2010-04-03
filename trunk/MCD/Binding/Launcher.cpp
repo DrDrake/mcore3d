@@ -259,6 +259,9 @@ bool Launcher::init(InputComponent& inputComponent, Entity* rootNode)
 
 	setInputComponent(&inputComponent);
 
+	// Add any other high level loaders.
+	dynamic_cast<ResourceManager*>(mResourceManager)->addFactory(new PodLoaderFactory(*mResourceManager, mAnimationUpdater.get()));
+
 	return true;
 }
 
@@ -387,7 +390,6 @@ LauncherDefaultResourceManager::LauncherDefaultResourceManager(IFileSystem& file
 	addFactory(new OggLoaderFactory);
 	addFactory(new PixelShaderLoaderFactory);
 	addFactory(new PngLoaderFactory);
-	addFactory(new PodLoaderFactory(*this));
 	addFactory(new PvrLoaderFactory);
 	addFactory(new TgaLoaderFactory);
 	addFactory(new VertexShaderLoaderFactory);
