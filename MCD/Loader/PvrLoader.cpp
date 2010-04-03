@@ -22,6 +22,7 @@ public:
 	{
 	}
 
+	// TODO: Many dirty code and not enough error checking.
 	MCD_NOINLINE int load(std::istream& is)
 	{
 		// Read the file header
@@ -44,8 +45,11 @@ public:
 			mFormat = GL_RGB;
 			mInternalFmt = GL_RGB;
 			break;
-		case OGL_PVRTC2:
+//		case OGL_PVRTC2:
 		case OGL_PVRTC4:
+			mFormat = GL_RGBA;
+			mInternalFmt = GL_RGBA;
+			break;
 		default:
 			// TODO: Support more formats
 			return -1;
@@ -65,6 +69,36 @@ public:
 			return 0;
 		}
 
+		// Decompress the PVRTC format on platforms without native hardware support
+		if((header.dwpfFlags & PVRTEX_PIXELTYPE) == OGL_PVRTC4) {
+			// Calculate the total memory required for all the mip-map levels
+			size_t memSize = 0;
+			for(size_t i=0; i<header.dwMipMapCount; ++i) {
+				const size_t factor = 1 << i;
+				memSize += (mWidth * mHeight * 4) / (factor * factor);
+			}
+
+			byte_t* deCompressed = new byte_t[memSize];
+
+			byte_t* srcPtr = mImageData;
+			byte_t* destPtr = deCompressed;
+			size_t sizeX = mWidth, sizeY = mHeight;
+
+			for(size_t i=0; i<header.dwMipMapCount; ++i,
+				sizeX = Math<size_t>::max(sizeX/2, 1u), sizeY = Math<size_t>::max(sizeY/2, 1u))
+			{
+				PVRTDecompressPVRTC(srcPtr, 0, sizeX, sizeY, destPtr);
+				const size_t compressedSize = Math<size_t>::max(sizeX, PVRTC4_MIN_TEXWIDTH) * Math<size_t>::max(sizeY, PVRTC4_MIN_TEXHEIGHT) * header.dwBitCount / 8;
+				srcPtr += compressedSize;
+
+				const size_t deCompressedSize = sizeX * sizeY * 4;
+				destPtr += deCompressedSize;
+			}
+
+			delete mImageData;
+			mImageData = deCompressed;
+		}
+
 		return 0;
 	}
 
@@ -74,13 +108,18 @@ public:
 		{
 			byte_t* data = &mImageData[header.dwTextureDataSize * i];
 
-			size_t sizeX =mWidth, sizeY = mHeight;
+			size_t sizeX = mWidth, sizeY = mHeight;
 			for(size_t mipLevel = 0; mipLevel <= header.dwMipMapCount;
 				sizeX = Math<size_t>::max(sizeX/2, 1u), sizeY = Math<size_t>::max(sizeY/2, 1u),
 				++mipLevel)
 			{
 				glTexImage2D(GL_TEXTURE_2D, mipLevel, mInternalFmt, sizeX, sizeY,
 					0, mFormat, GL_UNSIGNED_BYTE, data);
+
+				if(mFormat == GL_RGBA)
+					data += sizeX * sizeY * 4;
+				else if(mFormat == GL_RGB)
+					data += sizeX * sizeY * 3;
 			}
 		}
 	}
