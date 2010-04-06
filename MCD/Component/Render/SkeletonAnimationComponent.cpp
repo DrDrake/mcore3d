@@ -93,7 +93,7 @@ public:
 			// Ensure the SkeletonAnimationComponent will not be deleted within this scope
 			ScopeLock lock(i->second.destructionMutex());
 
-			if(!i->second)
+			if(!i->second || i->second->pose.transforms.empty())
 				continue;
 
 			i->second->pose.rootJointTransform() = Mat44f::cIdentity;

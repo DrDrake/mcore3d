@@ -33,6 +33,8 @@ public:
 		in \em resourceManager.
 
 		Fail if \em basePose didn't has a resource name, or the clone operation fail.
+
+		\note This function needs to run in main thread, because Mesh's vertex buffer data access is needed.
 	 */
 	sal_checkreturn bool init(IResourceManager& resourceManager, const Model& basePose, sal_in_z const char* namePrefix="skinning");
 
