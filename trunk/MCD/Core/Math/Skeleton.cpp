@@ -73,7 +73,7 @@ void SkeletonAnimation::applyTo(SkeletonPose& pose, int firstJoint, int lastJoin
 	if(trackPerJoint < 0)
 		return;
 
-	if(trackPerJoint == 2)	// Translation and rotation
+	if(trackPerJoint >= 2)	// Translation and rotation
 	{
 		Mat44f m = Mat44f::cIdentity;
 		Mat33f tmp;

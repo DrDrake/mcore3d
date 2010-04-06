@@ -109,7 +109,7 @@ SkeletonAnimationPtr buildSkeletonAnimation(float totalLength, uint8_t jointCoun
 	{	// Setup the skeleton animation
 		AnimationTrack::ScopedWriteLock lock(*track);
 
-		// Number of tracks = number of joint * attribute count (which is 2 because of translation and rotation)
+		// Number of sub-tracks = number of joint * attribute count (which is 2 because of translation and rotation)
 		std::vector<size_t> tmp(subtrackCount, frameCount);
 
 		// Use only one frame for translation, since the length of the bone is constant
