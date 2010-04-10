@@ -122,7 +122,7 @@ public:
 	void loadAnimationTrack()
 	{
 		// Manually creat the animation track
-		animationTrack->acquireWriteLock();
+		AnimationTrack::ScopedWriteLock lock(*animationTrack);
 
 		const size_t cSubtrackCount = AnimationComponent::subtrackPerEntity;
 		std::vector<size_t> tmp(cSubtrackCount, cFrameCount);
@@ -159,8 +159,6 @@ public:
 			reinterpret_cast<Vec3f&>(frames[i]) = scale;
 		}
 		reinterpret_cast<Vec3f&>(frames[cFrameCount-1]) = reinterpret_cast<Vec3f&>(frames[0]);
-
-		animationTrack->releaseWriteLock();
 	}
 
 	AnimationUpdaterComponentPtr updater;

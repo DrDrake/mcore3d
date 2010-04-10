@@ -122,8 +122,9 @@ MCD_CORE_API void skinning(
 	const StrideArray<Vec3f>& outPos,
 	const StrideArray<const Vec3f>& basePosePos,
 	const StrideArray<const Mat44f>& joints,
-	const StrideArray<const Vec4<uint8_t> >& jointIndice,
-	const StrideArray<const Vec4f>& weight);
+	const StrideArray<uint8_t>& jointIndice,
+	const StrideArray<float>& weight,
+	size_t jointPerVertex);
 
 MCD_CORE_API void skinning(
 	const StrideArray<Vec3f>& outPos,
@@ -131,8 +132,9 @@ MCD_CORE_API void skinning(
 	const StrideArray<const Vec3f>& basePosePos,
 	const StrideArray<const Vec3f>& basePoseNormal,
 	const StrideArray<const Mat44f>& joints,
-	const StrideArray<const Vec4<uint8_t> >& jointIndice,
-	const StrideArray<const Vec4f>& weight);
+	const StrideArray<uint8_t>& jointIndice,
+	const StrideArray<float>& weight,
+	size_t jointPerVertex);
 
 }	// namespace MCD
 

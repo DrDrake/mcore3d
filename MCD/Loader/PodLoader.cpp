@@ -2,15 +2,19 @@
 #include "PodLoader.h"
 #include "../Component/Render/AnimationComponent.h"
 #include "../Component/Render/MeshComponent.h"
+#include "../Component/Render/SkinMeshComponent.h"
+#include "../Component/Render/SkeletonAnimationComponent.h"
 #include "../Component/Prefab.h"
 #include "../Render/Effect.h"
 #include "../Render/Material.h"
 #include "../Render/Mesh.h"
+#include "../Render/Model.h"
 #include "../Render/SemanticMap.h"
 #include "../Core/System/Log.h"
 #include "../Core/System/MemoryProfiler.h"
 #include "../Core/System/StrUtility.h"
 #include "../Core/Math/AnimationInstance.h"
+#include "../Core/Math/Skeleton.h"
 #include "../Core/Math/Quaternion.h"
 #include "../../3Party/glew/glew.h"
 #include "../../3Party/PowerVR/PVRTModelPOD.h"
@@ -37,8 +41,8 @@ class PodMaterial : public Material
 class PodLoader::Impl
 {
 public:
-	Impl(IResourceManager* resourceManager, AnimationUpdaterComponent* animationUpdater)
-		: mResourceManager(resourceManager), mAnimationUpdater(animationUpdater)
+	Impl(IResourceManager* resourceManager, AnimationUpdaterComponent* animationUpdater, SkeletonAnimationUpdaterComponent* skeletonAnimationUpdater)
+		: mResourceManager(resourceManager), mAnimationUpdater(animationUpdater), mSkeletonAnimationUpdater(skeletonAnimationUpdater)
 	{
 	}
 
@@ -52,6 +56,7 @@ public:
 
 	IResourceManager* mResourceManager;
 	AnimationUpdaterComponent* mAnimationUpdater;
+	SkeletonAnimationUpdaterComponent* mSkeletonAnimationUpdater;
 
 	Entity mRootEntity;
 	CPVRTModelPOD mPod;
@@ -62,12 +67,15 @@ public:
 	std::vector<TexturePtr> mTextures;
 	ptr_vector<PodMaterial> mMaterials;
 
+	std::vector<std::pair<SkinMeshComponentPtr, ModelPtr> > mSkinMeshToCommit;
+
 	volatile IResourceLoader::LoadingState mLoadingState;
 };	// Impl
 
 static int podTypeToGlType(EPVRTDataType type)
 {
 	switch(type) {
+	case EPODDataUnsignedByte:	return GL_UNSIGNED_BYTE;
 	case EPODDataFloat:			return GL_FLOAT;
 	case EPODDataInt:			return GL_INT;
 	case EPODDataShort:			return GL_SHORT;
@@ -79,6 +87,7 @@ static int podTypeToGlType(EPVRTDataType type)
 static uint16_t typeToSize(EPVRTDataType type)
 {
 	switch(type) {
+	case EPODDataUnsignedByte:	return sizeof(unsigned char);
 	case EPODDataFloat:			return sizeof(float);
 	case EPODDataInt:			return sizeof(int);
 	case EPODDataShort:			return sizeof(short);
@@ -226,6 +235,18 @@ IResourceLoader::LoadingState PodLoader::Impl::load(std::istream* is, const Path
 			a.semantic = semanticMap.uv(j, a.elementCount).name;
 		}
 
+		if(podMesh.sBoneIdx.n) {
+			Mesh::Attribute& a = mesh->attributes[mesh->attributeCount];
+			assignAttribute(*mesh, bufferPtrs, podMesh, a, podMesh.sBoneIdx);
+			a.semantic = semanticMap.blendIndex().name;
+		}
+
+		if(podMesh.sBoneWeight.n) {
+			Mesh::Attribute& a = mesh->attributes[mesh->attributeCount];
+			assignAttribute(*mesh, bufferPtrs, podMesh, a, podMesh.sBoneWeight);
+			a.semantic = semanticMap.blendWeight().name;
+		}
+
 		if(podMesh.pInterleaved) {
 			mesh->bufferCount++;
 			bufferPtrs.push_back(podMesh.pInterleaved);
@@ -237,8 +258,145 @@ IResourceLoader::LoadingState PodLoader::Impl::load(std::istream* is, const Path
 		// NOTE: The upload of vertex data is postponed until commit() which is run in main thread.
 	}
 
+	// Create animation track
+	AnimationTrackPtr track = new AnimationTrack("");
+	track->naturalFramerate = 30;
+
+	// Create skeleton animation
+	SkeletonPtr skeleton = new Skeleton("");
+
+	// Maps SPODNode index into animation object list index
+	std::vector<int> node2AnimMap(mPod.nNumNode, -1);
+
+	// Determines the sub-track structure
+	std::vector<size_t> subTrackStructure;
+	for(size_t i=0; i<mPod.nNumNode; ++i)
+	{
+		if(mPod.pNode[i].nAnimFlags == 0)
+			continue;
+
+		// We share the same animation track if the pod file contains both node and skeleton animation,
+		// as node animation needs at least 4 sub-track, there will be redudant tracks when use as skeleton.
+		size_t frames[AnimationComponent::subtrackPerEntity];
+		for(size_t j=0; j<AnimationComponent::subtrackPerEntity; ++j) frames[j] = 1;
+
+		if(mPod.pNode[i].nAnimFlags & ePODHasPositionAni)
+			frames[0] = mPod.nNumFrame;
+		if(mPod.pNode[i].nAnimFlags & ePODHasRotationAni)
+			frames[1] = mPod.nNumFrame;
+		if(mPod.pNode[i].nAnimFlags & ePODHasScaleAni)
+			frames[2] = mPod.nNumFrame;
+
+		node2AnimMap[i] = subTrackStructure.size() / AnimationComponent::subtrackPerEntity;
+		subTrackStructure.insert(subTrackStructure.end(), &frames[0], &frames[4]);
+	}
+
+	if(!subTrackStructure.empty())
+	{	// Fill the animation track
+		AnimationTrack::ScopedWriteLock lock(*track);
+		MCD_VERIFY(track->init(StrideArray<const size_t>(&subTrackStructure[0], subTrackStructure.size())));
+
+		// Assign the time of each frame
+		for(size_t i=0; i<subTrackStructure.size(); ++i) {
+			AnimationTrack::KeyFrames frames = track->getKeyFramesForSubtrack(i);
+			for(size_t j=0; j<frames.size; ++j)
+				frames[j].time = float(j);
+		}
+
+		size_t j = 0;
+		for(size_t i=0; i<mPod.nNumNode; ++i)
+		{
+			const SPODNode& podNode = mPod.pNode[i];
+			if(podNode.nAnimFlags == 0)
+				continue;
+
+			const size_t subTrackOffset = j * AnimationComponent::subtrackPerEntity;
+
+			// Translation
+			AnimationTrack::KeyFrames frames = track->getKeyFramesForSubtrack(subTrackOffset + 0);
+			for(size_t k=0; k<frames.size; ++k)
+				reinterpret_cast<Vec3f&>(frames[k]) = reinterpret_cast<Vec3f&>(podNode.pfAnimPosition[k * 3]);
+
+			// Rotation
+			frames = track->getKeyFramesForSubtrack(subTrackOffset + 1);
+			track->subtracks[subTrackOffset + 1].flag = AnimationTrack::Slerp;
+			for(size_t k=0; k<frames.size; ++k)
+				reinterpret_cast<Quaternionf&>(frames[k]) = reinterpret_cast<Quaternionf&>(podNode.pfAnimRotation[k * 4]).inverseUnit();
+
+			// Sclae
+			frames = track->getKeyFramesForSubtrack(subTrackOffset + 2);
+			for(size_t k=0; k<frames.size; ++k)
+				reinterpret_cast<Vec3f&>(frames[k]) = reinterpret_cast<Vec3f&>(podNode.pfAnimScale[k * 7]);	// Don't know why the stride of scale is 7
+
+			++j;	// Move to next node with animation
+		}
+	}
+
+	if(!subTrackStructure.empty())
+	{	// Setup the skeleton
+		skeleton->init(subTrackStructure.size() / AnimationComponent::subtrackPerEntity);
+		skeleton->basePose.init(subTrackStructure.size() / AnimationComponent::subtrackPerEntity);
+
+		bool hasSkeleton = false;
+
+		for(size_t i=0; i<mPod.nNumMesh; ++i)
+		{
+			const SPODMesh& podMesh = mPod.pMesh[i];
+			if(!podMesh.sBoneIdx.pData || !podMesh.sBoneWeight.pData)
+				continue;
+
+			std::vector<bool> boneIdxRemapAssigned(podMesh.nNumVertex, false);
+
+			// Stride array to the bone indices
+			StrideArray<uint8_t> p(nullptr, podMesh.nNumVertex, podMesh.sBoneIdx.nStride);
+			if(podMesh.pInterleaved)
+				p.data = (char*)(podMesh.pInterleaved + size_t(podMesh.sBoneIdx.pData));
+			else
+				p.data = (char*)podMesh.sBoneIdx.pData;
+
+			const CPVRTBoneBatches& boneBatches = podMesh.sBoneBatches;
+			for(int iBatch = 0; iBatch < boneBatches.nBatchCnt; ++iBatch)
+			{
+				std::vector<size_t> boneIdxRemap;
+
+				// Go through the bones for the current bone batch
+				for(int b=0; b<boneBatches.pnBatchBoneCnt[iBatch]; ++b) {
+					// Get the Node of the bone
+					int nodeIdx = boneBatches.pnBatches[iBatch * boneBatches.nBatchBoneMax + b];
+					boneIdxRemap.push_back(node2AnimMap[nodeIdx]);
+					const SPODNode& podNode = mPod.pNode[nodeIdx];
+
+					skeleton->names[node2AnimMap[nodeIdx]] = podNode.pszName;
+					skeleton->parents[node2AnimMap[nodeIdx]] = podNode.nIdxParent < 0 ? node2AnimMap[nodeIdx] : node2AnimMap[podNode.nIdxParent];
+					hasSkeleton = true;
+				}
+
+				// Transform the original bone index to match our flattened bone patch
+				size_t triBegin = podMesh.sBoneBatches.pnBatchOffset[iBatch];	// Begining triangle for this patch
+				size_t triEnd = iBatch+1 < boneBatches.nBatchCnt ? boneBatches.pnBatchOffset[iBatch+1] : podMesh.nNumFaces;	// End triangle for this patch
+
+				for(size_t t=triBegin; t<triEnd; ++t) for(size_t iv=0; iv<3; ++iv) {
+					const size_t v = ((uint16_t*)(podMesh.sFaces.pData))[t*3 + iv];
+					if(boneIdxRemapAssigned[v])
+						continue;
+					boneIdxRemapAssigned[v] = true;
+
+					for(size_t j=0; j<podMesh.sBoneIdx.n; ++j) {
+						uint8_t& val = *(&p[v] + j);
+						const size_t newIdx = boneIdxRemap[val];
+
+						MCD_ASSERT(newIdx < 255);
+						val = uint8_t(newIdx);
+					}
+				}
+			}
+		}
+
+		if(!hasSkeleton)
+			skeleton = nullptr;
+	}
+
 	// Create AnimationComponent if necessary
-	size_t nodeWithAnimCount = 0;
 	AnimationComponentPtr animationComponent;
 	if(mAnimationUpdater && mPod.nNumFrame > 0) {
 		EntityPtr e = new Entity();
@@ -246,6 +404,24 @@ IResourceLoader::LoadingState PodLoader::Impl::load(std::istream* is, const Path
 		animationComponent = new AnimationComponent(*mAnimationUpdater);
 		e->addComponent(animationComponent.get());
 		e->asChildOf(&mRootEntity);
+	}
+
+	// Create SkeletonAnimationComponent if necessary
+	SkinMeshComponentPtr skinMeshComponent;
+	SkeletonAnimationComponentPtr skeletonAnimationComponent;
+	if(mSkeletonAnimationUpdater && skeleton) {
+		skeletonAnimationComponent = new SkeletonAnimationComponent(*mSkeletonAnimationUpdater);
+		EntityPtr e = new Entity();
+		e->name = "Skeleton animation controller";
+		e->addComponent(skeletonAnimationComponent.get());
+		e->asChildOf(&mRootEntity);
+
+		skeletonAnimationComponent->skeletonAnimation.skeleton = skeleton;
+		skeletonAnimationComponent->skeletonAnimation.anim.addTrack(*track);
+		skeletonAnimationComponent->skeletonAnimation.anim.update();
+		skeletonAnimationComponent->skeletonAnimation.applyTo(skeleton->basePose);	// Use the first frame's pose as the base pose
+		skeletonAnimationComponent->pose.init(skeleton->basePose.jointCount());
+		skeleton->initBasePoseInverse();
 	}
 
 	// Index of pod node to Entity
@@ -269,10 +445,8 @@ IResourceLoader::LoadingState PodLoader::Impl::load(std::istream* is, const Path
 		e->asChildOf(nodeToEntity[podNode.nIdxParent + 1].getNotNull());	// SPODNode::nIdxParent gives -1 for no parent
 		nodeToEntity.push_back(e.get());
 
-		if(podNode.nAnimFlags > 0) {
+		if(podNode.nAnimFlags > 0)
 			animNodeToEntity.push_back(std::make_pair(&podNode, e));
-			++nodeWithAnimCount;
-		}
 
 		{	// Calculate the local matrix
 			PVRTMat4& mat = reinterpret_cast<PVRTMat4&>(e->localTransform);
@@ -288,78 +462,47 @@ IResourceLoader::LoadingState PodLoader::Impl::load(std::istream* is, const Path
 		}
 
 		// Add mesh component if 1) It's a pod mesh node and 2) The mesh format is supported by our loader.
-		if(i < mPod.nNumMeshNode && mMeshes[podNode.nIdx].first->vertexCount > 0) {
-			MeshComponent* c = new MeshComponent;
-			c->mesh = mMeshes[podNode.nIdx].first;
-			e->addComponent(c);
-
+		if(i < mPod.nNumMeshNode && mMeshes[podNode.nIdx].first->vertexCount > 0)
+		{
 			// Setup for material
-			if(podNode.nIdxMaterial >= 0 && podNode.nIdxMaterial < int(mMaterials.size())) {
-				c->effect = new Effect("");
-				c->effect->material.reset(mMaterials[podNode.nIdxMaterial].clone());
+			EffectPtr effect = new Effect("");
+			if(podNode.nIdxMaterial >= 0 && podNode.nIdxMaterial < int(mMaterials.size()))
+				effect->material.reset(mMaterials[podNode.nIdxMaterial].clone());
+
+			if(mPod.pMesh[podNode.nIdx].sBoneIdx.n) {
+				SkinMeshComponentPtr sm = new SkinMeshComponent();
+
+				ModelPtr model = new Model(podNode.pszName);
+				Model::MeshAndMaterial* mm = new Model::MeshAndMaterial;
+				mm->mesh = mMeshes[podNode.nIdx].first;
+				mm->effect = effect;
+
+				mSkinMeshToCommit.push_back(std::make_pair(sm, model));
+
+				model->mMeshes.pushBack(*mm);
+//				sm->init(*mResourceManager, *model);
+				sm->skeleton = skeleton;
+				sm->skeletonAnimation = skeletonAnimationComponent;
+
+				e->addComponent(sm.get());
+			}
+			else {
+				MeshComponent* c = new MeshComponent;
+				c->mesh = mMeshes[podNode.nIdx].first;
+				c->effect = effect;
+				e->addComponent(c);
 			}
 		}
 	}
 
-	if(mAnimationUpdater && mPod.nNumFrame > 0) {
+	if(mAnimationUpdater && animationComponent) {
 		// Initialize animation track
-		AnimationTrackPtr animationTrack = new AnimationTrack("");
-		MCD_VERIFY(animationComponent->animationInstance.addTrack(*animationTrack));
-
-		const size_t cSubtrackCount = AnimationComponent::subtrackPerEntity * nodeWithAnimCount;
-		std::vector<size_t> tmp(cSubtrackCount, mPod.nNumFrame);
-
-		AnimationTrack::ScopedWriteLock lock(*animationTrack);
-		MCD_VERIFY(animationTrack->init(StrideArray<const size_t>(&tmp[0], cSubtrackCount)));
-		animationTrack->naturalFramerate = 30;
-
-		// Assign the time of each frame
-		for(size_t i=0; i<cSubtrackCount; ++i) {
-			AnimationTrack::KeyFrames frames = animationTrack->getKeyFramesForSubtrack(i);
-			for(size_t j=0; j<frames.size; ++j)
-				frames[j].time = float(j);
-		}
+		MCD_VERIFY(animationComponent->animationInstance.addTrack(*track));
 
 		// Calculate animation data and link up with the entities
 		for(size_t i=0; i<animNodeToEntity.size(); ++i) {
-			const SPODNode& podNode = *animNodeToEntity[i].first;
-	
 			Entity& e = *animNodeToEntity[i].second;
 			animationComponent->affectingEntities.push_back(&e);
-
-			// Translation
-			AnimationTrack::KeyFrames frames = animationTrack->getKeyFramesForSubtrack(i * AnimationComponent::subtrackPerEntity + 0);
-			if(podNode.nAnimFlags & ePODHasPositionAni) {
-				for(size_t j=0; j<mPod.nNumFrame; ++j)
-					reinterpret_cast<Vec3f&>(frames[j]) = reinterpret_cast<Vec3f&>(podNode.pfAnimPosition[j * 3]);
-			}
-			else {
-				for(size_t j=0; j<mPod.nNumFrame; ++j)
-					reinterpret_cast<Vec3f&>(frames[j]) = reinterpret_cast<Vec3f&>(podNode.pfAnimPosition[0 * 3]);
-			}
-
-			// Rotation
-			frames = animationTrack->getKeyFramesForSubtrack(i * AnimationComponent::subtrackPerEntity + 1);
-			animationTrack->subtracks[i * AnimationComponent::subtrackPerEntity + 1].flag = AnimationTrack::Slerp;
-			if(podNode.nAnimFlags & ePODHasRotationAni) {
-				for(size_t j=0; j<mPod.nNumFrame; ++j)
-					reinterpret_cast<Quaternionf&>(frames[j]) = reinterpret_cast<Quaternionf&>(podNode.pfAnimRotation[j * 4]).inverseUnit();
-			}
-			else {
-				for(size_t j=0; j<mPod.nNumFrame; ++j)
-					reinterpret_cast<Quaternionf&>(frames[j]) = reinterpret_cast<Quaternionf&>(podNode.pfAnimRotation[0 * 4]).inverseUnit();
-			}
-
-			// Scale
-			frames = animationTrack->getKeyFramesForSubtrack(i * AnimationComponent::subtrackPerEntity + 2);
-			if(podNode.nAnimFlags & ePODHasScaleAni) {
-				for(size_t j=0; j<mPod.nNumFrame; ++j)
-					reinterpret_cast<Vec3f&>(frames[j]) = reinterpret_cast<Vec3f&>(podNode.pfAnimScale[j * 7]);
-			}
-			else {
-				for(size_t j=0; j<mPod.nNumFrame; ++j)
-					reinterpret_cast<Vec3f&>(frames[j]) = reinterpret_cast<Vec3f&>(podNode.pfAnimScale[0 * 7]);
-			}
 		}
 	}
 
@@ -400,6 +543,11 @@ void PodLoader::Impl::commit(Resource& resource)
 		}
 	}
 
+	// Commit skin mesh
+	for(size_t i=0; i<mSkinMeshToCommit.size(); ++i) {
+		mSkinMeshToCommit[i].first->init(*mResourceManager, *mSkinMeshToCommit[i].second);
+	}
+
 	Prefab& prefab = dynamic_cast<Prefab&>(resource);
 	prefab.entity.reset(new Entity());
 
@@ -414,9 +562,10 @@ void PodLoader::Impl::commit(Resource& resource)
 
 PodLoader::PodLoader(
 	IResourceManager* resourceManager,
-	AnimationUpdaterComponent* animationUpdater
+	AnimationUpdaterComponent* animationUpdater,
+	SkeletonAnimationUpdaterComponent* skeletonAnimationUpdater
 )
-	: mImpl(*new Impl(resourceManager, animationUpdater))
+	: mImpl(*new Impl(resourceManager, animationUpdater, skeletonAnimationUpdater))
 {
 }
 
@@ -444,10 +593,12 @@ IResourceLoader::LoadingState PodLoader::getLoadingState() const
 
 PodLoaderFactory::PodLoaderFactory(
 	IResourceManager& resourceManager,
-	AnimationUpdaterComponent* animationUpdater
+	AnimationUpdaterComponent* animationUpdater,
+	SkeletonAnimationUpdaterComponent* skeletonAnimationUpdater
 )
-    : mResourceManager(resourceManager)
+	: mResourceManager(resourceManager)
 	, mAnimationUpdater(animationUpdater)
+	, mSkeletonAnimationUpdater(skeletonAnimationUpdater)
 {
 }
 
@@ -460,7 +611,7 @@ ResourcePtr PodLoaderFactory::createResource(const Path& fileId, const char* arg
 
 IResourceLoader* PodLoaderFactory::createLoader()
 {
-	return new PodLoader(&mResourceManager, mAnimationUpdater);
+	return new PodLoader(&mResourceManager, mAnimationUpdater, mSkeletonAnimationUpdater);
 }
 
 }	// namespace MCD

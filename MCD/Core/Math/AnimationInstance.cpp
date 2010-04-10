@@ -12,8 +12,10 @@ AnimationInstance::Events::~Events() {
 	clear();
 }
 
-AnimationInstance::Events::Events(const Events& rhs) {
-	// Do nothing
+AnimationInstance::Events::Events(const Events& rhs)
+{
+	callback = rhs.callback;
+	destroyData = rhs.destroyData;
 }
 
 AnimationInstance::Events& AnimationInstance::Events::operator=(const Events& rhs) {

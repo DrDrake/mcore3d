@@ -260,7 +260,7 @@ bool Launcher::init(InputComponent& inputComponent, Entity* rootNode)
 	setInputComponent(&inputComponent);
 
 	// Add any other high level loaders.
-	dynamic_cast<ResourceManager*>(mResourceManager)->addFactory(new PodLoaderFactory(*mResourceManager, mAnimationUpdater.get()));
+	dynamic_cast<ResourceManager*>(mResourceManager)->addFactory(new PodLoaderFactory(*mResourceManager, mAnimationUpdater.get(), mSkeletonAnimationUpdater.get()));
 
 	return true;
 }

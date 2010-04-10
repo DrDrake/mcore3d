@@ -10,6 +10,7 @@ namespace MCD {
 
 class IResourceManager;
 class AnimationUpdaterComponent;
+class SkeletonAnimationUpdaterComponent;
 
 /*!	Loader for PowerVR's .pod file format.
 	\sa http://www.imgtec.com/powervr/insider/powervr-pvrgeopod.asp
@@ -24,7 +25,8 @@ class MCD_LOADER_API PodLoader : public IResourceLoader, private Noncopyable
 public:
 	PodLoader(
 		sal_maybenull IResourceManager* resourceManager = nullptr,
-		sal_maybenull AnimationUpdaterComponent* animationUpdater = nullptr
+		sal_maybenull AnimationUpdaterComponent* animationUpdater = nullptr,
+		sal_maybenull SkeletonAnimationUpdaterComponent* skeletonAnimationUpdater = nullptr
 	);
 
 	sal_override ~PodLoader();
@@ -54,7 +56,8 @@ class MCD_LOADER_API PodLoaderFactory : public ResourceManager::IFactory
 public:
     PodLoaderFactory(
 		IResourceManager& resourceManager,
-		sal_maybenull AnimationUpdaterComponent* animationUpdater = nullptr
+		sal_maybenull AnimationUpdaterComponent* animationUpdater = nullptr,
+		sal_maybenull SkeletonAnimationUpdaterComponent* skeletonAnimationUpdater = nullptr
 	);
 	sal_override ResourcePtr createResource(const Path& fileId, const char* args);
 	sal_override IResourceLoader* createLoader();
@@ -65,6 +68,7 @@ private:
 	 */
 	IResourceManager& mResourceManager;
 	sal_maybenull AnimationUpdaterComponent* mAnimationUpdater;
+	sal_maybenull SkeletonAnimationUpdaterComponent* mSkeletonAnimationUpdater;
 };	// PodLoaderFactory
 
 }	// namespace MCD
