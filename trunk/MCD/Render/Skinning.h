@@ -14,6 +14,7 @@ MCD_RENDER_API void skinning(
 	Mesh& basePoseMesh,
 	size_t jointIndex,
 	size_t weightIndex,
+	size_t jointPerVertex,
 	int normalIndex	// Pass -1 if no need to skin the normal (assumming both mesh has the same normal attribute index)
 );
 

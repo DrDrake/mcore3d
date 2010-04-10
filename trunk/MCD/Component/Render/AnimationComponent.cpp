@@ -308,7 +308,7 @@ public:
 			if(AnimationComponent* c = a.backRef.get()) {
 				// Poll for the sub-track count and adjust the MyAnimationInstance accordingly
 				if(a.subtrackCount() != a.animData.size() * AnimationComponent::subtrackPerEntity) {
-					if(false && c->animationInstance.subtrackCount() % AnimationComponent::subtrackPerEntity != 0)
+					if(c->animationInstance.subtrackCount() % AnimationComponent::subtrackPerEntity != 0)
 						Log::format(Log::Warn, "AnimationComponent use at least %d sub-track per entity, but only %d sub-track are given to %d entities",
 							AnimationComponent::subtrackPerEntity, c->animationInstance.subtrackCount(), c->affectingEntities.size()
 						);

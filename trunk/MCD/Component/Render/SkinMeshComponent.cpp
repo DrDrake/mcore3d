@@ -4,6 +4,7 @@
 #include "../../Render/Effect.h"
 #include "../../Render/Mesh.h"
 #include "../../Render/Model.h"
+#include "../../Render/SemanticMap.h"
 #include "../../Render/Skinning.h"
 #include "../../Core/Entity/Entity.h"
 #include "../../Core/Math/Skeleton.h"
@@ -96,6 +97,7 @@ void SkinMeshComponent::render()
 	glMultTransposeMatrixf(e->worldTransform().getPtr());
 
 	mTmpPose = skeletonAnimation->pose;
+	SkeletonPose visualizePose = mTmpPose;
 
 	// NOTE: If the inverse was already baked into the animation track, we can skip this multiplication
 	for(size_t i=0; i<mTmpPose.transforms.size(); ++i)
@@ -110,11 +112,61 @@ void SkinMeshComponent::render()
 			Mesh* m = i->mesh.get();
 			if(!m || !j->mesh)
 				continue;
-			MCD::skinning(mTmpPose, *m, *j->mesh, 4, 5, m->normalAttrIdx);	// TODO: Remove the hardcoded constants
+
+			// TODO: Remove the search for attribute index
+			int8_t blendIndexIdx = -1;
+			for(size_t k=0; k<m->attributeCount; ++k)
+				if(strcmp(m->attributes[k].semantic, SemanticMap::getSingleton().blendIndex().name) == 0) {
+					blendIndexIdx = uint8_t(k);
+					break;
+				}
+			int8_t blendWeightIdx = -1;
+			for(size_t k=0; k<m->attributeCount; ++k)
+				if(strcmp(m->attributes[k].semantic, SemanticMap::getSingleton().blendWeight().name) == 0) {
+					blendWeightIdx = uint8_t(k);
+					break;
+				}
+
+			if(blendIndexIdx != -1 && blendWeightIdx != -1)
+				MCD::skinning(mTmpPose, *m, *j->mesh, blendIndexIdx, blendWeightIdx, j->mesh->attributes[blendIndexIdx].elementCount, m->normalAttrIdx);
 		}
 	}
 
 	meshes->draw();
+
+/*	const Vec4f colors[4] = {
+		Vec4f(1, 0, 0, 1),
+		Vec4f(0, 1, 0, 1),
+		Vec4f(0, 0, 1, 1),
+		Vec4f(1, 1, 0, 1)
+	};
+
+	// Joint visualization
+	for(size_t i=0; i<skeleton->basePose.jointCount(); ++i)
+	{
+		const size_t childIdx = i;
+		const size_t parentIdx = skeleton->parents[i];
+
+		if(childIdx == parentIdx)
+			continue;
+
+		Vec3f p1 = visualizePose.transforms[childIdx].translation();
+		Vec3f p2 = visualizePose.transforms[parentIdx].translation();
+
+		glDisable(GL_CULL_FACE);
+		glEnable(GL_BLEND);
+		glDisable(GL_LIGHTING);
+		glColor4fv(colors[i % 4].data);
+
+		glBegin(GL_LINES);
+			glVertex3fv(p1.data);
+			glVertex3fv(p2.data);
+		glEnd();
+
+		glEnable(GL_LIGHTING);
+		glEnable(GL_CULL_FACE);
+		glDisable(GL_BLEND);
+	}*/
 
 	glPopMatrix();
 }

@@ -154,7 +154,7 @@ TEST(EventCallback_AnimationInstanceTest)
 		AnimationTrack::KeyFrames frames = track->getKeyFramesForSubtrack(0);
 		frames[0].time = 0;
 		frames[1].time = 1;
-		frames[2].time = 8;
+		frames[2].time = 2;
 	}
 
 	struct LocalClass {
@@ -170,22 +170,22 @@ TEST(EventCallback_AnimationInstanceTest)
 
 	wt.edgeEvents.callback = &LocalClass::callback1;
 	CHECK(wt.edgeEvents.setEvent(0, (void*)10u));
-	CHECK(wt.edgeEvents.setEvent(4, (void*)20u));
+	CHECK(wt.edgeEvents.setEvent(2, (void*)20u));
 
 	wt.levelEvents.callback = &LocalClass::callback2;
 	CHECK(wt.levelEvents.setEvent(0, (void*)10u));
-	CHECK(wt.levelEvents.setEvent(4, (void*)20u));
+	CHECK(wt.levelEvents.setEvent(2, (void*)20u));
 
 	gEventCallbackResult1.clear();
 	gEventCallbackResult2.clear();
 
-	// Got both trigger and level event
-	a.time = 6.2f;
+	// Got both edge and level event
+	a.time = 0;
 	a.update();
 	CHECK_EQUAL(10u, gEventCallbackResult1[0]);
 	CHECK_EQUAL(10u, gEventCallbackResult2[0]);
 
-	// Still in the time of the first frame, no trigger event but a level event
+	// Still in the time of the first frame, no edge event but a level event
 	a.time = 0.9f;
 	a.update();
 	CHECK_EQUAL(1u, gEventCallbackResult1.size());
@@ -198,7 +198,7 @@ TEST(EventCallback_AnimationInstanceTest)
 	CHECK_EQUAL(2u, gEventCallbackResult2.size());
 
 	// 2 events for looped time edge event, and one level event
-	a.time = 4.2f;
+	a.time = 2.2f;
 	a.update();
 	CHECK_EQUAL(20u, gEventCallbackResult1[1]);
 	CHECK_EQUAL(10u, gEventCallbackResult1[2]);
