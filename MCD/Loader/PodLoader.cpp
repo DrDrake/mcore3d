@@ -121,6 +121,40 @@ static void assignAttribute(Mesh& mesh, std::vector<void*>& bufferPtrs, const SP
 	mesh.attributeCount++;
 }
 
+static void getLocalTransform(const CPVRTModelPOD& pod, const SPODNode& node, Mat44f& ret)
+{
+	PVRTMat4& mat = reinterpret_cast<PVRTMat4&>(ret);
+	PVRTMat4 tmp;
+
+	pod.GetScalingMatrix(mat, node);
+	pod.GetRotationMatrix(tmp, node);
+	PVRTMatrixMultiply(mat, mat, tmp);
+	pod.GetTranslationMatrix(tmp, node);
+	PVRTMatrixMultiply(mat, mat, tmp);
+
+	mat = mat.transpose();
+}
+
+static StrideArray<Vec3f> getVertexData(const SPODMesh& mesh)
+{
+	StrideArray<Vec3f> ret(nullptr, mesh.nNumVertex, mesh.sVertex.nStride);
+	if(mesh.pInterleaved)
+		ret.data = (char*)(mesh.pInterleaved + size_t(mesh.sVertex.pData));
+	else
+		ret.data = (char*)mesh.sVertex.pData;
+	return ret;
+}
+
+static StrideArray<uint8_t> getJointIdx(const SPODMesh& mesh)
+{
+	StrideArray<uint8_t> ret(nullptr, mesh.nNumVertex, mesh.sBoneIdx.nStride);
+	if(mesh.pInterleaved)
+		ret.data = (char*)(mesh.pInterleaved + size_t(mesh.sBoneIdx.pData));
+	else
+		ret.data = (char*)mesh.sBoneIdx.pData;
+	return ret;
+}
+
 IResourceLoader::LoadingState PodLoader::Impl::load(std::istream* is, const Path* fileId, const char* args)
 {
 	mLoadingState = is ? NotLoaded : Aborted;
@@ -265,16 +299,13 @@ IResourceLoader::LoadingState PodLoader::Impl::load(std::istream* is, const Path
 	// Create skeleton animation
 	SkeletonPtr skeleton = new Skeleton("");
 
-	// Maps SPODNode index into animation object list index
-	std::vector<int> node2AnimMap(mPod.nNumNode, -1);
+	static const size_t cExtraRootNode = 1;
 
 	// Determines the sub-track structure
-	std::vector<size_t> subTrackStructure;
+	std::vector<size_t> subTrackStructure(AnimationComponent::subtrackPerEntity * cExtraRootNode, 1);
+
 	for(size_t i=0; i<mPod.nNumNode; ++i)
 	{
-		if(mPod.pNode[i].nAnimFlags == 0)
-			continue;
-
 		// We share the same animation track if the pod file contains both node and skeleton animation,
 		// as node animation needs at least 4 sub-track, there will be redudant tracks when use as skeleton.
 		size_t frames[AnimationComponent::subtrackPerEntity];
@@ -287,7 +318,6 @@ IResourceLoader::LoadingState PodLoader::Impl::load(std::istream* is, const Path
 		if(mPod.pNode[i].nAnimFlags & ePODHasScaleAni)
 			frames[2] = mPod.nNumFrame;
 
-		node2AnimMap[i] = subTrackStructure.size() / AnimationComponent::subtrackPerEntity;
 		subTrackStructure.insert(subTrackStructure.end(), &frames[0], &frames[4]);
 	}
 
@@ -303,13 +333,19 @@ IResourceLoader::LoadingState PodLoader::Impl::load(std::istream* is, const Path
 				frames[j].time = float(j);
 		}
 
-		size_t j = 0;
+		// Assign for the extra root node
+		{	AnimationTrack::KeyFrames frames = track->getKeyFramesForSubtrack(0);
+			reinterpret_cast<Vec3f&>(frames[0]) = Vec3f(0);
+			frames = track->getKeyFramesForSubtrack(1);
+			reinterpret_cast<Quaternionf&>(frames[0]) = Quaternionf::cIdentity;
+			frames = track->getKeyFramesForSubtrack(2);
+			reinterpret_cast<Vec3f&>(frames[0]) = Vec3f(1);
+		}
+
+		size_t j = cExtraRootNode;
 		for(size_t i=0; i<mPod.nNumNode; ++i)
 		{
 			const SPODNode& podNode = mPod.pNode[i];
-			if(podNode.nAnimFlags == 0)
-				continue;
-
 			const size_t subTrackOffset = j * AnimationComponent::subtrackPerEntity;
 
 			// Translation
@@ -332,12 +368,18 @@ IResourceLoader::LoadingState PodLoader::Impl::load(std::istream* is, const Path
 		}
 	}
 
+	bool hasSkeleton = false;
+
 	if(!subTrackStructure.empty())
 	{	// Setup the skeleton
 		skeleton->init(subTrackStructure.size() / AnimationComponent::subtrackPerEntity);
 		skeleton->basePose.init(subTrackStructure.size() / AnimationComponent::subtrackPerEntity);
 
-		bool hasSkeleton = false;
+		for(size_t i=0; i<mPod.nNumNode; ++i) {
+			const SPODNode& podNode = mPod.pNode[i];
+			skeleton->names[i + cExtraRootNode] = podNode.pszName;
+			skeleton->parents[i + cExtraRootNode] = podNode.nIdxParent < 0 ? 0 : podNode.nIdxParent + cExtraRootNode;
+		}
 
 		for(size_t i=0; i<mPod.nNumMesh; ++i)
 		{
@@ -347,12 +389,7 @@ IResourceLoader::LoadingState PodLoader::Impl::load(std::istream* is, const Path
 
 			std::vector<bool> boneIdxRemapAssigned(podMesh.nNumVertex, false);
 
-			// Stride array to the bone indices
-			StrideArray<uint8_t> p(nullptr, podMesh.nNumVertex, podMesh.sBoneIdx.nStride);
-			if(podMesh.pInterleaved)
-				p.data = (char*)(podMesh.pInterleaved + size_t(podMesh.sBoneIdx.pData));
-			else
-				p.data = (char*)podMesh.sBoneIdx.pData;
+			StrideArray<uint8_t> jointIdx = getJointIdx(podMesh);
 
 			const CPVRTBoneBatches& boneBatches = podMesh.sBoneBatches;
 			for(int iBatch = 0; iBatch < boneBatches.nBatchCnt; ++iBatch)
@@ -363,11 +400,7 @@ IResourceLoader::LoadingState PodLoader::Impl::load(std::istream* is, const Path
 				for(int b=0; b<boneBatches.pnBatchBoneCnt[iBatch]; ++b) {
 					// Get the Node of the bone
 					int nodeIdx = boneBatches.pnBatches[iBatch * boneBatches.nBatchBoneMax + b];
-					boneIdxRemap.push_back(node2AnimMap[nodeIdx]);
-					const SPODNode& podNode = mPod.pNode[nodeIdx];
-
-					skeleton->names[node2AnimMap[nodeIdx]] = podNode.pszName;
-					skeleton->parents[node2AnimMap[nodeIdx]] = podNode.nIdxParent < 0 ? node2AnimMap[nodeIdx] : node2AnimMap[podNode.nIdxParent];
+					boneIdxRemap.push_back(nodeIdx + cExtraRootNode);
 					hasSkeleton = true;
 				}
 
@@ -382,7 +415,7 @@ IResourceLoader::LoadingState PodLoader::Impl::load(std::istream* is, const Path
 					boneIdxRemapAssigned[v] = true;
 
 					for(size_t j=0; j<podMesh.sBoneIdx.n; ++j) {
-						uint8_t& val = *(&p[v] + j);
+						uint8_t& val = *(&jointIdx[v] + j);
 						const size_t newIdx = boneIdxRemap[val];
 
 						MCD_ASSERT(newIdx < 255);
@@ -390,6 +423,20 @@ IResourceLoader::LoadingState PodLoader::Impl::load(std::istream* is, const Path
 					}
 				}
 			}
+		}
+
+		// Bake the mesh's transform into the vertex, for the joint matrix inverse to work correctly.
+		if(hasSkeleton) for(size_t i=0; i<mPod.nNumMeshNode; ++i)
+		{
+			const SPODNode& podNode = mPod.pNode[i];
+			const SPODMesh& podMesh = mPod.pMesh[podNode.nIdx];
+
+			Mat44f mat;
+			getLocalTransform(mPod, podNode, mat);
+
+			StrideArray<Vec3f> vertex = getVertexData(podMesh);
+			for(size_t j=0; j<vertex.size; ++j)
+				mat.transformPoint(vertex[j]);
 		}
 
 		if(!hasSkeleton)
@@ -407,7 +454,6 @@ IResourceLoader::LoadingState PodLoader::Impl::load(std::istream* is, const Path
 	}
 
 	// Create SkeletonAnimationComponent if necessary
-	SkinMeshComponentPtr skinMeshComponent;
 	SkeletonAnimationComponentPtr skeletonAnimationComponent;
 	if(mSkeletonAnimationUpdater && skeleton) {
 		skeletonAnimationComponent = new SkeletonAnimationComponent(*mSkeletonAnimationUpdater);
@@ -443,23 +489,14 @@ IResourceLoader::LoadingState PodLoader::Impl::load(std::istream* is, const Path
 		EntityPtr e = new Entity();
 		e->name = podNode.pszName;
 		e->asChildOf(nodeToEntity[podNode.nIdxParent + 1].getNotNull());	// SPODNode::nIdxParent gives -1 for no parent
+
+		if(!hasSkeleton)
+			getLocalTransform(mPod, podNode, e->localTransform);
+
 		nodeToEntity.push_back(e.get());
 
 		if(podNode.nAnimFlags > 0)
 			animNodeToEntity.push_back(std::make_pair(&podNode, e));
-
-		{	// Calculate the local matrix
-			PVRTMat4& mat = reinterpret_cast<PVRTMat4&>(e->localTransform);
-			PVRTMat4 tmp;
-
-			mPod.GetScalingMatrix(mat, podNode);
-			mPod.GetRotationMatrix(tmp, podNode);
-			PVRTMatrixMultiply(mat, mat, tmp);
-			mPod.GetTranslationMatrix(tmp, podNode);
-			PVRTMatrixMultiply(mat, mat, tmp);
-
-			mat = mat.transpose();
-		}
 
 		// Add mesh component if 1) It's a pod mesh node and 2) The mesh format is supported by our loader.
 		if(i < mPod.nNumMeshNode && mMeshes[podNode.nIdx].first->vertexCount > 0)
