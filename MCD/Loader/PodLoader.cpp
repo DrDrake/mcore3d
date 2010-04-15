@@ -155,6 +155,16 @@ static StrideArray<uint8_t> getJointIdx(const SPODMesh& mesh)
 	return ret;
 }
 
+static bool isSkinMeshNode(const CPVRTModelPOD& pod, size_t i)
+{
+	if(i >= pod.nNumMesh)
+		return false;
+
+	const SPODNode& podNode = pod.pNode[i];
+	const SPODMesh& podMesh = pod.pMesh[podNode.nIdx];
+	return podMesh.sBoneIdx.n > 0;
+}
+
 IResourceLoader::LoadingState PodLoader::Impl::load(std::istream* is, const Path* fileId, const char* args)
 {
 	mLoadingState = is ? NotLoaded : Aborted;
@@ -472,7 +482,6 @@ IResourceLoader::LoadingState PodLoader::Impl::load(std::istream* is, const Path
 
 	// Index of pod node to Entity
 	std::vector<EntityPtr> nodeToEntity;
-	std::vector<std::pair<const SPODNode*, EntityPtr> > animNodeToEntity;
 	nodeToEntity.push_back(&mRootEntity);	// SPODNode::nIdxParent gives -1 for no parent
 
 	// Loop for all nodes
@@ -493,10 +502,7 @@ IResourceLoader::LoadingState PodLoader::Impl::load(std::istream* is, const Path
 		if(!hasSkeleton)
 			getLocalTransform(mPod, podNode, e->localTransform);
 
-		nodeToEntity.push_back(e.get());
-
-		if(podNode.nAnimFlags > 0)
-			animNodeToEntity.push_back(std::make_pair(&podNode, e));
+		nodeToEntity.push_back(e);
 
 		// Add mesh component if 1) It's a pod mesh node and 2) The mesh format is supported by our loader.
 		if(i < mPod.nNumMeshNode && mMeshes[podNode.nIdx].first->vertexCount > 0)
@@ -517,7 +523,6 @@ IResourceLoader::LoadingState PodLoader::Impl::load(std::istream* is, const Path
 				mSkinMeshToCommit.push_back(std::make_pair(sm, model));
 
 				model->mMeshes.pushBack(*mm);
-//				sm->init(*mResourceManager, *model);
 				sm->skeleton = skeleton;
 				sm->skeletonAnimation = skeletonAnimationComponent;
 
@@ -537,9 +542,10 @@ IResourceLoader::LoadingState PodLoader::Impl::load(std::istream* is, const Path
 		MCD_VERIFY(animationComponent->animationInstance.addTrack(*track));
 
 		// Calculate animation data and link up with the entities
-		for(size_t i=0; i<animNodeToEntity.size(); ++i) {
-			Entity& e = *animNodeToEntity[i].second;
-			animationComponent->affectingEntities.push_back(&e);
+		animationComponent->affectingEntities.push_back(nullptr);
+		for(size_t i=cExtraRootNode; i<nodeToEntity.size(); ++i) {
+			EntityPtr e = isSkinMeshNode(mPod, i-cExtraRootNode) ? nullptr : nodeToEntity[i];
+			animationComponent->affectingEntities.push_back(e);
 		}
 	}
 
