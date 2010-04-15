@@ -218,6 +218,8 @@ bool AnimationComponent::postClone(const Entity& src, Entity& dest)
 			if(targetDest)
 				affectingEntities.push_back(targetDest);
 		}
+		else
+			affectingEntities.push_back(nullptr);
 	}
 
 	return true;
