@@ -354,7 +354,7 @@ Mat44f Entity::worldTransform() const
 void Entity::setWorldTransform(const Mat44f& transform)
 {
 	if(mParent)
-		localTransform = transform * mParent->worldTransform().inverse();
+		localTransform = mParent->worldTransform().inverse() * transform;
 	else
 		localTransform = transform;
 }

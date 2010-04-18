@@ -141,6 +141,8 @@ public:
 TranslationGizmoComponent::TranslationGizmoComponent(IResourceManager& resourceManager, Entity* hostEntity, InputComponent* inputComponent)
 	: GizmoBaseComponent(hostEntity, inputComponent)
 {
+	referenceFrame = Global;
+
 	// Add child entities
 	{	Entity* e = new Entity();
 		e->name = "X arrow";

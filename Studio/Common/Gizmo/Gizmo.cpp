@@ -119,7 +119,7 @@ void Gizmo::mouseDown(int x, int y)
 		if(!gizmo)
 			continue;
 		MCD_ASSERT(selectedEntity());
-		gizmo->mouseDown(x, y, selectedEntity()->localTransform);
+		gizmo->mouseDown(x, y, *selectedEntity());
 	}
 }
 
@@ -135,7 +135,7 @@ void Gizmo::mouseMove(int x, int y)
 		GizmoBaseComponent* gizmo = dynamic_cast<GizmoBaseComponent*>(itr.current());
 		if(!gizmo)
 			continue;
-		gizmo->mouseMove(x, y, selectedEntity()->localTransform);
+		gizmo->mouseMove(x, y, *selectedEntity());
 	}
 }
 
