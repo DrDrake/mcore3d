@@ -111,7 +111,7 @@ void skinning(
 		Vec3f p(0);
 		for(size_t j=0; j<jointPerVertex; ++j) {
 			float w = (&weight[i])[j];
-			if(w <= 0)
+			if(w <= 0)	// NOTE: We assume a decending joint weight ordering
 				break;
 			size_t jointIdx = (&jointIndice[i])[j];
 
@@ -143,7 +143,7 @@ void skinning(
 		Vec3f p(0), n(0);
 		for(size_t j=0; j<jointPerVertex; ++j) {
 			float w = (&weight[i])[j];
-			if(w <= 0)
+			if(w <= 0)	// NOTE: We assume a decending joint weight ordering
 				break;
 			size_t jointIdx = (&jointIndice[i])[j];
 
