@@ -155,6 +155,16 @@ static StrideArray<uint8_t> getJointIdx(const SPODMesh& mesh)
 	return ret;
 }
 
+static StrideArray<byte_t> getJointWeight(const SPODMesh& mesh)
+{
+	StrideArray<byte_t> ret(nullptr, mesh.nNumVertex, mesh.sBoneWeight.nStride);
+	if(mesh.pInterleaved)
+		ret.data = (char*)(mesh.pInterleaved + size_t(mesh.sBoneWeight.pData));
+	else
+		ret.data = (char*)mesh.sBoneWeight.pData;
+	return ret;
+}
+
 static bool isSkinMeshNode(const CPVRTModelPOD& pod, size_t i)
 {
 	if(i >= pod.nNumMesh)
@@ -400,6 +410,7 @@ IResourceLoader::LoadingState PodLoader::Impl::load(std::istream* is, const Path
 			std::vector<bool> boneIdxRemapAssigned(podMesh.nNumVertex, false);
 
 			StrideArray<uint8_t> jointIdx = getJointIdx(podMesh);
+			StrideArray<byte_t> jointWeight = getJointWeight(podMesh);
 
 			const CPVRTBoneBatches& boneBatches = podMesh.sBoneBatches;
 			for(int iBatch = 0; iBatch < boneBatches.nBatchCnt; ++iBatch)
@@ -424,13 +435,23 @@ IResourceLoader::LoadingState PodLoader::Impl::load(std::istream* is, const Path
 						continue;
 					boneIdxRemapAssigned[v] = true;
 
+					uint8_t* jtIdx = &jointIdx[v];
+					float* jtWeight = reinterpret_cast<float*>(&jointWeight[v]);
+
 					for(size_t j=0; j<podMesh.sBoneIdx.n; ++j) {
-						uint8_t& val = *(&jointIdx[v] + j);
+						uint8_t& val = jtIdx[j];
 						const size_t newIdx = boneIdxRemap[val];
 
 						MCD_ASSERT(newIdx < 255);
 						val = uint8_t(newIdx);
 					}
+
+					// Sort the joint as decending joint weight
+					for(size_t j=0; j<podMesh.sBoneIdx.n; ++j) for(size_t k=1; k<podMesh.sBoneIdx.n; ++k)
+						if(jtWeight[k-1] < jtWeight[k]) {
+							std::swap(jtIdx[k-1], jtIdx[k]);
+							std::swap(jtWeight[k-1], jtWeight[k]);
+						}
 				}
 			}
 		}
