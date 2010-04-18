@@ -4,7 +4,9 @@
 #include "GizmoBaseComponent.h"
 #include "../../../MCD/Component/Input/InputComponent.h"
 
-//! A Gizmo that controls translation.
+/*!	A Gizmo that controls translation.
+	By default TranslationGizmoComponent use Global as the reference frame.
+ */
 class TranslationGizmoComponent : public GizmoBaseComponent
 {
 public:

@@ -50,13 +50,20 @@ public:
 
 	sal_override void update(float dt);
 
-	virtual void mouseDown(int x, int y, MCD::Mat44f& transform);
+	virtual void mouseDown(int x, int y, MCD::Entity& affectingEntity);
 
-	virtual void mouseMove(int x, int y, MCD::Mat44f& transform);
+	virtual void mouseMove(int x, int y, MCD::Entity& affectingEntity);
 
 	virtual void mouseUp(int x, int y);
 
 	MCD::ComponentPtr dragging;
+
+	enum ReferenceFrame {
+		Local,
+		Global
+	};	// ReferenceFrame
+
+	ReferenceFrame referenceFrame;
 
 protected:
 	MCD::Mat44f mBackupMatrix;

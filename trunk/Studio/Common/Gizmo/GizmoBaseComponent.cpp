@@ -125,7 +125,7 @@ void MyMeshComponent::render()
 }
 
 GizmoBaseComponent::GizmoBaseComponent(Entity* hostEntity, InputComponent* inputComponent)
-	: mInputComponent(inputComponent)
+	: mInputComponent(inputComponent), referenceFrame(Local)
 {
 	dragging = nullptr;
 
@@ -152,20 +152,20 @@ void GizmoBaseComponent::update(float)
 			int(input->getAxis("mouse y"))
 		);
 
-		if(input->getMouseButton(0))
-			mouseDown(currentMouseAxis.x, currentMouseAxis.y, selectedEntity->localTransform);
+		if(input->getMouseButtonDown(0))
+			mouseDown(currentMouseAxis.x, currentMouseAxis.y, *selectedEntity);
 
-		mouseMove(currentMouseAxis.x, currentMouseAxis.y, selectedEntity->localTransform);
+		mouseMove(currentMouseAxis.x, currentMouseAxis.y, *selectedEntity);
 	}
 }
 
-void GizmoBaseComponent::mouseDown(int x, int y, Mat44f& transform)
+void GizmoBaseComponent::mouseDown(int x, int y, MCD::Entity& e)
 {
 	MyPickComponent* picker = dynamic_cast<MyPickComponent*>(mPickComponent.get());
 	MCD_ASSUME(picker);
 	MyMeshComponent* mesh = picker->selectedMesh;
 
-	mBackupMatrix = transform;
+	mBackupMatrix = (referenceFrame == Local ? e.localTransform : e.worldTransform());
 	mOldMousePosition[0] = x;
 	mOldMousePosition[1] = y;
 
@@ -178,7 +178,7 @@ void GizmoBaseComponent::mouseDown(int x, int y, Mat44f& transform)
 	}
 }
 
-void GizmoBaseComponent::mouseMove(int x, int y, Mat44f& transform)
+void GizmoBaseComponent::mouseMove(int x, int y, MCD::Entity& e)
 {
 	MyPickComponent* picker = dynamic_cast<MyPickComponent*>(mPickComponent.get());
 	MCD_ASSUME(picker);
@@ -186,11 +186,17 @@ void GizmoBaseComponent::mouseMove(int x, int y, Mat44f& transform)
 
 	if(dragging)
 	{
+		Mat44f mat = (referenceFrame == Local ? e.localTransform : e.worldTransform());
 		dynamic_cast<MyMeshComponent*>(dragging.get())->mouseMove(
 			mOldMousePosition,
 			MyMeshComponent::Vec2i(x, y),
-			mBackupMatrix, transform
+			mBackupMatrix, mat
 		);
+
+		if(referenceFrame == Local)
+			e.localTransform = mat;
+		else
+			e.setWorldTransform(mat);
 	}
 }
 
