@@ -482,7 +482,7 @@ public:
 	c2->referenceToAnother = c1;
 
 	// Clone the entity tree
-	EntityPtr cloned = root.clone();
+	std::auto_ptr<Entity> cloned(root.clone());
 
 	// Verify that the new cloned tree has the desired component cross-reference.
 	MockComponent *cc1 = nullptr, *cc2 = nullptr;
