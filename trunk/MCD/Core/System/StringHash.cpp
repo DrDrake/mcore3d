@@ -170,7 +170,7 @@ public:
 		++mCount;
 
 		// Enlarge the bucket if necessary
-		if(float(mCount) > float(mBuckets.size()) * 1.5f)
+		if(mCount * 2 > mBuckets.size() * 3)
 			resizeBucket(mBuckets.size() * 2);
 
 		return n;

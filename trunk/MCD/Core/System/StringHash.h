@@ -87,7 +87,7 @@ protected:
 
 	typedef uint32_t HashType;
 
-	// A small util for defining the "const char (&Type)[N]" argument
+	// A small utility for defining the "const char (&Type)[N]" argument
 	template<int N>
 	struct Str { typedef const char (&Type)[N]; };
 

@@ -340,6 +340,10 @@
 					>
 				</File>
 				<File
+					RelativePath=".\System\StringHash.h"
+					>
+				</File>
+				<File
 					RelativePath=".\System\StrUtility.h"
 					>
 				</File>
@@ -478,6 +482,10 @@
 				</File>
 				<File
 					RelativePath=".\System\Stream.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\System\StringHash.cpp"
 					>
 				</File>
 				<File
