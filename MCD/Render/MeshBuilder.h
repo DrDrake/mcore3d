@@ -1,7 +1,7 @@
 #ifndef __MCD_RENDER_MESHBUILDER__
 #define __MCD_RENDER_MESHBUILDER__
 
-#include "ShareLib.h"
+#include "VertexFormat.h"
 #include "../Core/System/Array.h"
 #include "../Core/System/Atomic.h"
 #include "../Core/System/IntrusivePtr.h"
@@ -43,33 +43,14 @@ namespace MCD {
 class MCD_RENDER_API MeshBuilder : public IntrusiveSharedObject<AtomicInteger>, private Noncopyable
 {
 public:
-	enum ElementType
-	{
-		TYPE_NOT_USED = 0,
-		TYPE_INT,		TYPE_UINT,
-		TYPE_INT8,		TYPE_UINT8,
-		TYPE_INT16,		TYPE_UINT16,
-		TYPE_FLOAT,		TYPE_DOUBLE,
-		TYPE_NONE	//!< For error indication
-	};	// ElementType
-
-	struct Semantic
-	{
-		const char* name;		//! Unique string that identify the semantic
-		ElementType elementType;//! The data type of the element
-		size_t elementSize;		//! Size in byte of individual element in this semanitc, eg. Vec3f -> sizeof(float)
-		size_t elementCount;	//! Number of element in this semanitc, eg. Vec3f -> 3
-		size_t channelIndex;	//! The channel index for color/texture coordinate
-	};	// Semantic
-
 	explicit MeshBuilder(bool isCreatedOnStack=true);
 
 	sal_override ~MeshBuilder();
 
 // Operations
 	/*!	Call this function to declare the vertex attributes you want.
-		\param semantic
-			The semantic for this attribute. You can get some preset semantics using SemanticMap::getSingleton().
+		\param format
+			The format for this attribute. You can get some preset semantics using SemanticMap::getSingleton().
 		\param bufferId
 			Feed this param with different value if you want to group different attributes into set of buffers.
 			The value zero is reserved for index buffer, otherwise you can supply successive values 1,2,3,etc...
@@ -77,9 +58,9 @@ public:
 
 		\note You can invoke declareAttribute() even when there are datas already in the buffers.
 		\note Calling declareAttribute() will invalidate the pointer returned by getAttributePointer() and getAttributeAs()
-		\note Return failure if the semantic is already declared once.
+		\note Return failure if the format is already declared once.
 	 */
-	int declareAttribute(const Semantic& semantic, size_t bufferId=1);
+	int declareAttribute(const VertexFormat& format, size_t bufferId=1);
 
 	/*!	Resize the buffers.
 		\note Remember only 65536 vertex is supported.
@@ -108,10 +89,10 @@ public:
 
 	size_t bufferCount() const;
 
-	/*!	Search the attribute ID with the given semantic name.
-		Returns -1 if non of the semantic can be found.
+	/*!	Search the attribute ID with the given semantic.
+		Returns -1 if none of the semantic can be found.
 	 */
-	int findAttributeId(const char* semanticName) const;
+	int findAttributeId(const StringHash& semantic) const;
 
 	/*!	Acquire the data pointer from the internal buffer.
 		This function also expose the associated properties of that attribute.
@@ -124,9 +105,9 @@ public:
 			Note that stride will not be zero even the data are tightly packed.
 		\param offset
 			Byte offset of this attribute in it's buffer.
-		\param semantic
-			The semantic for this attribute, as it was passed to declareAttribute().
-			Since all error checking is done in declareAttribute(), the returned semantic
+		\param format
+			The format for this attribute, as it was passed to declareAttribute().
+			Since all error checking is done in declareAttribute(), the returned format
 			by this function should be always valid.
 
 		\note If stride == sizeInByte it means a whole buffer is dedicated to that attribute.
@@ -137,7 +118,7 @@ public:
 		sal_out_opt size_t* stride=nullptr,
 		sal_out_opt size_t* bufferId=nullptr,
 		sal_out_opt size_t* offset=nullptr,
-		sal_out_opt Semantic* semantic=nullptr
+		sal_out_opt VertexFormat* format=nullptr
 	);
 
 	sal_maybenull const char* getAttributePointer(
@@ -146,7 +127,7 @@ public:
 		sal_out_opt size_t* stride=nullptr,
 		sal_out_opt size_t* bufferId=nullptr,
 		sal_out_opt size_t* offset=nullptr,
-		sal_out_opt Semantic* semantic=nullptr
+		sal_out_opt VertexFormat* format=nullptr
 	) const;
 
 	/*!	Returns the required attribute as a StrideArray with the correct stride.
@@ -155,9 +136,9 @@ public:
 	template<typename T> StrideArray<T> getAttributeAs(int attributeId)
 	{
 		size_t count, stride;
-		Semantic semantic;
-		char* p = getAttributePointer(attributeId, &count, &stride, nullptr, nullptr, &semantic);
-		if(p && sizeof(T) == semantic.elementCount * semantic.elementSize)
+		VertexFormat format;
+		char* p = getAttributePointer(attributeId, &count, &stride, nullptr, nullptr, &format);
+		if(p && sizeof(T) == format.sizeInByte())
 			return StrideArray<T>(reinterpret_cast<T*>(p), count, stride);
 		return StrideArray<T>(nullptr, 0, 0);
 	}

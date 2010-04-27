@@ -5,7 +5,6 @@
 #include "Mesh.h"
 #include "MeshBuilder.h"
 #include "Model.h"
-#include "SemanticMap.h"
 #include "../Core/System/Log.h"
 #include "../Core/System/MemoryProfiler.h"
 #include "../Core/System/Mutex.h"
@@ -122,21 +121,19 @@ size_t getChannelCount(const VertexDeclaration& d)
 	}
 }
 
-MeshBuilder::Semantic getSemantic(const VertexDeclaration& d)
+VertexFormat getSemantic(const VertexDeclaration& d)
 {
-	const SemanticMap& map = SemanticMap::getSingleton();
-	MeshBuilder::Semantic nullSemantic = { "", MeshBuilder::TYPE_NONE, 0, 0, 0 };
 	switch(d.semantic) {
-	case VES_POSITION:				return (d.type == VET_FLOAT3) ? map.position() : nullSemantic;
-	case VES_BLEND_WEIGHTS:			return map.blendWeight();	// TODO: Check that map.blendWeight() return the expected elementSize
-	case VES_BLEND_INDICES:			return map.blendIndex();	// TODO: Check that map.blendIndex() return the expected elementSize
-	case VES_NORMAL:				return (d.type == VET_FLOAT3) ? map.normal() : nullSemantic;
-	case VES_DIFFUSE:				return map.color(0, getChannelCount(d), 1);
-	case VES_SPECULAR:				return map.color(1, getChannelCount(d), 1);
-	case VES_TEXTURE_COORDINATES:	return map.uv(d.index, getChannelCount(d));
-	case VES_BINORMAL:				return map.binormal();
-	case VES_TANGENT:				return map.tangent();
-	default:						return nullSemantic;
+	case VES_POSITION:				return (d.type == VET_FLOAT3) ? VertexFormat::get("position") : VertexFormat::null();
+	case VES_BLEND_WEIGHTS:			return VertexFormat::get("jointWeight");	// TODO: Check that map.blendWeight() return the expected elementSize
+	case VES_BLEND_INDICES:			return VertexFormat::get("jointIndex");	// TODO: Check that map.blendIndex() return the expected elementSize
+	case VES_NORMAL:				return (d.type == VET_FLOAT3) ? VertexFormat::get("position") : VertexFormat::null();
+	case VES_DIFFUSE:				return VertexFormat::get("color0");
+	case VES_SPECULAR:				return VertexFormat::get("color1");
+	case VES_TEXTURE_COORDINATES:	return VertexFormat::get("uv0");
+	case VES_BINORMAL:				return VertexFormat::get("binormal");
+	case VES_TANGENT:				return VertexFormat::get("tangent");
+	default:						return VertexFormat::null();
 	}
 }
 

@@ -8,7 +8,6 @@
 #include "../../MCD/Render/Mesh.h"
 #include "../../MCD/Render/Model.h"
 #include "../../MCD/Render/PlaneMeshBuilder.h"
-#include "../../MCD/Render/SemanticMap.h"
 #include "../../MCD/Component/Render/AnimationComponent.h"
 #include "../../MCD/Component/Render/MeshComponent.h"
 #include "../../MCD/Component/Render/SkeletonAnimationComponent.h"
@@ -41,8 +40,8 @@ MeshPtr buildCylinder(float radius, float length, uint8_t jointCount)
 
 	// Assign the joint index and weight
 	// NOTE: All getAttributeAs() should appear after declareAttribute(), otherwise the pointer may become invalid.
-	int jointIdxId = builder.declareAttribute(SemanticMap::getSingleton().blendIndex(), 2);
-	int jointWeightId = builder.declareAttribute(SemanticMap::getSingleton().blendWeight(), 2);
+	int jointIdxId = builder.declareAttribute(VertexFormat::get("jointIndex"), 2);
+	int jointWeightId = builder.declareAttribute(VertexFormat::get("jointWeight"), 2);
 	StrideArray<Vec4<uint8_t> > jointIdx = builder.getAttributeAs<Vec4<uint8_t> >(jointIdxId);
 	StrideArray<Vec4f> jointWeight = builder.getAttributeAs<Vec4f>(jointWeightId);
 

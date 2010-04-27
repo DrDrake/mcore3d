@@ -1,6 +1,5 @@
 #include "Pch.h"
 #include "PlaneMeshBuilder.h"
-#include "SemanticMap.h"
 #include "../Core/Math/Vec2.h"
 #include "../Core/Math/Vec3.h"
 
@@ -8,13 +7,13 @@ using namespace MCD;
 
 PlaneMeshBuilder::PlaneMeshBuilder(float width, float height, uint16_t widthSegmentCount, uint16_t heightSegmentCount, bool includeTangents)
 {
-	posId = declareAttribute(SemanticMap::getSingleton().position(), 1);
-	normalId = declareAttribute(SemanticMap::getSingleton().normal(), 1);
-	uvId = declareAttribute(SemanticMap::getSingleton().uv(0, 2), 1);
+	posId = declareAttribute(VertexFormat::get("position"), 1);
+	normalId = declareAttribute(VertexFormat::get("normal"), 1);
+	uvId = declareAttribute(VertexFormat::get("uv0"), 1);
 	tangentId = -1;
 
 	if(includeTangents)
-		tangentId = declareAttribute(SemanticMap::getSingleton().tangent(), 1);
+		tangentId = declareAttribute(VertexFormat::get("tangent"), 1);
 
 	const uint16_t vxCount = widthSegmentCount + 1;		// Number of vertex along x direction
 	const uint16_t vzCount = heightSegmentCount + 1;	// Number of vertex along z direction

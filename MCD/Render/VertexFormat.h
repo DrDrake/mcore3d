@@ -40,18 +40,15 @@ struct MCD_RENDER_API VertexFormat
 
 	//!	Convert to API dependent type, ie: GL_FLOAT, GL_UNSIGNED_BYTE
 	static int toApiDependentType(ComponentType type);
-};	// VertexFormat
 
-//!	The default location that stores a list of pre-defined VertexFormat.
-class MCD_RENDER_API VertexFormatFactory
-{
-public:
 	/*!	Get a VertexFormat by a semantic name.
 		There are pre-defined VretexFormat implemented in the API specific VertexFormat.cpp
 		Returns a dummy VertexFormat if semantic cannot found, and gives assertion on debug mode.
 	 */
 	static VertexFormat get(const StringHash& semantic);
-};	// VertexFormatFactory
+
+	static VertexFormat null();
+};	// VertexFormat
 
 }	// namespace MCD
 

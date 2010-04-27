@@ -46,16 +46,5 @@ TEST(MeshWriterLoaderTest)
 
 	fs.release();
 
-	// Check the result
-	CHECK_EQUAL(mesh->bufferCount, mesh2->bufferCount);
-	CHECK_EQUAL(mesh->attributeCount, mesh2->attributeCount);
-	CHECK_EQUAL(mesh->vertexCount, mesh2->vertexCount);
-	CHECK_EQUAL(mesh->indexCount, mesh2->indexCount);
-
-	CHECK_EQUAL(mesh->indexAttrIdx, mesh2->indexAttrIdx);
-	CHECK_EQUAL(mesh->positionAttrIdx, mesh2->positionAttrIdx);
-	CHECK_EQUAL(mesh->normalAttrIdx, mesh2->normalAttrIdx);
-	CHECK_EQUAL(mesh->uv0AttrIdx, mesh2->uv0AttrIdx);
-
 	// TODO: Check the content of the buffers
 }

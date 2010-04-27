@@ -147,7 +147,7 @@ void skinning(
 				break;
 			size_t jointIdx = (&jointIndice[i])[j];
 
-			Vec3f tmp = basePosePos[i];
+			Vec3f tmp = basePosePos[i];	// TODO: FIXME: In Studio sometimes the basePosePos is null
 			joints[jointIdx].transformPoint(tmp);
 			p += tmp * w;
 

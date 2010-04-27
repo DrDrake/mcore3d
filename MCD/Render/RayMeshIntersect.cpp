@@ -13,8 +13,8 @@ struct IRayMeshIntersect::MeshRecord : LinkListBase::Node<MeshRecord>
 {
 	MCD_IMPLICIT MeshRecord(Mesh& mesh)
 		: mesh(&mesh), mappedBuffers()
-		, vertex(mesh.mapAttribute<Vec3f>(mesh.positionAttrIdx, mappedBuffers, Mesh::Read))
-		, index(mesh.mapAttribute<uint16_t>(mesh.indexAttrIdx, mappedBuffers, Mesh::Read))
+		, vertex(mesh.mapAttribute<Vec3f>(Mesh::cPositionAttrIdx, mappedBuffers, Mesh::Read))
+		, index(mesh.mapAttribute<uint16_t>(Mesh::cIndexAttrIdx, mappedBuffers, Mesh::Read))
 	{
 		// Map all the buffers to easy hit result quering
 		for(size_t i=0; i<mesh.bufferCount; ++i)

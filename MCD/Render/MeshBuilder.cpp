@@ -26,7 +26,7 @@ public:
 	bool assertAttributs() const 
 	{
 		for(Buffers::const_iterator i=(++buffers.begin()); i!=buffers.end(); ++i)
-			if(i->elementSize == 0)
+			if(i->componentSize == 0)
 				return false;
 		return true;
 	}
@@ -34,17 +34,17 @@ public:
 	struct Attribute {
 		size_t offset;		//!< Byte offset of this attribute in the buffer
 		size_t bufferId;	//!< Index pointing to the buffer it corresponding to
-		Semantic semantic;
+		VertexFormat format;
 	};	// Attribute
 
 	typedef std::vector<Attribute> Attributes;
 	Attributes attributes;
 
 	struct Buffer : public std::vector<char> {
-		Buffer() { elementSize = 0; }
+		Buffer() { componentSize = 0; }
 
 		//! Size of uint32_t for index buffer, vertex size for vertex buffers.
-		size_t elementSize;
+		size_t componentSize;
 	};	// Buffer
 
 	typedef ptr_vector<Buffer> Buffers;
@@ -69,36 +69,36 @@ MeshBuilder::~MeshBuilder()
 	delete &mImpl;
 }
 
-int MeshBuilder::declareAttribute(const Semantic& semantic, size_t bufferId)
+int MeshBuilder::declareAttribute(const VertexFormat& format, size_t bufferId)
 {
 	// bufferId = 0 is reserved for index buffer
-	if(semantic.elementCount * semantic.elementSize == 0 || bufferId == 0)
+	if(format.componentCount * format.componentSize == 0 || bufferId == 0)
 		return -1;
 
-	if(semantic.name == nullptr || ::strlen(semantic.name) == 0)
+	if(format.semantic.empty())
 		return -1;
 
-	if(findAttributeId(semantic.name) != -1)
+	if(findAttributeId(format.semantic.hashValue()) != -1)
 		return -1;
 
 	// Create new buffer to match the bufferId param
 	while(bufferId >= mImpl.buffers.size())
 		mImpl.buffers.push_back(new Impl::Buffer);
 
-	const size_t sizeInBytes = semantic.elementCount * semantic.elementSize;
-	Impl::Attribute a = { mImpl.buffers[bufferId].elementSize, bufferId, semantic };
+	const size_t sizeInBytes = format.componentCount * format.componentSize;
+	Impl::Attribute a = { mImpl.buffers[bufferId].componentSize, bufferId, format };
 	mImpl.attributes.push_back(a);
 
 	Impl::Buffer& buf = mImpl.buffers[bufferId];
 
 	{	// Resize the buffer for the new attribute
 		size_t oldSize = buf.size();
-		size_t newSize = (buf.elementSize + sizeInBytes) * vertexCount();
+		size_t newSize = (buf.componentSize + sizeInBytes) * vertexCount();
 		buf.resize(newSize);
 
 		// Rearrange the interleaved content (if any)
 		if(oldSize != 0) {
-			const size_t oldEleSize = buf.elementSize;
+			const size_t oldEleSize = buf.componentSize;
 			const size_t newEleSize = oldEleSize + sizeInBytes;
 
 			// We loop form end to begin
@@ -110,7 +110,7 @@ int MeshBuilder::declareAttribute(const Semantic& semantic, size_t bufferId)
 		}
 	}
 
-	buf.elementSize += sizeInBytes;
+	buf.componentSize += sizeInBytes;
 
 	return mImpl.attributes.size() - 1;
 }
@@ -120,10 +120,10 @@ bool MeshBuilder::resizeBuffers(uint16_t vertexCount, size_t indexCount)
 	if(!mImpl.assertAttributs())
 		return false;
 
-	mImpl.buffers[0].resize(indexCount * mImpl.buffers[0].elementSize);
+	mImpl.buffers[0].resize(indexCount * mImpl.buffers[0].componentSize);
 
 	for(Impl::Buffers::iterator i=(++mImpl.buffers.begin()); i!=mImpl.buffers.end(); ++i)
-		i->resize(i->elementSize * vertexCount);
+		i->resize(i->componentSize * vertexCount);
 
 	mImpl.vertexCount = vertexCount;
 	mImpl.indexCount = indexCount;
@@ -145,7 +145,7 @@ void MeshBuilder::clear()
 {
 	mImpl.attributes.clear();
 
-	Semantic indexSemantic = { "index", TYPE_UINT16, sizeof(uint16_t), 1, 0 };
+	VertexFormat indexSemantic = { FixString("index"), VertexFormat::TYPE_UINT16, sizeof(uint16_t), 1, 0 };
 	// Prepare the index as a default attribute
 	Impl::Attribute a = { 0, 0, indexSemantic };
 	mImpl.attributes.push_back(a);
@@ -159,7 +159,7 @@ void MeshBuilder::clearBuffers()
 
 	// Pre-allocate the index buffer
 	Impl::Buffer* b = new Impl::Buffer;
-	b->elementSize = sizeof(uint16_t);
+	b->componentSize = sizeof(uint16_t);
 	mImpl.buffers.push_back(b);
 
 	mImpl.vertexCount = 0;
@@ -178,7 +178,7 @@ uint16_t MeshBuilder::vertexCount() const
 
 size_t MeshBuilder::indexCount() const
 {
-	MCD_ASSERT(mImpl.buffers[0].size() / mImpl.buffers[0].elementSize == mImpl.indexCount);
+	MCD_ASSERT(mImpl.buffers[0].size() / mImpl.buffers[0].componentSize == mImpl.indexCount);
 	return mImpl.indexCount;
 }
 
@@ -187,56 +187,56 @@ size_t MeshBuilder::bufferCount() const
 	return mImpl.buffers.size();
 }
 
-int MeshBuilder::findAttributeId(const char* semanticName) const
+int MeshBuilder::findAttributeId(const StringHash& semantic) const
 {
 	for(size_t i=0; i<mImpl.attributes.size(); ++i)
-		if(::strcmp(mImpl.attributes[i].semantic.name, semanticName) == 0)
+		if(mImpl.attributes[i].format.semantic == semantic)
 			return i;
 
 	return -1;
 }
 
-char* MeshBuilder::getAttributePointer(int attributeId, size_t* count, size_t* stride, size_t* bufferId, size_t* offset, Semantic* semantic)
+char* MeshBuilder::getAttributePointer(int attributeId, size_t* count, size_t* stride, size_t* bufferId, size_t* offset, VertexFormat* format)
 {
 	if(attributeId < 0 || size_t(attributeId) >= mImpl.attributes.size())
 		return nullptr;
 
 	const Impl::Attribute& a = mImpl.attributes[attributeId];
 	const size_t bufferIdx = a.bufferId;
-	const size_t elementSize = mImpl.buffers[bufferIdx].elementSize;
+	const size_t componentSize = mImpl.buffers[bufferIdx].componentSize;
 	const size_t totalSize = mImpl.buffers[bufferIdx].size();
 
 	if(totalSize == 0)
 		return nullptr;
 
-	if(count) *count = totalSize / elementSize;
-	if(stride) *stride = elementSize;
+	if(count) *count = totalSize / componentSize;
+	if(stride) *stride = componentSize;
 	if(bufferId) *bufferId = bufferIdx;
-	if(semantic) *semantic = a.semantic;
+	if(format) *format = a.format;
 	if(offset) *offset = a.offset;
 
 	return &mImpl.buffers[bufferIdx][a.offset];
 }
 
-const char* MeshBuilder::getAttributePointer(int attributeId, size_t* count, size_t* stride, size_t* bufferId, size_t* offset, Semantic* semantic) const
+const char* MeshBuilder::getAttributePointer(int attributeId, size_t* count, size_t* stride, size_t* bufferId, size_t* offset, VertexFormat* format) const
 {
-	return const_cast<MeshBuilder*>(this)->getAttributePointer(attributeId, count, stride, bufferId, offset, semantic);
+	return const_cast<MeshBuilder*>(this)->getAttributePointer(attributeId, count, stride, bufferId, offset, format);
 }
 
-char* MeshBuilder::getBufferPointer(size_t bufferIdx,  size_t* elementSize, size_t* sizeInByte)
+char* MeshBuilder::getBufferPointer(size_t bufferIdx,  size_t* componentSize, size_t* sizeInByte)
 {
 	if(bufferIdx >= mImpl.buffers.size() || mImpl.buffers[bufferIdx].size() == 0)
 		return nullptr;
 
-	if(elementSize) *elementSize = mImpl.buffers[bufferIdx].elementSize;
+	if(componentSize) *componentSize = mImpl.buffers[bufferIdx].componentSize;
 	if(sizeInByte) *sizeInByte = mImpl.buffers[bufferIdx].size();
 
 	return &mImpl.buffers[bufferIdx][0];
 }
 
-const char* MeshBuilder::getBufferPointer(size_t bufferIdx,  size_t* elementSize, size_t* sizeInByte) const
+const char* MeshBuilder::getBufferPointer(size_t bufferIdx,  size_t* componentSize, size_t* sizeInByte) const
 {
-	return const_cast<MeshBuilder*>(this)->getBufferPointer(bufferIdx, elementSize, sizeInByte);
+	return const_cast<MeshBuilder*>(this)->getBufferPointer(bufferIdx, componentSize, sizeInByte);
 }
 
 #ifndef NDEBUG
@@ -271,10 +271,10 @@ bool MeshBuilderIM::reserveBuffers(uint16_t vertexCount, size_t indexCount)
 	if(!mImpl.assertAttributs())
 		return false;
 
-	mImpl.buffers[0].reserve(indexCount * mImpl.buffers[0].elementSize);
+	mImpl.buffers[0].reserve(indexCount * mImpl.buffers[0].componentSize);
 
 	for(Impl::Buffers::iterator i=(++mImpl.buffers.begin()); i!=mImpl.buffers.end(); ++i)
-		i->reserve(i->elementSize * vertexCount);
+		i->reserve(i->componentSize * vertexCount);
 
 	return true;
 }
@@ -286,8 +286,8 @@ bool MeshBuilderIM::vertexAttribute(int attributeId, const void* data)
 		return false;
 
 	mImpl2.resize(attributeCount);
-	const Semantic& s = mImpl.attributes[attributeId].semantic;
-	const size_t size = s.elementCount * s.elementSize;
+	const VertexFormat& s = mImpl.attributes[attributeId].format;
+	const size_t size = s.componentCount * s.componentSize;
 	mImpl2[attributeId].assign((char*)data, (char*)data + size);
 	return true;
 }
@@ -312,8 +312,8 @@ uint16_t MeshBuilderIM::addVertex()
 	for(size_t i=1; i<attributeCount; ++i)
 	{
 		const Impl::Attribute& a = mImpl.attributes[i];
-		const size_t stride = mImpl.buffers[a.bufferId].elementSize;
-		const size_t attributeSize = a.semantic.elementCount * a.semantic.elementSize;
+		const size_t stride = mImpl.buffers[a.bufferId].componentSize;
+		const size_t attributeSize = a.format.componentCount * a.format.componentSize;
 
 		// Skip those un-assigned attribute
 		if(mImpl2[i].size() != attributeSize)
@@ -341,7 +341,7 @@ bool MeshBuilderIM::addTriangle(uint16_t idx1, uint16_t idx2, uint16_t idx3)
 
 	const uint16_t tmp[3] = { idx1, idx2, idx3 };
 	Impl::Buffer& buffer = mImpl.buffers[0];
-	MCD_ASSERT(sizeof(tmp) == buffer.elementSize * 3);
+	MCD_ASSERT(sizeof(tmp) == buffer.componentSize * 3);
 
 	buffer.insert(buffer.end(), (char*)(tmp), (char*)(tmp) + sizeof(tmp));
 	mImpl.indexCount += 3;

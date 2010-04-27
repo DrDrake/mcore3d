@@ -39,8 +39,8 @@ public:
 	Impl(const MeshPtr& mesh, void*& shapeImpl) : mVertexBuffer(nullptr), mIndexBuffer(nullptr)
 	{
 		Mesh::MappedBuffers mapped;
-		StrideArray<Vec3f> vertex = mesh->mapAttribute<Vec3f>(mesh->positionAttrIdx, mapped, Mesh::Read);
-		StrideArray<uint16_t> index = mesh->mapAttribute<uint16_t>(mesh->indexAttrIdx, mapped, Mesh::Read);
+		StrideArray<Vec3f> vertex = mesh->mapAttribute<Vec3f>(Mesh::cPositionAttrIdx, mapped, Mesh::Read);
+		StrideArray<uint16_t> index = mesh->mapAttribute<uint16_t>(Mesh::cIndexAttrIdx, mapped, Mesh::Read);
 
 		init(vertex, index, true, shapeImpl);
 

@@ -6,7 +6,6 @@
 #include "MeshBuilderUtility.h"
 #include "Mesh.h"
 #include "Model.h"
-#include "SemanticMap.h"
 #include "Texture.h"
 #include "TangentSpaceBuilder.h"
 #include "../Core/Math/Mat44.h"
@@ -251,9 +250,6 @@ private:
 
 	Max3dsMaterial mDefaultMaterial;
 
-	SemanticMap::Semantic mIndexSemantic, mPositionSemantic, mNormalSemantic;
-	SemanticMap::Semantic mUvSemantic, mTangentSemantic;
-
 	volatile IResourceLoader::LoadingState mLoadingState;
 	mutable Mutex mMutex;
 };	// Impl
@@ -267,12 +263,6 @@ Max3dsLoader::Impl::Impl(IResourceManager* resourceManager)
 	mDefaultMaterial.diffuse = ColorRGBf(1);
 	mDefaultMaterial.specular = ColorRGBf(0.5f);
 	mDefaultMaterial.shininess = 10;
-
-	mIndexSemantic = SemanticMap::getSingleton().index();
-	mPositionSemantic = SemanticMap::getSingleton().position();
-	mNormalSemantic = SemanticMap::getSingleton().normal();
-	mUvSemantic = SemanticMap::getSingleton().uv(0, 2);
-	mTangentSemantic = SemanticMap::getSingleton().tangent();
 }
 
 Max3dsLoader::Impl::~Impl()
@@ -330,8 +320,8 @@ void Max3dsLoader::Impl::readChunks(const Path* fileId)
 
 				modelInfo.meshBuilder = currentMeshBuilder;
 				mModelInfo.push_back(modelInfo);
-				currentMeshBuilder->declareAttribute(mPositionSemantic, 1);
-				currentMeshBuilder->declareAttribute(mNormalSemantic, 1);
+				currentMeshBuilder->declareAttribute(VertexFormat::get("position"), 1);
+				currentMeshBuilder->declareAttribute(VertexFormat::get("normal"), 1);
 			}	break;
 
 			//--------------- TRIG_MESH ---------------
@@ -503,7 +493,7 @@ void Max3dsLoader::Impl::readChunks(const Path* fileId)
 				if(mModelInfo.empty() || currentMeshBuilder != mModelInfo.back().meshBuilder)
 					ABORTLOADING();
 
-				int uvId = currentMeshBuilder->declareAttribute(mUvSemantic, 1);
+				int uvId = currentMeshBuilder->declareAttribute(VertexFormat::get("uv0"), 1);
 				StrideArray<Vec2f> coord = currentMeshBuilder->getAttributeAs<Vec2f>(uvId);
 
 				if(count != coord.size)
@@ -765,11 +755,11 @@ void Max3dsLoader::Impl::postProcess()
 		MeshBuilder& meshBuilder = *model.meshBuilder;
 
 		// Compute tangent space if needed
-		int uvId = meshBuilder.findAttributeId(mUvSemantic.name);
+		int uvId = meshBuilder.findAttributeId("uv0");
 		if(mLoadOptions->includeTangents && uvId != -1)
 		{
 			TangentSpaceBuilder tsBuilder;
-			int tanId = meshBuilder.declareAttribute(mTangentSemantic, 2);
+			int tanId = meshBuilder.declareAttribute(VertexFormat::get("tangent"), 2);
 			MCD_VERIFY(tsBuilder.compute(meshBuilder, cIndexAttId, cPositionAttId, cNormalAttId, uvId, tanId));
 		}
 
