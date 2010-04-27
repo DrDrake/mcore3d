@@ -385,6 +385,10 @@
 				RelativePath=".\TgaLoader.h"
 				>
 			</File>
+			<File
+				RelativePath=".\VertexFormat.h"
+				>
+			</File>
 		</Filter>
 		<Filter
 			Name="Source Files"
@@ -582,6 +586,10 @@
 			</File>
 			<File
 				RelativePath=".\TgaLoader.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\VertexFormat.cpp"
 				>
 			</File>
 		</Filter>

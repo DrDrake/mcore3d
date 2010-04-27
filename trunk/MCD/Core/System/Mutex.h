@@ -84,7 +84,7 @@ public:
 	Cancelable() : mCanceled(false) {}
 	void cancel() { mCanceled = true; }
 	void resume() { mCanceled = false; }
-	bool isCanceled() { return mCanceled; }
+	bool isCanceled() const { return mCanceled; }
 
 protected:
 	bool mCanceled;
