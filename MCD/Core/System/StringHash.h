@@ -11,29 +11,48 @@ namespace MCD {
 	much like immutable string class in some language like C# and Python.
 	This class is intended for fast string comparison, as a look up key etc.
 
-	This class is thread safe.
+	Behind the scene, there is a single global hash table managing all instance of FixString.
+	Whenever a FixString is created, it search for any existing string in the table that match
+	with the input string; return that cached string if yes, otherwise the input string will
+	be hashed and copyed into the global hash table.
+
+	Every FixString instances are reference counted by the global hash table, once it's reference
+	count become zero the FixString's corresponding entry in the hash table along with the string
+	data will be deleted.
+
+	This class is thread safe regarding the read/write to the global hash table.
  */
 class MCD_CORE_API FixString
 {
 public:
+	FixString();
+
+	//!	The input string will copyed and reference counted.
 	explicit FixString(const char* str);
 
+	/*!	Construct with an existing string in the global table, indexed with it's hash value.
+		Make sure there is an other instance of FixString constructed with a string content first.
+	 */
+	explicit FixString(uint32_t hashValue);
+
+	FixString(const FixString& rhs);
 	~FixString();
 
+	FixString& operator=(const FixString& rhs);
+
 	sal_maybenull const char* c_str() const;
+	sal_maybenull operator const char*() const {	return c_str();	}
 
-	sal_maybenull operator const char*() const {
-		return c_str();
-	}
+	uint32_t hashValue() const;
 
-	bool operator==(const FixString& rhs) const	{	return c_str() == rhs.c_str();	}
-	bool operator> (const FixString& rhs) const	{	return c_str() > rhs.c_str();	}
-	bool operator< (const FixString& rhs) const	{	return c_str() < rhs.c_str();	}
+	bool operator==(const FixString& rhs) const;
+	bool operator> (const FixString& rhs) const;
+	bool operator< (const FixString& rhs) const;
 
 	struct Node;
 
 protected:
-	const Node* const mNode;
+	Node* mNode;
 };	// FixString
 
 /*!	A special designed hash table for storing a set of strings.

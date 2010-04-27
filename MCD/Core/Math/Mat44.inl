@@ -193,7 +193,8 @@ bool Mat44<T>::inverse(Mat44& result) const
 
 	const T det = t00 * m00 + t10 * m01 + t20 * m02 + t30 * m03;
 
-	if(Math<T>::isNearZero(det))
+	// We may got a very small determinant if the scaling part of the matrix is small
+	if(Math<T>::isNearZero(det, 1e-20f))
 		return false;
 
 	const T invDet = T(1) / det;

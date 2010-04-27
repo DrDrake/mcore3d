@@ -138,6 +138,17 @@ public:
 		MCD_ASSERT(mCount == 0 && "All instance of FixString should be destroyed before FixStringHashTable");
 	}
 
+	Node* find(uint32_t hashValue) const
+	{
+		const size_t index = hashValue % mBuckets.size();
+		for(Node* n = mBuckets[index]; n; n = n->next) {
+			if(n->hashValue != hashValue)
+				continue;
+			return n;
+		}
+		return nullptr;
+	}
+
 	Node* add(sal_in_z const char* str)
 	{
 		const uint32_t hashValue = StringHash(str, 0).hash;
@@ -226,16 +237,45 @@ static FixStringHashTable gFixStringHashTable;
 
 }	// namespace
 
+FixString::FixString()
+	: mNode(nullptr)
+{}
+
 FixString::FixString(const char* str)
 	: mNode(gFixStringHashTable.add(str))
 {}
 
+FixString::FixString(uint32_t hashValue)
+	: mNode(gFixStringHashTable.find(hashValue))
+{}
+
+FixString::FixString(const FixString& rhs)
+	: mNode(rhs.mNode)
+{
+	if(mNode) ++mNode->refCount;
+}
+
 FixString::~FixString() {
-	if(mNode) gFixStringHashTable.remove(const_cast<Node&>(*mNode));
+	if(mNode) gFixStringHashTable.remove(*mNode);
+}
+
+FixString& FixString::operator=(const FixString& rhs)
+{
+	mNode = rhs.mNode;
+	if(mNode) ++mNode->refCount;
+	return *this;
 }
 
 const char* FixString::c_str() const {
 	return mNode ? mNode->stringValue() : nullptr;
 }
+
+uint32_t FixString::hashValue() const {
+	return mNode ? mNode->hashValue : 0;
+}
+
+bool FixString::operator==(const FixString& rhs) const	{	return hashValue() == rhs.hashValue();	}
+bool FixString::operator> (const FixString& rhs) const	{	return hashValue() > rhs.hashValue();	}
+bool FixString::operator< (const FixString& rhs) const	{	return hashValue() < rhs.hashValue();	}
 
 }	// namespace MCD

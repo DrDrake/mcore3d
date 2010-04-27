@@ -1,7 +1,7 @@
 #ifndef __MCD_RENDER_MESH__
 #define __MCD_RENDER_MESH__
 
-#include "ShareLib.h"
+#include "VertexFormat.h"
 #include "../Core/System/Array.h"
 #include "../Core/System/Resource.h"
 #include "../Core/System/SharedPtr.h"
