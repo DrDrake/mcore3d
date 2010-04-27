@@ -247,7 +247,9 @@ FixString::FixString(const char* str)
 
 FixString::FixString(uint32_t hashValue)
 	: mNode(gFixStringHashTable.find(hashValue))
-{}
+{
+	if(mNode) ++mNode->refCount;
+}
 
 FixString::FixString(const FixString& rhs)
 	: mNode(rhs.mNode)
@@ -261,9 +263,16 @@ FixString::~FixString() {
 
 FixString& FixString::operator=(const FixString& rhs)
 {
+	if(mNode) gFixStringHashTable.remove(*mNode);
 	mNode = rhs.mNode;
 	if(mNode) ++mNode->refCount;
 	return *this;
+}
+
+FixString& FixString::operator=(const StringHash& stringHash)
+{
+	FixString tmp(stringHash);
+	return *this = tmp;
 }
 
 const char* FixString::c_str() const {
@@ -274,8 +283,13 @@ uint32_t FixString::hashValue() const {
 	return mNode ? mNode->hashValue : 0;
 }
 
+bool FixString::operator==(const StringHash& h) const	{	return mNode ? mNode->hashValue == h : false;	}
 bool FixString::operator==(const FixString& rhs) const	{	return hashValue() == rhs.hashValue();	}
 bool FixString::operator> (const FixString& rhs) const	{	return hashValue() > rhs.hashValue();	}
 bool FixString::operator< (const FixString& rhs) const	{	return hashValue() < rhs.hashValue();	}
+
+bool FixString::empty() const {
+	return mNode ? *mNode->stringValue() == '\0' : false;
+}
 
 }	// namespace MCD
