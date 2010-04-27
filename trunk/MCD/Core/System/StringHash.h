@@ -116,7 +116,7 @@ protected:
 	template<int N>
 	struct Str { typedef const char (&Type)[N]; };
 
-	template<int N> inline HashType sdbm(typename Str<N>::Type str)
+	template<int N> MCD_INLINE2 HashType sdbm(typename Str<N>::Type str)
 	{
 		// hash(i) = hash(i - 1) * 65599 + str[i]
 		// Reference: http://www.cse.yorku.ca/~oz/hash.html sdbm
@@ -124,7 +124,7 @@ protected:
 	}
 
 	// "1" = char[2]
-	template<> inline HashType sdbm<2>(typename Str<2>::Type str) {
+	template<> MCD_INLINE2 HashType sdbm<2>(typename Str<2>::Type str) {
 		return str[0];
 	}
 

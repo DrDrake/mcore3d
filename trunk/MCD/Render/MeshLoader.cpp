@@ -1,7 +1,6 @@
 #include "Pch.h"
 #include "MeshLoader.h"
 #include "Mesh.h"
-#include "SemanticMap.h"
 #include "../Core/System/MemoryProfiler.h"
 #include "../Core/System/Stream.h"
 #include <iostream>
@@ -62,8 +61,6 @@ IResourceLoader::LoadingState MeshLoader::Impl::load(std::istream* is, const Pat
 	ABORT_IF(!MCD::read(*is, vertexCount));
 	ABORT_IF(!MCD::read(*is, indexCount));
 
-	SemanticMap& semanticMap = SemanticMap::getSingleton();
-
 	// Write the attribute descriptions
 	for(size_t i=0; i<attributeCount; ++i) {
 		// NOTE: For simplicity, Mesh::Attribute::semantic is read but ignored.
@@ -73,10 +70,10 @@ IResourceLoader::LoadingState MeshLoader::Impl::load(std::istream* is, const Pat
 		char buf[128];
 		ABORT_IF(MCD::readString(*is, buf, sizeof(buf)) == 0);
 
-		MeshBuilder::Semantic semantic;
-		ABORT_IF(!semanticMap.find(buf, semantic));
+		VertexFormat format = VertexFormat::get(StringHash(buf, 0));
+		ABORT_IF(format.semantic.empty());
 
-		attributes[i].semantic = semantic.name;
+		attributes[i].format = format;
 	}
 
 	// Read the buffers
@@ -110,7 +107,7 @@ void MeshLoader::Impl::commit(Resource& resource)
 
 	// Setup the short cut attribute indices
 	for(uint8_t i=0; i<attributeCount; ++i) {
-		const Mesh::Attribute& a = attributes[i];
+/*		const Mesh::Attribute& a = attributes[i];
 		const char* semantic = a.semantic;
 		const SemanticMap& semanticMap = SemanticMap::getSingleton();
 
@@ -125,7 +122,7 @@ void MeshLoader::Impl::commit(Resource& resource)
 		else if(strcmp(semantic, semanticMap.uv(1, a.elementCount).name) == 0)
 			mesh.uv1AttrIdx = i;
 		else if(strcmp(semantic, semanticMap.uv(2, a.elementCount).name) == 0)
-			mesh.uv2AttrIdx = i;
+			mesh.uv2AttrIdx = i;*/
 	}
 
 	// Commit buffer data to the Mesh

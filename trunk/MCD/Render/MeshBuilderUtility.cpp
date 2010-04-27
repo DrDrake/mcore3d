@@ -1,7 +1,6 @@
 #include "Pch.h"
 #include "MeshBuilderUtility.h"
 #include "MeshBuilder.h"
-#include "SemanticMap.h"
 #include "../Core/Math/Vec3.h"
 #include "../Core/System/Log.h"
 
@@ -62,9 +61,9 @@ void MeshBuilderUtility::split(size_t splitCount, MeshBuilder& srcBuilder, MeshB
 		outBuilders[i]->clear();
 		for(size_t j=1; j<srcBuilder.attributeCount(); ++j) {
 			size_t bufferId;
-			MeshBuilder::Semantic semantic;
-			if(srcBuilder.getAttributePointer(j, nullptr, nullptr, &bufferId, nullptr, &semantic))
-				outBuilders[i]->declareAttribute(semantic, bufferId);
+			VertexFormat format;
+			if(srcBuilder.getAttributePointer(j, nullptr, nullptr, &bufferId, nullptr, &format))
+				outBuilders[i]->declareAttribute(format, bufferId);
 		}
 	}
 
@@ -104,17 +103,15 @@ void MeshBuilderUtility::split(size_t splitCount, MeshBuilder& srcBuilder, MeshB
 
 void MeshBuilderUtility::computNormal(MeshBuilder& builder, size_t whichBufferIdStoreNormal)
 {
-	const SemanticMap& map = SemanticMap::getSingleton();
-
 	// In case that the builder doesn't has a normal attribute yet.
-	builder.declareAttribute(map.normal(), whichBufferIdStoreNormal);
+	builder.declareAttribute(VertexFormat::get("normal"), whichBufferIdStoreNormal);
 
 	const size_t indexCount = builder.indexCount();
 	const size_t vertexCount = builder.vertexCount();
 
-	const StrideArray<uint16_t> index = builder.getAttributeAs<uint16_t>(builder.findAttributeId(map.index().name));
-	const StrideArray<Vec3f> vertex = builder.getAttributeAs<Vec3f>(builder.findAttributeId(map.position().name));
-	StrideArray<Vec3f> normal = builder.getAttributeAs<Vec3f>(builder.findAttributeId(map.normal().name));
+	const StrideArray<uint16_t> index = builder.getAttributeAs<uint16_t>(builder.findAttributeId("index"));
+	const StrideArray<Vec3f> vertex = builder.getAttributeAs<Vec3f>(builder.findAttributeId("position"));
+	StrideArray<Vec3f> normal = builder.getAttributeAs<Vec3f>(builder.findAttributeId("normal"));
 
 	// Initialize the normal to zero first
 	for(size_t i=0; i<vertexCount; ++i)

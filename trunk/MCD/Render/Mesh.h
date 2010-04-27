@@ -60,13 +60,10 @@ public:
 	//! Declare what a single vertex attribute contains.
 	struct Attribute
 	{
-		int dataType;			//!< GL_INT, GL_FLOAT etc...
-		uint16_t elementSize;	//!< Size in byte of the attribute, ie: Vec3f -> sizeof(float)
-		uint8_t elementCount;	//!< Number of components, ie: Vec3f -> 3
+		VertexFormat format;
 		uint8_t bufferIndex;	//!< Index to the buffer object array: \em handles
 		uint16_t byteOffset;	//!< Byte offset of this attribute in a single vertex
 		uint16_t stride;		//!< Byte offset to the next element in the buffer
-		const char* semantic;	//!< Shader uniform name
 	};	// Attribute
 
 	//! Maximum number of separated buffer object.
@@ -100,11 +97,8 @@ public:
 
 	size_t indexCount;
 
-	/*!	A short-cut for mapping commonly used semantic to the \em attributes array.
-		A value of -1 means no such attribute.
-	 */
-	int8_t indexAttrIdx, positionAttrIdx, normalAttrIdx;
-	int8_t uv0AttrIdx, uv1AttrIdx, uv2AttrIdx;
+	static const int8_t cIndexAttrIdx = 0;
+	static const int8_t cPositionAttrIdx = 1;
 
 // Operations
 	//! Render the mesh with all associated attributes.
@@ -122,7 +116,7 @@ public:
 	sal_notnull MeshPtr clone(sal_in_z const char* name, StorageHint hint);
 
 	//!	Return -1 if the semnatic cannot be found.
-	int finidAttributeBySemantic(const char* semantic) const;
+	int findAttributeBySemantic(const StringHash& semantic) const;
 
 	//!	An object for remembering which buffer is already mapped using mapBuffer().
 	struct MappedBuffers : public Array<void*, cMaxBufferCount>
@@ -152,8 +146,8 @@ public:
 	{
 		MCD_ASSUME(attributeIdx < attributeCount);
 		const Attribute& a = attributes[attributeIdx];
-		MCD_ASSERT(a.elementSize * a.elementCount == sizeof(T));
-		size_t count = (attributeIdx == size_t(indexAttrIdx)) ? indexCount : vertexCount;
+		MCD_ASSERT(a.format.sizeInByte() == sizeof(T));
+		size_t count = (attributeIdx == cIndexAttrIdx) ? indexCount : vertexCount;
 		return StrideArray<T>(reinterpret_cast<T*>(static_cast<char*>(mapBuffer(a.bufferIndex, mapped, mapOptions)) + a.byteOffset), count, a.stride);
 	}
 
@@ -161,8 +155,8 @@ public:
 	{
 		MCD_ASSUME(attributeIdx < attributeCount);
 		const Attribute& a = attributes[attributeIdx];
-		MCD_ASSERT(a.elementSize * a.elementCount >= sizeof(T));
-		size_t count = (attributeIdx == size_t(indexAttrIdx)) ? indexCount : vertexCount;
+		MCD_ASSERT(a.format.sizeInByte() >= sizeof(T));
+		size_t count = (attributeIdx == cIndexAttrIdx) ? indexCount : vertexCount;
 		return StrideArray<T>(reinterpret_cast<T*>(static_cast<char*>(mapBuffer(a.bufferIndex, mapped, mapOptions)) + a.byteOffset), count, a.stride);
 	}
 

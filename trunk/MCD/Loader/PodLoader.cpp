@@ -9,7 +9,6 @@
 #include "../Render/Material.h"
 #include "../Render/Mesh.h"
 #include "../Render/Model.h"
-#include "../Render/SemanticMap.h"
 #include "../Core/System/Log.h"
 #include "../Core/System/MemoryProfiler.h"
 #include "../Core/System/StrUtility.h"
@@ -72,19 +71,19 @@ public:
 	volatile IResourceLoader::LoadingState mLoadingState;
 };	// Impl
 
-static int podTypeToGlType(EPVRTDataType type)
+static VertexFormat::ComponentType podTypeToType(EPVRTDataType type)
 {
 	switch(type) {
-	case EPODDataUnsignedByte:	return GL_UNSIGNED_BYTE;
-	case EPODDataFloat:			return GL_FLOAT;
-	case EPODDataInt:			return GL_INT;
-	case EPODDataShort:			return GL_SHORT;
-	case EPODDataUnsignedShort:	return GL_UNSIGNED_SHORT;
-	default:					MCD_ASSERT(false); return -1;
+	case EPODDataUnsignedByte:	return VertexFormat::TYPE_UINT8;
+	case EPODDataFloat:			return VertexFormat::TYPE_FLOAT;
+	case EPODDataInt:			return VertexFormat::TYPE_INT;
+	case EPODDataShort:			return VertexFormat::TYPE_INT16;
+	case EPODDataUnsignedShort:	return VertexFormat::TYPE_UINT16;
+	default:					MCD_ASSERT(false); return VertexFormat::TYPE_NONE;
 	}
 }
 
-static uint16_t typeToSize(EPVRTDataType type)
+static uint8_t typeToSize(EPVRTDataType type)
 {
 	switch(type) {
 	case EPODDataUnsignedByte:	return sizeof(unsigned char);
@@ -96,12 +95,13 @@ static uint16_t typeToSize(EPVRTDataType type)
 	}
 }
 
-static void assignAttribute(Mesh& mesh, std::vector<void*>& bufferPtrs, const SPODMesh& podMesh, Mesh::Attribute& a, const CPODData& data, bool isIndex=false)
+static void assignAttribute(Mesh& mesh, std::vector<void*>& bufferPtrs, const SPODMesh& podMesh, Mesh::Attribute& a, const CPODData& data, const StringHash& semantic, bool isIndex=false)
 {
 	a.bufferIndex = uint8_t(mesh.bufferCount);
-	a.dataType = podTypeToGlType(data.eType);
-	a.elementCount = uint8_t(data.n);
-	a.elementSize = typeToSize(data.eType);
+	a.format.componentType = podTypeToType(data.eType);
+	a.format.componentCount = uint8_t(data.n);
+	a.format.componentSize = typeToSize(data.eType);
+	a.format.semantic = semantic;
 	a.stride = uint16_t(data.nStride);
 
 	if(isIndex) {
@@ -239,15 +239,11 @@ IResourceLoader::LoadingState PodLoader::Impl::load(std::istream* is, const Path
 		if(podMesh.nNumStrips > 0 || podMesh.pnStripLength)	// Triangle strip is not supported (yet?)
 			continue;
 
-		const SemanticMap& semanticMap = SemanticMap::getSingleton();
-
 		// Index
 		if(podMesh.sFaces.n) {
-			mesh->indexAttrIdx = uint8_t(mesh->attributeCount);
+			MCD_ASSERT(mesh->attributeCount == Mesh::cIndexAttrIdx);
 			Mesh::Attribute& a = mesh->attributes[mesh->attributeCount];
-
-			assignAttribute(*mesh, bufferPtrs, podMesh, a, podMesh.sFaces, true);
-			a.semantic = semanticMap.index().name;
+			assignAttribute(*mesh, bufferPtrs, podMesh, a, podMesh.sFaces, "index", true);
 		}
 		else {
 			Log::write(Log::Warn, "Empty mesh data in pod");
@@ -256,11 +252,9 @@ IResourceLoader::LoadingState PodLoader::Impl::load(std::istream* is, const Path
 
 		// Vertex position
 		if(podMesh.sVertex.n) {
-			mesh->positionAttrIdx = uint8_t(mesh->attributeCount);
+			MCD_ASSERT(mesh->attributeCount == Mesh::cPositionAttrIdx);
 			Mesh::Attribute& a = mesh->attributes[mesh->attributeCount];
-
-			assignAttribute(*mesh, bufferPtrs, podMesh, a, podMesh.sVertex);
-			a.semantic = semanticMap.position().name;
+			assignAttribute(*mesh, bufferPtrs, podMesh, a, podMesh.sVertex, "position");
 		}
 		else {
 			Log::write(Log::Warn, "Empty mesh data in pod");
@@ -269,36 +263,27 @@ IResourceLoader::LoadingState PodLoader::Impl::load(std::istream* is, const Path
 
 		// Vertex normal
 		if(podMesh.sNormals.n) {
-			mesh->normalAttrIdx = uint8_t(mesh->attributeCount);
 			Mesh::Attribute& a = mesh->attributes[mesh->attributeCount];
-
-			assignAttribute(*mesh, bufferPtrs, podMesh, a, podMesh.sNormals);
-			a.semantic = semanticMap.normal().name;
+			assignAttribute(*mesh, bufferPtrs, podMesh, a, podMesh.sNormals, "normal");
 		}
 
 		// UV channels
 		for(size_t j=0; j<podMesh.nNumUVW; ++j) {
-			if(j == 0) mesh->uv0AttrIdx = uint8_t(mesh->attributeCount);
-			if(j == 1) mesh->uv1AttrIdx = uint8_t(mesh->attributeCount);
-			if(j == 2) mesh->uv2AttrIdx = uint8_t(mesh->attributeCount);
-			if(j > 2) continue;
-
+			if(j > 9) continue;
+			char buf[] = "uv0";
+			buf[2] += char(j);
 			Mesh::Attribute& a = mesh->attributes[mesh->attributeCount];
-
-			assignAttribute(*mesh, bufferPtrs, podMesh, a, podMesh.psUVW[j]);
-			a.semantic = semanticMap.uv(j, a.elementCount).name;
+			assignAttribute(*mesh, bufferPtrs, podMesh, a, podMesh.psUVW[j], StringHash(buf, sizeof(buf)));
 		}
 
 		if(podMesh.sBoneIdx.n) {
 			Mesh::Attribute& a = mesh->attributes[mesh->attributeCount];
-			assignAttribute(*mesh, bufferPtrs, podMesh, a, podMesh.sBoneIdx);
-			a.semantic = semanticMap.blendIndex().name;
+			assignAttribute(*mesh, bufferPtrs, podMesh, a, podMesh.sBoneIdx, "jointIndex");
 		}
 
 		if(podMesh.sBoneWeight.n) {
 			Mesh::Attribute& a = mesh->attributes[mesh->attributeCount];
-			assignAttribute(*mesh, bufferPtrs, podMesh, a, podMesh.sBoneWeight);
-			a.semantic = semanticMap.blendWeight().name;
+			assignAttribute(*mesh, bufferPtrs, podMesh, a, podMesh.sBoneWeight, "jointWeight");
 		}
 
 		if(podMesh.pInterleaved) {
@@ -595,15 +580,6 @@ void PodLoader::Impl::commit(Resource& resource)
 			const GLenum verOrIdxBuf = j == 0 ? GL_ELEMENT_ARRAY_BUFFER : GL_ARRAY_BUFFER;
 			glBindBuffer(verOrIdxBuf, *handle);
 			glBufferData(verOrIdxBuf, mesh.bufferSize(j), mMeshes[i].second[j], Mesh::Static);	// TODO: Way to set the Mesh::StorageHint
-		}
-
-		if(false && mesh.uv0AttrIdx > -1) {	// I don't know why there is a need of flipping the UV in y-direction, need to better understand the pod format spec.
-			Mesh::MappedBuffers mapped;
-			StrideArray<Vec2f> uv = mesh.mapAttribute<Vec2f>(mesh.uv0AttrIdx, mapped, Mesh::MapOption(Mesh::Read | Mesh::Write));
-			for(size_t k=0; k<uv.size; ++k) {
-				uv[k].y = 1.0f - uv[k].y;
-			}
-			mesh.unmapBuffers(mapped);
 		}
 	}
 

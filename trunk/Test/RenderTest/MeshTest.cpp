@@ -8,11 +8,11 @@ using namespace MCD;
 
 namespace {
 
-const MeshBuilder::Semantic indexSemantic =			{ "index", MeshBuilder::TYPE_UINT16, sizeof(uint16_t), 1, 0 };
-const MeshBuilder::Semantic positionSemantic =		{ "position", MeshBuilder::TYPE_FLOAT, sizeof(float), 3, 0 };
-const MeshBuilder::Semantic normalSemantic =		{ "normal", MeshBuilder::TYPE_FLOAT, sizeof(float), 3, 0 };
-const MeshBuilder::Semantic uvSemantic =			{ "uv", MeshBuilder::TYPE_FLOAT, sizeof(float), 2, 0 };
-const MeshBuilder::Semantic blendWeightSemantic =	{ "blendWeight", MeshBuilder::TYPE_FLOAT, sizeof(float), 1, 0 };
+const VertexFormat indexSemantic =		 { FixString("index"), VertexFormat::TYPE_UINT16, sizeof(uint16_t), 1, 0 };
+const VertexFormat positionSemantic =	 { FixString("position"), VertexFormat::TYPE_FLOAT, sizeof(float), 3, 0 };
+const VertexFormat normalSemantic =		 { FixString("normal"), VertexFormat::TYPE_FLOAT, sizeof(float), 3, 0 };
+const VertexFormat uvSemantic =			 { FixString("uv"), VertexFormat::TYPE_FLOAT, sizeof(float), 2, 0 };
+const VertexFormat blendWeightSemantic = { FixString("jointWeight"), VertexFormat::TYPE_FLOAT, sizeof(float), 1, 0 };
 
 }	// namespace
 
@@ -38,7 +38,7 @@ TEST(MeshBuilderTest)
 
 		CHECK(builder.resizeBuffers(10, 20));
 
-		CHECK_EQUAL(-1, builder.findAttributeId(""));
+		CHECK_EQUAL(-1, builder.findAttributeId(StringHash("", 0)));
 	}
 
 	{	// More complicated cases
@@ -65,59 +65,59 @@ TEST(MeshBuilderTest)
 		CHECK_EQUAL(3u, builder.bufferCount());
 
 		size_t count, stride, bufferId, offset;
-		MeshBuilder::Semantic semantic;
+		VertexFormat format;
 
 		// Get the data pointer for the various attributes
-		char* pos = builder.getAttributePointer(posId, &count, &stride, &bufferId, &offset, &semantic);
+		char* pos = builder.getAttributePointer(posId, &count, &stride, &bufferId, &offset, &format);
 		CHECK(pos);
 		CHECK_EQUAL(sizeof(float) * 8, stride);
 		CHECK_EQUAL(1u, bufferId);
 		CHECK_EQUAL(0u, offset);
 		CHECK_EQUAL(builder.vertexCount(), count);
-		CHECK_EQUAL(3u, semantic.elementCount);
-		CHECK_EQUAL(sizeof(float), semantic.elementSize);
-		CHECK_EQUAL(std::string("position"), semantic.name);
+		CHECK_EQUAL(3u, format.componentCount);
+		CHECK_EQUAL(sizeof(float), format.componentSize);
+		CHECK_EQUAL(std::string("position"), std::string(format.semantic));
 
-		char* normal = builder.getAttributePointer(normalId, &count, &stride, &bufferId, &offset, &semantic);
+		char* normal = builder.getAttributePointer(normalId, &count, &stride, &bufferId, &offset, &format);
 		CHECK_EQUAL(sizeof(float) * 8, stride);
 		CHECK_EQUAL(1u, bufferId);
 		CHECK_EQUAL(12u, offset);
 		CHECK_EQUAL(builder.vertexCount(), count);
-		CHECK_EQUAL(3u, semantic.elementCount);
-		CHECK_EQUAL(sizeof(float), semantic.elementSize);
-		CHECK_EQUAL(std::string("normal"), semantic.name);
+		CHECK_EQUAL(3u, format.componentCount);
+		CHECK_EQUAL(sizeof(float), format.componentSize);
+		CHECK_EQUAL(std::string("normal"), std::string(format.semantic));
 		CHECK_EQUAL(normal, pos + sizeof(float) * 3);
 
-		char* uv = builder.getAttributePointer(uvId, &count, &stride, &bufferId, &offset, &semantic);
+		char* uv = builder.getAttributePointer(uvId, &count, &stride, &bufferId, &offset, &format);
 		CHECK_EQUAL(sizeof(float) * 8, stride);
 		CHECK_EQUAL(1u, bufferId);
 		CHECK_EQUAL(24u, offset);
 		CHECK_EQUAL(builder.vertexCount(), count);
-		CHECK_EQUAL(2u, semantic.elementCount);
-		CHECK_EQUAL(sizeof(float), semantic.elementSize);
-		CHECK_EQUAL(std::string("uv"), semantic.name);
+		CHECK_EQUAL(2u, format.componentCount);
+		CHECK_EQUAL(sizeof(float), format.componentSize);
+		CHECK_EQUAL(std::string("uv"), std::string(format.semantic));
 		CHECK_EQUAL(uv, normal + sizeof(float) * 3);
 
-		char* weight = builder.getAttributePointer(weightId, &count, &stride, &bufferId, &offset, &semantic);
+		char* weight = builder.getAttributePointer(weightId, &count, &stride, &bufferId, &offset, &format);
 		CHECK(weight);
 		CHECK_EQUAL(sizeof(float), stride);
 		CHECK_EQUAL(2u, bufferId);
 		CHECK_EQUAL(0u, offset);
 		CHECK_EQUAL(builder.vertexCount(), count);
-		CHECK_EQUAL(1u, semantic.elementCount);
-		CHECK_EQUAL(sizeof(float), semantic.elementSize);
-		CHECK_EQUAL(std::string("blendWeight"), semantic.name);
+		CHECK_EQUAL(1u, format.componentCount);
+		CHECK_EQUAL(sizeof(float), format.componentSize);
+		CHECK_EQUAL(std::string("jointWeight"), std::string(format.semantic));
 
 		// Get the index buffer pointer
-		uint16_t* idxPtr = (uint16_t*)builder.getAttributePointer(0, &count, &stride, &bufferId, &offset, &semantic);
+		uint16_t* idxPtr = (uint16_t*)builder.getAttributePointer(0, &count, &stride, &bufferId, &offset, &format);
 		CHECK(idxPtr);
 		CHECK_EQUAL(sizeof(uint16_t), stride);
 		CHECK_EQUAL(0u, bufferId);
 		CHECK_EQUAL(0u, offset);
 		CHECK_EQUAL(builder.indexCount(), count);
-		CHECK_EQUAL(1u, semantic.elementCount);
-		CHECK_EQUAL(sizeof(uint16_t), semantic.elementSize);
-		CHECK_EQUAL(std::string("index"), semantic.name);
+		CHECK_EQUAL(1u, format.componentCount);
+		CHECK_EQUAL(sizeof(uint16_t), format.componentSize);
+		CHECK_EQUAL(std::string("index"), std::string(format.semantic));
 
 		// Get the individual buffer's pointer
 		size_t totalSize;
