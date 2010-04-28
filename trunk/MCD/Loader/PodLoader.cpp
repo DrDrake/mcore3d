@@ -479,7 +479,7 @@ IResourceLoader::LoadingState PodLoader::Impl::load(std::istream* is, const Path
 		e->asChildOf(&mRootEntity);
 
 		skeletonAnimationComponent->skeletonAnimation.skeleton = skeleton;
-		skeletonAnimationComponent->skeletonAnimation.anim.addTrack(*track);
+		MCD_VERIFY(skeletonAnimationComponent->skeletonAnimation.anim.addTrack(*track));
 		skeletonAnimationComponent->skeletonAnimation.anim.update();
 		skeletonAnimationComponent->skeletonAnimation.applyTo(skeleton->basePose);	// Use the first frame's pose as the base pose
 		skeletonAnimationComponent->pose.init(skeleton->basePose.jointCount());
@@ -585,7 +585,7 @@ void PodLoader::Impl::commit(Resource& resource)
 
 	// Commit skin mesh
 	for(size_t i=0; i<mSkinMeshToCommit.size(); ++i) {
-		mSkinMeshToCommit[i].first->init(*mResourceManager, *mSkinMeshToCommit[i].second);
+		MCD_VERIFY(mSkinMeshToCommit[i].first->init(*mResourceManager, *mSkinMeshToCommit[i].second));
 	}
 
 	Prefab& prefab = dynamic_cast<Prefab&>(resource);

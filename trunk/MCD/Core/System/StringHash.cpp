@@ -26,6 +26,9 @@ const char* StringHashSet::find(uint32_t hashValue) const
 
 const char* StringHashSet::add(uint32_t hashValue, sal_in_z const char* stringValue)
 {
+	if(!stringValue)
+		return nullptr;
+
 	const size_t index = hashValue % mBuckets.size();
 
 	// Find any string with the same hash value
@@ -34,13 +37,16 @@ const char* StringHashSet::add(uint32_t hashValue, sal_in_z const char* stringVa
 			return strcmp(n->stringValue(), stringValue) == 0 ? n->stringValue() : nullptr;
 
 	const size_t length = strlen(stringValue) + 1;
-	Node* n = (Node*)malloc(sizeof(Node) + length);
-	memcpy((void*)n->stringValue(), stringValue, length);
-	n->hashValue = hashValue;
+	if(Node* n = (Node*)malloc(sizeof(Node) + length)) {
+		memcpy((void*)n->stringValue(), stringValue, length);
+		n->hashValue = hashValue;
 
-	n->next = mBuckets[index];
-	mBuckets[index] = n;
-	return n->stringValue();
+		n->next = mBuckets[index];
+		mBuckets[index] = n;
+		return n->stringValue();
+	}
+
+	return nullptr;
 }
 
 void StringHashSet::remove(uint32_t hashValue)
@@ -151,6 +157,9 @@ public:
 
 	Node* add(sal_in_z const char* str)
 	{
+		if(!str)
+			return nullptr;
+
 		const uint32_t hashValue = StringHash(str, 0).hash;
 		const size_t index = hashValue % mBuckets.size();
 
@@ -171,20 +180,22 @@ public:
 		}
 
 		const size_t length = strlen(str) + 1;
-		Node* n = (Node*)malloc(sizeof(Node) + length);
-		memcpy((void*)n->stringValue(), str, length);
-		n->hashValue = hashValue;
-		n->refCount = 1;
+		if(Node* n = (Node*)malloc(sizeof(Node) + length)) {
+			memcpy((void*)n->stringValue(), str, length);
+			n->hashValue = hashValue;
+			n->refCount = 1;
 
-		n->next = mBuckets[index];
-		mBuckets[index] = n;
-		++mCount;
+			n->next = mBuckets[index];
+			mBuckets[index] = n;
+			++mCount;
 
-		// Enlarge the bucket if necessary
-		if(mCount * 2 > mBuckets.size() * 3)
-			resizeBucket(mBuckets.size() * 2);
+			// Enlarge the bucket if necessary
+			if(mCount * 2 > mBuckets.size() * 3)
+				resizeBucket(mBuckets.size() * 2);
 
-		return n;
+			return n;
+		}
+		return nullptr;
 	}
 
 	void remove(Node& node)
