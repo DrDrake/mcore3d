@@ -76,7 +76,7 @@ BsdSocket::BsdSocket()
 BsdSocket::~BsdSocket()
 {
 	MCD_STATIC_ASSERT(sizeof(SOCKET) == sizeof(mFd));
-	close();
+	MCD_VERIFY(close());
 }
 
 ErrorCode BsdSocket::create(SocketType type)
