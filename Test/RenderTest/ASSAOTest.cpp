@@ -324,7 +324,7 @@ TEST(ASSAOTest)
 				mBox = new Mesh("");
 				boxX = 1;
 				ChamferBoxBuilder chamferBoxBuilder(0.4f, 2);
-				MCD_VERIFY(commitMesh(chamferBoxBuilder, *mBox, Mesh::Static));
+				MCD_VERIFY(mBox->create(chamferBoxBuilder, Mesh::Static));
 			}
 
 			Material* material = nullptr;

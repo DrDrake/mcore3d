@@ -22,7 +22,7 @@ TEST(RenderTargetTest)
 			// Setup the chamfer box mesh
 			mMesh = new Mesh("");
 			ChamferBoxBuilder chamferBoxBuilder(0.4f, 10);
-			MCD_VERIFY(commitMesh(chamferBoxBuilder, *mMesh, Mesh::Static));
+			MCD_VERIFY(mMesh->create(chamferBoxBuilder, Mesh::Static));
 		}
 
 		// We have to re-create all those off-screen buffers every time

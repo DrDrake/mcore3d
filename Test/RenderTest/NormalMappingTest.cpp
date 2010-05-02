@@ -47,7 +47,7 @@ public:
 
 			// Setup the chamfer box mesh
 			MeshPtr mesh = new Mesh("");
-			MCD_VERIFY(commitMesh(ChamferBoxBuilder(0.4f, 3, true), *mesh, Mesh::Static));
+			MCD_VERIFY(mesh->create(ChamferBoxBuilder(0.4f, 3, true), Mesh::Static));
 
 			// Add component
 			MeshComponent* c = new MeshComponent;
@@ -66,7 +66,7 @@ public:
 
 			// Setup the chamfer box mesh as a shpere
 			MeshPtr mesh = new Mesh("");
-			MCD_VERIFY(commitMesh(ChamferBoxBuilder(1.0f, 5, true), *mesh, Mesh::Static));
+			MCD_VERIFY(mesh->create(ChamferBoxBuilder(1.0f, 5, true), Mesh::Static));
 
 			// Add component
 			MeshComponent* c = new MeshComponent;

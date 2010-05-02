@@ -8,6 +8,7 @@
 
 namespace MCD {
 
+class MeshBuilder;
 typedef IntrusivePtr<class Mesh> MeshPtr;
 
 // TODO: Refactor it by referencing the design of SPODMesh in the PowerVR SDK, and see if it fits DirectX too.
@@ -162,14 +163,23 @@ public:
 
 	void unmapBuffers(MappedBuffers& mapped) const;
 
+	/*! Create a Mesh from existing data buffer(s), the Mesh's
+		attributes, attributeCount, bufferCount, vertexCount, indexCount
+		should be already initialized correctly prior calling this method.
+		\param data Array of pointers to the buffer data.
+		\note Make sure the array size of \em data match \em bufferCount.
+	 */
+	sal_checkreturn bool create(const void* const* data, StorageHint storageHint);
+
+	//! Create a Mesh from an initialized MeshBuilder object
+	sal_checkreturn bool create(const MeshBuilder& builder, StorageHint storageHint);
+
 protected:
 	sal_override ~Mesh();
+
+	class Impl;
+	Impl* mImpl;	//! Optional book keeping object for specific API needs.
 };	// Mesh
-
-class MeshBuilder;
-
-//!	Commit the data in a MeshBuilder to the Mesh.
-MCD_RENDER_API sal_checkreturn bool commitMesh(const MeshBuilder& builder, Mesh& mesh, Mesh::StorageHint storageHint);
 
 }	// namespace MCD
 

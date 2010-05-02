@@ -31,7 +31,7 @@ public:
 		{	// Setup the chamfer box mesh
 			mesh = new Mesh("");
 			ChamferBoxBuilder chamferBoxBuilder(0.4f, 3);
-			MCD_VERIFY(commitMesh(chamferBoxBuilder, *mesh, Mesh::Static));
+			MCD_VERIFY(mesh->create(chamferBoxBuilder, Mesh::Static));
 		}
 
 		{	// Setup the animation updater

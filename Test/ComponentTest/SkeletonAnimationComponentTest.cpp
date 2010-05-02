@@ -66,7 +66,7 @@ MeshPtr buildCylinder(float radius, float length, uint8_t jointCount)
 	}
 
 	MeshPtr ret = new Mesh("");
-	MCD_VERIFY(commitMesh(builder, *ret, Mesh::Static));
+	MCD_VERIFY(ret->create(builder, Mesh::Static));
 	return ret;
 }
 

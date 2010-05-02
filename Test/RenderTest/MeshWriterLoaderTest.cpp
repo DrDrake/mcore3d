@@ -28,7 +28,7 @@ TEST(MeshWriterLoaderTest)
 	// Setup the chamfer box mesh
 	MeshPtr mesh = new Mesh("");
 	ChamferBoxBuilder chamferBoxBuilder(0.4f, 3);
-	MCD_VERIFY(commitMesh(chamferBoxBuilder, *mesh, Mesh::Static));
+	MCD_VERIFY(mesh->create(chamferBoxBuilder, Mesh::Static));
 
 	// Write it to a tmp file
 	{	std::auto_ptr<std::ostream> os(fs->openWrite("tmp.msh"));
