@@ -96,24 +96,26 @@ void StringHashSet::resizeBucket(size_t bucketSize)
 
 StringHash::StringHash(const char* buf, size_t len)
 {
-	hash = 0;
+	uint32_t hash_ = 0;
 	len = len == 0 ? size_t(-1) : len;
-    
-    for(size_t i=0; i<len && buf[i] != '\0'; ++i) {
+
+	for(size_t i=0; i<len && buf[i] != '\0'; ++i) {
 		//hash = hash * 65599 + buf[i];
-		hash = buf[i] + (hash << 6) + (hash << 16) - hash;
+		hash_ = buf[i] + (hash_ << 6) + (hash_ << 16) - hash_;
 	}
+	hash = hash_;
 }
 
 StringHash::StringHash(const wchar_t* buf, size_t len)
 {
-	hash = 0;
+	uint32_t hash_ = 0;
 	len = len == 0 ? size_t(-1) : len;
 
-    for(size_t i=0; i<len && buf[i] != L'\0'; ++i) {
+	for(size_t i=0; i<len && buf[i] != L'\0'; ++i) {
 		//hash = hash * 65599 + buf[i];
-		hash = buf[i] + (hash << 6) + (hash << 16) - hash;
+		hash_ = buf[i] + (hash_ << 6) + (hash_ << 16) - hash_;
 	}
+	hash = hash_;
 }
 
 struct FixString::Node
@@ -121,6 +123,7 @@ struct FixString::Node
 	uint32_t hashValue;
 	Node* next;
 	AtomicInteger refCount;
+	size_t size;	//!< Length of the string
 	const char* stringValue() const {
 		return reinterpret_cast<const char*>(this + 1);
 	}
@@ -133,32 +136,32 @@ class FixStringHashTable
 public:
 	typedef FixString::Node Node;
 
-	FixStringHashTable() : mCount(0) {
-		ScopeLock lock(mMutex);
-		resizeBucket(1);
+	FixStringHashTable() : mCount(0), mBuckets(1), mNullNode(add(""))
+	{
+		++mNullNode.refCount;
 	}
 
 	~FixStringHashTable()
 	{
-		ScopeLock lock(mMutex);
+		remove(mNullNode);
 		MCD_ASSERT(mCount == 0 && "All instance of FixString should be destroyed before FixStringHashTable");
 	}
 
-	Node* find(uint32_t hashValue) const
+	MCD_NOINLINE Node& find(uint32_t hashValue) const
 	{
 		const size_t index = hashValue % mBuckets.size();
 		for(Node* n = mBuckets[index]; n; n = n->next) {
 			if(n->hashValue != hashValue)
 				continue;
-			return n;
+			return *n;
 		}
-		return nullptr;
+		return mNullNode;
 	}
 
-	Node* add(sal_in_z const char* str)
+	Node& add(sal_in_z const char* str)
 	{
 		if(!str)
-			return nullptr;
+			return mNullNode;
 
 		const uint32_t hashValue = StringHash(str, 0).hash;
 		const size_t index = hashValue % mBuckets.size();
@@ -169,13 +172,11 @@ public:
 		for(Node* n = mBuckets[index]; n; n = n->next) {
 			if(n->hashValue != hashValue)
 				continue;
-			if(strcmp(n->stringValue(), str) == 0) {
-				++n->refCount;
-				return n;
-			}
+			if(strcmp(n->stringValue(), str) == 0)
+				return *n;
 			else {
 				MCD_ASSERT(false && "String hash collision in FixString");
-				return nullptr;
+				return mNullNode;
 			}
 		}
 
@@ -183,7 +184,8 @@ public:
 		if(Node* n = (Node*)malloc(sizeof(Node) + length)) {
 			memcpy((void*)n->stringValue(), str, length);
 			n->hashValue = hashValue;
-			n->refCount = 1;
+			n->refCount = 0;
+			n->size = length - 1;
 
 			n->next = mBuckets[index];
 			mBuckets[index] = n;
@@ -193,9 +195,9 @@ public:
 			if(mCount * 2 > mBuckets.size() * 3)
 				resizeBucket(mBuckets.size() * 2);
 
-			return n;
+			return *n;
 		}
-		return nullptr;
+		return mNullNode;
 	}
 
 	void remove(Node& node)
@@ -242,6 +244,7 @@ public:
 	Mutex mMutex;
 	size_t mCount;	//!< The actuall number of elements in this table, can be <=> mBuckets.size()
 	std::vector<Node*> mBuckets;
+	Node& mNullNode;
 };	// FixStringHashTable
 
 static FixStringHashTable gFixStringHashTable;
@@ -249,34 +252,38 @@ static FixStringHashTable gFixStringHashTable;
 }	// namespace
 
 FixString::FixString()
-	: mNode(nullptr)
-{}
+	: mNode(&gFixStringHashTable.add(""))
+{
+	++mNode->refCount;
+}
 
 FixString::FixString(const char* str)
-	: mNode(gFixStringHashTable.add(str))
-{}
+	: mNode(&gFixStringHashTable.add(str))
+{
+	++mNode->refCount;
+}
 
 FixString::FixString(uint32_t hashValue)
-	: mNode(gFixStringHashTable.find(hashValue))
+	: mNode(&gFixStringHashTable.find(hashValue))
 {
-	if(mNode) ++mNode->refCount;
+	++mNode->refCount;
 }
 
 FixString::FixString(const FixString& rhs)
 	: mNode(rhs.mNode)
 {
-	if(mNode) ++mNode->refCount;
+	++mNode->refCount;
 }
 
 FixString::~FixString() {
-	if(mNode) gFixStringHashTable.remove(*mNode);
+	gFixStringHashTable.remove(*mNode);
 }
 
 FixString& FixString::operator=(const FixString& rhs)
 {
-	if(mNode) gFixStringHashTable.remove(*mNode);
+	gFixStringHashTable.remove(*mNode);
 	mNode = rhs.mNode;
-	if(mNode) ++mNode->refCount;
+	++mNode->refCount;
 	return *this;
 }
 
@@ -287,20 +294,24 @@ FixString& FixString::operator=(const StringHash& stringHash)
 }
 
 const char* FixString::c_str() const {
-	return mNode ? mNode->stringValue() : nullptr;
+	return mNode->stringValue();
 }
 
 uint32_t FixString::hashValue() const {
-	return mNode ? mNode->hashValue : 0;
+	return mNode->hashValue;
 }
 
-bool FixString::operator==(const StringHash& h) const	{	return mNode ? mNode->hashValue == h : false;	}
+size_t FixString::size() const {
+	return mNode->size;
+}
+
+bool FixString::empty() const {
+	return *mNode->stringValue() == '\0';
+}
+
+bool FixString::operator==(const StringHash& h) const	{	return hashValue() == h;	}
 bool FixString::operator==(const FixString& rhs) const	{	return hashValue() == rhs.hashValue();	}
 bool FixString::operator> (const FixString& rhs) const	{	return hashValue() > rhs.hashValue();	}
 bool FixString::operator< (const FixString& rhs) const	{	return hashValue() < rhs.hashValue();	}
-
-bool FixString::empty() const {
-	return mNode ? *mNode->stringValue() == '\0' : false;
-}
 
 }	// namespace MCD

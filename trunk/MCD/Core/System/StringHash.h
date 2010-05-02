@@ -29,11 +29,14 @@ class MCD_CORE_API FixString
 public:
 	FixString();
 
-	//!	The input string will copyed and reference counted.
-	explicit FixString(const char* str);
+	/*!	The input string will copyed and reference counted.
+		Null input string will result an empty string.
+	 */
+	explicit FixString(sal_in_z_opt const char* str);
 
 	/*!	Construct with an existing string in the global table, indexed with it's hash value.
 		Make sure there is an other instance of FixString constructed with a string content first.
+		An empty string is resulted if the hash value cannot be found.
 	 */
 	explicit FixString(uint32_t hashValue);
 
@@ -43,22 +46,24 @@ public:
 	FixString& operator=(const FixString& rhs);
 	FixString& operator=(const StringHash& stringHash);
 
-	sal_maybenull const char* c_str() const;
-	sal_maybenull operator const char*() const {	return c_str();	}
+	sal_notnull const char* c_str() const;
+	sal_notnull operator const char*() const {	return c_str();	}
 
 	uint32_t hashValue() const;
+
+	size_t size() const;
+
+	bool empty() const;
 
 	bool operator==(const StringHash& stringHash) const;
 	bool operator==(const FixString& rhs) const;
 	bool operator> (const FixString& rhs) const;
 	bool operator< (const FixString& rhs) const;
 
-	bool empty() const;
-
 	struct Node;
 
 protected:
-	Node* mNode;
+	sal_notnull Node* mNode;
 };	// FixString
 
 /*!	A special designed hash table for storing a set of strings.
@@ -159,7 +164,7 @@ public:
 	MCD_INLINE2 StringHash(const char (&str)[20]) {	hash = sdbm<20>(str);	}
 	MCD_INLINE2 StringHash(const char (&str)[21]) {	hash = sdbm<21>(str);	}
 
-	//!	If len is 0 then the length is auto detected.
+	//!	Parameter \em len define the maximum length of the input string buf, 0 for auto length detection.
 	StringHash(sal_in_z const char* buf, size_t len);
 	StringHash(sal_in_z const wchar_t* buf, size_t len);
 

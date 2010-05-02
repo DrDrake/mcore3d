@@ -56,14 +56,14 @@ struct SimpleConnector : public MCD::Thread::IRunnable
 
 	sal_override void run(Thread& thread) throw() {
 		BsdSocket s;
-		s.create(BsdSocket::TCP);
+		MCD_VERIFY(0 == s.create(BsdSocket::TCP));
 		bool connected = false;
 		while(thread.keepRun()) {
 			connected = s.connect(endPoint) == 0;
 
 			if(connected) {
 				const char msg[] = "Hello world!";
-				s.send(msg, sizeof(msg));
+				MCD_VERIFY(sizeof(msg) == s.send(msg, sizeof(msg)));
 				break;
 			}
 		}
@@ -83,7 +83,7 @@ TEST_FIXTURE(BsdSocketTestFixture, BlockingAcceptAndConnect)
 	Thread thread(connector, false);
 
 	BsdSocket s2;
-	s1.accept(s2);
+	CHECK_EQUAL(0, s1.accept(s2));
 
 	thread.wait();
 }
@@ -115,10 +115,11 @@ TEST_FIXTURE(BsdSocketTestFixture, TCPBlockingSendBlockingRecv)
 	Thread thread(connector, false);
 
 	BsdSocket s2;
-	s1.accept(s2);
+	CHECK_EQUAL(0, s1.accept(s2));
 
 	char buf[64];
-	s2.receive(buf, sizeof(buf));
+	// Use loop for more robust code
+	CHECK_EQUAL(ssize_t(sizeof(buf)), s2.receive(buf, sizeof(buf)));
 
 	CHECK(strcmp("Hello world!", buf) == 0);
 	thread.wait();
@@ -153,15 +154,15 @@ TEST_FIXTURE(BsdSocketTestFixture, Shutdown)
 TEST_FIXTURE(BsdSocketTestFixture, Udp)
 {
 	BsdSocket s;
-	s.create(BsdSocket::UDP);
-	s.bind(mAnyEndPoint);
+	CHECK_EQUAL(0, s.create(BsdSocket::UDP));
+	CHECK_EQUAL(0, s.bind(mAnyEndPoint));
 
 	BsdSocket s2;
 	const IPEndPoint connectorEndPoint(IPAddress::getLoopBack(), 4321);	// Explicit end point for verification test
-	s2.create(BsdSocket::UDP);
-	s2.bind(connectorEndPoint);
+	CHECK_EQUAL(0, s2.create(BsdSocket::UDP));
+	CHECK_EQUAL(0, s2.bind(connectorEndPoint));
 	const char msg[] = "Hello world!";
-	s2.sendTo(msg, sizeof(msg), mLocalEndPoint);
+	CHECK_EQUAL(ssize_t(sizeof(msg)), s2.sendTo(msg, sizeof(msg), mLocalEndPoint));
 
 	char buf[64];
 	IPEndPoint srcEndpoint(IPAddress::getAny(), 0);
