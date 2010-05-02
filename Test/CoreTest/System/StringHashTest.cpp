@@ -9,23 +9,35 @@ namespace {
 struct TestData {
 	size_t h;
 	const char* v;
+	size_t size;
 };	// TestData
 
 static TestData testData[] = {
-	{ StringHash("Hello!").hash, "Hello!" },
-	{ StringHash("Ricky").hash, "Ricky" },
-	{ StringHash("M-Core").hash, "M-Core" },
-	{ StringHash("Simple is the best").hash, "Simple is the best" },
-	{ StringHash("This is a longer string", 0).hash, "This is a longer string" },
+	{ StringHash("", 0).hash, "", 0u },
+	{ StringHash("Hello!").hash, "Hello!", 6u },
+	{ StringHash("Ricky").hash, "Ricky", 5u },
+	{ StringHash("M-Core").hash, "M-Core", 6u },
+	{ StringHash("Simple is the best").hash, "Simple is the best", 18u  },
+	{ StringHash("This is a longer string", 0).hash, "This is a longer string", 23u },
 };
 
 }	// namespace
 
 TEST(FixStringTest)
 {
+	{	FixString tmp;
+		CHECK(tmp.empty());
+		CHECK_EQUAL(0u, tmp.size());
+		CHECK_EQUAL('\0', tmp.c_str()[0]);
+	}
+
+	{	FixString tmp1, tmp2;
+	}
+
 	for(size_t i=0; i<MCD_COUNTOF(testData); ++i) {
 		FixString s(testData[i].v);
 		CHECK_EQUAL(0, strcmp(s.c_str(), testData[i].v));
+		CHECK_EQUAL(testData[i].size, s.size());
 	}
 
 	FixString* fixStrings[MCD_COUNTOF(testData)] = { nullptr };
@@ -33,6 +45,12 @@ TEST(FixStringTest)
 		fixStrings[i] = new FixString(testData[i].v);
 	for(size_t i=0; i<MCD_COUNTOF(testData); ++i)
 		delete fixStrings[i];
+
+	// Null input string resulting an empty string
+	CHECK_EQUAL(std::string(""), std::string(FixString((const char*)nullptr).c_str()));
+
+	// Hash not found also result empty string
+	CHECK_EQUAL(std::string(""), std::string(FixString(1234).c_str()));
 }
 
 TEST(StringHashSetTest)
@@ -58,8 +76,10 @@ TEST(StringHashSetTest)
 		table.add(testData[i].h, testData[i].v);
 
 	// Find the string by the hashed value
-	for(size_t i=0; i<MCD_COUNTOF(testData); ++i)
-		CHECK(strcmp(table.find(testData[i].h), testData[i].v) == 0);
+	for(size_t i=0; i<MCD_COUNTOF(testData); ++i) {
+		const char* result = table.find(testData[i].h);
+		CHECK(result && strcmp(result, testData[i].v) == 0);
+	}
 
 	// Remove the data
 	for(size_t i=0; i<MCD_COUNTOF(testData); ++i) {
@@ -71,13 +91,17 @@ TEST(StringHashSetTest)
 	table.resizeBucket(2);
 	for(size_t i=0; i<MCD_COUNTOF(testData); ++i)
 		table.add(testData[i].h, testData[i].v);
-	for(size_t i=0; i<MCD_COUNTOF(testData); ++i)
-		CHECK(strcmp(table.find(testData[i].h), testData[i].v) == 0);
+	for(size_t i=0; i<MCD_COUNTOF(testData); ++i) {
+		const char* result = table.find(testData[i].h);
+		CHECK(result && strcmp(result, testData[i].v) == 0);
+	}
 
 	// Try an even larger bucket size
 	table.resizeBucket(64);
-	for(size_t i=0; i<MCD_COUNTOF(testData); ++i)
-		CHECK(strcmp(table.find(testData[i].h), testData[i].v) == 0);
+	for(size_t i=0; i<MCD_COUNTOF(testData); ++i) {
+		const char* result = table.find(testData[i].h);
+		CHECK(result && strcmp(result, testData[i].v) == 0);
+	}
 }
 
 TEST(Basic_StringHashTest)
