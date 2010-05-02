@@ -26,7 +26,7 @@ TEST(SimplePhysicsComponentTest)
 			// Setup the sphere mesh
 			MeshPtr mesh = new Mesh;
 			ChamferBoxBuilder chamferBoxBuilder(1.0f, 5);
-			MCD_VERIFY(commitMesh(chamferBoxBuilder, *mesh, Mesh::Static));
+			MCD_VERIFY(mesh->create(chamferBoxBuilder, Mesh::Static));
 
 			// Setup the collision mesh
 			CollisionShapePtr sphereShape = new SphereShape(1);
@@ -65,7 +65,7 @@ TEST(SimplePhysicsComponentTest)
 				// Setup the ground mesh
 				MeshPtr meshGround = new Mesh;
 				PlaneMeshBuilder pBuilder(100, 100, 2, 2);
-				MCD_VERIFY(commitMesh(pBuilder, *meshGround, Mesh::Static));
+				MCD_VERIFY(meshGround->create(pBuilder, Mesh::Static));
 
 				// Add component
 				MeshComponent* c = new MeshComponent;

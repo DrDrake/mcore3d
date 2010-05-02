@@ -571,16 +571,10 @@ void PodLoader::Impl::commit(Resource& resource)
 
 		MCD_ASSERT(!mPod.pMesh[i].pInterleaved || mesh.bufferCount <= 2);
 
-		for(size_t j=0; j<mesh.bufferCount; ++j) {
-			uint* handle = mesh.handles[j].get();
-			MCD_ASSUME(handle);
-			if(!*handle)
-				glGenBuffers(1, handle);
-
-			const GLenum verOrIdxBuf = j == 0 ? GL_ELEMENT_ARRAY_BUFFER : GL_ARRAY_BUFFER;
-			glBindBuffer(verOrIdxBuf, *handle);
-			glBufferData(verOrIdxBuf, mesh.bufferSize(j), mMeshes[i].second[j], Mesh::Static);	// TODO: Way to set the Mesh::StorageHint
-		}
+		const void* data[Mesh::cMaxBufferCount];
+		for(size_t j=0; j<mesh.bufferCount; ++j)
+			data[i] = mMeshes[i].second[j];
+		MCD_VERIFY(mesh.create(data, Mesh::Static));	// TODO: Way to set the Mesh::StorageHint
 	}
 
 	// Commit skin mesh

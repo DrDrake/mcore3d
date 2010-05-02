@@ -384,7 +384,7 @@ void OgreMeshLoader::Impl::commit(Resource& resource)
 	{
 		MeshPtr mesh = new Mesh(geo.name);
 
-		if(!commitMesh(*geo.meshBuilder, *mesh, Mesh::Static))
+		if(!mesh->create(*geo.meshBuilder, Mesh::Static))
 			Log::write(Log::Warn, "Failed to commit mesh");
 
 		std::auto_ptr<Model::MeshAndMaterial> meshMat(new Model::MeshAndMaterial);

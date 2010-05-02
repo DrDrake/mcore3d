@@ -48,13 +48,13 @@ public:
 	static int bytePerPixel(int format);
 
     /*! Returns whether the auto-generated mipmaps global option is enabled.
-    */
+     */
     static bool autoGenMipmapEnabled();
 
 	/*! Returns the pixel data type and pixel components via outDataType & outComponents;
 		and ture if the textureFmt is supported otherwise; otherwise false.
-	*/
-	static bool dataTypeAndComponents(int textureFmt, int &outDataType, int &outComponents);
+	 */
+	static bool dataTypeAndComponents(int textureFmt, int& outDataType, int& outComponents);
 
 protected:
 	sal_override ~Texture();

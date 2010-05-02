@@ -7,7 +7,7 @@
 namespace MCD {
 
 Mesh::Mesh(const Path& fileId)
-	: Resource(fileId)
+	: Resource(fileId), mImpl(nullptr)
 {
 	clear();
 }
@@ -256,7 +256,24 @@ int VertexFormat::toApiDependentType(ComponentType type)
 	return mapping[type - VertexFormat::TYPE_NOT_USED];
 }
 
-bool commitMesh(const MeshBuilder& builder, Mesh& mesh, Mesh::StorageHint storageHint)
+bool Mesh::create(const void* const* data, Mesh::StorageHint storageHint)
+{
+	for(size_t i=0; i<bufferCount; ++i)
+	{
+		uint* handle = this->handles[i].get();
+		MCD_ASSUME(handle);
+		if(!*handle)
+			glGenBuffers(1, handle);
+
+		const GLenum verOrIdxBuf = i == 0 ? GL_ELEMENT_ARRAY_BUFFER : GL_ARRAY_BUFFER;
+		glBindBuffer(verOrIdxBuf, *handle);
+		if(const char* p = reinterpret_cast<const char*>(data[i]))
+			glBufferData(verOrIdxBuf, bufferSize(i), p, storageHint);
+	}
+	return true;
+}
+
+bool Mesh::create(const MeshBuilder& builder, Mesh::StorageHint storageHint)
 {
 	const size_t attributeCount = builder.attributeCount();
 	const size_t bufferCount = builder.bufferCount();
@@ -269,12 +286,12 @@ bool commitMesh(const MeshBuilder& builder, Mesh& mesh, Mesh::StorageHint storag
 	MCD_ASSERT(attributeCount > 0 && bufferCount > 0);
 	MCD_ASSERT(builder.vertexCount() > 0 && builder.indexCount() > 0);
 
-	mesh.clear();
+	this->clear();
 
-	mesh.bufferCount = bufferCount;
-	mesh.attributeCount = attributeCount;
-	mesh.indexCount = builder.indexCount();
-	mesh.vertexCount = builder.vertexCount();
+	this->bufferCount = bufferCount;
+	this->attributeCount = attributeCount;
+	this->indexCount = builder.indexCount();
+	this->vertexCount = builder.vertexCount();
 
 	for(uint8_t i=0; i<attributeCount; ++i)
 	{
@@ -284,30 +301,22 @@ bool commitMesh(const MeshBuilder& builder, Mesh& mesh, Mesh::StorageHint storag
 		if(!builder.getAttributePointer(i, &count, &stride, &bufferId, &offset, &format))
 			continue;
 
-		Mesh::Attribute& a = mesh.attributes[i];
+		Mesh::Attribute& a = this->attributes[i];
 		a.format = format;
 		a.bufferIndex = uint8_t(bufferId);
 		a.byteOffset = uint8_t(offset);
 		a.stride = uint16_t(stride);
 	}
 
-	for(size_t i=0; i<bufferCount; ++i)
-	{
-		uint* handle = mesh.handles[i].get();
-		MCD_ASSUME(handle);
-		if(!*handle)
-			glGenBuffers(1, handle);
-
-		const GLenum verOrIdxBuf = i == 0 ? GL_ELEMENT_ARRAY_BUFFER : GL_ARRAY_BUFFER;
-		glBindBuffer(verOrIdxBuf, *handle);
+	const void* data[cMaxBufferCount];
+	for(size_t i=0; i<bufferCount; ++i) {
 		size_t sizeInByte;
-		if(const char* data = builder.getBufferPointer(i, nullptr, &sizeInByte)) {
-			MCD_ASSERT(sizeInByte == mesh.bufferSize(i));
-			glBufferData(verOrIdxBuf, sizeInByte, data, storageHint);
+		if(const char* p = builder.getBufferPointer(i, nullptr, &sizeInByte)) {
+			MCD_ASSERT(sizeInByte == this->bufferSize(i));
+			data[i] = p;
 		}
 	}
-
-	return true;
+	return create(data, storageHint);
 }
 
 }	// namespace MCD

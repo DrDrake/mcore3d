@@ -20,7 +20,7 @@ TEST(MaterialTest)
 			// Setup the chamfer box mesh
 			mMesh = new Mesh("");
 			ChamferBoxBuilder chamferBoxBuilder(0.4f, 3);
-			MCD_VERIFY(commitMesh(chamferBoxBuilder, *mMesh, Mesh::Static));
+			MCD_VERIFY(mMesh->create(chamferBoxBuilder, Mesh::Static));
 
 			mEffect = static_cast<Effect*>(mResourceManager.load("Material/test.fx.xml").get());
 		}
