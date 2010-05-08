@@ -1,4 +1,4 @@
-// This inc file is to be included by GlWindow.cpp only
+// This inc file is to be included by RenderWindow.cpp only
 
 #include "../Core/System/StrUtility.h"
 #include "../Core/System/MemoryProfiler.h"
@@ -23,7 +23,7 @@ static void __stdcall myLoadTransposeMatrixf(const GLfloat m[16])
 
 namespace MCD {
 
-class GlWindow::Impl : public Window::Impl
+class RenderWindow::Impl : public Window::Impl
 {
 public:
 	typedef Window::Impl Super;
@@ -47,7 +47,7 @@ public:
 
 	sal_override void createWindow(Window::Handle existingWindowHandle=0)
 	{
-		MemoryProfiler::Scope profiler("GlWindow::createWindow");
+		MemoryProfiler::Scope profiler("RenderWindow::createWindow");
 		Super::createWindow(existingWindowHandle);
 
 		// Get the device context

@@ -1,15 +1,15 @@
-#ifndef __MCD_RENDER_GLWINDOW__
-#define __MCD_RENDER_GLWINDOW__
+#ifndef __MCD_RENDER_RENDERWINDOW__
+#define __MCD_RENDER_RENDERWINDOW__
 
 #include "ShareLib.h"
 #include "../Core/System/Window.h"
 
 namespace MCD {
 
-/*!	An application window with OpenGl.
+/*!	An application window with 3D rendering.
 	Example:
 	\code
-	GlWindow window;
+	RenderWindow window;
 	window.create("title='Hello world!';width=400;height=300");
 	window.setOptions("showCursor=0");
 	window.makeActive();
@@ -33,13 +33,13 @@ namespace MCD {
 	}
 	\endcode
  */
-class MCD_RENDER_API GlWindow : public Window
+class MCD_RENDER_API RenderWindow : public Window
 {
 public:
-	GlWindow();
-	sal_override ~GlWindow();
+	RenderWindow();
+	sal_override ~RenderWindow();
 
-	//! Get the underlaying opengl context.
+	//! Get the underlaying render context.
 	void* glContext();
 
 	/*!	Create a new window.
@@ -73,8 +73,8 @@ protected:
 	sal_override void onEvent(const Event& eventReceived);
 
 	class Impl;
-};	// GlWindow
+};	// RenderWindow
 
 }	// namespace MCD
 
-#endif	// __MCD_RENDER_GLWINDOW__
+#endif	// __MCD_RENDER_RENDERWINDOW__

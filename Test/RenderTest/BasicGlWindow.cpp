@@ -239,7 +239,7 @@ void BasicGlWindow::onEvent(const Event& e)
 		break;
 	}
 
-	GlWindow::onEvent(e);
+	RenderWindow::onEvent(e);
 }
 
 void BasicGlWindow::onResize(size_t width, size_t height)

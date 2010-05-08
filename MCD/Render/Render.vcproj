@@ -254,10 +254,6 @@
 				>
 			</File>
 			<File
-				RelativePath=".\GlWindow.h"
-				>
-			</File>
-			<File
 				RelativePath=".\InstancedMesh.h"
 				>
 			</File>
@@ -335,6 +331,10 @@
 			</File>
 			<File
 				RelativePath=".\RenderTarget.h"
+				>
+			</File>
+			<File
+				RelativePath=".\RenderWindow.h"
 				>
 			</File>
 			<File
@@ -428,14 +428,6 @@
 			</File>
 			<File
 				RelativePath=".\Frustum.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\GlWindow.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\GlWindow.Win.inc"
 				>
 			</File>
 			<File
@@ -541,6 +533,14 @@
 				>
 			</File>
 			<File
+				RelativePath=".\RenderWindow.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\RenderWindow.Win.inc"
+				>
+			</File>
+			<File
 				RelativePath=".\ResourceLoaderFactory.cpp"
 				>
 			</File>
@@ -582,6 +582,14 @@
 			</File>
 			<File
 				RelativePath=".\VertexFormat.cpp"
+				>
+			</File>
+		</Filter>
+		<Filter
+			Name="GL2x"
+			>
+			<File
+				RelativePath=".\GL2x\Mesh_GL2x.cpp"
 				>
 			</File>
 		</Filter>

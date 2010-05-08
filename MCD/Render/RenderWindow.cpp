@@ -1,28 +1,28 @@
 #include "Pch.h"
-#include "GlWindow.h"
+#include "RenderWindow.h"
 #include "../Core/System/Log.h"
 #include "../Core/System/MemoryProfiler.h"
 #include "../Core/System/Window.inl"
 #include "../../3Party/glew/glew.h"
 
 #if defined(MCD_VC)
-#	include "GlWindow.Win.inc"
+#	include "RenderWindow.Win.inc"
 #else
-#	include "GlWindow.X11.inc"
+#	include "RenderWindow.X11.inc"
 #endif
 
 namespace MCD {
 
-GlWindow::GlWindow()
+RenderWindow::RenderWindow()
 {
 }
 
-GlWindow::~GlWindow()
+RenderWindow::~RenderWindow()
 {
 	destroy();
 }
 
-void* GlWindow::glContext()
+void* RenderWindow::glContext()
 {
 	if(!mImpl)
 		return nullptr;
@@ -30,12 +30,12 @@ void* GlWindow::glContext()
 	return static_cast<Impl*>(mImpl)->glContext();
 }
 
-void GlWindow::create(const char* options) throw(std::exception)
+void RenderWindow::create(const char* options) throw(std::exception)
 {
 	create(0, options);
 }
 
-void GlWindow::create(Handle existingControl, const char* options) throw(std::exception)
+void RenderWindow::create(Handle existingControl, const char* options) throw(std::exception)
 {
 	if(!mImpl)
 		mImpl = new Impl(*this);
@@ -69,33 +69,33 @@ void GlWindow::create(Handle existingControl, const char* options) throw(std::ex
 	impl->setVerticalSync(false);
 }
 
-void GlWindow::destroy()
+void RenderWindow::destroy()
 {
 	MCD_ASSUME(mImpl != nullptr);
 	static_cast<Impl*>(mImpl)->destroy();
 }
 
-bool GlWindow::makeActive()
+bool RenderWindow::makeActive()
 {
 	MCD_ASSUME(mImpl != nullptr);
 	return static_cast<Impl*>(mImpl)->makeActive();
 }
 
-bool GlWindow::swapBuffers()
+bool RenderWindow::swapBuffers()
 {
-	MemoryProfiler::Scope profiler("GlWindow::swapBuffers");
+	MemoryProfiler::Scope profiler("RenderWindow::swapBuffers");
 
 	MCD_ASSUME(mImpl != nullptr);
 	return static_cast<Impl*>(mImpl)->swapBuffers();
 }
 
-bool GlWindow::setVerticalSync(bool flag)
+bool RenderWindow::setVerticalSync(bool flag)
 {
 	MCD_ASSUME(mImpl != nullptr);
 	return static_cast<Impl*>(mImpl)->setVerticalSync(flag);
 }
 
-void GlWindow::onEvent(const Event& eventReceived)
+void RenderWindow::onEvent(const Event& eventReceived)
 {
 	MCD_ASSUME(mImpl != nullptr);
 
@@ -106,7 +106,7 @@ void GlWindow::onEvent(const Event& eventReceived)
 		glScissor(0, 0, w, h);
 	}
 
-	// Let Window (the super class of GlWindow) to do the remaining job
+	// Let Window (the super class of RenderWindow) to do the remaining job
 	Window::onEvent(eventReceived);
 }
 
