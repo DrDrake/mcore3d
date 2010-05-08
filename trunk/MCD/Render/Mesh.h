@@ -128,7 +128,7 @@ public:
 	/*! Map the corresponding buffer object of a specific attribute.
 		\sa mapAttribute()
 		\return The pointer to the data for read / write; nullptr if any errors occur.
-	*/
+	 */
 	sal_maybenull void* mapBuffer(size_t bufferIdx, MappedBuffers& mapped, MapOption mapOptions=Read);
 
 	sal_maybenull const void* mapBuffer(size_t bufferIdx, MappedBuffers& mapped) const;
@@ -145,16 +145,15 @@ public:
 	 */
 	template<typename T> StrideArray<T> mapAttribute(size_t attributeIdx, MappedBuffers& mapped, MapOption mapOptions=Read)
 	{
-		MCD_ASSUME(attributeIdx < attributeCount);
 		const Attribute& a = attributes[attributeIdx];
 		MCD_ASSERT(a.format.sizeInByte() == sizeof(T));
 		size_t count = (attributeIdx == cIndexAttrIdx) ? indexCount : vertexCount;
 		return StrideArray<T>(reinterpret_cast<T*>(static_cast<char*>(mapBuffer(a.bufferIndex, mapped, mapOptions)) + a.byteOffset), count, a.stride);
 	}
 
+	// TODO: Introducing StrideArray2D
 	template<typename T> StrideArray<T> mapAttributeUnsafe(size_t attributeIdx, MappedBuffers& mapped, MapOption mapOptions=Read)
 	{
-		MCD_ASSUME(attributeIdx < attributeCount);
 		const Attribute& a = attributes[attributeIdx];
 		MCD_ASSERT(a.format.sizeInByte() >= sizeof(T));
 		size_t count = (attributeIdx == cIndexAttrIdx) ? indexCount : vertexCount;
@@ -178,7 +177,7 @@ protected:
 	sal_override ~Mesh();
 
 	class Impl;
-	Impl* mImpl;	//! Optional book keeping object for specific API needs.
+	sal_maybenull Impl* mImpl;	//! Optional book keeping object for specific API needs.
 };	// Mesh
 
 }	// namespace MCD

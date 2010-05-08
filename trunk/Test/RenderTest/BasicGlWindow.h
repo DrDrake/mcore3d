@@ -2,7 +2,7 @@
 #define __MCD_RENDERTEST_BASICGLWINDOW__
 
 #include "../../MCD/Render/Camera.h"
-#include "../../MCD/Render/GlWindow.h"
+#include "../../MCD/Render/RenderWindow.h"
 #include "../../MCD/Core/Math/Vec2.h"
 #include "../../MCD/Core/System/Timer.h"
 
@@ -31,7 +31,7 @@ protected:
 	bool mIsMouseDown;
 };	// MovingCamera
 
-class BasicGlWindow : public MCD::GlWindow
+class BasicGlWindow : public MCD::RenderWindow
 {
 public:
 	BasicGlWindow(const char* options = "width=800;height=600;FSAA=4");
