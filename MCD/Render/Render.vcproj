@@ -19,7 +19,7 @@
 		<Configuration
 			Name="Debug|Win32"
 			OutputDirectory="../../Bin/"
-			IntermediateDirectory="$(ConfigurationName)"
+			IntermediateDirectory="$(ConfigurationName)/GL2x"
 			ConfigurationType="2"
 			InheritedPropertySheets="..\General.vsprops;..\Debug.vsprops"
 			CharacterSet="2"
@@ -80,7 +80,7 @@
 		<Configuration
 			Name="Release|Win32"
 			OutputDirectory="../../Bin/"
-			IntermediateDirectory="$(ConfigurationName)"
+			IntermediateDirectory="$(ConfigurationName)/GL2x"
 			ConfigurationType="2"
 			InheritedPropertySheets="..\General.vsprops;..\Release.vsprops"
 			CharacterSet="2"
@@ -143,7 +143,7 @@
 		<Configuration
 			Name="Analysis|Win32"
 			OutputDirectory="../../Bin/"
-			IntermediateDirectory="$(ConfigurationName)"
+			IntermediateDirectory="$(ConfigurationName)/GL2x"
 			ConfigurationType="2"
 			InheritedPropertySheets="..\General.vsprops;..\Analysis.vsprops"
 			CharacterSet="2"
@@ -533,14 +533,6 @@
 				>
 			</File>
 			<File
-				RelativePath=".\RenderWindow.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\RenderWindow.Win.inc"
-				>
-			</File>
-			<File
 				RelativePath=".\ResourceLoaderFactory.cpp"
 				>
 			</File>
@@ -590,6 +582,14 @@
 			>
 			<File
 				RelativePath=".\GL2x\Mesh_GL2x.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\GL2x\RenderWindow.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\GL2x\RenderWindow.Win.inc"
 				>
 			</File>
 		</Filter>
