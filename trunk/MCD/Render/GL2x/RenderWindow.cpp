@@ -1,9 +1,9 @@
 #include "Pch.h"
-#include "RenderWindow.h"
-#include "../Core/System/Log.h"
-#include "../Core/System/MemoryProfiler.h"
-#include "../Core/System/Window.inl"
-#include "../../3Party/glew/glew.h"
+#include "../RenderWindow.h"
+#include "../../Core/System/Log.h"
+#include "../../Core/System/MemoryProfiler.h"
+#include "../../Core/System/Window.inl"
+#include "../../../3Party/glew/glew.h"
 
 #if defined(MCD_VC)
 #	include "RenderWindow.Win.inc"
@@ -22,12 +22,12 @@ RenderWindow::~RenderWindow()
 	destroy();
 }
 
-void* RenderWindow::glContext()
+void* RenderWindow::renderContext()
 {
 	if(!mImpl)
 		return nullptr;
 
-	return static_cast<Impl*>(mImpl)->glContext();
+	return static_cast<Impl*>(mImpl)->renderContext();
 }
 
 void RenderWindow::create(const char* options) throw(std::exception)
@@ -79,6 +79,11 @@ bool RenderWindow::makeActive()
 {
 	MCD_ASSUME(mImpl != nullptr);
 	return static_cast<Impl*>(mImpl)->makeActive();
+}
+
+void* RenderWindow::getActiveContext()
+{
+	return (::wglGetCurrentContext());
 }
 
 bool RenderWindow::swapBuffers()

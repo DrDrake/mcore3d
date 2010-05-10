@@ -1,15 +1,15 @@
 // This inc file is to be included by RenderWindow.cpp only
 
-#include "../Core/System/StrUtility.h"
-#include "../Core/System/MemoryProfiler.h"
-#include "../Core/System/Window.Win.inl"
-#include "../../3Party/glew/wglew.h"
+#include "../../Core/Math/Mat44.h"
+#include "../../Core/System/StrUtility.h"
+#include "../../Core/System/MemoryProfiler.h"
+#include "../../Core/System/Window.Win.inl"
+#include "../../../3Party/glew/wglew.h"
 
 #pragma comment(lib, "OpenGL32")
 #pragma comment(lib, "GLU32")
 #pragma comment(lib, "glew")
 
-#include "../Core/Math/Mat44.h"
 
 PFNGLLOADTRANSPOSEMATRIXFPROC a;
 
@@ -40,7 +40,7 @@ public:
 		destroy();
 	}
 
-	void* glContext()
+	void* renderContext()
 	{
 		return mRc;
 	}

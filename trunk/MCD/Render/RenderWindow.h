@@ -40,7 +40,7 @@ public:
 	sal_override ~RenderWindow();
 
 	//! Get the underlaying render context.
-	void* glContext();
+	void* renderContext();
 
 	/*!	Create a new window.
 		Additional supported options:
@@ -68,6 +68,8 @@ public:
 
 	//! Enable/disable vertical sync.
 	bool setVerticalSync(bool flag);
+
+	static void* getActiveContext();
 
 protected:
 	sal_override void onEvent(const Event& eventReceived);
