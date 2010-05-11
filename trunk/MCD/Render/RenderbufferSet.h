@@ -9,8 +9,7 @@
 #include "../../MCD/Render/Texture.h"
 #include "../../MCD/Render/TextureRenderBuffer.h"
 
-namespace MCD
-{
+namespace MCD {
 
 class MCD_RENDER_API RenderBufferSet : private Noncopyable, public IntrusiveSharedObject<int>
 {
