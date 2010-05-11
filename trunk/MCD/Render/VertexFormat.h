@@ -39,7 +39,10 @@ struct MCD_RENDER_API VertexFormat
 	}
 
 	//!	Convert to API dependent type, ie: GL_FLOAT, GL_UNSIGNED_BYTE
-	static int toApiDependentType(ComponentType type);
+	static int toApiDependentType(ComponentType type, size_t componentCount);
+	static int toApiDependentType(ComponentType type) {
+		return toApiDependentType(type, size_t(-1));
+	}
 
 	/*!	Get a VertexFormat by a semantic name.
 		There are pre-defined VretexFormat implemented in the API specific VertexFormat.cpp

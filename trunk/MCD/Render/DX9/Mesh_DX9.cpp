@@ -15,14 +15,6 @@ template<typename T> void SAFE_RELEASE(T& p)
 	}
 }
 
-static D3DVERTEXELEMENT9 gVertexDecl[Mesh::cMaxAttributeCount] = 
-{
-	{ 0, 0, D3DDECLTYPE_FLOAT3, D3DDECLMETHOD_DEFAULT, D3DDECLUSAGE_POSITION, 0},
-	{ 1, 0, D3DDECLTYPE_FLOAT3, D3DDECLMETHOD_DEFAULT,  D3DDECLUSAGE_NORMAL, 0},
-	{ 2, 0, D3DDECLTYPE_FLOAT2, D3DDECLMETHOD_DEFAULT,  D3DDECLUSAGE_TEXCOORD, 0},
-	D3DDECL_END()
-};	// gVertexDecl
-
 static const D3DVERTEXELEMENT9 gVertexDeclEnd = D3DDECL_END();
 
 void Mesh::draw()
@@ -42,7 +34,6 @@ void Mesh::draw()
 
 void Mesh::drawFaceOnly()
 {
-	gVertexDecl[attributeCount] = gVertexDeclEnd;
 	for(size_t i=2; i<attributes.size(); ++i) {
 		const Attribute& a = attributes[i];
 		if(a.format.semantic == StringHash("normal")) {
@@ -70,6 +61,10 @@ void Mesh::clear()
 			LPDIRECT3DVERTEXBUFFER9* handle = reinterpret_cast<LPDIRECT3DVERTEXBUFFER9*>(this->handles[i].get());
 			SAFE_RELEASE(*handle);
 		}
+	}
+
+	{	LPDIRECT3DVERTEXDECLARATION9& decl = reinterpret_cast<LPDIRECT3DVERTEXDECLARATION9&>(mImpl);
+		SAFE_RELEASE(decl);
 	}
 
 	attributeCount = 0;
@@ -155,18 +150,22 @@ void Mesh::unmapBuffers(MappedBuffers& mapped) const
 }
 
 // TODO: Put it back to API specific localtion
-int VertexFormat::toApiDependentType(ComponentType type)
+int VertexFormat::toApiDependentType(ComponentType type, size_t componentCount)
 {
-	static const int mapping[] = {
-		-1,
-		GL_INT, GL_UNSIGNED_INT,
-		GL_BYTE, GL_UNSIGNED_BYTE,
-		GL_SHORT, GL_UNSIGNED_SHORT,
-		GL_FLOAT, GL_DOUBLE,
-		-1
+	static const int8_t mapping[][4] = {
+		{ -1, -1, -1, -1 },
+		{ -1, -1, -1, -1 },	// Integer
+		{ -1, -1, -1, -1 },	// Unsigned integer
+		{ -1, -1, -1, -1 },	// Signed byte
+		{ -1, -1, -1, D3DDECLTYPE_UBYTE4 }, // Unsigned byte
+		{ -1, D3DDECLTYPE_SHORT2, -1, D3DDECLTYPE_SHORT4 }, // Signed short
+		{ -1, -1, -1, -1 },	// Unsigned short
+		{ D3DDECLTYPE_FLOAT1, D3DDECLTYPE_FLOAT2, D3DDECLTYPE_FLOAT3, D3DDECLTYPE_FLOAT4 },
+		{ -1, -1, -1, -1 },	// Double
+		{ -1, -1, -1, -1 }
 	};
 
-	return mapping[type - VertexFormat::TYPE_NOT_USED];
+	return mapping[type - VertexFormat::TYPE_NOT_USED][componentCount - 1];
 }
 
 bool Mesh::create(const void* const* data, Mesh::StorageHint storageHint)
@@ -209,6 +208,25 @@ bool Mesh::create(const void* const* data, Mesh::StorageHint storageHint)
 			}
 		}
 	}
+
+	// Create vertex declaration
+	// Reference: http://msdn.microsoft.com/en-us/library/ee416419%28VS.85%29.aspx
+	LPDIRECT3DVERTEXDECLARATION9& decl = reinterpret_cast<LPDIRECT3DVERTEXDECLARATION9&>(mImpl);
+	delete decl;
+
+	D3DVERTEXELEMENT9 vertexDecl[Mesh::cMaxAttributeCount + 1];
+	for(size_t i=Mesh::cPositionAttrIdx; i<attributes.size(); ++i) {
+		const Attribute& a = attributes[i];
+		const D3DVERTEXELEMENT9 d = {
+			a.bufferIndex, a.byteOffset,
+			(BYTE)VertexFormat::toApiDependentType(a.format.componentType, a.format.componentCount),
+			D3DDECLMETHOD_DEFAULT, D3DDECLUSAGE_POSITION, 0
+		};
+		vertexDecl[i] = d;
+	}
+	vertexDecl[this->attributeCount] = gVertexDeclEnd;
+	device->CreateVertexDeclaration(vertexDecl, &decl);
+
 	return true;
 }
 
