@@ -34,7 +34,7 @@ public:
 	}
 
 	T GetMagnitude() const {
-		return ::sqrt(mSquaredMagnitude);
+		return (T)::sqrt(mSquaredMagnitude);
 	}
 
 	operator T() const {

@@ -197,12 +197,12 @@ void AnimationTrack::interpolateSingleSubtrack(float time, Interpolation& result
 	{
 		// Refernece: From ID software, "Slerping Clock Cycles"
 		const float cosVal = f1 % f2;
-		const float absCosVal = fabs(cosVal);
+		const float absCosVal = fabsf(cosVal);
 		if((1.0f - absCosVal) > 1e-6f)
 		{
 			// Standard case (slerp)
 			const float sinSqr = 1.0f - absCosVal * absCosVal;
-			const float invSin = 1.0f / sqrt(sinSqr);
+			const float invSin = 1.0f / sqrtf(sinSqr);
 			const float omega = Mathf::aTanPositive(sinSqr * invSin, absCosVal);
 			const float scale0 = Mathf::sinZeroHalfPI((1.0f - result.ratio) * omega) * invSin;
 			float scale1 = Mathf::sinZeroHalfPI(result.ratio * omega) * invSin;

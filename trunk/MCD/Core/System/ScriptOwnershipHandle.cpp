@@ -1,6 +1,5 @@
 #include "Pch.h"
 #include "ScriptOwnershipHandle.h"
-#include "Platform.h"
 #include "StaticAssert.h"
 #include "../../../3Party/squirrel/squirrel.h"
 #include "../../../3Party/squirrel/squirrel/sqclass.h"

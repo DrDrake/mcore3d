@@ -199,7 +199,7 @@ public:
 		return ::fflush(mFile) != EOF;
 	}
 
-	sal_override long seek(size_t offset, std::ios_base::seekdir origin, std::ios_base::openmode) {
+	sal_override long seek(StreamBuf::off_type offset, std::ios_base::seekdir origin, std::ios_base::openmode) {
 		int ori = origin;
 		switch(origin) {
 			case std::ios_base::cur: ori = SEEK_CUR; break;

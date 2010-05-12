@@ -113,7 +113,7 @@ TEST(Basic_ResourceManagerTest)
 		ResourcePtr resource2 = manager.load("ResourceManadgerTest.cpp", IResourceManager::Block);
 		CHECK(resource != resource2);
 		ResourceManager::Event event = manager.popEvent();
-		CHECK(event.loader != nullptr);
+		CHECK(event.loader);
 	}
 
 	{	// Load it twice, to trigger the code that handle garbage collection
@@ -151,12 +151,12 @@ TEST(Basic_ResourceManagerTest)
 	{	// Main.cpp should be cached, loading it again should not generate events
 		while(manager.popEvent().loader) {}
 		manager.load("Main.cpp", IResourceManager::Block);
-		CHECK(manager.popEvent().loader == nullptr);
+		CHECK(!manager.popEvent().loader);
 
 		// But if we uncache it, then a new resource will be loaded
 		CHECK_EQUAL(resource, manager.uncache("Main.cpp"));
 		ResourcePtr resource2 = manager.load("Main.cpp", IResourceManager::Block);
-		CHECK(manager.popEvent().loader != nullptr);
+		CHECK(manager.popEvent().loader);
 		CHECK(resource != resource2);
 		resource = resource2;	// Keep the resource for further testing
 	}
@@ -166,7 +166,7 @@ TEST(Basic_ResourceManagerTest)
 		// The same resource object should be returned.
 		while(manager.popEvent().loader) {}
 		CHECK_EQUAL(resource, manager.reload("Main.cpp", IResourceManager::Block));
-		CHECK(manager.popEvent().loader != nullptr);
+		CHECK(manager.popEvent().loader);
 
 		// But a new resource object will be returned if it is uncached before.
 		CHECK_EQUAL(resource, manager.uncache("Main.cpp"));

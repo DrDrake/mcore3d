@@ -1,6 +1,8 @@
 #include "Pch.h"
 #include "../../../MCD/Core/System/CpuProfiler.h"
 
+#ifdef MCD_VC
+
 using namespace MCD;
 
 namespace {
@@ -290,7 +292,12 @@ void funA()
 	b = realloc(b, 20);		// Most likely the memory pointer does not altered
 	b = realloc(b, 2000);	// Most likely the memory pointer is altered
 	b = realloc(b, 0);
+
+#ifndef MCD_APPLE
+	// XCode gives non null value, which I think it's not a standard behaviour
 	assert(b == nullptr);
+#endif
+
 #ifdef MCD_VC
 #	pragma warning (pop)
 #endif
@@ -419,3 +426,5 @@ TEST(MemoryProfilerWithThreadTest)
 	CHECK(!s.empty());
 	std::cout << s << std::endl;
 }
+
+#endif	// MCD_VC

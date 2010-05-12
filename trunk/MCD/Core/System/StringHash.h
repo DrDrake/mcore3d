@@ -107,21 +107,13 @@ protected:
 	std::vector<Node*> mBuckets;
 };	// StringHashSet
 
-/*!	A simple string hash class.
-	Reference http://www.humus.name/index.php?page=Comments&ID=296
- */
-class MCD_CORE_API StringHash
+namespace StringHashDetail
 {
-protected:
-	StringHash() {}	// Accessed by derived-classes only
-
-	typedef uint32_t HashType;
-
 	// A small utility for defining the "const char (&Type)[N]" argument
 	template<int N>
 	struct Str { typedef const char (&Type)[N]; };
 
-	template<int N> MCD_INLINE2 HashType sdbm(typename Str<N>::Type str)
+	template<int N> MCD_INLINE2 uint32_t sdbm(typename Str<N>::Type str)
 	{
 		// hash(i) = hash(i - 1) * 65599 + str[i]
 		// Reference: http://www.cse.yorku.ca/~oz/hash.html sdbm
@@ -129,9 +121,19 @@ protected:
 	}
 
 	// "1" = char[2]
-	template<> MCD_INLINE2 HashType sdbm<2>(typename Str<2>::Type str) {
+	// NOTE: Template specialization have to be preformed in namespace scope.
+	template<> MCD_INLINE2 uint32_t sdbm<2>(Str<2>::Type str) {
 		return str[0];
 	}
+}	// StringHashDetail
+
+/*!	A simple string hash class.
+	Reference http://www.humus.name/index.php?page=Comments&ID=296
+ */
+class MCD_CORE_API StringHash
+{
+protected:
+	StringHash() {}	// Accessed by derived-classes only
 
 public:
 	uint32_t hash;
@@ -143,26 +145,26 @@ public:
 	/*!	The overloaded constructors allow hashing a string literal without run-time cost (in release mode)
 		"1" is equals to char[2] since the '\0' is included.
 	 */
-	MCD_INLINE2 StringHash(const char (&str)[2]) {	hash = sdbm<2>(str);	}
-	MCD_INLINE2 StringHash(const char (&str)[3]) {	hash = sdbm<3>(str);	}
-	MCD_INLINE2 StringHash(const char (&str)[4]) {	hash = sdbm<4>(str);	}
-	MCD_INLINE2 StringHash(const char (&str)[5]) {	hash = sdbm<5>(str);	}
-	MCD_INLINE2 StringHash(const char (&str)[6]) {	hash = sdbm<6>(str);	}
-	MCD_INLINE2 StringHash(const char (&str)[7]) {	hash = sdbm<7>(str);	}
-	MCD_INLINE2 StringHash(const char (&str)[8]) {	hash = sdbm<8>(str);	}
-	MCD_INLINE2 StringHash(const char (&str)[9]) {	hash = sdbm<9>(str);	}
-	MCD_INLINE2 StringHash(const char (&str)[10]) {	hash = sdbm<10>(str);	}
-	MCD_INLINE2 StringHash(const char (&str)[11]) {	hash = sdbm<11>(str);	}
-	MCD_INLINE2 StringHash(const char (&str)[12]) {	hash = sdbm<12>(str);	}
-	MCD_INLINE2 StringHash(const char (&str)[13]) {	hash = sdbm<13>(str);	}
-	MCD_INLINE2 StringHash(const char (&str)[14]) {	hash = sdbm<14>(str);	}
-	MCD_INLINE2 StringHash(const char (&str)[15]) {	hash = sdbm<15>(str);	}
-	MCD_INLINE2 StringHash(const char (&str)[16]) {	hash = sdbm<16>(str);	}
-	MCD_INLINE2 StringHash(const char (&str)[17]) {	hash = sdbm<17>(str);	}
-	MCD_INLINE2 StringHash(const char (&str)[18]) {	hash = sdbm<18>(str);	}
-	MCD_INLINE2 StringHash(const char (&str)[19]) {	hash = sdbm<19>(str);	}
-	MCD_INLINE2 StringHash(const char (&str)[20]) {	hash = sdbm<20>(str);	}
-	MCD_INLINE2 StringHash(const char (&str)[21]) {	hash = sdbm<21>(str);	}
+	MCD_INLINE2 StringHash(const char (&str)[2]) {	hash = StringHashDetail::sdbm<2>(str);	}
+	MCD_INLINE2 StringHash(const char (&str)[3]) {	hash = StringHashDetail::sdbm<3>(str);	}
+	MCD_INLINE2 StringHash(const char (&str)[4]) {	hash = StringHashDetail::sdbm<4>(str);	}
+	MCD_INLINE2 StringHash(const char (&str)[5]) {	hash = StringHashDetail::sdbm<5>(str);	}
+	MCD_INLINE2 StringHash(const char (&str)[6]) {	hash = StringHashDetail::sdbm<6>(str);	}
+	MCD_INLINE2 StringHash(const char (&str)[7]) {	hash = StringHashDetail::sdbm<7>(str);	}
+	MCD_INLINE2 StringHash(const char (&str)[8]) {	hash = StringHashDetail::sdbm<8>(str);	}
+	MCD_INLINE2 StringHash(const char (&str)[9]) {	hash = StringHashDetail::sdbm<9>(str);	}
+	MCD_INLINE2 StringHash(const char (&str)[10]) {	hash = StringHashDetail::sdbm<10>(str);	}
+	MCD_INLINE2 StringHash(const char (&str)[11]) {	hash = StringHashDetail::sdbm<11>(str);	}
+	MCD_INLINE2 StringHash(const char (&str)[12]) {	hash = StringHashDetail::sdbm<12>(str);	}
+	MCD_INLINE2 StringHash(const char (&str)[13]) {	hash = StringHashDetail::sdbm<13>(str);	}
+	MCD_INLINE2 StringHash(const char (&str)[14]) {	hash = StringHashDetail::sdbm<14>(str);	}
+	MCD_INLINE2 StringHash(const char (&str)[15]) {	hash = StringHashDetail::sdbm<15>(str);	}
+	MCD_INLINE2 StringHash(const char (&str)[16]) {	hash = StringHashDetail::sdbm<16>(str);	}
+	MCD_INLINE2 StringHash(const char (&str)[17]) {	hash = StringHashDetail::sdbm<17>(str);	}
+	MCD_INLINE2 StringHash(const char (&str)[18]) {	hash = StringHashDetail::sdbm<18>(str);	}
+	MCD_INLINE2 StringHash(const char (&str)[19]) {	hash = StringHashDetail::sdbm<19>(str);	}
+	MCD_INLINE2 StringHash(const char (&str)[20]) {	hash = StringHashDetail::sdbm<20>(str);	}
+	MCD_INLINE2 StringHash(const char (&str)[21]) {	hash = StringHashDetail::sdbm<21>(str);	}
 
 	//!	Parameter \em len define the maximum length of the input string buf, 0 for auto length detection.
 	StringHash(sal_in_z const char* buf, size_t len);

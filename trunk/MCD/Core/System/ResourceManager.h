@@ -162,6 +162,8 @@ public:
 	class MCD_ABSTRACT_CLASS IFactory
 	{
 	public:
+		virtual ~IFactory() {}
+
 		/*!	The overrides of this function should check the path to decide the filename/extension
 			is of their interest or not. It should return a newly created resource if the file name
 			match it's interest, return null otherwise.
