@@ -63,7 +63,7 @@ public:
 	//! Computes sin and cos together.
 	static void sinCos(Real theta, Real& sinResult, Real& cosResult) {
 		// TODO: Take advantage of custom assembly language
-		sinResult = sin(theta);	cosResult = cos(theta);
+		sinResult = Real(sin(theta));	cosResult = Real(cos(theta));
 	}
 
 	//! A fast version of sin() given that x is in the range 0 to Pi/2.
@@ -76,19 +76,19 @@ public:
 		Clamp the input to [-1, 1]
 	 */
 	static Real aSinClamp(Real x) {
-		return ::asin(clamp(x, -1, 1));
+		return Real(::asin(clamp(x, -1, 1)));
 	}
 
 	/*!	Arc-cosine function.
 		Clamp the input to [-1, 1]
 	 */
 	static Real aCosClamp(Real x) {
-		return ::acos(clamp(x, -1, 1));
+		return Real(::acos(clamp(x, -1, 1)));
 	}
 
 	//! Returns whether a floating point value is consider as zero within a tolerance.
 	static bool isNearZero(Real val, Real tolerance = Real(1e-6)) {
-		return fabs(val) <= tolerance;
+		return Real(fabs(val)) <= tolerance;
 	}
 
 	//! Returns whether two floating point values are equal within a tolerance.

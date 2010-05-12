@@ -155,7 +155,7 @@ public:
 	void transform(Vec3<T>& v) const;
 
 	//!	Returns whether this quaternion is within a tolerance of another quaternion.
-	bool isNearEqual(const Quaternion& rhs, T tolerance = 1e-06) const;
+	bool isNearEqual(const Quaternion& rhs, T tolerance = T(1e-06)) const;
 
 	/*!	The multiplication identity quaternion, (0, 0, 0, 1).
 		Any quaternion multiplied with this identity quaternion will not be changed.

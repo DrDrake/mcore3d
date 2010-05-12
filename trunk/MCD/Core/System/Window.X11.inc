@@ -1,7 +1,7 @@
 // This inc file is to be included by Window.cpp only
 
 #include "Window.X11.inl"
-#include <GL/glx.h>
+//#include <GL/glx.h>
 //#include <X11/extensions/Xrandr.h>
 #include <string.h>	// For strcmp
 
@@ -65,10 +65,10 @@ void closeDisplay()
 //! Convert a X11 keysym to our key code
 Key::Code ConvertKeyCode(KeySym sym)
 {
-    // First convert to uppercase (to avoid dealing with two different keysyms for the same key)
-    KeySym lower, key;
-	::XConvertCase(sym, &lower, &key);
-
+	// First convert to uppercase (to avoid dealing with two different keysyms for the same key)
+	KeySym key;
+//	::XConvertCase(sym, &lower, &key);
+/*
 	switch(key)
 	{
 		case XK_Shift_L :		return Key::LShift;
@@ -174,7 +174,7 @@ Key::Code ConvertKeyCode(KeySym sym)
 		case XK_8 :				return Key::Num8;
 		case XK_9 :				return Key::Num9;
 	}
-
+*/
 	return Key::Code(0);
 }
 

@@ -5,7 +5,11 @@
 #include <limits.h>	// For ULLONG_MAX
 #include <math.h>	// For floof
 
-#define USE_RDTSC 1
+#ifdef MCD_APPLE
+#	include <mach/mach_time.h>
+#else
+#	define USE_RDTSC 1
+#endif
 
 namespace MCD {
 
@@ -22,6 +26,7 @@ namespace MCD {
 #	endif
 #endif
 
+// mftbu in PowerPC: http://lists.apple.com/archives/mac-games-dev/2002/May/msg00244.html
 #if USE_RDTSC
 inline uint64_t rdtsc() {
 	uint32_t l, h;
@@ -38,6 +43,8 @@ uint64_t getTimeSinceMachineStartup()
 	ret = rdtsc();
 #elif defined(_WIN32)
 	::QueryPerformanceCounter((LARGE_INTEGER*)(&ret));
+#elif defined(MCD_APPLE)
+	ret = mach_absolute_time();
 #else
 	timeval tv;
 	::gettimeofday(&tv, nullptr);
@@ -47,15 +54,16 @@ uint64_t getTimeSinceMachineStartup()
 	return ret;
 }
 
-#ifdef _WIN32
+#if defined(_WIN32) || defined(MCD_APPLE)
 
+// Number of unit in one second.
 uint64_t getQueryPerformanceFrequency()
 {
+#if USE_RDTSC
 	LARGE_INTEGER ret;
 	MCD_VERIFY(::QueryPerformanceFrequency(&ret));
 	MCD_STATIC_ASSERT(sizeof(uint64_t) == sizeof(ret.QuadPart));
 
-#if USE_RDTSC
 	// Try to get the ratio between QueryPerformanceCounter and rdtsc
 	uint64_t ticks1;
 	::QueryPerformanceCounter((LARGE_INTEGER*)(&ticks1));
@@ -84,8 +92,16 @@ uint64_t getQueryPerformanceFrequency()
 	}
 
 	return uint64_t(ret.QuadPart * ratio);
+#elif defined(MCD_APPLE)
+	// Reference: http://www.macresearch.org/tutorial_performance_and_time
+	// Reference: http://developer.apple.com/mac/library/qa/qa2004/qa1398.html
+	mach_timebase_info_data_t info;
+	if(mach_timebase_info(&info) == 0)
+		return uint64_t(1e9 * (double) info.denom / (double) info.numer);
+	else
+		return 0;
 #else
-	return uint64_t(ret.QuadPart);
+	return 0;
 #endif
 }
 
@@ -104,7 +120,7 @@ double TimeInterval::asSecond() const {
 
 void TimeInterval::set(double sec) {
 	timeval& tv = reinterpret_cast<timeval&>(mTicks);
-	tv.tv_sec = uint32_t(::floorf(sec));
+	tv.tv_sec = uint32_t(::floor(sec));
 	tv.tv_usec = uint32_t((sec - tv.tv_sec) * 1e6);
 }
 

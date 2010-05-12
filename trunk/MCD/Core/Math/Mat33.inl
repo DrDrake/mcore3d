@@ -139,14 +139,14 @@ bool Mat33<T>::getRotationXYZ(T& thetaX, T& thetaY, T& thetaZ)
 	{
 		if(thetaY > -Math<T>::cPiOver2())
 		{
-			thetaX = ::atan2(-m12, m22);
-			thetaZ = ::atan2(-m01, m00);
+			thetaX = T(::atan2(-m12, m22));
+			thetaZ = T(::atan2(-m01, m00));
 			return true;
 		}
 		else
 		{
 			// Not an unique solution.
-			const T rmY = ::atan2(m10, m11);
+			const T rmY = T(::atan2(m10, m11));
 			thetaZ = 0;	// Any angle works
 			thetaX = thetaZ - rmY;
 			return false;
@@ -155,7 +155,7 @@ bool Mat33<T>::getRotationXYZ(T& thetaX, T& thetaY, T& thetaZ)
 	else
 	{
 		// Not an unique solution.
-		const T rpY = ::atan2(m10, m11);
+		const T rpY = T(::atan2(m10, m11));
 		thetaZ = 0;	// Any angle works
 		thetaX = rpY - thetaZ;
 		return false;
