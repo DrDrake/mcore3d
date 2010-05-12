@@ -173,7 +173,7 @@ public:
 		return !(lhs == rhs);
 	}
 
-	bool isNearEqual(const MathTuple& rhs, T tolerance = 1e-06) const
+	bool isNearEqual(const MathTuple& rhs, T tolerance = T(1e-06)) const
 	{
 		for(size_t i=0; i<N; ++i) {
 			if(!Math<T>::isNearEqual(data[i], rhs[i], tolerance))

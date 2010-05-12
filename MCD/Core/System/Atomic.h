@@ -58,22 +58,6 @@ protected:
 	mutable Mutex mMutex;
 };	// AtomicValue
 
-#ifdef MCD_GCC
-
-inline long interlockedExchangeAdd(long volatile* addEnd, long value)
-{
-	long ret;
-	__asm__ __volatile__(
-		"lock xaddl %0,(%1)"
-		:"=r" (ret)
-		:"r" (addEnd), "0" (value)
-		:"memory"
-	);
-	return ret;
-}
-
-#endif
-
 //!	An atomic integer class for performing increment and decrement operations.
 class AtomicInteger
 {
@@ -115,12 +99,14 @@ int AtomicInteger::operator--() {
 
 #elif defined(MCD_GCC)
 
+// Reference: http://gcc.gnu.org/onlinedocs/gcc-4.1.2/gcc/Atomic-Builtins.html#Atomic-Builtins
+// Reference: http://golubenco.org/2007/06/14/atomic-operations
 int AtomicInteger::operator++() {
-	return interlockedExchangeAdd((long*)&value, 1);
+	return __sync_add_and_fetch((long*)&value, 1);
 }
 
 int AtomicInteger::operator--() {
-	return interlockedExchangeAdd((long*)&value, -1);
+	return __sync_sub_and_fetch((long*)&value, 1);
 }
 
 #endif

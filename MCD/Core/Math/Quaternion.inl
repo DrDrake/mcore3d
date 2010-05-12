@@ -55,7 +55,7 @@ Quaternion<T>& Quaternion<T>::fromAxisAngle(const Vec3<T>& axis, param_type angl
 
 	const T axisLen2 = axis.squaredLength();
 	MCD_ASSUME(axisLen2 > 0);
-	const T scaleDown = axisLen2 > 0 ? sqrt(axisLen2) : 1;
+	const T scaleDown = axisLen2 > 0 ? T(sqrt(axisLen2)) : 1;
 	const Vec3<T> u(axis * (sin / scaleDown));
 	setVec3(u);
 	w = cos;
@@ -69,7 +69,7 @@ void Quaternion<T>::toAxisAngle(Vec3<T>& axis, T& angle) const
 	const T axisLen2 = getVec3().squaredLength();
 
 	if(axisLen2 > 0) {
-		axis = getVec3() * (T(1) / sqrt(axisLen2));
+		axis = getVec3() * (T(1) / T(sqrt(axisLen2)));
 		angle = Math<T>::aCosClamp(w) * 2;
 	} else {
 		// Angle is 0, so any axis will do
@@ -87,10 +87,10 @@ Quaternion<T>& Quaternion<T>::fromMatrix(const Mat33<T>& matrix)
 	// Reference: http://www.euclideanspace.com/maths/geometry/rotations/conversions/matrixToQuaternion/index.htm
 	// The max(0, ...) is just a safeguard against rounding error.
 	// TODO: A very good fit for using SIMD :)
-	x = sqrt(Math<T>::max(0, 1 + matrix.m00 - matrix.m11 - matrix.m22)) * T(0.5);
-	y = sqrt(Math<T>::max(0, 1 - matrix.m00 + matrix.m11 - matrix.m22)) * T(0.5);
-	z = sqrt(Math<T>::max(0, 1 - matrix.m00 - matrix.m11 + matrix.m22)) * T(0.5);
-	w = sqrt(Math<T>::max(0, 1 + matrix.m00 + matrix.m11 + matrix.m22)) * T(0.5);
+	x = (T)sqrt(Math<T>::max(0, 1 + matrix.m00 - matrix.m11 - matrix.m22)) * T(0.5);
+	y = (T)sqrt(Math<T>::max(0, 1 - matrix.m00 + matrix.m11 - matrix.m22)) * T(0.5);
+	z = (T)sqrt(Math<T>::max(0, 1 - matrix.m00 - matrix.m11 + matrix.m22)) * T(0.5);
+	w = (T)sqrt(Math<T>::max(0, 1 + matrix.m00 + matrix.m11 + matrix.m22)) * T(0.5);
 
 #ifdef MCD_VC
 #	define copysign _copysign

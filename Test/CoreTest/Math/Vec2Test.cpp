@@ -67,10 +67,10 @@ TEST(Multiply_Vec2Test)
 
 TEST(Division_Vec2Test)
 {
-	Vec2f r(0.5, 1);
+	Vec2f r(0.5f, 1);
 
 	CHECK(v12 / 2 == r);
-	CHECK(1.0 / (2.0 / v12) == r);
+	CHECK(1.0f / (2.0f / v12) == r);
 
 	Vec2f a(v12);
 	a /= 2;
@@ -109,7 +109,7 @@ TEST(Normalize_Vec2Test)
 TEST(Length_Vec2Test)
 {
 	CHECK_EQUAL(1, v10.length());
-	CHECK(Mathf::isNearEqual(v12.length(), sqrt(5.0f)));
+	CHECK(Mathf::isNearEqual(v12.length(), sqrtf(5.0f)));
 
 	CHECK_EQUAL(1, v10.squaredLength());
 	CHECK_EQUAL(5, v12.squaredLength());

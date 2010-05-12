@@ -69,10 +69,10 @@ TEST(Multiply_Vec3Test)
 
 TEST(Division_Vec3Test)
 {
-	Vec3f r(0.5, 1, 1.5);
+	Vec3f r(0.5, 1, 1.5f);
 
 	CHECK(v123 / 2 == r);
-	CHECK(1.0 / (2.0 / v123) == r);
+	CHECK(1.0f / (2.0f / v123) == r);
 
 	Vec3f a(v123);
 	a /= 2;
@@ -118,7 +118,7 @@ TEST(Normalize_Vec3Test)
 TEST(Length_Vec3Test)
 {
 	CHECK_EQUAL(1, v100.length());
-	CHECK(Mathf::isNearEqual(v123.length(), sqrt(14.0f)));
+	CHECK(Mathf::isNearEqual(v123.length(), sqrtf(14.0f)));
 
 	CHECK_EQUAL(1, v100.squaredLength());
 	CHECK_EQUAL(14, v123.squaredLength());
