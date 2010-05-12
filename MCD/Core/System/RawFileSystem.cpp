@@ -76,6 +76,7 @@ bool isExistsImpl(sal_in_z sal_notnull const char* path)
 	}
 #else
 	struct stat pathStat;
+	errno = 0;
 	if(::stat(path, &pathStat) != 0) {
 		// stat failed because the path does not exist
 		// for any other error we assume the file does exist and fall through,

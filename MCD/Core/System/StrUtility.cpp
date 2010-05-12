@@ -341,6 +341,7 @@ bool str2Int(sal_in_z const char* str, int& number)
 	// User sscanf or atoi didn't handle error very well,
 	// while wistringstream in MSVC gives mis-matched memory allocation in Intel parallel studio.
 	char* p = nullptr;
+	errno = 0;
 	number = strtol(str, &p, 10);
 	return errno != EINVAL && errno != ERANGE && str != p;
 }
@@ -424,7 +425,7 @@ int wstrCaseCmp(const wchar_t* string1, const wchar_t* string2)
 {
 #ifdef MCD_VC
 	return ::_wcsicmp(string1, string2);
-#elif defined(MCD_CYGWIN)
+#elif defined(MCD_APPLE) || defined(MCD_CYGWIN)
 	wchar_t f, l;
 	do {
 		f = towlower(*string1);

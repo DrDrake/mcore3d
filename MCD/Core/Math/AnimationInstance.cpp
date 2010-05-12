@@ -203,7 +203,7 @@ bool AnimationInstance::addTrack(AnimationTrack& track, float weight, float fram
 {
 	ScopeRecursiveLock lock(mMutex);
 
-	WeightedTrack t = { weight, framerate, -1, 0.0f, name, &track };
+	WeightedTrack t = { weight, framerate, -1, 0.0f, name, &track, Events(), Events() };
 	mTracks.push_back(t);
 
 	// Destroy the weightedResult and let update() to recreate it,

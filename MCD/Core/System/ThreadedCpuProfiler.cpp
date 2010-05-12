@@ -7,6 +7,8 @@
 
 using namespace MCD;
 
+#ifdef MCD_VC
+
 namespace {
 
 //! A structure that group all global varaibles into a thread local storage.
@@ -134,12 +136,6 @@ ThreadedCpuProfiler::~ThreadedCpuProfiler()
 
 	// We assume that all thread will be stopped before ThreadedCpuProfiler is destroyed
 	delete mTlsList;
-}
-
-ThreadedCpuProfiler& ThreadedCpuProfiler::singleton()
-{
-	static ThreadedCpuProfiler instance;
-	return instance;
 }
 
 void ThreadedCpuProfiler::begin(const char name[])
@@ -283,8 +279,6 @@ void* ThreadedCpuProfiler::onThreadAttach(const char* threadName)
 	return tls;
 }
 
-#if defined(_MSC_VER)
-
 #include <Winsock2.h>
 #pragma comment(lib, "Ws2_32")
 
@@ -413,4 +407,30 @@ void ThreadedCpuProfilerServer::flush() {
 	mImpl.flush();
 }
 
+#else
+
+ThreadedCpuProfiler::ThreadedCpuProfiler() {}
+
+ThreadedCpuProfiler::~ThreadedCpuProfiler() {}
+
+void ThreadedCpuProfiler::begin(const char name[]) {}
+
+void ThreadedCpuProfiler::end() {}
+
+void ThreadedCpuProfiler::nextFrame() {}
+
+std::string ThreadedCpuProfiler::defaultReport(size_t nameLength) const {
+	return "";
+}
+
+void* ThreadedCpuProfiler::onThreadAttach(const char* threadName) {
+	return nullptr;
+}
+
 #endif	//_MSC_VER
+
+ThreadedCpuProfiler& ThreadedCpuProfiler::singleton()
+{
+	static ThreadedCpuProfiler instance;
+	return instance;
+}

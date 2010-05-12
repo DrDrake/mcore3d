@@ -11,6 +11,7 @@ namespace MCD {
 class MCD_ABSTRACT_CLASS IException
 {
 public:
+	virtual ~IException() {}
 	virtual const wchar_t* wwhat() const throw() = 0;
 };	// IException
 

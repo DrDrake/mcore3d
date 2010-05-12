@@ -50,7 +50,7 @@ bool StreamProxy::flush() {
 	return true;
 }
 
-long StreamProxy::seek(size_t, std::ios_base::seekdir, std::ios_base::openmode) {
+long StreamProxy::seek(StreamBuf::off_type, std::ios_base::seekdir, std::ios_base::openmode) {
 	return -1;
 }
 

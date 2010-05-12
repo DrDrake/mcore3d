@@ -87,12 +87,12 @@ public:
 	}
 
 	//! Returns whether a floating point value is consider as zero within a tolerance.
-	static bool isNearZero(Real val, Real tolerance = 1e-6) {
+	static bool isNearZero(Real val, Real tolerance = Real(1e-6)) {
 		return fabs(val) <= tolerance;
 	}
 
 	//! Returns whether two floating point values are equal within a tolerance.
-	static bool isNearEqual(Real lhs, Real rhs, Real tolerance = 1e-6) {
+	static bool isNearEqual(Real lhs, Real rhs, Real tolerance = Real(1e-6)) {
 		return isNearZero(lhs - rhs, tolerance);
 	}
 

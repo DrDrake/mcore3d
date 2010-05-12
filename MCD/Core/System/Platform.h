@@ -17,6 +17,10 @@
 #	define MCD_CYGWIN
 #endif
 
+#ifdef __APPLE__
+#	define MCD_APPLE
+#endif
+
 //////////////////////////////////////////////////////////////////////////
 // For Visual Studio
 
