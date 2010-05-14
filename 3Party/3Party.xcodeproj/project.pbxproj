@@ -1,0 +1,699 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 45;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		1820760B10E350B90030E503 /* AssertException.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 182075E310E350B90030E503 /* AssertException.cpp */; };
+		1820760C10E350B90030E503 /* AssertException.h in Headers */ = {isa = PBXBuildFile; fileRef = 182075E410E350B90030E503 /* AssertException.h */; };
+		1820760D10E350B90030E503 /* CheckMacros.h in Headers */ = {isa = PBXBuildFile; fileRef = 182075E510E350B90030E503 /* CheckMacros.h */; };
+		1820760E10E350B90030E503 /* Checks.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 182075E610E350B90030E503 /* Checks.cpp */; };
+		1820760F10E350B90030E503 /* Checks.h in Headers */ = {isa = PBXBuildFile; fileRef = 182075E710E350B90030E503 /* Checks.h */; };
+		1820761010E350B90030E503 /* Config.h in Headers */ = {isa = PBXBuildFile; fileRef = 182075E810E350B90030E503 /* Config.h */; };
+		1820761110E350B90030E503 /* CppTestHarness.h in Headers */ = {isa = PBXBuildFile; fileRef = 182075EA10E350B90030E503 /* CppTestHarness.h */; };
+		1820761210E350B90030E503 /* HTMLTestReporter.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 182075ED10E350B90030E503 /* HTMLTestReporter.cpp */; };
+		1820761310E350B90030E503 /* HTMLTestReporter.h in Headers */ = {isa = PBXBuildFile; fileRef = 182075EE10E350B90030E503 /* HTMLTestReporter.h */; };
+		1820761510E350B90030E503 /* PrintfTestReporter.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 182075F910E350B90030E503 /* PrintfTestReporter.cpp */; };
+		1820761610E350B90030E503 /* PrintfTestReporter.h in Headers */ = {isa = PBXBuildFile; fileRef = 182075FA10E350B90030E503 /* PrintfTestReporter.h */; };
+		1820761710E350B90030E503 /* ReportAssert.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 182075FC10E350B90030E503 /* ReportAssert.cpp */; };
+		1820761810E350B90030E503 /* ReportAssert.h in Headers */ = {isa = PBXBuildFile; fileRef = 182075FD10E350B90030E503 /* ReportAssert.h */; };
+		1820761910E350B90030E503 /* SignalTranslator.h in Headers */ = {isa = PBXBuildFile; fileRef = 182075FE10E350B90030E503 /* SignalTranslator.h */; };
+		1820761A10E350B90030E503 /* Test.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 182075FF10E350B90030E503 /* Test.cpp */; };
+		1820761B10E350B90030E503 /* Test.h in Headers */ = {isa = PBXBuildFile; fileRef = 1820760010E350B90030E503 /* Test.h */; };
+		1820761C10E350B90030E503 /* TestLauncher.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1820760110E350B90030E503 /* TestLauncher.cpp */; };
+		1820761D10E350B90030E503 /* TestLauncher.h in Headers */ = {isa = PBXBuildFile; fileRef = 1820760210E350B90030E503 /* TestLauncher.h */; };
+		1820761E10E350B90030E503 /* TestMacros.h in Headers */ = {isa = PBXBuildFile; fileRef = 1820760310E350B90030E503 /* TestMacros.h */; };
+		1820761F10E350B90030E503 /* TestReporter.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1820760410E350B90030E503 /* TestReporter.cpp */; };
+		1820762010E350B90030E503 /* TestReporter.h in Headers */ = {isa = PBXBuildFile; fileRef = 1820760510E350B90030E503 /* TestReporter.h */; };
+		1820762110E350B90030E503 /* TestResults.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1820760610E350B90030E503 /* TestResults.cpp */; };
+		1820762210E350B90030E503 /* TestResults.h in Headers */ = {isa = PBXBuildFile; fileRef = 1820760710E350B90030E503 /* TestResults.h */; };
+		1820762310E350B90030E503 /* TestRunner.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1820760810E350B90030E503 /* TestRunner.cpp */; };
+		1820762410E350B90030E503 /* TestRunner.h in Headers */ = {isa = PBXBuildFile; fileRef = 1820760910E350B90030E503 /* TestRunner.h */; };
+		1820762510E350B90030E503 /* TypedTestLauncher.h in Headers */ = {isa = PBXBuildFile; fileRef = 1820760A10E350B90030E503 /* TypedTestLauncher.h */; };
+		1820765A10E352090030E503 /* H2v2.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1820764410E352090030E503 /* H2v2.cpp */; };
+		1820765B10E352090030E503 /* idct.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1820764510E352090030E503 /* idct.cpp */; };
+		1820765C10E352090030E503 /* jidctfst.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1820764610E352090030E503 /* jidctfst.cpp */; };
+		1820765D10E352090030E503 /* jpegdecoder.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1820764710E352090030E503 /* jpegdecoder.cpp */; };
+		1820765E10E352090030E503 /* jpegdecoder.h in Headers */ = {isa = PBXBuildFile; fileRef = 1820764810E352090030E503 /* jpegdecoder.h */; };
+		1820765F10E352090030E503 /* main.h in Headers */ = {isa = PBXBuildFile; fileRef = 1820764A10E352090030E503 /* main.h */; };
+		1873A26111883344008D0F62 /* sqstdaux.h in Headers */ = {isa = PBXBuildFile; fileRef = 1873A23211883344008D0F62 /* sqstdaux.h */; };
+		1873A26211883344008D0F62 /* sqstdblob.h in Headers */ = {isa = PBXBuildFile; fileRef = 1873A23311883344008D0F62 /* sqstdblob.h */; };
+		1873A26311883344008D0F62 /* sqstdio.h in Headers */ = {isa = PBXBuildFile; fileRef = 1873A23411883344008D0F62 /* sqstdio.h */; };
+		1873A26611883344008D0F62 /* sqstdblobimpl.h in Headers */ = {isa = PBXBuildFile; fileRef = 1873A23811883344008D0F62 /* sqstdblobimpl.h */; };
+		1873A26B11883344008D0F62 /* sqstdstream.h in Headers */ = {isa = PBXBuildFile; fileRef = 1873A23D11883344008D0F62 /* sqstdstream.h */; };
+		1873A26E11883344008D0F62 /* sqstdmath.h in Headers */ = {isa = PBXBuildFile; fileRef = 1873A24011883344008D0F62 /* sqstdmath.h */; };
+		1873A26F11883344008D0F62 /* sqstdstring.h in Headers */ = {isa = PBXBuildFile; fileRef = 1873A24111883344008D0F62 /* sqstdstring.h */; };
+		1873A27011883344008D0F62 /* sqstdsystem.h in Headers */ = {isa = PBXBuildFile; fileRef = 1873A24211883344008D0F62 /* sqstdsystem.h */; };
+		1873A27211883344008D0F62 /* sqarray.h in Headers */ = {isa = PBXBuildFile; fileRef = 1873A24511883344008D0F62 /* sqarray.h */; };
+		1873A27511883344008D0F62 /* sqclass.h in Headers */ = {isa = PBXBuildFile; fileRef = 1873A24811883344008D0F62 /* sqclass.h */; };
+		1873A27611883344008D0F62 /* sqclosure.h in Headers */ = {isa = PBXBuildFile; fileRef = 1873A24911883344008D0F62 /* sqclosure.h */; };
+		1873A27811883344008D0F62 /* sqcompiler.h in Headers */ = {isa = PBXBuildFile; fileRef = 1873A24B11883344008D0F62 /* sqcompiler.h */; };
+		1873A27A11883344008D0F62 /* sqfuncproto.h in Headers */ = {isa = PBXBuildFile; fileRef = 1873A24D11883344008D0F62 /* sqfuncproto.h */; };
+		1873A27C11883344008D0F62 /* sqfuncstate.h in Headers */ = {isa = PBXBuildFile; fileRef = 1873A24F11883344008D0F62 /* sqfuncstate.h */; };
+		1873A27E11883344008D0F62 /* sqlexer.h in Headers */ = {isa = PBXBuildFile; fileRef = 1873A25111883344008D0F62 /* sqlexer.h */; };
+		1873A28111883344008D0F62 /* sqobject.h in Headers */ = {isa = PBXBuildFile; fileRef = 1873A25411883344008D0F62 /* sqobject.h */; };
+		1873A28211883344008D0F62 /* sqopcodes.h in Headers */ = {isa = PBXBuildFile; fileRef = 1873A25511883344008D0F62 /* sqopcodes.h */; };
+		1873A28311883344008D0F62 /* sqpcheader.h in Headers */ = {isa = PBXBuildFile; fileRef = 1873A25611883344008D0F62 /* sqpcheader.h */; };
+		1873A28511883344008D0F62 /* sqstate.h in Headers */ = {isa = PBXBuildFile; fileRef = 1873A25811883344008D0F62 /* sqstate.h */; };
+		1873A28611883344008D0F62 /* sqstring.h in Headers */ = {isa = PBXBuildFile; fileRef = 1873A25911883344008D0F62 /* sqstring.h */; };
+		1873A28811883344008D0F62 /* sqtable.h in Headers */ = {isa = PBXBuildFile; fileRef = 1873A25B11883344008D0F62 /* sqtable.h */; };
+		1873A28911883344008D0F62 /* squserdata.h in Headers */ = {isa = PBXBuildFile; fileRef = 1873A25C11883344008D0F62 /* squserdata.h */; };
+		1873A28A11883344008D0F62 /* squtils.h in Headers */ = {isa = PBXBuildFile; fileRef = 1873A25D11883344008D0F62 /* squtils.h */; };
+		1873A28C11883344008D0F62 /* sqvm.h in Headers */ = {isa = PBXBuildFile; fileRef = 1873A25F11883344008D0F62 /* sqvm.h */; };
+		1873A28D11883344008D0F62 /* squirrel.h in Headers */ = {isa = PBXBuildFile; fileRef = 1873A26011883344008D0F62 /* squirrel.h */; };
+		18C53CEE119A64C100DA21DC /* sqbaselib.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1873A24611883344008D0F62 /* sqbaselib.cpp */; };
+		18C53CEF119A64C100DA21DC /* sqstdio.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1873A23911883344008D0F62 /* sqstdio.cpp */; };
+		18C53CF0119A64C100DA21DC /* sqdebug.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1873A24C11883344008D0F62 /* sqdebug.cpp */; };
+		18C53CF1119A64C100DA21DC /* sqstdmath.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1873A23A11883344008D0F62 /* sqstdmath.cpp */; };
+		18C53CF2119A64C100DA21DC /* sqstdrex.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1873A23B11883344008D0F62 /* sqstdrex.cpp */; };
+		18C53CF3119A64C100DA21DC /* sqvm.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1873A25E11883344008D0F62 /* sqvm.cpp */; };
+		18C53CF4119A64C100DA21DC /* sqstate.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1873A25711883344008D0F62 /* sqstate.cpp */; };
+		18C53CF5119A64C100DA21DC /* sqstdstring.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1873A23E11883344008D0F62 /* sqstdstring.cpp */; };
+		18C53CF6119A64C100DA21DC /* sqcompiler.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1873A24A11883344008D0F62 /* sqcompiler.cpp */; };
+		18C53CF7119A64C100DA21DC /* sqapi.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1873A24411883344008D0F62 /* sqapi.cpp */; };
+		18C53CF8119A64C100DA21DC /* sqfuncstate.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1873A24E11883344008D0F62 /* sqfuncstate.cpp */; };
+		18C53CF9119A64C100DA21DC /* sqlexer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1873A25011883344008D0F62 /* sqlexer.cpp */; };
+		18C53CFA119A64C100DA21DC /* sqstdsystem.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1873A23F11883344008D0F62 /* sqstdsystem.cpp */; };
+		18C53CFB119A64C100DA21DC /* sqobject.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1873A25311883344008D0F62 /* sqobject.cpp */; };
+		18C53CFC119A64C100DA21DC /* sqmem.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1873A25211883344008D0F62 /* sqmem.cpp */; };
+		18C53CFD119A64C100DA21DC /* sqstdaux.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1873A23611883344008D0F62 /* sqstdaux.cpp */; };
+		18C53CFE119A64C100DA21DC /* sqstdblob.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1873A23711883344008D0F62 /* sqstdblob.cpp */; };
+		18C53CFF119A64C100DA21DC /* sqclass.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1873A24711883344008D0F62 /* sqclass.cpp */; };
+		18C53D00119A64C100DA21DC /* sqstdstream.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1873A23C11883344008D0F62 /* sqstdstream.cpp */; };
+		18C53D01119A64C100DA21DC /* sqtable.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1873A25A11883344008D0F62 /* sqtable.cpp */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXFileReference section */
+		182075DE10E3509C0030E503 /* libCppTestHarness.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libCppTestHarness.a; sourceTree = BUILT_PRODUCTS_DIR; };
+		182075E310E350B90030E503 /* AssertException.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = AssertException.cpp; sourceTree = "<group>"; };
+		182075E410E350B90030E503 /* AssertException.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AssertException.h; sourceTree = "<group>"; };
+		182075E510E350B90030E503 /* CheckMacros.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CheckMacros.h; sourceTree = "<group>"; };
+		182075E610E350B90030E503 /* Checks.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Checks.cpp; sourceTree = "<group>"; };
+		182075E710E350B90030E503 /* Checks.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Checks.h; sourceTree = "<group>"; };
+		182075E810E350B90030E503 /* Config.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Config.h; sourceTree = "<group>"; };
+		182075EA10E350B90030E503 /* CppTestHarness.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CppTestHarness.h; sourceTree = "<group>"; };
+		182075ED10E350B90030E503 /* HTMLTestReporter.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = HTMLTestReporter.cpp; sourceTree = "<group>"; };
+		182075EE10E350B90030E503 /* HTMLTestReporter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HTMLTestReporter.h; sourceTree = "<group>"; };
+		182075F910E350B90030E503 /* PrintfTestReporter.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = PrintfTestReporter.cpp; sourceTree = "<group>"; };
+		182075FA10E350B90030E503 /* PrintfTestReporter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PrintfTestReporter.h; sourceTree = "<group>"; };
+		182075FC10E350B90030E503 /* ReportAssert.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ReportAssert.cpp; sourceTree = "<group>"; };
+		182075FD10E350B90030E503 /* ReportAssert.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ReportAssert.h; sourceTree = "<group>"; };
+		182075FE10E350B90030E503 /* SignalTranslator.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SignalTranslator.h; sourceTree = "<group>"; };
+		182075FF10E350B90030E503 /* Test.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Test.cpp; sourceTree = "<group>"; };
+		1820760010E350B90030E503 /* Test.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Test.h; sourceTree = "<group>"; };
+		1820760110E350B90030E503 /* TestLauncher.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = TestLauncher.cpp; sourceTree = "<group>"; };
+		1820760210E350B90030E503 /* TestLauncher.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TestLauncher.h; sourceTree = "<group>"; };
+		1820760310E350B90030E503 /* TestMacros.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TestMacros.h; sourceTree = "<group>"; };
+		1820760410E350B90030E503 /* TestReporter.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = TestReporter.cpp; sourceTree = "<group>"; };
+		1820760510E350B90030E503 /* TestReporter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TestReporter.h; sourceTree = "<group>"; };
+		1820760610E350B90030E503 /* TestResults.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = TestResults.cpp; sourceTree = "<group>"; };
+		1820760710E350B90030E503 /* TestResults.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TestResults.h; sourceTree = "<group>"; };
+		1820760810E350B90030E503 /* TestRunner.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = TestRunner.cpp; sourceTree = "<group>"; };
+		1820760910E350B90030E503 /* TestRunner.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TestRunner.h; sourceTree = "<group>"; };
+		1820760A10E350B90030E503 /* TypedTestLauncher.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TypedTestLauncher.h; sourceTree = "<group>"; };
+		1820764010E351EF0030E503 /* libSmallJpeg.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libSmallJpeg.a; sourceTree = BUILT_PRODUCTS_DIR; };
+		1820764410E352090030E503 /* H2v2.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = H2v2.cpp; sourceTree = "<group>"; };
+		1820764510E352090030E503 /* idct.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = idct.cpp; sourceTree = "<group>"; };
+		1820764610E352090030E503 /* jidctfst.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = jidctfst.cpp; sourceTree = "<group>"; };
+		1820764710E352090030E503 /* jpegdecoder.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = jpegdecoder.cpp; sourceTree = "<group>"; };
+		1820764810E352090030E503 /* jpegdecoder.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = jpegdecoder.h; sourceTree = "<group>"; };
+		1820764A10E352090030E503 /* main.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = main.h; sourceTree = "<group>"; };
+		1873A23211883344008D0F62 /* sqstdaux.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = sqstdaux.h; path = squirrel/sqstdaux.h; sourceTree = "<group>"; };
+		1873A23311883344008D0F62 /* sqstdblob.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = sqstdblob.h; path = squirrel/sqstdblob.h; sourceTree = "<group>"; };
+		1873A23411883344008D0F62 /* sqstdio.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = sqstdio.h; path = squirrel/sqstdio.h; sourceTree = "<group>"; };
+		1873A23611883344008D0F62 /* sqstdaux.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = sqstdaux.cpp; sourceTree = "<group>"; };
+		1873A23711883344008D0F62 /* sqstdblob.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = sqstdblob.cpp; sourceTree = "<group>"; };
+		1873A23811883344008D0F62 /* sqstdblobimpl.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = sqstdblobimpl.h; sourceTree = "<group>"; };
+		1873A23911883344008D0F62 /* sqstdio.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = sqstdio.cpp; sourceTree = "<group>"; };
+		1873A23A11883344008D0F62 /* sqstdmath.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = sqstdmath.cpp; sourceTree = "<group>"; };
+		1873A23B11883344008D0F62 /* sqstdrex.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = sqstdrex.cpp; sourceTree = "<group>"; };
+		1873A23C11883344008D0F62 /* sqstdstream.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = sqstdstream.cpp; sourceTree = "<group>"; };
+		1873A23D11883344008D0F62 /* sqstdstream.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = sqstdstream.h; sourceTree = "<group>"; };
+		1873A23E11883344008D0F62 /* sqstdstring.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = sqstdstring.cpp; sourceTree = "<group>"; };
+		1873A23F11883344008D0F62 /* sqstdsystem.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = sqstdsystem.cpp; sourceTree = "<group>"; };
+		1873A24011883344008D0F62 /* sqstdmath.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = sqstdmath.h; path = squirrel/sqstdmath.h; sourceTree = "<group>"; };
+		1873A24111883344008D0F62 /* sqstdstring.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = sqstdstring.h; path = squirrel/sqstdstring.h; sourceTree = "<group>"; };
+		1873A24211883344008D0F62 /* sqstdsystem.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = sqstdsystem.h; path = squirrel/sqstdsystem.h; sourceTree = "<group>"; };
+		1873A24411883344008D0F62 /* sqapi.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = sqapi.cpp; sourceTree = "<group>"; };
+		1873A24511883344008D0F62 /* sqarray.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = sqarray.h; sourceTree = "<group>"; };
+		1873A24611883344008D0F62 /* sqbaselib.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = sqbaselib.cpp; sourceTree = "<group>"; };
+		1873A24711883344008D0F62 /* sqclass.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = sqclass.cpp; sourceTree = "<group>"; };
+		1873A24811883344008D0F62 /* sqclass.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = sqclass.h; sourceTree = "<group>"; };
+		1873A24911883344008D0F62 /* sqclosure.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = sqclosure.h; sourceTree = "<group>"; };
+		1873A24A11883344008D0F62 /* sqcompiler.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = sqcompiler.cpp; sourceTree = "<group>"; };
+		1873A24B11883344008D0F62 /* sqcompiler.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = sqcompiler.h; sourceTree = "<group>"; };
+		1873A24C11883344008D0F62 /* sqdebug.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = sqdebug.cpp; sourceTree = "<group>"; };
+		1873A24D11883344008D0F62 /* sqfuncproto.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = sqfuncproto.h; sourceTree = "<group>"; };
+		1873A24E11883344008D0F62 /* sqfuncstate.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = sqfuncstate.cpp; sourceTree = "<group>"; };
+		1873A24F11883344008D0F62 /* sqfuncstate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = sqfuncstate.h; sourceTree = "<group>"; };
+		1873A25011883344008D0F62 /* sqlexer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = sqlexer.cpp; sourceTree = "<group>"; };
+		1873A25111883344008D0F62 /* sqlexer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = sqlexer.h; sourceTree = "<group>"; };
+		1873A25211883344008D0F62 /* sqmem.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = sqmem.cpp; sourceTree = "<group>"; };
+		1873A25311883344008D0F62 /* sqobject.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = sqobject.cpp; sourceTree = "<group>"; };
+		1873A25411883344008D0F62 /* sqobject.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = sqobject.h; sourceTree = "<group>"; };
+		1873A25511883344008D0F62 /* sqopcodes.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = sqopcodes.h; sourceTree = "<group>"; };
+		1873A25611883344008D0F62 /* sqpcheader.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = sqpcheader.h; sourceTree = "<group>"; };
+		1873A25711883344008D0F62 /* sqstate.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = sqstate.cpp; sourceTree = "<group>"; };
+		1873A25811883344008D0F62 /* sqstate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = sqstate.h; sourceTree = "<group>"; };
+		1873A25911883344008D0F62 /* sqstring.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = sqstring.h; sourceTree = "<group>"; };
+		1873A25A11883344008D0F62 /* sqtable.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = sqtable.cpp; sourceTree = "<group>"; };
+		1873A25B11883344008D0F62 /* sqtable.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = sqtable.h; sourceTree = "<group>"; };
+		1873A25C11883344008D0F62 /* squserdata.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = squserdata.h; sourceTree = "<group>"; };
+		1873A25D11883344008D0F62 /* squtils.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = squtils.h; sourceTree = "<group>"; };
+		1873A25E11883344008D0F62 /* sqvm.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = sqvm.cpp; sourceTree = "<group>"; };
+		1873A25F11883344008D0F62 /* sqvm.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = sqvm.h; sourceTree = "<group>"; };
+		1873A26011883344008D0F62 /* squirrel.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = squirrel.h; path = squirrel/squirrel.h; sourceTree = "<group>"; };
+		18C53CDD119A646D00DA21DC /* libsquirrel.dylib */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = libsquirrel.dylib; sourceTree = BUILT_PRODUCTS_DIR; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		182075DC10E3509C0030E503 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		1820763E10E351EF0030E503 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		18C53CDB119A646D00DA21DC /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		08FB7794FE84155DC02AAC07 /* 3Party */ = {
+			isa = PBXGroup;
+			children = (
+				1873A28E11883363008D0F62 /* squirrel */,
+				1820764310E352090030E503 /* SmallJpeg */,
+				182075E210E350B90030E503 /* CppTestHarness */,
+				1AB674ADFE9D54B511CA2CBB /* Products */,
+			);
+			name = 3Party;
+			sourceTree = "<group>";
+		};
+		182075E210E350B90030E503 /* CppTestHarness */ = {
+			isa = PBXGroup;
+			children = (
+				182075E310E350B90030E503 /* AssertException.cpp */,
+				182075E410E350B90030E503 /* AssertException.h */,
+				182075E510E350B90030E503 /* CheckMacros.h */,
+				182075E610E350B90030E503 /* Checks.cpp */,
+				182075E710E350B90030E503 /* Checks.h */,
+				182075E810E350B90030E503 /* Config.h */,
+				182075EA10E350B90030E503 /* CppTestHarness.h */,
+				182075ED10E350B90030E503 /* HTMLTestReporter.cpp */,
+				182075EE10E350B90030E503 /* HTMLTestReporter.h */,
+				182075F910E350B90030E503 /* PrintfTestReporter.cpp */,
+				182075FA10E350B90030E503 /* PrintfTestReporter.h */,
+				182075FC10E350B90030E503 /* ReportAssert.cpp */,
+				182075FD10E350B90030E503 /* ReportAssert.h */,
+				182075FE10E350B90030E503 /* SignalTranslator.h */,
+				182075FF10E350B90030E503 /* Test.cpp */,
+				1820760010E350B90030E503 /* Test.h */,
+				1820760110E350B90030E503 /* TestLauncher.cpp */,
+				1820760210E350B90030E503 /* TestLauncher.h */,
+				1820760310E350B90030E503 /* TestMacros.h */,
+				1820760410E350B90030E503 /* TestReporter.cpp */,
+				1820760510E350B90030E503 /* TestReporter.h */,
+				1820760610E350B90030E503 /* TestResults.cpp */,
+				1820760710E350B90030E503 /* TestResults.h */,
+				1820760810E350B90030E503 /* TestRunner.cpp */,
+				1820760910E350B90030E503 /* TestRunner.h */,
+				1820760A10E350B90030E503 /* TypedTestLauncher.h */,
+			);
+			path = CppTestHarness;
+			sourceTree = "<group>";
+		};
+		1820764310E352090030E503 /* SmallJpeg */ = {
+			isa = PBXGroup;
+			children = (
+				1820764410E352090030E503 /* H2v2.cpp */,
+				1820764510E352090030E503 /* idct.cpp */,
+				1820764610E352090030E503 /* jidctfst.cpp */,
+				1820764710E352090030E503 /* jpegdecoder.cpp */,
+				1820764810E352090030E503 /* jpegdecoder.h */,
+				1820764A10E352090030E503 /* main.h */,
+			);
+			path = SmallJpeg;
+			sourceTree = "<group>";
+		};
+		1873A23511883344008D0F62 /* sqstdlib */ = {
+			isa = PBXGroup;
+			children = (
+				1873A23611883344008D0F62 /* sqstdaux.cpp */,
+				1873A23711883344008D0F62 /* sqstdblob.cpp */,
+				1873A23811883344008D0F62 /* sqstdblobimpl.h */,
+				1873A23911883344008D0F62 /* sqstdio.cpp */,
+				1873A23A11883344008D0F62 /* sqstdmath.cpp */,
+				1873A23B11883344008D0F62 /* sqstdrex.cpp */,
+				1873A23C11883344008D0F62 /* sqstdstream.cpp */,
+				1873A23D11883344008D0F62 /* sqstdstream.h */,
+				1873A23E11883344008D0F62 /* sqstdstring.cpp */,
+				1873A23F11883344008D0F62 /* sqstdsystem.cpp */,
+			);
+			name = sqstdlib;
+			path = squirrel/sqstdlib;
+			sourceTree = "<group>";
+		};
+		1873A24311883344008D0F62 /* squirrel */ = {
+			isa = PBXGroup;
+			children = (
+				1873A24411883344008D0F62 /* sqapi.cpp */,
+				1873A24511883344008D0F62 /* sqarray.h */,
+				1873A24611883344008D0F62 /* sqbaselib.cpp */,
+				1873A24711883344008D0F62 /* sqclass.cpp */,
+				1873A24811883344008D0F62 /* sqclass.h */,
+				1873A24911883344008D0F62 /* sqclosure.h */,
+				1873A24A11883344008D0F62 /* sqcompiler.cpp */,
+				1873A24B11883344008D0F62 /* sqcompiler.h */,
+				1873A24C11883344008D0F62 /* sqdebug.cpp */,
+				1873A24D11883344008D0F62 /* sqfuncproto.h */,
+				1873A24E11883344008D0F62 /* sqfuncstate.cpp */,
+				1873A24F11883344008D0F62 /* sqfuncstate.h */,
+				1873A25011883344008D0F62 /* sqlexer.cpp */,
+				1873A25111883344008D0F62 /* sqlexer.h */,
+				1873A25211883344008D0F62 /* sqmem.cpp */,
+				1873A25311883344008D0F62 /* sqobject.cpp */,
+				1873A25411883344008D0F62 /* sqobject.h */,
+				1873A25511883344008D0F62 /* sqopcodes.h */,
+				1873A25611883344008D0F62 /* sqpcheader.h */,
+				1873A25711883344008D0F62 /* sqstate.cpp */,
+				1873A25811883344008D0F62 /* sqstate.h */,
+				1873A25911883344008D0F62 /* sqstring.h */,
+				1873A25A11883344008D0F62 /* sqtable.cpp */,
+				1873A25B11883344008D0F62 /* sqtable.h */,
+				1873A25C11883344008D0F62 /* squserdata.h */,
+				1873A25D11883344008D0F62 /* squtils.h */,
+				1873A25E11883344008D0F62 /* sqvm.cpp */,
+				1873A25F11883344008D0F62 /* sqvm.h */,
+			);
+			name = squirrel;
+			path = squirrel/squirrel;
+			sourceTree = "<group>";
+		};
+		1873A28E11883363008D0F62 /* squirrel */ = {
+			isa = PBXGroup;
+			children = (
+				1873A24311883344008D0F62 /* squirrel */,
+				1873A23511883344008D0F62 /* sqstdlib */,
+				1873A23211883344008D0F62 /* sqstdaux.h */,
+				1873A23311883344008D0F62 /* sqstdblob.h */,
+				1873A23411883344008D0F62 /* sqstdio.h */,
+				1873A24011883344008D0F62 /* sqstdmath.h */,
+				1873A24111883344008D0F62 /* sqstdstring.h */,
+				1873A24211883344008D0F62 /* sqstdsystem.h */,
+				1873A26011883344008D0F62 /* squirrel.h */,
+			);
+			name = squirrel;
+			sourceTree = "<group>";
+		};
+		1AB674ADFE9D54B511CA2CBB /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				182075DE10E3509C0030E503 /* libCppTestHarness.a */,
+				1820764010E351EF0030E503 /* libSmallJpeg.a */,
+				18C53CDD119A646D00DA21DC /* libsquirrel.dylib */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXHeadersBuildPhase section */
+		182075DA10E3509C0030E503 /* Headers */ = {
+			isa = PBXHeadersBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				1820760C10E350B90030E503 /* AssertException.h in Headers */,
+				1820760D10E350B90030E503 /* CheckMacros.h in Headers */,
+				1820760F10E350B90030E503 /* Checks.h in Headers */,
+				1820761010E350B90030E503 /* Config.h in Headers */,
+				1820761110E350B90030E503 /* CppTestHarness.h in Headers */,
+				1820761310E350B90030E503 /* HTMLTestReporter.h in Headers */,
+				1820761610E350B90030E503 /* PrintfTestReporter.h in Headers */,
+				1820761810E350B90030E503 /* ReportAssert.h in Headers */,
+				1820761910E350B90030E503 /* SignalTranslator.h in Headers */,
+				1820761B10E350B90030E503 /* Test.h in Headers */,
+				1820761D10E350B90030E503 /* TestLauncher.h in Headers */,
+				1820761E10E350B90030E503 /* TestMacros.h in Headers */,
+				1820762010E350B90030E503 /* TestReporter.h in Headers */,
+				1820762210E350B90030E503 /* TestResults.h in Headers */,
+				1820762410E350B90030E503 /* TestRunner.h in Headers */,
+				1820762510E350B90030E503 /* TypedTestLauncher.h in Headers */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		1820763C10E351EF0030E503 /* Headers */ = {
+			isa = PBXHeadersBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				1820765E10E352090030E503 /* jpegdecoder.h in Headers */,
+				1820765F10E352090030E503 /* main.h in Headers */,
+				1873A26111883344008D0F62 /* sqstdaux.h in Headers */,
+				1873A26211883344008D0F62 /* sqstdblob.h in Headers */,
+				1873A26311883344008D0F62 /* sqstdio.h in Headers */,
+				1873A26611883344008D0F62 /* sqstdblobimpl.h in Headers */,
+				1873A26B11883344008D0F62 /* sqstdstream.h in Headers */,
+				1873A26E11883344008D0F62 /* sqstdmath.h in Headers */,
+				1873A26F11883344008D0F62 /* sqstdstring.h in Headers */,
+				1873A27011883344008D0F62 /* sqstdsystem.h in Headers */,
+				1873A27211883344008D0F62 /* sqarray.h in Headers */,
+				1873A27511883344008D0F62 /* sqclass.h in Headers */,
+				1873A27611883344008D0F62 /* sqclosure.h in Headers */,
+				1873A27811883344008D0F62 /* sqcompiler.h in Headers */,
+				1873A27A11883344008D0F62 /* sqfuncproto.h in Headers */,
+				1873A27C11883344008D0F62 /* sqfuncstate.h in Headers */,
+				1873A27E11883344008D0F62 /* sqlexer.h in Headers */,
+				1873A28111883344008D0F62 /* sqobject.h in Headers */,
+				1873A28211883344008D0F62 /* sqopcodes.h in Headers */,
+				1873A28311883344008D0F62 /* sqpcheader.h in Headers */,
+				1873A28511883344008D0F62 /* sqstate.h in Headers */,
+				1873A28611883344008D0F62 /* sqstring.h in Headers */,
+				1873A28811883344008D0F62 /* sqtable.h in Headers */,
+				1873A28911883344008D0F62 /* squserdata.h in Headers */,
+				1873A28A11883344008D0F62 /* squtils.h in Headers */,
+				1873A28C11883344008D0F62 /* sqvm.h in Headers */,
+				1873A28D11883344008D0F62 /* squirrel.h in Headers */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		18C53CD9119A646D00DA21DC /* Headers */ = {
+			isa = PBXHeadersBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXHeadersBuildPhase section */
+
+/* Begin PBXNativeTarget section */
+		182075DD10E3509C0030E503 /* CppTestHarness */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 182075E110E350A30030E503 /* Build configuration list for PBXNativeTarget "CppTestHarness" */;
+			buildPhases = (
+				182075DA10E3509C0030E503 /* Headers */,
+				182075DB10E3509C0030E503 /* Sources */,
+				182075DC10E3509C0030E503 /* Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = CppTestHarness;
+			productName = CppTestHarness;
+			productReference = 182075DE10E3509C0030E503 /* libCppTestHarness.a */;
+			productType = "com.apple.product-type.library.static";
+		};
+		1820763F10E351EF0030E503 /* SmallJpeg */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 1820766110E352090030E503 /* Build configuration list for PBXNativeTarget "SmallJpeg" */;
+			buildPhases = (
+				1820763C10E351EF0030E503 /* Headers */,
+				1820763D10E351EF0030E503 /* Sources */,
+				1820763E10E351EF0030E503 /* Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = SmallJpeg;
+			productName = SmallJpeg;
+			productReference = 1820764010E351EF0030E503 /* libSmallJpeg.a */;
+			productType = "com.apple.product-type.library.static";
+		};
+		18C53CDC119A646D00DA21DC /* squirrel */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 18C53D0E119A64D300DA21DC /* Build configuration list for PBXNativeTarget "squirrel" */;
+			buildPhases = (
+				18C53CD9119A646D00DA21DC /* Headers */,
+				18C53CDA119A646D00DA21DC /* Sources */,
+				18C53CDB119A646D00DA21DC /* Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = squirrel;
+			productName = squirrel;
+			productReference = 18C53CDD119A646D00DA21DC /* libsquirrel.dylib */;
+			productType = "com.apple.product-type.library.dynamic";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		08FB7793FE84155DC02AAC07 /* Project object */ = {
+			isa = PBXProject;
+			buildConfigurationList = 1DEB91EF08733DB70010E9CD /* Build configuration list for PBXProject "3Party" */;
+			compatibilityVersion = "Xcode 3.1";
+			hasScannedForEncodings = 1;
+			mainGroup = 08FB7794FE84155DC02AAC07 /* 3Party */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				182075DD10E3509C0030E503 /* CppTestHarness */,
+				1820763F10E351EF0030E503 /* SmallJpeg */,
+				18C53CDC119A646D00DA21DC /* squirrel */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXSourcesBuildPhase section */
+		182075DB10E3509C0030E503 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				1820760B10E350B90030E503 /* AssertException.cpp in Sources */,
+				1820760E10E350B90030E503 /* Checks.cpp in Sources */,
+				1820761210E350B90030E503 /* HTMLTestReporter.cpp in Sources */,
+				1820761510E350B90030E503 /* PrintfTestReporter.cpp in Sources */,
+				1820761710E350B90030E503 /* ReportAssert.cpp in Sources */,
+				1820761A10E350B90030E503 /* Test.cpp in Sources */,
+				1820761C10E350B90030E503 /* TestLauncher.cpp in Sources */,
+				1820761F10E350B90030E503 /* TestReporter.cpp in Sources */,
+				1820762110E350B90030E503 /* TestResults.cpp in Sources */,
+				1820762310E350B90030E503 /* TestRunner.cpp in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		1820763D10E351EF0030E503 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				1820765A10E352090030E503 /* H2v2.cpp in Sources */,
+				1820765B10E352090030E503 /* idct.cpp in Sources */,
+				1820765C10E352090030E503 /* jidctfst.cpp in Sources */,
+				1820765D10E352090030E503 /* jpegdecoder.cpp in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		18C53CDA119A646D00DA21DC /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				18C53CEE119A64C100DA21DC /* sqbaselib.cpp in Sources */,
+				18C53CEF119A64C100DA21DC /* sqstdio.cpp in Sources */,
+				18C53CF0119A64C100DA21DC /* sqdebug.cpp in Sources */,
+				18C53CF1119A64C100DA21DC /* sqstdmath.cpp in Sources */,
+				18C53CF2119A64C100DA21DC /* sqstdrex.cpp in Sources */,
+				18C53CF3119A64C100DA21DC /* sqvm.cpp in Sources */,
+				18C53CF4119A64C100DA21DC /* sqstate.cpp in Sources */,
+				18C53CF5119A64C100DA21DC /* sqstdstring.cpp in Sources */,
+				18C53CF6119A64C100DA21DC /* sqcompiler.cpp in Sources */,
+				18C53CF7119A64C100DA21DC /* sqapi.cpp in Sources */,
+				18C53CF8119A64C100DA21DC /* sqfuncstate.cpp in Sources */,
+				18C53CF9119A64C100DA21DC /* sqlexer.cpp in Sources */,
+				18C53CFA119A64C100DA21DC /* sqstdsystem.cpp in Sources */,
+				18C53CFB119A64C100DA21DC /* sqobject.cpp in Sources */,
+				18C53CFC119A64C100DA21DC /* sqmem.cpp in Sources */,
+				18C53CFD119A64C100DA21DC /* sqstdaux.cpp in Sources */,
+				18C53CFE119A64C100DA21DC /* sqstdblob.cpp in Sources */,
+				18C53CFF119A64C100DA21DC /* sqclass.cpp in Sources */,
+				18C53D00119A64C100DA21DC /* sqstdstream.cpp in Sources */,
+				18C53D01119A64C100DA21DC /* sqtable.cpp in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin XCBuildConfiguration section */
+		182075DF10E3509C0030E503 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				COPY_PHASE_STRIP = NO;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_ENABLE_FIX_AND_CONTINUE = YES;
+				GCC_MODEL_TUNING = G5;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				INSTALL_PATH = /usr/local/lib;
+				PREBINDING = NO;
+				PRODUCT_NAME = CppTestHarness;
+			};
+			name = Debug;
+		};
+		182075E010E3509C0030E503 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				COPY_PHASE_STRIP = YES;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				GCC_ENABLE_FIX_AND_CONTINUE = NO;
+				GCC_MODEL_TUNING = G5;
+				INSTALL_PATH = /usr/local/lib;
+				PREBINDING = NO;
+				PRODUCT_NAME = CppTestHarness;
+				ZERO_LINK = NO;
+			};
+			name = Release;
+		};
+		1820764110E351F00030E503 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				COPY_PHASE_STRIP = NO;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_ENABLE_FIX_AND_CONTINUE = YES;
+				GCC_MODEL_TUNING = G5;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				INSTALL_PATH = /usr/local/lib;
+				PREBINDING = NO;
+				PRODUCT_NAME = SmallJpeg;
+			};
+			name = Debug;
+		};
+		1820764210E351F00030E503 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				COPY_PHASE_STRIP = YES;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				GCC_ENABLE_FIX_AND_CONTINUE = NO;
+				GCC_MODEL_TUNING = G5;
+				INSTALL_PATH = /usr/local/lib;
+				PREBINDING = NO;
+				PRODUCT_NAME = SmallJpeg;
+				ZERO_LINK = NO;
+			};
+			name = Release;
+		};
+		18C53CDE119A646D00DA21DC /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				COPY_PHASE_STRIP = NO;
+				EXECUTABLE_PREFIX = lib;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_ENABLE_FIX_AND_CONTINUE = YES;
+				GCC_MODEL_TUNING = G5;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				INSTALL_PATH = /usr/local/lib;
+				LD_DYLIB_INSTALL_NAME = "";
+				PREBINDING = NO;
+				PRODUCT_NAME = squirrel;
+			};
+			name = Debug;
+		};
+		18C53CDF119A646D00DA21DC /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				COPY_PHASE_STRIP = YES;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				EXECUTABLE_PREFIX = lib;
+				GCC_ENABLE_FIX_AND_CONTINUE = NO;
+				GCC_MODEL_TUNING = G5;
+				INSTALL_PATH = /usr/local/lib;
+				LD_DYLIB_INSTALL_NAME = "";
+				PREBINDING = NO;
+				PRODUCT_NAME = squirrel;
+				ZERO_LINK = NO;
+			};
+			name = Release;
+		};
+		1DEB91F008733DB70010E9CD /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = "$(ARCHS_STANDARD_32_BIT)";
+				GCC_C_LANGUAGE_STANDARD = c99;
+				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				PREBINDING = NO;
+				SDKROOT = macosx10.5;
+			};
+			name = Debug;
+		};
+		1DEB91F108733DB70010E9CD /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = "$(ARCHS_STANDARD_32_BIT)";
+				GCC_C_LANGUAGE_STANDARD = c99;
+				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				PREBINDING = NO;
+				SDKROOT = macosx10.5;
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		182075E110E350A30030E503 /* Build configuration list for PBXNativeTarget "CppTestHarness" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				182075DF10E3509C0030E503 /* Debug */,
+				182075E010E3509C0030E503 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		1820766110E352090030E503 /* Build configuration list for PBXNativeTarget "SmallJpeg" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				1820764110E351F00030E503 /* Debug */,
+				1820764210E351F00030E503 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		18C53D0E119A64D300DA21DC /* Build configuration list for PBXNativeTarget "squirrel" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				18C53CDE119A646D00DA21DC /* Debug */,
+				18C53CDF119A646D00DA21DC /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		1DEB91EF08733DB70010E9CD /* Build configuration list for PBXProject "3Party" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				1DEB91F008733DB70010E9CD /* Debug */,
+				1DEB91F108733DB70010E9CD /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = 08FB7793FE84155DC02AAC07 /* Project object */;
+}
