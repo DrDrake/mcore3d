@@ -1,0 +1,515 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 45;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		1820747D10E34C210030E503 /* ComponentTest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1820744710E34C210030E503 /* ComponentTest.cpp */; };
+		1820747E10E34C210030E503 /* EntityTest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1820744810E34C210030E503 /* EntityTest.cpp */; };
+		1820747F10E34C210030E503 /* Main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1820744A10E34C210030E503 /* Main.cpp */; };
+		1820748110E34C210030E503 /* AnimationTrackTest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1820744D10E34C210030E503 /* AnimationTrackTest.cpp */; };
+		1820748210E34C210030E503 /* IntersectionTest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1820744E10E34C210030E503 /* IntersectionTest.cpp */; };
+		1820748310E34C210030E503 /* Mat33Test.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1820744F10E34C210030E503 /* Mat33Test.cpp */; };
+		1820748410E34C210030E503 /* Mat44Test.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1820745010E34C210030E503 /* Mat44Test.cpp */; };
+		1820748510E34C210030E503 /* QuaternionTest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1820745210E34C210030E503 /* QuaternionTest.cpp */; };
+		1820748610E34C210030E503 /* TupleTest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1820745310E34C210030E503 /* TupleTest.cpp */; };
+		1820748710E34C210030E503 /* Vec2Test.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1820745410E34C210030E503 /* Vec2Test.cpp */; };
+		1820748810E34C210030E503 /* Vec3Test.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1820745510E34C210030E503 /* Vec3Test.cpp */; };
+		1820748910E34C210030E503 /* Pch.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1820745F10E34C210030E503 /* Pch.cpp */; };
+		1820748A10E34C210030E503 /* AdvancedResourceManagerTest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1820746210E34C210030E503 /* AdvancedResourceManagerTest.cpp */; };
+		1820748B10E34C210030E503 /* CondVarTest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1820746310E34C210030E503 /* CondVarTest.cpp */; };
+		1820748C10E34C210030E503 /* FileSystemTest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1820746410E34C210030E503 /* FileSystemTest.cpp */; };
+		1820748D10E34C210030E503 /* IntrusivePtrTest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1820746510E34C210030E503 /* IntrusivePtrTest.cpp */; };
+		1820748E10E34C210030E503 /* LinkListTest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1820746610E34C210030E503 /* LinkListTest.cpp */; };
+		1820748F10E34C210030E503 /* LogTest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1820746710E34C210030E503 /* LogTest.cpp */; };
+		1820749010E34C210030E503 /* MapTest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1820746810E34C210030E503 /* MapTest.cpp */; };
+		1820749110E34C210030E503 /* PathTest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1820746910E34C210030E503 /* PathTest.cpp */; };
+		1820749210E34C210030E503 /* ProfilerTest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1820746B10E34C210030E503 /* ProfilerTest.cpp */; };
+		1820749310E34C210030E503 /* PtrVectorTest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1820746C10E34C210030E503 /* PtrVectorTest.cpp */; };
+		1820749410E34C210030E503 /* ResourceLoaderTest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1820746D10E34C210030E503 /* ResourceLoaderTest.cpp */; };
+		1820749510E34C210030E503 /* ResourceManagerTest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1820746E10E34C210030E503 /* ResourceManagerTest.cpp */; };
+		1820749610E34C210030E503 /* SharedPtrTest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1820746F10E34C210030E503 /* SharedPtrTest.cpp */; };
+		1820749710E34C210030E503 /* StreamTest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1820747010E34C210030E503 /* StreamTest.cpp */; };
+		1820749810E34C210030E503 /* StrUtilityTest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1820747110E34C210030E503 /* StrUtilityTest.cpp */; };
+		1820749910E34C210030E503 /* TaskPoolTest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1820747210E34C210030E503 /* TaskPoolTest.cpp */; };
+		1820749A10E34C210030E503 /* ThreadPoolTest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1820747310E34C210030E503 /* ThreadPoolTest.cpp */; };
+		1820749B10E34C210030E503 /* ThreadTest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1820747410E34C210030E503 /* ThreadTest.cpp */; };
+		1820749C10E34C210030E503 /* TimerTest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1820747510E34C210030E503 /* TimerTest.cpp */; };
+		1820749D10E34C210030E503 /* UserDataTest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1820747610E34C210030E503 /* UserDataTest.cpp */; };
+		1820749E10E34C210030E503 /* UtilityTest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1820747710E34C210030E503 /* UtilityTest.cpp */; };
+		1820749F10E34C210030E503 /* WeakPtrTest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1820747810E34C210030E503 /* WeakPtrTest.cpp */; };
+		182074A010E34C210030E503 /* WindowTest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1820747910E34C210030E503 /* WindowTest.cpp */; };
+		182074A110E34C210030E503 /* XmlParserTest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1820747A10E34C210030E503 /* XmlParserTest.cpp */; };
+		1873A308118835E7008D0F62 /* libCppTestHarness.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 1820763210E351670030E503 /* libCppTestHarness.a */; };
+		18C5407C119BA86900DA21DC /* libCore.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 18EAA40D119A592B00BBB011 /* libCore.dylib */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		1820763110E351670030E503 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 1820762D10E351670030E503 /* 3Party.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 182075DE10E3509C0030E503;
+			remoteInfo = CppTestHarness;
+		};
+		1820763310E351820030E503 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 1820762D10E351670030E503 /* 3Party.xcodeproj */;
+			proxyType = 1;
+			remoteGlobalIDString = 182075DD10E3509C0030E503;
+			remoteInfo = CppTestHarness;
+		};
+		1820766310E3520E0030E503 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 1820762D10E351670030E503 /* 3Party.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 1820764010E351EF0030E503;
+			remoteInfo = SmallJpeg;
+		};
+		18C53CE4119A648B00DA21DC /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 1820762D10E351670030E503 /* 3Party.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 18C53CDD119A646D00DA21DC;
+			remoteInfo = squirrel;
+		};
+		18C53D28119A65E100DA21DC /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 182074B410E34CE60030E503 /* MCD.xcodeproj */;
+			proxyType = 1;
+			remoteGlobalIDString = 18EAA406119A590C00BBB011;
+			remoteInfo = Core;
+		};
+		18EAA40C119A592B00BBB011 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 182074B410E34CE60030E503 /* MCD.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 18EAA407119A590C00BBB011;
+			remoteInfo = Core;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXFileReference section */
+		1820731610E347EB0030E503 /* CoreTest */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = CoreTest; sourceTree = BUILT_PRODUCTS_DIR; };
+		1820744710E34C210030E503 /* ComponentTest.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ComponentTest.cpp; sourceTree = "<group>"; };
+		1820744810E34C210030E503 /* EntityTest.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = EntityTest.cpp; sourceTree = "<group>"; };
+		1820744910E34C210030E503 /* Pch.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Pch.h; sourceTree = "<group>"; };
+		1820744A10E34C210030E503 /* Main.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Main.cpp; sourceTree = "<group>"; };
+		1820744D10E34C210030E503 /* AnimationTrackTest.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = AnimationTrackTest.cpp; sourceTree = "<group>"; };
+		1820744E10E34C210030E503 /* IntersectionTest.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = IntersectionTest.cpp; sourceTree = "<group>"; };
+		1820744F10E34C210030E503 /* Mat33Test.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Mat33Test.cpp; sourceTree = "<group>"; };
+		1820745010E34C210030E503 /* Mat44Test.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Mat44Test.cpp; sourceTree = "<group>"; };
+		1820745110E34C210030E503 /* Pch.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Pch.h; sourceTree = "<group>"; };
+		1820745210E34C210030E503 /* QuaternionTest.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = QuaternionTest.cpp; sourceTree = "<group>"; };
+		1820745310E34C210030E503 /* TupleTest.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = TupleTest.cpp; sourceTree = "<group>"; };
+		1820745410E34C210030E503 /* Vec2Test.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Vec2Test.cpp; sourceTree = "<group>"; };
+		1820745510E34C210030E503 /* Vec3Test.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Vec3Test.cpp; sourceTree = "<group>"; };
+		1820745F10E34C210030E503 /* Pch.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Pch.cpp; sourceTree = "<group>"; };
+		1820746010E34C210030E503 /* Pch.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Pch.h; sourceTree = "<group>"; };
+		1820746210E34C210030E503 /* AdvancedResourceManagerTest.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = AdvancedResourceManagerTest.cpp; sourceTree = "<group>"; };
+		1820746310E34C210030E503 /* CondVarTest.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = CondVarTest.cpp; sourceTree = "<group>"; };
+		1820746410E34C210030E503 /* FileSystemTest.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = FileSystemTest.cpp; sourceTree = "<group>"; };
+		1820746510E34C210030E503 /* IntrusivePtrTest.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = IntrusivePtrTest.cpp; sourceTree = "<group>"; };
+		1820746610E34C210030E503 /* LinkListTest.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = LinkListTest.cpp; sourceTree = "<group>"; };
+		1820746710E34C210030E503 /* LogTest.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = LogTest.cpp; sourceTree = "<group>"; };
+		1820746810E34C210030E503 /* MapTest.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = MapTest.cpp; sourceTree = "<group>"; };
+		1820746910E34C210030E503 /* PathTest.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = PathTest.cpp; sourceTree = "<group>"; };
+		1820746A10E34C210030E503 /* Pch.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Pch.h; sourceTree = "<group>"; };
+		1820746B10E34C210030E503 /* ProfilerTest.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ProfilerTest.cpp; sourceTree = "<group>"; };
+		1820746C10E34C210030E503 /* PtrVectorTest.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = PtrVectorTest.cpp; sourceTree = "<group>"; };
+		1820746D10E34C210030E503 /* ResourceLoaderTest.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ResourceLoaderTest.cpp; sourceTree = "<group>"; };
+		1820746E10E34C210030E503 /* ResourceManagerTest.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ResourceManagerTest.cpp; sourceTree = "<group>"; };
+		1820746F10E34C210030E503 /* SharedPtrTest.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SharedPtrTest.cpp; sourceTree = "<group>"; };
+		1820747010E34C210030E503 /* StreamTest.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = StreamTest.cpp; sourceTree = "<group>"; };
+		1820747110E34C210030E503 /* StrUtilityTest.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = StrUtilityTest.cpp; sourceTree = "<group>"; };
+		1820747210E34C210030E503 /* TaskPoolTest.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = TaskPoolTest.cpp; sourceTree = "<group>"; };
+		1820747310E34C210030E503 /* ThreadPoolTest.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ThreadPoolTest.cpp; sourceTree = "<group>"; };
+		1820747410E34C210030E503 /* ThreadTest.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ThreadTest.cpp; sourceTree = "<group>"; };
+		1820747510E34C210030E503 /* TimerTest.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = TimerTest.cpp; sourceTree = "<group>"; };
+		1820747610E34C210030E503 /* UserDataTest.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = UserDataTest.cpp; sourceTree = "<group>"; };
+		1820747710E34C210030E503 /* UtilityTest.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = UtilityTest.cpp; sourceTree = "<group>"; };
+		1820747810E34C210030E503 /* WeakPtrTest.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = WeakPtrTest.cpp; sourceTree = "<group>"; };
+		1820747910E34C210030E503 /* WindowTest.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = WindowTest.cpp; sourceTree = "<group>"; };
+		1820747A10E34C210030E503 /* XmlParserTest.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = XmlParserTest.cpp; sourceTree = "<group>"; };
+		182074B410E34CE60030E503 /* MCD.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = MCD.xcodeproj; path = ../MCD/MCD.xcodeproj; sourceTree = SOURCE_ROOT; };
+		1820762D10E351670030E503 /* 3Party.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = 3Party.xcodeproj; path = ../3Party/3Party.xcodeproj; sourceTree = SOURCE_ROOT; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		1820731410E347EB0030E503 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				18C5407C119BA86900DA21DC /* libCore.dylib in Frameworks */,
+				1873A308118835E7008D0F62 /* libCppTestHarness.a in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		08FB7794FE84155DC02AAC07 /* Test */ = {
+			isa = PBXGroup;
+			children = (
+				1820762D10E351670030E503 /* 3Party.xcodeproj */,
+				182074B410E34CE60030E503 /* MCD.xcodeproj */,
+				1820744210E34C210030E503 /* CoreTest */,
+				1AB674ADFE9D54B511CA2CBB /* Products */,
+			);
+			name = Test;
+			sourceTree = "<group>";
+		};
+		1820744210E34C210030E503 /* CoreTest */ = {
+			isa = PBXGroup;
+			children = (
+				1820744610E34C210030E503 /* Entity */,
+				1820744A10E34C210030E503 /* Main.cpp */,
+				1820744C10E34C210030E503 /* Math */,
+				1820745F10E34C210030E503 /* Pch.cpp */,
+				1820746010E34C210030E503 /* Pch.h */,
+				1820746110E34C210030E503 /* System */,
+			);
+			path = CoreTest;
+			sourceTree = "<group>";
+		};
+		1820744610E34C210030E503 /* Entity */ = {
+			isa = PBXGroup;
+			children = (
+				1820744710E34C210030E503 /* ComponentTest.cpp */,
+				1820744810E34C210030E503 /* EntityTest.cpp */,
+				1820744910E34C210030E503 /* Pch.h */,
+			);
+			path = Entity;
+			sourceTree = "<group>";
+		};
+		1820744C10E34C210030E503 /* Math */ = {
+			isa = PBXGroup;
+			children = (
+				1820744D10E34C210030E503 /* AnimationTrackTest.cpp */,
+				1820744E10E34C210030E503 /* IntersectionTest.cpp */,
+				1820744F10E34C210030E503 /* Mat33Test.cpp */,
+				1820745010E34C210030E503 /* Mat44Test.cpp */,
+				1820745110E34C210030E503 /* Pch.h */,
+				1820745210E34C210030E503 /* QuaternionTest.cpp */,
+				1820745310E34C210030E503 /* TupleTest.cpp */,
+				1820745410E34C210030E503 /* Vec2Test.cpp */,
+				1820745510E34C210030E503 /* Vec3Test.cpp */,
+			);
+			path = Math;
+			sourceTree = "<group>";
+		};
+		1820746110E34C210030E503 /* System */ = {
+			isa = PBXGroup;
+			children = (
+				1820746210E34C210030E503 /* AdvancedResourceManagerTest.cpp */,
+				1820746310E34C210030E503 /* CondVarTest.cpp */,
+				1820746410E34C210030E503 /* FileSystemTest.cpp */,
+				1820746510E34C210030E503 /* IntrusivePtrTest.cpp */,
+				1820746610E34C210030E503 /* LinkListTest.cpp */,
+				1820746710E34C210030E503 /* LogTest.cpp */,
+				1820746810E34C210030E503 /* MapTest.cpp */,
+				1820746910E34C210030E503 /* PathTest.cpp */,
+				1820746A10E34C210030E503 /* Pch.h */,
+				1820746B10E34C210030E503 /* ProfilerTest.cpp */,
+				1820746C10E34C210030E503 /* PtrVectorTest.cpp */,
+				1820746D10E34C210030E503 /* ResourceLoaderTest.cpp */,
+				1820746E10E34C210030E503 /* ResourceManagerTest.cpp */,
+				1820746F10E34C210030E503 /* SharedPtrTest.cpp */,
+				1820747010E34C210030E503 /* StreamTest.cpp */,
+				1820747110E34C210030E503 /* StrUtilityTest.cpp */,
+				1820747210E34C210030E503 /* TaskPoolTest.cpp */,
+				1820747310E34C210030E503 /* ThreadPoolTest.cpp */,
+				1820747410E34C210030E503 /* ThreadTest.cpp */,
+				1820747510E34C210030E503 /* TimerTest.cpp */,
+				1820747610E34C210030E503 /* UserDataTest.cpp */,
+				1820747710E34C210030E503 /* UtilityTest.cpp */,
+				1820747810E34C210030E503 /* WeakPtrTest.cpp */,
+				1820747910E34C210030E503 /* WindowTest.cpp */,
+				1820747A10E34C210030E503 /* XmlParserTest.cpp */,
+			);
+			path = System;
+			sourceTree = "<group>";
+		};
+		182074B510E34CE60030E503 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				18EAA40D119A592B00BBB011 /* libCore.dylib */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		1820762E10E351670030E503 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				1820763210E351670030E503 /* libCppTestHarness.a */,
+				1820766410E3520E0030E503 /* libSmallJpeg.a */,
+				18C53CE5119A648B00DA21DC /* libsquirrel.dylib */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		1AB674ADFE9D54B511CA2CBB /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				1820731610E347EB0030E503 /* CoreTest */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		1820731510E347EB0030E503 /* CoreTest */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 1820735B10E348090030E503 /* Build configuration list for PBXNativeTarget "CoreTest" */;
+			buildPhases = (
+				1820731310E347EB0030E503 /* Sources */,
+				1820731410E347EB0030E503 /* Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				1820763410E351820030E503 /* PBXTargetDependency */,
+				18C53D29119A65E100DA21DC /* PBXTargetDependency */,
+			);
+			name = CoreTest;
+			productName = CoreTest;
+			productReference = 1820731610E347EB0030E503 /* CoreTest */;
+			productType = "com.apple.product-type.tool";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		08FB7793FE84155DC02AAC07 /* Project object */ = {
+			isa = PBXProject;
+			buildConfigurationList = 1DEB923508733DC60010E9CD /* Build configuration list for PBXProject "Test" */;
+			compatibilityVersion = "Xcode 3.1";
+			hasScannedForEncodings = 1;
+			mainGroup = 08FB7794FE84155DC02AAC07 /* Test */;
+			projectDirPath = "";
+			projectReferences = (
+				{
+					ProductGroup = 1820762E10E351670030E503 /* Products */;
+					ProjectRef = 1820762D10E351670030E503 /* 3Party.xcodeproj */;
+				},
+				{
+					ProductGroup = 182074B510E34CE60030E503 /* Products */;
+					ProjectRef = 182074B410E34CE60030E503 /* MCD.xcodeproj */;
+				},
+			);
+			projectRoot = "";
+			targets = (
+				1820731510E347EB0030E503 /* CoreTest */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXReferenceProxy section */
+		1820763210E351670030E503 /* libCppTestHarness.a */ = {
+			isa = PBXReferenceProxy;
+			fileType = archive.ar;
+			path = libCppTestHarness.a;
+			remoteRef = 1820763110E351670030E503 /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		1820766410E3520E0030E503 /* libSmallJpeg.a */ = {
+			isa = PBXReferenceProxy;
+			fileType = archive.ar;
+			path = libSmallJpeg.a;
+			remoteRef = 1820766310E3520E0030E503 /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		18C53CE5119A648B00DA21DC /* libsquirrel.dylib */ = {
+			isa = PBXReferenceProxy;
+			fileType = "compiled.mach-o.dylib";
+			path = libsquirrel.dylib;
+			remoteRef = 18C53CE4119A648B00DA21DC /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		18EAA40D119A592B00BBB011 /* libCore.dylib */ = {
+			isa = PBXReferenceProxy;
+			fileType = "compiled.mach-o.dylib";
+			path = libCore.dylib;
+			remoteRef = 18EAA40C119A592B00BBB011 /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+/* End PBXReferenceProxy section */
+
+/* Begin PBXSourcesBuildPhase section */
+		1820731310E347EB0030E503 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				1820747D10E34C210030E503 /* ComponentTest.cpp in Sources */,
+				1820747E10E34C210030E503 /* EntityTest.cpp in Sources */,
+				1820747F10E34C210030E503 /* Main.cpp in Sources */,
+				1820748110E34C210030E503 /* AnimationTrackTest.cpp in Sources */,
+				1820748210E34C210030E503 /* IntersectionTest.cpp in Sources */,
+				1820748310E34C210030E503 /* Mat33Test.cpp in Sources */,
+				1820748410E34C210030E503 /* Mat44Test.cpp in Sources */,
+				1820748510E34C210030E503 /* QuaternionTest.cpp in Sources */,
+				1820748610E34C210030E503 /* TupleTest.cpp in Sources */,
+				1820748710E34C210030E503 /* Vec2Test.cpp in Sources */,
+				1820748810E34C210030E503 /* Vec3Test.cpp in Sources */,
+				1820748910E34C210030E503 /* Pch.cpp in Sources */,
+				1820748A10E34C210030E503 /* AdvancedResourceManagerTest.cpp in Sources */,
+				1820748B10E34C210030E503 /* CondVarTest.cpp in Sources */,
+				1820748C10E34C210030E503 /* FileSystemTest.cpp in Sources */,
+				1820748D10E34C210030E503 /* IntrusivePtrTest.cpp in Sources */,
+				1820748E10E34C210030E503 /* LinkListTest.cpp in Sources */,
+				1820748F10E34C210030E503 /* LogTest.cpp in Sources */,
+				1820749010E34C210030E503 /* MapTest.cpp in Sources */,
+				1820749110E34C210030E503 /* PathTest.cpp in Sources */,
+				1820749210E34C210030E503 /* ProfilerTest.cpp in Sources */,
+				1820749310E34C210030E503 /* PtrVectorTest.cpp in Sources */,
+				1820749410E34C210030E503 /* ResourceLoaderTest.cpp in Sources */,
+				1820749510E34C210030E503 /* ResourceManagerTest.cpp in Sources */,
+				1820749610E34C210030E503 /* SharedPtrTest.cpp in Sources */,
+				1820749710E34C210030E503 /* StreamTest.cpp in Sources */,
+				1820749810E34C210030E503 /* StrUtilityTest.cpp in Sources */,
+				1820749910E34C210030E503 /* TaskPoolTest.cpp in Sources */,
+				1820749A10E34C210030E503 /* ThreadPoolTest.cpp in Sources */,
+				1820749B10E34C210030E503 /* ThreadTest.cpp in Sources */,
+				1820749C10E34C210030E503 /* TimerTest.cpp in Sources */,
+				1820749D10E34C210030E503 /* UserDataTest.cpp in Sources */,
+				1820749E10E34C210030E503 /* UtilityTest.cpp in Sources */,
+				1820749F10E34C210030E503 /* WeakPtrTest.cpp in Sources */,
+				182074A010E34C210030E503 /* WindowTest.cpp in Sources */,
+				182074A110E34C210030E503 /* XmlParserTest.cpp in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		1820763410E351820030E503 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			name = CppTestHarness;
+			targetProxy = 1820763310E351820030E503 /* PBXContainerItemProxy */;
+		};
+		18C53D29119A65E100DA21DC /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			name = Core;
+			targetProxy = 18C53D28119A65E100DA21DC /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
+/* Begin XCBuildConfiguration section */
+		1820731810E347EC0030E503 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				COPY_PHASE_STRIP = NO;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_ENABLE_FIX_AND_CONTINUE = YES;
+				GCC_MODEL_TUNING = G5;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				INSTALL_PATH = /usr/local/bin;
+				OTHER_LDFLAGS = "";
+				PREBINDING = NO;
+				PRODUCT_NAME = CoreTest;
+			};
+			name = Debug;
+		};
+		1820731910E347EC0030E503 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				COPY_PHASE_STRIP = YES;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				GCC_ENABLE_FIX_AND_CONTINUE = NO;
+				GCC_MODEL_TUNING = G5;
+				INSTALL_PATH = /usr/local/bin;
+				OTHER_LDFLAGS = "";
+				PREBINDING = NO;
+				PRODUCT_NAME = CoreTest;
+				ZERO_LINK = NO;
+			};
+			name = Release;
+		};
+		1DEB923608733DC60010E9CD /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = "$(ARCHS_STANDARD_32_BIT)";
+				GCC_C_LANGUAGE_STANDARD = c99;
+				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				GCC_VERSION = com.apple.compilers.llvmgcc42;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_MISSING_FIELD_INITIALIZERS = YES;
+				GCC_WARN_ABOUT_MISSING_NEWLINE = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES;
+				GCC_WARN_CHECK_SWITCH_STATEMENTS = YES;
+				GCC_WARN_FOUR_CHARACTER_CONSTANTS = YES;
+				GCC_WARN_HIDDEN_VIRTUAL_FUNCTIONS = YES;
+				GCC_WARN_INITIALIZER_NOT_FULLY_BRACKETED = YES;
+				GCC_WARN_MISSING_PARENTHESES = YES;
+				GCC_WARN_NON_VIRTUAL_DESTRUCTOR = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				OTHER_LDFLAGS = (
+					"-L/usr/X11R6/lib",
+					"-lX11",
+				);
+				PREBINDING = NO;
+				SDKROOT = macosx10.5;
+			};
+			name = Debug;
+		};
+		1DEB923708733DC60010E9CD /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = "$(ARCHS_STANDARD_32_BIT)";
+				GCC_C_LANGUAGE_STANDARD = c99;
+				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				GCC_VERSION = com.apple.compilers.llvmgcc42;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_MISSING_FIELD_INITIALIZERS = YES;
+				GCC_WARN_ABOUT_MISSING_NEWLINE = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES;
+				GCC_WARN_CHECK_SWITCH_STATEMENTS = YES;
+				GCC_WARN_FOUR_CHARACTER_CONSTANTS = YES;
+				GCC_WARN_HIDDEN_VIRTUAL_FUNCTIONS = YES;
+				GCC_WARN_INITIALIZER_NOT_FULLY_BRACKETED = YES;
+				GCC_WARN_MISSING_PARENTHESES = YES;
+				GCC_WARN_NON_VIRTUAL_DESTRUCTOR = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				OTHER_LDFLAGS = (
+					"-L/usr/X11R6/lib",
+					"-lX11",
+				);
+				PREBINDING = NO;
+				SDKROOT = macosx10.5;
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		1820735B10E348090030E503 /* Build configuration list for PBXNativeTarget "CoreTest" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				1820731810E347EC0030E503 /* Debug */,
+				1820731910E347EC0030E503 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		1DEB923508733DC60010E9CD /* Build configuration list for PBXProject "Test" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				1DEB923608733DC60010E9CD /* Debug */,
+				1DEB923708733DC60010E9CD /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = 08FB7793FE84155DC02AAC07 /* Project object */;
+}
