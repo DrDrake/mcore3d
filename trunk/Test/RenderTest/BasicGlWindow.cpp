@@ -84,6 +84,7 @@ BasicGlWindow::BasicGlWindow(const char* options)
 #endif
 
 	create(options);
+	makeActive();
 
 	// A lot of opengl options to be enabled by default
 	glShadeModel(GL_SMOOTH);
@@ -139,6 +140,7 @@ void BasicGlWindow::preUpdate()
 
 	glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();
+	MCD::RenderWindow::preUpdate();
 }
 
 void BasicGlWindow::update(float deltaTime)
@@ -257,7 +259,7 @@ void BasicGlWindow::postUpdate()
 		printf("OpenGl has error 0x%08x\n", a);
 
 	glFlush();
-	swapBuffers();
+	MCD::RenderWindow::postUpdate();
 }
 
 void BasicGlWindow::update()
@@ -274,7 +276,7 @@ void BasicGlWindow::update()
 
 	preUpdate();
 	mCamera.update(deltaTime);
-	mCamera.applyTransform();
+//	mCamera.applyTransform();
 
 	// NOTE: this should be set per-frame after the camera transform since
 	// the light position stored in opengl is view-dependent

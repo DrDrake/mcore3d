@@ -60,11 +60,9 @@ public:
 	//! Making this opengl window be the current render context.
 	bool makeActive();
 
-	/*!	Swap the front and back buffers.
-		Most likely you need to invoke this function after all your drawing commands
-		to end a frame.
-	 */
-	bool swapBuffers();
+	void preUpdate();
+
+	void postUpdate();
 
 	//! Enable/disable vertical sync.
 	bool setVerticalSync(bool flag);

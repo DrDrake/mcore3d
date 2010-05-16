@@ -86,12 +86,16 @@ void* RenderWindow::getActiveContext()
 	return (::wglGetCurrentContext());
 }
 
-bool RenderWindow::swapBuffers()
+void RenderWindow::preUpdate()
 {
-	MemoryProfiler::Scope profiler("RenderWindow::swapBuffers");
-
 	MCD_ASSUME(mImpl != nullptr);
-	return static_cast<Impl*>(mImpl)->swapBuffers();
+	return static_cast<Impl*>(mImpl)->preUpdate();
+}
+
+void RenderWindow::postUpdate()
+{
+	MCD_ASSUME(mImpl != nullptr);
+	return static_cast<Impl*>(mImpl)->postUpdate();
 }
 
 bool RenderWindow::setVerticalSync(bool flag)

@@ -177,6 +177,7 @@ public:
 
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		glEnable(GL_LIGHTING);
+		preUpdate();
 
 		mLauncher.update();
 		mResourceManageRef->pollForUpdatedFiles();
@@ -213,7 +214,7 @@ public:
 			mCsInputComponent->update(dt);
 		}
 
-		swapBuffers();
+		postUpdate();
 	}
 
 	void resize(size_t width, size_t height)

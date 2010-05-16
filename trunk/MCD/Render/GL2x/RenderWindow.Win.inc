@@ -96,9 +96,13 @@ public:
 		return (::wglMakeCurrent(mDc, mRc) == TRUE);
 	}
 
-	bool swapBuffers()
+	void preUpdate()
 	{
-		return (::SwapBuffers(mDc) == TRUE);
+	}
+
+	void postUpdate()
+	{
+		MCD_VERIFY(::SwapBuffers(mDc) == TRUE);
 	}
 
 	bool setVerticalSync(bool flag)
