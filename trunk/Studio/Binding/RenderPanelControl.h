@@ -26,7 +26,7 @@ public:
 	/// null if no sharing is needed.
 	RenderPanelControl(ResourceManager^ resourceManager, IntPtr sharedGlContext);
 
-	property IntPtr glContext {
+	property IntPtr renderContext {
 		IntPtr get();
 	}
 

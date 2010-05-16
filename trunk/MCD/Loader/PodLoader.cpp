@@ -573,7 +573,7 @@ void PodLoader::Impl::commit(Resource& resource)
 
 		const void* data[Mesh::cMaxBufferCount];
 		for(size_t j=0; j<mesh.bufferCount; ++j)
-			data[i] = mMeshes[i].second[j];
+			data[j] = mMeshes[i].second[j];
 		MCD_VERIFY(mesh.create(data, Mesh::Static));	// TODO: Way to set the Mesh::StorageHint
 	}
 

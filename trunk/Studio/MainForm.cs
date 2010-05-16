@@ -137,7 +137,7 @@ namespace Studio
 			IntPtr sharedGlContext = new IntPtr(0);
 
 			if (renderControls.Count > 0)
-				sharedGlContext = renderControls[0].glContext;
+				sharedGlContext = renderControls[0].renderContext;
 
 			RenderPanelControl renderPanel = renderWindow.Init(sharedGlContext, scene);
 			renderControls.Add(renderPanel);
