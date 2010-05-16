@@ -22,7 +22,7 @@
 #include "../../MCD/Core/System/ThreadedCpuProfiler.h"
 #include "../../MCD/Core/System/WindowEvent.h"
 #include "../../MCD/Render/Camera.h"
-#include "../../MCD/Render/GlWindow.h"
+#include "../../MCD/Render/RenderWindow.h"
 #include "../../3Party/glew/glew.h"
 #include "../../3Party/glew/wglew.h"
 #include "../../3Party/squirrel/squirrel.h"
@@ -42,7 +42,7 @@ namespace Binding {
 
 using namespace MCD;
 
-class RenderPanelControlImpl : public GlWindow
+class RenderPanelControlImpl : public RenderWindow
 {
 public:
 	RenderPanelControlImpl(RenderPanelControl^ c, ResourceManager^ mgr)
@@ -396,11 +396,11 @@ RenderPanelControl::!RenderPanelControl()
 	destroy();
 }
 
-IntPtr RenderPanelControl::glContext::get()
+IntPtr RenderPanelControl::renderContext::get()
 {
 	if(!mImpl)
 		return IntPtr(nullptr);
-	return IntPtr(mImpl->glContext());
+	return IntPtr(mImpl->renderContext());
 }
 
 void RenderPanelControl::destroy()
@@ -557,7 +557,7 @@ System::Void RenderPanelControl::RenderPanelControl_Load(System::Object^ sender,
 
 	void* sharedGlContext = mSharedGlContext.ToPointer();
 	if(sharedGlContext) {
-		void* thisGlContext = mImpl->glContext();
+		void* thisGlContext = mImpl->renderContext();
 		::wglShareLists((HGLRC)sharedGlContext, (HGLRC)thisGlContext);
 	}
 

@@ -41,6 +41,9 @@ void GroundPlaneComponent::render()
 
 	// Use this projected length as a bias to scale our grid
 	float len = (p2 - p1).length();
+	if(len == 0)
+		return;
+
 	int cLineCount = int(1.0f / len);
 	int factor = int(::log10f(len));
 	len *= ::powf(10.0f, float(-(factor - 1)));
