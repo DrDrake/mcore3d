@@ -4,8 +4,17 @@
 #include "../RenderWindow.h"
 #include "../../Core/System/Log.h"
 #include <d3d9.h>
+#include <D3DX9Shader.h>
+
+#ifndef NDEBUG
+#	pragma comment(lib, "D3dx9d")
+#else
+#	pragma comment(lib, "D3dx9")
+#endif
 
 namespace MCD {
+
+LPDIRECT3DVERTEXSHADER9 gDefaultVertexShader = nullptr;
 
 template<typename T> void SAFE_RELEASE(T& p)
 {
@@ -28,17 +37,42 @@ void Mesh::draw()
 	processed[cIndexAttrIdx] = true;
 	processed[cPositionAttrIdx] = true;
 
-	drawFaceOnly();
+	for(size_t i=2; i<attributes.size(); ++i) {
+		const Attribute& a = attributes[i];
+		if(a.format.semantic == StringHash("normal")) {
+//			LPDIRECT3DVERTEXBUFFER9* handle = reinterpret_cast<LPDIRECT3DVERTEXBUFFER9*>(this->handles[a.bufferIndex].get());
+//			MCD_VERIFY(device->SetStreamSource(a.bufferIndex, *handle, a.byteOffset, a.stride) == D3D_OK);
+		}
+	}
 
+	drawFaceOnly();
 }
 
 void Mesh::drawFaceOnly()
 {
-	for(size_t i=2; i<attributes.size(); ++i) {
-		const Attribute& a = attributes[i];
-		if(a.format.semantic == StringHash("normal")) {
-		}
-	}
+	LPDIRECT3DDEVICE9 device = reinterpret_cast<LPDIRECT3DDEVICE9>(RenderWindow::getActiveContext());
+
+	// Bind vertex buffers
+	const Attribute& a = attributes[Mesh::cPositionAttrIdx];
+	LPDIRECT3DVERTEXBUFFER9* vertexBuf = reinterpret_cast<LPDIRECT3DVERTEXBUFFER9*>(
+		this->handles[a.bufferIndex].get()
+	);
+	MCD_VERIFY(device->SetStreamSource(a.bufferIndex, *vertexBuf, a.byteOffset, a.stride) == D3D_OK);
+
+	// Bind index buffer
+	LPDIRECT3DINDEXBUFFER9* indexBuf = reinterpret_cast<LPDIRECT3DINDEXBUFFER9*>(
+		this->handles[attributes[Mesh::cIndexAttrIdx].bufferIndex].get()
+	);
+	device->SetIndices(*indexBuf);
+
+	// Bind vertex declaration
+	LPDIRECT3DVERTEXDECLARATION9& decl = reinterpret_cast<LPDIRECT3DVERTEXDECLARATION9&>(mImpl);
+	device->SetVertexDeclaration(decl);
+
+	device->SetVertexShader(gDefaultVertexShader);
+
+	// Draw the primitives
+	MCD_VERIFY(device->DrawIndexedPrimitive(D3DPT_TRIANGLELIST, 0, 0, vertexCount, 0, indexCount/3) == D3D_OK);
 }
 
 void Mesh::clear()
@@ -50,17 +84,18 @@ void Mesh::clear()
 
 	// Release the buffer that is no longer shared.
 	for(size_t i=0; i<handles.size(); ++i) {
-		if(!handles[i] || handles[i].referenceCount() != 1)
-			continue;
+		if(handles[i] && handles[i].referenceCount() == 1) {
+			if(i == attributes[cIndexAttrIdx].bufferIndex) {
+				LPDIRECT3DINDEXBUFFER9* handle = reinterpret_cast<LPDIRECT3DINDEXBUFFER9*>(this->handles[i].get());
+				SAFE_RELEASE(*handle);
+			}
+			else {
+				LPDIRECT3DVERTEXBUFFER9* handle = reinterpret_cast<LPDIRECT3DVERTEXBUFFER9*>(this->handles[i].get());
+				SAFE_RELEASE(*handle);
+			}
+		}
 
-		if(i == attributes[cIndexAttrIdx].bufferIndex) {
-			LPDIRECT3DINDEXBUFFER9* handle = reinterpret_cast<LPDIRECT3DINDEXBUFFER9*>(this->handles[i].get());
-			SAFE_RELEASE(*handle);
-		}
-		else {
-			LPDIRECT3DVERTEXBUFFER9* handle = reinterpret_cast<LPDIRECT3DVERTEXBUFFER9*>(this->handles[i].get());
-			SAFE_RELEASE(*handle);
-		}
+		handles[i] = new uint(0);
 	}
 
 	{	LPDIRECT3DVERTEXDECLARATION9& decl = reinterpret_cast<LPDIRECT3DVERTEXDECLARATION9&>(mImpl);
@@ -168,10 +203,57 @@ int VertexFormat::toApiDependentType(ComponentType type, size_t componentCount)
 	return mapping[type - VertexFormat::TYPE_NOT_USED][componentCount - 1];
 }
 
+static void createDefaultVS(LPDIRECT3DDEVICE9 device)
+{
+	static const char cDefaultVertexShader[] = "\
+	struct VS_INPUT { float4 position : POSITION; };\
+	struct VS_OUTPUT { float4 position : POSITION; float3 color : COLOR; };\
+	VS_OUTPUT main(const VS_INPUT v, uniform float4x4 mat : c0) {\
+		VS_OUTPUT o;\
+		o.position = mul(mat, v.position);\
+		o.color = float3(1, 1, 0);\
+		return o;\
+	}";
+
+	LPD3DXBUFFER vsBuf = nullptr;
+	LPD3DXBUFFER errors = nullptr;
+
+	if(D3D_OK != D3DXCompileShader(
+		cDefaultVertexShader, sizeof(cDefaultVertexShader),
+		nullptr, nullptr,	// Shader macro and include
+		"main", "vs_2_0",
+		0,	// flags
+		&vsBuf, &errors,
+		nullptr	// Constant table
+	))
+	{
+		const char* msg = (const char*)errors->GetBufferPointer();
+		msg = msg;
+		errors->Release();
+	}
+
+	device->CreateVertexShader((DWORD*)vsBuf->GetBufferPointer(), &gDefaultVertexShader);
+	vsBuf->Release();
+}
+
+static BYTE toVertexDecl(const StringHash& semantic)
+{
+	if(semantic == StringHash("position"))
+		return D3DDECLUSAGE_POSITION;
+	if(semantic == StringHash("normal"))
+		return D3DDECLUSAGE_NORMAL;
+	if(semantic == StringHash("uv0"))
+		return D3DDECLUSAGE_TEXCOORD;
+	return BYTE(-1);
+}
+
 bool Mesh::create(const void* const* data, Mesh::StorageHint storageHint)
 {
 	LPDIRECT3DDEVICE9 device = reinterpret_cast<LPDIRECT3DDEVICE9>(RenderWindow::getActiveContext());
 	MCD_ASSUME(device);
+
+	if(!gDefaultVertexShader)
+		createDefaultVS(device);
 
 	for(size_t i=0; i<bufferCount; ++i)
 	{
@@ -212,20 +294,20 @@ bool Mesh::create(const void* const* data, Mesh::StorageHint storageHint)
 	// Create vertex declaration
 	// Reference: http://msdn.microsoft.com/en-us/library/ee416419%28VS.85%29.aspx
 	LPDIRECT3DVERTEXDECLARATION9& decl = reinterpret_cast<LPDIRECT3DVERTEXDECLARATION9&>(mImpl);
-	delete decl;
+	SAFE_RELEASE(decl);
 
 	D3DVERTEXELEMENT9 vertexDecl[Mesh::cMaxAttributeCount + 1];
-	for(size_t i=Mesh::cPositionAttrIdx; i<attributes.size(); ++i) {
+	for(size_t i=Mesh::cPositionAttrIdx; i<attributeCount; ++i) {
 		const Attribute& a = attributes[i];
 		const D3DVERTEXELEMENT9 d = {
 			a.bufferIndex, a.byteOffset,
 			(BYTE)VertexFormat::toApiDependentType(a.format.componentType, a.format.componentCount),
-			D3DDECLMETHOD_DEFAULT, D3DDECLUSAGE_POSITION, 0
+			D3DDECLMETHOD_DEFAULT, toVertexDecl(a.format.semantic.hashValue()), 0
 		};
 		vertexDecl[i] = d;
 	}
-	vertexDecl[this->attributeCount] = gVertexDeclEnd;
-	device->CreateVertexDeclaration(vertexDecl, &decl);
+	vertexDecl[attributeCount] = gVertexDeclEnd;
+	MCD_VERIFY(device->CreateVertexDeclaration(&vertexDecl[Mesh::cPositionAttrIdx], &decl) ==  D3D_OK);
 
 	return true;
 }

@@ -70,13 +70,16 @@ public:
 		return gCurrentDevice;
 	}
 
-	bool swapBuffers()
+	void preUpdate()
 	{
-		// TODO: Optimization here
+		mDevice->Clear(0, nullptr, D3DCLEAR_TARGET, D3DCOLOR_XRGB(0x33, 0x66, 0x99), 1.0f, 0);
+		mDevice->BeginScene();
+	}
+
+	void postUpdate()
+	{
 		mDevice->EndScene();
 		mDevice->Present(nullptr, nullptr, nullptr, nullptr);
-		mDevice->BeginScene();
-		return true;
 	}
 
 	bool setVerticalSync(bool flag)
