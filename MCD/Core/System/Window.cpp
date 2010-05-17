@@ -80,6 +80,8 @@ void ImplBase::removeListener(IWindowListener& listener)
 
 #if defined(MCD_VC)
 #	include "Window.Win.inc"
+#elif defined(MCD_IPHONE)
+#	include "Window.iPhone.inc"
 #else
 #	include "Window.X11.inc"
 #endif
