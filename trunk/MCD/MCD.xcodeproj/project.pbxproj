@@ -8,7 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		18C53CC2119A638A00DA21DC /* libz.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 18C53CC1119A638A00DA21DC /* libz.dylib */; };
-		18C540A2119BA94400DA21DC /* libsquirrel.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 18C53CE2119A646D00DA21DC /* libsquirrel.dylib */; };
+		18C540A2119BA94400DA21DC /* libsquirrel.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 18C53CE2119A646D00DA21DC /* libsquirrel.a */; };
 		18EAA40E119A596600BBB011 /* Stream.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1820753110E34D340030E503 /* Stream.cpp */; };
 		18EAA40F119A596600BBB011 /* RawFileSystem.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1820752410E34D340030E503 /* RawFileSystem.cpp */; };
 		18EAA410119A596600BBB011 /* Timer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1820753D10E34D340030E503 /* Timer.cpp */; };
@@ -127,7 +127,6 @@
 		1820750310E34D340030E503 /* CondVar.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CondVar.h; sourceTree = "<group>"; };
 		1820750410E34D340030E503 /* CpuProfiler.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = CpuProfiler.cpp; sourceTree = "<group>"; };
 		1820750510E34D340030E503 /* CpuProfiler.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CpuProfiler.h; sourceTree = "<group>"; };
-		1820750610E34D340030E503 /* dbgint.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = dbgint.h; sourceTree = "<group>"; };
 		1820750710E34D340030E503 /* ErrorCode.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ErrorCode.cpp; sourceTree = "<group>"; };
 		1820750810E34D340030E503 /* ErrorCode.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ErrorCode.h; sourceTree = "<group>"; };
 		1820750910E34D340030E503 /* Exception.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Exception.cpp; sourceTree = "<group>"; };
@@ -188,7 +187,7 @@
 		1820754110E34D340030E503 /* Utility.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Utility.cpp; sourceTree = "<group>"; };
 		1820754210E34D340030E503 /* Utility.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Utility.h; sourceTree = "<group>"; };
 		1820754310E34D340030E503 /* WeakPtr.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WeakPtr.h; sourceTree = "<group>"; };
-		1820754410E34D340030E503 /* Window.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Window.cpp; sourceTree = "<group>"; };
+		1820754410E34D340030E503 /* Window.cpp */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.objcpp; fileEncoding = 4; path = Window.cpp; sourceTree = "<group>"; };
 		1820754510E34D340030E503 /* Window.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Window.h; sourceTree = "<group>"; };
 		1820754B10E34D340030E503 /* WindowEvent.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WindowEvent.h; sourceTree = "<group>"; };
 		1820754C10E34D340030E503 /* XmlParser.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = XmlParser.cpp; sourceTree = "<group>"; };
@@ -197,7 +196,7 @@
 		1820754F10E34D340030E503 /* ZipFileSystem.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ZipFileSystem.h; sourceTree = "<group>"; };
 		1873A2E811883540008D0F62 /* 3Party.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = 3Party.xcodeproj; path = ../3Party/3Party.xcodeproj; sourceTree = SOURCE_ROOT; };
 		18C53CC1119A638A00DA21DC /* libz.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libz.dylib; path = usr/lib/libz.dylib; sourceTree = SDKROOT; };
-		18EAA407119A590C00BBB011 /* libCore.dylib */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = libCore.dylib; sourceTree = BUILT_PRODUCTS_DIR; };
+		18EAA407119A590C00BBB011 /* libCore.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libCore.a; sourceTree = BUILT_PRODUCTS_DIR; };
 		18EAA433119A59B200BBB011 /* StringHash.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = StringHash.cpp; sourceTree = "<group>"; };
 		18EAA434119A59B200BBB011 /* StringHash.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = StringHash.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -207,7 +206,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				18C540A2119BA94400DA21DC /* libsquirrel.dylib in Frameworks */,
+				18C540A2119BA94400DA21DC /* libsquirrel.a in Frameworks */,
 				18C53CC2119A638A00DA21DC /* libz.dylib in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -301,7 +300,6 @@
 				1820750310E34D340030E503 /* CondVar.h */,
 				1820750410E34D340030E503 /* CpuProfiler.cpp */,
 				1820750510E34D340030E503 /* CpuProfiler.h */,
-				1820750610E34D340030E503 /* dbgint.h */,
 				1820750710E34D340030E503 /* ErrorCode.cpp */,
 				1820750810E34D340030E503 /* ErrorCode.h */,
 				1820750910E34D340030E503 /* Exception.cpp */,
@@ -380,7 +378,7 @@
 			children = (
 				1873A2EF11883540008D0F62 /* libCppTestHarness.a */,
 				1873A2F111883540008D0F62 /* libSmallJpeg.a */,
-				18C53CE2119A646D00DA21DC /* libsquirrel.dylib */,
+				18C53CE2119A646D00DA21DC /* libsquirrel.a */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -388,7 +386,7 @@
 		1AB674ADFE9D54B511CA2CBB /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				18EAA407119A590C00BBB011 /* libCore.dylib */,
+				18EAA407119A590C00BBB011 /* libCore.a */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -429,8 +427,8 @@
 			);
 			name = Core;
 			productName = Core;
-			productReference = 18EAA407119A590C00BBB011 /* libCore.dylib */;
-			productType = "com.apple.product-type.library.dynamic";
+			productReference = 18EAA407119A590C00BBB011 /* libCore.a */;
+			productType = "com.apple.product-type.library.static";
 		};
 /* End PBXNativeTarget section */
 
@@ -470,10 +468,10 @@
 			remoteRef = 1873A2F011883540008D0F62 /* PBXContainerItemProxy */;
 			sourceTree = BUILT_PRODUCTS_DIR;
 		};
-		18C53CE2119A646D00DA21DC /* libsquirrel.dylib */ = {
+		18C53CE2119A646D00DA21DC /* libsquirrel.a */ = {
 			isa = PBXReferenceProxy;
-			fileType = "compiled.mach-o.dylib";
-			path = libsquirrel.dylib;
+			fileType = archive.ar;
+			path = libsquirrel.a;
 			remoteRef = 18C53CE1119A646D00DA21DC /* PBXContainerItemProxy */;
 			sourceTree = BUILT_PRODUCTS_DIR;
 		};
@@ -534,6 +532,56 @@
 /* End PBXTargetDependency section */
 
 /* Begin XCBuildConfiguration section */
+		1851A0A5119CFA5E00785C8F /* iPhone Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = "$(ARCHS_STANDARD_32_BIT)";
+				GCC_C_LANGUAGE_STANDARD = c99;
+				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
+				GCC_INPUT_FILETYPE = automatic;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = __IPHONE__;
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				GCC_VERSION = "";
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_GLOBAL_CONSTRUCTORS = NO;
+				GCC_WARN_ABOUT_MISSING_FIELD_INITIALIZERS = YES;
+				GCC_WARN_ABOUT_MISSING_NEWLINE = YES;
+				GCC_WARN_ABOUT_MISSING_PROTOTYPES = NO;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES;
+				GCC_WARN_CHECK_SWITCH_STATEMENTS = YES;
+				GCC_WARN_EFFECTIVE_CPLUSPLUS_VIOLATIONS = NO;
+				GCC_WARN_FOUR_CHARACTER_CONSTANTS = YES;
+				GCC_WARN_HIDDEN_VIRTUAL_FUNCTIONS = YES;
+				GCC_WARN_INITIALIZER_NOT_FULLY_BRACKETED = YES;
+				GCC_WARN_MISSING_PARENTHESES = YES;
+				GCC_WARN_NON_VIRTUAL_DESTRUCTOR = YES;
+				GCC_WARN_PEDANTIC = NO;
+				GCC_WARN_SHADOW = NO;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MACH_O_TYPE = staticlib;
+				ONLY_ACTIVE_ARCH = NO;
+				PREBINDING = NO;
+				SDKROOT = iphoneos3.0;
+			};
+			name = "iPhone Debug";
+		};
+		1851A0A6119CFA5E00785C8F /* iPhone Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				COPY_PHASE_STRIP = NO;
+				EXECUTABLE_PREFIX = lib;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_ENABLE_FIX_AND_CONTINUE = YES;
+				GCC_MODEL_TUNING = G5;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				INSTALL_PATH = /usr/local/lib;
+				PREBINDING = NO;
+				PRODUCT_NAME = Core;
+			};
+			name = "iPhone Debug";
+		};
 		18EAA408119A590D00BBB011 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -545,14 +593,9 @@
 				GCC_MODEL_TUNING = G5;
 				GCC_OPTIMIZATION_LEVEL = 0;
 				INSTALL_PATH = /usr/local/lib;
-				LD_DYLIB_INSTALL_NAME = "";
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
 					"\"$(SRCROOT)/../3Party/build/Release\"",
-				);
-				OTHER_LDFLAGS = (
-					"-lX11",
-					"-L/usr/X11R6/lib",
 				);
 				PREBINDING = NO;
 				PRODUCT_NAME = Core;
@@ -569,14 +612,9 @@
 				GCC_ENABLE_FIX_AND_CONTINUE = NO;
 				GCC_MODEL_TUNING = G5;
 				INSTALL_PATH = /usr/local/lib;
-				LD_DYLIB_INSTALL_NAME = "";
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
 					"\"$(SRCROOT)/../3Party/build/Release\"",
-				);
-				OTHER_LDFLAGS = (
-					"-lX11",
-					"-L/usr/X11R6/lib",
 				);
 				PREBINDING = NO;
 				PRODUCT_NAME = Core;
@@ -591,7 +629,6 @@
 				GCC_C_LANGUAGE_STANDARD = c99;
 				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
 				GCC_OPTIMIZATION_LEVEL = 0;
-				GCC_PREPROCESSOR_DEFINITIONS = MCD_Core_EXPORTS;
 				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
 				GCC_VERSION = com.apple.compilers.llvmgcc42;
 				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
@@ -610,10 +647,7 @@
 				GCC_WARN_PEDANTIC = NO;
 				GCC_WARN_SHADOW = NO;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				LD_DYLIB_INSTALL_NAME = "";
-				MACH_O_TYPE = mh_dylib;
 				ONLY_ACTIVE_ARCH = YES;
-				OTHER_LDFLAGS = "";
 				PREBINDING = NO;
 				SDKROOT = macosx10.5;
 			};
@@ -625,7 +659,6 @@
 				ARCHS = "$(ARCHS_STANDARD_32_BIT)";
 				GCC_C_LANGUAGE_STANDARD = c99;
 				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
-				GCC_PREPROCESSOR_DEFINITIONS = MCD_Core_EXPORTS;
 				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
 				GCC_VERSION = com.apple.compilers.llvmgcc42;
 				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
@@ -644,10 +677,7 @@
 				GCC_WARN_PEDANTIC = NO;
 				GCC_WARN_SHADOW = NO;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				LD_DYLIB_INSTALL_NAME = "";
-				MACH_O_TYPE = mh_dylib;
 				ONLY_ACTIVE_ARCH = NO;
-				OTHER_LDFLAGS = "";
 				PREBINDING = NO;
 				SDKROOT = macosx10.5;
 			};
@@ -661,6 +691,7 @@
 			buildConfigurations = (
 				18EAA408119A590D00BBB011 /* Debug */,
 				18EAA409119A590D00BBB011 /* Release */,
+				1851A0A6119CFA5E00785C8F /* iPhone Debug */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
@@ -670,6 +701,7 @@
 			buildConfigurations = (
 				1DEB91F008733DB70010E9CD /* Debug */,
 				1DEB91F108733DB70010E9CD /* Release */,
+				1851A0A5119CFA5E00785C8F /* iPhone Debug */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;

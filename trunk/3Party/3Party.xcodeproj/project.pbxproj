@@ -166,7 +166,7 @@
 		1873A25E11883344008D0F62 /* sqvm.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = sqvm.cpp; sourceTree = "<group>"; };
 		1873A25F11883344008D0F62 /* sqvm.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = sqvm.h; sourceTree = "<group>"; };
 		1873A26011883344008D0F62 /* squirrel.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = squirrel.h; path = squirrel/squirrel.h; sourceTree = "<group>"; };
-		18C53CDD119A646D00DA21DC /* libsquirrel.dylib */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = libsquirrel.dylib; sourceTree = BUILT_PRODUCTS_DIR; };
+		18C53CDD119A646D00DA21DC /* libsquirrel.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libsquirrel.a; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -326,7 +326,7 @@
 			children = (
 				182075DE10E3509C0030E503 /* libCppTestHarness.a */,
 				1820764010E351EF0030E503 /* libSmallJpeg.a */,
-				18C53CDD119A646D00DA21DC /* libsquirrel.dylib */,
+				18C53CDD119A646D00DA21DC /* libsquirrel.a */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -449,8 +449,8 @@
 			);
 			name = squirrel;
 			productName = squirrel;
-			productReference = 18C53CDD119A646D00DA21DC /* libsquirrel.dylib */;
-			productType = "com.apple.product-type.library.dynamic";
+			productReference = 18C53CDD119A646D00DA21DC /* libsquirrel.a */;
+			productType = "com.apple.product-type.library.static";
 		};
 /* End PBXNativeTarget section */
 
@@ -590,6 +590,70 @@
 			};
 			name = Release;
 		};
+		1851A085119CF35E00785C8F /* iPhone Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = "$(ARCHS_STANDARD_32_BIT)";
+				GCC_C_LANGUAGE_STANDARD = c99;
+				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				GCC_VERSION = "";
+				GCC_WARN_ABOUT_RETURN_TYPE = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				ONLY_ACTIVE_ARCH = NO;
+				PREBINDING = NO;
+				SDKROOT = iphoneos3.0;
+			};
+			name = "iPhone Debug";
+		};
+		1851A086119CF35E00785C8F /* iPhone Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				COPY_PHASE_STRIP = NO;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_ENABLE_FIX_AND_CONTINUE = YES;
+				GCC_MODEL_TUNING = G5;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				INSTALL_PATH = /usr/local/lib;
+				PREBINDING = NO;
+				PRODUCT_NAME = CppTestHarness;
+			};
+			name = "iPhone Debug";
+		};
+		1851A087119CF35E00785C8F /* iPhone Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				COPY_PHASE_STRIP = NO;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_ENABLE_FIX_AND_CONTINUE = YES;
+				GCC_MODEL_TUNING = G5;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				INSTALL_PATH = /usr/local/lib;
+				PREBINDING = NO;
+				PRODUCT_NAME = SmallJpeg;
+			};
+			name = "iPhone Debug";
+		};
+		1851A088119CF35E00785C8F /* iPhone Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				COPY_PHASE_STRIP = NO;
+				EXECUTABLE_PREFIX = lib;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_ENABLE_FIX_AND_CONTINUE = YES;
+				GCC_MODEL_TUNING = G5;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				INSTALL_PATH = /usr/local/lib;
+				LD_DYLIB_INSTALL_NAME = "";
+				PREBINDING = NO;
+				PRODUCT_NAME = squirrel;
+			};
+			name = "iPhone Debug";
+		};
 		18C53CDE119A646D00DA21DC /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -662,6 +726,7 @@
 			buildConfigurations = (
 				182075DF10E3509C0030E503 /* Debug */,
 				182075E010E3509C0030E503 /* Release */,
+				1851A086119CF35E00785C8F /* iPhone Debug */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
@@ -671,6 +736,7 @@
 			buildConfigurations = (
 				1820764110E351F00030E503 /* Debug */,
 				1820764210E351F00030E503 /* Release */,
+				1851A087119CF35E00785C8F /* iPhone Debug */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
@@ -680,6 +746,7 @@
 			buildConfigurations = (
 				18C53CDE119A646D00DA21DC /* Debug */,
 				18C53CDF119A646D00DA21DC /* Release */,
+				1851A088119CF35E00785C8F /* iPhone Debug */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
@@ -689,6 +756,7 @@
 			buildConfigurations = (
 				1DEB91F008733DB70010E9CD /* Debug */,
 				1DEB91F108733DB70010E9CD /* Release */,
+				1851A085119CF35E00785C8F /* iPhone Debug */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
