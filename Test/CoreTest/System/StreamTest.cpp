@@ -85,6 +85,14 @@ public:
 			if(mOStream) {
 				std::ios::pos_type p1 = mOStream->tellp();
 				std::ios::pos_type p2 = mTestStream.tellp();
+
+				// VS2008 Gives -1 when calling tellp on empty stream,
+				// while 0 is given on GCC and VS2010.
+				if(p1 == std::ios::pos_type(0) && p2 == std::ios::pos_type(-1))
+					return 0;
+				if(p1 == std::ios::pos_type(-1) && p2 == std::ios::pos_type(0))
+					return 0;
+
 				if(p1 != p2)
 					return -testIndex;
 			}
