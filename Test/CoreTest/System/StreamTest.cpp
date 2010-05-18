@@ -65,6 +65,12 @@ public:
 				const char c = tmpStr.size() > 0 ? tmpStr[tmpStr.size()-1] : ' ';
 				mIStream->putback(c);
 				mTestStream.putback(c);
+
+				// Different implementation of stream will has different number of maximum
+				// putback before failure, so we try to exclude this difference in our test.
+				const int c1 = mIStream->get();
+				const int c2 = mTestStream.get();
+				return c1 == c2 ? 0 : -testIndex;
 			}
 			break;
 
@@ -209,7 +215,7 @@ public:
 		}
 
 		// Reference: http://www.cplusplus.com/reference/clibrary/cstdio/fseek.html
-		bool ok = ::fseek(mFile, offset, ori) == 0;
+		bool ok = ::fseek(mFile, long(offset), ori) == 0;
 		return ok ? ::ftell(mFile) : -1;
 	}
 
