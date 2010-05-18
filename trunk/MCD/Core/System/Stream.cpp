@@ -87,7 +87,7 @@ StreamBuf* StreamBuf::setbuf(char* buffer, streamsize size)
 	gOff = gOff > size ? size : gOff;
 
 	setp(buffer, buffer + size);	// Why setp() didn't take 3 parameters just as setg()?
-	pbump(pOff);
+	pbump(int(pOff));
 	setg(buffer, buffer + gOff, buffer + pOff);
 
 	return this;
@@ -96,7 +96,7 @@ StreamBuf* StreamBuf::setbuf(char* buffer, streamsize size)
 streamsize StreamBuf::xsputn(const char* data, streamsize size)
 {
 	if(pbase() == epptr())
-		return mProxy->write(data, size);
+		return mProxy->write(data, size_t(size));
 	return Super::xsputn(data, size);
 }
 
@@ -128,7 +128,7 @@ StreamBuf::int_type StreamBuf::overflow(int_type c)
 streamsize StreamBuf::xsgetn(char* data, streamsize size)
 {
 	if(eback() == egptr())
-		return mProxy->read(data, size);
+		return mProxy->read(data, size_t(size));
 	return Super::xsgetn(data, size);
 }
 

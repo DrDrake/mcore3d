@@ -2,6 +2,7 @@
 #include "../../../MCD/Core/System/Resource.h"
 #include "../../../MCD/Core/System/ResourceLoader.h"
 #include <vector>
+#include <iterator>	// For back_inserter on VS2010
 
 using namespace MCD;
 

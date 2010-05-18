@@ -80,12 +80,15 @@ TEST(CountofTest)
 {
 	{	int a[10] = {};
 		CHECK_EQUAL(10u, MCD_COUNTOF(a));
+		(void)a;
 	}
 
 	{	// MCD_COUNTOF should be able to use as a compile-time constant
 		int a[10] = {};
 		int b[MCD_COUNTOF(a) * 2];
 		CHECK_EQUAL(20u, MCD_COUNTOF(b));
+		(void)a;
+		(void)b;
 	}
 
 	{	// The following should generate warning or error
