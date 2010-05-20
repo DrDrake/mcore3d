@@ -52,6 +52,7 @@ public:
 			break;
 		default:
 			// TODO: Support more formats
+			Log::format(Log::Error, "PvrLoader: Unsupported texture format");
 			return -1;
 		}
 

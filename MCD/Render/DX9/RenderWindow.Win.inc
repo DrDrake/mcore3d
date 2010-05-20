@@ -72,7 +72,7 @@ public:
 
 	void preUpdate()
 	{
-		mDevice->Clear(0, nullptr, D3DCLEAR_TARGET, D3DCOLOR_XRGB(0x33, 0x66, 0x99), 1.0f, 0);
+		mDevice->Clear(0, nullptr, D3DCLEAR_TARGET | D3DCLEAR_ZBUFFER, D3DCOLOR_XRGB(0x33, 0x66, 0x99), 1.0f, 0);
 		mDevice->BeginScene();
 	}
 
@@ -104,9 +104,14 @@ private:
 
 		D3DPRESENT_PARAMETERS d3dpp;
 		ZeroMemory(&d3dpp, sizeof(d3dpp));
-		d3dpp.Windowed = TRUE;
+		d3dpp.Windowed = !mFullScreen;
 		d3dpp.SwapEffect = D3DSWAPEFFECT_DISCARD;
 		d3dpp.BackBufferFormat = D3DFMT_UNKNOWN;
+		d3dpp.hDeviceWindow = mWnd;
+		d3dpp.BackBufferWidth = mWidth;
+		d3dpp.BackBufferHeight = mHeight;
+		d3dpp.AutoDepthStencilFormat = D3DFMT_D16;
+		d3dpp.MultiSampleType = D3DMULTISAMPLE_NONE;
 
 		if( FAILED(gD3D->CreateDevice(D3DADAPTER_DEFAULT, D3DDEVTYPE_HAL, mWnd,
 			D3DCREATE_HARDWARE_VERTEXPROCESSING,

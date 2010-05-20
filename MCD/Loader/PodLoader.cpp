@@ -569,6 +569,9 @@ void PodLoader::Impl::commit(Resource& resource)
 		// TODO: Optimization, ignore those mesh in mMeshes with reference count == 1
 		Mesh& mesh = *mMeshes[i].first;
 
+		if(mesh.indexCount == 0 || mesh.vertexCount == 0)
+			continue;
+
 		MCD_ASSERT(!mPod.pMesh[i].pInterleaved || mesh.bufferCount <= 2);
 
 		const void* data[Mesh::cMaxBufferCount];
@@ -592,6 +595,7 @@ void PodLoader::Impl::commit(Resource& resource)
 		i = i->nextSibling();
 		bk->asChildOf(prefab.entity.get());
 	}
+	delete cloned;
 }
 
 PodLoader::PodLoader(
