@@ -58,4 +58,32 @@ public:
 
 }	// namespace MCD
 
+#include "Renderable.h"
+
+namespace MCD {
+
+typedef IntrusiveWeakPtr<class RendererComponent> RendererComponentPtr;
+
+class MCD_RENDER_API CameraComponent2 : public RenderableComponent2
+{
+public:
+	explicit CameraComponent2(const RendererComponentPtr& renderer);
+
+// Cloning
+	sal_override sal_checkreturn bool cloneable() const { return true; }
+
+	sal_override sal_notnull Component* clone() const;
+
+// Operations
+	sal_override void render();
+
+// Attrubutes
+	Frustum frustum;
+	RendererComponentPtr renderer;
+};	// CameraComponent2
+
+typedef IntrusiveWeakPtr<CameraComponent2> CameraComponent2Ptr;
+
+}	// namespace MCD
+
 #endif	// __MCD_RENDER_CAMERA__

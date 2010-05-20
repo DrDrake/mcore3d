@@ -18,7 +18,7 @@ TEST(ModelLoaderTest)
 			BasicGlWindow("title=ModelLoaderTest;width=800;height=600;fullscreen=0;FSAA=4"),
 			mAngle(0)
 		{
-			std::auto_ptr<IFileSystem> fs(new RawFileSystem("./Media/"));
+			std::auto_ptr<IFileSystem> fs(new RawFileSystem("Media"));
 			mResourceManager.reset(new DefaultResourceManager(*fs));
 			fs.release();
 		}

@@ -588,6 +588,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\DX9\Renderer.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\DX9\RenderWindow.cpp"
 				>
 			</File>

@@ -109,3 +109,30 @@ Vec3f Camera::rightVector() const
 }
 
 }	// namespace MCD
+
+#include "Renderer.h"
+
+namespace MCD {
+
+CameraComponent2::CameraComponent2(const RendererComponentPtr& r)
+	: renderer(r)
+{
+}
+
+Component* CameraComponent2::clone() const
+{
+	CameraComponent2* cloned = new CameraComponent2(renderer);
+	cloned->frustum = this->frustum;
+	return cloned;
+}
+
+void CameraComponent2::render()
+{
+	Entity* e = entity();
+	if(!e || !renderer)
+		return;
+
+	renderer->setDefaultCamera(*this);
+}
+
+}	// namespace MCD

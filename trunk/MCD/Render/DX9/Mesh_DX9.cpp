@@ -3,6 +3,10 @@
 #include "../MeshBuilder.h"
 #include "../RenderWindow.h"
 #include "../../Core/System/Log.h"
+
+#include "../Camera.h"
+#include "../../Core/Math/Mat44.h"
+
 #include <d3d9.h>
 #include <D3DX9Shader.h>
 
@@ -15,6 +19,8 @@
 namespace MCD {
 
 LPDIRECT3DVERTEXSHADER9 gDefaultVertexShader = nullptr;
+LPDIRECT3DPIXELSHADER9 gDefaultPixelShader = nullptr;
+LPD3DXCONSTANTTABLE gConstTable = nullptr;
 
 template<typename T> void SAFE_RELEASE(T& p)
 {
@@ -50,6 +56,10 @@ void Mesh::draw()
 
 void Mesh::drawFaceOnly()
 {
+	Mat44f mat;
+	Camera camera(Vec3f::cZero, Vec3f::c001, Vec3f::c010);
+	camera.computeView(mat.getPtr());
+
 	LPDIRECT3DDEVICE9 device = reinterpret_cast<LPDIRECT3DDEVICE9>(RenderWindow::getActiveContext());
 
 	// Bind vertex buffers
@@ -70,6 +80,23 @@ void Mesh::drawFaceOnly()
 	device->SetVertexDeclaration(decl);
 
 	device->SetVertexShader(gDefaultVertexShader);
+	device->SetPixelShader(gDefaultPixelShader);
+
+	D3DXHANDLE handle;
+	handle = gConstTable->GetConstantByName(nullptr, "mcdWorldViewProj");
+	gConstTable->SetMatrix(device, handle,(D3DXMATRIX*)mat.getPtr());
+
+	D3DVIEWPORT9 view_port;
+	view_port.X=0;
+	view_port.Y=0;
+	view_port.Width=800;
+	view_port.Height=600;
+	view_port.MinZ=0.0f;
+	view_port.MaxZ=1.0f;
+	device->SetViewport(&view_port);
+
+	camera.frustum.computePerspective(mat.getPtr());
+	device->SetTransform(D3DTS_PROJECTION, (D3DMATRIX*)mat.getPtr());
 
 	// Draw the primitives
 	MCD_VERIFY(device->DrawIndexedPrimitive(D3DPT_TRIANGLELIST, 0, 0, vertexCount, 0, indexCount/3) == D3D_OK);
@@ -205,15 +232,16 @@ int VertexFormat::toApiDependentType(ComponentType type, size_t componentCount)
 
 static void createDefaultVS(LPDIRECT3DDEVICE9 device)
 {
-	static const char cDefaultVertexShader[] = "\
-	struct VS_INPUT { float4 position : POSITION; };\
-	struct VS_OUTPUT { float4 position : POSITION; float3 color : COLOR; };\
-	VS_OUTPUT main(const VS_INPUT v, uniform float4x4 mat : c0) {\
-		VS_OUTPUT o;\
-		o.position = mul(mat, v.position);\
-		o.color = float3(1, 1, 0);\
-		return o;\
-	}";
+	static const char cDefaultVertexShader[] =
+	"float4x4 mcdWorldViewProj;"
+	"struct VS_INPUT { float4 position : POSITION; };"
+	"struct VS_OUTPUT { float4 position : POSITION; float4 color : COLOR; };"
+	"VS_OUTPUT main(const VS_INPUT v) {"
+	"	VS_OUTPUT o;"
+	"	o.position = mul(mcdWorldViewProj, v.position);"
+	"	o.color = float4(1, 1, 1, 1);"
+	"	return o;"
+	"}";
 
 	LPD3DXBUFFER vsBuf = nullptr;
 	LPD3DXBUFFER errors = nullptr;
@@ -221,10 +249,10 @@ static void createDefaultVS(LPDIRECT3DDEVICE9 device)
 	if(D3D_OK != D3DXCompileShader(
 		cDefaultVertexShader, sizeof(cDefaultVertexShader),
 		nullptr, nullptr,	// Shader macro and include
-		"main", "vs_2_0",
+		"main", "vs_3_0",
 		0,	// flags
 		&vsBuf, &errors,
-		nullptr	// Constant table
+		&gConstTable	// Constant table
 	))
 	{
 		const char* msg = (const char*)errors->GetBufferPointer();
@@ -234,6 +262,39 @@ static void createDefaultVS(LPDIRECT3DDEVICE9 device)
 
 	device->CreateVertexShader((DWORD*)vsBuf->GetBufferPointer(), &gDefaultVertexShader);
 	vsBuf->Release();
+}
+
+static void createDefaultPS(LPDIRECT3DDEVICE9 device)
+{
+	static const char cDefaultPixelShader[] =
+	"struct PS_INPUT { float4 Color : COLOR0; };"
+	"struct PS_OUTPUT { float4 Color : COLOR; };"
+	"PS_OUTPUT main(PS_INPUT In) {"
+	"	PS_OUTPUT Out = (PS_OUTPUT) 0;"
+	"	Out.Color = In.Color;"
+	"	Out.Color.r = 1.0f; Out.Color.g = 0.0f; Out.Color.b = 0.0f;"
+	"	return Out;"
+	"}";
+
+	LPD3DXBUFFER psBuf = nullptr;
+	LPD3DXBUFFER errors = nullptr;
+
+	if(D3D_OK != D3DXCompileShader(
+		cDefaultPixelShader, sizeof(cDefaultPixelShader),
+		nullptr, nullptr,	// Shader macro and include
+		"main", "ps_3_0",
+		0,	// flags
+		&psBuf, &errors,
+		nullptr	// Constant table
+	))
+	{
+		const char* msg = (const char*)errors->GetBufferPointer();
+		msg = msg;
+		errors->Release();
+	}
+
+	device->CreatePixelShader((DWORD*)psBuf->GetBufferPointer(), &gDefaultPixelShader);
+	psBuf->Release();
 }
 
 static BYTE toVertexDecl(const StringHash& semantic)
@@ -254,6 +315,9 @@ bool Mesh::create(const void* const* data, Mesh::StorageHint storageHint)
 
 	if(!gDefaultVertexShader)
 		createDefaultVS(device);
+
+	if(!gDefaultPixelShader)
+		createDefaultPS(device);
 
 	for(size_t i=0; i<bufferCount; ++i)
 	{
