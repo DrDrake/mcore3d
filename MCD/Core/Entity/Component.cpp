@@ -10,6 +10,11 @@ Component::Component()
 {
 }
 
+Component::~Component()
+{
+	MCD_ASSERT(ComponentPtr(this).destructionMutex().isLocked() && "Don't manual delete a component, use destroyThis()");
+}
+
 // NOTE: This simply empty is put in cpp otherwise Intel Parallel Studio will
 // report false positive memory error.
 void Component::onAdd() {}

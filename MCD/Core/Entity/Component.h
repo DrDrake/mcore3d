@@ -24,7 +24,7 @@ class MCD_ABSTRACT_CLASS MCD_CORE_API Component :
 public:
 	Component();
 
-	virtual ~Component() {}
+	virtual ~Component();
 
 	/*!	Each Component should belongs to one family.
 		For example, a MeshComponent and SkyboxComponent are both inherit from RenderableComponent
