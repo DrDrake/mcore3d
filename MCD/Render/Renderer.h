@@ -7,7 +7,7 @@ namespace MCD {
 
 class CameraComponent2;
 
-class RendererComponent : public RenderableComponent2
+class MCD_RENDER_API RendererComponent : public Component
 {
 public:
 	RendererComponent();
@@ -25,7 +25,6 @@ public:
 	//!	Override the default camera
 	void render(Entity& entityTree, sal_maybenull CameraComponent2* camera=nullptr);
 
-protected:
 	class Impl;
 	Impl& mImpl;
 };	// RendererComponent

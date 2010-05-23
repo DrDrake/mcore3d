@@ -41,7 +41,7 @@
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
-				PreprocessorDefinitions="MCD_Render_EXPORTS"
+				PreprocessorDefinitions="MCD_Render_EXPORTS;D3D_DEBUG_INFO"
 			/>
 			<Tool
 				Name="VCManagedResourceCompilerTool"
@@ -524,6 +524,10 @@
 				</FileConfiguration>
 			</File>
 			<File
+				RelativePath=".\Renderable.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\RenderBuffer.cpp"
 				>
 			</File>
@@ -583,6 +587,10 @@
 		<Filter
 			Name="DX9"
 			>
+			<File
+				RelativePath=".\DX9\Material_DX9.cpp"
+				>
+			</File>
 			<File
 				RelativePath=".\DX9\Mesh_DX9.cpp"
 				>

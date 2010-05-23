@@ -91,4 +91,11 @@ bool Mesh::create(const MeshBuilder& builder, Mesh::StorageHint storageHint)
 	return create(data, storageHint);
 }
 
+Component* MeshComponent2::clone() const
+{
+	MeshComponent2* cloned = new MeshComponent2;
+	cloned->mesh = this->mesh;
+	return cloned;
+}
+
 }	// namespace MCD

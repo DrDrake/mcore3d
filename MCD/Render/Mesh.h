@@ -182,4 +182,31 @@ protected:
 
 }	// namespace MCD
 
+#include "Renderable.h"
+
+namespace MCD {
+
+class MCD_RENDER_API MeshComponent2 : public Component
+{
+public:
+	sal_override const std::type_info& familyType() const {
+		return typeid(MeshComponent2);
+	}
+
+// Cloning
+	sal_override sal_checkreturn bool cloneable() const { return true; }
+
+	sal_override sal_notnull Component* clone() const;
+
+// Operations
+	sal_override void render() {}
+
+// Attrubutes
+	MeshPtr mesh;
+};	// MeshComponent2
+
+typedef IntrusiveWeakPtr<MeshComponent2> MeshComponent2Ptr;
+
+}	// namespace MCD
+
 #endif	// __MCD_RENDER_MESH__

@@ -77,4 +77,46 @@ public:
 
 }	// namespace MCD
 
+#include "Renderable.h"
+
+namespace MCD {
+
+class RendererComponent;
+
+class MCD_RENDER_API MaterialComponent : public Component
+{
+public:
+	MaterialComponent();
+
+	~MaterialComponent();
+
+	sal_override const std::type_info& familyType() const {
+		return typeid(MaterialComponent);
+	}
+
+// Cloning
+	sal_override sal_checkreturn bool cloneable() const { return true; }
+
+	sal_override sal_notnull Component* clone() const { return nullptr; }
+
+// Operations
+	sal_override void render() {}
+
+// Attrubutes
+
+protected:
+	friend class RendererComponent;
+
+	//!	Invoked by RendererComponent
+	virtual void preRender(size_t pass, void* context);
+	virtual void postRender(size_t pass, void* context);
+
+	class Impl;
+	Impl& mImpl;
+};	// MaterialComponent
+
+typedef IntrusiveWeakPtr<MaterialComponent> MaterialComponentPtr;
+
+}	// namespace MCD
+
 #endif	// __MCD_RENDER_MATERIAL__
