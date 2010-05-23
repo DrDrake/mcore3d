@@ -344,6 +344,14 @@
 			Name="Input"
 			>
 			<File
+				RelativePath=".\Input\FpsControllerComponent.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\Input\FpsControllerComponent.h"
+				>
+			</File>
+			<File
 				RelativePath=".\Input\InputComponent.cpp"
 				>
 			</File>

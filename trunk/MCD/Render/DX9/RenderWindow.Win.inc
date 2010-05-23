@@ -21,7 +21,7 @@ public:
 	typedef Window::Impl Super;
 
 	Impl(Window& w)
-		: Super(w)
+		: Super(w), mDevice(nullptr)
 	{
 	}
 
@@ -104,13 +104,15 @@ private:
 
 		D3DPRESENT_PARAMETERS d3dpp;
 		ZeroMemory(&d3dpp, sizeof(d3dpp));
-		d3dpp.Windowed = !mFullScreen;
-		d3dpp.SwapEffect = D3DSWAPEFFECT_DISCARD;
-		d3dpp.BackBufferFormat = D3DFMT_UNKNOWN;
 		d3dpp.hDeviceWindow = mWnd;
+		d3dpp.Windowed = !mFullScreen;
+		d3dpp.BackBufferCount = 1;
 		d3dpp.BackBufferWidth = mWidth;
 		d3dpp.BackBufferHeight = mHeight;
+		d3dpp.BackBufferFormat = D3DFMT_UNKNOWN;	// D3DFMT_UNKNOWN can be used for windowed mode
+		d3dpp.EnableAutoDepthStencil = true;
 		d3dpp.AutoDepthStencilFormat = D3DFMT_D16;
+		d3dpp.SwapEffect = D3DSWAPEFFECT_DISCARD;
 		d3dpp.MultiSampleType = D3DMULTISAMPLE_NONE;
 
 		if( FAILED(gD3D->CreateDevice(D3DADAPTER_DEFAULT, D3DDEVTYPE_HAL, mWnd,
