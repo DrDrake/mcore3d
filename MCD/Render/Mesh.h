@@ -201,7 +201,7 @@ public:
 // Operations
 	sal_override void render() {}
 
-// Attrubutes
+// Attributes
 	MeshPtr mesh;
 };	// MeshComponent2
 

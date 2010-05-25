@@ -27,7 +27,7 @@ public:
 
 // Operations
 	/*!	Create the necessary \em meshes for skinning.
-		This function will insert the \em namePrefix to the resource name of \em basePose, and use
+		This function will insert the \em nameSuffix to the resource name of \em basePose, and use
 		the new resource name as a key to find the mesh model from \em resourceManager.
 		If the new mesh model cannot be found, one will clone from \em basePose and cache it
 		in \em resourceManager.
@@ -36,7 +36,7 @@ public:
 
 		\note This function needs to run in main thread, because Mesh's vertex buffer data access is needed.
 	 */
-	sal_checkreturn bool init(IResourceManager& resourceManager, const Model& basePose, sal_in_z const char* namePrefix="skinning");
+	sal_checkreturn bool init(IResourceManager& resourceManager, const Model& basePose, sal_in_z const char* nameSuffix=":skinning");
 
 	sal_override void render();
 

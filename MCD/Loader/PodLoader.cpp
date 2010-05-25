@@ -54,8 +54,8 @@ public:
 	void commit(Resource& resource);
 
 	IResourceManager* mResourceManager;
-	AnimationUpdaterComponent* mAnimationUpdater;
-	SkeletonAnimationUpdaterComponent* mSkeletonAnimationUpdater;
+	AnimationUpdaterComponentPtr mAnimationUpdater;
+	SkeletonAnimationUpdaterComponentPtr mSkeletonAnimationUpdater;
 
 	Entity mRootEntity;
 	CPVRTModelPOD mPod;
@@ -175,6 +175,31 @@ static bool isSkinMeshNode(const CPVRTModelPOD& pod, size_t i)
 	return podMesh.sBoneIdx.n > 0;
 }
 
+static void* insertDataToInterleavedBuffer(
+	const void* originalData,
+	size_t oldStride, size_t newStride, size_t vertexCount,
+	size_t insertAtOffset, const void* initialContent=nullptr
+)
+{
+	MCD_ASSERT(newStride > oldStride);
+	MCD_ASSERT(insertAtOffset <= oldStride);
+
+	byte_t* newBuf = (byte_t*)::malloc(newStride * vertexCount);
+
+	const size_t deltaSize = newStride - oldStride;
+	const byte_t* pSrc = (const byte_t*)originalData;
+	byte_t* pDest = newBuf;
+
+	for(size_t i=0; i<vertexCount; ++i, pSrc += oldStride, pDest += newStride) {
+		::memcpy(pDest, pSrc, insertAtOffset);
+		if(initialContent)
+			::memcpy(pDest + insertAtOffset, initialContent, deltaSize);
+		::memcpy(pDest + insertAtOffset + deltaSize, pSrc + insertAtOffset, oldStride - insertAtOffset);
+	}
+
+	return newBuf;
+}
+
 IResourceLoader::LoadingState PodLoader::Impl::load(std::istream* is, const Path* fileId, const char* args)
 {
 	mLoadingState = is ? NotLoaded : Aborted;
@@ -238,6 +263,57 @@ IResourceLoader::LoadingState PodLoader::Impl::load(std::istream* is, const Path
 			continue;
 		if(podMesh.nNumStrips > 0 || podMesh.pnStripLength)	// Triangle strip is not supported (yet?)
 			continue;
+
+		// Adjust every skinned mesh to have 4 joints per vertex, to fullfill the requirenment imposed by directx
+		// other wise we need to seperate the joint index and joint weight into a seperate buffer
+		if(podMesh.sBoneIdx.n && podMesh.sBoneIdx.n != 4 && podMesh.pInterleaved)
+		{
+			const size_t oldJointPerVertex = podMesh.sBoneIdx.n;
+			static const size_t newJointPerVertex = 4;
+			const size_t deltaJoinPerVertex = newJointPerVertex - oldJointPerVertex;
+			const size_t oldStride = podMesh.sBoneIdx.nStride;
+			const size_t newStride = oldStride + deltaJoinPerVertex * (sizeof(uint8_t) + sizeof(float));
+			SPODMesh& mesh = const_cast<SPODMesh&>(podMesh);
+
+			// Insert dummy joint weight data
+			const float cDummyWeight[newJointPerVertex] = { 0 };
+			void* newBuf = insertDataToInterleavedBuffer(
+				podMesh.pInterleaved,
+				podMesh.sBoneWeight.nStride,
+				podMesh.sBoneWeight.nStride + deltaJoinPerVertex * sizeof(float),
+				podMesh.nNumVertex,
+				size_t(podMesh.sBoneWeight.pData) + oldJointPerVertex * sizeof(float),	// insertAtOffset
+				cDummyWeight
+			);
+			::free(mesh.pInterleaved);
+
+			if(podMesh.sBoneIdx.pData > podMesh.sBoneWeight.pData)
+				mesh.sBoneIdx.pData += deltaJoinPerVertex * sizeof(float);
+			else
+				mesh.sBoneWeight.pData += deltaJoinPerVertex * sizeof(uint8_t);
+
+			// Insert dummy joint index data
+			const uint8_t cDummyIdx[newJointPerVertex] = { 0 };
+			mesh.pInterleaved = (unsigned char*)insertDataToInterleavedBuffer(
+				newBuf,
+				podMesh.sBoneIdx.nStride + deltaJoinPerVertex * sizeof(float),
+				newStride,
+				podMesh.nNumVertex,
+				size_t(podMesh.sBoneIdx.pData) + oldJointPerVertex * sizeof(uint8_t),	// insertAtOffset
+				cDummyIdx
+			);
+			::free(newBuf);
+
+			if(mesh.sVertex.n) mesh.sVertex.nStride = newStride;
+			if(mesh.sNormals.n) mesh.sNormals.nStride = newStride;
+			for(size_t j=0; j<mesh.nNumUVW; ++j)
+				mesh.psUVW[j].nStride = newStride;
+
+			mesh.sBoneIdx.n = newJointPerVertex;
+			mesh.sBoneIdx.nStride = newStride;
+			mesh.sBoneWeight.n = newJointPerVertex;
+			mesh.sBoneWeight.nStride = newStride;
+		}
 
 		// Index
 		if(podMesh.sFaces.n) {
@@ -521,7 +597,8 @@ IResourceLoader::LoadingState PodLoader::Impl::load(std::istream* is, const Path
 			if(mPod.pMesh[podNode.nIdx].sBoneIdx.n) {
 				SkinMeshComponentPtr sm = new SkinMeshComponent();
 
-				ModelPtr model = new Model(podNode.pszName);
+				const std::string uniqueModelName = fileId->getString() + ":" + podNode.pszName;
+				ModelPtr model = new Model(uniqueModelName.c_str());
 				Model::MeshAndMaterial* mm = new Model::MeshAndMaterial;
 				mm->mesh = mMeshes[podNode.nIdx].first;
 				mm->effect = effect;
