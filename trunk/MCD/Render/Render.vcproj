@@ -262,6 +262,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\Light.h"
+				>
+			</File>
+			<File
 				RelativePath=".\Material.h"
 				>
 			</File>
@@ -440,6 +444,10 @@
 			</File>
 			<File
 				RelativePath=".\JpegLoader.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\Light.cpp"
 				>
 			</File>
 			<File

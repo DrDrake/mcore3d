@@ -27,6 +27,10 @@ MaterialComponent::Impl::Impl()
 {
 	MCD_VERIFY(createVs());
 	MCD_VERIFY(createPs());
+
+	mConstantHandles.worldViewProj = mVsConstTable->GetConstantByName(nullptr, "mcdWorldViewProj");
+	mConstantHandles.world = mVsConstTable->GetConstantByName(nullptr, "mcdWorld");
+	mConstantHandles.lights = mPsConstTable->GetConstantByName(nullptr, "mcdLights");
 }
 
 MaterialComponent::Impl::~Impl()
@@ -50,12 +54,14 @@ bool MaterialComponent::Impl::createVs()
 	"};"
 	"struct VS_OUTPUT {"
 	"	float4 position : POSITION;"
+	"	float3 worldPosition : position1;"
 	"	float3 normal : NORMAL;"
 	"	float4 color : COLOR;"
 	"};"
 	"VS_OUTPUT main(const VS_INPUT _in) {"
 	"	VS_OUTPUT _out;"
 	"	_out.position = mul(mcdWorldViewProj, float4(_in.position, 1));"
+	"	_out.worldPosition = mul(mcdWorld, float4(_in.position, 1)).xyz;"
 	"	_out.normal = mul(mcdWorld, _in.normal);"
 	"	_out.color = float4(1, 1, 1, 1);"
 	"	return _out;"
@@ -64,24 +70,28 @@ bool MaterialComponent::Impl::createVs()
 	LPD3DXBUFFER vsBuf = nullptr;
 	LPD3DXBUFFER errors = nullptr;
 
-	if(D3D_OK != D3DXCompileShader(
+	HRESULT result = D3DXCompileShader(
 		code, sizeof(code),
 		nullptr, nullptr,	// Shader macro and include
 		"main", "vs_3_0",
 		0,	// flags
 		&vsBuf, &errors,
 		&mVsConstTable	// Constant table
-	))
-	{
+	);
+
+	if(errors) {
 		const char* msg = (const char*)errors->GetBufferPointer();
-		msg = msg;
+		Log::write(result == D3D_OK ? Log::Warn : Log::Error, msg);
 		errors->Release();
-		return false;
 	}
 
-	device->CreateVertexShader((DWORD*)vsBuf->GetBufferPointer(), &mVs);
-	vsBuf->Release();
-	return true;
+	if(result == D3D_OK) {
+		device->CreateVertexShader((DWORD*)vsBuf->GetBufferPointer(), &mVs);
+		vsBuf->Release();
+		return true;
+	}
+
+	return false;
 }
 
 bool MaterialComponent::Impl::createPs()
@@ -89,39 +99,61 @@ bool MaterialComponent::Impl::createPs()
 	LPDIRECT3DDEVICE9 device = reinterpret_cast<LPDIRECT3DDEVICE9>(RenderWindow::getActiveContext());
 
 	static const char code[] =
+	"#define MCD_MAX_LIGHT_COUNT 4\n"
+	"struct Light {"
+	"	float3 position;"
+	"	float4 color;"
+	"} mcdLights[MCD_MAX_LIGHT_COUNT];"
+
+	"void computeLighting(in Light light, in float3 P, in float3 N, inout float3 diff) {"
+	"	float3 L = light.position - P;"
+	"	L = normalize(L);"
+	"	float ndotl = saturate(dot(N, L));"
+	"	diff += ndotl * light.color.xyz;"
+	"}"
+
 	"struct PS_INPUT {"
 	"	float3 position : POSITION;"
+	"	float3 worldPosition : position1;"
 	"	float3 normal : NORMAL;"
 	"	float4 color : COLOR0;"
 	"};"
 	"struct PS_OUTPUT { float4 color : COLOR; };"
 	"PS_OUTPUT main(PS_INPUT _in) {"
 	"	PS_OUTPUT _out = (PS_OUTPUT) 0;"
-	"	_out.color = _in.color;"
+	"	float3 N = _in.normal;"
+	"	float3 diff = 0;"
+	"	for(int i=0; i<MCD_MAX_LIGHT_COUNT; ++i)"
+	"		computeLighting(mcdLights[i], _in.worldPosition, N, diff);\n"
+	"	_out.color.xyz = _in.color.xyz * diff;"
 	"	return _out;"
 	"}";
 
 	LPD3DXBUFFER psBuf = nullptr;
 	LPD3DXBUFFER errors = nullptr;
 
-	if(D3D_OK != D3DXCompileShader(
+	HRESULT result = D3DXCompileShader(
 		code, sizeof(code),
 		nullptr, nullptr,	// Shader macro and include
 		"main", "ps_3_0",
 		0,	// flags
 		&psBuf, &errors,
 		&mPsConstTable	// Constant table
-	))
-	{
+	);
+
+	if(errors) {
 		const char* msg = (const char*)errors->GetBufferPointer();
-		msg = msg;
+		Log::write(result == D3D_OK ? Log::Warn : Log::Error, msg);
 		errors->Release();
-		return false;
 	}
 
-	device->CreatePixelShader((DWORD*)psBuf->GetBufferPointer(), &mPs);
-	psBuf->Release();
-	return true;
+	if(result == D3D_OK) {
+		device->CreatePixelShader((DWORD*)psBuf->GetBufferPointer(), &mPs);
+		psBuf->Release();
+		return true;
+	}
+
+	return false;
 }
 
 MaterialComponent::MaterialComponent()

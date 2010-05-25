@@ -59,6 +59,15 @@ public:
 		Super::destroy();
 	}
 
+	void onResize()
+	{
+		mD3dpp.BackBufferWidth  = mWidth;
+		mD3dpp.BackBufferHeight = mHeight;		
+		if(mDevice)
+			mDevice->Reset(&mD3dpp);
+//		(void)hr;
+	}
+
 	bool makeActive()
 	{
 		gCurrentDevice = mDevice;
@@ -102,22 +111,21 @@ private:
 
 		++gD3DUseCount;
 
-		D3DPRESENT_PARAMETERS d3dpp;
-		ZeroMemory(&d3dpp, sizeof(d3dpp));
-		d3dpp.hDeviceWindow = mWnd;
-		d3dpp.Windowed = !mFullScreen;
-		d3dpp.BackBufferCount = 1;
-		d3dpp.BackBufferWidth = mWidth;
-		d3dpp.BackBufferHeight = mHeight;
-		d3dpp.BackBufferFormat = D3DFMT_UNKNOWN;	// D3DFMT_UNKNOWN can be used for windowed mode
-		d3dpp.EnableAutoDepthStencil = true;
-		d3dpp.AutoDepthStencilFormat = D3DFMT_D16;
-		d3dpp.SwapEffect = D3DSWAPEFFECT_DISCARD;
-		d3dpp.MultiSampleType = D3DMULTISAMPLE_NONE;
+		ZeroMemory(&mD3dpp, sizeof(mD3dpp));
+		mD3dpp.hDeviceWindow = mWnd;
+		mD3dpp.Windowed = !mFullScreen;
+		mD3dpp.BackBufferCount = 1;
+		mD3dpp.BackBufferWidth = mWidth;
+		mD3dpp.BackBufferHeight = mHeight;
+		mD3dpp.BackBufferFormat = D3DFMT_UNKNOWN;	// D3DFMT_UNKNOWN can be used for windowed mode
+		mD3dpp.EnableAutoDepthStencil = true;
+		mD3dpp.AutoDepthStencilFormat = D3DFMT_D16;
+		mD3dpp.SwapEffect = D3DSWAPEFFECT_DISCARD;
+		mD3dpp.MultiSampleType = D3DMULTISAMPLE_NONE;
 
 		if( FAILED(gD3D->CreateDevice(D3DADAPTER_DEFAULT, D3DDEVTYPE_HAL, mWnd,
 			D3DCREATE_HARDWARE_VERTEXPROCESSING,
-			&d3dpp, &mDevice))
+			&mD3dpp, &mDevice))
 		)
 			return false;
 
@@ -125,6 +133,7 @@ private:
 	}
 
 	sal_maybenull LPDIRECT3DDEVICE9 mDevice;
+	D3DPRESENT_PARAMETERS mD3dpp;
 };	// Impl
 
 }	// namespace MCD

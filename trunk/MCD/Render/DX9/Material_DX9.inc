@@ -16,6 +16,15 @@ public:
 	LPDIRECT3DPIXELSHADER9 mPs;
 	LPD3DXCONSTANTTABLE mVsConstTable;
 	LPD3DXCONSTANTTABLE mPsConstTable;
+
+	struct ConstantHandles
+	{
+		D3DXHANDLE world;
+		D3DXHANDLE worldViewProj;
+		D3DXHANDLE lights;
+	};	// ConstantHandles
+
+	ConstantHandles mConstantHandles;
 };	// Impl
 
 }	// namespace MCD
