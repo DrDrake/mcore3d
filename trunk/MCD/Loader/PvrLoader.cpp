@@ -45,7 +45,7 @@ public:
 			mFormat = GL_RGB;
 			mInternalFmt = GL_RGB;
 			break;
-//		case OGL_PVRTC2:
+		case OGL_PVRTC2:
 		case OGL_PVRTC4:
 			mFormat = GL_RGBA;
 			mInternalFmt = GL_RGBA;
@@ -71,7 +71,11 @@ public:
 		}
 
 		// Decompress the PVRTC format on platforms without native hardware support
-		if((header.dwpfFlags & PVRTEX_PIXELTYPE) == OGL_PVRTC4) {
+		const int pixelFormat = header.dwpfFlags & PVRTEX_PIXELTYPE;
+		if(pixelFormat == OGL_PVRTC2 || pixelFormat == OGL_PVRTC4)
+		{
+			const bool twoBitMode = (pixelFormat == OGL_PVRTC2);
+
 			// Calculate the total memory required for all the mip-map levels
 			size_t memSize = 0;
 			for(size_t i=0; i<header.dwMipMapCount; ++i) {
@@ -88,8 +92,15 @@ public:
 			for(size_t i=0; i<header.dwMipMapCount; ++i,
 				sizeX = Math<size_t>::max(sizeX/2, 1u), sizeY = Math<size_t>::max(sizeY/2, 1u))
 			{
-				PVRTDecompressPVRTC(srcPtr, 0, sizeX, sizeY, destPtr);
-				const size_t compressedSize = Math<size_t>::max(sizeX, PVRTC4_MIN_TEXWIDTH) * Math<size_t>::max(sizeY, PVRTC4_MIN_TEXHEIGHT) * header.dwBitCount / 8;
+				PVRTDecompressPVRTC(srcPtr, twoBitMode, sizeX, sizeY, destPtr);
+
+				const size_t minTexWidth = twoBitMode ? PVRTC2_MIN_TEXWIDTH : PVRTC4_MIN_TEXWIDTH;
+				const size_t minTexHeight = twoBitMode ? PVRTC2_MIN_TEXHEIGHT : PVRTC4_MIN_TEXHEIGHT;
+
+				const size_t compressedSize =
+					Math<size_t>::max(sizeX, minTexWidth) *
+					Math<size_t>::max(sizeY, minTexHeight) * header.dwBitCount / 8;
+
 				srcPtr += compressedSize;
 
 				const size_t deCompressedSize = sizeX * sizeY * 4;

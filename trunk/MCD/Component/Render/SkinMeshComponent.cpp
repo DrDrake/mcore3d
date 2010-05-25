@@ -67,12 +67,12 @@ bool SkinMeshComponent::postClone(const Entity& src, Entity& dest)
 	return true;
 }
 
-bool SkinMeshComponent::init(IResourceManager& resourceManager, const Model& basePose, const char* namePrefix)
+bool SkinMeshComponent::init(IResourceManager& resourceManager, const Model& basePose, const char* nameSuffix)
 {
 	if(basePose.fileId().getString().empty())
 		return false;
 
-	Path newPath = Path(std::string(namePrefix) + basePose.fileId().getString());
+	Path newPath = Path(basePose.fileId().getString() + nameSuffix);
 	ResourcePtr r = resourceManager.load(newPath);
 
 	if(!r) {
