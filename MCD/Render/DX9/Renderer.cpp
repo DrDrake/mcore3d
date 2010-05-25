@@ -1,6 +1,7 @@
 #include "Pch.h"
 #include "../Renderer.h"
 #include "../Camera.h"
+#include "../Light.h"
 #include "../Material.h"
 #include "../Mesh.h"
 #include "../RenderWindow.h"
@@ -21,6 +22,14 @@ struct ShaderContext
 	LPD3DXCONSTANTTABLE constTable;
 };	// ShaderContext
 
+struct RenderItem
+{
+	MeshComponent2* mesh;
+	MaterialComponent* material;
+};	// RenderItem
+
+typedef std::vector<RenderItem> RenderItems;
+
 class RendererComponent::Impl
 {
 public:
@@ -30,19 +39,27 @@ public:
 
 	//! mDefaultCamera and mCurrentCamera may differ from each other for instance when rendering using light's view
 	CameraComponent2Ptr mDefaultCamera, mCurrentCamera;
-	Mat44f mProjMatrix, mViewMatrix, mViewProjMatrix, mWorldViewProjMatrix;
+	Mat44f mProjMatrix, mViewMatrix, mViewProjMatrix, mWorldMatrix, mWorldViewProjMatrix;
 
 	ShaderContext mCurrentVS, mCurrentPS;
 
 	sal_notnull RendererComponent* mBackRef;
 
 	std::stack<MaterialComponent*> mMaterialStack;
+
+	typedef std::vector<LightComponent*> Lights;
+	Lights mLights;
+
+	RenderItems mRenderQueue;
 };	// Impl
 
 RendererComponent::Impl::Impl()
 {
 	ZeroMemory(&mCurrentVS, sizeof(mCurrentVS));
 	ZeroMemory(&mCurrentPS, sizeof(mCurrentPS));
+
+	LPDIRECT3DDEVICE9 device = reinterpret_cast<LPDIRECT3DDEVICE9>(RenderWindow::getActiveContext());
+	device->SetRenderState(D3DRS_CULLMODE, D3DCULL_CW);
 }
 
 void RendererComponent::Impl::render(Entity& entityTree, CameraComponent2* camera)
@@ -80,8 +97,6 @@ void RendererComponent::Impl::render(Entity& entityTree, CameraComponent2* camer
 	view_port.MaxZ=1.0f;
 	device->SetViewport(&view_port);*/
 
-//	device->SetRenderState(D3DRS_CULLMODE, D3DCULL_NONE);
-
 	Entity* last = nullptr;
 
 	// Traverse the Entity tree
@@ -115,18 +130,33 @@ void RendererComponent::Impl::render(Entity& entityTree, CameraComponent2* camer
 			last = e;
 		}
 
-		// Render mesh if any
+		// Push light into the light list, if any
+		if(LightComponent* light = e->findComponent<LightComponent>()) {
+			mLights.push_back(light);
+		}
+
+		// Push mesh into render queue, if any
 		if(MeshComponent2* mesh = e->findComponent<MeshComponent2>()) {
-			if(MeshPtr m = mesh->mesh) {
-				mWorldViewProjMatrix = mViewProjMatrix * e->worldTransform();
-				mtl->preRender(0, this);
-				m->drawFaceOnly();
-				mtl->postRender(0, this);
-			}
+			RenderItem r = { mesh, mtl };
+			mRenderQueue.push_back(r);
 		}
 
 		itr.next();
 	}
+
+	// Render the items in render queue
+	MCD_FOREACH(const RenderItem& i, mRenderQueue) {
+		mWorldMatrix = i.mesh->entity()->worldTransform();
+		mWorldViewProjMatrix = mViewProjMatrix * mWorldMatrix;
+
+		// Set lighting information to the shader
+		i.material->preRender(0, this);
+		i.mesh->mesh->drawFaceOnly();
+		i.material->postRender(0, this);
+	}
+
+	mLights.clear();
+	mRenderQueue.clear();
 }
 
 RendererComponent::RendererComponent()
@@ -157,9 +187,35 @@ void MaterialComponent::preRender(size_t pass, void* context)
 	RendererComponent::Impl& renderer = *reinterpret_cast<RendererComponent::Impl*>(context);
 	LPDIRECT3DDEVICE9 device = reinterpret_cast<LPDIRECT3DDEVICE9>(RenderWindow::getActiveContext());
 
-	D3DXHANDLE handle;
-	handle = mImpl.mVsConstTable->GetConstantByName(nullptr, "mcdWorldViewProj");
-	mImpl.mVsConstTable->SetMatrix(device, handle, (D3DXMATRIX*)renderer.mWorldViewProjMatrix.getPtr());
+	mImpl.mVsConstTable->SetMatrix(
+		device, mImpl.mConstantHandles.worldViewProj, (D3DXMATRIX*)renderer.mWorldViewProjMatrix.getPtr()
+	);
+
+	mImpl.mVsConstTable->SetMatrix(
+		device, mImpl.mConstantHandles.world, (D3DXMATRIX*)renderer.mWorldMatrix.getPtr()
+	);
+
+	// To match the light data structure in the shader
+	struct LightStruct
+	{
+		Vec3f position;
+		ColorRGBAf color;
+	} lightStruct;
+
+	for(size_t i=0; i<4; ++i) {
+		D3DXHANDLE hi = mImpl.mPsConstTable->GetConstantElement(mImpl.mConstantHandles.lights, i);
+
+		if(i < renderer.mLights.size()) {
+			LightComponent* light = renderer.mLights[i];
+			lightStruct.position = light->entity()->worldTransform().translation();
+			lightStruct.color = ColorRGBAf(light->color, 1);
+		}
+		else
+			memset(&lightStruct, 0, sizeof(lightStruct));
+
+		HRESULT result = mImpl.mVsConstTable->SetFloatArray(device, hi, (float*)&lightStruct, sizeof(lightStruct) / sizeof(float));
+		result = result;
+	}
 
 	device->SetVertexShader(mImpl.mVs);
 	device->SetPixelShader(mImpl.mPs);

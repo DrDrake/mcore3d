@@ -2,6 +2,7 @@
 #include "DefaultResourceManager.h"
 #include "../../MCD/Render/Camera.h"
 #include "../../MCD/Render/Chamferbox.h"
+#include "../../MCD/Render/Light.h"
 #include "../../MCD/Render/Material.h"
 #include "../../MCD/Render/Mesh.h"
 #include "../../MCD/Render/Renderer.h"
@@ -38,7 +39,26 @@ TEST(RendererTest)
 		e->addComponent(camera);
 	}
 
-	// Input component
+	// Light
+	{	LightComponent* light = new LightComponent;
+		light->color = ColorRGBf(1, 0, 0);
+		Entity* e = new Entity;
+		e->name = "Light1";
+		e->asChildOf(&root);
+		e->localTransform.setTranslation(Vec3f(10, 10, 0));
+		e->addComponent(light);
+	}
+
+	{	LightComponent* light = new LightComponent;
+		light->color = ColorRGBf(0, 1, 0);
+		Entity* e = new Entity;
+		e->name = "Light2";
+		e->asChildOf(&root);
+		e->localTransform.setTranslation(Vec3f(0, 10, 10));
+		e->addComponent(light);
+	}
+
+	// Input
 	WinMessageInputComponent* winMsg = new WinMessageInputComponent;
 	winMsg->attachTo(window);
 	root.addComponent(winMsg);

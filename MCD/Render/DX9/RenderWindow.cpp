@@ -87,10 +87,7 @@ void RenderWindow::onEvent(const Event& eventReceived)
 	MCD_ASSUME(mImpl != nullptr);
 
 	if(eventReceived.Type == Event::Resized) {
-/*		uint w = mImpl->mWidth;
-		uint h = mImpl->mHeight;
-		glViewport(0, 0, w, h);
-		glScissor(0, 0, w, h);*/
+//		static_cast<RenderWindow::Impl*>(mImpl)->onResize();
 	}
 
 	// Let Window (the super class of RenderWindow) to do the remaining job
