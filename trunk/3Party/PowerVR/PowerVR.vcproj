@@ -152,6 +152,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\PVRTTrans.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\PVRTVertex.cpp"
 				>
 			</File>

@@ -4,6 +4,8 @@
 
  @Title        PVRTMatrixF
 
+ @Version      
+
  @Copyright    Copyright (C)  Imagination Technologies Limited.
 
  @Platform     ANSI compatible
@@ -16,7 +18,7 @@
 
 ******************************************************************************/
 #include "PVRTGlobal.h"
-//#include "PVRTContext.h"
+#include "PVRTContext.h"
 #include <math.h>
 #include <string.h>
 #include "PVRTFixedPoint.h"		// Only needed for trig function float lookups
@@ -90,7 +92,7 @@ void PVRTMatrixMultiplyF(
 	mRet.f[14] = mA.f[12]*mB.f[ 2] + mA.f[13]*mB.f[ 6] + mA.f[14]*mB.f[10] + mA.f[15]*mB.f[14];
 	mRet.f[15] = mA.f[12]*mB.f[ 3] + mA.f[13]*mB.f[ 7] + mA.f[14]*mB.f[11] + mA.f[15]*mB.f[15];
 
-	/* Copy result in pResultMatrix */
+	/* Copy result to mOut */
 	mOut = mRet;
 }
 
@@ -865,3 +867,4 @@ void PVRTMatrixLinearEqSolveF(
 /*****************************************************************************
  End of file (PVRTMatrixF.cpp)
 *****************************************************************************/
+

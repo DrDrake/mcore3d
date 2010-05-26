@@ -4,6 +4,8 @@
 
  @Title        PVRTError
 
+ @Version      
+
  @Copyright    Copyright (C)  Imagination Technologies Limited.
 
  @Platform     ANSI compatible
@@ -11,6 +13,7 @@
  @Description  
 
 ******************************************************************************/
+
 #include "PVRTError.h"
 #include <stdio.h>
 #include <stdlib.h>
@@ -71,4 +74,5 @@ void PVRTErrorOutputDebug(char const * const format, ...)
 /*****************************************************************************
 End of file (PVRTError.cpp)
 *****************************************************************************/
+
 

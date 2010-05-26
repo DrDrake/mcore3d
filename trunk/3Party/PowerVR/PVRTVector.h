@@ -4,6 +4,8 @@
 
  @Title        PVRTVector
 
+ @Version      
+
  @Copyright    Copyright (C)  Imagination Technologies Limited.
 
  @Platform     ANSI compatible
@@ -145,8 +147,8 @@ struct PVRTVec2
 		@Function			*
 		@Input				lhs scalar
 		@Input				rhs a Vec2
-		@Returns			result of negation
-		@Description		negation operator for a Vec2
+		@Returns			result of multiplication
+		@Description		multiplication operator for a Vec2
 		****************************************************************************/
 	friend PVRTVec2 operator*(const VERTTYPE lhs, const PVRTVec2&  rhs)
 	{
@@ -315,8 +317,8 @@ struct PVRTVec2
 
 	/*!***************************************************************************
 		@Function			rotated90
-		@Returns			returns the vector rotated 90?
-		@Description		returns the vector rotated 90?
+		@Returns			returns the vector rotated 90°
+		@Description		returns the vector rotated 90°
 		****************************************************************************/
 	PVRTVec2 rotated90() const
 	{
@@ -463,8 +465,8 @@ struct PVRTVec3 : public PVRTVECTOR3
  @Function			*
  @Input				lhs single value
  @Input				rhs a PVRTVec3
- @Returns			result of negation
- @Description		negation operator for a PVRTVec3
+ @Returns			result of multiplication
+ @Description		multiplication operator for a PVRTVec3
 ****************************************************************************/
 	friend PVRTVec3 operator*(const VERTTYPE lhs, const PVRTVec3&  rhs)
 	{
@@ -692,9 +694,9 @@ struct PVRTVec3 : public PVRTVECTOR3
 	}
 
 /*!***************************************************************************
- @Function			dot
- @Returns			scalar product
- @Description		calculate the scalar product of two PVRTVec3s
+ @Function			cross
+ @Returns			returns three-dimensional vector
+ @Description		calculate the cross product of two PVRTVec3s
 ****************************************************************************/
 	PVRTVec3 cross(const PVRTVec3& rhs)
 	{
@@ -1108,27 +1110,27 @@ struct PVRTMat3 : public PVRTMATRIX3
 ****************************************************************************/
 /*!***************************************************************************
  @Function			()
- @Input				r - row of matrix
- @Input				c - column of matrix
+ @Input				row			row of matrix
+ @Input				column		column of matrix
  @Returns			value of element
- @Description		Returns value of the element at row r and colun c of the
-					PVRTMat3
+ @Description		Returns the value of the element at the specified row and column 
+					of the PVRTMat3
 *****************************************************************************/
-	VERTTYPE& operator()(const int r, const int c)
+	VERTTYPE& operator()(const int row, const int column)
 	{
-		return f[c*3+r];
+		return f[column*3+row];
 	}
 /*!***************************************************************************
  @Function			()
- @Input				r - row of matrix
- @Input				c - column of matrix
+ @Input				row			row of matrix
+ @Input				column		column of matrix
  @Returns			value of element
- @Description		Returns value of the element at row r and colun c of the
-					PVRTMat3
+ @Description		Returns the value of the element at the specified row and column 
+					of the PVRTMat3
 *****************************************************************************/
-	const VERTTYPE& operator()(const int r, const int c) const
+	const VERTTYPE& operator()(const int row, const int column) const
 	{
-		return f[c*3+r];
+		return f[column*3+row];
 	}
 
 /*!***************************************************************************
@@ -1792,8 +1794,8 @@ struct PVRTMat4 : public PVRTMATRIX
  @Input				tx distance of translation in x axis
  @Input				ty distance of translation in y axis
  @Input				tz distance of translation in z axis
- @Returns			Returns the translation defined by the passed parameters
- @Description		Translates the matrix from the passed parameters
+ @Returns			Returns this
+ @Description		Alters the translation component of the transformation matrix.
 *****************************************************************************/
 	PVRTMat4& postTranslate(VERTTYPE tx, VERTTYPE ty, VERTTYPE tz)
 	{
@@ -1809,8 +1811,8 @@ struct PVRTMat4 : public PVRTMATRIX
 /*!***************************************************************************
  @Function			postTranslate
  @Input				tvec translation vector
- @Returns			Returns the translation defined by the passed parameters
- @Description		Translates the matrix from the passed parameters
+ @Returns			Returns this
+ @Description		Alters the translation component of the transformation matrix.
 *****************************************************************************/
 	PVRTMat4& postTranslate(const PVRTVec3& tvec)
 	{
@@ -1822,7 +1824,7 @@ struct PVRTMat4 : public PVRTMATRIX
  @Input				tx distance of translation in x axis
  @Input				ty distance of translation in y axis
  @Input				tz distance of translation in z axis
- @Returns			Returns the translation defined by the passed parameters
+ @Returns			Returns this
  @Description		Translates the matrix from the passed parameters
 *****************************************************************************/
 	PVRTMat4& preTranslate(VERTTYPE tx, VERTTYPE ty, VERTTYPE tz)
@@ -1953,7 +1955,7 @@ struct PVRTMat4 : public PVRTMATRIX
 		if (bRotate)
 		{
 			result.f[0]=0;		result.f[4]=VERTTYPEMUL(2,rcplmr); result.f[8]=0; result.f[12]=VERTTYPEMUL(-(right+left),rcplmr);
-			result.f[1]=VERTTYPEMUL(-2,rcpbmt);	result.f[9]=0;		result.f[9]=0;	result.f[13]=VERTTYPEMUL((top+bottom),rcpbmt);
+			result.f[1]=VERTTYPEMUL(-2,rcpbmt);	result.f[5]=0;		result.f[9]=0;	result.f[13]=VERTTYPEMUL((top+bottom),rcpbmt);
 		}
 		else
 		{
@@ -2138,7 +2140,7 @@ struct PVRTMat4 : public PVRTMATRIX
 		result.f[2]=vForward.x; result.f[6]=vForward.y;	result.f[10]=vForward.z;	result.f[14]=0;
 		result.f[3]=0;			result.f[7]=0;			result.f[11]=0;				result.f[15]=f2vt(1);
 
-		// TODO
+
 		result.postTranslate(-vEye);
 		return result;
 	}
@@ -2294,3 +2296,4 @@ struct PVRTMat4 : public PVRTMATRIX
 /*****************************************************************************
 End of file (PVRTVector.h)
 *****************************************************************************/
+

@@ -4,6 +4,8 @@
 
  @Title        PVRTBoneBatch
 
+ @Version      
+
  @Copyright    Copyright (C)  Imagination Technologies Limited.
 
  @Platform     ANSI compatible
@@ -84,3 +86,4 @@ public:
 /*****************************************************************************
  End of file (PVRTBoneBatch.h)
 *****************************************************************************/
+

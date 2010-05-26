@@ -4,6 +4,8 @@
 
  @Title        PVRTDecompress
 
+ @Version      
+
  @Copyright    Copyright (C)  Imagination Technologies Limited.
 
  @Platform     ANSI compatible
@@ -11,6 +13,10 @@
  @Description  PVRTC Texture Decompression.
 
 ******************************************************************************/
+
+/*****************************************************************************
+ * INCLUDES
+ *****************************************************************************/
 #include <stdlib.h>
 #include <stdio.h>
 #include <limits.h>
@@ -770,7 +776,6 @@ unsigned long modifyPixel(int red, int green, int blue, int x, int y, unsigned l
 int ETCTextureDecompress(const void * const pSrcData, const int &x, const int &y, const void *pDestData,const int &/*nMode*/)
 {
 	unsigned long blockTop, blockBot, *input = (unsigned long*)pSrcData, *output;
-	//unsigned long alphaTop, alphaBot, alphaValue[8];
 	unsigned char red1, green1, blue1, red2, green2, blue2;
 	bool bFlip, bDiff;
 	int modtable1,modtable2;
@@ -915,3 +920,4 @@ int PVRTDecompressETC(const void * const pSrcData,
 /*****************************************************************************
  End of file (PVRTDecompress.cpp)
 *****************************************************************************/
+

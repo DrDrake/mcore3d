@@ -4,6 +4,8 @@
 
  @Title        PVRTMatrix
 
+ @Version      
+
  @Copyright    Copyright (C)  Imagination Technologies Limited.
 
  @Platform     ANSI compatible
@@ -159,61 +161,61 @@ public:
 ** Float or fixed
 ****************************************************************************/
 #ifdef PVRT_FIXED_POINT_ENABLE
-typedef PVRTVECTOR2x		PVRTVECTOR2;
-typedef PVRTVECTOR3x		PVRTVECTOR3;
-typedef PVRTVECTOR4x		PVRTVECTOR4;
-typedef PVRTMATRIX3x		PVRTMATRIX3;
-typedef PVRTMATRIXx			PVRTMATRIX;
-#define PVRTMatrixIdentity					PVRTMatrixIdentityX
-#define PVRTMatrixMultiply					PVRTMatrixMultiplyX
-#define PVRTMatrixTranslation				PVRTMatrixTranslationX
-#define PVRTMatrixScaling					PVRTMatrixScalingX
-#define PVRTMatrixRotationX					PVRTMatrixRotationXX
-#define PVRTMatrixRotationY					PVRTMatrixRotationYX
-#define PVRTMatrixRotationZ					PVRTMatrixRotationZX
-#define PVRTMatrixTranspose					PVRTMatrixTransposeX
-#define PVRTMatrixInverse					PVRTMatrixInverseX
-#define PVRTMatrixInverseEx					PVRTMatrixInverseExX
-#define PVRTMatrixLookAtLH					PVRTMatrixLookAtLHX
-#define PVRTMatrixLookAtRH					PVRTMatrixLookAtRHX
-#define PVRTMatrixPerspectiveFovLH			PVRTMatrixPerspectiveFovLHX
-#define PVRTMatrixPerspectiveFovRH			PVRTMatrixPerspectiveFovRHX
-#define PVRTMatrixOrthoLH					PVRTMatrixOrthoLHX
-#define PVRTMatrixOrthoRH					PVRTMatrixOrthoRHX
-#define PVRTMatrixVec3Lerp					PVRTMatrixVec3LerpX
-#define PVRTMatrixVec3DotProduct			PVRTMatrixVec3DotProductX
-#define PVRTMatrixVec3CrossProduct			PVRTMatrixVec3CrossProductX
-#define PVRTMatrixVec3Normalize				PVRTMatrixVec3NormalizeX
-#define PVRTMatrixVec3Length				PVRTMatrixVec3LengthX
-#define PVRTMatrixLinearEqSolve				PVRTMatrixLinearEqSolveX
+	typedef PVRTVECTOR2x		PVRTVECTOR2;
+	typedef PVRTVECTOR3x		PVRTVECTOR3;
+	typedef PVRTVECTOR4x		PVRTVECTOR4;
+	typedef PVRTMATRIX3x		PVRTMATRIX3;
+	typedef PVRTMATRIXx			PVRTMATRIX;
+	#define PVRTMatrixIdentity					PVRTMatrixIdentityX
+	#define PVRTMatrixMultiply					PVRTMatrixMultiplyX
+	#define PVRTMatrixTranslation				PVRTMatrixTranslationX
+	#define PVRTMatrixScaling					PVRTMatrixScalingX
+	#define PVRTMatrixRotationX					PVRTMatrixRotationXX
+	#define PVRTMatrixRotationY					PVRTMatrixRotationYX
+	#define PVRTMatrixRotationZ					PVRTMatrixRotationZX
+	#define PVRTMatrixTranspose					PVRTMatrixTransposeX
+	#define PVRTMatrixInverse					PVRTMatrixInverseX
+	#define PVRTMatrixInverseEx					PVRTMatrixInverseExX
+	#define PVRTMatrixLookAtLH					PVRTMatrixLookAtLHX
+	#define PVRTMatrixLookAtRH					PVRTMatrixLookAtRHX
+	#define PVRTMatrixPerspectiveFovLH			PVRTMatrixPerspectiveFovLHX
+	#define PVRTMatrixPerspectiveFovRH			PVRTMatrixPerspectiveFovRHX
+	#define PVRTMatrixOrthoLH					PVRTMatrixOrthoLHX
+	#define PVRTMatrixOrthoRH					PVRTMatrixOrthoRHX
+	#define PVRTMatrixVec3Lerp					PVRTMatrixVec3LerpX
+	#define PVRTMatrixVec3DotProduct			PVRTMatrixVec3DotProductX
+	#define PVRTMatrixVec3CrossProduct			PVRTMatrixVec3CrossProductX
+	#define PVRTMatrixVec3Normalize				PVRTMatrixVec3NormalizeX
+	#define PVRTMatrixVec3Length				PVRTMatrixVec3LengthX
+	#define PVRTMatrixLinearEqSolve				PVRTMatrixLinearEqSolveX
 #else
-typedef PVRTVECTOR2f		PVRTVECTOR2;
-typedef PVRTVECTOR3f		PVRTVECTOR3;
-typedef PVRTVECTOR4f		PVRTVECTOR4;
-typedef PVRTMATRIX3f		PVRTMATRIX3;
-typedef PVRTMATRIXf			PVRTMATRIX;
-#define PVRTMatrixIdentity					PVRTMatrixIdentityF
-#define PVRTMatrixMultiply					PVRTMatrixMultiplyF
-#define PVRTMatrixTranslation				PVRTMatrixTranslationF
-#define PVRTMatrixScaling					PVRTMatrixScalingF
-#define PVRTMatrixRotationX					PVRTMatrixRotationXF
-#define PVRTMatrixRotationY					PVRTMatrixRotationYF
-#define PVRTMatrixRotationZ					PVRTMatrixRotationZF
-#define PVRTMatrixTranspose					PVRTMatrixTransposeF
-#define PVRTMatrixInverse					PVRTMatrixInverseF
-#define PVRTMatrixInverseEx					PVRTMatrixInverseExF
-#define PVRTMatrixLookAtLH					PVRTMatrixLookAtLHF
-#define PVRTMatrixLookAtRH					PVRTMatrixLookAtRHF
-#define PVRTMatrixPerspectiveFovLH			PVRTMatrixPerspectiveFovLHF
-#define PVRTMatrixPerspectiveFovRH			PVRTMatrixPerspectiveFovRHF
-#define PVRTMatrixOrthoLH					PVRTMatrixOrthoLHF
-#define PVRTMatrixOrthoRH					PVRTMatrixOrthoRHF
-#define PVRTMatrixVec3Lerp					PVRTMatrixVec3LerpF
-#define PVRTMatrixVec3DotProduct			PVRTMatrixVec3DotProductF
-#define PVRTMatrixVec3CrossProduct			PVRTMatrixVec3CrossProductF
-#define PVRTMatrixVec3Normalize				PVRTMatrixVec3NormalizeF
-#define PVRTMatrixVec3Length				PVRTMatrixVec3LengthF
-#define PVRTMatrixLinearEqSolve				PVRTMatrixLinearEqSolveF
+	typedef PVRTVECTOR2f		PVRTVECTOR2;
+	typedef PVRTVECTOR3f		PVRTVECTOR3;
+	typedef PVRTVECTOR4f		PVRTVECTOR4;
+	typedef PVRTMATRIX3f		PVRTMATRIX3;
+	typedef PVRTMATRIXf			PVRTMATRIX;
+	#define PVRTMatrixIdentity					PVRTMatrixIdentityF
+	#define PVRTMatrixMultiply					PVRTMatrixMultiplyF
+	#define PVRTMatrixTranslation				PVRTMatrixTranslationF
+	#define PVRTMatrixScaling					PVRTMatrixScalingF
+	#define PVRTMatrixRotationX					PVRTMatrixRotationXF
+	#define PVRTMatrixRotationY					PVRTMatrixRotationYF
+	#define PVRTMatrixRotationZ					PVRTMatrixRotationZF
+	#define PVRTMatrixTranspose					PVRTMatrixTransposeF
+	#define PVRTMatrixInverse					PVRTMatrixInverseF
+	#define PVRTMatrixInverseEx					PVRTMatrixInverseExF
+	#define PVRTMatrixLookAtLH					PVRTMatrixLookAtLHF
+	#define PVRTMatrixLookAtRH					PVRTMatrixLookAtRHF
+	#define PVRTMatrixPerspectiveFovLH			PVRTMatrixPerspectiveFovLHF
+	#define PVRTMatrixPerspectiveFovRH			PVRTMatrixPerspectiveFovRHF
+	#define PVRTMatrixOrthoLH					PVRTMatrixOrthoLHF
+	#define PVRTMatrixOrthoRH					PVRTMatrixOrthoRHF
+	#define PVRTMatrixVec3Lerp					PVRTMatrixVec3LerpF
+	#define PVRTMatrixVec3DotProduct			PVRTMatrixVec3DotProductF
+	#define PVRTMatrixVec3CrossProduct			PVRTMatrixVec3CrossProductF
+	#define PVRTMatrixVec3Normalize				PVRTMatrixVec3NormalizeF
+	#define PVRTMatrixVec3Length				PVRTMatrixVec3LengthF
+	#define PVRTMatrixLinearEqSolve				PVRTMatrixLinearEqSolveF
 #endif
 
 /****************************************************************************
@@ -798,3 +800,4 @@ void PVRTMatrixLinearEqSolveX(
 /*****************************************************************************
  End of file (PVRTMatrix.h)
 *****************************************************************************/
+

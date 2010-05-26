@@ -4,6 +4,8 @@
 
  @Title        PVRTQuaternionF
 
+ @Version      
+
  @Copyright    Copyright (C)  Imagination Technologies Limited.
 
  @Platform     ANSI compatible
@@ -12,7 +14,7 @@
 
 ******************************************************************************/
 #include "PVRTGlobal.h"
-//#include "PVRTContext.h"
+#include "PVRTContext.h"
 #include <math.h>
 #include <string.h>
 #include "PVRTFixedPoint.h"		// Only needed for trig function float lookups
@@ -296,3 +298,4 @@ void PVRTMatrixQuaternionMultiplyF(
 /*****************************************************************************
  End of file (PVRTQuaternionF.cpp)
 *****************************************************************************/
+

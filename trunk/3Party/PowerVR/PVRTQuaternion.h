@@ -4,6 +4,8 @@
 
  @Title        PVRTQuaternion
 
+ @Version      
+
  @Copyright    Copyright (C)  Imagination Technologies Limited.
 
  @Platform     ANSI compatible
@@ -260,3 +262,4 @@ void PVRTMatrixQuaternionMultiplyX(
 /*****************************************************************************
  End of file (PVRTQuaternion.h)
 *****************************************************************************/
+
