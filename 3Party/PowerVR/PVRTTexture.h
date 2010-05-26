@@ -4,6 +4,8 @@
 
  @Title        PVRTTexture
 
+ @Version      
+
  @Copyright    Copyright (C)  Imagination Technologies Limited.
 
  @Platform     ANSI compatible
@@ -368,3 +370,4 @@ void PVRTTextureDeTwiddle(unsigned int &u, unsigned int &v, const unsigned int a
 /*****************************************************************************
 End of file (PVRTTexture.h)
 *****************************************************************************/
+

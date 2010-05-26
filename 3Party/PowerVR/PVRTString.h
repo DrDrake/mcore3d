@@ -4,6 +4,8 @@
 
  @Title        PVRTString
 
+ @Version      
+
  @Copyright    Copyright (C)  Imagination Technologies Limited.
 
  @Platform     ANSI compatible
@@ -277,6 +279,22 @@ public:
 	@Description	== Operator
 	*************************************************************************/
 	bool operator==(const char* const _Ptr) const;
+
+	/*!***********************************************************************
+	@Function			!=
+	@Input				_Str 	A string to compare with
+	@Returns			True if they don't match
+	@Description		!= Operator
+	*************************************************************************/
+	bool operator!=(const CPVRTString& _Str) const;
+
+	/*!***********************************************************************
+	@Function			!=
+	@Input				_Ptr 	A string to compare with
+	@Returns			True if they don't match
+	@Description		!= Operator
+	*************************************************************************/
+	bool operator!=(const char* const _Ptr) const;
 
 	/*!***********************************************************************
 	@Function			copy
@@ -714,7 +732,7 @@ CPVRTString PVRTStringGetContainingDirectoryPath(const CPVRTString& strFilePath)
 ************************************************************************/
 CPVRTString PVRTStringGetFileName(const CPVRTString& strFilePath);
 
-/*!***********************************************************************
+/*!***********************************************************************
 @Function			PVRTStringStripWhiteSpaceFromStartOf
 @Input				strLine A string
 @Returns			Result of the white space stripping
@@ -728,3 +746,4 @@ CPVRTString PVRTStringStripWhiteSpaceFromStartOf(const CPVRTString& strLine);
 /*****************************************************************************
 End of file (PVRTString.h)
 *****************************************************************************/
+

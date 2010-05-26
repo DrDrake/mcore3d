@@ -2,9 +2,11 @@
 
  @File         PVRTVertex.h
 
- @Title        PFX file parser.
+ @Title        PVRTVertex
 
- @Copyright    Copyright (C) 2003 - 2008 by Imagination Technologies Limited.
+ @Version      
+
+ @Copyright    Copyright (C)  Imagination Technologies Limited.
 
  @Platform     ANSI compatible
 
@@ -106,8 +108,8 @@ void PVRTVertexWrite(
  @Input				pfTexC
  @Description		Calculates the tangent and bitangent vectors for
 					vertex 'A' of the triangle defined by the 3 supplied
-					3D position coordinates (pfPosX) and 2D texture
-					coordinates (pfTexX).
+					3D position coordinates (pfPosA) and 2D texture
+					coordinates (pfTexA).
 *****************************************************************************/
 void PVRTVertexTangentBitangent(
 	PVRTVECTOR3			* const pvTan,
@@ -177,3 +179,4 @@ EPVRTError PVRTVertexGenerateTangentSpace(
 /*****************************************************************************
  End of file (PVRTVertex.h)
 *****************************************************************************/
+

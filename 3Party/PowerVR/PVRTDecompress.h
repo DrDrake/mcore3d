@@ -4,6 +4,8 @@
 
  @Title        PVRTDecompress
 
+ @Version      
+
  @Copyright    Copyright (C)  Imagination Technologies Limited.
 
  @Platform     ANSI compatible
@@ -11,6 +13,7 @@
  @Description  PVRTC and ETC Texture Decompression.
 
 ******************************************************************************/
+
 #ifndef _PVRTDECOMPRESS_H_
 #define _PVRTDECOMPRESS_H_
 
@@ -51,3 +54,4 @@ int PVRTDecompressETC(const void * const pSrcData,
 /*****************************************************************************
  End of file (PVRTBoneBatch.h)
 *****************************************************************************/
+

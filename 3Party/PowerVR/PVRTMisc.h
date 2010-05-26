@@ -4,6 +4,8 @@
 
  @Title        PVRTMisc
 
+ @Version      
+
  @Copyright    Copyright (C)  Imagination Technologies Limited.
 
  @Platform     ANSI compatible
@@ -89,3 +91,4 @@ void PVRTDestroySkybox(VERTTYPE* Vertices, VERTTYPE* UVs);
 /*****************************************************************************
  End of file (PVRTMisc.h)
 *****************************************************************************/
+

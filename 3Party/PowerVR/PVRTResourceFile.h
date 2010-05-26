@@ -4,6 +4,8 @@
 
  @Title        PVRTResourceFile
 
+ @Version      
+
  @Copyright    Copyright (C)  Imagination Technologies Limited.
 
  @Platform     ANSI compatible
@@ -115,3 +117,4 @@ protected:
 /*****************************************************************************
  End of file (PVRTResourceFile.h)
 *****************************************************************************/
+

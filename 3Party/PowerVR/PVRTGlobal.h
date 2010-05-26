@@ -4,6 +4,8 @@
 
  @Title        PVRTGlobal
 
+ @Version      
+
  @Copyright    Copyright (C)  Imagination Technologies Limited.
 
  @Platform     ANSI compatible
@@ -53,7 +55,7 @@
 	#define _RPT4(a,b,c,d,e,f)
 #else
 
-#ifdef _WIN32
+#if defined(_WIN32) && !defined(__WINSCW__)
 
 #else
 #if defined(__linux__) || defined(__APPLE__)
@@ -229,3 +231,4 @@ inline bool PVRTIsLittleEndian()
 /*****************************************************************************
  End of file (Tools.h)
 *****************************************************************************/
+

@@ -4,6 +4,8 @@
 
  @Title        PVRTVertex
 
+ @Version      
+
  @Copyright    Copyright (C)  Imagination Technologies Limited.
 
  @Platform     ANSI compatible
@@ -11,8 +13,12 @@
  @Description  Utility functions which process vertices.
 
 ******************************************************************************/
+
+/****************************************************************************
+** Includes
+****************************************************************************/
 #include "PVRTGlobal.h"
-//#include "PVRTContext.h"
+#include "PVRTContext.h"
 
 #include <stdlib.h>
 #include <string.h>
@@ -375,8 +381,8 @@ void PVRTVertexWrite(
  @Input				pfTexC
  @Description		Calculates the tangent and bitangent vectors for
 					vertex 'A' of the triangle defined by the 3 supplied
-					3D position coordinates (pfPosX) and 2D texture
-					coordinates (pfTexX).
+					3D position coordinates (pfPosA) and 2D texture
+					coordinates (pfTexA).
 *****************************************************************************/
 void PVRTVertexTangentBitangent(
 	PVRTVECTOR3f		* const pvTan,
@@ -756,3 +762,4 @@ EPVRTError PVRTVertexGenerateTangentSpace(
 /*****************************************************************************
  End of file (PVRTVertex.cpp)
 *****************************************************************************/
+

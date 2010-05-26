@@ -4,6 +4,8 @@
 
  @Title        PVRTModelPOD
 
+ @Version      
+
  @Copyright    Copyright (C)  Imagination Technologies Limited.
 
  @Platform     ANSI compatible
@@ -79,7 +81,7 @@ enum EPODMaterialFlags
 ******************************************************************************/
 enum EPODBlendFunc
 {
-	ePODBlendFunc_ZERO,
+	ePODBlendFunc_ZERO=0,
 	ePODBlendFunc_ONE,
 	ePODBlendFunc_BLEND_FACTOR,
 	ePODBlendFunc_ONE_MINUS_BLEND_FACTOR,
@@ -187,6 +189,8 @@ struct SPODMesh {
 	CPVRTBoneBatches	sBoneBatches;	/*!< Bone tables */
 
 	EPODPrimitiveType	ePrimitiveType;	/*!< Primitive type used by this mesh */
+
+	PVRTMATRIX			mUnpackMatrix;	/*!< A matrix used for unscaling scaled vertex data created with PVRTModelPODScaleAndConvertVtxData*/
 };
 
 /*!****************************************************************************
@@ -201,9 +205,17 @@ struct SPODNode {
 	int			 nIdxParent;		/*!< Index into MeshInstance array; recursively apply ancestor's transforms after this instance's. */
 
 	unsigned int nAnimFlags;		/*!< Stores which animation arrays the POD Node contains */
+
+	unsigned int* pnAnimPositionIdx;
 	VERTTYPE	*pfAnimPosition;	/*!< 3 floats per frame of animation. */
+
+	unsigned int* pnAnimRotationIdx;
 	VERTTYPE	*pfAnimRotation;	/*!< 4 floats per frame of animation. */
+
+	unsigned int* pnAnimScaleIdx;
 	VERTTYPE	*pfAnimScale;		/*!< 7 floats per frame of animation. */
+
+	unsigned int* pnAnimMatrixIdx;
 	VERTTYPE	*pfAnimMatrix;		/*!< 16 floats per frame of animation. */
 };
 
@@ -724,6 +736,28 @@ size_t PVRTModelPODDataTypeComponentCount(const EPVRTDataType type);
 size_t PVRTModelPODDataStride(const CPODData &data);
 
 /*!***************************************************************************
+ @Function			PVRTModelPODGetAnimArraySize
+ @Input				pAnimDataIdx
+ @Input				ui32Frames
+ @Input				ui32Components
+ @Return			Size of the animation array
+ @Description		Calculates the size of an animation array
+*****************************************************************************/
+unsigned int PVRTModelPODGetAnimArraySize(unsigned int *pAnimDataIdx, unsigned int ui32Frames, unsigned int ui32Components);
+
+/*!***************************************************************************
+ @Function		PVRTModelPODScaleAndConvertVtxData
+ @Modified		mesh		POD mesh to scale and convert the mesh data
+ @Input			eNewType	The data type to scale and convert the vertex data to
+ @Return		PVR_SUCCESS on success and PVR_FAIL on failure.
+ @Description	Scales the vertex data to fit within the range of the requested
+				data type and then converts the data to that type. This function
+				isn't currently compiled in for fixed point builds of the tools.
+*****************************************************************************/
+#if !defined(PVRT_FIXED_POINT_ENABLE)
+EPVRTError PVRTModelPODScaleAndConvertVtxData(SPODMesh &mesh, const EPVRTDataType eNewType);
+#endif
+/*!***************************************************************************
  @Function		PVRTModelPODDataConvert
  @Modified		data		Data elements to convert
  @Input			eNewType	New type of elements
@@ -733,21 +767,35 @@ size_t PVRTModelPODDataStride(const CPODData &data);
 void PVRTModelPODDataConvert(CPODData &data, const unsigned int nCnt, const EPVRTDataType eNewType);
 
 /*!***************************************************************************
- @Function		PVRTModelPODDataShred
- @Modified		data		Data elements to modify
- @Input			nCnt		Number of elements
- @Input			nMask		Channel masks
- @Description	Reduce the number of dimensions in 'data' using the channel
-				masks in 'nMask'.
+ @Function			PVRTModelPODDataShred
+ @Modified			data		Data elements to modify
+ @Input				nCnt		Number of elements
+ @Input				pChannels	A list of the wanted channels, e.g. {'x', 'y', 0}
+ @Description		Reduce the number of dimensions in 'data' using the requested
+					channel array. The array should have a maximum length of 4
+					or be null terminated if less channels are wanted. Supported
+					elements are 'x','y','z' and 'w'. They must be defined in lower
+					case. It is also possible to negate an element, e.g. {'x','y', -'z'}.
 *****************************************************************************/
-void PVRTModelPODDataShred(CPODData &data, const unsigned int nCnt, const unsigned int nMask);
+void PVRTModelPODDataShred(CPODData &data, const unsigned int nCnt, const int *pChannels);
+
+/*!***************************************************************************
+ @Function			PVRTModelPODReorderFaces
+ @Modified			mesh		The mesh to re-order the faces of
+ @Input				i32El1		The first index to be written out
+ @Input				i32El2		The second index to be written out
+ @Input				i32El3		The third index to be written out
+ @Description		Reorders the face indices of a mesh.
+*****************************************************************************/
+void PVRTModelPODReorderFaces(SPODMesh &mesh, const int i32El1, const int i32El2, const int i32El3);
 
 /*!***************************************************************************
  @Function		PVRTModelPODToggleInterleaved
  @Modified		mesh		Mesh to modify
+ @Input			ui32AlignToNBytes Align the interleaved data to this no. of bytes.
  @Description	Switches the supplied mesh to or from interleaved data format.
 *****************************************************************************/
-void PVRTModelPODToggleInterleaved(SPODMesh &mesh);
+void PVRTModelPODToggleInterleaved(SPODMesh &mesh, unsigned int ui32AlignToNBytes = 1);
 
 /*!***************************************************************************
  @Function		PVRTModelPODDeIndex
@@ -780,8 +828,81 @@ unsigned int PVRTModelPODCountIndices(const SPODMesh &mesh);
 *****************************************************************************/
 void PVRTModelPODToggleFixedPoint(SPODScene &s);
 
+/*!***************************************************************************
+ @Function			PVRTModelPODCopyCPODData
+ @Input				in
+ @Output			out
+ @Input				ui32No
+ @Input				bInterleaved
+ @Description		Used to copy a CPODData of a mesh
+*****************************************************************************/
+void PVRTModelPODCopyCPODData(const CPODData &in, CPODData &out, unsigned int ui32No, bool bInterleaved);
+
+/*!***************************************************************************
+ @Function			PVRTModelPODCopyNode
+ @Input				in
+ @Output			out
+ @Input				nNumFrames The number of animation frames
+ @Description		Used to copy a pod node
+*****************************************************************************/
+void PVRTModelPODCopyNode(const SPODNode &in, SPODNode &out, int nNumFrames);
+
+/*!***************************************************************************
+ @Function			PVRTModelPODCopyMesh
+ @Input				in
+ @Output			out
+ @Description		Used to copy a pod mesh
+*****************************************************************************/
+void PVRTModelPODCopyMesh(const SPODMesh &in, SPODMesh &out);
+
+/*!***************************************************************************
+ @Function			PVRTModelPODCopyTexture
+ @Input				in
+ @Output			out
+ @Description		Used to copy a pod texture
+*****************************************************************************/
+void PVRTModelPODCopyTexture(const SPODTexture &in, SPODTexture &out);
+
+/*!***************************************************************************
+ @Function			PVRTModelPODCopyMaterial
+ @Input				in
+ @Output			out
+ @Description		Used to copy a pod material
+*****************************************************************************/
+void PVRTModelPODCopyMaterial(const SPODMaterial &in, SPODMaterial &out);
+
+/*!***************************************************************************
+ @Function			PVRTModelPODCopyCamera
+ @Input				in
+ @Output			out
+ @Input				nNumFrames The number of animation frames
+ @Description		Used to copy a pod camera
+*****************************************************************************/
+void PVRTModelPODCopyCamera(const SPODCamera &in, SPODCamera &out, int nNumFrames);
+
+/*!***************************************************************************
+ @Function			PVRTModelPODCopyLight
+ @Input				in
+ @Output			out
+ @Description		Used to copy a pod light
+*****************************************************************************/
+void PVRTModelPODCopyLight(const SPODLight &in, SPODLight &out);
+
+/*!***************************************************************************
+ @Function			PVRTModelPODFlattenToWorldSpace
+ @Input				in - Source scene. All meshes must not be interleaved.
+ @Output			out
+ @Description		Used to flatten a pod scene to world space. All animation
+					and skinning information will be removed. The returned
+					position, normal, binormals and tangent data if present
+					will be returned as floats regardless of the input data
+					type.
+*****************************************************************************/
+EPVRTError PVRTModelPODFlattenToWorldSpace(CPVRTModelPOD &in, CPVRTModelPOD &out);
+
 #endif /* _PVRTMODELPOD_H_ */
 
 /*****************************************************************************
  End of file (PVRTModelPOD.h)
 *****************************************************************************/
+
