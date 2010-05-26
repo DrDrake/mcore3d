@@ -7,7 +7,9 @@
 
 namespace MCD {
 
-PrefabLoaderComponent::PrefabLoaderComponent() : mLoaded(false) {}
+PrefabLoaderComponent::PrefabLoaderComponent()
+	: reloadCount(0)
+{}
 
 bool PrefabLoaderComponent::cloneable() const {
 	return true;
@@ -15,20 +17,19 @@ bool PrefabLoaderComponent::cloneable() const {
 
 Component* PrefabLoaderComponent::clone() const
 {
-	PrefabLoaderComponent* cloned = new PrefabLoaderComponent();
+	PrefabLoaderComponent* cloned = new PrefabLoaderComponent;
 	cloned->prefab = prefab;
-	cloned->mLoaded = mLoaded;
 	return cloned;
 }
 
 void PrefabLoaderComponent::update(float dt)
 {
 	Entity* e = entity();
-	if(mLoaded || !e || !prefab)
+	if(!e || !prefab)
 		return;
 
 	// Check the loading status
-	if(!prefab->entity.get())
+	if(prefab->reloadCount == reloadCount || !prefab->entity.get())
 		return;
 
 	// Remove all existing child nodes first
@@ -43,17 +44,17 @@ void PrefabLoaderComponent::update(float dt)
 		bk->asChildOf(e);
 	}
 
-	mLoaded = true;
+	reloadCount = prefab->reloadCount;
 
-	// TODO: Should PrefabLoaderComponent remove itself?
+	// TODO: PrefabLoaderComponent may remove itself in final release.
 }
 
 void PrefabLoaderComponent::reload() {
-	mLoaded = false;
+	reloadCount = 0;
 }
 
 bool PrefabLoaderComponent::isLoaded() const {
-	return mLoaded;
+	return reloadCount > 0;
 }
 
 Entity* PrefabLoaderComponent::loadEntity(IResourceManager& resourceManager, const char* filePath, const char* args, DynamicsWorld* dynamicsWorld)
