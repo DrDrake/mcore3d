@@ -4,7 +4,7 @@
 namespace MCD {
 
 Prefab::Prefab(const Path& fileId)
-	: Resource(fileId)
+	: Resource(fileId), reloadCount(0)
 {
 }
 

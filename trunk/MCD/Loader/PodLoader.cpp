@@ -673,6 +673,8 @@ void PodLoader::Impl::commit(Resource& resource)
 		bk->asChildOf(prefab.entity.get());
 	}
 	delete cloned;
+
+	++prefab.reloadCount;
 }
 
 PodLoader::PodLoader(

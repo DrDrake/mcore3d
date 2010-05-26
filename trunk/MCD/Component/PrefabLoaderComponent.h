@@ -46,7 +46,8 @@ public:
 	bool isLoaded() const;
 
 protected:
-	bool mLoaded;
+	//!	If this counter doesn't match that of prefab, the Entity tree will be refreshed.
+	size_t reloadCount;
 };	// PrefabLoaderComponent
 
 typedef IntrusiveWeakPtr<PrefabLoaderComponent> PrefabLoaderComponentPtr;
