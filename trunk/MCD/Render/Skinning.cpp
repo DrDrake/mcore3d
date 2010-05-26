@@ -28,8 +28,8 @@ void skinning(
 			position,
 			basePoseMesh.mapAttribute<const Vec3f>(Mesh::cPositionAttrIdx, basePoseMapped, Mesh::Read),
 			StrideArray<const Mat44f>(&skeleton.transforms[0], skeleton.jointCount()),
-			mesh.mapAttributeUnsafe<uint8_t>(jointIndex, mapped),
-			mesh.mapAttributeUnsafe<float>(weightIndex, mapped),
+			basePoseMesh.mapAttributeUnsafe<uint8_t>(jointIndex, basePoseMapped, Mesh::Read),
+			basePoseMesh.mapAttributeUnsafe<float>(weightIndex, basePoseMapped, Mesh::Read),
 			jointPerVertex
 		);
 	} else {				// Skinning position and normal
@@ -39,8 +39,8 @@ void skinning(
 			basePoseMesh.mapAttribute<const Vec3f>(Mesh::cPositionAttrIdx, basePoseMapped, Mesh::Read),
 			basePoseMesh.mapAttribute<const Vec3f>(normalIndex, basePoseMapped, Mesh::Read),
 			StrideArray<const Mat44f>(&skeleton.transforms[0], skeleton.jointCount()),
-			mesh.mapAttributeUnsafe<uint8_t>(jointIndex, mapped),
-			mesh.mapAttributeUnsafe<float>(weightIndex, mapped),
+			basePoseMesh.mapAttributeUnsafe<uint8_t>(jointIndex, basePoseMapped, Mesh::Read),
+			basePoseMesh.mapAttributeUnsafe<float>(weightIndex, basePoseMapped, Mesh::Read),
 			jointPerVertex
 		);
 	}
