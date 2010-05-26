@@ -33,11 +33,13 @@ void Mesh::drawFaceOnly()
 		return;
 
 	LPDIRECT3DDEVICE9 device = reinterpret_cast<LPDIRECT3DDEVICE9>(RenderWindow::getActiveContext());
+	MCD_ASSUME(device);
 
 	// Bind index buffer
 	LPDIRECT3DINDEXBUFFER9* indexBuf = reinterpret_cast<LPDIRECT3DINDEXBUFFER9*>(
 		this->handles[attributes[Mesh::cIndexAttrIdx].bufferIndex].get()
 	);
+	MCD_ASSUME(indexBuf);
 	device->SetIndices(*indexBuf);
 
 	// Bind vertex and other buffers
@@ -45,6 +47,7 @@ void Mesh::drawFaceOnly()
 		LPDIRECT3DVERTEXBUFFER9* vertexBuf = reinterpret_cast<LPDIRECT3DVERTEXBUFFER9*>(
 			this->handles[i].get()
 		);
+		MCD_ASSUME(vertexBuf);
 		MCD_VERIFY(device->SetStreamSource(i, *vertexBuf, 0, bufferSize(i)/vertexCount) == D3D_OK);
 	}
 
@@ -65,13 +68,15 @@ void Mesh::clear()
 
 	// Release the buffer that is no longer shared.
 	for(size_t i=0; i<handles.size(); ++i) {
-		if(handles[i] && handles[i].referenceCount() == 1) {
+		if(bufferCount && handles[i] && handles[i].referenceCount() == 1) {
 			if(i == attributes[cIndexAttrIdx].bufferIndex) {
 				LPDIRECT3DINDEXBUFFER9* handle = reinterpret_cast<LPDIRECT3DINDEXBUFFER9*>(this->handles[i].get());
+				MCD_ASSUME(handle);
 				SAFE_RELEASE(*handle);
 			}
 			else {
 				LPDIRECT3DVERTEXBUFFER9* handle = reinterpret_cast<LPDIRECT3DVERTEXBUFFER9*>(this->handles[i].get());
+				MCD_ASSUME(handle);
 				SAFE_RELEASE(*handle);
 			}
 		}
@@ -133,6 +138,7 @@ void* Mesh::mapBuffer(size_t bufferIdx, MappedBuffers& mapped, MapOption mapOpti
 	void* ret;
 	if(bufferIdx != attributes[cIndexAttrIdx].bufferIndex) {
 		LPDIRECT3DVERTEXBUFFER9* handle = reinterpret_cast<LPDIRECT3DVERTEXBUFFER9*>(this->handles[bufferIdx].get());
+		MCD_ASSUME(handle);
 		if(FAILED((*handle)->Lock(0, size, &ret, flags)))
 			return nullptr;
 	}
@@ -154,10 +160,12 @@ void Mesh::unmapBuffers(MappedBuffers& mapped) const
 
 		if(i != attributes[cIndexAttrIdx].bufferIndex) {
 			LPDIRECT3DVERTEXBUFFER9* handle = reinterpret_cast<LPDIRECT3DVERTEXBUFFER9*>(this->handles[i].get());
+			MCD_ASSUME(handle);
 			MCD_VERIFY(SUCCEEDED((*handle)->Unlock()));
 		}
 		else {
 			LPDIRECT3DINDEXBUFFER9* handle = reinterpret_cast<LPDIRECT3DINDEXBUFFER9*>(this->handles[i].get());
+			MCD_ASSUME(handle);
 			MCD_VERIFY(SUCCEEDED((*handle)->Unlock()));
 		}
 
@@ -211,6 +219,7 @@ bool Mesh::create(const void* const* data, Mesh::StorageHint storageHint)
 
 		if(i == Mesh::cIndexAttrIdx) {
 			LPDIRECT3DINDEXBUFFER9* handle = reinterpret_cast<LPDIRECT3DINDEXBUFFER9*>(this->handles[i].get());
+			MCD_ASSUME(handle);
 			SAFE_RELEASE(*handle);
 
 			if(FAILED(device->CreateIndexBuffer(size, storageFlag, D3DFMT_INDEX16, D3DPOOL_DEFAULT, handle, nullptr)))
@@ -226,6 +235,7 @@ bool Mesh::create(const void* const* data, Mesh::StorageHint storageHint)
 		else
 		{
 			LPDIRECT3DVERTEXBUFFER9* handle = reinterpret_cast<LPDIRECT3DVERTEXBUFFER9*>(this->handles[i].get());
+			MCD_ASSUME(handle);
 			SAFE_RELEASE(*handle);
 
 			if(FAILED(device->CreateVertexBuffer(size, storageFlag, 0, D3DPOOL_DEFAULT, handle, nullptr)))

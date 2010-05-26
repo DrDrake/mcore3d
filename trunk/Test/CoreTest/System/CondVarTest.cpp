@@ -56,7 +56,7 @@ TEST(Basic_CondVarTest)
 	}
 }
 
-#include <deque>
+#include "../../../MCD/Core/System/Deque.h"
 
 namespace {
 

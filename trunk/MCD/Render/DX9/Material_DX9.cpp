@@ -31,6 +31,8 @@ MaterialComponent::Impl::Impl()
 	mConstantHandles.worldViewProj = mVsConstTable->GetConstantByName(nullptr, "mcdWorldViewProj");
 	mConstantHandles.world = mVsConstTable->GetConstantByName(nullptr, "mcdWorld");
 	mConstantHandles.lights = mPsConstTable->GetConstantByName(nullptr, "mcdLights");
+	mConstantHandles.cameraPosition = mPsConstTable->GetConstantByName(nullptr, "mcdCameraPosition");
+	mConstantHandles.specularExponent = mPsConstTable->GetConstantByName(nullptr, "mcdSpecularExponent");
 }
 
 MaterialComponent::Impl::~Impl()
@@ -105,11 +107,18 @@ bool MaterialComponent::Impl::createPs()
 	"	float4 color;"
 	"} mcdLights[MCD_MAX_LIGHT_COUNT];"
 
-	"void computeLighting(in Light light, in float3 P, in float3 N, inout float3 diff) {"
+	"float3 mcdCameraPosition;"
+	"float mcdSpecularExponent;"
+
+	"void computeLighting(in Light light, in float3 P, in float3 N, in float3 V, inout float3 diffuse, inout float3 specular) {"
 	"	float3 L = light.position - P;"
 	"	L = normalize(L);"
+	"	float3 H = normalize(L + V);"
 	"	float ndotl = saturate(dot(N, L));"
-	"	diff += ndotl * light.color.xyz;"
+	"	float ndoth = saturate(dot(N, H));"
+	"	float specExp = pow(ndoth, mcdSpecularExponent);"
+	"	diffuse += ndotl * light.color.xyz;"
+	"	specular += specExp * light.color.xyz;"
 	"}"
 
 	"struct PS_INPUT {"
@@ -119,13 +128,17 @@ bool MaterialComponent::Impl::createPs()
 	"	float4 color : COLOR0;"
 	"};"
 	"struct PS_OUTPUT { float4 color : COLOR; };"
+
 	"PS_OUTPUT main(PS_INPUT _in) {"
 	"	PS_OUTPUT _out = (PS_OUTPUT) 0;"
-	"	float3 N = _in.normal;"
-	"	float3 diff = 0;"
+	"	float3 P = _in.worldPosition;"
+	"	float3 N = normalize(_in.normal);"
+	"	float3 V = normalize(mcdCameraPosition - P);"
+	"	float3 diffuse = 0;"
+	"	float3 specular = 0;"
 	"	for(int i=0; i<MCD_MAX_LIGHT_COUNT; ++i)"
-	"		computeLighting(mcdLights[i], _in.worldPosition, N, diff);\n"
-	"	_out.color.xyz = _in.color.xyz * diff;"
+	"		computeLighting(mcdLights[i], P, N, V, diffuse, specular);\n"
+	"	_out.color.xyz = _in.color.xyz * 0.5 * diffuse + specular;"
 	"	return _out;"
 	"}";
 
@@ -158,6 +171,7 @@ bool MaterialComponent::Impl::createPs()
 
 MaterialComponent::MaterialComponent()
 	: mImpl(*new Impl)
+	, specularExponent(20)
 {
 }
 

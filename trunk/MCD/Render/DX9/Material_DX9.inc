@@ -22,6 +22,8 @@ public:
 		D3DXHANDLE world;
 		D3DXHANDLE worldViewProj;
 		D3DXHANDLE lights;
+		D3DXHANDLE cameraPosition;
+		D3DXHANDLE specularExponent;
 	};	// ConstantHandles
 
 	ConstantHandles mConstantHandles;

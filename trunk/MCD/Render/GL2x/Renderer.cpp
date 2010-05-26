@@ -23,11 +23,12 @@ void RendererComponent::Impl::render(Entity& entityTree, CameraComponent2* camer
 	{	// Apply camera
 		if(!camera) camera = mDefaultCamera.get();
 		mCurrentCamera = camera;
-		if(!camera || !camera->entity())
-			return;
+		if(!camera) return;
+		Entity* cameraEntity = camera->entity();
+		if(!cameraEntity) return;
 
 		camera->frustum.computeProjection(mProjectionMatrix.getPtr());
-		mViewMatrix = camera->entity()->worldTransform().inverse();
+		mViewMatrix = cameraEntity->worldTransform().inverse();
 
 		glMatrixMode(GL_PROJECTION);
 		glLoadTransposeMatrixf(mProjectionMatrix.getPtr());

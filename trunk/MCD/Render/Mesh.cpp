@@ -7,6 +7,7 @@ namespace MCD {
 
 Mesh::Mesh(const Path& fileId)
 	: Resource(fileId), mImpl(nullptr)
+	, bufferCount(0)
 {
 	clear();
 }

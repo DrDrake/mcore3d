@@ -263,7 +263,8 @@ TEST(TryLock_ThreadTest)
 	}
 }
 
-#include <deque>
+#include "../../../MCD/Core/System/Deque.h"
+
 namespace {
 
 std::deque<int> gTestQueue;
