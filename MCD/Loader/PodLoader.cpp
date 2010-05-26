@@ -181,8 +181,8 @@ static void* insertDataToInterleavedBuffer(
 	size_t insertAtOffset, const void* initialContent=nullptr
 )
 {
-	MCD_ASSERT(newStride > oldStride);
-	MCD_ASSERT(insertAtOffset <= oldStride);
+	MCD_ASSUME(newStride > oldStride);
+	MCD_ASSUME(insertAtOffset <= oldStride);
 
 	byte_t* newBuf = (byte_t*)::malloc(newStride * vertexCount);
 
@@ -273,7 +273,7 @@ IResourceLoader::LoadingState PodLoader::Impl::load(std::istream* is, const Path
 			const size_t deltaJoinPerVertex = newJointPerVertex - oldJointPerVertex;
 			const size_t oldStride = podMesh.sBoneIdx.nStride;
 			const size_t newStride = oldStride + deltaJoinPerVertex * (sizeof(uint8_t) + sizeof(float));
-			SPODMesh& mesh = const_cast<SPODMesh&>(podMesh);
+			SPODMesh& mesh_ = const_cast<SPODMesh&>(podMesh);
 
 			// Insert dummy joint weight data
 			const float cDummyWeight[newJointPerVertex] = { 0 };
@@ -285,16 +285,16 @@ IResourceLoader::LoadingState PodLoader::Impl::load(std::istream* is, const Path
 				size_t(podMesh.sBoneWeight.pData) + oldJointPerVertex * sizeof(float),	// insertAtOffset
 				cDummyWeight
 			);
-			::free(mesh.pInterleaved);
+			::free(podMesh.pInterleaved);
 
 			if(podMesh.sBoneIdx.pData > podMesh.sBoneWeight.pData)
-				mesh.sBoneIdx.pData += deltaJoinPerVertex * sizeof(float);
+				mesh_.sBoneIdx.pData += deltaJoinPerVertex * sizeof(float);
 			else
-				mesh.sBoneWeight.pData += deltaJoinPerVertex * sizeof(uint8_t);
+				mesh_.sBoneWeight.pData += deltaJoinPerVertex * sizeof(uint8_t);
 
 			// Insert dummy joint index data
 			const uint8_t cDummyIdx[newJointPerVertex] = { 0 };
-			mesh.pInterleaved = (unsigned char*)insertDataToInterleavedBuffer(
+			mesh_.pInterleaved = (unsigned char*)insertDataToInterleavedBuffer(
 				newBuf,
 				podMesh.sBoneIdx.nStride + deltaJoinPerVertex * sizeof(float),
 				newStride,
@@ -304,15 +304,15 @@ IResourceLoader::LoadingState PodLoader::Impl::load(std::istream* is, const Path
 			);
 			::free(newBuf);
 
-			if(mesh.sVertex.n) mesh.sVertex.nStride = newStride;
-			if(mesh.sNormals.n) mesh.sNormals.nStride = newStride;
-			for(size_t j=0; j<mesh.nNumUVW; ++j)
-				mesh.psUVW[j].nStride = newStride;
+			if(podMesh.sVertex.n) mesh_.sVertex.nStride = newStride;
+			if(podMesh.sNormals.n) mesh_.sNormals.nStride = newStride;
+			for(size_t j=0; j<podMesh.nNumUVW; ++j)
+				mesh_.psUVW[j].nStride = newStride;
 
-			mesh.sBoneIdx.n = newJointPerVertex;
-			mesh.sBoneIdx.nStride = newStride;
-			mesh.sBoneWeight.n = newJointPerVertex;
-			mesh.sBoneWeight.nStride = newStride;
+			mesh_.sBoneIdx.n = newJointPerVertex;
+			mesh_.sBoneIdx.nStride = newStride;
+			mesh_.sBoneWeight.n = newJointPerVertex;
+			mesh_.sBoneWeight.nStride = newStride;
 		}
 
 		// Index

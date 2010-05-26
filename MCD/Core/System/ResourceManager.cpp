@@ -1,5 +1,6 @@
 #include "Pch.h"
 #include "ResourceManager.h"
+#include "Deque.h"
 #include "FileSystem.h"
 #include "Log.h"
 #include "Macros.h"
@@ -10,15 +11,6 @@
 #include "TaskPool.h"
 #include "Utility.h"
 #include <algorithm>	// for std::find
-
-#ifdef MCD_VC
-#	pragma warning(push)
-#	pragma warning(disable: 6011)
-#endif
-#include <deque>
-#ifdef MCD_VC
-#	pragma warning(pop)
-#endif
 
 namespace MCD {
 

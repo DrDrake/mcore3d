@@ -7,10 +7,10 @@
 #include "../RenderWindow.h"
 #include "../../Core/Math/Mat44.h"
 #include "../../Core/Entity/Entity.h"
+#include "../../Core/System/Deque.h"
 
 #include <d3d9.h>
 #include <D3DX9Shader.h>
-#include <stack>
 
 #include "Material_DX9.inc"
 
@@ -24,8 +24,8 @@ struct ShaderContext
 
 struct RenderItem
 {
-	MeshComponent2* mesh;
-	MaterialComponent* material;
+	sal_notnull MeshComponent2* mesh;
+	sal_notnull MaterialComponent* material;
 };	// RenderItem
 
 typedef std::vector<RenderItem> RenderItems;
@@ -39,6 +39,7 @@ public:
 
 	//! mDefaultCamera and mCurrentCamera may differ from each other for instance when rendering using light's view
 	CameraComponent2Ptr mDefaultCamera, mCurrentCamera;
+	Mat44f mCameraTransform;
 	Mat44f mProjMatrix, mViewMatrix, mViewProjMatrix, mWorldMatrix, mWorldViewProjMatrix;
 
 	ShaderContext mCurrentVS, mCurrentPS;
@@ -69,11 +70,13 @@ void RendererComponent::Impl::render(Entity& entityTree, CameraComponent2* camer
 	{	// Apply camera
 		if(!camera) camera = mDefaultCamera.get();
 		mCurrentCamera = camera;
-		if(!camera || !camera->entity())
-			return;
+		if(!camera) return;
+		Entity* cameraEntity = camera->entity();
+		if(!cameraEntity) return;
 
 		camera->frustum.computeProjection(mProjMatrix.getPtr());
-		mViewMatrix = camera->entity()->worldTransform().inverse();
+		mCameraTransform = cameraEntity->worldTransform();
+		mViewMatrix = mCameraTransform.inverse();
 		mViewProjMatrix = mProjMatrix * mViewMatrix;
 
 		// TODO: Is these usefull?
@@ -146,13 +149,15 @@ void RendererComponent::Impl::render(Entity& entityTree, CameraComponent2* camer
 
 	// Render the items in render queue
 	MCD_FOREACH(const RenderItem& i, mRenderQueue) {
-		mWorldMatrix = i.mesh->entity()->worldTransform();
-		mWorldViewProjMatrix = mViewProjMatrix * mWorldMatrix;
+		if(Entity* e = i.mesh->entity()) {
+			mWorldMatrix = e->worldTransform();
+			mWorldViewProjMatrix = mViewProjMatrix * mWorldMatrix;
 
-		// Set lighting information to the shader
-		i.material->preRender(0, this);
-		i.mesh->mesh->drawFaceOnly();
-		i.material->postRender(0, this);
+			// Set lighting information to the shader
+			i.material->preRender(0, this);
+			i.mesh->mesh->drawFaceOnly();
+			i.material->postRender(0, this);
+		}
 	}
 
 	mLights.clear();
@@ -187,34 +192,51 @@ void MaterialComponent::preRender(size_t pass, void* context)
 	RendererComponent::Impl& renderer = *reinterpret_cast<RendererComponent::Impl*>(context);
 	LPDIRECT3DDEVICE9 device = reinterpret_cast<LPDIRECT3DDEVICE9>(RenderWindow::getActiveContext());
 
-	mImpl.mVsConstTable->SetMatrix(
-		device, mImpl.mConstantHandles.worldViewProj, (D3DXMATRIX*)renderer.mWorldViewProjMatrix.getPtr()
-	);
+	{	// Bind system infromation
+		MCD_VERIFY(mImpl.mVsConstTable->SetMatrix(
+			device, mImpl.mConstantHandles.worldViewProj, (D3DXMATRIX*)renderer.mWorldViewProjMatrix.getPtr()
+		) == S_OK);
 
-	mImpl.mVsConstTable->SetMatrix(
-		device, mImpl.mConstantHandles.world, (D3DXMATRIX*)renderer.mWorldMatrix.getPtr()
-	);
+		MCD_VERIFY(mImpl.mVsConstTable->SetMatrix(
+			device, mImpl.mConstantHandles.world, (D3DXMATRIX*)renderer.mWorldMatrix.getPtr()
+		) == S_OK);
 
-	// To match the light data structure in the shader
-	struct LightStruct
-	{
-		Vec3f position;
-		ColorRGBAf color;
-	} lightStruct;
+		Vec3f cameraPosition = renderer.mCameraTransform.translation();
+		MCD_VERIFY(mImpl.mVsConstTable->SetFloatArray(
+			device, mImpl.mConstantHandles.cameraPosition, cameraPosition.getPtr(), 3
+		) == S_OK);
+	}
 
-	for(size_t i=0; i<4; ++i) {
-		D3DXHANDLE hi = mImpl.mPsConstTable->GetConstantElement(mImpl.mConstantHandles.lights, i);
+	{	// Bind light information
+		// To match the light data structure in the shader
+		struct LightStruct
+		{
+			Vec3f position;
+			ColorRGBAf color;
+		} lightStruct;
 
-		if(i < renderer.mLights.size()) {
-			LightComponent* light = renderer.mLights[i];
-			lightStruct.position = light->entity()->worldTransform().translation();
-			lightStruct.color = ColorRGBAf(light->color, 1);
-		}
-		else
+		for(size_t i=0; i<4; ++i) {
+			D3DXHANDLE hi = mImpl.mPsConstTable->GetConstantElement(mImpl.mConstantHandles.lights, i);
+
 			memset(&lightStruct, 0, sizeof(lightStruct));
 
-		HRESULT result = mImpl.mVsConstTable->SetFloatArray(device, hi, (float*)&lightStruct, sizeof(lightStruct) / sizeof(float));
-		result = result;
+			if(i < renderer.mLights.size()) {
+				LightComponent* light = renderer.mLights[i];
+				if(Entity* e = light->entity())
+					lightStruct.position = e->worldTransform().translation();
+				lightStruct.color = ColorRGBAf(light->color, 1);
+			}
+
+			MCD_VERIFY(mImpl.mVsConstTable->SetFloatArray(
+				device, hi, (float*)&lightStruct, sizeof(lightStruct) / sizeof(float)
+			) == S_OK);
+		}
+	}
+
+	{	// Bind material information
+		MCD_VERIFY(mImpl.mVsConstTable->SetFloat(
+			device, mImpl.mConstantHandles.specularExponent, specularExponent
+		) == S_OK);
 	}
 
 	device->SetVertexShader(mImpl.mVs);

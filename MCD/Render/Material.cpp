@@ -105,4 +105,11 @@ void Material::addProperty(IMaterialProperty* property, size_t pass)
 	static_cast<Pass&>(mRenderPasses[pass]).addProperty(property);
 }
 
+Component* MaterialComponent::clone() const
+{
+	MaterialComponent* cloned = new MaterialComponent;
+	cloned->specularExponent = this->specularExponent;
+	return cloned;
+}
+
 }	// namespace MCD
