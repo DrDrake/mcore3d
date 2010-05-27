@@ -18,7 +18,7 @@
 
 ******************************************************************************/
 #include "PVRTGlobal.h"
-#include "PVRTContext.h"
+//#include "PVRTContext.h"
 #include <math.h>
 #include <string.h>
 #include "PVRTFixedPoint.h"		// Only needed for trig function float lookups

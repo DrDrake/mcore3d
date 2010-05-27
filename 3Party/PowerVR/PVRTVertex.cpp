@@ -18,7 +18,7 @@
 ** Includes
 ****************************************************************************/
 #include "PVRTGlobal.h"
-#include "PVRTContext.h"
+//#include "PVRTContext.h"
 
 #include <stdlib.h>
 #include <string.h>

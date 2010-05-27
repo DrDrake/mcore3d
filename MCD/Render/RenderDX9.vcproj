@@ -257,6 +257,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\GpuDataFormat.h"
+				>
+			</File>
+			<File
 				RelativePath=".\InstancedMesh.h"
 				>
 			</File>
@@ -587,6 +591,10 @@
 		<Filter
 			Name="DX9"
 			>
+			<File
+				RelativePath=".\DX9\GpuDataFormat.cpp"
+				>
+			</File>
 			<File
 				RelativePath=".\DX9\Material_DX9.cpp"
 				>
