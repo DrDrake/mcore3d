@@ -615,6 +615,10 @@
 				RelativePath=".\DX9\RenderWindow.Win.inc"
 				>
 			</File>
+			<File
+				RelativePath=".\DX9\Texture_DX9.cpp"
+				>
+			</File>
 		</Filter>
 		<File
 			RelativePath=".\Pch.cpp"

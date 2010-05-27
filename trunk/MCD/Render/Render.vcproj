@@ -620,6 +620,10 @@
 				RelativePath=".\GL2x\RenderWindow.Win.inc"
 				>
 			</File>
+			<File
+				RelativePath=".\GL2x\Texture_GL2x.cpp"
+				>
+			</File>
 		</Filter>
 		<File
 			RelativePath=".\Pch.cpp"
