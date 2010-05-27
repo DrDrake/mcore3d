@@ -73,6 +73,13 @@ public:
 	 */
 	sal_maybenull Entity* skipChildren();
 
+	/*!	Get the depth level change before and after the call to next().
+		Zero value -> no change in level
+		Positive value -> towards child level
+		Negative value -> toward parent level
+	 */
+	int depthChange() const { return mDepthChange; }
+
 	//!	Returns how many preorder iterations are the 2 Entity aparted from.
 	static sal_checkreturn int offsetFrom(const Entity& from, const Entity& to);
 
@@ -83,6 +90,7 @@ protected:
 	Entity* mCurrent;
 	//! The position where this iterator is constructed, so it knows where to stop.
 	const Entity* mStart;
+	int mDepthChange;
 };	// EntityPreorderIterator
 
 }	// namespace MCD

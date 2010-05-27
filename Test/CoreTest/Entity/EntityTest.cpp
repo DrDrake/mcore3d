@@ -209,10 +209,12 @@ TEST(PreorderIterator_EntityTest)
 
 	{	// Traversing a more complicated tree
 		size_t i = 0;
-		Entity* expected[] = { &root, e3, e2, e21, e1, e13, e12, e11 };
+		const Entity* expected[] = { &root, e3, e2, e21, e1, e13, e12, e11 };
+		int expectedDepthChange[] = { 0, 1, 0, 1, -1, 1, 0, 0 };
 
 		for(EntityPreorderIterator itr(&root); !itr.ended(); itr.next(), ++i) {
 			CHECK_EQUAL(expected[i], itr.operator->());
+			CHECK_EQUAL(expectedDepthChange[i], itr.depthChange());
 		}
 		CHECK_EQUAL(MCD_COUNTOF(expected), i);
 	}
