@@ -433,28 +433,32 @@ void Entity::destroy(Entity*& entity)
 }
 
 EntityPreorderIterator::EntityPreorderIterator(Entity* start)
-	: mCurrent(start), mStart(start)
+	: mCurrent(start), mStart(start), mDepthChange(0)
 {}
 
 EntityPreorderIterator::EntityPreorderIterator(Entity* start, Entity* current)
-	: mCurrent(current), mStart(start)
+	: mCurrent(current), mStart(start), mDepthChange(0)
 {}
 
 Entity* EntityPreorderIterator::next()
 {
 	// After an upward movement is preformed, we will not visit the child again
 	bool noChildMove = false;
+	mDepthChange = 0;
 
 	while(mCurrent)
 	{
-		if(mCurrent->firstChild() && !noChildMove)
+		if(mCurrent->firstChild() && !noChildMove) {
+			mDepthChange = 1;
 			return mCurrent = mCurrent->firstChild();
+		}
 		else if(mCurrent->nextSibling())
 			return mCurrent = mCurrent->nextSibling();
 		else
 		{
 			mCurrent = mCurrent->parent();
 			noChildMove = true;
+			--mDepthChange;
 
 			if(mCurrent == mStart)
 				mCurrent = nullptr;
@@ -476,6 +480,8 @@ Entity* EntityPreorderIterator::nextEnabled()
 
 Entity* EntityPreorderIterator::skipChildren()
 {
+	mDepthChange = 0;
+
 	// The following borrows the code from next() function, where noChildMove is always true
 	while(mCurrent)
 	{
@@ -483,6 +489,7 @@ Entity* EntityPreorderIterator::skipChildren()
 			return mCurrent = mCurrent->nextSibling();
 
 		mCurrent = mCurrent->parent();
+		--mDepthChange;
 		if(mCurrent == mStart)
 			mCurrent = nullptr;
 	}
