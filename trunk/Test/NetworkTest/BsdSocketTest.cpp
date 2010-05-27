@@ -118,8 +118,9 @@ TEST_FIXTURE(BsdSocketTestFixture, TCPBlockingSendBlockingRecv)
 	CHECK_EQUAL(0, s1.accept(s2));
 
 	char buf[64];
-	// Use loop for more robust code
-	CHECK_EQUAL(ssize_t(sizeof(buf)), s2.receive(buf, sizeof(buf)));
+	// TODO: Use loop for more robust code
+	ssize_t receivedSize = s2.receive(buf, sizeof(buf));
+	CHECK(receivedSize <= sizeof(buf));
 
 	CHECK(strcmp("Hello world!", buf) == 0);
 	thread.wait();
