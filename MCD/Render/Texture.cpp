@@ -6,18 +6,14 @@ namespace MCD {
 
 Texture::Texture(const Path& fileId)
 	:
-	Resource(fileId),
-	handle(0),
-	width(0), height(0),
-	type(GL_INVALID_ENUM),
-	format(GL_INVALID_ENUM)
+	Resource(fileId)
 {
+	clear();
 }
 
 Texture::~Texture()
 {
-	// glDeleteTextures will simple ignore non-valid texture handles
-	glDeleteTextures(1, &handle);
+	clear();
 }
 
 void Texture::bind() const

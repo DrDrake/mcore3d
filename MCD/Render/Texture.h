@@ -6,6 +6,8 @@
 
 namespace MCD {
 
+struct GpuDataFormat;
+
 class MCD_RENDER_API Texture : public Resource
 {
 public:
@@ -55,6 +57,17 @@ public:
 		and ture if the textureFmt is supported otherwise; otherwise false.
 	 */
 	static bool dataTypeAndComponents(int textureFmt, int& outDataType, int& outComponents);
+
+// Operations
+	void clear();
+
+	// TODO: Support texture array, cube map etc.
+	sal_checkreturn bool create(
+		const GpuDataFormat& dataFormat,
+		size_t width, size_t height,
+		size_t mipLevelCount,
+		sal_in const void* data
+	);
 
 protected:
 	sal_override ~Texture();
