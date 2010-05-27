@@ -666,13 +666,12 @@ void PodLoader::Impl::commit(Resource& resource)
 	prefab.entity.reset(new Entity());
 
 	// Clone all the node in mRootEntity to the target.
-	Entity* cloned = mRootEntity.clone();
+	std::auto_ptr<Entity> cloned(mRootEntity.clone());
 	for(Entity* i=cloned->firstChild(); i;) {
 		Entity* bk = i;
 		i = i->nextSibling();
 		bk->asChildOf(prefab.entity.get());
 	}
-	delete cloned;
 
 	++prefab.reloadCount;
 }

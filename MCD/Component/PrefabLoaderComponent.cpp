@@ -37,7 +37,7 @@ void PrefabLoaderComponent::update(float dt)
 		child->destroyThis();
 
 	// Clone the Entity tree from the prefab
-	Entity* cloned = prefab->entity->clone();
+	std::auto_ptr<Entity> cloned(prefab->entity->clone());
 	for(Entity* i=cloned->firstChild(); i;) {
 		Entity* bk = i;
 		i = i->nextSibling();
