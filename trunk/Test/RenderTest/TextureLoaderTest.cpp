@@ -92,7 +92,7 @@ TEST(Syn_TextureLoaderTest)
 		CHECK_EQUAL(IResourceLoader::Loaded, loader->getLoadingState());
 		CHECK_EQUAL(gTestStruct[i].expectingWidth, texture.width);
 		CHECK_EQUAL(gTestStruct[i].expectingHeight, texture.height);
-		CHECK_EQUAL(gTestStruct[i].format, texture.format);
+		CHECK_EQUAL(gTestStruct[i].format, texture.format.format);
 	}
 }
 
@@ -302,7 +302,7 @@ public:
 		glRotatef(mAngle, 0, 1, 0);
 		glRotatef(mAngle, 0, 0, 1);
 
-		if(Texture::hasAlpha(texture.format)) {
+		if(Texture::hasAlpha(texture.format.format)) {
 			glEnable(GL_BLEND);
 			glBlendFunc(GL_SRC_ALPHA,GL_ONE);
 			glDisable(GL_CULL_FACE);

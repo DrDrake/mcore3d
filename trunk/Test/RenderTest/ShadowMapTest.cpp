@@ -40,7 +40,7 @@ public:
 
 		// Setup for the depth buffer
 		TextureRenderBufferPtr textureBuffer = new TextureRenderBuffer(GL_DEPTH_ATTACHMENT_EXT);
-		if(!textureBuffer->createTexture(mShadowMapSize, mShadowMapSize, GL_TEXTURE_2D, GL_DEPTH_COMPONENT))
+		if(!textureBuffer->createTexture(mShadowMapSize, mShadowMapSize, GL_TEXTURE_2D, GpuDataFormat::get("depth16")))
 			return false;
 		if(!textureBuffer->linkTo(*mRenderTarget))
 			return false;

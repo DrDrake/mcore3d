@@ -276,7 +276,7 @@ void BasicGlWindow::update()
 
 	preUpdate();
 	mCamera.update(deltaTime);
-//	mCamera.applyTransform();
+	mCamera.applyTransform();
 
 	// NOTE: this should be set per-frame after the camera transform since
 	// the light position stored in opengl is view-dependent

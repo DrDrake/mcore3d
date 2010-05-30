@@ -60,7 +60,7 @@ void TextureLoaderBase::commit(Resource& resource)
 
 	texture.width = mImpl->mWidth;
 	texture.height = mImpl->mHeight;
-	texture.format = mImpl->mInternalFmt;
+	texture.format.format = mImpl->mInternalFmt;
 	texture.type = textureType();	// Currently only support the loading of 2D texture
 
 	if(!isPowerOf2(mImpl->mWidth) || !isPowerOf2(mImpl->mHeight))

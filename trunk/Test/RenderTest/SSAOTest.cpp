@@ -20,7 +20,7 @@ static TexturePtr generateRandomTexture(uint textureSize)
 	texture->width = textureSize;
 	texture->height = textureSize;
 	texture->type = GL_TEXTURE_2D;
-	texture->format = GL_RGBA;
+	texture->format.format = GL_RGBA;
 	glGenTextures(1, &texture->handle);
 
 
@@ -40,7 +40,7 @@ static TexturePtr generateRandomTexture(uint textureSize)
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_R, GL_REPEAT);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-	glTexImage2D(GL_TEXTURE_2D, 0, texture->format, textureSize, textureSize,
+	glTexImage2D(GL_TEXTURE_2D, 0, texture->format.format, textureSize, textureSize,
 		0, GL_RGBA, GL_UNSIGNED_BYTE, buffer);
 
 	delete[] buffer;
@@ -166,7 +166,7 @@ TEST(SSAOTest)
 				
 				// color target
 				textureBuffer = new TextureRenderBuffer(GL_COLOR_ATTACHMENT0_EXT);
-				if(!textureBuffer->createTexture(width, height, GL_TEXTURE_RECTANGLE_ARB, GL_RGB))
+				if(!textureBuffer->createTexture(width, height, GL_TEXTURE_RECTANGLE_ARB, GpuDataFormat::get("uintR8G8B8")))
 					throw std::runtime_error("");
 				if(!textureBuffer->linkTo(*mSceneRenderTarget))
 					throw std::runtime_error("");
@@ -174,7 +174,7 @@ TEST(SSAOTest)
 
 				// normal target
 				textureBuffer = new TextureRenderBuffer(GL_COLOR_ATTACHMENT1_EXT);
-				if(!textureBuffer->createTexture(width, height, GL_TEXTURE_RECTANGLE_ARB, GL_RGB))
+				if(!textureBuffer->createTexture(width, height, GL_TEXTURE_RECTANGLE_ARB, GpuDataFormat::get("uintR8G8B8")))
 					throw std::runtime_error("");
 				if(!textureBuffer->linkTo(*mSceneRenderTarget))
 					throw std::runtime_error("");
@@ -182,7 +182,7 @@ TEST(SSAOTest)
 
 				// depth target
 				textureBuffer = new TextureRenderBuffer(GL_DEPTH_ATTACHMENT_EXT);
-				if(!textureBuffer->createTexture(width, height, GL_TEXTURE_RECTANGLE_ARB, GL_DEPTH_COMPONENT))
+				if(!textureBuffer->createTexture(width, height, GL_TEXTURE_RECTANGLE_ARB, GpuDataFormat::get("depth16")))
 					throw std::runtime_error("");
 				if(!textureBuffer->linkTo(*mSceneRenderTarget))
 					throw std::runtime_error("");
@@ -209,14 +209,14 @@ TEST(SSAOTest)
 				mSSAORenderTarget.reset(new RenderTarget(size_t(width * mSSAORescale), size_t(height * mSSAORescale)));
 				
 				textureBuffer = new TextureRenderBuffer(GL_COLOR_ATTACHMENT0_EXT);
-				if(!textureBuffer->createTexture(mSSAORenderTarget->width(), mSSAORenderTarget->height(), GL_TEXTURE_RECTANGLE_ARB, GL_RGBA))
+				if(!textureBuffer->createTexture(mSSAORenderTarget->width(), mSSAORenderTarget->height(), GL_TEXTURE_RECTANGLE_ARB, GpuDataFormat::get("uintR8G8B8A8")))
 					throw std::runtime_error("");
 				if(!textureBuffer->linkTo(*mSSAORenderTarget))
 					throw std::runtime_error("");
 				mSSAORenderTexture = textureBuffer->texture;
 
 				textureBuffer = new TextureRenderBuffer(GL_COLOR_ATTACHMENT1_EXT);
-				if(!textureBuffer->createTexture(mSSAORenderTarget->width(), mSSAORenderTarget->height(), GL_TEXTURE_RECTANGLE_ARB, GL_RGBA))
+				if(!textureBuffer->createTexture(mSSAORenderTarget->width(), mSSAORenderTarget->height(), GL_TEXTURE_RECTANGLE_ARB, GpuDataFormat::get("uintR8G8B8A8")))
 					throw std::runtime_error("");
 				if(!textureBuffer->linkTo(*mSSAORenderTarget))
 					throw std::runtime_error("");

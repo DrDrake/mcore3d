@@ -1,7 +1,7 @@
 #ifndef __MCD_RENDER_TEXTURE__
 #define __MCD_RENDER_TEXTURE__
 
-#include "ShareLib.h"
+#include "GpuDataFormat.h"
 #include "../Core/System/Resource.h"
 
 namespace MCD {
@@ -36,7 +36,9 @@ public:
 		Use those appeared in OpenGl.
 		Can be GL_ALPHA, GL_RGB, GL_RGBA, GL_LUMINANCE and GL_LUMINANCE_ALPHA
 	 */
-	int format;
+//	int format;
+
+	GpuDataFormat format;
 
 	//! The texture is invalid before the async resource is loaded.
 	bool isValid() const;
@@ -52,11 +54,6 @@ public:
     /*! Returns whether the auto-generated mipmaps global option is enabled.
      */
     static bool autoGenMipmapEnabled();
-
-	/*! Returns the pixel data type and pixel components via outDataType & outComponents;
-		and ture if the textureFmt is supported otherwise; otherwise false.
-	 */
-	static bool dataTypeAndComponents(int textureFmt, int& outDataType, int& outComponents);
 
 // Operations
 	void clear();
