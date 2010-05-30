@@ -28,13 +28,13 @@ public:
 		//glTexImage2D(GL_TEXTURE_2D, 0, mFormat, mWidth, mHeight,
 		//	0, GL_BGR, GL_UNSIGNED_BYTE, &mImageData[0]);	// Note that the external format is GL_BGR but not GL_RGB
 
-		size_t imageSize = mWidth * mWidth * Texture::bytePerPixel(mFormat);
+		size_t imageSize = mWidth * mWidth * mGpuFormat.sizeInByte();
 
 		byte_t * buf = mImageData;
 
 		for( int i=0; i<6; ++i )
 		{
-			glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X+i, 0, mInternalFmt, mWidth, mWidth,
+			glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X+i, 0, mGpuFormat.format, mWidth, mWidth,
 				0, mFormat, GL_UNSIGNED_BYTE, buf);
 
 			buf += imageSize;
@@ -92,8 +92,8 @@ IResourceLoader::LoadingState CubemapLoader::load(std::istream* is, const Path* 
 			, mImpl->mWidth
 			, mImpl->mHeight
 			, mImpl->mFormat
-			, mImpl->mInternalFmt
-			);
+			, mImpl->mGpuFormat
+		);
 
 		if(mImpl->mHeight != 6 * mImpl->mWidth)
 			loadingState = IResourceLoader::Aborted;

@@ -74,10 +74,12 @@ public:
 			}
 
 			int c = mDecoder->get_num_components();
-			if(c == 1)
-				mInternalFmt = mFormat = GL_LUMINANCE;
+			if(c == 1) {
+				MCD_ASSERT(false && "Not implemented");
+//				mInternalFmt = mFormat = GL_LUMINANCE;
+			}
 			else if(c == 3) {
-				mInternalFmt = GL_RGB;
+				mGpuFormat = GpuDataFormat::get("uintR8G8B8");
 				mFormat = GL_RGBA;
 			}
 			else {
@@ -170,7 +172,7 @@ void JpegLoader::uploadData()
 	// NOTE: To compress texture on the fly, just pass GL_COMPRESSED_XXX_ARB as the internal format
 	// Reference: www.oldunreal.com/editing/s3tc/ARB_texture_compression.pdf
 	if(mImpl->mImageData)
-		glTexImage2D(GL_TEXTURE_2D, 0, impl->mInternalFmt, impl->mWidth, impl->mHeight,
+		glTexImage2D(GL_TEXTURE_2D, 0, impl->mGpuFormat.format, impl->mWidth, impl->mHeight,
 		0, impl->mFormat, GL_UNSIGNED_BYTE, impl->mImageData);
 }
 

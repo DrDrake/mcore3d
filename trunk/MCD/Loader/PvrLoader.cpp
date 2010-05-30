@@ -39,16 +39,16 @@ public:
 		{
 		case OGL_RGBA_8888:
 			mFormat = GL_RGBA;
-			mInternalFmt = GL_RGBA;
+			mGpuFormat = GpuDataFormat::get("uintR8G8B8A8");
 			break;
 		case OGL_RGB_888:
 			mFormat = GL_RGB;
-			mInternalFmt = GL_RGB;
+			mGpuFormat = GpuDataFormat::get("uintR8G8B8");
 			break;
 		case OGL_PVRTC2:
 		case OGL_PVRTC4:
 			mFormat = GL_RGBA;
-			mInternalFmt = GL_RGBA;
+			mGpuFormat = GpuDataFormat::get("uintR8G8B8A8");
 			break;
 		default:
 			// TODO: Support more formats
@@ -125,7 +125,7 @@ public:
 				sizeX = Math<size_t>::max(sizeX/2, 1u), sizeY = Math<size_t>::max(sizeY/2, 1u),
 				++mipLevel)
 			{
-				glTexImage2D(GL_TEXTURE_2D, mipLevel, mInternalFmt, sizeX, sizeY,
+				glTexImage2D(GL_TEXTURE_2D, mipLevel, mGpuFormat.format, sizeX, sizeY,
 					0, mFormat, GL_UNSIGNED_BYTE, data);
 
 				if(mFormat == GL_RGBA)
