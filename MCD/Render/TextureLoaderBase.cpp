@@ -14,7 +14,7 @@ namespace MCD {
 TextureLoaderBase::LoaderBaseImpl::LoaderBaseImpl(TextureLoaderBase& loader)
 	:
 	mLoader(loader), mImageData(nullptr),
-	mWidth(0), mHeight(0), mFormat(-1), mInternalFmt(-1)
+	mWidth(0), mHeight(0), mFormat(-1)
 {
 }
 
@@ -60,7 +60,7 @@ void TextureLoaderBase::commit(Resource& resource)
 
 	texture.width = mImpl->mWidth;
 	texture.height = mImpl->mHeight;
-	texture.format.format = mImpl->mInternalFmt;
+	texture.format = mImpl->mGpuFormat;
 	texture.type = textureType();	// Currently only support the loading of 2D texture
 
 	if(!isPowerOf2(mImpl->mWidth) || !isPowerOf2(mImpl->mHeight))
@@ -150,7 +150,7 @@ int TextureLoaderBase::textureType() const
 }
 
 // TODO: Can we remove this function? This function preform an expensive memory copy!
-void TextureLoaderBase::retriveData(byte_t** imageData, size_t& width, size_t& height, int& format, int& internalFmt)
+void TextureLoaderBase::retriveData(byte_t** imageData, size_t& width, size_t& height, int& format, GpuDataFormat& gpuFormat)
 {
 	if(!mImpl)
 		return;
@@ -158,9 +158,9 @@ void TextureLoaderBase::retriveData(byte_t** imageData, size_t& width, size_t& h
 	width = mImpl->mWidth;
 	height = mImpl->mHeight;
 	format = mImpl->mFormat;
-	internalFmt = mImpl->mInternalFmt;
+	gpuFormat = mImpl->mGpuFormat;
 
-	size_t allocSize = width * height * Texture::bytePerPixel(format);
+	size_t allocSize = width * height * gpuFormat.sizeInByte();
 
 	// Remember retriveData() may called multiple times, so do cleanup if *imageData != null
 	if(*imageData != nullptr)

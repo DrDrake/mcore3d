@@ -46,11 +46,6 @@ public:
 	//! Check whether the format has an alpha channel or not.
 	static bool hasAlpha(int format);
 
-	/*!	Tells the byte-per-pixels of the input OpenGL format.
-		Returns 0 if format is not reconized.
-	 */
-	static int bytePerPixel(int format);
-
     /*! Returns whether the auto-generated mipmaps global option is enabled.
      */
     static bool autoGenMipmapEnabled();

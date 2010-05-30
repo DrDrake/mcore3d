@@ -66,25 +66,27 @@ public:
 		case PNG_COLOR_TYPE_RGB:
 			{
 				mFormat = GL_RGB;
-				mInternalFmt = GL_RGB;
+				mGpuFormat = GpuDataFormat::get("uintR8G8B8");
 			}
 			break;
 		case PNG_COLOR_TYPE_RGB_ALPHA:
 			{
 				mFormat = GL_RGBA;
-				mInternalFmt = GL_RGBA;
+				mGpuFormat = GpuDataFormat::get("uintR8G8B8A8");
 			}
 			break;
 		case PNG_COLOR_TYPE_GRAY:
 			{
+				MCD_ASSERT(false && "Not implemented");
 				mFormat = GL_LUMINANCE;
-				mInternalFmt = GL_LUMINANCE;
+//				mInternalFmt = GL_LUMINANCE;
 			}
 			break;
 		case PNG_COLOR_TYPE_GRAY_ALPHA:
 			{
+				MCD_ASSERT(false && "Not implemented");
 				mFormat = GL_LUMINANCE_ALPHA;
-				mInternalFmt = GL_LUMINANCE_ALPHA;
+//				mInternalFmt = GL_LUMINANCE_ALPHA;
 			}
 			break;
 		case PNG_COLOR_TYPE_PALETTE:	// Color palette is not supported
@@ -206,7 +208,7 @@ void PngLoader::uploadData()
 	MCD_ASSERT(mImpl->mMutex.isLocked());
 
 	if(mImpl->mImageData)
-		glTexImage2D(GL_TEXTURE_2D, 0, impl->mInternalFmt, impl->mWidth, impl->mHeight,
+		glTexImage2D(GL_TEXTURE_2D, 0, impl->mGpuFormat.format, impl->mWidth, impl->mHeight,
 		0, impl->mFormat, GL_UNSIGNED_BYTE, impl->mImageData);
 }
 

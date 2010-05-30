@@ -71,7 +71,7 @@ public:
 
 		// Only RGB is supported
 		mFormat = GL_BGR;	// Note that the format is GL_BGR but not GL_RGB
-		mInternalFmt = GL_RGB;
+		mGpuFormat = GpuDataFormat::get("uintR8G8B8");
 
 		if(infoHeader.biBitCount != 24) {
 			Log::format(Log::Error, "BitmapLoader: Only 24-bit color is supported, operation aborted");
@@ -122,7 +122,7 @@ public:
 
 	void upload()
 	{
-		glTexImage2D(GL_TEXTURE_2D, 0, mInternalFmt, mWidth, mHeight,
+		glTexImage2D(GL_TEXTURE_2D, 0, mGpuFormat.format, mWidth, mHeight,
 			0, mFormat, GL_UNSIGNED_BYTE, &mImageData[0]);
 	}
 };	// LoaderImpl
