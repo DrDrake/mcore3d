@@ -928,7 +928,10 @@ void Max3dsLoader::Impl::commit(Resource& resource)
 	{
 		MCD_FOREACH(const MultiSubObject& subObject, modelInfo.multiSubObject)
 		{
-			if(!subObject.splittedBuilder || subObject.splittedBuilder->vertexCount() == 0)
+			if(!subObject.splittedBuilder ||
+				subObject.splittedBuilder->vertexCount() == 0 ||
+				subObject.splittedBuilder->indexCount() == 0
+			)
 				continue;
 
 			MeshPtr mesh = new Mesh("");

@@ -28,7 +28,7 @@ static TexturePtr generateRandomTexture(uint textureSize)
 	texture->width = textureSize;
 	texture->height = textureSize;
 	texture->type = GL_TEXTURE_2D;
-	texture->format = GL_RGBA;
+	texture->format.format = GL_RGBA;
 	glGenTextures(1, &texture->handle);
 
 
@@ -51,7 +51,7 @@ static TexturePtr generateRandomTexture(uint textureSize)
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_R, GL_REPEAT);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-	glTexImage2D(GL_TEXTURE_2D, 0, texture->format, textureSize, textureSize,
+	glTexImage2D(GL_TEXTURE_2D, 0, texture->format.format, textureSize, textureSize,
 		0, GL_RGBA, GL_UNSIGNED_BYTE, buffer);
 
 	delete[] buffer;
@@ -157,12 +157,12 @@ TEST(ASSAOTest)
 		}
 
 		TexturePtr createRenderTexture(
-			RenderTarget& renderTarget, int attachmentType, int textureType,
+			RenderTarget& renderTarget, int attachmentType, const GpuDataFormat& format,
 			size_t width, size_t height, const char* resourceName
 			)
 		{
 			TextureRenderBufferPtr textureBuffer = new TextureRenderBuffer(attachmentType);
-			if(!textureBuffer->createTexture(width, height, GL_TEXTURE_RECTANGLE_ARB, textureType, resourceName))
+			if(!textureBuffer->createTexture(width, height, GL_TEXTURE_RECTANGLE_ARB, format, resourceName))
 				return nullptr;
 			if(!textureBuffer->linkTo(renderTarget))
 				return nullptr;
@@ -191,9 +191,9 @@ TEST(ASSAOTest)
 			// Setup scene's render target, where the scene will output the color, depth and normal
 			mSceneRenderTarget.reset(new RenderTarget(width, height));
 
-			mColorRenderTexture = createRenderTexture(*mSceneRenderTarget, GL_COLOR_ATTACHMENT0_EXT, GL_RGB, width, height, "renderBuffer:color");
-			mNormalRenderTexture = createRenderTexture(*mSceneRenderTarget, GL_COLOR_ATTACHMENT1_EXT, GL_RGB, width, height, "renderBuffer:normal");
-			mDepthRenderTexture = createRenderTexture(*mSceneRenderTarget, GL_DEPTH_ATTACHMENT_EXT, GL_DEPTH_COMPONENT, width, height, "renderBuffer:depth");
+			mColorRenderTexture = createRenderTexture(*mSceneRenderTarget, GL_COLOR_ATTACHMENT0_EXT, GpuDataFormat::get("uintR8G8B8"), width, height, "renderBuffer:color");
+			mNormalRenderTexture = createRenderTexture(*mSceneRenderTarget, GL_COLOR_ATTACHMENT1_EXT, GpuDataFormat::get("uintR8G8B8"), width, height, "renderBuffer:normal");
+			mDepthRenderTexture = createRenderTexture(*mSceneRenderTarget, GL_DEPTH_ATTACHMENT_EXT, GpuDataFormat::get("depth16"), width, height, "renderBuffer:depth");
 
 			mSceneRenderTarget->bind();
 			GLenum buffers[] = { GL_COLOR_ATTACHMENT0_EXT, GL_COLOR_ATTACHMENT1_EXT };
@@ -208,8 +208,8 @@ TEST(ASSAOTest)
 			size_t height2 = size_t(height * mSSAORescale);
 			mSSAORenderTarget.reset(new RenderTarget(width2, height2));
 
-			mAccum1 = createRenderTexture(*mSSAORenderTarget, GL_COLOR_ATTACHMENT0_EXT, GL_RGBA, width2, height2, "renderBuffer:Accum1");
-			mAccum2 = createRenderTexture(*mSSAORenderTarget, GL_COLOR_ATTACHMENT1_EXT, GL_RGBA, width2, height2, "renderBuffer:Accum2");
+			mAccum1 = createRenderTexture(*mSSAORenderTarget, GL_COLOR_ATTACHMENT0_EXT, GpuDataFormat::get("uintR8G8B8A8"), width2, height2, "renderBuffer:Accum1");
+			mAccum2 = createRenderTexture(*mSSAORenderTarget, GL_COLOR_ATTACHMENT1_EXT, GpuDataFormat::get("uintR8G8B8A8"), width2, height2, "renderBuffer:Accum2");
 
 			if(!mSSAORenderTarget->checkCompleteness())
 				throw std::runtime_error("Fail to create mSSAORenderTarget");

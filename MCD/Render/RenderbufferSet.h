@@ -68,7 +68,7 @@ public:
 	/*! Adds a new texture buffer
 		@param format A device specific texture format.
 	*/
-	sal_checkreturn bool textureBuffer(int format, sal_in_z const char* texname);
+	sal_checkreturn bool textureBuffer(const GpuDataFormat& format, sal_in_z const char* texname);
 
 	/*! Begin to use this Framebuffer for rendering
 		The device current render target and viewport will be modified.

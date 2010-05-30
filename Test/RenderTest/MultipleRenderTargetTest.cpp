@@ -67,21 +67,21 @@ TEST(MultipleRenderTargetTest)
 			// Setup the render target
 			mRenderTarget.reset(new RenderTarget(targetWidth, targetHeight));
 			TextureRenderBufferPtr textureBuffer = new TextureRenderBuffer(GL_COLOR_ATTACHMENT0_EXT);
-			if(!textureBuffer->createTexture(targetWidth, targetHeight, GL_TEXTURE_RECTANGLE_ARB, GL_RGB))
+			if(!textureBuffer->createTexture(targetWidth, targetHeight, GL_TEXTURE_RECTANGLE_ARB, GpuDataFormat::get("uintR8G8B8")))
 				throw std::runtime_error("");
 			if(!textureBuffer->linkTo(*mRenderTarget))
 				throw std::runtime_error("");
 			mColorRenderTexture = textureBuffer->texture;
 
 			textureBuffer = new TextureRenderBuffer(GL_COLOR_ATTACHMENT1_EXT);
-			if(!textureBuffer->createTexture(targetWidth, targetHeight, GL_TEXTURE_RECTANGLE_ARB, GL_RGB))
+			if(!textureBuffer->createTexture(targetWidth, targetHeight, GL_TEXTURE_RECTANGLE_ARB, GpuDataFormat::get("uintR8G8B8")))
 				throw std::runtime_error("");
 			if(!textureBuffer->linkTo(*mRenderTarget))
 				throw std::runtime_error("");
 			mNormalRenderTexture = textureBuffer->texture;
 
 			textureBuffer = new TextureRenderBuffer(GL_DEPTH_ATTACHMENT_EXT);
-			if(!textureBuffer->createTexture(targetWidth, targetHeight, GL_TEXTURE_RECTANGLE_ARB, GL_DEPTH_COMPONENT))
+			if(!textureBuffer->createTexture(targetWidth, targetHeight, GL_TEXTURE_RECTANGLE_ARB, GpuDataFormat::get("depth16")))
 				throw std::runtime_error("");
 			if(!textureBuffer->linkTo(*mRenderTarget))
 				throw std::runtime_error("");

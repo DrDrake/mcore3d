@@ -17,7 +17,7 @@ bool Texture::create(
 {
 	clear();
 
-	this->format = dataFormat.format;
+	this->format = dataFormat;
 	this->width = width_;
 	this->height = height_;
 	this->type = GL_TEXTURE_2D;

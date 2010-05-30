@@ -35,7 +35,7 @@ bool TextureRenderBuffer::linkTo(RenderTarget& renderTarget)
 	return true;
 }
 
-bool TextureRenderBuffer::createTexture(size_t width, size_t height, int type, int format, const char* name)
+bool TextureRenderBuffer::createTexture(size_t width, size_t height, int type, const GpuDataFormat& format, const char* name)
 {
 	if((texture = new Texture(name ? name : "TextureRenderBuffer:")) == nullptr)
 		return false;
@@ -57,8 +57,8 @@ bool TextureRenderBuffer::createTexture(size_t width, size_t height, int type, i
 //	glTexParameterf(type, GL_DEPTH_TEXTURE_MODE, GL_INTENSITY);
 //	glTexParameterf(type, GL_TEXTURE_COMPARE_MODE, GL_NONE);
 
-	glTexImage2D(texture->type, 0, format, width, height,
-		0, format, GL_INT, nullptr);
+	glTexImage2D(texture->type, 0, format.components, width, height,
+		0, format.components, format.dataType, nullptr);
 
 	// Assure the texture that is binded to the render target is not
 	// to be read as texture during rendering.
@@ -67,7 +67,7 @@ bool TextureRenderBuffer::createTexture(size_t width, size_t height, int type, i
 	return true;
 }
 
-bool TextureRenderBuffer::create(size_t width, size_t height, int type, int format, int dataType, int components, const char* name)
+bool TextureRenderBuffer::create(size_t width, size_t height, int type, const GpuDataFormat& format, const char* name)
 {
 	if((texture = new Texture(name ? name : "TextureRenderBuffer:")) == nullptr)
 		return false;
@@ -87,7 +87,7 @@ bool TextureRenderBuffer::create(size_t width, size_t height, int type, int form
 	glTexParameterf(type, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 	glTexParameterf(type, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
-	glTexImage2D(texture->type, 0, format, width, height, 0, components, dataType, nullptr);
+	glTexImage2D(texture->type, 0, format.format, width, height, 0, format.components, format.dataType, nullptr);
 
 	// Assure the texture that is binded to the render target is not
 	// to be read as texture during rendering.

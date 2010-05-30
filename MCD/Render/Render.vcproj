@@ -601,6 +601,10 @@
 			Name="GL2x"
 			>
 			<File
+				RelativePath=".\GL2x\GpuDataFormat.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\GL2x\Material_GL2x.cpp"
 				>
 			</File>

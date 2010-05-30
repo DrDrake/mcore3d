@@ -42,7 +42,7 @@ public:
 	//! The size in byte of this gpu data format
 	size_t sizeInByte() const { return componentCount * componentSize; }
 
-	sal_checkreturn bool isValid() const { return format == -1; }
+	sal_checkreturn bool isValid() const { return format != -1; }
 
 	bool operator==(const GpuDataFormat& rhs) const { return format == rhs.format; }
 

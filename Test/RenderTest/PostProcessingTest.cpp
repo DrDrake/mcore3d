@@ -86,8 +86,7 @@ public:
 		if(0 == width || 0 == height)
 			return;
 
-		const int format = GL_RGBA8;
-		//int format = GL_RGBA16F_ARB;
+		const GpuDataFormat format = GpuDataFormat::get("uintR8G8B8A8");
 
 		const bool useTexRect = false;
 

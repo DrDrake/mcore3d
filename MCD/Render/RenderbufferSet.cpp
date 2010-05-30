@@ -1,7 +1,5 @@
 #include "Pch.h"
-
 #include "RenderBufferSet.h"
-
 #include "../../MCD/Core/System/Log.h"
 
 namespace MCD
@@ -31,32 +29,30 @@ RenderBufferSet::RenderBufferSet(
 	}
 	else if(DepthBuffer_Texture16 <= depthBufType)
 	{
-		int format;
+		GpuDataFormat format;
 		switch(depthBufType)
 		{
-		case DepthBuffer_Texture16:
-			{format = GL_DEPTH_COMPONENT16;} break;
 		case DepthBuffer_Texture24:
-			{format = GL_DEPTH_COMPONENT24;} break;
+			format = GpuDataFormat::get("depth24"); break;
 		case DepthBuffer_Texture32:
-			{format = GL_DEPTH_COMPONENT32;} break;
+			format = GpuDataFormat::get("depth32"); break;
+		case DepthBuffer_Texture16:
 		default:
-			{format = GL_DEPTH_COMPONENT16;} break;
+			format = GpuDataFormat::get("depth16"); break;
 		}
 
-		int dataType, components;
-		Texture::dataTypeAndComponents(format, dataType, components);
-		
+		MCD_ASSERT(format.isValid());
+
 		TextureRenderBuffer* bufferPtr = new TextureRenderBuffer(GL_DEPTH_ATTACHMENT_EXT);
 
 		// Depth texture must use GL_TEXTURE_RECTANGLE_ARB
-		if(!bufferPtr->create(width, height, GL_TEXTURE_RECTANGLE_ARB, format, dataType, components))
+		if(!bufferPtr->create(width, height, GL_TEXTURE_RECTANGLE_ARB, format))
 			Log::format(Log::Error, "RenderBufferSet: failed to create depth texture:%x", format);
 
 		if(!bufferPtr->linkTo(mRenderTarget))
 			Log::format(Log::Error, "RenderBufferSet::RenderBufferSet() failed to link render target");
 
-		mDepthBufferInfo.format = format;
+		mDepthBufferInfo.format = format.format;
 		mDepthBufferInfo.isTexture = true;
 		mDepthBufferInfo.bufferPtr = bufferPtr;
 	}
@@ -66,17 +62,11 @@ RenderBufferSet::~RenderBufferSet()
 {
 }
 
-bool RenderBufferSet::textureBuffer(int format, const char* texname)
+bool RenderBufferSet::textureBuffer(const GpuDataFormat& format, const char* texname)
 {
-	int dataType, components;
-
-	if (!Texture::dataTypeAndComponents(format, dataType, components))
-		return false;
-
 	TextureRenderBufferPtr bufferPtr = new TextureRenderBuffer(int(GL_COLOR_ATTACHMENT0_EXT + mBufferInfos.size()));
 
-	//todo: also specific dataType, components
-	if(!bufferPtr->create(mRenderTarget.width(), mRenderTarget.height(), mTexTarget, format, dataType, components, texname))
+	if(!bufferPtr->create(mRenderTarget.width(), mRenderTarget.height(), mTexTarget, format, texname))
 	{
 		Log::format(Log::Error, "RenderBufferSet: failed to create texture buffer:%s %x", texname, format);
 		return false;
@@ -95,7 +85,7 @@ bool RenderBufferSet::textureBuffer(int format, const char* texname)
 	BufferInfo buf;
 
 	buf.isTexture = true;
-	buf.format = format;
+	buf.format = format.format;
 	buf.bufferPtr = bufferPtr;
 
 	mBufferInfos.push_back(buf);

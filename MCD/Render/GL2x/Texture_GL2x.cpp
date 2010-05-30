@@ -12,13 +12,13 @@ void Texture::clear()
 	handle = 0;
 	width = height = 0;
 	type = GL_INVALID_ENUM;
-	format = GL_INVALID_ENUM;
+	format = GpuDataFormat();
 }
+
+static size_t _max(size_t a, size_t b) { return a > b ? a : b; }
 
 static size_t getMipLevelSize(int format, size_t bytePerPixel, size_t level, size_t& w, size_t& h, bool& isCompressed)
 {
-#define _max(a, b) (a > b ? a : b)
-
 	for(size_t i=0; i<level; ++i) {
 		w = _max(w >> 1, 1);
 		h = _max(h >> 1, 1);
@@ -37,8 +37,6 @@ static size_t getMipLevelSize(int format, size_t bytePerPixel, size_t level, siz
 
 	isCompressed = false;
 	return w * h * bytePerPixel;
-
-#undef _max
 }
 
 bool Texture::create(
@@ -50,7 +48,7 @@ bool Texture::create(
 {
 	clear();
 
-	this->format = dataFormat.format;
+	this->format = dataFormat;
 	this->width = width_;
 	this->height = height_;
 	this->type = GL_TEXTURE_2D;
@@ -64,12 +62,12 @@ bool Texture::create(
 		size_t w = width;
 		size_t h = height;
 		bool isCompressed;
-		const size_t levelSize = getMipLevelSize(format, bytePerPixel(format), level, w, h, isCompressed);
+		const size_t levelSize = getMipLevelSize(format.format, format.sizeInByte(), level, w, h, isCompressed);
 
 		if(isCompressed)
-			glCompressedTexImage2D(GL_TEXTURE_2D, level, format, w, h, 0, levelSize, levelData);
+			glCompressedTexImage2D(GL_TEXTURE_2D, level, format.format, w, h, 0, levelSize, levelData);
 		else
-			glTexImage2D(GL_TEXTURE_2D, level, format, w, h, 0, format, GL_UNSIGNED_BYTE, levelData);
+			glTexImage2D(GL_TEXTURE_2D, level, format.format, w, h, 0, format.format, GL_UNSIGNED_BYTE, levelData);
 
 		levelData += levelSize;
 	}
