@@ -23,6 +23,22 @@ void skinning(
 	// Ensure the position array is mapped first, to ensure the writeOption is in effect
 	StrideArray<Vec3f> position = mesh.mapAttribute<Vec3f>(Mesh::cPositionAttrIdx, mapped, writeOption);
 
+	// Copy all non-skinned vertex data
+	for(size_t i=0; i<basePoseMesh.attributeCount; ++i) {
+		if(i == Mesh::cIndexAttrIdx || i == Mesh::cPositionAttrIdx || i == jointIndex || i == weightIndex || int(i) == normalIndex)
+			continue;
+
+		StrideArray<uint8_t> src = basePoseMesh.mapAttributeUnsafe<uint8_t>(i, basePoseMapped, Mesh::Read);
+		StrideArray<uint8_t> dest = mesh.mapAttributeUnsafe<uint8_t>(i, mapped, writeOption);
+		const size_t srcSize = basePoseMesh.attributes[i].format.sizeInByte();
+		const size_t destSize = mesh.attributes[i].format.sizeInByte();
+
+		MCD_ASSERT(srcSize == destSize);
+
+		if(srcSize == destSize) for(size_t j=0; j<src.size; ++j)
+			::memcpy(&dest[j], &src[j], basePoseMesh.attributes[i].format.sizeInByte());
+	}
+
 	if(normalIndex == -1) {	// Skinning position only
 		skinning(
 			position,
