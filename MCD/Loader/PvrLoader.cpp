@@ -57,14 +57,14 @@ public:
 		}
 
 		// TODO: dwTextureDataSize only specify for size of one surface, Support multiple surface, 
-		mImageData = new byte_t[header.dwTextureDataSize];
+		mImageData = ImageData(header.dwTextureDataSize);
 
 		if(!mImageData) {
 			Log::format(Log::Error, "PvrLoader: Corruption of file or not enough memory, operation aborted");
 			return -1;
 		}
 
-		is.read((char*)mImageData, header.dwTextureDataSize);
+		is.read(mImageData, header.dwTextureDataSize);
 		if(is.gcount() != int(header.dwTextureDataSize)) {
 			Log::format(Log::Warn, "PvrLoader: End of file, pixel data incomplete");
 			return 0;
@@ -78,21 +78,21 @@ public:
 
 			// Calculate the total memory required for all the mip-map levels
 			size_t memSize = 0;
-			for(size_t i=0; i<header.dwMipMapCount; ++i) {
+			for(size_t i=0; i<header.dwMipMapCount + 1; ++i) {
 				const size_t factor = 1 << i;
 				memSize += (mWidth * mHeight * 4) / (factor * factor);
 			}
 
-			byte_t* deCompressed = new byte_t[memSize];
+			ImageData deCompressed(memSize);
 
-			byte_t* srcPtr = mImageData;
-			byte_t* destPtr = deCompressed;
+			char* srcPtr = mImageData;
+			char* destPtr = deCompressed;
 			size_t sizeX = mWidth, sizeY = mHeight;
 
 			for(size_t i=0; i<header.dwMipMapCount; ++i,
 				sizeX = Math<size_t>::max(sizeX/2, 1u), sizeY = Math<size_t>::max(sizeY/2, 1u))
 			{
-				PVRTDecompressPVRTC(srcPtr, twoBitMode, sizeX, sizeY, destPtr);
+				PVRTDecompressPVRTC(srcPtr, twoBitMode, sizeX, sizeY, (unsigned char*)destPtr);
 
 				const size_t minTexWidth = twoBitMode ? PVRTC2_MIN_TEXWIDTH : PVRTC4_MIN_TEXWIDTH;
 				const size_t minTexHeight = twoBitMode ? PVRTC2_MIN_TEXHEIGHT : PVRTC4_MIN_TEXHEIGHT;
@@ -107,7 +107,6 @@ public:
 				destPtr += deCompressedSize;
 			}
 
-			delete mImageData;
 			mImageData = deCompressed;
 		}
 
@@ -118,7 +117,7 @@ public:
 	{
 		for(size_t i=0; i<header.dwNumSurfs; ++i)
 		{
-			byte_t* data = &mImageData[header.dwTextureDataSize * i];
+			char* data = &mImageData[header.dwTextureDataSize * i];
 
 			size_t sizeX = mWidth, sizeY = mHeight;
 			for(size_t mipLevel = 0; mipLevel <= header.dwMipMapCount;

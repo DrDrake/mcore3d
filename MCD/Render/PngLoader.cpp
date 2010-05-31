@@ -104,7 +104,7 @@ public:
 
 		png_read_update_info(png_ptr, info_ptr);
 
-		mImageData = new png_byte[mRowBytes * mHeight];
+		mImageData = ImageData(mRowBytes * mHeight);
 	}
 
 	static void info_callback(png_structp png_ptr, png_infop)
@@ -125,7 +125,7 @@ public:
 		// Have libpng either combine the new row data with the existing row data
 		// from previous passes (if interlaced) or else just copy the new row
 		// into the main program's image buffer
-		png_progressive_combine_row(png_ptr, impl->mImageData + row_num * impl->mRowBytes, new_row);
+		png_progressive_combine_row(png_ptr, (png_byte*)(impl->mImageData + row_num * impl->mRowBytes), new_row);
 
 		// Only change the loading state after a pass is finished
 		if(pass > impl->mCurrentPass) {
