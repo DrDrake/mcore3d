@@ -91,7 +91,8 @@ public:
 			mHeight = mDecoder->get_height();
 			mRowBytes = mDecoder->get_bytes_per_scan_line();
 
-			mImageData = new byte_t[mRowBytes * mHeight];
+			MCD_ASSERT(!mImageData);
+			mImageData = ImageData(mRowBytes * mHeight);
 		}
 
 		void* Pscan_line_ofs = nullptr;
@@ -101,7 +102,7 @@ public:
 		(void)result;
 
 		// Copy the scan line to our image data buffer
-		byte_t* p = mImageData + mProcessedLines * mRowBytes;
+		char* p = mImageData + mProcessedLines * mRowBytes;
 		{	ScopeLock lock(mMutex);
 			memcpy(p, Pscan_line_ofs, scan_line_len);
 		}

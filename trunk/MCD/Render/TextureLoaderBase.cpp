@@ -12,16 +12,15 @@
 namespace MCD {
 
 TextureLoaderBase::LoaderBaseImpl::LoaderBaseImpl(TextureLoaderBase& loader)
-	:
-	mLoader(loader), mImageData(nullptr),
-	mWidth(0), mHeight(0), mFormat(-1)
+	: mLoader(loader)
+	, mWidth(0), mHeight(0), mFormat(-1)
 {
 }
 
 TextureLoaderBase::LoaderBaseImpl::~LoaderBaseImpl()
 {
 	MCD_ASSERT(mMutex.isLocked());
-	delete[] mImageData;
+	mImageData.clear();
 	mMutex.unlock();
 }
 
@@ -149,24 +148,16 @@ int TextureLoaderBase::textureType() const
 	return GL_TEXTURE_2D;
 }
 
-// TODO: Can we remove this function? This function preform an expensive memory copy!
-void TextureLoaderBase::retriveData(byte_t** imageData, size_t& width, size_t& height, int& format, GpuDataFormat& gpuFormat)
+void TextureLoaderBase::retriveData(const char*& imageData, size_t& imageDataSize, size_t& width, size_t& height, int& format, GpuDataFormat& gpuFormat)
 {
-	if(!mImpl)
-		return;
+	if(!mImpl) return;
 
+	imageData = mImpl->mImageData;
+	imageDataSize = mImpl->mImageData.size();
 	width = mImpl->mWidth;
 	height = mImpl->mHeight;
 	format = mImpl->mFormat;
 	gpuFormat = mImpl->mGpuFormat;
-
-	size_t allocSize = width * height * gpuFormat.sizeInByte();
-
-	// Remember retriveData() may called multiple times, so do cleanup if *imageData != null
-	if(*imageData != nullptr)
-		delete[] *imageData;
-	*imageData = new byte_t[allocSize];
-	memcpy(*imageData, mImpl->mImageData, allocSize);
 }
 
 }	// namespace MCD

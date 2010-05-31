@@ -20,10 +20,10 @@ public:
 
 	int load(std::istream& is)
 	{
-		byte_t header[18] = {0};
+		char header[18] = {0};
 
 		// Read the file header
-		is.read((char*)&header, sizeof(header));
+		is.read(header, sizeof(header));
 
 		// Should be image type 2 (color) or type 10 (rle compressed color)
 		if(header[2] != 2 && header[2] != 10) {
@@ -57,7 +57,7 @@ public:
 		const size_t rowByte = mWidth * (sizeof(char) * bytePerPixel);
 		const size_t imageByte = rowByte * mHeight;
 
-		mImageData = new byte_t[imageByte];
+		mImageData = ImageData(imageByte);
 
 		if(!mImageData) {
 			Log::format(Log::Error, "TgaLoader: Corruption of file or not enough memory, operation aborted");
@@ -67,7 +67,7 @@ public:
 		// Read the uncompressed image data if type 2
 		if(header[2] == 2)
 		{
-			is.read(reinterpret_cast<char*>(mImageData), sizeof(char) * imageByte);
+			is.read(mImageData, sizeof(char) * imageByte);
 		}
 
 		// Read the compressed image data if type 10
@@ -77,13 +77,13 @@ public:
 			while(i < imageByte)
 			{
 				// Reads the the RLE header
-				byte_t rle;
-				is.read(reinterpret_cast<char*>(&rle), 1);
+				char rle;
+				is.read(&rle, 1);
 
 				// If the rle header is below 128 it means that what folows is just raw data with rle+1 pixels
 				if(rle<128)
 				{
-					is.read(reinterpret_cast<char*>(&mImageData[i]), bytePerPixel * (rle + 1));
+					is.read(&mImageData[i], bytePerPixel * (rle + 1));
 					i += bytePerPixel * (rle + 1);
 				}
 
@@ -93,7 +93,7 @@ public:
 				{
 					// Read what color we should use
 					char color[4];
-					is.read(reinterpret_cast<char*>(&color[0]), bytePerPixel);
+					is.read(&color[0], bytePerPixel);
 
 					// Insert the color stored in tmp into the folowing rle-127 pixels
 					int j = 0;
@@ -115,8 +115,8 @@ public:
 
 		// Flip the image in the y-direction as in bimap image.
 		for(size_t i=0; i<mHeight/2; ++i) {
-			byte_t* row1 = mImageData + i * rowByte;
-			byte_t* row2 = mImageData + (mHeight - 1 - i) * rowByte;
+			char* row1 = mImageData + i * rowByte;
+			char* row2 = mImageData + (mHeight - 1 - i) * rowByte;
 			// Swap 2 rows
 			for(size_t j=0; j<rowByte; ++j)
 				row1[j] ^= row2[j] ^= row1[j] ^= row2[j];
@@ -128,7 +128,7 @@ public:
 	void upload()
 	{
 		glTexImage2D(GL_TEXTURE_2D, 0, mGpuFormat.format, mWidth, mHeight,
-			0, mFormat, GL_UNSIGNED_BYTE, &mImageData[0]);	// Note that the external format is GL_BGR but not GL_RGB
+			0, mFormat, GL_UNSIGNED_BYTE, mImageData);	// Note that the external format is GL_BGR but not GL_RGB
 	}
 };	// LoaderImpl
 

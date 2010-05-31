@@ -25,12 +25,8 @@ public:
 
 	void upload()
 	{
-		//glTexImage2D(GL_TEXTURE_2D, 0, mFormat, mWidth, mHeight,
-		//	0, GL_BGR, GL_UNSIGNED_BYTE, &mImageData[0]);	// Note that the external format is GL_BGR but not GL_RGB
-
-		size_t imageSize = mWidth * mWidth * mGpuFormat.sizeInByte();
-
-		byte_t * buf = mImageData;
+		char* buf = mImageData;
+		const size_t imageSize = mImageData.size() / 6;
 
 		for( int i=0; i<6; ++i )
 		{
@@ -66,7 +62,7 @@ IResourceLoader::LoadingState CubemapLoader::load(std::istream* is, const Path* 
 
 		TextureLoaderBase* loader = nullptr;
 
-		// dispatch to other image loaders
+		// Dispatch to other image loaders
 		if(strCaseCmp(ext.c_str(), "bmp") == 0)
 			loader = new BitmapLoader;
 		else if(strCaseCmp(ext.c_str(), "jpg") == 0)
@@ -87,13 +83,18 @@ IResourceLoader::LoadingState CubemapLoader::load(std::istream* is, const Path* 
 
 	if((CanCommit & loadingState))
 	{
-		impl->mLoaderDelegate->retriveData
-			( &mImpl->mImageData
-			, mImpl->mWidth
-			, mImpl->mHeight
-			, mImpl->mFormat
-			, mImpl->mGpuFormat
+		const char* data;
+		size_t size;
+		impl->mLoaderDelegate->retriveData(
+			data, size
+			, mImpl->mWidth, mImpl->mHeight
+			, mImpl->mFormat, mImpl->mGpuFormat
 		);
+
+		if(impl->mImageData.size() != size)
+			impl->mImageData = TextureLoaderBase::LoaderBaseImpl::ImageData(size);
+
+		::memcpy(mImpl->mImageData, data, size);
 
 		if(mImpl->mHeight != 6 * mImpl->mWidth)
 			loadingState = IResourceLoader::Aborted;

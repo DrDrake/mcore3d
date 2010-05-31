@@ -265,8 +265,8 @@ public:
 			y = (y + 1) >> 1;
 		}
 
-		mImageData = new byte_t[size];
-		is.read((char*)mImageData, size);
+		mImageData = ImageData(size);
+		is.read(mImageData, size);
 		if(size_t(is.gcount()) != size)
 			return -1;
 
@@ -289,7 +289,7 @@ public:
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAX_LEVEL, mMipMapCount - 1);
 
 		DdsLoadInfo* li = mLoadInfo;
-		byte_t* p = mImageData;
+		char* p = mImageData;
 		uint x = mWidth;
 		uint y = mHeight;
 

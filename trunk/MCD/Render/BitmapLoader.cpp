@@ -96,7 +96,7 @@ public:
 		// Memory usage for one row of image
 		const size_t rowByte = mWidth * (sizeof(char) * 3);
 
-		mImageData = new byte_t[rowByte * mHeight];
+		mImageData = ImageData(rowByte * mHeight);
 
 		if(!mImageData) {
 			Log::format(Log::Error, "BitmapLoader: Corruption of file or not enough memory, operation aborted");
@@ -109,8 +109,8 @@ public:
 			// the vertical scan line order is inverted.
 			const size_t invertedH = flipVertical ? mHeight - 1 - h : h;
 
-			byte_t* p = &mImageData[invertedH * rowByte];
-			is.read((char*)p, rowByte);
+			char* p = &mImageData[invertedH * rowByte];
+			is.read(p, rowByte);
 			if(is.gcount() != std::streamsize(rowByte)) {
 				Log::format(Log::Warn, "BitmapLoader: End of file, bitmap data incomplete");
 				return 0;
@@ -123,7 +123,7 @@ public:
 	void upload()
 	{
 		glTexImage2D(GL_TEXTURE_2D, 0, mGpuFormat.format, mWidth, mHeight,
-			0, mFormat, GL_UNSIGNED_BYTE, &mImageData[0]);
+			0, mFormat, GL_UNSIGNED_BYTE, mImageData);
 	}
 };	// LoaderImpl
 
