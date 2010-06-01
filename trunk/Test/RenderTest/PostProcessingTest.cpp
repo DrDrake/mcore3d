@@ -86,7 +86,7 @@ public:
 		if(0 == width || 0 == height)
 			return;
 
-		const GpuDataFormat format = GpuDataFormat::get("uintR8G8B8A8");
+		const GpuDataFormat format = GpuDataFormat::get("uintRGBA8");
 
 		const bool useTexRect = false;
 

@@ -166,7 +166,7 @@ TEST(SSAOTest)
 				
 				// color target
 				textureBuffer = new TextureRenderBuffer(GL_COLOR_ATTACHMENT0_EXT);
-				if(!textureBuffer->createTexture(width, height, GL_TEXTURE_RECTANGLE_ARB, GpuDataFormat::get("uintR8G8B8")))
+				if(!textureBuffer->createTexture(width, height, GL_TEXTURE_RECTANGLE_ARB, GpuDataFormat::get("uintRGB8")))
 					throw std::runtime_error("");
 				if(!textureBuffer->linkTo(*mSceneRenderTarget))
 					throw std::runtime_error("");
@@ -174,7 +174,7 @@ TEST(SSAOTest)
 
 				// normal target
 				textureBuffer = new TextureRenderBuffer(GL_COLOR_ATTACHMENT1_EXT);
-				if(!textureBuffer->createTexture(width, height, GL_TEXTURE_RECTANGLE_ARB, GpuDataFormat::get("uintR8G8B8")))
+				if(!textureBuffer->createTexture(width, height, GL_TEXTURE_RECTANGLE_ARB, GpuDataFormat::get("uintRGB8")))
 					throw std::runtime_error("");
 				if(!textureBuffer->linkTo(*mSceneRenderTarget))
 					throw std::runtime_error("");
@@ -209,14 +209,14 @@ TEST(SSAOTest)
 				mSSAORenderTarget.reset(new RenderTarget(size_t(width * mSSAORescale), size_t(height * mSSAORescale)));
 				
 				textureBuffer = new TextureRenderBuffer(GL_COLOR_ATTACHMENT0_EXT);
-				if(!textureBuffer->createTexture(mSSAORenderTarget->width(), mSSAORenderTarget->height(), GL_TEXTURE_RECTANGLE_ARB, GpuDataFormat::get("uintR8G8B8A8")))
+				if(!textureBuffer->createTexture(mSSAORenderTarget->width(), mSSAORenderTarget->height(), GL_TEXTURE_RECTANGLE_ARB, GpuDataFormat::get("uintRGBA8")))
 					throw std::runtime_error("");
 				if(!textureBuffer->linkTo(*mSSAORenderTarget))
 					throw std::runtime_error("");
 				mSSAORenderTexture = textureBuffer->texture;
 
 				textureBuffer = new TextureRenderBuffer(GL_COLOR_ATTACHMENT1_EXT);
-				if(!textureBuffer->createTexture(mSSAORenderTarget->width(), mSSAORenderTarget->height(), GL_TEXTURE_RECTANGLE_ARB, GpuDataFormat::get("uintR8G8B8A8")))
+				if(!textureBuffer->createTexture(mSSAORenderTarget->width(), mSSAORenderTarget->height(), GL_TEXTURE_RECTANGLE_ARB, GpuDataFormat::get("uintRGBA8")))
 					throw std::runtime_error("");
 				if(!textureBuffer->linkTo(*mSSAORenderTarget))
 					throw std::runtime_error("");

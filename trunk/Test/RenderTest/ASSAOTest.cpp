@@ -191,8 +191,8 @@ TEST(ASSAOTest)
 			// Setup scene's render target, where the scene will output the color, depth and normal
 			mSceneRenderTarget.reset(new RenderTarget(width, height));
 
-			mColorRenderTexture = createRenderTexture(*mSceneRenderTarget, GL_COLOR_ATTACHMENT0_EXT, GpuDataFormat::get("uintR8G8B8"), width, height, "renderBuffer:color");
-			mNormalRenderTexture = createRenderTexture(*mSceneRenderTarget, GL_COLOR_ATTACHMENT1_EXT, GpuDataFormat::get("uintR8G8B8"), width, height, "renderBuffer:normal");
+			mColorRenderTexture = createRenderTexture(*mSceneRenderTarget, GL_COLOR_ATTACHMENT0_EXT, GpuDataFormat::get("uintRGB8"), width, height, "renderBuffer:color");
+			mNormalRenderTexture = createRenderTexture(*mSceneRenderTarget, GL_COLOR_ATTACHMENT1_EXT, GpuDataFormat::get("uintRGB8"), width, height, "renderBuffer:normal");
 			mDepthRenderTexture = createRenderTexture(*mSceneRenderTarget, GL_DEPTH_ATTACHMENT_EXT, GpuDataFormat::get("depth16"), width, height, "renderBuffer:depth");
 
 			mSceneRenderTarget->bind();
@@ -208,8 +208,8 @@ TEST(ASSAOTest)
 			size_t height2 = size_t(height * mSSAORescale);
 			mSSAORenderTarget.reset(new RenderTarget(width2, height2));
 
-			mAccum1 = createRenderTexture(*mSSAORenderTarget, GL_COLOR_ATTACHMENT0_EXT, GpuDataFormat::get("uintR8G8B8A8"), width2, height2, "renderBuffer:Accum1");
-			mAccum2 = createRenderTexture(*mSSAORenderTarget, GL_COLOR_ATTACHMENT1_EXT, GpuDataFormat::get("uintR8G8B8A8"), width2, height2, "renderBuffer:Accum2");
+			mAccum1 = createRenderTexture(*mSSAORenderTarget, GL_COLOR_ATTACHMENT0_EXT, GpuDataFormat::get("uintRGBA8"), width2, height2, "renderBuffer:Accum1");
+			mAccum2 = createRenderTexture(*mSSAORenderTarget, GL_COLOR_ATTACHMENT1_EXT, GpuDataFormat::get("uintRGBA8"), width2, height2, "renderBuffer:Accum2");
 
 			if(!mSSAORenderTarget->checkCompleteness())
 				throw std::runtime_error("Fail to create mSSAORenderTarget");
