@@ -200,7 +200,12 @@ void PngLoader::uploadData(Texture& texture)
 	MCD_ASSUME(mImpl != nullptr);
 	LoaderImpl* impl = static_cast<LoaderImpl*>(mImpl);
 	MCD_ASSERT(mImpl->mMutex.isLocked());
-	MCD_VERIFY(texture.create(impl->mGpuFormat, impl->mSrcFormat, impl->mWidth, impl->mHeight, 1, impl->mImageData));
+	MCD_VERIFY(texture.create(
+		impl->mGpuFormat, impl->mSrcFormat,
+		impl->mWidth, impl->mHeight,
+		1, 1,
+		impl->mImageData, impl->mImageData.size())
+	);
 }
 
 }	// namespace MCD

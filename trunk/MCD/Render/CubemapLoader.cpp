@@ -23,20 +23,6 @@ public:
 	{
 	}
 
-	void upload()
-	{
-		char* buf = mImageData;
-		const size_t imageSize = mImageData.size() / 6;
-
-		for( int i=0; i<6; ++i )
-		{
-			glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X+i, 0, mGpuFormat.format, mWidth, mWidth,
-				0, mSrcFormat.components, mGpuFormat.dataType, buf);
-
-			buf += imageSize;
-		}
-	}
-
 	std::auto_ptr<TextureLoaderBase> mLoaderDelegate;
 };	// LoaderImpl
 
@@ -106,51 +92,16 @@ IResourceLoader::LoadingState CubemapLoader::load(std::istream* is, const Path* 
 	return loadingState;
 }
 
-int CubemapLoader::textureType() const
-{
-	return GL_TEXTURE_CUBE_MAP;
-}
-
-void CubemapLoader::preUploadData()
-{
-	// TODO: Should set the filtering via option strings
-	const bool generateMipMap = Texture::autoGenMipmapEnabled();
-
-	if(generateMipMap)
-	{
-		// Reference on comparison between gluBuild2DMipmaps / GL_GENERATE_MIPMAP and glGenerateMipmapEXT
-		// http://www.gamedev.net/community/forums/topic.asp?topic_id=452780
-		// http://www.opengl.org/discussion_boards/ubbthreads.php?ubb=showflat&Number=233955
-
-		glHint(GL_GENERATE_MIPMAP_HINT, GL_NICEST);
-		glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_GENERATE_MIPMAP, GL_TRUE);
-
-		glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-		glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-		glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
-
-		//glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-		//glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-	}
-	else
-	{
-		glEnable(GL_TEXTURE_CUBE_MAP);
-		glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_GENERATE_MIPMAP, GL_FALSE);
-
-		// NOTE: Use GL_CLAMP_TO_EDGE, otherwise there will be seams when using GL_LINEAR
-		glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-		glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-		glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
-
-		//glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-		//glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-	}
-}
-
 void CubemapLoader::uploadData(Texture& texture)
 {
 	MCD_ASSUME(mImpl != nullptr);
-	static_cast<LoaderImpl*>(mImpl)->upload();
+	LoaderImpl* impl = static_cast<LoaderImpl*>(mImpl);
+	MCD_VERIFY(texture.create(
+		impl->mGpuFormat, impl->mSrcFormat,
+		impl->mWidth, impl->mHeight,
+		6, 1,
+		impl->mImageData, impl->mImageData.size())
+	);
 }
 
 void CubemapLoader::postUploadData()

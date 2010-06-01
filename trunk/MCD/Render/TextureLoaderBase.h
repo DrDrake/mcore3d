@@ -68,8 +68,6 @@ protected:
 	 */
 	virtual void postUploadData();
 
-	virtual int textureType() const;
-
 protected:
 	LoaderBaseImpl* mImpl;
 };	// TextureLoaderBase

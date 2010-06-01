@@ -5,7 +5,6 @@
 #include "../Core/Math/BasicFunction.h"
 #include "../Core/System/Log.h"
 #include "../Core/System/StrUtility.h"
-#include "../../3Party/glew/glew.h"
 #include "../../3Party/PowerVR/PVRTDecompress.h"
 #include "../../3Party/PowerVR/PVRTTexture.h"
 
@@ -86,7 +85,7 @@ public:
 			char* destPtr = deCompressed;
 			size_t sizeX = mWidth, sizeY = mHeight;
 
-			for(size_t i=0; i<header.dwMipMapCount; ++i,
+			for(size_t i=0; i<header.dwMipMapCount + 1; ++i,
 				sizeX = Math<size_t>::max(sizeX/2, 1u), sizeY = Math<size_t>::max(sizeY/2, 1u))
 			{
 				PVRTDecompressPVRTC(srcPtr, twoBitMode, sizeX, sizeY, (unsigned char*)destPtr);
@@ -108,28 +107,6 @@ public:
 		}
 
 		return 0;
-	}
-
-	void upload()
-	{
-		for(size_t i=0; i<header.dwNumSurfs; ++i)
-		{
-			char* data = &mImageData[header.dwTextureDataSize * i];
-
-			size_t sizeX = mWidth, sizeY = mHeight;
-			for(size_t mipLevel = 0; mipLevel <= header.dwMipMapCount;
-				sizeX = Math<size_t>::max(sizeX/2, 1u), sizeY = Math<size_t>::max(sizeY/2, 1u),
-				++mipLevel)
-			{
-				glTexImage2D(GL_TEXTURE_2D, mipLevel, mGpuFormat.format, sizeX, sizeY,
-					0, mSrcFormat.components, GL_UNSIGNED_BYTE, data);
-
-				if(mSrcFormat.components == GL_RGBA)
-					data += sizeX * sizeY * 4;
-				else if(mSrcFormat.components == GL_RGB)
-					data += sizeX * sizeY * 3;
-			}
-		}
 	}
 
 	PVR_Texture_Header header;
@@ -169,7 +146,12 @@ void PvrLoader::uploadData(Texture& texture)
 {
 	MCD_ASSUME(mImpl != nullptr);
 	LoaderImpl* impl = static_cast<LoaderImpl*>(mImpl);
-	impl->upload();
+	MCD_VERIFY(texture.create(
+		impl->mGpuFormat, impl->mSrcFormat,
+		impl->mWidth, impl->mHeight,
+		impl->header.dwNumSurfs, 1,
+		impl->mImageData, impl->mImageData.size())
+	);
 }
 
 ResourcePtr PvrLoaderFactory::createResource(const Path& fileId, const char* args)

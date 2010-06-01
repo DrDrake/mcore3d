@@ -23,10 +23,8 @@ public:
 		sal_maybenull std::istream* is, sal_maybenull const Path* fileId=nullptr, sal_in_z_opt const char* args=nullptr);
 
 protected:
-    sal_override void preUploadData();
     sal_override void uploadData(Texture& texture);
     sal_override void postUploadData();
-    sal_override int textureType() const;
 };	// CubemapLoader
 
 }	// namespace MCD
