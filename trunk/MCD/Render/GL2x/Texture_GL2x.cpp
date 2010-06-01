@@ -47,6 +47,8 @@ bool Texture::create(
 	const void* data
 )
 {
+	MCD_ASSERT(data);
+
 	clear();
 
 	this->format = gpuFormat;
@@ -67,8 +69,11 @@ bool Texture::create(
 
 		if(isCompressed)
 			glCompressedTexImage2D(GL_TEXTURE_2D, level, format.format, w, h, 0, levelSize, levelData);
-		else
+		else {
+			// NOTE: To compress texture on the fly, just pass GL_COMPRESSED_XXX_ARB as the internal format
+			// Reference: www.oldunreal.com/editing/s3tc/ARB_texture_compression.pdf
 			glTexImage2D(GL_TEXTURE_2D, level, format.format, w, h, 0, srcFormat.components, format.dataType, levelData);
+		}
 
 		levelData += levelSize;
 	}

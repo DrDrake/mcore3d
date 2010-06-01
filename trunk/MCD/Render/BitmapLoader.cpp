@@ -4,7 +4,6 @@
 #include "TextureLoaderBaseImpl.inc"
 #include "../Core/System/Log.h"
 #include "../Core/System/StaticAssert.h"
-#include "../../3Party/glew/glew.h"
 #include <memory.h> // For memset
 
 // http://www.spacesimulator.net/tut4_3dsloader.html
