@@ -73,8 +73,7 @@ public:
 	ImageData mImageData;	/*!< byte array which holds the pixels */
 	size_t mWidth;			/*!< width of the image */
 	size_t mHeight;			/*!< height of the image */
-	int mFormat;			/*!< describes which color-component exists in the mImageData */
-	GpuDataFormat mGpuFormat;
+	GpuDataFormat mGpuFormat, mSrcFormat;
 
 	Mutex mMutex;
 };	// LoaderBaseImpl

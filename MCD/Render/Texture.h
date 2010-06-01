@@ -55,7 +55,8 @@ public:
 
 	// TODO: Support texture array, cube map etc.
 	sal_checkreturn bool create(
-		const GpuDataFormat& dataFormat,
+		const GpuDataFormat& gpuFormat,
+		const GpuDataFormat& srcFormat,
 		size_t width, size_t height,
 		size_t mipLevelCount,
 		sal_in const void* data

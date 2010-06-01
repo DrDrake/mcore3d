@@ -8,6 +8,7 @@
 namespace MCD {
 
 struct GpuDataFormat;
+class Texture;
 
 /*!	Common base class for texture loaders.
 	What this base class provided are:
@@ -46,14 +47,14 @@ public:
 		(e.g cubemap, volume-texture, texture-array... etc). 
 		\note The returned imageData is valid until this loader is destroyed
 	*/
-	virtual void retriveData(const char*& imageData, size_t& imageDataSize, size_t& width, size_t& height, int& format, GpuDataFormat& gpuFormat);
+	virtual void retriveData(const char*& imageData, size_t& imageDataSize, size_t& width, size_t& height, GpuDataFormat& srcFormat, GpuDataFormat& gpuFormat);
 
 protected:
 	/*!	Derived class should implements this function to upload the
 		image data to the rendering system.
 		\note mImpl->mMutex is locked before the invocation of this function.
 	 */
-	virtual void uploadData() = 0;
+	virtual void uploadData(Texture& texture) = 0;
 
 	/*! Get invoked just before uploadData().
 		It will setup texture filtering options and mipmap generation by default.

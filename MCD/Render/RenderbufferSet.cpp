@@ -47,7 +47,7 @@ RenderBufferSet::RenderBufferSet(
 
 		// Depth texture must use GL_TEXTURE_RECTANGLE_ARB
 		if(!bufferPtr->create(width, height, GL_TEXTURE_RECTANGLE_ARB, format))
-			Log::format(Log::Error, "RenderBufferSet: failed to create depth texture:%x", format);
+			Log::format(Log::Error, "RenderBufferSet: failed to create depth texture:%x", format.format);
 
 		if(!bufferPtr->linkTo(mRenderTarget))
 			Log::format(Log::Error, "RenderBufferSet::RenderBufferSet() failed to link render target");
@@ -68,7 +68,7 @@ bool RenderBufferSet::textureBuffer(const GpuDataFormat& format, const char* tex
 
 	if(!bufferPtr->create(mRenderTarget.width(), mRenderTarget.height(), mTexTarget, format, texname))
 	{
-		Log::format(Log::Error, "RenderBufferSet: failed to create texture buffer:%s %x", texname, format);
+		Log::format(Log::Error, "RenderBufferSet: failed to create texture buffer:%s %x", texname, format.format);
 		return false;
 	}
 

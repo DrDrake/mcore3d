@@ -13,7 +13,7 @@ namespace MCD {
 
 TextureLoaderBase::LoaderBaseImpl::LoaderBaseImpl(TextureLoaderBase& loader)
 	: mLoader(loader)
-	, mWidth(0), mHeight(0), mFormat(-1)
+	, mWidth(0), mHeight(0)
 {
 }
 
@@ -73,7 +73,7 @@ void TextureLoaderBase::commit(Resource& resource)
 	glBindTexture(texture.type, *handle);
 
 	preUploadData();
-	uploadData();
+	uploadData(texture);
 	postUploadData();
 
 	// The invocation of postUploadData() may deleted mImpl
@@ -148,7 +148,7 @@ int TextureLoaderBase::textureType() const
 	return GL_TEXTURE_2D;
 }
 
-void TextureLoaderBase::retriveData(const char*& imageData, size_t& imageDataSize, size_t& width, size_t& height, int& format, GpuDataFormat& gpuFormat)
+void TextureLoaderBase::retriveData(const char*& imageData, size_t& imageDataSize, size_t& width, size_t& height, GpuDataFormat& srcFormat, GpuDataFormat& gpuFormat)
 {
 	if(!mImpl) return;
 
@@ -156,7 +156,7 @@ void TextureLoaderBase::retriveData(const char*& imageData, size_t& imageDataSiz
 	imageDataSize = mImpl->mImageData.size();
 	width = mImpl->mWidth;
 	height = mImpl->mHeight;
-	format = mImpl->mFormat;
+	srcFormat = mImpl->mSrcFormat;
 	gpuFormat = mImpl->mGpuFormat;
 }
 

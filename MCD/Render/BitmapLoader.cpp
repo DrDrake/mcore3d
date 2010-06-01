@@ -69,9 +69,9 @@ public:
 		is.read((char*)&infoHeader, sizeof(infoHeader));
 		mWidth = infoHeader.biWidth;
 
-		// Only RGB is supported
-		mFormat = GL_BGR;	// Note that the format is GL_BGR but not GL_RGB
-		mGpuFormat = GpuDataFormat::get("uintR8G8B8");
+		// No aplha channel is supported
+		mSrcFormat = GpuDataFormat::get("uintBGR8");	// Note that the source format is BGR but not RGB
+		mGpuFormat = GpuDataFormat::get("uintRGB8");
 
 		if(infoHeader.biBitCount != 24) {
 			Log::format(Log::Error, "BitmapLoader: Only 24-bit color is supported, operation aborted");
@@ -119,12 +119,6 @@ public:
 
 		return 0;
 	}
-
-	void upload()
-	{
-		glTexImage2D(GL_TEXTURE_2D, 0, mGpuFormat.format, mWidth, mHeight,
-			0, mFormat, GL_UNSIGNED_BYTE, mImageData);
-	}
 };	// LoaderImpl
 
 BitmapLoader::BitmapLoader()
@@ -157,11 +151,11 @@ IResourceLoader::LoadingState BitmapLoader::load(std::istream* is, const Path*, 
 	return (loadingState = (result == 0) ? Loaded : Aborted);
 }
 
-void BitmapLoader::uploadData()
+void BitmapLoader::uploadData(Texture& texture)
 {
 	MCD_ASSUME(mImpl != nullptr);
 	LoaderImpl* impl = static_cast<LoaderImpl*>(mImpl);
-	impl->upload();
+	MCD_VERIFY(texture.create(impl->mGpuFormat, impl->mSrcFormat, impl->mWidth, impl->mHeight, 1, impl->mImageData));
 }
 
 }	// namespace MCD

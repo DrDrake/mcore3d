@@ -13,7 +13,7 @@ namespace MCD {
 struct MCD_RENDER_API GpuDataFormat
 {
 public:
-	//! Name for this format e.g. floatR16G16B16A16, unormR8G8B8A8, for debug purpose
+	//! Name for this format e.g. floatR16G16B16A16, unormRGBA, for debug purpose
 	FixString name;
 
 	/*!	API dependent format enum

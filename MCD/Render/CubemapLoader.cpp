@@ -31,7 +31,7 @@ public:
 		for( int i=0; i<6; ++i )
 		{
 			glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X+i, 0, mGpuFormat.format, mWidth, mWidth,
-				0, mFormat, GL_UNSIGNED_BYTE, buf);
+				0, mSrcFormat.components, mGpuFormat.dataType, buf);
 
 			buf += imageSize;
 		}
@@ -88,7 +88,7 @@ IResourceLoader::LoadingState CubemapLoader::load(std::istream* is, const Path* 
 		impl->mLoaderDelegate->retriveData(
 			data, size
 			, mImpl->mWidth, mImpl->mHeight
-			, mImpl->mFormat, mImpl->mGpuFormat
+			, mImpl->mSrcFormat, mImpl->mGpuFormat
 		);
 
 		if(impl->mImageData.size() != size)
@@ -147,7 +147,7 @@ void CubemapLoader::preUploadData()
 	}
 }
 
-void CubemapLoader::uploadData()
+void CubemapLoader::uploadData(Texture& texture)
 {
 	MCD_ASSUME(mImpl != nullptr);
 	static_cast<LoaderImpl*>(mImpl)->upload();
