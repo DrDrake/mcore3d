@@ -65,27 +65,23 @@ public:
 		switch(color_type) {
 		case PNG_COLOR_TYPE_RGB:
 			{
-				mFormat = GL_RGB;
-				mGpuFormat = GpuDataFormat::get("uintR8G8B8");
+				mGpuFormat = mSrcFormat = GpuDataFormat::get("uintRGB8");
 			}
 			break;
 		case PNG_COLOR_TYPE_RGB_ALPHA:
 			{
-				mFormat = GL_RGBA;
-				mGpuFormat = GpuDataFormat::get("uintR8G8B8A8");
+				mGpuFormat = mSrcFormat = GpuDataFormat::get("uintRGBA8");
 			}
 			break;
 		case PNG_COLOR_TYPE_GRAY:
 			{
 				MCD_ASSERT(false && "Not implemented");
-				mFormat = GL_LUMINANCE;
 //				mInternalFmt = GL_LUMINANCE;
 			}
 			break;
 		case PNG_COLOR_TYPE_GRAY_ALPHA:
 			{
 				MCD_ASSERT(false && "Not implemented");
-				mFormat = GL_LUMINANCE_ALPHA;
 //				mInternalFmt = GL_LUMINANCE_ALPHA;
 			}
 			break;
@@ -201,15 +197,14 @@ IResourceLoader::LoadingState PngLoader::load(std::istream* is, const Path*, con
 	return loadingState;
 }
 
-void PngLoader::uploadData()
+void PngLoader::uploadData(Texture& texture)
 {
 	MCD_ASSUME(mImpl != nullptr);
 	LoaderImpl* impl = static_cast<LoaderImpl*>(mImpl);
 	MCD_ASSERT(mImpl->mMutex.isLocked());
 
 	if(mImpl->mImageData)
-		glTexImage2D(GL_TEXTURE_2D, 0, impl->mGpuFormat.format, impl->mWidth, impl->mHeight,
-		0, impl->mFormat, GL_UNSIGNED_BYTE, impl->mImageData);
+		MCD_VERIFY(texture.create(impl->mGpuFormat, impl->mSrcFormat, impl->mWidth, impl->mHeight, 1, impl->mImageData));
 }
 
 }	// namespace MCD

@@ -13,10 +13,10 @@ static const GpuDataFormat cGpuDataFormatMap[] = {
 	{ FixString("none"), -1, -1, -1, 0, 0 },
 
 	// 3 components
-	{ FixString("uintR8G8B8"), D3DFMT_R8G8B8, D3DFMT_R8G8B8, D3DFMT_R8G8B8, sizeof(uint8_t), 3 },
+	{ FixString("uintRGB8"), D3DFMT_R8G8B8, D3DFMT_R8G8B8, D3DFMT_R8G8B8, sizeof(uint8_t), 3 },
 
 	// 4 components
-	{ FixString("uintR8G8B8A8"), D3DFMT_A8R8G8B8, D3DFMT_A8R8G8B8, D3DFMT_A8R8G8B8, sizeof(uint8_t), 4 },
+	{ FixString("uintRGBA8"), D3DFMT_A8R8G8B8, D3DFMT_A8R8G8B8, D3DFMT_A8R8G8B8, sizeof(uint8_t), 4 },
 };
 
 GpuDataFormat GpuDataFormat::get(const StringHash& name)

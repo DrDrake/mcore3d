@@ -23,7 +23,7 @@ public:
 	}
 
 	// TODO: Many dirty code and not enough error checking.
-	MCD_NOINLINE int load(std::istream& is)
+	int load(std::istream& is)
 	{
 		// Read the file header
 		is.read((char*)&header, sizeof(header));
@@ -38,17 +38,14 @@ public:
 		switch(header.dwpfFlags & PVRTEX_PIXELTYPE)
 		{
 		case OGL_RGBA_8888:
-			mFormat = GL_RGBA;
-			mGpuFormat = GpuDataFormat::get("uintR8G8B8A8");
+			mGpuFormat = mSrcFormat = GpuDataFormat::get("uintRGBA8");
 			break;
 		case OGL_RGB_888:
-			mFormat = GL_RGB;
-			mGpuFormat = GpuDataFormat::get("uintR8G8B8");
+			mGpuFormat = mSrcFormat = GpuDataFormat::get("uintRGB8");
 			break;
 		case OGL_PVRTC2:
 		case OGL_PVRTC4:
-			mFormat = GL_RGBA;
-			mGpuFormat = GpuDataFormat::get("uintR8G8B8A8");
+			mGpuFormat = mSrcFormat = GpuDataFormat::get("uintRGBA8");
 			break;
 		default:
 			// TODO: Support more formats
@@ -125,11 +122,11 @@ public:
 				++mipLevel)
 			{
 				glTexImage2D(GL_TEXTURE_2D, mipLevel, mGpuFormat.format, sizeX, sizeY,
-					0, mFormat, GL_UNSIGNED_BYTE, data);
+					0, mSrcFormat.components, GL_UNSIGNED_BYTE, data);
 
-				if(mFormat == GL_RGBA)
+				if(mSrcFormat.components == GL_RGBA)
 					data += sizeX * sizeY * 4;
-				else if(mFormat == GL_RGB)
+				else if(mSrcFormat.components == GL_RGB)
 					data += sizeX * sizeY * 3;
 			}
 		}
@@ -168,7 +165,7 @@ IResourceLoader::LoadingState PvrLoader::load(std::istream* is, const Path*, con
 	return (loadingState = (result == 0) ? Loaded : Aborted);
 }
 
-void PvrLoader::uploadData()
+void PvrLoader::uploadData(Texture& texture)
 {
 	MCD_ASSUME(mImpl != nullptr);
 	LoaderImpl* impl = static_cast<LoaderImpl*>(mImpl);

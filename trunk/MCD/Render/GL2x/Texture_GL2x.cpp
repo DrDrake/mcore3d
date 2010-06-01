@@ -40,7 +40,8 @@ static size_t getMipLevelSize(int format, size_t bytePerPixel, size_t level, siz
 }
 
 bool Texture::create(
-	const GpuDataFormat& dataFormat,
+	const GpuDataFormat& gpuFormat,
+	const GpuDataFormat& srcFormat,
 	size_t width_, size_t height_,
 	size_t mipLevelCount,
 	const void* data
@@ -48,7 +49,7 @@ bool Texture::create(
 {
 	clear();
 
-	this->format = dataFormat;
+	this->format = gpuFormat;
 	this->width = width_;
 	this->height = height_;
 	this->type = GL_TEXTURE_2D;
@@ -67,7 +68,7 @@ bool Texture::create(
 		if(isCompressed)
 			glCompressedTexImage2D(GL_TEXTURE_2D, level, format.format, w, h, 0, levelSize, levelData);
 		else
-			glTexImage2D(GL_TEXTURE_2D, level, format.format, w, h, 0, format.format, GL_UNSIGNED_BYTE, levelData);
+			glTexImage2D(GL_TEXTURE_2D, level, format.format, w, h, 0, srcFormat.components, format.dataType, levelData);
 
 		levelData += levelSize;
 	}

@@ -24,7 +24,7 @@ public:
 
 protected:
     sal_override void preUploadData();
-    sal_override void uploadData();
+    sal_override void uploadData(Texture& texture);
     sal_override void postUploadData();
     sal_override int textureType() const;
 };	// CubemapLoader

@@ -148,31 +148,29 @@ struct DdsLoadInfo {
 	GLenum internalFormat;
 	GLenum externalFormat;
 	GLenum type;
+	GpuDataFormat format;
 };
 
 DdsLoadInfo loadInfoDXT1 = {
-	true, false, false, 4, 8, GL_COMPRESSED_RGBA_S3TC_DXT1_EXT, GLenum(-1), GLenum(-1)
+	true, false, false, 4, 8, GL_COMPRESSED_RGBA_S3TC_DXT1_EXT, GLenum(-1), GLenum(-1), GpuDataFormat::get("dxt1")
 };
 DdsLoadInfo loadInfoDXT3 = {
-	true, false, false, 4, 16, GL_COMPRESSED_RGBA_S3TC_DXT3_EXT, GLenum(-1), GLenum(-1)
+	true, false, false, 4, 16, GL_COMPRESSED_RGBA_S3TC_DXT3_EXT, GLenum(-1), GLenum(-1), GpuDataFormat::get("dxt3")
 };
 DdsLoadInfo loadInfoDXT5 = {
-	true, false, false, 4, 16, GL_COMPRESSED_RGBA_S3TC_DXT5_EXT, GLenum(-1), GLenum(-1)
+	true, false, false, 4, 16, GL_COMPRESSED_RGBA_S3TC_DXT5_EXT, GLenum(-1), GLenum(-1), GpuDataFormat::get("dxt5")
 };
 DdsLoadInfo loadInfoBGRA8 = {
-	false, false, false, 1, 4, GL_RGBA8, GL_BGRA, GL_UNSIGNED_BYTE
+	false, false, false, 1, 4, GL_RGBA8, GL_BGRA, GL_UNSIGNED_BYTE, GpuDataFormat::get("uintBGRA8")
 };
 DdsLoadInfo loadInfoBGR8 = {
-	false, false, false, 1, 3, GL_RGB8, GL_BGR, GL_UNSIGNED_BYTE
+	false, false, false, 1, 3, GL_RGB8, GL_BGR, GL_UNSIGNED_BYTE, GpuDataFormat::get("uintBGR8")
 };
 DdsLoadInfo loadInfoBGR5A1 = {
-	false, true, false, 1, 2, GL_RGB5_A1, GL_BGRA, GL_UNSIGNED_SHORT_1_5_5_5_REV
+	false, true, false, 1, 2, GL_RGB5_A1, GL_BGRA, GL_UNSIGNED_SHORT_1_5_5_5_REV, GpuDataFormat::get("uintBGR5A1")
 };
 DdsLoadInfo loadInfoBGR565 = {
-	false, true, false, 1, 2, GL_RGB5, GL_RGB, GL_UNSIGNED_SHORT_5_6_5
-};
-DdsLoadInfo loadInfoIndex8 = {
-	false, false, true, 1, 1, GL_RGB8, GL_BGRA, GL_UNSIGNED_BYTE
+	false, true, false, 1, 2, GL_RGB5, GL_RGB, GL_UNSIGNED_SHORT_5_6_5, GpuDataFormat::get("uintB5G6R5")
 };
 
 uint max(uint a, uint b)
@@ -229,7 +227,7 @@ public:
 
 		mMipMapCount = (hdr.dwFlags & DDSD_MIPMAPCOUNT) ? hdr.dwMipMapCount : 1;
 
-		DdsLoadInfo* li;
+		DdsLoadInfo* li = nullptr;
 
 		if(PF_IS_DXT1(hdr.sPixelFormat))
 			li = &loadInfoDXT1;
@@ -246,14 +244,14 @@ public:
 		else if(PF_IS_BGR565(hdr.sPixelFormat))
 			li = &loadInfoBGR565;
 		else if(PF_IS_INDEX8(hdr.sPixelFormat)) {
-			li = &loadInfoIndex8;
 			MCD_ASSERT(false && "Not implemented");
+			return -1;
 		}
 		else
 			return -1;
 
 		mLoadInfo = li;
-		mFormat = li->internalFormat;
+		mGpuFormat = mSrcFormat = li->format;
 
 		size_t size = 0;
 		uint x = hdr.dwWidth;
@@ -345,7 +343,7 @@ IResourceLoader::LoadingState DdsLoader::load(std::istream* is, const Path*, con
 	return (loadingState = (result == 0) ? Loaded : Aborted);
 }
 
-void DdsLoader::uploadData()
+void DdsLoader::uploadData(Texture& texture)
 {
 	MCD_ASSUME(mImpl != nullptr);
 	LoaderImpl* impl = static_cast<LoaderImpl*>(mImpl);

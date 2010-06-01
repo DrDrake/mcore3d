@@ -79,8 +79,8 @@ public:
 //				mInternalFmt = mFormat = GL_LUMINANCE;
 			}
 			else if(c == 3) {
-				mGpuFormat = GpuDataFormat::get("uintR8G8B8");
-				mFormat = GL_RGBA;
+				mSrcFormat = GpuDataFormat::get("uintRGBA8");	// Note that the source format is 4 byte even c == 3
+				mGpuFormat = GpuDataFormat::get("uintRGB8");
 			}
 			else {
 				Log::format(Log::Error, "JpegLoader: image with number of color component equals to %i is not supported, operation aborted", c);
@@ -164,7 +164,7 @@ IResourceLoader::LoadingState JpegLoader::load(std::istream* is, const Path*, co
 	return loadingState;
 }
 
-void JpegLoader::uploadData()
+void JpegLoader::uploadData(Texture& texture)
 {
 	MCD_ASSUME(mImpl != nullptr);
 	LoaderImpl* impl = static_cast<LoaderImpl*>(mImpl);
@@ -173,8 +173,7 @@ void JpegLoader::uploadData()
 	// NOTE: To compress texture on the fly, just pass GL_COMPRESSED_XXX_ARB as the internal format
 	// Reference: www.oldunreal.com/editing/s3tc/ARB_texture_compression.pdf
 	if(mImpl->mImageData)
-		glTexImage2D(GL_TEXTURE_2D, 0, impl->mGpuFormat.format, impl->mWidth, impl->mHeight,
-		0, impl->mFormat, GL_UNSIGNED_BYTE, impl->mImageData);
+		MCD_VERIFY(texture.create(impl->mGpuFormat, impl->mSrcFormat, impl->mWidth, impl->mHeight, 1, impl->mImageData));
 }
 
 }	// namespace MCD

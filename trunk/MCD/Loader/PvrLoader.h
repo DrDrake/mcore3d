@@ -27,7 +27,7 @@ public:
 		sal_maybenull std::istream* is, sal_maybenull const Path* fileId=nullptr, sal_in_z_opt const char* args=nullptr);
 
 protected:
-	sal_override void uploadData();
+	sal_override void uploadData(Texture& texture);
 };	// PvrLoader
 
 class MCD_LOADER_API PvrLoaderFactory : public ResourceManager::IFactory

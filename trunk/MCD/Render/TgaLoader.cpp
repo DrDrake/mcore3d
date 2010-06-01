@@ -41,12 +41,12 @@ public:
 		const size_t bytePerPixel = header[16] / 8;
 
 		if(bytePerPixel == 3) {
-			mGpuFormat = GpuDataFormat::get("uintR8G8B8");
-			mFormat = GL_BGR;
+			mSrcFormat = GpuDataFormat::get("uintBGR8");	// Note that the source format is BGR but not RGB
+			mGpuFormat = GpuDataFormat::get("uintRGB8");
 		}
 		else if(bytePerPixel == 4) {
-			mGpuFormat = GpuDataFormat::get("uintR8G8B8A8");
-			mFormat = GL_BGRA;
+			mSrcFormat = GpuDataFormat::get("uintBGRA8");	// Note that the source format is BGR but not RGB
+			mGpuFormat = GpuDataFormat::get("uintRGBA88");
 		}
 		else {
 			Log::format(Log::Error, "TgaLoader: Invalid bit-per pixel, operation aborted");
@@ -128,7 +128,7 @@ public:
 	void upload()
 	{
 		glTexImage2D(GL_TEXTURE_2D, 0, mGpuFormat.format, mWidth, mHeight,
-			0, mFormat, GL_UNSIGNED_BYTE, mImageData);	// Note that the external format is GL_BGR but not GL_RGB
+			0, mSrcFormat.components, mGpuFormat.dataType, mImageData);	// Note that the external format is GL_BGR but not GL_RGB
 	}
 };	// LoaderImpl
 
@@ -162,7 +162,7 @@ IResourceLoader::LoadingState TgaLoader::load(std::istream* is, const Path*, con
 	return (loadingState = (result == 0) ? Loaded : Aborted);
 }
 
-void TgaLoader::uploadData()
+void TgaLoader::uploadData(Texture& texture)
 {
 	MCD_ASSUME(mImpl != nullptr);
 	LoaderImpl* impl = static_cast<LoaderImpl*>(mImpl);
