@@ -46,20 +46,19 @@ public:
 	//! Check whether the format has an alpha channel or not.
 	static bool hasAlpha(int format);
 
-    /*! Returns whether the auto-generated mipmaps global option is enabled.
-     */
-    static bool autoGenMipmapEnabled();
-
 // Operations
 	void clear();
 
+	/*!	The loop order of the image data is assumed to be:
+		for each surface: for each mip-map level
+	 */
 	// TODO: Support texture array, cube map etc.
 	sal_checkreturn bool create(
 		const GpuDataFormat& gpuFormat,
 		const GpuDataFormat& srcFormat,
 		size_t width, size_t height,
-		size_t mipLevelCount,
-		sal_in const void* data
+		size_t surfaceCount, size_t mipLevelCount,
+		sal_in_ecount(dataSize) const void* data, size_t dataSize
 	);
 
 protected:
