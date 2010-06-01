@@ -4,9 +4,7 @@
 #include "TextureLoaderBaseImpl.inc"
 #include "../Core/System/Log.h"
 #include "../Core/System/MemoryProfiler.h"
-
 #include "../../3Party/png/png.h"
-#include "../../3Party/glew/glew.h"
 #include <stdexcept>
 
 #ifdef MCD_VC
@@ -202,9 +200,7 @@ void PngLoader::uploadData(Texture& texture)
 	MCD_ASSUME(mImpl != nullptr);
 	LoaderImpl* impl = static_cast<LoaderImpl*>(mImpl);
 	MCD_ASSERT(mImpl->mMutex.isLocked());
-
-	if(mImpl->mImageData)
-		MCD_VERIFY(texture.create(impl->mGpuFormat, impl->mSrcFormat, impl->mWidth, impl->mHeight, 1, impl->mImageData));
+	MCD_VERIFY(texture.create(impl->mGpuFormat, impl->mSrcFormat, impl->mWidth, impl->mHeight, 1, impl->mImageData));
 }
 
 }	// namespace MCD

@@ -4,8 +4,6 @@
 #include "TextureLoaderBaseImpl.inc"
 #include "../Core/System/Log.h"
 #include "../Core/System/MemoryProfiler.h"
-
-#include "../../3Party/glew/glew.h"
 #include "../../3Party/SmallJpeg/jpegdecoder.h"
 
 #ifdef MCD_VC
@@ -169,11 +167,7 @@ void JpegLoader::uploadData(Texture& texture)
 	MCD_ASSUME(mImpl != nullptr);
 	LoaderImpl* impl = static_cast<LoaderImpl*>(mImpl);
 	MCD_ASSERT(mImpl->mMutex.isLocked());
-
-	// NOTE: To compress texture on the fly, just pass GL_COMPRESSED_XXX_ARB as the internal format
-	// Reference: www.oldunreal.com/editing/s3tc/ARB_texture_compression.pdf
-	if(mImpl->mImageData)
-		MCD_VERIFY(texture.create(impl->mGpuFormat, impl->mSrcFormat, impl->mWidth, impl->mHeight, 1, impl->mImageData));
+	MCD_VERIFY(texture.create(impl->mGpuFormat, impl->mSrcFormat, impl->mWidth, impl->mHeight, 1, impl->mImageData));
 }
 
 }	// namespace MCD

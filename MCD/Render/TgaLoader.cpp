@@ -3,7 +3,6 @@
 #include "Texture.h"
 #include "TextureLoaderBaseImpl.inc"
 #include "../Core/System/Log.h"
-#include "../../3Party/glew/glew.h"
 
 // Reference: http://www.flashbang.se/download/nehe_tga.rar
 
@@ -124,12 +123,6 @@ public:
 
 		return 0;
 	}
-
-	void upload()
-	{
-		glTexImage2D(GL_TEXTURE_2D, 0, mGpuFormat.format, mWidth, mHeight,
-			0, mSrcFormat.components, mGpuFormat.dataType, mImageData);	// Note that the external format is GL_BGR but not GL_RGB
-	}
 };	// LoaderImpl
 
 TgaLoader::TgaLoader()
@@ -166,7 +159,7 @@ void TgaLoader::uploadData(Texture& texture)
 {
 	MCD_ASSUME(mImpl != nullptr);
 	LoaderImpl* impl = static_cast<LoaderImpl*>(mImpl);
-	impl->upload();
+	MCD_VERIFY(texture.create(impl->mGpuFormat, impl->mSrcFormat, impl->mWidth, impl->mHeight, 1, impl->mImageData));
 }
 
 }	// namespace MCD
