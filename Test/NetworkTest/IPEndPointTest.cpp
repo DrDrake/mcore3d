@@ -45,7 +45,7 @@ TEST_FIXTURE(IPEndPointTestFixture, Construct)
 TEST_FIXTURE(IPEndPointTestFixture, Getter)
 {
 	IPEndPoint ep1(IPAddress(0), 0u);
-	ep1.parse("127.0.0.1:80");
+	CHECK(ep1.parse("127.0.0.1:80"));
 	CHECK(ep1.address() == IPAddress::getLoopBack());
 	CHECK(ep1.port() == 80);
 
@@ -62,10 +62,10 @@ TEST_FIXTURE(IPEndPointTestFixture, Getter)
 TEST_FIXTURE(IPEndPointTestFixture, Comparison)
 {
 	IPEndPoint ep1(IPAddress(0), 0u);
-	ep1.parse("127.0.0.1:80");
+	CHECK(ep1.parse("127.0.0.1:80"));
 
 	IPEndPoint ep2(IPAddress(0), 0u);
-	ep2.parse("localhost:80");
+	CHECK(ep2.parse("localhost:80"));
 
 	IPEndPoint ep3(IPAddress(0), 0u);
 

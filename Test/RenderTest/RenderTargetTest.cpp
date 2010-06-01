@@ -39,7 +39,7 @@ TEST(RenderTargetTest)
 
 			// Setup for the color buffer
 			TextureRenderBufferPtr textureBuffer = new TextureRenderBuffer(GL_COLOR_ATTACHMENT0_EXT);
-			if(!textureBuffer->createTexture(mLargerSide, mLargerSide, GL_TEXTURE_RECTANGLE_ARB, GpuDataFormat::get("uintR8G8B8")))
+			if(!textureBuffer->createTexture(mLargerSide, mLargerSide, GL_TEXTURE_RECTANGLE_ARB, GpuDataFormat::get("uintRGB8")))
 				throw std::runtime_error("");
 			if(!textureBuffer->linkTo(*mRenderTarget))
 				throw std::runtime_error("");
