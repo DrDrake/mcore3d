@@ -75,29 +75,44 @@ TEST(RendererTest)
 		e->addComponent(fpsControl);
 	}
 
+	// Material
+	MaterialComponent* material1 = new MaterialComponent;
+	root.addComponent(material1);
+	material1->diffuseMap = dynamic_cast<Texture*>(resourceManager.load("InterlacedTrans256x256.png").get());
+
+	MaterialComponent* material2 = new MaterialComponent;
+	material2->specularExponent = 200;
+
 	// Create mesh
-	MeshComponent2* mesh = new MeshComponent2;
-	mesh->mesh = new Mesh("");
-	CHECK(mesh->mesh->create(ChamferBoxBuilder(0.5f, 5, true), Mesh::Static));
+	MeshComponent2* boxMesh = new MeshComponent2;
+	boxMesh->mesh = new Mesh("");
+	CHECK(boxMesh->mesh->create(ChamferBoxBuilder(0.5f, 5, true), Mesh::Static));
 
 	{	Entity* e = new Entity;
 		e->name = "Chamfer box1";
 		e->asChildOf(&root);
-		e->addComponent(mesh);
+		e->addComponent(boxMesh);
 		e->localTransform.translateBy(Vec3f(2, 0, 0));
 	}
 
 	{	Entity* e = new Entity;
 		e->name = "Chamfer box2";
 		e->asChildOf(&root);
-		e->addComponent(mesh->clone());
+		e->addComponent(boxMesh->clone());
 		e->localTransform.translateBy(Vec3f(-2, 0, 0));
 	}
 
-	// Material
-	MaterialComponent* material = new MaterialComponent;
-	root.addComponent(material);
-	material->diffuseMap = dynamic_cast<Texture*>(resourceManager.load("InterlacedTrans256x256.png").get());
+	MeshComponent2* sphereMesh = new MeshComponent2;
+	sphereMesh->mesh = new Mesh("");
+	CHECK(sphereMesh->mesh->create(ChamferBoxBuilder(1, 5, true), Mesh::Static));
+
+	{	Entity* e = new Entity;
+		e->name = "Sphere1";
+		e->asChildOf(&root);
+		e->addComponent(sphereMesh);
+		e->addComponent(material2);
+		e->localTransform.translateBy(Vec3f(0, 2, 0));
+	}
 
 	while(true)
 	{
