@@ -105,6 +105,8 @@ public:
 // Attrubutes
 	float specularExponent;
 
+	TexturePtr diffuseMap;
+
 protected:
 	friend class RendererComponent;
 

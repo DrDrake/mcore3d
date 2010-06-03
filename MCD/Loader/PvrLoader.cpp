@@ -46,6 +46,14 @@ public:
 		case OGL_PVRTC4:
 			mGpuFormat = mSrcFormat = GpuDataFormat::get("uintRGBA8");
 			break;
+		case D3D_DXT1:
+			mGpuFormat = mSrcFormat = GpuDataFormat::get("dxt1");
+			break;
+		case D3D_DXT3:
+			mGpuFormat = mSrcFormat = GpuDataFormat::get("dxt3");
+			break;
+		case D3D_DXT5:
+			mGpuFormat = mSrcFormat = GpuDataFormat::get("dxt5");
 		default:
 			// TODO: Support more formats
 			Log::format(Log::Error, "PvrLoader: Unsupported texture format");

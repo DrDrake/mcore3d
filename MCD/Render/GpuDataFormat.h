@@ -13,7 +13,7 @@ namespace MCD {
 struct MCD_RENDER_API GpuDataFormat
 {
 public:
-	//! Name for this format e.g. floatR16G16B16A16, unormRGBA, for debug purpose
+	//! Name for this format e.g. uintRGB8, unormRGBA, for debug purpose
 	FixString name;
 
 	/*!	API dependent format enum
@@ -33,11 +33,15 @@ public:
 	 */
 	int components;
 
-	//! Size in byte of the attribute, ie: Vec3f -> sizeof(float)
+	/*!	Size in byte of the attribute, ie: Vec3f -> sizeof(float)
+		Zero if it is not applicatable.
+	 */
 	uint8_t componentSize;
 
 	//! Number of components, ie: Scalar = 1; Vec2f = 2; Vec3f = 3; Vec4f = 4;
 	uint8_t componentCount;
+
+	bool isCompressed;
 
 	//! The size in byte of this gpu data format
 	size_t sizeInByte() const { return componentCount * componentSize; }
@@ -50,7 +54,7 @@ public:
 
 	/*! Parse a GpuDataFormat object from string.
 		If the requesting format is not supported in the platform, 'none' is returned
-	*/
+	 */
 	static GpuDataFormat get(const StringHash& name);
 };	// GpuDataFormat
 

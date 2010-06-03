@@ -237,6 +237,13 @@ void MaterialComponent::preRender(size_t pass, void* context)
 		MCD_VERIFY(mImpl.mVsConstTable->SetFloat(
 			device, mImpl.mConstantHandles.specularExponent, specularExponent
 		) == S_OK);
+
+		if(diffuseMap) {
+			if(IDirect3DBaseTexture9* texture = reinterpret_cast<IDirect3DBaseTexture9*>(diffuseMap->handle)) {
+				unsigned samplerIndex = mImpl.mPsConstTable->GetSamplerIndex("texDiffuse");
+				device->SetTexture(samplerIndex, texture);
+			}
+		}
 	}
 
 	device->SetVertexShader(mImpl.mVs);
