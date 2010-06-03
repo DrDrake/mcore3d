@@ -1,58 +1,14 @@
 #include "Pch.h"
-#include "../Renderer.h"
+#include "Renderer.inc"
+#include "Material_DX9.inc"
 #include "../Camera.h"
 #include "../Light.h"
-#include "../Material.h"
 #include "../Mesh.h"
 #include "../RenderWindow.h"
-#include "../../Core/Math/Mat44.h"
 #include "../../Core/Entity/Entity.h"
-#include "../../Core/System/Deque.h"
-
-#include <d3d9.h>
 #include <D3DX9Shader.h>
 
-#include "Material_DX9.inc"
-
 namespace MCD {
-
-struct ShaderContext
-{
-	LPDIRECT3DVERTEXSHADER9 shader;
-	LPD3DXCONSTANTTABLE constTable;
-};	// ShaderContext
-
-struct RenderItem
-{
-	sal_notnull MeshComponent2* mesh;
-	sal_notnull MaterialComponent* material;
-};	// RenderItem
-
-typedef std::vector<RenderItem> RenderItems;
-
-class RendererComponent::Impl
-{
-public:
-	Impl();
-
-	void render(Entity& entityTree, CameraComponent2* camera);
-
-	//! mDefaultCamera and mCurrentCamera may differ from each other for instance when rendering using light's view
-	CameraComponent2Ptr mDefaultCamera, mCurrentCamera;
-	Mat44f mCameraTransform;
-	Mat44f mProjMatrix, mViewMatrix, mViewProjMatrix, mWorldMatrix, mWorldViewProjMatrix;
-
-	ShaderContext mCurrentVS, mCurrentPS;
-
-	sal_notnull RendererComponent* mBackRef;
-
-	std::stack<MaterialComponent*> mMaterialStack;
-
-	typedef std::vector<LightComponent*> Lights;
-	Lights mLights;
-
-	RenderItems mRenderQueue;
-};	// Impl
 
 RendererComponent::Impl::Impl()
 {
@@ -61,6 +17,10 @@ RendererComponent::Impl::Impl()
 
 	LPDIRECT3DDEVICE9 device = reinterpret_cast<LPDIRECT3DDEVICE9>(RenderWindow::getActiveContext());
 	device->SetRenderState(D3DRS_CULLMODE, D3DCULL_CW);
+
+	mWhiteTexture = new Texture("1x1White");
+	byte_t data[] = { 255, 255, 255, 255 };
+	mWhiteTexture->create(GpuDataFormat::get("uintARGB8"), GpuDataFormat::get("uintARGB8"), 1, 1, 1, 1, data, 4);
 }
 
 void RendererComponent::Impl::render(Entity& entityTree, CameraComponent2* camera)
@@ -133,6 +93,8 @@ void RendererComponent::Impl::render(Entity& entityTree, CameraComponent2* camer
 			last = e;
 		}
 
+		mUniqueMaterial.insert(mtl);
+
 		// Push light into the light list, if any
 		if(LightComponent* light = e->findComponent<LightComponent>()) {
 			mLights.push_back(light);
@@ -147,6 +109,10 @@ void RendererComponent::Impl::render(Entity& entityTree, CameraComponent2* camer
 		itr.next();
 	}
 
+	// Bind constants for all unique materials
+//	MCD_FOREACH(MaterialComponent* m, mUniqueMaterial)
+//		m->preRender(0, this);
+
 	// Render the items in render queue
 	MCD_FOREACH(const RenderItem& i, mRenderQueue) {
 		if(Entity* e = i.mesh->entity()) {
@@ -155,6 +121,7 @@ void RendererComponent::Impl::render(Entity& entityTree, CameraComponent2* camer
 
 			// Set lighting information to the shader
 			i.material->preRender(0, this);
+//			i.material->mImpl.updateWorldTransform(this);
 			i.mesh->mesh->drawFaceOnly();
 			i.material->postRender(0, this);
 		}
@@ -162,6 +129,7 @@ void RendererComponent::Impl::render(Entity& entityTree, CameraComponent2* camer
 
 	mLights.clear();
 	mRenderQueue.clear();
+	mUniqueMaterial.clear();
 }
 
 RendererComponent::RendererComponent()
@@ -185,73 +153,6 @@ CameraComponent2* RendererComponent::defaultCamera() const {
 
 void RendererComponent::render(Entity& entityTree, CameraComponent2* camera) {
 	mImpl.render(entityTree, camera);
-}
-
-void MaterialComponent::preRender(size_t pass, void* context)
-{
-	RendererComponent::Impl& renderer = *reinterpret_cast<RendererComponent::Impl*>(context);
-	LPDIRECT3DDEVICE9 device = reinterpret_cast<LPDIRECT3DDEVICE9>(RenderWindow::getActiveContext());
-
-	{	// Bind system infromation
-		MCD_VERIFY(mImpl.mVsConstTable->SetMatrix(
-			device, mImpl.mConstantHandles.worldViewProj, (D3DXMATRIX*)renderer.mWorldViewProjMatrix.getPtr()
-		) == S_OK);
-
-		MCD_VERIFY(mImpl.mVsConstTable->SetMatrix(
-			device, mImpl.mConstantHandles.world, (D3DXMATRIX*)renderer.mWorldMatrix.getPtr()
-		) == S_OK);
-
-		Vec3f cameraPosition = renderer.mCameraTransform.translation();
-		MCD_VERIFY(mImpl.mVsConstTable->SetFloatArray(
-			device, mImpl.mConstantHandles.cameraPosition, cameraPosition.getPtr(), 3
-		) == S_OK);
-	}
-
-	{	// Bind light information
-		// To match the light data structure in the shader
-		struct LightStruct
-		{
-			Vec3f position;
-			ColorRGBAf color;
-		} lightStruct;
-
-		for(size_t i=0; i<4; ++i) {
-			D3DXHANDLE hi = mImpl.mPsConstTable->GetConstantElement(mImpl.mConstantHandles.lights, i);
-
-			memset(&lightStruct, 0, sizeof(lightStruct));
-
-			if(i < renderer.mLights.size()) {
-				LightComponent* light = renderer.mLights[i];
-				if(Entity* e = light->entity())
-					lightStruct.position = e->worldTransform().translation();
-				lightStruct.color = ColorRGBAf(light->color, 1);
-			}
-
-			MCD_VERIFY(mImpl.mVsConstTable->SetFloatArray(
-				device, hi, (float*)&lightStruct, sizeof(lightStruct) / sizeof(float)
-			) == S_OK);
-		}
-	}
-
-	{	// Bind material information
-		MCD_VERIFY(mImpl.mVsConstTable->SetFloat(
-			device, mImpl.mConstantHandles.specularExponent, specularExponent
-		) == S_OK);
-
-		if(diffuseMap) {
-			if(IDirect3DBaseTexture9* texture = reinterpret_cast<IDirect3DBaseTexture9*>(diffuseMap->handle)) {
-				unsigned samplerIndex = mImpl.mPsConstTable->GetSamplerIndex("texDiffuse");
-				device->SetTexture(samplerIndex, texture);
-			}
-		}
-	}
-
-	device->SetVertexShader(mImpl.mVs);
-	device->SetPixelShader(mImpl.mPs);
-}
-
-void MaterialComponent::postRender(size_t pass, void* context)
-{
 }
 
 }	// namespace MCD

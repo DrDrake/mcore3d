@@ -1,15 +1,11 @@
 #include "Pch.h"
-#include "../Material.h"
+#include "Material_DX9.inc"
+#include "Renderer.inc"
+#include "../Light.h"
 #include "../RenderWindow.h"
 #include "../../Core/System/Log.h"
-
-#include "../Camera.h"
-#include "../../Core/Math/Mat44.h"
-
-#include <d3d9.h>
+#include "../../Core/Entity/Entity.h"
 #include <D3DX9Shader.h>
-
-#include "Material_DX9.inc"
 
 namespace MCD {
 
@@ -175,6 +171,86 @@ bool MaterialComponent::Impl::createPs()
 	}
 
 	return false;
+}
+
+void MaterialComponent::Impl::updateWorldTransform(void* context)
+{
+	RendererComponent::Impl& renderer = *reinterpret_cast<RendererComponent::Impl*>(context);
+	LPDIRECT3DDEVICE9 device = reinterpret_cast<LPDIRECT3DDEVICE9>(RenderWindow::getActiveContext());
+
+	MCD_VERIFY(mVsConstTable->SetMatrix(
+		device, mConstantHandles.worldViewProj, (D3DXMATRIX*)renderer.mWorldViewProjMatrix.getPtr()
+	) == S_OK);
+
+	MCD_VERIFY(mVsConstTable->SetMatrix(
+		device, mConstantHandles.world, (D3DXMATRIX*)renderer.mWorldMatrix.getPtr()
+	) == S_OK);
+}
+
+void MaterialComponent::preRender(size_t pass, void* context)
+{
+	RendererComponent::Impl& renderer = *reinterpret_cast<RendererComponent::Impl*>(context);
+	LPDIRECT3DDEVICE9 device = reinterpret_cast<LPDIRECT3DDEVICE9>(RenderWindow::getActiveContext());
+
+	{	// Bind system information
+		MCD_VERIFY(mImpl.mVsConstTable->SetMatrix(
+			device, mImpl.mConstantHandles.worldViewProj, (D3DXMATRIX*)renderer.mWorldViewProjMatrix.getPtr()
+		) == S_OK);
+
+		MCD_VERIFY(mImpl.mVsConstTable->SetMatrix(
+			device, mImpl.mConstantHandles.world, (D3DXMATRIX*)renderer.mWorldMatrix.getPtr()
+		) == S_OK);
+
+		Vec3f cameraPosition = renderer.mCameraTransform.translation();
+		MCD_VERIFY(mImpl.mVsConstTable->SetFloatArray(
+			device, mImpl.mConstantHandles.cameraPosition, cameraPosition.getPtr(), 3
+		) == S_OK);
+	}
+
+	{	// Bind light information
+		// To match the light data structure in the shader
+		struct LightStruct
+		{
+			Vec3f position;
+			ColorRGBAf color;
+		} lightStruct;
+
+		for(size_t i=0; i<4; ++i) {
+			D3DXHANDLE hi = mImpl.mPsConstTable->GetConstantElement(mImpl.mConstantHandles.lights, i);
+
+			memset(&lightStruct, 0, sizeof(lightStruct));
+
+			if(i < renderer.mLights.size()) {
+				LightComponent* light = renderer.mLights[i];
+				if(Entity* e = light->entity())
+					lightStruct.position = e->worldTransform().translation();
+				lightStruct.color = ColorRGBAf(light->color, 1);
+			}
+
+			MCD_VERIFY(mImpl.mVsConstTable->SetFloatArray(
+				device, hi, (float*)&lightStruct, sizeof(lightStruct) / sizeof(float)
+			) == S_OK);
+		}
+	}
+
+	{	// Bind material information
+		MCD_VERIFY(mImpl.mVsConstTable->SetFloat(
+			device, mImpl.mConstantHandles.specularExponent, specularExponent
+		) == S_OK);
+
+		TexturePtr diffuse = diffuseMap ? diffuseMap : renderer.mWhiteTexture;
+		if(IDirect3DBaseTexture9* texture = reinterpret_cast<IDirect3DBaseTexture9*>(diffuse->handle)) {
+			unsigned samplerIndex = mImpl.mPsConstTable->GetSamplerIndex("texDiffuse");
+			device->SetTexture(samplerIndex, texture);
+		}
+	}
+
+	device->SetVertexShader(mImpl.mVs);
+	device->SetPixelShader(mImpl.mPs);
+}
+
+void MaterialComponent::postRender(size_t pass, void* context)
+{
 }
 
 MaterialComponent::MaterialComponent()
