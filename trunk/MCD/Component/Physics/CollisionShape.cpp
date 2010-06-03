@@ -6,7 +6,6 @@
 #include "../../Render/MeshBuilder.h"
 
 #include "../../../3Party/bullet/btBulletCollisionCommon.h"
-#include "../../../3Party/glew/glew.h"
 
 using namespace MCD;
 

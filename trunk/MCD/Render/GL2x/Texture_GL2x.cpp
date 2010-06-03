@@ -12,19 +12,17 @@ void Texture::clear()
 	handle = 0;
 	width = height = 0;
 	type = GL_INVALID_ENUM;
-	format = GpuDataFormat();
+	format = GpuDataFormat::get("none");
 }
 
 static size_t _max(size_t a, size_t b) { return a > b ? a : b; }
 
-static size_t getMipLevelSize(int format, size_t bytePerPixel, size_t level, size_t& w, size_t& h, bool& isCompressed)
+static size_t getMipLevelSize(int format, size_t bytePerPixel, size_t level, size_t& w, size_t& h)
 {
 	for(size_t i=0; i<level; ++i) {
 		w = _max(w >> 1, 1);
 		h = _max(h >> 1, 1);
 	}
-
-	isCompressed = true;
 
 	switch(format) {
 	case GL_COMPRESSED_RGB_S3TC_DXT1_EXT:
@@ -35,7 +33,6 @@ static size_t getMipLevelSize(int format, size_t bytePerPixel, size_t level, siz
 		return 16 * _max(w / 4, 1) * _max(h / 4, 1); 
 	}
 
-	isCompressed = false;
 	return w * h * bytePerPixel;
 }
 
@@ -51,6 +48,8 @@ bool Texture::create(
 
 	if(surfaceCount != 1 && surfaceCount != 6)
 		return false;
+	if(surfaceCount == 6 && width_ != height_)
+		return false;
 
 	clear();
 
@@ -63,44 +62,20 @@ bool Texture::create(
 	glGenTextures(1, &handle);
 	glBindTexture(type, handle);
 
-	const byte_t* surfaceData = (byte_t*)data;
-	for(size_t surface=0; surface<surfaceCount; ++surface)
-	{
-		const byte_t* levelData = (byte_t*)surfaceData;
-		for(size_t level=0; level<mipLevelCount; ++level)
-		{
-			size_t w = width;
-			size_t h = height;
-			bool isCompressed;
-			const size_t levelSize = getMipLevelSize(format.format, format.sizeInByte(), level, w, h, isCompressed);
-
-			const int textureType = surfaceCount == 1 ? GL_TEXTURE_2D : GL_TEXTURE_CUBE_MAP_POSITIVE_X + surface;
-
-			if(isCompressed)
-				glCompressedTexImage2D(textureType, level, format.format, w, h, 0, levelSize, levelData);
-			else {
-				// NOTE: To compress texture on the fly, just pass GL_COMPRESSED_XXX_ARB as the internal format
-				// Reference: www.oldunreal.com/editing/s3tc/ARB_texture_compression.pdf
-				glTexImage2D(textureType, level, format.format, w, h, 0, srcFormat.components, format.dataType, levelData);
-			}
-
-			levelData += levelSize;
-		}
-		surfaceData += dataSize / surfaceCount;
-	}
-
-	glTexParameteri(type, GL_TEXTURE_MAX_LEVEL, mipLevelCount - 1);
+	bool hasMipMap = mipLevelCount > 1;
 
 	// Auto mip-map generation
 	// Reference on comparison between gluBuild2DMipmaps / GL_GENERATE_MIPMAP and glGenerateMipmapEXT
 	// http://www.gamedev.net/community/forums/topic.asp?topic_id=452780
 	// http://www.opengl.org/discussion_boards/ubbthreads.php?ubb=showflat&Number=233955
-	if(true) {
+	if(true && !hasMipMap) {
 		glHint(GL_GENERATE_MIPMAP_HINT, GL_NICEST);
 		glTexParameteri(type, GL_GENERATE_MIPMAP, GL_TRUE);
 	}
-	else
+	else {
+		glTexParameteri(type, GL_TEXTURE_MAX_LEVEL, mipLevelCount - 1);
 		glTexParameteri(type, GL_GENERATE_MIPMAP, GL_FALSE);
+	}
 
 	if(surfaceCount == 1) {
 		glTexParameteri(type, GL_TEXTURE_WRAP_S, GL_REPEAT);
@@ -114,13 +89,38 @@ bool Texture::create(
 		glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
 	}
 
-	if(mipLevelCount > 1) {
+	if(hasMipMap) {
 		glTexParameteri(type, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
 		glTexParameteri(type, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 	}
 	else {
 		glTexParameteri(type, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 		glTexParameteri(type, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	}
+
+	const byte_t* surfaceData = (byte_t*)data;
+	for(size_t surface=0; surface<surfaceCount; ++surface)
+	{
+		const byte_t* levelData = (byte_t*)surfaceData;
+		for(size_t level=0; level<mipLevelCount; ++level)
+		{
+			size_t w = width;
+			size_t h = height;
+			const size_t levelSize = getMipLevelSize(format.format, format.sizeInByte(), level, w, h);
+
+			const int textureType = surfaceCount == 1 ? GL_TEXTURE_2D : GL_TEXTURE_CUBE_MAP_POSITIVE_X + surface;
+
+			if(format.isCompressed)
+				glCompressedTexImage2D(textureType, level, format.format, w, h, 0, levelSize, levelData);
+			else {
+				// NOTE: To compress texture on the fly, just pass GL_COMPRESSED_XXX_ARB as the internal format
+				// Reference: www.oldunreal.com/editing/s3tc/ARB_texture_compression.pdf
+				glTexImage2D(textureType, level, format.format, w, h, 0, srcFormat.components, format.dataType, levelData);
+			}
+
+			levelData += levelSize;
+		}
+		surfaceData += dataSize / surfaceCount;
 	}
 
 	glBindTexture(type, 0);

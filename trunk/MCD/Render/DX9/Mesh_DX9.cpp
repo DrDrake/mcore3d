@@ -215,14 +215,14 @@ bool Mesh::create(const void* const* data, Mesh::StorageHint storageHint)
 	for(size_t i=0; i<bufferCount; ++i)
 	{
 		const size_t size = bufferSize(i);
-		int storageFlag = D3DUSAGE_DYNAMIC | D3DUSAGE_WRITEONLY;
+		int storageFlag = 0;//D3DUSAGE_DYNAMIC | D3DUSAGE_WRITEONLY;
 
 		if(i == Mesh::cIndexAttrIdx) {
 			LPDIRECT3DINDEXBUFFER9* handle = reinterpret_cast<LPDIRECT3DINDEXBUFFER9*>(this->handles[i].get());
 			MCD_ASSUME(handle);
 			SAFE_RELEASE(*handle);
 
-			if(FAILED(device->CreateIndexBuffer(size, storageFlag, D3DFMT_INDEX16, D3DPOOL_DEFAULT, handle, nullptr)))
+			if(FAILED(device->CreateIndexBuffer(size, storageFlag, D3DFMT_INDEX16, D3DPOOL_MANAGED, handle, nullptr)))
 				return false;
 			if(const char* p = reinterpret_cast<const char*>(data[i])) {
 				void* p2 = nullptr;
@@ -238,7 +238,7 @@ bool Mesh::create(const void* const* data, Mesh::StorageHint storageHint)
 			MCD_ASSUME(handle);
 			SAFE_RELEASE(*handle);
 
-			if(FAILED(device->CreateVertexBuffer(size, storageFlag, 0, D3DPOOL_DEFAULT, handle, nullptr)))
+			if(FAILED(device->CreateVertexBuffer(size, storageFlag, 0, D3DPOOL_MANAGED, handle, nullptr)))
 				return false;
 			if(const char* p = reinterpret_cast<const char*>(data[i])) {
 				void* p2 = nullptr;

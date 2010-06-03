@@ -122,8 +122,8 @@ bool MaterialComponent::Impl::createPs()
 	"	float ndotl = saturate(dot(N, L));"
 	"	float ndoth = saturate(dot(N, H));"
 	"	float specExp = pow(ndoth, mcdSpecularExponent);"
-	"	diffuse += ndotl * light.color.xyz;"
-	"	specular += specExp * light.color.xyz;"
+	"	diffuse += ndotl * light.color.rgb;"
+	"	specular += specExp * light.color.rgb;"
 	"}"
 
 	"struct PS_INPUT {"
@@ -146,7 +146,7 @@ bool MaterialComponent::Impl::createPs()
 	"		computeLighting(mcdLights[i], P, N, V, lightDiffuse, lightSpecular);\n"
 	"	float3 diffuse = tex2D(texDiffuse, _in.uvDiffuse) * lightDiffuse;"
 	"	float3 specular = lightSpecular;"
-	"	_out.color.xyz = _in.color.xyz * 0.5 * diffuse + specular;"
+	"	_out.color.rgb = _in.color.rgb * diffuse + specular;"
 	"	return _out;"
 	"}";
 

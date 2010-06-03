@@ -6,6 +6,7 @@
 #include "../../3Party/glew/glew.h"
 
 // http://www.mindcontrol.org/~hplus/graphics/dds-info/
+// http://www.fsdeveloper.com/wiki/index.php?title=DXT_compression_explained
 
 namespace MCD {
 

@@ -6,6 +6,7 @@
 #include "../../MCD/Render/Material.h"
 #include "../../MCD/Render/Mesh.h"
 #include "../../MCD/Render/Renderer.h"
+#include "../../MCD/Render/Texture.h"
 #include "../../MCD/Core/Entity/Entity.h"
 #include "../../MCD/Core/System/WindowEvent.h"
 #include "../../MCD/Core/System/ResourceLoader.h"
@@ -35,13 +36,13 @@ TEST(RendererTest)
 	{	Entity* e = new Entity;
 		e->name = "Camera";
 		e->asChildOf(&root);
-		e->localTransform.setTranslation(Vec3f(0, 0, 20));
+		e->localTransform.setTranslation(Vec3f(0, 0, 10));
 		e->addComponent(camera);
 	}
 
 	// Light
 	{	LightComponent* light = new LightComponent;
-		light->color = ColorRGBf(1, 0, 0);
+		light->color = ColorRGBf(1, 0.8f, 0.8f);
 		Entity* e = new Entity;
 		e->name = "Light1";
 		e->asChildOf(&root);
@@ -50,7 +51,7 @@ TEST(RendererTest)
 	}
 
 	{	LightComponent* light = new LightComponent;
-		light->color = ColorRGBf(0, 1, 0);
+		light->color = ColorRGBf(0.8f, 1, 0.8f);
 		Entity* e = new Entity;
 		e->name = "Light2";
 		e->asChildOf(&root);
@@ -80,14 +81,23 @@ TEST(RendererTest)
 	CHECK(mesh->mesh->create(ChamferBoxBuilder(0.5f, 5, true), Mesh::Static));
 
 	{	Entity* e = new Entity;
-		e->name = "Chamfer box";
+		e->name = "Chamfer box1";
 		e->asChildOf(&root);
 		e->addComponent(mesh);
+		e->localTransform.translateBy(Vec3f(2, 0, 0));
+	}
+
+	{	Entity* e = new Entity;
+		e->name = "Chamfer box2";
+		e->asChildOf(&root);
+		e->addComponent(mesh->clone());
+		e->localTransform.translateBy(Vec3f(-2, 0, 0));
 	}
 
 	// Material
 	MaterialComponent* material = new MaterialComponent;
 	root.addComponent(material);
+	material->diffuseMap = dynamic_cast<Texture*>(resourceManager.load("InterlacedTrans256x256.png").get());
 
 	while(true)
 	{
