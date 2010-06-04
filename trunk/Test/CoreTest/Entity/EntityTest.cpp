@@ -219,6 +219,13 @@ TEST(PreorderIterator_EntityTest)
 		CHECK_EQUAL(MCD_COUNTOF(expected), i);
 	}
 
+	{	// Travers a leaf node in a tree
+		EntityPreorderIterator itr(e21);
+		CHECK_EQUAL(e21, itr.current());
+		itr.next();
+		CHECK_EQUAL((Entity*)nullptr, itr.current());
+	}
+
 	{	// Traversing a sub-tree only
 		size_t i = 0;
 		Entity* expected[] = { e1, e13, e12, e11 };
