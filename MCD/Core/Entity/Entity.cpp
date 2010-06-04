@@ -460,7 +460,7 @@ Entity* EntityPreorderIterator::next()
 			noChildMove = true;
 			--mDepthChange;
 
-			if(mCurrent == mStart)
+			if(mCurrent == mStart || (mStart && mCurrent == mStart->parent()))
 				mCurrent = nullptr;
 		}
 	}
