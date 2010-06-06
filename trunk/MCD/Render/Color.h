@@ -74,6 +74,9 @@ public:
 	float* rawPointer() {
 		return reinterpret_cast<float*>(this);
 	}
+	const float* rawPointer() const {
+		return reinterpret_cast<const float*>(this);
+	}
 
 	float a;
 };	// ColorRGBAf

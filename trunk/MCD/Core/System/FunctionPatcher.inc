@@ -122,28 +122,28 @@ FunctionPatcher::~FunctionPatcher()
 
 void* FunctionPatcher::copyPrologue(void* funcAddres, int givenPrologueSize)
 {
-	 void* result = NULL;
+	void* result = NULL;
 
-	 if(void* original = funcAddres)
-	 {
-		 size_t prologueSize = givenPrologueSize == -1 ? getPrologueSize(original) : givenPrologueSize;
+	if(void* original = funcAddres)
+	{
+		size_t prologueSize = givenPrologueSize == -1 ? getPrologueSize(original) : givenPrologueSize;
 
-		 PrologueInfo* prologueInfo = gPrologueInfos + PrologueFuncIdx++;
-		 prologueInfo->original = original;
+		PrologueInfo* prologueInfo = gPrologueInfos + PrologueFuncIdx++;
+		prologueInfo->original = original;
 
-		 // Patch CRT library original routine:
-		 // save original prologue code bytes for exit restoration
-		 memcpy(prologueInfo->ByteCodes, original, prologueSize);
+		// Patch CRT library original routine:
+		// save original prologue code bytes for exit restoration
+		memcpy(prologueInfo->ByteCodes, original, prologueSize);
 
-		 unsigned char* unprologuedAddress = ((unsigned char*)original) + prologueSize;
-		 unsigned char* prologuedFromAddress = ((unsigned char*)prologueInfo->ByteCodes) + prologueSize;
+		unsigned char* unprologuedAddress = ((unsigned char*)original) + prologueSize;
+		unsigned char* prologuedFromAddress = ((unsigned char*)prologueInfo->ByteCodes) + prologueSize;
 
-		 unsigned char* trampolineloc = prologueInfo->ByteCodes + prologueSize;
-		 *trampolineloc++ = IAX86_NEARJMP_OPCODE;
-		 *(unsigned*)trampolineloc = MakeIAX86Offset(unprologuedAddress, prologuedFromAddress);
+		unsigned char* trampolineloc = prologueInfo->ByteCodes + prologueSize;
+		*trampolineloc++ = IAX86_NEARJMP_OPCODE;
+		*(unsigned*)trampolineloc = MakeIAX86Offset(unprologuedAddress, prologuedFromAddress);
 
-		 result = prologueInfo->ByteCodes;
-	 }
+		result = prologueInfo->ByteCodes;
+	}
 
 	return result;
 }

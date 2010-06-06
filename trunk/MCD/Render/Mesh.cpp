@@ -32,6 +32,29 @@ size_t Mesh::bufferSize(size_t bufferIndex) const
 	return 0;
 }
 
+MeshPtr Mesh::clone(const char* name, StorageHint hint)
+{
+	MeshPtr ret = new Mesh(name);
+
+	ret->bufferCount = bufferCount;
+	ret->attributes = attributes;
+	ret->attributeCount = attributeCount;
+	ret->vertexCount = vertexCount;
+	ret->indexCount = indexCount;
+
+	MappedBuffers mapped;
+
+	void* buffers[Mesh::cMaxBufferCount];
+	for(size_t i=0; i<bufferCount; ++i)
+		buffers[i] = mapBuffer(i, mapped);
+
+	MCD_VERIFY(ret->create(buffers, hint));
+
+	unmapBuffers(mapped);
+
+	return ret;
+}
+
 int Mesh::findAttributeBySemantic(const StringHash& semantic) const
 {
 	for(size_t i=0; i<attributeCount; ++i) {
