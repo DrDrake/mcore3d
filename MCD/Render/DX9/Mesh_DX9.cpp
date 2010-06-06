@@ -2,7 +2,6 @@
 #include "../Mesh.h"
 #include "../MeshBuilder.h"
 #include "../RenderWindow.h"
-#include "../../Core/System/Log.h"
 
 #include <d3d9.h>
 #include <D3DX9Shader.h>
@@ -92,31 +91,6 @@ void Mesh::clear()
 	bufferCount = 0;
 	vertexCount = 0;
 	indexCount = 0;
-}
-
-MeshPtr Mesh::clone(const char* name, StorageHint hint)
-{
-	MeshPtr ret = new Mesh(name);
-
-	ret->bufferCount = bufferCount;
-	ret->attributes = attributes;
-	ret->attributeCount = attributeCount;
-	ret->vertexCount = vertexCount;
-	ret->indexCount = indexCount;
-
-	MappedBuffers mapped;
-	for(size_t i=0; i<bufferCount; ++i) {
-		void* data = mapBuffer(i, mapped);
-		const GLenum verOrIdxBuf = i == 0 ? GL_ELEMENT_ARRAY_BUFFER : GL_ARRAY_BUFFER;
-		uint* handle = ret->handles[i].get();
-		MCD_ASSUME(handle);
-		glGenBuffers(1, handle);
-		glBindBuffer(verOrIdxBuf, *handle);
-		glBufferData(verOrIdxBuf, bufferSize(i), data, hint);
-	}
-	unmapBuffers(mapped);
-
-	return ret;
 }
 
 void* Mesh::mapBuffer(size_t bufferIdx, MappedBuffers& mapped, MapOption mapOptions)

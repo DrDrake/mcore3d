@@ -42,12 +42,6 @@ void RendererComponent::Impl::render(Entity& entityTree, CameraComponent2* camer
 		// TODO: Is these usefull?
 		device->SetTransform(D3DTS_VIEW, (D3DMATRIX*)mViewMatrix.getPtr());
 		device->SetTransform(D3DTS_PROJECTION, (D3DMATRIX*)mProjMatrix.getPtr());
-
-		if(mCurrentVS.constTable) {
-			D3DXHANDLE handle;
-			handle = mCurrentVS.constTable->GetConstantByName(nullptr, "mcdViewProj");
-			mCurrentVS.constTable->SetMatrix(device, handle, (D3DXMATRIX*)mViewProjMatrix.getPtr());
-		}
 	}
 
 	// Apply view port
@@ -59,8 +53,6 @@ void RendererComponent::Impl::render(Entity& entityTree, CameraComponent2* camer
 	view_port.MinZ=0.0f;
 	view_port.MaxZ=1.0f;
 	device->SetViewport(&view_port);*/
-
-	Entity* last = nullptr;
 
 	// Traverse the Entity tree
 	for(EntityPreorderIterator itr(&entityTree); !itr.ended();)
@@ -74,24 +66,14 @@ void RendererComponent::Impl::render(Entity& entityTree, CameraComponent2* camer
 
 		MaterialComponent* mtl = e->findComponent<MaterialComponent>();
 
-		{	// Material stack manuipuation
-			if(e->parent() == last) {
-				// Moving down in the tree
-			}
-			else {
-				// Moving up in the tree unless 'last' is a slibing of 'e'
-				while(e->parent() != last->parent()) {
-					mMaterialStack.pop();
-					last = last->parent();
-				}
+		// Pop material when moving up (towards parent) or leveling in the tree
+		for(int depth = itr.depthChange(); depth <= 0 && mMaterialStack.size() > 0; ++depth)
+			mMaterialStack.pop();
 
-				mMaterialStack.pop();
-			}
-
-			mtl = mtl ? mtl : mMaterialStack.top();
-			mMaterialStack.push(mtl);
-			last = e;
-		}
+		// Push material
+		if(nullptr == mtl)
+			mtl = mMaterialStack.top();
+		mMaterialStack.push(mtl);
 
 		mUniqueMaterial.insert(mtl);
 
