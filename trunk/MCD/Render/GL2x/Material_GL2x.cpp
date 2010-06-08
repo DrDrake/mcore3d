@@ -6,6 +6,7 @@ namespace MCD {
 MaterialComponent::MaterialComponent()
 	: mImpl(*reinterpret_cast<Impl*>(nullptr))
 	, specularExponent(20)
+	, opacity(1)
 {
 }
 

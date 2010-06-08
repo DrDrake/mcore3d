@@ -104,8 +104,11 @@ public:
 
 // Attrubutes
 	float specularExponent;
+	float opacity;	//!< Value from 0 (invisible) to 1 (opaque)
 
 	TexturePtr diffuseMap;
+
+	virtual bool isTransparent() const { return opacity < 1; }
 
 protected:
 	friend class RendererComponent;
