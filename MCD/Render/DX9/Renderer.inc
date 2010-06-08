@@ -37,6 +37,8 @@ public:
 
 	void render(Entity& entityTree, CameraComponent2* camera);
 
+	void processRenderItems(RenderItems& items);
+
 	//! mDefaultCamera and mCurrentCamera may differ from each other for instance when rendering using light's view
 	CameraComponent2Ptr mDefaultCamera, mCurrentCamera;
 	Mat44f mCameraTransform;
@@ -52,7 +54,7 @@ public:
 	typedef std::vector<LightComponent*> Lights;
 	Lights mLights;
 
-	RenderItems mRenderQueue;
+	RenderItems mTransparentQueue, mOpaqueQueue;
 
 	TexturePtr mWhiteTexture;	//!< A 1x1 white texture, such that we alwasy feed the shader with texture
 };	// Impl

@@ -84,8 +84,12 @@ void RendererComponent::Impl::render(Entity& entityTree, CameraComponent2* camer
 
 		// Push mesh into render queue, if any
 		if(MeshComponent2* mesh = e->findComponent<MeshComponent2>()) {
+//			const Mat44f world = e->worldTransform();
 			RenderItem r = { mesh, mtl };
-			mRenderQueue.push_back(r);
+			if(!mtl->isTransparent())
+				mOpaqueQueue.push_back(r);
+			else
+				mTransparentQueue.push_back(r);
 		}
 
 		itr.next();
@@ -95,23 +99,29 @@ void RendererComponent::Impl::render(Entity& entityTree, CameraComponent2* camer
 //	MCD_FOREACH(MaterialComponent* m, mUniqueMaterial)
 //		m->preRender(0, this);
 
-	// Render the items in render queue
-	MCD_FOREACH(const RenderItem& i, mRenderQueue) {
+	// Render the items in render queues
+	processRenderItems(mOpaqueQueue);
+	processRenderItems(mTransparentQueue);
+
+	mLights.clear();
+	mOpaqueQueue.clear();
+	mTransparentQueue.clear();
+	mUniqueMaterial.clear();
+}
+
+void RendererComponent::Impl::processRenderItems(RenderItems& items)
+{
+	MCD_FOREACH(const RenderItem& i, items) {
 		if(Entity* e = i.mesh->entity()) {
 			mWorldMatrix = e->worldTransform();
 			mWorldViewProjMatrix = mViewProjMatrix * mWorldMatrix;
 
 			// Set lighting information to the shader
 			i.material->preRender(0, this);
-//			i.material->mImpl.updateWorldTransform(this);
 			i.mesh->mesh->drawFaceOnly();
 			i.material->postRender(0, this);
 		}
 	}
-
-	mLights.clear();
-	mRenderQueue.clear();
-	mUniqueMaterial.clear();
 }
 
 RendererComponent::RendererComponent()

@@ -24,6 +24,8 @@ class RendererComponent::Impl
 public:
 	void render(Entity& entityTree, CameraComponent2* camera);
 
+	void processRenderItems(RenderItems& items);
+
 	//! mDefaultCamera and mCurrentCamera may differ from each other when rendering using light's view
 	CameraComponent2Ptr mDefaultCamera, mCurrentCamera;
 	Mat44f mCameraTransform;
@@ -34,7 +36,7 @@ public:
 	typedef std::vector<LightComponent*> Lights;
 	Lights mLights;
 
-	RenderItems mRenderQueue;
+	RenderItems mTransparentQueue, mOpaqueQueue;
 };	// Impl
 
 void RendererComponent::Impl::render(Entity& entityTree, CameraComponent2* camera)
@@ -99,7 +101,10 @@ void RendererComponent::Impl::render(Entity& entityTree, CameraComponent2* camer
 		// Push mesh into render queue, if any
 		if(MeshComponent2* mesh = e->findComponent<MeshComponent2>()) {
 			RenderItem r = { mesh, mtl };
-			mRenderQueue.push_back(r);
+			if(!mtl->isTransparent())
+				mOpaqueQueue.push_back(r);
+			else
+				mTransparentQueue.push_back(r);
 		}
 
 		itr.next();
@@ -131,7 +136,28 @@ void RendererComponent::Impl::render(Entity& entityTree, CameraComponent2* camer
 	}
 
 	// Render the items in render queue
-	MCD_FOREACH(const RenderItem& i, mRenderQueue) {
+	processRenderItems(mOpaqueQueue);
+
+	glEnable(GL_BLEND);
+	glColor4f(0, 0, 0, 0.5f);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE);
+//	glDisable(GL_CULL_FACE);
+//	glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+//	glBlendEquationSeparate(GL_FUNC_ADD, GL_FUNC_ADD);
+	glDepthMask(GL_FALSE);
+	processRenderItems(mTransparentQueue);
+	glDisable(GL_BLEND);
+	glEnable(GL_CULL_FACE);
+	glDepthMask(GL_TRUE);
+
+	mLights.clear();
+	mOpaqueQueue.clear();
+	mTransparentQueue.clear();
+}
+
+void RendererComponent::Impl::processRenderItems(RenderItems& items)
+{
+	MCD_FOREACH(const RenderItem& i, items) {
 		if(Entity* e = i.mesh->entity()) {
 			mWorldMatrix = e->worldTransform();
 			mWorldViewProjMatrix = mViewProjMatrix * mWorldMatrix;
@@ -144,9 +170,6 @@ void RendererComponent::Impl::render(Entity& entityTree, CameraComponent2* camer
 			i.material->postRender(0, this);
 		}
 	}
-
-	mLights.clear();
-	mRenderQueue.clear();
 }
 
 RendererComponent::RendererComponent()

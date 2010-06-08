@@ -256,6 +256,7 @@ void MaterialComponent::postRender(size_t pass, void* context)
 MaterialComponent::MaterialComponent()
 	: mImpl(*new Impl)
 	, specularExponent(20)
+	, opacity(1)
 {
 }
 
