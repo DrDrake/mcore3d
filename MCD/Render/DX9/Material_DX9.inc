@@ -33,6 +33,7 @@ public:
 		D3DXHANDLE lights;
 		D3DXHANDLE cameraPosition;
 		D3DXHANDLE specularExponent;
+		D3DXHANDLE opacity;
 	};	// ConstantHandles
 
 	ConstantHandles mConstantHandles;

@@ -29,6 +29,7 @@ MaterialComponent::Impl::Impl()
 	mConstantHandles.lights = mPsConstTable->GetConstantByName(nullptr, "mcdLights");
 	mConstantHandles.cameraPosition = mPsConstTable->GetConstantByName(nullptr, "mcdCameraPosition");
 	mConstantHandles.specularExponent = mPsConstTable->GetConstantByName(nullptr, "mcdSpecularExponent");
+	mConstantHandles.opacity = mPsConstTable->GetConstantByName(nullptr, "mcdOpacity");
 }
 
 MaterialComponent::Impl::~Impl()
@@ -109,6 +110,7 @@ bool MaterialComponent::Impl::createPs()
 
 	"float3 mcdCameraPosition;"
 	"float mcdSpecularExponent;"
+	"float mcdOpacity;"
 	"sampler2D texDiffuse;"
 
 	"void computeLighting(in Light light, in float3 P, in float3 N, in float3 V, inout float3 diffuse, inout float3 specular) {"
@@ -143,6 +145,7 @@ bool MaterialComponent::Impl::createPs()
 	"	float3 diffuse = tex2D(texDiffuse, _in.uvDiffuse) * lightDiffuse;"
 	"	float3 specular = lightSpecular;"
 	"	_out.color.rgb = _in.color.rgb * diffuse + specular;"
+	"	_out.color.a = mcdOpacity;"
 	"	return _out;"
 	"}";
 
@@ -236,6 +239,10 @@ void MaterialComponent::preRender(size_t pass, void* context)
 	{	// Bind material information
 		MCD_VERIFY(mImpl.mVsConstTable->SetFloat(
 			device, mImpl.mConstantHandles.specularExponent, specularExponent
+		) == S_OK);
+
+		MCD_VERIFY(mImpl.mVsConstTable->SetFloat(
+			device, mImpl.mConstantHandles.opacity, opacity
 		) == S_OK);
 
 		TexturePtr diffuse = diffuseMap ? diffuseMap : renderer.mWhiteTexture;

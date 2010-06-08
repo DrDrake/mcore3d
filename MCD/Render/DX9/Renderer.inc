@@ -1,7 +1,7 @@
 #include "../Renderer.h"
 #include "../../Core/Math/Mat44.h"
 #include "../../Core/System/Deque.h"
-#include <set>
+#include "../../Core/System/Map.h"
 #include <vector>
 
 typedef struct IDirect3DVertexShader9 *LPDIRECT3DVERTEXSHADER9;
@@ -28,7 +28,16 @@ struct RenderItem
 	sal_notnull MaterialComponent* material;
 };	// RenderItem
 
-typedef std::vector<RenderItem> RenderItems;
+struct RenderItemNode : public MapBase<float>::Node<RenderItemNode>
+{
+	typedef MapBase<float>::Node<RenderItemNode> Super;
+	RenderItemNode(float depth, const RenderItem& item)
+		: Super(depth), mRenderItem(item)
+	{}
+	RenderItem mRenderItem;
+};	// RenderItemNode
+
+typedef Map<RenderItemNode> RenderItems;
 
 class RendererComponent::Impl
 {
@@ -49,7 +58,6 @@ public:
 	sal_notnull RendererComponent* mBackRef;
 
 	std::stack<MaterialComponent*> mMaterialStack;
-	std::set<MaterialComponent*> mUniqueMaterial;
 
 	typedef std::vector<LightComponent*> Lights;
 	Lights mLights;

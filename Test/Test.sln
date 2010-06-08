@@ -11,6 +11,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Render", "Render", "{E12A42
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Render", "..\MCD\Render\Render.vcproj", "{500413B2-5AE6-41CE-BCFF-D90DB2755869}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "RenderDX9", "..\MCD\Render\RenderDX9.vcproj", "{35CE800C-6304-4E8A-A895-07D2DE7377FE}"
+EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "RenderTest", "RenderTest\RenderTest.vcproj", "{4DA3080B-CD7B-454F-8D08-493605EE4980}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Binding", "Binding", "{03810A82-BCF8-4236-A8DB-8B6E4DF32B61}"
@@ -25,21 +27,19 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Component", "..\MCD\Compone
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ComponentTest", "ComponentTest\ComponentTest.vcproj", "{67AADB73-C79B-4C06-B7E8-BCBD2A5458BF}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Audio", "Audio", "{ED4A2DE1-B996-4115-86BD-66C5FD58019F}"
+EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Audio", "..\MCD\Audio\Audio.vcproj", "{5570494C-4F2D-4C2B-956A-E1804C73C524}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "AudioTest", "AudioTest\AudioTest.vcproj", "{44759314-9FC1-4ABC-B595-62B23DDD8014}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Audio", "Audio", "{ED4A2DE1-B996-4115-86BD-66C5FD58019F}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Network", "Network", "{2F3BC678-F5DE-478C-9DEB-B3BA36560690}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Network", "..\MCD\Network\Network.vcproj", "{5C3CE976-3FD0-43F0-9259-71EB4ED98A81}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "NetworkTest", "NetworkTest\NetworkTest.vcproj", "{049D1641-00B0-477F-9716-70503831E690}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Network", "Network", "{2F3BC678-F5DE-478C-9DEB-B3BA36560690}"
-EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Loader", "..\MCD\Loader\Loader.vcproj", "{393AC843-B488-4E7F-BFA3-8E5C6F7352FD}"
-EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "RenderDX9", "..\MCD\Render\RenderDX9.vcproj", "{35CE800C-6304-4E8A-A895-07D2DE7377FE}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

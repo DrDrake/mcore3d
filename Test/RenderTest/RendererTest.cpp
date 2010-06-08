@@ -77,41 +77,57 @@ TEST(RendererTest)
 
 	// Material
 	MaterialComponent* material1 = new MaterialComponent;
-	root.addComponent(material1);
 	material1->diffuseMap = dynamic_cast<Texture*>(resourceManager.load("InterlacedTrans256x256.png").get());
+	material1->opacity = 1.0f;
 
 	MaterialComponent* material2 = new MaterialComponent;
 	material2->specularExponent = 200;
+	material2->opacity = 0.8f;
 
 	// Create mesh
 	MeshComponent2* boxMesh = new MeshComponent2;
 	boxMesh->mesh = new Mesh("");
 	CHECK(boxMesh->mesh->create(ChamferBoxBuilder(0.5f, 5, true), Mesh::Static));
 
+	EntityPtr boxes = new Entity;
+	boxes->addComponent(material1);
+	boxes->asChildOf(&root);
+
 	{	Entity* e = new Entity;
 		e->name = "Chamfer box1";
-		e->asChildOf(&root);
+		e->asChildOf(boxes.get());
 		e->addComponent(boxMesh);
-		e->localTransform.translateBy(Vec3f(2, 0, 0));
+		e->localTransform.translateBy(Vec3f(2, 0, -2));
 	}
 
 	{	Entity* e = new Entity;
 		e->name = "Chamfer box2";
-		e->asChildOf(&root);
+		e->asChildOf(boxes.get());
 		e->addComponent(boxMesh->clone());
-		e->localTransform.translateBy(Vec3f(-2, 0, 0));
+		e->localTransform.translateBy(Vec3f(-2, 0, -2));
 	}
 
 	MeshComponent2* sphereMesh = new MeshComponent2;
 	sphereMesh->mesh = new Mesh("");
 	CHECK(sphereMesh->mesh->create(ChamferBoxBuilder(1, 5, true), Mesh::Static));
 
+	EntityPtr spheres = new Entity;
+	spheres->addComponent(material2);
+	spheres->asChildOf(&root);
+
 	{	Entity* e = new Entity;
 		e->name = "Sphere1";
-		e->asChildOf(&root);
+		e->asChildOf(spheres.get());
 		e->addComponent(sphereMesh);
+		e->localTransform.translateBy(Vec3f(2, 0, 2));
+	}
+
+	{	Entity* e = new Entity;
+		e->name = "Sphere2";
+		e->asChildOf(spheres.get());
 		e->addComponent(material2);
-		e->localTransform.translateBy(Vec3f(0, 2, 0));
+		e->addComponent(sphereMesh->clone());
+		e->localTransform.translateBy(Vec3f(-2, 0, 2));
 	}
 
 	while(true)
