@@ -64,54 +64,69 @@ void RendererComponent::Impl::render(Entity& entityTree, CameraComponent2* camer
 
 		Entity* e = itr.current();
 
-		MaterialComponent* mtl = e->findComponent<MaterialComponent>();
+		// Push light into the light list, if any
+		if(LightComponent* light = e->findComponent<LightComponent>()) {
+			mLights.push_back(light);
+		}
 
 		// Pop material when moving up (towards parent) or leveling in the tree
 		for(int depth = itr.depthChange(); depth <= 0 && mMaterialStack.size() > 0; ++depth)
 			mMaterialStack.pop();
 
 		// Push material
-		if(nullptr == mtl)
+		MaterialComponent* mtl = e->findComponent<MaterialComponent>();
+		if(nullptr == mtl) {
+			// Skip if there where no material
+			if(mMaterialStack.empty()) {
+				itr.next();
+				continue;
+			}
 			mtl = mMaterialStack.top();
-		mMaterialStack.push(mtl);
-
-		mUniqueMaterial.insert(mtl);
-
-		// Push light into the light list, if any
-		if(LightComponent* light = e->findComponent<LightComponent>()) {
-			mLights.push_back(light);
 		}
+		mMaterialStack.push(mtl);
 
 		// Push mesh into render queue, if any
 		if(MeshComponent2* mesh = e->findComponent<MeshComponent2>()) {
-//			const Mat44f world = e->worldTransform();
+			Vec3f pos = e->worldTransform().translation();
+			mViewMatrix.transformPoint(pos);
+			const float dist = pos.z;
+
 			RenderItem r = { mesh, mtl };
 			if(!mtl->isTransparent())
-				mOpaqueQueue.push_back(r);
+				mOpaqueQueue.insert(*new RenderItemNode(-dist, r));
 			else
-				mTransparentQueue.push_back(r);
+				mTransparentQueue.insert(*new RenderItemNode(dist, r));
 		}
 
 		itr.next();
 	}
 
-	// Bind constants for all unique materials
-//	MCD_FOREACH(MaterialComponent* m, mUniqueMaterial)
-//		m->preRender(0, this);
+	{	// Render opaque items
+		processRenderItems(mOpaqueQueue);
+	}
 
-	// Render the items in render queues
-	processRenderItems(mOpaqueQueue);
-	processRenderItems(mTransparentQueue);
+	{	// Render transparent items
+		// Reference: http://www.gamedev.net/community/forums/topic.asp?topic_id=563635
+		device->SetRenderState(D3DRS_ALPHABLENDENABLE, true);
+		device->SetRenderState(D3DRS_SRCBLEND, D3DBLEND_SRCALPHA);
+		device->SetRenderState(D3DRS_DESTBLEND, D3DBLEND_INVSRCALPHA);
+		device->SetRenderState(D3DRS_BLENDOP, D3DBLENDOP_ADD);
+
+		processRenderItems(mTransparentQueue);
+
+		device->SetRenderState(D3DRS_ALPHABLENDENABLE, false);
+	}
 
 	mLights.clear();
-	mOpaqueQueue.clear();
-	mTransparentQueue.clear();
-	mUniqueMaterial.clear();
+	mOpaqueQueue.destroyAll();
+	mTransparentQueue.destroyAll();
 }
 
 void RendererComponent::Impl::processRenderItems(RenderItems& items)
 {
-	MCD_FOREACH(const RenderItem& i, items) {
+	for(RenderItemNode* node = items.findMin(); node != nullptr; node = node->next()) {
+		const RenderItem& i = node->mRenderItem;
+
 		if(Entity* e = i.mesh->entity()) {
 			mWorldMatrix = e->worldTransform();
 			mWorldViewProjMatrix = mViewProjMatrix * mWorldMatrix;

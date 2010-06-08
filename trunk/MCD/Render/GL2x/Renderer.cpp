@@ -6,6 +6,7 @@
 #include "../Mesh.h"
 #include "../../Core/Math/Mat44.h"
 #include "../../Core/System/Deque.h"
+#include "../../Core/System/Map.h"
 #include "../../Core/Entity/Entity.h"
 #include "../../../3Party/glew/wglew.h"
 
@@ -17,7 +18,16 @@ struct RenderItem
 	sal_notnull MaterialComponent* material;
 };	// RenderItem
 
-typedef std::vector<RenderItem> RenderItems;
+struct RenderItemNode : public MapBase<float>::Node<RenderItemNode>
+{
+	typedef MapBase<float>::Node<RenderItemNode> Super;
+	RenderItemNode(float depth, const RenderItem& item)
+		: Super(depth), mRenderItem(item)
+	{}
+	RenderItem mRenderItem;
+};	// RenderItemNode
+
+typedef Map<RenderItemNode> RenderItems;
 
 class RendererComponent::Impl
 {
@@ -82,29 +92,38 @@ void RendererComponent::Impl::render(Entity& entityTree, CameraComponent2* camer
 
 		Entity* e = itr.current();
 
-		MaterialComponent* mtl = e->findComponent<MaterialComponent>();
+		// Push light into the light list, if any
+		if(LightComponent* light = e->findComponent<LightComponent>()) {
+			mLights.push_back(light);
+		}
 
 		// Pop material when moving up (towards parent) or leveling in the tree
 		for(int depth = itr.depthChange(); depth <= 0 && mMaterialStack.size() > 0; ++depth)
 			mMaterialStack.pop();
 
 		// Push material
-		if(nullptr == mtl)
+		MaterialComponent* mtl = e->findComponent<MaterialComponent>();
+		if(nullptr == mtl) {
+			// Skip if there where no material
+			if(mMaterialStack.empty()) {
+				itr.next();
+				continue;
+			}
 			mtl = mMaterialStack.top();
-		mMaterialStack.push(mtl);
-
-		// Push light into the light list, if any
-		if(LightComponent* light = e->findComponent<LightComponent>()) {
-			mLights.push_back(light);
 		}
+		mMaterialStack.push(mtl);
 
 		// Push mesh into render queue, if any
 		if(MeshComponent2* mesh = e->findComponent<MeshComponent2>()) {
+			Vec3f pos = e->worldTransform().translation();
+			mViewMatrix.transformPoint(pos);
+			const float dist = pos.z;
+
 			RenderItem r = { mesh, mtl };
 			if(!mtl->isTransparent())
-				mOpaqueQueue.push_back(r);
+				mOpaqueQueue.insert(*new RenderItemNode(-dist, r));
 			else
-				mTransparentQueue.push_back(r);
+				mTransparentQueue.insert(*new RenderItemNode(dist, r));
 		}
 
 		itr.next();
@@ -135,29 +154,34 @@ void RendererComponent::Impl::render(Entity& entityTree, CameraComponent2* camer
 			glDisable(iLight);
 	}
 
-	// Render the items in render queue
-	processRenderItems(mOpaqueQueue);
+	{	// Render opaque items
+		processRenderItems(mOpaqueQueue);
+	}
 
-	glEnable(GL_BLEND);
-	glColor4f(0, 0, 0, 0.5f);
-	glBlendFunc(GL_SRC_ALPHA, GL_ONE);
-//	glDisable(GL_CULL_FACE);
-//	glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-//	glBlendEquationSeparate(GL_FUNC_ADD, GL_FUNC_ADD);
-	glDepthMask(GL_FALSE);
-	processRenderItems(mTransparentQueue);
-	glDisable(GL_BLEND);
-	glEnable(GL_CULL_FACE);
-	glDepthMask(GL_TRUE);
+	{	// Render transparent items
+		glEnable(GL_BLEND);
+		glColor4f(0, 0, 0, 0.5f);
+		glBlendFunc(GL_SRC_ALPHA, GL_ONE);
+//		glDisable(GL_CULL_FACE);
+//		glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+//		glBlendEquationSeparate(GL_FUNC_ADD, GL_FUNC_ADD);
+		glDepthMask(GL_FALSE);
+		processRenderItems(mTransparentQueue);
+		glDisable(GL_BLEND);
+		glEnable(GL_CULL_FACE);
+		glDepthMask(GL_TRUE);
+	}
 
 	mLights.clear();
-	mOpaqueQueue.clear();
-	mTransparentQueue.clear();
+	mOpaqueQueue.destroyAll();
+	mTransparentQueue.destroyAll();
 }
 
 void RendererComponent::Impl::processRenderItems(RenderItems& items)
 {
-	MCD_FOREACH(const RenderItem& i, items) {
+	for(RenderItemNode* node = items.findMin(); node != nullptr; node = node->next()) {
+		const RenderItem& i = node->mRenderItem;
+
 		if(Entity* e = i.mesh->entity()) {
 			mWorldMatrix = e->worldTransform();
 			mWorldViewProjMatrix = mViewProjMatrix * mWorldMatrix;
