@@ -11,10 +11,12 @@ using namespace MCD;
 namespace script {
 
 void ResourceRefPolicy::addRef(MCD::Resource* resource) {
-	intrusivePtrAddRef(resource);
+	if(resource)
+		intrusivePtrAddRef(resource);
 }
 void ResourceRefPolicy::releaseRef(MCD::Resource* resource) {
-	intrusivePtrRelease(resource);
+	if(resource)
+		intrusivePtrRelease(resource);
 }
 
 namespace types {

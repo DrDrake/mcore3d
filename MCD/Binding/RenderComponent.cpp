@@ -51,11 +51,11 @@ SCRIPT_CLASS_REGISTER(AnimationComponent)
 	.declareClass<AnimationComponent, Component>("AnimationComponent")
 	.enableGetset()
 	.constructor<AnimationUpdaterComponent&>()
-	.wrappedMethod("_gettime", &animationComponentGetTime)
-	.wrappedMethod("_settime", &animationComponentSetTime)
+	.getsetWrapped("time", &animationComponentGetTime, &animationComponentSetTime)
 	.scriptEvent("onEvent", &AnimationComponent::scriptCallback)
 	.wrappedMethod("setEdgeEvent", &animationComponentSetEdgeEvent)
 	.wrappedMethod("setLevelEvent", &animationComponentSetLevelEvent)
+//	.runScript("AnimationComponent._cloned<-function(org){_orgCloned(org);onEvent.setHandler(org.getHandler());}")
 ;}
 
 // AnimationUpdaterComponent
@@ -65,17 +65,16 @@ SCRIPT_CLASS_REGISTER(AnimationUpdaterComponent)
 
 // CameraComponent
 static float cameraComponentGetFov(CameraComponent& self) {
-	return self.camera.frustum.fov();
+	return self.frustum.fov();
 }
 static void cameraComponentSetFov(CameraComponent& self, float fov) {
-	self.camera.frustum.setFov(fov);
+	self.frustum.setFov(fov);
 }
 SCRIPT_CLASS_REGISTER(CameraComponent)
 	.declareClass<CameraComponent, Component>("CameraComponent")
 	.enableGetset()
 	.constructor()
-	.wrappedMethod("_getfov", &cameraComponentGetFov)
-	.wrappedMethod("_setfov", &cameraComponentSetFov)
+	.getsetWrapped("fov", &cameraComponentGetFov, &cameraComponentSetFov)
 ;}
 
 // MeshComponent
@@ -95,10 +94,8 @@ SCRIPT_CLASS_REGISTER(MeshComponent)
 	.declareClass<MeshComponent, Component>("MeshComponent")
 	.enableGetset()
 	.constructor()
-	.wrappedMethod<objRefCount<ResourceRefPolicy> >("_getmesh", &meshComponentGetMesh)
-	.wrappedMethod("_setmesh", &meshComponentSetMesh)
-	.wrappedMethod<objRefCount<ResourceRefPolicy> >("_geteffect", &meshComponentGetEffect)
-	.wrappedMethod("_seteffect", &meshComponentSetEffect)
+	.getsetWrapped<objRefCount<ResourceRefPolicy> >("mesh", &meshComponentGetMesh, &meshComponentSetMesh)
+	.getsetWrapped<objRefCount<ResourceRefPolicy> >("effect", &meshComponentGetEffect, &meshComponentSetEffect)
 ;}
 
 // PickComponent
@@ -111,13 +108,15 @@ static void pickComponentSetEntityToPick(PickComponent& self, Entity* e) {
 static Entity* pickComponentHitAtIndex(PickComponent& self, size_t index) {
 	return self.hitAtIndex(index).get();
 }
+SCRIPT_CLASS_REGISTER_NAME(RenderContext, "RenderContext")
+;}
+
 SCRIPT_CLASS_REGISTER(PickComponent)
 	.declareClass<PickComponent, Component>("PickComponent")
 	.enableGetset()
-	.constructor()
+	.constructor<RenderContext&>()
 	.method("_setPickRegion", &PickComponent::setPickRegion)
-	.wrappedMethod<objNoCare>("_getentityToPick", &pickComponentGetEntityToPick)
-	.wrappedMethod("_setentityToPick", &pickComponentSetEntityToPick)
+	.getsetWrapped<objNoCare>("entityToPick", &pickComponentGetEntityToPick, &pickComponentSetEntityToPick)
 	.method("_gethitCount", &PickComponent::hitCount)
 	.wrappedMethod<objNoCare>("hitAtIndex", &pickComponentHitAtIndex)
 	.runScript("PickComponent.setPickRegion<-function(x,y,w=1,h=1){return _setPickRegion(x,y,w,h);}")
@@ -140,8 +139,7 @@ static void skeletonAnimationComponentSetTime(SkeletonAnimationComponent& self, 
 SCRIPT_CLASS_REGISTER(SkeletonAnimationComponent)
 	.declareClass<SkeletonAnimationComponent, Component>("SkeletonAnimationComponent")
 	.enableGetset()
-	.wrappedMethod("_gettime", &skeletonAnimationComponentGetTime)
-	.wrappedMethod("_settime", &skeletonAnimationComponentSetTime)
+	.getsetWrapped("time", &skeletonAnimationComponentGetTime, &skeletonAnimationComponentSetTime)
 ;}
 
 // SkeletonAnimationUpdaterComponent
@@ -159,8 +157,7 @@ static void skinMeshComponentSetSkeletonAnimation(SkinMeshComponent& self, Skele
 SCRIPT_CLASS_REGISTER(SkinMeshComponent)
 	.declareClass<SkinMeshComponent, Component>("SkinMeshComponent")
 	.enableGetset()
-	.wrappedMethod<objNoCare>("_getskeletonAnimation", &skinMeshComponentGetSkeletonAnimation)
-	.wrappedMethod("_setskeletonAnimation", &skinMeshComponentSetSkeletonAnimation)
+	.getsetWrapped<objNoCare>("skeletonAnimation", &skinMeshComponentGetSkeletonAnimation, &skinMeshComponentSetSkeletonAnimation)
 ;}
 
 }	// namespace script
