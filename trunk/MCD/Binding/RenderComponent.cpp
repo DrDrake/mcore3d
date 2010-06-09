@@ -65,10 +65,10 @@ SCRIPT_CLASS_REGISTER(AnimationUpdaterComponent)
 
 // CameraComponent
 static float cameraComponentGetFov(CameraComponent& self) {
-	return self.frustum.fov();
+	return self.camera.frustum.fov();
 }
 static void cameraComponentSetFov(CameraComponent& self, float fov) {
-	self.frustum.setFov(fov);
+	self.camera.frustum.setFov(fov);
 }
 SCRIPT_CLASS_REGISTER(CameraComponent)
 	.declareClass<CameraComponent, Component>("CameraComponent")
@@ -108,13 +108,11 @@ static void pickComponentSetEntityToPick(PickComponent& self, Entity* e) {
 static Entity* pickComponentHitAtIndex(PickComponent& self, size_t index) {
 	return self.hitAtIndex(index).get();
 }
-SCRIPT_CLASS_REGISTER_NAME(RenderContext, "RenderContext")
-;}
 
 SCRIPT_CLASS_REGISTER(PickComponent)
 	.declareClass<PickComponent, Component>("PickComponent")
 	.enableGetset()
-	.constructor<RenderContext&>()
+	.constructor()
 	.method("_setPickRegion", &PickComponent::setPickRegion)
 	.getsetWrapped<objNoCare>("entityToPick", &pickComponentGetEntityToPick, &pickComponentSetEntityToPick)
 	.method("_gethitCount", &PickComponent::hitCount)
