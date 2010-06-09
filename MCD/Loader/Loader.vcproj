@@ -209,8 +209,8 @@
 			RelativePathToProject="..\MCD\Core\Core.vcproj"
 		/>
 		<ProjectReference
-			ReferencedProjectIdentifier="{35CE800C-6304-4E8A-A895-07D2DE7377FE}"
-			RelativePathToProject="..\MCD\Render\RenderDX9.vcproj"
+			ReferencedProjectIdentifier="{500413B2-5AE6-41CE-BCFF-D90DB2755869}"
+			RelativePathToProject="..\MCD\Render\Render.vcproj"
 		/>
 		<ProjectReference
 			ReferencedProjectIdentifier="{B6219744-C76A-4C74-A455-8AFA986C3B6A}"
