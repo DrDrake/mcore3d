@@ -3,25 +3,26 @@
 #include "BitmapLoader.h"
 #include "CubemapLoader.h"
 #include "DdsLoader.h"
-#include "Effect.h"
 #include "EffectLoader.h"
 #include "JpegLoader.h"
 #include "Max3dsLoader.h"
-#include "Mesh.h"
-#include "MeshLoader.h"
-#include "Model.h"
-#include "OgreMeshLoader.h"
 #include "PngLoader.h"
-#include "Shader.h"
 #include "ShaderLoader.h"
-#include "Texture.h"
 #include "TgaLoader.h"
+#include "../Render/Effect.h"
+#include "../Render/Mesh.h"
+#include "../Render/Model.h"
+#include "../Render/Shader.h"
+#include "../Render/Texture.h"
 #include "../Core/Math/AnimationTrack.h"
 #include "../Core/Math/AnimationTrackLoader.h"
 #include "../Core/Math/Skeleton.h"
 #include "../Core/Math/SkeletonLoader.h"
 #include "../Core/System/Path.h"
 #include "../Core/System/StrUtility.h"
+
+// TODO: Remove the dependency on graphics API
+#include "../../3Party/glew/glew.h"
 
 namespace MCD {
 
@@ -130,36 +131,6 @@ ResourcePtr Max3dsLoaderFactory::createResource(const Path& fileId, const char* 
 IResourceLoader* Max3dsLoaderFactory::createLoader()
 {
 	return new Max3dsLoader(&mResourceManager);
-}
-
-IResourceLoader* MeshLoaderFactory::createLoader()
-{
-	return new MeshLoader;
-}
-
-ResourcePtr MeshLoaderFactory::createResource(const Path& fileId, const char* args)
-{
-	MeshPtr mesh;
-	if(strCaseCmp(fileId.getExtension().c_str(), "msh") == 0)
-		mesh = new Mesh(fileId);
-	return mesh;
-}
-
-OgreMeshLoaderFactory::OgreMeshLoaderFactory(IResourceManager& resourceManager)
-	: mResourceManager(resourceManager)
-{
-}
-
-ResourcePtr OgreMeshLoaderFactory::createResource(const Path& fileId, const char* args)
-{
-	if(strCaseCmp(fileId.getExtension().c_str(), "mesh") == 0)
-		return new Model(fileId);
-	return nullptr;
-}
-
-IResourceLoader* OgreMeshLoaderFactory::createLoader()
-{
-	return new OgreMeshLoader(&mResourceManager);
 }
 
 ResourcePtr PixelShaderLoaderFactory::createResource(const Path& fileId, const char* args)

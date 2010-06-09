@@ -218,10 +218,6 @@
 				>
 			</File>
 			<File
-				RelativePath=".\BitmapLoader.h"
-				>
-			</File>
-			<File
 				RelativePath=".\Camera.h"
 				>
 			</File>
@@ -234,19 +230,7 @@
 				>
 			</File>
 			<File
-				RelativePath=".\CubemapLoader.h"
-				>
-			</File>
-			<File
-				RelativePath=".\DdsLoader.h"
-				>
-			</File>
-			<File
 				RelativePath=".\Effect.h"
-				>
-			</File>
-			<File
-				RelativePath=".\EffectLoader.h"
 				>
 			</File>
 			<File
@@ -262,10 +246,6 @@
 				>
 			</File>
 			<File
-				RelativePath=".\JpegLoader.h"
-				>
-			</File>
-			<File
 				RelativePath=".\Light.h"
 				>
 			</File>
@@ -275,10 +255,6 @@
 			</File>
 			<File
 				RelativePath=".\MaterialProperty.h"
-				>
-			</File>
-			<File
-				RelativePath=".\Max3dsLoader.h"
 				>
 			</File>
 			<File
@@ -294,27 +270,11 @@
 				>
 			</File>
 			<File
-				RelativePath=".\MeshLoader.h"
-				>
-			</File>
-			<File
-				RelativePath=".\MeshWriter.h"
-				>
-			</File>
-			<File
 				RelativePath=".\Model.h"
 				>
 			</File>
 			<File
-				RelativePath=".\OgreMeshLoader.h"
-				>
-			</File>
-			<File
 				RelativePath=".\PlaneMeshBuilder.h"
-				>
-			</File>
-			<File
-				RelativePath=".\PngLoader.h"
 				>
 			</File>
 			<File
@@ -350,15 +310,7 @@
 				>
 			</File>
 			<File
-				RelativePath=".\ResourceLoaderFactory.h"
-				>
-			</File>
-			<File
 				RelativePath=".\Shader.h"
-				>
-			</File>
-			<File
-				RelativePath=".\ShaderLoader.h"
 				>
 			</File>
 			<File
@@ -378,19 +330,7 @@
 				>
 			</File>
 			<File
-				RelativePath=".\TextureLoaderBase.h"
-				>
-			</File>
-			<File
-				RelativePath=".\TextureLoaderBaseImpl.inc"
-				>
-			</File>
-			<File
 				RelativePath=".\TextureRenderBuffer.h"
-				>
-			</File>
-			<File
-				RelativePath=".\TgaLoader.h"
 				>
 			</File>
 			<File
@@ -407,10 +347,6 @@
 				>
 			</File>
 			<File
-				RelativePath=".\BitmapLoader.cpp"
-				>
-			</File>
-			<File
 				RelativePath=".\Camera.cpp"
 				>
 			</File>
@@ -423,19 +359,7 @@
 				>
 			</File>
 			<File
-				RelativePath=".\CubemapLoader.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\DdsLoader.cpp"
-				>
-			</File>
-			<File
 				RelativePath=".\Effect.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\EffectLoader.cpp"
 				>
 			</File>
 			<File
@@ -444,10 +368,6 @@
 			</File>
 			<File
 				RelativePath=".\InstancedMesh.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\JpegLoader.cpp"
 				>
 			</File>
 			<File
@@ -463,10 +383,6 @@
 				>
 			</File>
 			<File
-				RelativePath=".\Max3dsLoader.cpp"
-				>
-			</File>
-			<File
 				RelativePath=".\Mesh.cpp"
 				>
 			</File>
@@ -479,27 +395,11 @@
 				>
 			</File>
 			<File
-				RelativePath=".\MeshLoader.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\MeshWriter.cpp"
-				>
-			</File>
-			<File
 				RelativePath=".\Model.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".\OgreMeshLoader.cpp"
-				>
-			</File>
-			<File
 				RelativePath=".\PlaneMeshBuilder.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\PngLoader.cpp"
 				>
 			</File>
 			<File
@@ -553,15 +453,7 @@
 				>
 			</File>
 			<File
-				RelativePath=".\ResourceLoaderFactory.cpp"
-				>
-			</File>
-			<File
 				RelativePath=".\Shader.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\ShaderLoader.cpp"
 				>
 			</File>
 			<File
@@ -581,15 +473,7 @@
 				>
 			</File>
 			<File
-				RelativePath=".\TextureLoaderBase.cpp"
-				>
-			</File>
-			<File
 				RelativePath=".\TextureRenderBuffer.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\TgaLoader.cpp"
 				>
 			</File>
 			<File

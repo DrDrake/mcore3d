@@ -12,7 +12,7 @@ class IMaterial;
 class IResourceManager;
 class XmlParser;
 
-class MCD_RENDER_API EffectLoader : public IResourceLoader, private Noncopyable
+class MCD_LOADER_API EffectLoader : public IResourceLoader, private Noncopyable
 {
 public:
 	class MCD_ABSTRACT_CLASS ILoader

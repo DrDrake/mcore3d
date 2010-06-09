@@ -1,9 +1,9 @@
 #include "Pch.h"
 #include "../../MCD/Render/Texture.h"
-#include "../../MCD/Render/BitmapLoader.h"
-#include "../../MCD/Render/JpegLoader.h"
-#include "../../MCD/Render/PngLoader.h"
-#include "../../MCD/Render/TgaLoader.h"
+#include "../../MCD/Loader/BitmapLoader.h"
+#include "../../MCD/Loader/JpegLoader.h"
+#include "../../MCD/Loader/PngLoader.h"
+#include "../../MCD/Loader/TgaLoader.h"
 
 #include "../../MCD/Core/System/CondVar.h"
 #include "../../MCD/Core/System/RawFileSystem.h"

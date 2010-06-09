@@ -27,7 +27,7 @@ class IResourceManager;
 	\sa http://www.gamedev.net/community/forums/topic.asp?topic_id=382606
 	\sa http://gpwiki.org/index.php/C:Load3DS
  */
-class MCD_RENDER_API Max3dsLoader : public IResourceLoader, private Noncopyable
+class MCD_LOADER_API Max3dsLoader : public IResourceLoader, private Noncopyable
 {
 public:
 	/*!	Constructor, take a ResourceManager as an optional parameter.

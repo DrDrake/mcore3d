@@ -1,7 +1,7 @@
 #include "Pch.h"
 #include "TextureLoaderBase.h"
-#include "Texture.h"
 #include "TextureLoaderBaseImpl.inc"
+#include "../Render/Texture.h"
 #include "../Core/Math/BasicFunction.h"
 #include "../Core/System/Log.h"
 #include "../Core/System/MemoryProfiler.h"

@@ -2,12 +2,12 @@
 // See also TextureLoaderBase.h
 
 #include "TextureLoaderBase.h"
-#include "GpuDataFormat.h"
+#include "../Render/GpuDataFormat.h"
 #include "../Core/System/Mutex.h"
 
 namespace MCD {
 
-class MCD_RENDER_API TextureLoaderBase::LoaderBaseImpl
+class MCD_LOADER_API TextureLoaderBase::LoaderBaseImpl
 {
 public:
 	//! Handly class for managing ownership of the image data

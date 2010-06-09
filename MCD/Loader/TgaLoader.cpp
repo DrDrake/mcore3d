@@ -1,7 +1,7 @@
 #include "Pch.h"
 #include "TgaLoader.h"
-#include "Texture.h"
 #include "TextureLoaderBaseImpl.inc"
+#include "../Render/Texture.h"
 #include "../Core/System/Log.h"
 
 // Reference: http://www.flashbang.se/download/nehe_tga.rar

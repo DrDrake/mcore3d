@@ -9,7 +9,7 @@ namespace MCD {
 	The 6 faces of the cubemap data is assumed arranged vertically
 	inside the incomming image data.
  */
-class MCD_RENDER_API CubemapLoader : public TextureLoaderBase
+class MCD_LOADER_API CubemapLoader : public TextureLoaderBase
 {
 	class LoaderImpl;
 

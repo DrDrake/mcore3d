@@ -5,7 +5,7 @@
 #include "PngLoader.h"
 #include "JpegLoader.h"
 #include "TgaLoader.h"
-#include "Texture.h"
+#include "../Render/Texture.h"
 #include "../Core/System/Log.h"
 #include "../Core/System/Path.h"
 #include "../Core/System/StrUtility.h"

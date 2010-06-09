@@ -8,7 +8,7 @@ namespace MCD {
 /*!	Load jpeg file, read line by line.
 	\note Progressive jpeg file can be loaded but cannot be displayed progressively.
  */
-class MCD_RENDER_API JpegLoader : public TextureLoaderBase
+class MCD_LOADER_API JpegLoader : public TextureLoaderBase
 {
 	class LoaderImpl;
 

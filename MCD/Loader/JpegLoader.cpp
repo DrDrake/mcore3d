@@ -1,7 +1,7 @@
 #include "Pch.h"
 #include "JpegLoader.h"
-#include "Texture.h"
 #include "TextureLoaderBaseImpl.inc"
+#include "../Render/Texture.h"
 #include "../Core/System/Log.h"
 #include "../Core/System/MemoryProfiler.h"
 #include "../../3Party/SmallJpeg/jpegdecoder.h"
