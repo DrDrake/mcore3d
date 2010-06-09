@@ -1,13 +1,13 @@
 #include "Pch.h"
 #include "Max3dsLoader.h"
-#include "Effect.h"
-#include "Material.h"
-#include "MeshBuilder.h"
-#include "MeshBuilderUtility.h"
-#include "Mesh.h"
-#include "Model.h"
-#include "Texture.h"
-#include "TangentSpaceBuilder.h"
+#include "../Render/Effect.h"
+#include "../Render/Material.h"
+#include "../Render/MeshBuilder.h"
+#include "../Render/MeshBuilderUtility.h"
+#include "../Render/Mesh.h"
+#include "../Render/Model.h"
+#include "../Render/Texture.h"
+#include "../Render/TangentSpaceBuilder.h"
 #include "../Core/Math/Mat44.h"
 #include "../Core/System/Log.h"
 #include "../Core/System/MemoryProfiler.h"
@@ -20,6 +20,9 @@
 #include <map>
 #include <memory>	// For auto_ptr
 #include <set>
+
+// TODO: Remove the dependency on graphics API
+#include "../../3Party/glew/glew.h"
 
 namespace MCD {
 

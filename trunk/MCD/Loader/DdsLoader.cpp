@@ -1,7 +1,7 @@
 #include "Pch.h"
 #include "DdsLoader.h"
-#include "Texture.h"
 #include "TextureLoaderBaseImpl.inc"
+#include "../Render/Texture.h"
 #include "../Core/System/Log.h"
 #include "../../3Party/glew/glew.h"
 

@@ -1,18 +1,19 @@
-#ifndef __MCD_RENDER_BITMAPLOADER__
-#define __MCD_RENDER_BITMAPLOADER__
+#ifndef __MCD_RENDER_DDSLOADER__
+#define __MCD_RENDER_DDSLOADER__
 
 #include "TextureLoaderBase.h"
 
 namespace MCD {
 
-/*!	Load bitmap file.
+/*!	Load dds file.
+	This loader support background loading but not progressive loading.
  */
-class MCD_RENDER_API BitmapLoader : public TextureLoaderBase
+class MCD_LOADER_API DdsLoader : public TextureLoaderBase
 {
 	class LoaderImpl;
 
 public:
-	BitmapLoader();
+	DdsLoader();
 
 	/*!	Load data from stream.
 		Block until all the data is read into it's internal buffer.
@@ -22,8 +23,8 @@ public:
 
 protected:
 	sal_override void uploadData(Texture& texture);
-};	// BitmapLoader
+};	// DdsLoader
 
 }	// namespace MCD
 
-#endif	// __MCD_RENDER_BITMAPLOADER__
+#endif	// __MCD_RENDER_DDSLOADER__

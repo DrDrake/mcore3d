@@ -211,6 +211,10 @@
 			ReferencedProjectIdentifier="{B6219744-C76A-4C74-A455-8AFA986C3B6A}"
 			RelativePathToProject="..\MCD\Component\Component.vcproj"
 		/>
+		<ProjectReference
+			ReferencedProjectIdentifier="{393AC843-B488-4E7F-BFA3-8E5C6F7352FD}"
+			RelativePathToProject="..\MCD\Loader\Loader.vcproj"
+		/>
 	</References>
 	<Files>
 		<Filter
@@ -276,10 +280,6 @@
 			</File>
 			<File
 				RelativePath=".\MeshTest.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\MeshWriterLoaderTest.cpp"
 				>
 			</File>
 			<File

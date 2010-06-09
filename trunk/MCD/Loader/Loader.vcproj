@@ -209,8 +209,8 @@
 			RelativePathToProject="..\MCD\Core\Core.vcproj"
 		/>
 		<ProjectReference
-			ReferencedProjectIdentifier="{500413B2-5AE6-41CE-BCFF-D90DB2755869}"
-			RelativePathToProject="..\MCD\Render\Render.vcproj"
+			ReferencedProjectIdentifier="{35CE800C-6304-4E8A-A895-07D2DE7377FE}"
+			RelativePathToProject="..\MCD\Render\RenderDX9.vcproj"
 		/>
 		<ProjectReference
 			ReferencedProjectIdentifier="{B6219744-C76A-4C74-A455-8AFA986C3B6A}"
@@ -219,7 +219,51 @@
 	</References>
 	<Files>
 		<File
-			RelativePath=".\Loader.h"
+			RelativePath=".\BitmapLoader.cpp"
+			>
+		</File>
+		<File
+			RelativePath=".\BitmapLoader.h"
+			>
+		</File>
+		<File
+			RelativePath=".\CubemapLoader.cpp"
+			>
+		</File>
+		<File
+			RelativePath=".\CubemapLoader.h"
+			>
+		</File>
+		<File
+			RelativePath=".\DdsLoader.cpp"
+			>
+		</File>
+		<File
+			RelativePath=".\DdsLoader.h"
+			>
+		</File>
+		<File
+			RelativePath=".\EffectLoader.cpp"
+			>
+		</File>
+		<File
+			RelativePath=".\EffectLoader.h"
+			>
+		</File>
+		<File
+			RelativePath=".\JpegLoader.cpp"
+			>
+		</File>
+		<File
+			RelativePath=".\JpegLoader.h"
+			>
+		</File>
+		<File
+			RelativePath=".\Max3dsLoader.cpp"
+			>
+		</File>
+		<File
+			RelativePath=".\Max3dsLoader.h"
 			>
 		</File>
 		<File
@@ -255,6 +299,14 @@
 			>
 		</File>
 		<File
+			RelativePath=".\PngLoader.cpp"
+			>
+		</File>
+		<File
+			RelativePath=".\PngLoader.h"
+			>
+		</File>
+		<File
 			RelativePath=".\PodLoader.cpp"
 			>
 		</File>
@@ -271,7 +323,43 @@
 			>
 		</File>
 		<File
+			RelativePath=".\ResourceLoaderFactory.cpp"
+			>
+		</File>
+		<File
+			RelativePath=".\ResourceLoaderFactory.h"
+			>
+		</File>
+		<File
+			RelativePath=".\ShaderLoader.cpp"
+			>
+		</File>
+		<File
+			RelativePath=".\ShaderLoader.h"
+			>
+		</File>
+		<File
 			RelativePath=".\ShareLib.h"
+			>
+		</File>
+		<File
+			RelativePath=".\TextureLoaderBase.cpp"
+			>
+		</File>
+		<File
+			RelativePath=".\TextureLoaderBase.h"
+			>
+		</File>
+		<File
+			RelativePath=".\TextureLoaderBaseImpl.inc"
+			>
+		</File>
+		<File
+			RelativePath=".\TgaLoader.cpp"
+			>
+		</File>
+		<File
+			RelativePath=".\TgaLoader.h"
 			>
 		</File>
 	</Files>

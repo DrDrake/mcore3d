@@ -1,6 +1,6 @@
 #include "Pch.h"
 #include "DefaultResourceManager.h"
-#include "../../MCD/Render/ResourceLoaderFactory.h"
+#include "../../MCD/Loader/ResourceLoaderFactory.h"
 #include "../../MCD/Core/System/FileSystemCollection.h"
 #include "../../MCD/Core/System/Log.h"
 #include "../../MCD/Core/System/RawFileSystem.h"
@@ -97,8 +97,6 @@ void DefaultResourceManager::setupFactories()
 	addFactory(new EffectLoaderFactory(*this));
 	addFactory(new JpegLoaderFactory);
 	addFactory(new Max3dsLoaderFactory(*this));
-	addFactory(new MeshLoaderFactory);
-	addFactory(new OgreMeshLoaderFactory(*this));
 	addFactory(new PixelShaderLoaderFactory);
 	addFactory(new PngLoaderFactory);
 	addFactory(new SkeletonLoaderFactory);

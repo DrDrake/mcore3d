@@ -1,10 +1,9 @@
 #ifndef __MCD_LOADER_PVRLOADER__
 #define __MCD_LOADER_PVRLOADER__
 
-#include "ShareLib.h"
+#include "TextureLoaderBase.h"
 #include "../Core/System/ResourceLoader.h"
 #include "../Core/System/ResourceManager.h"
-#include "../Render/TextureLoaderBase.h"
 
 namespace MCD {
 

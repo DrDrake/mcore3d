@@ -7,7 +7,7 @@ namespace MCD {
 
 /*!	Load tga file.
  */
-class MCD_RENDER_API TgaLoader : public TextureLoaderBase
+class MCD_LOADER_API TgaLoader : public TextureLoaderBase
 {
 	class LoaderImpl;
 

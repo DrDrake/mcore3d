@@ -1,10 +1,10 @@
 #include "Pch.h"
 #include "EffectLoader.h"
-#include "Effect.h"
-#include "Material.h"
-#include "Shader.h"
-#include "ShaderProgram.h"
-#include "Texture.h"
+#include "../Render/Effect.h"
+#include "../Render/Material.h"
+#include "../Render/Shader.h"
+#include "../Render/ShaderProgram.h"
+#include "../Render/Texture.h"
 #include "../Core/System/Log.h"
 #include "../Core/System/PtrVector.h"
 #include "../Core/System/ResourceManager.h"
@@ -12,6 +12,9 @@
 #include "../Core/System/Utility.h"	// for MCD_FOREACH
 #include "../Core/System/XmlParser.h"
 #include <sstream>
+
+// TODO: Remove the dependency on graphics API
+#include "../../3Party/glew/glew.h"
 
 namespace MCD {
 

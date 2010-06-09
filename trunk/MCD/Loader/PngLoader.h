@@ -9,7 +9,7 @@ namespace MCD {
 	Progressive png is supported.
 	\note Png that use color palette is not supported.
  */
-class MCD_RENDER_API PngLoader : public TextureLoaderBase
+class MCD_LOADER_API PngLoader : public TextureLoaderBase
 {
 	class LoaderImpl;
 

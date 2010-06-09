@@ -1,7 +1,7 @@
 #include "Pch.h"
 #include "BitmapLoader.h"
-#include "Texture.h"
 #include "TextureLoaderBaseImpl.inc"
+#include "../Render/Texture.h"
 #include "../Core/System/Log.h"
 #include "../Core/System/StaticAssert.h"
 #include <memory.h> // For memset
