@@ -47,6 +47,11 @@ protected:
 
 	JKBIND_API void runScript(const xchar* script);
 
+	/*!	Register squirrel attribute as meta data to indicate a _getXXX is a member variable.
+		eg: MyClass.setattributes('_getmyVar', {varName='myVar'}
+	 */
+	JKBIND_API void registerMemVarAttribute(const xchar* varName);
+
 	const xchar* mClassName;
 };	// ClassDeclaratorBase
 
@@ -208,8 +213,9 @@ public:
 		typedef typename DetectFieldType<Field>::type fieldType;
 		typedef typename DefaultReturnPolicy<fieldType>::policy returnPolicy;
 		typedef typename GetterReturnPolicy<returnPolicy>::policy getterReturnPolicy;
-		pushFunction(name, &field, sizeof(field),
-			&fieldGetterFunction<Class, Field, getterReturnPolicy>);
+		pushFunction(name, &field, sizeof(field), &fieldGetterFunction<Class, Field, getterReturnPolicy>);
+		registerMemVarAttribute(name);
+
 		return *this;
 	}
 
@@ -228,6 +234,32 @@ public:
 		getter(getBuffer, field);
 		setter(setBuffer, field);
 
+		return *this;
+	}
+
+	template<typename ReturnPolicy, typename GetFunc, typename SetFunc>
+	ClassDeclarator& getsetWrapped(const xchar* name, GetFunc getFunc, SetFunc setFunc)
+	{
+		xchar getBuffer[64] = xSTRING("_get");
+		xchar setBuffer[64] = xSTRING("_set");
+		scscat(getBuffer, name);
+		scscat(setBuffer, name);
+		wrappedMethod<ReturnPolicy>(getBuffer, getFunc);
+		wrappedMethod(setBuffer, setFunc);
+		registerMemVarAttribute(getBuffer);
+		return *this;
+	}
+
+	template<typename GetFunc, typename SetFunc>
+	ClassDeclarator& getsetWrapped(const xchar* name, GetFunc getFunc, SetFunc setFunc)
+	{
+		xchar getBuffer[64] = xSTRING("_get");
+		xchar setBuffer[64] = xSTRING("_set");
+		scscat(getBuffer, name);
+		scscat(setBuffer, name);
+		wrappedMethod(getBuffer, getFunc);
+		wrappedMethod(setBuffer, setFunc);
+		registerMemVarAttribute(getBuffer);
 		return *this;
 	}
 
