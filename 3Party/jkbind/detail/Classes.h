@@ -20,7 +20,7 @@ public:
 	JKBIND_API static void typeofForClass(HSQUIRRELVM v, ScriptObject& classObj, const xchar* typeName);
 	JKBIND_API static void disableCloningForClass(HSQUIRRELVM v, ScriptObject& classObj);
 	JKBIND_API static void createMemoryControllerSlotForClass(HSQUIRRELVM v, ScriptObject& classObj);
-		   
+
 	JKBIND_API static const int MEMORY_CONTROLLER_PARAM = 0x4567C0DE;
 
 	/*!	A callback function for the user to intercept the class registration process

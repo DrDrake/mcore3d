@@ -71,6 +71,22 @@ void ClassDeclaratorBase::runScript(const xchar* script)
 	jkSCRIPT_LOGIC_VERIFY(script::runScript(_vm, script));
 }
 
+void ClassDeclaratorBase::registerMemVarAttribute(const xchar* varName)
+{
+	assert(varName[0] == '_');
+	assert(varName[1] == 'g');
+	assert(varName[2] == 'e');
+	assert(varName[3] == 't');
+
+	std::string str = mClassName;
+	str += ".setattributes(\"";
+	str += varName;
+	str += "\", {varName=\"";
+	str += (varName + 4);	// Skip the "_get"
+	str += "\"});";
+	this->runScript(str.c_str());
+}
+
 GlobalDeclarator::GlobalDeclarator(const ScriptObject& hostObject, HSQUIRRELVM vm)
 	: Declarator(hostObject, vm)
 {
