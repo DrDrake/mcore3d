@@ -166,8 +166,6 @@ public:
 		mIsExternalTaskPool = externalTaskPool != nullptr;
 		if(!externalTaskPool)
 			mTaskPool.reset(new TaskPool);
-
-		mTaskPool->setThreadCount(1);
 	}
 
 	~Impl()
@@ -461,6 +459,7 @@ ResourcePtr ResourceManager::uncache(const Path& fileId)
 ResourceManager::Event ResourceManager::popEvent()
 {
 	MCD_ASSUME(mImpl != nullptr);
+	mImpl->mTaskPool->processTaskIfNoThread();
 	ScopeLock lock(mImpl->mEventQueue.mMutex);
 	return mImpl->mEventQueue.popFront();
 }

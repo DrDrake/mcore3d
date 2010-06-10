@@ -119,6 +119,23 @@ bool TaskPool::enqueue(Task& task)
 	return mTaskQueue->insert(task);
 }
 
+void TaskPool::processTaskIfNoThread()
+{
+	ScopeLock lock(mTaskQueue->mCondVar);
+
+	if(getThreadCount() > 0)
+		return;
+
+	Thread dummyThread;
+	dummyThread.setKeepRun(true);
+
+	while(Task* task = mTaskQueue->findMin()) {
+		task->removeThis();
+		ScopeUnlock unlock(mTaskQueue->mCondVar);
+		task->run(dummyThread);
+	}
+}
+
 void TaskPool::setThreadCount(size_t targetCount, bool wait)
 {
 	MCD_ASSUME(mThreadPool != nullptr);
@@ -146,8 +163,7 @@ void TaskPool::stop()
 	// Then run though all the task, so that there is a chance for those tasks
 	// to clean up themself (eg. call "delete this;" in the run() function)
 	Thread dummyThread;
-	Task* task;
-	while((task = mTaskQueue->pop(dummyThread)) != nullptr)
+	while(Task* task = mTaskQueue->pop(dummyThread))
 		task->run(dummyThread);
 }
 
