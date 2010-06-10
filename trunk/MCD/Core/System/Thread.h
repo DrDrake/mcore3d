@@ -84,6 +84,8 @@ public:
 	//! Return false if postQuit() is invoked.
 	bool keepRun() const;
 
+	void setKeepRun(bool b);
+
 	/*! Wait until the runnable finish.
 		\note It will invoke postQuit()
 		\note Exception if it's not in a waitable state (eg deadlock if it's called inside IRunnable::run())

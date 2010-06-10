@@ -93,6 +93,12 @@ bool Thread::keepRun() const
 	return mKeepRun;
 }
 
+void Thread::setKeepRun(bool b)
+{
+	// No need to lock (mKeepRun is an AtomicValue)
+	mKeepRun = b;
+}
+
 bool Thread::isWaitable() const
 {
 	ScopeRecursiveLock lock(mMutex);

@@ -82,6 +82,9 @@ public:
 	 */
 	sal_checkreturn bool enqueue(Task& task);
 
+	//!	If the thread count of the task pool is zero, call this function to process all the tasks.
+	void processTaskIfNoThread();
+
 	/*! Set the number of thread.
 		\param wait Weather the function should block until the desired number of thread is achieved.
 		\note
