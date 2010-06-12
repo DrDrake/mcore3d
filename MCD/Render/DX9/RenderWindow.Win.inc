@@ -13,26 +13,28 @@ namespace MCD {
 
 static LPDIRECT3D9 gD3D = nullptr;
 static size_t gD3DUseCount = 0;
-static LPDIRECT3DDEVICE9 gCurrentDevice;
+static LPDIRECT3DDEVICE9 gDevice;
+static void* gCurrentContext;
 
 class RenderWindow::Impl : public Window::Impl
 {
 public:
 	typedef Window::Impl Super;
 
-	Impl(Window& w)
-		: Super(w), mDevice(nullptr)
+	Impl(Window& w) : Super(w)
 	{
+		mContext.mDevice = nullptr;
+		mContext.mSwapChain = nullptr;
 	}
 
 	sal_override ~Impl()
 	{
-		destroy();
+		MCD_ASSERT(!mContext.mSwapChain && "destroy() should be already invoked");
 	}
 
 	void* renderContext()
 	{
-		return mDevice;
+		return &mContext;
 	}
 
 	sal_override void createWindow(Window::Handle existingWindowHandle=0)
@@ -40,18 +42,31 @@ public:
 		MemoryProfiler::Scope profiler("RenderWindow::createWindow");
 		Super::createWindow(existingWindowHandle);
 
-		if(!createContext())
+		if(!createContext()) {
+			destroy();
 			throw std::runtime_error("Fail to create render context");
+		}
 	}
 
 	sal_override void destroy()
 	{
-		if(mDevice) {
-			mDevice->Release();
-			mDevice = nullptr;
+		if(gCurrentContext == &mContext)
+			gCurrentContext = nullptr;
+
+		if(mContext.mSwapChain) {
+			mContext.mSwapChain->Release();
+			mContext.mSwapChain = nullptr;
 		}
 
-		if((--gD3DUseCount) == 0) {
+		mContext.mDevice = nullptr;
+
+		if((--gD3DUseCount) == 0)
+		{
+			if(gDevice) {
+				gDevice->Release();
+				gDevice = nullptr;
+			}
+
 			gD3D->Release();
 			gD3D = nullptr;
 		}
@@ -62,33 +77,40 @@ public:
 	void onResize()
 	{
 		mD3dpp.BackBufferWidth  = mWidth;
-		mD3dpp.BackBufferHeight = mHeight;		
-		if(mDevice)
-			mDevice->Reset(&mD3dpp);
-//		(void)hr;
+		mD3dpp.BackBufferHeight = mHeight;
+		if(gDevice)
+			gDevice->Reset(&mD3dpp);
 	}
 
 	bool makeActive()
 	{
-		gCurrentDevice = mDevice;
+		gCurrentContext = &mContext;
 		return true;
 	}
 
 	static void* getActiveContext()
 	{
-		return gCurrentDevice;
+		return gCurrentContext;
 	}
 
 	void preUpdate()
 	{
-		mDevice->Clear(0, nullptr, D3DCLEAR_TARGET | D3DCLEAR_ZBUFFER, D3DCOLOR_XRGB(0x33, 0x66, 0x99), 1.0f, 0);
-		mDevice->BeginScene();
+		{	// Set mSwapChain as the current render target.
+			LPDIRECT3DSURFACE9 backSurface = nullptr;
+			mContext.mSwapChain->GetBackBuffer(0, D3DBACKBUFFER_TYPE_MONO, &backSurface);
+			gDevice->SetRenderTarget(0, backSurface);
+			backSurface->Release();
+		}
+
+		gDevice->Clear(0, nullptr, D3DCLEAR_TARGET | D3DCLEAR_ZBUFFER, D3DCOLOR_XRGB(0x33, 0x66, 0x99), 1.0f, 0);
+		gDevice->BeginScene();
 	}
 
 	void postUpdate()
 	{
-		mDevice->EndScene();
-		mDevice->Present(nullptr, nullptr, nullptr, nullptr);
+		MCD_ASSUME(gDevice);
+		gDevice->EndScene();
+		mContext.mSwapChain->Present(nullptr, nullptr, nullptr, nullptr, 0);
 	}
 
 	bool setVerticalSync(bool flag)
@@ -123,17 +145,39 @@ private:
 		mD3dpp.SwapEffect = D3DSWAPEFFECT_DISCARD;
 		mD3dpp.MultiSampleType = D3DMULTISAMPLE_NONE;
 
-		if( FAILED(gD3D->CreateDevice(D3DADAPTER_DEFAULT, D3DDEVTYPE_HAL, mWnd,
-			D3DCREATE_HARDWARE_VERTEXPROCESSING,
-			&mD3dpp, &mDevice))
-		)
-			return false;
+		// Create the first device if none is created yet
+		if(!gDevice) {
+			if( FAILED(gD3D->CreateDevice(D3DADAPTER_DEFAULT, D3DDEVTYPE_HAL, mWnd,
+				D3DCREATE_HARDWARE_VERTEXPROCESSING,
+				&mD3dpp, &gDevice))
+			)
+				return false;
+
+			MCD_ASSUME(gDevice);
+			if(FAILED(gDevice->GetSwapChain(0, &mContext.mSwapChain)))
+				return false;
+
+			MCD_ASSERT(mContext.mSwapChain);
+		}
+		// And once a single device is created, swap chain is created for addition windows
+		else {
+			if(FAILED(gDevice->CreateAdditionalSwapChain(&mD3dpp, &mContext.mSwapChain)))
+				return false;
+
+			MCD_ASSERT(mContext.mSwapChain);
+		}
+
+		mContext.mDevice = gDevice;
 
 		return true;
 	}
 
-	sal_maybenull LPDIRECT3DDEVICE9 mDevice;
 	D3DPRESENT_PARAMETERS mD3dpp;
+
+	struct Context {
+		sal_maybenull LPDIRECT3DDEVICE9 mDevice;	//!< The same as gDevice
+		sal_maybenull LPDIRECT3DSWAPCHAIN9 mSwapChain;
+	} mContext;
 };	// Impl
 
 }	// namespace MCD

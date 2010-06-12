@@ -128,11 +128,6 @@ Component* CameraComponent2::clone() const
 
 void CameraComponent2::render()
 {
-	Entity* e = entity();
-	if(!e || !renderer)
-		return;
-
-	renderer->setDefaultCamera(*this);
 }
 
 }	// namespace MCD

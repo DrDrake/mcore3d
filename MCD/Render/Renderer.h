@@ -5,7 +5,7 @@
 
 namespace MCD {
 
-class CameraComponent2;
+class RenderTargetComponent;
 
 class MCD_RENDER_API RendererComponent : public Component
 {
@@ -18,12 +18,13 @@ public:
 	}
 
 // Attributes
-	void setDefaultCamera(CameraComponent2& camera);
-	sal_maybenull CameraComponent2* defaultCamera() const;
+//	void setDefaultCamera(CameraComponent2& camera);
+//	sal_maybenull CameraComponent2* defaultCamera() const;
 
 // Operations
 	//!	Override the default camera
-	void render(Entity& entityTree, sal_maybenull CameraComponent2* camera=nullptr);
+	void render(Entity& entityTree);
+	void render(Entity& entityTree, RenderTargetComponent& renderTarget);
 
 	class Impl;
 	Impl& mImpl;

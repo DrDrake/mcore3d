@@ -42,7 +42,7 @@ MaterialComponent::Impl::~Impl()
 
 bool MaterialComponent::Impl::createVs()
 {
-	LPDIRECT3DDEVICE9 device = reinterpret_cast<LPDIRECT3DDEVICE9>(RenderWindow::getActiveContext());
+	LPDIRECT3DDEVICE9 device = getDevice();
 
 	static const char code[] =
 	"float4x4 mcdWorld;"
@@ -99,7 +99,7 @@ bool MaterialComponent::Impl::createVs()
 
 bool MaterialComponent::Impl::createPs()
 {
-	LPDIRECT3DDEVICE9 device = reinterpret_cast<LPDIRECT3DDEVICE9>(RenderWindow::getActiveContext());
+	LPDIRECT3DDEVICE9 device = getDevice();
 
 	static const char code[] =
 	"#define MCD_MAX_LIGHT_COUNT 4\n"
@@ -179,7 +179,7 @@ bool MaterialComponent::Impl::createPs()
 void MaterialComponent::Impl::updateWorldTransform(void* context)
 {
 	RendererComponent::Impl& renderer = *reinterpret_cast<RendererComponent::Impl*>(context);
-	LPDIRECT3DDEVICE9 device = reinterpret_cast<LPDIRECT3DDEVICE9>(RenderWindow::getActiveContext());
+	LPDIRECT3DDEVICE9 device = getDevice();
 
 	MCD_VERIFY(mVsConstTable->SetMatrix(
 		device, mConstantHandles.worldViewProj, (D3DXMATRIX*)renderer.mWorldViewProjMatrix.getPtr()
@@ -193,7 +193,7 @@ void MaterialComponent::Impl::updateWorldTransform(void* context)
 void MaterialComponent::preRender(size_t pass, void* context)
 {
 	RendererComponent::Impl& renderer = *reinterpret_cast<RendererComponent::Impl*>(context);
-	LPDIRECT3DDEVICE9 device = reinterpret_cast<LPDIRECT3DDEVICE9>(RenderWindow::getActiveContext());
+	LPDIRECT3DDEVICE9 device = getDevice();
 
 	{	// Bind system information
 		MCD_VERIFY(mImpl.mVsConstTable->SetMatrix(
@@ -245,10 +245,11 @@ void MaterialComponent::preRender(size_t pass, void* context)
 			device, mImpl.mConstantHandles.opacity, opacity
 		) == S_OK);
 
-		TexturePtr diffuse = diffuseMap ? diffuseMap : renderer.mWhiteTexture;
-		if(IDirect3DBaseTexture9* texture = reinterpret_cast<IDirect3DBaseTexture9*>(diffuse->handle)) {
-			unsigned samplerIndex = mImpl.mPsConstTable->GetSamplerIndex("texDiffuse");
-			device->SetTexture(samplerIndex, texture);
+		if(TexturePtr diffuse = diffuseMap ? diffuseMap : renderer.mWhiteTexture) {
+			if(IDirect3DBaseTexture9* texture = reinterpret_cast<IDirect3DBaseTexture9*>(diffuse->handle)) {
+				unsigned samplerIndex = mImpl.mPsConstTable->GetSamplerIndex("texDiffuse");
+				device->SetTexture(samplerIndex, texture);
+			}
 		}
 	}
 

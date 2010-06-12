@@ -4,6 +4,8 @@
 #include "../../Core/System/Map.h"
 #include <vector>
 
+typedef struct IDirect3DDevice9 *LPDIRECT3DDEVICE9;
+typedef struct IDirect3DSwapChain9 *LPDIRECT3DSWAPCHAIN9;
 typedef struct IDirect3DVertexShader9 *LPDIRECT3DVERTEXSHADER9;
 struct ID3DXConstantTable;
 typedef ID3DXConstantTable *LPD3DXCONSTANTTABLE;
@@ -15,6 +17,7 @@ class MaterialComponent;
 class MeshComponent2;
 typedef IntrusivePtr<class Texture> TexturePtr;
 typedef IntrusiveWeakPtr<class CameraComponent2> CameraComponent2Ptr;
+typedef IntrusiveWeakPtr<class RenderTargetComponent> RenderTargetComponentPtr;
 
 struct ShaderContext
 {
@@ -39,17 +42,21 @@ struct RenderItemNode : public MapBase<float>::Node<RenderItemNode>
 
 typedef Map<RenderItemNode> RenderItems;
 
-class RendererComponent::Impl
+sal_maybenull MCD_RENDER_API LPDIRECT3DDEVICE9 getDevice();
+
+sal_maybenull MCD_RENDER_API LPDIRECT3DSWAPCHAIN9 currentSwapChain();
+
+class MCD_RENDER_API RendererComponent::Impl
 {
 public:
 	Impl();
 
-	void render(Entity& entityTree, CameraComponent2* camera);
+	~Impl();
+
+	void render(Entity& entityTree, RenderTargetComponent& renderTarget);
 
 	void processRenderItems(RenderItems& items);
 
-	//! mDefaultCamera and mCurrentCamera may differ from each other for instance when rendering using light's view
-	CameraComponent2Ptr mDefaultCamera, mCurrentCamera;
 	Mat44f mCameraTransform;
 	Mat44f mProjMatrix, mViewMatrix, mViewProjMatrix, mWorldMatrix, mWorldViewProjMatrix;
 
@@ -65,6 +72,9 @@ public:
 	RenderItems mTransparentQueue, mOpaqueQueue;
 
 	TexturePtr mWhiteTexture;	//!< A 1x1 white texture, such that we alwasy feed the shader with texture
+
+	typedef std::vector<RenderTargetComponentPtr> RenderTargets;
+	RenderTargets mRenderTargets;
 };	// Impl
 
 }	// namespace MCD

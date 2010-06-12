@@ -4,18 +4,36 @@
 #include "../Camera.h"
 #include "../Light.h"
 #include "../Mesh.h"
+#include "../RenderTargetComponent.h"
 #include "../RenderWindow.h"
 #include "../../Core/Entity/Entity.h"
 #include <D3DX9Shader.h>
 
 namespace MCD {
 
+struct Context {
+	sal_maybenull LPDIRECT3DDEVICE9 mDevice;
+	sal_maybenull LPDIRECT3DSWAPCHAIN9 mSwapChain;
+};
+
+LPDIRECT3DDEVICE9 getDevice()
+{
+	Context* context = reinterpret_cast<Context*>(RenderWindow::getActiveContext());
+	return context ? context->mDevice : nullptr;
+}
+
+LPDIRECT3DSWAPCHAIN9 currentSwapChain()
+{
+	Context* context = reinterpret_cast<Context*>(RenderWindow::getActiveContext());
+	return context ? context->mSwapChain : nullptr;
+}
+
 RendererComponent::Impl::Impl()
 {
 	ZeroMemory(&mCurrentVS, sizeof(mCurrentVS));
 	ZeroMemory(&mCurrentPS, sizeof(mCurrentPS));
 
-	LPDIRECT3DDEVICE9 device = reinterpret_cast<LPDIRECT3DDEVICE9>(RenderWindow::getActiveContext());
+	LPDIRECT3DDEVICE9 device = getDevice();
 	device->SetRenderState(D3DRS_CULLMODE, D3DCULL_CW);
 
 	mWhiteTexture = new Texture("1x1White");
@@ -23,13 +41,16 @@ RendererComponent::Impl::Impl()
 	mWhiteTexture->create(GpuDataFormat::get("uintARGB8"), GpuDataFormat::get("uintARGB8"), 1, 1, 1, 1, data, 4);
 }
 
-void RendererComponent::Impl::render(Entity& entityTree, CameraComponent2* camera)
+RendererComponent::Impl::~Impl()
 {
-	LPDIRECT3DDEVICE9 device = reinterpret_cast<LPDIRECT3DDEVICE9>(RenderWindow::getActiveContext());
+}
+
+void RendererComponent::Impl::render(Entity& entityTree, RenderTargetComponent& renderTarget)
+{
+	LPDIRECT3DDEVICE9 device = getDevice();
 
 	{	// Apply camera
-		if(!camera) camera = mDefaultCamera.get();
-		mCurrentCamera = camera;
+		CameraComponent2Ptr camera = renderTarget.cameraComponent;
 		if(!camera) return;
 		Entity* cameraEntity = camera->entity();
 		if(!cameraEntity) return;
@@ -150,16 +171,24 @@ RendererComponent::~RendererComponent()
 	delete &mImpl;
 }
 
-void RendererComponent::setDefaultCamera(CameraComponent2& camera) {
-	mImpl.mDefaultCamera = &camera;
+void RendererComponent::render(Entity& entityTree)
+{
+	// TODO: Update only RenderTargetComponent, to bring them into mImpl.mRenderTargets
+	RenderableComponent2::traverseEntities(&entityTree);
+
+	// Process the render targets one by one
+	MCD_FOREACH(RenderTargetComponentPtr renderTarget, mImpl.mRenderTargets) {
+		if(renderTarget) {
+//			RenderableComponent2::traverseEntities(renderTarget->entityToRender.get());
+			renderTarget->render(*this);
+		}
+	}
+	mImpl.mRenderTargets.clear();
 }
 
-CameraComponent2* RendererComponent::defaultCamera() const {
-	return mImpl.mDefaultCamera.get();
-}
-
-void RendererComponent::render(Entity& entityTree, CameraComponent2* camera) {
-	mImpl.render(entityTree, camera);
+void RendererComponent::render(Entity& entityTree, RenderTargetComponent& renderTarget)
+{
+	mImpl.render(entityTree, renderTarget);
 }
 
 }	// namespace MCD

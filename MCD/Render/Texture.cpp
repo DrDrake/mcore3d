@@ -6,7 +6,7 @@ namespace MCD {
 
 Texture::Texture(const Path& fileId)
 	:
-	Resource(fileId)
+	Resource(fileId), handle(0)
 {
 	clear();
 }

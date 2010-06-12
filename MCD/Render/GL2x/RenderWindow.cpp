@@ -109,6 +109,8 @@ void RenderWindow::onEvent(const Event& eventReceived)
 	MCD_ASSUME(mImpl != nullptr);
 
 	if(eventReceived.Type == Event::Resized) {
+		MCD_VERIFY(makeActive());
+
 		uint w = mImpl->mWidth;
 		uint h = mImpl->mHeight;
 		glViewport(0, 0, w, h);

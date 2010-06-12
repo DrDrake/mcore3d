@@ -10,16 +10,8 @@
 #pragma comment(lib, "GLU32")
 #pragma comment(lib, "glew")
 
-
-PFNGLLOADTRANSPOSEMATRIXFPROC a;
-
-static void __stdcall myLoadTransposeMatrixf(const GLfloat m[16])
-{
-	MCD::Mat44f tmp;
-	tmp.copyFrom(m);
-	tmp = tmp.transpose();
-	glLoadMatrixf(tmp.getPtr());
-}
+static HGLRC gFirstContext = 0;
+static size_t gContextCount = 0;
 
 namespace MCD {
 
@@ -37,7 +29,7 @@ public:
 
 	sal_override ~Impl()
 	{
-		destroy();
+		MCD_ASSERT(mRc == 0);
 	}
 
 	void* renderContext()
@@ -85,8 +77,14 @@ public:
 		// De-select the current rendering context and delete it
 		::wglMakeCurrent(mDc, nullptr);
 		::wglDeleteContext(mRc);
+		mRc = 0;
 
 		::ReleaseDC(HWND(mWnd), mDc);
+		mDc = 0;
+		mWnd = 0;
+
+		if(--gContextCount == 0)
+			gFirstContext = 0;
 
 		Super::destroy();
 	}
@@ -173,12 +171,16 @@ private:
 		{	// Initialize glew
 			GLenum err = glewInit();
 			
-			if(glLoadTransposeMatrixf == nullptr)
-				glLoadTransposeMatrixf = /*(PFNGLLOADTRANSPOSEMATRIXFPROC)*/myLoadTransposeMatrixf;
-
 			if(err != GLEW_OK)
 				return false;
 		}
+
+		if(gContextCount == 0)
+			gFirstContext = mRc;
+		else
+			::wglShareLists(gFirstContext, mRc);
+
+		++gContextCount;
 
 		return true;
 	}

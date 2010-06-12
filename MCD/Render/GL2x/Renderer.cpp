@@ -4,12 +4,13 @@
 #include "../Light.h"
 #include "../Material.h"
 #include "../Mesh.h"
+#include "../RenderTargetComponent.h"
 #include "../../Core/Entity/Entity.h"
 #include "../../../3Party/glew/wglew.h"
 
 namespace MCD {
 
-void RendererComponent::Impl::render(Entity& entityTree, CameraComponent2* camera)
+void RendererComponent::Impl::render(Entity& entityTree, RenderTargetComponent& renderTarget)
 {
 	glShadeModel(GL_SMOOTH);
 	glFrontFace(GL_CCW);			// OpenGl use counterclockwise as the default winding
@@ -23,9 +24,8 @@ void RendererComponent::Impl::render(Entity& entityTree, CameraComponent2* camer
 	glEnable(GL_LIGHTING);
 
 	{	// Apply camera
+		CameraComponent2Ptr camera = renderTarget.cameraComponent;
 		if(!camera) camera = mDefaultCamera.get();
-		mCurrentCamera = camera;
-		if(!camera) return;
 		Entity* cameraEntity = camera->entity();
 		if(!cameraEntity) return;
 
@@ -97,6 +97,7 @@ void RendererComponent::Impl::render(Entity& entityTree, CameraComponent2* camer
 
 		if(i < mLights.size()) {
 			const LightComponent* light = mLights[i];
+			MCD_ASSUME(light);
 
 			glEnable(iLight);
 			const ColorRGBAf ambient(0, 1);
@@ -167,16 +168,23 @@ RendererComponent::~RendererComponent()
 	delete &mImpl;
 }
 
-void RendererComponent::setDefaultCamera(CameraComponent2& camera) {
-	mImpl.mDefaultCamera = &camera;
+void RendererComponent::render(Entity& entityTree) {
+	// TODO: Update only RenderTargetComponent, to bring them into mImpl.mRenderTargets
+	RenderableComponent2::traverseEntities(&entityTree);
+
+	// Process the render targets one by one
+	MCD_FOREACH(RenderTargetComponentPtr renderTarget, mImpl.mRenderTargets) {
+		if(renderTarget) {
+//			RenderableComponent2::traverseEntities(renderTarget->entityToRender.get());
+			renderTarget->render(*this);
+		}
+	}
+	mImpl.mRenderTargets.clear();
 }
 
-CameraComponent2* RendererComponent::defaultCamera() const {
-	return mImpl.mDefaultCamera.get();
-}
-
-void RendererComponent::render(Entity& entityTree, CameraComponent2* camera) {
-	mImpl.render(entityTree, camera);
+void RendererComponent::render(Entity& entityTree, RenderTargetComponent& renderTarget)
+{
+	mImpl.render(entityTree, renderTarget);
 }
 
 }	// namespace MCD
