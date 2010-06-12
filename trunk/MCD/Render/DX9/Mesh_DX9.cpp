@@ -1,7 +1,7 @@
 #include "Pch.h"
 #include "../Mesh.h"
+#include "Renderer.inc"
 #include "../MeshBuilder.h"
-#include "../RenderWindow.h"
 
 #include <d3d9.h>
 #include <D3DX9Shader.h>
@@ -31,7 +31,7 @@ void Mesh::drawFaceOnly()
 	if(indexCount == 0 || vertexCount == 0)
 		return;
 
-	LPDIRECT3DDEVICE9 device = reinterpret_cast<LPDIRECT3DDEVICE9>(RenderWindow::getActiveContext());
+	LPDIRECT3DDEVICE9 device = getDevice();
 	MCD_ASSUME(device);
 
 	// Bind index buffer
@@ -60,7 +60,7 @@ void Mesh::drawFaceOnly()
 
 void Mesh::clear()
 {
-	LPDIRECT3DDEVICE9 device = reinterpret_cast<LPDIRECT3DDEVICE9>(RenderWindow::getActiveContext());
+	LPDIRECT3DDEVICE9 device = getDevice();
 
 	if(!device)
 		return;
@@ -183,7 +183,7 @@ static BYTE toVertexDecl(const StringHash& semantic)
 
 bool Mesh::create(const void* const* data, Mesh::StorageHint storageHint)
 {
-	LPDIRECT3DDEVICE9 device = reinterpret_cast<LPDIRECT3DDEVICE9>(RenderWindow::getActiveContext());
+	LPDIRECT3DDEVICE9 device = getDevice();
 	MCD_ASSUME(device);
 
 	for(size_t i=0; i<bufferCount; ++i)

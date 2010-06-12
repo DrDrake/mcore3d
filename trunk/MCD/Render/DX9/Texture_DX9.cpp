@@ -1,7 +1,7 @@
 #include "Pch.h"
 #include "../Texture.h"
+#include "Renderer.inc"
 #include "../GpuDataFormat.h"
-#include "../RenderWindow.h"
 
 #include <d3d9.h>
 
@@ -9,6 +9,9 @@ namespace MCD {
 
 void Texture::clear()
 {
+	if(IDirect3DTexture9*& texture = reinterpret_cast<IDirect3DTexture9*&>(handle))
+		texture->Release();
+
 	handle = 0;
 	width = height = 0;
 	format = GpuDataFormat::get("none");
@@ -93,7 +96,7 @@ bool Texture::create(
 
 	GpuDataFormat adjustedFormat = format.isCompressed ? format : GpuDataFormat::get("uintARGB8");
 
-	LPDIRECT3DDEVICE9 device = reinterpret_cast<LPDIRECT3DDEVICE9>(RenderWindow::getActiveContext());
+	LPDIRECT3DDEVICE9 device = getDevice();
 	MCD_ASSUME(device);
 
 	if(surfaceCount == 1) {

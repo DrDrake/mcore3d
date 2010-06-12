@@ -306,6 +306,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\RenderTargetComponent.h"
+				>
+			</File>
+			<File
 				RelativePath=".\RenderWindow.h"
 				>
 			</File>
@@ -502,6 +506,10 @@
 			</File>
 			<File
 				RelativePath=".\GL2x\Renderer.inc"
+				>
+			</File>
+			<File
+				RelativePath=".\GL2x\RenderTargetComponent.cpp"
 				>
 			</File>
 			<File

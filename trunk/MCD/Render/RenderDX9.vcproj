@@ -297,7 +297,15 @@
 				>
 			</File>
 			<File
+				RelativePath=".\Renderer.h"
+				>
+			</File>
+			<File
 				RelativePath=".\RenderTarget.h"
+				>
+			</File>
+			<File
+				RelativePath=".\RenderTargetComponent.h"
 				>
 			</File>
 			<File
@@ -493,6 +501,10 @@
 			</File>
 			<File
 				RelativePath=".\DX9\Renderer.inc"
+				>
+			</File>
+			<File
+				RelativePath=".\DX9\RenderTargetComponent.cpp"
 				>
 			</File>
 			<File

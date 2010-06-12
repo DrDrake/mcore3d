@@ -6,6 +6,7 @@
 #include "../../MCD/Render/Material.h"
 #include "../../MCD/Render/Mesh.h"
 #include "../../MCD/Render/Renderer.h"
+#include "../../MCD/Render/RenderTargetComponent.h"
 #include "../../MCD/Render/Texture.h"
 #include "../../MCD/Core/Entity/Entity.h"
 #include "../../MCD/Core/System/WindowEvent.h"
@@ -22,9 +23,12 @@ TEST(RendererTest)
 	DeltaTimer timer;
 	DefaultResourceManager resourceManager(*new RawFileSystem("Media"));
 
-	RenderWindow window;
-	window.create("title=RendererTest;width=800;height=600;fullscreen=0;FSAA=4");
-	CHECK(window.makeActive());
+	RenderWindow mainWindow;
+	mainWindow.create("title=RendererTest;width=800;height=600;fullscreen=0;FSAA=4");
+	CHECK(mainWindow.makeActive());
+
+	RenderWindow subWindow;
+	subWindow.create("title=Sub-window;width=400;height=300;fullscreen=0;FSAA=4");
 
 	Entity root;
 	RendererComponent* renderer = new RendererComponent;
@@ -32,12 +36,37 @@ TEST(RendererTest)
 
 	// Camera
 	CameraComponent2* camera = new CameraComponent2(renderer);
-		
+
 	{	Entity* e = new Entity;
 		e->name = "Camera";
 		e->asChildOf(&root);
 		e->localTransform.setTranslation(Vec3f(0, 0, 10));
 		e->addComponent(camera);
+	}
+
+	// Render target
+	WindowRenderTargetComponent* mainRenderTarget = new WindowRenderTargetComponent;
+	mainRenderTarget->window = &mainWindow;
+	mainRenderTarget->entityToRender = &root;
+	mainRenderTarget->cameraComponent = camera;
+	mainRenderTarget->rendererComponent = renderer;
+
+	{	Entity* e = new Entity;
+		e->name = "Main window render target";
+		e->asChildOf(&root);
+		e->addComponent(mainRenderTarget);
+	}
+
+	WindowRenderTargetComponent* subRenderTarget = new WindowRenderTargetComponent;
+	subRenderTarget->window = &subWindow;
+	subRenderTarget->entityToRender = &root;
+	subRenderTarget->cameraComponent = camera;
+	subRenderTarget->rendererComponent = renderer;
+
+	{	Entity* e = new Entity;
+		e->name = "Sub-window render target";
+		e->asChildOf(&root);
+		e->addComponent(subRenderTarget);
 	}
 
 	// Light
@@ -61,7 +90,7 @@ TEST(RendererTest)
 
 	// Input
 	WinMessageInputComponent* winMsg = new WinMessageInputComponent;
-	winMsg->attachTo(window);
+	winMsg->attachTo(mainWindow);
 	root.addComponent(winMsg);
 
 	// Fps controller
@@ -90,6 +119,7 @@ TEST(RendererTest)
 	CHECK(boxMesh->mesh->create(ChamferBoxBuilder(0.5f, 5, true), Mesh::Static));
 
 	EntityPtr boxes = new Entity;
+	boxes->name = "Boxes";
 	boxes->addComponent(material1);
 	boxes->asChildOf(&root);
 
@@ -112,6 +142,7 @@ TEST(RendererTest)
 	CHECK(sphereMesh->mesh->create(ChamferBoxBuilder(1, 5, true), Mesh::Static));
 
 	EntityPtr spheres = new Entity;
+	spheres->name = "Spheres";
 	spheres->addComponent(material2);
 	spheres->asChildOf(&root);
 
@@ -134,19 +165,17 @@ TEST(RendererTest)
 	{
 		Event e;
 		// Check for window events
-		if(window.popEvent(e, false) && e.Type == Event::Closed)
+		if(mainWindow.popEvent(e, false) && e.Type == Event::Closed)
 			break;
+
+		subWindow.popEvent(e, false);
+
+		resourceManager.processLoadingEvents();
 
 		const float dt = (float)timer.getDelta().asSecond();
 		BehaviourComponent::traverseEntities(&root, dt);
 
-		resourceManager.processLoadingEvents();
-		window.preUpdate();
-
-		RenderableComponent2::traverseEntities(&root);
 		renderer->render(root);
-
-		window.postUpdate();
 	}
 
 	CHECK(true);

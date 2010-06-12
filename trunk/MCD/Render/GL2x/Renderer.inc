@@ -11,6 +11,7 @@ class MaterialComponent;
 class MeshComponent2;
 typedef IntrusivePtr<class Texture> TexturePtr;
 typedef IntrusiveWeakPtr<class CameraComponent2> CameraComponent2Ptr;
+typedef IntrusiveWeakPtr<class RenderTargetComponent> RenderTargetComponentPtr;
 
 struct RenderItem
 {
@@ -32,7 +33,7 @@ typedef Map<RenderItemNode> RenderItems;
 class RendererComponent::Impl
 {
 public:
-	void render(Entity& entityTree, CameraComponent2* camera);
+	void render(Entity& entityTree, RenderTargetComponent& renderTarget);
 
 	void processRenderItems(RenderItems& items);
 
@@ -47,6 +48,9 @@ public:
 	Lights mLights;
 
 	RenderItems mTransparentQueue, mOpaqueQueue;
+
+	typedef std::vector<RenderTargetComponentPtr> RenderTargets;
+	RenderTargets mRenderTargets;
 };	// Impl
 
 }	// namespace MCD

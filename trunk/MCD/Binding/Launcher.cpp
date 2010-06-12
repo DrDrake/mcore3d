@@ -21,7 +21,7 @@
 #include "../Core/System/ThreadedCpuProfiler.h"
 #include "../Loader/PodLoader.h"
 #include "../Loader/PvrLoader.h"
-#include "../Render/ResourceLoaderFactory.h"
+#include "../Loader/ResourceLoaderFactory.h"
 #include "../../3Party/jkbind/Declarator.h"
 
 // For sqdbg
