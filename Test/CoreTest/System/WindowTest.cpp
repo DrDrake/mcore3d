@@ -5,6 +5,8 @@
 
 using namespace MCD;
 
+#ifndef MCD_IPHONE
+
 TEST(Create_WindowTest)
 {
 	Window window;
@@ -72,3 +74,5 @@ TEST(Multiple_WindowTest)
 
 	CHECK(true);
 }
+
+#endif

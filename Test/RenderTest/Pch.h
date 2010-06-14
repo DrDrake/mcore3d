@@ -5,6 +5,9 @@
 #include "../../MCD/Core/Math/Vec2.h"
 #include "../../MCD/Core/Math/Vec3.h"
 #include "../../3Party/CppTestHarness/CppTestHarness.h"
-#include "../../3Party/glew/glew.h"
+
+#ifndef MCD_IPHONE
+#	include "../../3Party/glew/glew.h"
+#endif
 
 #include <iostream>
