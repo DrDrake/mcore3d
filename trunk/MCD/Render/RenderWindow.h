@@ -69,10 +69,10 @@ public:
 
 	static void* getActiveContext();
 
+	class Impl;
+
 protected:
 	sal_override void onEvent(const Event& eventReceived);
-
-	class Impl;
 };	// RenderWindow
 
 }	// namespace MCD

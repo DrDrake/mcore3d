@@ -43,8 +43,16 @@
 		1820749F10E34C210030E503 /* WeakPtrTest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1820747810E34C210030E503 /* WeakPtrTest.cpp */; };
 		182074A010E34C210030E503 /* WindowTest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1820747910E34C210030E503 /* WindowTest.cpp */; };
 		182074A110E34C210030E503 /* XmlParserTest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1820747A10E34C210030E503 /* XmlParserTest.cpp */; };
+		1827EEFC11C618AD00A7FDB0 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1869647311C6178D00800080 /* Foundation.framework */; };
+		1827EF1811C6198300A7FDB0 /* Main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1827EF1711C6198300A7FDB0 /* Main.cpp */; };
 		18451716119D403D00F3F066 /* libz.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 18451715119D403D00F3F066 /* libz.dylib */; };
-		1872D68B11A0F55A0072CFAC /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1872D68A11A0F55A0072CFAC /* Foundation.framework */; };
+		1869646E11C6176000800080 /* libCppTestHarness.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 1820763210E351670030E503 /* libCppTestHarness.a */; };
+		1869646F11C6176500800080 /* libz.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 18451715119D403D00F3F066 /* libz.dylib */; };
+		1869647011C6176F00800080 /* libCore.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 18EAA40D119A592B00BBB011 /* libCore.a */; };
+		1869647111C6177400800080 /* libRender.a in Sources */ = {isa = PBXBuildFile; fileRef = 186962A611C5DDDE00800080 /* libRender.a */; };
+		1869647211C6177900800080 /* libRender.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 186962A611C5DDDE00800080 /* libRender.a */; };
+		1869647411C6178D00800080 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1869647311C6178D00800080 /* Foundation.framework */; };
+		1869647611C6179500800080 /* OpenGLES.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1869647511C6179500800080 /* OpenGLES.framework */; };
 		1873A308118835E7008D0F62 /* libCppTestHarness.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 1820763210E351670030E503 /* libCppTestHarness.a */; };
 		18C5407C119BA86900DA21DC /* libCore.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 18EAA40D119A592B00BBB011 /* libCore.a */; };
 /* End PBXBuildFile section */
@@ -70,6 +78,34 @@
 			proxyType = 2;
 			remoteGlobalIDString = 1820764010E351EF0030E503;
 			remoteInfo = SmallJpeg;
+		};
+		186962A511C5DDDE00800080 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 182074B410E34CE60030E503 /* MCD.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 1869629E11C5DDBF00800080;
+			remoteInfo = Render;
+		};
+		1869645811C6171700800080 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 182074B410E34CE60030E503 /* MCD.xcodeproj */;
+			proxyType = 1;
+			remoteGlobalIDString = 18EAA406119A590C00BBB011;
+			remoteInfo = Core;
+		};
+		1869645A11C6171B00800080 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 182074B410E34CE60030E503 /* MCD.xcodeproj */;
+			proxyType = 1;
+			remoteGlobalIDString = 1869629D11C5DDBF00800080;
+			remoteInfo = Render;
+		};
+		1869645C11C6171E00800080 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 1820762D10E351670030E503 /* 3Party.xcodeproj */;
+			proxyType = 1;
+			remoteGlobalIDString = 182075DD10E3509C0030E503;
+			remoteInfo = CppTestHarness;
 		};
 		18C53CE4119A648B00DA21DC /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
@@ -138,9 +174,14 @@
 		1820747A10E34C210030E503 /* XmlParserTest.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = XmlParserTest.cpp; sourceTree = "<group>"; };
 		182074B410E34CE60030E503 /* MCD.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = MCD.xcodeproj; path = ../MCD/MCD.xcodeproj; sourceTree = SOURCE_ROOT; };
 		1820762D10E351670030E503 /* 3Party.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = 3Party.xcodeproj; path = ../3Party/3Party.xcodeproj; sourceTree = SOURCE_ROOT; };
+		1827EF1711C6198300A7FDB0 /* Main.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Main.cpp; path = RenderTest/Main.cpp; sourceTree = "<group>"; };
+		1827EF2211C619B300A7FDB0 /* Pch.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Pch.h; path = RenderTest/Pch.h; sourceTree = "<group>"; };
 		18451715119D403D00F3F066 /* libz.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libz.dylib; path = usr/lib/libz.dylib; sourceTree = SDKROOT; };
 		184517F5119D4DAB00F3F066 /* CoreTest-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "CoreTest-Info.plist"; sourceTree = "<group>"; };
-		1872D68A11A0F55A0072CFAC /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
+		1869645111C6170B00800080 /* RenderTest.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = RenderTest.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		1869645311C6170B00800080 /* RenderTest-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "RenderTest-Info.plist"; sourceTree = "<group>"; };
+		1869647311C6178D00800080 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
+		1869647511C6179500800080 /* OpenGLES.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = OpenGLES.framework; path = System/Library/Frameworks/OpenGLES.framework; sourceTree = SDKROOT; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -148,10 +189,23 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				18C5407C119BA86900DA21DC /* libCore.a in Frameworks */,
 				1873A308118835E7008D0F62 /* libCppTestHarness.a in Frameworks */,
 				18451716119D403D00F3F066 /* libz.dylib in Frameworks */,
-				1872D68B11A0F55A0072CFAC /* Foundation.framework in Frameworks */,
+				18C5407C119BA86900DA21DC /* libCore.a in Frameworks */,
+				1827EEFC11C618AD00A7FDB0 /* Foundation.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		1869644F11C6170B00800080 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				1869646E11C6176000800080 /* libCppTestHarness.a in Frameworks */,
+				1869646F11C6176500800080 /* libz.dylib in Frameworks */,
+				1869647011C6176F00800080 /* libCore.a in Frameworks */,
+				1869647211C6177900800080 /* libRender.a in Frameworks */,
+				1869647411C6178D00800080 /* Foundation.framework in Frameworks */,
+				1869647611C6179500800080 /* OpenGLES.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -164,10 +218,13 @@
 				1820762D10E351670030E503 /* 3Party.xcodeproj */,
 				182074B410E34CE60030E503 /* MCD.xcodeproj */,
 				1820744210E34C210030E503 /* CoreTest */,
+				1827EF1511C6194000A7FDB0 /* RenderTest */,
 				1AB674ADFE9D54B511CA2CBB /* Products */,
-				18451715119D403D00F3F066 /* libz.dylib */,
 				184517F5119D4DAB00F3F066 /* CoreTest-Info.plist */,
-				1872D68A11A0F55A0072CFAC /* Foundation.framework */,
+				1869645311C6170B00800080 /* RenderTest-Info.plist */,
+				18451715119D403D00F3F066 /* libz.dylib */,
+				1869647311C6178D00800080 /* Foundation.framework */,
+				1869647511C6179500800080 /* OpenGLES.framework */,
 			);
 			name = Test;
 			sourceTree = "<group>";
@@ -247,6 +304,7 @@
 			isa = PBXGroup;
 			children = (
 				18EAA40D119A592B00BBB011 /* libCore.a */,
+				186962A611C5DDDE00800080 /* libRender.a */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -261,10 +319,20 @@
 			name = Products;
 			sourceTree = "<group>";
 		};
+		1827EF1511C6194000A7FDB0 /* RenderTest */ = {
+			isa = PBXGroup;
+			children = (
+				1827EF2211C619B300A7FDB0 /* Pch.h */,
+				1827EF1711C6198300A7FDB0 /* Main.cpp */,
+			);
+			name = RenderTest;
+			sourceTree = "<group>";
+		};
 		1AB674ADFE9D54B511CA2CBB /* Products */ = {
 			isa = PBXGroup;
 			children = (
 				1820731610E347EB0030E503 /* CoreTest.app */,
+				1869645111C6170B00800080 /* RenderTest.app */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -288,6 +356,26 @@
 			name = CoreTest;
 			productName = CoreTest;
 			productReference = 1820731610E347EB0030E503 /* CoreTest.app */;
+			productType = "com.apple.product-type.application";
+		};
+		1869645011C6170B00800080 /* RenderTest */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 1869645711C6170C00800080 /* Build configuration list for PBXNativeTarget "RenderTest" */;
+			buildPhases = (
+				1869644D11C6170B00800080 /* Resources */,
+				1869644E11C6170B00800080 /* Sources */,
+				1869644F11C6170B00800080 /* Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				1869645D11C6171E00800080 /* PBXTargetDependency */,
+				1869645911C6171700800080 /* PBXTargetDependency */,
+				1869645B11C6171B00800080 /* PBXTargetDependency */,
+			);
+			name = RenderTest;
+			productName = RenderTest;
+			productReference = 1869645111C6170B00800080 /* RenderTest.app */;
 			productType = "com.apple.product-type.application";
 		};
 /* End PBXNativeTarget section */
@@ -316,6 +404,7 @@
 			projectRoot = "";
 			targets = (
 				1820731510E347EB0030E503 /* CoreTest */,
+				1869645011C6170B00800080 /* RenderTest */,
 			);
 		};
 /* End PBXProject section */
@@ -335,6 +424,13 @@
 			remoteRef = 1820766310E3520E0030E503 /* PBXContainerItemProxy */;
 			sourceTree = BUILT_PRODUCTS_DIR;
 		};
+		186962A611C5DDDE00800080 /* libRender.a */ = {
+			isa = PBXReferenceProxy;
+			fileType = archive.ar;
+			path = libRender.a;
+			remoteRef = 186962A511C5DDDE00800080 /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
 		18C53CE5119A648B00DA21DC /* libsquirrel.a */ = {
 			isa = PBXReferenceProxy;
 			fileType = archive.ar;
@@ -350,6 +446,16 @@
 			sourceTree = BUILT_PRODUCTS_DIR;
 		};
 /* End PBXReferenceProxy section */
+
+/* Begin PBXResourcesBuildPhase section */
+		1869644D11C6170B00800080 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
 		1820731310E347EB0030E503 /* Sources */ = {
@@ -395,6 +501,15 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		1869644E11C6170B00800080 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				1869647111C6177400800080 /* libRender.a in Sources */,
+				1827EF1811C6198300A7FDB0 /* Main.cpp in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
@@ -402,6 +517,21 @@
 			isa = PBXTargetDependency;
 			name = CppTestHarness;
 			targetProxy = 1820763310E351820030E503 /* PBXContainerItemProxy */;
+		};
+		1869645911C6171700800080 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			name = Core;
+			targetProxy = 1869645811C6171700800080 /* PBXContainerItemProxy */;
+		};
+		1869645B11C6171B00800080 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			name = Render;
+			targetProxy = 1869645A11C6171B00800080 /* PBXContainerItemProxy */;
+		};
+		1869645D11C6171E00800080 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			name = CppTestHarness;
+			targetProxy = 1869645C11C6171E00800080 /* PBXContainerItemProxy */;
 		};
 		18C53D29119A65E100DA21DC /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
@@ -497,6 +627,75 @@
 			};
 			name = "iPhone Debug";
 		};
+		1869645411C6170B00800080 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				COPY_PHASE_STRIP = NO;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = "$(SYSTEM_LIBRARY_DIR)/Frameworks/UIKit.framework/Headers/UIKit.h";
+				INFOPLIST_FILE = "RenderTest-Info.plist";
+				INSTALL_PATH = "$(HOME)/Applications";
+				OTHER_LDFLAGS = (
+					"-framework",
+					Foundation,
+					"-framework",
+					UIKit,
+				);
+				PREBINDING = NO;
+				PRODUCT_NAME = RenderTest;
+				SDKROOT = iphoneos3.2;
+			};
+			name = Debug;
+		};
+		1869645511C6170B00800080 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				COPY_PHASE_STRIP = YES;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				GCC_ENABLE_FIX_AND_CONTINUE = NO;
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = "$(SYSTEM_LIBRARY_DIR)/Frameworks/UIKit.framework/Headers/UIKit.h";
+				INFOPLIST_FILE = "RenderTest-Info.plist";
+				INSTALL_PATH = "$(HOME)/Applications";
+				OTHER_LDFLAGS = (
+					"-framework",
+					Foundation,
+					"-framework",
+					UIKit,
+				);
+				PREBINDING = NO;
+				PRODUCT_NAME = RenderTest;
+				SDKROOT = iphoneos3.2;
+				ZERO_LINK = NO;
+			};
+			name = Release;
+		};
+		1869645611C6170B00800080 /* iPhone Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				INFOPLIST_FILE = "RenderTest-Info.plist";
+				INSTALL_PATH = "$(HOME)/Applications";
+				OTHER_LDFLAGS = (
+					"-framework",
+					Foundation,
+					"-framework",
+					UIKit,
+				);
+				PREBINDING = NO;
+				PRODUCT_NAME = RenderTest;
+				SDKROOT = iphoneos3.2;
+			};
+			name = "iPhone Debug";
+		};
 		1DEB923608733DC60010E9CD /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -558,6 +757,16 @@
 				1820731810E347EC0030E503 /* Debug */,
 				1820731910E347EC0030E503 /* Release */,
 				1845172A119D408B00F3F066 /* iPhone Debug */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		1869645711C6170C00800080 /* Build configuration list for PBXNativeTarget "RenderTest" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				1869645411C6170B00800080 /* Debug */,
+				1869645511C6170B00800080 /* Release */,
+				1869645611C6170B00800080 /* iPhone Debug */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;

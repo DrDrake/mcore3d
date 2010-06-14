@@ -189,9 +189,9 @@ StreamBuf::pos_type StreamBuf::seekoff(
 	{
 		{	// Transform offset base on ios_base::beg
 			if(origin == ios_base::cur && !(which & ios_base::out))
-				offset += off_type(gptr() - eback());
+				offset += gptr() - eback();
 			else if(origin == ios_base::end)
-				offset += off_type(egptr() - eback());
+				offset += egptr() - eback();
 			else if(origin != ios_base::beg)
 				offset = badOff;
 		}
@@ -211,9 +211,9 @@ StreamBuf::pos_type StreamBuf::seekoff(
 		// NOTE: We use egptr() as the high water mark of the put area
 		{	// Transform offset base on ios_base::beg
 			if(origin == ios_base::cur)
-				offset += off_type(pptr() - pbase());
+				offset += pptr() - pbase();
 			else if(origin == ios_base::end)
-				offset += off_type(egptr() - eback());
+				offset += egptr() - eback();
 			else if(origin != ios_base::beg)
 				offset = badOff;
 		}
