@@ -10,6 +10,10 @@
 
 namespace MCD {
 
+RenderWindow::Impl::~Impl()
+{
+}
+
 void RenderWindow::Impl::createWindow(Window::Handle existingWindowHandle)
 {
 	mContext = [[[EAGLContext alloc] retain] initWithAPI:kEAGLRenderingAPIOpenGLES1];
@@ -24,6 +28,19 @@ void RenderWindow::Impl::destroy()
 bool RenderWindow::Impl::makeActive()
 {
 	return [EAGLContext setCurrentContext: mContext];
+}
+
+void RenderWindow::Impl::preUpdate()
+{
+}
+
+void RenderWindow::Impl::postUpdate()
+{
+}
+
+void RenderWindow::Impl::setOption(const char* name, const char* value)
+{
+	Super::setOption(name, value);
 }
 
 RenderWindow::RenderWindow()
@@ -91,8 +108,7 @@ void RenderWindow::postUpdate()
 
 bool RenderWindow::setVerticalSync(bool flag)
 {
-	MCD_ASSUME(mImpl != nullptr);
-	return static_cast<Impl*>(mImpl)->setVerticalSync(flag);
+	return true;
 }
 
 void RenderWindow::onEvent(const Event& eventReceived)
