@@ -78,11 +78,10 @@ bool Texture::create(
 	const GpuDataFormat& srcFormat,
 	size_t width_, size_t height_,
 	size_t surfaceCount, size_t mipLevelCount,
-	const void* data, size_t dataSize
+	const void* data, size_t dataSize,
+	int apiSpecificflags
 )
 {
-	MCD_ASSERT(data);
-
 	if(surfaceCount != 1 && surfaceCount != 6)
 		return false;
 	if(surfaceCount == 6 && width_ != height_)
@@ -105,7 +104,7 @@ bool Texture::create(
 		if(S_OK != device->CreateTexture(
 			width_, height_,
 			mipLevelCount,
-			0,	// Usage
+			apiSpecificflags,	// Usage
 			static_cast<D3DFORMAT>(adjustedFormat.format),
 			D3DPOOL_MANAGED,
 			&texture,
@@ -115,16 +114,18 @@ bool Texture::create(
 
 		MCD_ASSUME(texture);
 
-		D3DLOCKED_RECT lockedRect;
-		for(size_t level=0; level<mipLevelCount; ++level) {
-			if(S_OK != texture->LockRect(level, &lockedRect, nullptr, 0))
-				return false;
+		if(data && dataSize > 0) {
+			D3DLOCKED_RECT lockedRect;
+			for(size_t level=0; level<mipLevelCount; ++level) {
+				if(S_OK != texture->LockRect(level, &lockedRect, nullptr, 0))
+					return false;
 
-			if(!copyToGpu(srcFormat, this->format, width, height, (byte_t*)data, (byte_t*)lockedRect.pBits, lockedRect.Pitch))
-				return false;
+				if(!copyToGpu(srcFormat, this->format, width, height, (byte_t*)data, (byte_t*)lockedRect.pBits, lockedRect.Pitch))
+					return false;
 
-			if(S_OK != texture->UnlockRect(level))
-				return false;
+				if(S_OK != texture->UnlockRect(level))
+					return false;
+			}
 		}
 	}
 	else if(surfaceCount == 6) {

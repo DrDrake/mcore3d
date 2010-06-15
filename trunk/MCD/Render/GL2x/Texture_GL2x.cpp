@@ -41,11 +41,10 @@ bool Texture::create(
 	const GpuDataFormat& srcFormat,
 	size_t width_, size_t height_,
 	size_t surfaceCount, size_t mipLevelCount,
-	const void* data, size_t dataSize
+	const void* data, size_t dataSize,
+	int apiSpecificflags
 )
 {
-	MCD_ASSERT(data);
-
 	if(surfaceCount != 1 && surfaceCount != 6)
 		return false;
 	if(surfaceCount == 6 && width_ != height_)
@@ -98,29 +97,32 @@ bool Texture::create(
 		glTexParameteri(type, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 	}
 
-	const byte_t* surfaceData = (byte_t*)data;
-	for(size_t surface=0; surface<surfaceCount; ++surface)
+	if(data && dataSize > 0)
 	{
-		const byte_t* levelData = (byte_t*)surfaceData;
-		for(size_t level=0; level<mipLevelCount; ++level)
+		const byte_t* surfaceData = (byte_t*)data;
+		for(size_t surface=0; surface<surfaceCount; ++surface)
 		{
-			size_t w = width;
-			size_t h = height;
-			const size_t levelSize = getMipLevelSize(format.format, format.sizeInByte(), level, w, h);
+			const byte_t* levelData = (byte_t*)surfaceData;
+			for(size_t level=0; level<mipLevelCount; ++level)
+			{
+				size_t w = width;
+				size_t h = height;
+				const size_t levelSize = getMipLevelSize(format.format, format.sizeInByte(), level, w, h);
 
-			const int textureType = surfaceCount == 1 ? GL_TEXTURE_2D : GL_TEXTURE_CUBE_MAP_POSITIVE_X + surface;
+				const int textureType = surfaceCount == 1 ? GL_TEXTURE_2D : GL_TEXTURE_CUBE_MAP_POSITIVE_X + surface;
 
-			if(format.isCompressed)
-				glCompressedTexImage2D(textureType, level, format.format, w, h, 0, levelSize, levelData);
-			else {
-				// NOTE: To compress texture on the fly, just pass GL_COMPRESSED_XXX_ARB as the internal format
-				// Reference: www.oldunreal.com/editing/s3tc/ARB_texture_compression.pdf
-				glTexImage2D(textureType, level, format.format, w, h, 0, srcFormat.components, format.dataType, levelData);
+				if(format.isCompressed)
+					glCompressedTexImage2D(textureType, level, format.format, w, h, 0, levelSize, levelData);
+				else {
+					// NOTE: To compress texture on the fly, just pass GL_COMPRESSED_XXX_ARB as the internal format
+					// Reference: www.oldunreal.com/editing/s3tc/ARB_texture_compression.pdf
+					glTexImage2D(textureType, level, format.format, w, h, 0, srcFormat.components, format.dataType, levelData);
+				}
+
+				levelData += levelSize;
 			}
-
-			levelData += levelSize;
+			surfaceData += dataSize / surfaceCount;
 		}
-		surfaceData += dataSize / surfaceCount;
 	}
 
 	glBindTexture(type, 0);
