@@ -40,4 +40,14 @@ TextureRenderTargetComponent::TextureRenderTargetComponent()
 TextureRenderTargetComponent::~TextureRenderTargetComponent()
 {}
 
+void TextureRenderTargetComponent::render()
+{
+	if(rendererComponent)
+		rendererComponent->mImpl.mRenderTargets.push_back(this);
+}
+
+void TextureRenderTargetComponent::render(RendererComponent& renderer)
+{
+}
+
 }	// namespace MCD
