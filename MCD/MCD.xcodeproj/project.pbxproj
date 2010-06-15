@@ -10,7 +10,6 @@
 		186962DC11C5E43600800080 /* RenderWindow.h in Headers */ = {isa = PBXBuildFile; fileRef = 186962DB11C5E43600800080 /* RenderWindow.h */; };
 		186962DE11C5E45A00800080 /* RenderWindow.mm in Sources */ = {isa = PBXBuildFile; fileRef = 186962DD11C5E45A00800080 /* RenderWindow.mm */; };
 		1869634211C5EE8000800080 /* RenderWindow.mm in Sources */ = {isa = PBXBuildFile; fileRef = 186962DD11C5E45A00800080 /* RenderWindow.mm */; };
-		1869634B11C5EEBA00800080 /* libCore.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 18EAA407119A590C00BBB011 /* libCore.a */; };
 		1869638311C6059300800080 /* RenderView.h in Headers */ = {isa = PBXBuildFile; fileRef = 1869638111C6059300800080 /* RenderView.h */; };
 		1869638411C6059300800080 /* RenderView.mm in Sources */ = {isa = PBXBuildFile; fileRef = 1869638211C6059300800080 /* RenderView.mm */; };
 		18C53CC2119A638A00DA21DC /* libz.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 18C53CC1119A638A00DA21DC /* libz.dylib */; };
@@ -224,7 +223,6 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				1869634B11C5EEBA00800080 /* libCore.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -642,7 +640,7 @@
 				GCC_WARN_SHADOW = NO;
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				MACH_O_TYPE = staticlib;
-				ONLY_ACTIVE_ARCH = NO;
+				ONLY_ACTIVE_ARCH = YES;
 				PREBINDING = NO;
 				SDKROOT = iphoneos3.0;
 			};
@@ -693,6 +691,13 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
+				COPY_PHASE_STRIP = NO;
+				EXECUTABLE_PREFIX = lib;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_ENABLE_FIX_AND_CONTINUE = YES;
+				GCC_MODEL_TUNING = G5;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				INSTALL_PATH = /usr/local/lib;
 				PREBINDING = NO;
 				PRODUCT_NAME = Render;
 			};

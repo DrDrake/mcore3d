@@ -44,17 +44,19 @@
 		182074A010E34C210030E503 /* WindowTest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1820747910E34C210030E503 /* WindowTest.cpp */; };
 		182074A110E34C210030E503 /* XmlParserTest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1820747A10E34C210030E503 /* XmlParserTest.cpp */; };
 		1827EEFC11C618AD00A7FDB0 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1869647311C6178D00800080 /* Foundation.framework */; };
-		1827EF1811C6198300A7FDB0 /* Main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1827EF1711C6198300A7FDB0 /* Main.cpp */; };
+		1827EF7211C621BA00A7FDB0 /* Haha.mm in Sources */ = {isa = PBXBuildFile; fileRef = 1827EF7111C621BA00A7FDB0 /* Haha.mm */; };
 		18451716119D403D00F3F066 /* libz.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 18451715119D403D00F3F066 /* libz.dylib */; };
+		1854FBA611C72B3F00420B55 /* QuartzCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1854FBA511C72B3F00420B55 /* QuartzCore.framework */; };
 		1869646E11C6176000800080 /* libCppTestHarness.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 1820763210E351670030E503 /* libCppTestHarness.a */; };
 		1869646F11C6176500800080 /* libz.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 18451715119D403D00F3F066 /* libz.dylib */; };
 		1869647011C6176F00800080 /* libCore.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 18EAA40D119A592B00BBB011 /* libCore.a */; };
 		1869647111C6177400800080 /* libRender.a in Sources */ = {isa = PBXBuildFile; fileRef = 186962A611C5DDDE00800080 /* libRender.a */; };
-		1869647211C6177900800080 /* libRender.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 186962A611C5DDDE00800080 /* libRender.a */; };
 		1869647411C6178D00800080 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1869647311C6178D00800080 /* Foundation.framework */; };
 		1869647611C6179500800080 /* OpenGLES.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1869647511C6179500800080 /* OpenGLES.framework */; };
 		1873A308118835E7008D0F62 /* libCppTestHarness.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 1820763210E351670030E503 /* libCppTestHarness.a */; };
 		18C5407C119BA86900DA21DC /* libCore.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 18EAA40D119A592B00BBB011 /* libCore.a */; };
+		18FDEB0F11C62DDF000FCA77 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 18FDEB0E11C62DDF000FCA77 /* UIKit.framework */; };
+		18FDEB6911C63156000FCA77 /* libRender.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 186962A611C5DDDE00800080 /* libRender.a */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -93,13 +95,6 @@
 			remoteGlobalIDString = 18EAA406119A590C00BBB011;
 			remoteInfo = Core;
 		};
-		1869645A11C6171B00800080 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 182074B410E34CE60030E503 /* MCD.xcodeproj */;
-			proxyType = 1;
-			remoteGlobalIDString = 1869629D11C5DDBF00800080;
-			remoteInfo = Render;
-		};
 		1869645C11C6171E00800080 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 1820762D10E351670030E503 /* 3Party.xcodeproj */;
@@ -127,6 +122,13 @@
 			proxyType = 2;
 			remoteGlobalIDString = 18EAA407119A590C00BBB011;
 			remoteInfo = Core;
+		};
+		18FDEB6411C6313C000FCA77 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 182074B410E34CE60030E503 /* MCD.xcodeproj */;
+			proxyType = 1;
+			remoteGlobalIDString = 1869629D11C5DDBF00800080;
+			remoteInfo = Render;
 		};
 /* End PBXContainerItemProxy section */
 
@@ -174,14 +176,16 @@
 		1820747A10E34C210030E503 /* XmlParserTest.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = XmlParserTest.cpp; sourceTree = "<group>"; };
 		182074B410E34CE60030E503 /* MCD.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = MCD.xcodeproj; path = ../MCD/MCD.xcodeproj; sourceTree = SOURCE_ROOT; };
 		1820762D10E351670030E503 /* 3Party.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = 3Party.xcodeproj; path = ../3Party/3Party.xcodeproj; sourceTree = SOURCE_ROOT; };
-		1827EF1711C6198300A7FDB0 /* Main.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Main.cpp; path = RenderTest/Main.cpp; sourceTree = "<group>"; };
 		1827EF2211C619B300A7FDB0 /* Pch.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Pch.h; path = RenderTest/Pch.h; sourceTree = "<group>"; };
+		1827EF7111C621BA00A7FDB0 /* Haha.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = Haha.mm; path = RenderTest/Haha.mm; sourceTree = "<group>"; };
 		18451715119D403D00F3F066 /* libz.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libz.dylib; path = usr/lib/libz.dylib; sourceTree = SDKROOT; };
 		184517F5119D4DAB00F3F066 /* CoreTest-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "CoreTest-Info.plist"; sourceTree = "<group>"; };
+		1854FBA511C72B3F00420B55 /* QuartzCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = QuartzCore.framework; path = System/Library/Frameworks/QuartzCore.framework; sourceTree = SDKROOT; };
 		1869645111C6170B00800080 /* RenderTest.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = RenderTest.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		1869645311C6170B00800080 /* RenderTest-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "RenderTest-Info.plist"; sourceTree = "<group>"; };
 		1869647311C6178D00800080 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
 		1869647511C6179500800080 /* OpenGLES.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = OpenGLES.framework; path = System/Library/Frameworks/OpenGLES.framework; sourceTree = SDKROOT; };
+		18FDEB0E11C62DDF000FCA77 /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = System/Library/Frameworks/UIKit.framework; sourceTree = SDKROOT; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -189,9 +193,9 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				1873A308118835E7008D0F62 /* libCppTestHarness.a in Frameworks */,
-				18451716119D403D00F3F066 /* libz.dylib in Frameworks */,
 				18C5407C119BA86900DA21DC /* libCore.a in Frameworks */,
+				18451716119D403D00F3F066 /* libz.dylib in Frameworks */,
+				1873A308118835E7008D0F62 /* libCppTestHarness.a in Frameworks */,
 				1827EEFC11C618AD00A7FDB0 /* Foundation.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -200,12 +204,14 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				18FDEB6911C63156000FCA77 /* libRender.a in Frameworks */,
+				1869647011C6176F00800080 /* libCore.a in Frameworks */,
 				1869646E11C6176000800080 /* libCppTestHarness.a in Frameworks */,
 				1869646F11C6176500800080 /* libz.dylib in Frameworks */,
-				1869647011C6176F00800080 /* libCore.a in Frameworks */,
-				1869647211C6177900800080 /* libRender.a in Frameworks */,
 				1869647411C6178D00800080 /* Foundation.framework in Frameworks */,
 				1869647611C6179500800080 /* OpenGLES.framework in Frameworks */,
+				1854FBA611C72B3F00420B55 /* QuartzCore.framework in Frameworks */,
+				18FDEB0F11C62DDF000FCA77 /* UIKit.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -225,6 +231,8 @@
 				18451715119D403D00F3F066 /* libz.dylib */,
 				1869647311C6178D00800080 /* Foundation.framework */,
 				1869647511C6179500800080 /* OpenGLES.framework */,
+				18FDEB0E11C62DDF000FCA77 /* UIKit.framework */,
+				1854FBA511C72B3F00420B55 /* QuartzCore.framework */,
 			);
 			name = Test;
 			sourceTree = "<group>";
@@ -323,7 +331,7 @@
 			isa = PBXGroup;
 			children = (
 				1827EF2211C619B300A7FDB0 /* Pch.h */,
-				1827EF1711C6198300A7FDB0 /* Main.cpp */,
+				1827EF7111C621BA00A7FDB0 /* Haha.mm */,
 			);
 			name = RenderTest;
 			sourceTree = "<group>";
@@ -371,7 +379,7 @@
 			dependencies = (
 				1869645D11C6171E00800080 /* PBXTargetDependency */,
 				1869645911C6171700800080 /* PBXTargetDependency */,
-				1869645B11C6171B00800080 /* PBXTargetDependency */,
+				18FDEB6511C6313C000FCA77 /* PBXTargetDependency */,
 			);
 			name = RenderTest;
 			productName = RenderTest;
@@ -506,7 +514,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				1869647111C6177400800080 /* libRender.a in Sources */,
-				1827EF1811C6198300A7FDB0 /* Main.cpp in Sources */,
+				1827EF7211C621BA00A7FDB0 /* Haha.mm in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -523,11 +531,6 @@
 			name = Core;
 			targetProxy = 1869645811C6171700800080 /* PBXContainerItemProxy */;
 		};
-		1869645B11C6171B00800080 /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			name = Render;
-			targetProxy = 1869645A11C6171B00800080 /* PBXContainerItemProxy */;
-		};
 		1869645D11C6171E00800080 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			name = CppTestHarness;
@@ -537,6 +540,11 @@
 			isa = PBXTargetDependency;
 			name = Core;
 			targetProxy = 18C53D28119A65E100DA21DC /* PBXContainerItemProxy */;
+		};
+		18FDEB6511C6313C000FCA77 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			name = Render;
+			targetProxy = 18FDEB6411C6313C000FCA77 /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
 
@@ -590,7 +598,7 @@
 				GCC_OPTIMIZATION_LEVEL = 0;
 				GCC_PREPROCESSOR_DEFINITIONS = __IPHONE__;
 				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
-				GCC_VERSION = com.apple.compilers.llvmgcc42;
+				GCC_VERSION = "";
 				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
 				GCC_WARN_ABOUT_MISSING_FIELD_INITIALIZERS = YES;
 				GCC_WARN_ABOUT_MISSING_NEWLINE = YES;
@@ -602,7 +610,7 @@
 				GCC_WARN_MISSING_PARENTHESES = YES;
 				GCC_WARN_NON_VIRTUAL_DESTRUCTOR = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				ONLY_ACTIVE_ARCH = NO;
+				ONLY_ACTIVE_ARCH = YES;
 				OTHER_LDFLAGS = "";
 				PREBINDING = NO;
 				PROVISIONING_PROFILE = "5EBF6645-5DC6-4914-8E2D-AE854255D495";
@@ -680,19 +688,16 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
-				CODE_SIGN_IDENTITY = "iPhone Developer";
-				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				COPY_PHASE_STRIP = NO;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_ENABLE_FIX_AND_CONTINUE = YES;
+				GCC_MODEL_TUNING = G5;
+				GCC_OPTIMIZATION_LEVEL = 0;
 				INFOPLIST_FILE = "RenderTest-Info.plist";
-				INSTALL_PATH = "$(HOME)/Applications";
-				OTHER_LDFLAGS = (
-					"-framework",
-					Foundation,
-					"-framework",
-					UIKit,
-				);
+				INSTALL_PATH = /usr/local/bin;
+				OTHER_LDFLAGS = "";
 				PREBINDING = NO;
 				PRODUCT_NAME = RenderTest;
-				SDKROOT = iphoneos3.2;
 			};
 			name = "iPhone Debug";
 		};

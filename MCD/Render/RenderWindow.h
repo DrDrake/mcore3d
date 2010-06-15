@@ -69,9 +69,8 @@ public:
 
 	static void* getActiveContext();
 
-	class Impl;
-
 protected:
+	class Impl;
 	sal_override void onEvent(const Event& eventReceived);
 };	// RenderWindow
 

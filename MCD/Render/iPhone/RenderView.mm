@@ -7,11 +7,18 @@
 //#import <OpenGLES/ES1/gl.h>
 #import <OpenGLES/ES1/glext.h>
 
+#define CHECK_GL_ERROR() ({ GLenum __error = glGetError(); if(__error) printf("OpenGL error 0x%04X in %s\n", __error, __FUNCTION__); (__error ? NO : YES); })
+
 using namespace MCD;
 
 @implementation RenderView
 
 @synthesize renderWindow = _window;
+
++ (Class) layerClass
+{
+	return [CAEAGLLayer class];
+}
 
 // TODO: More error check
 - (BOOL) _createSurface
@@ -37,7 +44,7 @@ using namespace MCD;
 	glGetRenderbufferParameterivOES(GL_RENDERBUFFER_OES, GL_RENDERBUFFER_WIDTH_OES, &width);
 	glGetRenderbufferParameterivOES(GL_RENDERBUFFER_OES, GL_RENDERBUFFER_HEIGHT_OES, &height);
 	glViewport(0, 0, width, height);
-	glScissor(0, 0, width, height);
+//	glScissor(0, 0, width, height);
 
 	// Setup the detph buffer
 	glGenRenderbuffersOES(1, &_depthBuffer);
@@ -51,6 +58,8 @@ using namespace MCD;
 		return NO;
 	}
 
+	CHECK_GL_ERROR();
+
 	return YES;
 }
 
@@ -58,6 +67,7 @@ using namespace MCD;
 {
 	if((self = [super initWithFrame:frame])) {
 		_window = new RenderWindow;
+		_window->create();
 		if(![self _createSurface]) {
 			[self release];
 			return nil;
@@ -93,8 +103,9 @@ using namespace MCD;
 	}
 
 	// TODO: Check OpenGl error
+	CHECK_GL_ERROR();
 
-	glBindRenderbufferOES(GL_RENDERBUFFER_OES, _depthBuffer);
+	glBindRenderbufferOES(GL_RENDERBUFFER_OES, _colorBuffer);
 
 	if(![context presentRenderbuffer:GL_RENDERBUFFER_OES])
 		printf("Failed to swap renderbuffer in %s\n", __FUNCTION__);

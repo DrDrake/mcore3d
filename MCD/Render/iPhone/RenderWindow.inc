@@ -13,12 +13,12 @@ class RenderWindow::Impl : public Window::Impl
 
 public:
 	Impl(Window& w) : Super(w), mContext(nil) {}
+	sal_override ~Impl();
 	sal_override void createWindow(Window::Handle existingWindowHandle=0);
 	sal_override void destroy();
 	bool makeActive();
 	void preUpdate();
 	void postUpdate();
-	bool setVerticalSync(bool flag);
 	sal_override void setOption(const char* name, const char* value);
 
 	EAGLContext* mContext;
