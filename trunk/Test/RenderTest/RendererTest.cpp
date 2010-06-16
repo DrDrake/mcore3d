@@ -45,7 +45,7 @@ TEST(RendererTest)
 	}
 
 	// Render target
-	WindowRenderTargetComponent* mainRenderTarget = new WindowRenderTargetComponent;
+	RenderTargetComponent* mainRenderTarget = new RenderTargetComponent;
 	mainRenderTarget->window = &mainWindow;
 	mainRenderTarget->entityToRender = &root;
 	mainRenderTarget->cameraComponent = camera;
@@ -57,7 +57,8 @@ TEST(RendererTest)
 		e->addComponent(mainRenderTarget);
 	}
 
-	WindowRenderTargetComponent* subRenderTarget = new WindowRenderTargetComponent;
+	RenderTargetComponent* subRenderTarget = new RenderTargetComponent;
+	subRenderTarget->clearColor = ColorRGBf(0.3f, 0.3f, 0.3f);
 	subRenderTarget->window = &subWindow;
 	subRenderTarget->entityToRender = &root;
 	subRenderTarget->cameraComponent = camera;
@@ -67,6 +68,20 @@ TEST(RendererTest)
 		e->name = "Sub-window render target";
 		e->asChildOf(&root);
 		e->addComponent(subRenderTarget);
+	}
+
+	RenderTargetComponent* textureRenderTarget = new RenderTargetComponent;
+	textureRenderTarget->clearColor = ColorRGBf(0.3f, 0.6f, 0.9f);
+	textureRenderTarget->window = nullptr;
+	textureRenderTarget->entityToRender = &root;
+	textureRenderTarget->cameraComponent = camera;
+	textureRenderTarget->rendererComponent = renderer;
+	textureRenderTarget->textures[0] = textureRenderTarget->createTexture(GpuDataFormat::get("uintRGBA8"), 512, 512);
+
+	{	Entity* e = new Entity;
+		e->name = "Texture render target";
+		e->asChildOf(&root);
+		e->addComponent(textureRenderTarget);
 	}
 
 	// Light
@@ -112,6 +127,7 @@ TEST(RendererTest)
 	MaterialComponent* material2 = new MaterialComponent;
 	material2->specularExponent = 200;
 	material2->opacity = 0.8f;
+	material2->diffuseMap = textureRenderTarget->textures[0];
 
 	// Create mesh
 	MeshComponent2* boxMesh = new MeshComponent2;

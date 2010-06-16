@@ -9,22 +9,19 @@
 namespace MCD {
 
 RenderTargetComponent::RenderTargetComponent()
+	: window(nullptr)
 {}
 
 RenderTargetComponent::~RenderTargetComponent()
 {}
 
-WindowRenderTargetComponent::WindowRenderTargetComponent()
-	: window(nullptr)
-{}
-
-void WindowRenderTargetComponent::render()
+void RenderTargetComponent::render()
 {
 	if(rendererComponent)
 		rendererComponent->mImpl.mRenderTargets.push_back(this);
 }
 
-void WindowRenderTargetComponent::render(RendererComponent& renderer)
+void RenderTargetComponent::render(RendererComponent& renderer)
 {
 	if(entityToRender && window) {
 		window->makeActive();
@@ -32,22 +29,6 @@ void WindowRenderTargetComponent::render(RendererComponent& renderer)
 		renderer.render(*entityToRender, *this);
 		window->postUpdate();
 	}
-}
-
-TextureRenderTargetComponent::TextureRenderTargetComponent()
-{}
-
-TextureRenderTargetComponent::~TextureRenderTargetComponent()
-{}
-
-void TextureRenderTargetComponent::render()
-{
-	if(rendererComponent)
-		rendererComponent->mImpl.mRenderTargets.push_back(this);
-}
-
-void TextureRenderTargetComponent::render(RendererComponent& renderer)
-{
 }
 
 }	// namespace MCD

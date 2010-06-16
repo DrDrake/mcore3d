@@ -14,14 +14,6 @@
 
 namespace MCD {
 
-template<typename T> void SAFE_RELEASE(T& p)
-{
-	if(p) {
-		p->Release();
-		p = nullptr;
-	}
-}
-
 void Mesh::draw() {
 	drawFaceOnly();
 }

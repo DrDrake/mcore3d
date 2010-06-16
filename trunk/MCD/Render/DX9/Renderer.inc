@@ -19,6 +19,14 @@ typedef IntrusivePtr<class Texture> TexturePtr;
 typedef IntrusiveWeakPtr<class CameraComponent2> CameraComponent2Ptr;
 typedef IntrusiveWeakPtr<class RenderTargetComponent> RenderTargetComponentPtr;
 
+template<typename T> void SAFE_RELEASE(T& p)
+{
+	if(p) {
+		p->Release();
+		p = nullptr;
+	}
+}
+
 struct ShaderContext
 {
 	LPDIRECT3DVERTEXSHADER9 shader;
