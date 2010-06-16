@@ -98,6 +98,8 @@ bool Texture::create(
 	LPDIRECT3DDEVICE9 device = getDevice();
 	MCD_ASSUME(device);
 
+	const D3DPOOL pool = (apiSpecificflags & D3DUSAGE_RENDERTARGET) ? D3DPOOL_DEFAULT : D3DPOOL_MANAGED;
+
 	if(surfaceCount == 1) {
 		IDirect3DTexture9*& texture = reinterpret_cast<IDirect3DTexture9*&>(handle);
 
@@ -106,7 +108,7 @@ bool Texture::create(
 			mipLevelCount,
 			apiSpecificflags,	// Usage
 			static_cast<D3DFORMAT>(adjustedFormat.format),
-			D3DPOOL_MANAGED,
+			pool,
 			&texture,
 			nullptr	// SharedHandle, reserved
 		))
@@ -134,9 +136,9 @@ bool Texture::create(
 		if(S_OK != device->CreateCubeTexture(
 			width_,
 			mipLevelCount,
-			0,	// Usage
+			apiSpecificflags,	// Usage
 			static_cast<D3DFORMAT>(adjustedFormat.format),
-			D3DPOOL_MANAGED,
+			pool,
 			&texture,
 			nullptr	// SharedHandle, reserved
 		))

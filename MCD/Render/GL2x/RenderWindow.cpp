@@ -108,7 +108,7 @@ void RenderWindow::onEvent(const Event& eventReceived)
 {
 	MCD_ASSUME(mImpl != nullptr);
 
-	if(eventReceived.Type == Event::Resized) {
+	if(eventReceived.Type == Event::Resized && renderContext()) {
 		MCD_VERIFY(makeActive());
 
 		uint w = mImpl->mWidth;

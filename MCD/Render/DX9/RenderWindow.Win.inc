@@ -95,21 +95,15 @@ public:
 
 	void preUpdate()
 	{
-		{	// Set mSwapChain as the current render target.
-			LPDIRECT3DSURFACE9 backSurface = nullptr;
-			mContext.mSwapChain->GetBackBuffer(0, D3DBACKBUFFER_TYPE_MONO, &backSurface);
-			gDevice->SetRenderTarget(0, backSurface);
-			backSurface->Release();
-		}
-
-		gDevice->Clear(0, nullptr, D3DCLEAR_TARGET | D3DCLEAR_ZBUFFER, D3DCOLOR_XRGB(0x33, 0x66, 0x99), 1.0f, 0);
-		gDevice->BeginScene();
+		// Set mSwapChain as the current render target.
+		LPDIRECT3DSURFACE9 backSurface = nullptr;
+		mContext.mSwapChain->GetBackBuffer(0, D3DBACKBUFFER_TYPE_MONO, &backSurface);
+		gDevice->SetRenderTarget(0, backSurface);
+		backSurface->Release();
 	}
 
 	void postUpdate()
 	{
-		MCD_ASSUME(gDevice);
-		gDevice->EndScene();
 		mContext.mSwapChain->Present(nullptr, nullptr, nullptr, nullptr, 0);
 	}
 
