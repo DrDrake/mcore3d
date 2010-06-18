@@ -145,7 +145,7 @@ public:
 
 	template<typename T> const StrideArray<T> getAttributeAs(int attributeId) const
 	{
-		return const_cast<MeshBuilder*>(this)->getAttributeAs(attributeId);
+		return const_cast<MeshBuilder*>(this)->getAttributeAs<T>(attributeId);
 	}
 
 	sal_maybenull char* getBufferPointer(

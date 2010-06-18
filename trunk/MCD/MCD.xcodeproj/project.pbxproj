@@ -14,6 +14,10 @@
 		1869638411C6059300800080 /* RenderView.mm in Sources */ = {isa = PBXBuildFile; fileRef = 1869638211C6059300800080 /* RenderView.mm */; };
 		18C53CC2119A638A00DA21DC /* libz.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 18C53CC1119A638A00DA21DC /* libz.dylib */; };
 		18C540A2119BA94400DA21DC /* libsquirrel.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 18C53CE2119A646D00DA21DC /* libsquirrel.a */; };
+		18CF938011CB789F0025C5AE /* ChamferBox.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 18CF937A11CB789F0025C5AE /* ChamferBox.cpp */; };
+		18CF938111CB789F0025C5AE /* ChamferBox.h in Headers */ = {isa = PBXBuildFile; fileRef = 18CF937B11CB789F0025C5AE /* ChamferBox.h */; };
+		18CF938211CB789F0025C5AE /* Color.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 18CF937C11CB789F0025C5AE /* Color.cpp */; };
+		18CF938311CB789F0025C5AE /* Color.h in Headers */ = {isa = PBXBuildFile; fileRef = 18CF937D11CB789F0025C5AE /* Color.h */; };
 		18EAA40E119A596600BBB011 /* Stream.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1820753110E34D340030E503 /* Stream.cpp */; };
 		18EAA40F119A596600BBB011 /* RawFileSystem.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1820752410E34D340030E503 /* RawFileSystem.cpp */; };
 		18EAA410119A596600BBB011 /* Timer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1820753D10E34D340030E503 /* Timer.cpp */; };
@@ -213,6 +217,10 @@
 		1869638211C6059300800080 /* RenderView.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = RenderView.mm; path = Render/iPhone/RenderView.mm; sourceTree = "<group>"; };
 		1873A2E811883540008D0F62 /* 3Party.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = 3Party.xcodeproj; path = ../3Party/3Party.xcodeproj; sourceTree = SOURCE_ROOT; };
 		18C53CC1119A638A00DA21DC /* libz.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libz.dylib; path = usr/lib/libz.dylib; sourceTree = SDKROOT; };
+		18CF937A11CB789F0025C5AE /* ChamferBox.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = ChamferBox.cpp; path = Render/ChamferBox.cpp; sourceTree = "<group>"; };
+		18CF937B11CB789F0025C5AE /* ChamferBox.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ChamferBox.h; path = Render/ChamferBox.h; sourceTree = "<group>"; };
+		18CF937C11CB789F0025C5AE /* Color.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Color.cpp; path = Render/Color.cpp; sourceTree = "<group>"; };
+		18CF937D11CB789F0025C5AE /* Color.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Color.h; path = Render/Color.h; sourceTree = "<group>"; };
 		18EAA407119A590C00BBB011 /* libCore.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libCore.a; sourceTree = BUILT_PRODUCTS_DIR; };
 		18EAA433119A59B200BBB011 /* StringHash.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = StringHash.cpp; sourceTree = "<group>"; };
 		18EAA434119A59B200BBB011 /* StringHash.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = StringHash.h; sourceTree = "<group>"; };
@@ -401,6 +409,10 @@
 		186962A211C5DDD800800080 /* Render */ = {
 			isa = PBXGroup;
 			children = (
+				18CF937A11CB789F0025C5AE /* ChamferBox.cpp */,
+				18CF937B11CB789F0025C5AE /* ChamferBox.h */,
+				18CF937C11CB789F0025C5AE /* Color.cpp */,
+				18CF937D11CB789F0025C5AE /* Color.h */,
 				1869638111C6059300800080 /* RenderView.h */,
 				1869638211C6059300800080 /* RenderView.mm */,
 				186962DB11C5E43600800080 /* RenderWindow.h */,
@@ -443,6 +455,8 @@
 			buildActionMask = 2147483647;
 			files = (
 				1869638311C6059300800080 /* RenderView.h in Headers */,
+				18CF938111CB789F0025C5AE /* ChamferBox.h in Headers */,
+				18CF938311CB789F0025C5AE /* Color.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -549,6 +563,8 @@
 			files = (
 				1869634211C5EE8000800080 /* RenderWindow.mm in Sources */,
 				1869638411C6059300800080 /* RenderView.mm in Sources */,
+				18CF938011CB789F0025C5AE /* ChamferBox.cpp in Sources */,
+				18CF938211CB789F0025C5AE /* Color.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
