@@ -114,7 +114,6 @@ void RenderWindow::onEvent(const Event& eventReceived)
 		uint w = mImpl->mWidth;
 		uint h = mImpl->mHeight;
 		glViewport(0, 0, w, h);
-		glScissor(0, 0, w, h);
 	}
 
 	// Let Window (the super class of RenderWindow) to do the remaining job
