@@ -97,32 +97,32 @@ bool Texture::create(
 		glTexParameteri(type, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 	}
 
-	if(data && dataSize > 0)
+	if(!data) dataSize = 0;
+	if(!dataSize) data = nullptr;
+
+	const byte_t* surfaceData = (byte_t*)data;
+	for(size_t surface=0; surface<surfaceCount; ++surface)
 	{
-		const byte_t* surfaceData = (byte_t*)data;
-		for(size_t surface=0; surface<surfaceCount; ++surface)
+		const byte_t* levelData = (byte_t*)surfaceData;
+		for(size_t level=0; level<mipLevelCount; ++level)
 		{
-			const byte_t* levelData = (byte_t*)surfaceData;
-			for(size_t level=0; level<mipLevelCount; ++level)
-			{
-				size_t w = width;
-				size_t h = height;
-				const size_t levelSize = getMipLevelSize(format.format, format.sizeInByte(), level, w, h);
+			size_t w = width;
+			size_t h = height;
+			const size_t levelSize = getMipLevelSize(format.format, format.sizeInByte(), level, w, h);
 
-				const int textureType = surfaceCount == 1 ? GL_TEXTURE_2D : GL_TEXTURE_CUBE_MAP_POSITIVE_X + surface;
+			const int textureType = surfaceCount == 1 ? GL_TEXTURE_2D : GL_TEXTURE_CUBE_MAP_POSITIVE_X + surface;
 
-				if(format.isCompressed)
-					glCompressedTexImage2D(textureType, level, format.format, w, h, 0, levelSize, levelData);
-				else {
-					// NOTE: To compress texture on the fly, just pass GL_COMPRESSED_XXX_ARB as the internal format
-					// Reference: www.oldunreal.com/editing/s3tc/ARB_texture_compression.pdf
-					glTexImage2D(textureType, level, format.format, w, h, 0, srcFormat.components, format.dataType, levelData);
-				}
-
-				levelData += levelSize;
+			if(format.isCompressed)
+				glCompressedTexImage2D(textureType, level, format.format, w, h, 0, levelSize, levelData);
+			else {
+				// NOTE: To compress texture on the fly, just pass GL_COMPRESSED_XXX_ARB as the internal format
+				// Reference: www.oldunreal.com/editing/s3tc/ARB_texture_compression.pdf
+				glTexImage2D(textureType, level, format.format, w, h, 0, srcFormat.components, format.dataType, levelData);
 			}
-			surfaceData += dataSize / surfaceCount;
+
+			levelData += levelSize;
 		}
+		surfaceData += dataSize / surfaceCount;
 	}
 
 	glBindTexture(type, 0);

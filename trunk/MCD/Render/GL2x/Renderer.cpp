@@ -38,8 +38,6 @@ void RendererComponent::Impl::render(Entity& entityTree, RenderTargetComponent& 
 		glLoadTransposeMatrixf(mProjMatrix.getPtr());
 		glMatrixMode(GL_MODELVIEW);
 		glLoadTransposeMatrixf(mViewMatrix.getPtr());
-		glClearColor(0, 0, 0, 1);
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	}
 
 	// Traverse the Entity tree

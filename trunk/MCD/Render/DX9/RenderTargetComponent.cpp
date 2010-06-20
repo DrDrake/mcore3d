@@ -54,6 +54,10 @@ static void setViewPort(LPDIRECT3DDEVICE9 device, RenderTargetComponent& renderT
 			renderTarget.textures[0]->height :
 			0;
 
+	// Minimized window may resulting zero width height
+	if(viewPort.Width * viewPort.Height == 0)
+		return;
+
 	viewPort.MinZ = 0;
 	viewPort.MaxZ = 1;
 	device->SetViewport(&viewPort);

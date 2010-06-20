@@ -46,6 +46,9 @@ public:
 
 	sal_maybenull RenderWindow* window;
 	Array<TexturePtr, 4> textures;
+
+protected:
+	int mImpl;
 };	// RenderTargetComponent
 
 }	// namespace MCD

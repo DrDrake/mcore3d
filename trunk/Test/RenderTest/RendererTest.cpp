@@ -66,7 +66,10 @@ TEST(RendererTest)
 
 	{	Entity* e = new Entity;
 		e->name = "Sub-window render target";
-		e->asChildOf(&root);
+		// NOTE: Due to some restriction on wglShareLists, the order of window
+		// render target component does have a effect. So prefer the main window's
+		// render target appear first in the Entity tree.
+		e->insertAfter(mainRenderTarget->entity());
 		e->addComponent(subRenderTarget);
 	}
 
@@ -125,7 +128,7 @@ TEST(RendererTest)
 	material1->opacity = 1.0f;
 
 	MaterialComponent* material2 = new MaterialComponent;
-	material2->specularExponent = 200;
+	material2->specularExponent = 120;
 	material2->opacity = 0.8f;
 	material2->diffuseMap = textureRenderTarget->textures[0];
 
