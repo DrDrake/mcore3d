@@ -295,7 +295,10 @@ Path::string_type PathIterator::next(bool returnFullPath)
 	currentIndex = mStr.find("/", currentIndex);
 	if(currentIndex == Path::string_type::npos)
 		return Path::string_type();
-	return mStr.substr(returnFullPath ? 0 : oldIndex, currentIndex++);
+	if(returnFullPath)
+		return mStr.substr(0, currentIndex++);
+	else
+		return mStr.substr(oldIndex, (currentIndex++) - oldIndex);
 }
 
 }	// namespace MCD
