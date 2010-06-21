@@ -243,13 +243,13 @@ TEST(CurrentPath_PathTest)
 	CHECK_THROW(Path::setCurrentPath("./_not_existing"), std::runtime_error);
 }
 
-TEST(Iterator_PathIteratorTest)
+TEST(Full_Iterator_PathIteratorTest)
 {
 	const char* data[][2] = {
 		{"a/b/c",	"a, a/b, a/b/c, "},		// Begin without slash
-		{"/a/b/c",	"/a, /a/b, /a/b/c, "},		// Begin with slash
-		{"/a/b/c/",	"/a, /a/b, /a/b/c, "},		// End with slash
-		{"../../a/",".., ../.., ../../a, "},	// Test with ..
+		{"/a/b/c",	"/a, /a/b, /a/b/c, "},	// Begin with slash
+		{"/a/b/c/",	"/a, /a/b, /a/b/c, "},	// End with slash
+		{"../../a/",".., ../.., ../../a, "},// Test with ..
 	};
 
 	for(size_t i=0; i<MCD_COUNTOF(data); ++i) {
@@ -259,6 +259,32 @@ TEST(Iterator_PathIteratorTest)
 		std::string result;
 		while(true) {
 			std::string s = itr.next();
+			if(s.empty())
+				break;
+			result += s;
+			result += ", ";
+		}
+
+		CHECK_EQUAL(data[i][1], result);
+	}
+}
+
+TEST(Partial_Iterator_PathIteratorTest)
+{
+	const char* data[][2] = {
+		{"a/b/c",	"a, b, c, "},	// Begin without slash
+		{"/a/b/c",	"a, b, c, "},	// Begin with slash
+		{"/a/b/c/",	"a, b, c, "},	// End with slash
+		{"../../a/",".., .., a, "},	// Test with ..
+	};
+
+	for(size_t i=0; i<MCD_COUNTOF(data); ++i) {
+		Path path(data[i][0]);
+		PathIterator itr(path);
+
+		std::string result;
+		while(true) {
+			std::string s = itr.next(false);
 			if(s.empty())
 				break;
 			result += s;
