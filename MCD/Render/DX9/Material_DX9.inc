@@ -32,6 +32,9 @@ public:
 		D3DXHANDLE worldViewProj;
 		D3DXHANDLE lights;
 		D3DXHANDLE cameraPosition;
+		D3DXHANDLE diffuseColor;
+		D3DXHANDLE specularColor;
+		D3DXHANDLE emissionColor;
 		D3DXHANDLE specularExponent;
 		D3DXHANDLE opacity;
 	};	// ConstantHandles

@@ -119,11 +119,9 @@ void RendererComponent::Impl::render(Entity& entityTree, RenderTargetComponent& 
 
 	{	// Render transparent items
 		glEnable(GL_BLEND);
-		glColor4f(0, 0, 0, 0.5f);
-		glBlendFunc(GL_SRC_ALPHA, GL_ONE);
 //		glDisable(GL_CULL_FACE);
-//		glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-//		glBlendEquationSeparate(GL_FUNC_ADD, GL_FUNC_ADD);
+		glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+		glBlendEquationSeparate(GL_FUNC_ADD, GL_FUNC_ADD);
 		glDepthMask(GL_FALSE);
 		processRenderItems(mTransparentQueue);
 		glDisable(GL_BLEND);

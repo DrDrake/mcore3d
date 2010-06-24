@@ -51,6 +51,9 @@ public:
 	float* rawPointer() {
 		return reinterpret_cast<float*>(this);
 	}
+	const float* rawPointer() const {
+		return reinterpret_cast<const float*>(this);
+	}
 
 	float r, g, b;
 };	// ColorRGBf
@@ -76,6 +79,10 @@ public:
 	}
 	const float* rawPointer() const {
 		return reinterpret_cast<const float*>(this);
+	}
+
+	ColorRGBf rgb() const {
+		return *static_cast<const ColorRGBf*>(this);
 	}
 
 	float a;

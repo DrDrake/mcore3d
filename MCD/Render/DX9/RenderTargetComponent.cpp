@@ -95,6 +95,7 @@ void RenderTargetComponent::render(RendererComponent& renderer)
 	}
 
 	// Texture only
+	// http://www.borgsoft.de/renderToSurface.html
 	if(!window && textureCount) {
 		for(size_t i=0; i<textureCount; ++i)
 		{

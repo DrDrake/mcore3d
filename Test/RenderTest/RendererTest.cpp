@@ -124,6 +124,7 @@ TEST(RendererTest)
 
 	// Material
 	MaterialComponent* material1 = new MaterialComponent;
+	material1->diffuseColor = ColorRGBAf(1, 1, 0.5f, 1);
 	material1->diffuseMap = dynamic_cast<Texture*>(resourceManager.load("InterlacedTrans256x256.png").get());
 	material1->opacity = 1.0f;
 
