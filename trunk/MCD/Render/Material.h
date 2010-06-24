@@ -103,6 +103,9 @@ public:
 	sal_override void render() {}
 
 // Attrubutes
+	ColorRGBAf diffuseColor;
+	ColorRGBAf specularColor;
+	ColorRGBAf emissionColor;
 	float specularExponent;
 	float opacity;	//!< Value from 0 (invisible) to 1 (opaque)
 

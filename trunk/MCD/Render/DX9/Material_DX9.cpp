@@ -20,6 +20,9 @@ MaterialComponent::Impl::Impl()
 	mConstantHandles.world = mVsConstTable->GetConstantByName(nullptr, "mcdWorld");
 	mConstantHandles.lights = mPsConstTable->GetConstantByName(nullptr, "mcdLights");
 	mConstantHandles.cameraPosition = mPsConstTable->GetConstantByName(nullptr, "mcdCameraPosition");
+	mConstantHandles.diffuseColor = mPsConstTable->GetConstantByName(nullptr, "mcdDiffuseColor");
+	mConstantHandles.specularColor = mPsConstTable->GetConstantByName(nullptr, "mcdSpecularColor");
+	mConstantHandles.emissionColor = mPsConstTable->GetConstantByName(nullptr, "mcdEmissionColor");
 	mConstantHandles.specularExponent = mPsConstTable->GetConstantByName(nullptr, "mcdSpecularExponent");
 	mConstantHandles.opacity = mPsConstTable->GetConstantByName(nullptr, "mcdOpacity");
 }
@@ -101,6 +104,9 @@ bool MaterialComponent::Impl::createPs()
 	"} mcdLights[MCD_MAX_LIGHT_COUNT];"
 
 	"float3 mcdCameraPosition;"
+	"float4 mcdDiffuseColor;"
+	"float4 mcdSpecularColor;"
+	"float4 mcdEmissionColor;"
 	"float mcdSpecularExponent;"
 	"float mcdOpacity;"
 	"sampler2D texDiffuse;"
@@ -134,10 +140,12 @@ bool MaterialComponent::Impl::createPs()
 	"	float3 lightSpecular = 0;"
 	"	for(int i=0; i<MCD_MAX_LIGHT_COUNT; ++i)"
 	"		computeLighting(mcdLights[i], P, N, V, lightDiffuse, lightSpecular);\n"
-	"	float3 diffuse = tex2D(texDiffuse, _in.uvDiffuse) * lightDiffuse;"
-	"	float3 specular = lightSpecular;"
-	"	_out.color.rgb = _in.color.rgb * diffuse + specular;"
-	"	_out.color.a = mcdOpacity;"
+	"	float4 diffuseMap = tex2D(texDiffuse, _in.uvDiffuse);"
+	"	float3 diffuse = mcdDiffuseColor.rgb * mcdDiffuseColor.a * tex2D(texDiffuse, _in.uvDiffuse).rgb * lightDiffuse;"
+	"	float3 specular = mcdSpecularColor.rgb * mcdSpecularColor.a * lightSpecular;"
+	"	float3 emission = mcdEmissionColor.rgb * mcdEmissionColor.a;"
+	"	_out.color.rgb = _in.color.rgb * diffuse + specular + emission;"
+	"	_out.color.a = mcdOpacity * diffuseMap.a;"
 	"	return _out;"
 	"}";
 
@@ -229,6 +237,18 @@ void MaterialComponent::preRender(size_t pass, void* context)
 	}
 
 	{	// Bind material information
+		MCD_VERIFY(mImpl.mVsConstTable->SetFloatArray(
+			device, mImpl.mConstantHandles.diffuseColor, diffuseColor.rawPointer(), 4
+		) == S_OK);
+
+		MCD_VERIFY(mImpl.mVsConstTable->SetFloatArray(
+			device, mImpl.mConstantHandles.specularColor, specularColor.rawPointer(), 4
+		) == S_OK);
+
+		MCD_VERIFY(mImpl.mVsConstTable->SetFloatArray(
+			device, mImpl.mConstantHandles.emissionColor, emissionColor.rawPointer(), 4
+		) == S_OK);
+
 		MCD_VERIFY(mImpl.mVsConstTable->SetFloat(
 			device, mImpl.mConstantHandles.specularExponent, specularExponent
 		) == S_OK);
@@ -255,6 +275,9 @@ void MaterialComponent::postRender(size_t pass, void* context)
 
 MaterialComponent::MaterialComponent()
 	: mImpl(*new Impl)
+	, diffuseColor(1, 1)
+	, specularColor(1, 1)
+	, emissionColor(0, 1)
 	, specularExponent(20)
 	, opacity(1)
 {
