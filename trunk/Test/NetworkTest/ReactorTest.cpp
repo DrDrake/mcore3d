@@ -68,15 +68,15 @@ TEST_FIXTURE(ReactorTestFixture, Accept)
 	CHECK_EQUAL(0, reactor.listen(mAnyEndPoint, acceptor));
 
 	BsdSocket s;
-	CHECK(s.create(BsdSocket::TCP));
-	CHECK(s.setBlocking(false));
-	CHECK(s.connect(mLocalEndPoint));
+	CHECK_EQUAL(0, s.create(BsdSocket::TCP));
+	CHECK_EQUAL(0, s.setBlocking(false));
+	CHECK(BsdSocket::inProgress(s.connect(mLocalEndPoint)));
 
 	while(!reactor.passed) {
 		reactor.process();
 	}
 
-	CHECK(s.shutDownReadWrite());
+	CHECK_EQUAL(0, s.shutDownReadWrite());
 
 	while(!reactor.finished) {
 		reactor.process();
