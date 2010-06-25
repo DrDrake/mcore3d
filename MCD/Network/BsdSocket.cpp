@@ -105,7 +105,6 @@ BsdSocket::~BsdSocket()
 
 ErrorCode BsdSocket::create(SocketType type)
 {
-	signal(SIGPIPE, SIG_IGN);
 	// If this socket is not closed yet
 	if(fd() != INVALID_SOCKET)
 		return lastError = -1;
@@ -118,12 +117,14 @@ ErrorCode BsdSocket::create(SocketType type)
 	default: return lastError = getLastError();
 	}
 
+#ifndef MCD_WIN32
 	{	// Disable SIGPIPE: http://unix.derkeiler.com/Mailing-Lists/FreeBSD/net/2007-03/msg00007.html
 		// More reference: http://beej.us/guide/bgnet/output/html/multipage/sendman.html
 		// http://discuss.joelonsoftware.com/default.asp?design.4.575720.7
 		int b = 1;
 		MCD_VERIFY(setsockopt(fd(), SOL_SOCKET, SO_NOSIGPIPE, &b, sizeof(b)) == 0);
 	}
+#endif
 
 	return lastError = OK;
 }
