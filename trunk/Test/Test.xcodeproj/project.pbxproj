@@ -7,6 +7,12 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		180CBB3D11D471D700504DBF /* libCore.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 18EAA40D119A592B00BBB011 /* libCore.a */; };
+		180CBB3E11D471DC00504DBF /* libNetwork.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 180CBB1211D4700100504DBF /* libNetwork.a */; };
+		180CBB4511D4721B00504DBF /* BsdSocketTest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 180CBB4311D4721B00504DBF /* BsdSocketTest.cpp */; };
+		180CBB4611D4721B00504DBF /* IPEndPointTest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 180CBB4411D4721B00504DBF /* IPEndPointTest.cpp */; };
+		180CBB4911D4723F00504DBF /* libCppTestHarness.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 1820763210E351670030E503 /* libCppTestHarness.a */; };
+		180CBB5B11D4727000504DBF /* Main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 180CBB5A11D4727000504DBF /* Main.cpp */; };
 		1820747D10E34C210030E503 /* ComponentTest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1820744710E34C210030E503 /* ComponentTest.cpp */; };
 		1820747E10E34C210030E503 /* EntityTest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1820744810E34C210030E503 /* EntityTest.cpp */; };
 		1820747F10E34C210030E503 /* Main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1820744A10E34C210030E503 /* Main.cpp */; };
@@ -60,6 +66,34 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
+		180CBB1111D4700100504DBF /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 182074B410E34CE60030E503 /* MCD.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 180CBAA911D4691700504DBF /* libNetwork.a */;
+			remoteInfo = Network;
+		};
+		180CBB3911D471CB00504DBF /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 182074B410E34CE60030E503 /* MCD.xcodeproj */;
+			proxyType = 1;
+			remoteGlobalIDString = 18EAA406119A590C00BBB011 /* Core */;
+			remoteInfo = Core;
+		};
+		180CBB3B11D471CE00504DBF /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 182074B410E34CE60030E503 /* MCD.xcodeproj */;
+			proxyType = 1;
+			remoteGlobalIDString = 180CBAA811D4691700504DBF /* Network */;
+			remoteInfo = Network;
+		};
+		180CBC9011D490BA00504DBF /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 1820762D10E351670030E503 /* 3Party.xcodeproj */;
+			proxyType = 1;
+			remoteGlobalIDString = 182075DD10E3509C0030E503 /* CppTestHarness */;
+			remoteInfo = CppTestHarness;
+		};
 		1820763110E351670030E503 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 1820762D10E351670030E503 /* 3Party.xcodeproj */;
@@ -133,6 +167,11 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		180CBB2611D4702C00504DBF /* NetworkTest.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = NetworkTest.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		180CBB2811D4702C00504DBF /* NetworkTest-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "NetworkTest-Info.plist"; sourceTree = "<group>"; };
+		180CBB4311D4721B00504DBF /* BsdSocketTest.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = BsdSocketTest.cpp; path = NetworkTest/BsdSocketTest.cpp; sourceTree = "<group>"; };
+		180CBB4411D4721B00504DBF /* IPEndPointTest.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = IPEndPointTest.cpp; path = NetworkTest/IPEndPointTest.cpp; sourceTree = "<group>"; };
+		180CBB5A11D4727000504DBF /* Main.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Main.cpp; path = NetworkTest/Main.cpp; sourceTree = "<group>"; };
 		1820731610E347EB0030E503 /* CoreTest.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = CoreTest.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		1820744710E34C210030E503 /* ComponentTest.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ComponentTest.cpp; sourceTree = "<group>"; };
 		1820744810E34C210030E503 /* EntityTest.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = EntityTest.cpp; sourceTree = "<group>"; };
@@ -189,6 +228,16 @@
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
+		180CBB2411D4702C00504DBF /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				180CBB3D11D471D700504DBF /* libCore.a in Frameworks */,
+				180CBB3E11D471DC00504DBF /* libNetwork.a in Frameworks */,
+				180CBB4911D4723F00504DBF /* libCppTestHarness.a in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		1820731410E347EB0030E503 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
@@ -225,6 +274,7 @@
 				182074B410E34CE60030E503 /* MCD.xcodeproj */,
 				1820744210E34C210030E503 /* CoreTest */,
 				1827EF1511C6194000A7FDB0 /* RenderTest */,
+				180CBB2111D4700D00504DBF /* NetworkTest */,
 				1AB674ADFE9D54B511CA2CBB /* Products */,
 				184517F5119D4DAB00F3F066 /* CoreTest-Info.plist */,
 				1869645311C6170B00800080 /* RenderTest-Info.plist */,
@@ -233,8 +283,19 @@
 				1869647511C6179500800080 /* OpenGLES.framework */,
 				18FDEB0E11C62DDF000FCA77 /* UIKit.framework */,
 				1854FBA511C72B3F00420B55 /* QuartzCore.framework */,
+				180CBB2811D4702C00504DBF /* NetworkTest-Info.plist */,
 			);
 			name = Test;
+			sourceTree = "<group>";
+		};
+		180CBB2111D4700D00504DBF /* NetworkTest */ = {
+			isa = PBXGroup;
+			children = (
+				180CBB4311D4721B00504DBF /* BsdSocketTest.cpp */,
+				180CBB4411D4721B00504DBF /* IPEndPointTest.cpp */,
+				180CBB5A11D4727000504DBF /* Main.cpp */,
+			);
+			name = NetworkTest;
 			sourceTree = "<group>";
 		};
 		1820744210E34C210030E503 /* CoreTest */ = {
@@ -313,6 +374,7 @@
 			children = (
 				18EAA40D119A592B00BBB011 /* libCore.a */,
 				186962A611C5DDDE00800080 /* libRender.a */,
+				180CBB1211D4700100504DBF /* libNetwork.a */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -341,6 +403,7 @@
 			children = (
 				1820731610E347EB0030E503 /* CoreTest.app */,
 				1869645111C6170B00800080 /* RenderTest.app */,
+				180CBB2611D4702C00504DBF /* NetworkTest.app */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -348,6 +411,26 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
+		180CBB2511D4702C00504DBF /* NetworkTest */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 180CBB2C11D4702D00504DBF /* Build configuration list for PBXNativeTarget "NetworkTest" */;
+			buildPhases = (
+				180CBB2211D4702C00504DBF /* Resources */,
+				180CBB2311D4702C00504DBF /* Sources */,
+				180CBB2411D4702C00504DBF /* Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				180CBB3A11D471CB00504DBF /* PBXTargetDependency */,
+				180CBB3C11D471CE00504DBF /* PBXTargetDependency */,
+				180CBC9111D490BA00504DBF /* PBXTargetDependency */,
+			);
+			name = NetworkTest;
+			productName = NetworkTest;
+			productReference = 180CBB2611D4702C00504DBF /* NetworkTest.app */;
+			productType = "com.apple.product-type.application";
+		};
 		1820731510E347EB0030E503 /* CoreTest */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = 1820735B10E348090030E503 /* Build configuration list for PBXNativeTarget "CoreTest" */;
@@ -413,11 +496,19 @@
 			targets = (
 				1820731510E347EB0030E503 /* CoreTest */,
 				1869645011C6170B00800080 /* RenderTest */,
+				180CBB2511D4702C00504DBF /* NetworkTest */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXReferenceProxy section */
+		180CBB1211D4700100504DBF /* libNetwork.a */ = {
+			isa = PBXReferenceProxy;
+			fileType = archive.ar;
+			path = libNetwork.a;
+			remoteRef = 180CBB1111D4700100504DBF /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
 		1820763210E351670030E503 /* libCppTestHarness.a */ = {
 			isa = PBXReferenceProxy;
 			fileType = archive.ar;
@@ -456,6 +547,13 @@
 /* End PBXReferenceProxy section */
 
 /* Begin PBXResourcesBuildPhase section */
+		180CBB2211D4702C00504DBF /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		1869644D11C6170B00800080 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -466,6 +564,16 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
+		180CBB2311D4702C00504DBF /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				180CBB4511D4721B00504DBF /* BsdSocketTest.cpp in Sources */,
+				180CBB4611D4721B00504DBF /* IPEndPointTest.cpp in Sources */,
+				180CBB5B11D4727000504DBF /* Main.cpp in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		1820731310E347EB0030E503 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -521,6 +629,21 @@
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
+		180CBB3A11D471CB00504DBF /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			name = Core;
+			targetProxy = 180CBB3911D471CB00504DBF /* PBXContainerItemProxy */;
+		};
+		180CBB3C11D471CE00504DBF /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			name = Network;
+			targetProxy = 180CBB3B11D471CE00504DBF /* PBXContainerItemProxy */;
+		};
+		180CBC9111D490BA00504DBF /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			name = CppTestHarness;
+			targetProxy = 180CBC9011D490BA00504DBF /* PBXContainerItemProxy */;
+		};
 		1820763410E351820030E503 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			name = CppTestHarness;
@@ -549,21 +672,61 @@
 /* End PBXTargetDependency section */
 
 /* Begin XCBuildConfiguration section */
+		180CBB2911D4702D00504DBF /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				INFOPLIST_FILE = "NetworkTest-Info.plist";
+				OTHER_LDFLAGS = (
+					"-framework",
+					Foundation,
+					"-framework",
+					UIKit,
+				);
+				PRODUCT_NAME = NetworkTest;
+				SDKROOT = iphoneos3.2;
+			};
+			name = Debug;
+		};
+		180CBB2A11D4702D00504DBF /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				INFOPLIST_FILE = "NetworkTest-Info.plist";
+				OTHER_LDFLAGS = (
+					"-framework",
+					Foundation,
+					"-framework",
+					UIKit,
+				);
+				PRODUCT_NAME = NetworkTest;
+				SDKROOT = iphoneos3.2;
+			};
+			name = Release;
+		};
+		180CBB2B11D4702D00504DBF /* iPhone Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				INFOPLIST_FILE = "NetworkTest-Info.plist";
+				OTHER_LDFLAGS = (
+					"-framework",
+					Foundation,
+					"-framework",
+					UIKit,
+				);
+				PRODUCT_NAME = NetworkTest;
+				SDKROOT = iphoneos3.2;
+			};
+			name = "iPhone Debug";
+		};
 		1820731810E347EC0030E503 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ALWAYS_SEARCH_USER_PATHS = NO;
-				COPY_PHASE_STRIP = NO;
-				GCC_DYNAMIC_NO_PIC = NO;
-				GCC_ENABLE_FIX_AND_CONTINUE = YES;
-				GCC_MODEL_TUNING = G5;
-				GCC_OPTIMIZATION_LEVEL = 0;
-				INSTALL_PATH = /usr/local/bin;
 				OTHER_LDFLAGS = (
 					"-L/usr/X11R6/lib",
 					"-lX11",
 				);
-				PREBINDING = NO;
 				PRODUCT_NAME = CoreTest;
 			};
 			name = Debug;
@@ -571,19 +734,11 @@
 		1820731910E347EC0030E503 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ALWAYS_SEARCH_USER_PATHS = NO;
-				COPY_PHASE_STRIP = YES;
-				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
-				GCC_ENABLE_FIX_AND_CONTINUE = NO;
-				GCC_MODEL_TUNING = G5;
-				INSTALL_PATH = /usr/local/bin;
 				OTHER_LDFLAGS = (
 					"-L/usr/X11R6/lib",
 					"-lX11",
 				);
-				PREBINDING = NO;
 				PRODUCT_NAME = CoreTest;
-				ZERO_LINK = NO;
 			};
 			name = Release;
 		};
@@ -596,7 +751,6 @@
 				GCC_OPTIMIZATION_LEVEL = 0;
 				GCC_PREPROCESSOR_DEFINITIONS = __IPHONE__;
 				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
-				GCC_VERSION = "";
 				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
 				GCC_WARN_ABOUT_MISSING_FIELD_INITIALIZERS = YES;
 				GCC_WARN_ABOUT_MISSING_NEWLINE = YES;
@@ -617,16 +771,8 @@
 		1845172A119D408B00F3F066 /* iPhone Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ALWAYS_SEARCH_USER_PATHS = NO;
-				COPY_PHASE_STRIP = NO;
-				GCC_DYNAMIC_NO_PIC = NO;
-				GCC_ENABLE_FIX_AND_CONTINUE = YES;
-				GCC_MODEL_TUNING = G5;
-				GCC_OPTIMIZATION_LEVEL = 0;
 				INFOPLIST_FILE = "CoreTest-Info.plist";
-				INSTALL_PATH = /usr/local/bin;
 				OTHER_LDFLAGS = "";
-				PREBINDING = NO;
 				PRODUCT_NAME = CoreTest;
 			};
 			name = "iPhone Debug";
@@ -634,22 +780,8 @@
 		1869645411C6170B00800080 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ALWAYS_SEARCH_USER_PATHS = NO;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
-				COPY_PHASE_STRIP = NO;
-				GCC_DYNAMIC_NO_PIC = NO;
-				GCC_OPTIMIZATION_LEVEL = 0;
-				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = "$(SYSTEM_LIBRARY_DIR)/Frameworks/UIKit.framework/Headers/UIKit.h";
 				INFOPLIST_FILE = "RenderTest-Info.plist";
-				INSTALL_PATH = "$(HOME)/Applications";
-				OTHER_LDFLAGS = (
-					"-framework",
-					Foundation,
-					"-framework",
-					UIKit,
-				);
-				PREBINDING = NO;
 				PRODUCT_NAME = RenderTest;
 				SDKROOT = iphoneos3.2;
 			};
@@ -658,40 +790,17 @@
 		1869645511C6170B00800080 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ALWAYS_SEARCH_USER_PATHS = NO;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
-				COPY_PHASE_STRIP = YES;
-				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
-				GCC_ENABLE_FIX_AND_CONTINUE = NO;
-				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = "$(SYSTEM_LIBRARY_DIR)/Frameworks/UIKit.framework/Headers/UIKit.h";
 				INFOPLIST_FILE = "RenderTest-Info.plist";
-				INSTALL_PATH = "$(HOME)/Applications";
-				OTHER_LDFLAGS = (
-					"-framework",
-					Foundation,
-					"-framework",
-					UIKit,
-				);
-				PREBINDING = NO;
 				PRODUCT_NAME = RenderTest;
 				SDKROOT = iphoneos3.2;
-				ZERO_LINK = NO;
 			};
 			name = Release;
 		};
 		1869645611C6170B00800080 /* iPhone Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ALWAYS_SEARCH_USER_PATHS = NO;
-				COPY_PHASE_STRIP = NO;
-				GCC_DYNAMIC_NO_PIC = NO;
-				GCC_ENABLE_FIX_AND_CONTINUE = YES;
-				GCC_MODEL_TUNING = G5;
-				GCC_OPTIMIZATION_LEVEL = 0;
 				INFOPLIST_FILE = "RenderTest-Info.plist";
-				INSTALL_PATH = /usr/local/bin;
-				PREBINDING = NO;
 				PRODUCT_NAME = RenderTest;
 			};
 			name = "iPhone Debug";
@@ -704,7 +813,6 @@
 				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
 				GCC_OPTIMIZATION_LEVEL = 0;
 				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
-				GCC_VERSION = com.apple.compilers.llvmgcc42;
 				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
 				GCC_WARN_ABOUT_MISSING_FIELD_INITIALIZERS = YES;
 				GCC_WARN_ABOUT_MISSING_NEWLINE = YES;
@@ -728,7 +836,6 @@
 				GCC_C_LANGUAGE_STANDARD = c99;
 				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
 				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
-				GCC_VERSION = com.apple.compilers.llvmgcc42;
 				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
 				GCC_WARN_ABOUT_MISSING_FIELD_INITIALIZERS = YES;
 				GCC_WARN_ABOUT_MISSING_NEWLINE = YES;
@@ -748,6 +855,16 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
+		180CBB2C11D4702D00504DBF /* Build configuration list for PBXNativeTarget "NetworkTest" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				180CBB2911D4702D00504DBF /* Debug */,
+				180CBB2A11D4702D00504DBF /* Release */,
+				180CBB2B11D4702D00504DBF /* iPhone Debug */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
 		1820735B10E348090030E503 /* Build configuration list for PBXNativeTarget "CoreTest" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (

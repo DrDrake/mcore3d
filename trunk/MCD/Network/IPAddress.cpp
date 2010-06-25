@@ -71,12 +71,15 @@ bool IPAddress::parse(sal_in_z_opt const char* ipOrHostName)
 	return true;
 }
 
-IPAddress IPAddress::getLoopBack() {
-	// 98048 will be encoded into 127.0.0.1
-	return IPAddress(98048);
+IPAddress IPAddress::getLoopBack()
+{
+	IPAddress tmp(0);
+	MCD_VERIFY(tmp.parse("localhost"));
+	return tmp;
 }
 
-IPAddress IPAddress::getIPv6LoopBack() {
+IPAddress IPAddress::getIPv6LoopBack()
+{
 	MCD_ASSERT(false);
 	return IPAddress(0);
 }

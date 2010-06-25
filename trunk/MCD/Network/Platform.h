@@ -21,6 +21,7 @@
 #	endif
 #else								// Other POSIX OS
 #	include <arpa/inet.h>
+#	include <errno.h>
 #	include <inttypes.h>
 #	include <netdb.h>
 #	include <netinet/in.h>

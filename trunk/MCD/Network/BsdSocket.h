@@ -5,9 +5,7 @@
 #include "../Core/System/NonCopyable.h"
 
 // Forward declaration of platform dependent type
-#if defined(MCD_WIN32)
-	typedef uint socket_t;
-#endif
+typedef uint socket_t;
 
 namespace MCD {
 
@@ -74,18 +72,25 @@ public:
 		Reference: See MSDN on ::shutdown
 	 */
 
-	//! Shutdown read
+	/*!	Shutdown read
+		Do nothing if fd() is invalid.
+	 */
 	sal_checkreturn ErrorCode shutDownRead();
 
-	//! Shutdown write
+	/*!	Shutdown write
+		Do nothing if fd() is invalid.
+	 */
 	sal_checkreturn ErrorCode shutDownWrite();
 
-	//! Shutdown read and write
+	/*!	Shutdown read and write
+		Do nothing if fd() is invalid.
+	 */
 	sal_checkreturn ErrorCode shutDownReadWrite();
 
 	//! Close the socket
 	void requestClose();
 
+	//!	Do nothing if fd() is invalid.
 	sal_checkreturn ErrorCode close();
 
 // Attributes

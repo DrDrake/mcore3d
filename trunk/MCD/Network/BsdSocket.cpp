@@ -2,6 +2,10 @@
 #include "BsdSocket.h"
 #include "Platform.h"
 #include "../Core/System/StaticAssert.h"
+#include <fcntl.h>
+
+// A good guide on socket programming:
+// http://beej.us/guide/bgnet/output/html/multipage/index.html
 
 #ifndef SD_RECEIVE
 #	define SD_RECEIVE	0x00
@@ -40,10 +44,22 @@ namespace MCD {
 #else
 #	define OK			0
 #	define SOCKET_ERROR -1
+#	define INVALID_SOCKET -1
 #endif
 
-static int getLastError() {
+#if defined(MCD_APPLE)
+#	define MSG_NOSIGNAL 0x2000	// http://lists.apple.com/archives/macnetworkprog/2002/Dec/msg00091.html
+#endif
+
+static int getLastError()
+{
+#if defined(MCD_WIN32)
 	return WSAGetLastError();
+#else
+//	if(errno != 0)
+//		perror("Network error:");
+	return errno;
+#endif
 }
 
 static int toInt(size_t s) {
@@ -54,16 +70,24 @@ typedef BsdSocket::ErrorCode ErrorCode;
 
 ErrorCode BsdSocket::initApplication()
 {
+#if defined(MCD_WIN32)
 	WSADATA	wsad;
 
 	// Note that we cannot use GetLastError to determine the error code
 	// as is normally done in Windows Sockets if WSAStartup fails.
 	return ::WSAStartup(WINSOCK_VERSION, &wsad);
+#else
+	return OK;
+#endif
 }
 
 ErrorCode BsdSocket::closeApplication()
 {
+#if defined(MCD_WIN32)
 	return ::WSACleanup();
+#else
+	return OK;
+#endif
 }
 
 BsdSocket::BsdSocket()
@@ -75,12 +99,13 @@ BsdSocket::BsdSocket()
 
 BsdSocket::~BsdSocket()
 {
-	MCD_STATIC_ASSERT(sizeof(SOCKET) == sizeof(mFd));
+	MCD_STATIC_ASSERT(sizeof(socket_t) == sizeof(mFd));
 	MCD_VERIFY(close() == OK);
 }
 
 ErrorCode BsdSocket::create(SocketType type)
 {
+	signal(SIGPIPE, SIG_IGN);
 	// If this socket is not closed yet
 	if(fd() != INVALID_SOCKET)
 		return lastError = -1;
@@ -93,6 +118,13 @@ ErrorCode BsdSocket::create(SocketType type)
 	default: return lastError = getLastError();
 	}
 
+	{	// Disable SIGPIPE: http://unix.derkeiler.com/Mailing-Lists/FreeBSD/net/2007-03/msg00007.html
+		// More reference: http://beej.us/guide/bgnet/output/html/multipage/sendman.html
+		// http://discuss.joelonsoftware.com/default.asp?design.4.575720.7
+		int b = 1;
+		MCD_VERIFY(setsockopt(fd(), SOL_SOCKET, SO_NOSIGPIPE, &b, sizeof(b)) == 0);
+	}
+
 	return lastError = OK;
 }
 
@@ -100,26 +132,27 @@ ErrorCode BsdSocket::setBlocking(bool block)
 {
 #if defined(MCD_WIN32)
 	unsigned long a = block ? 0 : 1;
-	return lastError = 
+	return lastError =
 		ioctlsocket(fd(), FIONBIO, &a) == OK ?
 		OK : getLastError();
 #else
-	if (fcntl(mFD, F_SETFL, fcntl(mFD, F_GETFL) | O_NONBLOCK) == -1)
-		TError::CheckAndThrowError();
+	return lastError =
+		fcntl(fd(), F_SETFL, fcntl(fd(), F_GETFL) | O_NONBLOCK) != -1 ?
+		OK : getLastError();
 #endif
 }
 
 ErrorCode BsdSocket::bind(const IPEndPoint& endPoint)
 {
 	sockaddr addr = endPoint.address().nativeAddr();
-	return lastError = 
+	return lastError =
 		::bind(fd(), &addr, sizeof(addr)) == OK ?
 		OK : getLastError();
 }
 
 ErrorCode BsdSocket::listen(size_t backlog)
 {
-	return lastError = 
+	return lastError =
 		::listen(fd(), int(backlog)) == OK ?
 		OK : getLastError();
 }
@@ -141,7 +174,7 @@ ErrorCode BsdSocket::accept(BsdSocket& socket) const
 ErrorCode BsdSocket::connect(const IPEndPoint& endPoint)
 {
 	sockaddr addr = endPoint.address().nativeAddr();
-	return lastError = 
+	return lastError =
 		::connect(fd(), &addr, sizeof(addr)) == OK ?
 		OK : getLastError();
 }
@@ -171,7 +204,7 @@ ssize_t BsdSocket::sendTo(const void* data, size_t len, const IPEndPoint& destEn
 ssize_t BsdSocket::receiveFrom(void* buf, size_t len, IPEndPoint& srcEndPoint, int flags)
 {
 	sockaddr& addr = srcEndPoint.address().nativeAddr();
-	int bufSize = sizeof(addr);
+	socklen_t bufSize = sizeof(addr);
 	ssize_t ret = ::recvfrom(fd(), (char*)buf, toInt(len), flags, &addr, &bufSize);
 	MCD_ASSERT(bufSize == sizeof(addr));
 	lastError = ret < 0 ? getLastError() : OK;
@@ -180,35 +213,58 @@ ssize_t BsdSocket::receiveFrom(void* buf, size_t len, IPEndPoint& srcEndPoint, i
 
 ErrorCode BsdSocket::shutDownRead()
 {
-	if(fd() != INVALID_SOCKET && ::shutdown(fd(), SD_RECEIVE) == OK)
-		return OK;
+	if(fd() == INVALID_SOCKET || ::shutdown(fd(), SD_RECEIVE) == OK)
+		return lastError = OK;
+
+#ifdef MCD_APPLE
+	return lastError = OK;
+#else
 	return lastError = getLastError();
+#endif
 }
 
 ErrorCode BsdSocket::shutDownWrite()
 {
-	if(fd() != INVALID_SOCKET && ::shutdown(fd(), SD_SEND) == OK)
-		return OK;
+	if(fd() == INVALID_SOCKET || ::shutdown(fd(), SD_SEND) == OK)
+		return lastError = OK;
+
+#ifdef MCD_APPLE
+	return lastError = OK;
+#else
 	return lastError = getLastError();
+#endif
 }
 
 ErrorCode BsdSocket::shutDownReadWrite()
 {
-	if(fd() != INVALID_SOCKET && ::shutdown(fd(), SD_BOTH) == OK)
-		return OK;
+	if(fd() == INVALID_SOCKET || ::shutdown(fd(), SD_BOTH) == OK)
+		return lastError = OK;
+
+#ifdef MCD_APPLE
+	return lastError = OK;
+#else
 	return lastError = getLastError();
+#endif
 }
 
 ErrorCode BsdSocket::close()
 {
+	if(fd() == INVALID_SOCKET)
+		return lastError = OK;
+
 #if defined(MCD_WIN32)
 	if(::closesocket(fd()) == OK)
-		return OK;
+		return lastError = OK;
 #else
-	if(::clode(fd()) == OK)
-		return OK;
+	if(::close(fd()) == OK)
+		return lastError = OK;
 #endif
+
+#ifdef MCD_APPLE
+	return lastError = OK;
+#else
 	return lastError = getLastError();
+#endif
 }
 
 IPEndPoint BsdSocket::remoteEndPoint() const

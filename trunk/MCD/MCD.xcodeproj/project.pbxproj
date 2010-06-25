@@ -7,6 +7,23 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		180CBAB211D4694400504DBF /* libCore.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 18EAA407119A590C00BBB011 /* libCore.a */; };
+		180CBAB311D4694A00504DBF /* libCore.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 18EAA407119A590C00BBB011 /* libCore.a */; };
+		180CBAC011D469B000504DBF /* BsdSocket.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 180CBABA11D469B000504DBF /* BsdSocket.cpp */; };
+		180CBAC111D469B000504DBF /* BsdSocket.h in Headers */ = {isa = PBXBuildFile; fileRef = 180CBABB11D469B000504DBF /* BsdSocket.h */; };
+		180CBAC211D469B000504DBF /* IPAddress.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 180CBABC11D469B000504DBF /* IPAddress.cpp */; };
+		180CBAC311D469B000504DBF /* IPAddress.h in Headers */ = {isa = PBXBuildFile; fileRef = 180CBABD11D469B000504DBF /* IPAddress.h */; };
+		180CBAC411D469B000504DBF /* IPEndPoint.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 180CBABE11D469B000504DBF /* IPEndPoint.cpp */; };
+		180CBAC511D469B000504DBF /* IPEndPoint.h in Headers */ = {isa = PBXBuildFile; fileRef = 180CBABF11D469B000504DBF /* IPEndPoint.h */; };
+		180CBACB11D46A1600504DBF /* Platform.h in Headers */ = {isa = PBXBuildFile; fileRef = 180CBACA11D46A1600504DBF /* Platform.h */; };
+		182623D111D05AE30016FAE3 /* GLESiPhoneInclude.h in Headers */ = {isa = PBXBuildFile; fileRef = 182623D011D05AE30016FAE3 /* GLESiPhoneInclude.h */; };
+		182623D611D05BBC0016FAE3 /* MeshBuilder.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 182623D411D05BBC0016FAE3 /* MeshBuilder.cpp */; };
+		182623D711D05BBC0016FAE3 /* MeshBuilder.h in Headers */ = {isa = PBXBuildFile; fileRef = 182623D511D05BBC0016FAE3 /* MeshBuilder.h */; };
+		182623DA11D05BE00016FAE3 /* VertexFormat.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 182623D811D05BE00016FAE3 /* VertexFormat.cpp */; };
+		182623DB11D05BE00016FAE3 /* VertexFormat.h in Headers */ = {isa = PBXBuildFile; fileRef = 182623D911D05BE00016FAE3 /* VertexFormat.h */; };
+		183B632411D0693500E95C9C /* PlaneMeshBuilder.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 183B632111D0693500E95C9C /* PlaneMeshBuilder.cpp */; };
+		183B632511D0693500E95C9C /* PlaneMeshBuilder.h in Headers */ = {isa = PBXBuildFile; fileRef = 183B632211D0693500E95C9C /* PlaneMeshBuilder.h */; };
+		183B632611D0693500E95C9C /* Texture.h in Headers */ = {isa = PBXBuildFile; fileRef = 183B632311D0693500E95C9C /* Texture.h */; };
 		186962DC11C5E43600800080 /* RenderWindow.h in Headers */ = {isa = PBXBuildFile; fileRef = 186962DB11C5E43600800080 /* RenderWindow.h */; };
 		186962DE11C5E45A00800080 /* RenderWindow.mm in Sources */ = {isa = PBXBuildFile; fileRef = 186962DD11C5E45A00800080 /* RenderWindow.mm */; };
 		1869634211C5EE8000800080 /* RenderWindow.mm in Sources */ = {isa = PBXBuildFile; fileRef = 186962DD11C5E45A00800080 /* RenderWindow.mm */; };
@@ -58,6 +75,13 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
+		180CBAAD11D4691D00504DBF /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 08FB7793FE84155DC02AAC07 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 18EAA406119A590C00BBB011 /* Core */;
+			remoteInfo = Core;
+		};
 		1869634511C5EE9D00800080 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 08FB7793FE84155DC02AAC07 /* Project object */;
@@ -96,6 +120,14 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		180CBAA911D4691700504DBF /* libNetwork.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libNetwork.a; sourceTree = BUILT_PRODUCTS_DIR; };
+		180CBABA11D469B000504DBF /* BsdSocket.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = BsdSocket.cpp; path = Network/BsdSocket.cpp; sourceTree = "<group>"; };
+		180CBABB11D469B000504DBF /* BsdSocket.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = BsdSocket.h; path = Network/BsdSocket.h; sourceTree = "<group>"; };
+		180CBABC11D469B000504DBF /* IPAddress.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = IPAddress.cpp; path = Network/IPAddress.cpp; sourceTree = "<group>"; };
+		180CBABD11D469B000504DBF /* IPAddress.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = IPAddress.h; path = Network/IPAddress.h; sourceTree = "<group>"; };
+		180CBABE11D469B000504DBF /* IPEndPoint.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = IPEndPoint.cpp; path = Network/IPEndPoint.cpp; sourceTree = "<group>"; };
+		180CBABF11D469B000504DBF /* IPEndPoint.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = IPEndPoint.h; path = Network/IPEndPoint.h; sourceTree = "<group>"; };
+		180CBACA11D46A1600504DBF /* Platform.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Platform.h; path = Network/Platform.h; sourceTree = "<group>"; };
 		182074C810E34D340030E503 /* Core.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Core.h; sourceTree = "<group>"; };
 		182074CC10E34D340030E503 /* BehaviourComponent.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = BehaviourComponent.cpp; sourceTree = "<group>"; };
 		182074CD10E34D340030E503 /* BehaviourComponent.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BehaviourComponent.h; sourceTree = "<group>"; };
@@ -210,6 +242,14 @@
 		1820754D10E34D340030E503 /* XmlParser.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = XmlParser.h; sourceTree = "<group>"; };
 		1820754E10E34D340030E503 /* ZipFileSystem.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ZipFileSystem.cpp; sourceTree = "<group>"; };
 		1820754F10E34D340030E503 /* ZipFileSystem.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ZipFileSystem.h; sourceTree = "<group>"; };
+		182623D011D05AE30016FAE3 /* GLESiPhoneInclude.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = GLESiPhoneInclude.h; path = Render/iPhone/GLESiPhoneInclude.h; sourceTree = "<group>"; };
+		182623D411D05BBC0016FAE3 /* MeshBuilder.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = MeshBuilder.cpp; path = Render/MeshBuilder.cpp; sourceTree = "<group>"; };
+		182623D511D05BBC0016FAE3 /* MeshBuilder.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = MeshBuilder.h; path = Render/MeshBuilder.h; sourceTree = "<group>"; };
+		182623D811D05BE00016FAE3 /* VertexFormat.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = VertexFormat.cpp; path = Render/VertexFormat.cpp; sourceTree = "<group>"; };
+		182623D911D05BE00016FAE3 /* VertexFormat.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = VertexFormat.h; path = Render/VertexFormat.h; sourceTree = "<group>"; };
+		183B632111D0693500E95C9C /* PlaneMeshBuilder.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = PlaneMeshBuilder.cpp; path = Render/PlaneMeshBuilder.cpp; sourceTree = "<group>"; };
+		183B632211D0693500E95C9C /* PlaneMeshBuilder.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = PlaneMeshBuilder.h; path = Render/PlaneMeshBuilder.h; sourceTree = "<group>"; };
+		183B632311D0693500E95C9C /* Texture.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Texture.h; path = Render/Texture.h; sourceTree = "<group>"; };
 		1869629E11C5DDBF00800080 /* libRender.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libRender.a; sourceTree = BUILT_PRODUCTS_DIR; };
 		186962DB11C5E43600800080 /* RenderWindow.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = RenderWindow.h; path = Render/RenderWindow.h; sourceTree = "<group>"; };
 		186962DD11C5E45A00800080 /* RenderWindow.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = RenderWindow.mm; path = Render/iPhone/RenderWindow.mm; sourceTree = "<group>"; };
@@ -227,10 +267,19 @@
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
+		180CBAA711D4691700504DBF /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				180CBAB311D4694A00504DBF /* libCore.a in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		1869629C11C5DDBF00800080 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				180CBAB211D4694400504DBF /* libCore.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -252,11 +301,26 @@
 				1873A2E811883540008D0F62 /* 3Party.xcodeproj */,
 				182074C610E34D340030E503 /* Core */,
 				186962A211C5DDD800800080 /* Render */,
+				180CBAB811D4698400504DBF /* Network */,
 				C6A0FF2B0290797F04C91782 /* Documentation */,
 				1AB674ADFE9D54B511CA2CBB /* Products */,
 				18C53CC1119A638A00DA21DC /* libz.dylib */,
 			);
 			name = MCD;
+			sourceTree = "<group>";
+		};
+		180CBAB811D4698400504DBF /* Network */ = {
+			isa = PBXGroup;
+			children = (
+				180CBACA11D46A1600504DBF /* Platform.h */,
+				180CBABA11D469B000504DBF /* BsdSocket.cpp */,
+				180CBABB11D469B000504DBF /* BsdSocket.h */,
+				180CBABC11D469B000504DBF /* IPAddress.cpp */,
+				180CBABD11D469B000504DBF /* IPAddress.h */,
+				180CBABE11D469B000504DBF /* IPEndPoint.cpp */,
+				180CBABF11D469B000504DBF /* IPEndPoint.h */,
+			);
+			name = Network;
 			sourceTree = "<group>";
 		};
 		182074C610E34D340030E503 /* Core */ = {
@@ -406,17 +470,33 @@
 			path = System;
 			sourceTree = "<group>";
 		};
-		186962A211C5DDD800800080 /* Render */ = {
+		1826239B11D059400016FAE3 /* iPhone */ = {
 			isa = PBXGroup;
 			children = (
-				18CF937A11CB789F0025C5AE /* ChamferBox.cpp */,
-				18CF937B11CB789F0025C5AE /* ChamferBox.h */,
-				18CF937C11CB789F0025C5AE /* Color.cpp */,
-				18CF937D11CB789F0025C5AE /* Color.h */,
+				182623D011D05AE30016FAE3 /* GLESiPhoneInclude.h */,
 				1869638111C6059300800080 /* RenderView.h */,
 				1869638211C6059300800080 /* RenderView.mm */,
 				186962DB11C5E43600800080 /* RenderWindow.h */,
 				186962DD11C5E45A00800080 /* RenderWindow.mm */,
+			);
+			name = iPhone;
+			sourceTree = "<group>";
+		};
+		186962A211C5DDD800800080 /* Render */ = {
+			isa = PBXGroup;
+			children = (
+				1826239B11D059400016FAE3 /* iPhone */,
+				18CF937A11CB789F0025C5AE /* ChamferBox.cpp */,
+				18CF937B11CB789F0025C5AE /* ChamferBox.h */,
+				18CF937C11CB789F0025C5AE /* Color.cpp */,
+				18CF937D11CB789F0025C5AE /* Color.h */,
+				182623D411D05BBC0016FAE3 /* MeshBuilder.cpp */,
+				182623D511D05BBC0016FAE3 /* MeshBuilder.h */,
+				183B632111D0693500E95C9C /* PlaneMeshBuilder.cpp */,
+				183B632211D0693500E95C9C /* PlaneMeshBuilder.h */,
+				183B632311D0693500E95C9C /* Texture.h */,
+				182623D811D05BE00016FAE3 /* VertexFormat.cpp */,
+				182623D911D05BE00016FAE3 /* VertexFormat.h */,
 			);
 			name = Render;
 			sourceTree = "<group>";
@@ -436,6 +516,7 @@
 			children = (
 				18EAA407119A590C00BBB011 /* libCore.a */,
 				1869629E11C5DDBF00800080 /* libRender.a */,
+				180CBAA911D4691700504DBF /* libNetwork.a */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -450,6 +531,17 @@
 /* End PBXGroup section */
 
 /* Begin PBXHeadersBuildPhase section */
+		180CBAA511D4691700504DBF /* Headers */ = {
+			isa = PBXHeadersBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				180CBAC111D469B000504DBF /* BsdSocket.h in Headers */,
+				180CBAC311D469B000504DBF /* IPAddress.h in Headers */,
+				180CBAC511D469B000504DBF /* IPEndPoint.h in Headers */,
+				180CBACB11D46A1600504DBF /* Platform.h in Headers */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		1869629A11C5DDBF00800080 /* Headers */ = {
 			isa = PBXHeadersBuildPhase;
 			buildActionMask = 2147483647;
@@ -457,6 +549,11 @@
 				1869638311C6059300800080 /* RenderView.h in Headers */,
 				18CF938111CB789F0025C5AE /* ChamferBox.h in Headers */,
 				18CF938311CB789F0025C5AE /* Color.h in Headers */,
+				182623D111D05AE30016FAE3 /* GLESiPhoneInclude.h in Headers */,
+				182623D711D05BBC0016FAE3 /* MeshBuilder.h in Headers */,
+				182623DB11D05BE00016FAE3 /* VertexFormat.h in Headers */,
+				183B632511D0693500E95C9C /* PlaneMeshBuilder.h in Headers */,
+				183B632611D0693500E95C9C /* Texture.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -472,6 +569,24 @@
 /* End PBXHeadersBuildPhase section */
 
 /* Begin PBXNativeTarget section */
+		180CBAA811D4691700504DBF /* Network */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 180CBAB111D4693B00504DBF /* Build configuration list for PBXNativeTarget "Network" */;
+			buildPhases = (
+				180CBAA511D4691700504DBF /* Headers */,
+				180CBAA611D4691700504DBF /* Sources */,
+				180CBAA711D4691700504DBF /* Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				180CBAAE11D4691D00504DBF /* PBXTargetDependency */,
+			);
+			name = Network;
+			productName = Network;
+			productReference = 180CBAA911D4691700504DBF /* libNetwork.a */;
+			productType = "com.apple.product-type.library.static";
+		};
 		1869629D11C5DDBF00800080 /* Render */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = 186962A311C5DDD800800080 /* Build configuration list for PBXNativeTarget "Render" */;
@@ -528,6 +643,7 @@
 			targets = (
 				18EAA406119A590C00BBB011 /* Core */,
 				1869629D11C5DDBF00800080 /* Render */,
+				180CBAA811D4691700504DBF /* Network */,
 			);
 		};
 /* End PBXProject section */
@@ -557,6 +673,16 @@
 /* End PBXReferenceProxy section */
 
 /* Begin PBXSourcesBuildPhase section */
+		180CBAA611D4691700504DBF /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				180CBAC011D469B000504DBF /* BsdSocket.cpp in Sources */,
+				180CBAC211D469B000504DBF /* IPAddress.cpp in Sources */,
+				180CBAC411D469B000504DBF /* IPEndPoint.cpp in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		1869629B11C5DDBF00800080 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -565,6 +691,9 @@
 				1869638411C6059300800080 /* RenderView.mm in Sources */,
 				18CF938011CB789F0025C5AE /* ChamferBox.cpp in Sources */,
 				18CF938211CB789F0025C5AE /* Color.cpp in Sources */,
+				182623D611D05BBC0016FAE3 /* MeshBuilder.cpp in Sources */,
+				182623DA11D05BE00016FAE3 /* VertexFormat.cpp in Sources */,
+				183B632411D0693500E95C9C /* PlaneMeshBuilder.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -615,6 +744,11 @@
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
+		180CBAAE11D4691D00504DBF /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 18EAA406119A590C00BBB011 /* Core */;
+			targetProxy = 180CBAAD11D4691D00504DBF /* PBXContainerItemProxy */;
+		};
 		1869634611C5EE9D00800080 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			target = 18EAA406119A590C00BBB011 /* Core */;
@@ -628,6 +762,27 @@
 /* End PBXTargetDependency section */
 
 /* Begin XCBuildConfiguration section */
+		180CBAAA11D4691700504DBF /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				PRODUCT_NAME = Network;
+			};
+			name = Debug;
+		};
+		180CBAAB11D4691700504DBF /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				PRODUCT_NAME = Network;
+			};
+			name = Release;
+		};
+		180CBAAC11D4691700504DBF /* iPhone Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				PRODUCT_NAME = Network;
+			};
+			name = "iPhone Debug";
+		};
 		1851A0A5119CFA5E00785C8F /* iPhone Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -797,6 +952,16 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
+		180CBAB111D4693B00504DBF /* Build configuration list for PBXNativeTarget "Network" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				180CBAAA11D4691700504DBF /* Debug */,
+				180CBAAB11D4691700504DBF /* Release */,
+				180CBAAC11D4691700504DBF /* iPhone Debug */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
 		186962A311C5DDD800800080 /* Build configuration list for PBXNativeTarget "Render" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
