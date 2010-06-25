@@ -20,7 +20,7 @@ protected:
 	}
 };	// IPEndPointTestFixture
 
-}
+}	// namespace
 
 TEST_FIXTURE(IPEndPointTestFixture, Construct)
 {
@@ -47,7 +47,7 @@ TEST_FIXTURE(IPEndPointTestFixture, Getter)
 	IPEndPoint ep1(IPAddress(0), 0u);
 	CHECK(ep1.parse("127.0.0.1:80"));
 	CHECK(ep1.address() == IPAddress::getLoopBack());
-	CHECK(ep1.port() == 80);
+	CHECK_EQUAL(80u, ep1.port());
 
 	//TIPEndPoint ep2("127.001:65535");
 	//CHECK(ep2.GetAddress() == TIPAddress("127.0.0.1"));
@@ -56,7 +56,7 @@ TEST_FIXTURE(IPEndPointTestFixture, Getter)
 	CHECK(ep1.parse("google.com:80"));
 	CHECK_EQUAL("google.com:80", ep1.getString());
 	CHECK_EQUAL("google.com", ep1.address().getString());
-	CHECK_EQUAL(80, ep1.port());
+	CHECK_EQUAL(80u, ep1.port());
 }
 
 TEST_FIXTURE(IPEndPointTestFixture, Comparison)
