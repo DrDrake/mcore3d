@@ -139,21 +139,16 @@ int GlobalDevice::createContext(size_t width, size_t height, HWND wnd, bool full
 			}
 		}
 
-		params.BackBufferWidth = width;
-		params.BackBufferHeight = height;
-
-		// Release all swap chain first
+		// Release all swap chain also
 		for(size_t i=0; i<contexts.size(); ++i)
 			SAFE_RELEASE(contexts[i].swapChain);
 
+		params.BackBufferWidth = width;
+		params.BackBufferHeight = height;
+
+		// NOTE: After device reset, all render state should be re-applied.
 		if(FAILED(device->Reset(&params)))
 			return -1;
-
-		// TODO: Inform the Renderer about the device reset
-		device->SetRenderState(D3DRS_CULLMODE, D3DCULL_CW);
-		device->SetRenderState(D3DRS_SRCBLEND, D3DBLEND_SRCALPHA);
-		device->SetRenderState(D3DRS_DESTBLEND, D3DBLEND_INVSRCALPHA);
-		device->SetRenderState(D3DRS_BLENDOP, D3DBLENDOP_ADD);
 
 		// Re-create the default pool textures
 		// TODO: Handle mip-map, cube texture etc...
