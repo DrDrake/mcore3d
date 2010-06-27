@@ -19,7 +19,7 @@
 		<Configuration
 			Name="Debug|Win32"
 			OutputDirectory="../../Bin/"
-			IntermediateDirectory="$(ConfigurationName)/GL2x"
+			IntermediateDirectory="$(ConfigurationName)/Null"
 			ConfigurationType="2"
 			InheritedPropertySheets="..\General.vsprops;..\Debug.vsprops"
 			CharacterSet="2"
@@ -80,7 +80,7 @@
 		<Configuration
 			Name="Release|Win32"
 			OutputDirectory="../../Bin/"
-			IntermediateDirectory="$(ConfigurationName)/GL2x"
+			IntermediateDirectory="$(ConfigurationName)/Null"
 			ConfigurationType="2"
 			InheritedPropertySheets="..\General.vsprops;..\Release.vsprops"
 			CharacterSet="2"
@@ -116,7 +116,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				DelayLoadDLLs="gdi32.dll;opengl32.dll;user32.dll"
+				DelayLoadDLLs=""
 			/>
 			<Tool
 				Name="VCALinkTool"
@@ -143,7 +143,7 @@
 		<Configuration
 			Name="Analysis|Win32"
 			OutputDirectory="../../Bin/"
-			IntermediateDirectory="$(ConfigurationName)/GL2x"
+			IntermediateDirectory="$(ConfigurationName)/Null"
 			ConfigurationType="2"
 			InheritedPropertySheets="..\General.vsprops;..\Analysis.vsprops"
 			CharacterSet="2"
@@ -486,42 +486,34 @@
 			</File>
 		</Filter>
 		<Filter
-			Name="GL2x"
+			Name="Null"
 			>
 			<File
-				RelativePath=".\GL2x\GpuDataFormat.cpp"
+				RelativePath=".\Null\GpuDataFormat.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".\GL2x\Material_GL2x.cpp"
+				RelativePath=".\Null\Material_Null.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".\GL2x\Mesh_GL2x.cpp"
+				RelativePath=".\Null\Mesh_Null.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".\GL2x\Renderer.cpp"
+				RelativePath=".\Null\Renderer.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".\GL2x\Renderer.inc"
+				RelativePath=".\Null\RenderTargetComponent.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".\GL2x\RenderTargetComponent.cpp"
+				RelativePath=".\Null\RenderWindow.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".\GL2x\RenderWindow.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\GL2x\RenderWindow.Win.inc"
-				>
-			</File>
-			<File
-				RelativePath=".\GL2x\Texture_GL2x.cpp"
+				RelativePath=".\Null\Texture_Null.cpp"
 				>
 			</File>
 		</Filter>

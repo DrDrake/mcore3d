@@ -179,7 +179,7 @@ void Mesh::unmapBuffers(MappedBuffers& mapped) const
 // TODO: Put it back to API specific localtion
 int VertexFormat::toApiDependentType(ComponentType type, size_t)
 {
-	static const int mapping[] = {
+	static const Array<int, 10> mapping = {
 		-1,
 		GL_INT, GL_UNSIGNED_INT,
 		GL_BYTE, GL_UNSIGNED_BYTE,

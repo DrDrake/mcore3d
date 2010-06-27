@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?>
+﻿<?xml version="1.0" encoding="UTF-8"?>
 <VisualStudioProject
 	ProjectType="Visual C++"
 	Version="9.00"
@@ -54,6 +54,7 @@
 			<Tool
 				Name="VCLinkerTool"
 				IgnoreDefaultLibraryNames="MSVCRT"
+				DelayLoadDLLs="MCDRenderd.dll"
 			/>
 			<Tool
 				Name="VCALinkTool"
@@ -115,7 +116,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				DelayLoadDLLs="MCDAudio.dll;MCDRender.dll;glu32.dll;opengl32.dll"
+				DelayLoadDLLs="MCDRender.dll"
 			/>
 			<Tool
 				Name="VCALinkTool"
@@ -177,6 +178,7 @@
 			<Tool
 				Name="VCLinkerTool"
 				IgnoreDefaultLibraryNames="MSVCRT"
+				DelayLoadDLLs="MCDRendera.dll"
 			/>
 			<Tool
 				Name="VCALinkTool"

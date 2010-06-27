@@ -88,8 +88,6 @@ class MCD_RENDER_API MaterialComponent : public Component
 public:
 	MaterialComponent();
 
-	~MaterialComponent();
-
 	sal_override const std::type_info& familyType() const {
 		return typeid(MaterialComponent);
 	}
@@ -114,6 +112,8 @@ public:
 	virtual bool isTransparent() const { return opacity < 1; }
 
 protected:
+	~MaterialComponent();
+
 	friend class RendererComponent;
 
 	//!	Invoked by RendererComponent

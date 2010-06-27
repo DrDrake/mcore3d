@@ -16,16 +16,20 @@ public:
 	}
 
 // Cloning
-	sal_override sal_checkreturn bool cloneable() const { return true; }
+	sal_override sal_checkreturn bool cloneable() const;
 
-	sal_override sal_notnull Component* clone() const { return new LightComponent; }
+	sal_override sal_notnull Component* clone() const;
 
 // Operations
-	sal_override void render() {}
+	sal_override void render();
 
 // Attributes
 	FixString type;	//!< "point" or directional" or "spot"
 	ColorRGBf color;
+
+protected:
+	sal_override ~LightComponent();
+	ComponentPtr dummy;	// NOTE: Workaround for VC9 LNK1194 with vftable
 };	// LightComponent
 
 typedef IntrusiveWeakPtr<LightComponent> LightComponentPtr;
