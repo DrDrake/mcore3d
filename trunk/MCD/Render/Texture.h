@@ -67,6 +67,7 @@ protected:
 };	// Texture
 
 typedef IntrusivePtr<Texture> TexturePtr;
+typedef IntrusiveWeakPtr<Texture> TextureWeakPtr;
 
 }	// namespace MCD
 

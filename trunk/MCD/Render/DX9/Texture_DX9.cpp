@@ -18,6 +18,9 @@ void Texture::clear()
 	type = 0;	// NOTE: Not used in DirectX
 }
 
+// Defined in RenderWindow.Win.inc
+extern void registerDefaultPoolTexture(Texture& texture);
+
 static bool copyToGpu(const GpuDataFormat& srcFormat, GpuDataFormat& destFormat, size_t width, size_t height, byte_t* inData, byte_t* outData, size_t outDataPitch)
 {
 	// No need to convert if the formats are compressed format
@@ -99,6 +102,9 @@ bool Texture::create(
 	MCD_ASSUME(device);
 
 	const D3DPOOL pool = (apiSpecificflags & D3DUSAGE_RENDERTARGET) ? D3DPOOL_DEFAULT : D3DPOOL_MANAGED;
+
+	if(pool == D3DPOOL_DEFAULT)
+		registerDefaultPoolTexture(*this);
 
 	if(surfaceCount == 1) {
 		IDirect3DTexture9*& texture = reinterpret_cast<IDirect3DTexture9*&>(handle);

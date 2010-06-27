@@ -86,9 +86,8 @@ void RenderWindow::onEvent(const Event& eventReceived)
 {
 	MCD_ASSUME(mImpl != nullptr);
 
-	if(eventReceived.Type == Event::Resized) {
-//		static_cast<RenderWindow::Impl*>(mImpl)->onResize();
-	}
+	if(eventReceived.Type == Event::Resized)
+		static_cast<RenderWindow::Impl*>(mImpl)->onResize();
 
 	// Let Window (the super class of RenderWindow) to do the remaining job
 	Window::onEvent(eventReceived);

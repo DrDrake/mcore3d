@@ -11,10 +11,13 @@
 
 namespace MCD {
 
-struct Context {
+struct Context
+{
+	HWND wnd;
+	size_t width, height;
 	sal_maybenull LPDIRECT3DDEVICE9 mDevice;
 	sal_maybenull LPDIRECT3DSWAPCHAIN9 mSwapChain;
-};
+};	// Context
 
 LPDIRECT3DDEVICE9 getDevice()
 {
@@ -35,6 +38,12 @@ RendererComponent::Impl::Impl()
 
 	LPDIRECT3DDEVICE9 device = getDevice();
 	device->SetRenderState(D3DRS_CULLMODE, D3DCULL_CW);
+
+	// Blending state for rendering transparent objects
+	// Reference: http://www.gamedev.net/community/forums/topic.asp?topic_id=563635
+	device->SetRenderState(D3DRS_SRCBLEND, D3DBLEND_SRCALPHA);
+	device->SetRenderState(D3DRS_DESTBLEND, D3DBLEND_INVSRCALPHA);
+	device->SetRenderState(D3DRS_BLENDOP, D3DBLENDOP_ADD);
 
 	mWhiteTexture = new Texture("1x1White");
 	byte_t data[] = { 255, 255, 255, 255 };
@@ -127,11 +136,7 @@ void RendererComponent::Impl::render(Entity& entityTree, RenderTargetComponent& 
 	}
 
 	{	// Render transparent items
-		// Reference: http://www.gamedev.net/community/forums/topic.asp?topic_id=563635
 		device->SetRenderState(D3DRS_ALPHABLENDENABLE, true);
-		device->SetRenderState(D3DRS_SRCBLEND, D3DBLEND_SRCALPHA);
-		device->SetRenderState(D3DRS_DESTBLEND, D3DBLEND_INVSRCALPHA);
-		device->SetRenderState(D3DRS_BLENDOP, D3DBLENDOP_ADD);
 
 		processRenderItems(mTransparentQueue);
 
