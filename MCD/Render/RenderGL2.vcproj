@@ -2,9 +2,9 @@
 <VisualStudioProject
 	ProjectType="Visual C++"
 	Version="9.00"
-	Name="RenderDX9"
-	ProjectGUID="{35CE800C-6304-4E8A-A895-07D2DE7377FE}"
-	RootNamespace="RenderDX9"
+	Name="RenderGL2"
+	ProjectGUID="{8D0247D9-D5DC-41A2-A05E-7FB95329FF9D}"
+	RootNamespace="RenderGL2"
 	Keyword="Win32Proj"
 	TargetFrameworkVersion="131072"
 	>
@@ -19,7 +19,7 @@
 		<Configuration
 			Name="Debug|Win32"
 			OutputDirectory="../../Bin/"
-			IntermediateDirectory="$(ConfigurationName)/DX9"
+			IntermediateDirectory="$(ConfigurationName)/GL2"
 			ConfigurationType="2"
 			InheritedPropertySheets="..\General.vsprops;..\Debug.vsprops"
 			CharacterSet="2"
@@ -41,7 +41,7 @@
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
-				PreprocessorDefinitions="MCD_Render_EXPORTS;D3D_DEBUG_INFO"
+				PreprocessorDefinitions="MCD_Render_EXPORTS"
 			/>
 			<Tool
 				Name="VCManagedResourceCompilerTool"
@@ -81,7 +81,7 @@
 		<Configuration
 			Name="Release|Win32"
 			OutputDirectory="../../Bin/"
-			IntermediateDirectory="$(ConfigurationName)/DX9"
+			IntermediateDirectory="$(ConfigurationName)/GL2"
 			ConfigurationType="2"
 			InheritedPropertySheets="..\General.vsprops;..\Release.vsprops"
 			CharacterSet="2"
@@ -145,7 +145,7 @@
 		<Configuration
 			Name="Analysis|Win32"
 			OutputDirectory="../../Bin/"
-			IntermediateDirectory="$(ConfigurationName)/DX9"
+			IntermediateDirectory="$(ConfigurationName)/GL2"
 			ConfigurationType="2"
 			InheritedPropertySheets="..\General.vsprops;..\Analysis.vsprops"
 			CharacterSet="2"
@@ -246,6 +246,10 @@
 			</File>
 			<File
 				RelativePath=".\InstancedMesh.h"
+				>
+			</File>
+			<File
+				RelativePath=".\Light.h"
 				>
 			</File>
 			<File
@@ -485,42 +489,42 @@
 			</File>
 		</Filter>
 		<Filter
-			Name="DX9"
+			Name="GL2x"
 			>
 			<File
-				RelativePath=".\DX9\GpuDataFormat.cpp"
+				RelativePath=".\GL2x\GpuDataFormat.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".\DX9\Material_DX9.cpp"
+				RelativePath=".\GL2x\Material_GL2x.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".\DX9\Mesh_DX9.cpp"
+				RelativePath=".\GL2x\Mesh_GL2x.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".\DX9\Renderer.cpp"
+				RelativePath=".\GL2x\Renderer.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".\DX9\Renderer.inc"
+				RelativePath=".\GL2x\Renderer.inc"
 				>
 			</File>
 			<File
-				RelativePath=".\DX9\RenderTargetComponent.cpp"
+				RelativePath=".\GL2x\RenderTargetComponent.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".\DX9\RenderWindow.cpp"
+				RelativePath=".\GL2x\RenderWindow.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".\DX9\RenderWindow.Win.inc"
+				RelativePath=".\GL2x\RenderWindow.Win.inc"
 				>
 			</File>
 			<File
-				RelativePath=".\DX9\Texture_DX9.cpp"
+				RelativePath=".\GL2x\Texture_GL2x.cpp"
 				>
 			</File>
 		</Filter>

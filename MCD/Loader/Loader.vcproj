@@ -54,7 +54,7 @@
 			<Tool
 				Name="VCLinkerTool"
 				IgnoreDefaultLibraryNames="MSVCRT"
-				DelayLoadDLLs=""
+				DelayLoadDLLs="MCDRenderd.dll"
 			/>
 			<Tool
 				Name="VCALinkTool"
@@ -116,7 +116,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				DelayLoadDLLs=""
+				DelayLoadDLLs="MCDRender.dll"
 			/>
 			<Tool
 				Name="VCALinkTool"
@@ -178,7 +178,7 @@
 			<Tool
 				Name="VCLinkerTool"
 				IgnoreDefaultLibraryNames="MSVCRT"
-				DelayLoadDLLs=""
+				DelayLoadDLLs="MCDRendera.dll"
 			/>
 			<Tool
 				Name="VCALinkTool"

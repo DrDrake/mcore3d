@@ -53,6 +53,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
+				DelayLoadDLLs="MCDRenderd.dll;MCDLoaderd.dll"
 			/>
 			<Tool
 				Name="VCALinkTool"
@@ -114,6 +115,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
+				DelayLoadDLLs="MCDRender.dll;MCDLoader.dll"
 			/>
 			<Tool
 				Name="VCALinkTool"
@@ -174,6 +176,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
+				DelayLoadDLLs="MCDLoadera.dll"
 			/>
 			<Tool
 				Name="VCALinkTool"
@@ -454,6 +457,10 @@
 		</File>
 		<File
 			RelativePath=".\Scene.txt"
+			>
+		</File>
+		<File
+			RelativePath=".\SelectDll.txt"
 			>
 		</File>
 	</Files>

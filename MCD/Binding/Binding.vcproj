@@ -55,6 +55,7 @@
 			<Tool
 				Name="VCLinkerTool"
 				IgnoreDefaultLibraryNames="MSVCRT"
+				DelayLoadDLLs="MCDRenderd.dll"
 				RandomizedBaseAddress="1"
 				DataExecutionPrevention="0"
 			/>
@@ -119,7 +120,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				DelayLoadDLLs="MCDAudio.dll;MCDRender.dll;jkbind.dll;squirrel.dll"
+				DelayLoadDLLs="MCDRender.dll"
 				RandomizedBaseAddress="1"
 				DataExecutionPrevention="0"
 			/>
