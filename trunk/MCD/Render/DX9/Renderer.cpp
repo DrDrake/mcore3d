@@ -36,15 +36,6 @@ RendererComponent::Impl::Impl()
 	ZeroMemory(&mCurrentVS, sizeof(mCurrentVS));
 	ZeroMemory(&mCurrentPS, sizeof(mCurrentPS));
 
-	LPDIRECT3DDEVICE9 device = getDevice();
-	device->SetRenderState(D3DRS_CULLMODE, D3DCULL_CW);
-
-	// Blending state for rendering transparent objects
-	// Reference: http://www.gamedev.net/community/forums/topic.asp?topic_id=563635
-	device->SetRenderState(D3DRS_SRCBLEND, D3DBLEND_SRCALPHA);
-	device->SetRenderState(D3DRS_DESTBLEND, D3DBLEND_INVSRCALPHA);
-	device->SetRenderState(D3DRS_BLENDOP, D3DBLENDOP_ADD);
-
 	mWhiteTexture = new Texture("1x1White");
 	byte_t data[] = { 255, 255, 255, 255 };
 	mWhiteTexture->create(GpuDataFormat::get("uintARGB8"), GpuDataFormat::get("uintARGB8"), 1, 1, 1, 1, data, 4);
@@ -57,6 +48,10 @@ RendererComponent::Impl::~Impl()
 void RendererComponent::Impl::render(Entity& entityTree, RenderTargetComponent& renderTarget)
 {
 	LPDIRECT3DDEVICE9 device = getDevice();
+
+	// NOTE: We have to set the default render state every frame, since
+	// device reset can happens at any time.
+	device->SetRenderState(D3DRS_CULLMODE, D3DCULL_CW);
 
 	{	// Apply camera
 		CameraComponent2Ptr camera = renderTarget.cameraComponent;
@@ -136,7 +131,11 @@ void RendererComponent::Impl::render(Entity& entityTree, RenderTargetComponent& 
 	}
 
 	{	// Render transparent items
+		// Reference: http://www.gamedev.net/community/forums/topic.asp?topic_id=563635
 		device->SetRenderState(D3DRS_ALPHABLENDENABLE, true);
+		device->SetRenderState(D3DRS_SRCBLEND, D3DBLEND_SRCALPHA);
+		device->SetRenderState(D3DRS_DESTBLEND, D3DBLEND_INVSRCALPHA);
+		device->SetRenderState(D3DRS_BLENDOP, D3DBLENDOP_ADD);
 
 		processRenderItems(mTransparentQueue);
 
