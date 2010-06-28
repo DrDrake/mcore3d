@@ -24,6 +24,8 @@
 		183B632411D0693500E95C9C /* PlaneMeshBuilder.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 183B632111D0693500E95C9C /* PlaneMeshBuilder.cpp */; };
 		183B632511D0693500E95C9C /* PlaneMeshBuilder.h in Headers */ = {isa = PBXBuildFile; fileRef = 183B632211D0693500E95C9C /* PlaneMeshBuilder.h */; };
 		183B632611D0693500E95C9C /* Texture.h in Headers */ = {isa = PBXBuildFile; fileRef = 183B632311D0693500E95C9C /* Texture.h */; };
+		1868988311D8A0C9005D4176 /* Skeleton.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1868988111D8A0C9005D4176 /* Skeleton.cpp */; };
+		1868988411D8A0C9005D4176 /* Skeleton.h in Headers */ = {isa = PBXBuildFile; fileRef = 1868988211D8A0C9005D4176 /* Skeleton.h */; };
 		186962DC11C5E43600800080 /* RenderWindow.h in Headers */ = {isa = PBXBuildFile; fileRef = 186962DB11C5E43600800080 /* RenderWindow.h */; };
 		186962DE11C5E45A00800080 /* RenderWindow.mm in Sources */ = {isa = PBXBuildFile; fileRef = 186962DD11C5E45A00800080 /* RenderWindow.mm */; };
 		1869634211C5EE8000800080 /* RenderWindow.mm in Sources */ = {isa = PBXBuildFile; fileRef = 186962DD11C5E45A00800080 /* RenderWindow.mm */; };
@@ -79,8 +81,22 @@
 			isa = PBXContainerItemProxy;
 			containerPortal = 08FB7793FE84155DC02AAC07 /* Project object */;
 			proxyType = 1;
-			remoteGlobalIDString = 18EAA406119A590C00BBB011 /* Core */;
+			remoteGlobalIDString = 18EAA406119A590C00BBB011;
 			remoteInfo = Core;
+		};
+		1868989A11D8A125005D4176 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 1873A2E811883540008D0F62 /* 3Party.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 1868989511D8A124005D4176 /* libjkbind.a */;
+			remoteInfo = jkbind;
+		};
+		186898ED11D8A1F2005D4176 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 1873A2E811883540008D0F62 /* 3Party.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 186898EB11D8A1F1005D4176 /* libPowerVR.a */;
+			remoteInfo = PowerVR;
 		};
 		1869634511C5EE9D00800080 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
@@ -203,7 +219,7 @@
 		1820752110E34D340030E503 /* PlatformInclude.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PlatformInclude.h; sourceTree = "<group>"; };
 		1820752210E34D340030E503 /* PlatformIncludeFwd.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PlatformIncludeFwd.h; sourceTree = "<group>"; };
 		1820752310E34D340030E503 /* PtrVector.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PtrVector.h; sourceTree = "<group>"; };
-		1820752410E34D340030E503 /* RawFileSystem.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = RawFileSystem.cpp; sourceTree = "<group>"; };
+		1820752410E34D340030E503 /* RawFileSystem.cpp */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.objcpp; fileEncoding = 4; path = RawFileSystem.cpp; sourceTree = "<group>"; };
 		1820752510E34D340030E503 /* RawFileSystem.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RawFileSystem.h; sourceTree = "<group>"; };
 		1820752610E34D340030E503 /* RawFileSystemMonitor.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = RawFileSystemMonitor.cpp; sourceTree = "<group>"; };
 		1820752710E34D340030E503 /* RawFileSystemMonitor.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RawFileSystemMonitor.h; sourceTree = "<group>"; };
@@ -220,7 +236,7 @@
 		1820753210E34D340030E503 /* Stream.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Stream.h; sourceTree = "<group>"; };
 		1820753310E34D340030E503 /* StrUtility.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = StrUtility.cpp; sourceTree = "<group>"; };
 		1820753410E34D340030E503 /* StrUtility.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = StrUtility.h; sourceTree = "<group>"; };
-		1820753510E34D340030E503 /* TaskPool.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = TaskPool.cpp; sourceTree = "<group>"; };
+		1820753510E34D340030E503 /* TaskPool.cpp */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.objcpp; fileEncoding = 4; path = TaskPool.cpp; sourceTree = "<group>"; };
 		1820753610E34D340030E503 /* TaskPool.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TaskPool.h; sourceTree = "<group>"; };
 		1820753710E34D340030E503 /* Thread.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Thread.cpp; sourceTree = "<group>"; };
 		1820753810E34D340030E503 /* Thread.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Thread.h; sourceTree = "<group>"; };
@@ -250,6 +266,8 @@
 		183B632111D0693500E95C9C /* PlaneMeshBuilder.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = PlaneMeshBuilder.cpp; path = Render/PlaneMeshBuilder.cpp; sourceTree = "<group>"; };
 		183B632211D0693500E95C9C /* PlaneMeshBuilder.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = PlaneMeshBuilder.h; path = Render/PlaneMeshBuilder.h; sourceTree = "<group>"; };
 		183B632311D0693500E95C9C /* Texture.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Texture.h; path = Render/Texture.h; sourceTree = "<group>"; };
+		1868988111D8A0C9005D4176 /* Skeleton.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Skeleton.cpp; sourceTree = "<group>"; };
+		1868988211D8A0C9005D4176 /* Skeleton.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Skeleton.h; sourceTree = "<group>"; };
 		1869629E11C5DDBF00800080 /* libRender.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libRender.a; sourceTree = BUILT_PRODUCTS_DIR; };
 		186962DB11C5E43600800080 /* RenderWindow.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = RenderWindow.h; path = Render/RenderWindow.h; sourceTree = "<group>"; };
 		186962DD11C5E45A00800080 /* RenderWindow.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = RenderWindow.mm; path = Render/iPhone/RenderWindow.mm; sourceTree = "<group>"; };
@@ -374,6 +392,8 @@
 				182074E610E34D340030E503 /* Quaternion.h */,
 				182074E710E34D340030E503 /* Quaternion.inl */,
 				182074E810E34D340030E503 /* Ray.h */,
+				1868988111D8A0C9005D4176 /* Skeleton.cpp */,
+				1868988211D8A0C9005D4176 /* Skeleton.h */,
 				182074E910E34D340030E503 /* SrtTransform.cpp */,
 				182074EA10E34D340030E503 /* SrtTransform.h */,
 				182074EB10E34D340030E503 /* Tuple.h */,
@@ -507,6 +527,8 @@
 				1873A2EF11883540008D0F62 /* libCppTestHarness.a */,
 				1873A2F111883540008D0F62 /* libSmallJpeg.a */,
 				18C53CE2119A646D00DA21DC /* libsquirrel.a */,
+				1868989B11D8A125005D4176 /* libjkbind.a */,
+				186898EE11D8A1F2005D4176 /* libPowerVR.a */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -563,6 +585,7 @@
 			files = (
 				18EAA436119A59B200BBB011 /* StringHash.h in Headers */,
 				186962DC11C5E43600800080 /* RenderWindow.h in Headers */,
+				1868988411D8A0C9005D4176 /* Skeleton.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -649,6 +672,22 @@
 /* End PBXProject section */
 
 /* Begin PBXReferenceProxy section */
+		1868989B11D8A125005D4176 /* libjkbind.a */ = {
+			isa = PBXReferenceProxy;
+			fileType = archive.ar;
+			name = libjkbind.a;
+			path = "build/iPhone Debug-iphoneos/libjkbind.a";
+			remoteRef = 1868989A11D8A125005D4176 /* PBXContainerItemProxy */;
+			sourceTree = "<group>";
+		};
+		186898EE11D8A1F2005D4176 /* libPowerVR.a */ = {
+			isa = PBXReferenceProxy;
+			fileType = archive.ar;
+			name = libPowerVR.a;
+			path = "build/iPhone Debug-iphoneos/libPowerVR.a";
+			remoteRef = 186898ED11D8A1F2005D4176 /* PBXContainerItemProxy */;
+			sourceTree = "<group>";
+		};
 		1873A2EF11883540008D0F62 /* libCppTestHarness.a */ = {
 			isa = PBXReferenceProxy;
 			fileType = archive.ar;
@@ -738,6 +777,7 @@
 				18EAA429119A596600BBB011 /* CondVar.cpp in Sources */,
 				18EAA435119A59B200BBB011 /* StringHash.cpp in Sources */,
 				186962DE11C5E45A00800080 /* RenderWindow.mm in Sources */,
+				1868988311D8A0C9005D4176 /* Skeleton.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

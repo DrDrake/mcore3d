@@ -120,7 +120,7 @@ public:
 	// The clone function
 	//
 
-	template<typename T* F(const T*)>
+	template<T* F(const T*)>
 	ClassDeclarator& clone(const xchar* name = xSTRING("_cloned"))
 	{
 		T*(*fPtr)(T*) = &cloneFunction<T, F>;
