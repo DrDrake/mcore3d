@@ -13,6 +13,11 @@
 #	include <errno.h>
 #endif
 
+#ifdef MCD_IPHONE
+#	import <Foundation/NSBundle.h>
+#	import <Foundation/NSString.h>
+#endif
+
 #include <sys/stat.h>		// stat
 
 namespace MCD {
@@ -150,9 +155,27 @@ bool RawFileSystem::setRoot(const Path& rootPath)
 
 Path RawFileSystem::toAbsolutePath(const Path& path) const
 {
+#ifdef MCD_IPHONE
+	// Adjust the final path into the resource bundle.
+	Path tmp(path);
+	if(!path.hasRootDirectory())
+		tmp = mRootPath / path;
+
+	const char* cpath = tmp.getString().c_str();
+	// Skip '/'
+	if(cpath[0] == '/')
+		++cpath;
+
+	NSString* fullPath = [[NSBundle mainBundle] pathForResource:[NSString stringWithUTF8String:cpath] ofType:nil];
+	if(fullPath)
+		return Path([fullPath UTF8String]);
+	else
+		return tmp;
+#else
 	if(!path.hasRootDirectory())
 		return mRootPath / path;
 	return path;
+#endif
 }
 
 bool RawFileSystem::isExists(const Path& path) const

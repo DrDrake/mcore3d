@@ -4,6 +4,10 @@
 #include "ThreadPool.h"
 #include <memory>	// for std::auto_ptr
 
+#ifdef MCD_IPHONE
+#	import <Foundation/NSAutoreleasePool.h>
+#endif
+
 namespace MCD {
 
 class TaskPool::TaskQueue : public Map<TaskPool::Task>
@@ -88,9 +92,19 @@ public:
 			// Pick up a task, which also remove from the queue immediately
 			Task* task = mQueue.pop(thread);
 
+#ifdef MCD_IPHONE
+			// Make sure every thread has a NSAutoreleasePool
+			// Reference: http://www.idevgames.com/forum/archive/index.php/t-7710.html
+			NSAutoreleasePool* autoreleasepool = [[NSAutoreleasePool alloc] init];
+#endif
+
 			// Run the task
 			if(task)
 				task->run(thread);
+
+#ifdef MCD_IPHONE
+			[autoreleasepool release];
+#endif
 		}
 	}
 
