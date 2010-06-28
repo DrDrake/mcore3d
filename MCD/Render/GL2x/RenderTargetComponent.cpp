@@ -10,7 +10,7 @@
 namespace MCD {
 
 RenderTargetComponent::RenderTargetComponent()
-	: clearColor(0.0f)
+	: clearColor(0, 1)
 	, viewPortLeftTop(0), viewPortWidthHeight(0)
 	, window(nullptr), mImpl(0)
 {
@@ -86,8 +86,11 @@ void RenderTargetComponent::render(RendererComponent& renderer)
 		window->preUpdate();
 
 		setViewPort(*this);
-		glClearColor(clearColor.r, clearColor.g, clearColor.b, 1);
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+		if(clearColor.a != 0) {
+			glClearColor(clearColor.r, clearColor.g, clearColor.b, 1);
+			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+		}
 
 		renderer.render(*entityToRender, *this);
 

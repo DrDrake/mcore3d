@@ -9,7 +9,7 @@
 namespace MCD {
 
 RenderTargetComponent::RenderTargetComponent()
-	: clearColor(0.0f)
+	: clearColor(0, 1)
 	, viewPortLeftTop(0), viewPortWidthHeight(0)
 	, window(nullptr), mImpl(0)
 {

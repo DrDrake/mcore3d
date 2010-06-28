@@ -35,20 +35,28 @@ TEST(RendererTest)
 	root.addComponent(renderer);
 
 	// Camera
-	CameraComponent2* camera = new CameraComponent2(renderer);
+	CameraComponent2* mainCamera = new CameraComponent2(renderer);
 
 	{	Entity* e = new Entity;
 		e->name = "Camera";
 		e->asChildOf(&root);
 		e->localTransform.setTranslation(Vec3f(0, 0, 10));
-		e->addComponent(camera);
+		e->addComponent(mainCamera);
 	}
+
+	CameraComponent2* guiCamera = new CameraComponent2(renderer);
+
+	EntityPtr guiLayer = new Entity;
+	guiLayer->name = "Gui layer";
+	guiLayer->enabled = false;
+	guiLayer->asChildOf(&root);
+	guiLayer->addComponent(guiCamera);
 
 	// Render target
 	RenderTargetComponent* mainRenderTarget = new RenderTargetComponent;
 	mainRenderTarget->window = &mainWindow;
 	mainRenderTarget->entityToRender = &root;
-	mainRenderTarget->cameraComponent = camera;
+	mainRenderTarget->cameraComponent = mainCamera;
 	mainRenderTarget->rendererComponent = renderer;
 
 	{	Entity* e = new Entity;
@@ -58,11 +66,18 @@ TEST(RendererTest)
 	}
 
 	RenderTargetComponent* subRenderTarget = new RenderTargetComponent;
-	subRenderTarget->clearColor = ColorRGBf(0.3f, 0.3f, 0.3f);
+	subRenderTarget->clearColor = ColorRGBAf(0.3f, 0.3f, 0.3f, 1);
 	subRenderTarget->window = &subWindow;
 	subRenderTarget->entityToRender = &root;
-	subRenderTarget->cameraComponent = camera;
+	subRenderTarget->cameraComponent = mainCamera;
 	subRenderTarget->rendererComponent = renderer;
+
+	RenderTargetComponent* guiRenderTarget = new RenderTargetComponent;
+	guiRenderTarget->clearColor = ColorRGBAf(0, 0);
+	guiRenderTarget->window = &mainWindow;
+	guiRenderTarget->entityToRender = guiLayer.get();
+	guiRenderTarget->cameraComponent = guiCamera;
+	guiRenderTarget->rendererComponent = renderer;
 
 	{	Entity* e = new Entity;
 		e->name = "Sub-window render target";
@@ -73,11 +88,17 @@ TEST(RendererTest)
 		e->addComponent(subRenderTarget);
 	}
 
+	{	Entity* e = new Entity;
+		e->name = "Gui render target";
+		e->insertAfter(mainRenderTarget->entity());
+		e->addComponent(guiRenderTarget);
+	}
+
 	RenderTargetComponent* textureRenderTarget = new RenderTargetComponent;
-	textureRenderTarget->clearColor = ColorRGBf(0.3f, 0.6f, 0.9f);
+	textureRenderTarget->clearColor = ColorRGBAf(0.3f, 0.6f, 0.9f, 1);
 	textureRenderTarget->window = nullptr;
 	textureRenderTarget->entityToRender = &root;
-	textureRenderTarget->cameraComponent = camera;
+	textureRenderTarget->cameraComponent = mainCamera;
 	textureRenderTarget->rendererComponent = renderer;
 	textureRenderTarget->textures[0] = textureRenderTarget->createTexture(GpuDataFormat::get("uintRGBA8"), 512, 512);
 
@@ -113,7 +134,7 @@ TEST(RendererTest)
 
 	// Fps controller
 	FpsControllerComponent* fpsControl = new FpsControllerComponent;
-	fpsControl->target = camera->entity();
+	fpsControl->target = mainCamera->entity();
 	fpsControl->inputComponent = winMsg;
 
 	{	Entity* e = new Entity;

@@ -10,7 +10,7 @@
 namespace MCD {
 
 RenderTargetComponent::RenderTargetComponent()
-	: clearColor(0.0f), viewPortLeftTop(0), viewPortWidthHeight(0), window(nullptr)
+	: clearColor(0, 1), viewPortLeftTop(0), viewPortWidthHeight(0), window(nullptr)
 {}
 
 RenderTargetComponent::~RenderTargetComponent()
@@ -85,7 +85,8 @@ void RenderTargetComponent::render(RendererComponent& renderer)
 		window->preUpdate();
 
 		setViewPort(device, *this);
-		device->Clear(0, nullptr, D3DCLEAR_TARGET | D3DCLEAR_ZBUFFER, color, 1.0f, 0);
+		if(clearColor.a != 0)
+			device->Clear(0, nullptr, D3DCLEAR_TARGET | D3DCLEAR_ZBUFFER, color, 1.0f, 0);
 		device->BeginScene();
 
 		renderer.render(*entityToRender, *this);
@@ -109,7 +110,8 @@ void RenderTargetComponent::render(RendererComponent& renderer)
 		}
 
 		setViewPort(device, *this);
-		device->Clear(0, nullptr, D3DCLEAR_TARGET | D3DCLEAR_ZBUFFER, color, 1.0f, 0);
+		if(clearColor.a != 0)
+			device->Clear(0, nullptr, D3DCLEAR_TARGET | D3DCLEAR_ZBUFFER, color, 1.0f, 0);
 		device->BeginScene();
 
 		renderer.render(*entityToRender, *this);
