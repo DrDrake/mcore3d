@@ -16,7 +16,7 @@ int main(int, char const*[])
 		// NOTE: The "SelectDll.txt" should contains multiple pairs of text:
 		// ../../Bin/MCDRenderDX9.dll
 		// ../../Bin/MCDRender.dll
-		// ../../Bin/MCDRendererDX9d.dll
+		// ../../Bin/MCDRenderDX9d.dll
 		// ../../Bin/MCDRenderd.dll
 		ifstream infile("SelectDll.txt", ifstream::in);
 		string srcDll, destDll;

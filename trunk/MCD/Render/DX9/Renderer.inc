@@ -63,6 +63,8 @@ public:
 
 	void render(Entity& entityTree, RenderTargetComponent& renderTarget);
 
+	void render(Entity& entityTree);
+
 	void processRenderItems(RenderItems& items);
 
 	Mat44f mCameraTransform;

@@ -35,6 +35,8 @@ class RendererComponent::Impl
 public:
 	void render(Entity& entityTree, RenderTargetComponent& renderTarget);
 
+	void render(Entity& entityTree);
+
 	void processRenderItems(RenderItems& items);
 
 	//! mDefaultCamera and mCurrentCamera may differ from each other when rendering using light's view

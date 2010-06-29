@@ -67,7 +67,7 @@ static void setViewPort(LPDIRECT3DDEVICE9 device, RenderTargetComponent& renderT
 		renderTarget.cameraComponent->frustum.setAcpectRatio(float(viewPort.Width) / viewPort.Height);
 }
 
-void RenderTargetComponent::render(RendererComponent& renderer)
+void RenderTargetComponent::render(RendererComponent& renderer, bool swapBuffers)
 {
 	if(!entityToRender)
 		return;
@@ -92,7 +92,11 @@ void RenderTargetComponent::render(RendererComponent& renderer)
 		renderer.render(*entityToRender, *this);
 
 		device->EndScene();
-		window->postUpdate();
+
+		if(swapBuffers)
+			window->postUpdate();
+		else
+			swapBuffers = swapBuffers;
 	}
 
 	// Texture only

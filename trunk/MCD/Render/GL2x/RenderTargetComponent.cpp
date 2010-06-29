@@ -69,7 +69,7 @@ void RenderTargetComponent::render()
 		rendererComponent->mImpl.mRenderTargets.push_back(this);
 }
 
-void RenderTargetComponent::render(RendererComponent& renderer)
+void RenderTargetComponent::render(RendererComponent& renderer, bool swapBuffers)
 {
 	if(!entityToRender)
 		return;
@@ -94,7 +94,8 @@ void RenderTargetComponent::render(RendererComponent& renderer)
 
 		renderer.render(*entityToRender, *this);
 
-		window->postUpdate();
+		if(swapBuffers)
+			window->postUpdate();
 	}
 
 	// Texture only
