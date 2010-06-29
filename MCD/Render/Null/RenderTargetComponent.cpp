@@ -28,7 +28,7 @@ void RenderTargetComponent::render()
 {
 }
 
-void RenderTargetComponent::render(RendererComponent& renderer)
+void RenderTargetComponent::render(RendererComponent& renderer, bool swapBuffers)
 {
 }
 

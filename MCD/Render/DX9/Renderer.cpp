@@ -147,6 +147,22 @@ void RendererComponent::Impl::render(Entity& entityTree, RenderTargetComponent& 
 	mTransparentQueue.destroyAll();
 }
 
+void RendererComponent::Impl::render(Entity& entityTree)
+{
+	// TODO: Update only RenderTargetComponent, to bring them into mRenderTargets
+	RenderableComponent2::traverseEntities(&entityTree);
+
+	// Process the render targets one by one
+	for(size_t i=0; i<mRenderTargets.size(); ++i) {
+		RenderTargetComponent* r1 = mRenderTargets[i].get();
+		const RenderWindow* w1 = r1 ? r1->window : nullptr;
+		const RenderTargetComponent* r2 = (i+1 == mRenderTargets.size()) ? nullptr : mRenderTargets[i+1].get();
+		const RenderWindow* w2 = r2 ? r2->window : nullptr;
+		const bool swapBuffers = (w1 != w2);
+		r1->render(*mBackRef, swapBuffers);
+	}
+}
+
 void RendererComponent::Impl::processRenderItems(RenderItems& items)
 {
 	for(RenderItemNode* node = items.findMin(); node != nullptr; node = node->next()) {
@@ -177,17 +193,7 @@ RendererComponent::~RendererComponent()
 
 void RendererComponent::render(Entity& entityTree)
 {
-	// TODO: Update only RenderTargetComponent, to bring them into mImpl.mRenderTargets
-	RenderableComponent2::traverseEntities(&entityTree);
-
-	// Process the render targets one by one
-	MCD_FOREACH(RenderTargetComponentPtr renderTarget, mImpl.mRenderTargets) {
-		if(renderTarget) {
-//			RenderableComponent2::traverseEntities(renderTarget->entityToRender.get());
-			renderTarget->render(*this);
-		}
-	}
-	mImpl.mRenderTargets.clear();
+	mImpl.render(entityTree);
 }
 
 void RendererComponent::render(Entity& entityTree, RenderTargetComponent& renderTarget)
