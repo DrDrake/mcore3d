@@ -34,6 +34,11 @@ TEST(RendererTest)
 	RendererComponent* renderer = new RendererComponent;
 	root.addComponent(renderer);
 
+	EntityPtr guiLayer = new Entity;
+	guiLayer->name = "Gui layer";
+//	guiLayer->enabled = false;
+	guiLayer->asChildOf(&root);
+
 	// Camera
 	CameraComponent2* mainCamera = new CameraComponent2(renderer);
 
@@ -46,11 +51,12 @@ TEST(RendererTest)
 
 	CameraComponent2* guiCamera = new CameraComponent2(renderer);
 
-	EntityPtr guiLayer = new Entity;
-	guiLayer->name = "Gui layer";
-	guiLayer->enabled = false;
-	guiLayer->asChildOf(&root);
-	guiLayer->addComponent(guiCamera);
+	{	Entity* e = new Entity;
+		e->name = "Gui camera";
+		e->asChildOf(guiLayer.get());
+		e->localTransform.setTranslation(Vec3f(0, 0, 5));
+		e->addComponent(guiCamera);
+	}
 
 	// Render target
 	RenderTargetComponent* mainRenderTarget = new RenderTargetComponent;
@@ -66,13 +72,14 @@ TEST(RendererTest)
 	}
 
 	RenderTargetComponent* subRenderTarget = new RenderTargetComponent;
-	subRenderTarget->clearColor = ColorRGBAf(0.3f, 0.3f, 0.3f, 1);
+	subRenderTarget->clearColor = ColorRGBAf(0.3f, 0.3f, 0.3f, 0);
 	subRenderTarget->window = &subWindow;
 	subRenderTarget->entityToRender = &root;
 	subRenderTarget->cameraComponent = mainCamera;
 	subRenderTarget->rendererComponent = renderer;
 
 	RenderTargetComponent* guiRenderTarget = new RenderTargetComponent;
+	guiRenderTarget->shouldClearColor = false;
 	guiRenderTarget->clearColor = ColorRGBAf(0, 0);
 	guiRenderTarget->window = &mainWindow;
 	guiRenderTarget->entityToRender = guiLayer.get();
@@ -107,6 +114,19 @@ TEST(RendererTest)
 		e->asChildOf(&root);
 		e->addComponent(textureRenderTarget);
 	}
+
+	// Material
+	MaterialComponent* material1 = new MaterialComponent;
+	material1->diffuseColor = ColorRGBAf(1, 1, 0.5f, 1);
+	material1->diffuseMap = dynamic_cast<Texture*>(resourceManager.load("InterlacedTrans256x256.png").get());
+	material1->opacity = 1.0f;
+
+	MaterialComponent* material2 = new MaterialComponent;
+	material2->specularExponent = 120;
+	material2->opacity = 0.8f;
+	material2->diffuseMap = textureRenderTarget->textures[0];
+
+	root.addComponent(material1);
 
 	// Light
 	{	LightComponent* light = new LightComponent;
@@ -143,17 +163,6 @@ TEST(RendererTest)
 		e->addComponent(fpsControl);
 	}
 
-	// Material
-	MaterialComponent* material1 = new MaterialComponent;
-	material1->diffuseColor = ColorRGBAf(1, 1, 0.5f, 1);
-	material1->diffuseMap = dynamic_cast<Texture*>(resourceManager.load("InterlacedTrans256x256.png").get());
-	material1->opacity = 1.0f;
-
-	MaterialComponent* material2 = new MaterialComponent;
-	material2->specularExponent = 120;
-	material2->opacity = 0.8f;
-	material2->diffuseMap = textureRenderTarget->textures[0];
-
 	// Create mesh
 	MeshComponent2* boxMesh = new MeshComponent2;
 	boxMesh->mesh = new Mesh("");
@@ -161,7 +170,6 @@ TEST(RendererTest)
 
 	EntityPtr boxes = new Entity;
 	boxes->name = "Boxes";
-	boxes->addComponent(material1);
 	boxes->asChildOf(&root);
 
 	{	Entity* e = new Entity;
@@ -200,6 +208,14 @@ TEST(RendererTest)
 		e->addComponent(material2);
 		e->addComponent(sphereMesh->clone());
 		e->localTransform.translateBy(Vec3f(-2, 0, 2));
+	}
+
+	{	Entity* e = new Entity;
+		e->name = "Gui";
+		e->asChildOf(guiLayer.get());
+		e->addComponent(material2);
+		e->addComponent(sphereMesh->clone());
+		e->localTransform.translateBy(Vec3f(0, 0, 0));
 	}
 
 	while(true)
