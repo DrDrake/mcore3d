@@ -10,7 +10,8 @@
 namespace MCD {
 
 RenderTargetComponent::RenderTargetComponent()
-	: clearColor(0, 1)
+	: shouldClearColor(true), shouldClearDepth(true)
+	, clearColor(0, 1)
 	, viewPortLeftTop(0), viewPortWidthHeight(0)
 	, window(nullptr), mImpl(0)
 {
@@ -87,10 +88,8 @@ void RenderTargetComponent::render(RendererComponent& renderer, bool swapBuffers
 
 		setViewPort(*this);
 
-		if(clearColor.a != 0) {
-			glClearColor(clearColor.r, clearColor.g, clearColor.b, 1);
-			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-		}
+		glClearColor(clearColor.r, clearColor.g, clearColor.b, clearColor.a);
+		glClear(shouldClearColor * GL_COLOR_BUFFER_BIT | shouldClearDepth * GL_DEPTH_BUFFER_BIT);
 
 		renderer.render(*entityToRender, *this);
 
@@ -125,8 +124,8 @@ void RenderTargetComponent::render(RendererComponent& renderer, bool swapBuffers
 			glBindFramebuffer(GL_FRAMEBUFFER, mImpl);
 
 		setViewPort(*this);
-		glClearColor(clearColor.r, clearColor.g, clearColor.b, 1);
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+		glClearColor(clearColor.r, clearColor.g, clearColor.b, clearColor.a);
+		glClear(shouldClearColor * GL_COLOR_BUFFER_BIT | shouldClearDepth * GL_DEPTH_BUFFER_BIT);
 
 		renderer.render(*entityToRender, *this);
 

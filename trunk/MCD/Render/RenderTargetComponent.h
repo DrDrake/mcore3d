@@ -40,7 +40,9 @@ public:
 	CameraComponent2Ptr cameraComponent;
 	RendererComponentPtr rendererComponent;
 
-	ColorRGBAf clearColor;	//!< Alpha = 0 for no clear
+	bool shouldClearColor;
+	bool shouldClearDepth;
+	ColorRGBAf clearColor;
 	Vec2<size_t> viewPortLeftTop;
 	Vec2<size_t> viewPortWidthHeight;	//!< Zero means use full size of the target.
 

@@ -10,7 +10,10 @@
 namespace MCD {
 
 RenderTargetComponent::RenderTargetComponent()
-	: clearColor(0, 1), viewPortLeftTop(0), viewPortWidthHeight(0), window(nullptr)
+	: shouldClearColor(true), shouldClearDepth(true)
+	, clearColor(0, 1)
+	, viewPortLeftTop(0), viewPortWidthHeight(0)
+	, window(nullptr)
 {}
 
 RenderTargetComponent::~RenderTargetComponent()
@@ -77,7 +80,7 @@ void RenderTargetComponent::render(RendererComponent& renderer, bool swapBuffers
 		if(!textures[textureCount]) break;
 
 	LPDIRECT3DDEVICE9 device = getDevice();
-	D3DCOLOR color = D3DCOLOR_XRGB(char(clearColor.r*255), char(clearColor.g*255), char(clearColor.b*255));
+	D3DCOLOR color = D3DCOLOR_RGBA(char(clearColor.r*255), char(clearColor.g*255), char(clearColor.b*255), char(clearColor.a*255));
 
 	// Window only
 	if(window && !textureCount) {
@@ -85,8 +88,11 @@ void RenderTargetComponent::render(RendererComponent& renderer, bool swapBuffers
 		window->preUpdate();
 
 		setViewPort(device, *this);
-		if(clearColor.a != 0)
-			device->Clear(0, nullptr, D3DCLEAR_TARGET | D3DCLEAR_ZBUFFER, color, 1.0f, 0);
+		device->Clear(
+			0, nullptr,
+			shouldClearColor * D3DCLEAR_TARGET | shouldClearDepth * D3DCLEAR_ZBUFFER,
+			color, 1.0f, 0
+		);
 		device->BeginScene();
 
 		renderer.render(*entityToRender, *this);
@@ -114,8 +120,11 @@ void RenderTargetComponent::render(RendererComponent& renderer, bool swapBuffers
 		}
 
 		setViewPort(device, *this);
-		if(clearColor.a != 0)
-			device->Clear(0, nullptr, D3DCLEAR_TARGET | D3DCLEAR_ZBUFFER, color, 1.0f, 0);
+		device->Clear(
+			0, nullptr,
+			shouldClearColor * D3DCLEAR_TARGET | shouldClearDepth * D3DCLEAR_ZBUFFER,
+			color, 1.0f, 0
+		);
 		device->BeginScene();
 
 		renderer.render(*entityToRender, *this);
