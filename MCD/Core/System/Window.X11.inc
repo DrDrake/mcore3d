@@ -431,6 +431,7 @@ void Window::Impl::processEvent(XEvent xEvent)
 		if((Button == Button1) || (Button == Button2) || (Button == Button3) || (Button == 8) || (Button == 9))
 		{
 			ev.Type = Event::MouseButtonPressed;
+			ev.MouseButton.MouseId = 0;
 			switch(Button)
 			{
 				case Button1 :	ev.MouseButton.Button = Mouse::Left;		break;
@@ -451,6 +452,7 @@ void Window::Impl::processEvent(XEvent xEvent)
 		{
 			Event ev;
 			ev.Type = Event::MouseButtonReleased;
+			ev.MouseButton.MouseId = 0;
 			switch(Button)
 			{
 				case Button1 :	ev.MouseButton.Button = Mouse::Left;		break;
@@ -464,6 +466,7 @@ void Window::Impl::processEvent(XEvent xEvent)
 		else if((Button == Button4) || (Button == Button5))
 		{
 			ev.Type = Event::MouseWheelMoved;
+			ev.MouseWheel.MouseId = 0;
 			ev.MouseWheel.Delta = xEvent.xbutton.button == Button4 ? 1 : -1;
 			SendEvent(ev);
 		}
@@ -473,6 +476,7 @@ void Window::Impl::processEvent(XEvent xEvent)
 	case MotionNotify:
 	{
 		ev.Type = Event::MouseMoved;
+		ev.MouseMove.MouseId = 0;
 		ev.MouseMove.X = xEvent.xmotion.x;
 		ev.MouseMove.Y = xEvent.xmotion.y;
 		SendEvent(ev);

@@ -516,6 +516,7 @@ LRESULT Window::Impl::Proc(UINT uMsg, WPARAM wParam, LPARAM lParam)
 	case WM_MOUSEWHEEL :
 	{
 		ev.Type = Event::MouseWheelMoved;
+		ev.MouseWheel.MouseId = 0;
 		ev.MouseWheel.Delta = static_cast<int16_t>(HIWORD(wParam)) / 120;
 		SendEvent(ev);
 		break;
@@ -524,6 +525,7 @@ LRESULT Window::Impl::Proc(UINT uMsg, WPARAM wParam, LPARAM lParam)
 	case WM_LBUTTONDOWN:
 	{
 		ev.Type = Event::MouseButtonPressed;
+		ev.MouseButton.MouseId = 0;
 		ev.MouseButton.Button = Mouse::Left;
 		ev.MouseButton.X = LOWORD(lParam);
 		ev.MouseButton.Y = HIWORD(lParam);
@@ -534,6 +536,7 @@ LRESULT Window::Impl::Proc(UINT uMsg, WPARAM wParam, LPARAM lParam)
 	case WM_LBUTTONUP:
 	{
 		ev.Type = Event::MouseButtonReleased;
+		ev.MouseButton.MouseId = 0;
 		ev.MouseButton.Button = Mouse::Left;
 		ev.MouseButton.X = LOWORD(lParam);
 		ev.MouseButton.Y = HIWORD(lParam);
@@ -544,6 +547,7 @@ LRESULT Window::Impl::Proc(UINT uMsg, WPARAM wParam, LPARAM lParam)
 	case WM_RBUTTONDOWN:
 	{
 		ev.Type = Event::MouseButtonPressed;
+		ev.MouseButton.MouseId = 0;
 		ev.MouseButton.Button = Mouse::Right;
 		ev.MouseButton.X = LOWORD(lParam);
 		ev.MouseButton.Y = HIWORD(lParam);
@@ -554,6 +558,7 @@ LRESULT Window::Impl::Proc(UINT uMsg, WPARAM wParam, LPARAM lParam)
 	case WM_RBUTTONUP:
 	{
 		ev.Type = Event::MouseButtonReleased;
+		ev.MouseButton.MouseId = 0;
 		ev.MouseButton.Button = Mouse::Right;
 		ev.MouseButton.X = LOWORD(lParam);
 		ev.MouseButton.Y = HIWORD(lParam);
@@ -564,6 +569,7 @@ LRESULT Window::Impl::Proc(UINT uMsg, WPARAM wParam, LPARAM lParam)
 	case WM_MBUTTONDOWN:
 	{
 		ev.Type = Event::MouseButtonPressed;
+		ev.MouseButton.MouseId = 0;
 		ev.MouseButton.Button = Mouse::Middle;
 		ev.MouseButton.X = LOWORD(lParam);
 		ev.MouseButton.Y = HIWORD(lParam);
@@ -574,6 +580,7 @@ LRESULT Window::Impl::Proc(UINT uMsg, WPARAM wParam, LPARAM lParam)
 	case WM_MBUTTONUP:
 	{
 		ev.Type = Event::MouseButtonReleased;
+		ev.MouseButton.MouseId = 0;
 		ev.MouseButton.Button = Mouse::Middle;
 		ev.MouseButton.X = LOWORD(lParam);
 		ev.MouseButton.Y = HIWORD(lParam);
@@ -584,6 +591,7 @@ LRESULT Window::Impl::Proc(UINT uMsg, WPARAM wParam, LPARAM lParam)
 	case WM_XBUTTONDOWN:
 	{
 		ev.Type = Event::MouseButtonPressed;
+		ev.MouseButton.MouseId = 0;
 		ev.MouseButton.Button = HIWORD(wParam) == XBUTTON1 ? Mouse::XButton1 : Mouse::XButton2;
 		ev.MouseButton.X = LOWORD(lParam);
 		ev.MouseButton.Y = HIWORD(lParam);
@@ -594,6 +602,7 @@ LRESULT Window::Impl::Proc(UINT uMsg, WPARAM wParam, LPARAM lParam)
 	case WM_XBUTTONUP:
 	{
 		ev.Type = Event::MouseButtonReleased;
+		ev.MouseButton.MouseId = 0;
 		ev.MouseButton.Button = HIWORD(wParam) == XBUTTON1 ? Mouse::XButton1 : Mouse::XButton2;
 		ev.MouseButton.X = LOWORD(lParam);
 		ev.MouseButton.Y = HIWORD(lParam);
@@ -604,6 +613,7 @@ LRESULT Window::Impl::Proc(UINT uMsg, WPARAM wParam, LPARAM lParam)
 	case WM_MOUSEMOVE:
 	{
 		ev.Type = Event::MouseMoved;
+		ev.MouseMove.MouseId = 0;
 		ev.MouseMove.X = LOWORD(lParam);
 		ev.MouseMove.Y = HIWORD(lParam);
 		SendEvent(ev);
