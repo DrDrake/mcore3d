@@ -149,12 +149,14 @@ public:
 
 	struct MouseMoveEvent
 	{
+		uint MouseId;
 		uint X;
 		uint Y;
 	};
 
 	struct MouseButtonEvent
 	{
+		uint MouseId;	//!< Identify the mouse in multi-pointing device (eg. iPhone), value start with 0.
 		Mouse::Button Button;
 		uint X;
 		uint Y;
@@ -162,6 +164,7 @@ public:
 
 	struct MouseWheelEvent
 	{
+		uint MouseId;
 		int Delta;
 	};
 
