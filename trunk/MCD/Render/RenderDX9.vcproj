@@ -409,6 +409,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\QuadComponent.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\RayMeshIntersect.cpp"
 				>
 				<FileConfiguration
@@ -500,6 +504,10 @@
 			</File>
 			<File
 				RelativePath=".\DX9\Mesh_DX9.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\DX9\QuadComponent_DX9.cpp"
 				>
 			</File>
 			<File

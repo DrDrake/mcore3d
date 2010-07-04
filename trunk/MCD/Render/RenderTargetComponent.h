@@ -50,6 +50,10 @@ public:
 	sal_maybenull RenderWindow* window;
 	Array<TexturePtr, 4> textures;
 
+	//!	The target's width and height, which are determined by it's window or texture's dimension.
+	size_t targetWidth() const;
+	size_t targetHeight() const;
+
 protected:
 	int mImpl;
 };	// RenderTargetComponent

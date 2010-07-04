@@ -4,6 +4,7 @@
 #include "../Light.h"
 #include "../Material.h"
 #include "../Mesh.h"
+#include "../QuadComponent.h"
 #include "../RenderTargetComponent.h"
 #include "../../Core/Entity/Entity.h"
 #include "../../../3Party/glew/wglew.h"
@@ -12,7 +13,9 @@ namespace MCD {
 
 RendererComponent::Impl::Impl()
 	: mEntityItr(nullptr)
-{}
+{
+	mQuadRenderer.reset(new QuadRenderer(*this));
+}
 
 void RendererComponent::Impl::render(Entity& entityTree, RenderTargetComponent& renderTarget)
 {
@@ -45,18 +48,19 @@ void RendererComponent::Impl::render(Entity& entityTree, RenderTargetComponent& 
 	}
 
 	// Traverse the Entity tree
-	for(EntityPreorderIterator itr(&entityTree); !itr.ended();)
+	for(mEntityItr = EntityPreorderIterator(&entityTree); !mEntityItr.ended();)
 	{
-		if(!itr->enabled) {
-			itr.skipChildren();
+		// The input parameter entityTree will never skip
+		if(!mEntityItr->enabled && mEntityItr.current() != &entityTree) {
+			mEntityItr.skipChildren();
 			continue;
 		}
 
-		Entity* e = itr.current();
+		Entity* e = mEntityItr.current();
 
 		// Pop material when moving up (towards parent) or leveling in the tree
 		mCurrentMaterial = nullptr;
-		for(int depth = itr.depthChange(); depth <= 0 && mMaterialStack.size() > 0; ++depth)
+		for(int depth = mEntityItr.depthChange(); depth <= 0 && mMaterialStack.size() > 0; ++depth)
 			mMaterialStack.pop();
 
 		// Preform actions defined by the concret type of RenderableComponent2 we have found
@@ -73,7 +77,7 @@ void RendererComponent::Impl::render(Entity& entityTree, RenderTargetComponent& 
 		}
 		mMaterialStack.push(mCurrentMaterial);
 
-		itr.next();
+		mEntityItr.next();
 	}	// traverse entities
 
 	// Set up lighting
@@ -118,6 +122,18 @@ void RendererComponent::Impl::render(Entity& entityTree, RenderTargetComponent& 
 		glDepthMask(GL_TRUE);
 	}
 
+	{	// Render QuadComponent
+		glDisable(GL_LIGHTING);
+		MCD_FOREACH(const QuadMaterialPair& pair, mQuads) {
+			QuadComponent* quad = pair.quad;
+			const Mat44f& transform = quad->entity()->worldTransform();
+			mQuadRenderer->push(transform, quad->width, quad->height, quad->uv, pair.mtl);
+		}
+		mQuadRenderer->flush();
+		mQuads.clear();
+		glEnable(GL_LIGHTING);
+	}
+
 	mLights.clear();
 	mOpaqueQueue.destroyAll();
 	mTransparentQueue.destroyAll();
@@ -158,6 +174,41 @@ void RendererComponent::Impl::processRenderItems(RenderItems& items)
 			i.material->postRender(0, this);
 		}
 	}
+}
+
+void RendererComponent::Impl::preRenderMaterial(size_t pass, MaterialComponent& mtl) {
+	mtl.preRender(pass, this);
+}
+
+void RendererComponent::Impl::postRenderMaterial(size_t pass, MaterialComponent& mtl) {
+	mtl.postRender(pass, this);
+}
+
+void QuadRenderer::push(const Mat44f& transform, float width, float height, const Vec4f& uv, MaterialComponent* mtl)
+{
+	mRenderer.preRenderMaterial(0, *mtl);
+	glPushMatrix();
+	glMultTransposeMatrixf(transform.getPtr());
+
+	const float halfW = 0.5f * width;
+	const float halfH = 0.5f * height;
+	glBegin(GL_QUADS);
+		glTexCoord2f(uv.x, uv.y);
+		glVertex3f(-halfW, halfH, 0);
+		glTexCoord2f(uv.x, uv.w);
+		glVertex3f(-halfW, -halfH, 0);
+		glTexCoord2f(uv.z, uv.w);
+		glVertex3f(halfW, -halfH, 0);
+		glTexCoord2f(uv.z, uv.y);
+		glVertex3f(halfW, halfH, 0);
+	glEnd();
+
+	glPopMatrix();
+	mRenderer.postRenderMaterial(0, *mtl);
+}
+
+void QuadRenderer::flush()
+{
 }
 
 RendererComponent::RendererComponent()

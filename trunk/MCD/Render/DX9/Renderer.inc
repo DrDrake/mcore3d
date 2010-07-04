@@ -1,5 +1,6 @@
 #include "../Renderer.h"
 #include "../../Core/Math/Mat44.h"
+#include "../../Core/System/Array.h"
 #include "../../Core/System/Deque.h"
 #include "../../Core/System/Map.h"
 #include <vector>
@@ -15,6 +16,8 @@ namespace MCD {
 class LightComponent;
 class MaterialComponent;
 class MeshComponent2;
+class QuadComponent;
+class QuadRenderer;
 typedef IntrusivePtr<class Texture> TexturePtr;
 typedef IntrusiveWeakPtr<class CameraComponent2> CameraComponent2Ptr;
 typedef IntrusiveWeakPtr<class RenderTargetComponent> RenderTargetComponentPtr;
@@ -86,9 +89,31 @@ public:
 	typedef std::vector<RenderTargetComponentPtr> RenderTargets;
 	RenderTargets mRenderTargets;
 
+	struct QuadMaterialPair { QuadComponent* quad; MaterialComponent* mtl; };
+	typedef std::vector<QuadMaterialPair> Quads;
+	Quads mQuads;
+	std::auto_ptr<QuadRenderer> mQuadRenderer;
+
 	//!	Variables used when traversing the entity tree
 	EntityPreorderIterator mEntityItr;
 	MaterialComponent* mCurrentMaterial;
 };	// Impl
+
+class QuadRenderer
+{
+public:
+	QuadRenderer(RendererComponent::Impl& renderer)
+		: mRenderer(renderer)
+	{}
+
+	/*!	Push a quad to the buffer, the actual render will be performed in flush()
+		A change in material or buffer full will triffer a flush automatically.
+	 */
+	void push(const Mat44f& transform, float width, float height, const Vec4f& uv, MaterialComponent* mtl);
+
+	void flush();
+
+	RendererComponent::Impl& mRenderer;
+};	// QuadRenderer
 
 }	// namespace MCD

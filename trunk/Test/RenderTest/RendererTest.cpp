@@ -5,6 +5,7 @@
 #include "../../MCD/Render/Light.h"
 #include "../../MCD/Render/Material.h"
 #include "../../MCD/Render/Mesh.h"
+#include "../../MCD/Render/QuadComponent.h"
 #include "../../MCD/Render/Renderer.h"
 #include "../../MCD/Render/RenderTargetComponent.h"
 #include "../../MCD/Render/Texture.h"
@@ -34,85 +35,110 @@ TEST(RendererTest)
 	RendererComponent* renderer = new RendererComponent;
 	root.addComponent(renderer);
 
-	EntityPtr guiLayer = new Entity;
-	guiLayer->name = "Gui layer";
-//	guiLayer->enabled = false;
-	guiLayer->asChildOf(&root);
+	RenderTargetComponent* mainRenderTarget = nullptr;
+	RenderTargetComponent* guiRenderTarget = nullptr;
+	RenderTargetComponent* textureRenderTarget = nullptr;
+	CameraComponent2* mainCamera = nullptr;
 
-	// Camera
-	CameraComponent2* mainCamera = new CameraComponent2(renderer);
+	{	// Setup the main camera
+		mainCamera = new CameraComponent2(renderer);
 
-	{	Entity* e = new Entity;
+		EntityPtr e = new Entity;
 		e->name = "Camera";
 		e->asChildOf(&root);
 		e->localTransform.setTranslation(Vec3f(0, 0, 10));
 		e->addComponent(mainCamera);
 	}
 
-	CameraComponent2* guiCamera = new CameraComponent2(renderer);
+	{	// Setup the main render target
+		mainRenderTarget = new RenderTargetComponent;
+		mainRenderTarget->window = &mainWindow;
+		mainRenderTarget->entityToRender = &root;
+		mainRenderTarget->cameraComponent = mainCamera;
+		mainRenderTarget->rendererComponent = renderer;
 
-	{	Entity* e = new Entity;
-		e->name = "Gui camera";
-		e->asChildOf(guiLayer.get());
-		e->localTransform.setTranslation(Vec3f(0, 0, 5));
-		e->addComponent(guiCamera);
-	}
+		CHECK_EQUAL(mainWindow.width(), mainRenderTarget->targetWidth());
+		CHECK_EQUAL(mainWindow.height(), mainRenderTarget->targetHeight());
 
-	// Render target
-	RenderTargetComponent* mainRenderTarget = new RenderTargetComponent;
-	mainRenderTarget->window = &mainWindow;
-	mainRenderTarget->entityToRender = &root;
-	mainRenderTarget->cameraComponent = mainCamera;
-	mainRenderTarget->rendererComponent = renderer;
-
-	{	Entity* e = new Entity;
+		EntityPtr e = new Entity;
 		e->name = "Main window render target";
 		e->asChildOf(&root);
 		e->addComponent(mainRenderTarget);
 	}
 
-	RenderTargetComponent* subRenderTarget = new RenderTargetComponent;
-	subRenderTarget->clearColor = ColorRGBAf(0.3f, 0.3f, 0.3f, 0);
-	subRenderTarget->window = &subWindow;
-	subRenderTarget->entityToRender = &root;
-	subRenderTarget->cameraComponent = mainCamera;
-	subRenderTarget->rendererComponent = renderer;
+	{	// Setup render to texture
+		textureRenderTarget = new RenderTargetComponent;
+		textureRenderTarget->clearColor = ColorRGBAf(0.3f, 0.6f, 0.9f, 1);
+		textureRenderTarget->window = nullptr;
+		textureRenderTarget->entityToRender = &root;
+		textureRenderTarget->cameraComponent = mainCamera;
+		textureRenderTarget->rendererComponent = renderer;
+		textureRenderTarget->textures[0] = textureRenderTarget->createTexture(GpuDataFormat::get("uintRGBA8"), 512, 512);
 
-	RenderTargetComponent* guiRenderTarget = new RenderTargetComponent;
-	guiRenderTarget->shouldClearColor = false;
-	guiRenderTarget->clearColor = ColorRGBAf(0, 0);
-	guiRenderTarget->window = &mainWindow;
-	guiRenderTarget->entityToRender = guiLayer.get();
-	guiRenderTarget->cameraComponent = guiCamera;
-	guiRenderTarget->rendererComponent = renderer;
+		EntityPtr e = new Entity;
+		e->name = "Texture render target";
+		e->asChildOf(&root);
+		e->addComponent(textureRenderTarget);
+	}
 
-	{	Entity* e = new Entity;
+	{	// Setup GUI layer
+		EntityPtr guiLayer = new Entity;
+		guiLayer->name = "Gui layer";
+		guiLayer->enabled = false;
+		guiLayer->asChildOf(&root);
+
+		// Othro camera
+		CameraComponent2* guiCamera = new CameraComponent2(renderer);
+		guiCamera->frustum.projectionType = Frustum::Ortho;
+		const float w = float(mainWindow.width());
+		const float h = float(mainWindow.height());
+		guiCamera->frustum.create(-0, w, 0, h, 1, 500);
+
+		EntityPtr e = new Entity;
+		e->name = "Gui camera";
+		e->asChildOf(guiLayer.get());
+		e->localTransform.setTranslation(Vec3f(0, 0, 5));
+		e->addComponent(guiCamera);
+
+		// Render target
+		guiRenderTarget = new RenderTargetComponent;
+		guiRenderTarget->shouldClearColor = false;
+		guiRenderTarget->clearColor = ColorRGBAf(0, 0);
+		guiRenderTarget->window = &mainWindow;
+		guiRenderTarget->entityToRender = guiLayer.get();
+		guiRenderTarget->cameraComponent = guiCamera;
+		guiRenderTarget->rendererComponent = renderer;
+
+		e = new Entity;
+		e->name = "Gui render target";
+		e->insertAfter(mainRenderTarget->entity());	// Such that gui will draw after the main scene
+		e->addComponent(guiRenderTarget);
+
+		e = new Entity;
+		e->name = "Quad1";
+		e->localTransform.setTranslation(Vec3f(300, 200, 0));
+		e->asChildOf(guiLayer.get());
+		QuadComponent* q = new QuadComponent;
+		q->width = 64;
+		q->height = 64;
+		e->addComponent(q);
+	}
+
+	{	// Setup sub-window
+		RenderTargetComponent* subRenderTarget = new RenderTargetComponent;
+		subRenderTarget->clearColor = ColorRGBAf(0.3f, 0.3f, 0.3f, 0);
+		subRenderTarget->window = &subWindow;
+		subRenderTarget->entityToRender = &root;
+		subRenderTarget->cameraComponent = mainCamera;
+		subRenderTarget->rendererComponent = renderer;
+
+		EntityPtr e = new Entity;
 		e->name = "Sub-window render target";
 		// NOTE: Due to some restriction on wglShareLists, the order of window
 		// render target component does have a effect. So prefer the main window's
 		// render target appear first in the Entity tree.
-		e->insertAfter(mainRenderTarget->entity());
+		e->insertAfter(guiRenderTarget->entity());
 		e->addComponent(subRenderTarget);
-	}
-
-	{	Entity* e = new Entity;
-		e->name = "Gui render target";
-		e->insertAfter(mainRenderTarget->entity());
-		e->addComponent(guiRenderTarget);
-	}
-
-	RenderTargetComponent* textureRenderTarget = new RenderTargetComponent;
-	textureRenderTarget->clearColor = ColorRGBAf(0.3f, 0.6f, 0.9f, 1);
-	textureRenderTarget->window = nullptr;
-	textureRenderTarget->entityToRender = &root;
-	textureRenderTarget->cameraComponent = mainCamera;
-	textureRenderTarget->rendererComponent = renderer;
-	textureRenderTarget->textures[0] = textureRenderTarget->createTexture(GpuDataFormat::get("uintRGBA8"), 512, 512);
-
-	{	Entity* e = new Entity;
-		e->name = "Texture render target";
-		e->asChildOf(&root);
-		e->addComponent(textureRenderTarget);
 	}
 
 	// Material
@@ -208,14 +234,6 @@ TEST(RendererTest)
 		e->addComponent(material2);
 		e->addComponent(sphereMesh->clone());
 		e->localTransform.translateBy(Vec3f(-2, 0, 2));
-	}
-
-	{	Entity* e = new Entity;
-		e->name = "Gui";
-		e->asChildOf(guiLayer.get());
-		e->addComponent(material2);
-		e->addComponent(sphereMesh->clone());
-		e->localTransform.translateBy(Vec3f(0, 0, 0));
 	}
 
 	while(true)
