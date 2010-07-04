@@ -2,22 +2,20 @@
 #define __MCD_RENDER_QUADCOMPONENT__
 
 #include "Color.h"
+#include "Renderable.h"
 #include "../Core/Entity/Component.h"
-#include "../Core/System/IntrusivePtr.h"
+#include "../Core/Math/Vec4.h"
+#include "../Core/System/Array.h"
 #include "../Core/System/StringHash.h"
 
 namespace MCD {
 
 /*!	Represent a quad to be render.
  */
-class MCD_RENDER_API QuadComponent : public Component
+class MCD_RENDER_API QuadComponent : public RenderableComponent2
 {
 public:
 	QuadComponent();
-
-	sal_override const std::type_info& familyType() const {
-		return typeid(QuadComponent);
-	}
 
 // Cloning
 	sal_override sal_checkreturn bool cloneable() const;
@@ -26,9 +24,11 @@ public:
 
 // Operations
 	sal_override void render();
+	sal_override void render2(sal_in void* context);
 
 // Attributes
-	size_t width, height;
+	float width, height;
+	Vec4f uv;	// UV coordinates of the left-top and right-bottom corner
 
 protected:
 	sal_override ~QuadComponent();

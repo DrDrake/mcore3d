@@ -4,6 +4,7 @@
 #include "../Camera.h"
 #include "../Light.h"
 #include "../Mesh.h"
+#include "../QuadComponent.h"
 #include "../RenderTargetComponent.h"
 #include "../RenderWindow.h"
 #include "../../Core/Entity/Entity.h"
@@ -40,6 +41,8 @@ RendererComponent::Impl::Impl()
 	mWhiteTexture = new Texture("1x1White");
 	byte_t data[] = { 255, 255, 255, 255 };
 	mWhiteTexture->create(GpuDataFormat::get("uintARGB8"), GpuDataFormat::get("uintARGB8"), 1, 1, 1, 1, data, 4);
+
+	mQuadRenderer.reset(new QuadRenderer(*this));
 }
 
 RendererComponent::Impl::~Impl()
@@ -83,7 +86,8 @@ void RendererComponent::Impl::render(Entity& entityTree, RenderTargetComponent& 
 	// Traverse the Entity tree
 	for(mEntityItr = EntityPreorderIterator(&entityTree); !mEntityItr.ended();)
 	{
-		if(!mEntityItr->enabled) {
+		// The input parameter entityTree will never skip
+		if(!mEntityItr->enabled && mEntityItr.current() != &entityTree) {
 			mEntityItr.skipChildren();
 			continue;
 		}
@@ -128,6 +132,16 @@ void RendererComponent::Impl::render(Entity& entityTree, RenderTargetComponent& 
 		device->SetRenderState(D3DRS_ALPHABLENDENABLE, false);
 	}
 
+	{	// Render QuadComponent
+		MCD_FOREACH(const QuadMaterialPair& pair, mQuads) {
+			QuadComponent* quad = pair.quad;
+			const Mat44f& transform = quad->entity()->worldTransform();
+			mQuadRenderer->push(transform, quad->width, quad->height, quad->uv, pair.mtl);
+		}
+		mQuadRenderer->flush();
+		mQuads.clear();
+	}
+
 	mLights.clear();
 	mOpaqueQueue.destroyAll();
 	mTransparentQueue.destroyAll();
@@ -166,6 +180,14 @@ void RendererComponent::Impl::processRenderItems(RenderItems& items)
 			i.material->postRender(0, this);
 		}
 	}
+}
+
+void QuadRenderer::push(const Mat44f& transform, float width, float height, const Vec4f& uv, MaterialComponent* mtl)
+{
+}
+
+void QuadRenderer::flush()
+{
 }
 
 RendererComponent::RendererComponent()

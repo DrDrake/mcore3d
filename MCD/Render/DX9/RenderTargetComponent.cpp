@@ -133,4 +133,18 @@ void RenderTargetComponent::render(RendererComponent& renderer, bool swapBuffers
 	}
 }
 
+size_t RenderTargetComponent::targetWidth() const
+{
+	if(window) return window->width();
+	if(textures[0]) return textures[0]->width;
+	return 0;
+}
+
+size_t RenderTargetComponent::targetHeight() const
+{
+	if(window) return window->height();
+	if(textures[0]) return textures[0]->height;
+	return 0;
+}
+
 }	// namespace MCD

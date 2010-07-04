@@ -513,6 +513,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\Null\QuadComponent_Null.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\Null\Renderer.cpp"
 				>
 			</File>
