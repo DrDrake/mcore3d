@@ -374,6 +374,23 @@ Mat44<T> Mat44<T>::makeAxisRotation(const Vec3<T>& axis, T angle) {
 	return Mat44f(Mat33f::makeAxisRotation(axis, angle));
 }
 
+template<typename T>
+Mat44<T> Mat44<T>::makeLookAt(const Vec3<T>& eyeAt, const Vec3<T>& lookAt, const Vec3<T>& upVector)
+{
+	Mat44<T> ret;
+	const Vec3<T> f = (lookAt - eyeAt).normalizedCopy();
+	const Vec3<T> s = f.cross(upVector.normalizedCopy());
+	const Vec3<T> u = s.cross(f);
+
+	ret.m00 = s.x;	ret.m01 = u.x;	ret.m02 = -f.x;	ret.m03 = 0;
+	ret.m10 = s.y;	ret.m11 = u.y;	ret.m12 = -f.y;	ret.m13 = 0;
+	ret.m20 = s.z;	ret.m21 = u.z;	ret.m22 = -f.z;	ret.m23 = 0;
+	ret.m30 = 0;	ret.m31 = 0;	ret.m32 = 0;	ret.m33 = 1;
+
+	ret.setTranslation(eyeAt);
+	return ret;
+}
+
 template<typename T> const Mat44<T> Mat44<T>::cIdentity = Mat44<T>(
 	1, 0, 0, 0,
 	0, 1, 0, 0,

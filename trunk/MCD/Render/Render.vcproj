@@ -282,6 +282,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\QuadComponent.h"
+				>
+			</File>
+			<File
 				RelativePath=".\RayMeshIntersect.h"
 				>
 			</File>
@@ -411,6 +415,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\QuadComponent.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\RayMeshIntersect.cpp"
 				>
 				<FileConfiguration
@@ -490,6 +498,10 @@
 			>
 			<File
 				RelativePath=".\Null\GpuDataFormat.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\Null\Light_Null.cpp"
 				>
 			</File>
 			<File

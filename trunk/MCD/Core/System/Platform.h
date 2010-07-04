@@ -19,8 +19,9 @@
 
 #ifdef __APPLE__
 #	include <Availability.h>
+#	include <TargetConditionals.h>
 #	define MCD_APPLE
-#	ifdef __IPHONE__	// This macro is defined right inside the project setting, a better solution is yet to find.
+#	ifdef TARGET_OS_IPHONE
 #		define MCD_IPHONE
 #	endif
 #endif

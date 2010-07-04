@@ -15,6 +15,4 @@ Component* LightComponent::clone() const
 	return ret;
 }
 
-void LightComponent::render() {}
-
 }	// namespace MCD

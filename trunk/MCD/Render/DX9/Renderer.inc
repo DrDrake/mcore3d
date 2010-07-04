@@ -85,6 +85,10 @@ public:
 
 	typedef std::vector<RenderTargetComponentPtr> RenderTargets;
 	RenderTargets mRenderTargets;
+
+	//!	Variables used when traversing the entity tree
+	EntityPreorderIterator mEntityItr;
+	MaterialComponent* mCurrentMaterial;
 };	// Impl
 
 }	// namespace MCD

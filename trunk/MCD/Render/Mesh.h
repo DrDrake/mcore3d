@@ -186,13 +186,9 @@ protected:
 
 namespace MCD {
 
-class MCD_RENDER_API MeshComponent2 : public Component
+class MCD_RENDER_API MeshComponent2 : public RenderableComponent2
 {
 public:
-	sal_override const std::type_info& familyType() const {
-		return typeid(MeshComponent2);
-	}
-
 // Cloning
 	sal_override sal_checkreturn bool cloneable() const { return true; }
 
@@ -200,6 +196,7 @@ public:
 
 // Operations
 	sal_override void render() {}
+	sal_override void render2(sal_in void* context);
 
 // Attributes
 	MeshPtr mesh;
