@@ -209,3 +209,31 @@ bool Mesh::create(const void* const* data, Mesh::StorageHint storageHint)
 }
 
 }	// namespace MCD
+
+#include "Renderer.inc"
+#include "../Material.h"
+#include "../../Core/Entity/Entity.h"
+
+namespace MCD {
+
+void MeshComponent2::render2(void* context)
+{
+	RendererComponent::Impl& renderer = *reinterpret_cast<RendererComponent::Impl*>(context);
+
+	Entity* e = entity();
+	MCD_ASSUME(e);
+
+	Vec3f pos = e->worldTransform().translation();
+	renderer.mViewMatrix.transformPoint(pos);
+	const float dist = pos.z;
+
+	MCD_ASSERT(!renderer.mMaterialStack.empty());
+	MaterialComponent* m = renderer.mMaterialStack.top();
+	RenderItem r = { this, m };
+	if(!m->isTransparent())
+		renderer.mOpaqueQueue.insert(*new RenderItemNode(-dist, r));
+	else
+		renderer.mTransparentQueue.insert(*new RenderItemNode(dist, r));
+}
+
+}	// namespace MCD

@@ -1,5 +1,6 @@
 #include "Pch.h"
 #include "../Material.h"
+#include "Renderer.inc"
 
 namespace MCD {
 
@@ -15,6 +16,13 @@ MaterialComponent::MaterialComponent()
 
 MaterialComponent::~MaterialComponent()
 {
+}
+
+void MaterialComponent::render2(void* context)
+{
+	// Push light into Renderer's light list
+	RendererComponent::Impl& renderer = *reinterpret_cast<RendererComponent::Impl*>(context);
+	renderer.mCurrentMaterial = this;
 }
 
 void MaterialComponent::preRender(size_t pass, void* context)

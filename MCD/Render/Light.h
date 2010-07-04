@@ -2,19 +2,15 @@
 #define __MCD_RENDER_LIGHT__
 
 #include "Color.h"
-#include "../Core/Entity/Component.h"
+#include "Renderable.h"
 #include "../Core/System/IntrusivePtr.h"
 #include "../Core/System/StringHash.h"
 
 namespace MCD {
 
-class MCD_RENDER_API LightComponent : public Component
+class MCD_RENDER_API LightComponent : public RenderableComponent2
 {
 public:
-	sal_override const std::type_info& familyType() const {
-		return typeid(LightComponent);
-	}
-
 // Cloning
 	sal_override sal_checkreturn bool cloneable() const;
 
@@ -22,6 +18,7 @@ public:
 
 // Operations
 	sal_override void render();
+	sal_override void render2(sal_in void* context);
 
 // Attributes
 	FixString type;	//!< "point" or directional" or "spot"

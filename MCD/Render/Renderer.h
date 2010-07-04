@@ -11,7 +11,6 @@ class MCD_RENDER_API RendererComponent : public Component
 {
 public:
 	RendererComponent();
-	sal_override virtual ~RendererComponent();
 
 	sal_override const std::type_info& familyType() const {
 		return typeid(RendererComponent);
@@ -28,6 +27,9 @@ public:
 
 	class Impl;
 	Impl& mImpl;
+
+protected:
+	sal_override virtual ~RendererComponent();
 };	// RendererComponent
 
 typedef IntrusiveWeakPtr<RendererComponent> RendererComponentPtr;

@@ -26,6 +26,8 @@ public:
 
 	//! The derived components should override this function for rendering.
 	virtual void render() = 0;
+	//!	Invoked by RendererComponent
+	virtual void render2(sal_in void* context) = 0;
 
 	//! Invoke the RenderableComponent::render() in every Entity under the entityNode sub-tree.
 	static void traverseEntities(sal_maybenull Entity* entityNode);

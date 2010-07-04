@@ -491,6 +491,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\DX9\Light_DX9.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\DX9\Material_DX9.cpp"
 				>
 			</File>

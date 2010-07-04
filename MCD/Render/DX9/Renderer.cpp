@@ -32,6 +32,7 @@ LPDIRECT3DSWAPCHAIN9 currentSwapChain()
 }
 
 RendererComponent::Impl::Impl()
+	: mEntityItr(nullptr)
 {
 	ZeroMemory(&mCurrentVS, sizeof(mCurrentVS));
 	ZeroMemory(&mCurrentPS, sizeof(mCurrentPS));
@@ -80,51 +81,36 @@ void RendererComponent::Impl::render(Entity& entityTree, RenderTargetComponent& 
 	device->SetViewport(&view_port);*/
 
 	// Traverse the Entity tree
-	for(EntityPreorderIterator itr(&entityTree); !itr.ended();)
+	for(mEntityItr = EntityPreorderIterator(&entityTree); !mEntityItr.ended();)
 	{
-		if(!itr->enabled) {
-			itr.skipChildren();
+		if(!mEntityItr->enabled) {
+			mEntityItr.skipChildren();
 			continue;
 		}
 
-		Entity* e = itr.current();
-
-		// Push light into the light list, if any
-		if(LightComponent* light = e->findComponent<LightComponent>()) {
-			mLights.push_back(light);
-		}
+		Entity* e = mEntityItr.current();
 
 		// Pop material when moving up (towards parent) or leveling in the tree
-		for(int depth = itr.depthChange(); depth <= 0 && mMaterialStack.size() > 0; ++depth)
+		mCurrentMaterial = nullptr;
+		for(int depth = mEntityItr.depthChange(); depth <= 0 && mMaterialStack.size() > 0; ++depth)
 			mMaterialStack.pop();
 
-		// Push material
-		MaterialComponent* mtl = e->findComponent<MaterialComponent>();
-		if(nullptr == mtl) {
-			// Skip if there where no material
+		// Preform actions defined by the concret type of RenderableComponent2 we have found
+		if(RenderableComponent2* renderable = e->findComponent<RenderableComponent2>())
+			renderable->render2(this);
+
+		// Skip if there where no material
+		if(nullptr == mCurrentMaterial) {
 			if(mMaterialStack.empty()) {
-				itr.next();
+				mEntityItr.next();
 				continue;
 			}
-			mtl = mMaterialStack.top();
+			mCurrentMaterial = mMaterialStack.top();
 		}
-		mMaterialStack.push(mtl);
+		mMaterialStack.push(mCurrentMaterial);
 
-		// Push mesh into render queue, if any
-		if(MeshComponent2* mesh = e->findComponent<MeshComponent2>()) {
-			Vec3f pos = e->worldTransform().translation();
-			mViewMatrix.transformPoint(pos);
-			const float dist = pos.z;
-
-			RenderItem r = { mesh, mtl };
-			if(!mtl->isTransparent())
-				mOpaqueQueue.insert(*new RenderItemNode(-dist, r));
-			else
-				mTransparentQueue.insert(*new RenderItemNode(dist, r));
-		}
-
-		itr.next();
-	}
+		mEntityItr.next();
+	}	// traverse entities
 
 	{	// Render opaque items
 		processRenderItems(mOpaqueQueue);

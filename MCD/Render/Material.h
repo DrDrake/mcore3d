@@ -3,6 +3,7 @@
 
 #include "Color.h"
 #include "MaterialProperty.h"
+#include "Renderable.h"
 #include "../Core/System/IntrusivePtr.h"
 #include "../Core/System/PtrVector.h"
 
@@ -83,14 +84,10 @@ namespace MCD {
 
 class RendererComponent;
 
-class MCD_RENDER_API MaterialComponent : public Component
+class MCD_RENDER_API MaterialComponent : public RenderableComponent2
 {
 public:
 	MaterialComponent();
-
-	sal_override const std::type_info& familyType() const {
-		return typeid(MaterialComponent);
-	}
 
 // Cloning
 	sal_override sal_checkreturn bool cloneable() const { return true; }
@@ -99,6 +96,7 @@ public:
 
 // Operations
 	sal_override void render() {}
+	sal_override void render2(sal_in void* context);
 
 // Attrubutes
 	ColorRGBAf diffuseColor;

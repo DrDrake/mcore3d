@@ -10,6 +10,10 @@
 
 namespace MCD {
 
+RendererComponent::Impl::Impl()
+	: mEntityItr(nullptr)
+{}
+
 void RendererComponent::Impl::render(Entity& entityTree, RenderTargetComponent& renderTarget)
 {
 	glShadeModel(GL_SMOOTH);
@@ -50,42 +54,27 @@ void RendererComponent::Impl::render(Entity& entityTree, RenderTargetComponent& 
 
 		Entity* e = itr.current();
 
-		// Push light into the light list, if any
-		if(LightComponent* light = e->findComponent<LightComponent>()) {
-			mLights.push_back(light);
-		}
-
 		// Pop material when moving up (towards parent) or leveling in the tree
+		mCurrentMaterial = nullptr;
 		for(int depth = itr.depthChange(); depth <= 0 && mMaterialStack.size() > 0; ++depth)
 			mMaterialStack.pop();
 
-		// Push material
-		MaterialComponent* mtl = e->findComponent<MaterialComponent>();
-		if(nullptr == mtl) {
-			// Skip if there where no material
+		// Preform actions defined by the concret type of RenderableComponent2 we have found
+		if(RenderableComponent2* renderable = e->findComponent<RenderableComponent2>())
+			renderable->render2(this);
+
+		// Skip if there where no material
+		if(nullptr == mCurrentMaterial) {
 			if(mMaterialStack.empty()) {
-				itr.next();
+				mEntityItr.next();
 				continue;
 			}
-			mtl = mMaterialStack.top();
+			mCurrentMaterial = mMaterialStack.top();
 		}
-		mMaterialStack.push(mtl);
-
-		// Push mesh into render queue, if any
-		if(MeshComponent2* mesh = e->findComponent<MeshComponent2>()) {
-			Vec3f pos = e->worldTransform().translation();
-			mViewMatrix.transformPoint(pos);
-			const float dist = pos.z;
-
-			RenderItem r = { mesh, mtl };
-			if(!mtl->isTransparent())
-				mOpaqueQueue.insert(*new RenderItemNode(-dist, r));
-			else
-				mTransparentQueue.insert(*new RenderItemNode(dist, r));
-		}
+		mMaterialStack.push(mCurrentMaterial);
 
 		itr.next();
-	}
+	}	// traverse entities
 
 	// Set up lighting
 	static const size_t cMaxHardwareLight = 8;

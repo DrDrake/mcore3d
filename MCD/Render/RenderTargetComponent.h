@@ -26,6 +26,7 @@ public:
 
 	//! Will register the itself into the RendererComponent
 	sal_override void render();
+	sal_override void render2(sal_in void* context) {}
 
 	/*!	Will invoked by Renderer, preform some preparation and then calling
 		back Renderer::render().

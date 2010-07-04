@@ -160,6 +160,9 @@ public:
 
 	static Mat44 makeAxisRotation(const Vec3<T>& axis, T angle);
 
+	//!	Make an object look at matrix.
+	static Mat44 makeLookAt(const Vec3<T>& eyeAt, const Vec3<T>& lookAt, const Vec3<T>& upVector);
+
 	static const Mat44 cIdentity;
 };	// Mat44
 
