@@ -88,14 +88,14 @@
 			isa = PBXContainerItemProxy;
 			containerPortal = 1873A2E811883540008D0F62 /* 3Party.xcodeproj */;
 			proxyType = 2;
-			remoteGlobalIDString = 1868989511D8A124005D4176 /* libjkbind.a */;
+			remoteGlobalIDString = 1868989511D8A124005D4176;
 			remoteInfo = jkbind;
 		};
 		186898ED11D8A1F2005D4176 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 1873A2E811883540008D0F62 /* 3Party.xcodeproj */;
 			proxyType = 2;
-			remoteGlobalIDString = 186898EB11D8A1F1005D4176 /* libPowerVR.a */;
+			remoteGlobalIDString = 186898EB11D8A1F1005D4176;
 			remoteInfo = PowerVR;
 		};
 		1869634511C5EE9D00800080 /* PBXContainerItemProxy */ = {
@@ -525,10 +525,10 @@
 			isa = PBXGroup;
 			children = (
 				1873A2EF11883540008D0F62 /* libCppTestHarness.a */,
-				1873A2F111883540008D0F62 /* libSmallJpeg.a */,
-				18C53CE2119A646D00DA21DC /* libsquirrel.a */,
 				1868989B11D8A125005D4176 /* libjkbind.a */,
 				186898EE11D8A1F2005D4176 /* libPowerVR.a */,
+				1873A2F111883540008D0F62 /* libSmallJpeg.a */,
+				18C53CE2119A646D00DA21DC /* libsquirrel.a */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -675,18 +675,16 @@
 		1868989B11D8A125005D4176 /* libjkbind.a */ = {
 			isa = PBXReferenceProxy;
 			fileType = archive.ar;
-			name = libjkbind.a;
-			path = "build/iPhone Debug-iphoneos/libjkbind.a";
+			path = libjkbind.a;
 			remoteRef = 1868989A11D8A125005D4176 /* PBXContainerItemProxy */;
-			sourceTree = "<group>";
+			sourceTree = BUILT_PRODUCTS_DIR;
 		};
 		186898EE11D8A1F2005D4176 /* libPowerVR.a */ = {
 			isa = PBXReferenceProxy;
 			fileType = archive.ar;
-			name = libPowerVR.a;
-			path = "build/iPhone Debug-iphoneos/libPowerVR.a";
+			path = libPowerVR.a;
 			remoteRef = 186898ED11D8A1F2005D4176 /* PBXContainerItemProxy */;
-			sourceTree = "<group>";
+			sourceTree = BUILT_PRODUCTS_DIR;
 		};
 		1873A2EF11883540008D0F62 /* libCppTestHarness.a */ = {
 			isa = PBXReferenceProxy;

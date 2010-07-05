@@ -5,6 +5,10 @@
 #include "PlatformIncludeFwd.h"
 #include "TypeTrait.h"
 
+#ifdef MCD_APPLE
+#	include <libkern/OSAtomic.h>
+#endif
+
 namespace MCD {
 
 /*!	A thread safe variable of any type. Protects assignments with a mutex.
@@ -101,12 +105,22 @@ int AtomicInteger::operator--() {
 
 // Reference: http://gcc.gnu.org/onlinedocs/gcc-4.1.2/gcc/Atomic-Builtins.html#Atomic-Builtins
 // Reference: http://golubenco.org/2007/06/14/atomic-operations
-int AtomicInteger::operator++() {
+int AtomicInteger::operator++()
+{
+#ifdef MCD_APPLE
+	return OSAtomicIncrement32(&value);
+#else
 	return __sync_add_and_fetch((long*)&value, 1);
+#endif
 }
 
-int AtomicInteger::operator--() {
+int AtomicInteger::operator--()
+{
+#ifdef MCD_APPLE
+	return OSAtomicDecrement32(&value);
+#else
 	return __sync_sub_and_fetch((long*)&value, 1);
+#endif
 }
 
 #endif

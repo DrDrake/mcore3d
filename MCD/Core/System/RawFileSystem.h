@@ -54,10 +54,10 @@ public:
 
 	sal_override void closeFirstFileInFolder(sal_maybenull void* context) const;
 
-private:
-	//! Convert to absolute path, if necessary
+	//! Convert our virtualized path into OS's absolute path
 	Path toAbsolutePath(const Path& path) const;
 
+private:
 	Path mRootPath;
 };	// RawFileSystem
 
