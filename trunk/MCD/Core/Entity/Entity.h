@@ -64,6 +64,21 @@ public:
 		return findComponent<T>(typeid(T));
 	}
 
+	/*!	Find a component in the Entity with the supplied typeid.
+		Returns null if none is found.
+	 */
+	sal_maybenull Component* findComponentExactType(const std::type_info& type) const;
+
+	//!	Wrap over findComponentExactType() with polymorphic_downcast
+	template<class T>
+	sal_maybenull T* findComponentExactType(const std::type_info& familyType) const {
+		return polymorphic_downcast<T*>(findComponentExactType(familyType));
+	}
+	template<class T>
+	sal_maybenull T* findComponentExactType() const {
+		return findComponentExactType<T>(typeid(T));
+	}
+
 	// TODO: Replace findComponentInChildren with some filtering iterator.
 	/*!	Returns the Component of type familyType in the Entity or any of its children.
 		Returns null if none is found.
@@ -79,6 +94,18 @@ public:
 	template<class T>
 	sal_maybenull T* findComponentInChildren() const {
 		return findComponentInChildren<T>(typeid(T));
+	}
+
+	sal_maybenull Component* findComponentInChildrenExactType(const std::type_info& familyType) const;
+
+	//!	Wrap over findComponentInChildrenExactType() with polymorphic_downcast
+	template<class T>
+	sal_maybenull T* findComponentInChildrenExactType(const std::type_info& familyType) const {
+		return polymorphic_downcast<T*>(findComponentInChildrenExactType(familyType));
+	}
+	template<class T>
+	sal_maybenull T* findComponentInChildrenExactType() const {
+		return findComponentInChildrenExactType<T>(typeid(T));
 	}
 
 	//!	Instead of simply returning true or false, the no. of level is returned.
