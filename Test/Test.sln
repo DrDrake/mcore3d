@@ -13,6 +13,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Render", "..\MCD\Render\Ren
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "RenderDX9", "..\MCD\Render\RenderDX9.vcproj", "{35CE800C-6304-4E8A-A895-07D2DE7377FE}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "RenderGL2", "..\MCD\Render\RenderGL2.vcproj", "{8D0247D9-D5DC-41A2-A05E-7FB95329FF9D}"
+EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "RenderTest", "RenderTest\RenderTest.vcproj", "{4DA3080B-CD7B-454F-8D08-493605EE4980}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Binding", "Binding", "{03810A82-BCF8-4236-A8DB-8B6E4DF32B61}"
@@ -40,8 +42,6 @@ EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "NetworkTest", "NetworkTest\NetworkTest.vcproj", "{049D1641-00B0-477F-9716-70503831E690}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Loader", "..\MCD\Loader\Loader.vcproj", "{393AC843-B488-4E7F-BFA3-8E5C6F7352FD}"
-EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "RenderGL2", "..\MCD\Render\RenderGL2.vcproj", "{8D0247D9-D5DC-41A2-A05E-7FB95329FF9D}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

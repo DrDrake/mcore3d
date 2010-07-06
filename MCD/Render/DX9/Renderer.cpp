@@ -196,42 +196,58 @@ void RendererComponent::Impl::postRenderMaterial(size_t pass, IMaterialComponent
 
 struct QuadVertex
 {
-      D3DXVECTOR3 position;
-      float u, v;
+	D3DXVECTOR3 position;
+	float u, v;
 };	// QuadVertex
 
 static const int cQuadVertexFVF = (D3DFVF_XYZ|D3DFVF_TEX1);
 
 void QuadRenderer::push(const Mat44f& transform, float width, float height, const Vec4f& uv, IMaterialComponent* mtl)
 {
-	LPDIRECT3DDEVICE9 device = getDevice();
-	MCD_ASSUME(device);
-
-	mRenderer.preRenderMaterial(0, *mtl);
+	// Trigger a flush whenever the material is changed or too many quad in the buffer
+	if(mtl != mCurrentMaterial || mQuadCount > 512)
+		flush();
+	mCurrentMaterial = mtl;
 
 	const float halfW = 0.5f * width;
 	const float halfH = 0.5f * height;
 
-	const QuadVertex vertice[4] = {
-		D3DXVECTOR3(-halfW,  halfH, 0), uv.x, uv.y,
-		D3DXVECTOR3(-halfW, -halfH, 0), uv.x, uv.w,
-		D3DXVECTOR3( halfW, -halfH, 0), uv.z, uv.w,
-		D3DXVECTOR3( halfW,  halfH, 0), uv.z, uv.y,
+	++mQuadCount;
+	Vertex v[4] = {
+		{ Vec3f(-halfW,  halfH, 0), Vec2f(uv.x, uv.y) },
+		{ Vec3f(-halfW, -halfH, 0), Vec2f(uv.x, uv.w) },
+		{ Vec3f( halfW, -halfH, 0), Vec2f(uv.z, uv.w) },
+		{ Vec3f( halfW,  halfH, 0), Vec2f(uv.z, uv.y) },
 	};
 
-	Mat44f mat = mRenderer.mViewMatrix * transform;
-	mat = transform.transpose();
+	for(size_t i=0; i<MCD_COUNTOF(v); ++i)
+		transform.transformPoint(v[i].position);
 
-	device->SetTransform(D3DTS_VIEW, (D3DMATRIX*)mat.getPtr());
-
-	device->SetFVF(cQuadVertexFVF);
-	device->DrawPrimitiveUP(D3DPT_TRIANGLEFAN, 2, vertice, sizeof(QuadVertex));
-
-	mRenderer.postRenderMaterial(0, *mtl);
+	mVertexBuffer.push_back(v[0]);
+	mVertexBuffer.push_back(v[1]);
+	mVertexBuffer.push_back(v[2]);
+	mVertexBuffer.push_back(v[0]);
+	mVertexBuffer.push_back(v[2]);
+	mVertexBuffer.push_back(v[3]);
 }
 
 void QuadRenderer::flush()
 {
+	MCD_ASSERT(mVertexBuffer.size() == mQuadCount * 6);
+	if(!mQuadCount)
+		return;
+
+	mRenderer.preRenderMaterial(0, *mCurrentMaterial);
+
+	LPDIRECT3DDEVICE9 device = getDevice();
+	MCD_ASSUME(device);
+	device->SetFVF(cQuadVertexFVF);
+	device->DrawPrimitiveUP(D3DPT_TRIANGLELIST, mQuadCount * 2, &mVertexBuffer[0], sizeof(QuadVertex));
+
+	mVertexBuffer.clear();
+	mQuadCount = 0;
+
+	mRenderer.postRenderMaterial(0, *mCurrentMaterial);
 }
 
 RendererComponent::RendererComponent()

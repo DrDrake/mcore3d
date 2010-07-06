@@ -120,6 +120,14 @@ TEST(RendererTest)
 		q->width = 64;
 		q->height = 64;
 		e->addComponent(q);
+
+		e = new Entity("Quad2");
+		e->localTransform.setTranslation(Vec3f(200, 200, 0));
+		e->asChildOf(guiLayer.get());
+		q = new QuadComponent;
+		q->width = 64;
+		q->height = 64;
+		e->addComponent(q);
 	}
 
 	{	// Setup sub-window
