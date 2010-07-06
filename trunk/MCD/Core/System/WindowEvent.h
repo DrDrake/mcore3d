@@ -2,7 +2,7 @@
 #define __MCD_CORE_SYSTEM_WINDOWEVENT__
 
 #include "../ShareLib.h"
-#include "Platform.h"
+#include "Array.h"
 
 namespace MCD {
 
@@ -174,6 +174,14 @@ public:
 		uint Height;
 	};
 
+	/*!	Other event that were not specified in this header can be encoded in this
+		fixed buffer user data.
+	 */
+	struct OtherEvent
+	{
+		Array<char,16> UserData;
+	};
+
 	enum EventType
 	{
 		Closed,
@@ -186,7 +194,8 @@ public:
 		MouseWheelMoved,
 		MouseButtonPressed,
 		MouseButtonReleased,
-		MouseMoved
+		MouseMoved,
+		OtherEventType
 	} Type;
 
 	union
@@ -197,6 +206,7 @@ public:
 		MouseButtonEvent	MouseButton;
 		MouseWheelEvent		MouseWheel;
 		SizeEvent			Size;
+		OtherEvent			Other;
 	};
 };	// Event
 

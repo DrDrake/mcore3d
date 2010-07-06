@@ -228,7 +228,7 @@ void MeshComponent2::render2(void* context)
 	const float dist = pos.z;
 
 	MCD_ASSERT(!renderer.mMaterialStack.empty());
-	MaterialComponent* m = renderer.mMaterialStack.top();
+	IMaterialComponent* m = renderer.mMaterialStack.top();
 	RenderItem r = { this, m };
 	if(!m->isTransparent())
 		renderer.mOpaqueQueue.insert(*new RenderItemNode(-dist, r));

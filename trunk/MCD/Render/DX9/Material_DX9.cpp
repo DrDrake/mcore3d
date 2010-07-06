@@ -276,9 +276,7 @@ void MaterialComponent::preRender(size_t pass, void* context)
 	device->SetPixelShader(mImpl.mPs);
 }
 
-void MaterialComponent::postRender(size_t pass, void* context)
-{
-}
+void MaterialComponent::postRender(size_t pass, void* context) {}
 
 MaterialComponent::MaterialComponent()
 	: mImpl(*new Impl)
@@ -287,12 +285,33 @@ MaterialComponent::MaterialComponent()
 	, emissionColor(0, 1)
 	, specularExponent(20)
 	, opacity(1)
-{
-}
+{}
 
 MaterialComponent::~MaterialComponent()
 {
 	delete &mImpl;
 }
+
+void SpriteMaterialComponent::render2(void* context)
+{
+	// Push light into Renderer's light list
+	RendererComponent::Impl& renderer = *reinterpret_cast<RendererComponent::Impl*>(context);
+	renderer.mCurrentMaterial = this;
+}
+
+void SpriteMaterialComponent::preRender(size_t pass, void* context)
+{
+	LPDIRECT3DDEVICE9 device = getDevice();
+
+	device->SetVertexShader(nullptr);
+	device->SetPixelShader(nullptr);
+
+	if(diffuseMap) {
+		if(IDirect3DBaseTexture9* texture = reinterpret_cast<IDirect3DBaseTexture9*>(diffuseMap->handle))
+			MCD_VERIFY(device->SetTexture(0, texture) == D3D_OK);
+	}
+}
+
+void SpriteMaterialComponent::postRender(size_t pass, void* context) {}
 
 }	// namespace MCD

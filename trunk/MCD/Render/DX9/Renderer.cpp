@@ -116,6 +116,10 @@ void RendererComponent::Impl::render(Entity& entityTree, RenderTargetComponent& 
 		mEntityItr.next();
 	}	// traverse entities
 
+	{	// Disable lighting if there is no LightComponent
+		device->SetRenderState(D3DRS_LIGHTING, !mLights.empty());
+	}
+
 	{	// Render opaque items
 		processRenderItems(mOpaqueQueue);
 	}
@@ -129,17 +133,17 @@ void RendererComponent::Impl::render(Entity& entityTree, RenderTargetComponent& 
 
 		processRenderItems(mTransparentQueue);
 
-		device->SetRenderState(D3DRS_ALPHABLENDENABLE, false);
-	}
-
-	{	// Render QuadComponent
-		MCD_FOREACH(const QuadMaterialPair& pair, mQuads) {
-			QuadComponent* quad = pair.quad;
-			const Mat44f& transform = quad->entity()->worldTransform();
-			mQuadRenderer->push(transform, quad->width, quad->height, quad->uv, pair.mtl);
+		{	// Render QuadComponent
+			MCD_FOREACH(const QuadMaterialPair& pair, mQuads) {
+				QuadComponent* quad = pair.quad;
+				const Mat44f& transform = quad->entity()->worldTransform();
+				mQuadRenderer->push(transform, quad->width, quad->height, quad->uv, pair.mtl);
+			}
+			mQuadRenderer->flush();
+			mQuads.clear();
 		}
-		mQuadRenderer->flush();
-		mQuads.clear();
+
+		device->SetRenderState(D3DRS_ALPHABLENDENABLE, false);
 	}
 
 	mLights.clear();
@@ -182,8 +186,48 @@ void RendererComponent::Impl::processRenderItems(RenderItems& items)
 	}
 }
 
-void QuadRenderer::push(const Mat44f& transform, float width, float height, const Vec4f& uv, MaterialComponent* mtl)
+void RendererComponent::Impl::preRenderMaterial(size_t pass, IMaterialComponent& mtl) {
+	mtl.preRender(pass, this);
+}
+
+void RendererComponent::Impl::postRenderMaterial(size_t pass, IMaterialComponent& mtl) {
+	mtl.postRender(pass, this);
+}
+
+struct QuadVertex
 {
+      D3DXVECTOR3 position;
+      float u, v;
+};	// QuadVertex
+
+static const int cQuadVertexFVF = (D3DFVF_XYZ|D3DFVF_TEX1);
+
+void QuadRenderer::push(const Mat44f& transform, float width, float height, const Vec4f& uv, IMaterialComponent* mtl)
+{
+	LPDIRECT3DDEVICE9 device = getDevice();
+	MCD_ASSUME(device);
+
+	mRenderer.preRenderMaterial(0, *mtl);
+
+	const float halfW = 0.5f * width;
+	const float halfH = 0.5f * height;
+
+	const QuadVertex vertice[4] = {
+		D3DXVECTOR3(-halfW,  halfH, 0), uv.x, uv.y,
+		D3DXVECTOR3(-halfW, -halfH, 0), uv.x, uv.w,
+		D3DXVECTOR3( halfW, -halfH, 0), uv.z, uv.w,
+		D3DXVECTOR3( halfW,  halfH, 0), uv.z, uv.y,
+	};
+
+	Mat44f mat = mRenderer.mViewMatrix * transform;
+	mat = transform.transpose();
+
+	device->SetTransform(D3DTS_VIEW, (D3DMATRIX*)mat.getPtr());
+
+	device->SetFVF(cQuadVertexFVF);
+	device->DrawPrimitiveUP(D3DPT_TRIANGLEFAN, 2, vertice, sizeof(QuadVertex));
+
+	mRenderer.postRenderMaterial(0, *mtl);
 }
 
 void QuadRenderer::flush()

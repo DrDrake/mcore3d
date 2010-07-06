@@ -8,7 +8,7 @@
 namespace MCD {
 
 class LightComponent;
-class MaterialComponent;
+class IMaterialComponent;
 class MeshComponent2;
 class QuadComponent;
 class QuadRenderer;
@@ -19,7 +19,7 @@ typedef IntrusiveWeakPtr<class RenderTargetComponent> RenderTargetComponentPtr;
 struct RenderItem
 {
 	sal_notnull MeshComponent2* mesh;
-	sal_notnull MaterialComponent* material;
+	sal_notnull IMaterialComponent* material;
 };	// RenderItem
 
 struct RenderItemNode : public MapBase<float>::Node<RenderItemNode>
@@ -44,15 +44,15 @@ public:
 
 	void processRenderItems(RenderItems& items);
 
-	void preRenderMaterial(size_t pass, MaterialComponent& mtl);
-	void postRenderMaterial(size_t pass, MaterialComponent& mtl);
+	void preRenderMaterial(size_t pass, IMaterialComponent& mtl);
+	void postRenderMaterial(size_t pass, IMaterialComponent& mtl);
 
 	//! mDefaultCamera and mCurrentCamera may differ from each other when rendering using light's view
 	CameraComponent2Ptr mDefaultCamera, mCurrentCamera;
 	Mat44f mCameraTransform;
 	Mat44f mProjMatrix, mViewMatrix, mViewProjMatrix, mWorldMatrix, mWorldViewProjMatrix;
 	sal_notnull RendererComponent* mBackRef;
-	std::stack<MaterialComponent*> mMaterialStack;
+	std::stack<IMaterialComponent*> mMaterialStack;
 
 	typedef std::vector<LightComponent*> Lights;
 	Lights mLights;
@@ -62,14 +62,14 @@ public:
 	typedef std::vector<RenderTargetComponentPtr> RenderTargets;
 	RenderTargets mRenderTargets;
 
-	struct QuadMaterialPair { QuadComponent* quad; MaterialComponent* mtl; };
+	struct QuadMaterialPair { QuadComponent* quad; IMaterialComponent* mtl; };
 	typedef std::vector<QuadMaterialPair> Quads;
 	Quads mQuads;
 	std::auto_ptr<QuadRenderer> mQuadRenderer;
 
 	//!	Variables used when traversing the entity tree
 	EntityPreorderIterator mEntityItr;
-	MaterialComponent* mCurrentMaterial;
+	IMaterialComponent* mCurrentMaterial;
 };	// Impl
 
 class QuadRenderer
@@ -82,7 +82,7 @@ public:
 	/*!	Push a quad to the buffer, the actual render will be performed in flush()
 		A change in material or buffer full will triffer a flush automatically.
 	 */
-	void push(const Mat44f& transform, float width, float height, const Vec4f& uv, MaterialComponent* mtl);
+	void push(const Mat44f& transform, float width, float height, const Vec4f& uv, IMaterialComponent* mtl);
 
 	void flush();
 

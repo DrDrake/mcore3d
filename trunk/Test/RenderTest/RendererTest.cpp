@@ -43,8 +43,7 @@ TEST(RendererTest)
 	{	// Setup the main camera
 		mainCamera = new CameraComponent2(renderer);
 
-		EntityPtr e = new Entity;
-		e->name = "Camera";
+		EntityPtr e = new Entity("Camera");
 		e->asChildOf(&root);
 		e->localTransform.setTranslation(Vec3f(0, 0, 10));
 		e->addComponent(mainCamera);
@@ -60,8 +59,7 @@ TEST(RendererTest)
 		CHECK_EQUAL(mainWindow.width(), mainRenderTarget->targetWidth());
 		CHECK_EQUAL(mainWindow.height(), mainRenderTarget->targetHeight());
 
-		EntityPtr e = new Entity;
-		e->name = "Main window render target";
+		EntityPtr e = new Entity("Main window render target");
 		e->asChildOf(&root);
 		e->addComponent(mainRenderTarget);
 	}
@@ -75,17 +73,20 @@ TEST(RendererTest)
 		textureRenderTarget->rendererComponent = renderer;
 		textureRenderTarget->textures[0] = textureRenderTarget->createTexture(GpuDataFormat::get("uintRGBA8"), 512, 512);
 
-		EntityPtr e = new Entity;
-		e->name = "Texture render target";
+		EntityPtr e = new Entity("Texture render target");
 		e->asChildOf(&root);
 		e->addComponent(textureRenderTarget);
 	}
 
 	{	// Setup GUI layer
-		EntityPtr guiLayer = new Entity;
-		guiLayer->name = "Gui layer";
+		EntityPtr guiLayer = new Entity("Gui layer");
 		guiLayer->enabled = false;
 		guiLayer->asChildOf(&root);
+
+		// Use SpriteMaterialComponent for GUI
+		SpriteMaterialComponent* material = new SpriteMaterialComponent;
+		material->diffuseMap = dynamic_cast<Texture*>(resourceManager.load("InterlacedTrans256x256.png").get());
+		guiLayer->addComponent(material);
 
 		// Othro camera
 		CameraComponent2* guiCamera = new CameraComponent2(renderer);
@@ -94,8 +95,7 @@ TEST(RendererTest)
 		const float h = float(mainWindow.height());
 		guiCamera->frustum.create(-0, w, 0, h, 1, 500);
 
-		EntityPtr e = new Entity;
-		e->name = "Gui camera";
+		EntityPtr e = new Entity("Gui camera");
 		e->asChildOf(guiLayer.get());
 		e->localTransform.setTranslation(Vec3f(0, 0, 5));
 		e->addComponent(guiCamera);
@@ -109,13 +109,11 @@ TEST(RendererTest)
 		guiRenderTarget->cameraComponent = guiCamera;
 		guiRenderTarget->rendererComponent = renderer;
 
-		e = new Entity;
-		e->name = "Gui render target";
+		e = new Entity("Gui render target");
 		e->insertAfter(mainRenderTarget->entity());	// Such that gui will draw after the main scene
 		e->addComponent(guiRenderTarget);
 
-		e = new Entity;
-		e->name = "Quad1";
+		e = new Entity("Quad1");
 		e->localTransform.setTranslation(Vec3f(300, 200, 0));
 		e->asChildOf(guiLayer.get());
 		QuadComponent* q = new QuadComponent;
@@ -132,8 +130,7 @@ TEST(RendererTest)
 		subRenderTarget->cameraComponent = mainCamera;
 		subRenderTarget->rendererComponent = renderer;
 
-		EntityPtr e = new Entity;
-		e->name = "Sub-window render target";
+		EntityPtr e = new Entity("Sub-window render target");
 		// NOTE: Due to some restriction on wglShareLists, the order of window
 		// render target component does have a effect. So prefer the main window's
 		// render target appear first in the Entity tree.
@@ -157,8 +154,7 @@ TEST(RendererTest)
 	// Light
 	{	LightComponent* light = new LightComponent;
 		light->color = ColorRGBf(1, 0.8f, 0.8f);
-		Entity* e = new Entity;
-		e->name = "Light1";
+		Entity* e = new Entity("Light1");
 		e->asChildOf(&root);
 		e->localTransform.setTranslation(Vec3f(10, 10, 0));
 		e->addComponent(light);
@@ -166,8 +162,7 @@ TEST(RendererTest)
 
 	{	LightComponent* light = new LightComponent;
 		light->color = ColorRGBf(0.8f, 1, 0.8f);
-		Entity* e = new Entity;
-		e->name = "Light2";
+		Entity* e = new Entity("Light2");
 		e->asChildOf(&root);
 		e->localTransform.setTranslation(Vec3f(0, 10, 10));
 		e->addComponent(light);
@@ -183,8 +178,7 @@ TEST(RendererTest)
 	fpsControl->target = mainCamera->entity();
 	fpsControl->inputComponent = winMsg;
 
-	{	Entity* e = new Entity;
-		e->name = "Fps controller";
+	{	Entity* e = new Entity("Fps controller");
 		e->asChildOf(&root);
 		e->addComponent(fpsControl);
 	}
@@ -194,19 +188,16 @@ TEST(RendererTest)
 	boxMesh->mesh = new Mesh("");
 	CHECK(boxMesh->mesh->create(ChamferBoxBuilder(0.5f, 5, true), Mesh::Static));
 
-	EntityPtr boxes = new Entity;
-	boxes->name = "Boxes";
+	EntityPtr boxes = new Entity("Boxes");
 	boxes->asChildOf(&root);
 
-	{	Entity* e = new Entity;
-		e->name = "Chamfer box1";
+	{	Entity* e = new Entity("Chamfer box1");
 		e->asChildOf(boxes.get());
 		e->addComponent(boxMesh);
 		e->localTransform.translateBy(Vec3f(2, 0, -2));
 	}
 
-	{	Entity* e = new Entity;
-		e->name = "Chamfer box2";
+	{	Entity* e = new Entity("Chamfer box2");
 		e->asChildOf(boxes.get());
 		e->addComponent(boxMesh->clone());
 		e->localTransform.translateBy(Vec3f(-2, 0, -2));
@@ -216,20 +207,17 @@ TEST(RendererTest)
 	sphereMesh->mesh = new Mesh("");
 	CHECK(sphereMesh->mesh->create(ChamferBoxBuilder(1, 5, true), Mesh::Static));
 
-	EntityPtr spheres = new Entity;
-	spheres->name = "Spheres";
+	EntityPtr spheres = new Entity("Spheres");
 	spheres->addComponent(material2);
 	spheres->asChildOf(&root);
 
-	{	Entity* e = new Entity;
-		e->name = "Sphere1";
+	{	Entity* e = new Entity("Sphere1");
 		e->asChildOf(spheres.get());
 		e->addComponent(sphereMesh);
 		e->localTransform.translateBy(Vec3f(2, 0, 2));
 	}
 
-	{	Entity* e = new Entity;
-		e->name = "Sphere2";
+	{	Entity* e = new Entity("Sphere2");
 		e->asChildOf(spheres.get());
 		e->addComponent(material2);
 		e->addComponent(sphereMesh->clone());
