@@ -1,5 +1,7 @@
 #include "../Renderer.h"
 #include "../../Core/Math/Mat44.h"
+#include "../../Core/Math/Vec2.h"
+#include "../../Core/Math/Vec3.h"
 #include "../../Core/System/Array.h"
 #include "../../Core/System/Deque.h"
 #include "../../Core/System/Map.h"
@@ -76,7 +78,7 @@ class QuadRenderer
 {
 public:
 	QuadRenderer(RendererComponent::Impl& renderer)
-		: mRenderer(renderer)
+		: mRenderer(renderer), mQuadCount(0), mCurrentMaterial(nullptr)
 	{}
 
 	/*!	Push a quad to the buffer, the actual render will be performed in flush()
@@ -87,6 +89,11 @@ public:
 	void flush();
 
 	RendererComponent::Impl& mRenderer;
+
+	size_t mQuadCount;
+	IMaterialComponent* mCurrentMaterial;
+	struct Vertex { Vec3f position; Vec2f uv; };
+	std::vector<Vertex> mVertexBuffer;
 };	// QuadRenderer
 
 }	// namespace MCD
