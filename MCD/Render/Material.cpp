@@ -108,7 +108,23 @@ void Material::addProperty(IMaterialProperty* property, size_t pass)
 Component* MaterialComponent::clone() const
 {
 	MaterialComponent* cloned = new MaterialComponent;
-	cloned->specularExponent = this->specularExponent;
+	cloned->diffuseColor = diffuseColor;
+	cloned->specularColor = specularColor;
+	cloned->emissionColor = emissionColor;
+	cloned->specularExponent = specularExponent;
+	cloned->opacity = opacity;
+	cloned->diffuseMap = diffuseMap;
+	return cloned;
+}
+
+SpriteMaterialComponent::SpriteMaterialComponent()
+	: opacity(1)
+{}
+
+Component* SpriteMaterialComponent::clone() const
+{
+	SpriteMaterialComponent* cloned = new SpriteMaterialComponent;
+	cloned->opacity = this->opacity;
 	return cloned;
 }
 

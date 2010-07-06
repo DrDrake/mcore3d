@@ -44,4 +44,23 @@ void MaterialComponent::postRender(size_t pass, void* context)
 		diffuseMap->unbind();
 }
 
+void SpriteMaterialComponent::render2(void* context)
+{
+	// Push light into Renderer's light list
+	RendererComponent::Impl& renderer = *reinterpret_cast<RendererComponent::Impl*>(context);
+	renderer.mCurrentMaterial = this;
+}
+
+void SpriteMaterialComponent::preRender(size_t pass, void* context)
+{
+	if(diffuseMap)
+		diffuseMap->bind();
+}
+
+void SpriteMaterialComponent::postRender(size_t pass, void* context)
+{
+	if(diffuseMap)
+		diffuseMap->unbind();
+}
+
 }	// namespace MCD

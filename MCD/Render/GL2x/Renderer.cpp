@@ -106,6 +106,13 @@ void RendererComponent::Impl::render(Entity& entityTree, RenderTargetComponent& 
 			glDisable(iLight);
 	}
 
+	{	// Disable lighting if there is no LightComponent
+		if(mLights.empty())
+			glDisable(GL_LIGHTING);
+		else
+			glEnable(GL_LIGHTING);
+	}
+
 	{	// Render opaque items
 		processRenderItems(mOpaqueQueue);
 	}
@@ -116,22 +123,22 @@ void RendererComponent::Impl::render(Entity& entityTree, RenderTargetComponent& 
 		glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 		glBlendEquationSeparate(GL_FUNC_ADD, GL_FUNC_ADD);
 		glDepthMask(GL_FALSE);
+
 		processRenderItems(mTransparentQueue);
+
+		{	// Render QuadComponent
+			MCD_FOREACH(const QuadMaterialPair& pair, mQuads) {
+				QuadComponent* quad = pair.quad;
+				const Mat44f& transform = quad->entity()->worldTransform();
+				mQuadRenderer->push(transform, quad->width, quad->height, quad->uv, pair.mtl);
+			}
+			mQuadRenderer->flush();
+			mQuads.clear();
+		}
+
 		glDisable(GL_BLEND);
 		glEnable(GL_CULL_FACE);
 		glDepthMask(GL_TRUE);
-	}
-
-	{	// Render QuadComponent
-		glDisable(GL_LIGHTING);
-		MCD_FOREACH(const QuadMaterialPair& pair, mQuads) {
-			QuadComponent* quad = pair.quad;
-			const Mat44f& transform = quad->entity()->worldTransform();
-			mQuadRenderer->push(transform, quad->width, quad->height, quad->uv, pair.mtl);
-		}
-		mQuadRenderer->flush();
-		mQuads.clear();
-		glEnable(GL_LIGHTING);
 	}
 
 	mLights.clear();
@@ -176,15 +183,15 @@ void RendererComponent::Impl::processRenderItems(RenderItems& items)
 	}
 }
 
-void RendererComponent::Impl::preRenderMaterial(size_t pass, MaterialComponent& mtl) {
+void RendererComponent::Impl::preRenderMaterial(size_t pass, IMaterialComponent& mtl) {
 	mtl.preRender(pass, this);
 }
 
-void RendererComponent::Impl::postRenderMaterial(size_t pass, MaterialComponent& mtl) {
+void RendererComponent::Impl::postRenderMaterial(size_t pass, IMaterialComponent& mtl) {
 	mtl.postRender(pass, this);
 }
 
-void QuadRenderer::push(const Mat44f& transform, float width, float height, const Vec4f& uv, MaterialComponent* mtl)
+void QuadRenderer::push(const Mat44f& transform, float width, float height, const Vec4f& uv, IMaterialComponent* mtl)
 {
 	mRenderer.preRenderMaterial(0, *mtl);
 	glPushMatrix();

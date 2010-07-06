@@ -7,11 +7,13 @@
 
 namespace MCD {
 
-Entity::Entity()
+Entity::Entity(const char* name)
 	: enabled(true),
 	  mParent(nullptr), mFirstChild(nullptr), mNextSibling(nullptr),
 	  localTransform(Mat44f::cIdentity)
 {
+	if(name)
+		this->name = name;
 }
 
 Entity::~Entity()

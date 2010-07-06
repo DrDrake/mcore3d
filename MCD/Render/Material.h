@@ -84,14 +84,25 @@ namespace MCD {
 
 class RendererComponent;
 
-class MCD_RENDER_API MaterialComponent : public RenderableComponent2
+class MCD_ABSTRACT_CLASS IMaterialComponent : public RenderableComponent2
+{
+public:
+	virtual ~IMaterialComponent() {}
+
+	//!	Invoked by RendererComponent
+	virtual void preRender(size_t pass, void* context) = 0;
+	virtual void postRender(size_t pass, void* context) = 0;
+
+	virtual bool isTransparent() const = 0;
+};	// IMaterialComponent
+
+class MCD_RENDER_API MaterialComponent : public IMaterialComponent
 {
 public:
 	MaterialComponent();
 
 // Cloning
 	sal_override sal_checkreturn bool cloneable() const { return true; }
-
 	sal_override sal_notnull Component* clone() const;
 
 // Operations
@@ -107,7 +118,7 @@ public:
 
 	TexturePtr diffuseMap;
 
-	virtual bool isTransparent() const { return opacity < 1; }
+	sal_override bool isTransparent() const { return opacity < 1; }
 
 protected:
 	~MaterialComponent();
@@ -115,14 +126,43 @@ protected:
 	friend class RendererComponent;
 
 	//!	Invoked by RendererComponent
-	virtual void preRender(size_t pass, void* context);
-	virtual void postRender(size_t pass, void* context);
+	sal_override void preRender(size_t pass, void* context);
+	sal_override void postRender(size_t pass, void* context);
 
 	class Impl;
 	Impl& mImpl;
 };	// MaterialComponent
 
 typedef IntrusiveWeakPtr<MaterialComponent> MaterialComponentPtr;
+
+/*!	A material that do not react with lighting, simply defined by a texture and an opacity value.
+ */
+class MCD_RENDER_API SpriteMaterialComponent : public IMaterialComponent
+{
+public:
+	SpriteMaterialComponent();
+
+// Cloning
+	sal_override sal_checkreturn bool cloneable() const { return true; }
+	sal_override sal_notnull Component* clone() const;
+
+// Operations
+	sal_override void render() {}
+	sal_override void render2(sal_in void* context);
+
+// Attrubutes
+	float opacity;	//!< Value from 0 (invisible) to 1 (opaque)
+	TexturePtr diffuseMap;
+
+	sal_override bool isTransparent() const { return opacity < 1; }
+
+protected:
+	~SpriteMaterialComponent() {}
+
+	//!	Invoked by RendererComponent
+	sal_override void preRender(size_t pass, void* context);
+	sal_override void postRender(size_t pass, void* context);
+};	// SpriteMaterialComponent
 
 }	// namespace MCD
 

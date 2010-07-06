@@ -26,7 +26,7 @@ class Component;
 class MCD_CORE_API Entity : public IntrusiveWeakPtrTarget, Noncopyable
 {
 public:
-	Entity();
+	explicit Entity(sal_in_z_opt const char* name=nullptr);
 
 	//! Virtual destructor to make this class polymorphic.
 	virtual ~Entity();

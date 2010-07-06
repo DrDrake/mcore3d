@@ -253,12 +253,14 @@ void MeshComponent2::render2(void* context)
 	Entity* e = entity();
 	MCD_ASSUME(e);
 
+	// TODO: Remove this extra world transform calculation as it will
+	// performed in RendererComponent::Impl::processRenderItems anyway.
 	Vec3f pos = e->worldTransform().translation();
 	renderer.mViewMatrix.transformPoint(pos);
 	const float dist = pos.z;
 
 	MCD_ASSERT(!renderer.mMaterialStack.empty());
-	MaterialComponent* m = renderer.mMaterialStack.top();
+	IMaterialComponent* m = renderer.mMaterialStack.top();
 	RenderItem r = { this, m };
 	if(!m->isTransparent())
 		renderer.mOpaqueQueue.insert(*new RenderItemNode(-dist, r));
