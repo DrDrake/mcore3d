@@ -140,6 +140,17 @@ void Entity::unlink(bool keepScriptStrongReference)
 	scriptOwnershipHandle.useStrongReference(keepScriptStrongReference);
 }
 
+Component* Entity::findComponentExactType(const std::type_info& type) const
+{
+	// NOTE: For simplicity, only linear search is used right now.
+	for(const Component* c = components.begin(); c != components.end(); c = c->next()) {
+		if(typeid(*c) == type)
+			return const_cast<Component*>(c);
+	}
+
+	return nullptr;
+}
+
 Component* Entity::findComponent(const std::type_info& familyType) const
 {
 	// NOTE: For simplicity, only linear search is used right now.
@@ -155,6 +166,17 @@ Component* Entity::findComponentInChildren(const std::type_info& familyType) con
 {
 	for(EntityPreorderIterator itr(const_cast<Entity*>(this)); !itr.ended(); itr.next()) {
 		Component* ret = itr->findComponent(familyType);
+		if(ret)
+			return ret;
+	}
+
+	return nullptr;
+}
+
+Component* Entity::findComponentInChildrenExactType(const std::type_info& type) const
+{
+	for(EntityPreorderIterator itr(const_cast<Entity*>(this)); !itr.ended(); itr.next()) {
+		Component* ret = itr->findComponentExactType(type);
 		if(ret)
 			return ret;
 	}

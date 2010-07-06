@@ -363,6 +363,10 @@ TEST(Clone_EntityTest)
 	e12->addComponent(new CloneableComponent("c12"));
 	e13->addComponent(new CloneableComponent("c13"));
 
+	// Find the added component
+	CHECK(e1->findComponent<CloneableComponent>());
+	CHECK(e1->findComponent<NonCloneableComponent>());
+
 	// Apply some transformations
 	root.localTransform.setTranslation(Vec3f(1, 2, 3));
 	e1->localTransform = Mat44f(Mat33f::makeXYZRotation(0, Mathf::cPiOver2(), 0));
@@ -489,6 +493,11 @@ public:
 
 	c1->referenceToAnother = c2;
 	c2->referenceToAnother = c1;
+
+	// Find back the component
+	CHECK(!e1->findComponent<MockComponent>());
+	CHECK_EQUAL(c1, e1->findComponent<BehaviourComponent>());
+	CHECK_EQUAL(c1, e1->findComponentExactType<MockComponent>());
 
 	// Clone the entity tree
 	std::auto_ptr<Entity> cloned(root.clone());
