@@ -122,9 +122,9 @@ SkeletonAnimationPtr buildSkeletonAnimation(float totalLength, uint8_t jointCoun
 		for(size_t i=0; i<track->subtrackCount(); ++i) {
 			AnimationTrack::KeyFrames frames = track->getKeyFramesForSubtrack(i);
 
-			// Setup time
+			// Setup frame position
 			for(size_t j=0; j<frames.size; ++j)
-				frames[j].time = float(j);
+				frames[j].pos = float(j);
 
 			// Setup translation
 			if(i % 2 == 0) {
@@ -309,11 +309,11 @@ public:
 
 		MCD_VERIFY(animationTrack->init(StrideArray<const size_t>(tmp, cSubtrackCount)));
 
-		// Assign the time of each frame
+		// Assign the position of each frame
 		for(size_t i=0; i<cSubtrackCount; ++i) {
 			AnimationTrack::KeyFrames frames = animationTrack->getKeyFramesForSubtrack(i);
 			for(size_t j=0; j<frames.size; ++j)
-				frames[j].time = float(j);
+				frames[j].pos = float(j);
 		}
 
 		// Setup position animation

@@ -35,9 +35,9 @@ TEST(AnimationInstanceTest)
 			CHECK(track1->init(StrideArray<const size_t>(tmp, 1)));
 
 			AnimationTrack::KeyFrames frames = track1->getKeyFramesForSubtrack(0);
-			frames[0].time = 0;
-			frames[1].time = 1;
-			frames[2].time = 2;
+			frames[0].pos = 0;
+			frames[1].pos = 1;
+			frames[2].pos = 2;
 			reinterpret_cast<Vec4f&>(frames[0]) = Vec4f(1);
 			reinterpret_cast<Vec4f&>(frames[1]) = Vec4f(2);
 			reinterpret_cast<Vec4f&>(frames[2]) = Vec4f(3);
@@ -48,13 +48,16 @@ TEST(AnimationInstanceTest)
 			CHECK(track2->init(StrideArray<const size_t>(tmp, 1)));
 
 			AnimationTrack::KeyFrames frames = track2->getKeyFramesForSubtrack(0);
-			frames[0].time = 0;
-			frames[1].time = 1;
-			frames[2].time = 2;
+			frames[0].pos = 0;
+			frames[1].pos = 1;
+			frames[2].pos = 2;
 			reinterpret_cast<Vec4f&>(frames[0]) = Vec4f(3);
 			reinterpret_cast<Vec4f&>(frames[1]) = Vec4f(4);
 			reinterpret_cast<Vec4f&>(frames[2]) = Vec4f(5);
 		}
+
+		CHECK_EQUAL(2, a.length());
+		CHECK_EQUAL(2, a.totalTime());
 
 		{	a.time = 0;
 			a.update();
@@ -152,9 +155,9 @@ TEST(EventCallback_AnimationInstanceTest)
 		CHECK(track->init(StrideArray<const size_t>(tmp, 1)));
 
 		AnimationTrack::KeyFrames frames = track->getKeyFramesForSubtrack(0);
-		frames[0].time = 0;
-		frames[1].time = 1;
-		frames[2].time = 2;
+		frames[0].pos = 0;
+		frames[1].pos = 1;
+		frames[2].pos = 2;
 	}
 
 	struct LocalClass {

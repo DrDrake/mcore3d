@@ -169,18 +169,18 @@ void AnimationInstance::update()
 		if(wt.frameRate <= 0)
 			wt.frameRate = wt.track->naturalFramerate;
 
-		const float adjustedTime = t.interpolate(time * wt.frameRate, interpolations, wt.loopOverride);
+		const float adjustedPos = t.interpolate(time * wt.frameRate, interpolations, wt.loopOverride);
 
 		for(size_t j=0; j<t.subtrackCount(); ++j)
 			reinterpret_cast<Vec4f&>(result[j]) += wt.weight * reinterpret_cast<Vec4f&>(interpolations[j].v);
 
 		{	// Invoke event callback if necessary
 			const size_t triggerWhenEnter = 1;	// Set this to 1 for triggering the event when the frame is enter, otherwise triggered when leaving the frame.
-			const size_t lastVirtualFrameIdx = size_t(wt.lastEventTime);
-			const size_t currentVirtualFrameIdx = size_t(adjustedTime);
+			const size_t lastVirtualFrameIdx = size_t(wt.lastEventPos);
+			const size_t currentVirtualFrameIdx = size_t(adjustedPos);
 
 			if(!wt.edgeEvents.empty()) {
-				const size_t largestFrameCount = size_t(totalTime());
+				const size_t largestFrameCount = size_t(length());
 				for(size_t j=lastVirtualFrameIdx; j!=currentVirtualFrameIdx + triggerWhenEnter;) {
 					if(const Event* e = wt.edgeEvents.getEvent(j))
 						e->callback(*e);
@@ -194,7 +194,7 @@ void AnimationInstance::update()
 					e->callback(*e);
 			}
 
-			wt.lastEventTime = adjustedTime + triggerWhenEnter;
+			wt.lastEventPos = adjustedPos + triggerWhenEnter;
 		}
 	}
 }
@@ -250,12 +250,24 @@ size_t AnimationInstance::subtrackCount() const
 	return mTracks[0].track->subtrackCount();
 }
 
+float AnimationInstance::length() const
+{
+	float longest = 0;
+	MCD_FOREACH(const WeightedTrack& t, mTracks) {
+		if(t.track) {	// Ignore null track
+			const float tmp = t.track->length();
+			longest = tmp > longest ? tmp : longest;
+		}
+	}
+	return longest;
+}
+
 float AnimationInstance::totalTime() const
 {
 	float longest = 0;
 	MCD_FOREACH(const WeightedTrack& t, mTracks) {
 		if(t.track) {	// Ignore null track
-			float tmp = t.track->totalTime();
+			const float tmp = t.track->length() / t.frameRate;
 			longest = tmp > longest ? tmp : longest;
 		}
 	}
@@ -324,7 +336,7 @@ void AnimationInstance::setTimeByFrameIndex(size_t frameIndex, size_t weightedTr
 		return;
 
 	const size_t maxFrameIdx = t->track->keyframes.size - 1;
-	time = t->track->keyframes[frameIndex < maxFrameIdx ? frameIndex : maxFrameIdx].time;
+	time = t->track->keyframes[frameIndex < maxFrameIdx ? frameIndex : maxFrameIdx].pos / t->frameRate;
 }
 
 }	// namespace MCD
