@@ -31,7 +31,6 @@ public:
 
 // Cloning
 	sal_override sal_checkreturn bool cloneable() const;
-
 	//!	Clone will fail if the associated SkeletonAnimationUpdaterComponent is already destroyed.
 	sal_override sal_maybenull Component* clone() const;
 

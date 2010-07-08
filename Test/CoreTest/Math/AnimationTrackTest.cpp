@@ -43,18 +43,18 @@ TEST(AnimationTrackTest)
 			CHECK_EQUAL(1u, track->subtrackCount());
 
 			AnimationTrack::KeyFrames frames = track->getKeyFramesForSubtrack(0);
-			frames[0].time = 0;
-			frames[1].time = 1;
+			frames[0].pos = 0;
+			frames[1].pos = 1;
 
 			CHECK(track->checkValid());
 			CHECK_EQUAL(AnimationTrack::Linear, track->subtracks[0].flag);
-			CHECK_EQUAL(1, track->totalTime(0));
+			CHECK_EQUAL(1, track->length(0));
 
 			reinterpret_cast<Vec4f&>(frames[0]) = Vec4f(1);
 			reinterpret_cast<Vec4f&>(frames[1]) = Vec4f(2);
 
 			track->releaseWriteLock();
-			CHECK_EQUAL(1, track->totalTime());
+			CHECK_EQUAL(1, track->length());
 		}
 
 		AnimationTrack::Interpolation interpolation[1];
@@ -67,21 +67,21 @@ TEST(AnimationTrackTest)
 			CHECK(pos.isNearEqual(Vec4f(1.5f)));
 		}
 
-		{	// Try to play backward from time 0.5 back to 0.1
+		{	// Try to play backward from pos 0.5 back to 0.1
 			CHECK_EQUAL(0.0f, track->interpolateNoLock(0.0f, results));
 			const Vec4f& pos = reinterpret_cast<const Vec4f&>(results[0]);
 			CHECK(pos.isNearEqual(Vec4f(1)));
 		}
 
-		{	// Try to play over totalTime() under loop mode
-			CHECK_EQUAL(0.0f, track->interpolateNoLock(track->totalTime() * 2, results));
+		{	// Try to play over length() under loop mode
+			CHECK_EQUAL(0.0f, track->interpolateNoLock(track->length() * 2, results));
 			const Vec4f& pos = reinterpret_cast<const Vec4f&>(results[0]);
 			CHECK(pos.isNearEqual(Vec4f(1)));
 		}
 
-		{	// Try to play over totalTime() not under loop mode
+		{	// Try to play over length() not under loop mode
 			track->loop = false;
-			CHECK_EQUAL(track->totalTime(), track->interpolateNoLock(track->totalTime() * 2, results));
+			CHECK_EQUAL(track->length(), track->interpolateNoLock(track->length() * 2, results));
 			const Vec4f& pos = reinterpret_cast<const Vec4f&>(results[0]);
 			CHECK(pos.isNearEqual(Vec4f(2)));
 		}
@@ -99,8 +99,8 @@ TEST(Slerp_AnimationTrackTest)
 		CHECK(track->init(StrideArray<const size_t>(tmp, 1)));
 
 		AnimationTrack::KeyFrames frames = track->getKeyFramesForSubtrack(0);
-		frames[0].time = 0;
-		frames[1].time = 1;
+		frames[0].pos = 0;
+		frames[1].pos = 1;
 
 		track->subtracks[0].flag = AnimationTrack::Slerp;
 
@@ -150,8 +150,8 @@ TEST(Performance_AnimationTrackTest)
 		for(size_t i=0; i<subtrackCount; ++i) {
 			AnimationTrack::KeyFrames frames = track->getKeyFramesForSubtrack(i);
 			for(size_t j=0; j<frameCount; ++j) {
-				// Assign the time of each frame
-				frames[j].time = float(j);
+				// Assign the pos of each frame
+				frames[j].pos = float(j);
 				// Fill with some random floating point data
 				reinterpret_cast<Quaternionf&>(frames[j]) = Vec4f(Mathf::random(), Mathf::random(), Mathf::random(), Mathf::random());
 			}
@@ -164,10 +164,10 @@ TEST(Performance_AnimationTrackTest)
 		AnimationTrack::Interpolation interpolation[subtrackCount];
 		AnimationTrack::Interpolations results(interpolation, subtrackCount);
 		DeltaTimer timer;
-		const float totalTime = track->totalTime();
+		const float length = track->length();
 
 		size_t count = 0;
-		for(float t=0; t<totalTime; t+=0.1f, ++count)
+		for(float t=0; t<length; t+=0.1f, ++count)
 			CHECK_EQUAL(t, track->interpolateNoLock(t, results));
 		track->releaseReadLock();
 

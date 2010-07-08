@@ -27,9 +27,9 @@ TEST(SkeletonTest)
 		for(size_t i=0; i<track->subtrackCount(); ++i) {
 			AnimationTrack::KeyFrames frames = track->getKeyFramesForSubtrack(i);
 
-			// Setup time
+			// Setup frame position
 			for(size_t j=0; j<frames.size; ++j)
-				frames[j].time = float(j);
+				frames[j].pos = float(j);
 
 			// Setup translation
 			if(i % 2 == 0) {

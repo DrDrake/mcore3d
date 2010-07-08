@@ -19,9 +19,9 @@ TEST(AnimationTrackWriterLoaderTest)
 		CHECK(track->init(StrideArray<const size_t>(tmp, 1)));
 
 		AnimationTrack::KeyFrames frames = track->getKeyFramesForSubtrack(0);
-		frames[0].time = 0;
-		frames[1].time = 1;
-		frames[2].time = 2;
+		frames[0].pos = 0;
+		frames[1].pos = 1;
+		frames[2].pos = 2;
 		track->loop = false;
 
 		CHECK(track->checkValid());
@@ -48,18 +48,18 @@ TEST(AnimationTrackWriterLoaderTest)
 		AnimationTrack::ScopedReadLock lock(*track), lock2(*track2);
 
 		CHECK_EQUAL(track->loop, track2->loop);
-		CHECK_EQUAL(track->totalTime(), track2->totalTime());
+		CHECK_EQUAL(track->length(), track2->length());
 		CHECK_EQUAL(track->subtrackCount(), track2->subtrackCount());
 		CHECK_EQUAL(track->naturalFramerate, track2->naturalFramerate);
 
 		for(size_t i=0; i<track->subtrackCount(); ++i) {
-			CHECK_EQUAL(track->totalTime(i), track2->totalTime(i));
+			CHECK_EQUAL(track->length(i), track2->length(i));
 			CHECK_EQUAL(track->keyframeCount(i), track2->keyframeCount(i));
 
 			AnimationTrack::KeyFrames f1 = track->getKeyFramesForSubtrack(i);
 			AnimationTrack::KeyFrames f2 = track2->getKeyFramesForSubtrack(i);
 			for(size_t j=0; j<f1.size; ++j) {
-				CHECK_EQUAL(f1[j].time, f2[j].time);
+				CHECK_EQUAL(f1[j].pos, f2[j].pos);
 				CHECK(reinterpret_cast<Vec4f&>(f1[j].v) == reinterpret_cast<Vec4f&>(f2[j].v));
 			}
 		}

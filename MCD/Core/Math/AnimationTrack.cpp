@@ -32,7 +32,7 @@ AnimationTrack::AnimationTrack(const Path& fileId)
 	, keyframes(nullptr, 0)
 	, subtracks(nullptr, 0)
 	, loop(true), naturalFramerate(1)
-	, mTotalTime(0)
+	, mLength(0)
 	, mCommitted(false)
 {
 }
@@ -95,22 +95,22 @@ size_t AnimationTrack::keyframeCount(size_t index) const
 	return 0;
 }
 
-float AnimationTrack::totalTime(size_t index) const
+float AnimationTrack::length(size_t index) const
 {
 	MCD_ASSERT(mMutex.isLocked() && "Please acquire read lock first");
 
 	if(index < subtrackCount()) {
 		KeyFrames f = const_cast<AnimationTrack*>(this)->getKeyFramesForSubtrack(index);
-		return f[subtracks[index].frameCount - 1].time;
+		return f[subtracks[index].frameCount - 1].pos;
 	}
 	return 0;
 }
 
-float AnimationTrack::totalTime() const
+float AnimationTrack::length() const
 {
 	// No need to check for the lock since only releaseWriteLock() will modify it.
 	MCD_ASSERT(true || mMutex.isLocked());
-	return mTotalTime;
+	return mLength;
 }
 
 AnimationTrack::KeyFrames AnimationTrack::getKeyFramesForSubtrack(size_t index)
@@ -124,25 +124,25 @@ AnimationTrack::KeyFrames AnimationTrack::getKeyFramesForSubtrack(size_t index)
 	return KeyFrames(nullptr, 0);
 }
 
-float AnimationTrack::interpolate(float time, const Interpolations& result, int loopOverride) const
+float AnimationTrack::interpolate(float trackPos, const Interpolations& result, int loopOverride) const
 {
 	ScopedReadLock lock(*this);
-	return interpolateNoLock(time, result, loopOverride);
+	return interpolateNoLock(trackPos, result, loopOverride);
 }
 
-float AnimationTrack::interpolateNoLock(float time, const Interpolations& result, int loopOverride) const
+float AnimationTrack::interpolateNoLock(float trackPos, const Interpolations& result, int loopOverride) const
 {
-	// Find the wrapped time
+	// Find the wrapped trackPos
 	bool loop_ = loopOverride <= -1 ? loop : loopOverride != 0;
-	time = loop_ ? ::fmodf(time, totalTime()) : Mathf::clamp(time, time, totalTime());
+	trackPos = loop_ ? ::fmodf(trackPos, length()) : Mathf::clamp(trackPos, trackPos, length());
 
 	for(size_t i=0; i<subtracks.size; ++i)
-		interpolateSingleSubtrack(time, result[i], i, loopOverride);
+		interpolateSingleSubtrack(trackPos, result[i], i, loopOverride);
 
-	return time;
+	return trackPos;
 }
 
-void AnimationTrack::interpolateSingleSubtrack(float time, Interpolation& result, size_t trackIndex, int loopOverride) const
+void AnimationTrack::interpolateSingleSubtrack(float trackPos, Interpolation& result, size_t trackIndex, int loopOverride) const
 {
 	MCD_ASSERT(mMutex.isLocked() && "Please acquire read lock first");
 
@@ -158,28 +158,28 @@ void AnimationTrack::interpolateSingleSubtrack(float time, Interpolation& result
 		return;
 	}
 
-	{	// Phase 1: Clamp the time within the sub-track's total time
-		time = Mathf::clamp(time, time, totalTime(trackIndex));
+	{	// Phase 1: Clamp trackPos within the sub-track's length
+		trackPos = Mathf::clamp(trackPos, trackPos, length(trackIndex));
 	}
 
 	{	// Phase 2: Find the current and pervious frame index
-		size_t curr = frames[result.frame1Idx].time < time ? result.frame1Idx : 0;
+		size_t curr = frames[result.frame1Idx].pos < trackPos ? result.frame1Idx : 0;
 
-		// Scan for a frame with it's time larger than the current. If none can find, the last frame index is used.
+		// Scan for a frame with it's pos larger than the current. If none can find, the last frame index is used.
 		size_t i = curr;
 		for(curr = frames.size - 1; i < frames.size; ++i)
-			if(frames[i].time > time) { curr = i; break; }
+			if(frames[i].pos > trackPos) { curr = i; break; }
 
 		result.frame2Idx = (curr == 0) ? 1 : size_t(curr);
 		result.frame1Idx = result.frame2Idx - 1;
 	}
 
 	{	// Phase 3: compute the weight between the frame1Idx and frame2Idx
-		const float t1 = frames[result.frame1Idx].time;
-		const float t2 = frames[result.frame2Idx].time;
+		const float t1 = frames[result.frame1Idx].pos;
+		const float t2 = frames[result.frame2Idx].pos;
 
 		MCD_ASSUME(t2 > t1);
-		result.ratio = (time - t1) / (t2 - t1);
+		result.ratio = (trackPos - t1) / (t2 - t1);
 	}
 
 	// Phase 4: perform interpolation
@@ -230,11 +230,11 @@ bool AnimationTrack::checkValid() const
 			return false;
 
 		KeyFrames f = const_cast<AnimationTrack*>(this)->getKeyFramesForSubtrack(t);
-		float previousTime = f[0].time;
+		float previousPos = f[0].pos;
 		for(size_t i=1; i<f.size; ++i) {	// Note that we start the index at 1
-			if(f[i].time <= previousTime)
+			if(f[i].pos <= previousPos)
 				return false;
-			previousTime = f[i].time;
+			previousPos = f[i].pos;
 		}
 	}
 
@@ -260,10 +260,10 @@ void AnimationTrack::releaseWriteLock() const
 	mCommitted = true;
 
 	// Find out the longest sub-track
-	mTotalTime = 0;
+	mLength = 0;
 	for(size_t i=0; i<subtrackCount(); ++i) {
-		float t = totalTime(i);
-		mTotalTime = t > mTotalTime ? t : mTotalTime;
+		float t = length(i);
+		mLength = t > mLength ? t : mLength;
 	}
 
 	mMutex.unlock();
@@ -277,7 +277,7 @@ void AnimationTrack::swap(AnimationTrack& rhs)
 	std::swap(subtracks, rhs.subtracks);
 	std::swap(loop, rhs.loop);
 	std::swap(naturalFramerate, rhs.naturalFramerate);
-	std::swap(mTotalTime, rhs.mTotalTime);
+	std::swap(mLength, rhs.mLength);
 	std::swap(mCommitted, rhs.mCommitted);
 }
 

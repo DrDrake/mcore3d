@@ -21,7 +21,6 @@ public:
 
 // Cloning
 	sal_override sal_checkreturn bool cloneable() const;
-
 	sal_override sal_notnull Component* clone() const;
 
 // Operations

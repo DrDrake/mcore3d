@@ -31,7 +31,6 @@ public:
 
 // Cloning
 	sal_override sal_checkreturn bool cloneable() const { return true; }
-
 	//!	Note that the current playing position will not be applied to the cloned component.
 	sal_override sal_maybenull Component* clone() const;
 

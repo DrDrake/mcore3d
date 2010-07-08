@@ -72,7 +72,7 @@ public:
 		float weight;
 		float frameRate;
 		int loopOverride;	//!< To override the AnimationTrack::loop variable. Negative means use AnimationTrack::loop, 0 for no loop, 1 for loop.
-		float lastEventTime;//!< For tracking which event callback need to invoke since last update(). Internal use, user no need to touch with it.
+		float lastEventPos;	//!< For tracking which event callback need to invoke since last update(). Internal use, user no need to touch with it.
 		std::string name;
 		AnimationTrackPtr track;
 		Events edgeEvents, levelEvents;
@@ -113,7 +113,10 @@ public:
 
 	size_t subtrackCount() const;
 
-	//!	It's the longest track's totalTime().
+	//! Returns the length of the longest track.
+	float length() const;
+
+	//!	It's the longest track's length() / frameRate.
 	float totalTime() const;
 
 	/*!	Return null if index out of range.

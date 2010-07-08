@@ -129,11 +129,11 @@ public:
 
 		MCD_VERIFY(animationTrack->init(StrideArray<const size_t>(&tmp[0], cSubtrackCount)));
 
-		// Assign the time of each frame
+		// Assign the position of each frame
 		for(size_t i=0; i<cSubtrackCount; ++i) {
 			AnimationTrack::KeyFrames frames = animationTrack->getKeyFramesForSubtrack(i);
 			for(size_t j=0; j<frames.size; ++j)
-				frames[j].time = float(j);
+				frames[j].pos = float(j);
 		}
 
 		// Setup position animation
@@ -207,9 +207,9 @@ TEST(Event_AnimationComponentTest)
 		CHECK(track->init(StrideArray<const size_t>(tmp, 1)));
 
 		AnimationTrack::KeyFrames frames = track->getKeyFramesForSubtrack(0);
-		frames[0].time = 0;
-		frames[1].time = 1;
-		frames[2].time = 2;
+		frames[0].pos = 0;
+		frames[1].pos = 1;
+		frames[2].pos = 2;
 	}
 
 	struct LocalClass {

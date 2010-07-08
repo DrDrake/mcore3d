@@ -407,11 +407,11 @@ IResourceLoader::LoadingState PodLoader::Impl::load(std::istream* is, const Path
 		AnimationTrack::ScopedWriteLock lock(*track);
 		MCD_VERIFY(track->init(StrideArray<const size_t>(&subTrackStructure[0], subTrackStructure.size())));
 
-		// Assign the time of each frame
+		// Assign the position of each frame
 		for(size_t i=0; i<subTrackStructure.size(); ++i) {
 			AnimationTrack::KeyFrames frames = track->getKeyFramesForSubtrack(i);
 			for(size_t j=0; j<frames.size; ++j)
-				frames[j].time = float(j);
+				frames[j].pos = float(j);
 		}
 
 		// Assign for the extra root node

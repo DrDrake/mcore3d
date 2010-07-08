@@ -13,7 +13,9 @@ namespace MCD {
 	For thread safty reasons, all data read and write operations should be enclosed
 	in read lock and write lock respectively.
 
-	Restriction: all sub-track are having the same number of key frame.
+	Restriction: all sub-track should have the same number of key frame.
+
+	\note Track pos / frame rate = time
 
 	\note The memory layout of the key frames is:
 	subTrack1Frame1, subTrack2Frame1, subTrack1Frame2, subTrack2Frame2, ...
@@ -24,20 +26,20 @@ namespace MCD {
 
 	{	AnimationTrack::ScopedWriteLock lock(*track);
 		track->init(2, 1);	// One sub-track with 2 frame
+		AnimationTrack::KeyFrames frames = track->getKeyFramesForSubtrack(0);
 
-		// Fill the frame time
-		track->keyframeTimes[0] = 0.0f;
-		track->keyframeTimes[1] = 1.0f;
+		// Fill the frame's position
+		frames[0].pos = 0;
+		frames[1].pos = 1;
 
 		// Fill the attribute
-		AnimationTrack::KeyFrames frames = track->getKeyFramesForSubtrack(0);
 		reinterpret_cast<Vec4f&>(frames[0]) = Vec4f(1);
 		reinterpret_cast<Vec4f&>(frames[1]) = Vec4f(2);
 	}
 
 	// For each frame:
 	track->acquireReadLock();
-	track->updateNoLock(currentAnimationTime);
+	track->updateNoLock(currentTrackPos);
 
 	// Get the interpolated attributes and do what ever you need.
 	const Vec4f& pos = reinterpret_cast<const Vec4f&>(track->interpolatedResult[0]);
@@ -60,7 +62,7 @@ public:
 	struct KeyFrame
 	{
 		float v[4];
-		float time;	//!< This variable is also interpreted as the virtual frame index.
+		float pos;	//!< Indicate the position of this frame belongs in the track.
 	};	// KeyFrame
 
 	typedef FixStrideArray<KeyFrame> KeyFrames;
@@ -78,9 +80,9 @@ public:
 	{
 		MCD_CORE_API Interpolation();
 		float v[4];
-		size_t frame1Idx;	//!< Index of key frame that just before the current time.
-		size_t frame2Idx;	//!< Index of key frame that just after the current time.
-		float ratio;		//!< The ratio between frame1Idx and frame2Idx that define the current time.
+		size_t frame1Idx;	//!< Index of key frame that just before the current position.
+		size_t frame2Idx;	//!< Index of key frame that just after the current position.
+		float ratio;		//!< The ratio between frame1Idx and frame2Idx that define the current position.
 	};	// Interpolation
 
 	typedef FixStrideArray<Interpolation> Interpolations;
@@ -103,17 +105,17 @@ public:
 	 */
 	sal_checkreturn bool init(const StrideArray<const size_t>& subtrackFrameCount);
 
-	/*!	Get interpolation results at a specific time.
+	/*!	Get interpolation results at a specific track position.
 		Set the variable \em loopOverride with 0 to force loop, 1 for no loop and -1 for using AnimationTrack::loop.
-		\return The wrapped or clamped \em time for out of bound condition.
+		\return The wrapped or clamped \em trackPos for out of bound condition.
 		\note With acquireWriteLock() and releaseWriteLock() implied.
 	 */
-	float interpolate(float time, const Interpolations& result, int loopOverride=-1) const;
+	float interpolate(float trackPos, const Interpolations& result, int loopOverride=-1) const;
 
 	//!	 The no lock version of interpolate().
-	float interpolateNoLock(float time, const Interpolations& result, int loopOverride=-1) const;
+	float interpolateNoLock(float trackPos, const Interpolations& result, int loopOverride=-1) const;
 
-	/*!	Check that the data has no problem (eg key time not in ascending order).
+	/*!	Check that the data has no problem (eg frame position not in ascending order).
 		\return False if something wrong.
 	 */
 	sal_checkreturn bool checkValid() const;
@@ -147,11 +149,11 @@ public:
 	//!	Number of keyframes for the specific sub-track.
 	size_t keyframeCount(size_t subtrackIndex) const;
 
-	//! The total time of the specific sub-track.
-	float totalTime(size_t subtrackIndex) const;
+	//! The length (largest pos) of the specific sub-track.
+	float length(size_t subtrackIndex) const;
 
-	//!	The longest total time among all sub-tracks.
-	float totalTime() const;
+	//!	The length of the longest sub-track.
+	float length() const;
 
 	/*!	Get the key frames for the sub-track at \em index.
 		What it does actually is just return a slice of \em keyframes.
@@ -171,12 +173,12 @@ public:
 	 */
 	Subtracks subtracks;
 
-	//! Whether the current time will wrap over if it's larger than totalTime().
+	//! Whether the current track position will wrap over if it's larger than length().
 	bool loop;
 
 	/*! The natural framerate for this animation (default value is 1).
 		This variable is not used directly in this class, but to be used by client
-		in order to pass the correct time value to update() function.
+		in order to pass the correct trackPos value to update() function.
 	 */
 	float naturalFramerate;
 
@@ -189,10 +191,10 @@ public:
 protected:
 	sal_override ~AnimationTrack();
 
-	void interpolateSingleSubtrack(float time, Interpolation& result, size_t trackIndex, int loopOverride) const;
+	void interpolateSingleSubtrack(float trackPos, Interpolation& result, size_t trackIndex, int loopOverride) const;
 
-	//!	The longest total time among all sub-tracks, assigned in releaseWriteLock().
-	mutable float mTotalTime;
+	//!	The length of the longest sub-track, assigned in releaseWriteLock().
+	mutable float mLength;
 
 	/*!	A boolean variable to indicate all the data are ready, meaning animation thread
 		can safely READ the data.
