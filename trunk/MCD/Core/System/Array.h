@@ -20,7 +20,7 @@ public:
 	T& operator[](size_t i)
 	{
 		MCD_ASSUME(i < N);
-#ifdef NDEBUG
+#ifndef NDEBUG
 		rangeCheck(i);
 #endif
 		return elems[i];
@@ -29,7 +29,7 @@ public:
 	const T& operator[](size_t i) const
 	{
 		MCD_ASSUME(i < N);
-#ifdef NDEBUG
+#ifndef NDEBUG
 		rangeCheck(i);
 #endif
 		return elems[i];
