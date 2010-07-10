@@ -217,6 +217,10 @@ void MaterialComponent::preRender(size_t pass, void* context)
 		) == S_OK);
 	}
 
+	// Material state change early out optimization
+	if(renderer.mLastMaterial == this)
+		return;
+
 	{	// Bind light information
 		// To match the light data structure in the shader
 		struct LightStruct

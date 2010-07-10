@@ -54,6 +54,8 @@ public:
 	Mat44f mCameraTransform;
 	Mat44f mProjMatrix, mViewMatrix, mViewProjMatrix, mWorldMatrix, mWorldViewProjMatrix;
 	sal_notnull RendererComponent* mBackRef;
+
+	IMaterialComponent* mLastMaterial;	//!< To reduce material setup cost
 	std::stack<IMaterialComponent*> mMaterialStack;
 
 	typedef std::vector<LightComponent*> Lights;

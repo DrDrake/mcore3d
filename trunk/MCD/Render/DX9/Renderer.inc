@@ -82,6 +82,7 @@ public:
 
 	sal_notnull RendererComponent* mBackRef;
 
+	IMaterialComponent* mLastMaterial;	//!< To reduce material setup cost
 	std::stack<IMaterialComponent*> mMaterialStack;
 
 	typedef std::vector<LightComponent*> Lights;
