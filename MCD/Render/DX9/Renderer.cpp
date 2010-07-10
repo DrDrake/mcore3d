@@ -33,7 +33,7 @@ LPDIRECT3DSWAPCHAIN9 currentSwapChain()
 }
 
 RendererComponent::Impl::Impl()
-	: mEntityItr(nullptr)
+	: mLastMaterial(nullptr), mEntityItr(nullptr)
 {
 	ZeroMemory(&mCurrentVS, sizeof(mCurrentVS));
 	ZeroMemory(&mCurrentPS, sizeof(mCurrentPS));
@@ -178,10 +178,27 @@ void RendererComponent::Impl::processRenderItems(RenderItems& items)
 			mWorldMatrix = e->worldTransform();
 			mWorldViewProjMatrix = mViewProjMatrix * mWorldMatrix;
 
-			// Set lighting information to the shader
-			i.material->preRender(0, this);
+			IMaterialComponent* mtl = i.material;
+			// Only single pass material support the last material optimization
+			if(mLastMaterial && (mtl != mLastMaterial/* || passCount > 1*/)) {
+				mLastMaterial->postRender(0, this);
+				mLastMaterial = nullptr;
+			}
+
+			// The material class will preform early out if mtl == mLastMaterial
+			mtl->preRender(0, this);
+
 			i.mesh->mesh->drawFaceOnly();
-			i.material->postRender(0, this);
+
+			//if(passCount == 1)
+				mLastMaterial = mtl;
+		}
+	}
+
+	{	// Reset the last material
+		if(mLastMaterial) {
+			mLastMaterial->postRender(0, this);
+			mLastMaterial = nullptr;
 		}
 	}
 }

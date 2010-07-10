@@ -12,7 +12,7 @@
 namespace MCD {
 
 RendererComponent::Impl::Impl()
-	: mEntityItr(nullptr)
+	: mLastMaterial(nullptr), mEntityItr(nullptr)
 {
 	mQuadRenderer.reset(new QuadRenderer(*this));
 }
@@ -173,12 +173,30 @@ void RendererComponent::Impl::processRenderItems(RenderItems& items)
 			mWorldMatrix = e->worldTransform();
 			mWorldViewProjMatrix = mViewProjMatrix * mWorldMatrix;
 
-			i.material->preRender(0, this);
+			IMaterialComponent* mtl = i.material;
+			// Only single pass material support the last material optimization
+			if(mLastMaterial && (mtl != mLastMaterial/* || passCount > 1*/)) {
+				mLastMaterial->postRender(0, this);
+				mLastMaterial = nullptr;
+			}
+
+			if(mtl != mLastMaterial)
+				mtl->preRender(0, this);
+
 			glPushMatrix();
 			glMultTransposeMatrixf(e->worldTransform().getPtr());
 			i.mesh->mesh->draw();
 			glPopMatrix();
-			i.material->postRender(0, this);
+
+			//if(passCount == 1)
+				mLastMaterial = mtl;
+		}
+	}
+
+	{	// Reset the last material
+		if(mLastMaterial) {
+			mLastMaterial->postRender(0, this);
+			mLastMaterial = nullptr;
 		}
 	}
 }
