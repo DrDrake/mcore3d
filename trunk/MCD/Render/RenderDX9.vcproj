@@ -236,6 +236,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\Font.h"
+				>
+			</File>
+			<File
 				RelativePath=".\Frustum.h"
 				>
 			</File>
@@ -365,6 +369,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\Font.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\Frustum.cpp"
 				>
 			</File>
@@ -490,6 +498,10 @@
 		<Filter
 			Name="DX9"
 			>
+			<File
+				RelativePath=".\DX9\Font_DX9.cpp"
+				>
+			</File>
 			<File
 				RelativePath=".\DX9\GpuDataFormat.cpp"
 				>
