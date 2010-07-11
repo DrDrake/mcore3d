@@ -237,6 +237,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\Font.h"
+				>
+			</File>
+			<File
 				RelativePath=".\Frustum.h"
 				>
 			</File>
@@ -370,6 +374,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\Font.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\Frustum.cpp"
 				>
 			</File>
@@ -495,6 +503,10 @@
 		<Filter
 			Name="GL2x"
 			>
+			<File
+				RelativePath=".\GL2x\Font_GL2x.cpp"
+				>
+			</File>
 			<File
 				RelativePath=".\GL2x\GpuDataFormat.cpp"
 				>

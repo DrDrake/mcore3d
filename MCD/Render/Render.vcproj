@@ -234,6 +234,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\Font.h"
+				>
+			</File>
+			<File
 				RelativePath=".\Frustum.h"
 				>
 			</File>
@@ -371,6 +375,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\Font.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\Frustum.cpp"
 				>
 			</File>
@@ -496,6 +504,10 @@
 		<Filter
 			Name="Null"
 			>
+			<File
+				RelativePath=".\Null\Font_Null.cpp"
+				>
+			</File>
 			<File
 				RelativePath=".\Null\GpuDataFormat.cpp"
 				>

@@ -2,6 +2,7 @@
 #include "DefaultResourceManager.h"
 #include "../../MCD/Render/Camera.h"
 #include "../../MCD/Render/Chamferbox.h"
+#include "../../MCD/Render/Font.h"
 #include "../../MCD/Render/Light.h"
 #include "../../MCD/Render/Material.h"
 #include "../../MCD/Render/Mesh.h"
@@ -85,7 +86,7 @@ TEST(RendererTest)
 
 		// Use SpriteMaterialComponent for GUI
 		SpriteMaterialComponent* material = new SpriteMaterialComponent;
-		material->diffuseMap = dynamic_cast<Texture*>(resourceManager.load("InterlacedTrans256x256.png").get());
+		material->diffuseMap = dynamic_cast<Texture*>(resourceManager.load("Font-Arial.png").get());
 		guiLayer->addComponent(material);
 
 		// Othro camera
@@ -128,6 +129,34 @@ TEST(RendererTest)
 		q->width = 64;
 		q->height = 64;
 		e->addComponent(q);
+
+		BmpFontPtr bmp = new BmpFont("");
+		bmp->texture = dynamic_cast<Texture*>(resourceManager.load("Font-Arial.png").get());
+		bmp->charSet.width = 256;
+		bmp->charSet.height = 256;
+
+		{	BmpFont::CharDescriptor& desc = bmp->charSet.chars[33];
+			desc.x = 100; desc.y = 161;
+			desc.width = 2; desc.height = 20;
+			desc.xOffset = 3; desc.yOffset = 6;
+			desc.xAdvance = 8;
+		}
+
+		{	BmpFont::CharDescriptor& desc = bmp->charSet.chars[35];
+			desc.x = 241; desc.y = 74;
+			desc.width = 14; desc.height = 20;
+			desc.xOffset = 0; desc.yOffset = 6;
+			desc.xAdvance = 15;
+		}
+
+		e = new Entity("Text");
+		e->localTransform.setTranslation(Vec3f(-400, 300, 0));
+//		e->localTransform.setMat33(Mat33f::makeXYZRotation(0, 0, 3.14f/4));
+		e->asChildOf(guiLayer.get());
+		FontComponent* font = new FontComponent;
+		e->addComponent(font);
+		font->bmpFont = bmp;
+		font->text = "!!##!#!#!#!#!#!#!#!#!#!#!#!#!#";
 	}
 
 	{	// Setup sub-window
