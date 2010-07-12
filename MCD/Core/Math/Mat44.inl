@@ -1,6 +1,11 @@
 #if !defined(MCD_GCC) || defined(__SSE__)
 #   include <xmmintrin.h>
 #endif
+
+#if defined(MCD_APPLE)
+#	include "vfpmath/matrix_impl.h"
+#endif
+
 #include <memory.h> // For memcpy
 
 namespace MCD {
@@ -43,7 +48,11 @@ void Mat44<T>::mul(const Mat44& rhs, Mat44& ret) const
 	MCD_ASSUME(&rhs != &ret);
 	MCD_ASSUME(this != &ret);
 
-#if !defined(MCD_GCC) || defined(__SSE__)
+#if defined(MCD_IPHONE_DEVICE)
+
+	Matrix4Mul(this->getPtr(), rhs.getPtr(), ret.getPtr());
+
+#elif !defined(MCD_GCC) || defined(__SSE__)
 	__m128 x4 = _mm_loadu_ps(rhs.r0);
 	__m128 x5 = _mm_loadu_ps(rhs.r1);
 	__m128 x6 = _mm_loadu_ps(rhs.r2);

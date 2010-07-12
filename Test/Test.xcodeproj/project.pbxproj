@@ -140,14 +140,14 @@
 			isa = PBXContainerItemProxy;
 			containerPortal = 1820762D10E351670030E503 /* 3Party.xcodeproj */;
 			proxyType = 2;
-			remoteGlobalIDString = 1868989511D8A124005D4176 /* libjkbind.a */;
+			remoteGlobalIDString = 1868989511D8A124005D4176;
 			remoteInfo = jkBind;
 		};
 		18946DD811E17E7C00544D2A /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 1820762D10E351670030E503 /* 3Party.xcodeproj */;
 			proxyType = 2;
-			remoteGlobalIDString = 186898EB11D8A1F1005D4176 /* libPowerVR.a */;
+			remoteGlobalIDString = 186898EB11D8A1F1005D4176;
 			remoteInfo = PowerVR;
 		};
 		18C53CE4119A648B00DA21DC /* PBXContainerItemProxy */ = {
@@ -779,8 +779,8 @@
 				GCC_C_LANGUAGE_STANDARD = c99;
 				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
 				GCC_OPTIMIZATION_LEVEL = 0;
-				GCC_PREPROCESSOR_DEFINITIONS = __IPHONE__;
 				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				GCC_THUMB_SUPPORT = NO;
 				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
 				GCC_WARN_ABOUT_MISSING_FIELD_INITIALIZERS = YES;
 				GCC_WARN_ABOUT_MISSING_NEWLINE = YES;
@@ -792,9 +792,8 @@
 				GCC_WARN_MISSING_PARENTHESES = YES;
 				GCC_WARN_NON_VIRTUAL_DESTRUCTOR = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				OTHER_LDFLAGS = "";
 				PROVISIONING_PROFILE = "5EBF6645-5DC6-4914-8E2D-AE854255D495";
-				SDKROOT = iphoneos3.0;
+				SDKROOT = iphoneos4.0;
 			};
 			name = "iPhone Debug";
 		};

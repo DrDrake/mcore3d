@@ -21,8 +21,14 @@
 #	include <Availability.h>
 #	include <TargetConditionals.h>
 #	define MCD_APPLE
-#	ifdef TARGET_OS_IPHONE
+#	if TARGET_OS_IPHONE
 #		define MCD_IPHONE
+#	endif
+#	if TARGET_IPHONE_SIMULATOR
+#		define MCD_IPHONE_SIMULATOR
+#	endif
+#	if TARGET_OS_IPHONE && !TARGET_IPHONE_SIMULATOR
+#		define MCD_IPHONE_DEVICE
 #	endif
 #endif
 
