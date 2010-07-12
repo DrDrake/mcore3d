@@ -69,7 +69,7 @@ TEST(Multiply_Vec3Test)
 
 TEST(Division_Vec3Test)
 {
-	Vec3f r(0.5, 1, 1.5f);
+	Vec3f r(0.5f, 1, 1.5f);
 
 	CHECK(v123 / 2 == r);
 	CHECK(1.0f / (2.0f / v123) == r);
