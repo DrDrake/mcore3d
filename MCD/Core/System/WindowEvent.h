@@ -184,6 +184,7 @@ public:
 
 	enum EventType
 	{
+		None,	//!< Means nothing happen
 		Closed,
 		Resized,
 		LostFocus,

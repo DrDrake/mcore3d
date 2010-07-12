@@ -57,8 +57,10 @@ bool ImplBase::popEvent(Event& event, bool blocking)
 
 	// After event may push into the queue after calling processEvent()
 	// therefore we need to check for empty() again
-	if(mEventQueue.empty())
+	if(mEventQueue.empty()) {
+		event.Type = Event::None;
 		return false;
+	}
 
 	event = mEventQueue.front();
 	mEventQueue.pop();
