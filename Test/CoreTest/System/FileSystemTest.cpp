@@ -134,3 +134,57 @@ TEST(ZipFileSystemTest)
 	// Set a new root which not exist
 	CHECK(!fs.setRoot("__not_exist__"));
 }
+
+#include "../../../MCD/Core/System/TaskPool.h"
+#include <stdlib.h>
+
+namespace {
+
+AtomicInteger gCounter = 0;
+
+class ReadTask : public MCD::TaskPool::Task
+{
+public:
+	ReadTask(ZipFileSystem& zfs) : Task(0), fs(zfs) {}
+
+protected:
+	sal_override void run(Thread& thread) throw()
+	{
+		// Make the test more throught by randomly holding the life-time of ZipFileSystem's impl
+		std::auto_ptr<std::istream> holder = (rand() % 2 == 0) ? fs.openRead("welcome/hello.txt") : std::auto_ptr<std::istream>(nullptr);
+
+		for(size_t i=0; i<10; ++i) {
+			// Open file
+			std::auto_ptr<std::istream> is = fs.openRead("welcome/hello.txt");
+			std::string tmp;
+
+			std::stringstream ss;
+			*is >> ss.rdbuf();
+
+			MCD_ASSERT(ss.str() == "How are you?\r\nI am fine!");
+
+			gCounter++;
+		}
+
+		delete this;
+	}
+
+	ZipFileSystem& fs;
+};	// ReadTask
+
+}	// namespace
+
+TEST(MultiThread_ZipFileSystemTest)
+{
+	ZipFileSystem fs("./TestData/test.zip");
+
+	TaskPool taskPool;
+	taskPool.setThreadCount(3);
+
+	for(size_t i=0; i<10; ++i)
+		CHECK(taskPool.enqueue(*new ReadTask(fs)));
+
+	// Wait until all tasks finish
+	while(gCounter != 100)
+		mSleep(0);
+}

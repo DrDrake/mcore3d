@@ -3,6 +3,7 @@
 #include "Log.h"
 #include "Stream.h"
 #include "StrUtility.h"
+#include "Thread.h"
 #include <fstream>
 #include <map>
 #include <stdexcept>
@@ -195,10 +196,11 @@ ZipFileSystem::ZipFileSystem(const Path& zipFilePath)
 }
 
 ZipFileSystem::~ZipFileSystem()
-{
-}
+{}
 
-Path ZipFileSystem::getRoot() const {
+Path ZipFileSystem::getRoot() const
+{
+	ScopeLock lock(mMutex);
 	return mZipFilePath;
 }
 
@@ -208,13 +210,18 @@ bool ZipFileSystem::setRoot(const Path& zipFilePath)
 	if(!absolutePath.hasRootDirectory())
 		absolutePath = Path::getCurrentPath() / absolutePath;
 
+	ScopeLock lock(mMutex);
 	if(absolutePath != mZipFilePath)
 	{
-		mImpl = new Impl;
-		bool ok = mImpl->init(zipFilePath.getString().c_str());
-		if(ok)
-			mImpl->mZipFilePath = mZipFilePath = absolutePath;
-		return ok;
+		// Use a dummy Impl to check the path is a valid zip or not
+		SharedPtr<ZipFileSystem::Impl> tmp = new Impl;
+		if(tmp->init(zipFilePath.getString().c_str())) {
+			mZipFilePath = absolutePath;
+			mImpls.clear();
+			return true;
+		}
+		else
+			return false;
 	}
 
 	return true;
@@ -222,12 +229,12 @@ bool ZipFileSystem::setRoot(const Path& zipFilePath)
 
 bool ZipFileSystem::isExists(const Path& path) const
 {
-	return mImpl->getFile(Path(path).normalize()) != nullptr;
+	return getThreadLocalImpl()->getFile(Path(path).normalize()) != nullptr;
 }
 
 bool ZipFileSystem::isDirectory(const Path& path) const
 {
-	const ZIPENTRY* f = mImpl->getFile(Path(path).normalize());
+	const ZIPENTRY* f = getThreadLocalImpl()->getFile(Path(path).normalize());
 
 	if(f) return (f->attr & S_IFDIR) > 0;
 	else throwError("Directory ", path.getString(), " does not exist");
@@ -236,7 +243,7 @@ bool ZipFileSystem::isDirectory(const Path& path) const
 
 uint64_t ZipFileSystem::getSize(const Path& path) const
 {
-	const ZIPENTRY* f = mImpl->getFile(Path(path).normalize());
+	const ZIPENTRY* f = getThreadLocalImpl()->getFile(Path(path).normalize());
 
 	if(f) return f->unc_size;
 	else throwError("File ", path.getString(), " does not exist");
@@ -245,7 +252,7 @@ uint64_t ZipFileSystem::getSize(const Path& path) const
 
 std::time_t ZipFileSystem::getLastWriteTime(const Path& path) const
 {
-	const ZIPENTRY* f = mImpl->getFile(Path(path).normalize());
+	const ZIPENTRY* f = getThreadLocalImpl()->getFile(Path(path).normalize());
 	return f ? f->mtime : 0;
 }
 
@@ -257,9 +264,49 @@ bool ZipFileSystem::remove(const Path& path) const {
 	return false;
 }
 
+const SharedPtr<ZipFileSystem::Impl> ZipFileSystem::getThreadLocalImpl() const
+{
+	const int threadId = getCurrentThreadId();
+
+	ScopeLock lock(mMutex);
+	Impls::const_iterator itr = mImpls.end();
+
+	for(Impls::const_iterator i=mImpls.begin(); i != mImpls.end();) {
+		if(i->first == threadId) {
+			itr = i;
+			++i;
+			continue;
+		}
+		// Clean up impl which is no longer referenced by any stream
+		if(i->second.referenceCount() == 1)
+			i = mImpls.erase(i);
+		else
+			++i;
+	}
+
+	if(itr == mImpls.end()) {
+		SharedPtr<Impl> impl = new Impl;
+		
+		{	ScopeUnlock unlock(mMutex);
+			if(!impl->init(mZipFilePath.getString().c_str())) {
+				MCD_ASSERT(false);	// The checking should have already been done in setRoot()
+				return nullptr;
+			}
+		}
+
+		impl->mZipFilePath = mZipFilePath;
+		mImpls.insert(std::make_pair(threadId, impl));
+		itr = mImpls.find(threadId);
+		MCD_ASSERT(itr != mImpls.end());
+	}
+
+	return itr->second;
+}
+
 std::auto_ptr<std::istream> ZipFileSystem::openRead(const Path& path) const
 {
-	return mImpl->openRead(Path(path).normalize(), mImpl);
+	const SharedPtr<Impl> p = getThreadLocalImpl();
+	return p->openRead(Path(path).normalize(), p);
 }
 
 std::auto_ptr<std::ostream> ZipFileSystem::openWrite(const Path& path) const

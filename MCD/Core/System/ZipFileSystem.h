@@ -2,7 +2,9 @@
 #define __MCD_CORE_SYSTEM_ZIPFILESYSTEM__
 
 #include "FileSystem.h"
+#include "Mutex.h"
 #include "SharedPtr.h"
+#include <map>
 
 namespace MCD {
 
@@ -14,6 +16,7 @@ namespace MCD {
 		required, we can add an option such that the whole data are
 		unzipped to a single memory buffer.
 
+	\note This class is multi-thread safe.
 	\note Internal data structure is shared among opened streams, so feel free
 		to destroy the ZipFileSystem or invoke setRoot() while you are still
 		using the opened streams.
@@ -67,9 +70,14 @@ private:
 
 	Path mZipFilePath;
 
-	class Impl;
-	// The private implementaiton will be shared by the opened streams
-	SharedPtr<Impl> mImpl;
+	class Impl;	//!< The private implementaiton will be shared by the opened streams
+
+	//! We make an instance of Impl for each thread
+	typedef std::map<int, SharedPtr<Impl> > Impls;
+	mutable Impls mImpls;
+
+	mutable Mutex mMutex;	// Protect all member variables (mZipFilePath and mImpls)
+	const SharedPtr<Impl> getThreadLocalImpl() const;
 };	// ZipFileSystem
 
 }	// namespace MCD
