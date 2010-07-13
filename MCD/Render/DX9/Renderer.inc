@@ -40,7 +40,8 @@ struct ShaderContext
 
 struct RenderItem
 {
-	sal_notnull MeshComponent2* mesh;
+	sal_maybenull Entity* entity;
+	sal_notnull IDrawCall* drawCall;
 	sal_notnull IMaterialComponent* material;
 };	// RenderItem
 

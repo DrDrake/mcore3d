@@ -169,7 +169,7 @@ void RendererComponent::Impl::processRenderItems(RenderItems& items)
 	for(RenderItemNode* node = items.findMin(); node != nullptr; node = node->next()) {
 		const RenderItem& i = node->mRenderItem;
 
-		if(Entity* e = i.mesh->entity()) {
+		if(Entity* e = i.entity) {
 			mWorldMatrix = e->worldTransform();
 			mWorldViewProjMatrix = mViewProjMatrix * mWorldMatrix;
 
@@ -185,7 +185,7 @@ void RendererComponent::Impl::processRenderItems(RenderItems& items)
 
 			glPushMatrix();
 			glMultTransposeMatrixf(e->worldTransform().getPtr());
-			i.mesh->mesh->draw();
+			i.drawCall->draw(this);
 			glPopMatrix();
 
 			//if(passCount == 1)

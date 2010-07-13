@@ -229,7 +229,7 @@ void MeshComponent2::render2(void* context)
 
 	MCD_ASSERT(!renderer.mMaterialStack.empty());
 	IMaterialComponent* m = renderer.mMaterialStack.top();
-	RenderItem r = { this, m };
+	RenderItem r = { e, this, m };
 	if(!m->isTransparent())
 		renderer.mOpaqueQueue.insert(*new RenderItemNode(-dist, r));
 	else

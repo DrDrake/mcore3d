@@ -122,4 +122,10 @@ Component* MeshComponent2::clone() const
 	return cloned;
 }
 
+void MeshComponent2::draw(void* context)
+{
+	if(mesh)
+		mesh->draw();
+}
+
 }	// namespace MCD
