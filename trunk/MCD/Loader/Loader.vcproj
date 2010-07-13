@@ -251,6 +251,14 @@
 			>
 		</File>
 		<File
+			RelativePath=".\FntLoader.cpp"
+			>
+		</File>
+		<File
+			RelativePath=".\FntLoader.h"
+			>
+		</File>
+		<File
 			RelativePath=".\JpegLoader.cpp"
 			>
 		</File>

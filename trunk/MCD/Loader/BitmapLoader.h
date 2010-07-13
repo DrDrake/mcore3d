@@ -1,5 +1,5 @@
-#ifndef __MCD_RENDER_BITMAPLOADER__
-#define __MCD_RENDER_BITMAPLOADER__
+#ifndef __MCD_LOADER_BITMAPLOADER__
+#define __MCD_LOADER_BITMAPLOADER__
 
 #include "TextureLoaderBase.h"
 
@@ -26,4 +26,4 @@ protected:
 
 }	// namespace MCD
 
-#endif	// __MCD_RENDER_BITMAPLOADER__
+#endif	// __MCD_LOADER_BITMAPLOADER__

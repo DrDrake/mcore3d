@@ -1,5 +1,5 @@
-#ifndef __MCD_RENDER_EFFECTLOADER__
-#define __MCD_RENDER_EFFECTLOADER__
+#ifndef __MCD_LOADER_EFFECTLOADER__
+#define __MCD_LOADER_EFFECTLOADER__
 
 #include "ShareLib.h"
 #include "../Core/System/NonCopyable.h"
@@ -62,4 +62,4 @@ protected:
 
 }	// namespace MCD
 
-#endif	// __MCD_RENDER_EFFECTLOADER__
+#endif	// __MCD_LOADER_EFFECTLOADER__

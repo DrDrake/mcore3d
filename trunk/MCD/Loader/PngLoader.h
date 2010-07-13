@@ -1,5 +1,5 @@
-#ifndef __MCD_RENDER_PNGLOADER__
-#define __MCD_RENDER_PNGLOADER__
+#ifndef __MCD_LOADER_PNGLOADER__
+#define __MCD_LOADER_PNGLOADER__
 
 #include "TextureLoaderBase.h"
 
@@ -29,4 +29,4 @@ protected:
 
 }	// namespace MCD
 
-#endif	// __MCD_RENDER_PNGLOADER__
+#endif	// __MCD_LOADER_PNGLOADER__

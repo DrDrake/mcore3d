@@ -1,5 +1,5 @@
-#ifndef __MCD_RENDER_RESOURCELOADERFACTORY__
-#define __MCD_RENDER_RESOURCELOADERFACTORY__
+#ifndef __MCD_LOADER_RESOURCELOADERFACTORY__
+#define __MCD_LOADER_RESOURCELOADERFACTORY__
 
 #include "ShareLib.h"
 #include "../Core/System/ResourceManager.h"
@@ -44,6 +44,17 @@ public:
 private:
 	IResourceManager& mResourceManager;
 };	// EffectLoaderFactory
+
+class MCD_LOADER_API FntLoaderFactory : public ResourceManager::IFactory
+{
+public:
+	FntLoaderFactory(IResourceManager& resourceManager);
+	sal_override ResourcePtr createResource(const Path& fileId, const char* args);
+	sal_override IResourceLoader* createLoader();
+
+private:
+	IResourceManager& mResourceManager;
+};	// FntLoaderFactory
 
 class MCD_LOADER_API JpegLoaderFactory : public ResourceManager::IFactory
 {
@@ -103,4 +114,4 @@ public:
 
 }	// namespace MCD
 
-#endif	// __MCD_RENDER_RESOURCELOADERFACTORY__
+#endif	// __MCD_LOADER_RESOURCELOADERFACTORY__

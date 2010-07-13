@@ -1,5 +1,5 @@
-#ifndef __MCD_RENDER_DDSLOADER__
-#define __MCD_RENDER_DDSLOADER__
+#ifndef __MCD_LOADER_DDSLOADER__
+#define __MCD_LOADER_DDSLOADER__
 
 #include "TextureLoaderBase.h"
 
@@ -27,4 +27,4 @@ protected:
 
 }	// namespace MCD
 
-#endif	// __MCD_RENDER_DDSLOADER__
+#endif	// __MCD_LOADER_DDSLOADER__

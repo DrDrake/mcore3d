@@ -1,5 +1,5 @@
-#ifndef __MCD_RENDER_TGALOADER__
-#define __MCD_RENDER_TGALOADER__
+#ifndef __MCD_LOADER_TGALOADER__
+#define __MCD_LOADER_TGALOADER__
 
 #include "TextureLoaderBase.h"
 
@@ -26,4 +26,4 @@ protected:
 
 }	// namespace MCD
 
-#endif	// __MCD_RENDER_TGALOADER__
+#endif	// __MCD_LOADER_TGALOADER__
