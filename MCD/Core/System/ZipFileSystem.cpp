@@ -269,9 +269,9 @@ const SharedPtr<ZipFileSystem::Impl> ZipFileSystem::getThreadLocalImpl() const
 	const int threadId = getCurrentThreadId();
 
 	ScopeLock lock(mMutex);
-	Impls::const_iterator itr = mImpls.end();
+	Impls::iterator itr = mImpls.end();
 
-	for(Impls::const_iterator i=mImpls.begin(); i != mImpls.end();) {
+	for(Impls::iterator i=mImpls.begin(); i != mImpls.end();) {
 		if(i->first == threadId) {
 			itr = i;
 			++i;
@@ -279,7 +279,7 @@ const SharedPtr<ZipFileSystem::Impl> ZipFileSystem::getThreadLocalImpl() const
 		}
 		// Clean up impl which is no longer referenced by any stream
 		if(i->second.referenceCount() == 1)
-			i = mImpls.erase(i);
+			mImpls.erase(i++);
 		else
 			++i;
 	}
