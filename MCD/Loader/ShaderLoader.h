@@ -1,5 +1,5 @@
-#ifndef __MCD_RENDER_SHADERLOADER__
-#define __MCD_RENDER_SHADERLOADER__
+#ifndef __MCD_LOADER_SHADERLOADER__
+#define __MCD_LOADER_SHADERLOADER__
 
 #include "ShareLib.h"
 #include "../Core/System/NonCopyable.h"
@@ -35,4 +35,4 @@ protected:
 
 }	// namespace MCD
 
-#endif	// __MCD_RENDER_SHADERLOADER__
+#endif	// __MCD_LOADER_SHADERLOADER__

@@ -130,10 +130,7 @@ TEST(RendererTest)
 		q->height = 64;
 		e->addComponent(q);
 
-		BmpFontPtr bmp = new BmpFont("");
-		bmp->texture = dynamic_cast<Texture*>(resourceManager.load("Font-Arial.png").get());
-		bmp->charSet.width = 256;
-		bmp->charSet.height = 256;
+		BmpFontPtr bmp = dynamic_cast<BmpFont*>(resourceManager.load("Font-Arial.fnt").get());
 
 		{	BmpFont::CharDescriptor& desc = bmp->charSet.chars[33];
 			desc.x = 100; desc.y = 161;
@@ -156,7 +153,7 @@ TEST(RendererTest)
 		FontComponent* font = new FontComponent;
 		e->addComponent(font);
 		font->bmpFont = bmp;
-		font->text = "!!##!#!#!#!#!#!#!#!#!#!#!#!#!#";
+		font->text = "This is a text label";
 	}
 
 	{	// Setup sub-window

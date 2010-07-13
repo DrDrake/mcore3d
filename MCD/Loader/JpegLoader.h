@@ -1,5 +1,5 @@
-#ifndef __MCD_RENDER_JPEGLOADER__
-#define __MCD_RENDER_JPEGLOADER__
+#ifndef __MCD_LOADER_JPEGLOADER__
+#define __MCD_LOADER_JPEGLOADER__
 
 #include "TextureLoaderBase.h"
 
@@ -28,4 +28,4 @@ protected:
 
 }	// namespace MCD
 
-#endif	// __MCD_RENDER_JPEGLOADER__
+#endif	// __MCD_LOADER_JPEGLOADER__

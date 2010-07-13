@@ -1,5 +1,5 @@
-#ifndef __MCD_RENDER_CUBEMAPLOADER__
-#define __MCD_RENDER_CUBEMAPLOADER__
+#ifndef __MCD_LOADER_CUBEMAPLOADER__
+#define __MCD_LOADER_CUBEMAPLOADER__
 
 #include "TextureLoaderBase.h"
 
@@ -29,4 +29,4 @@ protected:
 
 }	// namespace MCD
 
-#endif	// __MCD_RENDER_CUBEMAPLOADER__
+#endif	// __MCD_LOADER_CUBEMAPLOADER__

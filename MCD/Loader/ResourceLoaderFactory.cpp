@@ -4,12 +4,14 @@
 #include "CubemapLoader.h"
 #include "DdsLoader.h"
 #include "EffectLoader.h"
+#include "FntLoader.h"
 #include "JpegLoader.h"
 #include "Max3dsLoader.h"
 #include "PngLoader.h"
 #include "ShaderLoader.h"
 #include "TgaLoader.h"
 #include "../Render/Effect.h"
+#include "../Render/Font.h"
 #include "../Render/Mesh.h"
 #include "../Render/Model.h"
 #include "../Render/Shader.h"
@@ -100,6 +102,25 @@ ResourcePtr EffectLoaderFactory::createResource(const Path& fileId, const char* 
 IResourceLoader* EffectLoaderFactory::createLoader()
 {
 	return new EffectLoader(mResourceManager);
+}
+
+FntLoaderFactory::FntLoaderFactory(IResourceManager& resourceManager)
+	: mResourceManager(resourceManager)
+{
+}
+
+ResourcePtr FntLoaderFactory::createResource(const Path& fileId, const char* args)
+{
+	std::string extStr = fileId.getExtension();
+	const char* ext = extStr.c_str();
+	if(strCaseCmp(ext, "fnt") == 0)
+		return new BmpFont(fileId);
+	return nullptr;
+}
+
+IResourceLoader* FntLoaderFactory::createLoader()
+{
+	return new FntLoader(&mResourceManager);
 }
 
 ResourcePtr JpegLoaderFactory::createResource(const Path& fileId, const char* args)

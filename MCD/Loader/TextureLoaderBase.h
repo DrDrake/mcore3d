@@ -1,5 +1,5 @@
-#ifndef __MCD_RENDER_TEXTURELOADERBASE__
-#define __MCD_RENDER_TEXTURELOADERBASE__
+#ifndef __MCD_LOADER_TEXTURELOADERBASE__
+#define __MCD_LOADER_TEXTURELOADERBASE__
 
 #include "ShareLib.h"
 #include "../Core/System/NonCopyable.h"
@@ -74,4 +74,4 @@ protected:
 
 }	// namespace MCD
 
-#endif	// __MCD_RENDER_TEXTURELOADERBASE__
+#endif	// __MCD_LOADER_TEXTURELOADERBASE__

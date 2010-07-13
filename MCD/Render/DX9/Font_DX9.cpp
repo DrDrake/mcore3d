@@ -38,7 +38,7 @@ void FontComponent::render2(void* context)
 		uv.z /= textureWidth;
 		uv.w /= textureHeight;
 
-		transform.setTranslation(charPos + Vec3f(desc.xOffset + float(desc.width) / 2, desc.yOffset - float(desc.height), 0));
+		transform.setTranslation(charPos + Vec3f(desc.xOffset + float(desc.width) / 2, -desc.yOffset - float(desc.height) / 2, 0));
 
 		// NOTE: Quad renderer use the centre of each quad as the anchor
 		renderer.mQuadRenderer->push(worldTransform * transform, desc.width, desc.height, uv, m);
