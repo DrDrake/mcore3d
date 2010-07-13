@@ -186,7 +186,7 @@ protected:
 
 namespace MCD {
 
-class MCD_RENDER_API MeshComponent2 : public RenderableComponent2
+class MCD_RENDER_API MeshComponent2 : public RenderableComponent2, public IDrawCall
 {
 public:
 // Cloning
@@ -196,6 +196,7 @@ public:
 // Operations
 	sal_override void render() {}
 	sal_override void render2(sal_in void* context);
+	sal_override void draw(sal_in void* context);
 
 // Attributes
 	MeshPtr mesh;

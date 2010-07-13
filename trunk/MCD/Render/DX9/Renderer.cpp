@@ -174,7 +174,7 @@ void RendererComponent::Impl::processRenderItems(RenderItems& items)
 	for(RenderItemNode* node = items.findMin(); node != nullptr; node = node->next()) {
 		const RenderItem& i = node->mRenderItem;
 
-		if(Entity* e = i.mesh->entity()) {
+		if(Entity* e = i.entity) {
 			mWorldMatrix = e->worldTransform();
 			mWorldViewProjMatrix = mViewProjMatrix * mWorldMatrix;
 
@@ -188,7 +188,7 @@ void RendererComponent::Impl::processRenderItems(RenderItems& items)
 			// The material class will preform early out if mtl == mLastMaterial
 			mtl->preRender(0, this);
 
-			i.mesh->mesh->drawFaceOnly();
+			i.drawCall->draw(this);
 
 			//if(passCount == 1)
 				mLastMaterial = mtl;
