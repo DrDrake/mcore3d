@@ -673,7 +673,7 @@ void PodLoader::Impl::commit(Resource& resource)
 		bk->asChildOf(prefab.entity.get());
 	}
 
-	++prefab.reloadCount;
+	++prefab.commitCount;
 }
 
 PodLoader::PodLoader(

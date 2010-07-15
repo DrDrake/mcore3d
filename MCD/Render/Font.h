@@ -98,7 +98,8 @@ protected:
 	ComponentPtr dummy;	// NOTE: Workaround for VC9 LNK1194 with vftable
 
 	uint32_t mStringHash;	// To determine the text have been changed or not
-	size_t mTextureWidth, mTextureHeight;	// To determine the font resource is loaded or not
+	size_t mLastBmpFontCommitCount;	// To determine the font resource is loaded or not
+	IntrusiveWeakPtr<const BmpFont> mLastBmpFont;	// To determine the font resource is changed or not
 
 	// Caching of vertex buffer
 	struct Vertex { Vec3f position; Vec2f uv; };
