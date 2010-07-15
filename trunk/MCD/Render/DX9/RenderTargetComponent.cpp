@@ -66,7 +66,7 @@ static void setViewPort(LPDIRECT3DDEVICE9 device, RenderTargetComponent& renderT
 	device->SetViewport(&viewPort);
 
 	// Also adjust the frustum's aspect ration
-	if(renderTarget.cameraComponent)
+	if(renderTarget.cameraComponent && renderTarget.cameraComponent->frustum.projectionType == Frustum::Perspective)
 		renderTarget.cameraComponent->frustum.setAcpectRatio(float(viewPort.Width) / viewPort.Height);
 }
 

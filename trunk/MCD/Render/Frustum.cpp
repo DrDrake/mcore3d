@@ -57,6 +57,8 @@ void Frustum::applyProjection() const
 	glMatrixMode(GL_MODELVIEW);
 }
 
+// Reference:
+// http://www.codeguru.com/cpp/misc/misc/math/article.php/c10123__3/Deriving-Projection-Matrices.htm
 void Frustum::computePerspective(float* matrix) const
 {
 	assertValid();
@@ -70,8 +72,22 @@ void Frustum::computePerspective(float* matrix) const
 	matrix[10] = -(far + near) / (far - near);
 	matrix[11] = -2.0f * (far * near) / (far - near);
 	matrix[14] = -1;
+
+	// TODO: To verify which one is correct
+/*	matrix[0] = 2.0f * near / (right - left);
+	matrix[2] = -(right + left) / (right - left);
+	matrix[5] = 2.0f * near / (top - bottom);
+	matrix[6] = -(top + bottom) / (top - bottom);
+	matrix[10] = (near) / (far - near);
+	matrix[11] = -(far * near) / (far - near);
+	matrix[14] = -1;*/
 }
 
+// Correct formula:
+// http://www.codeguru.com/cpp/misc/misc/math/article.php/c10123__2/
+// Seems incorrect formulas:
+// http://www.songho.ca/opengl/gl_projectionmatrix.html
+// http://en.wikipedia.org/wiki/Orthographic_projection_%28geometry%29 (even wikipedia is incorrect?)
 void Frustum::computeOrtho(float* matrix) const
 {
 	assertValid();
@@ -82,8 +98,8 @@ void Frustum::computeOrtho(float* matrix) const
 	matrix[3] = -(right + left) / (right - left);
 	matrix[5] = 2.0f / (top - bottom);
 	matrix[7] = -(top + bottom) / (top - bottom);
-	matrix[10] = -2.0f / (far - near);
-	matrix[11] = -(far + near) / (far - near);
+	matrix[10] = -1.0f / (far - near);
+	matrix[11] = -near / (far - near);
 	matrix[15] = 1;
 }
 
@@ -125,6 +141,7 @@ float Frustum::aspectRatio() const
 
 void Frustum::setAcpectRatio(float ratio)
 {
+	MCD_ASSERT(projectionType == Perspective);
 	create(fov(), ratio, near, far);
 }
 
