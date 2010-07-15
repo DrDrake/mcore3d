@@ -3,48 +3,77 @@
 #include "../Texture.h"
 #include "Renderer.inc"
 #include "../../Core/Entity/Entity.h"
+#include <D3DX9Shader.h>
 
 // Reference: http://www.gamedev.net/community/forums/topic.asp?topic_id=330742
 
 namespace MCD {
 
-void FontComponent::render()
+static const int cQuadVertexFVF = (D3DFVF_XYZ|D3DFVF_TEX1);
+
+void TextLabelComponent::render() {}
+
+void TextLabelComponent::render2(void* context)
 {
+	RendererComponent::Impl& renderer = *reinterpret_cast<RendererComponent::Impl*>(context);
+	BmpFontMaterialComponent* m = dynamic_cast<BmpFontMaterialComponent*>(renderer.mMaterialStack.top());
+	if(!m) return;
+
+	// Check to see if we need to rebuild the vertex buffer
+	const size_t hash = StringHash(text.c_str(), 0).hash;
+	if(mStringHash != hash) {
+		// Get the BmpFont from the current material
+		const BmpFont* bmpFont = m->bmpFont.get();
+		if(!bmpFont) return;
+
+		// Quit if the font is not loaded yet
+		// TODO: Use Resource::loadCount to cop with hot reload
+		if(bmpFont->charSet.lineHeight == 0)
+			return;
+
+		buildVertexBuffer(*bmpFont);
+		mStringHash = hash;
+	}
+
+	if(!mVertexBuffer.empty()) {
+		RenderItem r = { entity(), this, m };
+		renderer.mTransparentQueue.insert(*new RenderItemNode(0, r));
+	}
 }
 
-void FontComponent::render2(void* context)
+void TextLabelComponent::draw(sal_in void* context)
 {
-	if(text.empty() || !bmpFont)
-		return;
-
 	RendererComponent::Impl& renderer = *reinterpret_cast<RendererComponent::Impl*>(context);
-	IMaterialComponent* m = renderer.mMaterialStack.top();
+	LPDIRECT3DDEVICE9 device = getDevice();
+	MCD_ASSUME(device);
+	MCD_VERIFY(device->SetFVF(cQuadVertexFVF) == D3D_OK);
+	MCD_VERIFY(device->SetTransform(D3DTS_WORLD, (D3DMATRIX*)renderer.mWorldMatrix.transpose().getPtr()) == D3D_OK);	// TODO: Why transpose?
+	MCD_VERIFY(device->DrawPrimitiveUP(D3DPT_TRIANGLELIST, mVertexBuffer.size() / 3, &mVertexBuffer[0], sizeof(Vertex)) == D3D_OK);
+}
 
-	const Mat44f worldTransform = entity()->worldTransform();
-	Mat44f transform = Mat44f::cIdentity;
+void BmpFontMaterialComponent::render2(void* context)
+{
+	RendererComponent::Impl& renderer = *reinterpret_cast<RendererComponent::Impl*>(context);
+	renderer.mCurrentMaterial = this;
+}
 
-	const size_t textureWidth = bmpFont->charSet.width;
-	const size_t textureHeight = bmpFont->charSet.height;
+void BmpFontMaterialComponent::preRender(size_t pass, void* context)
+{
+	LPDIRECT3DDEVICE9 device = getDevice();
+	MCD_ASSUME(device);
+	MCD_VERIFY(device->SetVertexShader(nullptr) == D3D_OK);
+	MCD_VERIFY(device->SetPixelShader(nullptr) == D3D_OK);
 
-	Vec3f charPos = Vec3f::cZero;
-
-	for(std::string::const_iterator i=text.begin(); i != text.end(); ++i) {
-		const unsigned char c = *i;
-		const BmpFont::CharDescriptor& desc = bmpFont->charSet.chars[c];
-
-		Vec4f uv(desc.x, desc.y, float(desc.x + desc.width), float(desc.y + desc.height));
-		uv.x /= textureWidth;
-		uv.y /= textureHeight;
-		uv.z /= textureWidth;
-		uv.w /= textureHeight;
-
-		transform.setTranslation(charPos + Vec3f(desc.xOffset + float(desc.width) / 2, -desc.yOffset - float(desc.height) / 2, 0));
-
-		// NOTE: Quad renderer use the centre of each quad as the anchor
-		renderer.mQuadRenderer->push(worldTransform * transform, desc.width, desc.height, uv, m);
-
-		charPos.x += desc.xAdvance;
+	if(bmpFont && bmpFont->texture) {
+		if(IDirect3DBaseTexture9* texture = reinterpret_cast<IDirect3DBaseTexture9*>(bmpFont->texture->handle))
+			MCD_VERIFY(device->SetTexture(0, texture) == D3D_OK);
 	}
+}
+
+void BmpFontMaterialComponent::postRender(size_t pass, void* context)
+{
+	if(bmpFont && bmpFont->texture)
+		bmpFont->texture->unbind();
 }
 
 }	// namespace MCD

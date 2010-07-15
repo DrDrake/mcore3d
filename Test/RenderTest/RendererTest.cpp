@@ -85,8 +85,8 @@ TEST(RendererTest)
 		guiLayer->asChildOf(&root);
 
 		// Use SpriteMaterialComponent for GUI
-		SpriteMaterialComponent* material = new SpriteMaterialComponent;
-		material->diffuseMap = dynamic_cast<Texture*>(resourceManager.load("Font-Arial.png").get());
+		BmpFontMaterialComponent* material = new BmpFontMaterialComponent;
+		material->bmpFont = dynamic_cast<BmpFont*>(resourceManager.load("Font-Arial.fnt").get());
 		guiLayer->addComponent(material);
 
 		// Othro camera
@@ -98,7 +98,7 @@ TEST(RendererTest)
 
 		EntityPtr e = new Entity("Gui camera");
 		e->asChildOf(guiLayer.get());
-		e->localTransform.setTranslation(Vec3f(0, 0, 5));
+		e->localTransform.setTranslation(Vec3f(0, 0, 0));
 		e->addComponent(guiCamera);
 
 		// Render target
@@ -114,7 +114,7 @@ TEST(RendererTest)
 		e->insertAfter(mainRenderTarget->entity());	// Such that gui will draw after the main scene
 		e->addComponent(guiRenderTarget);
 
-		e = new Entity("Quad1");
+/*		e = new Entity("Quad1");
 		e->localTransform.setTranslation(Vec3f(300, 200, 0));
 		e->asChildOf(guiLayer.get());
 		QuadComponent* q = new QuadComponent;
@@ -128,32 +128,15 @@ TEST(RendererTest)
 		q = new QuadComponent;
 		q->width = 64;
 		q->height = 64;
-		e->addComponent(q);
-
-		BmpFontPtr bmp = dynamic_cast<BmpFont*>(resourceManager.load("Font-Arial.fnt").get());
-
-		{	BmpFont::CharDescriptor& desc = bmp->charSet.chars[33];
-			desc.x = 100; desc.y = 161;
-			desc.width = 2; desc.height = 20;
-			desc.xOffset = 3; desc.yOffset = 6;
-			desc.xAdvance = 8;
-		}
-
-		{	BmpFont::CharDescriptor& desc = bmp->charSet.chars[35];
-			desc.x = 241; desc.y = 74;
-			desc.width = 14; desc.height = 20;
-			desc.xOffset = 0; desc.yOffset = 6;
-			desc.xAdvance = 15;
-		}
+		e->addComponent(q);*/
 
 		e = new Entity("Text");
 		e->localTransform.setTranslation(Vec3f(-400, 300, 0));
 //		e->localTransform.setMat33(Mat33f::makeXYZRotation(0, 0, 3.14f/4));
 		e->asChildOf(guiLayer.get());
-		FontComponent* font = new FontComponent;
+		TextLabelComponent* font = new TextLabelComponent;
 		e->addComponent(font);
-		font->bmpFont = bmp;
-		font->text = "This is a text label";
+		font->text = "This is a text label\nMCore rocks!";
 	}
 
 	{	// Setup sub-window

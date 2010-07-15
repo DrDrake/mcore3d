@@ -8,43 +8,63 @@
 
 namespace MCD {
 
-void FontComponent::render()
+void TextLabelComponent::render() {}
+
+void TextLabelComponent::render2(void* context)
 {
+	RendererComponent::Impl& renderer = *reinterpret_cast<RendererComponent::Impl*>(context);
+	BmpFontMaterialComponent* m = dynamic_cast<BmpFontMaterialComponent*>(renderer.mMaterialStack.top());
+	if(!m) return;
+
+	// Check to see if we need to rebuild the vertex buffer
+	const size_t hash = StringHash(text.c_str(), 0).hash;
+	if(mStringHash != hash) {
+		// Get the BmpFont from the current material
+		const BmpFont* bmpFont = m->bmpFont.get();
+		if(!bmpFont) return;
+
+		// Quit if the font is not loaded yet
+		// TODO: Use Resource::loadCount to cop with hot reload
+		if(bmpFont->charSet.lineHeight == 0)
+			return;
+
+		buildVertexBuffer(*bmpFont);
+		mStringHash = hash;
+	}
+
+	if(!mVertexBuffer.empty()) {
+		RenderItem r = { entity(), this, m };
+		renderer.mTransparentQueue.insert(*new RenderItemNode(0, r));
+	}
 }
 
-void FontComponent::render2(void* context)
+void TextLabelComponent::draw(sal_in void* context)
 {
-	if(text.empty() || !bmpFont)
-		return;
+	glEnableClientState(GL_VERTEX_ARRAY);
+	glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+	glTexCoordPointer(2, GL_FLOAT, sizeof(Vertex), &mVertexBuffer[0].uv);
+	glVertexPointer(3, GL_FLOAT, sizeof(Vertex), &mVertexBuffer[0].position);
+	glDrawArrays(GL_TRIANGLES, 0, mVertexBuffer.size());
+	glDisableClientState(GL_VERTEX_ARRAY);
+	glDisableClientState(GL_TEXTURE_COORD_ARRAY);
+}
 
+void BmpFontMaterialComponent::render2(void* context)
+{
 	RendererComponent::Impl& renderer = *reinterpret_cast<RendererComponent::Impl*>(context);
-	IMaterialComponent* m = renderer.mMaterialStack.top();
+	renderer.mCurrentMaterial = this;
+}
 
-	const Mat44f worldTransform = entity()->worldTransform();
-	Mat44f transform = Mat44f::cIdentity;
+void BmpFontMaterialComponent::preRender(size_t pass, void* context)
+{
+	if(bmpFont && bmpFont->texture)
+		bmpFont->texture->bind();
+}
 
-	const size_t textureWidth = bmpFont->charSet.width;
-	const size_t textureHeight = bmpFont->charSet.height;
-
-	Vec3f charPos = Vec3f::cZero;
-
-	for(std::string::const_iterator i=text.begin(); i != text.end(); ++i) {
-		const unsigned char c = *i;
-		const BmpFont::CharDescriptor& desc = bmpFont->charSet.chars[c];
-
-		Vec4f uv(desc.x, desc.y, float(desc.x + desc.width), float(desc.y + desc.height));
-		uv.x /= textureWidth;
-		uv.y /= textureHeight;
-		uv.z /= textureWidth;
-		uv.w /= textureHeight;
-
-		transform.setTranslation(charPos + Vec3f(desc.xOffset + float(desc.width) / 2, -desc.yOffset - float(desc.height) / 2, 0));
-
-		// NOTE: Quad renderer use the centre of each quad as the anchor
-		renderer.mQuadRenderer->push(worldTransform * transform, desc.width, desc.height, uv, m);
-
-		charPos.x += desc.xAdvance;
-	}
+void BmpFontMaterialComponent::postRender(size_t pass, void* context)
+{
+	if(bmpFont && bmpFont->texture)
+		bmpFont->texture->unbind();
 }
 
 }	// namespace MCD

@@ -84,8 +84,12 @@ IResourceLoader::LoadingState FntLoader::load(std::istream* is, const Path*, con
 				key = token.substr(0, i);
 				value = token.substr(i + 1);
 
-				if(key == "file" && mResourceManager)
+				if(key == "file" && mResourceManager) {
+					// Trim the \" character
+					value.erase(value.begin());
+					value.resize(value.size() - 1);
 					mTmp->texture = dynamic_cast<Texture*>(mResourceManager->load(value).get());
+				}
 			}
 		}
 	}
