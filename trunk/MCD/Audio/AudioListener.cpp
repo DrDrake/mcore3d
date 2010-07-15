@@ -1,6 +1,6 @@
 #include "Pch.h"
 #include "AudioListener.h"
-#include "../../3Party/OpenAL/al.h"
+#include "ALInclude.h"
 
 namespace MCD {
 
