@@ -2,6 +2,9 @@
 #include "AudioEffect.h"
 #include "AudioSource.h"
 #include "AudioBuffer.h"	// for checkAndPrintError()
+
+#ifndef MCD_APPLE	// No audio effect on iPhone
+
 #include "../../3Party/OpenAL/al.h"
 #include "../../3Party/OpenAL/efx.h"
 
@@ -34,7 +37,7 @@ AudioEffect::AudioEffect()
 	: handle(0), slotHandle(0)
 {
 	alGenEffects(1, &handle);
-	// TODO: Pooling of auxiliary effect slots 
+	// TODO: Pooling of auxiliary effect slots
 	alGenAuxiliaryEffectSlots(1, &slotHandle);
 }
 
@@ -75,3 +78,5 @@ float AudioEffect::getParameterf(const char* paramName)
 }
 
 }	// namespace MCD
+
+#endif

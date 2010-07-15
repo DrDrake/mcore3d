@@ -1,7 +1,7 @@
 #include "Pch.h"
 #include "AudioBuffer.h"
+#include "ALInclude.h"
 #include "../Core/System/Utility.h"
-#include "../../3Party/OpenAL/al.h"
 
 namespace MCD {
 

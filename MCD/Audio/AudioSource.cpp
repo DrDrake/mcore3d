@@ -2,12 +2,12 @@
 #include "AudioSource.h"
 #include "AudioBuffer.h"
 #include "AudioLoader.h"
+#include "ALInclude.h"
 #include "../Core/System/Log.h"
 #include "../Core/System/ResourceLoader.h"
 #include "../Core/System/ResourceManager.h"
 #include "../Core/System/StrUtility.h"	// for NvpParser
 #include "../Core/System/Thread.h"	// for mSleep()
-#include "../../3Party/OpenAL/al.h"
 
 namespace MCD {
 

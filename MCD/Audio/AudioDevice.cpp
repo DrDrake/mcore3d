@@ -1,8 +1,7 @@
 #include "Pch.h"
 #include "AudioDevice.h"
+#include "ALInclude.h"
 #include "../Core/System/Log.h"
-#include "../../3Party/OpenAL/al.h"
-#include "../../3Party/OpenAL/alc.h"
 
 #if defined(MCD_VC)
 #	pragma comment(lib, "OpenAL32")
@@ -11,7 +10,7 @@
 namespace MCD {
 
 static ALCdevice* gDevice = nullptr;
-static ALCcontext* gContext = nullptr; 
+static ALCcontext* gContext = nullptr;
 static size_t gInitCount = 0;
 
 /*	Some usefull links about OpenAL:
