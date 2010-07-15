@@ -16,20 +16,19 @@ void TextLabelComponent::render2(void* context)
 	BmpFontMaterialComponent* m = dynamic_cast<BmpFontMaterialComponent*>(renderer.mMaterialStack.top());
 	if(!m) return;
 
-	// Check to see if we need to rebuild the vertex buffer
-	const size_t hash = StringHash(text.c_str(), 0).hash;
-	if(mStringHash != hash) {
-		// Get the BmpFont from the current material
-		const BmpFont* bmpFont = m->bmpFont.get();
-		if(!bmpFont) return;
+	// Get the BmpFont from the current material
+	if(const BmpFont* bmpFont = m->bmpFont.get()) if(bmpFont->commitCount > 0)
+	{
+		// Check to see if we need to rebuild the vertex buffer
+		const size_t hash = StringHash(text.c_str(), 0).hash;
 
-		// Quit if the font is not loaded yet
-		// TODO: Use Resource::loadCount to cop with hot reload
-		if(bmpFont->charSet.lineHeight == 0)
-			return;
+		const bool fontChanged = (mLastBmpFont != bmpFont || bmpFont->commitCount != mLastBmpFontCommitCount);
 
-		buildVertexBuffer(*bmpFont);
-		mStringHash = hash;
+		if(mStringHash != hash || fontChanged) {
+			buildVertexBuffer(*bmpFont);
+			mStringHash = hash;
+			mLastBmpFont = bmpFont;
+		}
 	}
 
 	if(!mVertexBuffer.empty()) {

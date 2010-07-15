@@ -8,7 +8,7 @@
 namespace MCD {
 
 PrefabLoaderComponent::PrefabLoaderComponent()
-	: reloadCount(0)
+	: mCommitCount(0)
 {}
 
 bool PrefabLoaderComponent::cloneable() const {
@@ -29,7 +29,7 @@ void PrefabLoaderComponent::update(float dt)
 		return;
 
 	// Check the loading status
-	if(prefab->reloadCount == reloadCount || !prefab->entity.get())
+	if(prefab->commitCount == mCommitCount || !prefab->entity.get())
 		return;
 
 	// Remove all existing child nodes first
@@ -44,17 +44,17 @@ void PrefabLoaderComponent::update(float dt)
 		bk->asChildOf(e);
 	}
 
-	reloadCount = prefab->reloadCount;
+	mCommitCount = prefab->commitCount;
 
 	// TODO: PrefabLoaderComponent may remove itself in final release.
 }
 
 void PrefabLoaderComponent::reload() {
-	reloadCount = 0;
+	mCommitCount = 0;
 }
 
 bool PrefabLoaderComponent::isLoaded() const {
-	return reloadCount > 0;
+	return mCommitCount > 0;
 }
 
 Entity* PrefabLoaderComponent::loadEntity(IResourceManager& resourceManager, const char* filePath, const char* args, DynamicsWorld* dynamicsWorld)

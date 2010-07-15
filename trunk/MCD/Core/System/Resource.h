@@ -14,9 +14,15 @@ class MCD_CORE_API Resource : public IntrusiveSharedWeakPtrTarget<AtomicInteger>
 public:
 	explicit Resource(const Path& fileId);
 
+// Attributes
 	const Path& fileId() const {
 		return mFileId;
 	}
+
+	/*!	To track how many times the resource is committed (by loader or any other means).
+		\note Resource loaders should increment this count on the commit stage.
+	 */
+	size_t commitCount;
 
 protected:
 	/*!	Virtual function to make Resource a polymorphic type so

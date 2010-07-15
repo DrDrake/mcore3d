@@ -959,6 +959,7 @@ void Max3dsLoader::Impl::commit(Resource& resource)
 
 	// Remember to reset the LoadOptions
 	mLoadOptions.reset();
+	++resource.commitCount;
 }
 
 IResourceLoader::LoadingState Max3dsLoader::Impl::getLoadingState() const

@@ -64,6 +64,8 @@ void TextureLoaderBase::commit(Resource& resource)
 	uploadData(texture);
 	postUploadData();
 
+	++resource.commitCount;
+
 	// The invocation of postUploadData() may deleted mImpl
 	if(!mImpl) {
 		// The destruction of mImpl will release the mutex

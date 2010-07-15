@@ -4,12 +4,9 @@
 namespace MCD {
 
 Prefab::Prefab(const Path& fileId)
-	: Resource(fileId), reloadCount(0)
-{
-}
+	: Resource(fileId)
+{}
 
-Prefab::~Prefab()
-{
-}
+Prefab::~Prefab() {}
 
 }	// namespace MCD

@@ -20,9 +20,6 @@ public:
 	//! When an Prefab is loaded, \em entity is not be NULL
 	std::auto_ptr<Entity> entity;
 
-	//!	PrefabComponent will use this to check for the Prefab has been modified or not.
-	size_t reloadCount;
-
 protected:
 	sal_override ~Prefab();
 };	// Prefab

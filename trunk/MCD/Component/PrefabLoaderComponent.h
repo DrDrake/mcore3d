@@ -46,7 +46,7 @@ public:
 
 protected:
 	//!	If this counter doesn't match that of prefab, the Entity tree will be refreshed.
-	size_t reloadCount;
+	size_t mCommitCount;
 };	// PrefabLoaderComponent
 
 typedef IntrusiveWeakPtr<PrefabLoaderComponent> PrefabLoaderComponentPtr;

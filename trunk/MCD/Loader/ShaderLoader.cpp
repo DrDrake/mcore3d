@@ -41,7 +41,10 @@ void ShaderLoader::commit(Resource& resource)
 		std::string log;
 		shader.getLog(log);
 		Log::format(Log::Error, "%s", log.c_str());
+		return;
 	}
+
+	++resource.commitCount;
 }
 
 IResourceLoader::LoadingState ShaderLoader::getLoadingState() const

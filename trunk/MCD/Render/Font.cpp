@@ -14,7 +14,7 @@ BmpFont::BmpFont(const Path& fileId)
 BmpFont::~BmpFont() {}
 
 TextLabelComponent::TextLabelComponent()
-	: lineWidth(0), mStringHash(0), mTextureWidth(0), mTextureHeight(0)
+	: lineWidth(0), mStringHash(0), mLastBmpFontCommitCount(0)
 {}
 
 TextLabelComponent::~TextLabelComponent() {}

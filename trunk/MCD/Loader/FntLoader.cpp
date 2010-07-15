@@ -109,6 +109,7 @@ void FntLoader::commit(Resource& resource)
 
 	font.texture = mTmp->texture;
 	font.charSet = mTmp->charSet;
+	++resource.commitCount;
 }
 
 IResourceLoader::LoadingState FntLoader::getLoadingState() const

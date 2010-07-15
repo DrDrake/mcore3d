@@ -843,6 +843,7 @@ IResourceLoader::LoadingState EffectLoader::load(std::istream* is, const Path* f
 void EffectLoader::commit(Resource& resource)
 {
 	mImpl.commit(resource);
+	++resource.commitCount;
 }
 
 IResourceLoader::LoadingState EffectLoader::getLoadingState() const
