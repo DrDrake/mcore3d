@@ -1,8 +1,10 @@
 #ifndef __MCD_RENDER_FONT__
 #define __MCD_RENDER_FONT__
 
-#include "Renderable.h"
+#include "Material.h"
 #include "../Core/System/Resource.h"
+#include "../Core/Math/Vec2.h"
+#include "../Core/Math/Vec3.h"
 
 namespace MCD {
 
@@ -44,10 +46,37 @@ protected:
 typedef IntrusivePtr<BmpFont> BmpFontPtr;
 
 //!	The text is anchored at the left top corner
-class MCD_RENDER_API FontComponent : public RenderableComponent2
+class MCD_RENDER_API BmpFontMaterialComponent : public IMaterialComponent
 {
 public:
-	FontComponent();
+	BmpFontMaterialComponent();
+
+// Cloning
+	sal_override sal_checkreturn bool cloneable() const { return true; }
+	sal_override sal_notnull Component* clone() const;
+
+// Operations
+	sal_override void render();
+	sal_override void render2(sal_in void* context);
+
+// Attributes
+	BmpFontPtr bmpFont;
+
+	sal_override bool isTransparent() const { return true; }
+
+protected:
+	~BmpFontMaterialComponent() {}
+
+	//!	Invoked by RendererComponent
+	sal_override void preRender(size_t pass, void* context);
+	sal_override void postRender(size_t pass, void* context);
+};	// BmpFontMaterialComponent
+
+//!	The text is anchored at the left top corner
+class MCD_RENDER_API TextLabelComponent : public RenderableComponent2, public IDrawCall
+{
+public:
+	TextLabelComponent();
 
 // Cloning
 	sal_override sal_checkreturn bool cloneable() const;
@@ -56,18 +85,27 @@ public:
 // Operations
 	sal_override void render();
 	sal_override void render2(sal_in void* context);
+	sal_override void draw(sal_in void* context);
 
 // Attributes
 	std::string text;
 	size_t lineWidth;	//!< The maximum pixel for a line of text, word longer than that will move to next line. Zero means no limit
-	BmpFontPtr bmpFont;
 
 protected:
-	sal_override ~FontComponent();
-	ComponentPtr dummy;	// NOTE: Workaround for VC9 LNK1194 with vftable
-};	// FontComponent
+	sal_override ~TextLabelComponent();
+	void buildVertexBuffer(const BmpFont& font);
 
-typedef IntrusiveWeakPtr<FontComponent> FontComponentPtr;
+	ComponentPtr dummy;	// NOTE: Workaround for VC9 LNK1194 with vftable
+
+	uint32_t mStringHash;	// To determine the text have been changed or not
+	size_t mTextureWidth, mTextureHeight;	// To determine the font resource is loaded or not
+
+	// Caching of vertex buffer
+	struct Vertex { Vec3f position; Vec2f uv; };
+	std::vector<Vertex> mVertexBuffer;
+};	// TextLabelComponent
+
+typedef IntrusiveWeakPtr<TextLabelComponent> TextLabelComponentPtr;
 
 }	// namespace MCD
 

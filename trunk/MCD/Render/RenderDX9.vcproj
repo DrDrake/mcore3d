@@ -284,6 +284,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\QuadComponent.h"
+				>
+			</File>
+			<File
 				RelativePath=".\RayMeshIntersect.h"
 				>
 			</File>

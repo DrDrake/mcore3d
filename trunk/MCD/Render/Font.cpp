@@ -1,6 +1,7 @@
 #include "Pch.h"
 #include "Font.h"
 #include "Texture.h"
+#include "../Core/Math/Vec4.h"
 
 namespace MCD {
 
@@ -12,21 +13,76 @@ BmpFont::BmpFont(const Path& fileId)
 
 BmpFont::~BmpFont() {}
 
-FontComponent::FontComponent()
-	: lineWidth(0)
+TextLabelComponent::TextLabelComponent()
+	: lineWidth(0), mStringHash(0), mTextureWidth(0), mTextureHeight(0)
 {}
 
-FontComponent::~FontComponent() {}
+TextLabelComponent::~TextLabelComponent() {}
 
-bool FontComponent::cloneable() const { return true; }
+bool TextLabelComponent::cloneable() const { return true; }
 
-Component* FontComponent::clone() const
+Component* TextLabelComponent::clone() const
 {
-	FontComponent* ret = new FontComponent;
+	TextLabelComponent* ret = new TextLabelComponent;
 	ret->text = text;
 	ret->lineWidth = lineWidth;
+	return ret;
+}
+
+void TextLabelComponent::buildVertexBuffer(const BmpFont& font)
+{
+	mVertexBuffer.clear();
+	Vec3f charPos = Vec3f::cZero;
+
+	// Construct the vertex buffer character by character
+	for(std::string::const_iterator i=text.begin(); i != text.end(); ++i) {
+		const unsigned char c = *i;
+		const BmpFont::CharDescriptor& desc = font.charSet.chars[c];
+
+		Vec4f uv(desc.x, desc.y, float(desc.x + desc.width), float(desc.y + desc.height));
+		uv.x /= font.charSet.width;
+		uv.y /= font.charSet.height;
+		uv.z /= font.charSet.width;
+		uv.w /= font.charSet.height;
+
+		const float left = charPos.x + desc.xOffset;
+		const float top = charPos.y - desc.yOffset;
+		const float right = left + desc.width;
+		const float bottom = top - desc.height;
+
+		Vertex v[4] = {
+			{	Vec3f(left, top, 0),		Vec2f(uv.x, uv.y)	},	// Left top
+			{	Vec3f(left, bottom, 0),		Vec2f(uv.x, uv.w)	},	// Left bottom
+			{	Vec3f(right, bottom, 0),	Vec2f(uv.z, uv.w)	},	// Right bottom
+			{	Vec3f(right, top, 0),		Vec2f(uv.z, uv.y)	}	// Right top
+		};
+
+		mVertexBuffer.push_back(v[0]);
+		mVertexBuffer.push_back(v[1]);
+		mVertexBuffer.push_back(v[2]);
+		mVertexBuffer.push_back(v[0]);
+		mVertexBuffer.push_back(v[2]);
+		mVertexBuffer.push_back(v[3]);
+
+		charPos.x += desc.xAdvance;
+		
+		// New line handling
+		if(c == '\n') {
+			charPos.x = 0;
+			charPos.y -= font.charSet.lineHeight;
+		}
+	}
+}
+
+BmpFontMaterialComponent::BmpFontMaterialComponent() {}
+
+Component* BmpFontMaterialComponent::clone() const
+{
+	BmpFontMaterialComponent* ret = new BmpFontMaterialComponent;
 	ret->bmpFont = bmpFont;
 	return ret;
 }
+
+void BmpFontMaterialComponent::render() {}
 
 }	// namespace MCD

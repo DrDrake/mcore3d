@@ -1,3 +1,6 @@
+#ifndef __MCD_RENDER_DX9_RENDERER__
+#define __MCD_RENDER_DX9_RENDERER__
+
 #include "../Renderer.h"
 #include "../../Core/Math/Mat44.h"
 #include "../../Core/Math/Vec2.h"
@@ -129,3 +132,5 @@ public:
 };	// QuadRenderer
 
 }	// namespace MCD
+
+#endif	// __MCD_RENDER_DX9_RENDERER__

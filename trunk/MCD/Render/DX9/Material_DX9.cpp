@@ -298,7 +298,6 @@ MaterialComponent::~MaterialComponent()
 
 void SpriteMaterialComponent::render2(void* context)
 {
-	// Push light into Renderer's light list
 	RendererComponent::Impl& renderer = *reinterpret_cast<RendererComponent::Impl*>(context);
 	renderer.mCurrentMaterial = this;
 }
