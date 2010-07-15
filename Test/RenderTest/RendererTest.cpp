@@ -94,11 +94,10 @@ TEST(RendererTest)
 		guiCamera->frustum.projectionType = Frustum::Ortho;
 		const float w = float(mainWindow.width());
 		const float h = float(mainWindow.height());
-		guiCamera->frustum.create(-0, w, 0, h, 1, 500);
+		guiCamera->frustum.create(-0, w, 0, h, -1, 1);
 
 		EntityPtr e = new Entity("Gui camera");
 		e->asChildOf(guiLayer.get());
-		e->localTransform.setTranslation(Vec3f(0, 0, 0));
 		e->addComponent(guiCamera);
 
 		// Render target
@@ -131,7 +130,7 @@ TEST(RendererTest)
 		e->addComponent(q);*/
 
 		e = new Entity("Text");
-		e->localTransform.setTranslation(Vec3f(-400, 300, 0));
+		e->localTransform.setTranslation(Vec3f(0, 600, 0));
 //		e->localTransform.setMat33(Mat33f::makeXYZRotation(0, 0, 3.14f/4));
 		e->asChildOf(guiLayer.get());
 		TextLabelComponent* font = new TextLabelComponent;

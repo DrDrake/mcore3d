@@ -60,7 +60,7 @@ static void setViewPort(RenderTargetComponent& renderTarget)
 	glViewport(0, 0, width, height);
 
 	// Also adjust the frustum's aspect ration
-	if(renderTarget.cameraComponent)
+	if(renderTarget.cameraComponent && renderTarget.cameraComponent->frustum.projectionType == Frustum::Perspective)
 		renderTarget.cameraComponent->frustum.setAcpectRatio(float(width) / height);
 }
 
