@@ -28,6 +28,7 @@ void TextLabelComponent::render2(void* context)
 			buildVertexBuffer(*bmpFont);
 			mStringHash = hash;
 			mLastBmpFont = bmpFont;
+			mLastBmpFontCommitCount = bmpFont->commitCount;
 		}
 	}
 
