@@ -1,9 +1,9 @@
-#ifndef __MCD_COMPONENT_INPUT_FPSCONTROLLERCOMPONENT__
-#define __MCD_COMPONENT_INPUT_FPSCONTROLLERCOMPONENT__
+#ifndef __MCD_FRAMEWORK_FPSCONTROLLERCOMPONENT__
+#define __MCD_FRAMEWORK_FPSCONTROLLERCOMPONENT__
 
-#include "../ShareLib.h"
-#include "../../Core/Entity/BehaviourComponent.h"
-#include "../../Core/Math/Vec2.h"
+#include "ShareLib.h"
+#include "../Core/Entity/BehaviourComponent.h"
+#include "../Core/Math/Vec2.h"
 
 namespace MCD {
 
@@ -12,7 +12,7 @@ typedef IntrusiveWeakPtr<class InputComponent> InputComponentPtr;
 
 /*!	A First-Person-Shoot like controller component to move around a target Entity.
  */
-class MCD_COMPONENT_API FpsControllerComponent : public BehaviourComponent
+class MCD_FRAMEWORK_API FpsControllerComponent : public BehaviourComponent
 {
 public:
 	FpsControllerComponent();
@@ -35,4 +35,4 @@ typedef IntrusiveWeakPtr<FpsControllerComponent> FpsControllerComponentPtr;
 
 }	// namespace MCD
 
-#endif	// __MCD_COMPONENT_INPUT_INPUTCOMPONENT__
+#endif	// __MCD_FRAMEWORK_FPSCONTROLLERCOMPONENT__

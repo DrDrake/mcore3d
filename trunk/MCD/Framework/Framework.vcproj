@@ -2,9 +2,9 @@
 <VisualStudioProject
 	ProjectType="Visual C++"
 	Version="9.00"
-	Name="Component"
-	ProjectGUID="{B6219744-C76A-4C74-A455-8AFA986C3B6A}"
-	RootNamespace="Component"
+	Name="Framework"
+	ProjectGUID="{ABA910B1-77C9-436A-A4EF-036E45849237}"
+	RootNamespace="Framework"
 	Keyword="Win32Proj"
 	TargetFrameworkVersion="131072"
 	>
@@ -213,155 +213,27 @@
 			RelativePathToProject="..\MCD\Render\Render.vcproj"
 		/>
 		<ProjectReference
-			ReferencedProjectIdentifier="{5570494C-4F2D-4C2B-956A-E1804C73C524}"
-			RelativePathToProject="..\MCD\Audio\Audio.vcproj"
+			ReferencedProjectIdentifier="{B6219744-C76A-4C74-A455-8AFA986C3B6A}"
+			RelativePathToProject="..\MCD\Component\Component.vcproj"
 		/>
 	</References>
 	<Files>
-		<Filter
-			Name="Render"
+		<File
+			RelativePath=".\FpsControllerComponent.cpp"
 			>
-			<File
-				RelativePath=".\Render\AnimationComponent.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\Render\AnimationComponent.h"
-				>
-			</File>
-			<File
-				RelativePath=".\Render\CameraComponent.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\Render\CameraComponent.h"
-				>
-			</File>
-			<File
-				RelativePath=".\Render\EntityPrototypeLoader.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\Render\EntityPrototypeLoader.h"
-				>
-			</File>
-			<File
-				RelativePath=".\Render\MeshComponent.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\Render\MeshComponent.h"
-				>
-			</File>
-			<File
-				RelativePath=".\Render\PickComponent.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\Render\PickComponent.h"
-				>
-			</File>
-			<File
-				RelativePath=".\Render\RenderableComponent.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\Render\RenderableComponent.h"
-				>
-			</File>
-			<File
-				RelativePath=".\Render\RenderModifierComponent.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\Render\RenderModifierComponent.h"
-				>
-			</File>
-			<File
-				RelativePath=".\Render\SkeletonAnimationComponent.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\Render\SkeletonAnimationComponent.h"
-				>
-			</File>
-			<File
-				RelativePath=".\Render\SkinMeshComponent.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\Render\SkinMeshComponent.h"
-				>
-			</File>
-		</Filter>
-		<Filter
-			Name="Physics"
+		</File>
+		<File
+			RelativePath=".\FpsControllerComponent.h"
 			>
-			<File
-				RelativePath=".\Physics\CollisionShape.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\Physics\CollisionShape.h"
-				>
-			</File>
-			<File
-				RelativePath=".\Physics\DynamicsWorld.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\Physics\DynamicsWorld.h"
-				>
-			</File>
-			<File
-				RelativePath=".\Physics\DynamicsWorld.inl"
-				>
-			</File>
-			<File
-				RelativePath=".\Physics\MathConvertor.inl"
-				>
-			</File>
-			<File
-				RelativePath=".\Physics\RigidBodyComponent.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\Physics\RigidBodyComponent.h"
-				>
-			</File>
-			<File
-				RelativePath=".\Physics\RigidBodyComponent.inl"
-				>
-			</File>
-			<File
-				RelativePath=".\Physics\ThreadedDynamicWorld.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\Physics\ThreadedDynamicWorld.h"
-				>
-			</File>
-		</Filter>
-		<Filter
-			Name="Audio"
+		</File>
+		<File
+			RelativePath=".\Framework.cpp"
 			>
-			<File
-				RelativePath=".\Audio\AudioEffectComponent.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\Audio\AudioEffectComponent.h"
-				>
-			</File>
-			<File
-				RelativePath=".\Audio\AudioSourceComponent.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\Audio\AudioSourceComponent.h"
-				>
-			</File>
-		</Filter>
+		</File>
+		<File
+			RelativePath=".\Framework.h"
+			>
+		</File>
 		<File
 			RelativePath=".\Pch.cpp"
 			>
@@ -371,7 +243,6 @@
 				<Tool
 					Name="VCCLCompilerTool"
 					UsePrecompiledHeader="1"
-					PrecompiledHeaderThrough="Pch.h"
 				/>
 			</FileConfiguration>
 			<FileConfiguration
@@ -393,22 +264,6 @@
 		</File>
 		<File
 			RelativePath=".\Pch.h"
-			>
-		</File>
-		<File
-			RelativePath=".\Prefab.cpp"
-			>
-		</File>
-		<File
-			RelativePath=".\Prefab.h"
-			>
-		</File>
-		<File
-			RelativePath=".\PrefabLoaderComponent.cpp"
-			>
-		</File>
-		<File
-			RelativePath=".\PrefabLoaderComponent.h"
 			>
 		</File>
 		<File

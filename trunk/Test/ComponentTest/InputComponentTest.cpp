@@ -1,6 +1,6 @@
 #include "Pch.h"
 #include "../RenderTest/BasicGlWindow.h"
-#include "../../MCD/Component/Input/WinMessageInputComponent.h"
+#include "../../MCD/Core/Entity/WinMessageInputComponent.h"
 #include "../../MCD/Core/Entity/Entity.h"
 #include "../../MCD/Core/System/Window.h"
 //#include "../../../MCD/Core/System/WindowEvent.h"

@@ -1,8 +1,8 @@
 #include "Pch.h"
 #include "FpsControllerComponent.h"
-#include "InputComponent.h"
-#include "../../Core/Entity/Entity.h"
-#include "../../Core/Math/Mat44.h"
+#include "../Core/Entity/InputComponent.h"
+#include "../Core/Entity/Entity.h"
+#include "../Core/Math/Mat44.h"
 
 namespace MCD {
 

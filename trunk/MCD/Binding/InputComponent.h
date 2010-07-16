@@ -2,7 +2,7 @@
 #define __MCD_BINDING_INPUTCOMPONENT__
 
 #include "ShareLib.h"
-#include "../Component/Input/InputComponent.h"
+#include "../Core/Entity/InputComponent.h"
 #include "../../3Party/jkbind/Declarator.h"
 
 namespace script {

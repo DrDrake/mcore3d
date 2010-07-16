@@ -701,6 +701,22 @@
 		<Filter
 			Name="Entity"
 			>
+			<File
+				RelativePath=".\Entity\InputComponent.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\Entity\InputComponent.h"
+				>
+			</File>
+			<File
+				RelativePath=".\Entity\WinMessageInputComponent.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\Entity\WinMessageInputComponent.h"
+				>
+			</File>
 			<Filter
 				Name="Header Files"
 				Filter="h"

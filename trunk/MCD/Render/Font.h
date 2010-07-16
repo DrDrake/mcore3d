@@ -11,6 +11,7 @@ namespace MCD {
 typedef IntrusivePtr<class Texture> TexturePtr;
 
 /*!	Store font information like character size, padding, spacing, kerning etc.
+	\note Multiple texture page is not supported yet.
  */
 class MCD_RENDER_API BmpFont : public Resource
 {
@@ -45,7 +46,7 @@ protected:
 
 typedef IntrusivePtr<BmpFont> BmpFontPtr;
 
-//!	The text is anchored at the left top corner
+//!	TextLabelComponent must use this material
 class MCD_RENDER_API BmpFontMaterialComponent : public IMaterialComponent
 {
 public:
