@@ -12,8 +12,8 @@ class Entity;
 class FileSystemCollection;
 class Path;
 class PrefabLoaderComponent;
+class RenderWindow;
 class TaskPool;
-class Window;
 typedef IntrusivePtr<class Prefab> PrefabPtr;
 typedef IntrusiveWeakPtr<class RendererComponent> RendererComponentPtr;
 
@@ -27,7 +27,7 @@ public:
 
 // Operations
 	///	Create the main window using an already initialized window.
-	sal_checkreturn bool initWindow(Window& existingWindow, bool takeOwership=true);
+	sal_checkreturn bool initWindow(RenderWindow& existingWindow, bool takeOwership=true);
 
 	///	Create the main window with the option string, implies taking ownership.
 	sal_checkreturn bool initWindow(sal_in_z const char* args);
@@ -65,7 +65,7 @@ public:
 	Entity& sceneLayer();
 	Entity& guiLayer();
 
-	sal_maybenull Window* window();
+	sal_maybenull RenderWindow* window();
 
 	RendererComponentPtr rendererComponent();
 

@@ -267,6 +267,14 @@
 			>
 		</File>
 		<File
+			RelativePath=".\ResizeFrustumComponent.cpp"
+			>
+		</File>
+		<File
+			RelativePath=".\ResizeFrustumComponent.h"
+			>
+		</File>
+		<File
 			RelativePath=".\ShareLib.h"
 			>
 		</File>

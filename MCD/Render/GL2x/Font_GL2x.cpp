@@ -13,7 +13,7 @@ void TextLabelComponent::render() {}
 void TextLabelComponent::render2(void* context)
 {
 	RendererComponent::Impl& renderer = *reinterpret_cast<RendererComponent::Impl*>(context);
-	BmpFontMaterialComponent* m = dynamic_cast<BmpFontMaterialComponent*>(renderer.mMaterialStack.top());
+	BmpFontMaterialComponent* m = dynamic_cast<BmpFontMaterialComponent*>(renderer.mCurrentMaterial);
 	if(!m) return;
 
 	// Get the BmpFont from the current material
