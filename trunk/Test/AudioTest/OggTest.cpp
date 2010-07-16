@@ -5,7 +5,7 @@
 #include "../../MCD/Core/System/RawFileSystem.h"
 #include "../../MCD/Core/System/ResourceLoader.h"
 #include "../../MCD/Core/System/ResourceManager.h"
-#include "../../MCD/Core/System/Thread.h"	// for mSleep()
+#include "../../MCD/Core/System/TaskPool.h"
 
 using namespace MCD;
 
@@ -19,6 +19,7 @@ protected:
 	{
 		(void)initAudioDevice();
 		manager.addFactory(new OggLoaderFactory);
+		manager.taskPool().setThreadCount(1);	// For some tests we have use thread loading
 	}
 
 	~OggTestFixture()
