@@ -1,6 +1,7 @@
 #include "Pch.h"
 #include "OggLoader.h"
 #include "AudioBuffer.h"
+#include "../Core/System/Deque.h"
 #include "../Core/System/Mutex.h"
 #include "../Core/System/PlatformInclude.h"
 #include "../Core/System/ResourceManager.h"
@@ -8,15 +9,6 @@
 #include "../../3Party/OpenAL/al.h"
 #include "../../3Party/VorbisOgg/vorbisfile.h"
 #include <vector>
-
-#ifdef MCD_VC
-#	pragma warning(push)
-#	pragma warning(disable: 6011)
-#endif
-#include <deque>
-#ifdef MCD_VC
-#	pragma warning(pop)
-#endif
 
 namespace MCD {
 
@@ -48,7 +40,7 @@ void initVorbis()
 		return;
 
 	// Try and load Vorbis DLLs (VorbisFile.dll will load ogg.dll and vorbis.dll)
-	if(HMODULE h = ::LoadLibraryA("vorbisfile.dll"))
+	if(HMODULE h = ::LoadLibraryA("MCDVorbis.dll"))
 	{
 		gFnOvClear = (LPOVCLEAR)GetProcAddress(h, "ov_clear");
 		gFnOvRead = (LPOVREAD)GetProcAddress(h, "ov_read");
