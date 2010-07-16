@@ -1,9 +1,8 @@
-#ifndef __MCD_COMPONENT_INPUT_INPUTCOMPONENT__
-#define __MCD_COMPONENT_INPUT_INPUTCOMPONENT__
+#ifndef __MCD_CORE_ENTITY_INPUTCOMPONENT__
+#define __MCD_CORE_ENTITY_INPUTCOMPONENT__
 
-#include "../ShareLib.h"
-#include "../../Core/Entity/BehaviourComponent.h"
-#include "../../Core/Math/Vec2.h"
+#include "BehaviourComponent.h"
+#include "../Math/Vec2.h"
 
 namespace MCD {
 
@@ -11,7 +10,7 @@ namespace MCD {
 	Designed base on Unity 3D's input compoent, see
 	http://unity3d.com/support/documentation/ScriptReference/Input.html
  */
-class MCD_ABSTRACT_CLASS MCD_COMPONENT_API InputComponent : public BehaviourComponent
+class MCD_ABSTRACT_CLASS MCD_CORE_API InputComponent : public BehaviourComponent
 {
 public:
 	/*!	Returns the value of the virtual axis identified by axisName.
@@ -66,4 +65,4 @@ typedef IntrusiveWeakPtr<InputComponent> InputComponentPtr;
 
 }	// namespace MCD
 
-#endif	// __MCD_COMPONENT_INPUT_INPUTCOMPONENT__
+#endif	// __MCD_CORE_ENTITY_INPUTCOMPONENT__

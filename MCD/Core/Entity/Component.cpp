@@ -3,6 +3,9 @@
 #include "Entity.h"
 #include "../System/Utility.h"
 
+// NOTE: For dll export purpose
+#include "SystemComponent.h"
+
 namespace MCD {
 
 Component::Component()

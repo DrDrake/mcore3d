@@ -29,6 +29,9 @@ Component* TextLabelComponent::clone() const
 	return ret;
 }
 
+// Example that handle text alignment and more:
+// http://www.angelcode.com/dev/bmfonts/
+// http://www.chadvernon.com/blog/resources/managed-directx-2/bitmap-fonts/
 void TextLabelComponent::buildVertexBuffer(const BmpFont& font)
 {
 	mVertexBuffer.clear();

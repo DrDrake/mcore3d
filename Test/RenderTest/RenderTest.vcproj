@@ -218,6 +218,10 @@
 			ReferencedProjectIdentifier="{393AC843-B488-4E7F-BFA3-8E5C6F7352FD}"
 			RelativePathToProject="..\MCD\Loader\Loader.vcproj"
 		/>
+		<ProjectReference
+			ReferencedProjectIdentifier="{ABA910B1-77C9-436A-A4EF-036E45849237}"
+			RelativePathToProject="..\MCD\Framework\Framework.vcproj"
+		/>
 	</References>
 	<Files>
 		<Filter

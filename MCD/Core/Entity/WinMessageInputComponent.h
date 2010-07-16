@@ -1,9 +1,9 @@
-#ifndef __MCD_COMPONENT_INPUT_WINMESSAGEINPUTCOMPONENT__
-#define __MCD_COMPONENT_INPUT_WINMESSAGEINPUTCOMPONENT__
+#ifndef __MCD_SYSTEM_ENTITY_WINMESSAGEINPUTCOMPONENT__
+#define __MCD_SYSTEM_ENTITY_WINMESSAGEINPUTCOMPONENT__
 
 #include "InputComponent.h"
-#include "../../Core/System/Window.h"
-#include "../../Core/Math/Vec3.h"
+#include "../System/Window.h"
+#include "../Math/Vec3.h"
 #include <map>
 
 namespace MCD {
@@ -12,7 +12,7 @@ class Window;
 
 /*!	An input component that use MCD::Window as the message source.
  */
-class MCD_COMPONENT_API WinMessageInputComponent : public InputComponent, public IWindowListener
+class MCD_CORE_API WinMessageInputComponent : public InputComponent, public IWindowListener
 {
 public:
 	WinMessageInputComponent();
@@ -81,4 +81,4 @@ protected:
 
 }	// namespace MCD
 
-#endif	// __MCD_COMPONENT_INPUT_WINMESSAGEINPUTCOMPONENT__
+#endif	// __MCD_SYSTEM_ENTITY_WINMESSAGEINPUTCOMPONENT__

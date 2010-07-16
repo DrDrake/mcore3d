@@ -1,5 +1,7 @@
 #include "Pch.h"
 #include "DefaultResourceManager.h"
+#include "../../MCD/Framework/FpsControllerComponent.h"
+#include "../../MCD/Framework/Framework.h"
 #include "../../MCD/Render/Camera.h"
 #include "../../MCD/Render/Chamferbox.h"
 #include "../../MCD/Render/Font.h"
@@ -15,13 +17,15 @@
 #include "../../MCD/Core/System/ResourceLoader.h"
 #include "../../MCD/Core/System/RawFileSystem.h"
 
-#include "../../MCD/Component/Input/FpsControllerComponent.h"
-#include "../../MCD/Component/Input/WinMessageInputComponent.h"
+#include "../../MCD/Core/Entity/WinMessageInputComponent.h"
 
 using namespace MCD;
 
 TEST(RendererTest)
 {
+	Framework framework;
+	framework.addFileSystem("Media");
+
 	DeltaTimer timer;
 	DefaultResourceManager resourceManager(*new RawFileSystem("Media"));
 
@@ -235,7 +239,7 @@ TEST(RendererTest)
 
 	{	Entity* e = new Entity("Sphere2");
 		e->asChildOf(spheres.get());
-		e->addComponent(material2);
+		e->addComponent(material2->clone());
 		e->addComponent(sphereMesh->clone());
 		e->localTransform.translateBy(Vec3f(-2, 0, 2));
 	}
