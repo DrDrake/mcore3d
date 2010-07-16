@@ -12,7 +12,7 @@
 namespace MCD {
 
 RendererComponent::Impl::Impl()
-	: mLastMaterial(nullptr), mEntityItr(nullptr)
+	: mLastMaterial(nullptr), mEntityItr(nullptr), mCurrentMaterial(nullptr)
 {
 	mQuadRenderer.reset(new QuadRenderer(*this));
 }
@@ -47,6 +47,8 @@ void RendererComponent::Impl::render(Entity& entityTree, RenderTargetComponent& 
 		glLoadTransposeMatrixf(mViewMatrix.getPtr());
 	}
 
+	mCurrentMaterial = nullptr;
+
 	// Traverse the Entity tree
 	for(mEntityItr = EntityPreorderIterator(&entityTree); !mEntityItr.ended();)
 	{
@@ -59,21 +61,20 @@ void RendererComponent::Impl::render(Entity& entityTree, RenderTargetComponent& 
 		Entity* e = mEntityItr.current();
 
 		// Pop material when moving up (towards parent) or leveling in the tree
-		mCurrentMaterial = nullptr;
 		for(int depth = mEntityItr.depthChange(); depth <= 0 && mMaterialStack.size() > 0; ++depth)
 			mMaterialStack.pop();
+		mCurrentMaterial = !mMaterialStack.empty() ? mMaterialStack.top() : nullptr;
 
 		// Preform actions defined by the concret type of RenderableComponent2 we have found
 		if(RenderableComponent2* renderable = e->findComponent<RenderableComponent2>())
 			renderable->render2(this);
 
-		// Skip if there where no material
 		if(nullptr == mCurrentMaterial) {
+			// Skip if there where no material
 			if(mMaterialStack.empty()) {
 				mEntityItr.next();
 				continue;
 			}
-			mCurrentMaterial = mMaterialStack.top();
 		}
 		mMaterialStack.push(mCurrentMaterial);
 

@@ -95,21 +95,20 @@ void RendererComponent::Impl::render(Entity& entityTree, RenderTargetComponent& 
 		Entity* e = mEntityItr.current();
 
 		// Pop material when moving up (towards parent) or leveling in the tree
-		mCurrentMaterial = nullptr;
 		for(int depth = mEntityItr.depthChange(); depth <= 0 && mMaterialStack.size() > 0; ++depth)
 			mMaterialStack.pop();
+		mCurrentMaterial = !mMaterialStack.empty() ? mMaterialStack.top() : nullptr;
 
 		// Preform actions defined by the concret type of RenderableComponent2 we have found
 		if(RenderableComponent2* renderable = e->findComponent<RenderableComponent2>())
 			renderable->render2(this);
 
-		// Skip if there where no material
 		if(nullptr == mCurrentMaterial) {
+			// Skip if there where no material
 			if(mMaterialStack.empty()) {
 				mEntityItr.next();
 				continue;
 			}
-			mCurrentMaterial = mMaterialStack.top();
 		}
 		mMaterialStack.push(mCurrentMaterial);
 

@@ -1,6 +1,7 @@
 #include "Pch.h"
 #include "Framework.h"
 #include "FpsControllerComponent.h"
+#include "ResizeFrustumComponent.h"
 
 #include "../Core/Entity/Entity.h"
 #include "../Core/Entity/SystemComponent.h"
@@ -24,6 +25,7 @@
 
 #include "../Render/Light.h"
 #include "../Render/Renderer.h"
+#include "../Render/RenderTargetComponent.h"
 #include "../Render/RenderWindow.h"
 #include "../Component/Render/AnimationComponent.h"
 #include "../Component/Render/CameraComponent.h"
@@ -41,7 +43,7 @@ public:
 
 	bool initSystem();
 	bool initWindow(const char* args);
-	bool initWindow(Window& existingWindow, bool takeOwnership);
+	bool initWindow(RenderWindow& existingWindow, bool takeOwnership);
 	bool addFileSystem(const char* path);
 	bool removeFileSystem(const char* path);
 	void enableDebuggerOnPort(uint16_t tcpPort);
@@ -58,7 +60,7 @@ public:
 	bool mTakeWindowOwership;
 
 	RendererComponentPtr mRenderer;
-	std::auto_ptr<Window> mWindow;
+	std::auto_ptr<RenderWindow> mWindow;
 	std::auto_ptr<TaskPool> mTaskPool;
 };	// Impl
 
@@ -79,7 +81,7 @@ Framework::Impl::Impl()
 		mSceneLayer->insertAfter(mSystemEntity.get());
 
 		mGuiLayer = new Entity("Gui layer");
-		mGuiLayer->insertAfter(mSceneLayer.get());
+		mGuiLayer->insertAfter(mSceneLayer.get());	// Gui will draw after the scene layer
 	}
 
 	{	// Task pool
@@ -87,7 +89,7 @@ Framework::Impl::Impl()
 #ifdef MCD_IPHONE
 		mTaskPool->setThreadCount(0);
 #else
-		mTaskPool->setThreadCount(3);
+		mTaskPool->setThreadCount(1);
 #endif
 	}
 
@@ -110,23 +112,23 @@ Framework::Impl::Impl()
 	{	// Default light
 		Entity* e = new Entity("Default light");
 		e->asChildOf(mSceneLayer.get());
-		{
-			Entity* e1 = new Entity("light1");
+
+		{	Entity* e1 = new Entity("Light 1");
 			e1->asChildOf(e);
-			e1->localTransform = Mat44f::makeLookAt(Vec3f(-1, 1, 1), Vec3f::cZero, Vec3f::c010);
+			e1->localTransform.setTranslation(Vec3f(10, 10, 0));
 
 			LightComponent* light = new LightComponent;
 			e1->addComponent(light);
-			light->color = ColorRGBf(1, 1, 1);
+			light->color = ColorRGBf(1, 0.8f, 0.8f);
 		}
-		{
-			Entity* e1 = new Entity("light2");
+
+		{	Entity* e1 = new Entity("Light 2");
 			e1->asChildOf(e);
-			e1->localTransform = Mat44f::makeLookAt(Vec3f( 1, 1, 1), Vec3f::cZero, Vec3f::c010);
+			e1->localTransform.setTranslation(Vec3f(0, 10, 10));
 
 			LightComponent* light = new LightComponent;
 			e1->addComponent(light);
-			light->color = ColorRGBf(1, 1, 1);
+			light->color = ColorRGBf(0.8f, 1, 0.8f);
 		}
 	}
 
@@ -176,10 +178,11 @@ Framework::Impl::~Impl()
 	Log::stop(false);
 }
 
-bool Framework::Impl::initWindow(Window& existingWindow, bool takeOwnership)
+bool Framework::Impl::initWindow(RenderWindow& existingWindow, bool takeOwnership)
 {
 	mTakeWindowOwership = takeOwnership;
 	mWindow.reset(&existingWindow);
+	existingWindow.makeActive();
 
 	// NOTE: There are components depends on the Window's handle need to be
 	// initialized here
@@ -191,13 +194,62 @@ bool Framework::Impl::initWindow(Window& existingWindow, bool takeOwnership)
 		e->asChildOf(mSystemEntity.get());
 	}
 
-	{	// Default camera
+	{	// Default scene camera
 		CameraComponent2* c = new CameraComponent2(mRenderer);
+		c->frustum.projectionType = Frustum::Perspective;
 		c->frustum.create(45.f, 4.0f / 3.0f, 1.0f, 500.0f);
-		Entity* e = new Entity("Camera");
+		Entity* e = new Entity("Scene camera");
 		e->addComponent(c);
 		e->asChildOf(mSceneLayer.get());
-		e->localTransform.setTranslation(Vec3f(0, 5, 50));
+		e->localTransform.setTranslation(Vec3f(0, 0, 10));
+	}
+
+	{	// Default Gui camera
+		CameraComponent2* c = new CameraComponent2(mRenderer);
+		c->frustum.projectionType = Frustum::Ortho;
+		Entity* e = new Entity("Gui camera");
+		e->addComponent(c);
+		e->asChildOf(mGuiLayer.get());
+	}
+
+	{	// Setup scene render target
+		Entity* e = new Entity("Scene layer render target");
+		e->asChildOf(mSceneLayer.get());
+
+		RenderTargetComponent* c = new RenderTargetComponent;
+		c->window = dynamic_cast<RenderWindow*>(&existingWindow);
+		c->entityToRender = mSceneLayer;
+		c->cameraComponent = mSceneLayer->findComponentInChildrenExactType<CameraComponent2>();
+		c->rendererComponent = mRenderer;
+		e->addComponent(c);
+	}
+
+	{	// Setup Gui render target
+		Entity* e = new Entity("Gui layer render target");
+		e->asChildOf(mGuiLayer.get());
+
+		RenderTargetComponent* c = new RenderTargetComponent;
+		c->shouldClearColor = false;
+		c->clearColor = ColorRGBAf(0, 0);
+		c->window = dynamic_cast<RenderWindow*>(&existingWindow);
+		c->entityToRender = mGuiLayer;
+		c->cameraComponent = mGuiLayer->findComponentInChildrenExactType<CameraComponent2>();
+		c->rendererComponent = mRenderer;
+		e->addComponent(c);
+	}
+
+	{	// Setup resize frustum component for scene layer
+		ResizeFrustumComponent* c = new ResizeFrustumComponent;
+		c->camera = mSceneLayer->findComponentInChildrenExactType<CameraComponent2>();
+		c->renderTarget = mSceneLayer->findComponentInChildrenExactType<RenderTargetComponent>();
+		c->camera->entity()->addComponent(c);
+	}
+
+	{	// Setup resize frustum component for Gui layer
+		ResizeFrustumComponent* c = new ResizeFrustumComponent;
+		c->camera = mGuiLayer->findComponentInChildrenExactType<CameraComponent2>();
+		c->renderTarget = mGuiLayer->findComponentInChildrenExactType<RenderTargetComponent>();
+		c->camera->entity()->addComponent(c);
 	}
 
 	{	// Input component
@@ -214,14 +266,14 @@ bool Framework::Impl::initWindow(Window& existingWindow, bool takeOwnership)
 
 	{	// Default FPS controller
 		FpsControllerComponent* c = new FpsControllerComponent;
-		c->target = mSceneLayer->findEntityByPath("Camera");
+		c->target = mSceneLayer->findEntityByPath("Scene camera");
+		MCD_ASSERT(c->target);
 		if(Entity* e = mSystemEntity->findEntityByPath("Input"))
 			c->inputComponent = dynamic_cast<InputComponent*>(e->findComponent<BehaviourComponent>());
 
 		Entity* e = new Entity("Fps controller");
 		e->addComponent(c);
 		e->asChildOf(mSystemEntity.get());
-		e->enabled = false;
 	}
 
 	return true;
@@ -331,17 +383,6 @@ bool Framework::Impl::update(Event& e)
 	if(mWindow.get())
 		hasWindowEvent = mWindow->popEvent(e, false);
 
-	if(e.Type == Event::Resized)
-	{
-		const float aspect = (float)mWindow->width() / mWindow->height();
-		// TODO: Apply to ALL ENABLED/NON-ENABLED perspective camera
-		if(CameraComponent2* camera = mSceneLayer->findComponentInChildren<CameraComponent2>()) {
-			Frustum& f = camera->frustum;
-			if(f.projectionType == Frustum::Perspective)
-				f.create(f.fov(), aspect, f.near, f.far);
-		}
-	}
-
 	{	// Reload any changed files in the RawFileSystem
 		std::string path;
 		MCD_FOREACH(const RawFileSystemMonitor& monitor, mFileMonitors) {
@@ -364,7 +405,7 @@ Framework::~Framework()
 	delete &mImpl;
 }
 
-bool Framework::initWindow(Window& existingWindow, bool takeOwership) {
+bool Framework::initWindow(RenderWindow& existingWindow, bool takeOwership) {
 	return mImpl.initWindow(existingWindow, takeOwership);
 }
 
@@ -420,7 +461,7 @@ Entity& Framework::guiLayer() {
 	return *mImpl.mGuiLayer;
 }
 
-Window* Framework::window() {
+RenderWindow* Framework::window() {
 	return mImpl.mWindow.get();
 }
 

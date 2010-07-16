@@ -7,7 +7,7 @@
 #include "../Core/System/ResourceManager.h"
 #include "../Core/System/StrUtility.h"
 #include "../../3Party/OpenAL/al.h"
-#include "../../3Party/VorbisOgg/vorbisfile.h"
+#include "../../3Party/VorbisOgg/vorbis/vorbisfile.h"
 #include <vector>
 
 namespace MCD {
