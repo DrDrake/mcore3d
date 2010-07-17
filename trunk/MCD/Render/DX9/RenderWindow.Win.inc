@@ -6,6 +6,7 @@
 #include "../../Core/System/Utility.h"
 #include "../../Core/System/Window.Win.inl"
 #include <d3d9.h>
+#include <list>
 
 #pragma comment(lib, "d3d9")
 
@@ -33,37 +34,41 @@ struct Context
 class GlobalDevice
 {
 public:
+	typedef std::list<Context>::iterator iterator;
+
 	GlobalDevice();
 	~GlobalDevice();
 
 	// Return -1 on error
-	sal_checkreturn int createContext(
+	sal_checkreturn iterator createContext(
 		size_t width, size_t height, 
 		HWND wnd, bool fullScreen,
-		int existing	// Negative value for no existing
+		iterator existing
 	);
 
-	void destroyContext(int index);
+	void destroyContext(iterator& itr);
 
-	void setAsRenderTarget(int index);
+	void setAsRenderTarget(const iterator& itr);
 
-	void present(int index);
+	void present(const iterator& itr);
 
 	void registerDefaultPoolTexture(Texture& texture);
 
-	int currentContext;
+	iterator currentContext;
+
 	LPDIRECT3D9 d3d;
 	LPDIRECT3DDEVICE9 device;
 	D3DPRESENT_PARAMETERS params;
-	std::vector<Context> contexts;
+	std::list<Context> contexts;
 	std::vector<TextureWeakPtr> defaultPoolTextures;
 };	// GlobalDevice
 
 static GlobalDevice gGlobalDevice;
 
 GlobalDevice::GlobalDevice()
-	: currentContext(-1), d3d(nullptr), device(nullptr)
+	: d3d(nullptr), device(nullptr)
 {
+	currentContext = contexts.end();
 	ZeroMemory(&params, sizeof(params));
 }
 
@@ -73,20 +78,17 @@ GlobalDevice::~GlobalDevice()
 	MCD_ASSERT(!d3d);
 }
 
-int GlobalDevice::createContext(size_t width, size_t height, HWND wnd, bool fullScreen, int existing)
+GlobalDevice::iterator GlobalDevice::createContext(size_t width, size_t height, HWND wnd, bool fullScreen, iterator existing)
 {
 	if(!d3d) {
 		if(nullptr == (d3d = ::Direct3DCreate9(D3D_SDK_VERSION)))
-			return -1;
+			return contexts.end();
 	}
 
-	if(existing > -1) {
-		Context& c = contexts[existing];
+	if(existing != contexts.end()) {
+		Context& c = *existing;
 		if(width == c.width && height == c.height)
 			return existing;
-
-		if(existing >= (int)contexts.size())
-			return -1;
 
 		SAFE_RELEASE(c.swapChain);
 		c.width = width;
@@ -94,8 +96,9 @@ int GlobalDevice::createContext(size_t width, size_t height, HWND wnd, bool full
 	}
 	else {
 		Context c = { wnd, width, height, device, nullptr };
-		existing = contexts.size();
 		contexts.push_back(c);
+		existing = contexts.begin();
+		std::advance(existing, contexts.size()-1);
 	}
 
 	if(!device)
@@ -117,14 +120,14 @@ int GlobalDevice::createContext(size_t width, size_t height, HWND wnd, bool full
 			D3DCREATE_HARDWARE_VERTEXPROCESSING,
 			&params, &device))
 		)
-			return -1;
+			return contexts.end();
 
-		contexts[0].device = device;
-		if(FAILED(device->GetSwapChain(0, &contexts[0].swapChain)))
-			return -1;
+		existing->device = device;
+		if(FAILED(device->GetSwapChain(0, &existing->swapChain)))
+			return contexts.end();
 
-		MCD_ASSERT(contexts[0].swapChain);
-		return 0;
+		MCD_ASSERT(existing->swapChain);
+		return existing;
 	}
 	else if(width > params.BackBufferWidth || height > params.BackBufferHeight)
 	{
@@ -140,15 +143,15 @@ int GlobalDevice::createContext(size_t width, size_t height, HWND wnd, bool full
 		}
 
 		// Release all swap chain also
-		for(size_t i=0; i<contexts.size(); ++i)
-			SAFE_RELEASE(contexts[i].swapChain);
+		MCD_FOREACH(const Context& c, contexts)
+			SAFE_RELEASE(const_cast<Context&>(c).swapChain);
 
 		params.BackBufferWidth = width;
 		params.BackBufferHeight = height;
 
 		// NOTE: After device reset, all render state should be re-applied.
 		if(FAILED(device->Reset(&params)))
-			return -1;
+			return contexts.end();
 
 		// Re-create the default pool textures
 		// TODO: Handle mip-map, cube texture etc...
@@ -159,9 +162,9 @@ int GlobalDevice::createContext(size_t width, size_t height, HWND wnd, bool full
 	}
 
 	// Create swap chains if needed
-	for(size_t i=0; i<contexts.size(); ++i)
+	MCD_FOREACH(const Context& c_, contexts)
 	{
-		Context& c = contexts[i];
+		Context& c = const_cast<Context&>(c_);
 		if(c.swapChain)
 			continue;
 
@@ -170,19 +173,20 @@ int GlobalDevice::createContext(size_t width, size_t height, HWND wnd, bool full
 		p.BackBufferWidth = c.width;
 		p.BackBufferHeight = c.height;
 		if(FAILED(device->CreateAdditionalSwapChain(&p, &c.swapChain)))
-			return -1;
+			return contexts.end();
 	}
 
 	return existing;
 }
 
-void GlobalDevice::destroyContext(int index)
+void GlobalDevice::destroyContext(iterator& itr)
 {
-	if(index == currentContext)
-		currentContext = -1;
+	if(itr == currentContext)
+		currentContext = contexts.end();
 
-	SAFE_RELEASE(contexts[index].swapChain);
-	contexts.erase(contexts.begin() + index);
+	SAFE_RELEASE(itr->swapChain);
+	contexts.erase(itr);
+	itr = contexts.end();
 
 	if(contexts.empty()) {
 		SAFE_RELEASE(device);
@@ -190,18 +194,18 @@ void GlobalDevice::destroyContext(int index)
 	}
 }
 
-void GlobalDevice::setAsRenderTarget(int index)
+void GlobalDevice::setAsRenderTarget(const iterator& itr)
 {
 	// Set mSwapChain as the current render target.
 	LPDIRECT3DSURFACE9 backSurface = nullptr;
-	contexts[index].swapChain->GetBackBuffer(0, D3DBACKBUFFER_TYPE_MONO, &backSurface);
+	itr->swapChain->GetBackBuffer(0, D3DBACKBUFFER_TYPE_MONO, &backSurface);
 	device->SetRenderTarget(0, backSurface);
 	SAFE_RELEASE(backSurface);
 }
 
-void GlobalDevice::present(int index)
+void GlobalDevice::present(const iterator& itr)
 {
-	contexts[index].swapChain->Present(nullptr, nullptr, nullptr, nullptr, 0);
+	itr->swapChain->Present(nullptr, nullptr, nullptr, nullptr, 0);
 }
 
 void GlobalDevice::registerDefaultPoolTexture(Texture& texture)
@@ -221,7 +225,7 @@ class RenderWindow::Impl : public Window::Impl
 public:
 	typedef Window::Impl Super;
 
-	Impl(Window& w) : Super(w), contextIndex(-1)
+	Impl(Window& w) : Super(w), contextItr(gGlobalDevice.contexts.end())
 	{}
 
 	sal_override ~Impl()
@@ -229,7 +233,7 @@ public:
 
 	void* renderContext()
 	{
-		return &gGlobalDevice.contexts[contextIndex];
+		return &*contextItr;
 	}
 
 	sal_override void createWindow(Window::Handle existingWindowHandle=0)
@@ -237,8 +241,8 @@ public:
 		MemoryProfiler::Scope profiler("RenderWindow::createWindow");
 		Super::createWindow(existingWindowHandle);
 
-		contextIndex = gGlobalDevice.createContext(mWidth, mHeight, mWnd, false, contextIndex);
-		if(contextIndex < 0) {
+		contextItr = gGlobalDevice.createContext(mWidth, mHeight, mWnd, false, contextItr);
+		if(contextItr == gGlobalDevice.contexts.end()) {
 			destroy();
 			throw std::runtime_error("Fail to create render context");
 		}
@@ -246,8 +250,7 @@ public:
 
 	sal_override void destroy()
 	{
-		gGlobalDevice.destroyContext(contextIndex);
-		contextIndex = -1;
+		gGlobalDevice.destroyContext(contextItr);
 		Super::destroy();
 	}
 
@@ -255,28 +258,28 @@ public:
 	{
 		if(mWidth * mHeight == 0)
 			return;
-		contextIndex = gGlobalDevice.createContext(mWidth, mHeight, mWnd, false, contextIndex);
+		contextItr = gGlobalDevice.createContext(mWidth, mHeight, mWnd, false, contextItr);
 	}
 
 	bool makeActive()
 	{
-		gGlobalDevice.currentContext = contextIndex;
+		gGlobalDevice.currentContext = contextItr;
 		return true;
 	}
 
 	static void* getActiveContext()
 	{
-		return &gGlobalDevice.contexts[gGlobalDevice.currentContext];
+		return &*gGlobalDevice.currentContext;
 	}
 
 	void preUpdate()
 	{
-		gGlobalDevice.setAsRenderTarget(contextIndex);
+		gGlobalDevice.setAsRenderTarget(contextItr);
 	}
 
 	void postUpdate()
 	{
-		gGlobalDevice.present(contextIndex);
+		gGlobalDevice.present(contextItr);
 	}
 
 	bool setVerticalSync(bool flag)
@@ -290,7 +293,7 @@ public:
 	}
 
 private:
-	int contextIndex;
+	GlobalDevice::iterator contextItr;
 };	// Impl
 
 }	// namespace MCD
