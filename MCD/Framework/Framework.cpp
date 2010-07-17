@@ -159,6 +159,7 @@ Framework::Impl::~Impl()
 {
 	mTaskPool->stop();
 
+	mWindow->makeActive();
 	delete mRootEntity.get();
 	MCD_ASSERT(!mSystemEntity);
 	MCD_ASSERT(!mSceneLayer);
