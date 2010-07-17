@@ -35,6 +35,9 @@ public:
 	//! Make this entity a child of \em parent.
 	void asChildOf(sal_in Entity* parent);
 
+	//!	The same as asChildOf(), but reversed 'this' with the parameter.
+	void addChild(sal_in Entity* child);
+
 	//! The input parameter should not be the root node.
 	void insertBefore(sal_in Entity* sibling);
 

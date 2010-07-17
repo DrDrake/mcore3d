@@ -34,12 +34,12 @@ static bool copyToGpu(const GpuDataFormat& srcFormat, GpuDataFormat& destFormat,
 		destFormat = GpuDataFormat::get("uintARGB8");
 
 		for(size_t i=0; i<height; ++i) {
-			byte_t* outData = rowDataDest;
-			for(size_t j=0; j<width; ++j, inData += srcFormat.sizeInByte(), outData += destFormat.sizeInByte()) {
-				outData[0] = inData[2];	// B <- R
-				outData[1] = inData[1];	// G <- G
-				outData[2] = inData[0];	// R <- B
-				outData[3] = inData[3];	// A <- A
+			byte_t* data = rowDataDest;
+			for(size_t j=0; j<width; ++j, inData += srcFormat.sizeInByte(), data += destFormat.sizeInByte()) {
+				data[0] = inData[2];	// B <- R
+				data[1] = inData[1];	// G <- G
+				data[2] = inData[0];	// R <- B
+				data[3] = inData[3];	// A <- A
 			}
 			rowDataDest += outDataPitch;
 		}
@@ -50,12 +50,12 @@ static bool copyToGpu(const GpuDataFormat& srcFormat, GpuDataFormat& destFormat,
 		destFormat = GpuDataFormat::get("uintARGB8");
 
 		for(size_t i=0; i<height; ++i) {
-			byte_t* outData = rowDataDest;
-			for(size_t j=0; j<width; ++j, inData += srcFormat.sizeInByte(), outData += destFormat.sizeInByte()) {
-				outData[0] = inData[2];	// B <- R
-				outData[1] = inData[1];	// G <- G
-				outData[2] = inData[0];	// R <- B
-				outData[3] = 255;		// A
+			byte_t* data = rowDataDest;
+			for(size_t j=0; j<width; ++j, inData += srcFormat.sizeInByte(), data += destFormat.sizeInByte()) {
+				data[0] = inData[2];	// B <- R
+				data[1] = inData[1];	// G <- G
+				data[2] = inData[0];	// R <- B
+				data[3] = 255;		// A
 			}
 			rowDataDest += outDataPitch;
 		}
@@ -63,11 +63,10 @@ static bool copyToGpu(const GpuDataFormat& srcFormat, GpuDataFormat& destFormat,
 	}
 	else {
 		// Perform simple copy
-		byte_t* rowDataDest = outData;
 		for(size_t i=0; i<height; ++i) {
-			byte_t* outData = rowDataDest;
-			for(size_t j=0; j<width; ++j, inData += srcFormat.sizeInByte(), outData += destFormat.sizeInByte()) {
-				memcpy(outData, inData, destFormat.sizeInByte());
+			byte_t* data = rowDataDest;
+			for(size_t j=0; j<width; ++j, inData += srcFormat.sizeInByte(), data += destFormat.sizeInByte()) {
+				memcpy(data, inData, destFormat.sizeInByte());
 			}
 			rowDataDest += outDataPitch;
 		}

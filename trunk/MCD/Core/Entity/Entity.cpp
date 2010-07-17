@@ -36,7 +36,7 @@ Entity::~Entity()
 
 void Entity::asChildOf(Entity* parent)
 {
-	MCD_ASSERT(parent);
+	MCD_ASSUME(parent);
 	if(!parent)
 		return;
 
@@ -52,12 +52,18 @@ void Entity::asChildOf(Entity* parent)
 	scriptOwnershipHandle.removeReleaseHook();
 }
 
+void Entity::addChild(sal_in Entity* child)
+{
+	MCD_ASSUME(child);
+	child->asChildOf(this);
+}
+
 void Entity::insertBefore(sal_in Entity* sibling)
 {
 	if(!sibling)
 		return;
 
-	MCD_ASSERT(sibling->mParent && "There should only one a single root node");
+	MCD_ASSUME(sibling->mParent && "There should only one a single root node");
 
 	if(!sibling->mParent)
 		return;
@@ -92,7 +98,7 @@ void Entity::insertAfter(sal_in Entity* sibling)
 	if(!sibling)
 		return;
 
-	MCD_ASSERT(sibling->mParent && "There should only one a single root node");
+	MCD_ASSUME(sibling->mParent && "There should only one a single root node");
 
 	// Unlink this Entity first (keep strong script reference)
 	unlink(true);
