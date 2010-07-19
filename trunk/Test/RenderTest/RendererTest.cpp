@@ -12,17 +12,19 @@
 #include "../../MCD/Render/Texture.h"
 #include "../../MCD/Core/Entity/BehaviourComponent.h"
 #include "../../MCD/Core/Entity/Entity.h"
+#include "../../MCD/Core/System/StrUtility.h"
 #include "../../MCD/Core/System/WindowEvent.h"
 
 using namespace MCD;
 
 TEST(RendererTest)
 {
-	RenderWindow subWindow;
 	DeltaTimer timer;
 	Framework framework;
 	CHECK(framework.addFileSystem("Media"));
 	CHECK(framework.initWindow("title=RendererTest;width=800;height=600;fullscreen=0;FSAA=4"));
+
+	RenderWindow subWindow;
 	subWindow.create("title=Sub-window;width=400;height=300;fullscreen=0;FSAA=4");
 
 	ResourceManager& resourceManager = framework.resourceManager();
@@ -34,6 +36,7 @@ TEST(RendererTest)
 
 	Entity& root = framework.rootEntity();
 	Entity& scene = framework.sceneLayer();
+	TextLabelComponent* fpsLabel;
 	RenderTargetComponent* textureRenderTarget = nullptr;
 	RendererComponent* renderer = root.findComponentInChildrenExactType<RendererComponent>();
 	CameraComponent2* sceneCamera = scene.findComponentInChildrenExactType<CameraComponent2>();
@@ -77,9 +80,17 @@ TEST(RendererTest)
 		e->localTransform.setTranslation(Vec3f(0, 600, 0));
 //		e->localTransform.setMat33(Mat33f::makeXYZRotation(0, 0, 3.14f/4));
 		framework.guiLayer().addChild(e);
-		TextLabelComponent* font = new TextLabelComponent;
-		e->addComponent(font);
-		font->text = "This is a text label\nMCore rocks!";
+		TextLabelComponent* text = new TextLabelComponent;
+		e->addComponent(text);
+		text->text = "This is a text label\nMCore rocks!";
+	}
+
+	{	// Fps label
+		Entity* e = new Entity("Fps label");
+		e->localTransform.setTranslation(Vec3f(0, 30, 0));
+		framework.guiLayer().addChild(e);
+		fpsLabel = new TextLabelComponent;
+		e->addComponent(fpsLabel);
 	}
 
 	// Create material
@@ -137,6 +148,7 @@ TEST(RendererTest)
 
 	while(true)
 	{
+		fpsLabel->text = float2Str(framework.fps());
 		Event e;
 		framework.update(e);
 
