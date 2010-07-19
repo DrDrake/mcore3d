@@ -69,6 +69,8 @@ public:
 
 	RendererComponentPtr rendererComponent();
 
+	float fps() const;	//!< Frame per second over the last second
+
 protected:
 	void processLoadingEvents();
 

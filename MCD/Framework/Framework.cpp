@@ -14,6 +14,7 @@
 #include "../Core/System/ResourceLoader.h"
 #include "../Core/System/StrUtility.h"
 #include "../Core/System/TaskPool.h"
+#include "../Core/System/Timer.h"
 #include "../Core/System/Window.h"
 #include "../Core/System/ZipFileSystem.h"
 
@@ -59,12 +60,18 @@ public:
 
 	bool mTakeWindowOwership;
 
+	MCD::DeltaTimer mTimer;
+	size_t mFrameCounter;	//! For calculating fps, reset every one second.
+	float mOneSecondCountDown;
+	float mFramePerSecond;
+
 	RendererComponentPtr mRenderer;
 	std::auto_ptr<RenderWindow> mWindow;
 	std::auto_ptr<TaskPool> mTaskPool;
 };	// Impl
 
 Framework::Impl::Impl()
+	: mFrameCounter(0), mOneSecondCountDown(0), mFramePerSecond(0)
 {
 	mTakeWindowOwership = true;
 
@@ -399,6 +406,18 @@ bool Framework::Impl::update(Event& e)
 
 	processLoadingEvents();
 
+	{	// Frame rate calculation
+		float deltaTime = float(mTimer.getDelta().asSecond());
+		mOneSecondCountDown -= deltaTime;
+		++mFrameCounter;
+
+		if(mOneSecondCountDown < 0) {
+			mFramePerSecond = float(mFrameCounter) / (1-mOneSecondCountDown);
+			mOneSecondCountDown = 1 + mOneSecondCountDown;
+			mFrameCounter = 0;
+		}
+	}
+
 	return hasWindowEvent;
 }
 
@@ -477,6 +496,10 @@ RendererComponentPtr Framework::rendererComponent() {
 
 void Framework::processLoadingEvents() {
 	mImpl.processLoadingEvents();
+}
+
+float Framework::fps() const {
+	return mImpl.mFramePerSecond;
 }
 
 }	// namespace MCD

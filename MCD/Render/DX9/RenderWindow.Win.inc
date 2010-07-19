@@ -115,6 +115,7 @@ GlobalDevice::iterator GlobalDevice::createContext(size_t width, size_t height, 
 		params.AutoDepthStencilFormat = D3DFMT_D16;
 		params.SwapEffect = D3DSWAPEFFECT_DISCARD;
 		params.MultiSampleType = D3DMULTISAMPLE_NONE;
+		params.PresentationInterval = D3DPRESENT_INTERVAL_IMMEDIATE;	// Turn off v-sync
 
 		if( FAILED(d3d->CreateDevice(D3DADAPTER_DEFAULT, D3DDEVTYPE_HAL, wnd,
 			D3DCREATE_HARDWARE_VERTEXPROCESSING,
