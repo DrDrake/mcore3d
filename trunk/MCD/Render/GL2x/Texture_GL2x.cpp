@@ -5,6 +5,26 @@
 
 namespace MCD {
 
+void Texture::bind(size_t textureUnit) const
+{
+	if(textureUnit != 0)
+		glActiveTexture(GL_TEXTURE0 + textureUnit);
+	if(isValid())
+		glBindTexture(type, handle);
+	else
+		glBindTexture(GL_TEXTURE_2D, handle);
+}
+
+void Texture::unbind(size_t textureUnit) const
+{
+	if(textureUnit != 0)
+		glActiveTexture(GL_TEXTURE0);
+	if(isValid())
+		glBindTexture(type, 0);
+	else
+		glBindTexture(GL_TEXTURE_2D, 0);
+}
+
 void Texture::clear()
 {
 	// glDeleteTextures will simple ignore non-valid texture handles

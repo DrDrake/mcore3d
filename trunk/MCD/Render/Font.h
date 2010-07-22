@@ -63,6 +63,8 @@ public:
 // Attributes
 	BmpFontPtr bmpFont;
 
+	ColorRGBAf color;	//!< This color will be multipled with the font texture's color
+
 	sal_override bool isTransparent() const { return true; }
 
 protected:

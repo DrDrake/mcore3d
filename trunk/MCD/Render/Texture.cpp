@@ -16,22 +16,6 @@ Texture::~Texture()
 	clear();
 }
 
-void Texture::bind() const
-{
-	if(isValid())
-		glBindTexture(type, handle);
-	else
-		glBindTexture(GL_TEXTURE_2D, handle);
-}
-
-void Texture::unbind() const
-{
-	if(isValid())
-		glBindTexture(type, 0);
-	else
-		glBindTexture(GL_TEXTURE_2D, 0);
-}
-
 bool Texture::isValid() const
 {
 	return (type != GL_INVALID_ENUM);

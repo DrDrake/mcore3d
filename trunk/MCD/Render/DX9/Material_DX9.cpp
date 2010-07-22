@@ -268,12 +268,8 @@ void MaterialComponent::preRender(size_t pass, void* context)
 			device, mImpl.mConstantHandles.opacity, opacity
 		) == S_OK);
 
-		if(TexturePtr diffuse = diffuseMap ? diffuseMap : renderer.mWhiteTexture) {
-			if(IDirect3DBaseTexture9* texture = reinterpret_cast<IDirect3DBaseTexture9*>(diffuse->handle)) {
-				unsigned samplerIndex = mImpl.mPsConstTable->GetSamplerIndex("texDiffuse");
-				device->SetTexture(samplerIndex, texture);
-			}
-		}
+		if(TexturePtr diffuse = diffuseMap ? diffuseMap : renderer.mWhiteTexture)
+			diffuse->bind(mImpl.mPsConstTable->GetSamplerIndex("texDiffuse"));
 	}
 
 	device->SetVertexShader(mImpl.mVs);
@@ -309,10 +305,8 @@ void SpriteMaterialComponent::preRender(size_t pass, void* context)
 	device->SetVertexShader(nullptr);
 	device->SetPixelShader(nullptr);
 
-	if(diffuseMap) {
-		if(IDirect3DBaseTexture9* texture = reinterpret_cast<IDirect3DBaseTexture9*>(diffuseMap->handle))
-			MCD_VERIFY(device->SetTexture(0, texture) == D3D_OK);
-	}
+	if(diffuseMap)
+		diffuseMap->bind(0);
 }
 
 void SpriteMaterialComponent::postRender(size_t pass, void* context) {}

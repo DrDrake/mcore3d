@@ -14,11 +14,11 @@ public:
 	explicit Texture(const Path& fileId);
 
 // Operations
-	//! Bind this texture to the current texture unit.
-	void bind() const;
+	//! Bind this texture to the specified texture unit.
+	void bind(size_t textureUnit=0) const;
 
-	//! Unbind ANY texture of the current texture unit.
-	void unbind() const;
+	//! Unbind texture, the textureUnit should match the one passed in bind().
+	void unbind(size_t textureUnit=0) const;
 
 // Attributes
 	uint handle;

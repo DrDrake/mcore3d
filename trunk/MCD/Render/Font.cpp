@@ -83,6 +83,7 @@ Component* BmpFontMaterialComponent::clone() const
 {
 	BmpFontMaterialComponent* ret = new BmpFontMaterialComponent;
 	ret->bmpFont = bmpFont;
+	ret->color = color;
 	return ret;
 }
 

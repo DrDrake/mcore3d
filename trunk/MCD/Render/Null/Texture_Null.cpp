@@ -4,6 +4,10 @@
 
 namespace MCD {
 
+void Texture::bind(size_t textureUnit) const {}
+
+void Texture::unbind(size_t textureUnit) const {}
+
 void Texture::clear()
 {
 	handle = 0;

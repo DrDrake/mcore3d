@@ -7,6 +7,21 @@
 
 namespace MCD {
 
+void Texture::bind(size_t textureUnit) const
+{
+	LPDIRECT3DDEVICE9 device = getDevice();
+	MCD_ASSUME(device);
+	if(IDirect3DBaseTexture9* texture = reinterpret_cast<IDirect3DBaseTexture9*>(handle))
+		MCD_VERIFY(device->SetTexture(textureUnit, texture) == D3D_OK);
+}
+
+void Texture::unbind(size_t textureUnit) const
+{
+	LPDIRECT3DDEVICE9 device = getDevice();
+	MCD_ASSUME(device);
+	MCD_VERIFY(device->SetTexture(textureUnit, nullptr) == D3D_OK);
+}
+
 void Texture::clear()
 {
 	if(IDirect3DTexture9*& texture = reinterpret_cast<IDirect3DTexture9*&>(handle))
