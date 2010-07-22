@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../../MCD/Component/Input/InputComponent.h"
+#include "../../MCD/Core/Entity/InputComponent.h"
 #include "../../MCD/Core/Math/Vec3.h"
 #undef nullptr
 #include <gcroot.h>

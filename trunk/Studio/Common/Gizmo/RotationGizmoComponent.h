@@ -2,7 +2,7 @@
 #define __MCD_STUDIO_GIZMO_ROTATIONGIZMOCOMPONENT__
 
 #include "GizmoBaseComponent.h"
-#include "../../../MCD/Component/Input/InputComponent.h"
+#include "../../../MCD/Core/Entity/InputComponent.h"
 
 //! A Gizmo that controls rotation.
 class RotationGizmoComponent : public GizmoBaseComponent

@@ -58,6 +58,7 @@ public:
 		mLauncher(*mgr->fileSystemCollection->getRawPtr(), *mgr->getRawPtr(), false)
 	{
 		mRootNode.name = "Ultimate root node";
+		static_cast<MCD::ResourceManager&>(mResourceManager).taskPool().setThreadCount(1);
 	}
 
 	~RenderPanelControlImpl()

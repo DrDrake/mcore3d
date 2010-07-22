@@ -2,7 +2,7 @@
 #define __MCD_STUDIO_GIZMO_SCALEGIZMOCOMPONENT__
 
 #include "GizmoBaseComponent.h"
-#include "../../../MCD/Component/Input/InputComponent.h"
+#include "../../../MCD/Core/Entity/InputComponent.h"
 
 //! A Gizmo that controls scale.
 class ScaleGizmoComponent : public GizmoBaseComponent
