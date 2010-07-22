@@ -64,10 +64,8 @@ void BmpFontMaterialComponent::preRender(size_t pass, void* context)
 	MCD_VERIFY(device->SetVertexShader(nullptr) == D3D_OK);
 	MCD_VERIFY(device->SetPixelShader(nullptr) == D3D_OK);
 
-	if(bmpFont && bmpFont->texture) {
-		if(IDirect3DBaseTexture9* texture = reinterpret_cast<IDirect3DBaseTexture9*>(bmpFont->texture->handle))
-			MCD_VERIFY(device->SetTexture(0, texture) == D3D_OK);
-	}
+	if(bmpFont && bmpFont->texture)
+		bmpFont->texture->bind(0);
 }
 
 void BmpFontMaterialComponent::postRender(size_t pass, void* context)
