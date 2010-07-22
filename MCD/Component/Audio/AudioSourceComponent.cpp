@@ -18,10 +18,13 @@ void AudioComponent::traverseEntities(Entity* entityNode)
 		}
 
 		AudioComponent* audio = itr->findComponent<AudioComponent>();
+
+		// NOTE: We must iterate to the next entity first, since
+		// audio->update() may delete the current Entity.
+		itr.next();
+
 		if(audio)
 			audio->update();
-
-		itr.next();
 	}
 }
 
@@ -51,8 +54,16 @@ void AudioSourceComponent::update()
 	audioSource.update();
 
 	if(audioSource.isPcmPlayToEnd()) {
-		if(destroyAfterFinish) destroyThis();
-		if(destroyEntityAfterFinish) delete entity();
+		if(destroyAfterFinish) {
+			destroyThis();
+			// NOTE: Must return, since this object is deleted!
+			return;
+		}
+		if(destroyEntityAfterFinish) {
+			entity()->destroyThis();
+			// NOTE: Must return, since this object is deleted!
+			return;
+		}
 	}
 }
 
