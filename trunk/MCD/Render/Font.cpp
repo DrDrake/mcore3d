@@ -77,7 +77,9 @@ void TextLabelComponent::buildVertexBuffer(const BmpFont& font)
 	}
 }
 
-BmpFontMaterialComponent::BmpFontMaterialComponent() {}
+BmpFontMaterialComponent::BmpFontMaterialComponent()
+	: color(ColorRGBAf(1, 1))
+{}
 
 Component* BmpFontMaterialComponent::clone() const
 {
