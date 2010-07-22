@@ -2,7 +2,7 @@
 #define __MCD_STUDIO_GIZMO_TRANSLATIONGIZMOCOMPONENT__
 
 #include "GizmoBaseComponent.h"
-#include "../../../MCD/Component/Input/InputComponent.h"
+#include "../../../MCD/Core/Entity/InputComponent.h"
 
 /*!	A Gizmo that controls translation.
 	By default TranslationGizmoComponent use Global as the reference frame.
