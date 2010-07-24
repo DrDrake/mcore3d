@@ -35,8 +35,10 @@ public:
 	//! Make this entity a child of \em parent.
 	void asChildOf(sal_in Entity* parent);
 
-	//!	The same as asChildOf(), but reversed 'this' with the parameter.
-	void addChild(sal_in Entity* child);
+	/*!	The same as asChildOf(), but reversed 'this' with the parameter.
+		Returns the added child
+	 */
+	sal_notnull Entity* addChild(sal_in Entity* child);
 
 	//! The input parameter should not be the root node.
 	void insertBefore(sal_in Entity* sibling);
@@ -74,8 +76,8 @@ public:
 
 	//!	Wrap over findComponentExactType() with polymorphic_downcast
 	template<class T>
-	sal_maybenull T* findComponentExactType(const std::type_info& familyType) const {
-		return polymorphic_downcast<T*>(findComponentExactType(familyType));
+	sal_maybenull T* findComponentExactType(const std::type_info& type) const {
+		return polymorphic_downcast<T*>(findComponentExactType(type));
 	}
 	template<class T>
 	sal_maybenull T* findComponentExactType() const {
@@ -99,12 +101,12 @@ public:
 		return findComponentInChildren<T>(typeid(T));
 	}
 
-	sal_maybenull Component* findComponentInChildrenExactType(const std::type_info& familyType) const;
+	sal_maybenull Component* findComponentInChildrenExactType(const std::type_info& type) const;
 
 	//!	Wrap over findComponentInChildrenExactType() with polymorphic_downcast
 	template<class T>
-	sal_maybenull T* findComponentInChildrenExactType(const std::type_info& familyType) const {
-		return polymorphic_downcast<T*>(findComponentInChildrenExactType(familyType));
+	sal_maybenull T* findComponentInChildrenExactType(const std::type_info& type) const {
+		return polymorphic_downcast<T*>(findComponentInChildrenExactType(type));
 	}
 	template<class T>
 	sal_maybenull T* findComponentInChildrenExactType() const {
@@ -145,7 +147,10 @@ public:
 		If the supplied component is already added to some other Entity, the
 		add operation will be canceled.
 	 */
-	void addComponent(sal_in_opt Component* component);
+	template<class T>
+	sal_maybenull T* addComponent(sal_in_opt T* component) {
+		return static_cast<T*>(_addComponent(component));
+	}
 
 	/*!	Remove the component from this Entity.
 		The component will be also deleted, so it is wise to use the
@@ -202,6 +207,8 @@ public:
 	Components components;
 
 protected:
+	Component* _addComponent(sal_in_opt Component* component);
+
 	/*!	When preforming some "move" operation, we don't want the unlink() function
 		release the strong script reference.
 	 */

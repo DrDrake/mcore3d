@@ -52,10 +52,11 @@ void Entity::asChildOf(Entity* parent)
 	scriptOwnershipHandle.removeReleaseHook();
 }
 
-void Entity::addChild(sal_in Entity* child)
+Entity* Entity::addChild(sal_in Entity* child)
 {
 	MCD_ASSUME(child);
 	child->asChildOf(this);
+	return child;
 }
 
 void Entity::insertBefore(sal_in Entity* sibling)
@@ -314,14 +315,14 @@ std::string Entity::getRelativePathFrom(const Entity& from) const
 	return ret;
 }
 
-void Entity::addComponent(Component* component)
+Component* Entity::_addComponent(Component* component)
 {
 	if(!component)
-		return;
+		return nullptr;
 
 	if(component->entity() != nullptr) {
 		Log::format(Log::Warn, "The component is already added to an Entity");
-		return;
+		return nullptr;
 	}
 
 	removeComponent(component->familyType());
@@ -331,6 +332,8 @@ void Entity::addComponent(Component* component)
 	component->onAdd();
 	component->scriptOwnershipHandle.useStrongReference(true);
 	component->scriptOwnershipHandle.removeReleaseHook();
+
+	return component;
 }
 
 void Entity::removeComponent(const std::type_info& familyType)

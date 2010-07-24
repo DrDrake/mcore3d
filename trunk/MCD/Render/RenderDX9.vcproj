@@ -216,6 +216,10 @@
 			Filter="h"
 			>
 			<File
+				RelativePath=".\Animation.h"
+				>
+			</File>
+			<File
 				RelativePath=".\BackRenderBuffer.h"
 				>
 			</File>
@@ -352,6 +356,10 @@
 			Name="Source Files"
 			Filter="cpp;"
 			>
+			<File
+				RelativePath=".\Animation.cpp"
+				>
+			</File>
 			<File
 				RelativePath=".\BackRenderBuffer.cpp"
 				>

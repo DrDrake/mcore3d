@@ -276,6 +276,10 @@
 					>
 				</File>
 				<File
+					RelativePath=".\System\MemoryFileSystem.h"
+					>
+				</File>
+				<File
 					RelativePath=".\System\MemoryProfiler.h"
 					>
 				</File>
@@ -450,6 +454,10 @@
 				</File>
 				<File
 					RelativePath=".\System\Map.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\System\MemoryFileSystem.cpp"
 					>
 				</File>
 				<File
@@ -723,6 +731,10 @@
 				</File>
 				<File
 					RelativePath=".\Entity\InputComponent.h"
+					>
+				</File>
+				<File
+					RelativePath=".\Entity\SystemComponent.h"
 					>
 				</File>
 				<File
