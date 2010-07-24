@@ -2,11 +2,13 @@
 #include "Framework.h"
 #include "FpsControllerComponent.h"
 #include "ResizeFrustumComponent.h"
+#include "BuildinData/BuildinData.h"
 
 #include "../Core/Entity/Entity.h"
 #include "../Core/Entity/SystemComponent.h"
 #include "../Core/System/FileSystemCollection.h"
 #include "../Core/System/Log.h"
+#include "../Core/System/MemoryFileSystem.h"
 #include "../Core/System/PtrVector.h"
 #include "../Core/System/RawFileSystem.h"
 #include "../Core/System/RawFileSystemMonitor.h"
@@ -24,15 +26,19 @@
 #	include "../Core/Entity/WinMessageInputComponent.h"
 #endif
 
+#include "../Render/Font.h"
 #include "../Render/Light.h"
+#include "../Render/Material.h"
 #include "../Render/Renderer.h"
 #include "../Render/RenderTargetComponent.h"
 #include "../Render/RenderWindow.h"
-#include "../Component/Render/AnimationComponent.h"
+#include "../Render/Animation.h"
 #include "../Component/Render/CameraComponent.h"
 #include "../Component/Prefab.h"
 #include "../Component/PrefabLoaderComponent.h"
 #include "../Component/Render/SkeletonAnimationComponent.h"
+
+#include "../Loader/ResourceLoaderFactory.h"
 
 namespace MCD {
 
@@ -98,59 +104,63 @@ Framework::Impl::Impl()
 #else
 		mTaskPool->setThreadCount(1);
 #endif
+		Entity* e = mSystemEntity->addChild(new Entity("Task pool"));
+		e->addComponent(new TaskPoolComponent(*mTaskPool));
 	}
 
 	{	// File system
 		mFileSystem.reset(new FileSystemCollection);
-		Entity* e = new Entity("File system");
-		mSystemEntity->addChild(e);
+		Entity* e = mSystemEntity->addChild(new Entity("File system"));
 		e->addComponent(new FileSystemComponent(*mFileSystem));
+	}
+
+	{	// Setup the memory file system
+		MemoryFileSystem* fs = new MemoryFileSystem("");
+		mFileSystem->addFileSystem(*fs);
+		addDataToMemoryFileSystem(*fs);
 	}
 
 	{	// Resource manager
 		mResourceManager.reset(new ResourceManager(*mFileSystem, *mTaskPool, false));
-		Entity* e = new Entity("Resource manager");
-		mSystemEntity->addChild(e);
+		Entity* e = mSystemEntity->addChild(new Entity("Resource manager"));
 		e->addComponent(new ResourceManagerComponent(*mResourceManager));
 	}
 
-	{	// Default light
-		Entity* e = new Entity("Default light");
-		mSceneLayer->addChild(e);
+	{	// Register default resource loaders
+		mResourceManager->addFactory(new FntLoaderFactory(*mResourceManager));
+		mResourceManager->addFactory(new PngLoaderFactory);
+	}
 
-		{	Entity* e1 = new Entity("Light 1");
-			e->addChild(e1);
+	{	// Default light
+		Entity* e = mSceneLayer->addChild(new Entity("Default light"));
+
+		{	Entity* e1 = e->addChild(new Entity("Light 1"));
 			e1->localTransform.setTranslation(Vec3f(10, 10, 0));
 
-			LightComponent* light = new LightComponent;
-			e1->addComponent(light);
+			LightComponent* light = e1->addComponent(new LightComponent);
 			light->color = ColorRGBf(1, 0.8f, 0.8f);
 		}
 
-		{	Entity* e1 = new Entity("Light 2");
-			e->addChild(e1);
+		{	Entity* e1 = e->addChild(new Entity("Light 2"));
 			e1->localTransform.setTranslation(Vec3f(0, 10, 10));
 
-			LightComponent* light = new LightComponent;
-			e1->addComponent(light);
+			LightComponent* light = e1->addComponent(new LightComponent);
 			light->color = ColorRGBf(0.8f, 1, 0.8f);
 		}
 	}
 
 	{	// Animation updater
-		Entity* e = new Entity("Animation updater");
-		mSystemEntity->addChild(e);
+		Entity* e = mSystemEntity->addChild(new Entity("Animation updater"));
 #ifdef MCD_IPHONE
 		AnimationUpdaterComponent* c = new AnimationUpdaterComponent(nullptr);
 #else
-		AnimationUpdaterComponent* c = new AnimationUpdaterComponent(mTaskPool.get());
+		AnimationUpdaterComponent* c = new AnimationUpdaterComponent(mSystemEntity.get());
 #endif
 		e->addComponent(c);
 	}
 
 	{	// Skeleton animation updater
-		Entity* e = new Entity("Skeleton animation updater");
-		mSystemEntity->addChild(e);
+		Entity* e = mSystemEntity->addChild(new Entity("Skeleton animation updater"));
 #ifdef MCD_IPHONE
 		SkeletonAnimationUpdaterComponent* c = new SkeletonAnimationUpdaterComponent(nullptr);
 #else
@@ -195,47 +205,45 @@ bool Framework::Impl::initWindow(RenderWindow& existingWindow, bool takeOwnershi
 
 	{	// Renderer
 		mRenderer = new RendererComponent;
-		Entity* e = new Entity("Renderer");
-		mSystemEntity->addChild(e);
+		Entity* e = mSystemEntity->addChild(new Entity("Renderer"));
 		e->addComponent(mRenderer.get());
 	}
 
 	{	// Default scene camera
-		Entity* e = new Entity("Scene camera");
-		mSceneLayer->addChild(e);
-		CameraComponent2* c = new CameraComponent2(mRenderer);
-		e->addComponent(c);
+		Entity* e = mSceneLayer->addChild(new Entity("Scene camera"));
+		CameraComponent2* c = e->addComponent(new CameraComponent2(mRenderer));
 		c->frustum.projectionType = Frustum::Perspective;
 		c->frustum.create(45.f, 4.0f / 3.0f, 1.0f, 500.0f);
 		e->localTransform.setTranslation(Vec3f(0, 0, 10));
 	}
 
+	{	// Default scene material
+		mSceneLayer->addComponent(new MaterialComponent);
+	}
+
+	{	// Font material for Gui layer
+		BmpFontMaterialComponent* material = mGuiLayer->addComponent(new BmpFontMaterialComponent);
+		material->bmpFont = dynamic_cast<BmpFont*>(mResourceManager->load("buildin/Arial-20.fnt").get());
+	}
+
 	{	// Default Gui camera
-		Entity* e = new Entity("Gui camera");
-		mGuiLayer->addChild(e);
-		CameraComponent2* c = new CameraComponent2(mRenderer);
-		e->addComponent(c);
+		Entity* e = mGuiLayer->addChild(new Entity("Gui camera"));
+		CameraComponent2* c = e->addComponent(new CameraComponent2(mRenderer));
 		c->frustum.projectionType = Frustum::Ortho;
 	}
 
 	{	// Setup scene render target
-		Entity* e = new Entity("Scene layer render target");
-		mSceneLayer->addChild(e);
-
-		RenderTargetComponent* c = new RenderTargetComponent;
+		Entity* e = mSceneLayer->addChild(new Entity("Scene layer render target"));
+		RenderTargetComponent* c = e->addComponent(new RenderTargetComponent);
 		c->window = dynamic_cast<RenderWindow*>(&existingWindow);
 		c->entityToRender = mSceneLayer;
 		c->cameraComponent = mSceneLayer->findComponentInChildrenExactType<CameraComponent2>();
 		c->rendererComponent = mRenderer;
-		e->addComponent(c);
 	}
 
 	{	// Setup Gui render target
-		Entity* e = new Entity("Gui layer render target");
-		mGuiLayer->addChild(e);
-
-		RenderTargetComponent* c = new RenderTargetComponent;
-		e->addComponent(c);
+		Entity* e = mGuiLayer->addChild(new Entity("Gui layer render target"));
+		RenderTargetComponent* c = e->addComponent(new RenderTargetComponent);
 		c->shouldClearColor = false;
 		c->clearColor = ColorRGBAf(0, 0);
 		c->window = dynamic_cast<RenderWindow*>(&existingWindow);
@@ -248,8 +256,7 @@ bool Framework::Impl::initWindow(RenderWindow& existingWindow, bool takeOwnershi
 	if(CameraComponent2* camera = mSceneLayer->findComponentInChildrenExactType<CameraComponent2>())
 	{
 		if(Entity* e = camera->entity()) {
-			ResizeFrustumComponent* c = new ResizeFrustumComponent;
-			e->addComponent(c);
+			ResizeFrustumComponent* c = e->addComponent(new ResizeFrustumComponent);
 			c->camera = mSceneLayer->findComponentInChildrenExactType<CameraComponent2>();
 			c->renderTarget = mSceneLayer->findComponentInChildrenExactType<RenderTargetComponent>();
 		}
@@ -259,16 +266,14 @@ bool Framework::Impl::initWindow(RenderWindow& existingWindow, bool takeOwnershi
 	if(CameraComponent2* camera = mGuiLayer->findComponentInChildrenExactType<CameraComponent2>())
 	{
 		if(Entity* e = camera->entity()) {
-			ResizeFrustumComponent* c = new ResizeFrustumComponent;
-			e->addComponent(c);
+			ResizeFrustumComponent* c = e->addComponent(new ResizeFrustumComponent);
 			c->camera = mGuiLayer->findComponentInChildrenExactType<CameraComponent2>();
 			c->renderTarget = mGuiLayer->findComponentInChildrenExactType<RenderTargetComponent>();
 		}
 	}
 
 	{	// Input component
-		Entity* e = new Entity("Input");
-		mSystemEntity->addChild(e);
+		Entity* e = mSystemEntity->addChild(new Entity("Input"));
 #ifdef MCD_IPHONE
 		iPhoneInputComponent* c = new iPhoneInputComponent;
 #else
@@ -279,10 +284,8 @@ bool Framework::Impl::initWindow(RenderWindow& existingWindow, bool takeOwnershi
 	}
 
 	{	// Default FPS controller
-		Entity* e = new Entity("Fps controller");
-		mSystemEntity->addChild(e);
-		FpsControllerComponent* c = new FpsControllerComponent;
-		e->addComponent(c);
+		Entity* e = mSystemEntity->addChild(new Entity("Fps controller"));
+		FpsControllerComponent* c = e->addComponent(new FpsControllerComponent);
 		c->target = mSceneLayer->findEntityByPath("Scene camera");
 		MCD_ASSERT(c->target);
 		if(Entity* e1 = mSystemEntity->findEntityByPath("Input"))

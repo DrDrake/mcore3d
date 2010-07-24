@@ -2,6 +2,7 @@
 #define __MCD_RENDER_FONT__
 
 #include "Material.h"
+#include "../Core/System/Array.h"
 #include "../Core/System/Resource.h"
 #include "../Core/Math/Vec2.h"
 #include "../Core/Math/Vec3.h"
@@ -35,7 +36,7 @@ public:
 		uint16_t base;
 		uint16_t width, height;
 		uint16_t pages;
-		CharDescriptor chars[256];	// TODO: Supports more than 256
+		Array<CharDescriptor, 10000> chars;	// TODO: Supports un-limited number of characters
 	};	// CharSet
 
 	CharSet charSet;

@@ -105,7 +105,7 @@ static Entity* entityUnlink(Entity& e) {
 	return ret;
 }
 static void entityAddComponent(Entity& self, GiveUpOwnership<Component*> c) {
-	self.addComponent(c);
+	self.addComponent<Component>(c);
 }
 static Component* entityNextComponent(Entity& self, Component* c) {
 	c = (c == nullptr) ? self.components.begin() : c->next();

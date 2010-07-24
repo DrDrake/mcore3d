@@ -15,7 +15,7 @@ FntLoader::FntLoader(IResourceManager* resourceManager)
 
 // The loading code was base on
 // http://www.gamedev.net/community/forums/topic.asp?topic_id=330742
-IResourceLoader::LoadingState FntLoader::load(std::istream* is, const Path*, const char*)
+IResourceLoader::LoadingState FntLoader::load(std::istream* is, const Path* fileId, const char*)
 {
 	mLoadingState = is ? NotLoaded : Aborted;
 
@@ -64,7 +64,7 @@ IResourceLoader::LoadingState FntLoader::load(std::istream* is, const Path*, con
 
 				// Assign the correct value
 				converter << value;
-				if(key == "id")	{			converter >> charId; desc = mTmp->charSet.chars + charId;	}
+				if(key == "id")	{			converter >> charId; desc = &mTmp->charSet.chars[charId];	}
 				else if(key == "x")			converter >> desc->x;
 				else if(key == "y")			converter >> desc->y;
 				else if(key == "width")		converter >> desc->width;
@@ -88,7 +88,11 @@ IResourceLoader::LoadingState FntLoader::load(std::istream* is, const Path*, con
 					// Trim the \" character
 					value.erase(value.begin());
 					value.resize(value.size() - 1);
-					mTmp->texture = dynamic_cast<Texture*>(mResourceManager->load(value).get());
+
+					// We assume the texture is relative to the pod file, if the texture file didn't has a root path.
+					Path adjustedPath = fileId ? fileId->getBranchPath()/value : value;
+
+					mTmp->texture = dynamic_cast<Texture*>(mResourceManager->load(adjustedPath).get());
 				}
 			}
 		}

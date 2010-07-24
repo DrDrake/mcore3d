@@ -227,13 +227,13 @@ void MeshComponent2::render2(void* context)
 	renderer.mViewMatrix.transformPoint(pos);
 	const float dist = pos.z;
 
-	MCD_ASSERT(!renderer.mMaterialStack.empty());
-	IMaterialComponent* m = renderer.mCurrentMaterial;
-	RenderItem r = { e, this, m };
-	if(!m->isTransparent())
-		renderer.mOpaqueQueue.insert(*new RenderItemNode(-dist, r));
-	else
-		renderer.mTransparentQueue.insert(*new RenderItemNode(dist, r));
+	if(IMaterialComponent* m = renderer.mCurrentMaterial) {
+		RenderItem r = { e, this, m };
+		if(!m->isTransparent())
+			renderer.mOpaqueQueue.insert(*new RenderItemNode(-dist, r));
+		else
+			renderer.mTransparentQueue.insert(*new RenderItemNode(dist, r));
+	}
 }
 
 }	// namespace MCD

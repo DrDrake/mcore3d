@@ -20,37 +20,34 @@ class FileSystemCollection;
 
 class MCD_CORE_API FileSystemComponent : public SystemComponent
 {
-	friend class Framework;
-	FileSystemCollection& mFileSystemCollection;
-	
 public:
-	explicit FileSystemComponent(FileSystemCollection& fs)
-		: mFileSystemCollection(fs)
-	{}
+	explicit FileSystemComponent(FileSystemCollection& fs) : fileSystem(fs)	{}
 
 // Attributes
-	FileSystemCollection& fileSystem() {
-		return mFileSystemCollection;
-	}
+	FileSystemCollection& fileSystem;
 };	// FileSystemComponent
 
 class IResourceManager;
 
 class MCD_CORE_API ResourceManagerComponent : public SystemComponent
 {
-	friend class Framework;
-	IResourceManager& mResourceManager;
-	
 public:
-	explicit ResourceManagerComponent(IResourceManager& resourceManager)
-		: mResourceManager(resourceManager)
-	{}
+	explicit ResourceManagerComponent(IResourceManager& mgr) : resourceManager(mgr) {}
 
 // Attributes
-	IResourceManager& resourceManager() {
-		return mResourceManager;
-	}
+	IResourceManager& resourceManager;
 };	// ResourceManagerComponent
+
+class TaskPool;
+
+class MCD_CORE_API TaskPoolComponent : public SystemComponent
+{
+public:
+	explicit TaskPoolComponent(TaskPool& pool) : taskPool(pool)	{}
+
+// Attributes
+	TaskPool& taskPool;
+};	// TaskPoolComponent
 
 }	// namespace MCD
 

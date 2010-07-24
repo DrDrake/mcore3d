@@ -254,6 +254,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\AnimationTest.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\ASSAOTest.cpp"
 				>
 			</File>

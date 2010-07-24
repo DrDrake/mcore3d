@@ -1,6 +1,5 @@
 #include "Pch.h"
 #include "../../MCD/Framework/Framework.h"
-#include "../../MCD/Loader/ResourceLoaderFactory.h"
 #include "../../MCD/Render/Camera.h"
 #include "../../MCD/Render/Chamferbox.h"
 #include "../../MCD/Render/Font.h"
@@ -28,11 +27,6 @@ TEST(RendererTest)
 	subWindow.create("title=Sub-window;width=400;height=300;fullscreen=0;FSAA=4");
 
 	ResourceManager& resourceManager = framework.resourceManager();
-
-	{	// Register various resource loaders
-		framework.addLoaderFactory(new FntLoaderFactory(resourceManager));
-		framework.addLoaderFactory(new PngLoaderFactory);
-	}
 
 	Entity& root = framework.rootEntity();
 	Entity& scene = framework.sceneLayer();
@@ -72,10 +66,6 @@ TEST(RendererTest)
 	}
 
 	{	// Setup GUI layer
-		BmpFontMaterialComponent* material = new BmpFontMaterialComponent;
-		material->bmpFont = dynamic_cast<BmpFont*>(resourceManager.load("Font-Arial.fnt").get());
-		framework.guiLayer().addComponent(material);
-
 		Entity* e = new Entity("Text");
 		e->localTransform.setTranslation(Vec3f(0, 600, 0));
 //		e->localTransform.setMat33(Mat33f::makeXYZRotation(0, 0, 3.14f/4));
