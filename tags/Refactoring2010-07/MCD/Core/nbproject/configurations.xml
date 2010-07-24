@@ -1,0 +1,240 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configurationDescriptor version="62">
+  <logicalFolder name="root" displayName="root" projectFiles="true">
+    <logicalFolder name="HeaderFiles"
+                   displayName="Header Files"
+                   projectFiles="true">
+      <logicalFolder name="Core" displayName="Core" projectFiles="true">
+        <logicalFolder name="Entity" displayName="Entity" projectFiles="true">
+          <itemPath>Entity/BehaviourComponent.h</itemPath>
+          <itemPath>Entity/Component.h</itemPath>
+          <itemPath>Entity/Entity.h</itemPath>
+        </logicalFolder>
+        <logicalFolder name="Math" displayName="Math" projectFiles="true">
+          <itemPath>Math/BasicFunction.h</itemPath>
+          <itemPath>Math/IncludeAll.h</itemPath>
+          <itemPath>Math/Intersection.h</itemPath>
+          <itemPath>Math/Magnitude.h</itemPath>
+          <itemPath>Math/Mat33.h</itemPath>
+          <itemPath>Math/Mat33.inl</itemPath>
+          <itemPath>Math/Mat44.h</itemPath>
+          <itemPath>Math/Mat44.inl</itemPath>
+          <itemPath>Math/Plane.h</itemPath>
+          <itemPath>Math/Quaternion.h</itemPath>
+          <itemPath>Math/Quaternion.inl</itemPath>
+          <itemPath>Math/Ray.h</itemPath>
+          <itemPath>Math/SrtTransform.h</itemPath>
+          <itemPath>Math/Tuple.h</itemPath>
+          <itemPath>Math/Vec2.h</itemPath>
+          <itemPath>Math/Vec2.inl</itemPath>
+          <itemPath>Math/Vec3.h</itemPath>
+          <itemPath>Math/Vec3.inl</itemPath>
+          <itemPath>Math/Vec4.h</itemPath>
+        </logicalFolder>
+        <logicalFolder name="System" displayName="System" projectFiles="true">
+          <itemPath>System/Array.h</itemPath>
+          <itemPath>System/Atomic.h</itemPath>
+          <itemPath>System/CondVar.h</itemPath>
+          <itemPath>System/ErrorCode.h</itemPath>
+          <itemPath>System/Exception.h</itemPath>
+          <itemPath>System/FileSystem.h</itemPath>
+          <itemPath>System/FileSystemCollection.h</itemPath>
+          <itemPath>System/IncludeAll.h</itemPath>
+          <itemPath>System/IntrusivePtr.h</itemPath>
+          <itemPath>System/LinkList.h</itemPath>
+          <itemPath>System/Log.h</itemPath>
+          <itemPath>System/Macros.h</itemPath>
+          <itemPath>System/Map.h</itemPath>
+          <itemPath>System/Mutex.h</itemPath>
+          <itemPath>System/NonCopyable.h</itemPath>
+          <itemPath>System/Path.h</itemPath>
+          <itemPath>System/Pch.h</itemPath>
+          <itemPath>System/Platform.h</itemPath>
+          <itemPath>System/PlatformInclude.h</itemPath>
+          <itemPath>System/PlatformIncludeFwd.h</itemPath>
+          <itemPath>System/PtrVector.h</itemPath>
+          <itemPath>System/RawFileSystem.h</itemPath>
+          <itemPath>System/RawFileSystemMonitor.h</itemPath>
+          <itemPath>System/Resource.h</itemPath>
+          <itemPath>System/ResourceLoader.h</itemPath>
+          <itemPath>System/ResourceManager.h</itemPath>
+          <itemPath>System/ScriptOwnershipHandle.h</itemPath>
+          <itemPath>System/SharedPtr.h</itemPath>
+          <itemPath>System/StaticAssert.h</itemPath>
+          <itemPath>System/StrUtility.h</itemPath>
+          <itemPath>System/Stream.h</itemPath>
+          <itemPath>System/TaskPool.h</itemPath>
+          <itemPath>System/Thread.h</itemPath>
+          <itemPath>System/ThreadPool.h</itemPath>
+          <itemPath>System/Timer.h</itemPath>
+          <itemPath>System/TypeTrait.h</itemPath>
+          <itemPath>System/UserData.h</itemPath>
+          <itemPath>System/Utility.h</itemPath>
+          <itemPath>System/WeakPtr.h</itemPath>
+          <itemPath>System/Window.Win.inc</itemPath>
+          <itemPath>System/Window.Win.inl</itemPath>
+          <itemPath>System/Window.X11.inc</itemPath>
+          <itemPath>System/Window.X11.inl</itemPath>
+          <itemPath>System/Window.h</itemPath>
+          <itemPath>System/Window.inl</itemPath>
+          <itemPath>System/WindowEvent.h</itemPath>
+          <itemPath>System/XmlParser.h</itemPath>
+          <itemPath>System/ZipFileSystem.h</itemPath>
+          <itemPath>System/ZipFileSystem.inc</itemPath>
+        </logicalFolder>
+        <itemPath>Core.h</itemPath>
+        <itemPath>Pch.h</itemPath>
+        <itemPath>ShareLib.h</itemPath>
+      </logicalFolder>
+    </logicalFolder>
+    <logicalFolder name="SourceFiles"
+                   displayName="Source Files"
+                   projectFiles="true">
+      <logicalFolder name="Core" displayName="Core" projectFiles="true">
+        <logicalFolder name="Entity" displayName="Entity" projectFiles="true">
+          <itemPath>Entity/BehaviourComponent.cpp</itemPath>
+          <itemPath>Entity/Component.cpp</itemPath>
+          <itemPath>Entity/Entity.cpp</itemPath>
+          <itemPath>Entity/Pch.h</itemPath>
+        </logicalFolder>
+        <logicalFolder name="Math" displayName="Math" projectFiles="true">
+          <itemPath>Math/Intersection.cpp</itemPath>
+          <itemPath>Math/Pch.h</itemPath>
+          <itemPath>Math/SrtTransform.cpp</itemPath>
+        </logicalFolder>
+        <logicalFolder name="System" displayName="System" projectFiles="true">
+          <itemPath>System/CallstackProfiler.cpp</itemPath>
+          <itemPath>System/CallstackProfiler.h</itemPath>
+          <itemPath>System/CondVar.cpp</itemPath>
+          <itemPath>System/CpuProfiler.cpp</itemPath>
+          <itemPath>System/CpuProfiler.h</itemPath>
+          <itemPath>System/ErrorCode.cpp</itemPath>
+          <itemPath>System/Exception.cpp</itemPath>
+          <itemPath>System/FileSystemCollection.cpp</itemPath>
+          <itemPath>System/FunctionPatcher.inc</itemPath>
+          <itemPath>System/LinkList.cpp</itemPath>
+          <itemPath>System/Log.cpp</itemPath>
+          <itemPath>System/Map.cpp</itemPath>
+          <itemPath>System/MemoryProfiler.cpp</itemPath>
+          <itemPath>System/MemoryProfiler.h</itemPath>
+          <itemPath>System/Mutex.cpp</itemPath>
+          <itemPath>System/Path.cpp</itemPath>
+          <itemPath>System/RawFileSystem.cpp</itemPath>
+          <itemPath>System/RawFileSystemMonitor.cpp</itemPath>
+          <itemPath>System/Resource.cpp</itemPath>
+          <itemPath>System/ResourceManager.cpp</itemPath>
+          <itemPath>System/ScriptOwnershipHandle.cpp</itemPath>
+          <itemPath>System/StrUtility.cpp</itemPath>
+          <itemPath>System/Stream.cpp</itemPath>
+          <itemPath>System/TaskPool.cpp</itemPath>
+          <itemPath>System/Thread.cpp</itemPath>
+          <itemPath>System/ThreadPool.cpp</itemPath>
+          <itemPath>System/Timer.cpp</itemPath>
+          <itemPath>System/Utility.cpp</itemPath>
+          <itemPath>System/Window.cpp</itemPath>
+          <itemPath>System/XmlParser.cpp</itemPath>
+          <itemPath>System/ZipFileSystem.cpp</itemPath>
+          <itemPath>System/dbgint.h</itemPath>
+        </logicalFolder>
+        <itemPath>.dep.inc</itemPath>
+      </logicalFolder>
+    </logicalFolder>
+    <logicalFolder name="ExternalFiles"
+                   displayName="Important Files"
+                   projectFiles="false">
+      <itemPath>Makefile</itemPath>
+    </logicalFolder>
+  </logicalFolder>
+  <projectmakefile>Makefile</projectmakefile>
+  <confs>
+    <conf name="Debug" type="2">
+      <toolsSet>
+        <developmentServer>localhost</developmentServer>
+        <compilerSet>GNU|GNU</compilerSet>
+        <platform>2</platform>
+      </toolsSet>
+      <compileType>
+        <linkerTool>
+          <linkerLibItems>
+            <linkerLibProjectItem>
+              <makeArtifact PL="../../3Party/squirrel"
+                            CT="2"
+                            CN="Debug"
+                            AC="true"
+                            BL="true"
+                            WD="../../3Party/squirrel"
+                            BC="${MAKE}  -f Makefile CONF=Debug"
+                            CC="${MAKE}  -f Makefile CONF=Debug clean"
+                            OP="dist/Debug/GNU-Linux-x86/libsquirrel.so">
+              </makeArtifact>
+            </linkerLibProjectItem>
+            <linkerLibStdlibItem>PosixThreads</linkerLibStdlibItem>
+            <linkerLibStdlibItem>DataCompression</linkerLibStdlibItem>
+            <linkerOptionItem>-lX11</linkerOptionItem>
+          </linkerLibItems>
+        </linkerTool>
+        <requiredProjects>
+          <makeArtifact PL="../../3Party/squirrel"
+                        CT="2"
+                        CN="Debug"
+                        AC="false"
+                        BL="true"
+                        WD="../../3Party/squirrel"
+                        BC="${MAKE}  -f Makefile CONF=Debug"
+                        CC="${MAKE}  -f Makefile CONF=Debug clean"
+                        OP="dist/Debug/GNU-Linux-x86/libsquirrel.so">
+          </makeArtifact>
+        </requiredProjects>
+      </compileType>
+    </conf>
+    <conf name="Release" type="2">
+      <toolsSet>
+        <developmentServer>localhost</developmentServer>
+        <compilerSet>GNU|GNU</compilerSet>
+        <platform>2</platform>
+      </toolsSet>
+      <compileType>
+        <cTool>
+          <developmentMode>5</developmentMode>
+        </cTool>
+        <ccTool>
+          <developmentMode>5</developmentMode>
+        </ccTool>
+        <fortranCompilerTool>
+          <developmentMode>5</developmentMode>
+        </fortranCompilerTool>
+        <linkerTool>
+          <linkerLibItems>
+            <linkerLibProjectItem>
+              <makeArtifact PL="../../3Party/squirrel"
+                            CT="2"
+                            CN="Release"
+                            AC="false"
+                            BL="true"
+                            WD="../../3Party/squirrel"
+                            BC="${MAKE}  -f Makefile CONF=Release"
+                            CC="${MAKE}  -f Makefile CONF=Release clean"
+                            OP="dist/Release/GNU-Linux-x86/libsquirrel.so">
+              </makeArtifact>
+            </linkerLibProjectItem>
+            <linkerLibStdlibItem>PosixThreads</linkerLibStdlibItem>
+            <linkerLibStdlibItem>DataCompression</linkerLibStdlibItem>
+            <linkerOptionItem>-lX11</linkerOptionItem>
+          </linkerLibItems>
+        </linkerTool>
+        <requiredProjects>
+          <makeArtifact PL="../../3Party/squirrel"
+                        CT="2"
+                        CN="Release"
+                        AC="true"
+                        BL="true"
+                        WD="../../3Party/squirrel"
+                        BC="${MAKE}  -f Makefile CONF=Release"
+                        CC="${MAKE}  -f Makefile CONF=Release clean"
+                        OP="dist/Release/GNU-Linux-x86/libsquirrel.so">
+          </makeArtifact>
+        </requiredProjects>
+      </compileType>
+    </conf>
+  </confs>
+</configurationDescriptor>

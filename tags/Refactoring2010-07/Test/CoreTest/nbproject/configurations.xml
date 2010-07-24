@@ -1,0 +1,189 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configurationDescriptor version="62">
+  <logicalFolder name="root" displayName="root" projectFiles="true">
+    <logicalFolder name="CoreTest" displayName="CoreTest" projectFiles="true">
+      <logicalFolder name="Entity" displayName="Entity" projectFiles="true">
+        <itemPath>Entity/ComponentTest.cpp</itemPath>
+        <itemPath>Entity/EntityTest.cpp</itemPath>
+        <itemPath>Entity/Pch.h</itemPath>
+      </logicalFolder>
+      <logicalFolder name="Math" displayName="Math" projectFiles="true">
+        <itemPath>Math/IntersectionTest.cpp</itemPath>
+        <itemPath>Math/Mat33Test.cpp</itemPath>
+        <itemPath>Math/Mat44Test.cpp</itemPath>
+        <itemPath>Math/Pch.h</itemPath>
+        <itemPath>Math/QuaternionTest.cpp</itemPath>
+        <itemPath>Math/TupleTest.cpp</itemPath>
+        <itemPath>Math/Vec2Test.cpp</itemPath>
+        <itemPath>Math/Vec3Test.cpp</itemPath>
+      </logicalFolder>
+      <logicalFolder name="System" displayName="System" projectFiles="true">
+        <itemPath>System/CondVarTest.cpp</itemPath>
+        <itemPath>System/FileSystemTest.cpp</itemPath>
+        <itemPath>System/IntrusivePtrTest.cpp</itemPath>
+        <itemPath>System/LinkListTest.cpp</itemPath>
+        <itemPath>System/LogTest.cpp</itemPath>
+        <itemPath>System/MapTest.cpp</itemPath>
+        <itemPath>System/PathTest.cpp</itemPath>
+        <itemPath>System/Pch.h</itemPath>
+        <itemPath>System/PtrVectorTest.cpp</itemPath>
+        <itemPath>System/ResourceLoaderTest.cpp</itemPath>
+        <itemPath>System/ResourceManagerTest.cpp</itemPath>
+        <itemPath>System/SharedPtrTest.cpp</itemPath>
+        <itemPath>System/StrUtilityTest.cpp</itemPath>
+        <itemPath>System/StreamTest.cpp</itemPath>
+        <itemPath>System/TaskPoolTest.cpp</itemPath>
+        <itemPath>System/ThreadPoolTest.cpp</itemPath>
+        <itemPath>System/ThreadTest.cpp</itemPath>
+        <itemPath>System/TimerTest.cpp</itemPath>
+        <itemPath>System/UserDataTest.cpp</itemPath>
+        <itemPath>System/UtilityTest.cpp</itemPath>
+        <itemPath>System/WeakPtrTest.cpp</itemPath>
+        <itemPath>System/WindowTest.cpp</itemPath>
+        <itemPath>System/XmlParserTest.cpp</itemPath>
+      </logicalFolder>
+      <itemPath>Main.cpp</itemPath>
+      <itemPath>Pch.h</itemPath>
+    </logicalFolder>
+    <logicalFolder name="ExternalFiles"
+                   displayName="Important Files"
+                   projectFiles="false">
+      <itemPath>Makefile</itemPath>
+    </logicalFolder>
+  </logicalFolder>
+  <projectmakefile>Makefile</projectmakefile>
+  <confs>
+    <conf name="Debug" type="1">
+      <toolsSet>
+        <developmentServer>localhost</developmentServer>
+        <compilerSet>GNU|GNU</compilerSet>
+        <platform>2</platform>
+      </toolsSet>
+      <compileType>
+        <ccTool>
+          <warningLevel>2</warningLevel>
+        </ccTool>
+        <linkerTool>
+          <output>${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/coretest</output>
+          <linkerLibItems>
+            <linkerLibProjectItem>
+              <makeArtifact PL="../../3Party/CppTestHarness"
+                            CT="2"
+                            CN="Debug"
+                            AC="true"
+                            BL="true"
+                            WD="../../3Party/CppTestHarness"
+                            BC="${MAKE}  -f Makefile CONF=Debug"
+                            CC="${MAKE}  -f Makefile CONF=Debug clean"
+                            OP="dist/Debug/GNU-Linux-x86/libCppTestHarness.so">
+              </makeArtifact>
+            </linkerLibProjectItem>
+            <linkerLibProjectItem>
+              <makeArtifact PL="../../MCD/Core"
+                            CT="2"
+                            CN="Debug"
+                            AC="true"
+                            BL="true"
+                            WD="../../MCD/Core"
+                            BC="${MAKE}  -f Makefile CONF=Debug"
+                            CC="${MAKE}  -f Makefile CONF=Debug clean"
+                            OP="dist/Debug/GNU-Linux-x86/libCore.so">
+              </makeArtifact>
+            </linkerLibProjectItem>
+          </linkerLibItems>
+        </linkerTool>
+        <requiredProjects>
+          <makeArtifact PL="../../3Party/CppTestHarness"
+                        CT="2"
+                        CN="Debug"
+                        AC="true"
+                        BL="true"
+                        WD="../../3Party/CppTestHarness"
+                        BC="${MAKE}  -f Makefile CONF=Debug"
+                        CC="${MAKE}  -f Makefile CONF=Debug clean"
+                        OP="dist/Debug/GNU-Linux-x86/libCppTestHarness.so">
+          </makeArtifact>
+          <makeArtifact PL="../../MCD/Core"
+                        CT="2"
+                        CN="Debug"
+                        AC="true"
+                        BL="true"
+                        WD="../../MCD/Core"
+                        BC="${MAKE}  -f Makefile CONF=Debug"
+                        CC="${MAKE}  -f Makefile CONF=Debug clean"
+                        OP="dist/Debug/GNU-Linux-x86/libCore.so">
+          </makeArtifact>
+        </requiredProjects>
+      </compileType>
+    </conf>
+    <conf name="Release" type="1">
+      <toolsSet>
+        <developmentServer>localhost</developmentServer>
+        <compilerSet>GNU|GNU</compilerSet>
+        <platform>2</platform>
+      </toolsSet>
+      <compileType>
+        <cTool>
+          <developmentMode>5</developmentMode>
+        </cTool>
+        <ccTool>
+          <developmentMode>5</developmentMode>
+        </ccTool>
+        <fortranCompilerTool>
+          <developmentMode>5</developmentMode>
+        </fortranCompilerTool>
+        <linkerTool>
+          <output>${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/coretest</output>
+          <linkerLibItems>
+            <linkerLibProjectItem>
+              <makeArtifact PL="../../3Party/CppTestHarness"
+                            CT="2"
+                            CN="Release"
+                            AC="false"
+                            BL="true"
+                            WD="../../3Party/CppTestHarness"
+                            BC="${MAKE}  -f Makefile CONF=Release"
+                            CC="${MAKE}  -f Makefile CONF=Release clean"
+                            OP="dist/Release/GNU-Linux-x86/libCppTestHarness.so">
+              </makeArtifact>
+            </linkerLibProjectItem>
+            <linkerLibProjectItem>
+              <makeArtifact PL="../../MCD/Core"
+                            CT="2"
+                            CN="Release"
+                            AC="false"
+                            BL="true"
+                            WD="../../MCD/Core"
+                            BC="${MAKE}  -f Makefile CONF=Release"
+                            CC="${MAKE}  -f Makefile CONF=Release clean"
+                            OP="dist/Release/GNU-Linux-x86/libCore.so">
+              </makeArtifact>
+            </linkerLibProjectItem>
+          </linkerLibItems>
+        </linkerTool>
+        <requiredProjects>
+          <makeArtifact PL="../../3Party/CppTestHarness"
+                        CT="2"
+                        CN="Release"
+                        AC="false"
+                        BL="true"
+                        WD="../../3Party/CppTestHarness"
+                        BC="${MAKE}  -f Makefile CONF=Release"
+                        CC="${MAKE}  -f Makefile CONF=Release clean"
+                        OP="dist/Release/GNU-Linux-x86/libCppTestHarness.so">
+          </makeArtifact>
+          <makeArtifact PL="../../MCD/Core"
+                        CT="2"
+                        CN="Release"
+                        AC="false"
+                        BL="true"
+                        WD="../../MCD/Core"
+                        BC="${MAKE}  -f Makefile CONF=Release"
+                        CC="${MAKE}  -f Makefile CONF=Release clean"
+                        OP="dist/Release/GNU-Linux-x86/libCore.so">
+          </makeArtifact>
+        </requiredProjects>
+      </compileType>
+    </conf>
+  </confs>
+</configurationDescriptor>

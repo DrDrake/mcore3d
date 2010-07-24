@@ -1,0 +1,19 @@
+varying vec2 texCoord;
+uniform sampler2DRect tex;
+
+// We cannot use gl_DepthRange since we are currently rendering the fullscreen quad not the scene
+uniform vec2 camerarange = vec2(1.0, 500);
+
+float readDepth(in vec2 coord)
+{
+	float nearZ = camerarange.x;
+	float farZ = camerarange.y;
+	float posZ = texture2DRect(tex, coord).x;
+
+	return (2.0 * nearZ) / (nearZ + farZ - posZ * (farZ - nearZ));
+}
+
+void main(void)
+{
+	gl_FragColor = vec4(vec3(readDepth(texCoord)), 1);
+}

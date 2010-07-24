@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<CodeBlocks_workspace_file>
+	<Workspace title="Workspace">
+		<Project filename="..\MCD\Core\Core.cbp" />
+		<Project filename="CoreTest\CoreTest.cbp">
+			<Depends filename="..\MCD\Core\Core.cbp" />
+		</Project>
+		<Project filename="..\MCD\Render\Render.cbp">
+			<Depends filename="..\MCD\Core\Core.cbp" />
+		</Project>
+		<Project filename="RenderTest\RenderTest.cbp" active="1">
+			<Depends filename="..\MCD\Core\Core.cbp" />
+			<Depends filename="..\MCD\Render\Render.cbp" />
+		</Project>
+	</Workspace>
+</CodeBlocks_workspace_file>

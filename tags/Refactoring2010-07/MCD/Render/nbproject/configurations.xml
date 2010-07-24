@@ -1,0 +1,208 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configurationDescriptor version="62">
+  <logicalFolder name="root" displayName="root" projectFiles="true">
+    <logicalFolder name="Render" displayName="Render" projectFiles="true">
+      <itemPath>BackRenderBuffer.cpp</itemPath>
+      <itemPath>BackRenderBuffer.h</itemPath>
+      <itemPath>BitmapLoader.cpp</itemPath>
+      <itemPath>BitmapLoader.h</itemPath>
+      <itemPath>Camera.cpp</itemPath>
+      <itemPath>Camera.h</itemPath>
+      <itemPath>ChamferBox.cpp</itemPath>
+      <itemPath>ChamferBox.h</itemPath>
+      <itemPath>Color.cpp</itemPath>
+      <itemPath>Color.h</itemPath>
+      <itemPath>CubemapLoader.cpp</itemPath>
+      <itemPath>CubemapLoader.h</itemPath>
+      <itemPath>DdsLoader.cpp</itemPath>
+      <itemPath>DdsLoader.h</itemPath>
+      <itemPath>EditableMesh.cpp</itemPath>
+      <itemPath>EditableMesh.h</itemPath>
+      <itemPath>Effect.cpp</itemPath>
+      <itemPath>Effect.h</itemPath>
+      <itemPath>EffectLoader.cpp</itemPath>
+      <itemPath>EffectLoader.h</itemPath>
+      <itemPath>Frustum.cpp</itemPath>
+      <itemPath>Frustum.h</itemPath>
+      <itemPath>GlWindow.Win.inc</itemPath>
+      <itemPath>GlWindow.X11.inc</itemPath>
+      <itemPath>GlWindow.cpp</itemPath>
+      <itemPath>GlWindow.h</itemPath>
+      <itemPath>JpegLoader.cpp</itemPath>
+      <itemPath>JpegLoader.h</itemPath>
+      <itemPath>Material.cpp</itemPath>
+      <itemPath>Material.h</itemPath>
+      <itemPath>MaterialProperty.cpp</itemPath>
+      <itemPath>MaterialProperty.h</itemPath>
+      <itemPath>Max3dsLoader.cpp</itemPath>
+      <itemPath>Max3dsLoader.h</itemPath>
+      <itemPath>Mesh.cpp</itemPath>
+      <itemPath>Mesh.h</itemPath>
+      <itemPath>MeshBuilder.cpp</itemPath>
+      <itemPath>MeshBuilder.h</itemPath>
+      <itemPath>Model.cpp</itemPath>
+      <itemPath>Model.h</itemPath>
+      <itemPath>ModelPod.cpp</itemPath>
+      <itemPath>ModelPod.h</itemPath>
+      <itemPath>OgreMeshLoader.cpp</itemPath>
+      <itemPath>OgreMeshLoader.h</itemPath>
+      <itemPath>Pch.h</itemPath>
+      <itemPath>PngLoader.cpp</itemPath>
+      <itemPath>PngLoader.h</itemPath>
+      <itemPath>ProjectiveTexture.cpp</itemPath>
+      <itemPath>ProjectiveTexture.h</itemPath>
+      <itemPath>Render.h</itemPath>
+      <itemPath>RenderBuffer.cpp</itemPath>
+      <itemPath>RenderBuffer.h</itemPath>
+      <itemPath>RenderTarget.cpp</itemPath>
+      <itemPath>RenderTarget.h</itemPath>
+      <itemPath>Renderable.h</itemPath>
+      <itemPath>ResourceLoaderFactory.cpp</itemPath>
+      <itemPath>ResourceLoaderFactory.h</itemPath>
+      <itemPath>SemanticMap.cpp</itemPath>
+      <itemPath>SemanticMap.h</itemPath>
+      <itemPath>Shader.cpp</itemPath>
+      <itemPath>Shader.h</itemPath>
+      <itemPath>ShaderLoader.cpp</itemPath>
+      <itemPath>ShaderLoader.h</itemPath>
+      <itemPath>ShaderProgram.cpp</itemPath>
+      <itemPath>ShaderProgram.h</itemPath>
+      <itemPath>ShareLib.h</itemPath>
+      <itemPath>TangentSpaceBuilder.cpp</itemPath>
+      <itemPath>TangentSpaceBuilder.h</itemPath>
+      <itemPath>Texture.cpp</itemPath>
+      <itemPath>Texture.h</itemPath>
+      <itemPath>TextureLoaderBase.cpp</itemPath>
+      <itemPath>TextureLoaderBase.h</itemPath>
+      <itemPath>TextureLoaderBaseImpl.inc</itemPath>
+      <itemPath>TextureRenderBuffer.cpp</itemPath>
+      <itemPath>TextureRenderBuffer.h</itemPath>
+      <itemPath>TgaLoader.cpp</itemPath>
+      <itemPath>TgaLoader.h</itemPath>
+    </logicalFolder>
+    <logicalFolder name="ExternalFiles"
+                   displayName="Important Files"
+                   projectFiles="false">
+      <itemPath>Makefile</itemPath>
+    </logicalFolder>
+  </logicalFolder>
+  <projectmakefile>Makefile</projectmakefile>
+  <confs>
+    <conf name="Debug" type="2">
+      <toolsSet>
+        <developmentServer>localhost</developmentServer>
+        <compilerSet>GNU|GNU</compilerSet>
+        <platform>2</platform>
+      </toolsSet>
+      <compileType>
+        <linkerTool>
+          <output>${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/libRender.so</output>
+          <linkerLibItems>
+            <linkerLibProjectItem>
+              <makeArtifact PL="../Core"
+                            CT="2"
+                            CN="Debug"
+                            AC="true"
+                            BL="true"
+                            WD="../Core"
+                            BC="${MAKE}  -f Makefile CONF=Debug"
+                            CC="${MAKE}  -f Makefile CONF=Debug clean"
+                            OP="dist/Debug/GNU-Linux-x86/libCore.so">
+              </makeArtifact>
+            </linkerLibProjectItem>
+            <linkerLibProjectItem>
+              <makeArtifact PL="../../3Party/PowerVR"
+                            CT="2"
+                            CN="Debug"
+                            AC="true"
+                            BL="true"
+                            WD="../../3Party/PowerVR"
+                            BC="${MAKE}  -f Makefile CONF=Debug"
+                            CC="${MAKE}  -f Makefile CONF=Debug clean"
+                            OP="dist/Debug/GNU-Linux-x86/libPowerVR.so">
+              </makeArtifact>
+            </linkerLibProjectItem>
+            <linkerLibProjectItem>
+              <makeArtifact PL="../../3Party/SmallJpeg"
+                            CT="2"
+                            CN="Debug"
+                            AC="true"
+                            BL="true"
+                            WD="../../3Party/SmallJpeg"
+                            BC="${MAKE}  -f Makefile CONF=Debug"
+                            CC="${MAKE}  -f Makefile CONF=Debug clean"
+                            OP="dist/Debug/GNU-Linux-x86/libSmallJpeg.so">
+              </makeArtifact>
+            </linkerLibProjectItem>
+            <linkerOptionItem>-lGL</linkerOptionItem>
+            <linkerOptionItem>-lGLU</linkerOptionItem>
+            <linkerOptionItem>-lGLEW</linkerOptionItem>
+            <linkerOptionItem>-lpng</linkerOptionItem>
+          </linkerLibItems>
+        </linkerTool>
+      </compileType>
+    </conf>
+    <conf name="Release" type="2">
+      <toolsSet>
+        <developmentServer>localhost</developmentServer>
+        <compilerSet>GNU|GNU</compilerSet>
+        <platform>2</platform>
+      </toolsSet>
+      <compileType>
+        <cTool>
+          <developmentMode>5</developmentMode>
+        </cTool>
+        <ccTool>
+          <developmentMode>5</developmentMode>
+        </ccTool>
+        <fortranCompilerTool>
+          <developmentMode>5</developmentMode>
+        </fortranCompilerTool>
+        <linkerTool>
+          <linkerLibItems>
+            <linkerLibProjectItem>
+              <makeArtifact PL="../Core"
+                            CT="2"
+                            CN="Release"
+                            AC="false"
+                            BL="true"
+                            WD="../Core"
+                            BC="${MAKE}  -f Makefile CONF=Release"
+                            CC="${MAKE}  -f Makefile CONF=Release clean"
+                            OP="dist/Release/GNU-Linux-x86/libCore.so">
+              </makeArtifact>
+            </linkerLibProjectItem>
+            <linkerLibProjectItem>
+              <makeArtifact PL="../../3Party/PowerVR"
+                            CT="2"
+                            CN="Release"
+                            AC="false"
+                            BL="true"
+                            WD="../../3Party/PowerVR"
+                            BC="${MAKE}  -f Makefile CONF=Release"
+                            CC="${MAKE}  -f Makefile CONF=Release clean"
+                            OP="dist/Release/GNU-Linux-x86/libPowerVR.so">
+              </makeArtifact>
+            </linkerLibProjectItem>
+            <linkerLibProjectItem>
+              <makeArtifact PL="../../3Party/SmallJpeg"
+                            CT="2"
+                            CN="Release"
+                            AC="false"
+                            BL="true"
+                            WD="../../3Party/SmallJpeg"
+                            BC="${MAKE}  -f Makefile CONF=Release"
+                            CC="${MAKE}  -f Makefile CONF=Release clean"
+                            OP="dist/Release/GNU-Linux-x86/libSmallJpeg.so">
+              </makeArtifact>
+            </linkerLibProjectItem>
+            <linkerOptionItem>-lGL</linkerOptionItem>
+            <linkerOptionItem>-lGLU</linkerOptionItem>
+            <linkerOptionItem>-lGLEW</linkerOptionItem>
+            <linkerOptionItem>-lpng</linkerOptionItem>
+          </linkerLibItems>
+        </linkerTool>
+      </compileType>
+    </conf>
+  </confs>
+</configurationDescriptor>

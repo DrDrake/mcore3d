@@ -1,0 +1,459 @@
+<?xml version="1.0"?>
+
+<root>
+
+<merge mode="blend" />
+
+<!-- scene pass -->
+<pass
+	enable="true"
+	drawLine="false"
+>
+	<standard
+		ambient="0.2, 0.2, 0.2, 1.0"
+		diffuse="1.0, 1.0, 1.0, 1.0"
+		specular="0.5, 0.5, 0.5, 1.0"
+		shininess="30.0"
+	/>
+	
+	<shader>
+		<vertex>
+<![CDATA[
+
+varying vec3 var_Vertex, var_Normal, var_LightPos;
+
+uniform vec3 g_sunPos;
+uniform vec4 g_camParams;
+
+void main()
+{
+	gl_Position = ftransform();
+	
+	// viewspace position
+	var_Vertex = (gl_ModelViewMatrix * gl_Vertex).xyz;
+	
+	// viewspace normal, no need to do normalize since we do it on fragment shader anyway
+	var_Normal = gl_NormalMatrix * gl_Normal;
+	
+	// viewspace lightDir
+	var_LightPos = (gl_ModelViewMatrix * vec4(g_sunPos, 1.0)).xyz;
+	
+	// texture coordinate
+	gl_TexCoord[0] = gl_MultiTexCoord0;
+}
+]]>
+		</vertex>
+		
+		<fragment>
+<![CDATA[
+ 
+varying vec3 var_Vertex, var_Normal, var_LightPos;
+
+void main()
+{
+	vec4 ambient = gl_FrontLightProduct[0].ambient;
+	vec4 diffuse = gl_FrontLightProduct[0].diffuse;
+	vec4 specular = gl_FrontLightProduct[0].specular;
+	
+	float ndotl = dot( normalize(var_LightPos - var_Vertex), normalize(var_Normal) );
+	//ndotl = ndotl * 0.5 + 0.5;
+	ndotl = clamp(ndotl, 0.0, 1.0);
+	
+	gl_FragColor.rgb = ndotl * diffuse.rgb;
+	gl_FragColor.a = 0;
+}
+]]>
+		</fragment>
+	</shader>
+</pass>
+
+<!-- skybox pass -->
+<pass
+	enable="true"
+	drawLine="false"
+>
+	<shader>
+		<vertex>
+<![CDATA[
+
+varying vec3 var_Vertex;
+
+void main()
+{
+	gl_Position = ftransform();
+	
+	// viewspace position
+	var_Vertex = gl_Vertex.xyz;
+}
+]]>
+		</vertex>
+		
+		<fragment>
+<![CDATA[
+ 
+varying vec3 var_Vertex;
+uniform vec3 g_sunPos;
+
+void main()
+{	
+	vec3 g_skyDir = vec3(0.0, 1.0, 0.0);
+	vec3 g_skyColorLow = vec3(0.5, 0.5, 0.75);
+	vec3 g_skyColorHi = vec3(0.125, 0.125, 0.5);
+	vec3 g_SunColor = vec3(1.0, 1.0, 1.0);
+	float g_SunPower = 256.0;
+	
+	vec3 fragDir = normalize(var_Vertex);
+	
+	float dotSky = dot(fragDir, g_skyDir);
+	vec3 skyColor = mix(g_skyColorLow, g_skyColorHi, dotSky * 0.5 + 0.5);
+	
+	float dotSun = dot(fragDir, normalize(g_sunPos));
+	dotSun = pow(max(0.0, dotSun), g_SunPower);
+	vec3 sunColor = dotSun * g_SunColor;
+	
+	gl_FragColor = vec4(skyColor + sunColor, dotSun);
+}
+]]>
+		</fragment>
+	</shader>
+</pass>
+
+<!-- sun-extract pass -->
+<pass
+	enable="true"
+	drawLine="false"
+>
+	<texture
+		file="../White2x2.png"
+		shaderName="g_inputSam"
+		filter="linear_linear_none"
+	/>
+	<shader>
+		<vertex>
+<![CDATA[
+
+uniform vec2 g_InvTexSize;
+
+void main()
+{
+	gl_Position.xyzw = vec4(gl_Vertex.xy, 0, 1);
+	gl_TexCoord[0].xy = gl_MultiTexCoord0.xy;
+}
+]]>
+		</vertex>
+		
+		<fragment>
+<![CDATA[
+
+uniform sampler2D g_inputSam;
+
+void main()
+{
+	vec4 sunClr = texture2D(g_inputSam, gl_TexCoord[0].xy);
+	sunClr.rgb *= sunClr.a;
+	gl_FragColor = sunClr;
+}
+]]>
+		</fragment>
+	</shader>
+</pass>
+
+<!-- blur pass -->
+<pass
+	enable="true"
+	drawLine="false"
+>
+	<!-- The first occuring texture will use texture unit 0 -->
+	<texture
+		file="../White2x2.png"
+		shaderName="g_inputSam"
+		filter="linear_linear_none"
+	/>
+	<shader>
+		<vertex>
+<![CDATA[
+
+
+#define NSAMPLES_2	5
+#define NSAMPLES	(NSAMPLES_2 * 2)
+
+uniform vec2 g_blurOffset[NSAMPLES];
+uniform vec2 g_InvTexSize;
+
+void main()
+{
+	gl_Position.xyzw = vec4(gl_Vertex.xy, 0, 1);
+	vec2 baseUV = gl_MultiTexCoord0.xy;
+	
+	int i = 0;
+	for(int tu = 0; tu < NSAMPLES_2; ++tu)
+	{
+		gl_TexCoord[tu].xy = baseUV + g_blurOffset[i] * g_InvTexSize; ++i;
+		gl_TexCoord[tu].zw = baseUV + g_blurOffset[i] * g_InvTexSize; ++i;
+	}
+}
+]]>
+		</vertex>
+		
+		<fragment>
+<![CDATA[
+
+
+#define NSAMPLES_2	5
+#define NSAMPLES	(NSAMPLES_2 * 2)
+
+uniform sampler2D g_inputSam;
+uniform float g_blurKernel[NSAMPLES];
+
+void main()
+{
+	vec4 sum = vec4(0.0, 0.0, 0.0, 0.0);
+	
+	int i = 0;
+	for(int tu = 0; tu < NSAMPLES_2; ++tu)
+	{
+		sum += texture2D(g_inputSam, gl_TexCoord[tu].xy) * g_blurKernel[i]; ++i;
+		sum += texture2D(g_inputSam, gl_TexCoord[tu].zw) * g_blurKernel[i]; ++i;
+	}
+	
+	gl_FragColor = sum;
+}
+]]>
+		</fragment>
+	</shader>
+</pass>
+
+<!-- copy pass -->
+<pass
+	enable="true"
+	drawLine="false"
+>
+	<texture
+		file="../White2x2.png"
+		shaderName="g_inputSam"
+		filter="linear_linear_none"
+	/>
+	
+	<shader>
+		<vertex>
+<![CDATA[
+
+void main()
+{
+	gl_Position.xyzw = vec4(gl_Vertex.xy, 0, 1);
+	gl_TexCoord[0].xy = gl_MultiTexCoord0.xy;
+}
+]]>
+		</vertex>
+		
+		<fragment>
+<![CDATA[
+
+uniform sampler2D g_inputSam;
+
+void main()
+{
+	gl_FragColor = texture2D(g_inputSam, gl_TexCoord[0].xy);
+}
+]]>
+		</fragment>
+	</shader>
+</pass>
+
+<!-- radial-mask pass -->
+<pass
+	enable="true"
+	drawLine="false"
+>
+	<!-- The first occuring texture will use texture unit 0 -->
+	<texture
+		file="../White2x2.png"
+		shaderName="g_inputSam"
+		filter="linear_linear_none"
+	/>
+	<texture
+		file="../SunRadialGlow_Mask.dds"
+		shaderName="g_maskSam"
+		filter="linear_linear_none"
+	/>
+	
+	<shader>
+		<vertex>
+<![CDATA[
+
+uniform vec3 g_sunPos;
+
+void main()
+{
+	vec4 clipPos = vec4(gl_Vertex.xy, 0, 1);
+	vec2 uv = gl_MultiTexCoord0.xy;
+	
+	vec4 sunPosCs = gl_ModelViewProjectionMatrix * vec4(g_sunPos, 1);
+	vec2 ts = sunPosCs.xy / sunPosCs.ww;
+	ts = ts * 0.5 + 0.5;
+	
+	gl_Position = clipPos;
+	
+	gl_TexCoord[0].xy = uv;
+	gl_TexCoord[0].zw = (uv - ts.xy) * 0.5 + 0.5;
+}
+]]>
+		</vertex>
+		
+		<fragment>
+<![CDATA[
+
+
+uniform sampler2D g_inputSam;
+uniform sampler2D g_maskSam;
+
+void main()
+{
+	vec4 glowClr = texture2D(g_inputSam, gl_TexCoord[0].xy);
+	//glowClr.rgb *= glowClr.a;
+	
+	//todo: change this clamp to sampler options
+	vec2 maskUV = clamp(gl_TexCoord[0].zw, vec2(0,0), vec2(1,1));
+	vec4 maskClr = texture2D(g_maskSam, maskUV);
+	
+	gl_FragColor = glowClr * maskClr;
+}
+]]>
+		</fragment>
+	</shader>
+</pass>
+
+<!-- radial-glow pass -->
+<pass
+	enable="true"
+	drawLine="false"
+>
+	<blending colorBlend="true" srcFactor="one" dstFactor="one" />
+	<texture
+		file="../White2x2.png"
+		shaderName="g_inputSam"
+		filter="linear_linear_none"
+	/>
+	
+	<shader>
+		<vertex>
+<![CDATA[
+
+
+#define NSAMPLES_2		8
+#define NSAMPLES		(NSAMPLES_2*2)
+#define NSAMPLES_f		(NSAMPLES_2*2.0)
+#define SCALE_FACTOR	0.9
+
+uniform vec3 g_sunPos;
+
+void main()
+{
+	vec4 clipPos = vec4(gl_Vertex.xy, 0, 1);
+	vec2 uv = gl_MultiTexCoord0.xy;
+	
+	vec4 sunPosCs = gl_ModelViewProjectionMatrix * vec4(g_sunPos, 1);
+	vec2 ts = sunPosCs.xy / sunPosCs.ww;
+	ts = ts * 0.5 + 0.5;
+	
+	gl_Position = clipPos;
+	
+	vec2 c = ts;
+	vec2 dir = c - uv;
+	vec2 uvoffset = uv;
+	
+	int i = 0;
+	float uvScale;
+	float uvScaleFactor = SCALE_FACTOR / NSAMPLES_f;
+	for(int tu = 0; tu < NSAMPLES_2; ++tu)
+	{
+		uvScale = uvScaleFactor * i;
+		gl_TexCoord[tu].xy = uvoffset + dir * uvScale;
+		++i;
+		
+		uvScale = uvScaleFactor * i;
+		gl_TexCoord[tu].zw = uvoffset + dir * uvScale;
+		++i;
+	}
+}
+]]>
+		</vertex>
+		
+		<fragment>
+<![CDATA[
+
+
+#define NSAMPLES_2		8
+#define NSAMPLES		(NSAMPLES_2*2)
+#define NSAMPLES_f		(NSAMPLES_2*2.0)
+#define STEP			(1.0/NSAMPLES)
+
+uniform sampler2D g_inputSam;
+
+void main()
+{
+	vec4 blurred = vec4(0.0, 0.0, 0.0, 0.0);
+	float wstep = 1 / NSAMPLES_f;
+	float w = wstep;
+	float wsum = 0;
+	
+	for(int tu = 0; tu < NSAMPLES_2; ++tu)
+	{
+		blurred += texture2D(g_inputSam, gl_TexCoord[tu].xy) * w;
+		wsum += w;
+		w += wstep;
+		
+		blurred += texture2D(g_inputSam, gl_TexCoord[tu].zw) * w;
+		wsum += w;
+		w += wstep;
+	}
+	
+	//wsum *= 0.5;
+	gl_FragColor = blurred / wsum;
+}
+]]>
+		</fragment>
+	</shader>
+</pass>
+
+<!-- depth texture pass -->
+<pass
+	enable="true"
+	drawLine="false"
+>
+	<!-- The first occuring texture will use texture unit 0 -->
+	<texture
+		file="../White2x2.png"
+		shaderName="g_inputSam"
+		filter="linear_linear_none"
+	/>
+	<shader>
+		<vertex>
+<![CDATA[
+
+uniform vec2 g_InvTexSize;
+
+void main()
+{
+	gl_Position = vec4(gl_Vertex.xy, 0, 1);
+	gl_TexCoord[0].xy = gl_MultiTexCoord0.xy;
+}
+]]>
+		</vertex>
+		
+		<fragment>
+<![CDATA[
+
+uniform sampler2DRect g_inputSam;
+
+void main()
+{
+	vec4 depthTex = texture2DRect(g_inputSam, gl_TexCoord[0].xy);
+	gl_FragColor = depthTex.rrrr * 1.0;
+}
+]]>
+		</fragment>
+	</shader>
+</pass>
+
+</root>

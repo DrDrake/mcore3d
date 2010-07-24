@@ -1,0 +1,14 @@
+varying vec2 colorCoord;
+uniform sampler2DShadow shadowTex;
+
+void main(void)
+{
+    vec4 shadowCoord;
+    shadowCoord.x = colorCoord.x;
+    shadowCoord.y = colorCoord.y;
+    shadowCoord.z = 1.0;
+    shadowCoord.w = 1.0;
+    float shadowValue = shadow2DProj(shadowTex, shadowCoord).r;
+    
+	gl_FragData[0] = shadowValue * vec4(1, 1, 1, 1);
+}

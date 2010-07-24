@@ -1,0 +1,10 @@
+varying vec2 texCoord;
+varying vec2 texCoord2;
+uniform float ssaoRescale;
+
+void main(void)
+{
+	gl_Position = ftransform();
+	texCoord = gl_MultiTexCoord0.xy;
+	texCoord2 = gl_MultiTexCoord0.xy / ssaoRescale - vec2(1.0);
+}

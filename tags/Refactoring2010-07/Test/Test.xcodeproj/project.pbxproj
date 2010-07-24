@@ -1,0 +1,930 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 45;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		180CBB3D11D471D700504DBF /* libCore.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 18EAA40D119A592B00BBB011 /* libCore.a */; };
+		180CBB3E11D471DC00504DBF /* libNetwork.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 180CBB1211D4700100504DBF /* libNetwork.a */; };
+		180CBB4511D4721B00504DBF /* BsdSocketTest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 180CBB4311D4721B00504DBF /* BsdSocketTest.cpp */; };
+		180CBB4611D4721B00504DBF /* IPEndPointTest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 180CBB4411D4721B00504DBF /* IPEndPointTest.cpp */; };
+		180CBB4911D4723F00504DBF /* libCppTestHarness.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 1820763210E351670030E503 /* libCppTestHarness.a */; };
+		180CBB5B11D4727000504DBF /* Main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 180CBB5A11D4727000504DBF /* Main.cpp */; };
+		1820747D10E34C210030E503 /* ComponentTest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1820744710E34C210030E503 /* ComponentTest.cpp */; };
+		1820747E10E34C210030E503 /* EntityTest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1820744810E34C210030E503 /* EntityTest.cpp */; };
+		1820747F10E34C210030E503 /* Main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1820744A10E34C210030E503 /* Main.cpp */; };
+		1820748110E34C210030E503 /* AnimationTrackTest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1820744D10E34C210030E503 /* AnimationTrackTest.cpp */; };
+		1820748210E34C210030E503 /* IntersectionTest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1820744E10E34C210030E503 /* IntersectionTest.cpp */; };
+		1820748310E34C210030E503 /* Mat33Test.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1820744F10E34C210030E503 /* Mat33Test.cpp */; };
+		1820748410E34C210030E503 /* Mat44Test.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1820745010E34C210030E503 /* Mat44Test.cpp */; };
+		1820748510E34C210030E503 /* QuaternionTest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1820745210E34C210030E503 /* QuaternionTest.cpp */; };
+		1820748610E34C210030E503 /* TupleTest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1820745310E34C210030E503 /* TupleTest.cpp */; };
+		1820748710E34C210030E503 /* Vec2Test.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1820745410E34C210030E503 /* Vec2Test.cpp */; };
+		1820748810E34C210030E503 /* Vec3Test.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1820745510E34C210030E503 /* Vec3Test.cpp */; };
+		1820748910E34C210030E503 /* Pch.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1820745F10E34C210030E503 /* Pch.cpp */; };
+		1820748A10E34C210030E503 /* AdvancedResourceManagerTest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1820746210E34C210030E503 /* AdvancedResourceManagerTest.cpp */; };
+		1820748B10E34C210030E503 /* CondVarTest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1820746310E34C210030E503 /* CondVarTest.cpp */; };
+		1820748C10E34C210030E503 /* FileSystemTest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1820746410E34C210030E503 /* FileSystemTest.cpp */; };
+		1820748D10E34C210030E503 /* IntrusivePtrTest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1820746510E34C210030E503 /* IntrusivePtrTest.cpp */; };
+		1820748E10E34C210030E503 /* LinkListTest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1820746610E34C210030E503 /* LinkListTest.cpp */; };
+		1820748F10E34C210030E503 /* LogTest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1820746710E34C210030E503 /* LogTest.cpp */; };
+		1820749010E34C210030E503 /* MapTest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1820746810E34C210030E503 /* MapTest.cpp */; };
+		1820749110E34C210030E503 /* PathTest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1820746910E34C210030E503 /* PathTest.cpp */; };
+		1820749210E34C210030E503 /* ProfilerTest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1820746B10E34C210030E503 /* ProfilerTest.cpp */; };
+		1820749310E34C210030E503 /* PtrVectorTest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1820746C10E34C210030E503 /* PtrVectorTest.cpp */; };
+		1820749410E34C210030E503 /* ResourceLoaderTest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1820746D10E34C210030E503 /* ResourceLoaderTest.cpp */; };
+		1820749510E34C210030E503 /* ResourceManagerTest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1820746E10E34C210030E503 /* ResourceManagerTest.cpp */; };
+		1820749610E34C210030E503 /* SharedPtrTest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1820746F10E34C210030E503 /* SharedPtrTest.cpp */; };
+		1820749710E34C210030E503 /* StreamTest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1820747010E34C210030E503 /* StreamTest.cpp */; };
+		1820749810E34C210030E503 /* StrUtilityTest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1820747110E34C210030E503 /* StrUtilityTest.cpp */; };
+		1820749910E34C210030E503 /* TaskPoolTest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1820747210E34C210030E503 /* TaskPoolTest.cpp */; };
+		1820749A10E34C210030E503 /* ThreadPoolTest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1820747310E34C210030E503 /* ThreadPoolTest.cpp */; };
+		1820749B10E34C210030E503 /* ThreadTest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1820747410E34C210030E503 /* ThreadTest.cpp */; };
+		1820749C10E34C210030E503 /* TimerTest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1820747510E34C210030E503 /* TimerTest.cpp */; };
+		1820749D10E34C210030E503 /* UserDataTest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1820747610E34C210030E503 /* UserDataTest.cpp */; };
+		1820749E10E34C210030E503 /* UtilityTest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1820747710E34C210030E503 /* UtilityTest.cpp */; };
+		1820749F10E34C210030E503 /* WeakPtrTest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1820747810E34C210030E503 /* WeakPtrTest.cpp */; };
+		182074A010E34C210030E503 /* WindowTest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1820747910E34C210030E503 /* WindowTest.cpp */; };
+		182074A110E34C210030E503 /* XmlParserTest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1820747A10E34C210030E503 /* XmlParserTest.cpp */; };
+		1827EEFC11C618AD00A7FDB0 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1869647311C6178D00800080 /* Foundation.framework */; };
+		1827EF7211C621BA00A7FDB0 /* Haha.mm in Sources */ = {isa = PBXBuildFile; fileRef = 1827EF7111C621BA00A7FDB0 /* Haha.mm */; };
+		18451716119D403D00F3F066 /* libz.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 18451715119D403D00F3F066 /* libz.dylib */; };
+		1854FBA611C72B3F00420B55 /* QuartzCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1854FBA511C72B3F00420B55 /* QuartzCore.framework */; };
+		1869646E11C6176000800080 /* libCppTestHarness.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 1820763210E351670030E503 /* libCppTestHarness.a */; };
+		1869646F11C6176500800080 /* libz.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 18451715119D403D00F3F066 /* libz.dylib */; };
+		1869647011C6176F00800080 /* libCore.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 18EAA40D119A592B00BBB011 /* libCore.a */; };
+		1869647111C6177400800080 /* libRender.a in Sources */ = {isa = PBXBuildFile; fileRef = 186962A611C5DDDE00800080 /* libRender.a */; };
+		1869647411C6178D00800080 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1869647311C6178D00800080 /* Foundation.framework */; };
+		1869647611C6179500800080 /* OpenGLES.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1869647511C6179500800080 /* OpenGLES.framework */; };
+		1873A308118835E7008D0F62 /* libCppTestHarness.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 1820763210E351670030E503 /* libCppTestHarness.a */; };
+		18C5407C119BA86900DA21DC /* libCore.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 18EAA40D119A592B00BBB011 /* libCore.a */; };
+		18FDEB0F11C62DDF000FCA77 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 18FDEB0E11C62DDF000FCA77 /* UIKit.framework */; };
+		18FDEB6911C63156000FCA77 /* libRender.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 186962A611C5DDDE00800080 /* libRender.a */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		180CBB1111D4700100504DBF /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 182074B410E34CE60030E503 /* MCD.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 180CBAA911D4691700504DBF;
+			remoteInfo = Network;
+		};
+		180CBB3911D471CB00504DBF /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 182074B410E34CE60030E503 /* MCD.xcodeproj */;
+			proxyType = 1;
+			remoteGlobalIDString = 18EAA406119A590C00BBB011;
+			remoteInfo = Core;
+		};
+		180CBB3B11D471CE00504DBF /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 182074B410E34CE60030E503 /* MCD.xcodeproj */;
+			proxyType = 1;
+			remoteGlobalIDString = 180CBAA811D4691700504DBF;
+			remoteInfo = Network;
+		};
+		180CBC9011D490BA00504DBF /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 1820762D10E351670030E503 /* 3Party.xcodeproj */;
+			proxyType = 1;
+			remoteGlobalIDString = 182075DD10E3509C0030E503;
+			remoteInfo = CppTestHarness;
+		};
+		1820763110E351670030E503 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 1820762D10E351670030E503 /* 3Party.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 182075DE10E3509C0030E503;
+			remoteInfo = CppTestHarness;
+		};
+		1820763310E351820030E503 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 1820762D10E351670030E503 /* 3Party.xcodeproj */;
+			proxyType = 1;
+			remoteGlobalIDString = 182075DD10E3509C0030E503;
+			remoteInfo = CppTestHarness;
+		};
+		1820766310E3520E0030E503 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 1820762D10E351670030E503 /* 3Party.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 1820764010E351EF0030E503;
+			remoteInfo = SmallJpeg;
+		};
+		186962A511C5DDDE00800080 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 182074B410E34CE60030E503 /* MCD.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 1869629E11C5DDBF00800080;
+			remoteInfo = Render;
+		};
+		1869645811C6171700800080 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 182074B410E34CE60030E503 /* MCD.xcodeproj */;
+			proxyType = 1;
+			remoteGlobalIDString = 18EAA406119A590C00BBB011;
+			remoteInfo = Core;
+		};
+		1869645C11C6171E00800080 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 1820762D10E351670030E503 /* 3Party.xcodeproj */;
+			proxyType = 1;
+			remoteGlobalIDString = 182075DD10E3509C0030E503;
+			remoteInfo = CppTestHarness;
+		};
+		18946DD611E17E7C00544D2A /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 1820762D10E351670030E503 /* 3Party.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 1868989511D8A124005D4176;
+			remoteInfo = jkBind;
+		};
+		18946DD811E17E7C00544D2A /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 1820762D10E351670030E503 /* 3Party.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 186898EB11D8A1F1005D4176;
+			remoteInfo = PowerVR;
+		};
+		18C53CE4119A648B00DA21DC /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 1820762D10E351670030E503 /* 3Party.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 18C53CDD119A646D00DA21DC;
+			remoteInfo = squirrel;
+		};
+		18C53D28119A65E100DA21DC /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 182074B410E34CE60030E503 /* MCD.xcodeproj */;
+			proxyType = 1;
+			remoteGlobalIDString = 18EAA406119A590C00BBB011;
+			remoteInfo = Core;
+		};
+		18EAA40C119A592B00BBB011 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 182074B410E34CE60030E503 /* MCD.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 18EAA407119A590C00BBB011;
+			remoteInfo = Core;
+		};
+		18FDEB6411C6313C000FCA77 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 182074B410E34CE60030E503 /* MCD.xcodeproj */;
+			proxyType = 1;
+			remoteGlobalIDString = 1869629D11C5DDBF00800080;
+			remoteInfo = Render;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXFileReference section */
+		180CBB2611D4702C00504DBF /* NetworkTest.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = NetworkTest.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		180CBB2811D4702C00504DBF /* NetworkTest-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "NetworkTest-Info.plist"; sourceTree = "<group>"; };
+		180CBB4311D4721B00504DBF /* BsdSocketTest.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = BsdSocketTest.cpp; path = NetworkTest/BsdSocketTest.cpp; sourceTree = "<group>"; };
+		180CBB4411D4721B00504DBF /* IPEndPointTest.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = IPEndPointTest.cpp; path = NetworkTest/IPEndPointTest.cpp; sourceTree = "<group>"; };
+		180CBB5A11D4727000504DBF /* Main.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Main.cpp; path = NetworkTest/Main.cpp; sourceTree = "<group>"; };
+		1820731610E347EB0030E503 /* CoreTest.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = CoreTest.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		1820744710E34C210030E503 /* ComponentTest.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ComponentTest.cpp; sourceTree = "<group>"; };
+		1820744810E34C210030E503 /* EntityTest.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = EntityTest.cpp; sourceTree = "<group>"; };
+		1820744910E34C210030E503 /* Pch.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Pch.h; sourceTree = "<group>"; };
+		1820744A10E34C210030E503 /* Main.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Main.cpp; sourceTree = "<group>"; };
+		1820744D10E34C210030E503 /* AnimationTrackTest.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = AnimationTrackTest.cpp; sourceTree = "<group>"; };
+		1820744E10E34C210030E503 /* IntersectionTest.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = IntersectionTest.cpp; sourceTree = "<group>"; };
+		1820744F10E34C210030E503 /* Mat33Test.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Mat33Test.cpp; sourceTree = "<group>"; };
+		1820745010E34C210030E503 /* Mat44Test.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Mat44Test.cpp; sourceTree = "<group>"; };
+		1820745110E34C210030E503 /* Pch.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Pch.h; sourceTree = "<group>"; };
+		1820745210E34C210030E503 /* QuaternionTest.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = QuaternionTest.cpp; sourceTree = "<group>"; };
+		1820745310E34C210030E503 /* TupleTest.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = TupleTest.cpp; sourceTree = "<group>"; };
+		1820745410E34C210030E503 /* Vec2Test.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Vec2Test.cpp; sourceTree = "<group>"; };
+		1820745510E34C210030E503 /* Vec3Test.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Vec3Test.cpp; sourceTree = "<group>"; };
+		1820745F10E34C210030E503 /* Pch.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Pch.cpp; sourceTree = "<group>"; };
+		1820746010E34C210030E503 /* Pch.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Pch.h; sourceTree = "<group>"; };
+		1820746210E34C210030E503 /* AdvancedResourceManagerTest.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = AdvancedResourceManagerTest.cpp; sourceTree = "<group>"; };
+		1820746310E34C210030E503 /* CondVarTest.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = CondVarTest.cpp; sourceTree = "<group>"; };
+		1820746410E34C210030E503 /* FileSystemTest.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = FileSystemTest.cpp; sourceTree = "<group>"; };
+		1820746510E34C210030E503 /* IntrusivePtrTest.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = IntrusivePtrTest.cpp; sourceTree = "<group>"; };
+		1820746610E34C210030E503 /* LinkListTest.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = LinkListTest.cpp; sourceTree = "<group>"; };
+		1820746710E34C210030E503 /* LogTest.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = LogTest.cpp; sourceTree = "<group>"; };
+		1820746810E34C210030E503 /* MapTest.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = MapTest.cpp; sourceTree = "<group>"; };
+		1820746910E34C210030E503 /* PathTest.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = PathTest.cpp; sourceTree = "<group>"; };
+		1820746A10E34C210030E503 /* Pch.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Pch.h; sourceTree = "<group>"; };
+		1820746B10E34C210030E503 /* ProfilerTest.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ProfilerTest.cpp; sourceTree = "<group>"; };
+		1820746C10E34C210030E503 /* PtrVectorTest.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = PtrVectorTest.cpp; sourceTree = "<group>"; };
+		1820746D10E34C210030E503 /* ResourceLoaderTest.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ResourceLoaderTest.cpp; sourceTree = "<group>"; };
+		1820746E10E34C210030E503 /* ResourceManagerTest.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ResourceManagerTest.cpp; sourceTree = "<group>"; };
+		1820746F10E34C210030E503 /* SharedPtrTest.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SharedPtrTest.cpp; sourceTree = "<group>"; };
+		1820747010E34C210030E503 /* StreamTest.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = StreamTest.cpp; sourceTree = "<group>"; };
+		1820747110E34C210030E503 /* StrUtilityTest.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = StrUtilityTest.cpp; sourceTree = "<group>"; };
+		1820747210E34C210030E503 /* TaskPoolTest.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = TaskPoolTest.cpp; sourceTree = "<group>"; };
+		1820747310E34C210030E503 /* ThreadPoolTest.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ThreadPoolTest.cpp; sourceTree = "<group>"; };
+		1820747410E34C210030E503 /* ThreadTest.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ThreadTest.cpp; sourceTree = "<group>"; };
+		1820747510E34C210030E503 /* TimerTest.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = TimerTest.cpp; sourceTree = "<group>"; };
+		1820747610E34C210030E503 /* UserDataTest.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = UserDataTest.cpp; sourceTree = "<group>"; };
+		1820747710E34C210030E503 /* UtilityTest.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = UtilityTest.cpp; sourceTree = "<group>"; };
+		1820747810E34C210030E503 /* WeakPtrTest.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = WeakPtrTest.cpp; sourceTree = "<group>"; };
+		1820747910E34C210030E503 /* WindowTest.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = WindowTest.cpp; sourceTree = "<group>"; };
+		1820747A10E34C210030E503 /* XmlParserTest.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = XmlParserTest.cpp; sourceTree = "<group>"; };
+		182074B410E34CE60030E503 /* MCD.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = MCD.xcodeproj; path = ../MCD/MCD.xcodeproj; sourceTree = SOURCE_ROOT; };
+		1820762D10E351670030E503 /* 3Party.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = 3Party.xcodeproj; path = ../3Party/3Party.xcodeproj; sourceTree = SOURCE_ROOT; };
+		1827EF2211C619B300A7FDB0 /* Pch.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Pch.h; path = RenderTest/Pch.h; sourceTree = "<group>"; };
+		1827EF7111C621BA00A7FDB0 /* Haha.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = Haha.mm; path = RenderTest/Haha.mm; sourceTree = "<group>"; };
+		18451715119D403D00F3F066 /* libz.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libz.dylib; path = usr/lib/libz.dylib; sourceTree = SDKROOT; };
+		184517F5119D4DAB00F3F066 /* CoreTest-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "CoreTest-Info.plist"; sourceTree = "<group>"; };
+		1854FBA511C72B3F00420B55 /* QuartzCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = QuartzCore.framework; path = System/Library/Frameworks/QuartzCore.framework; sourceTree = SDKROOT; };
+		1869645111C6170B00800080 /* RenderTest.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = RenderTest.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		1869645311C6170B00800080 /* RenderTest-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "RenderTest-Info.plist"; sourceTree = "<group>"; };
+		1869647311C6178D00800080 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
+		1869647511C6179500800080 /* OpenGLES.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = OpenGLES.framework; path = System/Library/Frameworks/OpenGLES.framework; sourceTree = SDKROOT; };
+		18FDEB0E11C62DDF000FCA77 /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = System/Library/Frameworks/UIKit.framework; sourceTree = SDKROOT; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		180CBB2411D4702C00504DBF /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				180CBB3D11D471D700504DBF /* libCore.a in Frameworks */,
+				180CBB3E11D471DC00504DBF /* libNetwork.a in Frameworks */,
+				180CBB4911D4723F00504DBF /* libCppTestHarness.a in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		1820731410E347EB0030E503 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				18C5407C119BA86900DA21DC /* libCore.a in Frameworks */,
+				18451716119D403D00F3F066 /* libz.dylib in Frameworks */,
+				1873A308118835E7008D0F62 /* libCppTestHarness.a in Frameworks */,
+				1827EEFC11C618AD00A7FDB0 /* Foundation.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		1869644F11C6170B00800080 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				18FDEB6911C63156000FCA77 /* libRender.a in Frameworks */,
+				1869647011C6176F00800080 /* libCore.a in Frameworks */,
+				1869646E11C6176000800080 /* libCppTestHarness.a in Frameworks */,
+				1869646F11C6176500800080 /* libz.dylib in Frameworks */,
+				1869647411C6178D00800080 /* Foundation.framework in Frameworks */,
+				1869647611C6179500800080 /* OpenGLES.framework in Frameworks */,
+				1854FBA611C72B3F00420B55 /* QuartzCore.framework in Frameworks */,
+				18FDEB0F11C62DDF000FCA77 /* UIKit.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		08FB7794FE84155DC02AAC07 /* Test */ = {
+			isa = PBXGroup;
+			children = (
+				1820762D10E351670030E503 /* 3Party.xcodeproj */,
+				182074B410E34CE60030E503 /* MCD.xcodeproj */,
+				1820744210E34C210030E503 /* CoreTest */,
+				1827EF1511C6194000A7FDB0 /* RenderTest */,
+				180CBB2111D4700D00504DBF /* NetworkTest */,
+				1AB674ADFE9D54B511CA2CBB /* Products */,
+				184517F5119D4DAB00F3F066 /* CoreTest-Info.plist */,
+				1869645311C6170B00800080 /* RenderTest-Info.plist */,
+				18451715119D403D00F3F066 /* libz.dylib */,
+				1869647311C6178D00800080 /* Foundation.framework */,
+				1869647511C6179500800080 /* OpenGLES.framework */,
+				18FDEB0E11C62DDF000FCA77 /* UIKit.framework */,
+				1854FBA511C72B3F00420B55 /* QuartzCore.framework */,
+				180CBB2811D4702C00504DBF /* NetworkTest-Info.plist */,
+			);
+			name = Test;
+			sourceTree = "<group>";
+		};
+		180CBB2111D4700D00504DBF /* NetworkTest */ = {
+			isa = PBXGroup;
+			children = (
+				180CBB4311D4721B00504DBF /* BsdSocketTest.cpp */,
+				180CBB4411D4721B00504DBF /* IPEndPointTest.cpp */,
+				180CBB5A11D4727000504DBF /* Main.cpp */,
+			);
+			name = NetworkTest;
+			sourceTree = "<group>";
+		};
+		1820744210E34C210030E503 /* CoreTest */ = {
+			isa = PBXGroup;
+			children = (
+				1820744610E34C210030E503 /* Entity */,
+				1820744C10E34C210030E503 /* Math */,
+				1820746110E34C210030E503 /* System */,
+				1820744A10E34C210030E503 /* Main.cpp */,
+				1820745F10E34C210030E503 /* Pch.cpp */,
+				1820746010E34C210030E503 /* Pch.h */,
+			);
+			path = CoreTest;
+			sourceTree = "<group>";
+		};
+		1820744610E34C210030E503 /* Entity */ = {
+			isa = PBXGroup;
+			children = (
+				1820744710E34C210030E503 /* ComponentTest.cpp */,
+				1820744810E34C210030E503 /* EntityTest.cpp */,
+				1820744910E34C210030E503 /* Pch.h */,
+			);
+			path = Entity;
+			sourceTree = "<group>";
+		};
+		1820744C10E34C210030E503 /* Math */ = {
+			isa = PBXGroup;
+			children = (
+				1820744D10E34C210030E503 /* AnimationTrackTest.cpp */,
+				1820744E10E34C210030E503 /* IntersectionTest.cpp */,
+				1820744F10E34C210030E503 /* Mat33Test.cpp */,
+				1820745010E34C210030E503 /* Mat44Test.cpp */,
+				1820745110E34C210030E503 /* Pch.h */,
+				1820745210E34C210030E503 /* QuaternionTest.cpp */,
+				1820745310E34C210030E503 /* TupleTest.cpp */,
+				1820745410E34C210030E503 /* Vec2Test.cpp */,
+				1820745510E34C210030E503 /* Vec3Test.cpp */,
+			);
+			path = Math;
+			sourceTree = "<group>";
+		};
+		1820746110E34C210030E503 /* System */ = {
+			isa = PBXGroup;
+			children = (
+				1820746210E34C210030E503 /* AdvancedResourceManagerTest.cpp */,
+				1820746310E34C210030E503 /* CondVarTest.cpp */,
+				1820746410E34C210030E503 /* FileSystemTest.cpp */,
+				1820746510E34C210030E503 /* IntrusivePtrTest.cpp */,
+				1820746610E34C210030E503 /* LinkListTest.cpp */,
+				1820746710E34C210030E503 /* LogTest.cpp */,
+				1820746810E34C210030E503 /* MapTest.cpp */,
+				1820746910E34C210030E503 /* PathTest.cpp */,
+				1820746A10E34C210030E503 /* Pch.h */,
+				1820746B10E34C210030E503 /* ProfilerTest.cpp */,
+				1820746C10E34C210030E503 /* PtrVectorTest.cpp */,
+				1820746D10E34C210030E503 /* ResourceLoaderTest.cpp */,
+				1820746E10E34C210030E503 /* ResourceManagerTest.cpp */,
+				1820746F10E34C210030E503 /* SharedPtrTest.cpp */,
+				1820747010E34C210030E503 /* StreamTest.cpp */,
+				1820747110E34C210030E503 /* StrUtilityTest.cpp */,
+				1820747210E34C210030E503 /* TaskPoolTest.cpp */,
+				1820747310E34C210030E503 /* ThreadPoolTest.cpp */,
+				1820747410E34C210030E503 /* ThreadTest.cpp */,
+				1820747510E34C210030E503 /* TimerTest.cpp */,
+				1820747610E34C210030E503 /* UserDataTest.cpp */,
+				1820747710E34C210030E503 /* UtilityTest.cpp */,
+				1820747810E34C210030E503 /* WeakPtrTest.cpp */,
+				1820747910E34C210030E503 /* WindowTest.cpp */,
+				1820747A10E34C210030E503 /* XmlParserTest.cpp */,
+			);
+			path = System;
+			sourceTree = "<group>";
+		};
+		182074B510E34CE60030E503 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				18EAA40D119A592B00BBB011 /* libCore.a */,
+				186962A611C5DDDE00800080 /* libRender.a */,
+				180CBB1211D4700100504DBF /* libNetwork.a */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		1820762E10E351670030E503 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				1820763210E351670030E503 /* libCppTestHarness.a */,
+				18946DD711E17E7C00544D2A /* libjkbind.a */,
+				18946DD911E17E7C00544D2A /* libPowerVR.a */,
+				1820766410E3520E0030E503 /* libSmallJpeg.a */,
+				18C53CE5119A648B00DA21DC /* libsquirrel.a */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		1827EF1511C6194000A7FDB0 /* RenderTest */ = {
+			isa = PBXGroup;
+			children = (
+				1827EF2211C619B300A7FDB0 /* Pch.h */,
+				1827EF7111C621BA00A7FDB0 /* Haha.mm */,
+			);
+			name = RenderTest;
+			sourceTree = "<group>";
+		};
+		1AB674ADFE9D54B511CA2CBB /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				1820731610E347EB0030E503 /* CoreTest.app */,
+				1869645111C6170B00800080 /* RenderTest.app */,
+				180CBB2611D4702C00504DBF /* NetworkTest.app */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		180CBB2511D4702C00504DBF /* NetworkTest */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 180CBB2C11D4702D00504DBF /* Build configuration list for PBXNativeTarget "NetworkTest" */;
+			buildPhases = (
+				180CBB2211D4702C00504DBF /* Resources */,
+				180CBB2311D4702C00504DBF /* Sources */,
+				180CBB2411D4702C00504DBF /* Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				180CBB3A11D471CB00504DBF /* PBXTargetDependency */,
+				180CBB3C11D471CE00504DBF /* PBXTargetDependency */,
+				180CBC9111D490BA00504DBF /* PBXTargetDependency */,
+			);
+			name = NetworkTest;
+			productName = NetworkTest;
+			productReference = 180CBB2611D4702C00504DBF /* NetworkTest.app */;
+			productType = "com.apple.product-type.application";
+		};
+		1820731510E347EB0030E503 /* CoreTest */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 1820735B10E348090030E503 /* Build configuration list for PBXNativeTarget "CoreTest" */;
+			buildPhases = (
+				1820731310E347EB0030E503 /* Sources */,
+				1820731410E347EB0030E503 /* Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				1820763410E351820030E503 /* PBXTargetDependency */,
+				18C53D29119A65E100DA21DC /* PBXTargetDependency */,
+			);
+			name = CoreTest;
+			productName = CoreTest;
+			productReference = 1820731610E347EB0030E503 /* CoreTest.app */;
+			productType = "com.apple.product-type.application";
+		};
+		1869645011C6170B00800080 /* RenderTest */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 1869645711C6170C00800080 /* Build configuration list for PBXNativeTarget "RenderTest" */;
+			buildPhases = (
+				1869644D11C6170B00800080 /* Resources */,
+				1869644E11C6170B00800080 /* Sources */,
+				1869644F11C6170B00800080 /* Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				1869645D11C6171E00800080 /* PBXTargetDependency */,
+				1869645911C6171700800080 /* PBXTargetDependency */,
+				18FDEB6511C6313C000FCA77 /* PBXTargetDependency */,
+			);
+			name = RenderTest;
+			productName = RenderTest;
+			productReference = 1869645111C6170B00800080 /* RenderTest.app */;
+			productType = "com.apple.product-type.application";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		08FB7793FE84155DC02AAC07 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = YES;
+			};
+			buildConfigurationList = 1DEB923508733DC60010E9CD /* Build configuration list for PBXProject "Test" */;
+			compatibilityVersion = "Xcode 3.1";
+			hasScannedForEncodings = 1;
+			mainGroup = 08FB7794FE84155DC02AAC07 /* Test */;
+			projectDirPath = "";
+			projectReferences = (
+				{
+					ProductGroup = 1820762E10E351670030E503 /* Products */;
+					ProjectRef = 1820762D10E351670030E503 /* 3Party.xcodeproj */;
+				},
+				{
+					ProductGroup = 182074B510E34CE60030E503 /* Products */;
+					ProjectRef = 182074B410E34CE60030E503 /* MCD.xcodeproj */;
+				},
+			);
+			projectRoot = "";
+			targets = (
+				1820731510E347EB0030E503 /* CoreTest */,
+				1869645011C6170B00800080 /* RenderTest */,
+				180CBB2511D4702C00504DBF /* NetworkTest */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXReferenceProxy section */
+		180CBB1211D4700100504DBF /* libNetwork.a */ = {
+			isa = PBXReferenceProxy;
+			fileType = archive.ar;
+			path = libNetwork.a;
+			remoteRef = 180CBB1111D4700100504DBF /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		1820763210E351670030E503 /* libCppTestHarness.a */ = {
+			isa = PBXReferenceProxy;
+			fileType = archive.ar;
+			path = libCppTestHarness.a;
+			remoteRef = 1820763110E351670030E503 /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		1820766410E3520E0030E503 /* libSmallJpeg.a */ = {
+			isa = PBXReferenceProxy;
+			fileType = archive.ar;
+			path = libSmallJpeg.a;
+			remoteRef = 1820766310E3520E0030E503 /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		186962A611C5DDDE00800080 /* libRender.a */ = {
+			isa = PBXReferenceProxy;
+			fileType = archive.ar;
+			path = libRender.a;
+			remoteRef = 186962A511C5DDDE00800080 /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		18946DD711E17E7C00544D2A /* libjkbind.a */ = {
+			isa = PBXReferenceProxy;
+			fileType = archive.ar;
+			path = libjkbind.a;
+			remoteRef = 18946DD611E17E7C00544D2A /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		18946DD911E17E7C00544D2A /* libPowerVR.a */ = {
+			isa = PBXReferenceProxy;
+			fileType = archive.ar;
+			path = libPowerVR.a;
+			remoteRef = 18946DD811E17E7C00544D2A /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		18C53CE5119A648B00DA21DC /* libsquirrel.a */ = {
+			isa = PBXReferenceProxy;
+			fileType = archive.ar;
+			path = libsquirrel.a;
+			remoteRef = 18C53CE4119A648B00DA21DC /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		18EAA40D119A592B00BBB011 /* libCore.a */ = {
+			isa = PBXReferenceProxy;
+			fileType = archive.ar;
+			path = libCore.a;
+			remoteRef = 18EAA40C119A592B00BBB011 /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+/* End PBXReferenceProxy section */
+
+/* Begin PBXResourcesBuildPhase section */
+		180CBB2211D4702C00504DBF /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		1869644D11C6170B00800080 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		180CBB2311D4702C00504DBF /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				180CBB4511D4721B00504DBF /* BsdSocketTest.cpp in Sources */,
+				180CBB4611D4721B00504DBF /* IPEndPointTest.cpp in Sources */,
+				180CBB5B11D4727000504DBF /* Main.cpp in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		1820731310E347EB0030E503 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				1820747D10E34C210030E503 /* ComponentTest.cpp in Sources */,
+				1820747E10E34C210030E503 /* EntityTest.cpp in Sources */,
+				1820747F10E34C210030E503 /* Main.cpp in Sources */,
+				1820748110E34C210030E503 /* AnimationTrackTest.cpp in Sources */,
+				1820748210E34C210030E503 /* IntersectionTest.cpp in Sources */,
+				1820748310E34C210030E503 /* Mat33Test.cpp in Sources */,
+				1820748410E34C210030E503 /* Mat44Test.cpp in Sources */,
+				1820748510E34C210030E503 /* QuaternionTest.cpp in Sources */,
+				1820748610E34C210030E503 /* TupleTest.cpp in Sources */,
+				1820748710E34C210030E503 /* Vec2Test.cpp in Sources */,
+				1820748810E34C210030E503 /* Vec3Test.cpp in Sources */,
+				1820748910E34C210030E503 /* Pch.cpp in Sources */,
+				1820748A10E34C210030E503 /* AdvancedResourceManagerTest.cpp in Sources */,
+				1820748B10E34C210030E503 /* CondVarTest.cpp in Sources */,
+				1820748C10E34C210030E503 /* FileSystemTest.cpp in Sources */,
+				1820748D10E34C210030E503 /* IntrusivePtrTest.cpp in Sources */,
+				1820748E10E34C210030E503 /* LinkListTest.cpp in Sources */,
+				1820748F10E34C210030E503 /* LogTest.cpp in Sources */,
+				1820749010E34C210030E503 /* MapTest.cpp in Sources */,
+				1820749110E34C210030E503 /* PathTest.cpp in Sources */,
+				1820749210E34C210030E503 /* ProfilerTest.cpp in Sources */,
+				1820749310E34C210030E503 /* PtrVectorTest.cpp in Sources */,
+				1820749410E34C210030E503 /* ResourceLoaderTest.cpp in Sources */,
+				1820749510E34C210030E503 /* ResourceManagerTest.cpp in Sources */,
+				1820749610E34C210030E503 /* SharedPtrTest.cpp in Sources */,
+				1820749710E34C210030E503 /* StreamTest.cpp in Sources */,
+				1820749810E34C210030E503 /* StrUtilityTest.cpp in Sources */,
+				1820749910E34C210030E503 /* TaskPoolTest.cpp in Sources */,
+				1820749A10E34C210030E503 /* ThreadPoolTest.cpp in Sources */,
+				1820749B10E34C210030E503 /* ThreadTest.cpp in Sources */,
+				1820749C10E34C210030E503 /* TimerTest.cpp in Sources */,
+				1820749D10E34C210030E503 /* UserDataTest.cpp in Sources */,
+				1820749E10E34C210030E503 /* UtilityTest.cpp in Sources */,
+				1820749F10E34C210030E503 /* WeakPtrTest.cpp in Sources */,
+				182074A010E34C210030E503 /* WindowTest.cpp in Sources */,
+				182074A110E34C210030E503 /* XmlParserTest.cpp in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		1869644E11C6170B00800080 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				1869647111C6177400800080 /* libRender.a in Sources */,
+				1827EF7211C621BA00A7FDB0 /* Haha.mm in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		180CBB3A11D471CB00504DBF /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			name = Core;
+			targetProxy = 180CBB3911D471CB00504DBF /* PBXContainerItemProxy */;
+		};
+		180CBB3C11D471CE00504DBF /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			name = Network;
+			targetProxy = 180CBB3B11D471CE00504DBF /* PBXContainerItemProxy */;
+		};
+		180CBC9111D490BA00504DBF /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			name = CppTestHarness;
+			targetProxy = 180CBC9011D490BA00504DBF /* PBXContainerItemProxy */;
+		};
+		1820763410E351820030E503 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			name = CppTestHarness;
+			targetProxy = 1820763310E351820030E503 /* PBXContainerItemProxy */;
+		};
+		1869645911C6171700800080 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			name = Core;
+			targetProxy = 1869645811C6171700800080 /* PBXContainerItemProxy */;
+		};
+		1869645D11C6171E00800080 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			name = CppTestHarness;
+			targetProxy = 1869645C11C6171E00800080 /* PBXContainerItemProxy */;
+		};
+		18C53D29119A65E100DA21DC /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			name = Core;
+			targetProxy = 18C53D28119A65E100DA21DC /* PBXContainerItemProxy */;
+		};
+		18FDEB6511C6313C000FCA77 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			name = Render;
+			targetProxy = 18FDEB6411C6313C000FCA77 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
+/* Begin XCBuildConfiguration section */
+		180CBB2911D4702D00504DBF /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				INFOPLIST_FILE = "NetworkTest-Info.plist";
+				OTHER_LDFLAGS = (
+					"-framework",
+					Foundation,
+					"-framework",
+					UIKit,
+				);
+				PRODUCT_NAME = NetworkTest;
+				SDKROOT = iphoneos3.2;
+			};
+			name = Debug;
+		};
+		180CBB2A11D4702D00504DBF /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				INFOPLIST_FILE = "NetworkTest-Info.plist";
+				OTHER_LDFLAGS = (
+					"-framework",
+					Foundation,
+					"-framework",
+					UIKit,
+				);
+				PRODUCT_NAME = NetworkTest;
+				SDKROOT = iphoneos3.2;
+			};
+			name = Release;
+		};
+		180CBB2B11D4702D00504DBF /* iPhone Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				INFOPLIST_FILE = "NetworkTest-Info.plist";
+				OTHER_LDFLAGS = (
+					"-framework",
+					Foundation,
+					"-framework",
+					UIKit,
+				);
+				PRODUCT_NAME = NetworkTest;
+				SDKROOT = iphoneos3.2;
+			};
+			name = "iPhone Debug";
+		};
+		1820731810E347EC0030E503 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				OTHER_LDFLAGS = (
+					"-L/usr/X11R6/lib",
+					"-lX11",
+				);
+				PRODUCT_NAME = CoreTest;
+			};
+			name = Debug;
+		};
+		1820731910E347EC0030E503 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				OTHER_LDFLAGS = (
+					"-L/usr/X11R6/lib",
+					"-lX11",
+				);
+				PRODUCT_NAME = CoreTest;
+			};
+			name = Release;
+		};
+		18451729119D408B00F3F066 /* iPhone Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_IDENTITY = "iPhone Developer: Ricky Lung (PN27LRWLTN)";
+				GCC_C_LANGUAGE_STANDARD = c99;
+				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				GCC_THUMB_SUPPORT = NO;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_MISSING_FIELD_INITIALIZERS = YES;
+				GCC_WARN_ABOUT_MISSING_NEWLINE = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES;
+				GCC_WARN_CHECK_SWITCH_STATEMENTS = YES;
+				GCC_WARN_FOUR_CHARACTER_CONSTANTS = YES;
+				GCC_WARN_HIDDEN_VIRTUAL_FUNCTIONS = YES;
+				GCC_WARN_INITIALIZER_NOT_FULLY_BRACKETED = YES;
+				GCC_WARN_MISSING_PARENTHESES = YES;
+				GCC_WARN_NON_VIRTUAL_DESTRUCTOR = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				PROVISIONING_PROFILE = "5EBF6645-5DC6-4914-8E2D-AE854255D495";
+				SDKROOT = iphoneos4.0;
+			};
+			name = "iPhone Debug";
+		};
+		1845172A119D408B00F3F066 /* iPhone Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				INFOPLIST_FILE = "CoreTest-Info.plist";
+				OTHER_LDFLAGS = "";
+				PRODUCT_NAME = CoreTest;
+			};
+			name = "iPhone Debug";
+		};
+		1869645411C6170B00800080 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				INFOPLIST_FILE = "RenderTest-Info.plist";
+				PRODUCT_NAME = RenderTest;
+				SDKROOT = iphoneos3.2;
+			};
+			name = Debug;
+		};
+		1869645511C6170B00800080 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				INFOPLIST_FILE = "RenderTest-Info.plist";
+				PRODUCT_NAME = RenderTest;
+				SDKROOT = iphoneos3.2;
+			};
+			name = Release;
+		};
+		1869645611C6170B00800080 /* iPhone Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				INFOPLIST_FILE = "RenderTest-Info.plist";
+				PRODUCT_NAME = RenderTest;
+			};
+			name = "iPhone Debug";
+		};
+		1DEB923608733DC60010E9CD /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = "$(ARCHS_STANDARD_32_BIT)";
+				GCC_C_LANGUAGE_STANDARD = c99;
+				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_MISSING_FIELD_INITIALIZERS = YES;
+				GCC_WARN_ABOUT_MISSING_NEWLINE = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES;
+				GCC_WARN_CHECK_SWITCH_STATEMENTS = YES;
+				GCC_WARN_FOUR_CHARACTER_CONSTANTS = YES;
+				GCC_WARN_HIDDEN_VIRTUAL_FUNCTIONS = YES;
+				GCC_WARN_INITIALIZER_NOT_FULLY_BRACKETED = YES;
+				GCC_WARN_MISSING_PARENTHESES = YES;
+				GCC_WARN_NON_VIRTUAL_DESTRUCTOR = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				OTHER_LDFLAGS = "";
+				SDKROOT = macosx10.5;
+			};
+			name = Debug;
+		};
+		1DEB923708733DC60010E9CD /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = "$(ARCHS_STANDARD_32_BIT)";
+				GCC_C_LANGUAGE_STANDARD = c99;
+				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_MISSING_FIELD_INITIALIZERS = YES;
+				GCC_WARN_ABOUT_MISSING_NEWLINE = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES;
+				GCC_WARN_CHECK_SWITCH_STATEMENTS = YES;
+				GCC_WARN_FOUR_CHARACTER_CONSTANTS = YES;
+				GCC_WARN_HIDDEN_VIRTUAL_FUNCTIONS = YES;
+				GCC_WARN_INITIALIZER_NOT_FULLY_BRACKETED = YES;
+				GCC_WARN_MISSING_PARENTHESES = YES;
+				GCC_WARN_NON_VIRTUAL_DESTRUCTOR = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				OTHER_LDFLAGS = "";
+				SDKROOT = macosx10.5;
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		180CBB2C11D4702D00504DBF /* Build configuration list for PBXNativeTarget "NetworkTest" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				180CBB2911D4702D00504DBF /* Debug */,
+				180CBB2A11D4702D00504DBF /* Release */,
+				180CBB2B11D4702D00504DBF /* iPhone Debug */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		1820735B10E348090030E503 /* Build configuration list for PBXNativeTarget "CoreTest" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				1820731810E347EC0030E503 /* Debug */,
+				1820731910E347EC0030E503 /* Release */,
+				1845172A119D408B00F3F066 /* iPhone Debug */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		1869645711C6170C00800080 /* Build configuration list for PBXNativeTarget "RenderTest" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				1869645411C6170B00800080 /* Debug */,
+				1869645511C6170B00800080 /* Release */,
+				1869645611C6170B00800080 /* iPhone Debug */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		1DEB923508733DC60010E9CD /* Build configuration list for PBXProject "Test" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				1DEB923608733DC60010E9CD /* Debug */,
+				1DEB923708733DC60010E9CD /* Release */,
+				18451729119D408B00F3F066 /* iPhone Debug */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = 08FB7793FE84155DC02AAC07 /* Project object */;
+}

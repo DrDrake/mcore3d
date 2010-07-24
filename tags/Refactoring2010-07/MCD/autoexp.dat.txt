@@ -1,0 +1,214 @@
+;	Append the following text to C:\Program Files\Microsoft Visual Studio 8\Common7\Packages\Debugger\autoexp.dat
+;	Reference: http://www.virtualdub.org/blog/pivot/entry.php?id=120
+
+;------------------------------------------------------------------------------
+;  MCD::FixString
+;------------------------------------------------------------------------------
+MCD::FixString {
+	preview (
+		#(
+			(char*)($e.mNode+1)
+		)
+	)
+}
+
+;------------------------------------------------------------------------------
+;  MCD::StrideArray
+;------------------------------------------------------------------------------
+MCD::StrideArray<*> {
+	preview (
+		#(
+			"data=", (void*)$e.data, " eleCnt=", $e.size, " stride=", $e.stride, " sizeInBytes=", $e.size * $e.stride
+		)
+	)
+
+	children (
+		#array(
+			expr: (($T1*)($e.data + $i * $e.stride))[0],
+			size: $e.size
+		)
+	)
+}
+
+;------------------------------------------------------------------------------
+;  MCD::FixStrideArray
+;------------------------------------------------------------------------------
+MCD::FixStrideArray<*,*> {
+	preview (
+		#(
+			"data=", (void*)$e.data, " eleCnt=", $e.size, " stride=", $e.cStride, " sizeInBytes=", $e.size * $e.cStride
+		)
+	)
+
+	children (
+		#array(
+			expr: (($T1*)($e.data + $i * $e.cStride))[0],
+			size: $e.size
+		)
+	)
+}
+
+;------------------------------------------------------------------------------
+;  MCD::Vec 2-4
+;------------------------------------------------------------------------------
+MCD::Vec2<*> {
+	preview (
+		#(
+			"x=", $e.x, ", y=", $e.y
+		)
+	)
+}
+
+MCD::Vec3<*> {
+	preview (
+		#(
+			"x=", $e.x, ", y=", $e.y, ", z=", $e.z
+		)
+	)
+}
+
+MCD::Vec4<*> {
+	preview (
+		#(
+			"x=", $e.x, ", y=", $e.y, ", z=", $e.z, ", w=", $e.w
+		)
+	)
+}
+
+MCD::Quaternion<*> {
+	preview (
+		#(
+			"x=", $e.x, ", y=", $e.y, ", z=", $e.z, ", w=", $e.w
+		)
+	)
+}
+
+
+;------------------------------------------------------------------------------
+;  MCD::Mat33 - Mat44
+;------------------------------------------------------------------------------
+MCD::Mat33<*> {
+	stringview (
+		#(
+			$e.m00, ", ", $e.m01, ", ", $e.m02, "<br>",
+			$e.m10, ", ", $e.m11, ", ", $e.m12, "<br>",
+			$e.m20, ", ", $e.m21, ", ", $e.m22
+		)
+	)
+}
+
+MCD::Mat44<*> {
+	stringview (
+		#(
+			$e.m00, ", ", $e.m01, ", ", $e.m02, ", ", $e.m03, "<br>",
+			$e.m10, ", ", $e.m11, ", ", $e.m12, ", ", $e.m13, "<br>",
+			$e.m20, ", ", $e.m21, ", ", $e.m22, ", ", $e.m23, "<br>",
+			$e.m30, ", ", $e.m31, ", ", $e.m32, ", ", $e.m33
+		)
+	)
+}
+
+
+;------------------------------------------------------------------------------
+;  MCD::LinkList<*>
+;------------------------------------------------------------------------------
+MCD::LinkList<*> {
+	preview
+	(
+		#(
+			"[",
+				$e.mCount,
+			"](",
+
+			#list
+			(
+				head : $e.mHead->mNext,
+				size : $e.mCount,
+				next : mNext
+			) : ($T1*)(&$e),
+
+			")"
+		)
+	)
+
+	children
+	(
+		#list
+		(
+			head : $e.mHead->mNext,
+			size : $e.mCount,
+			next : mNext
+		) : ($T1*)(&$e)
+	)
+}
+
+
+;------------------------------------------------------------------------------
+;  MCD::Map<*>
+;------------------------------------------------------------------------------
+MCD::Map<*> {
+	children
+	(
+		#tree
+		(
+			head : $e.mRoot,
+			size : $e.mCount,
+			left : mChildren,
+			right : mRight
+		) : &$e
+	)
+}
+
+MCD::MapBase<*>::Node<*> {
+	preview
+	(
+		#(
+			"Key=", $e.mKey
+		)
+	)
+}
+
+
+;------------------------------------------------------------------------------
+;  MCD::IntrusivePtr<*>
+;------------------------------------------------------------------------------
+MCD::IntrudsivePtr<*> {
+	preview (
+		#(
+			"Addr=", (void*)($e.mPtr),
+			"] ", (*(($T1 *)$e.mPtr))
+		)
+	)
+	children (
+		#( 
+			Pointee: (*(($T1 *)$e.mPtr))
+		)
+	)
+}
+
+MCD::WeakPtr<*> {
+	preview (
+		#if($e.mValidityFlag.mPtr->mIsValid == 1)
+		(#(
+			"[Addr=", (void*)($e.mPtr),
+			"] ", (*(($T1 *)$e.mPtr))
+		))
+		#else
+		(#(
+			"[Addr=", (void*)(0),
+			"] ", (*(($T1 *)$e.mPtr))
+		))
+	)
+	children (
+		#if($e.mValidityFlag.mPtr->mIsValid == 1)
+		(#(
+			Pointee: *(($T1 *)$e.mPtr)
+		))
+		#else
+		(#(
+			Null: 0
+		))
+	)
+}
+
+

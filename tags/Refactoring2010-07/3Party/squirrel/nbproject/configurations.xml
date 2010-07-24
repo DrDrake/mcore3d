@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configurationDescriptor version="62">
+  <logicalFolder name="root" displayName="root" projectFiles="true">
+    <logicalFolder name="squirrel" displayName="squirrel" projectFiles="true">
+      <logicalFolder name="sqstdlib" displayName="sqstdlib" projectFiles="true">
+        <itemPath>sqstdlib/sqstdaux.cpp</itemPath>
+        <itemPath>sqstdlib/sqstdblob.cpp</itemPath>
+        <itemPath>sqstdlib/sqstdblobimpl.h</itemPath>
+        <itemPath>sqstdlib/sqstdio.cpp</itemPath>
+        <itemPath>sqstdlib/sqstdmath.cpp</itemPath>
+        <itemPath>sqstdlib/sqstdrex.cpp</itemPath>
+        <itemPath>sqstdlib/sqstdstream.cpp</itemPath>
+        <itemPath>sqstdlib/sqstdstream.h</itemPath>
+        <itemPath>sqstdlib/sqstdstring.cpp</itemPath>
+        <itemPath>sqstdlib/sqstdsystem.cpp</itemPath>
+      </logicalFolder>
+      <logicalFolder name="squirrel" displayName="squirrel" projectFiles="true">
+        <itemPath>squirrel/sqapi.cpp</itemPath>
+        <itemPath>squirrel/sqarray.h</itemPath>
+        <itemPath>squirrel/sqbaselib.cpp</itemPath>
+        <itemPath>squirrel/sqclass.cpp</itemPath>
+        <itemPath>squirrel/sqclass.h</itemPath>
+        <itemPath>squirrel/sqclosure.h</itemPath>
+        <itemPath>squirrel/sqcompiler.cpp</itemPath>
+        <itemPath>squirrel/sqcompiler.h</itemPath>
+        <itemPath>squirrel/sqdebug.cpp</itemPath>
+        <itemPath>squirrel/sqfuncproto.h</itemPath>
+        <itemPath>squirrel/sqfuncstate.cpp</itemPath>
+        <itemPath>squirrel/sqfuncstate.h</itemPath>
+        <itemPath>squirrel/sqlexer.cpp</itemPath>
+        <itemPath>squirrel/sqlexer.h</itemPath>
+        <itemPath>squirrel/sqmem.cpp</itemPath>
+        <itemPath>squirrel/sqobject.cpp</itemPath>
+        <itemPath>squirrel/sqobject.h</itemPath>
+        <itemPath>squirrel/sqopcodes.h</itemPath>
+        <itemPath>squirrel/sqpcheader.h</itemPath>
+        <itemPath>squirrel/sqstate.cpp</itemPath>
+        <itemPath>squirrel/sqstate.h</itemPath>
+        <itemPath>squirrel/sqstring.h</itemPath>
+        <itemPath>squirrel/sqtable.cpp</itemPath>
+        <itemPath>squirrel/sqtable.h</itemPath>
+        <itemPath>squirrel/squserdata.h</itemPath>
+        <itemPath>squirrel/squtils.h</itemPath>
+        <itemPath>squirrel/sqvm.cpp</itemPath>
+        <itemPath>squirrel/sqvm.h</itemPath>
+      </logicalFolder>
+      <itemPath>sqstdaux.h</itemPath>
+      <itemPath>sqstdblob.h</itemPath>
+      <itemPath>sqstdio.h</itemPath>
+      <itemPath>sqstdmath.h</itemPath>
+      <itemPath>sqstdstring.h</itemPath>
+      <itemPath>sqstdsystem.h</itemPath>
+      <itemPath>squirrel.h</itemPath>
+    </logicalFolder>
+    <logicalFolder name="ExternalFiles"
+                   displayName="Important Files"
+                   projectFiles="false">
+      <itemPath>Makefile</itemPath>
+    </logicalFolder>
+  </logicalFolder>
+  <projectmakefile>Makefile</projectmakefile>
+  <confs>
+    <conf name="Debug" type="2">
+      <toolsSet>
+        <developmentServer>localhost</developmentServer>
+        <compilerSet>GNU|GNU</compilerSet>
+        <platform>2</platform>
+      </toolsSet>
+      <compileType>
+        <linkerTool>
+          <linkerLibItems>
+          </linkerLibItems>
+        </linkerTool>
+      </compileType>
+    </conf>
+    <conf name="Release" type="2">
+      <toolsSet>
+        <developmentServer>localhost</developmentServer>
+        <compilerSet>GNU|GNU</compilerSet>
+        <platform>2</platform>
+      </toolsSet>
+      <compileType>
+        <cTool>
+          <developmentMode>5</developmentMode>
+        </cTool>
+        <ccTool>
+          <developmentMode>5</developmentMode>
+        </ccTool>
+        <fortranCompilerTool>
+          <developmentMode>5</developmentMode>
+        </fortranCompilerTool>
+        <linkerTool>
+          <linkerLibItems>
+          </linkerLibItems>
+        </linkerTool>
+      </compileType>
+    </conf>
+  </confs>
+</configurationDescriptor>

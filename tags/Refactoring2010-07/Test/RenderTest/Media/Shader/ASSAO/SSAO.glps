@@ -1,0 +1,176 @@
+uniform sampler2DRect texDepth;	// Depth texture
+uniform sampler2DRect texNormal;// Normal texture
+uniform sampler2DRect texAccum;	// Accumulation buffer
+uniform sampler2D texDither;	// Random normal texture to create a dither pattern
+
+uniform vec3 ranSphere[32];		// Random points inside an unit sphere
+
+// We cannot use gl_DepthRange since we are currently rendering the fullscreen quad not the scene
+const vec2 camerarange = vec2(1.0, 500.0);
+//uniform vec4 cameraRange;
+uniform mat4 projection;
+
+uniform mat4 deltaMatrix;
+
+varying vec2 texCoord;
+varying vec2 viewVector;
+
+uniform int screenWidth;
+uniform int screenHeight;
+uniform float screenWidth2;
+uniform float screenHeight2;
+uniform float radius;
+float r;
+const int sample = 16;
+float oneOverRadius2;
+
+// Encode a float value into 3 bytes
+// The input value should be in the range of [0, 1]
+// Reference: http://www.ozone3d.net/blogs/lab/?p=113
+vec3 packFloatToVec3i(const float value)
+{
+	const vec3 bitSh = vec3(256.0 * 256.0, 256.0, 1.0);
+	const vec3 bitMsk = vec3(0.0, 1.0/256.0, 1.0/256.0);
+	vec3 res = fract(value * bitSh);
+	res -= res.xxy * bitMsk;
+	return res;
+}
+
+float unpackFloatFromVec3i(const vec3 value)
+{
+	const vec3 bitSh = vec3(1.0/(256.0*256.0), 1.0/256.0, 1.0);
+	return dot(value, bitSh);
+}
+
+// More about the depth can be found at:
+// http://www.songho.ca/opengl/gl_transform.html
+// http://www.songho.ca/opengl/gl_projectionmatrix.html
+// http://www.opengl.org/discussion_boards/ubbthreads.php?ubb=showflat&Number=234519
+float convertDepth(in float d)
+{
+	float nearZ = camerarange.x;
+	float farZ = camerarange.y;
+
+//	return (2.0 * nearZ) / (nearZ + farZ - d * (farZ - nearZ));
+//	return (2.0 * d) - (nearZ + farZ) / (farZ - nearZ);
+
+	// Reference: http://blog.nextrevision.com/?p=76#comments
+	return (nearZ * farZ / (farZ - d * (farZ - nearZ)) - nearZ);
+}
+
+float readDepth(in vec2 coord)
+{
+	float d = texture2DRect(texDepth, coord).x;
+	return convertDepth(d);
+}
+
+// Get the view-space poisition by the given screen-space pixel position
+vec3 clipToView(in vec2 viewVector, in float planDepth)
+{
+	// The calculation should involve several steps, but the terms get canceled out into
+	// a single multiplication, as we setup viewVector.z equals to 1 in vertex shader.
+	// vec3 view = normalize(vec3(viewVector, -1));
+	// float viewVectorLength = planDepth / -view.z;
+	// return view * viewVectorLength;
+
+	return planDepth * vec3(viewVector, 1.0);
+}
+
+// Get the clip-space poisition by the given view-space position
+vec2 viewToClip(in vec3 ep)
+{
+	// Using the projection matrix to project from view space to clip space,
+	// but we can ignore the zero terms and the final z component.
+	// Original code:
+	// vec4 p = projection * vec4(ep, 1);
+	// return p.xy / -p.w;
+
+	ep.xy *= vec2(projection[0][0], projection[1][1]);
+	return ep.xy / -ep.z * projection[2][3];
+}
+
+// Clip to screen space transform
+vec3 clipToScreen(in vec2 clipPos)
+{
+	vec2 screenXY = clipPos.xy * 0.5 + 0.5;
+	screenXY *= vec2(screenWidth, screenHeight);
+	return vec3(screenXY, readDepth(screenXY));
+}
+
+float calAO(in vec3 origin, in vec3 samplePoint, in float sampleDepth, in float len)
+{
+	if(samplePoint.z < sampleDepth)
+		return 0.0;
+
+	vec3 diff = vec3(samplePoint.xy, sampleDepth) - origin;
+	float distance2 = dot(diff, diff);
+	return 1.0 - min(distance2 * oneOverRadius2, 1.0);
+
+	len *= (sampleDepth - origin.z) / (samplePoint.z - origin.z);
+
+	return 1.0 - min(len * len * oneOverRadius2, 1.0);
+}
+
+void main(void)
+{
+	float depth = readDepth(texCoord);
+
+	// A little-bit adjustment of the sampling radius according to the distance
+//	r = radius * 0.5 + 0.5 * radius * depth;
+	r = radius * 20;
+	oneOverRadius2 = 1.0 / (r * r);
+
+	vec3 ep = clipToView(viewVector, depth);
+	vec3 n = texture2DRect(texNormal, texCoord).xyz * 2.0 - 1.0;
+	n.z = -n.z;
+
+	// Find the corresponding texture coordinate in the old accumulation buffer
+	vec4 reverseEp = deltaMatrix * vec4(ep.x, ep.y, -ep.z, 1.0);
+	reverseEp /= reverseEp.w;
+	reverseEp.xy *= vec2(screenWidth2, screenHeight2);
+	vec4 accumTexCoord = texture2DRect(texAccum, reverseEp.xy);
+
+	// Compare the depth
+	bool cacheHit = abs(depth - camerarange.y * unpackFloatFromVec3i(accumTexCoord.rgb)) < 2.0;
+
+	// For those GPU that didn't support dynamic branching
+//	int N = sample;
+	int N = cacheHit ? sample : 32;
+
+	float ao = 0.0;
+
+	for(int i=0; i<N; ++i)
+	{
+		// 64 is the size of the dither texture
+		vec4 dither = texture2D(texDither, texCoord / 32.0);
+
+		// Get the random vector inside the sphere
+		vec3 ranSample = reflect(ranSphere[i], dither.xyz);
+
+		// Dither the length of the sample ray
+		ranSample *= dither.w;
+
+		// Flip the sample if it's pointing away from the surface normal
+		if(dot(ranSample, n) < 0.0) ranSample = -ranSample;
+		ranSample += 0.05 * n;	// Bias towards the normal, to reduce self occlusion
+
+		vec3 ep2 = ep + r * ranSample;
+
+		// Project the point back to screen-space, with depth value.
+		vec3 sp2 = clipToScreen(viewToClip(ep2));
+
+		ao += calAO(ep, ep2, sp2.z, r*dither.w);
+	}
+
+	// Final adjustment on the occlusion value
+	ao = 1.0 - ao * 3.5 / float(N);
+
+	// Compare the depth
+	if(cacheHit) {
+		// Using mix() seems slower... on my 9600 GT
+//		ao = mix(accumTexCoord.a, ao, 1.0/30.0);
+		ao = ao / 30.0 + accumTexCoord.a * 29.0/30.0;
+	}
+
+	gl_FragColor = vec4(packFloatToVec3i(depth / camerarange.y), ao);
+}

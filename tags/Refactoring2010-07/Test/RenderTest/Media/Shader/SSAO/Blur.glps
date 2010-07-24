@@ -1,0 +1,51 @@
+// 1D Gaussian Filter
+// Reference: http://prideout.net/bloom/index.php
+
+varying vec2 texCoord;
+uniform vec2 blurDirection;
+
+// SSAO result texture, (r contains ssao value, gba encode the depth value)
+uniform sampler2DRect texSSAO;
+
+float unpackFloatFromVec3i(const vec3 value)
+{
+	const vec3 bitSh = vec3(1.0/(256.0*256.0), 1.0/256.0, 1.0);
+	return(500.0 * dot(value, bitSh));
+}
+
+float GetFactor(const float depth, const float depth2)
+{
+    const float focusRange = 1.0;
+    return min(abs((depth - depth2) / focusRange), 1.0);
+}
+
+float GetContribution(const float original, const float depth, const float offset)
+{
+	// Texture coordinate of the sample point
+	vec2 tc = texCoord + blurDirection * offset;
+
+	float depth2 = unpackFloatFromVec3i(texture2DRect(texSSAO, tc).gba);
+    return mix(texture2DRect(texSSAO, tc).r, original, GetFactor(depth, depth2));
+}
+
+void main(void)
+{
+	gl_FragColor = texture2DRect(texSSAO, texCoord);
+
+	// Original SSAO value
+	float value = texture2DRect(texSSAO, texCoord).r;
+
+	// Original depth
+	float depth = unpackFloatFromVec3i(texture2DRect(texSSAO, texCoord).gba);
+
+	gl_FragColor.r = vec4(
+		1.0 * GetContribution(value, depth, -5.5) +
+		2.0 * GetContribution(value, depth, -3.5) +
+		3.0 * GetContribution(value, depth, -1.5) +
+		4.0 * value +
+		3.0 * GetContribution(value, depth,  1.5) +
+		2.0 * GetContribution(value, depth,  3.5) +
+		1.0 * GetContribution(value, depth,  5.5)).r;
+
+	gl_FragColor.r /= 16.0;
+}

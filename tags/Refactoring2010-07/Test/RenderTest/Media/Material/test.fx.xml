@@ -1,0 +1,153 @@
+<?xml version="1.0"?>
+<!-- A sample effect definiation xml -->
+
+<root>
+
+<merge mode="blend" />
+
+<pass enable="false" />
+
+<pass
+	enable="false"
+	drawLine="false"
+>
+	<standard
+		ambient="0.2, 0.2, 0.2, 1.0"
+		diffuse="0.8, 0.6, 0.5, 1.0"
+		specular="0.5, 0.5, 0.5, 1.0"
+		shininess="30.0"
+	/>
+
+	<!-- The first occuring texture will use texture unit 0 -->
+	<texture
+		file="../normal128x128.png"
+		shaderName="diffuseMap"
+	/>
+
+	<shader>
+		<!-- Reference external file as vertex shader -->
+		<vertex file="./perPixel.glvs" />
+
+		<!-- Define the fragment shader just inside the xml -->
+		<fragment>
+			<parameter name="exposure" type="float" label="Exposure level">4</parameter>
+			<![CDATA[
+			varying vec3 vertex, normal, lightDir;
+			uniform sampler2D diffuseMap;
+			uniform float exposure;
+
+			void main()
+			{
+				vec4 ambient = gl_FrontLightProduct[0].ambient;
+				vec4 diffuse = gl_FrontLightProduct[0].diffuse;
+				vec4 specular = gl_FrontLightProduct[0].specular;
+				vec3 n = normalize(normal);
+
+				diffuse *= max(dot(n, lightDir), 0.0);
+				vec3 refl = -reflect(lightDir, normal);
+				specular *= pow(max(dot(refl, normalize(-vertex)), 0.0), gl_FrontMaterial.shininess);
+
+				gl_FragColor = specular + (ambient + diffuse) * texture2D(diffuseMap, gl_TexCoord[0].xy);
+				gl_FragColor.rgb *= exposure;
+				gl_FragColor.a = clamp(gl_FragColor.a, 0.0, 1.0);
+			}
+			]]>
+		</fragment>
+	</shader>
+</pass>
+
+<pass
+	enable="true"
+	drawLine="false"
+>
+	<standard
+		ambient="0.2, 0.2, 0.2, 1.0"
+		diffuse="0.8, 0.6, 0.5, 1.0"
+		specular="0.5, 0.5, 0.5, 1.0"
+		shininess="30.0"
+	/>
+
+	<!-- The first occuring texture will use texture unit 0 -->
+	<texture
+		file="../normal128x128.png"
+		shaderName="diffuseMap"
+	/>
+	<texture
+		file="../Langholmen1024x1024.cubemap.jpg"
+		shaderName="envMap"
+	/>
+
+	<shader>
+		<!-- Reference external file as vertex shader -->
+		<vertex>
+		<![CDATA[
+		varying vec3 vertex, normal, lightDir, osvertex;
+
+		void main()
+		{
+			osvertex = gl_Vertex.xyz;
+			vertex = (gl_Position = ftransform()).xyz;
+			// No need to do normalize since we do it on fragment shader anyway
+			normal = gl_NormalMatrix * gl_Normal;
+			lightDir = normalize(gl_LightSource[0].position.xyz);
+			gl_TexCoord[0] = gl_MultiTexCoord0;
+		}
+		]]>
+		</vertex>
+
+		<!-- Define the fragment shader just inside the xml -->
+		<fragment>
+			<parameter name="exposure" type="float" label="Exposure level">4</parameter>
+			<![CDATA[
+			varying vec3 vertex, normal, lightDir, osvertex;
+			uniform sampler2D diffuseMap;
+			uniform samplerCube envMap;
+			uniform float exposure;
+
+			void main()
+			{
+				vec4 ambient = gl_FrontLightProduct[0].ambient;
+				vec4 diffuse = gl_FrontLightProduct[0].diffuse;
+				vec4 specular = gl_FrontLightProduct[0].specular;
+				vec3 n = normalize(normal);
+
+				diffuse *= max(dot(n, lightDir), 0.0);
+				vec3 refl = -reflect(lightDir, n);
+				float frensel = pow(max(dot(refl, normalize(-vertex)), 0.0), gl_FrontMaterial.shininess);
+				specular *= frensel;
+
+				vec4 env = textureCube(envMap, osvertex);
+
+				gl_FragColor = specular * exposure + env + texture2D(diffuseMap, gl_TexCoord[0].xy);
+				//gl_FragColor = env;
+				gl_FragColor.a = clamp(gl_FragColor.a, 0.0, 1.0);
+			}
+			]]>
+		</fragment>
+	</shader>
+</pass>
+
+<pass
+	enable="false"
+	drawLine="true"
+	lineWidth="5"
+	cullMode="front"
+>
+	<standard
+		ambient="1.0, 0.0, 0.0, 1.0"
+		diffuse="0.0, 0.0, 0.0, 1.0"
+		specular="0.0, 0.0, 0.0, 1.0"
+	/>
+	<blending
+		colorBlend="true"
+		srcFactor="one"
+		dstFactor="one"
+	/>
+	<depthStencil
+		depthTest="true"
+		depthWrite="false"
+		depthFunc="lessEqual"
+	/>
+</pass>
+
+</root>
