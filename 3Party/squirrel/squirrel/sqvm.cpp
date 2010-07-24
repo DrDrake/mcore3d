@@ -272,7 +272,7 @@ void SQVM::ToString(const SQObjectPtr &o,SQObjectPtr &res)
 }
 
 
-bool SQVM::StringCat(SQObjectPtr str,SQObjectPtr obj,SQObjectPtr &dest)
+bool SQVM::StringCat(const SQObjectPtr &str,const SQObjectPtr &obj,SQObjectPtr &dest)
 {
 	SQObjectPtr a, b;
 	ToString(str, a);
