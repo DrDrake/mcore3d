@@ -33,7 +33,7 @@ void TextLabelComponent::render2(void* context)
 	}
 
 	if(!mVertexBuffer.empty()) {
-		RenderItem r = { entity(), this, m };
+		RenderItem r = { entity(), this, m, entity()->worldTransform() };
 		renderer.mTransparentQueue.insert(*new RenderItemNode(0, r));
 	}
 }

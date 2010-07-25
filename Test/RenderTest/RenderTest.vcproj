@@ -53,7 +53,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				DelayLoadDLLs="MCDRenderd.dll;MCDLoaderd.dll"
+				DelayLoadDLLs="MCDRenderd.dll;MCDLoaderd.dll;MCDFrameworkd.dll"
 			/>
 			<Tool
 				Name="VCALinkTool"
@@ -115,7 +115,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				DelayLoadDLLs="MCDRender.dll;MCDLoader.dll"
+				DelayLoadDLLs="MCDRender.dll;MCDLoader.dll;MCDFramework.dll"
 			/>
 			<Tool
 				Name="VCALinkTool"

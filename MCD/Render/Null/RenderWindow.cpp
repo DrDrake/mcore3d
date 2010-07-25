@@ -5,6 +5,7 @@ namespace MCD {
 
 RenderWindow::RenderWindow()
 {
+	MCD_ASSERT(false);
 }
 
 RenderWindow::~RenderWindow()
