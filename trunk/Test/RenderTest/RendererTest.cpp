@@ -30,7 +30,6 @@ TEST(RendererTest)
 
 	Entity& root = framework.rootEntity();
 	Entity& scene = framework.sceneLayer();
-	TextLabelComponent* fpsLabel;
 	RenderTargetComponent* textureRenderTarget = nullptr;
 	RendererComponent* renderer = root.findComponentInChildrenExactType<RendererComponent>();
 	CameraComponent2* sceneCamera = scene.findComponentInChildrenExactType<CameraComponent2>();
@@ -73,14 +72,6 @@ TEST(RendererTest)
 		TextLabelComponent* text = new TextLabelComponent;
 		e->addComponent(text);
 		text->text = "This is a text label\nMCore rocks!";
-	}
-
-	{	// Fps label
-		Entity* e = new Entity("Fps label");
-		e->localTransform.setTranslation(Vec3f(0, 30, 0));
-		framework.guiLayer().addChild(e);
-		fpsLabel = new TextLabelComponent;
-		e->addComponent(fpsLabel);
 	}
 
 	// Create material
@@ -138,7 +129,6 @@ TEST(RendererTest)
 
 	while(true)
 	{
-		fpsLabel->text = float2Str(framework.fps());
 		Event e;
 		framework.update(e);
 

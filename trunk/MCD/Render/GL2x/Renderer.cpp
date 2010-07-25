@@ -171,7 +171,7 @@ void RendererComponent::Impl::processRenderItems(RenderItems& items)
 		const RenderItem& i = node->mRenderItem;
 
 		if(Entity* e = i.entity) {
-			mWorldMatrix = e->worldTransform();
+			mWorldMatrix = i.worldTransform;
 			mWorldViewProjMatrix = mViewProjMatrix * mWorldMatrix;
 
 			IMaterialComponent* mtl = i.material;

@@ -223,12 +223,13 @@ void MeshComponent2::render2(void* context)
 	Entity* e = entity();
 	MCD_ASSUME(e);
 
-	Vec3f pos = e->worldTransform().translation();
-	renderer.mViewMatrix.transformPoint(pos);
-	const float dist = pos.z;
-
 	if(IMaterialComponent* m = renderer.mCurrentMaterial) {
-		RenderItem r = { e, this, m };
+		RenderItem r = { e, this, m, e->worldTransform() };
+
+		Vec3f pos = r.worldTransform.translation();
+		renderer.mViewMatrix.transformPoint(pos);
+		const float dist = pos.z;
+
 		if(!m->isTransparent())
 			renderer.mOpaqueQueue.insert(*new RenderItemNode(-dist, r));
 		else

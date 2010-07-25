@@ -74,6 +74,7 @@ public:
 	RendererComponentPtr mRenderer;
 	std::auto_ptr<RenderWindow> mWindow;
 	std::auto_ptr<TaskPool> mTaskPool;
+	TextLabelComponentPtr mFpsLabel;
 };	// Impl
 
 Framework::Impl::Impl()
@@ -147,6 +148,12 @@ Framework::Impl::Impl()
 			LightComponent* light = e1->addComponent(new LightComponent);
 			light->color = ColorRGBf(0.8f, 1, 0.8f);
 		}
+	}
+
+	{	// Fps label
+		Entity* e = mGuiLayer->addChild(new Entity("Fps label"));
+		e->localTransform.setTranslation(Vec3f(0, 30, 0));
+		mFpsLabel = e->addComponent(new TextLabelComponent);
 	}
 
 	{	// Animation updater
@@ -419,6 +426,8 @@ bool Framework::Impl::update(Event& e)
 			mOneSecondCountDown = 1 + mOneSecondCountDown;
 			mFrameCounter = 0;
 		}
+
+		mFpsLabel->text = float2Str(mFramePerSecond);
 	}
 
 	return hasWindowEvent;
