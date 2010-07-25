@@ -1,8 +1,8 @@
-#ifndef __MCD_COMPONENTS_RENDER_SKINMESHCOMPONENT__
-#define __MCD_COMPONENTS_RENDER_SKINMESHCOMPONENT__
+#ifndef __MCD_RENDER_SKINMESH__
+#define __MCD_RENDER_SKINMESH__
 
-#include "RenderableComponent.h"
-#include "../../Core/Math/Skeleton.h"
+#include "Renderable.h"
+#include "../Core/Math/Skeleton.h"
 
 namespace MCD {
 
@@ -11,7 +11,7 @@ typedef IntrusivePtr<class Model> ModelPtr;
 typedef IntrusivePtr<class Skeleton> SkeletonPtr;
 typedef IntrusiveWeakPtr<class SkeletonAnimationComponent> SkeletonAnimationComponentPtr;
 
-class MCD_COMPONENT_API SkinMeshComponent : public RenderableComponent
+class MCD_RENDER_API SkinMeshComponent : public RenderableComponent2, public IDrawCall
 {
 public:
 	explicit SkinMeshComponent();
@@ -35,7 +35,9 @@ public:
 	 */
 	sal_checkreturn bool init(IResourceManager& resourceManager, const Model& basePose, sal_in_z const char* nameSuffix=":skinning");
 
-	sal_override void render();
+	sal_override void render() {}
+	sal_override void render2(void* context);
+	sal_override void draw(sal_in void* context) {}
 
 // Attrubutes
 	/*!	This Model MAY be shared by multiple SkinMeshComponent, and is being
@@ -59,4 +61,4 @@ typedef IntrusiveWeakPtr<SkinMeshComponent> SkinMeshComponentPtr;
 
 }	// namespace MCD
 
-#endif	// __MCD_COMPONENTS_RENDER_SKINMESHCOMPONENT__
+#endif	// __MCD_RENDER_SKINMESH__

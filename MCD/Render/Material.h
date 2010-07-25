@@ -102,7 +102,6 @@ public:
 	MaterialComponent();
 
 // Cloning
-	sal_override sal_checkreturn bool cloneable() const { return true; }
 	sal_override sal_notnull Component* clone() const;
 
 // Operations
@@ -143,7 +142,6 @@ public:
 	SpriteMaterialComponent();
 
 // Cloning
-	sal_override sal_checkreturn bool cloneable() const { return true; }
 	sal_override sal_notnull Component* clone() const;
 
 // Operations

@@ -1,10 +1,10 @@
-#ifndef __MCD_COMPONENTS_RENDER_SKELETONANIMATIONCOMPONENT__
-#define __MCD_COMPONENTS_RENDER_SKELETONANIMATIONCOMPONENT__
+#ifndef __MCD_RENDER_SKELETONANIMATION__
+#define __MCD_RENDER_SKELETONANIMATION__
 
-#include "../ShareLib.h"
-#include "../../Core/Entity/BehaviourComponent.h"
-#include "../../Core/Math/Skeleton.h"
-#include "../../Core/System/SharedPtr.h"
+#include "ShareLib.h"
+#include "../Core/Entity/BehaviourComponent.h"
+#include "../Core/Math/Skeleton.h"
+#include "../Core/System/SharedPtr.h"
 
 namespace MCD {
 
@@ -14,7 +14,7 @@ typedef IntrusiveWeakPtr<class SkeletonAnimationUpdaterComponent> SkeletonAnimat
 typedef IntrusiveWeakPtr<class SkinMeshComponent> SkinMeshComponentPtr;
 
 //!	A component that use the AnimationInstance to control some aspects of an Entity.
-class MCD_COMPONENT_API SkeletonAnimationComponent : public BehaviourComponent
+class MCD_RENDER_API SkeletonAnimationComponent : public BehaviourComponent
 {
 protected:
 	friend class SkeletonAnimationUpdaterComponent;
@@ -56,7 +56,7 @@ typedef IntrusiveWeakPtr<SkeletonAnimationComponent> SkeletonAnimationComponentP
 /*!	Centralize the update of many SkeletonAnimationComponent, resulting better cache coherent.
 	It can also be able to utilize TaskPool for animation update.
  */
-class MCD_COMPONENT_API SkeletonAnimationUpdaterComponent : public BehaviourComponent
+class MCD_RENDER_API SkeletonAnimationUpdaterComponent : public BehaviourComponent
 {
 public:
 	/*!	Multi-thread is used if \em taskPool is not null.
@@ -82,4 +82,4 @@ protected:
 
 }	// namespace MCD
 
-#endif	// __MCD_COMPONENTS_RENDER_SKELETONANIMATIONCOMPONENT__
+#endif	// __MCD_RENDER_SKELETONANIMATION__

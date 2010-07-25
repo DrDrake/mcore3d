@@ -29,7 +29,6 @@ public:
 	sal_override ~AnimationComponent();
 
 // Cloning
-	sal_override sal_checkreturn bool cloneable() const;
 	/*!	Clone will fail if the associated AnimationUpdaterComponent is already destroyed.
 		The clone function will not clone the animation event (yet?).
 	 */

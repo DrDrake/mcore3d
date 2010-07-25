@@ -189,10 +189,6 @@ AnimationComponent::~AnimationComponent()
 		animationUpdater->removeAnimationComponent(*this);
 }
 
-bool AnimationComponent::cloneable() const {
-	return animationUpdater != nullptr;
-}
-
 Component* AnimationComponent::clone() const
 {
 	if(!animationUpdater)

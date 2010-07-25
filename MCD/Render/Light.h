@@ -12,7 +12,6 @@ class MCD_RENDER_API LightComponent : public RenderableComponent2
 {
 public:
 // Cloning
-	sal_override sal_checkreturn bool cloneable() const;
 	sal_override sal_notnull Component* clone() const;
 
 // Operations
