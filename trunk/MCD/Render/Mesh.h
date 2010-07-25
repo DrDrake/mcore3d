@@ -190,7 +190,6 @@ class MCD_RENDER_API MeshComponent2 : public RenderableComponent2, public IDrawC
 {
 public:
 // Cloning
-	sal_override sal_checkreturn bool cloneable() const { return true; }
 	sal_override sal_notnull Component* clone() const;
 
 // Operations

@@ -11,8 +11,6 @@ QuadComponent::QuadComponent()
 
 QuadComponent::~QuadComponent() {}
 
-bool QuadComponent::cloneable() const { return true; }
-
 Component* QuadComponent::clone() const
 {
 	QuadComponent* ret = new QuadComponent;

@@ -5,8 +5,6 @@ namespace MCD {
 
 LightComponent::~LightComponent() {}
 
-bool LightComponent::cloneable() const { return true; }
-
 Component* LightComponent::clone() const
 {
 	LightComponent* ret = new LightComponent;

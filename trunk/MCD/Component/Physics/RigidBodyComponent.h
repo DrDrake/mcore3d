@@ -28,7 +28,6 @@ public:
 	sal_override ~RigidBodyComponent();
 
 // Cloning
-	sal_override sal_checkreturn bool cloneable() const { return true; }
 	sal_override sal_maybenull Component* clone() const;
 
 // Override from BehaviourComponent

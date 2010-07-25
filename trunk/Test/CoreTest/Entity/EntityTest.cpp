@@ -326,7 +326,6 @@ namespace Clone_EntityTest
 		CloneableComponent(const CloneableComponent& c) : data(c.data) {}
 
 		sal_override const std::type_info& familyType() const { return typeid(CloneableComponent); }
-		sal_override bool cloneable() const { return true; }
 		sal_override Component* clone() const { return new CloneableComponent(*this); }
 	};	// CloneableComponent
 
@@ -338,7 +337,6 @@ namespace Clone_EntityTest
 		NonCloneableComponent(const std::string& _data) : data(_data) {}
 
 		sal_override const std::type_info& familyType() const { return typeid(NonCloneableComponent); }
-		sal_override bool cloneable() const { return false; }
 		sal_override Component* clone() const { return nullptr; }
 	};	// NonCloneableComponent
 }	// namespace Clone_EntityTest
@@ -449,8 +447,6 @@ typedef IntrusiveWeakPtr<class MockComponent> MockComponentPtr;
 class MockComponent : public BehaviourComponent
 {
 public:
-	sal_override sal_checkreturn bool cloneable() const { return true; }
-
 	sal_override sal_maybenull Component* clone() const { return new MockComponent(); }
 
 	sal_override sal_checkreturn bool postClone(const Entity& src, Entity& dest)

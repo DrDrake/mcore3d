@@ -19,8 +19,6 @@ TextLabelComponent::TextLabelComponent()
 
 TextLabelComponent::~TextLabelComponent() {}
 
-bool TextLabelComponent::cloneable() const { return true; }
-
 Component* TextLabelComponent::clone() const
 {
 	TextLabelComponent* ret = new TextLabelComponent;

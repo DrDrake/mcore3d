@@ -332,6 +332,14 @@
 				>
 			</File>
 			<File
+				RelativePath=".\SkeletonAnimation.h"
+				>
+			</File>
+			<File
+				RelativePath=".\SkinMesh.h"
+				>
+			</File>
+			<File
 				RelativePath=".\Skinning.h"
 				>
 			</File>
@@ -484,6 +492,14 @@
 			</File>
 			<File
 				RelativePath=".\ShaderProgram.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\SkeletonAnimation.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\SkinMesh.cpp"
 				>
 			</File>
 			<File

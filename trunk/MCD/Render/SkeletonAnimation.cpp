@@ -1,9 +1,9 @@
 #include "Pch.h"
-#include "SkeletonAnimationComponent.h"
-#include "../../Core/Entity/Entity.h"
-#include "../../Core/Math/Skeleton.h"
-#include "../../Core/System/TaskPool.h"
-#include "../../Core/System/ThreadedCpuProfiler.h"
+#include "SkeletonAnimation.h"
+#include "../Core/Entity/Entity.h"
+#include "../Core/Math/Skeleton.h"
+#include "../Core/System/TaskPool.h"
+#include "../Core/System/ThreadedCpuProfiler.h"
 #include <map>
 
 namespace MCD {
