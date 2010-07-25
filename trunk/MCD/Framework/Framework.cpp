@@ -32,11 +32,11 @@
 #include "../Render/Renderer.h"
 #include "../Render/RenderTargetComponent.h"
 #include "../Render/RenderWindow.h"
+#include "../Render/SkeletonAnimation.h"
 #include "../Render/Animation.h"
 #include "../Component/Render/CameraComponent.h"
 #include "../Component/Prefab.h"
 #include "../Component/PrefabLoaderComponent.h"
-#include "../Component/Render/SkeletonAnimationComponent.h"
 
 #include "../Loader/ResourceLoaderFactory.h"
 
@@ -171,7 +171,7 @@ Framework::Impl::Impl()
 #ifdef MCD_IPHONE
 		SkeletonAnimationUpdaterComponent* c = new SkeletonAnimationUpdaterComponent(nullptr);
 #else
-		SkeletonAnimationUpdaterComponent* c = new SkeletonAnimationUpdaterComponent(mTaskPool.get());
+		SkeletonAnimationUpdaterComponent* c = new SkeletonAnimationUpdaterComponent(mSystemEntity.get());
 #endif
 		e->addComponent(c);
 	}

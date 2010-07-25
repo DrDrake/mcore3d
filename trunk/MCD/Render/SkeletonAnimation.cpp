@@ -1,6 +1,7 @@
 #include "Pch.h"
 #include "SkeletonAnimation.h"
 #include "../Core/Entity/Entity.h"
+#include "../Core/Entity/SystemComponent.h"
 #include "../Core/Math/Skeleton.h"
 #include "../Core/System/TaskPool.h"
 #include "../Core/System/ThreadedCpuProfiler.h"
@@ -50,7 +51,13 @@ void SkeletonAnimationComponent::update(float dt)
 class SkeletonAnimationUpdaterComponent::Impl : public MCD::TaskPool::Task
 {
 public:
-	Impl(TaskPool* taskPool) : Task(0), mTaskPool(taskPool), mPaused(false), mIsUpdating(false) {}
+	Impl(Entity* systemEntities) : Task(0), mTaskPool(nullptr), mPaused(false), mIsUpdating(false)
+	{
+		if(systemEntities) {
+			if(TaskPoolComponent* c = systemEntities->findComponentInChildrenExactType<TaskPoolComponent>())
+				mTaskPool = &c->taskPool;
+		}
+	}
 
 	sal_override void run(Thread& thread) throw()
 	{
@@ -113,8 +120,8 @@ public:
 	Anims mAnims;
 };	// Impl
 
-SkeletonAnimationUpdaterComponent::SkeletonAnimationUpdaterComponent(TaskPool* taskPool)
-	: mImpl(*new Impl(taskPool))
+SkeletonAnimationUpdaterComponent::SkeletonAnimationUpdaterComponent(Entity* systemEntities)
+	: mImpl(*new Impl(systemEntities))
 {
 }
 

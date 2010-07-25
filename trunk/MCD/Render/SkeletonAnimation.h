@@ -59,10 +59,10 @@ typedef IntrusiveWeakPtr<SkeletonAnimationComponent> SkeletonAnimationComponentP
 class MCD_RENDER_API SkeletonAnimationUpdaterComponent : public BehaviourComponent
 {
 public:
-	/*!	Multi-thread is used if \em taskPool is not null.
-		User has to take care the life time of \em taskPool to be longer than this.
+	/*!	Multi-thread is used if \em systemEntities is not null.
+		User has to take care the life time of \em TaskPoolComponent to be longer than this.
 	 */
-	explicit SkeletonAnimationUpdaterComponent(sal_in_opt TaskPool* taskPool);
+	explicit SkeletonAnimationUpdaterComponent(sal_maybenull Entity* systemEntities);
 
 	sal_override ~SkeletonAnimationUpdaterComponent();
 
