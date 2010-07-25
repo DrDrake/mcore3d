@@ -222,14 +222,6 @@
 			Name="Render"
 			>
 			<File
-				RelativePath=".\Render\AnimationComponent.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\Render\AnimationComponent.h"
-				>
-			</File>
-			<File
 				RelativePath=".\Render\CameraComponent.cpp"
 				>
 			</File>

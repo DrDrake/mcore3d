@@ -271,7 +271,7 @@ public:
 	Impl(Entity* systemEntities) : Task(0), mTaskPool(nullptr), mPaused(false), mIsUpdating(false)
 	{
 		if(systemEntities) {
-			if(TaskPoolComponent* c = systemEntities->findComponentExactType<TaskPoolComponent>())
+			if(TaskPoolComponent* c = systemEntities->findComponentInChildrenExactType<TaskPoolComponent>())
 				mTaskPool = &c->taskPool;
 		}
 	}

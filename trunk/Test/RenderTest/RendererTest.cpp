@@ -1,17 +1,14 @@
 #include "Pch.h"
 #include "../../MCD/Framework/Framework.h"
-#include "../../MCD/Render/Camera.h"
 #include "../../MCD/Render/Chamferbox.h"
 #include "../../MCD/Render/Font.h"
 #include "../../MCD/Render/Material.h"
 #include "../../MCD/Render/Mesh.h"
-#include "../../MCD/Render/QuadComponent.h"
 #include "../../MCD/Render/Renderer.h"
 #include "../../MCD/Render/RenderTargetComponent.h"
 #include "../../MCD/Render/Texture.h"
 #include "../../MCD/Core/Entity/BehaviourComponent.h"
 #include "../../MCD/Core/Entity/Entity.h"
-#include "../../MCD/Core/System/StrUtility.h"
 #include "../../MCD/Core/System/WindowEvent.h"
 
 using namespace MCD;

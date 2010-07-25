@@ -227,10 +227,6 @@
 			Filter="cpp;"
 			>
 			<File
-				RelativePath=".\AnimationComponentTest.cpp"
-				>
-			</File>
-			<File
 				RelativePath="..\RenderTest\BasicGlWindow.cpp"
 				>
 			</File>
@@ -260,10 +256,6 @@
 			</File>
 			<File
 				RelativePath=".\SimplePhysicsComponentTest.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\SkeletonAnimationComponentTest.cpp"
 				>
 			</File>
 			<File
