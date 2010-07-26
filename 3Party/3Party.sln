@@ -27,6 +27,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "lib3ds", "lib3ds\lib3ds.vcp
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Vorbis", "VorbisOgg\Vorbis.vcproj", "{E0626388-213C-4A5A-95FE-81CBC3316E41}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "minizip", "minizip\minizip.vcproj", "{FCE8F694-BE7A-4518-8DFD-A5E8D01C12B7}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Win32 = Debug|Win32
@@ -85,6 +87,10 @@ Global
 		{E0626388-213C-4A5A-95FE-81CBC3316E41}.Debug|Win32.Build.0 = Release|Win32
 		{E0626388-213C-4A5A-95FE-81CBC3316E41}.Release|Win32.ActiveCfg = Release|Win32
 		{E0626388-213C-4A5A-95FE-81CBC3316E41}.Release|Win32.Build.0 = Release|Win32
+		{FCE8F694-BE7A-4518-8DFD-A5E8D01C12B7}.Debug|Win32.ActiveCfg = Debug|Win32
+		{FCE8F694-BE7A-4518-8DFD-A5E8D01C12B7}.Debug|Win32.Build.0 = Debug|Win32
+		{FCE8F694-BE7A-4518-8DFD-A5E8D01C12B7}.Release|Win32.ActiveCfg = Release|Win32
+		{FCE8F694-BE7A-4518-8DFD-A5E8D01C12B7}.Release|Win32.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

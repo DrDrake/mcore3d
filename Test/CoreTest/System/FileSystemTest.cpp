@@ -104,6 +104,19 @@ TEST(RawFileSystemListingTest)
 
 TEST(ZipFileSystemTest)
 {
+	{	// Non-existing zip file
+		CHECK_THROW(ZipFileSystem("__not_exist__.zip"), std::runtime_error);
+	}
+
+	{	// Failed setRoot
+		ZipFileSystem fs("./TestData/test.zip");
+
+		// Failure of setRoot will not alter the state of the zip file system
+		CHECK(!fs.setRoot("__not_exist__.zip"));
+		CHECK(fs.getRoot() == Path::getCurrentPath() / "TestData/test.zip");
+		CHECK(fs.isDirectory("welcome"));
+	}
+
 	ZipFileSystem fs("./TestData/test.zip");
 
 	// Queries
@@ -112,6 +125,7 @@ TEST(ZipFileSystemTest)
 	CHECK(fs.isExists("./welcome"));
 	CHECK(fs.isDirectory("welcome"));
 	CHECK(fs.isDirectory("./welcome"));
+	CHECK(!fs.isDirectory("Pch.h"));
 	CHECK_THROW(fs.isDirectory("./__not_exist__"), std::runtime_error);
 
 	CHECK_EQUAL(112u, fs.getSize("Pch.h"));
