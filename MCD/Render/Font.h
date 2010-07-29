@@ -21,7 +21,7 @@ public:
 	explicit BmpFont(const Path& fileId);
 
 // Operations
-	int findKerningOffset(uint16_t char1, uint16_t char2);
+	int findKerningOffset(uint16_t char1, uint16_t char2) const;
 
 // Attributes
 	TexturePtr texture;

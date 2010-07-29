@@ -13,7 +13,7 @@ BmpFont::BmpFont(const Path& fileId)
 
 BmpFont::~BmpFont() {}
 
-int BmpFont::findKerningOffset(uint16_t char1, uint16_t char2)
+int BmpFont::findKerningOffset(uint16_t char1, uint16_t char2) const
 {
 	const uint32_t key = (uint32_t(char1) << 16) + char2;
 	const Kerning::const_iterator i = kerning.find(key);

@@ -162,8 +162,19 @@ void AvlTree::remove(Node& node)
 
 void AvlTree::removeAll()
 {
-	while(!isEmpty())
-		mRoot->removeThis();
+	// NOTE: The simplest way, but too slow because
+	// all the tree balancing act is just a waste.
+//	while(!isEmpty())
+//		mRoot->removeThis();
+
+	// A fast removeAll approach
+	for(Node* n = getExtrRootL(); n != nullptr; ) {
+		Node* bk = n;
+		n = n->next();
+		bk->mAvlTree = nullptr;
+	}
+	mRoot = nullptr;
+	mCount = 0;
 }
 
 void AvlTree::destroyAll() throw()
