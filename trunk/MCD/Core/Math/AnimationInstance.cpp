@@ -171,7 +171,8 @@ void AnimationInstance::update()
 
 		const float adjustedPos = t.interpolate(time * wt.frameRate, interpolations, wt.loopOverride);
 
-		for(size_t j=0; j<t.subtrackCount(); ++j)
+		const size_t subTrackCount = t.subtrackCount();
+		for(size_t j=0; j<subTrackCount; ++j)
 			reinterpret_cast<Vec4f&>(result[j]) += wt.weight * reinterpret_cast<Vec4f&>(interpolations[j].v);
 
 		{	// Invoke event callback if necessary
