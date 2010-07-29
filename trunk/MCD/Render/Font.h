@@ -6,6 +6,7 @@
 #include "../Core/System/Resource.h"
 #include "../Core/Math/Vec2.h"
 #include "../Core/Math/Vec3.h"
+#include <map>
 
 namespace MCD {
 
@@ -19,6 +20,10 @@ class MCD_RENDER_API BmpFont : public Resource
 public:
 	explicit BmpFont(const Path& fileId);
 
+// Operations
+	int findKerningOffset(uint16_t char1, uint16_t char2);
+
+// Attributes
 	TexturePtr texture;
 
 	struct CharDescriptor
@@ -40,6 +45,10 @@ public:
 	};	// CharSet
 
 	CharSet charSet;
+
+	/// Offset between 2 specific characters, the key is the combined integer of the 2 characters
+	typedef std::map<uint32_t, int> Kerning;
+	Kerning kerning;
 
 protected:
 	sal_override ~BmpFont();
