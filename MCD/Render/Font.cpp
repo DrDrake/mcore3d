@@ -13,6 +13,13 @@ BmpFont::BmpFont(const Path& fileId)
 
 BmpFont::~BmpFont() {}
 
+int BmpFont::findKerningOffset(uint16_t char1, uint16_t char2)
+{
+	const uint32_t key = (uint32_t(char1) << 16) + char2;
+	const Kerning::const_iterator i = kerning.find(key);
+	return i == kerning.end() ? 0 : i->second;
+}
+
 TextLabelComponent::TextLabelComponent()
 	: lineWidth(0), mStringHash(0), mLastBmpFontCommitCount(0)
 {}
@@ -34,11 +41,15 @@ void TextLabelComponent::buildVertexBuffer(const BmpFont& font)
 {
 	mVertexBuffer.clear();
 	Vec3f charPos = Vec3f::cZero;
+	unsigned char lastCharacter = 0;
 
 	// Construct the vertex buffer character by character
 	for(std::string::const_iterator i=text.begin(); i != text.end(); ++i) {
 		const unsigned char c = *i;
 		const BmpFont::CharDescriptor& desc = font.charSet.chars[c];
+
+		const int kerningOffset = font.findKerningOffset(lastCharacter, c);
+		charPos.x += kerningOffset;
 
 		Vec4f uv(desc.x, desc.y, float(desc.x + desc.width), float(desc.y + desc.height));
 		uv.x /= font.charSet.width;
@@ -66,7 +77,8 @@ void TextLabelComponent::buildVertexBuffer(const BmpFont& font)
 		mVertexBuffer.push_back(v[3]);
 
 		charPos.x += desc.xAdvance;
-		
+		lastCharacter = c;
+
 		// New line handling
 		if(c == '\n') {
 			charPos.x = 0;

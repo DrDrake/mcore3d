@@ -96,6 +96,30 @@ IResourceLoader::LoadingState FntLoader::load(std::istream* is, const Path* file
 				}
 			}
 		}
+		else if(token == "kerning")
+		{
+			int amount = 0;
+			uint16_t firstChar = 0, secondChar = 0;
+			while(!lineStream.eof()) {
+				std::stringstream converter;
+				lineStream >> token;
+				size_t i = token.find('=');
+				key = token.substr(0, i);
+				value = token.substr(i + 1);
+
+				converter << value;
+				if(key == "first")
+					converter >> firstChar;
+				else if(key == "second")
+					converter >> secondChar;
+				else if(key == "amount") {
+					converter >> amount;
+					const int key = (uint32_t(firstChar) << 16) + secondChar;
+					mTmp->kerning[key] = amount;
+					lineStream >> token;	// To eat the traling space
+				}
+			}
+		}
 	}
 
 	mLoadingState = Loaded;
@@ -113,6 +137,7 @@ void FntLoader::commit(Resource& resource)
 
 	font.texture = mTmp->texture;
 	font.charSet = mTmp->charSet;
+	font.kerning = mTmp->kerning;
 	++resource.commitCount;
 }
 
