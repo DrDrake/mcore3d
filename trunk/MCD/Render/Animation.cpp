@@ -129,6 +129,10 @@ static void setEvent(
 class AnimationComponent::MyAnimationInstance : public AnimationInstance
 {
 public:
+	// NOTE: Setting dirty flag to true shuch that animation data get initialized,
+	// which makes everything more safe.
+	MyAnimationInstance() : dirty(true) {}
+
 	void update()
 	{
 		if(!AnimationInstance::isAllTrackCommited())
@@ -170,6 +174,9 @@ public:
 	typedef std::vector<AnimData> AnimDataList;
 	AnimDataList animData;
 	AnimationComponentPtr backRef;
+	/// Indicate this MyAnimationInstance had been updated by AnimationUpdaterComponent in this frame.
+	/// Set to true in AnimationComponent::update(), set to false in AnimationUpdaterComponent::update()
+	bool dirty;
 };	// MyAnimationInstance
 
 AnimationComponent::AnimationComponent(AnimationUpdaterComponent& updater)
@@ -195,6 +202,7 @@ Component* AnimationComponent::clone() const
 		return nullptr;
 	AnimationComponent* cloned = new AnimationComponent(*animationUpdater);
 	cloned->animationInstance = this->animationInstance;
+	static_cast<MyAnimationInstance&>(cloned->animationInstance).backRef = cloned;
 	return cloned;
 }
 
@@ -225,8 +233,6 @@ bool AnimationComponent::postClone(const Entity& src, Entity& dest)
 
 void AnimationComponent::update(float dt)
 {
-	// TODO: Handle disabled AnimationComponent in AnimationUpdaterComponent, or
-	// only submit enabled animation components to the updater in this function.
 	Entity* e = entity();
 	if(!e || !e->enabled)
 		return;
@@ -241,6 +247,8 @@ void AnimationComponent::update(float dt)
 	// animationInstance).transform, but it isn't a problem at all because the matrix
 	// change relativly smooth over time.
 	MyAnimationInstance& myAnim = static_cast<MyAnimationInstance&>(*mAnimationInstanceHolder);
+	myAnim.dirty = true;
+
 	const size_t animDataCount = myAnim.animData.size();
 	const size_t affectingEntityCount = affectingEntities.size();
 
@@ -303,11 +311,15 @@ public:
 		mIsUpdating = true;
 
 		{	ScopeLock lock(mMutex);
-			mAnims.resize(mAnimationInstances.size());
-			mAnims.assign(mAnimationInstances.begin(), mAnimationInstances.end());
+			MCD_FOREACH(const AnimationInstancePtr& a, mAnimationInstances) {
+				if(!a->dirty)
+					continue;
+				mTmpAnims.push_back(a);
+				a->dirty = false;
+			}
 		}
 
-		for(Anims::const_iterator i=mAnims.begin(); i != mAnims.end(); ++i) {
+		for(Anims::const_iterator i=mTmpAnims.begin(); i != mTmpAnims.end(); ++i) {
 			AnimationComponent::MyAnimationInstance& a = **i;
 			// NOTE: If we ignore Entity::enabled, a simple "a.update()" can make the job done.
 			ScopeLock lock(a.backRef.destructionMutex());
@@ -323,16 +335,16 @@ public:
 				}
 
 				if(Entity* e = c->entity()) {
-					if(e->enabled) {
-						lock.mutex().unlock();
-						lock.cancel();
-						a.update();
-					}
+					MCD_ASSERT(e->enabled);
+					lock.mutex().unlock();
+					lock.cancel();
+					a.update();
 				}
 			}
 		}
 
 		mIsUpdating = false;
+		mTmpAnims.clear();
 	}
 
 	sal_maybenull TaskPool* mTaskPool;
@@ -341,12 +353,13 @@ public:
 	bool mPaused;
 	volatile bool mIsUpdating;
 
+	/// Store all registered animations
 	typedef AnimationComponent::AnimationInstancePtr AnimationInstancePtr;
 	std::set<AnimationInstancePtr> mAnimationInstances;
 
-	// A local container of animation instance shared pointer to minize mutex lock time
+	/// A local container of animation instance shared pointer to minize mutex lock time
 	typedef std::vector<AnimationInstancePtr> Anims;
-	Anims mAnims;
+	Anims mTmpAnims;
 
 	EventQueue mEventQueue;
 };	// Impl
