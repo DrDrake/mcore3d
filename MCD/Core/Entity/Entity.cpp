@@ -3,6 +3,7 @@
 #include "Component.h"
 #include "../System/Log.h"
 #include "../System/Path.h"
+#include "../System/StrUtility.h"
 #include "../System/Utility.h"
 
 namespace MCD {
@@ -50,6 +51,7 @@ void Entity::asChildOf(Entity* parent)
 
 	scriptOwnershipHandle.useStrongReference(true);
 	scriptOwnershipHandle.removeReleaseHook();
+	generateDefaultName();
 }
 
 Entity* Entity::addChild(sal_in Entity* child)
@@ -77,6 +79,7 @@ void Entity::insertBefore(sal_in Entity* sibling)
 		sibling->mParent->mFirstChild = this;
 		mParent = sibling->mParent;
 		mNextSibling = sibling;
+		generateDefaultName();
 		return;
 	}
 
@@ -112,6 +115,23 @@ void Entity::insertAfter(sal_in Entity* sibling)
 
 	scriptOwnershipHandle.useStrongReference(true);
 	scriptOwnershipHandle.removeReleaseHook();
+	generateDefaultName();
+}
+
+void Entity::generateDefaultName()
+{
+	static const char* namePrefix = "Unanmed entity ";
+	if(Entity* p = parent()) {
+		if(!name.empty())
+			return;
+		int unnamedCount = 0;
+		for(Entity* e=p->firstChild(); e; e=e->nextSibling()) {
+			if(e->name.find_first_of(namePrefix, 0) != std::string::npos)
+				++unnamedCount;
+		}
+		// Generate the string with a number suffix, string at index 1
+		name = std::string(namePrefix) + int2Str(unnamedCount + 1);
+	}
 }
 
 void Entity::unlink()
