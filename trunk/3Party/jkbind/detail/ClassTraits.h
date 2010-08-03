@@ -1,8 +1,11 @@
 #ifndef ___SCRIPT_CLASS_TRAIS_CONTROL__
 #define ___SCRIPT_CLASS_TRAIS_CONTROL__
 
+typedef struct SQVM* HSQUIRRELVM;
+
 namespace script {
 
+class VMCore;
 typedef void* ClassID;
 
 ///

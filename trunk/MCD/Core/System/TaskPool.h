@@ -53,7 +53,7 @@ public:
 	class MCD_CORE_API MCD_ABSTRACT_CLASS Task : public Thread::IRunnable, public MapBase<int>::Node<Task>
 	{
 	protected:
-		Task(int priority);
+		explicit Task(int priority);
 		sal_override ~Task();
 
 	public:
@@ -62,6 +62,7 @@ public:
 		 */
 		int priority() const;
 
+		// TODO: Not thread safe!
 		void setPriority(int priority);
 	};	// Task
 

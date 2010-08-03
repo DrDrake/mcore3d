@@ -207,6 +207,9 @@ public:
 	Components components;
 
 protected:
+	/// Generate a default name if this Entity doesn't have one
+	void generateDefaultName();
+
 	Component* _addComponent(sal_in_opt Component* component);
 
 	/*!	When preforming some "move" operation, we don't want the unlink() function
