@@ -39,7 +39,7 @@ public:
 private:
 	size_t mRefCount;		//!< Reference counter for the flag
 	bool mIsValid;			//!< Flag indicating the object is alive or not
-	mutable Mutex mMutex;	//!< Help to ensure the
+	mutable Mutex mMutex;	//!< Help synchronization between smart pointer deference and object destruction
 };	// IntrusiveWeakPtrFlag
 
 template<class T> class IntrusiveWeakPtr;
@@ -70,6 +70,10 @@ public:
 		mValidityFlag.getNotNull()->destructionMutex().lock();
 	}
 
+	void destructionUnlock() {
+		mValidityFlag.getNotNull()->destructionMutex().unlock();
+	}
+
 protected:
 	// Protected to prevent deletion via base class (non-virtual destructor)
 	~IntrusiveWeakPtrTarget()
@@ -87,34 +91,6 @@ private:
 
 	IntrusivePtr<IntrusiveWeakPtrFlag> mValidityFlag;
 };	// IntrusiveWeakPtrTarget
-
-/*!	Convience class for combining shared object and weak pointer target,
-	will handle destructionLock() automatically.
- */
-template<typename CounterType>
-class MCD_ABSTRACT_CLASS IntrusiveSharedWeakPtrTarget : public IntrusiveWeakPtrTarget
-{
-public:
-	IntrusiveSharedWeakPtrTarget() : mRefCount(0) {}
-
-	virtual ~IntrusiveSharedWeakPtrTarget() {}
-
-	friend void intrusivePtrAddRef(IntrusiveSharedWeakPtrTarget* p) {
-		++(p->mRefCount);
-	}
-
-	friend void intrusivePtrRelease(IntrusiveSharedWeakPtrTarget* p) {
-		// NOTE: Gcc4.2 failed to compile "--(p->mRefCount)" correctly.
-		p->mRefCount--;
-		if(p->mRefCount == 0) {
-			p->destructionLock();	// NOTE: We preform the lock before deleting.
-			delete p;
-		}
-	}
-
-protected:
-	mutable CounterType mRefCount;
-};	// IntrusiveSharedWeakPtrTarget
 
 /*!	A weak pointer class to avoid dangling pointer.
 	Introduction:
@@ -216,7 +192,7 @@ public:
 	}
 
 	template<class U>
-	IntrusiveWeakPtr(const IntrusiveWeakPtr<U>& rhs) :
+	MCD_IMPLICIT IntrusiveWeakPtr(const IntrusiveWeakPtr<U>& rhs) :
 		mPtr(rhs.get()),	// The plain pointer cannot always be copied, at least deference occur during virtual inheritance casting
 		mValidityFlag(rhs.mValidityFlag)
 	{
@@ -317,6 +293,54 @@ template<class T> inline
 void swap(IntrusiveWeakPtr<T>& lhs, IntrusiveWeakPtr<T>& rhs) {
 	lhs.swap(rhs);
 }
+
+/*!	Convience class for combining shared object and weak pointer target,
+	will handle destructionLock() automatically.
+ */
+template<typename CounterType>
+class MCD_ABSTRACT_CLASS IntrusiveSharedWeakPtrTarget : public IntrusiveWeakPtrTarget
+{
+public:
+	IntrusiveSharedWeakPtrTarget() : mRefCount(0) {}
+
+	virtual ~IntrusiveSharedWeakPtrTarget() {}
+
+	friend void intrusivePtrAddRef(IntrusiveSharedWeakPtrTarget* p) {
+		++(p->mRefCount);
+	}
+
+	friend void intrusivePtrRelease(IntrusiveSharedWeakPtrTarget* p)
+	{
+		// NOTE: Gcc4.2 failed to compile "--(p->mRefCount)" correctly.
+		p->mRefCount--;
+		if(p->mRefCount == 0) {
+			p->destructionLock();	// NOTE: We preform the lock before deleting.
+			if(p->mRefCount == 0)	// NOTE: This extra check is necessary (Double checked lock pattern (100% safe on all platform?)
+				delete p;			// Deletion of p will also trigger mutex unlock
+			else
+				p->destructionUnlock();
+		}
+	}
+
+protected:
+	mutable CounterType mRefCount;
+};	// IntrusiveSharedWeakPtrTarget
+
+template<class T>
+class IntrusiveSharedWeakPtr : protected IntrusiveWeakPtr<T>
+{
+	typedef IntrusiveWeakPtr<T> Super;
+
+public:
+	template<typename U>
+	MCD_IMPLICIT IntrusiveSharedWeakPtr(U u) : Super(u) {}
+
+	IntrusivePtr<T> lock()
+	{
+		ScopeLock lock(destructionMutex());
+		return get();
+	}
+};	// IntrusiveSharedWeakPtr
 
 }	// namespace MCD
 

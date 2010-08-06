@@ -23,6 +23,8 @@ class IntrusivePtr
 	typedef IntrusivePtr<T> this_type;
 
 public:
+	typedef T* Pointer;
+
 	IntrusivePtr() : mPtr(nullptr)	{}
 
 	MCD_IMPLICIT IntrusivePtr(sal_in_opt T* p, bool addRef=true)
@@ -33,14 +35,14 @@ public:
 	}
 
 	template<class U>
-	IntrusivePtr(const IntrusivePtr<U>& rhs)
+	MCD_IMPLICIT IntrusivePtr(const IntrusivePtr<U>& rhs)
 		: mPtr(rhs.get())
 	{
 		if(mPtr != nullptr)
 			intrusivePtrAddRef(mPtr);
 	}
 
-	IntrusivePtr(const IntrusivePtr& rhs)
+	MCD_IMPLICIT IntrusivePtr(const IntrusivePtr& rhs)
 		: mPtr(rhs.get())
 	{
 		if(mPtr != nullptr)
@@ -180,11 +182,11 @@ public:
 
 	virtual ~IntrusiveSharedObject() {}
 
-	friend void intrusivePtrAddRef(IntrusiveSharedObject* p) {
+	friend void intrusivePtrAddRef(sal_notnull IntrusiveSharedObject* p) {
 		++(p->mRefCount);
 	}
 
-	friend void intrusivePtrRelease(IntrusiveSharedObject* p) {
+	friend void intrusivePtrRelease(sal_notnull IntrusiveSharedObject* p) {
 		// NOTE: Gcc4.2 failed to compile "--(p->mRefCount)" correctly.
 		p->mRefCount--;
 		if(p->mRefCount == 0)

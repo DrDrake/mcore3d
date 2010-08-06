@@ -106,9 +106,10 @@ class ScopeLock : public Cancelable, private Noncopyable
 public:
 	explicit ScopeLock(Mutex& m) : Cancelable(), m(&m) { m.lock(); }
 	explicit ScopeLock(Mutex* m) : Cancelable(), m(m) { if(m) m->lock(); else cancel(); }
-	~ScopeLock() { if(!isCanceled()) m->unlock(); }
+	~ScopeLock() { unlockAndCancel(); }
 	void swapMutex(Mutex& other) { m->unlock(); m = &other; m->lock(); }
 	Mutex& mutex() { MCD_ASSUME(m); return *m; }
+	void unlockAndCancel() { if(!isCanceled()) m->unlock(); cancel(); }
 
 protected:
 	Mutex* m;
@@ -120,8 +121,9 @@ class ScopeUnlock : public Cancelable, private Noncopyable
 public:
 	explicit ScopeUnlock(Mutex& m) : Cancelable(), m(&m) { m.unlock(); }
 	explicit ScopeUnlock(Mutex* m) : Cancelable(), m(m) { if(m) m->unlock(); else cancel(); }
-	~ScopeUnlock() { if(!isCanceled()) m->lock(); }
+	~ScopeUnlock() { lockAndCancel(); }
 	Mutex& mutex() { MCD_ASSUME(m); return *m; }
+	void lockAndCancel() { if(!isCanceled()) m->lock(); cancel(); }
 
 protected:
 	Mutex* m;
@@ -148,9 +150,10 @@ class ScopeRecursiveLock : public Cancelable, private Noncopyable
 public:
 	explicit ScopeRecursiveLock(RecursiveMutex& m) : Cancelable(), m(&m) { m.lock(); }
 	explicit ScopeRecursiveLock(RecursiveMutex* m) : Cancelable(), m(m) { if(m) m->lock(); else cancel(); }
-	~ScopeRecursiveLock() { if(!isCanceled()) m->unlock(); }
+	~ScopeRecursiveLock() { unlockAndCancel(); }
 	void swapMutex(RecursiveMutex& other) { m->unlock(); m = &other; m->lock(); }
 	RecursiveMutex& mutex() { MCD_ASSUME(m); return *m; }
+	void unlockAndCancel() { if(!isCanceled()) m->unlock(); cancel(); }
 
 protected:
 	RecursiveMutex* m;
@@ -162,8 +165,9 @@ class ScopeRecursiveUnlock : public Cancelable, private Noncopyable
 public:
 	explicit ScopeRecursiveUnlock(RecursiveMutex& m) : Cancelable(), m(&m) { m.unlock(); }
 	explicit ScopeRecursiveUnlock(RecursiveMutex* m) : Cancelable(), m(m) { if(m) m->unlock(); else cancel(); }
-	~ScopeRecursiveUnlock() { if(!isCanceled()) m->lock(); }
+	~ScopeRecursiveUnlock() { lockAndCancel(); }
 	RecursiveMutex& mutex() { MCD_ASSUME(m); return *m; }
+	void lockAndCancel() { if(!isCanceled()) m->lock(); cancel(); }
 
 protected:
 	RecursiveMutex* m;
