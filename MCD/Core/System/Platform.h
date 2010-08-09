@@ -131,7 +131,7 @@ typedef unsigned int useconds_t;
 #ifdef  NDEBUG
 #	define MCD_ASSERT(Expression) ((void)0)
 #	define MCD_VERIFY(Expression) ((void)(Expression))
-#	define MCD_ASSUME(Expression) __assume(Expression)
+#	define MCD_ASSUME(Expression) ((void)0)
 #else
 #	define MCD_ASSERT(Expression) assert(Expression)
 #	define MCD_VERIFY(Expression) assert(Expression)
