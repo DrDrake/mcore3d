@@ -1,6 +1,7 @@
 #ifndef __MCD_CORE_SYSTEM_WEAKPTR__
 #define __MCD_CORE_SYSTEM_WEAKPTR__
 
+#include "Atomic.h"
 #include "IntrusivePtr.h"
 #include "Mutex.h"
 #include <utility>
@@ -37,7 +38,7 @@ public:
 	}
 
 private:
-	size_t mRefCount;		//!< Reference counter for the flag
+	AtomicInteger mRefCount;//!< Reference counter for the flag
 	bool mIsValid;			//!< Flag indicating the object is alive or not
 	mutable Mutex mMutex;	//!< Help synchronization between smart pointer deference and object destruction
 };	// IntrusiveWeakPtrFlag
@@ -48,6 +49,7 @@ template<class T> class IntrusiveWeakPtr;
 class IntrusiveWeakPtrTarget
 {
 	template<class T> friend class IntrusiveWeakPtr;
+	typedef IntrusivePtr<IntrusiveWeakPtrFlag> FlagPtr;
 
 public:
 	IntrusiveWeakPtrTarget()
@@ -85,11 +87,11 @@ protected:
 	}
 
 private:
-	const IntrusivePtr<IntrusiveWeakPtrFlag>& validityFlag() const {
+	const FlagPtr& validityFlag() const {
 		return mValidityFlag;
 	}
 
-	IntrusivePtr<IntrusiveWeakPtrFlag> mValidityFlag;
+	FlagPtr mValidityFlag;
 };	// IntrusiveWeakPtrTarget
 
 /*!	A weak pointer class to avoid dangling pointer.
@@ -311,12 +313,20 @@ public:
 
 	friend void intrusivePtrRelease(IntrusiveSharedWeakPtrTarget* p)
 	{
-		// NOTE: Gcc4.2 failed to compile "--(p->mRefCount)" correctly.
-		p->mRefCount--;
-		if(p->mRefCount == 0) {
-			p->destructionLock();	// NOTE: We preform the lock before deleting.
-			if(p->mRefCount == 0)	// NOTE: This extra check is necessary (Double checked lock pattern (100% safe on all platform?)
-				delete p;			// Deletion of p will also trigger mutex unlock
+		// NOTE: The following 2 lines of code is kind of optimization,
+		// only the else clause alone can do the job.
+		// Reference count >1 means there is another pointer holding this object's,
+		// so we can decrement it without the risk of deleting by another thread
+		if(p->mRefCount > 1)
+			p->mRefCount--;
+		else {
+			// NOTE: We preform the lock before mRefCount--, because once the reference
+			// count decrement, the pointer p would be deleted by another thread
+			p->destructionLock();
+			// NOTE: Gcc4.2 failed to compile "--(p->mRefCount)" correctly.
+			p->mRefCount--;
+			if(p->mRefCount == 0)
+				delete p;	// Deletion of p will also trigger mutex unlock
 			else
 				p->destructionUnlock();
 		}
@@ -337,8 +347,9 @@ public:
 
 	IntrusivePtr<T> lock()
 	{
-		ScopeLock lock(destructionMutex());
-		return get();
+		ScopeLock lock(this->destructionMutex());
+		T* p = this->get();
+		return p;
 	}
 };	// IntrusiveSharedWeakPtr
 
