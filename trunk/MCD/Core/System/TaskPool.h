@@ -50,9 +50,15 @@ public:
 			deal with both the life-time and thread problem (especially Task::update() may invoke
 			delete this). This is better be done on application level where more assumption can be made.
 	 */
-	class MCD_CORE_API MCD_ABSTRACT_CLASS Task : public Thread::IRunnable, public MapBase<int>::Node<Task>
+	class MCD_CORE_API MCD_ABSTRACT_CLASS Task
+		: public Thread::IRunnable
+		, private MapBase<int>::Node<Task>	// The interface found it Map class should NOT expose to outside.
 	{
 	protected:
+		friend class TaskPool;
+		typedef MapBase<int>::Node<Task>::KeyArg KeyArg;
+		template <typename T1, typename T2> friend class Map;
+
 		explicit Task(int priority);
 		sal_override ~Task();
 

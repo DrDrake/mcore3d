@@ -345,7 +345,7 @@ public:
 	template<typename U>
 	MCD_IMPLICIT IntrusiveSharedWeakPtr(U u) : Super(u) {}
 
-	IntrusivePtr<T> lock()
+	IntrusivePtr<T> lock() const
 	{
 		ScopeLock lock(this->destructionMutex());
 		T* p = this->get();

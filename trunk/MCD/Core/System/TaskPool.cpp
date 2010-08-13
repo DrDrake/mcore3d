@@ -63,8 +63,7 @@ TaskPool::Task::Task(int priority)
 TaskPool::Task::~Task()
 {
 	// Remove the task from the queue before destruct
-	TaskQueue* queue = static_cast<TaskQueue*>(getMap());
-	if(queue) {
+	if(TaskQueue* queue = static_cast<TaskQueue*>(getMap())) {
 		ScopeLock lock(queue->mCondVar);
 		removeThis();
 	}

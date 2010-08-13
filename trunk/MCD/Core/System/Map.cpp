@@ -137,6 +137,7 @@ void AvlTree::remove(Node& node, Node* onlyChild)
 	} else
 		mRoot = onlyChild;
 
+	MCD_ASSERT(mCount > 0);
 	--mCount;
 }
 
