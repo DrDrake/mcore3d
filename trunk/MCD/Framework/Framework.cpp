@@ -103,7 +103,7 @@ Framework::Impl::Impl()
 #ifdef MCD_IPHONE
 		mTaskPool->setThreadCount(0);
 #else
-		mTaskPool->setThreadCount(1);
+		mTaskPool->setThreadCount(3);
 #endif
 		Entity* e = mSystemEntity->addChild(new Entity("Task pool"));
 		e->addComponent(new TaskPoolComponent(*mTaskPool));

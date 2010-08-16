@@ -56,6 +56,7 @@ public:
 		{	AnimationUpdaterComponent* updater = system.findComponentInChildrenExactType<AnimationUpdaterComponent>();
 			MCD_ASSUME(updater);
 			AnimationComponent* c = e2->addComponent(new AnimationComponent(*updater));
+			e2->enabled = true;
 			MCD_VERIFY(c->animationInstance.addTrack(*animationTrack));
 			c->animationInstance.time = initialAnimationTime;
 		}

@@ -342,6 +342,8 @@ class IntrusiveSharedWeakPtr : protected IntrusiveWeakPtr<T>
 	typedef IntrusiveWeakPtr<T> Super;
 
 public:
+	IntrusiveSharedWeakPtr() {}
+
 	template<typename U>
 	MCD_IMPLICIT IntrusiveSharedWeakPtr(U u) : Super(u) {}
 

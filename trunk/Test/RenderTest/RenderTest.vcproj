@@ -250,10 +250,6 @@
 			Filter="cpp;"
 			>
 			<File
-				RelativePath=".\AmbientCubeTest.cpp"
-				>
-			</File>
-			<File
 				RelativePath=".\AnimationTest.cpp"
 				>
 			</File>
