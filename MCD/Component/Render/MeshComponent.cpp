@@ -1,6 +1,5 @@
 #include "Pch.h"
 #include "MeshComponent.h"
-#include "RenderModifierComponent.h"
 #include "../../Core/Entity/Entity.h"
 #include "../../Render/Effect.h"
 #include "../../Render/Material.h"
@@ -28,8 +27,6 @@ void MeshComponent::render()
 	if(!mesh || !e)
 		return;
 
-	RenderModifierComponent* c = e->findComponent<RenderModifierComponent>();
-
 	glPushMatrix();
 	glMultTransposeMatrixf(e->worldTransform().getPtr());
 
@@ -37,9 +34,7 @@ void MeshComponent::render()
 	if(effect && (material = effect->material.get()) != nullptr) {
 		for(size_t i=0; i<material->getPassCount(); ++i) {
 			material->preRender(i);
-			if(nullptr != c) c->preGeomRender();
 			mesh->draw();
-			if(nullptr != c) c->postGeomRender();
 			material->postRender(i);
 		}
 	}

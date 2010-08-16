@@ -261,14 +261,6 @@
 				RelativePath=".\Render\RenderableComponent.h"
 				>
 			</File>
-			<File
-				RelativePath=".\Render\RenderModifierComponent.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\Render\RenderModifierComponent.h"
-				>
-			</File>
 		</Filter>
 		<Filter
 			Name="Physics"
