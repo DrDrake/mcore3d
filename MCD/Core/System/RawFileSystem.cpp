@@ -80,6 +80,7 @@ bool isExistsImpl(sal_in_z sal_notnull const char* path)
 		}
 	}
 #else
+	if(strcmp("/", path) == 0) return true;
 	struct stat pathStat;
 	errno = 0;
 	if(::stat(path, &pathStat) != 0) {

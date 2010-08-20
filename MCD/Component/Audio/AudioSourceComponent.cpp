@@ -20,7 +20,7 @@ void AudioComponent::traverseEntities(Entity* entityNode)
 		AudioComponent* audio = itr->findComponent<AudioComponent>();
 
 		// NOTE: We must iterate to the next entity first, since
-		// audio->update() may delete the current Entity.
+		// update() may delete the current Entity.
 		itr.next();
 
 		if(audio)

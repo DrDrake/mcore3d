@@ -47,7 +47,6 @@ public:
 #else
 	static void format(Level level, const char* fmt, ...);
 #endif
-	;
 
 	//! De-initialize the log, with the option to delete the stream or not.
 	static void stop(bool destroyStream=true);

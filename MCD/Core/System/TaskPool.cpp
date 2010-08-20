@@ -36,7 +36,8 @@ public:
 			mCondVar.waitNoLock();
 		}
 
-		Task* task = Super::findMin();
+		// Process task with bigger priority number first
+		Task* task = Super::findMax();
 		if(task) {
 			task->removeThis();
 			mCondVar.signalNoLock();

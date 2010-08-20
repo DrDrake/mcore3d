@@ -130,8 +130,8 @@ TEST(ZipFileSystemTest)
 
 	CHECK_EQUAL(112u, fs.getSize("Pch.h"));
 
-	// Open file
-	{	std::auto_ptr<std::istream> is = fs.openRead("welcome/hello.txt");
+	{	// Open file
+		std::auto_ptr<std::istream> is = fs.openRead("welcome/hello.txt");
 		CHECK(is.get() != nullptr);
 		std::string tmp;
 
@@ -140,6 +140,14 @@ TEST(ZipFileSystemTest)
 
 		// Note that the stream doesn't perform line ending conversion
 		CHECK_EQUAL("How are you?\r\nI am fine!", ss.str());
+	}
+
+	{	// Open non-existing item and then existing item
+		std::auto_ptr<std::istream> is = fs.openRead("__not_exist__.txt");
+		CHECK(!is.get());
+
+		is = fs.openRead("welcome/hello.txt");
+		CHECK(is.get());
 	}
 
 	// Check the last write time

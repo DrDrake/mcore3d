@@ -17,10 +17,13 @@ void BehaviourComponent::traverseEntities(Entity* entityNode, float dt)
 		}
 
 		BehaviourComponent* behaviour = itr->findComponent<BehaviourComponent>();
+
+		// NOTE: We must iterate to the next entity first, since
+		// update() may delete the current Entity.
+		itr.next();
+
 		if(behaviour)
 			behaviour->update(dt);
-
-		itr.next();
 	}
 }
 
