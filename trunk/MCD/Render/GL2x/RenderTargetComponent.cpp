@@ -82,7 +82,7 @@ void RenderTargetComponent::render(RendererComponent& renderer, bool swapBuffers
 	for(; textureCount<textures.size(); ++textureCount)
 		if(!textures[textureCount]) break;
 
-	if(window && !textureCount) {
+	if(window) {
 		window->makeActive();
 		window->preUpdate();
 
@@ -97,8 +97,7 @@ void RenderTargetComponent::render(RendererComponent& renderer, bool swapBuffers
 			window->postUpdate();
 	}
 
-	// Texture only
-	if(!window && textureCount)
+	if(textureCount)
 	{
 		if(mImpl == 0) {
 			glDeleteFramebuffers(1, (GLuint*)&mImpl);

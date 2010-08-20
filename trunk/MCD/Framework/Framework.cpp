@@ -40,6 +40,8 @@
 
 #include "../Loader/ResourceLoaderFactory.h"
 
+#include "../Audio/AudioDevice.h"
+
 namespace MCD {
 
 class Framework::Impl
@@ -175,6 +177,9 @@ Framework::Impl::Impl()
 #endif
 		e->addComponent(c);
 	}
+
+	// Audio
+	MCD_VERIFY(initAudioDevice());
 }
 
 Framework::Impl::~Impl()
@@ -197,6 +202,8 @@ Framework::Impl::~Impl()
 		mWindow.release();
 
 	mTaskPool.reset();
+
+	closeAudioDevice();
 
 	Log::stop(false);
 }

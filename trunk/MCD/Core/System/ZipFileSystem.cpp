@@ -142,6 +142,8 @@ public:
 
 	void releaseContext(Context& c)
 	{
+		// NOTE: If you hit this assert on iPhone, please check that you are
+		// not hitting the limit of 256 simultaneous opened file descriptor
 		MCD_ASSERT(c.mZipHandle);
 		MCD_ASSERT(mMutex.isLocked());
 		unzCloseCurrentFile(c.mZipHandle);

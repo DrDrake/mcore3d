@@ -22,7 +22,7 @@ class MCD_RENDER_API RenderTargetComponent : public RenderableComponent2
 public:
 	RenderTargetComponent();
 
-	~RenderTargetComponent();
+	sal_override ~RenderTargetComponent();
 
 	//! Will register the itself into the RendererComponent
 	sal_override void render();
