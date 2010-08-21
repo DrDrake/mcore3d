@@ -45,8 +45,10 @@ uint64_t MemoryFileSystem::getSize(const Path& path) const
 std::auto_ptr<std::istream> MemoryFileSystem::openRead(const Path& path) const
 {
 	std::auto_ptr<std::istream> stream;
-	if(const MemoryFile* file = mMemoryFiles.find(path))
-		stream.reset(new Stream(*new MemoryFileStreamProxy((char*)file->fileData, file->fileSize)));
+	if(const MemoryFile* file = mMemoryFiles.find(path)) {
+		std::auto_ptr<MemoryFileStreamProxy> sp(new MemoryFileStreamProxy((char*)file->fileData, file->fileSize));
+		stream.reset(new Stream(*sp.release()));
+	}
 
 	return stream;
 }

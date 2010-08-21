@@ -40,7 +40,7 @@ RendererComponent::Impl::Impl()
 
 	mWhiteTexture = new Texture("1x1White");
 	byte_t data[] = { 255, 255, 255, 255 };
-	mWhiteTexture->create(GpuDataFormat::get("uintARGB8"), GpuDataFormat::get("uintARGB8"), 1, 1, 1, 1, data, 4);
+	MCD_VERIFY(mWhiteTexture->create(GpuDataFormat::get("uintARGB8"), GpuDataFormat::get("uintARGB8"), 1, 1, 1, 1, data, 4));
 
 	mQuadRenderer.reset(new QuadRenderer(*this));
 }

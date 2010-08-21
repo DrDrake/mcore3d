@@ -9,8 +9,8 @@ namespace MCD {
 
 void addDataToMemoryFileSystem(MemoryFileSystem& fs)
 {
-	fs.add("buildin/Arial-20.fnt", _binary_Arial_20_fnt_start, sizeof(_binary_Arial_20_fnt_start));
-	fs.add("buildin/Arial-20_0.png", _binary_Arial_20_0_png_start, sizeof(_binary_Arial_20_0_png_start));
+	MCD_VERIFY(fs.add("buildin/Arial-20.fnt", _binary_Arial_20_fnt_start, sizeof(_binary_Arial_20_fnt_start)));
+	MCD_VERIFY(fs.add("buildin/Arial-20_0.png", _binary_Arial_20_0_png_start, sizeof(_binary_Arial_20_0_png_start)));
 }
 
 }	// namespace MCD

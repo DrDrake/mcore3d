@@ -146,6 +146,7 @@ public:
 		so the old one (if any) will be deleted before the new one is added.
 		If the supplied component is already added to some other Entity, the
 		add operation will be canceled.
+		\return The added component
 	 */
 	template<class T>
 	sal_maybenull T* addComponent(sal_in_opt T* component) {
