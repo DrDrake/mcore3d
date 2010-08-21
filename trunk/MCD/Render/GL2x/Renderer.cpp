@@ -99,7 +99,9 @@ void RendererComponent::Impl::render(Entity& entityTree, RenderTargetComponent& 
 			glLightfv(iLight, GL_DIFFUSE, diffuse.rawPointer());
 			glLightfv(iLight, GL_SPECULAR, diffuse.rawPointer());
 
-			const Vec3f pos = light->entity()->worldTransform().translation();
+			Entity* e = light->entity();
+			MCD_ASSUME(e);
+			const Vec3f pos = e->worldTransform().translation();
 			GLfloat lightPos[] = { pos.x, pos.y, pos.z, 1.0f };
 			glLightfv(iLight, GL_POSITION, lightPos);
 		}
@@ -130,7 +132,9 @@ void RendererComponent::Impl::render(Entity& entityTree, RenderTargetComponent& 
 		{	// Render QuadComponent
 			MCD_FOREACH(const QuadMaterialPair& pair, mQuads) {
 				QuadComponent* quad = pair.quad;
-				const Mat44f& transform = quad->entity()->worldTransform();
+				Entity* e = quad->entity();
+				MCD_ASSUME(e);
+				const Mat44f& transform = e->worldTransform();
 				mQuadRenderer->push(transform, quad->width, quad->height, quad->uv, pair.mtl);
 			}
 			mQuadRenderer->flush();

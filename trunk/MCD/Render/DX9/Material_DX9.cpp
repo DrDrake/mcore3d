@@ -38,6 +38,7 @@ MaterialComponent::Impl::~Impl()
 bool MaterialComponent::Impl::createVs()
 {
 	LPDIRECT3DDEVICE9 device = getDevice();
+	MCD_ASSUME(device);
 
 	static const char code[] =
 	"float4x4 mcdWorld;"
@@ -95,6 +96,7 @@ bool MaterialComponent::Impl::createVs()
 bool MaterialComponent::Impl::createPs()
 {
 	LPDIRECT3DDEVICE9 device = getDevice();
+	MCD_ASSUME(device);
 
 	static const char code[] =
 	"#define MCD_MAX_LIGHT_COUNT 4\n"
@@ -301,6 +303,7 @@ void SpriteMaterialComponent::render2(void* context)
 void SpriteMaterialComponent::preRender(size_t pass, void* context)
 {
 	LPDIRECT3DDEVICE9 device = getDevice();
+	MCD_ASSUME(device);
 
 	device->SetVertexShader(nullptr);
 	device->SetPixelShader(nullptr);

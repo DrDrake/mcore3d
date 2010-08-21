@@ -36,7 +36,9 @@ void TextLabelComponent::render2(void* context)
 	}
 
 	if(!mVertexBuffer.empty()) {
-		RenderItem r = { entity(), this, m, entity()->worldTransform() };
+		Entity* e = entity();
+		MCD_ASSUME(e);
+		RenderItem r = { e, this, m, e->worldTransform() };
 		renderer.mTransparentQueue.insert(*new RenderItemNode(0, r));
 	}
 }

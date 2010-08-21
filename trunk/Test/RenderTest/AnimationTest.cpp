@@ -20,7 +20,7 @@ class AnimationTestFixture
 public:
 	AnimationTestFixture()
 	{
-		framework.initWindow("title=AnimationComponentTest;width=800;height=600;fullscreen=0;FSAA=4");
+		MCD_VERIFY(framework.initWindow("title=AnimationComponentTest;width=800;height=600;fullscreen=0;FSAA=4"));
 
 		animationTrack = new AnimationTrack("");
 		loadAnimationTrack();

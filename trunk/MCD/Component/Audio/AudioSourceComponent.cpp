@@ -60,7 +60,8 @@ void AudioSourceComponent::update()
 			return;
 		}
 		if(destroyEntityAfterFinish) {
-			entity()->destroyThis();
+			Entity* e = entity();
+			Entity::destroy(e);
 			// NOTE: Must return, since this object is deleted!
 			return;
 		}
