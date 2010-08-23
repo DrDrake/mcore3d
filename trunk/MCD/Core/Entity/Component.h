@@ -60,6 +60,11 @@ public:
 	//! The Entity that this component belongs to.
 	sal_maybenull Entity* entity() const;
 
+	//! Returns the enabled flag of the containing Entity, false if the Component is not contained by any Entity.
+	sal_checkreturn bool enabled() const;
+
+	void setEnabled(bool b);
+
 	ScriptOwnershipHandle scriptOwnershipHandle;
 
 protected:

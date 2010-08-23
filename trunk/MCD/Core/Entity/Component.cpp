@@ -34,6 +34,16 @@ Entity* Component::entity() const {
 	return mEntity;
 }
 
+bool Component::enabled() const {
+	return mEntity ? mEntity->enabled : false;
+}
+
+void Component::setEnabled(bool b)
+{
+	if(mEntity)
+		mEntity->enabled = b;
+}
+
 ComponentPreorderIterator::ComponentPreorderIterator(Entity* start)
 	: mCurrent(nullptr), mCurrentEntity(start)
 {
