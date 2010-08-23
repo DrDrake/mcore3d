@@ -44,8 +44,19 @@ TEST(Basic_ComponentTest)
 	ComponentPtr c1 = new DummyComponent1;
 	ComponentPtr c2 = new DummyComponent2;
 
+	CHECK(!c1->enabled());
+	CHECK(!c2->enabled());
+
 	root.addComponent(c1.getNotNull());
 	root.addComponent(c2.getNotNull());
+
+	CHECK(c1->enabled());
+	CHECK(c2->enabled());
+
+	c1->setEnabled(false);
+	c2->setEnabled(false);
+	CHECK(!c1->enabled());
+	CHECK(!c2->enabled());
 
 	CHECK_EQUAL(&root, c1->entity());
 	CHECK_EQUAL(&root, c2->entity());

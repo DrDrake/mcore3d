@@ -17,10 +17,10 @@ void RenderableComponent2::traverseEntities(sal_maybenull Entity* entityNode)
 		}
 
 		RenderableComponent2* renderable = itr->findComponent<RenderableComponent2>();
+		itr.next();
+
 		if(renderable)
 			renderable->render();
-
-		itr.next();
 	}
 }
 
