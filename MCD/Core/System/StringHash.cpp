@@ -149,6 +149,8 @@ public:
 
 	MCD_NOINLINE Node& find(uint32_t hashValue) const
 	{
+		ScopeLock lock(mMutex);
+
 		const size_t index = hashValue % mBuckets.size();
 		for(Node* n = mBuckets[index]; n; n = n->next) {
 			if(n->hashValue != hashValue)
@@ -164,19 +166,15 @@ public:
 			return mNullNode;
 
 		const uint32_t hashValue = StringHash(str, 0).hash;
-		const size_t index = hashValue % mBuckets.size();
 
 		ScopeLock lock(mMutex);
+		const size_t index = hashValue % mBuckets.size();
 
 		// Find any string with the same hash value
 		for(Node* n = mBuckets[index]; n; n = n->next) {
-			if(n->hashValue != hashValue)
-				continue;
-			if(strcmp(n->stringValue(), str) == 0)
+			if(n->hashValue == hashValue) {
+				MCD_ASSERT(strcmp(n->stringValue(), str) == 0 && "String hash collision in FixString" );
 				return *n;
-			else {
-				MCD_ASSERT(false && "String hash collision in FixString");
-				return mNullNode;
 			}
 		}
 
@@ -205,10 +203,10 @@ public:
 		if(--node.refCount != 0)
 			return;
 
+		ScopeLock lock(mMutex);
 		const size_t index = node.hashValue % mBuckets.size();
 		Node* last = nullptr;
 
-		ScopeLock lock(mMutex);
 		for(Node* n = mBuckets[index]; n; last = n, n = n->next) {
 			if(n->hashValue == node.hashValue) {
 				if(last)
@@ -241,30 +239,33 @@ public:
 		std::swap(newBuckets, mBuckets);
 	}
 
-	Mutex mMutex;
+	mutable Mutex mMutex;
 	size_t mCount;	//!< The actuall number of elements in this table, can be <=> mBuckets.size()
 	std::vector<Node*> mBuckets;
 	Node& mNullNode;
 };	// FixStringHashTable
 
-static FixStringHashTable gFixStringHashTable;
+MCD_NOINLINE static FixStringHashTable& gFixStringHashTable() {
+	static FixStringHashTable singleton;
+	return singleton;
+}
 
 }	// namespace
 
 FixString::FixString()
-	: mNode(&gFixStringHashTable.add(""))
+	: mNode(&gFixStringHashTable().add(""))
 {
 	++mNode->refCount;
 }
 
 FixString::FixString(const char* str)
-	: mNode(&gFixStringHashTable.add(str))
+	: mNode(&gFixStringHashTable().add(str))
 {
 	++mNode->refCount;
 }
 
 FixString::FixString(uint32_t hashValue)
-	: mNode(&gFixStringHashTable.find(hashValue))
+	: mNode(&gFixStringHashTable().find(hashValue))
 {
 	++mNode->refCount;
 }
@@ -276,12 +277,12 @@ FixString::FixString(const FixString& rhs)
 }
 
 FixString::~FixString() {
-	gFixStringHashTable.remove(*mNode);
+	gFixStringHashTable().remove(*mNode);
 }
 
 FixString& FixString::operator=(const FixString& rhs)
 {
-	gFixStringHashTable.remove(*mNode);
+	gFixStringHashTable().remove(*mNode);
 	mNode = rhs.mNode;
 	++mNode->refCount;
 	return *this;

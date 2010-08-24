@@ -517,7 +517,9 @@ IResourceLoader::LoadingState PodLoader::Impl::load(std::istream* is, const Path
 			}
 		}
 
-		// Bake the mesh's transform into the vertex, for the joint matrix inverse to work correctly.
+		// Since all the get functions of the pod API are in final world transform, we
+		// would like the vertex positions are also in the final world coordinate; therefore
+		// we bake the mesh's transform into the vertex.
 		if(hasSkeleton) for(size_t i=0; i<mPod.nNumMeshNode; ++i)
 		{
 			const SPODNode& podNode = mPod.pNode[i];

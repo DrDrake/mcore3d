@@ -25,7 +25,10 @@ public:
 	bool tryLock();
 
 #ifndef NDEBUG
-	//! For use in debug mode to assert that the mutex is locked.
+	/*!	For use in debug mode to assert that the mutex is locked.
+		\note Do not assert for not locked, since the return value
+			itself is not reliable if the mutex is not locked.
+	 */
 	bool isLocked() const { return _locked; }
 #endif
 
@@ -61,7 +64,10 @@ public:
 	bool tryLock();
 
 #ifndef NDEBUG
-	//! For use in debug mode to assert that the mutex is locked.
+	/*!	For use in debug mode to assert that the mutex is locked.
+		\note Do not assert for not locked, since the return value
+			itself is not reliable if the mutex is not locked.
+	 */
 	bool isLocked() const;
 	int lockCount() const;
 #endif

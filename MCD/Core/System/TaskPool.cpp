@@ -143,7 +143,7 @@ void TaskPool::processTaskIfNoThread()
 	Thread dummyThread;
 	dummyThread.setKeepRun(true);
 
-	while(Task* task = mTaskQueue->findMin()) {
+	while(Task* task = mTaskQueue->findMax()) {
 		task->removeThis();
 		ScopeUnlock unlock(mTaskQueue->mCondVar);
 		task->run(dummyThread);
