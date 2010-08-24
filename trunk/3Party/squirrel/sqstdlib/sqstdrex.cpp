@@ -5,9 +5,7 @@
 #include <setjmp.h>
 #include "../sqstdstring.h"
 
-#ifdef SQUNICODE
-#include <wchar.h>
-#include <wctype.h>	// For iswprint
+#ifdef _UINCODE
 #define scisprint iswprint
 #else
 #define scisprint isprint
@@ -183,7 +181,7 @@ static SQInteger sqstd_rex_class(SQRex *exp)
 			SQInteger r;
 			if(*exp->_p++ == ']') sqstd_rex_error(exp,_SC("unfinished range"));
 			r = sqstd_rex_newnode(exp,OP_RANGE);
-			if(first>*exp->_p) sqstd_rex_error(exp,_SC("invalid range"));
+			if(exp->_nodes[first].type>*exp->_p) sqstd_rex_error(exp,_SC("invalid range"));
 			if(exp->_nodes[first].type == OP_CCLASS) sqstd_rex_error(exp,_SC("cannot use character classes in ranges"));
 			exp->_nodes[r].left = exp->_nodes[first].type;
 			SQInteger t = sqstd_rex_escapechar(exp);

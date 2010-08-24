@@ -12,12 +12,7 @@ SQFILE sqstd_fopen(const SQChar *filename ,const SQChar *mode)
 #ifndef SQUNICODE
 	return (SQFILE)fopen(filename,mode);
 #else
-#	ifdef _MSC_VER
 	return (SQFILE)_wfopen(filename,mode);
-#	else
-	// TODO: Implementation for Gcc!
-	return 0;
-#	endif
 #endif
 }
 

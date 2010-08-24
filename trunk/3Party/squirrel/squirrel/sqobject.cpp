@@ -35,6 +35,7 @@ const SQChar *IdType2Name(SQObjectType type)
 	case _RT_CLASS: return _SC("class");
 	case _RT_INSTANCE: return _SC("instance");
 	case _RT_WEAKREF: return _SC("weakref");
+	case _RT_OUTER: return _SC("outer");
 	default:
 		return NULL;
 	}
@@ -48,7 +49,6 @@ const SQChar *GetTypeName(const SQObjectPtr &obj1)
 SQString *SQString::Create(SQSharedState *ss,const SQChar *s,SQInteger len)
 {
 	SQString *str=ADD_STRING(ss,s,len);
-	str->_sharedstate=ss;
 	return str;
 }
 
@@ -128,22 +128,24 @@ bool SQDelegable::SetDelegate(SQTable *mt)
 	return true;
 }
 
-bool SQGenerator::Yield(SQVM *v)
+bool SQGenerator::Yield(SQVM *v,SQInteger target)
 {
 	if(_state==eSuspended) { v->Raise_Error(_SC("internal vm error, yielding dead generator"));  return false;}
 	if(_state==eDead) { v->Raise_Error(_SC("internal vm error, yielding a dead generator")); return false; }
 	SQInteger size = v->_top-v->_stackbase;
-	_ci=*v->ci;
+	
 	_stack.resize(size);
-	for(SQInteger n =0; n<size; n++) {
+	SQObject _this = v->_stack[v->_stackbase];
+	_stack._vals[0] = ISREFCOUNTED(type(_this)) ? SQObjectPtr(_refcounted(_this)->GetWeakRef(type(_this))) : _this;
+	for(SQInteger n =1; n<target; n++) {
 		_stack._vals[n] = v->_stack[v->_stackbase+n];
-		v->_stack[v->_stackbase+n] = _null_;
 	}
-	SQInteger nvargs = v->ci->_vargs.size;
-	SQInteger vargsbase = v->ci->_vargs.base;
-	for(SQInteger j = nvargs - 1; j >= 0; j--) {
-		_vargsstack.push_back(v->_vargsstack[vargsbase+j]);
+	for(SQInteger j =0; j < size; j++)
+	{
+		v->_stack[v->_stackbase+j] = _null_;
 	}
+
+	_ci = *v->ci;
 	_ci._generator=NULL;
 	for(SQInteger i=0;i<_ci._etraps;i++) {
 		_etraps.push_back(v->_etraps.top());
@@ -153,37 +155,39 @@ bool SQGenerator::Yield(SQVM *v)
 	return true;
 }
 
-bool SQGenerator::Resume(SQVM *v,SQInteger target)
+bool SQGenerator::Resume(SQVM *v,SQObjectPtr &dest)
 {
-	SQInteger size=_stack.size();
 	if(_state==eDead){ v->Raise_Error(_SC("resuming dead generator")); return false; }
 	if(_state==eRunning){ v->Raise_Error(_SC("resuming active generator")); return false; }
-	SQInteger prevtop=v->_top-v->_stackbase;
-	PUSH_CALLINFO(v,_ci);
-	SQInteger oldstackbase=v->_stackbase;
-	v->_stackbase = v->_top;
-	v->ci->_target = (SQInt32)target;
-	v->ci->_generator = this;
-	v->ci->_vargs.size = (unsigned short)_vargsstack.size();
-	
+	SQInteger size = _stack.size();
+	SQInteger target = &dest - &(v->_stack._vals[v->_stackbase]);
+	assert(target>=0 && target<=255);
+	if(!v->EnterFrame(v->_top, v->_top + size, false)) 
+		return false;
+	v->ci->_generator   = this;
+	v->ci->_target      = (SQInt32)target;
+	v->ci->_closure     = _ci._closure;
+	v->ci->_ip          = _ci._ip;
+	v->ci->_literals    = _ci._literals;
+	v->ci->_ncalls      = _ci._ncalls;
+	v->ci->_etraps      = _ci._etraps;
+	v->ci->_root        = _ci._root;
+
+
 	for(SQInteger i=0;i<_ci._etraps;i++) {
 		v->_etraps.push_back(_etraps.top());
 		_etraps.pop_back();
 	}
-	for(SQInteger n =0; n<size; n++) {
+	SQObject _this = _stack._vals[0];
+	v->_stack[v->_stackbase] = type(_this) == OT_WEAKREF ? _weakref(_this)->_obj : _this;
+	//_stack._vals[0] = _null_; // shouldn't do this(better caching the weak ref)
+	for(SQInteger n = 1; n<size; n++) {
 		v->_stack[v->_stackbase+n] = _stack._vals[n];
-		_stack._vals[0] = _null_;
+		_stack._vals[n] = _null_;
 	}
-	while(_vargsstack.size()) {
-		v->_vargsstack.push_back(_vargsstack.back());
-		_vargsstack.pop_back();
-	}
-	v->ci->_vargs.base = (unsigned short)(v->_vargsstack.size() - v->ci->_vargs.size);
-	v->_top=v->_stackbase+size;
-	v->ci->_prevtop = (SQInt32)prevtop;
-	v->ci->_prevstkbase = (SQInt32)(v->_stackbase - oldstackbase);
+
 	_state=eRunning;
-	if (type(v->_debughook) != OT_NULL && _rawval(v->_debughook) != _rawval(v->ci->_closure))
+	if (v->_debughook)
 		v->CallDebugHook(_SC('c'));
 
 	return true;
@@ -226,6 +230,13 @@ SQInteger SQFunctionProto::GetLine(SQInstruction *curr)
 		line=_lineinfos[i]._line;
 	}
 	return line;
+}
+
+SQClosure::~SQClosure()
+{
+	__ObjRelease(_env);
+	__ObjRelease(_base);
+	REMOVE_FROM_CHAIN(&_ss(this)->_gc_chain,this);
 }
 
 #define _CHECK_IO(exp)  { if(!exp)return false; }
@@ -318,7 +329,7 @@ bool SQClosure::Save(SQVM *v,SQUserPointer up,SQWRITEFUNC write)
 {
 	_CHECK_IO(WriteTag(v,write,up,SQ_CLOSURESTREAM_HEAD));
 	_CHECK_IO(WriteTag(v,write,up,sizeof(SQChar)));
-	_CHECK_IO(_funcproto(_function)->Save(v,up,write));
+	_CHECK_IO(_function->Save(v,up,write));
 	_CHECK_IO(WriteTag(v,write,up,SQ_CLOSURESTREAM_TAIL));
 	return true;
 }
@@ -332,6 +343,18 @@ bool SQClosure::Load(SQVM *v,SQUserPointer up,SQREADFUNC read,SQObjectPtr &ret)
 	_CHECK_IO(CheckTag(v,read,up,SQ_CLOSURESTREAM_TAIL));
 	ret = SQClosure::Create(_ss(v),_funcproto(func));
 	return true;
+}
+
+SQFunctionProto::SQFunctionProto(SQSharedState *ss)
+{
+	_stacksize=0;
+	_bgenerator=false;
+	INIT_CHAIN();ADD_TO_CHAIN(&_ss(this)->_gc_chain,this);
+}
+
+SQFunctionProto::~SQFunctionProto()
+{
+	REMOVE_FROM_CHAIN(&_ss(this)->_gc_chain,this);
 }
 
 bool SQFunctionProto::Save(SQVM *v,SQUserPointer up,SQWRITEFUNC write)
@@ -419,7 +442,7 @@ bool SQFunctionProto::Load(SQVM *v,SQUserPointer up,SQREADFUNC read,SQObjectPtr 
 	_CHECK_IO(SafeRead(v,read,up, &nfunctions, sizeof(nfunctions)));
 	
 
-	SQFunctionProto *f = SQFunctionProto::Create(ninstructions,nliterals,nparameters,
+	SQFunctionProto *f = SQFunctionProto::Create(_opt_ss(v),ninstructions,nliterals,nparameters,
 			nfunctions,noutervalues,nlineinfos,nlocalvarinfos,ndefaultparams);
 	SQObjectPtr proto = f; //gets a ref in case of failure
 	f->_sourcename = sourcename;
@@ -492,11 +515,10 @@ void SQVM::Mark(SQCollectable **chain)
 	START_MARK()
 		SQSharedState::MarkObject(_lasterror,chain);
 		SQSharedState::MarkObject(_errorhandler,chain);
-		SQSharedState::MarkObject(_debughook,chain);
+		SQSharedState::MarkObject(_debughook_closure,chain);
 		SQSharedState::MarkObject(_roottable, chain);
 		SQSharedState::MarkObject(temp_reg, chain);
 		for(SQUnsignedInteger i = 0; i < _stack.size(); i++) SQSharedState::MarkObject(_stack[i], chain);
-		for(SQUnsignedInteger j = 0; j < _vargsstack.size(); j++) SQSharedState::MarkObject(_vargsstack[j], chain);
 		for(SQInteger k = 0; k < _callsstacksize; k++) SQSharedState::MarkObject(_callsstack[k]._closure, chain);
 	END_MARK()
 }
@@ -542,8 +564,8 @@ void SQClass::Mark(SQCollectable **chain)
 
 void SQInstance::Mark(SQCollectable **chain)
 {
-	if(!_class)
-		return;
+	if(!_class)	// Added by Ricky
+		return;	//
 	START_MARK()
 		_class->Mark(chain);
 		SQUnsignedInteger nvalues = _class->_defaultvalues.size();
@@ -557,16 +579,26 @@ void SQGenerator::Mark(SQCollectable **chain)
 {
 	START_MARK()
 		for(SQUnsignedInteger i = 0; i < _stack.size(); i++) SQSharedState::MarkObject(_stack[i], chain);
-		for(SQUnsignedInteger j = 0; j < _vargsstack.size(); j++) SQSharedState::MarkObject(_vargsstack[j], chain);
 		SQSharedState::MarkObject(_closure, chain);
+	END_MARK()
+}
+
+void SQFunctionProto::Mark(SQCollectable **chain)
+{
+	START_MARK()
+		for(SQInteger i = 0; i < _nliterals; i++) SQSharedState::MarkObject(_literals[i], chain);
+		for(SQInteger i = 0; i < _nfunctions; i++) SQSharedState::MarkObject(_functions[i], chain);
 	END_MARK()
 }
 
 void SQClosure::Mark(SQCollectable **chain)
 {
 	START_MARK()
-		for(SQUnsignedInteger i = 0; i < _outervalues.size(); i++) SQSharedState::MarkObject(_outervalues[i], chain);
-		for(SQUnsignedInteger i = 0; i < _defaultparams.size(); i++) SQSharedState::MarkObject(_defaultparams[i], chain);
+		if(_base) _base->Mark(chain);
+		SQFunctionProto *fp = _function;
+		fp->Mark(chain);
+		for(SQInteger i = 0; i < fp->_noutervalues; i++) SQSharedState::MarkObject(_outervalues[i], chain);
+		for(SQInteger i = 0; i < fp->_ndefaultparams; i++) SQSharedState::MarkObject(_defaultparams[i], chain);
 	END_MARK()
 }
 
@@ -575,6 +607,19 @@ void SQNativeClosure::Mark(SQCollectable **chain)
 	START_MARK()
 		for(SQUnsignedInteger i = 0; i < _outervalues.size(); i++) SQSharedState::MarkObject(_outervalues[i], chain);
 	END_MARK()
+}
+
+void SQOuter::Mark(SQCollectable **chain)
+{
+  if(!(_uiRef & MARK_FLAG)) {
+		_uiRef |= MARK_FLAG;
+    /* If the valptr points to a closed value, that value is alive */
+    if(_valptr == &_value) {
+      SQSharedState::MarkObject(_value, chain);
+    }
+    RemoveFromChain(&_sharedstate->_gc_chain, this);
+		AddToChain(chain, this);
+  }
 }
 
 void SQUserData::Mark(SQCollectable **chain){

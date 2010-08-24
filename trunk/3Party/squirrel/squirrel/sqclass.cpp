@@ -5,6 +5,7 @@
 #include "sqvm.h"
 #include "sqtable.h"
 #include "sqclass.h"
+#include "sqfuncproto.h"
 #include "sqclosure.h"
 
 SQClass::SQClass(SQSharedState *ss,SQClass *base)
@@ -23,6 +24,7 @@ SQClass::SQClass(SQSharedState *ss,SQClass *base)
 	_members = base?base->_members->Clone() : SQTable::Create(ss,0);
 	__ObjAddRef(_members);
 	_locked = false;
+	_constructoridx = -1;
 	INIT_CHAIN();
 	ADD_TO_CHAIN(&_sharedstate->_gc_chain, this);
 }
@@ -47,28 +49,40 @@ SQClass::~SQClass()
 bool SQClass::NewSlot(SQSharedState *ss,const SQObjectPtr &key,const SQObjectPtr &val,bool bstatic)
 {
 	SQObjectPtr temp;
-	if(_locked) 
+	bool belongs_to_static_table = type(val) == OT_CLOSURE || type(val) == OT_NATIVECLOSURE || bstatic;
+	if(_locked && !belongs_to_static_table) 
 		return false; //the class already has an instance so cannot be modified
 	if(_members->Get(key,temp) && _isfield(temp)) //overrides the default value
 	{
 		_defaultvalues[_member_idx(temp)].val = val;
 		return true;
 	}
-	if(type(val) == OT_CLOSURE || type(val) == OT_NATIVECLOSURE || bstatic) {
+	if(belongs_to_static_table) {
 		SQInteger mmidx;
 		if((type(val) == OT_CLOSURE || type(val) == OT_NATIVECLOSURE) && 
 			(mmidx = ss->GetMetaMethodIdxByName(key)) != -1) {
 			_metamethods[mmidx] = val;
 		} 
 		else {
+			SQObjectPtr theval = val;
+			if(_base && type(val) == OT_CLOSURE) {
+				theval = _closure(val)->Clone();
+				_closure(theval)->_base = _base;
+				__ObjAddRef(_base); //ref for the closure
+			}
 			if(type(temp) == OT_NULL) {
+				bool isconstructor;
+				_thread(ss->_root_vm)->IsEqual(ss->_constructoridx, key, isconstructor);
+				if(isconstructor) {
+					_constructoridx = (SQInteger)_methods.size();
+				}
 				SQClassMember m;
-				m.val = val;
+				m.val = theval;
 				_members->NewSlot(key,SQObjectPtr(_make_method_idx(_methods.size())));
 				_methods.push_back(m);
 			}
 			else {
-				_methods[_member_idx(temp)].val = val;
+				_methods[_member_idx(temp)].val = theval;
 			}
 		}
 		return true;
@@ -160,8 +174,6 @@ SQInstance::SQInstance(SQSharedState *ss, SQInstance *i, SQInteger memsize)
 
 void SQInstance::Finalize() 
 {
-	if(!_class)
-		return;
 	SQUnsignedInteger nvalues = _class->_defaultvalues.size();
 	__ObjRelease(_class);
 	for(SQUnsignedInteger i = 0; i < nvalues; i++) {

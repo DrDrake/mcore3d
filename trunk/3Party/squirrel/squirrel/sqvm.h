@@ -8,6 +8,7 @@
 #define MIN_STACK_OVERHEAD 10
 
 #define SQ_SUSPEND_FLAG -666
+#define DONT_FALL_BACK 666
 //base lib
 void sq_base_register(HSQUIRRELVM v);
 
@@ -30,15 +31,8 @@ typedef sqvector<SQExceptionTrap> ExceptionsTraps;
 
 struct SQVM : public CHAINABLE_OBJ
 {
-	struct VarArgs {
-		VarArgs() { size = 0; base = 0; }
-		unsigned short size;
-		unsigned short base;
-	};
-
 	struct CallInfo{
-		CallInfo() { memset(this, 0, sizeof(CallInfo)); }	// NOTE: Shutup the uninitialized memory access warning in memory checking tools
-		//CallInfo() { _generator._type = OT_NULL;}
+		//CallInfo() { _generator = NULL;}
 		SQInstruction *_ip;
 		SQObjectPtr *_literals;
 		SQObjectPtr _closure;
@@ -49,18 +43,19 @@ struct SQVM : public CHAINABLE_OBJ
 		SQInt32 _target;
 		SQInt32 _ncalls;
 		SQBool _root;
-		VarArgs _vargs;
 	};
 	
 typedef sqvector<CallInfo> CallInfoVec;
 public:
-	enum ExecutionType { ET_CALL, ET_RESUME_GENERATOR, ET_RESUME_VM, ET_RESUME_THROW_VM };
+	void DebugHookProxy(SQInteger type, const SQChar * sourcename, SQInteger line, const SQChar * funcname);
+	static void _DebugHookProxy(HSQUIRRELVM v, SQInteger type, const SQChar * sourcename, SQInteger line, const SQChar * funcname);
+	enum ExecutionType { ET_CALL, ET_RESUME_GENERATOR, ET_RESUME_VM,ET_RESUME_THROW_VM };
 	SQVM(SQSharedState *ss);
 	~SQVM();
 	bool Init(SQVM *friendvm, SQInteger stacksize);
-	bool Execute(SQObjectPtr &func, SQInteger target, SQInteger nargs, SQInteger stackbase, SQObjectPtr &outres, SQBool raiseerror, ExecutionType et = ET_CALL);
+	bool Execute(SQObjectPtr &func, SQInteger nargs, SQInteger stackbase, SQObjectPtr &outres, SQBool raiseerror, ExecutionType et = ET_CALL);
 	//starts a native call return when the NATIVE closure returns
-	bool CallNative(SQNativeClosure *nclosure, SQInteger nargs, SQInteger stackbase, SQObjectPtr &retval,bool &suspend);
+	bool CallNative(SQNativeClosure *nclosure, SQInteger nargs, SQInteger newbase, SQObjectPtr &retval,bool &suspend);
 	//starts a SQUIRREL call in the same "Execution loop"
 	bool StartCall(SQClosure *closure, SQInteger target, SQInteger nargs, SQInteger stackbase, bool tailcall);
 	bool CreateClassInstance(SQClass *theclass, SQObjectPtr &inst, SQObjectPtr &constructor);
@@ -70,24 +65,30 @@ public:
 
 	void CallDebugHook(SQInteger type,SQInteger forcedline=0);
 	void CallErrorHandler(SQObjectPtr &e);
-	bool Get(const SQObjectPtr &self, const SQObjectPtr &key, SQObjectPtr &dest, bool raw, bool fetchroot);
-	bool FallBackGet(const SQObjectPtr &self,const SQObjectPtr &key,SQObjectPtr &dest,bool raw);
-	bool Set(const SQObjectPtr &self, const SQObjectPtr &key, const SQObjectPtr &val, bool fetchroot);
+	bool Get(const SQObjectPtr &self, const SQObjectPtr &key, SQObjectPtr &dest, bool raw, SQInteger selfidx);
+	SQInteger FallBackGet(const SQObjectPtr &self,const SQObjectPtr &key,SQObjectPtr &dest);
+	bool InvokeDefaultDelegate(const SQObjectPtr &self,const SQObjectPtr &key,SQObjectPtr &dest);
+	bool Set(const SQObjectPtr &self, const SQObjectPtr &key, const SQObjectPtr &val, SQInteger selfidx);
+	SQInteger FallBackSet(const SQObjectPtr &self,const SQObjectPtr &key,const SQObjectPtr &val);
 	bool NewSlot(const SQObjectPtr &self, const SQObjectPtr &key, const SQObjectPtr &val,bool bstatic);
 	bool DeleteSlot(const SQObjectPtr &self, const SQObjectPtr &key, SQObjectPtr &res);
 	bool Clone(const SQObjectPtr &self, SQObjectPtr &target);
 	bool ObjCmp(const SQObjectPtr &o1, const SQObjectPtr &o2,SQInteger &res);
 	bool StringCat(const SQObjectPtr &str, const SQObjectPtr &obj, SQObjectPtr &dest);
-	bool IsEqual(SQObjectPtr &o1,SQObjectPtr &o2,bool &res);
+	bool IsEqual(const SQObjectPtr &o1,const SQObjectPtr &o2,bool &res);
 	void ToString(const SQObjectPtr &o,SQObjectPtr &res);
-	SQString *PrintObjVal(const SQObject &o);
+	SQString *PrintObjVal(const SQObjectPtr &o);
 
  
 	void Raise_Error(const SQChar *s, ...);
-	void Raise_Error(SQObjectPtr &desc);
-	void Raise_IdxError(SQObject &o);
+	void Raise_Error(const SQObjectPtr &desc);
+	void Raise_IdxError(const SQObjectPtr &o);
 	void Raise_CompareError(const SQObject &o1, const SQObject &o2);
 	void Raise_ParamTypeError(SQInteger nparam,SQInteger typemask,SQInteger type);
+
+	void FindOuter(SQObjectPtr &target, SQObjectPtr *stackindex);
+	void RelocateOuters();
+	void CloseOuters(SQObjectPtr *stackindex);
 
 	void TypeOf(const SQObjectPtr &obj1, SQObjectPtr &dest);
 	bool CallMetaMethod(SQDelegable *del, SQMetaMethod mm, SQInteger nparams, SQObjectPtr &outres);
@@ -99,17 +100,12 @@ public:
 	_INLINE bool NEG_OP(SQObjectPtr &trg,const SQObjectPtr &o1);
 	_INLINE bool CMP_OP(CmpOP op, const SQObjectPtr &o1,const SQObjectPtr &o2,SQObjectPtr &res);
 	bool CLOSURE_OP(SQObjectPtr &target, SQFunctionProto *func);
-	bool GETVARGV_OP(SQObjectPtr &target,SQObjectPtr &idx,CallInfo *ci);
 	bool CLASS_OP(SQObjectPtr &target,SQInteger base,SQInteger attrs);
-	bool GETPARENT_OP(SQObjectPtr &o,SQObjectPtr &target);
 	//return true if the loop is finished
 	bool FOREACH_OP(SQObjectPtr &o1,SQObjectPtr &o2,SQObjectPtr &o3,SQObjectPtr &o4,SQInteger arg_2,int exitpos,int &jump);
-	bool DELEGATE_OP(SQObjectPtr &trg,SQObjectPtr &o1,SQObjectPtr &o2);
-	_INLINE bool LOCAL_INC(SQInteger op,SQObjectPtr &target, SQObjectPtr &a, SQObjectPtr &incr);
+	//_INLINE bool LOCAL_INC(SQInteger op,SQObjectPtr &target, SQObjectPtr &a, SQObjectPtr &incr);
 	_INLINE bool PLOCAL_INC(SQInteger op,SQObjectPtr &target, SQObjectPtr &a, SQObjectPtr &incr);
-	_INLINE bool DerefInc(SQInteger op,SQObjectPtr &target, SQObjectPtr &self, SQObjectPtr &key, SQObjectPtr &incr, bool postfix);
-	void PopVarArgs(VarArgs &vargs);
-	void ClearStack(SQInteger last_top);
+	_INLINE bool DerefInc(SQInteger op,SQObjectPtr &target, SQObjectPtr &self, SQObjectPtr &key, SQObjectPtr &incr, bool postfix,SQInteger arg0);
 #ifdef _DEBUG_DUMP
 	void dumpstack(SQInteger stackbase=-1, bool dumpall = false);
 #endif
@@ -124,6 +120,8 @@ public:
 		_callsstack = &_callstackdata[0];
 		_alloccallsstacksize = newsize;
 	}
+	bool EnterFrame(SQInteger newbase, SQInteger newtop, bool tailcall);
+	void LeaveFrame();
 	void Release(){ sq_delete(this,SQVM); } //does nothing
 ////////////////////////////////////////////////////////////////////////////
 	//stack functions for the api
@@ -140,13 +138,17 @@ public:
 	SQObjectPtr &GetAt(SQInteger n);
 
 	SQObjectPtrVec _stack;
-	SQObjectPtrVec _vargsstack;
+
 	SQInteger _top;
 	SQInteger _stackbase;
+	SQOuter	*_openouters;
 	SQObjectPtr _roottable;
 	SQObjectPtr _lasterror;
 	SQObjectPtr _errorhandler;
-	SQObjectPtr _debughook;
+
+	bool _debughook;
+	SQDEBUGHOOK _debughook_native;
+	SQObjectPtr _debughook_closure;
 
 	SQObjectPtr temp_reg;
 	
@@ -162,12 +164,12 @@ public:
 	//VMs sharing the same state
 	SQSharedState *_sharedstate;
 	SQInteger _nnativecalls;
+	SQInteger _nmetamethodscall;
 	//suspend infos
 	SQBool _suspended;
 	SQBool _suspended_root;
 	SQInteger _suspended_target;
 	SQInteger _suspended_traps;
-	VarArgs _suspend_varargs;
 };
 
 struct AutoDec{
@@ -187,20 +189,18 @@ inline SQObjectPtr &stack_get(HSQUIRRELVM v,SQInteger idx){return ((idx>=0)?(v->
 #endif
 
 #define PUSH_CALLINFO(v,nci){ \
-	if(v->_callsstacksize == v->_alloccallsstacksize) { \
+	SQInteger css = v->_callsstacksize; \
+	if(css == v->_alloccallsstacksize) { \
 		v->GrowCallStack(); \
 	} \
-	v->ci = &v->_callsstack[v->_callsstacksize]; \
+	v->ci = &v->_callsstack[css]; \
 	*(v->ci) = nci; \
 	v->_callsstacksize++; \
 }
 
 #define POP_CALLINFO(v){ \
-	v->_callsstacksize--; \
+	SQInteger css = --v->_callsstacksize; \
 	v->ci->_closure.Null(); \
-	if(v->_callsstacksize)	\
-		v->ci = &v->_callsstack[v->_callsstacksize-1] ; \
-	else	\
-		v->ci = NULL; \
+	v->ci = css?&v->_callsstack[css-1]:NULL;	\
 }
 #endif //_SQVM_H_
