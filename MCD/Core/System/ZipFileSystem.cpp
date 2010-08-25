@@ -220,6 +220,11 @@ public:
 		return is;
 	}
 
+	struct FileInFolderContext {
+		Path path;
+		FileMap::const_iterator iter;
+	};	// FileInFolderContext
+
 	std::string mZipFilePath;
 	/// This context is for use with querying like isExists(), getSize() etc...
 	Context* mQueryContext;
@@ -369,6 +374,68 @@ std::auto_ptr<std::ostream> ZipFileSystem::openWrite(const Path& path) const
 	ScopeRecursiveLock lock(mImpl->mMutex);
 	MCD_ASSERT(false && "Not supported");
 	return auto_ptr<ostream>(nullptr);
+}
+
+void* ZipFileSystem::openFirstFileInFolder(const Path& folder) const
+{
+	Path normalizedPath = folder;
+	normalizedPath.normalize();
+
+	FileMap::const_iterator i;
+	if(normalizedPath.getString().empty())
+		i = mImpl->mFileMap.begin();
+	else
+		i = mImpl->mFileMap.find(normalizedPath.getString());
+
+	if(i == mImpl->mFileMap.end())
+		return nullptr;
+
+	Impl::FileInFolderContext* c = new Impl::FileInFolderContext;
+	c->path = normalizedPath;
+	c->iter = i;
+
+	// Skip the first entry, which is the folder's path
+	if(!normalizedPath.getString().empty())
+		++(c->iter);
+
+	return c;
+}
+
+Path ZipFileSystem::getNextFileInFolder(void* context) const
+{
+	Path ret;
+	Impl::FileInFolderContext* c = reinterpret_cast<Impl::FileInFolderContext*>(context);
+
+	if(!c || c->iter == mImpl->mFileMap.end())
+		return ret;
+
+	FileMap::const_iterator& iter = c->iter;
+
+	const std::string& s = iter->first;
+	if(s.find(c->path.getString()) == std::string::npos)
+		return ret;
+
+	// Skip all child directory
+	while(isDirectory(s)) {
+		Path p(s);
+		while(true) {
+			if(++iter == mImpl->mFileMap.end())
+				return ret;
+			if(iter->first.find(c->path.getString()) == std::string::npos)
+				break;
+		}
+	}
+
+	ret = s;
+	++iter;
+
+	return ret;
+}
+
+void ZipFileSystem::closeFirstFileInFolder(void* context) const
+{
+	Impl::FileInFolderContext* c = reinterpret_cast<Impl::FileInFolderContext*>(context);
+	delete c;
 }
 
 }	// namespace MCD

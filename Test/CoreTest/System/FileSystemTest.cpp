@@ -155,6 +155,28 @@ TEST(ZipFileSystemTest)
 
 	// Set a new root which not exist
 	CHECK(!fs.setRoot("__not_exist__"));
+
+	{	// Lising files
+		void* c = fs.openFirstFileInFolder("");
+		CHECK_EQUAL(std::string("Pch.h"), fs.getNextFileInFolder(c).getString());
+		CHECK(fs.getNextFileInFolder(c).getString().empty());
+		fs.closeFirstFileInFolder(c);
+
+		c = fs.openFirstFileInFolder("./");
+		CHECK_EQUAL(std::string("Pch.h"), fs.getNextFileInFolder(c).getString());
+		CHECK(fs.getNextFileInFolder(c).getString().empty());
+		fs.closeFirstFileInFolder(c);
+
+		c = fs.openFirstFileInFolder("welcome");
+		CHECK_EQUAL(std::string("welcome/hello.txt"), fs.getNextFileInFolder(c).getString());
+		CHECK(fs.getNextFileInFolder(c).getString().empty());
+		fs.closeFirstFileInFolder(c);
+
+		c = fs.openFirstFileInFolder("./welcome");
+		CHECK_EQUAL(std::string("welcome/hello.txt"), fs.getNextFileInFolder(c).getString());
+		CHECK(fs.getNextFileInFolder(c).getString().empty());
+		fs.closeFirstFileInFolder(c);
+	}
 }
 
 #include "../../../MCD/Core/System/TaskPool.h"
