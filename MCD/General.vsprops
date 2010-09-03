@@ -6,6 +6,7 @@
 	>
 	<Tool
 		Name="VCCLCompilerTool"
+		AdditionalOptions="/MP"
 		PreprocessorDefinitions="WIN32;_WINDOWS;MCD_$(ProjectName)_EXPORTS;"
 		UsePrecompiledHeader="2"
 		PrecompiledHeaderThrough="Pch.h"

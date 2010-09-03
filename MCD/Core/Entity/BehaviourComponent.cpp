@@ -9,6 +9,10 @@ void BehaviourComponent::traverseEntities(Entity* entityNode, float dt)
 {
 	MemoryProfiler::Scope profiler("BehaviourComponent::traverseEntities");
 
+	// Because the update function may remove the component itself, therefore we
+	// perform the iteration in a 2 pass manner.
+	static std::vector<BehaviourComponentPtr> list;
+
 	for(EntityPreorderIterator itr(entityNode); !itr.ended();)
 	{
 		if(!itr->enabled) {
@@ -16,15 +20,17 @@ void BehaviourComponent::traverseEntities(Entity* entityNode, float dt)
 			continue;
 		}
 
-		BehaviourComponent* behaviour = itr->findComponent<BehaviourComponent>();
+		if(BehaviourComponent* behaviour = itr->findComponent<BehaviourComponent>())
+			list.push_back(behaviour);
 
-		// NOTE: We must iterate to the next entity first, since
-		// update() may delete the current Entity.
 		itr.next();
-
-		if(behaviour)
-			behaviour->update(dt);
 	}
+
+	MCD_FOREACH(const BehaviourComponentPtr c, list) {
+		if(c)
+			c->update(dt);
+	}
+	list.clear();
 }
 
 }	// namespace MCD
