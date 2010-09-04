@@ -15,22 +15,16 @@
 
 namespace MCD {
 
-//! Throw an std::runtime_error if the input parameter is null.
-MCD_CORE_API void throwIfNull(
-	sal_maybenull const void* pointerToCheck,
-	sal_in_z sal_notnull const char* message = "Null pointer"
-	) throw(std::runtime_error);
-
-/*!	Throw an std::runtime_error with the system error message.
+/*!	Put the system error message into MCD::Log as a warning.
 	The format of the message is as follow:
 	\em prefixMessage Reason:"system error message"
  */
 #ifdef MCD_VC
 __declspec(noreturn)
 #endif
-MCD_CORE_API void throwSystemErrorMessage(
+MCD_CORE_API void logSystemErrorMessage(
 	sal_in_z sal_notnull const char* prefixMessage
-	) throw(std::runtime_error);
+);
 
 #ifdef MCD_VC
 #	define MCD_FOREACH(Var, Container) \

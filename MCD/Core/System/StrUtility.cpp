@@ -1,11 +1,11 @@
 #include "Pch.h"
 #include "StrUtility.h"
 #include "ErrorCode.h"
+#include "Log.h"
 #include "Utility.h"
 #include <map>
 #include <sstream>
 #include <stdlib.h>	// For mbstowcs
-#include <stdexcept>
 #include <vector>
 #include <memory.h> // For memcpy
 #include <errno.h>
@@ -93,10 +93,12 @@ std::wstring strToWStr(const std::string& narrowStr)
 {
 	std::wstring wideStr;
 	bool ok = strToWStr(narrowStr, wideStr);
-	if(!ok)
-		throw std::runtime_error(
-			MCD::getErrorMessage("Fail to convert narrow string to wide string: ", MCD::getLastError())
+	if(!ok) {
+		Log::format(Log::Warn, "%s. At %s line %i",
+			MCD::getErrorMessage("Fail to convert narrow string to wide string: ").c_str(),
+			__FILE__, __LINE__
 		);
+	}
 	return wideStr;
 }
 
@@ -104,10 +106,12 @@ std::string wStrToStr(const std::wstring& wideStr)
 {
 	std::string narrowStr;
 	bool ok = wStrToStr(wideStr, narrowStr);
-	if(!ok)
-		throw std::runtime_error(
-			MCD::getErrorMessage("Fail to convert wide string to narrow string: ", MCD::getLastError())
+	if(!ok) {
+		Log::format(Log::Warn, "%s. At %s line %i",
+			MCD::getErrorMessage("Fail to convert wide string to narrow string: ").c_str(),
+			__FILE__, __LINE__
 		);
+	}
 	return narrowStr;
 }
 

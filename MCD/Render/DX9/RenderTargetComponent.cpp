@@ -80,6 +80,7 @@ void RenderTargetComponent::render(RendererComponent& renderer, bool swapBuffers
 		if(!textures[textureCount]) break;
 
 	LPDIRECT3DDEVICE9 device = getDevice();
+	MCD_ASSUME(device);
 	D3DCOLOR color = D3DCOLOR_RGBA(char(clearColor.r*255), char(clearColor.g*255), char(clearColor.b*255), char(clearColor.a*255));
 
 	// Window only

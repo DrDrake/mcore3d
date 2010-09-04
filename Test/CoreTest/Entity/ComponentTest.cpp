@@ -80,12 +80,11 @@ TEST(Basic_ComponentTest)
 	CHECK(!c2);
 
 	// Test findComponentInChildren
-	std::auto_ptr<Entity> e(new Entity);
+	Entity* e(new Entity);
 	e->name = "Component 3";
 	ComponentPtr c3 = new DummyComponent3;
 	e->addComponent(c3.getNotNull());
 	e->asChildOf(&root);
-	e.release();
 
 	CHECK_EQUAL(c3.get(), root.findComponentInChildren(typeid(DummyComponent3)));
 }
@@ -169,10 +168,9 @@ TEST(ComponentPreorderIterator_ComponentTest)
 	}
 
 	{	// With an child Entity
-		std::auto_ptr<Entity> e(new Entity);
+		Entity* e(new Entity);
 		e->addComponent(c[2]);
 		e->asChildOf(&root);
-		e.release();
 
 		size_t i = 0;
 		for(ComponentPreorderIterator itr(&root); !itr.ended(); itr.next(), ++i) {
@@ -182,9 +180,8 @@ TEST(ComponentPreorderIterator_ComponentTest)
 	}
 
 	{	// With an empty Entity
-		std::auto_ptr<Entity> e(new Entity);
+		Entity* e(new Entity);
 		e->asChildOf(&root);
-		e.release();
 
 		size_t i = 0;
 		for(ComponentPreorderIterator itr(&root); !itr.ended(); itr.next(), ++i) {

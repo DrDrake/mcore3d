@@ -1,15 +1,8 @@
 #include "Pch.h"
 #include "../../../MCD/Core/System/ErrorCode.h"
-#include "../../../MCD/Core/System/Exception.h"
 #include "../../../MCD/Core/System/Utility.h"
 
 using namespace MCD;
-
-TEST(ThrowIfNull_UtilityTest)
-{
-	void* ptr = nullptr;
-	CHECK_THROW(throwIfNull(ptr), std::runtime_error);
-}
 
 #include <list>
 TEST(Foreach_UtilityTest)
@@ -61,19 +54,6 @@ TEST(ErrorCodeTest)
 	int lastError = getLastError();
 	setLastError(lastError);
 	CHECK(true);
-}
-
-TEST(RuntimeErrorTest)
-{
-	{	RuntimeError error("Hello!");
-		CHECK_EQUAL(std::string("Hello!"), std::string(error.what()));
-		CHECK_EQUAL(std::wstring(L"Hello!"), std::wstring(error.wwhat()));
-	}
-
-	{	RuntimeError error(L"Hello!");
-		CHECK_EQUAL(std::string("Hello!"), std::string(error.what()));
-		CHECK_EQUAL(std::wstring(L"Hello!"), std::wstring(error.wwhat()));
-	}
 }
 
 TEST(CountofTest)

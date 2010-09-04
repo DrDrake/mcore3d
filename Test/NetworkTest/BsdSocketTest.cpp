@@ -54,7 +54,7 @@ struct SimpleConnector : public MCD::Thread::IRunnable
 {
 	SimpleConnector(const IPEndPoint& ep) : endPoint(ep) {}
 
-	sal_override void run(Thread& thread) throw() {
+	sal_override void run(Thread& thread) {
 		BsdSocket s;
 		MCD_VERIFY(0 == s.create(BsdSocket::TCP));
 		bool connected = false;

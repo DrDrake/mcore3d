@@ -25,7 +25,7 @@ struct MapNode
 		typedef MapBase<Path, const Path&>::Node<PathKey> Super;
 		explicit PathKey(const Path& path) : Super(path) {}
 		MCD_DECLAR_GET_OUTER_OBJ(MapNode, mPathKey);
-		sal_override void destroyThis() throw() {
+		sal_override void destroyThis() {
 			delete getOuterSafe();
 		}
 	};	// PathKey
@@ -108,7 +108,7 @@ public:
 		{
 		}
 
-		sal_override void run(Thread& thread) throw()
+		sal_override void run(Thread& thread)
 		{
 			MemoryProfiler::Scope profiler("ResourceManager::Task::run");
 

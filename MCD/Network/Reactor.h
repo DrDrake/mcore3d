@@ -21,7 +21,7 @@ class MCD_NETWORK_API Socket : public BsdSocket, public IntrusiveSharedWeakPtrTa
 	//!	Represent the current active state
 	struct Active : public LinkListBase::Node<Active> {
 		MCD_DECLAR_GET_OUTER_OBJ(Socket, mActive);
-		void destroyThis() throw() {
+		void destroyThis() {
 			delete getOuterSafe();
 		}
 	} mActive;

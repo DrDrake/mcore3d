@@ -115,12 +115,12 @@ typedef unsigned int useconds_t;
 #pragma warning (disable : 4127)		// Conditional expression is constant
 #pragma warning (disable : 4201)		// Nameless struct/union
 #pragma warning (disable : 4275)		// Non dll-interface class used as base for dll-interface class
-#pragma warning (disable : 4290)		// C++ exception specification ignored except to indicate a function is not __declspec(nothrow)
 #pragma warning (disable : 4503)		// Decorated name length exceeded, name was truncated
 #pragma warning (disable : 4510)		// Default constructor could not be generated
 #pragma warning (disable : 4512)		// Assignment operator could not be generated
 #pragma warning (disable : 4610)		// Type can never be instantiated - user defined constructor required
 #pragma warning (disable : 4714)		// Function marked as __forceinline not inlined
+#pragma warning (disable : 6211)		// Leaking memory due to an exception
 
 #define CRTDBG_MAP_ALLOC
 #include <stdlib.h>
@@ -137,19 +137,6 @@ typedef unsigned int useconds_t;
 #	define MCD_VERIFY(Expression) assert(Expression)
 #	define MCD_ASSUME(Expression) { __assume(Expression); MCD_ASSERT(Expression); }
 #endif
-
-/*! Use this function to tell the compiler that this function will never return.
-	It is useful to suppress warning like:
-	\code
-	int b;
-	switch(a) {
-		case 1: b = 2; break;
-		case 2: b = 5; break;
-		default: noReturn();	// Remove the warning about the variable b not initialized
-	}
-	\endcode
- */
-__declspec(noreturn) inline void noReturn() { assert(false); }
 
 // SAL macros
 #include <codeanalysis\sourceannotations.h>
@@ -232,9 +219,6 @@ typedef unsigned char byte_t;
 #	define MCD_VERIFY(Expression) assert(Expression)
 #	define MCD_ASSUME(Expression) assert(Expression)
 #endif
-
-inline void noReturn() __attribute__((noreturn));
-void noReturn() { throw "NoReturn should not be invoked"; }
 
 // SAL macros
 #define SAL(...)

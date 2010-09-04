@@ -13,12 +13,12 @@ LinkListBase::NodeBase::~NodeBase()
 	removeThis();
 }
 
-void LinkListBase::NodeBase::destroyThis() throw()
+void LinkListBase::NodeBase::destroyThis()
 {
 	delete this;
 }
 
-void LinkListBase::NodeBase::removeThis() throw()
+void LinkListBase::NodeBase::removeThis()
 {
 	if(!mList)
 		return;

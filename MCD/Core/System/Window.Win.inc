@@ -153,7 +153,7 @@ Window::Impl::Impl(Window& w)
 	mWidth = mHeight = uint(CW_USEDEFAULT);
 }
 
-void Window::Impl::createWindow(Window::Handle existingWindowHandle)
+bool Window::Impl::createWindow(Window::Handle existingWindowHandle)
 {
 	HMODULE hModule = ::GetModuleHandle(nullptr);
 
@@ -170,8 +170,10 @@ void Window::Impl::createWindow(Window::Handle existingWindowHandle)
 		wc.hCursor = ::LoadCursor(nullptr, IDC_ARROW);
 		wc.hbrBackground = nullptr;	// (HBRUSH)(COLOR_WINDOW);
 
-		if(::RegisterClass(&wc) == 0)
-			throw std::runtime_error("Win32 API call 'RegisterClass' failed");
+		if(::RegisterClass(&wc) == 0) {
+			Log::write(Log::Warn, "Win32 API call 'RegisterClass' failed");
+			return false;
+		}
 	}
 
 	if(existingWindowHandle == 0)
@@ -208,8 +210,10 @@ void Window::Impl::createWindow(Window::Handle existingWindowHandle)
 		mWnd = HWND(existingWindowHandle);
 	}
 
-	if(!mWnd)
-		throw std::runtime_error("Win32 API call 'CreateWindow' failed");
+	if(!mWnd) {
+		Log::write(Log::Warn, "Win32 API call 'CreateWindow' failed");
+		return false;
+	}
 
 	{	// Get the client area size from Win32 if user didn't supply one
 		if(mWidth == CW_USEDEFAULT || mHeight == CW_USEDEFAULT) {
@@ -232,6 +236,8 @@ void Window::Impl::createWindow(Window::Handle existingWindowHandle)
 		WPARAM lParam = MAKELONG(mWidth, mHeight);
 		::PostMessage(mWnd, WM_SIZE, SIZE_MAXIMIZED, lParam);
 	}
+
+	return true;
 }
 
 void Window::Impl::destroy()

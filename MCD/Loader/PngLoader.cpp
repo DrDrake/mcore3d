@@ -31,14 +31,10 @@ public:
 		mCurrentPass(0), mHasError(false)
 	{
 		png_ptr = png_create_read_struct(PNG_LIBPNG_VER_STRING, nullptr, nullptr, nullptr);
-		if(!png_ptr)
-			throw std::runtime_error("png reader error");
+		MCD_ASSERT(png_ptr);
 
 		info_ptr = png_create_info_struct(png_ptr);
-		if(!info_ptr) {
-			png_destroy_read_struct(&png_ptr, nullptr, nullptr);
-			throw std::runtime_error("png reader error");
-		}
+		MCD_ASSERT(info_ptr);
 
 		// Setup the callback that will be called during the data processing.
 		png_set_progressive_read_fn(png_ptr, (void*)this, info_callback, row_callback, end_callback);

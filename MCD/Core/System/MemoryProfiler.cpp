@@ -4,6 +4,7 @@
 #if defined(_MSC_VER)
 
 #include "FunctionPatcher.inc"
+#include "Log.h"
 #include "PtrVector.h"
 #include <iomanip>
 #include <sstream>
@@ -679,7 +680,7 @@ public:
 		if(clientSock != INVALID_SOCKET)
 		{
 			connected = true;
-			std::cout << "Client connected!!" << std::endl;
+			Log::write(Log::Info, "MemoryProfiler client connected!!");
 			return true;
 		}
 
@@ -733,7 +734,7 @@ public:
 		std::string str = ss.str() + "\n\n";
 
 		if(::send(clientSock, str.c_str(), str.length(), 0) == SOCKET_ERROR) {
-			std::cout << "sendto() failed" << std::endl;
+			Log::format(Log::Warn, "Socket sendto() failed. At %s line %i", __FILE__, __LINE__);
 			connected = false;
 		}
 

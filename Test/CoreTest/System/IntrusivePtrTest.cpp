@@ -36,7 +36,7 @@ class Object
 protected:
 	// Note that the destructor need not to be virtual if the derived
 	// classes also have intrusivePtrRelease() function
-	virtual ~Object() throw() {
+	virtual ~Object() {
 		--mObjectCount;
 	}
 
@@ -80,7 +80,7 @@ size_t Object::mObjectCount = 0;
 class Derived : public Object
 {
 protected:
-	~Derived() throw() {
+	~Derived() {
 		--mDerivedCount;
 	}
 

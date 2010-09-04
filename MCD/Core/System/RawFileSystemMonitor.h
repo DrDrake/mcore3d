@@ -3,6 +3,7 @@
 
 #include "../ShareLib.h"
 #include "NonCopyable.h"
+#include <string>
 
 namespace MCD {
 

@@ -2,7 +2,6 @@
 #include "TaskPool.h"
 #include "CondVar.h"
 #include "ThreadPool.h"
-#include <memory>	// for std::auto_ptr
 
 #ifdef MCD_IPHONE
 #	import <Foundation/NSAutoreleasePool.h>
@@ -85,7 +84,7 @@ class TaskPool::Runnable : public ThreadPool::IRunnable
 public:
 	Runnable(TaskQueue& queue) : mQueue(queue) {}
 
-	void run(Thread& thread) throw()
+	void run(Thread& thread)
 	{
 		while(thread.keepRun())
 		{
@@ -114,9 +113,8 @@ public:
 TaskPool::TaskPool()
 {
 	mTaskQueue = new TaskQueue();
-	std::auto_ptr<Runnable> runnable(new Runnable(*mTaskQueue));
+	Runnable* runnable(new Runnable(*mTaskQueue));
 	mThreadPool = new ThreadPool(*runnable, true);
-	runnable.release();
 }
 
 TaskPool::~TaskPool()

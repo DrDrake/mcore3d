@@ -185,7 +185,7 @@ public:
 	LoopRunnable(Tester& tester) : mTester(tester), mLoopCount(0) {}
 
 protected:
-	sal_override void run(Thread& thread) throw()
+	sal_override void run(Thread& thread)
 	{
 		ThreadedCpuProfiler::singleton().onThreadAttach("my worker thread");
 
@@ -378,7 +378,7 @@ public:
 	LoopRunnable() : LoopCount(0) {}
 
 protected:
-	sal_override void run(Thread& thread) throw()
+	sal_override void run(Thread& thread)
 	{
 		using namespace MemoryProfilerTest;
 		while(thread.keepRun()) {

@@ -60,8 +60,7 @@ void Thread::start(IRunnable& runnable, bool autoDeleteRunnable)
 {
 	ScopeRecursiveLock lock(mMutex);
 
-	if(mHandle)
-		throw std::logic_error("A thread is already in execution, call wait() before starting another one");
+	MCD_ASSERT(!mHandle && "A thread is already in execution, call wait() before starting another one");
 
 	// Delete the previous runnable if needed
 	if(mRunnable && mAutoDeleteRunnable)
@@ -78,7 +77,7 @@ void Thread::start(IRunnable& runnable, bool autoDeleteRunnable)
 #else
 	if(::pthread_create(&mHandle, nullptr, &_Run, this) != 0)
 #endif
-		throwSystemErrorMessage("Error creating thread.");
+		logSystemErrorMessage("Error creating thread.");
 }
 
 void Thread::postQuit()
@@ -105,13 +104,6 @@ bool Thread::isWaitable() const
 	return mHandle && MCD::getCurrentThreadId() != id();
 }
 
-void Thread::throwIfWaited() const throw(std::logic_error)
-{
-	ScopeRecursiveLock lock(mMutex);
-	if(!mHandle)
-		throw std::logic_error("The thread is already stopped");
-}
-
 void Thread::cleanup()
 {
 	ScopeRecursiveLock lock(mMutex);
@@ -135,15 +127,14 @@ void Thread::cleanup()
 Thread::Priority Thread::getPriority() const
 {
 	ScopeRecursiveLock lock(mMutex);
-
-	throwIfWaited();
+	MCD_ASSUME(mHandle);
 
 #ifdef MCD_CYGWIN
-	throw std::logic_error("Not implemented.");
+	MCD_ASSERT(false && "Not implemented.");
 #elif defined(MCD_WIN32)
 	int ret = ::GetThreadPriority(reinterpret_cast<HANDLE>(mHandle));
 	if(ret == THREAD_PRIORITY_ERROR_RETURN)
-		throwSystemErrorMessage("Error getting thread priority.");
+		logSystemErrorMessage("Error getting thread priority.");
 
 	if(ret > 0)
 		ret = HighPriority;
@@ -168,15 +159,14 @@ Thread::Priority Thread::getPriority() const
 void Thread::setPriority(Priority priority)
 {
 	ScopeRecursiveLock lock(mMutex);
-
-	throwIfWaited();
+	MCD_ASSUME(mHandle);
 
 #ifdef MCD_CYGWIN
 	(void)priority;
-	throw std::logic_error("Not implemented.");
+	MCD_ASSERT(false && "Not implemented.");
 #elif defined(MCD_WIN32)
 	if(::SetThreadPriority(reinterpret_cast<HANDLE>(mHandle), int(priority)) == 0)
-		throwSystemErrorMessage("Error setting thread priority.");
+		logSystemErrorMessage("Error setting thread priority.");
 #else
 	// How to set thread priority on Linux:
 	// http://cs.pub.ro/~apc/2003/resources/pthreads/uguide/users-31.htm
@@ -194,7 +184,7 @@ void Thread::setPriority(Priority priority)
 	else
 		MCD_ASSUME(false);
 	if(::pthread_setschedparam(mHandle, policy, &param) != 0)
-		throwSystemErrorMessage("Error setting thread priority.");
+		logSystemErrorMessage("Error setting thread priority.");
 #endif
 }
 
@@ -202,8 +192,7 @@ void Thread::wait()
 {
 	ScopeRecursiveLock lock(mMutex);
 
-	if(!isWaitable())
-		throw std::logic_error("The thread is not waitable");
+	MCD_ASSERT(isWaitable());
 
 	postQuit();
 
@@ -222,7 +211,7 @@ void Thread::wait()
 	lock.mutex().lock();
 
 	if(res == WAIT_FAILED)
-		throwSystemErrorMessage("Error waiting thread.");
+		logSystemErrorMessage("Error waiting thread.");
 	MCD_ASSERT(res == WAIT_OBJECT_0);
 
 	MCD_VERIFY(::CloseHandle(handleBackup));

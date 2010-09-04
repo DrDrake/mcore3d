@@ -2,6 +2,7 @@
 #include "BehaviourComponent.h"
 #include "Entity.h"
 #include "../System/MemoryProfiler.h"
+#include <vector>
 
 namespace MCD {
 

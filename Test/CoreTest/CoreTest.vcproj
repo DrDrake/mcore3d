@@ -398,10 +398,6 @@
 			</FileConfiguration>
 		</File>
 		<File
-			RelativePath="..\..\MCD\Core\Pch.cpp"
-			>
-		</File>
-		<File
 			RelativePath=".\Pch.h"
 			>
 		</File>

@@ -1,32 +1,18 @@
 #include "Pch.h"
 #include "Utility.h"
 #include "ErrorCode.h"
+#include "Log.h"
 
 namespace MCD {
 
-void throwIfNull(
-	sal_maybenull const void* pointerToCheck,
-	sal_in_z sal_notnull const char* message
-	) throw(std::runtime_error)
-{
-	if(pointerToCheck == nullptr)
-		throw std::runtime_error(message);
-}
-
-void throwSystemErrorMessage(
+void logSystemErrorMessage(
 	sal_in_z sal_notnull const char* prefixMessage
-	) throw(std::runtime_error)
+	)
 {
-	std::string msg(prefixMessage);
-	msg += " Reason :\"";
-	int errCode = MCD::getLastError();
-	if(errCode == 0)
-		msg += "S_OK";
-	else
-		msg +=MCD::getErrorMessage(nullptr, errCode);
-
-	msg += "\"";
-	throw std::runtime_error(msg);
+	const int errCode = MCD::getLastError();
+	Log::format(Log::Warn, "%s Reason:\"%s\"", prefixMessage,
+		errCode == 0 ? "S_OK" : MCD::getErrorMessage(nullptr, errCode).c_str()
+	);
 }
 
 void swapMemory(void* p1, void* p2, size_t size)

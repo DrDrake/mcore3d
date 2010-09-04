@@ -23,7 +23,7 @@ public:
 		Thread::start(*this, false);
 	}
 
-	sal_override void run(Thread& thread) throw()
+	sal_override void run(Thread& thread)
 	{
 		MCD_ASSERT(&thread == this);
 		mThreadPool.mRunnable.run(thread);

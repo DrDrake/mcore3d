@@ -111,7 +111,7 @@ TEST(Asyn_TextureLoaderTest)
 		}
 
 	protected:
-		sal_override void run(Thread& thread) throw()
+		sal_override void run(Thread& thread)
 		{
 			while(thread.keepRun()) {
 				if(mLoader.load(&mIStream) & IResourceLoader::Stopped) {
@@ -207,7 +207,7 @@ public:
 	}
 
 protected:
-	sal_override void run(Thread& thread) throw()
+	sal_override void run(Thread& thread)
 	{
 		while(thread.keepRun()) {
 			if(mLoader.load(&mIStream) & IResourceLoader::Stopped)

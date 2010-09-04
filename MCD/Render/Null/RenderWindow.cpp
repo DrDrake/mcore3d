@@ -18,11 +18,11 @@ void* RenderWindow::renderContext()
 	return nullptr;
 }
 
-void RenderWindow::create(const char* options) throw(std::exception)
+void RenderWindow::create(const char* options)
 {
 }
 
-void RenderWindow::create(Handle existingControl, const char* options) throw(std::exception)
+void RenderWindow::create(Handle existingControl, const char* options)
 {
 }
 

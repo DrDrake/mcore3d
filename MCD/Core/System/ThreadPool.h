@@ -9,7 +9,7 @@ namespace MCD {
 	\code
 	class Runnable : public ThreadPool::IRunnable {
 	public:
-		sal_override void run(Thread& thread) throw() {
+		sal_override void run(Thread& thread) {
 			while(thread.keepRun()) {
 				// Do something useful
 			}

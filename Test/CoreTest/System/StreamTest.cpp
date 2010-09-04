@@ -3,7 +3,6 @@
 #include "../../../MCD/Core/System/Utility.h"	// For MCD_COUNTOF
 #include <fstream>
 #include <iterator>
-#include <memory>	// For auto_ptr
 #include <memory.h>	// For memcpy
 #include <sstream>
 #include <stdlib.h>	// For rand
@@ -176,8 +175,6 @@ bool compareStream(std::istream& s1, std::istream& s2)
 // Similar to stdiobuf: http://www.digitalmars.com/rtl/iostream.html#stdiobuf
 class FileStreamProxy : public IStreamProxy
 {
-	friend class std::auto_ptr<FileStreamProxy>;
-
 protected:
 	sal_override ~FileStreamProxy() {
 		::fclose(mFile);
@@ -244,9 +241,8 @@ TEST(File_StreamTest)
 	static const char testFile[] = "test.txt";
 
 	{	// Perform write
-		std::auto_ptr<FileStreamProxy> p(new FileStreamProxy(testFile, "w"));
+		FileStreamProxy* p(new FileStreamProxy(testFile, "w"));
 		Stream os(*p);
-		p.release();
 		std::ofstream ofs(referenceFile);
 
 		StreamTester tester(ofs, os);
@@ -258,9 +254,8 @@ TEST(File_StreamTest)
 
 	{	// Perform read
 		// NOTE: Gcc cygwin have problems in putback and seek
-		std::auto_ptr<FileStreamProxy> p(new FileStreamProxy(testFile, "r"));
+		FileStreamProxy* p(new FileStreamProxy(testFile, "r"));
 		Stream is(*p);
-		p.release();
 		std::ifstream ifs(referenceFile);
 
 		StreamTester tester(ifs, is);

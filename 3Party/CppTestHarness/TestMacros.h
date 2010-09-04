@@ -15,6 +15,10 @@
 	\
 	void Test##Name::RunImpl(CppTestHarness::TestResults& testResults_)
 
+#define ABORT_TEST_IF(condition) \
+	if(const bool _condidtion_ = (condition)) \
+	{	CHECK(false); return;	}
+
 //----------------------------
 #define TEST_FIXTURE(Fixture, Name) \
 	class Test##Fixture##Name : public CppTestHarness::Test, public Fixture \

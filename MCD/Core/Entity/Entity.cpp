@@ -4,7 +4,6 @@
 #include "../System/Log.h"
 #include "../System/Path.h"
 #include "../System/StrUtility.h"
-#include "../System/Utility.h"
 
 namespace MCD {
 
@@ -426,7 +425,7 @@ Entity* Entity::recursiveClone() const
 		}
 	}
 
-	std::auto_ptr<Entity> newEnt(new Entity());
+	Entity* newEnt(new Entity());
 
 	newEnt->enabled = enabled;
 	newEnt->name = name;
@@ -446,7 +445,7 @@ Entity* Entity::recursiveClone() const
 	for(Entity* child = mFirstChild; nullptr != child; child = child->nextSibling())
 	{
 		Entity* newChild = child->recursiveClone();	// Note that we call recursiveClone() recursively
-		newChild->mParent = newEnt.get();
+		newChild->mParent = newEnt;
 		if(child == mFirstChild)
 			newEnt->mFirstChild = newChild;
 		else
@@ -455,7 +454,7 @@ Entity* Entity::recursiveClone() const
 		lastChild = newChild;
 	}
 
-	return newEnt.release();
+	return newEnt;
 }
 
 Entity* Entity::clone() const

@@ -23,11 +23,10 @@ using namespace std;
 
 namespace MCD {
 
-static void throwError(const std::string& prefix, const std::string& pathStr, const std::string& sufix)
+static bool logError(const char* prefix, const char* pathStr, const char* sufix)
 {
-	throw std::runtime_error(
-		prefix + "\"" + pathStr + "\"" + sufix
-	);
+	Log::format(Log::Warn, "%s\"%s\"%s", prefix, pathStr, sufix);
+	return false;
 }
 
 static bool isDirectory(int flag) {
@@ -302,7 +301,7 @@ ZipFileSystem::ZipFileSystem(const Path& zipFilePath)
 {
 	mImpl = new Impl;
 	if(!ZipFileSystem::setRoot(zipFilePath))
-		throwError("The zip file ", zipFilePath.getString(), " does not exist or corrupted");
+		logError("The zip file ", zipFilePath.getString().c_str(), " does not exist or corrupted");
 }
 
 ZipFileSystem::~ZipFileSystem()
@@ -332,8 +331,8 @@ bool ZipFileSystem::isDirectory(const Path& path) const
 	unz_file_info fileInfo;
 	if(mImpl->getFileInfo(path, fileInfo))
 		return MCD::isDirectory(fileInfo.external_fa);
-	else throwError("Directory ", path.getString(), " does not exist");
-	noReturn();
+	else
+		return logError("Directory ", path.getString().c_str(), " does not exist");
 }
 
 uint64_t ZipFileSystem::getSize(const Path& path) const
@@ -342,8 +341,8 @@ uint64_t ZipFileSystem::getSize(const Path& path) const
 	unz_file_info fileInfo;
 	if(mImpl->getFileInfo(path, fileInfo))
 		return fileInfo.uncompressed_size;
-	else throwError("File ", path.getString(), " does not exist");
-	noReturn();
+	else
+		return logError("File ", path.getString().c_str(), " does not exist");
 }
 
 std::time_t ZipFileSystem::getLastWriteTime(const Path& path) const

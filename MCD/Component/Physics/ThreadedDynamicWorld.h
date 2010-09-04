@@ -15,7 +15,7 @@ public:
 
 	sal_override ~ThreadedDynamicsWorld();
 
-	sal_override void run(Thread& thread) throw();
+	sal_override void run(Thread& thread);
 
 // Operations
 

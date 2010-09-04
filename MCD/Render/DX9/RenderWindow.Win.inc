@@ -157,8 +157,8 @@ GlobalDevice::iterator GlobalDevice::createContext(size_t width, size_t height, 
 		// Re-create the default pool textures
 		// TODO: Handle mip-map, cube texture etc...
 		for(size_t i=0; i<defaultPoolTextures.size(); ++i) {
-			Texture* tex = defaultPoolTextures[i].get();
-			MCD_VERIFY(tex->create(tex->format, tex->format, tex->width, tex->height, 1, 1, nullptr, 0, D3DUSAGE_RENDERTARGET));
+			if(Texture* tex = defaultPoolTextures[i].get())
+				MCD_VERIFY(tex->create(tex->format, tex->format, tex->width, tex->height, 1, 1, nullptr, 0, D3DUSAGE_RENDERTARGET));
 		}
 	}
 
@@ -237,16 +237,20 @@ public:
 		return &*contextItr;
 	}
 
-	sal_override void createWindow(Window::Handle existingWindowHandle=0)
+	sal_override bool createWindow(Window::Handle existingWindowHandle=0)
 	{
 		MemoryProfiler::Scope profiler("RenderWindow::createWindow");
-		Super::createWindow(existingWindowHandle);
+		if(!Super::createWindow(existingWindowHandle))
+			return false;
 
 		contextItr = gGlobalDevice.createContext(mWidth, mHeight, mWnd, false, contextItr);
 		if(contextItr == gGlobalDevice.contexts.end()) {
 			destroy();
-			throw std::runtime_error("Fail to create render context");
+			Log::write(Log::Warn, "Fail to create render context");
+			return false;
 		}
+
+		return true;
 	}
 
 	sal_override void destroy()

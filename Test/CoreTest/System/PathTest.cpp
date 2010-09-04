@@ -1,7 +1,6 @@
 #include "Pch.h"
 #include "../../../MCD/Core/System/Path.h"
 #include "../../../MCD/Core/System/Utility.h"
-#include <stdexcept>
 
 using namespace MCD;
 
@@ -225,8 +224,11 @@ TEST(Append_PathTest)
 	for(size_t i=0; i<MCD_COUNTOF(data); ++i)
 		CHECK_EQUAL(data[i][0], (Path(data[i][1]) / data[i][2]).getString());
 
-	// Appending a path with root to a non-empty path should throw an error
-	CHECK_THROW(Path("a/")/=Path("/"), std::runtime_error);
+	{	// Appending a path with root to a non-empty path will do nothing
+		Path p("a/");
+		p /= Path("/");
+		CHECK_EQUAL("a", p.getString());
+	}
 }
 
 TEST(CurrentPath_PathTest)
@@ -234,13 +236,13 @@ TEST(CurrentPath_PathTest)
 	// Get and then set the current path (should do nothing)
 	Path current = Path::getCurrentPath();
 	Path currentBackup = current;
-	Path::setCurrentPath(current);
+	CHECK(Path::setCurrentPath(current));
 	CHECK(current == currentBackup);
 
 	// Try to set an invalid path
-	CHECK_THROW(Path::setCurrentPath("abc:\\"), std::runtime_error);
+	CHECK(!Path::setCurrentPath("abc:\\"));
 	// Try to set an non-existing path
-	CHECK_THROW(Path::setCurrentPath("./_not_existing"), std::runtime_error);
+	CHECK(!Path::setCurrentPath("./_not_existing"));
 }
 
 TEST(Full_Iterator_PathIteratorTest)
