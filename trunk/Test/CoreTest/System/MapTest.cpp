@@ -4,7 +4,6 @@
 #include "../../../MCD/Core/System/Macros.h"
 #include "../../../MCD/Core/System/StrUtility.h"
 #include "../../../MCD/Core/System/Utility.h"
-#include <memory>	// For auto_ptr
 #include <stdlib.h>	// For rand
 #include <stdexcept>
 #include <vector>
@@ -151,10 +150,10 @@ TEST(RemoveAll_MapTest)
 	std::vector<FooNode*> list;
 
 	for(size_t i=0; i<cCount; ++i) {
-		std::auto_ptr<FooNode> ptr(new FooNode(i));
+		FooNode* ptr(new FooNode(i));
 		map.insert(*ptr);
 		CHECK_EQUAL(&map, ptr->getMap());
-		list.push_back(ptr.release());
+		list.push_back(ptr);
 	}
 
 	map.removeAll();
@@ -214,7 +213,7 @@ struct BiDirMapNode
 	struct Integer : public MapBase<int>::NodeBase {
 		explicit Integer(int key) : NodeBase(key) {}
 		MCD_DECLAR_GET_OUTER_OBJ(BiDirMapNode, mId);
-		sal_override void destroyThis() throw() {
+		sal_override void destroyThis() {
 			delete getOuterSafe();
 		}
 	} mId;
@@ -222,7 +221,7 @@ struct BiDirMapNode
 	struct String : public MapBase<std::string>::NodeBase {
 		explicit String(const std::string& key) : NodeBase(key) {}
 		MCD_DECLAR_GET_OUTER_OBJ(BiDirMapNode, mStr);
-		sal_override void destroyThis() throw() {
+		sal_override void destroyThis() {
 			delete getOuterSafe();
 		}
 	} mStr;
@@ -250,7 +249,7 @@ TEST(BiDirectional_MapTest)
 	// Try to find all the values
 	for(size_t i=0; i<cTestCount; ++i) {
 		BiDirMapNode* node = idToStr.find(list[i])->getOuterSafe();
-		throwIfNull(node);
+		ABORT_TEST_IF(!node);
 		const std::string& str = node->mStr.getKey();
 		CHECK_EQUAL(int2Str(list[i]), str);
 
@@ -273,7 +272,7 @@ struct UnOrderedMapNode
 	struct Map : public MapBase<int>::NodeBase {
 		explicit Map(int key) : NodeBase(key) {}
 		MCD_DECLAR_GET_OUTER_OBJ(UnOrderedMapNode, mMap);
-		sal_override void destroyThis() throw() {
+		sal_override void destroyThis() {
 			delete getOuterSafe();
 		}
 	} mMap;
@@ -281,7 +280,7 @@ struct UnOrderedMapNode
 	// The list part which remember the insertion order
 	struct List : public LinkListBase::Node<List> {
 		MCD_DECLAR_GET_OUTER_OBJ(UnOrderedMapNode, mList);
-		sal_override void destroyThis() throw() {
+		sal_override void destroyThis() {
 			delete getOuterSafe();
 		}
 	} mList;
@@ -300,20 +299,21 @@ TEST(UnOrdered_MapTest)
 	// Generate a random list of integer and add to the map
 	for(size_t i=0; i<cTestCount; ++i) {
 		int val = ::rand();
-		std::auto_ptr<UnOrderedMapNode> node(new UnOrderedMapNode(val));
+		UnOrderedMapNode* node(new UnOrderedMapNode(val));
 		bool inserted = map.insertUnique(node->mMap);
 
 		if(inserted) {
 			list.pushBack(node->mList);
 			vec.push_back(val);
-			node.release();
 		}
+		else
+			delete node;
 	}
 
 	// Iterate though the unordered map
 	UnOrderedMapNode* node = list.front().getOuterSafe();
 	for(size_t i=0; i<vec.size(); ++i) {
-		throwIfNull(node);
+		ABORT_TEST_IF(!node);
 
 		// Check the insertion order is the same
 		CHECK_EQUAL(vec[i], node->mMap.getKey());

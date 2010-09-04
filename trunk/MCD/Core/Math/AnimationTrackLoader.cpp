@@ -4,6 +4,7 @@
 #include "../System/MemoryProfiler.h"
 #include "../System/Stream.h"
 #include <iostream>
+#include <vector>
 
 namespace MCD {
 

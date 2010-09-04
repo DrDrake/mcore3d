@@ -2,7 +2,6 @@
 #include "CondVar.h"
 #include "PlatformInclude.h"
 #include "Timer.h"
-#include "Utility.h"
 
 namespace MCD {
 
@@ -13,12 +12,10 @@ CondVar::CondVar()
 {
 	// Create auto-reset
 	h[0] = ::CreateEvent(nullptr, false, false, nullptr);
-	if(!h[0])
-		throwSystemErrorMessage("Error creating condition variable.");
+	MCD_ASSERT(h[0]);
 	// Create manual-reset
 	h[1] = ::CreateEvent(nullptr, true, false, nullptr);
-	if(!h[1])
-		throwSystemErrorMessage("Error creating condition variable.");
+	MCD_ASSERT(h[1]);
 }
 
 CondVar::~CondVar()
@@ -30,15 +27,13 @@ CondVar::~CondVar()
 void CondVar::signalNoLock()
 {
 	MCD_ASSERT(_locked);
-	if(::SetEvent(h[0]) == 0)
-		throwSystemErrorMessage("CondVar failed to signal.");
+	MCD_VERIFY(::SetEvent(h[0]) != 0);
 }
 
 void CondVar::broadcastNoLock()
 {
 	MCD_ASSERT(_locked);
-	if(::SetEvent(h[1]) == 0)
-		throwSystemErrorMessage("CondVar failed to broadcast.");
+	MCD_VERIFY(::SetEvent(h[1]) != 0);
 	mBroadcastCount = mWaitCount;
 }
 
@@ -71,15 +66,14 @@ wait:
 	case WAIT_OBJECT_0+1:
 		--mBroadcastCount;
 		if(mBroadcastCount <= 0) {
-			if(::ResetEvent(h[1]) == 0)
-				throwSystemErrorMessage("CondVar failed to wait.");
+			MCD_VERIFY(::ResetEvent(h[1]) != 0);
 			if(mBroadcastCount < 0)
 				goto wait;
 		}
 		return true;
 	case WAIT_ABANDONED:
 	case WAIT_ABANDONED+1:
-		throwSystemErrorMessage("CondVar abandon wait.");
+		MCD_ASSERT(false && "CondVar abandon wait.");
 		return false;
 	default:
 		MCD_ASSUME(false);
@@ -92,8 +86,7 @@ wait:
 
 CondVar::CondVar() : Mutex()
 {
-	if(::pthread_cond_init(&c, nullptr) != 0)
-		throwSystemErrorMessage("Error creating condition variable.");
+	MCD_VERIFY(::pthread_cond_init(&c, nullptr) == 0);
 }
 
 CondVar::~CondVar()
@@ -158,7 +151,7 @@ bool CondVar::_waitNoLock(useconds_t microseconds)
 	case 0:			return true;
 	case ETIMEDOUT:	return false;
 	case EINVAL:
-		throw std::invalid_argument("Invalid param given to ::pthread_cond_timedwait");
+		MCD_ASSERT(false && "Invalid param given to ::pthread_cond_timedwait");
 		return false;
 	default:
 		MCD_ASSUME(false);

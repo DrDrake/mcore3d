@@ -14,7 +14,7 @@ class Noncopyable
 {
 protected:
 	Noncopyable() {}
-	~Noncopyable() throw() {}
+	~Noncopyable() {}
 
 private:
 	// Emphasize the following members are private

@@ -3,11 +3,11 @@
 
 #include "NonCopyable.h"
 #include "../ShareLib.h"
-#include <stdexcept>
 
 namespace MCD {
 
 class Event;
+
 /*!	Base class for classes that want to receive events.
 	For internal use only.
  */
@@ -72,11 +72,11 @@ public:
 		colorBits = 4|8|16|32 \n
 		fullscreen = 0|1 \n
 	 */
-	void create(sal_in_z_opt const char* options=nullptr) throw(std::exception);
+	sal_checkreturn bool create(sal_in_z_opt const char* options=nullptr);
 
 	/*!	Create a window from an existing control.
 	 */
-	void create(Handle existingControl, sal_in_z_opt const char* options=nullptr) throw(std::exception);
+	sal_checkreturn bool create(Handle existingControl, sal_in_z_opt const char* options=nullptr);
 
 	/*!	Change some of the properties of the window.
 		\note Not all options that can be set in create() can be applied here,

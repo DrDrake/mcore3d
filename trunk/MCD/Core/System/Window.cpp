@@ -108,12 +108,12 @@ Window::Handle Window::handle()
 	return mImpl->mWnd;
 }
 
-void Window::create(const char* options) throw(std::exception)
+bool Window::create(const char* options)
 {
-	create(0, options);
+	return create(0, options);
 }
 
-void Window::create(Handle existingControl, const char* options) throw(std::exception)
+bool Window::create(Handle existingControl, const char* options)
 {
 	if(!mImpl)
 		mImpl = new Impl(*this);
@@ -121,7 +121,7 @@ void Window::create(Handle existingControl, const char* options) throw(std::exce
 	MCD_ASSUME(mImpl != nullptr);
 	if(options)
 		mImpl->setOptions(options);
-	mImpl->createWindow(existingControl);
+	return mImpl->createWindow(existingControl);
 }
 
 void Window::setOptions(const char* options)

@@ -9,7 +9,7 @@ namespace {
 class Runnable : public MCD::Thread::IRunnable
 {
 public:
-	sal_override void run(Thread& thread) throw()
+	sal_override void run(Thread& thread)
 	{
 		while(thread.keepRun()) {
 			mSleep(0);

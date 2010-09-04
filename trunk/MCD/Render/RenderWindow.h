@@ -47,11 +47,11 @@ public:
 
 		FSAA = '0|2|4|16' // Full-screen anti-aliasing\n
 	 */
-	sal_override void create(sal_in_z_opt const char* options=nullptr) throw(std::exception);
+	sal_override void create(sal_in_z_opt const char* options=nullptr);
 
 	/*!	Create a window from an existing control.
 	 */
-	sal_override void create(Handle existingControl, sal_in_z_opt const char* options=nullptr) throw(std::exception);
+	sal_override void create(Handle existingControl, sal_in_z_opt const char* options=nullptr);
 
 	/*!	Destroy the window and perform necessary cleanup.
 	 */

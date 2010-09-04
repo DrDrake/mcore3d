@@ -1,10 +1,11 @@
 #include "Pch.h"
 #include "RawFileSystem.h"
 #include "ErrorCode.h"
+#include "Log.h"
 #include "PlatformInclude.h"
 #include "StrUtility.h"
 #include <fstream>
-#include <stdexcept>
+#include <malloc.h>	// _malloca
 
 #ifdef MCD_VC
 #	include <ShellAPI.h>	// SHFileOperation
@@ -30,18 +31,16 @@ static std::string getSysErrorMsg(const std::string& prefix)
 	return MCD::getErrorMessage(prefix.c_str(), errCode);
 }
 
-static void throwError(const std::string& prefix, const std::string& pathStr)
+static bool logError(const std::string& prefix, const std::string& pathStr)
 {
-	throw std::runtime_error(getSysErrorMsg(
-		prefix + "\"" + pathStr + "\": "
-	));
+	Log::write(Log::Warn, getSysErrorMsg(prefix + "\"" + pathStr + "\": ").c_str());
+	return false;
 }
 
-static void throwError(const std::string& prefix, const std::string& pathStr, const std::string& sufix)
+static bool logError(const char* prefix, const char* pathStr, const char* sufix)
 {
-	throw std::runtime_error(
-		prefix + "\"" + pathStr + "\"" + sufix
-	);
+	Log::format(Log::Warn, "%s\"%s\"%s", prefix, pathStr, sufix);
+	return false;
 }
 
 // Convert the generic path into platform specific format
@@ -102,12 +101,12 @@ bool isDirectoryImpl(sal_in_z sal_notnull const char* path)
 	MCD_VERIFY(utf8ToWStr(path, wideStr));
 	DWORD attributes = ::GetFileAttributesW(wideStr.c_str());
 	if(attributes == 0xFFFFFFFF)
-		throwError("Error getting directory for ", path);
+		return logError("Error getting directory for ", path);
 	return (attributes & FILE_ATTRIBUTE_DIRECTORY) != 0;
 #else
 	struct stat pathStat;
 	if(::stat(path, &pathStat) != 0)
-		throwError("Error getting directory for ", path);
+		return logError("Error getting directory for ", path);
 	return S_ISDIR(pathStat.st_mode);
 #endif
 }
@@ -115,7 +114,7 @@ bool isDirectoryImpl(sal_in_z sal_notnull const char* path)
 RawFileSystem::RawFileSystem(const Path& rootPath)
 {
 	if(!RawFileSystem::setRoot(rootPath))
-		throwError("The path ", rootPath.getString(), " does not exist or not a directory");
+		logError("The path ", rootPath.getString().c_str(), " does not exist or not a directory");
 }
 
 Path RawFileSystem::getRoot() const {
@@ -199,18 +198,18 @@ uint64_t RawFileSystem::getSize(const Path& path) const
 	MCD_VERIFY(utf8ToWStr(absolutePath.c_str(), wideStr));
 	WIN32_FILE_ATTRIBUTE_DATA fad;
 	if(!::GetFileAttributesExW(wideStr.c_str(), ::GetFileExInfoStandard, &fad))
-		throwError("Error getting file size for ", absolutePath);
+		return logError("Error getting file size for ", absolutePath);
 	if((fad.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) != 0)
-		throwError("The path ", absolutePath, " is a directory");
+		return logError("The path ", absolutePath.c_str(), " is a directory");
 	return (static_cast<uint64_t>(fad.nFileSizeHigh)
 		<< (sizeof(fad.nFileSizeLow)*8))
 		+ fad.nFileSizeLow;
 #else
 	struct stat pathStat;
 	if(::stat(absolutePath.c_str(), &pathStat) != 0)
-		throwError("Error getting file size for ", absolutePath);
+		return logError("Error getting file size for ", absolutePath);
 	if(S_ISDIR(pathStat.st_mode))
-		throwError("The path ", absolutePath, " is a directory");
+		return logError("The path ", absolutePath.c_str(), " is a directory");
 	return static_cast<uint64_t>(pathStat.st_size);
 #endif
 }
@@ -220,7 +219,7 @@ std::time_t RawFileSystem::getLastWriteTime(const Path& path) const
 	struct stat pathStat;
 	Path::string_type absolutePath = toAbsolutePath(path).getString();
 	if(::stat(absolutePath.c_str(), &pathStat) != 0)
-		throwError("Error getting last write time ", absolutePath);
+		return logError("Error getting last write time ", absolutePath);
 	return pathStat.st_mtime;
 }
 

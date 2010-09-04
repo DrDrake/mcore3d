@@ -57,7 +57,7 @@ public:
 	/*!	Find a component in the Entity with the supplied familyType.
 		Returns null if none is found.
 	 */
-	sal_maybenull Component* findComponent(const std::type_info& familyType) const;
+	sal_maybenull Component* findComponent(const type_info& familyType) const;
 
 	//!	Wrap over findComponent() with polymorphic_downcast
 	template<class T>

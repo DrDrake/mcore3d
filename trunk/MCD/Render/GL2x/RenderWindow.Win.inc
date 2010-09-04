@@ -37,15 +37,18 @@ public:
 		return mRc;
 	}
 
-	sal_override void createWindow(Window::Handle existingWindowHandle=0)
+	sal_override bool createWindow(Window::Handle existingWindowHandle=0)
 	{
 		MemoryProfiler::Scope profiler("RenderWindow::createWindow");
-		Super::createWindow(existingWindowHandle);
+		if(!Super::createWindow(existingWindowHandle))
+			return false;
 
 		// Get the device context
 		mDc = ::GetDC(HWND(mWnd));
-		if(mDc == nullptr)
-			throw std::runtime_error("Win32 API call 'GetDC' failed");
+		if(mDc == nullptr) {
+			Log::write(Log::Warn, "Win32 API call 'GetDC' failed");
+			return false;
+		}
 
 		if(!mDefaultPixelFormat) {
 			// Initialize WGL
@@ -65,11 +68,15 @@ public:
 		if(mMultiSamplePixelFormat)
 			mDefaultPixelFormat = mMultiSamplePixelFormat;
 
-		if(!createContext())
-			throw std::runtime_error("Fail to create render context");
+		if(!createContext()) {
+			Log::write(Log::Warn, "Fail to create render context");
+			return false;
+		}
 
 		if(mMultiSamplePixelFormat)
 			glEnable(GL_MULTISAMPLE);
+
+		return true;
 	}
 
 	sal_override void destroy()

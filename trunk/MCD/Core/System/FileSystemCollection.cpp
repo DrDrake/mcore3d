@@ -1,18 +1,11 @@
 #include "Pch.h"
 #include "FileSystemCollection.h"
+#include "Log.h"
 #include <algorithm>
 #include <list>
 #include <set>
-#include <stdexcept>
 
 namespace MCD {
-
-static void throwError(const std::string& prefix, const std::string& pathStr, const std::string& sufix)
-{
-	throw std::runtime_error(
-		prefix + "\"" + pathStr + "\"" + sufix
-	);
-}
 
 namespace {
 
@@ -192,8 +185,10 @@ bool FileSystemCollection::isExists(const Path& path) const
 bool FileSystemCollection::isDirectory(const Path& path) const
 {
 	IFileSystem* fileSystem = mImpl.findFileSystemForPath(path);
-	if(!fileSystem)
-		throwError("Directory ", path.getString(), " does not exist");
+	if(!fileSystem) {
+		Log::format(Log::Warn, "The path %s does not exist. At %s line %i", path.getString().c_str(), __FILE__, __LINE__);
+		return false;
+	}
 
 	return fileSystem->isDirectory(path);
 }
@@ -201,8 +196,10 @@ bool FileSystemCollection::isDirectory(const Path& path) const
 uint64_t FileSystemCollection::getSize(const Path& path) const
 {
 	IFileSystem* fileSystem = mImpl.findFileSystemForPath(path);
-	if(!fileSystem)
-		throwError("File ", path.getString(), " does not exist");
+	if(!fileSystem) {
+		Log::format(Log::Warn, "The path %s does not exist. At %s line %i", path.getString().c_str(), __FILE__, __LINE__);
+		return false;
+	}
 
 	return fileSystem->getSize(path);
 }

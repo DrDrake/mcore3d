@@ -2,7 +2,6 @@
 #define __MCD_CORE_ENTITY_COMPONENT__
 
 #include "EntityIterator.h"
-#include "../ShareLib.h"
 #include "../System/LinkList.h"
 #include "../System/ScriptOwnershipHandle.h"
 #include "../System/WeakPtr.h"
@@ -30,7 +29,7 @@ public:
 		For example, a MeshComponent and SkyboxComponent are both inherit from RenderableComponent
 		and they all return typeid(RenderableComponent) as the family type.
 	 */
-	virtual const std::type_info& familyType() const = 0;
+	virtual const type_info& familyType() const = 0;
 
 	/*!	Creates and returns a deep copy of this Component.
 		This method should returns nullptr if this Component is not cloneable.
@@ -54,7 +53,7 @@ public:
 	virtual void onRemove();
 
 	//!	Overrided LinkListBase::NodeBase::destroyThis() for handling IntrusiveWeakPtrTarget::destructionLock().
-	sal_override void destroyThis() throw();
+	sal_override void destroyThis();
 
 // Attributes
 	//! The Entity that this component belongs to.

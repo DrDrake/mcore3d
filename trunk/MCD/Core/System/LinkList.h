@@ -37,14 +37,14 @@ namespace MCD {
 	struct ClientInfo {
 		struct Client : public LinkListBase::NodeBase {
 			MCD_DECLAR_GET_OUTER_OBJ(ClientInfo, mClient);
-			void destroyThis() throw() {
+			void destroyThis() {
 				delete getOuterSafe();
 			}
 		} mClient;
 
 		struct Server : public LinkListBase::NodeBase {
 			MCD_DECLAR_GET_OUTER_OBJ(ClientInfo, mServer);
-			void destroyThis() throw() {
+			void destroyThis() {
 				delete getOuterSafe();
 			}
 		} mServer;
@@ -57,7 +57,7 @@ namespace MCD {
 	LinkList<ClientInfo::Client> clientList;
 	LinkList<ClientInfo::Server> serverList;
 
-	std::auto_ptr<ClientInfo> info(new ClientInfo);
+	ClientInfo* info(new ClientInfo);
 	info->mName = "Test";
 	clientList.pushBack(info->mClient);
 	serverList.pushBack(info->mServer);
@@ -95,10 +95,10 @@ public:
 			By default it will call "delete this", user can override
 			this function for their own memory management.
 		 */
-		virtual void destroyThis() throw();
+		virtual void destroyThis();
 
 		//! Remove this node from the list, if it's already in the list.
-		void removeThis() throw();
+		void removeThis();
 
 		bool isInList() const {
 			return mList != nullptr;

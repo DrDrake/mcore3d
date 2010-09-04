@@ -1,7 +1,6 @@
 #include "Pch.h"
 #include "../../../MCD/Core/System/LinkList.h"
 #include "../../../MCD/Core/System/Macros.h"
-#include <memory>   // For auto_ptr
 #include <stdexcept>
 #include <vector>
 
@@ -23,13 +22,12 @@ struct FooNode : public LinkListBase::Node<FooNode> {
 TEST(Basic_LinkListTest)
 {
 	{	// Operations for the node itself
-		std::auto_ptr<FooNode> n(new FooNode(123));
+		FooNode* n(new FooNode(123));
 		CHECK(!n->isInList());
 		CHECK(!n->next());
 		CHECK(!n->prev());
 		n->removeThis();	// Should do nothing since not in list
 		n->destroyThis();
-		n.release();
 	};
 
 	{	LinkList<FooNode> list;
@@ -109,11 +107,10 @@ TEST(RemoveAll_LinkListTest)
 	std::vector<FooNode*> vec;
 	static const size_t cCount = 10;
 	for(size_t i=0; i<cCount; ++i) {
-		std::auto_ptr<FooNode> ptr(new FooNode(i));
+		FooNode* ptr(new FooNode(i));
 		list.pushBack(*ptr);
 		CHECK_EQUAL(&list, ptr->getList());
-		vec.push_back(ptr.get());
-		ptr.release();
+		vec.push_back(ptr);
 	}
 
 	list.removeAll();
@@ -131,9 +128,8 @@ TEST(DestroyAll_LinkListTest)
 
 	static const size_t cCount = 10;
 	for(size_t i=0; i<cCount; ++i) {
-		std::auto_ptr<FooNode> ptr(new FooNode(i));
+		FooNode* ptr(new FooNode(i));
 		list.pushBack(*ptr);
-		ptr.release();
 	}
 
 	CHECK_EQUAL(cCount, list.elementCount());
@@ -147,14 +143,14 @@ struct ClientInfo
 {
 	struct Client : public LinkListBase::NodeBase {
 		MCD_DECLAR_GET_OUTER_OBJ(ClientInfo, mClient);
-		sal_override void destroyThis() throw() {
+		sal_override void destroyThis() {
 			delete getOuterSafe();
 		}
 	} mClient;
 
 	struct Server : public LinkListBase::NodeBase {
 		MCD_DECLAR_GET_OUTER_OBJ(ClientInfo, mServer);
-		sal_override void destroyThis() throw() {
+		sal_override void destroyThis() {
 			delete getOuterSafe();
 		}
 	} mServer;

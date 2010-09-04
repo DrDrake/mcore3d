@@ -57,7 +57,7 @@ namespace MCD {
 		struct Integer : public MapBase<int>::NodeBase {
 			explicit Integer(int key) : NodeBase(key) {}
 			MCD_DECLAR_GET_OUTER_OBJ(BiDirMapNode, mId);
-			sal_override void destroyThis() throw() {
+			sal_override void destroyThis() {
 				delete getOuterSafe();
 			}
 		} mId;
@@ -65,7 +65,7 @@ namespace MCD {
 		struct String : public MapBase<std::string>::NodeBase {
 			explicit String(const std::string& key) : NodeBase(key) {}
 			MCD_DECLAR_GET_OUTER_OBJ(BiDirMapNode, mStr);
-			sal_override void destroyThis() throw() {
+			sal_override void destroyThis() {
 				delete getOuterSafe();
 			}
 		} mStr;
@@ -107,9 +107,9 @@ protected:
 		MCD_CORE_API virtual ~Node();
 
 	public:
-		MCD_CORE_API virtual void destroyThis() throw();
+		MCD_CORE_API virtual void destroyThis();
 
-		MCD_CORE_API void removeThis() throw();
+		MCD_CORE_API void removeThis();
 
 	protected:
 		bool isInMap() const {
@@ -192,13 +192,13 @@ protected:
 	Node* walkR(Node& node);
 
 public:
-	~AvlTree() throw();
+	~AvlTree();
 
 	//!	Remove all elements
 	void removeAll();
 
 	//! Destroy all elements
-	void destroyAll() throw();
+	void destroyAll();
 
 	size_t elementCount() const {
 		return mCount;
@@ -234,7 +234,7 @@ struct MapComparator {
 		 0	if \em key == \em mKey
 		 1	if \em key >  \em mKey
 	 */
-	int compare(KeyArg key) throw() {
+	int compare(KeyArg key) {
 		return (key < mKey) ? (-1) : (key == mKey) ? 0 : 1;
 	}
 
@@ -256,7 +256,7 @@ struct MapCharStrComparator
 	{
 	}
 
-	int compare(sal_in_z sal_notnull const CharType* rhs) throw()
+	int compare(sal_in_z sal_notnull const CharType* rhs)
 	{
 		struct Dummy {
 			static MCD_INLINE2 size_t min(size_t lhs_, size_t rhs_) {
@@ -301,7 +301,7 @@ struct MapComparator<const std::basic_string<TCharType>&>
 	{
 	}
 
-	int compare(const StringType& rhs) throw() {
+	int compare(const StringType& rhs) {
 		return Super::compare(rhs.c_str());
 	}
 };	// MapComparator
@@ -339,12 +339,12 @@ public:
 			By default it will call "delete this", user can override
 			this function for their own memory management.
 		 */
-		sal_override virtual void destroyThis() throw() {
+		sal_override virtual void destroyThis() {
 			Impl::AvlTree::Node::destroyThis();
 		}
 
 		//! Remove this node from the map, if it's already in the map.
-		void removeThis() throw() {
+		void removeThis() {
 			Impl::AvlTree::Node::removeThis();
 		}
 

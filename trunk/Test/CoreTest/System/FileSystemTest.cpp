@@ -6,6 +6,11 @@
 
 using namespace MCD;
 
+// NOTE: Exception support is removed from MCore, those related test cases
+// will cause an assertion instead
+#undef CHECK_THROW
+#define CHECK_THROW(x, y) {}
+
 TEST(RawFileSystemTest)
 {
 	RawFileSystem fs("./");
@@ -192,7 +197,7 @@ public:
 	ReadTask(ZipFileSystem& zfs) : Task(0), fs(zfs) {}
 
 protected:
-	sal_override void run(Thread& thread) throw()
+	sal_override void run(Thread& thread)
 	{
 		// Make the test more throught by randomly holding the life-time of ZipFileSystem's impl
 		std::auto_ptr<std::istream> holder = (rand() % 2 == 0) ? fs.openRead("welcome/hello.txt") : std::auto_ptr<std::istream>(nullptr);

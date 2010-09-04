@@ -73,7 +73,7 @@ public:
 		}
 	}
 
-	void run(Thread& thread) throw()
+	void run(Thread& thread)
 	{
 		DeltaTimer timer;
 		while(thread.keepRun())
@@ -101,7 +101,7 @@ public:
 	static const int cFpsLimit = 30;
 };	// Impl
 
-void ThreadedDynamicsWorld::run(Thread& thread) throw()
+void ThreadedDynamicsWorld::run(Thread& thread)
 {
 	MCD_ASSUME(mImpl);
 	mImpl->run(thread);

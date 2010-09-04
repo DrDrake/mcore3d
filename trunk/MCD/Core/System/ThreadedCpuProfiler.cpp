@@ -1,5 +1,6 @@
 #include "Pch.h"
 #include "ThreadedCpuProfiler.h"
+#include "Log.h"
 #include "PlatformInclude.h"
 #include "PtrVector.h"
 #include <iomanip>
@@ -320,7 +321,7 @@ public:
 		if(clientSock != INVALID_SOCKET)
 		{
 			connected = true;
-			std::cout << "Client connected!!" << std::endl;
+			Log::write(Log::Info, "ThreadCpuProfiler client connected!!");
 			return true;
 		}
 
@@ -366,7 +367,7 @@ public:
 		std::string str = ss.str() + "\n\n";
 
 		if(::send(clientSock, str.c_str(), str.length(), 0) == SOCKET_ERROR) {
-			std::cout << "sendto() failed" << std::endl;
+			Log::format(Log::Warn, "Socket sendto() failed. At %s line %i", __FILE__, __LINE__);
 			connected = false;
 		}
 

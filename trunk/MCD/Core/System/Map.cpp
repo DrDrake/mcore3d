@@ -1,6 +1,7 @@
 #include "Pch.h"
 #include "Map.h"
 #include <memory>	// For std::swap (VC only needs <utilty> but gcc need <memory>)
+#include <malloc.h>	// _malloca
 
 namespace MCD {
 
@@ -18,12 +19,12 @@ AvlTree::Node::~Node()
 	removeThis();
 }
 
-void AvlTree::Node::destroyThis() throw()
+void AvlTree::Node::destroyThis()
 {
 	delete this;
 }
 
-void AvlTree::Node::removeThis() throw()
+void AvlTree::Node::removeThis()
 {
 	if(!mAvlTree)
 		return;
@@ -85,7 +86,7 @@ AvlTree::AvlTree()
 {
 }
 
-AvlTree::~AvlTree() throw()
+AvlTree::~AvlTree()
 {
 	destroyAll();
 }
@@ -178,7 +179,7 @@ void AvlTree::removeAll()
 	mCount = 0;
 }
 
-void AvlTree::destroyAll() throw()
+void AvlTree::destroyAll()
 {
 	// NOTE: The simplest way, but too slow because
 	// all the tree balancing act is just a waste.
@@ -287,7 +288,6 @@ void AvlTree::adjustBallance(Node& node_, int dir, bool removed)
 			break;
 		default:
 			MCD_ASSERT(false);
-			noReturn();
 		}
 
 		if(!parent || (match ^ removed))

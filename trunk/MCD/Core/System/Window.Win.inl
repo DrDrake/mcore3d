@@ -19,7 +19,7 @@ class MCD_CORE_API Window::Impl : public ImplBase
 public:
 	Impl(Window& w);
 
-	void createWindow(Window::Handle existingWindowHandle=0);
+	sal_checkreturn bool createWindow(Window::Handle existingWindowHandle=0);
 
 	void destroy();
 

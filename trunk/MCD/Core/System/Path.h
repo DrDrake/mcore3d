@@ -127,7 +127,7 @@ public:
 	static Path getCurrentPath();
 
 	//! Set the current path of the running process.
-	static void setCurrentPath(const Path& path);
+	sal_checkreturn static bool setCurrentPath(const Path& path);
 
 protected:
 	string_type mStr;

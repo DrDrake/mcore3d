@@ -12,6 +12,7 @@ namespace MCD {
 
 	Example:
 	\code
+	Log::format(Log::Warn, "Fail to watch directory: %s", path);
 	\endcode
  */
 class MCD_CORE_API Log : Noncopyable

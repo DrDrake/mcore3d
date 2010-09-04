@@ -22,7 +22,7 @@ TEST(Basic_CondVarTest)
 				mSleep(0);
 			}
 		}
-		sal_override void run(Thread& thread) throw()
+		sal_override void run(Thread& thread)
 		{
 			// Rather than using mCondVar.wait() directly, we use lock() and unlock() so setting mFlag = true
 			// becomes part of the atomic operation too.
@@ -71,7 +71,7 @@ class Producer : public Thread::IRunnable
 {
 public:
 	Producer() : mCount(0) {}
-	sal_override void run(Thread& thread) throw()
+	sal_override void run(Thread& thread)
 	{
 		while(thread.keepRun()) {
 			ScopeLock lock(gTestMutex);
@@ -96,7 +96,7 @@ class Consumer : public Thread::IRunnable
 {
 public:
 	Consumer() : mCount(0) {}
-	sal_override void run(Thread& thread) throw()
+	sal_override void run(Thread& thread)
 	{
 		while(true) {
 			ScopeLock lock(gTestMutex);

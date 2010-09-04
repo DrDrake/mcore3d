@@ -30,12 +30,12 @@ void* RenderWindow::renderContext()
 	return static_cast<Impl*>(mImpl)->renderContext();
 }
 
-void RenderWindow::create(const char* options) throw(std::exception)
+void RenderWindow::create(const char* options)
 {
 	create(0, options);
 }
 
-void RenderWindow::create(Handle existingControl, const char* options) throw(std::exception)
+void RenderWindow::create(Handle existingControl, const char* options)
 {
 	if(!mImpl)
 		mImpl = new Impl(*this);

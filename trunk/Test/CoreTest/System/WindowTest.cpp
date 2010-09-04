@@ -10,7 +10,7 @@ using namespace MCD;
 TEST(Create_WindowTest)
 {
 	Window window;
-	window.create("title='Hello world!';width=400;height=300");
+	CHECK(window.create("title='Hello world!';width=400;height=300"));
 	window.setOptions("showCursor=0");
 
 	CHECK(window.handle() != 0);
@@ -34,8 +34,8 @@ TEST(Create_WindowTest)
 TEST(Multiple_WindowTest)
 {
 	Window window1, window2;
-	window1.create("title='Window1';width=100;height=200");
-	window2.create("title='Window2';width=200;height=100");
+	CHECK(window1.create("title='Window1';width=100;height=200"));
+	CHECK(window2.create("title='Window2';width=200;height=100"));
 	window1.setOptions("showCursor=1");
 
 	bool w1Active = true;

@@ -16,7 +16,7 @@ TEST(Basic_TaskPoolTest)
 		{
 		}
 
-		sal_override void run(Thread& thread) throw()
+		sal_override void run(Thread& thread)
 		{
 			int ranNum = mSeed;
 
@@ -62,7 +62,7 @@ TEST(DeleteTask_TaskPoolTest)
 	public:
 		Task() : MCD::TaskPool::Task(0) {}
 
-		sal_override void run(Thread&) throw() {
+		sal_override void run(Thread&) {
 			delete this;
 		}
 	};	// Task

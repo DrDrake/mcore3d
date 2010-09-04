@@ -2,7 +2,6 @@
 #define __MCD_CORE_SYSTEM_THREAD__
 
 #include "Atomic.h"
-#include <stdexcept>
 
 namespace MCD {
 
@@ -18,7 +17,7 @@ namespace MCD {
 	public:
 		MyRunnable() : LoopCount(0) {}
 		// Keep printing hello world until the thread wants to stop
-		sal_override void run(Thread& thread) throw() {
+		sal_override void run(Thread& thread) {
 			while(thread.keepRun())
 				std::cout << "Hello world!\n";
 		}
@@ -47,7 +46,7 @@ public:
 				attention to thread safety on this method.
 			\param thread Represent the thread context which invoke this run() method
 		 */
-		virtual void run(Thread& thread) throw() = 0;
+		virtual void run(Thread& thread) = 0;
 	};	// IRunnable
 
 	//! Construct a Thread instance but without any thread created.
@@ -67,8 +66,6 @@ public:
 		\note Thread creation is submitted to the under laying operation system inside
 			the constructor, it didn't guarantee the IRunnable::run() function get
 			started before the constructor exit.
-		\note Throw exception if you call the start() function without waiting for the
-			previous thread function finish.
 	 */
 	void start(IRunnable& runnable, bool autoDeleteRunnable=true);
 
@@ -115,9 +112,6 @@ public:
 
 	//! Check that calling wait() will not causing error or deadlock.
 	bool isWaitable() const;
-
-	//! Throw if the thread is already wait and finished.
-	void throwIfWaited() const throw(std::logic_error);
 
 protected:
 	void init();

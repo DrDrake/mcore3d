@@ -1,9 +1,10 @@
 #include "Pch.h"
 #include "Path.h"
 #include "ErrorCode.h"
+#include "Log.h"
 #include "PlatformInclude.h"
 #include "StrUtility.h"
-#include <stdexcept>
+#include <malloc.h>	// _malloca
 #include <string.h>	// For strcmp
 
 namespace MCD {
@@ -210,8 +211,10 @@ Path& Path::operator/=(const Path& rhs)
 {
 	normalize();
 
-	if(!mStr.empty() && rhs.hasRootDirectory())
-		throw std::runtime_error("should not append a path with root directory unless lhs is empty");
+	if(!mStr.empty() && rhs.hasRootDirectory()) {
+		Log::write(Log::Warn, "should not append a path with root directory unless lhs is empty");
+		return *this;
+	}
 
 	if(!mStr.empty() && mStr[mStr.size()-1] != '/')
 		mStr += "/";
@@ -264,7 +267,7 @@ Path Path::getCurrentPath()
 #endif
 }
 
-void Path::setCurrentPath(const Path& path)
+bool Path::setCurrentPath(const Path& path)
 {
 #ifdef MCD_VC
 	std::wstring wideString;
@@ -273,10 +276,9 @@ void Path::setCurrentPath(const Path& path)
 #else
 	if(chdir(path.getString().c_str()) != 0) {
 #endif
-		throw std::runtime_error(
-			MCD::getErrorMessage(("Unable to set current path to '" + path.getString() + "': ").c_str(), MCD::getLastError())
-		);
+		return false;
 	}
+	return true;
 }
 
 // We will first normalize the incomming path and then append an extra "/"

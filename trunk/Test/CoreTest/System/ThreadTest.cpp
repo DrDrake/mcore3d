@@ -12,7 +12,7 @@ public:
 	MyRunnable() : valid(false) {}
 
 protected:
-	sal_override void run(Thread& thread) throw() {
+	sal_override void run(Thread& thread) {
 		(void)thread;
 		valid = true;
 	}
@@ -28,7 +28,7 @@ public:
 	LoopRunnable() : LoopCount(0) {}
 
 protected:
-	sal_override void run(Thread& thread) throw()
+	sal_override void run(Thread& thread)
 	{
 		while(thread.keepRun()) {
 			mSleep(0);
@@ -79,29 +79,26 @@ TEST(Basic_ThreadTest)
 	}
 
 	{	// Thread creation and auto delete of runnable
-		std::auto_ptr<MyRunnable> runnable(new MyRunnable);
+		MyRunnable* runnable = new MyRunnable;
 		Thread thread(*runnable, true);
 		thread.wait();
 		CHECK(runnable->valid);
-		runnable.release();
 	}
 
 	{	// Multiple call to start with different instance of runnable
-		std::auto_ptr<MyRunnable> runnable(new MyRunnable);
+		MyRunnable* runnable = new MyRunnable;
 		Thread thread(*runnable, true);
 		thread.wait();
 		CHECK(runnable->valid);
-		runnable.release();
 
 		{	MyRunnable runnable2;
 			thread.start(runnable2, false);
 			thread.wait();
 		}
 
-		runnable.reset(new MyRunnable);
+		runnable = new MyRunnable;
 		thread.start(*runnable, true);
 		thread.wait();
-		runnable.release();
 
 		{	MyRunnable runnable2;
 			thread.start(runnable2, false);
@@ -141,7 +138,7 @@ TEST(DeleteThread_ThreadTest)
 		DeleteThreadRunnable() : mFinished(false) {}
 
 	protected:
-		sal_override void run(Thread& thread) throw()
+		sal_override void run(Thread& thread)
 		{
 			delete &thread;
 			mFinished = true;
@@ -156,8 +153,8 @@ TEST(DeleteThread_ThreadTest)
 	DeleteThreadRunnable runnable;
 
 	// Never try to reference the thread anymore since it may be deleted at any time
-	std::auto_ptr<Thread> thread(new Thread(runnable, false));
-	thread.release();
+	Thread* thread = new Thread(runnable, false);
+	thread = nullptr;
 
 	// We cannot use thread->wait(), use a boolean variable and condition variable instead.
 	// The thread object should be destroyed after the wait
@@ -167,34 +164,13 @@ TEST(DeleteThread_ThreadTest)
 	CHECK(true);
 }
 
+// NOTE: Exception support is removed from MCore, those related test cases
+// will cause an assertion instead
+#undef CHECK_THROW
+#define CHECK_THROW(x, y) {}
+
 TEST(Negative_ThreadTest)
 {
-	// Wait for the thread function itself inside the thread function
-	class WaitFailRunnable : public MCD::Thread::IRunnable
-	{
-	public:
-		WaitFailRunnable() : mIsValid(false) {}
-
-	protected:
-		sal_override void run(Thread& thread) throw()
-		{
-			if(thread.isWaitable()) {
-				mIsValid = false;
-				return;
-			}
-
-			try {
-				thread.wait();
-				mIsValid = false;
-			} catch(...) {
-				mIsValid = true;
-			}
-		}
-
-	public:
-		bool mIsValid;
-	};	// WaitFailRunnable
-
 	{	// Without start
 		Thread thread;
 		CHECK_THROW(thread.wait(), std::logic_error);
@@ -216,13 +192,6 @@ TEST(Negative_ThreadTest)
 		CHECK_THROW(thread.setPriority(Thread::NormalPriority), std::logic_error);
 		CHECK_THROW(thread.getPriority(), std::logic_error);
 	}
-
-	{	// Wait for itself
-		WaitFailRunnable runnable;
-		Thread thread(runnable, false);
-		thread.wait();
-		CHECK(runnable.mIsValid);
-	}
 }
 
 TEST(TryLock_ThreadTest)
@@ -234,7 +203,7 @@ TEST(TryLock_ThreadTest)
 			: mMutexToLock(mutexToLock) {}
 
 	protected:
-		sal_override void run(Thread& thread) throw() {
+		sal_override void run(Thread& thread) {
 			ScopeLock lock(mMutexToLock);
 			while(thread.keepRun()) {}
 		}
@@ -272,7 +241,7 @@ Mutex gTestMutex;
 
 class Producer : public Thread::IRunnable
 {
-	sal_override void run(Thread& thread) throw()
+	sal_override void run(Thread& thread)
 	{
 		while(thread.keepRun()) {
 			ScopeLock lock(gTestMutex);
@@ -283,7 +252,7 @@ class Producer : public Thread::IRunnable
 
 class Consumer : public Thread::IRunnable
 {
-	sal_override void run(Thread& thread) throw()
+	sal_override void run(Thread& thread)
 	{
 		for(;;) {
 			ScopeLock lock(gTestMutex);

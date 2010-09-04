@@ -1,7 +1,6 @@
 #include "Pch.h"
 #include "Component.h"
 #include "Entity.h"
-#include "../System/Utility.h"
 
 // NOTE: For dll export purpose
 #include "SystemComponent.h"
@@ -24,7 +23,7 @@ void Component::onAdd() {}
 
 void Component::onRemove() {}
 
-void Component::destroyThis() throw()
+void Component::destroyThis()
 {
 	destructionLock();
 	delete this;

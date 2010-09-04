@@ -133,7 +133,7 @@ TEST(Async_ResourceLoaderTest)
 		}
 
 	protected:
-		sal_override void run(Thread& thread) throw()
+		sal_override void run(Thread& thread)
 		{
 			while(thread.keepRun()) {
 				if(mLoader.load(nullptr) & IResourceLoader::Stopped) {

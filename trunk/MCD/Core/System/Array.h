@@ -2,7 +2,6 @@
 #define __MCD_CORE_SYSTEM_ARRAY__
 
 #include "Platform.h"
-#include <stdexcept>
 
 namespace MCD {
 
@@ -20,18 +19,12 @@ public:
 	T& operator[](size_t i)
 	{
 		MCD_ASSUME(i < N);
-#ifndef NDEBUG
-		rangeCheck(i);
-#endif
 		return elems[i];
 	}
 
 	const T& operator[](size_t i) const
 	{
 		MCD_ASSUME(i < N);
-#ifndef NDEBUG
-		rangeCheck(i);
-#endif
 		return elems[i];
 	}
 
@@ -80,13 +73,6 @@ public:
 	{
 		for(size_t i=0; i<size(); ++i)
 			elems[i] = value;
-	}
-
-private:
-	static void rangeCheck(size_t i)
-	{
-		if(i >= N)
-			throw std::out_of_range("MCD::Array out of range");
 	}
 };	// Array
 

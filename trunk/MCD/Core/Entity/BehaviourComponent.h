@@ -17,7 +17,9 @@ public:
 
 	//! Invoke the BehaviourComponent::update() in every Entity under the entityNode sub-tree.
 	static void traverseEntities(sal_maybenull Entity* entityNode, float dt);
-};	// Component
+};	// BehaviourComponent
+
+typedef IntrusiveWeakPtr<BehaviourComponent> BehaviourComponentPtr;
 
 }	// namespace MCD
 

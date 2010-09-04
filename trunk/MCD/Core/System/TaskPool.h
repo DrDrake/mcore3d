@@ -16,7 +16,7 @@ class ThreadPool;
 	public:
 		Task(int priority=0) : MCD::TaskPool::Task(priority) {}
 
-		sal_override void run(Thread& thread) throw() {
+		sal_override void run(Thread& thread) {
 			// Do something useful
 			// You may poll thread.keepRun() to decide weather you should abort your task or not
 			// ...

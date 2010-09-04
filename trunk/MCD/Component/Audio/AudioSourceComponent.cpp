@@ -36,7 +36,7 @@ AudioSourceComponent::AudioSourceComponent()
 
 Component* AudioSourceComponent::clone() const
 {
-	std::auto_ptr<AudioSourceComponent> cloned(new AudioSourceComponent);
+	AudioSourceComponent* cloned(new AudioSourceComponent);
 
 	if(IResourceManager* mgr = audioSource.resourceManager()) {
 		if(!cloned->load(*mgr, audioSource.fileId(), audioSource.loadOptions().c_str()))
@@ -46,7 +46,7 @@ Component* AudioSourceComponent::clone() const
 	cloned->destroyAfterFinish = this->destroyAfterFinish;
 	cloned->destroyEntityAfterFinish = this->destroyEntityAfterFinish;
 	cloned->setEffect(this->mEffect.get());
-	return cloned.release();
+	return cloned;
 }
 
 void AudioSourceComponent::update()
