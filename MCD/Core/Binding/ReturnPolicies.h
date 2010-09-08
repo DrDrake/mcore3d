@@ -4,18 +4,6 @@
 /// Return policies of the functions
 
 #include "Types.h"
-/*#include "Classes.h"
-
-#include "CommonTypes.h"
-#include "../custom/CustomTypes.h"
-
-#include "CommonPointers.h"
-#include "../custom/CustomPointers.h"
-
-#include "../custom/CustomRefs.h"
-#include "../custom/CustomSystem.h"
-*/
-
 #include "../../../3Party/squirrel/squirrel.h"
 
 namespace MCD {
@@ -31,22 +19,11 @@ public:
 		push(v, result);
 		return 1;
 	}
-};
+};	// plain
 
-/// used to return already on-stack values
-enum AlreadyAsArgNum {
-	argThis = 1,
-	arg1,
-	arg2,
-	arg3,
-	arg4,
-	arg5,
-	arg6,
-	arg7,
-	arg8
-};
-
-template<int argNum>
+/// Used to return already on-stack values
+/// \note argNum should take the function environment arg into account i.e arg count + 1
+template<size_t argNum>
 class alreadyAsArg
 {
 public:
@@ -59,10 +36,10 @@ public:
 		sq_pushobject(v, existingObj);
 		return 1;
 	}
-};
+};	// alreadyAsArg
 
 /// Used to put calee back to stack
-class alreadyAsThis: public alreadyAsArg<argThis>
+class alreadyAsThis: public alreadyAsArg<1>
 {
 };
 
@@ -76,7 +53,7 @@ public:
 		push(v, result);
 		return 1;
 	}
-};
+};	// objNoCare
 
 /// Construct new instance, and deletes host object on destruction
 class construct
@@ -85,27 +62,29 @@ public:
 	template<typename RT>
 	static SQInteger pushResult(HSQUIRRELVM v, RT result)
 	{
-		typedef typename ptr::pointer<RT>::HostType HostType;
-		HostType* obj = ptr::pointer<RT>::to(result);
+		typedef typename pointer<RT>::HostType HostType;
+		HostType* obj = pointer<RT>::to(result);
 
+		// Note that at the time when the C function is invoked, the
+		// squirrel side object instance was already on the stack.
 		if(!obj || SQ_FAILED(sq_setinstanceup(v, 1, obj)))
-			return sq_throwerror(v, "Failed to clone object");
+			return sq_throwerror(v, "Failed to construct object");
 
-		sq_setreleasehook(v, 1, _memoryControllerHook<HostType>);
-		types::addHandleToObject(v, obj, 1);
+		sq_setreleasehook(v, 1, releaseHook<HostType>);
+//		types::addHandleToObject(v, obj, 1);
 
 		return 1;
 	}
 
 private:
 	template<typename T>
-	static SQInteger _memoryControllerHook(SQUserPointer p, SQInteger size)
+	static SQInteger releaseHook(SQUserPointer p, SQInteger size)
 	{
 		T* data = (T*)p;
-		script::types::destroy(data);
+		destroy(data, data);
 		return 1;
 	}
-};
+};	// construct
 
 /// Creates new instance, which deletes host object on destruction
 class objOwn
@@ -115,16 +94,16 @@ public:
 	static SQInteger pushResult(HSQUIRRELVM v, RT result)
 	{
 		push(v, result);
-		sq_setreleasehook(v, -1, _memoryControllerHook<typename ptr::pointer<RT>::HostType>);
+		sq_setreleasehook(v, -1, releaseHook<typename ptr::pointer<RT>::HostType>);
 		return 1;
 	}
 
 private:
 	template<typename T>
-	static SQInteger _memoryControllerHook(SQUserPointer p,SQInteger size)
+	static SQInteger releaseHook(SQUserPointer p,SQInteger size)
 	{
 		T* data = (T*)p;
-		script::types::destroy(data);
+		destroy(data, data);
 		return 1;
 	}
 };
@@ -144,7 +123,7 @@ public:
 
 		sq_pushinteger(v, detail::ClassesManager::MEMORY_CONTROLLER_PARAM);
 		new(sq_newuserdata(v, sizeof(RT))) RT(result);
-		sq_setreleasehook(v, -1, _memoryControllerHook<RT>);
+		sq_setreleasehook(v, -1, releaseHook<RT>);
 //		jkSCRIPT_VERIFY(sq_set(v, -3));
 
 		return 1;
@@ -152,7 +131,7 @@ public:
 
 private:
 	template<typename T>
-	static SQInteger _memoryControllerHook(SQUserPointer p, SQInteger size)
+	static SQInteger releaseHook(SQUserPointer p, SQInteger size)
 	{
 		T* data = (T*)p;
 		data->~T();
@@ -160,7 +139,7 @@ private:
 	}
 };
 
-/// creates new instance, which controls host object lifetime by addRef-releaseRef custom methods
+/// Creates new instance, which controls host object lifetime by addRef-releaseRef custom methods
 template<typename RefPolicy>
 class objRefCount
 {
@@ -172,13 +151,13 @@ public:
 		HostType* obj = ptr::pointer<RT>::to(result);
 		RefPolicy::addRef(obj);
 		types::push(v, result);
-		sq_setreleasehook(v, -1, _memoryControllerHook<HostType>);
+		sq_setreleasehook(v, -1, releaseHook<HostType>);
 		return 1;
 	}
 
 private:
 	template<typename T>
-	static SQInteger _memoryControllerHook(SQUserPointer p, SQInteger size)
+	static SQInteger releaseHook(SQUserPointer p, SQInteger size)
 	{
 		T* data = (T*)p;
 		RefPolicy::releaseRef(data);
@@ -186,7 +165,7 @@ private:
 	}
 };
 
-/// construct new instance, and returns using objRefCount policy
+/// Construct new instance, and returns using objRefCount policy
 template<typename RefPolicy>
 class constructObjRefCount
 {
@@ -202,7 +181,7 @@ public:
 		if(SQ_FAILED(sq_setinstanceup(v, 1, obj)))
 			return -1;
 
-		sq_setreleasehook(v, 1, _memoryControllerHook<HostType>);
+		sq_setreleasehook(v, 1, releaseHook<HostType>);
 		types::addHandleToObject(v, obj, 1);
 
 		return 1;
@@ -210,7 +189,7 @@ public:
 
 private:
 	template<typename T>
-	static SQInteger _memoryControllerHook(SQUserPointer p, SQInteger size)
+	static SQInteger releaseHook(SQUserPointer p, SQInteger size)
 	{
 		T* data = (T*)p;
 		RefPolicy::releaseRef(data);
@@ -232,9 +211,8 @@ template<> struct DefaultReturnPolicy<long>				{ typedef plain policy; };
 template<> struct DefaultReturnPolicy<unsigned long>	{ typedef plain policy; };
 template<> struct DefaultReturnPolicy<float>			{ typedef plain policy; };
 template<> struct DefaultReturnPolicy<double>			{ typedef plain policy; };
-template<> struct DefaultReturnPolicy<const SQChar*>	{ typedef plain policy; };
-
-//template<> struct DefaultReturnPolicy<stdSTRING>		{ typedef plain policy; };
+template<> struct DefaultReturnPolicy<const char*>		{ typedef plain policy; };
+template<> struct DefaultReturnPolicy<std::string>		{ typedef plain policy; };
 
 // Detect the type of a class member variable
 template<typename T>

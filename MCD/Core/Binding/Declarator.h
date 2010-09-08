@@ -3,7 +3,7 @@
 
 //#include "Events.h"
 #include "Binding.h"
-//#include "detail/Constructors.h"
+#include "Constructors.h"
 //#include "detail/Fields.h"
 //#include "detail/ReturnPolicies.h"
 #include "ScriptObject.h"
@@ -32,6 +32,14 @@ struct FuncParamCount
 	static size_t count(RT (*func)(P1,P2,P3,P4,P5)) { return 5; }
 	template<class RT, class P1,class P2,class P3,class P4,class P5,class P6>
 	static size_t count(RT (*func)(P1,P2,P3,P4,P5,P6)) { return 6; }
+
+// Member functions:
+	template<class Callee, class RT>
+	static size_t count(RT (Callee::*func)()) { return 0; }
+	template<class Callee, class RT, class P1>
+	static size_t count(RT (Callee::*func)(P1)) { return 1; }
+	template<class Callee, class RT, class P1,class P2>
+	static size_t count(RT (Callee::*func)(P1,P2)) { return 2; }
 };	// FuncParamCount
 
 /// The very base declarator. Does nothing, but stores info
@@ -152,28 +160,28 @@ public:
 	template<typename ReturnPolicy, typename Func>
 	ClassDeclarator& method(const char* name, Func func)
 	{
-		pushFunction(name, &func, sizeof(func), &DirectCallInstanceMemberFunction<Class, Func, ReturnPolicy>::Dispatch);
+		pushFunction(name, &func, sizeof(func), &DirectCallMemberFunction<Class, Func, ReturnPolicy>::Dispatch);
 		return *this;
 	}
 
 	template<typename Func>
 	ClassDeclarator& method(const char* name, Func func)
 	{
-		pushFunction(name, &func, sizeof(func), &DirectCallInstanceMemberFunction<Class, Func>::Dispatch);
+		pushFunction(name, &func, sizeof(func), FuncParamCount::count(func), &DirectCallMemberFunction<Class, Func>::Dispatch);
 		return *this;
 	}
 
 	template<typename ReturnPolicy, typename Func>
 	ClassDeclarator& wrappedMethod(const char* name, Func func)
 	{
-		pushFunction(name, (void*)func, 0, &IndirectCallInstanceMemberFunction<Class, Func, ReturnPolicy>::Dispatch);
+		pushFunction(name, (void*)func, 0, FuncParamCount::count(func), &IndirectCallMemberFunction<Class, Func, ReturnPolicy>::Dispatch);
 		return *this;
 	}
 
 	template<typename Func>
 	ClassDeclarator& wrappedMethod(const char* name, Func func)
 	{
-		pushFunction(name, (void*)func, 0, &IndirectCallInstanceMemberFunction<Class, Func>::Dispatch);
+		pushFunction(name, (void*)func, 0, &IndirectCallMemberFunction<Class, Func>::Dispatch);
 		return *this;
 	}
 
@@ -181,14 +189,14 @@ public:
 	template<typename ReturnPolicy, typename Func>
 	ClassDeclarator& staticMethod(const char* name, Func func)
 	{
-		pushFunction(name, func, 0, FuncParamCount::count(func), &DirectCallFunction<Func, ReturnPolicy>::Dispatch);
+		pushFunction(name, func, 0, FuncParamCount::count(func), &DirectCallStaticFunction<Func, ReturnPolicy>::Dispatch);
 		return *this;
 	}
 
 	template<typename Func>
 	ClassDeclarator& staticMethod(const char* name, Func func)
 	{
-		pushFunction(name, func, 0, FuncParamCount::count(func), &DirectCallFunction<Func>::Dispatch);
+		pushFunction(name, func, 0, FuncParamCount::count(func), &DirectCallStaticFunction<Func>::Dispatch);
 		return *this;
 	}
 
@@ -326,14 +334,14 @@ public:
 	template<typename ReturnPolicy, typename Func>
 	GlobalDeclarator declareFunction(const char* name, Func func)
 	{
-		pushFunction(name, (void*)func, 0, &DirectCallFunction<Func, ReturnPolicy>::Dispatch);
+		pushFunction(name, (void*)func, 0, &DirectCallStaticFunction<Func, ReturnPolicy>::Dispatch);
 		return GlobalDeclarator(_hostObject, _vm);
 	}
 
 	template<typename Func>
 	GlobalDeclarator declareFunction(const char* name, Func func)
 	{
-		pushFunction(name, (void*)func, 0, &DirectCallFunction<Func>::Dispatch);
+		pushFunction(name, (void*)func, 0, &DirectCallStaticFunction<Func>::Dispatch);
 		return GlobalDeclarator(_hostObject, _vm);
 	}
 
