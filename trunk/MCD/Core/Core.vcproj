@@ -776,6 +776,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\Binding\Constructors.h"
+				>
+			</File>
+			<File
 				RelativePath=".\Binding\Declarator.cpp"
 				>
 			</File>

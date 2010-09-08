@@ -4,8 +4,6 @@
 #include "ScriptObject.h"
 //#include "../VMCore.h"
 //#include "ClassTraits.h"
-//#include "ScriptObject.h"
-//#include "StackHandler.h"
 #include <memory.h>
 #include <typeinfo>
 
@@ -83,10 +81,11 @@ void pushFunctionPointer(HSQUIRRELVM v, Func func)
 }
 
 template<typename Func>
-Func getFunctionPointer(HSQUIRRELVM v, int ndx)
+Func getFunctionPointer(HSQUIRRELVM v, int idx)
 {
-	StackHandler sh(v);
-	return *(Func*)sh.getUserData(ndx);
+	SQUserPointer up = nullptr;
+	MCD_VERIFY(SQ_SUCCEEDED(sq_getuserdata(v, idx, &up, nullptr)));
+	return *(Func*)up;
 }
 
 //
@@ -100,10 +99,10 @@ void pushStaticFunctionPointer(HSQUIRRELVM v, Func func)
 }
 
 template<typename Func>
-Func getStaticFunctionPointer(HSQUIRRELVM v, int ndx)
+Func getStaticFunctionPointer(HSQUIRRELVM v, int idx)
 {
 	StackHandler sh(v);
-	return (Func)sh.getUserPointer(ndx);
+	return (Func)sh.getUserPointer(idx);
 }
 
 //
@@ -118,10 +117,10 @@ void pushEventPointer(HSQUIRRELVM v, EventType ev)
 }
 
 template<typename EventType>
-EventType getEventPointer(HSQUIRRELVM v, int ndx)
+EventType getEventPointer(HSQUIRRELVM v, int idx)
 {
 	StackHandler sh(v);
-	return *(EventType*)sh.getUserData(ndx);
+	return *(EventType*)sh.getUserData(idx);
 }
 
 //
@@ -136,10 +135,10 @@ void pushFieldPointer(HSQUIRRELVM v, Field field)
 }
 
 template<typename Field>
-Field getFieldPointer(HSQUIRRELVM v, int ndx)
+Field getFieldPointer(HSQUIRRELVM v, int idx)
 {
 	StackHandler sh(v);
-	return *(Field*)sh.getUserData(ndx);
+	return *(Field*)sh.getUserData(idx);
 }
 
 }	// namespace Binding

@@ -31,7 +31,7 @@ void Declarator::pushFunction(const char* name, void* func, size_t sizeofFunc, i
 	}
 	// Member function
 	else
-	{	// This block of codd do the same as pushFunctionPointer()
+	{	// This block of code do the same as pushFunctionPointer()
 		SQUserPointer data = sq_newuserdata(_vm, sizeofFunc);
 		::memcpy(data, func, sizeofFunc);
 		sq_newclosure(_vm, dispatchFunc, 1);
@@ -42,7 +42,6 @@ void Declarator::pushFunction(const char* name, void* func, size_t sizeofFunc, i
 
 	// Count the "this" as one of the parameters
 	paramCountCheck = paramCountCheck > 0 ? paramCountCheck + 1 : paramCountCheck;
-
 	CAPI_VERIFY(sq_setparamscheck(_vm, paramCountCheck, nullptr));
 
 	CAPI_VERIFY(sq_newslot(_vm, -3, true));

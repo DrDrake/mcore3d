@@ -369,6 +369,10 @@
 			Name="Binding"
 			>
 			<File
+				RelativePath=".\Binding\ObjectLifetimeTest.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\Binding\StaticFunctionTest.cpp"
 				>
 			</File>

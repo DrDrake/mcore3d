@@ -5,6 +5,8 @@
 
 using namespace MCD;
 
+namespace {
+
 class Base
 {
 public:
@@ -27,6 +29,8 @@ public:
 	static bool func5(Base* p1, Derived* p2) { return p1 == Base::singleton() && p2 == Derived::singleton(); }
 	static bool func6(Base* p1, Derived* p2) { return p1 == p2 && p2 == Derived::singleton(); }
 };	// Foo
+
+}	// namespace
 
 namespace MCD {
 namespace Binding {
@@ -56,8 +60,6 @@ SCRIPT_CLASS_REGISTER(Foo)
 
 }	// namespace Binding
 }   // namespace MCD
-
-using namespace MCD;
 
 TEST(StaticFunction_BindingTest)
 {
