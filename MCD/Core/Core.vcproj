@@ -536,10 +536,6 @@
 					RelativePath=".\System\ZipFileSystem.cpp"
 					>
 				</File>
-				<File
-					RelativePath=".\System\ZipFileSystem.inc"
-					>
-				</File>
 			</Filter>
 		</Filter>
 		<Filter
@@ -759,6 +755,62 @@
 					>
 				</File>
 			</Filter>
+		</Filter>
+		<Filter
+			Name="Binding"
+			>
+			<File
+				RelativePath=".\Binding\Binding.h"
+				>
+			</File>
+			<File
+				RelativePath=".\Binding\Classes.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\Binding\Classes.h"
+				>
+			</File>
+			<File
+				RelativePath=".\Binding\ClassTraits.h"
+				>
+			</File>
+			<File
+				RelativePath=".\Binding\Declarator.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\Binding\Declarator.h"
+				>
+			</File>
+			<File
+				RelativePath=".\Binding\ReturnPolicies.h"
+				>
+			</File>
+			<File
+				RelativePath=".\Binding\ReturnTypeDetector.h"
+				>
+			</File>
+			<File
+				RelativePath=".\Binding\ScriptObject.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\Binding\ScriptObject.h"
+				>
+			</File>
+			<File
+				RelativePath=".\Binding\Types.h"
+				>
+			</File>
+			<File
+				RelativePath=".\Binding\VMCore.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\Binding\VMCore.h"
+				>
+			</File>
 		</Filter>
 		<File
 			RelativePath=".\Core.h"
