@@ -788,6 +788,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\Binding\Fields.h"
+				>
+			</File>
+			<File
 				RelativePath=".\Binding\ReturnPolicies.h"
 				>
 			</File>

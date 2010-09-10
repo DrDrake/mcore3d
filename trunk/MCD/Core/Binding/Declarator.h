@@ -1,10 +1,10 @@
 #ifndef __MCD_CORE_BINDING_DECLARATOR__
 #define __MCD_CORE_BINDING_DECLARATOR__
 
-//#include "Events.h"
 #include "Binding.h"
 #include "Constructors.h"
-//#include "detail/Fields.h"
+//#include "Events.h"
+#include "Fields.h"
 //#include "detail/ReturnPolicies.h"
 #include "ScriptObject.h"
 
@@ -210,13 +210,6 @@ public:
 	}
 
 // Fields setter
-	template<typename Field>
-	ClassDeclarator& setter(const char* name, Field field)
-	{
-		pushFunction(name, &field, sizeof(field), &fieldSetterFunction<Class, Field>);
-		return *this;
-	}
-
 	// For a getter, we assume the return policy is either plain or objNoCare
 	// If a custom return policy is really needed, wrappedMethod can be used instead.
 	template<typename Field>
@@ -225,9 +218,22 @@ public:
 		typedef typename DetectFieldType<Field>::type fieldType;
 		typedef typename DefaultReturnPolicy<fieldType>::policy returnPolicy;
 		typedef typename GetterReturnPolicy<returnPolicy>::policy getterReturnPolicy;
-		pushFunction(name, &field, sizeof(field), &fieldGetterFunction<Class, Field, getterReturnPolicy>);
-		registerMemVarAttribute(name);
+		pushFunction(name, &field, sizeof(field), 0, &fieldGetterFunction<Class, Field, getterReturnPolicy>);
+		return *this;
+	}
 
+	template<typename Field>
+	ClassDeclarator& setter(const char* name, Field field)
+	{
+		pushFunction(name, &field, sizeof(field), 1, &fieldSetterFunction<Class, Field>);
+		return *this;
+	}
+
+	template<typename Field>
+	ClassDeclarator& getterSetter(const char* getterName, const char* setterName, Field field)
+	{
+		getter(getterName, field);
+		setter(setterName, field);
 		return *this;
 	}
 

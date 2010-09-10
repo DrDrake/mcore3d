@@ -9,9 +9,7 @@ namespace {
 
 struct Vec3
 {
-	Vec3() : x(0), y(0), z(0) {
-		printf("a");
-	}
+	Vec3() : x(0), y(0), z(0) {}
 	Vec3(float s) : x(s), y(s), z(s) {}
 	Vec3(float x_, float y_, float z_) : x(x_), y(y_), z(z_) {}
 	Vec3(const Vec3& rhs) : x(rhs.x), y(rhs.y), z(rhs.z) {}
@@ -36,14 +34,14 @@ static int vec3Create(HSQUIRRELVM vm)
 			v = new Vec3(get(TypeSelect<float>(), vm, 2));	// Scalar construct
 		break;
 	case 3:
-			v = new Vec3(
+			v = new Vec3(	// Element wise construct
 				get(TypeSelect<float>(), vm, 2),
 				get(TypeSelect<float>(), vm, 3),
 				get(TypeSelect<float>(), vm, 4)
 			);
 		break;
 	default:
-		return sq_throwerror(vm, "Mat44.constructor() wrong parameters");
+		return sq_throwerror(vm, "Vec3.constructor() get incorrect number of parameters");
 	}
 
 	// Pops the input params

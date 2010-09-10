@@ -28,6 +28,9 @@ public:
 	static float func4(float v1, float v2) { return v1 + v2; }
 	static bool func5(Base* p1, Derived* p2) { return p1 == Base::singleton() && p2 == Derived::singleton(); }
 	static bool func6(Base* p1, Derived* p2) { return p1 == p2 && p2 == Derived::singleton(); }
+	static bool func7(Base* p1) { return p1 == nullptr; }				// Test for passing null as object pointer
+	static bool func8(Base& p1) { return &p1 == Base::singleton(); }	// Test for passing object reference
+	static bool func9(Base p1) { return &p1 != Base::singleton(); }		// Test for passing object value
 };	// Foo
 
 }	// namespace
@@ -56,6 +59,9 @@ SCRIPT_CLASS_REGISTER(Foo)
 	.staticMethod("func4", &Foo::func4)
 	.staticMethod("func5", &Foo::func5)
 	.staticMethod("func6", &Foo::func6)
+	.staticMethod("func7", &Foo::func7)
+	.staticMethod("func8", &Foo::func8)
+//	.staticMethod("func9", &Foo::func9)	// Taking value of object is not supported yet
 ;}
 
 }	// namespace Binding
@@ -74,4 +80,8 @@ TEST(StaticFunction_BindingTest)
 	CHECK(vm.runScript("assert(3 == Foo.func4(1, 2))"));
 	CHECK(vm.runScript("assert(Foo.func5(Base.singleton(), Derived.singleton()))"));
 	CHECK(vm.runScript("assert(Foo.func6(Derived.singleton(), Derived.singleton()))"));	// Passing derived object to a C function which expecting a base pointer
+
+	CHECK(vm.runScript("assert(Foo.func7(null))"));
+	CHECK(vm.runScript("assert(Foo.func8(Base.singleton()))"));
+//	CHECK(!vm.runScript("assert(Foo.func8(null))"));	// Passing null to a C function which expecting an object reference will fail.
 }

@@ -128,10 +128,10 @@ inline bool match(TypeSelect<const char*>,HSQUIRRELVM v,int idx)					{ return sq
 inline bool match(TypeSelect<std::string>,HSQUIRRELVM v,int idx)					{ return sq_gettype(v,idx) == OT_STRING; }
 inline bool match(TypeSelect<const std::string>,HSQUIRRELVM v,int idx)				{ return sq_gettype(v,idx) == OT_STRING; }
 
-template<typename T> bool match(TypeSelect<const T*>,HSQUIRRELVM v,int idx)			{ SQUserPointer p; return SQ_SUCCEEDED(sq_getinstanceup(v, idx, &p, ClassTraits<T>::classID())); }
-template<typename T> bool match(TypeSelect<T*>,HSQUIRRELVM v,int idx)				{ SQUserPointer p; return SQ_SUCCEEDED(sq_getinstanceup(v, idx, &p, ClassTraits<T>::classID())); }
+template<typename T> bool match(TypeSelect<const T*>,HSQUIRRELVM v,int idx)			{ SQUserPointer p; return SQ_SUCCEEDED(sq_getinstanceup(v, idx, &p, ClassTraits<T>::classID())) ? true : sq_gettype(v,idx) == OT_NULL; }
+template<typename T> bool match(TypeSelect<T*>,HSQUIRRELVM v,int idx)				{ return match(TypeSelect<const T*>(), v, idx); }
 template<typename T> bool match(TypeSelect<const T&>,HSQUIRRELVM v,int idx)			{ SQUserPointer p; bool ok = SQ_SUCCEEDED(sq_getinstanceup(v, idx, &p, ClassTraits<T>::classID())); return ok ? p != nullptr : ok; }
-template<typename T> bool match(TypeSelect<T&>,HSQUIRRELVM v,int idx)				{ SQUserPointer p; bool ok = SQ_SUCCEEDED(sq_getinstanceup(v, idx, &p, ClassTraits<T>::classID())); return ok ? p != nullptr : ok; }
+template<typename T> bool match(TypeSelect<T&>,HSQUIRRELVM v,int idx)				{ return match(TypeSelect<const T&>(), v, idx); }
 template<typename T> bool match(TypeSelect<GiveUpOwnership<T> >,HSQUIRRELVM v,int idx){ return match(TypeSelect<T>(), v, idx); }
 
 // Get functions - to get values from the script
@@ -152,15 +152,13 @@ inline std::string		get(TypeSelect<std::string>,HSQUIRRELVM v,int idx)			{ const
 
 #ifdef NDEBUG	// No type tag check in release mode, as the check should be already done by the match() function first.
 template<typename T> const T&	get(TypeSelect<const T&>,HSQUIRRELVM v,int idx)		{ T* p; sq_getinstanceup(v, idx, (SQUserPointer*)&p, 0); return *p; }
-template<typename T> T&			get(TypeSelect<T&>,HSQUIRRELVM v,int idx)			{ T* p; sq_getinstanceup(v, idx, (SQUserPointer*)&p, 0); return *p; }
 template<typename T> const T*	get(TypeSelect<const T*>,HSQUIRRELVM v,int idx)		{ T* p; sq_getinstanceup(v, idx, (SQUserPointer*)&p, 0); return p; }
-template<typename T> T*			get(TypeSelect<T*>,HSQUIRRELVM v,int idx)			{ T* p; sq_getinstanceup(v, idx, (SQUserPointer*)&p, 0); return p; }
 #else
 template<typename T> const T&	get(TypeSelect<const T&>,HSQUIRRELVM v,int idx)		{ T* p; CAPI_VERIFY(sq_getinstanceup(v, idx, (SQUserPointer*)&p, ClassTraits<T>::classID())); MCD_ASSERT(p); return *p; }
-template<typename T> T&			get(TypeSelect<T&>,HSQUIRRELVM v,int idx)			{ T* p; CAPI_VERIFY(sq_getinstanceup(v, idx, (SQUserPointer*)&p, ClassTraits<T>::classID())); MCD_ASSERT(p); return *p; }
 template<typename T> const T*	get(TypeSelect<const T*>,HSQUIRRELVM v,int idx)		{ if(sq_gettype(v,idx) == OT_NULL) return NULL; T* p; CAPI_VERIFY(sq_getinstanceup(v, idx, (SQUserPointer*)&p, ClassTraits<T>::classID())); return p; }
-template<typename T> T*			get(TypeSelect<T*>,HSQUIRRELVM v,int idx)			{ if(sq_gettype(v,idx) == OT_NULL) return NULL; T* p; CAPI_VERIFY(sq_getinstanceup(v, idx, (SQUserPointer*)&p, ClassTraits<T>::classID())); return p; }
 #endif
+template<typename T> T&			get(TypeSelect<T&>,HSQUIRRELVM v,int idx)			{ return const_cast<T&>(get(TypeSelect<const T&>(), v, idx)); }
+template<typename T> T*			get(TypeSelect<T*>,HSQUIRRELVM v,int idx)			{ return const_cast<T*>(get(TypeSelect<const T*>(), v, idx)); }
 template<typename T> T			get(TypeSelect<GiveUpOwnership<T> >,HSQUIRRELVM v,int i){ return get(TypeSelect<T>(), v, i); }
 
 /// Destroying an object, with the ability for the user to specialize this function even for a base class
@@ -204,92 +202,6 @@ template<typename T> struct pointer<const T&> {
 };
 
 // Type transformation for using with getter/setter functions
-
-//! For a generic object, the getter should return the object as a pointer.
-template<typename T> struct GetterSetter {
-	typedef T type;
-	typedef type* getterType;
-	typedef type& setterType;
-	static getterType get(type& val) { return &val; }
-};
-template<> struct GetterSetter<bool> {
-	typedef bool type;
-	typedef type getterType;
-	typedef type setterType;
-	static getterType get(type val) { return val; }
-};
-template<> struct GetterSetter<char> {
-	typedef char type;
-	typedef type getterType;
-	typedef type setterType;
-	static getterType get(type val) { return val; }
-};
-template<> struct GetterSetter<unsigned char> {
-	typedef unsigned char type;
-	typedef type getterType;
-	typedef type setterType;
-	static getterType get(type val) { return val; }
-};
-template<> struct GetterSetter<short> {
-	typedef short type;
-	typedef type getterType;
-	typedef type setterType;
-	static getterType get(type val) { return val; }
-};
-template<> struct GetterSetter<unsigned short> {
-	typedef unsigned short type;
-	typedef type getterType;
-	typedef type setterType;
-	static getterType get(type val) { return val; }
-};
-template<> struct GetterSetter<int> {
-	typedef int type;
-	typedef type getterType;
-	typedef type setterType;
-	static getterType get(type val) { return val; }
-};
-template<> struct GetterSetter<unsigned int> {
-	typedef unsigned int type;
-	typedef type getterType;
-	typedef type setterType;
-	static getterType get(type val) { return val; }
-};
-template<> struct GetterSetter<long> {
-	typedef long type;
-	typedef type getterType;
-	typedef type setterType;
-	static getterType get(type val) { return val; }
-};
-template<> struct GetterSetter<unsigned long> {
-	typedef unsigned long type;
-	typedef type getterType;
-	typedef type setterType;
-	static getterType get(type val) { return val; }
-};
-template<> struct GetterSetter<float> {
-	typedef float type;
-	typedef type getterType;
-	typedef type setterType;
-	static getterType get(type val) { return val; }
-};
-template<> struct GetterSetter<double> {
-	typedef double type;
-	typedef type getterType;
-	typedef type setterType;
-	static getterType get(type val) { return val; }
-};
-template<> struct GetterSetter<const char*> {
-	typedef const char* type;
-	typedef type getterType;
-	typedef type setterType;
-	static getterType get(type val) { return val; }
-};
-template<> struct GetterSetter<const wchar_t*> {
-	typedef const wchar_t* type;
-	typedef type getterType;
-	typedef type setterType;
-	static getterType get(type val) { return val; }
-};
 
 #undef CAPI_VERIFY
 
