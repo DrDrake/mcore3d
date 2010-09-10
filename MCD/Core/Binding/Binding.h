@@ -180,6 +180,7 @@ int Call(Callee& callee, RT (Callee::*func)(P1,P2), HSQUIRRELVM v, int index) {
 	return ReturnSpecialization<RT, ResultPolicy>::Call(callee, func, v, index);
 }
 
+/// Direct call static function handler (static function is always direct anyway)
 template<class Func, class ResultPolicy=
 	typename DefaultReturnPolicy<typename ReturnTypeDetector<Func>::RET>::policy
 >
@@ -196,8 +197,7 @@ public:
 	}
 };
 
-/// Direct Call Instance Function handler
-///
+/// Direct all member function handler
 template<class Callee, class Func, class ResultPolicy=
 	typename DefaultReturnPolicy<typename ReturnTypeDetector<Func>::RET>::policy>
 class DirectCallMemberFunction
@@ -206,11 +206,29 @@ public:
 	static SQInteger Dispatch(HSQUIRRELVM v)
 	{
 		Callee* instance(nullptr);
-		CAPI_VERIFY(sq_getinstanceup(v, 1, (SQUserPointer*)&instance, 0));
+		if(SQ_FAILED(sq_getinstanceup(v, 1, (SQUserPointer*)&instance, 0)))
+			return sq_throwerror(v, "Trying to invoke an member function as a static one");
 		CHECK_THIS_PTR(instance);
 		Func func = getFunctionPointer<Func>(v, -1);
 		MCD_ASSUME(func);
 		return Call<ResultPolicy, Callee>(*instance, func, v, 2);
+	}
+};
+
+/// Wrapped member function handler, a static function with the first parameter
+/// as the "this" pointer will be invoked
+template<class Callee, class Func, class ResultPolicy=
+	typename DefaultReturnPolicy<typename ReturnTypeDetector<Func>::RET>::policy>
+class IndirectCallMemberFunction
+{
+public:
+	static SQInteger Dispatch(HSQUIRRELVM v)
+	{
+		void* p = nullptr;
+		CAPI_VERIFY(sq_getuserpointer(v, -1, &p));
+		Func func = Func(p);
+		MCD_ASSUME(func);
+		return Call<ResultPolicy>(*func, v, 1);	// Note the index is 1 instead of 2
 	}
 };
 

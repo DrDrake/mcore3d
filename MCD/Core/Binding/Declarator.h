@@ -14,7 +14,8 @@ namespace Binding {
 class VMCore;
 typedef void* ClassID;
 
-/// Detect the number of arguments of a function
+/// Detect the number of arguments of a function,
+/// to serve for argument count validation.
 struct FuncParamCount
 {
 // Static functions:
@@ -109,7 +110,7 @@ public:
 	template<typename Func>
 	ClassDeclarator& rawMethod(const char* name, Func func)
 	{
-		pushFunction(name, NULL, 0, func);
+		pushFunction(name, NULL, 0, 0, func);
 		return *this;
 	}
 
@@ -156,11 +157,11 @@ public:
 		return staticMethod<construct>(name, fPtr);
 	}
 
-// Method method
+// Member method
 	template<typename ReturnPolicy, typename Func>
 	ClassDeclarator& method(const char* name, Func func)
 	{
-		pushFunction(name, &func, sizeof(func), &DirectCallMemberFunction<Class, Func, ReturnPolicy>::Dispatch);
+		pushFunction(name, &func, sizeof(func), FuncParamCount::count(func), &DirectCallMemberFunction<Class, Func, ReturnPolicy>::Dispatch);
 		return *this;
 	}
 
@@ -174,14 +175,14 @@ public:
 	template<typename ReturnPolicy, typename Func>
 	ClassDeclarator& wrappedMethod(const char* name, Func func)
 	{
-		pushFunction(name, (void*)func, 0, FuncParamCount::count(func), &IndirectCallMemberFunction<Class, Func, ReturnPolicy>::Dispatch);
+		pushFunction(name, (void*)func, 0, FuncParamCount::count(func)-1, &IndirectCallMemberFunction<Class, Func, ReturnPolicy>::Dispatch);
 		return *this;
 	}
 
 	template<typename Func>
 	ClassDeclarator& wrappedMethod(const char* name, Func func)
 	{
-		pushFunction(name, (void*)func, 0, &IndirectCallMemberFunction<Class, Func>::Dispatch);
+		pushFunction(name, (void*)func, 0, FuncParamCount::count(func)-1, &IndirectCallMemberFunction<Class, Func>::Dispatch);
 		return *this;
 	}
 
@@ -208,10 +209,7 @@ public:
 		return *this;
 	}
 
-	//
-	// fields setter
-	//
-
+// Fields setter
 	template<typename Field>
 	ClassDeclarator& setter(const char* name, Field field)
 	{
@@ -303,9 +301,7 @@ public:
 	}
 };	// ClassDeclarator
 
-///
 /// Declares new classes, global functions etc in script machine
-///
 class MCD_CORE_API GlobalDeclarator: public Declarator
 {
 public:
