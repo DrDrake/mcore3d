@@ -2,8 +2,6 @@
 #define __MCD_CORE_BINDING_CLASSES__
 
 #include "ScriptObject.h"
-//#include "../VMCore.h"
-//#include "ClassTraits.h"
 #include <memory.h>
 #include <typeinfo>
 
@@ -70,9 +68,7 @@ private:
 	static ScriptObject findClass(HSQUIRRELVM v, ClassID classType);
 };	// ClassesManager
 
-// thiscall Functions
-//
-
+// Member functions
 template<typename Func>
 void pushFunctionPointer(HSQUIRRELVM v, Func func)
 {
@@ -88,10 +84,7 @@ Func getFunctionPointer(HSQUIRRELVM v, int idx)
 	return *(Func*)up;
 }
 
-//
 // Static functions
-//
-
 template<typename Func>
 void pushStaticFunctionPointer(HSQUIRRELVM v, Func func)
 {
@@ -105,10 +98,7 @@ Func getStaticFunctionPointer(HSQUIRRELVM v, int idx)
 	return (Func)sh.getUserPointer(idx);
 }
 
-//
 // Events objects
-//
-
 template<typename EventType>
 void pushEventPointer(HSQUIRRELVM v, EventType ev)
 {
@@ -119,14 +109,14 @@ void pushEventPointer(HSQUIRRELVM v, EventType ev)
 template<typename EventType>
 EventType getEventPointer(HSQUIRRELVM v, int idx)
 {
-	StackHandler sh(v);
-	return *(EventType*)sh.getUserData(idx);
+	SQUserPointer tag;
+	SQUserPointer up;
+	MCD_VERIFY(SQ_SUCCEEDED(sq_getuserdata(v, idx, &up, &tag)));
+	MCD_ASSERT(ClassTraits<EventType>::classID() == tag); (void)tag;
+	return *(EventType*)up;
 }
 
-//
 // Fields
-//
-
 template<typename Field>
 void pushFieldPointer(HSQUIRRELVM v, Field field)
 {
@@ -137,8 +127,10 @@ void pushFieldPointer(HSQUIRRELVM v, Field field)
 template<typename Field>
 Field getFieldPointer(HSQUIRRELVM v, int idx)
 {
-	StackHandler sh(v);
-	return *(Field*)sh.getUserData(idx);
+	SQUserPointer tag;
+	SQUserPointer up;
+	MCD_VERIFY(SQ_SUCCEEDED(sq_getuserdata(v, idx, &up, &tag)));
+	return *(Field*)up;
 }
 
 }	// namespace Binding

@@ -373,6 +373,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\Binding\MemberFieldTest.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\Binding\MemberFunctionTest.cpp"
 				>
 			</File>
