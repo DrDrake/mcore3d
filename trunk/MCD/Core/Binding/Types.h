@@ -130,8 +130,8 @@ inline bool match(TypeSelect<const std::string>,HSQUIRRELVM v,int idx)				{ retu
 
 template<typename T> bool match(TypeSelect<const T*>,HSQUIRRELVM v,int idx)			{ SQUserPointer p; return SQ_SUCCEEDED(sq_getinstanceup(v, idx, &p, ClassTraits<T>::classID())); }
 template<typename T> bool match(TypeSelect<T*>,HSQUIRRELVM v,int idx)				{ SQUserPointer p; return SQ_SUCCEEDED(sq_getinstanceup(v, idx, &p, ClassTraits<T>::classID())); }
-template<typename T> bool match(TypeSelect<const T&>,HSQUIRRELVM v,int idx)			{ SQUserPointer p; bool ok = SQ_SUCCEEDED(sq_getinstanceup(v, idx, &p, ClassTraits<T>::classID())); return ok ? p : ok; }
-template<typename T> bool match(TypeSelect<T&>,HSQUIRRELVM v,int idx)				{ SQUserPointer p; bool ok = SQ_SUCCEEDED(sq_getinstanceup(v, idx, &p, ClassTraits<T>::classID())); return ok ? p : ok; }
+template<typename T> bool match(TypeSelect<const T&>,HSQUIRRELVM v,int idx)			{ SQUserPointer p; bool ok = SQ_SUCCEEDED(sq_getinstanceup(v, idx, &p, ClassTraits<T>::classID())); return ok ? p != nullptr : ok; }
+template<typename T> bool match(TypeSelect<T&>,HSQUIRRELVM v,int idx)				{ SQUserPointer p; bool ok = SQ_SUCCEEDED(sq_getinstanceup(v, idx, &p, ClassTraits<T>::classID())); return ok ? p != nullptr : ok; }
 template<typename T> bool match(TypeSelect<GiveUpOwnership<T> >,HSQUIRRELVM v,int idx){ return match(TypeSelect<T>(), v, idx); }
 
 // Get functions - to get values from the script
