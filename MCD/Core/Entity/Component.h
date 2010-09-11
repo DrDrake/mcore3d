@@ -62,6 +62,7 @@ public:
 	//! Returns the enabled flag of the containing Entity, false if the Component is not contained by any Entity.
 	sal_checkreturn bool enabled() const;
 
+	//! Set the enable flag of the host Entity, do nothing if this Component doesn't belongs to any Entity.
 	void setEnabled(bool b);
 
 	ScriptOwnershipHandle scriptOwnershipHandle;

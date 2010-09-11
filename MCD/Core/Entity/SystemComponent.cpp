@@ -25,7 +25,7 @@ void ResourceManagerComponent::update(Timer* timer, float timeOut)
 			for(Callbacks::iterator i=mCallbacks.begin(); i!=mCallbacks.end();)
 			{
 				if(fulfillRequirement(*d, *i)) {
-					i->component->entity()->enabled = true;
+					i->component->setEnabled(true);
 					mCallbacks.erase(i++);
 				}
 				else
