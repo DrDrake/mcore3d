@@ -58,7 +58,7 @@ void RendererComponent::Impl::render(Entity& entityTree, RenderTargetComponent& 
 	device->SetRenderState(D3DRS_CULLMODE, D3DCULL_CW);
 
 	{	// Apply camera
-		CameraComponent2Ptr camera = renderTarget.cameraComponent;
+		CameraComponentPtr camera = renderTarget.cameraComponent;
 		if(!camera) return;
 		Entity* cameraEntity = camera->entity();
 		if(!cameraEntity) return;
@@ -99,8 +99,8 @@ void RendererComponent::Impl::render(Entity& entityTree, RenderTargetComponent& 
 			mMaterialStack.pop();
 		mCurrentMaterial = !mMaterialStack.empty() ? mMaterialStack.top() : nullptr;
 
-		// Preform actions defined by the concret type of RenderableComponent2 we have found
-		if(RenderableComponent2* renderable = e->findComponent<RenderableComponent2>())
+		// Preform actions defined by the concret type of RenderableComponent we have found
+		if(RenderableComponent* renderable = e->findComponent<RenderableComponent>())
 			renderable->render2(this);
 
 		if(nullptr == mCurrentMaterial) {
@@ -153,7 +153,7 @@ void RendererComponent::Impl::render(Entity& entityTree, RenderTargetComponent& 
 void RendererComponent::Impl::render(Entity& entityTree)
 {
 	// TODO: Update only RenderTargetComponent, to bring them into mRenderTargets
-	RenderableComponent2::traverseEntities(&entityTree);
+	RenderableComponent::traverseEntities(&entityTree);
 
 	// Process the render targets one by one
 	for(size_t i=0; i<mRenderTargets.size(); ++i) {

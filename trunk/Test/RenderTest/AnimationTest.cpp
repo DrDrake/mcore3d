@@ -49,7 +49,7 @@ public:
 		e2->localTransform = Mat44f(Mat33f::makeXYZRotation(0, Mathf::cPiOver4(), 0));
 
 		{	// Add component
-			MeshComponent2* c = e2->addComponent(new MeshComponent2);
+			MeshComponent* c = e2->addComponent(new MeshComponent);
 			c->mesh = mesh;
 		}
 
@@ -145,7 +145,7 @@ TEST_FIXTURE(AnimationTestFixture, Render)
 	DeltaTimer deltaTimer;
 	Entity& root = framework.rootEntity();
 	RendererComponent* renderer = root.findComponentInChildrenExactType<RendererComponent>();
-	CameraComponent2* sceneCamera = root.findComponentInChildrenExactType<CameraComponent2>();
+	CameraComponent* sceneCamera = root.findComponentInChildrenExactType<CameraComponent>();
 
 	sceneCamera->entity()->localTransform.translateBy(Vec3f(0, 0, 200));
 

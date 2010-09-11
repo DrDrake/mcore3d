@@ -2,6 +2,7 @@
 #define __MCD_LOADER_DDSLOADER__
 
 #include "TextureLoaderBase.h"
+#include "../Core/System/ResourceManager.h"
 
 namespace MCD {
 
@@ -24,6 +25,13 @@ public:
 protected:
 	sal_override void uploadData(Texture& texture);
 };	// DdsLoader
+
+class MCD_LOADER_API DdsLoaderFactory : public ResourceManager::IFactory
+{
+public:
+	sal_override ResourcePtr createResource(const Path& fileId, const char* args);
+	sal_override IResourceLoaderPtr createLoader();
+};	// DdsLoaderFactory
 
 }	// namespace MCD
 

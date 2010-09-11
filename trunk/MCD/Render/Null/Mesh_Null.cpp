@@ -21,11 +21,6 @@ bool Mesh::create(const void* const* data, Mesh::StorageHint storageHint)
 	return false;
 }
 
-void MeshComponent2::render2(void* context) {}
-
-int VertexFormat::toApiDependentType(ComponentType type, size_t)
-{
-	return 0;
-}
+void MeshComponent::render2(void* context) {}
 
 }	// namespace MCD

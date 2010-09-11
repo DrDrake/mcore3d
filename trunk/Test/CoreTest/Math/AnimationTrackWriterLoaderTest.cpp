@@ -37,7 +37,8 @@ TEST(AnimationTrackWriterLoaderTest)
 	}
 
 	{	// Load the track
-		AnimationTrackLoader loader;
+		AnimationTrackLoader& loader = *new AnimationTrackLoader;
+		IResourceLoaderPtr _loader = &loader;
 		std::ifstream is("TestData/tmp.anim", std::ios::binary);
 		CHECK_EQUAL(IResourceLoader::Loaded, loader.load(&is, nullptr));
 

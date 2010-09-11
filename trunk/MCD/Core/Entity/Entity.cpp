@@ -484,6 +484,16 @@ void Entity::destroy(Entity*& entity)
 	entity = nullptr;
 }
 
+static EntityPtr gCurrentEntityRoot;
+
+Entity* Entity::currentRoot() {
+	return gCurrentEntityRoot.get();
+}
+
+void Entity::setCurrentRoot(Entity* e) {
+	gCurrentEntityRoot = e;
+}
+
 EntityPreorderIterator::EntityPreorderIterator(Entity* start)
 	: mCurrent(start), mStart(start), mDepthChange(0)
 {}

@@ -139,25 +139,6 @@ void Mesh::unmapBuffers(MappedBuffers& mapped) const
 	}
 }
 
-// TODO: Put it back to API specific localtion
-int VertexFormat::toApiDependentType(ComponentType type, size_t componentCount)
-{
-	static const int8_t mapping[][4] = {
-		{ -1, -1, -1, -1 },
-		{ -1, -1, -1, -1 },	// Integer
-		{ -1, -1, -1, -1 },	// Unsigned integer
-		{ -1, -1, -1, -1 },	// Signed byte
-		{ -1, -1, -1, D3DDECLTYPE_UBYTE4 }, // Unsigned byte
-		{ -1, D3DDECLTYPE_SHORT2, -1, D3DDECLTYPE_SHORT4 }, // Signed short
-		{ -1, -1, -1, -1 },	// Unsigned short
-		{ D3DDECLTYPE_FLOAT1, D3DDECLTYPE_FLOAT2, D3DDECLTYPE_FLOAT3, D3DDECLTYPE_FLOAT4 },
-		{ -1, -1, -1, -1 },	// Double
-		{ -1, -1, -1, -1 }
-	};
-
-	return mapping[type - VertexFormat::TYPE_NOT_USED][componentCount - 1];
-}
-
 static BYTE toVertexDecl(const StringHash& semantic)
 {
 	if(semantic == StringHash("position"))
@@ -226,7 +207,7 @@ bool Mesh::create(const void* const* data, Mesh::StorageHint storageHint)
 		const Attribute& a = attributes[i];
 		const D3DVERTEXELEMENT9 d = {
 			a.bufferIndex, a.byteOffset,
-			(BYTE)VertexFormat::toApiDependentType(a.format.componentType, a.format.componentCount),
+			(BYTE)a.format.gpuFormat.dataType,
 			D3DDECLMETHOD_DEFAULT, toVertexDecl(a.format.semantic.hashValue()), 0
 		};
 		vertexDecl[i] = d;
@@ -246,7 +227,7 @@ bool Mesh::create(const void* const* data, Mesh::StorageHint storageHint)
 
 namespace MCD {
 
-void MeshComponent2::render2(void* context)
+void MeshComponent::render2(void* context)
 {
 	RendererComponent::Impl& renderer = *reinterpret_cast<RendererComponent::Impl*>(context);
 

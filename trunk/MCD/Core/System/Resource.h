@@ -3,12 +3,14 @@
 
 #include "Atomic.h"
 #include "Path.h"
+#include "IntrusivePtr.h"
 #include "WeakPtr.h"
 
 namespace MCD {
 
-/*!	Resource
- */
+class ResourceManager;
+
+/// Resource
 class MCD_CORE_API Resource : public IntrusiveSharedWeakPtrTarget<AtomicInteger>, Noncopyable
 {
 public:
@@ -19,10 +21,8 @@ public:
 		return mFileId;
 	}
 
-	/*!	To track how many times the resource is committed (by loader or any other means).
-		\note Resource loaders should increment this count on the commit stage.
-	 */
-	size_t commitCount;
+	/// To track how many times the resource is committed (by loader or any other means).
+	size_t commitCount() const { return mCommitCount; }
 
 protected:
 	/*!	Virtual function to make Resource a polymorphic type so
@@ -31,11 +31,13 @@ protected:
 	virtual ~Resource() {}
 
 protected:
+	friend class ResourceManager;
 	Path mFileId;
+	AtomicInteger mCommitCount;
 };	// Resource
 
 typedef IntrusivePtr<Resource> ResourcePtr;
-typedef IntrusiveWeakPtr<Resource> ResourceWeakPtr;
+typedef IntrusiveSharedWeakPtr<Resource> ResourceWeakPtr;
 
 }	// namespace MCD
 

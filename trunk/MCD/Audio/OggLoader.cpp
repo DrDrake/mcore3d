@@ -39,6 +39,7 @@ void initVorbis()
 	if(gVorbisInited)
 		return;
 
+#ifdef MCD_WIN32
 	// Try and load Vorbis DLLs (VorbisFile.dll will load ogg.dll and vorbis.dll)
 	if(HMODULE h = ::LoadLibraryA("MCDVorbis.dll"))
 	{
@@ -49,12 +50,21 @@ void initVorbis()
 		gFnOvOpenCallbacks = (LPOVOPENCALLBACKS)GetProcAddress(h, "ov_open_callbacks");
 		gFnOvPcmTell = (LPOVPCMTELL)GetProcAddress(h, "ov_pcm_tell");
 		gFnOvPcmSeekLap = (LPOVPCMSEEKLAP)GetProcAddress(h, "ov_pcm_seek_lap");
+	}
+#else
+	gFnOvClear = ov_clear;
+	gFnOvRead = ov_read;
+	gFnOvPcmTotal = ov_pcm_total;
+	gFnOvInfo = ov_info;
+	gFnOvOpenCallbacks = ov_open_callbacks;
+	gFnOvPcmTell = ov_pcm_tell;
+	gFnOvPcmSeekLap = ov_pcm_seek_lap;
+#endif
 
-		if (gFnOvClear && gFnOvRead && gFnOvPcmTotal && gFnOvInfo &&
-			gFnOvOpenCallbacks && gFnOvPcmTell && gFnOvPcmSeekLap)
-		{
-			gVorbisInited = true;
-		}
+	if (gFnOvClear && gFnOvRead && gFnOvPcmTotal && gFnOvInfo &&
+		gFnOvOpenCallbacks && gFnOvPcmTell && gFnOvPcmSeekLap)
+	{
+		gVorbisInited = true;
 	}
 }
 
@@ -121,7 +131,7 @@ size_t gDecodeOggVorbis(OggVorbis_File* psOggVorbisFile, char* pDecodeBuffer, si
 	// Mono, Stereo and 4-Channel files decode into the same channel order as WAVEFORMATEXTENSIBLE,
 	// however 6-Channels files need to be re-ordered
 	if (ulChannels == 6)
-	{		
+	{
 		short* pSamples = (short*)pDecodeBuffer;
 		for (ulSamples = 0; ulSamples < (ulBufferSize>>1); ulSamples+=6)
 		{
@@ -213,7 +223,7 @@ public:
 		Task pop()
 		{
 			ScopeLock lock(mMutex);
-			
+
 			Task ret = { -1, 0, nullptr };
 			if(!mQueue.empty()) {
 				ret = mQueue.front();
@@ -306,7 +316,7 @@ public:
 			AudioBuffer& buffer = *task.buffer;
 			size_t bytesWritten;
 			uint64_t pcmTell;
-			
+
 			{	// Protect against the seek(pcmOffset) function
 				ScopeLock lock(mSeekMutex);
 				bytesWritten = gDecodeOggVorbis(&mOggFile, &mTmpBuf[0], mBufferSize, mVorbisInfo->channels);
@@ -332,22 +342,6 @@ public:
 		}
 
 		return 1;
-	}
-
-	void requestLoad(const AudioBufferPtr& buffer, size_t bufferIndex)
-	{
-		Task taks = { int(bufferIndex), 0, buffer };
-		mTaskQueue.push(taks);
-
-		ScopeLock lock(mMutex);
-
-		// If partialLoadContext is null, a loading is already in progress,
-		// onPartialLoaded() will be invoked soon.
-		if(!partialLoadContext.get())
-			return;
-
-		// Otherwise we can tell resource manager to re-schedule the load immediatly.
-		partialLoadContext.release()->continueLoad(0, nullptr);
 	}
 
 	int popLoadedBuffer()
@@ -377,7 +371,6 @@ public:
 	size_t mBufferSize;	//!< Calculated suitable buffer size for each buffer in AudioBuffer.
 	ALenum format;
 	ALsizei frequency;
-	std::auto_ptr<IPartialLoadContext> partialLoadContext;
 	Mutex mMutex, mSeekMutex;
 
 	TaskQueue mTaskQueue, mCommitQueue;
@@ -395,7 +388,7 @@ public:
 };	// Impl
 
 OggLoader::OggLoader()
-	: mImpl(*new Impl), loadingState(NotLoaded)
+	: mImpl(*new Impl)
 {
 	initVorbis();
 }
@@ -410,20 +403,14 @@ IResourceLoader::LoadingState OggLoader::load(std::istream* is, const Path*, con
 	ScopeLock lock(mImpl.mMutex);
 
 	if(!is || !mImpl.loadHeader(is, args))
-		return loadingState = Aborted;
+		return Aborted;
 
 	// NOTE: The mutex will unlock for a while in mImpl.loadData().
 	int result = mImpl.loadData();
 
-	// The loading state may changed by another thread during mImpl.loadData()
-	if(loadingState == Aborted)
-		return loadingState;
-
 	// NOTE: Differ from other loaders, this streamming loader will never return
 	// IResourceLoader::Loaded, in favour of audio seeking/looping.
-	loadingState = result == -1 ? Aborted : PartialLoaded;
-
-	return loadingState;
+	return result == -1 ? Aborted : PartialLoaded;
 }
 
 void OggLoader::commit(Resource& resource)
@@ -431,45 +418,12 @@ void OggLoader::commit(Resource& resource)
 	// Currently nothing to do inside commit
 }
 
-IResourceLoader::LoadingState OggLoader::getLoadingState() const
-{
-	// We don't have arithmetics on loadingState, so we don't need to lock on it
-	return loadingState;
-}
-
-// Invoked in resource manager worker thread
-void OggLoader::onPartialLoaded(IPartialLoadContext& context, uint priority, const char* args)
-{
-	if(mImpl.mTaskQueue.isEmpty()) {
-		ScopeLock lock(mImpl.mMutex);
-		MCD_ASSERT(mImpl.partialLoadContext.get() == nullptr);
-		mImpl.partialLoadContext.reset(&context);
-	} else {
-		// Re-schedule immediatly if the task queue isn't empty,
-		// this situation is rare but possible when the load() function completes in
-		// it's worker thread and then someone call requestLoad() in main thread
-		// while onPartialLoaded() is not yet invoked.
-		context.continueLoad(priority, args);
-	}
-}
-
 // Invoked by user or AudioSource
 void OggLoader::requestLoad(const AudioBufferPtr& buffer, size_t bufferIndex)
 {
-	mImpl.requestLoad(buffer, bufferIndex);
-}
-
-void OggLoader::abortLoad()
-{
-	{	ScopeLock lock(mImpl.mMutex);
-		loadingState = Aborted;
-	}
-
-	// Notify the resource manager to trigger IResourceLoader::load(),
-	// so that all stuffs will be clear because of the Abort state.
-	requestLoad(nullptr, 0);
-
-	mImpl.partialLoadContext.reset();
+	Impl::Task taks = { int(bufferIndex), 0, buffer };
+	mImpl.mTaskQueue.push(taks);
+	continueLoad();
 }
 
 int OggLoader::popLoadedBuffer()
@@ -492,11 +446,43 @@ uint64_t OggLoader::pcmOffset() const
 bool OggLoader::seek(uint64_t pcmOffset)
 {
 	{	ScopeLock lock(mImpl.mMutex);
-		if(loadingState & IResourceLoader::Stopped)
+		if(loadingState() & IResourceLoader::Stopped)
 			return false;
 	}
 
 	return mImpl.seek(pcmOffset);
+}
+
+ResourcePtr OggLoaderFactory::createResource(const Path& fileId, const char* args)
+{
+	if(strCaseCmp(fileId.getExtension().c_str(), "ogg") != 0)
+		return nullptr;
+
+	int bufferCount = AudioBuffer::cMaxBuffers;
+
+	if(args) {
+		NvpParser parser(args);
+		const char* name, *value;
+		while(parser.next(name, value))
+		{
+			if(strCaseCmp(name, "bufferCount") == 0) {
+				bufferCount = str2IntWithDefault(value, AudioBuffer::cMaxBuffers);
+				break;
+			}
+		}
+
+		if(bufferCount < 1)
+			bufferCount = 1;
+		if(bufferCount > AudioBuffer::cMaxBuffers)
+			bufferCount = AudioBuffer::cMaxBuffers;
+	}
+
+	return new AudioBuffer(fileId, bufferCount);
+}
+
+IResourceLoaderPtr OggLoaderFactory::createLoader()
+{
+	return new OggLoader;
 }
 
 }	// namespace MCD

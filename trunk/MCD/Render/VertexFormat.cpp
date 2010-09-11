@@ -5,22 +5,22 @@
 namespace MCD {
 
 static const VertexFormat cMap[] = {
-	{ FixString("none"),		VertexFormat::TYPE_NONE, 0, 0, 0 },					// -1
-	{ FixString("index"),		VertexFormat::TYPE_UINT16, sizeof(uint16_t), 1, 0 },// 0
-	{ FixString("position"),	VertexFormat::TYPE_FLOAT, sizeof(float), 3, 0 },
-	{ FixString("normal"),		VertexFormat::TYPE_FLOAT, sizeof(float), 3, 0 },
-	{ FixString("tangent"),		VertexFormat::TYPE_FLOAT, sizeof(float), 3, 0 },
-	{ FixString("binormal"),	VertexFormat::TYPE_FLOAT, sizeof(float), 3, 0 },
-	{ FixString("jointWeight"),	VertexFormat::TYPE_FLOAT, sizeof(float), 4, 0 },
-	{ FixString("jointIndex"),	VertexFormat::TYPE_UINT8, sizeof(uint8_t), 4, 0 },
-	{ FixString("uv0"),			VertexFormat::TYPE_FLOAT, sizeof(float), 2, 0 },	// 7
-	{ FixString("uv1"),			VertexFormat::TYPE_FLOAT, sizeof(float), 2, 1 },
-	{ FixString("uv2"),			VertexFormat::TYPE_FLOAT, sizeof(float), 2, 2 },
-	{ FixString("uv3"),			VertexFormat::TYPE_FLOAT, sizeof(float), 2, 3 },
-	{ FixString("color0"),		VertexFormat::TYPE_NONE, 0, 0, 0 },					// 11
-	{ FixString("color1"),		VertexFormat::TYPE_NONE, 0, 0, 1 },
-	{ FixString("color2"),		VertexFormat::TYPE_NONE, 0, 0, 2 },
-	{ FixString("color3"),		VertexFormat::TYPE_NONE, 0, 0, 3 },
+	{ FixString("none"),		GpuDataFormat::get("none"), 0 },				// -1
+	{ FixString("index"),		GpuDataFormat::get("uintR16"), 0 },				// 0
+	{ FixString("position"),	GpuDataFormat::get("floatRGB32"), 0 },
+	{ FixString("normal"),		GpuDataFormat::get("floatRGB32"), 0 },
+	{ FixString("tangent"),		GpuDataFormat::get("floatRGB32"), 0 },
+	{ FixString("binormal"),	GpuDataFormat::get("floatRGB32"), 0 },
+	{ FixString("jointWeight"),	GpuDataFormat::get("floatRGBA32"), 0 },
+	{ FixString("jointIndex"),	GpuDataFormat::get("uintRGBA8"), 0 },
+	{ FixString("uv0"),			GpuDataFormat::get("floatRG32"), 0 },			// 7
+	{ FixString("uv1"),			GpuDataFormat::get("floatRG32"), 1 },
+	{ FixString("uv2"),			GpuDataFormat::get("floatRG32"), 2 },
+	{ FixString("uv3"),			GpuDataFormat::get("floatRG32"), 3 },
+	{ FixString("color0"),		GpuDataFormat::get("none"), 0 },				// 11
+	{ FixString("color1"),		GpuDataFormat::get("none"), 1 },
+	{ FixString("color2"),		GpuDataFormat::get("none"), 2 },
+	{ FixString("color3"),		GpuDataFormat::get("none"), 3 },
 };
 
 VertexFormat VertexFormat::get(const StringHash& stringHash)
@@ -34,7 +34,7 @@ VertexFormat VertexFormat::get(const StringHash& stringHash)
 	return cMap[0];
 }
 
-VertexFormat VertexFormat::null()
+VertexFormat VertexFormat::none()
 {
 	return cMap[0];
 }

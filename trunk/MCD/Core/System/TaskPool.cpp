@@ -2,6 +2,7 @@
 #include "TaskPool.h"
 #include "CondVar.h"
 #include "ThreadPool.h"
+#include "Timer.h"
 
 #ifdef MCD_IPHONE
 #	import <Foundation/NSAutoreleasePool.h>
@@ -131,17 +132,17 @@ bool TaskPool::enqueue(Task& task)
 	return mTaskQueue->insert(task);
 }
 
-void TaskPool::processTaskIfNoThread()
+void TaskPool::processTaskInThisThread(Timer* timer, float timeOut)
 {
 	ScopeLock lock(mTaskQueue->mCondVar);
-
-	if(getThreadCount() > 0)
-		return;
 
 	Thread dummyThread;
 	dummyThread.setKeepRun(true);
 
 	while(Task* task = mTaskQueue->findMax()) {
+		if(timer && float(timer->get().asSecond()) >= timeOut)
+			break;
+
 		task->removeThis();
 		ScopeUnlock unlock(mTaskQueue->mCondVar);
 		task->run(dummyThread);

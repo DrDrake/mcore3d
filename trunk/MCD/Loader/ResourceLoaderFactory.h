@@ -13,26 +13,12 @@ public:
 	sal_override IResourceLoader* createLoader();
 };	// AnimationTrackLoaderFactory
 
-class MCD_LOADER_API BitmapLoaderFactory : public ResourceManager::IFactory
-{
-public:
-	sal_override ResourcePtr createResource(const Path& fileId, const char* args);
-	sal_override IResourceLoader* createLoader();
-};	// BitmapLoaderFactory
-
 class MCD_LOADER_API CubemapLoaderFactory : public ResourceManager::IFactory
 {
 public:
 	sal_override ResourcePtr createResource(const Path& fileId, const char* args);
 	sal_override IResourceLoader* createLoader();
 };	// CubemapLoaderFactory
-
-class MCD_LOADER_API DdsLoaderFactory : public ResourceManager::IFactory
-{
-public:
-	sal_override ResourcePtr createResource(const Path& fileId, const char* args);
-	sal_override IResourceLoader* createLoader();
-};	// DdsLoaderFactory
 
 class MCD_LOADER_API EffectLoaderFactory : public ResourceManager::IFactory
 {
@@ -56,13 +42,6 @@ private:
 	IResourceManager& mResourceManager;
 };	// FntLoaderFactory
 
-class MCD_LOADER_API JpegLoaderFactory : public ResourceManager::IFactory
-{
-public:
-	sal_override ResourcePtr createResource(const Path& fileId, const char* args);
-	sal_override IResourceLoader* createLoader();
-};	// JpegLoaderFactory
-
 class MCD_LOADER_API Max3dsLoaderFactory : public ResourceManager::IFactory
 {
 public:
@@ -84,26 +63,12 @@ public:
 	sal_override IResourceLoader* createLoader();
 };	// PixelShaderLoaderFactory
 
-class MCD_LOADER_API PngLoaderFactory : public ResourceManager::IFactory
-{
-public:
-	sal_override ResourcePtr createResource(const Path& fileId, const char* args);
-	sal_override IResourceLoader* createLoader();
-};	// PngLoaderFactory
-
 class MCD_LOADER_API SkeletonLoaderFactory : public ResourceManager::IFactory
 {
 public:
 	sal_override ResourcePtr createResource(const Path& fileId, const char* args);
 	sal_override IResourceLoader* createLoader();
 };	// SkeletonLoaderFactory
-
-class MCD_LOADER_API TgaLoaderFactory : public ResourceManager::IFactory
-{
-public:
-	sal_override ResourcePtr createResource(const Path& fileId, const char* args);
-	sal_override IResourceLoader* createLoader();
-};	// TgaLoaderFactory
 
 class MCD_LOADER_API VertexShaderLoaderFactory : public ResourceManager::IFactory
 {

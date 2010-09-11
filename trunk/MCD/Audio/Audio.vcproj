@@ -240,10 +240,6 @@
 				RelativePath=".\OggLoader.h"
 				>
 			</File>
-			<File
-				RelativePath=".\ResourceLoaderFactory.h"
-				>
-			</File>
 		</Filter>
 		<Filter
 			Name="Source Files"
@@ -271,10 +267,6 @@
 			</File>
 			<File
 				RelativePath=".\OggLoader.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\ResourceLoaderFactory.cpp"
 				>
 			</File>
 		</Filter>

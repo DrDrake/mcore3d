@@ -24,8 +24,6 @@ public:
 	 */
 	virtual void requestLoad(const AudioBufferPtr& buffer, size_t bufferIndex) = 0;
 
-	virtual void abortLoad() = 0;
-
 	/*!	Ask the loader about any newly loaded buffer.
 		\return The index of which sub-buffer in AudioBuffer is loaded, -1 if nothing new is loaded.
 	 */

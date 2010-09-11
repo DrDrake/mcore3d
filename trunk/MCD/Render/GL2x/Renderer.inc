@@ -14,11 +14,11 @@ namespace MCD {
 
 class LightComponent;
 class IMaterialComponent;
-class MeshComponent2;
+class MeshComponent;
 class QuadComponent;
 class QuadRenderer;
 typedef IntrusivePtr<class Texture> TexturePtr;
-typedef IntrusiveWeakPtr<class CameraComponent2> CameraComponent2Ptr;
+typedef IntrusiveWeakPtr<class CameraComponent> CameraComponentPtr;
 typedef IntrusiveWeakPtr<class RenderTargetComponent> RenderTargetComponentPtr;
 
 struct RenderItem
@@ -55,7 +55,7 @@ public:
 	void postRenderMaterial(size_t pass, IMaterialComponent& mtl);
 
 	//! mDefaultCamera and mCurrentCamera may differ from each other when rendering using light's view
-	CameraComponent2Ptr mDefaultCamera, mCurrentCamera;
+	CameraComponentPtr mDefaultCamera, mCurrentCamera;
 	Mat44f mCameraTransform;
 	Mat44f mProjMatrix, mViewMatrix, mViewProjMatrix, mWorldMatrix, mWorldViewProjMatrix;
 	sal_notnull RendererComponent* mBackRef;

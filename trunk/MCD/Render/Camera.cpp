@@ -114,19 +114,19 @@ Vec3f Camera::rightVector() const
 
 namespace MCD {
 
-CameraComponent2::CameraComponent2(const RendererComponentPtr& r)
+CameraComponent::CameraComponent(const RendererComponentPtr& r)
 	: renderer(r)
 {
 }
 
-Component* CameraComponent2::clone() const
+Component* CameraComponent::clone() const
 {
-	CameraComponent2* cloned = new CameraComponent2(renderer);
+	CameraComponent* cloned = new CameraComponent(renderer);
 	cloned->frustum = this->frustum;
 	return cloned;
 }
 
-void CameraComponent2::render()
+void CameraComponent::render()
 {
 }
 

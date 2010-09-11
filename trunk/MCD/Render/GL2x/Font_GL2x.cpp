@@ -17,18 +17,18 @@ void TextLabelComponent::render2(void* context)
 	if(!m) return;
 
 	// Get the BmpFont from the current material
-	if(const BmpFont* bmpFont = m->bmpFont.get()) if(bmpFont->commitCount > 0)
+	if(const BmpFont* bmpFont = m->bmpFont.get()) if(bmpFont->commitCount() > 0)
 	{
 		// Check to see if we need to rebuild the vertex buffer
 		const size_t hash = StringHash(text.c_str(), 0).hash;
 
-		const bool fontChanged = (mLastBmpFont != bmpFont || bmpFont->commitCount != mLastBmpFontCommitCount);
+		const bool fontChanged = (mLastBmpFont != bmpFont || bmpFont->commitCount() != mLastBmpFontCommitCount);
 
 		if(mStringHash != hash || fontChanged) {
 			buildVertexBuffer(*bmpFont);
 			mStringHash = hash;
 			mLastBmpFont = bmpFont;
-			mLastBmpFontCommitCount = bmpFont->commitCount;
+			mLastBmpFontCommitCount = bmpFont->commitCount();
 		}
 	}
 

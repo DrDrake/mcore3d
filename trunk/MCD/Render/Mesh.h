@@ -186,7 +186,7 @@ protected:
 
 namespace MCD {
 
-class MCD_RENDER_API MeshComponent2 : public RenderableComponent2, public IDrawCall
+class MCD_RENDER_API MeshComponent : public RenderableComponent, public IDrawCall
 {
 public:
 // Cloning
@@ -199,9 +199,9 @@ public:
 
 // Attributes
 	MeshPtr mesh;
-};	// MeshComponent2
+};	// MeshComponent
 
-typedef IntrusiveWeakPtr<MeshComponent2> MeshComponent2Ptr;
+typedef IntrusiveWeakPtr<MeshComponent> MeshComponentPtr;
 
 }	// namespace MCD
 

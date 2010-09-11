@@ -5,6 +5,7 @@
 #include "BuildinData/BuildinData.h"
 
 #include "../Core/Entity/Entity.h"
+#include "../Core/Entity/PrefabLoaderComponent.h"
 #include "../Core/Entity/SystemComponent.h"
 #include "../Core/System/FileSystemCollection.h"
 #include "../Core/System/Log.h"
@@ -26,6 +27,7 @@
 #	include "../Core/Entity/WinMessageInputComponent.h"
 #endif
 
+#include "../Render/Camera.h"
 #include "../Render/Font.h"
 #include "../Render/Light.h"
 #include "../Render/Material.h"
@@ -34,11 +36,11 @@
 #include "../Render/RenderWindow.h"
 #include "../Render/SkeletonAnimation.h"
 #include "../Render/Animation.h"
-#include "../Component/Render/CameraComponent.h"
-#include "../Component/Prefab.h"
-#include "../Component/PrefabLoaderComponent.h"
+//#include "../Component/Prefab.h"
 
-#include "../Loader/ResourceLoaderFactory.h"
+//#include "../Loader/ResourceLoaderFactory.h"
+#include "../Loader/FntLoader.h"
+#include "../Loader/PngLoader.h"
 
 #include "../Audio/AudioDevice.h"
 
@@ -56,7 +58,7 @@ public:
 	bool addFileSystem(const char* path);
 	bool removeFileSystem(const char* path);
 	void enableDebuggerOnPort(uint16_t tcpPort);
-	PrefabLoaderComponent* loadPrefabTo(const Path& resourcePath, Entity* location, IResourceManager::BlockingMode blockingMode, const char* args);
+	PrefabLoaderComponent* loadPrefabTo(const Path& resourcePath, Entity* location, int blockingIteration, const char* args);
 	void processLoadingEvents();
 	bool update(Event& e);
 
@@ -68,12 +70,14 @@ public:
 
 	bool mTakeWindowOwership;
 
-	MCD::DeltaTimer mTimer;
+	Timer mTimer;
+	float mCurrentTime;
 	size_t mFrameCounter;	//! For calculating fps, reset every one second.
 	float mOneSecondCountDown;
 	float mFramePerSecond;
 
 	RendererComponentPtr mRenderer;
+	ResourceManagerComponentPtr mResourceManagerComponent;
 	std::auto_ptr<RenderWindow> mWindow;
 	std::auto_ptr<TaskPool> mTaskPool;
 	TextLabelComponentPtr mFpsLabel;
@@ -82,6 +86,7 @@ public:
 Framework::Impl::Impl()
 	: mFrameCounter(0), mOneSecondCountDown(0), mFramePerSecond(0)
 {
+	mCurrentTime = 0;
 	mTakeWindowOwership = true;
 
 	Log::start(&std::cout);
@@ -89,6 +94,7 @@ Framework::Impl::Impl()
 
 	{	// Setup the default entity tree structure
 		mRootEntity = new Entity("Root entity");
+		Entity::setCurrentRoot(mRootEntity.getNotNull());
 
 		mSystemEntity = new Entity("System entities");
 		mSystemEntity->asChildOf(mRootEntity.getNotNull());
@@ -125,12 +131,13 @@ Framework::Impl::Impl()
 
 	{	// Resource manager
 		mResourceManager.reset(new ResourceManager(*mFileSystem, *mTaskPool, false));
+		mResourceManagerComponent = new ResourceManagerComponent(*mResourceManager);
 		Entity* e = mSystemEntity->addChild(new Entity("Resource manager"));
-		e->addComponent(new ResourceManagerComponent(*mResourceManager));
+		e->addComponent(mResourceManagerComponent.get());
 	}
 
 	{	// Register default resource loaders
-		mResourceManager->addFactory(new FntLoaderFactory(*mResourceManager));
+		mResourceManager->addFactory(new FntLoaderFactory);
 		mResourceManager->addFactory(new PngLoaderFactory);
 	}
 
@@ -225,7 +232,7 @@ bool Framework::Impl::initWindow(RenderWindow& existingWindow, bool takeOwnershi
 
 	{	// Default scene camera
 		Entity* e = mSceneLayer->addChild(new Entity("Scene camera"));
-		CameraComponent2* c = e->addComponent(new CameraComponent2(mRenderer));
+		CameraComponent* c = e->addComponent(new CameraComponent(mRenderer));
 		c->frustum.projectionType = Frustum::Perspective;
 		c->frustum.create(45.f, 4.0f / 3.0f, 1.0f, 500.0f);
 		e->localTransform.setTranslation(Vec3f(0, 0, 10));
@@ -242,7 +249,7 @@ bool Framework::Impl::initWindow(RenderWindow& existingWindow, bool takeOwnershi
 
 	{	// Default Gui camera
 		Entity* e = mGuiLayer->addChild(new Entity("Gui camera"));
-		CameraComponent2* c = e->addComponent(new CameraComponent2(mRenderer));
+		CameraComponent* c = e->addComponent(new CameraComponent(mRenderer));
 		c->frustum.projectionType = Frustum::Ortho;
 	}
 
@@ -251,7 +258,7 @@ bool Framework::Impl::initWindow(RenderWindow& existingWindow, bool takeOwnershi
 		RenderTargetComponent* c = e->addComponent(new RenderTargetComponent);
 		c->window = dynamic_cast<RenderWindow*>(&existingWindow);
 		c->entityToRender = mSceneLayer;
-		c->cameraComponent = mSceneLayer->findComponentInChildrenExactType<CameraComponent2>();
+		c->cameraComponent = mSceneLayer->findComponentInChildrenExactType<CameraComponent>();
 		c->rendererComponent = mRenderer;
 	}
 
@@ -262,26 +269,26 @@ bool Framework::Impl::initWindow(RenderWindow& existingWindow, bool takeOwnershi
 		c->clearColor = ColorRGBAf(0, 0);
 		c->window = dynamic_cast<RenderWindow*>(&existingWindow);
 		c->entityToRender = mGuiLayer;
-		c->cameraComponent = mGuiLayer->findComponentInChildrenExactType<CameraComponent2>();
+		c->cameraComponent = mGuiLayer->findComponentInChildrenExactType<CameraComponent>();
 		c->rendererComponent = mRenderer;
 	}
 
 	// Setup resize frustum component for scene layer
-	if(CameraComponent2* camera = mSceneLayer->findComponentInChildrenExactType<CameraComponent2>())
+	if(CameraComponent* camera = mSceneLayer->findComponentInChildrenExactType<CameraComponent>())
 	{
 		if(Entity* e = camera->entity()) {
 			ResizeFrustumComponent* c = e->addComponent(new ResizeFrustumComponent);
-			c->camera = mSceneLayer->findComponentInChildrenExactType<CameraComponent2>();
+			c->camera = mSceneLayer->findComponentInChildrenExactType<CameraComponent>();
 			c->renderTarget = mSceneLayer->findComponentInChildrenExactType<RenderTargetComponent>();
 		}
 	}
 
 	// Setup resize frustum component for Gui layer
-	if(CameraComponent2* camera = mGuiLayer->findComponentInChildrenExactType<CameraComponent2>())
+	if(CameraComponent* camera = mGuiLayer->findComponentInChildrenExactType<CameraComponent>())
 	{
 		if(Entity* e = camera->entity()) {
 			ResizeFrustumComponent* c = e->addComponent(new ResizeFrustumComponent);
-			c->camera = mGuiLayer->findComponentInChildrenExactType<CameraComponent2>();
+			c->camera = mGuiLayer->findComponentInChildrenExactType<CameraComponent>();
 			c->renderTarget = mGuiLayer->findComponentInChildrenExactType<RenderTargetComponent>();
 		}
 	}
@@ -366,13 +373,13 @@ bool Framework::Impl::removeFileSystem(const char* path)
 	return false;
 }
 
-PrefabLoaderComponent* Framework::Impl::loadPrefabTo(const Path& resourcePath, Entity* location, IResourceManager::BlockingMode blockingMode, const char* args)
+PrefabLoaderComponent* Framework::Impl::loadPrefabTo(const Path& resourcePath, Entity* location, int blockingIteration, const char* args)
 {
 	if(!location)
 		return nullptr;
 
 	std::auto_ptr<PrefabLoaderComponent> c(new PrefabLoaderComponent);
-	c->prefab = dynamic_cast<Prefab*>(mResourceManager->load(resourcePath, blockingMode, 0, args).get());
+	c->prefab = dynamic_cast<Prefab*>(mResourceManager->load(resourcePath, blockingIteration, 0, args).get());
 
 	if(nullptr == c->prefab)
 		return nullptr;
@@ -380,34 +387,26 @@ PrefabLoaderComponent* Framework::Impl::loadPrefabTo(const Path& resourcePath, E
 	location->addComponent(c.get());
 
 	// Make sure the prefab is committed in blocking load
-	if(blockingMode != IResourceManager::NonBlock) {
-		while(c->prefab->commitCount == 0)
-			processLoadingEvents();
+	if(blockingIteration > 0)
 		c->update(0);
-	}
 
 	return c.release();
 }
 
-void Framework::Impl::processLoadingEvents()
-{
-	ResourceManager::Event e = mResourceManager->popEvent();
-	if(e.loader) {
-		const IResourceLoader::LoadingState loadingState = e.loader->getLoadingState();
-		const bool hasError = loadingState == IResourceLoader::Aborted;
-
-		if(hasError)
-			Log::format(Log::Warn, "Resource: %s %s", e.resource->fileId().getString().c_str(), "failed to load");
-		else if(loadingState != IResourceLoader::Loading)
-			e.loader->commit(*e.resource);	// Allow one resource to commit for each frame
-
-		// Note that commit() is invoked before doCallbacks()
-		mResourceManager->doCallbacks(e);
-	}
-}
-
 bool Framework::Impl::update(Event& e)
 {
+	Entity::setCurrentRoot(mRootEntity.getNotNull());
+
+	const float frameTime = 1.0f / 30;
+	float newTime = float(mTimer.get().asSecond());
+	const float deltaTime = newTime - mCurrentTime;
+
+	const float overBuget = newTime - mCurrentTime - frameTime;
+	float buget = frameTime - overBuget;
+	buget = buget < frameTime/3 ? frameTime/3 : buget;
+	const float timeOut = newTime + buget;
+	mCurrentTime = newTime;
+
 	// Check for window events
 	bool hasWindowEvent = false;
 	if(mWindow.get())
@@ -417,14 +416,14 @@ bool Framework::Impl::update(Event& e)
 		std::string path;
 		MCD_FOREACH(const RawFileSystemMonitor& monitor, mFileMonitors) {
 			while(!(path = monitor.getChangedFile()).empty())
-				mResourceManager->reload(Path(path).normalize(), IResourceManager::NonBlock);
+				mResourceManager->reload(Path(path).normalize());
 		}
 	}
 
-	processLoadingEvents();
+	if(mResourceManagerComponent)
+		mResourceManagerComponent->update(&mTimer, timeOut);
 
 	{	// Frame rate calculation
-		float deltaTime = float(mTimer.getDelta().asSecond());
 		mOneSecondCountDown -= deltaTime;
 		++mFrameCounter;
 
@@ -469,8 +468,8 @@ void Framework::addLoaderFactory(ResourceManager::IFactory* factory) {
 	resourceManager().addFactory(factory);
 }
 
-PrefabLoaderComponent* Framework::loadPrefabTo(const Path& resourcePath, Entity* location, IResourceManager::BlockingMode blockingMode, const char* args) {
-	return mImpl.loadPrefabTo(resourcePath, location, blockingMode, args);
+PrefabLoaderComponent* Framework::loadPrefabTo(const Path& resourcePath, Entity* location, int blockingIteration, const char* args) {
+	return mImpl.loadPrefabTo(resourcePath, location, blockingIteration, args);
 }
 
 bool Framework::update(Event& e) {
@@ -511,10 +510,6 @@ RenderWindow* Framework::window() {
 
 RendererComponentPtr Framework::rendererComponent() {
 	return mImpl.mRenderer;
-}
-
-void Framework::processLoadingEvents() {
-	mImpl.processLoadingEvents();
 }
 
 float Framework::fps() const {

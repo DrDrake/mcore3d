@@ -4,10 +4,9 @@
 #include "ShareLib.h"
 #include "../Core/System/NonCopyable.h"
 #include "../Core/System/ResourceLoader.h"
+#include "../Core/System/ResourceManager.h"
 
 namespace MCD {
-
-class IResourceManager;
 
 /*!	Loader for the Autodesk 3D studio's 3ds file format.
 	The loader will load vertex attributes including position and 1 texture coordinate,
@@ -35,7 +34,7 @@ public:
 		a resource manager in order to load the textures. If null pointer is supplied
 		as the manager,
 	 */
-	explicit Max3dsLoader(sal_maybenull IResourceManager* resourceManager = nullptr);
+	explicit Max3dsLoader(sal_maybenull ResourceManager* resourceManager = nullptr);
 
 	sal_override ~Max3dsLoader();
 
@@ -56,6 +55,20 @@ protected:
 	class Impl;
 	Impl& mImpl;
 };	// Max3dsLoader
+
+class MCD_LOADER_API Max3dsLoaderFactory : public ResourceManager::IFactory
+{
+public:
+	explicit Max3dsLoaderFactory(ResourceManager& resourceManager);
+	sal_override ResourcePtr createResource(const Path& fileId, const char* args);
+	sal_override IResourceLoaderPtr createLoader();
+
+private:
+	/*!	This loader factory is going to be owned by the mResourceManager, so we can
+		use mResourceManager freely during the life-time of the loader factory.
+	 */
+	ResourceManager& mResourceManager;
+};	// Max3dsLoaderFactory
 
 }	// namespace MCD
 

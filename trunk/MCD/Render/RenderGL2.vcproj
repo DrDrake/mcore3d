@@ -221,10 +221,6 @@
 				>
 			</File>
 			<File
-				RelativePath=".\BackRenderBuffer.h"
-				>
-			</File>
-			<File
 				RelativePath=".\Camera.h"
 				>
 			</File>
@@ -281,10 +277,6 @@
 				>
 			</File>
 			<File
-				RelativePath=".\Model.h"
-				>
-			</File>
-			<File
 				RelativePath=".\PlaneMeshBuilder.h"
 				>
 			</File>
@@ -305,19 +297,7 @@
 				>
 			</File>
 			<File
-				RelativePath=".\RenderBuffer.h"
-				>
-			</File>
-			<File
-				RelativePath=".\RenderBufferSet.h"
-				>
-			</File>
-			<File
 				RelativePath=".\Renderer.h"
-				>
-			</File>
-			<File
-				RelativePath=".\RenderTarget.h"
 				>
 			</File>
 			<File
@@ -357,10 +337,6 @@
 				>
 			</File>
 			<File
-				RelativePath=".\TextureRenderBuffer.h"
-				>
-			</File>
-			<File
 				RelativePath=".\VertexFormat.h"
 				>
 			</File>
@@ -371,10 +347,6 @@
 			>
 			<File
 				RelativePath=".\Animation.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\BackRenderBuffer.cpp"
 				>
 			</File>
 			<File
@@ -430,10 +402,6 @@
 				>
 			</File>
 			<File
-				RelativePath=".\Model.cpp"
-				>
-			</File>
-			<File
 				RelativePath=".\PlaneMeshBuilder.cpp"
 				>
 			</File>
@@ -480,18 +448,6 @@
 				>
 			</File>
 			<File
-				RelativePath=".\RenderBuffer.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\RenderBufferSet.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\RenderTarget.cpp"
-				>
-			</File>
-			<File
 				RelativePath=".\Shader.cpp"
 				>
 			</File>
@@ -517,10 +473,6 @@
 			</File>
 			<File
 				RelativePath=".\Texture.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\TextureRenderBuffer.cpp"
 				>
 			</File>
 			<File

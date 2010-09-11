@@ -722,6 +722,14 @@
 					>
 				</File>
 				<File
+					RelativePath=".\Entity\Prefab.h"
+					>
+				</File>
+				<File
+					RelativePath=".\Entity\PrefabLoaderComponent.h"
+					>
+				</File>
+				<File
 					RelativePath=".\Entity\SystemComponent.h"
 					>
 				</File>
@@ -748,6 +756,18 @@
 				</File>
 				<File
 					RelativePath=".\Entity\InputComponent.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\Entity\Prefab.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\Entity\PrefabLoaderComponent.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\Entity\SystemComponent.cpp"
 					>
 				</File>
 				<File

@@ -80,7 +80,7 @@ ChamferBoxBuilder::ChamferBoxBuilder(float filletRadius, size_t filletSegmentCou
 				p = transforms[cubeFace] * p;
 				n = transforms[cubeFace] * n;
 
-				const Vec2f uv(position.x / extent.x, position.y / extent.y);
+				const Vec2f uv = 0.5f * Vec2f(position.x / extent.x, position.y / extent.y) - 0.5f;
 
 				MCD_VERIFY(vertexAttribute(posId, &p));
 				MCD_VERIFY(vertexAttribute(normalId, &n));

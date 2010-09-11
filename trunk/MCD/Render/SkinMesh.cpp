@@ -1,5 +1,5 @@
 #include "Pch.h"
-#include "SkinMesh.h"
+/*#include "SkinMesh.h"
 #include "SkeletonAnimation.h"
 #include "Effect.h"
 #include "Mesh.h"
@@ -130,7 +130,7 @@ void SkinMeshComponent::render2(void* context)
 		}
 	}
 
-	meshes->draw();
+	meshes->draw();*/
 
 /*	const Vec4f colors[4] = {
 		Vec4f(1, 0, 0, 1),
@@ -165,8 +165,9 @@ void SkinMeshComponent::render2(void* context)
 		glEnable(GL_CULL_FACE);
 		glDisable(GL_BLEND);
 	}*/
-
+/*
 	glPopMatrix();
 }
 
 }	// namespace MCD
+*/

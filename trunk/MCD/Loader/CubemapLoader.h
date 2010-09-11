@@ -2,6 +2,7 @@
 #define __MCD_LOADER_CUBEMAPLOADER__
 
 #include "TextureLoaderBase.h"
+#include "../Core/System/ResourceManager.h"
 
 namespace MCD {
 
@@ -24,8 +25,14 @@ public:
 
 protected:
     sal_override void uploadData(Texture& texture);
-    sal_override void postUploadData();
 };	// CubemapLoader
+
+class MCD_LOADER_API CubemapLoaderFactory : public ResourceManager::IFactory
+{
+public:
+	sal_override ResourcePtr createResource(const Path& fileId, const char* args);
+	sal_override IResourceLoaderPtr createLoader();
+};	// CubemapLoaderFactory
 
 }	// namespace MCD
 

@@ -13,12 +13,20 @@ GpuDataFormat GpuDataFormat::get(const StringHash& name)
 	static const GpuDataFormat cGpuDataFormatMap[] = {
 	{ FixString("none"), -1, -1, -1, 0, 0, false },
 
+	// 1 component
+	{ FixString("uintR16"), -1, -1, -1, sizeof(uint16_t), 1, false },
+
+	// 2 components
+	{ FixString("floatRG32"), -1, D3DDECLTYPE_FLOAT2, -1, sizeof(float), 2, false },
+
 	// 3 components
 	{ FixString("uintRGB8"), D3DFMT_R8G8B8, D3DFMT_R8G8B8, D3DFMT_R8G8B8, sizeof(uint8_t), 3, false },
+	{ FixString("floatRGB32"), -1, D3DDECLTYPE_FLOAT3, -1, sizeof(float), 3, false },
 
 	// 4 components
-	{ FixString("uintRGBA8"), -1, -1, -1, sizeof(uint8_t), 4, false },
-	{ FixString("uintARGB8"), D3DFMT_A8R8G8B8, D3DFMT_A8R8G8B8, D3DFMT_A8R8G8B8, sizeof(uint8_t), 4, false },
+	{ FixString("uintRGBA8"), -1, D3DDECLTYPE_UBYTE4, -1, sizeof(uint8_t), 4, false },
+	{ FixString("uintARGB8"), D3DFMT_A8R8G8B8, D3DDECLTYPE_UBYTE4, D3DFMT_A8R8G8B8, sizeof(uint8_t), 4, false },
+	{ FixString("floatRGBA32"), -1, D3DDECLTYPE_FLOAT4, -1, sizeof(float), 4, false },
 
 	// Compressed
 	{ FixString("dxt1"), D3DFMT_DXT1, -1, -1, 0, 0, true },
@@ -33,5 +41,7 @@ GpuDataFormat GpuDataFormat::get(const StringHash& name)
 	}
 	return cGpuDataFormatMap[0];
 }
+
+GpuDataFormat GpuDataFormat::none() { return GpuDataFormat::get(StringHash("nonoe")); }
 
 }	// namespace MCD

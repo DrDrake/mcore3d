@@ -3,6 +3,7 @@
 #include "TextureLoaderBaseImpl.inc"
 #include "../Render/Texture.h"
 #include "../Core/System/Log.h"
+#include "../Core/System/StrUtility.h"
 #include "../../3Party/glew/glew.h"
 
 // http://www.mindcontrol.org/~hplus/graphics/dds-info/
@@ -192,10 +193,9 @@ class DdsLoader::LoaderImpl : public TextureLoaderBase::LoaderBaseImpl
 {
 public:
 	LoaderImpl(DdsLoader& loader)
-		:
-		LoaderBaseImpl(loader),
-		mMipMapCount(0),
-		mLoadInfo(nullptr)
+		: LoaderBaseImpl(loader)
+		, mMipMapCount(0)
+		, mLoadInfo(nullptr)
 	{
 	}
 
@@ -272,45 +272,6 @@ public:
 		return 0;
 	}
 
-	void upload()
-	{
-		DdsLoader& loader = static_cast<DdsLoader&>(mLoader);
-		MCD_ASSERT(loader.loadingState == Loaded);
-		(void)loader;
-
-		glewInit();
-		if(!glCompressedTexImage2D) {
-			Log::write(Log::Error, "DdsLoader: glCompressedTexImage2D is not supported, operation aborted");
-			return;
-		}
-
-		// Missing mipmaps won't be a problem anymore
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAX_LEVEL, mMipMapCount - 1);
-
-		DdsLoadInfo* li = mLoadInfo;
-		char* p = mImageData;
-		uint x = mWidth;
-		uint y = mHeight;
-
-		for(size_t i = 0; i < mMipMapCount; ++i) {
-			size_t size = getSize(x, y, li);
-
-			// TODO: Check opengl error
-			if(li->compressed)
-				glCompressedTexImage2D(GL_TEXTURE_2D, i, li->internalFormat, x, y, 0, size, p);
-			else
-				glTexImage2D(GL_TEXTURE_2D, i, li->internalFormat, x, y, 0, li->externalFormat, li->type, p);
-
-			p += size;
-			x = (x + 1) >> 1;
-			y = (y + 1) >> 1;
-		}
-
-		// Restore to default
-		// Reference: http://developer.apple.com/documentation/Darwin/Reference/ManPages/man3/glTexParameter.3.html
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAX_LEVEL, 1000);
-	}
-
 	size_t mMipMapCount;
 	DdsLoadInfo* mLoadInfo;
 };	// LoaderImpl
@@ -323,32 +284,38 @@ DdsLoader::DdsLoader()
 
 IResourceLoader::LoadingState DdsLoader::load(std::istream* is, const Path*, const char*)
 {
-	MCD_ASSUME(mImpl != nullptr);
-	ScopeLock lock(mImpl->mMutex);
+	MCD_ASSUME(mImpl);
 
 	if(!is)
-		loadingState = Aborted;
-	else if(loadingState == Aborted)
-		loadingState = NotLoaded;
+		return Aborted;
 
-	if(loadingState & Stopped)
-		return loadingState;
+	const int result = static_cast<LoaderImpl*>(mImpl)->load(*is);
 
-	int result;
-	{	// There is no need to do a mutex lock during loading, since
-		// no body can access the mImageData if the loading isn't finished.
-		ScopeUnlock unlock(mImpl->mMutex);
-		result = static_cast<LoaderImpl*>(mImpl)->load(*is);
-	}
-
-	return (loadingState = (result == 0) ? Loaded : Aborted);
+	return result == 0 ? Loaded : Aborted;
 }
 
 void DdsLoader::uploadData(Texture& texture)
 {
 	MCD_ASSUME(mImpl != nullptr);
 	LoaderImpl* impl = static_cast<LoaderImpl*>(mImpl);
-	impl->upload();
+	MCD_VERIFY(texture.create(
+		impl->mGpuFormat, impl->mSrcFormat,
+		impl->mWidth, impl->mHeight,
+		1, 1,
+		impl->mImageData, impl->mImageData.size())
+	);
+}
+
+ResourcePtr DdsLoaderFactory::createResource(const Path& fileId, const char* args)
+{
+	if(strCaseCmp(fileId.getExtension().c_str(), "dds") == 0)
+		return new Texture(fileId);
+	return nullptr;
+}
+
+IResourceLoaderPtr DdsLoaderFactory::createLoader()
+{
+	return new DdsLoader;
 }
 
 }	// namespace MCD

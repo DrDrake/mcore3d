@@ -4,7 +4,7 @@
 namespace MCD {
 
 Resource::Resource(const Path& fileId)
-	: mFileId(fileId), commitCount(0)
+	: mFileId(fileId), mCommitCount(0)
 {}
 
 }	// namespace MCD

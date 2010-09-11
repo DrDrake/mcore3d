@@ -24,7 +24,7 @@ TextureLoaderBase::LoaderBaseImpl::~LoaderBaseImpl()
 }
 
 TextureLoaderBase::TextureLoaderBase()
-	: loadingState(NotLoaded), mImpl(nullptr)
+	: mImpl(nullptr)
 {
 }
 
@@ -45,13 +45,8 @@ void TextureLoaderBase::commit(Resource& resource)
 {
 	MemoryProfiler::Scope scope("TextureLoaderBase::commit");
 
-	if(!mImpl)
-		return;
-
+	MCD_ASSUME(mImpl);
 	ScopeLock lock(mImpl->mMutex);
-
-	if(!(loadingState & CanCommit))
-		return;
 
 	// Will throw exception if the resource is not of the type Texture
 	Texture& texture = dynamic_cast<Texture&>(resource);
@@ -63,29 +58,6 @@ void TextureLoaderBase::commit(Resource& resource)
 	preUploadData();
 	uploadData(texture);
 	postUploadData();
-
-	++resource.commitCount;
-
-	// The invocation of postUploadData() may deleted mImpl
-	if(!mImpl) {
-		// The destruction of mImpl will release the mutex
-		lock.cancel();
-
-		// We are no-longer protected by the mutex, make a return statment
-		// to foolproof any attempt to do anything.
-		return;
-	}
-}
-
-IResourceLoader::LoadingState TextureLoaderBase::getLoadingState() const
-{
-	// We don't have arithmetics on loadingState, so we don't need to lock on it
-	return loadingState;
-}
-
-void TextureLoaderBase::onPartialLoaded(IPartialLoadContext& context, uint priority, const char* args)
-{
-	context.continueLoad(priority+1, args);
 }
 
 void TextureLoaderBase::preUploadData()
@@ -98,22 +70,6 @@ void TextureLoaderBase::postUploadData()
 	// Reference: http://www.gamedev.net/community/forums/topic.asp?topic_id=495747
 //	if(glGenerateMipmapEXT)
 //		glGenerateMipmapEXT(GL_TEXTURE_2D);
-
-	if(loadingState == Loaded) {
-		// The loader finish it's job, lets free up the resources
-		// NOTE: We must use set mImpl = null before deleting mImpl,
-		// otherwise the act of delete mImpl will unlock the mutex and
-		// so another thread may have daling mImpl pointer.
-		LoaderBaseImpl* tmp = mImpl;
-		mImpl = nullptr;
-		delete tmp;
-
-		// We are no-longer protected by the mutex, make a return statment
-		// to foolproof any attempt to do anything.
-		return;
-	} else {
-		loadingState = Loading;
-	}
 }
 
 void TextureLoaderBase::retriveData(const char*& imageData, size_t& imageDataSize, size_t& width, size_t& height, GpuDataFormat& srcFormat, GpuDataFormat& gpuFormat)

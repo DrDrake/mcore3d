@@ -29,7 +29,7 @@ TEST(RendererTest)
 	Entity& scene = framework.sceneLayer();
 	RenderTargetComponent* textureRenderTarget = nullptr;
 	RendererComponent* renderer = root.findComponentInChildrenExactType<RendererComponent>();
-	CameraComponent2* sceneCamera = scene.findComponentInChildrenExactType<CameraComponent2>();
+	CameraComponent* sceneCamera = scene.findComponentInChildrenExactType<CameraComponent>();
 
 	{	// Setup sub-window
 		EntityPtr e = new Entity("Sub-window render target");
@@ -84,7 +84,7 @@ TEST(RendererTest)
 	material2->diffuseMap = textureRenderTarget->textures[0];
 
 	// Create mesh
-	MeshComponent2* boxMesh = new MeshComponent2;
+	MeshComponent* boxMesh = new MeshComponent;
 	boxMesh->mesh = new Mesh("");
 	CHECK(boxMesh->mesh->create(ChamferBoxBuilder(0.5f, 5, true), Mesh::Static));
 
@@ -103,7 +103,7 @@ TEST(RendererTest)
 		e->localTransform.translateBy(Vec3f(-2, 0, -2));
 	}
 
-	MeshComponent2* sphereMesh = new MeshComponent2;
+	MeshComponent* sphereMesh = new MeshComponent;
 	sphereMesh->mesh = new Mesh("");
 	CHECK(sphereMesh->mesh->create(ChamferBoxBuilder(1, 5, true), Mesh::Static));
 

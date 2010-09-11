@@ -6,7 +6,7 @@
 
 namespace MCD {
 
-typedef IntrusiveWeakPtr<class CameraComponent2> CameraComponent2Ptr;
+typedef IntrusiveWeakPtr<class CameraComponent> CameraComponentPtr;
 typedef IntrusiveWeakPtr<class RenderTargetComponent> RenderTargetComponentPtr;
 
 /*!	Makes a camera always up to date with a RenderTargetComponent's dimension
@@ -19,7 +19,7 @@ public:
 	sal_override void update(float dt);
 
 // Attributes
-	CameraComponent2Ptr camera;
+	CameraComponentPtr camera;
 	RenderTargetComponentPtr renderTarget;
 
 protected:

@@ -11,7 +11,7 @@ typedef IntrusivePtr<class Model> ModelPtr;
 typedef IntrusivePtr<class Skeleton> SkeletonPtr;
 typedef IntrusiveWeakPtr<class SkeletonAnimationComponent> SkeletonAnimationComponentPtr;
 
-class MCD_RENDER_API SkinMeshComponent : public RenderableComponent2, public IDrawCall
+class MCD_RENDER_API SkinMeshComponent : public RenderableComponent, public IDrawCall
 {
 public:
 	explicit SkinMeshComponent();

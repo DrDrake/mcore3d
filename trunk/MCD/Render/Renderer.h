@@ -17,8 +17,8 @@ public:
 	}
 
 // Attributes
-//	void setDefaultCamera(CameraComponent2& camera);
-//	sal_maybenull CameraComponent2* defaultCamera() const;
+//	void setDefaultCamera(CameraComponent& camera);
+//	sal_maybenull CameraComponent* defaultCamera() const;
 
 // Operations
 	//!	Override the default camera

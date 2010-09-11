@@ -1,7 +1,7 @@
 #include "Pch.h"
 #include "../../MCD/Audio/AudioDevice.h"
 #include "../../MCD/Audio/AudioSource.h"
-#include "../../MCD/Audio/ResourceLoaderFactory.h"
+#include "../../MCD/Audio/OggLoader.h"
 #include "../../MCD/Core/System/RawFileSystem.h"
 #include "../../MCD/Core/System/ResourceLoader.h"
 #include "../../MCD/Core/System/ResourceManager.h"
@@ -19,7 +19,7 @@ protected:
 	{
 		(void)initAudioDevice();
 		manager.addFactory(new OggLoaderFactory);
-		manager.taskPool().setThreadCount(1);	// For some tests we have use thread loading
+		manager.taskPool().setThreadCount(2);	// For some tests we have use thread loading
 	}
 
 	~OggTestFixture()
@@ -134,11 +134,6 @@ TEST_FIXTURE(OggTestFixture, SeekingTest)
 	int count = 0;
 	while(source.isPlaying() && count < 40) {
 		source.update();
-		ResourceManager::Event event = manager.popEvent();
-
-		if(event.loader)
-			event.loader->commit(*event.resource);
-
 		mSleep(100);
 
 		// Seek to half of the current PCM every 1 second
@@ -184,6 +179,8 @@ TEST_FIXTURE(OggTestFixture, MultiSourceTest)
 	}
 }
 
+#ifndef MCD_IPHONE	// No effect support on iPhone
+
 #include "../../MCD/Audio/AudioEffect.h"
 
 // TODO: Move the effect test to somewhere else
@@ -202,3 +199,6 @@ TEST_FIXTURE(OggTestFixture, EffectTest)
 
 	waitForSourceFinish(source);
 }
+
+#endif
+

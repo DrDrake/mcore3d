@@ -2,13 +2,13 @@
 #define __MCD_LOADER_FNTLOADER__
 
 #include "ShareLib.h"
-#include "../Core/System/NonCopyable.h"
 #include "../Core/System/IntrusivePtr.h"
 #include "../Core/System/ResourceLoader.h"
+#include "../Core/System/ResourceManager.h"
 
 namespace MCD {
 
-class IResourceManager;
+class ResourceManager;
 typedef IntrusivePtr<class BmpFont> BmpFontPtr;
 
 /*!	Bitmap font loader for *.fnt files generated using AngelCode's bitmap font generator
@@ -17,7 +17,7 @@ typedef IntrusivePtr<class BmpFont> BmpFontPtr;
 class MCD_LOADER_API FntLoader : public IResourceLoader, private Noncopyable
 {
 public:
-	explicit FntLoader(sal_maybenull IResourceManager* resourceManager = nullptr);
+	FntLoader();
 
 	/*!	Load data from stream.
 		Block until the whole font file is loaded.
@@ -30,13 +30,19 @@ public:
 	 */
 	sal_override void commit(Resource& resource);
 
-	sal_override LoadingState getLoadingState() const;
-
 protected:
-	LoadingState mLoadingState;
 	BmpFontPtr mTmp;
-	sal_maybenull IResourceManager* mResourceManager;
+	sal_maybenull ResourceManager* mResourceManager;
 };	// FntLoader
+
+class Entity;
+
+class MCD_LOADER_API FntLoaderFactory : public ResourceManager::IFactory
+{
+public:
+	sal_override ResourcePtr createResource(const Path& fileId, const char* args);
+	sal_override IResourceLoaderPtr createLoader();
+};	// FntLoaderFactory
 
 }	// namespace MCD
 

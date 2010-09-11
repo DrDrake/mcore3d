@@ -212,10 +212,6 @@
 			ReferencedProjectIdentifier="{500413B2-5AE6-41CE-BCFF-D90DB2755869}"
 			RelativePathToProject="..\MCD\Render\Render.vcproj"
 		/>
-		<ProjectReference
-			ReferencedProjectIdentifier="{B6219744-C76A-4C74-A455-8AFA986C3B6A}"
-			RelativePathToProject="..\MCD\Component\Component.vcproj"
-		/>
 	</References>
 	<Files>
 		<File
@@ -240,14 +236,6 @@
 		</File>
 		<File
 			RelativePath=".\DdsLoader.h"
-			>
-		</File>
-		<File
-			RelativePath=".\EffectLoader.cpp"
-			>
-		</File>
-		<File
-			RelativePath=".\EffectLoader.h"
 			>
 		</File>
 		<File
@@ -328,22 +316,6 @@
 		</File>
 		<File
 			RelativePath=".\PvrLoader.h"
-			>
-		</File>
-		<File
-			RelativePath=".\ResourceLoaderFactory.cpp"
-			>
-		</File>
-		<File
-			RelativePath=".\ResourceLoaderFactory.h"
-			>
-		</File>
-		<File
-			RelativePath=".\ShaderLoader.cpp"
-			>
-		</File>
-		<File
-			RelativePath=".\ShaderLoader.h"
 			>
 		</File>
 		<File

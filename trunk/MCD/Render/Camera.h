@@ -64,10 +64,10 @@ namespace MCD {
 
 typedef IntrusiveWeakPtr<class RendererComponent> RendererComponentPtr;
 
-class MCD_RENDER_API CameraComponent2 : public RenderableComponent2
+class MCD_RENDER_API CameraComponent : public RenderableComponent
 {
 public:
-	explicit CameraComponent2(const RendererComponentPtr& renderer);
+	explicit CameraComponent(const RendererComponentPtr& renderer);
 
 // Cloning
 	sal_override sal_notnull Component* clone() const;
@@ -79,9 +79,9 @@ public:
 // Attrubutes
 	Frustum frustum;
 	RendererComponentPtr renderer;
-};	// CameraComponent2
+};	// CameraComponent
 
-typedef IntrusiveWeakPtr<CameraComponent2> CameraComponent2Ptr;
+typedef IntrusiveWeakPtr<CameraComponent> CameraComponentPtr;
 
 }	// namespace MCD
 

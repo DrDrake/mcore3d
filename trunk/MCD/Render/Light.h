@@ -8,7 +8,7 @@
 
 namespace MCD {
 
-class MCD_RENDER_API LightComponent : public RenderableComponent2
+class MCD_RENDER_API LightComponent : public RenderableComponent
 {
 public:
 // Cloning

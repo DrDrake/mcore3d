@@ -4,6 +4,7 @@
 #include "../Render/Texture.h"
 #include "../Core/System/Log.h"
 #include "../Core/System/StaticAssert.h"
+#include "../Core/System/StrUtility.h"
 #include <memory.h> // For memset
 
 // http://www.spacesimulator.net/tut4_3dsloader.html
@@ -40,9 +41,7 @@ class BitmapLoader::LoaderImpl : public TextureLoaderBase::LoaderBaseImpl
 	} BITMAPINFOHEADER;
 
 public:
-	LoaderImpl(BitmapLoader& loader)
-		:
-		LoaderBaseImpl(loader)
+	LoaderImpl(BitmapLoader& loader) : LoaderBaseImpl(loader)
 	{
 		MCD_STATIC_ASSERT(sizeof(BITMAPFILEHEADER) == 14);
 		MCD_STATIC_ASSERT(sizeof(BITMAPINFOHEADER) == 40);
@@ -128,26 +127,14 @@ BitmapLoader::BitmapLoader()
 
 IResourceLoader::LoadingState BitmapLoader::load(std::istream* is, const Path*, const char*)
 {
-	MCD_ASSUME(mImpl != nullptr);
-	ScopeLock lock(mImpl->mMutex);
+	MCD_ASSUME(mImpl);
 
 	if(!is)
-		loadingState = Aborted;
-	else if(loadingState == Aborted)
-		loadingState = NotLoaded;
+		return Aborted;
 
-	if(loadingState & Stopped)
-		return loadingState;
+	const int result = static_cast<LoaderImpl*>(mImpl)->load(*is);
 
-	int result;
-	{	// There is no need to do a mutex lock during loading, since
-		// no body can access the mImageData if the loading isn't finished.
-
-		ScopeUnlock unlock(mImpl->mMutex);
-		result = static_cast<LoaderImpl*>(mImpl)->load(*is);
-	}
-
-	return (loadingState = (result == 0) ? Loaded : Aborted);
+	return result == 0 ? Loaded : Aborted;
 }
 
 void BitmapLoader::uploadData(Texture& texture)
@@ -160,6 +147,18 @@ void BitmapLoader::uploadData(Texture& texture)
 		1, 1,
 		impl->mImageData, impl->mImageData.size())
 	);
+}
+
+ResourcePtr BitmapLoaderFactory::createResource(const Path& fileId, const char* args)
+{
+	if(strCaseCmp(fileId.getExtension().c_str(), "bmp") == 0)
+		return new Texture(fileId);
+	return nullptr;
+}
+
+IResourceLoaderPtr BitmapLoaderFactory::createLoader()
+{
+	return new BitmapLoader;
 }
 
 }	// namespace MCD

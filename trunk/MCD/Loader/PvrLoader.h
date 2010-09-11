@@ -33,7 +33,7 @@ class MCD_LOADER_API PvrLoaderFactory : public ResourceManager::IFactory
 {
 public:
 	sal_override ResourcePtr createResource(const Path& fileId, const char* args);
-	sal_override IResourceLoader* createLoader();
+	sal_override IResourceLoaderPtr createLoader();
 };	// PvrLoaderFactory
 
 }	// namespace MCD

@@ -2,6 +2,7 @@
 #define __MCD_LOADER_PNGLOADER__
 
 #include "TextureLoaderBase.h"
+#include "../Core/System/ResourceManager.h"
 
 namespace MCD {
 
@@ -26,6 +27,13 @@ public:
 protected:
 	sal_override void uploadData(Texture& texture);
 };	// PngLoader
+
+class MCD_LOADER_API PngLoaderFactory : public ResourceManager::IFactory
+{
+public:
+	sal_override ResourcePtr createResource(const Path& fileId, const char* args);
+	sal_override IResourceLoaderPtr createLoader();
+};	// PngLoaderFactory
 
 }	// namespace MCD
 

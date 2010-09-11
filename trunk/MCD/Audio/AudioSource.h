@@ -8,9 +8,9 @@
 
 namespace MCD {
 
-class IResourceManager;
+class ResourceManager;
 typedef IntrusivePtr<class AudioBuffer> AudioBufferPtr;
-typedef SharedPtr<class IResourceLoader> IResourceLoaderPtr;
+typedef IntrusivePtr<class IResourceLoader> IResourceLoaderPtr;
 
 /*!	Represent an audio source, which manage the lower level AudioBuffer and it's loader.
 	\todo Make a prioritized source pooling system.
@@ -43,7 +43,7 @@ public:
 				until the update() function detected there is buffer loaded.
 	 */
 	sal_checkreturn bool load(
-		IResourceManager& resourceManager, const Path& fileId,
+		ResourceManager& resourceManager, const Path& fileId,
 		sal_in_z_opt const char* args=nullptr
 	);
 
@@ -116,7 +116,7 @@ public:
 
 	const std::string& loadOptions() const;
 
-	sal_maybenull IResourceManager* resourceManager() const;
+	sal_maybenull ResourceManager* resourceManager() const;
 
 private:
 	void fillUpInitialBuffers();
@@ -128,7 +128,7 @@ private:
 
 	Path mFileId;
 	std::string mLoadOptions;
-	IResourceManager* mResourceManager;
+	ResourceManager* mResourceManager;
 };	// AudioSource
 
 }	// namespace MCD

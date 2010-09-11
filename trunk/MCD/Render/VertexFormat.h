@@ -1,7 +1,7 @@
 #ifndef __MCD_RENDER_VERTEXFORMAT__
 #define __MCD_RENDER_VERTEXFORMAT__
 
-#include "ShareLib.h"
+#include "GpuDataFormat.h"
 #include "../Core/System/StringHash.h"
 
 namespace MCD {
@@ -10,38 +10,16 @@ namespace MCD {
  */
 struct MCD_RENDER_API VertexFormat
 {
-	enum ComponentType
-	{
-		TYPE_NOT_USED = 0,
-		TYPE_INT,		TYPE_UINT,
-		TYPE_INT8,		TYPE_UINT8,
-		TYPE_INT16,		TYPE_UINT16,
-		TYPE_FLOAT,		TYPE_DOUBLE,
-		TYPE_NONE	//!< For error indication
-	};	// ComponentType
-
 	//! Name for this format e.g. index, position, normal, uv0, uv1...
 	FixString semantic;
 
-	ComponentType componentType;
-
-	//! Size in byte of the attribute, ie: Vec3f -> sizeof(float)
-	uint8_t componentSize;
-
-	//! Number of components, ie: Scalar = 1; Vec2f = 2; Vec3f = 3; Vec4f = 4;
-	uint8_t componentCount;
+	GpuDataFormat gpuFormat;
 
 	uint8_t channel;
 
 	//! The size in byte of this vertex data format
 	size_t sizeInByte() const {
-		return componentCount * componentSize;
-	}
-
-	//!	Convert to API dependent type, ie: GL_FLOAT, GL_UNSIGNED_BYTE
-	static int toApiDependentType(ComponentType type, size_t componentCount);
-	static int toApiDependentType(ComponentType type) {
-		return toApiDependentType(type, size_t(-1));
+		return gpuFormat.sizeInByte();//componentCount * componentSize;
 	}
 
 	/*!	Get a VertexFormat by a semantic name.
@@ -50,7 +28,7 @@ struct MCD_RENDER_API VertexFormat
 	 */
 	static VertexFormat get(const StringHash& semantic);
 
-	static VertexFormat null();
+	static VertexFormat none();
 };	// VertexFormat
 
 }	// namespace MCD
