@@ -1,8 +1,9 @@
-#ifndef __MCD_SYSTEM_SYSTEMCOMPONENT__
-#define __MCD_SYSTEM_SYSTEMCOMPONENT__
+#ifndef __MCD_CORE_ENTITY_SYSTEMCOMPONENT__
+#define __MCD_CORE_ENTITY_SYSTEMCOMPONENT__
 
-#include "../ShareLib.h"
 #include "Component.h"
+#include "../System/Path.h"
+#include <list>
 
 namespace MCD {
 
@@ -27,16 +28,52 @@ public:
 	FileSystemCollection& fileSystem;
 };	// FileSystemComponent
 
-class IResourceManager;
+class Path;
+class IResourceLoader;
+class ResourceManager;
+class Timer;
+typedef IntrusiveWeakPtr<class BehaviourComponent> BehaviourComponentPtr;
 
 class MCD_CORE_API ResourceManagerComponent : public SystemComponent
 {
+	friend class Framework;
+	ResourceManager& mResourceManager;
+	
 public:
-	explicit ResourceManagerComponent(IResourceManager& mgr) : resourceManager(mgr) {}
+	explicit ResourceManagerComponent(ResourceManager& resourceManager)
+		: mResourceManager(resourceManager), performLoadInMainThread(false)
+	{}
+
+// Operations
+	void registerCallback(const Path& fileId, BehaviourComponent& behaviour, bool isRecursive, int minLoadIteration=-1);
+
+	void update(sal_maybenull Timer* timer=nullptr, float timeOut=0);
 
 // Attributes
-	IResourceManager& resourceManager;
+	ResourceManager& resourceManager() {
+		return mResourceManager;
+	}
+
+	/// Instruct the main thread to process loading task.
+	/// This variable is ignored if the ResourceManager's thread pool has no thread at all.
+	bool performLoadInMainThread;
+
+protected:
+	struct Callback {
+		Path path;
+		bool isRecursive;
+		int minLoadIteration;
+		BehaviourComponentPtr component;
+	};	// Callback
+
+	/// Check if a loader does fulfill all the requirements to invoke a callback.
+	bool fulfillRequirement(const IResourceLoader& loader, const Callback& callback) const;
+
+	typedef std::list<Callback> Callbacks;
+	Callbacks mCallbacks;
 };	// ResourceManagerComponent
+
+typedef IntrusiveWeakPtr<class ResourceManagerComponent> ResourceManagerComponentPtr;
 
 class TaskPool;
 
@@ -51,5 +88,5 @@ public:
 
 }	// namespace MCD
 
-#endif	// __MCD_SYSTEM_SYSTEMCOMPONENT__
+#endif	// __MCD_CORE_ENTITY_SYSTEMCOMPONENT__
 

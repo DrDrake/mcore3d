@@ -4,6 +4,7 @@
 #include "../Render/Texture.h"
 #include "../Core/System/Log.h"
 #include "../Core/System/MemoryProfiler.h"
+#include "../Core/System/StrUtility.h"
 #include "../../3Party/png/png.h"
 #include <stdexcept>
 
@@ -24,11 +25,10 @@ class PngLoader::LoaderImpl : public TextureLoaderBase::LoaderBaseImpl
 {
 public:
 	LoaderImpl(PngLoader& loader)
-		:
-		LoaderBaseImpl(loader),
-		png_ptr(nullptr), info_ptr(nullptr),
-		mRowBytes(0),
-		mCurrentPass(0), mHasError(false)
+		: LoaderBaseImpl(loader)
+		, png_ptr(nullptr), info_ptr(nullptr)
+		, mRowBytes(0), mCurrentPass(0)
+		, mHasError(false), mLoadingState(IResourceLoader::NotLoaded)
 	{
 		png_ptr = png_create_read_struct(PNG_LIBPNG_VER_STRING, nullptr, nullptr, nullptr);
 		MCD_ASSERT(png_ptr);
@@ -120,7 +120,7 @@ public:
 		// Only change the loading state after a pass is finished
 		if(pass > impl->mCurrentPass) {
 			impl->mCurrentPass = pass;
-			impl->mLoader.loadingState = PartialLoaded;
+			impl->mLoadingState = PartialLoaded;
 		}
 	}
 
@@ -129,7 +129,7 @@ public:
 		LoaderImpl* impl = reinterpret_cast<LoaderImpl*>(png_get_progressive_ptr(png_ptr));
 		MCD_ASSUME(impl != nullptr);
 
-		impl->mLoader.loadingState = Loaded;
+		impl->mLoadingState = Loaded;
 	}
 
 	png_structp png_ptr;
@@ -138,6 +138,7 @@ public:
 	png_uint_32 mRowBytes;	// Number of byte per row of image data
 	int mCurrentPass;		// For keep tracking when a new pass is loaded
 	bool mHasError;
+	IResourceLoader::LoadingState mLoadingState;
 };	// LoaderImpl
 
 PngLoader::PngLoader()
@@ -149,18 +150,13 @@ PngLoader::PngLoader()
 IResourceLoader::LoadingState PngLoader::load(std::istream* is, const Path*, const char*)
 {
 	MemoryProfiler::Scope scope("PngLoader::load");
-	MCD_ASSUME(mImpl != nullptr);
+	MCD_ASSUME(mImpl);
 
 	Mutex& mutex = mImpl->mMutex;
 	ScopeLock lock(mutex);
 
 	if(!is)
-		loadingState = Aborted;
-	else if(loadingState == Aborted)
-		loadingState = NotLoaded;
-
-	if(loadingState & Stopped)
-		return loadingState;
+		return Aborted;
 
 #ifdef MCD_VC
 #	pragma warning(push)
@@ -173,7 +169,7 @@ IResourceLoader::LoadingState PngLoader::load(std::istream* is, const Path*, con
 #	pragma warning(pop)
 #endif
 	{
-		return (loadingState = Aborted);
+		return Aborted;
 	}
 
 	// Process the data (used for progressive loading).
@@ -186,9 +182,12 @@ IResourceLoader::LoadingState PngLoader::load(std::istream* is, const Path*, con
 	png_process_data(impl->png_ptr, impl->info_ptr, (png_bytep)buff, readCount);
 
 	if(readCount == 0)
-		loadingState = Aborted;
+		return Aborted;
 
-	return loadingState;
+	if(!(impl->mLoadingState & Stopped))
+		continueLoad();
+
+	return impl->mLoadingState;
 }
 
 void PngLoader::uploadData(Texture& texture)
@@ -202,6 +201,18 @@ void PngLoader::uploadData(Texture& texture)
 		1, 1,
 		impl->mImageData, impl->mImageData.size())
 	);
+}
+
+ResourcePtr PngLoaderFactory::createResource(const Path& fileId, const char* args)
+{
+	if(strCaseCmp(fileId.getExtension().c_str(), "png") == 0)
+		return new Texture(fileId);
+	return nullptr;
+}
+
+IResourceLoaderPtr PngLoaderFactory::createLoader()
+{
+	return new PngLoader;
 }
 
 }	// namespace MCD

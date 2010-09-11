@@ -115,14 +115,14 @@ bool Mesh::create(const MeshBuilder& builder, Mesh::StorageHint storageHint)
 	return create(data, storageHint);
 }
 
-Component* MeshComponent2::clone() const
+Component* MeshComponent::clone() const
 {
-	MeshComponent2* cloned = new MeshComponent2;
+	MeshComponent* cloned = new MeshComponent;
 	cloned->mesh = this->mesh;
 	return cloned;
 }
 
-void MeshComponent2::draw(void* context)
+void MeshComponent::draw(void* context)
 {
 	if(mesh)
 		mesh->draw();

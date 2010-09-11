@@ -12,7 +12,7 @@ namespace MCD {
 
 /*!	Represent a quad to be render.
  */
-class MCD_RENDER_API QuadComponent : public RenderableComponent2
+class MCD_RENDER_API QuadComponent : public RenderableComponent
 {
 public:
 	QuadComponent();

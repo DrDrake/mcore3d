@@ -15,11 +15,7 @@ namespace MCD {
 class PvrLoader::LoaderImpl : public TextureLoaderBase::LoaderBaseImpl
 {
 public:
-	LoaderImpl(PvrLoader& loader)
-		:
-		LoaderBaseImpl(loader)
-	{
-	}
+	LoaderImpl(PvrLoader& loader) : LoaderBaseImpl(loader) {}
 
 	// TODO: Many dirty code and not enough error checking.
 	int load(std::istream& is)
@@ -129,25 +125,13 @@ PvrLoader::PvrLoader()
 IResourceLoader::LoadingState PvrLoader::load(std::istream* is, const Path*, const char*)
 {
 	MCD_ASSUME(mImpl != nullptr);
-	ScopeLock lock(mImpl->mMutex);
 
 	if(!is)
-		loadingState = Aborted;
-	else if(loadingState == Aborted)
-		loadingState = NotLoaded;
+		return Aborted;
 
-	if(loadingState & Stopped)
-		return loadingState;
+	const int result = static_cast<LoaderImpl*>(mImpl)->load(*is);
 
-	int result;
-	{	// There is no need to do a mutex lock during loading, since
-		// no body can access the mImageData if the loading isn't finished.
-
-		ScopeUnlock unlock(mImpl->mMutex);
-		result = static_cast<LoaderImpl*>(mImpl)->load(*is);
-	}
-
-	return (loadingState = (result == 0) ? Loaded : Aborted);
+	return result == 0 ? Loaded : Aborted;
 }
 
 void PvrLoader::uploadData(Texture& texture)
@@ -169,7 +153,7 @@ ResourcePtr PvrLoaderFactory::createResource(const Path& fileId, const char* arg
 	return nullptr;
 }
 
-IResourceLoader* PvrLoaderFactory::createLoader()
+IResourceLoaderPtr PvrLoaderFactory::createLoader()
 {
 	return new PvrLoader();
 }

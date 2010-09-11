@@ -2,7 +2,6 @@
 #define __MCD_LOADER_TEXTURELOADERBASE__
 
 #include "ShareLib.h"
-#include "../Core/System/NonCopyable.h"
 #include "../Core/System/ResourceLoader.h"
 
 namespace MCD {
@@ -34,13 +33,6 @@ public:
 		The resource must be of type Texture.
 	 */
 	sal_override void commit(Resource& resource);
-
-	sal_override LoadingState getLoadingState() const;
-
-	sal_override void onPartialLoaded(IPartialLoadContext& context, uint priority, sal_in_z_opt const char* args);
-
-// Attributes
-	volatile LoadingState loadingState;
 
 public:
 	/*! Data access interface for higher level texture loaders

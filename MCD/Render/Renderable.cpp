@@ -5,7 +5,7 @@
 
 namespace MCD {
 
-void RenderableComponent2::traverseEntities(sal_maybenull Entity* entityNode)
+void RenderableComponent::traverseEntities(sal_maybenull Entity* entityNode)
 {
 	MemoryProfiler::Scope profiler("RenderableComponent::traverseEntities");
 
@@ -16,7 +16,7 @@ void RenderableComponent2::traverseEntities(sal_maybenull Entity* entityNode)
 			continue;
 		}
 
-		RenderableComponent2* renderable = itr->findComponent<RenderableComponent2>();
+		RenderableComponent* renderable = itr->findComponent<RenderableComponent>();
 		itr.next();
 
 		if(renderable)

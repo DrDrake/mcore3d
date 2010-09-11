@@ -52,6 +52,8 @@ public:
 
 	bool operator!=(const GpuDataFormat& rhs) const { return !(*this == rhs); }
 
+	static GpuDataFormat none();
+
 	/*! Parse a GpuDataFormat object from string.
 		If the requesting format is not supported in the platform, 'none' is returned
 	 */

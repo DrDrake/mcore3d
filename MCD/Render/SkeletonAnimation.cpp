@@ -81,7 +81,7 @@ public:
 		if(mPaused)
 			return;
 
-		ThreadedCpuProfiler::Scope cpuProfiler("SkeletonAnimationUpdaterComponent::update");
+//		ThreadedCpuProfiler::Scope cpuProfiler("SkeletonAnimationUpdaterComponent::update");
 
 		mIsUpdating = true;
 

@@ -2,13 +2,15 @@
 #include "FntLoader.h"
 #include "../Render/Font.h"
 #include "../Render/Texture.h"
+#include "../Core/Entity/Entity.h"
+#include "../Core/Entity/SystemComponent.h"
 #include "../Core/System/ResourceManager.h"
+#include "../Core/System/StrUtility.h"
 #include <sstream>
 
 namespace MCD {
 
-FntLoader::FntLoader(IResourceManager* resourceManager)
-	: mResourceManager(resourceManager)
+FntLoader::FntLoader()
 {
 	mTmp = new BmpFont("");
 }
@@ -17,12 +19,8 @@ FntLoader::FntLoader(IResourceManager* resourceManager)
 // http://www.gamedev.net/community/forums/topic.asp?topic_id=330742
 IResourceLoader::LoadingState FntLoader::load(std::istream* is, const Path* fileId, const char*)
 {
-	mLoadingState = is ? NotLoaded : Aborted;
-
-	if(mLoadingState & Stopped)
-		return mLoadingState;
-
-	MCD_ASSUME(is);
+	if(!is)
+		return Aborted;
 
 	std::string line, token, key, value;
 	while(!is->eof()) {
@@ -64,18 +62,15 @@ IResourceLoader::LoadingState FntLoader::load(std::istream* is, const Path* file
 
 				// Assign the correct value
 				converter << value;
-				if(key == "id")	{				converter >> charId; desc = &mTmp->charSet.chars[charId];	}
-				else {
-					if(!desc) return Aborted;
-					if(key == "x")				converter >> desc->x;
-					else if(key == "y")			converter >> desc->y;
-					else if(key == "width")		converter >> desc->width;
-					else if(key == "height")	converter >> desc->height;
-					else if(key == "xoffset")	converter >> desc->xOffset;
-					else if(key == "yoffset")	converter >> desc->yOffset;
-					else if(key == "xadvance")	converter >> desc->xAdvance;
-					else if(key == "page")		converter >> desc->page;
-				}
+				if(key == "id")	{			converter >> charId; desc = &mTmp->charSet.chars[charId];	}
+				else if(key == "x")			converter >> desc->x;
+				else if(key == "y")			converter >> desc->y;
+				else if(key == "width")		converter >> desc->width;
+				else if(key == "height")	converter >> desc->height;
+				else if(key == "xoffset")	converter >> desc->xOffset;
+				else if(key == "yoffset")	converter >> desc->yOffset;
+				else if(key == "xadvance")	converter >> desc->xAdvance;
+				else if(key == "page")		converter >> desc->page;
 			}
 		}
 		else if(token == "page")	// TODO: Support multiple pages
@@ -87,15 +82,18 @@ IResourceLoader::LoadingState FntLoader::load(std::istream* is, const Path* file
 				key = token.substr(0, i);
 				value = token.substr(i + 1);
 
-				if(key == "file" && mResourceManager) {
+				if(key == "file")
+				if(Entity* e = Entity::currentRoot())
+				if(ResourceManagerComponent* c = e->findComponentInChildrenExactType<ResourceManagerComponent>())
+				{
 					// Trim the \" character
 					value.erase(value.begin());
 					value.resize(value.size() - 1);
 
 					// We assume the texture is relative to the pod file, if the texture file didn't has a root path.
-					Path adjustedPath = fileId ? fileId->getBranchPath()/value : value;
+					const Path adjustedPath = fileId ? fileId->getBranchPath()/value : value;
 
-					mTmp->texture = dynamic_cast<Texture*>(mResourceManager->load(adjustedPath).get());
+					mTmp->texture = dynamic_cast<Texture*>(c->resourceManager().load(adjustedPath).get());
 				}
 			}
 		}
@@ -117,17 +115,15 @@ IResourceLoader::LoadingState FntLoader::load(std::istream* is, const Path* file
 					converter >> secondChar;
 				else if(key == "amount") {
 					converter >> amount;
-					const int key2 = (uint32_t(firstChar) << 16) + secondChar;
-					mTmp->kerning[key2] = amount;
-					lineStream >> token;	// To eat the traling space
+					const int k = (uint32_t(firstChar) << 16) + secondChar;
+					mTmp->kerning[k] = amount;
+					lineStream >> token;
 				}
 			}
 		}
 	}
 
-	mLoadingState = Loaded;
-
-	return mLoadingState;
+	return Loaded;
 }
 
 void FntLoader::commit(Resource& resource)
@@ -141,12 +137,20 @@ void FntLoader::commit(Resource& resource)
 	font.texture = mTmp->texture;
 	font.charSet = mTmp->charSet;
 	font.kerning = mTmp->kerning;
-	++resource.commitCount;
 }
 
-IResourceLoader::LoadingState FntLoader::getLoadingState() const
+ResourcePtr FntLoaderFactory::createResource(const Path& fileId, const char* args)
 {
-	return mLoadingState;
+	std::string extStr = fileId.getExtension();
+	const char* ext = extStr.c_str();
+	if(strCaseCmp(ext, "fnt") == 0)
+		return new BmpFont(fileId);
+	return nullptr;
+}
+
+IResourceLoaderPtr FntLoaderFactory::createLoader()
+{
+	return new FntLoader;
 }
 
 }	// namespace MCD

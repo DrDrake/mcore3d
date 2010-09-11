@@ -20,11 +20,11 @@ namespace MCD {
 
 class LightComponent;
 class IMaterialComponent;
-class MeshComponent2;
+class MeshComponent;
 class QuadComponent;
 class QuadRenderer;
 typedef IntrusivePtr<class Texture> TexturePtr;
-typedef IntrusiveWeakPtr<class CameraComponent2> CameraComponent2Ptr;
+typedef IntrusiveWeakPtr<class CameraComponent> CameraComponentPtr;
 typedef IntrusiveWeakPtr<class RenderTargetComponent> RenderTargetComponentPtr;
 
 template<typename T> void SAFE_RELEASE(T& p)

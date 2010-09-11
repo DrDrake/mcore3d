@@ -1,21 +1,23 @@
 #include "Pch.h"
 #include "PodLoader.h"
-#include "../Component/Render/AnimationComponent.h"
-#include "../Component/Render/MeshComponent.h"
-#include "../Component/Render/SkinMeshComponent.h"
-#include "../Component/Render/SkeletonAnimationComponent.h"
-#include "../Component/Prefab.h"
-#include "../Render/Effect.h"
-#include "../Render/Material.h"
+//#include "../Renderer/Component/AnimationComponent.h"
+//#include "../Renderer/Component/SkeletonAnimationComponent.h"
 #include "../Render/Mesh.h"
-#include "../Render/Model.h"
+//#include "../Render/MeshUtility.h"
+#include "../Render/Material.h"
+//#include "../Render/MeshComponent.h"
+//#include "../Render/SkinMeshComponent.h"
+#include "../Render/Texture.h"
+#include "../Core/Entity/Entity.h"
+#include "../Core/Entity/Prefab.h"
+#include "../Core/Entity/SystemComponent.h"
 #include "../Core/System/Log.h"
 #include "../Core/System/MemoryProfiler.h"
+#include "../Core/System/PtrVector.h"
 #include "../Core/System/StrUtility.h"
 #include "../Core/Math/AnimationInstance.h"
 #include "../Core/Math/Skeleton.h"
 #include "../Core/Math/Quaternion.h"
-#include "../../3Party/glew/glew.h"
 #include "../../3Party/PowerVR/PVRTModelPOD.h"
 
 #include "../Core/Math/Vec2.h"
@@ -26,37 +28,54 @@
 #	else
 #		pragma comment(lib, "PowerVRd")
 #	endif
-#	pragma comment(lib, "OpenGL32")
-#	pragma comment(lib, "GLU32")
-#	pragma comment(lib, "glew")
 #endif	// MCD_VC
 
 namespace MCD {
 
-class PodMaterial : public Material
-{
-};	// PodMaterial
-
 class PodLoader::Impl
 {
 public:
-	Impl(IResourceManager* resourceManager, AnimationUpdaterComponent* animationUpdater, SkeletonAnimationUpdaterComponent* skeletonAnimationUpdater)
-		: mResourceManager(resourceManager), mAnimationUpdater(animationUpdater), mSkeletonAnimationUpdater(skeletonAnimationUpdater)
+	Impl()
+		: mResourceManager(nullptr), mSystemEntities(nullptr)
 	{
+		initSystemComponents();
 	}
 
-	~Impl() {
+	~Impl()
+	{
 		mPod.Destroy();
+
+		for(size_t i=0; i<mMaterials.size(); ++i)
+			mMaterials[i]->destroyThis();
+	}
+
+	void initSystemComponents()
+	{
+		mSystemEntities = Entity::currentRoot();
+		if(!mSystemEntities)
+			return;
+
+		if(Entity* e = mSystemEntities->findEntityInDescendants("Resource manager")) {
+			if(ResourceManagerComponent* c = dynamic_cast<ResourceManagerComponent*>(e->findComponent<SystemComponent>()))
+				mResourceManager = &c->resourceManager();
+		}
+
+		//if(Entity* e = mSystemEntities->findEntityInDescendants("Animation updater"))
+		//	mAnimationUpdater = dynamic_cast<AnimationUpdaterComponent*>(e->findComponent<BehaviourComponent>());
+
+		//if(Entity* e = mSystemEntities->findEntityInDescendants("Skeleton animation updater"))
+		//	mSkeletonAnimationUpdater = dynamic_cast<SkeletonAnimationUpdaterComponent*>(e->findComponent<BehaviourComponent>());
 	}
 
 	IResourceLoader::LoadingState load(std::istream* is, const Path* fileId, const char* args);
 
 	void commit(Resource& resource);
 
-	IResourceManager* mResourceManager;
-	AnimationUpdaterComponentPtr mAnimationUpdater;
-	SkeletonAnimationUpdaterComponentPtr mSkeletonAnimationUpdater;
+	ResourceManager* mResourceManager;
+	//AnimationUpdaterComponentPtr mAnimationUpdater;
+	//SkeletonAnimationUpdaterComponentPtr mSkeletonAnimationUpdater;
 
+	EntityPtr mSystemEntities;
 	Entity mRootEntity;
 	CPVRTModelPOD mPod;
 
@@ -64,45 +83,44 @@ public:
 	std::vector<std::pair<MeshPtr, std::vector<void*> > > mMeshes;
 
 	std::vector<TexturePtr> mTextures;
-	ptr_vector<PodMaterial> mMaterials;
-
-	std::vector<std::pair<SkinMeshComponentPtr, ModelPtr> > mSkinMeshToCommit;
-
-	volatile IResourceLoader::LoadingState mLoadingState;
+	std::vector<MaterialComponent*> mMaterials;
+//	std::vector<std::pair<SkinMeshComponentPtr, MeshPtr> > mSkinMeshToCommit;
 };	// Impl
 
-static VertexFormat::ComponentType podTypeToType(EPVRTDataType type)
+static GpuDataFormat toCpuDataFormat(EPVRTDataType type, size_t count)
 {
-	switch(type) {
-	case EPODDataUnsignedByte:	return VertexFormat::TYPE_UINT8;
-	case EPODDataFloat:			return VertexFormat::TYPE_FLOAT;
-	case EPODDataInt:			return VertexFormat::TYPE_INT;
-	case EPODDataShort:			return VertexFormat::TYPE_INT16;
-	case EPODDataUnsignedShort:	return VertexFormat::TYPE_UINT16;
-	default:					MCD_ASSERT(false); return VertexFormat::TYPE_NONE;
-	}
-}
+	if(type == EPODDataFloat && count == 1)
+		return GpuDataFormat::get("floatR32");
+	else if(type == EPODDataFloat && count == 2)
+		return GpuDataFormat::get("floatR32G32");
+	else if(type == EPODDataFloat && count == 3)
+		return GpuDataFormat::get("floatR32G32B32");
+	else if(type == EPODDataFloat && count == 4)
+		return GpuDataFormat::get("floatR32G32B32A32");
+	else if(type == EPODDataUnsignedShort && count == 1)
+		return GpuDataFormat::get("uintR16");
+	else if(type == EPODDataUnsignedByte && count == 1)
+		return  GpuDataFormat::get("uintR8");
+	else if(type == EPODDataUnsignedByte && count == 2)
+		return  GpuDataFormat::get("uintR8G8");
+	else if(type == EPODDataUnsignedByte && count == 3)
+		return  GpuDataFormat::get("uintRGB8");
+	else if(type == EPODDataUnsignedByte && count == 4)
+		return  GpuDataFormat::get("uintRGBA8");
 
-static uint8_t typeToSize(EPVRTDataType type)
-{
-	switch(type) {
-	case EPODDataUnsignedByte:	return sizeof(unsigned char);
-	case EPODDataFloat:			return sizeof(float);
-	case EPODDataInt:			return sizeof(int);
-	case EPODDataShort:			return sizeof(short);
-	case EPODDataUnsignedShort:	return sizeof(unsigned short);
-	default:					MCD_ASSERT(false); return 0;
-	}
+	MCD_ASSERT(false);
+	return GpuDataFormat::none();
 }
 
 static void assignAttribute(Mesh& mesh, std::vector<void*>& bufferPtrs, const SPODMesh& podMesh, Mesh::Attribute& a, const CPODData& data, const StringHash& semantic, bool isIndex=false)
 {
 	a.bufferIndex = uint8_t(mesh.bufferCount);
-	a.format.componentType = podTypeToType(data.eType);
-	a.format.componentCount = uint8_t(data.n);
-	a.format.componentSize = typeToSize(data.eType);
 	a.format.semantic = semantic;
+	a.format.gpuFormat = toCpuDataFormat(data.eType, data.n);
+	a.format.channel = 1;
 	a.stride = uint16_t(data.nStride);
+
+	MCD_ASSERT(!a.format.gpuFormat.isValid());
 
 	if(isIndex) {
 		a.byteOffset = 0;
@@ -110,7 +128,7 @@ static void assignAttribute(Mesh& mesh, std::vector<void*>& bufferPtrs, const SP
 		bufferPtrs.push_back(data.pData);
 	}
 	else {
-		a.byteOffset = podMesh.pInterleaved ? uint16_t(data.pData) : 0;
+		a.byteOffset = podMesh.pInterleaved ? uint16_t(uintptr_t(data.pData)) : 0;
 
 		if(!podMesh.pInterleaved) {
 			mesh.bufferCount++;
@@ -120,7 +138,7 @@ static void assignAttribute(Mesh& mesh, std::vector<void*>& bufferPtrs, const SP
 
 	mesh.attributeCount++;
 }
-
+/*
 static void getLocalTransform(const CPVRTModelPOD& pod, const SPODNode& node, Mat44f& ret)
 {
 	PVRTMat4& mat = reinterpret_cast<PVRTMat4&>(ret);
@@ -174,7 +192,7 @@ static bool isSkinMeshNode(const CPVRTModelPOD& pod, size_t i)
 	const SPODMesh& podMesh = pod.pMesh[podNode.nIdx];
 	return podMesh.sBoneIdx.n > 0;
 }
-
+*/
 static void* insertDataToInterleavedBuffer(
 	const void* originalData,
 	size_t oldStride, size_t newStride, size_t vertexCount,
@@ -202,15 +220,13 @@ static void* insertDataToInterleavedBuffer(
 
 IResourceLoader::LoadingState PodLoader::Impl::load(std::istream* is, const Path* fileId, const char* args)
 {
-	mLoadingState = is ? NotLoaded : Aborted;
-
-	if(mLoadingState & Stopped)
-		return mLoadingState;
+	if(!is)
+		return Aborted;
 
 	EPVRTError result = mPod.ReadFromStream(*is);
 
 	if(result != PVR_SUCCESS)
-		return mLoadingState = Aborted;
+		return Aborted;
 
 	// Load the textures ASAP
 	for(size_t i=0; i<mPod.nNumTexture; ++i)
@@ -226,27 +242,27 @@ IResourceLoader::LoadingState PodLoader::Impl::load(std::istream* is, const Path
 	}
 
 	// Generate materials
-	for(size_t i=0; i<mPod.nNumMaterial; ++i)
+	if(mResourceManager) for(size_t i=0; i<mPod.nNumMaterial; ++i)
 	{
 		const SPODMaterial& material = mPod.pMaterial[i];
 
-		PodMaterial* m = new PodMaterial;
-		m->mRenderPasses.push_back(new Material::Pass);
-		m->addProperty(
-			new StandardProperty(
-//				ColorRGBAf(0.5f, material.fMatOpacity),
-//				ColorRGBAf(1, material.fMatOpacity),
-//				ColorRGBAf(0.2f, material.fMatOpacity),
-				ColorRGBAf(reinterpret_cast<const ColorRGBf&>(*material.pfMatAmbient), material.fMatOpacity),
-				ColorRGBAf(reinterpret_cast<const ColorRGBf&>(*material.pfMatDiffuse), material.fMatOpacity),
-				ColorRGBAf(reinterpret_cast<const ColorRGBf&>(*material.pfMatSpecular), material.fMatOpacity),
-				ColorProperty::ColorOperation::Replace,
-				material.fMatShininess * 100	// TODO: There is some problem in the shininess value
-			), 0
-		);
+		MaterialComponent* m = new MaterialComponent;
 
-		if(material.nIdxTexDiffuse >= 0 && material.nIdxTexDiffuse < int(mTextures.size()))
-			m->addProperty(new TextureProperty(mTextures[material.nIdxTexDiffuse].get(), 0, GL_LINEAR, GL_LINEAR), 0);
+		m->opacity = material.fMatOpacity;
+//		m->specularPower = material.fMatShininess * 100;
+		m->diffuseColor = ColorRGBAf(reinterpret_cast<const ColorRGBf&>(*material.pfMatDiffuse), 1);
+		m->specularColor = ColorRGBAf(reinterpret_cast<const ColorRGBf&>(*material.pfMatSpecular), 1);
+
+		if(material.nIdxTexDiffuse >= 0)
+			m->diffuseMap = mTextures[material.nIdxTexDiffuse];
+//		if(material.nIdxTexSpecularColour >= 0)
+//			m->specularMap = mTextures[material.nIdxTexSpecularColour];
+//		if(material.nIdxTexEmissive >= 0) {
+//			m->emissionMap = mTextures[material.nIdxTexEmissive];
+//			m->emissionColor = ColorRGBAf(1, 1, 1, 1);
+//		}
+//		if(material.nIdxTexBump >= 0)
+//			m->normalMap = mTextures[material.nIdxTexBump];
 
 		mMaterials.push_back(m);
 	}
@@ -254,7 +270,8 @@ IResourceLoader::LoadingState PodLoader::Impl::load(std::istream* is, const Path
 	// Generate meshes
 	for(size_t i=0; i<mPod.nNumMesh; ++i)
 	{
-		MeshPtr mesh = new Mesh();
+		std::string meshName = fileId->getString() + ":mesh" + MCD::int2Str(i);
+		MeshPtr mesh = new Mesh(meshName.c_str());
 		const SPODMesh& podMesh = mPod.pMesh[i];
 		mMeshes.push_back(std::make_pair(mesh, std::vector<void*>()));
 		std::vector<void*>& bufferPtrs = mMeshes[i].second;
@@ -374,7 +391,7 @@ IResourceLoader::LoadingState PodLoader::Impl::load(std::istream* is, const Path
 	}
 
 	// Create animation track
-	AnimationTrackPtr track = new AnimationTrack("");
+/*	AnimationTrackPtr track = new AnimationTrack("");
 	track->naturalFramerate = 30;
 
 	// Create skeleton animation
@@ -421,6 +438,8 @@ IResourceLoader::LoadingState PodLoader::Impl::load(std::istream* is, const Path
 			reinterpret_cast<Quaternionf&>(frames[0]) = Quaternionf::cIdentity;
 			frames = track->getKeyFramesForSubtrack(2);
 			reinterpret_cast<Vec3f&>(frames[0]) = Vec3f(1);
+			frames = track->getKeyFramesForSubtrack(3);
+			reinterpret_cast<Vec4f&>(frames[0]) = Vec4f(1);
 		}
 
 		size_t j = cExtraRootNode;
@@ -445,6 +464,10 @@ IResourceLoader::LoadingState PodLoader::Impl::load(std::istream* is, const Path
 			for(size_t k=0; k<frames.size; ++k)
 				reinterpret_cast<Vec3f&>(frames[k]) = reinterpret_cast<Vec3f&>(podNode.pfAnimScale[k * 7]);	// Don't know why the stride of scale is 7
 
+			// Color
+			frames = track->getKeyFramesForSubtrack(subTrackOffset + 3);
+			for(size_t k=0; k<frames.size; ++k)
+				reinterpret_cast<Vec4f&>(frames[k]) = Vec4f(1);
 			++j;	// Move to next node with animation
 		}
 	}
@@ -539,18 +562,20 @@ IResourceLoader::LoadingState PodLoader::Impl::load(std::istream* is, const Path
 
 	// Create AnimationComponent if necessary
 	AnimationComponentPtr animationComponent;
-	if(mAnimationUpdater && mPod.nNumFrame > 0) {
+	//if(mAnimationUpdater && mPod.nNumFrame > 0) {
+	if(mPod.nNumFrame > 0) {
 		EntityPtr e = new Entity();
 		e->name = "Animation controller";
-		animationComponent = new AnimationComponent(*mAnimationUpdater);
+		animationComponent = new AnimationComponent(*mSystemEntities);
 		e->addComponent(animationComponent.get());
 		e->asChildOf(&mRootEntity);
 	}
 
 	// Create SkeletonAnimationComponent if necessary
 	SkeletonAnimationComponentPtr skeletonAnimationComponent;
-	if(mSkeletonAnimationUpdater && skeleton) {
-		skeletonAnimationComponent = new SkeletonAnimationComponent(*mSkeletonAnimationUpdater);
+	//if(mSkeletonAnimationUpdater && skeleton) {
+	if(skeleton) {
+		skeletonAnimationComponent = new SkeletonAnimationComponent(*mSystemEntities);
 		EntityPtr e = new Entity();
 		e->name = "Skeleton animation controller";
 		e->addComponent(skeletonAnimationComponent.get());
@@ -562,7 +587,7 @@ IResourceLoader::LoadingState PodLoader::Impl::load(std::istream* is, const Path
 		skeletonAnimationComponent->skeletonAnimation.applyTo(skeleton->basePose);	// Use the first frame's pose as the base pose
 		skeletonAnimationComponent->pose.init(skeleton->basePose.jointCount());
 		skeleton->initBasePoseInverse();
-	}
+	}*/
 
 	// Index of pod node to Entity
 	std::vector<EntityPtr> nodeToEntity;
@@ -583,8 +608,8 @@ IResourceLoader::LoadingState PodLoader::Impl::load(std::istream* is, const Path
 		e->name = podNode.pszName;
 		e->asChildOf(nodeToEntity[podNode.nIdxParent + 1].getNotNull());	// SPODNode::nIdxParent gives -1 for no parent
 
-		if(!hasSkeleton)
-			getLocalTransform(mPod, podNode, e->localTransform);
+//		if(!hasSkeleton)
+//			getLocalTransform(mPod, podNode, e->localTransform);
 
 		nodeToEntity.push_back(e);
 
@@ -592,37 +617,27 @@ IResourceLoader::LoadingState PodLoader::Impl::load(std::istream* is, const Path
 		if(i < mPod.nNumMeshNode && mMeshes[podNode.nIdx].first->vertexCount > 0)
 		{
 			// Setup for material
-			EffectPtr effect = new Effect("");
 			if(podNode.nIdxMaterial >= 0 && podNode.nIdxMaterial < int(mMaterials.size()))
-				effect->material.reset(mMaterials[podNode.nIdxMaterial].clone());
+				e->addComponent(mMaterials[podNode.nIdxMaterial]->clone());
 
 			if(mPod.pMesh[podNode.nIdx].sBoneIdx.n) {
-				SkinMeshComponentPtr sm = new SkinMeshComponent();
-
-				const std::string uniqueModelName = fileId->getString() + ":" + podNode.pszName;
-				ModelPtr model = new Model(uniqueModelName.c_str());
-				Model::MeshAndMaterial* mm = new Model::MeshAndMaterial;
-				mm->mesh = mMeshes[podNode.nIdx].first;
-				mm->effect = effect;
-
-				mSkinMeshToCommit.push_back(std::make_pair(sm, model));
-
-				model->mMeshes.pushBack(*mm);
+/*				SkinMeshComponentPtr sm = new SkinMeshComponent();
+				mSkinMeshToCommit.push_back(std::make_pair(sm, mMeshes[podNode.nIdx].first));
 				sm->skeleton = skeleton;
 				sm->skeletonAnimation = skeletonAnimationComponent;
 
-				e->addComponent(sm.get());
+				e->addComponent(sm.get());*/
 			}
 			else {
 				MeshComponent* c = new MeshComponent;
 				c->mesh = mMeshes[podNode.nIdx].first;
-				c->effect = effect;
 				e->addComponent(c);
 			}
 		}
 	}
 
-	if(mAnimationUpdater && animationComponent) {
+	//if(mAnimationUpdater && animationComponent) {
+/*	if(animationComponent) {
 		// Initialize animation track
 		MCD_VERIFY(animationComponent->animationInstance.addTrack(*track));
 
@@ -632,17 +647,13 @@ IResourceLoader::LoadingState PodLoader::Impl::load(std::istream* is, const Path
 			EntityPtr e = isSkinMeshNode(mPod, i-cExtraRootNode) ? nullptr : nodeToEntity[i];
 			animationComponent->affectingEntities.push_back(e);
 		}
-	}
+	}*/
 
-	return mLoadingState = Loaded;
+	return Loaded;
 }
 
 void PodLoader::Impl::commit(Resource& resource)
 {
-	// There is no need to do a mutex lock because PodLoader didn't support progressive loading.
-	// Therefore, commit will not be invoked if the load() function itsn't finished.
-	MCD_ASSERT(mLoadingState == Loaded);
-
 	// Commit all the mesh buffers
 	for(size_t i=0; i<mPod.nNumMesh; ++i) {
 		// TODO: Optimization, ignore those mesh in mMeshes with reference count == 1
@@ -653,16 +664,18 @@ void PodLoader::Impl::commit(Resource& resource)
 
 		MCD_ASSERT(!mPod.pMesh[i].pInterleaved || mesh.bufferCount <= 2);
 
-		const void* data[Mesh::cMaxBufferCount];
+		const void* data[Mesh::cMaxBufferCount] = { nullptr };
 		for(size_t j=0; j<mesh.bufferCount; ++j)
 			data[j] = mMeshes[i].second[j];
+
 		MCD_VERIFY(mesh.create(data, Mesh::Static));	// TODO: Way to set the Mesh::StorageHint
+//		MeshUtility::computeBoundingBox(mesh);
 	}
 
 	// Commit skin mesh
-	for(size_t i=0; i<mSkinMeshToCommit.size(); ++i) {
+/*	if(mResourceManager) for(size_t i=0; i<mSkinMeshToCommit.size(); ++i) {
 		MCD_VERIFY(mSkinMeshToCommit[i].first->init(*mResourceManager, *mSkinMeshToCommit[i].second));
-	}
+	}*/
 
 	Prefab& prefab = dynamic_cast<Prefab&>(resource);
 	prefab.entity.reset(new Entity());
@@ -674,16 +687,10 @@ void PodLoader::Impl::commit(Resource& resource)
 		i = i->nextSibling();
 		bk->asChildOf(prefab.entity.get());
 	}
-
-	++prefab.commitCount;
 }
 
-PodLoader::PodLoader(
-	IResourceManager* resourceManager,
-	AnimationUpdaterComponent* animationUpdater,
-	SkeletonAnimationUpdaterComponent* skeletonAnimationUpdater
-)
-	: mImpl(*new Impl(resourceManager, animationUpdater, skeletonAnimationUpdater))
+PodLoader::PodLoader()
+	: mImpl(*new Impl)
 {
 }
 
@@ -703,23 +710,6 @@ void PodLoader::commit(Resource& resource)
 	return mImpl.commit(resource);
 }
 
-IResourceLoader::LoadingState PodLoader::getLoadingState() const
-{
-	return mImpl.mLoadingState;
-}
-
-
-PodLoaderFactory::PodLoaderFactory(
-	IResourceManager& resourceManager,
-	AnimationUpdaterComponent* animationUpdater,
-	SkeletonAnimationUpdaterComponent* skeletonAnimationUpdater
-)
-	: mResourceManager(resourceManager)
-	, mAnimationUpdater(animationUpdater)
-	, mSkeletonAnimationUpdater(skeletonAnimationUpdater)
-{
-}
-
 ResourcePtr PodLoaderFactory::createResource(const Path& fileId, const char* args)
 {
 	if(strCaseCmp(fileId.getExtension().c_str(), "pod") == 0)
@@ -727,9 +717,9 @@ ResourcePtr PodLoaderFactory::createResource(const Path& fileId, const char* arg
 	return nullptr;
 }
 
-IResourceLoader* PodLoaderFactory::createLoader()
+IResourceLoaderPtr PodLoaderFactory::createLoader()
 {
-	return new PodLoader(&mResourceManager, mAnimationUpdater, mSkeletonAnimationUpdater);
+	return new PodLoader;
 }
 
 }	// namespace MCD

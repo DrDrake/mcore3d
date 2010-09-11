@@ -1,15 +1,11 @@
 #include "Pch.h"
 #include "ResourceLoaderFactory.h"
-#include "BitmapLoader.h"
 #include "CubemapLoader.h"
-#include "DdsLoader.h"
 #include "EffectLoader.h"
 #include "FntLoader.h"
 #include "JpegLoader.h"
 #include "Max3dsLoader.h"
-#include "PngLoader.h"
 #include "ShaderLoader.h"
-#include "TgaLoader.h"
 #include "../Render/Effect.h"
 #include "../Render/Font.h"
 #include "../Render/Mesh.h"
@@ -38,46 +34,6 @@ ResourcePtr AnimationTrackLoaderFactory::createResource(const Path& fileId, cons
 IResourceLoader* AnimationTrackLoaderFactory::createLoader()
 {
 	return new AnimationTrackLoader;
-}
-
-ResourcePtr BitmapLoaderFactory::createResource(const Path& fileId, const char* args)
-{
-	if(strCaseCmp(fileId.getExtension().c_str(), "bmp") == 0)
-		return new Texture(fileId);
-	return nullptr;
-}
-
-IResourceLoader* BitmapLoaderFactory::createLoader()
-{
-	return new BitmapLoader;
-}
-
-ResourcePtr CubemapLoaderFactory::createResource(const Path& fileId, const char* args)
-{
-	Path p(fileId);
-    
-    p.removeExtension();
-    if(strCaseCmp(p.getExtension().c_str(), "cubemap") == 0)
-		return new Texture(fileId);
-
-	return nullptr;
-}
-
-IResourceLoader* CubemapLoaderFactory::createLoader()
-{
-	return new CubemapLoader;
-}
-
-ResourcePtr DdsLoaderFactory::createResource(const Path& fileId, const char* args)
-{
-	if(strCaseCmp(fileId.getExtension().c_str(), "dds") == 0)
-		return new Texture(fileId);
-	return nullptr;
-}
-
-IResourceLoader* DdsLoaderFactory::createLoader()
-{
-	return new DdsLoader;
 }
 
 EffectLoaderFactory::EffectLoaderFactory(IResourceManager& resourceManager)
@@ -123,20 +79,6 @@ IResourceLoader* FntLoaderFactory::createLoader()
 	return new FntLoader(&mResourceManager);
 }
 
-ResourcePtr JpegLoaderFactory::createResource(const Path& fileId, const char* args)
-{
-	std::string extStr = fileId.getExtension();
-	const char* ext = extStr.c_str();
-	if(strCaseCmp(ext, "jpg") == 0 || strCaseCmp(ext, "jpeg") == 0)
-		return new Texture(fileId);
-	return nullptr;
-}
-
-IResourceLoader* JpegLoaderFactory::createLoader()
-{
-	return new JpegLoader;
-}
-
 Max3dsLoaderFactory::Max3dsLoaderFactory(IResourceManager& resourceManager)
 	: mResourceManager(resourceManager)
 {
@@ -167,18 +109,6 @@ IResourceLoader* PixelShaderLoaderFactory::createLoader()
 	return new ShaderLoader(GL_FRAGMENT_SHADER);
 }
 
-ResourcePtr PngLoaderFactory::createResource(const Path& fileId, const char* args)
-{
-	if(strCaseCmp(fileId.getExtension().c_str(), "png") == 0)
-		return new Texture(fileId);
-	return nullptr;
-}
-
-IResourceLoader* PngLoaderFactory::createLoader()
-{
-	return new PngLoader;
-}
-
 ResourcePtr SkeletonLoaderFactory::createResource(const Path& fileId, const char* args)
 {
 	if(strCaseCmp(fileId.getExtension().c_str(), "skt") == 0)
@@ -189,18 +119,6 @@ ResourcePtr SkeletonLoaderFactory::createResource(const Path& fileId, const char
 IResourceLoader* SkeletonLoaderFactory::createLoader()
 {
 	return new SkeletonLoader;
-}
-
-ResourcePtr TgaLoaderFactory::createResource(const Path& fileId, const char* args)
-{
-	if(strCaseCmp(fileId.getExtension().c_str(), "tga") == 0)
-		return new Texture(fileId);
-	return nullptr;
-}
-
-IResourceLoader* TgaLoaderFactory::createLoader()
-{
-	return new TgaLoader;
 }
 
 ResourcePtr VertexShaderLoaderFactory::createResource(const Path& fileId, const char* args)

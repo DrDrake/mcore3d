@@ -17,12 +17,7 @@ namespace MCD {
 class CubemapLoader::LoaderImpl : public TextureLoaderBase::LoaderBaseImpl
 {
 public:
-	LoaderImpl(CubemapLoader& loader)
-		:
-		LoaderBaseImpl(loader)
-	{
-	}
-
+	LoaderImpl(CubemapLoader& loader) : LoaderBaseImpl(loader) {}
 	std::auto_ptr<TextureLoaderBase> mLoaderDelegate;
 };	// LoaderImpl
 
@@ -34,15 +29,14 @@ CubemapLoader::CubemapLoader()
 
 IResourceLoader::LoadingState CubemapLoader::load(std::istream* is, const Path* fileId, const char*)
 {
-	MCD_ASSUME(mImpl != nullptr);
+	MCD_ASSUME(mImpl);
 
-	ScopeLock lock(mImpl->mMutex);
 	LoaderImpl* impl = static_cast<LoaderImpl*>(mImpl);
 
 	if(nullptr == impl->mLoaderDelegate.get())
 	{
 		if(!fileId)
-			return (loadingState = IResourceLoader::Aborted);
+			return Aborted;
 
 		std::string ext = fileId->getExtension();
 
@@ -61,13 +55,9 @@ IResourceLoader::LoadingState CubemapLoader::load(std::istream* is, const Path* 
 		impl->mLoaderDelegate.reset(loader);
 	}
 
-	volatile LoadingState tmpState;
-	{	ScopeUnlock unlock(mImpl->mMutex);
-		tmpState = impl->mLoaderDelegate->load(is, fileId);
-	}
-	loadingState = tmpState;
+	LoadingState state  = impl->mLoaderDelegate->load(is, fileId);
 
-	if((CanCommit & loadingState))
+	if(CanCommit & state)
 	{
 		const char* data;
 		size_t size;
@@ -83,13 +73,13 @@ IResourceLoader::LoadingState CubemapLoader::load(std::istream* is, const Path* 
 		::memcpy(mImpl->mImageData, data, size);
 
 		if(mImpl->mHeight != 6 * mImpl->mWidth)
-			loadingState = IResourceLoader::Aborted;
+			return Aborted;
 		else
 			// Shut up the warning of non-power of 2 texture in the delegate loader.
 			mImpl->mHeight = mImpl->mWidth;
 	}
 
-	return loadingState;
+	return state;
 }
 
 void CubemapLoader::uploadData(Texture& texture)
@@ -104,18 +94,20 @@ void CubemapLoader::uploadData(Texture& texture)
 	);
 }
 
-void CubemapLoader::postUploadData()
+ResourcePtr CubemapLoaderFactory::createResource(const Path& fileId, const char* args)
 {
-	TextureLoaderBase::postUploadData();
+	Path p(fileId);
+    
+    p.removeExtension();
+    if(strCaseCmp(p.getExtension().c_str(), "cubemap") == 0)
+		return new Texture(fileId);
 
-	// NOTE: mImpl may become null, after TextureLoaderBase::postUploadData() is called.
-	if(!mImpl)
-		return;
+	return nullptr;
+}
 
-	// Update the delegated loader's loading state as this one,
-	// after postUploadData() is invoked
-	LoaderImpl* impl = static_cast<LoaderImpl*>(mImpl);
-	impl->mLoaderDelegate->loadingState = loadingState;
+IResourceLoaderPtr CubemapLoaderFactory::createLoader()
+{
+	return new CubemapLoader;
 }
 
 }	// namespace MCD

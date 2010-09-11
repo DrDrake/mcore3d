@@ -8,7 +8,7 @@
 
 namespace MCD {
 
-class IResourceManager;
+class ResourceManager;
 class AnimationUpdaterComponent;
 class SkeletonAnimationUpdaterComponent;
 
@@ -23,11 +23,7 @@ class SkeletonAnimationUpdaterComponent;
 class MCD_LOADER_API PodLoader : public IResourceLoader, private Noncopyable
 {
 public:
-	PodLoader(
-		sal_maybenull IResourceManager* resourceManager = nullptr,
-		sal_maybenull AnimationUpdaterComponent* animationUpdater = nullptr,
-		sal_maybenull SkeletonAnimationUpdaterComponent* skeletonAnimationUpdater = nullptr
-	);
+	PodLoader();
 
 	sal_override ~PodLoader();
 
@@ -54,21 +50,8 @@ protected:
 class MCD_LOADER_API PodLoaderFactory : public ResourceManager::IFactory
 {
 public:
-    PodLoaderFactory(
-		IResourceManager& resourceManager,
-		sal_maybenull AnimationUpdaterComponent* animationUpdater = nullptr,
-		sal_maybenull SkeletonAnimationUpdaterComponent* skeletonAnimationUpdater = nullptr
-	);
 	sal_override ResourcePtr createResource(const Path& fileId, const char* args);
-	sal_override IResourceLoader* createLoader();
-
-private:
-	/*!	This loader factory is going to be owned by the mResourceManager, so we can
-		use mResourceManager freely during the life-time of the loader factory.
-	 */
-	IResourceManager& mResourceManager;
-	sal_maybenull AnimationUpdaterComponent* mAnimationUpdater;
-	sal_maybenull SkeletonAnimationUpdaterComponent* mSkeletonAnimationUpdater;
+	sal_override IResourceLoaderPtr createLoader();
 };	// PodLoaderFactory
 
 }	// namespace MCD

@@ -207,6 +207,11 @@ public:
 	typedef LinkList<Component> Components;
 	Components components;
 
+	/// A handy way to get the root of the main Entity tree
+	static sal_maybenull Entity* currentRoot();
+
+	static void setCurrentRoot(sal_maybenull Entity* e);
+
 protected:
 	/// Generate a default name if this Entity doesn't have one
 	void generateDefaultName();

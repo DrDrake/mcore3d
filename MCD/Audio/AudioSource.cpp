@@ -25,14 +25,9 @@ AudioSource::AudioSource()
 AudioSource::~AudioSource()
 {
 	alDeleteSources(1, &handle);
-
-	// Cancel any pended loading operations
-	IAudioStreamLoader* _loader = dynamic_cast<IAudioStreamLoader*>(loader.get());
-	if(_loader)
-		_loader->abortLoad();
 }
 
-bool AudioSource::load(IResourceManager& resourceManager, const Path& fileId, const char* args)
+bool AudioSource::load(ResourceManager& resourceManager, const Path& fileId, const char* args)
 {
 	// Determine the "blockLoadFirstBuffer" option in args
 	bool blockLoadFirstBuffer = false;
@@ -49,13 +44,13 @@ bool AudioSource::load(IResourceManager& resourceManager, const Path& fileId, co
 		}
 	}
 
-	IAudioStreamLoader* _loader = nullptr;
 	ResourcePtr res = resourceManager.load(
-		fileId, blockLoadFirstBuffer ? IResourceManager::FirstPartialBlock : IResourceManager::NonBlock,
-		0, args, &loader
+		fileId, blockLoadFirstBuffer ? 1 : -1,
+		0, args
 	);
 
-	_loader = dynamic_cast<IAudioStreamLoader*>(loader.get());
+	loader = resourceManager.getLoader(fileId);
+	IAudioStreamLoader* _loader = dynamic_cast<IAudioStreamLoader*>(loader.get());
 	buffer = dynamic_cast<AudioBuffer*>(res.get());
 
 	if(!_loader || !buffer) {
@@ -290,7 +285,7 @@ const std::string& AudioSource::loadOptions() const
 	return mLoadOptions;
 }
 
-IResourceManager* AudioSource::resourceManager() const
+ResourceManager* AudioSource::resourceManager() const
 {
 	return mResourceManager;
 }

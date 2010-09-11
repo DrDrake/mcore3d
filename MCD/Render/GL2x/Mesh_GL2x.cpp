@@ -15,8 +15,8 @@ static void bindUv(int unit, const Mesh::Attribute& a, const Mesh::Handles& hand
 
 	glBindBuffer(GL_ARRAY_BUFFER, *handles[a.bufferIndex]);
 	glTexCoordPointer(
-		a.format.componentCount,
-		VertexFormat::toApiDependentType(a.format.componentType),
+		a.format.gpuFormat.componentCount,
+		a.format.gpuFormat.dataType,
 		a.stride, (const void*)a.byteOffset
 	);
 
@@ -41,7 +41,7 @@ void Mesh::draw()
 		if(a.format.semantic == StringHash("normal")) {
 			glEnableClientState(GL_NORMAL_ARRAY);
 			glBindBuffer(GL_ARRAY_BUFFER, *handles[a.bufferIndex]);
-			glNormalPointer(VertexFormat::toApiDependentType(a.format.componentType), a.stride, (const void*)a.byteOffset);
+			glNormalPointer(a.format.gpuFormat.dataType, a.stride, (const void*)a.byteOffset);
 		}
 		else if(a.format.semantic == StringHash("uv0"))
 			bindUv(0, a, handles);
@@ -72,8 +72,8 @@ void Mesh::draw()
 			glBindBuffer(GL_ARRAY_BUFFER, *handles[a.bufferIndex]);
 			glVertexAttribPointer(
 				attributeLocation,
-				a.format.componentCount,
-				VertexFormat::toApiDependentType(a.format.componentType),
+				a.format.gpuFormat.componentCount,
+				a.format.gpuFormat.dataType,
 				GL_FALSE,
 				a.stride,
 				(const void*)(a.byteOffset)
@@ -97,12 +97,12 @@ void Mesh::drawFaceOnly()
 		glEnableClientState(GL_VERTEX_ARRAY);
 		const Attribute& a = attributes[cPositionAttrIdx];
 		glBindBuffer(GL_ARRAY_BUFFER, *handles[a.bufferIndex]);
-		glVertexPointer(3, VertexFormat::toApiDependentType(a.format.componentType), a.stride, (const void*)a.byteOffset);
+		glVertexPointer(3, a.format.gpuFormat.dataType, a.stride, (const void*)a.byteOffset);
 	}
 
 	{	const Attribute& a = attributes[cIndexAttrIdx];
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, *handles[a.bufferIndex]);
-		glDrawElements(GL_TRIANGLES, indexCount, VertexFormat::toApiDependentType(a.format.componentType), 0);
+		glDrawElements(GL_TRIANGLES, indexCount, a.format.gpuFormat.dataType, 0);
 	}
 
 	glDisableClientState(GL_VERTEX_ARRAY);
@@ -176,21 +176,6 @@ void Mesh::unmapBuffers(MappedBuffers& mapped) const
 	}
 }
 
-// TODO: Put it back to API specific localtion
-int VertexFormat::toApiDependentType(ComponentType type, size_t)
-{
-	static const Array<int, 10> mapping = {
-		-1,
-		GL_INT, GL_UNSIGNED_INT,
-		GL_BYTE, GL_UNSIGNED_BYTE,
-		GL_SHORT, GL_UNSIGNED_SHORT,
-		GL_FLOAT, GL_DOUBLE,
-		-1
-	};
-
-	return mapping[type - VertexFormat::TYPE_NOT_USED];
-}
-
 bool Mesh::create(const void* const* data, Mesh::StorageHint storageHint)
 {
 	for(size_t i=0; i<bufferCount; ++i)
@@ -216,7 +201,7 @@ bool Mesh::create(const void* const* data, Mesh::StorageHint storageHint)
 
 namespace MCD {
 
-void MeshComponent2::render2(void* context)
+void MeshComponent::render2(void* context)
 {
 	RendererComponent::Impl& renderer = *reinterpret_cast<RendererComponent::Impl*>(context);
 

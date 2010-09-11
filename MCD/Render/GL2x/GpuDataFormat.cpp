@@ -11,15 +11,23 @@ GpuDataFormat GpuDataFormat::get(const StringHash& name)
 	static const GpuDataFormat cGpuDataFormatMap[] = {
 	{ FixString("none"), -1, -1, -1, 0, 0, false },
 
+	// 1 component
+	{ FixString("uintR16"), -1, GL_UNSIGNED_SHORT, -1, sizeof(uint16_t), 1, false },
+
+	// 2 components
+	{ FixString("floatRG32"), -1, GL_FLOAT, -1, sizeof(float), 2, false },
+
 	// 3 components
 	{ FixString("uintRGB8"), GL_RGB8, GL_UNSIGNED_BYTE, GL_RGB, sizeof(uint8_t), 3, false },
 	{ FixString("uintBGR8"), GL_RGB8, GL_UNSIGNED_BYTE, GL_BGR, sizeof(uint8_t), 3, false },
 	{ FixString("uintB5G6R5"), GL_RGB5, GL_UNSIGNED_SHORT_5_6_5, GL_RGB, 0, 3, false },
+	{ FixString("floatRGB32"), -1, GL_FLOAT, -1, sizeof(float), 3, false },
 
 	// 4 components
 	{ FixString("uintRGBA8"), GL_RGBA8, GL_UNSIGNED_BYTE, GL_RGBA, sizeof(uint8_t), 4, false },
 	{ FixString("uintBGRA8"), GL_RGBA8, GL_UNSIGNED_BYTE, GL_BGRA, sizeof(uint8_t), 4, false },
 	{ FixString("uintBGR5A1"), GL_RGB5_A1, GL_UNSIGNED_SHORT_1_5_5_5_REV, GL_BGRA, 0, 4, false },
+	{ FixString("floatRGBA32"), -1, GL_FLOAT, -1, sizeof(float), 4, false },
 
 	// Depth
 	{ FixString("depth16"), GL_DEPTH_COMPONENT16, GL_UNSIGNED_INT, GL_DEPTH_COMPONENT, sizeof(uint16_t), 1, false },
@@ -40,5 +48,7 @@ GpuDataFormat GpuDataFormat::get(const StringHash& name)
 	}
 	return cGpuDataFormatMap[0];
 }
+
+GpuDataFormat GpuDataFormat::none() { return GpuDataFormat::get(StringHash("nonoe")); }
 
 }	// namespace MCD

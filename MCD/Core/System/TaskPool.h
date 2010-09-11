@@ -7,6 +7,7 @@
 namespace MCD {
 
 class ThreadPool;
+class Timer;
 
 /*!	Execute a prioritized list of tasks with a thread pool.
 
@@ -46,7 +47,7 @@ public:
 		The task must handle their life time, and make sure it's destruction
 		will not happen during the execution of run().
 
-		\note We didn't store a pointer back to TaskPool, cos it's too complicated to 
+		\note We didn't store a pointer back to TaskPool, cos it's too complicated to
 			deal with both the life-time and thread problem (especially Task::update() may invoke
 			delete this). This is better be done on application level where more assumption can be made.
 	 */
@@ -56,13 +57,15 @@ public:
 	{
 	protected:
 		friend class TaskPool;
-		typedef MapBase<int>::Node<Task>::KeyArg KeyArg;
 		template <typename T1, typename T2> friend class Map;
 
 		explicit Task(int priority);
 		sal_override ~Task();
 
 	public:
+		typedef MapBase<int>::Node<Task>::Key Key;
+		typedef MapBase<int>::Node<Task>::KeyArg KeyArg;
+
 		/*!	Get the priority of the task
 			{ Negative -> low, Zero -> normal, Positive -> hight } priority
 		 */
@@ -89,8 +92,10 @@ public:
 	 */
 	sal_checkreturn bool enqueue(Task& task);
 
-	//!	If the thread count of the task pool is zero, call this function to process all the tasks.
-	void processTaskIfNoThread();
+	/*!	Process some tasks right inside the function call (i.e. the same thread as the caller).
+		A time-out value can be specificed so the function will exit once the time-out expired.
+	 */
+	void processTaskInThisThread(sal_maybenull Timer* timer=nullptr, float timeOut=0);
 
 	/*! Set the number of thread.
 		\param wait Weather the function should block until the desired number of thread is achieved.

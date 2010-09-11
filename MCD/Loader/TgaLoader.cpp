@@ -3,6 +3,7 @@
 #include "TextureLoaderBaseImpl.inc"
 #include "../Render/Texture.h"
 #include "../Core/System/Log.h"
+#include "../Core/System/StrUtility.h"
 
 // Reference: http://www.flashbang.se/download/nehe_tga.rar
 
@@ -11,11 +12,7 @@ namespace MCD {
 class TgaLoader::LoaderImpl : public TextureLoaderBase::LoaderBaseImpl
 {
 public:
-	LoaderImpl(TgaLoader& loader)
-		:
-		LoaderBaseImpl(loader)
-	{
-	}
+	LoaderImpl(TgaLoader& loader) : LoaderBaseImpl(loader) {}
 
 	int load(std::istream& is)
 	{
@@ -134,25 +131,13 @@ TgaLoader::TgaLoader()
 IResourceLoader::LoadingState TgaLoader::load(std::istream* is, const Path*, const char*)
 {
 	MCD_ASSUME(mImpl != nullptr);
-	ScopeLock lock(mImpl->mMutex);
 
 	if(!is)
-		loadingState = Aborted;
-	else if(loadingState == Aborted)
-		loadingState = NotLoaded;
+		return Aborted;
 
-	if(loadingState & Stopped)
-		return loadingState;
+	const int result = static_cast<LoaderImpl*>(mImpl)->load(*is);
 
-	int result;
-	{	// There is no need to do a mutex lock during loading, since
-		// no body can access the mImageData if the loading isn't finished.
-
-		ScopeUnlock unlock(mImpl->mMutex);
-		result = static_cast<LoaderImpl*>(mImpl)->load(*is);
-	}
-
-	return (loadingState = (result == 0) ? Loaded : Aborted);
+	return result == 0 ? Loaded : Aborted;
 }
 
 void TgaLoader::uploadData(Texture& texture)
@@ -165,6 +150,18 @@ void TgaLoader::uploadData(Texture& texture)
 		1, 1,
 		impl->mImageData, impl->mImageData.size())
 	);
+}
+
+ResourcePtr TgaLoaderFactory::createResource(const Path& fileId, const char* args)
+{
+	if(strCaseCmp(fileId.getExtension().c_str(), "tga") == 0)
+		return new Texture(fileId);
+	return nullptr;
+}
+
+IResourceLoaderPtr TgaLoaderFactory::createLoader()
+{
+	return new TgaLoader;
 }
 
 }	// namespace MCD

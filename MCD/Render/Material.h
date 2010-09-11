@@ -84,7 +84,7 @@ namespace MCD {
 
 class RendererComponent;
 
-class MCD_ABSTRACT_CLASS IMaterialComponent : public RenderableComponent2
+class MCD_ABSTRACT_CLASS IMaterialComponent : public RenderableComponent
 {
 public:
 	virtual ~IMaterialComponent() {}

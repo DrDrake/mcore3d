@@ -85,7 +85,7 @@ protected:
 };	// BmpFontMaterialComponent
 
 //!	The text is anchored at the left top corner
-class MCD_RENDER_API TextLabelComponent : public RenderableComponent2, public IDrawCall
+class MCD_RENDER_API TextLabelComponent : public RenderableComponent, public IDrawCall
 {
 public:
 	TextLabelComponent();

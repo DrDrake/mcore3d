@@ -3,8 +3,8 @@
 
 #include "ShareLib.h"
 #include "AudioLoader.h"
-#include "../Core/System/NonCopyable.h"
 #include "../Core/System/ResourceLoader.h"
+#include "../Core/System/ResourceManager.h"
 
 namespace MCD {
 
@@ -25,18 +25,12 @@ public:
 
 	sal_override void commit(Resource& resource);
 
-	sal_override LoadingState getLoadingState() const;
-
-	sal_override void onPartialLoaded(IPartialLoadContext& context, uint priority, sal_in_z_opt const char* args);
-
 	/*!	Invoked by AudioSource when new buffer data need to be load.
 		Each request will be queued up and executed inside the commit() function after the load is finished.
 		Since AudioBuffer has several internal buffers, a bufferIndex need to be supplied inorder to
 		identify which buffer to load.
 	 */
 	sal_override void requestLoad(const AudioBufferPtr& buffer, size_t bufferIndex);
-
-	sal_override void abortLoad();
 
 	sal_override int popLoadedBuffer();
 
@@ -47,12 +41,17 @@ public:
 
 	sal_override sal_checkreturn bool seek(uint64_t pcmOffset);
 
-	volatile LoadingState loadingState;
-
 protected:
 	class Impl;
 	Impl& mImpl;
 };	// OggLoader
+
+class MCD_AUDIO_API OggLoaderFactory : public ResourceManager::IFactory
+{
+public:
+	sal_override ResourcePtr createResource(const Path& fileId, const char* args);
+	sal_override IResourceLoaderPtr createLoader();
+};	// OggLoaderFactory
 
 }	// namespace MCD
 

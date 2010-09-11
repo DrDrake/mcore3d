@@ -4,6 +4,7 @@
 #include "../Render/Texture.h"
 #include "../Core/System/Log.h"
 #include "../Core/System/MemoryProfiler.h"
+#include "../Core/System/StrUtility.h"
 #include "../../3Party/SmallJpeg/jpegdecoder.h"
 
 #ifdef MCD_VC
@@ -40,14 +41,11 @@ class JpegLoader::LoaderImpl : public TextureLoaderBase::LoaderBaseImpl
 {
 public:
 	LoaderImpl(JpegLoader& loader)
-		:
-		LoaderBaseImpl(loader),
-		mDecoder(nullptr), mStream(nullptr),
-		mRowBytes(0),
-		//mInternalFormat(-1), mExternalFormat(-1),
-		mProcessedLines(0)
-	{
-	}
+		: LoaderBaseImpl(loader)
+		, mDecoder(nullptr), mStream(nullptr)
+		, mRowBytes(0)
+		, mProcessedLines(0)
+	{}
 
 	sal_override ~LoaderImpl()
 	{
@@ -126,40 +124,30 @@ IResourceLoader::LoadingState JpegLoader::load(std::istream* is, const Path*, co
 	MemoryProfiler::Scope scope("JpegLoader::load");
 	MCD_ASSUME(mImpl != nullptr);
 
-	Mutex& mutex = mImpl->mMutex;
-	ScopeLock lock(mutex);
-
 	if(!is)
-		loadingState = Aborted;
-	else if(loadingState == Aborted)
-		loadingState = NotLoaded;
-
-	if(loadingState & Stopped)
-		return loadingState;
+		return Aborted;
 
 	LoaderImpl* impl = static_cast<LoaderImpl*>(mImpl);
-
-	int result;
-	{	ScopeUnlock unlock(mutex);
-		result = impl->load(*is);
-	}
+	const int result = impl->load(*is);
 
 	switch(result) {
 	case JPGD_DONE:
-		loadingState = Loaded;
+		return Loaded;
 		break;
 	case JPGD_OKAY:
 		++(impl->mProcessedLines);
 		// Only report partial load every 1/4 of the scan lines are loaded
-		if(impl->mProcessedLines % (impl->mHeight / 4) == 0)
-			loadingState = PartialLoaded;
+		if(impl->mProcessedLines % (impl->mHeight / 4) == 0) {
+			continueLoad();
+			return PartialLoaded;
+		}
 		break;
 	case JPGD_FAILED:
 	default:
-		loadingState = Aborted;
+		return Aborted;
 	}
 
-	return loadingState;
+	return loadingState();
 }
 
 void JpegLoader::uploadData(Texture& texture)
@@ -173,6 +161,20 @@ void JpegLoader::uploadData(Texture& texture)
 		1, 1,
 		impl->mImageData, impl->mImageData.size())
 	);
+}
+
+ResourcePtr JpegLoaderFactory::createResource(const Path& fileId, const char* args)
+{
+	std::string extStr = fileId.getExtension();
+	const char* ext = extStr.c_str();
+	if(strCaseCmp(ext, "jpg") == 0 || strCaseCmp(ext, "jpeg") == 0)
+		return new Texture(fileId);
+	return nullptr;
+}
+
+IResourceLoaderPtr JpegLoaderFactory::createLoader()
+{
+	return new JpegLoader;
 }
 
 }	// namespace MCD

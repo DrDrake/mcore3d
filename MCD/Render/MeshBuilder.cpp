@@ -72,7 +72,7 @@ MeshBuilder::~MeshBuilder()
 int MeshBuilder::declareAttribute(const VertexFormat& format, size_t bufferId)
 {
 	// bufferId = 0 is reserved for index buffer
-	if(format.componentCount * format.componentSize == 0 || bufferId == 0)
+	if(format.sizeInByte() == 0 || bufferId == 0)
 		return -1;
 
 	if(format.semantic.empty())
@@ -85,7 +85,7 @@ int MeshBuilder::declareAttribute(const VertexFormat& format, size_t bufferId)
 	while(bufferId >= mImpl.buffers.size())
 		mImpl.buffers.push_back(new Impl::Buffer);
 
-	const size_t sizeInBytes = format.componentCount * format.componentSize;
+	const size_t sizeInBytes = format.sizeInByte();
 	Impl::Attribute a = { mImpl.buffers[bufferId].componentSize, bufferId, format };
 	mImpl.attributes.push_back(a);
 
@@ -145,7 +145,7 @@ void MeshBuilder::clear()
 {
 	mImpl.attributes.clear();
 
-	VertexFormat indexSemantic = { FixString("index"), VertexFormat::TYPE_UINT16, sizeof(uint16_t), 1, 0 };
+	VertexFormat indexSemantic = VertexFormat::get("index");
 	// Prepare the index as a default attribute
 	Impl::Attribute a = { 0, 0, indexSemantic };
 	mImpl.attributes.push_back(a);
@@ -286,8 +286,8 @@ bool MeshBuilderIM::vertexAttribute(int attributeId, const void* data)
 		return false;
 
 	mImpl2.resize(attributeCount);
-	const VertexFormat& s = mImpl.attributes[attributeId].format;
-	const size_t size = s.componentCount * s.componentSize;
+	const VertexFormat& fmt = mImpl.attributes[attributeId].format;
+	const size_t size = fmt.sizeInByte();
 	mImpl2[attributeId].assign((char*)data, (char*)data + size);
 	return true;
 }
@@ -313,7 +313,7 @@ uint16_t MeshBuilderIM::addVertex()
 	{
 		const Impl::Attribute& a = mImpl.attributes[i];
 		const size_t stride = mImpl.buffers[a.bufferId].componentSize;
-		const size_t attributeSize = a.format.componentCount * a.format.componentSize;
+		const size_t attributeSize = a.format.sizeInByte();
 
 		// Skip those un-assigned attribute
 		if(mImpl2[i].size() != attributeSize)

@@ -12,12 +12,12 @@ struct GpuDataFormat;
 class RenderWindow;
 typedef IntrusivePtr<class Texture> TexturePtr;
 typedef IntrusiveWeakPtr<class Entity> EntityPtr;
-typedef IntrusiveWeakPtr<class CameraComponent2> CameraComponent2Ptr;
+typedef IntrusiveWeakPtr<class CameraComponent> CameraComponentPtr;
 typedef IntrusiveWeakPtr<class RendererComponent> RendererComponentPtr;
 
 /*!	
  */
-class MCD_RENDER_API RenderTargetComponent : public RenderableComponent2
+class MCD_RENDER_API RenderTargetComponent : public RenderableComponent
 {
 public:
 	RenderTargetComponent();
@@ -38,7 +38,7 @@ public:
 
 // Attributes
 	EntityPtr entityToRender;
-	CameraComponent2Ptr cameraComponent;
+	CameraComponentPtr cameraComponent;
 	RendererComponentPtr rendererComponent;
 
 	bool shouldClearColor;

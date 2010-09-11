@@ -10,26 +10,14 @@ namespace {
 
 class FakeLoader : public IResourceLoader
 {
-public:
-	FakeLoader() : mState(NotLoaded) {}
-
 protected:
 	sal_override sal_checkreturn LoadingState load(
 		sal_maybenull std::istream* is, sal_maybenull const Path* fileId=nullptr, sal_maybenull const char* args=nullptr)
 	{
-		if(!is)
-			return mState = Aborted;
-
-		return mState = Loaded;
+		return is ? Loaded : Aborted;
 	}
 
 	sal_override void commit(Resource&) {}
-
-	sal_override LoadingState getLoadingState() const {
-		return mState;
-	}
-
-	volatile LoadingState mState;
 };	// FakeLoader
 
 class FakeFactory : public ResourceManager::IFactory
@@ -43,7 +31,7 @@ public:
 		return nullptr;
 	}
 
-	sal_override IResourceLoader* createLoader() {
+	sal_override IResourceLoaderPtr createLoader() {
 		return new FakeLoader;
 	}
 
@@ -67,19 +55,11 @@ TEST(Basic_ResourceManagerTest)
 	// Register factory
 	manager.addFactory(new FakeFactory("cpp"));
 
-	{	// Test for customLoad()
-		std::pair<IResourceLoaderPtr, ResourcePtr> result = manager.customLoad("Main.cpp");
-		CHECK(result.first);
-
-		// Even file not found, it still return something.
-		result = manager.customLoad("__fileNotFound__.cpp");
-		CHECK(result.first);
-		CHECK(result.second);
+	{	// Even file not found, it still return something.
+		CHECK(manager.load("__fileNotFound__.cpp"));
 
 		// Fail if the file extension type not found
-		result = manager.customLoad("__fileNotFound__.xxx");
-		CHECK(!result.first);
-		CHECK(!result.second);
+		CHECK(!manager.load("__fileNotFound__.xxx"));
 	}
 
 	ResourcePtr resource = manager.load("Main.cpp");
@@ -89,55 +69,52 @@ TEST(Basic_ResourceManagerTest)
 		return;
 
 	while(true) {	// Poll for event
-		ResourceManager::Event event = manager.popEvent();
-		if(!event.loader) continue;
+		IResourceLoaderPtr loader = manager.popEvent();
+		if(!loader) continue;
 
-		if(event.loader->getLoadingState() != IResourceLoader::Loaded)
+		if(loader->loadingState() != IResourceLoader::Loaded)
 			CHECK(false);
 
-		event.loader->commit(*event.resource);
 		break;
 	}
-
 
 	{	// Get a resource with the same id should return the same resource
 		ResourcePtr resource2 = manager.load("Main.cpp");
 		CHECK_EQUAL(resource, resource2);
 
 		// And without generating any event since we have a cache hit
-		CHECK(!manager.popEvent().resource);
-		CHECK(!manager.popEvent().loader);
+		CHECK(!manager.popEvent());
 	}
 
 	{	// Try to load another resource
-		ResourcePtr resource2 = manager.load("ResourceManadgerTest.cpp", IResourceManager::Block);
+		ResourcePtr resource2 = manager.load("ResourceManadgerTest.cpp", 1);
+		CHECK(resource2);
 		CHECK(resource != resource2);
-		ResourceManager::Event event = manager.popEvent();
-		CHECK(event.loader);
+		manager.popEvent();
 	}
 
 	{	// Load it twice, to trigger the code that handle garbage collection
-		CHECK(manager.load("ResourceManadgerTest.cpp", IResourceManager::Block));
+		CHECK(manager.load("ResourceManadgerTest.cpp", 1));
 		manager.popEvent();
-		CHECK(manager.load("ResourceManadgerTest.cpp", IResourceManager::Block));
+		CHECK(manager.load("ResourceManadgerTest.cpp", 1));
 	}
 
 	{	// After trying to load another resource, a garbage collection take place
 		// nothing can be verify in this test, but it will trigger some code to run
 		// so that we will have a higher code coverage
 		manager.load("Main.cpp");
-		while(manager.popEvent().loader) {}
+		while(manager.popEvent()) {}
 	}
 
 	{	// Manually cache a resource
-		manager.cache(nullptr);	// Do nothing
+		CHECK(!manager.cache(nullptr));	// Do nothing
 
 		{	// Without fileId collision
 			ResourcePtr res = new Resource("abc");
+			while(manager.popEvent()) {}
 			manager.cache(res);
-			ResourceManager::Event e = manager.popEvent();
-			CHECK_EQUAL(res.get(), e.resource.get());
-			CHECK(!e.loader);
+			const IResourceLoaderPtr e = manager.popEvent();
+			CHECK_EQUAL(res, e->resource());
 		}
 
 		{	// With fileId collision, returning the old resource
@@ -149,14 +126,17 @@ TEST(Basic_ResourceManagerTest)
 	}
 
 	{	// Main.cpp should be cached, loading it again should not generate events
-		while(manager.popEvent().loader) {}
-		manager.load("Main.cpp", IResourceManager::Block);
-		CHECK(!manager.popEvent().loader);
+		manager.load("Main.cpp", 1);	// Ensure the resource is fully loaded
+		while(manager.popEvent()) {}
+		manager.load("Main.cpp", 0);
+		CHECK(!manager.popEvent());
+		manager.load("Main.cpp", 1);
+		CHECK(!manager.popEvent());
 
 		// But if we uncache it, then a new resource will be loaded
 		CHECK_EQUAL(resource, manager.uncache("Main.cpp"));
-		ResourcePtr resource2 = manager.load("Main.cpp", IResourceManager::Block);
-		CHECK(manager.popEvent().loader);
+		ResourcePtr resource2 = manager.load("Main.cpp", 1);
+		manager.popEvent();
 		CHECK(resource != resource2);
 		resource = resource2;	// Keep the resource for further testing
 	}
@@ -164,17 +144,25 @@ TEST(Basic_ResourceManagerTest)
 	{	// Relaoding
 
 		// The same resource object should be returned.
-		while(manager.popEvent().loader) {}
-		CHECK_EQUAL(resource, manager.reload("Main.cpp", IResourceManager::Block));
-		CHECK(manager.popEvent().loader);
+		while(manager.popEvent()) {}
+		CHECK_EQUAL(resource, manager.reload("Main.cpp", 1));
+		manager.popEvent();
 
 		// But a new resource object will be returned if it is uncached before.
 		CHECK_EQUAL(resource, manager.uncache("Main.cpp"));
 		ResourcePtr p = manager.reload("Main.cpp");
 		CHECK(p && p != resource);
+		resource = p;	// Keep the resource for further testing
 
 		CHECK(manager.uncache("ResourceManadgerTest.cpp") == nullptr);
 		CHECK(manager.reload("ResourceManadgerTest.cpp") != nullptr);
+	}
+
+	{	// Issue a non-blocing load, and then a blocking load on the same resource
+		CHECK_EQUAL(resource, manager.uncache("Main.cpp"));
+		resource = manager.load("Main.cpp", 0);
+		resource = manager.load("Main.cpp", 1);
+		CHECK(resource->commitCount() == 1);
 	}
 
 	{	// Removal of all loader factories
@@ -193,20 +181,16 @@ TEST(Basic_ResourceManagerTest)
 	}
 }
 
+#include "../../../MCD/Core/Entity/Entity.h"
+#include "../../../MCD/Core/Entity/BehaviourComponent.h"
+#include "../../../MCD/Core/Entity/SystemComponent.h"
+
 namespace {
 
-class FakeCallback : public ResourceManagerCallback
-{
+class MyBehaviourComponent : public BehaviourComponent {
 public:
-	sal_override void doCallback()
-	{
-		++count;
-	}
-
-	static size_t count;
-};	// FakeCallback
-
-size_t FakeCallback::count = 0;
+	sal_override void update(float dt) {}
+};	// MyBehaviourComponent
 
 }	// namespace
 
@@ -219,73 +203,49 @@ TEST(Callback_ResourceManagerTest)
 	// Register factory
 	manager.addFactory(new FakeFactory("cpp"));
 
-	// Create and register callback
-	FakeCallback* callback = new FakeCallback;
-	callback->addDependency("Main.cpp");
-	callback->addDependency("ResourceManadgerTest.cpp");
-	manager.addCallback(callback);
+	Entity e1, e2;
+	ResourceManagerComponent* mgrComponent = new ResourceManagerComponent(manager);
+	e2.addComponent(mgrComponent);
+	MyBehaviourComponent* c = new MyBehaviourComponent;
+	e2.addComponent(c);
 
-	callback = new FakeCallback;
-	callback->addDependency("Main.cpp");
-	manager.addCallback(callback);
+	const Path testPath("Main.cpp");
 
-	// Will not trigger any callback
-	FakeCallback::count = 0;
-	manager.load("ResourceManadgerTest.cpp", IResourceManager::Block);
-	manager.doCallbacks(manager.popEvent());
-	CHECK_EQUAL(0u, FakeCallback::count);
+	{	// Register before loaded
+		mgrComponent->update();
+		mgrComponent->registerCallback(testPath, *c, false, 0);
+		ResourcePtr resource = manager.load(testPath);
+		CHECK(resource);
 
-	// Will trigger the two callbacks
-	FakeCallback::count = 0;
-	ResourcePtr resource = manager.load("Main.cpp", IResourceManager::Block);
-	manager.doCallbacks(manager.popEvent());
-	CHECK_EQUAL(2u, FakeCallback::count);
-
-	// Adding a new callback where all dependency is already loaded should also work correctly
-	FakeCallback::count = 0;
-	callback = new FakeCallback;
-	callback->addDependency("Main.cpp");
-	manager.addCallback(callback);
-	manager.doCallbacks(manager.popEvent());
-	CHECK_EQUAL(1u, FakeCallback::count);
-}
-
-TEST(MajorDependency_Callback_ResourceManagerTest)
-{
-	std::auto_ptr<IFileSystem> fs(new RawFileSystem("./"));
-	ResourceManager manager(*fs);
-	fs.release();
-
-	// Register factory
-	manager.addFactory(new FakeFactory("cpp"));
-
-	ResourcePtr resource1, resource2;
-
-	// Create and register callback
-	{	resource1 = manager.load("Main.cpp", IResourceManager::Block);
-		FakeCallback* callback = new FakeCallback;
-		callback->setMajorDependency("Main.cpp");
-		manager.addCallback(callback);
+		e2.enabled = false;
+		while(!e2.enabled)
+			mgrComponent->update();
 	}
 
-	{	resource2 = manager.load("ResourceManadgerTest.cpp", IResourceManager::Block);
-		FakeCallback* callback = new FakeCallback;
-		callback->setMajorDependency("ResourceManadgerTest.cpp");
-		manager.addCallback(callback);
+	{	// Adding callback where it's already loaded should also work correctly
+		ResourcePtr resource = manager.load(testPath, 1);
+		CHECK(resource);
+
+		e2.enabled = false;
+		mgrComponent->registerCallback(testPath, *c, false, 0);
+		while(!e2.enabled)
+			mgrComponent->update();
 	}
 
-	FakeCallback::count = 0;
-	ResourceManager::Event e = manager.popEvent();
-	e.loader->commit(*e.resource);
-	manager.doCallbacks(e);
-	// If addDependency() is used instead of setMajorDependency(),
-	// FakeCallback::count will be 2 instead of 1.
-	CHECK_EQUAL(1u, FakeCallback::count);
+	{	// Adding dependency
+		const Path testPath2("Pch.cpp");
+		ResourcePtr resource1 = manager.load(testPath, 1);
+		ResourcePtr resource2 = manager.load(testPath2, 1);
 
-	e = manager.popEvent();
-	e.loader->commit(*e.resource);
-	manager.doCallbacks(e);
-	CHECK_EQUAL(2u, FakeCallback::count);
+		IResourceLoaderPtr loader1 = manager.getLoader(testPath);
+		IResourceLoaderPtr loader2 = manager.getLoader(testPath2);
+		loader1->dependsOn(loader2);
+
+		e2.enabled = false;
+		mgrComponent->registerCallback(testPath, *c, true, 0);
+		while(!e2.enabled)
+			mgrComponent->update();
+	}
 }
 
 TEST(Negative_ResourceManagerTest)
@@ -307,10 +267,10 @@ TEST(Negative_ResourceManagerTest)
 		ResourcePtr resource = manager.load("__fileNotFound__.cpp");
 
 		while(true) {	// Poll for event
-			ResourceManager::Event event = manager.popEvent();
-			if(!event.loader) continue;
+			const IResourceLoaderPtr event = manager.popEvent();
+			if(!event) continue;
 
-			if(event.loader->getLoadingState() != IResourceLoader::Aborted)
+			if(event->loadingState() != IResourceLoader::Aborted)
 				CHECK(false);
 
 			break;

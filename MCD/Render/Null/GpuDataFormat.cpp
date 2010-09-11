@@ -39,4 +39,6 @@ GpuDataFormat GpuDataFormat::get(const StringHash& name)
 	return cGpuDataFormatMap[0];
 }
 
+GpuDataFormat GpuDataFormat::none() { return GpuDataFormat::get(StringHash("nonoe")); }
+
 }	// namespace MCD

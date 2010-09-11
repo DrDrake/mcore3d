@@ -90,7 +90,7 @@ ScriptObject ScriptObject::getValue(const char* key) const
 {
 	ScriptObject ret(mSqvm);
 	if(_getSlot(key))
-		ret.getFromStack(-1);
+		MCD_VERIFY(ret.getFromStack(-1));
 	sq_pop(mSqvm, 1);
 	return ret;
 }

@@ -45,7 +45,7 @@ public:
 	/// Load a prefab from a resource path, and put a PrefabLoaderComponent
 	/// under the specified Entity.
 	/// \return Null if failed.
-	PrefabLoaderComponent* loadPrefabTo(sal_in_z const Path& resourcePath, sal_in_opt Entity* location, IResourceManager::BlockingMode blockingMode = IResourceManager::NonBlock, sal_in_z const char* args = nullptr);
+	PrefabLoaderComponent* loadPrefabTo(sal_in_z const Path& resourcePath, sal_in_opt Entity* location, int blockingIteration=-1, sal_in_z const char* args=nullptr);
 
 	/// Pop an event out of the event queue.
 	/// \sa Window::popEvent()
@@ -72,8 +72,6 @@ public:
 	float fps() const;	//!< Frame per second over the last second
 
 protected:
-	void processLoadingEvents();
-
 	class Impl;
 	Impl& mImpl;
 };	// Framework

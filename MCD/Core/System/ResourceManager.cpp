@@ -1,5 +1,6 @@
 #include "Pch.h"
 #include "ResourceManager.h"
+#include "CondVar.h"
 #include "Deque.h"
 #include "FileSystem.h"
 #include "Log.h"
@@ -9,6 +10,7 @@
 #include "Resource.h"
 #include "ResourceLoader.h"
 #include "TaskPool.h"
+#include "Timer.h"
 #include "Utility.h"
 #include <algorithm>	// for std::find
 
@@ -16,37 +18,12 @@ namespace MCD {
 
 namespace {
 
-struct MapNode
+class DummyLoader : public IResourceLoader
 {
-	// Use Path as the key, note that we should store a copy of the Path in PathKey rather than a reference,
-	// because the resource can be destroyed at any time but the PathKey is destroyed at a later time.
-	struct PathKey : public MapBase<Path, const Path&>::Node<PathKey>
-	{
-		typedef MapBase<Path, const Path&>::Node<PathKey> Super;
-		explicit PathKey(const Path& path) : Super(path) {}
-		MCD_DECLAR_GET_OUTER_OBJ(MapNode, mPathKey);
-		sal_override void destroyThis() {
-			delete getOuterSafe();
-		}
-	};	// PathKey
-
-	MapNode(Resource& resource)
-		:
-		mPathKey(resource.fileId()),
-		mLoadingState(IResourceLoader::NotLoaded),
-		mResource(&resource), mIsUncached(false)
-	{
-	}
-
-	PathKey mPathKey;
-	IResourceLoader::LoadingState mLoadingState;	//!< As an information for resolving dependency
-	ResourceWeakPtr mResource;
-
-	/*!	Due to the importance of MapNode, we cannot simply delete a MapNode or set mResource to null
-		to preform a resource uncache operation.
-	 */
-	bool mIsUncached;
-};	// MapNode
+public:
+	LoadingState load(std::istream* is, const Path* fileId, const char* args) { return Loaded; }
+	sal_override void commit(Resource&) {}
+};	// DummyLoader
 
 }	// namespace
 
@@ -56,127 +33,74 @@ class ResourceManager::Impl
 	class EventQueue
 	{
 	public:
-		typedef ResourceManager::Event Event;
-
 		// This function is called inside the worker thread, and the mutex should already be locked
-		void pushBack(const Event& event)
+		void pushBackNoLock(const IResourceLoaderPtr& event)
 		{
-			MCD_ASSERT(mMutex.isLocked());
-
+			MCD_ASSUME(mMutex && mMutex->isLocked());
 			// Each instance of resource should appear in the event queue once.
 			// Note: Linear search is enough since the event queue should keep consumed every frame
-			MCD_FOREACH(const Event& e, mQueue) {
-				if(e.resource == event.resource)
+			MCD_FOREACH(const IResourceLoaderPtr e, mQueue) {
+				if(e == event)
 					return;
 			}
 
 			mQueue.push_back(event);
+			mMutex->broadcastNoLock();
 		}
 
-		Event popFront()
+		IResourceLoaderPtr popFrontNoLock()
 		{
-			MCD_ASSERT(mMutex.isLocked());
-			Event ret = { nullptr, nullptr };
-
+			MCD_ASSUME(mMutex && mMutex->isLocked());
+			IResourceLoaderPtr ret = nullptr;
 			if(!mQueue.empty()) {
 				ret = mQueue.front();
 				mQueue.pop_front();
+				mMutex->broadcastNoLock();
 			}
-
 			return ret;
 		}
 
-		std::deque<Event> mQueue;
-		Mutex mMutex;
+		void pushBack(const IResourceLoaderPtr& event)
+		{
+			MCD_ASSUME(mMutex);
+			ScopeLock lock(*mMutex);
+			pushBackNoLock(event);
+		}
+
+		IResourceLoaderPtr popFront()
+		{
+			MCD_ASSUME(mMutex);
+			ScopeLock lock(*mMutex);
+			return popFrontNoLock();
+		}
+
+		sal_notnull CondVar* mMutex;
+		std::deque<IResourceLoaderPtr> mQueue;
 	};	// EventQueue
-
-public:
-	class Task : public MCD::TaskPool::Task, public IPartialLoadContext
-	{
-	public:
-		Task(ResourceManager& manager, MapNode& mapNode, const IResourceLoaderPtr& loader,
-			EventQueue& eventQueue, std::istream* is, uint priority, const char* args)
-			:
-			MCD::TaskPool::Task(priority),
-			mResourceManager(manager),
-			mMapNode(mapNode),
-			mResource(mapNode.mResource.get()),
-			mLoader(loader),
-			mEventQueue(eventQueue),
-			mIStream(is),
-			mArgs(args == nullptr ? "" : args)
-		{
-		}
-
-		sal_override void run(Thread& thread)
-		{
-			MemoryProfiler::Scope profiler("ResourceManager::Task::run");
-
-			while(thread.keepRun())
-			{
-				IResourceLoader::LoadingState state;
-				state = mLoader->load(mIStream.get(), mResource ? &mResource->fileId() : nullptr, mArgs.c_str());
-
-				{	ScopeLock lock(mEventQueue.mMutex);
-					mMapNode.mLoadingState = state;
-					Event event = { mResource, mLoader };
-					mEventQueue.pushBack(event);
-				}
-
-//				mSleep(1);
-
-				if(state & IResourceLoader::Stopped)
-					break;
-
-				Task* task = new Task(mResourceManager, mMapNode, mLoader, mEventQueue, mIStream.release(), priority(), mArgs.c_str());
-
-				// The onPartialLoaded() callback will decide when to continue the partial load
-				mLoader->onPartialLoaded(*task, priority(), mArgs.c_str());
-				break;
-			}
-
-			// Remember TaskPool::Task need to do cleanup after finished the job
-			delete this;
-		}
-
-		sal_override void continueLoad(uint priority, const char* args)
-		{
-			// NOTE: There is no need to lock, since mTaskPool's operation is already thread safe
-			setPriority(priority);
-			mArgs = args ? args : "";
-			MCD_VERIFY(mResourceManager.taskPool().enqueue(*this));
-		}
-
-		ResourceManager& mResourceManager;
-		MapNode& mMapNode;
-		ResourcePtr mResource;				// Hold the life of the resource
-		IResourceLoaderPtr mLoader;			// Hold the life of the IResourceLoader
-		EventQueue& mEventQueue;
-		std::auto_ptr<std::istream> mIStream;	// Keep the life of the stream align with the Task
-		std::string mArgs;
-	};	// Task
 
 public:
 	Impl(TaskPool* externalTaskPool, ResourceManager& manager, IFileSystem& fileSystem, bool takeFileSystemOwnership)
 		: mTaskPool(externalTaskPool)
-		, mResourceManager(manager)
+		, mBackRef(manager)
 		, mFileSystem(fileSystem)
 		, mTakeFileSystemOwnership(takeFileSystemOwnership)
+		, mCreatorThreadId(getCurrentThreadId())
 	{
 		mIsExternalTaskPool = externalTaskPool != nullptr;
 		if(!externalTaskPool)
 			mTaskPool.reset(new TaskPool);
+		mEventQueue.mMutex = &mMutex;
 	}
 
 	~Impl()
 	{
 		// Stop the task pool first
 		// Tasks may be invoked in this thread context and so they
-		// may try to acquire mEventQueue.mMutex. Acquiring the mutex
+		// may try to acquire mMutex. Acquiring the mutex
 		// before calling task pool stop will result a dead lock.
 		mTaskPool->stop();
 
-		{	ScopeLock lock(mEventQueue.mMutex);
+		{	ScopeLock lock(mMutex);
 			if(mTakeFileSystemOwnership)
 				delete &mFileSystem;
 			removeAllFactory();
@@ -186,95 +110,151 @@ public:
 			mTaskPool.release();
 	}
 
-	MapNode* findMapNode(const Path& fileId)
+	IResourceLoaderPtr findCache(const Path& fileId)
 	{
 		return mResourceMap.find(fileId)->getOuterSafe();
 	}
 
-	void blockingLoad(const Path& fileId, const char* args, MapNode& node, const IResourceLoaderPtr& loader)
+	void addCache(const IResourceLoaderPtr& cache)
 	{
-		MCD_ASSERT(mEventQueue.mMutex.isLocked());
-		std::auto_ptr<std::istream> is(mFileSystem.openRead(fileId));
-
-		do {
-			ScopeUnlock unlock(mEventQueue.mMutex);
-			if(loader->load(is.get(), &fileId, args) & IResourceLoader::Stopped)
-				break;
-		} while(true);
-
-		node.mLoadingState = loader->getLoadingState();
-		Event event = { node.mResource.get(), loader };
-		mEventQueue.pushBack(event);
+		MCD_VERIFY(mResourceMap.insertUnique(cache->mPathKey));
+		intrusivePtrAddRef(cache.get());
 	}
 
-	void backgroundLoad(const Path& fileId, const char* args, MapNode& node, const IResourceLoaderPtr& loader, bool firstPartialBlock, uint priority)
+	/// Block until the required load count is reached and committed.
+	void block(const Path& fileId, IResourceLoader& loader, Resource& resource, int blockIteration, int priority, sal_in_z const char* args)
 	{
-		MCD_ASSERT(mEventQueue.mMutex.isLocked());
-		std::auto_ptr<std::istream> is(mFileSystem.openRead(fileId));
+		MCD_ASSERT(blockIteration >= 0);
+		if(blockIteration == 0)
+			return;
 
-		// Create the task to submit to the task pool
-		Task* task = new Task(mResourceManager, node, loader, mEventQueue, is.get(), priority, args);
-		is.release();	// We have transfered the ownership of istream to Task
+		bool hasWorkDone = false;
+		{	ScopeLock lock(loader.mMutex);
+			while(int(loader.mLoadCount) < blockIteration && !(loader.mState & IResourceLoader::Stopped))
+			{
+				loader.mNeedEnqueu = (int(loader.mLoadCount) == blockIteration - 1);	// Prevent continueLoad() enqueue task
+				loader._load(&fileId, args);
+				hasWorkDone = true;
+			}
 
-		// Prevent lock hierarchy.
-		ScopeUnlock unlock(mEventQueue.mMutex);
+			if(!hasWorkDone)
+				return;
 
-		if(firstPartialBlock) {
-			// Note that the variable "is" is already release and equals to null, use task->mIStream instead.
-			if(loader->load(task->mIStream.get(), &fileId, args))
-				loader->onPartialLoaded(*task, priority, args);
-		} else {
-			MCD_VERIFY(mTaskPool->enqueue(*task));
+			loader.mPendForCommit = true;
 		}
+
+		mEventQueue.pushBack(&loader);
+
+		// Only call commit() if we where in main thread (the ResourceManager's creator thread).
+		if(mCreatorThreadId == getCurrentThreadId()) {
+			ScopeLock lock(loader.mMutex);
+			loader.mPendForCommit = false;	// Just put in event queue but no call to commit() as we will do it right here.
+			commitResource(loader);
+		}
+		// Poll to see if the resource's commitCount had changed by the main thread
+		else {
+			const size_t oldCommitCount = resource.commitCount();
+			while(resource.commitCount() == oldCommitCount)
+				mMutex.wait();
+		}
+	}
+
+	ResourcePtr actualLoad(const Path& fileId, IResourceLoader& loader, int blockIteration, int priority, sal_in_z const char* args)
+	{
+		const ResourcePtr ret = loader.resource();
+		MCD_ASSERT(ret);
+
+		// NOTE: We should set it's priority BEFORE pushing into the task pool (continueLoad()).
+		loader.setPriority(priority);
+
+		// Get the default blockIteration from the loader
+		const int forceBlockingIteration = loader.forceBlockingIteration();
+		if(forceBlockingIteration != -1)
+			blockIteration = forceBlockingIteration;
+		if(blockIteration < 0)
+			blockIteration = loader.defaultBlockingIteration();
+
+		// Simple let it load in taskPool
+		MCD_ASSERT(blockIteration >= 0);
+		if(blockIteration == 0)
+			loader.continueLoad();
+		// Block until a user specified count of iteration had processed
+		else
+			block(fileId, loader, *ret, blockIteration, priority, args);
+
+		return ret;
 	}
 
 	void addFactory(IFactory* factory)
 	{
-		MCD_ASSERT(mEventQueue.mMutex.isLocked());
+		MCD_ASSERT(mMutex.isLocked());
 		mFactories.push_back(factory);
 	}
 
 	void removeAllFactory()
 	{
-		MCD_ASSERT(mEventQueue.mMutex.isLocked());
+		MCD_ASSERT(mMutex.isLocked());
 		mFactories.clear();
 	}
 
-	ResourcePtr createResource(const Path& fileId, const char* args, IResourceLoaderPtr& loader)
+	IResourceLoaderPtr createLoader(const Path& fileId, sal_in_z const char* args, ResourcePtr& resource)
 	{
-		MCD_ASSERT(mEventQueue.mMutex.isLocked());
-		ResourcePtr ret;
+		MCD_ASSERT(mMutex.isLocked());
+		IResourceLoaderPtr loader;
+
 		// Loop for all factories to see which one will response to the fileId
-		// NOTE: We loop the factories in reverse order, so that user can override a new type of 
+		// NOTE: We loop the factories in reverse order, so that user can override a new type of
 		// loader factory by inserting a new one.
 		for(Factories::reverse_iterator i=mFactories.rbegin(); i!=mFactories.rend(); ++i) {
-			ret = i->createResource(fileId, args);
-			if(ret != nullptr) {
+			if((resource = i->createResource(fileId, args))) {
 				loader = i->createLoader();
-				return ret;
+				loader->mPathKey.setKey(fileId);
+				loader->mArgs = args ? args : "";
+				loader->mResource = resource.get();
+				loader->mResourceManager = &mBackRef;
+				break;
 			}
 		}
 
-		return nullptr;
+		if(!loader)
+			Log::format(Log::Warn, "No loader for \"%s\" can be found", fileId.getString().c_str());
+
+		return loader;
+	}
+
+	void commitResource(IResourceLoader& loader)
+	{
+		MCD_ASSERT(loader.mMutex.isLocked());
+
+		if(loader.mState == IResourceLoader::Aborted)
+			Log::format(Log::Warn, "Resource: %s %s", loader.mPathKey.getKey().getString().c_str(), "failed to load");
+		else if(ResourcePtr r = loader.mResource.lock()) {
+			{	ScopeUnlock unlock(loader.mMutex);
+				loader.commit(*r);
+			}
+			r->mCommitCount++;
+			mMutex.signal();
+		}
 	}
 
 public:
 	std::auto_ptr<TaskPool> mTaskPool;
 	bool mIsExternalTaskPool;
 
-	Map<MapNode::PathKey> mResourceMap;
+	Map<IResourceLoader::PathKey> mResourceMap;
 
 	typedef ptr_vector<IFactory> Factories;
 	Factories mFactories;
 
 	EventQueue mEventQueue;
 
-	ResourceManager& mResourceManager;
+	ResourceManager& mBackRef;
 	IFileSystem& mFileSystem;
 	bool mTakeFileSystemOwnership;
 
-	typedef ptr_vector<ResourceManagerCallback> Callbacks;
-	Callbacks mCallbacks;
+	const int mCreatorThreadId;	/// Store which thread create this ResourceManager
+
+	CondVar mMutex;
 };	// Impl
 
 ResourceManager::ResourceManager(IFileSystem& fileSystem, bool takeFileSystemOwnership)
@@ -292,120 +272,103 @@ ResourceManager::~ResourceManager()
 	delete mImpl;
 }
 
-ResourcePtr ResourceManager::load(const Path& fileId, BlockingMode blockingMode, uint priority, const char* args, IResourceLoaderPtr* _loader)
+ResourcePtr ResourceManager::load(const Path& fileId, int blockIteration, int priority, const char* args)
 {
+	args = args ? args : "";
 	MCD_ASSUME(mImpl != nullptr);
-	ScopeLock lock(mImpl->mEventQueue.mMutex);
+	ScopeLock lock(mImpl->mMutex);
 
 	// Find for existing resource (Cache hit!)
-	MapNode* node = mImpl->findMapNode(fileId);
-	if(node)
+	IResourceLoaderPtr cache = mImpl->findCache(fileId);
+	if(cache)
 	{
-		// NOTE: Prevent the resource being deleted in another thread.
-		ScopeLock lock2(node->mResource.destructionMutex());
+		// Do clean up for dead resource cache
+		// It is performed right here because a resource is shared,
+		// and we have no idea when the resource will be destroyed other
+		// than poll for it's weak pointer periodically
+		// To some extend, this is a garbage collector!
+		IResourceLoaderPtr nextCache = cache->mPathKey.next()->getOuterSafe();
+		if(nextCache && !nextCache->resource())
+			nextCache->releaseThis();
 
-		ResourcePtr p = node->mResource.get();
-
-		if(node->mResource)	// Weak pointer not null, the resource is still alive
-		{
-			// Do clean up for dead resource node
-			// It is performed right here because a resource is shared,
-			// and we have no idea when the resource will be destroyed other
-			// than poll for it's weak pointer periodically
-			// To some extend, this is a garbage collector!
-			MapNode* nextNode = node->mPathKey.next()->getOuterSafe();
-			if(nextNode && !nextNode->mResource)
-				delete nextNode;
-
-			if(!node->mIsUncached)
+		// Weak pointer not null, the resource is still alive
+		if(const ResourcePtr p = cache->resource()) {
+			const int forceBlockingIteration = cache->forceBlockingIteration();
+			if(forceBlockingIteration != -1)
+				blockIteration = forceBlockingIteration;
+			if(blockIteration < 0)
+				blockIteration = cache->defaultBlockingIteration();
+			if(blockIteration == 0)
 				return p;
+
+			// Block load as requested
+			ScopeUnlock unlock(mImpl->mMutex);
+			mImpl->block(fileId, *cache, *p, blockIteration, priority, args);
+
+			return p;
 		}
 		else {	// Unfortunately, the resource is already deleted
-			lock2.mutex().unlock();
-			lock2.cancel();
-			delete node;
-			node = nullptr;
+			cache->releaseThis();
+			cache = nullptr;
 		}
 	}
 
-	IResourceLoaderPtr loader = nullptr;
-	ResourcePtr resource = mImpl->createResource(fileId, args, loader);
+	ResourcePtr ret;
+	IResourceLoaderPtr loader = mImpl->createLoader(fileId, args, ret);
 
-	if(_loader)
-		*_loader = loader;
-
-	if(!resource || !loader) {
-		Log::format(Log::Warn, "No loader for \"%s\" can be found", fileId.getString().c_str());
-
-		if(_loader)
-			*_loader = nullptr;
-
+	if(!loader)
 		return nullptr;
-	}
 
-	if(!node) {
-		node = new MapNode(*resource);
-		MCD_VERIFY(mImpl->mResourceMap.insertUnique(node->mPathKey));
-	} else {
-		node->mIsUncached = false;
-		node->mResource = resource.get();
-		node->mLoadingState = IResourceLoader::NotLoaded;
-	}
+	// Cache it to the map
+	if(!cache)
+		mImpl->addCache(loader);
 
 	// Now we can begin the load operation
-	if(blockingMode == Block)
-		mImpl->blockingLoad(fileId, args, *node, loader);
-	else
-		mImpl->backgroundLoad(fileId, args, *node, loader, blockingMode==FirstPartialBlock, priority);
-
-	return resource;
+	lock.unlockAndCancel();
+	return mImpl->actualLoad(fileId, *loader, blockIteration, priority, args);
 }
 
-std::pair<IResourceLoaderPtr, ResourcePtr> ResourceManager::customLoad(const Path& fileId, const char* args)
+ResourcePtr ResourceManager::reload(const Path& fileId, int blockIteration, int priority, const char* args)
 {
+	args = args ? args : "";
 	MCD_ASSUME(mImpl != nullptr);
-	IResourceLoaderPtr loader = nullptr;
-
-	ResourcePtr resource;
-	{	ScopeLock lock(mImpl->mEventQueue.mMutex);
-		resource = mImpl->createResource(fileId, args, loader);
-	}
-
-	if(!resource || !loader) {
-		Log::format(Log::Warn, "No loader for \"%s\" can be found", fileId.getString().c_str());
-		return std::make_pair(IResourceLoaderPtr(nullptr), (Resource*)nullptr);
-	}
-
-	return std::make_pair(loader, resource);
-}
-
-ResourcePtr ResourceManager::reload(const Path& fileId, BlockingMode blockingMode, uint priority, const char* args)
-{
-	MCD_ASSUME(mImpl != nullptr);
-	ScopeLock lock(mImpl->mEventQueue.mMutex);
+	ScopeLock lock(mImpl->mMutex);
 
 	// Find for existing resource
-	MapNode* node = mImpl->findMapNode(fileId);
+	IResourceLoaderPtr loader = mImpl->findCache(fileId);
+	ResourcePtr r;
 
 	// The resource is not found
-	if(!node || !node->mResource || node->mIsUncached) {
-		lock.mutex().unlock();
-		lock.cancel();
-		return load(fileId, blockingMode, priority);
+	if(!loader || !(r = loader->resource())) {
+		lock.unlockAndCancel();
+		return load(fileId, blockIteration, priority, args);
 	}
 
-	// We are only interested in the loader, the returned resource pointer is simple ignored.
-	IResourceLoaderPtr loader = nullptr;
-	if(!mImpl->createResource(fileId, args, loader) || !loader)
+	// We are just interested in the loader, not the new resource
+	ResourcePtr dummy;
+	loader->releaseThis();
+	loader = mImpl->createLoader(fileId, args, dummy);
+	if(!loader)
 		return nullptr;
 
-	// Now we can begin the load operation
-	if(blockingMode == Block)
-		mImpl->blockingLoad(fileId, args, *node, loader);
-	else
-		mImpl->backgroundLoad(fileId, args, *node, loader, blockingMode==FirstPartialBlock, priority);
+	mImpl->addCache(loader);
 
-	return node->mResource.get();
+	lock.unlockAndCancel();
+
+	{	// Use the old resource
+		ScopeLock lock2(loader->mMutex);
+		loader->mResource = r.get();
+	}
+
+	// Now we can begin the load operation
+	return mImpl->actualLoad(fileId, *loader, blockIteration, priority, args);
+}
+
+IResourceLoaderPtr ResourceManager::getLoader(const Path& fileId)
+{
+	MCD_ASSUME(mImpl != nullptr);
+	ScopeLock lock(mImpl->mMutex);
+	return mImpl->findCache(fileId);
 }
 
 ResourcePtr ResourceManager::cache(const ResourcePtr& resource)
@@ -413,31 +376,31 @@ ResourcePtr ResourceManager::cache(const ResourcePtr& resource)
 	if(!resource)
 		return resource;
 
-	MCD_ASSUME(mImpl != nullptr);
-	ScopeLock lock(mImpl->mEventQueue.mMutex);
-
-	ResourcePtr ret;
-	MapNode* node;
-
 	if(resource->fileId().getString().empty()) {
 		MCD_ASSERT(false && "It's meaningless to cache a resource without a name");
 		return nullptr;
 	}
 
+	ResourcePtr ret;
+
+	MCD_ASSUME(mImpl != nullptr);
+	ScopeLock lock(mImpl->mMutex);
+
+	IResourceLoaderPtr cache = mImpl->findCache(resource->fileId());
 	// Find for existing resource
-	if((node = mImpl->findMapNode(resource->fileId())) != nullptr) {
-		ret = node->mResource.get();
-		delete node;
-		node = nullptr;
+	if(cache) {
+		ret = cache->resource();
+		cache->releaseThis();
+		cache = nullptr;
 	}
 
-	node = new MapNode(*resource);
-	node->mLoadingState = IResourceLoader::Loaded;	// We assume the suppling resource is already loaded
-	MCD_VERIFY(mImpl->mResourceMap.insertUnique(node->mPathKey));
+	cache = new DummyLoader;
+	cache->mPathKey.setKey(resource->fileId());
+	cache->mResource = resource.get();
+	mImpl->addCache(cache);
 
 	// Generate a finished loading event
-	Event event = { resource.get(), nullptr };
-	mImpl->mEventQueue.pushBack(event);
+	mImpl->mEventQueue.pushBackNoLock(cache);
 
 	return ret;
 }
@@ -445,104 +408,68 @@ ResourcePtr ResourceManager::cache(const ResourcePtr& resource)
 ResourcePtr ResourceManager::uncache(const Path& fileId)
 {
 	MCD_ASSUME(mImpl != nullptr);
-	ScopeLock lock(mImpl->mEventQueue.mMutex);
+	ScopeLock lock(mImpl->mMutex);
 
 	// Find and remove the existing resource linkage from the manager
-	MapNode* mapNode = mImpl->findMapNode(fileId);
-	if(!mapNode)
+	IResourceLoaderPtr cache = mImpl->findCache(fileId);
+	if(!cache)
 		return nullptr;
 
-	mapNode->mIsUncached = true;
-	return mapNode->mResource.get();
+	ResourcePtr ret = cache->resource();
+	cache->releaseThis();
+	return ret;
 }
 
-ResourceManager::Event ResourceManager::popEvent()
+void ResourceManager::customLoad(const ResourcePtr& resource, const IResourceLoaderPtr& loader, int blockIteration, int priority, const char* args)
 {
+	{	ScopeLock lock2(loader->mMutex);
+		loader->mPathKey.setKey(resource->fileId());
+		loader->mResource = resource.get();
+		loader->mResourceManager = this;
+	}
+
 	MCD_ASSUME(mImpl != nullptr);
-	mImpl->mTaskPool->processTaskIfNoThread();
-	ScopeLock lock(mImpl->mEventQueue.mMutex);
-	return mImpl->mEventQueue.popFront();
+	args = args ? args : "";
+	mImpl->actualLoad(resource->fileId(), *loader, blockIteration, priority, args);
 }
 
-void ResourceManager::addCallback(IResourceManagerCallback* callback)
+IResourceLoaderPtr ResourceManager::popEvent(Timer* timer, float timeOut, bool performLoad)
 {
-	ResourceManagerCallback* cb = dynamic_cast<ResourceManagerCallback*>(callback);
-	if(!cb)
-		return;
+	if(timer && float(timer->get().asSecond()) >= timeOut)
+		return nullptr;
 
 	MCD_ASSUME(mImpl != nullptr);
-	ScopeLock lock(mImpl->mEventQueue.mMutex);	// Mutex against doCallbacks()
 
-	// Resolve those already loaded dependency
-	for(std::list<Path>::iterator i=cb->mDependency.begin(); i!=cb->mDependency.end();)
-	{
-		MapNode* node = nullptr;
-		if((node = mImpl->findMapNode(*i)) != nullptr &&	// Conditions for already loaded resource
-			node->mLoadingState & IResourceLoader::Stopped)
-		{
-			i = cb->mDependency.erase(i);
-		}
-		else
-			++i;
-	}
+	IResourceLoaderPtr loader = mImpl->mEventQueue.popFront();
 
-	mImpl->mCallbacks.push_back(cb);
-}
-
-void ResourceManager::doCallbacks(const Event& event)
-{
-	MCD_ASSUME(mImpl != nullptr);
-	ScopeLock lock(mImpl->mEventQueue.mMutex);	// Mutex against addCallback()
-
-	Impl::Callbacks& callbacks = mImpl->mCallbacks;
-	if(event.resource)
-	{
-		// We ignore partial loading event
-		if(event.loader && !(event.loader->getLoadingState() & IResourceLoader::Stopped))
-			return;
-
-		for(Impl::Callbacks::iterator i=callbacks.begin(); i!=callbacks.end();) {
-			// See if major dependency constrain applied
-			if(!i->mMajorDependency.getString().empty() && i->mMajorDependency != event.resource->fileId()) {
-				++i;
-				continue;
-			}
-
-			if(i->removeDependency(event.resource->fileId()) == 0) {
-				i->doCallback();
-				i = callbacks.erase(i, true);	// Be careful of erasing element during iteration
-			}
-			else
-				++i;
+	// No event generate if the resource no longer exist
+	if(loader && loader->resource()) {
+		ScopeLock lock(loader->mMutex);
+		if(loader->mPendForCommit) {
+			loader->mPendForCommit = false;
+			mImpl->commitResource(*loader);
 		}
 	}
-	else	// It's an empty event
-	{
-		for(Impl::Callbacks::iterator i=callbacks.begin(); i!=callbacks.end();) {
-			// NOTE: We need not to check for major dependency because:
-			// -Major dependency not loaded then i->mDependency will not be empty;
-			// -Major dependency loaded but not commited then ResourceManager event list will not be empty
-			if(i->mDependency.empty()) {
-				i->doCallback();
-				i = callbacks.erase(i, true);	// Be careful of erasing element during iteration
-			}
-			else
-				++i;
-		}
-	}
+	else
+		loader = nullptr;
+
+	if(performLoad || mImpl->mTaskPool->getThreadCount() == 0)
+		mImpl->mTaskPool->processTaskInThisThread(timer, timeOut);
+
+	return loader;
 }
 
 void ResourceManager::addFactory(IFactory* factory)
 {
 	MCD_ASSUME(mImpl != nullptr);
-	ScopeLock lock(mImpl->mEventQueue.mMutex);
+	ScopeLock lock(mImpl->mMutex);
 	mImpl->addFactory(factory);
 }
 
 void ResourceManager::removeAllFactory()
 {
 	MCD_ASSUME(mImpl != nullptr);
-	ScopeLock lock(mImpl->mEventQueue.mMutex);
+	ScopeLock lock(mImpl->mMutex);
 	mImpl->removeAllFactory();
 }
 
@@ -552,36 +479,178 @@ TaskPool& ResourceManager::taskPool()
 	return *mImpl->mTaskPool;
 }
 
-void ResourceManagerCallback::addDependency(const Path& fileId)
+void IResourceLoader::PathKey::destroyThis()
 {
-	mDependency.push_back(fileId);
+	IResourceLoader* l = getOuterSafe();
+	MCD_ASSUME(l);
+	intrusivePtrRelease(l);
+	l = nullptr;	// The loader may already deleted.
 }
 
-void ResourceManagerCallback::setMajorDependency(const Path& fileId)
+IResourceLoader::IResourceLoader()
+	: Task(0), mPathKey("")//resource.fileId())
+	, mLoadCount(0), mState(NotLoaded)
+	, mResourceManager(nullptr)
+	, mNeedEnqueu(true), mPendForCommit(false)
+	, mOutstandingContinueCount(0)
 {
-	mMajorDependency = fileId;
-	addDependency(fileId);
 }
 
-const Path& ResourceManagerCallback::getMajorDependency() const {
-	return mMajorDependency;
+void IResourceLoader::continueLoad()
+{
+	ScopeLock lock(mMutex);
+	IResourceLoaderPtr holdThis(this);
+	++mOutstandingContinueCount;
+	if(mNeedEnqueu && mResourceManager->taskPool().enqueue(*this)) {
+		mNeedEnqueu = false;
+		// Increment the reference count to indicate the loader is shared by the thread
+		intrusivePtrAddRef(this);
+	}
 }
 
-int ResourceManagerCallback::removeDependency(const Path& fileId)
+void IResourceLoader::dependsOn(const IResourceLoaderPtr& loader)
 {
-	if(mDependency.empty())
-		return 0;
+	if(!loader)
+		return;
 
-	Paths::iterator i=std::find(mDependency.begin(), mDependency.end(), fileId);
-	if(i == mDependency.end())
-		return -1;
-	mDependency.erase(i);
-	return mDependency.size();
+	MCD_ASSERT(loader != this && "Should not depends on itself");
+
+	ScopeLock lock(mMutex);
+	mDepenseOn.push_back(loader.get());
+	loader->mDepenseBy.push_back(this);
 }
 
-void IResourceLoader::onPartialLoaded(IPartialLoadContext& context, uint priority, const char* args)
+void IResourceLoader::releaseThis()
 {
-	context.continueLoad(priority, args);
+	{	ScopeLock lock(mMutex);
+		mPathKey.removeThis();
+//		if(!(mState & Stopped))
+//			mState = Stopped;
+	}
+
+	// The following code may trigger delete, so don't include this into the scope lock.
+	intrusivePtrRelease(static_cast<IntrusiveSharedWeakPtrTarget<AtomicInteger>*>(this));
+}
+
+void IResourceLoader::run(Thread& thread)
+{
+	IResourceLoaderPtr releaseWhenReturn(this, false);
+
+	{	// Process as many load request as possible
+		ScopeLock lock(mMutex);
+		mNeedEnqueu = false;
+
+		while(mOutstandingContinueCount > 0)
+		{
+			--mOutstandingContinueCount;
+
+			// NOTE: A thread may wanna to quit because the user changed the thread pool's count,
+			// so resubmit the task to the pool again and it will be run in other thread.
+			// TODO: Return immediately if TaskPool wanna to quit.
+			if(!thread.keepRun()) {
+				if(mResourceManager && !mResourceManager->taskPool().getThreadCount() == 0)	{
+					mNeedEnqueu = true;
+					lock.unlockAndCancel();
+					continueLoad();
+				}
+				return;
+			}
+
+			if(mState & IResourceLoader::Stopped) {
+				mOutstandingContinueCount = 0;
+				break;
+			}
+
+			_load(&mPathKey.getKey(), mArgs.c_str());
+		}
+
+		mNeedEnqueu = true;
+		mPendForCommit = true;
+	}
+
+	{	// Pend for commit()
+		MCD_ASSUME(mResourceManager && mResourceManager->mImpl);
+		ResourceManager::Impl& impl = *mResourceManager->mImpl;
+		impl.mEventQueue.pushBack(this);
+	}
+}
+
+IResourceLoader::LoadingState IResourceLoader::_load(const Path* fileId, const char* args)
+{
+	MCD_ASSUME(args);
+
+	if(fileId && !mIStream.get() && mResourceManager)
+		mIStream = mResourceManager->mImpl->mFileSystem.openRead(*fileId);
+
+	LoadingState state;
+	{	ScopeUnlock unlock(mMutex);
+		state = load(mIStream.get(), fileId, args);
+	}
+
+	mLoadCount++;
+	// NOTE: Multiple load() may have been performed ,since load() may call continueLoad()
+	// triggering thread task. Therefore we need to check mState before assiging it.
+	mState = (mState & Stopped) ? mState : state;
+
+	// Time to release the stream
+	if(mState & Stopped)
+		mIStream.reset();
+
+	return mState;
+}
+
+const Path& IResourceLoader::fileId() const
+{
+	ScopeLock lock(mMutex);
+	return mPathKey.getKey();
+}
+
+ResourcePtr IResourceLoader::resource() const
+{
+	ScopeLock lock(mMutex);
+	return mResource.lock();
+}
+
+IResourceLoader::LoadingState IResourceLoader::loadingState() const
+{
+	ScopeLock lock(mMutex);
+	return mState;
+}
+
+size_t IResourceLoader::loadCount() const
+{
+	ScopeLock lock(mMutex);
+	return mLoadCount;
+}
+
+size_t IResourceLoader::dependencyParentCount() const
+{
+	ScopeLock lock(mMutex);
+	return mDepenseBy.size();
+}
+
+// NOTE: We should return copy but not reference, since the std::vector may resize
+// by another thread at anytime.
+IResourceLoaderPtr IResourceLoader::getDependencyParent(size_t index) const
+{
+	ScopeLock lock(mMutex);
+	if(index >= mDepenseBy.size())
+		return nullptr;
+	return mDepenseBy[index].lock();
+}
+
+size_t IResourceLoader::dependencyChildCount() const
+{
+	ScopeLock lock(mMutex);
+	return mDepenseOn.size();
+}
+
+IResourceLoaderPtr IResourceLoader::getDependencyChild(size_t index) const
+{
+	ScopeLock lock(mMutex);
+	if(index >= mDepenseOn.size())
+		return nullptr;
+	return mDepenseOn[index].lock();
 }
 
 }	// namespace MCD

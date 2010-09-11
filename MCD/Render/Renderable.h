@@ -7,14 +7,6 @@
 
 namespace MCD {
 
-class MCD_ABSTRACT_CLASS IRenderable
-{
-public:
-	virtual ~IRenderable() {}
-
-	virtual void draw() = 0;
-};	// IRenderable
-
 /*!	A common interface that will make draw call.
 	To simply renderer implementation.
  */
@@ -28,11 +20,11 @@ public:
 
 /*!	The component family which is something renderable.
  */
-class MCD_ABSTRACT_CLASS MCD_RENDER_API RenderableComponent2 : public Component
+class MCD_ABSTRACT_CLASS MCD_RENDER_API RenderableComponent : public Component
 {
 public:
 	sal_override const std::type_info& familyType() const {
-		return typeid(RenderableComponent2);
+		return typeid(RenderableComponent);
 	}
 
 	//! The derived components should override this function for rendering.
@@ -42,7 +34,7 @@ public:
 
 	//! Invoke the RenderableComponent::render() in every Entity under the entityNode sub-tree.
 	static void traverseEntities(sal_maybenull Entity* entityNode);
-};	// RenderableComponent2
+};	// RenderableComponent
 
 }	// namespace MCD
 
