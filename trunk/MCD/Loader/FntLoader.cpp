@@ -62,15 +62,18 @@ IResourceLoader::LoadingState FntLoader::load(std::istream* is, const Path* file
 
 				// Assign the correct value
 				converter << value;
-				if(key == "id")	{			converter >> charId; desc = &mTmp->charSet.chars[charId];	}
-				else if(key == "x")			converter >> desc->x;
-				else if(key == "y")			converter >> desc->y;
-				else if(key == "width")		converter >> desc->width;
-				else if(key == "height")	converter >> desc->height;
-				else if(key == "xoffset")	converter >> desc->xOffset;
-				else if(key == "yoffset")	converter >> desc->yOffset;
-				else if(key == "xadvance")	converter >> desc->xAdvance;
-				else if(key == "page")		converter >> desc->page;
+				if(key == "id")	{				converter >> charId; desc = &mTmp->charSet.chars[charId];	}
+				else {
+					if(!desc) return Aborted;
+					if(key == "x")				converter >> desc->x;
+					else if(key == "y")			converter >> desc->y;
+					else if(key == "width")		converter >> desc->width;
+					else if(key == "height")	converter >> desc->height;
+					else if(key == "xoffset")	converter >> desc->xOffset;
+					else if(key == "yoffset")	converter >> desc->yOffset;
+					else if(key == "xadvance")	converter >> desc->xAdvance;
+					else if(key == "page")		converter >> desc->page;
+				}
 			}
 		}
 		else if(token == "page")	// TODO: Support multiple pages

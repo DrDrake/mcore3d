@@ -154,7 +154,7 @@ inline std::string		get(TypeSelect<std::string>,HSQUIRRELVM v,int idx)			{ const
 template<typename T> const T&	get(TypeSelect<const T&>,HSQUIRRELVM v,int idx)		{ T* p; sq_getinstanceup(v, idx, (SQUserPointer*)&p, 0); return *p; }
 template<typename T> const T*	get(TypeSelect<const T*>,HSQUIRRELVM v,int idx)		{ T* p; sq_getinstanceup(v, idx, (SQUserPointer*)&p, 0); return p; }
 #else
-template<typename T> const T&	get(TypeSelect<const T&>,HSQUIRRELVM v,int idx)		{ T* p; CAPI_VERIFY(sq_getinstanceup(v, idx, (SQUserPointer*)&p, ClassTraits<T>::classID())); MCD_ASSERT(p); return *p; }
+template<typename T> const T&	get(TypeSelect<const T&>,HSQUIRRELVM v,int idx)		{ T* p; CAPI_VERIFY(sq_getinstanceup(v, idx, (SQUserPointer*)&p, ClassTraits<T>::classID())); MCD_ASSUME(p); return *p; }
 template<typename T> const T*	get(TypeSelect<const T*>,HSQUIRRELVM v,int idx)		{ if(sq_gettype(v,idx) == OT_NULL) return NULL; T* p; CAPI_VERIFY(sq_getinstanceup(v, idx, (SQUserPointer*)&p, ClassTraits<T>::classID())); return p; }
 #endif
 template<typename T> T&			get(TypeSelect<T&>,HSQUIRRELVM v,int idx)			{ return const_cast<T&>(get(TypeSelect<const T&>(), v, idx)); }

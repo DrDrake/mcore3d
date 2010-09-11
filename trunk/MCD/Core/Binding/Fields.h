@@ -100,7 +100,7 @@ template<> struct GetterSetter<const std::string> {
 template<class ResultPolicy, class Callee, class RawField>
 SQInteger pushField(Callee* callee, RawField (Callee::*fieldPtr), HSQUIRRELVM v)
 {
-	MCD_ASSERT(callee);
+	MCD_ASSUME(callee);
 	typedef GetterSetter<RawField> GetterSetter;
 	return ResultPolicy::template pushResult(v, GetterSetter::get(callee->*fieldPtr));
 }
@@ -119,7 +119,7 @@ SQInteger fieldGetterFunction(HSQUIRRELVM v)
 template<class Callee, class RawField>
 SQInteger assignField(Callee* callee, RawField (Callee::*fieldPtr), HSQUIRRELVM v, int index)
 {
-	MCD_ASSERT(callee);
+	MCD_ASSUME(callee);
 	typedef typename GetterSetter<RawField>::setterType fieldType;
 	MCD_VERIFY(match(TypeSelect<fieldType>(), v, index));
 	callee->*fieldPtr = get(TypeSelect<fieldType>(), v, index);

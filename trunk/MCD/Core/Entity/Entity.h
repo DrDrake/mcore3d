@@ -149,7 +149,7 @@ public:
 		\return The added component
 	 */
 	template<class T>
-	sal_maybenull T* addComponent(sal_in_opt T* component) {
+	sal_notnull T* addComponent(sal_in T* component) {
 		return static_cast<T*>(_addComponent(component));
 	}
 
