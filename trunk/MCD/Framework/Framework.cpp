@@ -378,19 +378,21 @@ PrefabLoaderComponent* Framework::Impl::loadPrefabTo(const Path& resourcePath, E
 	if(!location)
 		return nullptr;
 
-	std::auto_ptr<PrefabLoaderComponent> c(new PrefabLoaderComponent);
+	PrefabLoaderComponent* c(new PrefabLoaderComponent);
 	c->prefab = dynamic_cast<Prefab*>(mResourceManager->load(resourcePath, blockingIteration, 0, args).get());
 
-	if(nullptr == c->prefab)
+	if(!c->prefab) {
+		c->destroyThis();
 		return nullptr;
+	}
 
-	location->addComponent(c.get());
+	location->addComponent(c);
 
 	// Make sure the prefab is committed in blocking load
 	if(blockingIteration > 0)
 		c->update(0);
 
-	return c.release();
+	return c;
 }
 
 bool Framework::Impl::update(Event& e)
