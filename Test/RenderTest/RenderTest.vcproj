@@ -282,6 +282,10 @@
 				</FileConfiguration>
 			</File>
 			<File
+				RelativePath=".\PodLoaderTest.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\RendererTest.cpp"
 				>
 			</File>
