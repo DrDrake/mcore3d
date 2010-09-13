@@ -205,6 +205,7 @@ bool Mesh::create(const void* const* data, Mesh::StorageHint storageHint)
 	D3DVERTEXELEMENT9 vertexDecl[Mesh::cMaxAttributeCount + 1];
 	for(size_t i=Mesh::cPositionAttrIdx; i<attributeCount; ++i) {
 		const Attribute& a = attributes[i];
+		MCD_ASSERT(a.format.gpuFormat.dataType != -1);
 		const D3DVERTEXELEMENT9 d = {
 			a.bufferIndex, a.byteOffset,
 			(BYTE)a.format.gpuFormat.dataType,

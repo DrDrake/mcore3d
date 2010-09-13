@@ -237,6 +237,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\AudioSourceComponent.h"
+				>
+			</File>
+			<File
 				RelativePath=".\OggLoader.h"
 				>
 			</File>
@@ -263,6 +267,10 @@
 			</File>
 			<File
 				RelativePath=".\AudioSource.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\AudioSourceComponent.cpp"
 				>
 			</File>
 			<File
