@@ -51,8 +51,7 @@ TEST(RendererTest)
 		EntityPtr e = new Entity("Texture render target");
 		e->insertBefore(&scene);
 
-		textureRenderTarget = new RenderTargetComponent;
-		e->addComponent(textureRenderTarget);
+		textureRenderTarget = e->addComponent(new RenderTargetComponent);
 		textureRenderTarget->clearColor = ColorRGBAf(0.3f, 0.6f, 0.9f, 1);
 		textureRenderTarget->window = nullptr;
 		textureRenderTarget->entityToRender = &scene;
@@ -62,12 +61,10 @@ TEST(RendererTest)
 	}
 
 	{	// Setup GUI layer
-		Entity* e = new Entity("Text");
+		Entity* e = framework.guiLayer().addChild(new Entity("Text"));
 		e->localTransform.setTranslation(Vec3f(0, 600, 0));
 //		e->localTransform.setMat33(Mat33f::makeXYZRotation(0, 0, 3.14f/4));
-		framework.guiLayer().addChild(e);
-		TextLabelComponent* text = new TextLabelComponent;
-		e->addComponent(text);
+		TextLabelComponent* text = e->addComponent(new TextLabelComponent);
 		text->text = "This is a text label\nMCore rocks!";
 	}
 
@@ -75,7 +72,7 @@ TEST(RendererTest)
 	MaterialComponent* material1 = new MaterialComponent;
 	scene.addComponent(material1);
 	material1->diffuseColor = ColorRGBAf(1, 1, 0.5f, 1);
-	material1->diffuseMap = dynamic_cast<Texture*>(resourceManager.load("InterlacedTrans256x256.png").get());
+	material1->diffuseMap = dynamic_cast<Texture*>(resourceManager.load("UpRight.tga").get());
 	material1->opacity = 1.0f;
 
 	MaterialComponent* material2 = new MaterialComponent;
@@ -86,7 +83,7 @@ TEST(RendererTest)
 	// Create mesh
 	MeshComponent* boxMesh = new MeshComponent;
 	boxMesh->mesh = new Mesh("");
-	CHECK(boxMesh->mesh->create(ChamferBoxBuilder(0.5f, 5, true), Mesh::Static));
+	CHECK(boxMesh->mesh->create(ChamferBoxBuilder(0.0f, 5, true), Mesh::Static));
 
 	Entity* boxes = new Entity("Boxes");
 	scene.addChild(boxes);

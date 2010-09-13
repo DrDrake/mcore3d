@@ -92,17 +92,17 @@ static GpuDataFormat toCpuDataFormat(EPVRTDataType type, size_t count)
 	if(type == EPODDataFloat && count == 1)
 		return GpuDataFormat::get("floatR32");
 	else if(type == EPODDataFloat && count == 2)
-		return GpuDataFormat::get("floatR32G32");
+		return GpuDataFormat::get("floatRG32");
 	else if(type == EPODDataFloat && count == 3)
-		return GpuDataFormat::get("floatR32G32B32");
+		return GpuDataFormat::get("floatRGB32");
 	else if(type == EPODDataFloat && count == 4)
-		return GpuDataFormat::get("floatR32G32B32A32");
+		return GpuDataFormat::get("floatRGBA32");
 	else if(type == EPODDataUnsignedShort && count == 1)
 		return GpuDataFormat::get("uintR16");
 	else if(type == EPODDataUnsignedByte && count == 1)
 		return  GpuDataFormat::get("uintR8");
 	else if(type == EPODDataUnsignedByte && count == 2)
-		return  GpuDataFormat::get("uintR8G8");
+		return  GpuDataFormat::get("uintRG8");
 	else if(type == EPODDataUnsignedByte && count == 3)
 		return  GpuDataFormat::get("uintRGB8");
 	else if(type == EPODDataUnsignedByte && count == 4)
@@ -120,7 +120,7 @@ static void assignAttribute(Mesh& mesh, std::vector<void*>& bufferPtrs, const SP
 	a.format.channel = 1;
 	a.stride = uint16_t(data.nStride);
 
-	MCD_ASSERT(!a.format.gpuFormat.isValid());
+	MCD_ASSERT(a.format.gpuFormat.isValid());
 
 	if(isIndex) {
 		a.byteOffset = 0;
@@ -614,6 +614,7 @@ IResourceLoader::LoadingState PodLoader::Impl::load(std::istream* is, const Path
 		nodeToEntity.push_back(e);
 
 		// Add mesh component if 1) It's a pod mesh node and 2) The mesh format is supported by our loader.
+		// TODO: Sort meshes by material before creating the Entity structure
 		if(i < mPod.nNumMeshNode && mMeshes[podNode.nIdx].first->vertexCount > 0)
 		{
 			// Setup for material
@@ -629,9 +630,9 @@ IResourceLoader::LoadingState PodLoader::Impl::load(std::istream* is, const Path
 				e->addComponent(sm.get());*/
 			}
 			else {
-				MeshComponent* c = new MeshComponent;
+				Entity* e2 = e->addChild(new Entity);
+				MeshComponent* c = e2->addComponent(new MeshComponent);
 				c->mesh = mMeshes[podNode.nIdx].first;
-				e->addComponent(c);
 			}
 		}
 	}

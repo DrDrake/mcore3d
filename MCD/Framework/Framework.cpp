@@ -36,11 +36,13 @@
 #include "../Render/RenderWindow.h"
 #include "../Render/SkeletonAnimation.h"
 #include "../Render/Animation.h"
-//#include "../Component/Prefab.h"
 
-//#include "../Loader/ResourceLoaderFactory.h"
+#include "../Loader/BitmapLoader.h"
 #include "../Loader/FntLoader.h"
+#include "../Loader/JpegLoader.h"
 #include "../Loader/PngLoader.h"
+#include "../Loader/PvrLoader.h"
+#include "../Loader/TgaLoader.h"
 
 #include "../Audio/AudioDevice.h"
 
@@ -137,8 +139,12 @@ Framework::Impl::Impl()
 	}
 
 	{	// Register default resource loaders
+		mResourceManager->addFactory(new BitmapLoaderFactory);
 		mResourceManager->addFactory(new FntLoaderFactory);
+		mResourceManager->addFactory(new JpegLoaderFactory);
 		mResourceManager->addFactory(new PngLoaderFactory);
+		mResourceManager->addFactory(new PvrLoaderFactory);
+		mResourceManager->addFactory(new TgaLoaderFactory);
 	}
 
 	{	// Default light

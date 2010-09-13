@@ -207,6 +207,10 @@
 			ReferencedProjectIdentifier="{5570494C-4F2D-4C2B-956A-E1804C73C524}"
 			RelativePathToProject="..\MCD\Audio\Audio.vcproj"
 		/>
+		<ProjectReference
+			ReferencedProjectIdentifier="{ABA910B1-77C9-436A-A4EF-036E45849237}"
+			RelativePathToProject="..\MCD\Framework\Framework.vcproj"
+		/>
 	</References>
 	<Files>
 		<Filter
@@ -224,6 +228,10 @@
 			>
 			<File
 				RelativePath=".\3DTest.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\AudioComponentTest.cpp"
 				>
 			</File>
 			<File

@@ -201,8 +201,6 @@ template<typename T> struct pointer<const T&> {
 	static HostType* to(const T& src) { return const_cast<T*>(&src); }
 };
 
-// Type transformation for using with getter/setter functions
-
 #undef CAPI_VERIFY
 
 }	// namespace Binding

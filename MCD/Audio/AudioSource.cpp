@@ -231,7 +231,8 @@ bool AudioSource::isReallyPlaying() const
 bool AudioSource::isPcmPlayToEnd() const
 {
 	MCD_ASSERT(totalPcm() == 0 || currentPcm() <= totalPcm());
-	return currentPcm() == totalPcm() && totalPcm() > 0;
+	const uint64_t total = totalPcm();
+	return currentPcm() == total && total > 0;
 }
 
 bool AudioSource::isPaused() const
