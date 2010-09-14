@@ -11,6 +11,37 @@ int main(int, char const*[])
 	_CrtSetBreakAlloc(-1);
 #endif
 
+	{	// Copy render API specific dll into MCDRender(d).dll
+		using namespace std;
+		// NOTE: The "SelectDll.txt" should contains multiple pairs of text:
+		// ../../Bin/MCDRenderDX9.dll
+		// ../../Bin/MCDRender.dll
+		// ../../Bin/MCDRenderDX9d.dll
+		// ../../Bin/MCDRenderd.dll
+		ifstream infile("SelectDll.txt", ifstream::in);
+		string srcDll, destDll;
+
+		while(infile.good())
+		{
+			infile >> srcDll >> destDll;
+			printf("Replacing DLL \"%s\" with \"%s\"... ", destDll.c_str(), srcDll.c_str());
+
+			// Reference: http://blog.emptycrate.com/node/264
+			ifstream f1(srcDll.c_str(), fstream::binary);
+			ofstream f2(destDll.c_str(), fstream::trunc|fstream::binary);
+			if(f1.good() && f2.good()) {
+				f2 << f1.rdbuf();
+				printf("Succeed\n");
+			}
+			else {
+				if(!f1.good())
+					printf("Failed to open file %s\n", srcDll.c_str());
+				if(!f2.good())
+					printf("Failed to open file %s\n", destDll.c_str());
+			}
+		}
+	}
+
 	size_t ret;
 	CppTestHarness::TestRunner runner;
 	runner.ShowTestName(true);

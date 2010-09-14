@@ -211,6 +211,10 @@
 			ReferencedProjectIdentifier="{ABA910B1-77C9-436A-A4EF-036E45849237}"
 			RelativePathToProject="..\MCD\Framework\Framework.vcproj"
 		/>
+		<ProjectReference
+			ReferencedProjectIdentifier="{500413B2-5AE6-41CE-BCFF-D90DB2755869}"
+			RelativePathToProject="..\MCD\Render\Render.vcproj"
+		/>
 	</References>
 	<Files>
 		<Filter
@@ -273,6 +277,10 @@
 		</Filter>
 		<File
 			RelativePath=".\RunTest.txt"
+			>
+		</File>
+		<File
+			RelativePath=".\SelectDll.txt"
 			>
 		</File>
 	</Files>

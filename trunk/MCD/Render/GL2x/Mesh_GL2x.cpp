@@ -24,7 +24,7 @@ static void bindUv(int unit, const Mesh::Attribute& a, const Mesh::Handles& hand
 		glClientActiveTexture(GL_TEXTURE0);
 }
 
-void Mesh::draw()
+void Mesh::draw(size_t drawIndexOffset, size_t drawIndexCount)
 {
 	if(indexCount == 0)
 		return;
@@ -83,26 +83,34 @@ void Mesh::draw()
 		// TODO: Call glDisableVertexAttribArray?
 	}
 
-	drawFaceOnly();
+	drawFaceOnly(drawIndexOffset, drawIndexCount);
 
 	glDisableClientState(GL_COLOR_ARRAY);
 	glDisableClientState(GL_NORMAL_ARRAY);
 	glDisableClientState(GL_TEXTURE_COORD_ARRAY);
 }
 
-void Mesh::drawFaceOnly()
+void Mesh::drawFaceOnly(size_t drawIndexOffset, size_t drawIndexCount)
 {
+	if(indexCount == 0)
+		return;
+
+	drawIndexCount = (drawIndexCount == 0) ? this->indexCount : drawIndexCount;
+
+	// The offset being passed to glDrawElements should be in number of bytes
+	drawIndexOffset *= sizeof(uint16_t);
+
 	{	// Calling glVertexPointer() as late as possible will have a big performance difference!
 		// Reference: http://developer.nvidia.com/object/using_VBOs.html
 		glEnableClientState(GL_VERTEX_ARRAY);
 		const Attribute& a = attributes[cPositionAttrIdx];
 		glBindBuffer(GL_ARRAY_BUFFER, *handles[a.bufferIndex]);
-		glVertexPointer(3, a.format.gpuFormat.dataType, a.stride, (const void*)a.byteOffset);
+		glVertexPointer(3, a.format.gpuFormat.dataType, a.stride, (GLvoid*)a.byteOffset);
 	}
 
 	{	const Attribute& a = attributes[cIndexAttrIdx];
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, *handles[a.bufferIndex]);
-		glDrawElements(GL_TRIANGLES, indexCount, a.format.gpuFormat.dataType, 0);
+		glDrawElements(GL_TRIANGLES, drawIndexCount, a.format.gpuFormat.dataType, (GLvoid*)drawIndexOffset);
 	}
 
 	glDisableClientState(GL_VERTEX_ARRAY);

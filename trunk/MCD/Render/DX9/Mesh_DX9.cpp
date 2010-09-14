@@ -14,14 +14,16 @@
 
 namespace MCD {
 
-void Mesh::draw() {
-	drawFaceOnly();
+void Mesh::draw(size_t drawIndexOffset, size_t drawIndexCount) {
+	drawFaceOnly(drawIndexOffset, drawIndexCount);
 }
 
-void Mesh::drawFaceOnly()
+void Mesh::drawFaceOnly(size_t drawIndexOffset, size_t drawIndexCount)
 {
 	if(indexCount == 0 || vertexCount == 0)
 		return;
+
+	drawIndexCount = (drawIndexCount == 0) ? this->indexCount : drawIndexCount;
 
 	LPDIRECT3DDEVICE9 device = getDevice();
 	MCD_ASSUME(device);
@@ -47,7 +49,7 @@ void Mesh::drawFaceOnly()
 	device->SetVertexDeclaration(decl);
 
 	// Draw the primitives
-	MCD_VERIFY(device->DrawIndexedPrimitive(D3DPT_TRIANGLELIST, 0, 0, vertexCount, 0, indexCount/3) == D3D_OK);
+	MCD_VERIFY(device->DrawIndexedPrimitive(D3DPT_TRIANGLELIST, 0, 0, vertexCount, drawIndexOffset, drawIndexCount/3) == D3D_OK);
 }
 
 void Mesh::clear()
