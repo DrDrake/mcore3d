@@ -43,8 +43,8 @@ public:
 
 	float time;
 
-	float volumn;	//!< From 0 to 1, default is 1
-	float groupVolumn;
+	float volume;	//!< From 0 to 1, default is 1
+	float groupvolume;
 
 	float totalTime() const;
 

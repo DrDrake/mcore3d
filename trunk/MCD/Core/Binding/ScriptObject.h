@@ -25,6 +25,8 @@ public:
 
 	HSQOBJECT& handle() { return mObj; }
 
+	const HSQOBJECT& handle() const { return mObj; }
+
 	SQObjectType type() const { return mObj._type; }
 
 // Operations

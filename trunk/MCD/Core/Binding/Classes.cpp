@@ -155,6 +155,82 @@ void ClassesManager::createMemoryControllerSlot(HSQUIRRELVM v, ScriptObject& cla
 	sq_pop(v, 1);
 }
 
+static SQInteger sqVarGet(HSQUIRRELVM vm)
+{
+	/// stack: this, idx, __getTable
+
+	// Find the get method in the get table
+	sq_push(vm, 2);	/// stack: this, idx, __getTable
+	if(SQ_FAILED(sq_rawget(vm, -2)))
+		return sq_throwerror(vm, "Member Variable not found");
+	/// stack: this, idx, __getTable, getFunc
+
+	// Push 'this'
+	sq_push(vm, 1);
+	/// stack: this, idx, __getTable, getFunc, this
+
+	// Call the getter
+	CAPI_VERIFY(sq_call(vm, 1, true, true));
+	/// stack: this, idx, __getTable, getFunc
+
+	// Return one value
+	return 1;
+}
+
+static SQInteger sqVarSet(HSQUIRRELVM vm)
+{
+	/// stack: this, idx, val, __setTable
+
+	// Find the set method in the set table
+	sq_push(vm, 2);	/// stack: this, idx, val, __setTable, idx
+
+	if(SQ_FAILED(sq_rawget(vm, -2)))
+		return sq_throwerror(vm, "Member Variable not found");
+	/// stack: this, idx, val, __setTable, setFunc
+
+	// Push 'this'
+	sq_push(vm, 1);
+	sq_push(vm, 3);
+	/// stack: this, idx, val, __setTable, setFunc, this, val
+
+	// Call the setter
+	return sq_call(vm, 2, false, true);
+	/// stack: this, idx, val, __setTable, setFunc
+}
+
+void ClassesManager::registerGetSetTable(HSQUIRRELVM v, ScriptObject& classObj)
+{
+	sq_pushobject(v, classObj.handle());
+
+	// Add the get table (static)
+	HSQOBJECT getTable;
+	sq_pushstring(v, "__getTable", -1);
+	sq_newtable(v);
+	sq_getstackobj(v, -1, &getTable);
+	sq_newslot(v, -3, true);
+
+	// Add the set table (static)
+	HSQOBJECT setTable;
+	sq_pushstring(v, "__setTable", -1);
+	sq_newtable(v);
+	sq_getstackobj(v, -1, &setTable);
+	sq_newslot(v, -3, true);
+
+	// Override _get
+	sq_pushstring(v, _SC("_get"), -1);
+	sq_pushobject(v, getTable);	// Push the get table as a free variable
+	sq_newclosure(v, &sqVarGet, 1);
+	sq_newslot(v, -3, false);
+
+	// Override _set
+	sq_pushstring(v, "_set", -1);
+	sq_pushobject(v, setTable);	// Push the set table as a free variable
+	sq_newclosure(v, &sqVarSet, 1);
+	sq_newslot(v, -3, false);
+
+	sq_pop(v, 1);
+}
+
 }	// namespace Binding
 
 }	// namespace MCD

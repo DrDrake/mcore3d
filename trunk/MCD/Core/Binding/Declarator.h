@@ -62,6 +62,8 @@ protected:
 		!null   == 0          static function
 		null    ignored       raw function
 	 */
+	void pushFunction(const char* name, void* func, size_t sizeofFunc, int paramCountCheck, SQFUNCTION dispatchFunc, const ScriptObject& whereToPush);
+
 	void pushFunction(const char* name, void* func, size_t sizeofFunc, int paramCountCheck, SQFUNCTION dispatchFunc);
 
 	ScriptObject _hostObject;
@@ -72,6 +74,9 @@ class MCD_CORE_API ClassDeclaratorBase : public Declarator
 {
 protected:
 	ClassDeclaratorBase(const ScriptObject& hostObject, HSQUIRRELVM vm, const char* className);
+
+	ScriptObject getterTable();
+	ScriptObject setterTable();
 
 	/*!	Modify the _get/_set meta functions to enable direct member variable get/set.
 	 */
@@ -209,7 +214,7 @@ public:
 		return *this;
 	}
 
-// Fields setter
+// Fields get set
 	// For a getter, we assume the return policy is either plain or objNoCare
 	// If a custom return policy is really needed, wrappedMethod can be used instead.
 	template<typename Field>
@@ -238,65 +243,13 @@ public:
 	}
 
 	template<typename Field>
-	ClassDeclarator& getset(const char* name, Field field)
+	ClassDeclarator& var(const char* name, Field field)
 	{
-		char getBuffer[64] = "_get";
-		char setBuffer[64] = "_set";
-
-		// Shut up MSVC code analysis warnings
-		if(scstrlen(name) + 5 > (sizeof getBuffer/sizeof(char)))
-			return *this;
-
-		scscat(getBuffer, name);
-		scscat(setBuffer, name);
-		getter(getBuffer, field);
-		setter(setBuffer, field);
-
-		return *this;
-	}
-
-	template<typename ReturnPolicy, typename GetFunc, typename SetFunc>
-	ClassDeclarator& getsetWrapped(const char* name, GetFunc getFunc, SetFunc setFunc)
-	{
-		char getBuffer[64] = "_get";
-		char setBuffer[64] = "_set";
-		scscat(getBuffer, name);
-		scscat(setBuffer, name);
-		wrappedMethod<ReturnPolicy>(getBuffer, getFunc);
-		wrappedMethod(setBuffer, setFunc);
-		registerMemVarAttribute(getBuffer);
-		return *this;
-	}
-
-	template<typename GetFunc, typename SetFunc>
-	ClassDeclarator& getsetWrapped(const char* name, GetFunc getFunc, SetFunc setFunc)
-	{
-		char getBuffer[64] = "_get";
-		char setBuffer[64] = "_set";
-		scscat(getBuffer, name);
-		scscat(setBuffer, name);
-		wrappedMethod(getBuffer, getFunc);
-		wrappedMethod(setBuffer, setFunc);
-		registerMemVarAttribute(getBuffer);
-		return *this;
-	}
-
-	// Transform member variable XXX access into _getXXX() and _setXXX() function
-	// Behind the scene a squirrel function is injected for the class which convert
-	// the filed name to a function name:
-	// className._get<-function(i) {
-	//   local g = ::className["_get"+i.tostring()];
-	//   return g == null ? null : g();
-	// }
-	ClassDeclarator& enableGetset()
-	{
-		ClassDeclaratorBase::enableGetset();
-		return *this;
-	}
-
-	ClassDeclarator& memVarReflection(const char* varName, const char* explicitType=NULL)
-	{
-		ClassDeclaratorBase::memVarReflection(varName, explicitType);
+		typedef typename DetectFieldType<Field>::type fieldType;
+		typedef typename DefaultReturnPolicy<fieldType>::policy returnPolicy;
+		typedef typename GetterReturnPolicy<returnPolicy>::policy getterReturnPolicy;
+		pushFunction(name, &field, sizeof(field), 0, &fieldGetterFunction<Class, Field, getterReturnPolicy>, getterTable());
+		pushFunction(name, &field, sizeof(field), 1, &fieldSetterFunction<Class, Field>, setterTable());
 		return *this;
 	}
 

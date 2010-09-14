@@ -25,6 +25,10 @@ SCRIPT_CLASS_DECLAR(Foo);
 SCRIPT_CLASS_REGISTER(Foo)
 	.declareClass<Foo>("Foo")
 	.constructor()
+	.var("x", &Foo::x)
+	.var("y", &Foo::y)
+	.var("str", &Foo::str)
+	// In general, getter and setter function has a better performance
 	.getter("getX", &Foo::x)
 	.setter("setX", &Foo::x)
 	.getterSetter("getY", "setY", &Foo::y)
@@ -39,6 +43,10 @@ TEST(MemberField_BindingTest)
 {
 	Binding::VMCore vm;
 	Binding::ClassTraits<Foo>::bind(&vm);
+
+	CHECK(vm.runScript("local f=Foo(); f.x=2;assert(2==f.x)"));
+	CHECK(vm.runScript("local f=Foo(); f.y=4;assert(4==f.y)"));
+	CHECK(vm.runScript("local f=Foo(); f.str=\"Hi!\";assert(\"Hi!\"==f.str)"));
 
 	CHECK(vm.runScript("local f=Foo(); f.setX(2); assert(2==f.getX());"));
 	CHECK(vm.runScript("local f=Foo(); f.setY(2); assert(2==f.getY());"));

@@ -30,6 +30,8 @@ public:
 
 	static const int MEMORY_CONTROLLER_PARAM = 0x4567C0DE;
 
+	static void registerGetSetTable(HSQUIRRELVM v, ScriptObject& classObj);
+
 	/*!	A callback function for the user to intercept the class registration process
 		so that they have a chance to associate a std::type_info with the ClassID.
 		By default this function pointer is null, set it to your own function if you

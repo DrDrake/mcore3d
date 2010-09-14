@@ -99,7 +99,7 @@ public:
 
 	float gain() const;
 
-	//! Set the volumn from 0 to 1, default is 1.
+	//! Set the volume from 0 to 1, default is 1.
 	void setGain(float value);
 
 // 3d attributes
