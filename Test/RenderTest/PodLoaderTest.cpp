@@ -1,12 +1,12 @@
 #include "Pch.h"
 #include "../../MCD/Framework/Framework.h"
+#include "../../MCD/Loader/Max3dsLoader.h"
 #include "../../MCD/Loader/PodLoader.h"
 #include "../../MCD/Render/Chamferbox.h"
 #include "../../MCD/Render/Font.h"
 #include "../../MCD/Render/Material.h"
 #include "../../MCD/Render/Mesh.h"
 #include "../../MCD/Render/Renderer.h"
-#include "../../MCD/Render/RenderTargetComponent.h"
 #include "../../MCD/Render/Texture.h"
 #include "../../MCD/Core/Entity/BehaviourComponent.h"
 #include "../../MCD/Core/Entity/Entity.h"
@@ -21,14 +21,17 @@ TEST(PodLoaderTest)
 	CHECK(framework.addFileSystem("Media"));
 	CHECK(framework.initWindow("title=PodLoaderTest;width=800;height=600;fullscreen=0;FSAA=4"));
 
-	const char* model = "Scene/City/scene.pod";
-//	const char* model = "Scene/scene.pod";
+//	const char* model = "Scene/City/scene.pod";
+//	const char* model = "3M00696/buelllightning.pod";
+//	const char* model = "Scene/tv.pod";
+	const char* model = "Scene/City/scene.3ds";
 
 	Entity& root = framework.rootEntity();
 	Entity& scene = framework.sceneLayer();
 	RendererComponent* renderer = root.findComponentInChildrenExactType<RendererComponent>();
 
 	{	// Register the pod loader
+		framework.addLoaderFactory(new Max3dsLoaderFactory);
 		framework.addLoaderFactory(new PodLoaderFactory);
 	}
 
@@ -42,7 +45,7 @@ TEST(PodLoaderTest)
 	{	// Load the model using prefab
 		Entity* e = new Entity("Model prefab");
 		scene.addChild(e);
-		e->localTransform.setScale(Vec3f(0.2f));
+		e->localTransform.setScale(Vec3f(0.1f));
 		CHECK(framework.loadPrefabTo(model, e));
 	}
 

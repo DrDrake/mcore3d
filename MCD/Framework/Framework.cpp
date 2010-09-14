@@ -300,7 +300,8 @@ bool Framework::Impl::initWindow(RenderWindow& existingWindow, bool takeOwnershi
 	}
 
 	{	// Input component
-		Entity* e = mSystemEntity->addChild(new Entity("Input"));
+		Entity* e = new Entity("Input");
+		e->insertAfter(mGuiLayer.getNotNull());
 #ifdef MCD_IPHONE
 		iPhoneInputComponent* c = new iPhoneInputComponent;
 #else

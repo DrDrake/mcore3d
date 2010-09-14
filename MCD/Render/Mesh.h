@@ -102,14 +102,19 @@ public:
 	static const int8_t cPositionAttrIdx = 1;
 
 // Operations
-	//! Render the mesh with all associated attributes.
-	void draw();
+	/*!Render the mesh with all associated attributes.
+		\param drawIndexOffset Offset of the indices being used in the draw-call.
+
+		\param drawIndexCount Number of the indices being used in the draw-call.
+			If drawIndexCount is 0, drawIndexCount will be set to the indexCount of this Mesh.
+	 */
+	void draw(size_t drawIndexOffset=0, size_t drawIndexCount=0);
 
 	/*!	Render the mesh without any attributes other then position.
 		Only the vertex and index buffer is used, this function is usefull for example
 		depth pre-pass or render for picking.
 	 */
-	void drawFaceOnly();
+	void drawFaceOnly(size_t drawIndexOffset=0, size_t drawIndexCount=0);
 
 	//!	Clear all buffers and reseting the Mesh into it's initial state.
 	void clear();

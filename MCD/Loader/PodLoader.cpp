@@ -55,13 +55,10 @@ public:
 		if(!mSystemEntities)
 			return;
 
-		if(Entity* e = mSystemEntities->findEntityInDescendants("Resource manager")) {
-			if(ResourceManagerComponent* c = dynamic_cast<ResourceManagerComponent*>(e->findComponent<SystemComponent>()))
-				mResourceManager = &c->resourceManager();
-		}
+		if(ResourceManagerComponent* c = mSystemEntities->findComponentInChildrenExactType<ResourceManagerComponent>())
+			mResourceManager = &c->resourceManager();
 
-		//if(Entity* e = mSystemEntities->findEntityInDescendants("Animation updater"))
-		//	mAnimationUpdater = dynamic_cast<AnimationUpdaterComponent*>(e->findComponent<BehaviourComponent>());
+//		mAnimationUpdater = mSystemEntities->findComponentInChildrenExactType<AnimationUpdaterComponent>())
 
 		//if(Entity* e = mSystemEntities->findEntityInDescendants("Skeleton animation updater"))
 		//	mSkeletonAnimationUpdater = dynamic_cast<SkeletonAnimationUpdaterComponent*>(e->findComponent<BehaviourComponent>());
@@ -138,7 +135,7 @@ static void assignAttribute(Mesh& mesh, std::vector<void*>& bufferPtrs, const SP
 
 	mesh.attributeCount++;
 }
-/*
+
 static void getLocalTransform(const CPVRTModelPOD& pod, const SPODNode& node, Mat44f& ret)
 {
 	PVRTMat4& mat = reinterpret_cast<PVRTMat4&>(ret);
@@ -152,7 +149,7 @@ static void getLocalTransform(const CPVRTModelPOD& pod, const SPODNode& node, Ma
 
 	mat = mat.transpose();
 }
-
+/*
 static StrideArray<Vec3f> getVertexData(const SPODMesh& mesh)
 {
 	StrideArray<Vec3f> ret(nullptr, mesh.nNumVertex, mesh.sVertex.nStride);
@@ -249,7 +246,7 @@ IResourceLoader::LoadingState PodLoader::Impl::load(std::istream* is, const Path
 		MaterialComponent* m = new MaterialComponent;
 
 		m->opacity = material.fMatOpacity;
-//		m->specularPower = material.fMatShininess * 100;
+		m->specularExponent = material.fMatShininess * 100;
 		m->diffuseColor = ColorRGBAf(reinterpret_cast<const ColorRGBf&>(*material.pfMatDiffuse), 1);
 		m->specularColor = ColorRGBAf(reinterpret_cast<const ColorRGBf&>(*material.pfMatSpecular), 1);
 
@@ -470,11 +467,11 @@ IResourceLoader::LoadingState PodLoader::Impl::load(std::istream* is, const Path
 				reinterpret_cast<Vec4f&>(frames[k]) = Vec4f(1);
 			++j;	// Move to next node with animation
 		}
-	}
+	}*/
 
 	bool hasSkeleton = false;
 
-	if(!subTrackStructure.empty())
+/*	if(!subTrackStructure.empty())
 	{	// Setup the skeleton
 		skeleton->init(subTrackStructure.size() / AnimationComponent::subtrackPerEntity);
 		skeleton->basePose.init(subTrackStructure.size() / AnimationComponent::subtrackPerEntity);
@@ -608,8 +605,8 @@ IResourceLoader::LoadingState PodLoader::Impl::load(std::istream* is, const Path
 		e->name = podNode.pszName;
 		e->asChildOf(nodeToEntity[podNode.nIdxParent + 1].getNotNull());	// SPODNode::nIdxParent gives -1 for no parent
 
-//		if(!hasSkeleton)
-//			getLocalTransform(mPod, podNode, e->localTransform);
+		if(!hasSkeleton)
+			getLocalTransform(mPod, podNode, e->localTransform);
 
 		nodeToEntity.push_back(e);
 

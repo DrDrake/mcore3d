@@ -52,13 +52,14 @@ void AudioSourceComponent::update()
 {
 	if(play)
 	{
-		if(!audioSource.isPlaying())
+		if(!audioSource.isPlaying() || audioSource.isPaused())
 			audioSource.play();
 
 		if(filePath != lastFilePath) {	// Check if user want to play another audio file
 			// Find the Entity tree root
 			if(Entity* e = Entity::currentRoot())
 			if(ResourceManagerComponent* c = e->findComponentInChildrenExactType<ResourceManagerComponent>()) {
+				audioSource.stop();
 				(void)audioSource.load(c->resourceManager(), filePath, loadOptions.c_str());
 				lastFilePath = filePath;
 			}
@@ -78,15 +79,17 @@ void AudioSourceComponent::update()
 
 		audioSource.update();
 
-		lastTime = time = float(double(audioSource.currentPcm()) / audioSource.frequency());
+		if(audioSource.frequency() == 0)
+			lastTime = time = 0;
+		else
+			lastTime = time = float(double(audioSource.currentPcm()) / audioSource.frequency());
 	}
 	else
 		audioSource.pause();
 
 	if(audioSource.isPcmPlayToEnd()) {
-		if(loop)
-			time = 0;
-		else {
+		time = 0;
+		if(!loop) {
 			play = false;
 			if(destroyAfterFinish) destroyThis();
 			Entity* e = entity();

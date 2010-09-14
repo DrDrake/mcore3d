@@ -3,9 +3,9 @@
 
 namespace MCD {
 
-void Mesh::draw() {}
+void Mesh::draw(size_t, size_t) {}
 
-void Mesh::drawFaceOnly() {}
+void Mesh::drawFaceOnly(size_t, size_t) {}
 
 void Mesh::clear() {}
 
