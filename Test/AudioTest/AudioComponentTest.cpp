@@ -32,14 +32,14 @@ public:
 		if(input->getButtonDown("p"))
 			audio->play = !audio->play;
 
-		// Change volumn
+		// Change volume
 		if(input->getButton("Up")) {
-			audio->volumn += 1.0f * dt;
-			audio->volumn = audio->volumn > 1 ? 1 : audio->volumn;
+			audio->volume += 1.0f * dt;
+			audio->volume = audio->volume > 1 ? 1 : audio->volume;
 		}
 		if(input->getButton("Down")) {
-			audio->volumn -= 1.0f * dt;
-			audio->volumn = audio->volumn < 0 ? 0 : audio->volumn;
+			audio->volume -= 1.0f * dt;
+			audio->volume = audio->volume < 0 ? 0 : audio->volume;
 		}
 
 		// Change file
@@ -52,12 +52,12 @@ public:
 		audio->filePath = cFiles[currentFileIdx];
 
 		char buf[512];
-		sprintf(buf, "%s (n)\n%s (p)\nLoop (l): %s\nCurrent time: %4.2f\nVolumn (up | down): %4.2f\n",
+		sprintf(buf, "File: %s (n)\n%s (p)\nLoop (l): %s\nCurrent time: %4.2f\nvolume (up | down): %4.2f\n",
 			audio->filePath.c_str(),
 			audio->play ? "Playing..." : "Paused",
 			audio->loop ? "yes" : "no",
 			audio->time,
-			audio->volumn
+			audio->volume
 		);
 		text->text = buf;
 	}

@@ -14,11 +14,11 @@ Declarator::Declarator(const ScriptObject& hostObject, HSQUIRRELVM vm)
 {
 }
 
-void Declarator::pushFunction(const char* name, void* func, size_t sizeofFunc, int paramCountCheck, SQFUNCTION dispatchFunc)
+void Declarator::pushFunction(const char* name, void* func, size_t sizeofFunc, int paramCountCheck, SQFUNCTION dispatchFunc, const ScriptObject& whereToPush)
 {
-	sq_pushobject(_vm, _hostObject.handle());
+	sq_pushobject(_vm, whereToPush.handle());
 	sq_pushstring(_vm, name, -1);
-	/// stack: _hostObject, name
+	/// stack: whereToPush, name
 
 	// Raw function
 	if(!func)
@@ -36,7 +36,7 @@ void Declarator::pushFunction(const char* name, void* func, size_t sizeofFunc, i
 		::memcpy(data, func, sizeofFunc);
 		sq_newclosure(_vm, dispatchFunc, 1);
 	}
-	/// stack: _hostObject, name, new closure
+	/// stack: whereToPush, name, new closure
 
 	CAPI_VERIFY(sq_setnativeclosurename(_vm, -1, name));
 
@@ -48,68 +48,42 @@ void Declarator::pushFunction(const char* name, void* func, size_t sizeofFunc, i
 	sq_pop(_vm, 1);
 }
 
+void Declarator::pushFunction(const char* name, void* func, size_t sizeofFunc, int paramCountCheck, const SQFUNCTION dispatchFunc)
+{
+	pushFunction(name, func, sizeofFunc, paramCountCheck, dispatchFunc, _hostObject);
+}
+
 ClassDeclaratorBase::ClassDeclaratorBase(const ScriptObject& hostObject, HSQUIRRELVM vm, const char* className)
 	: Declarator(hostObject, vm), mClassName(className)
 {
 }
 
-void ClassDeclaratorBase::enableGetset()
+ScriptObject ClassDeclaratorBase::getterTable()
 {
-	const char get1[] = "._get<-function(i){local g=::";
-	const char set1[] = "._set<-function(i,v){local s=::";
-	const char get2[] = "[\"_get\"+i.tostring()];return g==null?null:g()}";
-	const char set2[] = "[\"_set\"+i.tostring()];return s==null?null:s(v)}";
-	char buffer[256];
+	sq_pushobject(_vm, _hostObject.handle());
+	sq_pushstring(_vm, "__getTable", -1);
+	CAPI_VERIFY(sq_get(_vm, -2));
 
-	// Shut up MSVC code analysis warnings
-	if(::strlen(mClassName) + ((sizeof(set1) + sizeof(set2))/sizeof(char)) > (sizeof buffer/sizeof(char)))
-		return;
-
-	::strcpy(buffer, mClassName);
-	::strcat(buffer, get1);
-	::strcat(buffer, mClassName);
-	::strcat(buffer, get2);
-	runScript(buffer);
-	::strcpy(buffer, mClassName);
-	::strcat(buffer, set1);
-	::strcat(buffer, mClassName);
-	::strcat(buffer, set2);
-	runScript(buffer);
-
-	::strcpy(buffer, mClassName);
-	::strcat(buffer, "._memVarsReflect <- [];");
-	runScript(buffer);
+	ScriptObject ret(_vm);
+	MCD_VERIFY(ret.getFromStack(-1));
+	return ret;
 }
 
-void ClassDeclaratorBase::memVarReflection(const char* varName, const char* explicitType)
+ScriptObject ClassDeclaratorBase::setterTable()
 {
-	char buffer[256];
-	::strcpy(buffer, mClassName);
-	::strcat(buffer, "._memVarsReflect.append(\"");
-	::strcat(buffer, varName);
-	::strcat(buffer, "\");");
-	runScript(buffer);
+	sq_pushobject(_vm, _hostObject.handle());
+	sq_pushstring(_vm, "__setTable", -1);
+	CAPI_VERIFY(sq_get(_vm, -2));
+
+	ScriptObject ret(_vm);
+	MCD_VERIFY(ret.getFromStack(-1));
+	return ret;
 }
+
 
 void ClassDeclaratorBase::runScript(const char* script)
 {
 //	MCD_VERIFY(script::runScript(_vm, script));
-}
-
-void ClassDeclaratorBase::registerMemVarAttribute(const char* varName)
-{
-	assert(varName[0] == '_');
-	assert(varName[1] == 'g');
-	assert(varName[2] == 'e');
-	assert(varName[3] == 't');
-
-	std::string str = mClassName;
-	str += ".setattributes(\"";
-	str += varName;
-	str += "\", {varName=\"";
-	str += (varName + 4);	// Skip the "_get"
-	str += "\"});";
-	this->runScript(str.c_str());
 }
 
 GlobalDeclarator::GlobalDeclarator(const ScriptObject& hostObject, HSQUIRRELVM vm)
@@ -150,6 +124,7 @@ ScriptObject GlobalDeclarator::pushClass(const char* className, ClassID classID,
 //	ClassesManager::disableCloningForClass(_vm, newClass);
 	ClassesManager::createMemoryControllerSlot(_vm, newClass);
 	ClassesManager::registerTypeOf(_vm, newClass, className);
+	ClassesManager::registerGetSetTable(_vm, newClass);
 
 	MCD_ASSERT(oldTop == sq_gettop(_vm));
 	sq_settop(_vm, oldTop);

@@ -34,7 +34,7 @@ AudioSourceComponent::AudioSourceComponent()
 	play = true;
 	loop = true;
 	time = lastTime = 0;
-	volumn = 1;
+	volume = 1;
 	useTransform = false;
 	destroyAfterFinish = false;
 	destroyEntityAfterFinish = false;
@@ -68,7 +68,7 @@ void AudioSourceComponent::update()
 		if(time != lastTime)	// Check if user has altered the time
 			audioSource.seek(toPcm(time));
 
-		audioSource.setGain(volumn);
+		audioSource.setGain(volume);
 
 		if(useTransform) {
 			Entity* e = entity();
