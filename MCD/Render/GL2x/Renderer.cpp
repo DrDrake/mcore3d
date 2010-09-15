@@ -30,6 +30,13 @@ void RendererComponent::Impl::render(Entity& entityTree, RenderTargetComponent& 
 
 	glEnable(GL_LIGHTING);
 
+	// Tell OpenGl use origin of the eye coordinate rather than simply z axis to calculate the specular angle
+	// Ref: http://gregs-blog.com/2007/12/21/theres-nothing-wrong-with-opengls-specular-lighting/
+	glLightModelf(GL_LIGHT_MODEL_LOCAL_VIEWER, 1.0f);
+
+	// Seems make better specular lighting
+	glLightModeli(GL_LIGHT_MODEL_COLOR_CONTROL, GL_SEPARATE_SPECULAR_COLOR);
+
 	{	// Apply camera
 		CameraComponentPtr camera = renderTarget.cameraComponent;
 		if(!camera) camera = mDefaultCamera.get();
