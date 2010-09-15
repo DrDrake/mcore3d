@@ -152,7 +152,7 @@ inline std::string		get(TypeSelect<std::string>,HSQUIRRELVM v,int idx)			{ const
 
 #ifdef NDEBUG	// No type tag check in release mode, as the check should be already done by the match() function first.
 template<typename T> const T&	get(TypeSelect<const T&>,HSQUIRRELVM v,int idx)		{ T* p; sq_getinstanceup(v, idx, (SQUserPointer*)&p, 0); return *p; }
-template<typename T> const T*	get(TypeSelect<const T*>,HSQUIRRELVM v,int idx)		{ T* p; sq_getinstanceup(v, idx, (SQUserPointer*)&p, 0); return p; }
+template<typename T> const T*	get(TypeSelect<const T*>,HSQUIRRELVM v,int idx)		{ if(sq_gettype(v,idx) == OT_NULL) return NULL; T* p; sq_getinstanceup(v, idx, (SQUserPointer*)&p, 0); return p; }
 #else
 template<typename T> const T&	get(TypeSelect<const T&>,HSQUIRRELVM v,int idx)		{ T* p; CAPI_VERIFY(sq_getinstanceup(v, idx, (SQUserPointer*)&p, ClassTraits<T>::classID())); MCD_ASSUME(p); return *p; }
 template<typename T> const T*	get(TypeSelect<const T*>,HSQUIRRELVM v,int idx)		{ if(sq_gettype(v,idx) == OT_NULL) return NULL; T* p; CAPI_VERIFY(sq_getinstanceup(v, idx, (SQUserPointer*)&p, ClassTraits<T>::classID())); return p; }
