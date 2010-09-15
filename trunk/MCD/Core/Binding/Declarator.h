@@ -139,7 +139,7 @@ public:
 	template<typename ReturnPolicy, typename Func>
 	ClassDeclarator& staticMethod(const char* name, Func func)
 	{
-		pushFunction(name, func, 0, FuncTraits<Func>::ParamCount, &DirectCallStaticFunction<Func, ReturnPolicy>::Dispatch);
+		staticMethodDispatch<ReturnPolicy>(name, func, typename FuncTraits<Func>::FuncType());
 		return *this;
 	}
 
@@ -219,6 +219,18 @@ protected:
 
 	template<typename ReturnPolicy, typename Func>
 	void methodDispatch(const char* name, Func func, RawSqFunc)
+	{
+		rawMethod(name, func);
+	}
+
+	template<typename ReturnPolicy, typename Func>
+	void staticMethodDispatch(const char* name, Func func, StaticFunc)
+	{
+		pushFunction(name, func, 0, FuncTraits<Func>::ParamCount, &DirectCallStaticFunction<Func, ReturnPolicy>::Dispatch);
+	}
+
+	template<typename ReturnPolicy, typename Func>
+	void staticMethodDispatch(const char* name, Func func, RawSqFunc)
 	{
 		rawMethod(name, func);
 	}

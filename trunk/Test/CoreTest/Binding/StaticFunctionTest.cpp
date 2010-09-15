@@ -50,6 +50,23 @@ SCRIPT_CLASS_REGISTER(Derived)
 	.staticMethod<objNoCare>("singleton", &Derived::singleton)
 ;}
 
+static int rawFuncAdd2Float(HSQUIRRELVM vm)
+{
+	const int paramCount = sq_gettop(vm) - 1;
+	if(paramCount != 2)
+		return sq_throwerror(vm, "Expecting 2 parameter");
+
+	if(!match(TypeSelect<float>(), vm, -1) || !match(TypeSelect<float>(), vm, -2))
+		return sq_throwerror(vm, "Expecting 2 numeric parameters");
+
+	float v1 = get(TypeSelect<float>(), vm, -1);
+	float v2 = get(TypeSelect<float>(), vm, -2);
+
+	push(vm, v1 + v2);
+
+	return 1;	// One value returned
+}
+
 SCRIPT_CLASS_DECLAR(Foo);
 SCRIPT_CLASS_REGISTER(Foo)
 	.declareClass<Foo>("Foo")
@@ -62,6 +79,7 @@ SCRIPT_CLASS_REGISTER(Foo)
 	.staticMethod("func7", &Foo::func7)
 	.staticMethod("func8", &Foo::func8)
 //	.staticMethod("func9", &Foo::func9)	// Taking value of object is not supported yet
+	.staticMethod("func10", &rawFuncAdd2Float)
 ;}
 
 }	// namespace Binding
@@ -84,4 +102,5 @@ TEST(StaticFunction_BindingTest)
 	CHECK(vm.runScript("assert(Foo.func7(null))"));
 	CHECK(vm.runScript("assert(Foo.func8(Base.singleton()))"));
 //	CHECK(!vm.runScript("assert(Foo.func8(null))"));	// Passing null to a C function which expecting an object reference will fail.
+	CHECK(vm.runScript("assert(444 == Foo.func10(123, 321))"));
 }
