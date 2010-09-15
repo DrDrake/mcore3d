@@ -99,6 +99,7 @@ void AudioSource::stop()
 {
 	stopAndUnqueueBuffers();
 	mRequestPlay = false;
+	mRoughPcmOffsetSinceLastSeek = 0;
 }
 
 bool AudioSource::seek(uint64_t pcmOffset)
@@ -167,9 +168,9 @@ void AudioSource::update()
 	}
 
 	if(isPcmPlayToEnd())
-		stop();
+		pause();
 
-	bool reallyPlaying = isReallyPlaying();
+	const bool reallyPlaying = isReallyPlaying();
 
 	if(!reallyPlaying && mRequestPlay) {
 		// Do actual play

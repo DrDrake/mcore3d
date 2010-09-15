@@ -92,7 +92,6 @@ TEST(AudioSourceComponentTest)
 	{	// Setup for AudioSourceComponent
 		Entity* e = scene.addChild(new Entity("Audio"));
 		audio = e->addComponent(new AudioSourceComponent);
-		audio->loadOptions = "bufferCount=10;subBufferLength=2600";
 	}
 
 	TextLabelComponentPtr text;
