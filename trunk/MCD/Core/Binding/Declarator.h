@@ -5,7 +5,6 @@
 #include "Constructors.h"
 //#include "Events.h"
 #include "Fields.h"
-//#include "detail/ReturnPolicies.h"
 #include "ScriptObject.h"
 
 namespace MCD {
@@ -13,35 +12,6 @@ namespace Binding {
 
 class VMCore;
 typedef void* ClassID;
-
-/// Detect the number of arguments of a function,
-/// to serve for argument count validation.
-struct FuncParamCount
-{
-// Static functions:
-	template<class RT>
-	static size_t count(RT (*func)()) { return 0; }
-	template<class RT, class P1>
-	static size_t count(RT (*func)(P1)) { return 1; }
-	template<class RT, class P1,class P2>
-	static size_t count(RT (*func)(P1,P2)) { return 2; }
-	template<class RT, class P1,class P2,class P3>
-	static size_t count(RT (*func)(P1,P2,P3)) { return 3; }
-	template<class RT, class P1,class P2,class P3,class P4>
-	static size_t count(RT (*func)(P1,P2,P3,P4)) { return 4; }
-	template<class RT, class P1,class P2,class P3,class P4,class P5>
-	static size_t count(RT (*func)(P1,P2,P3,P4,P5)) { return 5; }
-	template<class RT, class P1,class P2,class P3,class P4,class P5,class P6>
-	static size_t count(RT (*func)(P1,P2,P3,P4,P5,P6)) { return 6; }
-
-// Member functions:
-	template<class Callee, class RT>
-	static size_t count(RT (Callee::*func)()) { return 0; }
-	template<class Callee, class RT, class P1>
-	static size_t count(RT (Callee::*func)(P1)) { return 1; }
-	template<class Callee, class RT, class P1,class P2>
-	static size_t count(RT (Callee::*func)(P1,P2)) { return 2; }
-};	// FuncParamCount
 
 /// The very base declarator. Does nothing, but stores info
 class MCD_CORE_API Declarator
@@ -75,25 +45,14 @@ class MCD_CORE_API ClassDeclaratorBase : public Declarator
 protected:
 	ClassDeclaratorBase(const ScriptObject& hostObject, HSQUIRRELVM vm, const char* className);
 
-	ScriptObject getterTable();
-	ScriptObject setterTable();
-
-	/*!	Modify the _get/_set meta functions to enable direct member variable get/set.
-	 */
-	void enableGetset();
-
-	/*!	Register member variable reflection information
-		\param explicitType Enable us to query the type even if the
-			member variable is null
-	 */
-	void memVarReflection(const char* varName, const char* explicitType=NULL);
-
 	void runScript(const char* script);
 
-	/*!	Register squirrel attribute as meta data to indicate a _getXXX is a member variable.
-		eg: MyClass.setattributes('_getmyVar', {varName='myVar'}
-	 */
-	void registerMemVarAttribute(const char* varName);
+protected:
+	// Specialized pushFunction() to minimize code size
+	void pushVarGetSetFunction(const char* name, void* varPtr, size_t sizeofVar, SQFUNCTION dispatchGetFunc, SQFUNCTION dispatchSetFunc);
+
+	ScriptObject getterTable();
+	ScriptObject setterTable();
 
 	const char* mClassName;
 };	// ClassDeclaratorBase
@@ -166,44 +125,28 @@ public:
 	template<typename ReturnPolicy, typename Func>
 	ClassDeclarator& method(const char* name, Func func)
 	{
-		pushFunction(name, &func, sizeof(func), FuncParamCount::count(func), &DirectCallMemberFunction<Class, Func, ReturnPolicy>::Dispatch);
+		methodDispatch<ReturnPolicy>(name, func, typename FuncTraits<Func>::FuncType());
 		return *this;
 	}
 
 	template<typename Func>
 	ClassDeclarator& method(const char* name, Func func)
 	{
-		pushFunction(name, &func, sizeof(func), FuncParamCount::count(func), &DirectCallMemberFunction<Class, Func>::Dispatch);
-		return *this;
-	}
-
-	template<typename ReturnPolicy, typename Func>
-	ClassDeclarator& wrappedMethod(const char* name, Func func)
-	{
-		pushFunction(name, (void*)func, 0, FuncParamCount::count(func)-1, &IndirectCallMemberFunction<Class, Func, ReturnPolicy>::Dispatch);
-		return *this;
-	}
-
-	template<typename Func>
-	ClassDeclarator& wrappedMethod(const char* name, Func func)
-	{
-		pushFunction(name, (void*)func, 0, FuncParamCount::count(func)-1, &IndirectCallMemberFunction<Class, Func>::Dispatch);
-		return *this;
+		return method<DefaultReturnPolicy<typename FuncTraits<Func>::RET>::policy>(name, func);
 	}
 
 // Static method
 	template<typename ReturnPolicy, typename Func>
 	ClassDeclarator& staticMethod(const char* name, Func func)
 	{
-		pushFunction(name, func, 0, FuncParamCount::count(func), &DirectCallStaticFunction<Func, ReturnPolicy>::Dispatch);
+		pushFunction(name, func, 0, FuncTraits<Func>::ParamCount, &DirectCallStaticFunction<Func, ReturnPolicy>::Dispatch);
 		return *this;
 	}
 
 	template<typename Func>
 	ClassDeclarator& staticMethod(const char* name, Func func)
 	{
-		pushFunction(name, func, 0, FuncParamCount::count(func), &DirectCallStaticFunction<Func>::Dispatch);
-		return *this;
+		return staticMethod<DefaultReturnPolicy<typename FuncTraits<Func>::RET>::policy>(name, func);
 	}
 
 // Script event:
@@ -248,14 +191,42 @@ public:
 		typedef typename DetectFieldType<Field>::type fieldType;
 		typedef typename DefaultReturnPolicy<fieldType>::policy returnPolicy;
 		typedef typename GetterReturnPolicy<returnPolicy>::policy getterReturnPolicy;
-		pushFunction(name, &field, sizeof(field), 0, &fieldGetterFunction<Class, Field, getterReturnPolicy>, getterTable());
-		pushFunction(name, &field, sizeof(field), 1, &fieldSetterFunction<Class, Field>, setterTable());
+		pushVarGetSetFunction(name, &field, sizeof(field),
+			&fieldGetterFunction<Class, Field, getterReturnPolicy>,
+			&fieldSetterFunction<Class, Field>
+		);
 		return *this;
 	}
 
 	ClassDeclarator& runScript(const char* script)
 	{
 		ClassDeclaratorBase::runScript(script);
+		return *this;
+	}
+
+protected:
+	template<typename ReturnPolicy, typename Func>
+	void methodDispatch(const char* name, Func func, MemberFunc)
+	{
+		pushFunction(name, &func, sizeof(func), FuncTraits<Func>::ParamCount, &DirectCallMemberFunction<Class, Func, ReturnPolicy>::Dispatch);
+	}
+
+	template<typename ReturnPolicy, typename Func>
+	void methodDispatch(const char* name, Func func, StaticFunc)
+	{
+		wrappedMethod<ReturnPolicy>(name, func);
+	}
+
+	template<typename ReturnPolicy, typename Func>
+	void methodDispatch(const char* name, Func func, RawSqFunc)
+	{
+		rawMethod(name, func);
+	}
+
+	template<typename ReturnPolicy, typename Func>
+	ClassDeclarator& wrappedMethod(const char* name, Func func)
+	{
+		pushFunction(name, (void*)func, 0, FuncTraits<Func>::ParamCount-1, &IndirectCallMemberFunction<Class, Func, ReturnPolicy>::Dispatch);
 		return *this;
 	}
 };	// ClassDeclarator
@@ -305,7 +276,7 @@ public:
 	template<typename Func>
 	GlobalDeclarator rawFunction(const char* name, Func func)
 	{
-		pushFunction(name, NULL, 0, FuncParamCount::count(func), func);
+		pushFunction(name, NULL, 0, FuncTraits<Func>::ParamCount, func);
 		return GlobalDeclarator(_hostObject, _vm);
 	}
 

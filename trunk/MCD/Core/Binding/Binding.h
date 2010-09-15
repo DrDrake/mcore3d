@@ -181,9 +181,7 @@ int Call(Callee& callee, RT (Callee::*func)(P1,P2), HSQUIRRELVM v, int index) {
 }
 
 /// Direct call static function handler (static function is always direct anyway)
-template<class Func, class ResultPolicy=
-	typename DefaultReturnPolicy<typename ReturnTypeDetector<Func>::RET>::policy
->
+template<class Func, class ResultPolicy>
 class DirectCallStaticFunction
 {
 public:
@@ -198,8 +196,7 @@ public:
 };
 
 /// Direct all member function handler
-template<class Callee, class Func, class ResultPolicy=
-	typename DefaultReturnPolicy<typename ReturnTypeDetector<Func>::RET>::policy>
+template<class Callee, class Func, class ResultPolicy>
 class DirectCallMemberFunction
 {
 public:
@@ -217,8 +214,7 @@ public:
 
 /// Wrapped member function handler, a static function with the first parameter
 /// as the "this" pointer will be invoked
-template<class Callee, class Func, class ResultPolicy=
-	typename DefaultReturnPolicy<typename ReturnTypeDetector<Func>::RET>::policy>
+template<class Callee, class Func, class ResultPolicy>
 class IndirectCallMemberFunction
 {
 public:

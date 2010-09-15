@@ -9,132 +9,216 @@ template<typename T> struct RmPtr { typedef T RET; };
 template<typename T> struct RmPtr<T*> { typedef T RET; };
 template<typename T> struct RmPtr<T&> { typedef T RET; };
 
-// Detect the return type of the function type Func
+struct MemberFunc {};
+struct StaticFunc {};
+struct RawSqFunc {};
+
+// Template traits to detect the various compile-time info of a function
 template<typename Func>
-struct ReturnTypeDetector {
+struct FuncTraits {
 };
 
 // Static function
 template<typename RT>
-struct ReturnTypeDetector<RT (*)()> {
+struct FuncTraits<RT (*)()> {
 	typedef typename RmPtr<RT>::RET RET;
+	typedef void FirstParam;
+	typedef StaticFunc FuncType;
+	enum { ParamCount = 0 };
 };
 
 template<typename RT, typename P1>
-struct ReturnTypeDetector<RT (*)(P1)> {
+struct FuncTraits<RT (*)(P1)> {
 	typedef typename RmPtr<RT>::RET RET;
+	typedef P1 FirstParam;
+	typedef StaticFunc FuncType;
+	enum { ParamCount = 1 };
+};
+
+template<>
+struct FuncTraits<int (*)(HSQUIRRELVM)> {
+	typedef int RET;
+	typedef HSQUIRRELVM FirstParam;
+	typedef RawSqFunc FuncType;
+	enum { ParamCount = 0 };
 };
 
 template<typename RT, typename P1,typename P2>
-struct ReturnTypeDetector<RT (*)(P1,P2)> {
+struct FuncTraits<RT (*)(P1,P2)> {
 	typedef typename RmPtr<RT>::RET RET;
+	typedef P1 FirstParam;
+	typedef StaticFunc FuncType;
+	enum { ParamCount = 2 };
 };
 
 template<typename RT, typename P1,typename P2,typename P3>
-struct ReturnTypeDetector<RT (*)(P1,P2,P3)> {
+struct FuncTraits<RT (*)(P1,P2,P3)> {
 	typedef typename RmPtr<RT>::RET RET;
+	typedef P1 FirstParam;
+	typedef StaticFunc FuncType;
+	enum { ParamCount = 3 };
 };
 
 template<typename RT, typename P1,typename P2,typename P3,typename P4>
-struct ReturnTypeDetector<RT (*)(P1,P2,P3,P4)> {
+struct FuncTraits<RT (*)(P1,P2,P3,P4)> {
 	typedef typename RmPtr<RT>::RET RET;
+	typedef P1 FirstParam;
+	typedef StaticFunc FuncType;
+	enum { ParamCount = 4 };
 };
 
 template<typename RT, typename P1,typename P2,typename P3,typename P4,typename P5>
-struct ReturnTypeDetector<RT (*)(P1,P2,P3,P4,P5)> {
+struct FuncTraits<RT (*)(P1,P2,P3,P4,P5)> {
 	typedef typename RmPtr<RT>::RET RET;
+	typedef P1 FirstParam;
+	typedef StaticFunc FuncType;
+	enum { ParamCount = 5 };
 };
 
 template<typename RT, typename P1,typename P2,typename P3,typename P4,typename P5,typename P6>
-struct ReturnTypeDetector<RT (*)(P1,P2,P3,P4,P5,P6)> {
+struct FuncTraits<RT (*)(P1,P2,P3,P4,P5,P6)> {
 	typedef typename RmPtr<RT>::RET RET;
+	typedef P1 FirstParam;
+	typedef StaticFunc FuncType;
+	enum { ParamCount = 6 };
 };
 
 template<typename RT, typename P1,typename P2,typename P3,typename P4,typename P5,typename P6,typename P7>
-struct ReturnTypeDetector<RT (*)(P1,P2,P3,P4,P5,P6,P7)> {
+struct FuncTraits<RT (*)(P1,P2,P3,P4,P5,P6,P7)> {
 	typedef typename RmPtr<RT>::RET RET;
+	typedef P1 FirstParam;
+	typedef StaticFunc FuncType;
+	enum { ParamCount = 7 };
 };
 
 // Member function
 template<class Callee, typename RT>
-struct ReturnTypeDetector<RT (Callee::*)()> {
+struct FuncTraits<RT (Callee::*)()> {
 	typedef typename RmPtr<RT>::RET RET;
+	typedef void FirstParam;
+	typedef MemberFunc FuncType;
+	enum { ParamCount = 0 };
 };
 
 template<class Callee, typename RT, typename P1>
-struct ReturnTypeDetector<RT (Callee::*)(P1)> {
+struct FuncTraits<RT (Callee::*)(P1)> {
 	typedef typename RmPtr<RT>::RET RET;
+	typedef P1 FirstParam;
+	typedef MemberFunc FuncType;
+	enum { ParamCount = 1 };
 };
 
 template<class Callee, typename RT, typename P1,typename P2>
-struct ReturnTypeDetector<RT (Callee::*)(P1,P2)> {
+struct FuncTraits<RT (Callee::*)(P1,P2)> {
 	typedef typename RmPtr<RT>::RET RET;
+	typedef P1 FirstParam;
+	typedef MemberFunc FuncType;
+	enum { ParamCount = 2 };
 };
 
 template<class Callee, typename RT, typename P1,typename P2,typename P3>
-struct ReturnTypeDetector<RT (Callee::*)(P1,P2,P3)> {
+struct FuncTraits<RT (Callee::*)(P1,P2,P3)> {
 	typedef typename RmPtr<RT>::RET RET;
+	typedef P1 FirstParam;
+	typedef MemberFunc FuncType;
+	enum { ParamCount = 3 };
 };
 
 template<class Callee, typename RT, typename P1,typename P2,typename P3,typename P4>
-struct ReturnTypeDetector<RT (Callee::*)(P1,P2,P3,P4)> {
+struct FuncTraits<RT (Callee::*)(P1,P2,P3,P4)> {
 	typedef typename RmPtr<RT>::RET RET;
+	typedef P1 FirstParam;
+	typedef MemberFunc FuncType;
+	enum { ParamCount = 4 };
 };
 
 template<class Callee, typename RT, typename P1,typename P2,typename P3,typename P4,typename P5>
-struct ReturnTypeDetector<RT (Callee::*)(P1,P2,P3,P4,P5)> {
+struct FuncTraits<RT (Callee::*)(P1,P2,P3,P4,P5)> {
 	typedef typename RmPtr<RT>::RET RET;
+	typedef P1 FirstParam;
+	typedef MemberFunc FuncType;
+	enum { ParamCount = 5 };
 };
 
 template<class Callee, typename RT, typename P1,typename P2,typename P3,typename P4,typename P5,typename P6>
-struct ReturnTypeDetector<RT (Callee::*)(P1,P2,P3,P4,P5,P6)> {
+struct FuncTraits<RT (Callee::*)(P1,P2,P3,P4,P5,P6)> {
 	typedef typename RmPtr<RT>::RET RET;
+	typedef P1 FirstParam;
+	typedef MemberFunc FuncType;
+	enum { ParamCount = 6 };
 };
 
 template<class Callee, typename RT, typename P1,typename P2,typename P3,typename P4,typename P5,typename P6,typename P7>
-struct ReturnTypeDetector<RT (Callee::*)(P1,P2,P3,P4,P5,P6,P7)> {
+struct FuncTraits<RT (Callee::*)(P1,P2,P3,P4,P5,P6,P7)> {
 	typedef typename RmPtr<RT>::RET RET;
+	typedef P1 FirstParam;
+	typedef MemberFunc FuncType;
+	enum { ParamCount = 7 };
 };
 
 // Const member function
 template<class Callee, typename RT>
-struct ReturnTypeDetector<RT (Callee::*)() const> {
+struct FuncTraits<RT (Callee::*)() const> {
 	typedef typename RmPtr<RT>::RET RET;
+	typedef void FirstParam;
+	typedef MemberFunc FuncType;
+	enum { ParamCount = 0 };
 };
 
 template<class Callee, typename RT, typename P1>
-struct ReturnTypeDetector<RT (Callee::*)(P1) const> {
+struct FuncTraits<RT (Callee::*)(P1) const> {
 	typedef typename RmPtr<RT>::RET RET;
+	typedef P1 FirstParam;
+	typedef MemberFunc FuncType;
+	enum { ParamCount = 1 };
 };
 
 template<class Callee, typename RT, typename P1,typename P2>
-struct ReturnTypeDetector<RT (Callee::*)(P1,P2) const> {
+struct FuncTraits<RT (Callee::*)(P1,P2) const> {
 	typedef typename RmPtr<RT>::RET RET;
+	typedef P1 FirstParam;
+	typedef MemberFunc FuncType;
+	enum { ParamCount = 2 };
 };
 
 template<class Callee, typename RT, typename P1,typename P2,typename P3>
-struct ReturnTypeDetector<RT (Callee::*)(P1,P2,P3) const> {
+struct FuncTraits<RT (Callee::*)(P1,P2,P3) const> {
 	typedef typename RmPtr<RT>::RET RET;
+	typedef P1 FirstParam;
+	typedef MemberFunc FuncType;
+	enum { ParamCount = 3 };
 };
 
 template<class Callee, typename RT, typename P1,typename P2,typename P3,typename P4>
-struct ReturnTypeDetector<RT (Callee::*)(P1,P2,P3,P4) const> {
+struct FuncTraits<RT (Callee::*)(P1,P2,P3,P4) const> {
 	typedef typename RmPtr<RT>::RET RET;
+	typedef P1 FirstParam;
+	typedef MemberFunc FuncType;
+	enum { ParamCount = 4 };
 };
 
 template<class Callee, typename RT, typename P1,typename P2,typename P3,typename P4,typename P5>
-struct ReturnTypeDetector<RT (Callee::*)(P1,P2,P3,P4,P5) const> {
+struct FuncTraits<RT (Callee::*)(P1,P2,P3,P4,P5) const> {
 	typedef typename RmPtr<RT>::RET RET;
+	typedef P1 FirstParam;
+	typedef MemberFunc FuncType;
+	enum { ParamCount = 5 };
 };
 
 template<class Callee, typename RT, typename P1,typename P2,typename P3,typename P4,typename P5,typename P6>
-struct ReturnTypeDetector<RT (Callee::*)(P1,P2,P3,P4,P5,P6) const> {
+struct FuncTraits<RT (Callee::*)(P1,P2,P3,P4,P5,P6) const> {
 	typedef typename RmPtr<RT>::RET RET;
+	typedef P1 FirstParam;
+	typedef MemberFunc FuncType;
+	enum { ParamCount = 6 };
 };
 
 template<class Callee, typename RT, typename P1,typename P2,typename P3,typename P4,typename P5,typename P6,typename P7>
-struct ReturnTypeDetector<RT (Callee::*)(P1,P2,P3,P4,P5,P6,P7) const> {
+struct FuncTraits<RT (Callee::*)(P1,P2,P3,P4,P5,P6,P7) const> {
 	typedef typename RmPtr<RT>::RET RET;
+	typedef P1 FirstParam;
+	typedef MemberFunc FuncType;
+	enum { ParamCount = 7 };
 };
 
 }   //namespace Binding

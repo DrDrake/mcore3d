@@ -58,11 +58,11 @@ namespace Binding {
 SCRIPT_CLASS_DECLAR(Vec3);
 SCRIPT_CLASS_REGISTER(Vec3)
 	.declareClass<Vec3>("Vec3")
-	.rawMethod("constructor", vec3Create)
+	.method("constructor", &vec3Create)
 ;}
 
 }	// namespace Binding
-}   // namespace MCD
+}	// namespace MCD
 
 TEST(FunctionOverload_BindingTest)
 {
