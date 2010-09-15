@@ -41,7 +41,7 @@ SCRIPT_CLASS_REGISTER(Base)
 	.method("func2", &Base::func2)
 	.method("func3", &Base::func3)
 	.method("func4", &Base::func4)
-	.wrappedMethod("func5", wrappedFun2)
+	.method("func5", &wrappedFun2)
 ;}
 
 SCRIPT_CLASS_DECLAR(Derived);

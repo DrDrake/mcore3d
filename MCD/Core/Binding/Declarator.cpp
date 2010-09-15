@@ -53,6 +53,12 @@ void Declarator::pushFunction(const char* name, void* func, size_t sizeofFunc, i
 	pushFunction(name, func, sizeofFunc, paramCountCheck, dispatchFunc, _hostObject);
 }
 
+void ClassDeclaratorBase::pushVarGetSetFunction(const char* name, void* varPtr, size_t sizeofVar, SQFUNCTION dispatchGetFunc, SQFUNCTION dispatchSetFunc)
+{
+	pushFunction(name, varPtr, sizeofVar, 0, dispatchGetFunc, getterTable());
+	pushFunction(name, varPtr, sizeofVar, 1, dispatchSetFunc, setterTable());
+}
+
 ClassDeclaratorBase::ClassDeclaratorBase(const ScriptObject& hostObject, HSQUIRRELVM vm, const char* className)
 	: Declarator(hostObject, vm), mClassName(className)
 {

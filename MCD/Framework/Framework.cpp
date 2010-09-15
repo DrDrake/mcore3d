@@ -316,7 +316,7 @@ bool Framework::Impl::initWindow(RenderWindow& existingWindow, bool takeOwnershi
 		FpsControllerComponent* c = e->addComponent(new FpsControllerComponent);
 		c->target = mSceneLayer->findEntityByPath("Scene camera");
 		MCD_ASSERT(c->target);
-		if(Entity* e1 = mSystemEntity->findEntityByPath("Input"))
+		if(Entity* e1 = mRootEntity->findEntityByPath("Input"))
 			c->inputComponent = dynamic_cast<InputComponent*>(e1->findComponent<BehaviourComponent>());
 	}
 
