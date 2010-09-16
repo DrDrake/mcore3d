@@ -1,6 +1,7 @@
 #include "Pch.h"
 #include "Material_DX9.inc"
 #include "Renderer.inc"
+#include "Helper/ShaderCache.h"
 #include "../Light.h"
 #include "../RenderWindow.h"
 #include "../../Core/System/Log.h"
@@ -10,36 +11,32 @@
 namespace MCD {
 
 MaterialComponent::Impl::Impl() 
-	: mVs(nullptr), mPs(nullptr)
-	, mVsConstTable(nullptr), mPsConstTable(nullptr)
 {
 	MCD_VERIFY(createVs());
 	MCD_VERIFY(createPs());
 
-	mConstantHandles.worldViewProj = mVsConstTable->GetConstantByName(nullptr, "mcdWorldViewProj");
-	mConstantHandles.world = mVsConstTable->GetConstantByName(nullptr, "mcdWorld");
-	mConstantHandles.lights = mPsConstTable->GetConstantByName(nullptr, "mcdLights");
-	mConstantHandles.cameraPosition = mPsConstTable->GetConstantByName(nullptr, "mcdCameraPosition");
-	mConstantHandles.diffuseColor = mPsConstTable->GetConstantByName(nullptr, "mcdDiffuseColor");
-	mConstantHandles.specularColor = mPsConstTable->GetConstantByName(nullptr, "mcdSpecularColor");
-	mConstantHandles.emissionColor = mPsConstTable->GetConstantByName(nullptr, "mcdEmissionColor");
-	mConstantHandles.specularExponent = mPsConstTable->GetConstantByName(nullptr, "mcdSpecularExponent");
-	mConstantHandles.opacity = mPsConstTable->GetConstantByName(nullptr, "mcdOpacity");
+	mConstantHandles.worldViewProj = mVs.constTable->GetConstantByName(nullptr, "mcdWorldViewProj");
+	mConstantHandles.world = mVs.constTable->GetConstantByName(nullptr, "mcdWorld");
+	mConstantHandles.lights = mPs.constTable->GetConstantByName(nullptr, "mcdLights");
+	mConstantHandles.cameraPosition = mPs.constTable->GetConstantByName(nullptr, "mcdCameraPosition");
+	mConstantHandles.diffuseColor = mPs.constTable->GetConstantByName(nullptr, "mcdDiffuseColor");
+	mConstantHandles.specularColor = mPs.constTable->GetConstantByName(nullptr, "mcdSpecularColor");
+	mConstantHandles.emissionColor = mPs.constTable->GetConstantByName(nullptr, "mcdEmissionColor");
+	mConstantHandles.specularExponent = mPs.constTable->GetConstantByName(nullptr, "mcdSpecularExponent");
+	mConstantHandles.opacity = mPs.constTable->GetConstantByName(nullptr, "mcdOpacity");
 }
 
 MaterialComponent::Impl::~Impl()
 {
-	SAFE_RELEASE(mVs);
-	SAFE_RELEASE(mPs);
-	SAFE_RELEASE(mVsConstTable);
-	SAFE_RELEASE(mPsConstTable);
+	mVs.Release();
+	mPs.Release();
 }
+
+// TODO: Don't use global if possible
+static DX9Helper::ShaderCache gShaderCache;
 
 bool MaterialComponent::Impl::createVs()
 {
-	LPDIRECT3DDEVICE9 device = getDevice();
-	MCD_ASSUME(device);
-
 	static const char code[] =
 	"float4x4 mcdWorld;"
 	"float4x4 mcdWorldViewProj;"
@@ -66,38 +63,12 @@ bool MaterialComponent::Impl::createVs()
 	"	return _out;"
 	"}";
 
-	LPD3DXBUFFER vsBuf = nullptr;
-	LPD3DXBUFFER errors = nullptr;
-
-	HRESULT result = D3DXCompileShader(
-		code, sizeof(code),
-		nullptr, nullptr,	// Shader macro and include
-		"main", "vs_3_0",
-		0,	// flags
-		&vsBuf, &errors,
-		&mVsConstTable	// Constant table
-	);
-
-	if(errors) {
-		const char* msg = (const char*)errors->GetBufferPointer();
-		Log::write(result == D3D_OK ? Log::Warn : Log::Error, msg);
-		errors->Release();
-	}
-
-	if(result == D3D_OK) {
-		device->CreateVertexShader((DWORD*)vsBuf->GetBufferPointer(), &mVs);
-		vsBuf->Release();
-		return true;
-	}
-
-	return false;
+	mVs = gShaderCache.getVertexShader(code);
+	return mVs.vs && mVs.constTable;
 }
 
 bool MaterialComponent::Impl::createPs()
 {
-	LPDIRECT3DDEVICE9 device = getDevice();
-	MCD_ASSUME(device);
-
 	static const char code[] =
 	"#define MCD_MAX_LIGHT_COUNT 4\n"
 	"struct Light {"
@@ -151,31 +122,8 @@ bool MaterialComponent::Impl::createPs()
 	"	return _out;"
 	"}";
 
-	LPD3DXBUFFER psBuf = nullptr;
-	LPD3DXBUFFER errors = nullptr;
-
-	HRESULT result = D3DXCompileShader(
-		code, sizeof(code),
-		nullptr, nullptr,	// Shader macro and include
-		"main", "ps_3_0",
-		0,	// flags
-		&psBuf, &errors,
-		&mPsConstTable	// Constant table
-	);
-
-	if(errors) {
-		const char* msg = (const char*)errors->GetBufferPointer();
-		Log::write(result == D3D_OK ? Log::Warn : Log::Error, msg);
-		errors->Release();
-	}
-
-	if(result == D3D_OK) {
-		device->CreatePixelShader((DWORD*)psBuf->GetBufferPointer(), &mPs);
-		psBuf->Release();
-		return true;
-	}
-
-	return false;
+	mPs = gShaderCache.getPixelShader(code);
+	return mPs.ps && mPs.constTable;
 }
 
 void MaterialComponent::Impl::updateWorldTransform(void* context)
@@ -183,11 +131,11 @@ void MaterialComponent::Impl::updateWorldTransform(void* context)
 	RendererComponent::Impl& renderer = *reinterpret_cast<RendererComponent::Impl*>(context);
 	LPDIRECT3DDEVICE9 device = getDevice();
 
-	MCD_VERIFY(mVsConstTable->SetMatrix(
+	MCD_VERIFY(mVs.constTable->SetMatrix(
 		device, mConstantHandles.worldViewProj, (D3DXMATRIX*)renderer.mWorldViewProjMatrix.getPtr()
 	) == S_OK);
 
-	MCD_VERIFY(mVsConstTable->SetMatrix(
+	MCD_VERIFY(mVs.constTable->SetMatrix(
 		device, mConstantHandles.world, (D3DXMATRIX*)renderer.mWorldMatrix.getPtr()
 	) == S_OK);
 }
@@ -205,16 +153,16 @@ void MaterialComponent::preRender(size_t pass, void* context)
 	LPDIRECT3DDEVICE9 device = getDevice();
 
 	{	// Bind system information
-		MCD_VERIFY(mImpl.mVsConstTable->SetMatrix(
+		MCD_VERIFY(mImpl.mVs.constTable->SetMatrix(
 			device, mImpl.mConstantHandles.worldViewProj, (D3DXMATRIX*)renderer.mWorldViewProjMatrix.getPtr()
 		) == S_OK);
 
-		MCD_VERIFY(mImpl.mVsConstTable->SetMatrix(
+		MCD_VERIFY(mImpl.mVs.constTable->SetMatrix(
 			device, mImpl.mConstantHandles.world, (D3DXMATRIX*)renderer.mWorldMatrix.getPtr()
 		) == S_OK);
 
 		Vec3f cameraPosition = renderer.mCameraTransform.translation();
-		MCD_VERIFY(mImpl.mVsConstTable->SetFloatArray(
+		MCD_VERIFY(mImpl.mVs.constTable->SetFloatArray(
 			device, mImpl.mConstantHandles.cameraPosition, cameraPosition.getPtr(), 3
 		) == S_OK);
 	}
@@ -232,7 +180,7 @@ void MaterialComponent::preRender(size_t pass, void* context)
 		} lightStruct;
 
 		for(size_t i=0; i<4; ++i) {
-			D3DXHANDLE hi = mImpl.mPsConstTable->GetConstantElement(mImpl.mConstantHandles.lights, i);
+			D3DXHANDLE hi = mImpl.mPs.constTable->GetConstantElement(mImpl.mConstantHandles.lights, i);
 
 			memset(&lightStruct, 0, sizeof(lightStruct));
 
@@ -243,39 +191,39 @@ void MaterialComponent::preRender(size_t pass, void* context)
 				lightStruct.color = ColorRGBAf(light->color, 1);
 			}
 
-			MCD_VERIFY(mImpl.mVsConstTable->SetFloatArray(
+			MCD_VERIFY(mImpl.mVs.constTable->SetFloatArray(
 				device, hi, (float*)&lightStruct, sizeof(lightStruct) / sizeof(float)
 			) == S_OK);
 		}
 	}
 
 	{	// Bind material information
-		MCD_VERIFY(mImpl.mVsConstTable->SetFloatArray(
+		MCD_VERIFY(mImpl.mVs.constTable->SetFloatArray(
 			device, mImpl.mConstantHandles.diffuseColor, diffuseColor.rawPointer(), 4
 		) == S_OK);
 
-		MCD_VERIFY(mImpl.mVsConstTable->SetFloatArray(
+		MCD_VERIFY(mImpl.mVs.constTable->SetFloatArray(
 			device, mImpl.mConstantHandles.specularColor, specularColor.rawPointer(), 4
 		) == S_OK);
 
-		MCD_VERIFY(mImpl.mVsConstTable->SetFloatArray(
+		MCD_VERIFY(mImpl.mVs.constTable->SetFloatArray(
 			device, mImpl.mConstantHandles.emissionColor, emissionColor.rawPointer(), 4
 		) == S_OK);
 
-		MCD_VERIFY(mImpl.mVsConstTable->SetFloat(
+		MCD_VERIFY(mImpl.mVs.constTable->SetFloat(
 			device, mImpl.mConstantHandles.specularExponent, specularExponent
 		) == S_OK);
 
-		MCD_VERIFY(mImpl.mVsConstTable->SetFloat(
+		MCD_VERIFY(mImpl.mVs.constTable->SetFloat(
 			device, mImpl.mConstantHandles.opacity, opacity
 		) == S_OK);
 
 		if(TexturePtr diffuse = diffuseMap ? diffuseMap : renderer.mWhiteTexture)
-			diffuse->bind(mImpl.mPsConstTable->GetSamplerIndex("texDiffuse"));
+			diffuse->bind(mImpl.mPs.constTable->GetSamplerIndex("texDiffuse"));
 	}
 
-	device->SetVertexShader(mImpl.mVs);
-	device->SetPixelShader(mImpl.mPs);
+	device->SetVertexShader(mImpl.mVs.vs);
+	device->SetPixelShader(mImpl.mPs.ps);
 }
 
 void MaterialComponent::postRender(size_t pass, void* context) {}
