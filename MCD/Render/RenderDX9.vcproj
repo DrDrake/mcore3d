@@ -526,6 +526,18 @@
 				RelativePath=".\DX9\Texture_DX9.cpp"
 				>
 			</File>
+			<Filter
+				Name="Helper"
+				>
+				<File
+					RelativePath=".\DX9\Helper\ShaderCache.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\DX9\Helper\ShaderCache.h"
+					>
+				</File>
+			</Filter>
 		</Filter>
 		<File
 			RelativePath=".\Pch.cpp"
