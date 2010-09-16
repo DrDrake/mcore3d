@@ -154,8 +154,11 @@ public:
 		// Poll to see if the resource's commitCount had changed by the main thread
 		else {
 			const size_t oldCommitCount = resource.commitCount();
-			while(resource.commitCount() == oldCommitCount)
+			ScopeLock lock(loader.mMutex);
+			while(resource.commitCount() == oldCommitCount && !(loader.mState & IResourceLoader::Stopped)) {
+				ScopeUnlock unlock(loader.mMutex);
 				mMutex.wait();
+			}
 		}
 	}
 

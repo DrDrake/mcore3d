@@ -62,6 +62,7 @@ void RendererComponent::Impl::render(Entity& entityTree, RenderTargetComponent& 
 		// The input parameter entityTree will never skip
 		if(!mEntityItr->enabled && mEntityItr.current() != &entityTree) {
 			mEntityItr.skipChildren();
+			// TODO: May need mMaterialStack.push(mMaterialStack.top()) ?
 			continue;
 		}
 
@@ -76,7 +77,7 @@ void RendererComponent::Impl::render(Entity& entityTree, RenderTargetComponent& 
 		if(RenderableComponent* renderable = e->findComponent<RenderableComponent>())
 			renderable->render2(this);
 
-		if(nullptr == mCurrentMaterial) {
+		if(!mCurrentMaterial) {
 			// Skip if there where no material
 			if(mMaterialStack.empty()) {
 				mEntityItr.next();
