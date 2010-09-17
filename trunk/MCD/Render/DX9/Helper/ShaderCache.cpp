@@ -2,6 +2,9 @@
 #include "ShaderCache.h"
 #include "../Renderer.inc"
 #include "../../../Core/System/Log.h"
+#include "../../../Core/System/Resource.h"
+#include "../../../Core/System/ResourceLoader.h"
+#include "../../../Core/System/ResourceManager.h"
 #include "../../../Core/System/StringHash.h"
 #include <D3DX9Shader.h>
 
@@ -121,6 +124,71 @@ ShaderCache::Ps ShaderCache::getPixelShader(const char* sourceCode)
 	}
 
 	ps.AddRef();
+	return ps;
+}
+
+class DummyResource : public Resource
+{
+public:
+	explicit DummyResource() : Resource("") {}
+};	// DummyResource
+
+// To ensure the graphics API call are invoked in main thread
+class VsCommiter : public IResourceLoader
+{
+public:
+	LoadingState load(std::istream* is, const Path* fileId, const char* args) { return Loaded; }
+	sal_override void commit(Resource&)
+	{
+		MCD_ASSUME(vs);
+		MCD_ASSUME(shaderCache);
+		*vs = shaderCache->getVertexShader(sourceCode);
+	}
+
+	ShaderCache::Vs* vs;
+	ShaderCache* shaderCache;
+	const char* sourceCode;
+};	// VsCommiter
+
+class PsCommiter : public IResourceLoader
+{
+public:
+	LoadingState load(std::istream* is, const Path* fileId, const char* args) { return Loaded; }
+	sal_override void commit(Resource&)
+	{
+		MCD_ASSUME(ps);
+		MCD_ASSUME(shaderCache);
+		*ps = shaderCache->getPixelShader(sourceCode);
+	}
+
+	ShaderCache::Ps* ps;
+	ShaderCache* shaderCache;
+	const char* sourceCode;
+};	// PsCommiter
+
+ShaderCache::Vs ShaderCache::getVertexShader(const char* sourceCode, ResourceManager& mgr)
+{
+	Vs vs;
+	VsCommiter* commiter = new VsCommiter;
+	commiter->vs = &vs;
+	commiter->shaderCache = this;
+	commiter->sourceCode = sourceCode;
+	IResourceLoaderPtr holder = commiter;
+	ResourcePtr dummy = new DummyResource;
+	mgr.customLoad(dummy, holder, 1);
+	return vs;
+}
+
+ShaderCache::Ps ShaderCache::getPixelShader(const char* sourceCode, ResourceManager& mgr)
+{
+	Ps ps;
+	PsCommiter* commiter = new PsCommiter;
+	commiter->ps = &ps;
+	commiter->shaderCache = this;
+	commiter->sourceCode = sourceCode;
+	IResourceLoaderPtr holder = commiter;
+	ResourcePtr dummy = new DummyResource;
+	mgr.customLoad(dummy, holder, 1);
 	return ps;
 }
 

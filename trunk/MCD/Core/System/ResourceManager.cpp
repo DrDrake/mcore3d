@@ -155,7 +155,7 @@ public:
 		else {
 			const size_t oldCommitCount = resource.commitCount();
 			ScopeLock lock(loader.mMutex);
-			while(resource.commitCount() == oldCommitCount && !(loader.mState & IResourceLoader::Stopped)) {
+			while(resource.commitCount() == oldCommitCount && loader.mState != IResourceLoader::Aborted) {
 				ScopeUnlock unlock(loader.mMutex);
 				mMutex.wait();
 			}

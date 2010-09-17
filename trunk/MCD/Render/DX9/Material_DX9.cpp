@@ -6,6 +6,7 @@
 #include "../RenderWindow.h"
 #include "../../Core/System/Log.h"
 #include "../../Core/Entity/Entity.h"
+#include "../../Core/Entity/SystemComponent.h"
 #include <D3DX9Shader.h>
 
 namespace MCD {
@@ -63,7 +64,10 @@ bool MaterialComponent::Impl::createVs()
 	"	return _out;"
 	"}";
 
-	mVs = gShaderCache.getVertexShader(code);
+	if(ResourceManagerComponent* c = ResourceManagerComponent::fromCurrentEntityRoot())
+		mVs = gShaderCache.getVertexShader(code, c->resourceManager());
+	else
+		mVs = gShaderCache.getVertexShader(code);
 	return mVs.vs && mVs.constTable;
 }
 
@@ -122,7 +126,10 @@ bool MaterialComponent::Impl::createPs()
 	"	return _out;"
 	"}";
 
-	mPs = gShaderCache.getPixelShader(code);
+	if(ResourceManagerComponent* c = ResourceManagerComponent::fromCurrentEntityRoot())
+		mPs = gShaderCache.getPixelShader(code, c->resourceManager());
+	else
+		mPs = gShaderCache.getPixelShader(code);
 	return mPs.ps && mPs.constTable;
 }
 
@@ -130,6 +137,7 @@ void MaterialComponent::Impl::updateWorldTransform(void* context)
 {
 	RendererComponent::Impl& renderer = *reinterpret_cast<RendererComponent::Impl*>(context);
 	LPDIRECT3DDEVICE9 device = getDevice();
+	MCD_ASSUME(device);
 
 	MCD_VERIFY(mVs.constTable->SetMatrix(
 		device, mConstantHandles.worldViewProj, (D3DXMATRIX*)renderer.mWorldViewProjMatrix.getPtr()
@@ -151,6 +159,7 @@ void MaterialComponent::preRender(size_t pass, void* context)
 {
 	RendererComponent::Impl& renderer = *reinterpret_cast<RendererComponent::Impl*>(context);
 	LPDIRECT3DDEVICE9 device = getDevice();
+	MCD_ASSUME(device);
 
 	{	// Bind system information
 		MCD_VERIFY(mImpl.mVs.constTable->SetMatrix(

@@ -89,4 +89,11 @@ void ResourceManagerComponent::registerCallback(const Path& fileId, BehaviourCom
 	}
 }
 
+ResourceManagerComponent* ResourceManagerComponent::fromCurrentEntityRoot()
+{
+	if(Entity* e = Entity::currentRoot())
+		return e->findComponentInChildrenExactType<ResourceManagerComponent>();
+	return nullptr;
+}
+
 }	// namespace MCD

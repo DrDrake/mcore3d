@@ -58,6 +58,9 @@ public:
 	/// This variable is ignored if the ResourceManager's thread pool has no thread at all.
 	bool performLoadInMainThread;
 
+	/// Search for ResourceManagerComponent from Entity::currentRoot().
+	static sal_maybenull ResourceManagerComponent* fromCurrentEntityRoot();
+
 protected:
 	struct Callback {
 		Path path;
