@@ -96,7 +96,8 @@ IResourceLoader::LoadingState FntLoader::load(std::istream* is, const Path* file
 					// We assume the texture is relative to the pod file, if the texture file didn't has a root path.
 					const Path adjustedPath = fileId ? fileId->getBranchPath()/value : value;
 
-					mTmp->texture = dynamic_cast<Texture*>(c->resourceManager().load(adjustedPath).get());
+					// We want to load the font texture at a higher priority
+					mTmp->texture = dynamic_cast<Texture*>(c->resourceManager().load(adjustedPath, -1, 2).get());
 				}
 			}
 		}

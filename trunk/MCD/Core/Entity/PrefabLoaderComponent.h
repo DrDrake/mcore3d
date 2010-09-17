@@ -16,6 +16,8 @@ typedef IntrusivePtr<class Prefab> PrefabPtr;
 class MCD_CORE_API PrefabLoaderComponent : public BehaviourComponent
 {
 public:
+	PrefabLoaderComponent();
+
 // Cloning
 	sal_override sal_checkreturn bool cloneable() const;
 

@@ -6,6 +6,10 @@
 
 namespace MCD {
 
+PrefabLoaderComponent::PrefabLoaderComponent()
+	: mCommitCount(0)
+{}
+
 bool PrefabLoaderComponent::cloneable() const {
 	return true;
 }
