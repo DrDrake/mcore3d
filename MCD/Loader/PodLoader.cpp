@@ -561,10 +561,8 @@ IResourceLoader::LoadingState PodLoader::Impl::load(std::istream* is, const Path
 	AnimationComponentPtr animationComponent;
 	//if(mAnimationUpdater && mPod.nNumFrame > 0) {
 	if(mPod.nNumFrame > 0) {
-		EntityPtr e = new Entity();
-		e->name = "Animation controller";
-		animationComponent = new AnimationComponent(*mSystemEntities);
-		e->addComponent(animationComponent.get());
+		EntityPtr e = new Entity("Animation controller);
+		animationComponent = e->addComponent(new AnimationComponent(*mSystemEntities));
 		e->asChildOf(&mRootEntity);
 	}
 
@@ -572,10 +570,8 @@ IResourceLoader::LoadingState PodLoader::Impl::load(std::istream* is, const Path
 	SkeletonAnimationComponentPtr skeletonAnimationComponent;
 	//if(mSkeletonAnimationUpdater && skeleton) {
 	if(skeleton) {
-		skeletonAnimationComponent = new SkeletonAnimationComponent(*mSystemEntities);
-		EntityPtr e = new Entity();
-		e->name = "Skeleton animation controller";
-		e->addComponent(skeletonAnimationComponent.get());
+		EntityPtr e = new Entity("Skeleton animation controller");
+		skeletonAnimationComponent = e->addComponent(new SkeletonAnimationComponent(*mSystemEntities));
 		e->asChildOf(&mRootEntity);
 
 		skeletonAnimationComponent->skeletonAnimation.skeleton = skeleton;
@@ -601,8 +597,7 @@ IResourceLoader::LoadingState PodLoader::Impl::load(std::istream* is, const Path
 		if(podNode.nIdxParent + 1 >= int(nodeToEntity.size()))
 			continue;
 
-		EntityPtr e = new Entity();
-		e->name = podNode.pszName;
+		EntityPtr e = new Entity(podNode.pszName);
 		e->asChildOf(nodeToEntity[podNode.nIdxParent + 1].getNotNull());	// SPODNode::nIdxParent gives -1 for no parent
 
 		if(!hasSkeleton)

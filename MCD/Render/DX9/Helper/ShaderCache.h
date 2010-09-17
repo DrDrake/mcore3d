@@ -10,6 +10,9 @@ struct ID3DXConstantTable;
 typedef ID3DXConstantTable *LPD3DXCONSTANTTABLE;
 
 namespace MCD {
+
+class ResourceManager;
+
 namespace DX9Helper {
 
 /*!	Cache compiled shader
@@ -39,8 +42,11 @@ public:
 	/// Return Vs with null values if failed.
 	/// Must call in main thread
 	Vs getVertexShader(const char* sourceCode);
-
 	Ps getPixelShader(const char* sourceCode);
+
+	/// With the help of ResourceManager, these functions can call in any thread
+	Vs getVertexShader(const char* sourceCode, ResourceManager& mgr);
+	Ps getPixelShader(const char* sourceCode, ResourceManager& mgr);
 
 protected:
 	typedef std::map<uint32_t, Vs> VsMap;

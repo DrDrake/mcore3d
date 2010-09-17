@@ -57,8 +57,7 @@ void AudioSourceComponent::update()
 
 		if(filePath != lastFilePath) {	// Check if user want to play another audio file
 			// Find the Entity tree root
-			if(Entity* e = Entity::currentRoot())
-			if(ResourceManagerComponent* c = e->findComponentInChildrenExactType<ResourceManagerComponent>()) {
+			if(ResourceManagerComponent* c = ResourceManagerComponent::fromCurrentEntityRoot()) {
 				audioSource.stop();
 				(void)audioSource.load(c->resourceManager(), filePath, loadOptions.c_str());
 				lastFilePath = filePath;
