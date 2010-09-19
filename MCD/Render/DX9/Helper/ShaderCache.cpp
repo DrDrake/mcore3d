@@ -37,6 +37,17 @@ void ShaderCache::Ps::AddRef()
 
 ShaderCache::~ShaderCache()
 {
+	clear();
+}
+
+ShaderCache& ShaderCache::singleton()
+{
+	static ShaderCache cache;
+	return cache;
+}
+
+void ShaderCache::clear()
+{
 	for(VsMap::iterator i=mVsMap.begin(); i!=mVsMap.end(); ++i)
 		i->second.Release();
 	for(PsMap::iterator i=mPsMap.begin(); i!=mPsMap.end(); ++i)

@@ -151,11 +151,10 @@ public:
 			loader.mPendForCommit = false;	// Just put in event queue but no call to commit() as we will do it right here.
 			commitResource(loader);
 		}
-		// Poll to see if the resource's commitCount had changed by the main thread
+		// Poll to see if the target load count reached and committed
 		else {
-			const size_t oldCommitCount = resource.commitCount();
 			ScopeLock lock(loader.mMutex);
-			while(resource.commitCount() == oldCommitCount && loader.mState != IResourceLoader::Aborted) {
+			while(int(loader.mLoadCount) < blockIteration || resource.commitCount() == 0 && loader.mState != IResourceLoader::Aborted) {
 				ScopeUnlock unlock(loader.mMutex);
 				mMutex.wait();
 			}

@@ -16,7 +16,8 @@ class ResourceManager;
 namespace DX9Helper {
 
 /*!	Cache compiled shader
-	The shader might be vertex shader or pixel shader, depends on which handle is not null
+	The shader might be vertex shader or pixel shader, depends on which handle is not null.
+	This class is designed to work with only one DirectX device.
  */
 class ShaderCache : Noncopyable
 {
@@ -38,6 +39,10 @@ public:
 	};	// Ps
 
 	~ShaderCache();
+
+	static ShaderCache& singleton();
+
+	void clear();
 
 	/// Return Vs with null values if failed.
 	/// Must call in main thread
