@@ -1,5 +1,6 @@
 // This inc file is to be included by RenderWindow.cpp only
 
+#include "Helper/ShaderCache.h"
 #include "../Texture.h"
 #include "../../Core/System/StrUtility.h"
 #include "../../Core/System/MemoryProfiler.h"
@@ -190,6 +191,7 @@ void GlobalDevice::destroyContext(iterator& itr)
 	itr = contexts.end();
 
 	if(contexts.empty()) {
+		DX9Helper::ShaderCache::singleton().clear();
 		SAFE_RELEASE(device);
 		SAFE_RELEASE(d3d);
 	}

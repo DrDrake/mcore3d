@@ -11,6 +11,8 @@
 
 namespace MCD {
 
+using namespace DX9Helper;
+
 MaterialComponent::Impl::Impl() 
 {
 	MCD_VERIFY(createVs());
@@ -32,9 +34,6 @@ MaterialComponent::Impl::~Impl()
 	mVs.Release();
 	mPs.Release();
 }
-
-// TODO: Don't use global if possible
-static DX9Helper::ShaderCache gShaderCache;
 
 bool MaterialComponent::Impl::createVs()
 {
@@ -65,9 +64,9 @@ bool MaterialComponent::Impl::createVs()
 	"}";
 
 	if(ResourceManagerComponent* c = ResourceManagerComponent::fromCurrentEntityRoot())
-		mVs = gShaderCache.getVertexShader(code, c->resourceManager());
+		mVs = ShaderCache::singleton().getVertexShader(code, c->resourceManager());
 	else
-		mVs = gShaderCache.getVertexShader(code);
+		mVs = ShaderCache::singleton().getVertexShader(code);
 	return mVs.vs && mVs.constTable;
 }
 
@@ -127,9 +126,9 @@ bool MaterialComponent::Impl::createPs()
 	"}";
 
 	if(ResourceManagerComponent* c = ResourceManagerComponent::fromCurrentEntityRoot())
-		mPs = gShaderCache.getPixelShader(code, c->resourceManager());
+		mPs = ShaderCache::singleton().getPixelShader(code, c->resourceManager());
 	else
-		mPs = gShaderCache.getPixelShader(code);
+		mPs = ShaderCache::singleton().getPixelShader(code);
 	return mPs.ps && mPs.constTable;
 }
 
