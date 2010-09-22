@@ -163,7 +163,7 @@ void AnimationTrack::interpolateSingleSubtrack(float trackPos, Interpolation& re
 	}
 
 	{	// Phase 2: Find the current and pervious frame index
-		size_t curr = frames[result.frame1Idx].pos < trackPos ? result.frame1Idx : 0;
+		size_t curr = (result.frame1Idx < frames.size && frames[result.frame1Idx].pos < trackPos) ? result.frame1Idx : 0; 
 
 		// Scan for a frame with it's pos larger than the current. If none can find, the last frame index is used.
 		size_t i = curr;
@@ -181,6 +181,8 @@ void AnimationTrack::interpolateSingleSubtrack(float trackPos, Interpolation& re
 		MCD_ASSUME(t2 > t1);
 		result.ratio = (trackPos - t1) / (t2 - t1);
 	}
+
+	MCD_ASSERT(result.ratio >= 0 && "Make sure the first frame is on the time zero");
 
 	// Phase 4: perform interpolation
 	const Vec4f& f1 = reinterpret_cast<const Vec4f&>(frames[result.frame1Idx]);
