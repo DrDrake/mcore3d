@@ -78,6 +78,15 @@ public:
 		x = xyz.x; y = xyz.y; z = xyz.z; w = w_;
 	}
 
+	friend param_type dot(const Quaternion& q1, const Quaternion& q2) {
+		return q1.x * q2.x + q1.y * q2.y + q1.z * q2.z + q1.w * q2.w;
+	}
+
+	//! Dot product operator
+	param_type operator%(const Quaternion& rhs) const {
+		return dot(*this, rhs);
+	}
+
 	/*!	Returns the length (magnitude) of the quaternion.
 		\warning
 			This operation requires a square root and is expensive in
@@ -156,6 +165,8 @@ public:
 
 	//!	Returns whether this quaternion is within a tolerance of another quaternion.
 	bool isNearEqual(const Quaternion& rhs, T tolerance = T(1e-06)) const;
+
+	static Quaternion slerp(const Quaternion& q1, const Quaternion& q2, T t);
 
 	/*!	The multiplication identity quaternion, (0, 0, 0, 1).
 		Any quaternion multiplied with this identity quaternion will not be changed.
