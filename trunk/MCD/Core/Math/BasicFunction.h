@@ -61,10 +61,7 @@ public:
 	}
 
 	//! Computes sin and cos together.
-	static void sinCos(Real theta, Real& sinResult, Real& cosResult) {
-		// TODO: Take advantage of custom assembly language
-		sinResult = Real(sin(theta));	cosResult = Real(cos(theta));
-	}
+	static void sinCos(Real theta, Real& sinResult, Real& cosResult);
 
 	//! A fast version of sin() given that x is in the range 0 to Pi/2.
 	static Real sinZeroHalfPI(Real x);

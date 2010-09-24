@@ -155,6 +155,29 @@ bool Quaternion<T>::isNearEqual(const Quaternion<T>& rhs, T tolerance) const
 		Math<T>::isNearEqual(w, rhs.w, tolerance);
 }
 
+template<typename T>
+Quaternion<T> Quaternion<T>::slerp(const Quaternion& q1, const Quaternion& q2, T t)
+{
+	// Refernece: From ID software, "Slerping Clock Cycles"
+	const T cosVal = q1 % q2;
+	const T absCosVal = fabsf(cosVal);
+	if((1.0f - absCosVal) > 1e-6f)
+	{
+		// Standard case (slerp)
+		const T sinSqr = 1.0f - absCosVal * absCosVal;
+		const T invSin = 1.0f / sqrtf(sinSqr);
+		const T omega = Mathf::aTanPositive(sinSqr * invSin, absCosVal);
+		const T scale0 = sinf((1.0f - t) * omega) * invSin;
+		T scale1 = sinf(t * omega) * invSin;
+
+		scale1 = (cosVal >= 0.0f) ? scale1 : -scale1;
+
+		return scale0 * q1 + scale1 * q2;
+	}
+	else	// Fallback to linear
+		return q1 + t * (q2 - q1);
+}
+
 template<typename T> const Quaternion<T> Quaternion<T>::cIdentity = Quaternion(0, 0, 0, 1);
 
 }	// namespace MCD

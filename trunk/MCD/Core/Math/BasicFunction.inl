@@ -62,4 +62,22 @@ Real Math<Real>::aTanPositive(Real y, Real x)
 	return t;
 }
 
+template<> inline
+void Math<float>::sinCos(float theta, float& sinResult, float& cosResult)
+{
+#ifdef MCD_WIN32
+	__asm
+	{
+		fld DWORD PTR[theta]
+		fsincos
+		mov ebx, [cosResult]
+		fstp DWORD PTR[ebx]
+		mov ebx, [sinResult]
+		fstp DWORD PTR[ebx]
+	}
+#else
+	sinResult = Real(sin(theta));	cosResult = Real(cos(theta));
+#endif
+}
+
 }	// namespace MCD
