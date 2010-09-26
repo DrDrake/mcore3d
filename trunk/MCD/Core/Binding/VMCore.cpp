@@ -49,7 +49,7 @@ VMCore::VMCore(int initialStackSize)
 	CAPI_VERIFY(sq_getstackobj(mSqvm, -1, &mClassesTable));
 	sq_addref(mSqvm, &mClassesTable);
 	CAPI_VERIFY(sq_newslot(mSqvm, 1, false));
-	sq_pop(mSqvm, 1);
+	sq_poptop(mSqvm);
 
 //	bindEventsToVMCore(this);
 
@@ -120,7 +120,7 @@ bool VMCore::runScript(const char* script, bool retVal, const char* scriptName)
 		return false;
 	}
 
-	sq_pop(v, 1);	// Pop the closure
+	sq_poptop(v);	// Pop the closure
 	MCD_ASSERT(oldTop == sq_gettop(v));
 
 	return true;

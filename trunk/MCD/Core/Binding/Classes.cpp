@@ -97,7 +97,7 @@ ScriptObject ClassesManager::createClass(HSQUIRRELVM v, ScriptObject& ns, ClassI
 	CAPI_VERIFY(sq_newslot(v, -3, false));
 	/// stack: ns
 
-	sq_pop(v, 1);
+	sq_poptop(v);
 	MCD_ASSERT(oldTop == sq_gettop(v));
 
 	// Add class to VMCore's class table
@@ -108,7 +108,7 @@ ScriptObject ClassesManager::createClass(HSQUIRRELVM v, ScriptObject& ns, ClassI
 	/// stack: vm->mClassTable, classId, newClass
 
 	CAPI_VERIFY(sq_newslot(v, -3, false));
-	sq_pop(v, 1);
+	sq_poptop(v);
 
 	MCD_ASSERT(oldTop == sq_gettop(v));
 
@@ -128,7 +128,7 @@ void ClassesManager::registerTypeOf(HSQUIRRELVM v, ScriptObject& classObj, const
 	sq_pushstring(v, typeName, -1);			/// stack: class, functionName, typeName
 	sq_newclosure(v, &Local::func, 1);		/// stack: class, functionName, func
 	CAPI_VERIFY(sq_newslot(v, -3, true));	/// stack: class
-	sq_pop(v, 1);
+	sq_poptop(v);
 }
 
 void ClassesManager::disableCloning(HSQUIRRELVM v, ScriptObject& classObj)
@@ -143,7 +143,7 @@ void ClassesManager::disableCloning(HSQUIRRELVM v, ScriptObject& classObj)
 	sq_pushstring(v, "_cloned", -1);		/// stack: class, name
 	sq_newclosure(v, &Local::func, 0);		/// stack: class, name, func
 	CAPI_VERIFY(sq_newslot(v, -3, true));	/// stack: class
-	sq_pop(v, 1);
+	sq_poptop(v);
 }
 
 void ClassesManager::createMemoryControllerSlot(HSQUIRRELVM v, ScriptObject& classObj)
@@ -152,7 +152,7 @@ void ClassesManager::createMemoryControllerSlot(HSQUIRRELVM v, ScriptObject& cla
 	sq_pushinteger(v, MEMORY_CONTROLLER_PARAM);
 	sq_pushnull(v);
 	CAPI_VERIFY(sq_createslot(v, -3));
-	sq_pop(v, 1);
+	sq_poptop(v);
 }
 
 static SQInteger sqVarGet(HSQUIRRELVM vm)
@@ -228,7 +228,7 @@ void ClassesManager::registerGetSetTable(HSQUIRRELVM v, ScriptObject& classObj)
 	sq_newclosure(v, &sqVarSet, 1);
 	sq_newslot(v, -3, false);
 
-	sq_pop(v, 1);
+	sq_poptop(v);
 }
 
 }	// namespace Binding
