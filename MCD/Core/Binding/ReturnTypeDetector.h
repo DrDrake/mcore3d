@@ -9,6 +9,7 @@ template<typename T> struct RmPtr { typedef T RET; };
 template<typename T> struct RmPtr<T*> { typedef T RET; };
 template<typename T> struct RmPtr<T&> { typedef T RET; };
 
+struct MemberField {};
 struct MemberFunc {};
 struct StaticFunc {};
 struct RawSqFunc {};
@@ -16,6 +17,15 @@ struct RawSqFunc {};
 // Template traits to detect the various compile-time info of a function
 template<typename Func>
 struct FuncTraits {
+};
+
+// Raw squirrel function
+template<>
+struct FuncTraits<int (*)(HSQUIRRELVM)> {
+	typedef int RET;
+	typedef HSQUIRRELVM FirstParam;
+	typedef RawSqFunc FuncType;
+	enum { ParamCount = 0 };
 };
 
 // Static function
@@ -33,14 +43,6 @@ struct FuncTraits<RT (*)(P1)> {
 	typedef P1 FirstParam;
 	typedef StaticFunc FuncType;
 	enum { ParamCount = 1 };
-};
-
-template<>
-struct FuncTraits<int (*)(HSQUIRRELVM)> {
-	typedef int RET;
-	typedef HSQUIRRELVM FirstParam;
-	typedef RawSqFunc FuncType;
-	enum { ParamCount = 0 };
 };
 
 template<typename RT, typename P1,typename P2>
@@ -89,6 +91,15 @@ struct FuncTraits<RT (*)(P1,P2,P3,P4,P5,P6,P7)> {
 	typedef P1 FirstParam;
 	typedef StaticFunc FuncType;
 	enum { ParamCount = 7 };
+};
+
+// Memember field
+template<class Callee, typename T>
+struct FuncTraits<T (Callee::*)> {
+	typedef T RET;
+	typedef void FirstParam;
+	typedef MemberField FuncType;
+	enum { ParamCount = 0 };
 };
 
 // Member function

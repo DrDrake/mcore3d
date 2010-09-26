@@ -33,7 +33,7 @@ SCRIPT_CLASS_REGISTER(Foo)
 	.setter("setX", &Foo::x)
 	.getterSetter("getY", "setY", &Foo::y)
 	.getterSetter("getStr", "setStr", &Foo::str)
-	.getter("getConstStr", &Foo::constStr)
+	.method("getConstStr", &Foo::constStr)	// getter can also binded as usual "method"
 ;}
 
 }	// namespace Binding

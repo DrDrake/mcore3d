@@ -159,7 +159,7 @@ public:
 
 // Fields get set
 	// For a getter, we assume the return policy is either plain or objNoCare
-	// If a custom return policy is really needed, wrappedMethod can be used instead.
+	// If a custom return policy is really needed, wrap the member field using a static function.
 	template<typename Field>
 	ClassDeclarator& getter(const char* name, Field field)
 	{
@@ -198,6 +198,27 @@ public:
 		return *this;
 	}
 
+	template<typename ReturnPolicy, typename Func>
+	ClassDeclarator& varGet(const char* name, Func func)
+	{
+		varGetDispatch<ReturnPolicy>(name, func, typename FuncTraits<Func>::FuncType());
+		return *this;
+	}
+
+	template<typename Func>
+	ClassDeclarator& varGet(const char* name, Func func)
+	{
+		varGetDispatch<DefaultReturnPolicy>(name, func, typename FuncTraits<Func>::FuncType());
+		return *this;
+	}
+
+	template<typename Func>
+	ClassDeclarator& varSet(const char* name, Func func)
+	{
+		varSetDispatch<plain>(name, func, typename FuncTraits<Func>::FuncType());
+		return *this;
+	}
+
 	ClassDeclarator& runScript(const char* script)
 	{
 		ClassDeclaratorBase::runScript(script);
@@ -205,6 +226,13 @@ public:
 	}
 
 protected:
+// Script class member function
+	template<typename ReturnPolicy, typename Field>
+	void methodDispatch(const char* name, Field field, MemberField)
+	{
+		pushFunction(name, &field, sizeof(field), 0, &fieldGetterFunction<Class, Field, ReturnPolicy>);
+	}
+
 	template<typename ReturnPolicy, typename Func>
 	void methodDispatch(const char* name, Func func, MemberFunc)
 	{
@@ -223,6 +251,7 @@ protected:
 		rawMethod(name, func);
 	}
 
+// Script class static function
 	template<typename ReturnPolicy, typename Func>
 	void staticMethodDispatch(const char* name, Func func, StaticFunc)
 	{
@@ -240,6 +269,26 @@ protected:
 	{
 		pushFunction(name, (void*)func, 0, FuncTraits<Func>::ParamCount-1, &IndirectCallMemberFunction<Class, Func, ReturnPolicy>::Dispatch);
 		return *this;
+	}
+
+// Script class variable get
+	template<typename ReturnPolicy, typename Func>
+	void varGetDispatch(const char* name, Func func, MemberFunc)
+	{
+		pushFunction(name, &func, sizeof(func), 0, &DirectCallMemberFunction<Class, Func, ReturnPolicy>::Dispatch, getterTable());
+	}
+
+	template<typename ReturnPolicy, typename Func>
+	void varGetDispatch(const char* name, Func func, StaticFunc)
+	{
+		pushFunction(name, (void*)func, 0, 0, &IndirectCallMemberFunction<Class, Func, ReturnPolicy>::Dispatch, getterTable());
+	}
+
+// Script class variable set
+	template<typename ReturnPolicy, typename Func>
+	void varSetDispatch(const char* name, Func func, StaticFunc)
+	{
+		pushFunction(name, (void*)func, 0, 0, &IndirectCallMemberFunction<Class, Func, ReturnPolicy>::Dispatch, setterTable());
 	}
 };	// ClassDeclarator
 

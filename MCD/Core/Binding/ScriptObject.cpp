@@ -61,7 +61,7 @@ bool ScriptObject::setInstanceUp(SQUserPointer up)
 	MCD_ASSERT(sq_isinstance(mObj));
 	sq_pushobject(mSqvm, mObj);
 	sq_setinstanceup(mSqvm, -1, up);
-	sq_pop(mSqvm, 1);
+	sq_poptop(mSqvm);
 	return true;
 }
 
@@ -70,7 +70,7 @@ SQUserPointer ScriptObject::getInstanceUp(SQUserPointer tag) const
 	SQUserPointer up = 0;
 	sq_pushobject(mSqvm, mObj);
 	sq_getinstanceup(mSqvm, -1, (SQUserPointer*)&up, tag);
-	sq_pop(mSqvm, 1);
+	sq_poptop(mSqvm);
 	return up;
 }
 
@@ -82,7 +82,7 @@ bool ScriptObject::getTypeTag(SQUserPointer* typeTag) const
 bool ScriptObject::exists(const char* key) const
 {
 	bool ret = _getSlot(key);
-	sq_pop(mSqvm, 1);
+	sq_poptop(mSqvm);
 	return ret;
 }
 
@@ -91,7 +91,7 @@ ScriptObject ScriptObject::getValue(const char* key) const
 	ScriptObject ret(mSqvm);
 	if(_getSlot(key))
 		MCD_VERIFY(ret.getFromStack(-1));
-	sq_pop(mSqvm, 1);
+	sq_poptop(mSqvm);
 	return ret;
 }
 

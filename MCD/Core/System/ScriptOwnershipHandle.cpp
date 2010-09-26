@@ -82,7 +82,7 @@ void ScriptOwnershipHandle::removeReleaseHook()
 	HSQUIRRELVM& _vm = reinterpret_cast<HSQUIRRELVM&>(vm);
 	sq_pushobject(_vm, *ref);
 	sq_setreleasehook(_vm, -1, nullptr);
-	sq_pop(_vm, 1);
+	sq_poptop(_vm);
 }
 
 void ScriptOwnershipHandle::setHandle(void* v, int index, bool keepStrongRef)
@@ -104,7 +104,7 @@ void ScriptOwnershipHandle::setHandle(void* v, int index, bool keepStrongRef)
 		sq_weakref(_vm, index);	// Create a weak reference to the object at index
 		sq_getstackobj(_vm, -1, ref);
 		sq_addref(_vm, ref);
-		sq_pop(_vm, 1);
+		sq_poptop(_vm);
 	}
 }
 
@@ -188,7 +188,7 @@ void* ScriptOwnershipHandle::cloneTo(ScriptOwnershipHandle& other) const
 	sq_pushobject(_vm, *ref);
 	// Clone may fail
 	if(SQ_FAILED(sq_clone(_vm, -1))) {
-		sq_pop(_vm, 1);
+		sq_poptop(_vm);
 		return nullptr;
 	}
 

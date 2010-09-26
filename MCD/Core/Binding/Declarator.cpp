@@ -45,7 +45,7 @@ void Declarator::pushFunction(const char* name, void* func, size_t sizeofFunc, i
 	CAPI_VERIFY(sq_setparamscheck(_vm, paramCountCheck, nullptr));
 
 	CAPI_VERIFY(sq_newslot(_vm, -3, true));
-	sq_pop(_vm, 1);
+	sq_poptop(_vm);
 }
 
 void Declarator::pushFunction(const char* name, void* func, size_t sizeofFunc, int paramCountCheck, const SQFUNCTION dispatchFunc)
@@ -108,7 +108,7 @@ GlobalDeclarator GlobalDeclarator::declareNamespace(const char* ns)
 		MCD_VERIFY(newHost.getFromStack(-1));
 
 		CAPI_VERIFY(sq_createslot(_vm, -3));		/// stack: hostObject
-		sq_pop(_vm, 1);
+		sq_poptop(_vm);
 
 		return GlobalDeclarator(newHost, _vm);
 	}
@@ -148,7 +148,7 @@ ScriptObject RootDeclarator::_getRoot(HSQUIRRELVM vm)
 	sq_pushroottable(vm);
 	ScriptObject root(vm);
 	MCD_VERIFY(root.getFromStack(-1));
-	sq_pop(vm, 1);
+	sq_poptop(vm);
 	return root;
 }
 
