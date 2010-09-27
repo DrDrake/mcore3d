@@ -86,7 +86,7 @@ bool SkinMeshComponent::init(IResourceManager& resourceManager, const Model& bas
 	return meshes.get() != nullptr;
 }
 
-void SkinMeshComponent::render2(void* context)
+void SkinMeshComponent::render(void* context)
 {
 	Entity* e = entity();
 	if(!e || !e->enabled || !basePoseMeshes || !meshes || !skeleton || !skeletonAnimation)

@@ -142,7 +142,6 @@ public:
 
 TEST_FIXTURE(AnimationTestFixture, Render)
 {
-	DeltaTimer deltaTimer;
 	Entity& root = framework.rootEntity();
 	RendererComponent* renderer = root.findComponentInChildrenExactType<RendererComponent>();
 	CameraComponent* sceneCamera = root.findComponentInChildrenExactType<CameraComponent>();
@@ -167,8 +166,6 @@ TEST_FIXTURE(AnimationTestFixture, Render)
 		if(Mathf::random() > 0.002)
 			destroyARandomBox();
 
-		const float dt = (float)deltaTimer.getDelta().asSecond();
-		BehaviourComponent::traverseEntities(&root, dt);
 		renderer->render(root);
 	}
 }

@@ -3,8 +3,6 @@
 
 namespace MCD {
 
-void LightComponent::render() {}
-
-void LightComponent::render2(void* context) {}
+void LightComponent::render(void* context) {}
 
 }	// namespace MCD

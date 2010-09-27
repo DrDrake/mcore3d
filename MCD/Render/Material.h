@@ -105,8 +105,7 @@ public:
 	sal_override sal_notnull Component* clone() const;
 
 // Operations
-	sal_override void render() {}
-	sal_override void render2(sal_in void* context);
+	sal_override void render(sal_in void* context);
 
 // Attrubutes
 	ColorRGBAf diffuseColor;
@@ -145,8 +144,7 @@ public:
 	sal_override sal_notnull Component* clone() const;
 
 // Operations
-	sal_override void render() {}
-	sal_override void render2(sal_in void* context);
+	sal_override void render(sal_in void* context);
 
 // Attrubutes
 	float opacity;	//!< Value from 0 (invisible) to 1 (opaque)

@@ -59,15 +59,15 @@ static void setViewPort(RenderTargetComponent& renderTarget)
 
 	glViewport(0, 0, width, height);
 
-	// Also adjust the frustum's aspect ration
+	// Also adjust the frustum's aspect ratio
 	if(renderTarget.cameraComponent && renderTarget.cameraComponent->frustum.projectionType == Frustum::Perspective)
 		renderTarget.cameraComponent->frustum.setAcpectRatio(float(width) / height);
 }
 
-void RenderTargetComponent::render()
+void RenderTargetComponent::gather()
 {
-	if(rendererComponent)
-		rendererComponent->mImpl.mRenderTargets.push_back(this);
+	RendererComponent& r = RendererComponent::current();
+	r.mImpl.mRenderTargets.push_back(this);
 }
 
 void RenderTargetComponent::render(RendererComponent& renderer, bool swapBuffers)

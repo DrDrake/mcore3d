@@ -66,8 +66,7 @@ public:
 	sal_override sal_notnull Component* clone() const;
 
 // Operations
-	sal_override void render();
-	sal_override void render2(sal_in void* context);
+	sal_override void render(sal_in void* context);
 
 // Attributes
 	BmpFontPtr bmpFont;
@@ -94,8 +93,7 @@ public:
 	sal_override sal_notnull Component* clone() const;
 
 // Operations
-	sal_override void render();
-	sal_override void render2(sal_in void* context);
+	sal_override void render(sal_in void* context);
 	sal_override void draw(sal_in void* context);
 
 // Attributes

@@ -73,6 +73,13 @@ public:
 	 */
 	AnimationInstance& animationInstance;
 
+	float time() const;
+
+	/*!	Explicitly set the time of the animation and reflect the result immediatly.
+		\note Aways take effect even entity()->enabled is false.
+	 */
+	void setTime(float t);
+
 	static const size_t subtrackPerEntity = 4;
 
 	std::vector<EntityPtr> affectingEntities;

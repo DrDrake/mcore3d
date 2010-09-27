@@ -7,14 +7,10 @@ namespace MCD {
 
 class RenderTargetComponent;
 
-class MCD_RENDER_API RendererComponent : public Component
+class MCD_RENDER_API RendererComponent : public ComponentUpdater
 {
 public:
 	RendererComponent();
-
-	sal_override const std::type_info& familyType() const {
-		return typeid(RendererComponent);
-	}
 
 // Attributes
 //	void setDefaultCamera(CameraComponent& camera);
@@ -28,8 +24,12 @@ public:
 	class Impl;
 	Impl& mImpl;
 
+	static RendererComponent& current();
+
 protected:
 	sal_override virtual ~RendererComponent();
+	sal_override void begin();
+	sal_override void end(float dt);
 };	// RendererComponent
 
 typedef IntrusiveWeakPtr<RendererComponent> RendererComponentPtr;

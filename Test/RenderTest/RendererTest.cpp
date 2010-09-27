@@ -15,7 +15,6 @@ using namespace MCD;
 
 TEST(RendererTest)
 {
-	DeltaTimer timer;
 	Framework framework;
 	CHECK(framework.addFileSystem("Media"));
 	CHECK(framework.initWindow("title=RendererTest;width=800;height=600;fullscreen=0;FSAA=4"));
@@ -44,7 +43,6 @@ TEST(RendererTest)
 		subRenderTarget->window = &subWindow;
 		subRenderTarget->entityToRender = &scene;
 		subRenderTarget->cameraComponent = sceneCamera;
-		subRenderTarget->rendererComponent = renderer;
 	}
 
 	{	// Setup render to texture
@@ -56,7 +54,6 @@ TEST(RendererTest)
 		textureRenderTarget->window = nullptr;
 		textureRenderTarget->entityToRender = &scene;
 		textureRenderTarget->cameraComponent = sceneCamera;
-		textureRenderTarget->rendererComponent = renderer;
 		textureRenderTarget->textures[0] = textureRenderTarget->createTexture(GpuDataFormat::get("uintRGBA8"), 512, 512);
 	}
 
@@ -131,8 +128,6 @@ TEST(RendererTest)
 
 		subWindow.popEvent(e, false);
 
-		const float dt = (float)timer.getDelta().asSecond();
-		BehaviourComponent::traverseEntities(&root, dt);
 		renderer->render(root);
 	}
 

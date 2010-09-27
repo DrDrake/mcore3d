@@ -126,8 +126,4 @@ Component* CameraComponent::clone() const
 	return cloned;
 }
 
-void CameraComponent::render()
-{
-}
-
 }	// namespace MCD

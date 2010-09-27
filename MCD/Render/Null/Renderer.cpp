@@ -23,4 +23,17 @@ void RendererComponent::render(Entity& entityTree, RenderTargetComponent& render
 {
 }
 
+RendererComponent& RendererComponent::current()
+{
+	return *reinterpret_cast<RendererComponent*>(nullptr);
+}
+
+void RendererComponent::begin()
+{
+}
+
+void RendererComponent::end(float dt)
+{
+}
+
 }	// namespace MCD

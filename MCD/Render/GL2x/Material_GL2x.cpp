@@ -18,7 +18,7 @@ MaterialComponent::~MaterialComponent()
 {
 }
 
-void MaterialComponent::render2(void* context)
+void MaterialComponent::render(void* context)
 {
 	// Push light into Renderer's light list
 	RendererComponent::Impl& renderer = *reinterpret_cast<RendererComponent::Impl*>(context);
@@ -44,7 +44,7 @@ void MaterialComponent::postRender(size_t pass, void* context)
 		diffuseMap->unbind();
 }
 
-void SpriteMaterialComponent::render2(void* context)
+void SpriteMaterialComponent::render(void* context)
 {
 	RendererComponent::Impl& renderer = *reinterpret_cast<RendererComponent::Impl*>(context);
 	renderer.mCurrentMaterial = this;

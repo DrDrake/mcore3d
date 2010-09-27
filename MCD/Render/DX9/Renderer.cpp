@@ -102,7 +102,7 @@ void RendererComponent::Impl::render(Entity& entityTree, RenderTargetComponent& 
 
 		// Preform actions defined by the concret type of RenderableComponent we have found
 		if(RenderableComponent* renderable = e->findComponent<RenderableComponent>())
-			renderable->render2(this);
+			renderable->render(this);
 
 		if(!mCurrentMaterial) {
 			// Skip if there where no material
@@ -153,9 +153,6 @@ void RendererComponent::Impl::render(Entity& entityTree, RenderTargetComponent& 
 
 void RendererComponent::Impl::render(Entity& entityTree)
 {
-	// TODO: Update only RenderTargetComponent, to bring them into mRenderTargets
-	RenderableComponent::traverseEntities(&entityTree);
-
 	// Process the render targets one by one
 	for(size_t i=0; i<mRenderTargets.size(); ++i) {
 		if(RenderTargetComponent* r1 = mRenderTargets[i].get()) {
@@ -286,6 +283,24 @@ void RendererComponent::render(Entity& entityTree)
 void RendererComponent::render(Entity& entityTree, RenderTargetComponent& renderTarget)
 {
 	mImpl.render(entityTree, renderTarget);
+}
+
+static RendererComponent* gCurrentRendererComponent = nullptr;
+
+RendererComponent& RendererComponent::current()
+{
+	MCD_ASSUME(gCurrentRendererComponent);
+	return *gCurrentRendererComponent;
+}
+
+void RendererComponent::begin()
+{
+	gCurrentRendererComponent = this;
+}
+
+void RendererComponent::end(float dt)
+{
+	gCurrentRendererComponent = nullptr;
 }
 
 }	// namespace MCD

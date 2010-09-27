@@ -43,6 +43,38 @@ void Component::setEnabled(bool b)
 		mEntity->enabled = b;
 }
 
+void ComponentUpdater::traverseBegin(Entity& entityTree)
+{
+	for(EntityPreorderIterator itr(&entityTree); !itr.ended();)
+	{
+		if(!itr->enabled) {
+			itr.skipChildren();
+			continue;
+		}
+
+		if(ComponentUpdater* updater = itr->findComponent<ComponentUpdater>())
+			updater->begin();
+
+		itr.next();
+	}
+}
+
+void ComponentUpdater::traverseEnd(Entity& entityTree, float dt)
+{
+	for(EntityPreorderIterator itr(&entityTree); !itr.ended();)
+	{
+		if(!itr->enabled) {
+			itr.skipChildren();
+			continue;
+		}
+
+		if(ComponentUpdater* updater = itr->findComponent<ComponentUpdater>())
+			updater->end(dt);
+
+		itr.next();
+	}
+}
+
 ComponentPreorderIterator::ComponentPreorderIterator(Entity* start)
 	: mCurrent(nullptr), mCurrentEntity(start)
 {

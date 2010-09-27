@@ -19,10 +19,10 @@ RenderTargetComponent::RenderTargetComponent()
 RenderTargetComponent::~RenderTargetComponent()
 {}
 
-void RenderTargetComponent::render()
+void RenderTargetComponent::gather()
 {
-	if(rendererComponent)
-		rendererComponent->mImpl.mRenderTargets.push_back(this);
+	RendererComponent& r = RendererComponent::current();
+	r.mImpl.mRenderTargets.push_back(this);
 }
 
 TexturePtr RenderTargetComponent::createTexture(const GpuDataFormat& format, size_t width, size_t height)
@@ -65,7 +65,7 @@ static void setViewPort(LPDIRECT3DDEVICE9 device, RenderTargetComponent& renderT
 	viewPort.MaxZ = 1;
 	device->SetViewport(&viewPort);
 
-	// Also adjust the frustum's aspect ration
+	// Also adjust the frustum's aspect ratio
 	if(renderTarget.cameraComponent && renderTarget.cameraComponent->frustum.projectionType == Frustum::Perspective)
 		renderTarget.cameraComponent->frustum.setAcpectRatio(float(viewPort.Width) / viewPort.Height);
 }

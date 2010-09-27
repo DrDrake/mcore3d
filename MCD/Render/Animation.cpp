@@ -269,6 +269,17 @@ void AnimationComponent::update(float dt)
 	}
 }
 
+float AnimationComponent::time() const {
+	return animationInstance.time;
+}
+
+void AnimationComponent::setTime(float t)
+{
+	animationInstance.time = t;
+	MyAnimationInstance& myAnim = static_cast<MyAnimationInstance&>(*mAnimationInstanceHolder);
+	myAnim.update();
+}
+
 class AnimationUpdaterComponent::Impl : public MCD::TaskPool::Task
 {
 public:
@@ -335,10 +346,10 @@ public:
 				}
 
 				if(Entity* e = c->entity()) {
-					MCD_ASSERT(e->enabled);
-					lock.mutex().unlock();
-					lock.cancel();
-					a.update();
+					if(e->enabled) {
+						lock.unlockAndCancel();
+						a.update();
+					}
 				}
 			}
 		}
