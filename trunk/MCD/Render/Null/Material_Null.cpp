@@ -14,13 +14,13 @@ MaterialComponent::MaterialComponent()
 
 MaterialComponent::~MaterialComponent() {}
 
-void MaterialComponent::render2(void* context) {}
+void MaterialComponent::render(void* context) {}
 
 void MaterialComponent::preRender(size_t pass, void* context) {}
 
 void MaterialComponent::postRender(size_t pass, void* context) {}
 
-void SpriteMaterialComponent::render2(void* context) {}
+void SpriteMaterialComponent::render(void* context) {}
 
 void SpriteMaterialComponent::preRender(size_t pass, void* context) {}
 

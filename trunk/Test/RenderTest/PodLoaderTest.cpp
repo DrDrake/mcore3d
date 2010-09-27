@@ -16,15 +16,14 @@ using namespace MCD;
 
 TEST(PodLoaderTest)
 {
-	DeltaTimer timer;
 	Framework framework;
 	CHECK(framework.addFileSystem("Media"));
 	CHECK(framework.initWindow("title=PodLoaderTest;width=800;height=600;fullscreen=0;FSAA=4"));
 
-//	const char* model = "Scene/City/scene.pod";
+	const char* model = "Scene/City/scene.pod";
 //	const char* model = "3M00696/buelllightning.pod";
 //	const char* model = "Scene/tv.pod";
-	const char* model = "Scene/City/scene.3ds";
+//	const char* model = "Scene/City/scene.3ds";
 
 	Entity& root = framework.rootEntity();
 	Entity& scene = framework.sceneLayer();
@@ -57,8 +56,6 @@ TEST(PodLoaderTest)
 		if(e.Type == Event::Closed)
 			break;
 
-		const float dt = (float)timer.getDelta().asSecond();
-		BehaviourComponent::traverseEntities(&root, dt);
 		renderer->render(root);
 	}
 

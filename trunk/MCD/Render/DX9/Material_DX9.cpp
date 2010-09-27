@@ -147,7 +147,7 @@ void MaterialComponent::Impl::updateWorldTransform(void* context)
 	) == S_OK);
 }
 
-void MaterialComponent::render2(void* context)
+void MaterialComponent::render(void* context)
 {
 	// Push light into Renderer's light list
 	RendererComponent::Impl& renderer = *reinterpret_cast<RendererComponent::Impl*>(context);
@@ -250,7 +250,7 @@ MaterialComponent::~MaterialComponent()
 	delete &mImpl;
 }
 
-void SpriteMaterialComponent::render2(void* context)
+void SpriteMaterialComponent::render(void* context)
 {
 	RendererComponent::Impl& renderer = *reinterpret_cast<RendererComponent::Impl*>(context);
 	renderer.mCurrentMaterial = this;

@@ -4,7 +4,7 @@
 
 namespace MCD {
 
-void QuadComponent::render2(void* context)
+void QuadComponent::render(void* context)
 {
 	RendererComponent::Impl& renderer = *reinterpret_cast<RendererComponent::Impl*>(context);
 	IMaterialComponent* m = renderer.mMaterialStack.top();

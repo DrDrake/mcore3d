@@ -70,7 +70,6 @@ public:
 
 TEST(AudioSourceComponentTest)
 {
-	DeltaTimer timer;
 	Framework framework;
 	CHECK(framework.addFileSystem("./"));
 	CHECK(framework.initWindow("title=AudioSourceComponentTest;width=400;height=300;fullscreen=0;FSAA=4"));
@@ -117,8 +116,6 @@ TEST(AudioSourceComponentTest)
 		if(e.Type == Event::Closed)
 			break;
 
-		const float dt = (float)timer.getDelta().asSecond();
-		BehaviourComponent::traverseEntities(&root, dt);
 		AudioComponent::traverseEntities(&scene);
 		renderer->render(root);
 	}

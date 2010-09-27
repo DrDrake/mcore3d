@@ -21,7 +21,7 @@ TexturePtr RenderTargetComponent::createTexture(const GpuDataFormat& format, siz
 	return nullptr;
 }
 
-void RenderTargetComponent::render() {}
+void RenderTargetComponent::gather() {}
 
 void RenderTargetComponent::render(RendererComponent& renderer, bool swapBuffers) {}
 

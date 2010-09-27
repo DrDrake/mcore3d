@@ -4,9 +4,7 @@
 
 namespace MCD {
 
-void LightComponent::render() {}
-
-void LightComponent::render2(void* context)
+void LightComponent::render(void* context)
 {
 	// Push light into Renderer's light list
 	RendererComponent::Impl& renderer = *reinterpret_cast<RendererComponent::Impl*>(context);

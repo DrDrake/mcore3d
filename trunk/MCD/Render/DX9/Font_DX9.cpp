@@ -11,9 +11,7 @@ namespace MCD {
 
 static const int cQuadVertexFVF = (D3DFVF_XYZ|D3DFVF_TEX1);
 
-void TextLabelComponent::render() {}
-
-void TextLabelComponent::render2(void* context)
+void TextLabelComponent::render(void* context)
 {
 	RendererComponent::Impl& renderer = *reinterpret_cast<RendererComponent::Impl*>(context);
 	BmpFontMaterialComponent* m = dynamic_cast<BmpFontMaterialComponent*>(renderer.mCurrentMaterial);
@@ -53,7 +51,7 @@ void TextLabelComponent::draw(sal_in void* context)
 	MCD_VERIFY(device->DrawPrimitiveUP(D3DPT_TRIANGLELIST, mVertexBuffer.size() / 3, &mVertexBuffer[0], sizeof(Vertex)) == D3D_OK);
 }
 
-void BmpFontMaterialComponent::render2(void* context)
+void BmpFontMaterialComponent::render(void* context)
 {
 	RendererComponent::Impl& renderer = *reinterpret_cast<RendererComponent::Impl*>(context);
 	renderer.mCurrentMaterial = this;

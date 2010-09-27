@@ -171,6 +171,12 @@ Framework::Impl::Impl()
 		mFpsLabel = e->addComponent(new TextLabelComponent);
 	}
 
+	{	// Behaviour updater
+		Entity* e = mSystemEntity->addChild(new Entity("Behaviour updater"));
+		BehaviourUpdaterComponent* c = new BehaviourUpdaterComponent;
+		e->addComponent(c);
+	}
+
 	{	// Animation updater
 		Entity* e = mSystemEntity->addChild(new Entity("Animation updater"));
 #ifdef MCD_IPHONE
@@ -265,7 +271,6 @@ bool Framework::Impl::initWindow(RenderWindow& existingWindow, bool takeOwnershi
 		c->window = dynamic_cast<RenderWindow*>(&existingWindow);
 		c->entityToRender = mSceneLayer;
 		c->cameraComponent = mSceneLayer->findComponentInChildrenExactType<CameraComponent>();
-		c->rendererComponent = mRenderer;
 	}
 
 	{	// Setup Gui render target
@@ -276,7 +281,6 @@ bool Framework::Impl::initWindow(RenderWindow& existingWindow, bool takeOwnershi
 		c->window = dynamic_cast<RenderWindow*>(&existingWindow);
 		c->entityToRender = mGuiLayer;
 		c->cameraComponent = mGuiLayer->findComponentInChildrenExactType<CameraComponent>();
-		c->rendererComponent = mRenderer;
 	}
 
 	// Setup resize frustum component for scene layer
@@ -443,6 +447,17 @@ bool Framework::Impl::update(Event& e)
 		}
 
 		mFpsLabel->text = float2Str(mFramePerSecond);
+	}
+
+	{	// Entity and Component traversal
+		ComponentUpdater::traverseBegin(*mSystemEntity);
+
+		// Gather components into the corresponding updater
+		for(ComponentPreorderIterator i(mRootEntity.get()); !i.ended(); i.next())
+			i->gather();
+
+		// Preform the updater's update(dt) function
+		ComponentUpdater::traverseEnd(*mSystemEntity, deltaTime);
 	}
 
 	return hasWindowEvent;

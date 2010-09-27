@@ -3,6 +3,6 @@
 
 namespace MCD {
 
-void QuadComponent::render2(void* context) {}
+void QuadComponent::render(void* context) {}
 
 }	// namespace MCD

@@ -8,9 +8,7 @@
 
 namespace MCD {
 
-void TextLabelComponent::render() {}
-
-void TextLabelComponent::render2(void* context)
+void TextLabelComponent::render(void* context)
 {
 	RendererComponent::Impl& renderer = *reinterpret_cast<RendererComponent::Impl*>(context);
 	BmpFontMaterialComponent* m = dynamic_cast<BmpFontMaterialComponent*>(renderer.mCurrentMaterial);
@@ -51,7 +49,7 @@ void TextLabelComponent::draw(sal_in void* context)
 	glDisableClientState(GL_TEXTURE_COORD_ARRAY);
 }
 
-void BmpFontMaterialComponent::render2(void* context)
+void BmpFontMaterialComponent::render(void* context)
 {
 	RendererComponent::Impl& renderer = *reinterpret_cast<RendererComponent::Impl*>(context);
 	renderer.mCurrentMaterial = this;

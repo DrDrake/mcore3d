@@ -2,6 +2,7 @@
 #define __MCD_CORE_ENTITY_BEHAVIOURCOMPONENT__
 
 #include "Component.h"
+#include <vector>
 
 namespace MCD {
 
@@ -15,11 +16,24 @@ public:
 	//! The derived components should override this function for defining behaviour.
 	virtual void update(float dt) = 0;
 
-	//! Invoke the BehaviourComponent::update() in every Entity under the entityNode sub-tree.
-	static void traverseEntities(sal_maybenull Entity* entityNode, float dt);
+protected:
+	sal_override void gather();
 };	// BehaviourComponent
 
 typedef IntrusiveWeakPtr<BehaviourComponent> BehaviourComponentPtr;
+
+class MCD_CORE_API BehaviourUpdaterComponent : public ComponentUpdater
+{
+	friend class BehaviourComponent;
+
+protected:
+	sal_override void begin();
+	sal_override void end(float dt);
+
+	std::vector<BehaviourComponentPtr> mComponents;
+};	// BehaviourUpdaterComponent
+
+typedef IntrusiveWeakPtr<BehaviourUpdaterComponent> BehaviourUpdaterComponentPtr;
 
 }	// namespace MCD
 

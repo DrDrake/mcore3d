@@ -25,8 +25,8 @@ public:
 	sal_override ~RenderTargetComponent();
 
 	//! Will register the itself into the RendererComponent
-	sal_override void render();
-	sal_override void render2(sal_in void* context) {}
+	sal_override void gather();
+	sal_override void render(sal_in void* context) {}
 
 	/*!	Will invoked by Renderer, preform some preparation and then calling
 		back Renderer::render().
@@ -39,7 +39,6 @@ public:
 // Attributes
 	EntityPtr entityToRender;
 	CameraComponentPtr cameraComponent;
-	RendererComponentPtr rendererComponent;
 
 	bool shouldClearColor;
 	bool shouldClearDepth;

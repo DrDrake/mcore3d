@@ -99,6 +99,4 @@ Component* BmpFontMaterialComponent::clone() const
 	return ret;
 }
 
-void BmpFontMaterialComponent::render() {}
-
 }	// namespace MCD

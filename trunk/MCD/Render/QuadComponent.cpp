@@ -20,6 +20,4 @@ Component* QuadComponent::clone() const
 	return ret;
 }
 
-void QuadComponent::render() {}
-
 }	// namespace MCD

@@ -42,6 +42,8 @@ public:
 	 */
 	virtual sal_checkreturn bool postClone(const Entity& src, Entity& dest) { return true; }
 
+	virtual void gather() {}
+
 	//!	Callback function that will invoked just after the component is added to an Entity.
 	virtual void onAdd();
 
@@ -75,6 +77,20 @@ protected:
 	 */
 	Entity* mEntity;
 };	// Component
+
+class MCD_ABSTRACT_CLASS MCD_CORE_API ComponentUpdater : public Component
+{
+public:
+	sal_override const std::type_info& familyType() const {
+		return typeid(ComponentUpdater);
+	}
+
+	virtual void begin() {}
+	virtual void end(float dt) {}
+
+	static void traverseBegin(Entity& entityTree);
+	static void traverseEnd(Entity& entityTree, float dt);
+};	// ComponentUpdater
 
 /*!	We use weak pointer to reference a Component.
 	It's too easy to make cyclic-reference hell if we use reference counted pointer.

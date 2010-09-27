@@ -21,6 +21,6 @@ bool Mesh::create(const void* const* data, Mesh::StorageHint storageHint)
 	return false;
 }
 
-void MeshComponent::render2(void* context) {}
+void MeshComponent::render(void* context) {}
 
 }	// namespace MCD

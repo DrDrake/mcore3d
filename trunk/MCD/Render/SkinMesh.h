@@ -35,8 +35,7 @@ public:
 	 */
 	sal_checkreturn bool init(IResourceManager& resourceManager, const Model& basePose, sal_in_z const char* nameSuffix=":skinning");
 
-	sal_override void render() {}
-	sal_override void render2(void* context);
+	sal_override void render(void* context);
 	sal_override void draw(sal_in void* context) {}
 
 // Attrubutes

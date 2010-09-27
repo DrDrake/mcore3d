@@ -209,7 +209,7 @@ bool Mesh::create(const void* const* data, Mesh::StorageHint storageHint)
 
 namespace MCD {
 
-void MeshComponent::render2(void* context)
+void MeshComponent::render(void* context)
 {
 	RendererComponent::Impl& renderer = *reinterpret_cast<RendererComponent::Impl*>(context);
 
