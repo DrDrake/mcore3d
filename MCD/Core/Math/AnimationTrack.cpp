@@ -132,9 +132,10 @@ float AnimationTrack::interpolate(float trackPos, const Interpolations& result, 
 
 float AnimationTrack::interpolateNoLock(float trackPos, const Interpolations& result, int loopOverride) const
 {
-	// Find the wrapped trackPos
+	// Find the wrapped trackPos, over ALL sub-tracks
 	bool loop_ = loopOverride <= -1 ? loop : loopOverride != 0;
-	trackPos = loop_ ? ::fmodf(trackPos, length()) : Mathf::clamp(trackPos, trackPos, length());
+	const float len = length();
+	trackPos = loop_ ? ::fmodf(trackPos, length()) : Mathf::clamp(trackPos, -len, len);
 
 	for(size_t i=0; i<subtracks.size; ++i)
 		interpolateSingleSubtrack(trackPos, result[i], i, loopOverride);
@@ -159,7 +160,10 @@ void AnimationTrack::interpolateSingleSubtrack(float trackPos, Interpolation& re
 	}
 
 	{	// Phase 1: Clamp trackPos within the sub-track's length
-		trackPos = Mathf::clamp(trackPos, trackPos, length(trackIndex));
+		const float len = length(trackIndex);
+		trackPos = Mathf::clamp(trackPos, -len, len);
+		trackPos = trackPos >= 0 ? trackPos : trackPos + len;	// Handling of negative scale
+		MCD_ASSERT(trackPos >= 0);
 	}
 
 	{	// Phase 2: Find the current and pervious frame index
