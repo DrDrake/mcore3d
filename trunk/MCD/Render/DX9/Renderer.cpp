@@ -293,8 +293,15 @@ RendererComponent& RendererComponent::current()
 	return *gCurrentRendererComponent;
 }
 
+void RendererComponent::addRenderableToCurrent(RenderableComponent& renderable)
+{
+	MCD_ASSUME(gCurrentRendererComponent);
+	gCurrentRendererComponent->mImpl.mRenderables.push_back(&renderable);
+}
+
 void RendererComponent::begin()
 {
+	mImpl.mRenderables.clear();
 	gCurrentRendererComponent = this;
 }
 
