@@ -108,6 +108,8 @@ public:
 	//!	Variables used when traversing the entity tree
 	EntityPreorderIterator mEntityItr;
 	IMaterialComponent* mCurrentMaterial;
+
+	std::vector<RenderableComponentPtr> mRenderables;
 };	// Impl
 
 class QuadRenderer

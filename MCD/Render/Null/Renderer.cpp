@@ -28,6 +28,10 @@ RendererComponent& RendererComponent::current()
 	return *reinterpret_cast<RendererComponent*>(nullptr);
 }
 
+void RendererComponent::addRenderableToCurrent(RenderableComponent& renderable)
+{
+}
+
 void RendererComponent::begin()
 {
 }

@@ -27,9 +27,13 @@ public:
 		return typeid(RenderableComponent);
 	}
 
+	sal_override void gather();
+
 	//!	Invoked by RendererComponent
 	virtual void render(sal_in void* context) = 0;
 };	// RenderableComponent
+
+typedef IntrusiveWeakPtr<RenderableComponent> RenderableComponentPtr;
 
 }	// namespace MCD
 

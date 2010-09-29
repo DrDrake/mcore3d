@@ -26,6 +26,9 @@ public:
 
 	static RendererComponent& current();
 
+	//! Invoked by RenderableComponent::gather()
+	static void addRenderableToCurrent(RenderableComponent& renderable);
+
 protected:
 	sal_override virtual ~RendererComponent();
 	sal_override void begin();
