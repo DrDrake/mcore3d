@@ -89,32 +89,27 @@ void RendererComponent::Impl::render(Entity& entityTree, RenderTargetComponent& 
 		// The input parameter entityTree will never skip
 		if(!mEntityItr->enabled && mEntityItr.current() != &entityTree) {
 			mEntityItr.skipChildren();
-			// TODO: May need mMaterialStack.push(mMaterialStack.top()) ?
-			continue;
+			goto CONTINUE;
 		}
 
 		Entity* e = mEntityItr.current();
-
-		// Pop material when moving up (towards parent) or leveling in the tree
-		for(int depth = mEntityItr.depthChange(); depth <= 0 && mMaterialStack.size() > 0; ++depth)
-			mMaterialStack.pop();
-		mCurrentMaterial = !mMaterialStack.empty() ? mMaterialStack.top() : nullptr;
 
 		// Preform actions defined by the concret type of RenderableComponent we have found
 		if(RenderableComponent* renderable = e->findComponent<RenderableComponent>())
 			renderable->render(this);
 
-		if(!mCurrentMaterial) {
-			// Skip if there where no material
-			if(mMaterialStack.empty()) {
-				mEntityItr.next();
-				continue;
-			}
-		}
-		mMaterialStack.push(mCurrentMaterial);
-
 		mEntityItr.next();
-	}	// traverse entities
+
+	CONTINUE:
+		mMaterialStack.push(mCurrentMaterial);
+		// Pop material when moving up (towards parent) or leveling in the tree
+		for(int depth = mEntityItr.depthChange(); depth <= 0; ++depth)
+			mMaterialStack.pop();
+		mCurrentMaterial = !mMaterialStack.empty() ? mMaterialStack.top() : nullptr;
+	}	// Traverse entities
+
+	MCD_ASSERT(!mCurrentMaterial);
+	MCD_ASSERT(mMaterialStack.empty());
 
 	{	// Disable lighting if there is no LightComponent
 		device->SetRenderState(D3DRS_LIGHTING, !mLights.empty());
@@ -293,15 +288,8 @@ RendererComponent& RendererComponent::current()
 	return *gCurrentRendererComponent;
 }
 
-void RendererComponent::addRenderableToCurrent(RenderableComponent& renderable)
-{
-	MCD_ASSUME(gCurrentRendererComponent);
-	gCurrentRendererComponent->mImpl.mRenderables.push_back(&renderable);
-}
-
 void RendererComponent::begin()
 {
-	mImpl.mRenderables.clear();
 	gCurrentRendererComponent = this;
 }
 

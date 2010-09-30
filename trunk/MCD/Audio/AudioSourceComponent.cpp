@@ -3,30 +3,28 @@
 //#include "AudioEffectComponent.h"
 #include "../Core/Entity/Entity.h"
 #include "../Core/Entity/SystemComponent.h"
-#include "../Core/System/MemoryProfiler.h"
 
 namespace MCD {
 
-void AudioComponent::traverseEntities(Entity* entityNode)
+static AudioManagerComponent* gAudioManager = nullptr;
+
+void AudioComponent::gather()
 {
-	MemoryProfiler::Scope profiler("AudioComponent::traverseEntities");
+	MCD_ASSUME(gAudioManager);
+	gAudioManager->mComponents.push_back(this);
+}
 
-	for(EntityPreorderIterator itr(entityNode); !itr.ended();)
-	{
-		if(!itr->enabled) {
-			itr.skipChildren();
-			continue;
-		}
+void AudioManagerComponent::begin()
+{
+	mComponents.clear();
+	gAudioManager = this;
+}
 
-		AudioComponent* audio = itr->findComponent<AudioComponent>();
-
-		// NOTE: We must iterate to the next entity first, since
-		// update() may delete the current Entity.
-		itr.next();
-
-		if(audio)
-			audio->update();
-	}
+void AudioManagerComponent::end(float dt)
+{
+	MCD_FOREACH(const AudioComponentPtr c, mComponents)
+		if(c) c->update(dt);
+	gAudioManager = nullptr;
 }
 
 AudioSourceComponent::AudioSourceComponent()
@@ -48,7 +46,7 @@ Component* AudioSourceComponent::clone() const
 	return cloned.release();
 }
 
-void AudioSourceComponent::update()
+void AudioSourceComponent::update(float)
 {
 	if(play)
 	{

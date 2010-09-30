@@ -14,6 +14,7 @@ void BehaviourComponent::gather()
 
 void BehaviourUpdaterComponent::begin()
 {
+	mComponents.clear();
 	gCurrentBehaviourUpdater = this;
 }
 
@@ -21,7 +22,6 @@ void BehaviourUpdaterComponent::end(float dt)
 {
 	MCD_FOREACH(const BehaviourComponentPtr c, mComponents)
 		if(c) c->update(dt);
-	mComponents.clear();
 	gCurrentBehaviourUpdater = nullptr;
 }
 

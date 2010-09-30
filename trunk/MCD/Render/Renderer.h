@@ -13,8 +13,6 @@ public:
 	RendererComponent();
 
 // Attributes
-//	void setDefaultCamera(CameraComponent& camera);
-//	sal_maybenull CameraComponent* defaultCamera() const;
 
 // Operations
 	//!	Override the default camera
@@ -25,9 +23,6 @@ public:
 	Impl& mImpl;
 
 	static RendererComponent& current();
-
-	//! Invoked by RenderableComponent::gather()
-	static void addRenderableToCurrent(RenderableComponent& renderable);
 
 protected:
 	sal_override virtual ~RendererComponent();

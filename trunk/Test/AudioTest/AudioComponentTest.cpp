@@ -116,7 +116,6 @@ TEST(AudioSourceComponentTest)
 		if(e.Type == Event::Closed)
 			break;
 
-		AudioComponent::traverseEntities(&scene);
 		renderer->render(root);
 	}
 
