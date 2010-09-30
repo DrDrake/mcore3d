@@ -7,7 +7,6 @@
 #include "../QuadComponent.h"
 #include "../RenderTargetComponent.h"
 #include "../RenderWindow.h"
-#include "../../Core/Entity/Entity.h"
 #include <D3DX9Shader.h>
 
 namespace MCD {
@@ -33,7 +32,6 @@ LPDIRECT3DSWAPCHAIN9 currentSwapChain()
 }
 
 RendererComponent::Impl::Impl()
-	: mLastMaterial(nullptr), mEntityItr(nullptr)
 {
 	ZeroMemory(&mCurrentVS, sizeof(mCurrentVS));
 	ZeroMemory(&mCurrentPS, sizeof(mCurrentPS));
@@ -84,32 +82,7 @@ void RendererComponent::Impl::render(Entity& entityTree, RenderTargetComponent& 
 	device->SetViewport(&view_port);*/
 
 	// Traverse the Entity tree
-	for(mEntityItr = EntityPreorderIterator(&entityTree); !mEntityItr.ended();)
-	{
-		// The input parameter entityTree will never skip
-		if(!mEntityItr->enabled && mEntityItr.current() != &entityTree) {
-			mEntityItr.skipChildren();
-			goto CONTINUE;
-		}
-
-		Entity* e = mEntityItr.current();
-
-		// Preform actions defined by the concret type of RenderableComponent we have found
-		if(RenderableComponent* renderable = e->findComponent<RenderableComponent>())
-			renderable->render(this);
-
-		mEntityItr.next();
-
-	CONTINUE:
-		mMaterialStack.push(mCurrentMaterial);
-		// Pop material when moving up (towards parent) or leveling in the tree
-		for(int depth = mEntityItr.depthChange(); depth <= 0; ++depth)
-			mMaterialStack.pop();
-		mCurrentMaterial = !mMaterialStack.empty() ? mMaterialStack.top() : nullptr;
-	}	// Traverse entities
-
-	MCD_ASSERT(!mCurrentMaterial);
-	MCD_ASSERT(mMaterialStack.empty());
+	traverseEntities(entityTree);
 
 	{	// Disable lighting if there is no LightComponent
 		device->SetRenderState(D3DRS_LIGHTING, !mLights.empty());
@@ -193,14 +166,6 @@ void RendererComponent::Impl::processRenderItems(RenderItems& items)
 			mLastMaterial = nullptr;
 		}
 	}
-}
-
-void RendererComponent::Impl::preRenderMaterial(size_t pass, IMaterialComponent& mtl) {
-	mtl.preRender(pass, this);
-}
-
-void RendererComponent::Impl::postRenderMaterial(size_t pass, IMaterialComponent& mtl) {
-	mtl.postRender(pass, this);
 }
 
 struct QuadVertex
