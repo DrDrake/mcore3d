@@ -87,8 +87,6 @@ class RendererComponent;
 class MCD_ABSTRACT_CLASS IMaterialComponent : public RenderableComponent
 {
 public:
-	virtual ~IMaterialComponent() {}
-
 	//!	Invoked by RendererComponent
 	virtual void preRender(size_t pass, void* context) = 0;
 	virtual void postRender(size_t pass, void* context) = 0;

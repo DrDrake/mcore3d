@@ -45,6 +45,7 @@
 #include "../Loader/TgaLoader.h"
 
 #include "../Audio/AudioDevice.h"
+#include "../Audio/AudioSourceComponent.h"
 
 namespace MCD {
 
@@ -199,6 +200,12 @@ Framework::Impl::Impl()
 
 	// Audio
 	MCD_VERIFY(initAudioDevice());
+
+	{	// Audio manager
+		Entity* e = mSystemEntity->addChild(new Entity("Audio manager"));
+		AudioManagerComponent* c = new AudioManagerComponent;
+		e->addComponent(c);
+	}
 }
 
 Framework::Impl::~Impl()
@@ -453,8 +460,18 @@ bool Framework::Impl::update(Event& e)
 		ComponentUpdater::traverseBegin(*mSystemEntity);
 
 		// Gather components into the corresponding updater
-		for(ComponentPreorderIterator i(mRootEntity.get()); !i.ended(); i.next())
-			i->gather();
+		for(EntityPreorderIterator i(mRootEntity.get()); !i.ended(); )
+		{
+			if(!i->enabled) {
+				i.skipChildren();
+				continue;
+			}
+
+			for(Component* c = i->components.begin(); c != i->components.end(); c = c->next())
+				c->gather();
+
+			i.next();
+		}
 
 		// Preform the updater's update(dt) function
 		ComponentUpdater::traverseEnd(*mSystemEntity, deltaTime);

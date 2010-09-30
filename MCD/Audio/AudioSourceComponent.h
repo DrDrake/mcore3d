@@ -4,6 +4,7 @@
 #include "ShareLib.h"
 #include "AudioSource.h"
 #include "../Core/Entity/Component.h"
+#include <vector>
 
 namespace MCD {
 
@@ -14,11 +15,26 @@ public:
 		return typeid(AudioComponent);
 	}
 
-	virtual void update() = 0;
+	virtual void update(float dt) = 0;
 
-	//! Invoke the AudioComponent::update() in every Entity under the entityNode sub-tree.
-	static void traverseEntities(sal_maybenull Entity* entityNode);
+protected:
+	sal_override void gather();
 };	// AudioComponent
+
+typedef IntrusiveWeakPtr<AudioComponent> AudioComponentPtr;
+
+class MCD_AUDIO_API AudioManagerComponent : public ComponentUpdater
+{
+	friend class AudioComponent;
+
+protected:
+	sal_override void begin();
+	sal_override void end(float dt);
+
+	std::vector<AudioComponentPtr> mComponents;
+};	// AudioManagerComponent
+
+typedef IntrusiveWeakPtr<AudioManagerComponent> AudioManagerComponentPtr;
 
 /*!	
  */
@@ -34,7 +50,7 @@ public:
 	sal_override sal_maybenull Component* clone() const;
 
 // Operations
-	sal_override void update();
+	sal_override void update(float dt);
 
 // Attrubutes
 	bool play;
