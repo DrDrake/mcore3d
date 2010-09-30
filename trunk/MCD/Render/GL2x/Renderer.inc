@@ -2,45 +2,16 @@
 #define __MCD_RENDER_GL2X_RENDERER__
 
 #include "../Renderer.h"
+#include "../Renderer.inc"
 #include "../../Core/Math/Mat44.h"
 #include "../../Core/Math/Vec2.h"
 #include "../../Core/Math/Vec3.h"
 #include "../../Core/System/Array.h"
-#include "../../Core/System/Deque.h"
-#include "../../Core/System/Map.h"
 #include <vector>
 
 namespace MCD {
 
-class LightComponent;
-class IMaterialComponent;
-class MeshComponent;
-class QuadComponent;
-class QuadRenderer;
-typedef IntrusivePtr<class Texture> TexturePtr;
-typedef IntrusiveWeakPtr<class CameraComponent> CameraComponentPtr;
-typedef IntrusiveWeakPtr<class RenderTargetComponent> RenderTargetComponentPtr;
-
-struct RenderItem
-{
-	sal_maybenull Entity* entity;
-	sal_notnull IDrawCall* drawCall;
-	sal_notnull IMaterialComponent* material;
-	Mat44f worldTransform;
-};	// RenderItem
-
-struct RenderItemNode : public MapBase<float>::Node<RenderItemNode>
-{
-	typedef MapBase<float>::Node<RenderItemNode> Super;
-	RenderItemNode(float depth, const RenderItem& item)
-		: Super(depth), mRenderItem(item)
-	{}
-	RenderItem mRenderItem;
-};	// RenderItemNode
-
-typedef Map<RenderItemNode> RenderItems;
-
-class RendererComponent::Impl
+class RendererComponent::Impl : public RendererCommon
 {
 public:
 	Impl();
@@ -51,23 +22,6 @@ public:
 
 	void processRenderItems(RenderItems& items);
 
-	void preRenderMaterial(size_t pass, IMaterialComponent& mtl);
-	void postRenderMaterial(size_t pass, IMaterialComponent& mtl);
-
-	//! mDefaultCamera and mCurrentCamera may differ from each other when rendering using light's view
-	CameraComponentPtr mDefaultCamera, mCurrentCamera;
-	Mat44f mCameraTransform;
-	Mat44f mProjMatrix, mViewMatrix, mViewProjMatrix, mWorldMatrix, mWorldViewProjMatrix;
-	sal_notnull RendererComponent* mBackRef;
-
-	IMaterialComponent* mLastMaterial;	//!< To reduce material setup cost
-	std::stack<IMaterialComponent*> mMaterialStack;
-
-	typedef std::vector<LightComponent*> Lights;
-	Lights mLights;
-
-	RenderItems mTransparentQueue, mOpaqueQueue;
-
 	typedef std::vector<RenderTargetComponentPtr> RenderTargets;
 	RenderTargets mRenderTargets;
 
@@ -75,12 +29,6 @@ public:
 	typedef std::vector<QuadMaterialPair> Quads;
 	Quads mQuads;
 	std::auto_ptr<QuadRenderer> mQuadRenderer;
-
-	//!	Variables used when traversing the entity tree
-	EntityPreorderIterator mEntityItr;
-	IMaterialComponent* mCurrentMaterial;
-
-	std::vector<RenderableComponentPtr> mRenderables;
 };	// Impl
 
 class QuadRenderer

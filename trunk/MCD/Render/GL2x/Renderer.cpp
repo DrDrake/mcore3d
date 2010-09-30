@@ -2,17 +2,14 @@
 #include "Renderer.inc"
 #include "../Camera.h"
 #include "../Light.h"
-#include "../Material.h"
 #include "../Mesh.h"
 #include "../QuadComponent.h"
 #include "../RenderTargetComponent.h"
-#include "../../Core/Entity/Entity.h"
 #include "../../../3Party/glew/wglew.h"
 
 namespace MCD {
 
 RendererComponent::Impl::Impl()
-	: mLastMaterial(nullptr), mEntityItr(nullptr), mCurrentMaterial(nullptr)
 {
 	mQuadRenderer.reset(new QuadRenderer(*this));
 }
@@ -39,7 +36,7 @@ void RendererComponent::Impl::render(Entity& entityTree, RenderTargetComponent& 
 
 	{	// Apply camera
 		CameraComponentPtr camera = renderTarget.cameraComponent;
-		if(!camera) camera = mDefaultCamera.get();
+		if(!camera) return;
 		Entity* cameraEntity = camera->entity();
 		if(!cameraEntity) return;
 
@@ -54,40 +51,8 @@ void RendererComponent::Impl::render(Entity& entityTree, RenderTargetComponent& 
 		glLoadTransposeMatrixf(mViewMatrix.getPtr());
 	}
 
-	mCurrentMaterial = nullptr;
-
 	// Traverse the Entity tree
-	for(mEntityItr = EntityPreorderIterator(&entityTree); !mEntityItr.ended();)
-	{
-		// The input parameter entityTree will never skip
-		if(!mEntityItr->enabled && mEntityItr.current() != &entityTree) {
-			mEntityItr.skipChildren();
-			// TODO: May need mMaterialStack.push(mMaterialStack.top()) ?
-			continue;
-		}
-
-		Entity* e = mEntityItr.current();
-
-		// Pop material when moving up (towards parent) or leveling in the tree
-		for(int depth = mEntityItr.depthChange(); depth <= 0 && mMaterialStack.size() > 0; ++depth)
-			mMaterialStack.pop();
-		mCurrentMaterial = !mMaterialStack.empty() ? mMaterialStack.top() : nullptr;
-
-		// Preform actions defined by the concret type of RenderableComponent we have found
-		if(RenderableComponent* renderable = e->findComponent<RenderableComponent>())
-			renderable->render(this);
-
-		if(!mCurrentMaterial) {
-			// Skip if there where no material
-			if(mMaterialStack.empty()) {
-				mEntityItr.next();
-				continue;
-			}
-		}
-		mMaterialStack.push(mCurrentMaterial);
-
-		mEntityItr.next();
-	}	// traverse entities
+	traverseEntities(entityTree);
 
 	// Set up lighting
 	static const size_t cMaxHardwareLight = 8;
@@ -209,14 +174,6 @@ void RendererComponent::Impl::processRenderItems(RenderItems& items)
 			mLastMaterial = nullptr;
 		}
 	}
-}
-
-void RendererComponent::Impl::preRenderMaterial(size_t pass, IMaterialComponent& mtl) {
-	mtl.preRender(pass, this);
-}
-
-void RendererComponent::Impl::postRenderMaterial(size_t pass, IMaterialComponent& mtl) {
-	mtl.postRender(pass, this);
 }
 
 void QuadRenderer::push(const Mat44f& transform, float width, float height, const Vec4f& uv, IMaterialComponent* mtl)

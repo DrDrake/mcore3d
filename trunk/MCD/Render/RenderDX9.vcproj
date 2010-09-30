@@ -443,6 +443,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\Renderer.inc"
+				>
+			</File>
+			<File
 				RelativePath=".\Shader.cpp"
 				>
 			</File>
