@@ -232,6 +232,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\DisplayList.h"
+				>
+			</File>
+			<File
 				RelativePath=".\Effect.h"
 				>
 			</File>
@@ -354,6 +358,10 @@
 			</File>
 			<File
 				RelativePath=".\Color.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\DisplayList.inc"
 				>
 			</File>
 			<File
@@ -482,6 +490,10 @@
 		<Filter
 			Name="DX9"
 			>
+			<File
+				RelativePath=".\DX9\DisplayList.cpp"
+				>
+			</File>
 			<File
 				RelativePath=".\DX9\Font_DX9.cpp"
 				>

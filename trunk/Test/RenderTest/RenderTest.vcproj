@@ -250,6 +250,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\DisplayListTest.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\Main.cpp"
 				>
 			</File>

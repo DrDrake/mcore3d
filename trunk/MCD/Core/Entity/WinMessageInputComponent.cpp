@@ -200,7 +200,7 @@ void WinMessageInputComponent::onEvent(const Event& e)
 	const char* keyName = keyToString(e.Key.Code);
 
 	if(e.Type == Event::KeyPressed && !keyName) {
-		MCD_ASSERT(false && "Unknow key code");
+//		MCD_ASSERT(false && "Unknow key code");
 		return;
 	}
 

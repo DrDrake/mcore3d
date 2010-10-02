@@ -1,5 +1,6 @@
 #include "Pch.h"
 #include "../Mesh.h"
+#include "Renderer.inc"
 #include "../MeshBuilder.h"
 #include "../../Core/System/Log.h"
 #include "../../../3Party/glew/glew.h"
@@ -17,7 +18,7 @@ static void bindUv(int unit, const Mesh::Attribute& a, const Mesh::Handles& hand
 	glTexCoordPointer(
 		a.format.gpuFormat.componentCount,
 		a.format.gpuFormat.dataType,
-		a.stride, (const void*)a.byteOffset
+		a.stride, (GLvoid*)a.byteOffset
 	);
 
 	if(unit != 0)
@@ -41,7 +42,7 @@ void Mesh::draw(size_t drawIndexOffset, size_t drawIndexCount)
 		if(a.format.semantic == StringHash("normal")) {
 			glEnableClientState(GL_NORMAL_ARRAY);
 			glBindBuffer(GL_ARRAY_BUFFER, *handles[a.bufferIndex]);
-			glNormalPointer(a.format.gpuFormat.dataType, a.stride, (const void*)a.byteOffset);
+			glNormalPointer(a.format.gpuFormat.dataType, a.stride, (GLvoid*)a.byteOffset);
 		}
 		else if(a.format.semantic == StringHash("uv0"))
 			bindUv(0, a, handles);
@@ -76,7 +77,7 @@ void Mesh::draw(size_t drawIndexOffset, size_t drawIndexCount)
 				a.format.gpuFormat.dataType,
 				GL_FALSE,
 				a.stride,
-				(const void*)(a.byteOffset)
+				(GLvoid*)(a.byteOffset)
 			);
 			glEnableVertexAttribArray(attributeLocation);
 		}
@@ -201,33 +202,13 @@ bool Mesh::create(const void* const* data, Mesh::StorageHint storageHint)
 	return true;
 }
 
-}	// namespace MCD
-
-#include "Renderer.inc"
-#include "../Material.h"
-#include "../../Core/Entity/Entity.h"
-
-namespace MCD {
-
 void MeshComponent::render(void* context)
 {
-	RendererComponent::Impl& renderer = *reinterpret_cast<RendererComponent::Impl*>(context);
-
 	Entity* e = entity();
 	MCD_ASSUME(e);
 
-	if(IMaterialComponent* m = renderer.mCurrentMaterial) {
-		RenderItem r = { e, this, m, e->worldTransform() };
-
-		Vec3f pos = r.worldTransform.translation();
-		renderer.mViewMatrix.transformPoint(pos);
-		const float dist = pos.z;
-
-		if(!m->isTransparent())
-			renderer.mOpaqueQueue.insert(*new RenderItemNode(-dist, r));
-		else
-			renderer.mTransparentQueue.insert(*new RenderItemNode(dist, r));
-	}
+	RendererComponent::Impl& renderer = *reinterpret_cast<RendererComponent::Impl*>(context);
+	renderer.submitDrawCall(*this, *e, e->worldTransform());
 }
 
 }	// namespace MCD

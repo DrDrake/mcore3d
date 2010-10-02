@@ -179,7 +179,7 @@ public:
 
 ShaderCache::Vs ShaderCache::getVertexShader(const char* sourceCode, ResourceManager& mgr)
 {
-	Vs vs;
+	Vs vs = { nullptr, nullptr };
 	VsCommiter* commiter = new VsCommiter;
 	commiter->vs = &vs;
 	commiter->shaderCache = this;
@@ -192,7 +192,7 @@ ShaderCache::Vs ShaderCache::getVertexShader(const char* sourceCode, ResourceMan
 
 ShaderCache::Ps ShaderCache::getPixelShader(const char* sourceCode, ResourceManager& mgr)
 {
-	Ps ps;
+	Ps ps = { nullptr, nullptr };
 	PsCommiter* commiter = new PsCommiter;
 	commiter->ps = &ps;
 	commiter->shaderCache = this;

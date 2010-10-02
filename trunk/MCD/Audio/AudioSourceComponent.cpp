@@ -63,7 +63,7 @@ void AudioSourceComponent::update(float)
 		}
 
 		if(time != lastTime)	// Check if user has altered the time
-			audioSource.seek(toPcm(time));
+			MCD_VERIFY(audioSource.seek(toPcm(time)));
 
 		audioSource.setGain(volume);
 

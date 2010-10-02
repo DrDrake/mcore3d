@@ -45,6 +45,8 @@ public:
 // Operations
 	void traverseEntities(Entity& entityTree);
 
+	void submitDrawCall(IDrawCall& drawCall, Entity& entity, const Mat44f& worldTransform);
+
 	void preRenderMaterial(size_t pass, IMaterialComponent& mtl);
 	void postRenderMaterial(size_t pass, IMaterialComponent& mtl);
 
@@ -96,6 +98,23 @@ inline void RendererCommon::traverseEntities(Entity& entityTree)
 
 	MCD_ASSERT(!mCurrentMaterial);
 	MCD_ASSERT(mMaterialStack.empty());
+}
+
+inline void RendererCommon::submitDrawCall(IDrawCall& drawCall, Entity& entity, const Mat44f& worldTransform)
+{
+	if(!mCurrentMaterial)
+		return;
+
+	RenderItem r = { &entity, &drawCall, mCurrentMaterial, worldTransform };
+
+	Vec3f pos = worldTransform.translation();
+	mViewMatrix.transformPoint(pos);
+	const float dist = pos.z;
+
+	if(!mCurrentMaterial->isTransparent())
+		mOpaqueQueue.insert(*new RenderItemNode(-dist, r));
+	else
+		mTransparentQueue.insert(*new RenderItemNode(dist, r));
 }
 
 inline void RendererCommon::preRenderMaterial(size_t pass, IMaterialComponent& mtl) {
