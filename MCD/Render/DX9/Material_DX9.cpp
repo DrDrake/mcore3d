@@ -232,9 +232,21 @@ void MaterialComponent::preRender(size_t pass, void* context)
 
 	device->SetVertexShader(mImpl.mVs.vs);
 	device->SetPixelShader(mImpl.mPs.ps);
+
+	if(!enableLighting)
+		device->SetRenderState(D3DRS_LIGHTING, false);
 }
 
-void MaterialComponent::postRender(size_t pass, void* context) {}
+void MaterialComponent::postRender(size_t pass, void* context)
+{
+	// Restore the lighting
+	if(!enableLighting) {
+		RendererComponent::Impl& renderer = *reinterpret_cast<RendererComponent::Impl*>(context);
+		LPDIRECT3DDEVICE9 device = getDevice();
+		MCD_ASSUME(device);
+		device->SetRenderState(D3DRS_LIGHTING, !renderer.mLights.empty());
+	}
+}
 
 MaterialComponent::MaterialComponent()
 	: mImpl(*new Impl)
@@ -243,6 +255,7 @@ MaterialComponent::MaterialComponent()
 	, emissionColor(0, 1)
 	, specularExponent(20)
 	, opacity(1)
+	, enableLighting(true)
 {}
 
 MaterialComponent::~MaterialComponent()

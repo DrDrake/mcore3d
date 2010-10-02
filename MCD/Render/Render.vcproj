@@ -230,6 +230,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\DisplayList.h"
+				>
+			</File>
+			<File
 				RelativePath=".\Effect.h"
 				>
 			</File>
@@ -359,6 +363,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\DisplayList.inc"
+				>
+			</File>
+			<File
 				RelativePath=".\Effect.cpp"
 				>
 			</File>
@@ -480,6 +488,10 @@
 		<Filter
 			Name="Null"
 			>
+			<File
+				RelativePath=".\Null\DisplayList.cpp"
+				>
+			</File>
 			<File
 				RelativePath=".\Null\Font_Null.cpp"
 				>

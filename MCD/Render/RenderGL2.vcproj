@@ -233,6 +233,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\DisplayList.h"
+				>
+			</File>
+			<File
 				RelativePath=".\Effect.h"
 				>
 			</File>
@@ -362,6 +366,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\DisplayList.inc"
+				>
+			</File>
+			<File
 				RelativePath=".\Effect.cpp"
 				>
 			</File>
@@ -488,7 +496,7 @@
 			Name="GL2x"
 			>
 			<File
-				RelativePath=".\GL2x\BmpFontRenderer.h"
+				RelativePath=".\GL2x\DisplayList.cpp"
 				>
 			</File>
 			<File

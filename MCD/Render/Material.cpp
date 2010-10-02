@@ -113,6 +113,7 @@ Component* MaterialComponent::clone() const
 	cloned->emissionColor = emissionColor;
 	cloned->specularExponent = specularExponent;
 	cloned->opacity = opacity;
+	cloned->enableLighting = enableLighting;
 	cloned->diffuseMap = diffuseMap;
 	return cloned;
 }

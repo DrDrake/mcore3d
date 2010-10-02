@@ -111,6 +111,7 @@ public:
 	ColorRGBAf emissionColor;
 	float specularExponent;
 	float opacity;	//!< Value from 0 (invisible) to 1 (opaque)
+	bool enableLighting;
 
 	TexturePtr diffuseMap;
 

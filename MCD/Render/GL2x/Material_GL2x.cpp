@@ -11,6 +11,7 @@ MaterialComponent::MaterialComponent()
 	, emissionColor(0, 1)
 	, specularExponent(20)
 	, opacity(1)
+	, enableLighting(true)
 {
 }
 
@@ -36,12 +37,24 @@ void MaterialComponent::preRender(size_t pass, void* context)
 
 	if(diffuseMap)
 		diffuseMap->bind();
+
+	if(!enableLighting)
+		glDisable(GL_LIGHTING);
 }
 
 void MaterialComponent::postRender(size_t pass, void* context)
 {
 	if(diffuseMap)
 		diffuseMap->unbind();
+
+	// Restore the lighting
+	if(!enableLighting) {
+		RendererComponent::Impl& renderer = *reinterpret_cast<RendererComponent::Impl*>(context);
+		if(renderer.mLights.empty())
+			glDisable(GL_LIGHTING);
+		else
+			glEnable(GL_LIGHTING);
+	}
 }
 
 void SpriteMaterialComponent::render(void* context)
