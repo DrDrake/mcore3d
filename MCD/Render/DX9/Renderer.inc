@@ -50,11 +50,6 @@ public:
 	ShaderContext mCurrentVS, mCurrentPS;
 
 	TexturePtr mWhiteTexture;	//!< A 1x1 white texture, such that we alwasy feed the shader with texture
-
-	struct QuadMaterialPair { QuadComponent* quad; IMaterialComponent* mtl; };
-	typedef std::vector<QuadMaterialPair> Quads;
-	Quads mQuads;
-	std::auto_ptr<QuadRenderer> mQuadRenderer;
 };	// Impl
 
 class QuadRenderer

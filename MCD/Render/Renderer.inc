@@ -9,8 +9,6 @@ namespace MCD {
 class LightComponent;
 class IMaterialComponent;
 class MeshComponent;
-class QuadComponent;
-class QuadRenderer;
 typedef IntrusivePtr<class Texture> TexturePtr;
 typedef IntrusiveWeakPtr<class CameraComponent> CameraComponentPtr;
 typedef IntrusiveWeakPtr<class RenderTargetComponent> RenderTargetComponentPtr;
