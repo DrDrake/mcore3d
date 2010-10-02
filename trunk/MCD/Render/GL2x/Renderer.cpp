@@ -11,7 +11,6 @@ namespace MCD {
 
 RendererComponent::Impl::Impl()
 {
-	mQuadRenderer.reset(new QuadRenderer(*this));
 }
 
 void RendererComponent::Impl::render(Entity& entityTree, RenderTargetComponent& renderTarget)
@@ -100,18 +99,6 @@ void RendererComponent::Impl::render(Entity& entityTree, RenderTargetComponent& 
 
 		processRenderItems(mTransparentQueue);
 
-		{	// Render QuadComponent
-			MCD_FOREACH(const QuadMaterialPair& pair, mQuads) {
-				QuadComponent* quad = pair.quad;
-				Entity* e = quad->entity();
-				MCD_ASSUME(e);
-				const Mat44f& transform = e->worldTransform();
-				mQuadRenderer->push(transform, quad->width, quad->height, quad->uv, pair.mtl);
-			}
-			mQuadRenderer->flush();
-			mQuads.clear();
-		}
-
 		glDisable(GL_BLEND);
 		glEnable(GL_CULL_FACE);
 		glDepthMask(GL_TRUE);
@@ -172,59 +159,6 @@ void RendererComponent::Impl::processRenderItems(RenderItems& items)
 			mLastMaterial = nullptr;
 		}
 	}
-}
-
-void QuadRenderer::push(const Mat44f& transform, float width, float height, const Vec4f& uv, IMaterialComponent* mtl)
-{
-	// Trigger a flush whenever the material is changed or too many quad in the buffer
-	if(mtl != mCurrentMaterial || mQuadCount > 512)
-		flush();
-	mCurrentMaterial = mtl;
-
-	const float halfW = 0.5f * width;
-	const float halfH = 0.5f * height;
-
-	++mQuadCount;
-	Vertex v[4] = {
-		{ Vec3f(-halfW,  halfH, 0), Vec2f(uv.x, uv.y) },
-		{ Vec3f(-halfW, -halfH, 0), Vec2f(uv.x, uv.w) },
-		{ Vec3f( halfW, -halfH, 0), Vec2f(uv.z, uv.w) },
-		{ Vec3f( halfW,  halfH, 0), Vec2f(uv.z, uv.y) },
-	};
-
-	for(size_t i=0; i<MCD_COUNTOF(v); ++i)
-		transform.transformPoint(v[i].position);
-
-	mVertexBuffer.push_back(v[0]);
-	mVertexBuffer.push_back(v[1]);
-	mVertexBuffer.push_back(v[2]);
-	mVertexBuffer.push_back(v[0]);
-	mVertexBuffer.push_back(v[2]);
-	mVertexBuffer.push_back(v[3]);
-}
-
-void QuadRenderer::flush()
-{
-	MCD_ASSERT(mVertexBuffer.size() == mQuadCount * 6);
-	if(!mQuadCount)
-		return;
-
-	mRenderer.preRenderMaterial(0, *mCurrentMaterial);
-
-	glEnableClientState(GL_VERTEX_ARRAY);
-	glEnableClientState(GL_TEXTURE_COORD_ARRAY);
-
-	glTexCoordPointer(2, GL_FLOAT, sizeof(Vertex), &mVertexBuffer[0].uv);
-	glVertexPointer(3, GL_FLOAT, sizeof(Vertex), &mVertexBuffer[0].position);
-	glDrawArrays(GL_TRIANGLES, 0, mVertexBuffer.size());
-
-	glDisableClientState(GL_VERTEX_ARRAY);
-	glDisableClientState(GL_TEXTURE_COORD_ARRAY);
-
-	mVertexBuffer.clear();
-	mQuadCount = 0;
-
-	mRenderer.postRenderMaterial(0, *mCurrentMaterial);
 }
 
 RendererComponent::RendererComponent()

@@ -289,10 +289,6 @@
 				>
 			</File>
 			<File
-				RelativePath=".\QuadComponent.h"
-				>
-			</File>
-			<File
 				RelativePath=".\RayMeshIntersect.h"
 				>
 			</File>
@@ -418,10 +414,6 @@
 				>
 			</File>
 			<File
-				RelativePath=".\QuadComponent.cpp"
-				>
-			</File>
-			<File
 				RelativePath=".\RayMeshIntersect.cpp"
 				>
 				<FileConfiguration
@@ -517,10 +509,6 @@
 			</File>
 			<File
 				RelativePath=".\GL2x\Mesh_GL2x.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\GL2x\QuadComponent_GL2x.cpp"
 				>
 			</File>
 			<File

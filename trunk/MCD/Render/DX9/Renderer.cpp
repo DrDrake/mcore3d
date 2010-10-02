@@ -39,8 +39,6 @@ RendererComponent::Impl::Impl()
 	mWhiteTexture = new Texture("1x1White");
 	byte_t data[] = { 255, 255, 255, 255 };
 	MCD_VERIFY(mWhiteTexture->create(GpuDataFormat::get("uintARGB8"), GpuDataFormat::get("uintARGB8"), 1, 1, 1, 1, data, 4));
-
-	mQuadRenderer.reset(new QuadRenderer(*this));
 }
 
 RendererComponent::Impl::~Impl()
@@ -100,16 +98,6 @@ void RendererComponent::Impl::render(Entity& entityTree, RenderTargetComponent& 
 		device->SetRenderState(D3DRS_BLENDOP, D3DBLENDOP_ADD);
 
 		processRenderItems(mTransparentQueue);
-
-		{	// Render QuadComponent
-			MCD_FOREACH(const QuadMaterialPair& pair, mQuads) {
-				QuadComponent* quad = pair.quad;
-				const Mat44f& transform = quad->entity()->worldTransform();
-				mQuadRenderer->push(transform, quad->width, quad->height, quad->uv, pair.mtl);
-			}
-			mQuadRenderer->flush();
-			mQuads.clear();
-		}
 
 		device->SetRenderState(D3DRS_ALPHABLENDENABLE, false);
 	}

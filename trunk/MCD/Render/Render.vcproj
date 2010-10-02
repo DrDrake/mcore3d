@@ -286,10 +286,6 @@
 				>
 			</File>
 			<File
-				RelativePath=".\QuadComponent.h"
-				>
-			</File>
-			<File
 				RelativePath=".\RayMeshIntersect.h"
 				>
 			</File>
@@ -415,10 +411,6 @@
 				>
 			</File>
 			<File
-				RelativePath=".\QuadComponent.cpp"
-				>
-			</File>
-			<File
 				RelativePath=".\RayMeshIntersect.cpp"
 				>
 				<FileConfiguration
@@ -510,10 +502,6 @@
 			</File>
 			<File
 				RelativePath=".\Null\Mesh_Null.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\Null\QuadComponent_Null.cpp"
 				>
 			</File>
 			<File
