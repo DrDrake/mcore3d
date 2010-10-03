@@ -12,6 +12,10 @@ DisplayListComponent::~DisplayListComponent()
 {
 }
 
+void DisplayListComponent::clear()
+{
+}
+
 void DisplayListComponent::begin(PrimitiveType primitive)
 {
 }

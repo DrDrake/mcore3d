@@ -72,6 +72,11 @@ DisplayListComponent::~DisplayListComponent()
 	delete &mImpl;
 }
 
+void DisplayListComponent::clear()
+{
+	mImpl.clear();
+}
+
 void DisplayListComponent::begin(PrimitiveType primitive)
 {
 	mImpl.begin(primitive);
