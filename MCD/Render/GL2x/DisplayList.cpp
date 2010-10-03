@@ -19,6 +19,7 @@ public:
 		glDeleteBuffers(1, &mBufferHandle);
 	}
 
+	void clear();
 	void end();
 
 	void bind();
@@ -28,6 +29,12 @@ public:
 	GLuint mBufferHandle;
 	size_t mBufferSize;
 };	// Impl
+
+void DisplayListComponent::Impl::clear()
+{
+	DisplayListComponentImplBase::clear();
+	mBufferSize = 0;
+}
 
 void DisplayListComponent::Impl::end()
 {
@@ -46,6 +53,7 @@ void DisplayListComponent::Impl::end()
 	// Resize the gl buffer if necessary
 	if(mBufferSize <= requestedVBSize) {
 		mBufferSize = requestedVBSize;
+		glBufferData(GL_ARRAY_BUFFER, mBufferSize, nullptr, GL_STATIC_READ);
 		glBufferData(GL_ARRAY_BUFFER, mBufferSize, &mVertices[0], GL_DYNAMIC_DRAW);
 	}
 	else
@@ -124,6 +132,11 @@ DisplayListComponent::DisplayListComponent()
 DisplayListComponent::~DisplayListComponent()
 {
 	delete &mImpl;
+}
+
+void DisplayListComponent::clear()
+{
+	mImpl.clear();
 }
 
 void DisplayListComponent::begin(PrimitiveType primitive)

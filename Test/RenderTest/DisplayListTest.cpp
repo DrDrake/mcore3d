@@ -1,10 +1,12 @@
 #include "Pch.h"
 #include "../../MCD/Framework/Framework.h"
 #include "../../MCD/Render/DisplayList.h"
+#include "../../MCD/Render/Font.h"
 #include "../../MCD/Render/Material.h"
 #include "../../MCD/Render/Renderer.h"
 #include "../../MCD/Core/Entity/BehaviourComponent.h"
 #include "../../MCD/Core/Entity/Entity.h"
+#include "../../MCD/Core/System/Timer.h"
 #include "../../MCD/Core/System/WindowEvent.h"
 
 using namespace MCD;
@@ -57,18 +59,25 @@ public:
 class HistogamComponent : public DisplayListComponent
 {
 public:
-	HistogamComponent()
+	float func(float x) {
+		return sinf(0.5f * x) * 10;
+	}
+
+	sal_override void render(void* context)
 	{
+		const float dt = (float)timer.get().asSecond();
+
 		const size_t segments = 200;
 		const float min = -12.5f;
 		const float max = 12.5f;
 		const float dx = (max - min) / segments;
 
+		clear();
 		begin(DisplayListComponent::Triangles);
 			color(0, 0.5f, 0);
 
 			for(float x = min; x <= max; x += dx) {
-				const float y = func(x);
+				const float y = func(x + dt);
 				vertex(x, 0, 0);
 				color(0, 1, 0);
 				vertex(x, y, 0);
@@ -80,11 +89,11 @@ public:
 				vertex(x+dx, y, 0);
 			}
 		end();
+
+		DisplayListComponent::render(context);
 	}
 
-	float func(float x) {
-		return sinf(0.5f * x) * 10;
-	}
+	Timer timer;
 };	// HistogamComponent
 
 }	// namespace
@@ -97,6 +106,7 @@ TEST(DisplayListTest)
 
 	Entity& root = framework.rootEntity();
 	Entity& scene = framework.sceneLayer();
+	ResourceManager& resourceManager = framework.resourceManager();
 	RendererComponent* renderer = root.findComponentInChildrenExactType<RendererComponent>();
 	CameraComponent* sceneCamera = scene.findComponentInChildrenExactType<CameraComponent>();
 	sceneCamera->entity()->localTransform.translateBy(Vec3f(0, 10, 10));
@@ -129,6 +139,17 @@ TEST(DisplayListTest)
 	{	// Histogram
 		Entity* e = noLighting->addChild(new Entity("Histogram"));
 		e->addComponent(new HistogamComponent);
+
+		// Equation label
+		e = noLighting->addChild(new Entity("Equation label"));
+		BmpFontMaterialComponent* m = e->addComponent(new BmpFontMaterialComponent);
+		m->bmpFont = dynamic_cast<BmpFont*>(resourceManager.load("buildin/Arial-20.fnt").get());
+
+		e = e->addChild(new Entity);
+		e->localTransform.setTranslation(Vec3f(0, 12, 0));
+		e->localTransform.scaleBy(Vec3f(0.05f));
+		TextLabelComponent* text = e->addComponent(new TextLabelComponent);
+		text->text = "y = 10 * sinf(x/2 + t)";
 	}
 
 	while(true)

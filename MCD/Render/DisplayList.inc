@@ -34,6 +34,12 @@ public:
 		mCurrent.position = Vec3f(0);
 	}
 
+	void clear()
+	{
+		mVertices.clear();
+		mSections.clear();
+	}
+
 	void begin(DisplayListComponent::PrimitiveType primitive)
 	{
 		color(1, 1, 1, 1);
