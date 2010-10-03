@@ -9,6 +9,8 @@
 
 namespace MCD {
 
+// Note that DirectX expects to find the structure fields in a specific order
+// http://insanedevelopers.net/2009/03/22/directx-9-tutorials-02-vertex-buffers/
 static const int cQuadVertexFVF = (D3DFVF_XYZ|D3DFVF_TEX1);
 
 void TextLabelComponent::render(void* context)

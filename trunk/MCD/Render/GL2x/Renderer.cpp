@@ -3,7 +3,6 @@
 #include "../Camera.h"
 #include "../Light.h"
 #include "../Mesh.h"
-#include "../QuadComponent.h"
 #include "../RenderTargetComponent.h"
 #include "../../../3Party/glew/wglew.h"
 
@@ -17,7 +16,6 @@ void RendererComponent::Impl::render(Entity& entityTree, RenderTargetComponent& 
 {
 	glShadeModel(GL_SMOOTH);
 	glFrontFace(GL_CCW);			// OpenGl use counterclockwise as the default winding
-	glEnable(GL_CULL_FACE);
 	glEnable(GL_DEPTH_TEST);
 
 	glEnable(GL_RESCALE_NORMAL);
@@ -92,7 +90,6 @@ void RendererComponent::Impl::render(Entity& entityTree, RenderTargetComponent& 
 
 	{	// Render transparent items
 		glEnable(GL_BLEND);
-//		glDisable(GL_CULL_FACE);
 		glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 		glBlendEquationSeparate(GL_FUNC_ADD, GL_FUNC_ADD);
 		glDepthMask(GL_FALSE);
@@ -100,7 +97,6 @@ void RendererComponent::Impl::render(Entity& entityTree, RenderTargetComponent& 
 		processRenderItems(mTransparentQueue);
 
 		glDisable(GL_BLEND);
-		glEnable(GL_CULL_FACE);
 		glDepthMask(GL_TRUE);
 	}
 

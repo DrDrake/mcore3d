@@ -32,6 +32,8 @@ public:
 		D3DXHANDLE emissionColor;
 		D3DXHANDLE specularExponent;
 		D3DXHANDLE opacity;
+		D3DXHANDLE lighting;
+		D3DXHANDLE useVertexColor;
 	};	// ConstantHandles
 
 	ConstantHandles mConstantHandles;

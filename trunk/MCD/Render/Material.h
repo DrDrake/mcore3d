@@ -78,8 +78,6 @@ public:
 
 }	// namespace MCD
 
-#include "Renderable.h"
-
 namespace MCD {
 
 class RendererComponent;
@@ -111,7 +109,10 @@ public:
 	ColorRGBAf emissionColor;
 	float specularExponent;
 	float opacity;	//!< Value from 0 (invisible) to 1 (opaque)
-	bool enableLighting;
+
+	bool lighting;
+	bool cullFace;
+	bool useVertexColor;
 
 	TexturePtr diffuseMap;
 

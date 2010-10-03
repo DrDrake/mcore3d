@@ -11,7 +11,9 @@ MaterialComponent::MaterialComponent()
 	, emissionColor(0, 1)
 	, specularExponent(20)
 	, opacity(1)
-	, enableLighting(true)
+	, lighting(true)
+	, cullFace(true)
+	, useVertexColor(false)
 {
 }
 
@@ -38,8 +40,18 @@ void MaterialComponent::preRender(size_t pass, void* context)
 	if(diffuseMap)
 		diffuseMap->bind();
 
-	if(!enableLighting)
+	if(!lighting)
 		glDisable(GL_LIGHTING);
+
+	if(cullFace)
+		glEnable(GL_CULL_FACE);
+	else
+		glDisable(GL_CULL_FACE);
+
+	if(useVertexColor)
+		glEnable(GL_COLOR_MATERIAL);
+	else
+		glDisable(GL_COLOR_MATERIAL);
 }
 
 void MaterialComponent::postRender(size_t pass, void* context)
@@ -48,7 +60,7 @@ void MaterialComponent::postRender(size_t pass, void* context)
 		diffuseMap->unbind();
 
 	// Restore the lighting
-	if(!enableLighting) {
+	if(!lighting) {
 		RendererComponent::Impl& renderer = *reinterpret_cast<RendererComponent::Impl*>(context);
 		if(renderer.mLights.empty())
 			glDisable(GL_LIGHTING);

@@ -4,7 +4,6 @@
 #include "../Camera.h"
 #include "../Light.h"
 #include "../Mesh.h"
-#include "../QuadComponent.h"
 #include "../RenderTargetComponent.h"
 #include "../RenderWindow.h"
 #include <D3DX9Shader.h>
@@ -48,10 +47,6 @@ RendererComponent::Impl::~Impl()
 void RendererComponent::Impl::render(Entity& entityTree, RenderTargetComponent& renderTarget)
 {
 	LPDIRECT3DDEVICE9 device = getDevice();
-
-	// NOTE: We have to set the default render state every frame, since
-	// device reset can happens at any time.
-	device->SetRenderState(D3DRS_CULLMODE, D3DCULL_CW);
 
 	{	// Apply camera
 		CameraComponentPtr camera = renderTarget.cameraComponent;

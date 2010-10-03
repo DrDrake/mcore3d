@@ -70,7 +70,7 @@ public:
 			for(float x = min; x <= max; x += dx) {
 				const float y = func(x);
 				vertex(x, 0, 0);
-				color(0, 0, 0);
+				color(0, 1, 0);
 				vertex(x, y, 0);
 				color(0, 0.5f, 0);
 				vertex(x+dx, 0, 0);
@@ -78,17 +78,6 @@ public:
 				vertex(x+dx, 0, 0);
 				vertex(x, y, 0);
 				vertex(x+dx, y, 0);
-
-				// TODO: Create something like RenderStateComponent to disable cull face
-				vertex(x, 0, 0);
-				vertex(x+dx, 0, 0);
-				color(0, 0, 0);
-				vertex(x, y, 0);
-				color(0, 0.5f, 0);
-
-				vertex(x+dx, 0, 0);
-				vertex(x+dx, y, 0);
-				vertex(x, y, 0);
 			}
 		end();
 	}
@@ -100,11 +89,11 @@ public:
 
 }	// namespace
 
-TEST(DisplayTest)
+TEST(DisplayListTest)
 {
 	Framework framework;
 	CHECK(framework.addFileSystem("Media"));
-	CHECK(framework.initWindow("title=DisplayTest;width=800;height=600;fullscreen=0;FSAA=4"));
+	CHECK(framework.initWindow("title=DisplayListTest;width=800;height=600;fullscreen=0;FSAA=4"));
 
 	Entity& root = framework.rootEntity();
 	Entity& scene = framework.sceneLayer();
@@ -114,9 +103,11 @@ TEST(DisplayTest)
 
 	Entity* noLighting = scene.addChild(new Entity("No lighting material"));
 
-	{	// Material without lighting
+	{	// Material for rendering line
 		MaterialComponent* m = noLighting->addComponent(new MaterialComponent);
-		m->enableLighting = false;
+		m->lighting = false;
+		m->cullFace = false;
+		m->useVertexColor = true;
 	}
 
 	{	// Axis line
