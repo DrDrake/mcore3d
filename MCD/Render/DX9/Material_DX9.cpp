@@ -27,6 +27,8 @@ MaterialComponent::Impl::Impl()
 	mConstantHandles.emissionColor = mPs.constTable->GetConstantByName(nullptr, "mcdEmissionColor");
 	mConstantHandles.specularExponent = mPs.constTable->GetConstantByName(nullptr, "mcdSpecularExponent");
 	mConstantHandles.opacity = mPs.constTable->GetConstantByName(nullptr, "mcdOpacity");
+	mConstantHandles.lighting = mPs.constTable->GetConstantByName(nullptr, "mcdLighting");
+	mConstantHandles.useVertexColor = mPs.constTable->GetConstantByName(nullptr, "mcdUseVertexColor");
 }
 
 MaterialComponent::Impl::~Impl()
@@ -43,13 +45,14 @@ bool MaterialComponent::Impl::createVs()
 	"struct VS_INPUT {"
 	"	float3 position : POSITION;"
 	"	float3 normal : NORMAL;"
+	"	float4 color : COLOR0;"
 	"	float2 uvDiffuse : TEXCOORD0;"
 	"};"
 	"struct VS_OUTPUT {"
 	"	float4 position : POSITION;"
 	"	float3 worldPosition : position1;"
 	"	float3 normal : NORMAL;"
-	"	float4 color : COLOR;"
+	"	float4 color : COLOR0;"
 	"	float2 uvDiffuse : TEXCOORD0;"
 	"};"
 	"VS_OUTPUT main(const VS_INPUT _in) {"
@@ -59,7 +62,7 @@ bool MaterialComponent::Impl::createVs()
 	"	float3x3 rotation = mcdWorld;"
 	"	_out.normal = mul(rotation, _in.normal);"
 	"	_out.uvDiffuse = _in.uvDiffuse;"
-	"	_out.color = float4(1, 1, 1, 1);"
+	"	_out.color = _in.color;"
 	"	return _out;"
 	"}";
 
@@ -85,6 +88,8 @@ bool MaterialComponent::Impl::createPs()
 	"float4 mcdEmissionColor;"
 	"float mcdSpecularExponent;"
 	"float mcdOpacity;"
+	"bool mcdLighting;"
+	"bool mcdUseVertexColor;"
 	"sampler2D texDiffuse;"
 
 	"void computeLighting(in Light light, in float3 P, in float3 N, in float3 V, inout float3 diffuse, inout float3 specular) {"
@@ -109,6 +114,14 @@ bool MaterialComponent::Impl::createPs()
 
 	"PS_OUTPUT main(PS_INPUT _in) {"
 	"	PS_OUTPUT _out = (PS_OUTPUT) 0;"
+	"	if(!mcdLighting) {"
+	"		float4 diffuseMap = tex2D(texDiffuse, _in.uvDiffuse);"
+	"		float3 diffuse = mcdDiffuseColor.rgb * mcdDiffuseColor.a * diffuseMap.rgb;"
+	"		_out.color.rgb = mcdUseVertexColor ? _in.color.rgb * diffuse : diffuse;"
+	"		_out.color.a = mcdOpacity * diffuseMap.a;"
+	"		return _out;"
+	"	}"
+
 	"	float3 P = _in.worldPosition;"
 	"	float3 N = normalize(_in.normal);"
 	"	float3 V = normalize(mcdCameraPosition - P);"
@@ -117,10 +130,10 @@ bool MaterialComponent::Impl::createPs()
 	"	for(int i=0; i<MCD_MAX_LIGHT_COUNT; ++i)"
 	"		computeLighting(mcdLights[i], P, N, V, lightDiffuse, lightSpecular);\n"
 	"	float4 diffuseMap = tex2D(texDiffuse, _in.uvDiffuse);"
-	"	float3 diffuse = mcdDiffuseColor.rgb * mcdDiffuseColor.a * tex2D(texDiffuse, _in.uvDiffuse).rgb * lightDiffuse;"
+	"	float3 diffuse = mcdDiffuseColor.rgb * mcdDiffuseColor.a * diffuseMap.rgb * lightDiffuse;"
 	"	float3 specular = mcdSpecularColor.rgb * mcdSpecularColor.a * lightSpecular;"
 	"	float3 emission = mcdEmissionColor.rgb * mcdEmissionColor.a;"
-	"	_out.color.rgb = _in.color.rgb * diffuse + specular + emission;"
+	"	_out.color.rgb = mcdUseVertexColor ? _in.color.rgb * diffuse : diffuse + specular + emission;"
 	"	_out.color.a = mcdOpacity * diffuseMap.a;"
 	"	return _out;"
 	"}";
@@ -223,7 +236,15 @@ void MaterialComponent::preRender(size_t pass, void* context)
 		) == S_OK);
 
 		MCD_VERIFY(mImpl.mVs.constTable->SetFloat(
-			device, mImpl.mConstantHandles.opacity, opacity
+			device, mImpl.mConstantHandles.lighting, lighting
+		) == S_OK);
+
+		MCD_VERIFY(mImpl.mVs.constTable->SetBool(
+			device, mImpl.mConstantHandles.useVertexColor, useVertexColor
+		) == S_OK);
+
+		MCD_VERIFY(mImpl.mVs.constTable->SetBool(
+			device, mImpl.mConstantHandles.useVertexColor, useVertexColor
 		) == S_OK);
 
 		if(TexturePtr diffuse = diffuseMap ? diffuseMap : renderer.mWhiteTexture)
@@ -233,14 +254,19 @@ void MaterialComponent::preRender(size_t pass, void* context)
 	device->SetVertexShader(mImpl.mVs.vs);
 	device->SetPixelShader(mImpl.mPs.ps);
 
-	if(!enableLighting)
+	if(!lighting)
 		device->SetRenderState(D3DRS_LIGHTING, false);
+
+	if(cullFace)
+		device->SetRenderState(D3DRS_CULLMODE, D3DCULL_CW);
+	else
+		device->SetRenderState(D3DRS_CULLMODE, D3DCULL_NONE);
 }
 
 void MaterialComponent::postRender(size_t pass, void* context)
 {
 	// Restore the lighting
-	if(!enableLighting) {
+	if(!lighting) {
 		RendererComponent::Impl& renderer = *reinterpret_cast<RendererComponent::Impl*>(context);
 		LPDIRECT3DDEVICE9 device = getDevice();
 		MCD_ASSUME(device);
@@ -255,7 +281,9 @@ MaterialComponent::MaterialComponent()
 	, emissionColor(0, 1)
 	, specularExponent(20)
 	, opacity(1)
-	, enableLighting(true)
+	, lighting(true)
+	, cullFace(true)
+	, useVertexColor(false)
 {}
 
 MaterialComponent::~MaterialComponent()

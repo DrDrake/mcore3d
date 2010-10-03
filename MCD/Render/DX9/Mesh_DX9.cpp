@@ -149,10 +149,16 @@ static BYTE toVertexDecl(const StringHash& semantic)
 		return D3DDECLUSAGE_NORMAL;
 	if(semantic == StringHash("uv0"))
 		return D3DDECLUSAGE_TEXCOORD;
+	if(semantic == StringHash("uv1"))
+		return D3DDECLUSAGE_TEXCOORD;
 	if(semantic == StringHash("tangent"))
 		return D3DDECLUSAGE_TANGENT;
 	if(semantic == StringHash("binormal"))
 		return D3DDECLUSAGE_BINORMAL;
+	if(semantic == StringHash("color0"))
+		return D3DDECLUSAGE_COLOR;
+	if(semantic == StringHash("color1"))
+		return D3DDECLUSAGE_COLOR;
 	return BYTE(-1);
 }
 
@@ -211,7 +217,7 @@ bool Mesh::create(const void* const* data, Mesh::StorageHint storageHint)
 		const D3DVERTEXELEMENT9 d = {
 			a.bufferIndex, a.byteOffset,
 			(BYTE)a.format.gpuFormat.dataType,
-			D3DDECLMETHOD_DEFAULT, toVertexDecl(a.format.semantic.hashValue()), 0
+			D3DDECLMETHOD_DEFAULT, toVertexDecl(a.format.semantic.hashValue()), a.format.channel
 		};
 		vertexDecl[i] = d;
 	}

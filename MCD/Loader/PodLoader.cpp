@@ -114,7 +114,7 @@ static void assignAttribute(Mesh& mesh, std::vector<void*>& bufferPtrs, const SP
 	a.bufferIndex = uint8_t(mesh.bufferCount);
 	a.format.semantic = semantic;
 	a.format.gpuFormat = toCpuDataFormat(data.eType, data.n);
-	a.format.channel = 1;
+	a.format.channel = 0;
 	a.stride = uint16_t(data.nStride);
 
 	MCD_ASSERT(a.format.gpuFormat.isValid());
