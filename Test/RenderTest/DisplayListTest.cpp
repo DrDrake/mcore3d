@@ -102,7 +102,7 @@ TEST(DisplayListTest)
 {
 	Framework framework;
 	CHECK(framework.addFileSystem("Media"));
-	CHECK(framework.initWindow("title=DisplayListTest;width=800;height=600;fullscreen=0;FSAA=4"));
+	CHECK(framework.initWindow("title=DisplayListTest;width=800;height=600;fullscreen=0;FSAA=8"));
 
 	Entity& root = framework.rootEntity();
 	Entity& scene = framework.sceneLayer();
@@ -149,7 +149,7 @@ TEST(DisplayListTest)
 		e->localTransform.setTranslation(Vec3f(0, 12, 0));
 		e->localTransform.scaleBy(Vec3f(0.05f));
 		TextLabelComponent* text = e->addComponent(new TextLabelComponent);
-		text->text = "y = 10 * sinf(x/2 + t)";
+		text->text = "y = 10 * sin(x/2 + t)";
 	}
 
 	while(true)
