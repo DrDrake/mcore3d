@@ -49,13 +49,13 @@ SharedVertexDeclaration::~SharedVertexDeclaration()
 class DisplayListComponent::Impl : public DisplayListComponentImplBase
 {
 public:
-	void draw(void* context);
+	void draw(void* context, Statistic& statistic);
 	SharedVertexDeclarationPtr decl;
 };	// Impl
 
 //static LPDIRECT3DVERTEXDECLARATION9 gDecl = nullptr;
 
-void DisplayListComponent::Impl::draw(void* context)
+void DisplayListComponent::Impl::draw(void* context, Statistic& statistic)
 {
 	LPDIRECT3DDEVICE9 device = getDevice();
 	MCD_ASSUME(device);
@@ -93,6 +93,9 @@ void DisplayListComponent::Impl::draw(void* context)
 		if(count) {
 			device->SetVertexDeclaration(decl->decl);
 			MCD_VERIFY(device->DrawPrimitiveUP(type, count, &mVertices[section.offset], sizeof(Vertex)) == D3D_OK);
+
+			++statistic.drawCallCount;
+			statistic.primitiveCount += count;
 		}
 	}
 }
@@ -151,9 +154,9 @@ void DisplayListComponent::render(void* context)
 	renderer.submitDrawCall(*this, *e, e->worldTransform());
 }
 
-void DisplayListComponent::draw(void* context)
+void DisplayListComponent::draw(void* context, Statistic& statistic)
 {
-	mImpl.draw(context);
+	mImpl.draw(context, statistic);
 }
 
 }	// namespace MCD

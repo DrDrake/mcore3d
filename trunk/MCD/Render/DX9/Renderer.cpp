@@ -38,6 +38,8 @@ RendererComponent::Impl::Impl()
 	mWhiteTexture = new Texture("1x1White");
 	byte_t data[] = { 255, 255, 255, 255 };
 	MCD_VERIFY(mWhiteTexture->create(GpuDataFormat::get("uintARGB8"), GpuDataFormat::get("uintARGB8"), 1, 1, 1, 1, data, 4));
+
+	resetStatistic();
 }
 
 RendererComponent::Impl::~Impl()
@@ -82,7 +84,7 @@ void RendererComponent::Impl::render(Entity& entityTree, RenderTargetComponent& 
 	}
 
 	{	// Render opaque items
-		processRenderItems(mOpaqueQueue);
+		processRenderItems(mOpaqueQueue, mStatistic.opaque, mStatistic.materialSwitch);
 	}
 
 	{	// Render transparent items
@@ -92,9 +94,15 @@ void RendererComponent::Impl::render(Entity& entityTree, RenderTargetComponent& 
 		device->SetRenderState(D3DRS_DESTBLEND, D3DBLEND_INVSRCALPHA);
 		device->SetRenderState(D3DRS_BLENDOP, D3DBLENDOP_ADD);
 
-		processRenderItems(mTransparentQueue);
+		processRenderItems(mTransparentQueue, mStatistic.transparent, mStatistic.materialSwitch);
 
 		device->SetRenderState(D3DRS_ALPHABLENDENABLE, false);
+	}
+
+	// Reset the last material
+	if(mLastMaterial) {
+		mLastMaterial->postRender(0, this);
+		mLastMaterial = nullptr;
 	}
 
 	mLights.clear();
@@ -117,9 +125,10 @@ void RendererComponent::Impl::render(Entity& entityTree)
 	mRenderTargets.clear();
 }
 
-void RendererComponent::Impl::processRenderItems(RenderItems& items)
+void RendererComponent::Impl::processRenderItems(RenderItems& items, IDrawCall::Statistic& statistic, size_t& materialSwitch)
 {
-	for(RenderItemNode* node = items.findMin(); node != nullptr; node = node->next()) {
+	for(RenderItemNode* node = items.findMin(); node != nullptr; node = node->next())
+	{
 		const RenderItem& i = node->mRenderItem;
 
 		if(Entity* e = i.entity) {
@@ -127,26 +136,19 @@ void RendererComponent::Impl::processRenderItems(RenderItems& items)
 			mWorldViewProjMatrix = mViewProjMatrix * mWorldMatrix;
 
 			IMaterialComponent* mtl = i.material;
-			// Only single pass material support the last material optimization
-			if(mLastMaterial && (mtl != mLastMaterial/* || passCount > 1*/)) {
-				mLastMaterial->postRender(0, this);
-				mLastMaterial = nullptr;
+
+			// TODO: Only single pass material support the last material optimization
+			if(mtl != mLastMaterial) {
+				if(mLastMaterial)
+					mLastMaterial->postRender(0, this);
+				mtl->preRender(0, this);
+				++materialSwitch;
 			}
 
-			// The material class will preform early out if mtl == mLastMaterial
-			mtl->preRender(0, this);
-
-			i.drawCall->draw(this);
+			i.drawCall->draw(this, statistic);
 
 			//if(passCount == 1)
 				mLastMaterial = mtl;
-		}
-	}
-
-	{	// Reset the last material
-		if(mLastMaterial) {
-			mLastMaterial->postRender(0, this);
-			mLastMaterial = nullptr;
 		}
 	}
 }
@@ -239,6 +241,7 @@ RendererComponent& RendererComponent::current()
 void RendererComponent::begin()
 {
 	gCurrentRendererComponent = this;
+	mImpl.resetStatistic();
 }
 
 void RendererComponent::end(float dt)

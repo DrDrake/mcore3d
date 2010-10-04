@@ -78,6 +78,7 @@ public:
 
 			for(float x = min; x <= max; x += dx) {
 				const float y = func(x + dt);
+				const float y2 = func(x + dx + dt);
 				vertex(x, 0, 0);
 				color(0, 1, 0);
 				vertex(x, y, 0);
@@ -86,7 +87,7 @@ public:
 
 				vertex(x+dx, 0, 0);
 				vertex(x, y, 0);
-				vertex(x+dx, y, 0);
+				vertex(x+dx, y2, 0);
 			}
 		end();
 

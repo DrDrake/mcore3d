@@ -43,7 +43,7 @@ void TextLabelComponent::render(void* context)
 	}
 }
 
-void TextLabelComponent::draw(sal_in void* context)
+void TextLabelComponent::draw(sal_in void* context, Statistic& statistic)
 {
 	RendererComponent::Impl& renderer = *reinterpret_cast<RendererComponent::Impl*>(context);
 	LPDIRECT3DDEVICE9 device = getDevice();
@@ -51,6 +51,9 @@ void TextLabelComponent::draw(sal_in void* context)
 	MCD_VERIFY(device->SetFVF(cQuadVertexFVF) == D3D_OK);
 	MCD_VERIFY(device->SetTransform(D3DTS_WORLD, (D3DMATRIX*)renderer.mWorldMatrix.transpose().getPtr()) == D3D_OK);	// TODO: Why transpose?
 	MCD_VERIFY(device->DrawPrimitiveUP(D3DPT_TRIANGLELIST, mVertexBuffer.size() / 3, &mVertexBuffer[0], sizeof(Vertex)) == D3D_OK);
+
+	++statistic.drawCallCount;
+	statistic.primitiveCount += mVertexBuffer.size() / 3;
 }
 
 void BmpFontMaterialComponent::render(void* context)

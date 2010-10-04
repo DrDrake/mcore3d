@@ -10,6 +10,7 @@ namespace MCD {
 
 RendererComponent::Impl::Impl()
 {
+	resetStatistic();
 }
 
 void RendererComponent::Impl::render(Entity& entityTree, RenderTargetComponent& renderTarget)
@@ -85,7 +86,7 @@ void RendererComponent::Impl::render(Entity& entityTree, RenderTargetComponent& 
 	}
 
 	{	// Render opaque items
-		processRenderItems(mOpaqueQueue);
+		processRenderItems(mOpaqueQueue, mStatistic.opaque, mStatistic.materialSwitch);
 	}
 
 	{	// Render transparent items
@@ -94,10 +95,16 @@ void RendererComponent::Impl::render(Entity& entityTree, RenderTargetComponent& 
 		glBlendEquationSeparate(GL_FUNC_ADD, GL_FUNC_ADD);
 		glDepthMask(GL_FALSE);
 
-		processRenderItems(mTransparentQueue);
+		processRenderItems(mTransparentQueue, mStatistic.transparent, mStatistic.materialSwitch);
 
 		glDisable(GL_BLEND);
 		glDepthMask(GL_TRUE);
+	}
+
+	// Reset the last material
+	if(mLastMaterial) {
+		mLastMaterial->postRender(0, this);
+		mLastMaterial = nullptr;
 	}
 
 	mLights.clear();
@@ -120,9 +127,10 @@ void RendererComponent::Impl::render(Entity& entityTree)
 	mRenderTargets.clear();
 }
 
-void RendererComponent::Impl::processRenderItems(RenderItems& items)
+void RendererComponent::Impl::processRenderItems(RenderItems& items, IDrawCall::Statistic& statistic, size_t& materialSwitch)
 {
-	for(RenderItemNode* node = items.findMin(); node != nullptr; node = node->next()) {
+	for(RenderItemNode* node = items.findMin(); node != nullptr; node = node->next())
+	{
 		const RenderItem& i = node->mRenderItem;
 
 		if(Entity* e = i.entity) {
@@ -130,29 +138,22 @@ void RendererComponent::Impl::processRenderItems(RenderItems& items)
 			mWorldViewProjMatrix = mViewProjMatrix * mWorldMatrix;
 
 			IMaterialComponent* mtl = i.material;
-			// Only single pass material support the last material optimization
-			if(mLastMaterial && (mtl != mLastMaterial/* || passCount > 1*/)) {
-				mLastMaterial->postRender(0, this);
-				mLastMaterial = nullptr;
-			}
 
-			if(mtl != mLastMaterial)
+			// TODO: Only single pass material support the last material optimization
+			if(mtl != mLastMaterial) {
+				if(mLastMaterial)
+					mLastMaterial->postRender(0, this);
 				mtl->preRender(0, this);
+				++materialSwitch;
+			}
 
 			glPushMatrix();
 			glMultTransposeMatrixf(e->worldTransform().getPtr());
-			i.drawCall->draw(this);
+			i.drawCall->draw(this, statistic);
 			glPopMatrix();
 
 			//if(passCount == 1)
 				mLastMaterial = mtl;
-		}
-	}
-
-	{	// Reset the last material
-		if(mLastMaterial) {
-			mLastMaterial->postRender(0, this);
-			mLastMaterial = nullptr;
 		}
 	}
 }
@@ -188,6 +189,7 @@ RendererComponent& RendererComponent::current()
 void RendererComponent::begin()
 {
 	gCurrentRendererComponent = this;
+	mImpl.resetStatistic();
 }
 
 void RendererComponent::end(float dt)

@@ -44,7 +44,7 @@ void DisplayListComponent::render(void* context)
 {
 }
 
-void DisplayListComponent::draw(void* context)
+void DisplayListComponent::draw(void* context, Statistic& statistic)
 {
 }
 
