@@ -20,7 +20,7 @@ public:
 
 	void render(Entity& entityTree);
 
-	void processRenderItems(RenderItems& items);
+	void processRenderItems(RenderItems& items, IDrawCall::Statistic& statistic, size_t& materialSwitch);
 
 	typedef std::vector<RenderTargetComponentPtr> RenderTargets;
 	RenderTargets mRenderTargets;

@@ -48,6 +48,8 @@ public:
 	void preRenderMaterial(size_t pass, IMaterialComponent& mtl);
 	void postRenderMaterial(size_t pass, IMaterialComponent& mtl);
 
+	void resetStatistic();
+
 // Member variables
 	sal_notnull RendererComponent* mBackRef;
 
@@ -64,6 +66,8 @@ public:
 	RenderTargets mRenderTargets;
 
 	RenderItems mTransparentQueue, mOpaqueQueue;
+
+	RendererComponent::Statistic mStatistic;
 };	// RendererCommon
 
 inline void RendererCommon::traverseEntities(Entity& entityTree)
@@ -121,6 +125,11 @@ inline void RendererCommon::preRenderMaterial(size_t pass, IMaterialComponent& m
 
 inline void RendererCommon::postRenderMaterial(size_t pass, IMaterialComponent& mtl) {
 	mtl.postRender(pass, this);
+}
+
+inline void RendererCommon::resetStatistic()
+{
+	memset(&mStatistic, 0, sizeof(mStatistic));
 }
 
 }	// namespace MCD

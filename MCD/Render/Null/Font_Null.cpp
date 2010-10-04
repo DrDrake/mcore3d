@@ -11,6 +11,6 @@ void BmpFontMaterialComponent::postRender(size_t pass, void* context) {}
 
 void TextLabelComponent::render(void* context) {}
 
-void TextLabelComponent::draw(void* context) {}
+void TextLabelComponent::draw(void* context, Statistic& statistic) {}
 
 }	// namespace MCD

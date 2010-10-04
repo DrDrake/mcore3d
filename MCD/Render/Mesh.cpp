@@ -122,10 +122,13 @@ Component* MeshComponent::clone() const
 	return cloned;
 }
 
-void MeshComponent::draw(void* context)
+void MeshComponent::draw(void* context, Statistic& statistic)
 {
-	if(mesh)
+	if(mesh) {
 		mesh->draw();
+		++statistic.drawCallCount;
+		statistic.primitiveCount += mesh->indexCount / 3;
+	}
 }
 
 }	// namespace MCD

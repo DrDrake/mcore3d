@@ -38,7 +38,7 @@ void TextLabelComponent::render(void* context)
 	}
 }
 
-void TextLabelComponent::draw(sal_in void* context)
+void TextLabelComponent::draw(sal_in void* context, Statistic& statistic)
 {
 	glEnableClientState(GL_VERTEX_ARRAY);
 	glEnableClientState(GL_TEXTURE_COORD_ARRAY);
@@ -47,6 +47,9 @@ void TextLabelComponent::draw(sal_in void* context)
 	glDrawArrays(GL_TRIANGLES, 0, mVertexBuffer.size());
 	glDisableClientState(GL_VERTEX_ARRAY);
 	glDisableClientState(GL_TEXTURE_COORD_ARRAY);
+
+	++statistic.drawCallCount;
+	statistic.primitiveCount += mVertexBuffer.size() / 3;
 }
 
 void BmpFontMaterialComponent::render(void* context)

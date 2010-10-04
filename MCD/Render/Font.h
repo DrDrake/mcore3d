@@ -94,7 +94,7 @@ public:
 
 // Operations
 	sal_override void render(sal_in void* context);
-	sal_override void draw(sal_in void* context);
+	sal_override void draw(sal_in void* context, Statistic& statistic);
 
 // Attributes
 	std::string text;

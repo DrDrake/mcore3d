@@ -36,7 +36,7 @@ public:
 	void end();
 
 	sal_override void render(sal_in void* context);
-	sal_override void draw(sal_in void* context);
+	sal_override void draw(sal_in void* context, Statistic& statistic);
 
 protected:
 	class Impl;

@@ -2,7 +2,6 @@
 #define __MCD_RENDER_RENDERABLE__
 
 #include "ShareLib.h"
-#include "../Core/System/Platform.h"
 #include "../Core/Entity/Component.h"
 
 namespace MCD {
@@ -13,9 +12,15 @@ namespace MCD {
 class MCD_ABSTRACT_CLASS IDrawCall
 {
 public:
+	struct Statistic
+	{
+		size_t drawCallCount;
+		size_t primitiveCount;
+	};	// Statistic
+
 	virtual ~IDrawCall() {}
 
-	virtual void draw(sal_in void* context) = 0;
+	virtual void draw(sal_in void* context, Statistic& statistic) = 0;
 };	// IDrawCall
 
 /*!	The component family which is something renderable.

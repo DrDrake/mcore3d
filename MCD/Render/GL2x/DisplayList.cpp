@@ -23,7 +23,7 @@ public:
 	void end();
 
 	void bind();
-	void draw(void* context);
+	void draw(void* context, Statistic& statistic);
 	void unbind();
 
 	GLuint mBufferHandle;
@@ -89,21 +89,25 @@ void DisplayListComponent::Impl::bind()
 	glVertexPointer(attr[0].fmt.componentCount, attr[0].fmt.dataType, stride, (GLvoid*)attr[0].byteOffset);
 }
 
-void DisplayListComponent::Impl::draw(void* context)
+void DisplayListComponent::Impl::draw(void* context, Statistic& statistic)
 {
 	MCD_FOREACH(const Section& section, mSections)
 	{
 		GLenum type;
+		size_t primitiveCount = section.vertexCount;
 
 		switch(section.primitive) {
 		case Triangles:
 			type = GL_TRIANGLES;
+			primitiveCount /= 3;
 			break;
 		case Lines:
 			type = GL_LINES;
+			primitiveCount /= 2;
 			break;
 		case LineStrip:
 			type = GL_LINE_STRIP;
+			primitiveCount -= 1;
 			break;
 		default:
 			continue;
@@ -112,6 +116,9 @@ void DisplayListComponent::Impl::draw(void* context)
 		bind();
 		glDrawArrays(type, section.offset, section.vertexCount);
 		unbind();
+
+		++statistic.drawCallCount;
+		statistic.primitiveCount += primitiveCount;
 	}
 }
 
@@ -178,9 +185,9 @@ void DisplayListComponent::render(void* context)
 	renderer.submitDrawCall(*this, *e, e->worldTransform());
 }
 
-void DisplayListComponent::draw(void* context)
+void DisplayListComponent::draw(void* context, Statistic& statistic)
 {
-	mImpl.draw(context);
+	mImpl.draw(context, statistic);
 }
 
 }	// namespace MCD

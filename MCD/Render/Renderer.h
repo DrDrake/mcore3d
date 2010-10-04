@@ -13,6 +13,12 @@ public:
 	RendererComponent();
 
 // Attributes
+	struct Statistic
+	{
+		IDrawCall::Statistic opaque;
+		IDrawCall::Statistic transparent;
+		size_t materialSwitch;
+	};	// Statistic
 
 // Operations
 	//!	Override the default camera
