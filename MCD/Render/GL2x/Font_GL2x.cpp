@@ -60,10 +60,12 @@ void BmpFontMaterialComponent::preRender(size_t pass, void* context)
 	if(bmpFont && bmpFont->texture) {
 		bmpFont->texture->bind(0);
 
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+		glDisable(GL_LIGHTING);
 
-		// reference: es_full_spec_1.1.12.pdf, p93-95
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+		// Reference: es_full_spec_1.1.12.pdf, p93-95
 		glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_COMBINE);
 		glTexEnvfv(GL_TEXTURE_ENV, GL_TEXTURE_ENV_COLOR, color.rawPointer());
 

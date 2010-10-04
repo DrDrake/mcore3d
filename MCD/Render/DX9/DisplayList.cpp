@@ -9,19 +9,24 @@
 
 namespace MCD {
 
-class DisplayListComponent::Impl : public DisplayListComponentImplBase
+//! To share the directx vertex declaration among all instances of DisplayListComponent
+class SharedVertexDeclaration : public IntrusiveSharedWeakPtrTarget<size_t>
 {
 public:
-	void draw(void* context);
-};	// Impl
+	SharedVertexDeclaration(sal_notnull LPDIRECT3DDEVICE9 device);
+	~SharedVertexDeclaration();
 
-static LPDIRECT3DVERTEXDECLARATION9 gDecl = nullptr;
+	LPDIRECT3DVERTEXDECLARATION9 decl;
+};	// SharedVertexDeclaration
 
-void DisplayListComponent::Impl::draw(void* context)
+typedef IntrusivePtr<SharedVertexDeclaration> SharedVertexDeclarationPtr;
+typedef IntrusiveSharedWeakPtr<SharedVertexDeclaration> SharedVertexDeclarationWeakPtr;
+
+static SharedVertexDeclarationWeakPtr gDecl;
+
+SharedVertexDeclaration::SharedVertexDeclaration(sal_notnull LPDIRECT3DDEVICE9 device)
 {
-	LPDIRECT3DDEVICE9 device = getDevice();
-	MCD_ASSUME(device);
-
+	// The setting should match the strucutre of DisplayListComponentImplBase::Vertex
 	const D3DVERTEXELEMENT9 vertexDecl[4 + 1] = {
 		{ 0, 0,					D3DDECLTYPE_FLOAT3, D3DDECLMETHOD_DEFAULT, D3DDECLUSAGE_POSITION, 0 },
 		{ 0, sizeof(float)*3,	D3DDECLTYPE_FLOAT3, D3DDECLMETHOD_DEFAULT, D3DDECLUSAGE_NORMAL, 0 },
@@ -30,8 +35,38 @@ void DisplayListComponent::Impl::draw(void* context)
 		D3DDECL_END(),
 	};
 
-	if(!gDecl)
-		MCD_VERIFY(device->CreateVertexDeclaration(&vertexDecl[0], &gDecl) ==  D3D_OK);
+	MCD_ASSERT(!gDecl.lock());
+	MCD_VERIFY(device->CreateVertexDeclaration(&vertexDecl[0], &decl) ==  D3D_OK);
+	MCD_ASSUME(decl);
+}
+
+SharedVertexDeclaration::~SharedVertexDeclaration()
+{
+	MCD_ASSUME(decl);
+	decl->Release();
+}
+
+class DisplayListComponent::Impl : public DisplayListComponentImplBase
+{
+public:
+	void draw(void* context);
+	SharedVertexDeclarationPtr decl;
+};	// Impl
+
+//static LPDIRECT3DVERTEXDECLARATION9 gDecl = nullptr;
+
+void DisplayListComponent::Impl::draw(void* context)
+{
+	LPDIRECT3DDEVICE9 device = getDevice();
+	MCD_ASSUME(device);
+
+	if(!decl) {
+		decl = gDecl.lock();
+		if(!decl) {
+			decl = new SharedVertexDeclaration(device);
+			gDecl = decl.getNotNull();
+		}
+	}
 
 	MCD_FOREACH(const Section& section, mSections)
 	{
@@ -56,7 +91,7 @@ void DisplayListComponent::Impl::draw(void* context)
 		}
 
 		if(count) {
-			device->SetVertexDeclaration(gDecl);
+			device->SetVertexDeclaration(decl->decl);
 			MCD_VERIFY(device->DrawPrimitiveUP(type, count, &mVertices[section.offset], sizeof(Vertex)) == D3D_OK);
 		}
 	}

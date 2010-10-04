@@ -144,6 +144,7 @@ TEST(DisplayListTest)
 		e = noLighting->addChild(new Entity("Equation label"));
 		BmpFontMaterialComponent* m = e->addComponent(new BmpFontMaterialComponent);
 		m->bmpFont = dynamic_cast<BmpFont*>(resourceManager.load("buildin/Arial-20.fnt").get());
+		m->color = ColorRGBAf(1, 1, 0, 1);
 
 		e = e->addChild(new Entity);
 		e->localTransform.setTranslation(Vec3f(0, 12, 0));

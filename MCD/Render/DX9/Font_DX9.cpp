@@ -66,6 +66,15 @@ void BmpFontMaterialComponent::preRender(size_t pass, void* context)
 	MCD_VERIFY(device->SetVertexShader(nullptr) == D3D_OK);
 	MCD_VERIFY(device->SetPixelShader(nullptr) == D3D_OK);
 
+	// Reference: http://www.gamedev.net/community/forums/topic.asp?topic_id=310926
+	device->SetRenderState(D3DRS_TEXTUREFACTOR, D3DCOLOR_COLORVALUE(color.r, color.g, color.b, color.a));
+	device->SetTextureStageState(0, D3DTSS_COLOROP,   D3DTOP_MODULATE);
+	device->SetTextureStageState(0, D3DTSS_COLORARG1, D3DTA_TEXTURE);
+	device->SetTextureStageState(0, D3DTSS_COLORARG2, D3DTA_TFACTOR);
+	device->SetTextureStageState(0, D3DTSS_ALPHAOP,   D3DTOP_MODULATE);
+	device->SetTextureStageState(0, D3DTSS_ALPHAARG1, D3DTA_TEXTURE);
+	device->SetTextureStageState(0, D3DTSS_ALPHAARG2, D3DTA_TFACTOR);
+
 	if(bmpFont && bmpFont->texture)
 		bmpFont->texture->bind(0);
 }
