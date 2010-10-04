@@ -58,6 +58,10 @@ void TextureLoaderBase::commit(Resource& resource)
 	preUploadData();
 	uploadData(texture);
 	postUploadData();
+
+	// Release the memory once the image is fully loaded and uploaded
+	if(loadingState() & Stopped)
+		mImpl->mImageData.clear();
 }
 
 void TextureLoaderBase::preUploadData()
