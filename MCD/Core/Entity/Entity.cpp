@@ -53,10 +53,20 @@ void Entity::asChildOf(Entity* parent)
 	generateDefaultName();
 }
 
-Entity* Entity::addChild(sal_in Entity* child)
+Entity* Entity::addFirstChild(sal_in Entity* child)
 {
 	MCD_ASSUME(child);
 	child->asChildOf(this);
+	return child;
+}
+
+Entity* Entity::addLastChild(sal_in Entity* child)
+{
+	MCD_ASSUME(child);
+	if(Entity* last = lastChild())
+		child->insertAfter(last);
+	else
+		child->asChildOf(this);
 	return child;
 }
 
@@ -380,6 +390,21 @@ Entity* Entity::firstChild() {
 
 Entity* Entity::firstChild() const {
 	return mFirstChild;
+}
+
+Entity* Entity::lastChild()
+{
+	if(Entity* last = mFirstChild) {
+		while(last->mNextSibling)
+			last = last->mNextSibling;
+		MCD_ASSUME(last);
+		return last;
+	}
+	return nullptr;
+}
+
+Entity* Entity::lastChild() const {
+	return const_cast<Entity*>(this)->lastChild();
 }
 
 Entity* Entity::nextSibling() {
