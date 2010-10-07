@@ -58,7 +58,7 @@ TEST(RendererTest)
 	}
 
 	{	// Setup GUI layer
-		Entity* e = framework.guiLayer().addChild(new Entity("Text"));
+		Entity* e = framework.guiLayer().addFirstChild(new Entity("Text"));
 		e->localTransform.setTranslation(Vec3f(0, 600, 0));
 //		e->localTransform.setMat33(Mat33f::makeXYZRotation(0, 0, 3.14f/4));
 		TextLabelComponent* text = e->addComponent(new TextLabelComponent);
@@ -83,16 +83,16 @@ TEST(RendererTest)
 	CHECK(boxMesh->mesh->create(ChamferBoxBuilder(0.0f, 5, true), Mesh::Static));
 
 	Entity* boxes = new Entity("Boxes");
-	scene.addChild(boxes);
+	scene.addFirstChild(boxes);
 
 	{	Entity* e = new Entity("Chamfer box1");
-		boxes->addChild(e);
+		boxes->addFirstChild(e);
 		e->addComponent(boxMesh);
 		e->localTransform.translateBy(Vec3f(2, 0, -2));
 	}
 
 	{	Entity* e = new Entity("Chamfer box2");
-		boxes->addChild(e);
+		boxes->addFirstChild(e);
 		e->addComponent(boxMesh->clone());
 		e->localTransform.translateBy(Vec3f(-2, 0, -2));
 	}
@@ -102,17 +102,17 @@ TEST(RendererTest)
 	CHECK(sphereMesh->mesh->create(ChamferBoxBuilder(1, 5, true), Mesh::Static));
 
 	Entity* spheres = new Entity("Spheres");
-	scene.addChild(spheres);
+	scene.addFirstChild(spheres);
 	spheres->addComponent(material2);
 
 	{	Entity* e = new Entity("Sphere1");
-		spheres->addChild(e);
+		spheres->addFirstChild(e);
 		e->addComponent(sphereMesh);
 		e->localTransform.translateBy(Vec3f(2, 0, 2));
 	}
 
 	{	Entity* e = new Entity("Sphere2");
-		spheres->addChild(e);
+		spheres->addFirstChild(e);
 		e->addComponent(material2->clone());
 		e->addComponent(sphereMesh->clone());
 		e->localTransform.translateBy(Vec3f(-2, 0, 2));

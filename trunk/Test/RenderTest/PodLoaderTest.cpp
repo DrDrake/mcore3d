@@ -35,7 +35,7 @@ TEST(PodLoaderTest)
 	}
 
 	{	// Setup GUI layer
-		Entity* e = framework.guiLayer().addChild(new Entity("Text"));
+		Entity* e = framework.guiLayer().addFirstChild(new Entity("Text"));
 		e->localTransform.setTranslation(Vec3f(0, 600, 0));
 		TextLabelComponent* text = e->addComponent(new TextLabelComponent);
 		text->text = model;
@@ -43,9 +43,9 @@ TEST(PodLoaderTest)
 
 	{	// Load the model using prefab
 		Entity* e = new Entity("Model prefab");
-		scene.addChild(e);
+		scene.addFirstChild(e);
 		e->localTransform.setScale(Vec3f(0.1f));
-		CHECK(framework.loadPrefabTo(model, e));
+		CHECK(framework.loadPrefabTo(model, *e));
 	}
 
 	while(true)

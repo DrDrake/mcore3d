@@ -622,7 +622,7 @@ IResourceLoader::LoadingState PodLoader::Impl::load(std::istream* is, const Path
 				e->addComponent(sm.get());*/
 			}
 			else {
-				Entity* e2 = e->addChild(new Entity);
+				Entity* e2 = e->addFirstChild(new Entity);
 				MeshComponent* c = e2->addComponent(new MeshComponent);
 				c->mesh = mMeshes[podNode.nIdx].first;
 			}

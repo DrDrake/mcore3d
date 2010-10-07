@@ -89,19 +89,19 @@ TEST(AudioSourceComponentTest)
 
 	AudioSourceComponentPtr audio;
 	{	// Setup for AudioSourceComponent
-		Entity* e = scene.addChild(new Entity("Audio"));
+		Entity* e = scene.addFirstChild(new Entity("Audio"));
 		audio = e->addComponent(new AudioSourceComponent);
 	}
 
 	TextLabelComponentPtr text;
 	{	// Setup GUI layer
-		Entity* e = framework.guiLayer().addChild(new Entity("Text"));
+		Entity* e = framework.guiLayer().addFirstChild(new Entity("Text"));
 		e->localTransform.setTranslation(Vec3f(0, 300, 0));
 		text = e->addComponent(new TextLabelComponent);
 	}
 
 	{	// Setup the controller
-		Entity* e = scene.addChild(new Entity("Controller"));
+		Entity* e = scene.addFirstChild(new Entity("Controller"));
 		ControllerComponent* c = e->addComponent(new ControllerComponent);
 		c->input = input;
 		c->text = text;

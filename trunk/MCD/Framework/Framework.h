@@ -9,12 +9,14 @@
 namespace MCD {
 
 class Entity;
+class BehaviourComponent;
 class FileSystemCollection;
 class Path;
 class PrefabLoaderComponent;
 class RenderWindow;
 class TaskPool;
 typedef IntrusivePtr<class Prefab> PrefabPtr;
+typedef IntrusivePtr<class Texture> TexturePtr;
 typedef IntrusiveWeakPtr<class RendererComponent> RendererComponentPtr;
 
 /// A framework that integrate various MCore modules.
@@ -42,16 +44,20 @@ public:
 	/// \sa ResourceManager::addFactory()
 	void addLoaderFactory(sal_in ResourceManager::IFactory* factory);
 
-	/// Load a prefab from a resource path, and put a PrefabLoaderComponent
-	/// under the specified Entity.
-	/// \return Null if failed.
-	PrefabLoaderComponent* loadPrefabTo(sal_in_z const Path& resourcePath, sal_in_opt Entity* location, int blockingIteration=-1, sal_in_z const char* args=nullptr);
-
 	/// Pop an event out of the event queue.
 	/// \sa Window::popEvent()
 	/// \param event Output parameter to get the event.
 	/// \return false if the event queue is empty.
 	bool update(Event& e);
+
+// Higher level operations
+	TexturePtr loadTexture(sal_in_z const char* path, int blockIteration=-1);
+
+	/// Load a prefab from a resource path, and put a PrefabLoaderComponent under the specified Entity location.
+	/// \return Null if failed.
+	PrefabLoaderComponent* loadPrefabTo(sal_in_z const char* path, Entity& location, bool blockingLoad=true);
+
+	void registerResourceCallback(sal_in_z const char* path, BehaviourComponent& callback, bool isRecursive, int minLoadIteration=-1);
 
 // Attributes
 	FileSystemCollection& fileSystemCollection();

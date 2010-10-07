@@ -25,7 +25,7 @@ public:
 		animationTrack = new AnimationTrack("");
 		loadAnimationTrack();
 
-		mBoxesNode = framework.sceneLayer().addChild(new Entity("Boxes"));
+		mBoxesNode = framework.sceneLayer().addFirstChild(new Entity("Boxes"));
 
 		{	// Setup the chamfer box mesh
 			mesh = new Mesh("");
@@ -42,8 +42,8 @@ public:
 		Entity& system = framework.systemEntity();
 
 		// Setup entity 1
-		Entity* e1 = mBoxesNode->addChild(new Entity);
-		Entity* e2 = e1->addChild(new Entity);
+		Entity* e1 = mBoxesNode->addFirstChild(new Entity);
+		Entity* e2 = e1->addFirstChild(new Entity);
 
 		e1->localTransform.setTranslation(position);
 		e2->localTransform = Mat44f(Mat33f::makeXYZRotation(0, Mathf::cPiOver4(), 0));

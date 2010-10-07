@@ -112,7 +112,7 @@ TEST(DisplayListTest)
 	CameraComponent* sceneCamera = scene.findComponentInChildrenExactType<CameraComponent>();
 	sceneCamera->entity()->localTransform.translateBy(Vec3f(0, 10, 10));
 
-	Entity* noLighting = scene.addChild(new Entity("No lighting material"));
+	Entity* noLighting = scene.addFirstChild(new Entity("No lighting material"));
 
 	{	// Material for rendering line
 		MaterialComponent* m = noLighting->addComponent(new MaterialComponent);
@@ -122,32 +122,32 @@ TEST(DisplayListTest)
 	}
 
 	{	// Axis line
-		Entity* e = noLighting->addChild(new Entity("Axis"));
+		Entity* e = noLighting->addFirstChild(new Entity("Axis"));
 		e->addComponent(new DrawAxisComponent);
 	}
 
 	{	// Dotted circles
-		Entity* e = noLighting->addChild(new Entity("Dotted circles"));
+		Entity* e = noLighting->addFirstChild(new Entity("Dotted circles"));
 
 		for(int i=-10; i<10; ++i) for(int j=-10; j<10; ++j)
 		{
-			Entity* e2 = e->addChild(new Entity);
+			Entity* e2 = e->addFirstChild(new Entity);
 			e2->localTransform.translateBy(Vec3f(float(i)* 3, 0, float(j) * 3));
 			e2->addComponent(new LineCircleComponent);
 		}
 	}
 
 	{	// Histogram
-		Entity* e = noLighting->addChild(new Entity("Histogram"));
+		Entity* e = noLighting->addFirstChild(new Entity("Histogram"));
 		e->addComponent(new HistogamComponent);
 
 		// Equation label
-		e = noLighting->addChild(new Entity("Equation label"));
+		e = noLighting->addFirstChild(new Entity("Equation label"));
 		BmpFontMaterialComponent* m = e->addComponent(new BmpFontMaterialComponent);
 		m->bmpFont = dynamic_cast<BmpFont*>(resourceManager.load("buildin/Arial-20.fnt").get());
 		m->color = ColorRGBAf(1, 1, 0, 1);
 
-		e = e->addChild(new Entity);
+		e = e->addFirstChild(new Entity);
 		e->localTransform.setTranslation(Vec3f(0, 12, 0));
 		e->localTransform.scaleBy(Vec3f(0.05f));
 		TextLabelComponent* text = e->addComponent(new TextLabelComponent);

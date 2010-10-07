@@ -28,19 +28,22 @@ class MCD_CORE_API Entity : public IntrusiveWeakPtrTarget, Noncopyable
 public:
 	explicit Entity(sal_in_z_opt const char* name=nullptr);
 
-	//! Virtual destructor to make this class polymorphic.
+	/// Virtual destructor to make this class polymorphic.
 	virtual ~Entity();
 
 // Operations
-	//! Make this entity a child of \em parent.
+	/// Make this entity a child of \em parent.
 	void asChildOf(sal_in Entity* parent);
 
-	/*!	The same as asChildOf(), but reversed 'this' with the parameter.
-		Returns the added child
-	 */
-	sal_notnull Entity* addChild(sal_in Entity* child);
+	/// Append an entity as the FIRST child of this.
+	/// Returns the added child
+	sal_notnull Entity* addFirstChild(sal_in Entity* child);
 
-	//! The input parameter should not be the root node.
+	/// Append an entity as the LAST child of this.
+	/// Returns the added child
+	sal_notnull Entity* addLastChild(sal_in Entity* child);
+
+	/// The input parameter should not be the root node.
 	void insertBefore(sal_in Entity* sibling);
 
 	void insertAfter(sal_in Entity* sibling);
@@ -59,7 +62,7 @@ public:
 	 */
 	sal_maybenull Component* findComponent(const type_info& familyType) const;
 
-	//!	Wrap over findComponent() with polymorphic_downcast
+	///	Wrap over findComponent() with polymorphic_downcast
 	template<class T>
 	sal_maybenull T* findComponent(const std::type_info& familyType) const {
 		return polymorphic_downcast<T*>(findComponent(familyType));
@@ -74,7 +77,7 @@ public:
 	 */
 	sal_maybenull Component* findComponentExactType(const std::type_info& type) const;
 
-	//!	Wrap over findComponentExactType() with polymorphic_downcast
+	///	Wrap over findComponentExactType() with polymorphic_downcast
 	template<class T>
 	sal_maybenull T* findComponentExactType(const std::type_info& type) const {
 		return polymorphic_downcast<T*>(findComponentExactType(type));
@@ -91,7 +94,7 @@ public:
 	 */
 	sal_maybenull Component* findComponentInChildren(const std::type_info& familyType) const;
 
-	//!	Wrap over findComponentInChildren() with polymorphic_downcast
+	///	Wrap over findComponentInChildren() with polymorphic_downcast
 	template<class T>
 	sal_maybenull T* findComponentInChildren(const std::type_info& familyType) const {
 		return polymorphic_downcast<T*>(findComponentInChildren(familyType));
@@ -103,7 +106,7 @@ public:
 
 	sal_maybenull Component* findComponentInChildrenExactType(const std::type_info& type) const;
 
-	//!	Wrap over findComponentInChildrenExactType() with polymorphic_downcast
+	///	Wrap over findComponentInChildrenExactType() with polymorphic_downcast
 	template<class T>
 	sal_maybenull T* findComponentInChildrenExactType(const std::type_info& type) const {
 		return polymorphic_downcast<T*>(findComponentInChildrenExactType(type));
@@ -113,10 +116,10 @@ public:
 		return findComponentInChildrenExactType<T>(typeid(T));
 	}
 
-	//!	Instead of simply returning true or false, the no. of level is returned.
+	///	Instead of simply returning true or false, the no. of level is returned.
 	size_t isAncestorOf(const Entity& e) const;
 
-	//!	Return the youngest common ancestor of the 2 entities, null if none.
+	///	Return the youngest common ancestor of the 2 entities, null if none.
 	static sal_maybenull Entity* commonAncestor(const Entity& e1, const Entity& e2);
 
 	/*!	Return the firstly found Entity along the siblings, with the name supplied.
@@ -171,7 +174,7 @@ public:
 
 	virtual void destroyThis();
 
-	//!	A SAL friendy version of destroyThis().
+	///	A SAL friendy version of destroyThis().
 	static void destroy(sal_maybenull Entity*& entity);
 
 // Attributes
@@ -184,6 +187,9 @@ public:
 
 	sal_maybenull Entity* firstChild();
 	sal_maybenull Entity* firstChild() const;
+
+	sal_maybenull Entity* lastChild();
+	sal_maybenull Entity* lastChild() const;
 
 	sal_maybenull Entity* nextSibling();
 	sal_maybenull Entity* nextSibling() const;
@@ -223,10 +229,10 @@ protected:
 	 */
 	void unlink(bool keepScriptStrongReference);
 
-	//!	Helper function for clone().
+	///	Helper function for clone().
 	virtual sal_notnull Entity* recursiveClone() const;
 
-	//! Pointer to make the entity hierarchy
+	/// Pointer to make the entity hierarchy
 	Entity* mParent, *mFirstChild, *mNextSibling;
 };	// Entity
 
