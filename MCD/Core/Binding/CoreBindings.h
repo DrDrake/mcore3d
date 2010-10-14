@@ -15,6 +15,7 @@ namespace MCD {
 
 // Entity
 class Entity;
+class Component;
 
 namespace Binding {
 
