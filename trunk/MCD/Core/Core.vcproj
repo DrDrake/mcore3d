@@ -792,6 +792,14 @@
 				>
 			</File>
 			<File
+				RelativePath=".\Binding\CoreBindings.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\Binding\CoreBindings.h"
+				>
+			</File>
+			<File
 				RelativePath=".\Binding\Declarator.cpp"
 				>
 			</File>

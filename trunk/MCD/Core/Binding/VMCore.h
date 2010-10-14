@@ -3,15 +3,13 @@
 
 #include "../ShareLib.h"
 #include "../../../3Party/squirrel/squirrel.h"
-//#include "Base.h"
-//#include "detail/Language.h"
 
 namespace MCD {
 namespace Binding {
 
 class ClassesManager;
 
-class MCD_CORE_API VMCore//: public base::Object
+class MCD_CORE_API VMCore
 {
 public:
 	explicit VMCore(int initialStackSize=256);
@@ -29,9 +27,11 @@ public:
 
 	HSQUIRRELVM getVM() const;
 
-	bool runScript(const char* script, bool retVal=false, const char* scriptName="unnamed");
+	sal_checkreturn bool runScript(const char* script, bool retVal=false, const char* scriptName="unnamed");
 
 	void collectGarbage();
+
+	static sal_checkreturn bool runScript(HSQUIRRELVM v, const char* script, bool retVal=false, const char* scriptName="unnamed");
 
 private:
 	State mState;

@@ -208,7 +208,7 @@ public:
 	template<typename Func>
 	ClassDeclarator& varGet(const char* name, Func func)
 	{
-		varGetDispatch<DefaultReturnPolicy>(name, func, typename FuncTraits<Func>::FuncType());
+		varGetDispatch<DefaultReturnPolicy<typename FuncTraits<Func>::RET>::policy>(name, func, typename FuncTraits<Func>::FuncType());
 		return *this;
 	}
 
@@ -285,6 +285,12 @@ protected:
 	}
 
 // Script class variable set
+	template<typename ReturnPolicy, typename Func>
+	void varSetDispatch(const char* name, Func func, MemberFunc)
+	{
+		pushFunction(name, &func, sizeof(func), 0, &DirectCallMemberFunction<Class, Func, ReturnPolicy>::Dispatch, setterTable());
+	}
+
 	template<typename ReturnPolicy, typename Func>
 	void varSetDispatch(const char* name, Func func, StaticFunc)
 	{

@@ -90,8 +90,11 @@ HSQUIRRELVM VMCore::getVM() const
 
 bool VMCore::runScript(const char* script, bool retVal, const char* scriptName)
 {
-	HSQUIRRELVM v = mSqvm;
+	return runScript(mSqvm, script, retVal, scriptName);
+}
 
+bool VMCore::runScript(HSQUIRRELVM v, const char* script, bool retVal, const char* scriptName)
+{
 	const int oldTop = sq_gettop(v);
 	(void)oldTop;
 
