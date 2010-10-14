@@ -234,4 +234,29 @@ TEST(Scale_Mat44Test)
 	Mat44f m(Mat44f::cIdentity);
 
 	CHECK(m.scale().isNearEqual(Vec3f(1)));
+
+	m.scaleBy(Vec3f(2));
+	CHECK(m.scale().isNearEqual(Vec3f(2)));
+}
+
+TEST(Rotation_Mat44Test)
+{
+	Mat44f m(Mat44f::cIdentity);
+
+	// Make some noise to test the robustness of rotateBy()
+	m.setScale(Vec3f(1, 2, 3));
+	m.setTranslation(Vec3f(4, 5, 6));
+
+	// Apply rotation that finally do nothing
+	m.rotateBy(Vec3f::c001, Mathf::cPi());
+	m.rotateBy(Vec3f::c001, Mathf::cPi());
+	m.rotateBy(Vec3f::c001, Mathf::cPiOver2());
+	m.rotateBy(Vec3f::c001, -Mathf::cPiOver2());
+
+	m.setScale(Vec3f(1));
+	m.setTranslation(Vec3f::cZero);
+
+	CHECK(m.xBiasVector().isNearEqual(Mat44f::cIdentity.xBiasVector()));
+	CHECK(m.yBiasVector().isNearEqual(Mat44f::cIdentity.yBiasVector()));
+	CHECK(m.zBiasVector().isNearEqual(Mat44f::cIdentity.zBiasVector()));
 }

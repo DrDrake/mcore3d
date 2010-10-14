@@ -337,6 +337,28 @@ void Mat44<T>::scaleBy(const Vec3<T>& deltaScale)
 }
 
 template<typename T>
+void Mat44<T>::setRotation(const Vec3<T>& axis, T angle)
+{
+	const Vec3<T> s = scale();
+	const Vec3<T> t = translation();
+	Mat33<T> tmp;
+	*this = makeAxisRotation(axis, angle);
+	scaleBy(s);
+	translateBy(t);
+}
+
+template<typename T>
+void Mat44<T>::rotateBy(const Vec3<T>& axis, T angle)
+{
+	const Vec3<T> t = translation();
+	setTranslation(Vec3f::cZero);
+
+	*this *= makeAxisRotation(axis, angle);
+
+	setTranslation(t);
+}
+
+template<typename T>
 void Mat44<T>::mat33(Mat33<T>& matrix33) const
 {
 	matrix33.m00 = m00;	matrix33.m01 = m01;	matrix33.m02 = m02;

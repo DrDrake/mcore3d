@@ -147,6 +147,12 @@ public:
 	//! Apply a delta scale to the current scale, without affacting the rotation part.
 	void scaleBy(const Vec3<T>& deltaScale);
 
+	//! Sets only the rotation part of the matrix, without scrwing up the scaling part.
+	void setRotation(const Vec3<T>& axis, T angle);
+
+	//! Apply a delta rotation to the current orientation, without affacting the sacling part.
+	void rotateBy(const Vec3<T>& axis, T angle);
+
 	//!	Extracts the rotation / scaling part of the matrix as a 3x3 matrix.
 	void mat33(Mat33<T>& matrix33) const;
 	Mat33<T> mat33() const;
