@@ -89,7 +89,7 @@ ScriptObject ClassDeclaratorBase::setterTable()
 
 void ClassDeclaratorBase::runScript(const char* script)
 {
-//	MCD_VERIFY(script::runScript(_vm, script));
+	MCD_VERIFY(VMCore::runScript(_vm, script));
 }
 
 GlobalDeclarator::GlobalDeclarator(const ScriptObject& hostObject, HSQUIRRELVM vm)

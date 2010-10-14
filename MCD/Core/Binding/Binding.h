@@ -54,6 +54,19 @@ struct ReturnSpecialization
 		return ReturnPolicy::template pushResult<RT>(v, ret);
 	}
 
+	template<class P1,class P2,class P3>
+	static int Call(RT (*func)(P1,P2,P3), HSQUIRRELVM v, int index) {
+		CHECK_ARG(1);
+		CHECK_ARG(2);
+		CHECK_ARG(2);
+		RT ret = func(
+			get(TypeSelect<P1>(), v, index + 0),
+			get(TypeSelect<P2>(), v, index + 1),
+			get(TypeSelect<P3>(), v, index + 2)
+		);
+		return ReturnPolicy::template pushResult<RT>(v, ret);
+	}
+
 // Member functions:
 	template<class Callee>
 	static int Call(Callee & callee, RT (Callee::*func)(), HSQUIRRELVM v, int index) {
@@ -72,12 +85,66 @@ struct ReturnSpecialization
 	}
 
 	template<class Callee, class P1,class P2>
-	static int Call(Callee & callee, RT (Callee::*func)(P1), HSQUIRRELVM v, int index) {
+	static int Call(Callee & callee, RT (Callee::*func)(P1,P2), HSQUIRRELVM v, int index) {
 		CHECK_ARG(1);
 		CHECK_ARG(2);
 		RT ret = (callee.*func)(
 			get(TypeSelect<P1>(), v, index + 0),
 			get(TypeSelect<P2>(), v, index + 1)
+		);
+		return ReturnPolicy::template pushResult<RT>(v, ret);
+	}
+
+	template<class Callee, class P1,class P2,class P3>
+	static int Call(Callee & callee, RT (Callee::*func)(P1,P2,P3), HSQUIRRELVM v, int index) {
+		CHECK_ARG(1);
+		CHECK_ARG(2);
+		CHECK_ARG(3);
+		RT ret = (callee.*func)(
+			get(TypeSelect<P1>(), v, index + 0),
+			get(TypeSelect<P2>(), v, index + 1),
+			get(TypeSelect<P2>(), v, index + 2)
+		);
+		return ReturnPolicy::template pushResult<RT>(v, ret);
+	}
+
+// Const member functions:
+	template<class Callee>
+	static int Call(Callee & callee, RT (Callee::*func)() const, HSQUIRRELVM v, int index) {
+		(void)index;
+		RT ret = (callee.*func)();
+		return ReturnPolicy::template pushResult<RT>(v, ret);
+	}
+
+	template<class Callee, class P1>
+	static int Call(Callee & callee, RT (Callee::*func)(P1) const, HSQUIRRELVM v, int index) {
+		CHECK_ARG(1);
+		RT ret = (callee.*func)(
+			get(TypeSelect<P1>(), v, index + 0)
+		);
+		return ReturnPolicy::template pushResult<RT>(v, ret);
+	}
+
+	template<class Callee, class P1,class P2>
+	static int Call(Callee & callee, RT (Callee::*func)(P1,P2) const, HSQUIRRELVM v, int index) {
+		CHECK_ARG(1);
+		CHECK_ARG(2);
+		RT ret = (callee.*func)(
+			get(TypeSelect<P1>(), v, index + 0),
+			get(TypeSelect<P2>(), v, index + 1)
+		);
+		return ReturnPolicy::template pushResult<RT>(v, ret);
+	}
+
+	template<class Callee, class P1,class P2,class P3>
+	static int Call(Callee & callee, RT (Callee::*func)(P1,P2,P3) const, HSQUIRRELVM v, int index) {
+		CHECK_ARG(1);
+		CHECK_ARG(2);
+		CHECK_ARG(3);
+		RT ret = (callee.*func)(
+			get(TypeSelect<P1>(), v, index + 0),
+			get(TypeSelect<P2>(), v, index + 1),
+			get(TypeSelect<P2>(), v, index + 2)
 		);
 		return ReturnPolicy::template pushResult<RT>(v, ret);
 	}
@@ -113,6 +180,19 @@ struct ReturnSpecialization<void, ReturnPolicy>
 		return 0;
 	}
 
+	template<class P1,class P2,class P3>
+	static int Call(void (*func)(P1,P2,P3), HSQUIRRELVM v, int index) {
+		CHECK_ARG(1);
+		CHECK_ARG(2);
+		CHECK_ARG(3);
+		func(
+			get(TypeSelect<P1>(), v, index + 0),
+			get(TypeSelect<P2>(), v, index + 1)
+			get(TypeSelect<P2>(), v, index + 2)
+		);
+		return 0;
+	}
+
 // Member functions:
 	template<class Callee>
 	static int Call(Callee & callee, void (Callee::*func)(), HSQUIRRELVM v, int index) {
@@ -131,12 +211,66 @@ struct ReturnSpecialization<void, ReturnPolicy>
 	}
 
 	template<class Callee, class P1,class P2>
-	static int Call(Callee & callee, void (Callee::*func)(P1), HSQUIRRELVM v, int index) {
+	static int Call(Callee & callee, void (Callee::*func)(P1,P2), HSQUIRRELVM v, int index) {
 		CHECK_ARG(1);
 		CHECK_ARG(2);
 		(callee.*func)(
 			get(TypeSelect<P1>(), v, index + 0),
 			get(TypeSelect<P2>(), v, index + 1)
+		);
+		return 0;
+	}
+
+	template<class Callee, class P1,class P2,class P3>
+	static int Call(Callee & callee, void (Callee::*func)(P1,P2,P3), HSQUIRRELVM v, int index) {
+		CHECK_ARG(1);
+		CHECK_ARG(2);
+		CHECK_ARG(3);
+		(callee.*func)(
+			get(TypeSelect<P1>(), v, index + 0),
+			get(TypeSelect<P2>(), v, index + 1),
+			get(TypeSelect<P2>(), v, index + 2)
+		);
+		return 0;
+	}
+
+// Const member functions:
+	template<class Callee>
+	static int Call(Callee & callee, void (Callee::*func)() const, HSQUIRRELVM v, int index) {
+		(void)index;
+		(callee.*func)();
+		return 0;
+	}
+
+	template<class Callee, class P1>
+	static int Call(Callee & callee, void (Callee::*func)(P1) const, HSQUIRRELVM v, int index) {
+		CHECK_ARG(1);
+		(callee.*func)(
+			get(TypeSelect<P1>(), v, index + 0)
+		);
+		return 0;
+	}
+
+	template<class Callee, class P1,class P2>
+	static int Call(Callee & callee, void (Callee::*func)(P1,P2) const, HSQUIRRELVM v, int index) {
+		CHECK_ARG(1);
+		CHECK_ARG(2);
+		(callee.*func)(
+			get(TypeSelect<P1>(), v, index + 0),
+			get(TypeSelect<P2>(), v, index + 1)
+		);
+		return 0;
+	}
+
+	template<class Callee, class P1,class P2,class P3>
+	static int Call(Callee & callee, void (Callee::*func)(P1,P2,P3) const, HSQUIRRELVM v, int index) {
+		CHECK_ARG(1);
+		CHECK_ARG(2);
+		CHECK_ARG(3);
+		(callee.*func)(
+			get(TypeSelect<P1>(), v, index + 0),
+			get(TypeSelect<P2>(), v, index + 1),
+			get(TypeSelect<P2>(), v, index + 2)
 		);
 		return 0;
 	}
@@ -152,13 +286,16 @@ int Call(RT (*func)(), HSQUIRRELVM v, int index) {
 
 template<class ResultPolicy, class RT, class P1>
 int Call(RT (*func)(P1), HSQUIRRELVM v, int index) {
-//	GiveUpSpecialization<P1>::giveUp(v,index+0);
 	return ReturnSpecialization<RT, ResultPolicy>::Call(func, v, index);
 }
 
 template<class ResultPolicy, class RT, class P1,class P2>
 int Call(RT (*func)(P1,P2), HSQUIRRELVM v, int index) {
-//	GiveUpSpecialization<P1>::giveUp(v,index+0);
+	return ReturnSpecialization<RT, ResultPolicy>::Call(func, v, index);
+}
+
+template<class ResultPolicy, class RT, class P1,class P2,class P3>
+int Call(RT (*func)(P1,P2,P3), HSQUIRRELVM v, int index) {
 	return ReturnSpecialization<RT, ResultPolicy>::Call(func, v, index);
 }
 
@@ -170,13 +307,37 @@ int Call(Callee& callee, RT (Callee::*func)(), HSQUIRRELVM v, int index) {
 
 template<class ResultPolicy, class Callee, class RT, class P1>
 int Call(Callee& callee, RT (Callee::*func)(P1), HSQUIRRELVM v, int index) {
-//	GiveUpSpecialization<P1>::giveUp(v,index+0);
 	return ReturnSpecialization<RT, ResultPolicy>::Call(callee, func, v, index);
 }
 
 template<class ResultPolicy, class Callee, class RT, class P1,class P2>
 int Call(Callee& callee, RT (Callee::*func)(P1,P2), HSQUIRRELVM v, int index) {
-//	GiveUpSpecialization<P1>::giveUp(v,index+0);
+	return ReturnSpecialization<RT, ResultPolicy>::Call(callee, func, v, index);
+}
+
+template<class ResultPolicy, class Callee, class RT, class P1,class P2,class P3>
+int Call(Callee& callee, RT (Callee::*func)(P1,P2,P3), HSQUIRRELVM v, int index) {
+	return ReturnSpecialization<RT, ResultPolicy>::Call(callee, func, v, index);
+}
+
+// Const member function callers
+template<class ResultPolicy, class Callee, class RT>
+int Call(Callee& callee, RT (Callee::*func)() const, HSQUIRRELVM v, int index) {
+	return ReturnSpecialization<RT, ResultPolicy>::Call(callee, func, v, index);
+}
+
+template<class ResultPolicy, class Callee, class RT, class P1>
+int Call(Callee& callee, RT (Callee::*func)(P1) const, HSQUIRRELVM v, int index) {
+	return ReturnSpecialization<RT, ResultPolicy>::Call(callee, func, v, index);
+}
+
+template<class ResultPolicy, class Callee, class RT, class P1,class P2>
+int Call(Callee& callee, RT (Callee::*func)(P1,P2) const, HSQUIRRELVM v, int index) {
+	return ReturnSpecialization<RT, ResultPolicy>::Call(callee, func, v, index);
+}
+
+template<class ResultPolicy, class Callee, class RT, class P1,class P2,class P3>
+int Call(Callee& callee, RT (Callee::*func)(P1,P2,P3) const, HSQUIRRELVM v, int index) {
 	return ReturnSpecialization<RT, ResultPolicy>::Call(callee, func, v, index);
 }
 
