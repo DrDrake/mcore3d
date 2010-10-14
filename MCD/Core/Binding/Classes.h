@@ -22,6 +22,9 @@ public:
 	/// Register the type name to return when invoking the Squirrel meta function _typeof().
 	static void registerTypeOf(HSQUIRRELVM v, ScriptObject& classObj, const char* typeName);
 
+	/// Add the weakref function (apparently not provided by default)
+	static void registerWeakRef(HSQUIRRELVM v, ScriptObject& classObj);
+
 	/// Disable clonning of the specificed class.
 	static void disableCloning(HSQUIRRELVM v, ScriptObject& classObj);
 
@@ -32,38 +35,8 @@ public:
 
 	static void registerGetSetTable(HSQUIRRELVM v, ScriptObject& classObj);
 
-	/*!	A callback function for the user to intercept the class registration process
-		so that they have a chance to associate a std::type_info with the ClassID.
-		By default this function pointer is null, set it to your own function if you
-		want to enable the feature "Returns most derived class".
-
-		\sa getClassIDFromObject()
-
-		Sample implementation using std map:
-		\code
-		struct TypeInfo {
-			const std::type_info& typeInfo;
-			TypeInfo(const std::type_info& t) : typeInfo(t) {}
-			bool operator<(const TypeInfo& rhs) const
-			{	return typeInfo.before(rhs.typeInfo) > 0;	}
-		};	// TypeInfo
-		typedef std::map<TypeInfo, ClassID> TypeMap;
-		static TypeMap typeMap;
-
-		void associateClassID(const std::type_info& typeInfo, script::ClassID classID)
-		{	typeMap[typeInfo] = classID;	}
-
-		ClassID getClassIDFromObject(const MyPolymorphicBaseClass* obj, ClassID original) {
-			TypeMap::const_iterator i = typeMap.find(typeid(*obj));
-			if(i != typeMap.end())
-				return i->second;
-			return original;
-		}
-		\endcode
-	 */
-	typedef void (*AssociateClassID)(const std::type_info& typeInfo, ClassID classID);
-	static AssociateClassID associateClassID();
-	static void setAssociateClassID(AssociateClassID);
+	static void setClassIdForRtti(const std::type_info& typeInfo, ClassID classID);
+	static ClassID getClassIdFromRtti(const std::type_info& typeInfo, ClassID fallback=nullptr);
 
 private:
 	/// Returns the class table by a given ClassID.

@@ -67,7 +67,7 @@ public:
 
 		// Note that at the time when the C function is invoked, the
 		// squirrel side object instance was already on the stack.
-		if(!obj || SQ_FAILED(sq_setinstanceup(v, 1, obj)))
+		if(!obj || SQ_FAILED(setInstanceUp(v, 1, obj, obj)))
 			return sq_throwerror(v, "Failed to construct object");
 
 		sq_setreleasehook(v, 1, releaseHook<HostType>);
@@ -94,7 +94,7 @@ public:
 	static SQInteger pushResult(HSQUIRRELVM v, RT result)
 	{
 		push(v, result);
-		sq_setreleasehook(v, -1, releaseHook<typename ptr::pointer<RT>::HostType>);
+		sq_setreleasehook(v, -1, releaseHook<typename pointer<RT>::HostType>);
 		return 1;
 	}
 

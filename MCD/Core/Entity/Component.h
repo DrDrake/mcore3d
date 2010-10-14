@@ -3,7 +3,6 @@
 
 #include "EntityIterator.h"
 #include "../System/LinkList.h"
-#include "../System/ScriptOwnershipHandle.h"
 #include "../System/WeakPtr.h"
 #include <typeinfo>
 
@@ -66,8 +65,6 @@ public:
 
 	//! Set the enable flag of the host Entity, do nothing if this Component doesn't belongs to any Entity.
 	void setEnabled(bool b);
-
-	ScriptOwnershipHandle scriptOwnershipHandle;
 
 protected:
 	friend class Entity;

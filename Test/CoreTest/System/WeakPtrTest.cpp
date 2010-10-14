@@ -34,9 +34,6 @@ TEST(IntrusiveWeakPtrTest)
 		// Assignment to self
 		wpB = wpB;
 		CHECK_EQUAL(wpB.get(), wpB1.get());
-
-		// Acquire destruction lock before destructor
-		b1.destructionLock();
 	}
 
 	{	// Assignment operator with casting
@@ -47,9 +44,6 @@ TEST(IntrusiveWeakPtrTest)
 		// Copy constructor with casting
 		BasePointer wpBD(&d);
 		CHECK_EQUAL(wpBD.get(), &d);
-
-		// Acquire destruction lock before destructor
-		d.destructionLock();
 
 		// Destruction of target
 	}
@@ -74,18 +68,9 @@ TEST(IntrusiveWeakPtrTest)
 
 			CHECK_EQUAL(temp1.get(), (Base*)(&d2));
 			CHECK_EQUAL(temp2.get(), (Base*)(&d1));
-
-			// Acquire destruction lock before destructor
-			d2.destructionLock();
 		}
 
 		CHECK(temp1.get() == nullptr);
 		CHECK(temp2.get() != nullptr);
-
-		// Acquire destruction lock before destructor
-		d1.destructionLock();
 	}
-
-	// Acquire destruction lock before destructor
-	b.destructionLock();
 }

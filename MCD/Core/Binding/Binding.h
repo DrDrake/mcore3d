@@ -203,7 +203,7 @@ public:
 	static SQInteger Dispatch(HSQUIRRELVM v)
 	{
 		Callee* instance(nullptr);
-		if(SQ_FAILED(sq_getinstanceup(v, 1, (SQUserPointer*)&instance, ClassTraits<Callee>::classID())))
+		if(SQ_FAILED(fromInstanceUp(v, 1, instance, instance, ClassTraits<Callee>::classID())))
 			return sq_throwerror(v, "Trying to invoke an member function without a correct this pointer");
 		CHECK_THIS_PTR(instance);
 		Func func = getFunctionPointer<Func>(v, -1);

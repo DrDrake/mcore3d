@@ -8,9 +8,10 @@
 namespace MCD {
 
 Entity::Entity(const char* name)
-	: enabled(true),
-	  mParent(nullptr), mFirstChild(nullptr), mNextSibling(nullptr),
-	  localTransform(Mat44f::cIdentity)
+	: enabled(true)
+	, mParent(nullptr), mFirstChild(nullptr), mNextSibling(nullptr)
+	, localTransform(Mat44f::cIdentity)
+	, scriptVm(nullptr)
 {
 	if(name)
 		this->name = name;
@@ -18,18 +19,14 @@ Entity::Entity(const char* name)
 
 Entity::~Entity()
 {
-	if(!mParent)	// If it's the root node, supress the assertion in IntrusiveWeakPtrTarget
-		destructionLock();
-
+	MCD_ASSERT(mRefCount == 0);
 	unlink();
 
 	Entity* children = mFirstChild;
 
-	// TODO: Rethink about the ownership of Entity
 	if(children) do {
 		Entity* next = children->mNextSibling;
-		children->destructionLock();
-		delete children;
+		children->destroyThis();
 		children = next;
 	} while(children);
 }
@@ -40,16 +37,17 @@ void Entity::asChildOf(Entity* parent)
 	if(!parent)
 		return;
 
-	// Unlink this Entity first (keep strong script reference)
-	unlink(true);
+	if(!mParent)
+		intrusivePtrAddRef(this);
+
+	// Unlink this Entity first
+	unlink();
 
 	Entity* oldFirstChild = parent->mFirstChild;
 	mParent = parent;
 	mNextSibling = oldFirstChild;
 	parent->mFirstChild = this;
 
-	scriptOwnershipHandle.useStrongReference(true);
-	scriptOwnershipHandle.removeReleaseHook();
 	generateDefaultName();
 }
 
@@ -80,11 +78,15 @@ void Entity::insertBefore(sal_in Entity* sibling)
 	if(!sibling->mParent)
 		return;
 
-	// Unlink this Entity first (keep strong script reference)
-	unlink(true);
-
 	Entity* node = sibling->mParent->mFirstChild;
-	if(node == sibling) {
+	if(node == sibling)
+	{
+		if(!mParent)
+			intrusivePtrAddRef(this);
+
+		// Unlink this Entity first
+		unlink();
+
 		sibling->mParent->mFirstChild = this;
 		mParent = sibling->mParent;
 		mNextSibling = sibling;
@@ -113,8 +115,11 @@ void Entity::insertAfter(sal_in Entity* sibling)
 
 	MCD_ASSUME(sibling->mParent && "There should only one a single root node");
 
-	// Unlink this Entity first (keep strong script reference)
-	unlink(true);
+	if(!mParent)
+		intrusivePtrAddRef(this);
+
+	// Unlink this Entity first
+	unlink();
 
 	mParent = sibling->mParent;
 
@@ -122,8 +127,6 @@ void Entity::insertAfter(sal_in Entity* sibling)
 	sibling->mNextSibling = this;
 	mNextSibling = old;
 
-	scriptOwnershipHandle.useStrongReference(true);
-	scriptOwnershipHandle.removeReleaseHook();
 	generateDefaultName();
 }
 
@@ -144,11 +147,6 @@ void Entity::generateDefaultName()
 }
 
 void Entity::unlink()
-{
-	unlink(false);
-}
-
-void Entity::unlink(bool keepScriptStrongReference)
 {
 	if(!mParent)
 		return;
@@ -172,8 +170,6 @@ void Entity::unlink(bool keepScriptStrongReference)
 	mNextSibling = nullptr;
 	// The children are keep intact
 	// mFirstChild = mFirstChild;
-
-	scriptOwnershipHandle.useStrongReference(keepScriptStrongReference);
 }
 
 Component* Entity::findComponentExactType(const std::type_info& type) const
@@ -359,8 +355,6 @@ Component* Entity::_addComponent(Component* component)
 	component->mEntity = this;
 
 	component->onAdd();
-	component->scriptOwnershipHandle.useStrongReference(true);
-	component->scriptOwnershipHandle.removeReleaseHook();
 
 	return component;
 }
@@ -438,7 +432,7 @@ void Entity::setWorldTransform(const Mat44f& transform)
 
 Entity* Entity::recursiveClone() const
 {
-	{	// Try using script handle's clone function first
+/*	{	// Try using script handle's clone function first
 		ScriptOwnershipHandle dummy;
 		// TODO: Add some type safty?
 		Entity* e = reinterpret_cast<Entity*>(scriptOwnershipHandle.cloneTo(dummy));
@@ -448,7 +442,7 @@ Entity* Entity::recursiveClone() const
 			dummy.setNull();
 			return e;
 		}
-	}
+	}*/
 
 	Entity* newEnt(new Entity());
 
@@ -470,6 +464,7 @@ Entity* Entity::recursiveClone() const
 	for(Entity* child = mFirstChild; nullptr != child; child = child->nextSibling())
 	{
 		Entity* newChild = child->recursiveClone();	// Note that we call recursiveClone() recursively
+		intrusivePtrAddRef(newChild);
 		newChild->mParent = newEnt;
 		if(child == mFirstChild)
 			newEnt->mFirstChild = newChild;
@@ -497,9 +492,16 @@ void Entity::destroyThis()
 {
 	if(!this)	// NOTE: Make this function behaive like the delete operator: do nothing no null.
 		return;
-	if(mParent)
-		destructionLock();
-	delete this;
+	unlink();
+
+/*	Entity* children = mFirstChild;
+	if(children) do {
+		Entity* next = children->mNextSibling;
+		children->destroyThis();
+		children = next;
+	} while(children);*/
+
+	intrusivePtrRelease(this);
 }
 
 void Entity::destroy(Entity*& entity)
@@ -507,6 +509,16 @@ void Entity::destroy(Entity*& entity)
 	if(entity)
 		entity->destroyThis();
 	entity = nullptr;
+}
+
+void Entity::scriptAddReference()
+{
+	intrusivePtrAddRef(this);
+}
+
+void Entity::scriptReleaseReference()
+{
+	intrusivePtrRelease(this);
 }
 
 static EntityPtr gCurrentEntityRoot;
