@@ -12,6 +12,12 @@ template<typename T> struct GetterSetter {
 	typedef type& setterType;
 	static getterType get(type& val) { return &val; }
 };
+template<typename T> struct GetterSetter<T*> {
+	typedef T type;
+	typedef type* getterType;
+	typedef type*& setterType;
+	static getterType get(type* val) { return val; }
+};
 template<> struct GetterSetter<bool> {
 	typedef bool type;
 	typedef type getterType;
@@ -109,7 +115,7 @@ template<class Callee, class Field, class ReturnPolicy>
 SQInteger fieldGetterFunction(HSQUIRRELVM v)
 {
 	Callee* instance(nullptr);
-	if(SQ_FAILED(sq_getinstanceup(v, 1, (SQUserPointer*)&instance, ClassTraits<Callee>::classID())))
+	if(SQ_FAILED(fromInstanceUp(v, 1, instance, instance, ClassTraits<Callee>::classID())))
 		return sq_throwerror(v, "Trying to get member variable without a correct this pointer");
 
 	Field field = getFieldPointer<Field>(v, -1);
@@ -121,8 +127,8 @@ SQInteger assignField(Callee* callee, RawField (Callee::*fieldPtr), HSQUIRRELVM 
 {
 	MCD_ASSUME(callee);
 	typedef typename GetterSetter<RawField>::setterType fieldType;
-	MCD_VERIFY(match(TypeSelect<fieldType>(), v, index));
-	callee->*fieldPtr = get(TypeSelect<fieldType>(), v, index);
+	MCD_VERIFY(match(TypeSelect<fieldType>::adjusted(), v, index));
+	callee->*fieldPtr = get(TypeSelect<fieldType>::adjusted(), v, index);
 	return 0;
 }
 
@@ -130,7 +136,7 @@ template<class Callee, class Field>
 SQInteger fieldSetterFunction(HSQUIRRELVM v)
 {
 	Callee* instance(nullptr);
-	if(SQ_FAILED(sq_getinstanceup(v, 1, (SQUserPointer*)&instance, ClassTraits<Callee>::classID())))
+	if(SQ_FAILED(fromInstanceUp(v, 1, instance, instance, ClassTraits<Callee>::classID())))
 		return sq_throwerror(v, "Trying to set member variable without a correct this pointer");
 
 	Field field = getFieldPointer<Field>(v, -1);

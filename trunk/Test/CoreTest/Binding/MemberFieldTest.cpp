@@ -10,11 +10,12 @@ namespace {
 class Foo
 {
 public:
-	Foo() : x(0), y(0), constStr("MCore!") {}
+	Foo() : x(0), y(0), constStr("MCore!"), other(nullptr) {}
 	int x, y;
 	std::string str;
 	const std::string constStr;
-};
+	Foo* other;
+};	// Foo
 
 }	// namespace
 
@@ -28,6 +29,7 @@ SCRIPT_CLASS_REGISTER(Foo)
 	.var("x", &Foo::x)
 	.var("y", &Foo::y)
 	.var("str", &Foo::str)
+	.var("other", &Foo::other)
 	// In general, getter and setter function has a better performance
 	.getter("getX", &Foo::x)
 	.setter("setX", &Foo::x)
@@ -37,7 +39,7 @@ SCRIPT_CLASS_REGISTER(Foo)
 ;}
 
 }	// namespace Binding
-}   // namespace MCD
+}	// namespace MCD
 
 TEST(MemberField_BindingTest)
 {

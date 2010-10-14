@@ -1,6 +1,7 @@
 #include "Pch.h"
 #include "Classes.h"
 #include "VMCore.h"
+#include <map>
 
 #define CAPI_VERIFY(arg) MCD_VERIFY(SQ_SUCCEEDED((arg)))
 
@@ -8,16 +9,31 @@ namespace MCD {
 
 namespace Binding {
 
-// NOTE: File scope static varible is used instead of class static variable
-// to favour enabling delay load of jkbind.dll
-static ClassesManager::AssociateClassID gAssociateClassID = nullptr;
+namespace {
 
-ClassesManager::AssociateClassID ClassesManager::associateClassID() {
-	return gAssociateClassID;
+struct TypeInfo {
+	const std::type_info& typeInfo;
+	TypeInfo(const std::type_info& t) : typeInfo(t) {}
+	bool operator<(const TypeInfo& rhs) const
+	{	return typeInfo.before(rhs.typeInfo) > 0;	}
+};	// TypeInfo
+
+typedef std::map<TypeInfo, ClassID> TypeMap;
+static TypeMap gTypeMap;
+
+}	// namespace
+
+void ClassesManager::setClassIdForRtti(const std::type_info& typeInfo, ClassID classID)
+{
+	gTypeMap[typeInfo] = classID;
 }
 
-void ClassesManager::setAssociateClassID(AssociateClassID aid) {
-	gAssociateClassID = aid;
+ClassID ClassesManager::getClassIdFromRtti(const std::type_info& typeInfo, ClassID fallback)
+{
+	const TypeMap::const_iterator i = gTypeMap.find(typeInfo);
+	if(i != gTypeMap.end())
+		return i->second;
+	return fallback;
 }
 
 ScriptObject ClassesManager::findClass(HSQUIRRELVM v, ClassID classId)
@@ -131,6 +147,22 @@ void ClassesManager::registerTypeOf(HSQUIRRELVM v, ScriptObject& classObj, const
 	sq_poptop(v);
 }
 
+void ClassesManager::registerWeakRef(HSQUIRRELVM v, ScriptObject& classObj)
+{
+	struct Local {
+		static SQInteger func(HSQUIRRELVM v) {
+			sq_weakref(v, -1);
+			return 1;
+		}
+	};	// Local
+
+	sq_pushobject(v, classObj.handle());	/// stack: class
+	sq_pushstring(v, "weakref", -1);		/// stack: class, name
+	sq_newclosure(v, &Local::func, 0);		/// stack: class, name, func
+	CAPI_VERIFY(sq_newslot(v, -3, false));	/// stack: class
+	sq_poptop(v);
+}
+
 void ClassesManager::disableCloning(HSQUIRRELVM v, ScriptObject& classObj)
 {
 	struct Local {
@@ -162,7 +194,7 @@ static SQInteger sqVarGet(HSQUIRRELVM vm)
 	// Find the get method in the get table
 	sq_push(vm, 2);	/// stack: this, idx, __getTable
 	if(SQ_FAILED(sq_rawget(vm, -2)))
-		return sq_throwerror(vm, "Member Variable not found");
+		return sq_throwerror(vm, "Member not found");
 	/// stack: this, idx, __getTable, getFunc
 
 	// Push 'this'
@@ -185,7 +217,7 @@ static SQInteger sqVarSet(HSQUIRRELVM vm)
 	sq_push(vm, 2);	/// stack: this, idx, val, __setTable, idx
 
 	if(SQ_FAILED(sq_rawget(vm, -2)))
-		return sq_throwerror(vm, "Member Variable not found");
+		return sq_throwerror(vm, "Member not found");
 	/// stack: this, idx, val, __setTable, setFunc
 
 	// Push 'this'

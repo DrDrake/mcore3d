@@ -8,8 +8,8 @@ void intrusivePtrRelease(Socket* s) {
 	// NOTE: Gcc4.2 failed to compile "--(p->mRefCount)" correctly.
 	s->mRefCount--;
 	if(s->mRefCount == 0) {
-		s->destructionLock();	// NOTE: We preform the lock before deleting.
-		ScopeLock lock(s->mReactor.mutex);
+//		s->destructionLock();	// NOTE: We preform the lock before deleting.
+//		ScopeLock lock(s->mReactor.mutex);
 		delete s;
 	}
 }

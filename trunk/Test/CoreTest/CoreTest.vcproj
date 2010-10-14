@@ -365,6 +365,10 @@
 			Name="Binding"
 			>
 			<File
+				RelativePath=".\Binding\EntityBindingTest.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\Binding\FunctionOverloadTest.cpp"
 				>
 			</File>

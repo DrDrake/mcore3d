@@ -118,8 +118,7 @@ GlobalDeclarator GlobalDeclarator::declareNamespace(const char* ns)
 
 ScriptObject GlobalDeclarator::pushClass(const char* className, ClassID classID, const std::type_info& typeID, ClassID parentClassID)
 {
-	if(ClassesManager::associateClassID())
-		ClassesManager::associateClassID()(typeID, classID);
+	ClassesManager::setClassIdForRtti(typeID, classID);
 
 	const int oldTop = sq_gettop(_vm);
 
@@ -130,6 +129,7 @@ ScriptObject GlobalDeclarator::pushClass(const char* className, ClassID classID,
 //	ClassesManager::disableCloningForClass(_vm, newClass);
 	ClassesManager::createMemoryControllerSlot(_vm, newClass);
 	ClassesManager::registerTypeOf(_vm, newClass, className);
+	ClassesManager::registerWeakRef(_vm, newClass);
 	ClassesManager::registerGetSetTable(_vm, newClass);
 
 	MCD_ASSERT(oldTop == sq_gettop(_vm));

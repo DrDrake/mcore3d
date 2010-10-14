@@ -333,7 +333,7 @@ public:
 		for(Anims::const_iterator i=mTmpAnims.begin(); i != mTmpAnims.end(); ++i) {
 			AnimationComponent::MyAnimationInstance& a = **i;
 			// NOTE: If we ignore Entity::enabled, a simple "a.update()" can make the job done.
-			ScopeLock lock(a.backRef.destructionMutex());
+//			ScopeLock lock(a.backRef.destructionMutex());
 			if(AnimationComponent* c = a.backRef.get()) {
 				// Poll for the sub-track count and adjust the MyAnimationInstance accordingly
 				if(a.subtrackCount() != a.animData.size() * AnimationComponent::subtrackPerEntity) {
@@ -347,7 +347,7 @@ public:
 
 				if(Entity* e = c->entity()) {
 					if(e->enabled) {
-						lock.unlockAndCancel();
+//						lock.unlockAndCancel();
 						a.update();
 					}
 				}

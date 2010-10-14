@@ -3,7 +3,6 @@
 
 #include "Component.h"
 #include "../Math/Mat44.h"
-#include "../System/ScriptOwnershipHandle.h"
 #include "../System/UserData.h"
 #include "../System/Utility.h"
 #include <string>
@@ -23,7 +22,7 @@ class Component;
 	     |    |
 	     n21  n31--n32--n33
  */
-class MCD_CORE_API Entity : public IntrusiveWeakPtrTarget, Noncopyable
+class MCD_CORE_API Entity : public IntrusiveSharedWeakPtrTarget<size_t>, Noncopyable
 {
 public:
 	explicit Entity(sal_in_z_opt const char* name=nullptr);
@@ -47,15 +46,6 @@ public:
 	void insertBefore(sal_in Entity* sibling);
 
 	void insertAfter(sal_in Entity* sibling);
-
-	/*!	Unlink this entity from it's parent (if any).
-		\note
-			This function only detech the sub entity tree from the parent
-			and will NOT preform deletion. Remember to handle the ownership
-			to prevent memory leaks. To preform unlink and delete, simply
-			deleting the Entity and the unlink() will be called implicitly.
-	 */
-	void unlink();
 
 	/*!	Find a component in the Entity with the supplied familyType.
 		Returns null if none is found.
@@ -166,7 +156,6 @@ public:
 	/*!	Create and return a deep copy of this Entity.
 		Please notice that the following will NOT be copied:
 		- userData
-		- scriptOwnershipHandle
 		- non-cloneable Components
 		\note This function is implemented using recursion.
 	 */
@@ -176,6 +165,12 @@ public:
 
 	///	A SAL friendy version of destroyThis().
 	static void destroy(sal_maybenull Entity*& entity);
+
+	/// For the scripting system to increment it's reference count to the Entity
+	void scriptAddReference();
+
+	/// For the scripting system to decrement it's reference count to the Entity
+	void scriptReleaseReference();
 
 // Attributes
 	bool enabled;
@@ -208,8 +203,6 @@ public:
 
 	UserData userData;
 
-	ScriptOwnershipHandle scriptOwnershipHandle;
-
 	typedef LinkList<Component> Components;
 	Components components;
 
@@ -218,16 +211,26 @@ public:
 
 	static void setCurrentRoot(sal_maybenull Entity* e);
 
+// Script binding
+	void* scriptVm;
+
+	/*!	We use a char buffer to represent a HSQOBJECT object,
+		to erase the dependency of squirrel headers. Static
+		assert is performed on the cpp to assert the buffer
+		size is always valid.
+	 */
+	char scriptHandle[sizeof(void*) * 2];
+
 protected:
+	///	Temporary unlink this entity from it's parent (if any).
+	/// The unlinked Entity should attach to another Entity afterward
+	/// to ensure all Entity are owned by a root node.
+	void unlink();
+
 	/// Generate a default name if this Entity doesn't have one
 	void generateDefaultName();
 
 	Component* _addComponent(sal_in_opt Component* component);
-
-	/*!	When preforming some "move" operation, we don't want the unlink() function
-		release the strong script reference.
-	 */
-	void unlink(bool keepScriptStrongReference);
 
 	///	Helper function for clone().
 	virtual sal_notnull Entity* recursiveClone() const;

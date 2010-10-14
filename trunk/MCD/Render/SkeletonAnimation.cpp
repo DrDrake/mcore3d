@@ -94,7 +94,7 @@ public:
 			i->first->anim.update();
 
 			// Ensure the SkeletonAnimationComponent will not be deleted within this scope
-			ScopeLock lock(i->second.destructionMutex());
+//			ScopeLock lock(i->second.destructionMutex());
 
 			if(!i->second || i->second->pose.transforms.empty())
 				continue;

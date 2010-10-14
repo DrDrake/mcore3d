@@ -79,67 +79,6 @@ TEST(Hierarchy_EntityTest)
 	CHECK(!e1->isAncestorOf(*e2));
 }
 
-TEST(Unlink_EntityTest)
-{
-	{	// Unlink a leaf node
-		Entity root;
-		createTree(root);
-		e21->unlink();
-
-		CHECK(!e21->parent());
-		CHECK(!e21->firstChild());
-		CHECK(!e21->nextSibling());
-
-		CHECK_EQUAL(&root, e2->parent());
-		CHECK(!e2->firstChild());
-		CHECK_EQUAL(e1, e2->nextSibling());
-
-		delete e21;
-	}
-
-	{	// Unlink first slibing node
-		Entity root;
-		createTree(root);
-		e3->unlink();
-
-		CHECK(!e3->parent());
-		CHECK(!e3->firstChild());
-		CHECK(!e3->nextSibling());
-
-		CHECK_EQUAL(e2, root.firstChild());
-
-		delete e3;
-	}
-
-	{	// Unlink middle slibing node
-		Entity root;
-		createTree(root);
-		e2->unlink();
-
-		CHECK(!e2->parent());
-		CHECK_EQUAL(e21, e2->firstChild());
-		CHECK(!e2->nextSibling());
-
-		CHECK_EQUAL(e1, e3->nextSibling());
-
-		delete e2;
-	}
-
-	{	// Unlink last slibing node
-		Entity root;
-		createTree(root);
-		e1->unlink();
-
-		CHECK(!e1->parent());
-		CHECK_EQUAL(e13, e1->firstChild());
-		CHECK(!e1->nextSibling());
-
-		CHECK(!e2->nextSibling());
-
-		delete e1;
-	}
-}
-
 TEST(Insertion_EntityTest)
 {
 	{	// Insert before a first child

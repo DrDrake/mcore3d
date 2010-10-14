@@ -33,14 +33,9 @@ public:
 			delete p;
 	}
 
-	Mutex& destructionMutex() const {
-		return mMutex;
-	}
-
 private:
 	AtomicInteger mRefCount;//!< Reference counter for the flag
 	bool mIsValid;			//!< Flag indicating the object is alive or not
-	mutable Mutex mMutex;	//!< Help synchronization between smart pointer deference and object destruction
 };	// IntrusiveWeakPtrFlag
 
 template<class T> class IntrusiveWeakPtr;
@@ -68,22 +63,11 @@ public:
 		return *this;
 	}
 
-	void destructionLock() {
-		mValidityFlag.getNotNull()->destructionMutex().lock();
-	}
-
-	void destructionUnlock() {
-		mValidityFlag.getNotNull()->destructionMutex().unlock();
-	}
-
 protected:
 	// Protected to prevent deletion via base class (non-virtual destructor)
 	~IntrusiveWeakPtrTarget()
 	{
-		IntrusiveWeakPtrFlag& flag = *mValidityFlag.getNotNull();
-		MCD_ASSERT(flag.destructionMutex().isLocked() && "Make sure destructionLock() is called before detroying IntrusiveWeakPtrTarget");
-		flag.setValid(false);
-		flag.destructionMutex().unlock();
+		mValidityFlag->setValid(false);
 	}
 
 private:
@@ -247,10 +231,6 @@ public:
 		mValidityFlag.swap(rhs.mValidityFlag);
 	}
 
-	Mutex& destructionMutex() const {
-		return mValidityFlag->destructionMutex();
-	}
-
 private:
 	T* mPtr;
 	IntrusivePtr<IntrusiveWeakPtrFlag> mValidityFlag;
@@ -296,8 +276,7 @@ void swap(IntrusiveWeakPtr<T>& lhs, IntrusiveWeakPtr<T>& rhs) {
 	lhs.swap(rhs);
 }
 
-/*!	Convience class for combining shared object and weak pointer target,
-	will handle destructionLock() automatically.
+/*!	Convience class for combining shared object and weak pointer target
  */
 template<typename CounterType>
 class MCD_ABSTRACT_CLASS IntrusiveSharedWeakPtrTarget : public IntrusiveWeakPtrTarget
@@ -313,23 +292,10 @@ public:
 
 	friend void intrusivePtrRelease(IntrusiveSharedWeakPtrTarget* p)
 	{
-		// NOTE: The following 2 lines of code is kind of optimization,
-		// only the else clause alone can do the job.
-		// Reference count >1 means there is another pointer holding this object's,
-		// so we can decrement it without the risk of deleting by another thread
-		if(p->mRefCount > 1)
-			p->mRefCount--;
-		else {
-			// NOTE: We preform the lock before mRefCount--, because once the reference
-			// count decrement, the pointer p would be deleted by another thread
-			p->destructionLock();
-			// NOTE: Gcc4.2 failed to compile "--(p->mRefCount)" correctly.
-			p->mRefCount--;
-			if(p->mRefCount == 0)
-				delete p;	// Deletion of p will also trigger mutex unlock
-			else
-				p->destructionUnlock();
-		}
+		// NOTE: Gcc4.2 failed to compile "--(p->mRefCount)" correctly.
+		p->mRefCount--;
+		if(p->mRefCount == 0)
+			delete p;
 	}
 
 protected:
@@ -349,7 +315,6 @@ public:
 
 	IntrusivePtr<T> lock() const
 	{
-		ScopeLock lock(this->destructionMutex());
 		T* p = this->get();
 		return p;
 	}

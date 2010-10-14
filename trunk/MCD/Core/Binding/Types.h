@@ -56,34 +56,9 @@ inline void addHandleToObject(HSQUIRRELVM v, void* obj, int idx) { (void)v; (voi
  */
 inline bool pushHandleFromObject(HSQUIRRELVM v, void* obj) { (void)v; (void)obj; MCD_ASSERT(obj); return false; }
 
-/*!	This function is invoked at the first time an object is being push into squirrel,
-	to tell squirrel what is the actual type of the object.
+/*!	This function is to tell squirrel what is the actual type of the (polymorphic) object.
 	The default implementation is to simply return the parameter \em originalID,
 	but user can override this function to support their own polymorphic type.
-
-	\sa ClassesManager::associateClassID
-
-	Sample implementation using std map:
-	\code
-	struct TypeInfo {
-		const std::type_info& typeInfo;
-		TypeInfo(const std::type_info& t) : typeInfo(t) {}
-		bool operator<(const TypeInfo& rhs) const
-		{	return typeInfo.before(rhs.typeInfo) > 0;	}
-	};	// TypeInfo
-	typedef std::map<TypeInfo, ClassID> TypeMap;
-	static TypeMap typeMap;
-
-	void associateClassID(const std::type_info& typeInfo, script::ClassID classID)
-	{	typeMap[typeInfo] = classID;	}
-
-	ClassID getClassIDFromObject(const MyPolymorphicBaseClass* obj, ClassID original) {
-		TypeMap::const_iterator i = typeMap.find(typeid(*obj));
-		if(i != typeMap.end())
-			return i->second;
-		return original;
-	}
-	\endcode
  */
 inline ClassID getClassIDFromObject(void* obj, ClassID originalID) { return originalID; }
 
@@ -98,19 +73,14 @@ void push(HSQUIRRELVM v, T obj)
 		return;
 	}
 
-	// Try to use any stored handle in the cpp first
-//	if(pushHandleFromObject(v, p))
-//		return;
-
-	// If none has found, push a new one
-	ClassID classID = getClassIDFromObject(p, ClassTraits<HostType>::classID());
+	const ClassID classID = ClassTraits<HostType>::classID();
 	ClassesManager::createObjectInstanceOnStack(v, classID, p);
-//	addHandleToObject(v, p, -1);
 }
 
 // match functions - to check type of the argument from script
 
-template<typename T> class TypeSelect {};
+template<typename T> struct TypeSelect { typedef TypeSelect<T> adjusted; };
+template<typename T> struct TypeSelect<T*&> { typedef TypeSelect<T*> adjusted; };
 
 // See http://squirrel-lang.org/forums/thread/2674.aspx on SQOBJECT_NUMERIC
 inline bool match(TypeSelect<bool>,HSQUIRRELVM v,int idx)							{ return sq_gettype(v,idx) == OT_BOOL; }
@@ -128,9 +98,9 @@ inline bool match(TypeSelect<const char*>,HSQUIRRELVM v,int idx)					{ return sq
 inline bool match(TypeSelect<std::string>,HSQUIRRELVM v,int idx)					{ return sq_gettype(v,idx) == OT_STRING; }
 inline bool match(TypeSelect<const std::string>,HSQUIRRELVM v,int idx)				{ return sq_gettype(v,idx) == OT_STRING; }
 
-template<typename T> bool match(TypeSelect<const T*>,HSQUIRRELVM v,int idx)			{ SQUserPointer p; return SQ_SUCCEEDED(sq_getinstanceup(v, idx, &p, ClassTraits<T>::classID())) ? true : sq_gettype(v,idx) == OT_NULL; }
+template<typename T> bool match(TypeSelect<const T*>,HSQUIRRELVM v,int idx)			{ T* p=nullptr; return SQ_SUCCEEDED(fromInstanceUp(v, idx, p, p, ClassTraits<T>::classID())) ? true : sq_gettype(v,idx) == OT_NULL; }
 template<typename T> bool match(TypeSelect<T*>,HSQUIRRELVM v,int idx)				{ return match(TypeSelect<const T*>(), v, idx); }
-template<typename T> bool match(TypeSelect<const T&>,HSQUIRRELVM v,int idx)			{ SQUserPointer p; bool ok = SQ_SUCCEEDED(sq_getinstanceup(v, idx, &p, ClassTraits<T>::classID())); return ok ? p != nullptr : ok; }
+template<typename T> bool match(TypeSelect<const T&>,HSQUIRRELVM v,int idx)			{ T* p=nullptr; bool ok = SQ_SUCCEEDED(fromInstanceUp(v, idx, p, p, ClassTraits<T>::classID())); return ok ? p != nullptr : ok; }
 template<typename T> bool match(TypeSelect<T&>,HSQUIRRELVM v,int idx)				{ return match(TypeSelect<const T&>(), v, idx); }
 template<typename T> bool match(TypeSelect<GiveUpOwnership<T> >,HSQUIRRELVM v,int idx){ return match(TypeSelect<T>(), v, idx); }
 
@@ -151,15 +121,25 @@ inline const char*		get(TypeSelect<const char*>,HSQUIRRELVM v,int idx)			{ const
 inline std::string		get(TypeSelect<std::string>,HSQUIRRELVM v,int idx)			{ const char* s; CAPI_VERIFY(sq_getstring(v,idx,&s)); return s; }
 
 #ifdef NDEBUG	// No type tag check in release mode, as the check should be already done by the match() function first.
-template<typename T> const T&	get(TypeSelect<const T&>,HSQUIRRELVM v,int idx)		{ T* p; sq_getinstanceup(v, idx, (SQUserPointer*)&p, 0); return *p; }
-template<typename T> const T*	get(TypeSelect<const T*>,HSQUIRRELVM v,int idx)		{ if(sq_gettype(v,idx) == OT_NULL) return NULL; T* p; sq_getinstanceup(v, idx, (SQUserPointer*)&p, 0); return p; }
+template<typename T> const T&	get(TypeSelect<const T&>,HSQUIRRELVM v,int idx)		{ T* p=nullptr; fromInstanceUp(v, idx, p, p, 0); return *p; }
+template<typename T> const T*	get(TypeSelect<const T*>,HSQUIRRELVM v,int idx)		{ if(sq_gettype(v,idx) == OT_NULL) return nullptr; T* p=nullptr; fromInstanceUp(v, idx, p, p, 0); return p; }
 #else
-template<typename T> const T&	get(TypeSelect<const T&>,HSQUIRRELVM v,int idx)		{ T* p; CAPI_VERIFY(sq_getinstanceup(v, idx, (SQUserPointer*)&p, ClassTraits<T>::classID())); MCD_ASSUME(p); return *p; }
-template<typename T> const T*	get(TypeSelect<const T*>,HSQUIRRELVM v,int idx)		{ if(sq_gettype(v,idx) == OT_NULL) return NULL; T* p; CAPI_VERIFY(sq_getinstanceup(v, idx, (SQUserPointer*)&p, ClassTraits<T>::classID())); return p; }
+template<typename T> const T&	get(TypeSelect<const T&>,HSQUIRRELVM v,int idx)		{ T* p=nullptr; CAPI_VERIFY(fromInstanceUp(v, idx, p, p, ClassTraits<T>::classID())); MCD_ASSUME(p); return *p; }
+template<typename T> const T*	get(TypeSelect<const T*>,HSQUIRRELVM v,int idx)		{ if(sq_gettype(v,idx) == OT_NULL) return nullptr; T* p=nullptr; CAPI_VERIFY(fromInstanceUp(v, idx, p, p, ClassTraits<T>::classID())); return p; }
 #endif
 template<typename T> T&			get(TypeSelect<T&>,HSQUIRRELVM v,int idx)			{ return const_cast<T&>(get(TypeSelect<const T&>(), v, idx)); }
 template<typename T> T*			get(TypeSelect<T*>,HSQUIRRELVM v,int idx)			{ return const_cast<T*>(get(TypeSelect<const T*>(), v, idx)); }
 template<typename T> T			get(TypeSelect<GiveUpOwnership<T> >,HSQUIRRELVM v,int i){ return get(TypeSelect<T>(), v, i); }
+
+template<typename T>
+SQRESULT setInstanceUp(HSQUIRRELVM v, SQInteger idx, void* dummy, T* instance) {
+	return sq_setinstanceup(v, idx, instance);
+}
+
+template<typename T>
+SQRESULT fromInstanceUp(HSQUIRRELVM v, SQInteger idx, void* dummy, T*& instance, SQUserPointer typetag) {
+	return sq_getinstanceup(v, idx, (SQUserPointer*)&instance, typetag);
+}
 
 /// Destroying an object, with the ability for the user to specialize this function even for a base class
 /// To specialize for a base class:
