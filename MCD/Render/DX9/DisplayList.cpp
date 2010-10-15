@@ -1,8 +1,8 @@
 #include "Pch.h"
+#include "Renderer.inc"
 #include "../DisplayList.h"
 #include "../DisplayList.inc"
 #include "../GpuDataFormat.h"
-#include "Renderer.inc"
 #include "../../Core/System/Utility.h"
 #include <d3d9.h>
 #include <D3DX9Shader.h>
@@ -52,8 +52,6 @@ public:
 	void draw(void* context, Statistic& statistic);
 	SharedVertexDeclarationPtr decl;
 };	// Impl
-
-//static LPDIRECT3DVERTEXDECLARATION9 gDecl = nullptr;
 
 void DisplayListComponent::Impl::draw(void* context, Statistic& statistic)
 {

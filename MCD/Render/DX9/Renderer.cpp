@@ -136,19 +136,18 @@ void RendererComponent::Impl::processRenderItems(RenderItems& items, IDrawCall::
 			mWorldViewProjMatrix = mViewProjMatrix * mWorldMatrix;
 
 			IMaterialComponent* mtl = i.material;
+			MCD_ASSUME(mtl);
 
-			// TODO: Only single pass material support the last material optimization
-			if(mtl != mLastMaterial) {
-				if(mLastMaterial)
-					mLastMaterial->postRender(0, this);
-				mtl->preRender(0, this);
+			if(mtl != mLastMaterial)
 				++materialSwitch;
-			}
 
+			// The material class will preform early out if mtl == mLastMaterial
+			// NOTE: Must call for every RenderItem because the material is also
+			// responsible for setting up the various matrix shader constants.
+			mtl->preRender(0, this);
 			i.drawCall->draw(this, statistic);
-
-			//if(passCount == 1)
-				mLastMaterial = mtl;
+			mtl->postRender(0, this);
+			mLastMaterial = mtl;
 		}
 	}
 }

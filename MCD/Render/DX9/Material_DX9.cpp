@@ -265,6 +265,12 @@ void MaterialComponent::preRender(size_t pass, void* context)
 
 void MaterialComponent::postRender(size_t pass, void* context)
 {
+	RendererComponent::Impl& renderer = *reinterpret_cast<RendererComponent::Impl*>(context);
+
+	// Material state change early out optimization
+	if(renderer.mLastMaterial == this)
+		return;
+
 	// Restore the lighting
 	if(!lighting) {
 		RendererComponent::Impl& renderer = *reinterpret_cast<RendererComponent::Impl*>(context);
