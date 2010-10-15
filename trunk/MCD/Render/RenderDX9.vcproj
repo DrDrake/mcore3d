@@ -324,6 +324,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\Sprite.h"
+				>
+			</File>
+			<File
 				RelativePath=".\TangentSpaceBuilder.h"
 				>
 			</File>
