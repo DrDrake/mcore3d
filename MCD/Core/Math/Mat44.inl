@@ -359,6 +359,24 @@ void Mat44<T>::rotateBy(const Vec3<T>& axis, T angle)
 }
 
 template<typename T>
+void Mat44<T>::lookAt(const Vec3<T>& lookAt, const Vec3<T>& upVector)
+{
+	const Vec3<T> t = translation();
+	const Vec3<T> sc = scale();
+
+	const Vec3<T> f = (t - lookAt).normalizedCopy();
+	const Vec3<T> s = f.cross(upVector.normalizedCopy());
+	const Vec3<T> u = s.cross(f);
+
+	m00 = s.x;	m01 = u.x;	m02 = -f.x;	m03 = t.x;
+	m10 = s.y;	m11 = u.y;	m12 = -f.y;	m13 = t.y;
+	m20 = s.z;	m21 = u.z;	m22 = -f.z;	m23 = t.z;
+	m30 = 0;	m31 = 0;	m32 = 0;	m33 = 1.0f;
+
+	setScale(sc);
+}
+
+template<typename T>
 void Mat44<T>::mat33(Mat33<T>& matrix33) const
 {
 	matrix33.m00 = m00;	matrix33.m01 = m01;	matrix33.m02 = m02;

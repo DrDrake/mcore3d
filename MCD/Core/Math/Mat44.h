@@ -117,6 +117,7 @@ public:
 
 	T determinant() const;
 
+	//! The output parameter \em result can be alias with this.
 	sal_checkreturn bool inverse(Mat44& result) const;
 	Mat44 inverse() const;
 
@@ -153,6 +154,9 @@ public:
 	//! Apply a delta rotation to the current orientation, without affacting the sacling part.
 	void rotateBy(const Vec3<T>& axis, T angle);
 
+	//! Rotate this matrix to look at the targeting point.
+	void lookAt(const Vec3<T>& lookAt, const Vec3<T>& upVector);
+
 	//!	Extracts the rotation / scaling part of the matrix as a 3x3 matrix.
 	void mat33(Mat33<T>& matrix33) const;
 	Mat33<T> mat33() const;
@@ -166,7 +170,7 @@ public:
 
 	static Mat44 makeAxisRotation(const Vec3<T>& axis, T angle);
 
-	//!	Make an object look at matrix.
+	//! Make an object lookAt matrix, to make a camera lookAt matrix simply inverse the object lookAt matrix.
 	static Mat44 makeLookAt(const Vec3<T>& eyeAt, const Vec3<T>& lookAt, const Vec3<T>& upVector);
 
 	static const Mat44 cIdentity;

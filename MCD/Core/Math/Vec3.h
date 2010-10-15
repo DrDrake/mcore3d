@@ -1,8 +1,7 @@
 #ifndef __MCD_CORE_MATH_VEC3__
 #define __MCD_CORE_MATH_VEC3__
 
-#include "Tuple.h"
-#include "Magnitude.h"
+#include "Vec2.h"
 
 namespace MCD {
 
@@ -37,6 +36,10 @@ class Vec3 : public MathTuple<T, 3, Vec3<T>, Vec3TupleUnion<T> >
 
 	Vec3(const_param_type x_, const_param_type y_, const_param_type z_) {
 		x = x_; y = y_; z = z_;
+	}
+
+	Vec3(const Vec2<T>& xy, const_param_type z_) {
+		x = xy.x; y = xy.y; z = z_;
 	}
 
 	/*!	Calculates the dot (scalar) product of this vector with another.
