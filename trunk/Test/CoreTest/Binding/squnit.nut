@@ -96,13 +96,8 @@ function error(message, level=1)
  */
 function assertError(f, ...)
 {
-	// Since vargv cannot directly pass to acall, we need to create an array of parameters
-	local args = array(0);
-	for(local i=0; i<vargc; ++i)
-		args.push(vargv[i]);
-
 	try {
-		f.acall(args);
+		f.acall(vargv);
 	} catch(e) {
 		//print(e + "\n");
 		return;
@@ -144,13 +139,13 @@ function assertClose(actual, expected, tolerance=1.e-6)
 /*!	Use me to wrap a set of functions into a Runnable test class:
 	function f1() {}
 	function f2() {}
-	TestToto = wrapFunctions("f1", "f2");
-	Now, TestToto will be picked up by SqUnit().run();
+	TestTodo = wrapFunctions("f1", "f2");
+	Now, TestTodo will be picked up by SqUnit().run();
  */
 function wrapFunctions(...)
 {
 	local testClass = {};
-	for(local i=0; i<vargc; ++i) {
+	for(local i=0; i<vargv.len(); ++i) {
 		if(typeof vargv[i] != "string" || !(vargv[i] in getroottable()))
 			continue;
 		testClass.rawset(vargv[i], getroottable().rawget(vargv[i]));
@@ -278,7 +273,7 @@ class SqUnit
 		return "function" == typeof aObject;
 	}
 
-	//! Example: runTestMethod("TestToto.test1", TestToto, TestToto.testToto(this))
+	//! Example: runTestMethod("TestTodo.test1", TestTodo, TestTodo.TestTodo)
 	function runTestMethod(aName, aClassInstance, aMethod)
 	{
 		local ok, errorMsg;
@@ -306,14 +301,7 @@ class SqUnit
 		result.endTest();
 	}
 
-	//! Example: runTestMethodName("TestToto.testToto", TestToto)
-	function runTestMethodName(methodName, classInstance)
-	{
-		local methodInstance = compilestring(methodName + "();");
-		runTestMethod(methodName, classInstance, methodInstance);
-	}
-
-	//! Example: runTestMethodName("TestToto")
+	//! Example: runTestClassName("TestTodo")
 	function runTestClassByName(aClassName)
 	{
 		local hasMethod, methodName, classInstance;
@@ -326,15 +314,19 @@ class SqUnit
 
 		if(aClassName in getroottable())
 			classInstance = getroottable()[aClassName];
-		else
+		else {
 			println("No such class: " + aClassName);
+			return;
+		}
 
 		result.startClass(aClassName);
 
 		if(hasMethod) {
-			if(!(methodName in classInstance))
+			if(!(methodName in classInstance)) {
 				println("No such method: " + methodName);
-			runTestMethodName(aClassName + "." + methodName, classInstance);
+				return;
+			}
+			runTestMethod(aClassName + "." + methodName, classInstance, classInstance[methodName]);
 		}
 		else
 		{
@@ -342,7 +334,7 @@ class SqUnit
 			foreach(methodName, method in classInstance)
 			{
 				if(isFunction(method) && methodName.len() >= 4 && methodName.slice(0, 4) == "test")
-					runTestMethodName(aClassName + "." + methodName, classInstance);
+					runTestMethod(aClassName + "." + methodName, classInstance, method);
 			}
 		}
 		println("");
@@ -356,9 +348,9 @@ class SqUnit
 	function run(...)
 	{
 		// If arguments are passed, they must be strings of the class names that you want to run
-		if(vargc > 0)
+		if(vargv.len() > 0)
 		{
-			for(local i=0; i<vargc; ++i)
+			for(local i=0; i<vargv.len(); ++i)
 				runTestClassByName(vargv[i]);
 		}
 		else

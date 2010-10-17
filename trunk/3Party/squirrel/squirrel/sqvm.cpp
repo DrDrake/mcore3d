@@ -1545,16 +1545,10 @@ void SQVM::Pop(SQInteger n) {
 }
 
 void SQVM::Push(const SQObjectPtr &o) { _stack[_top++] = o; }
-SQObjectPtr &SQVM::Top() { return GetAt(_top-1); }
-SQObjectPtr &SQVM::PopGet() { return GetAt(--_top); }
-SQObjectPtr &SQVM::GetUp(SQInteger n) { return GetAt(_top+n); }
-SQObjectPtr &SQVM::GetAt(SQInteger n) {
-	SQObjectPtr& ret = _stack[n];
-	// This checking adds around 5% overhead
-	if(ret._type == OT_INSTANCE && ret._unVal.pInstance->_class == NULL)
-		ret = _null_;
-	return ret;
-}
+SQObjectPtr &SQVM::Top() { return _stack[_top-1]; }
+SQObjectPtr &SQVM::PopGet() { return _stack[--_top]; }
+SQObjectPtr &SQVM::GetUp(SQInteger n) { return _stack[_top+n]; }
+SQObjectPtr &SQVM::GetAt(SQInteger n) { return _stack[n]; }
 
 #ifdef _DEBUG_DUMP
 void SQVM::dumpstack(SQInteger stackbase,bool dumpall)

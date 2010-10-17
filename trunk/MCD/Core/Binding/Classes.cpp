@@ -193,8 +193,14 @@ static SQInteger sqVarGet(HSQUIRRELVM vm)
 
 	// Find the get method in the get table
 	sq_push(vm, 2);	/// stack: this, idx, __getTable
-	if(SQ_FAILED(sq_rawget(vm, -2)))
-		return sq_throwerror(vm, "Member not found");
+	if(SQ_FAILED(sq_rawget(vm, -2))) {
+		const char* varName = "";
+		sq_getstring(vm, -2, &varName);
+		char buf[512];
+		sprintf(buf, "Member '%s' not found", varName);
+		return sq_throwerror(vm, buf);
+	}
+
 	/// stack: this, idx, __getTable, getFunc
 
 	// Push 'this'
