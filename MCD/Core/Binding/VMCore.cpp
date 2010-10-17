@@ -1,6 +1,10 @@
 #include "Pch.h"
 #include "VMCore.h"
 #include "../System/Stream.h"
+#include "../../../3Party/squirrel/sqstdio.h"
+#include "../../../3Party/squirrel/sqstdmath.h"
+#include "../../../3Party/squirrel/sqstdstring.h"
+#include "../../../3Party/squirrel/sqstdsystem.h"
 #include <stdarg.h>	// For va_list
 #include <iostream>
 
@@ -44,6 +48,13 @@ VMCore::VMCore(int initialStackSize)
 
 	sq_enabledebuginfo(mSqvm, true);
 
+	// Bind the squirrel's standard library
+	sq_pushroottable(mSqvm);
+	sqstd_register_iolib(mSqvm);
+	sqstd_register_systemlib(mSqvm);
+	sqstd_register_mathlib(mSqvm);
+	sqstd_register_stringlib(mSqvm);
+
 	// Creating types table
 	sq_resetobject(&mClassesTable);
 	sq_pushroottable(mSqvm);
@@ -68,7 +79,10 @@ VMCore::VMCore(int initialStackSize)
 			error(\"Callstack:\\n\");\
 			while(info = getstackinfos(level++))\
 				printStackInfo(info);\
-		} seterrorhandler(errHandler);"
+		} seterrorhandler(errHandler);\
+		function println(s) {\
+			print(s); print(\"\\n\");\
+		}"
 	));
 }
 
@@ -278,6 +292,8 @@ bool VMCore::call(HSQUIRRELVM v, bool retVal)
 
 bool VMCore::printError(HSQUIRRELVM v)
 {
+	SQInteger top = sq_gettop(v);
+
 	// TODO: Should we pop the root table and the closure when sq_call failed?
 	const char* s = nullptr;
 	sq_getlasterror(v);
@@ -291,6 +307,8 @@ bool VMCore::printError(HSQUIRRELVM v)
 	SQPRINTFUNCTION f = sq_geterrorfunc(v);
 	if(s && f)
 		f(v, s);
+
+	sq_settop(v, top);
 
 	return false;
 }
