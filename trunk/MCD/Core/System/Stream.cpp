@@ -300,8 +300,8 @@ void writeString(std::ostream& os, const char* val, size_t len)
 	os.write(val, len_);
 }
 
-void write(std::ostream& os, const void* val, std::streamsize size) {
-	os.rdbuf()->sputn(reinterpret_cast<const char*>(val), size);
+size_t write(std::ostream& os, const void* val, std::streamsize size) {
+	return os.rdbuf()->sputn(reinterpret_cast<const char*>(val), size);
 }
 
 bool read(std::istream& is, bool& val)

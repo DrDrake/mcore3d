@@ -16,6 +16,9 @@ Declarator::Declarator(const ScriptObject& hostObject, HSQUIRRELVM vm)
 
 void Declarator::pushFunction(const char* name, void* func, size_t sizeofFunc, int paramCountCheck, SQFUNCTION dispatchFunc, const ScriptObject& whereToPush)
 {
+	const int oldTop = sq_gettop(_vm);
+	(void)oldTop;
+
 	sq_pushobject(_vm, whereToPush.handle());
 	sq_pushstring(_vm, name, -1);
 	/// stack: whereToPush, name
@@ -46,6 +49,8 @@ void Declarator::pushFunction(const char* name, void* func, size_t sizeofFunc, i
 
 	CAPI_VERIFY(sq_newslot(_vm, -3, true));
 	sq_poptop(_vm);
+
+	MCD_ASSERT(oldTop == sq_gettop(_vm));
 }
 
 void Declarator::pushFunction(const char* name, void* func, size_t sizeofFunc, int paramCountCheck, const SQFUNCTION dispatchFunc)
@@ -72,6 +77,8 @@ ScriptObject ClassDeclaratorBase::getterTable()
 
 	ScriptObject ret(_vm);
 	MCD_VERIFY(ret.getFromStack(-1));
+	sq_pop(_vm, 2);
+
 	return ret;
 }
 
@@ -83,6 +90,8 @@ ScriptObject ClassDeclaratorBase::setterTable()
 
 	ScriptObject ret(_vm);
 	MCD_VERIFY(ret.getFromStack(-1));
+	sq_pop(_vm, 2);
+
 	return ret;
 }
 
