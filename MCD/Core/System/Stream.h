@@ -149,7 +149,7 @@ MCD_CORE_API void writeString(std::ostream& os, const std::wstring& val);
 MCD_CORE_API void writeString(std::ostream& os, const char* val, size_t len=0);
 
 //!	Generic write
-MCD_CORE_API void write(std::ostream& os, const void* val, std::streamsize size);
+MCD_CORE_API size_t write(std::ostream& os, const void* val, std::streamsize size);
 
 //!	Utility functions for binary read
 MCD_CORE_API sal_checkreturn bool read(std::istream& is, bool& val);

@@ -388,6 +388,10 @@
 				RelativePath=".\Binding\StaticFunctionTest.cpp"
 				>
 			</File>
+			<File
+				RelativePath=".\Binding\VMTest.cpp"
+				>
+			</File>
 		</Filter>
 		<File
 			RelativePath=".\Main.cpp"
