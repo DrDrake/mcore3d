@@ -46,15 +46,57 @@ class TestEntity
 		assertEquals(e1.name, "e1");
 	}
 
-	function testDestroy()
+	function testDestroyLeaf()
+	{
+		e21.destroyThis();
+
+		assert(!e21.parent);
+		assert(!e21.firstChild);
+		assert(!e21.nextSibling);
+
+		assertEquals(root, e2.parent);
+		assert(!e2.firstChild);
+		assertEquals(e1.nextSibling, e2);
+	}
+
+	function testDestroyFirstSlibing()
 	{
 		e1.destroyThis();
 
 		assert(!e1.parent);
-//		assertEquals(e1, e11.parent);
-//		e1 = null;
-//		println(e11.parent.name);
-//		assert(!e11.parent);
+		assert(!e1.firstChild);
+		assert(!e1.nextSibling);
+
+		assertEquals(e2, root.firstChild);
+	}
+
+	function testDestroyMiddleSlibing()
+	{
+		assert(e1.nextSibling);
+		e2.destroyThis();
+
+		assert(!e2.parent);
+		assert(!e2.firstChild);
+		assert(!e2.nextSibling);
+
+		// When e2 is destroy, e21 is also destroyed
+		assert(!e21.parent);
+		assert(!e21.firstChild);
+		assert(!e21.nextSibling);
+
+		assertEquals(e1.nextSibling, e3);
+	}
+
+	function testDestroyLastSlibing()
+	{
+		assert(e2.nextSibling);
+		e3.destroyThis();
+
+		assert(!e3.parent);
+		assert(!e3.firstChild);
+		assert(!e3.nextSibling);
+
+		assert(!e2.nextSibling);
 	}
 
 	function testProperty()
@@ -65,4 +107,5 @@ class TestEntity
 	}
 }
 
+//SqUnit().runTestMethod("TestEntity.testDestroy", TestEntity, TestEntity.testDestroy);
 SqUnit().run();

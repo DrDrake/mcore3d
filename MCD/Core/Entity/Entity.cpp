@@ -23,7 +23,6 @@ Entity::~Entity()
 	unlink();
 
 	Entity* children = mFirstChild;
-
 	if(children) do {
 		Entity* next = children->mNextSibling;
 		children->destroyThis();
@@ -492,14 +491,15 @@ void Entity::destroyThis()
 {
 	if(!this)	// NOTE: Make this function behaive like the delete operator: do nothing no null.
 		return;
+
 	unlink();
 
-/*	Entity* children = mFirstChild;
+	Entity* children = mFirstChild;
 	if(children) do {
 		Entity* next = children->mNextSibling;
 		children->destroyThis();
 		children = next;
-	} while(children);*/
+	} while(children);
 
 	intrusivePtrRelease(this);
 }

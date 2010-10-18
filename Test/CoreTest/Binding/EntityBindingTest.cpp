@@ -18,14 +18,4 @@ TEST(Entity_BindingTest)
 	{	std::ifstream is("Binding/EntityTest.nut");
 		vm.runScript(is);
 	}
-
-	CHECK(vm.runScript(
-		"local e1 = Entity(\"e1\");\n"
-		"local e2 = Entity();\n"
-		"e2.asChildOf(e1);\n"
-		"local e3 = e2.parent;\n"
-		"assert(e1 == e3);\n"
-		"e2.destroyThis();\n"
-		"assert(!e2.parent);\n"
-	));
 }

@@ -369,6 +369,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\Binding\EntityTest.nut"
+				>
+			</File>
+			<File
 				RelativePath=".\Binding\FunctionOverloadTest.cpp"
 				>
 			</File>
@@ -382,6 +386,10 @@
 			</File>
 			<File
 				RelativePath=".\Binding\ObjectLifetimeTest.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\Binding\squnit.nut"
 				>
 			</File>
 			<File
