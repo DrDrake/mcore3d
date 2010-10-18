@@ -145,6 +145,7 @@ public:
 	sal_notnull T* addComponent(sal_in T* component) {
 		return static_cast<T*>(_addComponent(component));
 	}
+	Component* _addComponent(sal_in_opt Component* component);
 
 	/*!	Remove the component from this Entity.
 		The component will be also deleted, so it is wise to use the
@@ -165,12 +166,6 @@ public:
 
 	///	A SAL friendy version of destroyThis().
 	static void destroy(sal_maybenull Entity*& entity);
-
-	/// For the scripting system to increment it's reference count to the Entity
-	void scriptAddReference();
-
-	/// For the scripting system to decrement it's reference count to the Entity
-	void scriptReleaseReference();
 
 // Attributes
 	bool enabled;
@@ -221,6 +216,12 @@ public:
 	 */
 	char scriptHandle[sizeof(void*) * 2];
 
+	/// For the scripting system to increment it's reference count to the Entity
+	void scriptAddReference();
+
+	/// For the scripting system to decrement it's reference count to the Entity
+	void scriptReleaseReference();
+
 protected:
 	///	Temporary unlink this entity from it's parent (if any).
 	/// The unlinked Entity should attach to another Entity afterward
@@ -230,7 +231,6 @@ protected:
 	/// Generate a default name if this Entity doesn't have one
 	void generateDefaultName();
 
-	Component* _addComponent(sal_in_opt Component* component);
 
 	///	Helper function for clone().
 	virtual sal_notnull Entity* recursiveClone() const;
