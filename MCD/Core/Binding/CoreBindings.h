@@ -28,10 +28,14 @@ SCRIPT_CLASS_DECLAR_EXPORT(Vec3f, MCD_CORE_API);
 
 // Entity
 SCRIPT_CLASS_DECLAR_EXPORT(Entity, MCD_CORE_API);
-MCD_CORE_API void push(HSQUIRRELVM v, Entity* obj);
-MCD_CORE_API SQRESULT setInstanceUp(HSQUIRRELVM v, SQInteger idx, Entity* dummy, Entity* instance);
-MCD_CORE_API SQRESULT fromInstanceUp(HSQUIRRELVM v, SQInteger idx, Entity* dummy, Entity*& instance, SQUserPointer typetag);
+MCD_CORE_API void push(HSQUIRRELVM v, Entity*);
+MCD_CORE_API SQRESULT setInstanceUp(HSQUIRRELVM, SQInteger, Entity*, Entity*);
 MCD_CORE_API void destroy(Entity*, Entity*);
+
+SCRIPT_CLASS_DECLAR_EXPORT(Component, MCD_CORE_API);
+MCD_CORE_API void push(HSQUIRRELVM, Component*);
+MCD_CORE_API SQRESULT setInstanceUp(HSQUIRRELVM, SQInteger, Component*, Component*);
+MCD_CORE_API void destroy(Component*, Component*);
 
 }	// namespace Binding
 

@@ -17,7 +17,7 @@ class Entity;
 	with weak pointer, or call destroyThis() which handle both destructionLock() and delete.
  */
 class MCD_ABSTRACT_CLASS MCD_CORE_API Component :
-	public IntrusiveWeakPtrTarget, public LinkListBase::Node<Component>, Noncopyable
+	public IntrusiveSharedWeakPtrTarget<size_t>, public LinkListBase::Node<Component>, Noncopyable
 {
 public:
 	Component();
@@ -65,6 +65,22 @@ public:
 
 	//! Set the enable flag of the host Entity, do nothing if this Component doesn't belongs to any Entity.
 	void setEnabled(bool b);
+
+// Script binding
+	void* scriptVm;
+
+	/*!	We use a char buffer to represent a HSQOBJECT object,
+		to erase the dependency of squirrel headers. Static
+		assert is performed on the cpp to assert the buffer
+		size is always valid.
+	 */
+	char scriptHandle[sizeof(void*) * 2];
+
+	/// For the scripting system to increment it's reference count to the Component
+	void scriptAddReference();
+
+	/// For the scripting system to decrement it's reference count to the Component
+	void scriptReleaseReference();
 
 protected:
 	friend class Entity;

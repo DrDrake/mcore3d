@@ -8,7 +8,7 @@
 namespace MCD {
 
 Component::Component()
-	: mEntity(nullptr)
+	: scriptVm(nullptr), mEntity(nullptr)
 {
 }
 
@@ -39,6 +39,16 @@ void Component::setEnabled(bool b)
 {
 	if(mEntity)
 		mEntity->enabled = b;
+}
+
+void Component::scriptAddReference()
+{
+	intrusivePtrAddRef(this);
+}
+
+void Component::scriptReleaseReference()
+{
+	intrusivePtrRelease(this);
 }
 
 void ComponentUpdater::traverseBegin(Entity& entityTree)

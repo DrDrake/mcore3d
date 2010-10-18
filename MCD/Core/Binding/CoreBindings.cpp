@@ -210,6 +210,7 @@ SCRIPT_CLASS_REGISTER(Entity)
 	.method("insertAfter", &Entity::insertAfter)
 	.method("isAncestorOf", &Entity::isAncestorOf)
 	.method("destroyThis", &Entity::destroyThis)
+	.method("addComponent", &Entity::_addComponent)
 ;}
 
 void push(HSQUIRRELVM v, Entity* obj)
@@ -227,11 +228,7 @@ void push(HSQUIRRELVM v, Entity* obj)
 		sq_pushobject(v, *h);
 	}
 	else {
-		// Get the actual class id from run-time type information
-		const ClassID classID = ClassesManager::getClassIdFromRtti(
-			typeid(*obj), ClassTraits<Entity>::classID()
-		);
-
+		const ClassID classID = ClassTraits<Entity>::classID();
 		obj->scriptAddReference();
 		ClassesManager::createObjectInstanceOnStack(v, classID, obj);
 		obj->scriptVm = v;
@@ -250,12 +247,61 @@ SQRESULT setInstanceUp(HSQUIRRELVM v, SQInteger idx, Entity* dummy, Entity* inst
 	return sq_setinstanceup(v, idx, instance);
 }
 
-SQRESULT fromInstanceUp(HSQUIRRELVM v, SQInteger idx, Entity* dummy, Entity*& instance, SQUserPointer typetag)
+void destroy(Entity* dummy, Entity* instance)
 {
-	return sq_getinstanceup(v, idx, (SQUserPointer*)&instance, typetag);
+	if(instance) {
+		instance->scriptVm = nullptr;
+		instance->scriptReleaseReference();
+	}
 }
 
-void destroy(Entity* dummy, Entity* instance)
+SCRIPT_CLASS_REGISTER(Component)
+	.declareClass<Component>("Component")
+	.varGet("enabled", &Component::enabled)
+	.varSet("enabled", &Component::setEnabled)
+	.varGet("entity", &Component::entity)
+	.method("destroyThis", &Component::destroyThis)
+;}
+
+void push(HSQUIRRELVM v, Component* obj)
+{
+	if(!obj) {
+		sq_pushnull(v);
+		return;
+	}
+
+	HSQOBJECT* h = reinterpret_cast<HSQOBJECT*>(obj->scriptHandle);
+
+	// Use the stored script handle
+	if(obj->scriptVm) {
+		// TODO: Ensure the incomming vm is the same as the one stored in obj?
+		sq_pushobject(v, *h);
+	}
+	else {
+		// Get the actual class id from run-time type information
+		const ClassID classID = ClassesManager::getClassIdFromRtti(
+			typeid(*obj), ClassTraits<Component>::classID()
+		);
+
+		obj->scriptAddReference();
+		ClassesManager::createObjectInstanceOnStack(v, classID, obj);
+		obj->scriptVm = v;
+		sq_getstackobj(v, -1, h);
+	}
+}
+
+SQRESULT setInstanceUp(HSQUIRRELVM v, SQInteger idx, Component* dummy, Component* instance)
+{
+	HSQOBJECT* h = reinterpret_cast<HSQOBJECT*>(instance->scriptHandle);
+	MCD_ASSUME(!instance->scriptVm);
+	instance->scriptVm = v;
+	sq_getstackobj(v, idx, h);
+
+	instance->scriptAddReference();
+	return sq_setinstanceup(v, idx, instance);
+}
+
+void destroy(Component* dummy, Component* instance)
 {
 	if(instance) {
 		instance->scriptVm = nullptr;
@@ -267,6 +313,7 @@ void registerCoreBinding(VMCore& vm)
 {
 	Binding::ClassTraits<Mat44f>::bind(&vm);
 	Binding::ClassTraits<Entity>::bind(&vm);
+	Binding::ClassTraits<Component>::bind(&vm);
 }
 
 }	// namespace Binding
