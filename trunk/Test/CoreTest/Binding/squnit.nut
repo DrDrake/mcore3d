@@ -109,10 +109,7 @@ function assertError(f, ...)
 //! Assert that two values are equal and calls error else.
 function assertEquals(actual, expected)
 {
-//	actual, expected = expected, actual;
-	local tmp = actual;
-	actual = expected;
-	expected = tmp;
+	actual, expected = expected, actual;
 
 	if(actual != expected)
 	{
