@@ -10,7 +10,7 @@ namespace Binding {
 
 // Math
 
-static int createMat44(HSQUIRRELVM vm)
+static int create_Mat44(HSQUIRRELVM vm)
 {
 	const int paramCount = sq_gettop(vm) - 1;
 	Mat44f* m = nullptr;
@@ -45,22 +45,22 @@ static int createMat44(HSQUIRRELVM vm)
 	return 1;
 }
 
-static float getAtMat44(const Mat44f& m, size_t i, size_t j) { return m[i][j]; }
-static Mat44f addMat44(const Mat44f& lhs, const Mat44f& rhs) { return lhs + rhs; }
-static Mat44f subMat44(const Mat44f& lhs, const Mat44f& rhs) { return lhs - rhs; }
-static Mat44f mulMat44(const Mat44f& lhs, const Mat44f& rhs) { return lhs * rhs; }
-static Mat44f scalarMulMat44(const Mat44f& lhs, float rhs) { return lhs * rhs; }
-static bool isEqualMat44(const Mat44f& lhs, const Mat44f& rhs) { return lhs == rhs; }
-static bool isIdentityMat44(const Mat44f& m) { return m == Mat44f::cIdentity; }
+static float getAt_Mat44(const Mat44f& m, size_t i, size_t j) { return m[i][j]; }
+static Mat44f add_Mat44(const Mat44f& lhs, const Mat44f& rhs) { return lhs + rhs; }
+static Mat44f sub_Mat44(const Mat44f& lhs, const Mat44f& rhs) { return lhs - rhs; }
+static Mat44f mul_Mat44(const Mat44f& lhs, const Mat44f& rhs) { return lhs * rhs; }
+static Mat44f scalarMul_Mat44(const Mat44f& lhs, float rhs) { return lhs * rhs; }
+static bool isEqual_Mat44(const Mat44f& lhs, const Mat44f& rhs) { return lhs == rhs; }
+static bool isIdentity_Mat44(const Mat44f& m) { return m == Mat44f::cIdentity; }
 
 SCRIPT_CLASS_REGISTER(Mat44f)
 	.declareClass<Mat44f>("Mat44")
-	.rawMethod("constructor", createMat44)
+	.rawMethod("constructor", create_Mat44)
 	.var("m00", (float Mat44f::*)&Mat44f::m00)	.var("m01", (float Mat44f::*)&Mat44f::m01)	.var("m02", (float Mat44f::*)&Mat44f::m02)	.var("m03", (float Mat44f::*)&Mat44f::m03)
 	.var("m10", (float Mat44f::*)&Mat44f::m10)	.var("m11", (float Mat44f::*)&Mat44f::m11)	.var("m12", (float Mat44f::*)&Mat44f::m12)	.var("m13", (float Mat44f::*)&Mat44f::m13)
 	.var("m20", (float Mat44f::*)&Mat44f::m20)	.var("m21", (float Mat44f::*)&Mat44f::m21)	.var("m22", (float Mat44f::*)&Mat44f::m22)	.var("m23", (float Mat44f::*)&Mat44f::m23)
 	.var("m30", (float Mat44f::*)&Mat44f::m30)	.var("m31", (float Mat44f::*)&Mat44f::m31)	.var("m32", (float Mat44f::*)&Mat44f::m32)	.var("m33", (float Mat44f::*)&Mat44f::m33)
-	.method("getAt", &getAtMat44)
+	.method("getAt", &getAt_Mat44)
 	.varGet("transpose", (Mat44f (Mat44f::*)()const)&Mat44f::transpose)
 	.varGet("determinant", &Mat44f::determinant)
 	.varGet("inverse", (Mat44f (Mat44f::*)()const)&Mat44f::inverse)
@@ -76,12 +76,12 @@ SCRIPT_CLASS_REGISTER(Mat44f)
 	.method("setRotation", &Mat44f::setRotation)
 	.method("rotateBy", &Mat44f::rotateBy)
 	.staticMethod("makeAxisRotation", &Mat44f::makeAxisRotation)
-	.method("_add", &addMat44)
-	.method("_sub", &subMat44)
-	.method("_mul", &mulMat44)
-	.method("scalarMul", &scalarMulMat44)
-	.method("isEqual", &isEqualMat44)
-	.method("isIdentity", &isIdentityMat44)
+	.method("_add", &add_Mat44)
+	.method("_sub", &sub_Mat44)
+	.method("_mul", &mul_Mat44)
+	.method("scalarMul", &scalarMul_Mat44)
+	.method("isEqual", &isEqual_Mat44)
+	.method("isIdentity", &isIdentity_Mat44)
 //	.runScript("Mat44._tostring <- function(){return xBiasVector+\", \"+yBiasVector+\"), \"+zBiasVector;}")	// Vec3.tostring()
 ;}
 
@@ -123,7 +123,7 @@ SCRIPT_CLASS_REGISTER(Vec2f)
 	.runScript("Vec2._tostring <- function(){return x+\", \"+y+\";}")
 ;}
 
-static int createVec3(HSQUIRRELVM vm)
+static int create_Vec3(HSQUIRRELVM vm)
 {
 	const int paramCount = sq_gettop(vm) - 1;
 	Vec3f* v = nullptr;
@@ -153,19 +153,19 @@ static int createVec3(HSQUIRRELVM vm)
 	return 1;
 }
 
-static float lengthVec3(const Vec3f& v) { return v.length(); }
-static Vec3f addVec3(const Vec3f& lhs, const Vec3f& rhs) { return lhs + rhs; }
-static Vec3f subVec3(const Vec3f& lhs, const Vec3f& rhs) { return lhs - rhs; }
-static Vec3f mulVec3(const Vec3f& lhs, float rhs) { return lhs * rhs; }
-static Vec3f unmVec3(const Vec3f& lhs) { return -lhs; }
-static int cmpVec3(const Vec3f& lhs, const Vec3f& rhs) { if(lhs == rhs) return 0; return 1;/*return lhs > rhs ? 1 : -1;*/ }
-static bool isEqualVec3(const Vec3f& lhs, const Vec3f& rhs) { return lhs == rhs; }
-static void addEqualVec3(Vec3f& lhs, const Vec3f& rhs) { lhs += rhs; }
-static void mulEqualVec3(Vec3f& lhs, float rhs) { lhs *= rhs; }
+static float length_Vec3(const Vec3f& v) { return v.length(); }
+static Vec3f add_Vec3(const Vec3f& lhs, const Vec3f& rhs) { return lhs + rhs; }
+static Vec3f sub_Vec3(const Vec3f& lhs, const Vec3f& rhs) { return lhs - rhs; }
+static Vec3f mul_Vec3(const Vec3f& lhs, float rhs) { return lhs * rhs; }
+static Vec3f unm_Vec3(const Vec3f& lhs) { return -lhs; }
+static int cmp_Vec3(const Vec3f& lhs, const Vec3f& rhs) { if(lhs == rhs) return 0; return 1;/*return lhs > rhs ? 1 : -1;*/ }
+static bool isEqual_Vec3(const Vec3f& lhs, const Vec3f& rhs) { return lhs == rhs; }
+static void addEqual_Vec3(Vec3f& lhs, const Vec3f& rhs) { lhs += rhs; }
+static void mulEqual_Vec3(Vec3f& lhs, float rhs) { lhs *= rhs; }
 
 SCRIPT_CLASS_REGISTER(Vec3f)
 	.declareClass<Vec3f>("Vec3")
-	.rawMethod("constructor", createVec3)
+	.rawMethod("constructor", create_Vec3)
 	.var("x", (float Vec3f::*)&Vec3f::x)
 	.var("y", (float Vec3f::*)&Vec3f::y)
 	.var("z", (float Vec3f::*)&Vec3f::z)
@@ -173,23 +173,28 @@ SCRIPT_CLASS_REGISTER(Vec3f)
 	.method("_modulo", &Vec3f::dot)
 	.varGet("norm", &Vec3f::norm)
 	.method("cross", &Vec3f::operator^)
-	.varGet("length", &lengthVec3)	// Vec3f::length() didn't return float
+	.varGet("length", &length_Vec3)	// Vec3f::length() didn't return float
 	.varGet("squaredLength", &Vec3f::squaredLength)
 	.method("distance", &Vec3f::distance)
 	.method("squaredDistance", &Vec3f::squaredDistance)
 	.method("normalize", &Vec3f::normalizeSafe)
-	.method("_add", &addVec3)
-	.method("_sub", &subVec3)
-	.method("_mul", &mulVec3)
-	.method("_unm", &unmVec3)
-	.method("_cmp", &cmpVec3)
-	.method("isEqual", &isEqualVec3)
-	.method("addEqual", &addEqualVec3)
-	.method("mulEqual", &mulEqualVec3)
+	.method("_add", &add_Vec3)
+	.method("_sub", &sub_Vec3)
+	.method("_mul", &mul_Vec3)
+	.method("_unm", &unm_Vec3)
+	.method("_cmp", &cmp_Vec3)
+	.method("isEqual", &isEqual_Vec3)
+	.method("addEqual", &addEqual_Vec3)
+	.method("mulEqual", &mulEqual_Vec3)
 	.runScript("Vec3._tostring <- function(){return x+\", \"+y+\", \"+z;}")
 ;}
 
 // Entity
+
+static Component* nextComponent_Entity(Entity& self, Component* c) {
+	c = (c == nullptr) ? self.components.begin() : c->next();
+	return c == self.components.end() ? nullptr : c;
+}
 
 SCRIPT_CLASS_REGISTER(Entity)
 	.declareClass<Entity>("Entity")
@@ -211,6 +216,8 @@ SCRIPT_CLASS_REGISTER(Entity)
 	.method("isAncestorOf", &Entity::isAncestorOf)
 	.method("destroyThis", &Entity::destroyThis)
 	.method("addComponent", &Entity::_addComponent)
+	.method("_nextComponent", &nextComponent_Entity)
+	.runScript("Entity.__getTable.components<-function(){local c;for(;c=_nextComponent(c);)yield c;}return null;")	// Variable for looping all the components
 ;}
 
 void push(HSQUIRRELVM v, Entity* obj)

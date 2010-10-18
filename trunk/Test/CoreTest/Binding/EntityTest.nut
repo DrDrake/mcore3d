@@ -105,6 +105,17 @@ class TestEntity
 		root.name = "Root node";
 		root.localTransform = Mat44();
 	}
+
+	function testComponent()
+	{
+		// No component, do nothing
+		foreach(c in root.components) {}
+		
+		// Add some component
+		local mock = root.addComponent(MockComponent1());
+		foreach(c in root.components)
+			assertEquals(mock, c);
+	}
 }
 
 //SqUnit().runTestMethod("TestEntity.testDestroy", TestEntity, TestEntity.testDestroy);

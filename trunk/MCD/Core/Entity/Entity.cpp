@@ -349,6 +349,9 @@ Component* Entity::_addComponent(Component* component)
 		return nullptr;
 	}
 
+	if(!component->entity())
+		component->scriptAddReference();
+
 	removeComponent(component->familyType());
 	components.pushBack(*component);
 	component->mEntity = this;
@@ -363,7 +366,8 @@ void Entity::removeComponent(const std::type_info& familyType)
 	for(Component* c = components.begin(); c != components.end(); c = c->next()) {
 		if(c->familyType() == familyType) {
 			c->onRemove();
-			c->destroyThis();
+			c->scriptReleaseReference();
+//			c->destroyThis();
 			return;
 		}
 	}
