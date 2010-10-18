@@ -36,6 +36,8 @@ SCRIPT_CLASS_DECLAR_EXPORT(Component, MCD_CORE_API);
 MCD_CORE_API void push(HSQUIRRELVM, Component*);
 MCD_CORE_API SQRESULT setInstanceUp(HSQUIRRELVM, SQInteger, Component*, Component*);
 MCD_CORE_API void destroy(Component*, Component*);
+template<typename T> SQRESULT setInstanceUp(HSQUIRRELVM v, SQInteger i, Component* c, T*) { return setInstanceUp(v, i, c, c); }
+template<typename T> void destroy(Component* c, T*) { destroy(c, c); }
 
 }	// namespace Binding
 
