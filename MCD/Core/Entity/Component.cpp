@@ -14,6 +14,7 @@ Component::Component()
 
 Component::~Component()
 {
+	MCD_ASSERT(mRefCount == 0);
 }
 
 // NOTE: This simply empty is put in cpp otherwise Intel Parallel Studio will
@@ -24,7 +25,7 @@ void Component::onRemove() {}
 
 void Component::destroyThis()
 {
-	delete this;
+	intrusivePtrRelease(this);
 }
 
 Entity* Component::entity() const {

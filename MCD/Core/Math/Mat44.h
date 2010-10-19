@@ -157,6 +157,9 @@ public:
 	//! Rotate this matrix to look at the targeting point.
 	void lookAt(const Vec3<T>& lookAt, const Vec3<T>& upVector);
 
+	//! Make an object lookAt matrix, to make a camera lookAt matrix simply inverse the object lookAt matrix.
+	void lookAt(const Vec3<T>& eyeAt, const Vec3<T>& lookAt, const Vec3<T>& upVector);
+
 	//!	Extracts the rotation / scaling part of the matrix as a 3x3 matrix.
 	void mat33(Mat33<T>& matrix33) const;
 	Mat33<T> mat33() const;
@@ -169,9 +172,6 @@ public:
 	void transformNormal(Vec3<T>& normal) const;
 
 	static Mat44 makeAxisRotation(const Vec3<T>& axis, T angle);
-
-	//! Make an object lookAt matrix, to make a camera lookAt matrix simply inverse the object lookAt matrix.
-	static Mat44 makeLookAt(const Vec3<T>& eyeAt, const Vec3<T>& lookAt, const Vec3<T>& upVector);
 
 	static const Mat44 cIdentity;
 };	// Mat44

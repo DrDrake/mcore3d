@@ -35,6 +35,12 @@ SCRIPT_CLASS_REGISTER(MockComponent1)
 	.constructor()
 ;}
 
+SCRIPT_CLASS_DECLAR(MockComponent2);
+SCRIPT_CLASS_REGISTER(MockComponent2)
+	.declareClass<MockComponent2, Component>("MockComponent2")
+	.constructor()
+;}
+
 }	// namespace Binding
 }	// namespace MCD
 
@@ -43,6 +49,7 @@ TEST(Entity_BindingTest)
 	Binding::VMCore vm;
 	Binding::registerCoreBinding(vm);
 	Binding::ClassTraits<MockComponent1>::bind(&vm);
+	Binding::ClassTraits<MockComponent2>::bind(&vm);
 
 	{	std::ifstream is("Binding/squnit.nut");
 		vm.runScript(is);
