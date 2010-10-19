@@ -208,6 +208,7 @@ SCRIPT_CLASS_REGISTER(Entity)
 	.varGet("nextSibling", (Entity* (Entity::*)())(&Entity::nextSibling))
 	.var("localTransform", &Entity::localTransform)
 	.varGet("worldTransform", &Entity::worldTransform)
+	.varSet("worldTransform", &Entity::setWorldTransform)
 	.method("asChildOf", &Entity::asChildOf)
 	.method("addFirstChild", &Entity::addFirstChild)
 	.method("addLastChild", &Entity::addLastChild)
@@ -217,7 +218,9 @@ SCRIPT_CLASS_REGISTER(Entity)
 	.method("destroyThis", &Entity::destroyThis)
 	.method("addComponent", &Entity::_addComponent)
 	.method("_nextComponent", &nextComponent_Entity)
-	.runScript("Entity.__getTable.components<-function(){local c;for(;c=_nextComponent(c);)yield c;}return null;")	// Variable for looping all the components
+	.runScript("Entity.__getTable.components<-function(){for(local c;c=_nextComponent(c);)yield c;}")	// Variable for looping all the components
+//	.runScript("Entity._get<-function(idx){local t=::Entity.__getTable;if(t.rawin(idx))return t.rawget(idx).call(this);foreach(c in this.components)if(typeof c==idx)return c;throw null;}")	// NOTE: Using the generator here will cause crash in ~SQGenerator(), don't know why
+	.runScript("Entity._get<-function(idx){local t=::Entity.__getTable;if(t.rawin(idx))return t.rawget(idx).call(this);for(local c;c=_nextComponent(c);)if(typeof c==idx)return c;throw null;}")	// Custom _get() to return component
 ;}
 
 void push(HSQUIRRELVM v, Entity* obj)

@@ -108,13 +108,30 @@ class TestEntity
 
 	function testComponent()
 	{
+		{	// Dangling component
+			local c= MockComponent1();
+		}
+
 		// No component, do nothing
 		foreach(c in root.components) {}
-		
+
 		// Add some component
-		local mock = root.addComponent(MockComponent1());
+		local mock = [
+			root.addComponent(MockComponent1()),
+			root.addComponent(MockComponent2())
+		];
+		local i = 0;
+
 		foreach(c in root.components)
-			assertEquals(mock, c);
+			assertEquals(mock[i++], c);
+
+		// A very handy way to get a component
+		assertEquals(mock[0], root.MockComponent1);
+		assertEquals(mock[1], root.MockComponent2);
+
+		// Get component by string
+		assertEquals(mock[0], root["MockComponent1"]);
+		assertEquals(mock[1], root["MockComponent2"]);
 	}
 }
 

@@ -377,6 +377,24 @@ void Mat44<T>::lookAt(const Vec3<T>& lookAt, const Vec3<T>& upVector)
 }
 
 template<typename T>
+void Mat44<T>::lookAt(const Vec3<T>& eyeAt, const Vec3<T>& lookAt, const Vec3<T>& upVector)
+{
+	Vec3<T> f = (lookAt - eyeAt).normalizedCopy();
+	Vec3<T> s = f.cross(upVector.normalizedCopy());
+	Vec3<T> u = s.cross(f);
+
+	data[0] = s.x;	data[1] = u.x;	data[2] = -f.x;	data[3] = 0;
+	data[4] = s.y;	data[5] = u.y;	data[6] = -f.y;	data[7] = 0;
+	data[8] = s.z;	data[9] = u.z;	data[10]= -f.z;	data[11] = 0;
+	data[12] = 0;	data[13] = 0;	data[14] = 0;	data[15] = 1.0f;
+
+	Mat44<T> tmp;
+	tmp.copyFrom(data);
+	tmp.setTranslation(eyeAt);
+	tmp.copyTo(data);
+}
+
+template<typename T>
 void Mat44<T>::mat33(Mat33<T>& matrix33) const
 {
 	matrix33.m00 = m00;	matrix33.m01 = m01;	matrix33.m02 = m02;
@@ -421,23 +439,6 @@ void Mat44<T>::transformNormal(Vec3<T>& point) const
 template<typename T>
 Mat44<T> Mat44<T>::makeAxisRotation(const Vec3<T>& axis, T angle) {
 	return Mat44f(Mat33f::makeAxisRotation(axis, angle));
-}
-
-template<typename T>
-Mat44<T> Mat44<T>::makeLookAt(const Vec3<T>& eyeAt, const Vec3<T>& lookAt, const Vec3<T>& upVector)
-{
-	Mat44<T> ret;
-	const Vec3<T> f = (lookAt - eyeAt).normalizedCopy();
-	const Vec3<T> s = f.cross(upVector.normalizedCopy());
-	const Vec3<T> u = s.cross(f);
-
-	ret.m00 = s.x;	ret.m01 = u.x;	ret.m02 = -f.x;	ret.m03 = 0;
-	ret.m10 = s.y;	ret.m11 = u.y;	ret.m12 = -f.y;	ret.m13 = 0;
-	ret.m20 = s.z;	ret.m21 = u.z;	ret.m22 = -f.z;	ret.m23 = 0;
-	ret.m30 = 0;	ret.m31 = 0;	ret.m32 = 0;	ret.m33 = 1;
-
-	ret.setTranslation(eyeAt);
-	return ret;
 }
 
 template<typename T> const Mat44<T> Mat44<T>::cIdentity = Mat44<T>(
