@@ -108,7 +108,6 @@ TEST(DisplayListTest)
 	Entity& root = framework.rootEntity();
 	Entity& scene = framework.sceneLayer();
 	ResourceManager& resourceManager = framework.resourceManager();
-	RendererComponent* renderer = root.findComponentInChildrenExactType<RendererComponent>();
 	CameraComponent* sceneCamera = scene.findComponentInChildrenExactType<CameraComponent>();
 	sceneCamera->entity()->localTransform.translateBy(Vec3f(0, 10, 10));
 
@@ -162,7 +161,7 @@ TEST(DisplayListTest)
 		if(e.Type == Event::Closed)
 			break;
 
-		renderer->render(root);
+		framework.rendererComponent()->render(root);
 	}
 
 	CHECK(true);

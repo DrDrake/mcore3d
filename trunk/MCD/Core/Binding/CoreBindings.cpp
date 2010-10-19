@@ -2,6 +2,7 @@
 #include "CoreBindings.h"
 #include "Declarator.h"
 #include "VMCore.h"
+#include "../Entity/InputComponent.h"
 #include "../Entity/Entity.h"
 
 namespace MCD {
@@ -319,11 +320,39 @@ void destroy(Component* dummy, Component* instance)
 	}
 }
 
+// Input
+
+static Vec2f getMousePosition_InputComponent(InputComponent& self)
+{
+	// Transform the result from type Vec2i to Vec2f
+	Vec2i pos = self.getMousePosition();
+	return Vec2f(float(pos.x), float(pos.y));
+}
+
+SCRIPT_CLASS_REGISTER(InputComponent)
+	.declareClass<InputComponent, Component>("InputComponent")
+	.varGet("anyKey", &InputComponent::anyKey)
+	.varGet("anyKeyDown", &InputComponent::anyKeyDown)
+	.method("getAxis", &InputComponent::getAxis)
+	.method("getAxisRaw", &InputComponent::getAxisRaw)
+	.method("getAxisDelta", &InputComponent::getAxisDelta)
+	.method("getAxisDeltaRaw", &InputComponent::getAxisDeltaRaw)
+	.method("getButton", &InputComponent::getButton)
+	.method("getButtonDown", &InputComponent::getButtonDown)
+	.method("getButtonUp", &InputComponent::getButtonUp)
+	.varGet("mousePosition", &getMousePosition_InputComponent)
+	.method("getMouseButton", &InputComponent::getMouseButton)
+	.method("getMouseButtonDown", &InputComponent::getMouseButtonDown)
+	.method("getMouseButtonUp", &InputComponent::getMouseButtonUp)
+	.varGet("inputString", &InputComponent::inputString)
+;}
+
 void registerCoreBinding(VMCore& vm)
 {
-	Binding::ClassTraits<Mat44f>::bind(&vm);
-	Binding::ClassTraits<Entity>::bind(&vm);
 	Binding::ClassTraits<Component>::bind(&vm);
+	Binding::ClassTraits<Entity>::bind(&vm);
+	Binding::ClassTraits<InputComponent>::bind(&vm);
+	Binding::ClassTraits<Mat44f>::bind(&vm);
 }
 
 }	// namespace Binding

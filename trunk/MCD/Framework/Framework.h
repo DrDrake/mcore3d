@@ -17,6 +17,7 @@ class RenderWindow;
 class TaskPool;
 typedef IntrusivePtr<class Prefab> PrefabPtr;
 typedef IntrusivePtr<class Texture> TexturePtr;
+typedef IntrusiveWeakPtr<class InputComponent> InputComponentPtr;
 typedef IntrusiveWeakPtr<class RendererComponent> RendererComponentPtr;
 
 /// A framework that integrate various MCore modules.
@@ -75,6 +76,9 @@ public:
 
 	RendererComponentPtr rendererComponent();
 
+	InputComponentPtr inputComponent();
+
+	float dt() const;	//!< Duration of LAST frame
 	float fps() const;	//!< Frame per second over the last second
 
 protected:

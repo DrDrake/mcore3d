@@ -4,6 +4,8 @@
 #include "ResizeFrustumComponent.h"
 #include "BuildinData/BuildinData.h"
 
+#include "../Core/Binding/CoreBindings.h"
+#include "../Core/Binding/VMCore.h"
 #include "../Core/Entity/Entity.h"
 #include "../Core/Entity/PrefabLoaderComponent.h"
 #include "../Core/Entity/SystemComponent.h"
@@ -49,6 +51,12 @@
 
 namespace MCD {
 
+namespace Binding {
+
+extern void registerFrameworkBinding(VMCore& vm, Framework& framework);
+
+}	// namespace Binding
+
 class Framework::Impl
 {
 public:
@@ -74,22 +82,25 @@ public:
 	bool mTakeWindowOwership;
 
 	Timer mTimer;
-	float mCurrentTime;
+	float mDeltaTime, mCurrentTime;
 	size_t mFrameCounter;	//! For calculating fps, reset every one second.
 	float mOneSecondCountDown;
 	float mFramePerSecond;
 
 	RendererComponentPtr mRenderer;
+	InputComponentPtr mInput;
 	ResourceManagerComponentPtr mResourceManagerComponent;
 	std::auto_ptr<RenderWindow> mWindow;
 	std::auto_ptr<TaskPool> mTaskPool;
 	TextLabelComponentPtr mFpsLabel;
+
+	Binding::VMCore vm;
 };	// Impl
 
 Framework::Impl::Impl()
 	: mFrameCounter(0), mOneSecondCountDown(0), mFramePerSecond(0)
 {
-	mCurrentTime = 0;
+	mDeltaTime = mCurrentTime = 0;
 	mTakeWindowOwership = true;
 
 	Log::start(&std::cout);
@@ -218,6 +229,7 @@ Framework::Impl::~Impl()
 	MCD_ASSERT(!mSceneLayer);
 	MCD_ASSERT(!mGuiLayer);
 	MCD_ASSERT(!mRenderer);
+	MCD_ASSERT(!mInput);
 
 	mResourceManager.reset();
 	mFileSystem.reset();
@@ -314,12 +326,13 @@ bool Framework::Impl::initWindow(RenderWindow& existingWindow, bool takeOwnershi
 		Entity* e = new Entity("Input");
 		e->insertAfter(mGuiLayer.getNotNull());
 #ifdef MCD_IPHONE
-		iPhoneInputComponent* c = new iPhoneInputComponent;
+		mInput = new iPhoneInputComponent;
 #else
 		WinMessageInputComponent* c = new WinMessageInputComponent;
-#endif
-		e->addComponent(c);
+		mInput = c;
 		c->attachTo(*mWindow);
+#endif
+		e->addComponent(mInput.getNotNull());
 	}
 
 	{	// Default FPS controller
@@ -422,7 +435,7 @@ bool Framework::Impl::update(Event& e)
 
 	const float frameTime = 1.0f / 30;
 	float newTime = float(mTimer.get().asSecond());
-	const float deltaTime = newTime - mCurrentTime;
+	mDeltaTime = newTime - mCurrentTime;
 
 	const float overBuget = newTime - mCurrentTime - frameTime;
 	float buget = frameTime - overBuget;
@@ -447,7 +460,7 @@ bool Framework::Impl::update(Event& e)
 		mResourceManagerComponent->update(&mTimer, timeOut);
 
 	{	// Frame rate calculation
-		mOneSecondCountDown -= deltaTime;
+		mOneSecondCountDown -= mDeltaTime;
 		++mFrameCounter;
 
 		if(mOneSecondCountDown < 0) {
@@ -477,7 +490,7 @@ bool Framework::Impl::update(Event& e)
 		}
 
 		// Preform the updater's update(dt) function
-		ComponentUpdater::traverseEnd(*mSystemEntity, deltaTime);
+		ComponentUpdater::traverseEnd(*mSystemEntity, mDeltaTime);
 	}
 
 	return hasWindowEvent;
@@ -485,7 +498,12 @@ bool Framework::Impl::update(Event& e)
 
 Framework::Framework()
 	: mImpl(*new Impl)
-{}
+{
+	{	// Initialize script vm
+		Binding::registerCoreBinding(mImpl.vm);
+		Binding::registerFrameworkBinding(mImpl.vm, *this);
+	}
+}
 
 Framework::~Framework()
 {
@@ -554,6 +572,14 @@ RenderWindow* Framework::window() {
 
 RendererComponentPtr Framework::rendererComponent() {
 	return mImpl.mRenderer;
+}
+
+InputComponentPtr Framework::inputComponent() {
+	return mImpl.mInput;
+}
+
+float Framework::dt() const {
+	return mImpl.mDeltaTime;
 }
 
 float Framework::fps() const {

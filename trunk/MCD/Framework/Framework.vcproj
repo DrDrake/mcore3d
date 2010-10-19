@@ -259,6 +259,10 @@
 			>
 		</File>
 		<File
+			RelativePath=".\FrameworkBindings.cpp"
+			>
+		</File>
+		<File
 			RelativePath=".\Pch.cpp"
 			>
 			<FileConfiguration

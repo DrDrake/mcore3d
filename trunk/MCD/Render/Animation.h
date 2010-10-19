@@ -4,7 +4,6 @@
 #include "ShareLib.h"
 #include "../Core/Entity/BehaviourComponent.h"
 #include "../Core/System/SharedPtr.h"
-#include "../../3Party/jkbind/Declarator.h"
 #include <vector>
 
 namespace MCD {
@@ -55,12 +54,6 @@ public:
 		sal_in_z const char* weightedTrackName, size_t virtualFrameIdx, sal_maybenull void* data,
 		sal_maybenull Callback callback=nullptr, sal_maybenull DestroyData destroyData=nullptr
 	);
-
-	script::Event<
-		void, script::plain, size_t,
-		script::objNoCare, AnimationComponent*,
-		script::plain, const char*
-	> scriptCallback;
 
 // Attributes
 	/*!	Sub-track,	usage
