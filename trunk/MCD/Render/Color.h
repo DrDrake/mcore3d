@@ -73,6 +73,14 @@ public:
 	//! Clamp the color components back into it's range [0, 1]
 	void clamp();
 
+	bool operator==(const ColorRGBAf& rhs) const {
+		return r == rhs.r && g == rhs.g && b == rhs.b && a == rhs.a;
+	}
+
+	bool operator!=(const ColorRGBAf& rhs) const {
+		return !(*this == rhs);
+	}
+
 // Attributes
 	float* rawPointer() {
 		return reinterpret_cast<float*>(this);

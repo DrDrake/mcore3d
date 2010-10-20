@@ -2,6 +2,8 @@
 #include "Font.h"
 #include "Texture.h"
 #include "../Core/Math/Vec4.h"
+#include "../Core/Entity/SystemComponent.h"
+#include "../Core/System/ResourceManager.h"
 
 namespace MCD {
 
@@ -20,17 +22,57 @@ int BmpFont::findKerningOffset(uint16_t char1, uint16_t char2) const
 	return i == kerning.end() ? 0 : i->second;
 }
 
+typedef std::map<FixString, BmpFontMaterialComponent*> BmpFontMaterial;
+static BmpFontMaterial bmpFontMaterial;
+
+BmpFontMaterialComponent* getMaterial(const FixString& fontResource)
+{
+	BmpFontMaterial::const_iterator i = bmpFontMaterial.find(fontResource);
+	if(i != bmpFontMaterial.end()) {
+		intrusivePtrAddRef(i->second);
+		return i->second;
+	}
+
+	ResourceManagerComponent* c = ResourceManagerComponent::fromCurrentEntityRoot();
+	MCD_ASSUME(c);
+
+	BmpFontPtr bmpFont = dynamic_cast<BmpFont*>(c->resourceManager().load(fontResource.c_str()).get());
+	if(!bmpFont) return nullptr;
+
+	BmpFontMaterialComponent* mtlCom = new BmpFontMaterialComponent;
+	mtlCom->bmpFont = bmpFont;
+
+	bmpFontMaterial[fontResource] = mtlCom;
+	intrusivePtrAddRef(mtlCom);
+	return mtlCom;
+}
+
+void releaseMaterial(const FixString& fontResource)
+{
+	if(fontResource.empty()) return;
+	BmpFontMaterial::const_iterator i = bmpFontMaterial.find(fontResource);
+	MCD_ASSERT(i != bmpFontMaterial.end());
+	intrusivePtrRelease(i->second);
+}
+
 TextLabelComponent::TextLabelComponent()
-	: lineWidth(0), mStringHash(0), mLastBmpFontCommitCount(0)
+	: lineWidth(0), mFontMaterial(nullptr)
+	, mLastBmpFontCommitCount(0)
+	, color(ColorRGBAf(1, 1))
 {}
 
-TextLabelComponent::~TextLabelComponent() {}
+TextLabelComponent::~TextLabelComponent()
+{
+	releaseMaterial(font);
+}
 
 Component* TextLabelComponent::clone() const
 {
 	TextLabelComponent* ret = new TextLabelComponent;
 	ret->text = text;
 	ret->lineWidth = lineWidth;
+	ret->color = color;
+	ret->font = font;
 	return ret;
 }
 
@@ -44,8 +86,8 @@ void TextLabelComponent::buildVertexBuffer(const BmpFont& font)
 	unsigned char lastCharacter = 0;
 
 	// Construct the vertex buffer character by character
-	for(std::string::const_iterator i=text.begin(); i != text.end(); ++i) {
-		const unsigned char c = *i;
+	for(size_t i=0; i<text.size(); ++i) {
+		const unsigned char c = text.c_str()[i];
 		const BmpFont::CharDescriptor& desc = font.charSet.chars[c];
 
 		const int kerningOffset = font.findKerningOffset(lastCharacter, c);
@@ -84,6 +126,31 @@ void TextLabelComponent::buildVertexBuffer(const BmpFont& font)
 			charPos.x = 0;
 			charPos.y -= font.charSet.lineHeight;
 		}
+	}
+}
+
+void TextLabelComponent::update()
+{
+	if(!mFontMaterial)
+		mFontMaterial = getMaterial(font);
+
+	if(!mFontMaterial) return;
+
+	BmpFont* bmpFont = mFontMaterial->bmpFont.get();
+	MCD_ASSUME(bmpFont);
+
+	const bool fontChanged = font != mLastFont || bmpFont->commitCount() != mLastBmpFontCommitCount;
+	const bool textChanged = text != mLastText;
+
+	if(font != mLastFont)
+		releaseMaterial(mLastFont);
+
+	if(fontChanged || textChanged)
+	{
+		buildVertexBuffer(*bmpFont);
+		mLastText = text;
+		mLastFont = font;
+		mLastBmpFontCommitCount = bmpFont->commitCount();
 	}
 }
 

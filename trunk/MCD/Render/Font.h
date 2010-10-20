@@ -97,18 +97,21 @@ public:
 	sal_override void draw(sal_in void* context, Statistic& statistic);
 
 // Attributes
-	std::string text;
+	FixString text;
 	size_t lineWidth;	//!< The maximum pixel for a line of text, word longer than that will move to next line. Zero means no limit
+	ColorRGBAf color;	//!< This color will be multipled with the font texture's color
+	FixString font;		//!< The font resource to use
 
 protected:
 	sal_override ~TextLabelComponent();
 	void buildVertexBuffer(const BmpFont& font);
+	void update();
 
 	ComponentPtr dummy;	// NOTE: Workaround for VC9 LNK1194 with vftable
 
-	uint32_t mStringHash;	// To determine the text have been changed or not
+	BmpFontMaterialComponent* mFontMaterial;
 	size_t mLastBmpFontCommitCount;	// To determine the font resource is loaded or not
-	IntrusiveWeakPtr<const BmpFont> mLastBmpFont;	// To determine the font resource is changed or not
+	FixString mLastText, mLastFont;	// To determine the text have been changed or not
 
 	// Caching of vertex buffer
 	struct Vertex { Vec3f position; Vec2f uv; };

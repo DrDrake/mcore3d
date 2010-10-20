@@ -62,7 +62,7 @@ TEST(RendererTest)
 		e->localTransform.setTranslation(Vec3f(0, 600, 0));
 //		e->localTransform.setMat33(Mat33f::makeXYZRotation(0, 0, 3.14f/4));
 		TextLabelComponent* text = e->addComponent(new TextLabelComponent);
-		text->text = "This is a text label\nMCore rocks!";
+		text->text = FixString("This is a text label\nMCore rocks!");
 	}
 
 	// Create material

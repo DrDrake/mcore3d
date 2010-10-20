@@ -43,6 +43,7 @@ public:
 	FixString(const FixString& rhs);
 	~FixString();
 
+	FixString& operator=(const char* rhs);
 	FixString& operator=(const FixString& rhs);
 	FixString& operator=(const StringHash& stringHash);
 
