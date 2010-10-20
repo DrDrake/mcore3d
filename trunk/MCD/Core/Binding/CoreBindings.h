@@ -16,10 +16,17 @@ namespace MCD {
 class Component;
 class Entity;
 class InputComponent;
+class Resource;
 
 namespace Binding {
 
 MCD_CORE_API void registerCoreBinding(VMCore& vm);
+
+// System
+SCRIPT_CLASS_DECLAR_EXPORT(Resource, MCD_CORE_API);
+MCD_CORE_API void push(HSQUIRRELVM, Resource*);
+MCD_CORE_API void destroy(Resource*, Resource*);
+inline void push(HSQUIRRELVM v, Resource& r) { push(v, &r); }
 
 // Math
 SCRIPT_CLASS_DECLAR_EXPORT(Mat44f, MCD_CORE_API);
@@ -33,6 +40,7 @@ MCD_CORE_API SQRESULT setInstanceUp(HSQUIRRELVM, SQInteger, Entity*, Entity*);
 MCD_CORE_API void destroy(Entity*, Entity*);
 inline void push(HSQUIRRELVM v, Entity& e) { push(v, &e); }
 
+// Component
 SCRIPT_CLASS_DECLAR_EXPORT(Component, MCD_CORE_API);
 MCD_CORE_API void push(HSQUIRRELVM, Component*);
 MCD_CORE_API SQRESULT setInstanceUp(HSQUIRRELVM, SQInteger, Component*, Component*);
@@ -45,7 +53,6 @@ inline void push(HSQUIRRELVM v, Component& c) { push(v, &c); }
 SCRIPT_CLASS_DECLAR_EXPORT(InputComponent, MCD_CORE_API);
 
 }	// namespace Binding
-
 }	// namespace MCD
 
 #endif	// __MCD_CORE_BINDING_COREBINDING__

@@ -4,7 +4,6 @@
 #define CAPI_VERIFY(arg) MCD_VERIFY(SQ_SUCCEEDED((arg)))
 
 namespace MCD {
-
 namespace Binding {
 
 ScriptObject::ScriptObject(HSQUIRRELVM vm)
@@ -138,5 +137,4 @@ void push(HSQUIRRELVM mSqvm, ScriptObject& value)
 }
 
 }	// namespace Binding
-
 }	// namespace MCD

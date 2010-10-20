@@ -141,6 +141,8 @@ void FntLoader::commit(Resource& resource)
 	font.texture = mTmp->texture;
 	font.charSet = mTmp->charSet;
 	font.kerning = mTmp->kerning;
+
+	mTmp = nullptr;
 }
 
 ResourcePtr FntLoaderFactory::createResource(const Path& fileId, const char* args)

@@ -33,6 +33,7 @@
 #include "../Render/Font.h"
 #include "../Render/Light.h"
 #include "../Render/Material.h"
+#include "../Render/RenderBindings.h"
 #include "../Render/Renderer.h"
 #include "../Render/RenderTargetComponent.h"
 #include "../Render/RenderWindow.h"
@@ -501,6 +502,7 @@ Framework::Framework()
 {
 	{	// Initialize script vm
 		Binding::registerCoreBinding(mImpl.vm);
+		Binding::registerRenderBinding(mImpl.vm);
 		Binding::registerFrameworkBinding(mImpl.vm, *this);
 	}
 }
@@ -564,6 +566,10 @@ Entity& Framework::sceneLayer() {
 
 Entity& Framework::guiLayer() {
 	return *mImpl.mGuiLayer;
+}
+
+Binding::VMCore& Framework::vm() {
+	return mImpl.vm;
 }
 
 RenderWindow* Framework::window() {

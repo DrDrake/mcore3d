@@ -58,11 +58,26 @@ struct ReturnSpecialization
 	static int Call(RT (*func)(P1,P2,P3), HSQUIRRELVM v, int index) {
 		CHECK_ARG(1);
 		CHECK_ARG(2);
-		CHECK_ARG(2);
+		CHECK_ARG(3);
 		RT ret = func(
 			get(TypeSelect<P1>(), v, index + 0),
 			get(TypeSelect<P2>(), v, index + 1),
 			get(TypeSelect<P3>(), v, index + 2)
+		);
+		return ReturnPolicy::template pushResult<RT>(v, ret);
+	}
+
+	template<class P1,class P2,class P3,class P4>
+	static int Call(RT (*func)(P1,P2,P3,P4), HSQUIRRELVM v, int index) {
+		CHECK_ARG(1);
+		CHECK_ARG(2);
+		CHECK_ARG(3);
+		CHECK_ARG(4);
+		RT ret = func(
+			get(TypeSelect<P1>(), v, index + 0),
+			get(TypeSelect<P2>(), v, index + 1),
+			get(TypeSelect<P3>(), v, index + 2),
+			get(TypeSelect<P4>(), v, index + 3)
 		);
 		return ReturnPolicy::template pushResult<RT>(v, ret);
 	}
@@ -108,6 +123,21 @@ struct ReturnSpecialization
 		return ReturnPolicy::template pushResult<RT>(v, ret);
 	}
 
+	template<class Callee, class P1,class P2,class P3,class P4>
+	static int Call(Callee & callee, RT (Callee::*func)(P1,P2,P3,P4), HSQUIRRELVM v, int index) {
+		CHECK_ARG(1);
+		CHECK_ARG(2);
+		CHECK_ARG(3);
+		CHECK_ARG(4);
+		RT ret = (callee.*func)(
+			get(TypeSelect<P1>(), v, index + 0),
+			get(TypeSelect<P2>(), v, index + 1),
+			get(TypeSelect<P2>(), v, index + 2),
+			get(TypeSelect<P2>(), v, index + 3)
+		);
+		return ReturnPolicy::template pushResult<RT>(v, ret);
+	}
+
 // Const member functions:
 	template<class Callee>
 	static int Call(Callee & callee, RT (Callee::*func)() const, HSQUIRRELVM v, int index) {
@@ -145,6 +175,21 @@ struct ReturnSpecialization
 			get(TypeSelect<P1>(), v, index + 0),
 			get(TypeSelect<P2>(), v, index + 1),
 			get(TypeSelect<P2>(), v, index + 2)
+		);
+		return ReturnPolicy::template pushResult<RT>(v, ret);
+	}
+
+	template<class Callee, class P1,class P2,class P3,class P4>
+	static int Call(Callee & callee, RT (Callee::*func)(P1,P2,P3,P4) const, HSQUIRRELVM v, int index) {
+		CHECK_ARG(1);
+		CHECK_ARG(2);
+		CHECK_ARG(3);
+		CHECK_ARG(4);
+		RT ret = (callee.*func)(
+			get(TypeSelect<P1>(), v, index + 0),
+			get(TypeSelect<P2>(), v, index + 1),
+			get(TypeSelect<P2>(), v, index + 2)
+			get(TypeSelect<P2>(), v, index + 3)
 		);
 		return ReturnPolicy::template pushResult<RT>(v, ret);
 	}
@@ -187,8 +232,23 @@ struct ReturnSpecialization<void, ReturnPolicy>
 		CHECK_ARG(3);
 		func(
 			get(TypeSelect<P1>(), v, index + 0),
-			get(TypeSelect<P2>(), v, index + 1)
+			get(TypeSelect<P2>(), v, index + 1),
 			get(TypeSelect<P2>(), v, index + 2)
+		);
+		return 0;
+	}
+
+	template<class P1,class P2,class P3,class P4>
+	static int Call(void (*func)(P1,P2,P3,P4), HSQUIRRELVM v, int index) {
+		CHECK_ARG(1);
+		CHECK_ARG(2);
+		CHECK_ARG(3);
+		CHECK_ARG(4);
+		func(
+			get(TypeSelect<P1>(), v, index + 0),
+			get(TypeSelect<P2>(), v, index + 1),
+			get(TypeSelect<P2>(), v, index + 2),
+			get(TypeSelect<P2>(), v, index + 3)
 		);
 		return 0;
 	}
@@ -234,6 +294,21 @@ struct ReturnSpecialization<void, ReturnPolicy>
 		return 0;
 	}
 
+	template<class Callee, class P1,class P2,class P3,class P4>
+	static int Call(Callee & callee, void (Callee::*func)(P1,P2,P3,P4), HSQUIRRELVM v, int index) {
+		CHECK_ARG(1);
+		CHECK_ARG(2);
+		CHECK_ARG(3);
+		CHECK_ARG(4);
+		(callee.*func)(
+			get(TypeSelect<P1>(), v, index + 0),
+			get(TypeSelect<P2>(), v, index + 1),
+			get(TypeSelect<P2>(), v, index + 2),
+			get(TypeSelect<P2>(), v, index + 3)
+		);
+		return 0;
+	}
+
 // Const member functions:
 	template<class Callee>
 	static int Call(Callee & callee, void (Callee::*func)() const, HSQUIRRELVM v, int index) {
@@ -274,6 +349,21 @@ struct ReturnSpecialization<void, ReturnPolicy>
 		);
 		return 0;
 	}
+
+	template<class Callee, class P1,class P2,class P3,class P4>
+	static int Call(Callee & callee, void (Callee::*func)(P1,P2,P3,P4) const, HSQUIRRELVM v, int index) {
+		CHECK_ARG(1);
+		CHECK_ARG(2);
+		CHECK_ARG(3);
+		CHECK_ARG(4);
+		(callee.*func)(
+			get(TypeSelect<P1>(), v, index + 0),
+			get(TypeSelect<P2>(), v, index + 1),
+			get(TypeSelect<P2>(), v, index + 2),
+			get(TypeSelect<P2>(), v, index + 3)
+		);
+		return 0;
+	}
 };	// ReturnSpecialization, void function
 
 // Call(), aims to decompose the incomming function's reutrn and parameter types
@@ -299,6 +389,11 @@ int Call(RT (*func)(P1,P2,P3), HSQUIRRELVM v, int index) {
 	return ReturnSpecialization<RT, ResultPolicy>::Call(func, v, index);
 }
 
+template<class ResultPolicy, class RT, class P1,class P2,class P3,class P4>
+int Call(RT (*func)(P1,P2,P3,P4), HSQUIRRELVM v, int index) {
+	return ReturnSpecialization<RT, ResultPolicy>::Call(func, v, index);
+}
+
 // Member function callers
 template<class ResultPolicy, class Callee, class RT>
 int Call(Callee& callee, RT (Callee::*func)(), HSQUIRRELVM v, int index) {
@@ -320,6 +415,11 @@ int Call(Callee& callee, RT (Callee::*func)(P1,P2,P3), HSQUIRRELVM v, int index)
 	return ReturnSpecialization<RT, ResultPolicy>::Call(callee, func, v, index);
 }
 
+template<class ResultPolicy, class Callee, class RT, class P1,class P2,class P3,class P4>
+int Call(Callee& callee, RT (Callee::*func)(P1,P2,P3,P4), HSQUIRRELVM v, int index) {
+	return ReturnSpecialization<RT, ResultPolicy>::Call(callee, func, v, index);
+}
+
 // Const member function callers
 template<class ResultPolicy, class Callee, class RT>
 int Call(Callee& callee, RT (Callee::*func)() const, HSQUIRRELVM v, int index) {
@@ -338,6 +438,11 @@ int Call(Callee& callee, RT (Callee::*func)(P1,P2) const, HSQUIRRELVM v, int ind
 
 template<class ResultPolicy, class Callee, class RT, class P1,class P2,class P3>
 int Call(Callee& callee, RT (Callee::*func)(P1,P2,P3) const, HSQUIRRELVM v, int index) {
+	return ReturnSpecialization<RT, ResultPolicy>::Call(callee, func, v, index);
+}
+
+template<class ResultPolicy, class Callee, class RT, class P1,class P2,class P3,class P4>
+int Call(Callee& callee, RT (Callee::*func)(P1,P2,P3,P4) const, HSQUIRRELVM v, int index) {
 	return ReturnSpecialization<RT, ResultPolicy>::Call(callee, func, v, index);
 }
 

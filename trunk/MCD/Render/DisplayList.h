@@ -30,7 +30,7 @@ public:
 
 	void begin(PrimitiveType primitive);
 		void color(float r, float g, float b, float a=1);
-		void texcoord(float u, float v, float w = 0);
+		void texcoord(float u, float v, float w=0);
 		void normal(float x, float y, float z);
 		void vertex(float x, float y, float z);
 	void end();

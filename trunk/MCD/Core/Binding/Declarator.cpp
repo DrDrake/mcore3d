@@ -6,7 +6,6 @@
 #define CAPI_VERIFY(arg) MCD_VERIFY(SQ_SUCCEEDED((arg)))
 
 namespace MCD {
-
 namespace Binding {
 
 Declarator::Declarator(const ScriptObject& hostObject, HSQUIRRELVM vm)
@@ -162,5 +161,4 @@ ScriptObject RootDeclarator::_getRoot(HSQUIRRELVM vm)
 }
 
 }	// namespace Binding
-
 }	// namespace MCD

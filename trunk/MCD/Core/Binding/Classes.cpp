@@ -6,7 +6,6 @@
 #define CAPI_VERIFY(arg) MCD_VERIFY(SQ_SUCCEEDED((arg)))
 
 namespace MCD {
-
 namespace Binding {
 
 namespace {
@@ -270,5 +269,4 @@ void ClassesManager::registerGetSetTable(HSQUIRRELVM v, ScriptObject& classObj)
 }
 
 }	// namespace Binding
-
 }	// namespace MCD

@@ -4,10 +4,42 @@
 #include "VMCore.h"
 #include "../Entity/InputComponent.h"
 #include "../Entity/Entity.h"
+#include "../System/Resource.h"
 
 namespace MCD {
-
 namespace Binding {
+
+// System
+
+static const char* path_Resource(Resource& self) { return self.fileId().getString().c_str(); }
+
+SCRIPT_CLASS_REGISTER(Resource)
+	.declareClass<Resource>("Resource")
+	.varGet("path", &path_Resource)
+	.varGet("commitCount", &Resource::commitCount)
+;}
+
+void push(HSQUIRRELVM v, Resource* obj)
+{
+	if(!obj) {
+		sq_pushnull(v);
+		return;
+	}
+
+	// Get the actual class id from run-time type information
+	const ClassID classID = ClassesManager::getClassIdFromRtti(
+		typeid(*obj), ClassTraits<Resource>::classID()
+	);
+
+	intrusivePtrAddRef(obj);
+	ClassesManager::createObjectInstanceOnStack(v, classID, obj);
+}
+
+void destroy(Resource* dummy, Resource* instance)
+{
+	if(instance)
+		intrusivePtrRelease(instance);
+}
 
 // Math
 
@@ -121,7 +153,7 @@ SCRIPT_CLASS_REGISTER(Vec2f)
 	.rawMethod("constructor", createVec2)
 	.var("x", (float Vec2f::*)&Vec2f::x)
 	.var("y", (float Vec2f::*)&Vec2f::y)
-	.runScript("Vec2._tostring <- function(){return x+\", \"+y+\";}")
+//	.runScript("Vec2._tostring <- function(){return x+\", \"+y+\";}")
 ;}
 
 static int create_Vec3(HSQUIRRELVM vm)
@@ -266,6 +298,8 @@ void destroy(Entity* dummy, Entity* instance)
 	}
 }
 
+// Component
+
 SCRIPT_CLASS_REGISTER(Component)
 	.declareClass<Component>("Component")
 	.varGet("enabled", &Component::enabled)
@@ -353,8 +387,10 @@ void registerCoreBinding(VMCore& vm)
 	Binding::ClassTraits<Entity>::bind(&vm);
 	Binding::ClassTraits<InputComponent>::bind(&vm);
 	Binding::ClassTraits<Mat44f>::bind(&vm);
+	Binding::ClassTraits<Resource>::bind(&vm);
+	Binding::ClassTraits<Vec2f>::bind(&vm);
+	Binding::ClassTraits<Vec3f>::bind(&vm);
 }
 
 }	// namespace Binding
-
 }	// namespace MCD

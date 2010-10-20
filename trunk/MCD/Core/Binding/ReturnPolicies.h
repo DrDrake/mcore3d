@@ -71,7 +71,6 @@ public:
 			return sq_throwerror(v, "Failed to construct object");
 
 		sq_setreleasehook(v, 1, releaseHook<HostType>);
-//		types::addHandleToObject(v, obj, 1);
 
 		return 1;
 	}
