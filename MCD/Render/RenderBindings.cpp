@@ -85,11 +85,15 @@ SCRIPT_CLASS_REGISTER(Mesh)
 
 // TextLabelComponent
 
+static const char* getText_TextLabelComponent(TextLabelComponent& self) { return self.text; }
+static void setText_TextLabelComponent(TextLabelComponent& self, const char* text) { self.text = FixString(text); }
+
 SCRIPT_CLASS_DECLAR(TextLabelComponent);
 SCRIPT_CLASS_REGISTER(TextLabelComponent)
 	.declareClass<TextLabelComponent, Component>("TextLabelComponent")
 	.constructor()
-	.var("text", &TextLabelComponent::text)
+	.varGet("text", &getText_TextLabelComponent)
+	.varSet("text", &setText_TextLabelComponent)
 	.var("lineWidth", &TextLabelComponent::lineWidth)
 ;}
 

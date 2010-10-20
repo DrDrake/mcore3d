@@ -107,7 +107,6 @@ TEST(DisplayListTest)
 
 	Entity& root = framework.rootEntity();
 	Entity& scene = framework.sceneLayer();
-	ResourceManager& resourceManager = framework.resourceManager();
 	CameraComponent* sceneCamera = scene.findComponentInChildrenExactType<CameraComponent>();
 	sceneCamera->entity()->localTransform.translateBy(Vec3f(0, 10, 10));
 
@@ -141,16 +140,13 @@ TEST(DisplayListTest)
 		e->addComponent(new HistogamComponent);
 
 		// Equation label
-		e = noLighting->addFirstChild(new Entity("Equation label"));
-		BmpFontMaterialComponent* m = e->addComponent(new BmpFontMaterialComponent);
-		m->bmpFont = dynamic_cast<BmpFont*>(resourceManager.load("buildin/Arial-20.fnt").get());
-		m->color = ColorRGBAf(1, 1, 0, 1);
-
-		e = e->addFirstChild(new Entity);
+		e = noLighting->addFirstChild(new Entity);
 		e->localTransform.setTranslation(Vec3f(0, 12, 0));
 		e->localTransform.scaleBy(Vec3f(0.05f));
 		TextLabelComponent* text = e->addComponent(new TextLabelComponent);
 		text->text = "y = 10 * sin(x/2 + t)";
+		text->font = "buildin/Arial-20.fnt";
+		text->color = ColorRGBAf(1, 1, 0, 1);
 	}
 
 	while(true)

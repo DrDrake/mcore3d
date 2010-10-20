@@ -280,6 +280,12 @@ FixString::~FixString() {
 	gFixStringHashTable().remove(*mNode);
 }
 
+FixString& FixString::operator=(const char* rhs)
+{
+	FixString tmp(rhs);
+	return *this = tmp;
+}
+
 FixString& FixString::operator=(const FixString& rhs)
 {
 	gFixStringHashTable().remove(*mNode);

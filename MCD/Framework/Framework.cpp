@@ -182,6 +182,7 @@ Framework::Impl::Impl()
 		Entity* e = mGuiLayer->addFirstChild(new Entity("Fps label"));
 		e->localTransform.setTranslation(Vec3f(0, 30, 0));
 		mFpsLabel = e->addComponent(new TextLabelComponent);
+		mFpsLabel->font = "buildin/Arial-20.fnt";
 	}
 
 	{	// Behaviour updater
@@ -272,11 +273,6 @@ bool Framework::Impl::initWindow(RenderWindow& existingWindow, bool takeOwnershi
 
 	{	// Default scene material
 		mSceneLayer->addComponent(new MaterialComponent);
-	}
-
-	{	// Font material for Gui layer
-		BmpFontMaterialComponent* material = mGuiLayer->addComponent(new BmpFontMaterialComponent);
-		material->bmpFont = dynamic_cast<BmpFont*>(mResourceManager->load("buildin/Arial-20.fnt").get());
 	}
 
 	{	// Default Gui camera
@@ -470,7 +466,7 @@ bool Framework::Impl::update(Event& e)
 			mFrameCounter = 0;
 		}
 
-		mFpsLabel->text = float2Str(mFramePerSecond);
+		mFpsLabel->text = FixString(float2Str(mFramePerSecond).c_str());
 	}
 
 	{	// Entity and Component traversal
