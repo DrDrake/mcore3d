@@ -11,7 +11,6 @@
 #define CAPI_VERIFY(arg) MCD_VERIFY(SQ_SUCCEEDED((arg)))
 
 namespace MCD {
-
 namespace Binding {
 
 // The default print function for the scripting VM
@@ -314,5 +313,4 @@ bool VMCore::printError(HSQUIRRELVM v)
 }
 
 }	// namespace Binding
-
 }	// namespace MCD

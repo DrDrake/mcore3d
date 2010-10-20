@@ -294,6 +294,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\RenderBindings.h"
+				>
+			</File>
+			<File
 				RelativePath=".\Renderer.h"
 				>
 			</File>
@@ -442,6 +446,10 @@
 			</File>
 			<File
 				RelativePath=".\Renderable.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\RenderBindings.cpp"
 				>
 			</File>
 			<File

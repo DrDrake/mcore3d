@@ -45,6 +45,11 @@ class ResourceManager::Impl
 			}
 
 			mQueue.push_back(event);
+
+			// NOTE: Keep the life of the Resource till at least popEvent()
+			if(Resource* r = event->resource().get())
+				intrusivePtrAddRef(r);
+
 			mMutex->broadcastNoLock();
 		}
 
@@ -54,6 +59,10 @@ class ResourceManager::Impl
 			IResourceLoaderPtr ret = nullptr;
 			if(!mQueue.empty()) {
 				ret = mQueue.front();
+
+				if(Resource* r = ret->resource().get())
+					intrusivePtrRelease(r);
+
 				mQueue.pop_front();
 				mMutex->broadcastNoLock();
 			}
@@ -214,6 +223,7 @@ public:
 				loader->mArgs = args ? args : "";
 				loader->mResource = resource.get();
 				loader->mResourceManager = &mBackRef;
+				mResourceHolder.push_back(resource);
 				break;
 			}
 		}
@@ -255,6 +265,8 @@ public:
 	bool mTakeFileSystemOwnership;
 
 	const int mCreatorThreadId;	/// Store which thread create this ResourceManager
+
+	std::vector<ResourcePtr> mResourceHolder;	/// To prolong the life of a Resource till at least popEvent()
 
 	CondVar mMutex;
 };	// Impl
@@ -457,6 +469,10 @@ IResourceLoaderPtr ResourceManager::popEvent(Timer* timer, float timeOut, bool p
 
 	if(performLoad || mImpl->mTaskPool->getThreadCount() == 0)
 		mImpl->mTaskPool->processTaskInThisThread(timer, timeOut);
+
+	{	ScopeLock lock(mImpl->mMutex);
+		mImpl->mResourceHolder.clear();
+	}
 
 	return loader;
 }

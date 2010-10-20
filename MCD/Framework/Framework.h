@@ -20,6 +20,10 @@ typedef IntrusivePtr<class Texture> TexturePtr;
 typedef IntrusiveWeakPtr<class InputComponent> InputComponentPtr;
 typedef IntrusiveWeakPtr<class RendererComponent> RendererComponentPtr;
 
+namespace Binding {
+class VMCore;
+}	// namespace Binding
+
 /// A framework that integrate various MCore modules.
 class MCD_FRAMEWORK_API Framework : private Noncopyable
 {
@@ -49,7 +53,7 @@ public:
 	/// \sa Window::popEvent()
 	/// \param event Output parameter to get the event.
 	/// \return false if the event queue is empty.
-	bool update(Event& e);
+	sal_checkreturn bool update(Event& e);
 
 // Higher level operations
 	TexturePtr loadTexture(sal_in_z const char* path, int blockIteration=-1);
@@ -71,6 +75,8 @@ public:
 	Entity& systemEntity();
 	Entity& sceneLayer();
 	Entity& guiLayer();
+
+	Binding::VMCore& vm();
 
 	sal_maybenull RenderWindow* window();
 
