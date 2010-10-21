@@ -290,6 +290,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\RenderBindingTest.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\RenderBindingTest.nut"
 				>
 			</File>

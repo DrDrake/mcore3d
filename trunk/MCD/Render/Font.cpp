@@ -22,6 +22,7 @@ int BmpFont::findKerningOffset(uint16_t char1, uint16_t char2) const
 	return i == kerning.end() ? 0 : i->second;
 }
 
+// Sharing of material among TextLabelComponent
 typedef std::map<FixString, BmpFontMaterialComponent*> BmpFontMaterial;
 static BmpFontMaterial bmpFontMaterial;
 
@@ -59,6 +60,7 @@ TextLabelComponent::TextLabelComponent()
 	: lineWidth(0), mFontMaterial(nullptr)
 	, mLastBmpFontCommitCount(0)
 	, color(ColorRGBAf(1, 1))
+	, font("buildin/Arial-20.fnt")
 {}
 
 TextLabelComponent::~TextLabelComponent()
