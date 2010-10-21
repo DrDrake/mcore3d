@@ -36,6 +36,15 @@ framework.load("a.png");
 	c.end();
 }
 
+class MyScript extends ScriptComponent
+{
+	function update(dt) {
+//		::println("hi");
+	}
+}
+
+framework.sceneLayer.addFirstChild(Entity("Script")).addComponent(MyScript());
+
 while(framework.update()) {
 	e.TextLabelComponent.text = "Hello world" +  ", " + framework.fps;
 }

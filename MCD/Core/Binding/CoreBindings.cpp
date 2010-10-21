@@ -1,6 +1,7 @@
 #include "Pch.h"
 #include "CoreBindings.h"
 #include "Declarator.h"
+#include "ScriptComponent.h"
 #include "VMCore.h"
 #include "../Entity/InputComponent.h"
 #include "../Entity/Entity.h"
@@ -272,7 +273,7 @@ void push(HSQUIRRELVM v, Entity* obj)
 	}
 	else {
 		const ClassID classID = ClassTraits<Entity>::classID();
-		obj->scriptAddReference();
+		intrusivePtrAddRef(obj);
 		ClassesManager::createObjectInstanceOnStack(v, classID, obj);
 		obj->scriptVm = v;
 		sq_getstackobj(v, -1, h);
@@ -286,7 +287,7 @@ SQRESULT setInstanceUp(HSQUIRRELVM v, SQInteger idx, Entity* dummy, Entity* inst
 	instance->scriptVm = v;
 	sq_getstackobj(v, idx, h);
 
-	instance->scriptAddReference();
+	intrusivePtrAddRef(instance);
 	return sq_setinstanceup(v, idx, instance);
 }
 
@@ -328,7 +329,7 @@ void push(HSQUIRRELVM v, Component* obj)
 			typeid(*obj), ClassTraits<Component>::classID()
 		);
 
-		obj->scriptAddReference();
+		intrusivePtrAddRef(obj);
 		ClassesManager::createObjectInstanceOnStack(v, classID, obj);
 		obj->scriptVm = v;
 		sq_getstackobj(v, -1, h);
@@ -342,7 +343,7 @@ SQRESULT setInstanceUp(HSQUIRRELVM v, SQInteger idx, Component* dummy, Component
 	instance->scriptVm = v;
 	sq_getstackobj(v, idx, h);
 
-	instance->scriptAddReference();
+	intrusivePtrAddRef(instance);
 	return sq_setinstanceup(v, idx, instance);
 }
 
@@ -350,9 +351,17 @@ void destroy(Component* dummy, Component* instance)
 {
 	if(instance) {
 		instance->scriptVm = nullptr;
-		instance->scriptReleaseReference();
+		intrusivePtrRelease(instance);
 	}
 }
+
+// ScriptComponent
+
+SCRIPT_CLASS_DECLAR_EXPORT(ScriptComponent, MCD_CORE_API);	// TODO: Don't why this is needed!
+SCRIPT_CLASS_REGISTER(ScriptComponent)
+	.declareClass<ScriptComponent, Component>("ScriptComponent")
+	.constructor()
+;}
 
 // Input
 
@@ -388,6 +397,7 @@ void registerCoreBinding(VMCore& vm)
 	Binding::ClassTraits<InputComponent>::bind(&vm);
 	Binding::ClassTraits<Mat44f>::bind(&vm);
 	Binding::ClassTraits<Resource>::bind(&vm);
+	Binding::ClassTraits<ScriptComponent>::bind(&vm);
 	Binding::ClassTraits<Vec2f>::bind(&vm);
 	Binding::ClassTraits<Vec3f>::bind(&vm);
 }

@@ -52,8 +52,8 @@ void releaseMaterial(const FixString& fontResource)
 {
 	if(fontResource.empty()) return;
 	BmpFontMaterial::const_iterator i = bmpFontMaterial.find(fontResource);
-	MCD_ASSERT(i != bmpFontMaterial.end());
-	intrusivePtrRelease(i->second);
+	if(i != bmpFontMaterial.end())
+		intrusivePtrRelease(i->second);
 }
 
 TextLabelComponent::TextLabelComponent()
