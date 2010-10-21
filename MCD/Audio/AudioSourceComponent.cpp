@@ -95,6 +95,11 @@ void AudioSourceComponent::update(float)
 	}
 }
 
+float AudioSourceComponent::totalTime() const
+{
+	return float(audioSource.totalPcm() / audioSource.frequency());
+}
+
 uint64_t AudioSourceComponent::toPcm(float time) const
 {
 	return uint64_t(time * audioSource.frequency());

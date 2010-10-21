@@ -181,6 +181,22 @@ TEST(PreorderIterator_EntityTest)
 	}
 }
 
+TEST(PreorderIterator2_EntityTest)
+{
+	Entity root;
+	EntityPtr e1 = root.addLastChild(new Entity("e1"));
+	EntityPtr e2 = root.addLastChild(new Entity("e2"));
+
+	size_t i = 0;
+	EntityPtr e;
+	for(EntityPreorderIterator itr(e1.get()); !itr.ended(); itr.next(), ++i) {
+		e = itr.current();
+	}
+
+	CHECK_EQUAL(1u, i);
+	CHECK_EQUAL(e1, e);
+}
+
 TEST(Find_EntityTest)
 {
 	Entity root;

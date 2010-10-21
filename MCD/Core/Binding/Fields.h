@@ -102,6 +102,18 @@ template<> struct GetterSetter<const std::string> {
 	typedef type setterType;
 	static getterType get(const std::string& val) { return val.c_str(); }
 };
+template<> struct GetterSetter<FixString> {
+	typedef const char* type;
+	typedef type getterType;
+	typedef type setterType;
+	static getterType get(const FixString& val) { return val.c_str(); }
+};
+template<> struct GetterSetter<const FixString> {
+	typedef const char* type;
+	typedef type getterType;
+	typedef type setterType;
+	static getterType get(const FixString& val) { return val.c_str(); }
+};
 
 template<class ResultPolicy, class Callee, class RawField>
 SQInteger pushField(Callee* callee, RawField (Callee::*fieldPtr), HSQUIRRELVM v)
