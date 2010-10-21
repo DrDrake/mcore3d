@@ -11,7 +11,6 @@
 #include "../Core/Binding/VMCore.h"
 
 namespace MCD {
-
 namespace Binding {
 
 // ColorRGB
@@ -49,15 +48,11 @@ SCRIPT_CLASS_REGISTER(DisplayListComponent)
 
 // LightComponent
 
-static const char* getType_LightComponent(LightComponent& self) { return self.type; }
-static void setType_LightComponent(LightComponent& self, const char* type) { self.type = FixString(type); }
-
 SCRIPT_CLASS_DECLAR(LightComponent);
 SCRIPT_CLASS_REGISTER(LightComponent)
 	.declareClass<LightComponent, Component>("LightComponent")
 	.constructor()
-	.varGet("type", &getType_LightComponent)
-	.varSet("type", &setType_LightComponent)
+	.var("type", &LightComponent::type)
 	.var("color", &LightComponent::color)
 ;}
 
@@ -85,15 +80,11 @@ SCRIPT_CLASS_REGISTER(Mesh)
 
 // TextLabelComponent
 
-static const char* getText_TextLabelComponent(TextLabelComponent& self) { return self.text; }
-static void setText_TextLabelComponent(TextLabelComponent& self, const char* text) { self.text = FixString(text); }
-
 SCRIPT_CLASS_DECLAR(TextLabelComponent);
 SCRIPT_CLASS_REGISTER(TextLabelComponent)
 	.declareClass<TextLabelComponent, Component>("TextLabelComponent")
 	.constructor()
-	.varGet("text", &getText_TextLabelComponent)
-	.varSet("text", &setText_TextLabelComponent)
+	.var("text", &TextLabelComponent::text)
 	.var("lineWidth", &TextLabelComponent::lineWidth)
 ;}
 
@@ -118,5 +109,4 @@ void registerRenderBinding(VMCore& vm)
 }
 
 }	// namespace Binding
-
 }	// namespace MCD

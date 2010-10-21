@@ -19,9 +19,8 @@ framework.load("a.png");
 
 {	// Build the xyz axis
 	local axis = noLighting.addFirstChild(Entity("Axis"));
-	axis.addComponent(DisplayListComponent());
+	local c = axis.addComponent(DisplayListComponent());
 
-	local c = axis.DisplayListComponent;
 	c.beginLines();
 		c.color(1, 0, 0);
 		c.vertex(-1, 0, 0);

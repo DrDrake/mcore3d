@@ -213,6 +213,10 @@
 			Filter="h"
 			>
 			<File
+				RelativePath=".\AudioBindings.h"
+				>
+			</File>
+			<File
 				RelativePath=".\AudioBuffer.h"
 				>
 			</File>
@@ -249,6 +253,10 @@
 			Name="Source Files"
 			Filter="cpp;"
 			>
+			<File
+				RelativePath=".\AudioBindings.cpp"
+				>
+			</File>
 			<File
 				RelativePath=".\AudioBuffer.cpp"
 				>

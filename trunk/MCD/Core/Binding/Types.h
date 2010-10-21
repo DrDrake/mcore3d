@@ -3,6 +3,7 @@
 
 //#include "CommonPointers.h"
 #include "Classes.h"
+#include "../System/StringHash.h"
 
 namespace MCD {
 namespace Binding {
@@ -24,6 +25,7 @@ inline void push(HSQUIRRELVM v,float value)					{ sq_pushfloat(v,(SQFloat)value)
 inline void push(HSQUIRRELVM v,bool value)					{ sq_pushbool(v,value); }
 inline void push(HSQUIRRELVM v,const char* value)			{ sq_pushstring(v,value,-1); }
 inline void push(HSQUIRRELVM v,const std::string& value)	{ sq_pushstring(v,value.c_str(), SQInteger(value.length())); }
+inline void push(HSQUIRRELVM v,const FixString& value)		{ sq_pushstring(v,value.c_str(), SQInteger(value.size())); }
 
 template<typename T>
 void push(HSQUIRRELVM v, T obj)
@@ -60,11 +62,13 @@ inline bool match(TypeSelect<double>,HSQUIRRELVM v,int idx)							{ return (sq_g
 inline bool match(TypeSelect<const char*>,HSQUIRRELVM v,int idx)					{ return sq_gettype(v,idx) == OT_STRING; }
 inline bool match(TypeSelect<std::string>,HSQUIRRELVM v,int idx)					{ return sq_gettype(v,idx) == OT_STRING; }
 inline bool match(TypeSelect<const std::string>,HSQUIRRELVM v,int idx)				{ return sq_gettype(v,idx) == OT_STRING; }
+inline bool match(TypeSelect<FixString>,HSQUIRRELVM v,int idx)						{ return sq_gettype(v,idx) == OT_STRING; }
+inline bool match(TypeSelect<const FixString>,HSQUIRRELVM v,int idx)				{ return sq_gettype(v,idx) == OT_STRING; }
 
-template<typename T> bool match(TypeSelect<const T*>,HSQUIRRELVM v,int idx)			{ T* p=nullptr; return SQ_SUCCEEDED(fromInstanceUp(v, idx, p, p, ClassTraits<T>::classID())) ? true : sq_gettype(v,idx) == OT_NULL; }
-template<typename T> bool match(TypeSelect<T*>,HSQUIRRELVM v,int idx)				{ return match(TypeSelect<const T*>(), v, idx); }
-template<typename T> bool match(TypeSelect<const T&>,HSQUIRRELVM v,int idx)			{ T* p=nullptr; bool ok = SQ_SUCCEEDED(fromInstanceUp(v, idx, p, p, ClassTraits<T>::classID())); return ok ? p != nullptr : ok; }
-template<typename T> bool match(TypeSelect<T&>,HSQUIRRELVM v,int idx)				{ return match(TypeSelect<const T&>(), v, idx); }
+template<typename T> bool match(TypeSelect<T*>,HSQUIRRELVM v,int idx)				{ T* p=nullptr; return SQ_SUCCEEDED(fromInstanceUp(v, idx, p, p, ClassTraits<T>::classID())) ? true : sq_gettype(v,idx) == OT_NULL; }
+template<typename T> bool match(TypeSelect<const T*>,HSQUIRRELVM v,int idx)			{ return match(TypeSelect<T*>(), v, idx); }
+template<typename T> bool match(TypeSelect<T&>,HSQUIRRELVM v,int idx)				{ T* p=nullptr; bool ok = SQ_SUCCEEDED(fromInstanceUp(v, idx, p, p, ClassTraits<T>::classID())); return ok ? p != nullptr : ok; }
+template<typename T> bool match(TypeSelect<const T&>,HSQUIRRELVM v,int idx)			{ return match(TypeSelect<T&>(), v, idx); }
 
 // Get functions - to get values from the script
 
@@ -81,6 +85,7 @@ inline float			get(TypeSelect<float>,HSQUIRRELVM v,int idx)				{ SQFloat f; CAPI
 inline double			get(TypeSelect<double>,HSQUIRRELVM v,int idx)				{ SQFloat f; CAPI_VERIFY(sq_getfloat(v,idx,&f)); return static_cast<double>(f); }
 inline const char*		get(TypeSelect<const char*>,HSQUIRRELVM v,int idx)			{ const char* s; CAPI_VERIFY(sq_getstring(v,idx,&s)); return s; }
 inline std::string		get(TypeSelect<std::string>,HSQUIRRELVM v,int idx)			{ const char* s; CAPI_VERIFY(sq_getstring(v,idx,&s)); return s; }
+inline FixString		get(TypeSelect<FixString>,HSQUIRRELVM v,int idx)				{ const char* s; CAPI_VERIFY(sq_getstring(v,idx,&s)); return FixString(s); }
 
 #ifdef NDEBUG	// No type tag check in release mode, as the check should be already done by the match() function first.
 template<typename T> const T&	get(TypeSelect<const T&>,HSQUIRRELVM v,int idx)		{ T* p=nullptr; fromInstanceUp(v, idx, p, p, 0); return *p; }

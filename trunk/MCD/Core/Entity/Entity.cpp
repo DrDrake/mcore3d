@@ -555,6 +555,8 @@ Entity* EntityPreorderIterator::next()
 			mDepthChange = 1;
 			return mCurrent = mCurrent->firstChild();
 		}
+		else if(mCurrent == mStart)
+			mCurrent = nullptr;
 		else if(mCurrent->nextSibling())
 			return mCurrent = mCurrent->nextSibling();
 		else

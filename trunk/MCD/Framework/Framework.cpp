@@ -48,6 +48,7 @@
 #include "../Loader/TgaLoader.h"
 
 #include "../Audio/AudioDevice.h"
+#include "../Audio/AudioBindings.h"
 #include "../Audio/AudioSourceComponent.h"
 
 namespace MCD {
@@ -498,6 +499,7 @@ Framework::Framework()
 {
 	{	// Initialize script vm
 		Binding::registerCoreBinding(mImpl.vm);
+		Binding::registerAudioBinding(mImpl.vm);
 		Binding::registerRenderBinding(mImpl.vm);
 		Binding::registerFrameworkBinding(mImpl.vm, *this);
 	}
