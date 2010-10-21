@@ -820,6 +820,14 @@
 				>
 			</File>
 			<File
+				RelativePath=".\Binding\ScriptComponent.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\Binding\ScriptComponent.h"
+				>
+			</File>
+			<File
 				RelativePath=".\Binding\ScriptObject.cpp"
 				>
 			</File>

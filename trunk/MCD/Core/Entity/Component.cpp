@@ -1,6 +1,7 @@
 #include "Pch.h"
 #include "Component.h"
 #include "Entity.h"
+#include "../../../3Party/squirrel/squirrel.h"
 
 // NOTE: For dll export purpose
 #include "SystemComponent.h"
@@ -25,6 +26,7 @@ void Component::onRemove() {}
 
 void Component::destroyThis()
 {
+	removeThis();
 	intrusivePtrRelease(this);
 }
 
@@ -44,12 +46,16 @@ void Component::setEnabled(bool b)
 
 void Component::scriptAddReference()
 {
-	intrusivePtrAddRef(this);
+	HSQUIRRELVM v = reinterpret_cast<HSQUIRRELVM>(scriptVm);
+	HSQOBJECT* h = reinterpret_cast<HSQOBJECT*>(scriptHandle);
+	if(v) sq_addref(v, h);
 }
 
 void Component::scriptReleaseReference()
 {
-	intrusivePtrRelease(this);
+	HSQUIRRELVM v = reinterpret_cast<HSQUIRRELVM>(scriptVm);
+	HSQOBJECT* h = reinterpret_cast<HSQOBJECT*>(scriptHandle);
+	if(v) sq_release(v, h);
 }
 
 void ComponentUpdater::traverseBegin(Entity& entityTree)

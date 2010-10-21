@@ -108,11 +108,11 @@ public:
 		bool leftClouseOnStack=false
 	);
 
-protected:
 	static sal_checkreturn bool call(HSQUIRRELVM v, bool retVal);
 
 	static bool printError(HSQUIRRELVM v);	// Always return false
 
+protected:
 	State mState;
 	HSQUIRRELVM mSqvm;
 	HSQOBJECT mClassesTable;

@@ -17,6 +17,7 @@ class Component;
 class Entity;
 class InputComponent;
 class Resource;
+class ScriptComponent;
 
 namespace Binding {
 
@@ -48,6 +49,9 @@ MCD_CORE_API void destroy(Component*, Component*);
 template<typename T> SQRESULT setInstanceUp(HSQUIRRELVM v, SQInteger i, Component* c, T*) { return setInstanceUp(v, i, c, c); }
 template<typename T> void destroy(Component* c, T*) { destroy(c, c); }
 inline void push(HSQUIRRELVM v, Component& c) { push(v, &c); }
+
+// ScriptComponent
+SCRIPT_CLASS_DECLAR_EXPORT(ScriptComponent, MCD_CORE_API);
 
 // Input
 SCRIPT_CLASS_DECLAR_EXPORT(InputComponent, MCD_CORE_API);

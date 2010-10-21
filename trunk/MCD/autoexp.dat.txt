@@ -7,7 +7,7 @@
 MCD::FixString {
 	preview (
 		#(
-			(char*)($e.mNode+1)
+			(char*)($c.mNode)+16
 		)
 	)
 }
