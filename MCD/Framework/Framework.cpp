@@ -226,7 +226,9 @@ Framework::Impl::~Impl()
 {
 	mTaskPool->stop();
 
-	mWindow->makeActive();
+	if(mWindow.get())
+		mWindow->makeActive();
+
 	delete mRootEntity.get();
 	MCD_ASSERT(!mSystemEntity);
 	MCD_ASSERT(!mSceneLayer);

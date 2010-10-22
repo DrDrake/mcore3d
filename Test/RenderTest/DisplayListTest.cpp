@@ -56,7 +56,7 @@ public:
 	}
 };	// LineCircleComponent
 
-class HistogamComponent : public DisplayListComponent
+class HistogramComponent : public DisplayListComponent
 {
 public:
 	float func(float x) {
@@ -95,7 +95,7 @@ public:
 	}
 
 	Timer timer;
-};	// HistogamComponent
+};	// HistogramComponent
 
 }	// namespace
 
@@ -137,7 +137,7 @@ TEST(DisplayListTest)
 
 	{	// Histogram
 		Entity* e = noLighting->addFirstChild(new Entity("Histogram"));
-		e->addComponent(new HistogamComponent);
+		e->addComponent(new HistogramComponent);
 
 		// Equation label
 		e = noLighting->addFirstChild(new Entity);

@@ -242,14 +242,36 @@ void ClassesManager::registerGetSetTable(HSQUIRRELVM v, ScriptObject& classObj)
 	// Add the get table (static)
 	HSQOBJECT getTable;
 	sq_pushstring(v, "__getTable", -1);
-	sq_newtable(v);
+	if(SQ_SUCCEEDED(sq_get(v, -2))) {	// Clone the parent's __getTable if any
+		/// stack: class, parentGetTable
+		sq_pushstring(v, "__getTable", -1);
+		CAPI_VERIFY(sq_clone(v, -2));
+		sq_remove(v, -3);
+		/// stack: class, "__getTable", clonedTable
+	} else {
+		/// stack: class
+		sq_pushstring(v, "__getTable", -1);
+		sq_newtable(v);
+		/// stack: class, "__getTable", newTable
+	}
 	sq_getstackobj(v, -1, &getTable);
 	sq_newslot(v, -3, true);
 
 	// Add the set table (static)
 	HSQOBJECT setTable;
 	sq_pushstring(v, "__setTable", -1);
-	sq_newtable(v);
+	if(SQ_SUCCEEDED(sq_get(v, -2))) {	// Clone the parent's __setTable if any
+		/// stack: class, parentSetTable
+		sq_pushstring(v, "__setTable", -1);
+		CAPI_VERIFY(sq_clone(v, -2));
+		sq_remove(v, -3);
+		/// stack: class, "__setTable", clonedTable
+	} else {
+		/// stack: class
+		sq_pushstring(v, "__setTable", -1);
+		sq_newtable(v);
+		/// stack: class, "__setTable", newTable
+	}
 	sq_getstackobj(v, -1, &setTable);
 	sq_newslot(v, -3, true);
 

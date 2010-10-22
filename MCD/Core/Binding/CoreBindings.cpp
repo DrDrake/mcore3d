@@ -250,7 +250,8 @@ SCRIPT_CLASS_REGISTER(Entity)
 	.method("insertAfter", &Entity::insertAfter)
 	.method("isAncestorOf", &Entity::isAncestorOf)
 	.method("destroyThis", &Entity::destroyThis)
-	.method("addComponent", &Entity::_addComponent)
+	.method("_addComponent", &Entity::_addComponent)
+	.runScript("Entity.addComponent<-function(arg){if(arg instanceof ::Component) return _addComponent(arg);else if(typeof arg==\"class\") return _addComponent(arg());}") // Accept both class and instance as the argument
 	.method("_nextComponent", &nextComponent_Entity)
 	.runScript("Entity.__getTable.components<-function(){for(local c;c=_nextComponent(c);)yield c;}")	// Variable for looping all the components
 //	.runScript("Entity._get<-function(idx){local t=::Entity.__getTable;if(t.rawin(idx))return t.rawget(idx).call(this);foreach(c in this.components)if(typeof c==idx)return c;throw null;}")	// NOTE: Using the generator here will cause crash in ~SQGenerator(), don't know why
