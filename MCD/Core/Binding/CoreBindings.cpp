@@ -358,10 +358,53 @@ void destroy(Component* dummy, Component* instance)
 
 // ScriptComponent
 
+int suspend_ScriptComponent(HSQUIRRELVM vm) {
+	return sq_suspendvm(vm);
+}
+
+int wakeup_ScriptComponent(HSQUIRRELVM vm)
+{
+	const int paramCount = sq_gettop(vm) - 1;
+
+	SQRESULT ret = sq_wakeupvm(vm, paramCount > 0, true, true, false);
+
+	if(SQ_VMSTATE_SUSPENDED != sq_getvmstate(vm)) {
+		VMCore* core = reinterpret_cast<VMCore*>(sq_getforeignptr(vm));
+		MCD_ASSUME(core);
+		core->releaseThread(vm);
+
+		ScriptComponent* self = get(TypeSelect<ScriptComponent*>(), vm, 1);
+		MCD_ASSUME(self);
+		self->mSuspended = false;
+	}
+
+	return ret;
+}
+
+int sleep_ScriptComponent(HSQUIRRELVM vm)
+{
+	VMCore* core = reinterpret_cast<VMCore*>(sq_getforeignptr(vm));
+	MCD_ASSUME(core);
+	const int paramCount = sq_gettop(vm) - 1;
+	if(paramCount >= 1) {
+		float t = 0;
+		if(SQ_SUCCEEDED(sq_getfloat(vm, 2, &t))) {
+			ScriptComponent* self = get(TypeSelect<ScriptComponent*>(), vm, 1);
+			core->scheduleWakeup(vm, core->currentTime() + t, self);
+			return sq_suspendvm(vm);
+		}
+	}
+
+	return sq_throwerror(vm, "ScriptComponent.sleep() expecting a float parameter");
+}
+
 SCRIPT_CLASS_DECLAR_EXPORT(ScriptComponent, MCD_CORE_API);	// TODO: Don't why this is needed!
 SCRIPT_CLASS_REGISTER(ScriptComponent)
 	.declareClass<ScriptComponent, Component>("ScriptComponent")
 	.constructor()
+	.rawMethod("suspend", &suspend_ScriptComponent)
+	.rawMethod("wakeup", &wakeup_ScriptComponent)
+	.rawMethod("sleep", &sleep_ScriptComponent)
 ;}
 
 // Input

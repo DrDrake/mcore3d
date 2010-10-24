@@ -49,6 +49,7 @@ framework.sceneLayer.addFirstChild(Entity("Script")).addComponent(MyScript);
 class DrawHistogram extends ScriptComponent
 {
 	time = 0;
+	refershRate = 60;
 
 	function func(x) {
 		return ::sin(0.5 * x) * 10;
@@ -56,6 +57,7 @@ class DrawHistogram extends ScriptComponent
 
 	function update(dt)
 	{
+
 		local segments = 100;
 		local min = -12.5;
 		local max = 12.5;
@@ -81,14 +83,12 @@ class DrawHistogram extends ScriptComponent
 			}
 		d.end();
 
-		time += dt;
+		sleep(0);	// Effectively do nothing
+		sleep(1.0/refershRate);
+		time += 1.0/refershRate;
 	}
 }
 
 local histogam = noLighting.addFirstChild(Entity("Histogram"));
 histogam.addComponent(DrawHistogram);
 histogam.addComponent(DisplayListComponent);
-
-while(framework.update()) {
-	e.TextLabelComponent.text = "Hello world" +  ", " + framework.fps;
-}

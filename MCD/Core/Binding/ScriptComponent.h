@@ -3,15 +3,39 @@
 
 #include "../Entity/BehaviourComponent.h"
 
+typedef struct SQVM* HSQUIRRELVM;
+
 namespace MCD {
 namespace Binding {
 
+class VMCore;
+
 /// To be sub-classed in script
-class ScriptComponent : public BehaviourComponent
+class MCD_CORE_API ScriptComponent : public BehaviourComponent
 {
 public:
+	ScriptComponent();
+
 	sal_override void update(float dt);
+
+protected:
+	friend int wakeup_ScriptComponent(HSQUIRRELVM vm);
+	friend class ScriptManagerComponent;
+	void* mThreadVM;
+	bool mSuspended;
 };	// ScriptComponent
+
+class MCD_CORE_API ScriptManagerComponent : public ComponentUpdater
+{
+public:
+	explicit ScriptManagerComponent(VMCore* vmcore);
+
+protected:
+	/// Will wakeup up sleeped script at the right time
+	sal_override void end(float dt);
+
+	VMCore* mVMCore;
+};	// ScriptManagerComponent
 
 }	// namespace Binding
 }	// namespace MCD

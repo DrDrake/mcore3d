@@ -5,6 +5,7 @@
 #include "BuildinData/BuildinData.h"
 
 #include "../Core/Binding/CoreBindings.h"
+#include "../Core/Binding/ScriptComponent.h"
 #include "../Core/Binding/VMCore.h"
 #include "../Core/Entity/Entity.h"
 #include "../Core/Entity/PrefabLoaderComponent.h"
@@ -189,6 +190,13 @@ Framework::Impl::Impl()
 	{	// Behaviour updater
 		Entity* e = mSystemEntity->addFirstChild(new Entity("Behaviour updater"));
 		BehaviourUpdaterComponent* c = new BehaviourUpdaterComponent;
+		e->addComponent(c);
+	}
+
+	{	// Script manager
+		using namespace Binding;
+		Entity* e = mSystemEntity->addFirstChild(new Entity("Script manager"));
+		ScriptManagerComponent* c = new ScriptManagerComponent(&vm);
 		e->addComponent(c);
 	}
 
@@ -496,6 +504,8 @@ bool Framework::Impl::update(Event& e)
 	return hasWindowEvent;
 }
 
+static Framework* gCurrentUpdatingFramework = nullptr;
+
 Framework::Framework()
 	: mImpl(*new Impl)
 {
@@ -536,8 +546,21 @@ PrefabLoaderComponent* Framework::loadPrefabTo(const char* resourcePath, Entity&
 	return mImpl.loadPrefabTo(resourcePath, location, blockingLoad);
 }
 
-bool Framework::update(Event& e) {
-	return mImpl.update(e);
+void Framework::mainLoop()
+{
+	Event e;
+	do {
+		update(e);
+		rendererComponent()->render(rootEntity());
+	} while(e.Type != Event::Closed);
+}
+
+bool Framework::update(Event& e)
+{
+	gCurrentUpdatingFramework = this;
+	bool ret = mImpl.update(e);
+	gCurrentUpdatingFramework = nullptr;
+	return ret;
 }
 
 FileSystemCollection& Framework::fileSystemCollection() {
@@ -590,6 +613,10 @@ float Framework::dt() const {
 
 float Framework::fps() const {
 	return mImpl.mFramePerSecond;
+}
+
+Framework* currentUpdatingFramework() {
+	return gCurrentUpdatingFramework;
 }
 
 }	// namespace MCD

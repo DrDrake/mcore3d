@@ -2,8 +2,11 @@
 #define __MCD_CORE_BINDING_VMCORE__
 
 #include "../ShareLib.h"
+#include "../System/Timer.h"
 #include "../../../3Party/squirrel/squirrel.h"
 #include <iosfwd>
+#include <map>
+#include <stack>
 
 namespace MCD {
 namespace Binding {
@@ -69,6 +72,22 @@ public:
 		bool leftClouseOnStack=false
 	);
 
+// Thread
+	/// Get a friend VM for running a thread, a squirrel thread object will also push to the VMCore's stack
+	HSQUIRRELVM allocateThraed();
+
+	/// Release the VM back to the pool, also reset the thread's stack to zero
+	void releaseThread(HSQUIRRELVM v);
+
+	/// Schedule a suspended thread to wakeup
+	void scheduleWakeup(HSQUIRRELVM v, float timeToWake, void* userData=nullptr);
+
+	/// Ask if it's the time for thread(s) to wakeup
+	HSQUIRRELVM popScheduled(float currentTime, void** userData=nullptr);
+
+	/// For use with scheduleWakeup() and popScheduled()
+	float currentTime() const;
+
 // Static helpers
 	static sal_checkreturn bool loadScript(
 		HSQUIRRELVM v,
@@ -116,6 +135,17 @@ protected:
 	State mState;
 	HSQUIRRELVM mSqvm;
 	HSQOBJECT mClassesTable;
+
+	typedef std::map<HSQUIRRELVM, HSQOBJECT> ThreadMap;
+	ThreadMap mThreadMap;	// Keep tracks of all allocated threads
+	typedef std::stack<HSQUIRRELVM> FreeThreads;
+	FreeThreads mFreeThreads;	// Keep tracks of avaliable threads
+
+	struct UserData { HSQUIRRELVM v; void* d; };
+	typedef std::multimap<float, UserData> Schedule;
+	Schedule mSchedule;
+
+	Timer mTimer;
 
 	friend class ClassesManager;
 };	// VMCore

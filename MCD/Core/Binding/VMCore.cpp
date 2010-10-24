@@ -5,8 +5,8 @@
 #include "../../../3Party/squirrel/sqstdmath.h"
 #include "../../../3Party/squirrel/sqstdstring.h"
 #include "../../../3Party/squirrel/sqstdsystem.h"
-#include <stdarg.h>	// For va_list
 #include <iostream>
+#include <stdarg.h>	// For va_list
 
 #define CAPI_VERIFY(arg) MCD_VERIFY(SQ_SUCCEEDED((arg)))
 
@@ -88,6 +88,10 @@ VMCore::VMCore(int initialStackSize)
 VMCore::~VMCore()
 {
 	mState = CLOSING;
+
+	// Release all thread
+	for(ThreadMap::iterator i=mThreadMap.begin(); i!=mThreadMap.end(); ++i)
+		sq_release(mSqvm, &i->second);
 
 	// Releasing types table
 	sq_release(mSqvm, &mClassesTable);
@@ -310,6 +314,61 @@ bool VMCore::printError(HSQUIRRELVM v)
 	sq_settop(v, top);
 
 	return false;
+}
+
+HSQUIRRELVM VMCore::allocateThraed()
+{
+	if(!mFreeThreads.empty()) {
+		HSQUIRRELVM ret = mFreeThreads.top();
+		mFreeThreads.pop();
+		sq_pushobject(mSqvm, mThreadMap[ret]);
+		return ret;
+	}
+
+	HSQOBJECT thread;
+	HSQUIRRELVM newVm = sq_newthread(mSqvm, 64);
+	sq_setforeignptr(newVm, this);
+	CAPI_VERIFY(sq_getstackobj(mSqvm, -1, &thread));
+
+	mThreadMap[newVm] = thread;
+	sq_addref(mSqvm, &thread);
+
+	return newVm;
+}
+
+void VMCore::releaseThread(HSQUIRRELVM v)
+{
+	MCD_ASSERT(SQ_VMSTATE_SUSPENDED != sq_getvmstate(v));
+	sq_settop(v, 0);
+	mFreeThreads.push(v);
+}
+
+void VMCore::scheduleWakeup(HSQUIRRELVM v, float timeToWake, void* userData)
+{
+	UserData d = { v, userData };
+	mSchedule.insert(std::make_pair(timeToWake, d));
+}
+
+HSQUIRRELVM VMCore::popScheduled(float currentTime, void** userData)
+{
+	if(mSchedule.empty()) return nullptr;
+
+	Schedule::iterator i = mSchedule.begin();
+	if(i->first > currentTime)
+		return nullptr;
+
+	HSQUIRRELVM v = i->second.v;
+	if(userData) *userData = i->second.d;
+
+	mSchedule.erase(i);
+	MCD_ASSERT(SQ_VMSTATE_SUSPENDED == sq_getvmstate(v));
+
+	return v;
+}
+
+float VMCore::currentTime() const
+{
+	return float(mTimer.get().asSecond());
 }
 
 }	// namespace Binding
