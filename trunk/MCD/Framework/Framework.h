@@ -64,6 +64,8 @@ public:
 
 	void registerResourceCallback(sal_in_z const char* path, BehaviourComponent& callback, bool isRecursive, int minLoadIteration=-1);
 
+	void mainLoop();
+
 // Attributes
 	FileSystemCollection& fileSystemCollection();
 
@@ -86,6 +88,9 @@ public:
 
 	float dt() const;	//!< Duration of LAST frame
 	float fps() const;	//!< Frame per second over the last second
+
+	/// Returns the Framework that is performing the update() function
+	static sal_maybenull Framework* currentUpdatingFramework();
 
 protected:
 	class Impl;

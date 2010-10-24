@@ -11,4 +11,6 @@ TEST(Many_RenderBindingTest)
 
 	std::ifstream is("RenderBindingTest.nut");
 	framework.vm().runScript(is);
+
+	framework.mainLoop();
 }
