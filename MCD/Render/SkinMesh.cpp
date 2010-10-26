@@ -93,7 +93,7 @@ void SkinMeshComponent::render(void* context)
 		return;
 
 	glPushMatrix();
-	glMultTransposeMatrixf(e->worldTransform().getPtr());
+	glMultMatrixf(e->worldTransform().getPtr());
 
 	mTmpPose = skeletonAnimation->pose;
 	SkeletonPose visualizePose = mTmpPose;

@@ -12,14 +12,14 @@ struct Mat44TupleUnion {
 	union {
 		// Individual elements
 		struct { T
-			m00, m01, m02, m03,
-			m10, m11, m12, m13,
-			m20, m21, m22, m23,
-			m30, m31, m32, m33;
+			m00, m10, m20, m30,
+			m01, m11, m21, m31,
+			m02, m12, m22, m32,
+			m03, m13, m23, m33;
 		};
-		// Rows of Vec4
+		// Columns of Vec4
 		struct { T
-			r0[4], r1[4], r2[4], r3[4];
+			c0[4], c1[4], c2[4], c3[4];
 		};
 		// As a 1 dimension array
 		T data[4*4];
@@ -28,9 +28,15 @@ struct Mat44TupleUnion {
 	};
 };	// Mat44TupleUnion
 
-/*!	A 4 by 4 matrix.
+/*!	A 4 by 4 matrix, column-major, column-order (vector-on-the right).
+	Vector multiplication: column-order, matrix * column vector, tradition math representation.
+	Meory storage order: column-order, in order to keep the memory data DirectX and OpenGL compitable if we use column major.
+
 	If the matrix is used as a transformation matrix, it is assumed to be
 	a SRT transform, that is: Scaling, Rotation and Translation.
+
+	Reference: Demystifying Matrix Layouts
+	http://www.allbusiness.com/science-technology/mathematics/12809327-1.html
  */
 template<typename T>
 class Mat44 : public MathTuple<T, 4*4, Mat44<T>, Mat44TupleUnion<T> >
@@ -41,7 +47,7 @@ public:
 	// NOTE: I want to get rid of these noisy type forwarding, but GCC keeps complain without it.
 	typedef typename super_type::param_type param_type;
 	typedef typename super_type::const_param_type const_param_type;
-	using super_type::r0;	using super_type::r1;	using super_type::r2;	using super_type::r3;
+	using super_type::c0;	using super_type::c1;	using super_type::c2;	using super_type::c3;
 	using super_type::m00;	using super_type::m01;	using super_type::m02;	using super_type::m03;
 	using super_type::m10;	using super_type::m11;	using super_type::m12;	using super_type::m13;
 	using super_type::m20;	using super_type::m21;	using super_type::m22;	using super_type::m23;
@@ -60,8 +66,8 @@ public:
 		: super_type(val)
 	{}
 
-	Mat44(const Vec4<T>& row0, const Vec4<T>& row1, const Vec4<T>& row2, const Vec4<T>& row3) {
-		r0 = row0; r1 = row1; r2 = row2; r3 = row3;
+	Mat44(const Vec4<T>& col0, const Vec4<T>& col1, const Vec4<T>& col2, const Vec4<T>& col3) {
+		r0 = col0; r1 = col1; r2 = col2; r3 = col3;
 	}
 
 	Mat44(

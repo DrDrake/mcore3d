@@ -69,8 +69,8 @@ TEST(RendererTest)
 	MaterialComponent* material1 = new MaterialComponent;
 	scene.addComponent(material1);
 	material1->diffuseColor = ColorRGBAf(1, 1, 0.5f, 1);
-	material1->diffuseMap = dynamic_cast<Texture*>(resourceManager.load("UpRight.tga").get());
-	material1->opacity = 1.0f;
+	material1->diffuseMap = dynamic_cast<Texture*>(resourceManager.load("InterlacedTrans256x256.png").get());
+	material1->opacity = 0.99f;
 
 	MaterialComponent* material2 = new MaterialComponent;
 	material2->specularExponent = 120;

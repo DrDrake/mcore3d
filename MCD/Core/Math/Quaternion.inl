@@ -119,15 +119,15 @@ void Quaternion<T>::toMatrix(Mat33<T>& matrix) const
 	const T tyz = tz * y;
 	const T tzz = tz * z;
 
-	matrix[0][0] = 1 - (tyy + tzz);
-	matrix[0][1] = txy - twz;
-	matrix[0][2] = txz + twy;
-	matrix[1][0] = txy + twz;
-	matrix[1][1] = 1 - (txx + tzz);
-	matrix[1][2] = tyz - twx;
-	matrix[2][0] = txz - twy;
-	matrix[2][1] = tyz + twx;
-	matrix[2][2] = 1 - (txx + tyy);
+	matrix.m00 = 1 - (tyy + tzz);
+	matrix.m01 = txy - twz;
+	matrix.m02 = txz + twy;
+	matrix.m10 = txy + twz;
+	matrix.m11 = 1 - (txx + tzz);
+	matrix.m12 = tyz - twx;
+	matrix.m20 = txz - twy;
+	matrix.m21 = tyz + twx;
+	matrix.m22 = 1 - (txx + tyy);
 }
 
 template<typename T>

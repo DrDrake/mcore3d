@@ -151,11 +151,12 @@ void MaterialComponent::Impl::updateWorldTransform(void* context)
 	LPDIRECT3DDEVICE9 device = getDevice();
 	MCD_ASSUME(device);
 
-	MCD_VERIFY(mVs.constTable->SetMatrix(
+	// NOTE: To make the shader code more uniform with glsl, we transpose the matrix before submitting to the shader
+	MCD_VERIFY(mVs.constTable->SetMatrixTranspose(
 		device, mConstantHandles.worldViewProj, (D3DXMATRIX*)renderer.mWorldViewProjMatrix.getPtr()
 	) == S_OK);
 
-	MCD_VERIFY(mVs.constTable->SetMatrix(
+	MCD_VERIFY(mVs.constTable->SetMatrixTranspose(
 		device, mConstantHandles.world, (D3DXMATRIX*)renderer.mWorldMatrix.getPtr()
 	) == S_OK);
 }
@@ -174,11 +175,11 @@ void MaterialComponent::preRender(size_t pass, void* context)
 	MCD_ASSUME(device);
 
 	{	// Bind system information
-		MCD_VERIFY(mImpl.mVs.constTable->SetMatrix(
+		MCD_VERIFY(mImpl.mVs.constTable->SetMatrixTranspose(
 			device, mImpl.mConstantHandles.worldViewProj, (D3DXMATRIX*)renderer.mWorldViewProjMatrix.getPtr()
 		) == S_OK);
 
-		MCD_VERIFY(mImpl.mVs.constTable->SetMatrix(
+		MCD_VERIFY(mImpl.mVs.constTable->SetMatrixTranspose(
 			device, mImpl.mConstantHandles.world, (D3DXMATRIX*)renderer.mWorldMatrix.getPtr()
 		) == S_OK);
 
@@ -233,6 +234,10 @@ void MaterialComponent::preRender(size_t pass, void* context)
 
 		MCD_VERIFY(mImpl.mVs.constTable->SetFloat(
 			device, mImpl.mConstantHandles.specularExponent, specularExponent
+		) == S_OK);
+
+		MCD_VERIFY(mImpl.mVs.constTable->SetFloat(
+			device, mImpl.mConstantHandles.opacity, opacity
 		) == S_OK);
 
 		MCD_VERIFY(mImpl.mVs.constTable->SetFloat(

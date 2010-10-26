@@ -3,37 +3,36 @@ namespace MCD {
 template<typename T>
 const Vec3<T>& Mat33<T>::operator[](const size_t i) const
 {
-	MCD_ASSUME(i < rows());
-	return *(reinterpret_cast<const Vec3<T>*>(&r0) + i);
+	MCD_ASSUME(i < columns());
+	return *(reinterpret_cast<const Vec3<T>*>(&c0) + i);
 }
 
 template<typename T>
 Vec3<T>& Mat33<T>::operator[](const size_t i)
 {
-	MCD_ASSUME(i < rows());
-	return *(reinterpret_cast<Vec3<T>*>(&r0) + i);
+	MCD_ASSUME(i < columns());
+	return *(reinterpret_cast<Vec3<T>*>(&c0) + i);
 }
 
-template<typename T>
-void Mat33<T>::mul(const Mat33& rhs_, Mat33& result) const
+template<typename T> MCD_NOINLINE
+void Mat33<T>::mul(const Mat33& rhs, Mat33& ret) const
 {
-	Mat33* __restrict ret = &result;
-	const Mat33* __restrict lhs = this;
-	const Mat33* __restrict rhs = &rhs_;
-	MCD_ASSUME(rhs != ret);
-	MCD_ASSUME(lhs != ret);
+	T a1, a2, a3;
 
-	ret->m00 = lhs->m00 * rhs->m00 + lhs->m01 * rhs->m10 + lhs->m02 * rhs->m20;
-	ret->m01 = lhs->m00 * rhs->m01 + lhs->m01 * rhs->m11 + lhs->m02 * rhs->m21;
-	ret->m02 = lhs->m00 * rhs->m02 + lhs->m01 * rhs->m12 + lhs->m02 * rhs->m22;
+	a1 = m00; a2 = m01; a3 = m02;
+	ret.m00 = a1 * rhs.m00 + a2 * rhs.m10 + a3 * rhs.m20;
+	ret.m01 = a1 * rhs.m01 + a2 * rhs.m11 + a3 * rhs.m21;
+	ret.m02 = a1 * rhs.m02 + a2 * rhs.m12 + a3 * rhs.m22;
 
-	ret->m10 = lhs->m10 * rhs->m00 + lhs->m11 * rhs->m10 + lhs->m12 * rhs->m20;
-	ret->m11 = lhs->m10 * rhs->m01 + lhs->m11 * rhs->m11 + lhs->m12 * rhs->m21;
-	ret->m12 = lhs->m10 * rhs->m02 + lhs->m11 * rhs->m12 + lhs->m12 * rhs->m22;
+	a1 = m10; a2 = m11; a3 = m12;
+	ret.m10 = a1 * rhs.m00 + a2 * rhs.m10 + a3 * rhs.m20;
+	ret.m11 = a1 * rhs.m01 + a2 * rhs.m11 + a3 * rhs.m21;
+	ret.m12 = a1 * rhs.m02 + a2 * rhs.m12 + a3 * rhs.m22;
 
-	ret->m20 = lhs->m20 * rhs->m00 + lhs->m21 * rhs->m10 + lhs->m22 * rhs->m20;
-	ret->m21 = lhs->m20 * rhs->m01 + lhs->m21 * rhs->m11 + lhs->m22 * rhs->m21;
-	ret->m22 = lhs->m20 * rhs->m02 + lhs->m21 * rhs->m12 + lhs->m22 * rhs->m22;
+	a1 = m20; a2 = m21; a3 = m22;
+	ret.m20 = a1 * rhs.m00 + a2 * rhs.m10 + a3 * rhs.m20;
+	ret.m21 = a1 * rhs.m01 + a2 * rhs.m11 + a3 * rhs.m21;
+	ret.m22 = a1 * rhs.m02 + a2 * rhs.m12 + a3 * rhs.m22;
 }
 
 template<typename T>
@@ -127,7 +126,7 @@ void Mat33<T>::setScale(const Vec3<T>& scale)
 	for(size_t i=0; i<3; ++i) {
 		const T s = scale[i] / currentScale[i];
 		for(size_t j=0; j<3; ++j)
-			data2D[j][i] *= s;
+			data2D[i][j] *= s;
 	}
 }
 

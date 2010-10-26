@@ -58,23 +58,22 @@ void Camera::rotate(const Vec3f& axis, float angle)
 void Camera::computeView(float* matrix) const
 {
 	// Reference: http://www.gamedev.net/community/forums/topic.asp?topic_id=479402
-	Vec3f f = lookAtDir();
-	Vec3f s = f.cross(upVector.normalizedCopy());
-	Vec3f u = s.cross(f);
+	const Vec3f f = lookAtDir();
+	const Vec3f s = f.cross(upVector.normalizedCopy());
+	const Vec3f u = s.cross(f);
 
-	matrix[0] = s.x;	matrix[1] = s.y;	matrix[2] = s.z;	matrix[3] = 0;
-	matrix[4] = u.x;	matrix[5] = u.y;	matrix[6] = u.z;	matrix[7] = 0;
-	matrix[8] = -f.x;	matrix[9] = -f.y;	matrix[10] = -f.z;	matrix[11] = 0;
-	matrix[12] = 0;		matrix[13] = 0;		matrix[14] = 0;		matrix[15] = 1.0f;
+	Mat44f& m = *reinterpret_cast<Mat44f*>(matrix);
 
-	Mat44f tmp;
-	tmp.copyFrom(matrix);
+	m.m00 = s.x;	m.m01 = s.y;	m.m02 = s.z;	m.m03 = 0;
+	m.m10 = u.x;	m.m11 = u.y;	m.m12 = u.z;	m.m13 = 0;
+	m.m20 = -f.x;	m.m21 = -f.y;	m.m22 = -f.z;	m.m23 = 0;
+	m.m30 = 0;		m.m31 = 0;		m.m32 = 0;		m.m33 = 1.0f;
 
 	Mat44f translate = Mat44f::cIdentity;
 	translate.setTranslation(-position);
 
 	// Translate then rotate
-	(tmp * translate).copyTo(matrix);
+	(m * translate).copyTo(matrix);
 }
 
 void Camera::applyViewTransform()
@@ -89,7 +88,7 @@ void Camera::applyViewTransform()
 
 	Mat44f mat;
 	computeView(mat.getPtr());
-	glLoadTransposeMatrixf(mat.getPtr());
+	glLoadMatrixf(mat.getPtr());
 }
 
 void Camera::applyTransform()

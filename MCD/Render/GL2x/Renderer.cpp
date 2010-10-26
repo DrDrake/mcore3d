@@ -42,9 +42,9 @@ void RendererComponent::Impl::render(Entity& entityTree, RenderTargetComponent& 
 		mViewProjMatrix = mProjMatrix * mViewMatrix;
 
 		glMatrixMode(GL_PROJECTION);
-		glLoadTransposeMatrixf(mProjMatrix.getPtr());
+		glLoadMatrixf(mProjMatrix.getPtr());
 		glMatrixMode(GL_MODELVIEW);
-		glLoadTransposeMatrixf(mViewMatrix.getPtr());
+		glLoadMatrixf(mViewMatrix.getPtr());
 	}
 
 	// Traverse the Entity tree
@@ -148,7 +148,7 @@ void RendererComponent::Impl::processRenderItems(RenderItems& items, IDrawCall::
 			}
 
 			glPushMatrix();
-			glMultTransposeMatrixf(e->worldTransform().getPtr());
+			glMultMatrixf(e->worldTransform().getPtr());
 			i.drawCall->draw(this, statistic);
 			glPopMatrix();
 

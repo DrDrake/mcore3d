@@ -13,7 +13,7 @@ namespace
 
 TEST(Basic_Mat33Test)
 {
-	CHECK_EQUAL(ma.m01, ma[0][1]);
+	CHECK_EQUAL(ma.m01, ma[1][0]);
 	CHECK_EQUAL(ma.data[1], ma[0][1]);
 
 	CHECK_EQUAL(3u, ma.rows());
@@ -46,13 +46,13 @@ TEST(Equality_Mat33Test)
 TEST(Indexer_Mat33Test)
 {
 	CHECK_EQUAL(0, ma[0][0]);
-	CHECK_EQUAL(1, ma[0][1]);
-	CHECK_EQUAL(2, ma[0][2]);
-	CHECK_EQUAL(3, ma[1][0]);
+	CHECK_EQUAL(1, ma[1][0]);
+	CHECK_EQUAL(2, ma[2][0]);
+	CHECK_EQUAL(3, ma[0][1]);
 	CHECK_EQUAL(4, ma[1][1]);
-	CHECK_EQUAL(5, ma[1][2]);
-	CHECK_EQUAL(6, ma[2][0]);
-	CHECK_EQUAL(7, ma[2][1]);
+	CHECK_EQUAL(5, ma[2][1]);
+	CHECK_EQUAL(6, ma[0][2]);
+	CHECK_EQUAL(7, ma[1][2]);
 	CHECK_EQUAL(8, ma[2][2]);
 }
 
