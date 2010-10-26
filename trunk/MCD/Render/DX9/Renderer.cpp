@@ -62,8 +62,8 @@ void RendererComponent::Impl::render(Entity& entityTree, RenderTargetComponent& 
 		mViewProjMatrix = mProjMatrix * mViewMatrix;
 
 		// Fixed pipeline will need these
-		device->SetTransform(D3DTS_VIEW, (D3DMATRIX*)mViewMatrix.transpose().getPtr());
-		device->SetTransform(D3DTS_PROJECTION, (D3DMATRIX*)mProjMatrix.transpose().getPtr());
+		device->SetTransform(D3DTS_VIEW, (D3DMATRIX*)mViewMatrix.getPtr());
+		device->SetTransform(D3DTS_PROJECTION, (D3DMATRIX*)mProjMatrix.getPtr());
 	}
 
 	// Apply view port

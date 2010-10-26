@@ -62,7 +62,7 @@ void ProjectiveTexture::bind(int textureUnit, const float* postMultipleMatrix, f
 	}
 
 	glMatrixMode(GL_TEXTURE);
-	glLoadTransposeMatrixf(textureMatrix.getPtr());
+	glLoadMatrixf(textureMatrix.getPtr());
 
 	if(outTextureMatrix)
 		textureMatrix.copyTo(outTextureMatrix);

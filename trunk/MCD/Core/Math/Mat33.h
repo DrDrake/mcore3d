@@ -10,13 +10,13 @@ struct Mat33TupleUnion {
 	union {
 		// Individual elements
 		struct { T
-			m00, m01, m02,
-			m10, m11, m12,
-			m20, m21, m22;
+			m00, m10, m20,
+			m01, m11, m21,
+			m02, m12, m22;
 		};
-		// Rows of Vec3
+		// Columns of Vec3
 		struct { T
-			r0[3], r1[3], r2[3];
+			c0[3], c1[3], c2[3];
 		};
 		// As a 1 dimension array
 		T data[3*3];
@@ -56,7 +56,7 @@ class Mat33 : public MathTuple<T, 3*3, Mat33<T>, Mat33TupleUnion<T> >
 public:
 	typedef typename super_type::param_type param_type;
 	typedef typename super_type::const_param_type const_param_type;
-	using super_type::r0;	using super_type::r1;	using super_type::r2;
+	using super_type::c0;	using super_type::c1;	using super_type::c2;
 	using super_type::m00;	using super_type::m01;	using super_type::m02;
 	using super_type::m10;	using super_type::m11;	using super_type::m12;
 	using super_type::m20;	using super_type::m21;	using super_type::m22;
@@ -69,8 +69,8 @@ public:
 		: super_type(val)
 	{}
 
-	Mat33(const Vec3<T>& row0, const Vec3<T>& row1, const Vec3<T>& row2) {
-		r0 = row0; r1 = row1; r2 = row2;
+	Mat33(const Vec3<T>& col0, const Vec3<T>& col1, const Vec3<T>& col2) {
+		c0 = col0; c1 = col1; c2 = col2;
 	}
 
 	Mat33(

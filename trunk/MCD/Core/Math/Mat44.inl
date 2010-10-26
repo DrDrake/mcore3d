@@ -31,15 +31,15 @@ void Mat44<T>::copyTo(T* dataPtr) const {
 template<typename T>
 const Vec4<T>& Mat44<T>::operator[](const size_t i) const
 {
-	MCD_ASSUME(i < rows());
-	return *(reinterpret_cast<const Vec4<T>*>(&r0) + i);
+	MCD_ASSUME(i < columns());
+	return *(reinterpret_cast<const Vec4<T>*>(&c0) + i);
 }
 
 template<typename T>
 Vec4<T>& Mat44<T>::operator[](const size_t i)
 {
-	MCD_ASSUME(i < rows());
-	return *(reinterpret_cast<Vec4<T>*>(&r0) + i);
+	MCD_ASSUME(i < columns());
+	return *(reinterpret_cast<Vec4<T>*>(&c0) + i);
 }
 
 template<typename T>
@@ -53,15 +53,18 @@ void Mat44<T>::mul(const Mat44& rhs, Mat44& ret) const
 	Matrix4Mul(this->getPtr(), rhs.getPtr(), ret.getPtr());
 
 #elif !defined(MCD_GCC) || defined(__SSE__)
-	__m128 x4 = _mm_loadu_ps(rhs.r0);
-	__m128 x5 = _mm_loadu_ps(rhs.r1);
-	__m128 x6 = _mm_loadu_ps(rhs.r2);
-	__m128 x7 = _mm_loadu_ps(rhs.r3);
+
+	// Reference for SSE matrix multiplication:
+	// http://www.cortstratton.org/articles/OptimizingForSSE.php
+	__m128 x4 = _mm_loadu_ps(c0);
+	__m128 x5 = _mm_loadu_ps(c1);
+	__m128 x6 = _mm_loadu_ps(c2);
+	__m128 x7 = _mm_loadu_ps(c3);
 
 	__m128 x0, x1, x2, x3;
 
 	for(size_t i=0; i<4; ++i) {
-		x1 = x2 = x3 = x0 = _mm_loadu_ps(this->data2D[i]);
+		x1 = x2 = x3 = x0 = _mm_loadu_ps(rhs.data2D[i]);
 		x0 = _mm_shuffle_ps(x0, x0, _MM_SHUFFLE(0,0,0,0));
 		x1 = _mm_shuffle_ps(x1, x1, _MM_SHUFFLE(1,1,1,1));
 		x2 = _mm_shuffle_ps(x2, x2, _MM_SHUFFLE(2,2,2,2));
@@ -81,27 +84,31 @@ void Mat44<T>::mul(const Mat44& rhs, Mat44& ret) const
 
 #else
 
-	// Seems using "restrict" optimization in this function didn't reduce memory movement, but
-	// more code is generated.
-	ret.m00 = m00 * rhs.m00 + m01 * rhs.m10 + m02 * rhs.m20 + m03 * rhs.m30;
-	ret.m01 = m00 * rhs.m01 + m01 * rhs.m11 + m02 * rhs.m21 + m03 * rhs.m31;
-	ret.m02 = m00 * rhs.m02 + m01 * rhs.m12 + m02 * rhs.m22 + m03 * rhs.m32;
-	ret.m03 = m00 * rhs.m03 + m01 * rhs.m13 + m02 * rhs.m23 + m03 * rhs.m33;
+	T a0, a1, a2, a3;
 
-	ret.m10 = m10 * rhs.m00 + m11 * rhs.m10 + m12 * rhs.m20 + m13 * rhs.m30;
-	ret.m11 = m10 * rhs.m01 + m11 * rhs.m11 + m12 * rhs.m21 + m13 * rhs.m31;
-	ret.m12 = m10 * rhs.m02 + m11 * rhs.m12 + m12 * rhs.m22 + m13 * rhs.m32;
-	ret.m13 = m10 * rhs.m03 + m11 * rhs.m13 + m12 * rhs.m23 + m13 * rhs.m33;
+	a0 = m00; a1 = m01; a2 = m02; a3 = m03;
+	ret.m00 = a0 * rhs.m00 + a1 * rhs.m10 + a2 * rhs.m20 + a3 * rhs.m30;
+	ret.m01 = a0 * rhs.m01 + a1 * rhs.m11 + a2 * rhs.m21 + a3 * rhs.m31;
+	ret.m02 = a0 * rhs.m02 + a1 * rhs.m12 + a2 * rhs.m22 + a3 * rhs.m32;
+	ret.m03 = a0 * rhs.m03 + a1 * rhs.m13 + a2 * rhs.m23 + a3 * rhs.m33;
 
-	ret.m20 = m20 * rhs.m00 + m21 * rhs.m10 + m22 * rhs.m20 + m23 * rhs.m30;
-	ret.m21 = m20 * rhs.m01 + m21 * rhs.m11 + m22 * rhs.m21 + m23 * rhs.m31;
-	ret.m22 = m20 * rhs.m02 + m21 * rhs.m12 + m22 * rhs.m22 + m23 * rhs.m32;
-	ret.m23 = m20 * rhs.m03 + m21 * rhs.m13 + m22 * rhs.m23 + m23 * rhs.m33;
+	a0 = m10; a1 = m11; a2 = m12; a3 = m13;
+	ret.m10 = a0 * rhs.m00 + a1 * rhs.m10 + a2 * rhs.m20 + a3 * rhs.m30;
+	ret.m11 = a0 * rhs.m01 + a1 * rhs.m11 + a2 * rhs.m21 + a3 * rhs.m31;
+	ret.m12 = a0 * rhs.m02 + a1 * rhs.m12 + a2 * rhs.m22 + a3 * rhs.m32;
+	ret.m13 = a0 * rhs.m03 + a1 * rhs.m13 + a2 * rhs.m23 + a3 * rhs.m33;
 
-	ret.m30 = m30 * rhs.m00 + m31 * rhs.m10 + m32 * rhs.m20 + m33 * rhs.m30;
-	ret.m31 = m30 * rhs.m01 + m31 * rhs.m11 + m32 * rhs.m21 + m33 * rhs.m31;
-	ret.m32 = m30 * rhs.m02 + m31 * rhs.m12 + m32 * rhs.m22 + m33 * rhs.m32;
-	ret.m33 = m30 * rhs.m03 + m31 * rhs.m13 + m32 * rhs.m23 + m33 * rhs.m33;
+	a0 = m20; a1 = m21; a2 = m22; a3 = m23;
+	ret.m20 = a0 * rhs.m00 + a1 * rhs.m10 + a2 * rhs.m20 + a3 * rhs.m30;
+	ret.m21 = a0 * rhs.m01 + a1 * rhs.m11 + a2 * rhs.m21 + a3 * rhs.m31;
+	ret.m22 = a0 * rhs.m02 + a1 * rhs.m12 + a2 * rhs.m22 + a3 * rhs.m32;
+	ret.m23 = a0 * rhs.m03 + a1 * rhs.m13 + a2 * rhs.m23 + a3 * rhs.m33;
+
+	a0 = m30; a1 = m31; a2 = m32; a3 = m33;
+	ret.m30 = a0 * rhs.m00 + a1 * rhs.m10 + a2 * rhs.m20 + a3 * rhs.m30;
+	ret.m31 = a0 * rhs.m01 + a1 * rhs.m11 + a2 * rhs.m21 + a3 * rhs.m31;
+	ret.m32 = a0 * rhs.m02 + a1 * rhs.m12 + a2 * rhs.m22 + a3 * rhs.m32;
+	ret.m33 = a0 * rhs.m03 + a1 * rhs.m13 + a2 * rhs.m23 + a3 * rhs.m33;
 
 #endif
 }
@@ -129,6 +136,31 @@ Mat44<T>& Mat44<T>::operator*=(const_param_type rhs) {
 template<typename T>
 void Mat44<T>::mul(const Vec4<T>& rhs, Vec4<T>& result) const
 {
+#if !defined(MCD_GCC) || defined(__SSE__)
+	__m128 x0 = _mm_loadu_ps(c0);
+	__m128 x1 = _mm_loadu_ps(c1);
+	__m128 x2 = _mm_loadu_ps(c2);
+	__m128 x3 = _mm_loadu_ps(c3);
+
+	__m128 v = _mm_loadu_ps(rhs.getPtr());
+	__m128 v0 = _mm_shuffle_ps(v, v, _MM_SHUFFLE(0,0,0,0));
+	__m128 v1 = _mm_shuffle_ps(v, v, _MM_SHUFFLE(1,1,1,1));
+	__m128 v2 = _mm_shuffle_ps(v, v, _MM_SHUFFLE(2,2,2,2));
+	__m128 v3 = _mm_shuffle_ps(v, v, _MM_SHUFFLE(3,3,3,3));
+
+	v0 = _mm_mul_ps(x0, v0);
+	v1 = _mm_mul_ps(x1, v1);
+	v2 = _mm_mul_ps(x2, v2);
+	v3 = _mm_mul_ps(x3, v3);
+
+	x0 = _mm_add_ps(v0, v1);
+	x1 = _mm_add_ps(v2, v3);
+	v = _mm_add_ps(x0, x1);
+
+	_mm_storeu_ps(result.getPtr(), v);
+
+#else
+
 	// Local variables to prevent parameter aliasing
 	const float x = rhs.x;
 	const float y = rhs.y;
@@ -139,6 +171,8 @@ void Mat44<T>::mul(const Vec4<T>& rhs, Vec4<T>& result) const
 	result.y = m10 * x + m11 * y + m12 * z + m13 * w;
 	result.z = m20 * x + m21 * y + m22 * z + m23 * w;
 	result.w = m30 * x + m31 * y + m32 * z + m33 * w;
+
+#endif
 }
 
 template<typename T>
@@ -319,7 +353,7 @@ void Mat44<T>::setScale(const Vec3<T>& scale)
 	for(size_t i=0; i<3; ++i) {
 		const T s = scale[i] / currentScale[i];
 		for(size_t j=0; j<3; ++j)
-			data2D[j][i] *= s;
+			data2D[i][j] *= s;
 	}
 }
 
@@ -332,7 +366,7 @@ void Mat44<T>::scaleBy(const Vec3<T>& deltaScale)
 	for(size_t i=0; i<3; ++i) {
 		const T s = deltaScale[i];
 		for(size_t j=0; j<3; ++j)
-			data2D[j][i] *= s;
+			data2D[i][j] *= s;
 	}
 }
 
@@ -383,10 +417,10 @@ void Mat44<T>::lookAt(const Vec3<T>& eyeAt, const Vec3<T>& lookAt, const Vec3<T>
 	Vec3<T> s = f.cross(upVector.normalizedCopy());
 	Vec3<T> u = s.cross(f);
 
-	data[0] = s.x;	data[1] = u.x;	data[2] = -f.x;	data[3] = 0;
-	data[4] = s.y;	data[5] = u.y;	data[6] = -f.y;	data[7] = 0;
-	data[8] = s.z;	data[9] = u.z;	data[10]= -f.z;	data[11] = 0;
-	data[12] = 0;	data[13] = 0;	data[14] = 0;	data[15] = 1.0f;
+	m00 = s.x;	m01 = u.x;	m02 = -f.x;	m03 = 0;
+	m10 = s.y;	m11 = u.y;	m12 = -f.y;	m13 = 0;
+	m20 = s.z;	m21 = u.z;	m22 = -f.z;	m23 = 0;
+	m30 = 0;	m31 = 0;	m32 = 0;	m33 = 1.0f;
 
 	Mat44<T> tmp;
 	tmp.copyFrom(data);

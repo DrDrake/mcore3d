@@ -1,7 +1,7 @@
 #include "Pch.h"
 #include "Frustum.h"
 #include "../Core/Math/BasicFunction.h"
-#include "../Core/Math/Vec3.h"
+#include "../Core/Math/Mat44.h"
 #include "../../3Party/glew/glew.h"
 #include <memory.h> // For memset
 
@@ -53,7 +53,7 @@ void Frustum::applyProjection() const
 //	gluPerspective(fov(), aspectRatio(), near, far);
 
 	glMatrixMode(GL_PROJECTION);
-	glLoadTransposeMatrixf(mat);
+	glLoadMatrixf(mat);
 	glMatrixMode(GL_MODELVIEW);
 }
 
@@ -64,23 +64,24 @@ void Frustum::computePerspective(float* matrix) const
 	assertValid();
 
 	memset(matrix, 0, sizeof(float) * 16);
+	Mat44f& m = *reinterpret_cast<Mat44f*>(matrix);
 
-	matrix[0] = 2.0f * near / (right - left);
-	matrix[2] = (right + left) / (right - left);
-	matrix[5] = 2.0f * near / (top - bottom);
-	matrix[6] = (top + bottom) / (top - bottom);
-	matrix[10] = -(far + near) / (far - near);
-	matrix[11] = -2.0f * (far * near) / (far - near);
-	matrix[14] = -1;
+	m.m00 = 2.0f * near / (right - left);
+	m.m02 = (right + left) / (right - left);
+	m.m11 = 2.0f * near / (top - bottom);
+	m.m12 = (top + bottom) / (top - bottom);
+	m.m22 = -(far + near) / (far - near);
+	m.m23 = -2.0f * (far * near) / (far - near);
+	m.m32 = -1;
 
 	// TODO: To verify which one is correct
-/*	matrix[0] = 2.0f * near / (right - left);
-	matrix[2] = -(right + left) / (right - left);
-	matrix[5] = 2.0f * near / (top - bottom);
-	matrix[6] = -(top + bottom) / (top - bottom);
-	matrix[10] = (near) / (far - near);
-	matrix[11] = -(far * near) / (far - near);
-	matrix[14] = -1;*/
+/*	m.m00 = 2.0f * near / (right - left);
+	m.m02 = -(right + left) / (right - left);
+	m.m11 = 2.0f * near / (top - bottom);
+	m.m12 = -(top + bottom) / (top - bottom);
+	m.m22 = (near) / (far - near);
+	m.m23 = -(far * near) / (far - near);
+	m.m32 = -1;*/
 }
 
 // Correct formula:
@@ -93,14 +94,15 @@ void Frustum::computeOrtho(float* matrix) const
 	assertValid();
 
 	memset(matrix, 0, sizeof(float) * 16);
+	Mat44f& m = *reinterpret_cast<Mat44f*>(matrix);
 
-	matrix[0] = 2.0f / (right - left);
-	matrix[3] = -(right + left) / (right - left);
-	matrix[5] = 2.0f / (top - bottom);
-	matrix[7] = -(top + bottom) / (top - bottom);
-	matrix[10] = -1.0f / (far - near);
-	matrix[11] = -near / (far - near);
-	matrix[15] = 1;
+	m.m00 = 2.0f / (right - left);
+	m.m03 = -(right + left) / (right - left);
+	m.m11 = 2.0f / (top - bottom);
+	m.m13 = -(top + bottom) / (top - bottom);
+	m.m22 = -1.0f / (far - near);
+	m.m23 = -near / (far - near);
+	m.m33 = 1;
 }
 
 void Frustum::computeVertex(Vec3f* vertex) const

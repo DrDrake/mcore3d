@@ -13,7 +13,7 @@ namespace
 
 TEST(Basic_Mat44Test)
 {
-	CHECK_EQUAL(ma.m01, ma[0][1]);
+	CHECK_EQUAL(ma.m01, ma[1][0]);
 	CHECK_EQUAL(ma.data[1], ma[0][1]);
 
 	CHECK_EQUAL(4u, ma.rows());
@@ -52,21 +52,21 @@ TEST(Equality_Mat44Test)
 
 TEST(Indexer_Mat44Test)
 {
-	CHECK_EQUAL(0, ma[0][0]);
-	CHECK_EQUAL(1, ma[0][1]);
-	CHECK_EQUAL(2, ma[0][2]);
-	CHECK_EQUAL(3, ma[0][3]);
-	CHECK_EQUAL(4, ma[1][0]);
-	CHECK_EQUAL(5, ma[1][1]);
-	CHECK_EQUAL(6, ma[1][2]);
-	CHECK_EQUAL(7, ma[1][3]);
-	CHECK_EQUAL(8, ma[2][0]);
-	CHECK_EQUAL(9, ma[2][1]);
+	CHECK_EQUAL(0,  ma[0][0]);
+	CHECK_EQUAL(1,  ma[1][0]);
+	CHECK_EQUAL(2,  ma[2][0]);
+	CHECK_EQUAL(3,  ma[3][0]);
+	CHECK_EQUAL(4,  ma[0][1]);
+	CHECK_EQUAL(5,  ma[1][1]);
+	CHECK_EQUAL(6,  ma[2][1]);
+	CHECK_EQUAL(7,  ma[3][1]);
+	CHECK_EQUAL(8,  ma[0][2]);
+	CHECK_EQUAL(9,  ma[1][2]);
 	CHECK_EQUAL(10, ma[2][2]);
-	CHECK_EQUAL(11, ma[2][3]);
-	CHECK_EQUAL(12, ma[3][0]);
-	CHECK_EQUAL(13, ma[3][1]);
-	CHECK_EQUAL(14, ma[3][2]);
+	CHECK_EQUAL(11, ma[3][2]);
+	CHECK_EQUAL(12, ma[0][3]);
+	CHECK_EQUAL(13, ma[1][3]);
+	CHECK_EQUAL(14, ma[2][3]);
 	CHECK_EQUAL(15, ma[3][3]);
 }
 
