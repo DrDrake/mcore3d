@@ -1,12 +1,13 @@
-framework.initWindow("title=RenderBindingTest;width=800;height=600;fullscreen=0;FSAA=8")
+framework.initWindow("title=RenderBindingTest;width=800;height=600;fullscreen=0;FSAA=8");
+framework.addFileSystem("./Media");
 
-local e = framework.guiLayer.addFirstChild(Entity("A text label"));
+local e = framework.guiLayer.addFirstChild("A text label");
 e.addComponent(TextLabelComponent);
-e.localTransform.translation = Vec3(0, 300, 0);
+e.localTransform.translation = Vec3(0, 500, 0);
 e.TextLabelComponent.text = "Hello world";
 
 // A layer for no-lighting material
-local noLighting = framework.sceneLayer.addFirstChild(Entity("No lighting material"));
+local noLighting = framework.sceneLayer.addFirstChild("No lighting material");
 
 {	// Material without lighting
 	local m = noLighting.addComponent(MaterialComponent);
@@ -18,7 +19,7 @@ local noLighting = framework.sceneLayer.addFirstChild(Entity("No lighting materi
 framework.load("a.png");
 
 {	// Build the xyz axis
-	local axis = noLighting.addFirstChild(Entity("Axis"));
+	local axis = noLighting.addFirstChild("Axis");
 	local c = axis.addComponent(DisplayListComponent);
 
 	c.beginLines();
@@ -44,7 +45,7 @@ class MyScript extends ScriptComponent
 	}
 }
 
-framework.sceneLayer.addFirstChild(Entity("Script")).addComponent(MyScript);
+framework.sceneLayer.addFirstChild("Script").addComponent(MyScript);
 
 class DrawHistogram extends ScriptComponent
 {
@@ -89,6 +90,6 @@ class DrawHistogram extends ScriptComponent
 	}
 }
 
-local histogam = noLighting.addFirstChild(Entity("Histogram"));
+local histogam = noLighting.addFirstChild("Histogram");
 histogam.addComponent(DrawHistogram);
 histogam.addComponent(DisplayListComponent);

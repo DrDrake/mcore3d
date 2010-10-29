@@ -177,7 +177,11 @@ public:
 
 	void transformNormal(Vec3<T>& normal) const;
 
+	static Mat44 makeScale(const Vec3<T>& scale);
+
 	static Mat44 makeAxisRotation(const Vec3<T>& axis, T angle);
+
+	static Mat44 makeTranslation(const Vec3<T>& translation);
 
 	static const Mat44 cIdentity;
 };	// Mat44

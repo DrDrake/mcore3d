@@ -47,8 +47,8 @@ TEST(Basic_ComponentTest)
 	CHECK(!c1->enabled());
 	CHECK(!c2->enabled());
 
-	root.addComponent(c1.getNotNull());
-	root.addComponent(c2.getNotNull());
+	root.addComponent(c1);
+	root.addComponent(c2);
 
 	CHECK(c1->enabled());
 	CHECK(c2->enabled());
@@ -83,7 +83,7 @@ TEST(Basic_ComponentTest)
 	Entity* e(new Entity);
 	e->name = "Component 3";
 	ComponentPtr c3 = new DummyComponent3;
-	e->addComponent(c3.getNotNull());
+	e->addComponent(c3);
 	e->asChildOf(&root);
 
 	CHECK_EQUAL(c3.get(), root.findComponentInChildren(typeid(DummyComponent3)));
@@ -195,7 +195,7 @@ TEST(ComponentPreorderIterator_ComponentTest)
 		e->asChildOf(&root);
 
 		EntityPtr e2 = new Entity;
-		e2->asChildOf(e.getNotNull());
+		e2->asChildOf(e);
 
 		size_t i = 0;
 		for(ComponentPreorderIterator itr(e.get()); !itr.ended(); itr.next(), ++i) {}

@@ -39,22 +39,11 @@ void Frustum::computeProjection(float* matrix) const
 		computePerspective(matrix);
 	else if(projectionType == Ortho)
 		computeOrtho(matrix);
+	else if(projectionType == YDown2D)
+		computeYDown2D(matrix);
 	else {
 		MCD_ASSERT(false);
 	}
-}
-
-void Frustum::applyProjection() const
-{
-	float mat[16];
-	computeProjection(mat);
-
-	// The same can be acheived using gluPerspective()
-//	gluPerspective(fov(), aspectRatio(), near, far);
-
-	glMatrixMode(GL_PROJECTION);
-	glLoadMatrixf(mat);
-	glMatrixMode(GL_MODELVIEW);
 }
 
 // Reference:
@@ -103,6 +92,15 @@ void Frustum::computeOrtho(float* matrix) const
 	m.m22 = -1.0f / (far - near);
 	m.m23 = -near / (far - near);
 	m.m33 = 1;
+}
+
+void Frustum::computeYDown2D(float* matrix) const
+{
+	computeOrtho(matrix);
+
+	Mat44f& m = *reinterpret_cast<Mat44f*>(matrix);
+	m.scaleBy(Vec3f(1, -1, 1));
+	m = m * Mat44f::makeTranslation(Vec3f(0, -top, 0));
 }
 
 void Frustum::computeVertex(Vec3f* vertex) const

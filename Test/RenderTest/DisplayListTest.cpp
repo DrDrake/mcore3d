@@ -110,7 +110,7 @@ TEST(DisplayListTest)
 	CameraComponent* sceneCamera = scene.findComponentInChildrenExactType<CameraComponent>();
 	sceneCamera->entity()->localTransform.translateBy(Vec3f(0, 10, 10));
 
-	Entity* noLighting = scene.addFirstChild(new Entity("No lighting material"));
+	Entity* noLighting = scene.addFirstChild("No lighting material");
 
 	{	// Material for rendering line
 		MaterialComponent* m = noLighting->addComponent(new MaterialComponent);
@@ -120,12 +120,12 @@ TEST(DisplayListTest)
 	}
 
 	{	// Axis line
-		Entity* e = noLighting->addFirstChild(new Entity("Axis"));
+		Entity* e = noLighting->addFirstChild("Axis");
 		e->addComponent(new DrawAxisComponent);
 	}
 
 	{	// Dotted circles
-		Entity* e = noLighting->addFirstChild(new Entity("Dotted circles"));
+		Entity* e = noLighting->addFirstChild("Dotted circles");
 
 		for(int i=-10; i<10; ++i) for(int j=-10; j<10; ++j)
 		{
@@ -136,7 +136,7 @@ TEST(DisplayListTest)
 	}
 
 	{	// Histogram
-		Entity* e = noLighting->addFirstChild(new Entity("Histogram"));
+		Entity* e = noLighting->addFirstChild("Histogram");
 		e->addComponent(new HistogramComponent);
 
 		// Equation label

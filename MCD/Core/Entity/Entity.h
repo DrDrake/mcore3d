@@ -10,6 +10,7 @@
 namespace MCD {
 
 class Component;
+typedef IntrusiveWeakPtr<class Entity> EntityPtr;
 
 /*!	Entity is the basic unit of a game object, act as a container of Component.
 
@@ -33,19 +34,26 @@ public:
 // Operations
 	/// Make this entity a child of \em parent.
 	void asChildOf(sal_in Entity* parent);
+	void asChildOf(const EntityPtr& parent);
 
 	/// Append an entity as the FIRST child of this.
 	/// Returns the added child
 	sal_notnull Entity* addFirstChild(sal_in Entity* child);
+	sal_notnull Entity* addFirstChild(const EntityPtr& child);
+	sal_notnull Entity* addFirstChild(const char* nameOfChild);
 
 	/// Append an entity as the LAST child of this.
 	/// Returns the added child
 	sal_notnull Entity* addLastChild(sal_in Entity* child);
+	sal_notnull Entity* addLastChild(const EntityPtr& child);
+	sal_notnull Entity* addLastChild(const char* nameOfChild);
 
 	/// The input parameter should not be the root node.
 	void insertBefore(sal_in Entity* sibling);
+	void insertBefore(const EntityPtr& sibling);
 
 	void insertAfter(sal_in Entity* sibling);
+	void insertAfter(const EntityPtr& sibling);
 
 	/*!	Find a component in the Entity with the supplied familyType.
 		Returns null if none is found.
@@ -145,6 +153,10 @@ public:
 	sal_notnull T* addComponent(sal_in T* component) {
 		return static_cast<T*>(_addComponent(component));
 	}
+	template<class T>
+	sal_notnull T* addComponent(const IntrusiveWeakPtr<T>& component) {
+		return static_cast<T*>(_addComponent(component.getNotNull()));
+	}
 	Component* _addComponent(sal_in_opt Component* component);
 
 	/*!	Remove the component from this Entity.
@@ -198,6 +210,7 @@ public:
 
 	UserData userData;
 
+	/// for(Component* c = entity->components.begin(); c != entity->components.end(); c = c->next()) {}
 	typedef LinkList<Component> Components;
 	Components components;
 

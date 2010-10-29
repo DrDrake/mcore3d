@@ -114,13 +114,13 @@ Framework::Impl::Impl()
 		Entity::setCurrentRoot(mRootEntity.getNotNull());
 
 		mSystemEntity = new Entity("System entities");
-		mSystemEntity->asChildOf(mRootEntity.getNotNull());
+		mSystemEntity->asChildOf(mRootEntity);
 
 		mSceneLayer = new Entity("Scene layer");
-		mSceneLayer->insertAfter(mSystemEntity.getNotNull());
+		mSceneLayer->insertAfter(mSystemEntity);
 
 		mGuiLayer = new Entity("Gui layer");
-		mGuiLayer->insertAfter(mSceneLayer.getNotNull());	// Gui will draw after the scene layer
+		mGuiLayer->insertAfter(mSceneLayer);	// Gui will draw after the scene layer
 	}
 
 	{	// Task pool
@@ -130,13 +130,13 @@ Framework::Impl::Impl()
 #else
 		mTaskPool->setThreadCount(3);
 #endif
-		Entity* e = mSystemEntity->addFirstChild(new Entity("Task pool"));
+		Entity* e = mSystemEntity->addFirstChild("Task pool");
 		e->addComponent(new TaskPoolComponent(*mTaskPool));
 	}
 
 	{	// File system
 		mFileSystem.reset(new FileSystemCollection);
-		Entity* e = mSystemEntity->addFirstChild(new Entity("File system"));
+		Entity* e = mSystemEntity->addFirstChild("File system");
 		e->addComponent(new FileSystemComponent(*mFileSystem));
 	}
 
@@ -149,7 +149,7 @@ Framework::Impl::Impl()
 	{	// Resource manager
 		mResourceManager.reset(new ResourceManager(*mFileSystem, *mTaskPool, false));
 		mResourceManagerComponent = new ResourceManagerComponent(*mResourceManager);
-		Entity* e = mSystemEntity->addFirstChild(new Entity("Resource manager"));
+		Entity* e = mSystemEntity->addFirstChild("Resource manager");
 		e->addComponent(mResourceManagerComponent.get());
 	}
 
@@ -163,16 +163,16 @@ Framework::Impl::Impl()
 	}
 
 	{	// Default light
-		Entity* e = mSceneLayer->addFirstChild(new Entity("Default light"));
+		Entity* e = mSceneLayer->addFirstChild("Default light");
 
-		{	Entity* e1 = e->addFirstChild(new Entity("Light 1"));
+		{	Entity* e1 = e->addFirstChild("Light 1");
 			e1->localTransform.setTranslation(Vec3f(10, 10, 0));
 
 			LightComponent* light = e1->addComponent(new LightComponent);
 			light->color = ColorRGBf(1, 0.8f, 0.8f);
 		}
 
-		{	Entity* e1 = e->addFirstChild(new Entity("Light 2"));
+		{	Entity* e1 = e->addFirstChild("Light 2");
 			e1->localTransform.setTranslation(Vec3f(0, 10, 10));
 
 			LightComponent* light = e1->addComponent(new LightComponent);
@@ -181,27 +181,27 @@ Framework::Impl::Impl()
 	}
 
 	{	// Fps label
-		Entity* e = mGuiLayer->addFirstChild(new Entity("Fps label"));
+		Entity* e = mGuiLayer->addFirstChild("Fps label");
 		e->localTransform.setTranslation(Vec3f(0, 30, 0));
 		mFpsLabel = e->addComponent(new TextLabelComponent);
 		mFpsLabel->font = "buildin/Arial-20.fnt";
 	}
 
 	{	// Behaviour updater
-		Entity* e = mSystemEntity->addFirstChild(new Entity("Behaviour updater"));
+		Entity* e = mSystemEntity->addFirstChild("Behaviour updater");
 		BehaviourUpdaterComponent* c = new BehaviourUpdaterComponent;
 		e->addComponent(c);
 	}
 
 	{	// Script manager
 		using namespace Binding;
-		Entity* e = mSystemEntity->addFirstChild(new Entity("Script manager"));
+		Entity* e = mSystemEntity->addFirstChild("Script manager");
 		ScriptManagerComponent* c = new ScriptManagerComponent(&vm);
 		e->addComponent(c);
 	}
 
 	{	// Animation updater
-		Entity* e = mSystemEntity->addFirstChild(new Entity("Animation updater"));
+		Entity* e = mSystemEntity->addFirstChild("Animation updater");
 #ifdef MCD_IPHONE
 		AnimationUpdaterComponent* c = new AnimationUpdaterComponent(nullptr);
 #else
@@ -211,7 +211,7 @@ Framework::Impl::Impl()
 	}
 
 	{	// Skeleton animation updater
-		Entity* e = mSystemEntity->addFirstChild(new Entity("Skeleton animation updater"));
+		Entity* e = mSystemEntity->addFirstChild("Skeleton animation updater");
 #ifdef MCD_IPHONE
 		SkeletonAnimationUpdaterComponent* c = new SkeletonAnimationUpdaterComponent(nullptr);
 #else
@@ -224,7 +224,7 @@ Framework::Impl::Impl()
 	MCD_VERIFY(initAudioDevice());
 
 	{	// Audio manager
-		Entity* e = mSystemEntity->addFirstChild(new Entity("Audio manager"));
+		Entity* e = mSystemEntity->addFirstChild("Audio manager");
 		AudioManagerComponent* c = new AudioManagerComponent;
 		e->addComponent(c);
 	}
@@ -270,12 +270,12 @@ bool Framework::Impl::initWindow(RenderWindow& existingWindow, bool takeOwnershi
 
 	{	// Renderer
 		mRenderer = new RendererComponent;
-		Entity* e = mSystemEntity->addFirstChild(new Entity("Renderer"));
-		e->addComponent(mRenderer.get());
+		Entity* e = mSystemEntity->addFirstChild("Renderer");
+		e->addComponent(mRenderer);
 	}
 
 	{	// Default scene camera
-		Entity* e = mSceneLayer->addFirstChild(new Entity("Scene camera"));
+		Entity* e = mSceneLayer->addFirstChild("Scene camera");
 		CameraComponent* c = e->addComponent(new CameraComponent(mRenderer));
 		c->frustum.projectionType = Frustum::Perspective;
 		c->frustum.create(45.f, 4.0f / 3.0f, 1.0f, 500.0f);
@@ -287,13 +287,13 @@ bool Framework::Impl::initWindow(RenderWindow& existingWindow, bool takeOwnershi
 	}
 
 	{	// Default Gui camera
-		Entity* e = mGuiLayer->addFirstChild(new Entity("Gui camera"));
+		Entity* e = mGuiLayer->addFirstChild("Gui camera");
 		CameraComponent* c = e->addComponent(new CameraComponent(mRenderer));
-		c->frustum.projectionType = Frustum::Ortho;
+		c->frustum.projectionType = Frustum::YDown2D;
 	}
 
 	{	// Setup scene render target
-		Entity* e = mSceneLayer->addFirstChild(new Entity("Scene layer render target"));
+		Entity* e = mSceneLayer->addFirstChild("Scene layer render target");
 		RenderTargetComponent* c = e->addComponent(new RenderTargetComponent);
 		c->window = dynamic_cast<RenderWindow*>(&existingWindow);
 		c->entityToRender = mSceneLayer;
@@ -301,7 +301,7 @@ bool Framework::Impl::initWindow(RenderWindow& existingWindow, bool takeOwnershi
 	}
 
 	{	// Setup Gui render target
-		Entity* e = mGuiLayer->addFirstChild(new Entity("Gui layer render target"));
+		Entity* e = mGuiLayer->addFirstChild("Gui layer render target");
 		RenderTargetComponent* c = e->addComponent(new RenderTargetComponent);
 		c->shouldClearColor = false;
 		c->clearColor = ColorRGBAf(0, 0);
@@ -332,7 +332,7 @@ bool Framework::Impl::initWindow(RenderWindow& existingWindow, bool takeOwnershi
 
 	{	// Input component
 		Entity* e = new Entity("Input");
-		e->insertAfter(mGuiLayer.getNotNull());
+		e->insertAfter(mGuiLayer);
 #ifdef MCD_IPHONE
 		mInput = new iPhoneInputComponent;
 #else
@@ -340,11 +340,11 @@ bool Framework::Impl::initWindow(RenderWindow& existingWindow, bool takeOwnershi
 		mInput = c;
 		c->attachTo(*mWindow);
 #endif
-		e->addComponent(mInput.getNotNull());
+		e->addComponent(mInput);
 	}
 
 	{	// Default FPS controller
-		Entity* e = mSystemEntity->addFirstChild(new Entity("Fps controller"));
+		Entity* e = mSystemEntity->addFirstChild("Fps controller");
 		FpsControllerComponent* c = e->addComponent(new FpsControllerComponent);
 		c->target = mSceneLayer->findEntityByPath("Scene camera");
 		MCD_ASSERT(c->target);

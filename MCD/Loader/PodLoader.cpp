@@ -619,7 +619,7 @@ IResourceLoader::LoadingState PodLoader::Impl::load(std::istream* is, const Path
 				sm->skeleton = skeleton;
 				sm->skeletonAnimation = skeletonAnimationComponent;
 
-				e->addComponent(sm.get());*/
+				e->addComponent(sm);*/
 			}
 			else {
 				Entity* e2 = e->addFirstChild(new Entity);

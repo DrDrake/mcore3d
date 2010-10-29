@@ -36,6 +36,7 @@ void RendererComponent::Impl::render(Entity& entityTree, RenderTargetComponent& 
 		Entity* cameraEntity = camera->entity();
 		if(!cameraEntity) return;
 
+		mCurrentCamera = camera;
 		camera->frustum.computeProjection(mProjMatrix.getPtr());
 		mCameraTransform = cameraEntity->worldTransform();
 		mViewMatrix = mCameraTransform.inverse();
@@ -108,6 +109,7 @@ void RendererComponent::Impl::render(Entity& entityTree, RenderTargetComponent& 
 	}
 
 	mLights.clear();
+	mCurrentCamera = nullptr;
 	mOpaqueQueue.destroyAll();
 	mTransparentQueue.destroyAll();
 }
@@ -149,6 +151,11 @@ void RendererComponent::Impl::processRenderItems(RenderItems& items, IDrawCall::
 
 			glPushMatrix();
 			glMultMatrixf(e->worldTransform().getPtr());
+
+			// Deal with 2d axis mode
+			if(mCurrentCamera->frustum.projectionType == Frustum::YDown2D)
+				glScalef(1, -1, 1);
+
 			i.drawCall->draw(this, statistic);
 			glPopMatrix();
 
