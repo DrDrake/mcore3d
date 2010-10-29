@@ -68,7 +68,7 @@ Entity* PrefabLoaderComponent::loadEntity(ResourceManager& resourceManager, cons
 	// Add component
 	PrefabLoaderComponentPtr c = new PrefabLoaderComponent;
 	c->prefab = prefab;
-	e->addComponent(c.get());
+	e->addComponent(c);
 
 	return e.get();
 }

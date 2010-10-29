@@ -50,11 +50,23 @@ void Entity::asChildOf(Entity* parent)
 	generateDefaultName();
 }
 
+void Entity::asChildOf(const EntityPtr& parent) {
+	asChildOf(parent.getNotNull());
+}
+
 Entity* Entity::addFirstChild(sal_in Entity* child)
 {
 	MCD_ASSUME(child);
 	child->asChildOf(this);
 	return child;
+}
+
+Entity* Entity::addFirstChild(const EntityPtr& child) {
+	return addFirstChild(child.getNotNull());
+}
+
+Entity* Entity::addFirstChild(const char* nameOfChild) {
+	return addFirstChild(new Entity(nameOfChild));
 }
 
 Entity* Entity::addLastChild(sal_in Entity* child)
@@ -65,6 +77,14 @@ Entity* Entity::addLastChild(sal_in Entity* child)
 	else
 		child->asChildOf(this);
 	return child;
+}
+
+Entity* Entity::addLastChild(const EntityPtr& child) {
+	return addLastChild(child.getNotNull());
+}
+
+Entity* Entity::addLastChild(const char* nameOfChild) {
+	return addLastChild(new Entity(nameOfChild));
 }
 
 void Entity::insertBefore(sal_in Entity* sibling)
@@ -107,6 +127,10 @@ void Entity::insertBefore(sal_in Entity* sibling)
 	insertAfter(node);
 }
 
+void Entity::insertBefore(const EntityPtr& sibling) {
+	insertBefore(sibling.getNotNull());
+}
+
 void Entity::insertAfter(sal_in Entity* sibling)
 {
 	if(!sibling)
@@ -127,6 +151,10 @@ void Entity::insertAfter(sal_in Entity* sibling)
 	mNextSibling = old;
 
 	generateDefaultName();
+}
+
+void Entity::insertAfter(const EntityPtr& sibling) {
+	insertAfter(sibling.getNotNull());
 }
 
 void Entity::generateDefaultName()

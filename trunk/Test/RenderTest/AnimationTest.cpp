@@ -25,7 +25,7 @@ public:
 		animationTrack = new AnimationTrack("");
 		loadAnimationTrack();
 
-		mBoxesNode = framework.sceneLayer().addFirstChild(new Entity("Boxes"));
+		mBoxesNode = framework.sceneLayer().addFirstChild("Boxes");
 
 		{	// Setup the chamfer box mesh
 			mesh = new Mesh("");
@@ -185,8 +185,8 @@ TEST(Event_AnimationComponentTest)
 	AnimationUpdaterComponentPtr updater = new AnimationUpdaterComponent(nullptr);
 	AnimationComponentPtr c = new AnimationComponent(*updater);
 
-	e1.addComponent(updater.get());
-	e2.addComponent(c.get());
+	e1.addComponent(updater);
+	e2.addComponent(c);
 
 	AnimationTrackPtr track = new AnimationTrack("track");
 	CHECK(c->animationInstance.addTrack(*track, 1, 1, "wtrack"));

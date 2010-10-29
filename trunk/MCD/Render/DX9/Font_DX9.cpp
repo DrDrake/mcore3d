@@ -28,7 +28,7 @@ void TextLabelComponent::render(void* context)
 
 void TextLabelComponent::draw(sal_in void* context, Statistic& statistic)
 {
-/*	RendererComponent::Impl& renderer = *reinterpret_cast<RendererComponent::Impl*>(context);
+	RendererComponent::Impl& renderer = *reinterpret_cast<RendererComponent::Impl*>(context);
 	LPDIRECT3DDEVICE9 device = getDevice();
 	MCD_ASSUME(device);
 
@@ -46,7 +46,7 @@ void TextLabelComponent::draw(sal_in void* context, Statistic& statistic)
 	MCD_VERIFY(device->DrawPrimitiveUP(D3DPT_TRIANGLELIST, mVertexBuffer.size() / 3, &mVertexBuffer[0], sizeof(Vertex)) == D3D_OK);
 
 	++statistic.drawCallCount;
-	statistic.primitiveCount += mVertexBuffer.size() / 3;*/
+	statistic.primitiveCount += mVertexBuffer.size() / 3;
 }
 
 void BmpFontMaterialComponent::render(void* context)
@@ -57,19 +57,19 @@ void BmpFontMaterialComponent::render(void* context)
 
 void BmpFontMaterialComponent::preRender(size_t pass, void* context)
 {
-/*	LPDIRECT3DDEVICE9 device = getDevice();
+	LPDIRECT3DDEVICE9 device = getDevice();
 	MCD_ASSUME(device);
 	MCD_VERIFY(device->SetVertexShader(nullptr) == D3D_OK);
 	MCD_VERIFY(device->SetPixelShader(nullptr) == D3D_OK);
 
 	if(bmpFont && bmpFont->texture)
-		bmpFont->texture->bind(0);*/
+		bmpFont->texture->bind(0);
 }
 
 void BmpFontMaterialComponent::postRender(size_t pass, void* context)
 {
-//	if(bmpFont && bmpFont->texture)
-//		bmpFont->texture->unbind();
+	if(bmpFont && bmpFont->texture)
+		bmpFont->texture->unbind();
 }
 
 }	// namespace MCD

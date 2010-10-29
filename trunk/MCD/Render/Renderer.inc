@@ -1,3 +1,4 @@
+#include "../Camera.h"
 #include "../Material.h"
 #include "../../Core/Math/Mat44.h"
 #include "../../Core/Entity/Entity.h"
@@ -58,6 +59,8 @@ public:
 
 	IMaterialComponent *mCurrentMaterial, *mLastMaterial;	//!< To reduce material setup cost
 	std::stack<IMaterialComponent*> mMaterialStack;
+
+	CameraComponentPtr mCurrentCamera;
 
 	typedef std::vector<LightComponent*> Lights;
 	Lights mLights;

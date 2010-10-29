@@ -15,7 +15,7 @@ public:
 	/*!	Default constructor
 		With default parameters:
 			position = {0, 0, 0}
-			lookAt = {0, 0, -1}
+			lookAt   = {0, 0, -1}
 			upVector = {0, 1, 0}
 	 */
 	Camera();
@@ -23,24 +23,8 @@ public:
 	Camera(const Vec3f& position, const Vec3f& lookAt, const Vec3f& upVector);
 
 // Operations
-	void move(const Vec3f& direction, float amount);
-
-	void moveForward(float amount);
-
-	void moveRight(float amount);
-
-	void moveUp(float amount);
-
-	void rotate(const Vec3f& axis, float angle);
-
 	//!	Compute the view transform.
 	void computeView(sal_out_ecount(16) float* matrix) const;
-
-	//!	Apply the view transform.
-	void applyViewTransform();
-
-	//!	Apply both view and projection (frustum) transform.
-	void applyTransform();
 
 // Attributes
 	//! Unit direction vector which the camera is directing.

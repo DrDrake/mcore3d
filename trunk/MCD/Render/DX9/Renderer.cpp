@@ -56,6 +56,7 @@ void RendererComponent::Impl::render(Entity& entityTree, RenderTargetComponent& 
 		Entity* cameraEntity = camera->entity();
 		if(!cameraEntity) return;
 
+		mCurrentCamera = camera;
 		camera->frustum.computeProjection(mProjMatrix.getPtr());
 		mCameraTransform = cameraEntity->worldTransform();
 		mViewMatrix = mCameraTransform.inverse();
@@ -106,6 +107,7 @@ void RendererComponent::Impl::render(Entity& entityTree, RenderTargetComponent& 
 	}
 
 	mLights.clear();
+	mCurrentCamera = nullptr;
 	mOpaqueQueue.destroyAll();
 	mTransparentQueue.destroyAll();
 }
@@ -133,6 +135,10 @@ void RendererComponent::Impl::processRenderItems(RenderItems& items, IDrawCall::
 
 		if(Entity* e = i.entity) {
 			mWorldMatrix = i.worldTransform;
+
+			if(mCurrentCamera->frustum.projectionType == Frustum::YDown2D)
+				mWorldMatrix = mWorldMatrix * Mat44f::makeScale(Vec3f(1, -1, 1));
+
 			mWorldViewProjMatrix = mViewProjMatrix * mWorldMatrix;
 
 			IMaterialComponent* mtl = i.material;

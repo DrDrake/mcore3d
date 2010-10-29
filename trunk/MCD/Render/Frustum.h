@@ -22,7 +22,8 @@ public:
 	enum ProjectionType
 	{
 		Perspective,
-		Ortho
+		Ortho,
+		YDown2D	//!< Same as otho, but the origin start from top-left corner and y-axis pointing downwards
 	};
 
 	/*!	By default the projection type is perspective.
@@ -58,11 +59,6 @@ public:
 	 */
 	void computeProjection(sal_out_ecount(16) float* matrix) const;
 
-	/*!	Apply the projection transform.
-		\note Make sure the current matrix mode is GL_PROJECTION.
-	 */
-	void applyProjection() const;
-
 	/*!	Compute the perspective projection matrix.
 		The matrix format should be the same as in opengl.
 		\sa http://www.opengl.org/sdk/docs/man/xhtml/glFrustum.xml
@@ -76,6 +72,8 @@ public:
 		\sa http://www.webkinesia.com/online/graphics/notes/viewing2.php
 	 */
 	void computeOrtho(sal_out_ecount(16) float* matrix) const;
+
+	void computeYDown2D(sal_out_ecount(16) float* matrix) const;
 
 	/*!	Compute the 8 vertex of the frustum.
 		The order of the vertex are:

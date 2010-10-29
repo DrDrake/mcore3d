@@ -86,6 +86,7 @@ SCRIPT_CLASS_REGISTER(TextLabelComponent)
 	.constructor()
 	.var("text", &TextLabelComponent::text)
 	.var("lineWidth", &TextLabelComponent::lineWidth)
+	.var("font", &TextLabelComponent::font)
 ;}
 
 // Texture

@@ -471,8 +471,22 @@ void Mat44<T>::transformNormal(Vec3<T>& point) const
 }
 
 template<typename T>
+Mat44<T> Mat44<T>::makeScale(const Vec3<T>& scale) {
+	Mat44<T> ret = cIdentity;
+	ret.scaleBy(scale);
+	return ret;
+}
+
+template<typename T>
 Mat44<T> Mat44<T>::makeAxisRotation(const Vec3<T>& axis, T angle) {
 	return Mat44f(Mat33f::makeAxisRotation(axis, angle));
+}
+
+template<typename T>
+Mat44<T> Mat44<T>::makeTranslation(const Vec3<T>& translation) {
+	Mat44<T> ret = cIdentity;
+	ret.translateBy(translation);
+	return ret;
 }
 
 template<typename T> const Mat44<T> Mat44<T>::cIdentity = Mat44<T>(
