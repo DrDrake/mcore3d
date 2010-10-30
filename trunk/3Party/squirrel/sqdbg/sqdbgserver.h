@@ -80,7 +80,7 @@ public:
 	bool WaitForClient();
 	bool ReadMsg();
 	void BusyWait();
-	void Hook(int type,int line,const SQChar *src,const SQChar *func);
+	void Hook(SQInteger type,SQInteger line,const SQChar *src,const SQChar *func);
 	void ParseMsg(const char *msg);
 	bool ParseBreakpoint(const char *msg,BreakPoint &out);
 	bool ParseWatch(const char *msg,Watch &out);
@@ -90,7 +90,7 @@ public:
 	void BreakExecution();
 	void Send(const SQChar *s,...);
 	void SendChunk(const SQChar *chunk);
-	void Break(int line,const SQChar *src,const SQChar *type,const SQChar *error=NULL);
+	void Break(SQInteger line,const SQChar *src,const SQChar *type,const SQChar *error=NULL);
 
 
 	void SerializeState();

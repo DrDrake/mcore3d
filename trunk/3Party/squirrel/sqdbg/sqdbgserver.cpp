@@ -22,17 +22,17 @@ XMLEscape g_escapes[]={
 	{_SC('<'),_SC("&lt;")},{'>',_SC("&gt;")},{_SC('&'),_SC("&amp;")},{_SC('\''),_SC("&apos;")},{_SC('\"'),_SC("&quot;")},{_SC('\n'),_SC("&quot;n")},{_SC('\r'),_SC("&quot;r")},{NULL,NULL}
 };
 
-const SQChar *IntToString(int n)
+const SQChar *IntToString(SQInteger n)
 {
 	static SQChar temp[256];
 	scsprintf(temp,_SC("%d"),n);
 	return temp;
 }
 
-int debug_hook(HSQUIRRELVM v);
-int error_handler(HSQUIRRELVM v);
+SQInteger debug_hook(HSQUIRRELVM v);
+SQInteger error_handler(HSQUIRRELVM v);
 
-int beginelement(HSQUIRRELVM v)
+SQInteger beginelement(HSQUIRRELVM v)
 {
 	SQUserPointer up;
 	const SQChar *name;
@@ -44,7 +44,7 @@ int beginelement(HSQUIRRELVM v)
 	return 0;
 }
 
-int endelement(HSQUIRRELVM v)
+SQInteger endelement(HSQUIRRELVM v)
 {
 	SQUserPointer up;
 	const SQChar *name;
@@ -56,7 +56,7 @@ int endelement(HSQUIRRELVM v)
 	return 0;
 }
 
-int attribute(HSQUIRRELVM v)
+SQInteger attribute(HSQUIRRELVM v)
 {
 	SQUserPointer up;
 	const SQChar *name,*value;
@@ -203,7 +203,7 @@ void SQDbgServer::Terminated()
 	::Sleep(200);
 }
 
-void SQDbgServer::Hook(int type,int line,const SQChar *src,const SQChar *func)
+void SQDbgServer::Hook(SQInteger type,SQInteger line,const SQChar *src,const SQChar *func)
 {
 	switch(_state){
 	case eDBG_Running:
@@ -495,7 +495,7 @@ void SQDbgServer::RemoveBreakpoint(BreakPoint &bp)
 	}
 }
 
-void SQDbgServer::Break(int line,const SQChar *src,const SQChar *type,const SQChar *error)
+void SQDbgServer::Break(SQInteger line,const SQChar *src,const SQChar *type,const SQChar *error)
 {
 	if(!error){
 		BeginDocument();
