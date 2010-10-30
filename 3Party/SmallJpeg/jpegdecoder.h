@@ -25,12 +25,12 @@
 #include "main.h"
 //------------------------------------------------------------------------------
 // Define SUPPORT_X86ASM to include the inline x86 assembler code.
-#ifdef _MSC_VER
+#if defined(_MSC_VER) && !defined(_WIN64)
 #	define SUPPORT_X86ASM
 #endif
 //------------------------------------------------------------------------------
 // Define SUPPORT_MMX to include MMX support.
-#ifdef _MSC_VER
+#if defined(_MSC_VER) && !defined(_WIN64)
 #	define SUPPORT_MMX
 #endif
 //------------------------------------------------------------------------------
