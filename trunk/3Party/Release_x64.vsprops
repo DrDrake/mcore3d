@@ -2,7 +2,7 @@
 <VisualStudioPropertySheet
 	ProjectType="Visual C++"
 	Version="8.00"
-	Name="MCD3PartyRelease"
+	Name="MCD3PartyRelease_x64"
 	>
 	<Tool
 		Name="VCCLCompilerTool"
@@ -15,5 +15,9 @@
 		StringPooling="true"
 		RuntimeLibrary="2"
 		EnableEnhancedInstructionSet="2"
+	/>
+	<Tool
+		Name="VCLibrarianTool"
+		OutputFile="$(OutDir)\$(ProjectName)_x64.lib"
 	/>
 </VisualStudioPropertySheet>

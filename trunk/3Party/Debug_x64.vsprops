@@ -2,7 +2,7 @@
 <VisualStudioPropertySheet
 	ProjectType="Visual C++"
 	Version="8.00"
-	Name="MCD3PartyDebug"
+	Name="MCD3PartyDebug_x64"
 	>
 	<Tool
 		Name="VCCLCompilerTool"
@@ -15,6 +15,6 @@
 	/>
 	<Tool
 		Name="VCLibrarianTool"
-		OutputFile="$(OutDir)\$(ProjectName)d.lib"
+		OutputFile="$(OutDir)\$(ProjectName)d_x64.lib"
 	/>
 </VisualStudioPropertySheet>

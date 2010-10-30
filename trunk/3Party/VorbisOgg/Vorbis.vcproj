@@ -21,7 +21,6 @@
 		<Configuration
 			Name="Debug|Win32"
 			OutputDirectory="../../Bin"
-			IntermediateDirectory="$(ConfigurationName)"
 			ConfigurationType="2"
 			InheritedPropertySheets="..\General.vsprops;..\Debug.vsprops"
 			CharacterSet="2"
@@ -59,72 +58,6 @@
 			<Tool
 				Name="VCLinkerTool"
 				OutputFile="$(OutDir)\MCD$(ProjectName)d.dll"
-				ModuleDefinitionFile="vorbisfile.def"
-				ImportLibrary="../../Lib/$(TargetName).lib"
-			/>
-			<Tool
-				Name="VCALinkTool"
-			/>
-			<Tool
-				Name="VCManifestTool"
-			/>
-			<Tool
-				Name="VCXDCMakeTool"
-			/>
-			<Tool
-				Name="VCBscMakeTool"
-			/>
-			<Tool
-				Name="VCFxCopTool"
-			/>
-			<Tool
-				Name="VCAppVerifierTool"
-			/>
-			<Tool
-				Name="VCPostBuildEventTool"
-			/>
-		</Configuration>
-		<Configuration
-			Name="Release|Win32"
-			OutputDirectory="../../Bin"
-			IntermediateDirectory="$(ConfigurationName)"
-			ConfigurationType="2"
-			InheritedPropertySheets="..\General.vsprops;..\Release.vsprops"
-			CharacterSet="2"
-			>
-			<Tool
-				Name="VCPreBuildEventTool"
-			/>
-			<Tool
-				Name="VCCustomBuildTool"
-			/>
-			<Tool
-				Name="VCXMLDataGeneratorTool"
-			/>
-			<Tool
-				Name="VCWebServiceProxyGeneratorTool"
-			/>
-			<Tool
-				Name="VCMIDLTool"
-			/>
-			<Tool
-				Name="VCCLCompilerTool"
-				AdditionalIncludeDirectories="./"
-				RuntimeTypeInfo="false"
-				DisableSpecificWarnings="4100;4127;4244;4305;4706;"
-			/>
-			<Tool
-				Name="VCManagedResourceCompilerTool"
-			/>
-			<Tool
-				Name="VCResourceCompilerTool"
-			/>
-			<Tool
-				Name="VCPreLinkEventTool"
-			/>
-			<Tool
-				Name="VCLinkerTool"
-				OutputFile="$(OutDir)\MCD$(ProjectName).dll"
 				ModuleDefinitionFile="vorbisfile.def"
 				ImportLibrary="../../Lib/$(TargetName).lib"
 			/>
@@ -152,10 +85,8 @@
 		</Configuration>
 		<Configuration
 			Name="Debug|x64"
-			OutputDirectory="$(PlatformName)\$(ConfigurationName)"
-			IntermediateDirectory="$(PlatformName)\$(ConfigurationName)"
 			ConfigurationType="2"
-			InheritedPropertySheets="..\General.vsprops;..\Debug.vsprops"
+			InheritedPropertySheets="..\General.vsprops;..\Debug_x64.vsprops"
 			CharacterSet="2"
 			>
 			<Tool
@@ -191,7 +122,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				OutputFile="$(OutDir)\MCD$(ProjectName)d.dll"
+				OutputFile="$(OutDir)\MCD$(ProjectName)d_x64.dll"
 				ModuleDefinitionFile="vorbisfile.def"
 				ImportLibrary="../../Lib/$(TargetName).lib"
 				TargetMachine="17"
@@ -219,11 +150,74 @@
 			/>
 		</Configuration>
 		<Configuration
-			Name="Release|x64"
-			OutputDirectory="$(PlatformName)\$(ConfigurationName)"
-			IntermediateDirectory="$(PlatformName)\$(ConfigurationName)"
+			Name="Release|Win32"
+			OutputDirectory="../../Bin"
 			ConfigurationType="2"
 			InheritedPropertySheets="..\General.vsprops;..\Release.vsprops"
+			CharacterSet="2"
+			>
+			<Tool
+				Name="VCPreBuildEventTool"
+			/>
+			<Tool
+				Name="VCCustomBuildTool"
+			/>
+			<Tool
+				Name="VCXMLDataGeneratorTool"
+			/>
+			<Tool
+				Name="VCWebServiceProxyGeneratorTool"
+			/>
+			<Tool
+				Name="VCMIDLTool"
+			/>
+			<Tool
+				Name="VCCLCompilerTool"
+				AdditionalIncludeDirectories="./"
+				RuntimeTypeInfo="false"
+				DisableSpecificWarnings="4100;4127;4244;4305;4706;"
+			/>
+			<Tool
+				Name="VCManagedResourceCompilerTool"
+			/>
+			<Tool
+				Name="VCResourceCompilerTool"
+			/>
+			<Tool
+				Name="VCPreLinkEventTool"
+			/>
+			<Tool
+				Name="VCLinkerTool"
+				OutputFile="$(OutDir)\MCD$(ProjectName).dll"
+				ModuleDefinitionFile="vorbisfile.def"
+				ImportLibrary="../../Lib/$(TargetName).lib"
+			/>
+			<Tool
+				Name="VCALinkTool"
+			/>
+			<Tool
+				Name="VCManifestTool"
+			/>
+			<Tool
+				Name="VCXDCMakeTool"
+			/>
+			<Tool
+				Name="VCBscMakeTool"
+			/>
+			<Tool
+				Name="VCFxCopTool"
+			/>
+			<Tool
+				Name="VCAppVerifierTool"
+			/>
+			<Tool
+				Name="VCPostBuildEventTool"
+			/>
+		</Configuration>
+		<Configuration
+			Name="Release|x64"
+			ConfigurationType="2"
+			InheritedPropertySheets="..\General.vsprops;..\Release_x64.vsprops"
 			CharacterSet="2"
 			>
 			<Tool
@@ -259,7 +253,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				OutputFile="$(OutDir)\MCD$(ProjectName).dll"
+				OutputFile="$(OutDir)\MCD$(ProjectName)_x64.dll"
 				ModuleDefinitionFile="vorbisfile.def"
 				ImportLibrary="../../Lib/$(TargetName).lib"
 				TargetMachine="17"
