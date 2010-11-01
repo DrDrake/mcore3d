@@ -19,14 +19,6 @@
 #	pragma warning(pop)
 #endif
 
-#ifdef MCD_VC
-#	ifndef NDEBUG
-#		pragma comment(lib, "jkbindd")
-#	else
-#		pragma comment(lib, "jkbind")
-#	endif
-#endif
-
 namespace MCD {
 
 class EventQueue;

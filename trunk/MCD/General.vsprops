@@ -3,6 +3,8 @@
 	ProjectType="Visual C++"
 	Version="8.00"
 	Name="General"
+	OutputDirectory="../../Bin/"
+	IntermediateDirectory="tmp/$(PlatformName)/$(ConfigurationName)"
 	>
 	<Tool
 		Name="VCCLCompilerTool"
