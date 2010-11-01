@@ -3,6 +3,7 @@
 
 #include "../Entity/BehaviourComponent.h"
 
+typedef ssize_t SQInteger;
 typedef struct SQVM* HSQUIRRELVM;
 
 namespace MCD {
@@ -19,7 +20,7 @@ public:
 	sal_override void update(float dt);
 
 protected:
-	friend int wakeup_ScriptComponent(HSQUIRRELVM vm);
+	friend SQInteger wakeup_ScriptComponent(HSQUIRRELVM vm);
 	friend class ScriptManagerComponent;
 	void* mThreadVM;
 	bool mSuspended;

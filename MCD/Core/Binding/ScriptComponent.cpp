@@ -26,7 +26,7 @@ void ScriptComponent::update(float dt)
 	VMCore* core = reinterpret_cast<VMCore*>(sq_getforeignptr(orgVm));
 	MCD_ASSUME(core);
 
-	const int orgOldTop = sq_gettop(orgVm);
+	const SQInteger orgOldTop = sq_gettop(orgVm);
 	HSQUIRRELVM v = core->allocateThraed();
 	MCD_ASSUME(v);
 

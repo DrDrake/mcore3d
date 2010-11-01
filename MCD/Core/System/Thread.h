@@ -119,7 +119,7 @@ protected:
 
 protected:
 	IRunnable* mRunnable;
-#ifdef MCD_WIN32
+#ifdef MCD_WIN
 	intptr_t mHandle;
 	int mId;
 #else

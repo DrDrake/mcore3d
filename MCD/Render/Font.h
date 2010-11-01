@@ -101,6 +101,7 @@ public:
 	size_t lineWidth;	//!< The maximum pixel for a line of text, word longer than that will move to next line. Zero means no limit
 	ColorRGBAf color;	//!< This color will be multipled with the font texture's color
 	FixString font;		//!< The font resource to use
+	Vec2f anchor;		//!< The rooting position of the label, in unit of relative size (ie 0.5,0.5 -> centre of the label)
 
 protected:
 	sal_override ~TextLabelComponent();
@@ -112,6 +113,7 @@ protected:
 	BmpFontMaterialComponent* mFontMaterial;
 	size_t mLastBmpFontCommitCount;	// To determine the font resource is loaded or not
 	FixString mLastText, mLastFont;	// To determine the text have been changed or not
+	Vec2f mLastAnchor;
 
 	// Caching of vertex buffer
 	struct Vertex { Vec3f position; Vec2f uv; };

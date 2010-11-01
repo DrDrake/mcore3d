@@ -72,7 +72,7 @@ public:
 	void broadcastNoLock();
 
 private:
-#ifdef MCD_WIN32
+#ifdef MCD_WIN
 	bool _waitNoLock(uint32_t milliseconds);
 	void* h[2];	// h[0]:signal, h[1]:broadcast
 	int mWaitCount;

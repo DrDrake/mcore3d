@@ -201,7 +201,7 @@ StreamBuf::pos_type StreamBuf::seekoff(
 
 			if(which & ios_base::out) {
 				setp(pbase(), epptr());
-				pbump(gptr() - eback());
+				pbump(int(gptr() - eback()));
 			}
 		} else
 			return mProxy->seek(offset, origin, which);
@@ -351,7 +351,7 @@ size_t readString(std::istream& is, char* buf, size_t bufLen)
 	// NOTE: We assume uint32_t as the string length
 	uint32_t len_;
 	if(!read(is, len_)) return 0;
-	if(len_ >= bufLen) len_ = bufLen - 1;	// Check bufLen and reserve room for '\0'
+	if(len_ >= bufLen) len_ = uint32_t(bufLen - 1);	// Check bufLen and reserve room for '\0'
 	std::streamsize readCnt = is.rdbuf()->sgetn(buf, len_);
 	buf[readCnt] = '\0';
 	return static_cast<size_t>(readCnt);

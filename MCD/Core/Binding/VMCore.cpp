@@ -193,13 +193,13 @@ static SQInteger sqReadUtf8(SQUserPointer file)
 #undef READ
 }
 
-bool VMCore::loadScript(HSQUIRRELVM v, const char* script, int len, const char* scriptName)
+bool VMCore::loadScript(HSQUIRRELVM v, const char* script, ssize_t len, const char* scriptName)
 {
-	if(len < 0) len = strlen(script);
+	if(len < 0) len = ssize_t(strlen(script));
 	return SQ_SUCCEEDED(sq_compilebuffer(v, script, len, scriptName, true));
 }
 
-bool VMCore::loadScript(HSQUIRRELVM v, std::istream& is, int sizeInByte, const char* scriptName)
+bool VMCore::loadScript(HSQUIRRELVM v, std::istream& is, ssize_t sizeInByte, const char* scriptName)
 {
 	uint16_t header = 0;
 	if(!MCD::read(is, header))
@@ -226,9 +226,9 @@ bool VMCore::loadScript(HSQUIRRELVM v, std::istream& is, int sizeInByte, const c
 	return true;
 }
 
-bool VMCore::runScript(HSQUIRRELVM v, const char* script, int len, bool retVal, bool leftClouseOnStack, const char* scriptName)
+bool VMCore::runScript(HSQUIRRELVM v, const char* script, ssize_t len, bool retVal, bool leftClouseOnStack, const char* scriptName)
 {
-	const int oldTop = sq_gettop(v);
+	const SQInteger oldTop = sq_gettop(v);
 	(void)oldTop;
 
 	if(!loadScript(v, script, len, scriptName))
@@ -244,9 +244,9 @@ bool VMCore::runScript(HSQUIRRELVM v, const char* script, int len, bool retVal, 
 	return ok;
 }
 
-bool VMCore::runScript(HSQUIRRELVM v, std::istream& is, int sizeInByte, bool retVal, bool leftClouseOnStack, const char* scriptName)
+bool VMCore::runScript(HSQUIRRELVM v, std::istream& is, ssize_t sizeInByte, bool retVal, bool leftClouseOnStack, const char* scriptName)
 {
-	const int oldTop = sq_gettop(v);
+	const SQInteger oldTop = sq_gettop(v);
 	(void)oldTop;
 
 	if(!loadScript(v, is, sizeInByte, scriptName))

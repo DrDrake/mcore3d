@@ -228,7 +228,7 @@ bool Window::Impl::createWindow(Window::Handle existingWindowHandle)
 	}
 
 	// Associate the this pointer as the user-data of the window handle
-	::SetWindowLongPtr(mWnd, GWL_USERDATA, reinterpret_cast<LONG>(this));
+	::SetWindowLongPtr(mWnd, GWLP_USERDATA, reinterpret_cast<LONG>(this));
 
 	::ShowWindow(mWnd, mShowWindow);
 
@@ -425,7 +425,7 @@ sal_override void Window::Impl::processEvent(bool blocking)
 
 LRESULT CALLBACK Window::Impl::wndProc(sal_in HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
-	Impl* impl = reinterpret_cast<Impl*>(::GetWindowLongPtr(hWnd, GWL_USERDATA));
+	Impl* impl = reinterpret_cast<Impl*>(::GetWindowLongPtr(hWnd, GWLP_USERDATA));
 	if(impl)
 		return impl->Proc(uMsg, wParam, lParam);
 	else

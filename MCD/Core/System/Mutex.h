@@ -4,7 +4,7 @@
 #include "../ShareLib.h"
 #include "NonCopyable.h"
 
-#if !defined(MCD_WIN32)
+#if !defined(MCD_WIN)
 #	include <pthread.h>
 #endif
 
@@ -32,12 +32,12 @@ public:
 	bool isLocked() const { return _locked; }
 #endif
 
-#ifdef MCD_WIN32
+#ifdef MCD_WIN
 	/*!	A char buffer that pretended to be a CRITICAL_SECTION.
 		Using such an approach, we need not to include Windows.h
 		The sizeof(CRITICAL_SECTION) is 24 on win32
 	 */
-	char mMutex[24];
+	char mMutex[8 + 4 * sizeof(void*)];
 #else
 	pthread_mutex_t mMutex;
 #endif
@@ -72,8 +72,8 @@ public:
 	int lockCount() const;
 #endif
 
-#ifdef MCD_WIN32
-	char mMutex[24];
+#ifdef MCD_WIN
+	char mMutex[8 + 4 * sizeof(void*)];
 #else
 	pthread_mutex_t mMutex;
 #endif

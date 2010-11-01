@@ -50,7 +50,7 @@ framework.sceneLayer.addFirstChild("Script").addComponent(MyScript);
 class DrawHistogram extends ScriptComponent
 {
 	time = 0;
-	refershRate = 60;
+	static refershRate = 60;
 
 	function func(x) {
 		return ::sin(0.5 * x) * 10;
@@ -58,7 +58,6 @@ class DrawHistogram extends ScriptComponent
 
 	function update(dt)
 	{
-
 		local segments = 100;
 		local min = -12.5;
 		local max = 12.5;

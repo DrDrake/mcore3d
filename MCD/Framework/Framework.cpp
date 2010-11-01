@@ -182,9 +182,9 @@ Framework::Impl::Impl()
 
 	{	// Fps label
 		Entity* e = mGuiLayer->addFirstChild("Fps label");
-		e->localTransform.setTranslation(Vec3f(0, 30, 0));
 		mFpsLabel = e->addComponent(new TextLabelComponent);
 		mFpsLabel->font = "buildin/Arial-20.fnt";
+		mFpsLabel->anchor = Vec2f(0, 0);
 	}
 
 	{	// Behaviour updater

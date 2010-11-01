@@ -4,7 +4,7 @@
 #include "ShareLib.h"
 #include "../Core/System/Platform.h"
 
-#if defined(MCD_WIN32)				// Native Windows
+#if defined(MCD_WIN)				// Native Windows
 #	undef FD_SETSIZE
 #	define FD_SETSIZE 10240
 #	include <winsock2.h>

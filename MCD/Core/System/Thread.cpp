@@ -6,7 +6,7 @@
 
 namespace MCD {
 
-#ifdef MCD_WIN32
+#ifdef MCD_WIN
 DWORD WINAPI _Run(sal_notnull LPVOID p) {
 #else
 void* _Run(sal_notnull void* p) {
@@ -32,7 +32,7 @@ Thread::Thread(IRunnable& runnable, bool autoDeleteRunnable)
 void Thread::init()
 {
 	mRunnable = nullptr;
-#ifdef MCD_WIN32
+#ifdef MCD_WIN
 	mHandle = nullptr;
 	mId = 0;
 #else
@@ -70,7 +70,7 @@ void Thread::start(IRunnable& runnable, bool autoDeleteRunnable)
 	mRunnable = &runnable;
 	mKeepRun = true;
 
-#ifdef MCD_WIN32
+#ifdef MCD_WIN
 	MCD_ASSERT(mId == 0);
 	mHandle = reinterpret_cast<intptr_t>(::CreateThread(nullptr, 0, &_Run, this, 0, (LPDWORD)&mId));
 	if(!mHandle)
@@ -111,7 +111,7 @@ void Thread::cleanup()
 	if(!mHandle)
 		return;
 
-#ifdef MCD_WIN32
+#ifdef MCD_WIN
 	MCD_VERIFY(::CloseHandle(reinterpret_cast<HANDLE>(mHandle)));
 	mHandle = nullptr;
 
@@ -131,7 +131,7 @@ Thread::Priority Thread::getPriority() const
 
 #ifdef MCD_CYGWIN
 	MCD_ASSERT(false && "Not implemented.");
-#elif defined(MCD_WIN32)
+#elif defined(MCD_WIN)
 	int ret = ::GetThreadPriority(reinterpret_cast<HANDLE>(mHandle));
 	if(ret == THREAD_PRIORITY_ERROR_RETURN)
 		logSystemErrorMessage("Error getting thread priority.");
@@ -164,7 +164,7 @@ void Thread::setPriority(Priority priority)
 #ifdef MCD_CYGWIN
 	(void)priority;
 	MCD_ASSERT(false && "Not implemented.");
-#elif defined(MCD_WIN32)
+#elif defined(MCD_WIN)
 	if(::SetThreadPriority(reinterpret_cast<HANDLE>(mHandle), int(priority)) == 0)
 		logSystemErrorMessage("Error setting thread priority.");
 #else
@@ -198,7 +198,7 @@ void Thread::wait()
 
 	MCD_ASSERT(mHandle);
 
-#ifdef MCD_WIN32
+#ifdef MCD_WIN
 	HANDLE handleBackup = reinterpret_cast<HANDLE>(mHandle);
 	mHandle = nullptr;
 
@@ -230,7 +230,7 @@ int Thread::id() const
 {
 	ScopeRecursiveLock lock(mMutex);
 
-#ifdef MCD_WIN32
+#ifdef MCD_WIN
 	return mId;
 #else
 	return int(mHandle);
@@ -239,7 +239,7 @@ int Thread::id() const
 
 int getCurrentThreadId()
 {
-#ifdef MCD_WIN32
+#ifdef MCD_WIN
 	return ::GetCurrentThreadId();
 #else
 	return int(::pthread_self());
@@ -248,7 +248,7 @@ int getCurrentThreadId()
 
 void mSleep(size_t millseconds)
 {
-#ifdef MCD_WIN32
+#ifdef MCD_WIN
 	::Sleep(DWORD(millseconds));
 #else
 	::usleep(useconds_t(millseconds * 1000));
@@ -257,7 +257,7 @@ void mSleep(size_t millseconds)
 
 void uSleep(useconds_t microseconds)
 {
-#ifdef MCD_WIN32
+#ifdef MCD_WIN
 	::Sleep(microseconds / 1000);
 #else
 	::usleep(microseconds);

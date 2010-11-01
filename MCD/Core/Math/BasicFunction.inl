@@ -76,7 +76,7 @@ void Math<float>::sinCos(float theta, float& sinResult, float& cosResult)
 		fstp DWORD PTR[ebx]
 	}
 #else
-	sinResult = Real(sin(theta));	cosResult = Real(cos(theta));
+	sinResult = float(sin(theta));	cosResult = float(cos(theta));
 #endif
 }
 

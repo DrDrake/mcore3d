@@ -15,7 +15,7 @@ Declarator::Declarator(const ScriptObject& hostObject, HSQUIRRELVM vm)
 
 void Declarator::pushFunction(const char* name, void* func, size_t sizeofFunc, int paramCountCheck, SQFUNCTION dispatchFunc, const ScriptObject& whereToPush)
 {
-	const int oldTop = sq_gettop(_vm);
+	const SQInteger oldTop = sq_gettop(_vm);
 	(void)oldTop;
 
 	sq_pushobject(_vm, whereToPush.handle());
@@ -128,7 +128,7 @@ ScriptObject GlobalDeclarator::pushClass(const char* className, ClassID classID,
 {
 	ClassesManager::setClassIdForRtti(typeID, classID);
 
-	const int oldTop = sq_gettop(_vm);
+	const SQInteger oldTop = sq_gettop(_vm);
 
 	ScriptObject newClass = ClassesManager::createClass(_vm, _hostObject, classID, className, parentClassID);
 

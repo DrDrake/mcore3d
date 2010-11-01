@@ -44,9 +44,9 @@ void destroy(Resource* dummy, Resource* instance)
 
 // Math
 
-static int create_Mat44(HSQUIRRELVM vm)
+static SQInteger create_Mat44(HSQUIRRELVM vm)
 {
-	const int paramCount = sq_gettop(vm) - 1;
+	const SQInteger paramCount = sq_gettop(vm) - 1;
 	Mat44f* m = nullptr;
 
 	switch(paramCount) {
@@ -119,9 +119,9 @@ SCRIPT_CLASS_REGISTER(Mat44f)
 //	.runScript("Mat44._tostring <- function(){return xBiasVector+\", \"+yBiasVector+\"), \"+zBiasVector;}")	// Vec3.tostring()
 ;}
 
-static int createVec2(HSQUIRRELVM vm)
+static SQInteger createVec2(HSQUIRRELVM vm)
 {
-	const int paramCount = sq_gettop(vm) - 1;
+	const SQInteger paramCount = sq_gettop(vm) - 1;
 	Vec2f* v = nullptr;
 
 	switch(paramCount) {
@@ -157,9 +157,9 @@ SCRIPT_CLASS_REGISTER(Vec2f)
 //	.runScript("Vec2._tostring <- function(){return x+\", \"+y+\";}")
 ;}
 
-static int create_Vec3(HSQUIRRELVM vm)
+static SQInteger create_Vec3(HSQUIRRELVM vm)
 {
-	const int paramCount = sq_gettop(vm) - 1;
+	const SQInteger paramCount = sq_gettop(vm) - 1;
 	Vec3f* v = nullptr;
 
 	switch(paramCount) {
@@ -360,13 +360,13 @@ void destroy(Component* dummy, Component* instance)
 
 // ScriptComponent
 
-int suspend_ScriptComponent(HSQUIRRELVM vm) {
+SQInteger suspend_ScriptComponent(HSQUIRRELVM vm) {
 	return sq_suspendvm(vm);
 }
 
-int wakeup_ScriptComponent(HSQUIRRELVM vm)
+SQInteger wakeup_ScriptComponent(HSQUIRRELVM vm)
 {
-	const int paramCount = sq_gettop(vm) - 1;
+	const SQInteger paramCount = sq_gettop(vm) - 1;
 
 	SQRESULT ret = sq_wakeupvm(vm, paramCount > 0, true, true, false);
 
@@ -383,11 +383,11 @@ int wakeup_ScriptComponent(HSQUIRRELVM vm)
 	return ret;
 }
 
-int sleep_ScriptComponent(HSQUIRRELVM vm)
+SQInteger sleep_ScriptComponent(HSQUIRRELVM vm)
 {
 	VMCore* core = reinterpret_cast<VMCore*>(sq_getforeignptr(vm));
 	MCD_ASSUME(core);
-	const int paramCount = sq_gettop(vm) - 1;
+	const SQInteger paramCount = sq_gettop(vm) - 1;
 	if(paramCount >= 1) {
 		float t = 0;
 		if(SQ_SUCCEEDED(sq_getfloat(vm, 2, &t))) {

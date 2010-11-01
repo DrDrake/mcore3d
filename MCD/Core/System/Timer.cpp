@@ -7,7 +7,7 @@
 
 #ifdef MCD_APPLE
 #	include <mach/mach_time.h>
-#else
+#elif defined(MCD_WIN32)
 #	define USE_RDTSC 1
 #endif
 

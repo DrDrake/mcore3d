@@ -9,8 +9,18 @@
 #	define MCD_GCC
 #endif
 
-#ifdef _WIN32
+#if defined(_WIN32) && !defined(_WIN64)
 #	define MCD_WIN32
+#	define MCD_32BITS
+#endif
+
+#ifdef _WIN64
+#	define MCD_WIN64
+#	define MCD_64BITS
+#endif
+
+#if defined(_WIN32) || defined(_WIN64)
+#	define MCD_WIN
 #endif
 
 #ifdef __CYGWIN__
@@ -36,6 +46,7 @@
 // For Visual Studio
 
 #if defined(MCD_VC)
+#include <crtdefs.h>
 
 #ifndef _DEBUG
 #	ifndef NDEBUG
@@ -101,7 +112,7 @@ typedef unsigned __int64	uint64_t;
 // Other types
 typedef unsigned int uint;
 typedef unsigned char byte_t;
-typedef int ssize_t;
+typedef ptrdiff_t ssize_t;
 typedef unsigned int useconds_t;
 
 // See http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2004/n1601.pdf

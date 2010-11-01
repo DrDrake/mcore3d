@@ -7,8 +7,8 @@
 #include "../Math/Vec3.h"
 #include "../ShareLib.h"
 
-typedef int SQInteger;
-typedef int SQRESULT;
+typedef ssize_t SQInteger;
+typedef SQInteger SQRESULT;
 typedef void* SQUserPointer;
 
 namespace MCD {

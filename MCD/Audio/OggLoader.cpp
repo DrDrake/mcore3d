@@ -39,7 +39,7 @@ void initVorbis()
 	if(gVorbisInited)
 		return;
 
-#ifdef MCD_WIN32
+#ifdef MCD_WIN
 	// Try and load Vorbis DLLs (VorbisFile.dll will load ogg.dll and vorbis.dll)
 	if(HMODULE h = ::LoadLibraryA("MCDVorbis.dll"))
 	{

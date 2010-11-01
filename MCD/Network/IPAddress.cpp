@@ -73,7 +73,7 @@ bool IPAddress::parse(sal_in_z_opt const char* ipOrHostName)
 
 IPAddress IPAddress::getLoopBack()
 {
-#ifdef MCD_WIN32
+#ifdef MCD_WIN
 	// 98048 will be encoded into 127.0.0.1
 	return IPAddress(98048);
 #else

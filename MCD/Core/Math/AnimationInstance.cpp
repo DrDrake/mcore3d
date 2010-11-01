@@ -304,7 +304,7 @@ int AnimationInstance::getTrackIndex(sal_in_z const char* weightedTrackName) con
 {
 	for(size_t i=0; i<mTracks.size(); ++i) {
 		if(mTracks[i].name == weightedTrackName)
-			return i;
+			return int(i);
 	}
 	return -1;
 }
