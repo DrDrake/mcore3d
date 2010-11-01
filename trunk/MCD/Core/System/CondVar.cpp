@@ -5,7 +5,7 @@
 
 namespace MCD {
 
-#ifdef MCD_WIN32
+#ifdef MCD_WIN
 
 CondVar::CondVar()
 	: Mutex(), mWaitCount(0), mBroadcastCount(0)
@@ -159,6 +159,6 @@ bool CondVar::_waitNoLock(useconds_t microseconds)
 	}
 }
 
-#endif	// MCD_WIN32
+#endif	// MCD_WIN
 
 }	// namespace MCD

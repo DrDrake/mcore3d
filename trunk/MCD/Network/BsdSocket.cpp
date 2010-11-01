@@ -15,7 +15,7 @@
 
 namespace MCD {
 
-#if defined(MCD_WIN32)
+#if defined(MCD_WIN)
 //	typedef int			socklen_t;
 //	typedef UINT_PTR	SOCKET;
 //	typedef UINT_PTR	socket_t;
@@ -26,7 +26,7 @@ namespace MCD {
 #endif	// OK
 
 // Unify the error code used in Linux and win32
-#if defined(MCD_WIN32)
+#if defined(MCD_WIN)
 #	define OK			S_OK
 #	define EALREADY		WSAEALREADY		// Operation already in progress
 #	define ECONNABORTED	WSAECONNABORTED	// Software caused connection abort
@@ -53,7 +53,7 @@ namespace MCD {
 
 static int getLastError()
 {
-#if defined(MCD_WIN32)
+#if defined(MCD_WIN)
 	return WSAGetLastError();
 #else
 //	if(errno != 0)
@@ -70,7 +70,7 @@ typedef BsdSocket::ErrorCode ErrorCode;
 
 ErrorCode BsdSocket::initApplication()
 {
-#if defined(MCD_WIN32)
+#if defined(MCD_WIN)
 	WSADATA	wsad;
 
 	// Note that we cannot use GetLastError to determine the error code
@@ -83,7 +83,7 @@ ErrorCode BsdSocket::initApplication()
 
 ErrorCode BsdSocket::closeApplication()
 {
-#if defined(MCD_WIN32)
+#if defined(MCD_WIN)
 	return ::WSACleanup();
 #else
 	return OK;
@@ -117,7 +117,7 @@ ErrorCode BsdSocket::create(SocketType type)
 	default: return lastError = getLastError();
 	}
 
-#ifndef MCD_WIN32
+#ifndef MCD_WIN
 	{	// Disable SIGPIPE: http://unix.derkeiler.com/Mailing-Lists/FreeBSD/net/2007-03/msg00007.html
 		// More reference: http://beej.us/guide/bgnet/output/html/multipage/sendman.html
 		// http://discuss.joelonsoftware.com/default.asp?design.4.575720.7
@@ -131,7 +131,7 @@ ErrorCode BsdSocket::create(SocketType type)
 
 ErrorCode BsdSocket::setBlocking(bool block)
 {
-#if defined(MCD_WIN32)
+#if defined(MCD_WIN)
 	unsigned long a = block ? 0 : 1;
 	return lastError =
 		ioctlsocket(fd(), FIONBIO, &a) == OK ?
@@ -253,7 +253,7 @@ ErrorCode BsdSocket::close()
 	if(fd() == INVALID_SOCKET)
 		return lastError = OK;
 
-#if defined(MCD_WIN32)
+#if defined(MCD_WIN)
 	if(::closesocket(fd()) == OK)
 		return lastError = OK;
 #else

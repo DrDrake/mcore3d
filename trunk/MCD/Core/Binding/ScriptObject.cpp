@@ -96,7 +96,7 @@ ScriptObject ScriptObject::getValue(const char* key) const
 
 #define _SETVALUE_STR_BEGIN \
 bool ret = false; \
-int top = sq_gettop(mSqvm); \
+SQInteger top = sq_gettop(mSqvm); \
 sq_pushobject(mSqvm, mObj); \
 sq_pushstring(mSqvm, key, -1);
 

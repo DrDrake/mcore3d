@@ -366,7 +366,7 @@ public:
 
 		std::string str = ss.str() + "\n\n";
 
-		if(::send(clientSock, str.c_str(), str.length(), 0) == SOCKET_ERROR) {
+		if(::send(clientSock, str.c_str(), int(str.length()), 0) == SOCKET_ERROR) {
 			Log::format(Log::Warn, "Socket sendto() failed. At %s line %i", __FILE__, __LINE__);
 			connected = false;
 		}
@@ -374,8 +374,8 @@ public:
 		profiler.reset();
 	}
 
-	int sock;
-	int clientSock;
+	intptr_t sock;
+	intptr_t clientSock;
 	struct sockaddr_in serverAddr, clientAddr;
 	bool connected;
 };	// Impl

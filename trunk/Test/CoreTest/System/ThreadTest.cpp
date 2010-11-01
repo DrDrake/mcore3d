@@ -108,7 +108,7 @@ TEST(Basic_ThreadTest)
 
 	// Get/Set priority only work correctly on win32
 	// Totally not working for CYGWIN, only works for super user on Linux
-#ifdef MCD_WIN32
+#ifdef MCD_WIN
 	{	// Test for get/set priority
 		LoopRunnable runnable;
 		Thread thread(runnable, false);
@@ -124,7 +124,7 @@ TEST(Basic_ThreadTest)
 		thread.setPriority(Thread::NormalPriority);
 		CHECK_EQUAL(Thread::NormalPriority, thread.getPriority());
 	}
-#endif	// MCD_WIN32
+#endif	// MCD_WIN
 }
 
 #include "../../../MCD/Core/System/CondVar.h"

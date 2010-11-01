@@ -50,9 +50,9 @@ SCRIPT_CLASS_REGISTER(Derived)
 	.staticMethod<objNoCare>("singleton", &Derived::singleton)
 ;}
 
-static int rawFuncAdd2Float(HSQUIRRELVM vm)
+static SQInteger rawFuncAdd2Float(HSQUIRRELVM vm)
 {
-	const int paramCount = sq_gettop(vm) - 1;
+	const SQInteger paramCount = sq_gettop(vm) - 1;
 	if(paramCount != 2)
 		return sq_throwerror(vm, "Expecting 2 parameter");
 

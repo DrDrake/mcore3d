@@ -13,9 +13,9 @@ namespace MCD {
 	RawFileSystemMonitor monitor("pathToMonitor", true);
 	// In your main loop:
 	while(true) {
-		std::wstring path;
+		std::string path;
 		while(!(path = monitor.getChangedFile()).empty()) {
-			std::wcout << path << std::endl;
+			std::cout << path << std::endl;
 		}
 	}
 	\endcode

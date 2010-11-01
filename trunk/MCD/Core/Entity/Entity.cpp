@@ -264,9 +264,9 @@ Entity* Entity::commonAncestor(const Entity& e1, const Entity& e2)
 
 	const Entity *p1 = &e1, *p2 = &e2;
 
-	for(int i=level1-commonLevel; i--; )
+	for(ssize_t i=level1-commonLevel; i--; )
 		p1 = p1->parent();
-	for(int i=level2-commonLevel; i--; )
+	for(ssize_t i=level2-commonLevel; i--; )
 		p2 = p2->parent();
 
 	// Go up to the parent until both become the same

@@ -92,21 +92,21 @@ public:
 	static sal_checkreturn bool loadScript(
 		HSQUIRRELVM v,
 		const char* script,
-		int lenInByte=-1,
+		ssize_t lenInByte=-1,
 		const char* scriptName="unnamed"
 	);
 
 	static sal_checkreturn bool loadScript(
 		HSQUIRRELVM v,
 		std::istream& is,
-		int sizeInByte=-1,
+		ssize_t sizeInByte=-1,
 		const char* scriptName="unnamed"
 	);
 
 	static sal_checkreturn bool runScript(
 		HSQUIRRELVM v,
 		const char* script,
-		int lenInByte=-1,
+		ssize_t lenInByte=-1,
 		bool retVal=false,
 		bool leftClouseOnStack=false,
 		const char* scriptName="unnamed"
@@ -115,7 +115,7 @@ public:
 	static sal_checkreturn bool runScript(
 		HSQUIRRELVM v,
 		std::istream& is,
-		int sizeInByte=-1,
+		ssize_t sizeInByte=-1,
 		bool retVal=false,
 		bool leftClouseOnStack=false,
 		const char* scriptName="unnamed"

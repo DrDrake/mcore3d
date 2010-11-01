@@ -70,7 +70,7 @@ void ClassesManager::createObjectInstanceOnStack(HSQUIRRELVM v, ClassID classId,
 		return;
 	}
 
-	const int oldTop = sq_gettop(v);
+	const SQInteger oldTop = sq_gettop(v);
 	ScriptObject classObj = findClass(v, classId);
 	sq_pushobject(v, classObj.handle());
 	/// stack: class
@@ -90,7 +90,7 @@ void ClassesManager::createObjectInstanceOnStack(HSQUIRRELVM v, ClassID classId,
 
 ScriptObject ClassesManager::createClass(HSQUIRRELVM v, ScriptObject& ns, ClassID classId, const char* className, ClassID parentClass)
 {
-	const int oldTop = sq_gettop(v);
+	const SQInteger oldTop = sq_gettop(v);
 	(void)oldTop;
 
 	ScriptObject newClass(v);

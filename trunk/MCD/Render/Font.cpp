@@ -61,6 +61,7 @@ TextLabelComponent::TextLabelComponent()
 	, mLastBmpFontCommitCount(0)
 	, color(ColorRGBAf(1, 1))
 	, font("buildin/Arial-20.fnt")
+	, anchor(0.5f, 0.5f)
 {}
 
 TextLabelComponent::~TextLabelComponent()
@@ -75,6 +76,7 @@ Component* TextLabelComponent::clone() const
 	ret->lineWidth = lineWidth;
 	ret->color = color;
 	ret->font = font;
+	ret->anchor = anchor;
 	return ret;
 }
 
@@ -129,6 +131,26 @@ void TextLabelComponent::buildVertexBuffer(const BmpFont& font)
 			charPos.y -= font.charSet.lineHeight;
 		}
 	}
+
+	{	// Setup anchor point
+		float totalWidth = 0;
+		float totalHeight = 0;
+
+		for(size_t i=0, n=mVertexBuffer.size(); i<n; ++i) {
+			const float w = mVertexBuffer[i].position.x;
+			if(w > totalWidth) totalWidth = w;
+			const float h = -mVertexBuffer[i].position.y;
+			if(h > totalHeight) totalHeight = h;
+		}
+
+		// Adjust the vertex
+		Vec3f adjustment = Vec3f(anchor, 0);
+		adjustment.x *= -totalWidth;
+		adjustment.y *= totalHeight;
+		for(size_t i=0, n=mVertexBuffer.size(); i<n; ++i) {
+			mVertexBuffer[i].position += adjustment;
+		}
+	}
 }
 
 void TextLabelComponent::update()
@@ -143,16 +165,18 @@ void TextLabelComponent::update()
 
 	const bool fontChanged = font != mLastFont || bmpFont->commitCount() != mLastBmpFontCommitCount;
 	const bool textChanged = text != mLastText;
+	const bool anchorChanged = anchor != mLastAnchor;
 
 	if(font != mLastFont)
 		releaseMaterial(mLastFont);
 
-	if(fontChanged || textChanged)
+	if(fontChanged || textChanged || anchorChanged)
 	{
 		buildVertexBuffer(*bmpFont);
 		mLastText = text;
 		mLastFont = font;
 		mLastBmpFontCommitCount = bmpFont->commitCount();
+		mLastAnchor = anchor;
 	}
 }
 

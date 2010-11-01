@@ -37,8 +37,8 @@ public:
 
 	size_t callCount;
 
-	int exclusiveCount;
-	int exclusiveBytes;
+	ssize_t exclusiveCount;
+	ssize_t exclusiveBytes;
 
 	/*!	Number of allocation made since last reset, of course
 		you want to minimize this figure to almost no allocation at

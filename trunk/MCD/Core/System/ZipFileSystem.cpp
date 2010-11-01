@@ -10,8 +10,13 @@
 #include "../../../3Party/minizip/unzip.h"
 
 #ifdef MCD_VC
+#ifdef MCD_WIN32
 #	pragma comment(lib, "zlib")
 #	pragma comment(lib, "minizip")
+#elif defined(MCD_WIN64)
+#	pragma comment(lib, "zlib_x64")
+#	pragma comment(lib, "minizip_x64")
+#endif
 #endif	// MCD_VC
 
 using namespace std;

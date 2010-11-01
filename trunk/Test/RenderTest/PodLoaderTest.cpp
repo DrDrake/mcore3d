@@ -30,7 +30,7 @@ TEST(PodLoaderTest)
 	RendererComponent* renderer = root.findComponentInChildrenExactType<RendererComponent>();
 
 	{	// Register the pod loader
-		framework.addLoaderFactory(new Max3dsLoaderFactory);
+//		framework.addLoaderFactory(new Max3dsLoaderFactory);
 		framework.addLoaderFactory(new PodLoaderFactory);
 	}
 

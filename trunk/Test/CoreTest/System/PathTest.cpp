@@ -29,7 +29,7 @@ TEST(Comparsion_PathTest)
 	Path p2("aBc");
 
 	// Case in-sensitive comparison on windows platform
-#ifdef MCD_WIN32
+#ifdef MCD_WIN
 	CHECK(p1 == p2);
 #else
 	CHECK(p1 != p2);
@@ -93,7 +93,7 @@ TEST(Leaf_PathTest)
 		{"/",		"./"},
 		{"/",		"../"},
 		{"c",		"a/b/c"},
-#ifdef MCD_WIN32
+#ifdef MCD_WIN
 		{"C:",		"C:"},
 		{"/",		"C:/"},
 		{"\\",		"C:\\"},
@@ -121,7 +121,7 @@ TEST(Branch_PathTest)
 		{".",		"./"},
 		{"..",		"../"},
 		{"a/b",		"a/b/c"},
-#ifdef MCD_WIN32
+#ifdef MCD_WIN
 		{"",		"C:"},
 		{"C:",		"C:/"},
 		{"C:",		"C:\\"},

@@ -5,7 +5,7 @@
 
 namespace MCD {
 
-#ifdef MCD_WIN32
+#ifdef MCD_WIN
 
 Mutex::Mutex(int spinCount)
 {
@@ -211,7 +211,7 @@ bool RecursiveMutex::tryLock()
 #endif
 }
 
-#endif	// MCD_WIN32
+#endif	// MCD_WIN
 
 #ifndef NDEBUG
 bool RecursiveMutex::isLocked() const
