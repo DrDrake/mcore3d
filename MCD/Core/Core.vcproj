@@ -21,8 +21,6 @@
 	<Configurations>
 		<Configuration
 			Name="Debug|Win32"
-			OutputDirectory="../../Bin/"
-			IntermediateDirectory="$(ConfigurationName)"
 			ConfigurationType="2"
 			InheritedPropertySheets="..\General.vsprops;..\Debug.vsprops"
 			CharacterSet="2"
@@ -82,8 +80,6 @@
 		</Configuration>
 		<Configuration
 			Name="Release|Win32"
-			OutputDirectory="../../Bin/"
-			IntermediateDirectory="$(ConfigurationName)"
 			ConfigurationType="2"
 			InheritedPropertySheets="..\General.vsprops;..\Release.vsprops"
 			CharacterSet="2"
@@ -144,8 +140,6 @@
 		</Configuration>
 		<Configuration
 			Name="Analysis|Win32"
-			OutputDirectory="../../Bin/"
-			IntermediateDirectory="$(ConfigurationName)"
 			ConfigurationType="2"
 			InheritedPropertySheets="..\General.vsprops;..\Analysis.vsprops"
 			CharacterSet="2"
@@ -205,10 +199,8 @@
 		</Configuration>
 		<Configuration
 			Name="Debug|x64"
-			OutputDirectory="$(PlatformName)\$(ConfigurationName)"
-			IntermediateDirectory="$(PlatformName)\$(ConfigurationName)"
 			ConfigurationType="2"
-			InheritedPropertySheets="..\General.vsprops;..\Debug.vsprops"
+			InheritedPropertySheets="..\General.vsprops;..\Debug_x64.vsprops"
 			CharacterSet="2"
 			>
 			<Tool
@@ -268,10 +260,8 @@
 		</Configuration>
 		<Configuration
 			Name="Release|x64"
-			OutputDirectory="$(PlatformName)\$(ConfigurationName)"
-			IntermediateDirectory="$(PlatformName)\$(ConfigurationName)"
 			ConfigurationType="2"
-			InheritedPropertySheets="..\General.vsprops;..\Release.vsprops"
+			InheritedPropertySheets="..\General.vsprops;..\Release_x64.vsprops"
 			CharacterSet="2"
 			WholeProgramOptimization="0"
 			>
@@ -332,8 +322,6 @@
 		</Configuration>
 		<Configuration
 			Name="Analysis|x64"
-			OutputDirectory="$(PlatformName)\$(ConfigurationName)"
-			IntermediateDirectory="$(PlatformName)\$(ConfigurationName)"
 			ConfigurationType="2"
 			InheritedPropertySheets="..\General.vsprops;..\Analysis.vsprops"
 			CharacterSet="2"

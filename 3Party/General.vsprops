@@ -4,7 +4,7 @@
 	Version="8.00"
 	Name="MCD3PartyGeneral"
 	OutputDirectory="../../Lib"
-	IntermediateDirectory="$(PlatformName)\$(ConfigurationName)"
+	IntermediateDirectory="$(PlatformName)/$(ConfigurationName)"
 	>
 	<Tool
 		Name="VCCLCompilerTool"
