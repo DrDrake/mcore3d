@@ -21,7 +21,7 @@
 	<Configurations>
 		<Configuration
 			Name="Debug|Win32"
-			IntermediateDirectory="$(PlatformName)/$(ConfigurationName)/GL2"
+			IntermediateDirectory="tmp/$(PlatformName)/$(ConfigurationName)/GL2"
 			ConfigurationType="2"
 			InheritedPropertySheets="..\General.vsprops;..\Debug.vsprops"
 			CharacterSet="2"
@@ -82,7 +82,7 @@
 		</Configuration>
 		<Configuration
 			Name="Release|Win32"
-			IntermediateDirectory="$(PlatformName)/$(ConfigurationName)/GL2"
+			IntermediateDirectory="tmp/$(PlatformName)/$(ConfigurationName)/GL2"
 			ConfigurationType="2"
 			InheritedPropertySheets="..\General.vsprops;..\Release.vsprops"
 			CharacterSet="2"
@@ -145,7 +145,7 @@
 		</Configuration>
 		<Configuration
 			Name="Analysis|Win32"
-			IntermediateDirectory="$(PlatformName)/$(ConfigurationName)/GL2"
+			IntermediateDirectory="tmp/$(PlatformName)/$(ConfigurationName)/GL2"
 			ConfigurationType="2"
 			InheritedPropertySheets="..\General.vsprops;..\Analysis.vsprops"
 			CharacterSet="2"
@@ -206,7 +206,7 @@
 		</Configuration>
 		<Configuration
 			Name="Debug|x64"
-			IntermediateDirectory="$(PlatformName)/$(ConfigurationName)/GL2"
+			IntermediateDirectory="tmp/$(PlatformName)/$(ConfigurationName)/GL2"
 			ConfigurationType="2"
 			InheritedPropertySheets="..\General.vsprops;..\Debug_x64.vsprops"
 			CharacterSet="2"
@@ -269,7 +269,7 @@
 		</Configuration>
 		<Configuration
 			Name="Release|x64"
-			IntermediateDirectory="$(PlatformName)/$(ConfigurationName)/GL2"
+			IntermediateDirectory="tmp/$(PlatformName)/$(ConfigurationName)/GL2"
 			ConfigurationType="2"
 			InheritedPropertySheets="..\General.vsprops;..\Release_x64.vsprops"
 			CharacterSet="2"
@@ -334,7 +334,7 @@
 		</Configuration>
 		<Configuration
 			Name="Analysis|x64"
-			IntermediateDirectory="$(PlatformName)/$(ConfigurationName)/GL2"
+			IntermediateDirectory="$tmp/(PlatformName)/$(ConfigurationName)/GL2"
 			ConfigurationType="2"
 			InheritedPropertySheets="..\General.vsprops;..\Analysis.vsprops"
 			CharacterSet="2"
