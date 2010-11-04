@@ -545,6 +545,20 @@ void Entity::destroy(Entity*& entity)
 	entity = nullptr;
 }
 
+std::string Entity::debugDump() const
+{
+	std::string ret;
+	size_t indent = 0;
+	for(EntityPreorderIterator itr(const_cast<Entity*>(this)); !itr.ended(); itr.next()) {
+		indent += itr.depthChange();
+		for(size_t i=0; i<indent; ++i)
+			ret += " ";
+		ret += itr->name;
+		ret += "\n";
+	}
+	return ret;
+}
+
 void Entity::scriptAddReference()
 {
 	intrusivePtrAddRef(this);

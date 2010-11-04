@@ -11,13 +11,13 @@ TEST(SkeletonTest)
 	// |-Bone02 [0, 1.5, 0]
 	//   |-Bone03 [0, 2.5, 0]
 	// And an animation that will rotate each joint around z-axis
-	AnimationTrackPtr track = new AnimationTrack("");
+	AnimationClipPtr track = new AnimationClip("");
 
 	static const size_t jointCount = 3;
 	static const size_t frameCount = 2;
 	static const size_t subtrackCount = jointCount * 2;
 
-	{	AnimationTrack::ScopedWriteLock lock(*track);
+	{	AnimationClip::ScopedWriteLock lock(*track);
 
 		// Number of tracks = number of joint * attribute count (which is 2 because of translation and rotation)
 		std::vector<size_t> tmp(subtrackCount, frameCount);
@@ -25,7 +25,7 @@ TEST(SkeletonTest)
 
 		// Setting up the transform for each joint relative to it's parent joint.
 		for(size_t i=0; i<track->subtrackCount(); ++i) {
-			AnimationTrack::KeyFrames frames = track->getKeyFramesForSubtrack(i);
+			AnimationClip::KeyFrames frames = track->getKeyFramesForSubtrack(i);
 
 			// Setup frame position
 			for(size_t j=0; j<frames.size; ++j)
@@ -33,14 +33,14 @@ TEST(SkeletonTest)
 
 			// Setup translation
 			if(i % 2 == 0) {
-				track->subtracks[i].flag = AnimationTrack::Linear;
+				track->subtracks[i].flag = AnimationClip::Linear;
 				for(size_t j=0; j<frames.size; ++j) {
 					reinterpret_cast<Vec3f&>(frames[j]) = Vec3f(0, i == 0 ? 0.5f : 1, 0);
 				}
 			}
 			// Setup rotation
 			else {
-				track->subtracks[i].flag = AnimationTrack::Slerp;
+				track->subtracks[i].flag = AnimationClip::Slerp;
 				for(size_t j=0; j<frames.size; ++j) {
 					Quaternionf& q = reinterpret_cast<Quaternionf&>(frames[j]);
 					q.fromAxisAngle(Vec3f::c001, Mathf::cPi() * j / 10);	// Rotate around z-axis anti-clockwise for each key frame

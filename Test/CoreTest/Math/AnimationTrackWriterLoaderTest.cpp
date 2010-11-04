@@ -8,17 +8,17 @@
 
 using namespace MCD;
 
-TEST(AnimationTrackWriterLoaderTest)
+TEST(AnimationClipWriterLoaderTest)
 {
-	AnimationTrackPtr track = new AnimationTrack("");
+	AnimationClipPtr track = new AnimationClip("");
 	
 	{	// Create the source track
-		AnimationTrack::ScopedWriteLock lock(*track);
+		AnimationClip::ScopedWriteLock lock(*track);
 
 		size_t tmp[] = { 3 };
 		CHECK(track->init(StrideArray<const size_t>(tmp, 1)));
 
-		AnimationTrack::KeyFrames frames = track->getKeyFramesForSubtrack(0);
+		AnimationClip::KeyFrames frames = track->getKeyFramesForSubtrack(0);
 		frames[0].pos = 0;
 		frames[1].pos = 1;
 		frames[2].pos = 2;
@@ -33,20 +33,20 @@ TEST(AnimationTrackWriterLoaderTest)
 
 	{	// Save the track
 		std::ofstream os("TestData/tmp.anim", std::ios::binary);
-		CHECK(AnimationTrackWriter::write(os, *track));
+		CHECK(AnimationClipWriter::write(os, *track));
 	}
 
 	{	// Load the track
-		AnimationTrackLoader& loader = *new AnimationTrackLoader;
+		AnimationClipLoader& loader = *new AnimationClipLoader;
 		IResourceLoaderPtr _loader = &loader;
 		std::ifstream is("TestData/tmp.anim", std::ios::binary);
 		CHECK_EQUAL(IResourceLoader::Loaded, loader.load(&is, nullptr));
 
-		AnimationTrackPtr track2 = new AnimationTrack("");
+		AnimationClipPtr track2 = new AnimationClip("");
 		loader.commit(*track2);
 
 		// Check the result
-		AnimationTrack::ScopedReadLock lock(*track), lock2(*track2);
+		AnimationClip::ScopedReadLock lock(*track), lock2(*track2);
 
 		CHECK_EQUAL(track->loop, track2->loop);
 		CHECK_EQUAL(track->length(), track2->length());
@@ -57,8 +57,8 @@ TEST(AnimationTrackWriterLoaderTest)
 			CHECK_EQUAL(track->length(i), track2->length(i));
 			CHECK_EQUAL(track->keyframeCount(i), track2->keyframeCount(i));
 
-			AnimationTrack::KeyFrames f1 = track->getKeyFramesForSubtrack(i);
-			AnimationTrack::KeyFrames f2 = track2->getKeyFramesForSubtrack(i);
+			AnimationClip::KeyFrames f1 = track->getKeyFramesForSubtrack(i);
+			AnimationClip::KeyFrames f2 = track2->getKeyFramesForSubtrack(i);
 			for(size_t j=0; j<f1.size; ++j) {
 				CHECK_EQUAL(f1[j].pos, f2[j].pos);
 				CHECK(reinterpret_cast<Vec4f&>(f1[j].v) == reinterpret_cast<Vec4f&>(f2[j].v));

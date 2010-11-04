@@ -26,15 +26,10 @@ namespace MCD {
 	\sa http://www.gamedev.net/community/forums/topic.asp?topic_id=382606
 	\sa http://gpwiki.org/index.php/C:Load3DS
  */
-class MCD_LOADER_API Max3dsLoader : public IResourceLoader, private Noncopyable
+class MCD_LOADER_API Max3dsLoader : public IResourceLoader
 {
 public:
-	/*!	Constructor, take a ResourceManager as an optional parameter.
-		Since the 3ds model may reference some texture files, therefore it needs
-		a resource manager in order to load the textures. If null pointer is supplied
-		as the manager,
-	 */
-	explicit Max3dsLoader(sal_maybenull ResourceManager* resourceManager = nullptr);
+	Max3dsLoader();
 
 	sal_override ~Max3dsLoader();
 
@@ -49,8 +44,6 @@ public:
 	 */
 	sal_override void commit(Resource& resource);
 
-	sal_override LoadingState getLoadingState() const;
-
 protected:
 	class Impl;
 	Impl& mImpl;
@@ -59,15 +52,8 @@ protected:
 class MCD_LOADER_API Max3dsLoaderFactory : public ResourceManager::IFactory
 {
 public:
-	explicit Max3dsLoaderFactory(ResourceManager& resourceManager);
 	sal_override ResourcePtr createResource(const Path& fileId, const char* args);
 	sal_override IResourceLoaderPtr createLoader();
-
-private:
-	/*!	This loader factory is going to be owned by the mResourceManager, so we can
-		use mResourceManager freely during the life-time of the loader factory.
-	 */
-	ResourceManager& mResourceManager;
 };	// Max3dsLoaderFactory
 
 }	// namespace MCD

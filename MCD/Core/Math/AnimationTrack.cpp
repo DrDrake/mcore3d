@@ -7,27 +7,27 @@
 
 namespace MCD {
 
-AnimationTrack::ScopedReadLock::ScopedReadLock(const AnimationTrack& a) : track(a) {
+AnimationClip::ScopedReadLock::ScopedReadLock(const AnimationClip& a) : track(a) {
 	a.acquireReadLock();
 }
 
-AnimationTrack::ScopedReadLock::~ScopedReadLock() {
+AnimationClip::ScopedReadLock::~ScopedReadLock() {
 	track.releaseReadLock();
 }
 
-AnimationTrack::ScopedWriteLock::ScopedWriteLock(const AnimationTrack& a) : track(a) {
+AnimationClip::ScopedWriteLock::ScopedWriteLock(const AnimationClip& a) : track(a) {
 	a.acquireWriteLock();
 }
 
-AnimationTrack::ScopedWriteLock::~ScopedWriteLock() {
+AnimationClip::ScopedWriteLock::~ScopedWriteLock() {
 	track.releaseWriteLock();
 }
 
-AnimationTrack::Interpolation::Interpolation() {
+AnimationClip::Interpolation::Interpolation() {
 	::memset(this, 0, sizeof(*this));
 }
 
-AnimationTrack::AnimationTrack(const Path& fileId)
+AnimationClip::AnimationClip(const Path& fileId)
 	: Resource(fileId)
 	, keyframes(nullptr, 0)
 	, subtracks(nullptr, 0)
@@ -37,13 +37,13 @@ AnimationTrack::AnimationTrack(const Path& fileId)
 {
 }
 
-AnimationTrack::~AnimationTrack()
+AnimationClip::~AnimationClip()
 {
 	::free(keyframes.getPtr());
 	::free(subtracks.getPtr());
 }
 
-bool AnimationTrack::init(const StrideArray<const size_t>& subtrackFrameCount)
+bool AnimationClip::init(const StrideArray<const size_t>& subtrackFrameCount)
 {
 	if(subtrackFrameCount.isEmpty())
 		return false;
@@ -62,7 +62,7 @@ bool AnimationTrack::init(const StrideArray<const size_t>& subtrackFrameCount)
 		totalFrameCount += subtrackFrameCount[i];
 
 	const size_t subtrackCount = subtrackFrameCount.size;
-	MemoryProfiler::Scope scope("AnimationTrack::init");
+	MemoryProfiler::Scope scope("AnimationClip::init");
 	keyframes = KeyFrames(reinterpret_cast<KeyFrame*>(::malloc(totalFrameCount * sizeof(KeyFrame))), totalFrameCount);
 	subtracks = Subtracks(reinterpret_cast<Subtrack*>(::malloc(subtrackCount * sizeof(Subtrack))), subtrackCount);
 
@@ -79,14 +79,14 @@ bool AnimationTrack::init(const StrideArray<const size_t>& subtrackFrameCount)
 	return true;
 }
 
-size_t AnimationTrack::subtrackCount() const
+size_t AnimationClip::subtrackCount() const
 {
 	// No need to check for the lock since only init() will modify it.
 	MCD_ASSERT(true || mMutex.isLocked());
 	return subtracks.size;
 }
 
-size_t AnimationTrack::keyframeCount(size_t index) const
+size_t AnimationClip::keyframeCount(size_t index) const
 {
 	MCD_ASSERT(mMutex.isLocked() && "Please acquire read lock first");
 
@@ -95,42 +95,42 @@ size_t AnimationTrack::keyframeCount(size_t index) const
 	return 0;
 }
 
-float AnimationTrack::length(size_t index) const
+float AnimationClip::length(size_t index) const
 {
 	MCD_ASSERT(mMutex.isLocked() && "Please acquire read lock first");
 
 	if(index < subtrackCount()) {
-		KeyFrames f = const_cast<AnimationTrack*>(this)->getKeyFramesForSubtrack(index);
+		KeyFrames f = const_cast<AnimationClip*>(this)->getKeyFramesForSubtrack(index);
 		return f[subtracks[index].frameCount - 1].pos;
 	}
 	return 0;
 }
 
-float AnimationTrack::length() const
+float AnimationClip::length() const
 {
 	// No need to check for the lock since only releaseWriteLock() will modify it.
 	MCD_ASSERT(true || mMutex.isLocked());
 	return mLength;
 }
 
-AnimationTrack::KeyFrames AnimationTrack::getKeyFramesForSubtrack(size_t index)
+AnimationClip::KeyFrames AnimationClip::getKeyFramesForSubtrack(size_t index)
 {
 	MCD_ASSERT(mMutex.isLocked() && "Please acquire write lock first");
 
 	if(index < subtrackCount())
 		return KeyFrames(&keyframes[subtracks[index].index], subtracks[index].frameCount);
 
-	MCD_ASSERT(false && "AnimationTrack::getKeyFramesForSubtrack out of range");
+	MCD_ASSERT(false && "AnimationClip::getKeyFramesForSubtrack out of range");
 	return KeyFrames(nullptr, 0);
 }
 
-float AnimationTrack::interpolate(float trackPos, const Interpolations& result, int loopOverride) const
+float AnimationClip::interpolate(float trackPos, const Interpolations& result, int loopOverride) const
 {
 	ScopedReadLock lock(*this);
 	return interpolateNoLock(trackPos, result, loopOverride);
 }
 
-float AnimationTrack::interpolateNoLock(float trackPos, const Interpolations& result, int loopOverride) const
+float AnimationClip::interpolateNoLock(float trackPos, const Interpolations& result, int loopOverride) const
 {
 	// Find the wrapped trackPos, over ALL sub-tracks
 	bool loop_ = loopOverride <= -1 ? loop : loopOverride != 0;
@@ -143,14 +143,14 @@ float AnimationTrack::interpolateNoLock(float trackPos, const Interpolations& re
 	return trackPos;
 }
 
-void AnimationTrack::interpolateSingleSubtrack(float trackPos, Interpolation& result, size_t trackIndex, int loopOverride) const
+void AnimationClip::interpolateSingleSubtrack(float trackPos, Interpolation& result, size_t trackIndex, int loopOverride) const
 {
 	MCD_ASSERT(mMutex.isLocked() && "Please acquire read lock first");
 
 	if(!mCommitted)
 		return;
 
-	KeyFrames frames = const_cast<AnimationTrack*>(this)->getKeyFramesForSubtrack(trackIndex);
+	KeyFrames frames = const_cast<AnimationClip*>(this)->getKeyFramesForSubtrack(trackIndex);
 
 	// If the animation has only one frame, there is no need to 
 	// do any interpolation, simply copy the data.
@@ -222,7 +222,7 @@ void AnimationTrack::interpolateSingleSubtrack(float trackPos, Interpolation& re
 	}
 }
 
-bool AnimationTrack::checkValid() const
+bool AnimationClip::checkValid() const
 {
 	MCD_ASSERT(mMutex.isLocked() && "Please acquire read lock first");
 
@@ -235,7 +235,7 @@ bool AnimationTrack::checkValid() const
 		if(subtracks[t].frameCount == 0)
 			return false;
 
-		KeyFrames f = const_cast<AnimationTrack*>(this)->getKeyFramesForSubtrack(t);
+		KeyFrames f = const_cast<AnimationClip*>(this)->getKeyFramesForSubtrack(t);
 		float previousPos = f[0].pos;
 		for(size_t i=1; i<f.size; ++i) {	// Note that we start the index at 1
 			if(f[i].pos <= previousPos)
@@ -247,21 +247,21 @@ bool AnimationTrack::checkValid() const
 	return true;
 }
 
-void AnimationTrack::acquireReadLock() const {
+void AnimationClip::acquireReadLock() const {
 	mMutex.lock();
 }
 
-void AnimationTrack::releaseReadLock() const {
+void AnimationClip::releaseReadLock() const {
 	mMutex.unlock();
 }
 
-void AnimationTrack::acquireWriteLock() const
+void AnimationClip::acquireWriteLock() const
 {
 	mMutex.lock();
 	mCommitted = false;
 }
 
-void AnimationTrack::releaseWriteLock() const
+void AnimationClip::releaseWriteLock() const
 {
 	mCommitted = true;
 
@@ -275,9 +275,9 @@ void AnimationTrack::releaseWriteLock() const
 	mMutex.unlock();
 }
 
-void AnimationTrack::swap(AnimationTrack& rhs)
+void AnimationClip::swap(AnimationClip& rhs)
 {
-	AnimationTrack::ScopedWriteLock lock(*this), lock2(rhs);
+	AnimationClip::ScopedWriteLock lock(*this), lock2(rhs);
 
 	std::swap(keyframes, rhs.keyframes);
 	std::swap(subtracks, rhs.subtracks);
@@ -287,7 +287,7 @@ void AnimationTrack::swap(AnimationTrack& rhs)
 	std::swap(mCommitted, rhs.mCommitted);
 }
 
-bool AnimationTrack::isCommitted() const
+bool AnimationClip::isCommitted() const
 {
 	MCD_ASSERT(mMutex.isLocked() && "Please acquire read lock first");
 	return mCommitted;
