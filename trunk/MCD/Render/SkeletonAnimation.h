@@ -38,13 +38,13 @@ public:
 
 // Helper functions for manipulating the underlaying skeletonAnimation
 	//!	
-//	sal_checkreturn int addTrack(AnimationTrack& track);
+//	sal_checkreturn int addTrack(AnimationClip& track);
 
 // Attributes
 	SkeletonPose pose;	//!< The current pose
 
 	/*!	Each SkeletonAnimationComponent should has it's own instance of skeletonAnimation.
-		To share animation data, share the AnimationTrack inside SkeletonAnimation.
+		To share animation data, share the AnimationClip inside SkeletonAnimation.
 	 */
 	SkeletonAnimation& skeletonAnimation;
 

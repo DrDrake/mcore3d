@@ -22,11 +22,11 @@ namespace MCD {
 
 	Example:
 	\code
-	AnimationTrackPtr track = new AnimationTrack(L"trackName");
+	AnimationClipPtr track = new AnimationClip(L"trackName");
 
-	{	AnimationTrack::ScopedWriteLock lock(*track);
+	{	AnimationClip::ScopedWriteLock lock(*track);
 		track->init(2, 1);	// One sub-track with 2 frame
-		AnimationTrack::KeyFrames frames = track->getKeyFramesForSubtrack(0);
+		AnimationClip::KeyFrames frames = track->getKeyFramesForSubtrack(0);
 
 		// Fill the frame's position
 		frames[0].pos = 0;
@@ -46,10 +46,10 @@ namespace MCD {
 	track->releaseReadLock();
 	\endcode
  */
-class MCD_CORE_API AnimationTrack : public Resource
+class MCD_CORE_API AnimationClip : public Resource
 {
 public:
-	explicit AnimationTrack(const Path& fileId);
+	explicit AnimationClip(const Path& fileId);
 
 // Inner types
 	enum Flags
@@ -88,15 +88,15 @@ public:
 	typedef FixStrideArray<Interpolation> Interpolations;
 
 	struct MCD_CORE_API ScopedReadLock {
-		ScopedReadLock(const AnimationTrack& a);
+		ScopedReadLock(const AnimationClip& a);
 		~ScopedReadLock();
-		const AnimationTrack& track;
+		const AnimationClip& track;
 	};	// ScopedReadLock
 
 	struct MCD_CORE_API ScopedWriteLock {
-		ScopedWriteLock(const AnimationTrack& a);
+		ScopedWriteLock(const AnimationClip& a);
 		~ScopedWriteLock();
-		const AnimationTrack& track;
+		const AnimationClip& track;
 	};	// ScopedWriteLock
 
 // Operations
@@ -106,7 +106,7 @@ public:
 	sal_checkreturn bool init(const StrideArray<const size_t>& subtrackFrameCount);
 
 	/*!	Get interpolation results at a specific track position.
-		Set the variable \em loopOverride with 0 to force loop, 1 for no loop and -1 for using AnimationTrack::loop.
+		Set the variable \em loopOverride with 0 to force loop, 1 for no loop and -1 for using AnimationClip::loop.
 		\return The wrapped or clamped \em trackPos for out of bound condition.
 		\note With acquireWriteLock() and releaseWriteLock() implied.
 	 */
@@ -125,7 +125,7 @@ public:
 	void releaseReadLock() const;
 
 	/*!	Since there will be a seperated thread for animation update, me must
-		try to acquire a mutex lock before we can modify the data in AnimationTrack.
+		try to acquire a mutex lock before we can modify the data in AnimationClip.
 		After the write lock is acquired, isCommitted() will return false.
 	 */
 	void acquireWriteLock() const;
@@ -135,10 +135,10 @@ public:
 	 */
 	void releaseWriteLock() const;
 
-	/*!	Swap with another AnimationTrack, used in AnimationTrackLoader to minimize memory copy.
+	/*!	Swap with another AnimationClip, used in AnimationClipLoader to minimize memory copy.
 		\note The resource name will not be swap.
 	 */
-	void swap(AnimationTrack& rhs);
+	void swap(AnimationClip& rhs);
 
 // Attributes
 	/*!	Number of sub-track.
@@ -189,7 +189,7 @@ public:
 	sal_checkreturn bool isCommitted() const;
 
 protected:
-	sal_override ~AnimationTrack();
+	sal_override ~AnimationClip();
 
 	void interpolateSingleSubtrack(float trackPos, Interpolation& result, size_t trackIndex, int loopOverride) const;
 
@@ -204,9 +204,9 @@ protected:
 
 	//!	Protect between the reader (update function) and the writer (animation loader).
 	mutable Mutex mMutex;
-};	// AnimationTrack
+};	// AnimationClip
 
-typedef IntrusivePtr<AnimationTrack> AnimationTrackPtr;
+typedef IntrusivePtr<AnimationClip> AnimationClipPtr;
 
 }	// namespace MCD
 

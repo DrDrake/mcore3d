@@ -8,21 +8,21 @@
 
 namespace MCD {
 
-class AnimationTrackLoader::Impl
+class AnimationClipLoader::Impl
 {
 public:
-	Impl() : track(new AnimationTrack("tmp")) {}
+	Impl() : track(new AnimationClip("tmp")) {}
 
 	IResourceLoader::LoadingState load(std::istream* is, const Path* fileId, const char* args);
 
 	void commit(Resource& resource);
 
-	AnimationTrackPtr track;
+	AnimationClipPtr track;
 	std::vector<size_t> keyframeCount;
 	volatile IResourceLoader::LoadingState mLoadingState;
 };	// Impl
 
-IResourceLoader::LoadingState AnimationTrackLoader::Impl::load(std::istream* is, const Path* fileId, const char* args)
+IResourceLoader::LoadingState AnimationClipLoader::Impl::load(std::istream* is, const Path* fileId, const char* args)
 {
 	// Simplying the error check
 	#define ABORT_IF(expression) if(expression) { MCD_ASSERT(false); return mLoadingState = Aborted; }
@@ -45,14 +45,14 @@ IResourceLoader::LoadingState AnimationTrackLoader::Impl::load(std::istream* is,
 		keyframeCount[i] = count;
 	}
 
-	AnimationTrack::ScopedWriteLock lock(*track);
+	AnimationClip::ScopedWriteLock lock(*track);
 
 	ABORT_IF(!track->init(StrideArray<const size_t>(&keyframeCount[0], subtrackCount)));
 	ABORT_IF(!MCD::read(*is, track->loop));
 	ABORT_IF(!MCD::read(*is, track->naturalFramerate));
 
-	AnimationTrack::Subtracks& st = track->subtracks;
-	AnimationTrack::KeyFrames& kf = track->keyframes;
+	AnimationClip::Subtracks& st = track->subtracks;
+	AnimationClip::KeyFrames& kf = track->keyframes;
 	ABORT_IF(MCD::read(*is, st.getPtr(), st.sizeInByte()) != std::streamsize(st.sizeInByte()));
 	ABORT_IF(MCD::read(*is, kf.getPtr(), kf.sizeInByte()) != std::streamsize(kf.sizeInByte()));
 	ABORT_IF(!track->checkValid());
@@ -62,39 +62,39 @@ IResourceLoader::LoadingState AnimationTrackLoader::Impl::load(std::istream* is,
 	#undef ABORT_IF
 }
 
-void AnimationTrackLoader::Impl::commit(Resource& resource)
+void AnimationClipLoader::Impl::commit(Resource& resource)
 {
-	// There is no need to do a mutex lock because AnimationTrackLoader didn't support progressive loading.
+	// There is no need to do a mutex lock because AnimationClipLoader didn't support progressive loading.
 	// Therefore, commit will not be invoked if the load() function itsn't finished.
-	AnimationTrack& t = dynamic_cast<AnimationTrack&>(resource);
+	AnimationClip& t = dynamic_cast<AnimationClip&>(resource);
 	track->swap(t);
 
 	// Our temporary track object is no longer needed.
 	track = nullptr;
 }
 
-AnimationTrackLoader::AnimationTrackLoader()
+AnimationClipLoader::AnimationClipLoader()
 	: mImpl(*new Impl)
 {
 }
 
-AnimationTrackLoader::~AnimationTrackLoader()
+AnimationClipLoader::~AnimationClipLoader()
 {
 	delete &mImpl;
 }
 
-IResourceLoader::LoadingState AnimationTrackLoader::load(std::istream* is, const Path* fileId, const char* args)
+IResourceLoader::LoadingState AnimationClipLoader::load(std::istream* is, const Path* fileId, const char* args)
 {
-	MemoryProfiler::Scope scope("AnimationTrackLoader::load");
+	MemoryProfiler::Scope scope("AnimationClipLoader::load");
 	return mImpl.load(is, fileId, args);
 }
 
-void AnimationTrackLoader::commit(Resource& resource)
+void AnimationClipLoader::commit(Resource& resource)
 {
 	return mImpl.commit(resource);
 }
 
-IResourceLoader::LoadingState AnimationTrackLoader::getLoadingState() const
+IResourceLoader::LoadingState AnimationClipLoader::getLoadingState() const
 {
 	return mImpl.mLoadingState;
 }

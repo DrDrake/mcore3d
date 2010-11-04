@@ -5,12 +5,12 @@
 
 using namespace MCD;
 
-TEST(AnimationTrackTest)
+TEST(AnimationClipTest)
 {
-	{	AnimationTrackPtr track = new AnimationTrack("");
+	{	AnimationClipPtr track = new AnimationClip("");
 	}
 
-	{	AnimationTrackPtr track = new AnimationTrack("");
+	{	AnimationClipPtr track = new AnimationClip("");
 		track->acquireReadLock();
 		CHECK(!track->isCommitted());
 		track->releaseReadLock();
@@ -26,7 +26,7 @@ TEST(AnimationTrackTest)
 		track->releaseReadLock();
 	}
 
-	{	AnimationTrackPtr track = new AnimationTrack("");
+	{	AnimationClipPtr track = new AnimationClip("");
 		
 		{	track->acquireWriteLock();
 			size_t tmp[] = { 3 };
@@ -42,12 +42,12 @@ TEST(AnimationTrackTest)
 			CHECK_EQUAL(0u, track->keyframeCount(1));
 			CHECK_EQUAL(1u, track->subtrackCount());
 
-			AnimationTrack::KeyFrames frames = track->getKeyFramesForSubtrack(0);
+			AnimationClip::KeyFrames frames = track->getKeyFramesForSubtrack(0);
 			frames[0].pos = 0;
 			frames[1].pos = 1;
 
 			CHECK(track->checkValid());
-			CHECK_EQUAL(AnimationTrack::Linear, track->subtracks[0].flag);
+			CHECK_EQUAL(AnimationClip::Linear, track->subtracks[0].flag);
 			CHECK_EQUAL(1, track->length(0));
 
 			reinterpret_cast<Vec4f&>(frames[0]) = Vec4f(1);
@@ -57,8 +57,8 @@ TEST(AnimationTrackTest)
 			CHECK_EQUAL(1, track->length());
 		}
 
-		AnimationTrack::Interpolation interpolation[1];
-		AnimationTrack::Interpolations results(interpolation, 1);
+		AnimationClip::Interpolation interpolation[1];
+		AnimationClip::Interpolations results(interpolation, 1);
 		track->acquireReadLock();
 
 		{	// Test for the interpolate() function
@@ -90,19 +90,19 @@ TEST(AnimationTrackTest)
 	}
 }
 
-TEST(Slerp_AnimationTrackTest)
+TEST(Slerp_AnimationClipTest)
 {
-	AnimationTrackPtr track = new AnimationTrack("");
+	AnimationClipPtr track = new AnimationClip("");
 	
 	{	track->acquireWriteLock();
 		size_t tmp[] = { 2 };
 		CHECK(track->init(StrideArray<const size_t>(tmp, 1)));
 
-		AnimationTrack::KeyFrames frames = track->getKeyFramesForSubtrack(0);
+		AnimationClip::KeyFrames frames = track->getKeyFramesForSubtrack(0);
 		frames[0].pos = 0;
 		frames[1].pos = 1;
 
-		track->subtracks[0].flag = AnimationTrack::Slerp;
+		track->subtracks[0].flag = AnimationClip::Slerp;
 
 		Quaternionf& q1 = reinterpret_cast<Quaternionf&>(frames[0]);
 		Quaternionf& q2 = reinterpret_cast<Quaternionf&>(frames[1]);
@@ -113,8 +113,8 @@ TEST(Slerp_AnimationTrackTest)
 		track->releaseWriteLock();
 	}
 
-	AnimationTrack::Interpolation interpolation[1];
-	AnimationTrack::Interpolations results(interpolation, 1);
+	AnimationClip::Interpolation interpolation[1];
+	AnimationClip::Interpolations results(interpolation, 1);
 	track->acquireReadLock();
 	CHECK_EQUAL(0.5f, track->interpolateNoLock(0.5f, results));
 	const Quaternionf& q = reinterpret_cast<const Quaternionf&>(results[0]);
@@ -129,12 +129,12 @@ TEST(Slerp_AnimationTrackTest)
 
 #include "../../../MCD/Core/System/Timer.h"
 
-TEST(Performance_AnimationTrackTest)
+TEST(Performance_AnimationClipTest)
 {
 	const size_t frameCount = 256;
 	const size_t subtrackCount = 8;
 
-	AnimationTrackPtr track = new AnimationTrack("");
+	AnimationClipPtr track = new AnimationClip("");
 
 	{	track->acquireWriteLock();
 		size_t tmp[subtrackCount] = { frameCount };
@@ -145,10 +145,10 @@ TEST(Performance_AnimationTrackTest)
 
 		// Making half are Liner, half are Slerp
 		for(size_t i=0; i<track->subtrackCount()/2; ++i)
-			track->subtracks[i].flag = AnimationTrack::Slerp;
+			track->subtracks[i].flag = AnimationClip::Slerp;
 
 		for(size_t i=0; i<subtrackCount; ++i) {
-			AnimationTrack::KeyFrames frames = track->getKeyFramesForSubtrack(i);
+			AnimationClip::KeyFrames frames = track->getKeyFramesForSubtrack(i);
 			for(size_t j=0; j<frameCount; ++j) {
 				// Assign the pos of each frame
 				frames[j].pos = float(j);
@@ -161,8 +161,8 @@ TEST(Performance_AnimationTrackTest)
 	}
 
 	{	track->acquireReadLock();
-		AnimationTrack::Interpolation interpolation[subtrackCount];
-		AnimationTrack::Interpolations results(interpolation, subtrackCount);
+		AnimationClip::Interpolation interpolation[subtrackCount];
+		AnimationClip::Interpolations results(interpolation, subtrackCount);
 		DeltaTimer timer;
 		const float length = track->length();
 

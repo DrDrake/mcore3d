@@ -388,7 +388,7 @@ IResourceLoader::LoadingState PodLoader::Impl::load(std::istream* is, const Path
 	}
 
 	// Create animation track
-/*	AnimationTrackPtr track = new AnimationTrack("");
+/*	AnimationClipPtr track = new AnimationClip("");
 	track->naturalFramerate = 30;
 
 	// Create skeleton animation
@@ -418,18 +418,18 @@ IResourceLoader::LoadingState PodLoader::Impl::load(std::istream* is, const Path
 
 	if(!subTrackStructure.empty())
 	{	// Fill the animation track
-		AnimationTrack::ScopedWriteLock lock(*track);
+		AnimationClip::ScopedWriteLock lock(*track);
 		MCD_VERIFY(track->init(StrideArray<const size_t>(&subTrackStructure[0], subTrackStructure.size())));
 
 		// Assign the position of each frame
 		for(size_t i=0; i<subTrackStructure.size(); ++i) {
-			AnimationTrack::KeyFrames frames = track->getKeyFramesForSubtrack(i);
+			AnimationClip::KeyFrames frames = track->getKeyFramesForSubtrack(i);
 			for(size_t j=0; j<frames.size; ++j)
 				frames[j].pos = float(j);
 		}
 
 		// Assign for the extra root node
-		{	AnimationTrack::KeyFrames frames = track->getKeyFramesForSubtrack(0);
+		{	AnimationClip::KeyFrames frames = track->getKeyFramesForSubtrack(0);
 			reinterpret_cast<Vec3f&>(frames[0]) = Vec3f(0);
 			frames = track->getKeyFramesForSubtrack(1);
 			reinterpret_cast<Quaternionf&>(frames[0]) = Quaternionf::cIdentity;
@@ -446,13 +446,13 @@ IResourceLoader::LoadingState PodLoader::Impl::load(std::istream* is, const Path
 			const size_t subTrackOffset = j * AnimationComponent::subtrackPerEntity;
 
 			// Translation
-			AnimationTrack::KeyFrames frames = track->getKeyFramesForSubtrack(subTrackOffset + 0);
+			AnimationClip::KeyFrames frames = track->getKeyFramesForSubtrack(subTrackOffset + 0);
 			for(size_t k=0; k<frames.size; ++k)
 				reinterpret_cast<Vec3f&>(frames[k]) = reinterpret_cast<Vec3f&>(podNode.pfAnimPosition[k * 3]);
 
 			// Rotation
 			frames = track->getKeyFramesForSubtrack(subTrackOffset + 1);
-			track->subtracks[subTrackOffset + 1].flag = AnimationTrack::Slerp;
+			track->subtracks[subTrackOffset + 1].flag = AnimationClip::Slerp;
 			for(size_t k=0; k<frames.size; ++k)
 				reinterpret_cast<Quaternionf&>(frames[k]) = reinterpret_cast<Quaternionf&>(podNode.pfAnimRotation[k * 4]).inverseUnit();
 

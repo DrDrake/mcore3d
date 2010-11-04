@@ -22,8 +22,8 @@ public:
 	{
 		MCD_VERIFY(framework.initWindow("title=AnimationComponentTest;width=800;height=600;fullscreen=0;FSAA=4"));
 
-		animationTrack = new AnimationTrack("");
-		loadAnimationTrack();
+		animationTrack = new AnimationClip("");
+		loadAnimationClip();
 
 		mBoxesNode = framework.sceneLayer().addFirstChild("Boxes");
 
@@ -89,10 +89,10 @@ public:
 		return q;
 	}
 
-	void loadAnimationTrack()
+	void loadAnimationClip()
 	{
 		// Manually creat the animation track
-		AnimationTrack::ScopedWriteLock lock(*animationTrack);
+		AnimationClip::ScopedWriteLock lock(*animationTrack);
 
 		const size_t cSubtrackCount = AnimationComponent::subtrackPerEntity;
 		std::vector<size_t> tmp(cSubtrackCount, cFrameCount);
@@ -101,13 +101,13 @@ public:
 
 		// Assign the position of each frame
 		for(size_t i=0; i<cSubtrackCount; ++i) {
-			AnimationTrack::KeyFrames frames = animationTrack->getKeyFramesForSubtrack(i);
+			AnimationClip::KeyFrames frames = animationTrack->getKeyFramesForSubtrack(i);
 			for(size_t j=0; j<frames.size; ++j)
 				frames[j].pos = float(j);
 		}
 
 		// Setup position animation
-		AnimationTrack::KeyFrames frames = animationTrack->getKeyFramesForSubtrack(0);
+		AnimationClip::KeyFrames frames = animationTrack->getKeyFramesForSubtrack(0);
 		for(size_t i=0; i<cFrameCount; ++i) {
 			Vec3f position(Mathf::random(), Mathf::random(), Mathf::random());
 			position *= 5;
@@ -116,7 +116,7 @@ public:
 		reinterpret_cast<Vec3f&>(frames[cFrameCount-1]) = reinterpret_cast<Vec3f&>(frames[0]);
 
 		// Setup rotation animation
-		animationTrack->subtracks[1].flag = AnimationTrack::Slerp;
+		animationTrack->subtracks[1].flag = AnimationClip::Slerp;
 		frames = animationTrack->getKeyFramesForSubtrack(1);
 		for(size_t i=0; i<cFrameCount; ++i)
 			reinterpret_cast<Quaternionf&>(frames[i]) = randomQuaternion();
@@ -134,8 +134,8 @@ public:
 	Framework framework;
 	EntityPtr mBoxesNode;
 	MeshPtr mesh;
-	Timer mTimer;	// Simulate a reload of the AnimationTrack every few seconds.
-	AnimationTrackPtr animationTrack;
+	Timer mTimer;	// Simulate a reload of the AnimationClip every few seconds.
+	AnimationClipPtr animationTrack;
 };	// TestWindow
 
 }	// namespace
@@ -157,7 +157,7 @@ TEST_FIXTURE(AnimationTestFixture, Render)
 			break;
 
 		if(mTimer.get().asSecond() > 2) {
-			loadAnimationTrack();
+			loadAnimationClip();
 			mTimer.reset();
 		}
 
@@ -188,14 +188,14 @@ TEST(Event_AnimationComponentTest)
 	e1.addComponent(updater);
 	e2.addComponent(c);
 
-	AnimationTrackPtr track = new AnimationTrack("track");
+	AnimationClipPtr track = new AnimationClip("track");
 	CHECK(c->animationInstance.addTrack(*track, 1, 1, "wtrack"));
 
-	{	AnimationTrack::ScopedWriteLock lock(*track);
+	{	AnimationClip::ScopedWriteLock lock(*track);
 		size_t tmp[] = { 3 };
 		CHECK(track->init(StrideArray<const size_t>(tmp, 1)));
 
-		AnimationTrack::KeyFrames frames = track->getKeyFramesForSubtrack(0);
+		AnimationClip::KeyFrames frames = track->getKeyFramesForSubtrack(0);
 		frames[0].pos = 0;
 		frames[1].pos = 1;
 		frames[2].pos = 2;

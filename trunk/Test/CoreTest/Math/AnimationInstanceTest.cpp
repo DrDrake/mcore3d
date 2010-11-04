@@ -20,9 +20,9 @@ TEST(AnimationInstanceTest)
 
 	{	AnimationInstance a;
 
-		AnimationTrackPtr track1 = new AnimationTrack("track1");
+		AnimationClipPtr track1 = new AnimationClip("track1");
 		CHECK(a.addTrack(*track1, 0.5f, 1, "wtrack1"));
-		AnimationTrackPtr track2 = new AnimationTrack("track2");
+		AnimationClipPtr track2 = new AnimationClip("track2");
 		CHECK(a.addTrack(*track2, 0.5f, 1, "wtrack2"));
 
 		CHECK_EQUAL(track1, a.getTrack(0u)->track);
@@ -30,11 +30,11 @@ TEST(AnimationInstanceTest)
 		CHECK_EQUAL(track1, a.getTrack("wtrack1")->track);
 		CHECK_EQUAL(track2, a.getTrack("wtrack2")->track);
 
-		{	AnimationTrack::ScopedWriteLock lock(*track1);
+		{	AnimationClip::ScopedWriteLock lock(*track1);
 			size_t tmp[] = { 3 };
 			CHECK(track1->init(StrideArray<const size_t>(tmp, 1)));
 
-			AnimationTrack::KeyFrames frames = track1->getKeyFramesForSubtrack(0);
+			AnimationClip::KeyFrames frames = track1->getKeyFramesForSubtrack(0);
 			frames[0].pos = 0;
 			frames[1].pos = 1;
 			frames[2].pos = 2;
@@ -43,11 +43,11 @@ TEST(AnimationInstanceTest)
 			reinterpret_cast<Vec4f&>(frames[2]) = Vec4f(3);
 		}
 
-		{	AnimationTrack::ScopedWriteLock lock(*track2);
+		{	AnimationClip::ScopedWriteLock lock(*track2);
 			size_t tmp[] = { 3 };
 			CHECK(track2->init(StrideArray<const size_t>(tmp, 1)));
 
-			AnimationTrack::KeyFrames frames = track2->getKeyFramesForSubtrack(0);
+			AnimationClip::KeyFrames frames = track2->getKeyFramesForSubtrack(0);
 			frames[0].pos = 0;
 			frames[1].pos = 1;
 			frames[2].pos = 2;
@@ -147,14 +147,14 @@ static std::vector<size_t> gEventCallbackResult1, gEventCallbackResult2;
 TEST(EventCallback_AnimationInstanceTest)
 {
 	AnimationInstance a;
-	AnimationTrackPtr track = new AnimationTrack("track");
+	AnimationClipPtr track = new AnimationClip("track");
 	CHECK(a.addTrack(*track, 1, 1, "wtrack"));
 
-	{	AnimationTrack::ScopedWriteLock lock(*track);
+	{	AnimationClip::ScopedWriteLock lock(*track);
 		size_t tmp[] = { 3 };
 		CHECK(track->init(StrideArray<const size_t>(tmp, 1)));
 
-		AnimationTrack::KeyFrames frames = track->getKeyFramesForSubtrack(0);
+		AnimationClip::KeyFrames frames = track->getKeyFramesForSubtrack(0);
 		frames[0].pos = 0;
 		frames[1].pos = 1;
 		frames[2].pos = 2;

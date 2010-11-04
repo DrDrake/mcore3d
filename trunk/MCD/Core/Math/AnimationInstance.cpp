@@ -118,7 +118,7 @@ bool AnimationInstance::resetInterpolatedResult()
 	const size_t cSubtrackCnt = mTracks[0].track->subtrackCount();
 
 	MCD_FOREACH(const WeightedTrack& wt, mTracks) {
-		AnimationTrack::ScopedReadLock readLock(*wt.track);
+		AnimationClip::ScopedReadLock readLock(*wt.track);
 
 		if(!wt.track->isCommitted())
 			return false;
@@ -126,7 +126,7 @@ bool AnimationInstance::resetInterpolatedResult()
 		if(cSubtrackCnt != wt.track->subtrackCount()) {
 			Log::format(
 				Log::Warn,
-				"Incompatible AnimationTrack: subtrack count not matched."
+				"Incompatible AnimationClip: subtrack count not matched."
 				"Animation will not be updated.");
 
 			return false;
@@ -163,7 +163,7 @@ void AnimationInstance::update()
 
 		if(wt.weight == 0 || !wt.track) continue;
 
-		AnimationTrack& t = *wt.track;
+		AnimationClip& t = *wt.track;
 
 		// Assign naturalFramerate to wt.frameRate if it is <= 0
 		if(wt.frameRate <= 0)
@@ -200,7 +200,7 @@ void AnimationInstance::update()
 	}
 }
 
-bool AnimationInstance::addTrack(AnimationTrack& track, float weight, float framerate, const char* name)
+bool AnimationInstance::addTrack(AnimationClip& track, float weight, float framerate, const char* name)
 {
 	ScopeRecursiveLock lock(mMutex);
 

@@ -20,6 +20,8 @@ public:
 
 		// Read the file header
 		is.read(header, sizeof(header));
+		if(is.gcount() != sizeof(header))
+			return -1;
 
 		// Should be image type 2 (color) or type 10 (rle compressed color)
 		if(header[2] != 2 && header[2] != 10) {
@@ -42,7 +44,7 @@ public:
 		}
 		else if(bytePerPixel == 4) {
 			mSrcFormat = GpuDataFormat::get("uintBGRA8");	// Note that the source format is BGR but not RGB
-			mGpuFormat = GpuDataFormat::get("uintRGBA88");
+			mGpuFormat = GpuDataFormat::get("uintRGBA8");
 		}
 		else {
 			Log::format(Log::Error, "TgaLoader: Invalid bit-per pixel, operation aborted");
@@ -110,13 +112,45 @@ public:
 		}
 
 		// Flip the image in the y-direction as in bimap image.
-		for(size_t i=0; i<mHeight/2; ++i) {
+/*		for(size_t i=0; i<mHeight/2; ++i) {
 			char* row1 = mImageData + i * rowByte;
 			char* row2 = mImageData + (mHeight - 1 - i) * rowByte;
 			// Swap 2 rows
-			for(size_t j=0; j<rowByte; ++j)
-				row1[j] ^= row2[j] ^= row1[j] ^= row2[j];
+			for(size_t j=0; j<rowByte; ++j) {
+				byte_t tmp = row1[j];
+				row1[j] = row2[j];
+				row2[j] = tmp;
+			}
+		}*/
+
+		// Flip the color channels from BGR(A) to RGB(A)
+/*		for(size_t i=0; i<mHeight; ++i) {
+			char* pixel = mImageData + i * rowByte;
+			for(size_t j=0; j<mWidth; ++j, pixel += bytePerPixel) {
+				byte_t tmp =  pixel[0];
+				pixel[0] = pixel[2];
+				pixel[2] = tmp;
+			}
 		}
+
+		// Convert the RGB888 format into RGBA8888 format
+		if(bytePerPixel == 3) {
+			char* newBuf = new char[imageByte * 4 / 3];
+
+			char* pSrc = mImageData;
+			byte_t* pDest = (byte_t*)newBuf;
+			for(size_t i=0; i<mHeight; ++i) for(size_t j=0; j<mWidth; ++j) {
+				pDest[0] = pSrc[0];
+				pDest[1] = pSrc[1];
+				pDest[2] = pSrc[2];
+				pDest[3] = 255;
+				pSrc += 3;
+				pDest += 4;
+			}
+
+//			delete[] mImageData;
+//			mImageData = (byte_t*)newBuf;
+		}*/
 
 		return 0;
 	}

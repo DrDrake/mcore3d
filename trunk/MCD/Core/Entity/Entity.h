@@ -179,6 +179,9 @@ public:
 	///	A SAL friendy version of destroyThis().
 	static void destroy(sal_maybenull Entity*& entity);
 
+	/// Get a string representation of the tree structure
+	std::string debugDump() const;
+
 // Attributes
 	bool enabled;
 

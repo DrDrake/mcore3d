@@ -7,12 +7,12 @@
 namespace MCD {
 
 // TODO: Handle endian problem
-bool AnimationTrackWriter::write(std::ostream& os, const AnimationTrack& track)
+bool AnimationClipWriter::write(std::ostream& os, const AnimationClip& track)
 {
 	if(!os)
 		return false;
 
-	AnimationTrack::ScopedReadLock lock(track);
+	AnimationClip::ScopedReadLock lock(track);
 
 	// Write the counters first
 	uint16_t subtrackCount = static_cast<uint16_t>(track.subtrackCount());
@@ -26,11 +26,11 @@ bool AnimationTrackWriter::write(std::ostream& os, const AnimationTrack& track)
 
 	// Write the subtrack info
 	// NOTE: For simplicity, the Subtrack::index is saved while it is not necessary.
-	const AnimationTrack::Subtracks& st = track.subtracks;
+	const AnimationClip::Subtracks& st = track.subtracks;
 	MCD::write(os, st.getPtr(), st.sizeInByte());
 
 	// Write the key frames
-	const AnimationTrack::KeyFrames& kf = track.keyframes;
+	const AnimationClip::KeyFrames& kf = track.keyframes;
 	MCD::write(os, kf.getPtr(), kf.sizeInByte());
 
 	return true;

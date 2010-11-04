@@ -6,7 +6,7 @@
 
 namespace MCD {
 
-/*!	Stores per-instance data where the sharing semantic AnimationTrack didn't has.
+/*!	Stores per-instance data where the sharing semantic AnimationClip didn't has.
 
 	This class is thread-safe in a way that update() and isAllTrackCommited()
 	can run in thread A while all other functions run in thread B.
@@ -71,16 +71,16 @@ public:
 	{
 		float weight;
 		float frameRate;
-		int loopOverride;	//!< To override the AnimationTrack::loop variable. Negative means use AnimationTrack::loop, 0 for no loop, 1 for loop.
+		int loopOverride;	//!< To override the AnimationClip::loop variable. Negative means use AnimationClip::loop, 0 for no loop, 1 for loop.
 		float lastEventPos;	//!< For tracking which event callback need to invoke since last update(). Internal use, user no need to touch with it.
 		std::string name;
-		AnimationTrackPtr track;
+		AnimationClipPtr track;
 		Events edgeEvents, levelEvents;
 	};	// WeightedTrack
 
 	typedef FixStrideArray<KeyFrame> KeyFrames;
-	typedef AnimationTrack::Interpolation Interpolation;
-	typedef AnimationTrack::Interpolations Interpolations;
+	typedef AnimationClip::Interpolation Interpolation;
+	typedef AnimationClip::Interpolations Interpolations;
 
 // Constructors, destructor and assignment operator
 	AnimationInstance();
@@ -98,9 +98,9 @@ public:
 	void update();
 
 	/*!	May fail if the sub-track count are not matched.
-		\parameter framerate Override AnimationTrack::naturalFramerate if it's value is larger than zero.
+		\parameter framerate Override AnimationClip::naturalFramerate if it's value is larger than zero.
 	 */
-	sal_checkreturn bool addTrack(AnimationTrack& track, float weight=1.0f, float framerate=0.0f, sal_in_z const char* name="unnamed");
+	sal_checkreturn bool addTrack(AnimationClip& track, float weight=1.0f, float framerate=0.0f, sal_in_z const char* name="unnamed");
 
 	//! Will perform normalizeWeight() automatically.
 	void removeTrack(size_t index);

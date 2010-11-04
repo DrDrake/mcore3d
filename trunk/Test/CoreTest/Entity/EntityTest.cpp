@@ -77,6 +77,8 @@ TEST(Hierarchy_EntityTest)
 	CHECK_EQUAL(2u, root.isAncestorOf(*e11));
 	CHECK(!e1->isAncestorOf(root));
 	CHECK(!e1->isAncestorOf(*e2));
+
+	CHECK_EQUAL("root\n e3\n e2\n  e21\n e1\n  e13\n  e12\n  e11\n", root.debugDump());
 }
 
 TEST(Insertion_EntityTest)

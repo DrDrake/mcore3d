@@ -7,15 +7,15 @@
 
 namespace MCD {
 
-class AnimationTrack;
+class AnimationClip;
 
-/*!	A very simple writer that dump the AnimationTrack into the output stream.
+/*!	A very simple writer that dump the AnimationClip into the output stream.
  */
-class MCD_CORE_API AnimationTrackWriter
+class MCD_CORE_API AnimationClipWriter
 {
 public:
-	static sal_checkreturn bool write(std::ostream& os, const AnimationTrack& track);
-};	// AnimationTrackWriter
+	static sal_checkreturn bool write(std::ostream& os, const AnimationClip& track);
+};	// AnimationClipWriter
 
 }	// namespace MCD
 
