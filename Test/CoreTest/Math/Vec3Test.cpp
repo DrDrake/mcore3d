@@ -35,7 +35,7 @@ TEST(Addition_Vec3Test)
 	CHECK(v100 + 1 == Vec3f(2, 1, 1));
 	CHECK(1 + v100 == Vec3f(2, 1, 1));
 	{	Vec3f a(v100);
-		a += 1;
+		a += 1.0f;
 		CHECK(a == Vec3f(2, 1, 1));
 	}
 }

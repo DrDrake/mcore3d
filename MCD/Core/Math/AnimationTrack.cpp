@@ -2,202 +2,137 @@
 #include "AnimationTrack.h"
 #include "BasicFunction.h"
 #include "Vec4.h"
-#include "../System/MemoryProfiler.h"
 #include <math.h>	// for fmodf()
 
 namespace MCD {
 
-AnimationClip::ScopedReadLock::ScopedReadLock(const AnimationClip& a) : track(a) {
-	a.acquireReadLock();
-}
-
-AnimationClip::ScopedReadLock::~ScopedReadLock() {
-	track.releaseReadLock();
-}
-
-AnimationClip::ScopedWriteLock::ScopedWriteLock(const AnimationClip& a) : track(a) {
-	a.acquireWriteLock();
-}
-
-AnimationClip::ScopedWriteLock::~ScopedWriteLock() {
-	track.releaseWriteLock();
-}
-
-AnimationClip::Interpolation::Interpolation() {
-	::memset(this, 0, sizeof(*this));
-}
-
 AnimationClip::AnimationClip(const Path& fileId)
 	: Resource(fileId)
-	, keyframes(nullptr, 0)
-	, subtracks(nullptr, 0)
-	, loop(true), naturalFramerate(1)
-	, mLength(0)
-	, mCommitted(false)
+	, samples(nullptr, 0)
+	, tracks(nullptr, 0)
+	, length(0)
+	, framerate(30), loopCount(0)
 {
 }
 
 AnimationClip::~AnimationClip()
 {
-	::free(keyframes.getPtr());
-	::free(subtracks.getPtr());
+	::free(samples.getPtr());
+	::free(tracks.getPtr());
 }
 
-bool AnimationClip::init(const StrideArray<const size_t>& subtrackFrameCount)
+bool AnimationClip::init(const StrideArray<const size_t>& trackFrameCount)
 {
-	if(subtrackFrameCount.isEmpty())
+	if(trackFrameCount.isEmpty())
 		return false;
 
-	MCD_ASSERT(mMutex.isLocked() && "Please acquire write lock first");
+	::free(samples.getPtr());
+	::free(tracks.getPtr());
 
-	if(isCommitted())
-		return false;
-
-	::free(keyframes.getPtr());
-	::free(subtracks.getPtr());
-
-	// Find out the total key frame count of all sub-tracks
+	// Find out the total sample count of all tracks
 	size_t totalFrameCount = 0;
-	for(size_t i=0; i<subtrackFrameCount.size; ++i)
-		totalFrameCount += subtrackFrameCount[i];
+	for(size_t i=0; i<trackFrameCount.size; ++i)
+		totalFrameCount += trackFrameCount[i];
 
-	const size_t subtrackCount = subtrackFrameCount.size;
-	MemoryProfiler::Scope scope("AnimationClip::init");
-	keyframes = KeyFrames(reinterpret_cast<KeyFrame*>(::malloc(totalFrameCount * sizeof(KeyFrame))), totalFrameCount);
-	subtracks = Subtracks(reinterpret_cast<Subtrack*>(::malloc(subtrackCount * sizeof(Subtrack))), subtrackCount);
+	const size_t trackCount = trackFrameCount.size;
+	samples = Samples(reinterpret_cast<Sample*>(::malloc(totalFrameCount * sizeof(Sample))), totalFrameCount);
+	tracks = Tracks(reinterpret_cast<Track*>(::malloc(trackCount * sizeof(Track))), trackCount);
 
-	::memset(keyframes.data, 0, keyframes.sizeInByte());
-	::memset(subtracks.data, 0, subtracks.sizeInByte());
+	::memset(samples.data, 0, samples.sizeInByte());
+	::memset(tracks.data, 0, tracks.sizeInByte());
 
 	size_t j = 0;
-	for(size_t i=0; i<subtracks.size; ++i) {
-		const_cast<size_t&>(subtracks[i].index) = j;
-		j += (subtracks[i].frameCount = subtrackFrameCount[i]);
-		subtracks[i].flag = Linear;
+	for(size_t i=0; i<tracks.size; ++i) {
+		const_cast<size_t&>(tracks[i].index) = j;
+		j += (const_cast<size_t&>(tracks[i].sampleCount) = trackFrameCount[i]);
+		tracks[i].flag = Linear;
 	}
 
 	return true;
 }
 
-size_t AnimationClip::subtrackCount() const
+size_t AnimationClip::trackCount() const
 {
-	// No need to check for the lock since only init() will modify it.
-	MCD_ASSERT(true || mMutex.isLocked());
-	return subtracks.size;
+	return tracks.size;
 }
 
-size_t AnimationClip::keyframeCount(size_t index) const
+float AnimationClip::lengthForTrack(size_t index) const
 {
-	MCD_ASSERT(mMutex.isLocked() && "Please acquire read lock first");
-
-	if(index < subtrackCount())
-		return subtracks[index].frameCount;
-	return 0;
-}
-
-float AnimationClip::length(size_t index) const
-{
-	MCD_ASSERT(mMutex.isLocked() && "Please acquire read lock first");
-
-	if(index < subtrackCount()) {
-		KeyFrames f = const_cast<AnimationClip*>(this)->getKeyFramesForSubtrack(index);
-		return f[subtracks[index].frameCount - 1].pos;
+	if(index < trackCount()) {
+		Samples f = const_cast<AnimationClip*>(this)->getSamplesForTrack(index);
+		return f[tracks[index].sampleCount - 1].pos;
 	}
 	return 0;
 }
 
-float AnimationClip::length() const
+AnimationClip::Samples AnimationClip::getSamplesForTrack(size_t index)
 {
-	// No need to check for the lock since only releaseWriteLock() will modify it.
-	MCD_ASSERT(true || mMutex.isLocked());
-	return mLength;
+	if(index < trackCount())
+		return Samples(&samples[tracks[index].index], tracks[index].sampleCount);
+
+	MCD_ASSERT(false && "AnimationClip::getSamplesForTrack out of range");
+	return Samples(nullptr, 0);
 }
 
-AnimationClip::KeyFrames AnimationClip::getKeyFramesForSubtrack(size_t index)
+void AnimationClip::interpolate(float pos, const Pose& result, size_t searchHint) const
 {
-	MCD_ASSERT(mMutex.isLocked() && "Please acquire write lock first");
-
-	if(index < subtrackCount())
-		return KeyFrames(&keyframes[subtracks[index].index], subtracks[index].frameCount);
-
-	MCD_ASSERT(false && "AnimationClip::getKeyFramesForSubtrack out of range");
-	return KeyFrames(nullptr, 0);
+	for(size_t i=0; i<tracks.size; ++i)
+		interpolateSingleTrack(pos, length, result[i], i, searchHint);
 }
 
-float AnimationClip::interpolate(float trackPos, const Interpolations& result, int loopOverride) const
+void AnimationClip::interpolateSingleTrack(float trackPos, float totalLen, TrackValue& result, size_t trackIndex, size_t searchHint) const
 {
-	ScopedReadLock lock(*this);
-	return interpolateNoLock(trackPos, result, loopOverride);
-}
+	Samples samples = const_cast<AnimationClip*>(this)->getSamplesForTrack(trackIndex);
 
-float AnimationClip::interpolateNoLock(float trackPos, const Interpolations& result, int loopOverride) const
-{
-	// Find the wrapped trackPos, over ALL sub-tracks
-	bool loop_ = loopOverride <= -1 ? loop : loopOverride != 0;
-	const float len = length();
-	trackPos = loop_ ? ::fmodf(trackPos, length()) : Mathf::clamp(trackPos, -len, len);
+	MCD_ASSERT(samples.size > 0);
 
-	for(size_t i=0; i<subtracks.size; ++i)
-		interpolateSingleSubtrack(trackPos, result[i], i, loopOverride);
-
-	return trackPos;
-}
-
-void AnimationClip::interpolateSingleSubtrack(float trackPos, Interpolation& result, size_t trackIndex, int loopOverride) const
-{
-	MCD_ASSERT(mMutex.isLocked() && "Please acquire read lock first");
-
-	if(!mCommitted)
-		return;
-
-	KeyFrames frames = const_cast<AnimationClip*>(this)->getKeyFramesForSubtrack(trackIndex);
-
-	// If the animation has only one frame, there is no need to 
+	// If the animation has only one sample, there is no need to 
 	// do any interpolation, simply copy the data.
-	if(frames.size < 2) {
-		::memcpy(result.v, frames[0].v, sizeof(result.v));
+	if(samples.size == 1) {
+		::memcpy(result.v, samples[0].v, sizeof(result.v));
 		return;
 	}
 
-	{	// Phase 1: Clamp trackPos within the sub-track's length
-		const float len = length(trackIndex);
-		trackPos = Mathf::clamp(trackPos, -len, len);
-		trackPos = trackPos >= 0 ? trackPos : trackPos + len;	// Handling of negative scale
+	{	// Phase 1: Clamp pos within the track's length
+		trackPos = Mathf::clamp(trackPos, 0, lengthForTrack(trackIndex));
 		MCD_ASSERT(trackPos >= 0);
 	}
 
-	{	// Phase 2: Find the current and pervious frame index
-		size_t curr = (result.frame1Idx < frames.size && frames[result.frame1Idx].pos < trackPos) ? result.frame1Idx : 0; 
+	size_t idx1, idx2;
+	float ratio;	// Ratio between idx1 and idx2
 
-		// Scan for a frame with it's pos larger than the current. If none can find, the last frame index is used.
+	{	// Phase 2: Find the current and pervious sample index
+		size_t curr = (searchHint < samples.size && samples[searchHint].pos < trackPos) ? searchHint : 0; 
+
+		// Scan for a sample with it's pos larger than the current. If none can find, the last sample index is used.
 		size_t i = curr;
-		for(curr = frames.size - 1; i < frames.size; ++i)
-			if(frames[i].pos > trackPos) { curr = i; break; }
+		for(curr = samples.size - 1; i < samples.size; ++i)
+			if(samples[i].pos > trackPos) { curr = i; break; }
 
-		result.frame2Idx = (curr == 0) ? 1 : size_t(curr);
-		result.frame1Idx = result.frame2Idx - 1;
+		idx2 = (curr == 0) ? 1 : size_t(curr);
+		idx1 = idx2 - 1;
 	}
 
-	{	// Phase 3: compute the weight between the frame1Idx and frame2Idx
-		const float t1 = frames[result.frame1Idx].pos;
-		const float t2 = frames[result.frame2Idx].pos;
+	{	// Phase 3: compute the weight between the idx1 and idx2
+		const float t1 = samples[idx1].pos;
+		const float t2 = samples[idx2].pos;
 
 		MCD_ASSUME(t2 > t1);
-		result.ratio = (trackPos - t1) / (t2 - t1);
+		ratio = (trackPos - t1) / (t2 - t1);
 	}
 
-	MCD_ASSERT(result.ratio >= 0 && "Make sure the first frame is on the time zero");
+	MCD_ASSERT(ratio >= 0);
 
 	// Phase 4: perform interpolation
-	const Vec4f& f1 = reinterpret_cast<const Vec4f&>(frames[result.frame1Idx]);
-	const Vec4f& f2 = reinterpret_cast<const Vec4f&>(frames[result.frame2Idx]);
-	Vec4f& o = reinterpret_cast<Vec4f&>(result.v);
+	const Vec4f& f1 = samples[idx1].cast<const Vec4f>();
+	const Vec4f& f2 = samples[idx2].cast<const Vec4f>();
+	Vec4f& o = result.cast<Vec4f>();
 
-	const Flags flag = subtracks[trackIndex].flag;
+	const Flags flag = tracks[trackIndex].flag;
 	if(flag == Linear)
 	{
 	Linear:
-		o = f1 + result.ratio * (f2 - f1);
+		o = f1 + ratio * (f2 - f1);
 	}
 	else if(flag == Slerp)
 	{
@@ -210,8 +145,8 @@ void AnimationClip::interpolateSingleSubtrack(float trackPos, Interpolation& res
 			const float sinSqr = 1.0f - absCosVal * absCosVal;
 			const float invSin = 1.0f / sqrtf(sinSqr);
 			const float omega = Mathf::aTanPositive(sinSqr * invSin, absCosVal);
-			const float scale0 = Mathf::sinZeroHalfPI((1.0f - result.ratio) * omega) * invSin;
-			float scale1 = Mathf::sinZeroHalfPI(result.ratio * omega) * invSin;
+			const float scale0 = Mathf::sinZeroHalfPI((1.0f - ratio) * omega) * invSin;
+			float scale1 = Mathf::sinZeroHalfPI(ratio * omega) * invSin;
 
 			scale1 = (cosVal >= 0.0f) ? scale1 : -scale1;
 
@@ -220,23 +155,25 @@ void AnimationClip::interpolateSingleSubtrack(float trackPos, Interpolation& res
 		else	// Fallback to linear
 			goto Linear;
 	}
+	else if(flag == Step)
+		o = f1;
 }
 
 bool AnimationClip::checkValid() const
 {
-	MCD_ASSERT(mMutex.isLocked() && "Please acquire read lock first");
-
-	if(subtrackCount() == 0)
+	if(trackCount() == 0)
 		return false;
 
 	// Check that keyframeTimes are positive, unique and in ascending order.
-	for(size_t t=0; t<subtrackCount(); ++t) 
+	for(size_t t=0; t<trackCount(); ++t) 
 	{
-		if(subtracks[t].frameCount == 0)
+		if(tracks[t].sampleCount == 0)
 			return false;
 
-		KeyFrames f = const_cast<AnimationClip*>(this)->getKeyFramesForSubtrack(t);
+		Samples f = const_cast<AnimationClip*>(this)->getSamplesForTrack(t);
 		float previousPos = f[0].pos;
+		if(previousPos != 0)				// Make sure there is always a sample on time = 0
+			return false;
 		for(size_t i=1; i<f.size; ++i) {	// Note that we start the index at 1
 			if(f[i].pos <= previousPos)
 				return false;
@@ -247,50 +184,13 @@ bool AnimationClip::checkValid() const
 	return true;
 }
 
-void AnimationClip::acquireReadLock() const {
-	mMutex.lock();
-}
-
-void AnimationClip::releaseReadLock() const {
-	mMutex.unlock();
-}
-
-void AnimationClip::acquireWriteLock() const
-{
-	mMutex.lock();
-	mCommitted = false;
-}
-
-void AnimationClip::releaseWriteLock() const
-{
-	mCommitted = true;
-
-	// Find out the longest sub-track
-	mLength = 0;
-	for(size_t i=0; i<subtrackCount(); ++i) {
-		float t = length(i);
-		mLength = t > mLength ? t : mLength;
-	}
-
-	mMutex.unlock();
-}
-
 void AnimationClip::swap(AnimationClip& rhs)
 {
-	AnimationClip::ScopedWriteLock lock(*this), lock2(rhs);
-
-	std::swap(keyframes, rhs.keyframes);
-	std::swap(subtracks, rhs.subtracks);
-	std::swap(loop, rhs.loop);
-	std::swap(naturalFramerate, rhs.naturalFramerate);
-	std::swap(mLength, rhs.mLength);
-	std::swap(mCommitted, rhs.mCommitted);
-}
-
-bool AnimationClip::isCommitted() const
-{
-	MCD_ASSERT(mMutex.isLocked() && "Please acquire read lock first");
-	return mCommitted;
+	std::swap(samples, rhs.samples);
+	std::swap(tracks, rhs.tracks);
+	std::swap(length, rhs.length);
+	std::swap(framerate, rhs.framerate);
+	std::swap(loopCount, rhs.loopCount);
 }
 
 }	// namespace MCD

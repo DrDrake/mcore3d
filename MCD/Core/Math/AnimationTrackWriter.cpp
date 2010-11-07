@@ -12,7 +12,7 @@ bool AnimationClipWriter::write(std::ostream& os, const AnimationClip& track)
 	if(!os)
 		return false;
 
-	AnimationClip::ScopedReadLock lock(track);
+/*	AnimationClip::ScopedReadLock lock(track);
 
 	// Write the counters first
 	uint16_t subtrackCount = static_cast<uint16_t>(track.subtrackCount());
@@ -31,7 +31,7 @@ bool AnimationClipWriter::write(std::ostream& os, const AnimationClip& track)
 
 	// Write the key frames
 	const AnimationClip::KeyFrames& kf = track.keyframes;
-	MCD::write(os, kf.getPtr(), kf.sizeInByte());
+	MCD::write(os, kf.getPtr(), kf.sizeInByte());*/
 
 	return true;
 }

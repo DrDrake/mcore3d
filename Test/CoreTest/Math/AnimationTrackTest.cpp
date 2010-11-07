@@ -7,7 +7,7 @@ using namespace MCD;
 
 TEST(AnimationClipTest)
 {
-	{	AnimationClipPtr track = new AnimationClip("");
+/*	{	AnimationClipPtr track = new AnimationClip("");
 	}
 
 	{	AnimationClipPtr track = new AnimationClip("");
@@ -179,5 +179,5 @@ TEST(Performance_AnimationClipTest)
 		// This new version does slow down the calculation by a factor of 2, but I 
 		// beleive the memory saving should out perform the wasted CPU cycles.
 //		std::cout << attributePerSecond;
-	}
+	}*/
 }

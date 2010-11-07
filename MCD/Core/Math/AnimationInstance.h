@@ -2,9 +2,48 @@
 #define __MCD_CORE_MATH_ANIMATIONINSTANCE__
 
 #include "AnimationTrack.h"
+#include "../System/StringHash.h"
 #include <vector>
 
 namespace MCD {
+
+class MCD_CORE_API AnimationState
+{
+public:
+	AnimationState();
+
+	typedef AnimationClip::Pose Pose;
+
+// Attributes
+	FixString name;
+
+	float weight;
+	float rate;
+	int loopCountOverride;	///< Override the loopCount in the clip if > -1.
+	int loopCount() const;	///< Get the overall loop count value.
+
+	float worldTime;		///< The current world time. An update function would like to increment this value.
+	float worldRefTime;		///< Where this animation start in the world time frame.
+
+	/// The current local time
+	float localTime() const;
+
+	/// When the animation will end in the world time frame.
+	/// Returns 0 if the animation never end.
+	float worldEndTime() const;
+
+	/// Returns true if the animation has reached the end, and is not looping infinitly.
+	/// It is the same to perform: worldTime > worldEndTime()
+	bool ended() const;
+
+	AnimationClipPtr clip;
+
+// Operations
+	/// Additive blend the calculated animation pose to the accumulating pose.
+	void blendResultTo(Pose& accumulatePose, float accumulatedWeight);
+
+protected:
+};	// AnimationState
 
 /*!	Stores per-instance data where the sharing semantic AnimationClip didn't has.
 
@@ -14,53 +53,6 @@ namespace MCD {
 class MCD_CORE_API AnimationInstance
 {
 public:
-// Event data types
-	struct Event
-	{
-		size_t virtualFrameIdx;	//!< Do not edit this value by yourself, Events::setEvent() will assign it and keeps all Event sorted by frame index.
-		void* data;				//!< This pointer will be cleanup by Events::destroyData.
-
-		typedef void (*Callback)(const Event& event);
-		Callback callback;
-
-		typedef void (*DestroyData)(void* eventData);
-		DestroyData destroyData;
-	};	// Event
-
-	class MCD_CORE_API Events : protected std::vector<Event>
-	{
-		friend class AnimationInstance;
-
-	public:
-		Events();
-
-		//!	Will invoke \em destroyData on every Event.
-		~Events();
-
-		//!	Coping of Events will simply does nothing.
-		Events(const Events& rhs);
-		Events& operator=(const Events& rhs);
-
-		/*!	Associate an Event with the specific frame index.
-			The old Event::data is destroyed by \em destroyData if \em virtualFrameIdx already exist.
-			Passing null \em data means remove an Event at the specific index \em virtualFrameIdx.
-			User may alter \em Event::callback and \em Event::destroyData using getEvent to match with
-				their own callbacks other than the defaults provided by the class \em Events
-
-			\note This function will keep all events sorted according to the virtual frame index.
-		 */
-		sal_maybenull Event* setEvent(size_t virtualFrameIdx, sal_maybenull void* data);
-
-		//!	Returns null if there is no event at the specific virtual frame index.
-		sal_maybenull Event* getEvent(size_t virtualFrameIdx) const;
-
-		bool empty() const;
-		void clear();
-
-		Event::Callback callback;		//!< Defautl event Callback when calling setEvent
-		Event::DestroyData destroyData;	//!< Defautl destroy callback when calling setEvent
-	};	// Events
-
 // Key frame and weighted track data types
 	struct KeyFrame
 	{
@@ -75,7 +67,6 @@ public:
 		float lastEventPos;	//!< For tracking which event callback need to invoke since last update(). Internal use, user no need to touch with it.
 		std::string name;
 		AnimationClipPtr track;
-		Events edgeEvents, levelEvents;
 	};	// WeightedTrack
 
 	typedef FixStrideArray<KeyFrame> KeyFrames;
