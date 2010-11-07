@@ -70,54 +70,6 @@ public:
 	Mutex mMutex;
 };	// EventQueue
 
-static void eventCallback(const AnimationInstance::Event& e)
-{
-	if(EventData* data = reinterpret_cast<EventData*>(e.data)) {
-		if(data->callback && data->animationComponent) {
-			if(data->evenQueue)
-				data->evenQueue->push(*data);
-			else {
-				MCD_ASSERT(data->virtualFrameIdx == e.virtualFrameIdx);
-				data->doCallback();
-			}
-		}
-	}
-}
-
-static void eventDestroy(void* eventData)
-{
-	delete reinterpret_cast<EventData*>(eventData);
-}
-
-static void setEvent(
-	AnimationComponent& c, AnimationInstance::Events& events, const char* weightedTrackName, size_t virtualFrameIdx, void* data,
-	AnimationComponent::Callback callback, AnimationComponent::DestroyData destroyData, EventQueue* eventQueue)
-{
-	callback = callback == nullptr ? c.defaultCallback : callback;
-	destroyData = destroyData == nullptr ? c.defaultDestroyData : destroyData;
-
-	AnimationInstance::WeightedTrack* wt = c.animationInstance.getTrack(weightedTrackName);
-	if(!wt) {
-		if(destroyData)
-			destroyData(data);
-		return;
-	}
-
-	std::auto_ptr<EventData> d(new EventData);
-	d->data = data;
-	d->virtualFrameIdx = virtualFrameIdx;
-	d->callback = callback;
-	d->destroyData = destroyData;
-	d->animationComponent = &c;
-	d->evenQueue = eventQueue;
-
-	if(AnimationInstance::Event* e = events.setEvent(virtualFrameIdx, d.get())) {
-		e->data = d.release();
-		e->callback = &eventCallback;
-		e->destroyData = &eventDestroy;
-	}
-}
-
 class AnimationComponent::MyAnimationInstance : public AnimationInstance
 {
 public:
@@ -366,22 +318,6 @@ public:
 
 	EventQueue mEventQueue;
 };	// Impl
-
-void AnimationComponent::setEdgeEvent(const char* weightedTrackName, size_t virtualFrameIdx, void* data, Callback callback, DestroyData destroyData)
-{
-	if(AnimationInstance::WeightedTrack* wt = animationInstance.getTrack(weightedTrackName)) {
-		EventQueue* q = animationUpdater->taskPool() ? &animationUpdater->mImpl.mEventQueue : nullptr;
-		setEvent(*this, wt->edgeEvents, weightedTrackName, virtualFrameIdx, data, callback, destroyData, q);
-	}
-}
-
-void AnimationComponent::setLevelEvent(const char* weightedTrackName, size_t virtualFrameIdx, void* data, Callback callback, DestroyData destroyData)
-{
-	if(AnimationInstance::WeightedTrack* wt = animationInstance.getTrack(weightedTrackName)) {
-		EventQueue* q = animationUpdater->taskPool() ? &animationUpdater->mImpl.mEventQueue : nullptr;
-		setEvent(*this, wt->levelEvents, weightedTrackName, virtualFrameIdx, data, callback, destroyData, q);
-	}
-}
 
 AnimationUpdaterComponent::AnimationUpdaterComponent(Entity* systemEntities)
 	: mImpl(*new Impl(systemEntities))

@@ -59,7 +59,7 @@ public:
 
 	MathTuple() {}
 
-	MathTuple(const_param_type val) {
+	MCD_IMPLICIT MathTuple(const_param_type val) {
 		(*this) = val;
 	}
 
@@ -147,10 +147,24 @@ public:
 		return static_cast<R&>(*this);
 	}
 
+	R& operator+=(const_param_type rhs)
+	{
+		for(size_t i=0; i<N; ++i)
+			data[i] += rhs;
+		return static_cast<R&>(*this);
+	}
+
 	R& operator-=(const MathTuple& rhs)
 	{
 		for(size_t i=0; i<N; ++i)
 			data[i] -= rhs.data[i];
+		return static_cast<R&>(*this);
+	}
+
+	R& operator-=(const_param_type rhs)
+	{
+		for(size_t i=0; i<N; ++i)
+			data[i] -= rhs;
 		return static_cast<R&>(*this);
 	}
 

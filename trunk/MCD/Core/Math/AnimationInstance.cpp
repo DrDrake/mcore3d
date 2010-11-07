@@ -1,84 +1,77 @@
 #include "Pch.h"
 #include "AnimationInstance.h"
+#include "BasicFunction.h"
 #include "Vec4.h"
+#include "Quaternion.h"
 #include "../System/Utility.h"
 #include "../System/Log.h"
 
 namespace MCD {
 
-AnimationInstance::Events::Events() : callback(nullptr), destroyData(nullptr) {}
-
-AnimationInstance::Events::~Events() {
-	clear();
-}
-
-AnimationInstance::Events::Events(const Events& rhs)
+AnimationState::AnimationState()
+	: weight(1), rate(1)
+	, loopCountOverride(-1)
+	, worldTime(0), worldRefTime(0)
 {
-	callback = rhs.callback;
-	destroyData = rhs.destroyData;
 }
 
-AnimationInstance::Events& AnimationInstance::Events::operator=(const Events& rhs) {
-	// Do nothing
-	return *this;
-}
-
-AnimationInstance::Event* AnimationInstance::Events::setEvent(size_t virtualFrameIdx, void* data)
+int AnimationState::loopCount() const
 {
-	// Search for any existing index
-	iterator i;
-	for(i=begin(); i!=end(); ++i)
-		if(i->virtualFrameIdx == virtualFrameIdx)
-			break;
+	return loopCountOverride > 0 ? loopCountOverride : int(clip->loopCount);
+}
 
-	// Adding new value
-	if(data && i == end()) {
-		// Perform insertion sort: search for any existing index that has
-		// the value just larger than the input frame index
-		for(i=begin(); i!=end(); ++i)
-			if(i->virtualFrameIdx > virtualFrameIdx)
-				break;
+float AnimationState::localTime() const
+{
+	const int loop = loopCount();
+	const float len = clip->length / clip->framerate;
+	const float clampLen = len * loop == 0 ? 1 : float(loop);
+	float t = fabs(rate) * (worldTime - worldRefTime);
+	t = Mathf::clamp(t, 0, clampLen);	// Handle looping
+	t = fmod(t, len);					// Handle looping
+	t = rate >= 0 ? t : len - t;		// Handle negative playback rate
+	MCD_ASSERT(t >= 0 && t <= len);
+	return t;
+}
 
-		Event e = { virtualFrameIdx, data, callback, destroyData };
-		return &*(insert(i, e));
+float AnimationState::worldEndTime() const
+{
+	if(rate == 0) return worldRefTime;
+
+	const int loop = loopCount();
+	if(loop == 0) return 0;
+
+	const float len = clip->length / clip->framerate * loop;
+	return worldRefTime + len / rate;
+}
+
+bool AnimationState::ended() const
+{
+	return worldTime > worldEndTime();
+}
+
+void AnimationState::blendResultTo(Pose& accumulatePose, float accumulatedWeight)
+{
+	MCD_ASSERT(clip->trackCount() == accumulatePose.size);
+	if(weight == 0) return;
+
+	const float t = localTime();
+	Vec4f dummy; (void)dummy;
+
+	for(size_t i=0; i<accumulatePose.size; ++i) {
+		AnimationClip::TrackValue tmp;
+		clip->interpolateSingleTrack(t, clip->length, tmp, i);	// TODO: Use search hint
+
+		// Handling the quaternion
+		if(clip->tracks[i].flag == AnimationClip::Slerp) {
+			Quaternionf& q1 = accumulatePose[i].cast<Quaternionf>();
+			const Quaternionf& q2 = tmp.cast<Quaternionf>();;
+
+			q1 = Quaternionf::slerp(q2, q1, accumulatedWeight/(weight + accumulatedWeight));
+			q1 = q1 / q1.length();	// NOTE: Why it still need normalize after slerp?
+		}
+		else
+			accumulatePose[i].cast<Vec4f>() += weight * tmp.cast<Vec4f>();
 	}
-
-	// Update value
-	if(data && i != end()) {
-		if(i->destroyData) i->destroyData(i->data);
-		const_cast<void*&>(i->data) = data;
-		return &(*i);
-	}
-
-	// Removal
-	if(i != end()) {
-		if(i->destroyData) i->destroyData(i->data);
-		erase(i);
-		return nullptr;
-	}
-
-	return nullptr;
-}
-
-AnimationInstance::Event* AnimationInstance::Events::getEvent(size_t virtualFrameIdx) const
-{
-	for(const_iterator i=begin(); i!=end(); ++i)
-		if(i->virtualFrameIdx == virtualFrameIdx)
-			return &const_cast<Event&>(*i);
-
-	return nullptr;
-}
-
-bool AnimationInstance::Events::empty() const {
-	return std::vector<Event>::empty();
-}
-
-void AnimationInstance::Events::clear()
-{
-	for(iterator i=begin(); i!=end(); ++i)
-		if(i->destroyData)
-			i->destroyData(i->data);
-	std::vector<Event>::clear();
 }
 
 AnimationInstance::AnimationInstance()
@@ -105,6 +98,9 @@ AnimationInstance& AnimationInstance::operator=(const AnimationInstance& rhs)
 	return *this;
 }
 
+void AnimationInstance::update() {}
+bool AnimationInstance::isAllTrackCommited() const { return false; }
+
 bool AnimationInstance::resetInterpolatedResult()
 {
 	delete[] weightedResult.getPtr();
@@ -115,15 +111,13 @@ bool AnimationInstance::resetInterpolatedResult()
 	if(mTracks.empty())
 		return false;
 
-	const size_t cSubtrackCnt = mTracks[0].track->subtrackCount();
+	const size_t cSubtrackCnt = mTracks[0].track->trackCount();
 
 	MCD_FOREACH(const WeightedTrack& wt, mTracks) {
-		AnimationClip::ScopedReadLock readLock(*wt.track);
+//		if(!wt.track->isCommitted())
+//			return false;
 
-		if(!wt.track->isCommitted())
-			return false;
-
-		if(cSubtrackCnt != wt.track->subtrackCount()) {
+		if(cSubtrackCnt != wt.track->trackCount()) {
 			Log::format(
 				Log::Warn,
 				"Incompatible AnimationClip: subtrack count not matched."
@@ -141,7 +135,7 @@ bool AnimationInstance::resetInterpolatedResult()
 
 	return true;
 }
-
+/*
 // TODO: Optimize for single tracks (mTracks.size() == 1)?
 void AnimationInstance::update()
 {
@@ -171,7 +165,7 @@ void AnimationInstance::update()
 
 		const float adjustedPos = t.interpolate(time * wt.frameRate, interpolations, wt.loopOverride);
 
-		const size_t subTrackCount = t.subtrackCount();
+		const size_t subTrackCount = t.trackCount();
 		for(size_t j=0; j<subTrackCount; ++j)
 			reinterpret_cast<Vec4f&>(result[j]) += wt.weight * reinterpret_cast<Vec4f&>(interpolations[j].v);
 
@@ -243,14 +237,14 @@ size_t AnimationInstance::trackCount() const
 {
 	return mTracks.size();
 }
-
+*/
 size_t AnimationInstance::subtrackCount() const
 {
 	if(mTracks.empty() || !mTracks[0].track)
 		return 0;
-	return mTracks[0].track->subtrackCount();
+	return mTracks[0].track->trackCount();
 }
-
+/*
 float AnimationInstance::length() const
 {
 	float longest = 0;
@@ -339,5 +333,5 @@ void AnimationInstance::setTimeByFrameIndex(size_t frameIndex, size_t weightedTr
 	const size_t maxFrameIdx = t->track->keyframes.size - 1;
 	time = t->track->keyframes[frameIndex < maxFrameIdx ? frameIndex : maxFrameIdx].pos / t->frameRate;
 }
-
+*/
 }	// namespace MCD

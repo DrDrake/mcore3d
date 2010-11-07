@@ -29,7 +29,7 @@ IResourceLoader::LoadingState AnimationClipLoader::Impl::load(std::istream* is, 
 
 	ABORT_IF(!is || !track);
 
-	if(mLoadingState != Loading)
+/*	if(mLoadingState != Loading)
 		mLoadingState = NotLoaded;
 
 	if(mLoadingState & Stopped)
@@ -56,7 +56,7 @@ IResourceLoader::LoadingState AnimationClipLoader::Impl::load(std::istream* is, 
 	ABORT_IF(MCD::read(*is, st.getPtr(), st.sizeInByte()) != std::streamsize(st.sizeInByte()));
 	ABORT_IF(MCD::read(*is, kf.getPtr(), kf.sizeInByte()) != std::streamsize(kf.sizeInByte()));
 	ABORT_IF(!track->checkValid());
-
+*/
 	return mLoadingState = Loaded;
 
 	#undef ABORT_IF

@@ -6,7 +6,7 @@ using namespace MCD;
 
 TEST(AnimationInstanceTest)
 {
-	{	AnimationInstance a;
+/*	{	AnimationInstance a;
 
 		CHECK_EQUAL(0u, a.trackCount());
 		CHECK_EQUAL(0u, a.subtrackCount());
@@ -211,5 +211,5 @@ TEST(EventCallback_AnimationInstanceTest)
 	wt.loopOverride = 0;
 	a.update();
 	CHECK_EQUAL(20u, gEventCallbackResult1[3]);
-	CHECK_EQUAL(20u, gEventCallbackResult1[3]);
+	CHECK_EQUAL(20u, gEventCallbackResult1[3]);*/
 }

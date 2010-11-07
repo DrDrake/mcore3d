@@ -9,7 +9,7 @@
 #include "../../MCD/Render/Renderer.h"
 
 using namespace MCD;
-
+/*
 namespace {
 
 class AnimationTestFixture
@@ -223,3 +223,4 @@ TEST(Event_AnimationComponentTest)
 	CHECK_EQUAL(0u, gEventCallbackResult[0].virtualFrameIdx);
 	CHECK_EQUAL(10u, gEventCallbackResult[0].data);
 }
+*/

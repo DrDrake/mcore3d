@@ -1,40 +1,30 @@
 #ifndef __MCD_CORE_MATH_ANIMATIONTRACK__
 #define __MCD_CORE_MATH_ANIMATIONTRACK__
 
+#include "Vec4.h"
 #include "../System/Array.h"
 #include "../System/Resource.h"
 
 namespace MCD {
 
 /*!	A kind of Resource which stores animation data.
-	In most cases user should use AnimationInstance for working with
-	per instance information like current animation time, weight etc.
-
-	For thread safty reasons, all data read and write operations should be enclosed
-	in read lock and write lock respectively.
-
-	Restriction: all sub-track should have the same number of key frame.
-
-	\note Track pos / frame rate = time
-
-	\note The memory layout of the key frames is:
-	subTrack1Frame1, subTrack2Frame1, subTrack1Frame2, subTrack2Frame2, ...
+	\note The memory layout of the samples is:
+	track1Sample1, track1Sample2, track2Sample1, track2Sample2, ...
 
 	Example:
 	\code
-	AnimationClipPtr track = new AnimationClip(L"trackName");
+	AnimationClipPtr clip = new AnimationClip(L"clipName");
 
-	{	AnimationClip::ScopedWriteLock lock(*track);
-		track->init(2, 1);	// One sub-track with 2 frame
-		AnimationClip::KeyFrames frames = track->getKeyFramesForSubtrack(0);
+	{	clip->init(2, 1);	// One track with 2 frame
+		AnimationClip::Samples samples = track->getSamplesForTrack(0);
 
-		// Fill the frame's position
-		frames[0].pos = 0;
-		frames[1].pos = 1;
+		// Fill the sample's position
+		samples[0].pos = 0;
+		samples[1].pos = 1;
 
 		// Fill the attribute
-		reinterpret_cast<Vec4f&>(frames[0]) = Vec4f(1);
-		reinterpret_cast<Vec4f&>(frames[1]) = Vec4f(2);
+		reinterpret_cast<Vec4f&>(samples[0]) = Vec4f(1);
+		reinterpret_cast<Vec4f&>(samples[1]) = Vec4f(2);
 	}
 
 	// For each frame:
@@ -56,84 +46,68 @@ public:
 	{
 		Linear	= 1,
 		Slerp	= 2,
+		Step	= 3,
 	};	// Flags
 
 	//! We use a float 4 array to act as a generic datatype for an animated attribute.
-	struct KeyFrame
+	struct Sample
 	{
 		float v[4];
-		float pos;	//!< Indicate the position of this frame belongs in the track.
-	};	// KeyFrame
+		float pos;	//!< The position where the sample is taken (float is used instead of integer to reduce type casting, which may be expensive)
 
-	typedef FixStrideArray<KeyFrame> KeyFrames;
+		template<class T> T& cast() { return *reinterpret_cast<T*>(v); }
+		template<class T> const T& cast() const { return *reinterpret_cast<const T*>(v); }
+	};	// Sample
 
-	struct Subtrack
+	typedef FixStrideArray<Sample> Samples;
+
+	struct Track
 	{
-		const size_t index;	//!< Index to the \em keyframes member variable. Assigned by init(), don't modify it.
-		size_t frameCount;	//!< Number of frames for a sub-track
+		const size_t index;			//!< Index to the \em samples member variable. Assigned by init(), don't modify it.
+		const size_t sampleCount;	//!< Number of sample for this track.
 		Flags flag;
-	};	// Subtrack
+	};	// Track
 
-	typedef FixStrideArray<Subtrack> Subtracks;
+	typedef FixStrideArray<Track> Tracks;
+
+	struct TrackValue
+	{
+		float v[4];
+
+		template<class T> T& cast() { return *reinterpret_cast<T*>(v); }
+		template<class T> const T& cast() const { return *reinterpret_cast<const T*>(v); }
+	};	// TrackValue
+
+	typedef FixStrideArray<TrackValue> Pose;
 
 	struct Interpolation
 	{
-		MCD_CORE_API Interpolation();
 		float v[4];
-		size_t frame1Idx;	//!< Index of key frame that just before the current position.
-		size_t frame2Idx;	//!< Index of key frame that just after the current position.
-		float ratio;		//!< The ratio between frame1Idx and frame2Idx that define the current position.
+		size_t idx1;	//!< Index of sample that just before the current position.
+		size_t idx2;	//!< Index of sample that just after the current position.
+		float ratio;	//!< The ratio between idx1 and idx2 that define the current position.
+
+		template<class T> T& cast() { return *reinterpret_cast<T*>(v); }
+		template<class T> const T& cast() const { return *reinterpret_cast<const T*>(v); }
 	};	// Interpolation
 
 	typedef FixStrideArray<Interpolation> Interpolations;
 
-	struct MCD_CORE_API ScopedReadLock {
-		ScopedReadLock(const AnimationClip& a);
-		~ScopedReadLock();
-		const AnimationClip& track;
-	};	// ScopedReadLock
-
-	struct MCD_CORE_API ScopedWriteLock {
-		ScopedWriteLock(const AnimationClip& a);
-		~ScopedWriteLock();
-		const AnimationClip& track;
-	};	// ScopedWriteLock
-
 // Operations
 	/*!	Can be invoked multiple times.
-		\param subtrackFrameCount Array specifing there are how many key frames for each sub-track.
+		\param trackSampleCount Array specifing there are how many sample for each track.
 	 */
-	sal_checkreturn bool init(const StrideArray<const size_t>& subtrackFrameCount);
+	sal_checkreturn bool init(const StrideArray<const size_t>& trackSampleCount);
 
-	/*!	Get interpolation results at a specific track position.
-		Set the variable \em loopOverride with 0 to force loop, 1 for no loop and -1 for using AnimationClip::loop.
-		\return The wrapped or clamped \em trackPos for out of bound condition.
-		\note With acquireWriteLock() and releaseWriteLock() implied.
-	 */
-	float interpolate(float trackPos, const Interpolations& result, int loopOverride=-1) const;
+	//!	Get interpolation results at a specific position.
+	void interpolate(float pos, const Pose& result, size_t searchHint=0) const;
 
-	//!	 The no lock version of interpolate().
-	float interpolateNoLock(float trackPos, const Interpolations& result, int loopOverride=-1) const;
+	void interpolateSingleTrack(float trackPos, float totalLen, TrackValue& result, size_t trackIndex, size_t searchHint=0) const;
 
 	/*!	Check that the data has no problem (eg frame position not in ascending order).
 		\return False if something wrong.
 	 */
 	sal_checkreturn bool checkValid() const;
-
-	void acquireReadLock() const;
-
-	void releaseReadLock() const;
-
-	/*!	Since there will be a seperated thread for animation update, me must
-		try to acquire a mutex lock before we can modify the data in AnimationClip.
-		After the write lock is acquired, isCommitted() will return false.
-	 */
-	void acquireWriteLock() const;
-
-	/*!	The paired function with acquireLock().
-		After the write lock is released, isCommitted() will return true.
-	 */
-	void releaseWriteLock() const;
 
 	/*!	Swap with another AnimationClip, used in AnimationClipLoader to minimize memory copy.
 		\note The resource name will not be swap.
@@ -141,69 +115,43 @@ public:
 	void swap(AnimationClip& rhs);
 
 // Attributes
-	/*!	Number of sub-track.
-		For example, one sub-track for position, another sub-track for color.
+	//!	Number of track. For example, one track for position, another track for color.
+	size_t trackCount() const;
+
+	//! The length of the specific track.
+	float lengthForTrack(size_t trackIndex) const;
+
+	/*!	Get the samples for the track at \em index.
+		What it does actually is just return a slice of \em samples.
 	 */
-	size_t subtrackCount() const;
+	Samples getSamplesForTrack(size_t trackIndex);
 
-	//!	Number of keyframes for the specific sub-track.
-	size_t keyframeCount(size_t subtrackIndex) const;
-
-	//! The length (largest pos) of the specific sub-track.
-	float length(size_t subtrackIndex) const;
-
-	//!	The length of the longest sub-track.
-	float length() const;
-
-	/*!	Get the key frames for the sub-track at \em index.
-		What it does actually is just return a slice of \em keyframes.
+	/*!	The samples for all tracks, packed in a single array.
+		To get the key frames of a specific track, use getSamplesForTrack().
+		The memory layout is chaning sample at a faster rate:
+		t1s1, t1s2, t1s3, t2s1, t2s2, t3s1, t3s2, ...
 	 */
-	KeyFrames getKeyFramesForSubtrack(size_t subtrackIndex);
+	Samples samples;
 
-	/*!	The keyframes for each sub tracks, packed in a single array.
-		To get the key frames of a specific sub-track, use getKeyFramesForSubtrack().
-		The memory layout is:
-		t1f1, t1f2, t1f3, t2f1, t2f2, t3f1, t3f2, ...
-	 */
-	KeyFrames keyframes;
-
-	/*!	The flags for each subtrack (e.g. interpolation methods)
-		The array size should be subtrackCount().
+	/*!	The flags for each track (e.g. interpolation methods)
+		The array size should be trackCount().
 		By default the values are initialized to Flags::Linear.
 	 */
-	Subtracks subtracks;
+	Tracks tracks;
 
-	//! Whether the current track position will wrap over if it's larger than length().
-	bool loop;
+	//! Explicit length of the whole clip (in unit of sample position).
+	float length;
 
-	/*! The natural framerate for this animation (default value is 1).
-		This variable is not used directly in this class, but to be used by client
-		in order to pass the correct trackPos value to update() function.
+	/*! Framerate for this animation.
+		A value of 30 means there are 30 frames (31 samples) per second.
 	 */
-	float naturalFramerate;
+	float framerate;
 
-	/*!	To indicate that all animation data are ready to use.
-		Returns true after the wirte lock is released.
-		Returns false if the write lock is never acquired.
-	 */
-	sal_checkreturn bool isCommitted() const;
+	//! The loop count of this clip, 0 for infinite loop.
+	size_t loopCount;
 
 protected:
 	sal_override ~AnimationClip();
-
-	void interpolateSingleSubtrack(float trackPos, Interpolation& result, size_t trackIndex, int loopOverride) const;
-
-	//!	The length of the longest sub-track, assigned in releaseWriteLock().
-	mutable float mLength;
-
-	/*!	A boolean variable to indicate all the data are ready, meaning animation thread
-		can safely READ the data.
-		If modifing the animation data is needed, set this flag to false first.
-	 */
-	mutable bool mCommitted;
-
-	//!	Protect between the reader (update function) and the writer (animation loader).
-	mutable Mutex mMutex;
 };	// AnimationClip
 
 typedef IntrusivePtr<AnimationClip> AnimationClipPtr;
