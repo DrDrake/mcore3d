@@ -74,13 +74,14 @@ AnimationClip::Samples AnimationClip::getSamplesForTrack(size_t index)
 	return Samples(nullptr, 0);
 }
 
-void AnimationClip::interpolate(float pos, const Pose& result, size_t searchHint) const
+void AnimationClip::interpolate(float pos, const Pose& result) const
 {
-	for(size_t i=0; i<tracks.size; ++i)
-		interpolateSingleTrack(pos, length, result[i], i, searchHint);
+	for(size_t i=0; i<tracks.size; ++i) {
+		interpolateSingleTrack(pos, length, result[i], i);
+	}
 }
 
-void AnimationClip::interpolateSingleTrack(float trackPos, float totalLen, TrackValue& result, size_t trackIndex, size_t searchHint) const
+void AnimationClip::interpolateSingleTrack(float trackPos, float totalLen, TrackValue& result, size_t trackIndex) const
 {
 	Samples samples = const_cast<AnimationClip*>(this)->getSamplesForTrack(trackIndex);
 
@@ -102,7 +103,7 @@ void AnimationClip::interpolateSingleTrack(float trackPos, float totalLen, Track
 	float ratio;	// Ratio between idx1 and idx2
 
 	{	// Phase 2: Find the current and pervious sample index
-		size_t curr = (searchHint < samples.size && samples[searchHint].pos < trackPos) ? searchHint : 0; 
+		size_t curr = (result.searchHint < samples.size && samples[result.searchHint].pos < trackPos) ? result.searchHint : 0; 
 
 		// Scan for a sample with it's pos larger than the current. If none can find, the last sample index is used.
 		size_t i = curr;
@@ -110,7 +111,7 @@ void AnimationClip::interpolateSingleTrack(float trackPos, float totalLen, Track
 			if(samples[i].pos > trackPos) { curr = i; break; }
 
 		idx2 = (curr == 0) ? 1 : size_t(curr);
-		idx1 = idx2 - 1;
+		idx1 = result.searchHint = idx2 - 1;
 	}
 
 	{	// Phase 3: compute the weight between the idx1 and idx2

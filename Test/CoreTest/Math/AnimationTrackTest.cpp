@@ -1,183 +1,211 @@
 #include "Pch.h"
 #include "../../../MCD/Core/Math/Vec4.h"
 #include "../../../MCD/Core/Math/Quaternion.h"
+#include "../../../MCD/Core/Math/AnimationInstance.h"
 #include "../../../MCD/Core/Math/AnimationTrack.h"
+#include <limits>
 
 using namespace MCD;
 
 TEST(AnimationClipTest)
 {
-/*	{	AnimationClipPtr track = new AnimationClip("");
+	{	AnimationClipPtr clip = new AnimationClip("");
 	}
 
-	{	AnimationClipPtr track = new AnimationClip("");
-		track->acquireReadLock();
-		CHECK(!track->isCommitted());
-		track->releaseReadLock();
+	{	AnimationClipPtr clip = new AnimationClip("");
+		CHECK(!clip->init(StrideArray<const size_t>(nullptr, 0)));
 
-		track->acquireWriteLock();
-		CHECK(!track->init(StrideArray<const size_t>(nullptr, 0)));
-		track->releaseWriteLock();
-
-		track->acquireReadLock();
-		CHECK(track->isCommitted());
-		CHECK_EQUAL(0u, track->keyframeCount(0));
-		CHECK_EQUAL(0u, track->subtrackCount());
-		track->releaseReadLock();
+		CHECK_EQUAL(0u, clip->trackCount());
 	}
 
-	{	AnimationClipPtr track = new AnimationClip("");
+	{	AnimationClipPtr clip = new AnimationClip("");
 		
-		{	track->acquireWriteLock();
-			size_t tmp[] = { 3 };
-			CHECK(track->init(StrideArray<const size_t>(tmp, 1)));
-			CHECK_EQUAL(3u, track->keyframeCount(0));
-			CHECK_EQUAL(0u, track->keyframeCount(1));
-			CHECK_EQUAL(1u, track->subtrackCount());
+		{	size_t tmp[] = { 1, 2 };
+			CHECK(clip->init(StrideArray<const size_t>(tmp, 1)));
+			CHECK_EQUAL(1u, clip->getSamplesForTrack(0).size);
+			CHECK_EQUAL(1u, clip->trackCount());
 
-			tmp[0] = 2;
-			CHECK(track->init(StrideArray<const size_t>(tmp, 1)));	// init() can be invoked multiple times.
+			CHECK(clip->init(StrideArray<const size_t>(tmp, 2)));	// init() can be invoked multiple times.
 
-			CHECK_EQUAL(2u, track->keyframeCount(0));
-			CHECK_EQUAL(0u, track->keyframeCount(1));
-			CHECK_EQUAL(1u, track->subtrackCount());
+			CHECK_EQUAL(1u, clip->getSamplesForTrack(0).size);
+			CHECK_EQUAL(2u, clip->getSamplesForTrack(1).size);
+			CHECK_EQUAL(2u, clip->trackCount());
 
-			AnimationClip::KeyFrames frames = track->getKeyFramesForSubtrack(0);
-			frames[0].pos = 0;
-			frames[1].pos = 1;
+			AnimationClip::Samples samples0 = clip->getSamplesForTrack(0);
+			samples0[0].pos = 0;
 
-			CHECK(track->checkValid());
-			CHECK_EQUAL(AnimationClip::Linear, track->subtracks[0].flag);
-			CHECK_EQUAL(1, track->length(0));
+			AnimationClip::Samples samples1 = clip->getSamplesForTrack(1);
+			samples1[0].pos = 0;
+			samples1[1].pos = 1;
+			clip->length = 2;
 
-			reinterpret_cast<Vec4f&>(frames[0]) = Vec4f(1);
-			reinterpret_cast<Vec4f&>(frames[1]) = Vec4f(2);
+			CHECK(clip->checkValid());
+			CHECK_EQUAL(AnimationClip::Linear, clip->tracks[0].flag);
+			CHECK_EQUAL(0, clip->lengthForTrack(0));
+			CHECK_EQUAL(1, clip->lengthForTrack(1));
 
-			track->releaseWriteLock();
-			CHECK_EQUAL(1, track->length());
+			samples0[0].cast<Vec4f>() = Vec4f(1);
+			samples1[0].cast<Vec4f>() = Vec4f(1);
+			samples1[1].cast<Vec4f>() = Vec4f(2);
 		}
 
-		AnimationClip::Interpolation interpolation[1];
-		AnimationClip::Interpolations results(interpolation, 1);
-		track->acquireReadLock();
+		AnimationClip::Pose pose(new AnimationClip::TrackValue[2], 2);
+		clip->interpolate(0.5f, pose);
 
-		{	// Test for the interpolate() function
-			CHECK_EQUAL(0.5f, track->interpolateNoLock(0.5f, results));
-			const Vec4f& pos = reinterpret_cast<const Vec4f&>(results[0]);
-			CHECK(pos.isNearEqual(Vec4f(1.5f)));
-		}
+		CHECK(pose[0].cast<Vec4f>() == Vec4f(1));
+		CHECK(pose[1].cast<Vec4f>() == Vec4f(1.5f));
 
-		{	// Try to play backward from pos 0.5 back to 0.1
-			CHECK_EQUAL(0.0f, track->interpolateNoLock(0.0f, results));
-			const Vec4f& pos = reinterpret_cast<const Vec4f&>(results[0]);
-			CHECK(pos.isNearEqual(Vec4f(1)));
-		}
-
-		{	// Try to play over length() under loop mode
-			CHECK_EQUAL(0.0f, track->interpolateNoLock(track->length() * 2, results));
-			const Vec4f& pos = reinterpret_cast<const Vec4f&>(results[0]);
-			CHECK(pos.isNearEqual(Vec4f(1)));
-		}
-
-		{	// Try to play over length() not under loop mode
-			track->loop = false;
-			CHECK_EQUAL(track->length(), track->interpolateNoLock(track->length() * 2, results));
-			const Vec4f& pos = reinterpret_cast<const Vec4f&>(results[0]);
-			CHECK(pos.isNearEqual(Vec4f(2)));
-		}
-
-		track->releaseReadLock();
+		delete[] pose.getPtr();
 	}
 }
 
 TEST(Slerp_AnimationClipTest)
 {
-	AnimationClipPtr track = new AnimationClip("");
+	AnimationClipPtr clip = new AnimationClip("");
 	
-	{	track->acquireWriteLock();
-		size_t tmp[] = { 2 };
-		CHECK(track->init(StrideArray<const size_t>(tmp, 1)));
+	{	size_t tmp[] = { 2 };
+		CHECK(clip->init(StrideArray<const size_t>(tmp, 1)));
 
-		AnimationClip::KeyFrames frames = track->getKeyFramesForSubtrack(0);
-		frames[0].pos = 0;
-		frames[1].pos = 1;
+		AnimationClip::Samples samples = clip->getSamplesForTrack(0);
+		samples[0].pos = 0;
+		samples[1].pos = 1;
 
-		track->subtracks[0].flag = AnimationClip::Slerp;
+		clip->tracks[0].flag = AnimationClip::Slerp;
 
-		Quaternionf& q1 = reinterpret_cast<Quaternionf&>(frames[0]);
-		Quaternionf& q2 = reinterpret_cast<Quaternionf&>(frames[1]);
+		Quaternionf& q1 = samples[0].cast<Quaternionf>();
+		Quaternionf& q2 = samples[1].cast<Quaternionf>();
 
 		q1.fromAxisAngle(Vec3f::c010, Mathf::cPiOver2());	// Rotate around y-axis 45 degree anti-clockwise
 		q2.fromAxisAngle(Vec3f::c010, Mathf::cPi());		// Rotate around y-axis 90 degree anti-clockwise
-
-		track->releaseWriteLock();
 	}
 
-	AnimationClip::Interpolation interpolation[1];
-	AnimationClip::Interpolations results(interpolation, 1);
-	track->acquireReadLock();
-	CHECK_EQUAL(0.5f, track->interpolateNoLock(0.5f, results));
-	const Quaternionf& q = reinterpret_cast<const Quaternionf&>(results[0]);
+	AnimationClip::Pose pose(new AnimationClip::TrackValue[1], 1);
+	clip->interpolate(0.5f, pose);
+	const Quaternionf& q = pose[0].cast<Quaternionf>();
 
 	Vec3f v;
 	float angle;
 	q.toAxisAngle(v, angle);
 	CHECK(v.isNearEqual(Vec3f::c010));
 	CHECK_CLOSE(Mathf::cPi() * 3/4, angle, 1e-6);
-	track->releaseReadLock();
 }
 
-#include "../../../MCD/Core/System/Timer.h"
-
-TEST(Performance_AnimationClipTest)
+TEST(AnimationStateTest)
 {
-	const size_t frameCount = 256;
-	const size_t subtrackCount = 8;
+	AnimationClipPtr clip = new AnimationClip("");
 
-	AnimationClipPtr track = new AnimationClip("");
-
-	{	track->acquireWriteLock();
-		size_t tmp[subtrackCount] = { frameCount };
-
-		for(size_t i=0; i<subtrackCount; ++i)
-			tmp[i] = frameCount;
-		CHECK(track->init(StrideArray<const size_t>(tmp, subtrackCount)));
-
-		// Making half are Liner, half are Slerp
-		for(size_t i=0; i<track->subtrackCount()/2; ++i)
-			track->subtracks[i].flag = AnimationClip::Slerp;
-
-		for(size_t i=0; i<subtrackCount; ++i) {
-			AnimationClip::KeyFrames frames = track->getKeyFramesForSubtrack(i);
-			for(size_t j=0; j<frameCount; ++j) {
-				// Assign the pos of each frame
-				frames[j].pos = float(j);
-				// Fill with some random floating point data
-				reinterpret_cast<Quaternionf&>(frames[j]) = Vec4f(Mathf::random(), Mathf::random(), Mathf::random(), Mathf::random());
-			}
-		}
-
-		track->releaseWriteLock();
+	{	// Create a clip of length = 10
+//		size_t tmp[] = { 1 };
+//		CHECK(clip->init(StrideArray<const size_t>(tmp, 1)));
+		clip->length = 10 * clip->framerate;
 	}
 
-	{	track->acquireReadLock();
-		AnimationClip::Interpolation interpolation[subtrackCount];
-		AnimationClip::Interpolations results(interpolation, subtrackCount);
-		DeltaTimer timer;
-		const float length = track->length();
+	AnimationState a;
+	a.clip = clip;
 
-		size_t count = 0;
-		for(float t=0; t<length; t+=0.1f, ++count)
-			CHECK_EQUAL(t, track->interpolateNoLock(t, results));
-		track->releaseReadLock();
+	{	// With loop
+		a.worldTime = 0;
+		a.worldRefTime = 0;
+		a.loopCountOverride = 0;
+		CHECK_EQUAL(0, a.localTime());
+		CHECK_EQUAL(std::numeric_limits<float>::max(), a.worldEndTime());
+		CHECK(!a.ended());	// With loop, the animation never end
 
-		const double timeElasped = timer.getDelta().asSecond();
-		const double attributePerSecond = double(subtrackCount) * count / timeElasped;
-		(void)attributePerSecond;
+		a.worldTime = 1;
+		CHECK_EQUAL(1, a.localTime());
 
-		// NOTE: The variable sub-track frame count support was added at revision 733.
-		// This new version does slow down the calculation by a factor of 2, but I 
-		// beleive the memory saving should out perform the wasted CPU cycles.
-//		std::cout << attributePerSecond;
-	}*/
+		a.worldTime = 9;
+		CHECK_EQUAL(9, a.localTime());
+
+		a.worldTime = 10;
+		CHECK_EQUAL(0, a.localTime());
+
+		a.worldTime = 11;	// Run over the clip's length
+		CHECK_EQUAL(1, a.localTime());
+
+		a.worldTime = 20;	// Run over the clip's length
+		CHECK_EQUAL(0, a.localTime());
+
+		// With rate not equals to 1
+		a.rate = 2;
+		a.worldTime = 1;
+		CHECK_EQUAL(2, a.localTime());
+
+		a.rate = 0.5f;
+		a.worldTime = 4;
+		CHECK_EQUAL(2, a.localTime());
+
+		// Negative rate
+		a.rate = -1;
+		a.worldTime = 1;
+		CHECK_EQUAL(9, a.localTime());
+		CHECK(!a.ended());
+
+		a.rate = -1;
+		a.worldTime = 4;
+		CHECK_EQUAL(6, a.localTime());
+
+		a.rate = -1;
+		a.worldTime = 11;
+		CHECK_EQUAL(9, a.localTime());
+	}
+
+	{	// Without loop
+		a.rate = 1;
+		a.worldTime = 0;
+		a.loopCountOverride = 1;
+		CHECK_EQUAL(0, a.localTime());
+		CHECK_EQUAL(10u, a.worldEndTime());
+		CHECK(!a.ended());
+
+		a.loopCountOverride = 2;
+		CHECK_EQUAL(20u, a.worldEndTime());
+
+		a.worldTime = 1;
+		CHECK_EQUAL(1, a.localTime());
+
+		a.worldTime = 9;
+		CHECK_EQUAL(9, a.localTime());
+
+		a.worldTime = 10;	// Eact position on end of local time line will reduce to 0 when the whole clip is not ended yet
+		CHECK_EQUAL(0, a.localTime());
+
+		a.worldTime = 20;	// For non looping animation, the end positioned in clip will result end local position
+		CHECK(a.ended());
+		CHECK_EQUAL(10, a.localTime());
+
+		// With rate not equals to 1
+		a.rate = 2;
+		a.worldTime = 1;
+		CHECK_EQUAL(2, a.localTime());
+		CHECK_EQUAL(10, a.worldEndTime());
+
+		a.rate = 0.5f;
+		a.worldTime = 4;
+		CHECK_EQUAL(2, a.localTime());
+		CHECK_EQUAL(40, a.worldEndTime());
+
+		// Negative rate
+		a.rate = -1;
+		a.worldTime = 1;
+		CHECK_EQUAL(9, a.localTime());
+		CHECK_EQUAL(20, a.worldEndTime());
+		CHECK(!a.ended());
+
+		a.rate = -1;
+		a.worldTime = 4;
+		CHECK_EQUAL(6, a.localTime());
+
+		a.rate = -1;
+		a.worldTime = 10;
+		CHECK_EQUAL(10, a.localTime());
+
+		a.rate = -1;
+		a.worldTime = 11;
+		CHECK_EQUAL(9, a.localTime());
+
+		a.rate = -1;
+		a.worldTime = 20;
+		CHECK_EQUAL(0, a.localTime());
+	}
 }

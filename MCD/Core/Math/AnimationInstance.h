@@ -12,7 +12,6 @@ class MCD_CORE_API AnimationState
 public:
 	AnimationState();
 
-	typedef AnimationClip::Pose Pose;
 
 // Attributes
 	FixString name;
@@ -26,19 +25,25 @@ public:
 	float worldRefTime;		///< Where this animation start in the world time frame.
 
 	/// The current local time
+	/// \note If the animation is still in it's loop, end of local time will became 0.
 	float localTime() const;
 
 	/// When the animation will end in the world time frame.
-	/// Returns 0 if the animation never end.
+	/// Returns numeric_limits<float>::max() if the animation never end.
 	float worldEndTime() const;
 
 	/// Returns true if the animation has reached the end, and is not looping infinitly.
-	/// It is the same to perform: worldTime > worldEndTime()
+	/// It is the same to perform: worldTime >= worldEndTime()
 	bool ended() const;
 
 	AnimationClipPtr clip;
 
+	typedef AnimationClip::Pose Pose;
+	Pose pose;
+
 // Operations
+	void calculatePose();
+
 	/// Additive blend the calculated animation pose to the accumulating pose.
 	void blendResultTo(Pose& accumulatePose, float accumulatedWeight);
 

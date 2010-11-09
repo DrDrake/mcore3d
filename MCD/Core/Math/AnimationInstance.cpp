@@ -5,6 +5,7 @@
 #include "Quaternion.h"
 #include "../System/Utility.h"
 #include "../System/Log.h"
+#include <limits>
 
 namespace MCD {
 
@@ -12,6 +13,7 @@ AnimationState::AnimationState()
 	: weight(1), rate(1)
 	, loopCountOverride(-1)
 	, worldTime(0), worldRefTime(0)
+	, pose(nullptr, 0)
 {
 }
 
@@ -24,11 +26,11 @@ float AnimationState::localTime() const
 {
 	const int loop = loopCount();
 	const float len = clip->length / clip->framerate;
-	const float clampLen = len * loop == 0 ? 1 : float(loop);
+	const float clampLen = loop == 0 ? std::numeric_limits<float>::max() : len * loop;
 	float t = fabs(rate) * (worldTime - worldRefTime);
-	t = Mathf::clamp(t, 0, clampLen);	// Handle looping
-	t = fmod(t, len);					// Handle looping
-	t = rate >= 0 ? t : len - t;		// Handle negative playback rate
+	t = Mathf::clamp(t, 0, clampLen);		// Handle looping
+	t = t == clampLen ? len : fmod(t, len);	// Handle looping
+	t = rate >= 0 ? t : len - t;			// Handle negative playback rate
 	MCD_ASSERT(t >= 0 && t <= len);
 	return t;
 }
@@ -38,15 +40,15 @@ float AnimationState::worldEndTime() const
 	if(rate == 0) return worldRefTime;
 
 	const int loop = loopCount();
-	if(loop == 0) return 0;
+	if(loop == 0) return std::numeric_limits<float>::max();
 
 	const float len = clip->length / clip->framerate * loop;
-	return worldRefTime + len / rate;
+	return worldRefTime + len / fabs(rate);
 }
 
 bool AnimationState::ended() const
 {
-	return worldTime > worldEndTime();
+	return worldTime >= worldEndTime();
 }
 
 void AnimationState::blendResultTo(Pose& accumulatePose, float accumulatedWeight)
