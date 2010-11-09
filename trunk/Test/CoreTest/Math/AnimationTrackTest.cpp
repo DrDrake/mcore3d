@@ -22,21 +22,21 @@ TEST(AnimationClipTest)
 		
 		{	size_t tmp[] = { 1, 2 };
 			CHECK(clip->init(StrideArray<const size_t>(tmp, 1)));
-			CHECK_EQUAL(1u, clip->getSamplesForTrack(0).size);
+			CHECK_EQUAL(1u, clip->getKeysForTrack(0).size);
 			CHECK_EQUAL(1u, clip->trackCount());
 
 			CHECK(clip->init(StrideArray<const size_t>(tmp, 2)));	// init() can be invoked multiple times.
 
-			CHECK_EQUAL(1u, clip->getSamplesForTrack(0).size);
-			CHECK_EQUAL(2u, clip->getSamplesForTrack(1).size);
+			CHECK_EQUAL(1u, clip->getKeysForTrack(0).size);
+			CHECK_EQUAL(2u, clip->getKeysForTrack(1).size);
 			CHECK_EQUAL(2u, clip->trackCount());
 
-			AnimationClip::Samples samples0 = clip->getSamplesForTrack(0);
-			samples0[0].pos = 0;
+			AnimationClip::Keys keys0 = clip->getKeysForTrack(0);
+			keys0[0].pos = 0;
 
-			AnimationClip::Samples samples1 = clip->getSamplesForTrack(1);
-			samples1[0].pos = 0;
-			samples1[1].pos = 1;
+			AnimationClip::Keys keys1 = clip->getKeysForTrack(1);
+			keys1[0].pos = 0;
+			keys1[1].pos = 1;
 			clip->length = 2;
 
 			CHECK(clip->checkValid());
@@ -44,12 +44,12 @@ TEST(AnimationClipTest)
 			CHECK_EQUAL(0, clip->lengthForTrack(0));
 			CHECK_EQUAL(1, clip->lengthForTrack(1));
 
-			samples0[0].cast<Vec4f>() = Vec4f(1);
-			samples1[0].cast<Vec4f>() = Vec4f(1);
-			samples1[1].cast<Vec4f>() = Vec4f(2);
+			keys0[0].cast<Vec4f>() = Vec4f(1);
+			keys1[0].cast<Vec4f>() = Vec4f(1);
+			keys1[1].cast<Vec4f>() = Vec4f(2);
 		}
 
-		AnimationClip::Pose pose(new AnimationClip::TrackValue[2], 2);
+		AnimationClip::Pose pose(new AnimationClip::Sample[2], 2);
 		clip->interpolate(0.5f, pose);
 
 		CHECK(pose[0].cast<Vec4f>() == Vec4f(1));
@@ -66,7 +66,7 @@ TEST(Slerp_AnimationClipTest)
 	{	size_t tmp[] = { 2 };
 		CHECK(clip->init(StrideArray<const size_t>(tmp, 1)));
 
-		AnimationClip::Samples samples = clip->getSamplesForTrack(0);
+		AnimationClip::Keys samples = clip->getKeysForTrack(0);
 		samples[0].pos = 0;
 		samples[1].pos = 1;
 
@@ -79,7 +79,7 @@ TEST(Slerp_AnimationClipTest)
 		q2.fromAxisAngle(Vec3f::c010, Mathf::cPi());		// Rotate around y-axis 90 degree anti-clockwise
 	}
 
-	AnimationClip::Pose pose(new AnimationClip::TrackValue[1], 1);
+	AnimationClip::Pose pose(new AnimationClip::Sample[1], 1);
 	clip->interpolate(0.5f, pose);
 	const Quaternionf& q = pose[0].cast<Quaternionf>();
 
@@ -92,13 +92,9 @@ TEST(Slerp_AnimationClipTest)
 
 TEST(AnimationStateTest)
 {
+	// Create a clip of length = 10
 	AnimationClipPtr clip = new AnimationClip("");
-
-	{	// Create a clip of length = 10
-//		size_t tmp[] = { 1 };
-//		CHECK(clip->init(StrideArray<const size_t>(tmp, 1)));
-		clip->length = 10 * clip->framerate;
-	}
+	clip->length = 10 * clip->framerate;
 
 	AnimationState a;
 	a.clip = clip;

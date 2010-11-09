@@ -13,8 +13,13 @@ AnimationState::AnimationState()
 	: weight(1), rate(1)
 	, loopCountOverride(-1)
 	, worldTime(0), worldRefTime(0)
-	, pose(nullptr, 0)
+	, keyIdxHint(nullptr, 0)
 {
+}
+
+AnimationState::~AnimationState()
+{
+	realloc(keyIdxHint.getPtr(), 0);
 }
 
 int AnimationState::loopCount() const
@@ -59,20 +64,27 @@ void AnimationState::blendResultTo(Pose& accumulatePose, float accumulatedWeight
 	const float t = localTime();
 	Vec4f dummy; (void)dummy;
 
+	// Allocate the key idx hint if needed
+	if(keyIdxHint.size != clip->trackCount()) {
+		keyIdxHint.data = (char*)realloc(keyIdxHint.getPtr(), keyIdxHint.cStride * clip->trackCount());
+		keyIdxHint.size = clip->trackCount();
+		memset(keyIdxHint.data, 0, keyIdxHint.sizeInByte());
+	}
+
 	for(size_t i=0; i<accumulatePose.size; ++i) {
-		AnimationClip::TrackValue tmp;
-		clip->interpolateSingleTrack(t, clip->length, tmp, i);	// TODO: Use search hint
+		AnimationClip::Sample sample;
+		clip->interpolateSingleTrack(t, clip->length, sample, i, keyIdxHint[i]);
 
 		// Handling the quaternion
 		if(clip->tracks[i].flag == AnimationClip::Slerp) {
 			Quaternionf& q1 = accumulatePose[i].cast<Quaternionf>();
-			const Quaternionf& q2 = tmp.cast<Quaternionf>();;
+			const Quaternionf& q2 = sample.cast<Quaternionf>();;
 
 			q1 = Quaternionf::slerp(q2, q1, accumulatedWeight/(weight + accumulatedWeight));
 			q1 = q1 / q1.length();	// NOTE: Why it still need normalize after slerp?
 		}
 		else
-			accumulatePose[i].cast<Vec4f>() += weight * tmp.cast<Vec4f>();
+			accumulatePose[i].cast<Vec4f>() += weight * sample.cast<Vec4f>();
 	}
 }
 
