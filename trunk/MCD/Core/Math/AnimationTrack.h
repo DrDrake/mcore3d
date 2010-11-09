@@ -53,7 +53,7 @@ public:
 	struct Sample
 	{
 		float v[4];
-		float pos;	//!< The position where the sample is taken (float is used instead of integer to reduce type casting, which may be expensive)
+		float pos;			//!< The position where the sample is taken (float is used instead of integer to reduce type casting, which may be expensive)
 
 		template<class T> T& cast() { return *reinterpret_cast<T*>(v); }
 		template<class T> const T& cast() const { return *reinterpret_cast<const T*>(v); }
@@ -73,6 +73,7 @@ public:
 	struct TrackValue
 	{
 		float v[4];
+		size_t searchHint;	//!< Index of sample that just before the current position, aid sample search for a given time pos.
 
 		template<class T> T& cast() { return *reinterpret_cast<T*>(v); }
 		template<class T> const T& cast() const { return *reinterpret_cast<const T*>(v); }
@@ -100,9 +101,9 @@ public:
 	sal_checkreturn bool init(const StrideArray<const size_t>& trackSampleCount);
 
 	//!	Get interpolation results at a specific position.
-	void interpolate(float pos, const Pose& result, size_t searchHint=0) const;
+	void interpolate(float pos, const Pose& result) const;
 
-	void interpolateSingleTrack(float trackPos, float totalLen, TrackValue& result, size_t trackIndex, size_t searchHint=0) const;
+	void interpolateSingleTrack(float trackPos, float totalLen, TrackValue& result, size_t trackIndex) const;
 
 	/*!	Check that the data has no problem (eg frame position not in ascending order).
 		\return False if something wrong.
