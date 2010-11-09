@@ -101,7 +101,7 @@ public:
 	sal_checkreturn bool init(const StrideArray<const size_t>& trackSampleCount);
 
 	//!	Get interpolation results at a specific position.
-	void interpolate(float pos, const Pose& result) const;
+	virtual void interpolate(float pos, const Pose& result) const;
 
 	void interpolateSingleTrack(float trackPos, float totalLen, TrackValue& result, size_t trackIndex) const;
 
