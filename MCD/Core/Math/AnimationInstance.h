@@ -12,8 +12,12 @@ class MCD_CORE_API AnimationState
 public:
 	AnimationState();
 
+	~AnimationState();
 
 // Attributes
+	typedef AnimationClip::Pose Pose;
+	typedef AnimationClip::KeyIdxHint KeyIdxHint;
+
 	FixString name;
 
 	float weight;
@@ -38,12 +42,9 @@ public:
 
 	AnimationClipPtr clip;
 
-	typedef AnimationClip::Pose Pose;
-	Pose pose;
+	KeyIdxHint keyIdxHint;
 
 // Operations
-	void calculatePose();
-
 	/// Additive blend the calculated animation pose to the accumulating pose.
 	void blendResultTo(Pose& accumulatePose, float accumulatedWeight);
 

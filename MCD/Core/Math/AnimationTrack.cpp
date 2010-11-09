@@ -8,7 +8,7 @@ namespace MCD {
 
 AnimationClip::AnimationClip(const Path& fileId)
 	: Resource(fileId)
-	, samples(nullptr, 0)
+	, keyBuffer(nullptr, 0)
 	, tracks(nullptr, 0)
 	, length(0)
 	, framerate(30), loopCount(0)
@@ -17,7 +17,7 @@ AnimationClip::AnimationClip(const Path& fileId)
 
 AnimationClip::~AnimationClip()
 {
-	::free(samples.getPtr());
+	::free(keyBuffer.getPtr());
 	::free(tracks.getPtr());
 }
 
@@ -26,25 +26,25 @@ bool AnimationClip::init(const StrideArray<const size_t>& trackFrameCount)
 	if(trackFrameCount.isEmpty())
 		return false;
 
-	::free(samples.getPtr());
+	::free(keyBuffer.getPtr());
 	::free(tracks.getPtr());
 
-	// Find out the total sample count of all tracks
+	// Find out the total key count of all tracks
 	size_t totalFrameCount = 0;
 	for(size_t i=0; i<trackFrameCount.size; ++i)
 		totalFrameCount += trackFrameCount[i];
 
 	const size_t trackCount = trackFrameCount.size;
-	samples = Samples(reinterpret_cast<Sample*>(::malloc(totalFrameCount * sizeof(Sample))), totalFrameCount);
+	keyBuffer = Keys(reinterpret_cast<Key*>(::malloc(totalFrameCount * sizeof(Key))), totalFrameCount);
 	tracks = Tracks(reinterpret_cast<Track*>(::malloc(trackCount * sizeof(Track))), trackCount);
 
-	::memset(samples.data, 0, samples.sizeInByte());
+	::memset(keyBuffer.data, 0, keyBuffer.sizeInByte());
 	::memset(tracks.data, 0, tracks.sizeInByte());
 
 	size_t j = 0;
 	for(size_t i=0; i<tracks.size; ++i) {
 		const_cast<size_t&>(tracks[i].index) = j;
-		j += (const_cast<size_t&>(tracks[i].sampleCount) = trackFrameCount[i]);
+		j += (const_cast<size_t&>(tracks[i].keyCount) = trackFrameCount[i]);
 		tracks[i].flag = Linear;
 	}
 
@@ -59,39 +59,40 @@ size_t AnimationClip::trackCount() const
 float AnimationClip::lengthForTrack(size_t index) const
 {
 	if(index < trackCount()) {
-		Samples f = const_cast<AnimationClip*>(this)->getSamplesForTrack(index);
-		return f[tracks[index].sampleCount - 1].pos;
+		Keys k = const_cast<AnimationClip*>(this)->getKeysForTrack(index);
+		return k[tracks[index].keyCount - 1].pos;
 	}
 	return 0;
 }
 
-AnimationClip::Samples AnimationClip::getSamplesForTrack(size_t index)
+AnimationClip::Keys AnimationClip::getKeysForTrack(size_t index)
 {
 	if(index < trackCount())
-		return Samples(&samples[tracks[index].index], tracks[index].sampleCount);
+		return Keys(&keyBuffer[tracks[index].index], tracks[index].keyCount);
 
-	MCD_ASSERT(false && "AnimationClip::getSamplesForTrack out of range");
-	return Samples(nullptr, 0);
+	MCD_ASSERT(false && "AnimationClip::getKeysForTrack out of range");
+	return Keys(nullptr, 0);
 }
 
-void AnimationClip::interpolate(float pos, const Pose& result) const
+void AnimationClip::interpolate(float pos, const Pose& result, const KeyIdxHint& hint) const
 {
-	for(size_t i=0; i<tracks.size; ++i) {
-		interpolateSingleTrack(pos, length, result[i], i);
-	}
+	if(hint.size == 0) for(size_t i=0; i<tracks.size; ++i)
+		interpolateSingleTrack(pos, length, result[i], i, 0);
+	else for(size_t i=0; i<tracks.size; ++i)
+		interpolateSingleTrack(pos, length, result[i], i, hint[i]);
 }
 
-void AnimationClip::interpolateSingleTrack(float trackPos, float totalLen, TrackValue& result, size_t trackIndex) const
+size_t AnimationClip::interpolateSingleTrack(float trackPos, float totalLen, Sample& result, size_t trackIndex, size_t keySearchHint) const
 {
-	Samples samples = const_cast<AnimationClip*>(this)->getSamplesForTrack(trackIndex);
+	Keys keys = const_cast<AnimationClip*>(this)->getKeysForTrack(trackIndex);
 
-	MCD_ASSERT(samples.size > 0);
+	MCD_ASSERT(keys.size > 0);
 
-	// If the animation has only one sample, there is no need to 
+	// If the animation has only one key, there is no need to 
 	// do any interpolation, simply copy the data.
-	if(samples.size == 1) {
-		::memcpy(result.v, samples[0].v, sizeof(result.v));
-		return;
+	if(keys.size == 1) {
+		::memcpy(result.v, keys[0].v, sizeof(result.v));
+		return 0;
 	}
 
 	{	// Phase 1: Clamp pos within the track's length
@@ -102,21 +103,21 @@ void AnimationClip::interpolateSingleTrack(float trackPos, float totalLen, Track
 	size_t idx1, idx2;
 	float ratio;	// Ratio between idx1 and idx2
 
-	{	// Phase 2: Find the current and pervious sample index
-		size_t curr = (result.searchHint < samples.size && samples[result.searchHint].pos < trackPos) ? result.searchHint : 0; 
+	{	// Phase 2: Find the current and pervious key index
+		size_t curr = (keySearchHint < keys.size && keys[keySearchHint].pos < trackPos) ? keySearchHint : 0; 
 
-		// Scan for a sample with it's pos larger than the current. If none can find, the last sample index is used.
+		// Scan for a key with it's pos larger than the current. If none can find, the last key index is used.
 		size_t i = curr;
-		for(curr = samples.size - 1; i < samples.size; ++i)
-			if(samples[i].pos > trackPos) { curr = i; break; }
+		for(curr = keys.size - 1; i < keys.size; ++i)
+			if(keys[i].pos > trackPos) { curr = i; break; }
 
 		idx2 = (curr == 0) ? 1 : size_t(curr);
-		idx1 = result.searchHint = idx2 - 1;
+		idx1 = idx2 - 1;
 	}
 
 	{	// Phase 3: compute the weight between the idx1 and idx2
-		const float t1 = samples[idx1].pos;
-		const float t2 = samples[idx2].pos;
+		const float t1 = keys[idx1].pos;
+		const float t2 = keys[idx2].pos;
 
 		MCD_ASSUME(t2 > t1);
 		ratio = (trackPos - t1) / (t2 - t1);
@@ -125,8 +126,8 @@ void AnimationClip::interpolateSingleTrack(float trackPos, float totalLen, Track
 	MCD_ASSERT(ratio >= 0);
 
 	// Phase 4: perform interpolation
-	const Vec4f& f1 = samples[idx1].cast<const Vec4f>();
-	const Vec4f& f2 = samples[idx2].cast<const Vec4f>();
+	const Vec4f& f1 = keys[idx1].cast<const Vec4f>();
+	const Vec4f& f2 = keys[idx2].cast<const Vec4f>();
 	Vec4f& o = result.cast<Vec4f>();
 
 	const Flags flag = tracks[trackIndex].flag;
@@ -158,6 +159,8 @@ void AnimationClip::interpolateSingleTrack(float trackPos, float totalLen, Track
 	}
 	else if(flag == Step)
 		o = f1;
+
+	return idx1;
 }
 
 bool AnimationClip::checkValid() const
@@ -168,17 +171,17 @@ bool AnimationClip::checkValid() const
 	// Check that keyframeTimes are positive, unique and in ascending order.
 	for(size_t t=0; t<trackCount(); ++t) 
 	{
-		if(tracks[t].sampleCount == 0)
+		if(tracks[t].keyCount == 0)
 			return false;
 
-		Samples f = const_cast<AnimationClip*>(this)->getSamplesForTrack(t);
-		float previousPos = f[0].pos;
-		if(previousPos != 0)				// Make sure there is always a sample on time = 0
+		Keys k = const_cast<AnimationClip*>(this)->getKeysForTrack(t);
+		float previousPos = k[0].pos;
+		if(previousPos != 0)				// Make sure there is always a key on time = 0
 			return false;
-		for(size_t i=1; i<f.size; ++i) {	// Note that we start the index at 1
-			if(f[i].pos <= previousPos)
+		for(size_t i=1; i<k.size; ++i) {	// Note that we start the index at 1
+			if(k[i].pos <= previousPos)
 				return false;
-			previousPos = f[i].pos;
+			previousPos = k[i].pos;
 		}
 	}
 
@@ -187,7 +190,7 @@ bool AnimationClip::checkValid() const
 
 void AnimationClip::swap(AnimationClip& rhs)
 {
-	std::swap(samples, rhs.samples);
+	std::swap(keyBuffer, rhs.keyBuffer);
 	std::swap(tracks, rhs.tracks);
 	std::swap(length, rhs.length);
 	std::swap(framerate, rhs.framerate);
