@@ -1,5 +1,5 @@
-#ifndef __MCD_CORE_MATH_ANIMATIONINSTANCE__
-#define __MCD_CORE_MATH_ANIMATIONINSTANCE__
+#ifndef __MCD_CORE_MATH_ANIMATIONSTATE__
+#define __MCD_CORE_MATH_ANIMATIONSTATE__
 
 #include "AnimationClip.h"
 #include "../System/StringHash.h"
@@ -47,8 +47,6 @@ public:
 // Operations
 	/// Additive blend the calculated animation pose to the accumulating pose.
 	void blendResultTo(Pose& accumulatePose, float accumulatedWeight);
-
-protected:
 };	// AnimationState
 
 /*!	Stores per-instance data where the sharing semantic AnimationClip didn't has.
@@ -162,4 +160,4 @@ protected:
 
 }	// namespace MCD
 
-#endif	// __MCD_CORE_MATH_ANIMATIONINSTANCE__
+#endif	// __MCD_CORE_MATH_ANIMATIONSTATE__

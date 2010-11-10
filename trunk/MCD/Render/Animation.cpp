@@ -2,7 +2,7 @@
 #include "Animation.h"
 #include "../Core/Entity/Entity.h"
 #include "../Core/Entity/SystemComponent.h"
-#include "../Core/Math/AnimationInstance.h"
+#include "../Core/Math/AnimationState.h"
 #include "../Core/Math/Quaternion.h"
 #include "../Core/System/Log.h"
 #include "../Core/System/TaskPool.h"
