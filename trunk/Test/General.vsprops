@@ -1,8 +1,10 @@
-<?xml version="1.0" encoding="big5"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <VisualStudioPropertySheet
 	ProjectType="Visual C++"
 	Version="8.00"
 	Name="General"
+	OutputDirectory="$(ProjectDir)/output/$(PlatformName)/$(ConfigurationName)"
+	IntermediateDirectory="tmp/$(PlatformName)/$(ConfigurationName)"
 	>
 	<Tool
 		Name="VCCLCompilerTool"
