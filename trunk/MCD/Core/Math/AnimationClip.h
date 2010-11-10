@@ -54,11 +54,11 @@ public:
 	/// We use a float 4 array to act as a generic datatype for an animated attribute.
 	struct Key
 	{
-		float v[4];
+		Vec4f v;
 		float pos;			///< The position where the key is taken (float is used instead of integer to reduce type casting, which may be expensive)
 
-		template<class T> T& cast() { return *reinterpret_cast<T*>(v); }
-		template<class T> const T& cast() const { return *reinterpret_cast<const T*>(v); }
+		template<class T> T& cast() { return reinterpret_cast<T&>(v); }
+		template<class T> const T& cast() const { return reinterpret_cast<const T&>(v); }
 	};	// Key
 
 	typedef FixStrideArray<Key> Keys;
@@ -76,10 +76,10 @@ public:
 	/// Represent a single sample
 	struct Sample
 	{
-		float v[4];
+		Vec4f v;
 
-		template<class T> T& cast() { return *reinterpret_cast<T*>(v); }
-		template<class T> const T& cast() const { return *reinterpret_cast<const T*>(v); }
+		template<class T> T& cast() { return reinterpret_cast<T&>(v); }
+		template<class T> const T& cast() const { return reinterpret_cast<const T&>(v); }
 	};	// Sample
 
 	typedef FixStrideArray<Sample> Pose;
@@ -88,7 +88,7 @@ public:
 
 	struct Interpolation
 	{
-		float v[4];
+		Vec4f v;
 		size_t idx1;	///< Index of key that just before the current position.
 		size_t idx2;	///< Index of key that just after the current position.
 		float ratio;	///< The ratio between idx1 and idx2 that define the current position.

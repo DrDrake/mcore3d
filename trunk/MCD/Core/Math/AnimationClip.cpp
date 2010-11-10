@@ -91,7 +91,7 @@ size_t AnimationClip::interpolateSingleTrack(float trackPos, float totalLen, Sam
 	// If the animation has only one key, there is no need to 
 	// do any interpolation, simply copy the data.
 	if(keys.size == 1) {
-		::memcpy(result.v, keys[0].v, sizeof(result.v));
+		::memcpy(result.v.getPtr(), keys[0].v.getPtr(), sizeof(result.v));
 		return 0;
 	}
 
@@ -127,14 +127,14 @@ size_t AnimationClip::interpolateSingleTrack(float trackPos, float totalLen, Sam
 
 	// Short cut optimization
 	if(ratio == 0) {
-		::memcpy(result.v, keys[idx1].v, sizeof(result.v));
+		::memcpy(result.v.getPtr(), keys[idx1].v.getPtr(), sizeof(result.v));
 		return idx1;
 	}
 
 	// Phase 4: perform interpolation
-	const Vec4f& f1 = keys[idx1].cast<const Vec4f>();
-	const Vec4f& f2 = keys[idx2].cast<const Vec4f>();
-	Vec4f& o = result.cast<Vec4f>();
+	const Vec4f& f1 = keys[idx1].v;
+	const Vec4f& f2 = keys[idx2].v;
+	Vec4f& o = result.v;
 
 	const Flags flag = tracks[trackIndex].flag;
 	if(flag == Linear)
