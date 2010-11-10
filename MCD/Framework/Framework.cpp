@@ -200,7 +200,7 @@ Framework::Impl::Impl()
 		e->addComponent(c);
 	}
 
-	{	// Animation updater
+/*	{	// Animation updater
 		Entity* e = mSystemEntity->addFirstChild("Animation updater");
 #ifdef MCD_IPHONE
 		AnimationUpdaterComponent* c = new AnimationUpdaterComponent(nullptr);
@@ -208,7 +208,7 @@ Framework::Impl::Impl()
 		AnimationUpdaterComponent* c = new AnimationUpdaterComponent(mSystemEntity.get());
 #endif
 		e->addComponent(c);
-	}
+	}*/
 
 	{	// Skeleton animation updater
 		Entity* e = mSystemEntity->addFirstChild("Skeleton animation updater");

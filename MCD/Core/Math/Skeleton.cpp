@@ -59,7 +59,7 @@ SkeletonAnimation::~SkeletonAnimation()
 
 void SkeletonAnimation::applyTo(SkeletonPose& pose, int firstJoint, int lastJoint)
 {
-	if(!skeleton || pose.transforms.empty())
+/*	if(!skeleton || pose.transforms.empty())
 		return;
 
 	if(firstJoint < 0) firstJoint = 0;
@@ -92,7 +92,7 @@ void SkeletonAnimation::applyTo(SkeletonPose& pose, int firstJoint, int lastJoin
 			m.setTranslation(reinterpret_cast<const Vec3f&>(result[i * trackPerJoint + Translation]));
 			pose.transforms[i] = pose.transforms[skeleton->parents[i]] * m;
 		}
-	}
+	}*/
 }
 
 void skinning(

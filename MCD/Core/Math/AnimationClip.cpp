@@ -125,6 +125,12 @@ size_t AnimationClip::interpolateSingleTrack(float trackPos, float totalLen, Sam
 
 	MCD_ASSERT(ratio >= 0);
 
+	// Short cut optimization
+	if(ratio == 0) {
+		::memcpy(result.v, keys[idx1].v, sizeof(result.v));
+		return idx1;
+	}
+
 	// Phase 4: perform interpolation
 	const Vec4f& f1 = keys[idx1].cast<const Vec4f>();
 	const Vec4f& f2 = keys[idx2].cast<const Vec4f>();
