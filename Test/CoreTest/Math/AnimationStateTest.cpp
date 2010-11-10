@@ -1,8 +1,125 @@
 #include "Pch.h"
 #include "../../../MCD/Core/Math/Vec4.h"
-#include "../../../MCD/Core/Math/AnimationInstance.h"
+#include "../../../MCD/Core/Math/AnimationState.h"
+#include <limits>
 
 using namespace MCD;
+
+TEST(AnimationStateTest)
+{
+	// Create a clip of length = 10
+	AnimationClipPtr clip = new AnimationClip("");
+	clip->length = 10 * clip->framerate;
+
+	AnimationState a;
+	a.clip = clip;
+
+	{	// With loop
+		a.worldTime = 0;
+		a.worldRefTime = 0;
+		a.loopCountOverride = 0;
+		CHECK_EQUAL(0, a.localTime());
+		CHECK_EQUAL(std::numeric_limits<float>::max(), a.worldEndTime());
+		CHECK(!a.ended());	// With loop, the animation never end
+
+		a.worldTime = 1;
+		CHECK_EQUAL(1, a.localTime());
+
+		a.worldTime = 9;
+		CHECK_EQUAL(9, a.localTime());
+
+		a.worldTime = 10;
+		CHECK_EQUAL(0, a.localTime());
+
+		a.worldTime = 11;	// Run over the clip's length
+		CHECK_EQUAL(1, a.localTime());
+
+		a.worldTime = 20;	// Run over the clip's length
+		CHECK_EQUAL(0, a.localTime());
+
+		// With rate not equals to 1
+		a.rate = 2;
+		a.worldTime = 1;
+		CHECK_EQUAL(2, a.localTime());
+
+		a.rate = 0.5f;
+		a.worldTime = 4;
+		CHECK_EQUAL(2, a.localTime());
+
+		// Negative rate
+		a.rate = -1;
+		a.worldTime = 1;
+		CHECK_EQUAL(9, a.localTime());
+		CHECK(!a.ended());
+
+		a.rate = -1;
+		a.worldTime = 4;
+		CHECK_EQUAL(6, a.localTime());
+
+		a.rate = -1;
+		a.worldTime = 11;
+		CHECK_EQUAL(9, a.localTime());
+	}
+
+	{	// Without loop
+		a.rate = 1;
+		a.worldTime = 0;
+		a.loopCountOverride = 1;
+		CHECK_EQUAL(0, a.localTime());
+		CHECK_EQUAL(10u, a.worldEndTime());
+		CHECK(!a.ended());
+
+		a.loopCountOverride = 2;
+		CHECK_EQUAL(20u, a.worldEndTime());
+
+		a.worldTime = 1;
+		CHECK_EQUAL(1, a.localTime());
+
+		a.worldTime = 9;
+		CHECK_EQUAL(9, a.localTime());
+
+		a.worldTime = 10;	// Eact position on end of local time line will reduce to 0 when the whole clip is not ended yet
+		CHECK_EQUAL(0, a.localTime());
+
+		a.worldTime = 20;	// For non looping animation, the end positioned in clip will result end local position
+		CHECK(a.ended());
+		CHECK_EQUAL(10, a.localTime());
+
+		// With rate not equals to 1
+		a.rate = 2;
+		a.worldTime = 1;
+		CHECK_EQUAL(2, a.localTime());
+		CHECK_EQUAL(10, a.worldEndTime());
+
+		a.rate = 0.5f;
+		a.worldTime = 4;
+		CHECK_EQUAL(2, a.localTime());
+		CHECK_EQUAL(40, a.worldEndTime());
+
+		// Negative rate
+		a.rate = -1;
+		a.worldTime = 1;
+		CHECK_EQUAL(9, a.localTime());
+		CHECK_EQUAL(20, a.worldEndTime());
+		CHECK(!a.ended());
+
+		a.rate = -1;
+		a.worldTime = 4;
+		CHECK_EQUAL(6, a.localTime());
+
+		a.rate = -1;
+		a.worldTime = 10;
+		CHECK_EQUAL(10, a.localTime());
+
+		a.rate = -1;
+		a.worldTime = 11;
+		CHECK_EQUAL(9, a.localTime());
+
+		a.rate = -1;
+		a.worldTime = 20;
+		CHECK_EQUAL(0, a.localTime());
+	}
+}
 
 TEST(AnimationInstanceTest)
 {

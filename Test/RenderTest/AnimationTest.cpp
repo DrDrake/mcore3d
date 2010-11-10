@@ -1,7 +1,7 @@
 #include "Pch.h"
 #include "../../MCD/Framework/Framework.h"
 #include "../../MCD/Core/Entity/Entity.h"
-#include "../../MCD/Core/Math/AnimationInstance.h"
+#include "../../MCD/Core/Math/AnimationState.h"
 #include "../../MCD/Core/Math/Quaternion.h"
 #include "../../MCD/Render/Animation.h"
 #include "../../MCD/Render/ChamferBox.h"

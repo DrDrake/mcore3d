@@ -2,7 +2,7 @@
 #define __MCD_CORE_MATH_SKELETON__
 
 #include "Mat44.h"
-#include "AnimationInstance.h"
+#include "AnimationState.h"
 #include "../System/Resource.h"
 
 namespace MCD {

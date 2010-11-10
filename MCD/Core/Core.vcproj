@@ -723,11 +723,11 @@
 				>
 			</File>
 			<File
-				RelativePath=".\Math\AnimationInstance.cpp"
+				RelativePath=".\Math\AnimationState.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".\Math\AnimationInstance.h"
+				RelativePath=".\Math\AnimationState.h"
 				>
 			</File>
 			<File

@@ -499,7 +499,7 @@
 				>
 			</File>
 			<File
-				RelativePath=".\Math\AnimationInstanceTest.cpp"
+				RelativePath=".\Math\AnimationStateTest.cpp"
 				>
 			</File>
 			<File
