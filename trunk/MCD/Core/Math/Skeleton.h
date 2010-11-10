@@ -108,7 +108,7 @@ public:
 			The order of the sub-tracks are assumed to be rotation, translation and then scale.
 			Each joint's transform is relative to IT'S parent.
 	 */
-	AnimationInstance anim;
+//	AnimationInstance anim;
 
 	SkeletonPtr skeleton;
 

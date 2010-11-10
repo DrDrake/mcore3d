@@ -9,15 +9,18 @@ def dos2unix(file):
 	import os
 	text = open(file, 'rb').read().replace('\r\n', '\n')
 	open(file, 'wb').write(text) 
+
+def tidy(file):
 	print file
+	dos3unix(file)
 
 def listFiles(rootdir):
 	import os, glob
 	for dir, subFolders, files in os.walk(rootdir):
 		for file in glob.glob(dir + '/*.h'):
-			dos2unix(file)
+			tidy(file)
 		for file in glob.glob(dir + '/*.cpp'):
-			dos2unix(file)
+			tidy(file)
 
 def main():
 	dirs = ["../MCD/", "../Test"]

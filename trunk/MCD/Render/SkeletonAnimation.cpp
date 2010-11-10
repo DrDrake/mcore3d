@@ -29,7 +29,7 @@ Component* SkeletonAnimationComponent::clone() const
 		return nullptr;
 	SkeletonAnimationComponent* cloned = new SkeletonAnimationComponent(*animationUpdater);
 	cloned->pose = this->pose;
-	cloned->skeletonAnimation.anim = this->skeletonAnimation.anim;
+//	cloned->skeletonAnimation.anim = this->skeletonAnimation.anim;
 	cloned->skeletonAnimation.skeleton = this->skeletonAnimation.skeleton;
 	return cloned;
 }
@@ -41,7 +41,7 @@ void SkeletonAnimationComponent::update(float dt)
 	if(!e || !e->enabled)
 		return;
 
-	skeletonAnimation.anim.time += dt;
+//	skeletonAnimation.anim.time += dt;
 
 	// NOTE: The actual update() is NOT performed right here, MANY updates will
 	// be batched together and processed in SkeletonAnimationUpdaterComponent later in time.
@@ -90,7 +90,7 @@ public:
 			mAnims.assign(mSkeletonAnimations.begin(), mSkeletonAnimations.end());
 		}
 
-		for(Anims::const_iterator i=mAnims.begin(); i != mAnims.end(); ++i) {
+/*		for(Anims::const_iterator i=mAnims.begin(); i != mAnims.end(); ++i) {
 			i->first->anim.update();
 
 			// Ensure the SkeletonAnimationComponent will not be deleted within this scope
@@ -101,7 +101,7 @@ public:
 
 			i->second->pose.rootJointTransform() = Mat44f::cIdentity;
 			i->first->applyTo(i->second->pose);
-		}
+		}*/
 
 		mIsUpdating = false;
 	}

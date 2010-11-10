@@ -2,124 +2,82 @@
 #define __MCD_RENDER_ANIMATION__
 
 #include "ShareLib.h"
-#include "../Core/Entity/BehaviourComponent.h"
-#include "../Core/System/SharedPtr.h"
+#include "../Core/Entity/Component.h"
+#include "../Core/Math/AnimationState.h"
+#include "../Core/System/Timer.h"
 #include <vector>
 
 namespace MCD {
 
-class AnimationInstance;
-class TaskPool;
-typedef IntrusiveWeakPtr<class Entity> EntityPtr;
-typedef IntrusiveWeakPtr<class AnimationUpdaterComponent> AnimationUpdaterComponentPtr;
+class AnimationUpdaterComponent;
 
-/*!	A component that use the AnimationInstance to control some aspects of an Entity.
-	If the member variable \em affectingEntities is empty then this component will
-	control over it's hosting Entity; otherwise all the sub-tracks will corresponds
-	to the Entity in \em affectingEntities.
- */
-class MCD_RENDER_API AnimationComponent : public BehaviourComponent
+/// This Component store animation data and provide interface on
+/// how to orchestra the various AnimationClip to it's final pose.
+///
+/// This Component does tell how the data should be interpreted, but
+/// derived class of AnimationViewComponent should.
+class MCD_RENDER_API AnimationComponent : public Component
 {
-	class MyAnimationInstance;
-
 public:
-	explicit AnimationComponent(AnimationUpdaterComponent& updater);
+	AnimationComponent();
 
 	sal_override ~AnimationComponent();
 
+	sal_override const std::type_info& familyType() const {
+		return typeid(AnimationComponent);
+	}
+
 // Cloning
-	/*!	Clone will fail if the associated AnimationUpdaterComponent is already destroyed.
-		The clone function will not clone the animation event (yet?).
-	 */
 	sal_override sal_maybenull Component* clone() const;
-	sal_override sal_checkreturn bool postClone(const Entity& src, Entity& dest);
-
-// Operations
-	sal_override void update(float dt);
-
-// Event
-	typedef void (*Callback)(AnimationComponent& c, size_t virtualFrameIdx, void* eventData);
-	Callback defaultCallback;
-
-	typedef void (*DestroyData)(void* eventData);
-	DestroyData defaultDestroyData;
-
-	//!	The parameter \em data will be cleanup by \em AnimationComponent::destroyData immediatly if the operation failed.
-	void setEdgeEvent(
-		sal_in_z const char* weightedTrackName, size_t virtualFrameIdx, sal_maybenull void* data,
-		sal_maybenull Callback callback=nullptr, sal_maybenull DestroyData destroyData=nullptr
-	);
-
-	void setLevelEvent(
-		sal_in_z const char* weightedTrackName, size_t virtualFrameIdx, sal_maybenull void* data,
-		sal_maybenull Callback callback=nullptr, sal_maybenull DestroyData destroyData=nullptr
-	);
 
 // Attributes
-	/*!	Sub-track,	usage
-		0		->	Position	(Linear)
-		1		->	Orientation	(Slerp)
-		2		->	Scale		(Linear)
-		3		->	Color		(Linear)
+	/// The animation pose after blending all the AnimationState together.
+	AnimationState::Pose pose;
 
-		The number of sub-tracks in the AnimationInstance should be multiple of 4.
-	 */
-	AnimationInstance& animationInstance;
-
-	float time() const;
-
-	/*!	Explicitly set the time of the animation and reflect the result immediatly.
-		\note Aways take effect even entity()->enabled is false.
-	 */
-	void setTime(float t);
-
-	static const size_t subtrackPerEntity = 4;
-
-	std::vector<EntityPtr> affectingEntities;
-
-	const AnimationUpdaterComponentPtr animationUpdater;
+	std::vector<AnimationState> animations;
 
 protected:
 	friend class AnimationUpdaterComponent;
-
-	/*!	In order to decouple the multi-thread life-time problem,
-		we share the AnimationInstance with the updater thread.
-	 */
-	typedef SharedPtr<MyAnimationInstance> AnimationInstancePtr;
-	const AnimationInstancePtr mAnimationInstanceHolder;
+	sal_override void gather();
+	void update(float worldTime);
+	void initPose(size_t trackCount);
 };	// AnimationComponent
 
 typedef IntrusiveWeakPtr<AnimationComponent> AnimationComponentPtr;
 
-/*!	Centralize the update of many AnimationComponent, resulting better cache coherent.
-	It can also be able to utilize TaskPool for animation update.
- */
-class MCD_RENDER_API AnimationUpdaterComponent : public BehaviourComponent
+/// Component that will use the calculated data in AnimationComponent.
+/// Concret class example are: SkeletonComponent and AnimatedTransform.
+class MCD_ABSTRACT_CLASS MCD_RENDER_API AnimatedComponent : public Component
 {
 public:
-	/*!	Multi-thread is used if \em systemEntities is not null.
-		User has to take care the life time of \em TaskPoolComponent to be longer than this.
-	 */
-	explicit AnimationUpdaterComponent(sal_maybenull Entity* systemEntities);
-
-	sal_override ~AnimationUpdaterComponent();
-
 // Operations
-	sal_override void update(float dt);
-
-	void pause(bool p);
-
-	void addAnimationComponent(AnimationComponent& ac);
-
-	void removeAnimationComponent(AnimationComponent& ac);
+	virtual void update() = 0;
 
 // Attributes
-	sal_maybenull TaskPool* taskPool();
+	AnimationComponentPtr animation;
+
+protected:
+	sal_override void gather();
+};	// AnimatedComponent
+
+/// Centralize the update of many AnimationComponent, to make the update order
+/// more deterministic. It also resulting better memory cache usage too.
+class MCD_RENDER_API AnimationUpdaterComponent : public ComponentUpdater
+{
+public:
+// Operations
+	sal_override void begin();
+	sal_override void end(float dt);
+
+	float worldTime() const { return mWorldTime; }
 
 protected:
 	friend class AnimationComponent;
-	class Impl;
-	Impl& mImpl;
+	friend class AnimatedComponent;
+	Timer mTimer;	// Maintain the global time line
+	float mWorldTime;
+	std::vector<AnimationComponent*> mAnimationComponents;
+	std::vector<AnimatedComponent*> mAnimatedComponents;
 };	// AnimationUpdaterComponent
 
 typedef IntrusiveWeakPtr<AnimationUpdaterComponent> AnimationUpdaterComponentPtr;

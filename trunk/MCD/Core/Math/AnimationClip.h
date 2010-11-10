@@ -19,7 +19,7 @@ namespace MCD {
 	\code
 	AnimationClipPtr clip = new AnimationClip(L"clipName");
 
-	{	clip->init(2, 1);	// One track with 2 frame
+	{	clip->init(2, 1);	// One track with 2 key
 		AnimationClip::Samples samples = track->getSamplesForTrack(0);
 
 		// Fill the key's position
