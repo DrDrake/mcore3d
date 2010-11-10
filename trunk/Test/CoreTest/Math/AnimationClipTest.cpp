@@ -2,7 +2,7 @@
 #include "../../../MCD/Core/Math/Vec4.h"
 #include "../../../MCD/Core/Math/Quaternion.h"
 #include "../../../MCD/Core/Math/AnimationInstance.h"
-#include "../../../MCD/Core/Math/AnimationTrack.h"
+#include "../../../MCD/Core/Math/AnimationClip.h"
 #include <limits>
 
 using namespace MCD;

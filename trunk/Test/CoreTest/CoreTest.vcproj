@@ -495,15 +495,11 @@
 			Name="Math"
 			>
 			<File
+				RelativePath=".\Math\AnimationClipTest.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\Math\AnimationInstanceTest.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\Math\AnimationTrackTest.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\Math\AnimationTrackWriterLoaderTest.cpp"
 				>
 			</File>
 			<File
