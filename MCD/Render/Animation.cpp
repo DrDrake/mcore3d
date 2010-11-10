@@ -8,6 +8,8 @@
 
 namespace MCD {
 
+static Timer gTimer;	// Maintain the global time line
+
 static AnimationUpdaterComponent* gAnimationUpdater = nullptr;
 
 AnimationComponent::AnimationComponent()
@@ -70,12 +72,17 @@ void AnimationComponent::initPose(size_t trackCount)
 	memset(pose.data, 0, pose.sizeInByte());
 }
 
+float AnimationUpdaterComponent::worldTime()
+{
+	return float(gTimer.get().asSecond());
+}
+
 void AnimationUpdaterComponent::begin()
 {
 	mAnimationComponents.clear();
 	mAnimatedComponents.clear();
 	gAnimationUpdater = this;
-	mWorldTime = float(mTimer.get().asSecond());
+	mWorldTime = float(gTimer.get().asSecond());
 }
 
 void AnimationUpdaterComponent::end(float dt)

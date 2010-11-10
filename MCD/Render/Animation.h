@@ -69,12 +69,11 @@ public:
 	sal_override void begin();
 	sal_override void end(float dt);
 
-	float worldTime() const { return mWorldTime; }
+	static float worldTime();
 
 protected:
 	friend class AnimationComponent;
 	friend class AnimatedComponent;
-	Timer mTimer;	// Maintain the global time line
 	float mWorldTime;
 	std::vector<AnimationComponent*> mAnimationComponents;
 	std::vector<AnimatedComponent*> mAnimatedComponents;

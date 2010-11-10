@@ -9,12 +9,12 @@
 #include "../../MCD/Render/Renderer.h"
 
 using namespace MCD;
-/*
+
 namespace {
 
 class AnimationTestFixture
 {
-	static const size_t cFrameCount = 50;
+	static const size_t keyCount = 50;
 	static const size_t cBoxCount = 1000;
 
 public:
@@ -22,7 +22,7 @@ public:
 	{
 		MCD_VERIFY(framework.initWindow("title=AnimationComponentTest;width=800;height=600;fullscreen=0;FSAA=4"));
 
-		animationTrack = new AnimationClip("");
+		animationClip = new AnimationClip("");
 		loadAnimationClip();
 
 		mBoxesNode = framework.sceneLayer().addFirstChild("Boxes");
@@ -39,8 +39,6 @@ public:
 
 	void createBox(const Vec3f& position, float initialAnimationTime)
 	{
-		Entity& system = framework.systemEntity();
-
 		// Setup entity 1
 		Entity* e1 = mBoxesNode->addFirstChild(new Entity);
 		Entity* e2 = e1->addFirstChild(new Entity);
@@ -53,12 +51,11 @@ public:
 			c->mesh = mesh;
 		}
 
-		{	AnimationUpdaterComponent* updater = system.findComponentInChildrenExactType<AnimationUpdaterComponent>();
-			MCD_ASSUME(updater);
-			AnimationComponent* c = e2->addComponent(new AnimationComponent(*updater));
-			e2->enabled = true;
-			MCD_VERIFY(c->animationInstance.addTrack(*animationTrack));
-			c->animationInstance.time = initialAnimationTime;
+		{	AnimationComponent* c = e2->addComponent(new AnimationComponent);
+			c->animations.resize(1);
+			AnimationState& a = c->animations[0];
+			a.clip = animationClip;
+			a.worldRefTime = AnimationUpdaterComponent::worldTime() + initialAnimationTime;
 		}
 	}
 
@@ -66,7 +63,7 @@ public:
 	{
 		Vec3f pos(Mathf::random(), Mathf::random(), Mathf::random());
 		pos = (pos * 2 - 1) * cBoxCount/10;
-		createBox(pos, Mathf::random() * cFrameCount);
+		createBox(pos, Mathf::random() * keyCount);
 	}
 
 	void destroyARandomBox()
@@ -92,50 +89,48 @@ public:
 	void loadAnimationClip()
 	{
 		// Manually creat the animation track
-		AnimationClip::ScopedWriteLock lock(*animationTrack);
+		const size_t cTrackCount = 3;
+		std::vector<size_t> tmp(cTrackCount, keyCount);
 
-		const size_t cSubtrackCount = AnimationComponent::subtrackPerEntity;
-		std::vector<size_t> tmp(cSubtrackCount, cFrameCount);
-
-		MCD_VERIFY(animationTrack->init(StrideArray<const size_t>(&tmp[0], cSubtrackCount)));
+		MCD_VERIFY(animationClip->init(StrideArray<const size_t>(&tmp[0], cTrackCount)));
 
 		// Assign the position of each frame
-		for(size_t i=0; i<cSubtrackCount; ++i) {
-			AnimationClip::KeyFrames frames = animationTrack->getKeyFramesForSubtrack(i);
-			for(size_t j=0; j<frames.size; ++j)
-				frames[j].pos = float(j);
+		for(size_t i=0; i<cTrackCount; ++i) {
+			AnimationClip::Keys keys = animationClip->getKeysForTrack(i);
+			for(size_t j=0; j<keys.size; ++j)
+				keys[j].pos = float(j);
 		}
 
 		// Setup position animation
-		AnimationClip::KeyFrames frames = animationTrack->getKeyFramesForSubtrack(0);
-		for(size_t i=0; i<cFrameCount; ++i) {
+		AnimationClip::Keys keys = animationClip->getKeysForTrack(0);
+		for(size_t i=0; i<keyCount; ++i) {
 			Vec3f position(Mathf::random(), Mathf::random(), Mathf::random());
 			position *= 5;
-			reinterpret_cast<Vec3f&>(frames[i]) = position;
+			keys[i].cast<Vec3f>() = position;
 		}
-		reinterpret_cast<Vec3f&>(frames[cFrameCount-1]) = reinterpret_cast<Vec3f&>(frames[0]);
+		keys[keyCount-1].v = keys[0].v;
 
 		// Setup rotation animation
-		animationTrack->subtracks[1].flag = AnimationClip::Slerp;
-		frames = animationTrack->getKeyFramesForSubtrack(1);
-		for(size_t i=0; i<cFrameCount; ++i)
-			reinterpret_cast<Quaternionf&>(frames[i]) = randomQuaternion();
-		reinterpret_cast<Quaternionf&>(frames[cFrameCount-1]) = reinterpret_cast<Quaternionf&>(frames[0]);
+		animationClip->tracks[1].flag = AnimationClip::Slerp;
+		keys = animationClip->getKeysForTrack(1);
+		for(size_t i=0; i<keyCount; ++i)
+			keys[i].cast<Quaternionf>() = randomQuaternion();
+		keys[keyCount-1].v = keys[0].v;
 
 		// Setup scaling animation
-		frames = animationTrack->getKeyFramesForSubtrack(2);
-		for(size_t i=0; i<cFrameCount; ++i) {
+		keys = animationClip->getKeysForTrack(2);
+		for(size_t i=0; i<keyCount; ++i) {
 			Vec3f scale(Mathf::random() * 2);
-			reinterpret_cast<Vec3f&>(frames[i]) = scale;
+			keys[i].cast<Vec3f>() = scale;
 		}
-		reinterpret_cast<Vec3f&>(frames[cFrameCount-1]) = reinterpret_cast<Vec3f&>(frames[0]);
+		keys[keyCount-1].v = keys[0].v;
 	}
 
 	Framework framework;
 	EntityPtr mBoxesNode;
 	MeshPtr mesh;
 	Timer mTimer;	// Simulate a reload of the AnimationClip every few seconds.
-	AnimationClipPtr animationTrack;
+	AnimationClipPtr animationClip;
 };	// TestWindow
 
 }	// namespace
@@ -169,58 +164,3 @@ TEST_FIXTURE(AnimationTestFixture, Render)
 		renderer->render(root);
 	}
 }
-
-struct EventResult {
-	AnimationComponentPtr c;
-	size_t virtualFrameIdx;
-	size_t data;
-};
-
-static std::vector<EventResult> gEventCallbackResult;
-
-TEST(Event_AnimationComponentTest)
-{
-	Entity e1, e2;
-
-	AnimationUpdaterComponentPtr updater = new AnimationUpdaterComponent(nullptr);
-	AnimationComponentPtr c = new AnimationComponent(*updater);
-
-	e1.addComponent(updater);
-	e2.addComponent(c);
-
-	AnimationClipPtr track = new AnimationClip("track");
-	CHECK(c->animationInstance.addTrack(*track, 1, 1, "wtrack"));
-
-	{	AnimationClip::ScopedWriteLock lock(*track);
-		size_t tmp[] = { 3 };
-		CHECK(track->init(StrideArray<const size_t>(tmp, 1)));
-
-		AnimationClip::KeyFrames frames = track->getKeyFramesForSubtrack(0);
-		frames[0].pos = 0;
-		frames[1].pos = 1;
-		frames[2].pos = 2;
-	}
-
-	struct LocalClass {
-		static void callback(AnimationComponent& c, size_t virtualFrameIdx, void* data) {
-			EventResult result = { &c, virtualFrameIdx, size_t(data) };
-			gEventCallbackResult.push_back(result);
-		}
-	};	// LocalClass
-	c->defaultCallback = &LocalClass::callback;
-
-	c->setEdgeEvent("noSuchTrack", 0, nullptr);	// Do nothing if the weighted track's name is not found
-	c->setEdgeEvent("wtrack", 0, (void*)size_t(10));
-	c->setEdgeEvent("wtrack", 2, (void*)size_t(20));
-
-	gEventCallbackResult.clear();
-
-	while(gEventCallbackResult.empty()) {
-		updater->update(0);
-	}
-
-	CHECK_EQUAL(c, gEventCallbackResult[0].c);
-	CHECK_EQUAL(0u, gEventCallbackResult[0].virtualFrameIdx);
-	CHECK_EQUAL(10u, gEventCallbackResult[0].data);
-}
-*/
