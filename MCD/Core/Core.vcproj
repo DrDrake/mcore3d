@@ -715,35 +715,19 @@
 			Name="Math"
 			>
 			<File
+				RelativePath=".\Math\AnimationClip.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\Math\AnimationClip.h"
+				>
+			</File>
+			<File
 				RelativePath=".\Math\AnimationInstance.cpp"
 				>
 			</File>
 			<File
 				RelativePath=".\Math\AnimationInstance.h"
-				>
-			</File>
-			<File
-				RelativePath=".\Math\AnimationTrack.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\Math\AnimationTrack.h"
-				>
-			</File>
-			<File
-				RelativePath=".\Math\AnimationTrackLoader.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\Math\AnimationTrackLoader.h"
-				>
-			</File>
-			<File
-				RelativePath=".\Math\AnimationTrackWriter.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\Math\AnimationTrackWriter.h"
 				>
 			</File>
 			<File

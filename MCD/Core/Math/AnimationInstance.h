@@ -1,7 +1,7 @@
 #ifndef __MCD_CORE_MATH_ANIMATIONINSTANCE__
 #define __MCD_CORE_MATH_ANIMATIONINSTANCE__
 
-#include "AnimationTrack.h"
+#include "AnimationClip.h"
 #include "../System/StringHash.h"
 #include <vector>
 
