@@ -19,7 +19,7 @@ AnimationState::AnimationState()
 
 AnimationState::~AnimationState()
 {
-	realloc(keyIdxHint.getPtr(), 0);
+	free(keyIdxHint.getPtr());
 }
 
 AnimationState::AnimationState(const AnimationState& rhs)
@@ -43,6 +43,7 @@ float AnimationState::localTime() const
 	const float len = clip->length / clip->framerate;
 	const float clampLen = loop == 0 ? std::numeric_limits<float>::max() : len * loop;
 	float t = fabs(rate) * (worldTime - worldRefTime);
+	MCD_ASSERT(len > 0);
 	t = Mathf::clamp(t, 0, clampLen);		// Handle looping
 	t = t == clampLen ? len : fmod(t, len);	// Handle looping
 	t = rate >= 0 ? t : len - t;			// Handle negative playback rate
@@ -66,39 +67,59 @@ bool AnimationState::ended() const
 	return worldTime >= worldEndTime();
 }
 
-float AnimationState::blendResultTo(Pose& accumulatePose, float accumulatedWeight)
+void AnimationState::assignTo(const Pose& pose)
+{
+	MCD_ASSERT(clip->trackCount() == pose.size);
+	const float t = localTime() * clip->framerate;
+	allocateIdxHint();
+
+	for(size_t i=0; i<pose.size; ++i)
+		keyIdxHint[i] = (uint16_t)clip->interpolateSingleTrack(t, clip->length, pose[i], i, keyIdxHint[i]);
+}
+
+float AnimationState::blendResultTo(const Pose& accumulatePose, float accumulatedWeight)
 {
 	MCD_ASSERT(clip->trackCount() == accumulatePose.size);
 	const float newWeight = weight + accumulatedWeight;
 	if(weight == 0) return newWeight;
 
-	const float t = localTime();
+	const float t = localTime() * clip->framerate;
 	Vec4f dummy; (void)dummy;
 
-	// Allocate the key idx hint if needed
-	if(keyIdxHint.size != clip->trackCount()) {
-		keyIdxHint.data = (char*)realloc(keyIdxHint.getPtr(), keyIdxHint.cStride * clip->trackCount());
-		keyIdxHint.size = clip->trackCount();
-		memset(keyIdxHint.data, 0, keyIdxHint.sizeInByte());
-	}
+	allocateIdxHint();
 
-	for(size_t i=0; i<accumulatePose.size; ++i) {
+	for(size_t i=0; i<accumulatePose.size; ++i)
+	{
 		AnimationClip::Sample sample;
-		clip->interpolateSingleTrack(t, clip->length, sample, i, keyIdxHint[i]);
+		keyIdxHint[i] = (uint16_t)clip->interpolateSingleTrack(t, clip->length, sample, i, keyIdxHint[i]);
+		accumulatePose[i].flag = sample.flag;
 
 		// Handling the quaternion
 		if(clip->tracks[i].flag == AnimationClip::Slerp) {
 			Quaternionf& q1 = accumulatePose[i].cast<Quaternionf>();
-			const Quaternionf& q2 = sample.cast<Quaternionf>();;
+			const Quaternionf& q2 = sample.cast<Quaternionf>();
 
-			q1 = Quaternionf::slerp(q2, q1, accumulatedWeight/newWeight);
-			q1 = q1 / q1.length();	// NOTE: Why it still need normalize after slerp?
+			if(accumulatedWeight > 0) {
+				q1 = Quaternionf::slerp(q2, q1, accumulatedWeight/newWeight);
+				q1 = q1 / q1.length();	// NOTE: Why it still need normalize after slerp?
+			}
+			else
+				q1 = q2;
 		}
 		else
 			accumulatePose[i].cast<Vec4f>() += weight * sample.cast<Vec4f>();
 	}
 
 	return newWeight;
+}
+
+void AnimationState::allocateIdxHint()
+{
+	if(keyIdxHint.size != clip->trackCount()) {
+		keyIdxHint.data = (char*)realloc(keyIdxHint.getPtr(), keyIdxHint.stride() * clip->trackCount());
+		keyIdxHint.size = clip->trackCount();
+		memset(keyIdxHint.data, 0, keyIdxHint.sizeInByte());
+	}
 }
 
 }	// namespace MCD

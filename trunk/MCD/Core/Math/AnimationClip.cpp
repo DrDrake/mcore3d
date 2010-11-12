@@ -1,6 +1,7 @@
 #include "Pch.h"
 #include "AnimationClip.h"
 #include "BasicFunction.h"
+#include "Quaternion.h"
 #include "Vec4.h"
 #include <math.h>	// for fmodf()
 
@@ -19,6 +20,19 @@ AnimationClip::~AnimationClip()
 {
 	::free(keyBuffer.getPtr());
 	::free(tracks.getPtr());
+}
+
+void AnimationClip::Sample::blend(float t, const Sample& s1, const Sample& s2)
+{
+	MCD_ASSERT(s1.flag == s2.flag);
+	if(AnimationClip::Linear == s1.flag)
+		v = s1.v + t * (s2.v - s1.v);
+	else if(AnimationClip::Slerp == s1.flag) {
+		Quaternionf& q = cast<Quaternionf>();
+		q = Quaternionf::slerp(s1.cast<Quaternionf>(), s2.cast<Quaternionf>(), t);
+	}
+	else
+		v = s1.v;
 }
 
 bool AnimationClip::init(const StrideArray<const size_t>& trackFrameCount)
@@ -88,10 +102,12 @@ size_t AnimationClip::interpolateSingleTrack(float trackPos, float totalLen, Sam
 
 	MCD_ASSERT(keys.size > 0);
 
+	result.flag = tracks[trackIndex].flag;
+
 	// If the animation has only one key, there is no need to 
 	// do any interpolation, simply copy the data.
 	if(keys.size == 1) {
-		::memcpy(result.v.getPtr(), keys[0].v.getPtr(), sizeof(result.v));
+		::memcpy(&result, &keys[0], sizeof(result));
 		return 0;
 	}
 
@@ -127,7 +143,7 @@ size_t AnimationClip::interpolateSingleTrack(float trackPos, float totalLen, Sam
 
 	// Short cut optimization
 	if(ratio == 0) {
-		::memcpy(result.v.getPtr(), keys[idx1].v.getPtr(), sizeof(result.v));
+		::memcpy(&result, &keys[idx1], sizeof(result));
 		return idx1;
 	}
 
