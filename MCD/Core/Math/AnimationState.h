@@ -45,12 +45,18 @@ public:
 
 	AnimationClipPtr clip;
 
+	/// To speed up the serach of key data.
 	KeyIdxHint keyIdxHint;
 
 // Operations
+	void assignTo(const Pose& pose);
+
 	/// Additive blend the calculated animation pose to the accumulating pose.
 	/// Return the updated accumulatedWeight.
-	float blendResultTo(Pose& accumulatePose, float accumulatedWeight);
+	float blendResultTo(const Pose& accumulatePose, float accumulatedWeight);
+
+protected:
+	void allocateIdxHint();
 };	// AnimationState
 
 }	// namespace MCD

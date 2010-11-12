@@ -77,6 +77,9 @@ public:
 	struct Sample
 	{
 		Vec4f v;
+		Flags flag;
+
+		void blend(float t, const Sample& s1, const Sample& s2);
 
 		template<class T> T& cast() { return reinterpret_cast<T&>(v); }
 		template<class T> const T& cast() const { return reinterpret_cast<const T&>(v); }

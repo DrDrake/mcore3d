@@ -114,14 +114,14 @@ public:
 };	// StrideArray
 
 //!	Specialization of StrideArray which give more room for the compiler to do optimization.
-template<typename T, size_t stride=sizeof(T)>
+template<typename T, size_t stride_=sizeof(T)>
 class FixStrideArray
 {
 public:
 	FixStrideArray(const T* _data, size_t elementCount)
 		: data((char*)_data), size(elementCount)
 #ifndef NDEBUG
-		, cStride(stride)
+		, cStride(stride_)
 #endif
 	{}
 
@@ -130,19 +130,20 @@ public:
 	MCD_IMPLICIT FixStrideArray(const FixStrideArray<U>& rhs)
 		: data((char*)const_cast<T*>(rhs.getPtr())), size(rhs.size)
 #ifndef NDEBUG
-		, cStride(rhs.stride)
+		, cStride(rhs.stride())
 #endif
 	{}
 
 	T& operator[](size_t i) const
 	{
 		MCD_ASSUME(i < size);
-		return *reinterpret_cast<T*>(data + i*stride);
+		return *reinterpret_cast<T*>(data + i*stride_);
 	}
 
 	T* getPtr() const { return reinterpret_cast<T*>(data); }
 
-	size_t sizeInByte() const { return size * stride; }
+	size_t stride() const { return stride_; }
+	size_t sizeInByte() const { return size * stride_; }
 
 	char* data;
 	size_t size;	//!< Element count.

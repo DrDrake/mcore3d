@@ -11,36 +11,29 @@ namespace MCD {
 
 class AnimationUpdaterComponent;
 
-/// This Component store animation data and provide interface on
-/// how to orchestra the various AnimationClip to it's final pose.
+/// Abstract component class that gives an output animation pose.
+/// Concret class can comput it's animation base on simple key frame animation,
+/// blend tree of animation, procedural animation or what ever.
 ///
 /// This Component does tell how the data should be interpreted, but
 /// derived class of AnimationViewComponent should.
-class MCD_RENDER_API AnimationComponent : public Component
+class MCD_ABSTRACT_CLASS MCD_RENDER_API AnimationComponent : public Component
 {
 public:
-	AnimationComponent();
-
-	sal_override ~AnimationComponent();
-
 	sal_override const std::type_info& familyType() const {
 		return typeid(AnimationComponent);
 	}
 
-// Cloning
-	sal_override sal_maybenull Component* clone() const;
+	typedef AnimationState::Pose Pose;
 
-// Attributes
-	/// The animation pose after blending all the AnimationState together.
-	AnimationState::Pose pose;
+	/// The data output
+	virtual Pose& getPose() = 0;
 
-	std::vector<AnimationState> animations;
+	virtual void update(float worldTime) = 0;
 
 protected:
 	friend class AnimationUpdaterComponent;
 	sal_override void gather();
-	void update(float worldTime);
-	void initPose(size_t trackCount);
 };	// AnimationComponent
 
 typedef IntrusiveWeakPtr<AnimationComponent> AnimationComponentPtr;
@@ -52,9 +45,6 @@ class MCD_ABSTRACT_CLASS MCD_RENDER_API AnimatedComponent : public Component
 public:
 // Operations
 	virtual void update() = 0;
-
-// Attributes
-	AnimationComponentPtr animation;
 
 protected:
 	sal_override void gather();
@@ -80,6 +70,32 @@ protected:
 };	// AnimationUpdaterComponent
 
 typedef IntrusiveWeakPtr<AnimationUpdaterComponent> AnimationUpdaterComponentPtr;
+
+/// derived class of AnimationViewComponent should.
+class MCD_RENDER_API SimpleAnimationComponent : public AnimationComponent
+{
+public:
+	SimpleAnimationComponent();
+
+	sal_override ~SimpleAnimationComponent();
+
+// Cloning
+	sal_override sal_maybenull Component* clone() const;
+
+// Attributes
+	/// The animation pose after blending all the AnimationState together.
+	AnimationState::Pose pose;
+
+	std::vector<AnimationState> animations;
+
+protected:
+	friend class AnimationUpdaterComponent;
+	sal_override Pose& getPose();
+	sal_override void update(float worldTime);
+	void initPose(size_t trackCount);
+};	// SimpleAnimationComponent
+
+typedef IntrusiveWeakPtr<SimpleAnimationComponent> SimpleAnimationComponentPtr;
 
 }	// namespace MCD
 

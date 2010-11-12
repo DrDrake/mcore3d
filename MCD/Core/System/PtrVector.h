@@ -172,6 +172,8 @@ public:
 		super_type::clear();
 	}
 
+	void swap(ptr_vector& rhs) { super_type::swap(rhs); }
+
 private:
 	// Cannot be copyed.
 	ptr_vector(const ptr_vector& rhs);

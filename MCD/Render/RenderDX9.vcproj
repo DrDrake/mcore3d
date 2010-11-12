@@ -466,6 +466,14 @@
 			</Filter>
 		</Filter>
 		<File
+			RelativePath=".\AnimatedTransform.cpp"
+			>
+		</File>
+		<File
+			RelativePath=".\AnimatedTransform.h"
+			>
+		</File>
+		<File
 			RelativePath=".\Animation.cpp"
 			>
 		</File>
