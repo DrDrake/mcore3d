@@ -14,7 +14,7 @@ void skinning(
 	size_t jointPerVertex,
 	int normalIndex)
 {
-	if(skeleton.jointCount() == 0)
+/*	if(skeleton.jointCount() == 0)
 		return;
 
 	Mesh::MappedBuffers mapped, basePoseMapped;
@@ -62,7 +62,7 @@ void skinning(
 	}
 
 	mesh.unmapBuffers(mapped);
-	basePoseMesh.unmapBuffers(basePoseMapped);
+	basePoseMesh.unmapBuffers(basePoseMapped);*/
 }
 
 }	// namespace MCD

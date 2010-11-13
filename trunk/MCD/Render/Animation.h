@@ -4,7 +4,6 @@
 #include "ShareLib.h"
 #include "../Core/Entity/Component.h"
 #include "../Core/Math/AnimationState.h"
-#include "../Core/System/Timer.h"
 #include <vector>
 
 namespace MCD {
@@ -29,9 +28,9 @@ public:
 	/// The data output
 	virtual Pose& getPose() = 0;
 
+protected:
 	virtual void update(float worldTime) = 0;
 
-protected:
 	friend class AnimationUpdaterComponent;
 	sal_override void gather();
 };	// AnimationComponent
@@ -42,11 +41,11 @@ typedef IntrusiveWeakPtr<AnimationComponent> AnimationComponentPtr;
 /// Concret class example are: SkeletonComponent and AnimatedTransform.
 class MCD_ABSTRACT_CLASS MCD_RENDER_API AnimatedComponent : public Component
 {
-public:
-// Operations
-	virtual void update() = 0;
+	friend class AnimationUpdaterComponent;
 
 protected:
+	virtual void update() = 0;
+
 	sal_override void gather();
 };	// AnimatedComponent
 

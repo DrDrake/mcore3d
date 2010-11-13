@@ -4,6 +4,7 @@
 #include "../Core/Entity/SystemComponent.h"
 #include "../Core/Math/AnimationState.h"
 #include "../Core/Math/Quaternion.h"
+#include "../Core/System/Timer.h"
 #include "../Core/System/Utility.h"
 
 namespace MCD {

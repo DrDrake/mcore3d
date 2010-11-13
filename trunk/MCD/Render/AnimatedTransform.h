@@ -15,15 +15,15 @@ public:
 		return typeid(AnimatedTransform);
 	}
 
-// Operations
-	sal_override void update();
-
 // Attributes
 	size_t trackOffset;		///< Starting index to the animation's tracks
 	size_t trackPerEntity;	///< 1 For position only, 2 for position + rotation, 3 for position + rotation + scaling
 	AnimationComponentPtr animation;
 
 	std::vector<EntityPtr> affectingEntities;
+
+protected:
+	sal_override void update();
 };	// AnimatedTransform
 
 typedef IntrusiveWeakPtr<AnimationComponent> AnimationComponentPtr;

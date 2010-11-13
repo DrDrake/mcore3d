@@ -38,7 +38,6 @@
 #include "../Render/Renderer.h"
 #include "../Render/RenderTargetComponent.h"
 #include "../Render/RenderWindow.h"
-#include "../Render/SkeletonAnimation.h"
 #include "../Render/Animation.h"
 
 #include "../Loader/BitmapLoader.h"
@@ -203,16 +202,6 @@ Framework::Impl::Impl()
 	{	// Animation updater
 		Entity* e = mSystemEntity->addFirstChild("Animation updater");
 		AnimationUpdaterComponent* c = new AnimationUpdaterComponent;
-		e->addComponent(c);
-	}
-
-	{	// Skeleton animation updater
-		Entity* e = mSystemEntity->addFirstChild("Skeleton animation updater");
-#ifdef MCD_IPHONE
-		SkeletonAnimationUpdaterComponent* c = new SkeletonAnimationUpdaterComponent(nullptr);
-#else
-		SkeletonAnimationUpdaterComponent* c = new SkeletonAnimationUpdaterComponent(mSystemEntity.get());
-#endif
 		e->addComponent(c);
 	}
 
