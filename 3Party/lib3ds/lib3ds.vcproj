@@ -132,7 +132,7 @@
 		<Configuration
 			Name="Release|Win32"
 			ConfigurationType="4"
-			InheritedPropertySheets="..\General.vsprops;..\Release_x64.vsprops"
+			InheritedPropertySheets="..\General.vsprops;..\Release.vsprops"
 			CharacterSet="2"
 			>
 			<Tool
@@ -188,7 +188,7 @@
 			Name="Release|x64"
 			IntermediateDirectory="$(PlatformName)\$(ConfigurationName)"
 			ConfigurationType="4"
-			InheritedPropertySheets="..\General_x64.vsprops;..\Release_x64.vsprops"
+			InheritedPropertySheets="..\General.vsprops;..\Release_x64.vsprops"
 			CharacterSet="2"
 			>
 			<Tool
