@@ -1,62 +1,35 @@
 #ifndef __MCD_RENDER_SKINMESH__
 #define __MCD_RENDER_SKINMESH__
 
-#include "Renderable.h"
-#include "../Core/Math/Skeleton.h"
+#include "Mesh.h"
 
 namespace MCD {
 
-class IResourceManager;
-typedef IntrusivePtr<class Model> ModelPtr;
-typedef IntrusivePtr<class Skeleton> SkeletonPtr;
-typedef IntrusiveWeakPtr<class SkeletonAnimationComponent> SkeletonAnimationComponentPtr;
+typedef IntrusiveWeakPtr<class SkeletonPose> SkeletonPosePtr;
 
-class MCD_RENDER_API SkinMeshComponent : public RenderableComponent, public IDrawCall
+class MCD_RENDER_API SkinMesh : public MeshComponent
 {
 public:
-	explicit SkinMeshComponent();
+	SkinMesh();
 
-	sal_override ~SkinMeshComponent();
+	sal_override ~SkinMesh();
 
 // Cloning
 	sal_override sal_notnull Component* clone() const;
 	sal_override sal_checkreturn bool postClone(const Entity& src, Entity& dest);
 
-// Operations
-	/*!	Create the necessary \em meshes for skinning.
-		This function will insert the \em nameSuffix to the resource name of \em basePose, and use
-		the new resource name as a key to find the mesh model from \em resourceManager.
-		If the new mesh model cannot be found, one will clone from \em basePose and cache it
-		in \em resourceManager.
+// Attruibutes
+	/// This mesh should correspond to the base skeleton pose.
+	MeshPtr basePoseMesh;
 
-		Fail if \em basePose didn't has a resource name, or the clone operation fail.
-
-		\note This function needs to run in main thread, because Mesh's vertex buffer data access is needed.
-	 */
-	sal_checkreturn bool init(IResourceManager& resourceManager, const Model& basePose, sal_in_z const char* nameSuffix=":skinning");
-
-	sal_override void render(void* context);
-	sal_override void draw(sal_in void* context) {}
-
-// Attrubutes
-	/*!	This Model MAY be shared by multiple SkinMeshComponent, and is being
-		modified during render();
-	 */
-	const ModelPtr meshes;
-	const ModelPtr basePoseMeshes;
-	SkeletonPtr skeleton;
-
-	/*!	The SkeletonAnimationComponent::pose will apply to this skin mesh.
-		Storing pointer pointer from SkinMeshComponent to SkeletonAnimationComponent
-		allows using one animation pose to skin multiple mesh (eg. cloth on human body).
-	 */
-	SkeletonAnimationComponentPtr skeletonAnimation;
+	/// The skeleton pose to apply to the skin mesh.
+	SkeletonPosePtr pose;
 
 protected:
-	SkeletonPose mTmpPose;		//!< Member variable to reduce memory allocation during render().
-};	// SkinMeshComponent
+	sal_override void draw(void* context, Statistic& statistic);
+};	// SkinMesh
 
-typedef IntrusiveWeakPtr<SkinMeshComponent> SkinMeshComponentPtr;
+typedef IntrusiveWeakPtr<SkinMesh> SkinMeshPtr;
 
 }	// namespace MCD
 

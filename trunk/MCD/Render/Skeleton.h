@@ -72,6 +72,8 @@ public:
 	/// Replicate the bone structure as a tree of Entities, usefull for attachement purpose.
 	void createBoneEntity();
 
+	sal_override void update();
+
 // Attributes
 	/// Stores all the transforms of the joints, in mesh space.
 	/// The hierarchical nature of the skeleton is flattened using breadth-first traversal.
@@ -87,9 +89,6 @@ public:
 
 	/// If not emtpy, the animated bone will also apply to these Entity's transform
 	std::vector<EntityPtr> boneEntities;
-
-protected:
-	sal_override void update();
 };	// SkeletonPose
 
 typedef IntrusiveWeakPtr<SkeletonPose> SkeletonPosePtr;

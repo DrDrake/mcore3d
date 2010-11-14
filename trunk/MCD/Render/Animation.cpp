@@ -66,6 +66,11 @@ Component* SimpleAnimationComponent::clone() const
 	return nullptr;
 }
 
+AnimationComponent::Pose& SimpleAnimationComponent::getPose()
+{
+	return pose;
+}
+
 void SimpleAnimationComponent::update(float worldTime)
 {
 	if(animations.empty()) return;
@@ -90,11 +95,6 @@ void SimpleAnimationComponent::update(float worldTime)
 	}
 
 	MCD_ASSERT(Mathf::isNearEqual(1, w) && "All weight should sum up to one");
-}
-
-AnimationComponent::Pose& SimpleAnimationComponent::getPose()
-{
-	return pose;
 }
 
 void SimpleAnimationComponent::initPose(size_t trackCount)

@@ -43,7 +43,7 @@ float AnimationState::localTime() const
 	const float len = clip->length / clip->framerate;
 	const float clampLen = loop == 0 ? std::numeric_limits<float>::max() : len * loop;
 	float t = fabs(rate) * (worldTime - worldRefTime);
-	MCD_ASSERT(len > 0);
+	MCD_ASSERT("Make sure AnimationClip has non-zero length" && len > 0);
 	t = Mathf::clamp(t, 0, clampLen);		// Handle looping
 	t = t == clampLen ? len : fmod(t, len);	// Handle looping
 	t = rate >= 0 ? t : len - t;			// Handle negative playback rate
