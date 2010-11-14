@@ -510,6 +510,10 @@
 				RelativePath=".\SkeletonTest.cpp"
 				>
 			</File>
+			<File
+				RelativePath=".\SkinMeshTest.cpp"
+				>
+			</File>
 		</Filter>
 		<Filter
 			Name="Shader Files"
