@@ -28,9 +28,9 @@ public:
 	/// The data output
 	virtual Pose& getPose() = 0;
 
-protected:
 	virtual void update(float worldTime) = 0;
 
+protected:
 	friend class AnimationUpdaterComponent;
 	sal_override void gather();
 };	// AnimationComponent
@@ -81,6 +81,11 @@ public:
 // Cloning
 	sal_override sal_maybenull Component* clone() const;
 
+// Operations
+	sal_override Pose& getPose();
+
+	sal_override void update(float worldTime);
+
 // Attributes
 	/// The animation pose after blending all the AnimationState together.
 	AnimationState::Pose pose;
@@ -89,8 +94,6 @@ public:
 
 protected:
 	friend class AnimationUpdaterComponent;
-	sal_override Pose& getPose();
-	sal_override void update(float worldTime);
 	void initPose(size_t trackCount);
 };	// SimpleAnimationComponent
 

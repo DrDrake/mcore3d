@@ -16,7 +16,7 @@
 #include "../Core/System/PtrVector.h"
 #include "../Core/System/StrUtility.h"
 #include "../Core/Math/AnimationState.h"
-#include "../Core/Math/Skeleton.h"
+//#include "../Core/Math/Skeleton.h"
 #include "../Core/Math/Quaternion.h"
 #include "../../3Party/PowerVR/PVRTModelPOD.h"
 

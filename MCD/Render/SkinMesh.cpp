@@ -1,138 +1,206 @@
 #include "Pch.h"
-/*#include "SkinMesh.h"
-#include "SkeletonAnimation.h"
-#include "Effect.h"
-#include "Mesh.h"
-#include "Model.h"
-#include "Skinning.h"
+#include "SkinMesh.h"
+#include "Skeleton.h"
 #include "../Core/Entity/Entity.h"
-#include "../Core/Math/Skeleton.h"
-#include "../Core/System/ResourceManager.h"
-#include "../Core/System/ThreadedCpuProfiler.h"
-#include "../../3Party/glew/glew.h"
+#include "../Core/Math/Quaternion.h"
+#include <map>
 
 namespace MCD {
 
-// TODO: Move this function back to Model's member, if somehow a generic clone function is implemented later.
-static Model* cloneModel(const Model& model, const Path& newPath)
+SkinMesh::SkinMesh() {}
+
+SkinMesh::~SkinMesh() {}
+
+Component* SkinMesh::clone() const
 {
-	Model* ret = new Model(newPath);
-
-	// We need to deep copy the Mesh and shallow copy the Effect
-	for(const Model::MeshAndMaterial* i = model.mMeshes.begin(); i != model.mMeshes.end(); i = i->next()) {
-		Model::MeshAndMaterial* m = new Model::MeshAndMaterial;
-		m->mesh = i->mesh->clone("", Mesh::Stream);
-		m->effect = i->effect;
-		ret->mMeshes.pushBack(*m);
-	}
-
-	return ret;
-}
-
-SkinMeshComponent::SkinMeshComponent()
-{
-}
-
-SkinMeshComponent::~SkinMeshComponent()
-{
-}
-
-Component* SkinMeshComponent::clone() const
-{
-	SkinMeshComponent* cloned = new SkinMeshComponent;
-	const_cast<ModelPtr&>(cloned->basePoseMeshes) = this->basePoseMeshes;
-	const_cast<ModelPtr&>(cloned->meshes) = this->meshes;
-	cloned->skeleton = this->skeleton;
-	cloned->skeletonAnimation = this->skeletonAnimation;	// This will be re-assigned in postClone()
+	SkinMesh* cloned = new SkinMesh;
+	cloned->basePoseMesh = this->basePoseMesh;
+	cloned->pose = this->pose;	// This will be re-assigned in postClone()
 	return cloned;
 }
 
-bool SkinMeshComponent::postClone(const Entity& src, Entity& dest)
+bool SkinMesh::postClone(const Entity& src, Entity& dest)
 {
-	// Find the Component in the src tree that corresponding to this
-	SkinMeshComponent* srcComponent = dynamic_cast<SkinMeshComponent*>(
-		ComponentPreorderIterator::componentByOffset(src, ComponentPreorderIterator::offsetFrom(dest, *this))
-	);
-
-	if(!srcComponent)
-		return false;
-	if(!srcComponent->skeletonAnimation)
-		return true;
-
-	// Find the Component in the src tree that corresponding to srcComponent->skeletonAnimation
-	skeletonAnimation = dynamic_cast<SkeletonAnimationComponent*>(
-		ComponentPreorderIterator::componentByOffset(dest, ComponentPreorderIterator::offsetFrom(src, *srcComponent->skeletonAnimation))
-	);
-
 	return true;
 }
 
-bool SkinMeshComponent::init(IResourceManager& resourceManager, const Model& basePose, const char* nameSuffix)
+static void skinning(
+	const StrideArray<Vec3f>& outPos,
+	const StrideArray<const Vec3f>& basePosePos,
+	const StrideArray<const Mat44f>& joints,
+	const StrideArray<uint8_t>& jointIndice,
+	const StrideArray<float>& weight,
+	size_t jointPerVertex)
 {
-	if(basePose.fileId().getString().empty())
-		return false;
+	MCD_ASSERT(outPos.size == basePosePos.size);
+	MCD_ASSERT(jointIndice.size == weight.size);
+	MCD_ASSERT(outPos.size == weight.size);
 
-	Path newPath = Path(basePose.fileId().getString() + nameSuffix);
-	ResourcePtr r = resourceManager.load(newPath);
+	for(size_t i=0; i<outPos.size; ++i) {
+		Vec3f p(0);
+		for(size_t j=0; j<jointPerVertex; ++j) {
+			float w = (&weight[i])[j];
+			if(w <= 0)	// NOTE: We assume a decending joint weight ordering
+				break;
+			size_t jointIdx = (&jointIndice[i])[j];
 
-	if(!r) {
-		r = cloneModel(basePose, newPath);
-		resourceManager.cache(r);	// Make each unique basePose has an uniqe shadow mesh as a temporary for skinning
+			Vec3f tmp = basePosePos[i];
+			joints[jointIdx].transformPoint(tmp);
+			p += tmp * w;
+		}
+		outPos[i] = p;
 	}
-
-	const_cast<ModelPtr&>(meshes) = dynamic_cast<Model*>(r.get());
-	const_cast<ModelPtr&>(basePoseMeshes) = const_cast<Model*>(&basePose);
-
-	return meshes.get() != nullptr;
 }
 
-void SkinMeshComponent::render(void* context)
+static void skinning(
+	const StrideArray<Vec3f>& outPos,
+	const StrideArray<Vec3f>& outNormal,
+	const StrideArray<const Vec3f>& basePosePos,
+	const StrideArray<const Vec3f>& basePoseNormal,
+	const StrideArray<const Mat44f>& joints,
+	const StrideArray<uint8_t>& jointIndice,
+	const StrideArray<float>& weight,
+	size_t jointPerVertex)
 {
-	Entity* e = entity();
-	if(!e || !e->enabled || !basePoseMeshes || !meshes || !skeleton || !skeletonAnimation)
-		return;
+	MCD_ASSERT(outPos.size == outNormal.size);
+	MCD_ASSERT(basePosePos.size == basePoseNormal.size);
+	MCD_ASSERT(outPos.size == basePosePos.size);
+	MCD_ASSERT(jointIndice.size == weight.size);
+	MCD_ASSERT(outPos.size == weight.size);
 
-	glPushMatrix();
-	glMultMatrixf(e->worldTransform().getPtr());
+	for(size_t i=0; i<outPos.size; ++i) {
+		Vec3f p(0), n(0);
+		for(size_t j=0; j<jointPerVertex; ++j) {
+			float w = (&weight[i])[j];
+			if(w <= 0)	// NOTE: We assume a decending joint weight ordering
+				break;
+			size_t jointIdx = (&jointIndice[i])[j];
 
-	mTmpPose = skeletonAnimation->pose;
-	SkeletonPose visualizePose = mTmpPose;
+			Vec3f tmp = basePosePos[i];
+			joints[jointIdx].transformPoint(tmp);
+			p += tmp * w;
 
-	// NOTE: If the inverse was already baked into the animation track, we can skip this multiplication
-	for(size_t i=0; i<mTmpPose.transforms.size(); ++i)
-		mTmpPose.transforms[i] *= skeleton->basePoseInverse[i];
-
-	{	// Perform skinning
-		ThreadedCpuProfiler::Scope cpuProfiler("SkinMeshComponent::cpu skinning");
-
-		Model::MeshAndMaterial* i = meshes->mMeshes.begin();
-		Model::MeshAndMaterial* j = basePoseMeshes->mMeshes.begin();
-		for(; i != meshes->mMeshes.end() && j != basePoseMeshes->mMeshes.end(); i = i->next(), j = j->next()) {
-			Mesh* m = i->mesh.get();
-			if(!m || !j->mesh)
-				continue;
-
-			// TODO: Remove the search for attribute index
-			int8_t blendIndexIdx = -1;
-			int8_t blendWeightIdx = -1;
-			for(size_t k=0; k<m->attributeCount; ++k) {
-				if(m->attributes[k].format.semantic == StringHash("jointIndex"))
-					blendIndexIdx = uint8_t(k);
-				if(m->attributes[k].format.semantic == StringHash("jointWeight"))
-					blendWeightIdx = uint8_t(k);
-			}
-
-			if(blendIndexIdx != -1 && blendWeightIdx != -1)
-				MCD::skinning(mTmpPose, *m, *j->mesh, blendIndexIdx, blendWeightIdx,
-					j->mesh->attributes[blendIndexIdx].format.componentCount,
-					m->findAttributeBySemantic(VertexFormat::get("normal").semantic)
-				);
+			tmp = basePoseNormal[i];
+			joints[jointIdx].transformNormal(tmp);
+			n += tmp * w;
 		}
+		outPos[i] = p;
+		outNormal[i] = n;
+	}
+}
+
+static void skinning(
+	const std::vector<Mat44f>& joints,
+	Mesh& mesh,
+	Mesh& basePoseMesh,
+	size_t jointIndex,
+	size_t weightIndex,
+	size_t jointPerVertex,
+	int normalIndex)
+{
+	size_t jointCount = joints.size();
+	if(0 == jointCount) return;
+
+	Mesh::MappedBuffers mapped, basePoseMapped;
+	const Mesh::MapOption writeOption = Mesh::MapOption(Mesh::Write | Mesh::Discard);
+
+	// Ensure the position array is mapped first, to ensure the writeOption is in effect
+	StrideArray<Vec3f> position = mesh.mapAttribute<Vec3f>(Mesh::cPositionAttrIdx, mapped, writeOption);
+
+	// Copy all non-skinned vertex data
+	for(size_t i=0; i<basePoseMesh.attributeCount; ++i) {
+		if(i == Mesh::cIndexAttrIdx || i == Mesh::cPositionAttrIdx || i == jointIndex || i == weightIndex || int(i) == normalIndex)
+			continue;
+
+		StrideArray<uint8_t> src = basePoseMesh.mapAttributeUnsafe<uint8_t>(i, basePoseMapped, Mesh::Read);
+		StrideArray<uint8_t> dest = mesh.mapAttributeUnsafe<uint8_t>(i, mapped, writeOption);
+		const size_t srcSize = basePoseMesh.attributes[i].format.sizeInByte();
+		const size_t destSize = mesh.attributes[i].format.sizeInByte();
+
+		MCD_ASSERT(srcSize == destSize);
+
+		if(srcSize == destSize) for(size_t j=0; j<src.size; ++j)
+			::memcpy(&dest[j], &src[j], basePoseMesh.attributes[i].format.sizeInByte());
 	}
 
-	meshes->draw();*/
+	if(normalIndex == -1) {	// Skinning position only
+		skinning(
+			position,
+			basePoseMesh.mapAttribute<const Vec3f>(Mesh::cPositionAttrIdx, basePoseMapped, Mesh::Read),
+			StrideArray<const Mat44f>(&joints[0], jointCount),
+			basePoseMesh.mapAttributeUnsafe<uint8_t>(jointIndex, basePoseMapped, Mesh::Read),
+			basePoseMesh.mapAttributeUnsafe<float>(weightIndex, basePoseMapped, Mesh::Read),
+			jointPerVertex
+		);
+	} else {				// Skinning position and normal
+		skinning(
+			position,
+			mesh.mapAttribute<Vec3f>(normalIndex, mapped, writeOption),
+			basePoseMesh.mapAttribute<const Vec3f>(Mesh::cPositionAttrIdx, basePoseMapped, Mesh::Read),
+			basePoseMesh.mapAttribute<const Vec3f>(normalIndex, basePoseMapped, Mesh::Read),
+			StrideArray<const Mat44f>(&joints[0], jointCount),
+			basePoseMesh.mapAttributeUnsafe<uint8_t>(jointIndex, basePoseMapped, Mesh::Read),
+			basePoseMesh.mapAttributeUnsafe<float>(weightIndex, basePoseMapped, Mesh::Read),
+			jointPerVertex
+		);
+	}
 
-/*	const Vec4f colors[4] = {
+	mesh.unmapBuffers(mapped);
+	basePoseMesh.unmapBuffers(basePoseMapped);
+}
+
+typedef std::map<FixString, IntrusiveWeakPtr<Mesh> > ShadowMesh;
+static ShadowMesh gShadowMesh;
+
+static MeshPtr getShadowMesh(Mesh& mesh)
+{
+	const FixString fileId(mesh.fileId().getString().c_str());
+	ShadowMesh::iterator i = gShadowMesh.find(fileId);
+
+	if(i != gShadowMesh.end() && i->second)
+		return i->second.getNotNull();
+
+	MeshPtr ret = mesh.clone(fileId, Mesh::Stream);
+	gShadowMesh[fileId] = ret.get();
+	return ret;
+}
+
+static std::vector<Mat44f> gTransforms;
+
+void SkinMesh::draw(void* context, Statistic& statistic)
+{
+	if(!basePoseMesh || !pose || pose->transforms.empty()) return;
+
+	if(!MeshComponent::mesh || basePoseMesh->fileId() != MeshComponent::mesh->fileId())
+		MeshComponent::mesh = getShadowMesh(*basePoseMesh);
+
+	// Performs skinning
+	gTransforms = pose->transforms;
+
+	// NOTE: If the inverse was already baked into the animation track, we can skip this multiplication
+	for(size_t i=0; i<gTransforms.size(); ++i)
+		gTransforms[i] *= pose->skeleton->basePoseInverse[i];
+
+	Mesh& m = *mesh;
+
+	const int blendIndexIdx = m.findAttributeBySemantic("jointIndex");
+	const int blendWeightIdx = m.findAttributeBySemantic("jointWeight");
+
+	if(blendIndexIdx != -1 && blendWeightIdx != -1)
+		skinning(
+			gTransforms, m, *basePoseMesh, blendIndexIdx, blendWeightIdx,
+			basePoseMesh->attributes[blendIndexIdx].format.gpuFormat.componentCount,
+			m.findAttributeBySemantic(VertexFormat::get("normal").semantic)
+		);
+
+	// The actual draw
+	MeshComponent::draw(context, statistic);
+}
+
+/*
+void SkinMeshComponent::render(void* context)
+{
+	const Vec4f colors[4] = {
 		Vec4f(1, 0, 0, 1),
 		Vec4f(0, 1, 0, 1),
 		Vec4f(0, 0, 1, 1),
@@ -164,10 +232,9 @@ void SkinMeshComponent::render(void* context)
 		glEnable(GL_LIGHTING);
 		glEnable(GL_CULL_FACE);
 		glDisable(GL_BLEND);
-	}*/
-/*
+	}
+
 	glPopMatrix();
 }
-
-}	// namespace MCD
 */
+}	// namespace MCD

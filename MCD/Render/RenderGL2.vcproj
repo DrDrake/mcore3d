@@ -792,14 +792,6 @@
 			>
 		</File>
 		<File
-			RelativePath=".\Skinning.cpp"
-			>
-		</File>
-		<File
-			RelativePath=".\Skinning.h"
-			>
-		</File>
-		<File
 			RelativePath=".\Sprite.h"
 			>
 		</File>

@@ -111,8 +111,6 @@ void SkeletonPose::update()
 	if(transforms.size() < jointCount)
 		transforms.resize(jointCount, Mat44f::cIdentity);
 
-	transforms[0] = Mat44f::cIdentity;	// Set the root transform
-
 	Mat44f m = Mat44f::cIdentity;
 	Mat33f tmp;
 

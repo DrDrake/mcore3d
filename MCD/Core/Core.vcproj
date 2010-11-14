@@ -787,14 +787,6 @@
 				>
 			</File>
 			<File
-				RelativePath=".\Math\Skeleton.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\Math\Skeleton.h"
-				>
-			</File>
-			<File
 				RelativePath=".\Math\SrtTransform.cpp"
 				>
 			</File>
