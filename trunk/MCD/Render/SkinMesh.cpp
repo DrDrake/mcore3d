@@ -169,29 +169,34 @@ static std::vector<Mat44f> gTransforms;
 
 void SkinMesh::draw(void* context, Statistic& statistic)
 {
-	if(!basePoseMesh || !pose || pose->transforms.empty()) return;
+	if(!basePoseMesh) return;
 
-	if(!MeshComponent::mesh || basePoseMesh->fileId() != MeshComponent::mesh->fileId())
-		MeshComponent::mesh = getShadowMesh(*basePoseMesh);
+	if(pose && !pose->transforms.empty())
+	{
+		if(!MeshComponent::mesh || basePoseMesh->fileId() != MeshComponent::mesh->fileId())
+			MeshComponent::mesh = getShadowMesh(*basePoseMesh);
 
-	// Performs skinning
-	gTransforms = pose->transforms;
+		// Performs skinning
+		gTransforms = pose->transforms;
 
-	// NOTE: If the inverse was already baked into the animation track, we can skip this multiplication
-	for(size_t i=0; i<gTransforms.size(); ++i)
-		gTransforms[i] *= pose->skeleton->basePoseInverse[i];
+		// NOTE: If the inverse was already baked into the animation track, we can skip this multiplication
+		for(size_t i=0; i<gTransforms.size(); ++i)
+			gTransforms[i] *= pose->skeleton->basePoseInverse[i];
 
-	Mesh& m = *mesh;
+		Mesh& m = *mesh;
 
-	const int blendIndexIdx = m.findAttributeBySemantic("jointIndex");
-	const int blendWeightIdx = m.findAttributeBySemantic("jointWeight");
+		const int blendIndexIdx = m.findAttributeBySemantic("jointIndex");
+		const int blendWeightIdx = m.findAttributeBySemantic("jointWeight");
 
-	if(blendIndexIdx != -1 && blendWeightIdx != -1)
-		skinning(
-			gTransforms, m, *basePoseMesh, blendIndexIdx, blendWeightIdx,
-			basePoseMesh->attributes[blendIndexIdx].format.gpuFormat.componentCount,
-			m.findAttributeBySemantic(VertexFormat::get("normal").semantic)
-		);
+		if(blendIndexIdx != -1 && blendWeightIdx != -1)
+			skinning(
+				gTransforms, m, *basePoseMesh, blendIndexIdx, blendWeightIdx,
+				basePoseMesh->attributes[blendIndexIdx].format.gpuFormat.componentCount,
+				m.findAttributeBySemantic(VertexFormat::get("normal").semantic)
+			);
+	}
+	else	// No supplied pose, use the base pose mesh for rendering
+		MeshComponent::mesh = basePoseMesh;
 
 	// The actual draw
 	MeshComponent::draw(context, statistic);

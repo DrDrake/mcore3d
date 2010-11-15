@@ -104,14 +104,14 @@ public:
 	{
 		clip = new AnimationClip("");
 
-		static const size_t frameCount = 1;
+		static const size_t frameCount = 3;
 		static const size_t trackCount = jointCount * 2;
 
 		// Create animation clip
 		// Number of tracks = number of joint * attribute count (which is 2 because of translation and rotation)
 		std::vector<size_t> tmp(trackCount, frameCount);
 		MCD_VERIFY(clip->init(StrideArray<const size_t>(&tmp[0], trackCount)));
-		clip->length = 2 * clip->framerate;
+		clip->length = frameCount * clip->framerate;
 
 		// Setting up the transform for each joint relative to it's parent joint.
 		for(size_t i=0; i<clip->trackCount(); ++i) {
@@ -125,7 +125,7 @@ public:
 			if(i % 2 == 0) {
 				clip->tracks[i].flag = AnimationClip::Linear;
 				for(size_t j=0; j<keys.size; ++j)
-					keys[j].cast<Vec3f>() =Vec3f(0, 0, (float)jointLength);
+					keys[j].cast<Vec3f>() = Vec3f(0, 0, (float)jointLength);
 			}
 			// Setup rotation
 			else {

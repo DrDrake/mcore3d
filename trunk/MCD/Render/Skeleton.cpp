@@ -128,7 +128,10 @@ void SkeletonPose::update()
 		if(i < boneEntities.size())
 			boneEntities[i]->localTransform = m;
 
-		transforms[i] = transforms[skeleton->parents[i]] * m;
+		if(i > 0)
+			transforms[i] = transforms[skeleton->parents[i]] * m;
+		else
+			transforms[i] = m;
 	}
 }
 
