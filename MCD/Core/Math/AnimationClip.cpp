@@ -31,8 +31,9 @@ void AnimationClip::Sample::blend(float t, const Sample& s1, const Sample& s2)
 		Quaternionf& q = cast<Quaternionf>();
 		q = Quaternionf::slerp(s1.cast<Quaternionf>(), s2.cast<Quaternionf>(), t);
 	}
-	else
+	else if(AnimationClip::Step == s1.flag)
 		v = s1.v;
+	else {	MCD_ASSERT(false); }
 }
 
 bool AnimationClip::init(const StrideArray<const size_t>& trackFrameCount)

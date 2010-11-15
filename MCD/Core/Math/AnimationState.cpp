@@ -73,8 +73,10 @@ void AnimationState::assignTo(const Pose& pose)
 	const float t = localTime() * clip->framerate;
 	allocateIdxHint();
 
-	for(size_t i=0; i<pose.size; ++i)
+	for(size_t i=0; i<pose.size; ++i) {
 		keyIdxHint[i] = (uint16_t)clip->interpolateSingleTrack(t, clip->length, pose[i], i, keyIdxHint[i]);
+		pose[i].flag = clip->tracks[i].flag;
+	}
 }
 
 float AnimationState::blendResultTo(const Pose& accumulatePose, float accumulatedWeight)
