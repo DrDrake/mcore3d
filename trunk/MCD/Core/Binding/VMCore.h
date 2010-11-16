@@ -2,11 +2,11 @@
 #define __MCD_CORE_BINDING_VMCORE__
 
 #include "../ShareLib.h"
+#include "../System/Deque.h"
 #include "../System/Timer.h"
 #include "../../../3Party/squirrel/squirrel.h"
 #include <iosfwd>
 #include <map>
-#include <stack>
 
 namespace MCD {
 namespace Binding {

@@ -239,7 +239,7 @@ bool VMCore::runScript(HSQUIRRELVM v, const char* script, ssize_t len, bool retV
 	if(!leftClouseOnStack)
 		sq_poptop(v);	// Pop the closure
 
-	MCD_ASSERT(oldTop == sq_gettop(v) - leftClouseOnStack - retVal);
+	MCD_ASSERT(oldTop == sq_gettop(v) - int(leftClouseOnStack) - int(retVal));
 
 	return ok;
 }
@@ -257,7 +257,7 @@ bool VMCore::runScript(HSQUIRRELVM v, std::istream& is, ssize_t sizeInByte, bool
 	if(!leftClouseOnStack)
 		sq_poptop(v);	// Pop the closure
 
-	MCD_ASSERT(oldTop == sq_gettop(v) - leftClouseOnStack - retVal);
+	MCD_ASSERT(oldTop == sq_gettop(v) - int(leftClouseOnStack) - int(retVal));
 
 	return ok;
 }
