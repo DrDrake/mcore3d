@@ -22,7 +22,7 @@ static InputComponent* input_Framework(Framework& f) {
 static bool update_Framework(Framework& f)
 {
 	Event e;
-	f.update(e);
+	(void)f.update(e);
 	if(e.Type == Event::Closed)
 		return false;
 

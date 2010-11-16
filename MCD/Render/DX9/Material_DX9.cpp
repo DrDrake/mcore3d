@@ -278,7 +278,6 @@ void MaterialComponent::postRender(size_t pass, void* context)
 
 	// Restore the lighting
 	if(!lighting) {
-		RendererComponent::Impl& renderer = *reinterpret_cast<RendererComponent::Impl*>(context);
 		LPDIRECT3DDEVICE9 device = getDevice();
 		MCD_ASSUME(device);
 		device->SetRenderState(D3DRS_LIGHTING, !renderer.mLights.empty());

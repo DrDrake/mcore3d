@@ -49,6 +49,7 @@ RendererComponent::Impl::~Impl()
 void RendererComponent::Impl::render(Entity& entityTree, RenderTargetComponent& renderTarget)
 {
 	LPDIRECT3DDEVICE9 device = getDevice();
+	MCD_ASSUME(device);
 
 	{	// Apply camera
 		CameraComponentPtr camera = renderTarget.cameraComponent;

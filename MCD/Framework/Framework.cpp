@@ -535,7 +535,7 @@ void Framework::mainLoop()
 {
 	Event e;
 	do {
-		update(e);
+		(void)update(e);
 		rendererComponent()->render(rootEntity());
 	} while(e.Type != Event::Closed);
 }

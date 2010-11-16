@@ -143,6 +143,7 @@ void SkeletonPose::createBoneEntity()
 	boneEntities.clear();
 
 	const size_t jointCount = skeleton->parents.size();
+	if(!jointCount) return;
 
 	boneEntities.resize(jointCount);
 	for(size_t i=0; i<jointCount; ++i)
@@ -154,7 +155,10 @@ void SkeletonPose::createBoneEntity()
 		boneEntities[i]->asChildOf(boneEntities[parentIdx]);
 	}
 
-	entity()->addLastChild(boneEntities[0]);
+	if(Entity* e = entity())
+		e->addLastChild(boneEntities[0]);
+	else
+		boneEntities[0]->destroyThis();
 }
 
 }	// namespace MCD
