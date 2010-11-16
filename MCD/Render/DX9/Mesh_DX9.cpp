@@ -178,7 +178,7 @@ bool Mesh::create(const void* const* data, Mesh::StorageHint storageHint)
 		const size_t size = bufferSize(i);
 
 		// TODO: Mesh::Stream may suffer from device reset.
-		int storageFlag = (storageHint == Mesh::Stream) ? D3DUSAGE_DYNAMIC : 0;
+		int storageFlag = (storageHint == Mesh::Stream) ? D3DUSAGE_DYNAMIC | D3DUSAGE_WRITEONLY : 0;
 		D3DPOOL pool = (storageHint == Mesh::Stream) ? D3DPOOL_DEFAULT : D3DPOOL_MANAGED;
 
 		if(i == Mesh::cIndexAttrIdx) {

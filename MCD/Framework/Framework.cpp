@@ -30,6 +30,7 @@
 #	include "../Core/Entity/WinMessageInputComponent.h"
 #endif
 
+#include "../Render/Animation.h"
 #include "../Render/Camera.h"
 #include "../Render/Font.h"
 #include "../Render/Light.h"
@@ -38,7 +39,7 @@
 #include "../Render/Renderer.h"
 #include "../Render/RenderTargetComponent.h"
 #include "../Render/RenderWindow.h"
-#include "../Render/Animation.h"
+#include "../Render/Skeleton.h"
 
 #include "../Loader/BitmapLoader.h"
 #include "../Loader/FntLoader.h"
@@ -112,14 +113,9 @@ Framework::Impl::Impl()
 		mRootEntity = new Entity("Root entity");
 		Entity::setCurrentRoot(mRootEntity.getNotNull());
 
-		mSystemEntity = new Entity("System entities");
-		mSystemEntity->asChildOf(mRootEntity);
-
-		mSceneLayer = new Entity("Scene layer");
-		mSceneLayer->insertAfter(mSystemEntity);
-
-		mGuiLayer = new Entity("Gui layer");
-		mGuiLayer->insertAfter(mSceneLayer);	// Gui will draw after the scene layer
+		mSystemEntity = mRootEntity->addLastChild("System entities");
+		mSceneLayer = mRootEntity->addLastChild("Scene layer");
+		mGuiLayer = mRootEntity->addLastChild("2D Gui layer");
 	}
 
 	{	// Task pool
@@ -335,6 +331,18 @@ bool Framework::Impl::initWindow(RenderWindow& existingWindow, bool takeOwnershi
 		MCD_ASSERT(c->target);
 		if(Entity* e1 = mRootEntity->findEntityByPath("Input"))
 			c->inputComponent = dynamic_cast<InputComponent*>(e1->findComponent<BehaviourComponent>());
+	}
+
+	{	// Skeleton visualizer
+		Entity* e = mSceneLayer->addFirstChild("Skeleton visualizer");
+		MaterialComponent* m = e->addComponent(new MaterialComponent);
+		m->lighting = false;
+		m->cullFace = false;
+		m->useVertexColor = true;
+
+		SkeletonPoseVisualizer* c = e->addFirstChild("")->addComponent(new SkeletonPoseVisualizer);
+		c->jointSize = 1;
+		c->entityTree = mSceneLayer;
 	}
 
 	return true;

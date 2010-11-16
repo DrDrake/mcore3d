@@ -30,9 +30,13 @@ public:
 
 	void begin(PrimitiveType primitive);
 		void color(float r, float g, float b, float a=1);
+		void color(float* v) { color(v[0], v[1], v[2], v[3]); }
 		void texcoord(float u, float v, float w=0);
+		void texcoord(float* v) { texcoord(v[0], v[1], v[2]); }
 		void normal(float x, float y, float z);
+		void normal(float* v) { normal(v[0], v[1], v[2]); }
 		void vertex(float x, float y, float z);
+		void vertex(float* v) { vertex(v[0], v[1], v[2]); }
 	void end();
 
 	sal_override void render(sal_in void* context);

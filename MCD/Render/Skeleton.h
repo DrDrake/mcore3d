@@ -2,6 +2,7 @@
 #define __MCD_RENDER_SKELETON__
 
 #include "Animation.h"
+#include "DisplayList.h"
 #include "../Core/Math/Mat44.h"
 
 namespace MCD {
@@ -92,6 +93,18 @@ public:
 };	// SkeletonPose
 
 typedef IntrusiveWeakPtr<SkeletonPose> SkeletonPosePtr;
+
+/// Visualize all SkeletonPose under a specific entity tree
+class MCD_RENDER_API SkeletonPoseVisualizer : public DisplayListComponent
+{
+public:
+	SkeletonPoseVisualizer() : jointSize(1) {}
+
+	sal_override void render(sal_in void* context);
+
+	size_t jointSize;		///< Size of the visualization
+	EntityPtr entityTree;	///< A portion of Entity tree to visualize
+};	// SkeletonPoseVisualizer
 
 }	// namespace MCD
 
