@@ -44,7 +44,7 @@ typedef std::map<std::string, unz_file_pos_s> FileMap;
 /// can be re-used after a stream is finished.
 struct ZipFileSystem::Context
 {
-	MCD_NOINLINE explicit Context(sal_in const char* zipFilePath)
+	explicit Context(sal_in const char* zipFilePath)
 	{
 		mZipHandle = unzOpen(zipFilePath);
 		mZipFilePath = zipFilePath;
@@ -55,6 +55,20 @@ struct ZipFileSystem::Context
 		// unzClose will call unzCloseCurrentFile()
 		if(mZipHandle)
 			MCD_VERIFY(unzClose(mZipHandle) == UNZ_OK);
+	}
+
+	bool isExists(const Path& path, const FileMap& fileMap)
+	{
+		if(!mZipHandle)
+			return false;
+
+		Path normalizedPath = path;
+		normalizedPath.normalize();
+
+		if(fileMap.empty())
+			return unzLocateFile(mZipHandle, normalizedPath.getString().c_str(), 1) == UNZ_OK;
+		else
+			return fileMap.find(normalizedPath.getString()) != fileMap.end();
 	}
 
 	/// Make the zip item specified by path as the current
@@ -100,11 +114,11 @@ public:
 	~ZipStreamProxy();
 
 protected:
-	typedef ZipFileSystem::ImplPtr ImplPtr;
-
 	size_t doUnzip();
 
 	sal_override size_t read(char* data, size_t size);
+
+	sal_override long seek(StreamBuf::off_type offset, std::ios_base::seekdir origin, std::ios_base::openmode which);
 
 	sal_notnull Context* mContext;
 
@@ -206,6 +220,12 @@ public:
 		} while(UNZ_OK == unzGoToNextFile(z));
 	}
 
+	sal_checkreturn bool isExists(const Path& path)
+	{
+		MCD_ASSUME(mQueryContext);
+		return mQueryContext->isExists(path, mFileMap);
+	}
+
 	sal_checkreturn bool getFileInfo(const Path& path, unz_file_info& ret)
 	{
 		MCD_ASSUME(mQueryContext);
@@ -254,8 +274,6 @@ ZipFileSystem::ZipStreamProxy::~ZipStreamProxy()
 bool ZipFileSystem::ZipStreamProxy::openRead(const char* zipItem)
 {
 	MCD_ASSUME(mContext);
-	mContext->mZipFilePath = zipItem;
-
 	unz_file_info fileInfo;
 	if(!mContext->getFileInfo(zipItem, mImpl->mFileMap, fileInfo))
 		return false;
@@ -302,6 +320,12 @@ size_t ZipFileSystem::ZipStreamProxy::read(char* data, size_t size)
 	return size;
 }
 
+long ZipFileSystem::ZipStreamProxy::seek(StreamBuf::off_type offset, std::ios_base::seekdir origin, std::ios_base::openmode which)
+{
+	MCD_ASSERT(false && "The zip file system do not support seek operations");
+	return 0;
+}
+
 ZipFileSystem::ZipFileSystem(const Path& zipFilePath)
 {
 	mImpl = new Impl;
@@ -326,8 +350,7 @@ bool ZipFileSystem::setRoot(const Path& zipFilePath)
 bool ZipFileSystem::isExists(const Path& path) const
 {
 	ScopeRecursiveLock lock(mImpl->mMutex);
-	unz_file_info fileInfo;
-	return mImpl->getFileInfo(path, fileInfo);
+	return mImpl->isExists(path);
 }
 
 bool ZipFileSystem::isDirectory(const Path& path) const

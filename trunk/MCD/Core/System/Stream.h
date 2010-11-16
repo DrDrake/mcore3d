@@ -13,44 +13,44 @@ class MCD_CORE_API StreamBuf : public std::basic_streambuf<char>
 {
 	friend class StreamProxy;
 	typedef std::basic_streambuf<char> Super;
-	
+
 public:
 	typedef StreamBuf::traits_type traits_type;
-	
+
 	// Will take over the ownership of proxy
 	StreamBuf(IStreamProxy& proxy);
-	
+
 	sal_override ~StreamBuf();
-	
+
 protected:
 	sal_override StreamBuf* setbuf(char* buffer, std::streamsize size);
-	
+
 	sal_override std::streamsize xsputn(const char* data, std::streamsize size);
-	
+
 	sal_override int_type overflow(int_type c = traits_type::eof());
-	
+
 	sal_override std::streamsize xsgetn(char* data, std::streamsize size);
-	
+
 	sal_override int_type underflow();
-	
+
 	sal_override int_type uflow();
-	
+
 	sal_override int_type pbackfail(int_type c = traits_type::eof());
-	
+
 	sal_override pos_type seekoff(off_type offset,
-								  std::ios_base::seekdir origin,
-								  std::ios_base::openmode which = std::ios_base::in | std::ios_base::out);
-	
+		std::ios_base::seekdir origin,
+		std::ios_base::openmode which = std::ios_base::in | std::ios_base::out);
+
 	sal_override pos_type seekpos(pos_type position,
-								  std::ios_base::openmode which = std::ios_base::in | std::ios_base::out);
-	
+		std::ios_base::openmode which = std::ios_base::in | std::ios_base::out);
+
 	sal_override int sync();
-	
+
 	bool updateReadArea();
-	
+
 	IStreamProxy* mProxy;
 };	// StreamBuf
-	
+
 class MCD_ABSTRACT_CLASS IStreamProxy
 {
 protected:

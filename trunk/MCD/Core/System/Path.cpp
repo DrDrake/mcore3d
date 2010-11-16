@@ -4,7 +4,6 @@
 #include "Log.h"
 #include "PlatformInclude.h"
 #include "StrUtility.h"
-#include <malloc.h>	// _malloca
 #include <string.h>	// For strcmp
 
 namespace MCD {

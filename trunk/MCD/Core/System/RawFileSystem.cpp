@@ -5,7 +5,6 @@
 #include "PlatformInclude.h"
 #include "StrUtility.h"
 #include <fstream>
-#include <malloc.h>	// _malloca
 
 #ifdef MCD_VC
 #	include <ShellAPI.h>	// SHFileOperation

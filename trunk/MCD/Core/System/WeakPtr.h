@@ -252,8 +252,8 @@ bool operator<(const IntrusiveWeakPtr<T>& a, const IntrusiveWeakPtr<U>& b) {
 }
 
 template<class T, class U> inline
-bool operator==(const IntrusiveWeakPtr<T>& l, sal_in_opt U* r) {
-	return l.get() == r;
+bool operator==(const IntrusiveWeakPtr<T>& a, sal_in_opt U* b) {
+	return a.get() == b;
 }
 
 template<class T, class U> inline
