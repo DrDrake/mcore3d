@@ -67,9 +67,9 @@ MCD_CORE_API sal_checkreturn int wstrCaseCmp(sal_in_z const wchar_t* string1, sa
 
 	Example:
 	\code
-	const char_t* str = "x = 1; city = 'Hong Kong'";
+	const char* str = "x = 1; city = 'Hong Kong'";
 	NvpParser parser(str);
-	char_t* name, *value;
+	char* name, *value;
 	parser.next(name, value);	// name = "x", value = "1"
 	parser.next(name, value);	// name = "city", value = "Hong Kong"
 	parser.next(name, value);	// return false

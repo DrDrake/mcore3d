@@ -50,13 +50,13 @@ template<class T> struct ForeachTraits<const T> {
  */
 template<class Target, class Source>
 MCD_INLINE2 Target polymorphic_downcast(Source* x) {
-	MCD_ASSERT( dynamic_cast<Target>(x) == x );
-	return static_cast<Target>(x);
+	MCD_ASSERT( reinterpret_cast<Source*>(dynamic_cast<Target>(x)) == x );
+	return reinterpret_cast<Target>(x);
 }
 template<class Target, class Source>
 MCD_INLINE2 Target polymorphic_downcast(Source& x) {
-	MCD_ASSERT( &(dynamic_cast<Target>(x)) == &x );
-	return static_cast<Target>(x);
+	MCD_ASSERT( reinterpret_cast<Source*>(&(dynamic_cast<Target>(x))) == &x );
+	return reinterpret_cast<Target>(x);
 }
 
 /*!	Macro to get the count of element of an array

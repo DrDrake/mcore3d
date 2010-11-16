@@ -1,10 +1,10 @@
 #include "Pch.h"
 #include "WinMessageInputComponent.h"
-#include "../../Core/Entity/Entity.h"
-#include "../../Core/System/StrUtility.h"
-#include "../../Core/System/Utility.h"
-#include "../../Core/System/Window.h"
-#include "../../Core/System/WindowEvent.h"
+#include "../Entity/Entity.h"
+#include "../System/StrUtility.h"
+#include "../System/Utility.h"
+#include "../System/Window.h"
+#include "../System/WindowEvent.h"
 
 namespace MCD {
 

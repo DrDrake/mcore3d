@@ -2,7 +2,6 @@
 #include "Log.h"
 #include "Utility.h"
 #include <iostream>
-#include <malloc.h>	// _malloca
 #include <stdarg.h>
 #include <stdio.h>	// For vsprintf
 
