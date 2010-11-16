@@ -202,44 +202,4 @@ void SkinMesh::draw(void* context, Statistic& statistic)
 	MeshComponent::draw(context, statistic);
 }
 
-/*
-void SkinMeshComponent::render(void* context)
-{
-	const Vec4f colors[4] = {
-		Vec4f(1, 0, 0, 1),
-		Vec4f(0, 1, 0, 1),
-		Vec4f(0, 0, 1, 1),
-		Vec4f(1, 1, 0, 1)
-	};
-
-	// Joint visualization
-	for(size_t i=0; i<skeleton->basePose.jointCount(); ++i)
-	{
-		const size_t childIdx = i;
-		const size_t parentIdx = skeleton->parents[i];
-
-		if(childIdx == parentIdx)
-			continue;
-
-		Vec3f p1 = visualizePose.transforms[childIdx].translation();
-		Vec3f p2 = visualizePose.transforms[parentIdx].translation();
-
-		glDisable(GL_CULL_FACE);
-		glEnable(GL_BLEND);
-		glDisable(GL_LIGHTING);
-		glColor4fv(colors[i % 4].data);
-
-		glBegin(GL_LINES);
-			glVertex3fv(p1.data);
-			glVertex3fv(p2.data);
-		glEnd();
-
-		glEnable(GL_LIGHTING);
-		glEnable(GL_CULL_FACE);
-		glDisable(GL_BLEND);
-	}
-
-	glPopMatrix();
-}
-*/
 }	// namespace MCD

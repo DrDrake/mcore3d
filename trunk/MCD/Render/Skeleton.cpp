@@ -161,4 +161,60 @@ void SkeletonPose::createBoneEntity()
 		boneEntities[0]->destroyThis();
 }
 
+void SkeletonPoseVisualizer::render(void* context)
+{
+	clear();
+
+	Entity* e = entityTree ? entityTree.get() : entity();
+	for(EntityPreorderIterator itr(e); !itr.ended();)
+	{
+		if(!itr->enabled) {
+			itr.skipChildren();
+			continue;
+		}
+
+		e = itr.current();
+		itr.next();
+
+		// Render SkeletonPose, if any
+		SkeletonPose* skeletonPose = e->findComponent<SkeletonPose>();
+
+		if(!skeletonPose || skeletonPose->transforms.empty())
+			continue;
+
+		std::vector<Mat44f>& joints = skeletonPose->transforms;
+
+		const Mat44f world = e->worldTransform();
+
+		begin(DisplayListComponent::Lines);
+		for(size_t i=0; i<joints.size(); ++i) {
+			Mat44f m = world * joints[i];
+
+			Vec3f o = m.translation();
+			Vec3f x = Vec3f::c100 * float(jointSize);
+			Vec3f y = Vec3f::c010 * float(jointSize);
+			Vec3f z = Vec3f::c001 * float(jointSize);
+
+			m.transformNormal(x);
+			m.transformNormal(y);
+			m.transformNormal(z);
+
+			color(1, 0, 0);
+			vertex(o.data);
+			vertex((o + x).data);
+
+			color(0, 1, 0);
+			vertex(o.data);
+			vertex((o + y).data);
+
+			color(0, 0, 1);
+			vertex(o.data);
+			vertex((o + z).data);
+		}
+		end();
+	}
+
+	DisplayListComponent::render(context);
+}
+
 }	// namespace MCD
