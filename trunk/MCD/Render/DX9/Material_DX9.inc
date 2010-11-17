@@ -12,8 +12,12 @@ public:
 
 	~Impl();
 
-	bool createVs();
-	bool createPs();
+	bool createVs(const char* headerCode);
+	bool createPs(const char* headerCode);
+
+	/// Create the required shaders according to the current options
+	/// which may trigger a new compilation of shader.
+	void createShadersIfNeeded();
 
 	// Update the world matrix shader constants only.
 	void updateWorldTransform(void* context);
@@ -33,10 +37,18 @@ public:
 		D3DXHANDLE specularExponent;
 		D3DXHANDLE opacity;
 		D3DXHANDLE lighting;
-		D3DXHANDLE useVertexColor;
 	};	// ConstantHandles
 
 	ConstantHandles mConstantHandles;
+
+	struct MacroSettings {
+		MacroSettings() : initialized(false) {}
+		bool initialized;
+		bool userVertexColor;
+	};	// MacroSettings
+
+	MacroSettings mLastMacro;	///< The macro setting for the last frame, to detect shader recreation.
+	MaterialComponent* mBackRef;
 };	// Impl
 
 }	// namespace MCD

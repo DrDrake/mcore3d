@@ -57,11 +57,6 @@ public:
 
 		if(ResourceManagerComponent* c = mSystemEntities->findComponentInChildrenExactType<ResourceManagerComponent>())
 			mResourceManager = &c->resourceManager();
-
-//		mAnimationUpdater = mSystemEntities->findComponentInChildrenExactType<AnimationUpdaterComponent>())
-
-		//if(Entity* e = mSystemEntities->findEntityInDescendants("Skeleton animation updater"))
-		//	mSkeletonAnimationUpdater = dynamic_cast<SkeletonAnimationUpdaterComponent*>(e->findComponent<BehaviourComponent>());
 	}
 
 	IResourceLoader::LoadingState load(std::istream* is, const Path* fileId, const char* args);
@@ -69,8 +64,6 @@ public:
 	void commit(Resource& resource);
 
 	ResourceManager* mResourceManager;
-	//AnimationUpdaterComponentPtr mAnimationUpdater;
-	//SkeletonAnimationUpdaterComponentPtr mSkeletonAnimationUpdater;
 
 	EntityPtr mSystemEntities;
 	Entity mRootEntity;
