@@ -69,7 +69,7 @@ ShaderCache::Vs ShaderCache::getVertexShader(const char* sourceCode)
 	LPD3DXBUFFER vsBuf = nullptr;
 	LPD3DXBUFFER errors = nullptr;
 
-	Vs vs = { nullptr, nullptr };
+	Vs vs;
 
 	HRESULT result = D3DXCompileShader(
 		sourceCode, strlen(sourceCode),
@@ -96,6 +96,14 @@ ShaderCache::Vs ShaderCache::getVertexShader(const char* sourceCode)
 	return vs;
 }
 
+ShaderCache::Vs ShaderCache::getVertexShader(const char* sourceCode, const char* headerCode)
+{
+	std::string s(headerCode);
+	s += "\n";
+	s += sourceCode;
+	return getVertexShader(s.c_str());
+}
+
 ShaderCache::Ps ShaderCache::getPixelShader(const char* sourceCode)
 {
 	const StringHash h(sourceCode, 0);
@@ -111,7 +119,7 @@ ShaderCache::Ps ShaderCache::getPixelShader(const char* sourceCode)
 	LPD3DXBUFFER psBuf = nullptr;
 	LPD3DXBUFFER errors = nullptr;
 
-	Ps ps = { nullptr, nullptr };
+	Ps ps;
 
 	HRESULT result = D3DXCompileShader(
 		sourceCode, strlen(sourceCode),
@@ -138,6 +146,14 @@ ShaderCache::Ps ShaderCache::getPixelShader(const char* sourceCode)
 	return ps;
 }
 
+ShaderCache::Ps ShaderCache::getPixelShader(const char* sourceCode, const char* headerCode)
+{
+	std::string s(headerCode);
+	s += "\n";
+	s += sourceCode;
+	return getPixelShader(s.c_str());
+}
+
 class DummyResource : public Resource
 {
 public:
@@ -153,12 +169,12 @@ public:
 	{
 		MCD_ASSUME(vs);
 		MCD_ASSUME(shaderCache);
-		*vs = shaderCache->getVertexShader(sourceCode);
+		*vs = shaderCache->getVertexShader(sourceCode.c_str());
 	}
 
 	ShaderCache::Vs* vs;
 	ShaderCache* shaderCache;
-	const char* sourceCode;
+	std::string sourceCode;
 };	// VsCommiter
 
 class PsCommiter : public IResourceLoader
@@ -169,34 +185,38 @@ public:
 	{
 		MCD_ASSUME(ps);
 		MCD_ASSUME(shaderCache);
-		*ps = shaderCache->getPixelShader(sourceCode);
+		*ps = shaderCache->getPixelShader(sourceCode.c_str());
 	}
 
 	ShaderCache::Ps* ps;
 	ShaderCache* shaderCache;
-	const char* sourceCode;
+	std::string sourceCode;
 };	// PsCommiter
 
-ShaderCache::Vs ShaderCache::getVertexShader(const char* sourceCode, ResourceManager& mgr)
+ShaderCache::Vs ShaderCache::getVertexShader(const char* sourceCode, const char* headerCode, ResourceManager& mgr)
 {
-	Vs vs = { nullptr, nullptr };
+	Vs vs;
 	VsCommiter* commiter = new VsCommiter;
 	commiter->vs = &vs;
 	commiter->shaderCache = this;
-	commiter->sourceCode = sourceCode;
+	commiter->sourceCode = headerCode ? headerCode : "";
+	commiter->sourceCode += "\n";
+	commiter->sourceCode += sourceCode;
 	IResourceLoaderPtr holder = commiter;
 	ResourcePtr dummy = new DummyResource;
 	mgr.customLoad(dummy, holder, 1);
 	return vs;
 }
 
-ShaderCache::Ps ShaderCache::getPixelShader(const char* sourceCode, ResourceManager& mgr)
+ShaderCache::Ps ShaderCache::getPixelShader(const char* sourceCode, const char* headerCode, ResourceManager& mgr)
 {
-	Ps ps = { nullptr, nullptr };
+	Ps ps;
 	PsCommiter* commiter = new PsCommiter;
 	commiter->ps = &ps;
 	commiter->shaderCache = this;
-	commiter->sourceCode = sourceCode;
+	commiter->sourceCode = headerCode ? headerCode : "";
+	commiter->sourceCode += "\n";
+	commiter->sourceCode += sourceCode;
 	IResourceLoaderPtr holder = commiter;
 	ResourcePtr dummy = new DummyResource;
 	mgr.customLoad(dummy, holder, 1);

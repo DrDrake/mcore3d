@@ -15,20 +15,6 @@ using namespace DX9Helper;
 
 MaterialComponent::Impl::Impl() 
 {
-	MCD_VERIFY(createVs());
-	MCD_VERIFY(createPs());
-
-	mConstantHandles.worldViewProj = mVs.constTable->GetConstantByName(nullptr, "mcdWorldViewProj");
-	mConstantHandles.world = mVs.constTable->GetConstantByName(nullptr, "mcdWorld");
-	mConstantHandles.lights = mPs.constTable->GetConstantByName(nullptr, "mcdLights");
-	mConstantHandles.cameraPosition = mPs.constTable->GetConstantByName(nullptr, "mcdCameraPosition");
-	mConstantHandles.diffuseColor = mPs.constTable->GetConstantByName(nullptr, "mcdDiffuseColor");
-	mConstantHandles.specularColor = mPs.constTable->GetConstantByName(nullptr, "mcdSpecularColor");
-	mConstantHandles.emissionColor = mPs.constTable->GetConstantByName(nullptr, "mcdEmissionColor");
-	mConstantHandles.specularExponent = mPs.constTable->GetConstantByName(nullptr, "mcdSpecularExponent");
-	mConstantHandles.opacity = mPs.constTable->GetConstantByName(nullptr, "mcdOpacity");
-	mConstantHandles.lighting = mPs.constTable->GetConstantByName(nullptr, "mcdLighting");
-	mConstantHandles.useVertexColor = mPs.constTable->GetConstantByName(nullptr, "mcdUseVertexColor");
 }
 
 MaterialComponent::Impl::~Impl()
@@ -37,112 +23,171 @@ MaterialComponent::Impl::~Impl()
 	mPs.Release();
 }
 
-bool MaterialComponent::Impl::createVs()
+bool MaterialComponent::Impl::createVs(const char* headerCode)
 {
 	static const char code[] =
-	"float4x4 mcdWorld;"
-	"float4x4 mcdWorldViewProj;"
-	"struct VS_INPUT {"
-	"	float3 position : POSITION;"
-	"	float3 normal : NORMAL;"
-	"	float4 color : COLOR0;"
-	"	float2 uvDiffuse : TEXCOORD0;"
-	"};"
-	"struct VS_OUTPUT {"
-	"	float4 position : POSITION;"
-	"	float3 worldPosition : position1;"
-	"	float3 normal : NORMAL;"
-	"	float4 color : COLOR0;"
-	"	float2 uvDiffuse : TEXCOORD0;"
-	"};"
-	"VS_OUTPUT main(const VS_INPUT _in) {"
-	"	VS_OUTPUT _out;"
-	"	_out.position = mul(mcdWorldViewProj, float4(_in.position, 1));"
-	"	_out.worldPosition = mul(mcdWorld, float4(_in.position, 1)).xyz;"
-	"	float3x3 rotation = mcdWorld;"
-	"	_out.normal = mul(rotation, _in.normal);"
-	"	_out.uvDiffuse = _in.uvDiffuse;"
-	"	_out.color = _in.color;"
-	"	return _out;"
-	"}";
+	"float4x4 mcdWorld;\n"
+	"float4x4 mcdWorldViewProj;\n"
+	"struct VS_INPUT {\n"
+	"	float3 position : POSITION;\n"
+	"	float3 normal : NORMAL;\n"
+	"#if USE_VERTEX_COLOR\n"
+	"	float4 color : COLOR0;\n"
+	"#endif\n"
+	"	float2 uvDiffuse : TEXCOORD0;\n"
+	"};\n"
+	"struct VS_OUTPUT {\n"
+	"	float4 position : POSITION;\n"
+	"	float3 worldPosition : position1;\n"
+	"	float3 normal : NORMAL;\n"
+	"#if USE_VERTEX_COLOR\n"
+	"	float4 color : COLOR0;\n"
+	"#endif\n"
+	"	float2 uvDiffuse : TEXCOORD0;\n"
+	"};\n"
+	"VS_OUTPUT main(const VS_INPUT _in) {\n"
+	"	VS_OUTPUT _out;\n"
+	"	_out.position = mul(mcdWorldViewProj, float4(_in.position, 1));\n"
+	"	_out.worldPosition = mul(mcdWorld, float4(_in.position, 1)).xyz;\n"
+	"	float3x3 rotation = mcdWorld;\n"
+	"	_out.normal = mul(rotation, _in.normal);\n"
+	"	_out.uvDiffuse = _in.uvDiffuse;\n"
+	"#if USE_VERTEX_COLOR\n"
+	"	_out.color = _in.color;\n"
+	"#endif\n"
+	"	return _out;\n"
+	"}\n";
+
+	if(mVs.vs) mVs.Release();
 
 	if(ResourceManagerComponent* c = ResourceManagerComponent::fromCurrentEntityRoot())
-		mVs = ShaderCache::singleton().getVertexShader(code, c->resourceManager());
+		mVs = ShaderCache::singleton().getVertexShader(code, headerCode, c->resourceManager());
 	else
 		mVs = ShaderCache::singleton().getVertexShader(code);
-	return mVs.vs && mVs.constTable;
+
+	if(!mVs.vs || !mVs.constTable) return false;
+
+	mConstantHandles.worldViewProj = mVs.constTable->GetConstantByName(nullptr, "mcdWorldViewProj");
+	mConstantHandles.world = mVs.constTable->GetConstantByName(nullptr, "mcdWorld");
+	return true;
 }
 
-bool MaterialComponent::Impl::createPs()
+bool MaterialComponent::Impl::createPs(const char* headerCode)
 {
 	static const char code[] =
 	"#define MCD_MAX_LIGHT_COUNT 4\n"
-	"struct Light {"
-	"	float3 position;"
-	"	float4 color;"
-	"} mcdLights[MCD_MAX_LIGHT_COUNT];"
+	"struct Light {\n"
+	"	float3 position;\n"
+	"	float4 color;\n"
+	"} mcdLights[MCD_MAX_LIGHT_COUNT];\n"
 
-	"float3 mcdCameraPosition;"
-	"float4 mcdDiffuseColor;"
-	"float4 mcdSpecularColor;"
-	"float4 mcdEmissionColor;"
-	"float mcdSpecularExponent;"
-	"float mcdOpacity;"
-	"bool mcdLighting;"
-	"bool mcdUseVertexColor;"
-	"sampler2D texDiffuse;"
+	"float3 mcdCameraPosition;\n"
+	"float4 mcdDiffuseColor;\n"
+	"float4 mcdSpecularColor;\n"
+	"float4 mcdEmissionColor;\n"
+	"float mcdSpecularExponent;\n"
+	"float mcdOpacity;\n"
+	"bool mcdLighting;\n"
+	"sampler2D texDiffuse;\n"
 
-	"void computeLighting(in Light light, in float3 P, in float3 N, in float3 V, inout float3 diffuse, inout float3 specular) {"
-	"	float3 L = light.position - P;"
-	"	L = normalize(L);"
-	"	float3 H = normalize(L + V);"
-	"	float ndotl = saturate(dot(N, L));"
-	"	float ndoth = saturate(dot(N, H));"
-	"	float specExp = pow(ndoth, mcdSpecularExponent);"
-	"	diffuse += ndotl * light.color.rgb;"
-	"	specular += specExp * light.color.rgb;"
-	"}"
+	"void computeLighting(in Light light, in float3 P, in float3 N, in float3 V, inout float3 diffuse, inout float3 specular) {\n"
+	"	float3 L = light.position - P;\n"
+	"	L = normalize(L);\n"
+	"	float3 H = normalize(L + V);\n"
+	"	float ndotl = saturate(dot(N, L));\n"
+	"	float ndoth = saturate(dot(N, H));\n"
+	"	float specExp = pow(ndoth, mcdSpecularExponent);\n"
+	"	diffuse += ndotl * light.color.rgb;\n"
+	"	specular += specExp * light.color.rgb;\n"
+	"}\n"
 
-	"struct PS_INPUT {"
-	"	float3 position : POSITION;"
-	"	float3 worldPosition : position1;"
-	"	float3 normal : NORMAL;"
-	"	float4 color : COLOR0;"
-	"	float2 uvDiffuse : TEXCOORD0;"
-	"};"
-	"struct PS_OUTPUT { float4 color : COLOR; };"
+	"struct PS_INPUT {\n"
+	"	float3 position : POSITION;\n"
+	"	float3 worldPosition : position1;\n"
+	"	float3 normal : NORMAL;\n"
+	"#if USE_VERTEX_COLOR\n"
+	"	float4 color : COLOR0;\n"
+	"#endif\n"
+	"	float2 uvDiffuse : TEXCOORD0;\n"
+	"};\n"
+	"struct PS_OUTPUT { float4 color : COLOR; };\n"
 
-	"PS_OUTPUT main(PS_INPUT _in) {"
-	"	PS_OUTPUT _out = (PS_OUTPUT) 0;"
-	"	if(!mcdLighting) {"
-	"		float4 diffuseMap = tex2D(texDiffuse, _in.uvDiffuse);"
-	"		float3 diffuse = mcdDiffuseColor.rgb * mcdDiffuseColor.a * diffuseMap.rgb;"
-	"		_out.color.rgb = mcdUseVertexColor ? _in.color.rgb * diffuse : diffuse;"
-	"		_out.color.a = mcdOpacity * diffuseMap.a;"
-	"		return _out;"
-	"	}"
+	"PS_OUTPUT main(PS_INPUT _in) {\n"
+	"	PS_OUTPUT _out = (PS_OUTPUT) 0;\n"
+	"	if(!mcdLighting) {\n"
+	"		float4 diffuseMap = tex2D(texDiffuse, _in.uvDiffuse);\n"
+	"		float3 diffuse = mcdDiffuseColor.rgb * mcdDiffuseColor.a * diffuseMap.rgb;\n"
+	"#if USE_VERTEX_COLOR\n"
+	"		_out.color.rgb = _in.color.rgb * diffuse;\n"
+	"#else\n"
+	"		_out.color.rgb = diffuse;\n"
+	"#endif\n"
+	"		_out.color.a = mcdOpacity * diffuseMap.a;\n"
+	"		return _out;\n"
+	"	}\n"
 
-	"	float3 P = _in.worldPosition;"
-	"	float3 N = normalize(_in.normal);"
-	"	float3 V = normalize(mcdCameraPosition - P);"
-	"	float3 lightDiffuse = 0;"
-	"	float3 lightSpecular = 0;"
-	"	for(int i=0; i<MCD_MAX_LIGHT_COUNT; ++i)"
+	"	float3 P = _in.worldPosition;\n"
+	"	float3 N = normalize(_in.normal);\n"
+	"	float3 V = normalize(mcdCameraPosition - P);\n"
+	"	float3 lightDiffuse = 0;\n"
+	"	float3 lightSpecular = 0;\n"
+	"	for(int i=0; i<MCD_MAX_LIGHT_COUNT; ++i)\n"
 	"		computeLighting(mcdLights[i], P, N, V, lightDiffuse, lightSpecular);\n"
-	"	float4 diffuseMap = tex2D(texDiffuse, _in.uvDiffuse);"
-	"	float3 diffuse = mcdDiffuseColor.rgb * mcdDiffuseColor.a * diffuseMap.rgb * lightDiffuse;"
-	"	float3 specular = mcdSpecularColor.rgb * mcdSpecularColor.a * lightSpecular;"
-	"	float3 emission = mcdEmissionColor.rgb * mcdEmissionColor.a;"
-	"	_out.color.rgb = mcdUseVertexColor ? _in.color.rgb * diffuse : diffuse + specular + emission;"
-	"	_out.color.a = mcdOpacity * diffuseMap.a;"
-	"	return _out;"
-	"}";
+	"	float4 diffuseMap = tex2D(texDiffuse, _in.uvDiffuse);\n"
+	"	float3 diffuse = mcdDiffuseColor.rgb * mcdDiffuseColor.a * diffuseMap.rgb * lightDiffuse;\n"
+	"	float3 specular = mcdSpecularColor.rgb * mcdSpecularColor.a * lightSpecular;\n"
+	"	float3 emission = mcdEmissionColor.rgb * mcdEmissionColor.a;\n"
+	"#if USE_VERTEX_COLOR\n"
+	"	_out.color.rgb = _in.color.rgb * diffuse;\n"
+	"#else\n"
+	"	_out.color.rgb = diffuse + specular + emission;\n"
+	"#endif\n"
+	"	_out.color.a = mcdOpacity * diffuseMap.a;\n"
+	"	return _out;\n"
+	"}\n";
+
+	if(mPs.ps) mPs.Release();
 
 	if(ResourceManagerComponent* c = ResourceManagerComponent::fromCurrentEntityRoot())
-		mPs = ShaderCache::singleton().getPixelShader(code, c->resourceManager());
+		mPs = ShaderCache::singleton().getPixelShader(code, headerCode, c->resourceManager());
 	else
 		mPs = ShaderCache::singleton().getPixelShader(code);
-	return mPs.ps && mPs.constTable;
+
+	if(!mPs.ps || !mPs.constTable) return false;
+
+	mConstantHandles.lights = mPs.constTable->GetConstantByName(nullptr, "mcdLights");
+	mConstantHandles.cameraPosition = mPs.constTable->GetConstantByName(nullptr, "mcdCameraPosition");
+	mConstantHandles.diffuseColor = mPs.constTable->GetConstantByName(nullptr, "mcdDiffuseColor");
+	mConstantHandles.specularColor = mPs.constTable->GetConstantByName(nullptr, "mcdSpecularColor");
+	mConstantHandles.emissionColor = mPs.constTable->GetConstantByName(nullptr, "mcdEmissionColor");
+	mConstantHandles.specularExponent = mPs.constTable->GetConstantByName(nullptr, "mcdSpecularExponent");
+	mConstantHandles.opacity = mPs.constTable->GetConstantByName(nullptr, "mcdOpacity");
+	mConstantHandles.lighting = mPs.constTable->GetConstantByName(nullptr, "mcdLighting");
+
+	return true;
+}
+
+void MaterialComponent::Impl::createShadersIfNeeded()
+{
+	static const char* defines[][2] = {
+		{ "#define USE_VERTEX_COLOR 0\n", "#define USE_VERTEX_COLOR 1\n" },
+	};
+
+	if(mLastMacro.initialized) {
+		const bool hasChanges =
+			mLastMacro.userVertexColor != mBackRef->useVertexColor;
+		if(!hasChanges) return;
+	}
+
+	mLastMacro.initialized = true;
+
+	std::string header;
+	header += defines[0][mBackRef->useVertexColor ? 1 : 0];
+
+	mLastMacro.userVertexColor = mBackRef->useVertexColor;
+
+	MCD_VERIFY(createVs(header.c_str()));
+	MCD_VERIFY(createPs(header.c_str()));
 }
 
 void MaterialComponent::Impl::updateWorldTransform(void* context)
@@ -166,6 +211,8 @@ void MaterialComponent::render(void* context)
 	// Push light into Renderer's light list
 	RendererComponent::Impl& renderer = *reinterpret_cast<RendererComponent::Impl*>(context);
 	renderer.mCurrentMaterial = this;
+
+	mImpl.createShadersIfNeeded();
 }
 
 void MaterialComponent::preRender(size_t pass, void* context)
@@ -183,10 +230,12 @@ void MaterialComponent::preRender(size_t pass, void* context)
 			device, mImpl.mConstantHandles.world, (D3DXMATRIX*)renderer.mWorldMatrix.getPtr()
 		) == S_OK);
 
-		Vec3f cameraPosition = renderer.mCameraTransform.translation();
-		MCD_VERIFY(mImpl.mVs.constTable->SetFloatArray(
-			device, mImpl.mConstantHandles.cameraPosition, cameraPosition.getPtr(), 3
-		) == S_OK);
+		if(!useVertexColor) {
+			Vec3f cameraPosition = renderer.mCameraTransform.translation();
+			MCD_VERIFY(mImpl.mVs.constTable->SetFloatArray(
+				device, mImpl.mConstantHandles.cameraPosition, cameraPosition.getPtr(), 3
+			) == S_OK);
+		}
 	}
 
 	// Material state change early out optimization
@@ -224,17 +273,19 @@ void MaterialComponent::preRender(size_t pass, void* context)
 			device, mImpl.mConstantHandles.diffuseColor, diffuseColor.rawPointer(), 4
 		) == S_OK);
 
-		MCD_VERIFY(mImpl.mVs.constTable->SetFloatArray(
-			device, mImpl.mConstantHandles.specularColor, specularColor.rawPointer(), 4
-		) == S_OK);
+		if(!useVertexColor) {
+			MCD_VERIFY(mImpl.mVs.constTable->SetFloatArray(
+				device, mImpl.mConstantHandles.specularColor, specularColor.rawPointer(), 4
+			) == S_OK);
 
-		MCD_VERIFY(mImpl.mVs.constTable->SetFloatArray(
-			device, mImpl.mConstantHandles.emissionColor, emissionColor.rawPointer(), 4
-		) == S_OK);
+			MCD_VERIFY(mImpl.mVs.constTable->SetFloatArray(
+				device, mImpl.mConstantHandles.emissionColor, emissionColor.rawPointer(), 4
+			) == S_OK);
 
-		MCD_VERIFY(mImpl.mVs.constTable->SetFloat(
-			device, mImpl.mConstantHandles.specularExponent, specularExponent
-		) == S_OK);
+			MCD_VERIFY(mImpl.mVs.constTable->SetFloat(
+				device, mImpl.mConstantHandles.specularExponent, specularExponent
+			) == S_OK);
+		}
 
 		MCD_VERIFY(mImpl.mVs.constTable->SetFloat(
 			device, mImpl.mConstantHandles.opacity, opacity
@@ -242,14 +293,6 @@ void MaterialComponent::preRender(size_t pass, void* context)
 
 		MCD_VERIFY(mImpl.mVs.constTable->SetFloat(
 			device, mImpl.mConstantHandles.lighting, lighting
-		) == S_OK);
-
-		MCD_VERIFY(mImpl.mVs.constTable->SetBool(
-			device, mImpl.mConstantHandles.useVertexColor, useVertexColor
-		) == S_OK);
-
-		MCD_VERIFY(mImpl.mVs.constTable->SetBool(
-			device, mImpl.mConstantHandles.useVertexColor, useVertexColor
 		) == S_OK);
 
 		if(TexturePtr diffuse = diffuseMap ? diffuseMap : renderer.mWhiteTexture)
@@ -294,7 +337,9 @@ MaterialComponent::MaterialComponent()
 	, lighting(true)
 	, cullFace(true)
 	, useVertexColor(false)
-{}
+{
+	mImpl.mBackRef = this;
+}
 
 MaterialComponent::~MaterialComponent()
 {

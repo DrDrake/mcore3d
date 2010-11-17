@@ -24,6 +24,7 @@ class ShaderCache : Noncopyable
 public:
 	struct Vs
 	{
+		Vs() : vs(nullptr), constTable(nullptr) {}
 		sal_maybenull LPDIRECT3DVERTEXSHADER9 vs;
 		sal_maybenull LPD3DXCONSTANTTABLE constTable;
 		void Release();
@@ -32,6 +33,7 @@ public:
 
 	struct Ps
 	{
+		Ps() : ps(nullptr), constTable(nullptr) {}
 		sal_maybenull LPDIRECT3DPIXELSHADER9 ps;
 		sal_maybenull LPD3DXCONSTANTTABLE constTable;
 		void Release();
@@ -48,10 +50,12 @@ public:
 	/// Must call in main thread
 	Vs getVertexShader(const char* sourceCode);
 	Ps getPixelShader(const char* sourceCode);
+	Vs getVertexShader(const char* sourceCode, const char* headerCode);
+	Ps getPixelShader(const char* sourceCode, const char* headerCode);
 
 	/// With the help of ResourceManager, these functions can call in any thread
-	Vs getVertexShader(const char* sourceCode, ResourceManager& mgr);
-	Ps getPixelShader(const char* sourceCode, ResourceManager& mgr);
+	Vs getVertexShader(const char* sourceCode, const char* headerCode, ResourceManager& mgr);
+	Ps getPixelShader(const char* sourceCode, const char* headerCode, ResourceManager& mgr);
 
 protected:
 	typedef std::map<uint32_t, Vs> VsMap;
