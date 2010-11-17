@@ -4,8 +4,7 @@
 #include "NonCopyable.h"
 #include "Path.h"
 #include "SharedPtr.h"
-#include "WeakPtr.h"
-#include <list>
+#include "Utility.h"
 
 namespace MCD {
 
@@ -126,6 +125,11 @@ public:
 		\param loader An optional parameter to retrieve the IResourceLoader.
 	 */
 	ResourcePtr load(const Path& fileId, int blockIteration=-1, int priority=0, sal_in_z_opt const char* args=nullptr);
+
+	template<class T>
+	IntrusivePtr<T> loadAs(const Path& fileId, int blockIteration=-1, int priority=0, sal_in_z_opt const char* args=nullptr) {
+		return polymorphic_downcast<T*>(load(fileId, blockIteration, priority, args).get());
+	}
 
 	/*!	By pass the cache and doing an explicitly reload.
 		Return the original resource if reload is preformed, otherwise a new resource is

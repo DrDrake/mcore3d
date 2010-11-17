@@ -79,7 +79,7 @@ class XmlParser::Impl
 	typedef std::vector<Attribute> Attrubutes;
 
 public:
-	Impl()
+	Impl() : mIsEmptyElement(false)
 	{
 		parse(nullptr);
 	}
@@ -96,6 +96,12 @@ public:
 
 	Event::Enum nextEvent()
 	{
+		// Gives an end element event if the last element close directly
+		if(mIsEmptyElement) {
+			mIsEmptyElement = false;
+			return Event::EndElement;
+		}
+
 		if(!p)
 			return mCurrentNodeType = Event::Error;
 
