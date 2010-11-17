@@ -28,7 +28,7 @@ TEST(XmlParserTest)
 
 	bool ended = false;
 	size_t eventCount = 0;
-	static const size_t maxCount = 12;
+	static const size_t maxCount = 13;
 
 	typedef XmlParser::Event Event;
 
@@ -37,6 +37,7 @@ TEST(XmlParserTest)
 		Event::BeginElement,
 		Event::Comment,
 		Event::BeginElement,
+		Event::EndElement,
 		Event::BeginElement,
 		Event::Text,
 		Event::EndElement,

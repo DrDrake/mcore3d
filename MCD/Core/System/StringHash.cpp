@@ -147,7 +147,7 @@ public:
 		MCD_ASSERT(mCount == 0 && "All instance of FixString should be destroyed before FixStringHashTable");
 	}
 
-	MCD_NOINLINE Node& find(uint32_t hashValue) const
+	Node& find(uint32_t hashValue) const
 	{
 		ScopeLock lock(mMutex);
 
@@ -245,7 +245,7 @@ public:
 	Node& mNullNode;
 };	// FixStringHashTable
 
-MCD_NOINLINE static FixStringHashTable& gFixStringHashTable() {
+static FixStringHashTable& gFixStringHashTable() {
 	static FixStringHashTable singleton;
 	return singleton;
 }

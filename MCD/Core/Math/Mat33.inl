@@ -14,7 +14,7 @@ Vec3<T>& Mat33<T>::operator[](const size_t i)
 	return *(reinterpret_cast<Vec3<T>*>(&c0) + i);
 }
 
-template<typename T> MCD_NOINLINE
+template<typename T>
 void Mat33<T>::mul(const Mat33& rhs, Mat33& ret) const
 {
 	T a1, a2, a3;
