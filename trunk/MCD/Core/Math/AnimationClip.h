@@ -89,29 +89,22 @@ public:
 
 	typedef FixStrideArray<uint16_t> KeyIdxHint;
 
-	struct Interpolation
-	{
-		Vec4f v;
-		size_t idx1;	///< Index of key that just before the current position.
-		size_t idx2;	///< Index of key that just after the current position.
-		float ratio;	///< The ratio between idx1 and idx2 that define the current position.
-
-		template<class T> T& cast() { return *reinterpret_cast<T*>(v); }
-		template<class T> const T& cast() const { return *reinterpret_cast<const T*>(v); }
-	};	// Interpolation
-
-	typedef FixStrideArray<Interpolation> Interpolations;
-
 // Operations
-	/// Can be invoked multiple times.
-	/// \param trackKeyCount Array specifing there are how many key for each track.
-	sal_checkreturn bool init(const StrideArray<const size_t>& trackKeyCount);
+	/// Reserve memory for key storage, suitable for the case where the number of
+	/// tracks and keys are all know in advance.
+	/// @note Can be invoked multiple times.
+	/// @param trackKeyCount Array specifing there are how many key for each track.
+	sal_checkreturn bool init(const StrideArray<size_t>& trackKeyCount);
+
+	/// Create the key storage track by track, suitable for the case where the number of
+	/// tracks and keys are NOT know in advance.
+	void addTrack(size_t keyCount, Flags flag);
 
 	///	Get interpolation results at a specific position.
-	virtual void interpolate(float pos, const Pose& result, const KeyIdxHint& hint=KeyIdxHint(nullptr,0)) const;
+	virtual void sample(float pos, const Pose& result, const KeyIdxHint& hint=KeyIdxHint(nullptr,0)) const;
 
 	/// Returns the new keySearchHint
-	size_t interpolateSingleTrack(float trackPos, float totalLen, Sample& result, size_t trackIndex, size_t keySearchHint=0) const;
+	size_t sampleSingleTrack(float trackPos, float totalLen, Sample& result, size_t trackIndex, size_t keySearchHint=0) const;
 
 	///	Check that the data has no problem (eg frame position not in ascending order).
 	/// \return False if something wrong.
@@ -120,6 +113,10 @@ public:
 	///	Swap with another AnimationClip, used in AnimationClipLoader to minimize memory copy.
 	/// \note The resource name will not be swap.
 	void swap(AnimationClip& rhs);
+
+	/// Create a clip that represent the difference between the master clip and the target clip.
+	/// The master and target clip should have the same number of tracks and their flags should be the same too.
+	sal_checkreturn bool createDifferenceClip(AnimationClip& master, AnimationClip& target);
 
 // Attributes
 	///	Number of track. For example, one track for position, another track for color.

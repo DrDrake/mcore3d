@@ -36,7 +36,7 @@ void AnimationClip::Sample::blend(float t, const Sample& s1, const Sample& s2)
 	else {	MCD_ASSERT(false); }
 }
 
-bool AnimationClip::init(const StrideArray<const size_t>& trackFrameCount)
+bool AnimationClip::init(const StrideArray<size_t>& trackFrameCount)
 {
 	if(trackFrameCount.isEmpty())
 		return false;
@@ -66,6 +66,20 @@ bool AnimationClip::init(const StrideArray<const size_t>& trackFrameCount)
 	return true;
 }
 
+void AnimationClip::addTrack(size_t keyCount, Flags flag)
+{
+	MCD_ASSERT(keyCount > 0);
+	tracks.size++;
+	tracks.data = (char*)::realloc(tracks.data, tracks.sizeInByte());
+
+	tracks[tracks.size-1].flag = flag;
+	const_cast<size_t&>(tracks[tracks.size-1].index) = keyBuffer.size;
+	const_cast<size_t&>(tracks[tracks.size-1].keyCount) = keyCount;
+
+	keyBuffer.size += keyCount;
+	keyBuffer.data = (char*)::realloc(keyBuffer.data, keyBuffer.sizeInByte());
+}
+
 size_t AnimationClip::trackCount() const
 {
 	return tracks.size;
@@ -89,15 +103,15 @@ AnimationClip::Keys AnimationClip::getKeysForTrack(size_t index)
 	return Keys(nullptr, 0);
 }
 
-void AnimationClip::interpolate(float pos, const Pose& result, const KeyIdxHint& hint) const
+void AnimationClip::sample(float pos, const Pose& result, const KeyIdxHint& hint) const
 {
 	if(hint.size == 0) for(size_t i=0; i<tracks.size; ++i)
-		interpolateSingleTrack(pos, length, result[i], i, 0);
+		sampleSingleTrack(pos, length, result[i], i, 0);
 	else for(size_t i=0; i<tracks.size; ++i)
-		interpolateSingleTrack(pos, length, result[i], i, hint[i]);
+		hint[i] = (uint16_t)sampleSingleTrack(pos, length, result[i], i, hint[i]);
 }
 
-size_t AnimationClip::interpolateSingleTrack(float trackPos, float totalLen, Sample& result, size_t trackIndex, size_t keySearchHint) const
+size_t AnimationClip::sampleSingleTrack(float trackPos, float totalLen, Sample& result, size_t trackIndex, size_t keySearchHint) const
 {
 	Keys keys = const_cast<AnimationClip*>(this)->getKeysForTrack(trackIndex);
 
@@ -108,7 +122,7 @@ size_t AnimationClip::interpolateSingleTrack(float trackPos, float totalLen, Sam
 	// If the animation has only one key, there is no need to 
 	// do any interpolation, simply copy the data.
 	if(keys.size == 1) {
-		::memcpy(&result, &keys[0], sizeof(result));
+		::memcpy(&result.v, &keys[0].v, sizeof(result.v));
 		return 0;
 	}
 
@@ -218,6 +232,72 @@ void AnimationClip::swap(AnimationClip& rhs)
 	std::swap(length, rhs.length);
 	std::swap(framerate, rhs.framerate);
 	std::swap(loopCount, rhs.loopCount);
+}
+
+bool AnimationClip::createDifferenceClip(AnimationClip& master, AnimationClip& target)
+{
+	// Perform some compatibility tests first
+	const size_t trackCount = master.trackCount();
+	if(master.trackCount() != target.trackCount()) return false;
+	for(size_t i=0; i<trackCount; ++i) {
+		if(master.tracks[i].flag != target.tracks[i].flag)
+			return false;
+	}
+
+	length = target.length;
+	framerate = target.framerate;
+	loopCount = target.loopCount;
+
+	{	// Init the diff clip with the same number of keys as the target
+		StrideArray<size_t> trackKeyCount(new size_t[trackCount], trackCount);
+		for(size_t i=0; i<trackCount; ++i)
+			trackKeyCount[i] = target.getKeysForTrack(i).size;
+		bool ok = init(trackKeyCount);
+		delete[] trackKeyCount.getPtr();
+		if(!ok) return false;
+	}
+
+	// Assign key position
+	for(size_t i=0; i<trackCount; ++i) {
+		tracks[i].flag = target.tracks[i].flag;
+
+		Keys k1 = getKeysForTrack(i);
+		Keys k2 = target.getKeysForTrack(i);
+		for(size_t j=0; j<k1.size; ++j)
+			k1[j].pos = k2[j].pos;
+	}
+
+	// Sample both master and target, calculate the difference
+	for(size_t i=0; i<trackCount; ++i)
+	{
+		Keys k1 = getKeysForTrack(i);
+		Keys k2 = target.getKeysForTrack(i);
+		MCD_ASSERT(k1.size == k2.size);
+
+		for(size_t j=0; j<k1.size; ++j)
+		{
+			MCD_ASSERT(k1[j].pos == k2[j].pos);
+			Sample s1, s2;
+			master.sampleSingleTrack(k1[j].pos, master.length, s1, i);
+			target.sampleSingleTrack(k1[j].pos, target.length, s2, i);
+
+			switch(s1.flag) {
+			case Linear:
+			case Step:
+				k1[j].v = s2.v - s1.v;
+				break;
+			case Slerp:
+				// For quaternion:
+				// target = master * master.inverse() * target
+				// target = master * diff where diff = master.inverse() * target
+				k1[j].cast<Quaternionf>() = s1.cast<Quaternionf>().inverse() * s2.cast<Quaternionf>();
+				break;
+			default: MCD_ASSERT(false);
+			}
+		}
+	}
+
+	return true;
 }
 
 }	// namespace MCD

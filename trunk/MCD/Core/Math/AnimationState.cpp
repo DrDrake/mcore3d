@@ -74,7 +74,7 @@ void AnimationState::assignTo(const Pose& pose)
 	allocateIdxHint();
 
 	for(size_t i=0; i<pose.size; ++i) {
-		keyIdxHint[i] = (uint16_t)clip->interpolateSingleTrack(t, clip->length, pose[i], i, keyIdxHint[i]);
+		keyIdxHint[i] = (uint16_t)clip->sampleSingleTrack(t, clip->length, pose[i], i, keyIdxHint[i]);
 		pose[i].flag = clip->tracks[i].flag;
 	}
 }
@@ -93,7 +93,7 @@ float AnimationState::blendResultTo(const Pose& accumulatePose, float accumulate
 	for(size_t i=0; i<accumulatePose.size; ++i)
 	{
 		AnimationClip::Sample sample;
-		keyIdxHint[i] = (uint16_t)clip->interpolateSingleTrack(t, clip->length, sample, i, keyIdxHint[i]);
+		keyIdxHint[i] = (uint16_t)clip->sampleSingleTrack(t, clip->length, sample, i, keyIdxHint[i]);
 		accumulatePose[i].flag = sample.flag;
 
 		// Handling the quaternion

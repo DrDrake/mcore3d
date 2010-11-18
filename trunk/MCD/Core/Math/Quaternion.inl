@@ -64,6 +64,14 @@ Quaternion<T>& Quaternion<T>::fromAxisAngle(const Vec3<T>& axis, param_type angl
 }
 
 template<typename T>
+Quaternion<T> Quaternion<T>::makeAxisAngle(const Vec3<T>& axis, param_type angle)
+{
+	Quaternion<T> ret;
+	ret.fromAxisAngle(axis, angle);
+	return ret;
+}
+
+template<typename T>
 void Quaternion<T>::toAxisAngle(Vec3<T>& axis, T& angle) const
 {
 	const T axisLen2 = getVec3().squaredLength();
@@ -148,11 +156,16 @@ void Quaternion<T>::transform(Vec3<T>& v) const
 template<typename T>
 bool Quaternion<T>::isNearEqual(const Quaternion<T>& rhs, T tolerance) const
 {
+	Quaternion<T> q1 = *this;
+	Quaternion<T> q2 = rhs;
+	q1.makePositiveW();
+	q2.makePositiveW();
+
 	return
-		Math<T>::isNearEqual(x, rhs.x, tolerance) &&
-		Math<T>::isNearEqual(y, rhs.y, tolerance) &&
-		Math<T>::isNearEqual(z, rhs.z, tolerance) &&
-		Math<T>::isNearEqual(w, rhs.w, tolerance);
+		Math<T>::isNearEqual(q1.x, q2.x, tolerance) &&
+		Math<T>::isNearEqual(q1.y, q2.y, tolerance) &&
+		Math<T>::isNearEqual(q1.z, q2.z, tolerance) &&
+		Math<T>::isNearEqual(q1.w, q2.w, tolerance);
 }
 
 template<typename T>
