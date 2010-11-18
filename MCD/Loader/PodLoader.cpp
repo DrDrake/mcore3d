@@ -139,8 +139,6 @@ static void getLocalTransform(const CPVRTModelPOD& pod, const SPODNode& node, Ma
 	PVRTMatrixMultiply(mat, mat, tmp);
 	pod.GetTranslationMatrix(tmp, node);
 	PVRTMatrixMultiply(mat, mat, tmp);
-
-	mat = mat.transpose();
 }
 /*
 static StrideArray<Vec3f> getVertexData(const SPODMesh& mesh)

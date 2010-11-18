@@ -119,6 +119,13 @@ public:
 		return Quaternion(-x, -y, -z, w);
 	}
 
+	/*! Since -(x,y,z),w and (x,y,z),-w represent the same transform,
+		one can use this function to make the w component always positive.
+	 */
+	void makePositiveW() {
+		static_cast<super_type&>(*this) *= w < T(0) ? T(-1) : T(1);
+	}
+
 	/*!	Apply to non-zero quaternion.
 		Returns zero if the operation fails.
 	 */
@@ -140,6 +147,8 @@ public:
 		\param[in] angle The angle of rotation in radian.
 	 */
 	Quaternion& fromAxisAngle(const Vec3<T>& axis, param_type angle);
+
+	static Quaternion makeAxisAngle(const Vec3<T>& axis, param_type angle);
 
 	/*!	Convert the quaternion to a rotation axis and the angle.
 		\param[out] axis The rotation axis, need NOT to be normalized.

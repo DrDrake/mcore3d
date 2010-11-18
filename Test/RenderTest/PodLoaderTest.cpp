@@ -36,9 +36,10 @@ TEST(PodLoaderTest)
 
 	{	// Setup GUI layer
 		Entity* e = framework.guiLayer().addFirstChild("Text");
-		e->localTransform.setTranslation(Vec3f(0, 600, 0));
+		e->localTransform.setTranslation(Vec3f(0, 100, 0));
 		TextLabelComponent* text = e->addComponent(new TextLabelComponent);
 		text->text = model;
+		text->anchor = Vec2f(0, 0);
 	}
 
 	{	// Load the model using prefab

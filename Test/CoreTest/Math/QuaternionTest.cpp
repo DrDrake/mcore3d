@@ -45,9 +45,26 @@ TEST(Basic_QuaternionTest)
 		CHECK(q.isNearEqual(q.inverseUnit().inverseUnit()));
 	}
 
+	{	// Creating and applying diff
+		Quaternionf master, target;
+		master.fromAxisAngle(Vec3f::c010, 0.3f * Mathf::cPi());
+		target.fromAxisAngle(Vec3f(1,1,0), 0.2f * Mathf::cPi());
+
+		const Quaternionf diff = master.inverse() * target;
+
+		Quaternionf q = master * diff;
+		CHECK(q.isNearEqual(target));
+	}
+
 	{	// Inverse with zero length
 		Quaternionf q(0, 0, 0, 0);
 		CHECK(q.isNearEqual(q.inverse().inverse()));
+	}
+
+	{	// The following 2 representation are consider the same
+		Quaternionf q1( 1,  1,  1, -1);
+		Quaternionf q2(-1, -1, -1, 1);
+		CHECK(q1.isNearEqual(q2));
 	}
 }
 
