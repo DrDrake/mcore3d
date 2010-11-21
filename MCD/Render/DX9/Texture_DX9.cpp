@@ -44,8 +44,8 @@ static bool copyToGpu(const GpuDataFormat& srcFormat, GpuDataFormat& destFormat,
 
 	byte_t* rowDataDest = outData;
 
-	// RGBA to ARGB
-	if(srcFormat == GpuDataFormat::get("uintRGBA8") && srcFormat == destFormat) {
+	// RGBA to BGRA
+	if(srcFormat == GpuDataFormat::get("uintRGBA8") && destFormat == GpuDataFormat::get("uintRGB8")) {
 		destFormat = GpuDataFormat::get("uintARGB8");
 
 		for(size_t i=0; i<height; ++i) {
@@ -60,8 +60,8 @@ static bool copyToGpu(const GpuDataFormat& srcFormat, GpuDataFormat& destFormat,
 		}
 		return true;
 	}
-	// RGB to ARGB
-	else if(srcFormat == GpuDataFormat::get("uintRGB8") && srcFormat == destFormat) {
+	// RGB to BGRA
+	else if(srcFormat == GpuDataFormat::get("uintRGB8") && (destFormat == GpuDataFormat::get("uintRGBA8") || destFormat == GpuDataFormat::get("uintRGB8"))) {
 		destFormat = GpuDataFormat::get("uintARGB8");
 
 		for(size_t i=0; i<height; ++i) {
@@ -70,7 +70,7 @@ static bool copyToGpu(const GpuDataFormat& srcFormat, GpuDataFormat& destFormat,
 				data[0] = inData[2];	// B <- R
 				data[1] = inData[1];	// G <- G
 				data[2] = inData[0];	// R <- B
-				data[3] = 255;		// A
+				data[3] = 255;			// A
 			}
 			rowDataDest += outDataPitch;
 		}
