@@ -117,6 +117,7 @@ Component* MaterialComponent::clone() const
 	cloned->cullFace = cullFace;
 	cloned->useVertexColor = useVertexColor;
 	cloned->diffuseMap = diffuseMap;
+	cloned->bumpMap = bumpMap;
 	return cloned;
 }
 

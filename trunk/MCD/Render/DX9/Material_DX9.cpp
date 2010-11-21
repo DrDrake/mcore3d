@@ -89,6 +89,9 @@ bool MaterialComponent::Impl::createPs(const char* headerCode)
 	"float mcdOpacity;\n"
 	"bool mcdLighting;\n"
 	"sampler2D texDiffuse;\n"
+	"#if USE_BUMP_MAP\n"
+	"sampler2D texBump;\n"
+	"#endif\n"
 
 	"void computeLighting(in Light light, in float3 P, in float3 N, in float3 V, inout float3 diffuse, inout float3 specular) {\n"
 	"	float3 L = light.position - P;\n"
@@ -99,6 +102,49 @@ bool MaterialComponent::Impl::createPs(const char* headerCode)
 	"	float specExp = pow(ndoth, mcdSpecularExponent);\n"
 	"	diffuse += ndotl * light.color.rgb;\n"
 	"	specular += specExp * light.color.rgb;\n"
+	"}\n"
+
+	// http://http.developer.nvidia.com/GPUGems2/gpugems2_chapter20.html
+//	"float4 bspline(in float2 uv, in sampler2D tex, in float2 texSize) {\n"
+//	"	float2 coord_hg = uv * texSize - float2(0.5f, 0.5f);\n"
+//	"	 float3 hg_x = tex1D(tex, coord_hg.x ).xyz;\n"
+//	"}\n"
+
+	// Reference: Bump Mapping Unparametrized Surfaces on the GPU
+	// http://jbit.net/~sparky/sfgrad_bump/mm_sfgrad_bump.pdf
+	// P: world position, N: interpolated normal, uv: bump map texture uv, map: the bump map
+	"float3 computeBump(in float3 P, in float3 N, in float2 uv, in sampler2D map, in float bumpFactor) {\n"
+	"	float3 vSigmaS = ddx(P);"
+	"	float3 vSigmaT = ddy(P);"
+	"	float3 vR1 = cross(vSigmaT, N);"
+	"	float3 vR2 = cross(N, vSigmaS);"
+	"	float fDet = dot(vSigmaS, vR1);"
+	"	\n"
+//	"	float dBs = ddx(tex2D(map, uv).x);"
+//	"	float dBt = ddy(tex2D(map, uv).x);"
+	"	float2 TexDx = ddx(uv);"
+	"	float2 TexDy = ddy(uv);"
+	"	float2 STll = uv;"
+	"	float2 STlr = uv + TexDx;"
+	"	float2 STul = uv + TexDy;"
+	"	float Hll = tex2D(map, STll).x;"
+	"	float Hlr = tex2D(map, STlr).x;"
+	"	float Hul = tex2D(map, STul).x;"
+/*	"	STlr = uv + TexDx * 4;"
+	"	STul = uv + TexDy * 4;"
+	"	Hlr += tex2D(map, STlr).x * 0.4;"
+	"	Hul += tex2D(map, STul).x * 0.4;"
+	"	STlr = uv + TexDx * 8;"
+	"	STul = uv + TexDy * 8;"
+	"	Hlr += tex2D(map, STlr).x * 0.2;"
+	"	Hul += tex2D(map, STul).x * 0.2;"
+	"	Hlr /= 1.7;"
+	"	Hul /= 1.7;"*/
+	"	float dBs = Hlr - Hll;"
+	"	float dBt = Hul - Hll;"
+	"	\n"
+	"	float3 vSurfGrad = sign(fDet) * (dBs * vR1 + dBt * vR2);\n"
+	"	return normalize(abs(fDet) * N - bumpFactor * vSurfGrad);\n"
 	"}\n"
 
 	"struct PS_INPUT {\n"
@@ -113,6 +159,7 @@ bool MaterialComponent::Impl::createPs(const char* headerCode)
 	"struct PS_OUTPUT { float4 color : COLOR; };\n"
 
 	"PS_OUTPUT main(PS_INPUT _in) {\n"
+	"	_in.uvDiffuse.y = 1 - _in.uvDiffuse.y\n;"
 	"	PS_OUTPUT _out = (PS_OUTPUT) 0;\n"
 	"	if(!mcdLighting) {\n"
 	"		float4 diffuseMap = tex2D(texDiffuse, _in.uvDiffuse);\n"
@@ -131,12 +178,18 @@ bool MaterialComponent::Impl::createPs(const char* headerCode)
 	"	float3 V = normalize(mcdCameraPosition - P);\n"
 	"	float3 lightDiffuse = 0;\n"
 	"	float3 lightSpecular = 0;\n"
+
+	"#if USE_BUMP_MAP\n"
+	"	N = computeBump(P, _in.normal, _in.uvDiffuse, texBump, 1.0/10);\n"
+	"#endif\n"
+
 	"	for(int i=0; i<MCD_MAX_LIGHT_COUNT; ++i)\n"
 	"		computeLighting(mcdLights[i], P, N, V, lightDiffuse, lightSpecular);\n"
 	"	float4 diffuseMap = tex2D(texDiffuse, _in.uvDiffuse);\n"
 	"	float3 diffuse = mcdDiffuseColor.rgb * mcdDiffuseColor.a * diffuseMap.rgb * lightDiffuse;\n"
 	"	float3 specular = mcdSpecularColor.rgb * mcdSpecularColor.a * lightSpecular;\n"
 	"	float3 emission = mcdEmissionColor.rgb * mcdEmissionColor.a;\n"
+
 	"#if USE_VERTEX_COLOR\n"
 	"	_out.color.rgb = _in.color.rgb * diffuse;\n"
 	"#else\n"
@@ -171,11 +224,13 @@ void MaterialComponent::Impl::createShadersIfNeeded()
 {
 	static const char* defines[][2] = {
 		{ "#define USE_VERTEX_COLOR 0\n", "#define USE_VERTEX_COLOR 1\n" },
+		{ "#define USE_BUMP_MAP 0\n", "#define USE_BUMP_MAP 1\n" },
 	};
 
 	if(mLastMacro.initialized) {
 		const bool hasChanges =
-			mLastMacro.userVertexColor != mBackRef->useVertexColor;
+			mLastMacro.useVertexColor != mBackRef->useVertexColor ||
+			mLastMacro.useBumpMap != bool(mBackRef->bumpMap);
 		if(!hasChanges) return;
 	}
 
@@ -183,8 +238,10 @@ void MaterialComponent::Impl::createShadersIfNeeded()
 
 	std::string header;
 	header += defines[0][mBackRef->useVertexColor ? 1 : 0];
+	header += defines[1][mBackRef->bumpMap ? 1 : 0];
 
-	mLastMacro.userVertexColor = mBackRef->useVertexColor;
+	mLastMacro.useVertexColor = mBackRef->useVertexColor;
+	mLastMacro.useBumpMap = bool(mBackRef->bumpMap);
 
 	MCD_VERIFY(createVs(header.c_str()));
 	MCD_VERIFY(createPs(header.c_str()));
@@ -295,8 +352,19 @@ void MaterialComponent::preRender(size_t pass, void* context)
 			device, mImpl.mConstantHandles.lighting, lighting
 		) == S_OK);
 
-		if(TexturePtr diffuse = diffuseMap ? diffuseMap : renderer.mWhiteTexture)
-			diffuse->bind(mImpl.mPs.constTable->GetSamplerIndex("texDiffuse"));
+		if(TexturePtr diffuse = diffuseMap ? diffuseMap : renderer.mWhiteTexture) {
+			int samplerIdx = mImpl.mPs.constTable->GetSamplerIndex("texDiffuse");
+			device->SetSamplerState(samplerIdx, D3DSAMP_MINFILTER, D3DTEXF_LINEAR);
+			device->SetSamplerState(samplerIdx, D3DSAMP_MAGFILTER, D3DTEXF_LINEAR );
+			diffuse->bind(samplerIdx);
+		}
+
+		if(TexturePtr bump = bumpMap ? bumpMap : renderer.mWhiteTexture) {
+			int samplerIdx = mImpl.mPs.constTable->GetSamplerIndex("texBump");
+			device->SetSamplerState(samplerIdx, D3DSAMP_MINFILTER, D3DTEXF_LINEAR);
+			device->SetSamplerState(samplerIdx, D3DSAMP_MAGFILTER, D3DTEXF_LINEAR );
+			bump->bind(samplerIdx);
+		}
 	}
 
 	device->SetVertexShader(mImpl.mVs.vs);

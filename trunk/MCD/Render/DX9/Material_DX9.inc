@@ -44,7 +44,8 @@ public:
 	struct MacroSettings {
 		MacroSettings() : initialized(false) {}
 		bool initialized;
-		bool userVertexColor;
+		bool useVertexColor;
+		bool useBumpMap;
 	};	// MacroSettings
 
 	MacroSettings mLastMacro;	///< The macro setting for the last frame, to detect shader recreation.

@@ -115,6 +115,7 @@ public:
 	bool useVertexColor;
 
 	TexturePtr diffuseMap;
+	TexturePtr bumpMap;
 
 	sal_override bool isTransparent() const { return opacity < 1; }
 
