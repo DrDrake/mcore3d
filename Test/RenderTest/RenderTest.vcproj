@@ -311,6 +311,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\BumpMapTest.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\DisplayListTest.cpp"
 				>
 			</File>

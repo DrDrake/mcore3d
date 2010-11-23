@@ -11,6 +11,9 @@ Skeleton::Skeleton(const Path& fileId)
 	: Resource(fileId)
 {}
 
+Skeleton::~Skeleton()
+{}
+
 void Skeleton::init(size_t jointCount)
 {
 	parents.resize(jointCount);
@@ -44,8 +47,12 @@ void Skeleton::swap(Skeleton& rhs)
 	std::swap(basePoseInverse, rhs.basePoseInverse);
 }
 
-Skeleton::~Skeleton()
-{}
+size_t Skeleton::jointCount() const
+{
+	MCD_ASSERT(parents.size() == names.size());
+	MCD_ASSERT(parents.size() == basePose.size());
+	return parents.size();
+}
 
 SkeletonPose::SkeletonPose()
 	: subTrackOffset(0)

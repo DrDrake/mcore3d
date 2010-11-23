@@ -91,6 +91,7 @@ bool MaterialComponent::Impl::createPs(const char* headerCode)
 	"sampler2D texDiffuse;\n"
 	"#if USE_BUMP_MAP\n"
 	"sampler2D texBump;\n"
+	"float2 mcdBumpMapSize;\n"
 	"#endif\n"
 
 	"void computeLighting(in Light light, in float3 P, in float3 N, in float3 V, inout float3 diffuse, inout float3 specular) {\n"
@@ -110,36 +111,70 @@ bool MaterialComponent::Impl::createPs(const char* headerCode)
 //	"	 float3 hg_x = tex1D(tex, coord_hg.x ).xyz;\n"
 //	"}\n"
 
+	// So far the Uniform cubic B-splines gives the best result:
+	// http://en.wikipedia.org/wiki/B-spline#Cubic_B-Spline
+	"float cubicFilter(in float t, float v0, float v1, float v2, float v3) {\n"
+	"	float4x4 M = {\n"
+	"		-1,  3, -3,  1,\n"
+	"		 3, -6,  3,  0,\n"
+	"		-3,  0,  3,  0,\n"
+	"		 1,  4,  1,  0\n"
+	"	};\n"
+	"	return (1.0/6) * dot(float4(t*t*t, t*t, t, 1), mul(M, float4(v0, v1, v2, v3)));\n"
+	"}\n"
+
+	"float bicubicInterpolation(in float2 uv, in sampler2D tex, in float2 texSize) {\n"
+	"	float2 w = 1.0 / texSize;"
+	"	float2 f = frac(uv * texSize);"
+
+	"	float v1 = cubicFilter(f.x,"
+	"		tex2D(tex, float2(uv.x - w.x,   uv.y - w.y)).x,"
+	"		tex2D(tex, float2(uv.x,         uv.y - w.y)).x,"
+	"		tex2D(tex, float2(uv.x + w.x,   uv.y - w.y)).x,"
+	"		tex2D(tex, float2(uv.x + 2*w.x, uv.y - w.y)).x);"
+
+	"	float v2 = cubicFilter(f.x,"
+	"		tex2D(tex, float2(uv.x - w.x,   uv.y)).x,"
+	"		tex2D(tex, float2(uv.x,         uv.y)).x,"
+	"		tex2D(tex, float2(uv.x + w.x,   uv.y)).x,"
+	"		tex2D(tex, float2(uv.x + 2*w.x, uv.y)).x);"
+
+	"	float v3 = cubicFilter(f.x,"
+	"		tex2D(tex, float2(uv.x - w.x,   uv.y + w.y)).x,"
+	"		tex2D(tex, float2(uv.x,         uv.y + w.y)).x,"
+	"		tex2D(tex, float2(uv.x + w.x,   uv.y + w.y)).x,"
+	"		tex2D(tex, float2(uv.x + 2*w.x, uv.y + w.y)).x);"
+
+	"	float v4 = cubicFilter(f.x,"
+	"		tex2D(tex, float2(uv.x - w.x,   uv.y + 2*w.y)).x,"
+	"		tex2D(tex, float2(uv.x,         uv.y + 2*w.y)).x,"
+	"		tex2D(tex, float2(uv.x + w.x,   uv.y + 2*w.y)).x,"
+	"		tex2D(tex, float2(uv.x + 2*w.x, uv.y + 2*w.y)).x);"
+
+	"	return cubicFilter(f.y, v1, v2, v3, v4);"
+	"}\n"
+
 	// Reference: Bump Mapping Unparametrized Surfaces on the GPU
 	// http://jbit.net/~sparky/sfgrad_bump/mm_sfgrad_bump.pdf
 	// P: world position, N: interpolated normal, uv: bump map texture uv, map: the bump map
-	"float3 computeBump(in float3 P, in float3 N, in float2 uv, in sampler2D map, in float bumpFactor) {\n"
+	"float3 computeBump(in float3 P, in float3 N, in float2 uv, in sampler2D map, in float bumpFactor, in float2 bumpMapSize) {\n"
 	"	float3 vSigmaS = ddx(P);"
 	"	float3 vSigmaT = ddy(P);"
 	"	float3 vR1 = cross(vSigmaT, N);"
 	"	float3 vR2 = cross(N, vSigmaS);"
 	"	float fDet = dot(vSigmaS, vR1);"
 	"	\n"
-//	"	float dBs = ddx(tex2D(map, uv).x);"
-//	"	float dBt = ddy(tex2D(map, uv).x);"
+//	"	float height = bicubicInterpolation(uv, map, bumpMapSize);"
+//	"	float dBs = ddx(height);"
+//	"	float dBt = ddy(height);"
 	"	float2 TexDx = ddx(uv);"
 	"	float2 TexDy = ddy(uv);"
 	"	float2 STll = uv;"
 	"	float2 STlr = uv + TexDx;"
 	"	float2 STul = uv + TexDy;"
-	"	float Hll = tex2D(map, STll).x;"
-	"	float Hlr = tex2D(map, STlr).x;"
-	"	float Hul = tex2D(map, STul).x;"
-/*	"	STlr = uv + TexDx * 4;"
-	"	STul = uv + TexDy * 4;"
-	"	Hlr += tex2D(map, STlr).x * 0.4;"
-	"	Hul += tex2D(map, STul).x * 0.4;"
-	"	STlr = uv + TexDx * 8;"
-	"	STul = uv + TexDy * 8;"
-	"	Hlr += tex2D(map, STlr).x * 0.2;"
-	"	Hul += tex2D(map, STul).x * 0.2;"
-	"	Hlr /= 1.7;"
-	"	Hul /= 1.7;"*/
+	"	float Hll = bicubicInterpolation(STll, map, bumpMapSize);"
+	"	float Hlr = bicubicInterpolation(STlr, map, bumpMapSize);"
+	"	float Hul = bicubicInterpolation(STul, map, bumpMapSize);"
 	"	float dBs = Hlr - Hll;"
 	"	float dBt = Hul - Hll;"
 	"	\n"
@@ -180,12 +215,13 @@ bool MaterialComponent::Impl::createPs(const char* headerCode)
 	"	float3 lightSpecular = 0;\n"
 
 	"#if USE_BUMP_MAP\n"
-	"	N = computeBump(P, _in.normal, _in.uvDiffuse, texBump, 1.0/10);\n"
+	"	N = computeBump(P, _in.normal, _in.uvDiffuse, texBump, 1.0/5, mcdBumpMapSize);\n"
 	"#endif\n"
 
 	"	for(int i=0; i<MCD_MAX_LIGHT_COUNT; ++i)\n"
 	"		computeLighting(mcdLights[i], P, N, V, lightDiffuse, lightSpecular);\n"
 	"	float4 diffuseMap = tex2D(texDiffuse, _in.uvDiffuse);\n"
+//	"	diffuseMap = bicubicInterpolation(_in.uvDiffuse, texDiffuse, float2(103, 103));"
 	"	float3 diffuse = mcdDiffuseColor.rgb * mcdDiffuseColor.a * diffuseMap.rgb * lightDiffuse;\n"
 	"	float3 specular = mcdSpecularColor.rgb * mcdSpecularColor.a * lightSpecular;\n"
 	"	float3 emission = mcdEmissionColor.rgb * mcdEmissionColor.a;\n"
@@ -216,6 +252,7 @@ bool MaterialComponent::Impl::createPs(const char* headerCode)
 	mConstantHandles.specularExponent = mPs.constTable->GetConstantByName(nullptr, "mcdSpecularExponent");
 	mConstantHandles.opacity = mPs.constTable->GetConstantByName(nullptr, "mcdOpacity");
 	mConstantHandles.lighting = mPs.constTable->GetConstantByName(nullptr, "mcdLighting");
+	mConstantHandles.bumpMapSize = mPs.constTable->GetConstantByName(nullptr, "mcdBumpMapSize");
 
 	return true;
 }
@@ -359,11 +396,16 @@ void MaterialComponent::preRender(size_t pass, void* context)
 			diffuse->bind(samplerIdx);
 		}
 
-		if(TexturePtr bump = bumpMap ? bumpMap : renderer.mWhiteTexture) {
+		if(TexturePtr bump = bumpMap) {
 			int samplerIdx = mImpl.mPs.constTable->GetSamplerIndex("texBump");
-			device->SetSamplerState(samplerIdx, D3DSAMP_MINFILTER, D3DTEXF_LINEAR);
-			device->SetSamplerState(samplerIdx, D3DSAMP_MAGFILTER, D3DTEXF_LINEAR );
+//			device->SetSamplerState(samplerIdx, D3DSAMP_MINFILTER, D3DTEXF_LINEAR);
+//			device->SetSamplerState(samplerIdx, D3DSAMP_MAGFILTER, D3DTEXF_LINEAR );
 			bump->bind(samplerIdx);
+
+			float size[2] = { float(bump->width), float(bump->height) };
+			MCD_VERIFY(mImpl.mPs.constTable->SetFloatArray(
+				device, mImpl.mConstantHandles.bumpMapSize, size, 2
+			) == S_OK);
 		}
 	}
 

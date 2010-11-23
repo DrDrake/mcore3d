@@ -37,6 +37,7 @@ public:
 		D3DXHANDLE specularExponent;
 		D3DXHANDLE opacity;
 		D3DXHANDLE lighting;
+		D3DXHANDLE bumpMapSize;
 	};	// ConstantHandles
 
 	ConstantHandles mConstantHandles;

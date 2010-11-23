@@ -30,6 +30,8 @@ public:
 	void swap(Skeleton& rhs);
 
 // Attributes
+	size_t jointCount() const;
+
 	/// Array of index specifing the parent of a joint.
 	/// The root joint will indicate by an index which point to itself, ie at index = 0.
 	std::vector<size_t> parents;
