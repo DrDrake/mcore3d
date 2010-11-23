@@ -5,6 +5,11 @@
 
 namespace MCD {
 
+AnimatedTransform::AnimatedTransform()
+	: trackOffset(0), trackPerEntity(0)
+{
+}
+
 void AnimatedTransform::update()
 {
 	if(!animation || affectingEntities.empty())
