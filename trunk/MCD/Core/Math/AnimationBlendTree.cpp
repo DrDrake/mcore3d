@@ -3,6 +3,7 @@
 #include "Quaternion.h"
 #include "../System/Deque.h"
 #include "../System/ResourceManager.h"
+#include "../System/StrUtility.h"
 #include "../System/XmlParser.h"
 
 namespace MCD {
@@ -18,6 +19,20 @@ AnimationBlendTree::AnimationBlendTree()
 AnimationBlendTree::~AnimationBlendTree()
 {
 	resetPoseBuffer();
+}
+
+AnimationBlendTree::AnimationBlendTree(const AnimationBlendTree& rhs)
+	: mTrackCount(0), mPoseBuffer(nullptr)
+{
+	*this = rhs;
+}
+
+AnimationBlendTree& AnimationBlendTree::operator=(const AnimationBlendTree& rhs)
+{
+	resetPoseBuffer();
+	for(size_t i=0; i<rhs.nodes.size(); ++i)
+		nodes.push_back(rhs.nodes[i].clone());
+	return *this;
 }
 
 int AnimationBlendTree::allocatePose(size_t trackCount)
@@ -122,7 +137,9 @@ Pose AnimationBlendTree::getFinalPose()
 		parentNode.processChild(&childNode, *this);
 	}
 
-	return getPose(nodes.back().returnPose(*this));
+	const size_t outputIdx = nodes.back().returnPose(*this);
+	releasePose(outputIdx);
+	return getPose(outputIdx);
 }
 
 static INode* loadClipNode(XmlParser& parser, ResourceManager& mgr)
@@ -136,6 +153,7 @@ static INode* loadClipNode(XmlParser& parser, ResourceManager& mgr)
 static INode* loadLerpNode(XmlParser& parser)
 {
 	AnimationBlendTree::LerpNode* n = new AnimationBlendTree::LerpNode;
+	n->name = parser.attributeValue("name");
 	n->t = parser.attributeValueAsFloat("t", 0.5f);
 	return n;
 }
@@ -198,6 +216,26 @@ bool AnimationBlendTree::loadFromXml(const char* xml, ResourceManager& mgr)
 	return true;
 }
 
+std::string AnimationBlendTree::saveToXml() const
+{
+	std::string ret;
+	size_t lastParentIdx = size_t(-1);
+	for(size_t i=0; i<nodes.size(); ++i) {
+		if(i == lastParentIdx)
+			ret = nodes[i].xmlStart() + ret + nodes[i].xmlEnd();
+		else
+			ret = ret + nodes[i].xmlStart() + nodes[i].xmlEnd();
+		lastParentIdx = nodes[i].parent;
+	}
+
+	return ret;
+}
+
+INode* AnimationBlendTree::ClipNode::clone() const
+{
+	return new ClipNode(*this);
+}
+
 int AnimationBlendTree::ClipNode::returnPose(AnimationBlendTree& tree)
 {
 	state.worldTime = tree.worldTime;
@@ -207,9 +245,28 @@ int AnimationBlendTree::ClipNode::returnPose(AnimationBlendTree& tree)
 	return i;
 }
 
+std::string AnimationBlendTree::ClipNode::xmlStart() const
+{
+	std::string ret = "<clip ";
+	ret += "rate=\"" + float2Str(state.rate) + "\"";
+	ret += "src=\"" + state.clip->fileId().getString() + "\"";
+	ret += ">";
+	return ret;
+}
+
+std::string AnimationBlendTree::ClipNode::xmlEnd() const
+{
+	return "</clip>";
+}
+
 AnimationBlendTree::LerpNode::LerpNode()
 	: t(0.5f), pose1Idx(-1)
 {}
+
+INode* AnimationBlendTree::LerpNode::clone() const
+{
+	return new LerpNode(*this);
+}
 
 void AnimationBlendTree::LerpNode::processChild(AnimationBlendTree::INode* child, AnimationBlendTree& tree)
 {
@@ -234,9 +291,28 @@ int AnimationBlendTree::LerpNode::returnPose(AnimationBlendTree& tree)
 	return pose1Idx;
 }
 
+std::string AnimationBlendTree::LerpNode::xmlStart() const
+{
+	std::string ret = "<lerp ";
+	if(!name.empty()) ret += std::string("name=\"") + name.c_str() + "\"";
+	ret += "t=\"" + float2Str(t) + "\"";
+	ret += ">";
+	return ret;
+}
+
+std::string AnimationBlendTree::LerpNode::xmlEnd() const
+{
+	return "</lerp>";
+}
+
 AnimationBlendTree::AdditiveNode::AdditiveNode()
 	: pose1Idx(-1)
 {}
+
+INode* AnimationBlendTree::AdditiveNode::clone() const
+{
+	return new AdditiveNode(*this);
+}
 
 void AnimationBlendTree::AdditiveNode::processChild(AnimationBlendTree::INode* child, AnimationBlendTree& tree)
 {
@@ -269,6 +345,18 @@ void AnimationBlendTree::AdditiveNode::processChild(AnimationBlendTree::INode* c
 int AnimationBlendTree::AdditiveNode::returnPose(AnimationBlendTree& tree)
 {
 	return pose1Idx;
+}
+
+std::string AnimationBlendTree::AdditiveNode::xmlStart() const
+{
+	std::string ret = "<additive";
+	ret += ">";
+	return ret;
+}
+
+std::string AnimationBlendTree::AdditiveNode::xmlEnd() const
+{
+	return "</additive>";
 }
 
 }	// namespace MCD

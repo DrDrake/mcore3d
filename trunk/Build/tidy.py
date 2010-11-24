@@ -12,7 +12,7 @@ def dos2unix(file):
 
 def tidy(file):
 	print file
-	dos3unix(file)
+	dos2unix(file)
 
 def listFiles(rootdir):
 	import os, glob
