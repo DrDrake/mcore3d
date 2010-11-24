@@ -64,6 +64,18 @@ typedef AnimationBlendTree::LerpNode LerpNode;
 
 TEST_FIXTURE(AnimationBlendTreeTestFixture, Basic)
 {
+	ClipNode* n = new ClipNode;
+	n->state.clip = clip1;
+
+	tree.nodes.push_back(n);
+
+	// Invoke getFinalPose multiple times to ensure the temporary cache work correctly
+	for(size_t i=0; i<20; ++i)
+		tree.getFinalPose();
+}
+
+TEST_FIXTURE(AnimationBlendTreeTestFixture, MultiNode)
+{
 	ClipNode* n1 = new ClipNode;
 	n1->state.clip = clip1;
 	n1->parent = 2;
@@ -81,7 +93,12 @@ TEST_FIXTURE(AnimationBlendTreeTestFixture, Basic)
 
 	tree.inOrderSort();
 
-	tree.getFinalPose();
+	// Invoke getFinalPose multiple times to ensure the temporary cache work correctly
+	for(size_t i=0; i<20; ++i)
+		tree.getFinalPose();
+
+	AnimationBlendTree copy(tree);
+	CHECK_EQUAL(tree.nodes.size(), copy.nodes.size());
 }
 
 TEST_FIXTURE(AnimationBlendTreeTestFixture, Xml)
@@ -101,4 +118,8 @@ TEST_FIXTURE(AnimationBlendTreeTestFixture, Xml)
 
 	AnimationBlendTree::Pose pose = tree.getFinalPose();
 	CHECK_EQUAL(1.5f, pose[0].v.z);
+
+	CHECK_EQUAL("<lerp name=\"node1\"t=\"0.5\"><clip rate=\"1.2\"src=\"clip1.clip\">"\
+		"</clip><clip rate=\"0.9\"src=\"clip2.clip\"></clip></lerp>", tree.saveToXml()
+	);
 }

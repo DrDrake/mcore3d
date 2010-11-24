@@ -15,8 +15,9 @@ class MCD_CORE_API AnimationBlendTree
 {
 public:
 	AnimationBlendTree();
-
 	~AnimationBlendTree();
+	AnimationBlendTree(const AnimationBlendTree& rhs);
+	AnimationBlendTree& operator=(const AnimationBlendTree& rhs);
 
 	typedef AnimationClip::Pose Pose;
 
@@ -25,9 +26,18 @@ public:
 	public:
 		FixString name;
 		size_t parent;
+		INode() : parent(size_t(-1)) {}
 		virtual ~INode() {}
+		virtual INode* clone() const = 0;
+
 		virtual void processChild(INode* child, AnimationBlendTree& tree) = 0;
 		virtual int returnPose(AnimationBlendTree& tree) = 0;
+
+		/// Get the animation clip resource if this node has one, usefull during serialization.
+		virtual AnimationClipPtr getClipSource() { return nullptr; }
+
+		virtual std::string xmlStart() const = 0;
+		virtual std::string xmlEnd() const = 0;
 	};	// INode
 
 	/// It's a leaf node
@@ -35,8 +45,12 @@ public:
 	{
 	public:
 		AnimationState state;
+		sal_override INode* clone() const;
 		sal_override void processChild(INode* child, AnimationBlendTree& tree) { MCD_ASSERT(false); }
 		sal_override int returnPose(AnimationBlendTree& tree);
+		sal_override AnimationClipPtr getClipSource() { return state.clip; }
+		sal_override std::string xmlStart() const;
+		sal_override std::string xmlEnd() const;
 	};	// ClipNode
 
 	/// Lerp between two child node
@@ -45,8 +59,11 @@ public:
 	public:
 		LerpNode();
 		float t;	///< The lerp parameter
+		sal_override INode* clone() const;
 		sal_override void processChild(INode* child, AnimationBlendTree& tree);
 		sal_override int returnPose(AnimationBlendTree& tree);
+		sal_override std::string xmlStart() const;
+		sal_override std::string xmlEnd() const;
 	protected:
 		int pose1Idx;
 	};	// LerpNode
@@ -57,8 +74,11 @@ public:
 	{
 	public:
 		AdditiveNode();
+		sal_override INode* clone() const;
 		sal_override void processChild(INode* child, AnimationBlendTree& tree);
 		sal_override int returnPose(AnimationBlendTree& tree);
+		sal_override std::string xmlStart() const;
+		sal_override std::string xmlEnd() const;
 	protected:
 		int pose1Idx;
 	};	// AdditiveNode
@@ -82,6 +102,8 @@ public:
 	/// Fill the blend tree from an Xml file, a ResourceManager is also needed
 	/// in order to load the animation tracks.
 	sal_checkreturn bool loadFromXml(const char* xml, ResourceManager& mgr);
+
+	std::string saveToXml() const;
 
 protected:
 	int allocatePose(size_t trackCount=0);

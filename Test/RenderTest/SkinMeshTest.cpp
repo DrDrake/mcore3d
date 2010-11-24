@@ -13,8 +13,8 @@ using namespace MCD;
 class SkinMeshTestFixture
 {
 public:
-	static const size_t jointCount = 8;
-	static const size_t jointLength = 1;
+	static const size_t jointCount = 10;
+	static const float jointLength;
 
 	SkinMeshTestFixture()
 	{
@@ -57,12 +57,9 @@ public:
 		// Re-acquire the position pointer
 		position = builder.getAttributeAs<Vec3f>(builder.posId);
 
-		const float jointLength = length / jointCount;
-
 		for(size_t i=0; i<jointIdx.size; ++i) {
 			// Find the 4 nearest joints
-			float z = position[i].z;// + length / 2;
-			int nearestJointIdx = int(z * jointLength);
+			const int nearestJointIdx = int(position[i].z / jointLength);
 			jointIdx[i][0] = uint8_t(Math<int>::clamp(nearestJointIdx - 0, 0, jointCount - 1));
 			jointIdx[i][1] = uint8_t(Math<int>::clamp(nearestJointIdx - 1, 0, jointCount - 1));
 			jointIdx[i][2] = uint8_t(Math<int>::clamp(nearestJointIdx + 1, 0, jointCount - 1));
@@ -131,7 +128,7 @@ public:
 			else {
 				clip->tracks[i].flag = AnimationClip::Slerp;
 				for(size_t j=0; j<keys.size; ++j)
-					keys[j].cast<Quaternionf>().fromAxisAngle(Vec3f::c100, Mathf::cPi() * j / 10);	// Rotate around x-axis anti-clockwise for each key frame
+					keys[j].cast<Quaternionf>().fromAxisAngle(Vec3f::c100, Mathf::cPi() * j / jointCount);	// Rotate around x-axis anti-clockwise for each key frame
 			}
 		}
 	}
@@ -159,6 +156,8 @@ public:
 	SkeletonPtr skeleton;
 	AnimationClipPtr clip;
 };	// SkinMeshTestFixture
+
+const float SkinMeshTestFixture::jointLength = 1.0f;
 
 TEST_FIXTURE(SkinMeshTestFixture, Render)
 {

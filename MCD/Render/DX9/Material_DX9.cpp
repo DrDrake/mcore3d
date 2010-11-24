@@ -154,6 +154,96 @@ bool MaterialComponent::Impl::createPs(const char* headerCode)
 	"	return cubicFilter(f.y, v1, v2, v3, v4);"
 	"}\n"
 
+	// From the paper: Accuracy of GPU-based B-Spline evaluation
+	// http://www.dannyruijters.nl/cubicinterpolation/
+	// http://http.developer.nvidia.com/GPUGems2/gpugems2_chapter20.html
+	"float interpolate_bicubic(in float2 uv, in sampler2D tex, in float2 texSize) {"
+	"	float2 w = 1.0 / texSize;"
+	"	float2 f = frac(uv * texSize);"
+
+	"	float4x4 M = {\n"
+	"		-1,  3, -3,  1,\n"
+	"		 3, -6,  3,  0,\n"
+	"		-3,  0,  3,  0,\n"
+	"		 1,  4,  1,  0\n"
+	"	};\n"
+
+	"	float4 wx = mul(float4(f.x*f.x*f.x, f.x*f.x, f.x, 1), M) / 6;"
+	"	float4 wy = mul(float4(f.y*f.y*f.y, f.y*f.y, f.y, 1), M) / 6;"
+	"	float2 w0 = float2(wx.x, wy.x);"
+	"	float2 w1 = float2(wx.y, wy.y);"
+	"	float2 w2 = float2(wx.z, wy.z);"
+	"	float2 w3 = float2(wx.w, wy.w);"
+	"	float2 g0 = w0 + w1;"
+	"	float2 g1 = w2 + w3;"
+	"	float2 h0 = uv + (w1 / g0 - 1) * w;"
+	"	float2 h1 = uv + (w3 / g1 + 1) * w;"
+
+	"	float tex00 = tex2D(tex, float2(h0.x, h0.y)).x;"
+	"	float tex10 = tex2D(tex, float2(h1.x, h0.y)).x;"
+	"	float tex01 = tex2D(tex, float2(h0.x, h1.y)).x;"
+	"	float tex11 = tex2D(tex, float2(h1.x, h1.y)).x;"
+
+	"	tex00 = lerp(tex01, tex00, g0.y);"
+	"	tex10 = lerp(tex11, tex10, g0.y);"
+
+	"	return lerp(tex10, tex00, g0.x);"
+	"}"
+
+	"float interpolate_bicubic2(in float2 uv, in sampler2D tex, in float2 texSize) {"
+//	"	return tex2D(tex, uv);"
+	"	float2 rec_nrCP = 1.0/texSize;"
+	"	float2 coord_hg = uv * texSize-0.5;"
+	"	float2 index = floor(coord_hg);"
+
+//	"	float2 fraction = coord_hg-index;"
+//	"	float2 one_frac = 1.0-fraction;"
+//	"	float2 w0 = 1.0/6.0 * one_frac*one_frac*one_frac;"
+//	"	float2 w1 = 2.0/3.0-0.5 * fraction*fraction*(2.0-fraction);"
+//	"	float2 w2 = 2.0/3.0-0.5 * one_frac*one_frac*(2.0-one_frac);"
+//	"	float2 w3 = 1.0/6.0 * fraction*fraction*fraction;"
+
+	"	float2 f = coord_hg - index;"
+	"	float4x4 M = {\n"
+	"		-1,  3, -3,  1,\n"
+	"		 3, -6,  3,  0,\n"
+	"		-3,  0,  3,  0,\n"
+	"		 1,  4,  1,  0\n"
+	"	};\n"
+	"	M /= 6;"
+
+	"	float4 wx = mul(float4(f.x*f.x*f.x, f.x*f.x, f.x, 1), M);"
+	"	float4 wy = mul(float4(f.y*f.y*f.y, f.y*f.y, f.y, 1), M);"
+	"	float2 w0 = float2(wx.x, wy.x);"
+	"	float2 w1 = float2(wx.y, wy.y);"
+	"	float2 w2 = float2(wx.z, wy.z);"
+	"	float2 w3 = float2(wx.w, wy.w);"
+
+	"	float2 g0 = w0 + w1;"
+	"	float2 g1 = w2 + w3;"
+	"	float2 h0 = w1 / g0 - 1;"
+	"	float2 h1 = w3 / g1 + 1;"
+
+	"	float2 coord00 = index + h0;"
+	"	float2 coord10 = index + float2(h1.x,h0.y);"
+	"	float2 coord01 = index + float2(h0.x,h1.y);"
+	"	float2 coord11 = index + h1;"
+
+	"	coord00 = (coord00 + 0.5) * rec_nrCP;"
+	"	coord10 = (coord10 + 0.5) * rec_nrCP;"
+	"	coord01 = (coord01 + 0.5) * rec_nrCP;"
+	"	coord11 = (coord11 + 0.5) * rec_nrCP;"
+
+	"	float tex00 = tex2D(tex, coord00).x;"
+	"	float tex10 = tex2D(tex, coord10).x;"
+	"	float tex01 = tex2D(tex, coord01).x;"
+	"	float tex11 = tex2D(tex, coord11).x;"
+
+	"	tex00 = lerp(tex01, tex00, g0.y);"
+	"	tex10 = lerp(tex11, tex10, g0.y);"
+	"	return lerp(tex10, tex00, g0.x);"
+	"}"
+
 	// Reference: Bump Mapping Unparametrized Surfaces on the GPU
 	// http://jbit.net/~sparky/sfgrad_bump/mm_sfgrad_bump.pdf
 	// P: world position, N: interpolated normal, uv: bump map texture uv, map: the bump map
@@ -164,7 +254,7 @@ bool MaterialComponent::Impl::createPs(const char* headerCode)
 	"	float3 vR2 = cross(N, vSigmaS);"
 	"	float fDet = dot(vSigmaS, vR1);"
 	"	\n"
-//	"	float height = bicubicInterpolation(uv, map, bumpMapSize);"
+//	"	float height = interpolate_bicubic2(uv, map, bumpMapSize);"
 //	"	float dBs = ddx(height);"
 //	"	float dBt = ddy(height);"
 	"	float2 TexDx = ddx(uv);"
@@ -172,9 +262,9 @@ bool MaterialComponent::Impl::createPs(const char* headerCode)
 	"	float2 STll = uv;"
 	"	float2 STlr = uv + TexDx;"
 	"	float2 STul = uv + TexDy;"
-	"	float Hll = bicubicInterpolation(STll, map, bumpMapSize);"
-	"	float Hlr = bicubicInterpolation(STlr, map, bumpMapSize);"
-	"	float Hul = bicubicInterpolation(STul, map, bumpMapSize);"
+	"	float Hll = interpolate_bicubic2(STll, map, bumpMapSize);"
+	"	float Hlr = interpolate_bicubic2(STlr, map, bumpMapSize);"
+	"	float Hul = interpolate_bicubic2(STul, map, bumpMapSize);"
 	"	float dBs = Hlr - Hll;"
 	"	float dBt = Hul - Hll;"
 	"	\n"
@@ -221,7 +311,7 @@ bool MaterialComponent::Impl::createPs(const char* headerCode)
 	"	for(int i=0; i<MCD_MAX_LIGHT_COUNT; ++i)\n"
 	"		computeLighting(mcdLights[i], P, N, V, lightDiffuse, lightSpecular);\n"
 	"	float4 diffuseMap = tex2D(texDiffuse, _in.uvDiffuse);\n"
-//	"	diffuseMap = bicubicInterpolation(_in.uvDiffuse, texDiffuse, float2(103, 103));"
+//	"	diffuseMap = interpolate_bicubic2(_in.uvDiffuse, texDiffuse, float2(128, 128));"
 	"	float3 diffuse = mcdDiffuseColor.rgb * mcdDiffuseColor.a * diffuseMap.rgb * lightDiffuse;\n"
 	"	float3 specular = mcdSpecularColor.rgb * mcdSpecularColor.a * lightSpecular;\n"
 	"	float3 emission = mcdEmissionColor.rgb * mcdEmissionColor.a;\n"
@@ -398,8 +488,8 @@ void MaterialComponent::preRender(size_t pass, void* context)
 
 		if(TexturePtr bump = bumpMap) {
 			int samplerIdx = mImpl.mPs.constTable->GetSamplerIndex("texBump");
-//			device->SetSamplerState(samplerIdx, D3DSAMP_MINFILTER, D3DTEXF_LINEAR);
-//			device->SetSamplerState(samplerIdx, D3DSAMP_MAGFILTER, D3DTEXF_LINEAR );
+			device->SetSamplerState(samplerIdx, D3DSAMP_MINFILTER, D3DTEXF_LINEAR);
+			device->SetSamplerState(samplerIdx, D3DSAMP_MAGFILTER, D3DTEXF_LINEAR );
 			bump->bind(samplerIdx);
 
 			float size[2] = { float(bump->width), float(bump->height) };
