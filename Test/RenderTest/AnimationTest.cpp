@@ -52,10 +52,11 @@ public:
 		}
 
 		{	SimpleAnimationComponent* c = e2->addComponent(new SimpleAnimationComponent);
-			c->animations.resize(1);
-			AnimationState& a = c->animations[0];
-			a.clip = animationClip;
-			a.worldRefTime = AnimationUpdaterComponent::worldTime() - initialAnimationTime;
+			{	AnimationBlendTree::ClipNode* n = new AnimationBlendTree::ClipNode;
+				n->state.clip = animationClip;
+				c->blendTree.nodes.push_back(n);
+				n->state.worldRefTime = AnimationUpdaterComponent::worldTime() - initialAnimationTime;
+			}
 
 			AnimatedTransform* c2 = e2->addComponent(new AnimatedTransform);
 			c2->affectingEntities.push_back(e2);

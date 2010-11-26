@@ -4,6 +4,7 @@
 #include "Material.h"
 #include "../Core/System/Array.h"
 #include "../Core/System/Resource.h"
+#include "../Core/System/StringHash.h"
 #include "../Core/Math/Vec2.h"
 #include "../Core/Math/Vec3.h"
 #include <map>

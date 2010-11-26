@@ -81,6 +81,68 @@
 			/>
 		</Configuration>
 		<Configuration
+			Name="Release|Win32"
+			IntermediateDirectory="tmp/$(PlatformName)/$(ConfigurationName)/DX9"
+			ConfigurationType="2"
+			InheritedPropertySheets="..\General.vsprops;..\Release.vsprops"
+			CharacterSet="2"
+			WholeProgramOptimization="0"
+			>
+			<Tool
+				Name="VCPreBuildEventTool"
+			/>
+			<Tool
+				Name="VCCustomBuildTool"
+			/>
+			<Tool
+				Name="VCXMLDataGeneratorTool"
+			/>
+			<Tool
+				Name="VCWebServiceProxyGeneratorTool"
+			/>
+			<Tool
+				Name="VCMIDLTool"
+			/>
+			<Tool
+				Name="VCCLCompilerTool"
+				PreprocessorDefinitions="MCD_Render_EXPORTS"
+				OpenMP="true"
+			/>
+			<Tool
+				Name="VCManagedResourceCompilerTool"
+			/>
+			<Tool
+				Name="VCResourceCompilerTool"
+			/>
+			<Tool
+				Name="VCPreLinkEventTool"
+			/>
+			<Tool
+				Name="VCLinkerTool"
+			/>
+			<Tool
+				Name="VCALinkTool"
+			/>
+			<Tool
+				Name="VCManifestTool"
+			/>
+			<Tool
+				Name="VCXDCMakeTool"
+			/>
+			<Tool
+				Name="VCBscMakeTool"
+			/>
+			<Tool
+				Name="VCFxCopTool"
+			/>
+			<Tool
+				Name="VCAppVerifierTool"
+			/>
+			<Tool
+				Name="VCPostBuildEventTool"
+			/>
+		</Configuration>
+		<Configuration
 			Name="Debug|x64"
 			IntermediateDirectory="tmp/$(PlatformName)/$(ConfigurationName)/DX9"
 			ConfigurationType="2"
@@ -120,68 +182,6 @@
 				Name="VCLinkerTool"
 				IgnoreDefaultLibraryNames="MSVCRT"
 				TargetMachine="17"
-			/>
-			<Tool
-				Name="VCALinkTool"
-			/>
-			<Tool
-				Name="VCManifestTool"
-			/>
-			<Tool
-				Name="VCXDCMakeTool"
-			/>
-			<Tool
-				Name="VCBscMakeTool"
-			/>
-			<Tool
-				Name="VCFxCopTool"
-			/>
-			<Tool
-				Name="VCAppVerifierTool"
-			/>
-			<Tool
-				Name="VCPostBuildEventTool"
-			/>
-		</Configuration>
-		<Configuration
-			Name="Release|Win32"
-			IntermediateDirectory="tmp/$(PlatformName)/$(ConfigurationName)/DX9"
-			ConfigurationType="2"
-			InheritedPropertySheets="..\General.vsprops;..\Release.vsprops"
-			CharacterSet="2"
-			WholeProgramOptimization="0"
-			>
-			<Tool
-				Name="VCPreBuildEventTool"
-			/>
-			<Tool
-				Name="VCCustomBuildTool"
-			/>
-			<Tool
-				Name="VCXMLDataGeneratorTool"
-			/>
-			<Tool
-				Name="VCWebServiceProxyGeneratorTool"
-			/>
-			<Tool
-				Name="VCMIDLTool"
-			/>
-			<Tool
-				Name="VCCLCompilerTool"
-				PreprocessorDefinitions="MCD_Render_EXPORTS"
-				OpenMP="true"
-			/>
-			<Tool
-				Name="VCManagedResourceCompilerTool"
-			/>
-			<Tool
-				Name="VCResourceCompilerTool"
-			/>
-			<Tool
-				Name="VCPreLinkEventTool"
-			/>
-			<Tool
-				Name="VCLinkerTool"
 			/>
 			<Tool
 				Name="VCALinkTool"
@@ -390,14 +390,6 @@
 			>
 		</File>
 		<File
-			RelativePath=".\Effect.cpp"
-			>
-		</File>
-		<File
-			RelativePath=".\Effect.h"
-			>
-		</File>
-		<File
 			RelativePath=".\Font.cpp"
 			>
 		</File>
@@ -418,14 +410,6 @@
 			>
 		</File>
 		<File
-			RelativePath=".\InstancedMesh.cpp"
-			>
-		</File>
-		<File
-			RelativePath=".\InstancedMesh.h"
-			>
-		</File>
-		<File
 			RelativePath=".\Light.cpp"
 			>
 		</File>
@@ -435,14 +419,6 @@
 		</File>
 		<File
 			RelativePath=".\Material.h"
-			>
-		</File>
-		<File
-			RelativePath=".\MaterialProperty.cpp"
-			>
-		</File>
-		<File
-			RelativePath=".\MaterialProperty.h"
 			>
 		</File>
 		<File
@@ -481,7 +457,7 @@
 				/>
 			</FileConfiguration>
 			<FileConfiguration
-				Name="Debug|x64"
+				Name="Release|Win32"
 				>
 				<Tool
 					Name="VCCLCompilerTool"
@@ -489,7 +465,7 @@
 				/>
 			</FileConfiguration>
 			<FileConfiguration
-				Name="Release|Win32"
+				Name="Debug|x64"
 				>
 				<Tool
 					Name="VCCLCompilerTool"
@@ -538,19 +514,19 @@
 				/>
 			</FileConfiguration>
 			<FileConfiguration
+				Name="Release|Win32"
+				>
+				<Tool
+					Name="VCCLCompilerTool"
+					DisableSpecificWarnings="4652"
+				/>
+			</FileConfiguration>
+			<FileConfiguration
 				Name="Debug|x64"
 				>
 				<Tool
 					Name="VCCLCompilerTool"
 					OpenMP="false"
-					DisableSpecificWarnings="4652"
-				/>
-			</FileConfiguration>
-			<FileConfiguration
-				Name="Release|Win32"
-				>
-				<Tool
-					Name="VCCLCompilerTool"
 					DisableSpecificWarnings="4652"
 				/>
 			</FileConfiguration>
@@ -619,22 +595,6 @@
 		</File>
 		<File
 			RelativePath=".\RenderWindow.h"
-			>
-		</File>
-		<File
-			RelativePath=".\Shader.cpp"
-			>
-		</File>
-		<File
-			RelativePath=".\Shader.h"
-			>
-		</File>
-		<File
-			RelativePath=".\ShaderProgram.cpp"
-			>
-		</File>
-		<File
-			RelativePath=".\ShaderProgram.h"
 			>
 		</File>
 		<File

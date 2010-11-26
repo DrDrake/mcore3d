@@ -12,7 +12,7 @@ typedef AnimationBlendTree::Pose Pose;
 typedef AnimationBlendTree::INode INode;
 
 AnimationBlendTree::AnimationBlendTree()
-	: mTrackCount(0), mPoseBuffer(nullptr)
+	: worldTime(0), mTrackCount(0), mPoseBuffer(nullptr)
 {
 }
 
@@ -58,6 +58,7 @@ int AnimationBlendTree::allocatePose(size_t trackCount)
 
 Pose AnimationBlendTree::getPose(int idx)
 {
+	MCD_ASSERT(idx >= 0);
 	return Pose(&mPoseBuffer[idx * mTrackCount], mTrackCount);
 }
 
@@ -397,8 +398,8 @@ INode* AnimationBlendTree::SwitchNode::clone() const
 
 void AnimationBlendTree::SwitchNode::collectChild(AnimationBlendTree::INode* child, AnimationBlendTree& tree)
 {
-	mNode1 = &tree.nodes[mLastNode] == child ? child : nullptr;
-	mNode2 = &tree.nodes[mCurrentNode] == child ? child : nullptr;
+	mNode1 = mLastNode < 0 || (&tree.nodes[mLastNode]) == child ? child : nullptr;
+	mNode2 = mCurrentNode < 0 || (&tree.nodes[mCurrentNode]) == child ? child : nullptr;
 }
 
 int AnimationBlendTree::SwitchNode::returnPose(AnimationBlendTree& tree)

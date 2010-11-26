@@ -4,6 +4,7 @@
 #include "Helper/ShaderCache.h"
 #include "../Light.h"
 #include "../RenderWindow.h"
+#include "../Texture.h"
 #include "../../Core/System/Log.h"
 #include "../../Core/Entity/Entity.h"
 #include "../../Core/Entity/SystemComponent.h"
