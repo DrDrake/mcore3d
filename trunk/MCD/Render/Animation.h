@@ -38,7 +38,7 @@ protected:
 typedef IntrusiveWeakPtr<AnimationComponent> AnimationComponentPtr;
 
 /// Component that will use the calculated data in AnimationComponent.
-/// Concret class example are: SkeletonComponent and AnimatedTransform.
+/// Concret class example are: SkeletonComponent and TransformAnimator.
 class MCD_ABSTRACT_CLASS MCD_RENDER_API AnimatedComponent : public Component
 {
 	friend class AnimationUpdaterComponent;

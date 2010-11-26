@@ -1,16 +1,16 @@
 #include "Pch.h"
-#include "AnimatedTransform.h"
+#include "TransformAnimator.h"
 #include "../Core/Entity/Entity.h"
 #include "../Core/Math/Quaternion.h"
 
 namespace MCD {
 
-AnimatedTransform::AnimatedTransform()
+TransformAnimator::TransformAnimator()
 	: trackOffset(0), trackPerEntity(0)
 {
 }
 
-void AnimatedTransform::update()
+void TransformAnimator::update()
 {
 	if(!animation || affectingEntities.empty())
 		return;
