@@ -134,7 +134,7 @@ Pose AnimationBlendTree::getFinalPose()
 	for(size_t i=0; i<nodes.size() - ignoreLastNode; ++i) {
 		INode& childNode = nodes[i];
 		INode& parentNode = nodes[childNode.parent];
-		parentNode.processChild(&childNode, *this);
+		parentNode.collectChild(&childNode, *this);
 	}
 
 	const size_t outputIdx = nodes.back().returnPose(*this);
@@ -145,6 +145,7 @@ Pose AnimationBlendTree::getFinalPose()
 static INode* loadClipNode(XmlParser& parser, ResourceManager& mgr)
 {
 	AnimationBlendTree::ClipNode* n = new AnimationBlendTree::ClipNode;
+	n->name = parser.attributeValue("name");
 	n->state.rate = parser.attributeValueAsFloat("rate", 1);
 	n->state.clip = mgr.loadAs<AnimationClip>(parser.attributeValue("src"), 1);
 	return n;
@@ -161,6 +162,17 @@ static INode* loadLerpNode(XmlParser& parser)
 static INode* loadAdditiveNode(XmlParser& parser)
 {
 	AnimationBlendTree::AdditiveNode* n = new AnimationBlendTree::AdditiveNode;
+	n->name = parser.attributeValue("name");
+	return n;
+}
+
+static INode* loadSwitchNode(XmlParser& parser)
+{
+	AnimationBlendTree::SwitchNode* n = new AnimationBlendTree::SwitchNode;
+	n->name = parser.attributeValue("name");
+	n->fadeDuration = parser.attributeValueAsFloat("fadeDuration", 0);
+	int currentIdx = (int)parser.attributeValueAsFloat("current", -1);
+	n->switchTo(currentIdx, 0);
 	return n;
 }
 
@@ -189,6 +201,8 @@ bool AnimationBlendTree::loadFromXml(const char* xml, ResourceManager& mgr)
 				n = loadLerpNode(parser);
 			else if(strcmp(parser.elementName(), "additive") == 0)
 				n = loadAdditiveNode(parser);
+			else if(strcmp(parser.elementName(), "switch") == 0)
+				n = loadSwitchNode(parser);
 
 			if(!n)
 				return false;
@@ -260,7 +274,7 @@ std::string AnimationBlendTree::ClipNode::xmlEnd() const
 }
 
 AnimationBlendTree::LerpNode::LerpNode()
-	: t(0.5f), pose1Idx(-1)
+	: t(0.5f), mNode1(nullptr), mNode2(nullptr)
 {}
 
 INode* AnimationBlendTree::LerpNode::clone() const
@@ -268,27 +282,28 @@ INode* AnimationBlendTree::LerpNode::clone() const
 	return new LerpNode(*this);
 }
 
-void AnimationBlendTree::LerpNode::processChild(AnimationBlendTree::INode* child, AnimationBlendTree& tree)
+void AnimationBlendTree::LerpNode::collectChild(AnimationBlendTree::INode* child, AnimationBlendTree& tree)
 {
-	if(pose1Idx < 0) {
-		pose1Idx = child->returnPose(tree);
-	}
-	else {
-		int pose2Idx = child->returnPose(tree);
-		Pose pose1 = tree.getPose(pose1Idx);
-		Pose pose2 = tree.getPose(pose2Idx);
-		MCD_ASSERT(pose1.size == pose2.size);
-
-		for(size_t i=0; i<pose1.size; ++i)
-			pose1[i].blend(t, pose1[i], pose2[i]);
-
-		tree.releasePose(pose2Idx);
-	}
+	if(!mNode1) mNode1 = child;
+	else mNode2 = child;
 }
 
 int AnimationBlendTree::LerpNode::returnPose(AnimationBlendTree& tree)
 {
-	return pose1Idx;
+	if(t == 0) return mNode1->returnPose(tree);
+	if(t == 1) return mNode2->returnPose(tree);
+
+	int idx1 = mNode1->returnPose(tree);
+	int idx2 = mNode2->returnPose(tree);
+	Pose pose1 = tree.getPose(idx1);
+	Pose pose2 = tree.getPose(idx2);
+	MCD_ASSERT(pose1.size == pose2.size);
+
+	for(size_t i=0; i<pose1.size; ++i)
+		pose1[i].blend(t, pose1[i], pose2[i]);
+	tree.releasePose(idx2);
+
+	return idx1;
 }
 
 std::string AnimationBlendTree::LerpNode::xmlStart() const
@@ -306,7 +321,7 @@ std::string AnimationBlendTree::LerpNode::xmlEnd() const
 }
 
 AnimationBlendTree::AdditiveNode::AdditiveNode()
-	: pose1Idx(-1)
+	: mNode1(nullptr), mNode2(nullptr)
 {}
 
 INode* AnimationBlendTree::AdditiveNode::clone() const
@@ -314,37 +329,36 @@ INode* AnimationBlendTree::AdditiveNode::clone() const
 	return new AdditiveNode(*this);
 }
 
-void AnimationBlendTree::AdditiveNode::processChild(AnimationBlendTree::INode* child, AnimationBlendTree& tree)
+void AnimationBlendTree::AdditiveNode::collectChild(AnimationBlendTree::INode* child, AnimationBlendTree& tree)
 {
-	if(pose1Idx < 0) {
-		pose1Idx = child->returnPose(tree);
-	}
-	else {
-		int pose2Idx = child->returnPose(tree);
-		Pose pose1 = tree.getPose(pose1Idx);	// pose1 is the full pose
-		Pose pose2 = tree.getPose(pose2Idx);	// pose2 is the pose diff
-		MCD_ASSERT(pose1.size == pose2.size);
-
-		for(size_t i=0; i<pose1.size; ++i) {
-			switch(pose1[i].flag) {
-			case AnimationClip::Linear:
-			case AnimationClip::Step:
-				pose1[i].v = pose1[i].v + pose2[i].v;
-				break;
-			case AnimationClip::Slerp:
-				pose1[i].cast<Quaternionf>() = pose1[i].cast<Quaternionf>() * pose2[i].cast<Quaternionf>();
-				break;
-			default: MCD_ASSERT(false);
-			}
-		}
-
-		tree.releasePose(pose2Idx);
-	}
+	if(!mNode1) mNode1 = child;
+	else mNode2 = child;
 }
 
 int AnimationBlendTree::AdditiveNode::returnPose(AnimationBlendTree& tree)
 {
-	return pose1Idx;
+	int idx1 = mNode1->returnPose(tree);
+	int idx2 = mNode2->returnPose(tree);
+	Pose pose1 = tree.getPose(idx1);	// pose1 is the full pose
+	Pose pose2 = tree.getPose(idx2);	// pose2 is the pose diff
+	MCD_ASSERT(pose1.size == pose2.size);
+
+	for(size_t i=0; i<pose1.size; ++i) {
+		switch(pose1[i].flag) {
+		case AnimationClip::Linear:
+		case AnimationClip::Step:
+			pose1[i].v = pose1[i].v + pose2[i].v;
+			break;
+		case AnimationClip::Slerp:
+			pose1[i].cast<Quaternionf>() = pose1[i].cast<Quaternionf>() * pose2[i].cast<Quaternionf>();
+			break;
+		default: MCD_ASSERT(false);
+		}
+	}
+
+	tree.releasePose(idx2);
+
+	return idx1;
 }
 
 std::string AnimationBlendTree::AdditiveNode::xmlStart() const
@@ -357,6 +371,69 @@ std::string AnimationBlendTree::AdditiveNode::xmlStart() const
 std::string AnimationBlendTree::AdditiveNode::xmlEnd() const
 {
 	return "</additive>";
+}
+
+AnimationBlendTree::SwitchNode::SwitchNode()
+	: mCurrentNode(-1), mLastNode(-1), fadeDuration(0), mNodeChangeTime(0)
+	, mNode1(nullptr), mNode2(nullptr)
+{}
+
+void AnimationBlendTree::SwitchNode::switchTo(int nodeIdx, float timeToSwitch)
+{
+	mLastNode = mCurrentNode;
+	mCurrentNode = nodeIdx;
+	mNodeChangeTime = timeToSwitch;
+}
+
+int AnimationBlendTree::SwitchNode::currentNode() const
+{
+	return mCurrentNode;
+}
+
+INode* AnimationBlendTree::SwitchNode::clone() const
+{
+	return new SwitchNode(*this);
+}
+
+void AnimationBlendTree::SwitchNode::collectChild(AnimationBlendTree::INode* child, AnimationBlendTree& tree)
+{
+	mNode1 = &tree.nodes[mLastNode] == child ? child : nullptr;
+	mNode2 = &tree.nodes[mCurrentNode] == child ? child : nullptr;
+}
+
+int AnimationBlendTree::SwitchNode::returnPose(AnimationBlendTree& tree)
+{
+	if(tree.worldTime >= mNodeChangeTime + fadeDuration)
+		return mNode2->returnPose(tree);
+	else if(tree.worldTime <= mNodeChangeTime)
+		return mNode1->returnPose(tree);
+
+	const float lerpFactor = (tree.worldTime - mNodeChangeTime) / fadeDuration;
+	Pose pose1 = tree.getPose(mLastNode);
+	Pose pose2 = tree.getPose(mCurrentNode);
+	MCD_ASSERT(pose1.size == pose2.size);
+	MCD_ASSERT(lerpFactor >= 0 && lerpFactor <= 1);
+
+	for(size_t i=0; i<pose1.size; ++i)
+		pose1[i].blend(lerpFactor, pose1[i], pose2[i]);
+
+	tree.releasePose(mCurrentNode);
+	return mLastNode;
+}
+
+std::string AnimationBlendTree::SwitchNode::xmlStart() const
+{
+	std::string ret = "<switch";
+	ret += "fadeDuration=\"" + float2Str(fadeDuration) + "\"";
+	if(mCurrentNode >= 0)
+		ret += "current=\"" + int2Str(mCurrentNode) + "\"";
+	ret += ">";
+	return ret;
+}
+
+std::string AnimationBlendTree::SwitchNode::xmlEnd() const
+{
+	return "</switch>";
 }
 
 }	// namespace MCD

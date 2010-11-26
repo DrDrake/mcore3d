@@ -10,7 +10,7 @@ namespace MCD {
 
 class ResourceManager;
 
-/// 
+/// Advanced animation control system using a tree structure representation.
 class MCD_CORE_API AnimationBlendTree
 {
 public:
@@ -30,7 +30,10 @@ public:
 		virtual ~INode() {}
 		virtual INode* clone() const = 0;
 
-		virtual void processChild(INode* child, AnimationBlendTree& tree) = 0;
+		/// Function to let this node know about it's children.
+		virtual void collectChild(INode* child, AnimationBlendTree& tree) = 0;
+
+		/// Perform the required calculation, store the result at a cache location and return the cache index.
 		virtual int returnPose(AnimationBlendTree& tree) = 0;
 
 		/// Get the animation clip resource if this node has one, usefull during serialization.
@@ -46,7 +49,7 @@ public:
 	public:
 		AnimationState state;
 		sal_override INode* clone() const;
-		sal_override void processChild(INode* child, AnimationBlendTree& tree) { MCD_ASSERT(false); }
+		sal_override void collectChild(INode* child, AnimationBlendTree& tree) { MCD_ASSERT(false); }
 		sal_override int returnPose(AnimationBlendTree& tree);
 		sal_override AnimationClipPtr getClipSource() { return state.clip; }
 		sal_override std::string xmlStart() const;
@@ -60,12 +63,12 @@ public:
 		LerpNode();
 		float t;	///< The lerp parameter
 		sal_override INode* clone() const;
-		sal_override void processChild(INode* child, AnimationBlendTree& tree);
+		sal_override void collectChild(INode* child, AnimationBlendTree& tree);
 		sal_override int returnPose(AnimationBlendTree& tree);
 		sal_override std::string xmlStart() const;
 		sal_override std::string xmlEnd() const;
 	protected:
-		int pose1Idx;
+		INode* mNode1, *mNode2;
 	};	// LerpNode
 
 	/// Perform addition between a full pose and a difference pose
@@ -75,13 +78,32 @@ public:
 	public:
 		AdditiveNode();
 		sal_override INode* clone() const;
-		sal_override void processChild(INode* child, AnimationBlendTree& tree);
+		sal_override void collectChild(INode* child, AnimationBlendTree& tree);
 		sal_override int returnPose(AnimationBlendTree& tree);
 		sal_override std::string xmlStart() const;
 		sal_override std::string xmlEnd() const;
 	protected:
-		int pose1Idx;
+		INode* mNode1, *mNode2;
 	};	// AdditiveNode
+
+	/// Switch between the child nodes, with a cross-fade duration option
+	class MCD_CORE_API SwitchNode : public INode
+	{
+	public:
+		SwitchNode();
+		sal_override INode* clone() const;
+		sal_override void collectChild(INode* child, AnimationBlendTree& tree);
+		sal_override int returnPose(AnimationBlendTree& tree);
+		sal_override std::string xmlStart() const;
+		sal_override std::string xmlEnd() const;
+		void switchTo(int nodeIdx, float timeToSwitch);	///< Perform the switching at a specific world time
+		int currentNode() const;	///< The current targeting node
+		float fadeDuration;
+	protected:
+		int mCurrentNode, mLastNode;
+		float mNodeChangeTime;	///< The world time when the last node change happened
+		INode* mNode1, *mNode2;
+	};	// SwitchNode
 
 // Attributes
 	float worldTime;
