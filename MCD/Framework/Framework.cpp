@@ -164,14 +164,14 @@ Framework::Impl::Impl()
 			e1->localTransform.setTranslation(Vec3f(10, 10, 0));
 
 			LightComponent* light = e1->addComponent(new LightComponent);
-			light->color = ColorRGBf(1, 0.8f, 0.8f);
+			light->color = ColorRGBf(1, 0.8f, 0.7f);
 		}
 
 		{	Entity* e1 = e->addFirstChild("Light 2");
 			e1->localTransform.setTranslation(Vec3f(0, 10, 10));
 
 			LightComponent* light = e1->addComponent(new LightComponent);
-			light->color = ColorRGBf(0.8f, 1, 0.8f);
+			light->color = ColorRGBf(0.7f, 0.8f, 1.0f);
 		}
 	}
 

@@ -393,7 +393,6 @@ void MaterialComponent::Impl::updateWorldTransform(void* context)
 
 void MaterialComponent::render(void* context)
 {
-	// Push light into Renderer's light list
 	RendererComponent::Impl& renderer = *reinterpret_cast<RendererComponent::Impl*>(context);
 	renderer.mCurrentMaterial = this;
 
