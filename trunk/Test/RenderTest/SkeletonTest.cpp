@@ -66,8 +66,10 @@ TEST(SkeletonTest)
 			}
 		}
 
-		anim->animations.resize(1);
-		anim->animations[0].clip = clip;
+		{	AnimationBlendTree::ClipNode* n = new AnimationBlendTree::ClipNode;
+			n->state.clip = clip;
+			anim->blendTree.nodes.push_back(n);
+		}
 		pose->animation = anim;
 
 		anim->update(0);	// Force all the member variable to be evaluated

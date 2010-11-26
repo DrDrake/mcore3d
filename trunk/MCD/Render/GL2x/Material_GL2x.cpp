@@ -1,5 +1,6 @@
 #include "Pch.h"
 #include "../Material.h"
+#include "../Texture.h"
 #include "Renderer.inc"
 
 namespace MCD {

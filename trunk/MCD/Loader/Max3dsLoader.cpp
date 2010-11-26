@@ -1,6 +1,5 @@
 #include "Pch.h"
 #include "Max3dsLoader.h"
-#include "../Render/Effect.h"
 #include "../Render/Material.h"
 #include "../Render/MeshBuilder.h"
 #include "../Render/MeshBuilderUtility.h"

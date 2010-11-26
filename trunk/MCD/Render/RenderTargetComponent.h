@@ -10,10 +10,10 @@ namespace MCD {
 
 struct GpuDataFormat;
 class RenderWindow;
+class RendererComponent;
 typedef IntrusivePtr<class Texture> TexturePtr;
 typedef IntrusiveWeakPtr<class Entity> EntityPtr;
 typedef IntrusiveWeakPtr<class CameraComponent> CameraComponentPtr;
-typedef IntrusiveWeakPtr<class RendererComponent> RendererComponentPtr;
 
 /*!	
  */

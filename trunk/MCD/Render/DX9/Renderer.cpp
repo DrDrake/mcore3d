@@ -6,6 +6,7 @@
 #include "../Mesh.h"
 #include "../RenderTargetComponent.h"
 #include "../RenderWindow.h"
+#include "../Texture.h"
 #include <D3DX9Shader.h>
 
 namespace MCD {

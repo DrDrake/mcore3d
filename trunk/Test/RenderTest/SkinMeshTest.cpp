@@ -138,8 +138,10 @@ public:
 		Entity* e = new Entity("");
 
 		SimpleAnimationComponent* anim = e->addComponent(new SimpleAnimationComponent);
-		anim->animations.resize(1);
-		anim->animations[0].clip = clip;
+		{	AnimationBlendTree::ClipNode* n1 = new AnimationBlendTree::ClipNode;
+			n1->state.clip = clip;
+			anim->blendTree.nodes.push_back(n1);
+		}
 
 		SkeletonPose* pose = e->addComponent(new SkeletonPose);
 		pose->animation = anim;

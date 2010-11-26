@@ -3,7 +3,7 @@
 
 #include "ShareLib.h"
 #include "../Core/Entity/Component.h"
-#include "../Core/Math/AnimationState.h"
+#include "../Core/Math/AnimationBlendTree.h"
 #include <vector>
 
 namespace MCD {
@@ -90,11 +90,10 @@ public:
 	/// The animation pose after blending all the AnimationState together.
 	AnimationState::Pose pose;
 
-	std::vector<AnimationState> animations;
+	AnimationBlendTree blendTree;
 
 protected:
 	friend class AnimationUpdaterComponent;
-	void initPose(size_t trackCount);
 };	// SimpleAnimationComponent
 
 typedef IntrusiveWeakPtr<SimpleAnimationComponent> SimpleAnimationComponentPtr;
