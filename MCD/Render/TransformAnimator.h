@@ -8,13 +8,13 @@ namespace MCD {
 typedef IntrusiveWeakPtr<class Entity> EntityPtr;
 
 /// Use the animation data to alter the Entity's localTransform.
-class MCD_RENDER_API AnimatedTransform : public AnimatedComponent
+class MCD_RENDER_API TransformAnimator : public AnimatedComponent
 {
 public:
-	AnimatedTransform();
+	TransformAnimator();
 
 	sal_override const std::type_info& familyType() const {
-		return typeid(AnimatedTransform);
+		return typeid(TransformAnimator);
 	}
 
 // Attributes
@@ -26,7 +26,7 @@ public:
 
 protected:
 	sal_override void update();
-};	// AnimatedTransform
+};	// TransformAnimator
 
 typedef IntrusiveWeakPtr<AnimationComponent> AnimationComponentPtr;
 

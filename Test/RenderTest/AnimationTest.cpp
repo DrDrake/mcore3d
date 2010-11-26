@@ -3,7 +3,7 @@
 #include "../../MCD/Core/Entity/Entity.h"
 #include "../../MCD/Core/Math/Quaternion.h"
 #include "../../MCD/Render/Animation.h"
-#include "../../MCD/Render/AnimatedTransform.h"
+#include "../../MCD/Render/TransformAnimator.h"
 #include "../../MCD/Render/ChamferBox.h"
 #include "../../MCD/Render/Mesh.h"
 #include "../../MCD/Render/Renderer.h"
@@ -58,7 +58,7 @@ public:
 				n->state.worldRefTime = AnimationUpdaterComponent::worldTime() - initialAnimationTime;
 			}
 
-			AnimatedTransform* c2 = e2->addComponent(new AnimatedTransform);
+			TransformAnimator* c2 = e2->addComponent(new TransformAnimator);
 			c2->affectingEntities.push_back(e2);
 			c2->animation = c;
 			c2->trackOffset = 0;
