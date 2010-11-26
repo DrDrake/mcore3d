@@ -1,6 +1,7 @@
 #include "Pch.h"
 #include "../../MCD/Framework/Framework.h"
 #include "../../MCD/Render/Chamferbox.h"
+#include "../../MCD/Render/Light.h"
 #include "../../MCD/Render/Material.h"
 #include "../../MCD/Render/Mesh.h"
 #include "../../MCD/Render/Renderer.h"
@@ -33,25 +34,46 @@ TEST(BumpMapTest)
 	CHECK(boxMesh->mesh->create(ChamferBoxBuilder(0.2f, 5, true), Mesh::Static));
 
 	Entity* boxes = scene.addFirstChild("Boxes");
-	boxes->localTransform.scaleBy(Vec3f(4, 4, 4));
 
 	{	Entity* e = boxes->addFirstChild("Chamfer box1");
 		e->addComponent(boxMesh);
-		e->localTransform.translateBy(Vec3f(2, 0, -2));
+		e->localTransform.translateBy(Vec3f(8, 0, 0));
+		e->localTransform.scaleBy(Vec3f(4));
 	}
 
 	{	Entity* e = boxes->addFirstChild("Chamfer box2");
 		e->addComponent(boxMesh->clone());
-		e->localTransform.translateBy(Vec3f(-2, 0, -2));
+		e->localTransform.translateBy(Vec3f(-8, 0, 0));
+		e->localTransform.scaleBy(Vec3f(4));
 	}
 
+	// Locate the camera
+	CameraComponent* camera = scene.findComponentInChildrenExactType<CameraComponent>();
+	camera->entity()->localTransform.translateBy(Vec3f(0, 0, 10));
+
+	// Locate the default lights
+	LightComponent* l1 = nullptr, *l2 = nullptr;
+	for(EntityPreorderIterator itr(&scene); !itr.ended(); itr.next()) {
+		if(LightComponent* l = itr->findComponentExactType<LightComponent>()) {
+			if(!l1) l1 = l;
+			else l2 = l;
+		}
+	}
+
+	Timer timer;
 	while(true)
 	{
 		Event e;
 		framework.update(e);
-
 		if(e.Type == Event::Closed)
 			break;
+
+		// Move the lights
+		float s = (float)sin(timer.get().asSecond());
+		float c = (float)cos(timer.get().asSecond());
+
+		l1->entity()->localTransform.setTranslation(10 * Vec3f(0, s, c));
+		l2->entity()->localTransform.setTranslation(10 * Vec3f(s, 1, c));
 
 		renderer->render(root);
 	}
