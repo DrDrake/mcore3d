@@ -126,7 +126,7 @@ void Mesh::clear()
 		// Delete the buffer that is no longer shared.
 		for(size_t i=0; i<handles.size(); ++i) {
 			if(handles[i] && handles[i].referenceCount() == 1)
-				glDeleteBuffers(1, handles[i].get());
+				if(handles[i]) glDeleteBuffers(1, handles[i].get());
 			handles[i] = new uint(0);
 		}
 	}

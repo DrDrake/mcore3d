@@ -19,7 +19,7 @@ RenderTargetComponent::RenderTargetComponent()
 
 RenderTargetComponent::~RenderTargetComponent()
 {
-	glDeleteFramebuffers(1, (GLuint*)&mImpl);
+	if(mImpl) glDeleteFramebuffers(1, (GLuint*)&mImpl);
 }
 
 TexturePtr RenderTargetComponent::createTexture(const GpuDataFormat& format, size_t width, size_t height)
@@ -100,7 +100,7 @@ void RenderTargetComponent::render(RendererComponent& renderer, bool swapBuffers
 	if(textureCount)
 	{
 		if(mImpl == 0) {
-			glDeleteFramebuffers(1, (GLuint*)&mImpl);
+			if(mImpl) glDeleteFramebuffers(1, (GLuint*)&mImpl);
 			glGenFramebuffers(1, (GLuint*)&mImpl);
 
 			glBindFramebuffer(GL_FRAMEBUFFER_EXT, mImpl);

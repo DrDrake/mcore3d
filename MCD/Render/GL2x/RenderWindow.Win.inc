@@ -110,9 +110,10 @@ public:
 		MCD_VERIFY(::SwapBuffers(mDc) == TRUE);
 	}
 
-	bool setVerticalSync(bool flag)
+	MCD_NOINLINE bool setVerticalSync(bool flag)
 	{
-		if(glewIsSupported("WGLEW_swap_control")) {
+		// TODO: glewIsSupported("WGLEW_swap_control") won't work
+		if(wglSwapIntervalEXT) {
 			wglSwapIntervalEXT(flag ? 1 : 0);
 			return true;
 		}
