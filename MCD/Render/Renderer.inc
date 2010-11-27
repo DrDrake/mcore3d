@@ -60,13 +60,15 @@ public:
 	IMaterialComponent *mCurrentMaterial, *mLastMaterial;	//!< To reduce material setup cost
 	std::stack<IMaterialComponent*> mMaterialStack;
 
-	CameraComponentPtr mCurrentCamera;
+	CameraComponent* mCurrentCamera;
 
 	typedef std::vector<LightComponent*> Lights;
 	Lights mLights;
 
 	typedef std::vector<RenderTargetComponentPtr> RenderTargets;
 	RenderTargets mRenderTargets;
+
+	RenderTargetComponent* mCurrentRenderTarget;
 
 	RenderItems mTransparentQueue, mOpaqueQueue;
 

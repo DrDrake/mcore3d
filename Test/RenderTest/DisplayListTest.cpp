@@ -141,7 +141,7 @@ TEST(DisplayListTest)
 
 		// Equation label
 		e = noLighting->addFirstChild(new Entity);
-		e->localTransform.setTranslation(Vec3f(0, 12, 0));
+		e->localTransform.setTranslation(Vec3f(0, 11, 0));
 		e->localTransform.scaleBy(Vec3f(0.05f));
 		TextLabelComponent* text = e->addComponent(new TextLabelComponent);
 		text->text = "y = 10 * sin(x/2 + t)";

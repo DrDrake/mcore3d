@@ -315,7 +315,7 @@
 				>
 			</File>
 			<File
-				RelativePath=".\GL2x\RenderTargetComponent.cpp"
+				RelativePath=".\GL2x\RenderTarget.cpp"
 				>
 			</File>
 			<File
@@ -576,7 +576,7 @@
 			>
 		</File>
 		<File
-			RelativePath=".\RenderTargetComponent.h"
+			RelativePath=".\RenderTarget.h"
 			>
 		</File>
 		<File

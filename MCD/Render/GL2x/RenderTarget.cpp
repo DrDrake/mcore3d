@@ -1,5 +1,5 @@
 #include "Pch.h"
-#include "../RenderTargetComponent.h"
+#include "../RenderTarget.h"
 #include "Renderer.inc"
 #include "../Camera.h"
 #include "../RenderWindow.h"

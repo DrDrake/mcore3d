@@ -462,6 +462,16 @@ void Mat44<T>::transformPoint(Vec3<T>& point) const
 }
 
 template<typename T>
+void Mat44<T>::transformPointPerspective(Vec3<T>& point) const
+{
+	Vec4<T> tmp = *this * Vec4<T>(point, 1);
+	T inv = T(1) / tmp.w;
+	point.x = tmp.x * inv;
+	point.y = tmp.y * inv;
+	point.z = tmp.z * inv;
+}
+
+template<typename T>
 void Mat44<T>::transformNormal(Vec3<T>& point) const
 {
 	Vec3<T> tmp = point;
