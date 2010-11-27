@@ -27,8 +27,10 @@ void Texture::unbind(size_t textureUnit) const
 
 void Texture::clear()
 {
-	// glDeleteTextures will simple ignore non-valid texture handles
-	glDeleteTextures(1, &handle);
+	// NOTE: glDeleteTextures will simple ignore non-valid texture handles
+	// but may fail to handle with handle = 0 in my Win7 64-bit
+	// So I added an explicit check
+	if(handle) glDeleteTextures(1, &handle);
 	handle = 0;
 	width = height = 0;
 	type = GL_INVALID_ENUM;

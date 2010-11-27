@@ -16,7 +16,7 @@ public:
 
 	~Impl()
 	{
-		glDeleteBuffers(1, &mBufferHandle);
+		if(mBufferHandle) glDeleteBuffers(1, &mBufferHandle);
 	}
 
 	void clear();
