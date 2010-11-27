@@ -1,5 +1,6 @@
 #include "Pch.h"
 #include "../Font.h"
+#include "../RenderTarget.h"
 #include "../Texture.h"
 #include "Renderer.inc"
 #include "../../Core/Entity/Entity.h"
@@ -23,6 +24,34 @@ void TextLabelComponent::render(void* context)
 
 void TextLabelComponent::draw(sal_in void* context, Statistic& statistic)
 {
+	RendererComponent::Impl& renderer = *reinterpret_cast<RendererComponent::Impl*>(context);
+
+	if(renderer.mCurrentCamera->frustum.projectionType == Frustum::Perspective)
+	{
+		// Create orthogonal projection
+		const float width = (float)renderer.mCurrentRenderTarget->targetWidth();
+		const float height = (float)renderer.mCurrentRenderTarget->targetHeight();
+		Frustum f;
+		f.projectionType = Frustum::YDown2D;
+		f.create(-0, width, 0, height, -1, 1);
+		Mat44f proj;
+		f.computeOrtho(proj.data);
+		glMatrixMode(GL_PROJECTION);
+		glPushMatrix();
+		glLoadMatrixf(proj.data);
+
+		// Calculate screen position (0,0 -> Lower left, Screen width,height -> upper right)
+		Vec3f p(0);
+		renderer.mWorldViewProjMatrix.transformPointPerspective(p);	// Homogeneous screen position
+		p = (p + 1) * 0.5;
+		p.x *= width;
+		p.y *= height;
+
+		glMatrixMode(GL_MODELVIEW);
+		glPushMatrix();
+		glLoadMatrixf(Mat44f::makeTranslation(p).data);
+	}
+
 	// Reference: es_full_spec_1.1.12.pdf, p93-95
 	glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_COMBINE);
 	glTexEnvfv(GL_TEXTURE_ENV, GL_TEXTURE_ENV_COLOR, color.rawPointer());
@@ -48,6 +77,14 @@ void TextLabelComponent::draw(sal_in void* context, Statistic& statistic)
 	glDrawArrays(GL_TRIANGLES, 0, mVertexBuffer.size());
 	glDisableClientState(GL_VERTEX_ARRAY);
 	glDisableClientState(GL_TEXTURE_COORD_ARRAY);
+
+	if(renderer.mCurrentCamera->frustum.projectionType == Frustum::Perspective)
+	{
+		glMatrixMode(GL_PROJECTION);
+		glPopMatrix();
+		glMatrixMode(GL_MODELVIEW);
+		glPopMatrix();
+	}
 
 	++statistic.drawCallCount;
 	statistic.primitiveCount += mVertexBuffer.size() / 3;

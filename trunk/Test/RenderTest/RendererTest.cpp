@@ -5,7 +5,7 @@
 #include "../../MCD/Render/Material.h"
 #include "../../MCD/Render/Mesh.h"
 #include "../../MCD/Render/Renderer.h"
-#include "../../MCD/Render/RenderTargetComponent.h"
+#include "../../MCD/Render/RenderTarget.h"
 #include "../../MCD/Render/Texture.h"
 #include "../../MCD/Core/Entity/BehaviourComponent.h"
 #include "../../MCD/Core/Entity/Entity.h"

@@ -2,7 +2,7 @@
 #include "ResizeFrustumComponent.h"
 #include "../Render/Camera.h"
 #include "../Render/Frustum.h"
-#include "../Render/RenderTargetComponent.h"
+#include "../Render/RenderTarget.h"
 
 namespace MCD {
 

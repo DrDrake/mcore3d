@@ -175,6 +175,8 @@ public:
 
 	void transformPoint(Vec3<T>& point) const;
 
+	void transformPointPerspective(Vec3<T>& point) const;
+
 	void transformNormal(Vec3<T>& normal) const;
 
 	static Mat44 makeScale(const Vec3<T>& scale);

@@ -37,7 +37,7 @@
 #include "../Render/Material.h"
 #include "../Render/RenderBindings.h"
 #include "../Render/Renderer.h"
-#include "../Render/RenderTargetComponent.h"
+#include "../Render/RenderTarget.h"
 #include "../Render/RenderWindow.h"
 #include "../Render/Skeleton.h"
 

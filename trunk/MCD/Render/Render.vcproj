@@ -307,7 +307,7 @@
 				>
 			</File>
 			<File
-				RelativePath=".\Null\RenderTargetComponent.cpp"
+				RelativePath=".\Null\RenderTarget.cpp"
 				>
 			</File>
 			<File
@@ -560,7 +560,7 @@
 			>
 		</File>
 		<File
-			RelativePath=".\RenderTargetComponent.h"
+			RelativePath=".\RenderTarget.h"
 			>
 		</File>
 		<File

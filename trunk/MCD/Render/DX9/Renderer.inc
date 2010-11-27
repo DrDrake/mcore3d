@@ -52,28 +52,6 @@ public:
 	TexturePtr mWhiteTexture;	//!< A 1x1 white texture, such that we alwasy feed the shader with texture
 };	// Impl
 
-class QuadRenderer
-{
-public:
-	QuadRenderer(RendererComponent::Impl& renderer)
-		: mRenderer(renderer), mQuadCount(0), mCurrentMaterial(nullptr)
-	{}
-
-	/*!	Push a quad to the buffer, the actual render will be performed in flush()
-		A change in material or buffer full will triffer a flush automatically.
-	 */
-	void push(const Mat44f& transform, float width, float height, const Vec4f& uv, IMaterialComponent* mtl);
-
-	void flush();
-
-	RendererComponent::Impl& mRenderer;
-
-	size_t mQuadCount;
-	IMaterialComponent* mCurrentMaterial;
-	struct Vertex { Vec3f position; Vec2f uv; };
-	std::vector<Vertex> mVertexBuffer;
-};	// QuadRenderer
-
 }	// namespace MCD
 
 #endif	// __MCD_RENDER_DX9_RENDERER__

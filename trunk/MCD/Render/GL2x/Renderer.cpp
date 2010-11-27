@@ -3,7 +3,7 @@
 #include "../Camera.h"
 #include "../Light.h"
 #include "../Mesh.h"
-#include "../RenderTargetComponent.h"
+#include "../RenderTarget.h"
 #include "../../../3Party/glew/wglew.h"
 
 namespace MCD {
@@ -30,22 +30,24 @@ void RendererComponent::Impl::render(Entity& entityTree, RenderTargetComponent& 
 	// Seems make better specular lighting
 	glLightModeli(GL_LIGHT_MODEL_COLOR_CONTROL, GL_SEPARATE_SPECULAR_COLOR);
 
+	mCurrentRenderTarget = &renderTarget;
+
 	{	// Apply camera
 		CameraComponentPtr camera = renderTarget.cameraComponent;
 		if(!camera) return;
 		Entity* cameraEntity = camera->entity();
 		if(!cameraEntity) return;
 
-		mCurrentCamera = camera;
-		camera->frustum.computeProjection(mProjMatrix.getPtr());
+		mCurrentCamera = camera.getNotNull();
+		camera->frustum.computeProjection(mProjMatrix.data);
 		mCameraTransform = cameraEntity->worldTransform();
 		mViewMatrix = mCameraTransform.inverse();
 		mViewProjMatrix = mProjMatrix * mViewMatrix;
 
 		glMatrixMode(GL_PROJECTION);
-		glLoadMatrixf(mProjMatrix.getPtr());
+		glLoadMatrixf(mProjMatrix.data);
 		glMatrixMode(GL_MODELVIEW);
-		glLoadMatrixf(mViewMatrix.getPtr());
+		glLoadMatrixf(mViewMatrix.data);
 	}
 
 	// Traverse the Entity tree
@@ -150,7 +152,7 @@ void RendererComponent::Impl::processRenderItems(RenderItems& items, IDrawCall::
 			}
 
 			glPushMatrix();
-			glMultMatrixf(e->worldTransform().getPtr());
+			glMultMatrixf(e->worldTransform().data);
 
 			// Deal with 2d axis mode
 			if(mCurrentCamera->frustum.projectionType == Frustum::YDown2D)

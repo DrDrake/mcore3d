@@ -4,7 +4,7 @@
 #include "../Camera.h"
 #include "../Light.h"
 #include "../Mesh.h"
-#include "../RenderTargetComponent.h"
+#include "../RenderTarget.h"
 #include "../RenderWindow.h"
 #include "../Texture.h"
 #include <D3DX9Shader.h>
@@ -52,21 +52,23 @@ void RendererComponent::Impl::render(Entity& entityTree, RenderTargetComponent& 
 	LPDIRECT3DDEVICE9 device = getDevice();
 	MCD_ASSUME(device);
 
+	mCurrentRenderTarget = &renderTarget;
+
 	{	// Apply camera
 		CameraComponentPtr camera = renderTarget.cameraComponent;
 		if(!camera) return;
 		Entity* cameraEntity = camera->entity();
 		if(!cameraEntity) return;
 
-		mCurrentCamera = camera;
+		mCurrentCamera = camera.getNotNull();
 		camera->frustum.computeProjection(mProjMatrix.getPtr());
 		mCameraTransform = cameraEntity->worldTransform();
 		mViewMatrix = mCameraTransform.inverse();
 		mViewProjMatrix = mProjMatrix * mViewMatrix;
 
 		// Fixed pipeline will need these
-		device->SetTransform(D3DTS_VIEW, (D3DMATRIX*)mViewMatrix.getPtr());
-		device->SetTransform(D3DTS_PROJECTION, (D3DMATRIX*)mProjMatrix.getPtr());
+		MCD_VERIFY(device->SetTransform(D3DTS_VIEW, (D3DMATRIX*)mViewMatrix.data) == D3D_OK);
+		MCD_VERIFY(device->SetTransform(D3DTS_PROJECTION, (D3DMATRIX*)mProjMatrix.data) == D3D_OK);
 	}
 
 	// Apply view port
@@ -158,62 +160,6 @@ void RendererComponent::Impl::processRenderItems(RenderItems& items, IDrawCall::
 			mLastMaterial = mtl;
 		}
 	}
-}
-
-struct QuadVertex
-{
-	D3DXVECTOR3 position;
-	float u, v;
-};	// QuadVertex
-
-static const int cQuadVertexFVF = (D3DFVF_XYZ|D3DFVF_TEX1);
-
-void QuadRenderer::push(const Mat44f& transform, float width, float height, const Vec4f& uv, IMaterialComponent* mtl)
-{
-	// Trigger a flush whenever the material is changed or too many quad in the buffer
-	if(mtl != mCurrentMaterial || mQuadCount > 512)
-		flush();
-	mCurrentMaterial = mtl;
-
-	const float halfW = 0.5f * width;
-	const float halfH = 0.5f * height;
-
-	++mQuadCount;
-	Vertex v[4] = {
-		{ Vec3f(-halfW,  halfH, 0), Vec2f(uv.x, uv.y) },
-		{ Vec3f(-halfW, -halfH, 0), Vec2f(uv.x, uv.w) },
-		{ Vec3f( halfW, -halfH, 0), Vec2f(uv.z, uv.w) },
-		{ Vec3f( halfW,  halfH, 0), Vec2f(uv.z, uv.y) },
-	};
-
-	for(size_t i=0; i<MCD_COUNTOF(v); ++i)
-		transform.transformPoint(v[i].position);
-
-	mVertexBuffer.push_back(v[0]);
-	mVertexBuffer.push_back(v[1]);
-	mVertexBuffer.push_back(v[2]);
-	mVertexBuffer.push_back(v[0]);
-	mVertexBuffer.push_back(v[2]);
-	mVertexBuffer.push_back(v[3]);
-}
-
-void QuadRenderer::flush()
-{
-	MCD_ASSERT(mVertexBuffer.size() == mQuadCount * 6);
-	if(!mQuadCount)
-		return;
-
-	mRenderer.preRenderMaterial(0, *mCurrentMaterial);
-
-	LPDIRECT3DDEVICE9 device = getDevice();
-	MCD_ASSUME(device);
-	device->SetFVF(cQuadVertexFVF);
-	device->DrawPrimitiveUP(D3DPT_TRIANGLELIST, mQuadCount * 2, &mVertexBuffer[0], sizeof(QuadVertex));
-
-	mVertexBuffer.clear();
-	mQuadCount = 0;
-
-	mRenderer.postRenderMaterial(0, *mCurrentMaterial);
 }
 
 RendererComponent::RendererComponent()
