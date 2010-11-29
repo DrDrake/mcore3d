@@ -88,7 +88,7 @@ protected:
 	/*!	The Entity that this component belongs to.
 		There is no need to use EntityPtr, since the Entity itself owns this component.
 	 */
-	Entity* mEntity;
+	sal_maybenull Entity* mEntity;
 };	// Component
 
 class MCD_ABSTRACT_CLASS MCD_CORE_API ComponentUpdater : public Component

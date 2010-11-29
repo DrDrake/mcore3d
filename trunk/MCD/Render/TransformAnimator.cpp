@@ -18,7 +18,7 @@ void TransformAnimator::update()
 	const AnimationState::Pose& pose = animation->getPose();
 	MCD_ASSUME(trackPerEntity > 0);
 
-	// Update the Entity's transform from the weightedResult.
+	// Update the Entity's transform from the animated pose.
 	for(size_t i=0; i<affectingEntities.size(); ++i)
 	{
 		MCD_ASSERT(affectingEntities[i]);

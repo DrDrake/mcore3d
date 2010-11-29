@@ -2,6 +2,7 @@
 #define __MCD_CORE_BINDING_FIELDS__
 
 #include "Classes.h"
+#include "../System/StringHash.h"
 
 namespace MCD {
 namespace Binding {

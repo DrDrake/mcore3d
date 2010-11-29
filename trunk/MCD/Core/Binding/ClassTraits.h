@@ -44,10 +44,10 @@ void ClassTraits<Class>::bind(VMCore* vm) {		\
 	RootDeclarator root(vm);					\
 	root
 
-#define SCRIPT_CLASS_REGISTER_NAME(Class, name)	\
+#define SCRIPT_CLASS_REGISTER_NAME(Class)		\
 void ClassTraits<Class>::bind(VMCore* vm) {		\
 	RootDeclarator root(vm);					\
-	root.declareClass<Class>(xSTRING(name))
+	root.declareClass<Class>(#Class)
 
 }	// namespace Binding
 }   // namespace MCD
