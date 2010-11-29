@@ -327,14 +327,15 @@ public:
 	template<typename ReturnPolicy, typename Func>
 	GlobalDeclarator declareFunction(const char* name, Func func)
 	{
-		pushFunction(name, (void*)func, 0, &DirectCallStaticFunction<Func, ReturnPolicy>::Dispatch);
+		pushFunction(name, (void*)func, 0, FuncTraits<Func>::ParamCount, &DirectCallStaticFunction<Func, ReturnPolicy>::Dispatch);
 		return GlobalDeclarator(_hostObject, _vm);
 	}
 
 	template<typename Func>
 	GlobalDeclarator declareFunction(const char* name, Func func)
 	{
-		pushFunction(name, (void*)func, 0, &DirectCallStaticFunction<Func>::Dispatch);
+		typedef typename DefaultReturnPolicy<Func>::policy returnPolicy;
+		pushFunction(name, (void*)func, 0, FuncTraits<Func>::ParamCount, &DirectCallStaticFunction<Func, returnPolicy>::Dispatch);
 		return GlobalDeclarator(_hostObject, _vm);
 	}
 

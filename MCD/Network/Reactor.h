@@ -29,9 +29,6 @@ class MCD_NETWORK_API Socket : public BsdSocket, public IntrusiveSharedWeakPtrTa
 	friend class LinkList<Socket>;
 	friend class LinkList<Socket::Active>;
 
-	//!	Traps all destruction to perform necessary locking
-	friend MCD_NETWORK_API void intrusivePtrRelease(Socket* s);
-
 protected:
 	//!	Hide some functions that should be only called by Reactor
 	Socket(Reactor& reactor) : mReactor(reactor) {}

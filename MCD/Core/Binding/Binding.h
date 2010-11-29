@@ -90,6 +90,23 @@ struct ReturnSpecialization
 		return ReturnPolicy::template pushResult<RT>(v, ret);
 	}
 
+	template<class P1,class P2,class P3,class P4,class P5>
+	static SQInteger Call(RT (*func)(P1,P2,P3,P4,P5), HSQUIRRELVM v, int index) {
+		CHECK_ARG(1);
+		CHECK_ARG(2);
+		CHECK_ARG(3);
+		CHECK_ARG(4);
+		CHECK_ARG(5);
+		RT ret = func(
+			get(TypeSelect<P1>(), v, index + 0),
+			get(TypeSelect<P2>(), v, index + 1),
+			get(TypeSelect<P3>(), v, index + 2),
+			get(TypeSelect<P4>(), v, index + 3),
+			get(TypeSelect<P5>(), v, index + 4)
+		);
+		return ReturnPolicy::template pushResult<RT>(v, ret);
+	}
+
 // Member functions:
 	template<class Callee>
 	static SQInteger Call(Callee & callee, RT (Callee::*func)(), HSQUIRRELVM v, int index) {
@@ -126,7 +143,7 @@ struct ReturnSpecialization
 		RT ret = (callee.*func)(
 			get(TypeSelect<P1>(), v, index + 0),
 			get(TypeSelect<P2>(), v, index + 1),
-			get(TypeSelect<P2>(), v, index + 2)
+			get(TypeSelect<P3>(), v, index + 2)
 		);
 		return ReturnPolicy::template pushResult<RT>(v, ret);
 	}
@@ -140,8 +157,25 @@ struct ReturnSpecialization
 		RT ret = (callee.*func)(
 			get(TypeSelect<P1>(), v, index + 0),
 			get(TypeSelect<P2>(), v, index + 1),
-			get(TypeSelect<P2>(), v, index + 2),
-			get(TypeSelect<P2>(), v, index + 3)
+			get(TypeSelect<P3>(), v, index + 2),
+			get(TypeSelect<P4>(), v, index + 3)
+		);
+		return ReturnPolicy::template pushResult<RT>(v, ret);
+	}
+
+	template<class Callee, class P1,class P2,class P3,class P4,class P5>
+	static SQInteger Call(Callee & callee, RT (Callee::*func)(P1,P2,P3,P4,P5), HSQUIRRELVM v, int index) {
+		CHECK_ARG(1);
+		CHECK_ARG(2);
+		CHECK_ARG(3);
+		CHECK_ARG(4);
+		CHECK_ARG(5);
+		RT ret = (callee.*func)(
+			get(TypeSelect<P1>(), v, index + 0),
+			get(TypeSelect<P2>(), v, index + 1),
+			get(TypeSelect<P3>(), v, index + 2),
+			get(TypeSelect<P4>(), v, index + 3),
+			get(TypeSelect<P5>(), v, index + 4)
 		);
 		return ReturnPolicy::template pushResult<RT>(v, ret);
 	}
@@ -182,7 +216,7 @@ struct ReturnSpecialization
 		RT ret = (callee.*func)(
 			get(TypeSelect<P1>(), v, index + 0),
 			get(TypeSelect<P2>(), v, index + 1),
-			get(TypeSelect<P2>(), v, index + 2)
+			get(TypeSelect<P3>(), v, index + 2)
 		);
 		return ReturnPolicy::template pushResult<RT>(v, ret);
 	}
@@ -196,8 +230,25 @@ struct ReturnSpecialization
 		RT ret = (callee.*func)(
 			get(TypeSelect<P1>(), v, index + 0),
 			get(TypeSelect<P2>(), v, index + 1),
-			get(TypeSelect<P2>(), v, index + 2)
-			get(TypeSelect<P2>(), v, index + 3)
+			get(TypeSelect<P3>(), v, index + 2)
+			get(TypeSelect<P4>(), v, index + 3)
+		);
+		return ReturnPolicy::template pushResult<RT>(v, ret);
+	}
+
+	template<class Callee, class P1,class P2,class P3,class P4,class P5>
+	static SQInteger Call(Callee & callee, RT (Callee::*func)(P1,P2,P3,P4,P5) const, HSQUIRRELVM v, int index) {
+		CHECK_ARG(1);
+		CHECK_ARG(2);
+		CHECK_ARG(3);
+		CHECK_ARG(4);
+		CHECK_ARG(5);
+		RT ret = (callee.*func)(
+			get(TypeSelect<P1>(), v, index + 0),
+			get(TypeSelect<P2>(), v, index + 1),
+			get(TypeSelect<P3>(), v, index + 2),
+			get(TypeSelect<P4>(), v, index + 3),
+			get(TypeSelect<P5>(), v, index + 4)
 		);
 		return ReturnPolicy::template pushResult<RT>(v, ret);
 	}
@@ -241,7 +292,7 @@ struct ReturnSpecialization<void, ReturnPolicy>
 		func(
 			get(TypeSelect<P1>(), v, index + 0),
 			get(TypeSelect<P2>(), v, index + 1),
-			get(TypeSelect<P2>(), v, index + 2)
+			get(TypeSelect<P3>(), v, index + 2)
 		);
 		return 0;
 	}
@@ -255,13 +306,30 @@ struct ReturnSpecialization<void, ReturnPolicy>
 		func(
 			get(TypeSelect<P1>(), v, index + 0),
 			get(TypeSelect<P2>(), v, index + 1),
-			get(TypeSelect<P2>(), v, index + 2),
-			get(TypeSelect<P2>(), v, index + 3)
+			get(TypeSelect<P3>(), v, index + 2),
+			get(TypeSelect<P4>(), v, index + 3)
 		);
 		return 0;
 	}
 
-// Member functions:
+	template<class P1,class P2,class P3,class P4,class P5>
+	static SQInteger Call(void (*func)(P1,P2,P3,P4,P5), HSQUIRRELVM v, int index) {
+		CHECK_ARG(1);
+		CHECK_ARG(2);
+		CHECK_ARG(3);
+		CHECK_ARG(4);
+		CHECK_ARG(5);
+		func(
+			get(TypeSelect<P1>(), v, index + 0),
+			get(TypeSelect<P2>(), v, index + 1),
+			get(TypeSelect<P3>(), v, index + 2),
+			get(TypeSelect<P4>(), v, index + 3),
+			get(TypeSelect<P5>(), v, index + 4)
+		);
+		return 0;
+	}
+
+	// Member functions:
 	template<class Callee>
 	static SQInteger Call(Callee & callee, void (Callee::*func)(), HSQUIRRELVM v, int index) {
 		(void)index;
@@ -297,7 +365,7 @@ struct ReturnSpecialization<void, ReturnPolicy>
 		(callee.*func)(
 			get(TypeSelect<P1>(), v, index + 0),
 			get(TypeSelect<P2>(), v, index + 1),
-			get(TypeSelect<P2>(), v, index + 2)
+			get(TypeSelect<P3>(), v, index + 2)
 		);
 		return 0;
 	}
@@ -311,8 +379,25 @@ struct ReturnSpecialization<void, ReturnPolicy>
 		(callee.*func)(
 			get(TypeSelect<P1>(), v, index + 0),
 			get(TypeSelect<P2>(), v, index + 1),
-			get(TypeSelect<P2>(), v, index + 2),
-			get(TypeSelect<P2>(), v, index + 3)
+			get(TypeSelect<P3>(), v, index + 2),
+			get(TypeSelect<P4>(), v, index + 3)
+		);
+		return 0;
+	}
+
+	template<class Callee, class P1,class P2,class P3,class P4,class P5>
+	static SQInteger Call(Callee & callee, void (Callee::*func)(P1,P2,P3,P4,P5), HSQUIRRELVM v, int index) {
+		CHECK_ARG(1);
+		CHECK_ARG(2);
+		CHECK_ARG(3);
+		CHECK_ARG(4);
+		CHECK_ARG(5);
+		(callee.*func)(
+			get(TypeSelect<P1>(), v, index + 0),
+			get(TypeSelect<P2>(), v, index + 1),
+			get(TypeSelect<P3>(), v, index + 2),
+			get(TypeSelect<P4>(), v, index + 3),
+			get(TypeSelect<P5>(), v, index + 4)
 		);
 		return 0;
 	}
@@ -353,7 +438,7 @@ struct ReturnSpecialization<void, ReturnPolicy>
 		(callee.*func)(
 			get(TypeSelect<P1>(), v, index + 0),
 			get(TypeSelect<P2>(), v, index + 1),
-			get(TypeSelect<P2>(), v, index + 2)
+			get(TypeSelect<P3>(), v, index + 2)
 		);
 		return 0;
 	}
@@ -367,8 +452,25 @@ struct ReturnSpecialization<void, ReturnPolicy>
 		(callee.*func)(
 			get(TypeSelect<P1>(), v, index + 0),
 			get(TypeSelect<P2>(), v, index + 1),
-			get(TypeSelect<P2>(), v, index + 2),
-			get(TypeSelect<P2>(), v, index + 3)
+			get(TypeSelect<P3>(), v, index + 2),
+			get(TypeSelect<P4>(), v, index + 3)
+		);
+		return 0;
+	}
+
+	template<class Callee, class P1,class P2,class P3,class P4,class P5>
+	static SQInteger Call(Callee & callee, void (Callee::*func)(P1,P2,P3,P4,P5) const, HSQUIRRELVM v, int index) {
+		CHECK_ARG(1);
+		CHECK_ARG(2);
+		CHECK_ARG(3);
+		CHECK_ARG(4);
+		CHECK_ARG(5);
+		(callee.*func)(
+			get(TypeSelect<P1>(), v, index + 0),
+			get(TypeSelect<P2>(), v, index + 1),
+			get(TypeSelect<P3>(), v, index + 2),
+			get(TypeSelect<P4>(), v, index + 3),
+			get(TypeSelect<P5>(), v, index + 4)
 		);
 		return 0;
 	}
@@ -402,6 +504,11 @@ SQInteger Call(RT (*func)(P1,P2,P3,P4), HSQUIRRELVM v, int index) {
 	return ReturnSpecialization<RT, ResultPolicy>::Call(func, v, index);
 }
 
+template<class ResultPolicy, class RT, class P1,class P2,class P3,class P4,class P5>
+SQInteger Call(RT (*func)(P1,P2,P3,P4,P5), HSQUIRRELVM v, int index) {
+	return ReturnSpecialization<RT, ResultPolicy>::Call(func, v, index);
+}
+
 // Member function callers
 template<class ResultPolicy, class Callee, class RT>
 SQInteger Call(Callee& callee, RT (Callee::*func)(), HSQUIRRELVM v, int index) {
@@ -428,6 +535,11 @@ SQInteger Call(Callee& callee, RT (Callee::*func)(P1,P2,P3,P4), HSQUIRRELVM v, i
 	return ReturnSpecialization<RT, ResultPolicy>::Call(callee, func, v, index);
 }
 
+template<class ResultPolicy, class Callee, class RT, class P1,class P2,class P3,class P4,class P5>
+SQInteger Call(Callee& callee, RT (Callee::*func)(P1,P2,P3,P4,P5), HSQUIRRELVM v, int index) {
+	return ReturnSpecialization<RT, ResultPolicy>::Call(callee, func, v, index);
+}
+
 // Const member function callers
 template<class ResultPolicy, class Callee, class RT>
 SQInteger Call(Callee& callee, RT (Callee::*func)() const, HSQUIRRELVM v, int index) {
@@ -451,6 +563,11 @@ SQInteger Call(Callee& callee, RT (Callee::*func)(P1,P2,P3) const, HSQUIRRELVM v
 
 template<class ResultPolicy, class Callee, class RT, class P1,class P2,class P3,class P4>
 SQInteger Call(Callee& callee, RT (Callee::*func)(P1,P2,P3,P4) const, HSQUIRRELVM v, int index) {
+	return ReturnSpecialization<RT, ResultPolicy>::Call(callee, func, v, index);
+}
+
+template<class ResultPolicy, class Callee, class RT, class P1,class P2,class P3,class P4,class P5>
+SQInteger Call(Callee& callee, RT (Callee::*func)(P1,P2,P3,P4,P5) const, HSQUIRRELVM v, int index) {
 	return ReturnSpecialization<RT, ResultPolicy>::Call(callee, func, v, index);
 }
 

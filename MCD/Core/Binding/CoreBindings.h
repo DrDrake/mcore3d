@@ -17,7 +17,9 @@ class Component;
 class Entity;
 class InputComponent;
 class Resource;
+class ResourceManager;
 class ScriptComponent;
+class Timer;
 
 namespace Binding {
 
@@ -28,6 +30,9 @@ SCRIPT_CLASS_DECLAR_EXPORT(Resource, MCD_CORE_API);
 MCD_CORE_API void push(HSQUIRRELVM, Resource*);
 MCD_CORE_API void destroy(Resource*, Resource*);
 inline void push(HSQUIRRELVM v, Resource& r) { push(v, &r); }
+
+SCRIPT_CLASS_DECLAR_EXPORT(ResourceManager, MCD_CORE_API);
+SCRIPT_CLASS_DECLAR_EXPORT(Timer, MCD_CORE_API);
 
 // Math
 SCRIPT_CLASS_DECLAR_EXPORT(Mat44f, MCD_CORE_API);

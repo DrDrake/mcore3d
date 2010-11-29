@@ -247,7 +247,6 @@ protected:
 	/// Generate a default name if this Entity doesn't have one
 	void generateDefaultName();
 
-
 	///	Helper function for clone().
 	virtual sal_notnull Entity* recursiveClone() const;
 

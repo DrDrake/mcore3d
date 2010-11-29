@@ -6,6 +6,8 @@
 #include "../Entity/InputComponent.h"
 #include "../Entity/Entity.h"
 #include "../System/Resource.h"
+#include "../System/ResourceManager.h"
+#include "../System/Timer.h"
 
 namespace MCD {
 namespace Binding {
@@ -14,10 +16,10 @@ namespace Binding {
 
 static const char* path_Resource(Resource& self) { return self.fileId().getString().c_str(); }
 
-SCRIPT_CLASS_REGISTER(Resource)
-	.declareClass<Resource>("Resource")
+SCRIPT_CLASS_REGISTER_NAME(Resource)
 	.varGet("path", &path_Resource)
 	.varGet("commitCount", &Resource::commitCount)
+	.method("_tostring", &path_Resource)
 ;}
 
 void push(HSQUIRRELVM v, Resource* obj)
@@ -41,6 +43,24 @@ void destroy(Resource* dummy, Resource* instance)
 	if(instance)
 		intrusivePtrRelease(instance);
 }
+
+static Resource* load_ResourceManager(ResourceManager& self, const char* fileId, int blockIteration, uint priority, const char* args) {
+	// TODO: Fix the blocking option
+	return self.load(fileId, blockIteration, priority, args).get();
+}
+
+SCRIPT_CLASS_REGISTER_NAME(ResourceManager)
+	.method("load", &load_ResourceManager)
+;}
+
+static float get_Timer(Timer& self) { return float(self.get().asSecond()); }
+static float reset_Timer(Timer& self) { return float(self.reset().asSecond()); }
+
+SCRIPT_CLASS_REGISTER_NAME(Timer)
+	.constructor()
+	.method("get", &get_Timer)
+	.method("reset", &reset_Timer)
+;}
 
 // Math
 
@@ -116,10 +136,10 @@ SCRIPT_CLASS_REGISTER(Mat44f)
 	.method("scalarMul", &scalarMul_Mat44)
 	.method("isEqual", &isEqual_Mat44)
 	.method("isIdentity", &isIdentity_Mat44)
-//	.runScript("Mat44._tostring <- function(){return xBiasVector+\", \"+yBiasVector+\"), \"+zBiasVector;}")	// Vec3.tostring()
+	.runScript("Mat44._tostring <- function(){return xBiasVector+\", \"+yBiasVector+\"), \"+zBiasVector;}")	// Vec3.tostring()
 ;}
 
-static SQInteger createVec2(HSQUIRRELVM vm)
+static SQInteger create_Vec2(HSQUIRRELVM vm)
 {
 	const SQInteger paramCount = sq_gettop(vm) - 1;
 	Vec2f* v = nullptr;
@@ -151,10 +171,10 @@ static SQInteger createVec2(HSQUIRRELVM vm)
 
 SCRIPT_CLASS_REGISTER(Vec2f)
 	.declareClass<Vec2f>("Vec2")
-	.rawMethod("constructor", createVec2)
+	.rawMethod("constructor", create_Vec2)
 	.var("x", (float Vec2f::*)&Vec2f::x)
 	.var("y", (float Vec2f::*)&Vec2f::y)
-//	.runScript("Vec2._tostring <- function(){return x+\", \"+y+\";}")
+	.runScript("Vec2._tostring <- function(){return x+\", \"+y+\";}")
 ;}
 
 static SQInteger create_Vec3(HSQUIRRELVM vm)
@@ -230,8 +250,7 @@ static Component* nextComponent_Entity(Entity& self, Component* c) {
 	return c == self.components.end() ? nullptr : c;
 }
 
-SCRIPT_CLASS_REGISTER(Entity)
-	.declareClass<Entity>("Entity")
+SCRIPT_CLASS_REGISTER_NAME(Entity)
 	.constructor("defaultConstructor")
 	.runScript("Entity.constructor<-function(name=\"\"){defaultConstructor.call(this);this.name=name;}")
 	.var("enabled", &Entity::enabled)
@@ -304,8 +323,7 @@ void destroy(Entity* dummy, Entity* instance)
 
 // Component
 
-SCRIPT_CLASS_REGISTER(Component)
-	.declareClass<Component>("Component")
+SCRIPT_CLASS_REGISTER_NAME(Component)
 	.varGet("enabled", &Component::enabled)
 	.varSet("enabled", &Component::setEnabled)
 	.varGet("entity", &Component::entity)
@@ -401,8 +419,7 @@ SQInteger sleep_ScriptComponent(HSQUIRRELVM vm)
 }
 
 SCRIPT_CLASS_DECLAR_EXPORT(ScriptComponent, MCD_CORE_API);	// TODO: Don't why this is needed!
-SCRIPT_CLASS_REGISTER(ScriptComponent)
-	.declareClass<ScriptComponent, Component>("ScriptComponent")
+SCRIPT_CLASS_REGISTER_NAME(ScriptComponent)
 	.constructor()
 	.rawMethod("suspend", &suspend_ScriptComponent)
 	.rawMethod("wakeup", &wakeup_ScriptComponent)
@@ -443,7 +460,9 @@ void registerCoreBinding(VMCore& vm)
 	Binding::ClassTraits<InputComponent>::bind(&vm);
 	Binding::ClassTraits<Mat44f>::bind(&vm);
 	Binding::ClassTraits<Resource>::bind(&vm);
+	Binding::ClassTraits<ResourceManager>::bind(&vm);
 	Binding::ClassTraits<ScriptComponent>::bind(&vm);
+	Binding::ClassTraits<Timer>::bind(&vm);
 	Binding::ClassTraits<Vec2f>::bind(&vm);
 	Binding::ClassTraits<Vec3f>::bind(&vm);
 }
