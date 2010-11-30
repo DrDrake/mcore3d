@@ -18,7 +18,7 @@ struct RenderItem
 {
 	sal_maybenull Entity* entity;
 	sal_notnull IDrawCall* drawCall;
-	sal_notnull IMaterialComponent* material;
+	sal_maybenull IMaterialComponent* material;
 	Mat44f worldTransform;
 };	// RenderItem
 

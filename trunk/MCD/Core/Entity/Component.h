@@ -91,6 +91,7 @@ protected:
 	sal_maybenull Entity* mEntity;
 };	// Component
 
+/// Class for batched update of the same type of Component
 class MCD_ABSTRACT_CLASS MCD_CORE_API ComponentUpdater : public Component
 {
 public:

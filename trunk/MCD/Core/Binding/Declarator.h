@@ -2,16 +2,13 @@
 #define __MCD_CORE_BINDING_DECLARATOR__
 
 #include "Binding.h"
+#include "ClassTraits.h"
 #include "Constructors.h"
 //#include "Events.h"
 #include "Fields.h"
-#include "ScriptObject.h"
 
 namespace MCD {
 namespace Binding {
-
-class VMCore;
-typedef void* ClassID;
 
 /// The very base declarator. Does nothing, but stores info
 class MCD_CORE_API Declarator

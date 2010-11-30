@@ -39,11 +39,13 @@ public:
 	///	Name of each joint
 	std::vector<std::string> names;
 
-	///	Transforms in the basePose are relative to the root joint.
+	///	Transforms in the basePose are in JOINT space,
+	/// so that animating individual joint is easy.
 	std::vector<Mat44f> basePose;
 
 	/// Usefull for skinning using the base pose, or getting back the joint's location,
 	/// even the base pose is already baked into the animation.
+	///	@note The transforms are in OBJECT space.
 	std::vector<Mat44f> basePoseInverse;
 
 protected:
@@ -78,10 +80,10 @@ public:
 	sal_override void update();
 
 // Attributes
-	/// Stores all the transforms of the joints, in mesh space.
 	/// The hierarchical nature of the skeleton is flattened using breadth-first traversal.
 	/// When updating the transforms, be sure to update them using a front to back order,
 	/// such that the parents are updated before the children.
+	/// @note The transforms are stored in OBJECT space.
 	std::vector<Mat44f> transforms;
 
 	SkeletonPtr skeleton;

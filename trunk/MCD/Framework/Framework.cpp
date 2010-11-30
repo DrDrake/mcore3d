@@ -40,6 +40,7 @@
 #include "../Render/RenderTarget.h"
 #include "../Render/RenderWindow.h"
 #include "../Render/Skeleton.h"
+#include "../Render/Sprite.h"
 
 #include "../Loader/BitmapLoader.h"
 #include "../Loader/FntLoader.h"
@@ -201,6 +202,12 @@ Framework::Impl::Impl()
 		e->addComponent(c);
 	}
 
+	{	// Sprite updater
+		Entity* e = mSystemEntity->addFirstChild("Sprite updater");
+		SpriteUpdaterComponent* c = new SpriteUpdaterComponent;
+		e->addComponent(c);
+	}
+
 	// Audio
 	MCD_VERIFY(initAudioDevice());
 
@@ -259,7 +266,7 @@ bool Framework::Impl::initWindow(RenderWindow& existingWindow, bool takeOwnershi
 		Entity* e = mSceneLayer->addFirstChild("Scene camera");
 		CameraComponent* c = e->addComponent(new CameraComponent(mRenderer));
 		c->frustum.projectionType = Frustum::Perspective;
-		c->frustum.create(45.f, 4.0f / 3.0f, 1.0f, 500.0f);
+		c->frustum.create(45.f, 4.0f / 3.0f, 0.1f, 500.0f);
 		e->localTransform.setTranslation(Vec3f(0, 0, 10));
 	}
 
@@ -489,6 +496,9 @@ bool Framework::Impl::update(Event& e)
 
 			i.next();
 		}
+
+		// Perform rendering
+		mRenderer->render(*mRootEntity);
 
 		// Preform the updater's update(dt) function
 		ComponentUpdater::traverseEnd(*mSystemEntity, mDeltaTime);

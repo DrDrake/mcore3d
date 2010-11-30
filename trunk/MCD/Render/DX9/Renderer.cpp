@@ -146,7 +146,6 @@ void RendererComponent::Impl::processRenderItems(RenderItems& items, IDrawCall::
 			mWorldViewProjMatrix = mViewProjMatrix * mWorldMatrix;
 
 			IMaterialComponent* mtl = i.material;
-			MCD_ASSUME(mtl);
 
 			if(mtl != mLastMaterial)
 				++materialSwitch;
@@ -154,9 +153,17 @@ void RendererComponent::Impl::processRenderItems(RenderItems& items, IDrawCall::
 			// The material class will preform early out if mtl == mLastMaterial
 			// NOTE: Must call for every RenderItem because the material is also
 			// responsible for setting up the various matrix shader constants.
-			mtl->preRender(0, this);
-			i.drawCall->draw(this, statistic);
-			mtl->postRender(0, this);
+			if(mtl) {
+				mtl->preRender(0, this);
+				i.drawCall->draw(this, statistic);
+				mtl->postRender(0, this);
+			}
+			// RenderItems' material can be null, meaning the Renderable will handle
+			// the material for itself, for example SpriteComponent
+			else {
+				i.drawCall->draw(this, statistic);
+			}
+
 			mLastMaterial = mtl;
 		}
 	}
