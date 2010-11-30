@@ -174,7 +174,7 @@ SCRIPT_CLASS_REGISTER(Vec2f)
 	.rawMethod("constructor", create_Vec2)
 	.var("x", (float Vec2f::*)&Vec2f::x)
 	.var("y", (float Vec2f::*)&Vec2f::y)
-	.runScript("Vec2._tostring <- function(){return x+\", \"+y+\";}")
+	.runScript("Vec2._tostring <- function(){return x+\", \"+y;}")
 ;}
 
 static SQInteger create_Vec3(HSQUIRRELVM vm)

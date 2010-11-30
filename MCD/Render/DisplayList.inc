@@ -80,7 +80,6 @@ public:
 		Section& sec = mSections.back();
 		sec.vertexCount = mVertices.size() - sec.offset;
 	}
-
 };	// DisplayListComponentImplBase
 
 }	// namespace MCD

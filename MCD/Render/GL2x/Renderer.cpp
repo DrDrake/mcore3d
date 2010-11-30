@@ -141,16 +141,6 @@ void RendererComponent::Impl::processRenderItems(RenderItems& items, IDrawCall::
 			mWorldMatrix = i.worldTransform;
 			mWorldViewProjMatrix = mViewProjMatrix * mWorldMatrix;
 
-			IMaterialComponent* mtl = i.material;
-
-			// TODO: Only single pass material support the last material optimization
-			if(mtl != mLastMaterial) {
-				if(mLastMaterial)
-					mLastMaterial->postRender(0, this);
-				mtl->preRender(0, this);
-				++materialSwitch;
-			}
-
 			glPushMatrix();
 			glMultMatrixf(e->worldTransform().data);
 
@@ -158,11 +148,28 @@ void RendererComponent::Impl::processRenderItems(RenderItems& items, IDrawCall::
 			if(mCurrentCamera->frustum.projectionType == Frustum::YDown2D)
 				glScalef(1, -1, 1);
 
-			i.drawCall->draw(this, statistic);
-			glPopMatrix();
+			IMaterialComponent* mtl = i.material;
 
-			//if(passCount == 1)
-				mLastMaterial = mtl;
+			if(mtl != mLastMaterial)
+				++materialSwitch;
+
+			// The material class will preform early out if mtl == mLastMaterial
+			// NOTE: Must call for every RenderItem because the material is also
+			// responsible for setting up the various matrix shader constants.
+			if(mtl) {
+				mtl->preRender(0, this);
+				i.drawCall->draw(this, statistic);
+				mtl->postRender(0, this);
+			}
+			// RenderItems' material can be null, meaning the Renderable will handle
+			// the material for itself, for example SpriteComponent
+			else {
+				i.drawCall->draw(this, statistic);
+			}
+
+			mLastMaterial = mtl;
+
+			glPopMatrix();
 		}
 	}
 }
