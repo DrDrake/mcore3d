@@ -1,6 +1,7 @@
 #ifndef __MCD_RENDER_SPRITE__
 #define __MCD_RENDER_SPRITE__
 
+#include "Animation.h"
 #include "Color.h"
 #include "Renderable.h"
 #include "Texture.h"
@@ -11,9 +12,11 @@ namespace MCD {
 /// A Sprite contains the necessary information for SpriteAtlas to render.
 /// The unit for dimensional data depends on the camera used.
 /// To have pixel-wised unit, make a Ortho camera with width/height matching the screen size.
-class MCD_RENDER_API SpriteComponent : public Component
+class MCD_RENDER_API SpriteComponent : public AnimatedComponent
 {
 public:
+	SpriteComponent();
+
 	sal_override const std::type_info& familyType() const {
 		return typeid(SpriteComponent);
 	}
@@ -22,16 +25,31 @@ public:
 
 // Attributes
 	ColorRGBAf color;
-	Vec4f uv;	/// <1 for conventional uv coordinate, >1 for pixel unit
+
+	/// The rectangle region to use in the texture atlas
+	/// The four values are left, top, right and bottom.
+	/// For values less than 1, it will be interpreted as conventional uv
+	/// coordinate, otherwise will interpreted in unit of pixel.
+	Vec4f textureRect;
+
+	/// The rooting position of the sprite, in unit of relative size (ie 0.5,0.5 -> centre of the sprite)
+	Vec2f anchor;
+
 	float width, height;
 
 	// Possible animation semantics:
-	// x y z r		position and rotation
-	// r g b a		color
-	// u v sx sy	uv and scale
+	//  x  y  z  r		position and rotation
+	// ax ay sx sy		anchor position and scaling
+	//  r  g  b  a		color
+	// rl  v  w  z		texture rectangle
+	size_t trackOffset;	//!< Starting index to the animation's tracks
+	AnimationComponentPtr animation;
+
+
+	static const size_t trackPerSprite = 3;
 
 protected:
-	sal_override void gather();
+	sal_override void update();
 };	// SpriteComponent
 
 typedef IntrusiveWeakPtr<SpriteComponent> SpriteComponentPtr;

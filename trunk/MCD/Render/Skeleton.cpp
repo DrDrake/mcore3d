@@ -55,7 +55,7 @@ size_t Skeleton::jointCount() const
 }
 
 SkeletonPose::SkeletonPose()
-	: subTrackOffset(0)
+	: trackOffset(0)
 {
 }
 
@@ -125,7 +125,7 @@ void SkeletonPose::update()
 	MCD_ASSERT(pose.data);
 
 	for(size_t i=0; i<jointCount; ++i) {
-		const size_t i2 = subTrackOffset + i * trackPerJoint;
+		const size_t i2 = trackOffset + i * trackPerJoint;
 		pose[i2 + Rotation].cast<Quaternionf>().toMatrix(tmp);
 		MCD_ASSERT("Not pure rotation matrix!" && Mathf::isNearEqual(tmp.determinant(), 1, 1e-5f));
 

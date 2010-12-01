@@ -271,6 +271,8 @@ SCRIPT_CLASS_REGISTER_NAME(Entity)
 	.method("insertAfter", (void (Entity::*)(Entity*))(&Entity::insertAfter))
 	.method("isAncestorOf", &Entity::isAncestorOf)
 	.method("destroyThis", &Entity::destroyThis)
+	.method("findEntityByPath", &Entity::findEntityByPath)
+	.method("getRelativePathFrom", &Entity::getRelativePathFrom)
 	.method("_addComponent", &Entity::_addComponent)
 	.runScript("Entity.addComponent<-function(arg){if(arg instanceof ::Component) return _addComponent(arg);else if(typeof arg==\"class\") return _addComponent(arg());}") // Accept both class and instance as the argument
 	.method("_nextComponent", &nextComponent_Entity)
