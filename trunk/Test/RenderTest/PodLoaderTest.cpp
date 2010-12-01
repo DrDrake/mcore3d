@@ -6,11 +6,9 @@
 #include "../../MCD/Render/Font.h"
 #include "../../MCD/Render/Material.h"
 #include "../../MCD/Render/Mesh.h"
-#include "../../MCD/Render/Renderer.h"
 #include "../../MCD/Render/Texture.h"
 #include "../../MCD/Core/Entity/BehaviourComponent.h"
 #include "../../MCD/Core/Entity/Entity.h"
-#include "../../MCD/Core/System/WindowEvent.h"
 
 using namespace MCD;
 
@@ -25,9 +23,7 @@ TEST(PodLoaderTest)
 //	const char* model = "Scene/tv.pod";
 //	const char* model = "Scene/City/scene.3ds";
 
-	Entity& root = framework.rootEntity();
 	Entity& scene = framework.sceneLayer();
-	RendererComponent* renderer = root.findComponentInChildrenExactType<RendererComponent>();
 
 	{	// Register the pod loader
 //		framework.addLoaderFactory(new Max3dsLoaderFactory);
@@ -49,16 +45,6 @@ TEST(PodLoaderTest)
 		CHECK(framework.loadPrefabTo(model, *e));
 	}
 
-	while(true)
-	{
-		Event e;
-		framework.update(e);
-
-		if(e.Type == Event::Closed)
-			break;
-
-		renderer->render(root);
-	}
-
+	framework.mainLoop();
 	CHECK(true);
 }

@@ -4,7 +4,6 @@
 #include "../../MCD/Render/Light.h"
 #include "../../MCD/Render/Material.h"
 #include "../../MCD/Render/Mesh.h"
-#include "../../MCD/Render/Renderer.h"
 #include "../../MCD/Render/Texture.h"
 #include "../../MCD/Core/Entity/Entity.h"
 
@@ -18,9 +17,7 @@ TEST(BumpMapTest)
 
 	ResourceManager& resourceManager = framework.resourceManager();
 
-	Entity& root = framework.rootEntity();
 	Entity& scene = framework.sceneLayer();
-	RendererComponent* renderer = root.findComponentInChildrenExactType<RendererComponent>();
 
 	// Create material
 	MaterialComponent* material1 = new MaterialComponent;
@@ -63,11 +60,6 @@ TEST(BumpMapTest)
 	Timer timer;
 	while(true)
 	{
-		Event e;
-		framework.update(e);
-		if(e.Type == Event::Closed)
-			break;
-
 		// Move the lights
 		float s = (float)sin(timer.get().asSecond());
 		float c = (float)cos(timer.get().asSecond());
@@ -75,7 +67,10 @@ TEST(BumpMapTest)
 		l1->entity()->localTransform.setTranslation(10 * Vec3f(0, s, c));
 		l2->entity()->localTransform.setTranslation(10 * Vec3f(s, 1, c));
 
-		renderer->render(root);
+		Event e;
+		framework.update(e);
+		if(e.Type == Event::Closed)
+			break;
 	}
 
 	CHECK(true);

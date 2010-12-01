@@ -4,12 +4,10 @@
 #include "../../MCD/Render/Font.h"
 #include "../../MCD/Render/Material.h"
 #include "../../MCD/Render/Mesh.h"
-#include "../../MCD/Render/Renderer.h"
 #include "../../MCD/Render/RenderTarget.h"
 #include "../../MCD/Render/Texture.h"
 #include "../../MCD/Core/Entity/BehaviourComponent.h"
 #include "../../MCD/Core/Entity/Entity.h"
-#include "../../MCD/Core/System/WindowEvent.h"
 
 using namespace MCD;
 
@@ -24,10 +22,8 @@ TEST(RendererTest)
 
 	ResourceManager& resourceManager = framework.resourceManager();
 
-	Entity& root = framework.rootEntity();
 	Entity& scene = framework.sceneLayer();
 	RenderTargetComponent* textureRenderTarget = nullptr;
-	RendererComponent* renderer = root.findComponentInChildrenExactType<RendererComponent>();
 	CameraComponent* sceneCamera = scene.findComponentInChildrenExactType<CameraComponent>();
 
 	{	// Setup sub-window
@@ -121,8 +117,6 @@ TEST(RendererTest)
 			break;
 
 		subWindow.popEvent(e, false);
-
-		renderer->render(root);
 	}
 
 	CHECK(true);

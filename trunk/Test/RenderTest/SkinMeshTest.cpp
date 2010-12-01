@@ -3,7 +3,6 @@
 #include "../../MCD/Core/Entity/Entity.h"
 #include "../../MCD/Core/Math/Quaternion.h"
 #include "../../MCD/Render/Mesh.h"
-#include "../../MCD/Render/Renderer.h"
 #include "../../MCD/Render/PlaneMeshBuilder.h"
 #include "../../MCD/Render/SkinMesh.h"
 #include "../../MCD/Framework/Framework.h"
@@ -163,19 +162,7 @@ const float SkinMeshTestFixture::jointLength = 1.0f;
 
 TEST_FIXTURE(SkinMeshTestFixture, Render)
 {
-	Entity& root = framework.rootEntity();
-	RendererComponent* renderer = root.findComponentInChildrenExactType<RendererComponent>();
-
 	framework.sceneLayer().addFirstChild(createEntity());
-
-	while(true)
-	{
-		Event e;
-		framework.update(e);
-
-		if(e.Type == Event::Closed)
-			break;
-
-		renderer->render(root);
-	}
+	framework.mainLoop();
+	CHECK(true);
 }

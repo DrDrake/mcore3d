@@ -32,7 +32,17 @@ void SpriteAtlasComponent::gatherSprite(SpriteComponent* sprite)
 	const float right = sprite->width;
 	const float top = 0;
 	const float bottom = sprite->height;
-	const Vec4f& uv = sprite->uv;
+	Vec4f uv = sprite->uv;
+
+	if(uv.x > 1 || uv.z > 1) {
+		const float invTexWidth = 1.0f / textureAtlas->width;
+		const float invTexHeight = 1.0f / textureAtlas->height;
+		uv.x *= invTexWidth;
+		uv.z *= invTexWidth;
+		uv.y *= invTexHeight;
+		uv.w *= invTexHeight;
+	}
+
 	Vertex v[4] = {
 		{	Vec3f(left, -top, 0),		Vec2f(uv.x, uv.y), c	},	// Left top
 		{	Vec3f(left, -bottom, 0),	Vec2f(uv.x, uv.w), c	},	// Left bottom
@@ -61,13 +71,13 @@ void SpriteAtlasComponent::gatherSprite(SpriteComponent* sprite)
 void SpriteUpdaterComponent::begin()
 {
 	gSpriteUpdater = this;
+	for(size_t i=0; i<mSpriteAtlas.size(); ++i)
+		mSpriteAtlas[i]->mVertexBuffer.clear();
+	mSpriteAtlas.clear();
 }
 
 void SpriteUpdaterComponent::end(float dt)
 {
-	for(size_t i=0; i<mSpriteAtlas.size(); ++i)
-		mSpriteAtlas[i]->mVertexBuffer.clear();
-
 	gSpriteUpdater = nullptr;
 }
 

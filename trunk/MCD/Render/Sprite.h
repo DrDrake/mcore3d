@@ -22,7 +22,7 @@ public:
 
 // Attributes
 	ColorRGBAf color;
-	Vec4f uv;
+	Vec4f uv;	/// <1 for conventional uv coordinate, >1 for pixel unit
 	float width, height;
 
 	// Possible animation semantics:

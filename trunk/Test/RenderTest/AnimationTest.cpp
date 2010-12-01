@@ -6,7 +6,6 @@
 #include "../../MCD/Render/TransformAnimator.h"
 #include "../../MCD/Render/ChamferBox.h"
 #include "../../MCD/Render/Mesh.h"
-#include "../../MCD/Render/Renderer.h"
 
 using namespace MCD;
 
@@ -146,19 +145,12 @@ public:
 TEST_FIXTURE(AnimationTestFixture, Render)
 {
 	Entity& root = framework.rootEntity();
-	RendererComponent* renderer = root.findComponentInChildrenExactType<RendererComponent>();
 	CameraComponent* sceneCamera = root.findComponentInChildrenExactType<CameraComponent>();
 
 	sceneCamera->entity()->localTransform.translateBy(Vec3f(0, 0, 200));
 
 	while(true)
 	{
-		Event e;
-		framework.update(e);
-
-		if(e.Type == Event::Closed)
-			break;
-
 		if(mTimer.get().asSecond() > 2) {
 			loadAnimationClip();
 			mTimer.reset();
@@ -169,6 +161,10 @@ TEST_FIXTURE(AnimationTestFixture, Render)
 		if(Mathf::random() > 0.002)
 			destroyRandomBox();
 
-		renderer->render(root);
+		Event e;
+		framework.update(e);
+
+		if(e.Type == Event::Closed)
+			break;
 	}
 }

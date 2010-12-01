@@ -497,11 +497,11 @@ bool Framework::Impl::update(Event& e)
 			i.next();
 		}
 
-		// Perform rendering
-		mRenderer->render(*mRootEntity);
-
 		// Preform the updater's update(dt) function
 		ComponentUpdater::traverseEnd(*mSystemEntity, mDeltaTime);
+
+		// Perform rendering
+		mRenderer->render(*mRootEntity);
 	}
 
 	return hasWindowEvent;
@@ -554,7 +554,6 @@ void Framework::mainLoop()
 	Event e;
 	do {
 		(void)update(e);
-		rendererComponent()->render(rootEntity());
 	} while(e.Type != Event::Closed);
 }
 
