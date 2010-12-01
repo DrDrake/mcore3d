@@ -40,7 +40,7 @@ int AnimationState::loopCount() const
 float AnimationState::localTime() const
 {
 	const int loop = loopCount();
-	const float len = clip->length / clip->framerate;
+	const float len = clip->length / clip->framerate;	// From unit of key position into unit time
 	const float clampLen = loop == 0 ? std::numeric_limits<float>::max() : len * loop;
 	float t = fabs(rate) * (worldTime - worldRefTime);
 	MCD_ASSERT("Make sure AnimationClip has non-zero length" && len > 0);

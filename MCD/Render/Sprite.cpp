@@ -6,17 +6,22 @@ namespace MCD {
 
 static SpriteUpdaterComponent* gSpriteUpdater = nullptr;
 
-void SpriteComponent::gather()
+SpriteComponent::SpriteComponent()
+	: color(1, 1), textureRect(0), anchor(0.5f), width(0), height(0), trackOffset(0)
+{
+}
+
+void SpriteComponent::update()
 {
 	// Find it's parent SpriteAtlasComponent
 	SpriteAtlasComponent* r = nullptr;
 	for(Entity* e = entity(); e; e = e->parent()) {
 		r = e->findComponentExactType<SpriteAtlasComponent>();
-		if(r) break;
+		if(r) {
+			r->gatherSprite(this);
+			break;
+		}
 	}
-
-	if(r)
-		r->gatherSprite(this);
 }
 
 void SpriteAtlasComponent::gather()
@@ -25,16 +30,29 @@ void SpriteAtlasComponent::gather()
 	gSpriteUpdater->mSpriteAtlas.push_back(this);
 }
 
+// NOTE: Re-generating the vertex buffer every frame is going to be slower
+// that those implementation with lazy position update, if most of the visible sprite
+// are static.
+// But since we decided not to impose complexity on notification of positional
+// changes of the Entity tree, our best bet is to make the vertex construction fast.
 void SpriteAtlasComponent::gatherSprite(SpriteComponent* sprite)
 {
 	ColorRGBAf c(1, 1);
-	const float left = 0;
-	const float right = sprite->width;
-	const float top = 0;
-	const float bottom = sprite->height;
-	Vec4f uv = sprite->uv;
+	const float left   = -sprite->anchor.x * sprite->width;
+	const float right  = left + sprite->width;
+	const float top    = sprite->anchor.y * sprite->height;
+	const float bottom = top - sprite->height;
+
+	Vec4f uv = sprite->textureRect;
+
+	// TODO: Use animated data
+	if(sprite->animation) {
+		const AnimationState::Pose& pose = sprite->animation->getPose();
+		uv = pose[sprite->trackOffset].v;
+	}
 
 	if(uv.x > 1 || uv.z > 1) {
+		// Transform pixle unit into normalized uv unit
 		const float invTexWidth = 1.0f / textureAtlas->width;
 		const float invTexHeight = 1.0f / textureAtlas->height;
 		uv.x *= invTexWidth;
@@ -44,14 +62,15 @@ void SpriteAtlasComponent::gatherSprite(SpriteComponent* sprite)
 	}
 
 	Vertex v[4] = {
-		{	Vec3f(left, -top, 0),		Vec2f(uv.x, uv.y), c	},	// Left top
-		{	Vec3f(left, -bottom, 0),	Vec2f(uv.x, uv.w), c	},	// Left bottom
-		{	Vec3f(right, -bottom, 0),	Vec2f(uv.z, uv.w), c	},	// Right bottom
-		{	Vec3f(right, -top, 0),		Vec2f(uv.z, uv.y), c	}	// Right top
+		{	Vec3f(left, top, 0),		Vec2f(uv.x, uv.y), c	},
+		{	Vec3f(left, bottom, 0),		Vec2f(uv.x, uv.w), c	},
+		{	Vec3f(right, bottom, 0),	Vec2f(uv.z, uv.w), c	},
+		{	Vec3f(right, top, 0),		Vec2f(uv.z, uv.y), c	}
 	};
 
 	Mat44f m = Mat44f::cIdentity;
-	// Traverse up SpriteComponent until it meets SpriteAtlasComponent
+	// Traverse up SpriteComponent until it meets SpriteAtlasComponent,
+	// and calculate the relative transform
 	for(Entity* e=sprite->entity(); e!=entity(); e=e->parent())
 		m = e->localTransform * m;
 

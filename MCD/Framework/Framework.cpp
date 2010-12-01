@@ -114,6 +114,9 @@ Framework::Impl::Impl()
 		mRootEntity = new Entity("Root entity");
 		Entity::setCurrentRoot(mRootEntity.getNotNull());
 
+		// NOTE: Ensure the Entity tree won't destory during the middle of a script function
+		mRootEntity->scriptAddReference();
+
 		mSystemEntity = mRootEntity->addLastChild("System entities");
 		mSceneLayer = mRootEntity->addLastChild("Scene layer");
 		mGuiLayer = mRootEntity->addLastChild("2D Gui layer");
@@ -225,6 +228,7 @@ Framework::Impl::~Impl()
 	if(mWindow.get())
 		mWindow->makeActive();
 
+	mRootEntity->scriptReleaseReference();
 	delete mRootEntity.get();
 	MCD_ASSERT(!mSystemEntity);
 	MCD_ASSERT(!mSceneLayer);

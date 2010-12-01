@@ -88,7 +88,7 @@ public:
 
 	SkeletonPtr skeleton;
 	
-	size_t subTrackOffset;	//!< Starting index to the animation's sub-tracks
+	size_t trackOffset;	//!< Starting index to the animation's tracks
 	AnimationComponentPtr animation;
 	static const size_t trackPerJoint = 2;
 

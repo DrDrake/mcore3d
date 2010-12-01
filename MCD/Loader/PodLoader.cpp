@@ -388,14 +388,14 @@ IResourceLoader::LoadingState PodLoader::Impl::load(std::istream* is, const Path
 	static const size_t cExtraRootNode = 1;
 
 	// Determines the sub-track structure
-	std::vector<size_t> subTrackStructure(AnimationComponent::subtrackPerEntity * cExtraRootNode, 1);
+	std::vector<size_t> subTrackStructure(AnimationComponent::trackPerEntity * cExtraRootNode, 1);
 
 	for(size_t i=0; i<mPod.nNumNode; ++i)
 	{
 		// We share the same animation track if the pod file contains both node and skeleton animation,
 		// as node animation needs at least 4 sub-track, there will be redudant tracks when use as skeleton.
-		size_t frames[AnimationComponent::subtrackPerEntity];
-		for(size_t j=0; j<AnimationComponent::subtrackPerEntity; ++j) frames[j] = 1;
+		size_t frames[AnimationComponent::trackPerEntity];
+		for(size_t j=0; j<AnimationComponent::trackPerEntity; ++j) frames[j] = 1;
 
 		if(mPod.pNode[i].nAnimFlags & ePODHasPositionAni)
 			frames[0] = mPod.nNumFrame;
@@ -434,26 +434,26 @@ IResourceLoader::LoadingState PodLoader::Impl::load(std::istream* is, const Path
 		for(size_t i=0; i<mPod.nNumNode; ++i)
 		{
 			const SPODNode& podNode = mPod.pNode[i];
-			const size_t subTrackOffset = j * AnimationComponent::subtrackPerEntity;
+			const size_t trackOffset = j * AnimationComponent::trackPerEntity;
 
 			// Translation
-			AnimationClip::KeyFrames frames = track->getKeyFramesForSubtrack(subTrackOffset + 0);
+			AnimationClip::KeyFrames frames = track->getKeyFramesForSubtrack(trackOffset + 0);
 			for(size_t k=0; k<frames.size; ++k)
 				reinterpret_cast<Vec3f&>(frames[k]) = reinterpret_cast<Vec3f&>(podNode.pfAnimPosition[k * 3]);
 
 			// Rotation
-			frames = track->getKeyFramesForSubtrack(subTrackOffset + 1);
-			track->subtracks[subTrackOffset + 1].flag = AnimationClip::Slerp;
+			frames = track->getKeyFramesForSubtrack(trackOffset + 1);
+			track->subtracks[trackOffset + 1].flag = AnimationClip::Slerp;
 			for(size_t k=0; k<frames.size; ++k)
 				reinterpret_cast<Quaternionf&>(frames[k]) = reinterpret_cast<Quaternionf&>(podNode.pfAnimRotation[k * 4]).inverseUnit();
 
 			// Sclae
-			frames = track->getKeyFramesForSubtrack(subTrackOffset + 2);
+			frames = track->getKeyFramesForSubtrack(trackOffset + 2);
 			for(size_t k=0; k<frames.size; ++k)
 				reinterpret_cast<Vec3f&>(frames[k]) = reinterpret_cast<Vec3f&>(podNode.pfAnimScale[k * 7]);	// Don't know why the stride of scale is 7
 
 			// Color
-			frames = track->getKeyFramesForSubtrack(subTrackOffset + 3);
+			frames = track->getKeyFramesForSubtrack(trackOffset + 3);
 			for(size_t k=0; k<frames.size; ++k)
 				reinterpret_cast<Vec4f&>(frames[k]) = Vec4f(1);
 			++j;	// Move to next node with animation
@@ -464,8 +464,8 @@ IResourceLoader::LoadingState PodLoader::Impl::load(std::istream* is, const Path
 
 /*	if(!subTrackStructure.empty())
 	{	// Setup the skeleton
-		skeleton->init(subTrackStructure.size() / AnimationComponent::subtrackPerEntity);
-		skeleton->basePose.init(subTrackStructure.size() / AnimationComponent::subtrackPerEntity);
+		skeleton->init(subTrackStructure.size() / AnimationComponent::trackPerEntity);
+		skeleton->basePose.init(subTrackStructure.size() / AnimationComponent::trackPerEntity);
 
 		for(size_t i=0; i<mPod.nNumNode; ++i) {
 			const SPODNode& podNode = mPod.pNode[i];
