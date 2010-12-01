@@ -137,7 +137,7 @@ IResourceLoader::LoadingState JpegLoader::load(std::istream* is, const Path*, co
 	case JPGD_OKAY:
 		++(impl->mProcessedLines);
 		// Only report partial load every 1/4 of the scan lines are loaded
-		if(impl->mProcessedLines % (impl->mHeight / 4) == 0) {
+		if(true || impl->mProcessedLines % (impl->mHeight / 4) == 0) {
 			continueLoad();
 			return PartialLoaded;
 		}

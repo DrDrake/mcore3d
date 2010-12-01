@@ -1,11 +1,8 @@
 #include "Pch.h"
 #include "../../MCD/Framework/Framework.h"
-#include "../../MCD/Render/Renderer.h"
 #include "../../MCD/Render/Sprite.h"
 #include "../../MCD/Core/Entity/BehaviourComponent.h"
 #include "../../MCD/Core/Entity/Entity.h"
-#include "../../MCD/Core/System/Timer.h"
-#include "../../MCD/Core/System/WindowEvent.h"
 
 using namespace MCD;
 
@@ -25,22 +22,21 @@ TEST(SpriteTest)
 	{
 		Entity* e = gui.addFirstChild("Bear");
 		SpriteAtlasComponent* atlas = e->addComponent(new SpriteAtlasComponent);
+
+		// Texture source from:
+		// http://www.raywenderlich.com/1271/how-to-use-animations-and-sprite-sheets-in-cocos2d
 		atlas->textureAtlas = resourceManager.loadAs<Texture>("AnimBear.png");
 
 		SpriteComponent* sprite = e->addComponent(new SpriteComponent);
-		sprite->width = 512;
-		sprite->height = 1024;
+
+		const float w = 233;
+		const float h = 145;
+		sprite->width = w;
+		sprite->height = h;
 		sprite->uv = Vec4f(0, 0, 1, 1);
+		sprite->uv = Vec4f(1, 1, 1+w, 1+h);
 	}
 
-	while(true)
-	{
-		Event e;
-		framework.update(e);
-
-		if(e.Type == Event::Closed)
-			break;
-	}
-
+	framework.mainLoop();
 	CHECK(true);
 }

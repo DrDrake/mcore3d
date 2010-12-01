@@ -3,11 +3,9 @@
 #include "../../MCD/Render/DisplayList.h"
 #include "../../MCD/Render/Font.h"
 #include "../../MCD/Render/Material.h"
-#include "../../MCD/Render/Renderer.h"
 #include "../../MCD/Core/Entity/BehaviourComponent.h"
 #include "../../MCD/Core/Entity/Entity.h"
 #include "../../MCD/Core/System/Timer.h"
-#include "../../MCD/Core/System/WindowEvent.h"
 
 using namespace MCD;
 
@@ -105,7 +103,6 @@ TEST(DisplayListTest)
 	CHECK(framework.addFileSystem("Media"));
 	CHECK(framework.initWindow("title=DisplayListTest;width=800;height=600;fullscreen=0;FSAA=8"));
 
-	Entity& root = framework.rootEntity();
 	Entity& scene = framework.sceneLayer();
 	CameraComponent* sceneCamera = scene.findComponentInChildrenExactType<CameraComponent>();
 	sceneCamera->entity()->localTransform.translateBy(Vec3f(0, 10, 10));
@@ -149,16 +146,6 @@ TEST(DisplayListTest)
 		text->color = ColorRGBAf(1, 1, 0, 1);
 	}
 
-	while(true)
-	{
-		Event e;
-		framework.update(e);
-
-		if(e.Type == Event::Closed)
-			break;
-
-		framework.rendererComponent()->render(root);
-	}
-
+	framework.mainLoop();
 	CHECK(true);
 }
