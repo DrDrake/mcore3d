@@ -28,7 +28,7 @@ protected:
 	/*!	Virtual function to make Resource a polymorphic type so
 		that we can apply dynamic_cast on concrete resource type.
 	 */
-	virtual ~Resource() {}
+	virtual ~Resource();
 
 protected:
 	friend class ResourceManager;
