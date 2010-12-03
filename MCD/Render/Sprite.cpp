@@ -37,13 +37,13 @@ void SpriteAtlasComponent::gather()
 // changes of the Entity tree, our best bet is to make the vertex construction fast.
 void SpriteAtlasComponent::gatherSprite(SpriteComponent* sprite)
 {
-	ColorRGBAf c(1, 1);
 	const float left   = -sprite->anchor.x * sprite->width;
 	const float right  = left + sprite->width;
 	const float top    = sprite->anchor.y * sprite->height;
 	const float bottom = top - sprite->height;
 
 	Vec4f uv = sprite->textureRect;
+	const ColorRGBAf& c = sprite->color;
 
 	// TODO: Use animated data
 	if(sprite->animation) {

@@ -28,7 +28,7 @@ void ResizeFrustumComponent::update(float dt)
 		const float aspect = float(w) / h;
 		f.create(f.fov(), aspect, f.near, f.far);
 	}
-	else if(f.projectionType == Frustum::YDown2D)
+	else	// Ortho or YDown2D
 		f.create(-0, float(w), 0, float(h), -1, 1);
 }
 

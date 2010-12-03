@@ -57,6 +57,8 @@ protected:
 	int mImpl;
 };	// RenderTargetComponent
 
+typedef IntrusiveWeakPtr<RenderTargetComponent> RenderTargetComponentPtr;
+
 }	// namespace MCD
 
 #endif	// __MCD_RENDER_RENDERTARGETCOMPONENT__

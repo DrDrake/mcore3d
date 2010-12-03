@@ -6,6 +6,8 @@
 
 namespace MCD {
 
+MCD_CORE_API uint64_t ticksSinceMachineStartup();
+
 /*!	Class for storing a time interval value.
 	The TimeInterval stores number of CPU clock ticks using 64 bits integer as the time interval
  */
@@ -81,7 +83,6 @@ public:
 	}
 
 private:
-	friend uint64_t getTimeSinceMachineStartup();
 	uint64_t mTicks;
 };	// TimeInterval
 
