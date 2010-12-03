@@ -18,7 +18,7 @@ void TextLabelComponent::render(void* context)
 		MCD_ASSUME(e);
 		RenderItem r = { e, this, mFontMaterial, e->worldTransform() };
 		RendererComponent::Impl& renderer = *reinterpret_cast<RendererComponent::Impl*>(context);
-		renderer.mTransparentQueue.insert(*new RenderItemNode(0, r));
+		renderer.mTransparentQueue.insert(*new RenderItemNode(r.worldTransform.translation().z, r));
 	}
 }
 
@@ -53,6 +53,7 @@ void TextLabelComponent::draw(sal_in void* context, Statistic& statistic)
 	}
 
 	// Reference: es_full_spec_1.1.12.pdf, p93-95
+	// Reference: http://www.opengl.org/wiki/Texture_Combiners
 	glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_COMBINE);
 	glTexEnvfv(GL_TEXTURE_ENV, GL_TEXTURE_ENV_COLOR, color.rawPointer());
 

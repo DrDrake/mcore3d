@@ -181,9 +181,10 @@ Framework::Impl::Impl()
 
 	{	// Fps label
 		Entity* e = mGuiLayer->addFirstChild("Fps label");
+		e->localTransform.translateBy(Vec3f(0, 0, 1));	// To make it at the top z
 		mFpsLabel = e->addComponent(new TextLabelComponent);
 		mFpsLabel->font = "buildin/Arial-20.fnt";
-		mFpsLabel->anchor = Vec2f(0, 0);
+		mFpsLabel->anchor = Vec2f(0, 1);
 	}
 
 	{	// Behaviour updater
@@ -281,7 +282,7 @@ bool Framework::Impl::initWindow(RenderWindow& existingWindow, bool takeOwnershi
 	{	// Default Gui camera
 		Entity* e = mGuiLayer->addFirstChild("Gui camera");
 		CameraComponent* c = e->addComponent(new CameraComponent(mRenderer));
-		c->frustum.projectionType = Frustum::YDown2D;
+		c->frustum.projectionType = Frustum::Ortho;
 	}
 
 	{	// Setup scene render target

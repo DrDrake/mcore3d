@@ -23,7 +23,7 @@ void TextLabelComponent::render(void* context)
 		MCD_ASSUME(e);
 		RenderItem r = { e, this, mFontMaterial, e->worldTransform() };
 		RendererComponent::Impl& renderer = *reinterpret_cast<RendererComponent::Impl*>(context);
-		renderer.mTransparentQueue.insert(*new RenderItemNode(0, r));
+		renderer.mTransparentQueue.insert(*new RenderItemNode(r.worldTransform.translation().z, r));
 	}
 }
 

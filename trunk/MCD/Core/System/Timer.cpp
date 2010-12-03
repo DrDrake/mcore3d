@@ -35,7 +35,7 @@ inline uint64_t rdtsc() {
 }
 #endif
 
-uint64_t getTimeSinceMachineStartup()
+uint64_t ticksSinceMachineStartup()
 {
 	uint64_t ret;
 
@@ -140,13 +140,13 @@ Timer::Timer() {
 }
 
 TimeInterval Timer::get() const {
-	return TimeInterval(getTimeSinceMachineStartup() - mStartTime.asTicks());
+	return TimeInterval(ticksSinceMachineStartup() - mStartTime.asTicks());
 }
 
 TimeInterval Timer::reset()
 {
 	TimeInterval backup = get();
-	mStartTime = TimeInterval(getTimeSinceMachineStartup());
+	mStartTime = TimeInterval(ticksSinceMachineStartup());
 	return backup;
 }
 
