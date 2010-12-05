@@ -58,7 +58,7 @@ public:
 		::srand(ticksSinceMachineStartup() & 0xFFFFFFFF);
 
 		MCD_VERIFY(framework.addFileSystem("Media"));
-		MCD_VERIFY(framework.initWindow("title=DisplayListTest;width=800;height=600;fullscreen=0;FSAA=8"));
+		MCD_VERIFY(framework.initWindow("title=SpriteTest;width=800;height=600;fullscreen=0;FSAA=8"));
 
 		renderTarget = framework.rootEntity().findComponentInChildrenExactType<RenderTargetComponent>();
 
