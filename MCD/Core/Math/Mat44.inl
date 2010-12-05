@@ -335,9 +335,9 @@ Vec3<T> Mat44<T>::scale() const
 {
 	// Reference: http://www.gamedev.net/community/forums/topic.asp?topic_id=491578
 	return Vec3<T>(
-		Vec3<T>(m00, m10, m20).length(),
-		Vec3<T>(m01, m11, m21).length(),
-		Vec3<T>(m02, m12, m22).length()
+		Vec3<T>(m00, m10, m20).length() * m00 > 0 ? 1 : -1.0f,
+		Vec3<T>(m01, m11, m21).length() * m11 > 0 ? 1 : -1.0f,
+		Vec3<T>(m02, m12, m22).length() * m22 > 0 ? 1 : -1.0f
 	);
 }
 
