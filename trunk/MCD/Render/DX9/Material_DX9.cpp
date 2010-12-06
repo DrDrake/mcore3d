@@ -106,103 +106,13 @@ bool MaterialComponent::Impl::createPs(const char* headerCode)
 	"	specular += specExp * light.color.rgb;\n"
 	"}\n"
 
-	// http://http.developer.nvidia.com/GPUGems2/gpugems2_chapter20.html
-//	"float4 bspline(in float2 uv, in sampler2D tex, in float2 texSize) {\n"
-//	"	float2 coord_hg = uv * texSize - float2(0.5f, 0.5f);\n"
-//	"	 float3 hg_x = tex1D(tex, coord_hg.x ).xyz;\n"
-//	"}\n"
-
-	// So far the Uniform cubic B-splines gives the best result:
-	// http://en.wikipedia.org/wiki/B-spline#Cubic_B-Spline
-	"float cubicFilter(in float t, float v0, float v1, float v2, float v3) {\n"
-	"	float4x4 M = {\n"
-	"		-1,  3, -3,  1,\n"
-	"		 3, -6,  3,  0,\n"
-	"		-3,  0,  3,  0,\n"
-	"		 1,  4,  1,  0\n"
-	"	};\n"
-	"	return (1.0/6) * dot(float4(t*t*t, t*t, t, 1), mul(M, float4(v0, v1, v2, v3)));\n"
-	"}\n"
-
-	"float bicubicInterpolation(in float2 uv, in sampler2D tex, in float2 texSize) {\n"
-	"	float2 w = 1.0 / texSize;"
-	"	float2 f = frac(uv * texSize);"
-
-	"	float v1 = cubicFilter(f.x,"
-	"		tex2D(tex, float2(uv.x - w.x,   uv.y - w.y)).x,"
-	"		tex2D(tex, float2(uv.x,         uv.y - w.y)).x,"
-	"		tex2D(tex, float2(uv.x + w.x,   uv.y - w.y)).x,"
-	"		tex2D(tex, float2(uv.x + 2*w.x, uv.y - w.y)).x);"
-
-	"	float v2 = cubicFilter(f.x,"
-	"		tex2D(tex, float2(uv.x - w.x,   uv.y)).x,"
-	"		tex2D(tex, float2(uv.x,         uv.y)).x,"
-	"		tex2D(tex, float2(uv.x + w.x,   uv.y)).x,"
-	"		tex2D(tex, float2(uv.x + 2*w.x, uv.y)).x);"
-
-	"	float v3 = cubicFilter(f.x,"
-	"		tex2D(tex, float2(uv.x - w.x,   uv.y + w.y)).x,"
-	"		tex2D(tex, float2(uv.x,         uv.y + w.y)).x,"
-	"		tex2D(tex, float2(uv.x + w.x,   uv.y + w.y)).x,"
-	"		tex2D(tex, float2(uv.x + 2*w.x, uv.y + w.y)).x);"
-
-	"	float v4 = cubicFilter(f.x,"
-	"		tex2D(tex, float2(uv.x - w.x,   uv.y + 2*w.y)).x,"
-	"		tex2D(tex, float2(uv.x,         uv.y + 2*w.y)).x,"
-	"		tex2D(tex, float2(uv.x + w.x,   uv.y + 2*w.y)).x,"
-	"		tex2D(tex, float2(uv.x + 2*w.x, uv.y + 2*w.y)).x);"
-
-	"	return cubicFilter(f.y, v1, v2, v3, v4);"
-	"}\n"
-
 	// From the paper: Accuracy of GPU-based B-Spline evaluation
 	// http://www.dannyruijters.nl/cubicinterpolation/
 	// http://http.developer.nvidia.com/GPUGems2/gpugems2_chapter20.html
-	"float interpolate_bicubic(in float2 uv, in sampler2D tex, in float2 texSize) {"
-	"	float2 w = 1.0 / texSize;"
-	"	float2 f = frac(uv * texSize);"
-
-	"	float4x4 M = {\n"
-	"		-1,  3, -3,  1,\n"
-	"		 3, -6,  3,  0,\n"
-	"		-3,  0,  3,  0,\n"
-	"		 1,  4,  1,  0\n"
-	"	};\n"
-
-	"	float4 wx = mul(float4(f.x*f.x*f.x, f.x*f.x, f.x, 1), M) / 6;"
-	"	float4 wy = mul(float4(f.y*f.y*f.y, f.y*f.y, f.y, 1), M) / 6;"
-	"	float2 w0 = float2(wx.x, wy.x);"
-	"	float2 w1 = float2(wx.y, wy.y);"
-	"	float2 w2 = float2(wx.z, wy.z);"
-	"	float2 w3 = float2(wx.w, wy.w);"
-	"	float2 g0 = w0 + w1;"
-	"	float2 g1 = w2 + w3;"
-	"	float2 h0 = uv + (w1 / g0 - 1) * w;"
-	"	float2 h1 = uv + (w3 / g1 + 1) * w;"
-
-	"	float tex00 = tex2D(tex, float2(h0.x, h0.y)).x;"
-	"	float tex10 = tex2D(tex, float2(h1.x, h0.y)).x;"
-	"	float tex01 = tex2D(tex, float2(h0.x, h1.y)).x;"
-	"	float tex11 = tex2D(tex, float2(h1.x, h1.y)).x;"
-
-	"	tex00 = lerp(tex01, tex00, g0.y);"
-	"	tex10 = lerp(tex11, tex10, g0.y);"
-
-	"	return lerp(tex10, tex00, g0.x);"
-	"}"
-
-	"float interpolate_bicubic2(in float2 uv, in sampler2D tex, in float2 texSize) {"
-//	"	return tex2D(tex, uv);"
+	"float bicubicInterpolation(in float2 uv, in sampler2D tex, in float2 texSize) {"
 	"	float2 rec_nrCP = 1.0/texSize;"
 	"	float2 coord_hg = uv * texSize-0.5;"
 	"	float2 index = floor(coord_hg);"
-
-//	"	float2 fraction = coord_hg-index;"
-//	"	float2 one_frac = 1.0-fraction;"
-//	"	float2 w0 = 1.0/6.0 * one_frac*one_frac*one_frac;"
-//	"	float2 w1 = 2.0/3.0-0.5 * fraction*fraction*(2.0-fraction);"
-//	"	float2 w2 = 2.0/3.0-0.5 * one_frac*one_frac*(2.0-one_frac);"
-//	"	float2 w3 = 1.0/6.0 * fraction*fraction*fraction;"
 
 	"	float2 f = coord_hg - index;"
 	"	float4x4 M = {\n"
@@ -235,10 +145,10 @@ bool MaterialComponent::Impl::createPs(const char* headerCode)
 	"	coord01 = (coord01 + 0.5) * rec_nrCP;"
 	"	coord11 = (coord11 + 0.5) * rec_nrCP;"
 
-	"	float tex00 = tex2D(tex, coord00).x;"
-	"	float tex10 = tex2D(tex, coord10).x;"
-	"	float tex01 = tex2D(tex, coord01).x;"
-	"	float tex11 = tex2D(tex, coord11).x;"
+	"	float tex00 = tex2Dlod(tex, float4(coord00, 0, 0)).x;"
+	"	float tex10 = tex2Dlod(tex, float4(coord10, 0, 0)).x;"
+	"	float tex01 = tex2Dlod(tex, float4(coord01, 0, 0)).x;"
+	"	float tex11 = tex2Dlod(tex, float4(coord11, 0, 0)).x;"
 
 	"	tex00 = lerp(tex01, tex00, g0.y);"
 	"	tex10 = lerp(tex11, tex10, g0.y);"
@@ -254,8 +164,8 @@ bool MaterialComponent::Impl::createPs(const char* headerCode)
 	"	float3 vR1 = cross(vSigmaT, N);"
 	"	float3 vR2 = cross(N, vSigmaS);"
 	"	float fDet = dot(vSigmaS, vR1);"
-	"	\n"
-//	"	float height = interpolate_bicubic2(uv, map, bumpMapSize);"
+
+//	"	float height = bicubicInterpolation(uv, map, bumpMapSize);"
 //	"	float dBs = ddx(height);"
 //	"	float dBt = ddy(height);"
 	"	float2 TexDx = ddx(uv);"
@@ -263,12 +173,23 @@ bool MaterialComponent::Impl::createPs(const char* headerCode)
 	"	float2 STll = uv;"
 	"	float2 STlr = uv + TexDx;"
 	"	float2 STul = uv + TexDy;"
-	"	float Hll = interpolate_bicubic2(STll, map, bumpMapSize);"
-	"	float Hlr = interpolate_bicubic2(STlr, map, bumpMapSize);"
-	"	float Hul = interpolate_bicubic2(STul, map, bumpMapSize);"
+
+	// Determine if we need interpolation or not
+	// NOTE: Restiction on dynamic branching: http://msdn.microsoft.com/en-us/library/bb219848.aspx
+	"	float Hll, Hlr, Hul;"
+	"	if(abs(STll.x - STlr.x) < 1.0/bumpMapSize.x) {"
+	"		Hll = bicubicInterpolation(STll, map, bumpMapSize);"
+	"		Hlr = bicubicInterpolation(STlr, map, bumpMapSize);"
+	"		Hul = bicubicInterpolation(STul, map, bumpMapSize);"
+	"	} else {"
+	"		Hll = tex2Dlod(map, float4(STll, 0, 0)).x;"
+	"		Hlr = tex2Dlod(map, float4(STlr, 0, 0)).x;"
+	"		Hul = tex2Dlod(map, float4(STul, 0, 0)).x;"
+	"	}"
+
 	"	float dBs = Hlr - Hll;"
 	"	float dBt = Hul - Hll;"
-	"	\n"
+
 	"	float3 vSurfGrad = sign(fDet) * (dBs * vR1 + dBt * vR2);\n"
 	"	return normalize(abs(fDet) * N - bumpFactor * vSurfGrad);\n"
 	"}\n"
@@ -311,8 +232,8 @@ bool MaterialComponent::Impl::createPs(const char* headerCode)
 
 	"	for(int i=0; i<MCD_MAX_LIGHT_COUNT; ++i)\n"
 	"		computeLighting(mcdLights[i], P, N, V, lightDiffuse, lightSpecular);\n"
+
 	"	float4 diffuseMap = tex2D(texDiffuse, _in.uvDiffuse);\n"
-//	"	diffuseMap = interpolate_bicubic2(_in.uvDiffuse, texDiffuse, float2(128, 128));"
 	"	float3 diffuse = mcdDiffuseColor.rgb * mcdDiffuseColor.a * diffuseMap.rgb * lightDiffuse;\n"
 	"	float3 specular = mcdSpecularColor.rgb * mcdSpecularColor.a * lightSpecular;\n"
 	"	float3 emission = mcdEmissionColor.rgb * mcdEmissionColor.a;\n"
