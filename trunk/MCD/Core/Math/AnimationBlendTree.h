@@ -24,8 +24,10 @@ public:
 	class INode
 	{
 	public:
-		FixString name;
 		size_t parent;
+		FixString name;
+		FixString userData;	///< Currently it is to be used for UI editor persistency
+
 		INode() : parent(size_t(-1)) {}
 		virtual ~INode() {}
 		virtual INode* clone() const = 0;
@@ -123,7 +125,7 @@ public:
 
 	/// Fill the blend tree from an Xml file, a ResourceManager is also needed
 	/// in order to load the animation tracks.
-	sal_checkreturn bool loadFromXml(const char* xml, ResourceManager& mgr);
+	sal_checkreturn bool loadFromXml(const char* xml, ResourceManager& mgr, const char* clipSearchPath=nullptr);
 
 	std::string saveToXml() const;
 

@@ -62,7 +62,7 @@ static SQInteger rawFuncAdd2Float(HSQUIRRELVM vm)
 	float v1 = get(TypeSelect<float>(), vm, -1);
 	float v2 = get(TypeSelect<float>(), vm, -2);
 
-	push(vm, v1 + v2);
+	push(vm, v1 + v2, nullptr);
 
 	return 1;	// One value returned
 }

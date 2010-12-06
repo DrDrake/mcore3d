@@ -23,6 +23,25 @@ SCRIPT_CLASS_REGISTER(ColorRGBf)
 	.var("b", &ColorRGBf::b)
 ;}
 
+// Mesh
+
+SCRIPT_CLASS_DECLAR(Mesh);
+SCRIPT_CLASS_REGISTER(Mesh)
+	.declareClass<Mesh, Resource>("Mesh")
+	.var("indexCount", &Mesh::indexCount)
+	.var("vertexCount", &Mesh::vertexCount)
+;}
+
+// Texture
+
+SCRIPT_CLASS_DECLAR(Texture);
+SCRIPT_CLASS_REGISTER(Texture)
+	.declareClass<Texture, Resource>("Texture")
+	.var("width", &Texture::width)
+	.var("height", &Texture::height)
+	.varGet("hasAlpha", &Texture::hasAlpha)
+;}
+
 // DisplayListComponent
 
 static void beginTraingles_DisplayListComponent(DisplayListComponent& c) { c.begin(DisplayListComponent::Triangles); }
@@ -58,6 +77,8 @@ SCRIPT_CLASS_REGISTER(LightComponent)
 
 // MaterialComponent
 
+static Texture* diffuseMap_MaterialComponent(MaterialComponent& c) { return c.diffuseMap.get(); }
+
 SCRIPT_CLASS_DECLAR(MaterialComponent);
 SCRIPT_CLASS_REGISTER(MaterialComponent)
 	.declareClass<MaterialComponent, Component>("MaterialComponent")
@@ -67,15 +88,7 @@ SCRIPT_CLASS_REGISTER(MaterialComponent)
 	.var("lighting", &MaterialComponent::lighting)
 	.var("cullFace", &MaterialComponent::cullFace)
 	.var("useVertexColor", &MaterialComponent::useVertexColor)
-;}
-
-// Mesh
-
-SCRIPT_CLASS_DECLAR(Mesh);
-SCRIPT_CLASS_REGISTER(Mesh)
-	.declareClass<Mesh, Resource>("Mesh")
-	.var("indexCount", &Mesh::indexCount)
-	.var("vertexCount", &Mesh::vertexCount)
+	.varGet("diffuseMap", &diffuseMap_MaterialComponent)
 ;}
 
 // TextLabelComponent
@@ -88,16 +101,6 @@ SCRIPT_CLASS_REGISTER(TextLabelComponent)
 	.var("lineWidth", &TextLabelComponent::lineWidth)
 	.var("font", &TextLabelComponent::font)
 	.var("anchor", &TextLabelComponent::anchor)
-;}
-
-// Texture
-
-SCRIPT_CLASS_DECLAR(Texture);
-SCRIPT_CLASS_REGISTER(Texture)
-	.declareClass<Texture, Resource>("Texture")
-	.var("width", &Texture::width)
-	.var("height", &Texture::height)
-	.varGet("hasAlpha", &Texture::hasAlpha)
 ;}
 
 void registerRenderBinding(VMCore& vm)

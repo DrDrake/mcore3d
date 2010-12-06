@@ -27,9 +27,9 @@ MCD_CORE_API void registerCoreBinding(VMCore& vm);
 
 // System
 SCRIPT_CLASS_DECLAR_EXPORT(Resource, MCD_CORE_API);
-MCD_CORE_API void push(HSQUIRRELVM, Resource*);
-MCD_CORE_API void destroy(Resource*, Resource*);
-inline void push(HSQUIRRELVM v, Resource& r) { push(v, &r); }
+SCRIPT_CLASS_CUSTOM_EXPORT(Resource, MCD_CORE_API);
+MCD_CORE_API SQRESULT setInstanceUp(HSQUIRRELVM, SQInteger, Resource* p, Resource*);
+template<typename T> SQRESULT setInstanceUp(HSQUIRRELVM v, SQInteger i, T* p, Resource*) { return setInstanceUp(v, i, (Resource*)p, (Resource*)p); }
 
 SCRIPT_CLASS_DECLAR_EXPORT(ResourceManager, MCD_CORE_API);
 SCRIPT_CLASS_DECLAR_EXPORT(Timer, MCD_CORE_API);
@@ -41,19 +41,14 @@ SCRIPT_CLASS_DECLAR_EXPORT(Vec3f, MCD_CORE_API);
 
 // Entity
 SCRIPT_CLASS_DECLAR_EXPORT(Entity, MCD_CORE_API);
-MCD_CORE_API void push(HSQUIRRELVM v, Entity*);
-MCD_CORE_API SQRESULT setInstanceUp(HSQUIRRELVM, SQInteger, Entity*, Entity*);
-MCD_CORE_API void destroy(Entity*, Entity*);
-inline void push(HSQUIRRELVM v, Entity& e) { push(v, &e); }
+SCRIPT_CLASS_CUSTOM_EXPORT(Entity, MCD_CORE_API);
+MCD_CORE_API SQRESULT setInstanceUp(HSQUIRRELVM, SQInteger, Entity* p, Entity*);
 
 // Component
 SCRIPT_CLASS_DECLAR_EXPORT(Component, MCD_CORE_API);
-MCD_CORE_API void push(HSQUIRRELVM, Component*);
-MCD_CORE_API SQRESULT setInstanceUp(HSQUIRRELVM, SQInteger, Component*, Component*);
-MCD_CORE_API void destroy(Component*, Component*);
-template<typename T> SQRESULT setInstanceUp(HSQUIRRELVM v, SQInteger i, Component* c, T*) { return setInstanceUp(v, i, c, c); }
-template<typename T> void destroy(Component* c, T*) { destroy(c, c); }
-inline void push(HSQUIRRELVM v, Component& c) { push(v, &c); }
+SCRIPT_CLASS_CUSTOM_EXPORT(Component, MCD_CORE_API);
+MCD_CORE_API SQRESULT setInstanceUp(HSQUIRRELVM, SQInteger, Component* p, Component*);
+template<typename T> SQRESULT setInstanceUp(HSQUIRRELVM v, SQInteger i, T* p, Component*) { return setInstanceUp(v, i, (Component*)p, (Component*)p); }
 
 // ScriptComponent
 SCRIPT_CLASS_DECLAR_EXPORT(ScriptComponent, MCD_CORE_API);

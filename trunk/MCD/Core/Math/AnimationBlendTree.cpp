@@ -143,19 +143,21 @@ Pose AnimationBlendTree::getFinalPose()
 	return getPose(outputIdx);
 }
 
-static INode* loadClipNode(XmlParser& parser, ResourceManager& mgr)
+static INode* loadClipNode(XmlParser& parser, ResourceManager& mgr, const char* clipSearchPath)
 {
 	AnimationBlendTree::ClipNode* n = new AnimationBlendTree::ClipNode;
-	n->name = parser.attributeValue("name");
 	n->state.rate = parser.attributeValueAsFloat("rate", 1);
-	n->state.clip = mgr.loadAs<AnimationClip>(parser.attributeValue("src"), 1);
+
+	Path path(parser.attributeValue("src"));
+	if(!path.hasRootDirectory() && clipSearchPath)
+		path = Path(clipSearchPath)/path;
+	n->state.clip = mgr.loadAs<AnimationClip>(path, 1);
 	return n;
 }
 
 static INode* loadLerpNode(XmlParser& parser)
 {
 	AnimationBlendTree::LerpNode* n = new AnimationBlendTree::LerpNode;
-	n->name = parser.attributeValue("name");
 	n->t = parser.attributeValueAsFloat("t", 0.5f);
 	return n;
 }
@@ -163,21 +165,19 @@ static INode* loadLerpNode(XmlParser& parser)
 static INode* loadAdditiveNode(XmlParser& parser)
 {
 	AnimationBlendTree::AdditiveNode* n = new AnimationBlendTree::AdditiveNode;
-	n->name = parser.attributeValue("name");
 	return n;
 }
 
 static INode* loadSwitchNode(XmlParser& parser)
 {
 	AnimationBlendTree::SwitchNode* n = new AnimationBlendTree::SwitchNode;
-	n->name = parser.attributeValue("name");
 	n->fadeDuration = parser.attributeValueAsFloat("fadeDuration", 0);
 	int currentIdx = (int)parser.attributeValueAsFloat("current", -1);
 	n->switchTo(currentIdx, 0);
 	return n;
 }
 
-bool AnimationBlendTree::loadFromXml(const char* xml, ResourceManager& mgr)
+bool AnimationBlendTree::loadFromXml(const char* xml, ResourceManager& mgr, const char* clipSearchPath)
 {
 	char* tmp = ::strdup(xml);
 
@@ -197,7 +197,7 @@ bool AnimationBlendTree::loadFromXml(const char* xml, ResourceManager& mgr)
 		{
 		case Event::BeginElement:
 			if(strcmp(parser.elementName(), "clip") == 0)
-				n = loadClipNode(parser, mgr);
+				n = loadClipNode(parser, mgr, clipSearchPath);
 			else if(strcmp(parser.elementName(), "lerp") == 0)
 				n = loadLerpNode(parser);
 			else if(strcmp(parser.elementName(), "additive") == 0)
@@ -207,6 +207,9 @@ bool AnimationBlendTree::loadFromXml(const char* xml, ResourceManager& mgr)
 
 			if(!n)
 				return false;
+
+			n->name = parser.attributeValue("name");
+			n->userData = parser.attributeValue("userData");
 
 			n->parent = parentIdx.empty() ? size_t(-1) : parentIdx.top();
 			parentIdx.push(nodes.size());
@@ -263,6 +266,7 @@ int AnimationBlendTree::ClipNode::returnPose(AnimationBlendTree& tree)
 std::string AnimationBlendTree::ClipNode::xmlStart() const
 {
 	std::string ret = "<clip ";
+	if(!userData.empty()) ret += std::string("userData=\"") + userData.c_str() + "\"";
 	ret += "rate=\"" + float2Str(state.rate) + "\"";
 	ret += "src=\"" + state.clip->fileId().getString() + "\"";
 	ret += ">";
@@ -310,6 +314,7 @@ int AnimationBlendTree::LerpNode::returnPose(AnimationBlendTree& tree)
 std::string AnimationBlendTree::LerpNode::xmlStart() const
 {
 	std::string ret = "<lerp ";
+	if(!userData.empty()) ret += std::string("userData=\"") + userData.c_str() + "\"";
 	if(!name.empty()) ret += std::string("name=\"") + name.c_str() + "\"";
 	ret += "t=\"" + float2Str(t) + "\"";
 	ret += ">";
@@ -365,6 +370,7 @@ int AnimationBlendTree::AdditiveNode::returnPose(AnimationBlendTree& tree)
 std::string AnimationBlendTree::AdditiveNode::xmlStart() const
 {
 	std::string ret = "<additive";
+	if(!userData.empty()) ret += std::string("userData=\"") + userData.c_str() + "\"";
 	ret += ">";
 	return ret;
 }
@@ -424,7 +430,8 @@ int AnimationBlendTree::SwitchNode::returnPose(AnimationBlendTree& tree)
 
 std::string AnimationBlendTree::SwitchNode::xmlStart() const
 {
-	std::string ret = "<switch";
+	std::string ret = "<switch ";
+	if(!userData.empty()) ret += std::string("userData=\"") + userData.c_str() + "\"";
 	ret += "fadeDuration=\"" + float2Str(fadeDuration) + "\"";
 	if(mCurrentNode >= 0)
 		ret += "current=\"" + int2Str(mCurrentNode) + "\"";

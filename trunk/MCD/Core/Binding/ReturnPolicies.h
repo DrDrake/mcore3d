@@ -16,7 +16,7 @@ public:
 	template<typename RT>
 	static SQInteger pushResult(HSQUIRRELVM v, RT result)
 	{
-		push(v, result);
+		push(v, result, &result);
 		return 1;
 	}
 };	// plain
@@ -50,7 +50,7 @@ public:
 	template<typename RT>
 	static SQInteger pushResult(HSQUIRRELVM v, RT result)
 	{
-		push(v, result);
+		push(v, result, &result);
 		return 1;
 	}
 };	// objNoCare
@@ -92,7 +92,7 @@ public:
 	template<typename RT>
 	static SQInteger pushResult(HSQUIRRELVM v, RT result)
 	{
-		push(v, result);
+		push(v, result, &result);
 		sq_setreleasehook(v, -1, releaseHook<typename pointer<RT>::HostType>);
 		return 1;
 	}
@@ -103,95 +103,6 @@ private:
 	{
 		T* data = (T*)p;
 		destroy(data, data);
-		return 1;
-	}
-};
-
-/// creates new instance, which control host objects lifetime by custom ptr-class
-template<typename PtrClass>
-class objPtr
-{
-public:
-	template<typename RT>
-	static SQInteger pushResult(HSQUIRRELVM v, RT result)
-	{
-		types::push(v, result);
-//		typedef typename ptr::pointer<RT>::HostType HostType;
-//		HostType* p = ptr::pointer<RT>::to(result);
-//		detail::ClassesManager::createObjectInstanceOnStackPure(v, ClassTraits<HostType>::classID(), p);
-
-		sq_pushinteger(v, detail::ClassesManager::MEMORY_CONTROLLER_PARAM);
-		new(sq_newuserdata(v, sizeof(RT))) RT(result);
-		sq_setreleasehook(v, -1, releaseHook<RT>);
-//		jkSCRIPT_VERIFY(sq_set(v, -3));
-
-		return 1;
-	}
-
-private:
-	template<typename T>
-	static SQInteger releaseHook(SQUserPointer p, SQInteger size)
-	{
-		T* data = (T*)p;
-		data->~T();
-		return 1;
-	}
-};
-
-/// Creates new instance, which controls host object lifetime by addRef-releaseRef custom methods
-template<typename RefPolicy>
-class objRefCount
-{
-public:
-	template<typename RT>
-	static SQInteger pushResult(HSQUIRRELVM v, RT result)
-	{
-		typedef typename ptr::pointer<RT>::HostType HostType;
-		HostType* obj = ptr::pointer<RT>::to(result);
-		RefPolicy::addRef(obj);
-		types::push(v, result);
-		sq_setreleasehook(v, -1, releaseHook<HostType>);
-		return 1;
-	}
-
-private:
-	template<typename T>
-	static SQInteger releaseHook(SQUserPointer p, SQInteger size)
-	{
-		T* data = (T*)p;
-		RefPolicy::releaseRef(data);
-		return 1;
-	}
-};
-
-/// Construct new instance, and returns using objRefCount policy
-template<typename RefPolicy>
-class constructObjRefCount
-{
-public:
-	template<typename RT>
-	static SQInteger pushResult(HSQUIRRELVM v, RT result)
-	{
-		typedef typename ptr::pointer<RT>::HostType HostType;
-		HostType* obj = ptr::pointer<RT>::to(result);
-
-		RefPolicy::addRef(obj);
-		// TODO: Support negative indexing
-		if(SQ_FAILED(sq_setinstanceup(v, 1, obj)))
-			return -1;
-
-		sq_setreleasehook(v, 1, releaseHook<HostType>);
-		types::addHandleToObject(v, obj, 1);
-
-		return 1;
-	}
-
-private:
-	template<typename T>
-	static SQInteger releaseHook(SQUserPointer p, SQInteger size)
-	{
-		T* data = (T*)p;
-		RefPolicy::releaseRef(data);
 		return 1;
 	}
 };

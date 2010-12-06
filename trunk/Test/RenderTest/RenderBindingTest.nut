@@ -5,6 +5,7 @@ local e = framework.guiLayer.addFirstChild("A text label");
 e.addComponent(TextLabelComponent);
 e.localTransform.translation = Vec3(0, 500, 0);
 e.TextLabelComponent.text = "Hello world";
+e.TextLabelComponent.anchor = Vec2(0, 1);
 
 // A layer for no-lighting material
 local noLighting = framework.sceneLayer.addFirstChild("No lighting material");

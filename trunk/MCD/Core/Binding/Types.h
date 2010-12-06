@@ -12,23 +12,26 @@ namespace Binding {
 
 // Push functions - to pass values into script
 
-inline void push(HSQUIRRELVM v,int8_t value)				{ sq_pushinteger(v,value); }
-inline void push(HSQUIRRELVM v,uint8_t value)				{ sq_pushinteger(v,value); }
-inline void push(HSQUIRRELVM v,int16_t value)				{ sq_pushinteger(v,value); }
-inline void push(HSQUIRRELVM v,uint16_t value)				{ sq_pushinteger(v,value); }
-inline void push(HSQUIRRELVM v,int32_t value)				{ sq_pushinteger(v,value); }
-inline void push(HSQUIRRELVM v,uint32_t value)				{ sq_pushinteger(v,value); }
-inline void push(HSQUIRRELVM v,int64_t value)				{ sq_pushinteger(v,SQInteger(value)); }
-inline void push(HSQUIRRELVM v,uint64_t value)				{ sq_pushinteger(v,SQInteger(value)); }
-inline void push(HSQUIRRELVM v,double value)				{ sq_pushfloat(v,(SQFloat)value); }
-inline void push(HSQUIRRELVM v,float value)					{ sq_pushfloat(v,(SQFloat)value); }
-inline void push(HSQUIRRELVM v,bool value)					{ sq_pushbool(v,value); }
-inline void push(HSQUIRRELVM v,const char* value)			{ sq_pushstring(v,value,-1); }
-inline void push(HSQUIRRELVM v,const std::string& value)	{ sq_pushstring(v,value.c_str(), SQInteger(value.length())); }
-inline void push(HSQUIRRELVM v,const FixString& value)		{ sq_pushstring(v,value.c_str(), SQInteger(value.size())); }
+inline void push(HSQUIRRELVM v,int8_t value,int8_t*)			{ sq_pushinteger(v,value); }
+inline void push(HSQUIRRELVM v,uint8_t value,uint8_t*)			{ sq_pushinteger(v,value); }
+inline void push(HSQUIRRELVM v,int16_t value,int16_t*)			{ sq_pushinteger(v,value); }
+inline void push(HSQUIRRELVM v,uint16_t value,uint16_t*)		{ sq_pushinteger(v,value); }
+inline void push(HSQUIRRELVM v,int32_t value,int32_t*)			{ sq_pushinteger(v,value); }
+inline void push(HSQUIRRELVM v,uint32_t value,uint32_t*)		{ sq_pushinteger(v,value); }
+inline void push(HSQUIRRELVM v,int64_t value,int64_t*)			{ sq_pushinteger(v,SQInteger(value)); }
+inline void push(HSQUIRRELVM v,uint64_t value,uint64_t*)		{ sq_pushinteger(v,SQInteger(value)); }
+inline void push(HSQUIRRELVM v,double value,double*)			{ sq_pushfloat(v,(SQFloat)value); }
+inline void push(HSQUIRRELVM v,float value,float*)				{ sq_pushfloat(v,(SQFloat)value); }
+inline void push(HSQUIRRELVM v,bool value,bool*)				{ sq_pushbool(v,value); }
+inline void push(HSQUIRRELVM v,const char* value,const char**)	{ sq_pushstring(v,value,-1); }
+inline void push(HSQUIRRELVM v,const std::string& value,const std::string*)	{ sq_pushstring(v,value.c_str(), SQInteger(value.length())); }
+inline void push(HSQUIRRELVM v,const FixString& value,const FixString*)		{ sq_pushstring(v,value.c_str(), SQInteger(value.size())); }
 
+/// To specialize for a base class:
+/// template<typename T> static void push(const Base* obj, T* dummy) { obj->XXX(); }
+/// http://stackoverflow.com/questions/1332678/priority-when-choosing-overloaded-template-functions-in-c
 template<typename T>
-void push(HSQUIRRELVM v, T obj)
+void push(HSQUIRRELVM v, T obj, const void* dummy)
 {
 	typedef typename pointer<T>::HostType HostType;
 	HostType* p = pointer<T>::to(obj);
@@ -98,7 +101,7 @@ template<typename T> T&			get(TypeSelect<T&>,HSQUIRRELVM v,int idx)			{ return c
 template<typename T> T*			get(TypeSelect<T*>,HSQUIRRELVM v,int idx)			{ return const_cast<T*>(get(TypeSelect<const T*>(), v, idx)); }
 
 template<typename T>
-SQRESULT setInstanceUp(HSQUIRRELVM v, SQInteger idx, void* dummy, T* instance) {
+SQRESULT setInstanceUp(HSQUIRRELVM v, SQInteger idx, T* instance, void* dummy) {
 	return sq_setinstanceup(v, idx, instance);
 }
 
@@ -109,10 +112,10 @@ SQRESULT fromInstanceUp(HSQUIRRELVM v, SQInteger idx, void* dummy, T*& instance,
 
 /// Destroying an object, with the ability for the user to specialize this function even for a base class
 /// To specialize for a base class:
-/// template<typename T> static void destroy(const Base* dummy, T* obj) { obj->XXX(); }
+/// template<typename T> static void destroy(const Base* obj, T* dummy) { obj->XXX(); }
 /// http://stackoverflow.com/questions/1332678/priority-when-choosing-overloaded-template-functions-in-c
 template<typename T>
-static void destroy(const void* dummy, T* obj) {
+static void destroy(const void* obj, T* dummy) {
 	(void)dummy;
 	delete obj;
 }
