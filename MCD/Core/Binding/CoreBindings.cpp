@@ -22,7 +22,13 @@ SCRIPT_CLASS_REGISTER_NAME(Resource)
 	.method("_tostring", &path_Resource)
 ;}
 
-void push(HSQUIRRELVM v, Resource* obj)
+void destroy(Resource* p, Resource*)
+{
+	if(p)
+		intrusivePtrRelease(p);
+}
+
+void push(HSQUIRRELVM v, Resource* obj, Resource*)
 {
 	if(!obj) {
 		sq_pushnull(v);
@@ -36,12 +42,6 @@ void push(HSQUIRRELVM v, Resource* obj)
 
 	intrusivePtrAddRef(obj);
 	ClassesManager::createObjectInstanceOnStack(v, classID, obj);
-}
-
-void destroy(Resource* dummy, Resource* instance)
-{
-	if(instance)
-		intrusivePtrRelease(instance);
 }
 
 static Resource* load_ResourceManager(ResourceManager& self, const char* fileId, int blockIteration, uint priority, const char* args) {
@@ -154,7 +154,7 @@ static SQInteger create_Vec2(HSQUIRRELVM vm)
 		else
 			v = new Vec2f(get(TypeSelect<float>(), vm, 2));	// Scalar construct
 		break;
-	case 3:
+	case 2:
 			#define GET(i) (get(TypeSelect<float>(), vm, i))
 			v = new Vec2f(GET(2), GET(3));	// Element wise construct
 			#undef GET
@@ -281,7 +281,15 @@ SCRIPT_CLASS_REGISTER_NAME(Entity)
 	.runScript("Entity._get<-function(idx){local t=::Entity.__getTable;if(t.rawin(idx))return t.rawget(idx).call(this);for(local c;c=_nextComponent(c);)if(typeof c==idx)return c;throw null;}")	// Custom _get() to return component
 ;}
 
-void push(HSQUIRRELVM v, Entity* obj)
+void destroy(Entity* p, Entity*)
+{
+	if(p) {
+		p->scriptVm = nullptr;
+		p->scriptReleaseReference();
+	}
+}
+
+void push(HSQUIRRELVM v, Entity* obj, Entity*)
 {
 	if(!obj) {
 		sq_pushnull(v);
@@ -304,7 +312,12 @@ void push(HSQUIRRELVM v, Entity* obj)
 	}
 }
 
-SQRESULT setInstanceUp(HSQUIRRELVM v, SQInteger idx, Entity* dummy, Entity* instance)
+SQRESULT setInstanceUp(HSQUIRRELVM v, SQInteger idx, Resource* p, Resource*)
+{
+	return sq_setinstanceup(v, idx, p);
+}
+
+SQRESULT setInstanceUp(HSQUIRRELVM v, SQInteger idx, Entity* instance, Entity*)
 {
 	HSQOBJECT* h = reinterpret_cast<HSQOBJECT*>(instance->scriptHandle);
 	MCD_ASSUME(!instance->scriptVm);
@@ -313,14 +326,6 @@ SQRESULT setInstanceUp(HSQUIRRELVM v, SQInteger idx, Entity* dummy, Entity* inst
 
 	intrusivePtrAddRef(instance);
 	return sq_setinstanceup(v, idx, instance);
-}
-
-void destroy(Entity* dummy, Entity* instance)
-{
-	if(instance) {
-		instance->scriptVm = nullptr;
-		instance->scriptReleaseReference();
-	}
 }
 
 // Component
@@ -332,7 +337,15 @@ SCRIPT_CLASS_REGISTER_NAME(Component)
 	.method("destroyThis", &Component::destroyThis)
 ;}
 
-void push(HSQUIRRELVM v, Component* obj)
+void destroy(Component* p, Component*)
+{
+	if(p) {
+		p->scriptVm = nullptr;
+		intrusivePtrRelease(p);
+	}
+}
+
+void push(HSQUIRRELVM v, Component* obj, Component*)
 {
 	if(!obj) {
 		sq_pushnull(v);
@@ -359,7 +372,7 @@ void push(HSQUIRRELVM v, Component* obj)
 	}
 }
 
-SQRESULT setInstanceUp(HSQUIRRELVM v, SQInteger idx, Component* dummy, Component* instance)
+SQRESULT setInstanceUp(HSQUIRRELVM v, SQInteger idx, Component* instance, Component*)
 {
 	HSQOBJECT* h = reinterpret_cast<HSQOBJECT*>(instance->scriptHandle);
 	MCD_ASSUME(!instance->scriptVm);
@@ -368,14 +381,6 @@ SQRESULT setInstanceUp(HSQUIRRELVM v, SQInteger idx, Component* dummy, Component
 
 	intrusivePtrAddRef(instance);
 	return sq_setinstanceup(v, idx, instance);
-}
-
-void destroy(Component* dummy, Component* instance)
-{
-	if(instance) {
-		instance->scriptVm = nullptr;
-		intrusivePtrRelease(instance);
-	}
 }
 
 // ScriptComponent
@@ -421,7 +426,8 @@ SQInteger sleep_ScriptComponent(HSQUIRRELVM vm)
 }
 
 SCRIPT_CLASS_DECLAR_EXPORT(ScriptComponent, MCD_CORE_API);	// TODO: Don't why this is needed!
-SCRIPT_CLASS_REGISTER_NAME(ScriptComponent)
+SCRIPT_CLASS_REGISTER(ScriptComponent)
+	.declareClass<ScriptComponent, Component>("ScriptComponent")
 	.constructor()
 	.rawMethod("suspend", &suspend_ScriptComponent)
 	.rawMethod("wakeup", &wakeup_ScriptComponent)

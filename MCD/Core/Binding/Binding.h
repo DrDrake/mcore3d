@@ -7,8 +7,7 @@
 #include "../../../3Party/squirrel/squirrel.h"
 
 #define CAPI_VERIFY(arg) MCD_VERIFY(SQ_SUCCEEDED((arg)))
-#define CHECK_ARG(arg) if(!match(TypeSelect<P##arg>(), v, index+arg-1)) return sq_throwerror(v, "Incorrect function argument for C closure")
-#define CHECK_THIS_PTR(p) if(!(p)) return sq_throwerror(v, "Try to call member funciton on null")
+#define CHECK_ARG(arg) if(!match(TypeSelect<P##arg>(), v, index+arg-1)) MCD_ASSERT(false);
 
 #ifdef MCD_VC
 #ifdef MCD_WIN32
@@ -740,7 +739,9 @@ public:
 		Callee* instance(nullptr);
 		if(SQ_FAILED(fromInstanceUp(v, 1, instance, instance, ClassTraits<Callee>::classID())))
 			return sq_throwerror(v, "Trying to invoke an member function without a correct this pointer");
-		CHECK_THIS_PTR(instance);
+		if(!instance)
+			return sq_throwerror(v, "Try to call member funciton on null");
+
 		Func func = getFunctionPointer<Func>(v, -1);
 		MCD_ASSUME(func);
 		return Call<ResultPolicy, Callee>(*instance, func, v, 2);
@@ -768,6 +769,5 @@ public:
 
 #undef CAPI_VERIFY
 #undef CHECK_ARG
-#undef CHECK_THIS_PTR
 
 #endif	// __MCD_CORE_BINDING_BINDING__
