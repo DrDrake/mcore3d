@@ -309,10 +309,11 @@ int AnimationBlendTree::ClipNode::returnPose(AnimationBlendTree& tree)
 
 std::string AnimationBlendTree::ClipNode::xmlStart(const AnimationBlendTree&) const
 {
-	std::string ret = "<clip ";
-	if(!userData.empty()) ret += std::string("userData=\"") + userData.c_str() + "\"";
-	ret += "rate=\"" + float2Str(state.rate) + "\"";
-	ret += "src=\"" + state.clip->fileId().getString() + "\"";
+	std::string ret = "<clip";
+	if(!name.empty()) ret += std::string(" name=\"") + name.c_str() + "\"";
+	ret += " rate=\"" + float2Str(state.rate) + "\"";
+	ret += " src=\"" + state.clip->fileId().getString() + "\"";
+	if(!userData.empty()) ret += std::string(" userData=\"") + userData.c_str() + "\"";
 	ret += ">";
 	return ret;
 }
@@ -357,10 +358,10 @@ int AnimationBlendTree::LerpNode::returnPose(AnimationBlendTree& tree)
 
 std::string AnimationBlendTree::LerpNode::xmlStart(const AnimationBlendTree&) const
 {
-	std::string ret = "<lerp ";
-	if(!userData.empty()) ret += std::string("userData=\"") + userData.c_str() + "\"";
-	if(!name.empty()) ret += std::string("name=\"") + name.c_str() + "\"";
-	ret += "t=\"" + float2Str(t) + "\"";
+	std::string ret = "<lerp";
+	if(!name.empty()) ret += std::string(" name=\"") + name.c_str() + "\"";
+	ret += " t=\"" + float2Str(t) + "\"";
+	if(!userData.empty()) ret += std::string(" userData=\"") + userData.c_str() + "\"";
 	ret += ">";
 	return ret;
 }
@@ -414,7 +415,8 @@ int AnimationBlendTree::AdditiveNode::returnPose(AnimationBlendTree& tree)
 std::string AnimationBlendTree::AdditiveNode::xmlStart(const AnimationBlendTree&) const
 {
 	std::string ret = "<additive";
-	if(!userData.empty()) ret += std::string("userData=\"") + userData.c_str() + "\"";
+	if(!name.empty()) ret += std::string(" name=\"") + name.c_str() + "\"";
+	if(!userData.empty()) ret += std::string(" userData=\"") + userData.c_str() + "\"";
 	ret += ">";
 	return ret;
 }
@@ -474,10 +476,11 @@ int AnimationBlendTree::SwitchNode::returnPose(AnimationBlendTree& tree)
 
 std::string AnimationBlendTree::SwitchNode::xmlStart(const AnimationBlendTree& tree) const
 {
-	std::string ret = "<switch ";
-	if(!userData.empty()) ret += std::string("userData=\"") + userData.c_str() + "\"";
-	if(fadeDuration > 0) ret += "fadeDuration=\"" + float2Str(fadeDuration) + "\"";
-	if(mCurrentNode >= 0) ret += std::string("current=\"") + tree.nodes[mCurrentNode].name.c_str() + "\"";
+	std::string ret = "<switch";
+	if(!name.empty()) ret += std::string(" name=\"") + name.c_str() + "\"";
+	if(fadeDuration > 0) ret += " fadeDuration=\"" + float2Str(fadeDuration) + "\"";
+	if(mCurrentNode >= 0) ret += std::string(" current=\"") + tree.nodes[mCurrentNode].name.c_str() + "\"";
+	if(!userData.empty()) ret += std::string(" userData=\"") + userData.c_str() + "\"";
 	ret += ">";
 	return ret;
 }
