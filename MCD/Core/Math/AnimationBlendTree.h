@@ -11,6 +11,14 @@ namespace MCD {
 class ResourceManager;
 
 /// Advanced animation control system using a tree structure representation.
+///
+/// The implementation stores all the nodes in a linear array, with their order
+/// sorted as in-order traversal.
+///
+/// When the user request the final pose of the blend tree, all the nodes are processed
+/// in the node array, intermediate results will be calculated on demand and store into
+/// a cache. Parent nodes will ask for the cached result of their children such that
+/// the result will propagate to the root node.
 class MCD_CORE_API AnimationBlendTree
 {
 public:
@@ -41,7 +49,7 @@ public:
 		/// Get the animation clip resource if this node has one, usefull during serialization.
 		virtual AnimationClipPtr getClipSource() { return nullptr; }
 
-		virtual std::string xmlStart() const = 0;
+		virtual std::string xmlStart(const AnimationBlendTree&) const = 0;
 		virtual std::string xmlEnd() const = 0;
 	};	// INode
 
@@ -54,7 +62,7 @@ public:
 		sal_override void collectChild(INode* child, AnimationBlendTree& tree) { MCD_ASSERT(false); }
 		sal_override int returnPose(AnimationBlendTree& tree);
 		sal_override AnimationClipPtr getClipSource() { return state.clip; }
-		sal_override std::string xmlStart() const;
+		sal_override std::string xmlStart(const AnimationBlendTree&) const;
 		sal_override std::string xmlEnd() const;
 	};	// ClipNode
 
@@ -67,7 +75,7 @@ public:
 		sal_override INode* clone() const;
 		sal_override void collectChild(INode* child, AnimationBlendTree& tree);
 		sal_override int returnPose(AnimationBlendTree& tree);
-		sal_override std::string xmlStart() const;
+		sal_override std::string xmlStart(const AnimationBlendTree&) const;
 		sal_override std::string xmlEnd() const;
 	protected:
 		INode* mNode1, *mNode2;
@@ -82,7 +90,7 @@ public:
 		sal_override INode* clone() const;
 		sal_override void collectChild(INode* child, AnimationBlendTree& tree);
 		sal_override int returnPose(AnimationBlendTree& tree);
-		sal_override std::string xmlStart() const;
+		sal_override std::string xmlStart(const AnimationBlendTree&) const;
 		sal_override std::string xmlEnd() const;
 	protected:
 		INode* mNode1, *mNode2;
@@ -96,7 +104,7 @@ public:
 		sal_override INode* clone() const;
 		sal_override void collectChild(INode* child, AnimationBlendTree& tree);
 		sal_override int returnPose(AnimationBlendTree& tree);
-		sal_override std::string xmlStart() const;
+		sal_override std::string xmlStart(const AnimationBlendTree&) const;
 		sal_override std::string xmlEnd() const;
 		void switchTo(int nodeIdx, float timeToSwitch);	///< Perform the switching at a specific world time
 		int currentNode() const;	///< The current targeting node
@@ -114,11 +122,15 @@ public:
 	ptr_vector<INode> nodes;
 
 // Operations
+	/// Returns -1 if the node cannot be found
+	int findNodeIndexByName(const char* name);
+
+	/// Returns null if the node cannot be found
+	sal_maybenull INode* findNodeByName(const char* name);
+
 	/// Sort the nodes as in-ordered.
 	/// Must be invoked once you have changes in the tree structure.
 	void inOrderSort();
-
-	INode* findNodeByName(const char* name);
 
 	/// Get the final animated data out of this blend tree.
 	Pose getFinalPose();

@@ -32,7 +32,7 @@ public:
 	/*!	The input string will copyed and reference counted.
 		Null input string will result an empty string.
 	 */
-	explicit FixString(sal_in_z_opt const char* str);
+	MCD_IMPLICIT FixString(sal_in_z_opt const char* str);
 
 	/*!	Construct with an existing string in the global table, indexed with it's hash value.
 		Make sure there is an other instance of FixString constructed with a string content first.
