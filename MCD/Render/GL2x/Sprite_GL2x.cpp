@@ -1,11 +1,12 @@
 #include "Pch.h"
 #include "../Sprite.h"
-#include "../RenderTarget.h"
-#include "../Texture.h"
 #include "Renderer.inc"
-#include "../../Core/Entity/Entity.h"
 
 namespace MCD {
+
+SpriteAtlasComponent::SpriteAtlasComponent() : mImpl(nullptr) {}
+
+SpriteAtlasComponent::~SpriteAtlasComponent() {}
 
 void SpriteAtlasComponent::render(void* context)
 {

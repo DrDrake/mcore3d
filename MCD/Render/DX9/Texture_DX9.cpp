@@ -45,7 +45,7 @@ static bool copyToGpu(const GpuDataFormat& srcFormat, GpuDataFormat& destFormat,
 	byte_t* rowDataDest = outData;
 
 	// RGBA to BGRA
-	if(srcFormat == GpuDataFormat::get("uintRGBA8") && destFormat == GpuDataFormat::get("uintRGB8")) {
+	if(srcFormat == GpuDataFormat::get("uintRGBA8") && (destFormat == GpuDataFormat::get("uintRGBA8") || destFormat == GpuDataFormat::get("uintRGB8"))) {
 		destFormat = GpuDataFormat::get("uintARGB8");
 
 		for(size_t i=0; i<height; ++i) {
