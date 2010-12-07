@@ -92,6 +92,7 @@ bool MaterialComponent::Impl::createPs(const char* headerCode)
 	"sampler2D texDiffuse;\n"
 	"#if USE_BUMP_MAP\n"
 	"sampler2D texBump;\n"
+	"float mcdBumpFactor;\n"
 	"float2 mcdBumpMapSize;\n"
 	"#endif\n"
 
@@ -227,7 +228,7 @@ bool MaterialComponent::Impl::createPs(const char* headerCode)
 	"	float3 lightSpecular = 0;\n"
 
 	"#if USE_BUMP_MAP\n"
-	"	N = computeBump(P, _in.normal, _in.uvDiffuse, texBump, 1.0/5, mcdBumpMapSize);\n"
+	"	N = computeBump(P, _in.normal, _in.uvDiffuse, texBump, mcdBumpFactor, mcdBumpMapSize);\n"
 	"#endif\n"
 
 	"	for(int i=0; i<MCD_MAX_LIGHT_COUNT; ++i)\n"
@@ -265,6 +266,7 @@ bool MaterialComponent::Impl::createPs(const char* headerCode)
 	mConstantHandles.opacity = mPs.constTable->GetConstantByName(nullptr, "mcdOpacity");
 	mConstantHandles.lighting = mPs.constTable->GetConstantByName(nullptr, "mcdLighting");
 	mConstantHandles.bumpMapSize = mPs.constTable->GetConstantByName(nullptr, "mcdBumpMapSize");
+	mConstantHandles.bumpFactor = mPs.constTable->GetConstantByName(nullptr, "mcdBumpFactor");
 
 	return true;
 }
@@ -417,6 +419,10 @@ void MaterialComponent::preRender(size_t pass, void* context)
 			MCD_VERIFY(mImpl.mPs.constTable->SetFloatArray(
 				device, mImpl.mConstantHandles.bumpMapSize, size, 2
 			) == S_OK);
+
+			MCD_VERIFY(mImpl.mVs.constTable->SetFloat(
+				device, mImpl.mConstantHandles.bumpFactor, bumpFactor
+			) == S_OK);
 		}
 	}
 
@@ -458,6 +464,7 @@ MaterialComponent::MaterialComponent()
 	, lighting(true)
 	, cullFace(true)
 	, useVertexColor(false)
+	, bumpFactor(1)
 {
 	mImpl.mBackRef = this;
 }

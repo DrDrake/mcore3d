@@ -15,6 +15,7 @@ MaterialComponent::MaterialComponent()
 	, lighting(true)
 	, cullFace(true)
 	, useVertexColor(false)
+	, bumpFactor(1)
 {
 }
 
