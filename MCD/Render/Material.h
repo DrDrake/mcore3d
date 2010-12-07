@@ -45,6 +45,7 @@ public:
 
 	TexturePtr diffuseMap;
 	TexturePtr bumpMap;
+	float bumpFactor;
 
 	sal_override bool isTransparent() const { return opacity < 1; }
 

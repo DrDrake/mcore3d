@@ -38,6 +38,7 @@ public:
 		D3DXHANDLE opacity;
 		D3DXHANDLE lighting;
 		D3DXHANDLE bumpMapSize;
+		D3DXHANDLE bumpFactor;
 	};	// ConstantHandles
 
 	ConstantHandles mConstantHandles;

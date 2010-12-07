@@ -17,6 +17,7 @@ Component* MaterialComponent::clone() const
 	cloned->useVertexColor = useVertexColor;
 	cloned->diffuseMap = diffuseMap;
 	cloned->bumpMap = bumpMap;
+	cloned->bumpFactor = bumpFactor;
 	return cloned;
 }
 

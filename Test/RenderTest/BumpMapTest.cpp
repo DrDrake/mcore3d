@@ -24,6 +24,7 @@ TEST(BumpMapTest)
 	scene.addComponent(material1);
 	material1->diffuseMap = dynamic_cast<Texture*>(resourceManager.load("Fieldstone.jpg").get());
 	material1->bumpMap = dynamic_cast<Texture*>(resourceManager.load("FieldstoneBump.jpg").get());
+	material1->bumpFactor = 0.2f;
 
 	// Create mesh
 	MeshComponent* boxMesh = new MeshComponent;
