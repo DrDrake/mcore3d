@@ -215,6 +215,10 @@ bool AnimationBlendTree::loadFromXml(const char* xml, ResourceManager& mgr, cons
 	XmlParser parser;
 	parser.parse(tmp);
 
+	// Reset all member first
+	nodes.clear();
+	mTrackCount = 0;
+
 	std::stack<size_t> parentIdx;
 
 	// Convert any name reference in the XML back to index (after the in-order sort)
