@@ -124,8 +124,10 @@ bool MaterialComponent::Impl::createPs(const char* headerCode)
 	"	};\n"
 	"	M /= 6;"
 
-	"	float4 wx = mul(float4(f.x*f.x*f.x, f.x*f.x, f.x, 1), M);"
-	"	float4 wy = mul(float4(f.y*f.y*f.y, f.y*f.y, f.y, 1), M);"
+	"	float2 f2 = f * f;"
+	"	float2 f3 = f2 * f;"
+	"	float4 wx = mul(float4(f3.x, f2.x, f.x, 1), M);"
+	"	float4 wy = mul(float4(f3.y, f2.y, f.y, 1), M);"
 	"	float2 w0 = float2(wx.x, wy.x);"
 	"	float2 w1 = float2(wx.y, wy.y);"
 	"	float2 w2 = float2(wx.z, wy.z);"
@@ -137,8 +139,8 @@ bool MaterialComponent::Impl::createPs(const char* headerCode)
 	"	float2 h1 = w3 / g1 + 1;"
 
 	"	float2 coord00 = index + h0;"
-	"	float2 coord10 = index + float2(h1.x,h0.y);"
-	"	float2 coord01 = index + float2(h0.x,h1.y);"
+	"	float2 coord10 = index + float2(h1.x, h0.y);"
+	"	float2 coord01 = index + float2(h0.x, h1.y);"
 	"	float2 coord11 = index + h1;"
 
 	"	coord00 = (coord00 + 0.5) * rec_nrCP;"
@@ -405,14 +407,16 @@ void MaterialComponent::preRender(size_t pass, void* context)
 		if(TexturePtr diffuse = diffuseMap ? diffuseMap : renderer.mWhiteTexture) {
 			const int samplerIdx = mImpl.mPs.constTable->GetSamplerIndex("texDiffuse");
 			device->SetSamplerState(samplerIdx, D3DSAMP_MINFILTER, D3DTEXF_LINEAR);
-			device->SetSamplerState(samplerIdx, D3DSAMP_MAGFILTER, D3DTEXF_LINEAR );
+			device->SetSamplerState(samplerIdx, D3DSAMP_MAGFILTER, D3DTEXF_LINEAR);
+			device->SetSamplerState(samplerIdx, D3DSAMP_MIPFILTER, D3DTEXF_LINEAR);
 			diffuse->bind(samplerIdx);
 		}
 
 		if(TexturePtr bump = bumpMap) {
 			const int samplerIdx = mImpl.mPs.constTable->GetSamplerIndex("texBump");
 			device->SetSamplerState(samplerIdx, D3DSAMP_MINFILTER, D3DTEXF_LINEAR);
-			device->SetSamplerState(samplerIdx, D3DSAMP_MAGFILTER, D3DTEXF_LINEAR );
+			device->SetSamplerState(samplerIdx, D3DSAMP_MAGFILTER, D3DTEXF_LINEAR);
+			device->SetSamplerState(samplerIdx, D3DSAMP_MIPFILTER, D3DTEXF_LINEAR);
 			bump->bind(samplerIdx);
 
 			const float size[2] = { float(bump->width), float(bump->height) };

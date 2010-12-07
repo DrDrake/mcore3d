@@ -13,6 +13,7 @@ namespace MCD {
 TextureLoaderBase::LoaderBaseImpl::LoaderBaseImpl(TextureLoaderBase& loader)
 	: mLoader(loader)
 	, mWidth(0), mHeight(0)
+	, mMipLevels(1)
 {
 }
 
@@ -21,6 +22,52 @@ TextureLoaderBase::LoaderBaseImpl::~LoaderBaseImpl()
 	MCD_ASSERT(mMutex.isLocked());
 	mImageData.clear();
 	mMutex.unlock();
+}
+
+void TextureLoaderBase::LoaderBaseImpl::genMipmap()
+{
+	if(mImageData.size() == 0) return;
+
+	size_t levels = 0;
+	size_t s = mWidth < mHeight ? mWidth : mHeight;
+	for(;s >= 1; s /= 2) ++levels;
+	mMipLevels = levels;
+
+	MCD_ASSUME(levels > 0);
+
+	const size_t oldSize = mImageData.size();
+	const size_t newSize = size_t(oldSize * 1.34);	// There is a little extra room
+	const size_t bytePerPixel = mSrcFormat.sizeInByte();
+	mImageData.mImageData = (char*)realloc(mImageData.mImageData, newSize);
+
+	size_t w1 = mWidth, h1 = mHeight;
+	byte_t* p1 = (byte_t*)mImageData.mImageData, *p2 = p1 + w1 * h1 * bytePerPixel;
+
+	for(size_t l=1; l<levels; ++l)
+	{
+		const size_t w2 = w1/2;
+		const size_t h2 = h1/2;
+		const size_t stride1 = w1 * bytePerPixel;
+
+		for(size_t i=0; i<h2; ++i) for(size_t j=0; j<w2; ++j) {
+			byte_t* v1 = p1 + i*2*stride1 + j*2*bytePerPixel + bytePerPixel*0;
+			byte_t* v2 = p1 + i*2*stride1 + j*2*bytePerPixel + bytePerPixel*1;
+			byte_t* v3 = p1 + i*2*stride1 + stride1 + j*2*bytePerPixel + bytePerPixel*0;
+			byte_t* v4 = p1 + i*2*stride1 + stride1 + j*2*bytePerPixel + bytePerPixel*1;
+
+			for(size_t b=0; b<bytePerPixel; ++b) {
+				p2[b] = char((int(v1[b]) + int(v2[b]) + int(v3[b]) + int(v4[b])) / 4);
+			}
+
+			p2 += bytePerPixel;
+		}
+
+		p1 += w1 * h1 * bytePerPixel;
+		w1 = w2;
+		h1 = h2;
+	}
+
+	mImageData.mSize = p2 - (byte_t*)mImageData.mImageData;
 }
 
 TextureLoaderBase::TextureLoaderBase()

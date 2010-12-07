@@ -38,7 +38,7 @@ RendererComponent::Impl::Impl()
 
 	mWhiteTexture = new Texture("1x1White");
 	byte_t data[] = { 255, 255, 255, 255 };
-	MCD_VERIFY(mWhiteTexture->create(GpuDataFormat::get("uintARGB8"), GpuDataFormat::get("uintARGB8"), 1, 1, 1, 1, data, 4));
+	MCD_VERIFY(mWhiteTexture->create(GpuDataFormat::get("uintARGB8"), GpuDataFormat::get("uintARGB8"), 1, 1, 1, 1, (char*)data, 4));
 
 	resetStatistic();
 }
@@ -98,10 +98,12 @@ void RendererComponent::Impl::render(Entity& entityTree, RenderTargetComponent& 
 		device->SetRenderState(D3DRS_SRCBLEND, D3DBLEND_SRCALPHA);
 		device->SetRenderState(D3DRS_DESTBLEND, D3DBLEND_INVSRCALPHA);
 		device->SetRenderState(D3DRS_BLENDOP, D3DBLENDOP_ADD);
+		device->SetRenderState(D3DRS_ZENABLE, false);
 
 		processRenderItems(mTransparentQueue, mStatistic.transparent, mStatistic.materialSwitch);
 
 		device->SetRenderState(D3DRS_ALPHABLENDENABLE, false);
+		device->SetRenderState(D3DRS_ZENABLE, true);
 	}
 
 	// Reset the last material
