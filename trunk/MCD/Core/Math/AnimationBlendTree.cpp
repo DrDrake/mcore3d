@@ -5,6 +5,7 @@
 #include "../System/ResourceManager.h"
 #include "../System/StrUtility.h"
 #include "../System/XmlParser.h"
+#include <map>
 
 namespace MCD {
 
@@ -75,6 +76,24 @@ void AnimationBlendTree::resetPoseBuffer()
 	mAllocated.assign(false);
 }
 
+int AnimationBlendTree::findNodeIndexByName(const char* name)
+{
+	for(size_t i=0; i<nodes.size(); ++i) {
+		if(FixString(name) == nodes[i].name)
+			return int(i);
+	}
+	return -1;
+}
+
+INode* AnimationBlendTree::findNodeByName(const char* name)
+{
+	for(size_t i=0; i<nodes.size(); ++i) {
+		if(FixString(name) == nodes[i].name)
+			return &nodes[i];
+	}
+	return nullptr;
+}
+
 struct Sorter
 {
 	Sorter(ptr_vector<INode>& s) : src(s)
@@ -143,6 +162,11 @@ Pose AnimationBlendTree::getFinalPose()
 	return getPose(outputIdx);
 }
 
+// Convert any name reference in the XML back to index (after the in-order sort)
+typedef void (*fixupFunc)(INode*, int index);
+struct Fixup { fixupFunc func; INode* node; };
+typedef std::map<FixString, Fixup> IndexFixupTable;
+
 static INode* loadClipNode(XmlParser& parser, ResourceManager& mgr, const char* clipSearchPath)
 {
 	AnimationBlendTree::ClipNode* n = new AnimationBlendTree::ClipNode;
@@ -168,12 +192,18 @@ static INode* loadAdditiveNode(XmlParser& parser)
 	return n;
 }
 
-static INode* loadSwitchNode(XmlParser& parser)
+static void switchNodeFixup(INode* node, int index)
+{
+	static_cast<AnimationBlendTree::SwitchNode*>(node)->switchTo(index, 0);
+}
+
+static INode* loadSwitchNode(XmlParser& parser, IndexFixupTable& fixupTable)
 {
 	AnimationBlendTree::SwitchNode* n = new AnimationBlendTree::SwitchNode;
 	n->fadeDuration = parser.attributeValueAsFloat("fadeDuration", 0);
-	int currentIdx = (int)parser.attributeValueAsFloat("current", -1);
-	n->switchTo(currentIdx, 0);
+	FixString current = parser.attributeValue("current");
+	Fixup fixup = { &switchNodeFixup, n };
+	fixupTable[parser.attributeValue("current")] = fixup;
 	return n;
 }
 
@@ -186,6 +216,9 @@ bool AnimationBlendTree::loadFromXml(const char* xml, ResourceManager& mgr, cons
 	parser.parse(tmp);
 
 	std::stack<size_t> parentIdx;
+
+	// Convert any name reference in the XML back to index (after the in-order sort)
+	IndexFixupTable indexFixupTable;
 
 	bool ended = false;
 	while(!ended)
@@ -203,7 +236,7 @@ bool AnimationBlendTree::loadFromXml(const char* xml, ResourceManager& mgr, cons
 			else if(strcmp(parser.elementName(), "additive") == 0)
 				n = loadAdditiveNode(parser);
 			else if(strcmp(parser.elementName(), "switch") == 0)
-				n = loadSwitchNode(parser);
+				n = loadSwitchNode(parser, indexFixupTable);
 
 			if(!n)
 				return false;
@@ -231,6 +264,13 @@ bool AnimationBlendTree::loadFromXml(const char* xml, ResourceManager& mgr, cons
 	inOrderSort();
 	::free(tmp);
 
+	// Apply the fixup table
+	for(IndexFixupTable::const_iterator i=indexFixupTable.begin(); i!=indexFixupTable.end(); ++i) {
+		int idx = findNodeIndexByName(i->first.c_str());
+		MCD_ASSERT(idx >= 0 && idx < (int)nodes.size());
+		(*i->second.func)(i->second.node, idx);
+	}
+
 	return true;
 }
 
@@ -240,9 +280,9 @@ std::string AnimationBlendTree::saveToXml() const
 	size_t lastParentIdx = size_t(-1);
 	for(size_t i=0; i<nodes.size(); ++i) {
 		if(i == lastParentIdx)
-			ret = nodes[i].xmlStart() + ret + nodes[i].xmlEnd();
+			ret = nodes[i].xmlStart(*this) + ret + nodes[i].xmlEnd();
 		else
-			ret = ret + nodes[i].xmlStart() + nodes[i].xmlEnd();
+			ret = ret + nodes[i].xmlStart(*this) + nodes[i].xmlEnd();
 		lastParentIdx = nodes[i].parent;
 	}
 
@@ -263,7 +303,7 @@ int AnimationBlendTree::ClipNode::returnPose(AnimationBlendTree& tree)
 	return i;
 }
 
-std::string AnimationBlendTree::ClipNode::xmlStart() const
+std::string AnimationBlendTree::ClipNode::xmlStart(const AnimationBlendTree&) const
 {
 	std::string ret = "<clip ";
 	if(!userData.empty()) ret += std::string("userData=\"") + userData.c_str() + "\"";
@@ -311,7 +351,7 @@ int AnimationBlendTree::LerpNode::returnPose(AnimationBlendTree& tree)
 	return idx1;
 }
 
-std::string AnimationBlendTree::LerpNode::xmlStart() const
+std::string AnimationBlendTree::LerpNode::xmlStart(const AnimationBlendTree&) const
 {
 	std::string ret = "<lerp ";
 	if(!userData.empty()) ret += std::string("userData=\"") + userData.c_str() + "\"";
@@ -367,7 +407,7 @@ int AnimationBlendTree::AdditiveNode::returnPose(AnimationBlendTree& tree)
 	return idx1;
 }
 
-std::string AnimationBlendTree::AdditiveNode::xmlStart() const
+std::string AnimationBlendTree::AdditiveNode::xmlStart(const AnimationBlendTree&) const
 {
 	std::string ret = "<additive";
 	if(!userData.empty()) ret += std::string("userData=\"") + userData.c_str() + "\"";
@@ -428,13 +468,12 @@ int AnimationBlendTree::SwitchNode::returnPose(AnimationBlendTree& tree)
 	return mLastNode;
 }
 
-std::string AnimationBlendTree::SwitchNode::xmlStart() const
+std::string AnimationBlendTree::SwitchNode::xmlStart(const AnimationBlendTree& tree) const
 {
 	std::string ret = "<switch ";
 	if(!userData.empty()) ret += std::string("userData=\"") + userData.c_str() + "\"";
-	ret += "fadeDuration=\"" + float2Str(fadeDuration) + "\"";
-	if(mCurrentNode >= 0)
-		ret += "current=\"" + int2Str(mCurrentNode) + "\"";
+	if(fadeDuration > 0) ret += "fadeDuration=\"" + float2Str(fadeDuration) + "\"";
+	if(mCurrentNode >= 0) ret += std::string("current=\"") + tree.nodes[mCurrentNode].name.c_str() + "\"";
 	ret += ">";
 	return ret;
 }

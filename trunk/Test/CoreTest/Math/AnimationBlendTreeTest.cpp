@@ -104,10 +104,12 @@ TEST_FIXTURE(AnimationBlendTreeTestFixture, MultiNode)
 TEST_FIXTURE(AnimationBlendTreeTestFixture, Xml)
 {
 	const char* xml = "\
-	<lerp name=\"node1\" t=\"0.5\">\
-		<clip rate=\"1.2\" src=\"clip1.clip\" />\
-		<clip rate=\"0.9\" src=\"clip2.clip\" />\
-	</lerp>";
+	<switch current=\"node1\">\
+		<lerp name=\"node1\" t=\"0.5\">\
+			<clip rate=\"1.2\" src=\"clip1.clip\" />\
+			<clip rate=\"0.9\" src=\"clip2.clip\" />\
+		</lerp>\
+	</switch>";
 
 	ResourceManager mgr(*new RawFileSystem(""));
 
@@ -119,7 +121,7 @@ TEST_FIXTURE(AnimationBlendTreeTestFixture, Xml)
 	AnimationBlendTree::Pose pose = tree.getFinalPose();
 	CHECK_EQUAL(1.5f, pose[0].v.z);
 
-	CHECK_EQUAL("<lerp name=\"node1\"t=\"0.5\"><clip rate=\"1.2\"src=\"clip1.clip\">"\
-		"</clip><clip rate=\"0.9\"src=\"clip2.clip\"></clip></lerp>", tree.saveToXml()
+	CHECK_EQUAL("<switch current=\"node1\"><lerp name=\"node1\"t=\"0.5\"><clip rate=\"1.2\"src=\"clip1.clip\">"\
+		"</clip><clip rate=\"0.9\"src=\"clip2.clip\"></clip></lerp></switch>", tree.saveToXml()
 	);
 }
