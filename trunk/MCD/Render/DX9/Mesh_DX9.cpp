@@ -46,7 +46,7 @@ void Mesh::drawFaceOnly(size_t drawIndexOffset, size_t drawIndexCount)
 
 	// Bind vertex declaration
 	LPDIRECT3DVERTEXDECLARATION9& decl = reinterpret_cast<LPDIRECT3DVERTEXDECLARATION9&>(mImpl);
-	device->SetVertexDeclaration(decl);
+	MCD_VERIFY(device->SetVertexDeclaration(decl) == D3D_OK);
 
 	// Draw the primitives
 	MCD_VERIFY(device->DrawIndexedPrimitive(D3DPT_TRIANGLELIST, 0, 0, vertexCount, drawIndexOffset, drawIndexCount/3) == D3D_OK);

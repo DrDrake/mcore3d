@@ -403,19 +403,19 @@ void MaterialComponent::preRender(size_t pass, void* context)
 		) == S_OK);
 
 		if(TexturePtr diffuse = diffuseMap ? diffuseMap : renderer.mWhiteTexture) {
-			int samplerIdx = mImpl.mPs.constTable->GetSamplerIndex("texDiffuse");
+			const int samplerIdx = mImpl.mPs.constTable->GetSamplerIndex("texDiffuse");
 			device->SetSamplerState(samplerIdx, D3DSAMP_MINFILTER, D3DTEXF_LINEAR);
 			device->SetSamplerState(samplerIdx, D3DSAMP_MAGFILTER, D3DTEXF_LINEAR );
 			diffuse->bind(samplerIdx);
 		}
 
 		if(TexturePtr bump = bumpMap) {
-			int samplerIdx = mImpl.mPs.constTable->GetSamplerIndex("texBump");
+			const int samplerIdx = mImpl.mPs.constTable->GetSamplerIndex("texBump");
 			device->SetSamplerState(samplerIdx, D3DSAMP_MINFILTER, D3DTEXF_LINEAR);
 			device->SetSamplerState(samplerIdx, D3DSAMP_MAGFILTER, D3DTEXF_LINEAR );
 			bump->bind(samplerIdx);
 
-			float size[2] = { float(bump->width), float(bump->height) };
+			const float size[2] = { float(bump->width), float(bump->height) };
 			MCD_VERIFY(mImpl.mPs.constTable->SetFloatArray(
 				device, mImpl.mConstantHandles.bumpMapSize, size, 2
 			) == S_OK);
@@ -473,25 +473,5 @@ MaterialComponent::~MaterialComponent()
 {
 	delete &mImpl;
 }
-
-void SpriteMaterialComponent::render(void* context)
-{
-	RendererComponent::Impl& renderer = *reinterpret_cast<RendererComponent::Impl*>(context);
-	renderer.mCurrentMaterial = this;
-}
-
-void SpriteMaterialComponent::preRender(size_t pass, void* context)
-{
-	LPDIRECT3DDEVICE9 device = getDevice();
-	MCD_ASSUME(device);
-
-	device->SetVertexShader(nullptr);
-	device->SetPixelShader(nullptr);
-
-	if(diffuseMap)
-		diffuseMap->bind(0);
-}
-
-void SpriteMaterialComponent::postRender(size_t pass, void* context) {}
 
 }	// namespace MCD

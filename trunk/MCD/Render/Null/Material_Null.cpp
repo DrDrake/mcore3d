@@ -21,10 +21,4 @@ void MaterialComponent::preRender(size_t pass, void* context) {}
 
 void MaterialComponent::postRender(size_t pass, void* context) {}
 
-void SpriteMaterialComponent::render(void* context) {}
-
-void SpriteMaterialComponent::preRender(size_t pass, void* context) {}
-
-void SpriteMaterialComponent::postRender(size_t pass, void* context) {}
-
 }	// namespace MCD

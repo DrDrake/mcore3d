@@ -71,22 +71,4 @@ void MaterialComponent::postRender(size_t pass, void* context)
 	}
 }
 
-void SpriteMaterialComponent::render(void* context)
-{
-	RendererComponent::Impl& renderer = *reinterpret_cast<RendererComponent::Impl*>(context);
-	renderer.mCurrentMaterial = this;
-}
-
-void SpriteMaterialComponent::preRender(size_t pass, void* context)
-{
-	if(diffuseMap)
-		diffuseMap->bind();
-}
-
-void SpriteMaterialComponent::postRender(size_t pass, void* context)
-{
-	if(diffuseMap)
-		diffuseMap->unbind();
-}
-
 }	// namespace MCD

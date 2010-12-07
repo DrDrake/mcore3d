@@ -59,6 +59,10 @@ typedef IntrusiveWeakPtr<SpriteComponent> SpriteComponentPtr;
 class MCD_RENDER_API SpriteAtlasComponent : public RenderableComponent, public IDrawCall
 {
 public:
+	SpriteAtlasComponent();
+
+	sal_override ~SpriteAtlasComponent();
+
 // Operations
 
 // Attributes
@@ -79,6 +83,9 @@ protected:
 		ColorRGBAf color;
 	};	// Vertex
 	std::vector<Vertex> mVertexBuffer;
+
+	class Impl;
+	Impl* mImpl;
 };	// SpriteAtlasComponent
 
 typedef IntrusiveWeakPtr<SpriteAtlasComponent> SpriteAtlasComponentPtr;

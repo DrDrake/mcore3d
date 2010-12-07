@@ -64,33 +64,6 @@ protected:
 
 typedef IntrusiveWeakPtr<MaterialComponent> MaterialComponentPtr;
 
-/*!	A material that do not react with lighting, simply defined by a texture and an opacity value.
- */
-class MCD_RENDER_API SpriteMaterialComponent : public IMaterialComponent
-{
-public:
-	SpriteMaterialComponent();
-
-// Cloning
-	sal_override sal_notnull Component* clone() const;
-
-// Operations
-	sal_override void render(sal_in void* context);
-
-// Attrubutes
-	float opacity;	//!< Value from 0 (invisible) to 1 (opaque)
-	TexturePtr diffuseMap;
-
-	sal_override bool isTransparent() const { return opacity < 1; }
-
-protected:
-	sal_override ~SpriteMaterialComponent();
-
-	//!	Invoked by RendererComponent
-	sal_override void preRender(size_t pass, void* context);
-	sal_override void postRender(size_t pass, void* context);
-};	// SpriteMaterialComponent
-
 }	// namespace MCD
 
 #endif	// __MCD_RENDER_MATERIAL__

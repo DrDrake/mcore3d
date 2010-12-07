@@ -215,7 +215,7 @@ bool AnimationBlendTree::loadFromXml(const char* xml, ResourceManager& mgr, cons
 	XmlParser parser;
 	parser.parse(tmp);
 
-	// Reset all member first
+	// Reset all stateful member first
 	nodes.clear();
 	mTrackCount = 0;
 

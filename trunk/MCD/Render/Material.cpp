@@ -21,18 +21,4 @@ Component* MaterialComponent::clone() const
 	return cloned;
 }
 
-SpriteMaterialComponent::SpriteMaterialComponent()
-	: opacity(1)
-{}
-
-SpriteMaterialComponent::~SpriteMaterialComponent()
-{}
-
-Component* SpriteMaterialComponent::clone() const
-{
-	SpriteMaterialComponent* cloned = new SpriteMaterialComponent;
-	cloned->opacity = this->opacity;
-	return cloned;
-}
-
 }	// namespace MCD
