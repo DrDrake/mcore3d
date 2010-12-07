@@ -90,12 +90,24 @@ static bool copyToGpu(const GpuDataFormat& srcFormat, GpuDataFormat& destFormat,
 	return true;
 };
 
+static size_t _max(size_t a, size_t b) { return a > b ? a : b; }
+
+static size_t getMipLevelSize(int format, size_t bytePerPixel, size_t level, size_t& w, size_t& h)
+{
+	for(size_t i=0; i<level; ++i) {
+		w = _max(w >> 1, 1);
+		h = _max(h >> 1, 1);
+	}
+
+	return w * h * bytePerPixel;
+}
+
 bool Texture::create(
 	const GpuDataFormat& gpuFormat,
 	const GpuDataFormat& srcFormat,
 	size_t width_, size_t height_,
 	size_t surfaceCount, size_t mipLevelCount,
-	const void* data, size_t dataSize,
+	const char* data, size_t dataSize,
 	int apiSpecificflags
 )
 {
@@ -120,6 +132,13 @@ bool Texture::create(
 	if(pool == D3DPOOL_DEFAULT)
 		registerDefaultPoolTexture(*this);
 
+	// Auto mip-map generation
+	if(mipLevelCount == 0) {
+		size_t s = width < height ? width : height;
+		for(;s >= 1; s /= 2) ++mipLevelCount;
+	}
+
+
 	if(surfaceCount == 1) {
 		IDirect3DTexture9*& texture = reinterpret_cast<IDirect3DTexture9*&>(handle);
 
@@ -136,21 +155,32 @@ bool Texture::create(
 
 		MCD_ASSUME(texture);
 
-		if(data && dataSize > 0) {
+		if(data && dataSize > 0)
+		{
 			D3DLOCKED_RECT lockedRect;
+			GpuDataFormat adjustedFormat;
+
 			for(size_t level=0; level<mipLevelCount; ++level) {
 				if(S_OK != texture->LockRect(level, &lockedRect, nullptr, 0))
 					return false;
 
-				if(!copyToGpu(srcFormat, this->format, width, height, (byte_t*)data, (byte_t*)lockedRect.pBits, lockedRect.Pitch))
+				size_t w = width, h = height;
+				adjustedFormat = this->format;
+				const size_t levelSize = getMipLevelSize(format.format, srcFormat.sizeInByte(), level, w, h);
+				if(!copyToGpu(srcFormat, adjustedFormat, w, h, (byte_t*)data, (byte_t*)lockedRect.pBits, lockedRect.Pitch))
 					return false;
+
+				data += levelSize;
 
 				if(S_OK != texture->UnlockRect(level))
 					return false;
 			}
+
+			this->format = adjustedFormat;
 		}
 	}
-	else if(surfaceCount == 6) {
+	else if(surfaceCount == 6)
+	{
 		IDirect3DCubeTexture9*& texture = reinterpret_cast<IDirect3DCubeTexture9*&>(handle);
 
 		if(S_OK != device->CreateCubeTexture(

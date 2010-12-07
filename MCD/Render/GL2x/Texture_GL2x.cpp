@@ -63,7 +63,7 @@ bool Texture::create(
 	const GpuDataFormat& srcFormat,
 	size_t width_, size_t height_,
 	size_t surfaceCount, size_t mipLevelCount,
-	const void* data, size_t dataSize,
+	const char* data, size_t dataSize,
 	int apiSpecificflags
 )
 {
@@ -128,8 +128,7 @@ bool Texture::create(
 		const byte_t* levelData = (byte_t*)surfaceData;
 		for(size_t level=0; level<mipLevelCount; ++level)
 		{
-			size_t w = width;
-			size_t h = height;
+			size_t w = width, h = height;
 			const size_t levelSize = getMipLevelSize(format.format, format.sizeInByte(), level, w, h);
 
 			const int textureType = surfaceCount == 1 ? GL_TEXTURE_2D : GL_TEXTURE_CUBE_MAP_POSITIVE_X + surface;

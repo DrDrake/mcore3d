@@ -58,7 +58,7 @@ public:
 		const GpuDataFormat& srcFormat,
 		size_t width, size_t height,
 		size_t surfaceCount, size_t mipLevelCount,
-		sal_maybenull sal_in_ecount(dataSize) const void* data, size_t dataSize,
+		sal_maybenull sal_in_ecount(dataSize) const char* data, size_t dataSize,
 		int apiSpecificflags = 0
 	);
 

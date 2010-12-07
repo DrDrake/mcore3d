@@ -17,7 +17,7 @@ public:
 
 		explicit ImageData(size_t size) {
 			MCD_ASSERT(size != 0);
-			mImageData = new char[size];
+			mImageData = (char*)malloc(size);
 			mSize = mImageData ? size : 0;
 		};
 
@@ -44,7 +44,7 @@ public:
 
 		void clear()
 		{
-			delete[] mImageData;
+			free(mImageData);
 			mImageData = nullptr;
 			mSize = 0;
 		}
@@ -53,7 +53,7 @@ public:
 		{
 			MCD_ASSERT(mSize != 0);
 			ImageData ret(mSize);
-			::memcpy(ret, *this, mSize);
+			::memcpy(ret.mImageData, mImageData, mSize);
 			return ret;
 		}
 
@@ -61,7 +61,6 @@ public:
 		operator const char*() const { return mImageData; }
 		size_t size() const { return mSize; }
 
-	protected:
 		char* mImageData;
 		size_t mSize;
 	};	// ImageData
@@ -69,10 +68,13 @@ public:
 	LoaderBaseImpl(TextureLoaderBase& loader);
 	virtual ~LoaderBaseImpl();
 
+	void genMipmap();
+
 	TextureLoaderBase& mLoader;
-	ImageData mImageData;	/*!< byte array which holds the pixels */
-	size_t mWidth;			/*!< width of the image */
-	size_t mHeight;			/*!< height of the image */
+	ImageData mImageData;	///< byte array which holds the pixels
+	size_t mWidth;			///< width of the image
+	size_t mHeight;			///< height of the image
+	size_t mMipLevels;
 	GpuDataFormat mGpuFormat, mSrcFormat;
 
 	Mutex mMutex;
