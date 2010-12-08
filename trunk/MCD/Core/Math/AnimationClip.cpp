@@ -158,7 +158,7 @@ size_t AnimationClip::sampleSingleTrack(float trackPos, float totalLen, Sample& 
 
 	// Short cut optimization
 	if(ratio == 0) {
-		::memcpy(&result, &keys[idx1], sizeof(result));
+		::memcpy(&result.v, &keys[idx1].v, sizeof(result.v));
 		return idx1;
 	}
 
@@ -271,7 +271,7 @@ bool AnimationClip::createDifferenceClip(AnimationClip& master, AnimationClip& t
 	for(size_t i=0; i<trackCount; ++i)
 	{
 		Keys k1 = getKeysForTrack(i);
-		Keys k2 = target.getKeysForTrack(i);
+		Keys k2 = target.getKeysForTrack(i);	// For assertion use only
 		MCD_ASSERT(k1.size == k2.size);
 
 		for(size_t j=0; j<k1.size; ++j)
