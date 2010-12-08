@@ -81,6 +81,19 @@ public:
 		INode* mNode1, *mNode2;
 	};	// LerpNode
 
+	class MCD_CORE_API SubtractiveNode : public INode
+	{
+	public:
+		SubtractiveNode();
+		sal_override INode* clone() const;
+		sal_override void collectChild(INode* child, AnimationBlendTree& tree);
+		sal_override int returnPose(AnimationBlendTree& tree);
+		sal_override std::string xmlStart(const AnimationBlendTree&) const;
+		sal_override std::string xmlEnd() const;
+	protected:
+		INode* mNode1, *mNode2;
+	};	// SubtractiveNode
+
 	/// Perform addition between a full pose and a difference pose
 	/// First child as full pose node, second child as difference pose.
 	class MCD_CORE_API AdditiveNode : public INode
@@ -119,7 +132,8 @@ public:
 	float worldTime;
 
 	/// The nodes in this array should be in-order sorted before use.
-	ptr_vector<INode> nodes;
+	typedef ptr_vector<INode> Nodes;
+	Nodes nodes;
 
 // Operations
 	/// Returns -1 if the node cannot be found
