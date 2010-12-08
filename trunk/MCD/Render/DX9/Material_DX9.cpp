@@ -406,9 +406,10 @@ void MaterialComponent::preRender(size_t pass, void* context)
 
 		if(TexturePtr diffuse = diffuseMap ? diffuseMap : renderer.mWhiteTexture) {
 			const int samplerIdx = mImpl.mPs.constTable->GetSamplerIndex("texDiffuse");
-			device->SetSamplerState(samplerIdx, D3DSAMP_MINFILTER, D3DTEXF_LINEAR);
+			device->SetSamplerState(samplerIdx, D3DSAMP_MINFILTER, D3DTEXF_ANISOTROPIC);
 			device->SetSamplerState(samplerIdx, D3DSAMP_MAGFILTER, D3DTEXF_LINEAR);
 			device->SetSamplerState(samplerIdx, D3DSAMP_MIPFILTER, D3DTEXF_LINEAR);
+			device->SetSamplerState(samplerIdx, D3DSAMP_MAXANISOTROPY, 16);
 			diffuse->bind(samplerIdx);
 		}
 
@@ -417,6 +418,7 @@ void MaterialComponent::preRender(size_t pass, void* context)
 			device->SetSamplerState(samplerIdx, D3DSAMP_MINFILTER, D3DTEXF_LINEAR);
 			device->SetSamplerState(samplerIdx, D3DSAMP_MAGFILTER, D3DTEXF_LINEAR);
 			device->SetSamplerState(samplerIdx, D3DSAMP_MIPFILTER, D3DTEXF_LINEAR);
+			device->SetSamplerState(samplerIdx, D3DSAMP_MAXANISOTROPY, 1);
 			bump->bind(samplerIdx);
 
 			const float size[2] = { float(bump->width), float(bump->height) };
