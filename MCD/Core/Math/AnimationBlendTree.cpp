@@ -96,7 +96,7 @@ INode* AnimationBlendTree::findNodeByName(const char* name)
 
 struct Sorter
 {
-	Sorter(ptr_vector<INode>& s) : src(s)
+	Sorter(AnimationBlendTree::Nodes& s) : src(s)
 	{
 		// Build the children structure
 		children.resize(src.size());
@@ -134,7 +134,7 @@ struct Sorter
 			src[n[i]].parent = output.size() - 1;
 	}
 
-	ptr_vector<INode>& src;
+	AnimationBlendTree::Nodes& src;
 	std::vector<std::vector<size_t> > children;
 	std::vector<INode*> output;
 };	// Sorter
@@ -278,19 +278,24 @@ bool AnimationBlendTree::loadFromXml(const char* xml, ResourceManager& mgr, cons
 	return true;
 }
 
-std::string AnimationBlendTree::saveToXml() const
+static std::string getXmlStr(const AnimationBlendTree& tree, size_t nodeIdx, const std::vector<std::vector<size_t> >& children)
 {
-	std::string ret;
-	size_t lastParentIdx = size_t(-1);
-	for(size_t i=0; i<nodes.size(); ++i) {
-		if(i == lastParentIdx)
-			ret = nodes[i].xmlStart(*this) + ret + nodes[i].xmlEnd();
-		else
-			ret = ret + nodes[i].xmlStart(*this) + nodes[i].xmlEnd();
-		lastParentIdx = nodes[i].parent;
-	}
+	std::string ret = tree.nodes[nodeIdx].xmlStart(tree);
+
+	const std::vector<size_t>& c = children[nodeIdx];
+	for(size_t i=0; i<c.size(); ++i)
+		ret += getXmlStr(tree, c[i], children);	// Invoke recursively
+	ret += tree.nodes[nodeIdx].xmlEnd();
 
 	return ret;
+}
+
+std::string AnimationBlendTree::saveToXml() const
+{
+	if(nodes.empty()) return "";
+
+	Sorter sorter(const_cast<Nodes&>(nodes));
+	return getXmlStr(*this, nodes.size()-1, sorter.children);
 }
 
 INode* AnimationBlendTree::ClipNode::clone() const
@@ -369,6 +374,64 @@ std::string AnimationBlendTree::LerpNode::xmlStart(const AnimationBlendTree&) co
 std::string AnimationBlendTree::LerpNode::xmlEnd() const
 {
 	return "</lerp>";
+}
+
+AnimationBlendTree::SubtractiveNode::SubtractiveNode()
+	: mNode1(nullptr), mNode2(nullptr)
+{}
+
+INode* AnimationBlendTree::SubtractiveNode::clone() const
+{
+	return new SubtractiveNode(*this);
+}
+
+void AnimationBlendTree::SubtractiveNode::collectChild(AnimationBlendTree::INode* child, AnimationBlendTree& tree)
+{
+	if(!mNode1) mNode1 = child;
+	else mNode2 = child;
+}
+
+int AnimationBlendTree::SubtractiveNode::returnPose(AnimationBlendTree& tree)
+{
+	int idx1 = mNode1->returnPose(tree);	// The targeting node
+	int idx2 = mNode2->returnPose(tree);	// The master node
+	Pose pose1 = tree.getPose(idx1);
+	Pose pose2 = tree.getPose(idx2);
+	MCD_ASSERT(pose1.size == pose2.size);
+
+	for(size_t i=0; i<pose1.size; ++i) {
+		MCD_ASSERT(pose1[i].flag == pose2[i].flag);
+		switch(pose1[i].flag) {
+		case AnimationClip::Linear:
+		case AnimationClip::Step:
+			pose1[i].v = pose1[i].v - pose2[i].v;
+			break;
+		case AnimationClip::Slerp:
+			// target = master * master.inverse() * target
+			// target = master * diff where diff = master.inverse() * target
+			pose1[i].cast<Quaternionf>() = pose2[i].cast<Quaternionf>().inverse() * pose1[i].cast<Quaternionf>();
+			break;
+		default: MCD_ASSERT(false);
+		}
+	}
+
+	tree.releasePose(idx2);
+
+	return idx1;
+}
+
+std::string AnimationBlendTree::SubtractiveNode::xmlStart(const AnimationBlendTree&) const
+{
+	std::string ret = "<subtractive";
+	if(!name.empty()) ret += std::string(" name=\"") + name.c_str() + "\"";
+	if(!userData.empty()) ret += std::string(" userData=\"") + userData.c_str() + "\"";
+	ret += ">";
+	return ret;
+}
+
+std::string AnimationBlendTree::SubtractiveNode::xmlEnd() const
+{
+	return "</subtractive>";
 }
 
 AnimationBlendTree::AdditiveNode::AdditiveNode()
