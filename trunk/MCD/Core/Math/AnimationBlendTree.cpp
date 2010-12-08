@@ -186,6 +186,12 @@ static INode* loadLerpNode(XmlParser& parser)
 	return n;
 }
 
+static INode* loadSubtractiveNode(XmlParser& parser)
+{
+	AnimationBlendTree::SubtractiveNode* n = new AnimationBlendTree::SubtractiveNode;
+	return n;
+}
+
 static INode* loadAdditiveNode(XmlParser& parser)
 {
 	AnimationBlendTree::AdditiveNode* n = new AnimationBlendTree::AdditiveNode;
@@ -237,6 +243,8 @@ bool AnimationBlendTree::loadFromXml(const char* xml, ResourceManager& mgr, cons
 				n = loadClipNode(parser, mgr, clipSearchPath);
 			else if(strcmp(parser.elementName(), "lerp") == 0)
 				n = loadLerpNode(parser);
+			else if(strcmp(parser.elementName(), "subtractive") == 0)
+				n = loadSubtractiveNode(parser);
 			else if(strcmp(parser.elementName(), "additive") == 0)
 				n = loadAdditiveNode(parser);
 			else if(strcmp(parser.elementName(), "switch") == 0)
