@@ -2,8 +2,10 @@
 #include "../Texture.h"
 #include "Renderer.inc"
 #include "../GpuDataFormat.h"
+#include "../../Core/System/Path.h"
 
 #include <d3d9.h>
+#include <D3DCommon.h>
 
 namespace MCD {
 
@@ -157,6 +159,10 @@ bool Texture::create(
 			return false;
 
 		MCD_ASSUME(texture);
+
+		// For debug purpose:
+		// http://blogs.msdn.com/b/chuckw/archive/2010/04/15/object-naming.aspx
+		texture->SetPrivateData(WKPDID_D3DDebugObjectName, fileId().c_str(), fileId().getString().size(), 0);
 
 		if(data && dataSize > 0)
 		{

@@ -154,7 +154,7 @@ static ShadowMesh gShadowMesh;
 
 static MeshPtr getShadowMesh(Mesh& mesh)
 {
-	const FixString fileId(mesh.fileId().getString().c_str());
+	const FixString fileId(mesh.fileId().c_str());
 	ShadowMesh::iterator i = gShadowMesh.find(fileId);
 
 	if(i != gShadowMesh.end() && i->second)

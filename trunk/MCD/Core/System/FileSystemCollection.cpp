@@ -186,7 +186,7 @@ bool FileSystemCollection::isDirectory(const Path& path) const
 {
 	IFileSystem* fileSystem = mImpl.findFileSystemForPath(path);
 	if(!fileSystem) {
-		Log::format(Log::Warn, "The path %s does not exist. At %s line %i", path.getString().c_str(), __FILE__, __LINE__);
+		Log::format(Log::Warn, "The path %s does not exist. At %s line %i", path.c_str(), __FILE__, __LINE__);
 		return false;
 	}
 
@@ -197,7 +197,7 @@ uint64_t FileSystemCollection::getSize(const Path& path) const
 {
 	IFileSystem* fileSystem = mImpl.findFileSystemForPath(path);
 	if(!fileSystem) {
-		Log::format(Log::Warn, "The path %s does not exist. At %s line %i", path.getString().c_str(), __FILE__, __LINE__);
+		Log::format(Log::Warn, "The path %s does not exist. At %s line %i", path.c_str(), __FILE__, __LINE__);
 		return false;
 	}
 

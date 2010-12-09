@@ -229,7 +229,7 @@ public:
 		}
 
 		if(!loader)
-			Log::format(Log::Warn, "No loader for \"%s\" can be found", fileId.getString().c_str());
+			Log::format(Log::Warn, "No loader for \"%s\" can be found", fileId.c_str());
 
 		return loader;
 	}
@@ -239,7 +239,7 @@ public:
 		MCD_ASSERT(loader.mMutex.isLocked());
 
 		if(loader.mState == IResourceLoader::Aborted)
-			Log::format(Log::Warn, "Resource: %s %s", loader.mPathKey.getKey().getString().c_str(), "failed to load");
+			Log::format(Log::Warn, "Resource: %s %s", loader.mPathKey.getKey().c_str(), "failed to load");
 		else if(ResourcePtr r = loader.mResource.lock()) {
 			{	ScopeUnlock unlock(loader.mMutex);
 				loader.commit(*r);

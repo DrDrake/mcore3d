@@ -100,7 +100,7 @@ void TextureLoaderBase::commit(Resource& resource)
 
 	if(!isPowerOf2(mImpl->mWidth) || !isPowerOf2(mImpl->mHeight))
 		Log::format(Log::Warn, "Texture:'%s' has non-power of 2 size, which may hurt performance",
-			resource.fileId().getString().c_str());
+			resource.fileId().c_str());
 
 	preUploadData();
 	uploadData(texture);

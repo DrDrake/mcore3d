@@ -14,7 +14,7 @@ namespace Binding {
 
 // System
 
-static const char* path_Resource(Resource& self) { return self.fileId().getString().c_str(); }
+static const char* path_Resource(Resource& self) { return self.fileId().c_str(); }
 
 SCRIPT_CLASS_REGISTER_NAME(Resource)
 	.varGet("path", &path_Resource)

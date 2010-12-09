@@ -521,16 +521,21 @@ INode* AnimationBlendTree::SwitchNode::clone() const
 
 void AnimationBlendTree::SwitchNode::collectChild(AnimationBlendTree::INode* child, AnimationBlendTree& tree)
 {
-	mNode1 = mLastNode < 0 || (&tree.nodes[mLastNode]) == child ? child : nullptr;
-	mNode2 = mCurrentNode < 0 || (&tree.nodes[mCurrentNode]) == child ? child : nullptr;
+	if(!mNode1)
+		mNode1 = (mLastNode < 0 || (&tree.nodes[mLastNode]) == child) ? child : nullptr;
+	if(!mNode2)
+		mNode2 = (mCurrentNode < 0 || (&tree.nodes[mCurrentNode]) == child) ? child : nullptr;
 }
 
 int AnimationBlendTree::SwitchNode::returnPose(AnimationBlendTree& tree)
 {
+	INode* n1 = mNode1, *n2 = mNode2;
+	mNode1 = mNode2 = nullptr;
+
 	if(tree.worldTime >= mNodeChangeTime + fadeDuration)
-		return mNode2->returnPose(tree);
+		return n2->returnPose(tree);
 	else if(tree.worldTime <= mNodeChangeTime)
-		return mNode1->returnPose(tree);
+		return n1->returnPose(tree);
 
 	const float lerpFactor = (tree.worldTime - mNodeChangeTime) / fadeDuration;
 	Pose pose1 = tree.getPose(mLastNode);

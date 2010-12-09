@@ -10,6 +10,7 @@
 #include <list>
 
 #pragma comment(lib, "d3d9")
+#pragma comment(lib, "dxguid")
 
 PFNGLLOADTRANSPOSEMATRIXFPROC a;
 

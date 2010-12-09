@@ -27,6 +27,10 @@ public:
 		return mStr;
 	}
 
+	const char* c_str() const {
+		return mStr.c_str();
+	}
+
 	/*! Get the root name.
 		"C:"	->	"C:"	\n
 		"C:\"	->	"C:"	\n

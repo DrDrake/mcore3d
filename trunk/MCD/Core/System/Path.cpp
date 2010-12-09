@@ -272,7 +272,7 @@ bool Path::setCurrentPath(const Path& path)
 	MCD_VERIFY(utf8ToWStr(path.getString(), wideString));
 	if(::SetCurrentDirectoryW(wideString.c_str()) == false) {
 #else
-	if(chdir(path.getString().c_str()) != 0) {
+	if(chdir(path.c_str()) != 0) {
 #endif
 		return false;
 	}
