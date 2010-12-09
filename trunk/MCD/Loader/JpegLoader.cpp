@@ -71,8 +71,8 @@ public:
 
 			int c = mDecoder->get_num_components();
 			if(c == 1) {
-				MCD_ASSERT(false && "Not implemented");
-//				mInternalFmt = mFormat = GL_LUMINANCE;
+				mSrcFormat = GpuDataFormat::get("uintL8");
+				mGpuFormat = GpuDataFormat::get("uintL8");
 			}
 			else if(c == 3) {
 				mSrcFormat = GpuDataFormat::get("uintRGBA8");	// Note that the source format is 4 byte even c == 3
@@ -132,6 +132,7 @@ IResourceLoader::LoadingState JpegLoader::load(std::istream* is, const Path*, co
 
 	switch(result) {
 	case JPGD_DONE:
+		impl->genMipmap();
 		return Loaded;
 		break;
 	case JPGD_OKAY:
@@ -154,8 +155,6 @@ void JpegLoader::uploadData(Texture& texture)
 {
 	MCD_ASSUME(mImpl != nullptr);
 	LoaderImpl* impl = static_cast<LoaderImpl*>(mImpl);
-
-	impl->genMipmap();
 
 	MCD_ASSERT(mImpl->mMutex.isLocked());
 	MCD_VERIFY(texture.create(

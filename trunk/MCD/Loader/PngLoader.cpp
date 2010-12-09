@@ -187,6 +187,9 @@ IResourceLoader::LoadingState PngLoader::load(std::istream* is, const Path*, con
 	if(!(impl->mLoadingState & Stopped))
 		continueLoad();
 
+	if(impl->mLoadingState == Loaded)
+		impl->genMipmap();
+
 	return impl->mLoadingState;
 }
 
@@ -198,7 +201,8 @@ void PngLoader::uploadData(Texture& texture)
 	MCD_VERIFY(texture.create(
 		impl->mGpuFormat, impl->mSrcFormat,
 		impl->mWidth, impl->mHeight,
-		1, 1,
+		1,
+		impl->mMipLevels,
 		impl->mImageData, impl->mImageData.size())
 	);
 }

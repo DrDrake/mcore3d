@@ -141,7 +141,7 @@ bool Texture::create(
 				glTexImage2D(textureType, level, format.format, w, h, 0, srcFormat.components, format.dataType, levelData);
 			}
 
-			levelData += levelSize;
+			levelData += w * h * srcFormat.sizeInByte();
 		}
 		surfaceData += dataSize / surfaceCount;
 	}

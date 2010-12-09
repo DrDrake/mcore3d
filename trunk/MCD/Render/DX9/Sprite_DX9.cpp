@@ -143,6 +143,7 @@ void SpriteAtlasComponent::draw(void* context, Statistic& statistic)
 	MCD_ASSERT(textureAtlas);
 	const int samplerIdx = mImpl->mPs.constTable->GetSamplerIndex("tex");
 	textureAtlas->bind(samplerIdx);
+	device->SetSamplerState(samplerIdx, D3DSAMP_MAXANISOTROPY, 1);
 
 	device->SetVertexShader(mImpl->mVs.vs);
 	device->SetPixelShader(mImpl->mPs.ps);
