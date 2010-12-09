@@ -90,6 +90,7 @@ bool MaterialComponent::Impl::createPs(const char* headerCode)
 	"float mcdOpacity;\n"
 	"bool mcdLighting;\n"
 	"sampler2D texDiffuse;\n"
+	"sampler2D texSpecular;\n"
 	"#if USE_BUMP_MAP\n"
 	"sampler2D texBump;\n"
 	"float mcdBumpFactor;\n"
@@ -238,7 +239,7 @@ bool MaterialComponent::Impl::createPs(const char* headerCode)
 
 	"	float4 diffuseMap = tex2D(texDiffuse, _in.uvDiffuse);\n"
 	"	float3 diffuse = mcdDiffuseColor.rgb * mcdDiffuseColor.a * diffuseMap.rgb * lightDiffuse;\n"
-	"	float3 specular = mcdSpecularColor.rgb * mcdSpecularColor.a * lightSpecular;\n"
+	"	float3 specular = mcdSpecularColor.rgb * mcdSpecularColor.a * lightSpecular * tex2D(texSpecular, _in.uvDiffuse).r;\n"
 	"	float3 emission = mcdEmissionColor.rgb * mcdEmissionColor.a;\n"
 
 	"#if USE_VERTEX_COLOR\n"
@@ -411,6 +412,14 @@ void MaterialComponent::preRender(size_t pass, void* context)
 			device->SetSamplerState(samplerIdx, D3DSAMP_MIPFILTER, D3DTEXF_LINEAR);
 			device->SetSamplerState(samplerIdx, D3DSAMP_MAXANISOTROPY, 16);
 			diffuse->bind(samplerIdx);
+		}
+
+		if(TexturePtr specular = specularMap ? specularMap : renderer.mWhiteTexture) {
+			const int samplerIdx = mImpl.mPs.constTable->GetSamplerIndex("texSpecular");
+			device->SetSamplerState(samplerIdx, D3DSAMP_MINFILTER, D3DTEXF_LINEAR);
+			device->SetSamplerState(samplerIdx, D3DSAMP_MAGFILTER, D3DTEXF_LINEAR);
+			device->SetSamplerState(samplerIdx, D3DSAMP_MIPFILTER, D3DTEXF_LINEAR);
+			specular->bind(samplerIdx);
 		}
 
 		if(TexturePtr bump = bumpMap) {
