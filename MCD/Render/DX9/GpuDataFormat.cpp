@@ -14,6 +14,7 @@ GpuDataFormat GpuDataFormat::get(const StringHash& name)
 	{ FixString("none"), -1, -1, -1, 0, 0, false },
 
 	// 1 component
+	{ FixString("uintL8"), D3DFMT_L8, D3DFMT_L8, D3DFMT_L8, sizeof(uint8_t), 1, false },
 	{ FixString("uintR16"), -1, -1, -1, sizeof(uint16_t), 1, false },
 
 	// 2 components

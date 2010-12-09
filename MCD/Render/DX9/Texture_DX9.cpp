@@ -36,7 +36,17 @@ void Texture::clear()
 // Defined in RenderWindow.Win.inc
 extern void registerDefaultPoolTexture(Texture& texture);
 
-static bool copyToGpu(const GpuDataFormat& srcFormat, GpuDataFormat& destFormat, size_t width, size_t height, byte_t* inData, byte_t* outData, size_t outDataPitch)
+// To unify the texture type among other renderer API
+static GpuDataFormat adjustFormat(const GpuDataFormat& format)
+{
+	if(format == GpuDataFormat::get("uintRGBA8"))
+		return GpuDataFormat::get("uintARGB8");
+	if(format == GpuDataFormat::get("uintRGB8"))
+		return GpuDataFormat::get("uintARGB8");
+	return format;
+}
+
+static bool copyToGpu(const GpuDataFormat& srcFormat, const GpuDataFormat& destFormat, size_t width, size_t height, byte_t* inData, byte_t* outData, size_t outDataPitch)
 {
 	// No need to convert if the formats are compressed format
 	if(srcFormat == destFormat && srcFormat.isCompressed && destFormat.isCompressed)
@@ -45,9 +55,7 @@ static bool copyToGpu(const GpuDataFormat& srcFormat, GpuDataFormat& destFormat,
 	byte_t* rowDataDest = outData;
 
 	// RGBA to BGRA
-	if(srcFormat == GpuDataFormat::get("uintRGBA8") && (destFormat == GpuDataFormat::get("uintRGBA8") || destFormat == GpuDataFormat::get("uintRGB8"))) {
-		destFormat = GpuDataFormat::get("uintARGB8");
-
+	if(srcFormat == GpuDataFormat::get("uintRGBA8") && (destFormat == GpuDataFormat::get("uintARGB8"))) {
 		for(size_t i=0; i<height; ++i) {
 			byte_t* data = rowDataDest;
 			for(size_t j=0; j<width; ++j, inData += srcFormat.sizeInByte(), data += destFormat.sizeInByte()) {
@@ -61,9 +69,7 @@ static bool copyToGpu(const GpuDataFormat& srcFormat, GpuDataFormat& destFormat,
 		return true;
 	}
 	// RGB to BGRA
-	else if(srcFormat == GpuDataFormat::get("uintRGB8") && (destFormat == GpuDataFormat::get("uintRGBA8") || destFormat == GpuDataFormat::get("uintRGB8"))) {
-		destFormat = GpuDataFormat::get("uintARGB8");
-
+	else if(srcFormat == GpuDataFormat::get("uintRGB8") && (destFormat == GpuDataFormat::get("uintARGB8"))) {
 		for(size_t i=0; i<height; ++i) {
 			byte_t* data = rowDataDest;
 			for(size_t j=0; j<width; ++j, inData += srcFormat.sizeInByte(), data += destFormat.sizeInByte()) {
@@ -118,11 +124,9 @@ bool Texture::create(
 
 	clear();
 
-	this->format = gpuFormat;
+	this->format = adjustFormat(gpuFormat);
 	this->width = width_;
 	this->height = height_;
-
-	GpuDataFormat adjustedFormat = format.isCompressed ? format : GpuDataFormat::get("uintARGB8");
 
 	LPDIRECT3DDEVICE9 device = getDevice();
 	MCD_ASSUME(device);
@@ -138,7 +142,6 @@ bool Texture::create(
 		for(;s >= 1; s /= 2) ++mipLevelCount;
 	}
 
-
 	if(surfaceCount == 1) {
 		IDirect3DTexture9*& texture = reinterpret_cast<IDirect3DTexture9*&>(handle);
 
@@ -146,7 +149,7 @@ bool Texture::create(
 			width_, height_,
 			mipLevelCount,
 			apiSpecificflags,	// Usage
-			static_cast<D3DFORMAT>(adjustedFormat.format),
+			static_cast<D3DFORMAT>(format.format),
 			pool,
 			&texture,
 			nullptr	// SharedHandle, reserved
@@ -158,16 +161,15 @@ bool Texture::create(
 		if(data && dataSize > 0)
 		{
 			D3DLOCKED_RECT lockedRect;
-			GpuDataFormat adjustedFormat;
+			format = adjustFormat(format);
 
 			for(size_t level=0; level<mipLevelCount; ++level) {
 				if(S_OK != texture->LockRect(level, &lockedRect, nullptr, 0))
 					return false;
 
 				size_t w = width, h = height;
-				adjustedFormat = this->format;
 				const size_t levelSize = getMipLevelSize(format.format, srcFormat.sizeInByte(), level, w, h);
-				if(!copyToGpu(srcFormat, adjustedFormat, w, h, (byte_t*)data, (byte_t*)lockedRect.pBits, lockedRect.Pitch))
+				if(!copyToGpu(srcFormat, format, w, h, (byte_t*)data, (byte_t*)lockedRect.pBits, lockedRect.Pitch))
 					return false;
 
 				data += levelSize;
@@ -175,8 +177,6 @@ bool Texture::create(
 				if(S_OK != texture->UnlockRect(level))
 					return false;
 			}
-
-			this->format = adjustedFormat;
 		}
 	}
 	else if(surfaceCount == 6)
@@ -187,7 +187,7 @@ bool Texture::create(
 			width_,
 			mipLevelCount,
 			apiSpecificflags,	// Usage
-			static_cast<D3DFORMAT>(adjustedFormat.format),
+			static_cast<D3DFORMAT>(format.format),
 			pool,
 			&texture,
 			nullptr	// SharedHandle, reserved
