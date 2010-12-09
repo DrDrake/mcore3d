@@ -44,6 +44,7 @@ public:
 	bool useVertexColor;
 
 	TexturePtr diffuseMap;
+	TexturePtr emissionMap;
 	TexturePtr specularMap;
 	TexturePtr bumpMap;
 	float bumpFactor;

@@ -36,9 +36,12 @@ RendererComponent::Impl::Impl()
 	ZeroMemory(&mCurrentVS, sizeof(mCurrentVS));
 	ZeroMemory(&mCurrentPS, sizeof(mCurrentPS));
 
+	mBlackTexture = new Texture("1x1Black");
 	mWhiteTexture = new Texture("1x1White");
-	byte_t data[] = { 255, 255, 255, 255 };
-	MCD_VERIFY(mWhiteTexture->create(GpuDataFormat::get("uintARGB8"), GpuDataFormat::get("uintARGB8"), 1, 1, 1, 1, (char*)data, 4));
+	byte_t black[] = {   0,   0,   0,   0 };
+	byte_t white[] = { 255, 255, 255, 255 };
+	MCD_VERIFY(mBlackTexture->create(GpuDataFormat::get("uintARGB8"), GpuDataFormat::get("uintARGB8"), 1, 1, 1, 1, (char*)black, 4));
+	MCD_VERIFY(mWhiteTexture->create(GpuDataFormat::get("uintARGB8"), GpuDataFormat::get("uintARGB8"), 1, 1, 1, 1, (char*)white, 4));
 
 	resetStatistic();
 }
