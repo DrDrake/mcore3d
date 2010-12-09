@@ -49,7 +49,8 @@ public:
 
 	ShaderContext mCurrentVS, mCurrentPS;
 
-	TexturePtr mWhiteTexture;	//!< A 1x1 white texture, such that we alwasy feed the shader with texture
+	TexturePtr mBlackTexture;	//!< A 1x1 black texture, such that we always feed the shader with texture
+	TexturePtr mWhiteTexture;	//!< A 1x1 white texture, such that we always feed the shader with texture
 };	// Impl
 
 }	// namespace MCD
