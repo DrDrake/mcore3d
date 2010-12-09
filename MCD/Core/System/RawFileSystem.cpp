@@ -113,7 +113,7 @@ bool isDirectoryImpl(sal_in_z sal_notnull const char* path)
 RawFileSystem::RawFileSystem(const Path& rootPath)
 {
 	if(!RawFileSystem::setRoot(rootPath))
-		logError("The path ", rootPath.getString().c_str(), " does not exist or not a directory");
+		logError("The path ", rootPath.c_str(), " does not exist or not a directory");
 }
 
 Path RawFileSystem::getRoot() const {
@@ -126,7 +126,7 @@ bool RawFileSystem::setRoot(const Path& rootPath)
 	if(!absolutePath.hasRootDirectory())
 		absolutePath = Path::getCurrentPath() / absolutePath;
 
-	const Path::char_type* str = absolutePath.getString().c_str();
+	const Path::char_type* str = absolutePath.c_str();
 
 	// The input must be an existing directory
 	if(isExistsImpl(str) && isDirectoryImpl(str)) {
@@ -160,7 +160,7 @@ Path RawFileSystem::toAbsolutePath(const Path& path) const
 	if(!path.hasRootDirectory())
 		tmp = mRootPath / path;
 
-	const char* cpath = tmp.getString().c_str();
+	const char* cpath = tmp.c_str();
 	// Skip '/'
 	if(cpath[0] == '/')
 		++cpath;
@@ -228,7 +228,7 @@ bool RawFileSystem::makeDir(const Path& path) const
 	Path absolutePath = toAbsolutePath(path);
 	toNativePath(absolutePath);
 	std::wstring wideStr;
-	MCD_VERIFY(utf8ToWStr(absolutePath.getString().c_str(), wideStr));
+	MCD_VERIFY(utf8ToWStr(absolutePath.c_str(), wideStr));
 	return ::SHCreateDirectoryExW(nullptr, wideStr.c_str(), nullptr) == 0;
 #else
 	struct LocalClass {
@@ -285,7 +285,7 @@ bool RawFileSystem::remove(const Path& path) const
 #else
 	// TODO: Not recursive remove is not implemented yet,
 	// unless directory listing is ready
-	return ::rmdir(path.getString().c_str()) == 0;
+	return ::rmdir(path.c_str()) == 0;
 #endif
 }
 

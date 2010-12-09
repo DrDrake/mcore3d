@@ -66,7 +66,7 @@ struct ZipFileSystem::Context
 		normalizedPath.normalize();
 
 		if(fileMap.empty())
-			return unzLocateFile(mZipHandle, normalizedPath.getString().c_str(), 1) == UNZ_OK;
+			return unzLocateFile(mZipHandle, normalizedPath.c_str(), 1) == UNZ_OK;
 		else
 			return fileMap.find(normalizedPath.getString()) != fileMap.end();
 	}
@@ -81,7 +81,7 @@ struct ZipFileSystem::Context
 		normalizedPath.normalize();
 
 		if(fileMap.empty())
-			return unzLocateFile(mZipHandle, normalizedPath.getString().c_str(), 1) == UNZ_OK;
+			return unzLocateFile(mZipHandle, normalizedPath.c_str(), 1) == UNZ_OK;
 		else {
 			FileMap::const_iterator i = fileMap.find(normalizedPath.getString());
 			if(i == fileMap.end())
@@ -237,7 +237,7 @@ public:
 		auto_ptr<istream> is(nullptr);
 		auto_ptr<ZipStreamProxy> newImpl(new ZipStreamProxy(this));
 
-		if(!newImpl->openRead(path.getString().c_str()))
+		if(!newImpl->openRead(path.c_str()))
 			return is;
 
 		is.reset(new Stream(*newImpl.release()));
@@ -330,7 +330,7 @@ ZipFileSystem::ZipFileSystem(const Path& zipFilePath)
 {
 	mImpl = new Impl;
 	if(!ZipFileSystem::setRoot(zipFilePath))
-		logError("The zip file ", zipFilePath.getString().c_str(), " does not exist or corrupted");
+		logError("The zip file ", zipFilePath.c_str(), " does not exist or corrupted");
 }
 
 ZipFileSystem::~ZipFileSystem()
@@ -360,7 +360,7 @@ bool ZipFileSystem::isDirectory(const Path& path) const
 	if(mImpl->getFileInfo(path, fileInfo))
 		return MCD::isDirectory(fileInfo.external_fa);
 	else
-		return logError("Directory ", path.getString().c_str(), " does not exist");
+		return logError("Directory ", path.c_str(), " does not exist");
 }
 
 uint64_t ZipFileSystem::getSize(const Path& path) const
@@ -370,7 +370,7 @@ uint64_t ZipFileSystem::getSize(const Path& path) const
 	if(mImpl->getFileInfo(path, fileInfo))
 		return fileInfo.uncompressed_size;
 	else
-		return logError("File ", path.getString().c_str(), " does not exist");
+		return logError("File ", path.c_str(), " does not exist");
 }
 
 std::time_t ZipFileSystem::getLastWriteTime(const Path& path) const

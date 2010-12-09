@@ -378,7 +378,7 @@ bool Framework::Impl::addFileSystem(const char* path)
 	else {
 		try {
 			std::auto_ptr<IFileSystem> rawFs(new RawFileSystem(path));
-			std::auto_ptr<RawFileSystemMonitor> monitor(new RawFileSystemMonitor(rawFs->getRoot().getString().c_str(), true));
+			std::auto_ptr<RawFileSystemMonitor> monitor(new RawFileSystemMonitor(rawFs->getRoot().c_str(), true));
 			mFileSystem->addFileSystem(*rawFs.release());
 			mFileMonitors.push_back(monitor.release());
 		}
@@ -397,7 +397,7 @@ bool Framework::Impl::removeFileSystem(const char* path)
 	if(!absolutePath.hasRootDirectory())
 		absolutePath = Path::getCurrentPath() / absolutePath;
 
-	if(strCaseCmp(absolutePath.getString().c_str(), "zip") == 0) {
+	if(strCaseCmp(absolutePath.c_str(), "zip") == 0) {
 		return mFileSystem->removeFileSystem(absolutePath);
 	}
 	else {
@@ -405,7 +405,7 @@ bool Framework::Impl::removeFileSystem(const char* path)
 			return false;
 
 		for(size_t i=0; i<mFileMonitors.size(); ++i) {
-			if(strCaseCmp(mFileMonitors[i].monitringPath().c_str(), absolutePath.getString().c_str()) == 0) {
+			if(strCaseCmp(mFileMonitors[i].monitringPath().c_str(), absolutePath.c_str()) == 0) {
 				mFileMonitors.erase(mFileMonitors.begin()+i);
 				return true;
 			}

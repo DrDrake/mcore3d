@@ -54,7 +54,7 @@ bool AudioSource::load(ResourceManager& resourceManager, const Path& fileId, con
 	buffer = dynamic_cast<AudioBuffer*>(res.get());
 
 	if(!_loader || !buffer) {
-		Log::format(Log::Error, "Fail to load audio: %s", fileId.getString().c_str());
+		Log::format(Log::Error, "Fail to load audio: %s", fileId.c_str());
 		return false;
 	}
 
