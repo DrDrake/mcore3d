@@ -233,12 +233,6 @@ Framework::Impl::~Impl()
 		mWindow->makeActive();
 
 	mRootEntity->scriptReleaseReference();
-	delete mRootEntity.get();
-	MCD_ASSERT(!mSystemEntity);
-	MCD_ASSERT(!mSceneLayer);
-	MCD_ASSERT(!mGuiLayer);
-	MCD_ASSERT(!mRenderer);
-	MCD_ASSERT(!mInput);
 
 	mResourceManager.reset();
 	mFileSystem.reset();
@@ -249,6 +243,12 @@ Framework::Impl::~Impl()
 
 	delete vm;
 	vm = nullptr;
+
+	MCD_ASSERT(!mSystemEntity);
+	MCD_ASSERT(!mSceneLayer);
+	MCD_ASSERT(!mGuiLayer);
+	MCD_ASSERT(!mRenderer);
+	MCD_ASSERT(!mInput);
 
 	if(mTakeWindowOwership)
 		mWindow.reset();

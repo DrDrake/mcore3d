@@ -1,5 +1,6 @@
 #include "Pch.h"
 #include "Framework.h"
+#include "ArcBallComponent.h"
 #include "../Core/System/Resource.h"
 #include "../Core/Binding/CoreBindings.h"
 #include "../Core/Binding/Declarator.h"
@@ -8,6 +9,16 @@
 
 namespace MCD {
 namespace Binding {
+
+SCRIPT_CLASS_DECLAR(ArcBallComponent);
+SCRIPT_CLASS_REGISTER(ArcBallComponent)
+	.declareClass<ArcBallComponent, Component>("ArcBall")
+	.var("radius", &ArcBallComponent::radius)
+	.var("minRadius", &ArcBallComponent::minRadius)
+	.var("rotationSpeed", &ArcBallComponent::rotationSpeed)
+	.var("translationSpeed", &ArcBallComponent::translationSpeed)
+	.var("rotation", &ArcBallComponent::rotation)
+;}
 
 static Framework* gFramework = nullptr;
 
@@ -57,6 +68,7 @@ SCRIPT_CLASS_REGISTER(Framework)
 void registerFrameworkBinding(VMCore& vm, Framework& framework)
 {
 	gFramework = &framework;
+	Binding::ClassTraits<ArcBallComponent>::bind(&vm);
 	Binding::ClassTraits<Framework>::bind(&vm);
 
 	MCD_VERIFY(vm.runScript("framework <- Framework.getSingleton();"));
