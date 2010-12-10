@@ -136,7 +136,7 @@ SCRIPT_CLASS_REGISTER(Mat44f)
 	.method("scalarMul", &scalarMul_Mat44)
 	.method("isEqual", &isEqual_Mat44)
 	.method("isIdentity", &isIdentity_Mat44)
-	.runScript("Mat44._tostring <- function(){return xBiasVector+\", \"+yBiasVector+\"), \"+zBiasVector;}")	// Vec3.tostring()
+	.runScript("Mat44._tostring <- function(){return xBiasVector+\", \"+yBiasVector+\"), \"+zBiasVector;}")	// Mat44.tostring()
 ;}
 
 static SQInteger create_Vec2(HSQUIRRELVM vm)
@@ -276,9 +276,11 @@ SCRIPT_CLASS_REGISTER_NAME(Entity)
 	.method("_addComponent", &Entity::_addComponent)
 	.runScript("Entity.addComponent<-function(arg){if(arg instanceof ::Component) return _addComponent(arg);else if(typeof arg==\"class\") return _addComponent(arg());}") // Accept both class and instance as the argument
 	.method("_nextComponent", &nextComponent_Entity)
+	.runScript("Entity.hasComponent<-function(componentClass){for(local c;c=_nextComponent(c);){if(getroottable()[typeof c]==componentClass)return true;}return false;}")
 	.runScript("Entity.__getTable.components<-function(){for(local c;c=_nextComponent(c);)yield c;}")	// Variable for looping all the components
 //	.runScript("Entity._get<-function(idx){local t=::Entity.__getTable;if(t.rawin(idx))return t.rawget(idx).call(this);foreach(c in this.components)if(typeof c==idx)return c;throw null;}")	// NOTE: Using the generator here will cause crash in ~SQGenerator(), don't know why
 	.runScript("Entity._get<-function(idx){local t=::Entity.__getTable;if(t.rawin(idx))return t.rawget(idx).call(this);for(local c;c=_nextComponent(c);)if(typeof c==idx)return c;throw null;}")	// Custom _get() to return component
+	.runScript("Entity.__getTable.descendants<-function() {yield this;local e=firstChild;while(e){foreach(e2 in e.descendants){yield e2;}e=e.nextSibling;}}")
 ;}
 
 void destroy(Entity* p, Entity*)

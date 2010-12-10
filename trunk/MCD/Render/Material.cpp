@@ -15,12 +15,17 @@ Component* MaterialComponent::clone() const
 	cloned->lighting = lighting;
 	cloned->cullFace = cullFace;
 	cloned->useVertexColor = useVertexColor;
+	cloned->alphaMap = alphaMap;
 	cloned->diffuseMap = diffuseMap;
 	cloned->emissionMap = emissionMap;
 	cloned->specularMap = specularMap;
 	cloned->bumpMap = bumpMap;
 	cloned->bumpFactor = bumpFactor;
 	return cloned;
+}
+
+bool MaterialComponent::isTransparent() const {
+	return opacity < 1 || alphaMap != nullptr;
 }
 
 }	// namespace MCD

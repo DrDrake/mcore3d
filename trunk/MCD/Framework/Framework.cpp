@@ -98,12 +98,14 @@ public:
 	std::auto_ptr<TaskPool> mTaskPool;
 	TextLabelComponentPtr mFpsLabel;
 
-	Binding::VMCore vm;
+	sal_notnull Binding::VMCore* vm;
 };	// Impl
 
 Framework::Impl::Impl()
 	: mFrameCounter(0), mOneSecondCountDown(0), mFramePerSecond(0)
 {
+	vm = new Binding::VMCore;
+
 	mDeltaTime = mCurrentTime = 0;
 	mTakeWindowOwership = true;
 
@@ -196,7 +198,7 @@ Framework::Impl::Impl()
 	{	// Script manager
 		using namespace Binding;
 		Entity* e = mSystemEntity->addFirstChild("Script manager");
-		ScriptManagerComponent* c = new ScriptManagerComponent(&vm);
+		ScriptManagerComponent* c = new ScriptManagerComponent(vm);
 		e->addComponent(c);
 	}
 
@@ -240,14 +242,17 @@ Framework::Impl::~Impl()
 	mResourceManager.reset();
 	mFileSystem.reset();
 
+	mTaskPool.reset();
+
+	closeAudioDevice();
+
+	delete vm;
+	vm = nullptr;
+
 	if(mTakeWindowOwership)
 		mWindow.reset();
 	else
 		mWindow.release();
-
-	mTaskPool.reset();
-
-	closeAudioDevice();
 
 	Log::stop(false);
 }
@@ -506,7 +511,7 @@ bool Framework::Impl::update(Event& e)
 		ComponentUpdater::traverseEnd(*mSystemEntity, mDeltaTime);
 
 		// Perform rendering
-		mRenderer->render(*mRootEntity);
+		if(mRenderer) mRenderer->render(*mRootEntity);
 	}
 
 	return hasWindowEvent;
@@ -518,10 +523,10 @@ Framework::Framework()
 	: mImpl(*new Impl)
 {
 	{	// Initialize script vm
-		Binding::registerCoreBinding(mImpl.vm);
-		Binding::registerAudioBinding(mImpl.vm);
-		Binding::registerRenderBinding(mImpl.vm);
-		Binding::registerFrameworkBinding(mImpl.vm, *this);
+		Binding::registerCoreBinding(*mImpl.vm);
+		Binding::registerAudioBinding(*mImpl.vm);
+		Binding::registerRenderBinding(*mImpl.vm);
+		Binding::registerFrameworkBinding(*mImpl.vm, *this);
 	}
 }
 
@@ -599,7 +604,7 @@ Entity& Framework::guiLayer() {
 }
 
 Binding::VMCore& Framework::vm() {
-	return mImpl.vm;
+	return *mImpl.vm;
 }
 
 RenderWindow* Framework::window() {

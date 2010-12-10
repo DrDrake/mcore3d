@@ -2,16 +2,16 @@ framework.initWindow("title=RenderBindingTest;width=800;height=600;fullscreen=0;
 framework.addFileSystem("./Media");
 
 local e = framework.guiLayer.addFirstChild("A text label");
-e.addComponent(TextLabelComponent);
+e.addComponent(TextLabel);
 e.localTransform.translation = Vec3(0, 500, 0);
-e.TextLabelComponent.text = "Hello world";
-e.TextLabelComponent.anchor = Vec2(0, 1);
+e.TextLabel.text = "Hello world";
+e.TextLabel.anchor = Vec2(0, 1);
 
 // A layer for no-lighting material
 local noLighting = framework.sceneLayer.addFirstChild("No lighting material");
 
 {	// Material without lighting
-	local m = noLighting.addComponent(MaterialComponent);
+	local m = noLighting.addComponent(StandardMaterial);
 	m.lighting = false;
 	m.cullFace = false;
 	m.useVertexColor = true;
@@ -21,7 +21,7 @@ framework.load("a.png");
 
 {	// Build the xyz axis
 	local axis = noLighting.addFirstChild("Axis");
-	local c = axis.addComponent(DisplayListComponent);
+	local c = axis.addComponent(DisplayList);
 
 	c.beginLines();
 		c.color(1, 0, 0);
@@ -64,7 +64,7 @@ class DrawHistogram extends ScriptComponent
 		local max = 12.5;
 		local dx = (max - min) / segments;
 
-		local d = entity.DisplayListComponent;
+		local d = entity.DisplayList;
 		d.clear();
 		d.beginTriangles();
 			d.color(0, 0.5, 0);
@@ -92,4 +92,4 @@ class DrawHistogram extends ScriptComponent
 
 local histogam = noLighting.addFirstChild("Histogram");
 histogam.addComponent(DrawHistogram);
-histogam.addComponent(DisplayListComponent);
+histogam.addComponent(DisplayList);
