@@ -1,5 +1,6 @@
 #include "Pch.h"
 #include "Framework.h"
+#include "ArcBallComponent.h"
 #include "FpsControllerComponent.h"
 #include "ResizeFrustumComponent.h"
 #include "BuildinData/BuildinData.h"
@@ -341,6 +342,15 @@ bool Framework::Impl::initWindow(RenderWindow& existingWindow, bool takeOwnershi
 		e->addComponent(mInput);
 	}
 
+	{	// Default arc ball controller
+		Entity* e = mSystemEntity->addFirstChild("Arc ball controller");
+		ArcBallComponent* c = e->addComponent(new ArcBallComponent);
+		c->target = mSceneLayer->findEntityByPath("Scene camera");
+		MCD_ASSERT(c->target);
+		if(Entity* e1 = mRootEntity->findEntityByPath("Input"))
+			c->inputComponent = dynamic_cast<InputComponent*>(e1->findComponent<BehaviourComponent>());
+	}
+
 	{	// Default FPS controller
 		Entity* e = mSystemEntity->addFirstChild("Fps controller");
 		FpsControllerComponent* c = e->addComponent(new FpsControllerComponent);
@@ -348,6 +358,8 @@ bool Framework::Impl::initWindow(RenderWindow& existingWindow, bool takeOwnershi
 		MCD_ASSERT(c->target);
 		if(Entity* e1 = mRootEntity->findEntityByPath("Input"))
 			c->inputComponent = dynamic_cast<InputComponent*>(e1->findComponent<BehaviourComponent>());
+
+		e->enabled = false;
 	}
 
 	{	// Skeleton visualizer
