@@ -319,6 +319,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\EarthTest.nut"
+				>
+			</File>
+			<File
 				RelativePath=".\Main.cpp"
 				>
 			</File>

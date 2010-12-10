@@ -304,6 +304,14 @@
 			</File>
 		</Filter>
 		<File
+			RelativePath=".\ArcBallComponent.cpp"
+			>
+		</File>
+		<File
+			RelativePath=".\ArcBallComponent.h"
+			>
+		</File>
+		<File
 			RelativePath=".\FpsControllerComponent.cpp"
 			>
 		</File>
