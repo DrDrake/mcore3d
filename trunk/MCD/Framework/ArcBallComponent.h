@@ -10,8 +10,13 @@ namespace MCD {
 typedef IntrusiveWeakPtr<Entity> EntityPtr;
 typedef IntrusiveWeakPtr<class InputComponent> InputComponentPtr;
 
-/*!	A First-Person-Shoot like controller component to move around a target Entity.
- */
+/// A arc ball camera control.
+/// Left click + mouse drag for roatation
+/// Right click + mouse drag for focus panning
+/// Mouse wheel for 
+/// Reference: ARCBALL: A User Interface for Specifying Three-Dimensional Orientation Using a Mouse
+/// http://www.tecgraf.puc-rio.br/~mgattass/fcg/material/shoemake92.pdf
+/// http://rainwarrior.thenoos.net/dragon/arcball.html
 class MCD_FRAMEWORK_API ArcBallComponent : public BehaviourComponent
 {
 public:
@@ -20,18 +25,17 @@ public:
 	sal_override void update(float dt);
 
 // Attributes
-	EntityPtr target;	//!< The entity that we want to control
+	EntityPtr target;	///< The entity that we want to control
 	InputComponentPtr inputComponent;
 
 	float radius;
 	float minRadius;
 	float rotationSpeed;
 	float translationSpeed;
+	Vec2f rotation;
 
 protected:
 	Vec2f mLastMouseAxis;
-	Vec2f mAccumulateRotation;
-	Vec2f mAccumulateTranslation;
 };	// ArcBallComponent
 
 typedef IntrusiveWeakPtr<ArcBallComponent> ArcBallComponentPtr;

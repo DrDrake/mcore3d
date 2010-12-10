@@ -4,7 +4,7 @@ framework.addFileSystem("./Media");
 local scene = framework.sceneLayer;
 
 // Create a sphere mesh
-local sphereMeshBuffer = ::createSphere(8, 30);
+local sphereMeshBuffer = ::createSphere(8, 50);
 
 local shells = scene.addFirstChild("Sphere shells");
 
@@ -15,7 +15,7 @@ local shells = scene.addFirstChild("Sphere shells");
 	// http://www.oera.net/How2/TextureMaps2.htm?src=mappery
 	local material = e.addComponent(StandardMaterial());
 	material.diffuseMap = "Earth/Diffuse.jpg";
-	material.emissionMap = "Earth/Emission.jpg";
+//	material.emissionMap = "Earth/Emission.jpg";
 	material.bumpMap = "Earth/Bump.jpg";
 	material.specularMap = "Earth/Specular.jpg";
 	material.bumpFactor = 0.1;
@@ -34,13 +34,15 @@ local shells = scene.addFirstChild("Sphere shells");
 
 	e = e.addFirstChild("");
 	e.addComponent(Mesh()).buffer = sphereMeshBuffer;
-	e.localTransform.scaleBy(Vec3(1.01));
+	e.localTransform.scaleBy(Vec3(1.005));
 }
 
-// Find out the default camera and move it backward
-foreach(e in scene.descendants) {
-	if(e.hasComponent(Camera)) {
-		e.localTransform.translateBy(Vec3(0, 0, 10));
+local root = framework.rootEntity;
+// Find out the ArcBall and set it's member
+foreach(e in root.descendants) {
+	if(e.hasComponent(ArcBall)) {
+		e.ArcBall.radius = 20;
+		e.ArcBall.rotation = Vec2(3.14/2, 0);
 		break;
 	}
 }

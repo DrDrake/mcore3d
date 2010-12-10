@@ -90,6 +90,8 @@ float WinMessageInputComponent::getAxis(sal_in_z const char* axisName) const
 		return mMouseAxis.x;
 	if(strCaseCmp(axisName, "mouse y") == 0)
 		return mMouseAxis.y;
+	if(strCaseCmp(axisName, "mouse z") == 0)
+		return mMouseAxis.z;
 	return 0;
 }
 
@@ -99,28 +101,30 @@ float WinMessageInputComponent::getAxisRaw(sal_in_z const char* axisName) const
 		return mMouseAxisRaw.x;
 	if(strCaseCmp(axisName, "mouse y") == 0)
 		return mMouseAxisRaw.y;
+	if(strCaseCmp(axisName, "mouse z") == 0)
+		return mMouseAxisRaw.z;
 	return 0;
 }
 
 float WinMessageInputComponent::getAxisDelta(sal_in_z const char* axisName) const
 {
 	if(strCaseCmp(axisName, "mouse x") == 0)
-		return mMouseAxis.x;
+		return mMouseAxis.x - mPreviousMouseAxis.x;
 	if(strCaseCmp(axisName, "mouse y") == 0)
-		return mMouseAxis.y;
+		return mMouseAxis.y - mPreviousMouseAxis.y;
 	if(strCaseCmp(axisName, "mouse z") == 0)
-		return mMouseAxis.z;
+		return mMouseAxis.z - mPreviousMouseAxis.z;
 	return 0;
 }
 
 float WinMessageInputComponent::getAxisDeltaRaw(sal_in_z const char* axisName) const
 {
 	if(strCaseCmp(axisName, "mouse x") == 0)
-		return mMouseAxisRaw.x;
+		return mMouseAxisRaw.x - mPreviousMouseAxisRaw.x;
 	if(strCaseCmp(axisName, "mouse y") == 0)
-		return mMouseAxisRaw.y;
+		return mMouseAxisRaw.y - mPreviousMouseAxisRaw.y;
 	if(strCaseCmp(axisName, "mouse z") == 0)
-		return mMouseAxisRaw.z;
+		return mMouseAxisRaw.z - mPreviousMouseAxisRaw.z;
 	return 0;
 }
 
