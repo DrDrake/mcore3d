@@ -43,13 +43,14 @@ public:
 	bool cullFace;
 	bool useVertexColor;
 
+	TexturePtr alphaMap;
 	TexturePtr diffuseMap;
 	TexturePtr emissionMap;
 	TexturePtr specularMap;
 	TexturePtr bumpMap;
 	float bumpFactor;
 
-	sal_override bool isTransparent() const { return opacity < 1; }
+	sal_override bool isTransparent() const;
 
 protected:
 	sal_override ~MaterialComponent();

@@ -89,6 +89,7 @@ bool MaterialComponent::Impl::createPs(const char* headerCode)
 	"float mcdSpecularExponent;\n"
 	"float mcdOpacity;\n"
 	"bool mcdLighting;\n"
+	"sampler2D texAlpha;\n"
 	"sampler2D texDiffuse;\n"
 	"sampler2D texEmission;\n"
 	"sampler2D texSpecular;\n"
@@ -213,15 +214,18 @@ bool MaterialComponent::Impl::createPs(const char* headerCode)
 	"PS_OUTPUT main(PS_INPUT _in) {\n"
 	"	_in.uvDiffuse.y = 1 - _in.uvDiffuse.y\n;"
 	"	PS_OUTPUT _out = (PS_OUTPUT) 0;\n"
+
+	"	float4 alphaMap = tex2D(texAlpha, _in.uvDiffuse);\n"
+	"	float4 diffuseMap = tex2D(texDiffuse, _in.uvDiffuse);\n"
+
 	"	if(!mcdLighting) {\n"
-	"		float4 diffuseMap = tex2D(texDiffuse, _in.uvDiffuse);\n"
 	"		float3 diffuse = mcdDiffuseColor.rgb * mcdDiffuseColor.a * diffuseMap.rgb;\n"
 	"#if USE_VERTEX_COLOR\n"
 	"		_out.color.rgb = _in.color.rgb * diffuse;\n"
 	"#else\n"
 	"		_out.color.rgb = diffuse;\n"
 	"#endif\n"
-	"		_out.color.a = mcdOpacity * diffuseMap.a;\n"
+	"		_out.color.a = mcdOpacity * diffuseMap.a * alphaMap.r;\n"
 	"		return _out;\n"
 	"	}\n"
 
@@ -238,7 +242,6 @@ bool MaterialComponent::Impl::createPs(const char* headerCode)
 	"	for(int i=0; i<MCD_MAX_LIGHT_COUNT; ++i)\n"
 	"		computeLighting(mcdLights[i], P, N, V, lightDiffuse, lightSpecular);\n"
 
-	"	float4 diffuseMap = tex2D(texDiffuse, _in.uvDiffuse);\n"
 	"	float3 diffuse = mcdDiffuseColor.rgb * mcdDiffuseColor.a * diffuseMap.rgb * lightDiffuse;\n"
 	"	float3 specular = mcdSpecularColor.rgb * mcdSpecularColor.a * lightSpecular * tex2D(texSpecular, _in.uvDiffuse).r;\n"
 	"	float3 emission = mcdEmissionColor.rgb * mcdEmissionColor.a + tex2D(texEmission, _in.uvDiffuse).rgb;\n"
@@ -248,7 +251,7 @@ bool MaterialComponent::Impl::createPs(const char* headerCode)
 	"#else\n"
 	"	_out.color.rgb = diffuse + specular + emission;\n"
 	"#endif\n"
-	"	_out.color.a = mcdOpacity * diffuseMap.a;\n"
+	"	_out.color.a = mcdOpacity * diffuseMap.a * alphaMap.r;\n"
 	"	return _out;\n"
 	"}\n";
 
@@ -406,6 +409,14 @@ void MaterialComponent::preRender(size_t pass, void* context)
 			device, mImpl.mConstantHandles.lighting, lighting
 		) == S_OK);
 
+		if(TexturePtr alpha = alphaMap ? alphaMap : renderer.mWhiteTexture) {
+			const int samplerIdx = mImpl.mPs.constTable->GetSamplerIndex("texAlpha");
+			device->SetSamplerState(samplerIdx, D3DSAMP_MINFILTER, D3DTEXF_LINEAR);
+			device->SetSamplerState(samplerIdx, D3DSAMP_MAGFILTER, D3DTEXF_LINEAR);
+			device->SetSamplerState(samplerIdx, D3DSAMP_MIPFILTER, D3DTEXF_LINEAR);
+			alpha->bind(samplerIdx);
+		}
+
 		if(TexturePtr diffuse = diffuseMap ? diffuseMap : renderer.mWhiteTexture) {
 			const int samplerIdx = mImpl.mPs.constTable->GetSamplerIndex("texDiffuse");
 			device->SetSamplerState(samplerIdx, D3DSAMP_MINFILTER, D3DTEXF_ANISOTROPIC);
@@ -436,6 +447,9 @@ void MaterialComponent::preRender(size_t pass, void* context)
 			device->SetSamplerState(samplerIdx, D3DSAMP_MINFILTER, D3DTEXF_LINEAR);
 			device->SetSamplerState(samplerIdx, D3DSAMP_MAGFILTER, D3DTEXF_LINEAR);
 			device->SetSamplerState(samplerIdx, D3DSAMP_MIPFILTER, D3DTEXF_LINEAR);
+			device->SetSamplerState(samplerIdx, D3DSAMP_ADDRESSU, D3DTADDRESS_MIRROR);
+			device->SetSamplerState(samplerIdx, D3DSAMP_ADDRESSV, D3DTADDRESS_MIRROR);
+
 			device->SetSamplerState(samplerIdx, D3DSAMP_MAXANISOTROPY, 1);
 			bump->bind(samplerIdx);
 

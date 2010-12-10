@@ -78,44 +78,38 @@ public:
 // Constructors:
 	ClassDeclarator& constructor(const char* name = "constructor")
 	{
-		T*(*fPtr)() = &constructionFunction<T>;
-		return staticMethod<construct>(name, fPtr);
+		return staticMethod<construct>(name, &constructionFunction<T>);
 	}
 
 	template<typename A1>
 	ClassDeclarator& constructor(const char* name = "constructor")
 	{
-		T*(*fPtr)(A1) = &constructionFunction<T, A1>;
-		return staticMethod<construct>(name, fPtr);
+		return staticMethod<construct>(name, &constructionFunction<T, A1>);
 	}
 
 	template<typename A1, typename A2>
 	ClassDeclarator& constructor(const char* name = "constructor")
 	{
-		T*(*fPtr)(A1, A2) = &constructionFunction<T, A1, A2>;
-		return staticMethod<construct>(name, fPtr);
+		return staticMethod<construct>(name, &constructionFunction<T, A1, A2>);
 	}
 
 	template<typename A1, typename A2, typename A3>
 	ClassDeclarator& constructor(const char* name = "constructor")
 	{
-		T*(*fPtr)(A1, A2, A3) = &constructionFunction<T, A1, A2, A3>;
-		return staticMethod<construct>(name, fPtr);
+		return staticMethod<construct>(name, &constructionFunction<T, A1, A2, A3>);
 	}
 
 	template<typename A1, typename A2, typename A3, typename A4>
 	ClassDeclarator& constructor(const char* name = "constructor")
 	{
-		T*(*fPtr)(A1, A2, A3, A4) = &constructionFunction<T, A1, A2, A3, A4>;
-		return staticMethod<construct>(name, fPtr);
+		return staticMethod<construct>(name, &constructionFunction<T, A1, A2, A3, A4>);
 	}
 
 // Clone function:
 	template<T* F(const T*)>
 	ClassDeclarator& clone(const char* name = "_cloned")
 	{
-		T*(*fPtr)(T*) = &cloneFunction<T, F>;
-		return staticMethod<construct>(name, fPtr);
+		return staticMethod<construct>(name, &cloneFunction<T, F>);
 	}
 
 // Member method

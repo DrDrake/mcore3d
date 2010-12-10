@@ -14,3 +14,13 @@ TEST(Many_RenderBindingTest)
 
 	framework.mainLoop();
 }
+
+TEST(EarthTest)
+{
+	Framework framework;
+
+	std::ifstream is("EarthTest.nut");
+	framework.vm().runScript(is);
+
+	framework.mainLoop();
+}
