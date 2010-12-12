@@ -108,8 +108,27 @@ public:
 		char* start = p;
 		char* backup = p;
 
-		// More forward until '<' found
-		if(!mHasBackupOpenTag) while(*p != '<' && *p)
+		// NOTE: Special care for the <script> tag, which it's text element may contains '<' and '>' characters
+		// Move until </script> found
+		if(mCurrentNodeType == Event::BeginElement && strcmp(mElementName, "script") == 0) {
+			char tmp[] = "</script>";
+			size_t tmpIdx = 0;
+			while(true)	{
+				while(*p && *p == tmp[tmpIdx]) {
+					++p;
+					++tmpIdx;
+					if(tmp[tmpIdx] == '\0')
+						goto Finish;
+				}
+				++p;
+				tmpIdx = 0;
+			}
+			Finish:
+			p -= sizeof(tmp) - 1;	// -1 for the '\0' character
+			;
+		}
+		// Move forward until '<' found
+		else if(!mHasBackupOpenTag) while(*p != '<' && *p)
 			++p;
 		else
 			*p = '<';
