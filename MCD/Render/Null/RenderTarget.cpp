@@ -23,7 +23,7 @@ TexturePtr RenderTargetComponent::createTexture(const GpuDataFormat& format, siz
 
 void RenderTargetComponent::gather() {}
 
-void RenderTargetComponent::render(RendererComponent& renderer, bool swapBuffers) {}
+void RenderTargetComponent::render(RendererComponent& renderer) {}
 
 size_t RenderTargetComponent::targetWidth() const { return 0; }
 

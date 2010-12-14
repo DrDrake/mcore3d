@@ -80,68 +80,6 @@
 			/>
 		</Configuration>
 		<Configuration
-			Name="Debug|x64"
-			IntermediateDirectory="tmp/$(PlatformName)/$(ConfigurationName)/Null"
-			ConfigurationType="2"
-			InheritedPropertySheets="..\General.vsprops;..\Debug_x64.vsprops"
-			CharacterSet="2"
-			>
-			<Tool
-				Name="VCPreBuildEventTool"
-			/>
-			<Tool
-				Name="VCCustomBuildTool"
-			/>
-			<Tool
-				Name="VCXMLDataGeneratorTool"
-			/>
-			<Tool
-				Name="VCWebServiceProxyGeneratorTool"
-			/>
-			<Tool
-				Name="VCMIDLTool"
-				TargetEnvironment="3"
-			/>
-			<Tool
-				Name="VCCLCompilerTool"
-			/>
-			<Tool
-				Name="VCManagedResourceCompilerTool"
-			/>
-			<Tool
-				Name="VCResourceCompilerTool"
-			/>
-			<Tool
-				Name="VCPreLinkEventTool"
-			/>
-			<Tool
-				Name="VCLinkerTool"
-				IgnoreDefaultLibraryNames="MSVCRT"
-				TargetMachine="17"
-			/>
-			<Tool
-				Name="VCALinkTool"
-			/>
-			<Tool
-				Name="VCManifestTool"
-			/>
-			<Tool
-				Name="VCXDCMakeTool"
-			/>
-			<Tool
-				Name="VCBscMakeTool"
-			/>
-			<Tool
-				Name="VCFxCopTool"
-			/>
-			<Tool
-				Name="VCAppVerifierTool"
-			/>
-			<Tool
-				Name="VCPostBuildEventTool"
-			/>
-		</Configuration>
-		<Configuration
 			Name="Release|Win32"
 			IntermediateDirectory="tmp/$(PlatformName)/$(ConfigurationName)/Null"
 			ConfigurationType="2"
@@ -180,6 +118,68 @@
 			<Tool
 				Name="VCLinkerTool"
 				DelayLoadDLLs=""
+			/>
+			<Tool
+				Name="VCALinkTool"
+			/>
+			<Tool
+				Name="VCManifestTool"
+			/>
+			<Tool
+				Name="VCXDCMakeTool"
+			/>
+			<Tool
+				Name="VCBscMakeTool"
+			/>
+			<Tool
+				Name="VCFxCopTool"
+			/>
+			<Tool
+				Name="VCAppVerifierTool"
+			/>
+			<Tool
+				Name="VCPostBuildEventTool"
+			/>
+		</Configuration>
+		<Configuration
+			Name="Debug|x64"
+			IntermediateDirectory="tmp/$(PlatformName)/$(ConfigurationName)/Null"
+			ConfigurationType="2"
+			InheritedPropertySheets="..\General.vsprops;..\Debug_x64.vsprops"
+			CharacterSet="2"
+			>
+			<Tool
+				Name="VCPreBuildEventTool"
+			/>
+			<Tool
+				Name="VCCustomBuildTool"
+			/>
+			<Tool
+				Name="VCXMLDataGeneratorTool"
+			/>
+			<Tool
+				Name="VCWebServiceProxyGeneratorTool"
+			/>
+			<Tool
+				Name="VCMIDLTool"
+				TargetEnvironment="3"
+			/>
+			<Tool
+				Name="VCCLCompilerTool"
+			/>
+			<Tool
+				Name="VCManagedResourceCompilerTool"
+			/>
+			<Tool
+				Name="VCResourceCompilerTool"
+			/>
+			<Tool
+				Name="VCPreLinkEventTool"
+			/>
+			<Tool
+				Name="VCLinkerTool"
+				IgnoreDefaultLibraryNames="MSVCRT"
+				TargetMachine="17"
 			/>
 			<Tool
 				Name="VCALinkTool"
@@ -435,7 +435,7 @@
 				/>
 			</FileConfiguration>
 			<FileConfiguration
-				Name="Debug|x64"
+				Name="Release|Win32"
 				>
 				<Tool
 					Name="VCCLCompilerTool"
@@ -443,7 +443,7 @@
 				/>
 			</FileConfiguration>
 			<FileConfiguration
-				Name="Release|Win32"
+				Name="Debug|x64"
 				>
 				<Tool
 					Name="VCCLCompilerTool"
@@ -472,14 +472,6 @@
 			>
 		</File>
 		<File
-			RelativePath=".\ProjectiveTexture.cpp"
-			>
-		</File>
-		<File
-			RelativePath=".\ProjectiveTexture.h"
-			>
-		</File>
-		<File
 			RelativePath=".\RayMeshIntersect.cpp"
 			>
 			<FileConfiguration
@@ -492,19 +484,19 @@
 				/>
 			</FileConfiguration>
 			<FileConfiguration
+				Name="Release|Win32"
+				>
+				<Tool
+					Name="VCCLCompilerTool"
+					DisableSpecificWarnings="4652"
+				/>
+			</FileConfiguration>
+			<FileConfiguration
 				Name="Debug|x64"
 				>
 				<Tool
 					Name="VCCLCompilerTool"
 					OpenMP="false"
-					DisableSpecificWarnings="4652"
-				/>
-			</FileConfiguration>
-			<FileConfiguration
-				Name="Release|Win32"
-				>
-				<Tool
-					Name="VCCLCompilerTool"
 					DisableSpecificWarnings="4652"
 				/>
 			</FileConfiguration>

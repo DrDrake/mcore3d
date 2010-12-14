@@ -70,7 +70,7 @@ void RenderTargetComponent::gather()
 	r.mImpl.mRenderTargets.push_back(this);
 }
 
-void RenderTargetComponent::render(RendererComponent& renderer, bool swapBuffers)
+void RenderTargetComponent::render(RendererComponent& renderer)
 {
 	if(!entityToRender)
 		return;
@@ -92,9 +92,6 @@ void RenderTargetComponent::render(RendererComponent& renderer, bool swapBuffers
 		glClear(shouldClearColor * GL_COLOR_BUFFER_BIT | shouldClearDepth * GL_DEPTH_BUFFER_BIT);
 
 		renderer.render(*entityToRender, *this);
-
-		if(swapBuffers)
-			window->postUpdate();
 	}
 
 	if(textureCount)
