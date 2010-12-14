@@ -82,6 +82,8 @@ void WinMessageInputComponent::update(float)
 	// Perform axis smoothing
 	// TODO: Make the smoothing framerate independent
 	mMouseAxis = mMouseAxisRaw * 0.5f + mMouseAxis * 0.5f;
+
+	popEvent();
 }
 
 float WinMessageInputComponent::getAxis(sal_in_z const char* axisName) const
@@ -201,54 +203,80 @@ Window* WinMessageInputComponent::getWindow()
 
 void WinMessageInputComponent::onEvent(const Event& e)
 {
-	const char* keyName = keyToString(e.Key.Code);
+	mStackUpEvent.push_back(e);
+}
 
-	if(e.Type == Event::KeyPressed && !keyName) {
-//		MCD_ASSERT(false && "Unknow key code");
-		return;
-	}
+void WinMessageInputComponent::popEvent()
+{
+	// This function make sure a button down OR button release
+	// event will be seen by the game play programmer.
 
-	switch(e.Type)
+	bool mouseKeyCaptured = false;
+	bool keyboardKeyCaptured = false;
+
+	while(!mStackUpEvent.empty())
 	{
-	case Event::KeyPressed:
-		if(keyName) {
-			mKeyList[keyName] = 1;
-			mKeyDownList[keyName] = 1;
+		Event e = mStackUpEvent.front();
+
+		const char* keyName = keyToString(e.Key.Code);
+
+		if(e.Type == Event::KeyPressed && !keyName) {
+//			MCD_ASSERT(false && "Unknow key code");
+			return;
 		}
-		break;
-	case Event::KeyReleased:
-		if(keyName) {
-			mKeyList.erase(keyName);
-			mKeyUpList[keyName] = 1;
+
+		switch(e.Type)
+		{
+		case Event::KeyPressed:
+			if(keyboardKeyCaptured) return;
+			keyboardKeyCaptured = true;
+			if(keyName) {
+				mKeyList[keyName] = 1;
+				mKeyDownList[keyName] = 1;
+			}
+			break;
+		case Event::KeyReleased:
+			if(keyboardKeyCaptured) return;
+			keyboardKeyCaptured = true;
+			if(keyName) {
+				mKeyList.erase(keyName);
+				mKeyUpList[keyName] = 1;
+			}
+			break;
+		case Event::MouseMoved:
+			mPreviousMouseAxisRaw.x = mMouseAxisRaw.x;
+			mPreviousMouseAxisRaw.y = mMouseAxisRaw.y;
+			{	Vec2i newPos(e.MouseMove.X, e.MouseMove.Y);
+				mMouseAxisRaw.x += (newPos.x - mMousePosition.x);
+				mMouseAxisRaw.y += (newPos.y - mMousePosition.y);
+				mMousePosition = newPos;
+			} break;
+		case Event::MouseWheelMoved:
+			mPreviousMouseAxisRaw.z = mMouseAxisRaw.z;
+			mMouseAxisRaw.z += e.MouseWheel.Delta;
+			break;
+		case Event::MouseButtonPressed:
+			if(mouseKeyCaptured) return;
+			mouseKeyCaptured = true;
+			mMouseKeyBitArray |= (1 << int(e.MouseButton.Button));
+			mMouseKeyDownBitArray |= (1 << int(e.MouseButton.Button));
+			break;
+		case Event::MouseButtonReleased:
+			if(mouseKeyCaptured) return;
+			mouseKeyCaptured = true;
+			mMouseKeyBitArray &= ~(1 << int(e.MouseButton.Button));
+			mMouseKeyUpBitArray |= (1 << int(e.MouseButton.Button));
+			break;
+		case Event::TextEntered:
+			{	std::string utf8Str;
+				MCD_VERIFY(wStrToUtf8((wchar_t*)(&e.Text.Unicode), 1, utf8Str));
+				mInputString += utf8Str;
+			} break;
+		default:
+			break;
 		}
-		break;
-	case Event::MouseMoved:
-		mPreviousMouseAxisRaw.x = mMouseAxisRaw.x;
-		mPreviousMouseAxisRaw.y = mMouseAxisRaw.y;
-		{	Vec2i newPos(e.MouseMove.X, e.MouseMove.Y);
-			mMouseAxisRaw.x += (newPos.x - mMousePosition.x);
-			mMouseAxisRaw.y += (newPos.y - mMousePosition.y);
-			mMousePosition = newPos;
-		} break;
-	case Event::MouseWheelMoved:
-		mPreviousMouseAxisRaw.z = mMouseAxisRaw.z;
-		mMouseAxisRaw.z += e.MouseWheel.Delta;
-		break;
-	case Event::MouseButtonPressed:
-		mMouseKeyBitArray |= (1 << int(e.MouseButton.Button));
-		mMouseKeyDownBitArray |= (1 << int(e.MouseButton.Button));
-		break;
-	case Event::MouseButtonReleased:
-		mMouseKeyBitArray &= ~(1 << int(e.MouseButton.Button));
-		mMouseKeyUpBitArray |= (1 << int(e.MouseButton.Button));
-		break;
-	case Event::TextEntered:
-		{	std::string utf8Str;
-			MCD_VERIFY(wStrToUtf8((wchar_t*)(&e.Text.Unicode), 1, utf8Str));
-			mInputString += utf8Str;
-		} break;
-	default:
-		break;
+
+		mStackUpEvent.pop_front();
 	}
 }
 

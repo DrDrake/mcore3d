@@ -3,8 +3,10 @@
 
 #include "InputComponent.h"
 #include "../System/Window.h"
+#include "../System/WindowEvent.h"
 #include "../Math/Vec3.h"
 #include <map>
+#include <queue>
 
 namespace MCD {
 
@@ -60,11 +62,14 @@ public:
 protected:
 	sal_override void onEvent(const Event& eventReceived);
 
+	void popEvent();
+
 	struct Compare {
 		bool operator()(sal_in_z const char* lhs, sal_in_z const char* rhs) const;
 	};	// Compare
 
 	Window* mWindow;
+	std::deque<Event> mStackUpEvent;	///< Prevents multiple up/down event to be reported in the same frame
 	typedef std::map<const char*, int, Compare> EventList;
 	EventList mAxisList;
 	EventList mKeyList;

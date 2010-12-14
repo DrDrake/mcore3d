@@ -60,8 +60,6 @@ public:
 		MCD_VERIFY(framework.addFileSystem("Media"));
 		MCD_VERIFY(framework.initWindow("title=SpriteTest;width=800;height=600;fullscreen=0;FSAA=8"));
 
-		renderTarget = framework.rootEntity().findComponentInChildrenExactType<RenderTargetComponent>();
-
 		{	// Setup the animation clip
 			animationClip = new AnimationClip("");
 
@@ -143,7 +141,6 @@ public:
 	Framework framework;
 	EntityPtr bears;
 	AnimationClipPtr animationClip;
-	RenderTargetComponentPtr renderTarget;
 };	// SpriteTestFixture
 
 TEST_FIXTURE(SpriteTestFixture, Render)
