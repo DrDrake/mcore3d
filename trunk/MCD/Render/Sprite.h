@@ -28,7 +28,7 @@ public:
 
 	/// The rectangle region to use in the texture atlas
 	/// The four values are left, top, right and bottom.
-	/// For values less than 1, it will be interpreted as conventional uv
+	/// For values less than 2, it will be interpreted as conventional uv
 	/// coordinate, otherwise will interpreted in unit of pixel.
 	Vec4f textureRect;
 
@@ -44,7 +44,6 @@ public:
 	// rl  v  w  z		texture rectangle
 	size_t trackOffset;	//!< Starting index to the animation's tracks
 	AnimationComponentPtr animation;
-
 
 	static const size_t trackPerSprite = 3;
 

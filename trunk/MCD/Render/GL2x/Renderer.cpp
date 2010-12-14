@@ -4,7 +4,9 @@
 #include "../Light.h"
 #include "../Mesh.h"
 #include "../RenderTarget.h"
+#include "../RenderWindow.h"
 #include "../../../3Party/glew/wglew.h"
+#include <set>
 
 namespace MCD {
 
@@ -118,17 +120,21 @@ void RendererComponent::Impl::render(Entity& entityTree, RenderTargetComponent& 
 
 void RendererComponent::Impl::render(Entity& entityTree)
 {
+	// Only perform postUpdate() (swap buffers) for each unique window
+	typedef std::set<RenderWindow*> UniqueWindows;
+	UniqueWindows uniqueWindows;
+
 	// Process the render targets one by one
 	for(size_t i=0; i<mRenderTargets.size(); ++i) {
-		if(RenderTargetComponent* r1 = mRenderTargets[i].get()) {
-			const RenderWindow* w1 = r1 ? r1->window : nullptr;
-			const RenderTargetComponent* r2 = (i+1 == mRenderTargets.size()) ? nullptr : mRenderTargets[i+1].get();
-			const RenderWindow* w2 = r2 ? r2->window : nullptr;
-			const bool swapBuffers = (w1 != w2);
-			r1->render(*mBackRef, swapBuffers);
+		if(RenderTargetComponent* r = mRenderTargets[i].get()) {
+			r->render(*mBackRef);
+			uniqueWindows.insert(r->window);
 		}
 	}
 	mRenderTargets.clear();
+
+	for(UniqueWindows::const_iterator i=uniqueWindows.begin(); i!=uniqueWindows.end(); ++i)
+		if(RenderWindow* w = *i) w->postUpdate();
 }
 
 void RendererComponent::Impl::processRenderItems(RenderItems& items, IDrawCall::Statistic& statistic, size_t& materialSwitch)

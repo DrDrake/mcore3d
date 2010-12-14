@@ -7,7 +7,7 @@ namespace MCD {
 static SpriteUpdaterComponent* gSpriteUpdater = nullptr;
 
 SpriteComponent::SpriteComponent()
-	: color(1, 1), textureRect(0), anchor(0.5f), width(0), height(0), trackOffset(0)
+	: color(1, 1), textureRect(0, 0, 1, 1), anchor(0.5f), width(0), height(0), trackOffset(0)
 {
 }
 
@@ -51,7 +51,7 @@ void SpriteAtlasComponent::gatherSprite(SpriteComponent* sprite)
 		uv = pose[sprite->trackOffset].v;
 	}
 
-	if(uv.x > 1 || uv.z > 1) {
+	if(uv.x >= 2 || uv.z >= 2) {
 		// Transform pixle unit into normalized uv unit
 		const float invTexWidth = 1.0f / textureAtlas->width;
 		const float invTexHeight = 1.0f / textureAtlas->height;

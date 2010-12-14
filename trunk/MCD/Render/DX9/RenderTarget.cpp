@@ -70,7 +70,7 @@ static void setViewPort(LPDIRECT3DDEVICE9 device, RenderTargetComponent& renderT
 		renderTarget.cameraComponent->frustum.setAcpectRatio(float(viewPort.Width) / viewPort.Height);
 }
 
-void RenderTargetComponent::render(RendererComponent& renderer, bool swapBuffers)
+void RenderTargetComponent::render(RendererComponent& renderer)
 {
 	if(!entityToRender)
 		return;
@@ -89,7 +89,7 @@ void RenderTargetComponent::render(RendererComponent& renderer, bool swapBuffers
 		window->preUpdate();
 
 		setViewPort(device, *this);
-		device->Clear(
+		if(shouldClearColor || shouldClearDepth) device->Clear(
 			0, nullptr,
 			shouldClearColor * D3DCLEAR_TARGET | shouldClearDepth * D3DCLEAR_ZBUFFER,
 			color, 1.0f, 0
@@ -99,11 +99,6 @@ void RenderTargetComponent::render(RendererComponent& renderer, bool swapBuffers
 		renderer.render(*entityToRender, *this);
 
 		device->EndScene();
-
-		if(swapBuffers)
-			window->postUpdate();
-		else
-			swapBuffers = swapBuffers;
 	}
 
 	// Texture only
@@ -121,7 +116,7 @@ void RenderTargetComponent::render(RendererComponent& renderer, bool swapBuffers
 		}
 
 		setViewPort(device, *this);
-		device->Clear(
+		if(shouldClearColor || shouldClearDepth) device->Clear(
 			0, nullptr,
 			shouldClearColor * D3DCLEAR_TARGET | shouldClearDepth * D3DCLEAR_ZBUFFER,
 			color, 1.0f, 0

@@ -31,7 +31,7 @@ public:
 	/*!	Will invoked by Renderer, preform some preparation and then calling
 		back Renderer::render().
 	 */
-	void render(RendererComponent& renderer, bool swapBuffers);
+	void render(RendererComponent& renderer);
 
 	//!	Creates a texture that suitable for use as render target
 	TexturePtr createTexture(const GpuDataFormat& format, size_t width, size_t height);
