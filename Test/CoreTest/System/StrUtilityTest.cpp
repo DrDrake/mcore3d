@@ -5,6 +5,12 @@
 
 using namespace MCD;
 
+TEST(formatStrTest)
+{
+	std::string str = formatStr("Hello %s!", "world");
+	CHECK_EQUAL("Hello world!", str);
+}
+
 TEST(wStrToStrTest)
 {
 	struct S {
