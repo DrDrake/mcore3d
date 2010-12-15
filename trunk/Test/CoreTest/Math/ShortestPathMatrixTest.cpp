@@ -18,6 +18,10 @@ TEST(ShortestPathMatrixTest)
 	m.distance(1,2) = 1;	// B connect to C
 	m.preProcess();
 
+	CHECK_EQUAL(1u, m.distance(0, 1));
+	CHECK_EQUAL(1u, m.distance(1, 2));
+	CHECK_EQUAL(2u, m.distance(0, 2));
+
 	CHECK_EQUAL(-1, m.getNext(0, 0));
 	CHECK_EQUAL( 1, m.getNext(0, 1));
 	CHECK_EQUAL( 1, m.getNext(0, 2));

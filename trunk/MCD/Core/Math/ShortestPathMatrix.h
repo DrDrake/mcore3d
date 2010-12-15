@@ -39,7 +39,8 @@ public:
 	void resize(size_t vertexCount_)
 	{
 		vertexCount = vertexCount_;
-		m.resize(vertexCount * vertexCount * 2, size_t(-1));
+		m.resize(vertexCount * vertexCount * 2);
+		m.assign(m.size(), size_t(-1));
 	}
 
 	/// Call this before you try to call getNext()
@@ -61,15 +62,18 @@ public:
 		}
 	}
 
-	/// Return the next node inorder to traverse the required path
+	/// Return the next node along the path to the required node
 	/// Return -1 if there is no path in between
-	/// int node = 1;			// Starting node
+	/// Example:
+	/// @code
+	/// int node = 3;			// Starting node
 	/// int targetNode = 10;	// The targeting node
 	/// while(node != -1 && node != targetNode)
 	///		node = ShortestPathMatrix.getNext(node, targetNode);
+	/// @endcode
 	int getNext(size_t from, size_t to)
 	{
-		if(distance(from, to) > 9999) return -1;
+		if(distance(from, to) > size_t(-1) / 2) return -1;
 		return (int)next(from, to);
 	}
 
