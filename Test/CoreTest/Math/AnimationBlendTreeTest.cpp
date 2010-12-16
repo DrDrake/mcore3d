@@ -61,6 +61,7 @@ public:
 
 typedef AnimationBlendTree::ClipNode ClipNode;
 typedef AnimationBlendTree::LerpNode LerpNode;
+typedef AnimationBlendTree::SwitchNode SwitchNode;
 
 TEST_FIXTURE(AnimationBlendTreeTestFixture, Basic)
 {
@@ -86,10 +87,14 @@ TEST_FIXTURE(AnimationBlendTreeTestFixture, MultiNode)
 
 	LerpNode* n3 = new LerpNode;
 	n3->t = 0.5f;
+	n3->parent = 3;
+
+	SwitchNode* n4 = new SwitchNode;
 
 	tree.nodes.push_back(n1);
 	tree.nodes.push_back(n2);
 	tree.nodes.push_back(n3);
+	tree.nodes.push_back(n4);
 
 	tree.inOrderSort();
 
@@ -128,4 +133,27 @@ TEST_FIXTURE(AnimationBlendTreeTestFixture, Xml)
 	// Load and use for second time
 	CHECK(tree.loadFromXml(tree.saveToXml().c_str(), mgr));
 	pose = tree.getFinalPose();
+}
+
+TEST_FIXTURE(AnimationBlendTreeTestFixture, FSM)
+{
+	const char* xml = "\
+	<fsm startingNode=\"node1\">\
+		<transitions>\
+			<transition type=\"sync\" src=\"node1\" dest=\"node1\" />\
+		</transitions>\
+		<lerp name=\"node1\" t=\"0.5\">\
+			<clip rate=\"1.2\" src=\"clip1.clip\" />\
+			<clip rate=\"0.9\" src=\"clip2.clip\" />\
+		</lerp>\
+	</fsm>";
+
+	ResourceManager mgr(*new RawFileSystem(""));
+
+	mgr.cache(clip1);
+	mgr.cache(clip2);
+
+	CHECK(tree.loadFromXml(xml, mgr));
+	std::string s = tree.saveToXml();
+	(void)s;
 }

@@ -55,7 +55,7 @@ public:
 
 		// Perform the search iteration with complexity of O(N^3)
 		for(size_t k=0; k<N; ++k) for(size_t i=0; i<N; ++i) for(size_t j=0; j<N; ++j) {
-			if( distance(i,k) + distance(k,j) < distance(i,j) ) {
+			if( distance(i,j) > distance(i,k) + distance(k,j) ) {
 				distance(i,j) = distance(i,k) + distance(k,j);
 				next(i,j) = k;
 			}

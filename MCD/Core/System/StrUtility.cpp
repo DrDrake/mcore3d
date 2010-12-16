@@ -63,6 +63,8 @@ bool strToWStr(sal_in_z sal_notnull const char* narrowStr, size_t maxCount, std:
 			return false;
 		MCD_ASSERT(converted == count);
 	}
+#elif defined(MCD_ANDROID)
+	return false;
 #else
 	// Get the required character count of the destination string (\0 not included)
 	size_t count = ::mbstowcs(nullptr, narrowStr, maxCount);
@@ -93,6 +95,9 @@ bool strToWStr(const std::string& narrowStr, std::wstring& wideStr)
 
 bool wStrToStr(sal_in_z sal_notnull const wchar_t* wideStr, size_t maxCount, std::string& narrowStr)
 {
+#if defined(MCD_ANDROID)
+	return false;
+#else
 	// Get the required character count of the destination string (\0 not included)
 	size_t count = ::wcstombs(nullptr, wideStr, maxCount);
 
@@ -111,6 +116,7 @@ bool wStrToStr(sal_in_z sal_notnull const wchar_t* wideStr, size_t maxCount, std
 	}
 
 	return true;
+#endif
 }
 
 bool wStrToStr(const std::wstring& wideStr, std::string& narrowStr)
@@ -453,12 +459,19 @@ float* strToFloatArray(sal_in_z const char* str, size_t& size)
 	return ret;
 }
 
+#ifdef MCD_ANDROID
+wchar_t towlower(wchar_t x)
+{
+	// TODO: implement this function!
+	return x;
+}
+#endif
 
 int wstrCaseCmp(const wchar_t* string1, const wchar_t* string2)
 {
 #ifdef MCD_VC
 	return ::_wcsicmp(string1, string2);
-#elif defined(MCD_APPLE) || defined(MCD_CYGWIN)
+#elif defined(MCD_APPLE) || defined(MCD_CYGWIN) || defined(MCD_ANDROID)
 	wchar_t f, l;
 	do {
 		f = towlower(*string1);
