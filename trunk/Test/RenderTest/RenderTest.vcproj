@@ -323,6 +323,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\Html5Test.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\Main.cpp"
 				>
 			</File>

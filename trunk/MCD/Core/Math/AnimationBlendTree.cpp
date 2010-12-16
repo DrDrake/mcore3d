@@ -150,6 +150,9 @@ void AnimationBlendTree::inOrderSort()
 
 Pose AnimationBlendTree::getFinalPose()
 {
+	for(size_t i=0; i<nodes.size(); ++i)
+		nodes[i].begin(*this);
+
 	const size_t ignoreLastNode = 1;
 	for(size_t i=0; i<nodes.size() - ignoreLastNode; ++i) {
 		INode& childNode = nodes[i];
@@ -163,9 +166,9 @@ Pose AnimationBlendTree::getFinalPose()
 }
 
 // Convert any name reference in the XML back to index (after the in-order sort)
-typedef void (*fixupFunc)(INode*, int index);
-struct Fixup { fixupFunc func; INode* node; };
-typedef std::map<FixString, Fixup> IndexFixupTable;
+typedef void (*fixupFunc)(INode*, int index, void* userData);
+struct Fixup { FixString name; fixupFunc func; INode* node; void* userData; };
+typedef std::vector<Fixup> IndexFixupTable;
 
 static INode* loadClipNode(XmlParser& parser, ResourceManager& mgr, const char* clipSearchPath)
 {
@@ -198,7 +201,7 @@ static INode* loadAdditiveNode(XmlParser& parser)
 	return n;
 }
 
-static void switchNodeFixup(INode* node, int index)
+static void switchNodeFixup(INode* node, int index, void*)
 {
 	static_cast<AnimationBlendTree::SwitchNode*>(node)->switchTo(index, 0);
 }
@@ -208,8 +211,64 @@ static INode* loadSwitchNode(XmlParser& parser, IndexFixupTable& fixupTable)
 	AnimationBlendTree::SwitchNode* n = new AnimationBlendTree::SwitchNode;
 	n->fadeDuration = parser.attributeValueAsFloat("fadeDuration", 0);
 	FixString current = parser.attributeValue("current");
-	Fixup fixup = { &switchNodeFixup, n };
-	fixupTable[parser.attributeValue("current")] = fixup;
+	Fixup fixup = { current, &switchNodeFixup, n, nullptr };
+	fixupTable.push_back(fixup);
+	return n;
+}
+
+static void fsmNodeFixup(INode* node, int index, void*) {
+	static_cast<AnimationBlendTree::FsmNode*>(node)->startingNode = index;
+}
+
+static void fsmTransitionSrcFixup(INode* node, int index, void* ud) {
+	reinterpret_cast<AnimationBlendTree::FsmNode*>(node)->transitions[int(ud)].src = index;
+}
+
+static void fsmTransitionDestFixup(INode* node, int index, void* ud) {
+	reinterpret_cast<AnimationBlendTree::FsmNode*>(node)->transitions[int(ud)].dest = index;
+}
+
+static INode* loadFsmNode(XmlParser& parser, IndexFixupTable& fixupTable, AnimationBlendTree& tree)
+{
+	AnimationBlendTree::FsmNode* n = new AnimationBlendTree::FsmNode(tree);
+	FixString starting = parser.attributeValue("startingNode");
+	Fixup fixup = { starting, &fsmNodeFixup, n, nullptr };
+	fixupTable.push_back(fixup);
+
+	bool done = false;
+	while(!done)
+	{
+		typedef XmlParser::Event Event;
+		typedef AnimationBlendTree::FsmNode::Transition Transition;
+		Event::Enum e = parser.nextEvent();
+		switch(e) {
+		case Event::BeginElement:
+			if(strcmp(parser.elementName(), "transition") == 0) {
+				Transition t;
+				t.type = (strcmp(parser.attributeValue("type"), "sync") == 0) ? Transition::Sync : Transition::ASync;
+
+				{	FixString srcName = parser.attributeValue("src");
+					Fixup fixup = { srcName, &fsmTransitionSrcFixup, n, (void*)n->transitions.size() };
+					fixupTable.push_back(fixup);
+				}
+
+				{	FixString destName = parser.attributeValue("dest");
+					Fixup fixup = { destName, &fsmTransitionDestFixup, n, (void*)n->transitions.size() };
+					fixupTable.push_back(fixup);
+				}
+
+				n->transitions.push_back(t);
+			}
+			break;
+		case Event::EndElement:
+			if(strcmp(parser.elementName(), "transitions") == 0)
+				done = true;
+			else if(strcmp(parser.elementName(), "fsm") == 0)
+				done = true;
+			break;
+		}
+	}
+
 	return n;
 }
 
@@ -230,8 +289,8 @@ bool AnimationBlendTree::loadFromXml(const char* xml, ResourceManager& mgr, cons
 	// Convert any name reference in the XML back to index (after the in-order sort)
 	IndexFixupTable indexFixupTable;
 
-	bool ended = false;
-	while(!ended)
+	bool done = false;
+	while(!done)
 	{
 		Event::Enum e = parser.nextEvent();
 		INode* n = nullptr;
@@ -249,6 +308,8 @@ bool AnimationBlendTree::loadFromXml(const char* xml, ResourceManager& mgr, cons
 				n = loadAdditiveNode(parser);
 			else if(strcmp(parser.elementName(), "switch") == 0)
 				n = loadSwitchNode(parser, indexFixupTable);
+			else if(strcmp(parser.elementName(), "fsm") == 0)
+				n = loadFsmNode(parser, indexFixupTable, *this);
 
 			if(!n)
 				return false;
@@ -265,7 +326,7 @@ bool AnimationBlendTree::loadFromXml(const char* xml, ResourceManager& mgr, cons
 			break;
 		case Event::Error:
 		case Event::EndDocument:
-			ended = true;
+			done = true;
 			break;
 
 		default:
@@ -278,9 +339,9 @@ bool AnimationBlendTree::loadFromXml(const char* xml, ResourceManager& mgr, cons
 
 	// Apply the fixup table
 	for(IndexFixupTable::const_iterator i=indexFixupTable.begin(); i!=indexFixupTable.end(); ++i) {
-		int idx = findNodeIndexByName(i->first.c_str());
+		int idx = findNodeIndexByName(i->name.c_str());
 		MCD_ASSERT(idx >= 0 && idx < (int)nodes.size());
-		(*i->second.func)(i->second.node, idx);
+		(*i->func)(i->node, idx, i->userData);
 	}
 
 	return true;
@@ -323,10 +384,11 @@ int AnimationBlendTree::ClipNode::returnPose(AnimationBlendTree& tree)
 std::string AnimationBlendTree::ClipNode::xmlStart(const AnimationBlendTree&) const
 {
 	std::string ret = "<clip";
-	if(!name.empty()) ret += std::string(" name=\"") + name.c_str() + "\"";
-	ret += " rate=\"" + float2Str(state.rate) + "\"";
-	ret += " src=\"" + state.clip->fileId().getString() + "\"";
-	if(!userData.empty()) ret += std::string(" userData=\"") + userData.c_str() + "\"";
+	if(!name.empty()) ret += formatStr(" name=\"%s\"", name.c_str());
+	if(duration != 0) ret += formatStr(" duration=\"%f\"", duration);
+	ret += formatStr(" rate=\"%f\"", state.rate);
+	ret += formatStr(" src=\"%s\"", state.clip->fileId().c_str());
+	if(!userData.empty()) ret += formatStr(" userData=\"%s\"", userData.c_str());
 	ret += ">";
 	return ret;
 }
@@ -372,9 +434,10 @@ int AnimationBlendTree::LerpNode::returnPose(AnimationBlendTree& tree)
 std::string AnimationBlendTree::LerpNode::xmlStart(const AnimationBlendTree&) const
 {
 	std::string ret = "<lerp";
-	if(!name.empty()) ret += std::string(" name=\"") + name.c_str() + "\"";
-	ret += " t=\"" + float2Str(t) + "\"";
-	if(!userData.empty()) ret += std::string(" userData=\"") + userData.c_str() + "\"";
+	if(!name.empty()) ret += formatStr(" name=\"%s\"", name.c_str());
+	if(duration != 0) ret += formatStr(" duration=\"%f\"", duration);
+	ret += formatStr(" t=\"%f\"", t);
+	if(!userData.empty()) ret += formatStr(" userData=\"%s\"", userData.c_str());
 	ret += ">";
 	return ret;
 }
@@ -431,8 +494,9 @@ int AnimationBlendTree::SubtractiveNode::returnPose(AnimationBlendTree& tree)
 std::string AnimationBlendTree::SubtractiveNode::xmlStart(const AnimationBlendTree&) const
 {
 	std::string ret = "<subtractive";
-	if(!name.empty()) ret += std::string(" name=\"") + name.c_str() + "\"";
-	if(!userData.empty()) ret += std::string(" userData=\"") + userData.c_str() + "\"";
+	if(!name.empty()) ret += formatStr(" name=\"%s\"", name.c_str());
+	if(duration != 0) ret += formatStr(" duration=\"%f\"", duration);
+	if(!userData.empty()) ret += formatStr(" userData=\"%s\"", userData.c_str());
 	ret += ">";
 	return ret;
 }
@@ -486,8 +550,9 @@ int AnimationBlendTree::AdditiveNode::returnPose(AnimationBlendTree& tree)
 std::string AnimationBlendTree::AdditiveNode::xmlStart(const AnimationBlendTree&) const
 {
 	std::string ret = "<additive";
-	if(!name.empty()) ret += std::string(" name=\"") + name.c_str() + "\"";
-	if(!userData.empty()) ret += std::string(" userData=\"") + userData.c_str() + "\"";
+	if(!name.empty()) ret += formatStr(" name=\"%s\"", name.c_str());
+	if(duration != 0) ret += formatStr(" duration=\"%f\"", duration);
+	if(!userData.empty()) ret += formatStr(" userData=\"%s\"", userData.c_str());
 	ret += ">";
 	return ret;
 }
@@ -553,10 +618,11 @@ int AnimationBlendTree::SwitchNode::returnPose(AnimationBlendTree& tree)
 std::string AnimationBlendTree::SwitchNode::xmlStart(const AnimationBlendTree& tree) const
 {
 	std::string ret = "<switch";
-	if(!name.empty()) ret += std::string(" name=\"") + name.c_str() + "\"";
-	if(fadeDuration > 0) ret += " fadeDuration=\"" + float2Str(fadeDuration) + "\"";
-	if(mCurrentNode >= 0) ret += std::string(" current=\"") + tree.nodes[mCurrentNode].name.c_str() + "\"";
-	if(!userData.empty()) ret += std::string(" userData=\"") + userData.c_str() + "\"";
+	if(!name.empty()) ret += formatStr(" name=\"%s\"", name.c_str());
+	if(duration != 0) ret += formatStr(" duration=\"%f\"", duration);
+	if(fadeDuration > 0) ret += formatStr(" startingNode=\"%f\"", fadeDuration);
+	if(mCurrentNode >= 0) ret += formatStr(" current=\"%s\"", tree.nodes[mCurrentNode].name.c_str());
+	if(!userData.empty()) ret += formatStr(" userData=\"%s\"", userData.c_str());
 	ret += ">";
 	return ret;
 }
@@ -564,6 +630,156 @@ std::string AnimationBlendTree::SwitchNode::xmlStart(const AnimationBlendTree& t
 std::string AnimationBlendTree::SwitchNode::xmlEnd() const
 {
 	return "</switch>";
+}
+
+AnimationBlendTree::FsmNode::FsmNode(AnimationBlendTree& tree)
+	: mTree(tree), mLastNode(-1)
+	, fadeDuration(0.2f)
+	, currentNodeStartingTime(0)
+	, mNodeFadingTo(-1)
+	, mNode1(nullptr), mNode2(nullptr)
+{}
+
+INode* AnimationBlendTree::FsmNode::clone() const
+{
+	return new FsmNode(*this);
+}
+
+void AnimationBlendTree::FsmNode::begin(AnimationBlendTree& tree)
+{
+	const float currentTime = tree.worldTime;
+	const float currentNodeDuration = tree.nodes[currentNode].duration;
+
+	// Current node haven't finished yet
+	if(currentNodeDuration == 0 || currentNodeStartingTime + currentNodeDuration < currentTime) return;
+
+	// Target node not reached, find the next intermediate node to transit
+	if(currentNode != targetingNode) {
+		int next = mShortestPath.getNext(currentNode, targetingNode);
+		// No possible node to move on
+		if(next == -1) return;
+
+		currentNode = next;
+		currentNodeStartingTime += currentNodeDuration;
+		return;
+	}
+
+	// We have reached the specified destination, and the current node reached it's end,
+	// find the possible node to move on
+}
+
+void AnimationBlendTree::FsmNode::collectChild(AnimationBlendTree::INode* child, AnimationBlendTree& tree)
+{
+	if(!mNode1)
+		mNode1 = (currentNode < 0 || (&tree.nodes[currentNode]) == child) ? child : nullptr;
+	if(!mNode2)
+		mNode2 = (mNodeFadingTo < 0 || (&tree.nodes[mNodeFadingTo]) == child) ? child : nullptr;
+}
+
+int AnimationBlendTree::FsmNode::returnPose(AnimationBlendTree& tree)
+{
+/*	INode* n1 = mNode1, *n2 = mNode2;
+	mNode1 = mNode2 = nullptr;
+
+	if(tree.worldTime >= mNodeChangeTime + fadeDuration)
+		return n2->returnPose(tree);
+	else if(tree.worldTime <= mNodeChangeTime)
+		return n1->returnPose(tree);
+
+	const float lerpFactor = (tree.worldTime - mNodeChangeTime) / fadeDuration;
+	Pose pose1 = tree.getPose(mLastNode);
+	Pose pose2 = tree.getPose(mCurrentNode);
+	MCD_ASSERT(pose1.size == pose2.size);
+	MCD_ASSERT(lerpFactor >= 0 && lerpFactor <= 1);
+
+	for(size_t i=0; i<pose1.size; ++i)
+		pose1[i].blend(lerpFactor, pose1[i], pose2[i]);
+
+	tree.releasePose(mCurrentNode);
+	return mLastNode;*/
+	return 0;
+}
+
+std::string AnimationBlendTree::FsmNode::xmlStart(const AnimationBlendTree& tree) const
+{
+	std::string ret = "<fsm";
+	if(!name.empty()) ret += formatStr(" name=\"%s\"", name.c_str());
+	if(duration != 0) ret += formatStr(" duration=\"%f\"", duration);
+	ret += formatStr(" startingNode=\"%s\"", tree.nodes[startingNode].name.c_str());
+	ret += ">";
+
+	ret += "<transitions>";
+	for(Transitions::const_iterator i=transitions.begin(); i!=transitions.end(); ++i) {
+		ret += formatStr("<transition type=\"%s\" src=\"%s\" dest=\"%s\"/>",
+			i->type == Transition::Sync ? "sync" : "async",
+			tree.nodes[i->src].name.c_str(),
+			tree.nodes[i->dest].name.c_str()
+		);
+	}
+	ret += "</transitions>";
+
+	return ret;
+}
+
+std::string AnimationBlendTree::FsmNode::xmlEnd() const
+{
+	return "</fsm>";
+}
+
+int AnimationBlendTree::FsmNode::switchTo(int nodeIdx)
+{
+	AnimationBlendTree::Nodes& nodes = mTree.nodes;
+	MCD_ASSERT(nodeIdx > 0 && nodeIdx < (int)nodes.size());
+	MCD_ASSERT("You can only swithc to node under the FsmNode" && (&nodes[nodes[nodeIdx].parent] == this));
+
+	// Init the shortest path matrix for the first time
+	if(mShortestPath.vertexCount == 0) {
+		size_t childCount = 0;
+		// Search for all direct children under this node
+		for(size_t i=0; i<nodes.size(); ++i) {
+			const size_t parent = nodes[i].parent;
+			if(parent < nodes.size() && (&nodes[parent]) == this)
+				++childCount;
+		}
+		mShortestPath.resize(childCount);
+
+		// Fill the adjacency matrix
+		for(size_t i=0; i<transitions.size(); ++i) {
+			// NOTE: Currently we don't have weighted transition, all are having the same length of 1
+			mShortestPath.distance(transitions[i].src, transitions[i].dest) = 1;
+		}
+
+		mShortestPath.preProcess();
+	}
+
+	const int next = mShortestPath.getNext(currentNode, nodeIdx);
+	if(-1 == next) return -1;	// No possible path
+
+	// Find the transition info
+	Transition* t = findTransitionFor(currentNode, next);
+	MCD_ASSUME(t && "Discrepancy between the transition info and the adjacency matrix");
+
+	targetingNode = nodeIdx;
+
+	// If we where performing cross fade
+	if(-1 != mNodeFadingTo) return 1;
+
+	if(t->type == Transition::ASync) {
+		currentNode = next;
+		currentNodeStartingTime = mTree.worldTime;
+		return 0;
+	}
+
+	return 1;
+}
+
+AnimationBlendTree::FsmNode::Transition* AnimationBlendTree::FsmNode::findTransitionFor(int src, int dest)
+{
+	for(size_t i=0; i<transitions.size(); ++i) {
+		if(transitions[i].src == src && transitions[i].dest == dest)
+			return &transitions[i];
+	}
+	return nullptr;
 }
 
 }	// namespace MCD

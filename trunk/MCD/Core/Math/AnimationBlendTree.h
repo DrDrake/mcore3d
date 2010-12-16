@@ -2,6 +2,7 @@
 #define __MCD_CORE_MATH_ANIMATIONBLENDTREE__
 
 #include "AnimationState.h"
+#include "ShortestPathMatrix.h"
 #include "../System/StringHash.h"
 #include "../System/PtrVector.h"
 #include <vector>
@@ -35,10 +36,14 @@ public:
 		size_t parent;
 		FixString name;
 		FixString userData;	///< Currently it is to be used for UI editor persistency
+		float duration;		///< Specify the explicit duration of this node, 0 zero for infinity
 
-		INode() : parent(size_t(-1)) {}
+		INode() : parent(size_t(-1)), duration(0) {}
 		virtual ~INode() {}
 		virtual INode* clone() const = 0;
+
+		/// Allow the nodes to preform some pre-processing.
+		virtual void begin(AnimationBlendTree& tree) {}
 
 		/// Function to let this node know about it's children.
 		virtual void collectChild(INode* child, AnimationBlendTree& tree) = 0;
@@ -120,13 +125,65 @@ public:
 		sal_override std::string xmlStart(const AnimationBlendTree&) const;
 		sal_override std::string xmlEnd() const;
 		void switchTo(int nodeIdx, float timeToSwitch);	///< Perform the switching at a specific world time
-		int currentNode() const;	///< The current targeting node
-		float fadeDuration;
+
+		int currentNode() const;	///< The current using node
+
+		float fadeDuration;	///< The duration used during cross-fading
+
 	protected:
 		int mCurrentNode, mLastNode;
 		float mNodeChangeTime;	///< The world time when the last node change happened
 		INode* mNode1, *mNode2;
 	};	// SwitchNode
+
+	/// A "smart" switching node
+	/// Any nodes as a direct child of the FsmNode will be considered as a state,
+	/// user need to defind "edge" between state to represent the possible transition
+	/// between states.
+	class MCD_CORE_API FsmNode : public INode
+	{
+	public:
+		explicit FsmNode(AnimationBlendTree& tree);
+		sal_override INode* clone() const;
+		sal_override void begin(AnimationBlendTree& tree);
+		sal_override void collectChild(INode* child, AnimationBlendTree& tree);
+		sal_override int returnPose(AnimationBlendTree& tree);
+		sal_override std::string xmlStart(const AnimationBlendTree&) const;
+		sal_override std::string xmlEnd() const;
+
+		/// -1 if not able to switch (no possible path).
+		/// 0 if able to start the transition immediatly
+		/// 1 if the transition is pending and will take place at a later time (Wait until the current animation or corss-fade to finish)
+		int switchTo(int nodeIdx);
+
+		int startingNode;
+		int currentNode;
+		int targetingNode;
+		float fadeDuration;
+
+		struct Transition
+		{
+			/// Transition type
+			/// Sync: the current animation must be finished before transiting to the next
+			/// ASync: the transition will start immediatly with a cross fading (with adjustable fade duration)
+			enum Type { Sync, ASync };
+			int src, dest;
+			Type type;
+		};
+		typedef std::vector<Transition> Transitions;
+		Transitions transitions;
+
+	protected:
+		sal_maybenull Transition* findTransitionFor(int src, int dest);
+
+		AnimationBlendTree& mTree;
+		ShortestPathMatrix mShortestPath;
+		float currentNodeStartingTime;
+
+		int mNodeFadingTo;	///< Store the node which we are currently fading to
+		int mLastNode;
+		INode* mNode1, *mNode2;	///< Pointer to the nodes (2 nodes are involved during corss fading)
+	};	// FsmNode
 
 // Attributes
 	float worldTime;
