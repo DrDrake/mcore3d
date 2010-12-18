@@ -165,11 +165,11 @@ bool MaterialComponent::Impl::createPs(const char* headerCode)
 	// http://jbit.net/~sparky/sfgrad_bump/mm_sfgrad_bump.pdf
 	// P: world position, N: interpolated normal, uv: bump map texture uv, map: the bump map
 	"float3 computeBump(in float3 P, in float3 N, in float2 uv, in sampler2D map, in float bumpFactor, in float2 bumpMapSize) {\n"
-	"	float3 vSigmaS = ddx(P);"
-	"	float3 vSigmaT = ddy(P);"
-	"	float3 vR1 = cross(vSigmaT, N);"
-	"	float3 vR2 = cross(N, vSigmaS);"
-	"	float fDet = dot(vSigmaS, vR1);"
+	"	float3 dPs = ddx(P);"
+	"	float3 dPt = ddy(P);"
+	"	float3 vR1 = cross(dPt, N);"
+	"	float3 vR2 = cross(N, dPs);"
+	"	float fDet = dot(dPs, vR1);"
 
 //	"	float height = bicubicInterpolation(uv, map, bumpMapSize);"
 //	"	float dBs = ddx(height);"

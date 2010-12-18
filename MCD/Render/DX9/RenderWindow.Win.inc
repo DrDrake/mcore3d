@@ -45,7 +45,8 @@ public:
 	sal_checkreturn iterator createContext(
 		size_t width, size_t height, 
 		HWND wnd, bool fullScreen,
-		iterator existing
+		iterator existing,
+		size_t preferedMultiSample
 	);
 
 	void destroyContext(iterator& itr);
@@ -80,7 +81,83 @@ GlobalDevice::~GlobalDevice()
 	MCD_ASSERT(!d3d);
 }
 
-GlobalDevice::iterator GlobalDevice::createContext(size_t width, size_t height, HWND wnd, bool fullScreen, iterator existing)
+static bool isMSAAModeSupported(D3DMULTISAMPLE_TYPE type, D3DFORMAT backBufferFmt, D3DFORMAT depthStencilFmt, BOOL windowed, DWORD &qualityLevels)
+{
+	DWORD backBufferQualityLevels = 0;
+	DWORD depthStencilQualityLevels = 0;
+
+	HRESULT hr = gGlobalDevice.d3d->CheckDeviceMultiSampleType(
+		D3DADAPTER_DEFAULT, D3DDEVTYPE_HAL, backBufferFmt, windowed, type, &backBufferQualityLevels
+	);
+
+	if(!SUCCEEDED(hr)) return false;
+
+	hr = gGlobalDevice.d3d->CheckDeviceMultiSampleType(
+		D3DADAPTER_DEFAULT, D3DDEVTYPE_HAL, depthStencilFmt, windowed, type, &depthStencilQualityLevels
+	);
+
+	if(!SUCCEEDED(hr)) return false;
+	if(backBufferQualityLevels != depthStencilQualityLevels) return false;
+
+	// The valid range is between zero and one less than the level
+	// returned by IDirect3D9::CheckDeviceMultiSampleType().
+	if (backBufferQualityLevels > 0)
+		qualityLevels = backBufferQualityLevels - 1;
+	else
+		qualityLevels = backBufferQualityLevels;
+
+	return true;
+}
+
+static void chooseBestMSAAMode(D3DFORMAT backBufferFmt, D3DFORMAT depthStencilFmt, BOOL windowed, D3DMULTISAMPLE_TYPE& type, DWORD &qualityLevels, size_t& perferedSamplesPerPixel)
+{
+	bool supported = false;
+
+	struct MSAAMode
+	{
+		D3DMULTISAMPLE_TYPE type;
+		DWORD samples;
+	};
+
+	MSAAMode multsamplingTypes[] =
+	{
+		{ D3DMULTISAMPLE_16_SAMPLES,  16 },
+		{ D3DMULTISAMPLE_15_SAMPLES,  15 },
+		{ D3DMULTISAMPLE_14_SAMPLES,  14 },
+		{ D3DMULTISAMPLE_13_SAMPLES,  13 },
+		{ D3DMULTISAMPLE_12_SAMPLES,  12 },
+		{ D3DMULTISAMPLE_11_SAMPLES,  11 },
+		{ D3DMULTISAMPLE_10_SAMPLES,  10 },
+		{ D3DMULTISAMPLE_9_SAMPLES,   9  },
+		{ D3DMULTISAMPLE_8_SAMPLES,   8  },
+		{ D3DMULTISAMPLE_7_SAMPLES,   7  },
+		{ D3DMULTISAMPLE_6_SAMPLES,   6  },
+		{ D3DMULTISAMPLE_5_SAMPLES,   5  },
+		{ D3DMULTISAMPLE_4_SAMPLES,   4  },
+		{ D3DMULTISAMPLE_3_SAMPLES,   3  },
+		{ D3DMULTISAMPLE_2_SAMPLES,   2  }
+	};
+
+	for(int i = 0; i < MCD_COUNTOF(multsamplingTypes); ++i) {
+		if(multsamplingTypes[i].samples > perferedSamplesPerPixel)
+			continue;
+
+		type = multsamplingTypes[i].type;
+		supported = isMSAAModeSupported(type, backBufferFmt, depthStencilFmt, windowed, qualityLevels);
+
+		if(supported) {
+			perferedSamplesPerPixel = multsamplingTypes[i].samples;
+			return;
+		}
+	}
+
+	type = D3DMULTISAMPLE_NONE;
+	qualityLevels = 0;
+	perferedSamplesPerPixel = 1;
+}
+
+
+GlobalDevice::iterator GlobalDevice::createContext(size_t width, size_t height, HWND wnd, bool fullScreen, iterator existing, size_t preferedMultiSample)
 {
 	if(!d3d) {
 		if(nullptr == (d3d = ::Direct3DCreate9(D3D_SDK_VERSION)))
@@ -107,17 +184,28 @@ GlobalDevice::iterator GlobalDevice::createContext(size_t width, size_t height, 
 	{
 		MCD_ASSERT(wnd);
 
+		// Get the current desktop display mode as the default
+		D3DDISPLAYMODE desktop = {0};
+		d3d->GetAdapterDisplayMode(D3DADAPTER_DEFAULT, &desktop);
+
 		params.hDeviceWindow = wnd;
 		params.Windowed = !fullScreen;
 		params.BackBufferCount = 1;
 		params.BackBufferWidth = width;
 		params.BackBufferHeight = height;
-		params.BackBufferFormat = D3DFMT_UNKNOWN;	// D3DFMT_UNKNOWN can be used for windowed mode
+		params.BackBufferFormat =  desktop.Format;
 		params.EnableAutoDepthStencil = true;
 		params.AutoDepthStencilFormat = D3DFMT_D16;
 		params.SwapEffect = D3DSWAPEFFECT_DISCARD;
 		params.MultiSampleType = D3DMULTISAMPLE_NONE;
 		params.PresentationInterval = D3DPRESENT_INTERVAL_IMMEDIATE;	// Turn off v-sync
+
+		// Select the highest quality multi-sample anti-aliasing (MSAA) mode.
+		chooseBestMSAAMode(
+			params.BackBufferFormat, params.AutoDepthStencilFormat,
+			params.Windowed, params.MultiSampleType, params.MultiSampleQuality,
+			preferedMultiSample
+		);
 
 		if( FAILED(d3d->CreateDevice(D3DADAPTER_DEFAULT, D3DDEVTYPE_HAL, wnd,
 			D3DCREATE_HARDWARE_VERTEXPROCESSING,
@@ -246,7 +334,7 @@ public:
 		if(!Super::createWindow(existingWindowHandle))
 			return false;
 
-		contextItr = gGlobalDevice.createContext(mWidth, mHeight, mWnd, false, contextItr);
+		contextItr = gGlobalDevice.createContext(mWidth, mHeight, mWnd, false, contextItr, mMultiSampleLevel);
 		if(contextItr == gGlobalDevice.contexts.end()) {
 			destroy();
 			Log::write(Log::Warn, "Fail to create render context");
@@ -266,7 +354,7 @@ public:
 	{
 		if(mWidth * mHeight == 0)
 			return;
-		contextItr = gGlobalDevice.createContext(mWidth, mHeight, mWnd, false, contextItr);
+		contextItr = gGlobalDevice.createContext(mWidth, mHeight, mWnd, false, contextItr, mMultiSampleLevel);
 	}
 
 	bool makeActive()
@@ -297,10 +385,14 @@ public:
 
 	sal_override void setOption(const char* name, const char* value)
 	{
-		Super::setOption(name, value);
+		if(::strcmp(name, "FSAA") == 0)
+			mMultiSampleLevel = str2IntWithDefault(value, 0);
+		else
+			Super::setOption(name, value);
 	}
 
 private:
+	uint mMultiSampleLevel;
 	GlobalDevice::iterator contextItr;
 };	// Impl
 
