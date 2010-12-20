@@ -36,9 +36,10 @@ public:
 		size_t parent;
 		FixString name;
 		FixString userData;	///< Currently it is to be used for UI editor persistency
-		float duration;		///< Specify the explicit duration of this node, 0 zero for infinity
+		float duration;		///< Specify the explicit duration of this node (local timeline will freeze after duration), 0 zero for infinity
+		float localRefTime;	///< Affect the timeline position of all child nodes (and this node)
 
-		INode() : parent(size_t(-1)), duration(0) {}
+		INode() : parent(size_t(-1)), duration(0), localRefTime(0) {}
 		virtual ~INode() {}
 		virtual INode* clone() const = 0;
 
@@ -56,6 +57,9 @@ public:
 
 		virtual std::string xmlStart(const AnimationBlendTree&) const = 0;
 		virtual std::string xmlEnd() const = 0;
+
+		/// Get the final reference time, by considering the parent node's localRefTime
+		float worldRefTime(AnimationBlendTree& tree) const;
 	};	// INode
 
 	/// It's a leaf node
@@ -157,18 +161,18 @@ public:
 		int switchTo(int nodeIdx);
 
 		int startingNode;
-		int currentNode;
-		int targetingNode;
-		float fadeDuration;
+		int mTargetingNode;
 
 		struct Transition
 		{
 			/// Transition type
 			/// Sync: the current animation must be finished before transiting to the next
 			/// ASync: the transition will start immediatly with a cross fading (with adjustable fade duration)
-			enum Type { Sync, ASync };
+			/// Auto: state A (ended) can transit to state B automatically if there exist an Auto transition between A and B, implies Sync
+			enum Type { Sync, ASync, Auto };
 			int src, dest;
 			Type type;
+			float duration;
 		};
 		typedef std::vector<Transition> Transitions;
 		Transitions transitions;
@@ -178,10 +182,9 @@ public:
 
 		AnimationBlendTree& mTree;
 		ShortestPathMatrix mShortestPath;
-		float currentNodeStartingTime;
+		float mFadeDuration;
 
-		int mNodeFadingTo;	///< Store the node which we are currently fading to
-		int mLastNode;
+		int mCurrentNode, mLastNode;
 		INode* mNode1, *mNode2;	///< Pointer to the nodes (2 nodes are involved during corss fading)
 	};	// FsmNode
 

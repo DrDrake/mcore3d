@@ -165,6 +165,12 @@ Pose AnimationBlendTree::getFinalPose()
 	return getPose(outputIdx);
 }
 
+float AnimationBlendTree::INode::worldRefTime(AnimationBlendTree& tree) const
+{
+	if(parent >= tree.nodes.size()) return localRefTime;
+	return tree.nodes[parent].worldRefTime(tree) + localRefTime;
+}
+
 // Convert any name reference in the XML back to index (after the in-order sort)
 typedef void (*fixupFunc)(INode*, int index, void* userData);
 struct Fixup { FixString name; fixupFunc func; INode* node; void* userData; };
@@ -228,6 +234,19 @@ static void fsmTransitionDestFixup(INode* node, int index, void* ud) {
 	reinterpret_cast<AnimationBlendTree::FsmNode*>(node)->transitions[int(ud)].dest = index;
 }
 
+static AnimationBlendTree::FsmNode::Transition::Type stringToTransitionType(const char* str)
+{
+	typedef AnimationBlendTree::FsmNode::Transition Transition;
+	if(strcmp(str, "sync") == 0)
+		return Transition::Sync;
+	if(strcmp(str, "async") == 0)
+		return Transition::ASync;
+	if(strcmp(str, "auto") == 0)
+		return Transition::Auto;
+	MCD_ASSERT(false);
+	return Transition::Sync;
+}
+
 static INode* loadFsmNode(XmlParser& parser, IndexFixupTable& fixupTable, AnimationBlendTree& tree)
 {
 	AnimationBlendTree::FsmNode* n = new AnimationBlendTree::FsmNode(tree);
@@ -245,7 +264,8 @@ static INode* loadFsmNode(XmlParser& parser, IndexFixupTable& fixupTable, Animat
 		case Event::BeginElement:
 			if(strcmp(parser.elementName(), "transition") == 0) {
 				Transition t;
-				t.type = (strcmp(parser.attributeValue("type"), "sync") == 0) ? Transition::Sync : Transition::ASync;
+				t.type = stringToTransitionType(parser.attributeValue("type"));
+				t.duration = parser.attributeValueAsFloat("duration", 0);
 
 				{	FixString srcName = parser.attributeValue("src");
 					Fixup fixup = { srcName, &fsmTransitionSrcFixup, n, (void*)n->transitions.size() };
@@ -374,7 +394,9 @@ INode* AnimationBlendTree::ClipNode::clone() const
 
 int AnimationBlendTree::ClipNode::returnPose(AnimationBlendTree& tree)
 {
+	const float t = worldRefTime(tree);
 	state.worldTime = tree.worldTime;
+	state.worldRefTime = (duration <= 0  || t + duration < tree.worldTime) ? t : tree.worldTime - duration;
 	int i = tree.allocatePose(state.clip->trackCount());
 	MCD_ASSERT(i >= 0);
 	state.assignTo(tree.getPose(i));
@@ -633,10 +655,9 @@ std::string AnimationBlendTree::SwitchNode::xmlEnd() const
 }
 
 AnimationBlendTree::FsmNode::FsmNode(AnimationBlendTree& tree)
-	: mTree(tree), mLastNode(-1)
-	, fadeDuration(0.2f)
-	, currentNodeStartingTime(0)
-	, mNodeFadingTo(-1)
+	: mTree(tree)
+	, mFadeDuration(0)
+	, mCurrentNode(-1), mLastNode(-1)
 	, mNode1(nullptr), mNode2(nullptr)
 {}
 
@@ -647,46 +668,66 @@ INode* AnimationBlendTree::FsmNode::clone() const
 
 void AnimationBlendTree::FsmNode::begin(AnimationBlendTree& tree)
 {
-	const float currentTime = tree.worldTime;
-	const float currentNodeDuration = tree.nodes[currentNode].duration;
+	INode* n = &tree.nodes[mCurrentNode];
 
-	// Current node haven't finished yet
-	if(currentNodeDuration == 0 || currentNodeStartingTime + currentNodeDuration < currentTime) return;
+	// Current state haven't finished yet
+	if(n->duration == 0 || n->localRefTime + n->duration < tree.worldTime)
+		return;
 
-	// Target node not reached, find the next intermediate node to transit
-	if(currentNode != targetingNode) {
-		int next = mShortestPath.getNext(currentNode, targetingNode);
-		// No possible node to move on
-		if(next == -1) return;
+	// Have pending target state?
+	if(mCurrentNode != mTargetingNode)
+		goto ChangeState;
 
-		currentNode = next;
-		currentNodeStartingTime += currentNodeDuration;
+	// Find next possible state though auto transition
+	for(size_t i=0; i<transitions.size(); ++i) {
+		if(transitions[i].type == Transition::Auto && (&tree.nodes[transitions[i].src] == this)) {
+			mTargetingNode = i;
+			goto ChangeState;
+		}
+	}
+
+	return;
+
+ChangeState:
+	// Find the next intermediate node to transit
+	int next = mShortestPath.getNext(mCurrentNode, mTargetingNode);
+
+	// No possible node to move on
+	if(next == -1) {
+		mTargetingNode = mCurrentNode;
 		return;
 	}
 
-	// We have reached the specified destination, and the current node reached it's end,
-	// find the possible node to move on
+	// Find the duration for this transition
+	mFadeDuration = findTransitionFor(mCurrentNode, next)->duration;
+
+	mLastNode = mCurrentNode;
+	mCurrentNode = next;
+	INode* n2 = &tree.nodes[mCurrentNode];
+	n2->localRefTime = n->localRefTime + n->duration;	// Make the new state closely follow the old state
 }
 
 void AnimationBlendTree::FsmNode::collectChild(AnimationBlendTree::INode* child, AnimationBlendTree& tree)
 {
 	if(!mNode1)
-		mNode1 = (currentNode < 0 || (&tree.nodes[currentNode]) == child) ? child : nullptr;
+		mNode1 = (mLastNode < 0 || (&tree.nodes[mLastNode]) == child) ? child : nullptr;
 	if(!mNode2)
-		mNode2 = (mNodeFadingTo < 0 || (&tree.nodes[mNodeFadingTo]) == child) ? child : nullptr;
+		mNode2 = (mCurrentNode < 0 || (&tree.nodes[mCurrentNode]) == child) ? child : nullptr;
 }
 
 int AnimationBlendTree::FsmNode::returnPose(AnimationBlendTree& tree)
 {
-/*	INode* n1 = mNode1, *n2 = mNode2;
+	INode* n1 = mNode1, *n2 = mNode2;
 	mNode1 = mNode2 = nullptr;
 
-	if(tree.worldTime >= mNodeChangeTime + fadeDuration)
+	const float transitionTime = n2->localRefTime;	// The time when the transition occur
+
+	if(tree.worldTime >= transitionTime + mFadeDuration)
 		return n2->returnPose(tree);
-	else if(tree.worldTime <= mNodeChangeTime)
+	else if(tree.worldTime <= transitionTime)
 		return n1->returnPose(tree);
 
-	const float lerpFactor = (tree.worldTime - mNodeChangeTime) / fadeDuration;
+	const float lerpFactor = (tree.worldTime - transitionTime) / mFadeDuration;
 	Pose pose1 = tree.getPose(mLastNode);
 	Pose pose2 = tree.getPose(mCurrentNode);
 	MCD_ASSERT(pose1.size == pose2.size);
@@ -696,8 +737,23 @@ int AnimationBlendTree::FsmNode::returnPose(AnimationBlendTree& tree)
 		pose1[i].blend(lerpFactor, pose1[i], pose2[i]);
 
 	tree.releasePose(mCurrentNode);
-	return mLastNode;*/
-	return 0;
+	return mLastNode;
+}
+
+static const char* transitionTypeToString(AnimationBlendTree::FsmNode::Transition::Type type)
+{
+	typedef AnimationBlendTree::FsmNode::Transition Transition;
+	switch(type) {
+	case Transition::Sync:
+		return "sync";
+	case Transition::ASync:
+		return "async";
+	case Transition::Auto:
+		return "auto";
+	}
+
+	MCD_ASSERT(false);
+	return "";
 }
 
 std::string AnimationBlendTree::FsmNode::xmlStart(const AnimationBlendTree& tree) const
@@ -710,10 +766,11 @@ std::string AnimationBlendTree::FsmNode::xmlStart(const AnimationBlendTree& tree
 
 	ret += "<transitions>";
 	for(Transitions::const_iterator i=transitions.begin(); i!=transitions.end(); ++i) {
-		ret += formatStr("<transition type=\"%s\" src=\"%s\" dest=\"%s\"/>",
-			i->type == Transition::Sync ? "sync" : "async",
+		ret += formatStr("<transition type=\"%s\" src=\"%s\" dest=\"%s\" duration=\"%f\"/>",
+			transitionTypeToString(i->type),
 			tree.nodes[i->src].name.c_str(),
-			tree.nodes[i->dest].name.c_str()
+			tree.nodes[i->dest].name.c_str(),
+			duration
 		);
 	}
 	ret += "</transitions>";
@@ -752,21 +809,20 @@ int AnimationBlendTree::FsmNode::switchTo(int nodeIdx)
 		mShortestPath.preProcess();
 	}
 
-	const int next = mShortestPath.getNext(currentNode, nodeIdx);
+	const int next = mShortestPath.getNext(mCurrentNode, nodeIdx);
 	if(-1 == next) return -1;	// No possible path
 
 	// Find the transition info
-	Transition* t = findTransitionFor(currentNode, next);
+	Transition* t = findTransitionFor(mCurrentNode, next);
 	MCD_ASSUME(t && "Discrepancy between the transition info and the adjacency matrix");
 
-	targetingNode = nodeIdx;
+	mTargetingNode = nodeIdx;
 
-	// If we where performing cross fade
-	if(-1 != mNodeFadingTo) return 1;
+	// For simplicity, no transition is allowed during cross fade
+//	if(-1 != mLastNode) return 1;
 
 	if(t->type == Transition::ASync) {
-		currentNode = next;
-		currentNodeStartingTime = mTree.worldTime;
+//		mCurrentNode = next;
 		return 0;
 	}
 
