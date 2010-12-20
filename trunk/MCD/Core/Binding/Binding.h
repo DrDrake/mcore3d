@@ -261,7 +261,7 @@ struct ReturnSpecialization
 		RT ret = (callee.*func)(
 			get(TypeSelect<P1>(), v, index + 0),
 			get(TypeSelect<P2>(), v, index + 1),
-			get(TypeSelect<P3>(), v, index + 2)
+			get(TypeSelect<P3>(), v, index + 2),
 			get(TypeSelect<P4>(), v, index + 3)
 		);
 		return ReturnPolicy::template pushResult<RT>(v, ret);

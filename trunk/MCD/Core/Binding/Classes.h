@@ -71,6 +71,7 @@ Func getStaticFunctionPointer(HSQUIRRELVM v, int idx)
 {
 	StackHandler sh(v);
 	return (Func)sh.getUserPointer(idx);
+	sq_g
 }
 
 // Events objects

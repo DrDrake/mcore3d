@@ -3,6 +3,7 @@
 
 //#include "CommonPointers.h"
 #include "Classes.h"
+#include "ClassTraits.h"
 #include "../System/StringHash.h"
 
 namespace MCD {
@@ -10,20 +11,24 @@ namespace Binding {
 
 #define CAPI_VERIFY(arg) MCD_VERIFY(SQ_SUCCEEDED((arg)))
 
+template<typename T> struct pointer;
+
 // Push functions - to pass values into script
 
-inline void push(HSQUIRRELVM v,int8_t value,int8_t*)			{ sq_pushinteger(v,value); }
-inline void push(HSQUIRRELVM v,uint8_t value,uint8_t*)			{ sq_pushinteger(v,value); }
-inline void push(HSQUIRRELVM v,int16_t value,int16_t*)			{ sq_pushinteger(v,value); }
-inline void push(HSQUIRRELVM v,uint16_t value,uint16_t*)		{ sq_pushinteger(v,value); }
-inline void push(HSQUIRRELVM v,int32_t value,int32_t*)			{ sq_pushinteger(v,value); }
-inline void push(HSQUIRRELVM v,uint32_t value,uint32_t*)		{ sq_pushinteger(v,value); }
-inline void push(HSQUIRRELVM v,int64_t value,int64_t*)			{ sq_pushinteger(v,SQInteger(value)); }
-inline void push(HSQUIRRELVM v,uint64_t value,uint64_t*)		{ sq_pushinteger(v,SQInteger(value)); }
-inline void push(HSQUIRRELVM v,double value,double*)			{ sq_pushfloat(v,(SQFloat)value); }
-inline void push(HSQUIRRELVM v,float value,float*)				{ sq_pushfloat(v,(SQFloat)value); }
-inline void push(HSQUIRRELVM v,bool value,bool*)				{ sq_pushbool(v,value); }
-inline void push(HSQUIRRELVM v,const char* value,const char**)	{ sq_pushstring(v,value,-1); }
+inline void push(HSQUIRRELVM v,char value,char*)					{ sq_pushinteger(v,value); }
+inline void push(HSQUIRRELVM v,unsigned char value,unsigned char*)	{ sq_pushinteger(v,value); }
+inline void push(HSQUIRRELVM v,short value,short*)					{ sq_pushinteger(v,value); }
+inline void push(HSQUIRRELVM v,unsigned short value,unsigned short*){ sq_pushinteger(v,value); }
+inline void push(HSQUIRRELVM v,int value,int*)						{ sq_pushinteger(v,value); }
+inline void push(HSQUIRRELVM v,unsigned int value,unsigned int*)	{ sq_pushinteger(v,value); }
+inline void push(HSQUIRRELVM v,long value,long*)					{ sq_pushinteger(v,SQInteger(value)); }
+inline void push(HSQUIRRELVM v,unsigned long value,unsigned long*)	{ sq_pushinteger(v,SQInteger(value)); }
+inline void push(HSQUIRRELVM v,long long value,long long*)			{ sq_pushinteger(v,SQInteger(value)); }
+inline void push(HSQUIRRELVM v,unsigned long long value,unsigned long long*){ sq_pushinteger(v,SQInteger(value)); }
+inline void push(HSQUIRRELVM v,double value,double*)				{ sq_pushfloat(v,(SQFloat)value); }
+inline void push(HSQUIRRELVM v,float value,float*)					{ sq_pushfloat(v,(SQFloat)value); }
+inline void push(HSQUIRRELVM v,bool value,bool*)					{ sq_pushbool(v,value); }
+inline void push(HSQUIRRELVM v,const char* value,const char**)		{ sq_pushstring(v,value,-1); }
 inline void push(HSQUIRRELVM v,const std::string& value,const std::string*)	{ sq_pushstring(v,value.c_str(), SQInteger(value.length())); }
 inline void push(HSQUIRRELVM v,const FixString& value,const FixString*)		{ sq_pushstring(v,value.c_str(), SQInteger(value.size())); }
 
@@ -52,14 +57,16 @@ template<typename T> struct TypeSelect<T*&> { typedef TypeSelect<T*> adjusted; }
 
 // See http://squirrel-lang.org/forums/thread/2674.aspx on SQOBJECT_NUMERIC
 inline bool match(TypeSelect<bool>,HSQUIRRELVM v,int idx)							{ return sq_gettype(v,idx) == OT_BOOL; }
-inline bool match(TypeSelect<int8_t>,HSQUIRRELVM v,int idx)							{ return (sq_gettype(v,idx) & SQOBJECT_NUMERIC) > 0; }
-inline bool match(TypeSelect<uint8_t>,HSQUIRRELVM v,int idx)						{ return (sq_gettype(v,idx) & SQOBJECT_NUMERIC) > 0; }
-inline bool match(TypeSelect<int16_t>,HSQUIRRELVM v,int idx)						{ return (sq_gettype(v,idx) & SQOBJECT_NUMERIC) > 0; }
-inline bool match(TypeSelect<uint16_t>,HSQUIRRELVM v,int idx)						{ return (sq_gettype(v,idx) & SQOBJECT_NUMERIC) > 0; }
-inline bool match(TypeSelect<int32_t>,HSQUIRRELVM v,int idx)						{ return (sq_gettype(v,idx) & SQOBJECT_NUMERIC) > 0; }
-inline bool match(TypeSelect<uint32_t>,HSQUIRRELVM v,int idx)						{ return (sq_gettype(v,idx) & SQOBJECT_NUMERIC) > 0; }
-inline bool match(TypeSelect<int64_t>,HSQUIRRELVM v,int idx)						{ return (sq_gettype(v,idx) & SQOBJECT_NUMERIC) > 0; }
-inline bool match(TypeSelect<uint64_t>,HSQUIRRELVM v,int idx)						{ return (sq_gettype(v,idx) & SQOBJECT_NUMERIC) > 0; }
+inline bool match(TypeSelect<char>,HSQUIRRELVM v,int idx)							{ return (sq_gettype(v,idx) & SQOBJECT_NUMERIC) > 0; }
+inline bool match(TypeSelect<unsigned char>,HSQUIRRELVM v,int idx)					{ return (sq_gettype(v,idx) & SQOBJECT_NUMERIC) > 0; }
+inline bool match(TypeSelect<short>,HSQUIRRELVM v,int idx)							{ return (sq_gettype(v,idx) & SQOBJECT_NUMERIC) > 0; }
+inline bool match(TypeSelect<unsigned short>,HSQUIRRELVM v,int idx)					{ return (sq_gettype(v,idx) & SQOBJECT_NUMERIC) > 0; }
+inline bool match(TypeSelect<int>,HSQUIRRELVM v,int idx)							{ return (sq_gettype(v,idx) & SQOBJECT_NUMERIC) > 0; }
+inline bool match(TypeSelect<unsigned int>,HSQUIRRELVM v,int idx)					{ return (sq_gettype(v,idx) & SQOBJECT_NUMERIC) > 0; }
+inline bool match(TypeSelect<long>,HSQUIRRELVM v,int idx)							{ return (sq_gettype(v,idx) & SQOBJECT_NUMERIC) > 0; }
+inline bool match(TypeSelect<unsigned long>,HSQUIRRELVM v,int idx)					{ return (sq_gettype(v,idx) & SQOBJECT_NUMERIC) > 0; }
+inline bool match(TypeSelect<long long>,HSQUIRRELVM v,int idx)						{ return (sq_gettype(v,idx) & SQOBJECT_NUMERIC) > 0; }
+inline bool match(TypeSelect<unsigned long long>,HSQUIRRELVM v,int idx)				{ return (sq_gettype(v,idx) & SQOBJECT_NUMERIC) > 0; }
 inline bool match(TypeSelect<float>,HSQUIRRELVM v,int idx)							{ return (sq_gettype(v,idx) & SQOBJECT_NUMERIC) > 0; }
 inline bool match(TypeSelect<double>,HSQUIRRELVM v,int idx)							{ return (sq_gettype(v,idx) & SQOBJECT_NUMERIC) > 0; }
 inline bool match(TypeSelect<const char*>,HSQUIRRELVM v,int idx)					{ return sq_gettype(v,idx) == OT_STRING; }
@@ -76,19 +83,21 @@ template<typename T> bool match(TypeSelect<const T&>,HSQUIRRELVM v,int idx)			{ 
 // Get functions - to get values from the script
 
 inline bool				get(TypeSelect<bool>,HSQUIRRELVM v,int idx)					{ SQBool b; CAPI_VERIFY(sq_getbool(v,idx,&b)); return b != 0; }
-inline int8_t			get(TypeSelect<int8_t>,HSQUIRRELVM v,int idx)				{ SQInteger i; CAPI_VERIFY(sq_getinteger(v,idx,&i)); return static_cast<int8_t>(i); }
-inline uint8_t			get(TypeSelect<uint8_t>,HSQUIRRELVM v,int idx)				{ SQInteger i; CAPI_VERIFY(sq_getinteger(v,idx,&i)); return static_cast<uint8_t>(i); }
-inline int16_t			get(TypeSelect<int16_t>,HSQUIRRELVM v,int idx)				{ SQInteger i; CAPI_VERIFY(sq_getinteger(v,idx,&i)); return static_cast<int16_t>(i); }
-inline uint16_t			get(TypeSelect<uint16_t>,HSQUIRRELVM v,int idx)				{ SQInteger i; CAPI_VERIFY(sq_getinteger(v,idx,&i)); return static_cast<uint16_t>(i); }
-inline int32_t			get(TypeSelect<int32_t>,HSQUIRRELVM v,int idx)				{ SQInteger i; CAPI_VERIFY(sq_getinteger(v,idx,&i)); return static_cast<int32_t>(i); }
-inline uint32_t			get(TypeSelect<uint32_t>,HSQUIRRELVM v,int idx)				{ SQInteger i; CAPI_VERIFY(sq_getinteger(v,idx,&i)); return static_cast<uint32_t>(i); }
-inline int64_t			get(TypeSelect<int64_t>,HSQUIRRELVM v,int idx)				{ SQInteger i; CAPI_VERIFY(sq_getinteger(v,idx,&i)); return static_cast<int64_t>(i); }
-inline uint64_t			get(TypeSelect<uint64_t>,HSQUIRRELVM v,int idx)				{ SQInteger i; CAPI_VERIFY(sq_getinteger(v,idx,&i)); return static_cast<uint64_t>(i); }
+inline char				get(TypeSelect<char>,HSQUIRRELVM v,int idx)					{ SQInteger i; CAPI_VERIFY(sq_getinteger(v,idx,&i)); return static_cast<char>(i); }
+inline unsigned char	get(TypeSelect<unsigned char>,HSQUIRRELVM v,int idx)		{ SQInteger i; CAPI_VERIFY(sq_getinteger(v,idx,&i)); return static_cast<unsigned char>(i); }
+inline short			get(TypeSelect<short>,HSQUIRRELVM v,int idx)				{ SQInteger i; CAPI_VERIFY(sq_getinteger(v,idx,&i)); return static_cast<short>(i); }
+inline unsigned short	get(TypeSelect<unsigned short>,HSQUIRRELVM v,int idx)		{ SQInteger i; CAPI_VERIFY(sq_getinteger(v,idx,&i)); return static_cast<unsigned short>(i); }
+inline int				get(TypeSelect<int>,HSQUIRRELVM v,int idx)					{ SQInteger i; CAPI_VERIFY(sq_getinteger(v,idx,&i)); return static_cast<int>(i); }
+inline unsigned int		get(TypeSelect<unsigned int>,HSQUIRRELVM v,int idx)			{ SQInteger i; CAPI_VERIFY(sq_getinteger(v,idx,&i)); return static_cast<unsigned int>(i); }
+inline long				get(TypeSelect<long>,HSQUIRRELVM v,int idx)					{ SQInteger i; CAPI_VERIFY(sq_getinteger(v,idx,&i)); return static_cast<long>(i); }
+inline unsigned long	get(TypeSelect<unsigned long>,HSQUIRRELVM v,int idx)		{ SQInteger i; CAPI_VERIFY(sq_getinteger(v,idx,&i)); return static_cast<unsigned long>(i); }
+inline long long		get(TypeSelect<long long>,HSQUIRRELVM v,int idx)			{ SQInteger i; CAPI_VERIFY(sq_getinteger(v,idx,&i)); return static_cast<long long>(i); }
+inline unsigned long long	get(TypeSelect<unsigned long long>,HSQUIRRELVM v,int idx){ SQInteger i; CAPI_VERIFY(sq_getinteger(v,idx,&i)); return static_cast<unsigned long long>(i); }
 inline float			get(TypeSelect<float>,HSQUIRRELVM v,int idx)				{ SQFloat f; CAPI_VERIFY(sq_getfloat(v,idx,&f)); return f; }
 inline double			get(TypeSelect<double>,HSQUIRRELVM v,int idx)				{ SQFloat f; CAPI_VERIFY(sq_getfloat(v,idx,&f)); return static_cast<double>(f); }
 inline const char*		get(TypeSelect<const char*>,HSQUIRRELVM v,int idx)			{ const char* s; CAPI_VERIFY(sq_getstring(v,idx,&s)); return s; }
 inline std::string		get(TypeSelect<std::string>,HSQUIRRELVM v,int idx)			{ const char* s; CAPI_VERIFY(sq_getstring(v,idx,&s)); return s; }
-inline FixString		get(TypeSelect<FixString>,HSQUIRRELVM v,int idx)				{ const char* s; CAPI_VERIFY(sq_getstring(v,idx,&s)); return FixString(s); }
+inline FixString		get(TypeSelect<FixString>,HSQUIRRELVM v,int idx)			{ const char* s; CAPI_VERIFY(sq_getstring(v,idx,&s)); return FixString(s); }
 
 #ifdef NDEBUG	// No type tag check in release mode, as the check should be already done by the match() function first.
 template<typename T> const T&	get(TypeSelect<const T&>,HSQUIRRELVM v,int idx)		{ T* p=nullptr; fromInstanceUp(v, idx, p, p, 0); return *p; }
@@ -117,7 +126,7 @@ SQRESULT fromInstanceUp(HSQUIRRELVM v, SQInteger idx, void* dummy, T*& instance,
 template<typename T>
 static void destroy(const void* obj, T* dummy) {
 	(void)dummy;
-	delete obj;
+	delete (T*)obj;
 }
 
 // Pointer type handling

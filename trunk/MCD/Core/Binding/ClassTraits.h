@@ -1,6 +1,8 @@
 #ifndef __MCD_CORE_BINDING_CLASSTRAITS__
 #define __MCD_CORE_BINDING_CLASSTRAITS__
 
+#include "../System/Platform.h"	// For size_t
+
 typedef struct SQVM* HSQUIRRELVM;
 
 namespace MCD {

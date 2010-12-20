@@ -123,7 +123,7 @@ public:
 	template<typename Func>
 	ClassDeclarator& method(const char* name, Func func)
 	{
-		return method<DefaultReturnPolicy<typename FuncTraits<Func>::RET>::policy>(name, func);
+		return method<typename DefaultReturnPolicy<typename FuncTraits<Func>::RET>::policy>(name, func);
 	}
 
 // Static method
@@ -137,7 +137,7 @@ public:
 	template<typename Func>
 	ClassDeclarator& staticMethod(const char* name, Func func)
 	{
-		return staticMethod<DefaultReturnPolicy<typename FuncTraits<Func>::RET>::policy>(name, func);
+		return staticMethod<typename DefaultReturnPolicy<typename FuncTraits<Func>::RET>::policy>(name, func);
 	}
 
 // Script event:
@@ -199,7 +199,7 @@ public:
 	template<typename Func>
 	ClassDeclarator& varGet(const char* name, Func func)
 	{
-		varGetDispatch<DefaultReturnPolicy<typename FuncTraits<Func>::RET>::policy>(name, func, typename FuncTraits<Func>::FuncType());
+		varGetDispatch<typename DefaultReturnPolicy<typename FuncTraits<Func>::RET>::policy>(name, func, typename FuncTraits<Func>::FuncType());
 		return *this;
 	}
 
@@ -246,7 +246,7 @@ protected:
 	template<typename ReturnPolicy, typename Func>
 	void staticMethodDispatch(const char* name, Func func, StaticFunc)
 	{
-		pushFunction(name, func, 0, FuncTraits<Func>::ParamCount, &DirectCallStaticFunction<Func, ReturnPolicy>::Dispatch);
+		pushFunction(name, (void*)func, 0, FuncTraits<Func>::ParamCount, &DirectCallStaticFunction<Func, ReturnPolicy>::Dispatch);
 	}
 
 	template<typename ReturnPolicy, typename Func>

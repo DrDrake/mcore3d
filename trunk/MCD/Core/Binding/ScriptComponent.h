@@ -2,9 +2,7 @@
 #define __MCD_CORE_BINDING_SCRIPTCOMPONENT__
 
 #include "../Entity/BehaviourComponent.h"
-
-typedef ssize_t SQInteger;
-typedef struct SQVM* HSQUIRRELVM;
+#include "../../../3Party/squirrel/squirrel.h"
 
 namespace MCD {
 namespace Binding {
