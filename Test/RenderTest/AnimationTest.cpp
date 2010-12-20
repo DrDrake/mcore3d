@@ -54,7 +54,7 @@ public:
 			{	AnimationBlendTree::ClipNode* n = new AnimationBlendTree::ClipNode;
 				n->state.clip = animationClip;
 				c->blendTree.nodes.push_back(n);
-				n->state.worldRefTime = AnimationUpdaterComponent::worldTime() - initialAnimationTime;
+				n->localRefTime = AnimationUpdaterComponent::worldTime() - initialAnimationTime;
 			}
 
 			TransformAnimator* c2 = e2->addComponent(new TransformAnimator);
