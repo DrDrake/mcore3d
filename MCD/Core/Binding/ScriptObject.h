@@ -2,6 +2,7 @@
 #define __MCD_CORE_BINDING_SCRIPTOBJECT__
 
 #include "../ShareLib.h"
+#include "../System/Platform.h"
 #include "../../../3Party/squirrel/squirrel.h"
 
 namespace MCD {

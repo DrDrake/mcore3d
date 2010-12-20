@@ -1,7 +1,10 @@
 #include "Pch.h"
 #include "Map.h"
 #include <memory>	// For std::swap (VC only needs <utilty> but gcc need <memory>)
-#include <malloc.h>	// _malloca
+
+#ifdef MCD_VC
+#	include <malloc.h>	// _malloca
+#endif
 
 namespace MCD {
 

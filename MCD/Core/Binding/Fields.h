@@ -140,8 +140,8 @@ SQInteger assignField(Callee* callee, RawField (Callee::*fieldPtr), HSQUIRRELVM 
 {
 	MCD_ASSUME(callee);
 	typedef typename GetterSetter<RawField>::setterType fieldType;
-	MCD_VERIFY(match(TypeSelect<fieldType>::adjusted(), v, index));
-	callee->*fieldPtr = get(TypeSelect<fieldType>::adjusted(), v, index);
+	MCD_VERIFY(match(typename TypeSelect<fieldType>::adjusted(), v, index));
+	callee->*fieldPtr = get(typename TypeSelect<fieldType>::adjusted(), v, index);
 	return 0;
 }
 

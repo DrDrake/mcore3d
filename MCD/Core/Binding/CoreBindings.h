@@ -6,10 +6,7 @@
 #include "../Math/Vec2.h"
 #include "../Math/Vec3.h"
 #include "../ShareLib.h"
-
-typedef ssize_t SQInteger;
-typedef SQInteger SQRESULT;
-typedef void* SQUserPointer;
+#include "../../../3Party/squirrel/squirrel.h"
 
 namespace MCD {
 

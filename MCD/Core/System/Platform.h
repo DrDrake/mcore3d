@@ -250,6 +250,7 @@ typedef unsigned char byte_t;
 #define sal_out_ecount(count)
 #define sal_out_ecount_opt(count)
 #define sal_inout_bcount(count)
+#define sal_format_guard
 
 // alloca
 #define MCD_STACKALLOCA(size) __builtin_alloca(size)

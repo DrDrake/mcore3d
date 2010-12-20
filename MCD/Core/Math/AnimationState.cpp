@@ -42,10 +42,10 @@ float AnimationState::localTime() const
 	const int loop = loopCount();
 	const float len = clip->length / clip->framerate;	// From unit of key position into unit time
 	const float clampLen = loop == 0 ? std::numeric_limits<float>::max() : len * loop;
-	float t = fabs(rate) * (worldTime - worldRefTime);
+	float t = fabsf(rate) * (worldTime - worldRefTime);
 	MCD_ASSERT("Make sure AnimationClip has non-zero length" && len > 0);
 	t = Mathf::clamp(t, 0, clampLen);		// Handle looping
-	t = t == clampLen ? len : fmod(t, len);	// Handle looping
+	t = t == clampLen ? len : fmodf(t, len);	// Handle looping
 	t = rate >= 0 ? t : len - t;			// Handle negative playback rate
 	MCD_ASSERT(t >= 0 && t <= len);
 	return t;
@@ -59,7 +59,7 @@ float AnimationState::worldEndTime() const
 	if(loop == 0) return std::numeric_limits<float>::max();
 
 	const float len = clip->length / clip->framerate * loop;
-	return worldRefTime + len / fabs(rate);
+	return worldRefTime + len / fabsf(rate);
 }
 
 bool AnimationState::ended() const
