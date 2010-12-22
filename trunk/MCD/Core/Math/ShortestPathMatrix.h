@@ -79,12 +79,20 @@ public:
 
 // Attributes
 	/// Get/set the distance value
-	size_t& distance(size_t from, size_t to) { return m[from * vertexCount + to]; }
+	size_t& distance(size_t from, size_t to)
+	{
+		MCD_ASSERT(from < vertexCount && to < vertexCount);
+		return m[from * vertexCount + to];
+	}
 
 	size_t vertexCount;
 
 protected:
-	size_t& next(size_t i, size_t j) { return m[vertexCount*vertexCount + i*vertexCount + j]; }
+	size_t& next(size_t from, size_t to)
+	{
+		MCD_ASSERT(from < vertexCount && to < vertexCount); 
+		return m[vertexCount*vertexCount + from * vertexCount + to];
+	}
 
 	/// First half of the data stores the distance value, second half store the path
 	std::vector<size_t> m;

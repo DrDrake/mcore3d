@@ -173,12 +173,14 @@ public:
 			int src, dest;
 			Type type;
 			float duration;
+			FixString userData;	///< For UI editor purpose
 		};
 		typedef std::vector<Transition> Transitions;
 		Transitions transitions;
 
 	protected:
 		sal_maybenull Transition* findTransitionFor(int src, int dest);
+		void computeShortestPath();
 
 		AnimationBlendTree& mTree;
 		ShortestPathMatrix mShortestPath;
@@ -190,6 +192,7 @@ public:
 
 // Attributes
 	float worldTime;
+	float referenceTime;
 
 	/// The nodes in this array should be in-order sorted before use.
 	typedef ptr_vector<INode> Nodes;
@@ -216,6 +219,7 @@ public:
 	std::string saveToXml() const;
 
 protected:
+	float currentTime() const { return worldTime - referenceTime; }
 	int allocatePose(size_t trackCount=0);
 	Pose getPose(int idx);
 	void releasePose(int idx);

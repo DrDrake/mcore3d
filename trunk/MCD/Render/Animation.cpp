@@ -9,8 +9,6 @@
 
 namespace MCD {
 
-static Timer gTimer;	// Maintain the global time line
-
 static AnimationUpdaterComponent* gAnimationUpdater = nullptr;
 
 void AnimationComponent::gather()
@@ -27,7 +25,7 @@ void AnimatedComponent::gather()
 
 float AnimationUpdaterComponent::worldTime()
 {
-	return float(gTimer.get().asSecond());
+	return float(Timer::sinceProgramStatup().asSecond());
 }
 
 void AnimationUpdaterComponent::begin()
@@ -35,7 +33,7 @@ void AnimationUpdaterComponent::begin()
 	mAnimationComponents.clear();
 	mAnimatedComponents.clear();
 	gAnimationUpdater = this;
-	mWorldTime = float(gTimer.get().asSecond());
+	mWorldTime = worldTime();
 }
 
 void AnimationUpdaterComponent::end(float dt)
