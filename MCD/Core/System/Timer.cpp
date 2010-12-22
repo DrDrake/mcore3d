@@ -150,6 +150,13 @@ TimeInterval Timer::reset()
 	return backup;
 }
 
+static Timer gSinceProgramStatup;
+
+TimeInterval Timer::sinceProgramStatup()
+{
+	return gSinceProgramStatup.get();
+}
+
 DeltaTimer::DeltaTimer() {
 	mLastTime = mTimer.get();
 }

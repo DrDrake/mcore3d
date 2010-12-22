@@ -98,6 +98,8 @@ public:
 	//! Reset the timer
 	TimeInterval reset();
 
+	static TimeInterval sinceProgramStatup();
+
 protected:
 	mutable TimeInterval mLastGetTime;	//!< Record when the last get() is called (to prevent negative delta time)
 	TimeInterval mStartTime;			//!< Record when the timer is created

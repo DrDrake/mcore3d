@@ -4,6 +4,7 @@
 #include "../System/Deque.h"
 #include "../System/ResourceManager.h"
 #include "../System/StrUtility.h"
+#include "../System/Timer.h"
 #include "../System/XmlParser.h"
 #include <map>
 
@@ -13,7 +14,7 @@ typedef AnimationBlendTree::Pose Pose;
 typedef AnimationBlendTree::INode INode;
 
 AnimationBlendTree::AnimationBlendTree()
-	: worldTime(0), mTrackCount(0), mPoseBuffer(nullptr)
+	: worldTime(0), referenceTime(0), mTrackCount(0), mPoseBuffer(nullptr)
 {
 }
 
@@ -30,6 +31,7 @@ AnimationBlendTree::AnimationBlendTree(const AnimationBlendTree& rhs)
 
 AnimationBlendTree& AnimationBlendTree::operator=(const AnimationBlendTree& rhs)
 {
+	referenceTime = rhs.referenceTime;
 	resetPoseBuffer();
 	for(size_t i=0; i<rhs.nodes.size(); ++i)
 		nodes.push_back(rhs.nodes[i].clone());
@@ -250,7 +252,7 @@ static AnimationBlendTree::FsmNode::Transition::Type stringToTransitionType(cons
 static INode* loadFsmNode(XmlParser& parser, IndexFixupTable& fixupTable, AnimationBlendTree& tree)
 {
 	AnimationBlendTree::FsmNode* n = new AnimationBlendTree::FsmNode(tree);
-	FixString starting = parser.attributeValue("startingNode");
+	FixString starting = parser.attributeValue("current");
 	Fixup fixup = { starting, &fsmNodeFixup, n, nullptr };
 	fixupTable.push_back(fixup);
 
@@ -266,6 +268,7 @@ static INode* loadFsmNode(XmlParser& parser, IndexFixupTable& fixupTable, Animat
 				Transition t;
 				t.type = stringToTransitionType(parser.attributeValue("type"));
 				t.duration = parser.attributeValueAsFloat("duration", 0);
+				t.userData = parser.attributeValue("userData");
 
 				{	FixString srcName = parser.attributeValue("src");
 					Fixup fixup = { srcName, &fsmTransitionSrcFixup, n, (void*)n->transitions.size() };
@@ -335,6 +338,7 @@ bool AnimationBlendTree::loadFromXml(const char* xml, ResourceManager& mgr, cons
 				return false;
 
 			n->name = parser.attributeValue("name");
+			n->duration = parser.attributeValueAsFloat("duration");
 			n->userData = parser.attributeValue("userData");
 
 			n->parent = parentIdx.empty() ? size_t(-1) : parentIdx.top();
@@ -364,6 +368,7 @@ bool AnimationBlendTree::loadFromXml(const char* xml, ResourceManager& mgr, cons
 		(*i->func)(i->node, idx, i->userData);
 	}
 
+	worldTime = referenceTime = (float)Timer::sinceProgramStatup().asSecond();
 	return true;
 }
 
@@ -395,8 +400,8 @@ INode* AnimationBlendTree::ClipNode::clone() const
 int AnimationBlendTree::ClipNode::returnPose(AnimationBlendTree& tree)
 {
 	const float t = worldRefTime(tree);
-	state.worldTime = tree.worldTime;
-	state.worldRefTime = (duration <= 0  || t + duration < tree.worldTime) ? t : tree.worldTime - duration;
+	state.worldTime = tree.currentTime();
+	state.worldRefTime = (duration <= 0  || t + duration > tree.currentTime()) ? t : tree.currentTime()- duration;
 	int i = tree.allocatePose(state.clip->trackCount());
 	MCD_ASSERT(i >= 0);
 	state.assignTo(tree.getPose(i));
@@ -619,22 +624,25 @@ int AnimationBlendTree::SwitchNode::returnPose(AnimationBlendTree& tree)
 	INode* n1 = mNode1, *n2 = mNode2;
 	mNode1 = mNode2 = nullptr;
 
-	if(tree.worldTime >= mNodeChangeTime + fadeDuration)
+	if(tree.currentTime() >= mNodeChangeTime + fadeDuration)
 		return n2->returnPose(tree);
-	else if(tree.worldTime <= mNodeChangeTime)
+	else if(tree.currentTime() <= mNodeChangeTime)
 		return n1->returnPose(tree);
 
-	const float lerpFactor = (tree.worldTime - mNodeChangeTime) / fadeDuration;
-	Pose pose1 = tree.getPose(mLastNode);
-	Pose pose2 = tree.getPose(mCurrentNode);
+	const int idx1 = n1->returnPose(tree);
+	const int idx2 = n2->returnPose(tree);
+	Pose pose1 = tree.getPose(idx1);
+	Pose pose2 = tree.getPose(idx2);
+
+	const float lerpFactor = (tree.currentTime() - mNodeChangeTime) / fadeDuration;
 	MCD_ASSERT(pose1.size == pose2.size);
 	MCD_ASSERT(lerpFactor >= 0 && lerpFactor <= 1);
 
 	for(size_t i=0; i<pose1.size; ++i)
 		pose1[i].blend(lerpFactor, pose1[i], pose2[i]);
 
-	tree.releasePose(mCurrentNode);
-	return mLastNode;
+	tree.releasePose(idx2);
+	return idx1;
 }
 
 std::string AnimationBlendTree::SwitchNode::xmlStart(const AnimationBlendTree& tree) const
@@ -642,7 +650,7 @@ std::string AnimationBlendTree::SwitchNode::xmlStart(const AnimationBlendTree& t
 	std::string ret = "<switch";
 	if(!name.empty()) ret += formatStr(" name=\"%s\"", name.c_str());
 	if(duration != 0) ret += formatStr(" duration=\"%f\"", duration);
-	if(fadeDuration > 0) ret += formatStr(" startingNode=\"%f\"", fadeDuration);
+	if(fadeDuration > 0) ret += formatStr(" fadeDuration=\"%f\"", fadeDuration);
 	if(mCurrentNode >= 0) ret += formatStr(" current=\"%s\"", tree.nodes[mCurrentNode].name.c_str());
 	if(!userData.empty()) ret += formatStr(" userData=\"%s\"", userData.c_str());
 	ret += ">";
@@ -668,20 +676,21 @@ INode* AnimationBlendTree::FsmNode::clone() const
 
 void AnimationBlendTree::FsmNode::begin(AnimationBlendTree& tree)
 {
+	if(mCurrentNode < 0) mCurrentNode = startingNode;
 	INode* n = &tree.nodes[mCurrentNode];
 
 	// Current state haven't finished yet
-	if(n->duration == 0 || n->localRefTime + n->duration < tree.worldTime)
+	if(n->duration == 0 || tree.currentTime() < n->localRefTime + n->duration)
 		return;
 
 	// Have pending target state?
-	if(mCurrentNode != mTargetingNode)
+	if(mCurrentNode != mTargetingNode && mTargetingNode >= 0)
 		goto ChangeState;
 
 	// Find next possible state though auto transition
 	for(size_t i=0; i<transitions.size(); ++i) {
-		if(transitions[i].type == Transition::Auto && (&tree.nodes[transitions[i].src] == this)) {
-			mTargetingNode = i;
+		if(transitions[i].type == Transition::Auto && transitions[i].src == mCurrentNode) {
+			mTargetingNode = transitions[i].dest;
 			goto ChangeState;
 		}
 	}
@@ -689,6 +698,10 @@ void AnimationBlendTree::FsmNode::begin(AnimationBlendTree& tree)
 	return;
 
 ChangeState:
+	// Init the shortest path matrix for the first time
+	if(mShortestPath.vertexCount == 0)
+		computeShortestPath();
+
 	// Find the next intermediate node to transit
 	int next = mShortestPath.getNext(mCurrentNode, mTargetingNode);
 
@@ -720,24 +733,29 @@ int AnimationBlendTree::FsmNode::returnPose(AnimationBlendTree& tree)
 	INode* n1 = mNode1, *n2 = mNode2;
 	mNode1 = mNode2 = nullptr;
 
+	if(!n2) return n1->returnPose(tree);
+
 	const float transitionTime = n2->localRefTime;	// The time when the transition occur
 
-	if(tree.worldTime >= transitionTime + mFadeDuration)
+	if(tree.currentTime() >= transitionTime + mFadeDuration)
 		return n2->returnPose(tree);
-	else if(tree.worldTime <= transitionTime)
+	else if(tree.currentTime() <= transitionTime)
 		return n1->returnPose(tree);
 
-	const float lerpFactor = (tree.worldTime - transitionTime) / mFadeDuration;
-	Pose pose1 = tree.getPose(mLastNode);
-	Pose pose2 = tree.getPose(mCurrentNode);
+	const int idx1 = n1->returnPose(tree);
+	const int idx2 = n2->returnPose(tree);
+	Pose pose1 = tree.getPose(idx1);
+	Pose pose2 = tree.getPose(idx2);
+
+	const float lerpFactor = (tree.currentTime() - transitionTime) / mFadeDuration;
 	MCD_ASSERT(pose1.size == pose2.size);
 	MCD_ASSERT(lerpFactor >= 0 && lerpFactor <= 1);
 
 	for(size_t i=0; i<pose1.size; ++i)
 		pose1[i].blend(lerpFactor, pose1[i], pose2[i]);
 
-	tree.releasePose(mCurrentNode);
-	return mLastNode;
+	tree.releasePose(idx2);
+	return idx1;
 }
 
 static const char* transitionTypeToString(AnimationBlendTree::FsmNode::Transition::Type type)
@@ -761,17 +779,19 @@ std::string AnimationBlendTree::FsmNode::xmlStart(const AnimationBlendTree& tree
 	std::string ret = "<fsm";
 	if(!name.empty()) ret += formatStr(" name=\"%s\"", name.c_str());
 	if(duration != 0) ret += formatStr(" duration=\"%f\"", duration);
-	ret += formatStr(" startingNode=\"%s\"", tree.nodes[startingNode].name.c_str());
+	ret += formatStr(" current=\"%s\"", tree.nodes[startingNode].name.c_str());
 	ret += ">";
 
 	ret += "<transitions>";
 	for(Transitions::const_iterator i=transitions.begin(); i!=transitions.end(); ++i) {
-		ret += formatStr("<transition type=\"%s\" src=\"%s\" dest=\"%s\" duration=\"%f\"/>",
+		ret += formatStr("<transition type=\"%s\" src=\"%s\" dest=\"%s\" duration=\"%f\"",
 			transitionTypeToString(i->type),
 			tree.nodes[i->src].name.c_str(),
 			tree.nodes[i->dest].name.c_str(),
 			duration
 		);
+		if(!i->userData.empty()) ret += formatStr(" userData=\"%s\"", i->userData.c_str());
+		ret += "/>";
 	}
 	ret += "</transitions>";
 
@@ -790,24 +810,8 @@ int AnimationBlendTree::FsmNode::switchTo(int nodeIdx)
 	MCD_ASSERT("You can only swithc to node under the FsmNode" && (&nodes[nodes[nodeIdx].parent] == this));
 
 	// Init the shortest path matrix for the first time
-	if(mShortestPath.vertexCount == 0) {
-		size_t childCount = 0;
-		// Search for all direct children under this node
-		for(size_t i=0; i<nodes.size(); ++i) {
-			const size_t parent = nodes[i].parent;
-			if(parent < nodes.size() && (&nodes[parent]) == this)
-				++childCount;
-		}
-		mShortestPath.resize(childCount);
-
-		// Fill the adjacency matrix
-		for(size_t i=0; i<transitions.size(); ++i) {
-			// NOTE: Currently we don't have weighted transition, all are having the same length of 1
-			mShortestPath.distance(transitions[i].src, transitions[i].dest) = 1;
-		}
-
-		mShortestPath.preProcess();
-	}
+	if(mShortestPath.vertexCount == 0)
+		computeShortestPath();
 
 	const int next = mShortestPath.getNext(mCurrentNode, nodeIdx);
 	if(-1 == next) return -1;	// No possible path
@@ -836,6 +840,26 @@ AnimationBlendTree::FsmNode::Transition* AnimationBlendTree::FsmNode::findTransi
 			return &transitions[i];
 	}
 	return nullptr;
+}
+
+void AnimationBlendTree::FsmNode::computeShortestPath()
+{
+	size_t childCount = mTree.nodes.size();
+	// Search for all direct children under this node
+/*	for(size_t i=0; i<mTree.nodes.size(); ++i) {
+		const size_t parent = mTree.nodes[i].parent;
+		if(parent < mTree.nodes.size() && (&mTree.nodes[parent]) == this)
+			++childCount;
+	}*/
+	mShortestPath.resize(childCount);
+
+	// Fill the adjacency matrix
+	for(size_t i=0; i<transitions.size(); ++i) {
+		// NOTE: Currently we don't have weighted transition, all are having the same length of 1
+		mShortestPath.distance(transitions[i].src, transitions[i].dest) = 1;
+	}
+
+	mShortestPath.preProcess();
 }
 
 }	// namespace MCD
