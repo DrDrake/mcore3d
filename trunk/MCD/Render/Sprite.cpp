@@ -91,7 +91,8 @@ void SpriteUpdaterComponent::begin()
 {
 	gSpriteUpdater = this;
 	for(size_t i=0; i<mSpriteAtlas.size(); ++i)
-		mSpriteAtlas[i]->mVertexBuffer.clear();
+		if(SpriteAtlasComponent* c = mSpriteAtlas[i].get())
+			c->mVertexBuffer.clear();
 	mSpriteAtlas.clear();
 }
 

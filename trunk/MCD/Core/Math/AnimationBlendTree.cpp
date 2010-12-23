@@ -806,6 +806,7 @@ std::string AnimationBlendTree::FsmNode::xmlEnd() const
 int AnimationBlendTree::FsmNode::switchTo(int nodeIdx)
 {
 	AnimationBlendTree::Nodes& nodes = mTree.nodes;
+	(void)nodes;
 	MCD_ASSERT(nodeIdx > 0 && nodeIdx < (int)nodes.size());
 	MCD_ASSERT("You can only swithc to node under the FsmNode" && (&nodes[nodes[nodeIdx].parent] == this));
 

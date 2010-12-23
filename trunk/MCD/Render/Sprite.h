@@ -100,7 +100,7 @@ public:
 
 protected:
 	friend class SpriteAtlasComponent;
-	std::vector<SpriteAtlasComponent*> mSpriteAtlas;
+	std::vector<SpriteAtlasComponentPtr> mSpriteAtlas;
 };	// SpriteUpdaterComponent
 
 typedef IntrusiveWeakPtr<SpriteUpdaterComponent> SpriteUpdaterComponentPtr;
