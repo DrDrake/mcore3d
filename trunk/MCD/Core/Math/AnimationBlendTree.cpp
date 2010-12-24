@@ -2,6 +2,7 @@
 #include "AnimationBlendTree.h"
 #include "Quaternion.h"
 #include "../System/Deque.h"
+#include "../System/Log.h"
 #include "../System/ResourceManager.h"
 #include "../System/StrUtility.h"
 #include "../System/Timer.h"
@@ -46,7 +47,10 @@ int AnimationBlendTree::allocatePose(size_t trackCount)
 		mPoseBuffer = new AnimationClip::Sample[trackCount * cPoseCacheSize];
 	}
 
-	MCD_ASSERT(mTrackCount > 0);
+	if(mTrackCount == 0) {
+		Log::format(Log::Warn, "A node in AnimationBlendTree has zero track count\n");
+		return -1;
+	}
 
 	for(size_t i=0; i<mAllocated.size(); ++i) {
 		if(!mAllocated[i]) {
@@ -61,13 +65,15 @@ int AnimationBlendTree::allocatePose(size_t trackCount)
 
 Pose AnimationBlendTree::getPose(int idx)
 {
-	MCD_ASSERT(idx >= 0);
-	return Pose(&mPoseBuffer[idx * mTrackCount], mTrackCount);
+	if(idx >= 0)
+		return Pose(&mPoseBuffer[idx * mTrackCount], mTrackCount);
+	return Pose(nullptr, 0);
 }
 
 void AnimationBlendTree::releasePose(int idx)
 {
-	mAllocated[idx] = false;
+	if(idx >= 0)
+		mAllocated[idx] = false;
 }
 
 void AnimationBlendTree::resetPoseBuffer()
@@ -162,7 +168,7 @@ Pose AnimationBlendTree::getFinalPose()
 		parentNode.collectChild(&childNode, *this);
 	}
 
-	const size_t outputIdx = nodes.back().returnPose(*this);
+	const int outputIdx = nodes.back().returnPose(*this);
 	releasePose(outputIdx);
 	return getPose(outputIdx);
 }
@@ -403,8 +409,8 @@ int AnimationBlendTree::ClipNode::returnPose(AnimationBlendTree& tree)
 	state.worldTime = tree.currentTime();
 	state.worldRefTime = (duration <= 0  || t + duration > tree.currentTime()) ? t : tree.currentTime()- duration;
 	int i = tree.allocatePose(state.clip->trackCount());
-	MCD_ASSERT(i >= 0);
-	state.assignTo(tree.getPose(i));
+	if(i >= 0)
+		state.assignTo(tree.getPose(i));
 	return i;
 }
 
@@ -446,9 +452,13 @@ int AnimationBlendTree::LerpNode::returnPose(AnimationBlendTree& tree)
 	if(t == 1) return mNode2->returnPose(tree);
 
 	int idx1 = mNode1->returnPose(tree);
-	int idx2 = mNode2->returnPose(tree);
 	Pose pose1 = tree.getPose(idx1);
+	if(pose1.size == 0) return idx1;
+
+	int idx2 = mNode2->returnPose(tree);
 	Pose pose2 = tree.getPose(idx2);
+	if(pose2.size == 0) { tree.releasePose(idx1); return idx2; }
+
 	MCD_ASSERT(pose1.size == pose2.size);
 
 	for(size_t i=0; i<pose1.size; ++i)
@@ -492,9 +502,13 @@ void AnimationBlendTree::SubtractiveNode::collectChild(AnimationBlendTree::INode
 int AnimationBlendTree::SubtractiveNode::returnPose(AnimationBlendTree& tree)
 {
 	int idx1 = mNode1->returnPose(tree);	// The targeting node
-	int idx2 = mNode2->returnPose(tree);	// The master node
 	Pose pose1 = tree.getPose(idx1);
+	if(pose1.size == 0) return idx1;
+
+	int idx2 = mNode2->returnPose(tree);	// The master node
 	Pose pose2 = tree.getPose(idx2);
+	if(pose2.size == 0) { tree.releasePose(idx1); return idx2; }
+
 	MCD_ASSERT(pose1.size == pose2.size);
 
 	for(size_t i=0; i<pose1.size; ++i) {
@@ -551,9 +565,13 @@ void AnimationBlendTree::AdditiveNode::collectChild(AnimationBlendTree::INode* c
 int AnimationBlendTree::AdditiveNode::returnPose(AnimationBlendTree& tree)
 {
 	int idx1 = mNode1->returnPose(tree);
-	int idx2 = mNode2->returnPose(tree);
 	Pose pose1 = tree.getPose(idx1);	// pose1 is the full pose
+	if(pose1.size == 0) return idx1;
+
+	int idx2 = mNode2->returnPose(tree);
 	Pose pose2 = tree.getPose(idx2);	// pose2 is the pose diff
+	if(pose2.size == 0) { tree.releasePose(idx1); return idx2; }
+
 	MCD_ASSERT(pose1.size == pose2.size);
 
 	for(size_t i=0; i<pose1.size; ++i) {
@@ -630,9 +648,12 @@ int AnimationBlendTree::SwitchNode::returnPose(AnimationBlendTree& tree)
 		return n1->returnPose(tree);
 
 	const int idx1 = n1->returnPose(tree);
-	const int idx2 = n2->returnPose(tree);
 	Pose pose1 = tree.getPose(idx1);
+	if(pose1.size == 0) return idx1;
+
+	const int idx2 = n2->returnPose(tree);
 	Pose pose2 = tree.getPose(idx2);
+	if(pose2.size == 0) { tree.releasePose(idx1); return idx2; }
 
 	const float lerpFactor = (tree.currentTime() - mNodeChangeTime) / fadeDuration;
 	MCD_ASSERT(pose1.size == pose2.size);
@@ -743,9 +764,12 @@ int AnimationBlendTree::FsmNode::returnPose(AnimationBlendTree& tree)
 		return n1->returnPose(tree);
 
 	const int idx1 = n1->returnPose(tree);
-	const int idx2 = n2->returnPose(tree);
 	Pose pose1 = tree.getPose(idx1);
+	if(pose1.size == 0) return idx1;
+
+	const int idx2 = n2->returnPose(tree);
 	Pose pose2 = tree.getPose(idx2);
+	if(pose2.size == 0) { tree.releasePose(idx1); return idx2; }
 
 	const float lerpFactor = (tree.currentTime() - transitionTime) / mFadeDuration;
 	MCD_ASSERT(pose1.size == pose2.size);

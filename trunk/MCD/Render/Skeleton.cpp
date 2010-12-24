@@ -122,12 +122,17 @@ void SkeletonPose::update()
 	Mat33f tmp;
 
 	const AnimationState::Pose& pose = animation->getPose();
-	MCD_ASSERT(pose.data);
+	if(!pose.data)
+		return;
 
 	for(size_t i=0; i<jointCount; ++i) {
 		const size_t i2 = trackOffset + i * trackPerJoint;
 		pose[i2 + Rotation].cast<Quaternionf>().toMatrix(tmp);
-		MCD_ASSERT("Not pure rotation matrix!" && Mathf::isNearEqual(tmp.determinant(), 1, 1e-5f));
+
+#ifndef NDEBUG
+		const float det = tmp.determinant();
+		MCD_ASSERT("Not pure rotation matrix!" && Mathf::isNearEqual(det, 1, 1e-5f));
+#endif
 
 		m.setMat33(tmp);
 		m.setTranslation(pose[i2 + Translation].cast<Vec3f>());

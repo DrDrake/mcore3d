@@ -12,11 +12,14 @@ TransformAnimator::TransformAnimator()
 
 void TransformAnimator::update()
 {
+	MCD_ASSUME(trackPerEntity > 0);
+
 	if(!animation || affectingEntities.empty())
 		return;
 
 	const AnimationState::Pose& pose = animation->getPose();
-	MCD_ASSUME(trackPerEntity > 0);
+	if(!pose.data)
+		return;
 
 	// Update the Entity's transform from the animated pose.
 	for(size_t i=0; i<affectingEntities.size(); ++i)

@@ -40,13 +40,18 @@ int AnimationState::loopCount() const
 float AnimationState::localTime() const
 {
 	const int loop = loopCount();
-	const float len = clip->length / clip->framerate;	// From unit of key position into unit time
+	const float len = clip->length / clip->framerate;
 	const float clampLen = loop == 0 ? std::numeric_limits<float>::max() : len * loop;
-	float t = fabsf(rate) * (worldTime - worldRefTime);
-	MCD_ASSERT("Make sure AnimationClip has non-zero length" && len > 0);
-	t = Mathf::clamp(t, 0, clampLen);		// Handle looping
-	t = t == clampLen ? len : fmodf(t, len);	// Handle looping
-	t = rate >= 0 ? t : len - t;			// Handle negative playback rate
+	float t = (float)fabs(rate) * (worldTime - worldRefTime);
+
+	if(len == 0) {
+		Log::write(Log::Warn, "An AnimationClip has zero length\n");
+		return 0;
+	}
+
+	t = Mathf::clamp(t, 0, clampLen);				// Handle looping
+	t = t == clampLen ? len : (float)fmod(t, len);	// Handle looping
+	t = rate >= 0 ? t : len - t;					// Handle negative playback rate
 	MCD_ASSERT(t >= 0 && t <= len);
 	return t;
 }
@@ -69,7 +74,11 @@ bool AnimationState::ended() const
 
 void AnimationState::assignTo(const Pose& pose)
 {
-	MCD_ASSERT(clip->trackCount() == pose.size);
+	if(clip->trackCount() != pose.size) {
+		Log::format(Log::Warn, "Calling AnimationState::asignTo with unmatched track count\n");
+		return;
+	}
+
 	const float t = localTime() * clip->framerate;
 	allocateIdxHint();
 

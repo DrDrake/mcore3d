@@ -50,6 +50,7 @@ public:
 		virtual void collectChild(INode* child, AnimationBlendTree& tree) = 0;
 
 		/// Perform the required calculation, store the result at a cache location and return the cache index.
+		/// May return -1 if the pose cannot be retreived (eg. resource not ready)
 		virtual int returnPose(AnimationBlendTree& tree) = 0;
 
 		/// Get the animation clip resource if this node has one, usefull during serialization.
@@ -210,6 +211,7 @@ public:
 	void inOrderSort();
 
 	/// Get the final animated data out of this blend tree.
+	/// May get a null Pose if something get wrong.
 	Pose getFinalPose();
 
 	/// Fill the blend tree from an Xml file, a ResourceManager is also needed
