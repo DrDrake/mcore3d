@@ -50,7 +50,7 @@ bool MaterialComponent::Impl::createVs(const char* headerCode)
 	"	VS_OUTPUT _out;\n"
 	"	_out.position = mul(mcdWorldViewProj, float4(_in.position, 1));\n"
 	"	_out.worldPosition = mul(mcdWorld, float4(_in.position, 1)).xyz;\n"
-	"	float3x3 rotation = mcdWorld;\n"
+	"	float3x3 rotation = (float3x3)mcdWorld;\n"
 	"	_out.normal = mul(rotation, _in.normal);\n"
 	"	_out.uvDiffuse = _in.uvDiffuse;\n"
 	"#if USE_VERTEX_COLOR\n"

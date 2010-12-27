@@ -79,9 +79,7 @@ TEST(AudioSourceComponentTest)
 	RendererComponent* renderer = root.findComponentInChildrenExactType<RendererComponent>();
 
 	// Find out the input component
-	InputComponentPtr input;
-	if(Entity* e = root.findEntityByPath("Input"))
-		input = dynamic_cast<InputComponent*>(e->findComponent<BehaviourComponent>());
+	InputComponentPtr input = root.findComponentInChildren<InputComponent>();
 
 	{	// Register the ogg loader
 		framework.addLoaderFactory(new OggLoaderFactory);

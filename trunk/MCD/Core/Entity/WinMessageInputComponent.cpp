@@ -140,6 +140,11 @@ bool WinMessageInputComponent::anyKeyDown() const
 	return !mKeyDownList.empty();
 }
 
+bool WinMessageInputComponent::anyKeyUp() const
+{
+	return !mKeyUpList.empty();
+}
+
 bool WinMessageInputComponent::getButton(const char* buttonName) const
 {
 	EventList::const_iterator i = mKeyList.find(buttonName);

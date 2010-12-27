@@ -36,6 +36,8 @@ public:
 
 	sal_override bool anyKeyDown() const;
 
+	sal_override bool anyKeyUp() const;
+
 	sal_override bool getButton(sal_in_z const char* buttonName) const;
 
 	sal_override bool getButtonDown(sal_in_z const char* buttonName) const;
