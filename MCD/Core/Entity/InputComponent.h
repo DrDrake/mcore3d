@@ -13,6 +13,10 @@ namespace MCD {
 class MCD_ABSTRACT_CLASS MCD_CORE_API InputComponent : public BehaviourComponent
 {
 public:
+	sal_override const std::type_info& familyType() const {
+		return typeid(InputComponent);
+	}
+
 	/*!	Returns the value of the virtual axis identified by axisName.
 		The value will be in the range -1 to 1 for keyboard and joystick input.
 		If the axis is setup to be mouse movement, the value will be in pixel.
@@ -32,6 +36,9 @@ public:
 
 	//!	Returns true the first frame the user hits any key or mouse button.
 	virtual bool anyKeyDown() const = 0;
+
+	//!	Returns true the first frame the user releases any key or mouse button.
+	virtual bool anyKeyUp() const = 0;
 
 	//!	Returns true while the virtual button identified by buttonName is held down.
 	virtual bool getButton(sal_in_z const char* buttonName) const = 0;
