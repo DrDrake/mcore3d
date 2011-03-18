@@ -350,6 +350,7 @@ void Window::Impl::setFullscreen(bool flag)
 void Window::Impl::setHeight(const char* value)
 {
 	mHeight = str2IntWithDefault(value, 600);
+	::SetWindowPos(mWnd, nullptr, 0, 0, mWidth, mHeight, SWP_NOMOVE);
 }
 
 // "show = 0|1"
@@ -378,6 +379,7 @@ void Window::Impl::setTitle(const char* value)
 void Window::Impl::setWidth(const char* value)
 {
 	mWidth = str2IntWithDefault(value, 800);
+	::SetWindowPos(mWnd, nullptr, 0, 0, mWidth, mHeight, SWP_NOMOVE);
 }
 
 sal_override void Window::Impl::setOption(const char* name, const char* value)
