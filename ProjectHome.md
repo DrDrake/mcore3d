@@ -1,0 +1,1 @@
+Computers and game console are getting more and more powerful by means of using multiple processing units (multi-core cpu, gpu, spu etc). To fully utilize the tremendous power, an game engine should be designed from ground up to support offloading tasks to different unit at an efficient manner, and this is the goal of this project.
